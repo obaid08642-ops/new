@@ -4,7 +4,8 @@ import { Alert, Text, TouchableOpacity, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import { useLang, useTheme, useToast } from '../../context';
-import { NBtn, NHeader, NScroll, WizardSection } from '../../components/ui';
+import { NBtn, NDatePickerSheet, NHeader, NInput, NScroll, WizardSection } from '../../components/ui';
+import { isFutureLicenseDate } from '../doctor/doctorRegistrationFields';
 import { I, IBg } from '../../components/icons';
 import { FS, FW, R, SP } from '../../constants';
 import { useStepSaver } from './kit';
@@ -162,4 +163,35 @@ export function MergedPage<T>({ page, step, total, onBack, onNext, data, update,
       <NBtn label={AR ? 'متابعة' : 'Next'} onPress={go} loading={busy} style={{ marginTop: SP.sm }} />
     </NScroll>
   );
+}
+
+/** The licence expiry date every provider type gives at registration: picked from a calendar, required, never in the past (the server refuses a lapsed licence too). */
+export function LicenseExpiryField({ value, onChange, error, label }: { value: string; onChange: (v: string) => void; error?: string; label?: string }) {
+  const { lang } = useLang();
+  const { show } = useToast();
+  const AR = lang === 'ar';
+  const [open, setOpen] = useState(false);
+  return (
+    <View>
+      <TouchableOpacity onPress={() => setOpen(true)} accessibilityRole="button">
+        <NInput label={label || (AR ? 'تاريخ انتهاء الترخيص' : 'Licence expiry date')} placeholder={AR ? 'اختر التاريخ من التقويم...' : 'Choose date...'} value={value} onChange={() => {}} editable={false} required error={error} />
+      </TouchableOpacity>
+      <NDatePickerSheet
+        visible={open}
+        value={value}
+        onChange={(v: string) => {
+          if (!isFutureLicenseDate(v)) { show(AR ? 'لا يمكن اختيار تاريخ في الماضي' : 'A past date cannot be chosen', 'error'); return; }
+          onChange(v);
+        }}
+        onClose={() => setOpen(false)}
+        title={AR ? 'تاريخ انتهاء الترخيص' : 'Licence expiry date'}
+      />
+    </View>
+  );
+}
+
+/** null = fine. The message for the date field of a wizard. */
+export function licenseExpiryError(value: string, AR: boolean): string | null {
+  if (!value) return AR ? 'تاريخ انتهاء الترخيص مطلوب' : 'Licence expiry date is required';
+  return isFutureLicenseDate(value) ? null : (AR ? 'الترخيص منتهٍ، لا يمكن التسجيل به' : 'The licence has expired');
 }
