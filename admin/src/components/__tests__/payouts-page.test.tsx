@@ -13,7 +13,6 @@ let rows = [row('PENDING_ADMIN_APPROVAL')];
 vi.mock('@/lib/admin-client', () => ({
   adminFetch: vi.fn(async (path: string) => {
     gets.push(path);
-    if (path.includes('/withdrawals/pending')) return { data: [] };
     return { data: rows, dual_approval_threshold_sar: 10000, by_state: [{ state: 'PENDING_ADMIN_APPROVAL', count: 2, amount: 900 }, { state: 'APPROVED_FOR_PAYOUT', count: 1, amount: 500 }] };
   }),
   adminMutation: vi.fn(async (path: string, _m: string, body: unknown) => { posts.push({ path, body }); return { ok: true }; }),
@@ -73,6 +72,11 @@ describe('admin payouts page: one flow from request to transfer', () => {
     await open();
     expect(text()).toContain('PAYOUT-1');
     expect(button('اعتماد')).toBeUndefined();
+  });
+
+  it('reads only the one payouts queue (no legacy withdrawals route)', async () => {
+    await open();
+    expect(gets.every((g) => g.includes('/finance/payouts'))).toBe(true);
   });
 
   it('asks for a reason of ten characters first, and sends nothing without it', async () => {

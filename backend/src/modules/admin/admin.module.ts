@@ -79,7 +79,6 @@ import { AuditLog, AuditLogSchema } from './web-core/schemas/audit-log.schema';
 import { ProcurementRequest, ProcurementRequestSchema } from './web-core/schemas/procurement-request.schema';
 import { Provider, ProviderSchema } from './web-core/schemas/provider.schema';
 import { SystemConfigExtended, SystemConfigExtendedSchema } from './web-core/schemas/system-config-extended.schema';
-import { WithdrawalRequest, WithdrawalRequestSchema } from './web-core/schemas/withdrawal-request.schema';
 import { AuditIngestController } from './admin-audit-ingest.controller';
 import { OpsSecurityModule } from './ops-security/ops-security.module';
 import { AdminUrgentAlertsController } from './alerts/admin-urgent-alerts.controller';
@@ -121,7 +120,6 @@ import { AdminUrgentAlertsService } from './alerts/admin-urgent-alerts.service';
       { name: ProcurementRequest.name, schema: ProcurementRequestSchema },
       { name: Provider.name, schema: ProviderSchema },
       { name: SystemConfigExtended.name, schema: SystemConfigExtendedSchema },
-      { name: WithdrawalRequest.name, schema: WithdrawalRequestSchema },
       { name: 'ProviderWithdrawal', schema: ProviderWithdrawalSchema },
     ]),
   ],

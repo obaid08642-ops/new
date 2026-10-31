@@ -13,7 +13,6 @@ import { dateLocale } from '../../utils/dates';
  */
 type Payout = { id: string; reference?: string; provider_id?: string; provider_name?: string; amount?: number; iban?: string; bank_name?: string; state?: string; createdAt?: string; approved_stage_one_name?: string; approved_by_name?: string; paid_by_name?: string; rejection_reason?: string };
 type Queue = { data: Payout[]; dual_approval_threshold_sar: number; by_state: Array<{ state: string; count: number; amount: number }> };
-type LegacyRow = { id: string; providerName?: string; providerId?: string; amount?: number; bankName?: string; iban?: string; createdAt?: string };
 
 const STAGES: Array<{ state: string; label: string; empty: string }> = [
   { state: 'PENDING_ADMIN_APPROVAL', label: 'بانتظار الاعتماد', empty: 'لا توجد طلبات سحب بانتظار الاعتماد.' },
@@ -28,7 +27,6 @@ export default function PayoutsPage() {
   const canPayout = useCan('finance.payout.approve');
   const [stage, setStage] = useState(STAGES[0].state);
   const [queue, setQueue] = useState<Queue | null>(null);
-  const [legacy, setLegacy] = useState<LegacyRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -36,11 +34,7 @@ export default function PayoutsPage() {
   const load = useCallback(async () => {
     setLoading(true); setError('');
     try {
-      const [q, old] = await Promise.all([
-        adminFetch<Queue>(`/api/admin/admin/finance/payouts?status=${stage}&page=1&limit=50`),
-        adminFetch<{ data?: LegacyRow[] }>('/api/admin/admin/finance/withdrawals/pending').catch(() => ({ data: [] })),
-      ]);
-      setQueue(q); setLegacy(old.data ?? []);
+      setQueue(await adminFetch<Queue>(`/api/admin/admin/finance/payouts?status=${stage}&page=1&limit=50`));
     } catch (cause) { setError(apiErrorMessage(cause, 'تعذر تحميل طلبات السحب.')); } finally { setLoading(false); }
   }, [stage]);
   useEffect(() => { void load(); }, [load]);
@@ -56,15 +50,6 @@ export default function PayoutsPage() {
     setSaving(true); setError('');
     try {
       await adminMutation(`/api/admin/admin/finance/payouts/${encodeURIComponent(item.id)}/${action}`, 'POST', { reason: reason.trim() });
-      await load();
-    } catch (cause) { setError(apiErrorMessage(cause, 'تعذر تنفيذ القرار.')); } finally { setSaving(false); }
-  }
-
-  async function legacyAct(row: LegacyRow, action: 'execute' | 'reject') {
-    if (!window.confirm(action === 'execute' ? `تنفيذ تحويل ${row.amount ?? ''} ر.س؟ لا يمكن التراجع.` : 'رفض الطلب؟')) return;
-    setSaving(true); setError('');
-    try {
-      await adminMutation(`/api/admin/admin/finance/withdrawals/${encodeURIComponent(row.id)}/${action}`, 'POST', action === 'reject' ? { reason: 'legacy_request_rejected' } : {});
       await load();
     } catch (cause) { setError(apiErrorMessage(cause, 'تعذر تنفيذ القرار.')); } finally { setSaving(false); }
   }
@@ -119,20 +104,6 @@ export default function PayoutsPage() {
           </div>
         )}
 
-        {legacy.length > 0 ? (
-          <article className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
-            <h2 className="text-lg font-bold">طلبات سحب قديمة ({legacy.length})</h2>
-            <p className="mt-1 text-xs text-slate-600">طلبات من النظام السابق لا تمر بمراحل الاعتماد أعلاه؛ تُنفَّذ أو تُرفض هنا.</p>
-            <div className="mt-3 space-y-2">
-              {legacy.map((row) => (
-                <div key={row.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white p-3 text-sm">
-                  <span>{row.providerName || row.providerId || 'مزود'} · <strong>{row.amount} ر.س</strong> · <span dir="ltr" className="font-mono text-xs">{[row.bankName, row.iban].filter(Boolean).join(' · ')}</span></span>
-                  {canPayout ? <span className="flex gap-2"><button disabled={saving} onClick={() => void legacyAct(row, 'execute')} className="rounded bg-teal-700 px-3 py-1 text-xs font-bold text-white">تنفيذ التحويل</button><button disabled={saving} onClick={() => void legacyAct(row, 'reject')} className="rounded border px-3 py-1 text-xs font-bold">رفض</button></span> : null}
-                </div>
-              ))}
-            </div>
-          </article>
-        ) : null}
       </section>
     </>
   );
