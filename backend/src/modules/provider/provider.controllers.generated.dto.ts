@@ -432,6 +432,11 @@ export class ReactivateDto {
   @Type(() => ManualLicenseCheckDto)
   manual_license_check?: ManualLicenseCheckDto;
 
+  /** The renewed licence expiry (ISO date): required to bring back a provider whose licence expired. */
+  @IsOptional()
+  @IsDateString()
+  license_expiry_date?: string;
+
 }
 
 export class AcceptDto2 {

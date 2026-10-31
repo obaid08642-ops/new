@@ -3,16 +3,18 @@ import { LegalEnterpriseService } from './legal-enterprise.service';
 /** Owner decision 2026-10-24: a warning 30 days before the SCFHS licence expires; bookings stop once it has. */
 describe('licence monitor', () => {
   const DAY = 24 * 3600 * 1000;
-  const run = async (profile: any) => {
+  const run = async (profile: any, account: any = { id: 'acc-1', status: 'approved' }) => {
     const updates: any[] = [];
     const notes: any[] = [];
     const profiles = { find: () => ({ toArray: async () => [profile] }), updateOne: async (_q: any, u: any) => { updates.push(u.$set); } };
     const notifications = { insertOne: async (d: any) => { notes.push(d); } };
+    const accountUpdates: any[] = [];
+    const accounts = { findOne: async () => account, updateOne: async (q: any, u: any) => { accountUpdates.push({ q, u }); return { modifiedCount: 1 }; } };
     const svc: any = Object.create(LegalEnterpriseService.prototype);
-    svc.conn = { collection: (n: string) => (n === 'provider_profiles' ? profiles : notifications) };
-    svc.logger = { warn: jest.fn() };
+    svc.conn = { collection: (n: string) => (n === 'provider_profiles' ? profiles : n === 'provider_accounts' ? accounts : notifications) };
+    svc.logger = { warn: jest.fn(), error: jest.fn() };
     await svc.licenseMonitor();
-    return { updates, notes };
+    return { updates, notes, accountUpdates };
   };
   const inDays = (d: number) => new Date(Date.now() + d * DAY - 1000);
 
@@ -37,5 +39,16 @@ describe('licence monitor', () => {
     const gone = await run({ _id: 1, id: 'p1', user_id: 'u1', license_expiry_date: new Date(Date.now() - DAY) });
     expect(gone.updates[0]).toMatchObject({ status: 'suspended', suspended_reason: 'license_expired', public_eligibility: false, license_status: 'expired' });
     expect(gone.notes).toHaveLength(1);
+  });
+
+  it('expired: the provider ACCOUNT is suspended too (login refused, open session ended), for any provider type', async () => {
+    for (const type of ['pharmacy', 'lab', 'radiology', 'nursing', 'hospital']) {
+      const gone = await run({ _id: 1, id: 'p1', type, account_id: 'acc-1', user_id: 'u1', license_expiry_date: new Date(Date.now() - DAY) });
+      expect(gone.accountUpdates).toHaveLength(1);
+      expect(gone.accountUpdates[0].u.$set.status).toBe('suspended');
+      expect(gone.accountUpdates[0].u.$inc).toEqual({ token_version: 1 });
+    }
+    const already = await run({ _id: 1, id: 'p1', account_id: 'acc-1', license_expiry_date: new Date(Date.now() - DAY) }, { id: 'acc-1', status: 'suspended' });
+    expect(already.accountUpdates).toEqual([]);
   });
 });

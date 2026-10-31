@@ -1,4 +1,5 @@
 import { clinicFromRegistration, normalizeGender, normalizeEducation, normalizeProcedures, assertFollowUp, normalizeClinicLocation, normalizeIban, doctorSubmitProblems } from './doctor-profile-fields';
+import { facilityLicenseProblems } from './facility-license';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { Module, Controller, Post, Get, Body, Query, Param, UseGuards, Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
 import { assertNursingServicePrices } from '../../common/nursing-price';
@@ -276,6 +277,8 @@ export class ProviderOnboardingService {
       const missing = doctorSubmitProblems(profile.toObject());
       if (missing.length) throw new BadRequestException({ message: 'doctor_registration_incomplete', code: 'doctor_registration_incomplete', missing });
     }
+    const licenseProblems = facilityLicenseProblems(profile.toObject());
+    if (licenseProblems.length) throw new BadRequestException({ message: 'license_expiry_invalid', code: 'license_expiry_invalid', missing: licenseProblems });
     profile.onboarding_completed = true;
     profile.status = ProviderStatus.PENDING;
     if (body) {
