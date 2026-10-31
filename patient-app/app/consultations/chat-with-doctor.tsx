@@ -12,7 +12,7 @@ import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 import { useSocket } from '../../src/context/SocketContext';
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
-import { addIncoming, applyState, confirmSent, fromServer, type ChatMsg, type ServerMsg, type StateEvent } from '../../src/chat/chatState';
+import { addIncoming, applyState, chronological, confirmSent, fromServer, type ChatMsg, type ServerMsg, type StateEvent } from '../../src/chat/chatState';
 import { enqueue, flush, forThread, remove, type OutboxItem } from '../../src/chat/outbox';
 import { pickLocalized } from '../../src/utils/localize';
 import { dateLocaleFor } from '../../src/utils/dates';
@@ -129,7 +129,7 @@ export default function ChatWithDoctorScreen() {
       .then((mres) => {
         if (!mres || cancelled) return;
         const list = (Array.isArray(mres) ? mres : mres?.data) || [];
-        const loaded = Array.isArray(list) ? list.map((m) => fromServer(m, myId, stamp)) : [];
+        const loaded = Array.isArray(list) ? chronological(list.map((m) => fromServer(m, myId, stamp))) : [];
         // messages written offline that the server does not have yet stay visible as queued
         void forThread(String(threadRef.current)).then((queued) => {
           if (cancelled) return;
