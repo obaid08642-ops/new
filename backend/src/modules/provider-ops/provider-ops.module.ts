@@ -1,6 +1,7 @@
 import { protectHealthDoc } from '../../common/health-fields';
 import { PROVIDER_ROLES } from '../../common/enums';
 import { escapeRegex } from '../../common/slug.util';
+import { recordAudit } from '../../common/audit-record';
 /**
  * Provider Operations module — fills the remaining workflow gaps per provider type:
  *
@@ -66,10 +67,10 @@ export class ProviderOpsService {
 
     try {
       const booking: any = await this.conn.collection(domain.collection).findOne({ id: bookingId });
-      if (!booking) return;
+      if (!booking) return this.earningSkipped('booking_not_found', domain.kind, bookingId);
 
       const providerId = domain.providerFields.map((field) => booking[field]).find(Boolean);
-      if (!providerId) return;
+      if (!providerId) return this.earningSkipped('no_provider_on_booking', domain.kind, bookingId);
 
       const paidTransactions = await this.conn.collection('transactions').find(
         { booking_kind: domain.kind, booking_id: bookingId, status: 'paid' },
@@ -81,18 +82,26 @@ export class ProviderOpsService {
         || (['paid', 'covered_by_insurance'].includes(paymentState)
           ? Number(booking.total_price ?? booking.total ?? booking.price ?? 0) || transactionTotal
           : transactionTotal);
-      if (!(collected > 0)) return;
+      if (!(collected > 0)) return this.earningSkipped('nothing_collected', domain.kind, bookingId, { payment_status: paymentState || null });
 
       const account: any = await this.conn.collection('provider_accounts').findOne({
         $or: [{ id: String(providerId) }, { user_id: String(providerId) }],
       });
       const providerAccountId = account?.id || account?.user_id;
-      if (!providerAccountId) return;
+      if (!providerAccountId) return this.earningSkipped('no_provider_account', domain.kind, bookingId, { provider_ref: String(providerId) });
 
       await this.creditEarning(providerAccountId, domain.service, collected, domain.kind === 'nursing' ? 'homecare_booking' : domain.kind === 'consultation' ? 'appointment' : `${domain.kind}_booking`, bookingId);
     } catch (error: any) {
       this.logger.error(`provider_earning_credit_failed booking=${bookingId}: ${error?.message || error}`);
     }
+  }
+
+  /** A completed service that credits nothing is said so: a warning in the log and an audit row, so finance can find the booking (it used to return silently). */
+  private async earningSkipped(reason: string, kind: string, bookingId: string, extra: Record<string, unknown> = {}): Promise<void> {
+    this.logger.warn(`provider_earning_skipped reason=${reason} kind=${kind} booking=${bookingId}`);
+    try {
+      await recordAudit(this.conn, { action: 'provider_earning.skipped', user_id: 'system', role: 'system', resource_kind: `${kind}_booking`, resource_id: bookingId, details: { reason, ...extra } } as never);
+    } catch { /* the trail must not fail the completion event */ }
   }
 
   // ═══ DOCTOR: vacation / leave management ═════════════════════════════════
