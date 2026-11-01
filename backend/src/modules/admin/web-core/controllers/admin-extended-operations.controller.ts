@@ -36,6 +36,9 @@ export class AdminExtendedOperationsController {
     // never re-priced (the pharmacy may already have answered the earlier quote). The status is part of the update filter, so two
     // admins pricing the same request cannot both win.
     if (!Types.ObjectId.isValid(procurementId)) throw new BadRequestException('B2B procurement ticket reference index not registered.');
+    if (!body.pricingItems.length || body.pricingItems.some((l) => !l || typeof l !== 'object' || Array.isArray(l))) {
+      throw new BadRequestException('pricing_items_must_be_priced_lines');
+    }
     const reason = typeof body.reason === 'string' ? body.reason.trim() : '';
     const updatedProcurement = await this.procurementModel.findOneAndUpdate(
       { _id: procurementId, status: 'PENDING_ADMIN_REVIEW' },

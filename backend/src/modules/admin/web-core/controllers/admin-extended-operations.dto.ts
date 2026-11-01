@@ -1,11 +1,10 @@
-import { ArrayMaxSize, ArrayMinSize, IsArray, IsDefined, IsNumber, IsObject, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
+import { ArrayMaxSize, IsArray, IsDefined, IsNumber, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
 
 export class IssueWarehouseQuotationDto {
   @IsDefined()
   @IsArray()
-  @ArrayMinSize(1)
   @ArrayMaxSize(200)
-  @IsObject({ each: true }) // free-form: a priced line of the procurement request; its fields are the request's own item fields
+  // free-form: a priced line of the procurement request (its fields are the request's own item fields); the controller refuses an empty list and any line that is not an object
   pricingItems: any[];
 
   @IsDefined()

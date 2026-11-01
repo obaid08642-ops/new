@@ -36,13 +36,21 @@ describe('issue-quote', () => {
   });
 });
 
+describe('issue-quote input', () => {
+  it('refuses an empty list and a line that is not an object, before any write', async () => {
+    const { ctrl, model } = build({ status: 'PENDING_ADMIN_REVIEW' });
+    await expect(ctrl.issueWarehouseQuotation(id, { ...body, pricingItems: [] }, { id: 'a1' })).rejects.toThrow('pricing_items_must_be_priced_lines');
+    await expect(ctrl.issueWarehouseQuotation(id, { ...body, pricingItems: ['x'] }, { id: 'a1' })).rejects.toThrow('pricing_items_must_be_priced_lines');
+    expect(model.findOneAndUpdate).not.toHaveBeenCalled();
+  });
+});
+
 describe('IssueWarehouseQuotationDto', () => {
   const errs = (o: any) => validateSync(plainToInstance(IssueWarehouseQuotationDto, o));
   it('accepts a priced list', () => expect(errs(body)).toEqual([]));
-  it('rejects an empty list, a negative or non-finite total, and a non-object line', () => {
-    expect(errs({ ...body, pricingItems: [] }).length).toBe(1);
+  it('rejects a list over 200 lines and a negative or non-finite total', () => {
+    expect(errs({ ...body, pricingItems: Array.from({ length: 201 }, () => ({})) }).length).toBe(1);
     expect(errs({ ...body, totalPrice: -1 }).length).toBe(1);
     expect(errs({ ...body, totalPrice: Infinity }).length).toBe(1);
-    expect(errs({ ...body, pricingItems: ['x'] }).length).toBe(1);
   });
 });
