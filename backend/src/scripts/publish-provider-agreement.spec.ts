@@ -18,7 +18,7 @@ function tmpDocs(ar: string, en: string): string {
 describe('provider agreement texts', () => {
   it('the repository texts load: same version, no draft wording, no blank brackets', () => {
     const t = loadAgreementTexts(DOCS);
-    expect(t.version).toBe('1.0');
+    expect(t.version).toBe('3.0');
     expect(t.ar).toContain('منصة نبض الطبية');
     expect(t.en).toContain('Nabd Medical Platform');
   });
