@@ -6,6 +6,21 @@ import { useLocale, useTranslations } from "next-intl";
 import { formatLastUpdated, getOnlineSnapshot, getServerOnlineSnapshot, subscribeOnline, validRenderedAt } from "@/lib/network/offline-status";
 
 /**
+ * The banner itself, without the browser: what it shows for a given state (tests render this). It is the markup of the shared Toast
+ * (Feedback.tsx: role="status", polite, the warning tone) written out here on purpose: importing Feedback.tsx from the locale layout
+ * would put Button, FIcon and every icon outline into the first-load JS of every page. It cannot be fetched on demand either, because
+ * it is needed exactly when the network is gone.
+ */
+export function OfflineBannerView({ online, message }: { online: boolean; message: string }) {
+  if (online) return null;
+  return (
+    <div role="status" aria-live="polite" data-testid="offline-banner" className="nabd-toast nabd-toast--warning">
+      <span className="nabd-toast__message">{message}</span>
+    </div>
+  );
+}
+
+/**
  * P15.4: when the browser goes offline, the page stays as it is (the content already on screen is the cached copy) and
  * this banner says so, with the time that copy was made by the server ("last updated"). It disappears as soon as the
  * browser is back online. Not on the service worker's own offline page (journeys 77), which already says it.
@@ -22,18 +37,8 @@ export function OfflineBanner({ renderedAt }: { renderedAt: number }) {
   useEffect(() => {
     if (!online) setNow(Date.now());
   }, [online]);
-  // The Toast (and the icon outlines behind it) is fetched only once the browser is actually offline: a plain import() in an effect,
-  // not the framework's lazy loader, which preloads its chunk on every page.
-  const [View, setView] = useState<null | typeof import("./offline-banner-view").OfflineBannerView>(null);
-  useEffect(() => {
-    if (online) return;
-    let live = true;
-    import("./offline-banner-view").then((m) => { if (live) setView(() => m.OfflineBannerView); }).catch(() => undefined);
-    return () => { live = false; };
-  }, [online]);
-
   if (online || /^\/[a-z]{2,3}\/offline\/?$/.test(pathname ?? "")) return null;
   const at = now === null ? null : validRenderedAt(renderedAt, now);
   const message = at === null || now === null ? t("offline") : t("offlineLastUpdated", { time: formatLastUpdated(locale, at, now) });
-  return View ? <View online={false} message={message} /> : null;
+  return <OfflineBannerView online={false} message={message} />;
 }

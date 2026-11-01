@@ -9,8 +9,7 @@ vi.mock("next-intl", () => ({
 }));
 vi.mock("next/navigation", () => ({ usePathname: () => "/ar" }));
 
-const { OfflineBanner } = await import("@/components-next/network/offline-banner");
-const { OfflineBannerView } = await import("@/components-next/network/offline-banner-view");
+const { OfflineBanner, OfflineBannerView } = await import("@/components-next/network/offline-banner");
 
 const root = path.resolve(import.meta.dirname, "..");
 const locales = ["ar", "en", "ur", "hi", "bn", "fil"] as const;
@@ -35,8 +34,9 @@ describe("offline banner", () => {
   it("does not pull the Toast (and the icon outlines) into the layout's first load", () => {
     const banner = readFileSync(path.join(root, "components-next/network/offline-banner.tsx"), "utf8");
     expect(banner).not.toMatch(/from "@\/components-next\/ui-generated\/components\/Feedback"/);
-    expect(banner).toMatch(/import\("\.\/offline-banner-view"\)/);
-    expect(banner).not.toContain("next/dynamic");
+    // offline is exactly when a lazily fetched chunk cannot be fetched: the markup is in the file itself
+    expect(banner).not.toMatch(/import\(/);
+    expect(banner).toContain("nabd-toast nabd-toast--warning");
   });
 
   it("is mounted by the locale layout with the layout's render time", () => {
