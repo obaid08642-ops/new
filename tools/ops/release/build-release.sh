@@ -41,7 +41,7 @@ for i in nabdah-prod-backend nabdah-prod-admin-web nabdah-patient-web nabdah-mig
 done
 
 docker save "nabdah-prod-backend:$S8" "nabdah-prod-admin-web:$S8" "nabdah-patient-web:$S8" "nabdah-migrations:$S8" | gzip -1 > "$OUT/images.tar.gz"
-tar -czf "$OUT/deploy.tgz" -C "$SRC" deploy
+tar -czf "$OUT/deploy.tgz" -C "$SRC" deploy $( [ -d "$SRC/docs/legal" ] && echo docs/legal )
 echo "$SHA" > "$OUT/SHA"
 (cd "$OUT" && sha256sum images.tar.gz deploy.tgz SHA > SHA256SUMS)
 rm -f "$OUT/backend-build.log"
