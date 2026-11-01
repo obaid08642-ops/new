@@ -43,7 +43,7 @@
 #                                                    --oom-score-adj 1000` (if the host runs short, this container is the one the kernel kills), NODE_OPTIONS heap 520 MB.
 #                                                    For heavy steps; never in the API container. $B is mounted as /backup (the backup file lands there directly), $IN as /in (read-only).
 set -u
-EXPECT_PLAN_SHA="adfa265c71c7e0c032700fdca950badca680fec1efe5fa601bb63626ff697574"
+EXPECT_PLAN_SHA=""
 COMPLETION=""
 PRUNE=""
 TRANSLATIONS="yes"
