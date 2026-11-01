@@ -1,18 +1,23 @@
 #!/bin/bash
 # The production mongod holds other databases next to the app database (run 75: nabd_staging 259 MB, temp_restore 210 MB, next to nabd_nestjs 601 MB). What are they, and may they go?
+# (This is the former 98h-extra-dbs task under the number the reviewer asked for; there is one implementation.)
 # READ-ONLY by default: for every database except admin/local/config and the app database it prints, per collection, the document count, the newest updatedAt/createdAt date and the storage MB,
 # and the count of the same collection in the app database (names, counts and dates only, never a value).
-#   DROP_DBS="nabd_staging temp_restore" APPLY=yes   (set in this file by the reviewer after reading the dry run): for each NAMED database, one at a time:
+#   DROP=yes APPLY=yes   (both set by the reviewer after reading the dry run; DROP_DBS names the databases, default "nabd_staging temp_restore"), for each NAMED database, one at a time:
 #       1. refuse it if it is admin, local, config or the app database (DB_NAME of nabdah-backend, default nabd_nestjs) or is not on the server;
 #       2. dump it with the one-off dump (same image, caps and network as the nightly) to $OPS_BACKUP_DIR/extra-db-<name>-<timestamp>.archive.gz;
-#       3. verify: non-empty, gzip -t, and `mongorestore --dryRun` lists at least as many collections as were counted;
-#       4. only then dropDatabase on THAT database. Any failed step = that database is not dropped.
+#       3. verify: non-empty, gzip -t, SIZE GUARD (an archive under DUMP_MIN_PERCENT, default 5, of the database's size on disk, for databases of 10 MB or more, is refused: a dump that is
+#          far too small is the failure of 2026-10-31 run 74), and `mongorestore --dryRun` lists at least as many collections as were counted;
+#       4. only then dropDatabase on THAT database. Any failed step = that database is not dropped and its archive is kept.
+#   DROP=yes without APPLY=yes prints what would be dumped and dropped and changes nothing.
 #   Before any drop it also proves that no RUNNING container uses the database: for every container it reads MONGO_URL / MONGODB_URI / MONGO_URI / DATABASE_URL (the database is the path of the
 #   URI) and DB_NAME, and prints only the database NAMES each container uses, never a URI. A database used by any running container is refused.
-#   A database that is not named in DROP_DBS is never touched. The app database is never touched by this task.
+#   A database that is not named is never touched. The app database is never touched by this task.
 set -u
 APPLY=${APPLY:-no}
-DROP_DBS=${DROP_DBS:-}
+DROP=${DROP:-}
+DROP_DBS=${DROP_DBS:-nabd_staging temp_restore}
+MIN_PCT=${DUMP_MIN_PERCENT:-5}
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
 B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}
 DK="sudo -n docker"; CT=${OPS_MONGO_CONTAINER:-nabdah-mongodb}
@@ -48,7 +53,7 @@ for db in $EXTRA; do
     say "$db.$c: $(echo "$ALL" | jq -r --arg d "$db" --arg c "$c" --arg a "$APP" '.[$d].c[$c] as $x | (.[$a].c[$c] // null) as $y | "\($x.n) docs, \($x.mb) MB, newest \($x.newest // "none"); same collection in \($a): \(if $y then "\($y.n) docs, newest \($y.newest // "none")" else "absent" end)"')"
   done
 done
-if [ -z "$DROP_DBS" ]; then say "dry run (read-only): nothing was changed. To remove databases set DROP_DBS=\"name ...\" and APPLY=yes in this task (after the review of the lines above)"; exit 0; fi
+if [ "$DROP" != yes ]; then say "dry run (read-only): nothing was changed. To remove $DROP_DBS set DROP=yes and APPLY=yes in this task (after the review of the lines above)"; exit 0; fi
 if [ "$APPLY" != yes ]; then say "dry run: would dump, verify and drop: $DROP_DBS (APPLY=yes to do it)"; exit 0; fi
 
 # ---- APPLY
@@ -68,6 +73,10 @@ for db in $DROP_DBS; do
   if ! mongodump_oneoff "$TMP" --db="$db" --gzip --archive || [ ! -s "$TMP" ]; then say "$db: ABORT the dump failed or is empty: not dropped"; rm -f "$TMP"; RC_ALL=1; continue; fi
   sudo -n install -m 600 "$TMP" "$OUT"; rm -f "$TMP"
   gzip -t < "$OUT" 2>/dev/null || sudo -n gzip -t "$OUT" 2>/dev/null || { say "$db: ABORT the archive fails gzip -t: not dropped (kept $OUT)"; RC_ALL=1; continue; }
+  EXPMB=$(echo "$ALL" | jq -r --arg d "$db" '.[$d].mb // 0'); ASZ=$(sudo -n stat -c %s "$OUT" 2>/dev/null || echo 0)
+  if [ "${EXPMB:-0}" -ge 10 ] && [ $((ASZ * 100)) -lt $((EXPMB * 1048576 * MIN_PCT)) ]; then
+    say "$db: ABORT size guard: the archive is $(mb "$ASZ") MB, under ${MIN_PCT}% of the database's ${EXPMB} MB: not dropped (kept $OUT)"; RC_ALL=1; continue
+  fi
   if [ "$NS" -ge 1 ]; then
     LISTED=$(sudo -n cat "$OUT" | { mongorestore_list_oneoff /dev/stdin; } 2>&1 | sed -n 's/.*archive lists \([0-9]*\) namespace.*/\1/p' | tail -1)
     [ "${LISTED:-0}" -ge "$NS" ] || { say "$db: ABORT the archive lists ${LISTED:-0} of $NS collection(s): not dropped (kept $OUT)"; RC_ALL=1; continue; }

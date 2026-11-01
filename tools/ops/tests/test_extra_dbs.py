@@ -1,4 +1,4 @@
-"""98h-extra-dbs.sh with a fake docker/sudo and stub dump helpers: read-only by default; a named database is dropped only after a verified dump; the app database and the system databases never."""
+"""99x-extra-dbs.sh with a fake docker/sudo and stub dump helpers: read-only by default; a named database is dropped only after a verified dump; the app database and the system databases never."""
 import os
 import re
 import stat
@@ -6,7 +6,7 @@ import subprocess
 import tempfile
 import unittest
 
-TASK = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "tasks", "98h-extra-dbs.sh")
+TASK = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "tasks", "99x-extra-dbs.sh")
 ALL = ('{"nabd_nestjs":{"mb":601,"c":{"users":{"n":900,"newest":"2026-10-31","mb":5},"orders":{"n":50,"newest":"2026-10-30","mb":2}}},'
        '"nabd_staging":{"mb":259,"c":{"users":{"n":120,"newest":"2026-08-01","mb":3},"old_only":{"n":7,"newest":"2026-05-05","mb":1}}},'
        '"temp_restore":{"mb":210,"c":{"orders":{"n":49,"newest":"2026-10-29","mb":2}}}}')
@@ -23,7 +23,7 @@ class ExtraDbs(unittest.TestCase):
         tmp = tempfile.TemporaryDirectory(); self.addCleanup(tmp.cleanup)
         d = tmp.name; b = os.path.join(d, "bin"); os.makedirs(b); self.bk = os.path.join(d, "backups"); os.makedirs(self.bk)
         dep = os.path.join(d, "deploy"); os.makedirs(os.path.join(dep, "scripts"))
-        wx(os.path.join(dep, "scripts", "_mongodump-oneoff.sh"), 'mongodump_oneoff() { echo "args: $*" >> "%s/calls.log"; printf "DUMPDATA" > "$1"; return 0; }\n' % d)
+        wx(os.path.join(dep, "scripts", "_mongodump-oneoff.sh"), 'mongodump_oneoff() { echo "args: $*" >> "%s/calls.log"; truncate -s "${STUB_DUMP_BYTES:-20000000}" "$1"; return 0; }\n' % d)
         wx(os.path.join(dep, "scripts", "_mongorestore-list.sh"), 'mongorestore_list_oneoff() { echo "status: mongorestore: archive lists %d namespace(s) (dry run, rc=0)"; return 0; }\n' % listed)
         wx(os.path.join(b, "sudo"), '#!/bin/bash\n[ "$1" = -n ] && shift\nexec "$@"\n')
         wx(os.path.join(b, "gzip"), '#!/bin/bash\nexit 0\n')
@@ -42,8 +42,10 @@ esac
         e = dict(os.environ, PATH=b + os.pathsep + os.environ["PATH"], OPS_DEPLOY_DIR=dep, OPS_BACKUP_DIR=self.bk, **(env or {}))
         if apply:
             e["APPLY"] = "yes"
+            e.setdefault("DROP", "yes")
         p = subprocess.run(["bash", TASK], env=e, capture_output=True, text=True, timeout=60, stdin=subprocess.DEVNULL)
-        return p, open(self.calls).read()
+        with open(self.calls) as h:
+            return p, h.read()
 
     def test_dry_run_lists_each_extra_database_and_compares_with_the_app_database(self):
         p, calls = self.run_task()
@@ -89,9 +91,26 @@ esac
         p, calls = self.run_task({"DROP_DBS": "nabd_staging"}, apply=True, listed=1)
         self.assertIn("ABORT the archive lists 1 of 2 collection(s): not dropped", p.stdout); self.assertNotIn("dropDatabase", calls)
 
-    def test_drop_dbs_without_apply_changes_nothing(self):
-        p, calls = self.run_task({"DROP_DBS": "nabd_staging"})
+    def test_drop_without_apply_changes_nothing(self):
+        p, calls = self.run_task({"DROP_DBS": "nabd_staging", "DROP": "yes"})
         self.assertIn("dry run: would dump, verify and drop: nabd_staging", p.stdout); self.assertNotIn("dropDatabase", calls); self.assertEqual(os.listdir(self.bk), [])
+
+    def test_apply_alone_without_drop_yes_is_still_a_dry_run(self):
+        p, calls = self.run_task({"APPLY": "yes"})
+        self.assertIn("dry run (read-only)", p.stdout); self.assertNotIn("dropDatabase", calls); self.assertEqual(os.listdir(self.bk), [])
+
+    def test_the_default_names_are_the_two_extra_databases(self):
+        p, calls = self.run_task(apply=True)
+        self.assertIn("nabd_staging: DROPPED", p.stdout); self.assertIn("temp_restore: DROPPED", p.stdout)
+        self.assertNotIn("getSiblingDB('nabd_nestjs').dropDatabase", calls)
+
+    def test_a_far_too_small_archive_is_refused_and_kept_and_nothing_is_dropped(self):
+        p, calls = self.run_task({"STUB_DUMP_BYTES": "1000000"}, apply=True)   # 1 MB for 259 MB and 210 MB databases
+        self.assertEqual(p.returncode, 1)
+        self.assertIn("nabd_staging: ABORT size guard: the archive is 1 MB, under 5% of the database's 259 MB: not dropped", p.stdout)
+        self.assertIn("temp_restore: ABORT size guard", p.stdout)
+        self.assertNotIn("dropDatabase", calls)
+        self.assertEqual(len([f for f in os.listdir(self.bk) if f.startswith("extra-db-")]), 2)   # the archives are kept
 
 
 if __name__ == "__main__":
