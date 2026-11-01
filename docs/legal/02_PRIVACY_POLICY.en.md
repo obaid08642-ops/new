@@ -1,6 +1,6 @@
 # Privacy and Personal Data Protection Policy
 
-**Version:** 1.0
+**Version:** 3.0
 **Reference:** the Personal Data Protection Law and its implementing regulations, and the Regulation on the Transfer of Personal Data outside the Kingdom.
 **Language:** this is the English version. The Arabic text prevails (Article 13).
 

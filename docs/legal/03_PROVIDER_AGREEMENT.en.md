@@ -1,6 +1,6 @@
 # Provider Agreement on the Nabd Medical Platform
 
-**Version:** 1.0
+**Version:** 3.0
 **Effective date:** the day this Agreement is published on the Platform
 **Language:** this is the English version. The Arabic text prevails (Article 11.3).
 

@@ -1,6 +1,6 @@
 # Terms of Use of the Nabd Medical Platform
 
-**Version:** 1.0
+**Version:** 3.0
 **Effective date:** the day these Terms are published on the Platform
 **Language:** this is the English version. The Arabic text prevails (Article 13.5).
 

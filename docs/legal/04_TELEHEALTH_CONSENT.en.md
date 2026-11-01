@@ -1,6 +1,6 @@
 # Consent to Remote Medical Consultation
 
-**Version:** 1.0
+**Version:** 2.0
 **When it appears:** to the patient before the first remote consultation, and again when a new major version is issued.
 
 I acknowledge and agree to the following:

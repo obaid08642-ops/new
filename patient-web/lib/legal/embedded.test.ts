@@ -53,7 +53,7 @@ describe("reading a policy with the embedded fallback", () => {
     const policy = await readLegalPolicyOrEmbedded("patient_terms", "en", read);
     expect(policy?.content?.length).toBeGreaterThan(100);
     expect(policy?.lang).toBe("ar");
-    expect(policy?.current).toBe(EMBEDDED_POLICIES.patient_terms.ar?.draft);   // the final texts (version 1.0, no draft wording) are shown plain
+    expect(policy?.current).toBe(EMBEDDED_POLICIES.patient_terms.ar?.draft);   // the final texts (version 3.0, no draft wording) are shown plain
   });
 
   it("any other error is not hidden", async () => {

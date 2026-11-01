@@ -1,6 +1,6 @@
 #!/bin/bash
 # Publishes the launch legal texts into legal_policies right after a deploy: privacy_policy, patient_terms, telehealth_consent, refund_policy and provider_agreement (POLICIES below;
-# default all five, in the safe order: the texts patients need to register first, the provider agreement last). Registration submit and the signed contract PDF need provider_agreement
+# default four (telehealth_consent is left out of the first publish: patient-app joins calls only after the consent is accepted, and the new version would lock out the join; add it by setting POLICIES), in the safe order: the texts patients need to register first, the provider agreement last). Registration submit and the signed contract PDF need provider_agreement
 # published (`provider_agreement_not_published` otherwise), so this runs in the same run as the deploy that ships #2364. ALL FIVE TOGETHER MATTER: as soon as any policy exists, patient
 # registration (app and web) needs patient_terms and privacy_policy published with acceptance required, or it answers registration_policy_configuration_missing; the tool refuses a run that would leave that state. Two runs of the same task:
 #   Run 1 (APPLY empty): DRY RUN. Checks the texts and the published state, writes nothing.
@@ -20,7 +20,7 @@
 set -u
 APPLY=""
 REQUIRE_ACCEPTANCE="no"
-POLICIES="all"
+POLICIES="privacy_policy,patient_terms,refund_policy,provider_agreement"
 CT=${PUBLISH_AGREEMENT_CONTAINER:-nabdah-backend}
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
 REL_ROOT=${OPS_RELEASE_DIR:-/opt/nabdah/releases}

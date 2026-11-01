@@ -1,6 +1,6 @@
 # Cancellation and Refund Policy
 
-**Version:** 1.0
+**Version:** 3.0
 **Reference:** owner decision 26, and the system's default values.
 
 **Legal basis:** the E-Commerce Law lets a consumer withdraw from a contract within seven days of receiving the product or of the date of the service contract, unless the consumer has already used the product, received the service or benefited from either, and the consumer bears the cost of withdrawal unless agreed otherwise.

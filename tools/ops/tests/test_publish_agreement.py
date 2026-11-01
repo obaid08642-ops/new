@@ -11,7 +11,7 @@ import unittest
 
 TASK = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "tasks", "99p-publish-agreement.sh")
 BASES = ["02_PRIVACY_POLICY", "01_PATIENT_TERMS", "04_TELEHEALTH_CONSENT", "05_CANCELLATION_REFUND", "03_PROVIDER_AGREEMENT"]
-KEYS = ["privacy_policy", "patient_terms", "telehealth_consent", "refund_policy", "provider_agreement"]
+KEYS = ["privacy_policy", "patient_terms", "refund_policy", "provider_agreement"]   # the default: telehealth_consent is left out of the first publish
 AR = "03_PROVIDER_AGREEMENT.ar.md"
 EN = "03_PROVIDER_AGREEMENT.en.md"
 SECRET = "pw-must-never-be-printed-9f3a"
@@ -142,12 +142,12 @@ exit 0
         self.assertIn("LEGAL_DOCS_DIR=/legal", r)
         self.assertIn("REQUIRE_ACCEPTANCE=no", r)
         self.assertIn("node dist/scripts/publish-legal-policy.js", r)
-        self.assertIn("POLICIES=all", r)
+        self.assertIn("POLICIES=privacy_policy,patient_terms,refund_policy,provider_agreement", r)
         self.assertIn("nabdah-backend:test", r)
         log = slurp(self.log)
         self.assertIn("MODE=600", log)
         self.assertIn("ENV_HAS_MONGO_URL", log)
-        for b in BASES:
+        for b in [x for x in BASES if "TELEHEALTH" not in x]:
             self.assertIn(b + ".ar.md", log); self.assertIn(b + ".en.md", log)   # every text was visible in the mounted directory
         envf = re.search(r"ENVFILE=(\S+)", log).group(1)
         self.assertFalse(os.path.exists(envf), "the temp env file is removed at the end")
@@ -158,7 +158,7 @@ exit 0
         for k in KEYS:
             self.assertIn(f"{k} 1.0: published", p.stdout)
         self.assertIn("backup row ids: 64f0c0ffee11", p.stdout)
-        self.assertIn("verified: the 5 published row(s) equal the texts of release aa11bb22. published: yes", p.stdout)
+        self.assertIn("verified: the 4 published row(s) equal the texts of release aa11bb22. published: yes", p.stdout)
         self.assertEqual(len(self.runs()), 3)   # plan, apply, verify
         self.assertTrue(any("APPLY=yes" in r for r in self.runs()))
         self.assertNotIn(SECRET, p.stdout + p.stderr)
