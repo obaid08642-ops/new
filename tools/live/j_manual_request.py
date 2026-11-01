@@ -125,8 +125,16 @@ def main():
             shown = True
         except Exception:
             shown = False
-        details = ' | '.join(d.inner_text()[:200] for d in page.locator('details').all())
-        step('the offers page says the price is not verified', shown, details or page.locator('main').first.inner_text()[:300])
+        # what the page held when the note did not show. Read with short timeouts and never raise: inner_text() on a hidden
+        # <details> waited 30 s and failed the whole step as "web offers" (runs of #2302 shard 1 and #2345 shard 3) without saying what was on the page.
+        def _text(loc):
+            try:
+                return loc.evaluate("(el) => (el.open ? '[open] ' : '[closed] ') + (el.textContent || '').replace(/\\s+/g, ' ').slice(0, 240)", timeout=3000)
+            except Exception as err:  # noqa: BLE001
+                return f'[unreadable: {str(err)[:60]}]'
+        count = page.locator('details').count()
+        details = f'{count} details: ' + ' | '.join(_text(page.locator('details').nth(i)) for i in range(min(count, 4)))
+        step('the offers page says the price is not verified', shown, details if count else page.locator('main').first.text_content(timeout=3000)[:300])
     except Exception as e:
         step('web offers', False, str(e)[:300])
 
