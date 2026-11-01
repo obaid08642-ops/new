@@ -1,7 +1,11 @@
-# 2026-11-01 09:35 lead reviewer: run 82 = DRY RUNS of the catalogue apply and the translations apply (nothing is written).
-# Host is stable now (main@328263b5, self-heal + watchdog, meili fixed, 6.8 GB free). These were held since run 68 for lack of memory.
-# Both run in a one-off container (900m, oom_score_adj 1000, never inside the API container). Each prints its plan counts and plan hash.
+# 2026-11-01 10:15 lead reviewer: run 83 = APPLY of the two plans checked in run 82 (owner approved).
+# 1. Catalogue (plan 870dbf18…, 179 changes): radiology +67 market rows, approve barium_study / dental_panoramic / pet_ct_scan / hysterosalpingography_hsg
+#    (hsg merged), 85 duplicate re-points, hidden unused rows removed (lab 9, nursing 3, radiology 15). Backup of every touched row first; verify; rollback on failure.
+# 2. Medicine translations (plan adfa265c…, 19,984 EMPTY fields) from the providers' file (Grok/OpenAI/DeepSeek/Gemini answers), marked machine:<model>;
+#    compare-and-set on empty values only; backup first; verify; rollback on failure.
+# Each refuses to write if its plan changed since run 82. One-off container (oom_score_adj 1000), never inside the API.
 release:328263b5edd6e23c211d0584960b99df925938a7
-98-memory-report
 90-catalogue-apply
 90c-catalogue-translations
+98-memory-report
+cf-purge-api
