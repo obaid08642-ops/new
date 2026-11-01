@@ -105,6 +105,7 @@ describe('ProviderOpsService completion earnings (LJ-09)', () => {
           finance_config: { findOne: async () => cfg },
           commissionrules: { findOne: async (q: any) => rules.find((r) => r.scope === q.scope && (!q.scope_id || r.scope_id === q.scope_id)) ?? null },
           provider_profiles: { findOne: async () => profile },
+          provider_commission_promos: { find: () => ({ sort: () => ({ toArray: async () => [] }) }) },
         } as any)[name],
       };
       return { service: new ProviderOpsService(conn as any), inserted };

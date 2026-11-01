@@ -36,6 +36,7 @@ import { Permission, RequirePermissions } from '../../common/permissions';
 import { moyasarBase } from '../../common/moyasar-base';
 import { timedFetch } from '../../common/external-call';
 import { settlementDelayDefault, DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT } from '../../common/commission-defaults';
+import { PROMO_COLLECTION, promoState, type CommissionPromo } from '../../common/commission-promo';
 
 export const LEDGER_TYPES = [
   'provider_earning', 'provider_debit', 'payout', 'refund', 'commission',
@@ -170,11 +171,12 @@ export class CommissionResolver {
 
   /**
    * Resolution order (most specific wins):
-   *   campaign → provider → category → service default → finance_config → 10%
+   *   campaign rule → the provider's running promotion → the provider's own commission (provider rule, then the percent set on the
+   *   provider) → category rule → service rule → finance_config → the one system default (commission-defaults.ts)
    * Only rules that are active AND inside their effective window apply.
    */
-  async resolve(serviceType: string, opts: { providerId?: string; category?: string; campaignId?: string } = {}): Promise<{ percent: number; source: string; rule_id?: string }> {
-    const now = new Date();
+  async resolve(serviceType: string, opts: { providerId?: string; category?: string; campaignId?: string; paymentMethod?: string; now?: Date; skipPromoIds?: string[] } = {}): Promise<{ percent: number; source: string; rule_id?: string; promo_id?: string }> {
+    const now = opts.now ?? new Date();
     const windowQ: any = {
       active: { $ne: false },
       $and: [
@@ -182,13 +184,7 @@ export class CommissionResolver {
         { $or: [{ effective_to: { $exists: false } }, { effective_to: null }, { effective_to: { $gte: now } }] },
       ],
     };
-    const candidates: Array<{ scope: string; scope_id?: string; source: string }> = [];
-    if (opts.campaignId) candidates.push({ scope: 'campaign', scope_id: opts.campaignId, source: 'campaign_override' });
-    if (opts.providerId) candidates.push({ scope: 'provider', scope_id: opts.providerId, source: 'provider_override' });
-    if (opts.category) candidates.push({ scope: 'category', scope_id: opts.category, source: 'category_override' });
-    candidates.push({ scope: 'service', scope_id: serviceType, source: 'service_default' });
-
-    for (const c of candidates) {
+    const ruleFor = async (c: { scope: string; scope_id?: string; source: string }) => {
       const q: any = { ...windowQ, scope: c.scope };
       if (c.scope_id) q.scope_id = c.scope_id;
       if (c.scope === 'service') q.$or = [{ service_type: serviceType }, { scope_id: serviceType }];
@@ -196,11 +192,55 @@ export class CommissionResolver {
       if (rule && Number(rule.percent ?? rule.commission) >= 0) {
         return { percent: Number(rule.percent ?? rule.commission), source: c.source, rule_id: rule.id || String(rule._id) };
       }
+      return null;
+    };
+
+    // 1. a campaign rule
+    if (opts.campaignId) { const hit = await ruleFor({ scope: 'campaign', scope_id: opts.campaignId, source: 'campaign_override' }); if (hit) return hit; }
+    if (opts.providerId) {
+      // 2. the provider's promotion (commission X% from A to B, or for the first N orders; 0 is allowed). It ends by itself.
+      const promo = await this.activePromo(opts.providerId, now, opts.skipPromoIds);
+      if (promo) return { percent: promo.percent, source: 'provider_promo', promo_id: promo.id };
+      // 3. the provider's own commission: a provider rule, then the percent set on the provider (cash, or insurance for an insured visit)
+      const rule = await ruleFor({ scope: 'provider', scope_id: opts.providerId, source: 'provider_override' }); if (rule) return rule;
+      const own = await this.profileOverride(opts.providerId, opts.paymentMethod);
+      if (own !== null) return { percent: own, source: 'provider_profile' };
     }
+    // 4. a category rule, 5. the service rule, 6. finance_config, 7. the one system default
+    if (opts.category) { const hit = await ruleFor({ scope: 'category', scope_id: opts.category, source: 'category_override' }); if (hit) return hit; }
+    const service = await ruleFor({ scope: 'service', scope_id: serviceType, source: 'service_default' }); if (service) return service;
     const cfg: any = await this.conn.collection('finance_config').findOne({ key: 'commissions' } as any);
     const pct = cfg?.service_types?.[serviceType]?.percent;
     if (Number(pct) >= 0) return { percent: Number(pct), source: 'finance_config' };
     return { percent: DEFAULTS.commission_percent, source: 'system_default' };
+  }
+
+  /** The provider's promotion that is running at `now`, if any (the newest one when the admin left two). */
+  async activePromo(providerId: string, now: Date, skip: string[] = []): Promise<CommissionPromo | null> {
+    const rows: any[] = await this.conn.collection(PROMO_COLLECTION).find({ provider_account_id: providerId, active: { $ne: false } } as any).sort({ createdAt: -1 }).toArray();
+    return rows.find((p) => !skip.includes(p.id) && promoState({ ...p, max_orders: p.max_orders ?? null }, now) === 'active') ?? null;
+  }
+
+  /** The percent the admin set on the provider itself (`commission_insurance_pct` for an insured visit, else `commission_cash_pct`); null = none. */
+  private async profileOverride(providerId: string, paymentMethod?: string): Promise<number | null> {
+    const profile: any = await this.conn.collection('provider_profiles').findOne(
+      { $or: [{ account_id: providerId }, { user_id: providerId }] },
+      { projection: { _id: 0, commission_cash_pct: 1, commission_insurance_pct: 1 } },
+    );
+    const own = String(paymentMethod || '').toLowerCase() === 'insurance' ? profile?.commission_insurance_pct : profile?.commission_cash_pct;
+    return typeof own === 'number' && Number.isFinite(own) && own >= 0 && own <= 100 ? own : null;
+  }
+
+  /**
+   * Counts one completed order against a promo (at most `max_orders` ever succeed, even with two completions at once).
+   * false = the promo has no order left: the caller asks `resolve` again, skipping it.
+   */
+  async claimPromoOrder(promoId: string): Promise<boolean> {
+    const res: any = await this.conn.collection(PROMO_COLLECTION).updateOne(
+      { id: promoId, active: { $ne: false }, $or: [{ max_orders: null }, { max_orders: { $exists: false } }, { $expr: { $lt: ['$used_orders', '$max_orders'] } }] } as any,
+      { $inc: { used_orders: 1 }, $set: { updatedAt: new Date() } } as any,
+    );
+    return (res?.modifiedCount ?? res?.matchedCount ?? 0) > 0;
   }
 
   /** Create a new rule version; supersedes older versions of the same scope. */
