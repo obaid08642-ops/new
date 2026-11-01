@@ -48,6 +48,7 @@ const tap = async (el: Parameters<typeof fireEvent.press>[0]) => {
   });
 };
 
+const quoteUnit: { current: number } = { current: 100 };
 const SLOT = new Date(Date.now() + 2 * 86_400_000).toISOString();
 const nurse = { id: 'nurse-1', name: 'Test Nurse', facility: 'Test facility', rating: 4.5, reviews_count: 3, degree: 'Test degree', price: 100, reviews: [{ user: 'Test user', text: 'Test review' }] };
 
@@ -57,6 +58,11 @@ function answer(profile: unknown, post: (path: string) => unknown = () => ({})) 
     // #642: the nurse's own free times for the day
     if (path.startsWith('/home-care/providers/nurse-1/slots')) return { slots: [{ start: SLOT, available: true }] };
     if (path.startsWith('/home-care/providers/')) return nurse;
+    // the server's quote: one visit costs 100, the total is 100 x the days asked for
+    if (path.startsWith('/bookings/quote?kind=nursing')) {
+      const days = Number(new URL(`https://x.test${path}`).searchParams.get('sessions_count')) || 1;
+      return { kind: 'nursing', total: quoteUnit.current * days, lines: [{ key: 'visits', qty: days, unit_price: quoteUnit.current, amount: quoteUnit.current * days }] };
+    }
     if (path.startsWith('/insurance/coverage-check')) return { provider: 'Test insurer', policy: 'P-1' };
     if (path.startsWith('/users/me/profile')) return profile;
     return {};
@@ -69,6 +75,7 @@ jest.setTimeout(30000);
 beforeEach(() => {
   jest.clearAllMocks();
   mockAddress.current = { city: 'Test city', district: 'Test district', lat: 24.7, lng: 46.7 };
+  quoteUnit.current = 100;
 });
 
 describe('nurse booking page', () => {
@@ -98,7 +105,7 @@ describe('nurse booking page', () => {
     answer({}, (path) => (path === '/nursing/bookings' ? { id: 'b-1' } : { id: 'txn-1', checkout_url: 'https://pay.example.test/x', amount: 100 }));
     await render(wrap(<NurseBookingScreen />));
     await screen.findByText('Test Nurse');
-    await tap(screen.getByLabelText(new RegExp(`^${k('nur.book.confirmPrice', { amount: '100.00', currency: k('pharmacy.currency') }).slice(0, 20)}`)));
+    await tap(await screen.findByLabelText(new RegExp(`^${k('nur.book.confirmPrice', { amount: '100.00', currency: k('pharmacy.currency') }).slice(0, 20)}`)));
     await waitFor(() => expect(mockRouter.replace).toHaveBeenCalled());
     const [first, second] = posts();
     expect(first[0]).toBe('/nursing/bookings');
@@ -115,9 +122,29 @@ describe('nurse booking page', () => {
     await screen.findByText('Test Nurse');
     await tap(screen.getByLabelText(new RegExp(`^${k('nur.book.frequency')}`)));
     await tap(await screen.findByText(k('nur.book.consecutive', { n: '3' })));
-    await tap(screen.getByLabelText(new RegExp(`^${k('nur.book.confirmPrice', { amount: '300.00', currency: k('pharmacy.currency') }).slice(0, 20)}`)));
+    await tap(await screen.findByLabelText(new RegExp(`^${k('nur.book.confirmPrice', { amount: '300.00', currency: k('pharmacy.currency') })}`)));
     await waitFor(() => expect(mockRouter.replace).toHaveBeenCalled());
     expect(JSON.parse(posts()[0][1].body)).toMatchObject({ provider_id: 'nurse-1', sessions_count: 3 });
+  });
+
+  it('shows the price the server quotes, not the nurse\'s listed price times the days', async () => {
+    mockParams.current = { nurseId: 'nurse-1', flow: 'cash', serviceId: 'svc-1' };
+    quoteUnit.current = 250; // the quote differs from nurse.price (100): the screen follows the quote
+    answer({});
+    await render(wrap(<NurseBookingScreen />));
+    await screen.findByText('Test Nurse');
+    expect(await screen.findByLabelText(new RegExp(`^${k('nur.book.confirmPrice', { amount: '250.00', currency: k('pharmacy.currency') })}`))).toBeTruthy();
+    expect(apiFetch.mock.calls.some(([path]) => String(path).startsWith('/bookings/quote?kind=nursing&service_id=svc-1&provider_id=nurse-1&sessions_count=1'))).toBe(true);
+  });
+
+  it('with no quote the screen says the price is set at booking and the button carries no amount', async () => {
+    mockParams.current = { nurseId: 'nurse-1', flow: 'cash', serviceId: 'svc-1' };
+    answer({});
+    const base = apiFetch.getMockImplementation()!;
+    apiFetch.mockImplementation(async (path: string, init?: RequestInit) => { if (path.startsWith('/bookings/quote')) throw new Error('quote down'); return base(path, init); });
+    await render(wrap(<NurseBookingScreen />));
+    await screen.findByText('Test Nurse');
+    expect(screen.getByLabelText(new RegExp(`^${k('nur.book.confirm')}$`))).toBeTruthy();
   });
 
   it('sends an insurance request to the insurance profile when no policy is saved, and posts nothing', async () => {

@@ -291,7 +291,7 @@ export default function DiagnosticsConfirm() {
               {p.items.map((i) => (
                 <AmountLine key={i.catalog_id} label={nameOf(i.catalog_id) || k('ordering.pay.item')} amount={i.price} />
               ))}
-              {p.best && g.mode === 'home' ? <AmountLine label={k('ordering.pay.lFee')} amount={Math.round((p.row.total - p.items.reduce((s, i) => s + i.price, 0)) * 100) / 100} /> : null}
+              {p.best && g.mode === 'home' ? <AmountLine label={k('ordering.pay.lFee')} amount={p.row.home_fee || 0} /> : null}
               {!p.best ? <AmountLine label={g.mode === 'home' ? k('ordering.match.homeVisit') : k('ordering.match.atCentre')} amount={p.row.total} /> : null}
             </View>
           ))}

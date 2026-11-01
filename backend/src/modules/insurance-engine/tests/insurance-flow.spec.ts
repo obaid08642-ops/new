@@ -1,11 +1,11 @@
 /**
  * M7 — Critical business-rule tests:
  *  BR-2 insurance flow (provider decision + patient copay),
- *  BR-1 quote (server decides allowed payment methods),
+ *  (BR-1 quote moved: modules/quotes, which prices from the booking's own function),
  *  Refund policy windows (>24h = 100% / 4–24h = 50% / <4h = 0%).
  */
 import { BadRequestException, ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
-import { InsuranceFlowService, RefundService, QuoteController } from '../insurance-engine.module';
+import { InsuranceFlowService, RefundService } from '../insurance-engine.module';
 
 const makeDoc = (obj: any) => {
   const doc: any = { ...obj };
@@ -281,39 +281,6 @@ describe('InsuranceFlowService', () => {
       expect(req.state).toBe('CANCELLED');
       expect(req.save).toHaveBeenCalled();
     });
-  });
-});
-
-// ============================================================================
-// QuoteController (BR-1) — server decides allowed payment methods
-// ============================================================================
-describe('QuoteController (BR-1)', () => {
-  const ctl = new QuoteController();
-
-  it('clinic channel allows clinic_pay (cash at visit)', () => {
-    const q = ctl.quote({ channel: 'clinic', price: '200' });
-    expect(q.allowed_methods).toContain('clinic_pay');
-    expect(q.allowed_methods).toContain('online');
-  });
-
-  it.each(['online', 'video', 'audio', 'chat', 'home', 'home_visit', 'delivery', 'nursing', 'physiotherapy'])(
-    'channel "%s" is online-only (no clinic_pay)',
-    (channel) => {
-      const q = ctl.quote({ channel, price: '200' });
-      expect(q.allowed_methods).not.toContain('clinic_pay');
-      expect(q.allowed_methods).toContain('online');
-    },
-  );
-
-  it('adds insurance method only when requested', () => {
-    expect(ctl.quote({ channel: 'clinic', with_insurance: 'true' }).allowed_methods[0]).toBe('insurance');
-    expect(ctl.quote({ channel: 'clinic' }).allowed_methods).not.toContain('insurance');
-  });
-
-  it('defaults unknown channel handling + SAR currency', () => {
-    const q = ctl.quote({});
-    expect(q.channel).toBe('clinic');
-    expect(q.currency).toBe('SAR');
   });
 });
 
