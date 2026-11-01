@@ -55,7 +55,9 @@ export class AdminGovernanceController {
   ) {
     // Strictly Immutable Read-Only ABAC Log access — server-side search/pagination
     const filter: any = {};
-    if (severity && ['high', 'medium', 'low'].includes(severity)) filter.severity = severity;
+    // the severity is looked up in a fixed list: only one of three constants ever reaches the query, never the request value
+    const sev = (['high', 'medium', 'low'] as const).find((x) => x === severity);
+    if (sev) filter.severity = sev;
     if (q && q.trim()) {
       const rx = new RegExp(q.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
       filter.$or = [
@@ -68,7 +70,7 @@ export class AdminGovernanceController {
     // (userId/providerId/flagType/confidenceScore/status) — merge with the legacy
     // `fraudalerts` shape so the panel is never empty when detectors fire.
     const liveFilter: any = {};
-    if (severity && ['high', 'medium', 'low'].includes(severity)) liveFilter.severity = severity;
+    if (sev) liveFilter.severity = sev;
     if (q && q.trim()) {
       const rx = new RegExp(q.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
       liveFilter.$or = [{ userId: rx }, { providerId: rx }, { flagType: rx }];
