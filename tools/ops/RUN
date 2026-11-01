@@ -1,8 +1,10 @@
-# 2026-11-01 12:20 lead reviewer: run 84 = deploy main@b87b6314.
-# Brings: the specialty row gap fix the owner circled (#2359), invoice API with lines/payment/last4/insurer share (#2356),
-# radiology notice removed (#2357), appointments after sign-in (#2352), monitor cron + mongod memory plan + appName (#2355, tasks dry by default).
+# 2026-11-01 14:35 lead reviewer: run 85.
+# 1. 99s: invoice seller name = "منصة نبض الطبية" (owner); VAT/CR/address stay empty until issued. Only seller_name is written.
+# 2. 98m APPLY: schedule monitor.sh every 15 min ONLY if nothing schedules it yet (prints where it runs; never a second schedule).
+# 3. 98n APPLY: tcmallocReleaseRate 1.0 -> 5 at runtime (mongod gives free memory back sooner; not written to mongod.conf; lasts until restart; reversible).
+# 4. 99n read-only after.
 release:b87b6314493e0793c7766ac3366c59dcb13662fe
-97-free-old-predeploy
-93-free-unused-images
-60-deploy-main
-cf-purge-api
+99s-invoice-seller
+98m-monitor-cron
+98n-mongod-tcmalloc
+99n-mongod-memory
