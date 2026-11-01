@@ -134,4 +134,11 @@ assert r["apikey"] == "xkeysib-test", r
 assert b["sender"] == {"email": "no-reply@nabd.plus", "name": "Nabd Plus"}, b
 assert b["to"] == [{"email": "ops@example.invalid"}] and "textContent" in b and b["subject"].startswith("[nabd.plus]"), b
 PY
+# MONITOR_TEST_MAIL=1: one mail, only "sent" / "failed" printed, no alert state written
+T=$(env MONITOR_TEST_MAIL=1 MONITOR_SKIP_SERVICES=1 MONITOR_LOG_DIR="$W/log" MONITOR_STATE_DIR="$W/state-t" MONITOR_MAIL_CMD="tee -a $W/mails-testmail" OPS_ALERT_EMAIL=ops@example.invalid MAIL_FROM=x@y.invalid bash "$W/deploy/scripts/monitor.sh" 2>&1 | tail -1)
+[ "$T" = "status: monitor-testmail: sent" ] && grep -q '^SUBJECT: \[nabd.plus\] test mail' "$W/mails-testmail" && [ ! -f "$W/state-t/last-signature" ] && echo "ok - test mail: sent, no alert state written" || { echo "FAIL - test mail sent ($T)"; fail=1; }
+T=$(env MONITOR_TEST_MAIL=1 MONITOR_SKIP_SERVICES=1 MONITOR_LOG_DIR="$W/log" MONITOR_STATE_DIR="$W/state-t" OPS_ALERT_EMAIL= bash "$W/deploy/scripts/monitor.sh" 2>&1)
+case "$T" in "status: monitor-testmail: failed (OPS_ALERT_EMAIL is not set)") echo "ok - test mail: failed when no address is set";; *) echo "FAIL - test mail without address ($T)"; fail=1;; esac
+T=$(env MONITOR_TEST_MAIL=1 MONITOR_SKIP_SERVICES=1 MONITOR_LOG_DIR="$W/log" MONITOR_STATE_DIR="$W/state-t" OPS_ALERT_EMAIL=ops@example.invalid MAIL_FROM=x@y.invalid RESEND_API_KEY= BREVO_API_KEY= MAILJET_API_KEY= MAILJET_SECRET_KEY= bash "$W/deploy/scripts/monitor.sh" 2>&1)
+case "$T" in "status: monitor-testmail: failed (see"*) echo "ok - test mail: failed when no provider key is set";; *) echo "FAIL - test mail without key ($T)"; fail=1;; esac
 [ $fail = 0 ] && echo "PASS: monitor disk alert" || exit 1
