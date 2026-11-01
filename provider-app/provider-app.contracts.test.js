@@ -261,8 +261,12 @@ describe('Provider App release contracts', () => {
 
     it('D2 the doctor keeps the post-visit tools after Finish and prescribes only while IN_PROGRESS', () => {
       const live = read('screens/doctor/doctor/LiveConsultationScreen.tsx');
-      expect(live).toContain("'IN_PROGRESS', 'COMPLETED'");
-      expect(live).toContain("const canPrescribe = status === 'IN_PROGRESS'");
+      // the step rules live in consultationSteps.ts (tested in doctor/__tests__/consultationSteps.test.ts); the screen must use them
+      const steps = read('screens/doctor/doctor/consultationSteps.ts');
+      expect(steps).toContain("'IN_PROGRESS', 'COMPLETED'");
+      expect(steps).toContain("canPrescribe: status === 'IN_PROGRESS'");
+      expect(live).toContain('visitSteps(');
+      expect(live).toContain('const canPrescribe = steps.canPrescribe');
       expect(live).toContain('disabled={!canPrescribe}');
       expect(read('screens/doctor/doctor/EPrescriptionScreen.tsx')).toMatch(/in-progress appointment/);
     });
@@ -305,5 +309,13 @@ describe('Provider App release contracts', () => {
         expect(src).not.toMatch(/sos_dispatch|gps_router|ambulance_fleet|SosDispatchScreen|GpsRouterScreen|FleetScreen/);
       }
     });
+  });
+});
+
+describe('Expo build check (CI: expo export + expo prebuild for android and ios)', () => {
+  it('keeps @xmldom/xmldom on 0.8.x: @expo/plist calls parseFromString without a MIME type, which 0.9 rejects and breaks the iOS prebuild', () => {
+    const pkg = require('./package.json');
+    const pinned = (pkg.overrides || {})['@xmldom/xmldom'] || '';
+    expect(pinned).toMatch(/^\^0\.8\./);
   });
 });

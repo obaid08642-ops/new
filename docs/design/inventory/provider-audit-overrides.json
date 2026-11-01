@@ -46,5 +46,17 @@
   "provider-app/src/screens/lab/LabDashboard.tsx:1561": {
     "status": "ok",
     "reason": "Text is the label of a real input (a placeholder-style name), not shown data."
+  },
+  "provider-app/src/screens/lab/LabDashboard.tsx:517": {
+    "status": "ok",
+    "reason": "'sample' is the lab specimen in the function name openSampleForResults, not sample data."
+  },
+  "provider-app/src/screens/lab/LabDashboard.tsx:1572": {
+    "status": "ok",
+    "reason": "Text is the label of a real input (a placeholder-style name), not shown data."
+  },
+  "provider-app/src/screens/lab/LabDashboard.tsx:1573": {
+    "status": "ok",
+    "reason": "Text is the label of a real input (a placeholder-style name), not shown data."
   }
 }

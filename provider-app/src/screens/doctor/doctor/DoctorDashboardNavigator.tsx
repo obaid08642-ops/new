@@ -43,6 +43,7 @@ import { ReferralScreen } from './ReferralScreen';
 import { DoctorAvailabilityScreen } from './DoctorAvailabilityScreen';
 import { DoctorServiceManagementScreen } from './DoctorServiceManagementScreen';
 import { CertificatesConfigScreen, ProviderWalletScreen, ProviderProfileEditor } from '../../shared/SharedScreens';
+import { NotificationsCenterScreen } from '../../shared/RealScreens';
 import { PreVisitChatScreen } from './PreVisitChatScreen';
 import { InboundMedicalReportsScreen } from './InboundMedicalReportsScreen';
 
@@ -100,6 +101,7 @@ export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void })
        }}
      </Stack.Screen>
 
+     <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="appointment_detail">{({ navigation, route }: any) => <AppointmentDetailScreen apt={route.params?.param} onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="consultation">{({ navigation, route }: any) => <LiveConsultationScreen apt={route.params?.param} onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="prescription">{({ navigation, route }: any) => <EPrescriptionScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>

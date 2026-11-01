@@ -39,7 +39,10 @@ shift; [ "$1" = -i ] && shift; shift; cmd="$1"; shift; exec "$(dirname "$0")/$cm
 
   const env = (extra: Record<string, string> = {}) => ({
     PATH: `${bin}:${process.env.PATH}`, HOME: work, NABD_ENV_FILE: '/dev/null', BACKUP_DIR: backups, DB_NAME: 'nabd_test',
-    BACKUP_S3_ENDPOINT: 'https://private.example.test', BACKUP_S3_BUCKET: 'nabd-backups', BACKUP_S3_ACCESS_KEY_ID: 'k', BACKUP_S3_SECRET_ACCESS_KEY: 's', ...extra,
+    BACKUP_S3_ENDPOINT: 'https://private.example.test', BACKUP_S3_BUCKET: 'nabd-backups', BACKUP_S3_ACCESS_KEY_ID: 'k', BACKUP_S3_SECRET_ACCESS_KEY: 's',
+    // restore-drill.sh fails when the volume of BACKUP_DIR is >= 80% full: that measured the CI runner's disk, not the drill (the spec failed with
+    // exit 1 on a busy runner and passes here). The drill's disk alarm has its own test below with a stand-in df.
+    DISK_THRESHOLD_PCT: '101', ...extra,
   });
   const run = (script: string, e: Record<string, string>) => spawnSync('bash', [path.join(SCRIPTS, script)], { env: e, encoding: 'utf8' });
   const files = (dir: string): string[] => fs.readdirSync(dir, { recursive: true } as any).map(String).filter((f) => fs.statSync(path.join(dir, f)).isFile());
@@ -62,8 +65,16 @@ shift; [ "$1" = -i ] && shift; shift; cmd="$1"; shift; exec "$(dirname "$0")/$cm
   it('the restore drill decrypts it and the archive that reaches mongorestore is the original', () => {
     expect(run('backup.sh', env({ BACKUP_ENCRYPTION_PASSPHRASE_FILE: pass })).status).toBe(0);
     const r = run('restore-drill.sh', env({ BACKUP_ENCRYPTION_PASSPHRASE_FILE: pass }));
-    expect(r.status).toBe(0);
+    if (r.status !== 0) throw new Error(`restore-drill.sh exited ${r.status}\n${r.stdout}\n${r.stderr}`);
     expect(fs.readFileSync(path.join(work, 'restored.bin'), 'utf8')).toBe(MARKER);
+  });
+
+  it('the drill still fails loudly when the backup volume is nearly full (stand-in df, independent of the host disk)', () => {
+    expect(run('backup.sh', env({ BACKUP_ENCRYPTION_PASSPHRASE_FILE: pass })).status).toBe(0);
+    tool('df', `printf 'Filesystem 1024-blocks Used Available Capacity Mounted on\\n/dev/x 100 95 5 95%% /\\n'`);
+    const r = run('restore-drill.sh', env({ BACKUP_ENCRYPTION_PASSPHRASE_FILE: pass, DISK_THRESHOLD_PCT: '80' }));
+    expect(r.status).not.toBe(0);
+    expect(r.stdout + r.stderr).toContain('disk usage 95% >= 80%');
   });
 
   it('the drill fails clearly on an encrypted backup when the passphrase is missing or wrong', () => {

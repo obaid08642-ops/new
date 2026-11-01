@@ -6,6 +6,7 @@
  * ║   before creating or transitioning a booking.                  ║
  * ╚════════════════════════════════════════════════════════════════╝
  */
+import { PAYMENT_METHODS_BY_CONTEXT } from '../../common/payment-policy';
 import { Module, Controller, Post, Get, Body, UseGuards, Injectable, BadRequestException } from '@nestjs/common';
 import { InjectModel, InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
@@ -244,13 +245,7 @@ export class BusinessRulesService {
     if (!ctx.payment_method) return;
     const sc = ctx.service_context;
     if (!sc) return;
-    const allowed: Record<NonNullable<RuleContext['service_context']>, Array<'cash'|'card'|'insurance'>> = {
-      home_visit: ['card', 'insurance'],
-      online_consultation: ['card'],
-      in_clinic: ['cash', 'card', 'insurance'],
-      pharmacy_delivery: ['cash', 'card', 'insurance'],
-    };
-    const allowedList = allowed[sc] || ['cash', 'card', 'insurance'];
+    const allowedList: readonly string[] = PAYMENT_METHODS_BY_CONTEXT[sc] || ['cash', 'card', 'insurance'];
     if (!allowedList.includes(ctx.payment_method)) {
       r.errors.push(`payment_method_${ctx.payment_method}_not_allowed_for_${sc}`);
       r.ok = false;

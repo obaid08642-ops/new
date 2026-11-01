@@ -88,4 +88,19 @@ describe('NotificationsService provider bell (LJ-07)', () => {
     await service.notifyProviderAccount('acct-1', { type: 'new_request', title_ar: 'طلب جديد', title_en: 'New request', body_ar: 'لديك طلب', related_id: 'b1', related_type: 'booking' });
     expect(service.sendPush).toHaveBeenCalledWith(expect.objectContaining({ user_id: 'acct-1', title: 'طلب جديد', body: 'لديك طلب' }));
   });
+
+  it('a new request rings (HIGH priority, so iOS plays the sound); a payout notice does not', async () => {
+    const { service } = setup();
+    await service.notifyProviderAccount('acct-1', { type: 'new_request', title_ar: 'طلب', title_en: 'Request', related_id: 'r1', related_type: 'x' });
+    await service.notifyProviderAccount('acct-1', { type: 'payout', title_ar: 'دفعة', title_en: 'Payout', related_id: 'p1', related_type: 'payout' });
+    const calls = (service.sendPush as jest.Mock).mock.calls.map((c) => c[0].priority);
+    expect(calls).toEqual(['HIGH', 'NORMAL']);
+  });
+
+  it('a radiology booking reaches the radiology provider, not only the patient', async () => {
+    const { service, bell, collections } = setup({ account: { id: 'rad-account-1' } });
+    collections.radiologybookings = { findOne: jest.fn().mockResolvedValue({ id: 'rb-1', provider_account_id: 'rad-account-1' }) };
+    await service.onServiceRequestedTargeted({ entity_type: 'radiology_booking', entity_id: 'rb-1' });
+    expect(bell.insertOne).toHaveBeenCalledWith(expect.objectContaining({ provider_account_id: 'rad-account-1', related_id: 'rb-1' }));
+  });
 });

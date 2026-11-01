@@ -3,9 +3,9 @@
  "summary": {
   "provider-app": {
    "screens": 142,
-   "elements": 1978,
-   "calls": 548,
-   "OK": 1978,
+   "elements": 1983,
+   "calls": 550,
+   "OK": 1983,
    "FIXED": 0,
    "MISSING-BACKEND": 0,
    "FLAGGED": 0
@@ -113,7 +113,7 @@
      "method": "GET",
      "path": "/provider/jobs/queue",
      "status": "OK",
-     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:286",
+     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:293",
      "file": "provider-app/src/screens/shared/blueprint/AiMedicalCopilot.tsx",
      "line": 38
     }
@@ -211,7 +211,7 @@
      "method": "POST",
      "path": "/provider/promotions",
      "status": "OK",
-     "backend": "backend/src/modules/provider-production/provider-production.module.ts:727",
+     "backend": "backend/src/modules/provider-production/provider-production.module.ts:678",
      "file": "provider-app/src/screens/shared/blueprint/CreateCampaignScreen.tsx",
      "line": 41
     }
@@ -277,7 +277,7 @@
      "method": "GET",
      "path": "/provider/crm",
      "status": "OK",
-     "backend": "backend/src/modules/provider-production/provider-production.module.ts:708",
+     "backend": "backend/src/modules/provider-production/provider-production.module.ts:659",
      "file": "provider-app/src/screens/shared/blueprint/CrmHub.tsx",
      "line": 32
     },
@@ -285,7 +285,7 @@
      "method": "GET",
      "path": "/provider/crm/:param",
      "status": "OK",
-     "backend": "backend/src/modules/provider-production/provider-production.module.ts:710",
+     "backend": "backend/src/modules/provider-production/provider-production.module.ts:661",
      "file": "provider-app/src/screens/shared/blueprint/CrmHub.tsx",
      "line": 54
     },
@@ -293,7 +293,7 @@
      "method": "PUT",
      "path": "/provider/crm/:param",
      "status": "OK",
-     "backend": "backend/src/modules/provider-production/provider-production.module.ts:714",
+     "backend": "backend/src/modules/provider-production/provider-production.module.ts:665",
      "file": "provider-app/src/screens/shared/blueprint/CrmHub.tsx",
      "line": 76
     }
@@ -499,7 +499,7 @@
      "method": "GET",
      "path": "/provider/nursing/checklist",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:416",
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:415",
      "file": "provider-app/src/screens/shared/blueprint/NurseChecklistConsole.tsx",
      "line": 26
     }
@@ -525,7 +525,7 @@
      "method": "GET",
      "path": "/provider/jobs/queue",
      "status": "OK",
-     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:286",
+     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:293",
      "file": "provider-app/src/screens/shared/blueprint/NurseVisitConsole.tsx",
      "line": 45
     }
@@ -809,7 +809,7 @@
      "method": "GET",
      "path": "/provider/promotions",
      "status": "OK",
-     "backend": "backend/src/modules/provider-production/provider-production.module.ts:725",
+     "backend": "backend/src/modules/provider-production/provider-production.module.ts:676",
      "file": "provider-app/src/screens/shared/blueprint/PromotionsDashboard.tsx",
      "line": 35
     }
@@ -859,7 +859,7 @@
      "method": "GET",
      "path": "/provider/reviews",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:903",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:919",
      "file": "provider-app/src/screens/shared/blueprint/ReputationHub.tsx",
      "line": 29
     }
@@ -885,7 +885,7 @@
      "method": "GET",
      "path": "/provider/ops/wallet/ledger",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:799",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:815",
      "file": "provider-app/src/screens/shared/blueprint/RevenueInsights.tsx",
      "line": 40
     }
@@ -943,7 +943,7 @@
      "method": "GET",
      "path": "/provider/referral-network",
      "status": "OK",
-     "backend": "backend/src/modules/provider-production/provider-production.module.ts:723",
+     "backend": "backend/src/modules/provider-production/provider-production.module.ts:674",
      "file": "provider-app/src/screens/shared/blueprint/SmartOutboundReferralNetwork.tsx",
      "line": 39
     },
@@ -951,7 +951,7 @@
      "method": "POST",
      "path": "/provider/referrals",
      "status": "OK",
-     "backend": "backend/src/modules/provider-production/provider-production.module.ts:721",
+     "backend": "backend/src/modules/provider-production/provider-production.module.ts:672",
      "file": "provider-app/src/screens/shared/blueprint/SmartOutboundReferralNetwork.tsx",
      "line": 63
     }
@@ -1041,7 +1041,7 @@
      "method": "POST",
      "path": "/provider/promotions",
      "status": "OK",
-     "backend": "backend/src/modules/provider-production/provider-production.module.ts:727",
+     "backend": "backend/src/modules/provider-production/provider-production.module.ts:678",
      "file": "provider-app/src/screens/shared/blueprint/SubscriptionsAdsScreen.tsx",
      "line": 51
     }
@@ -1123,7 +1123,7 @@
      "method": "GET",
      "path": "/insurance/companies",
      "status": "OK",
-     "backend": "backend/src/modules/insurance/insurance.module.ts:443",
+     "backend": "backend/src/modules/insurance/insurance.module.ts:459",
      "file": "provider-app/src/api/catalogs.ts",
      "line": 30
     },
@@ -2253,7 +2253,7 @@
      "method": "GET",
      "path": "/insurance/companies",
      "status": "OK",
-     "backend": "backend/src/modules/insurance/insurance.module.ts:443",
+     "backend": "backend/src/modules/insurance/insurance.module.ts:459",
      "file": "provider-app/src/api/catalogs.ts",
      "line": 30
     },
@@ -3505,7 +3505,7 @@
      "method": "GET",
      "path": "/insurance/companies",
      "status": "OK",
-     "backend": "backend/src/modules/insurance/insurance.module.ts:443",
+     "backend": "backend/src/modules/insurance/insurance.module.ts:459",
      "file": "provider-app/src/api/catalogs.ts",
      "line": 30
     },
@@ -4709,7 +4709,7 @@
      "method": "GET",
      "path": "/insurance/companies",
      "status": "OK",
-     "backend": "backend/src/modules/insurance/insurance.module.ts:443",
+     "backend": "backend/src/modules/insurance/insurance.module.ts:459",
      "file": "provider-app/src/api/catalogs.ts",
      "line": 30
     },
@@ -5801,7 +5801,7 @@
      "method": "GET",
      "path": "/insurance/companies",
      "status": "OK",
-     "backend": "backend/src/modules/insurance/insurance.module.ts:443",
+     "backend": "backend/src/modules/insurance/insurance.module.ts:459",
      "file": "provider-app/src/api/catalogs.ts",
      "line": 30
     },
@@ -6803,7 +6803,7 @@
      "method": "GET",
      "path": "/insurance/companies",
      "status": "OK",
-     "backend": "backend/src/modules/insurance/insurance.module.ts:443",
+     "backend": "backend/src/modules/insurance/insurance.module.ts:459",
      "file": "provider-app/src/api/catalogs.ts",
      "line": 30
     },
@@ -8079,7 +8079,7 @@
      "note": ""
     },
     {
-     "element": "input: Cancellation reason",
+     "element": "input: Cancellation reason (required, the patient recei",
      "wired_to": "user input → cancelReason (local)",
      "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
      "line": 137,
@@ -8154,7 +8154,7 @@
      "method": "GET",
      "path": "/insurance/companies",
      "status": "OK",
-     "backend": "backend/src/modules/insurance/insurance.module.ts:443",
+     "backend": "backend/src/modules/insurance/insurance.module.ts:459",
      "file": "provider-app/src/api/catalogs.ts",
      "line": 30
     },
@@ -8162,7 +8162,7 @@
      "method": "GET",
      "path": "/provider/profile/availability",
      "status": "OK",
-     "backend": "backend/src/modules/provider-production/provider-production.module.ts:752",
+     "backend": "backend/src/modules/provider-production/provider-production.module.ts:693",
      "file": "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx",
      "line": 49
     },
@@ -8170,7 +8170,7 @@
      "method": "PATCH",
      "path": "/provider/profile/availability",
      "status": "OK",
-     "backend": "backend/src/modules/provider-production/provider-production.module.ts:754",
+     "backend": "backend/src/modules/provider-production/provider-production.module.ts:695",
      "file": "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx",
      "line": 146
     },
@@ -8476,7 +8476,7 @@
      "method": "GET",
      "path": "/provider/ops/doctor/blacklist",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:771",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:787",
      "file": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx",
      "line": 294
     },
@@ -8484,7 +8484,7 @@
      "method": "DELETE",
      "path": "/provider/ops/doctor/blacklist/:param",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:769",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:785",
      "file": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx",
      "line": 302
     }
@@ -8512,45 +8512,45 @@
    "app": "provider-app",
    "screen": "DoctorHomeTab",
    "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-   "line": 54,
+   "line": 55,
    "calls": [
     {
      "method": "POST",
      "path": "/provider/jobs/:param/:param/accept",
      "status": "OK",
-     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:291",
+     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:298",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 165
+     "line": 166
     },
     {
      "method": "POST",
      "path": "/provider/jobs/:param/:param/reject",
      "status": "OK",
-     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:292",
+     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:299",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 175
+     "line": 176
     },
     {
      "method": "POST",
      "path": "/provider/jobs/consultation/:param/insurance",
      "status": "OK",
-     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:296",
+     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:303",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 188
+     "line": 189
     },
     {
      "method": "GET",
      "path": "/provider/jobs/queue",
      "status": "OK",
-     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:286",
+     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:293",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 129
+     "line": 130
     },
     {
      "method": "POST",
      "path": "/provider/ops/availability/toggle-instant",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:821",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:837",
      "file": "provider-app/src/context/index.tsx",
      "line": 415
     },
@@ -8558,9 +8558,9 @@
      "method": "GET",
      "path": "/provider/stats/today",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:858",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:874",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 149
+     "line": 150
     }
    ],
    "elements": [
@@ -8568,7 +8568,7 @@
      "element": "data: Data stats",
      "wired_to": "GET /provider/jobs/queue, GET /provider/stats/today → stats",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 63,
+     "line": 64,
      "status": "OK",
      "note": ""
     },
@@ -8576,7 +8576,7 @@
      "element": "data: Data approvalStatus",
      "wired_to": "approvalStatus: set from user input / local logic",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 69,
+     "line": 70,
      "status": "OK",
      "note": ""
     },
@@ -8584,7 +8584,7 @@
      "element": "button: [bell]",
      "wired_to": "parent callback onTriggerAlarm",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 203,
+     "line": 204,
      "status": "OK",
      "note": ""
     },
@@ -8592,7 +8592,7 @@
      "element": "input: <NOnlineToggle>",
      "wired_to": "user input → POST /provider/ops/availability/toggle-instant",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 206,
+     "line": 207,
      "status": "OK",
      "note": ""
     },
@@ -8600,7 +8600,7 @@
      "element": "number: Stat: Today's Apts",
      "wired_to": "value ← String(stats.todayCount)",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 214,
+     "line": 215,
      "status": "OK",
      "note": ""
     },
@@ -8608,7 +8608,7 @@
      "element": "number: Stat: New Requests",
      "wired_to": "value ← String(stats.pendingCount)",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 215,
+     "line": 216,
      "status": "OK",
      "note": ""
     },
@@ -8616,7 +8616,7 @@
      "element": "button: Retry",
      "wired_to": "GET /provider/jobs/queue, GET /provider/stats/today",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 221,
+     "line": 222,
      "status": "OK",
      "note": ""
     },
@@ -8624,15 +8624,15 @@
      "element": "data: List requests",
      "wired_to": "GET /provider/jobs/queue, GET /provider/stats/today, POST /provider/jobs/:param/:param/accept +1 → requests",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 232,
+     "line": 233,
      "status": "OK",
      "note": ""
     },
     {
      "element": "button: Reject",
-     "wired_to": "POST /provider/jobs/:param/:param/reject",
+     "wired_to": "POST /provider/jobs/:param/:param/reject, GET /provider/jobs/queue, GET /provider/stats/today",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 256,
+     "line": 257,
      "status": "OK",
      "note": ""
     },
@@ -8640,7 +8640,7 @@
      "element": "button: Accept",
      "wired_to": "POST /provider/jobs/:param/:param/accept, GET /provider/jobs/queue, GET /provider/stats/today",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 259,
+     "line": 260,
      "status": "OK",
      "note": ""
     },
@@ -8648,7 +8648,7 @@
      "element": "button: Accept & Process Insurance",
      "wired_to": "local state setInsuranceModalReq",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 261,
+     "line": 262,
      "status": "OK",
      "note": ""
     },
@@ -8656,7 +8656,7 @@
      "element": "button: Accept",
      "wired_to": "POST /provider/jobs/:param/:param/accept, GET /provider/jobs/queue, GET /provider/stats/today",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 263,
+     "line": 264,
      "status": "OK",
      "note": ""
     },
@@ -8664,7 +8664,7 @@
      "element": "data: List todayApts",
      "wired_to": "GET /provider/jobs/queue, GET /provider/stats/today → todayApts",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 278,
+     "line": 279,
      "status": "OK",
      "note": ""
     },
@@ -8672,7 +8672,7 @@
      "element": "button: {apt.patient} -",
      "wired_to": "navigate → consultation",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 279,
+     "line": 280,
      "status": "OK",
      "note": ""
     },
@@ -8680,7 +8680,7 @@
      "element": "button: [profile] Medical Jobs",
      "wired_to": "navigate → medical_jobs",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 289,
+     "line": 290,
      "status": "OK",
      "note": ""
     },
@@ -8688,7 +8688,7 @@
      "element": "button: [document] Drug Index",
      "wired_to": "navigate → drug_index",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 297,
+     "line": 298,
      "status": "OK",
      "note": ""
     },
@@ -8696,7 +8696,7 @@
      "element": "button: [folder] Inbound Medical Reports (Radiology & La",
      "wired_to": "navigate → inbound_reports",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 305,
+     "line": 306,
      "status": "OK",
      "note": ""
     },
@@ -8704,7 +8704,7 @@
      "element": "button: {s}",
      "wired_to": "local state setApprovalStatus",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 351,
+     "line": 352,
      "status": "OK",
      "note": ""
     },
@@ -8712,7 +8712,7 @@
      "element": "input: Patient Co-Pay (SAR)",
      "wired_to": "user input → patientCopay → request body",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 356,
+     "line": 357,
      "status": "OK",
      "note": ""
     },
@@ -8720,7 +8720,7 @@
      "element": "input: Insurance Coverage (SAR)",
      "wired_to": "user input → insuranceCoverage → request body",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 357,
+     "line": 358,
      "status": "OK",
      "note": ""
     },
@@ -8728,7 +8728,7 @@
      "element": "input: Approval Code",
      "wired_to": "user input → approvalCode → request body",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 358,
+     "line": 359,
      "status": "OK",
      "note": ""
     },
@@ -8736,7 +8736,7 @@
      "element": "button: Send to Patient for Co-Pay",
      "wired_to": "POST /provider/jobs/consultation/:param/insurance, GET /provider/jobs/queue, GET /provider/stats/today",
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-     "line": 359,
+     "line": 360,
      "status": "OK",
      "note": ""
     }
@@ -8752,7 +8752,7 @@
      "method": "GET",
      "path": "/provider/ops/doctor/leave",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:749",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:765",
      "file": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx",
      "line": 40
     },
@@ -8760,7 +8760,7 @@
      "method": "POST",
      "path": "/provider/ops/doctor/leave",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:747",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:763",
      "file": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx",
      "line": 50
     },
@@ -8768,7 +8768,7 @@
      "method": "DELETE",
      "path": "/provider/ops/doctor/leave/:param",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:751",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:767",
      "file": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx",
      "line": 61
     }
@@ -8850,7 +8850,7 @@
      "method": "GET",
      "path": "/provider/jobs/queue",
      "status": "OK",
-     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:286",
+     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:293",
      "file": "provider-app/src/screens/doctor/doctor/DoctorScheduleTab.tsx",
      "line": 71
     }
@@ -9102,7 +9102,7 @@
      "method": "GET",
      "path": "/provider/settings/pricing",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:871",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:887",
      "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
      "line": 75
     },
@@ -9110,7 +9110,7 @@
      "method": "PUT",
      "path": "/provider/settings/pricing",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:875",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:891",
      "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
      "line": 106
     }
@@ -9376,7 +9376,7 @@
      "method": "GET",
      "path": "/provider/ops/doctor/templates",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:757",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:773",
      "file": "provider-app/src/screens/doctor/doctor/EPrescriptionScreen.tsx",
      "line": 64
     },
@@ -9384,7 +9384,7 @@
      "method": "POST",
      "path": "/provider/ops/doctor/templates",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:755",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:771",
      "file": "provider-app/src/screens/doctor/doctor/EPrescriptionScreen.tsx",
      "line": 345
     },
@@ -9392,7 +9392,7 @@
      "method": "DELETE",
      "path": "/provider/ops/doctor/templates/:param",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:761",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:777",
      "file": "provider-app/src/screens/doctor/doctor/EPrescriptionScreen.tsx",
      "line": 325
     },
@@ -9400,7 +9400,7 @@
      "method": "POST",
      "path": "/provider/ops/doctor/templates/:param/use",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:759",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:775",
      "file": "provider-app/src/screens/doctor/doctor/EPrescriptionScreen.tsx",
      "line": 83
     }
@@ -9644,7 +9644,7 @@
      "method": "GET",
      "path": "/provider/reports/inbound",
      "status": "OK",
-     "backend": "backend/src/modules/provider-production/provider-production.module.ts:748",
+     "backend": "backend/src/modules/provider-production/provider-production.module.ts:689",
      "file": "provider-app/src/screens/doctor/doctor/InboundMedicalReportsScreen.tsx",
      "line": 20
     }
@@ -9680,7 +9680,7 @@
    "app": "provider-app",
    "screen": "LiveConsultationScreen",
    "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-   "line": 57,
+   "line": 58,
    "calls": [
     {
      "method": "GET",
@@ -9688,7 +9688,7 @@
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:50",
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-     "line": 72
+     "line": 73
     },
     {
      "method": "PATCH",
@@ -9696,7 +9696,7 @@
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:84",
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-     "line": 87
+     "line": 90
     },
     {
      "method": "POST",
@@ -9704,7 +9704,7 @@
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:120",
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-     "line": 91
+     "line": 94
     },
     {
      "method": "PATCH",
@@ -9712,7 +9712,7 @@
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:108",
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-     "line": 88
+     "line": 91
     }
    ],
    "elements": [
@@ -9720,7 +9720,7 @@
      "element": "data: Data verified",
      "wired_to": "GET /care/appointments/:param → verified",
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-     "line": 62,
+     "line": 63,
      "status": "OK",
      "note": ""
     },
@@ -9728,7 +9728,7 @@
      "element": "button: Patient arrived (check in)",
      "wired_to": "GET /care/appointments/:param, PATCH /care/appointments/:param/check-in",
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-     "line": 130,
+     "line": 133,
      "status": "OK",
      "note": ""
     },
@@ -9736,7 +9736,7 @@
      "element": "button: Start consultation",
      "wired_to": "GET /care/appointments/:param, PATCH /care/appointments/:param/start",
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-     "line": 131,
+     "line": 134,
      "status": "OK",
      "note": ""
     },
@@ -9744,7 +9744,7 @@
      "element": "input: Diagnosis",
      "wired_to": "user input → diagnosis → request body",
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-     "line": 134,
+     "line": 137,
      "status": "OK",
      "note": ""
     },
@@ -9752,7 +9752,7 @@
      "element": "input: Visit notes",
      "wired_to": "user input → visitNotes → request body",
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-     "line": 135,
+     "line": 138,
      "status": "OK",
      "note": ""
     },
@@ -9760,7 +9760,7 @@
      "element": "input: Recommendations",
      "wired_to": "user input → advice → request body",
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-     "line": 136,
+     "line": 139,
      "status": "OK",
      "note": ""
     },
@@ -9768,7 +9768,7 @@
      "element": "button: Finish visit",
      "wired_to": "GET /care/appointments/:param, POST /care/appointments/:param/finish",
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-     "line": 140,
+     "line": 143,
      "status": "OK",
      "note": ""
     },
@@ -9776,7 +9776,7 @@
      "element": "button: Start video call",
      "wired_to": "navigate → video_call",
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-     "line": 143,
+     "line": 146,
      "status": "OK",
      "note": ""
     },
@@ -9784,7 +9784,7 @@
      "element": "button: Pre-visit chat",
      "wired_to": "navigate → pre_visit_chat",
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-     "line": 144,
+     "line": 147,
      "status": "OK",
      "note": ""
     },
@@ -9792,7 +9792,7 @@
      "element": "button: Write prescription",
      "wired_to": "navigate → prescription",
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-     "line": 145,
+     "line": 148,
      "status": "OK",
      "note": ""
     },
@@ -9800,7 +9800,7 @@
      "element": "button: Sick leave",
      "wired_to": "navigate → sick_leave",
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-     "line": 153,
+     "line": 156,
      "status": "OK",
      "note": ""
     },
@@ -9808,7 +9808,7 @@
      "element": "button: Medical report",
      "wired_to": "navigate → medical_report",
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-     "line": 154,
+     "line": 157,
      "status": "OK",
      "note": ""
     },
@@ -9816,7 +9816,7 @@
      "element": "button: Referral",
      "wired_to": "navigate → referral",
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-     "line": 155,
+     "line": 158,
      "status": "OK",
      "note": ""
     },
@@ -9824,7 +9824,7 @@
      "element": "button: Request test",
      "wired_to": "navigate → request_test",
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-     "line": 156,
+     "line": 159,
      "status": "OK",
      "note": ""
     }
@@ -10110,7 +10110,7 @@
      "method": "GET",
      "path": "/provider/ops/doctor/blacklist",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:771",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:787",
      "file": "provider-app/src/screens/doctor/doctor/PatientFileScreen.tsx",
      "line": 68
     },
@@ -10118,7 +10118,7 @@
      "method": "DELETE",
      "path": "/provider/ops/doctor/blacklist/:param",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:769",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:785",
      "file": "provider-app/src/screens/doctor/doctor/PatientFileScreen.tsx",
      "line": 138
     },
@@ -10126,7 +10126,7 @@
      "method": "POST",
      "path": "/provider/ops/doctor/blacklist/:param",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:767",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:783",
      "file": "provider-app/src/screens/doctor/doctor/PatientFileScreen.tsx",
      "line": 137
     },
@@ -10134,7 +10134,7 @@
      "method": "GET",
      "path": "/provider/ops/doctor/patient-crm/:param",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:773",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:789",
      "file": "provider-app/src/screens/doctor/doctor/PatientFileScreen.tsx",
      "line": 61
     },
@@ -10142,7 +10142,7 @@
      "method": "PUT",
      "path": "/provider/ops/doctor/patient-crm/:param",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:775",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:791",
      "file": "provider-app/src/screens/doctor/doctor/PatientFileScreen.tsx",
      "line": 86
     }
@@ -10256,7 +10256,7 @@
      "method": "GET",
      "path": "/provider/ops/doctor/templates",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:757",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:773",
      "file": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx",
      "line": 141
     },
@@ -10264,7 +10264,7 @@
      "method": "POST",
      "path": "/provider/ops/doctor/templates",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:755",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:771",
      "file": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx",
      "line": 155
     },
@@ -10272,7 +10272,7 @@
      "method": "DELETE",
      "path": "/provider/ops/doctor/templates/:param",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:761",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:777",
      "file": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx",
      "line": 166
     }
@@ -10354,7 +10354,7 @@
      "method": "GET",
      "path": "/provider/chat/appointment/:param",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:466",
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:465",
      "file": "provider-app/src/screens/doctor/doctor/PreVisitChatScreen.tsx",
      "line": 27
     },
@@ -10362,7 +10362,7 @@
      "method": "POST",
      "path": "/provider/chat/send",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:454",
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:453",
      "file": "provider-app/src/screens/doctor/doctor/PreVisitChatScreen.tsx",
      "line": 81
     }
@@ -10444,7 +10444,7 @@
      "method": "POST",
      "path": "/provider/referrals",
      "status": "OK",
-     "backend": "backend/src/modules/provider-production/provider-production.module.ts:721",
+     "backend": "backend/src/modules/provider-production/provider-production.module.ts:672",
      "file": "provider-app/src/screens/doctor/doctor/ReferralScreen.tsx",
      "line": 152
     },
@@ -10452,7 +10452,7 @@
      "method": "GET",
      "path": "/provider/referrals/mine",
      "status": "OK",
-     "backend": "backend/src/modules/provider-production/provider-production.module.ts:718",
+     "backend": "backend/src/modules/provider-production/provider-production.module.ts:669",
      "file": "provider-app/src/screens/doctor/doctor/ReferralScreen.tsx",
      "line": 55
     }
@@ -10534,7 +10534,7 @@
      "method": "POST",
      "path": "/home-care/bookings",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:162",
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:163",
      "file": "provider-app/src/screens/doctor/doctor/RequestTestScreen.tsx",
      "line": 119
     },
@@ -10608,7 +10608,7 @@
      "method": "GET",
      "path": "/provider/ops/doctor/diagnoses",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:765",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:781",
      "file": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx",
      "line": 228
     },
@@ -10616,7 +10616,7 @@
      "method": "POST",
      "path": "/provider/ops/doctor/diagnoses",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:763",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:779",
      "file": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx",
      "line": 238
     }
@@ -11234,7 +11234,7 @@
      "method": "GET",
      "path": "/provider/jobs/queue",
      "status": "OK",
-     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:286",
+     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:293",
      "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
      "line": 56
     },
@@ -11242,7 +11242,7 @@
      "method": "GET",
      "path": "/provider/stats/today",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:858",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:874",
      "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
      "line": 58
     }
@@ -11602,7 +11602,7 @@
      "method": "POST",
      "path": "/provider/jobs/:param/:param/:param",
      "status": "OK",
-     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:291",
+     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:298",
      "file": "provider-app/src/screens/facility/facility/FacilityOrderDetail.tsx",
      "line": 52
     }
@@ -11652,7 +11652,7 @@
      "method": "GET",
      "path": "/provider/jobs/queue",
      "status": "OK",
-     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:286",
+     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:293",
      "file": "provider-app/src/screens/facility/facility/FacilityOrdersTab.tsx",
      "line": 56
     }
@@ -11972,7 +11972,7 @@
      "method": "GET",
      "path": "/provider/settings/tariffs",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:885",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:901",
      "file": "provider-app/src/screens/facility/facility/FacilitySettingsScreen.tsx",
      "line": 69
     },
@@ -11980,7 +11980,7 @@
      "method": "PUT",
      "path": "/provider/settings/tariffs",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:893",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:909",
      "file": "provider-app/src/screens/facility/facility/FacilitySettingsScreen.tsx",
      "line": 100
     }
@@ -12790,7 +12790,7 @@
    "app": "provider-app",
    "screen": "AddCustomTest",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 930,
+   "line": 942,
    "calls": [
     {
      "method": "POST",
@@ -12798,7 +12798,7 @@
      "status": "OK",
      "backend": "backend/src/modules/approval-workflow/approval-workflow.module.ts:358",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 964
+     "line": 976
     },
     {
      "method": "GET",
@@ -12822,7 +12822,7 @@
      "element": "input: Name (Arabic)",
      "wired_to": "user input → nameAr → request body",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 945,
+     "line": 957,
      "status": "OK",
      "note": ""
     },
@@ -12830,7 +12830,7 @@
      "element": "input: Name (English)",
      "wired_to": "user input → nameEn → request body",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 946,
+     "line": 958,
      "status": "OK",
      "note": ""
     },
@@ -12838,7 +12838,7 @@
      "element": "input: Price",
      "wired_to": "user input → price → request body",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 948,
+     "line": 960,
      "status": "OK",
      "note": ""
     },
@@ -12846,7 +12846,7 @@
      "element": "input: Turnaround (h)",
      "wired_to": "user input → parent callback v.replace",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 949,
+     "line": 961,
      "status": "OK",
      "note": ""
     },
@@ -12854,7 +12854,7 @@
      "element": "input: Ref Low",
      "wired_to": "user input → refLow → request body",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 952,
+     "line": 964,
      "status": "OK",
      "note": ""
     },
@@ -12862,7 +12862,7 @@
      "element": "input: Ref High",
      "wired_to": "user input → refHigh → request body",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 953,
+     "line": 965,
      "status": "OK",
      "note": ""
     },
@@ -12870,7 +12870,7 @@
      "element": "input: Unit",
      "wired_to": "user input → unit → request body",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 954,
+     "line": 966,
      "status": "OK",
      "note": ""
     },
@@ -12878,7 +12878,7 @@
      "element": "input: Requires Fasting",
      "wired_to": "user input → fasting → request body",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 956,
+     "line": 968,
      "status": "OK",
      "note": ""
     },
@@ -12886,7 +12886,7 @@
      "element": "button: Submit for Review",
      "wired_to": "POST /approval-workflow/requests",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 958,
+     "line": 970,
      "status": "OK",
      "note": ""
     }
@@ -12896,7 +12896,7 @@
    "app": "provider-app",
    "screen": "HomeCollection",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 995,
+   "line": 1007,
    "calls": [
     {
      "method": "GET",
@@ -12920,7 +12920,7 @@
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:118",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1156
+     "line": 1168
     },
     {
      "method": "POST",
@@ -12928,7 +12928,7 @@
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:155",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1111
+     "line": 1123
     },
     {
      "method": "POST",
@@ -12936,7 +12936,7 @@
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:144",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1038
+     "line": 1050
     },
     {
      "method": "POST",
@@ -12944,7 +12944,7 @@
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:161",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1121
+     "line": 1133
     },
     {
      "method": "PATCH",
@@ -12952,7 +12952,7 @@
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:89",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1090
+     "line": 1102
     },
     {
      "method": "GET",
@@ -12960,7 +12960,7 @@
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:125",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1002
+     "line": 1014
     }
    ],
    "elements": [
@@ -12968,7 +12968,7 @@
      "element": "data: Data eta",
      "wired_to": "POST /labs/bookings/:param/gps → eta",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1009,
+     "line": 1021,
      "status": "OK",
      "note": ""
     },
@@ -12976,7 +12976,7 @@
      "element": "data: Data distance",
      "wired_to": "POST /labs/bookings/:param/gps → distance",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1010,
+     "line": 1022,
      "status": "OK",
      "note": ""
     },
@@ -12984,7 +12984,7 @@
      "element": "button: Technician Arrived",
      "wired_to": "PATCH /labs/bookings/:param/state",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1088,
+     "line": 1100,
      "status": "OK",
      "note": ""
     },
@@ -12992,7 +12992,7 @@
      "element": "button: Start Trip",
      "wired_to": "PATCH /labs/bookings/:param/state",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1098,
+     "line": 1110,
      "status": "OK",
      "note": ""
     },
@@ -13000,7 +13000,7 @@
      "element": "button: Patient Absent",
      "wired_to": "POST /labs/bookings/:param/emergency",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1110,
+     "line": 1122,
      "status": "OK",
      "note": ""
     },
@@ -13008,7 +13008,7 @@
      "element": "button: Wrong Location",
      "wired_to": "POST /labs/bookings/:param/emergency",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1115,
+     "line": 1127,
      "status": "OK",
      "note": ""
     },
@@ -13016,7 +13016,7 @@
      "element": "button: Cancel & Reassign",
      "wired_to": "POST /labs/bookings/:param/reassign",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1120,
+     "line": 1132,
      "status": "OK",
      "note": ""
     },
@@ -13024,7 +13024,7 @@
      "element": "data: List collectors",
      "wired_to": "GET /labs/team/technicians → collectors",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1144,
+     "line": 1156,
      "status": "OK",
      "note": ""
     },
@@ -13032,7 +13032,7 @@
      "element": "button: Assign Tech",
      "wired_to": "POST /labs/bookings/:param/assign-technician",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1153,
+     "line": 1165,
      "status": "OK",
      "note": ""
     }
@@ -13042,7 +13042,7 @@
    "app": "provider-app",
    "screen": "LabHome",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 265,
+   "line": 268,
    "calls": [
     {
      "method": "GET",
@@ -13066,7 +13066,7 @@
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:112",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 276
+     "line": 279
     },
     {
      "method": "GET",
@@ -13074,13 +13074,13 @@
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:194",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 280
+     "line": 283
     },
     {
      "method": "POST",
      "path": "/provider/ops/availability/toggle-instant",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:821",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:837",
      "file": "provider-app/src/context/index.tsx",
      "line": 415
     }
@@ -13090,7 +13090,7 @@
      "element": "data: Data samples",
      "wired_to": "GET /labs/provider/inbox, GET /labs/samples → samples",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 271,
+     "line": 274,
      "status": "OK",
      "note": ""
     },
@@ -13098,7 +13098,7 @@
      "element": "data: Data stats",
      "wired_to": "GET /labs/provider/inbox, GET /labs/samples → stats",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 272,
+     "line": 275,
      "status": "OK",
      "note": ""
     },
@@ -13106,7 +13106,7 @@
      "element": "input: <NOnlineToggle>",
      "wired_to": "user input → POST /provider/ops/availability/toggle-instant",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 320,
+     "line": 323,
      "status": "OK",
      "note": ""
     },
@@ -13114,7 +13114,7 @@
      "element": "button: Notifications",
      "wired_to": "navigate → notifications",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 322,
+     "line": 325,
      "status": "OK",
      "note": ""
     },
@@ -13122,7 +13122,7 @@
      "element": "number: Stat: Today's Orders",
      "wired_to": "value ← String(stats.todayCount)",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 330,
+     "line": 333,
      "status": "OK",
      "note": ""
     },
@@ -13130,7 +13130,7 @@
      "element": "number: Stat: Analyzing",
      "wired_to": "value ← String(stats.analyzingCount)",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 331,
+     "line": 334,
      "status": "OK",
      "note": ""
     },
@@ -13138,7 +13138,7 @@
      "element": "number: Stat: Revenue",
      "wired_to": "value ← String(stats.revenue)",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 332,
+     "line": 335,
      "status": "OK",
      "note": ""
     },
@@ -13146,7 +13146,7 @@
      "element": "number: Stat: Ready",
      "wired_to": "value ← String(stats.readyCount)",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 333,
+     "line": 336,
      "status": "OK",
      "note": ""
     },
@@ -13154,7 +13154,7 @@
      "element": "button: {qa.ar}",
      "wired_to": "navigate (back / dynamic target)",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 351,
+     "line": 354,
      "status": "OK",
      "note": ""
     },
@@ -13162,7 +13162,7 @@
      "element": "data: List SAMPLE_STAGES",
      "wired_to": "from SAMPLE_STAGES (prop / derived; not traced)",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 365,
+     "line": 368,
      "status": "OK",
      "note": ""
     }
@@ -13172,7 +13172,7 @@
    "app": "provider-app",
    "screen": "LabInsurance",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 1250,
+   "line": 1262,
    "calls": [
     {
      "method": "GET",
@@ -13196,7 +13196,7 @@
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:101",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1279
+     "line": 1291
     },
     {
      "method": "GET",
@@ -13204,7 +13204,7 @@
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:112",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1261
+     "line": 1273
     }
    ],
    "elements": [
@@ -13212,7 +13212,7 @@
      "element": "input: Co-Pay (SAR)",
      "wired_to": "user input → String (local)",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1331,
+     "line": 1343,
      "status": "OK",
      "note": ""
     },
@@ -13220,7 +13220,7 @@
      "element": "data: List selectedOrder.items",
      "wired_to": "PATCH /labs/bookings/:param/insurance, GET /labs/provider/inbox → selectedOrder",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1335,
+     "line": 1347,
      "status": "OK",
      "note": ""
     },
@@ -13228,7 +13228,7 @@
      "element": "input: Covered?",
      "wired_to": "user input → item (local)",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1339,
+     "line": 1351,
      "status": "OK",
      "note": ""
     },
@@ -13236,7 +13236,7 @@
      "element": "input: Rejection Reason",
      "wired_to": "user input → item (local)",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1343,
+     "line": 1355,
      "status": "OK",
      "note": ""
     },
@@ -13244,7 +13244,7 @@
      "element": "input: Alternative Cash Price",
      "wired_to": "user input → String (local)",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1344,
+     "line": 1356,
      "status": "OK",
      "note": ""
     },
@@ -13252,7 +13252,7 @@
      "element": "input: Insurer approval number (required to approve)",
      "wired_to": "user input → approvalRef → request body",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1351,
+     "line": 1363,
      "status": "OK",
      "note": ""
     },
@@ -13260,7 +13260,7 @@
      "element": "button: Reject",
      "wired_to": "PATCH /labs/bookings/:param/insurance, GET /labs/provider/inbox",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1354,
+     "line": 1366,
      "status": "OK",
      "note": ""
     },
@@ -13268,7 +13268,7 @@
      "element": "button: Approve",
      "wired_to": "PATCH /labs/bookings/:param/insurance, GET /labs/provider/inbox",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1355,
+     "line": 1367,
      "status": "OK",
      "note": ""
     },
@@ -13276,7 +13276,7 @@
      "element": "number: Stat: Pending",
      "wired_to": "value ← String(orders.filter(c=>c.insurance_status==='pe",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1367,
+     "line": 1379,
      "status": "OK",
      "note": ""
     },
@@ -13284,7 +13284,7 @@
      "element": "number: Stat: Processed",
      "wired_to": "value ← String(orders.filter(c=>c.insurance_status!=='pe",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1368,
+     "line": 1380,
      "status": "OK",
      "note": ""
     },
@@ -13292,7 +13292,7 @@
      "element": "data: List orders",
      "wired_to": "GET /labs/provider/inbox → orders",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1370,
+     "line": 1382,
      "status": "OK",
      "note": ""
     },
@@ -13300,7 +13300,7 @@
      "element": "button: {cl.patient_name} {cl.insurance_provider}",
      "wired_to": "local state setSelectedOrder",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1371,
+     "line": 1383,
      "status": "OK",
      "note": ""
     }
@@ -13310,7 +13310,7 @@
    "app": "provider-app",
    "screen": "LabOrderDetail",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 385,
+   "line": 388,
    "calls": [
     {
      "method": "GET",
@@ -13334,15 +13334,23 @@
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:118",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 467
+     "line": 470
     },
     {
      "method": "POST",
      "path": "/labs/bookings/:param/coverage-decision",
      "status": "OK",
-     "backend": "backend/src/modules/provider-production/provider-production.module.ts:700",
+     "backend": "backend/src/modules/provider-production/provider-production.module.ts:651",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 435
+     "line": 438
+    },
+    {
+     "method": "POST",
+     "path": "/labs/bookings/:param/emergency",
+     "status": "OK",
+     "backend": "backend/src/modules/labs/labs.controller.ts:155",
+     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+     "line": 598
     },
     {
      "method": "PATCH",
@@ -13350,7 +13358,7 @@
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:138",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 482
+     "line": 485
     },
     {
      "method": "PATCH",
@@ -13358,7 +13366,7 @@
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:89",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 418
+     "line": 421
     },
     {
      "method": "GET",
@@ -13366,7 +13374,7 @@
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:194",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 516
+     "line": 519
     },
     {
      "method": "PATCH",
@@ -13374,7 +13382,7 @@
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:188",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 519
+     "line": 522
     },
     {
      "method": "POST",
@@ -13382,13 +13390,13 @@
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:181",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 497
+     "line": 500
     },
     {
      "method": "POST",
      "path": "/provider/ops/lab/bookings/:param/qc/:param",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:779",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:795",
      "file": "provider-app/src/screens/lab/LabQcActions.tsx",
      "line": 27
     }
@@ -13398,7 +13406,7 @@
      "element": "text: mock-name: openSampleForResults = async () => {",
      "wired_to": "mock-scan mock-name",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 514,
+     "line": 517,
      "status": "OK",
      "note": ""
     },
@@ -13406,7 +13414,7 @@
      "element": "button: Request Insurance Approval",
      "wired_to": "local state setShowApproval",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 572,
+     "line": 575,
      "status": "OK",
      "note": ""
     },
@@ -13414,7 +13422,7 @@
      "element": "button: Confirm Direct Order (Cash)",
      "wired_to": "PATCH /labs/bookings/:param/state",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 574,
+     "line": 577,
      "status": "OK",
      "note": ""
     },
@@ -13422,7 +13430,7 @@
      "element": "button: Reject Order",
      "wired_to": "local state setShowReject",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 576,
+     "line": 579,
      "status": "OK",
      "note": ""
     },
@@ -13430,7 +13438,7 @@
      "element": "button: Assign Phlebotomist",
      "wired_to": "local state setShowAssign",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 589,
+     "line": 592,
      "status": "OK",
      "note": ""
     },
@@ -13438,7 +13446,15 @@
      "element": "button: Patient Arrived - Register Sample",
      "wired_to": "local state setShowRegister",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 591,
+     "line": 594,
+     "status": "OK",
+     "note": ""
+    },
+    {
+     "element": "button: Patient did not show up",
+     "wired_to": "POST /labs/bookings/:param/emergency",
+     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+     "line": 596,
      "status": "OK",
      "note": ""
     },
@@ -13446,7 +13462,7 @@
      "element": "button: Reschedule Appointment",
      "wired_to": "local state setShowReschedule",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 593,
+     "line": 605,
      "status": "OK",
      "note": ""
     },
@@ -13454,7 +13470,7 @@
      "element": "button: Start Trip (GPS)",
      "wired_to": "navigate → home_collection",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 599,
+     "line": 611,
      "status": "OK",
      "note": ""
     },
@@ -13462,7 +13478,7 @@
      "element": "button: Register Sample & Complete",
      "wired_to": "local state setShowRegister",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 605,
+     "line": 617,
      "status": "OK",
      "note": ""
     },
@@ -13470,7 +13486,7 @@
      "element": "button: Process & Enter Results",
      "wired_to": "GET /labs/samples, PATCH /labs/samples/:param/stage",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 611,
+     "line": 623,
      "status": "OK",
      "note": ""
     },
@@ -13478,7 +13494,7 @@
      "element": "input: New Date/Time",
      "wired_to": "user input → rescheduleDate → request body",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 627,
+     "line": 639,
      "status": "OK",
      "note": ""
     },
@@ -13486,7 +13502,7 @@
      "element": "button: Confirm & Notify Patient",
      "wired_to": "PATCH /labs/bookings/:param/reschedule",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 628,
+     "line": 640,
      "status": "OK",
      "note": ""
     },
@@ -13494,7 +13510,7 @@
      "element": "input: Reason",
      "wired_to": "user input → rejectReason → request body",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 635,
+     "line": 647,
      "status": "OK",
      "note": ""
     },
@@ -13502,7 +13518,7 @@
      "element": "button: Confirm rejection",
      "wired_to": "PATCH /labs/bookings/:param/state",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 636,
+     "line": 648,
      "status": "OK",
      "note": ""
     },
@@ -13510,7 +13526,7 @@
      "element": "input: Internal decision reference",
      "wired_to": "user input → decisionRef → request body",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 643,
+     "line": 655,
      "status": "OK",
      "note": ""
     },
@@ -13518,7 +13534,7 @@
      "element": "input: Patient co-pay percentage (0–99%)",
      "wired_to": "user input → copay (local)",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 644,
+     "line": 656,
      "status": "OK",
      "note": ""
     },
@@ -13526,7 +13542,7 @@
      "element": "button: Record coverage decision",
      "wired_to": "POST /labs/bookings/:param/coverage-decision",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 645,
+     "line": 657,
      "status": "OK",
      "note": ""
     },
@@ -13534,7 +13550,7 @@
      "element": "input: Search Technician",
      "wired_to": "user input → techName → request body",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 652,
+     "line": 664,
      "status": "OK",
      "note": ""
     },
@@ -13542,7 +13558,7 @@
      "element": "button: Confirm Assignment",
      "wired_to": "POST /labs/bookings/:param/assign-technician",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 653,
+     "line": 665,
      "status": "OK",
      "note": ""
     },
@@ -13550,7 +13566,7 @@
      "element": "input: Sample Barcode",
      "wired_to": "user input → barcode → request body",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 660,
+     "line": 672,
      "status": "OK",
      "note": ""
     },
@@ -13558,7 +13574,7 @@
      "element": "button: Open Camera Scanner",
      "wired_to": "parent callback requestCamPerm",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 661,
+     "line": 673,
      "status": "OK",
      "note": ""
     },
@@ -13566,7 +13582,7 @@
      "element": "input: Notes",
      "wired_to": "user input → notes → request body",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 662,
+     "line": 674,
      "status": "OK",
      "note": ""
     },
@@ -13574,7 +13590,7 @@
      "element": "button: Confirm & Register",
      "wired_to": "POST /labs/samples/register",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 663,
+     "line": 675,
      "status": "OK",
      "note": ""
     },
@@ -13582,7 +13598,7 @@
      "element": "button: Cancel",
      "wired_to": "local state setShowCam",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 676,
+     "line": 688,
      "status": "OK",
      "note": ""
     },
@@ -13696,7 +13712,7 @@
    "app": "provider-app",
    "screen": "LabOrdersTab",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 95,
+   "line": 98,
    "calls": [
     {
      "method": "GET",
@@ -13720,7 +13736,7 @@
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:112",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 102
+     "line": 105
     }
    ],
    "elements": [
@@ -13728,7 +13744,7 @@
      "element": "button: Incoming",
      "wired_to": "local state setSubTab",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 128,
+     "line": 131,
      "status": "OK",
      "note": ""
     },
@@ -13736,7 +13752,7 @@
      "element": "button: Scheduled & Draw",
      "wired_to": "local state setSubTab",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 131,
+     "line": 134,
      "status": "OK",
      "note": ""
     },
@@ -13744,7 +13760,7 @@
      "element": "button: Processing",
      "wired_to": "local state setSubTab",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 134,
+     "line": 137,
      "status": "OK",
      "note": ""
     },
@@ -13752,7 +13768,7 @@
      "element": "button: Results",
      "wired_to": "local state setSubTab",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 137,
+     "line": 140,
      "status": "OK",
      "note": ""
     },
@@ -13760,7 +13776,7 @@
      "element": "data: List filtered",
      "wired_to": "from filtered (prop / derived; not traced)",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 145,
+     "line": 148,
      "status": "OK",
      "note": ""
     },
@@ -13768,7 +13784,7 @@
      "element": "button: Patient Insurance",
      "wired_to": "navigate → order_detail",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 148,
+     "line": 151,
      "status": "OK",
      "note": ""
     }
@@ -13778,7 +13794,7 @@
    "app": "provider-app",
    "screen": "LabSettings",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 1395,
+   "line": 1407,
    "calls": [
     {
      "method": "GET",
@@ -13802,7 +13818,7 @@
      "element": "button: Test Menu & Pricing",
      "wired_to": "navigate → test_menu",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1414,
+     "line": 1426,
      "status": "OK",
      "note": ""
     },
@@ -13810,7 +13826,7 @@
      "element": "button: Bundles",
      "wired_to": "navigate → bundles",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1415,
+     "line": 1427,
      "status": "OK",
      "note": ""
     },
@@ -13818,7 +13834,7 @@
      "element": "button: Home Service",
      "wired_to": "navigate → home_service",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1416,
+     "line": 1428,
      "status": "OK",
      "note": ""
     },
@@ -13826,7 +13842,7 @@
      "element": "button: Working Hours",
      "wired_to": "navigate → working_hours",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1417,
+     "line": 1429,
      "status": "OK",
      "note": ""
     },
@@ -13834,7 +13850,7 @@
      "element": "button: Insurance Settings",
      "wired_to": "navigate → insurance_config",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1418,
+     "line": 1430,
      "status": "OK",
      "note": ""
     },
@@ -13842,7 +13858,7 @@
      "element": "button: Insurance Requests",
      "wired_to": "navigate → insurance_requests",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1419,
+     "line": 1431,
      "status": "OK",
      "note": ""
     },
@@ -13850,7 +13866,7 @@
      "element": "button: Ordering declaration",
      "wired_to": "navigate (back / dynamic target)",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1420,
+     "line": 1432,
      "status": "OK",
      "note": ""
     },
@@ -13858,7 +13874,7 @@
      "element": "button: Licenses & Documents",
      "wired_to": "navigate → certificates_config",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1421,
+     "line": 1433,
      "status": "OK",
      "note": ""
     },
@@ -13866,7 +13882,7 @@
      "element": "button: Photos & Media",
      "wired_to": "navigate → media_config",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1422,
+     "line": 1434,
      "status": "OK",
      "note": ""
     },
@@ -13874,7 +13890,7 @@
      "element": "button: {row.ar}",
      "wired_to": "parent callback row.action",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1435,
+     "line": 1447,
      "status": "OK",
      "note": ""
     },
@@ -13882,7 +13898,7 @@
      "element": "button: Medical Jobs",
      "wired_to": "navigate → medical_jobs",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1441,
+     "line": 1453,
      "status": "OK",
      "note": ""
     },
@@ -13890,7 +13906,7 @@
      "element": "button: Medical Drug Index",
      "wired_to": "navigate → drug_index",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1442,
+     "line": 1454,
      "status": "OK",
      "note": ""
     },
@@ -13898,7 +13914,7 @@
      "element": "button: {r.ar}",
      "wired_to": "parent callback r.action",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1451,
+     "line": 1463,
      "status": "OK",
      "note": ""
     },
@@ -13906,7 +13922,7 @@
      "element": "button: Log Out",
      "wired_to": "local state setShowLO",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1454,
+     "line": 1466,
      "status": "OK",
      "note": ""
     },
@@ -13940,7 +13956,7 @@
    "app": "provider-app",
    "screen": "LabTestMenuScreen",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 1528,
+   "line": 1540,
    "calls": [
     {
      "method": "POST",
@@ -13948,7 +13964,7 @@
      "status": "OK",
      "backend": "backend/src/modules/approval-workflow/approval-workflow.module.ts:358",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1543
+     "line": 1555
     },
     {
      "method": "GET",
@@ -13988,7 +14004,7 @@
      "element": "data: Data newPrice",
      "wired_to": "POST /approval-workflow/requests → newPrice",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1535,
+     "line": 1547,
      "status": "OK",
      "note": ""
     },
@@ -13996,7 +14012,7 @@
      "element": "button: Test not listed? Ask to add it",
      "wired_to": "local state setShowAddSheet",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1558,
+     "line": 1570,
      "status": "OK",
      "note": ""
     },
@@ -14004,7 +14020,7 @@
      "element": "input: Test Name (English)",
      "wired_to": "user input → newTitleEn → request body",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1560,
+     "line": 1572,
      "status": "OK",
      "note": ""
     },
@@ -14012,7 +14028,7 @@
      "element": "text: dummy-value: Test Name (English)",
      "wired_to": "mock-scan dummy-value",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1560,
+     "line": 1572,
      "status": "OK",
      "note": ""
     },
@@ -14020,7 +14036,7 @@
      "element": "input: Test Name (Arabic)",
      "wired_to": "user input → newTitleAr → request body",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1561,
+     "line": 1573,
      "status": "OK",
      "note": ""
     },
@@ -14028,7 +14044,7 @@
      "element": "text: dummy-value: Test Name (Arabic)",
      "wired_to": "mock-scan dummy-value",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1561,
+     "line": 1573,
      "status": "OK",
      "note": ""
     },
@@ -14036,7 +14052,7 @@
      "element": "input: Lab Price",
      "wired_to": "user input → newPrice → request body",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1562,
+     "line": 1574,
      "status": "OK",
      "note": ""
     },
@@ -14044,7 +14060,7 @@
      "element": "button: Send Add Request for Review",
      "wired_to": "POST /approval-workflow/requests",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1563,
+     "line": 1575,
      "status": "OK",
      "note": ""
     }
@@ -14054,7 +14070,7 @@
    "app": "provider-app",
    "screen": "QRSampleLabel",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 1174,
+   "line": 1186,
    "calls": [
     {
      "method": "GET",
@@ -14079,7 +14095,7 @@
    "app": "provider-app",
    "screen": "ResultReview",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 790,
+   "line": 802,
    "calls": [
     {
      "method": "POST",
@@ -14111,7 +14127,7 @@
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:131",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 824
+     "line": 836
     },
     {
      "method": "PATCH",
@@ -14119,7 +14135,7 @@
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:188",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 822
+     "line": 834
     },
     {
      "method": "POST",
@@ -14183,7 +14199,7 @@
      "element": "data: Data reportFile",
      "wired_to": "reportFile: set from user input / local logic",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 800,
+     "line": 812,
      "status": "OK",
      "note": ""
     },
@@ -14191,7 +14207,7 @@
      "element": "input: Analyte",
      "wired_to": "user input → analyte (local)",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 845,
+     "line": 857,
      "status": "OK",
      "note": ""
     },
@@ -14199,7 +14215,7 @@
      "element": "input: Result",
      "wired_to": "user input → value (local)",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 846,
+     "line": 858,
      "status": "OK",
      "note": ""
     },
@@ -14207,7 +14223,7 @@
      "element": "input: Unit",
      "wired_to": "user input → unit (local)",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 847,
+     "line": 859,
      "status": "OK",
      "note": ""
     },
@@ -14215,7 +14231,7 @@
      "element": "input: Reference range",
      "wired_to": "user input → range (local)",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 848,
+     "line": 860,
      "status": "OK",
      "note": ""
     },
@@ -14223,7 +14239,7 @@
      "element": "input: Critical result",
      "wired_to": "user input → isCritical (local)",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 849,
+     "line": 861,
      "status": "OK",
      "note": ""
     },
@@ -14231,7 +14247,7 @@
      "element": "button: Add result",
      "wired_to": "parent callback analyte.trim, value.trim",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 850,
+     "line": 862,
      "status": "OK",
      "note": ""
     },
@@ -14239,7 +14255,7 @@
      "element": "data: List resultRows",
      "wired_to": "resultRows: set from user input / local logic",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 859,
+     "line": 871,
      "status": "OK",
      "note": ""
     },
@@ -14247,7 +14263,7 @@
      "element": "button: {opt.ar}",
      "wired_to": "local state setSendTo",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 872,
+     "line": 884,
      "status": "OK",
      "note": ""
     },
@@ -14255,7 +14271,7 @@
      "element": "button: Attached: {…} (remove)",
      "wired_to": "native action",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 882,
+     "line": 894,
      "status": "OK",
      "note": ""
     },
@@ -14263,7 +14279,7 @@
      "element": "button: Confirm & Send Result",
      "wired_to": "PATCH /labs/samples/:param/stage, POST /storage/upload, POST /labs/bookings/:param/upload-report",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 883,
+     "line": 895,
      "status": "OK",
      "note": ""
     }
@@ -14273,7 +14289,7 @@
    "app": "provider-app",
    "screen": "SampleTracking",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 689,
+   "line": 701,
    "calls": [
     {
      "method": "GET",
@@ -14297,7 +14313,7 @@
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:194",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 698
+     "line": 710
     },
     {
      "method": "PATCH",
@@ -14305,7 +14321,7 @@
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:188",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 713
+     "line": 725
     }
    ],
    "elements": [
@@ -14313,7 +14329,7 @@
      "element": "data: Data samples",
      "wired_to": "GET /labs/samples → samples",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 693,
+     "line": 705,
      "status": "OK",
      "note": ""
     },
@@ -14321,7 +14337,7 @@
      "element": "button: [back]",
      "wired_to": "parent callback onBack",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 726,
+     "line": 738,
      "status": "OK",
      "note": ""
     },
@@ -14329,7 +14345,7 @@
      "element": "button: All (",
      "wired_to": "local state setFilter",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 732,
+     "line": 744,
      "status": "OK",
      "note": ""
     },
@@ -14337,7 +14353,7 @@
      "element": "data: List SAMPLE_STAGES",
      "wired_to": "from SAMPLE_STAGES (prop / derived; not traced)",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 735,
+     "line": 747,
      "status": "OK",
      "note": ""
     },
@@ -14345,7 +14361,7 @@
      "element": "button: {st.ar} (",
      "wired_to": "local state setFilter",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 737,
+     "line": 749,
      "status": "OK",
      "note": ""
     },
@@ -14353,7 +14369,7 @@
      "element": "data: List filtered",
      "wired_to": "from filtered (prop / derived; not traced)",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 742,
+     "line": 754,
      "status": "OK",
      "note": ""
     },
@@ -14361,7 +14377,7 @@
      "element": "data: List SAMPLE_STAGES",
      "wired_to": "from SAMPLE_STAGES (prop / derived; not traced)",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 761,
+     "line": 773,
      "status": "OK",
      "note": ""
     },
@@ -14369,7 +14385,7 @@
      "element": "button: Start Analysis",
      "wired_to": "PATCH /labs/samples/:param/stage, GET /labs/samples",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 775,
+     "line": 787,
      "status": "OK",
      "note": ""
     },
@@ -14377,7 +14393,7 @@
      "element": "button: Enter Results",
      "wired_to": "navigate → result_review",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 776,
+     "line": 788,
      "status": "OK",
      "note": ""
     },
@@ -14385,7 +14401,7 @@
      "element": "button: Review & Send",
      "wired_to": "navigate → result_review",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 777,
+     "line": 789,
      "status": "OK",
      "note": ""
     },
@@ -14393,7 +14409,7 @@
      "element": "button: QR",
      "wired_to": "navigate → qr_label",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 778,
+     "line": 790,
      "status": "OK",
      "note": ""
     }
@@ -14403,7 +14419,7 @@
    "app": "provider-app",
    "screen": "TATTracker",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 1200,
+   "line": 1212,
    "calls": [
     {
      "method": "GET",
@@ -14427,7 +14443,7 @@
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:194",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1205
+     "line": 1217
     }
    ],
    "elements": [
@@ -14435,7 +14451,7 @@
      "element": "number: Stat: Sent",
      "wired_to": "value ← `${pct}%`",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1225,
+     "line": 1237,
      "status": "OK",
      "note": ""
     },
@@ -14443,7 +14459,7 @@
      "element": "data: List samples.slice(0, 20)",
      "wired_to": "GET /labs/samples → samples",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 1231,
+     "line": 1243,
      "status": "OK",
      "note": ""
     }
@@ -14453,23 +14469,23 @@
    "app": "provider-app",
    "screen": "CarePlan",
    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-   "line": 504,
+   "line": 506,
    "calls": [
     {
      "method": "GET",
      "path": "/home-care/care-plans/:param",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:318",
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:317",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 516
+     "line": 518
     },
     {
      "method": "POST",
      "path": "/home-care/care-plans/:param",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:325",
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:324",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 527
+     "line": 529
     }
    ],
    "elements": [
@@ -14477,7 +14493,7 @@
      "element": "data: List plans",
      "wired_to": "GET /home-care/care-plans/:param → plans",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 551,
+     "line": 553,
      "status": "OK",
      "note": ""
     },
@@ -14485,7 +14501,7 @@
      "element": "input: Plan title",
      "wired_to": "user input → title → request body",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 568,
+     "line": 570,
      "status": "OK",
      "note": ""
     },
@@ -14493,7 +14509,7 @@
      "element": "input: Tasks (one per line)",
      "wired_to": "user input → taskText → request body",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 569,
+     "line": 571,
      "status": "OK",
      "note": ""
     },
@@ -14501,7 +14517,7 @@
      "element": "button: Create Plan",
      "wired_to": "POST /home-care/care-plans/:param, GET /home-care/care-plans/:param",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 570,
+     "line": 572,
      "status": "OK",
      "note": ""
     }
@@ -14511,23 +14527,23 @@
    "app": "provider-app",
    "screen": "MedicalSupplies",
    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-   "line": 660,
+   "line": 662,
    "calls": [
     {
      "method": "POST",
      "path": "/home-care/inventory/request",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:353",
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:352",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 675
+     "line": 677
     },
     {
      "method": "GET",
      "path": "/provider/nursing/supplies",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:420",
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:419",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 665
+     "line": 667
     }
    ],
    "elements": [
@@ -14535,7 +14551,7 @@
      "element": "number: Stat: Delivered",
      "wired_to": "value ← String(supplies.filter(s=>s.status==='delivered'",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 704,
+     "line": 706,
      "status": "OK",
      "note": ""
     },
@@ -14543,7 +14559,7 @@
      "element": "number: Stat: Ordered",
      "wired_to": "value ← String(supplies.filter(s=>s.status==='ordered').",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 705,
+     "line": 707,
      "status": "OK",
      "note": ""
     },
@@ -14551,7 +14567,7 @@
      "element": "number: Stat: Pending",
      "wired_to": "value ← String(supplies.filter(s=>s.status==='pending').",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 706,
+     "line": 708,
      "status": "OK",
      "note": ""
     },
@@ -14559,7 +14575,7 @@
      "element": "data: List supplies",
      "wired_to": "GET /provider/nursing/supplies, POST /home-care/inventory/request → supplies",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 710,
+     "line": 712,
      "status": "OK",
      "note": ""
     },
@@ -14567,7 +14583,7 @@
      "element": "input: Supply Name",
      "wired_to": "user input → newItem → request body",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 725,
+     "line": 727,
      "status": "OK",
      "note": ""
     },
@@ -14575,7 +14591,7 @@
      "element": "input: Quantity",
      "wired_to": "user input → newQty → request body",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 726,
+     "line": 728,
      "status": "OK",
      "note": ""
     },
@@ -14583,7 +14599,7 @@
      "element": "button: Submit Request",
      "wired_to": "POST /home-care/inventory/request",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 728,
+     "line": 730,
      "status": "OK",
      "note": ""
     }
@@ -14593,7 +14609,7 @@
    "app": "provider-app",
    "screen": "NursingChatScreen",
    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-   "line": 947,
+   "line": 949,
    "calls": [
     {
      "method": "GET",
@@ -14601,7 +14617,7 @@
      "status": "OK",
      "backend": "backend/src/modules/chat/chat.module.ts:118",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 975
+     "line": 977
     },
     {
      "method": "POST",
@@ -14609,7 +14625,7 @@
      "status": "OK",
      "backend": "backend/src/modules/chat/chat.module.ts:129",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 990
+     "line": 992
     },
     {
      "method": "POST",
@@ -14617,7 +14633,7 @@
      "status": "OK",
      "backend": "backend/src/modules/chat/chat.module.ts:108",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 962
+     "line": 964
     }
    ],
    "elements": [
@@ -14625,7 +14641,7 @@
      "element": "data: List msgs",
      "wired_to": "GET /chats/threads/:param/messages, POST /chats/threads/:param/messages → msgs",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 1009,
+     "line": 1011,
      "status": "OK",
      "note": ""
     },
@@ -14633,7 +14649,7 @@
      "element": "input: Type a message...",
      "wired_to": "user input → msg (local)",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 1021,
+     "line": 1023,
      "status": "OK",
      "note": ""
     },
@@ -14641,7 +14657,7 @@
      "element": "button: ...",
      "wired_to": "POST /chats/threads/:param/messages, GET /chats/threads/:param/messages",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 1022,
+     "line": 1024,
      "status": "OK",
      "note": ""
     }
@@ -14651,7 +14667,7 @@
    "app": "provider-app",
    "screen": "NursingCoverageSettings",
    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-   "line": 838,
+   "line": 840,
    "calls": [
     {
      "method": "POST",
@@ -14659,7 +14675,7 @@
      "status": "OK",
      "backend": "backend/src/modules/home-care/nursing-compat.controller.ts:76",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 855
+     "line": 857
     },
     {
      "method": "POST",
@@ -14667,7 +14683,7 @@
      "status": "OK",
      "backend": "backend/src/modules/provider/provider.controllers.ts:138",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 924
+     "line": 926
     }
    ],
    "elements": [
@@ -14675,7 +14691,7 @@
      "element": "button: Verify Current GPS Location",
      "wired_to": "POST /nursing/coverage/verify-gps",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 889,
+     "line": 891,
      "status": "OK",
      "note": ""
     },
@@ -14683,7 +14699,7 @@
      "element": "button: {k} KM",
      "wired_to": "local state setRadius",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 901,
+     "line": 903,
      "status": "OK",
      "note": ""
     },
@@ -14691,7 +14707,7 @@
      "element": "data: List getCoveredNeighborhoods()",
      "wired_to": "from getCoveredNeighborhoods (prop / derived; not traced)",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 914,
+     "line": 916,
      "status": "OK",
      "note": ""
     },
@@ -14699,7 +14715,7 @@
      "element": "button: Save Coverage Settings",
      "wired_to": "POST /provider/settings/delta",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 922,
+     "line": 924,
      "status": "OK",
      "note": ""
     }
@@ -14723,7 +14739,7 @@
      "method": "POST",
      "path": "/home-care/bookings/:param/visit-report",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:299",
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:298",
      "file": "provider-app/src/screens/nursing/NursingFieldOps.tsx",
      "line": 133
     },
@@ -14755,7 +14771,7 @@
      "method": "POST",
      "path": "/provider/jobs/nursing/:param/:param",
      "status": "OK",
-     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:291",
+     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:298",
      "file": "provider-app/src/screens/nursing/NursingFieldOps.tsx",
      "line": 86
     },
@@ -14983,21 +14999,21 @@
    "app": "provider-app",
    "screen": "NursingHome",
    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-   "line": 229,
+   "line": 231,
    "calls": [
     {
      "method": "POST",
      "path": "/home-care/provider/availability",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:346",
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:345",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 239
+     "line": 241
     },
     {
      "method": "POST",
      "path": "/provider/ops/availability/toggle-instant",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:821",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:837",
      "file": "provider-app/src/context/index.tsx",
      "line": 415
     }
@@ -15007,7 +15023,7 @@
      "element": "input: <NOnlineToggle>",
      "wired_to": "user input → POST /provider/ops/availability/toggle-instant, POST /home-care/provider/availability",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 259,
+     "line": 261,
      "status": "OK",
      "note": ""
     },
@@ -15015,7 +15031,7 @@
      "element": "button: Notifications",
      "wired_to": "navigate → notifications",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 261,
+     "line": 263,
      "status": "OK",
      "note": ""
     },
@@ -15023,7 +15039,7 @@
      "element": "number: Stat: New Orders",
      "wired_to": "value ← String(pending)",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 270,
+     "line": 272,
      "status": "OK",
      "note": ""
     },
@@ -15031,7 +15047,7 @@
      "element": "number: Stat: Active Visits",
      "wired_to": "value ← String(active)",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 271,
+     "line": 273,
      "status": "OK",
      "note": ""
     },
@@ -15039,7 +15055,7 @@
      "element": "number: Stat: Completed",
      "wired_to": "value ← String(completed)",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 272,
+     "line": 274,
      "status": "OK",
      "note": ""
     },
@@ -15047,7 +15063,7 @@
      "element": "number: Stat: Revenue",
      "wired_to": "value ← String(totalRev)",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 273,
+     "line": 275,
      "status": "OK",
      "note": ""
     },
@@ -15055,7 +15071,7 @@
      "element": "button: {qa.ar}",
      "wired_to": "navigate (back / dynamic target)",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 288,
+     "line": 290,
      "status": "OK",
      "note": ""
     },
@@ -15063,7 +15079,7 @@
      "element": "data: List jobs.filter(o=>o.status==='pending')",
      "wired_to": "from jobs (prop / derived; not traced)",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 302,
+     "line": 304,
      "status": "OK",
      "note": ""
     },
@@ -15071,7 +15087,7 @@
      "element": "button: [—] —",
      "wired_to": "navigate → order_detail",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 304,
+     "line": 306,
      "status": "OK",
      "note": ""
     },
@@ -15079,7 +15095,7 @@
      "element": "data: List order.services",
      "wired_to": "from order (prop / derived; not traced)",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 322,
+     "line": 324,
      "status": "OK",
      "note": ""
     },
@@ -15087,7 +15103,7 @@
      "element": "data: List jobs.filter(o=>o.status==='active')",
      "wired_to": "from jobs (prop / derived; not traced)",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 335,
+     "line": 337,
      "status": "OK",
      "note": ""
     },
@@ -15095,7 +15111,7 @@
      "element": "button: [—] —",
      "wired_to": "navigate → order_detail",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 337,
+     "line": 339,
      "status": "OK",
      "note": ""
     },
@@ -15103,7 +15119,7 @@
      "element": "button: Open visit",
      "wired_to": "navigate → order_detail",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 351,
+     "line": 353,
      "status": "OK",
      "note": ""
     },
@@ -15111,7 +15127,7 @@
      "element": "button: Checklist",
      "wired_to": "navigate → checklist",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 352,
+     "line": 354,
      "status": "OK",
      "note": ""
     }
@@ -15121,7 +15137,7 @@
    "app": "provider-app",
    "screen": "NursingOrdersTab",
    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-   "line": 366,
+   "line": 368,
    "calls": [
     {
      "method": "GET",
@@ -15129,7 +15145,7 @@
      "status": "OK",
      "backend": "backend/src/modules/home-care/nursing-compat.controller.ts:38",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 374
+     "line": 376
     }
    ],
    "elements": [
@@ -15137,7 +15153,7 @@
      "element": "button: New",
      "wired_to": "local state setTab",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 389,
+     "line": 391,
      "status": "OK",
      "note": ""
     },
@@ -15145,7 +15161,7 @@
      "element": "button: Confirmed",
      "wired_to": "local state setTab",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 392,
+     "line": 394,
      "status": "OK",
      "note": ""
     },
@@ -15153,7 +15169,7 @@
      "element": "button: Retry",
      "wired_to": "GET /nursing/jobs/active",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 400,
+     "line": 402,
      "status": "OK",
      "note": ""
     },
@@ -15161,7 +15177,7 @@
      "element": "data: List pending",
      "wired_to": "from pending (prop / derived; not traced)",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 407,
+     "line": 409,
      "status": "OK",
      "note": ""
     },
@@ -15169,7 +15185,7 @@
      "element": "button: Patient {order.svc}",
      "wired_to": "navigate → order_detail",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 408,
+     "line": 410,
      "status": "OK",
      "note": ""
     },
@@ -15177,7 +15193,7 @@
      "element": "data: List active",
      "wired_to": "from active (prop / derived; not traced)",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 422,
+     "line": 424,
      "status": "OK",
      "note": ""
     },
@@ -15185,7 +15201,7 @@
      "element": "button: Patient {scan.time}",
      "wired_to": "navigate → order_detail",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 423,
+     "line": 425,
      "status": "OK",
      "note": ""
     }
@@ -15195,15 +15211,15 @@
    "app": "provider-app",
    "screen": "NursingScheduleScreen",
    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-   "line": 1031,
+   "line": 1033,
    "calls": [
     {
      "method": "POST",
      "path": "/provider/schedule/settings",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:928",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:944",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 1039
+     "line": 1041
     }
    ],
    "elements": [
@@ -15211,7 +15227,7 @@
      "element": "data: Data shifts",
      "wired_to": "shifts: set from user input / local logic",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 1033,
+     "line": 1035,
      "status": "OK",
      "note": ""
     },
@@ -15219,7 +15235,7 @@
      "element": "input: <Switch>",
      "wired_to": "user input → shifts → request body",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 1056,
+     "line": 1058,
      "status": "OK",
      "note": ""
     },
@@ -15227,7 +15243,7 @@
      "element": "input: <Switch>",
      "wired_to": "user input → shifts → request body",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 1060,
+     "line": 1062,
      "status": "OK",
      "note": ""
     },
@@ -15235,7 +15251,7 @@
      "element": "input: <Switch>",
      "wired_to": "user input → shifts → request body",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 1064,
+     "line": 1066,
      "status": "OK",
      "note": ""
     },
@@ -15243,7 +15259,7 @@
      "element": "input: Max Daily Visits",
      "wired_to": "user input → maxVisits → request body",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 1070,
+     "line": 1072,
      "status": "OK",
      "note": ""
     },
@@ -15251,7 +15267,7 @@
      "element": "input: <Switch>",
      "wired_to": "user input → emergencyReady → request body",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 1076,
+     "line": 1078,
      "status": "OK",
      "note": ""
     },
@@ -15259,7 +15275,7 @@
      "element": "button: Save Schedule",
      "wired_to": "POST /provider/schedule/settings",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 1080,
+     "line": 1082,
      "status": "OK",
      "note": ""
     }
@@ -15269,7 +15285,7 @@
    "app": "provider-app",
    "screen": "NursingSettings",
    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-   "line": 736,
+   "line": 738,
    "calls": [
     {
      "method": "GET",
@@ -15277,7 +15293,7 @@
      "status": "OK",
      "backend": "backend/src/modules/provider/provider.controllers.ts:503",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 743
+     "line": 745
     },
     {
      "method": "POST",
@@ -15285,7 +15301,7 @@
      "status": "OK",
      "backend": "backend/src/modules/provider/provider.controllers.ts:138",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 750
+     "line": 752
     }
    ],
    "elements": [
@@ -15293,7 +15309,7 @@
      "element": "data: Data caps",
      "wired_to": "GET /provider/me → caps",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 741,
+     "line": 743,
      "status": "OK",
      "note": ""
     },
@@ -15301,7 +15317,7 @@
      "element": "button: Account Info",
      "wired_to": "navigate → profile_edit",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 780,
+     "line": 782,
      "status": "OK",
      "note": ""
     },
@@ -15309,7 +15325,7 @@
      "element": "button: Services & Prices",
      "wired_to": "navigate → nursing_services",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 781,
+     "line": 783,
      "status": "OK",
      "note": ""
     },
@@ -15317,7 +15333,7 @@
      "element": "button: Coverage Area",
      "wired_to": "navigate → nursing_coverage",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 782,
+     "line": 784,
      "status": "OK",
      "note": ""
     },
@@ -15325,7 +15341,7 @@
      "element": "button: Working Hours",
      "wired_to": "navigate → working_hours",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 783,
+     "line": 785,
      "status": "OK",
      "note": ""
     },
@@ -15333,7 +15349,7 @@
      "element": "button: Health Insurance",
      "wired_to": "navigate → insurance_config",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 784,
+     "line": 786,
      "status": "OK",
      "note": ""
     },
@@ -15341,7 +15357,7 @@
      "element": "button: Insurance Requests",
      "wired_to": "navigate → insurance_requests",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 785,
+     "line": 787,
      "status": "OK",
      "note": ""
     },
@@ -15349,7 +15365,7 @@
      "element": "button: Ordering declaration",
      "wired_to": "navigate (back / dynamic target)",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 786,
+     "line": 788,
      "status": "OK",
      "note": ""
     },
@@ -15357,7 +15373,7 @@
      "element": "button: Qualifications",
      "wired_to": "navigate → certificates_config",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 787,
+     "line": 789,
      "status": "OK",
      "note": ""
     },
@@ -15365,7 +15381,7 @@
      "element": "button: Photos & Media",
      "wired_to": "navigate → media_config",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 788,
+     "line": 790,
      "status": "OK",
      "note": ""
     },
@@ -15373,7 +15389,7 @@
      "element": "button: {row.ar}",
      "wired_to": "parent callback row.action",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 807,
+     "line": 809,
      "status": "OK",
      "note": ""
     },
@@ -15381,7 +15397,7 @@
      "element": "button: Notifications",
      "wired_to": "navigate → notifications",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 813,
+     "line": 815,
      "status": "OK",
      "note": ""
     },
@@ -15389,7 +15405,7 @@
      "element": "button: Medical Jobs",
      "wired_to": "navigate → medical_jobs",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 814,
+     "line": 816,
      "status": "OK",
      "note": ""
     },
@@ -15397,7 +15413,7 @@
      "element": "button: Medical Drug Index",
      "wired_to": "navigate → drug_index",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 815,
+     "line": 817,
      "status": "OK",
      "note": ""
     },
@@ -15405,7 +15421,7 @@
      "element": "button: {r.ar}",
      "wired_to": "parent callback r.action",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 824,
+     "line": 826,
      "status": "OK",
      "note": ""
     },
@@ -15413,7 +15429,7 @@
      "element": "button: Log Out",
      "wired_to": "local state setShowLO",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 827,
+     "line": 829,
      "status": "OK",
      "note": ""
     },
@@ -15447,7 +15463,7 @@
    "app": "provider-app",
    "screen": "ProgressNotes",
    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-   "line": 579,
+   "line": 581,
    "calls": [
     {
      "method": "POST",
@@ -15455,7 +15471,7 @@
      "status": "OK",
      "backend": "backend/src/modules/home-care/home-care.controller.ts:66",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 625
+     "line": 627
     },
     {
      "method": "GET",
@@ -15463,7 +15479,7 @@
      "status": "OK",
      "backend": "backend/src/modules/home-care/home-care.controller.ts:94",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 591
+     "line": 593
     }
    ],
    "elements": [
@@ -15471,7 +15487,7 @@
      "element": "data: Data vitals",
      "wired_to": "POST /nursing/notes, GET /nursing/notes/:param → vitals",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 582,
+     "line": 584,
      "status": "OK",
      "note": ""
     },
@@ -15479,7 +15495,7 @@
      "element": "input: BP",
      "wired_to": "user input → vitals → request body",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 611,
+     "line": 613,
      "status": "OK",
      "note": ""
     },
@@ -15487,7 +15503,7 @@
      "element": "input: Pulse",
      "wired_to": "user input → vitals → request body",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 612,
+     "line": 614,
      "status": "OK",
      "note": ""
     },
@@ -15495,7 +15511,7 @@
      "element": "input: Temp",
      "wired_to": "user input → vitals → request body",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 613,
+     "line": 615,
      "status": "OK",
      "note": ""
     },
@@ -15503,7 +15519,7 @@
      "element": "input: SpO2",
      "wired_to": "user input → vitals → request body",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 616,
+     "line": 618,
      "status": "OK",
      "note": ""
     },
@@ -15511,7 +15527,7 @@
      "element": "input: Glucose",
      "wired_to": "user input → vitals → request body",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 617,
+     "line": 619,
      "status": "OK",
      "note": ""
     },
@@ -15519,7 +15535,7 @@
      "element": "input: Clinical Notes",
      "wired_to": "user input → note → request body",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 619,
+     "line": 621,
      "status": "OK",
      "note": ""
     },
@@ -15527,7 +15543,7 @@
      "element": "button: Save Note",
      "wired_to": "POST /nursing/notes, GET /nursing/notes/:param",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 621,
+     "line": 623,
      "status": "OK",
      "note": ""
     },
@@ -15535,7 +15551,7 @@
      "element": "data: List pastNotes",
      "wired_to": "GET /nursing/notes/:param → pastNotes",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 642,
+     "line": 644,
      "status": "OK",
      "note": ""
     }
@@ -15545,23 +15561,23 @@
    "app": "provider-app",
    "screen": "VisitChecklist",
    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-   "line": 440,
+   "line": 442,
    "calls": [
     {
      "method": "GET",
      "path": "/provider/nursing/checklist",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:416",
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:415",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 443
+     "line": 445
     },
     {
      "method": "POST",
      "path": "/provider/ops/nursing/bookings/:param/checklist/before",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:783",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:799",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 455
+     "line": 457
     }
    ],
    "elements": [
@@ -15569,7 +15585,7 @@
      "element": "data: List items",
      "wired_to": "GET /provider/nursing/checklist, POST /provider/ops/nursing/bookings/:param/checklist/before → items",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 480,
+     "line": 482,
      "status": "OK",
      "note": ""
     },
@@ -15577,7 +15593,7 @@
      "element": "button: {item.task}",
      "wired_to": "POST /provider/ops/nursing/bookings/:param/checklist/before",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 481,
+     "line": 483,
      "status": "OK",
      "note": ""
     },
@@ -15585,7 +15601,7 @@
      "element": "button: Complete Visit",
      "wired_to": "navigate → order_detail",
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-     "line": 493,
+     "line": 495,
      "status": "OK",
      "note": ""
     }
@@ -15609,7 +15625,7 @@
      "method": "GET",
      "path": "/insurance/companies",
      "status": "OK",
-     "backend": "backend/src/modules/insurance/insurance.module.ts:443",
+     "backend": "backend/src/modules/insurance/insurance.module.ts:459",
      "file": "provider-app/src/api/ordering.ts",
      "line": 82
     },
@@ -15971,7 +15987,7 @@
      "method": "GET",
      "path": "/insurance/companies",
      "status": "OK",
-     "backend": "backend/src/modules/insurance/insurance.module.ts:443",
+     "backend": "backend/src/modules/insurance/insurance.module.ts:459",
      "file": "provider-app/src/api/ordering.ts",
      "line": 82
     },
@@ -16117,7 +16133,7 @@
      "method": "GET",
      "path": "/insurance/companies",
      "status": "OK",
-     "backend": "backend/src/modules/insurance/insurance.module.ts:443",
+     "backend": "backend/src/modules/insurance/insurance.module.ts:459",
      "file": "provider-app/src/api/ordering.ts",
      "line": 82
     },
@@ -16375,7 +16391,7 @@
      "method": "GET",
      "path": "/insurance/companies",
      "status": "OK",
-     "backend": "backend/src/modules/insurance/insurance.module.ts:443",
+     "backend": "backend/src/modules/insurance/insurance.module.ts:459",
      "file": "provider-app/src/api/ordering.ts",
      "line": 82
     },
@@ -17473,7 +17489,7 @@
      "method": "POST",
      "path": "/provider/ops/availability/toggle-instant",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:821",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:837",
      "file": "provider-app/src/context/index.tsx",
      "line": 415
     },
@@ -18315,7 +18331,7 @@
    "app": "provider-app",
    "screen": "AvailabilityScheduleTab",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 570,
+   "line": 572,
    "calls": [
     {
      "method": "POST",
@@ -18323,7 +18339,7 @@
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:208",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 585
+     "line": 587
     }
    ],
    "elements": [
@@ -18331,7 +18347,7 @@
      "element": "data: Data workingDays",
      "wired_to": "workingDays: set from user input / local logic",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 575,
+     "line": 577,
      "status": "OK",
      "note": ""
     },
@@ -18339,7 +18355,7 @@
      "element": "button: {day}",
      "wired_to": "local state setWorkingDays",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 594,
+     "line": 596,
      "status": "OK",
      "note": ""
     },
@@ -18347,7 +18363,7 @@
      "element": "data: List DAYS_AR",
      "wired_to": "from DAYS_AR (prop / derived; not traced)",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 594,
+     "line": 596,
      "status": "OK",
      "note": ""
     },
@@ -18355,7 +18371,7 @@
      "element": "input: From",
      "wired_to": "user input → morningFrom → request body",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 598,
+     "line": 600,
      "status": "OK",
      "note": ""
     },
@@ -18363,7 +18379,7 @@
      "element": "input: To",
      "wired_to": "user input → morningTo → request body",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 599,
+     "line": 601,
      "status": "OK",
      "note": ""
     },
@@ -18371,7 +18387,7 @@
      "element": "input: From",
      "wired_to": "user input → eveningFrom → request body",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 603,
+     "line": 605,
      "status": "OK",
      "note": ""
     },
@@ -18379,7 +18395,7 @@
      "element": "input: To",
      "wired_to": "user input → eveningTo → request body",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 604,
+     "line": 606,
      "status": "OK",
      "note": ""
     },
@@ -18387,7 +18403,7 @@
      "element": "input: <Switch>",
      "wired_to": "user input → emergencyAvailable → request body",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 609,
+     "line": 611,
      "status": "OK",
      "note": ""
     },
@@ -18395,7 +18411,7 @@
      "element": "button: Save & Send for Review",
      "wired_to": "POST /radiology/catalog/delta-request",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 612,
+     "line": 614,
      "status": "OK",
      "note": ""
     }
@@ -18405,7 +18421,7 @@
    "app": "provider-app",
    "screen": "CatalogManagerTab",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 508,
+   "line": 510,
    "calls": [
     {
      "method": "GET",
@@ -18429,7 +18445,7 @@
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:208",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 538
+     "line": 540
     }
    ],
    "elements": [
@@ -18437,7 +18453,7 @@
      "element": "data: Data prepItems",
      "wired_to": "prepItems: set from user input / local logic",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 522,
+     "line": 524,
      "status": "OK",
      "note": ""
     },
@@ -18445,7 +18461,7 @@
      "element": "button: Scan not listed? Ask to add it",
      "wired_to": "local state setShowAdd",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 547,
+     "line": 549,
      "status": "OK",
      "note": ""
     },
@@ -18453,7 +18469,7 @@
      "element": "button: {m}",
      "wired_to": "local state setModality",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 552,
+     "line": 554,
      "status": "OK",
      "note": ""
     },
@@ -18461,7 +18477,7 @@
      "element": "data: List MODALITIES",
      "wired_to": "from MODALITIES (prop / derived; not traced)",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 552,
+     "line": 554,
      "status": "OK",
      "note": ""
     },
@@ -18469,7 +18485,7 @@
      "element": "input: Scan Name (Arabic)",
      "wired_to": "user input → nameAr → request body",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 554,
+     "line": 556,
      "status": "OK",
      "note": ""
     },
@@ -18477,7 +18493,7 @@
      "element": "input: Scan Name (English)",
      "wired_to": "user input → nameEn → request body",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 555,
+     "line": 557,
      "status": "OK",
      "note": ""
     },
@@ -18485,7 +18501,7 @@
      "element": "input: Cash Price (SAR)",
      "wired_to": "user input → price → request body",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 556,
+     "line": 558,
      "status": "OK",
      "note": ""
     },
@@ -18493,7 +18509,7 @@
      "element": "input: Expected Duration (minutes)",
      "wired_to": "user input → duration → request body",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 557,
+     "line": 559,
      "status": "OK",
      "note": ""
     },
@@ -18501,7 +18517,7 @@
      "element": "input: <Switch>",
      "wired_to": "user input → parent callback item.set",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 559,
+     "line": 561,
      "status": "OK",
      "note": ""
     },
@@ -18509,7 +18525,7 @@
      "element": "input: <Switch>",
      "wired_to": "user input → portableUS → request body",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 560,
+     "line": 562,
      "status": "OK",
      "note": ""
     },
@@ -18517,7 +18533,7 @@
      "element": "button: {p.ar}",
      "wired_to": "parent callback prev.includes, prev.filter",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 562,
+     "line": 564,
      "status": "OK",
      "note": ""
     },
@@ -18525,7 +18541,7 @@
      "element": "data: List PREP_OPTIONS",
      "wired_to": "from PREP_OPTIONS (prop / derived; not traced)",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 562,
+     "line": 564,
      "status": "OK",
      "note": ""
     },
@@ -18533,7 +18549,7 @@
      "element": "button: Submit for Admin Review",
      "wired_to": "POST /radiology/catalog/delta-request",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 563,
+     "line": 565,
      "status": "OK",
      "note": ""
     }
@@ -18543,7 +18559,7 @@
    "app": "provider-app",
    "screen": "OrderDetailScreen",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 219,
+   "line": 221,
    "calls": [
     {
      "method": "GET",
@@ -18551,7 +18567,7 @@
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:99",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 232
+     "line": 234
     },
     {
      "method": "POST",
@@ -18559,7 +18575,7 @@
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:103",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 235
+     "line": 237
     },
     {
      "method": "POST",
@@ -18567,15 +18583,15 @@
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:168",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 273
+     "line": 275
     },
     {
      "method": "POST",
      "path": "/radiology/bookings/:param/coverage-decision",
      "status": "OK",
-     "backend": "backend/src/modules/provider-production/provider-production.module.ts:702",
+     "backend": "backend/src/modules/provider-production/provider-production.module.ts:653",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 246
+     "line": 248
     },
     {
      "method": "PATCH",
@@ -18583,7 +18599,7 @@
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:195",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 289
+     "line": 291
     },
     {
      "method": "PATCH",
@@ -18591,7 +18607,7 @@
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:107",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 260
+     "line": 262
     }
    ],
    "elements": [
@@ -18599,7 +18615,7 @@
      "element": "data: Data rescheduleDays",
      "wired_to": "PATCH /radiology/bookings/:param/reschedule, GET /radiology/bookings/:param → rescheduleDays",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 230,
+     "line": 232,
      "status": "OK",
      "note": ""
     },
@@ -18607,7 +18623,7 @@
      "element": "button: Record Internal Coverage Decision",
      "wired_to": "local state setShowApproval",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 341,
+     "line": 343,
      "status": "OK",
      "note": ""
     },
@@ -18615,7 +18631,7 @@
      "element": "button: Accept booking",
      "wired_to": "local state setState",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 344,
+     "line": 346,
      "status": "OK",
      "note": ""
     },
@@ -18623,7 +18639,7 @@
      "element": "button: Reject booking",
      "wired_to": "local state setShowReject",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 346,
+     "line": 348,
      "status": "OK",
      "note": ""
     },
@@ -18631,7 +18647,7 @@
      "element": "button: Enter Insurance Approval",
      "wired_to": "local state setShowApproval",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 348,
+     "line": 350,
      "status": "OK",
      "note": ""
     },
@@ -18639,7 +18655,7 @@
      "element": "button: Confirm Patient Arrival (Check-in)",
      "wired_to": "POST /radiology/bookings/:param/:param, GET /radiology/bookings/:param",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 349,
+     "line": 351,
      "status": "OK",
      "note": ""
     },
@@ -18647,7 +18663,7 @@
      "element": "button: Call to Scanning Room",
      "wired_to": "POST /radiology/bookings/:param/:param, GET /radiology/bookings/:param",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 351,
+     "line": 353,
      "status": "OK",
      "note": ""
     },
@@ -18655,7 +18671,7 @@
      "element": "button: Emergency Abort",
      "wired_to": "local state setShowAbort",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 352,
+     "line": 354,
      "status": "OK",
      "note": ""
     },
@@ -18663,7 +18679,7 @@
      "element": "button: Upload Report & Results",
      "wired_to": "navigate → reporting",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 355,
+     "line": 357,
      "status": "OK",
      "note": ""
     },
@@ -18671,7 +18687,7 @@
      "element": "button: Emergency Abort Scan",
      "wired_to": "local state setShowAbort",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 356,
+     "line": 358,
      "status": "OK",
      "note": ""
     },
@@ -18679,7 +18695,7 @@
      "element": "button: Submit for Radiologist Review",
      "wired_to": "POST /radiology/bookings/:param/:param, GET /radiology/bookings/:param",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 358,
+     "line": 360,
      "status": "OK",
      "note": ""
     },
@@ -18687,7 +18703,7 @@
      "element": "button: Approve & Publish Report",
      "wired_to": "POST /radiology/bookings/:param/:param, GET /radiology/bookings/:param",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 359,
+     "line": 361,
      "status": "OK",
      "note": ""
     },
@@ -18695,7 +18711,7 @@
      "element": "button: Reschedule",
      "wired_to": "local state setShowReschedule",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 360,
+     "line": 362,
      "status": "OK",
      "note": ""
     },
@@ -18703,7 +18719,7 @@
      "element": "input: Internal decision reference",
      "wired_to": "user input → decisionRef → request body",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 366,
+     "line": 368,
      "status": "OK",
      "note": ""
     },
@@ -18711,7 +18727,7 @@
      "element": "input: Co-pay percentage (0–99%)",
      "wired_to": "user input → copay (local)",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 367,
+     "line": 369,
      "status": "OK",
      "note": ""
     },
@@ -18719,7 +18735,7 @@
      "element": "button: Record Coverage Decision",
      "wired_to": "POST /radiology/bookings/:param/coverage-decision, GET /radiology/bookings/:param",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 369,
+     "line": 371,
      "status": "OK",
      "note": ""
     },
@@ -18727,7 +18743,7 @@
      "element": "input: Reason",
      "wired_to": "user input → rejectReason (local)",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 374,
+     "line": 376,
      "status": "OK",
      "note": ""
     },
@@ -18735,7 +18751,7 @@
      "element": "button: Confirm rejection",
      "wired_to": "parent callback rejectReason.trim",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 375,
+     "line": 377,
      "status": "OK",
      "note": ""
     },
@@ -18743,7 +18759,7 @@
      "element": "data: List ABORT_REASONS",
      "wired_to": "from ABORT_REASONS (prop / derived; not traced)",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 379,
+     "line": 381,
      "status": "OK",
      "note": ""
     },
@@ -18751,7 +18767,7 @@
      "element": "button: {r.ar}",
      "wired_to": "local state setAbortReason",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 380,
+     "line": 382,
      "status": "OK",
      "note": ""
     },
@@ -18759,7 +18775,7 @@
      "element": "button: Confirm Abort",
      "wired_to": "POST /radiology/bookings/:param/abort, GET /radiology/bookings/:param",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 385,
+     "line": 387,
      "status": "OK",
      "note": ""
     },
@@ -18767,7 +18783,7 @@
      "element": "data: List RESCHEDULE_OPTIONS",
      "wired_to": "from RESCHEDULE_OPTIONS (prop / derived; not traced)",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 391,
+     "line": 393,
      "status": "OK",
      "note": ""
     },
@@ -18775,7 +18791,7 @@
      "element": "button: {o.ar}",
      "wired_to": "local state setRescheduleDays",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 392,
+     "line": 394,
      "status": "OK",
      "note": ""
     },
@@ -18783,7 +18799,7 @@
      "element": "button: Confirm Reschedule",
      "wired_to": "PATCH /radiology/bookings/:param/reschedule, GET /radiology/bookings/:param",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 397,
+     "line": 399,
      "status": "OK",
      "note": ""
     }
@@ -18793,7 +18809,7 @@
    "app": "provider-app",
    "screen": "RadiologyHome",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 166,
+   "line": 168,
    "calls": [
     {
      "method": "GET",
@@ -18801,7 +18817,7 @@
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:134",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 112
+     "line": 114
     }
    ],
    "elements": [
@@ -18809,7 +18825,7 @@
      "element": "data: List orders",
      "wired_to": "GET /radiology/provider/inbox → orders",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 136,
+     "line": 138,
      "status": "OK",
      "note": ""
     },
@@ -18817,7 +18833,7 @@
      "element": "button: [scan] —",
      "wired_to": "parent callback onOpen",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 140,
+     "line": 142,
      "status": "OK",
      "note": ""
     },
@@ -18825,7 +18841,7 @@
      "element": "button: [wallet]",
      "wired_to": "navigate → wallet",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 178,
+     "line": 180,
      "status": "OK",
      "note": ""
     },
@@ -18833,7 +18849,7 @@
      "element": "number: Stat: Today's Scans",
      "wired_to": "value ← String(stats.todayCount)",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 180,
+     "line": 182,
      "status": "OK",
      "note": ""
     },
@@ -18841,7 +18857,7 @@
      "element": "number: Stat: In Scanning",
      "wired_to": "value ← String(stats.inScanCount)",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 181,
+     "line": 183,
      "status": "OK",
      "note": ""
     },
@@ -18849,7 +18865,7 @@
      "element": "number: Stat: Completed",
      "wired_to": "value ← String(stats.completedCount)",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 182,
+     "line": 184,
      "status": "OK",
      "note": ""
     },
@@ -18857,7 +18873,7 @@
      "element": "number: Stat: Revenue",
      "wired_to": "value ← String(stats.revenue)",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 183,
+     "line": 185,
      "status": "OK",
      "note": ""
     }
@@ -18867,7 +18883,7 @@
    "app": "provider-app",
    "screen": "RadiologyOrdersTab",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 192,
+   "line": 194,
    "calls": [
     {
      "method": "GET",
@@ -18875,7 +18891,7 @@
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:134",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 112
+     "line": 114
     }
    ],
    "elements": [
@@ -18883,7 +18899,7 @@
      "element": "data: List orders",
      "wired_to": "GET /radiology/provider/inbox → orders",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 136,
+     "line": 138,
      "status": "OK",
      "note": ""
     },
@@ -18891,7 +18907,7 @@
      "element": "button: [scan] —",
      "wired_to": "parent callback onOpen",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 140,
+     "line": 142,
      "status": "OK",
      "note": ""
     },
@@ -18899,7 +18915,7 @@
      "element": "button: {t.label}",
      "wired_to": "local state setTab",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 209,
+     "line": 211,
      "status": "OK",
      "note": ""
     },
@@ -18907,7 +18923,7 @@
      "element": "data: List subTabs",
      "wired_to": "from subTabs (prop / derived; not traced)",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 209,
+     "line": 211,
      "status": "OK",
      "note": ""
     }
@@ -18917,14 +18933,14 @@
    "app": "provider-app",
    "screen": "RadiologySettingsScreen",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 618,
+   "line": 620,
    "calls": [],
    "elements": [
     {
      "element": "button: Inbound Insurance Requests",
      "wired_to": "navigate → insurance_requests",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 627,
+     "line": 629,
      "status": "OK",
      "note": ""
     },
@@ -18932,7 +18948,7 @@
      "element": "button: Ordering declaration",
      "wired_to": "navigate (back / dynamic target)",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 631,
+     "line": 633,
      "status": "OK",
      "note": ""
     },
@@ -18940,7 +18956,7 @@
      "element": "button: Medical Drug Index",
      "wired_to": "navigate → drug_index",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 635,
+     "line": 637,
      "status": "OK",
      "note": ""
     },
@@ -18948,7 +18964,7 @@
      "element": "button: Medical Jobs",
      "wired_to": "navigate → medical_jobs",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 636,
+     "line": 638,
      "status": "OK",
      "note": ""
     },
@@ -18956,7 +18972,7 @@
      "element": "button: Logout",
      "wired_to": "parent callback onLogout",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 638,
+     "line": 640,
      "status": "OK",
      "note": ""
     }
@@ -18966,7 +18982,7 @@
    "app": "provider-app",
    "screen": "ReportingScreen",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 404,
+   "line": 406,
    "calls": [
     {
      "method": "POST",
@@ -19038,7 +19054,7 @@
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:181",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 456
+     "line": 458
     },
     {
      "method": "POST",
@@ -19046,7 +19062,7 @@
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:175",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 450
+     "line": 452
     },
     {
      "method": "POST",
@@ -19054,7 +19070,7 @@
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:146",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 437
+     "line": 439
     },
     {
      "method": "POST",
@@ -19070,7 +19086,7 @@
      "element": "data: Data reportFile",
      "wired_to": "reportFile: set from user input / local logic",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 409,
+     "line": 411,
      "status": "OK",
      "note": ""
     },
@@ -19078,7 +19094,7 @@
      "element": "data: Data dicomFile",
      "wired_to": "dicomFile: set from user input / local logic",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 410,
+     "line": 412,
      "status": "OK",
      "note": ""
     },
@@ -19086,7 +19102,7 @@
      "element": "data: List STEPS",
      "wired_to": "from STEPS (prop / derived; not traced)",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 472,
+     "line": 474,
      "status": "OK",
      "note": ""
     },
@@ -19094,7 +19110,7 @@
      "element": "button: Report file: {…}",
      "wired_to": "native action",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 480,
+     "line": 482,
      "status": "OK",
      "note": ""
     },
@@ -19102,7 +19118,7 @@
      "element": "input: Clinical Findings",
      "wired_to": "user input → findings → request body",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 482,
+     "line": 484,
      "status": "OK",
      "note": ""
     },
@@ -19110,7 +19126,7 @@
      "element": "button: Upload updated report",
      "wired_to": "POST /storage/upload, POST /radiology/bookings/:param/upload-report",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 484,
+     "line": 486,
      "status": "OK",
      "note": ""
     },
@@ -19118,7 +19134,7 @@
      "element": "button: DICOM file: {…}",
      "wired_to": "native action",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 493,
+     "line": 495,
      "status": "OK",
      "note": ""
     },
@@ -19126,7 +19142,7 @@
      "element": "button: Submit for Radiologist Review",
      "wired_to": "POST /radiology/bookings/:param/submit-report-for-review",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 500,
+     "line": 502,
      "status": "OK",
      "note": ""
     },
@@ -19134,7 +19150,7 @@
      "element": "button: Approve & Publish to Patient",
      "wired_to": "POST /radiology/bookings/:param/approve-report",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 501,
+     "line": 503,
      "status": "OK",
      "note": ""
     }
@@ -19269,12 +19285,20 @@
      "line": 15
     },
     {
+     "method": "GET",
+     "path": "/media/:param/url",
+     "status": "OK",
+     "backend": "backend/src/modules/media/media.controller.ts:85",
+     "file": "provider-app/src/screens/shared/shared/ChatSystem.tsx",
+     "line": 183
+    },
+    {
      "method": "POST",
      "path": "/media/upload",
      "status": "OK",
      "backend": "backend/src/modules/media/media.controller.ts:31",
      "file": "provider-app/src/screens/shared/shared/ChatSystem.tsx",
-     "line": 203
+     "line": 218
     }
    ],
    "elements": [
@@ -19314,7 +19338,7 @@
      "element": "button: [back]",
      "wired_to": "parent callback onBack",
      "file": "provider-app/src/screens/shared/shared/ChatSystem.tsx",
-     "line": 224,
+     "line": 239,
      "status": "OK",
      "note": ""
     },
@@ -19322,7 +19346,15 @@
      "element": "data: List messages",
      "wired_to": "GET /chat/threads/:param/messages → messages",
      "file": "provider-app/src/screens/shared/shared/ChatSystem.tsx",
-     "line": 239,
+     "line": 254,
+     "status": "OK",
+     "note": ""
+    },
+    {
+     "element": "button: Open the image",
+     "wired_to": "GET /media/:param/url",
+     "file": "provider-app/src/screens/shared/shared/ChatSystem.tsx",
+     "line": 259,
      "status": "OK",
      "note": ""
     },
@@ -19330,7 +19362,7 @@
      "element": "button: [plus]",
      "wired_to": "local state setShowAttach",
      "file": "provider-app/src/screens/shared/shared/ChatSystem.tsx",
-     "line": 268,
+     "line": 287,
      "status": "OK",
      "note": ""
     },
@@ -19338,7 +19370,7 @@
      "element": "input: Type a message...",
      "wired_to": "user input → msg (local)",
      "file": "provider-app/src/screens/shared/shared/ChatSystem.tsx",
-     "line": 272,
+     "line": 291,
      "status": "OK",
      "note": ""
     },
@@ -19346,7 +19378,7 @@
      "element": "button: [forward]",
      "wired_to": "POST /chat/threads/:param/messages, GET /chat/threads/:param/messages",
      "file": "provider-app/src/screens/shared/shared/ChatSystem.tsx",
-     "line": 280,
+     "line": 299,
      "status": "OK",
      "note": ""
     },
@@ -19354,7 +19386,7 @@
      "element": "button: [{att.name}] {att.ar}",
      "wired_to": "POST /media/upload, POST /chat/threads/:param/messages, GET /chat/threads/:param/messages",
      "file": "provider-app/src/screens/shared/shared/ChatSystem.tsx",
-     "line": 294,
+     "line": 313,
      "status": "OK",
      "note": ""
     }
@@ -19396,7 +19428,7 @@
      "method": "GET",
      "path": "/insurance/companies",
      "status": "OK",
-     "backend": "backend/src/modules/insurance/insurance.module.ts:443",
+     "backend": "backend/src/modules/insurance/insurance.module.ts:459",
      "file": "provider-app/src/api/catalogs.ts",
      "line": 30
     },
@@ -20656,7 +20688,7 @@
      "method": "POST",
      "path": "/provider/ops/availability/toggle-instant",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:821",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:837",
      "file": "provider-app/src/context/index.tsx",
      "line": 415
     },
@@ -20956,7 +20988,7 @@
      "method": "GET",
      "path": "/provider/wallet/transactions",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:844",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:860",
      "file": "provider-app/src/screens/shared/shared/ProviderWalletScreen.tsx",
      "line": 52
     }
@@ -21054,7 +21086,7 @@
      "method": "GET",
      "path": "/provider/reviews",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:903",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:919",
      "file": "provider-app/src/screens/shared/RealScreens.tsx",
      "line": 20
     },
@@ -21062,7 +21094,7 @@
      "method": "POST",
      "path": "/provider/reviews/:param/reply",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:908",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:924",
      "file": "provider-app/src/screens/shared/RealScreens.tsx",
      "line": 28
     }
@@ -21312,7 +21344,7 @@
    "app": "provider-app",
    "screen": "VideoCallRoom",
    "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-   "line": 56,
+   "line": 58,
    "calls": [
     {
      "method": "POST",
@@ -21320,7 +21352,7 @@
      "status": "OK",
      "backend": "backend/src/modules/livekit/livekit.controller.ts:59",
      "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-     "line": 230
+     "line": 258
     },
     {
      "method": "POST",
@@ -21328,7 +21360,7 @@
      "status": "OK",
      "backend": "backend/src/modules/livekit/livekit.controller.ts:53",
      "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-     "line": 131
+     "line": 143
     },
     {
      "method": "POST",
@@ -21336,7 +21368,7 @@
      "status": "OK",
      "backend": "backend/src/modules/livekit/livekit.controller.ts:83",
      "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-     "line": 107
+     "line": 113
     },
     {
      "method": "POST",
@@ -21344,7 +21376,7 @@
      "status": "OK",
      "backend": "backend/src/modules/livekit/livekit.controller.ts:43",
      "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-     "line": 125
+     "line": 136
     }
    ],
    "elements": [
@@ -21352,7 +21384,7 @@
      "element": "data: Data remoteTrack",
      "wired_to": "POST /calls/initiate, POST /calls/:param/join, POST /calls/:param/metrics → remoteTrack",
      "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-     "line": 63,
+     "line": 65,
      "status": "OK",
      "note": ""
     },
@@ -21360,7 +21392,15 @@
      "element": "data: Data localTrack",
      "wired_to": "POST /calls/initiate, POST /calls/:param/join, POST /calls/:param/metrics → localTrack",
      "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-     "line": 64,
+     "line": 66,
+     "status": "OK",
+     "note": ""
+    },
+    {
+     "element": "data: Data problem",
+     "wired_to": "POST /calls/initiate, POST /calls/:param/join, POST /calls/:param/metrics → problem",
+     "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
+     "line": 71,
      "status": "OK",
      "note": ""
     },
@@ -21368,7 +21408,7 @@
      "element": "data: Data audioOnly",
      "wired_to": "POST /calls/initiate, POST /calls/:param/join, POST /calls/:param/metrics → audioOnly",
      "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-     "line": 70,
+     "line": 74,
      "status": "OK",
      "note": ""
     },
@@ -21376,7 +21416,15 @@
      "element": "data: Data quality",
      "wired_to": "POST /calls/initiate, POST /calls/:param/join, POST /calls/:param/metrics → quality",
      "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-     "line": 71,
+     "line": 75,
+     "status": "OK",
+     "note": ""
+    },
+    {
+     "element": "button: Open device settings",
+     "wired_to": "native action",
+     "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
+     "line": 283,
      "status": "OK",
      "note": ""
     },
@@ -21384,7 +21432,7 @@
      "element": "button: Retry",
      "wired_to": "POST /calls/initiate, POST /calls/:param/join, POST /calls/:param/metrics",
      "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-     "line": 253,
+     "line": 288,
      "status": "OK",
      "note": ""
     },
@@ -21392,7 +21440,15 @@
      "element": "button: Go back",
      "wired_to": "parent callback onEnd",
      "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-     "line": 255,
+     "line": 290,
+     "status": "OK",
+     "note": ""
+    },
+    {
+     "element": "button: Open settings",
+     "wired_to": "native action",
+     "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
+     "line": 328,
      "status": "OK",
      "note": ""
     },
@@ -21400,7 +21456,7 @@
      "element": "button: Mute",
      "wired_to": "local state setMicOn",
      "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-     "line": 304,
+     "line": 350,
      "status": "OK",
      "note": ""
     },
@@ -21408,7 +21464,7 @@
      "element": "button: Camera",
      "wired_to": "local state setCamOn",
      "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-     "line": 308,
+     "line": 354,
      "status": "OK",
      "note": ""
     },
@@ -21416,7 +21472,7 @@
      "element": "button: Try video again",
      "wired_to": "local state setCamOn",
      "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-     "line": 313,
+     "line": 359,
      "status": "OK",
      "note": ""
     },
@@ -21424,7 +21480,7 @@
      "element": "button: End call",
      "wired_to": "POST /calls/:param/end",
      "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-     "line": 317,
+     "line": 363,
      "status": "OK",
      "note": ""
     }
@@ -21586,7 +21642,7 @@
      "method": "GET",
      "path": "/provider/working-hours",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:914",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:930",
      "file": "provider-app/src/screens/shared/RealScreens.tsx",
      "line": 123
     },
@@ -21594,7 +21650,7 @@
      "method": "PUT",
      "path": "/provider/working-hours",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:918",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:934",
      "file": "provider-app/src/screens/shared/RealScreens.tsx",
      "line": 167
     }
