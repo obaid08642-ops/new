@@ -9,15 +9,17 @@ import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useApp } from '../../src/context/AppContext';
 import { AppText } from '../../src/components/ui';
+import { useScreenUi } from '../../src/components/screen/ScreenKit';
 
 export default function DoctorProfileRedirect() {
   const { colors } = useApp();
+  const { k } = useScreenUi();
   const params = useLocalSearchParams();
   const doctorId = (params.doctorId || params.id || '') as string;
 
   useEffect(() => {
     if (doctorId) {
-      router.replace(`/consultations/doctor/${doctorId}`);
+      router.replace(`/consultations/doctor/${encodeURIComponent(doctorId)}`);
     } else {
       router.replace('/consultations/doctor-search');
     }
@@ -27,7 +29,7 @@ export default function DoctorProfileRedirect() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ActivityIndicator size="large" color={colors.primary} />
       <AppText variant="bodySM" color={colors.textSecondary} style={{ marginTop: 12 }}>
-        جاري فتح ملف الطبيب…
+        {k('link.opening.doctor')}
       </AppText>
     </View>
   );

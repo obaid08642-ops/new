@@ -161,6 +161,11 @@ def claims(pat, booking_kind=None, booking_id=None):
         step('submit a reimbursement claim for a paid booking', r.ok and cid, r)
         r = pat.get('/insurance/claims')
         step('claim-tracking lists the submitted claim', r.ok and cid and cid in str(r.body), r)
+        rows = r.body if isinstance(r.body, list) else r.items()
+        mine = next((x for x in rows if (x.get('id') or x.get('claim_id')) == cid), {})
+        step('the claim is for what was paid, not for an amount typed by the client', bool(mine) and 0 < float(mine.get('amount') or 0) < 99999, mine)
+        r = pat.post('/insurance/claims/submit', {'booking_kind': booking_kind, 'booking_id': booking_id, 'claim_type': 'reimbursement', 'amount': 99999})
+        step('a second claim for the same booking is refused', r.status == 409, r)
     else:
         r = pat.get('/insurance/claims')
         step('claims list loads', r.ok, r)

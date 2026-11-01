@@ -1,0 +1,83 @@
+/* The receipt: tokens only. The paper is the card surface on the sunken page; the perforated edge is a mask (colour-less), the slot is ink. */
+.stage { display: grid; justify-items: center; gap: var(--nabd-space-lg); padding-block: var(--nabd-space-lg); }
+
+.slot {
+  inline-size: min(100%, 22rem);
+  block-size: 0.625rem;
+  border-radius: var(--nabd-radius-pill);
+  background: var(--nabd-color-text-primary);
+  position: relative;
+  z-index: 1;
+}
+
+/* The window hides the paper while it is still inside the printer: it starts above the slot and slides down. */
+.window { inline-size: min(100%, 22rem); overflow: clip; margin-block-start: calc(-1 * var(--nabd-space-sm)); padding-block-start: var(--nabd-space-sm); }
+
+.paper {
+  display: grid;
+  gap: var(--nabd-space-md);
+  padding: var(--nabd-space-lg) var(--nabd-space-lg) calc(var(--nabd-space-lg) + 0.5rem);
+  background: var(--nabd-color-bg-surface);
+  color: var(--nabd-color-text-primary);
+  box-shadow: var(--nabd-shadow-card);
+  /* perforated bottom edge: a row of small teeth, cut with a mask */
+  -webkit-mask: conic-gradient(from -45deg at bottom, transparent, var(--nabd-color-text-primary) 1deg 89deg, transparent 90deg) bottom / 0.75rem 100% repeat-x;
+  mask: conic-gradient(from -45deg at bottom, transparent, var(--nabd-color-text-primary) 1deg 89deg, transparent 90deg) bottom / 0.75rem 100% repeat-x;
+  animation: receipt-print 800ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.head { display: grid; justify-items: center; gap: var(--nabd-space-xs); text-align: center; }
+.seller { margin: 0; font-size: var(--nabd-font-size-body-lg); font-weight: 600; }
+.kind { margin: 0; font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); }
+
+.meta {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--nabd-space-xs) var(--nabd-space-md);
+  margin: 0;
+  padding-block-start: var(--nabd-space-md);
+  border-block-start: 1px dashed var(--nabd-color-border-strong);
+  font-size: var(--nabd-font-size-label);
+}
+.meta dt { color: var(--nabd-color-text-secondary); }
+.meta dd { margin: 0; text-align: end; }
+.sums { font-size: var(--nabd-font-size-body); }
+.totalLabel, .totalValue { padding-block-start: var(--nabd-space-xs); border-block-start: 1px solid var(--nabd-color-border-hairline); font-weight: 700; color: var(--nabd-color-text-primary); }
+
+.qr { box-sizing: content-box; inline-size: 9rem; block-size: 9rem; padding: var(--nabd-space-sm); justify-self: center; color: var(--nabd-color-text-primary); background: var(--nabd-color-bg-surface); }
+/* In dark the tokens make the code light-on-dark, which scanners do not read: flip the polarity so it is dark on light, as in the app. */
+:global([data-theme="dark"]) .qr { filter: invert(1); }
+
+/* Download PDF and Share appear once the paper is out. */
+.actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--nabd-space-sm); animation: receipt-actions 300ms ease-out 800ms both; }
+
+@keyframes receipt-print {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+@keyframes receipt-actions {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Reduced motion (the OS setting): the receipt is simply there. */
+@media (prefers-reduced-motion: reduce) {
+  .paper, .actions { animation: none; }
+}
+
+/* A list of receipts (/receipts). */
+.list { display: grid; gap: var(--nabd-space-sm); margin: 0; padding: 0; list-style: none; }
+.row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--nabd-space-xs) var(--nabd-space-md);
+  padding: var(--nabd-space-md);
+  border-radius: var(--nabd-radius-xl);
+  background: var(--nabd-color-bg-surface);
+  border: 1px solid var(--nabd-color-border-hairline);
+  color: var(--nabd-color-text-primary);
+  text-decoration: none;
+}
+.rowTitle { font-size: var(--nabd-font-size-row); font-weight: 600; }
+.rowSub { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); }
+.rowTotal { grid-row: 1 / span 2; grid-column: 2; align-self: center; font-weight: 700; }

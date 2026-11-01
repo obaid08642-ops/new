@@ -13,6 +13,7 @@ import { useSocket } from '../../src/context/SocketContext';
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
 import { addIncoming, applyState, chronological, confirmSent, fromServer, type ChatMsg, type ServerMsg, type StateEvent } from '../../src/chat/chatState';
+import { newestFromOther, sendThreadReceipts } from '../../src/chat/receipts';
 import { enqueue, forThread, isDead, resetAttempts, type OutboxItem } from '../../src/chat/outbox';
 import { flushOutbox, onOutboxEvent } from '../../src/chat/outboxRunner';
 import { MediaScanWatch } from '../../src/chat/MediaScanWatch';
@@ -145,6 +146,8 @@ export default function ChatWithDoctorScreen() {
             .map((q) => ({ id: q.clientId, clientId: q.clientId, sender: 'me' as const, text: q.type === 'voice' ? '' : q.body, time: stamp(q.createdAt), at: q.createdAt, kind: q.type, queued: !isDead(q), failed: isDead(q) }));
           setMessages([...loaded, ...extra]);
         });
+        // the thread is open on this device: delivered, and seen up to the doctor's newest message
+        void sendThreadReceipts(apiFetch, String(threadRef.current), newestFromOther(loaded));
       })
       .catch(() => {
         if (!cancelled) setBlocked(k('consult.chat.openFailed'));
@@ -166,6 +169,7 @@ export default function ChatWithDoctorScreen() {
       if (newMsg.thread_id !== threadId) return;
       const incoming = fromServer({ ...newMsg, id: newMsg.id || newMsg.msg_id }, myId, stamp);
       setMessages((prev) => addIncoming(prev, incoming));
+      if (incoming.sender !== 'me' && incoming.id) void sendThreadReceipts(apiFetch, threadId, incoming.id);
     };
     const handleState = (ev: StateEvent) => {
       if (ev.thread_id === threadId) setMessages((prev) => applyState(prev, ev, myId));

@@ -133,7 +133,8 @@ export class PdplService {
       collections: {},
     };
 
-    for (const { collection, fields } of this.OWNED) {
+    // the same list the erasure walks (OWNED + OWNED_EXTRA): a patient is given every collection that holds their data, not a shorter one
+    for (const { collection, fields } of [...this.OWNED, ...PdplService.OWNED_EXTRA]) {
       if (!present.has(collection)) continue;
       const rows: any[] = await this.conn
         .collection(collection)

@@ -1,4 +1,5 @@
 import { Module, Controller, Get, Post, Patch, Delete, Body, Query, Param, UseGuards, Injectable, BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
+import { assertPaymentMethod } from '../../common/payment-policy';
 import { CreateDto, CancelRootDto, RescheduleRootDto, CancelDto, ReschedDto, MatchDto, NursingDto, CheckoutDto, CreateDiagnosticOrderDto } from './unified-bookings.dto';
 import { DiagnosticOrder, DiagnosticOrderSchema } from '../../schemas/diagnostic-order.schema';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
@@ -232,7 +233,7 @@ export class UnifiedBookingsService {
       if (!b) throw new NotFoundException();
       if (![LabBookingState.NEW_REQUEST, LabBookingState.CONFIRMED].includes(b.state)) throw new BadRequestException('cannot_reschedule');
       b.scheduled_at = nt; await b.save();
-      this.bus.emit({ type: 'service.confirmed', entity_type: 'lab_booking', entity_id: id, actor_account_id: user.id, actor_role: 'patient', meta: { rescheduled_to: nt, reason, kind: 'lab' } } as any).catch(() => null);
+      this.bus.emit({ type: 'booking.rescheduled', entity_type: 'lab_booking', entity_id: id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { new_date: nt, reason, kind: 'lab' } } as any).catch(() => null);
       return b.toObject();
     }
     if (k === 'radiology') {
@@ -240,7 +241,7 @@ export class UnifiedBookingsService {
       if (!b) throw new NotFoundException();
       if (![RadiologyBookingState.PENDING, RadiologyBookingState.CONFIRMED, RadiologyBookingState.CONFIRMED].includes(b.state)) throw new BadRequestException('cannot_reschedule');
       b.scheduled_at = nt; await b.save();
-      this.bus.emit({ type: 'service.confirmed', entity_type: 'radiology_booking', entity_id: id, actor_account_id: user.id, actor_role: 'patient', meta: { rescheduled_to: nt, reason, kind: 'radiology' } } as any).catch(() => null);
+      this.bus.emit({ type: 'booking.rescheduled', entity_type: 'radiology_booking', entity_id: id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { new_date: nt, reason, kind: 'radiology' } } as any).catch(() => null);
       return b.toObject();
     }
     if (k === 'nursing') {
@@ -248,7 +249,7 @@ export class UnifiedBookingsService {
       if (!b) throw new NotFoundException();
       if ([HomeCareBookingState.COMPLETED, HomeCareBookingState.CANCELLED].includes(b.state)) throw new BadRequestException('cannot_reschedule');
       b.scheduled_at = nt; await b.save();
-      this.bus.emit({ type: 'service.confirmed', entity_type: 'nursing_booking', entity_id: id, actor_account_id: user.id, actor_role: 'patient', meta: { rescheduled_to: nt, reason, kind: 'nursing' } } as any).catch(() => null);
+      this.bus.emit({ type: 'booking.rescheduled', entity_type: 'nursing_booking', entity_id: id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { new_date: nt, reason, kind: 'nursing' } } as any).catch(() => null);
       return b.toObject();
     }
     if (k === 'consultation') {
@@ -304,8 +305,8 @@ export class UnifiedBookingsService {
     }
     // D-25 (owner decision 25): no cash for online or home visits. Checked before the slot, so the
     // answer is always about the payment method (AppointmentsService.create enforces the same rule).
-    if (paymentMethod === 'cash' && body?.type === 'video') throw new BadRequestException('payment_method_cash_not_allowed_for_online_consultation');
-    if (paymentMethod === 'cash' && body?.type === 'home') throw new BadRequestException('payment_method_cash_not_allowed_for_home_visit');
+    if (paymentMethod === 'cash' && body?.type === 'video') assertPaymentMethod(paymentMethod, 'online_consultation');
+    if (paymentMethod === 'cash' && body?.type === 'home') assertPaymentMethod(paymentMethod, 'home_visit');
     const slotStart = await this.resolveConsultationSlot(body?.doctor_id || '', body?.type as any, body?.slot_id || '');
     const booking: any = await this.apptSvc.create(user, {
       doctor_id: body!.doctor_id!,
@@ -331,7 +332,14 @@ export class UnifiedBookingsService {
   async cancelConsultationContract(user: any, id: string, reason?: string) {
     await this.getOne(user, 'consultation', id);
     const booking: any = await this.apptSvc.cancel(id, user, reason);
-    return { booking_id: booking.id, status: String(booking.status || '').toLowerCase() };
+    // The refund the cancellation computed, so the patient sees it right away (the web BFF reads exactly these three).
+    return {
+      booking_id: booking.id,
+      status: String(booking.status || '').toLowerCase(),
+      refund_percentage: booking.refund_percentage,
+      total_price: booking.total_price,
+      payment_status: booking.payment_status,
+    };
   }
 
   /** Owner-scoped root reschedule with the same server-side slot resolution. */

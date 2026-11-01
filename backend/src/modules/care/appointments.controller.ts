@@ -57,6 +57,8 @@ export class AppointmentsController {
     return this.svc.joinWaitlist(user, body);
   }
 
+  /** @deprecated The one patient cancel route is POST /unified-bookings/consultation/:id/cancel (idempotent; the web and the app use it).
+   *  Kept only for app versions already installed; remove once they are out of support. */
   @Patch(':id/cancel')
   cancel(@Param('id') id: string, @CurrentUser() user: any, @Body() body: CancelAppointmentDto) {
     return this.svc.cancel(id, user, body?.reason);

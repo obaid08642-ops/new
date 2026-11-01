@@ -147,9 +147,9 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
       for await (const raw of cursor) {
         const doc = toSearchDocument(source, raw);
         if (doc) batch.push(doc);
-        if (batch.length >= BATCH) { indexed += await this.write(batch); batch = []; }
+        if (batch.length >= BATCH) { indexed += await this.write(batch, true); batch = []; }
       }
-      if (batch.length) indexed += await this.write(batch);
+      if (batch.length) indexed += await this.write(batch, true);
     }
     // Anything not rewritten by this run is no longer searchable.
     const stale = await this.index.find({ indexed_at: { $lt: started } }, { projection: { key: 1 } }).toArray();
@@ -177,21 +177,52 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
     this.purgeTimer.unref?.();
   }
 
-  private async write(docs: SearchDocument[]): Promise<number> {
+  /** `paced`: a bulk write (the rebuild) waits for the engine to apply each batch; a single change is sent and forgotten. */
+  private async write(docs: SearchDocument[], paced = false): Promise<number> {
     const now = new Date();
     await this.index.bulkWrite(docs.map((d) => ({ replaceOne: { filter: { key: d.key }, replacement: { ...d, indexed_at: now }, upsert: true } })), { ordered: false });
-    await this.meiliCall((m) => m.upsert(docs));
+    await this.meiliCall((m) => (paced ? m.upsertAndWait(docs) : m.upsert(docs)));
     return docs.length;
   }
 
+  private syncingMeili = false;
+
+  /**
+   * Boot sync of the engine from the MongoDB index. It used to push the WHOLE index on every worker start, whatever the engine held and however
+   * busy it was; a worker that restarts often (or an engine that is killed while it works) then piled one full re-index on top of another in the
+   * engine's persisted task queue. Now: nothing is sent while the engine still has work queued, nothing when it already holds every document, and
+   * otherwise the batches go one at a time, each waited for.
+   */
   private async syncMeiliFromIndex() {
-    const cursor = this.index.find({}, { projection: { _id: 0, indexed_at: 0 } });
-    let batch: SearchDocument[] = [];
-    for await (const d of cursor) {
-      batch.push(d as unknown as SearchDocument);
-      if (batch.length >= BATCH) { await this.meiliCall((m) => m.upsert(batch)); batch = []; }
+    if (!this.meili || this.syncingMeili) return;
+    this.syncingMeili = true;
+    try {
+      const wanted = await this.index.countDocuments({});
+      let state: { documents: number | null; backlog: number };
+      try {
+        state = await this.meili.state();
+      } catch (e) {
+        this.log.warn(`meilisearch boot sync skipped, state unreadable: ${(e as Error).message}`);
+        return;
+      }
+      if (state.backlog > 0) { this.log.warn(`meilisearch has ${state.backlog} task(s) waiting or running: no full sync added on top`); return; }
+      if (state.documents === wanted) { this.log.log(`meilisearch already holds all ${wanted} documents: boot sync skipped`); return; }
+      this.log.log(`meilisearch holds ${state.documents ?? 'no index'} of ${wanted} documents: syncing, one batch at a time`);
+      const cursor = this.index.find({}, { projection: { _id: 0, indexed_at: 0 } });
+      let batch: SearchDocument[] = [];
+      let sent = 0;
+      for await (const d of cursor) {
+        batch.push(d as unknown as SearchDocument);
+        if (batch.length >= BATCH) {
+          if (!(await this.meiliCall((m) => m.upsertAndWait(batch)))) { this.log.warn(`meilisearch sync stopped after ${sent} documents (the engine did not take a batch)`); return; }
+          sent += batch.length; batch = [];
+        }
+      }
+      if (batch.length && (await this.meiliCall((m) => m.upsertAndWait(batch)))) sent += batch.length;
+      this.log.log(`meilisearch sync done: ${sent} documents sent`);
+    } finally {
+      this.syncingMeili = false;
     }
-    if (batch.length) await this.meiliCall((m) => m.upsert(batch));
   }
 
   /** Meilisearch is a mirror: a failure is logged and the MongoDB index stays correct. */

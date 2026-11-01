@@ -106,7 +106,7 @@ class Harness:
         with open(os.path.join(TASKS, task)) as fh:
             src = fh.read()
         for k, v in (settings or {}).items():                     # the reviewer edits these lines in the task file
-            src = re.sub(rf'^{k}=""$', f'{k}="{v}"', src, count=1, flags=re.M)
+            src = re.sub(rf'^{k}="[^"]*"$', f'{k}="{v}"', src, count=1, flags=re.M)   # empty, or a default the reviewer overrides
         script = os.path.join(self.tmp.name, task)
         with open(script, "w") as f:
             f.write(src)
@@ -570,6 +570,12 @@ HOST_FILES = {
     "scripts/oplog-backup.sh": "#!/bin/bash\n# new oplog backup\n",
     "scripts/_oplog-mongo-wait.sh": "# new wait helper\n",
     "scripts/memory-report.sh": "#!/bin/bash\necho 'status: memory host total=1MB'\necho 'not a status line'\n",
+    "scripts/clamav-window.sh": "#!/bin/bash\n# new window\n",
+    "scripts/_backup-common.sh": "# new common\n",
+    "scripts/backup.sh": "#!/bin/bash\nsource _dump-guard.sh\n",
+    "scripts/_dump-guard.sh": "dump_guard() { return 0; }\n",
+    "scripts/_mongodump-oneoff.sh": "mongodump_oneoff() { return 0; }\n",
+    "scripts/_mongorestore-list.sh": "mongorestore_list_oneoff() { return 0; }\n",
 }
 OLD_REDIS = "port 6379\nmaxmemory 256mb\n"
 
@@ -644,8 +650,8 @@ class HostFiles(unittest.TestCase):
         self.assertTrue(os.access(os.path.join(self.h.deploy, "scripts", "memory-report.sh"), os.X_OK))
         self.assertEqual(stat.S_IMODE(os.stat(os.path.join(self.h.deploy, "redis", "redis.conf")).st_mode), 0o644)
         saved = sorted(os.listdir(self.h.backups))
-        self.assertEqual(len([f for f in saved if f.startswith("hostfiles-pre-")]), 3)
-        self.assertEqual(len([f for f in saved if f.startswith("hostfiles-new-")]), 2)
+        self.assertEqual(len([f for f in saved if f.startswith("hostfiles-pre-")]), 5)       # the files the fixture already has on the server and that differ from the release
+        self.assertEqual(len([f for f in saved if f.startswith("hostfiles-new-")]), 6)       # the rest of the 11 files did not exist on the server
         self.assertEqual(self.redis_live(), 320 * 1048576)         # CONFIG SET, live
         calls = self.h.docker_calls()
         self.assertNotIn("compose", calls)
@@ -776,7 +782,7 @@ class CatalogueApplyOnly(unittest.TestCase):
         run = [l for l in self.h.docker_calls().splitlines() if l.startswith("run ")]
         self.assertEqual(len(run), 1)
         self.assertIn("--only=product_translations --product-translations=/in/product-translations.json", run[0])
-        self.assertIn("--memory 900m", run[0])
+        self.assertIn("--memory 700m", run[0])
 
     def test_without_completion_the_full_plan_keeps_its_inputs(self):
         p = self.run_task()
@@ -791,7 +797,7 @@ class CatalogueApplyOnly(unittest.TestCase):
         run = [l for l in calls.splitlines() if l.startswith("run ")]
         self.assertEqual(len(run), 1, calls)
         self.assertIn("--rm", run[0])
-        self.assertIn("--memory 900m --memory-swap 900m --oom-score-adj 1000", run[0])
+        self.assertIn("--memory 700m --memory-swap 700m --oom-score-adj 1000", run[0])
         self.assertIn("--only=catalogue_completion", run[0])
         self.assertNotIn("node dist/scripts/catalogue-apply.js plan", "\n".join(l for l in calls.splitlines() if l.startswith("exec ")))
         self.assertNotIn("mongo-pass-31d9", p.stdout + p.stderr + calls)   # the password is never an argument or output
@@ -805,6 +811,23 @@ class CatalogueApplyOnly(unittest.TestCase):
         run = [l for l in self.h.docker_calls().splitlines() if l.startswith("run ") and " apply " in l]
         self.assertEqual(len(run), 1)
         self.assertRegex(run[0], r"--backup=/backup/catalogue-\d{8}T\d{6}Z\.json\.gz")
+        self.assertIn("applied and verified", p.stdout)
+
+    def test_the_task_runs_detached_and_shows_progress_lines_live_without_repeating_them_in_the_summary(self):
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "tasks", "90-catalogue-apply.sh")) as f:
+            self.assertEqual(f.read().splitlines()[1], "# ops-detach: runs detached on the server (see server-inspect.yml); the workflow polls its log.")
+        with open(self.h.apply_out, "w") as f:
+            f.write('{"cmd":"apply","step":"backup","file_sha256":"%s","bytes":10,"changes":12}\n' % ("cd" * 32))
+            f.write("progress apply medicines 2000/19984 modified=2000 retried_batches=0\n")
+            f.write("progress apply medicines 19984/19984 modified=19984 retried_batches=1\n")
+            f.write('{"cmd":"apply","step":"apply","applied":12,"remaining_changes":0,"counts_ok":true,"ok":true}\n')
+        open(os.path.join(self.h.backups, "catalogue-x.json.gz"), "w").close()
+        p = self.run_task({"COMPLETION": "packaged", "ONE_OFF": "yes", "EXPECT_PLAN_SHA": "ab" * 32})
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        live = [l for l in p.stderr.splitlines() if "progress apply" in l]
+        self.assertEqual(len(live), 2, p.stderr)                      # each line once, as it came
+        self.assertTrue(all(l.startswith("status: catalogue-apply: progress apply medicines ") for l in live))
+        self.assertNotIn("progress apply", p.stdout)                  # the summary does not repeat them
         self.assertIn("applied and verified", p.stdout)
 
     def test_output_is_status_lines_only(self):

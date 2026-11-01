@@ -254,8 +254,8 @@ describe('payment', () => {
     expect(JSON.parse(init.body as string)).toEqual({ method: 'apple-pay' }); // the chosen method only: no amount, no card data goes out
     expect((init.headers as Record<string, string>)['Idempotency-Key']).toMatch(/^[A-Za-z0-9._:-]{16,128}$/);
     await waitFor(() => expect(screen.getByLabelText(k('pharmacy.pay.pay', { amount: `80.00 ${k('pharmacy.currency')}` })).props.accessibilityState.disabled).toBe(true));
-    await act(async () => release({ id: 'txn-1', status: 'pending', checkout_url: 'https://pay.example.test/hosted' }));
-    await waitFor(() => expect(open).toHaveBeenCalledWith('https://pay.example.test/hosted'));
+    await act(async () => release({ id: 'txn-1', status: 'pending', checkout_url: 'https://checkout.tap.company/hosted' }));
+    await waitFor(() => expect(open).toHaveBeenCalledWith('https://checkout.tap.company/hosted'));
     expect(mockRouter.replace).toHaveBeenCalledWith({ pathname: '/payments/result', params: { transactionId: 'txn-1', bookingKind: 'pharmacy', bookingId: 'ord' } });
     expect(posts()).toHaveLength(1);
     open.mockRestore();
@@ -477,15 +477,19 @@ describe('payment result', () => {
 
   it('opens the hosted page a service hands over (https only), once, and then asks the server', async () => {
     const open = jest.spyOn(Linking, 'openURL').mockResolvedValue();
-    mockParams.current = { moyasarId: 'txn-9', paymentUrl: 'https://pay.example.test/hosted', bookingKind: 'diagnostics', bookingId: 'd1' };
+    mockParams.current = { moyasarId: 'txn-9', paymentUrl: 'https://checkout.tap.company/hosted', bookingKind: 'diagnostics', bookingId: 'd1' };
     apiFetch.mockResolvedValue({ id: 'x', status: 'pending' });
     await render(wrap(<PaymentResultScreen />));
     await screen.findByText(k('payments.result.checkingTitle'));
     expect(open).toHaveBeenCalledTimes(1);
-    expect(open).toHaveBeenCalledWith('https://pay.example.test/hosted');
+    expect(open).toHaveBeenCalledWith('https://checkout.tap.company/hosted');
     expect(apiFetch).toHaveBeenCalledWith('/payments/verify/txn-9', { method: 'POST' });
     open.mockClear();
     mockParams.current = { moyasarId: 'txn-9', paymentUrl: 'http://insecure.example.test', bookingKind: 'diagnostics' };
+    await render(wrap(<PaymentResultScreen />));
+    expect(open).not.toHaveBeenCalled();
+    // PT-24: a deep link naming any other https host does not open it either; the screen still asks the server about the payment
+    mockParams.current = { moyasarId: 'txn-9', paymentUrl: 'https://phish.example.test/pay', bookingKind: 'diagnostics' };
     await render(wrap(<PaymentResultScreen />));
     expect(open).not.toHaveBeenCalled();
     open.mockRestore();

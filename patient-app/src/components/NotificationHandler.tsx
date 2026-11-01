@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { registerCallRingTask } from '../calls/ringTask';
+import { setVoipAuth, startVoipListeners } from '../calls/voipPush';
+import { emitRingingCallOver } from '../calls/callSignals';
 import { startOutboxRunner } from '../chat/outboxRunner';
-import { registerVoipPush } from '../calls/voipPush';
 import { useSelector } from 'react-redux';
 import { router } from 'expo-router';
 import * as Notifications from 'expo-notifications';
@@ -9,6 +10,7 @@ import { registerForPushNotificationsAsync, initNotificationListeners } from '..
 import { displayNativeIncomingCall } from '../utils/callkeep';
 import { flushMedicationDoseActions, medicationNotificationAction, recordMedicationDoseAction, snoozeMedicationNotificationResponse } from '../utils/medication-notifications';
 import { HttpClient } from '@/services/HttpClient';
+import { translateBackendRoute } from '../hooks/usePushNotifications';
 
 /** Report engagement to the backend → powers admin open-rate / CTR analytics. */
 function trackEngagement(event: 'received' | 'opened' | 'clicked', data: any): void {
@@ -72,8 +74,11 @@ function resolveLegacyRoute(data: any): { pathname: string; params: Record<strin
       return data.appointmentId || data.bookingId
         ? { pathname: '/consultations/appointment-detail', params: { appointmentId: data.appointmentId || data.bookingId } }
         : { pathname: '/consultations/appointments', params: {} };
-    case 'order':
-      return { pathname: '/pharmacy/order-tracking', params: { orderId: data.orderId } };
+    case 'order': {
+      // an order push without an id opens the orders list, not a tracking screen with no order
+      const orderId = data.orderId || data.order_id;
+      return orderId ? { pathname: '/pharmacy/order-tracking', params: { orderId } } : { pathname: '/orders', params: {} };
+    }
     case 'consultation':
       return data.bookingId
         ? { pathname: '/consultations/appointment-detail', params: { appointmentId: data.bookingId } }
@@ -101,16 +106,24 @@ function resolveLegacyRoute(data: any): { pathname: string; params: Record<strin
 export default function NotificationHandler() {
   const isAuthenticated = useSelector((state: any) => state.auth.isAuthenticated);
 
+  // Call ringing does not wait for the sign-in: a call push can wake a killed app before the session is restored. Only the token upload does.
+  useEffect(() => {
+    void registerCallRingTask();
+    void startVoipListeners();
+  }, []);
+  useEffect(() => {
+    if (!isAuthenticated) setVoipAuth(false);
+  }, [isAuthenticated]);
+
   useEffect(() => {
     if (!isAuthenticated) return;
 
     // Register the token with the backend (only if notifications are already allowed: the phone's dialog is never shown here,
     // it comes from the in-context prompts) and reconcile explicit local medication actions.
     registerForPushNotificationsAsync();
-    void registerCallRingTask();
+    setVoipAuth(true);
     // queued chat messages are sent from here too (connection back, app foregrounded), not only while a chat screen is open
     const stopOutbox = startOutboxRunner();
-    void registerVoipPush();
     flushMedicationDoseActions().catch(() => { /* a later app launch will retry */ });
 
     const navigateFromData = (data: any) => {
@@ -123,6 +136,14 @@ export default function NotificationHandler() {
       if (typeof data.screen === 'string' && ALLOWED_SCREENS.has(data.screen)) {
         router.push({ pathname: data.screen as any, params: (data.params as any) || {} });
         return;
+      }
+      // A backend route that is not a screen name (/orders/:id/tracking, /consultations/appointments/:id): the closed translation table
+      if (typeof data.screen === 'string') {
+        const translated = translateBackendRoute(data.screen);
+        if (translated) {
+          router.push({ pathname: translated.pathname as any, params: { ...translated.params, ...(data.params && typeof data.params === 'object' ? (data.params as Record<string, string>) : {}) } });
+          return;
+        }
       }
       const legacy = resolveLegacyRoute(data);
       if (legacy) {
@@ -167,6 +188,11 @@ export default function NotificationHandler() {
     const handleForegroundNotification = (notification: Notifications.Notification) => {
       const data = notification.request.content.data as any;
       trackEngagement('received', data);
+      if (data && (data.type === 'call_missed' || data.type === 'call_cancelled' || data.type === 'call_ended') && (data.session_id || data.sessionId)) {
+        // the ringing call is over: the in-app incoming-call screen and the native call screen go away
+        emitRingingCallOver(String(data.session_id || data.sessionId));
+        return;
+      }
       if (data && (data.type === 'incoming_call' || data.type === 'call')) {
         displayNativeIncomingCall(data.session_id || data.sessionId, data.caller_name || data.callerName || 'طبيب نبض', (data.call_type || data.callType) !== 'voice');
       }

@@ -13,7 +13,6 @@ import { ProviderProfileRepository } from "./repositories/providerprofile.reposi
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
 import { escapeRegex } from '../../common/slug.util';
-import { ManualLicenseCheck, requiresScfhs } from '../../common/scfhs-license';
 import { ScfhsLicenseService } from './services/scfhs-license.service';
 import { enforcePasswordPolicy } from '../../common/password-security.service';
 
@@ -76,103 +75,6 @@ export class ProvidersService {
     });
   }
 
-  async createBranchStaffAccount(adminId: string, branchId: string, staffDto: any) {
-    const admin = await this.userModel.findOne({ id: adminId });
-    if (!admin) throw new NotFoundException('Admin not found');
-    if (![UserRole.HOSPITAL_ADMIN, UserRole.BRANCH_ADMIN].includes(admin.role)) {
-      throw new ForbiddenException('صلاحية مرفوضة. فقط إدارة المستشفى تملك حق تعيين الموظفين الفرعيين.');
-    }
-
-    // ProviderBranch._id is a UUID string (see provider-branch.schema), so
-    // findById matches the branch uuid directly — never a client ObjectId.
-    const branch = await this.branchModel.findById(branchId);
-    if (!branch) throw new NotFoundException('الفرع المحدد غير موجود بالمنظومة.');
-
-    // Create Sub-Account User
-    const generatedPassword = staffDto.password ? undefined : generateTempPassword();
-    const hash = await bcrypt.hash(staffDto.password || generatedPassword, 12);
-    const staffUser = await this.userModel.create({
-      full_name: staffDto.fullName,
-      email: staffDto.email,
-      phone: staffDto.phone,
-      password_hash: hash,
-      role: staffDto.role, // DOCTOR or RECEPTIONIST
-      parent_provider_account_id: admin.parent_provider_account_id,
-      assigned_branch_id: branch._id,
-      // a practitioner stays inactive until an admin approves the licence (same queue as self-registration); reception works at once
-      active: staffDto.role !== UserRole.DOCTOR,
-    });
-
-    if (staffDto.role === UserRole.DOCTOR) {
-      // Owner decision 2026-10-23: a facility never verifies a practitioner. The doctor starts pending licence
-      // verification, in the admin queue next to self-registered ones, and takes no bookings until an admin approves.
-      const profile = await this.providerModel.create({
-        user_id: staffUser.id,
-        type: ProviderType.DOCTOR,
-        status: ProviderStatus.PENDING,
-        license_verified: false,
-        license_number: staffDto.licenseNumber ?? staffDto.license_number,
-        name_ar: staffDto.fullNameAr || staffDto.fullName,
-        name_en: staffDto.fullNameEn || staffDto.fullName,
-        specialty: staffDto.specialty,
-        years_experience: staffDto.years_experience || 0,
-        price_clinic: staffDto.priceClinic || 100,
-        price_online: staffDto.priceOnline || 100,
-      });
-      this.events.emit('provider.pending_review', { provider_id: profile.id, type: ProviderType.DOCTOR });
-
-      // the roster is the branch's list of its own doctors; being on it grants no booking right
-      branch.doctors_roster.push(staffUser.id);
-      await branch.save();
-    }
-
-    return { success: true, message: staffDto.role === UserRole.DOCTOR ? 'تم إنشاء حساب الطبيب وهو بانتظار اعتماد الترخيص من الإدارة قبل استقبال الحجوزات.' : 'تم إنشاء الحساب الفرعي.', generated_password: generatedPassword };
-  }
-
-  // ============ Self Registration ============
-  async apply(data: {
-    full_name: string; phone: string; password: string; email?: string;
-    type: ProviderType; name_ar: string; name_en?: string;
-    license_number?: string; city?: string; district?: string;
-    specialty?: string; years_experience?: number;
-    consultation_modes?: string[]; price_clinic?: number; price_online?: number;
-    pharmacy_chain?: string; has_own_drivers?: boolean;
-  }) {
-    const exists = await this.userModel.findOne({ phone: { $eq: data.phone } });
-    if (exists) throw new ConflictException('Phone already registered');
-    await enforcePasswordPolicy(data.password);
-    const hash = await bcrypt.hash(data.password, 12);
-    const role = this.typeToRole(data.type);
-    const user = await this.userModel.create({
-      full_name: data.full_name,
-      phone: data.phone,
-      email: data.email,
-      password_hash: hash,
-      role,
-      active: false, // disabled until admin approves
-    });
-    const profile = await this.providerModel.create({
-      user_id: user.id,
-      type: data.type,
-      status: ProviderStatus.PENDING,
-      name_ar: data.name_ar,
-      name_en: data.name_en,
-      license_number: data.license_number,
-      city: data.city,
-      district: data.district,
-      specialty: data.specialty,
-      years_experience: data.years_experience,
-      consultation_modes: data.consultation_modes || [],
-      price_clinic: data.price_clinic,
-      price_online: data.price_online,
-      pharmacy_chain: data.pharmacy_chain,
-      has_own_drivers: !!data.has_own_drivers,
-    });
-    this.events.emit(EVENTS.USER_REGISTERED, { user_id: user.id, role });
-    this.events.emit('provider.pending_review', { provider_id: profile.id, type: data.type });
-    return { ok: true, user: this.publicUser(user), profile: profile.toObject() };
-  }
-
   // ============ Admin-Assisted Creation ============
   async adminCreate(data: any, _admin: any) {
     // Admin can create with password OR auto-generate, status defaults to PENDING but admin
@@ -224,29 +126,6 @@ export class ProvidersService {
   }
 
   // ============ Admin Review ============
-  async approve(id: string, admin: any, manualLicenseCheck?: ManualLicenseCheck) {
-    const p = await this.providerModel.findOne({ id });
-    if (!p) throw new NotFoundException();
-    // 19.3: a doctor, pharmacist or individual nurse is approved only on a confirmed SCFHS licence.
-    const licenseCheck = requiresScfhs(p) ? await this.scfhs.decideFor(p, manualLicenseCheck) : null;
-    if (licenseCheck && !licenseCheck.decision.verified) throw new ConflictException(licenseCheck.decision.reason || 'scfhs_license_not_verified');
-    p.status = ProviderStatus.ACTIVE;
-    p.approved_at = new Date();
-    p.approved_by = admin.id;
-    p.license_verified = true;
-    p.public_eligibility = true;
-    p.indexing_eligibility = false;
-    p.medical_review_status = 'approved';
-    p.last_reviewed = p.approved_at;
-    p.provenance = 'admin_provider_review';
-    await p.save();
-    if (licenseCheck) await this.scfhs.store({ id: p.id }, licenseCheck.decision, licenseCheck.result, admin.id, manualLicenseCheck);
-    await this.userModel.updateOne({ id: p.user_id }, { $set: { active: true } });
-    this.events.emit('provider.approved', { provider_id: p.id });
-    await this.refreshPublicProjection(p, admin.id, 'provider_approved');
-    return p.toObject();
-  }
-
   async reject(id: string, admin: any, reason: string) {
     const p = await this.providerModel.findOne({ id });
     if (!p) throw new NotFoundException();

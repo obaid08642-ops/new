@@ -70,7 +70,7 @@ describe('screens use them', () => {
     const src = read('app/consultations/video-call.tsx');
     expect(src).toContain('createRoomHandle<Room>()');
     expect(src).toContain('handle.adopt(new Room(');
-    expect(src).toMatch(/return \(\) => \{\s*void handle\.dispose\(\);/);
+    expect(src).toMatch(/return \(\) => \{[^}]*void handle\.dispose\(\);/);
     expect(src).not.toContain('activeRoom');
   });
   it('the chat screen puts the loaded history in chronological order', () => {

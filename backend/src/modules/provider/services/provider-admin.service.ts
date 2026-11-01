@@ -14,6 +14,7 @@ import { ProviderBankAccountRepository } from "./repositories/providerbankaccoun
 import { ProviderAuditLogRepository } from "./repositories/providerauditlog.repository";
 import { AutoEntitySeoPipelineService } from '../../events/auto-entity-seo-pipeline.service';
 import { CatalogPublicationService } from '../../events/catalog-publication.service';
+import { doctorSessionPriceProjection } from './doctor-session-price';
 
 @Injectable()
 export class ProviderAdminService {
@@ -168,7 +169,8 @@ export class ProviderAdminService {
       await this.profiles.updateOne({ account_id: id }, { $set: set });
     }
     await this.docs.updateMany({ account_id: id, review_status: { $in: [DocumentReviewStatus.PENDING, DocumentReviewStatus.UNDER_REVIEW] } }, { $set: { review_status: DocumentReviewStatus.APPROVED, reviewer_id: user.id, reviewed_at: new Date() } });
-    await this.banks.updateMany({ account_id: id, review_status: { $in: [BankReviewStatus.PENDING, BankReviewStatus.UNDER_REVIEW] } }, { $set: { review_status: BankReviewStatus.APPROVED, reviewer_id: user.id } });
+    // The payout bank account is NOT approved here: approving the provider says nothing about whose IBAN it is. It is reviewed on its own
+    // (approve-bank / reject-bank), and a withdrawal needs an approved bank (provider-payouts.controller).
     await this.accounts.model.db.collection('provider_profiles').updateMany(
       { account_id: id, user_id: { $exists: true } },
       {
@@ -472,6 +474,14 @@ export class ProviderAdminService {
           ...(op === 'create' ? { $setOnInsert: { id: uuidv4(), created_at: new Date() } } : {}),
         }, { upsert: op === 'create' });
         applied = (res.modifiedCount || 0) + ((res.upsertedCount || 0) as number);
+        // the booking and the listings read the profile's prices, so the approved session price goes there too
+        const projection = String((changes as any).catalog) === 'doctor_sessions' ? doctorSessionPriceProjection((changes as any).payload) : null;
+        if (projection && accountId) {
+          await db('provider_profiles').updateOne(
+            { $or: [{ account_id: accountId }, { user_id: accountId }, { id: accountId }] } as any,
+            { $set: { [projection.field]: projection.price, updated_at: new Date() } },
+          );
+        }
       }
     } else if (target === 'insurance_matrix') {
       await db('provider_insurance').updateOne(

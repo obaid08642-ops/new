@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
@@ -10,6 +10,7 @@ import { Notice } from '../../src/components/pharmacy/OfferKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
+import { paymentIntentHeaders } from '../../src/utils/payment-idempotency';
 import { dateLocaleFor } from '../../src/utils/dates';
 
 const TIMES = ['09:00', '10:30', '12:00', '14:00', '15:30', '17:00'];
@@ -20,6 +21,8 @@ export default function DiagnosticsCheckoutScreen() {
   const params = useLocalSearchParams<{ serviceType?: string; labId?: string; labName?: string }>();
   const location = params.serviceType === 'clinic' ? 'clinic' : 'home';
   const { items, clearCart, total } = useDiagnosticsCart();
+  // the booking made by an attempt whose payment did not start: the retry pays it again instead of booking a second time
+  const booked = useRef<{ id: string; kind: 'lab' | 'radiology' } | null>(null);
   const [dayOffset, setDayOffset] = useState(0);
   const [time, setTime] = useState<string | null>(null);
   const [method, setMethod] = useState<'card' | 'cash' | 'insurance'>(location === 'home' ? 'card' : 'cash');
@@ -77,13 +80,19 @@ export default function DiagnosticsCheckoutScreen() {
       setError(k('diag.checkout.past'));
       return;
     }
+    const labItems = items.filter((it) => it.kind !== 'radiology');
+    const radioItems = items.filter((it) => it.kind === 'radiology');
+    // one card payment pays one booking: the lab tests make one booking and each scan its own, so a card order that would make
+    // more than one is refused before anything is created (rather than leaving the rest unpaid)
+    if (method === 'card' && !booked.current && (labItems.length ? 1 : 0) + radioItems.length > 1) {
+      setError(k('diag.checkout.onePayment'));
+      return;
+    }
     setSubmitting(true);
     setError('');
     try {
-      const labItems = items.filter((it) => it.kind !== 'radiology');
-      const radioItems = items.filter((it) => it.kind === 'radiology');
-      let bookingId: string | null = null;
-      if (labItems.length) {
+      let bookingId: string | null = booked.current?.id ?? null;
+      if (!booked.current && labItems.length) {
         const created = await apiFetch<{ id?: string; booking_id?: string; data?: { id?: string } }>('/labs/bookings', {
           method: 'POST',
           body: JSON.stringify({
@@ -96,7 +105,7 @@ export default function DiagnosticsCheckoutScreen() {
         });
         bookingId = created?.id || created?.booking_id || created?.data?.id || null;
       }
-      for (const it of radioItems) {
+      for (const it of booked.current ? [] : radioItems) {
         const created = await apiFetch<{ id?: string; booking_id?: string; data?: { id?: string } }>('/radiology/bookings', {
           method: 'POST',
           body: JSON.stringify({
@@ -109,12 +118,11 @@ export default function DiagnosticsCheckoutScreen() {
         });
         if (!bookingId) bookingId = created?.id || created?.booking_id || created?.data?.id || null;
       }
-      await clearCart();
+      if (bookingId && !booked.current) booked.current = { id: bookingId, kind: labItems.length ? 'lab' : 'radiology' };
       if (bookingId) {
         if (method === 'card') {
-          const kind = labItems.length ? 'lab' : 'radiology';
+          const kind = booked.current?.kind ?? (labItems.length ? 'lab' : 'radiology');
           try {
-            const { paymentIntentHeaders } = await import('../../src/utils/payment-idempotency');
             const intent = await apiFetch<{ id?: string; checkout_url?: string; amount?: number; data?: { id?: string; checkout_url?: string; amount?: number } }>(`/payments/intent/${kind}/${bookingId}`, {
               method: 'POST',
               headers: paymentIntentHeaders(kind, String(bookingId)),
@@ -122,6 +130,9 @@ export default function DiagnosticsCheckoutScreen() {
             });
             const txn = intent?.data || intent;
             if (txn?.id) {
+              // the cart is cleared only once the payment has started: a failed intent keeps it, and the retry pays this same booking
+              booked.current = null;
+              await clearCart();
               router.replace({
                 pathname: '/payments/result',
                 params: {
@@ -134,14 +145,19 @@ export default function DiagnosticsCheckoutScreen() {
               } as unknown as Href);
               return;
             }
+            throw new Error(k('diag.checkout.payFailed'));
           } catch (payErr: unknown) {
             const message = payErr instanceof Error ? payErr.message : '';
             setError(message || k('diag.checkout.payFailed'));
             showLocalizedAlert(k('diag.checkout.payFailed'), message || k('diag.checkout.payRetry'));
+            return;
           }
         }
+        booked.current = null;
+        await clearCart();
         router.replace({ pathname: '/diagnostics/order/[id]', params: { id: String(bookingId) } } as unknown as Href);
       } else {
+        await clearCart();
         router.replace('/diagnostics/orders' as Href);
       }
     } catch (reason: unknown) {
