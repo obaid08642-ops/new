@@ -42,6 +42,7 @@ for FLOW in tools/native/flows/${TARGET}_*.yaml; do
   if [ -f "$SETUP" ]; then
     DOCTOR_MSG="doctor-e2e-$(date +%s)"; EXTRA=(-e "DOCTOR_MSG=$DOCTOR_MSG" -e "APP_MSG=patient-e2e-$(date +%s)")
     if SETUP_OUT=$(python3 "$SETUP" "$ACC" "$DOCTOR_MSG" 2> "$OUT/setup_${TAG}__${NAME}.log"); then
+      echo "setup ${NAME}: ${SETUP_OUT:-<no output>}"; tail -n 12 "$OUT/setup_${TAG}__${NAME}.log" 2>/dev/null | cut -c1-240
       while IFS= read -r KV; do EXTRA+=(-e "$KV"); done < <(printf '%s' "$SETUP_OUT" | python3 -c "import json,sys;[print(k+'='+str(v)) for k,v in json.loads(sys.stdin.read().strip().splitlines()[-1]).items()]")
     else
       echo "setup failed: $(tail -n 3 "$OUT/setup_${TAG}__${NAME}.log" | tr '\n' ' ')" > "$OUT/flow_${TAG}__${NAME}.txt"; cat "$OUT/setup_${TAG}__${NAME}.log"; continue
