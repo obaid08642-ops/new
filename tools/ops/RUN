@@ -1,2 +1,7 @@
-# 2026-11-01 run 81 done; no run queued.
+# 2026-11-01 09:35 lead reviewer: run 82 = DRY RUNS of the catalogue apply and the translations apply (nothing is written).
+# Host is stable now (main@328263b5, self-heal + watchdog, meili fixed, 6.8 GB free). These were held since run 68 for lack of memory.
+# Both run in a one-off container (900m, oom_score_adj 1000, never inside the API container). Each prints its plan counts and plan hash.
 release:328263b5edd6e23c211d0584960b99df925938a7
+98-memory-report
+90-catalogue-apply
+90c-catalogue-translations
