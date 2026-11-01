@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { MongoSelfHealService, selfHealAfterMs, selfHealEnabled } from './mongo-selfheal.service';
-import { mongoConnectionOptions } from './mongo-options';
+import { mongoAppName, mongoConnectionOptions } from './mongo-options';
 
 // 2026-11-01: mongod restarted, came back healthy, and the backend stayed unusable for two hours. These tests pin (1) the decision logic of the in-process
 // safety net and (2) that the real connection options do reconnect after a mongod restart.
@@ -82,7 +82,7 @@ describe('the application connection recovers after mongod restarts', () => {
       await conn.collection('t').insertOne({ n: 1 });
       await srv.stop();
       await expect(conn.collection('t').insertOne({ n: 2 })).rejects.toBeTruthy();   // down: the call fails (fast), it does not hang
-      srv = await MongoMemoryServer.create({ instance: { port } });
+      srv = await MongoMemoryServer.create({ instance: { port, launchTimeout: 60_000 } });
       const svc = new MongoSelfHealService(conn);
       let ok = false;
       const until = Date.now() + 60_000;
@@ -96,6 +96,29 @@ describe('the application connection recovers after mongod restarts', () => {
     } finally {
       await conn.close().catch(() => null);
       await srv.stop().catch(() => null);
+    }
+  });
+});
+
+describe('mongo appName', () => {
+  it('is nabd-<role> so the connections of the api and the worker can be told apart', () => {
+    expect(mongoAppName({ PROCESS_ROLE: 'api' } as any)).toBe('nabd-api');
+    expect(mongoAppName({ PROCESS_ROLE: 'worker' } as any)).toBe('nabd-worker');
+    expect(mongoAppName({} as any)).toBe('nabd-all');
+    expect(mongoConnectionOptions({ PROCESS_ROLE: 'worker' } as any).appName).toBe('nabd-worker');
+  });
+
+  it('reaches mongod: the server lists the connection under that name', async () => {
+    const srv = await MongoMemoryServer.create();
+    const { uri, ...opts } = mongoConnectionOptions({ MONGO_URL: srv.getUri(), DB_NAME: 'app', PROCESS_ROLE: 'worker', MONGO_MIN_POOL_SIZE: '1', MONGO_MAX_POOL_SIZE: '3' } as any);
+    const conn = await mongoose.createConnection(uri, opts as any).asPromise();
+    try {
+      const res: any = await conn.getClient().db('admin').admin().command({ currentOp: 1, $all: true } as any).catch(() => null);
+      const names = JSON.stringify(res?.inprog ?? []);
+      expect(names).toContain('nabd-worker');
+    } finally {
+      await conn.close();
+      await srv.stop();
     }
   });
 });
