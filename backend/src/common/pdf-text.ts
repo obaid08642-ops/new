@@ -1,5 +1,5 @@
 import * as PDFDocument from 'pdfkit';
-import { drawBidi, hasArabic, wrapBidi } from './pdf-bidi';
+import { chunkParagraph, drawBidi, hasArabic, wrapBidi } from './pdf-bidi';
 import { alignBaselines, registerPdfFonts } from './pdf-fonts';
 
 /**
@@ -22,7 +22,7 @@ export async function renderTextPdf(title: string, lines: string[], opts: { info
   let y = 50;
   const put = (text: string, size: number, bold: boolean) => {
     const f = bold ? fonts.bold : fonts.reg;
-    const wrapped = wrapBidi(pdf, text, W, { fonts: f, size });
+    const wrapped = chunkParagraph(text).flatMap((part) => wrapBidi(pdf, part, W, { fonts: f, size }));
     for (const l of wrapped.length ? wrapped : ['']) {
       if (y + size * 1.5 > bottom) { doc.addPage(); y = 50; }
       if (l) drawBidi(pdf, l, X, y, W, { fonts: f, size });

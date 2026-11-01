@@ -4,7 +4,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import * as PDFDocument from 'pdfkit';
 import { createHash } from 'crypto';
-import { drawBidi, wrapBidi } from '../../common/pdf-bidi';
+import { chunkParagraph, drawBidi, wrapBidi } from '../../common/pdf-bidi';
 import { alignBaselines, registerPdfFonts } from '../../common/pdf-fonts';
 import { PROVIDER_AGREEMENT_KEY, majorOf } from '../legal/provider-agreement';
 
@@ -230,7 +230,7 @@ export class ContractPdfService {
       const size = o.size ?? 10.5;
       const f = o.bold ? fonts.bold : fonts.reg;
       doc.fillColor(o.color ?? ink);
-      for (const line of wrapBidi(pdfDoc, text, W, { fonts: f, size })) {
+      for (const line of chunkParagraph(text).flatMap((part) => wrapBidi(pdfDoc, part, W, { fonts: f, size }))) {
         room(size * 1.55);
         drawBidi(pdfDoc, line, X, y, W, { fonts: f, size });
         y += size * 1.55;
