@@ -337,10 +337,15 @@ export class LiveKitService {
     this.logger.log(`User ${userId} ended call ${sessionId}`);
     const started = session.started_at ? new Date(session.started_at).getTime() : null;
     const duration = started ? Math.max(0, Math.round((Date.now() - started) / 1000)) : 0;
-    await this.callSessions.updateOne(
+    const res: any = await this.callSessions.updateOne(
       { id: session.id, status: { $in: ['INITIATED', 'ACTIVE'] } },
       { $set: { status: 'ENDED', ended_at: new Date(), duration_seconds: duration, ended_by: userId, updatedAt: new Date() } },
     );
+    // ended while still ringing: tell the other side's devices to stop ringing (push reaches a backgrounded or killed app)
+    if (session.status === 'INITIATED' && (res?.modifiedCount ?? 1) > 0) {
+      const other = session.patient_id === userId ? session.provider_id : session.patient_id;
+      if (other) this.events.emit('call.cancelled', { callee_id: String(other), caller_id: userId, session_id: session.id });
+    }
     return { success: true };
   }
 

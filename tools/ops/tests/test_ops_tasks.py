@@ -570,6 +570,12 @@ HOST_FILES = {
     "scripts/oplog-backup.sh": "#!/bin/bash\n# new oplog backup\n",
     "scripts/_oplog-mongo-wait.sh": "# new wait helper\n",
     "scripts/memory-report.sh": "#!/bin/bash\necho 'status: memory host total=1MB'\necho 'not a status line'\n",
+    "scripts/clamav-window.sh": "#!/bin/bash\n# new window\n",
+    "scripts/_backup-common.sh": "# new common\n",
+    "scripts/backup.sh": "#!/bin/bash\nsource _dump-guard.sh\n",
+    "scripts/_dump-guard.sh": "dump_guard() { return 0; }\n",
+    "scripts/_mongodump-oneoff.sh": "mongodump_oneoff() { return 0; }\n",
+    "scripts/_mongorestore-list.sh": "mongorestore_list_oneoff() { return 0; }\n",
 }
 OLD_REDIS = "port 6379\nmaxmemory 256mb\n"
 
@@ -644,8 +650,8 @@ class HostFiles(unittest.TestCase):
         self.assertTrue(os.access(os.path.join(self.h.deploy, "scripts", "memory-report.sh"), os.X_OK))
         self.assertEqual(stat.S_IMODE(os.stat(os.path.join(self.h.deploy, "redis", "redis.conf")).st_mode), 0o644)
         saved = sorted(os.listdir(self.h.backups))
-        self.assertEqual(len([f for f in saved if f.startswith("hostfiles-pre-")]), 3)
-        self.assertEqual(len([f for f in saved if f.startswith("hostfiles-new-")]), 2)
+        self.assertEqual(len([f for f in saved if f.startswith("hostfiles-pre-")]), 5)       # the files the fixture already has on the server and that differ from the release
+        self.assertEqual(len([f for f in saved if f.startswith("hostfiles-new-")]), 6)       # the rest of the 11 files did not exist on the server
         self.assertEqual(self.redis_live(), 320 * 1048576)         # CONFIG SET, live
         calls = self.h.docker_calls()
         self.assertNotIn("compose", calls)
