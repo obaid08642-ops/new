@@ -23,7 +23,8 @@ import { InsuranceCompanySchema, InsuranceCompanyDocument } from '../../schemas/
 import { PatientProfileSchema } from '../../schemas/patient-profile.schema';
 import { ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { buildPatientPolicy, cardCopay, hasInsuranceContract, policyClass, policyCompanyKeys } from '../../common/insurance-policy';
-import { FraudService, RefundExecutor } from '../finance-engine/finance-engine.module';
+import { CommissionResolver, FraudService, RefundExecutor } from '../finance-engine/finance-engine.module';
+import { commissionServiceTypeOf } from '../../common/commission-defaults';
 import { TransactionSchema } from '../../schemas/transaction.schema';
 import { OrderSchema } from '../../schemas/order.schema';
 import { LabBookingSchema } from '../../schemas/lab.schema';
@@ -160,12 +161,6 @@ export const CommissionRuleSchema = SchemaFactory.createForClass(CommissionRule)
 // Financial core service
 // ============================================================================
 
-const DEFAULT_COMMISSIONS: Record<string, number> = {
-  consultation: 0.15, video: 0.15, audio: 0.15, chat: 0.15,
-  clinic: 0.12, home_visit: 0.18, nursing: 0.18, physiotherapy: 0.18,
-  pharmacy: 0.10, lab: 0.12, radiology: 0.12, default: 0.15,
-};
-
 @Injectable()
 export class FinanceCoreService {
   constructor(
@@ -173,9 +168,15 @@ export class FinanceCoreService {
     @InjectModel('CommissionRule') private rules: Model<any>,
   ) {}
 
+  /**
+   * The commission rate (a fraction) of a service type. This used to hold its own table (nursing 18%, consultation 15%, ...); it now
+   * asks CommissionResolver, the one source the settlement uses (rules, then finance_config, then the system default).
+   */
   async rateFor(serviceType: string): Promise<number> {
     const rule = await this.rules.findOne({ service_type: { $eq: serviceType }, active: true }).lean();
-    return (rule as any)?.rate ?? DEFAULT_COMMISSIONS[serviceType] ?? DEFAULT_COMMISSIONS.default;
+    if (typeof (rule as any)?.rate === 'number') return (rule as any).rate;
+    const { percent } = await new CommissionResolver(this.rules.db).resolve(commissionServiceTypeOf(serviceType));
+    return percent / 100;
   }
 
   /** Record commission + provider net for a paid order/booking. Idempotent per order_id. */

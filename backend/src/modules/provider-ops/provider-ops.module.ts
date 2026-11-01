@@ -22,7 +22,7 @@ import { JwtAuthGuard, CurrentUser, Roles, hasEffectiveRole } from '../../common
 import { UserRole } from '../../common/enums';
 import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, PutPricingDto, PutTariffsDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto, ToggleInstantDto } from './provider-ops.dto';
 import { CommissionResolver, LedgerService } from '../finance-engine/finance-engine.module';
-import { settlementDelayDefault } from '../../common/commission-defaults';
+import { settlementDelayDefault, DEFAULT_VAT_PERCENT } from '../../common/commission-defaults';
 
 /** Provider withdrawal requests (consumed by admin-web-core finance controller). */
 export const ProviderWithdrawalSchema = new Schema(
@@ -687,8 +687,14 @@ export class ProviderOpsService {
     const dup = await this.conn.collection('platformledgerentries').findOne({ ref_type: refType, ref_id: refId, type: 'provider_earning' });
     if (dup) return dup;
     const cfg: any = await this.conn.collection('finance_config').findOne({ key: 'commissions' });
-    const { percent: pct, source: commissionSource } = await this.commissionFor(serviceType, providerId, opts.paymentMethod);
-    const vatPct = cfg?.tax?.vat_percent ?? 15;
+    let { percent: pct, source: commissionSource, promo_id: promoId } = await this.commissionFor(serviceType, providerId, opts.paymentMethod);
+    // an order-limited promotion: this order counts against it; with none left the provider's normal commission applies (and the promo is skipped)
+    const skipped: string[] = [];
+    while (promoId && !(await new CommissionResolver(this.conn).claimPromoOrder(promoId))) {
+      skipped.push(promoId);
+      ({ percent: pct, source: commissionSource, promo_id: promoId } = await this.commissionFor(serviceType, providerId, opts.paymentMethod, skipped));
+    }
+    const vatPct = cfg?.tax?.vat_percent ?? DEFAULT_VAT_PERCENT;
     const delayDays = cfg?.settlement?.delay_days?.[serviceType] ?? cfg?.settlement?.delay_days?.default ?? settlementDelayDefault();
     const commission = Math.round(gross * pct) / 100;
     const vat = Math.round(commission * vatPct) / 100;
@@ -698,7 +704,7 @@ export class ProviderOpsService {
       provider_account_id: providerId,
       type: 'provider_earning', state: 'pending',
       available_at: new Date(Date.now() + delayDays * 24 * 3600 * 1000),
-      amount: net, gross, commission_percent: pct, commission_source: commissionSource, commission, vat,
+      amount: net, gross, commission_percent: pct, commission_source: commissionSource, ...(promoId ? { promo_id: promoId } : {}), commission, vat,
       ref_type: refType, ref_id: refId, createdAt: new Date(),
     };
     await this.conn.collection('platformledgerentries').insertOne(row as any);
@@ -706,22 +712,13 @@ export class ProviderOpsService {
   }
 
   /**
-   * The commission percent of one provider's earning, in one order (most specific first): a campaign or provider rule of the
-   * commission rules, then the rate the admin set on the provider itself (`commission_insurance_pct` for an insured visit,
-   * else `commission_cash_pct`), then the service default, the finance config and the system default (CommissionResolver).
-   * The profile's `commission_rate` is not read: it carries a schema default of 10 for every provider, so it cannot tell
-   * "set by the admin" from "never set".
+   * The commission percent of one provider's earning: CommissionResolver's order (campaign rule, the provider's running promotion,
+   * the provider's own commission, category and service rules, finance_config, the system default). The profile's `commission_rate`
+   * is not read: it carries a schema default for every provider, so it cannot tell "set by the admin" from "never set"; the admin
+   * screens write `commission_cash_pct` / `commission_insurance_pct`.
    */
-  async commissionFor(serviceType: string, providerAccountId: string, paymentMethod?: string): Promise<{ percent: number; source: string }> {
-    const resolved = await new CommissionResolver(this.conn).resolve(serviceType, { providerId: providerAccountId });
-    if (resolved.source === 'campaign_override' || resolved.source === 'provider_override') return resolved;
-    const profile: any = await this.conn.collection('provider_profiles').findOne(
-      { $or: [{ account_id: providerAccountId }, { user_id: providerAccountId }] },
-      { projection: { _id: 0, commission_cash_pct: 1, commission_insurance_pct: 1 } },
-    );
-    const own = String(paymentMethod || '').toLowerCase() === 'insurance' ? profile?.commission_insurance_pct : profile?.commission_cash_pct;
-    if (typeof own === 'number' && Number.isFinite(own) && own >= 0 && own <= 100) return { percent: own, source: 'provider_profile' };
-    return resolved;
+  async commissionFor(serviceType: string, providerAccountId: string, paymentMethod?: string, skipPromoIds?: string[]): Promise<{ percent: number; source: string; promo_id?: string }> {
+    return new CommissionResolver(this.conn).resolve(serviceType, { providerId: providerAccountId, paymentMethod, skipPromoIds });
   }
 
   /**

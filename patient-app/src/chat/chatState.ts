@@ -119,6 +119,23 @@ export function applyState(prev: ChatMsg[], ev: StateEvent, myId?: string): Chat
 }
 
 /** Oldest first. The server answers newest first (chat.service getMessages), the thread reads top to bottom. */
+/**
+ * The history answer of GET /chat/threads/:id/messages is `{ messages, has_more }` (ChatService.getMessages, newest first). A bare array and
+ * `{ data }` are accepted too. Reading only the last two left the history empty on every open (native e2e runs 105-110: the answer was
+ * 575 bytes and the screen said "No messages yet").
+ */
+export function serverMessages(res: unknown): ServerMsg[] {
+  if (Array.isArray(res)) return res as ServerMsg[];
+  if (res && typeof res === 'object') {
+    const root = res as { messages?: unknown; data?: unknown };
+    if (Array.isArray(root.messages)) return root.messages as ServerMsg[];
+    if (Array.isArray(root.data)) return root.data as ServerMsg[];
+    const inner = root.data as { messages?: unknown } | undefined;
+    if (inner && Array.isArray(inner.messages)) return inner.messages as ServerMsg[];
+  }
+  return [];
+}
+
 export function chronological(list: ChatMsg[]): ChatMsg[] {
   return [...list].sort((a, b) => a.at - b.at);
 }

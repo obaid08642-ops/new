@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { makeAppendOnly } from '../../../common/append-only';
+import { DEFAULT_COMMISSION_PERCENT } from '../../../common/commission-defaults';
 import { OperatorPermission, OperatorRole, ProviderAccountStatus, ProviderDocumentType, ProviderType } from '../provider.enums';
 
 // ===================== ACCOUNT =====================
@@ -82,7 +83,7 @@ export class ProviderProfile extends Document {
   @Prop() delivery_fee?: number;
   @Prop() estimated_delivery_minutes?: number;
   @Prop({ default: [], type: [String] }) enabled_modules: string[];
-  @Prop({ default: 10 }) commission_rate?: number;
+  @Prop({ default: DEFAULT_COMMISSION_PERCENT }) commission_rate?: number;
   @Prop() commission_cash_pct?: number;
   @Prop() commission_insurance_pct?: number;
   @Prop({ default: 0 }) profile_completeness: number;

@@ -13,6 +13,7 @@ import { UserRole } from '../../common/enums';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import * as crypto from 'crypto';
 import * as ExcelJS from 'exceljs';
+import { DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT } from '../../common/commission-defaults';
 
 @Injectable()
 export class LegalEnterpriseService {
@@ -175,8 +176,8 @@ export class LegalEnterpriseService {
     ).sort({ createdAt: -1 }).limit(500).toArray();
     const ledger = await this.conn.collection('platformledgerentries').find({ provider_account_id: providerId }).sort({ createdAt: -1 }).limit(500).toArray().catch(() => []);
 
-    const commissionPercent = (await this.conn.collection('finance_config').findOne({ key: 'commissions' }))?.service_types?.pharmacy?.percent ?? 10;
-    const vatPercent = 15;
+    const commissionPercent = (await this.conn.collection('finance_config').findOne({ key: 'commissions' }))?.service_types?.pharmacy?.percent ?? DEFAULT_COMMISSION_PERCENT;
+    const vatPercent = (await this.conn.collection('finance_config').findOne({ key: 'commissions' }))?.tax?.vat_percent ?? DEFAULT_VAT_PERCENT;
 
     const rows = orders.map((o: any) => {
       const total = o.total ?? o.totals?.total ?? 0;

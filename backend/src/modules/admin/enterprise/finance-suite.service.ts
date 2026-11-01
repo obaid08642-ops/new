@@ -4,7 +4,7 @@ import { Connection } from 'mongoose';
 import { v4 as uuid } from 'uuid';
 import { validateReason, MIN_FINANCIAL_REASON_LENGTH, ReasonError } from '../../../common/rbac';
 import { AdminAuditService } from './audit.service';
-import { COMMISSION_SERVICE_TYPES, DEFAULT_COMMISSIONS, payoutMinimumDefault, settlementDelayDefault } from '../../../common/commission-defaults';
+import { COMMISSION_SERVICE_TYPES, DEFAULT_COMMISSION_PERCENT, DEFAULT_COMMISSIONS, DEFAULT_VAT_PERCENT, payoutMinimumDefault, settlementDelayDefault } from '../../../common/commission-defaults';
 
 const PAID_STATUSES = ['paid', 'confirmed', 'succeeded'];
 const VERTICALS: Record<string, string[]> = {
@@ -162,9 +162,9 @@ export class FinanceSuiteService {
     // The same percent and VAT the settlement writes to the ledger (provider-ops creditEarning, pharmacy allocation):
     // service_types.<type>.percent (default 10) and tax.vat_percent (default 15). The report used its own `rates`
     // field before, which no payment read, so the screen and the money could disagree.
-    const percentOf = (t: string): number => Number(cfg?.service_types?.[t]?.percent ?? 10);
+    const percentOf = (t: string): number => Number(cfg?.service_types?.[t]?.percent ?? DEFAULT_COMMISSION_PERCENT);
     const percents: Record<string, number> = Object.fromEntries(COMMISSION_SERVICE_TYPES.map((t) => [t, percentOf(t)]));
-    const vatRate = Number(cfg?.tax?.vat_percent ?? 15) / 100;
+    const vatRate = Number(cfg?.tax?.vat_percent ?? DEFAULT_VAT_PERCENT) / 100;
     const rateOf = async (vertical: string): Promise<number> => percentOf(SERVICE_OF_VERTICAL[vertical] || vertical) / 100;
     const payments = await this.conn.collection('moyasar_payments').find({
       status: { $in: PAID_STATUSES },
