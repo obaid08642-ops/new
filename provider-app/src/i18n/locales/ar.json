@@ -199,7 +199,6 @@
   "contract.mine.share": "مشاركة العقد",
   "contract.mine.saved": "تم حفظ العقد بنجاح",
   "contract.mine.shareUnsupported": "المشاركة غير متاحة على هذا الجهاز؛ حمّل الملف ثم شاركه من مدير الملفات.",
-  "contract.mine.notShared": "العقد غير متاح بعد — يمكن للإدارة إتاحته لك من لوحة المراجعة",
   "contract.mine.notReady": "لم يُولَّد العقد بعد",
   "contract.mine.failed": "تعذر تحميل العقد",
   "contract.mine.close": "إغلاق",

@@ -1,6 +1,8 @@
 import { Connection } from 'mongoose';
 import * as bidi from '../../common/pdf-bidi';
-import { ContractPdfService, ContractAgreement, policyLine } from './contract-pdf.service';
+import { ContractPdfService, ContractAgreement, agreementForType, policyLine } from './contract-pdf.service';
+import * as fs from 'fs';
+import * as path from 'path';
 import { createHash } from 'crypto';
 
 
@@ -176,5 +178,79 @@ describe('policyLine (Markdown markers, never the words)', () => {
   });
   it('plain text passes through unchanged', () => {
     expect(policyLine('٢. تُسوّى المستحقات (15 يوماً).')).toEqual({ text: '٢. تُسوّى المستحقات (15 يوماً).', heading: false });
+  });
+});
+
+// The published texts of the repository (docs/legal): the annex structure is read from the real files, not from a copy of it.
+const doc = (name: string) => fs.readFileSync(path.join(__dirname, '..', '..', '..', '..', 'docs', 'legal', name), 'utf8');
+const AR_DOC = doc('03_PROVIDER_AGREEMENT.ar.md');
+const EN_DOC = doc('03_PROVIDER_AGREEMENT.en.md');
+const heads = (lines: string[]) => lines.filter((l) => /^##\s+(ملحق|Annex)\s/.test(l)).map((l) => l.replace(/^##\s+/, ''));
+
+describe('gap 3: only the annex of the provider type is printed (with the fees annex)', () => {
+  it.each([
+    ['pharmacy', 'أ'], ['doctor', 'ب'], ['hospital', 'ب'], ['clinic', 'ب'], ['lab', 'ج'], ['radiology', 'ج'], ['nursing', 'د'], ['home_care', 'د'],
+  ])('%s: annex %s and annex هـ, the other three annexes named as left out', (type, letter) => {
+    const r = agreementForType(AR_DOC, type);
+    const printed = heads(r.lines);
+    expect(printed).toHaveLength(2);
+    expect(printed[0]).toMatch(new RegExp(`^ملحق ${letter}:`));
+    expect(printed[1]).toMatch(/^ملحق هـ:/);
+    expect(r.omitted).toHaveLength(3);
+    expect(r.applied).toEqual(printed);
+    // the body (articles 1-12) is whole
+    expect(r.lines.join('\n')).toContain('## 12.');
+    expect(r.lines.join('\n')).toContain('## 5.');
+  });
+  it('the English text maps the same way', () => {
+    const r = agreementForType(EN_DOC, 'lab');
+    expect(heads(r.lines)).toEqual([expect.stringMatching(/^Annex C:/), expect.stringMatching(/^Annex E:/)]);
+    expect(r.omitted.map((t) => t.slice(0, 7))).toEqual(['Annex A', 'Annex B', 'Annex D']);
+  });
+  it('no word of a printed part changes: every printed line is a line of the published text', () => {
+    const all = new Set(AR_DOC.split(/\r?\n/));
+    for (const l of agreementForType(AR_DOC, 'pharmacy').lines) expect(all.has(l)).toBe(true);
+  });
+  it('an unknown type, or a text without annexes, is printed whole', () => {
+    expect(agreementForType(AR_DOC, 'spaceship').lines).toEqual(AR_DOC.split(/\r?\n/));
+    const plain = '1. one\n2. two';
+    expect(agreementForType(plain, 'doctor')).toEqual({ lines: ['1. one', '2. two'], applied: [], omitted: [] });
+  });
+  it('the annexes of other types are not drawn on the PDF, and the left-out annexes are named', async () => {
+    const drawn: string[] = [];
+    const spy = jest.spyOn(bidi, 'drawBidi').mockImplementation(((d: any, text: string) => { drawn.push(text); return 0; }) as any);
+    const svc = new ContractPdfService({ collection: () => ({ findOne: jest.fn() }) } as unknown as Connection);
+    await svc.generate({ ...party, providerType: 'pharmacy' }, { ...AGREEMENT, policy: { ...AGREEMENT.policy, content_ar: AR_DOC, content_en: EN_DOC } }, sigOf(), META, 'ar');
+    spy.mockRestore();
+    const all = drawn.join('\n');
+    expect(drawn.some((l) => /^ملحق أ:/.test(l))).toBe(true);
+    expect(drawn.some((l) => /^ملحق هـ:/.test(l))).toBe(true);
+    expect(all).toContain('ترخيص الصيدلية'); // annex A content
+    for (const other of ['يمارس كل طبيب من خلال', 'سحب العينات منزلياً', 'حدود الإجراءات']) expect(all).not.toContain(other); // annex B, C, D content
+    expect(all).toContain('ملاحق الاتفاقية التي لا تنطبق');
+    // the English text is only used for the English PDF
+    expect(all).not.toContain('Annex A');
+  });
+});
+
+describe('gap 4: the English PDF', () => {
+  const svc = () => new ContractPdfService({ collection: () => ({ findOne: jest.fn() }) } as unknown as Connection);
+  const withEn = { ...AGREEMENT, policy: { ...AGREEMENT.policy, content_ar: 'نص عربي', content_en: 'English text of the agreement.\n1. Provider duties.' } };
+  it('prints the English text with English labels, left to right, and no Arabic body text', async () => {
+    const drawn: string[] = [];
+    const spy = jest.spyOn(bidi, 'drawBidi').mockImplementation(((d: any, text: string, x: number, y: number, w: number, o: any) => { drawn.push(`${o?.align ?? ''}|${text}`); return 0; }) as any);
+    const { pdf, sha256 } = await svc().generate({ ...party, nameEn: 'Dr Sara', providerType: 'doctor' }, withEn, sigOf(), META, 'en');
+    spy.mockRestore();
+    const all = drawn.join('\n');
+    expect(all).toContain('Nabd Platform — Provider Partnership Agreement');
+    expect(all).toContain('English text of the agreement.');
+    expect(all).toContain('1. Provider duties.');
+    expect(all).toContain('Date and time of signing: 2026-10-31 10:30 UTC');
+    expect(all).toContain('Accepted the agreement (version 2.1) on: 2026-10-30 09:15 UTC');
+    expect(all).not.toContain('نص عربي');
+    expect(sha256).toBe(createHash('sha256').update(pdf).digest('hex'));
+  });
+  it('an agreement with no English text is refused for English, never filled with the Arabic', async () => {
+    await expect(svc().generate(party, { ...AGREEMENT, policy: { ...AGREEMENT.policy, content_en: '' } }, sigOf(), META, 'en')).rejects.toMatchObject({ status: 409, response: { code: 'provider_agreement_language_unavailable', language: 'en' } });
   });
 });

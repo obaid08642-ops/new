@@ -697,9 +697,3 @@ export class SubmitDto {
   @IsObject()
   full_data?: Record<string, unknown>;
 }
-
-export class AdminContractVisibilityDto {
-  @IsOptional()
-  @IsBoolean()
-  visible?: boolean;
-}
