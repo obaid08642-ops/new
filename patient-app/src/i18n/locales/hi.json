@@ -414,7 +414,6 @@
   "pharmacy.filters.sortRecommended": "अनुशंसित",
   "pharmacy.filters.category": "श्रेणी",
   "pharmacy.filters.rxOnly": "केवल पर्चे वाली (Rx)",
-  "pharmacy.filters.rxOnlyBody": "वे दवाएं दिखाएं जिन्हें पर्चे की जरूरत है",
   "pharmacy.filters.priceRange": "मूल्य सीमा (रियाल)",
   "pharmacy.filters.min": "न्यूनतम",
   "pharmacy.filters.max": "अधिकतम",
@@ -4074,5 +4073,9 @@
   "receipt.kindNursing": "नर्सिंग विज़िट",
   "receipt.pdfFailedTitle": "PDF नहीं मिल सकी",
   "receipt.pdfFailedBody": "अपना कनेक्शन जाँचें और फिर कोशिश करें।",
-  "payments.result.refundedBody": "राशि आपके मूल भुगतान माध्यम में लौटा दी गई है। इसे आपके खाते में दिखने में कुछ दिन लग सकते हैं।"
+  "payments.result.refundedBody": "राशि आपके मूल भुगतान माध्यम में लौटा दी गई है। इसे आपके खाते में दिखने में कुछ दिन लग सकते हैं।",
+  "consult.hub.sortWait": "सबसे कम प्रतीक्षा",
+  "pharmacy.filters.rx": "प्रिस्क्रिप्शन",
+  "pharmacy.filters.rxAny": "कोई भी",
+  "pharmacy.filters.rxNone": "बिना प्रिस्क्रिप्शन"
 }

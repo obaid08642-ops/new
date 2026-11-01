@@ -414,7 +414,6 @@
   "pharmacy.filters.sortRecommended": "Inirerekomenda",
   "pharmacy.filters.category": "Kategorya",
   "pharmacy.filters.rxOnly": "Reseta (Rx) lang",
-  "pharmacy.filters.rxOnlyBody": "Ipakita ang mga gamot na nangangailangan ng reseta",
   "pharmacy.filters.priceRange": "Saklaw ng presyo (SAR)",
   "pharmacy.filters.min": "Pinakamababa",
   "pharmacy.filters.max": "Pinakamataas",
@@ -4074,5 +4073,9 @@
   "receipt.kindNursing": "Pagbisita ng nars",
   "receipt.pdfFailedTitle": "Hindi makuha ang PDF",
   "receipt.pdfFailedBody": "Suriin ang koneksyon at subukan muli.",
-  "payments.result.refundedBody": "Ibinalik ang halaga sa orihinal mong paraan ng pagbabayad. Maaaring abutin ng ilang araw bago ito lumabas sa iyong account."
+  "payments.result.refundedBody": "Ibinalik ang halaga sa orihinal mong paraan ng pagbabayad. Maaaring abutin ng ilang araw bago ito lumabas sa iyong account.",
+  "consult.hub.sortWait": "Pinakamaikling paghihintay",
+  "pharmacy.filters.rx": "Reseta",
+  "pharmacy.filters.rxAny": "Alinman",
+  "pharmacy.filters.rxNone": "Walang reseta"
 }

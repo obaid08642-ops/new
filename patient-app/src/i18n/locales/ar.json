@@ -414,7 +414,6 @@
   "pharmacy.filters.sortRecommended": "المقترح",
   "pharmacy.filters.category": "التصنيف",
   "pharmacy.filters.rxOnly": "يحتاج وصفة طبية فقط (Rx)",
-  "pharmacy.filters.rxOnlyBody": "عرض الأدوية التي تتطلب روشتة",
   "pharmacy.filters.priceRange": "نطاق السعر (ر.س)",
   "pharmacy.filters.min": "الحد الأدنى",
   "pharmacy.filters.max": "الحد الأقصى",
@@ -4074,5 +4073,9 @@
   "receipt.kindNursing": "زيارة تمريض",
   "receipt.pdfFailedTitle": "تعذّر تنزيل ملف PDF",
   "receipt.pdfFailedBody": "تحقق من الاتصال وحاول مرة أخرى.",
-  "payments.result.refundedBody": "أُعيد المبلغ إلى وسيلة الدفع الأصلية. قد يستغرق ظهوره في حسابك بضعة أيام."
+  "payments.result.refundedBody": "أُعيد المبلغ إلى وسيلة الدفع الأصلية. قد يستغرق ظهوره في حسابك بضعة أيام.",
+  "consult.hub.sortWait": "أقل انتظار",
+  "pharmacy.filters.rx": "الوصفة الطبية",
+  "pharmacy.filters.rxAny": "الكل",
+  "pharmacy.filters.rxNone": "بدون وصفة"
 }
