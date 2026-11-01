@@ -2030,34 +2030,52 @@
   ],
   "/care/specialties": [
     {
-      "slug": "internal",
+      "slug": "internal_medicine",
       "name_ar": "باطنة",
       "name_en": "Internal",
       "count": 12
     },
     {
-      "slug": "dental",
+      "slug": "dentistry",
       "name_ar": "أسنان",
       "name_en": "Dental",
       "count": 8
     },
     {
-      "slug": "derma",
+      "slug": "dermatology",
       "name_ar": "جلدية",
       "name_en": "Dermatology",
       "count": 5
     },
     {
-      "slug": "eyes",
+      "slug": "ophthalmology",
       "name_ar": "عيون",
       "name_en": "Eyes",
       "count": 4
     },
     {
-      "slug": "heart",
+      "slug": "cardiology",
       "name_ar": "قلب",
       "name_en": "Cardiology",
       "count": 3
+    },
+    {
+      "slug": "pediatrics",
+      "name_ar": "أطفال",
+      "name_en": "Pediatrics",
+      "count": 0
+    },
+    {
+      "slug": "orthopedics",
+      "name_ar": "عظام",
+      "name_en": "Orthopedics",
+      "count": 0
+    },
+    {
+      "slug": "neurology",
+      "name_ar": "مخ وأعصاب",
+      "name_en": "Neurology",
+      "count": 0
     }
   ],
   "/home/offers": [

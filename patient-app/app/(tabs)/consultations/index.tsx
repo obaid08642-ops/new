@@ -124,7 +124,6 @@ export default function Consultations() {
   const [activeVt, setActiveVt] = useState<VisitMode>('clinic');
   const [activeSpec, setActiveSpec] = useState('');
   // a specialty with no doctor yet that was tapped: the "Coming soon" note shows, no filter is applied
-  const [soonSlug, setSoonSlug] = useState('');
   // The rows as the server sent them; the card shape (with the localised name) is derived below so a language change re-derives it.
   const [providerRows, setProviderRows] = useState<ProviderRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -229,7 +228,6 @@ export default function Consultations() {
     [specialties, lang],
   );
   const activeSlug = activeSpec ? specialtyTiles.find((tile) => arabicNames[tile.slug] === activeSpec)?.slug ?? '' : '';
-  const soonTile = soonSlug ? specialtyTiles.find((tile) => tile.slug === soonSlug) : undefined;
 
   useEffect(() => {
     // Real specialties (names + live doctor counts) and real active offers
@@ -448,37 +446,18 @@ export default function Consultations() {
           <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.nearestCity', { city: place.city })}</Text>
         ) : null}
 
-        {/* Specialties — the real list from /care/specialties: All first, with doctors (most doctors first), Coming soon, then All specialties */}
+        {/* Specialties — the real list from /care/specialties: All first, with doctors (most doctors first), the others, then All specialties */}
         {specialties.length > 0 ? (
           <Section title={k('consult.hub.specialties')}>
             <SpecialtyRow
               tiles={specialtyTiles}
-              arabicNames={arabicNames}
               allLabel={k('consult.hub.specAll')}
               moreLabel={k('consult.hub.specMore')}
-              comingSoonLabel={k('consult.hub.comingSoon')}
-              activeSlug={soonSlug || activeSlug}
-              onAll={() => {
-                setActiveSpec('');
-                setSoonSlug('');
-              }}
-              onSelect={(tile) => {
-                if (tile.comingSoon) {
-                  setActiveSpec('');
-                  setSoonSlug(tile.slug);
-                  return;
-                }
-                setSoonSlug('');
-                setActiveSpec(activeSlug === tile.slug ? '' : arabicNames[tile.slug] || '');
-              }}
+              activeSlug={activeSlug}
+              onAll={() => setActiveSpec('')}
+              onSelect={(tile) => setActiveSpec(activeSlug === tile.slug ? '' : arabicNames[tile.slug] || '')}
               onMore={() => router.push('/consultations/specialty-select' as Href)}
             />
-            {soonTile ? (
-              <View testID="specialty-soon-note" accessibilityRole="alert" style={{ borderRadius: 16, backgroundColor: c.bg.sunken, padding: 12, gap: 2 }}>
-                <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{k('consult.hub.comingSoonTitle', { specialty: soonTile.name })}</Text>
-                <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.comingSoonBody')}</Text>
-              </View>
-            ) : null}
           </Section>
         ) : null}
 

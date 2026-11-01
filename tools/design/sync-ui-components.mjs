@@ -70,7 +70,7 @@ const FILES = [
   { from: 'packages/ui/icons/category-art.ts', to: 'patient-web/components-next/ui-generated/icons/category-art.ts' },
   { from: 'packages/ui/icons/diag-art.ts', to: 'patient-web/components-next/ui-generated/icons/diag-art.ts' },
   { from: 'packages/ui/icons/nav-art.ts', to: 'patient-web/components-next/ui-generated/icons/nav-art.ts' },
-  { from: 'packages/ui/icons/specialty-art.ts', to: 'patient-web/components-next/ui-generated/icons/specialty-art.ts' },
+  { from: 'packages/ui/icons/specialty-look.ts', to: 'patient-web/components-next/ui-generated/icons/specialty-look.ts' },
   { from: 'packages/ui/icons/marks.ts', to: 'patient-web/components-next/ui-generated/icons/marks.ts' },
   { from: 'packages/ui/icons/social-brands.ts', to: 'patient-web/components-next/ui-generated/icons/social-brands.ts' },
   { from: 'packages/ui/icons/social-brands.css', to: 'patient-web/components-next/ui-generated/icons/social-brands.css' },
@@ -136,6 +136,8 @@ function usedFillGlyphs(fillSource) {
   const sources = [
     ...['patient-web/app', 'patient-web/components-next', 'patient-web/lib'].flatMap((d) => walk(join(REPO, d))),
     ...['packages/ui/components', 'packages/ui/src', 'packages/ui/shells'].flatMap((d) => walk(join(REPO, d))),
+    // the specialty look names its icons in packages/ui (the web draws them through the mirror of that file)
+    join(REPO, 'packages/ui/icons/specialty-look.ts'),
   ].map((f) => readFileSync(f, 'utf8')).join('\n');
   const service = [...fillSource.matchAll(/icon: '([a-z0-9-]+)'/g)].map((m) => m[1]);
   const keep = Object.keys(paths).filter((n) => service.includes(n) || new RegExp(`["'\`]${n}["'\`]`).test(sources));
