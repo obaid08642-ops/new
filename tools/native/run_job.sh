@@ -73,6 +73,11 @@ import json,sys
 for l in sys.stdin:
     try: j=json.loads(l); print(j.get('ts'), j.get('status'), j.get('route'), 'user' if j.get('user_id') else 'no-user')
     except Exception: print(l[:200].rstrip())"
+      echo "backend, the last 12 chat / slots / cart requests of any status (route, status, bytes):"; grep -E '"route":"[^"]*(chat|slots|appointments)' /tmp/nabd-backend.log 2>/dev/null | tail -n 12 | python3 -c "
+import json,sys
+for l in sys.stdin:
+    try: j=json.loads(l); print(j.get('ts'), j.get('status'), (j.get('details') or {}).get('method'), j.get('route'), (j.get('details') or {}).get('content_length'), 'user' if j.get('user_id') else 'no-user')
+    except Exception: print(l[:200].rstrip())"
       echo "app JS log (ReactNativeJS), last 40:"; adb logcat -d -v time ReactNativeJS:V '*:S' 2>/dev/null | tail -n 40 | cut -c1-300
     } > "$OUT/diag_${TAG}__${NAME}.txt" 2>&1 || true
   fi
