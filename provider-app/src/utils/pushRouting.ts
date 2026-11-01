@@ -3,7 +3,12 @@
  * (JSON with the same route) and, for a call, `session_id`. Every provider dashboard is its own navigator, so the target is
  * resolved per provider type to a screen that navigator really has; a screen it does not have falls back to the notifications list.
  */
-export interface PushTarget { screen: string; params?: Record<string, unknown> }
+export interface PushTarget {
+  screen: string;
+  params?: Record<string, unknown>;
+  /** A screen of the root navigator (the call screens), not of the provider's dashboard. */
+  root?: boolean;
+}
 
 const DOCTOR_APPOINTMENT = new Set(['appointment', 'consultation', 'doctor_appointment']);
 
@@ -28,6 +33,12 @@ export function pushSubject(data: unknown): { kind: string | null; id: string | 
 
 export function resolvePushTarget(data: unknown, providerType: string): PushTarget {
   const { kind, id, type } = pushSubject(data);
+  if (type === 'call') {
+    // tapping the call notification (a build without the system call screen) opens the in-app incoming call for that session
+    const d = asRecord(data);
+    const sessionId = String(d.session_id ?? d.sessionId ?? '');
+    if (sessionId) return { screen: 'IncomingCall', root: true, params: { sessionId, callerName: String(d.caller_name ?? d.callerName ?? d.title ?? ''), mode: (d.call_type ?? d.callType) === 'voice' ? 'voice' : 'video' } };
+  }
   const t = String(providerType || '').toLowerCase();
   const isDoctor = t === 'doctor' || t === 'physician';
   if (isDoctor && id && kind && DOCTOR_APPOINTMENT.has(kind)) return { screen: 'appointment_detail', params: { param: { id } } };
