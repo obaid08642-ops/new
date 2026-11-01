@@ -1,14 +1,13 @@
-# 2026-11-01 04:15 lead reviewer: run 79 = OUTAGE recovery.
-# Run 78 OK: meili fresh start, 21,311/21,311 docs in 2 min, 0 restarts, meili 406 MB, host MemAvailable 1,051 MB.
-# Since then (04:10 UTC) production is DOWN from outside: nabd.plus/ar 503, api /health timeout, /catalogs/specialties 504.
-# Run 78's memory report showed 3 mongod kills by its own memcg (1600m limit) in the last 3 h.
-# 1. Read-only state first: mongo state, memory report, what runs (69).
-# 2. 68-mongo-start: start mongod if it is down (same container and volume, never a repair), then restart backend + worker once, readiness.
-# 3. Read-only outage inspection (55) for the cause.
-release:c929c4efa59a60ff70b245284fb7f99b3520b0ed
-99m-mongo-state
-98-memory-report
-69-deploy-check
-68-mongo-start
-55-inspect-outage
+# 2026-11-01 08:15 lead reviewer: run 80 = deploy main@328263b5.
+# Brings: backend mongo self-heal (#2347: exits and restarts if its DB connection is dead 90 s while mongod answers; the 02:30-04:32 outage),
+# catalogue stale-if-error (#2348), board specialty tiles + no "coming soon" (#2349), receipts in the app (#2332), server quotes + wallet ledger (#2344),
+# provider calls ringing (#2334), call cancel push (#2340), screen audits (#2290 #2336 #2341), journeys (#2322).
+# Then DRY RUNS only: 91c host files (watchdog script, clamav window, backup scripts), 98k watchdog cron; 99n mongod memory (read-only).
+release:328263b5edd6e23c211d0584960b99df925938a7
+97-free-old-predeploy
+93-free-unused-images
+60-deploy-main
+91c-host-files
+98k-backend-watchdog
+99n-mongod-memory
 cf-purge-api

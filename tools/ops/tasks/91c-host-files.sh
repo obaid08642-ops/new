@@ -2,6 +2,7 @@
 # Host files of the memory budget (#2137) that the deploy task (60-deploy-main.sh) does NOT write: it installs only the compose files and the nginx
 # files, so these never reach the server by themselves:
 #   deploy/mongo/mongod.conf  deploy/redis/redis.conf  deploy/scripts/oplog-backup.sh  deploy/scripts/_oplog-mongo-wait.sh  deploy/scripts/memory-report.sh
+#   and, since run 77, the scripts the window cron and the nightly backup run and source: clamav-window.sh _backup-common.sh backup.sh _dump-guard.sh _mongodump-oneoff.sh _mongorestore-list.sh
 # Two runs of the same task, plus a rollback:
 #   Run 1 (APPLY empty): DRY RUN. Prints, as `status:` lines, which of the files differ from the uploaded release (name and sha8 only, never a
 #                        file's content), what redis has now against what redis.conf says, and which release it compared with. Nothing is written.
@@ -16,7 +17,7 @@
 #   from the restored redis.conf (if there is none, the value of the redis.conf on disk).
 # The redis password is read from .env.production and handed to redis-cli on stdin; it is never an argument, never printed.
 set -u
-APPLY="yes"
+APPLY=""
 ROLLBACK=""
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
 B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}
@@ -24,7 +25,10 @@ REL_ROOT=${OPS_RELEASE_DIR:-/opt/nabdah/releases}
 ENVF=$D/.env.production
 RC=${REDIS_CONTAINER:-nabdah-redis}
 # path under the release's deploy/ dir (= under $D on the server)
-FILES="mongo/mongod.conf redis/redis.conf scripts/oplog-backup.sh scripts/_oplog-mongo-wait.sh scripts/memory-report.sh"
+# scripts/clamav-window.sh + _backup-common.sh (the window cron), backup.sh + _dump-guard.sh (the nightly dump and its size guard), _mongodump-oneoff.sh + _mongorestore-list.sh (what both source), backend-watchdog.sh (the unhealthy-container watchdog cron, installed by 98k):
+# the deploy task writes none of them, so the server kept the copies of whenever they were last installed by hand (run 77: the window script on the server differs from the release).
+# backup.sh and _dump-guard.sh MUST travel together: a backup.sh that sources a _dump-guard.sh the server lacks would treat every dump as suspect.
+FILES="mongo/mongod.conf redis/redis.conf scripts/oplog-backup.sh scripts/_oplog-mongo-wait.sh scripts/memory-report.sh scripts/clamav-window.sh scripts/_backup-common.sh scripts/backup.sh scripts/_dump-guard.sh scripts/_mongodump-oneoff.sh scripts/_mongorestore-list.sh scripts/backend-watchdog.sh"
 TS=$(date -u +%Y%m%dT%H%M%SZ)
 DK="sudo -n docker"
 echo "## host-files"
