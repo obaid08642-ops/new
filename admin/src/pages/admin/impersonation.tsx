@@ -9,7 +9,7 @@ type SupportContext = { active: true; read_only: true; session_id: string; expir
 
 export default function ImpersonationPage() {
   const [query, setQuery] = useState(''); const [users, setUsers] = useState<User[]>([]); const [sessions, setSessions] = useState<Session[]>([]); const [selected, setSelected] = useState<User | null>(null); const [reason, setReason] = useState(''); const [active, setActive] = useState<StartResponse | null>(null); const [loading, setLoading] = useState(false); const [busy, setBusy] = useState(false); const [error, setError] = useState('');
-  async function loadUsers() { if (!query.trim()) { setUsers([]); return; } setLoading(true); try { const result = await adminFetch<any>(`/api/admin/admin/users?search=${encodeURIComponent(query.trim())}`); setUsers(Array.isArray(result) ? result : result.data || []); } catch (cause) { setError(apiErrorMessage(cause, 'تعذر البحث عن المستخدمين.')); } finally { setLoading(false); } }
+  async function loadUsers() { if (!query.trim()) { setUsers([]); return; } setLoading(true); try { const result = await adminFetch<any>(`/api/admin/admin/users?q=${encodeURIComponent(query.trim())}`); setUsers(Array.isArray(result) ? result : result.data || []); } catch (cause) { setError(apiErrorMessage(cause, 'تعذر البحث عن المستخدمين.')); } finally { setLoading(false); } }
   async function loadSessions() { try { const result = await adminFetch<{ data: Session[] }>('/api/admin/admin/impersonation'); setSessions(result.data || []); } catch (cause) { setError(apiErrorMessage(cause, 'تعذر تحميل جلسات الدعم.')); } }
   useEffect(() => { const timer = window.setTimeout(() => void loadUsers(), 300); return () => window.clearTimeout(timer); }, [query]);
   useEffect(() => { void loadSessions(); }, []);

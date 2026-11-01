@@ -1,3 +1,4 @@
+import { postWalletEntry, WalletInsufficientError } from '../../common/wallet-ledger';
 import { Injectable, Logger, NotFoundException, BadRequestException, ForbiddenException, Inject } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
@@ -133,30 +134,15 @@ export class NabdExtensionsService {
     referenceId: string;
     description: string;
   }) {
-    let wallet = await this.walletModel.findOne({ ownerId: opts.ownerId, ownerType: opts.ownerType });
-    if (!wallet) {
-      wallet = await this.walletModel.create({
-        ownerId: opts.ownerId,
-        ownerType: opts.ownerType,
-        balance: 0,
-      });
+    // Through the wallet ledger (common/wallet-ledger.ts): one keyed row per wallet, direction and business event, then the balance is
+    // set from the ledger sum. It used to read the balance, add to it and save, which two requests at once could overwrite.
+    try {
+      const out = await postWalletEntry(this.conn, opts, { createWalletIfMissing: true });
+      return { credited: out.credited, balance: out.balance };
+    } catch (e) {
+      if (e instanceof WalletInsufficientError) throw new BadRequestException('Insufficient wallet balance');
+      throw e;
     }
-
-    if (opts.type === 'debit' && wallet.balance < opts.amount) {
-      throw new BadRequestException('Insufficient wallet balance');
-    }
-
-    wallet.balance += opts.type === 'credit' ? opts.amount : -opts.amount;
-    await wallet.save();
-
-    return this.walletTxModel.create({
-      walletId: wallet.id,
-      amount: opts.amount,
-      type: opts.type,
-      referenceType: opts.referenceType,
-      referenceId: opts.referenceId,
-      description: opts.description,
-    });
   }
 
   // Referral

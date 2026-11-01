@@ -214,14 +214,19 @@ export default function ConfigPortal() {
             const slaReason = window.prompt('سبب تعديل SLA (يُحفظ في سجل التدقيق — 5 أحرف على الأقل):', '');
             if (slaReason === null) { setIsSubmitting(false); return; }
             if (slaReason.trim().length < 5) { alert('يرجى إدخال سبب لا يقل عن 5 أحرف'); setIsSubmitting(false); return; }
-            await fetchWithAdminGuard(`/api/admin/admin/config/sla`, {
+            const slaRes = await fetchWithAdminGuard(`/api/admin/admin/config/sla`, {
         method: 'PUT',
         body: JSON.stringify({ consultationDuration, callRingingDuration, jwtExpiry, reason: slaReason.trim() })
       });
-      alert('SLA variables globally overridden successfully.');
+      // fetchWithAdminGuard does not throw on a 4xx: a refused save (400, or 403 for a role without settings.edit) must not say it worked
+      if (!slaRes.ok) {
+        const body = await slaRes.json().catch(() => ({}));
+        throw new Error(String(Array.isArray(body?.message) ? body.message[0] : body?.message ?? slaRes.status));
+      }
+      alert('تم حفظ متغيرات SLA.');
     } catch (error) {
       console.error(error);
-      alert('Error updating SLA');
+      alert(`تعذر حفظ SLA: ${error instanceof Error ? error.message : ''}`);
     } finally {
       setIsSubmitting(false);
     }

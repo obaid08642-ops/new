@@ -448,7 +448,8 @@ function B2BSupplyRequestScreen({ onBack }: any) {
   const loadMyRequests = async () => {
     try {
       const res: any = await client.get('/pharmacy/procurement/my-requests');
-      setMyRequests(Array.isArray(res?.data) ? res.data : []);
+      // the server answers { success, data: [...] }
+      setMyRequests(Array.isArray(res?.data) ? res.data : Array.isArray(res?.data?.data) ? res.data.data : []);
     } catch { /* list is informational */ }
   };
   useEffect(() => { loadMyRequests(); }, []);
@@ -551,20 +552,13 @@ function B2BSupplyRequestScreen({ onBack }: any) {
             )}
 
             {b2bTab === 'voice' && (
-              <View style={{ alignItems: 'center', paddingVertical: 32 }}>
-                <View style={{ width: 120, height: 120, borderRadius: 60, backgroundColor: isRecording ? theme.danger + '20' : theme.surface2, justifyContent: 'center', alignItems: 'center', marginBottom: 24, borderWidth: 2, borderColor: isRecording ? theme.danger : theme.border }}>
-                  <Text style={{ fontSize: 48 }}>{isRecording?'':''}</Text>
-                </View>
-                {isRecording && <Text style={{ color: theme.danger, fontWeight: 'bold', marginBottom: 16 }}>00:14</Text>}
-                {!isRecording ? (
-                  <NBtn label={AR ? 'بدء التسجيل' : 'Start Recording'} onPress={() => setIsRecording(true)} />
-                ) : (
-                  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: 12, width: '100%' }}>
-                    <NBtn label={AR ? 'إلغاء' : 'Cancel'} variant="outline" onPress={() => setIsRecording(false)} style={{ flex: 1 }} />
-                    <NBtn label={AR ? 'إرسال المقطع' : 'Send Audio'} onPress={() => submitB2B('voice')} style={{ flex: 1 }} />
-                  </View>
-                )}
-              </View>
+              // No recorder exists in the app yet: the screen used to show a recording button, a fixed "00:14" timer and a "Send audio"
+              // that sent nothing. Say so, and point to the two ways that work.
+              <NCard style={{ padding: 16 }}>
+                <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
+                  {AR ? 'الطلب الصوتي غير متاح في التطبيق بعد. اكتب أسماء الأدوية في تبويب «يدوي» أو صوّر الرف أو الفاتورة في تبويب «تصوير».' : 'Voice orders are not available in the app yet. Type the medicine names in the Manual tab, or photograph the shelf or invoice in the Scan tab.'}
+                </Text>
+              </NCard>
             )}
 
             {b2bTab === 'ocr' && (
@@ -1060,14 +1054,17 @@ function ActiveInventoryScreen({ onBack, onNavigate }: { onBack: () => void; onN
 
   const [search, setSearch] = useState('');
   const [inventory, setInventory] = useState<any[]>([]);
+  const [inventoryFailed, setInventoryFailed] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const fetchInventory = useCallback(async () => {
     try {
       const res = await client.get('/provider/capabilities/pharmacy');
       setInventory(Array.isArray(res.data) ? res.data : []);
+      setInventoryFailed(false);
     } catch {
       setInventory([]);
+      setInventoryFailed(true);   // a failed load is an error with a retry, not "No inventory items"
     } finally {
       setLoading(false);
     }
@@ -1248,6 +1245,8 @@ function ActiveInventoryScreen({ onBack, onNavigate }: { onBack: () => void; onN
       </View>
       {loading ? (
         <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} />
+      ) : inventoryFailed ? (
+        <NEmpty title={AR ? 'تعذر تحميل المخزون' : 'Could not load the inventory'} actionLabel={AR ? 'إعادة المحاولة' : 'Retry'} onAction={() => { setLoading(true); void fetchInventory(); }} icon="document" />
       ) : !loading && filtered.length === 0 ? (
         <Text style={{ color: theme.textSub, textAlign: 'center', marginTop: 40 }}>
           {AR ? 'لا توجد أصناف في المخزون' : 'No inventory items'}
@@ -1503,11 +1502,18 @@ function PharmacyChatScreen({ onBack, orderId, lines }: { onBack: () => void; or
 function SettingsScreen({ onBack, onNavigate }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [loading, setLoading] = useState(false);
-  const [deliveryRadius, setDeliveryRadius] = useState('10');
-  const [minOrder, setMinOrder] = useState('50');
-  const [deliveryFee, setDeliveryFee] = useState('15');
-  const [acceptsInsurance, setAcceptsInsurance] = useState(true);
+  // the saved values, not invented defaults (10 km, 50, 15 and "accepts insurance" were shown to every pharmacy)
+  const [deliveryRadius, setDeliveryRadius] = useState('');
+  const [deliveryFee, setDeliveryFee] = useState('');
   const [trackInventory, setTrackInventory] = useState(false);
+
+  useEffect(() => {
+    client.get('/provider/profile').then((r: any) => {
+      const p = r?.data?.profile ?? r?.data ?? {};
+      if (p.max_delivery_radius_km != null) setDeliveryRadius(String(p.max_delivery_radius_km));
+      if (p.delivery_fee != null) setDeliveryFee(String(p.delivery_fee));
+    }).catch(() => undefined);
+  }, []);
 
   useEffect(() => {
     client.get('/provider/pharmacy/inventory-tracking').then((r: any) => {
@@ -1519,13 +1525,20 @@ function SettingsScreen({ onBack, onNavigate }: any) {
   const handleSave = async () => {
     setLoading(true);
     try {
-      await client.post('/provider/settings/delta', { 
-        newData: { deliveryRadius, minOrder, deliveryFee, acceptsInsurance } 
-      });
+      const radius = Number(deliveryRadius); const fee = Number(deliveryFee);
+      if (!Number.isFinite(radius) || radius <= 0 || !Number.isFinite(fee) || fee < 0) {
+        show(AR ? 'أدخل نطاق توصيل أكبر من صفر ورسوماً صحيحة' : 'Enter a delivery radius above zero and a valid fee', 'error');
+        setLoading(false);
+        return;
+      }
+      // the two fields the profile really has (max_delivery_radius_km, delivery_fee); the old call sent names the server does not
+      // know (deliveryRadius, minOrder, ...), so nothing was ever applied
+      await client.patch('/provider/profile', { max_delivery_radius_km: radius, delivery_fee: fee });
       show(AR ? 'بانتظار موافقة الإدارة على التعديلات' : 'Pending admin approval for changes', 'success');
       onBack();
-    } catch (e) {
-      show(AR ? 'فشل إرسال التعديلات' : 'Failed to submit changes', 'error');
+    } catch (e: any) {
+      const m = e?.response?.data?.message;
+      show((Array.isArray(m) ? m[0] : m) || (AR ? 'فشل إرسال التعديلات' : 'Failed to submit changes'), 'error');
     }
     setLoading(false);
   };
@@ -1537,14 +1550,12 @@ function SettingsScreen({ onBack, onNavigate }: any) {
         <NSecHeader title={AR ? 'خيارات التوصيل' : 'Delivery Options'} />
         <NCard style={{ gap: SP.md }}>
           <NInput label={AR ? 'نطاق التوصيل (كم)' : 'Delivery Radius (KM)'} value={deliveryRadius} onChange={setDeliveryRadius} kbType="numeric" />
-          <NPriceInput label={AR ? 'الحد الأدنى للطلب' : 'Minimum Order'} value={minOrder} onChange={setMinOrder} />
           <NPriceInput label={AR ? 'رسوم التوصيل' : 'Delivery Fee'} value={deliveryFee} onChange={setDeliveryFee} />
         </NCard>
 
         <NSecHeader title={AR ? 'طرق الدفع' : 'Payment Methods'} />
         <NBtn label={AR ? 'طلبات التأمين الواردة (قرار يدوي)' : 'Inbound Insurance Requests'} variant="outline" icon="shield" onPress={() => onNavigate && onNavigate('insurance_decisions')} />
         <NCard style={{ gap: SP.md }}>
-          <NToggle label={AR ? 'قبول شركات التأمين' : 'Accept Insurance'} value={acceptsInsurance} onChange={setAcceptsInsurance} />
           <NToggle label={AR ? 'تتبع أرصدة المخزون (اختياري)' : 'Track inventory balances (optional)'} value={trackInventory} onChange={async (v: boolean) => {
             setTrackInventory(v);
             try {

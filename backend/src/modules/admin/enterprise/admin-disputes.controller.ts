@@ -105,6 +105,9 @@ export class AdminDisputesController {
         status: t.status,
         priority: t.priority,
         source_role: t.source_role,
+        // the booking the patient named on the ticket: a refund decision needs it (see resolve)
+        booking_kind: t.booking_kind || null,
+        booking_id: t.booking_id || null,
         refunded_so_far: refundMap.get(t.id) || 0,
         created_at: t.createdAt,
         resolved_at: t.resolved_at || null,

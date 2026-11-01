@@ -1,6 +1,7 @@
 import { patientApiUrl } from "@/lib/api/upstream";
 import { parseLabServiceId } from "./labs";
 import { publicReadSignal } from "@/lib/api/public-timeout";
+import { publicListRead } from "@/lib/api/last-good";
 
 const allowedSortFlags = new Set(["highest_rated", "nearest", "lowest_price"]);
 function validQuery(value: string | undefined) {
@@ -64,14 +65,10 @@ export async function getPublicLabServices(
     if (enabled && allowedSortFlags.has(key)) query.set(key, "true");
   }
   const path = `/labs/services${query.toString() ? `?${query.toString()}` : ""}`;
-  try {
-    return await fetch(patientApiUrl(path), { signal: publicReadSignal(),
-      headers: { Accept: "application/json" },
-      cache: "no-store",
-    });
-  } catch {
-    return null;
-  }
+  return publicListRead(`labs:${path}`, () => fetch(patientApiUrl(path), { signal: publicReadSignal(),
+    headers: { Accept: "application/json" },
+    cache: "no-store",
+  }));
 }
 
 export type LabDetail = {
