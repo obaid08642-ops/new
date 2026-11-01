@@ -248,8 +248,11 @@ export function defaultCoverage(order: OrderState | null): Coverage {
 /** The order id of the route: the current param is `orderId`; `requestId` is what older links and the old redirect carried. */
 export function orderIdParam(params: { orderId?: string | string[]; requestId?: string | string[] }): string | undefined {
   const first = (v?: string | string[]) => (Array.isArray(v) ? v[0] : v);
-  return first(params.orderId) || first(params.requestId) || undefined;
+  const id = first(params.orderId) || first(params.requestId) || undefined;
+  // the id goes into request paths (/patient/pharmacy/orders/:id/...): a link or notification can carry anything, so only id-shaped text passes (no slash, query or dots-only name)
+  return id && SAFE_ORDER_ID.test(id) ? id : undefined;
 }
+const SAFE_ORDER_ID = /^(?!\.+$)[A-Za-z0-9_.:-]{1,128}$/;
 
 const ERRORS: ReadonlyArray<readonly [RegExp, string]> = [
   [/offline_error|request_aborted|network error/i, 'errors.offline'],

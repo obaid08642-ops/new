@@ -395,15 +395,24 @@ export class NursingController {
     // provider-journeys#13: the patient's signature closes the visit (the field screen requires it; so does the server).
     if (!(typeof signature_base64 === 'string' && signature_base64.trim())) throw new BadRequestException('patient_signature_required');
     
-    b.state = NursingBookingState.COMPLETED;
-    b.timers.completed_at = new Date();
-    b.markModified('timers');
-    b.vitals = vitals || b.vitals;
-    b.clinical_notes = clinical_notes || b.clinical_notes;
-    b.recommendations = recommendations || b.recommendations;
-    b.patient_signature_base64 = signature_base64;
-    b.state_history.push({ from, to: b.state, at: new Date() });
-    await b.save();
+    // Through the workflow engine like every other service: it emits `service.completed` exactly once, which is what credits the nurse's
+    // earning and tells the patient. Writing the state directly (as this did) left the visit completed but never paid to the wallet.
+    await this.engine.apply({
+      kind: 'nursing', entity_id: b.id, from_domain: from, to_domain: NursingBookingState.COMPLETED,
+      actor_account_id: user.id, actor_role: user.role, patient_account_id: b.patient_id, reason: 'visit_completed',
+      mutate: async () => {
+        b.state = NursingBookingState.COMPLETED;
+        b.timers.completed_at = new Date();
+        b.markModified('timers');
+        b.vitals = vitals || b.vitals;
+        b.clinical_notes = clinical_notes || b.clinical_notes;
+        b.recommendations = recommendations || b.recommendations;
+        b.patient_signature_base64 = signature_base64;
+        b.state_history.push({ from, to: b.state, at: new Date() });
+        await b.save();
+        return b.toObject();
+      },
+    });
 
     this.notifyPatientState(b);
     

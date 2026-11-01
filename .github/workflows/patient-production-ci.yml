@@ -12,8 +12,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: patient-production-${{ github.workflow }}-${{ github.ref }}
-  # a newer push to the same PR replaces the older run; runs on main are never cancelled
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # a newer commit on the same PR replaces the older run (the newest commit still runs every suite); a run on main, a schedule and a manual run are never cancelled
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -44,6 +44,11 @@ jobs:
             echo 'Customer wallet payment code is prohibited by PAY-001.' >&2
             exit 1
           fi
+      - name: CI routing (concurrency on every pull-request workflow)
+        run: |
+          set -euo pipefail
+          python3 -c 'import yaml' 2>/dev/null || pip install --quiet pyyaml
+          python3 -m unittest tools.ci.test_workflow_concurrency
       - name: Reject tracked secrets and application archives
         run: |
           set -euo pipefail
@@ -270,6 +275,8 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: packages/ui/package-lock.json
       # Same rule as the tokens and the brand: the generated icon sheets and the
       # preview page are committed so a reviewer can open dist/preview.html
       # without booting anything. This fails if anyone hand-edits a generated
@@ -341,6 +348,8 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: packages/shared-contracts/package-lock.json
       - name: Install compiler
         run: npm install --ignore-scripts --no-save typescript@5.9.3
       - name: Type check
@@ -433,6 +442,14 @@ jobs:
         run: npx tsc --noEmit
       - name: Run tests
         run: npm test -- --runInBand --forceExit
+      # Expo build check, as the patient app has: the JS bundles and the native projects must still be producible.
+      # (The signed store builds and the device run are tools/native + native-e2e.yml.)
+      - name: Export the Android and iOS bundles
+        run: |
+          npx expo export --platform android --output-dir "$RUNNER_TEMP/provider-export-android"
+          npx expo export --platform ios --output-dir "$RUNNER_TEMP/provider-export-ios"
+      - name: Prebuild the native projects (android, ios)
+        run: npx expo prebuild --no-install --clean
 
   admin:
     name: Admin Dashboard typecheck and build

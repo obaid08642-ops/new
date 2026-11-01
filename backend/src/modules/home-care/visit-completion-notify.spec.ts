@@ -21,12 +21,16 @@ describe('visit completion notifies the patient', () => {
   });
 
   it('/nursing/visits/:id/complete emits the same event (patient.notify had no listener)', async () => {
-    const booking: any = { id: 'visit-2', patient_id: 'patient-2', provider_id: 'nurse-1', state: NursingBookingState.CARE_IN_PROGRESS, timers: {}, state_history: [], save: jest.fn(), markModified: jest.fn() };
+    const engine = { apply: jest.fn(async (a: any) => a.mutate()) };
+    const booking: any = { toObject() { return this; }, id: 'visit-2', patient_id: 'patient-2', provider_id: 'nurse-1', state: NursingBookingState.CARE_IN_PROGRESS, timers: {}, state_history: [], save: jest.fn(), markModified: jest.fn() };
     const events: any = { emit: jest.fn() };
-    const controller = new NursingController({ findOne: jest.fn().mockResolvedValue(booking) } as any, {} as any, {} as any, {} as any, events, {} as any, {} as any);
+    const controller = new NursingController({ findOne: jest.fn().mockResolvedValue(booking) } as any, {} as any, {} as any, {} as any, events, engine as any, {} as any);
     await controller.completeVisit('visit-2', { clinical_notes: 'done', signature_base64: 'data:image/png;base64,AAAA' } as any, nurse);
     expect(events.emit).toHaveBeenCalledWith('homecare.booking_state_changed', expect.objectContaining({ booking_id: 'visit-2', patient_id: 'patient-2', state: NursingBookingState.COMPLETED }));
     expect(events.emit).not.toHaveBeenCalledWith('patient.notify', expect.anything());
+    // completion goes through the workflow engine, once: service.completed is what credits the nurse's earning
+    expect(engine.apply).toHaveBeenCalledTimes(1);
+    expect(engine.apply).toHaveBeenCalledWith(expect.objectContaining({ kind: 'nursing', from_domain: NursingBookingState.CARE_IN_PROGRESS, to_domain: NursingBookingState.COMPLETED, entity_id: 'visit-2' }));
   });
 
   it('the completed state becomes notif.homecare_completed for the patient', async () => {

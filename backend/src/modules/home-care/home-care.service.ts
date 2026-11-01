@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Inject, Optional } from '@nestjs/common';
+import { assertPaymentMethod } from '../../common/payment-policy';
 import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
 import { ownPrices } from '../../common/service-offers';
 import { SearchService } from '../search/search.service';
@@ -102,7 +103,7 @@ export class HomeCareSvc {
     if (isNaN(when.getTime()) || when.getTime() < Date.now() - 5 * 60_000) throw new BadRequestException('slot_expired');
     // Home visits are paid by card or insurance (same policy as lab/radiology home visits).
     const paymentMethod = String(data.payment_method || 'card');
-    if (!['card', 'insurance'].includes(paymentMethod)) throw new BadRequestException(`payment_method_${paymentMethod}_not_allowed_for_home_visit`);
+    assertPaymentMethod(paymentMethod, 'home_visit');
     // S4 duplicate-booking prevention: idempotent replay for double-tap/retry within 3 minutes
     const dupe = await this.bkgModel.findOne({
       patient_id: user.id,

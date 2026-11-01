@@ -101,6 +101,9 @@ const patientReadRoutes = [
   new RegExp("^/push/web/vapid-key$"),
   // journeys#54: the report file of the patient's own lab booking (the backend checks the booking is theirs).
   new RegExp(`^/labs/bookings/${orderId}/reports/${orderId}$`, "i"),
+  // The receipt: the patient's invoices and the PDF of one (the backend checks the booking is theirs).
+  new RegExp("^/billing/my$"),
+  new RegExp(`^/billing/invoice/(pharmacy|order|appointment|consultation|lab|radiology|home_care|nursing)/${orderId}/pdf$`, "i"),
   // A1: the patient wallet is gone — these backend routes no longer exist.
 ];
 

@@ -1,0 +1,35 @@
+[
+  {
+    "batch": "qa",
+    "app": "patient-app",
+    "screen": "/diagnostics/booking-status",
+    "element": "Pay now: payment kind",
+    "file": "patient-app/app/diagnostics/booking-status.tsx",
+    "line": 228,
+    "found": "[client] The patient-share payment always uses /payments/intent/lab/:id and bookingKind 'lab'; confirm.tsx pays a radiology booking on its own kind, so a radiology booking reached through partial approval would be paid on the wrong kind. Reviewer: use the booking kind and check the backend accepts it.",
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
+  },
+  {
+    "batch": "qa",
+    "app": "patient-app",
+    "screen": "/diagnostics/booking-confirm",
+    "element": "Route kept as a bare redirect",
+    "file": "patient-app/app/diagnostics/booking-confirm.tsx",
+    "line": 5,
+    "found": "[client] Redirects to the diagnostics tab and drops any booking id (deep link loses context). Keep the redirect.",
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
+  },
+  {
+    "batch": "qa",
+    "app": "patient-app",
+    "screen": "/diagnostics/lab-result",
+    "element": "Mine list error swallowed",
+    "file": "patient-app/app/diagnostics/lab-result.tsx",
+    "line": 41,
+    "found": "[client] GET /lab-results/mine failure becomes null with no message, so a failed neighbour list looks like an empty one.",
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
+  }
+]

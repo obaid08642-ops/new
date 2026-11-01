@@ -65,7 +65,7 @@ export function AuthTopBar({ onBack }: { onBack?: () => void }) {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
       {onBack ? (
-        <IconButton name={isRTL ? 'caret-right' : 'caret-left'} label={tr('رجوع')} variant="glass" theme={theme} onPress={onBack} />
+        <IconButton name={isRTL ? 'caret-right' : 'caret-left'} label={tr('common.back')} variant="glass" theme={theme} onPress={onBack} />
       ) : (
         <View style={{ width: 44 }} />
       )}
@@ -172,7 +172,7 @@ export function AuthField({ label, value, onChangeText, placeholder, hint, error
         {secure ? (
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={tr(shown ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور')}
+            accessibilityLabel={tr(shown ? 'auth.hidePassword' : 'auth.showPassword')}
             onPress={() => setShown((v) => !v)}
             hitSlop={4}
             style={{ width: 36, height: 36, alignItems: 'center', justifyContent: 'center' }}
@@ -300,7 +300,7 @@ export function SocialButtons({ providers, onPress, layout, disabled }: { provid
   const { theme, c, tr } = useAuthUi();
   if (!providers.length) return null;
   const brand = (p: SocialProvider) => SOCIAL_BUTTON_COLORS[p][theme === 'dark' ? 'dark' : 'light'];
-  const aria = (p: SocialProvider) => `${tr('المتابعة مع')} ${PROVIDER_NAME[p]}`;
+  const aria = (p: SocialProvider) => `${tr('auth.continueWith')} ${PROVIDER_NAME[p]}`;
   const apple = (width: number | '100%', height: number, radius: number) => (
     <View style={{ width, height, opacity: disabled ? 0.5 : 1 }} pointerEvents={disabled ? 'none' : 'auto'}>
       <AppleAuthentication.AppleAuthenticationButton

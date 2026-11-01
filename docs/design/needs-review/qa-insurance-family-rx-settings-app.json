@@ -1,0 +1,46 @@
+[
+  {
+    "batch": "qa",
+    "app": "patient-app",
+    "screen": "/family/join",
+    "element": "Relation and display name sent as Arabic text",
+    "file": "patient-app/src/components/family/FamilyAddView.tsx",
+    "line": 155,
+    "found": "[client] POST /family/join sends relation as Arabic text and display_name as a fixed Arabic default; JoinDto also accepts relation_code, which the client never sends, and the joiner is never asked for a name. Reviewer: send relation_code and ask for the name.",
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
+  },
+  {
+    "batch": "qa",
+    "app": "patient-app",
+    "screen": "/orders",
+    "element": "Share with your doctor does not pre-select the result",
+    "file": "patient-app/src/components/orders/ResultsPanel.tsx",
+    "line": 104,
+    "found": "[client] The button opens /consultations/share-report without the result id; the patient picks again.",
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
+  },
+  {
+    "batch": "qa",
+    "app": "patient-app",
+    "screen": "/family/member-health",
+    "element": "Book on their behalf only opens the consultations tab",
+    "file": "patient-app/src/components/family/FamilyMemberView.tsx",
+    "line": 103,
+    "found": "[client] The member is carried in the booking-for context (for_member_id) but the screen lands on the tab root, not on a doctor search; no confirmation shows whom the booking is for until the booking step.",
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
+  },
+  {
+    "batch": "qa",
+    "app": "patient-app",
+    "screen": "/returns/new-request",
+    "element": "Reason sends the translated label",
+    "file": "patient-app/src/components/account/ReturnsViews.tsx",
+    "line": 352,
+    "found": "[client] Reason is a picker now, but setReason(label) stores the localized text and sends it to POST /pharmacy/returns; the list (line 114) shows that text back untranslated. Send the code (the REASONS key) and translate on display.",
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
+  }
+]

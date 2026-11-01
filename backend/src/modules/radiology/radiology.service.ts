@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Optional, ServiceUnavailableException } from '@nestjs/common';
+import { assertPaymentMethod } from '../../common/payment-policy';
 import { assertScanned } from '../storage/pending-scan';
 import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
 import { SearchService } from '../search/search.service';
@@ -283,14 +284,24 @@ export class RadiologyOpsService {
     // Two people: whoever uploaded the files or sent the report for review cannot publish it.
     const handled = (Array.isArray(b.state_history) ? b.state_history : []).some((h: any) => String(h?.by_user_id) === String(user.id) && [RadiologyBookingState.REPORT_DRAFT, RadiologyBookingState.UNDER_REVIEW].includes(h?.to));
     if (handled) throw new ForbiddenException('report_reviewer_must_differ_from_uploader');
-    b.report_status = 'ready';
-    b.report_approved_by = user.id;
-    b.report_approved_at = new Date();
-    (b.state_history = b.state_history || []).push({ from: b.state, to: RadiologyBookingState.REPORT_READY, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'Report approved and published by radiologist' });
-    b.state = RadiologyBookingState.REPORT_READY;
-    if (b.status !== undefined) b.status = RadiologyBookingState.REPORT_READY as any;
-    b.markModified?.('state_history');
-    await b.save();
+    // Through the workflow engine: publishing the report completes the service, and `service.completed` (once) is what credits the
+    // centre's earning. Writing the state directly left the report published but the wallet empty.
+    const fromState = b.state || b.status;
+    await this.engine.apply({
+      kind: 'radiology', entity_id: b.id, from_domain: fromState, to_domain: RadiologyBookingState.REPORT_READY,
+      actor_account_id: user.id, actor_role: user.role, patient_account_id: b.patient_id, reason: 'report_published',
+      mutate: async () => {
+        b.report_status = 'ready';
+        b.report_approved_by = user.id;
+        b.report_approved_at = new Date();
+        (b.state_history = b.state_history || []).push({ from: b.state, to: RadiologyBookingState.REPORT_READY, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'Report approved and published by radiologist' });
+        b.state = RadiologyBookingState.REPORT_READY;
+        if (b.status !== undefined) b.status = RadiologyBookingState.REPORT_READY as any;
+        b.markModified?.('state_history');
+        await b.save();
+        return b;
+      },
+    });
     // MODULE 11: Doctor auto-routing if referral exists
     if (b.referring_doctor_id) {
       this.events.emit('radiology.doctor_notify', { bookingId: id, doctorId: b.referring_doctor_id, patientId: b.patient_id, pdfUrl: b.signed_report_pdf_url, dicomUrl: b.dicom_url });
@@ -351,12 +362,16 @@ export class RadiologyOpsService {
   async rescheduleBooking(id: string, user: any, body: { new_date: string; reason: string }) {
     const b = await this.findBooking(id, user);
     if (!b) throw new NotFoundException();
+    if (![RadiologyBookingState.PENDING, RadiologyBookingState.NEW_REQUEST, RadiologyBookingState.CONFIRMED].includes((b.state || b.status) as any)) throw new BadRequestException('cannot_reschedule');
+    const when = new Date(body?.new_date);
+    if (Number.isNaN(when.getTime()) || when.getTime() < Date.now()) throw new BadRequestException('slot_expired');
     const oldDate = b.scheduled_at;
-    b.scheduled_at = new Date(body.new_date);
+    b.scheduled_at = when;
     b.reschedule_reason = body.reason;
     (b.state_history = b.state_history || []).push({ from: b.state, to: b.state, by_user_id: user.id, by_role: user.role, at: new Date(), note: `Rescheduled from ${oldDate} to ${b.scheduled_at}. Reason: ${body.reason}` });
     await b.save();
     this.events.emit('radiology.rescheduled', { bookingId: id, patientId: b.patient_id, newDate: b.scheduled_at });
+    this.events.emit('booking.rescheduled', { entity_type: 'radiology_booking', entity_id: b.id, actor_role: user.role, patient_account_id: b.patient_id, meta: { new_date: b.scheduled_at } });
     return b;
   }
 
@@ -634,7 +649,7 @@ export class RadiologyOpsService {
     if (location === 'home' && !svc.home_visit_supported) throw new BadRequestException('scan_not_home_eligible');
     const pm = String(body?.payment_method || 'cash').toLowerCase();
     if (!['cash', 'card', 'insurance'].includes(pm)) throw new BadRequestException('invalid payment_method');
-    if (location === 'home' && pm === 'cash') throw new BadRequestException('payment_method_cash_not_allowed_for_home_visit');
+    if (location === 'home') assertPaymentMethod(pm, 'home_visit');
     const documents: any[] = Array.isArray(body?.documents) ? body.documents.map((d: any) => ({ kind: String(d?.kind || ''), url_or_b64: String(d?.url_or_b64 || ''), filename: d?.filename, uploaded_at: new Date() })) : [];
     // Home rule (mirror labs): insurance + home requires uploaded doctor_request OR preauth.
     if (location === 'home' && pm === 'insurance' && !documents.some((d) => d.kind === 'doctor_request' || d.kind === 'preauth')) {
@@ -669,6 +684,8 @@ export class RadiologyOpsService {
       attribution: pickAttribution(body) ?? undefined,
     });
     this.events.emit('radiology.new_booking', { bookingId: booking.id, patientId: user.id });
+    // The provider hears about it too (bell row + push), as for labs and appointments; radiology.new_booking only notifies the patient.
+    await this.engine.announceCreated({ kind: 'radiology', entity_id: booking.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { payment_method: pm } }).catch(() => undefined);
     return booking;
   }
 
@@ -741,6 +758,11 @@ export class RadiologyOpsService {
   async updateInsuranceStatus(id: string, user: any, status: string, reason?: string) {
     const b = await this.findBooking(id, user);
     if (!b) throw new NotFoundException();
+    // A provider can say "rejected" (with the reason the patient is shown) but can never approve their own booking here: an approval,
+    // full or partial, comes from the insurer through the coverage decision (which records the reference and sets the copay), because
+    // approved insurance lets the generic accept pass without the patient paying their share.
+    if (!['rejected', 'pending', 'none'].includes(String(status))) throw new BadRequestException('insurance_approval_requires_coverage_decision');
+    if (status === 'rejected' && !String(reason || '').trim()) throw new BadRequestException('rejection_reason_required');
     b.insurance_status = status;
     if (reason) b.rejection_reason = reason;
     await b.save();
