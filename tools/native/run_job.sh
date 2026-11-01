@@ -65,6 +65,15 @@ def walk(n):
         if v and v not in seen: seen.append(v)
     for c in n.get('children',[]): walk(c)
 walk(tree); print(' | '.join(seen)[:2500])" > "$OUT/screen_${TAG}__${NAME}.txt" || true
+    # what the app and the backend said while this flow ran (the end-of-job tail below covers only the last flow): failed requests, and the app's own JS log
+    {
+      echo "backend, requests that failed (4xx/5xx), last 15:"; grep -E '"status":(4|5)[0-9][0-9]' /tmp/nabd-backend.log 2>/dev/null | tail -n 15 | python3 -c "
+import json,sys
+for l in sys.stdin:
+    try: j=json.loads(l); print(j.get('ts'), j.get('status'), j.get('route'), 'user' if j.get('user_id') else 'no-user')
+    except Exception: print(l[:200].rstrip())"
+      echo "app JS log (ReactNativeJS), last 40:"; adb logcat -d -v time ReactNativeJS:V '*:S' 2>/dev/null | tail -n 40 | cut -c1-300
+    } > "$OUT/diag_${TAG}__${NAME}.txt" 2>&1 || true
   fi
   adb shell am force-stop dev.mobile.maestro 2>/dev/null; adb shell am force-stop dev.mobile.maestro.test 2>/dev/null
 done
@@ -83,6 +92,7 @@ for R in "$OUT"/flow_${TAG}__*.txt; do
     echo "----- app crash log (adb, crash buffer and fatal errors)"
     adb logcat -d -b crash -v time 2>/dev/null | tail -n 40 || true
     adb logcat -d -v time 2>/dev/null | grep -E "FATAL EXCEPTION|ReactNativeJS.*(Error|error)|AndroidRuntime|Process com.patient.nabd .* has died|ANR in com.patient.nabd" | tail -n 30 || true
+    echo "----- what the backend and the app said during this flow"; cat "$OUT/diag_${TAG}__${N}.txt" 2>/dev/null || true
     echo "----- backend log, last requests"; tail -n 25 /tmp/nabd-backend.log 2>/dev/null || true
   fi
 done

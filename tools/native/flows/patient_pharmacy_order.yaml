@@ -22,6 +22,11 @@ appId: com.patient.nabd
 - tapOn:
     id: "med-add-.*"
     enabled: true
+# the add button turns into the quantity stepper once the item is in the cart: tells "the add did not register" from "the cart lost it"
+- extendedWaitUntil:
+    visible:
+      id: "med-stepper-.*"
+    timeout: 10000
 - tapOn:
     id: "cart-button"
 - extendedWaitUntil:
