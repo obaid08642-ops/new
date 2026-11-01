@@ -86,6 +86,6 @@
   },
   "private": true,
   "overrides": {
-    "@xmldom/xmldom": "^0.9.12"
+    "@xmldom/xmldom": "^0.8.15"
   }
 }
