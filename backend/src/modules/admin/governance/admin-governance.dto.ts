@@ -22,6 +22,11 @@ export class UpdateDto {
   @IsOptional()
   @IsNumber()
   commission_insurance?: number;
+
+  /** why the provider's commission changes: required, it goes to the audit trail */
+  @IsDefined()
+  @IsString()
+  reason: string;
 }
 
 export class B2bDecisionDto {
