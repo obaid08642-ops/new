@@ -7,6 +7,11 @@ describe('loginCredentials', () => {
   it('normalizes a local phone to +966', () => {
     expect(loginCredentials('0551234567', 'pw')).toEqual({ phone: '+966551234567', password: 'pw' });
   });
+  it('drops spaces, dashes and brackets so a formatted phone matches the stored +966 number', () => {
+    expect(loginCredentials('055 123-4567', 'pw')).toEqual({ phone: '+966551234567', password: 'pw' });
+    expect(loginCredentials('+966 (55) 123 4567', 'pw')).toEqual({ phone: '+966551234567', password: 'pw' });
+    expect(loginCredentials('00201001234567', 'pw')).toEqual({ phone: '+201001234567', password: 'pw' });
+  });
   it('keeps an international phone', () => {
     expect(loginCredentials('+201001234567', 'pw')).toEqual({ phone: '+201001234567', password: 'pw' });
   });

@@ -8,6 +8,7 @@
  * - Multi-device support
  * - Retry logic
  */
+import { pushChannel } from '../../common/push-channel';
 import {
   Module, Injectable, Controller, Post, Get, Delete, Body, Param, UseGuards, Logger, OnModuleInit,
 } from '@nestjs/common';
@@ -539,7 +540,7 @@ export class PushService implements OnModuleInit {
         token,
         notification: { title, body },
         data: flat,
-        android: { priority: 'high', notification: { sound: 'default', channel_id: data?.type === 'call' ? 'calls' : 'default' } },
+        android: { priority: 'high', notification: { sound: 'default', channel_id: pushChannel(data?.type, data?.channel) } },
         apns: { payload: { aps: { sound: 'default', badge: 1 } } },
       },
     };
@@ -648,7 +649,7 @@ export class PushService implements OnModuleInit {
               data,
               sound: 'default',
               priority,
-              channelId: data?.type === 'call' ? 'calls' : 'default',
+              channelId: pushChannel(data?.type, data?.channel),
               categoryId: data?.type === 'call' ? 'call_actions' : data?.type === 'chat' ? 'chat_actions' : 'default',
               badge: 1,
             });
@@ -727,7 +728,7 @@ export class PushService implements OnModuleInit {
                 to: token,
                 notification: { title, body },
                 data: { ...data, click_action: 'FLUTTER_NOTIFICATION_CLICK' },
-                android: { priority: 'high', notification: { sound: 'default', channel_id: data?.type === 'call' ? 'calls' : 'default' } },
+                android: { priority: 'high', notification: { sound: 'default', channel_id: pushChannel(data?.type, data?.channel) } },
                 apns: { payload: { aps: { sound: 'default', badge: 1 } } },
               }),
             });

@@ -11,6 +11,7 @@
  * 10. Wallet via shared ProviderWalletScreen (governed withdrawals)
  * 11. NursingSettings — profile + schedule + services
  */
+import { runOnce, serverMessage } from '../../utils/singleFlight';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { AppointmentStatus } from '../../types/contracts';
 import {
@@ -148,7 +149,7 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
                </Text>
                ) : null}
                <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.md }}>
-               <NBtn label={AR ? 'قبول' : 'Accept'} style={{ flex: 1 }} onPress={async () => {
+               <NBtn label={AR ? 'قبول' : 'Accept'} style={{ flex: 1 }} onPress={() => runOnce(`accept:${incomingRequest.id}`, async () => {
                try {
                // governed accept (workflow engine; a card visit must be paid first)
                await client.post(`/provider/jobs/nursing/${incomingRequest.id}/accept`, {});
@@ -156,9 +157,10 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
                setIncomingRequest(null);
                fetchJobs();
                } catch (e: any) {
-               show(e.message || 'Error', 'error');
+               show(serverMessage(e, 'Error'), 'error');
+               fetchJobs();
                }
-               }} />
+               })} />
                <NBtn label={AR ? 'رفض' : 'Reject'} variant="danger" style={{ flex: 1 }} onPress={async () => {
                try {
                await client.post(`/provider/jobs/nursing/${incomingRequest.id}/reject`, { reason: 'provider_declined' });
