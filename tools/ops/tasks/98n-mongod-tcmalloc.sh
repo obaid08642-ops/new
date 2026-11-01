@@ -7,7 +7,7 @@
 #     parameter nothing was changed and the task says so. The setting lasts until mongod restarts (it is not written to mongod.conf: a parameter this build rejects would stop mongod from starting).
 #   ROLLBACK=yes: sets it back to ROLLBACK_TO (default 1.0).
 set -u
-APPLY="yes"
+APPLY=""
 ROLLBACK=""
 RATE=${RATE:-5}
 WAIT=${WAIT:-60}

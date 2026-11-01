@@ -3,7 +3,7 @@
 # Writes ONLY finance_config {key:'invoice'}.seller_name (upsert); never touches vat_number, cr_number, address. Prints the old and new value of seller_name only (public data).
 # APPLY=yes writes; otherwise a dry run. ROLLBACK=yes puts back the value printed as "before" in the apply run (OLD_NAME).
 set -u
-APPLY=${APPLY:-yes}; ROLLBACK=${ROLLBACK:-no}; OLD_NAME=${OLD_NAME:-}
+APPLY=${APPLY:-no}; ROLLBACK=${ROLLBACK:-no}; OLD_NAME=${OLD_NAME:-}
 NAME='منصة نبض الطبية'
 DK="sudo -n docker"
 say() { echo "status: invoice-seller: $*"; }

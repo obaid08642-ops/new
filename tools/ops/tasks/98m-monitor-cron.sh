@@ -7,7 +7,7 @@
 #   APPLY=yes: writes /etc/cron.d/nabd-monitor (every 15 minutes) ONLY when no other place already schedules monitor.sh (a second schedule would double every mail). Needs the script on the
 #   host first (91c-host-files). ROLLBACK=yes removes the cron file written here.
 set -u
-APPLY="yes"
+APPLY=""
 TESTMAIL=""
 ROLLBACK=""
 CRON_DIR=${OPS_CRON_DIR:-/etc/cron.d}
