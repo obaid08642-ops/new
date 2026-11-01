@@ -41,12 +41,13 @@ export function ReceiptPaper({ receipt, onDownload, onShare, busy }: { receipt: 
     ]).start();
   }, [reduced, height, slide, appear]);
 
-  const when = fmt.date(receipt.issuedAt, false);
+  const when = fmt.dateTime(receipt.issuedAt);
+  const price = (n: number) => k('pharmacy.price', { n: money(n) });
   const rate = num(Math.round(receipt.vatRate * 100));
   const label = { ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow };
   const value = { ...scale(t, 'meta', 'regular'), color: c.text.primary };
   const row = (name: string, text: string, strong = false) => (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12, ...(strong ? { borderTopWidth: 1, borderTopColor: c.border.hairline, paddingTop: 6 } : {}) }}>
       <Text style={strong ? { ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow } : label}>{name}</Text>
       <Text style={strong ? { ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary } : value}>{text}</Text>
     </View>
@@ -74,9 +75,9 @@ export function ReceiptPaper({ receipt, onDownload, onShare, busy }: { receipt: 
               {when ? row(k('receipt.dateTime'), when) : null}
             </View>
             <View style={dash}>
-              {row(k('receipt.subtotal'), money(receipt.subtotal))}
-              {row(k('receipt.vat', { rate }), money(receipt.vatAmount))}
-              {row(k('receipt.total'), money(receipt.total), true)}
+              {row(k('receipt.subtotal'), price(receipt.subtotal))}
+              {row(k('receipt.vat', { rate }), price(receipt.vatAmount))}
+              {row(k('receipt.total'), price(receipt.total), true)}
             </View>
             {receipt.qr ? (
               <View accessibilityLabel={k('receipt.qr')} style={{ alignSelf: 'center', padding: 10, backgroundColor: light.bg.surface }}>
@@ -87,7 +88,7 @@ export function ReceiptPaper({ receipt, onDownload, onShare, busy }: { receipt: 
           {/* the perforated bottom edge: a row of canvas-coloured diamonds over the paper's lower edge */}
           <View style={{ flexDirection: 'row', height: TOOTH / 2, overflow: 'hidden', backgroundColor: c.bg.surface }}>
             {Array.from({ length: 30 }, (_, i) => (
-              <View key={i} style={{ width: TOOTH, height: TOOTH, marginTop: -TOOTH / 2, backgroundColor: c.bg.canvas, transform: [{ rotate: '45deg' }, { scale: 0.7 }] }} />
+              <View key={i} style={{ width: TOOTH, height: TOOTH, marginTop: -TOOTH / 2, backgroundColor: c.bg.canvas, transform: [{ rotate: '45deg' }, { scale: 0.85 }] }} />
             ))}
           </View>
         </Animated.View>

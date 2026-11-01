@@ -37,7 +37,7 @@ export default function ReceiptScreen() {
   };
   const share = () => {
     if (!receipt) return;
-    Share.share({ message: `${k('receipt.shareTitle', { no: receipt.invoiceNo })}\n${k('receipt.total')}: ${money(receipt.total)} ${receipt.currency}` }).catch(() => undefined);
+    Share.share({ message: `${k('receipt.shareTitle', { no: receipt.invoiceNo })}\n${k('receipt.total')}: ${k('pharmacy.price', { n: money(receipt.total) })}` }).catch(() => undefined);
   };
 
   return (
