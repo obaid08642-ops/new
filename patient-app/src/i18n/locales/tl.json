@@ -4045,5 +4045,22 @@
   "onboarding.language.continue": "Magpatuloy",
   "auth.showPassword": "Ipakita ang password",
   "auth.hidePassword": "Itago ang password",
-  "auth.continueWith": "Magpatuloy gamit ang"
+  "auth.continueWith": "Magpatuloy gamit ang",
+  "receipt.button": "Resibo",
+  "receipt.preparing": "Inihahanda ang resibo",
+  "receipt.failTitle": "Hindi available ang resibo",
+  "receipt.failBody": "Hindi namin mailabas ang resibo ngayon. Subukan muli mamaya o makipag-ugnayan sa support.",
+  "receipt.title": "Mga resibo",
+  "receipt.loadError": "Hindi ma-load ang iyong mga resibo",
+  "receipt.empty": "Wala pang resibo",
+  "receipt.emptyBody": "Lalabas dito ang iyong mga tax invoice pagkatapos mong magbayad ng booking o order.",
+  "receipt.invoice": "Singil",
+  "receipt.cancelled": "Kinansela",
+  "receipt.kind.appointment": "Konsultasyon",
+  "receipt.kind.lab": "Mga lab test",
+  "receipt.kind.radiology": "Radyolohiya",
+  "receipt.kind.nursing": "Nursing sa bahay",
+  "receipt.kind.pharmacy": "Order sa parmasya",
+  "set.receipts": "Mga resibo",
+  "set.receiptsHint": "Ang iyong mga tax invoice bilang PDF"
 }
