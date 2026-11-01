@@ -48,12 +48,12 @@ describe("reading a policy with the embedded fallback", () => {
     expect(await readLegalPolicyOrEmbedded("patient_terms", "en", vi.fn().mockResolvedValue(null))).toBeNull();
   });
 
-  it("when the service is down the embedded current text is shown, marked as the current version", async () => {
+  it("when the service is down the embedded text is shown, marked as the current version while it is still a draft", async () => {
     const read = vi.fn().mockRejectedValue(new PublicDataUnavailableError("legal"));
     const policy = await readLegalPolicyOrEmbedded("patient_terms", "en", read);
     expect(policy?.content?.length).toBeGreaterThan(100);
     expect(policy?.lang).toBe("ar");
-    expect(policy?.current).toBe(true);
+    expect(policy?.current).toBe(EMBEDDED_POLICIES.patient_terms.ar?.draft);   // the final texts (version 1.0, no draft wording) are shown plain
   });
 
   it("any other error is not hidden", async () => {
