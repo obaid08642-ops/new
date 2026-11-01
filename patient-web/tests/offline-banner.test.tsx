@@ -9,7 +9,8 @@ vi.mock("next-intl", () => ({
 }));
 vi.mock("next/navigation", () => ({ usePathname: () => "/ar" }));
 
-const { OfflineBanner, OfflineBannerView } = await import("@/components-next/network/offline-banner");
+const { OfflineBanner } = await import("@/components-next/network/offline-banner");
+const { OfflineBannerView } = await import("@/components-next/network/offline-banner-view");
 
 const root = path.resolve(import.meta.dirname, "..");
 const locales = ["ar", "en", "ur", "hi", "bn", "fil"] as const;
@@ -29,6 +30,13 @@ describe("offline banner", () => {
 
   it("is absent from the server HTML, so the cached page is the same for everyone", () => {
     expect(renderToStaticMarkup(<OfflineBanner renderedAt={Date.now()} />)).toBe("");
+  });
+
+  it("does not pull the Toast (and the icon outlines) into the layout's first load", () => {
+    const banner = readFileSync(path.join(root, "components-next/network/offline-banner.tsx"), "utf8");
+    expect(banner).not.toMatch(/from "@\/components-next\/ui-generated\/components\/Feedback"/);
+    expect(banner).toMatch(/import\("\.\/offline-banner-view"\)/);
+    expect(banner).not.toContain("next/dynamic");
   });
 
   it("is mounted by the locale layout with the layout's render time", () => {

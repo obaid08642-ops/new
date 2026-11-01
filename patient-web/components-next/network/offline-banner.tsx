@@ -3,14 +3,7 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { Toast } from "@/components-next/ui-generated/components/Feedback";
 import { formatLastUpdated, getOnlineSnapshot, getServerOnlineSnapshot, subscribeOnline, validRenderedAt } from "@/lib/network/offline-status";
-
-/** The banner itself, without the browser: what it shows for a given state (tests render this). */
-export function OfflineBannerView({ online, message }: { online: boolean; message: string }) {
-  if (online) return null;
-  return <Toast message={message} tone="warning" testID="offline-banner" />;
-}
 
 /**
  * P15.4: when the browser goes offline, the page stays as it is (the content already on screen is the cached copy) and
@@ -29,9 +22,18 @@ export function OfflineBanner({ renderedAt }: { renderedAt: number }) {
   useEffect(() => {
     if (!online) setNow(Date.now());
   }, [online]);
+  // The Toast (and the icon outlines behind it) is fetched only once the browser is actually offline: a plain import() in an effect,
+  // not the framework's lazy loader, which preloads its chunk on every page.
+  const [View, setView] = useState<null | typeof import("./offline-banner-view").OfflineBannerView>(null);
+  useEffect(() => {
+    if (online) return;
+    let live = true;
+    import("./offline-banner-view").then((m) => { if (live) setView(() => m.OfflineBannerView); }).catch(() => undefined);
+    return () => { live = false; };
+  }, [online]);
 
   if (online || /^\/[a-z]{2,3}\/offline\/?$/.test(pathname ?? "")) return null;
   const at = now === null ? null : validRenderedAt(renderedAt, now);
   const message = at === null || now === null ? t("offline") : t("offlineLastUpdated", { time: formatLastUpdated(locale, at, now) });
-  return <OfflineBannerView online={false} message={message} />;
+  return View ? <View online={false} message={message} /> : null;
 }
