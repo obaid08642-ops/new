@@ -57,3 +57,21 @@ describe('the invoice PDF', () => {
     expect((pdf.toString('latin1').match(/\/Type \/Page\b/g) || []).length).toBeGreaterThanOrEqual(2);
   });
 });
+
+describe('the receipt PDF (not VAT-registered)', () => {
+  const receipt = (over: Record<string, unknown> = {}) => sample({
+    invoice_no: 'RCT-2026-000003', document_kind: 'receipt', title: { ar: 'إيصال دفع', en: 'Payment receipt' }, subtotal: 150, vat_rate: null, vat_amount: null, qr: null,
+    seller: { legal_name: 'منصة نبض الطبية', vat_number: null, cr_number: null, address: null, configured: false }, ...over,
+  });
+  it('renders without a QR or a VAT line, on one page', async () => {
+    const pdf = await renderInvoicePdf({ inv: receipt(), qrPng: null });
+    dump('receipt', pdf);
+    expect(pdf.subarray(0, 5).toString()).toBe('%PDF-');
+    expect((pdf.toString('latin1').match(/\/Type \/Page\b/g) ?? []).length).toBe(1);
+  });
+  it('a refund receipt', async () => {
+    const pdf = await renderInvoicePdf({ inv: receipt({ invoice_no: 'RRC-2026-000001', type: 'credit_note', original_invoice_no: 'RCT-2026-000003', total: -150, subtotal: -150, title: { ar: 'إيصال استرداد', en: 'Refund receipt' }, lines: [{ key: 'refund', qty: 1, unit_price: -150, amount: -150 }], discount: 0 }), qrPng: null });
+    dump('refund-receipt', pdf);
+    expect(pdf.subarray(0, 5).toString()).toBe('%PDF-');
+  });
+});

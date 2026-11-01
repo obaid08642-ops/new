@@ -49,8 +49,12 @@ describe('insurance estimate before booking', () => {
 
 describe('the quote states the home fee and the VAT of every provider row', () => {
   it('home fee, VAT and subtotal come from the server, the VAT inside the total', () => {
-    expect(quoteBreakdown(165, 40, 0.15)).toEqual({ home_fee: 40, vat_rate: 0.15, vat: 21.52, subtotal: 143.48 });
+    // model A: the provider supplies the service, so a lab or radiology quote carries no platform VAT (there is no delivery-fee line)
+    expect(quoteBreakdown(165, 40, 0.15)).toEqual({ home_fee: 40, vat_rate: 0.15, vat: 0, subtotal: 165, tax_registered: true });
     expect(quoteBreakdown(100, undefined, 0.15).home_fee).toBe(0);
-    expect(quoteBreakdown(100, 'x', 0.1)).toMatchObject({ home_fee: 0, vat: 9.09, subtotal: 90.91 });
+    expect(quoteBreakdown(100, 'x', 0.1)).toMatchObject({ home_fee: 0, vat: 0, subtotal: 100 });
+  });
+  it('not VAT-registered (rate null): no VAT, subtotal = total, the home fee unchanged', () => {
+    expect(quoteBreakdown(165, 40, null)).toEqual({ home_fee: 40, vat_rate: null, vat: null, subtotal: 165, tax_registered: false });
   });
 });

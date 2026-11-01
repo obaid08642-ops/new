@@ -6,15 +6,17 @@ import { HomeCareSvc } from '../home-care/home-care.service';
 import { QuotesController } from './quotes.module';
 
 describe('buildQuote', () => {
-  it('the total is the lines less the discount; VAT is inside it', () => {
-    const q = buildQuote({ kind: 'x', lines: [{ key: 'a', amount: 100 }, { key: 'b', amount: 15 }], discount: 0, vat_rate: 0.15, allowed_methods: ['card'] });
-    expect(q).toMatchObject({ total: 115, vat: 15, subtotal: 100, discount: 0, vat_rate: 0.15, currency: 'SAR' });
+  it('the total is the lines less the discount; the only platform VAT is the VAT inside the delivery fee (model A)', () => {
+    const q = buildQuote({ kind: 'x', lines: [{ key: 'a', amount: 100 }, { key: 'delivery_fee', amount: 15 }], discount: 0, vat_rate: 0.15, allowed_methods: ['card'] });
+    expect(q).toMatchObject({ total: 115, vat: 1.96, subtotal: 113.04, discount: 0, vat_rate: 0.15, currency: 'SAR', tax_registered: true });
+    // a service price alone carries no platform VAT
+    expect(buildQuote({ kind: 'x', lines: [{ key: 'a', amount: 115 }], vat_rate: 0.15, allowed_methods: [] })).toMatchObject({ total: 115, vat: 0, subtotal: 115 });
     expect(buildQuote({ kind: 'x', lines: [{ key: 'a', amount: 115 }], discount: 15, vat_rate: 0.15, allowed_methods: [] }).total).toBe(100);
   });
   it('subtotal + vat is always the total, rounded to halalas', () => {
     for (const total of [33.33, 99.99, 1, 250.5]) {
-      const q = buildQuote({ kind: 'x', lines: [{ key: 'a', amount: total }], vat_rate: 0.15, allowed_methods: [] });
-      expect(Math.round((q.subtotal + q.vat) * 100) / 100).toBe(q.total);
+      const q = buildQuote({ kind: 'x', lines: [{ key: 'a', amount: total }, { key: 'delivery_fee', amount: total / 3 }], vat_rate: 0.15, allowed_methods: [] });
+      expect(Math.round((q.subtotal + (q.vat as number)) * 100) / 100).toBe(q.total);
     }
   });
 });
@@ -34,10 +36,11 @@ describe('consultationPricing is the one price the booking charges', () => {
 });
 
 describe('AppointmentsService.quote', () => {
-  function svc(doctor: any, vat?: number) {
+  /** `registered` = a VAT number is on file (finance_config `invoice`): the quote then shows VAT; without it, none. */
+  function svc(doctor: any, vat?: number, registered = true) {
     const s = Object.create(AppointmentsService.prototype) as any;
     s.providerModel = { findOne: jest.fn(async () => doctor) };
-    s.connection = { collection: () => ({ findOne: async () => (vat === undefined ? null : { tax: { vat_percent: vat } }) }) };
+    s.connection = { collection: () => ({ findOne: async (q: any) => (q?.key === 'invoice' ? (registered ? { seller_name: 'منصة نبض الطبية', vat_number: '300000000000003' } : null) : vat === undefined ? null : { tax: { vat_percent: vat } }) }) };
     return s as AppointmentsService;
   }
   const doctor = { id: 'd1', price_clinic: 150, price_home: 200, consultation_modes: ['clinic', 'home'] };
@@ -45,8 +48,13 @@ describe('AppointmentsService.quote', () => {
   it('states every line, VAT and the total a booking would charge', async () => {
     const q: any = await svc(doctor).quote('d1', 'home');
     expect(q.lines.map((l: any) => [l.key, l.amount])).toEqual([['consultation_fee', 200], ['platform_fee', 15], ['home_visit_fee', 100], ['transport_fee', 50]]);
-    expect(q).toMatchObject({ kind: 'consultation', total: 365, vat: 47.61, subtotal: 317.39, allowed_methods: ['card', 'insurance'] });
+    expect(q).toMatchObject({ kind: 'consultation', total: 365, vat: 0, subtotal: 365, allowed_methods: ['card', 'insurance'] }); // the provider supplies the service: no platform VAT on its price or the platform's fees
     expect(q.total).toBe(consultationPricing(doctor, 'home').total_price);
+  });
+  it('not VAT-registered: the same total, no VAT line (vat and vat_rate null, subtotal = total)', async () => {
+    const q: any = await svc(doctor, undefined, false).quote('d1', 'home');
+    expect(q).toMatchObject({ total: 365, subtotal: 365, vat: null, vat_rate: null, tax_registered: false });
+    expect(q.total).toBe(((await svc(doctor).quote('d1', 'home')) as any).total); // prices and charges do not depend on the switch
   });
   it('clinic allows cash; the VAT rate is the finance config\'s', async () => {
     const q: any = await svc(doctor, 10).quote('d1', 'clinic');
@@ -61,16 +69,20 @@ describe('AppointmentsService.quote', () => {
 });
 
 describe('HomeCareSvc.quote', () => {
-  function svc(nursePrice: number | undefined, catalogue = 100) {
+  function svc(nursePrice: number | undefined, catalogue = 100, registered = true) {
     const s = Object.create(HomeCareSvc.prototype) as any;
     const service = { id: 'n1', price: catalogue, booking_modes: undefined };
-    s.svcModel = { findOne: jest.fn(async () => service), db: { collection: () => ({ find: () => ({ toArray: async () => (nursePrice === undefined ? [] : [{ account_id: 'nurse-1', nursing_services: [{ key: 'n1', price: nursePrice }] }]) }), findOne: async () => null }) } };
+    s.svcModel = { findOne: jest.fn(async () => service), db: { collection: () => ({ find: () => ({ toArray: async () => (nursePrice === undefined ? [] : [{ account_id: 'nurse-1', nursing_services: [{ key: 'n1', price: nursePrice }] }]) }), findOne: async (q: any) => (q?.key === 'invoice' && registered ? { seller_name: 'منصة نبض الطبية', vat_number: '300000000000003' } : null) }) } };
     return s as HomeCareSvc;
   }
   it('quotes the catalogue price for one visit, VAT inside, home-visit methods; the booking prices by the same function', async () => {
     const q: any = await svc(undefined, 100).quote({ service_id: 'n1' });
-    expect(q).toMatchObject({ kind: 'nursing', total: 100, vat: 13.04, subtotal: 86.96, sessions_count: 1, provider_id: null, allowed_methods: ['card', 'insurance'] });
+    expect(q).toMatchObject({ kind: 'nursing', total: 100, vat: 0, subtotal: 100, sessions_count: 1, provider_id: null, allowed_methods: ['card', 'insurance'] });
     expect(q.lines).toEqual([{ key: 'visits', amount: 100, qty: 1, unit_price: 100 }]);
+  });
+  it('not VAT-registered: the same total, no VAT line', async () => {
+    const q: any = await svc(undefined, 100, false).quote({ service_id: 'n1' });
+    expect(q).toMatchObject({ total: 100, subtotal: 100, vat: null, vat_rate: null, tax_registered: false });
   });
   it('a service with no price anywhere is refused, not quoted as NaN', async () => {
     await expect(svc(undefined, null as unknown as number).quote({ service_id: 'n1' })).rejects.toThrow('service_price_not_set');

@@ -4048,6 +4048,8 @@
   "set.receiptsHint": "आपके टैक्स इनवॉइस PDF में",
   "receipt.brand": "नब्ज़ प्लस",
   "receipt.simplified": "सरलीकृत कर चालान",
+  "receipt.paymentReceipt": "भुगतान रसीद",
+  "receipt.totalPaid": "कुल भुगतान",
   "receipt.invoiceNo": "चालान क्रमांक",
   "receipt.vatNumber": "वैट पंजीकरण संख्या",
   "receipt.dateTime": "तारीख और समय",

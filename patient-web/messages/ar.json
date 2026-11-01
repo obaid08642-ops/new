@@ -5783,6 +5783,8 @@
     "title": "الإيصال",
     "brand": "نبض بلس",
     "simplified": "فاتورة ضريبية مبسّطة",
+    "paymentReceipt": "إيصال دفع",
+    "totalPaid": "المبلغ المدفوع",
     "invoiceNo": "رقم الفاتورة",
     "vatNumber": "الرقم الضريبي",
     "dateTime": "التاريخ والوقت",

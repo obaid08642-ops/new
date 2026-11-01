@@ -4048,6 +4048,8 @@
   "set.receiptsHint": "PDF আকারে আপনার ট্যাক্স ইনভয়েস",
   "receipt.brand": "নবজ প্লাস",
   "receipt.simplified": "সরলীকৃত কর চালান",
+  "receipt.paymentReceipt": "পেমেন্ট রসিদ",
+  "receipt.totalPaid": "মোট পরিশোধ",
   "receipt.invoiceNo": "চালান নম্বর",
   "receipt.vatNumber": "ভ্যাট নিবন্ধন নম্বর",
   "receipt.dateTime": "তারিখ ও সময়",

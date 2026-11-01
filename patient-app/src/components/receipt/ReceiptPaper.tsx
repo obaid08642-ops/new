@@ -44,6 +44,7 @@ export function ReceiptPaper({ receipt, onDownload, onShare, busy }: { receipt: 
   const when = fmt.dateTime(receipt.issuedAt);
   const price = (n: number) => k('pharmacy.price', { n: money(n) });
   const rate = num(Math.round(receipt.vatRate * 100));
+  const showVat = receipt.taxInvoice && receipt.vatAmount > 0;
   const label = { ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow };
   const value = { ...scale(t, 'meta', 'regular'), color: c.text.primary };
   const row = (name: string, text: string, strong = false) => (
@@ -66,8 +67,8 @@ export function ReceiptPaper({ receipt, onDownload, onShare, busy }: { receipt: 
           <View style={{ backgroundColor: c.bg.surface, padding: 20, gap: 14, borderWidth: 1, borderColor: c.border.hairline }}>
             <View style={{ alignItems: 'center', gap: 4 }}>
               <NabdLogo size={40} label={k('receipt.brand')} />
-              <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, textAlign: 'center' }}>{receipt.seller?.seller ?? k('receipt.brand')}</Text>
-              <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary }}>{k('receipt.simplified')}</Text>
+              <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, textAlign: 'center' }}>{receipt.seller?.seller ?? receipt.sellerName ?? k('receipt.brand')}</Text>
+              <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary }}>{k(receipt.taxInvoice ? 'receipt.simplified' : 'receipt.paymentReceipt')}</Text>
             </View>
             <View style={dash}>
               {receipt.seller ? row(k('receipt.vatNumber'), receipt.seller.vatNumber) : null}
@@ -75,9 +76,10 @@ export function ReceiptPaper({ receipt, onDownload, onShare, busy }: { receipt: 
               {when ? row(k('receipt.dateTime'), when) : null}
             </View>
             <View style={dash}>
-              {row(k('receipt.subtotal'), price(receipt.subtotal))}
-              {row(k('receipt.vat', { rate }), price(receipt.vatAmount))}
-              {row(k('receipt.total'), price(receipt.total), true)}
+              {/* model A: the platform's VAT is only the VAT inside the delivery fee; with none, there is no VAT row */}
+              {showVat ? row(k('receipt.subtotal'), price(receipt.subtotal)) : null}
+              {showVat ? row(k('receipt.vat', { rate }), price(receipt.vatAmount)) : null}
+              {row(k(receipt.taxInvoice ? 'receipt.total' : 'receipt.totalPaid'), price(receipt.total), true)}
             </View>
             {receipt.qr ? (
               <View accessibilityLabel={k('receipt.qr')} style={{ alignSelf: 'center', padding: 10, backgroundColor: light.bg.surface }}>

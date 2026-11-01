@@ -4048,6 +4048,8 @@
   "set.receiptsHint": "آپ کے ٹیکس انوائس PDF میں",
   "receipt.brand": "نبض پلس",
   "receipt.simplified": "سادہ ٹیکس انوائس",
+  "receipt.paymentReceipt": "ادائیگی کی رسید",
+  "receipt.totalPaid": "ادا کی گئی کل رقم",
   "receipt.invoiceNo": "انوائس نمبر",
   "receipt.vatNumber": "ویٹ رجسٹریشن نمبر",
   "receipt.dateTime": "تاریخ اور وقت",

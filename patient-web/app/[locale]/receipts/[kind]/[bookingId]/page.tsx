@@ -37,7 +37,7 @@ export default async function ReceiptPage({ params }: Props) {
   }
   const pdfHref = `/api/patient/billing/invoice/${kind}/${encodeURIComponent(bookingId)}/pdf`;
   const labels = {
-    region: t("title"), simplified: t("simplified"), invoiceNo: t("invoiceNo"), vatNumber: t("vatNumber"), dateTime: t("dateTime"),
+    region: t("title"), simplified: t("simplified"), paymentReceipt: t("paymentReceipt"), totalPaid: t("totalPaid"), invoiceNo: t("invoiceNo"), vatNumber: t("vatNumber"), dateTime: t("dateTime"),
     subtotal: t("subtotal"), vat: t("vat", { rate: formatNumber(locale, Math.round(receipt.vatRate * 100)) }), total: t("total"), qr: t("qr"), downloadPdf: t("downloadPdf"),
     share: t("share"), shareTitle: t("shareTitle", { no: receipt.invoiceNo }), brand: t("brand"),
   };

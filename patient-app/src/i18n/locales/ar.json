@@ -4048,6 +4048,8 @@
   "set.receiptsHint": "فواتيرك الضريبية بصيغة PDF",
   "receipt.brand": "نبض بلس",
   "receipt.simplified": "فاتورة ضريبية مبسّطة",
+  "receipt.paymentReceipt": "إيصال دفع",
+  "receipt.totalPaid": "المبلغ المدفوع",
   "receipt.invoiceNo": "رقم الفاتورة",
   "receipt.vatNumber": "الرقم الضريبي",
   "receipt.dateTime": "التاريخ والوقت",

@@ -7,7 +7,7 @@ import { ReceiptShare } from "./receipt-share";
 import styles from "./receipt.module.css";
 
 export type ReceiptLabels = Readonly<{
-  region: string; simplified: string; invoiceNo: string; vatNumber: string; dateTime: string; subtotal: string; vat: string; total: string;
+  region: string; simplified: string; paymentReceipt: string; totalPaid: string; invoiceNo: string; vatNumber: string; dateTime: string; subtotal: string; vat: string; total: string;
   qr: string; downloadPdf: string; share: string; shareTitle: string; brand: string;
 }>;
 
@@ -18,6 +18,8 @@ export type ReceiptLabels = Readonly<{
  */
 export function ReceiptPaper({ locale, receipt, labels, pdfHref, pageHref }: Readonly<{ locale: string; receipt: ReceiptView; labels: ReceiptLabels; pdfHref: string; pageHref: string }>) {
   const qr = receipt.qr ? qrPath(receipt.qr) : null;
+  // model A: the platform's VAT is only the VAT inside the delivery fee; with none, there is no VAT row
+  const showVat = receipt.taxInvoice && receipt.vatAmount > 0;
   const money = (value: number) => formatPrice(locale, value).text;
   const when = formatDate(locale, receipt.issuedAt, { dateStyle: "medium", timeStyle: "short" });
   return (
@@ -27,8 +29,8 @@ export function ReceiptPaper({ locale, receipt, labels, pdfHref, pageHref }: Rea
         <article className={styles.paper}>
           <header className={styles.head}>
             <NabdMark size={40} />
-            <p className={styles.seller}>{receipt.seller?.seller ?? labels.brand}</p>
-            <p className={styles.kind}>{labels.simplified}</p>
+            <p className={styles.seller}>{receipt.seller?.seller ?? receipt.sellerName ?? labels.brand}</p>
+            <p className={styles.kind}>{receipt.taxInvoice ? labels.simplified : labels.paymentReceipt}</p>
           </header>
           <dl className={styles.meta}>
             {receipt.seller ? (<><dt>{labels.vatNumber}</dt><dd><bdi>{receipt.seller.vatNumber}</bdi></dd></>) : null}
@@ -36,9 +38,9 @@ export function ReceiptPaper({ locale, receipt, labels, pdfHref, pageHref }: Rea
             {when ? (<><dt>{labels.dateTime}</dt><dd><bdi>{when}</bdi></dd></>) : null}
           </dl>
           <dl className={`${styles.meta} ${styles.sums}`}>
-            <dt>{labels.subtotal}</dt><dd><bdi>{money(receipt.subtotal)}</bdi></dd>
-            <dt>{labels.vat}</dt><dd><bdi>{money(receipt.vatAmount)}</bdi></dd>
-            <dt className={styles.totalLabel}>{labels.total}</dt><dd className={styles.totalValue}><bdi>{money(receipt.total)}</bdi></dd>
+            {showVat ? (<><dt>{labels.subtotal}</dt><dd><bdi>{money(receipt.subtotal)}</bdi></dd></>) : null}
+            {showVat ? (<><dt>{labels.vat}</dt><dd><bdi>{money(receipt.vatAmount)}</bdi></dd></>) : null}
+            <dt className={styles.totalLabel}>{receipt.taxInvoice ? labels.total : labels.totalPaid}</dt><dd className={styles.totalValue}><bdi>{money(receipt.total)}</bdi></dd>
           </dl>
           {qr ? (
             <svg className={styles.qr} viewBox={`0 0 ${qr.size} ${qr.size}`} role="img" aria-label={labels.qr} shapeRendering="crispEdges">

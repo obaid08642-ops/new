@@ -25,6 +25,7 @@ import { UserRole } from '../../common/enums';
 import { findCopayTransaction } from '../../common/copay-transaction';
 import { renderInvoicePdf } from './invoice-pdf';
 import { MailModule, MailService } from '../mail/mail.module';
+import { readInvoiceConfig, documentKindOf, platformVatOf, type DocumentKind } from '../../common/tax-registration';
 
 const VAT_RATE = 0.15;
 
@@ -32,7 +33,7 @@ const VAT_RATE = 0.15;
 @Schema({ timestamps: true })
 export class EInvoice {
   @Prop({ default: () => randomUUID() }) id: string;
-  @Prop({ unique: true, index: true }) invoice_no: string; // INV-2026-000001
+  @Prop({ unique: true, index: true }) invoice_no: string; // INV-2026-000001 (tax invoice) | RCT-2026-000001 (receipt)
   @Prop({ index: true }) booking_kind: string;
   @Prop({ index: true }) booking_id: string;
   @Prop({ index: true }) patient_id: string;
@@ -51,8 +52,12 @@ export class EInvoice {
   @Prop({ type: Object }) insured: any; // { insurer, price, covered, copay } when an insurer paid part
   @Prop() seller_name: string;
   @Prop() vat_number: string;
-  /** false while the seller's legal name or VAT number is not configured: the document says so and carries no QR until they are (then it is sealed on the next read). */
+  /** false while the seller's legal name or VAT number is not configured (a receipt). Kept for documents issued before `document_kind`. */
   @Prop({ default: true }) seller_complete: boolean;
+  /** tax_invoice (VAT number configured when issued) | receipt (not VAT-registered: no VAT, no QR). Fixed at issue, never changed later. */
+  @Prop({ enum: ['tax_invoice', 'receipt'], index: true }) document_kind: string;
+  /** What `vat_amount` is VAT on: 'delivery_fee' (Model A: the provider supplies the service, the platform's VAT is only on the delivery fee it charges). Absent on older documents, whose VAT was taken from the whole total. */
+  @Prop() vat_basis: string;
   @Prop() seller_cr_number: string; // commercial registration, from config
   @Prop() seller_address: string;
   /** The provider who delivered the service (a snapshot: name, type, licence number if we hold one); our company stays the issuer. */
@@ -64,6 +69,12 @@ export class EInvoice {
   @Prop() issued_at: Date; // the instant in tag 3 of the QR
 }
 export const EInvoiceSchema = SchemaFactory.createForClass(EInvoice);
+
+/** The title of a document, in both languages. A receipt is never called a tax invoice. */
+export function documentTitle(kind: DocumentKind, refund = false): { ar: string; en: string } {
+  if (kind === 'receipt') return refund ? { ar: 'إيصال استرداد', en: 'Refund receipt' } : { ar: 'إيصال دفع', en: 'Payment receipt' };
+  return refund ? { ar: 'إشعار دائن', en: 'Credit note' } : { ar: 'فاتورة ضريبية مبسطة', en: 'Simplified tax invoice' };
+}
 
 // ── ZATCA TLV QR (Phase 1: tags 1–5) ───────────────────────────────────────
 export function tlvQr(sellerName: string, vatNumber: string, isoDate: string, total: number, vat: number): string {
@@ -101,15 +112,17 @@ export class BillingService {
 
   private get invoices() { return this.conn.model('EInvoice'); }
 
-  private async nextInvoiceNo(): Promise<string> {
+  /** Tax invoices INV-<year>-<n>; receipts have their own series, RCT-<year>-<n>, so a receipt never takes an invoice number. */
+  private async nextInvoiceNo(kind: DocumentKind = 'tax_invoice'): Promise<string> {
     const year = new Date().getFullYear();
+    const prefix = kind === 'receipt' ? 'RCT' : 'INV';
     const counter = await this.conn.collection('counters').findOneAndUpdate(
-      { _id: `invoice-${year}` } as any,
+      { _id: `${kind === 'receipt' ? 'receipt' : 'invoice'}-${year}` } as any,
       { $inc: { seq: 1 } },
       { upsert: true, returnDocument: 'after' },
     );
     const seq = (counter as any)?.seq ?? (counter as any)?.value?.seq ?? 1;
-    return `INV-${year}-${String(seq).padStart(6, '0')}`;
+    return `${prefix}-${year}-${String(seq).padStart(6, '0')}`;
   }
 
   private bookingModelName(kind: string): string {
@@ -158,20 +171,12 @@ export class BillingService {
   /**
    * Who sells: `finance_config` document `{ key: 'invoice', seller_name, vat_number, cr_number, address, support_email, support_phone }`,
    * else `ZATCA_SELLER_NAME`, `ZATCA_VAT_NUMBER`, `ZATCA_CR_NUMBER`, `ZATCA_SELLER_ADDRESS`, `INVOICE_SUPPORT_EMAIL`, `INVOICE_SUPPORT_PHONE`.
-   * The owner supplies them; nothing is invented, so an empty one stays null and the invoice says it is not configured. A tax
-   * invoice needs the legal name and the VAT number; the CR number and the address are shown when they are set.
+   * The owner supplies them; nothing is invented, so an empty one stays null. A tax invoice needs the legal name and the VAT number
+   * (`configured`, see common/tax-registration.ts); without them the document is a payment receipt. The CR number and the address are shown when set.
    */
   async seller(): Promise<{ name: string | null; vatNumber: string | null; crNumber: string | null; address: string | null; supportEmail: string | null; supportPhone: string | null; configured: boolean }> {
-    let cfg: any = null;
-    try { cfg = await this.conn.collection('finance_config').findOne({ key: 'invoice' }); } catch { /* no config store: the environment */ }
-    const pick = (field: string, env: string) => String(cfg?.[field] || process.env[env] || '').trim() || null;
-    const name = pick('seller_name', 'ZATCA_SELLER_NAME');
-    const vatNumber = pick('vat_number', 'ZATCA_VAT_NUMBER');
-    return {
-      name, vatNumber, crNumber: pick('cr_number', 'ZATCA_CR_NUMBER'), address: pick('address', 'ZATCA_SELLER_ADDRESS'),
-      supportEmail: pick('support_email', 'INVOICE_SUPPORT_EMAIL'), supportPhone: pick('support_phone', 'INVOICE_SUPPORT_PHONE'),
-      configured: !!(name && vatNumber),
-    };
+    const c = await readInvoiceConfig(this.conn);
+    return { name: c.name, vatNumber: c.vatNumber, crNumber: c.crNumber, address: c.address, supportEmail: c.supportEmail, supportPhone: c.supportPhone, configured: c.taxRegistered };
   }
 
   /**
@@ -249,14 +254,19 @@ export class BillingService {
     return Math.round((n(booking?.coupon_discount) + n(booking?.loyalty_discount) + n(booking?.discount)) * 100) / 100;
   }
 
-  /** Writes the seller and the QR onto a document that was issued before the seller was configured, once it is. */
+  /**
+   * A document keeps the kind it was issued with: a receipt is never turned into a tax invoice (no VAT number, no QR, no VAT split is
+   * added later). It only picks up the legal name, CR number and address when the owner fills them in after it was issued.
+   */
   private async sealIfPossible(doc: any): Promise<any> {
-    if (!doc || doc.seller_complete !== false) return doc;
-    const seller = await this.seller();
-    if (!seller.configured) return doc;
-    const issuedAt = new Date(doc.issued_at || doc.createdAt || Date.now());
-    const qr_base64 = tlvQr(seller.name as string, seller.vatNumber as string, issuedAt.toISOString(), Number(doc.total), Number(doc.vat_amount));
-    const fill = { seller_name: seller.name, vat_number: seller.vatNumber, seller_cr_number: doc.seller_cr_number ?? seller.crNumber, seller_address: doc.seller_address ?? seller.address, seller_complete: true, qr_base64 };
+    if (!doc || documentKindOf(doc) !== 'receipt') return doc;
+    if (doc.seller_name && doc.seller_cr_number && doc.seller_address) return doc;
+    const c = await readInvoiceConfig(this.conn);
+    const fill: Record<string, unknown> = {};
+    if (!doc.seller_name && c.name) fill.seller_name = c.name;
+    if (!doc.seller_cr_number && c.crNumber) fill.seller_cr_number = c.crNumber;
+    if (!doc.seller_address && c.address) fill.seller_address = c.address;
+    if (!Object.keys(fill).length) return doc;
     await this.invoices.updateOne({ id: doc.id }, { $set: fill });
     return { ...doc, ...fill };
   }
@@ -264,11 +274,15 @@ export class BillingService {
   /**
    * The document as the API returns it. Everything on it was stored from the payment and the booking when it was issued; the client
    * only displays it:
-   *   lines, discount, subtotal, vat_rate, vat_amount, total          the amounts (total = lines - discount; VAT is inside the total)
+   *   lines, discount, subtotal, vat_rate, vat_amount, total          the amounts (total = lines - discount; VAT is inside the total of a tax invoice;
+   *                                                                   on a receipt vat_rate and vat_amount are null and subtotal = total = the amount paid)
    *   payment { method, last4 }                                       from the gateway record, never more than the last 4 digits
    *   insured { insurer, price, insurer_share, patient_share }        when an insurer paid part (total = the patient's share)
-   *   seller { legal_name, vat_number, configured }                   from config; null and configured:false when the owner has not filled them in
-   *   qr { format, payload } and pdf_url                              the ZATCA phase-1 TLV (null while the seller is not configured) and the PDF
+   *   document_kind, title { ar, en }                                 tax_invoice | receipt, fixed when the document was issued
+   *   provider                                                        the seller of the service (Model A); `seller` is the platform issuing it as a third party
+   *   vat_basis                                                       'delivery_fee' (platform VAT is only the VAT in the delivery fee) | 'total' (older documents) | null (receipt)
+   *   seller { legal_name, vat_number, configured }                   from config; vat_number null and configured:false for a receipt
+   *   qr { format, payload } and pdf_url                              the ZATCA phase-1 TLV (null on a receipt, which has no VAT) and the PDF
    *   state, refunded_total, credit_notes                             paid | partially_refunded | refunded, with the credit notes that reverse it
    */
   async present(inv: any): Promise<any> {
@@ -299,10 +313,18 @@ export class BillingService {
     const refunded = money(notes.reduce((sum, n) => sum + Math.abs(Number(n.total) || 0), 0));
     const state = doc.type === 'credit_note' ? 'credit_note' : !notes.length ? 'paid' : refunded >= money(doc.total) - 0.001 ? 'refunded' : 'partially_refunded';
     const ins = doc.insured;
+    const kind = documentKindOf(doc);
+    const receipt = kind === 'receipt';
     return {
       ...doc,
+      document_kind: kind,
+      vat_basis: receipt ? null : doc.vat_basis ?? 'total',
+      title: documentTitle(kind, doc.type === 'credit_note'),
+      vat_rate: receipt ? null : doc.vat_rate,
+      vat_amount: receipt ? null : doc.vat_amount,
+      subtotal: receipt ? doc.total : doc.subtotal,
       insured: ins ? { ...ins, insurer_share: ins.covered, patient_share: ins.copay } : null,
-      seller: { legal_name: doc.seller_name ?? null, vat_number: doc.vat_number ?? null, cr_number: doc.seller_cr_number ?? null, address: doc.seller_address ?? null, configured: doc.seller_complete !== false },
+      seller: { legal_name: doc.seller_name ?? null, vat_number: doc.vat_number ?? null, cr_number: doc.seller_cr_number ?? null, address: doc.seller_address ?? null, configured: !receipt },
       provider: doc.provider ?? null,
       patient_name: doc.patient_name ?? null,
       booking_ref: doc.booking_ref ?? null,
@@ -311,7 +333,7 @@ export class BillingService {
       pdf_url: `/billing/documents/${doc.invoice_no}/pdf`,
       state,
       refunded_total: doc.type === 'credit_note' ? 0 : refunded,
-      credit_notes: notes.map((n) => ({ invoice_no: n.invoice_no, total: n.total, vat_amount: n.vat_amount, issued_at: n.issued_at ?? n.createdAt ?? null })),
+      credit_notes: notes.map((n) => ({ invoice_no: n.invoice_no, total: n.total, vat_amount: documentKindOf(n) === 'receipt' ? null : n.vat_amount, issued_at: n.issued_at ?? n.createdAt ?? null })),
     };
   }
 
@@ -334,18 +356,21 @@ export class BillingService {
 
     const total = await this.paidTotal(kind, booking, bookingId);
     if (!(total > 0)) throw new BadRequestException('booking_not_paid');
-    const rate = await this.vatRate();
-    const vat = Math.round((total - total / (1 + rate)) * 100) / 100; // VAT-inclusive extraction
-    const subtotal = Math.round((total - vat) * 100) / 100;
-
-    // The seller's legal name and VAT number are the owner's to supply. Without them the invoice is still issued so the patient has it,
-    // says the seller is not configured, and carries no QR (a QR with an empty seller would be invalid); it is sealed on a later read.
+    // ONE switch (common/tax-registration.ts): a VAT number on file = a tax invoice (VAT taken out of the total, ZATCA QR); none = a
+    // payment receipt for exactly what was paid (no VAT line, no rate, no QR). The kind is stored and never changes afterwards.
     const seller = await this.seller();
-    const issuedAt = new Date();
-    const qr = seller.configured ? tlvQr(seller.name as string, seller.vatNumber as string, issuedAt.toISOString(), total, vat) : null;
-
+    const documentKind: DocumentKind = seller.configured ? 'tax_invoice' : 'receipt';
+    const rate = documentKind === 'tax_invoice' ? await this.vatRate() : 0;
     const discount = this.discountOf(booking);
     const lines = this.buildLines(kind, booking, discount);
+    // Model A (owner, 2026-11-01): the provider is the supplier of the service and this document is issued by the platform as a third
+    // party. Platform VAT is only the VAT inside the delivery fee it charges; the service price carries none (the commission's VAT is
+    // on the platform → provider commission invoice, not here).
+    const vat = platformVatOf(lines, rate, total);
+    const subtotal = Math.round((total - vat) * 100) / 100;
+    const issuedAt = new Date();
+    const qr = documentKind === 'tax_invoice' ? tlvQr(seller.name as string, seller.vatNumber as string, issuedAt.toISOString(), total, vat) : null;
+
     const bookingPrice = Math.round(Number(booking?.total_price ?? booking?.total ?? booking?.price ?? 0) * 100) / 100;
     const insured = String(booking?.payment_method || '').toLowerCase() === 'insurance' || Number(booking?.insurance_copay) > 0
       ? { insurer: booking?.insurance_provider ?? booking?.insurance?.provider ?? null, price: bookingPrice, covered: Math.max(0, Math.round((bookingPrice - total) * 100) / 100), copay: total }
@@ -357,14 +382,14 @@ export class BillingService {
 
     try {
       const doc = await this.invoices.create({
-        invoice_no: await this.nextInvoiceNo(),
-        type: 'invoice',
+        invoice_no: await this.nextInvoiceNo(documentKind),
+        type: 'invoice', document_kind: documentKind,
         booking_kind: kind,
         booking_id: bookingId,
         patient_id: owner,
-        subtotal, vat_rate: rate, vat_amount: vat, total,
+        subtotal, vat_rate: rate, vat_amount: vat, vat_basis: documentKind === 'tax_invoice' ? 'delivery_fee' : undefined, total,
         qr_base64: qr, lines, payment, insured, discount, provider, patient_name: patientName, booking_ref: bookingRef,
-        seller_name: seller.name, vat_number: seller.vatNumber, seller_cr_number: seller.crNumber, seller_address: seller.address, seller_complete: seller.configured, issued_at: issuedAt,
+        seller_name: seller.name, vat_number: seller.vatNumber, seller_cr_number: seller.crNumber, seller_address: seller.address, seller_complete: documentKind === 'tax_invoice', issued_at: issuedAt,
       });
       return await this.invoices.findOne({ id: doc.id }, { _id: 0, __v: 0 }).lean();
     } catch (e: any) {
@@ -393,27 +418,29 @@ export class BillingService {
       const original: any = await this.invoices.findOne({ booking_kind: kind, booking_id: e.booking_id, status: 'ISSUED', type: { $ne: 'credit_note' } }).lean();
       if (!original) return null;
       const capped = Math.min(amount, Math.round(Number(original.total) * 100) / 100);
-      const rate = Number(original.vat_rate) || VAT_RATE;
-      const vat = -Math.round((capped - capped / (1 + rate)) * 100) / 100;
+      // a refund document has the kind of the document it reverses: a tax invoice gets a credit note (negative VAT, QR), a receipt a refund receipt
+      const docKind = documentKindOf(original);
+      const rate = docKind === 'tax_invoice' ? Number(original.vat_rate) || VAT_RATE : 0;
+      // the VAT of a refund is its share of the VAT on the invoice it reverses (Model A: the VAT in the delivery fee; older invoices: of the whole total)
+      const originalTotal = Math.round(Number(original.total) * 100) / 100;
+      const vat = docKind === 'tax_invoice' && originalTotal > 0 ? -Math.round(Number(original.vat_amount || 0) * (capped / originalTotal) * 100) / 100 : 0;
       const total = -capped;
       const issuedAt = new Date();
-      // the seller of the invoice it reverses, else the configured one; with neither the credit note is still issued, flagged, with no QR
-      const cfgSeller = original.seller_name && original.vat_number ? null : await this.seller();
-      const seller = { name: original.seller_name || cfgSeller?.name || null, vatNumber: original.vat_number || cfgSeller?.vatNumber || null };
-      const sellerComplete = !!(seller.name && seller.vatNumber);
+      const cfgSeller = original.seller_name && (docKind === 'receipt' || original.vat_number) ? null : await this.seller();
+      const seller = { name: original.seller_name || cfgSeller?.name || null, vatNumber: docKind === 'tax_invoice' ? original.vat_number || cfgSeller?.vatNumber || null : null };
       const year = issuedAt.getFullYear();
-      const counter: any = await this.conn.collection('counters').findOneAndUpdate({ _id: `creditnote-${year}` } as any, { $inc: { seq: 1 } }, { upsert: true, returnDocument: 'after' });
+      const counter: any = await this.conn.collection('counters').findOneAndUpdate({ _id: `${docKind === 'receipt' ? 'refundreceipt' : 'creditnote'}-${year}` } as any, { $inc: { seq: 1 } }, { upsert: true, returnDocument: 'after' });
       const seq = counter?.seq ?? counter?.value?.seq ?? 1;
       const doc = await this.invoices.create({
-        invoice_no: `CN-${year}-${String(seq).padStart(6, '0')}`,
-        type: 'credit_note', original_invoice_no: original.invoice_no, refund_ref: e.refund_ref,
+        invoice_no: `${docKind === 'receipt' ? 'RRC' : 'CN'}-${year}-${String(seq).padStart(6, '0')}`,
+        type: 'credit_note', document_kind: docKind, original_invoice_no: original.invoice_no, refund_ref: e.refund_ref,
         booking_kind: kind, booking_id: e.booking_id, patient_id: original.patient_id,
-        subtotal: Math.round((total - vat) * 100) / 100, vat_rate: rate, vat_amount: vat, total,
-        qr_base64: sellerComplete ? tlvQr(seller.name as string, seller.vatNumber as string, issuedAt.toISOString(), total, vat) : null,
+        subtotal: Math.round((total - vat) * 100) / 100, vat_rate: rate, vat_amount: vat, vat_basis: original.vat_basis ?? undefined, total,
+        qr_base64: docKind === 'tax_invoice' && seller.name && seller.vatNumber ? tlvQr(seller.name, seller.vatNumber, issuedAt.toISOString(), total, vat) : null,
         lines: [{ key: 'refund', name_ar: null, name_en: null, qty: 1, unit_price: total, amount: total }],
         payment: original.payment ?? null, insured: null,
         provider: original.provider ?? null, booking_ref: original.booking_ref, seller_cr_number: original.seller_cr_number ?? null, seller_address: original.seller_address ?? null,
-        seller_name: seller.name, vat_number: seller.vatNumber, seller_complete: sellerComplete, issued_at: issuedAt,
+        seller_name: seller.name, vat_number: seller.vatNumber, seller_complete: docKind === 'tax_invoice', issued_at: issuedAt,
       });
       return await this.invoices.findOne({ id: doc.id }, { _id: 0, __v: 0 }).lean();
     } catch (err: any) {
@@ -488,15 +515,22 @@ export class BillingService {
     const u: any = await this.conn.collection('users').findOne({ id: inv.patient_id } as any);
     const email = u?.email;
     if (!email) throw new BadRequestException('no_email_on_profile');
-    const html = `
+    const receipt = documentKindOf(inv) === 'receipt';
+    const html = receipt ? `
+      <div dir="rtl" style="font-family:Arial">
+        <h2>إيصال الدفع من نبض</h2>
+        <p>رقم الإيصال: <b>${inv.invoice_no}</b></p>
+        <p>المبلغ المدفوع: <b>${Number(inv.total).toFixed(2)} ر.س</b></p>
+        <p>يمكنك تحميل الإيصال PDF من التطبيق.</p>
+      </div>` : `
       <div dir="rtl" style="font-family:Arial">
         <h2>فاتورتك من نبض</h2>
         <p>رقم الفاتورة: <b>${inv.invoice_no}</b></p>
         <p>الإجمالي (شامل الضريبة): <b>${Number(inv.total).toFixed(2)} ر.س</b></p>
-        <p>الضريبة (15%): ${Number(inv.vat_amount).toFixed(2)} ر.س</p>
+        <p>الضريبة (${Math.round((Number(inv.vat_rate) || VAT_RATE) * 100)}%): ${Number(inv.vat_amount).toFixed(2)} ر.س</p>
         <p>يمكنك تحميل الفاتورة PDF من التطبيق.</p>
       </div>`;
-    await mail.send(email, `فاتورة نبض ${inv.invoice_no}`, html, `Invoice ${inv.invoice_no} — total ${inv.total} SAR`);
+    await mail.send(email, receipt ? `إيصال نبض ${inv.invoice_no}` : `فاتورة نبض ${inv.invoice_no}`, html, receipt ? `Payment receipt ${inv.invoice_no} — paid ${inv.total} SAR` : `Invoice ${inv.invoice_no} — total ${inv.total} SAR`);
     return { ok: true, emailed_to: email.replace(/(.{2}).*(@.*)/, '$1***$2') };
   }
 }
@@ -595,7 +629,7 @@ export class InvoiceShareService {
     const inv: any = await this.billing.invoiceByNumber(link.invoice_no);
     if (!inv) throw new NotFoundException('link_not_found');
     const presented = await this.billing.present(inv);
-    const keep = ['invoice_no', 'type', 'original_invoice_no', 'issued_at', 'currency', 'lines', 'discount', 'subtotal', 'vat_rate', 'vat_amount', 'total', 'payment', 'insured', 'seller', 'provider', 'state', 'refunded_total', 'credit_notes', 'qr', 'footer'];
+    const keep = ['invoice_no', 'type', 'document_kind', 'title', 'original_invoice_no', 'issued_at', 'currency', 'lines', 'discount', 'subtotal', 'vat_rate', 'vat_amount', 'total', 'payment', 'insured', 'seller', 'provider', 'state', 'refunded_total', 'credit_notes', 'qr', 'footer'];
     const out: Record<string, unknown> = {};
     for (const k of keep) out[k] = presented[k];
     out.booking_ref = presented.booking_ref || String(presented.booking_id || '').slice(0, 8);
