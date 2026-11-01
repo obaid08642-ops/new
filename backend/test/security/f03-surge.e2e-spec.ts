@@ -20,7 +20,7 @@ describe('F03 surge pricing config access control', () => {
   });
 
   it('admin → 2xx', async () => {
-    const res = await post(app, '/api/v1/business-rules/config/surge', tokenFor('admin-1', 'admin'), { multiplier: 1.2 });
+    const res = await post(app, '/api/v1/business-rules/config/surge', tokenFor('admin-1', 'admin'), { multiplier: 1.2, reason: 'security spec surge change' });
     expect([200, 201]).toContain(res.status);
   });
 });

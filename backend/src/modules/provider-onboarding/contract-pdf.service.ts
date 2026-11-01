@@ -1,29 +1,22 @@
-import { isServable } from '../storage/pending-scan';
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { isServable, isUnscanned, isPendingKey } from '../storage/pending-scan';
+import { HttpException, HttpStatus, Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import * as PDFDocument from 'pdfkit';
-import * as fs from 'fs';
-import * as path from 'path';
 import { createHash } from 'crypto';
+import { chunkParagraph, drawBidi, wrapBidi } from '../../common/pdf-bidi';
+import { alignBaselines, registerPdfFonts } from '../../common/pdf-fonts';
+import { PROVIDER_AGREEMENT_KEY, majorOf } from '../legal/provider-agreement';
 
 /**
  * Signed provider contract PDF.
- * Generated at onboarding submit: two-party agreement (Nabd platform + provider)
- * with the drawn e-signature merged into the provider signature area.
- * Stored base64 in `provider_contracts`; visible to admin always, to the provider
- * only when an admin grants visibility.
+ *
+ * The PDF prints exactly what the provider read and accepted: the text and version of the `provider_agreement` policy recorded in
+ * their acceptance (`legal_acceptances`, text kept in `legal_policy_snapshots`), never a text of its own. It carries the acceptance
+ * (who, when, IP, device), the drawn signature and the signing time. It is only built from a clean signature and an acceptance;
+ * every contract is a new stored version and nothing stored is ever changed (see provider-onboarding.module.ts).
  */
 
-// ── RTL helper ──────────────────────────────────────────────────────────────
-// fontkit (inside pdfkit) already applies OpenType Arabic glyph shaping, but it
-// does NOT perform bidi reordering — RTL word order must be reversed manually.
-// We reverse at word level so each Arabic word still shapes correctly.
-function ar(line: string): string {
-  return line.split(' ').reverse().join(' ');
-}
-
-// ── Contract service ─────────────────────────────────────────────────────────
 export interface ContractParty {
   profileId: string;
   accountId?: string | null;
@@ -39,6 +32,36 @@ export interface ContractParty {
   signatureUrl?: string;
   email?: string;
   phone?: string;
+  /** The account holder's own name (the signer name is typed on the form). */
+  accountName?: string;
+}
+
+/** The text and the acceptance a contract is made from. */
+export interface ContractAgreement {
+  policy: { key: string; version: string; title_ar: string | null; title_en: string | null; content_ar: string; content_en: string; content_sha256_ar: string; content_sha256_en: string };
+  acceptance: { id: string; version: string; accepted_at: Date; ip: string | null; device: string | null; platform: string | null; user_agent: string | null };
+}
+
+export interface ContractMeta { contractId: string; versionNo: number; signedAt: Date }
+export interface ContractSignature { bytes: Buffer; sha256: string }
+
+const typed = (status: number, code: string, extra: Record<string, unknown> = {}) => new HttpException({ statusCode: status, message: code, code, ...extra }, status);
+
+/** The signature is still being scanned: nothing is signed yet, the app asks again in a minute. */
+export const signaturePendingScan = () => typed(HttpStatus.LOCKED, 'signature_pending_scan', { retry_after_seconds: 60 });
+export const signatureUnusable = () => typed(HttpStatus.BAD_REQUEST, 'signature_unusable');
+export const agreementNotPublished = () => typed(HttpStatus.BAD_REQUEST, 'provider_agreement_not_published');
+export const agreementNotAccepted = (version?: string) => typed(HttpStatus.CONFLICT, 'provider_agreement_not_accepted', { policy_key: PROVIDER_AGREEMENT_KEY, version: version ?? null });
+export const agreementTextUnavailable = () => typed(HttpStatus.CONFLICT, 'provider_agreement_text_unavailable');
+
+/**
+ * One line of a policy written in Markdown (the legal texts in docs/legal are): `# Title` is a heading, `**bold**` and `__bold__`
+ * lose their markers, `- item` gets a bullet. The words are never changed; a plain-text policy passes through as it is.
+ */
+export function policyLine(raw: string): { text: string; heading: boolean } {
+  const h = /^\s{0,3}#{1,6}\s+(.*)$/.exec(raw);
+  const body = (h ? h[1] : raw).replace(/(\*\*|__)/g, '').replace(/^\s*[-*]\s+/, '\u2022 ');
+  return { text: body.trimEnd(), heading: !!h };
 }
 
 @Injectable()
@@ -47,34 +70,50 @@ export class ContractPdfService {
 
   constructor(@InjectConnection() private readonly conn: Connection) {}
 
-  private fontPath(name: string): string | null {
-    const candidates = [
-      path.join(__dirname, '..', '..', 'assets', 'fonts', name), // dist/assets/fonts (nest assets copy)
-      path.join(process.cwd(), 'dist', 'assets', 'fonts', name),
-      path.join(process.cwd(), 'src', 'assets', 'fonts', name), // ts-node / tests
-    ];
-    for (const p of candidates) if (fs.existsSync(p) && this.isValidFont(p)) return p;
-    return null;
+  /**
+   * The published agreement and the provider's latest acceptance of it. The accepted version's own text is read from the stored
+   * snapshot; when the accepted version is still the current one the policy row itself is used (and kept as a snapshot).
+   */
+  async loadAgreement(userId: string): Promise<ContractAgreement> {
+    const policy: any = await this.conn.collection('legal_policies').findOne({ key: PROVIDER_AGREEMENT_KEY });
+    if (!policy || !String(policy.content_ar || policy.content_en || '').trim()) throw agreementNotPublished();
+    const rows: any[] = await this.conn.collection('legal_acceptances')
+      .find({ user_id: userId, policy_key: PROVIDER_AGREEMENT_KEY }).sort({ timestamp: -1 }).limit(20).toArray();
+    // an acceptance holds for every minor version of the same major version; a new major asks again
+    const acc = rows.find((r) => majorOf(r.version) === majorOf(policy.version));
+    if (!acc) throw agreementNotAccepted(policy.version);
+    let snap: any = await this.conn.collection('legal_policy_snapshots').findOne({ key: PROVIDER_AGREEMENT_KEY, version: acc.version });
+    if (!snap && acc.version === policy.version) snap = policy; // accepted before snapshots existed, and not edited since
+    if (!snap) throw agreementTextUnavailable();
+    const sha = (t: unknown) => createHash('sha256').update(String(t ?? '')).digest('hex');
+    return {
+      policy: {
+        key: PROVIDER_AGREEMENT_KEY, version: String(acc.version), title_ar: snap.title_ar ?? null, title_en: snap.title_en ?? null,
+        content_ar: String(snap.content_ar ?? ''), content_en: String(snap.content_en ?? ''),
+        content_sha256_ar: snap.content_sha256_ar || sha(snap.content_ar), content_sha256_en: snap.content_sha256_en || sha(snap.content_en),
+      },
+      acceptance: {
+        id: String(acc._id), version: String(acc.version), accepted_at: acc.timestamp, ip: acc.ip ?? null, device: acc.device ?? null,
+        platform: acc.platform ?? null, user_agent: acc.user_agent ?? null,
+      },
+    };
   }
 
   /**
-   * Guard against corrupt font files (e.g. an HTML error page saved as .ttf —
-   * Amiri-Bold.ttf once contained the 14-byte text "404: Not Found", which made
-   * fontkit throw "Unknown font format" and silently broke contract generation).
+   * The signature image, only from a clean scan. A signature still in the scan queue is 423 `signature_pending_scan` (no contract is
+   * made yet); a missing, infected or unreadable one is 400 `signature_unusable`. There is no contract without a signature.
    */
-  private isValidFont(p: string): boolean {
-    try {
-      const stat = fs.statSync(p);
-      if (stat.size < 1024) return false; // real TTF/OTF fonts are far larger
-      const fd = fs.openSync(p, 'r');
-      const head = Buffer.alloc(4);
-      fs.readSync(fd, head, 0, 4, 0);
-      fs.closeSync(fd);
-      const sig = head.toString('latin1');
-      return head.readUInt32BE(0) === 0x00010000 || sig === 'OTTO' || sig === 'true' || sig === 'ttcf';
-    } catch {
-      return false;
+  async resolveSignature(url?: string | null): Promise<ContractSignature> {
+    if (!url) throw signatureUnusable();
+    if (!url.startsWith('data:') && !/^https?:\/\//i.test(url) && url.length <= 256) {
+      const obj: any = await this.conn.collection('storage_objects').findOne({ id: { $eq: url }, deleted: { $ne: true } });
+      if (!obj) throw signatureUnusable();
+      if (isUnscanned(obj.scan_status) || (isPendingKey(obj.external_key) && obj.scan_status !== 'infected')) throw signaturePendingScan();
+      if (!isServable(obj)) throw signatureUnusable();
     }
+    const bytes = await this.loadSignature(url);
+    if (!bytes || !bytes.length) throw signatureUnusable();
+    return { bytes, sha256: createHash('sha256').update(bytes).digest('hex') };
   }
 
   private async readBoundedResponse(response: Response): Promise<Buffer | null> {
@@ -159,114 +198,105 @@ export class ContractPdfService {
     return null;
   }
 
-  async generate(party: ContractParty): Promise<{ pdf: Buffer; sha256: string }> {
-    const sig = await this.loadSignature(party.signatureUrl);
+
+  /**
+   * Builds the PDF. Returns the full SHA-256 of the FINAL bytes (the hash cannot be printed in the document it hashes; it is stored
+   * with the row and shown beside it). The same inputs always give a document of the same text; only the PDF's own ids differ.
+   */
+  async generate(party: ContractParty, agreement: ContractAgreement, signature: ContractSignature, meta: ContractMeta): Promise<{ pdf: Buffer; sha256: string }> {
     const Doc: any = (PDFDocument as any).default || PDFDocument;
-    const doc = new Doc({ size: 'A4', margin: 50, info: { Title: 'Nabd Provider Partnership Agreement' } });
+    const doc = new Doc({
+      size: 'A4', margin: 50, bufferPages: true,
+      info: { Title: 'Nabd Provider Partnership Agreement', Subject: `contract ${meta.contractId} v${meta.versionNo}; agreement ${agreement.policy.version}` },
+    });
     const chunks: Buffer[] = [];
     doc.on('data', (c: Buffer) => chunks.push(c));
     const done = new Promise<Buffer>((resolve) => doc.on('end', () => resolve(Buffer.concat(chunks))));
 
-    const fontRegular = this.fontPath('Amiri-Regular.ttf') || this.fontPath('NotoNaskhArabic-Regular.ttf');
-    const fontBold = this.fontPath('Amiri-Bold.ttf') || this.fontPath('NotoNaskhArabic-Bold.ttf');
-    if (fontRegular) doc.registerFont('ar', fontRegular);
-    if (fontBold) doc.registerFont('ar-b', fontBold);
-    const F = fontRegular ? 'ar' : 'Helvetica';
-    const FB = fontBold ? 'ar-b' : 'Helvetica-Bold';
-
-    const right = (txt: string, opts: any = {}) => doc.text(txt, { align: 'right', ...opts });
+    const fonts = registerPdfFonts(doc);
+    if (!fonts.arabic) { doc.end(); throw new ServiceUnavailableException('pdf_arabic_font_unavailable'); }
+    const pdfDoc = alignBaselines(doc, fonts);
+    const X = 50;
     const W = doc.page.width - 100;
+    const bottom = doc.page.height - 70;
+    let y = 50;
+    const ink = '#111111';
+    const muted = '#555555';
+    const teal = '#0f766e';
+    const when = (d: Date | string) => new Date(d).toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
+    const room = (h: number) => { if (y + h > bottom) { doc.addPage(); y = 50; } };
+    /** One logical paragraph: wrapped in reading order, each line ordered for display. */
+    const para = (text: string, o: { size?: number; bold?: boolean; color?: string; gap?: number } = {}) => {
+      const size = o.size ?? 10.5;
+      const f = o.bold ? fonts.bold : fonts.reg;
+      doc.fillColor(o.color ?? ink);
+      for (const line of chunkParagraph(text).flatMap((part) => wrapBidi(pdfDoc, part, W, { fonts: f, size }))) {
+        room(size * 1.55);
+        drawBidi(pdfDoc, line, X, y, W, { fonts: f, size });
+        y += size * 1.55;
+      }
+      y += o.gap ?? 0;
+    };
+    const rule = () => { room(12); doc.moveTo(X, y).lineTo(X + W, y).strokeColor(teal).lineWidth(1.2).stroke(); y += 10; };
 
     // ── Header ──
-    doc.font(FB).fontSize(18).fillColor('#0f766e');
-    right(ar('عقد شراكة مزود خدمة') + '  —  ' + ar('منصة نبض'));
-    doc.font(FB).fontSize(12).fillColor('#111');
-    doc.text('Nabd Platform — Provider Partnership Agreement', { align: 'right' });
-    doc.moveDown(0.5);
-    doc.font(F).fontSize(9).fillColor('#555');
-    right(ar(`رقم العقد: ${party.profileId}`));
-    right(ar(`تاريخ الإبرام: ${new Date().toISOString().slice(0, 10)}`));
-    doc.moveDown(1);
-    doc.moveTo(50, doc.y).lineTo(50 + W, doc.y).strokeColor('#0f766e').lineWidth(1.5).stroke();
-    doc.moveDown(1);
+    para('عقد شراكة مزود خدمة — منصة نبض', { size: 18, bold: true, color: teal, gap: 2 });
+    para(`رقم العقد: ${meta.contractId} · الإصدار ${meta.versionNo}`, { size: 9, color: muted });
+    para(`نص الاتفاقية: ${agreement.policy.title_ar || agreement.policy.key} — الإصدار ${agreement.policy.version}`, { size: 9, color: muted, gap: 4 });
+    rule();
 
     // ── Parties ──
-    doc.font(FB).fontSize(13).fillColor('#111');
-    right(ar('أطراف الاتفاق'));
-    doc.moveDown(0.4);
-    doc.font(F).fontSize(11);
-    right(ar('الطرف الأول: منصة نبض الصحية (المشغّل المرخص للمنصة).'));
-    right(ar(`الطرف الثاني: ${party.nameAr || party.nameEn || '—'} — مزود خدمة من فئة (${party.providerType}).`));
-    if (party.licenseNumber) right(ar(`رقم الترخيص: ${party.licenseNumber}`));
-    if (party.crNumber) right(ar(`السجل التجاري: ${party.crNumber}`));
-    if (party.city) right(ar(`المدينة: ${party.city}`));
-    if (party.email) right(ar(`البريد الإلكتروني: ${party.email}`));
-    if (party.phone) right(ar(`الجوال: ${party.phone}`));
-    doc.moveDown(1);
+    para('أطراف الاتفاق', { size: 13, bold: true, gap: 2 });
+    para('الطرف الأول: منصة نبض الصحية.');
+    para(`الطرف الثاني: ${party.nameAr || party.nameEn || '—'} — مزود خدمة من فئة (${party.providerType}).`);
+    if (party.licenseNumber) para(`رقم الترخيص: ${party.licenseNumber}`);
+    if (party.crNumber) para(`السجل التجاري: ${party.crNumber}`);
+    if (party.city) para(`المدينة: ${party.city}`);
+    if (party.email) para(`البريد الإلكتروني: ${party.email}`);
+    if (party.phone) para(`الجوال: ${party.phone}`);
+    y += 6; rule();
 
-    // ── Terms ──
-    doc.font(FB).fontSize(13);
-    right(ar('البنود الأساسية'));
-    doc.moveDown(0.4);
-    doc.font(F).fontSize(10.5);
-    const terms = [
-      'يلتزم الطرف الثاني بصحة جميع البيانات والتراخيص والمستندات المقدمة عبر المنصة، ويتحمل كامل المسؤولية النظامية عن أي بيانات غير صحيحة، ويخلي الطرف الأول مسؤوليته الكاملة عن أي ضرر ينشأ عن بيانات خاطئة.',
-      'تخضع العلاقة بين الطرفين لأنظمة المملكة العربية السعودية (بما فيها نظام مزاولة المهن الصحية، ونظام المؤسسات الصحية الخاصة، ونظام مكافحة الغش التجاري)، ويلتزم المزود بضوابط وزارة الصحة وهيئة التخصصات الصحية والهيئة العامة للغذاء والدواء حسب فئته.',
-      'تُعرض خدمات المزود على المنصة بعد اعتماد الإدارة، ويحق للإدارة إيقاف الحساب فوراً عند مخالفة الشروط أو ورود بلاغات تمس سلامة المرضى، دون الإخلال بحقوق الطرف الأول في المطالبة بالتعويض.',
-      'تُسوّى المستحقات المالية وفق سياسة المحفظة والعمولة المعتمدة داخل المنصة (بعد خصم العمولة المتفق عليها والضرائب المستحقة)، وتُحوّل إلى الحساب البنكي الموثق لدى المزود خلال المدة المعتمدة، ولا تتحمل المنصة أي التزام بدفع مبالغ لم تُستكمل خدمتها فعلياً.',
-      'يلتزم الطرفان بالسرية التامة لبيانات المرضى وفق نظام حماية البيانات الشخصية (PDPL) ولائحته التنفيذية، ويُحظر على الطرف الثاني استخدام بيانات المرضى لأي غرض تسويقي أو مشاركتها مع الغير دون موافقة صريحة ومسبقة، ويتحمل الطرف الثاني كامل الجزاءات النظامية المترتبة على أي تسريب.',
-      'يقر الطرف الثاني بأن المنصة وسيط تقني فقط وليست مقدم خدمة طبية، وأن المسؤولية الطبية الكاملة (التشخيص، الوصفة، الجرعة، المتابعة) تقع على المزود وممارسيه المرخصين، وتخلي المنصة مسؤوليتها من أي خطأ طبي أو مضاعفات علاجية.',
-      'يلتزم الطرف الثاني بمستوى الخدمة المتفق عليه (SLA): الاستجابة للطلبات خلال المدد المعتمدة في المنصة، وفي حال التجاوز المتكرر يحق للإدارة تخفيض أولوية ظهوره أو إيقاف حسابه مؤقتاً.',
-      'يلتزم المزود بعدم التعامل المباشر مع مرضى المنصة خارجها لغرض الالتفاف على العمولة، ويعد ذلك إخلالاً جوهرياً يجيز فسخ العقد فوراً والمطالبة بالتعويض.',
-      'فسخ العقد: يجوز لأي طرف فسخ العقد بإشعار كتابي قبل (30) يوماً، ويستمر الطرف الثاني في تنفيذ الطلبات الجارية حتى إتمامها، وتستحق المستحقات عن الخدمات المنجزة فعلاً فقط.',
-      'تسوية النزاعات: تخضع لأحكام الأنظمة السعودية، ويتم حلها ودياً أولاً، وعند التعذر تُحال إلى المحكمة المختصة في مدينة الرياض، وتكون اللغة العربية هي المعتمدة في تفسير العقد.',
-      'التعديلات: يحق للطرف الأول تحديث بنود العقد عند تغير الأنظمة أو السياسات، على أن يُشعر الطرف الثاني قبل (15) يوماً، ويعد الاستمرار في تقديم الخدمات قبولاً ضمنياً بالتعديل.',
-      'يُعد التوقيع الإلكتروني المدرج في هذا العقد موافقة نهائية وملزمة من الطرف الثاني على جميع البنود أعلاه، ويحتفظ الطرف الأول ببصمة التحقق (SHA-256) كدليل سلامة على المستند.',
-    ];
-    terms.forEach((t, i) => { right(ar(`${i + 1}. ${t}`)); doc.moveDown(0.35); });
-    doc.moveDown(0.8);
-
-    // ── Signature area (two parties) ──
-    doc.font(FB).fontSize(13).fillColor('#111');
-    right(ar('التوقيع والإقرار'));
-    doc.moveDown(0.6);
-    const topY = doc.y;
-    const colW = W / 2 - 10;
-    // Party 2 (provider) — right column
-    doc.font(FB).fontSize(11);
-    doc.text(ar('توقيع الطرف الثاني (المزود)'), 50 + W - colW, topY, { width: colW, align: 'right' });
-    doc.font(F).fontSize(10).fillColor('#333');
-    doc.text(ar(`الاسم: ${party.signerName || '—'} (${party.signerRole || 'مفوّض'})`), 50 + W - colW, topY + 22, { width: colW, align: 'right' });
-    if (sig) {
-      try {
-        doc.image(sig, 50 + W - colW / 2 - 60, topY + 42, { fit: [120, 60] });
-      } catch {
-        // A corrupt upload is not a signature: ask the provider to sign again instead of a 500.
-        throw new BadRequestException('signature_image_invalid');
-      }
-    } else {
-      doc.font(F).fontSize(10).fillColor('#b91c1c');
-      doc.text(ar('(لم يُرفق توقيع إلكتروني)'), 50 + W - colW, topY + 46, { width: colW, align: 'right' });
+    // ── The text the provider read and accepted, exactly as published ──
+    para('نص الاتفاقية', { size: 13, bold: true, gap: 2 });
+    const body = agreement.policy.content_ar || agreement.policy.content_en;
+    for (const raw of body.split(/\r?\n/)) {
+      if (!raw.trim()) { y += 5; continue; }
+      const { text, heading } = policyLine(raw);
+      para(text, { size: heading ? 12 : 10.5, bold: heading, gap: heading ? 2 : 1.5 });
     }
-    // Party 1 (platform) — left column
-    doc.font(FB).fontSize(11).fillColor('#111');
-    doc.text(ar('توقيع الطرف الأول (المنصة)'), 50, topY, { width: colW, align: 'right' });
-    doc.font(F).fontSize(10).fillColor('#333');
-    doc.text(ar('منصة نبض الصحية — الإدارة القانونية'), 50, topY + 22, { width: colW, align: 'right' });
-    doc.font(F).fontSize(9).fillColor('#0f766e');
-    doc.text('NABD PLATFORM — DIGITALLY EXECUTED', 50, topY + 46, { width: colW, align: 'right' });
-    doc.moveDown(6);
+    y += 6; rule();
 
-    // ── Footer / integrity ──
-    doc.y = Math.max(doc.y, topY + 120);
-    const preliminary = Buffer.concat(chunks);
-    const sha = createHash('sha256').update(preliminary).update(party.profileId).digest('hex').slice(0, 24);
-    doc.font(F).fontSize(8).fillColor('#777');
-    right(ar(`بصمة التحقق من سلامة المستند: ${sha}`));
-    right(ar('هذا المستند محفوظ لدى منصة نبض ولا يُتاح إلا للإدارة المخولة، ويمكن إتاحته للمزود بقرار إداري.'));
+    // ── Acceptance and signature ──
+    room(190);
+    para('الموافقة والتوقيع', { size: 13, bold: true, gap: 2 });
+    const a = agreement.acceptance;
+    para(`وافق على نص الاتفاقية (الإصدار ${a.version}) بتاريخ: ${when(a.accepted_at)}`, { size: 10 });
+    para(`عنوان الشبكة (IP): ${a.ip || '—'} · الجهاز: ${a.device || '—'} · المنصة: ${a.platform || '—'}`, { size: 9, color: muted });
+    if (a.user_agent) para(`المتصفح/التطبيق: ${a.user_agent}`, { size: 8, color: muted });
+    para(`اسم الموقّع: ${party.signerName || '—'}${party.signerRole ? ` (${party.signerRole})` : ''}`, { size: 10.5, bold: true });
+    if (party.accountName) para(`صاحب الحساب: ${party.accountName}`, { size: 9, color: muted });
+    para(`تاريخ ووقت التوقيع: ${when(meta.signedAt)}`, { size: 10.5, bold: true, gap: 4 });
+    room(80);
+    try {
+      doc.image(signature.bytes, X + W - 150, y, { fit: [140, 64] });
+    } catch {
+      // A corrupt upload is not a signature: the provider signs again instead of getting a contract without one.
+      doc.end();
+      throw signatureUnusable();
+    }
+    y += 70;
+
+    // ── Page footer: the contract and the agreement version on every page ──
+    const range = doc.bufferedPageRange();
+    for (let i = 0; i < range.count; i++) {
+      doc.switchToPage(range.start + i);
+      doc.page.margins.bottom = 0;
+      doc.fillColor(muted);
+      drawBidi(pdfDoc, `${meta.contractId} · v${meta.versionNo} · ${agreement.policy.key} ${agreement.policy.version} · ${i + 1}/${range.count}`, X, doc.page.height - 38, W, { fonts: fonts.reg, size: 8, align: 'left', base: 'ltr' });
+    }
 
     doc.end();
     const pdf = await done;
-    return { pdf, sha256: sha };
+    return { pdf, sha256: createHash('sha256').update(pdf).digest('hex') };
   }
 }

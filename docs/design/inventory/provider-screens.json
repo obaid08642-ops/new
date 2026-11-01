@@ -1,5 +1,5 @@
 {
- "commit": "b87b63144",
+ "commit": "e3e609388",
  "routes": [
   {
    "app": "provider-app",
@@ -50,7 +50,7 @@
      "backend": "backend/src/modules/referral/referral.controller.ts:18"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -105,7 +105,7 @@
      "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:293"
     }
    ],
-   "files": 9,
+   "files": 10,
    "unresolved": 0,
    "navIssues": []
   },
@@ -164,7 +164,7 @@
      "backend": "backend/src/modules/provider-production/provider-production.module.ts:677"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -243,7 +243,7 @@
      "backend": "backend/src/modules/provider-production/provider-production.module.ts:664"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -278,7 +278,7 @@
      "backend": "backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:154"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -323,7 +323,7 @@
      "backend": "backend/src/modules/labs/labs.controller.ts:188"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -358,7 +358,7 @@
      "backend": "backend/src/modules/home-care/home-care-compat.module.ts:415"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -393,7 +393,7 @@
      "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:293"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -468,7 +468,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:567"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -527,7 +527,7 @@
      "backend": "backend/src/modules/provider-production/provider-production.module.ts:675"
     }
    ],
-   "files": 9,
+   "files": 10,
    "unresolved": 0,
    "navIssues": []
   },
@@ -586,7 +586,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:919"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -657,7 +657,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:815"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -702,7 +702,7 @@
      "backend": "backend/src/modules/provider-production/provider-production.module.ts:671"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 1,
    "navIssues": []
   },
@@ -752,7 +752,7 @@
      "line": 34,
      "file": "provider-app/src/screens/shared/blueprint/SubscriptionsAdsScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:550"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:559"
     },
     {
      "method": "POST",
@@ -765,7 +765,7 @@
      "backend": "backend/src/modules/provider-production/provider-production.module.ts:677"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -837,7 +837,7 @@
      "line": 66,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:176"
+     "backend": "backend/src/modules/legal/legal.module.ts:195"
     },
     {
      "method": "GET",
@@ -847,7 +847,7 @@
      "line": 47,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:166"
+     "backend": "backend/src/modules/legal/legal.module.ts:185"
     },
     {
      "method": "GET",
@@ -887,7 +887,7 @@
      "line": 58,
      "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:569"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:578"
     },
     {
      "method": "POST",
@@ -897,7 +897,7 @@
      "line": 27,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:547"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:556"
     },
     {
      "method": "POST",
@@ -907,7 +907,7 @@
      "line": 123,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:553"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:562"
     },
     {
      "method": "POST",
@@ -917,7 +917,7 @@
      "line": 129,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:557"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:566"
     },
     {
      "method": "POST",
@@ -927,7 +927,7 @@
      "line": 135,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:561"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:570"
     },
     {
      "method": "POST",
@@ -980,7 +980,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 34,
+   "files": 35,
    "unresolved": 1,
    "navIssues": []
   },
@@ -1052,7 +1052,7 @@
      "line": 66,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:176"
+     "backend": "backend/src/modules/legal/legal.module.ts:195"
     },
     {
      "method": "GET",
@@ -1062,7 +1062,7 @@
      "line": 47,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:166"
+     "backend": "backend/src/modules/legal/legal.module.ts:185"
     },
     {
      "method": "GET",
@@ -1102,7 +1102,7 @@
      "line": 58,
      "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:569"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:578"
     },
     {
      "method": "POST",
@@ -1112,7 +1112,7 @@
      "line": 27,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:547"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:556"
     },
     {
      "method": "POST",
@@ -1122,7 +1122,7 @@
      "line": 123,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:553"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:562"
     },
     {
      "method": "POST",
@@ -1132,7 +1132,7 @@
      "line": 129,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:557"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:566"
     },
     {
      "method": "POST",
@@ -1142,7 +1142,7 @@
      "line": 135,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:561"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:570"
     },
     {
      "method": "POST",
@@ -1195,7 +1195,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 34,
+   "files": 35,
    "unresolved": 1,
    "navIssues": []
   },
@@ -1323,7 +1323,7 @@
      "line": 66,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:176"
+     "backend": "backend/src/modules/legal/legal.module.ts:195"
     },
     {
      "method": "GET",
@@ -1333,7 +1333,7 @@
      "line": 47,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:166"
+     "backend": "backend/src/modules/legal/legal.module.ts:185"
     },
     {
      "method": "GET",
@@ -1373,7 +1373,7 @@
      "line": 58,
      "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:569"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:578"
     },
     {
      "method": "POST",
@@ -1383,7 +1383,7 @@
      "line": 27,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:547"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:556"
     },
     {
      "method": "POST",
@@ -1393,7 +1393,7 @@
      "line": 123,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:553"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:562"
     },
     {
      "method": "POST",
@@ -1403,7 +1403,7 @@
      "line": 129,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:557"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:566"
     },
     {
      "method": "POST",
@@ -1413,7 +1413,7 @@
      "line": 135,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:561"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:570"
     },
     {
      "method": "POST",
@@ -1466,7 +1466,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 34,
+   "files": 35,
    "unresolved": 1,
    "navIssues": []
   },
@@ -1564,7 +1564,7 @@
      "line": 66,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:176"
+     "backend": "backend/src/modules/legal/legal.module.ts:195"
     },
     {
      "method": "GET",
@@ -1574,7 +1574,7 @@
      "line": 47,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:166"
+     "backend": "backend/src/modules/legal/legal.module.ts:185"
     },
     {
      "method": "GET",
@@ -1614,7 +1614,7 @@
      "line": 58,
      "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:569"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:578"
     },
     {
      "method": "POST",
@@ -1624,7 +1624,7 @@
      "line": 27,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:547"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:556"
     },
     {
      "method": "POST",
@@ -1634,7 +1634,7 @@
      "line": 123,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:553"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:562"
     },
     {
      "method": "POST",
@@ -1644,7 +1644,7 @@
      "line": 129,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:557"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:566"
     },
     {
      "method": "POST",
@@ -1654,7 +1654,7 @@
      "line": 135,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:561"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:570"
     },
     {
      "method": "POST",
@@ -1707,7 +1707,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 35,
+   "files": 36,
    "unresolved": 1,
    "navIssues": []
   },
@@ -1751,7 +1751,7 @@
      "line": 88,
      "file": "provider-app/src/screens/auth/PendingDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:550"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:559"
     },
     {
      "method": "GET",
@@ -1761,7 +1761,7 @@
      "line": 107,
      "file": "provider-app/src/screens/auth/PendingDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:565"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:574"
     },
     {
      "method": "POST",
@@ -1804,7 +1804,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:135"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -1866,7 +1866,7 @@
      "line": 66,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:176"
+     "backend": "backend/src/modules/legal/legal.module.ts:195"
     },
     {
      "method": "GET",
@@ -1876,7 +1876,7 @@
      "line": 47,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:166"
+     "backend": "backend/src/modules/legal/legal.module.ts:185"
     },
     {
      "method": "GET",
@@ -1916,7 +1916,7 @@
      "line": 58,
      "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:569"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:578"
     },
     {
      "method": "POST",
@@ -1926,7 +1926,7 @@
      "line": 27,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:547"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:556"
     },
     {
      "method": "POST",
@@ -1936,7 +1936,7 @@
      "line": 123,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:553"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:562"
     },
     {
      "method": "POST",
@@ -1946,7 +1946,7 @@
      "line": 129,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:557"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:566"
     },
     {
      "method": "POST",
@@ -1956,7 +1956,7 @@
      "line": 135,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:561"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:570"
     },
     {
      "method": "POST",
@@ -2009,7 +2009,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 34,
+   "files": 35,
    "unresolved": 1,
    "navIssues": []
   },
@@ -2071,7 +2071,7 @@
      "line": 66,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:176"
+     "backend": "backend/src/modules/legal/legal.module.ts:195"
     },
     {
      "method": "GET",
@@ -2081,7 +2081,7 @@
      "line": 47,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:166"
+     "backend": "backend/src/modules/legal/legal.module.ts:185"
     },
     {
      "method": "GET",
@@ -2121,7 +2121,7 @@
      "line": 58,
      "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:569"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:578"
     },
     {
      "method": "POST",
@@ -2131,7 +2131,7 @@
      "line": 27,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:547"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:556"
     },
     {
      "method": "POST",
@@ -2141,7 +2141,7 @@
      "line": 123,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:553"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:562"
     },
     {
      "method": "POST",
@@ -2151,7 +2151,7 @@
      "line": 129,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:557"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:566"
     },
     {
      "method": "POST",
@@ -2161,7 +2161,7 @@
      "line": 135,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:561"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:570"
     },
     {
      "method": "POST",
@@ -2214,7 +2214,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 34,
+   "files": 35,
    "unresolved": 1,
    "navIssues": []
   },
@@ -2246,7 +2246,7 @@
      "line": 30,
      "file": "provider-app/src/screens/auth/ResubmitDetailsScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:565"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:574"
     },
     {
      "method": "POST",
@@ -2256,10 +2256,10 @@
      "line": 46,
      "file": "provider-app/src/screens/auth/ResubmitDetailsScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:553"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:562"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -2352,7 +2352,7 @@
      "backend": "backend/src/modules/care/appointments.controller.ts:96"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -2437,7 +2437,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:597"
     }
    ],
-   "files": 13,
+   "files": 14,
    "unresolved": 1,
    "navIssues": []
   },
@@ -2482,7 +2482,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:785"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -2568,7 +2568,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:874"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -2623,7 +2623,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:767"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -2658,7 +2658,7 @@
      "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:293"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -2713,7 +2713,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:548"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -2765,7 +2765,7 @@
      "line": 29,
      "file": "provider-app/src/components/MyContract.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:569"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:578"
     },
     {
      "method": "POST",
@@ -2798,7 +2798,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:891"
     }
    ],
-   "files": 14,
+   "files": 15,
    "unresolved": 0,
    "navIssues": []
   },
@@ -2899,7 +2899,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:775"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -2944,7 +2944,7 @@
      "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:93"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -2979,7 +2979,7 @@
      "backend": "backend/src/modules/provider-production/provider-production.module.ts:688"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3044,7 +3044,7 @@
      "backend": "backend/src/modules/care/appointments.controller.ts:108"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3089,7 +3089,7 @@
      "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:71"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 1,
    "navIssues": []
   },
@@ -3124,7 +3124,7 @@
      "backend": "backend/src/modules/medical-orders/medical-orders.controller.ts:27"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3159,7 +3159,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:422"
     }
    ],
-   "files": 13,
+   "files": 14,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3234,7 +3234,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:791"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3289,7 +3289,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:777"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3364,7 +3364,7 @@
      "backend": "backend/src/modules/home-care/home-care-compat.module.ts:453"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3419,7 +3419,7 @@
      "backend": "backend/src/modules/provider-production/provider-production.module.ts:668"
     }
    ],
-   "files": 14,
+   "files": 15,
    "unresolved": 1,
    "navIssues": []
   },
@@ -3474,7 +3474,7 @@
      "backend": "backend/src/modules/radiology/radiology.controller.ts:93"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 1,
    "navIssues": []
   },
@@ -3519,7 +3519,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:779"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3554,7 +3554,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:370"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3589,7 +3589,7 @@
      "backend": "backend/src/modules/livekit/livekit.controller.ts:16"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3654,7 +3654,7 @@
      "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:377"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3689,7 +3689,7 @@
      "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:39"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3724,7 +3724,7 @@
      "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:39"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3769,7 +3769,7 @@
      "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:397"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3814,7 +3814,7 @@
      "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:493"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3849,7 +3849,7 @@
      "backend": "backend/src/modules/provider/provider-facility.controller.ts:29"
     }
    ],
-   "files": 9,
+   "files": 10,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3914,7 +3914,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:874"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3969,7 +3969,7 @@
      "backend": "backend/src/modules/chat/chat.module.ts:129"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4024,7 +4024,7 @@
      "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:86"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4069,7 +4069,7 @@
      "backend": "backend/src/modules/provider/leave-requests.controller.ts:54"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4104,7 +4104,7 @@
      "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:298"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4159,7 +4159,7 @@
      "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:293"
     }
    ],
-   "files": 9,
+   "files": 10,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4194,7 +4194,7 @@
      "backend": "backend/src/modules/provider/provider-facility.controller.ts:62"
     }
    ],
-   "files": 9,
+   "files": 10,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4249,7 +4249,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:98"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 1,
    "navIssues": []
   },
@@ -4304,7 +4304,7 @@
      "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:539"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4336,7 +4336,7 @@
      "line": 29,
      "file": "provider-app/src/components/MyContract.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:569"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:578"
     },
     {
      "method": "POST",
@@ -4369,7 +4369,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:909"
     }
    ],
-   "files": 13,
+   "files": 14,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4414,7 +4414,7 @@
      "backend": "backend/src/modules/provider/provider-facility.controller.ts:42"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4449,7 +4449,7 @@
      "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:877"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4494,7 +4494,7 @@
      "backend": "backend/src/modules/provider/provider-facility.controller.ts:62"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4569,7 +4569,7 @@
      "backend": "backend/src/modules/provider/provider-facility.controller.ts:81"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4624,7 +4624,7 @@
      "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:446"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4669,7 +4669,7 @@
      "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:44"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4704,7 +4704,7 @@
      "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:463"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4759,7 +4759,7 @@
      "backend": "backend/src/modules/catalogs/catalogs.controller.ts:52"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4864,7 +4864,7 @@
      "backend": "backend/src/modules/labs/labs.controller.ts:125"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4940,7 +4940,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:837"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5005,7 +5005,7 @@
      "backend": "backend/src/modules/labs/labs.controller.ts:112"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5140,7 +5140,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:795"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5195,7 +5195,7 @@
      "backend": "backend/src/modules/labs/labs.controller.ts:112"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5247,10 +5247,10 @@
      "line": 29,
      "file": "provider-app/src/components/MyContract.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:569"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:578"
     }
    ],
-   "files": 16,
+   "files": 17,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5325,7 +5325,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:567"
     }
    ],
-   "files": 13,
+   "files": 14,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5370,7 +5370,7 @@
      "backend": "backend/src/modules/catalogs/catalogs.controller.ts:52"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5452,7 +5452,7 @@
      "line": 27,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:547"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:556"
     },
     {
      "method": "POST",
@@ -5462,7 +5462,7 @@
      "line": 123,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:553"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:562"
     },
     {
      "method": "POST",
@@ -5472,7 +5472,7 @@
      "line": 129,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:557"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:566"
     },
     {
      "method": "POST",
@@ -5482,7 +5482,7 @@
      "line": 135,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:561"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:570"
     },
     {
      "method": "POST",
@@ -5515,7 +5515,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 14,
+   "files": 15,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5580,7 +5580,7 @@
      "backend": "backend/src/modules/labs/labs.controller.ts:188"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5635,7 +5635,7 @@
      "backend": "backend/src/modules/labs/labs.controller.ts:194"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5680,7 +5680,7 @@
      "backend": "backend/src/modules/home-care/home-care-compat.module.ts:324"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5725,7 +5725,7 @@
      "backend": "backend/src/modules/home-care/home-care-compat.module.ts:419"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5780,7 +5780,7 @@
      "backend": "backend/src/modules/chat/chat.module.ts:108"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5825,7 +5825,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:138"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5920,7 +5920,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 15,
+   "files": 16,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5966,7 +5966,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:837"
     }
    ],
-   "files": 14,
+   "files": 15,
    "unresolved": 1,
    "navIssues": []
   },
@@ -6001,7 +6001,7 @@
      "backend": "backend/src/modules/home-care/nursing-compat.controller.ts:38"
     }
    ],
-   "files": 8,
+   "files": 9,
    "unresolved": 0,
    "navIssues": []
   },
@@ -6036,7 +6036,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:944"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -6068,7 +6068,7 @@
      "line": 29,
      "file": "provider-app/src/components/MyContract.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:569"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:578"
     },
     {
      "method": "GET",
@@ -6091,7 +6091,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:138"
     }
    ],
-   "files": 15,
+   "files": 16,
    "unresolved": 0,
    "navIssues": []
   },
@@ -6136,7 +6136,7 @@
      "backend": "backend/src/modules/home-care/home-care.controller.ts:94"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -6181,7 +6181,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:799"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -6316,7 +6316,7 @@
      "backend": "backend/src/modules/provider/provider-ordering.controller.ts:19"
     }
    ],
-   "files": 13,
+   "files": 14,
    "unresolved": 1,
    "navIssues": []
   },
@@ -6451,7 +6451,7 @@
      "backend": "backend/src/modules/provider/provider-ordering.controller.ts:19"
     }
    ],
-   "files": 13,
+   "files": 14,
    "unresolved": 0,
    "navIssues": []
   },
@@ -6586,7 +6586,7 @@
      "backend": "backend/src/modules/provider/provider-ordering.controller.ts:19"
     }
    ],
-   "files": 13,
+   "files": 14,
    "unresolved": 0,
    "navIssues": []
   },
@@ -6721,7 +6721,7 @@
      "backend": "backend/src/modules/provider/provider-ordering.controller.ts:19"
     }
    ],
-   "files": 13,
+   "files": 14,
    "unresolved": 0,
    "navIssues": []
   },
@@ -6806,7 +6806,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:168"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -6887,7 +6887,7 @@
      "backend": "backend/src/modules/returns/returns.controller.ts:26"
     }
    ],
-   "files": 13,
+   "files": 14,
    "unresolved": 0,
    "navIssues": []
   },
@@ -6948,7 +6948,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:119"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7023,7 +7023,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:165"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7079,7 +7079,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:362"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7124,7 +7124,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:125"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7179,7 +7179,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:125"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7203,7 +7203,7 @@
    "batch": "provider",
    "status": "not redesigned",
    "calls": [],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7227,7 +7227,7 @@
    "batch": "provider",
    "status": "not redesigned",
    "calls": [],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7302,7 +7302,7 @@
      "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:83"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7357,7 +7357,7 @@
      "backend": "backend/src/modules/returns/returns.controller.ts:26"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7389,7 +7389,7 @@
      "line": 29,
      "file": "provider-app/src/components/MyContract.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:569"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:578"
     },
     {
      "method": "GET",
@@ -7432,7 +7432,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:98"
     }
    ],
-   "files": 14,
+   "files": 15,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7467,7 +7467,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:165"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7502,7 +7502,7 @@
      "backend": "backend/src/modules/radiology/radiology.controller.ts:208"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7557,7 +7557,7 @@
      "backend": "backend/src/modules/radiology/radiology.controller.ts:208"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7642,7 +7642,7 @@
      "backend": "backend/src/modules/radiology/radiology.controller.ts:107"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7677,7 +7677,7 @@
      "backend": "backend/src/modules/radiology/radiology.controller.ts:134"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7712,7 +7712,7 @@
      "backend": "backend/src/modules/radiology/radiology.controller.ts:134"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7744,10 +7744,10 @@
      "line": 29,
      "file": "provider-app/src/components/MyContract.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:569"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:578"
     }
    ],
-   "files": 13,
+   "files": 14,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7799,7 +7799,7 @@
      "line": 27,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:547"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:556"
     },
     {
      "method": "POST",
@@ -7809,7 +7809,7 @@
      "line": 123,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:553"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:562"
     },
     {
      "method": "POST",
@@ -7819,7 +7819,7 @@
      "line": 129,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:557"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:566"
     },
     {
      "method": "POST",
@@ -7829,7 +7829,7 @@
      "line": 135,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:561"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:570"
     },
     {
      "method": "POST",
@@ -7892,7 +7892,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 15,
+   "files": 16,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7977,7 +7977,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:105"
     }
    ],
-   "files": 16,
+   "files": 17,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8068,7 +8068,7 @@
      "backend": "backend/src/modules/media/media.controller.ts:31"
     }
    ],
-   "files": 17,
+   "files": 18,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8103,7 +8103,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy_ops.controller.ts:30"
     }
    ],
-   "files": 9,
+   "files": 10,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8169,7 +8169,7 @@
      "line": 45,
      "file": "provider-app/src/screens/shared/shared/InsuranceConfigScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:550"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:559"
     },
     {
      "method": "GET",
@@ -8202,7 +8202,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:138"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 1,
    "navIssues": []
   },
@@ -8277,7 +8277,7 @@
      "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:877"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8312,7 +8312,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:538"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8347,7 +8347,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:586"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8413,7 +8413,7 @@
      "line": 59,
      "file": "provider-app/src/screens/shared/shared/MediaConfigScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:550"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:559"
     },
     {
      "method": "POST",
@@ -8446,7 +8446,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 18,
+   "files": 19,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8617,7 +8617,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:578"
     }
    ],
-   "files": 22,
+   "files": 23,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8818,7 +8818,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 21,
+   "files": 22,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8863,7 +8863,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:567"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8928,7 +8928,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:486"
     }
    ],
-   "files": 9,
+   "files": 10,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8963,7 +8963,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:96"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -9040,7 +9040,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:96"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -9157,7 +9157,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:118"
     }
    ],
-   "files": 16,
+   "files": 17,
    "unresolved": 0,
    "navIssues": []
   },
@@ -9242,7 +9242,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:860"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -9287,7 +9287,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:924"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -9365,7 +9365,7 @@
      "line": 27,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:547"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:556"
     },
     {
      "method": "POST",
@@ -9375,7 +9375,7 @@
      "line": 123,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:553"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:562"
     },
     {
      "method": "POST",
@@ -9385,7 +9385,7 @@
      "line": 129,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:557"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:566"
     },
     {
      "method": "POST",
@@ -9395,7 +9395,7 @@
      "line": 135,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:561"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:570"
     },
     {
      "method": "POST",
@@ -9428,7 +9428,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 13,
+   "files": 14,
    "unresolved": 0,
    "navIssues": []
   },
@@ -9473,7 +9473,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:477"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -9514,7 +9514,7 @@
      "backend": "backend/src/modules/support/support.controller.ts:15"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -9579,7 +9579,7 @@
      "backend": "backend/src/modules/livekit/livekit.controller.ts:43"
     }
    ],
-   "files": 14,
+   "files": 15,
    "unresolved": 0,
    "navIssues": []
   },
@@ -9694,7 +9694,7 @@
      "backend": "backend/src/modules/payouts/provider-payouts.controller.ts:54"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -9745,7 +9745,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:934"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   }

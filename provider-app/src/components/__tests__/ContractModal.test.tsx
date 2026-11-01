@@ -3,6 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-
 import { ContractModal, reachedEnd } from '../ContractModal';
 import { ContractGate } from '../ContractGate';
 import { contractErrorKey } from '../MyContract';
+import { emitAgreementRequired, errorCode, submitErrorKey } from '../../utils/contractEvents';
 
 const mockGet = jest.fn();
 const mockPost = jest.fn();
@@ -108,5 +109,28 @@ describe('the signed contract errors', () => {
     expect(contractErrorKey(404)).toBe('contract.mine.notReady');
     expect(contractErrorKey(500)).toBe('contract.mine.failed');
     expect(contractErrorKey(undefined)).toBe('contract.mine.failed');
+  });
+});
+
+describe('the server refuses with a typed code', () => {
+  it('a 403 provider_agreement_required makes the gate ask again and open the contract', async () => {
+    let pending = false;
+    mockGet.mockImplementation(async (url: string) => (url === '/legal/pending' ? { data: pending ? [{ key: 'provider_agreement' }] : [] } : POLICY));
+    await render(<ContractGate />);
+    await waitFor(() => expect(mockGet).toHaveBeenCalledWith('/legal/pending'));
+    expect(screen.queryByText('Service Provision Contract')).toBeNull();
+    pending = true;
+    await act(async () => { emitAgreementRequired(); });
+    expect(await screen.findByText('Service Provision Contract')).toBeTruthy();
+  });
+  it('the submit codes map to a message', () => {
+    expect(errorCode({ response: { data: { code: 'signature_pending_scan' } } })).toBe('signature_pending_scan');
+    expect(errorCode({ response: { data: { message: 'signature_unusable' } } })).toBe('signature_unusable');
+    expect(errorCode(new Error('x'))).toBeNull();
+    expect(submitErrorKey('signature_pending_scan')).toBe('contract.signaturePending');
+    expect(submitErrorKey('signature_unusable')).toBe('contract.signatureUnusable');
+    expect(submitErrorKey('provider_agreement_not_published')).toBe('contract.notPublished');
+    expect(submitErrorKey('provider_agreement_not_accepted')).toBe('contract.mustAccept');
+    expect(submitErrorKey('something_else')).toBeNull();
   });
 });
