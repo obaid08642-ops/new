@@ -60,7 +60,12 @@ def main():
     if status >= 300 or not token:
         fail(f'patient sign-in failed: {status} {str(body)[:200]}')
     status, body = call('GET', '/care/appointments', token=token)
-    appointments = [a.get('id') for a in rows(body) if isinstance(a, dict) and a.get('id')]
+    all_rows = [a for a in rows(body) if isinstance(a, dict) and a.get('id')]
+    # The flow opens the appointment from the Past tab, so a finished visit comes first (run 108: the first appointment a doctor could chat on was
+    # not on that tab, and the list showed three others). Statuses as the app's tabs read them (utils/appointmentTabs PAST).
+    finished = [a for a in all_rows if str(a.get('status', '')).lower() in ('completed', 'cancelled', 'no_show')]
+    appointments = [a['id'] for a in finished] + [a['id'] for a in all_rows if a not in finished]
+    print(f"appointments: {[(a['id'][:8], a.get('status')) for a in all_rows]}", file=sys.stderr)
     if status >= 300 or not appointments:
         fail(f'the seeded patient has no appointments: {status} {str(body)[:200]}')
     doctors = accounts.get('doctors') or ([accounts['providers']['doctor']] if 'doctor' in accounts.get('providers', {}) else [])

@@ -30,7 +30,7 @@ def main():
         if not r.ok or not token:
             print(f"doctor {doctor['email']} could not sign in: {r.status}", file=sys.stderr)
             continue
-        j_consultation.doctor_publishes_hours(Client(token, 'doctor'), admin)
+        j_consultation.doctor_publishes_hours(Client(token, 'doctor'), admin, ('clinic', 'video', 'home'))  # the doctor screen may preselect Online (run 108: Clinic and Online are both offered)
         done += 1
     if not done:
         print('no doctor could publish hours', file=sys.stderr)
