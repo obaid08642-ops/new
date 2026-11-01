@@ -148,5 +148,11 @@
   "status.toast.stillReview": "Your account is still under review",
   "status.toast.refreshFailed": "Could not refresh the status",
   "status.toast.resubmitted": "Your application was resubmitted for review",
-  "status.toast.resubmitFailed": "Could not resubmit"
+  "status.toast.resubmitFailed": "Could not resubmit",
+  "incomingCall.declineFailed": "Could not decline the call",
+  "incomingCall.voice": "Incoming voice call",
+  "incomingCall.video": "Incoming video call",
+  "incomingCall.patient": "A patient",
+  "incomingCall.decline": "Decline",
+  "incomingCall.answer": "Answer"
 }
