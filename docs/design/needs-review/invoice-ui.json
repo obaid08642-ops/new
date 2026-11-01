@@ -1,0 +1,57 @@
+[
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/receipts/[kind]/[bookingId]",
+    "element": "Save as image on the web: Readex Pro is not embedded",
+    "file": "patient-web/lib/receipt/capture.ts",
+    "line": 30,
+    "found": "[client] [client] the PNG is drawn from an SVG image, which cannot load web fonts, so the text uses the system font; the layout and numbers are the same",
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
+  },
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/receipts",
+    "element": "A credit-note row opens the ORIGINAL receipt",
+    "file": "patient-web/app/[locale]/receipts/page.tsx",
+    "line": 47,
+    "found": "[backend] [backend] GET /billing/invoice/:kind/:id returns the invoice, not its credit note, so the credit note's own PDF (GET /billing/documents/:invoiceNo/pdf) has no client path; the original card lists it with its amount",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  },
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/receipts/[kind]/[bookingId]",
+    "element": "Share link address is built from the production site",
+    "file": "patient-app/src/utils/receipt.ts",
+    "line": 175,
+    "found": "[owner] [owner] the link opens https://nabd.plus/<lang>/receipt/shared/<token> (the backend's page_url is the API JSON, not a page); a staging build would link to production until the owner sets a per-environment web base",
+    "suspect": "Owner decision.",
+    "review_status": "owner-decision"
+  },
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/receipts/[kind]/[bookingId]",
+    "element": "Save as image in the app needs a new native build",
+    "file": "patient-app/app/receipts/[kind]/[bookingId].tsx",
+    "line": 49,
+    "found": "[owner] [owner] react-native-view-shot is a new native module: the next dev-client/EAS build must include it before the button works on a device (expo-media-library and expo-clipboard are already installed)",
+    "suspect": "Owner decision.",
+    "review_status": "owner-decision"
+  },
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/receipts/[kind]/[bookingId]",
+    "element": "App Share sends text, not the receipt file",
+    "file": "patient-app/app/receipts/[kind]/[bookingId].tsx",
+    "line": 58,
+    "found": "[client] [client] kept as built in #2332 (a message with the number and total); the PDF goes to the system sheet from Download PDF",
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
+  }
+]

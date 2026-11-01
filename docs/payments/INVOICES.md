@@ -67,3 +67,8 @@ Arabic is shaped by fontkit from the embedded Noto Naskh Arabic font; lines that
 
 ### Not changed
 The VAT position (G7 of `docs/qa/money-flows.md`): whether VAT is due on the whole price or only on the commission (exempt healthcare) still needs the accountant. Prices stay VAT-inclusive and the invoice shows the VAT inside the total, as before.
+
+## Design: where the client draws it (2026-11-01)
+The receipt card (web `components-next/receipt/receipt-paper.tsx`, app `src/components/receipt/ReceiptPaper.tsx`) draws, top to bottom: our company (`seller`; a null field says "Not configured yet"), invoice number, booking / order number (`booking_ref`), date, state, the **service provider** (`provider`: name in the page language, type, licence), the amounts, the credit notes and the refunded amount, the QR. Actions: Download PDF, **Save as image** (web: canvas capture, app: `react-native-view-shot` into the photos), **Share** (system sheet), **Share link** (create with 1, 7 or 30 days, copy or share, expiry and views of every link, revoke).
+
+The link a person opens is the web page `/<lang>/receipt/shared/<token>` (not the API's `page_url`, which is the JSON): it reads `GET /billing/shared/:token`, shows the same card without any account data, is `noindex`, `no-store` and sends no referrer; its PDF button goes through `/api/receipt-shared/<token>/pdf` (public, same headers). One "not available" page answers an unknown, expired or revoked link, as the backend does.

@@ -10,7 +10,7 @@ export const WEB_ROUTE_ROOTS = [
   "diagnostics", "doctor", "doctors", "drug-scanner", "emergency", "facility", "family", "features", "health", "home-care", "home-nursing",
   "insurance", "labs", "loyalty", "map", "maternity", "medical-orders", "medicine", "medicine-catalog", "medicines", "mental-health",
   "notifications", "nursing", "nutrition", "offers", "orders", "p", "payments", "pharmacies", "pharmacy", "prescriptions", "privacy",
-  "profile", "programs", "provider-info", "radiology", "receipts", "refund-policy", "reports", "returns", "reviews", "room", "s", "search",
+  "profile", "programs", "provider-info", "radiology", "receipt", "receipts", "refund-policy", "reports", "returns", "reviews", "room", "s", "search",
   "services", "settings", "support", "telehealth-consent", "terms", "voice", "wishlist",
 ] as const;
 
