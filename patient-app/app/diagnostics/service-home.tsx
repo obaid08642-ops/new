@@ -15,6 +15,7 @@ import { ContextGate } from '../../src/components/ordering/OrderingKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
+import { fetchPublicList } from '../../src/utils/publicCache';
 import { catalogArt } from '../../src/utils/diagCatalog';
 import { useDiagCatalog } from '../../src/utils/useDiagCatalog';
 import { isOffline } from '../../src/utils/isOffline';
@@ -58,7 +59,7 @@ export default function ServiceHome() {
     setStatus('loading');
     try {
       if (kind === 'nursing') {
-        const res = await apiFetch<unknown>('/home-care/services');
+        const res = await fetchPublicList<unknown>('/home-care/services');
         setNursing(Array.isArray(res) ? (res as Rec[]) : []);
       } else if (kind === 'lab') {
         setPackages(normalizeLabList(await apiFetch<unknown>('/labs/packages')));

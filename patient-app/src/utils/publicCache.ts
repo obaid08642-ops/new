@@ -8,7 +8,7 @@ import { apiFetch } from './api';
  * Only the routes the backend marks `@PublicCache` (the same answer for everyone: no user data) are ever stored, so a
  * personal response can never land here. Anything else goes straight to `apiFetch`.
  */
-const PUBLIC_LISTS = /^\/(care\/(specialties|insurance|degrees)|labs\/(services|packages|categories)|radiology\/(services|modalities)|home-care\/catalog|locations\/(regions|cities|districts)|catalogs\/[a-z0-9_-]+)(\?[^#]*)?$/i;
+const PUBLIC_LISTS = /^\/(care\/(specialties|insurance|degrees)|labs\/(services|packages|categories)|radiology\/(services|modalities)|home-care\/(catalog|services|packages)|locations\/(regions|cities|districts)|catalogs\/[a-z0-9_-]+)(\?[^#]*)?$/i;
 
 const PREFIX = '@nabd_public_';
 /** A copy younger than this is used without waiting for the network (the backend caches 2-60 minutes itself). */

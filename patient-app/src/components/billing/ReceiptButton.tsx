@@ -1,25 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { router, type Href } from 'expo-router';
 
 import { Button } from '../../../../packages/ui-native/src';
-import { showLocalizedAlert } from '../LocalizedAlert';
 import { useScreenUi } from '../screen/ScreenKit';
-import { receiptKindOf, shareReceipt } from '../../billing/receipts';
+import { receiptKindOf } from '../../billing/receipts';
 
 /**
- * "Receipt" on a paid booking or order: downloads the tax invoice PDF (GET /billing/invoice/:kind/:bookingId/pdf) and opens the share
- * sheet. Drawn only by screens that know the booking is paid; renders nothing for a booking kind the invoicing does not cover.
+ * "Receipt" on a paid booking or order: opens the receipt (the thermal-receipt card with the print animation, app/receipts/[kind]/[bookingId]),
+ * where Download PDF and Share are. Drawn only by screens that know the booking is paid; renders nothing for a booking kind the invoicing does not cover.
  */
 export function ReceiptButton({ bookingKind, bookingId, testID = 'receipt-button' }: { bookingKind: string; bookingId?: string | null; testID?: string }) {
   const { k, theme } = useScreenUi();
-  const [busy, setBusy] = useState(false);
   const kind = receiptKindOf(bookingKind);
   if (!kind || !bookingId) return null;
-  const open = async () => {
-    if (busy) return;
-    setBusy(true);
-    const result = await shareReceipt(kind, bookingId);
-    setBusy(false);
-    if (result === 'unavailable') showLocalizedAlert(k('receipt.failTitle'), k('receipt.failBody'));
-  };
-  return <Button label={k(busy ? 'receipt.preparing' : 'receipt.button')} variant="outline" size="md" fullWidth startIcon="receipt" loading={busy} onPress={() => void open()} theme={theme} testID={testID} />;
+  return <Button label={k('receipt.button')} variant="outline" size="md" fullWidth startIcon="receipt" onPress={() => router.push({ pathname: '/receipts/[kind]/[bookingId]', params: { kind, bookingId } } as unknown as Href)} theme={theme} testID={testID} />;
 }

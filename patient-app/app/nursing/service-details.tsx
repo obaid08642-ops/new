@@ -8,6 +8,7 @@ import { NurseCard } from '../../src/components/nursing/NursingKit';
 import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
+import { fetchPublicList } from '../../src/utils/publicCache';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { pickDbField } from '../../src/utils/localize';
@@ -40,7 +41,7 @@ export default function NursingServiceDetails() {
   const [needsRx, setNeedsRx] = useState<boolean | null>(null);
   useEffect(() => {
     let alive = true;
-    apiFetch<unknown>('/home-care/services?limit=200')
+    fetchPublicList<unknown>('/home-care/services?limit=200')
       .then((res) => {
         const rows = Array.isArray(res) ? (res as Rec[]) : ((res as { data?: Rec[] } | null)?.data ?? []);
         const service = rows.find((row) => text(row.id) === serviceId);

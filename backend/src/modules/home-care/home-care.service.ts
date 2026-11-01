@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Inject, Optional } from '@nestjs/common';
-import { assertPaymentMethod } from '../../common/payment-policy';
+import { assertPaymentMethod, PAYMENT_METHODS_BY_CONTEXT } from '../../common/payment-policy';
+import { buildQuote, readVatRate } from '../../common/quote';
 import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
 import { ownPrices } from '../../common/service-offers';
 import { SearchService } from '../search/search.service';
@@ -80,6 +81,33 @@ export class HomeCareSvc {
     return s;
   }
 
+  /**
+   * What a nursing booking costs: the chosen nurse's own price for the service (else the catalogue price) times the sessions of the
+   * booking choice. The booking and the quote both call this, so the price shown is the price charged. A row with no price anywhere
+   * (its providers set their own) cannot be priced: a clear refusal, not a NaN total.
+   */
+  private async nursingPricing(svc: any, providerId: string, data: any) {
+    const choice = resolveBookingChoice(svc as any, data);
+    const sessions = choice.sessions_count;
+    const ownPrice = providerId ? (await ownPrices(this.svcModel.db as never, 'nursing', [providerId], [svc as any])).get(providerId)?.get(svc.id) : undefined;
+    const unitPrice = ownPrice ?? svc.price;
+    if (!(typeof unitPrice === 'number' && unitPrice > 0)) throw new BadRequestException('service_price_not_set');
+    return { choice, sessions, unitPrice, total: unitPrice * sessions };
+  }
+
+  /** The breakdown of a nursing booking (service, nurse, booking choice): every line, VAT and the total, from the price the booking charges. */
+  async quote(data: any) {
+    if (typeof data?.service_id !== 'string' || !data.service_id) throw new BadRequestException('service_id required');
+    const svc = await this.svcModel.findOne({ id: { $eq: data.service_id }, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' });
+    if (!svc) throw new NotFoundException('service');
+    const providerId = typeof data.provider_id === 'string' ? data.provider_id : '';
+    const { sessions, unitPrice } = await this.nursingPricing(svc, providerId, data);
+    return {
+      ...buildQuote({ kind: 'nursing', lines: [{ key: 'visits', amount: unitPrice * sessions, qty: sessions, unit_price: unitPrice }], vat_rate: await readVatRate(this.svcModel.db), allowed_methods: PAYMENT_METHODS_BY_CONTEXT.home_visit }),
+      service_id: svc.id, provider_id: providerId || null, sessions_count: sessions,
+    };
+  }
+
   async book(user: any, data: any) {
     // Issue 955: the admin kill switch refuses new home-nursing requests before anything is stored.
     await this.killSwitches?.assertOn('nursing_broadcast');
@@ -113,14 +141,7 @@ export class HomeCareSvc {
     }).lean();
     if (dupe) return dupe;
     // booking mode (visit | continuous | programme): the service decides, the choice must be one it offers (booking-mode.ts)
-    const choice = resolveBookingChoice(svc as any, data);
-    const sessions = choice.sessions_count;
-    // the chosen nurse's own price for the service (her choice, else what she registered with), else the catalogue price: the price the patient was shown is the price charged.
-    // A row with no price anywhere (its providers set their own) cannot be priced: a clear refusal, not a NaN total.
-    const ownPrice = providerId ? (await ownPrices(this.svcModel.db as never, 'nursing', [providerId], [svc as any])).get(providerId)?.get(svc.id) : undefined;
-    const unitPrice = ownPrice ?? svc.price;
-    if (!(typeof unitPrice === 'number' && unitPrice > 0)) throw new BadRequestException('service_price_not_set');
-    const total = unitPrice * sessions;
+    const { choice, sessions, unitPrice, total } = await this.nursingPricing(svc, providerId, data);
     const booking = await this.bkgModel.create({
       patient_id: user.id,
       patient_name: data.contact?.name || user.full_name,

@@ -1,8 +1,6 @@
-import React from 'react';
+import { Redirect } from 'expo-router';
 
-import { ReceiptsView } from '../../src/components/billing/ReceiptsView';
-
-/** My receipts (tax invoices): GET /billing/my. */
-export default function ReceiptsScreen() {
-  return <ReceiptsView />;
+/** The old address of the receipts list: it is the Receipts screen (/receipts) now. */
+export default function ReceiptsRedirect() {
+  return <Redirect href="/receipts" />;
 }

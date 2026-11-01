@@ -1,5 +1,5 @@
 """Journey: radiology scan, patient-app diagnostics -> radiology center (provider-app RadiologyDashboard) -> report -> patient.
-Payloads copied from patient-app app/(tabs)/diagnostics.tsx (scan "book now" -> cart), diagnostics/cart.tsx, diagnostics/checkout.tsx,
+Payloads copied from patient-app app/(tabs)/diagnostics.tsx (scan "book now" -> cart), diagnostics/cart.tsx, diagnostics/checkout.tsx (removed: the payloads are now the confirm screen's),
 provider-app screens/radiology/RadiologyDashboard.tsx (OrderDetailScreen, ReportingScreen) and api/provider.ts uploadFile."""
 import base64
 import uuid

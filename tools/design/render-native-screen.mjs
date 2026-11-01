@@ -234,6 +234,9 @@ const BOARD = {
   'd-hub': { component: 'ServiceHub', size: [390, 1640], params: {} },
   // (owner decision 4) two segmented tabs on top, search + filter button + order icon, category chips (labs: with "Packages"), the filter sheet; the sheet and the chip are local state, so they show in the app and the jest tests, not in this still
   // the labs / radiology tabs: `diagnostics:d-hub` and `diagnostics:d-hub-rad` (the `?tab=radiology` side), server pages from the fixtures' `?page=1&limit=20`
+  // The receipt (no board of its own; it follows the web receipt, patient-web/components-next/receipt): `--dir patient-app/app/receipts --screens index:rc-list,"[kind]/[bookingId]:rc-one"`. The ids select the TEST invoice of render-native-screen.fixtures.json (`test-lab-order`).
+  'rc-list': { component: 'Orders', size: [390, 700], params: {} },
+  'rc-one': { component: 'Orders', size: [390, 900], params: { kind: 'lab', bookingId: 'test-lab-order' } },
   'd-hub-rad': { component: 'ServiceHub', size: [390, 1640], params: { tab: 'radiology' } },
   'd-packages': { component: 'ServiceHub', size: [390, 1640], params: {} },
   'd-search': { component: 'Search', size: [390, 844], params: {} },
@@ -421,6 +424,8 @@ const MOCKS = {
     // a render with fixtures is a signed-in patient (the "Notify me when available" button shows); the other modes are signed out
     export async function hasSession() { return ((window.__SCREEN && window.__SCREEN.api) || 'empty') === 'fixture'; }
     export async function storeAuthSession() {}
+    // a render downloads nothing: the receipt's Download PDF is a press, not a layout
+    export async function downloadProtected() { return null; }
     // the constants other modules read from the client (image URLs resolve against them); no real host in a render
     export const BASE_URL = 'https://api.example.test/api/v1';
     export const FASTAPI_BASE_URL = 'https://ai.example.test';

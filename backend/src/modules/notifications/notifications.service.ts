@@ -751,8 +751,14 @@ export class NotificationsService {
     if (!lookup) return null;
     const booking: any = await this.model.db.collection(lookup.collection).findOne({ id: entityId });
     if (!booking) return null;
-    const rawId = lookup.fields.map((f) => booking[f]).find(Boolean);
-    const accountId = await this.resolveProviderAccount(rawId);
+    // R8: the first field that names a real provider account wins. A lab booking can carry a facility id that is no account
+    // (a branch or a catalogue id) next to the account id, and taking the first non-empty field told nobody.
+    let accountId: string | null = null;
+    for (const f of lookup.fields) {
+      if (!booking[f]) continue;
+      accountId = await this.resolveProviderAccount(booking[f]);
+      if (accountId) break;
+    }
     if (!accountId) return null;
     const titles = type === 'new_request'
       ? { title_ar: 'حجز جديد بانتظارك', title_en: 'New booking assigned to you' }

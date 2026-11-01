@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
-import { cardCopay, estimatePatientShare, OrderingService } from './ordering.service';
+import { cardCopay, estimatePatientShare, OrderingService, quoteBreakdown } from './ordering.service';
 import { SavePolicyDto } from '../insurance-engine/insurance-engine.dto';
 import { UpdatePatientInsuranceDto } from '../users/users.dto';
 
@@ -44,5 +44,13 @@ describe('insurance estimate before booking', () => {
         expect((await validate(plainToInstance(cls, bad))).length).toBeGreaterThan(0);
       }
     }
+  });
+});
+
+describe('the quote states the home fee and the VAT of every provider row', () => {
+  it('home fee, VAT and subtotal come from the server, the VAT inside the total', () => {
+    expect(quoteBreakdown(165, 40, 0.15)).toEqual({ home_fee: 40, vat_rate: 0.15, vat: 21.52, subtotal: 143.48 });
+    expect(quoteBreakdown(100, undefined, 0.15).home_fee).toBe(0);
+    expect(quoteBreakdown(100, 'x', 0.1)).toMatchObject({ home_fee: 0, vat: 9.09, subtotal: 90.91 });
   });
 });
