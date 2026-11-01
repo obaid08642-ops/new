@@ -1342,8 +1342,7 @@
         "a": "نعم من صفحة مواعيدي وفق سياسة الإلغاء المعروضة عند الحجز."
       }
     },
-    "faqTitle": "الأسئلة الشائعة",
-    "comingSoon": "قريبًا"
+    "faqTitle": "الأسئلة الشائعة"
   },
   "HomeCareServices": {
     "eyebrow": "الرعاية المنزلية",
@@ -1520,10 +1519,7 @@
     "activeFilters": "الفلاتر المفعّلة",
     "removeFilter": "إزالة الفلتر {filter}",
     "filterAll": "الكل",
-    "specialtyAll": "الكل",
-    "comingSoon": "قريبًا",
-    "comingSoonTitle": "{specialty} قريبًا",
-    "comingSoonBody": "لا يوجد أطباء في هذا التخصص حتى الآن. اختر تخصصًا آخر."
+    "specialtyAll": "الكل"
   },
   "LabsServices": {
     "eyebrow": "الرعاية المخبرية",

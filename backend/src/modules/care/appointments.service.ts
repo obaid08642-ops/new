@@ -20,14 +20,9 @@ import { DEFAULT_REFUND_POLICY } from '../refund-policy/refund-policy.defaults';
 import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { isOnlineConsultation } from '../chat/consultation-window';
 import { assertTelehealthConsent } from '../legal/telehealth-consent';
-import { consultationFees } from '../../common/provider-home-fees';
-
-/** Platform fee schedule (SAR). Move to DB/config when admin dashboard supports it. */
-const PLATFORM_FEES = {
-  service_fee: 15,           // flat service fee for all bookings
-  home_visit_fee: 100,       // additional fee for home visits
-  transportation_fee: 50,    // transportation surcharge for home visits
-};
+import { consultationPricing } from './consultation-pricing';
+import { buildQuote, readVatRate } from '../../common/quote';
+import { PAYMENT_METHODS_BY_CONTEXT } from '../../common/payment-policy';
 
 /**
  * Appointment lifecycle service.
@@ -205,21 +200,8 @@ export class AppointmentsService {
       throw new BadRequestException('visit_location.lat required when visit_location is provided');
     }
 
-    // Price snapshot
-    const priceMap: Record<ServiceType, number | undefined> = {
-      clinic: (doctor as any).price_clinic,
-      video: (doctor as any).price_online,
-      home: (doctor as any).price_home,
-    };
-    const price = priceMap[body.service_type];
-    if (price === undefined || price === null) {
-      throw new BadRequestException(`no price configured for service_type=${body.service_type}`);
-    }
-
-    // Calculate fees & total_price
-    // the doctor's own home-visit and transport fees when they set them at registration, else the platform's (shown and charged alike)
-    const { service_fee, home_visit_fee, transportation_fee } = consultationFees(doctor, body.service_type, PLATFORM_FEES);
-    const total_price = price + service_fee + home_visit_fee + transportation_fee;
+    // Price snapshot: the doctor's price for the visit type, the platform fee and (home) the home fees; the quote reads the same function.
+    const { price, service_fee, home_visit_fee, transportation_fee, total_price } = consultationPricing(doctor, body.service_type);
 
     // Insert — unique index will throw on double-booking
     // Insurance bookings require a saved policy first (BR-2.2): fail before
@@ -496,6 +478,21 @@ export class AppointmentsService {
     });
   }
 
+  /** What a consultation with this doctor costs for this visit type: every line, VAT and the total, from the function the booking charges by. */
+  async quote(doctorId: unknown, serviceType: unknown) {
+    if (typeof doctorId !== 'string' || !doctorId.trim()) throw new BadRequestException('doctor_id_required');
+    if (serviceType !== 'clinic' && serviceType !== 'video' && serviceType !== 'home') throw new BadRequestException('service_type_invalid');
+    const doctor: any = await this.providerModel.findOne({ id: { $eq: doctorId.trim() }, type: ProviderType.DOCTOR, status: ProviderStatus.ACTIVE });
+    if (!doctor) throw new NotFoundException('doctor_not_found');
+    if (!doctor.consultation_modes?.includes(serviceType)) throw new BadRequestException(`doctor does not support service_type=${serviceType}`);
+    const p = consultationPricing(doctor, serviceType);
+    const context = serviceType === 'video' ? 'online_consultation' : serviceType === 'home' ? 'home_visit' : 'in_clinic';
+    const lines = [{ key: 'consultation_fee', amount: p.price }, { key: 'platform_fee', amount: p.service_fee }];
+    if (p.home_visit_fee) lines.push({ key: 'home_visit_fee', amount: p.home_visit_fee });
+    if (p.transportation_fee) lines.push({ key: 'transport_fee', amount: p.transportation_fee });
+    return { ...buildQuote({ kind: 'consultation', lines, vat_rate: await readVatRate(this.connection), allowed_methods: PAYMENT_METHODS_BY_CONTEXT[context] }), doctor_id: doctor.id, service_type: serviceType };
+  }
+
   // High-level commands
 
   async cancel(id: string, user: any, reason?: string, isNoShow: boolean = false) {
@@ -649,6 +646,10 @@ export class AppointmentsService {
     const appt = await this.apptModel.findOne({ id });
     if (!appt) throw new NotFoundException();
     await this.assertAppointmentAccess(appt, user);
+    // X3: a visit that is already over is never rewritten. A repeated "finish" (a retry after a lost answer) just reports it;
+    // a cancelled or missed one is refused before anything is written.
+    if (appt.status === APPT_STATES.COMPLETED) return { success: true, appointment: appt.toObject(), already_completed: true };
+    if ([APPT_STATES.CANCELLED, 'NO_SHOW', 'RESCHEDULED'].includes(String(appt.status))) throw new BadRequestException('appointment_not_finishable');
     if (body && (body.diagnosis || body.notes || body.recommendations || (Array.isArray(body.prescription) && body.prescription.length))) {
       // 660: keep the catalogue id per line (sent by the doctor app, else resolved by name).
       const lines: any[] = [];

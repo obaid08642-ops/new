@@ -148,5 +148,13 @@
   "status.toast.stillReview": "حسابك ما زال قيد المراجعة",
   "status.toast.refreshFailed": "تعذر تحديث الحالة",
   "status.toast.resubmitted": "أُعيد إرسال طلبك للمراجعة",
-  "status.toast.resubmitFailed": "تعذر إعادة الإرسال"
+  "status.toast.resubmitFailed": "تعذر إعادة الإرسال",
+  "incomingCall.declineFailed": "تعذر رفض المكالمة",
+  "incomingCall.voice": "مكالمة صوتية واردة",
+  "incomingCall.video": "مكالمة فيديو واردة",
+  "incomingCall.patient": "مريض",
+  "incomingCall.decline": "رفض",
+  "incomingCall.answer": "رد",
+  "support.title": "مركز الدعم",
+  "support.loadFailed": "تعذر تحميل تذاكرك"
 }

@@ -1,5 +1,5 @@
 """Journey: lab test, patient-app diagnostics -> lab (provider-app LabDashboard) -> results -> admin console.
-Payloads copied from patient-app app/(tabs)/diagnostics.tsx, diagnostics/cart.tsx, diagnostics/checkout.tsx and
+Payloads copied from patient-app app/(tabs)/diagnostics.tsx, diagnostics/cart.tsx, diagnostics/checkout.tsx (removed: the payloads are now the confirm screen's) and
 provider-app screens/lab/LabDashboard.tsx (LabOrderDetail, SampleTracking, ResultReview)."""
 import datetime, uuid
 from lib import Client, journey, step

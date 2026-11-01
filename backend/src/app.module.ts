@@ -144,6 +144,7 @@ import { CompatModule } from './modules/compat/compat.module';
 import { AdminSpaModule } from './modules/compat/admin-spa.module';
 import { CatalogsModule } from './modules/catalogs/catalogs.module';
 import { InsuranceEngineModule } from './modules/insurance-engine/insurance-engine.module';
+import { QuotesModule } from './modules/quotes/quotes.module';
 import { BillingModule } from './modules/billing/billing.module';
 import { ArticlesModule } from './modules/articles/articles.module';
 
@@ -308,6 +309,7 @@ import { MongoSelfHealService } from './common/database/mongo-selfheal.service';
     BillingModule,
     ArticlesModule,
     InsuranceEngineModule,
+    QuotesModule,
     AdminModule,
     CompatModule, // gap-fill endpoints from the screen↔API wiring audit — registered last
     AdminSpaModule, // admin console SPA REST surface (top-level paths, admin-role guarded)
