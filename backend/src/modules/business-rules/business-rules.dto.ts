@@ -1,16 +1,20 @@
-import { IsArray, IsDateString, IsDefined, IsIn, IsNumber, IsOptional, IsString, Max, Min, ValidateNested } from 'class-validator';
+import { IsArray, IsDateString, IsDefined, IsIn, IsNumber, IsOptional, IsString, Max, MaxLength, Min, MinLength, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class UpdateSurgeDto {
   @IsOptional() @IsNumber() @Min(0) @Max(23) startHour?: number;
   @IsOptional() @IsNumber() @Min(0) @Max(23) endHour?: number;
   @IsOptional() @IsNumber() @Min(1) @Max(5) multiplier?: number;
+  /** Why the surge changes: kept in the audit log (required, 10 characters or more). */
+  @IsString() @MinLength(10) @MaxLength(500) reason!: string;
 }
 
 /** P6.x-14: platform fee defaults (persisted in system_configs). */
 export class UpdateFeesDto {
   @IsOptional() @IsNumber() @Min(0) @Max(1000) delivery_fee?: number;
   @IsOptional() @IsNumber() @Min(0) @Max(1000) service_fee?: number;
+  /** Why the fees change: kept in the audit log (required, 10 characters or more). */
+  @IsString() @MinLength(10) @MaxLength(500) reason!: string;
 }
 
 export class RulePatientDto {

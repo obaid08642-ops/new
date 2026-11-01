@@ -10,6 +10,13 @@ import { Permission, RequirePermissions } from '../../../../common/permissions';
 import { KillSwitchesService } from '../../../kill-switches/kill-switches.service';
 import { TriggerEmergencyMaintenanceDto } from './admin-governance.dto';
 
+/** Where page rows come from when live rows come first and stored rows follow (offset = rows before this page). */
+export function fraudPageWindow(liveTotal: number, offset: number, limit: number) {
+  const liveSkip = Math.min(offset, liveTotal);
+  const liveTake = Math.max(0, Math.min(limit, liveTotal - offset));
+  return { liveSkip, liveTake, storedSkip: Math.max(0, offset - liveTotal), storedTake: limit - liveTake };
+}
+
 @Controller('admin/governance')
 @Roles(UserRole.ADMIN)
 export class AdminGovernanceController {
@@ -67,12 +74,16 @@ export class AdminGovernanceController {
       liveFilter.$or = [{ userId: rx }, { providerId: rx }, { flagType: rx }];
     }
     const liveCol = (this.fraudAlertModel as any).db?.collection('fraud_alerts');
+    // One list of live rows followed by stored rows: page N reads rows [(N-1)*limit, N*limit) of that list, so page 2 never repeats page 1.
+    let liveTotal = 0;
+    try { liveTotal = liveCol ? await liveCol.countDocuments(liveFilter) : 0; } catch { liveTotal = 0; }
+    const win = fraudPageWindow(liveTotal, (pageNum - 1) * limitNum, limitNum);
     let live: any[] = [];
     try {
-      live = liveCol ? await liveCol.find(liveFilter).sort({ createdAt: -1 }).limit(limitNum).toArray() : [];
+      live = liveCol && win.liveTake > 0 ? await liveCol.find(liveFilter).sort({ createdAt: -1 }).skip(win.liveSkip).limit(win.liveTake).toArray() : [];
     } catch { live = []; }
     const [alerts, total] = await Promise.all([
-      this.fraudAlertModel.find(filter).sort({ createdAt: -1 }).skip((pageNum - 1) * limitNum).limit(limitNum).exec(),
+      win.storedTake > 0 ? this.fraudAlertModel.find(filter).sort({ createdAt: -1 }).skip(win.storedSkip).limit(win.storedTake).exec() : Promise.resolve([] as any[]),
       this.fraudAlertModel.countDocuments(filter).exec(),
     ]);
     const normalized = live.map((d: any) => ({
@@ -84,7 +95,7 @@ export class AdminGovernanceController {
       status: d.status,
       createdAt: d.createdAt,
     }));
-    return { data: [...normalized, ...alerts.map((a: any) => (a.toObject ? a.toObject() : a))], total: total + live.length, page: pageNum, limit: limitNum };
+    return { data: [...normalized, ...alerts.map((a: any) => (a.toObject ? a.toObject() : a))], total: total + liveTotal, page: pageNum, limit: limitNum };
   }
 
   @Get('audit-logs')
