@@ -441,6 +441,8 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'notif.rad_ready.body': { ar: 'تم نشر تقريرك — اطلع عليه وشاركه مع طبيبك', en: 'Your report is published — view it and share with your doctor', ur: 'رپورٹ دیکھیں' },
   'notif.rad_cancelled.title': { ar: 'أُلغي موعد الأشعة', en: 'Radiology Cancelled', ur: 'منسوخ' },
   'notif.rad_cancelled.body': { ar: 'أُلغي الحجز — يمكنك إعادة الجدولة', en: 'The booking was cancelled — you can reschedule', ur: 'منسوخ' },
+  'notif.appt_no_show.title': { ar: 'سُجّل غيابك عن الموعد', en: 'Appointment recorded as missed', ur: 'اپائنٹمنٹ غیر حاضر درج' },
+  'notif.appt_no_show.body': { ar: 'سجّل الطبيب أنك لم تحضر الموعد. يمكنك حجز موعد جديد أو التواصل مع الدعم.', en: 'The doctor recorded that you did not attend. You can book again or contact support.', ur: 'ڈاکٹر نے درج کیا کہ آپ حاضر نہیں ہوئے۔ آپ دوبارہ بک کر سکتے ہیں۔' },
   'notif.review_reply.title': { ar: 'ردّ على تقييمك', en: 'A reply to your review', ur: 'آپ کے جائزے کا جواب' },
   'notif.review_reply.body': { ar: 'ردّ مقدّم الخدمة على تقييمك', en: 'The provider replied to your review', ur: 'فراہم کنندہ نے آپ کے جائزے کا جواب دیا' },
   'notif.prescription_new.title': { ar: 'وصفة جديدة', en: 'New Prescription', ur: 'نئا نسخہ' },
