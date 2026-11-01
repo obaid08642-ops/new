@@ -19,8 +19,7 @@ interface Props {
  */
 export function IncomingCallScreen({ route, navigation }: Props) {
   const { theme } = useTheme();
-  const { lang } = useLang();
-  const AR = lang === 'ar';
+  const { t } = useLang();
   const insets = useSafeAreaInsets();
   const { sessionId = '', callerName = '', mode = 'video' } = route.params || {};
   const [busy, setBusy] = useState(false);
@@ -39,7 +38,7 @@ export function IncomingCallScreen({ route, navigation }: Props) {
       endNativeCall(sessionId);
       navigation.goBack();
     } catch (e) {
-      setError((e as { response?: { data?: { message?: string } } })?.response?.data?.message || (AR ? 'تعذر رفض المكالمة' : 'Could not decline the call'));
+      setError((e as { response?: { data?: { message?: string } } })?.response?.data?.message || t('incomingCall.declineFailed'));
       setBusy(false);
     }
   };
@@ -47,12 +46,12 @@ export function IncomingCallScreen({ route, navigation }: Props) {
   if (!sessionId) return null;
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg, justifyContent: 'center', alignItems: 'center', padding: SP.xl, paddingTop: SP.xl + insets.top, paddingBottom: SP.xl + insets.bottom, gap: SP.lg }}>
-      <Text accessibilityLiveRegion="polite" style={{ color: theme.textSub, fontSize: FS.md }}>{mode === 'voice' ? (AR ? 'مكالمة صوتية واردة' : 'Incoming voice call') : (AR ? 'مكالمة فيديو واردة' : 'Incoming video call')}</Text>
-      <Text style={{ color: theme.text, fontSize: FS.xl, fontWeight: FW.bold, textAlign: 'center' }}>{callerName || (AR ? 'مريض' : 'A patient')}</Text>
+      <Text accessibilityLiveRegion="polite" style={{ color: theme.textSub, fontSize: FS.md }}>{mode === 'voice' ? t('incomingCall.voice') : t('incomingCall.video')}</Text>
+      <Text style={{ color: theme.text, fontSize: FS.xl, fontWeight: FW.bold, textAlign: 'center' }}>{callerName || t('incomingCall.patient')}</Text>
       {error ? <Text style={{ color: theme.warn }}>{error}</Text> : null}
       <View style={{ flexDirection: 'row', gap: SP.md, alignSelf: 'stretch' }}>
-        <View style={{ flex: 1 }}><NBtn label={AR ? 'رفض' : 'Decline'} variant="danger" disabled={busy} onPress={decline} /></View>
-        <View style={{ flex: 1 }}><NBtn label={AR ? 'رد' : 'Answer'} disabled={busy} onPress={accept} /></View>
+        <View style={{ flex: 1 }}><NBtn label={t('incomingCall.decline')} variant="danger" disabled={busy} onPress={decline} /></View>
+        <View style={{ flex: 1 }}><NBtn label={t('incomingCall.answer')} disabled={busy} onPress={accept} /></View>
       </View>
     </View>
   );

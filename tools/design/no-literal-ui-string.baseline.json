@@ -53,7 +53,7 @@
     "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx": 57,
     "provider-app/src/screens/doctor/doctor/EPrescriptionScreen.tsx": 49,
     "provider-app/src/screens/doctor/doctor/InboundMedicalReportsScreen.tsx": 10,
-    "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx": 49,
+    "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx": 47,
     "provider-app/src/screens/doctor/doctor/MedicalOrderVisitsScreen.tsx": 12,
     "provider-app/src/screens/doctor/doctor/MedicalReportScreen.tsx": 20,
     "provider-app/src/screens/doctor/doctor/NotificationsScreen.tsx": 4,
