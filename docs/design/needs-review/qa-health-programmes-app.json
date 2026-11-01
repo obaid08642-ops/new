@@ -1,0 +1,79 @@
+[
+  {
+    "batch": "qa",
+    "app": "patient-app",
+    "screen": "/maternity/maternity-setup",
+    "element": "LMP and due date typed as text",
+    "file": "patient-app/src/components/care/MaternityViews.tsx",
+    "line": 228,
+    "found": "[client] Dates are typed as YYYY-MM-DD text with only a hint; nothing checks the format before POST, so a wrong date fails with the generic save error. Use the date picker.",
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
+  },
+  {
+    "batch": "qa",
+    "app": "patient-app",
+    "screen": "/maternity/baby-growth",
+    "element": "Redirect screens with no replacement feature",
+    "file": "patient-app/app/maternity/baby-growth.tsx",
+    "line": 3,
+    "found": "[owner] baby-growth, baby-development, ovulation-tracker and pregnancy-tracker all land on the hub; there is no growth log and no kick or contraction tool. Confirm these were removed on purpose (product decisions) and not lost.",
+    "suspect": "Owner decision.",
+    "review_status": "owner-decision"
+  },
+  {
+    "batch": "qa",
+    "app": "patient-app",
+    "screen": "/mental-health/breathing",
+    "element": "Redirect screens with no replacement feature",
+    "file": "patient-app/app/mental-health/breathing.tsx",
+    "line": 5,
+    "found": "[owner] breathing, meditation and self-assessment redirect to the hub, which has only the mood journal, a consultation row and urgent help. No fake content is drawn; confirm the removal.",
+    "suspect": "Owner decision.",
+    "review_status": "owner-decision"
+  },
+  {
+    "batch": "qa",
+    "app": "patient-app",
+    "screen": "/nutrition/food-scanner",
+    "element": "Redirect screens with no replacement feature",
+    "file": "patient-app/app/nutrition/food-scanner.tsx",
+    "line": 6,
+    "found": "[owner] food-scanner and calorie-analyzer redirect to manual meal entry; ai-meal-planner and nutrition-plan redirect because weekly plans are not stored. Confirm the removal.",
+    "suspect": "Owner decision.",
+    "review_status": "owner-decision"
+  },
+  {
+    "batch": "qa",
+    "app": "patient-app",
+    "screen": "/health/sleep",
+    "element": "Sleep score is typed by the person",
+    "file": "patient-app/src/components/health/SleepView.tsx",
+    "line": 159,
+    "found": "[client] The 0-100 score is a manual field sent with source 'manual'; the ring and average show it as if it were a measured score. Label it as entered by the person or drop the field.",
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
+  },
+  {
+    "batch": "qa",
+    "app": "patient-app",
+    "screen": "/health/profile",
+    "element": "Emergency contact DTO makes name and phone optional",
+    "file": "patient-app/src/components/health/ProfileView.tsx",
+    "line": 280,
+    "found": "[backend] AddEmergencyContactDto (backend/src/modules/health/health.dto.ts:157-163) has name and phone @IsOptional, so the API accepts an empty contact; only the client enforces both.",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  },
+  {
+    "batch": "qa",
+    "app": "patient-app",
+    "screen": "/mental-health/mood-journal",
+    "element": "Numeric fields have no range on the server",
+    "file": "patient-app/src/components/care/MentalHealthViews.tsx",
+    "line": 82,
+    "found": "[backend] LogMoodDto (energy_level, stress_level, sleep_hours), AddSleepDto (sleep_score, duration_hours), LogMealDto.calories and LogWaterDto.amount_ml are only @IsNumber with no @Min/@Max; the client enforces the ranges.",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  }
+]

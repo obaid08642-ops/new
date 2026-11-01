@@ -1,3 +1,4 @@
+import { runOnce, serverMessage } from '../../../utils/singleFlight';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import { AppointmentStatus } from '../../../types/contracts';
@@ -160,24 +161,24 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
 
  const onRefresh = async () => { setRefreshing(true); await fetchQueue(); setRefreshing(false); };
 
-	const handleAccept = async (req: any) => {
+	const handleAccept = (req: any) => runOnce(`accept:${req.id}`, async () => {
 	try {
 	await client.post(`/provider/jobs/${req.kind || 'consultation'}/${req.id}/accept`);
  setRequests(prev => prev.filter(r => r.id !== req.id));
  show(AR ? 'تم قبول الطلب بنجاح' : 'Request accepted successfully', 'success');
  fetchQueue();
  stopRingtone();
- } catch (e) { show(AR ? 'حدث خطأ أثناء القبول' : 'Error accepting request', 'error'); }
- };
+ } catch (e) { show(serverMessage(e, AR ? 'حدث خطأ أثناء القبول' : 'Error accepting request'), 'error'); fetchQueue(); }
+ });
 
-	const handleReject = async (req: any) => {
+	const handleReject = (req: any) => runOnce(`reject:${req.id}`, async () => {
 	try {
 	await client.post(`/provider/jobs/${req.kind || 'consultation'}/${req.id}/reject`);
  setRequests(prev => prev.filter(r => r.id !== req.id));
  show(AR ? 'تم رفض الطلب' : 'Request rejected', 'info');
  stopRingtone();
- } catch (e) { show(AR ? 'حدث خطأ' : 'Error', 'error'); }
- };
+ } catch (e) { show(serverMessage(e, AR ? 'حدث خطأ' : 'Error'), 'error'); fetchQueue(); }
+ });
 
  const submitInsuranceGatekeeper = async () => {
    if (!approvalCode.trim() || !patientCopay.trim()) {

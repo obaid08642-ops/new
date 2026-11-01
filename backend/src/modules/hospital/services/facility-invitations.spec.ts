@@ -49,4 +49,19 @@ describe('facility invitations and memberships (gap 8)', () => {
     expect(invitationModel.find).toHaveBeenCalledWith({ status: { $eq: 'pending' }, facility_id: { $eq: 'fac-1' } });
     expect(rows[0]).toMatchObject({ facility_name: 'Facility', invitee_name: 'Dr A' });
   });
+
+  it('PV-12: the invitee is told when invited and the facility when the invitee answers', async () => {
+    const emitted: any[] = [];
+    const { service, userModel, invitationModel } = make({ id: 'inv-9', facility_id: 'fac-1', invitee_id: 'u-1', status: 'pending', permissions: {} }, [{ id: 'u-1' }]);
+    (service as any).events = { emit: (n: string, p: any) => emitted.push([n, p]) };
+    invitationModel.findOne = jest.fn()
+      .mockResolvedValueOnce(null) // no pending invitation yet
+      .mockResolvedValueOnce({ id: 'inv-9', facility_id: 'fac-1', invitee_id: 'u-1', status: 'pending', permissions: {}, save: jest.fn() });
+    invitationModel.create = jest.fn(async (d: any) => ({ id: 'inv-9', ...d }));
+    await service.createInvitation('fac-1', { identifier: '0500000000' });
+    expect(emitted[0]).toEqual(['hospital.invitation_created', { invitation_id: 'inv-9', invitee_id: 'u-1', facility_id: 'fac-1' }]);
+    await service.respondInvitation('u-1', 'inv-9', true);
+    expect(emitted[1]).toEqual(['hospital.invitation_answered', { invitation_id: 'inv-9', invitee_id: 'u-1', facility_id: 'fac-1', accepted: true }]);
+    expect(userModel.updateOne).toHaveBeenCalled();
+  });
 });
