@@ -15,6 +15,10 @@ SITE_POLICIES = POLICIES + (
     # key, docs/legal file, applies_to, requires_acceptance, title_ar, title_en
     ('patient_terms', '01_PATIENT_TERMS.ar.md', ['patient'], False, 'شروط الاستخدام', 'Terms of use'),
     ('privacy_policy', '02_PRIVACY_POLICY.ar.md', ['all'], False, 'سياسة الخصوصية', 'Privacy policy'),
+    # TEST database only: the provider contract needs a published agreement to be signed (submit refuses without one). The gate seeds the
+    # repository text of docs/legal; it is NOT the production text (the owner provides that). `requires_acceptance` is off here so the
+    # journeys' pre-made provider accounts are not locked out of /provider/ routes; the lock itself is covered by the guard's own spec.
+    ('provider_agreement', '03_PROVIDER_AGREEMENT.ar.md', ['provider'], False, 'اتفاقية المزود', 'Provider agreement'),
 )
 
 

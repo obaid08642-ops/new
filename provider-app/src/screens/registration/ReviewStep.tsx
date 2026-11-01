@@ -1,5 +1,6 @@
 // The last page of every registration: summary, bank account, contract, signature, e-mail OTP, submit.
 // A provider type supplies its summary rows, its pre-submit check and the calls that send its own data (`run`).
+import { errorCode, submitErrorKey } from '../../utils/contractEvents';
 import React, { useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useLang, useTheme, useToast } from '../../context';
@@ -72,7 +73,9 @@ export function ReviewStep<T extends ReviewData>({ config, data, update, uploads
       show(AR ? 'تم إرسال الطلب وملحقاته بنجاح!' : 'Registration Submitted!', 'success');
       setSubmitted(true);
     } catch (e) {
-      show(apiMessage(e, AR ? 'حدث خطأ' : 'Error submitting'), 'error');
+      const key = submitErrorKey(errorCode(e));
+      if (key === 'contract.mustAccept') { setAcceptedVersion(null); setShowContract(true); }
+      show(key ? t(key) : apiMessage(e, AR ? 'حدث خطأ' : 'Error submitting'), key === 'contract.signaturePending' ? 'warning' : 'error');
     } finally {
       setLoading(false);
     }

@@ -2,7 +2,8 @@ import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { ContractModal, reachedEnd } from '../ContractModal';
 import { ContractGate } from '../ContractGate';
-import { contractErrorKey } from '../MyContract';
+import { contractErrorKey, fetchMyContract } from '../MyContract';
+import { emitAgreementRequired, errorCode, submitErrorKey } from '../../utils/contractEvents';
 
 const mockGet = jest.fn();
 const mockPost = jest.fn();
@@ -104,9 +105,50 @@ describe('ContractGate (a new version must be accepted again)', () => {
 
 describe('the signed contract errors', () => {
   it('maps what the server said to a message', () => {
-    expect(contractErrorKey(403)).toBe('contract.mine.notShared');
+    expect(contractErrorKey(403)).toBe('contract.mine.failed');
     expect(contractErrorKey(404)).toBe('contract.mine.notReady');
     expect(contractErrorKey(500)).toBe('contract.mine.failed');
     expect(contractErrorKey(undefined)).toBe('contract.mine.failed');
+  });
+});
+
+describe('the server refuses with a typed code', () => {
+  it('a 403 provider_agreement_required makes the gate ask again and open the contract', async () => {
+    let pending = false;
+    mockGet.mockImplementation(async (url: string) => (url === '/legal/pending' ? { data: pending ? [{ key: 'provider_agreement' }] : [] } : POLICY));
+    await render(<ContractGate />);
+    await waitFor(() => expect(mockGet).toHaveBeenCalledWith('/legal/pending'));
+    expect(screen.queryByText('Service Provision Contract')).toBeNull();
+    pending = true;
+    await act(async () => { emitAgreementRequired(); });
+    expect(await screen.findByText('Service Provision Contract')).toBeTruthy();
+  });
+  it('the submit codes map to a message', () => {
+    expect(errorCode({ response: { data: { code: 'signature_pending_scan' } } })).toBe('signature_pending_scan');
+    expect(errorCode({ response: { data: { message: 'signature_unusable' } } })).toBe('signature_unusable');
+    expect(errorCode(new Error('x'))).toBeNull();
+    expect(submitErrorKey('signature_pending_scan')).toBe('contract.signaturePending');
+    expect(submitErrorKey('signature_unusable')).toBe('contract.signatureUnusable');
+    expect(submitErrorKey('provider_agreement_not_published')).toBe('contract.notPublished');
+    expect(submitErrorKey('provider_agreement_not_accepted')).toBe('contract.mustAccept');
+    expect(submitErrorKey('something_else')).toBeNull();
+  });
+});
+
+describe('the signed PDF comes in the app language', () => {
+  it('asks for the app language and returns what the server sent', async () => {
+    mockGet.mockResolvedValue({ data: { pdf_base64: 'QUJD', sha256: 'h', language: 'en' } });
+    expect((await fetchMyContract('en')).language).toBe('en');
+    expect(mockGet).toHaveBeenCalledWith('/provider-onboarding/contract', { params: { lang: 'en' } });
+  });
+  it('a contract with no English PDF falls back to the Arabic one', async () => {
+    mockGet.mockRejectedValueOnce({ response: { status: 404, data: { message: 'contract_language_unavailable' } } })
+      .mockResolvedValueOnce({ data: { pdf_base64: 'QUJD', sha256: 'h', language: 'ar' } });
+    expect((await fetchMyContract('en')).language).toBe('ar');
+    expect(mockGet).toHaveBeenLastCalledWith('/provider-onboarding/contract', { params: { lang: 'ar' } });
+  });
+  it('any other error is passed on (not signed yet is a 404 of another kind)', async () => {
+    mockGet.mockRejectedValueOnce({ response: { status: 404, data: { message: 'contract_not_generated' } } });
+    await expect(fetchMyContract('en')).rejects.toMatchObject({ response: { status: 404 } });
   });
 });
