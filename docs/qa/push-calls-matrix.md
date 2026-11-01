@@ -15,7 +15,7 @@ Cell values: **PASS** = covered by a test named in the cell; **NEEDS-KEY** = cod
 | Web Push (VAPID) | NEEDS-KEY `WEB_PUSH_VAPID_*` (`:273-315`); ops task `97b-vapid-generate.sh` creates them |
 | Retried and logged | Queue retries 3× with exponential backoff (`:473`, `:479`) and results are counted in `PushLog`. FAIL: the APNs/FCM calls inside one attempt are single-shot (`:33` says so on purpose, a repeat could notify twice) and `sendApnsVoip` has no retry |
 | Cancel notice (caller hangs up while ringing) | PASS in this PR: `livekit.service.ts` `endCall` emits `call.cancelled` when the session was still INITIATED; `push.module.ts` `onCallCancelled` sends `call_cancelled` data-only, high priority, never PushKit (tests `livekit.cancel.spec.ts`, `push.call-ring.spec.ts`). Client end-ringing logic: `ringTask.ts:32` (PASS, `call-ring.test.ts`) |
-| Missed-call notice (nobody answers) | FAIL: `onCallMissed` exists (`push.module.ts`) but nothing emits `call.missed` (no ring-timeout job in `livekit.service.ts`); needs a timer on INITIATED sessions after `RINGING_MS`. Not built |
+| Missed-call notice (nobody answers) | PASS in this PR: `LiveKitService.sweepUnanswered` (`livekit.service.ts`, every minute) marks a call still INITIATED after 2 min as MISSED and emits `call.missed`; `push.module.ts` `onCallMissed` sends `call_missed` (the client ends the ringing on it, `ringTask.ts:32`) and notifications.service writes the notice. Tests `livekit.cancel.spec.ts` (3 new). Runs only in the background-work process role (`process-role.ts:26`); calls created before this change carry no callee and are skipped |
 | Tokens removed on sign-out | PASS (correction of the earlier FAIL): logout ends the session server-side and `auth.service.ts:315` calls `removeForSessions`; register stores `session_id` (`push.module.ts:389`). Test `push.sessions.spec.ts`, `auth.sessions.spec.ts:51`. The apps need no extra call |
 
 ## Patient app
@@ -56,7 +56,7 @@ Cell values: **PASS** = covered by a test named in the cell; **NEEDS-KEY** = cod
 ## What must be built (not keys), in priority order
 1. iOS: add `react-native-voip-push-notification` (config plugin + AppDelegate `reportNewIncomingCall` call) to the patient app; same for the provider app if providers receive calls.
 2. Provider app: CallKeep + ring task (mirror `patient-app/src/calls/ringTask.ts` and `src/utils/callkeep.ts`).
-3. Backend: per-app VoIP topic; emit `call.missed` after the ring timeout.
+3. Backend: per-app VoIP topic.
 4. Both apps: badge counts from unread items; battery-optimisation guidance screen (needs six-language strings).
 
 Done in this PR: `call_cancelled` push (backend). Corrected: sign-out token removal already works server-side.
