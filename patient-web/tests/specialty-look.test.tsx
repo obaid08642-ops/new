@@ -94,6 +94,9 @@ describe("specialty tiles", () => {
     const css = readFileSync(join(__dirname, "../components-next/consult/specialty-tiles.module.css"), "utf8");
     expect(css).toMatch(/\.row\s*\{[^}]*overflow-x: auto[^}]*scroll-snap-type: x proximity/);
     expect(css).toMatch(/\.tile\s*\{[^}]*inline-size: 64px/);
+    // the row is one line of names (the board's): no tile is stretched by a long name, so no empty band is left under the others
+    expect(css).toMatch(/\.row \.label\s*\{[^}]*white-space: nowrap[^}]*text-overflow: ellipsis/);
+    expect(css).toMatch(/\.row\s*\{[^}]*padding: 3px 3px 0/);
     expect(css).not.toMatch(/margin-left|margin-right|padding-left|padding-right|text-align: (left|right)|#[0-9a-fA-F]{3,8}\b|rgba?\(/);
   });
 });

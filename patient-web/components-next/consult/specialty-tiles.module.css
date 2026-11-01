@@ -2,7 +2,7 @@
 
 /* one row that swipes sideways from the start edge (logical: the first tile is at the right in Arabic and Urdu) */
 .row {
-  list-style: none; margin: 0; padding: 3px; display: flex; gap: var(--nabd-space-sm); overflow-x: auto; scroll-snap-type: x proximity;
+  list-style: none; margin: 0; padding: 3px 3px 0; display: flex; gap: var(--nabd-space-sm); overflow-x: auto; scroll-snap-type: x proximity;
   scrollbar-width: none; overscroll-behavior-x: contain;
 }
 .row::-webkit-scrollbar { display: none; }
@@ -21,3 +21,5 @@
 .tile[data-selected="true"] .label { font-weight: 700; }
 .picture { display: flex; align-items: center; justify-content: center; }
 .label { font-size: var(--nabd-font-size-label); font-weight: 500; overflow-wrap: anywhere; line-height: 1.25; }
+/* the row is the board's: one line under the chip, so every tile has the same height and nothing is left empty under a short name (the full name is the tile's aria-label); the grid keeps two lines */
+.row .label { inline-size: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; }
