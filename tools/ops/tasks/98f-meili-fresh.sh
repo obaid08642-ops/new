@@ -14,7 +14,7 @@
 # The old data dir is NOT deleted here; a later run removes it once search is confirmed healthy (owner-approved cleanup).
 # ROLLBACK=yes APPLY=yes: stop meili, put the newest meili-data-old-* back in place (the fresh dir is moved aside, not deleted), start meili.
 set -u
-APPLY=${APPLY:-yes}; ROLLBACK=${ROLLBACK:-no}
+APPLY=${APPLY:-no}; ROLLBACK=${ROLLBACK:-no}
 DK="sudo -n docker"; CT=nabdah-meilisearch; IDX=nabd_search
 B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}
 LOCK=${NABD_DEPLOY_LOCK:-/opt/nabdah/deploy.lock}

@@ -3,7 +3,7 @@
 # Guarded: only when the live engine holds as many documents as Mongo search_index and has not restarted since its fresh start; only paths
 # named meili-data-old-* or meili-data-fresh-* under the backups dir. APPLY=yes removes; otherwise a dry run. Names and sizes only.
 set -u
-APPLY=${APPLY:-yes}
+APPLY=${APPLY:-no}
 DK="sudo -n docker"; B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}; IDX=nabd_search
 say() { echo "status: meili-old: $*"; }
 JS='const u=process.env.MEILI_URL,k=process.env.MEILI_MASTER_KEY;fetch(u+"/indexes/'$IDX'/stats",{headers:{Authorization:"Bearer "+k}}).then(r=>r.json()).then(j=>console.log(j.numberOfDocuments??"none")).catch(()=>console.log("down"))'

@@ -1,11 +1,2 @@
-# 2026-11-01 09:50 lead reviewer: run 81.
-# Run 80 OK: main@328263b5 live (self-heal, stale-if-error, specialty tiles, receipts, quotes), dump guard ok (356.6 MB), health ok. Disk 90%.
-# 91c dry run: 4 host scripts missing (watchdog, dump guard, oneoff dump, restore list), 6 differ. 98k dry run: script missing, cron not installed.
-# 1. 98h: remove the old meili data dir renamed by run 78 (2.7 GB), only if the engine holds all 21,311 docs and has not restarted.
-# 2. 91c APPLY: install the host files from the release (backup of each old file first; mongod.conf is only written, takes effect at the next mongod recreate).
-# 3. 98k APPLY: install the watchdog cron (restart backend/patient-web after 3 unhealthy minutes, max once per 15 min, alert mail).
+# 2026-11-01 run 81 done; no run queued.
 release:328263b5edd6e23c211d0584960b99df925938a7
-98h-meili-old-remove
-91c-host-files
-98k-backend-watchdog
-99d-disk-usage
