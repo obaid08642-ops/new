@@ -710,7 +710,8 @@ function SampleTracking({ onBack, onNav }:{ onBack:()=>void; onNav:(s:string,p?:
  const res = await client.get('/labs/samples');
  setSamples(res.data || []);
  } catch (err) {
-  setSamples([]); // Silent fail — show empty state
+  setSamples([]);
+  show(AR ? 'تعذر تحميل العينات' : 'Could not load the samples', 'error');   // a failed load is told, not shown as "no samples"
  } finally {
  setLoading(false);
  }
@@ -1266,6 +1267,7 @@ function LabInsurance({ onBack }:{ onBack:()=>void }) {
  const [selectedOrder, setSelectedOrder] = useState<any>(null);
  // D-37: the insurer's approval number from the lab's own system (required to approve).
  const [approvalRef, setApprovalRef] = useState('');
+ const [rejectNote, setRejectNote] = useState('');   // the insurer's reason when the claim is rejected (the server needs one)
 
  const fetchOrders = async () => {
  try {
@@ -1283,6 +1285,10 @@ function LabInsurance({ onBack }:{ onBack:()=>void }) {
  useEffect(() => { fetchOrders(); }, []);
 
  const handleUpdateInsurance = async (status: string) => {
+ if (status === 'rejected' && rejectNote.trim().length < 3) {
+ show(AR ? 'اكتب سبب رفض التأمين' : 'Enter the reason the insurer rejected it', 'error');
+ return;
+ }
  if (status !== 'rejected' && !approvalRef.trim()) {
  show(AR ? 'رقم موافقة التأمين إلزامي' : 'The insurer approval number is required', 'error');
  return;
@@ -1290,16 +1296,16 @@ function LabInsurance({ onBack }:{ onBack:()=>void }) {
  try {
  await client.patch(`/labs/bookings/${selectedOrder.id}/insurance`, {
  status,
- ...(status !== 'rejected' ? { approval_ref: approvalRef.trim() } : {}),
+ ...(status !== 'rejected' ? { approval_ref: approvalRef.trim() } : { reason: rejectNote.trim() }),
  totalCopay: selectedOrder.insurance_copay || 0,
  items: selectedOrder.items
  });
  show(AR ? 'تم التحديث بنجاح' : 'Updated successfully', 'success');
- setApprovalRef('');
+ setApprovalRef(''); setRejectNote('');
  setSelectedOrder(null);
  fetchOrders();
- } catch(e) {
- show(AR ? 'خطأ في التحديث' : 'Error updating', 'error');
+ } catch(e: any) {
+ show(e?.response?.data?.message || (AR ? 'خطأ في التحديث' : 'Error updating'), 'error');
  }
  };
 
@@ -1361,6 +1367,7 @@ function LabInsurance({ onBack }:{ onBack:()=>void }) {
 
  <NCard style={{marginTop: SP.lg}}>
  <NInput label={AR ? 'رقم موافقة التأمين (إلزامي للاعتماد)' : 'Insurer approval number (required to approve)'} placeholder="APR-XXXXX" value={approvalRef} onChange={setApprovalRef} />
+ <NInput label={AR ? 'سبب الرفض (إلزامي عند الرفض)' : 'Rejection reason (required to reject)'} value={rejectNote} onChange={setRejectNote} />
  </NCard>
  <View style={{flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.xl, marginBottom: SP.xxl}}>
  <NBtn label={AR ? 'رفض' : 'Reject'} variant="danger" onPress={() => handleUpdateInsurance('rejected')} style={{flex: 1}} />

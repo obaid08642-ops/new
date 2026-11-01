@@ -1,4 +1,4 @@
-import { IsArray, IsDefined, IsIn, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Allow, IsArray, IsDefined, IsIn, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class SegmentRuleDto {
@@ -9,6 +9,16 @@ export class SegmentRuleDto {
   @IsOptional()
   @IsString()
   op?: string;
+
+  // free-form: the value a rule compares with; its type depends on the op (string, number, date, list for `in`, boolean for `exists`)
+  @IsOptional()
+  @Allow()
+  value?: unknown;
+
+  // free-form: the upper bound of a `between` rule
+  @IsOptional()
+  @Allow()
+  value2?: unknown;
 }
 
 export class SegmentDefinitionDto {

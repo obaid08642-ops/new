@@ -153,19 +153,32 @@ export default function NotificationCenterPage() {
 
   const sendNow = async (id: string) => {
     if (!confirm('إرسال هذه الحملة الآن؟')) return;
-    await apiFetch(`/api/admin/admin/notification-center/campaigns/${id}/send`, { method: 'POST' }).catch(() => alert('فشل'));
+    try {
+      await apiFetch(`/api/admin/admin/notification-center/campaigns/${id}/send`, { method: 'POST' });
+    } catch (e: any) {
+      alert(`فشل الإرسال: ${e?.message || ''}`);
+    }
     load();
   };
 
   const cancel = async (id: string) => {
     if (!confirm('إلغاء هذه الحملة المجدولة؟')) return;
-    await apiFetch(`/api/admin/admin/notification-center/campaigns/${id}`, { method: 'DELETE' }).catch(() => alert('فشل'));
+    try {
+      await apiFetch(`/api/admin/admin/notification-center/campaigns/${id}`, { method: 'DELETE' });
+    } catch (e: any) {
+      alert(`فشل الإلغاء: ${e?.message || ''}`);
+    }
     load();
   };
 
   const runRetarget = async () => {
-    await apiFetch('/api/admin/admin/notification-center/retarget/run', { method: 'POST' }).catch(() => null);
-    alert('تم تشغيل إعادة الاستهداف يدوياً');
+    if (!confirm('تشغيل إعادة الاستهداف الآن؟ سيُرسل إشعارات إلى المستخدمين المطابقين.')) return;
+    try {
+      await apiFetch('/api/admin/admin/notification-center/retarget/run', { method: 'POST' });
+      alert('تم تشغيل إعادة الاستهداف يدوياً');   // only when the server accepted it (it used to say so after a failure too)
+    } catch (e: any) {
+      alert(`تعذر تشغيل إعادة الاستهداف: ${e?.message || ''}`);
+    }
   };
 
   const statusBadge = (s: string) => {

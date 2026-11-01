@@ -7,11 +7,13 @@ import { ProviderApi } from '../../api/provider';
 
 interface LeaveRequest {
   id: string;
-  providerName: string;
-  providerType: string;
-  type: 'vacation' | 'emergency';
-  startDate: string;
-  endDate: string;
+  // the server sends snake_case (provider/leave-requests.controller): provider_name, provider_type, start_date, end_date
+  provider_name?: string; provider_type?: string; start_date?: string; end_date?: string;
+  providerName?: string;
+  providerType?: string;
+  type: 'vacation' | 'emergency' | 'sick' | 'other';
+  startDate?: string;
+  endDate?: string;
   reason: string;
   status: 'pending' | 'approved' | 'rejected';
 }
@@ -22,6 +24,7 @@ export function FacilityLeaveRequestsScreen({ onBack }: { onBack: () => void }) 
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [requests, setRequests] = useState<LeaveRequest[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   React.useEffect(() => {
     fetchRequests();
@@ -30,10 +33,12 @@ export function FacilityLeaveRequestsScreen({ onBack }: { onBack: () => void }) 
   const fetchRequests = async () => {
     try {
       setLoading(true);
+      setLoadFailed(false);
       const res = await client.get('/provider/leave-requests');
       setRequests(res.data || []);
     } catch (e) {
       console.warn('Failed to fetch leave requests', e);
+      setLoadFailed(true);   // told below instead of looking like "no leave requests"
     } finally {
       setLoading(false);
     }
@@ -58,13 +63,13 @@ export function FacilityLeaveRequestsScreen({ onBack }: { onBack: () => void }) 
             <NCard key={req.id}>
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <View style={{ alignItems: AR ? 'flex-end' : 'flex-start', flex: 1 }}>
-                  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{req.providerName}</Text>
-                  <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4 }}>{req.providerType}</Text>
+                  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{req.provider_name || req.providerName}</Text>
+                  <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4 }}>{req.provider_type || req.providerType}</Text>
                   <Text style={{ fontSize: FS.sm, color: theme.text, marginTop: SP.sm, textAlign: AR ? 'right' : 'left' }}>
                     {AR ? 'السبب: ' : 'Reason: '}{req.reason}
                   </Text>
                   <Text style={{ fontSize: FS.sm, color: theme.textSub, marginTop: 4 }}>
-                    {req.startDate} {req.endDate}
+                    {String(req.start_date || req.startDate || '').slice(0, 10)} → {String(req.end_date || req.endDate || '').slice(0, 10)}
                   </Text>
                 </View>
                 <NBadge 
@@ -93,7 +98,10 @@ export function FacilityLeaveRequestsScreen({ onBack }: { onBack: () => void }) 
               )}
             </NCard>
           ))}
-          {requests.length === 0 && (
+          {loadFailed && requests.length === 0 && (
+            <Text style={{ textAlign: 'center', color: theme.danger }}>{AR ? 'تعذر تحميل طلبات الإجازة. اسحب للتحديث أو أعد فتح الشاشة.' : 'Could not load leave requests. Reopen the screen to retry.'}</Text>
+          )}
+          {!loadFailed && requests.length === 0 && (
             <Text style={{ textAlign: 'center', color: theme.textSub, marginTop: SP.xxl }}>
               {AR ? 'لا توجد طلبات إجازة' : 'No leave requests'}
             </Text>

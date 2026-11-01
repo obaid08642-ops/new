@@ -190,12 +190,12 @@ export function PatientFileScreen({ patient, onBack }:
  {/* Content by section */}
  {activeSection === 'overview' && (
  <View style={{ gap: SP.md }}>
+ {/* Only what the request carries about this patient (the job queue returns allergies, chronic conditions and blood type);
+     nothing is invented: the overview used to show the same diabetes/penicillin record for every patient. */}
  {[
- { ar:'أمراض مزمنة', en:'Chronic Conditions', val:'سكري النوع 2، ضغط الدم' },
- { ar:'الأدوية الحالية', en:'Current Medications', val:'Metformin 500mg، Lisinopril 10mg' },
- { ar:'الحساسية', en:'Allergies', val:'بنسيلين (Penicillin)' },
- { ar:'آخر زيارة', en:'Last Visit', val:'2025-03-15' },
- { ar:'عدد الزيارات', en:'Total Visits', val:'12 زيارة' },
+ { ar:'أمراض مزمنة', en:'Chronic Conditions', val: [].concat(patient?.patient_chronic ?? patient?.chronic ?? []).join('، ') || '—' },
+ { ar:'الحساسية', en:'Allergies', val: [].concat(patient?.patient_allergies ?? patient?.allergies ?? []).join('، ') || '—' },
+ { ar:'فصيلة الدم', en:'Blood Type', val: patient?.patient_blood_type ?? patient?.blood_type ?? '—' },
  ].map((row, i) => (
  <NCard key={i} style={{ padding: SP.lg }}>
  <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{AR ? row.ar : row.en}</Text>
@@ -354,22 +354,11 @@ export function PatientFileScreen({ patient, onBack }:
  )}
 
  {activeSection === 'visits' && (
- <View>
- {[
- { date:'2025-03-15', type:'video', diagnosis:'ضغط دم مرتفع', doctor:'د. محمد' },
- { date:'2025-01-20', type:'clinic', diagnosis:'فحص روتيني سكري', doctor:'د. محمد' },
- { date:'2024-11-05', type:'home', diagnosis:'التهاب مجاري بولية', doctor:'د. محمد' },
- ].map((visit, i) => (
- <NCard key={i} style={{ marginBottom: SP.md }}>
- <Text style={{ fontSize: FS.xs, color: theme.primary }}>{visit.date}</Text>
- <Text style={{ fontSize: FS.md, fontWeight: FW.semi, color: theme.text,
- textAlign: AR ? 'right' : 'left', marginVertical: SP.xs }}>{visit.diagnosis}</Text>
- <Text style={{ fontSize: FS.xs, color: theme.textSub }}>
- {visit.type === 'video' ? '' : visit.type === 'clinic' ? '' : ''} {visit.doctor}
+ <NCard>
+ <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
+ {AR ? 'سجل الزيارات السابقة غير متاح في هذه الشاشة. افتح المواعيد لرؤية زيارات هذا المريض معك.' : 'Past visits are not shown on this screen. Open your appointments to see this patient\'s visits with you.'}
  </Text>
  </NCard>
- ))}
- </View>
  )}
  </NScroll>
  </View>

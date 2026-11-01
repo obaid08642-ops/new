@@ -1,4 +1,5 @@
 import { API_BASE } from '../../../constants';
+import { toReviews } from '../../../utils/reviews';
 import { buildHeaders } from '../../../security/Security';
 import * as Crypto from 'expo-crypto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -34,12 +35,15 @@ export function ReviewsSystem({ onBack }: { onBack: () => void }) {
  const [replyingTo, setReplyingTo] = useState<string | null>(null);
  const [replyText, setReplyText] = useState('');
 
- useEffect(() => {
+ const [loadFailed, setLoadFailed] = useState(false);
+ const load = () => {
+ setLoadingReviews(true); setLoadFailed(false);
  client.get('/provider/reviews')
- .then(res => setReviews(Array.isArray(res.data) ? res.data : (res.data?.items || [])))
- .catch(() => setReviews([]))
+ .then(res => setReviews(toReviews(res.data)))
+ .catch(() => { setReviews([]); setLoadFailed(true); })
  .finally(() => setLoadingReviews(false));
- }, []);
+ };
+ useEffect(load, []);
 
  const handleReply = async (id: string) => {
  const text = replyText.trim();
@@ -49,8 +53,8 @@ export function ReviewsSystem({ onBack }: { onBack: () => void }) {
  setReviews(rs => rs.map(r => r.id === id ? { ...r, reply: text } : r));
  setReplyingTo(null); setReplyText('');
  show(AR ? 'تم إرسال الرد' : 'Reply sent', 'success');
- } catch {
- show(AR ? 'تعذر إرسال الرد' : 'Failed to send reply', 'error');
+ } catch (e: any) {
+ show(e?.response?.data?.message === 'review_not_published' ? (AR ? 'لا يمكن الرد قبل نشر التقييم' : 'You can reply once the review is published') : (e?.response?.data?.message || (AR ? 'تعذر إرسال الرد' : 'Failed to send reply')), 'error');
  }
  };
 
@@ -73,7 +77,7 @@ export function ReviewsSystem({ onBack }: { onBack: () => void }) {
  {loadingReviews ? (
  <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: 'center', marginVertical: SP.xl }}>{AR ? 'جاري تحميل التقييمات...' : 'Loading reviews...'}</Text>
  ) : reviews.length === 0 ? (
- <NEmpty title={AR ? 'لا توجد تقييمات بعد' : 'No reviews yet'} subtitle={AR ? 'ستظهر تقييمات المرضى هنا فور وصولها' : 'Patient reviews will appear here'} />
+ loadFailed ? <NEmpty title={AR ? 'تعذر تحميل التقييمات' : 'Could not load reviews'} actionLabel={AR ? 'إعادة المحاولة' : 'Retry'} onAction={load} /> : <NEmpty title={AR ? 'لا توجد تقييمات بعد' : 'No reviews yet'} subtitle={AR ? 'ستظهر تقييمات المرضى هنا فور وصولها' : 'Patient reviews will appear here'} />
  ) : reviews.map(review => (
  <NCard key={review.id} style={{ marginBottom: SP.md }}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: SP.sm }}>
@@ -101,6 +105,8 @@ export function ReviewsSystem({ onBack }: { onBack: () => void }) {
  <NBtn label={AR ? 'إلغاء' : 'Cancel'} size="sm" variant="outline" onPress={() => { setReplyingTo(null); setReplyText(''); }} />
  </View>
  </View>
+ ) : !review.canReply ? (
+ <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{AR ? 'بانتظار مراجعة الإدارة قبل النشر' : 'Waiting for moderation before it is published'}</Text>
  ) : (
  <NBtn label={AR ? 'رد على التقييم' : 'Reply'} size="xs" variant="outline" full={false}
  style={{ alignSelf: AR ? 'flex-end' : 'flex-start', paddingHorizontal: SP.lg }}

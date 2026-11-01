@@ -68,8 +68,8 @@ export function PromotionsDashboard({ onBack, onNavigate }: { onBack: () => void
  {AR ? (item.title_ar || item.title_en) : (item.title_en || item.title_ar)}
  </Text>
  <NBadge
- label={AR ? (item.status === 'approved' ? 'مقبول' : item.status === 'pending' ? 'انتظار' : 'مؤرشف') : item.status.toUpperCase()}
- variant={item.status === 'approved' ? 'success' : item.status === 'pending' ? 'warning' : 'primary'}
+ label={AR ? (item.status === 'approved' ? 'مقبول' : ['pending', 'pending_review'].includes(item.status) ? 'قيد المراجعة' : item.status === 'rejected' ? 'مرفوض' : 'مؤرشف') : String(item.status || '').replace(/_/g, ' ').toUpperCase()}
+ variant={item.status === 'approved' ? 'success' : ['pending', 'pending_review'].includes(item.status) ? 'warning' : item.status === 'rejected' ? 'danger' : 'primary'}
  size="xs"
  />
  </View>
