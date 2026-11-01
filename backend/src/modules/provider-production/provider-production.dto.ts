@@ -219,32 +219,6 @@ export class CreatePromotionDto {
 
 }
 
-export class CreateTechDto {
-  @IsOptional()
-  @IsString()
-  full_name: string;
-
-  @IsDefined()
-  @IsString()
-  phone: string;
-
-  @IsDefined()
-  @IsString()
-  department: string;
-
-  @IsDefined()
-  @IsString()
-  specialty: string;
-
-}
-
-export class UpdateTechDto {
-  @IsOptional()
-  @IsBoolean()
-  suspended?: boolean;
-
-}
-
 export class PatchAvailabilityDto {
   @IsOptional() @IsBoolean() is_accepting_requests?: boolean;
   @IsOptional() @IsBoolean() instant_available?: boolean;

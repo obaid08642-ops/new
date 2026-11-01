@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { NotificationsCenterScreen } from '../shared/RealScreens';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, RefreshControl, ActivityIndicator, Switch } from 'react-native';
 import { useTheme, useLang, useToast } from '../../context';
@@ -77,6 +78,7 @@ export function RadiologyDashboardNavigator({ onLogout }: { onLogout: () => void
         }}
       </Stack.Screen>
 
+      <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="order_detail">{({ navigation, route }: any) => <OrderDetailScreen order={route.params?.param} onBack={() => navigation.goBack()} onNav={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="reporting">{({ navigation, route }: any) => <ReportingScreen order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>

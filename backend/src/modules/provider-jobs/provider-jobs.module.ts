@@ -100,8 +100,11 @@ export class ProviderJobsService {
       ? [ServiceState.CONFIRMED, ServiceState.IN_PROGRESS]
       : [ServiceState.COMPLETED];
 
+    // A new consultation, lab or radiology booking names its provider at creation and waits in REQUESTED (nothing is ever ASSIGNED for
+    // these), so "incoming" for them is REQUESTED as well; the accept step enforces payment and insurance before it moves on.
+    const NAMED_AT_CREATION: ServiceDomain[] = ['consultation', 'lab', 'radiology'];
     const universalsToDomainStates = (kind: ServiceDomain): string[] =>
-      wantUniversals.flatMap(u => domainStatesFor(kind, u));
+      (status === 'incoming' && NAMED_AT_CREATION.includes(kind) ? [ServiceState.ASSIGNED, ServiceState.REQUESTED] : wantUniversals).flatMap(u => domainStatesFor(kind, u));
 
     const kindAllowed = (k: string) => allowedKinds.has(k as ServiceDomain) && (!kindFilter || this.kindAliases[kindFilter] === k);
 
@@ -110,10 +113,10 @@ export class ProviderJobsService {
         ? this.orders.find({ pharmacy_id: providerId, state: { $in: universalsToDomainStates('pharmacy') } }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean()
         : Promise.resolve([]),
       kindAllowed('lab')
-        ? this.labs.find({ account_id: providerId, state: { $in: universalsToDomainStates('lab') } }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean()
+        ? this.labs.find({ provider_account_id: providerId, state: { $in: universalsToDomainStates('lab') } }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean()
         : Promise.resolve([]),
       kindAllowed('radiology')
-        ? this.rads.find({ account_id: providerId, state: { $in: universalsToDomainStates('radiology') } }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean()
+        ? this.rads.find({ provider_account_id: providerId, state: { $in: universalsToDomainStates('radiology') } }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean()
         : Promise.resolve([]),
       kindAllowed('nursing')
         ? this.home.find({ $or: [{ provider_id: providerId }, { account_id: providerId }], state: { $in: universalsToDomainStates('nursing') } }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean()
@@ -182,8 +185,8 @@ export class ProviderJobsService {
   private async findEntity(kind: ServiceDomain, id: string, providerId: string) {
     let entity: any = null;
     if (kind === 'pharmacy') entity = await this.orders.findOne({ id, pharmacy_id: providerId });
-    else if (kind === 'lab') entity = await this.labs.findOne({ id, account_id: providerId });
-    else if (kind === 'radiology') entity = await this.rads.findOne({ id, account_id: providerId });
+    else if (kind === 'lab') entity = await this.labs.findOne({ id, provider_account_id: providerId });
+    else if (kind === 'radiology') entity = await this.rads.findOne({ id, provider_account_id: providerId });
     else if (kind === 'nursing') entity = await this.home.findOne({ id, $or: [{ provider_id: providerId }, { account_id: providerId }] });
     else if (kind === 'consultation') entity = await this.appts.findOne({ id, $or: [{ doctor_user_id: providerId }, { account_id: providerId }] });
     if (!entity) throw new NotFoundException('job_not_found_or_not_yours');
@@ -223,6 +226,10 @@ export class ProviderJobsService {
       [ServiceState.CANCELLED]: { pharmacy: 'CANCELLED', lab: 'CANCELLED', radiology: 'CANCELLED', nursing: 'CANCELLED', consultation: 'CANCELLED' },
     };
     const toDomain = domainLiteralFor[target][kind];
+    // A repeat of a step that already happened (a double tap, a retry after a dropped answer) answers with the current record. The engine
+    // lets a same-state move through, which re-ran the mutation and re-sent every notification with a second history entry.
+    const sameStep = (() => { try { return from === toDomain || toUniversal(kind, from) === toUniversal(kind, toDomain); } catch { return false; } })();
+    if (sameStep) return entity.toObject();
     return await this.engine.apply({
       kind, entity_id: id, from_domain: from, to_domain: toDomain,
       actor_account_id: user.id, actor_role: 'provider', patient_account_id: entity.patient_id, reason,
@@ -233,7 +240,7 @@ export class ProviderJobsService {
           : kind === 'nursing' ? this.home
           : this.appts;
         entity[field] = toDomain;
-        (entity.state_history = entity.state_history || []).push({ from, to: toDomain, by_user_id: user.id, by_role: 'provider', at: new Date(), note: reason });
+        (entity.state_history = entity.state_history || []).push({ state: toDomain, from, to: toDomain, by_user_id: user.id, by_role: 'provider', at: new Date(), note: reason });   // `state` is required by the appointment's history schema
         await entity.save();
         return entity.toObject();
       },

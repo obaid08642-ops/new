@@ -65,6 +65,9 @@ export const toLabOrderView = (x: any) => ({
   tech_name: x.technician_name || x.technician_id,
 });
 
+/** A home-collection booking with a phlebotomist assigned: it waits in CONFIRMED (assigning does not change the state) and is on the road in IN_TRANSIT. */
+export const isTripOrder = (o: any): boolean => !!o?.homeCollection && !!o?.tech_name && (o.status === 'CONFIRMED' || o.status === 'IN_TRANSIT');
+
 const BOOKING_STATES: Record<string, { ar: string; en: string; color: string }> = {
   NEW_REQUEST: { ar: 'طلب جديد', en: 'New request', color: tokens.warning },
   PENDING_INSURANCE: { ar: 'بانتظار التأمين', en: 'Pending insurance', color: tokens.warning },
@@ -590,11 +593,20 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
           ) : (
             <NBtn label={AR ? 'حضور المريض - تسجيل عينة' : 'Patient Arrived - Register Sample'} onPress={() => setShowRegister(true)} />
           )}
+          <NBtn label={AR ? 'المريض لم يحضر' : 'Patient did not show up'} variant="outline" onPress={async () => {
+            try {
+              await client.post(`/labs/bookings/${order?.id}/emergency`, { reason: 'PATIENT_ABSENT' });
+              show(AR ? 'سُجّل غياب المريض وأُلغي الحجز' : 'No-show recorded and the booking cancelled', 'info');
+              onBack();
+            } catch (err: any) {
+              show(err?.response?.data?.message || err.message, 'error');
+            }
+          }} />
           <NBtn label={AR ? 'إعادة جدولة الموعد' : 'Reschedule Appointment'} variant="outline" onPress={() => setShowReschedule(true)} />
         </View>
       )}
 
-      {order?.status === 'ASSIGNED' && (
+      {isTripOrder(order) && (
         <View style={{gap:SP.md}}>
           <NBtn label={AR ? 'بدء التحرك (تتبع GPS)' : 'Start Trip (GPS)'} onPress={() => onNav('home_collection', order)} />
         </View>
@@ -1054,7 +1066,7 @@ function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
       </NScroll>
     );
   }
-  if (order?.status === 'ASSIGNED' || tracking) {
+  if (isTripOrder(order) || tracking) {
     return (
       <NScroll>
         <NHeader title={AR ? 'تتبع مسار الفني' : 'Track Technician'} onBack={onBack} />
@@ -1084,7 +1096,7 @@ function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
           ) : null}
         </NCard>
 
-        {distance !== null && distance <= 0.1 ? (
+        {(distance !== null && distance <= 0.1) || (!hasDestination && (tracking || order?.status === 'IN_TRANSIT')) ? (
           <NBtn label={AR ? 'الفني وصل (تم الوصول)' : 'Technician Arrived'} variant="primary" onPress={async () => {
             try {
               await client.patch(`/labs/bookings/${order?.id}/state`, { state: 'IN_LAB', note: 'ARRIVED at location' });

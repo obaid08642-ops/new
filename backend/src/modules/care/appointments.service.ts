@@ -1,4 +1,5 @@
 import { buildFollowUpActions } from './follow-up-actions';
+import { assertPaymentMethod } from '../../common/payment-policy';
 import { MedicalAccessLogService, logMedicalRead } from '../../common/pdpl-compliance.module';
 import { escapeRegex } from '../../common/slug.util';
 import { pickAttribution } from '../../common/attribution';
@@ -19,6 +20,7 @@ import { DEFAULT_REFUND_POLICY } from '../refund-policy/refund-policy.defaults';
 import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { isOnlineConsultation } from '../chat/consultation-window';
 import { assertTelehealthConsent } from '../legal/telehealth-consent';
+import { consultationFees } from '../../common/provider-home-fees';
 
 /** Platform fee schedule (SAR). Move to DB/config when admin dashboard supports it. */
 const PLATFORM_FEES = {
@@ -142,14 +144,7 @@ export class AppointmentsService {
     // Enforce Nabd payment policy: online → card only; home → card/insurance; clinic → all
     const pm = body.payment_method || (body.service_type === 'clinic' ? 'cash' : 'card');
     const svcCtx = body.service_type === 'video' ? 'online_consultation' : body.service_type === 'home' ? 'home_visit' : 'in_clinic';
-    const allowed: Record<string, string[]> = {
-      online_consultation: ['card'],
-      home_visit: ['card', 'insurance'],
-      in_clinic: ['cash', 'card', 'insurance'],
-    };
-    if (!allowed[svcCtx].includes(pm)) {
-      throw new BadRequestException(`payment_method_${pm}_not_allowed_for_${svcCtx}`);
-    }
+    assertPaymentMethod(pm, svcCtx);
     const doctor = await this.providerModel.findOne({ id: body.doctor_id, type: ProviderType.DOCTOR, status: ProviderStatus.ACTIVE });
     if (!doctor) throw new NotFoundException('doctor_not_found');
     // Owner decision 2026-10-24: bookings stop the moment the SCFHS licence date passes; the daily monitor then suspends the
@@ -222,9 +217,8 @@ export class AppointmentsService {
     }
 
     // Calculate fees & total_price
-    const service_fee = PLATFORM_FEES.service_fee;
-    const home_visit_fee = body.service_type === 'home' ? PLATFORM_FEES.home_visit_fee : 0;
-    const transportation_fee = body.service_type === 'home' ? PLATFORM_FEES.transportation_fee : 0;
+    // the doctor's own home-visit and transport fees when they set them at registration, else the platform's (shown and charged alike)
+    const { service_fee, home_visit_fee, transportation_fee } = consultationFees(doctor, body.service_type, PLATFORM_FEES);
     const total_price = price + service_fee + home_visit_fee + transportation_fee;
 
     // Insert — unique index will throw on double-booking
@@ -509,6 +503,10 @@ export class AppointmentsService {
     if (!appt) throw new NotFoundException();
     await this.assertAppointmentAccess(appt, user, { booker: true });
 
+    // PV-21: the patient is told why. A doctor or a facility cancelling a booking must give the reason (not a patient or an admin).
+    const byProvider = (hasEffectiveRole(user, UserRole.DOCTOR) || hasEffectiveRole(user, UserRole.HOSPITAL) || user?.id === appt.doctor_user_id) && user?.id !== appt.patient_id;
+    if (byProvider && !hasEffectiveRole(user, UserRole.ADMIN) && String(reason ?? '').trim().length < 3) throw new BadRequestException('cancel_reason_required');
+
     const { refundPercentage, refundDestination, penaltyAmount } = await this.calculateRefund(appt, user, reason, isNoShow);
 
     // The state change comes first: an illegal move (already completed, cancelled, ...) throws here, before any refund
@@ -594,7 +592,12 @@ export class AppointmentsService {
   }
 
   async confirm(id: string, user: any) {
-    // doctor or admin
+    // doctor or admin. An unpaid card booking is not confirmed by hand: the payment confirms it (a doctor confirming it first made the
+    // payment handler skip it, because it only completes PENDING appointments, so the booking never showed as paid).
+    const appt: any = await this.apptModel.findOne({ id });
+    if (appt && appt.status === APPT_STATES.PENDING && appt.payment_method === 'card' && appt.payment_status !== 'paid') {
+      throw new BadRequestException('card_payment_not_completed');
+    }
     return this.transition(id, APPT_STATES.CONFIRMED, user, 'doctor-confirmed');
   }
 
@@ -882,12 +885,29 @@ export class AppointmentsService {
    * When Moyasar (or any PSP) confirms payment, transition the appointment
    * from PENDING → CONFIRMED so the patient sees the booking go live.
    */
+  /** The patient never paid: the unpaid card booking is cancelled so its slot is bookable again. */
+  @OnEvent('payment.abandoned')
+  async onPaymentAbandoned(payload: { booking_kind?: string; booking_id?: string }) {
+    if (payload.booking_kind !== 'consultation' || !payload.booking_id) return;
+    const appt = await this.apptModel.findOne({ id: payload.booking_id });
+    if (!appt || appt.status !== APPT_STATES.PENDING || appt.payment_status === 'paid') return;
+    await this.apptModel.updateOne({ id: appt.id }, { $set: { cancellation_reason: 'payment_abandoned', refund_percentage: 0 } });
+    await this.transition(appt.id, APPT_STATES.CANCELLED, { id: 'system', role: 'system' }, 'payment_abandoned');
+  }
+
   @OnEvent('payment.completed')
   async onPaymentCompleted(payload: { booking_id?: string; booking_kind?: string; amount?: number; transaction_id?: string }) {
     if (payload.booking_kind !== 'consultation' || !payload.booking_id) return;
     const appt = await this.apptModel.findOne({ id: payload.booking_id });
     if (!appt) {
       this.logger.warn(`payment.completed: appointment ${payload.booking_id} not found`);
+      return;
+    }
+    // The money arrived after the unpaid booking was released: the slot may already be someone else's, so it goes back in full.
+    const last = (appt.state_history as any[] | undefined)?.slice(-1)[0];
+    if (appt.status === APPT_STATES.CANCELLED && last?.note === 'payment_abandoned') {
+      this.events.emit('appointment.refund.calculated', { appointment_id: appt.id, patient_id: appt.patient_id, doctor_id: appt.doctor_id, refund_percentage: 100, total_price: Number(payload.amount ?? appt.total_price ?? 0), penalty_amount: 0 });
+      this.logger.warn(`payment.completed after release: appointment ${appt.id} refunded in full (payment ${payload.transaction_id})`);
       return;
     }
     // Only transition if still PENDING (idempotent — ignore if already confirmed)

@@ -14,6 +14,7 @@
         "NSMicrophoneUsageDescription": "نحتاج الميكروفون للمكالمات الصوتية والمرئية.",
         "NSLocationWhenInUseUsageDescription": "نحتاج الموقع لتتبع الزيارات المنزلية وتطبيق geofence.",
         "NSPhotoLibraryUsageDescription": "نحتاج الصور لرفع التقارير والمستندات.",
+        "UIBackgroundModes": ["remote-notification", "voip", "audio"],
         "NSFaceIDUsageDescription": "نستخدم التحقق الحيوي لتسجيل الدخول بشكل آمن."
       }
     },
@@ -29,7 +30,16 @@
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",
         "POST_NOTIFICATIONS",
-        "VIBRATE"
+        "VIBRATE",
+        "MANAGE_OWN_CALLS",
+        "READ_PHONE_STATE",
+        "BIND_TELECOM_CONNECTION_SERVICE",
+        "USE_FULL_SCREEN_INTENT",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_PHONE_CALL",
+        "FOREGROUND_SERVICE_MICROPHONE",
+        "FOREGROUND_SERVICE_CAMERA",
+        "WAKE_LOCK"
       ]
     },
     "plugins": [
@@ -38,7 +48,7 @@
       "expo-font",
       "expo-secure-store",
       "expo-camera",
-      "expo-notifications",
+      ["expo-notifications", { "sounds": ["./assets/sounds/new_order.wav"], "defaultChannel": "default", "color": "#D42A38" }],
       "expo-location",
       "expo-local-authentication",
       "@react-native-community/datetimepicker",
