@@ -29,7 +29,7 @@ import { SK, Vault } from '../../../security/Security';
 import { tokens, withAlpha } from '../../../theme/tokens';
 
 export function ReviewsSystem({ onBack }: { onBack: () => void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
  const [reviews, setReviews] = useState<any[]>([]);
  const [loadingReviews, setLoadingReviews] = useState(true);
  const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -54,7 +54,7 @@ export function ReviewsSystem({ onBack }: { onBack: () => void }) {
  setReplyingTo(null); setReplyText('');
  show(AR ? 'تم إرسال الرد' : 'Reply sent', 'success');
  } catch (e: any) {
- show(e?.response?.data?.message === 'review_not_published' ? (AR ? 'لا يمكن الرد قبل نشر التقييم' : 'You can reply once the review is published') : (e?.response?.data?.message || (AR ? 'تعذر إرسال الرد' : 'Failed to send reply')), 'error');
+ show(e?.response?.data?.message === 'review_not_published' ? (t('pa3.reviews.1')) : (e?.response?.data?.message || (t('pa3.reviews.2'))), 'error');
  }
  };
 
@@ -77,7 +77,7 @@ export function ReviewsSystem({ onBack }: { onBack: () => void }) {
  {loadingReviews ? (
  <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: 'center', marginVertical: SP.xl }}>{AR ? 'جاري تحميل التقييمات...' : 'Loading reviews...'}</Text>
  ) : reviews.length === 0 ? (
- loadFailed ? <NEmpty title={AR ? 'تعذر تحميل التقييمات' : 'Could not load reviews'} actionLabel={AR ? 'إعادة المحاولة' : 'Retry'} onAction={load} /> : <NEmpty title={AR ? 'لا توجد تقييمات بعد' : 'No reviews yet'} subtitle={AR ? 'ستظهر تقييمات المرضى هنا فور وصولها' : 'Patient reviews will appear here'} />
+ loadFailed ? <NEmpty title={t('pa3.reviews.3')} actionLabel={t('pa3.reviews.4')} onAction={load} /> : <NEmpty title={t('pa3.reviews.5')} subtitle={t('pa3.reviews.6')} />
  ) : reviews.map(review => (
  <NCard key={review.id} style={{ marginBottom: SP.md }}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: SP.sm }}>
@@ -106,7 +106,7 @@ export function ReviewsSystem({ onBack }: { onBack: () => void }) {
  </View>
  </View>
  ) : !review.canReply ? (
- <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{AR ? 'بانتظار مراجعة الإدارة قبل النشر' : 'Waiting for moderation before it is published'}</Text>
+ <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{t('pa3.reviews.7')}</Text>
  ) : (
  <NBtn label={AR ? 'رد على التقييم' : 'Reply'} size="xs" variant="outline" full={false}
  style={{ alignSelf: AR ? 'flex-end' : 'flex-start', paddingHorizontal: SP.lg }}

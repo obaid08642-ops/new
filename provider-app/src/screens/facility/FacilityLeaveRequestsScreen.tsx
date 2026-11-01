@@ -21,7 +21,7 @@ interface LeaveRequest {
 import client from '../../api/client';
 
 export function FacilityLeaveRequestsScreen({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [requests, setRequests] = useState<LeaveRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -99,7 +99,7 @@ export function FacilityLeaveRequestsScreen({ onBack }: { onBack: () => void }) 
             </NCard>
           ))}
           {loadFailed && requests.length === 0 && (
-            <Text style={{ textAlign: 'center', color: theme.danger }}>{AR ? 'تعذر تحميل طلبات الإجازة. اسحب للتحديث أو أعد فتح الشاشة.' : 'Could not load leave requests. Reopen the screen to retry.'}</Text>
+            <Text style={{ textAlign: 'center', color: theme.danger }}>{t('pa3.facilityLeave.1')}</Text>
           )}
           {!loadFailed && requests.length === 0 && (
             <Text style={{ textAlign: 'center', color: theme.textSub, marginTop: SP.xxl }}>

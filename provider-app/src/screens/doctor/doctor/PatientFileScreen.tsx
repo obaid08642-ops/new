@@ -41,7 +41,7 @@ import { styles } from './_shared';
 export function PatientFileScreen({ patient, onBack }:
  { patient: any; onBack: () => void }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
  const [activeSection, setActive] = useState('overview');
@@ -356,7 +356,7 @@ export function PatientFileScreen({ patient, onBack }:
  {activeSection === 'visits' && (
  <NCard>
  <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'سجل الزيارات السابقة غير متاح في هذه الشاشة. افتح المواعيد لرؤية زيارات هذا المريض معك.' : 'Past visits are not shown on this screen. Open your appointments to see this patient\'s visits with you.'}
+ {t('pa3.patientFile.2')}
  </Text>
  </NCard>
  )}

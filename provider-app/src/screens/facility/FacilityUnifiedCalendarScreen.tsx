@@ -7,7 +7,7 @@ import client from '../../api/client';
 
 export function FacilityUnifiedCalendarScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
@@ -56,7 +56,7 @@ export function FacilityUnifiedCalendarScreen({ onBack }: { onBack: () => void }
 
       <NScroll>
         <View style={{ padding: SP.xl }}>
-          {loadFailed && events.length === 0 ? <Text style={{ textAlign: 'center', color: theme.danger, marginVertical: SP.xl }}>{AR ? 'تعذر تحميل التقويم. أعد فتح الشاشة.' : 'Could not load the calendar. Reopen the screen.'}</Text> : null}
+          {loadFailed && events.length === 0 ? <Text style={{ textAlign: 'center', color: theme.danger, marginVertical: SP.xl }}>{t('pa3.facilityCalendar.1')}</Text> : null}
           {events.map(ev => (
             <NCard key={ev.id} style={{ marginBottom: SP.md, borderLeftWidth: 4, borderLeftColor: ev.type === 'surgery' ? theme.warn : ev.type === 'emergency' ? theme.danger : theme.primary }}>
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
