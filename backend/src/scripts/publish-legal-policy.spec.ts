@@ -20,7 +20,7 @@ describe('the launch legal texts in the repository', () => {
   it('all five load: same version in Arabic and English, no draft wording, no blank brackets', () => {
     for (const p of POLICIES) {
       const t = loadPolicyTexts(DOCS, p);
-      expect(t.version).toBe('1.0');
+      expect(t.version).toMatch(/^\d+\.\d+$/);   // the number differs per key (production already holds provider_agreement 2.0, so its text is 3.0)
       expect(t.ar.length).toBeGreaterThan(500);
       expect(t.en.length).toBeGreaterThan(500);
     }

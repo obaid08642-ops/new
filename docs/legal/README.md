@@ -6,7 +6,7 @@
 |---|---|---|
 | `01_PATIENT_TERMS.ar.md` + `.en.md` | `patient_terms` | المستخدمون (المرضى) |
 | `02_PRIVACY_POLICY.ar.md` + `.en.md` | `privacy_policy` | الجميع |
-| `03_PROVIDER_AGREEMENT.ar.md` (الإصدار 1.0، النص النهائي) + `03_PROVIDER_AGREEMENT.en.md` | `provider_agreement` | جميع مقدمي الخدمة، وملحق خاص بكل نوع |
+| `03_PROVIDER_AGREEMENT.ar.md` (الإصدار 3.0، النص النهائي) + `03_PROVIDER_AGREEMENT.en.md` | `provider_agreement` | جميع مقدمي الخدمة، وملحق خاص بكل نوع |
 | `04_TELEHEALTH_CONSENT.ar.md` + `.en.md` | `telehealth_consent` | المريض قبل أول استشارة عن بُعد |
 | `05_CANCELLATION_REFUND.ar.md` + `.en.md` | `refund_policy` | الجميع، وهي مطابقة لقرار المالك 26 |
 
