@@ -21,6 +21,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { RootProvider, useAuth, useTheme } from './src/context';
 import { SplashScreen, WelcomeScreen, LoginScreen, ForgotPasswordScreen } from './src/screens/auth/AuthScreens';
 import { PendingDashboard } from './src/screens/auth/PendingDashboard';
+import { ContractGate } from './src/components/ContractGate';
 import { ResubmitDetailsScreen } from './src/screens/auth/ResubmitDetailsScreen';
 import { OfflineScreen } from './src/screens/auth/OfflineScreen';
 import type { BlockedAccountState } from './src/utils/accountStatus';
@@ -163,6 +164,8 @@ function AppNavigator() {
   }
 
   return (
+    <>
+    {appState === 'logged_in' && <ContractGate />}
     <NavigationContainer ref={navigationRef} linking={linking}>
       <Stack.Navigator id={undefined as any} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.bg } }}>
         {appState === 'logged_in' ? (
@@ -218,6 +221,7 @@ function AppNavigator() {
         )}
       </Stack.Navigator>
     </NavigationContainer>
+    </>
   );
 }
 

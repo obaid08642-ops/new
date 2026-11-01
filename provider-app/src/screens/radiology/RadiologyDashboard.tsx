@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { MyContractRow } from '../../components/MyContract';
 import { NotificationsCenterScreen } from '../shared/RealScreens';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, RefreshControl, ActivityIndicator, Switch } from 'react-native';
@@ -637,6 +638,7 @@ function RadiologySettingsScreen({ onLogout, onNav }: { onLogout: () => void; on
         <NBtn label={AR ? 'دليل الأدوية الطبي' : 'Medical Drug Index'} variant="outline" onPress={() => onNav && onNav('drug_index')} />
         <NBtn label={AR ? 'الوظائف الطبية' : 'Medical Jobs'} variant="outline" onPress={() => onNav && onNav('medical_jobs')} style={{ marginTop: SP.sm }} />
       </NCard>
+      <NCard style={{ marginBottom: SP.md }}><MyContractRow /></NCard>
       <NCard style={{ marginTop: SP.xl }}><NBtn label={AR ? 'تسجيل الخروج' : 'Logout'} onPress={onLogout} style={{ backgroundColor: tokens.error, borderColor: tokens.error }} /></NCard>
     </ScrollView>
   );
