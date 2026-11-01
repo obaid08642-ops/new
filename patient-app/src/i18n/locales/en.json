@@ -414,7 +414,6 @@
   "pharmacy.filters.sortRecommended": "Recommended",
   "pharmacy.filters.category": "Category",
   "pharmacy.filters.rxOnly": "Prescription (Rx) only",
-  "pharmacy.filters.rxOnlyBody": "Show medicines that need a prescription",
   "pharmacy.filters.priceRange": "Price range (SAR)",
   "pharmacy.filters.min": "Minimum",
   "pharmacy.filters.max": "Maximum",
@@ -4074,5 +4073,9 @@
   "receipt.kindNursing": "Nursing visit",
   "receipt.pdfFailedTitle": "We couldn't get the PDF",
   "receipt.pdfFailedBody": "Check your connection and try again.",
-  "payments.result.refundedBody": "The amount was returned to your original payment method. It may take a few days to show in your account."
+  "payments.result.refundedBody": "The amount was returned to your original payment method. It may take a few days to show in your account.",
+  "consult.hub.sortWait": "Shortest wait",
+  "pharmacy.filters.rx": "Prescription",
+  "pharmacy.filters.rxAny": "Any",
+  "pharmacy.filters.rxNone": "No prescription needed"
 }

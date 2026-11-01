@@ -414,7 +414,6 @@
   "pharmacy.filters.sortRecommended": "تجویز کردہ",
   "pharmacy.filters.category": "زمرہ",
   "pharmacy.filters.rxOnly": "صرف نسخے والی (Rx)",
-  "pharmacy.filters.rxOnlyBody": "وہ ادویات دکھائیں جن کے لیے نسخہ درکار ہے",
   "pharmacy.filters.priceRange": "قیمت کی حد (ر.س)",
   "pharmacy.filters.min": "حداقل",
   "pharmacy.filters.max": "زیادہ سے زیادہ",
@@ -4074,5 +4073,9 @@
   "receipt.kindNursing": "نرسنگ وزٹ",
   "receipt.pdfFailedTitle": "PDF حاصل نہیں ہو سکی",
   "receipt.pdfFailedBody": "اپنا کنکشن چیک کریں اور دوبارہ کوشش کریں۔",
-  "payments.result.refundedBody": "رقم آپ کے اصل ادائیگی کے طریقے پر واپس کر دی گئی ہے۔ آپ کے اکاؤنٹ میں ظاہر ہونے میں چند دن لگ سکتے ہیں۔"
+  "payments.result.refundedBody": "رقم آپ کے اصل ادائیگی کے طریقے پر واپس کر دی گئی ہے۔ آپ کے اکاؤنٹ میں ظاہر ہونے میں چند دن لگ سکتے ہیں۔",
+  "consult.hub.sortWait": "کم ترین انتظار",
+  "pharmacy.filters.rx": "نسخہ",
+  "pharmacy.filters.rxAny": "کوئی بھی",
+  "pharmacy.filters.rxNone": "نسخے کے بغیر"
 }

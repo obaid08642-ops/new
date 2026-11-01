@@ -414,7 +414,6 @@
   "pharmacy.filters.sortRecommended": "প্রস্তাবিত",
   "pharmacy.filters.category": "বিভাগ",
   "pharmacy.filters.rxOnly": "শুধু প্রেসক্রিপশনের (Rx)",
-  "pharmacy.filters.rxOnlyBody": "যেসব ওষুধে প্রেসক্রিপশন লাগে সেগুলো দেখান",
   "pharmacy.filters.priceRange": "মূল্য পরিসর (রিয়াল)",
   "pharmacy.filters.min": "সর্বনিম্ন",
   "pharmacy.filters.max": "সর্বাধিক",
@@ -4074,5 +4073,9 @@
   "receipt.kindNursing": "নার্সিং ভিজিট",
   "receipt.pdfFailedTitle": "PDF পাওয়া যায়নি",
   "receipt.pdfFailedBody": "সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।",
-  "payments.result.refundedBody": "টাকা আপনার মূল পেমেন্ট পদ্ধতিতে ফেরত দেওয়া হয়েছে। আপনার অ্যাকাউন্টে দেখাতে কয়েক দিন লাগতে পারে।"
+  "payments.result.refundedBody": "টাকা আপনার মূল পেমেন্ট পদ্ধতিতে ফেরত দেওয়া হয়েছে। আপনার অ্যাকাউন্টে দেখাতে কয়েক দিন লাগতে পারে।",
+  "consult.hub.sortWait": "সর্বনিম্ন অপেক্ষা",
+  "pharmacy.filters.rx": "প্রেসক্রিপশন",
+  "pharmacy.filters.rxAny": "যেকোনো",
+  "pharmacy.filters.rxNone": "প্রেসক্রিপশন ছাড়া"
 }
