@@ -35,7 +35,7 @@ import { UserRole } from '../../common/enums';
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { moyasarBase } from '../../common/moyasar-base';
 import { timedFetch } from '../../common/external-call';
-import { settlementDelayDefault } from '../../common/commission-defaults';
+import { settlementDelayDefault, DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT } from '../../common/commission-defaults';
 
 export const LEDGER_TYPES = [
   'provider_earning', 'provider_debit', 'payout', 'refund', 'commission',
@@ -45,8 +45,8 @@ export const LEDGER_TYPES = [
 export type LedgerType = typeof LEDGER_TYPES[number];
 
 const DEFAULTS = {
-  commission_percent: 10,
-  vat_percent: 15,
+  commission_percent: DEFAULT_COMMISSION_PERCENT,
+  vat_percent: DEFAULT_VAT_PERCENT,
   settlement_delay_days: 3,
   minimum_payout_sar: 100,
   large_payout_sar: 10000,
