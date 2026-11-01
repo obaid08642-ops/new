@@ -35,6 +35,23 @@ def main():
     if not done:
         print('no doctor could publish hours', file=sys.stderr)
         sys.exit(1)
+    # What the app will be told: the slots answer of every doctor of the hub for tomorrow, per visit type (run 110 showed the app an empty day
+    # for the first one; the reason is in the answer). Printed to the setup log; it changes nothing.
+    try:
+        tomorrow = j_consultation.tomorrow().isoformat()
+        listing = Client(None, 'anon').get('/care/doctors?limit=50')
+        body = listing.body
+        rows = body if isinstance(body, list) else (body.get('data') or body.get('items') or []) if isinstance(body, dict) else []
+        for row in rows[:12]:
+            did = row.get('id')
+            answers = []
+            for vt in ('clinic', 'video', 'home'):
+                a = Client(None, 'anon').get(f'/care/doctors/{did}/slots?date={tomorrow}&service_type={vt}')
+                b = a.body if isinstance(a.body, dict) else {}
+                answers.append(f"{vt}:{len(b.get('slots') or [])}{'/' + str(b.get('reason')) if b.get('reason') else ''}")
+            print(f"slots {tomorrow} doctor {str(did)[:8]} modes={row.get('consultation_modes')} {' '.join(answers)}", file=sys.stderr)
+    except Exception as err:  # noqa: BLE001 - diagnostics only
+        print(f'slots check failed: {err}', file=sys.stderr)
     print(json.dumps({'BOOKING_DOCTORS': str(done)}))
 
 
