@@ -1,5 +1,5 @@
 {
- "commit": "c065acedd",
+ "commit": "60f595367",
  "screens": {
   "PendingDashboard": [
    {
@@ -8782,7 +8782,7 @@
     "src": "GET /provider-onboarding/contract → signed",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 23,
+    "line": 37,
     "via": "MyContractRow",
     "note": null
    },
@@ -8792,7 +8792,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 65,
+    "line": 80,
     "via": "MyContractRow",
     "note": null
    },
@@ -8802,7 +8802,7 @@
     "src": "local state setOpen",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 76,
+    "line": 91,
     "via": "MyContractRow",
     "note": null
    },
@@ -8812,7 +8812,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 83,
+    "line": 98,
     "via": "MyContractRow",
     "note": null
    },
@@ -8822,17 +8822,17 @@
     "src": "parent callback name.replace, t",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 91,
+    "line": 106,
     "via": "MyContractRow",
     "note": null
    },
    {
     "kind": "button",
     "label": "{t('contract.mine.share')}",
-    "src": "parent callback name.replace, t",
+    "src": "parent callback t",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 92,
+    "line": 107,
     "via": "MyContractRow",
     "note": null
    },
@@ -12594,7 +12594,7 @@
     "src": "GET /provider-onboarding/contract → signed",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 23,
+    "line": 37,
     "via": "MyContractRow",
     "note": null
    },
@@ -12604,7 +12604,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 65,
+    "line": 80,
     "via": "MyContractRow",
     "note": null
    },
@@ -12614,7 +12614,7 @@
     "src": "local state setOpen",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 76,
+    "line": 91,
     "via": "MyContractRow",
     "note": null
    },
@@ -12624,7 +12624,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 83,
+    "line": 98,
     "via": "MyContractRow",
     "note": null
    },
@@ -12634,17 +12634,17 @@
     "src": "parent callback name.replace, t",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 91,
+    "line": 106,
     "via": "MyContractRow",
     "note": null
    },
    {
     "kind": "button",
     "label": "{t('contract.mine.share')}",
-    "src": "parent callback name.replace, t",
+    "src": "parent callback t",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 92,
+    "line": 107,
     "via": "MyContractRow",
     "note": null
    },
@@ -14442,7 +14442,7 @@
     "src": "GET /provider-onboarding/contract → signed",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 23,
+    "line": 37,
     "via": "MyContractRow",
     "note": null
    },
@@ -14452,7 +14452,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 65,
+    "line": 80,
     "via": "MyContractRow",
     "note": null
    },
@@ -14462,7 +14462,7 @@
     "src": "local state setOpen",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 76,
+    "line": 91,
     "via": "MyContractRow",
     "note": null
    },
@@ -14472,7 +14472,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 83,
+    "line": 98,
     "via": "MyContractRow",
     "note": null
    },
@@ -14482,17 +14482,17 @@
     "src": "parent callback name.replace, t",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 91,
+    "line": 106,
     "via": "MyContractRow",
     "note": null
    },
    {
     "kind": "button",
     "label": "{t('contract.mine.share')}",
-    "src": "parent callback name.replace, t",
+    "src": "parent callback t",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 92,
+    "line": 107,
     "via": "MyContractRow",
     "note": null
    },
@@ -16043,7 +16043,7 @@
     "src": "GET /provider-onboarding/contract → signed",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 23,
+    "line": 37,
     "via": "MyContractRow",
     "note": null
    },
@@ -16053,7 +16053,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 65,
+    "line": 80,
     "via": "MyContractRow",
     "note": null
    },
@@ -16063,7 +16063,7 @@
     "src": "local state setOpen",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 76,
+    "line": 91,
     "via": "MyContractRow",
     "note": null
    },
@@ -16073,7 +16073,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 83,
+    "line": 98,
     "via": "MyContractRow",
     "note": null
    },
@@ -16083,17 +16083,17 @@
     "src": "parent callback name.replace, t",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 91,
+    "line": 106,
     "via": "MyContractRow",
     "note": null
    },
    {
     "kind": "button",
     "label": "{t('contract.mine.share')}",
-    "src": "parent callback name.replace, t",
+    "src": "parent callback t",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 92,
+    "line": 107,
     "via": "MyContractRow",
     "note": null
    },
@@ -18688,7 +18688,7 @@
     "src": "GET /provider-onboarding/contract → signed",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 23,
+    "line": 37,
     "via": "MyContractRow",
     "note": null
    },
@@ -18698,7 +18698,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 65,
+    "line": 80,
     "via": "MyContractRow",
     "note": null
    },
@@ -18708,7 +18708,7 @@
     "src": "local state setOpen",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 76,
+    "line": 91,
     "via": "MyContractRow",
     "note": null
    },
@@ -18718,7 +18718,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 83,
+    "line": 98,
     "via": "MyContractRow",
     "note": null
    },
@@ -18728,17 +18728,17 @@
     "src": "parent callback name.replace, t",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 91,
+    "line": 106,
     "via": "MyContractRow",
     "note": null
    },
    {
     "kind": "button",
     "label": "{t('contract.mine.share')}",
-    "src": "parent callback name.replace, t",
+    "src": "parent callback t",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 92,
+    "line": 107,
     "via": "MyContractRow",
     "note": null
    },
@@ -20286,7 +20286,7 @@
     "src": "GET /provider-onboarding/contract → signed",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 23,
+    "line": 37,
     "via": "MyContractRow",
     "note": null
    },
@@ -20296,7 +20296,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 65,
+    "line": 80,
     "via": "MyContractRow",
     "note": null
    },
@@ -20306,7 +20306,7 @@
     "src": "local state setOpen",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 76,
+    "line": 91,
     "via": "MyContractRow",
     "note": null
    },
@@ -20316,7 +20316,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 83,
+    "line": 98,
     "via": "MyContractRow",
     "note": null
    },
@@ -20326,17 +20326,17 @@
     "src": "parent callback name.replace, t",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 91,
+    "line": 106,
     "via": "MyContractRow",
     "note": null
    },
    {
     "kind": "button",
     "label": "{t('contract.mine.share')}",
-    "src": "parent callback name.replace, t",
+    "src": "parent callback t",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 92,
+    "line": 107,
     "via": "MyContractRow",
     "note": null
    },
