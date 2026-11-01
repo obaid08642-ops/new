@@ -51,25 +51,29 @@ export function loadAgreementTexts(dir: string): Texts {
 
 export type PublishResult = 'dry-run-would-publish' | 'published' | 'unchanged';
 
-export async function publishAgreement(db: mongoose.mongo.Db, texts: Texts, opts: { apply: boolean; requireAcceptance: boolean; now?: Date }): Promise<{ result: PublishResult; previousVersion: string | null; draftRetired: boolean }> {
+export type PublishOutcome = { result: PublishResult; previousVersion: string | null; draftRetired: boolean; backupIds: string[]; sha_ar: string; sha_en: string };
+
+export async function publishAgreement(db: mongoose.mongo.Db, texts: Texts, opts: { apply: boolean; requireAcceptance: boolean; now?: Date }): Promise<PublishOutcome> {
   const policies = db.collection('legal_policies');
   const now = opts.now ?? new Date();
   const hash = sha(texts.ar) + ':' + sha(texts.en);
+  const hashes = { sha_ar: sha(texts.ar).slice(0, 12), sha_en: sha(texts.en).slice(0, 12) };
   const existing: any = await policies.findOne({ key: POLICY_KEY });
   const draft: any = await policies.findOne({ key: DRAFT_KEY });
   if (existing) {
     const same = compareVersions(existing.version, texts.version);
     if (same === 0 && existing.source_sha256 === hash && String(existing.status || 'PUBLISHED') === 'PUBLISHED') {
-      return { result: 'unchanged', previousVersion: String(existing.version), draftRetired: false };
+      return { result: 'unchanged', previousVersion: String(existing.version), draftRetired: false, backupIds: [], ...hashes };
     }
     if (same >= 0) throw new Error(`a version ${existing.version} is already published; publish a higher version than it (a published version is never rewritten)`);
   }
   const previousVersion = existing ? String(existing.version) : null;
-  if (!opts.apply) return { result: 'dry-run-would-publish', previousVersion, draftRetired: !!draft };
+  if (!opts.apply) return { result: 'dry-run-would-publish', previousVersion, draftRetired: !!draft, backupIds: [], ...hashes };
 
   const backups = db.collection('legal_policy_backups');
+  const backupIds: string[] = [];
   for (const row of [existing, draft]) {
-    if (row) { const { _id, ...rest } = row; await backups.insertOne({ ...rest, backup_of: row.key, backed_up_at: now, reason: 'provider agreement publish' } as any); }
+    if (row) { const { _id, ...rest } = row; const ins = await backups.insertOne({ ...rest, backup_of: row.key, backed_up_at: now, reason: 'provider agreement publish' } as any); backupIds.push(String(ins.insertedId)); }
   }
   const fields = {
     title_ar: 'اتفاقية مقدم الخدمة',
@@ -99,7 +103,7 @@ export async function publishAgreement(db: mongoose.mongo.Db, texts: Texts, opts
 
   let draftRetired = false;
   if (draft) { await policies.deleteOne({ key: DRAFT_KEY }); draftRetired = true; }
-  return { result: 'published', previousVersion, draftRetired };
+  return { result: 'published', previousVersion, draftRetired, backupIds, ...hashes };
 }
 
 async function main() {
@@ -112,6 +116,8 @@ async function main() {
   await mongoose.connect(MONGO_URL, { dbName: DB_NAME || 'nabd_nestjs' });
   try {
     const r = await publishAgreement(mongoose.connection.db as any, texts, { apply, requireAcceptance });
+    // one machine-readable line for the ops task (numbers, hashes of the first 12 characters and row ids only, never a text)
+    console.log(JSON.stringify({ step: 'publish', version: texts.version, result: r.result, published: r.result === 'published', previous_version: r.previousVersion, draft_retired: r.draftRetired, backup_ids: r.backupIds, sha_ar: r.sha_ar, sha_en: r.sha_en, acceptance_required: requireAcceptance }));
     console.log(`provider agreement ${texts.version}: ${r.result}${apply ? '' : ' (dry run: APPLY=yes publishes)'}; previous published version: ${r.previousVersion ?? 'none'}; draft row ${r.draftRetired ? 'retired' : 'not present or not touched'}`);
     if (r.result !== 'unchanged') console.log(requireAcceptance
       ? 'acceptance REQUIRED: every provider must accept this version in the app before the /provider/ routes answer; publish when the app build with the contract gate is out'
