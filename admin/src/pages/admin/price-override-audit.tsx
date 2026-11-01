@@ -3,31 +3,7 @@ import Head from 'next/head';
 import { DataTable } from '@/components/DataTable';
 import { adminFetch, apiErrorMessage, toQuery } from '@/lib/admin-client';
 
-type PriceAuditRecord = {
-  id: string;
-  pharmacy_id: string;
-  pharmacy_name?: string;
-  medicine_sku: string;
-  medicine_name?: string;
-  official_sfda_price: number;
-  override_price: number;
-  difference_pct: number;
-  reason?: string;
-  updated_by?: string;
-  created_at: string;
-};
-
-type PriceAuditResponse = {
-  data: PriceAuditRecord[];
-  total: number;
-  page: number;
-  pages: number;
-  summary: {
-    total_overrides: number;
-    flagged_overpriced: number;
-    avg_variance_pct: number;
-  };
-};
+import { toAuditPage, type OverridesResponse, type PriceAuditResponse } from '@/lib/price-override';
 
 export default function PriceOverrideAuditPage() {
   const [data, setData] = useState<PriceAuditResponse | null>(null);
@@ -40,10 +16,11 @@ export default function PriceOverrideAuditPage() {
     setLoading(true);
     setError('');
     try {
-      const res = await adminFetch<PriceAuditResponse>(
-        `/api/admin/admin/governance-controls/medicine-price-history${toQuery({ page, limit: 25, search })}`,
+      // The real override log: every price a pharmacy set on an offer line against the catalogue price (search = exact SKU).
+      const res = await adminFetch<OverridesResponse>(
+        `/api/admin/admin/pharmacy/price-overrides${toQuery({ page, limit: 25, sku: search.trim() || undefined })}`,
       );
-      setData(res);
+      setData(toAuditPage(res));
     } catch (err) {
       setError(apiErrorMessage(err, 'تعذر تحميل سجل تدقيق أسعار الصيدليات.'));
     } finally {
@@ -77,7 +54,7 @@ export default function PriceOverrideAuditPage() {
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              placeholder="بحث بالدواء أو الصيدلية…"
+              placeholder="بحث برمز الدواء (SKU)…"
             />
             <button
               onClick={() => void loadData()}
@@ -104,14 +81,14 @@ export default function PriceOverrideAuditPage() {
             <h2 className="mt-2 text-3xl font-bold text-teal-600">
               {data?.summary?.avg_variance_pct ? `${data.summary.avg_variance_pct.toFixed(1)}%` : '0.0%'}
             </h2>
-            <p className="mt-1 text-xs text-slate-500">ضمن الهامش القانوني المسموح</p>
+            <p className="mt-1 text-xs text-slate-500">متوسط الصفحة الحالية</p>
           </div>
           <div className="rounded-2xl border bg-white p-5 shadow-sm">
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">التنبيهات السعرية المرتفعة</p>
             <h2 className="mt-2 text-3xl font-bold text-amber-600">
               {data?.summary?.flagged_overpriced ?? 0}
             </h2>
-            <p className="mt-1 text-xs text-amber-600">تجاوز السعر الرسمي المعتمد</p>
+            <p className="mt-1 text-xs text-amber-600">في الصفحة الحالية: أعلى من سعر الكتالوج</p>
           </div>
         </div>
 
@@ -124,14 +101,14 @@ export default function PriceOverrideAuditPage() {
           emptyText="لا توجد سجلات تعديل أسعار مطابقة."
           columns={[
             { key: 'time', header: 'الوقت', className: 'text-xs text-slate-500', render: (row) => (row.created_at ? new Date(row.created_at).toLocaleString('ar-SA-u-ca-gregory') : '—') },
-            { key: 'pharmacy', header: 'الصيدلية', className: 'font-medium text-slate-900', render: (row) => row.pharmacy_name || row.pharmacy_id },
+            { key: 'pharmacy', header: 'الصيدلية', className: 'font-medium text-slate-900', render: (row) => row.pharmacy_id },
             { key: 'medicine', header: 'الدواء (SKU)', render: (row) => (
               <>
                 <div>{row.medicine_name || row.medicine_sku}</div>
                 <div className="text-xs text-slate-400">{row.medicine_sku}</div>
               </>
             ) },
-            { key: 'official', header: 'السعر الرسمي (SFDA)', className: 'font-semibold text-slate-700', render: (row) => `${row.official_sfda_price.toFixed(2)} ر.س` },
+            { key: 'official', header: 'سعر الكتالوج', className: 'font-semibold text-slate-700', render: (row) => `${row.official_sfda_price.toFixed(2)} ر.س` },
             { key: 'override', header: 'السعر المعدل', className: 'font-semibold text-slate-900', render: (row) => `${row.override_price.toFixed(2)} ر.س` },
             { key: 'diff', header: 'نسبة الفرق', render: (row) => (
               <span
@@ -146,8 +123,8 @@ export default function PriceOverrideAuditPage() {
             ) },
             { key: 'reason', header: 'المبرر / المنفّذ', className: 'text-xs text-slate-600', render: (row) => (
               <>
-                <div>{row.reason || 'تحديث دوري من المورد'}</div>
-                <div className="text-slate-400 mt-0.5">{row.updated_by || 'النظام التلقائي'}</div>
+                <div>{row.reason || '—'}</div>
+                <div className="text-slate-400 mt-0.5">{row.updated_by || '—'}</div>
               </>
             ) },
           ]}

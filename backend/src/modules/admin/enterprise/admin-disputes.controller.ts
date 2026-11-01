@@ -73,14 +73,18 @@ export class AdminDisputesController {
       ]).toArray().catch(() => []),
     ]);
 
-    // Financial overlay: any wallet credits already issued against these tickets.
+    // Financial overlay: what was already refunded against these tickets. Refunds are ledger rows keyed `dispute_<id>`
+    // (RefundExecutor), the same rows the detail view lists; the old wallet store holds none of them.
     const ids = (items as any[]).map((t) => t.id);
-    const refunds = ids.length ? await this.conn.collection('wallet_transactions')
-      .find({ referenceType: 'refund', referenceId: { $in: ids }, type: 'credit' })
-      .project({ referenceId: 1, amount: 1 })
+    const refunds = ids.length ? await this.conn.collection('platformledgerentries')
+      .find({ type: 'refund', ref_type: 'refund', ref_id: { $in: ids.map((id) => `dispute_${id}`) } })
+      .project({ ref_id: 1, amount: 1 })
       .toArray().catch(() => []) : [];
     const refundMap = new Map<string, number>();
-    for (const r of refunds as any[]) refundMap.set(r.referenceId, (refundMap.get(r.referenceId) || 0) + Number(r.amount || 0));
+    for (const r of refunds as any[]) {
+      const id = String(r.ref_id).replace(/^dispute_/, '');
+      refundMap.set(id, (refundMap.get(id) || 0) + Number(r.amount || 0));
+    }
 
     // P6.x-15: SLA timers — dispute resolution deadline from the `sla`
     // system_config (fallback 48h), surfaced per row for the disputes center.

@@ -118,7 +118,8 @@ export default function FinancialLedger() {
       // fetchWithAdminGuard does not throw on a 4xx/5xx: the server's refusal is shown, and nothing is marked as sent
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(String(Array.isArray(body?.message) ? body.message[0] : body?.message ?? res.status));
+        const msg = String(Array.isArray(body?.message) ? body.message[0] : body?.message ?? res.status);
+        throw new Error(msg.startsWith('quote_not_allowed_in_status_') ? 'هذا الطلب سُعِّر مسبقاً أو لم يعد بانتظار المراجعة، حدّث الصفحة' : msg);
       }
       alert(`تم إرسال تسعيرة المشتريات بقيمة ${total_warehouse_quotation_price} SAR للصيدلية وتغيير الحالة إلى QUOTATION_ISSUED`);
       setWarehouseOrders(prev => prev.map(o => o._id === order._id ? { ...o, status: 'QUOTATION_ISSUED' } : o));
