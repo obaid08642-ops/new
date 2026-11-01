@@ -4073,5 +4073,6 @@
   "receipt.kindRadiology": "Radiology",
   "receipt.kindNursing": "Nursing visit",
   "receipt.pdfFailedTitle": "We couldn't get the PDF",
-  "receipt.pdfFailedBody": "Check your connection and try again."
+  "receipt.pdfFailedBody": "Check your connection and try again.",
+  "payments.result.refundedBody": "The amount was returned to your original payment method. It may take a few days to show in your account."
 }

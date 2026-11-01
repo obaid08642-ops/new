@@ -4073,5 +4073,6 @@
   "receipt.kindRadiology": "Radyolohiya",
   "receipt.kindNursing": "Pagbisita ng nars",
   "receipt.pdfFailedTitle": "Hindi makuha ang PDF",
-  "receipt.pdfFailedBody": "Suriin ang koneksyon at subukan muli."
+  "receipt.pdfFailedBody": "Suriin ang koneksyon at subukan muli.",
+  "payments.result.refundedBody": "Ibinalik ang halaga sa orihinal mong paraan ng pagbabayad. Maaaring abutin ng ilang araw bago ito lumabas sa iyong account."
 }

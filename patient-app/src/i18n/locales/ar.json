@@ -4073,5 +4073,6 @@
   "receipt.kindRadiology": "أشعة وتصوير",
   "receipt.kindNursing": "زيارة تمريض",
   "receipt.pdfFailedTitle": "تعذّر تنزيل ملف PDF",
-  "receipt.pdfFailedBody": "تحقق من الاتصال وحاول مرة أخرى."
+  "receipt.pdfFailedBody": "تحقق من الاتصال وحاول مرة أخرى.",
+  "payments.result.refundedBody": "أُعيد المبلغ إلى وسيلة الدفع الأصلية. قد يستغرق ظهوره في حسابك بضعة أيام."
 }

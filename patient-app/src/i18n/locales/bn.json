@@ -4073,5 +4073,6 @@
   "receipt.kindRadiology": "রেডিওলজি",
   "receipt.kindNursing": "নার্সিং ভিজিট",
   "receipt.pdfFailedTitle": "PDF পাওয়া যায়নি",
-  "receipt.pdfFailedBody": "সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।"
+  "receipt.pdfFailedBody": "সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।",
+  "payments.result.refundedBody": "টাকা আপনার মূল পেমেন্ট পদ্ধতিতে ফেরত দেওয়া হয়েছে। আপনার অ্যাকাউন্টে দেখাতে কয়েক দিন লাগতে পারে।"
 }

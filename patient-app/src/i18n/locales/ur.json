@@ -4073,5 +4073,6 @@
   "receipt.kindRadiology": "ریڈیالوجی",
   "receipt.kindNursing": "نرسنگ وزٹ",
   "receipt.pdfFailedTitle": "PDF حاصل نہیں ہو سکی",
-  "receipt.pdfFailedBody": "اپنا کنکشن چیک کریں اور دوبارہ کوشش کریں۔"
+  "receipt.pdfFailedBody": "اپنا کنکشن چیک کریں اور دوبارہ کوشش کریں۔",
+  "payments.result.refundedBody": "رقم آپ کے اصل ادائیگی کے طریقے پر واپس کر دی گئی ہے۔ آپ کے اکاؤنٹ میں ظاہر ہونے میں چند دن لگ سکتے ہیں۔"
 }
