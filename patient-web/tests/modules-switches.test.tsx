@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 const nav = vi.hoisted(() => ({ path: "/ar/loyalty/hub" }));
 vi.mock("next/navigation", () => ({ usePathname: () => nav.path, useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
-
+import { ModuleBlocked } from "@/components-next/modules/module-blocked";
 import { ModuleRouteGate, ModulesProvider } from "@/components-next/modules/modules-provider";
 import { AiCard, AllServices, ServiceGrid } from "@/components-next/home/home-parts";
 import { parseDisabled } from "@/lib/modules";
@@ -13,7 +13,7 @@ const gate = (path: string, disabled: Parameters<typeof ModulesProvider>[0]["dis
   nav.path = path;
   return renderToStaticMarkup(
     <ModulesProvider disabled={disabled}>
-      <ModuleRouteGate locale="ar" title="Unavailable title" body="Unavailable body" homeLabel="Home">
+      <ModuleRouteGate blocked={<ModuleBlocked locale="ar" title="Unavailable title" body="Unavailable body" homeLabel="Home" />}>
         <p>the page</p>
       </ModuleRouteGate>
     </ModulesProvider>,
