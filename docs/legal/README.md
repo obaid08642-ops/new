@@ -6,12 +6,12 @@
 |---|---|---|
 | `01_PATIENT_TERMS.ar.md` | `patient_terms` | المستخدمون (المرضى) |
 | `02_PRIVACY_POLICY.ar.md` | `privacy_policy` | الجميع |
-| `03_PROVIDER_AGREEMENT.ar.md` (v1.1 مسودة) + `03_PROVIDER_AGREEMENT.en.md` | `provider_agreement` عند النشر؛ المسودة تُحمَّل بالمفتاح `provider_agreement_draft` | جميع مقدمي الخدمة، وملحق خاص بكل نوع |
+| `03_PROVIDER_AGREEMENT.ar.md` (الإصدار 1.0، النص النهائي) + `03_PROVIDER_AGREEMENT.en.md` | `provider_agreement` | جميع مقدمي الخدمة، وملحق خاص بكل نوع |
 | `04_TELEHEALTH_CONSENT.ar.md` | `telehealth_consent` | المريض قبل أول استشارة عن بُعد |
 | `05_CANCELLATION_REFUND.ar.md` | `refund_policy` | الجميع، وهي مطابقة لقرار المالك 26 |
 
-## مراجعة 2026-11-01 (الاتفاقية v1.1)
-مراجعة الاتفاقية مقابل الأنظمة والسوق، وجدول البنود، ومذكرة نموذج الفوترة، وقائمة ما يملؤه المالك: في `REVIEW_2026-11-01.md`. النص مسودة ولم يعتمده محامٍ سعودي. تُحمَّل المسودة في `legal_policies` بحالة DRAFT بالمفتاح `provider_agreement_draft` (`backend/src/scripts/seed-provider-agreement-draft.ts`، تجربة جافة افتراضياً، و`APPLY=yes` للكتابة)، ولا تُخزَّن تحت `provider_agreement` حتى لا تُقدَّم أو تُطبع كنص معتمد.
+## مراجعة 2026-11-01 والنص النهائي لاتفاقية مقدم الخدمة
+قرر المالك نشر الاتفاقية. المراجعة وجدول البنود ومذكرة نموذج الفوترة وما تغيّر في النص النهائي: في `REVIEW_2026-11-01.md` (يبقى فيه التوصية بمراجعة محامٍ سعودي). تُنشر الاتفاقية في `legal_policies` بالمفتاح `provider_agreement` بالسكربت `backend/src/scripts/publish-provider-agreement.ts` (تجربة جافة افتراضياً، و`APPLY=yes` للنشر؛ ينسخ الصف القائم احتياطياً أولاً، ويرفض نصاً فيه كلمة مسودة أو فراغ [ ] أو إصداراً لا يعلو المنشور، ويحذف صف المسودة `provider_agreement_draft`). و`REQUIRE_ACCEPTANCE=no` ينشر دون إلزام المزودين الحاليين بالقبول فوراً.
 
 ## مكان الحفظ وطريقة النشر
 - **المصدر:** هذه الملفات في المستودع، وكل تعديل يمر بطلب دمج (PR) ويبقى له تاريخ.
