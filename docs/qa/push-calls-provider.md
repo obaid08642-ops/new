@@ -27,12 +27,23 @@ Status: **PASS** = the code path is complete and proven by a test or a prebuild;
 | Tap opens the thread | lab: **PASS** `chat` route. doctor, nursing, pharmacy, radiology, facility: **FAIL**, no thread route (chat is a tab or a list); lands on the notifications list | same |
 
 ## Incoming call
+Ported from the patient app (`patient-app/src/calls/*`, `utils/callkeep.ts`): `provider-app/src/calls/{ringTask,voipPush,callkeepLogic,activeCall,callHold,callSignals,openCall}.ts`, `src/utils/callkeep.ts` (react-native-callkeep: CallKit on iOS, ConnectionService on Android), `src/screens/shared/IncomingCallScreen.tsx`. The token is registered with `call_ring: canRingNatively()` (`notifications.ts`), so the backend sends the call as a data-only, high-priority, 30 s push (`push.module.ts` `fcmMessage` ring path); Android runs `nabd-call-ring` (expo-task-manager) and shows the system call screen, iOS rings from PushKit.
+
 | State | Android | iOS |
 |---|---|---|
-| Any state | **FAIL**: the provider app has no CallKit / ConnectionService / PushKit. `grep -ri callkeep provider-app/src` finds nothing; the patient app has them (`patient-app/src/calls/*`, `react-native-callkeep`). The backend sends `call.incoming` as an alert push on the `calls` channel (`push.module.ts:809-820`): it appears like a notification, with the default sound once, and cannot be answered from the lock screen | **FAIL** (same); no `voip` background mode, no `apns_voip` token registered |
-| Tap on the call push | **FAIL**: resolves to the notifications list (`pushRouting.ts`); the room screen (`VideoCallRoom.tsx`) starts a call by appointment id, it cannot join a session id from a push | same |
+| App open | **PASS (code)**: `App.tsx` `received` shows the system call screen, else the in-app `IncomingCall` screen | same |
+| Background | **NEEDS-KEY**: data-only push runs the ring task; needs `google-services.json` + Firebase service account, and a development build (not Expo Go) | **NEEDS-KEY**: PushKit VoIP push; needs the APNs key and the `react-native-voip-push-notification` native module (`voipPush.ts` is a no-op without it, as in the patient app) |
+| Killed | **NEEDS-KEY** (same as background; the task runs without the app) | **NEEDS-KEY** (same) |
+| Phone locked | **NEEDS-KEY**: full-screen intent (`USE_FULL_SCREEN_INTENT`, `MANAGE_OWN_CALLS` added to `app.json`). Android 14 asks the user to allow full-screen intents; not grantable from code | **NEEDS-KEY**: CallKit shows the lock-screen call UI |
+| Answer | **PASS (code)**: `answerCall` opens `CallRoom` for the session (`callkeep.ts`, `openCall.ts` waits up to 20 s for a killed app to restore the session); `VideoCallRoom` joins the existing session, it does not start a new one | same |
+| Decline / caller hangs up | **PASS (code)**: `endCall` posts `/calls/:id/reject` only if it was never answered; a `call_missed` push dismisses the ringing screen | same |
+| Second call while in one | **PASS (code)**: answered busy (`activeCall.ts`) | same |
+| Phone call interrupts | **PASS (code)**: hold stops audio/video, resume restarts, room kept (`callHold.ts`, `VideoCallRoom.tsx`) | same |
+| No native module (Expo Go, web) | **PASS**: a high-priority notification on the `calls` channel; tapping it opens the in-app `IncomingCall` screen (`pushRouting.ts`) | same |
 
-Needed from H (shared plumbing): port `callkeepLogic`, `ringTask`, `voipPush` and the `react-native-callkeep` / `react-native-voip-push-notification` config plugins to the provider app, a join-by-session entry in `VideoCallRoom`, a data-only FCM handler that rings in a killed app, and the APNs VoIP key. `@react-native-firebase/app` and `/messaging` are in `provider-app/package.json` but used nowhere and not configured; they are dead weight until that port decides whether to use them.
+Tests: `src/calls/__tests__/ring.test.ts` (payload handling, answer/decline, busy), `pushRouting.test.ts`. Nothing rang on a device.
+
+Still **FAIL** or open: the backend sends `call_missed` when a call ends unanswered but no `call_cancelled`; a caller hanging up while the phone is ringing is told to the app through `call_missed` only. The `@react-native-firebase/*` dependencies stay unused.
 
 ## Counts
-Order or booking: 5 rows PASS(code) or NEEDS-KEY, 2 FAIL (list refresh, iOS interruption level), 1 PARTIAL (tap target for 5 of 6 provider types). Chat: 2 NEEDS-KEY, 1 PASS, 1 FAIL (tap target for 5 of 6 types). Calls: 2 FAIL (all states, tap). Needs from the owner: `google-services.json`, `GoogleService-Info.plist`, `EXPO_PUBLIC_PROJECT_ID`, APNs key, Firebase service account on the backend, and a decision on the new-order sound (the file is a generated placeholder tone; replace it with the brand sound under the same name).
+Order or booking: PASS(code) or NEEDS-KEY except 2 FAIL (list refresh, iOS interruption level) and 1 PARTIAL (tap target for 5 of 6 provider types). Chat: 2 NEEDS-KEY, 1 PASS, 1 FAIL (tap target). Calls: 8 PASS(code) or NEEDS-KEY rows, 0 FAIL. Needs from the owner: `google-services.json`, `GoogleService-Info.plist`, `EXPO_PUBLIC_PROJECT_ID`, APNs key (push and VoIP), Firebase service account on the backend, the PushKit native module in the iOS build, and the brand new-order sound (the file is a generated placeholder tone; replace it under the same name).

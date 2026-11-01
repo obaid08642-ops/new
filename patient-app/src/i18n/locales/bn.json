@@ -4045,5 +4045,22 @@
   "onboarding.language.continue": "চালিয়ে যান",
   "auth.showPassword": "পাসওয়ার্ড দেখান",
   "auth.hidePassword": "পাসওয়ার্ড লুকান",
-  "auth.continueWith": "এর মাধ্যমে চালিয়ে যান"
+  "auth.continueWith": "এর মাধ্যমে চালিয়ে যান",
+  "receipt.button": "রসিদ",
+  "receipt.preparing": "রসিদ তৈরি হচ্ছে",
+  "receipt.failTitle": "রসিদ পাওয়া যাচ্ছে না",
+  "receipt.failBody": "এখন রসিদ ইস্যু করা যায়নি। পরে আবার চেষ্টা করুন বা সহায়তার সাথে যোগাযোগ করুন।",
+  "receipt.title": "রসিদ",
+  "receipt.loadError": "আপনার রসিদ লোড করা যায়নি",
+  "receipt.empty": "এখনও কোনো রসিদ নেই",
+  "receipt.emptyBody": "বুকিং বা অর্ডারের মূল্য পরিশোধের পর আপনার ট্যাক্স ইনভয়েস এখানে দেখা যাবে।",
+  "receipt.invoice": "ইনভয়েস",
+  "receipt.cancelled": "বাতিল",
+  "receipt.kind.appointment": "পরামর্শ",
+  "receipt.kind.lab": "ল্যাব পরীক্ষা",
+  "receipt.kind.radiology": "রেডিওলজি",
+  "receipt.kind.nursing": "বাসায় নার্সিং",
+  "receipt.kind.pharmacy": "ফার্মেসি অর্ডার",
+  "set.receipts": "রসিদ",
+  "set.receiptsHint": "PDF আকারে আপনার ট্যাক্স ইনভয়েস"
 }

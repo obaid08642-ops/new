@@ -44,7 +44,9 @@
 .sums { font-size: var(--nabd-font-size-body); }
 .totalLabel, .totalValue { padding-block-start: var(--nabd-space-xs); border-block-start: 1px solid var(--nabd-color-border-hairline); font-weight: 700; color: var(--nabd-color-text-primary); }
 
-.qr { inline-size: 9rem; block-size: 9rem; justify-self: center; color: var(--nabd-color-text-primary); background: var(--nabd-color-bg-surface); }
+.qr { box-sizing: content-box; inline-size: 9rem; block-size: 9rem; padding: var(--nabd-space-sm); justify-self: center; color: var(--nabd-color-text-primary); background: var(--nabd-color-bg-surface); }
+/* In dark the tokens make the code light-on-dark, which scanners do not read: flip the polarity so it is dark on light, as in the app. */
+:global([data-theme="dark"]) .qr { filter: invert(1); }
 
 /* Download PDF and Share appear once the paper is out. */
 .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--nabd-space-sm); animation: receipt-actions 300ms ease-out 800ms both; }

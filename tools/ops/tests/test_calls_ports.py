@@ -33,7 +33,12 @@ class Servers:
             t.start()
 
     def listener(self):
-        s = socket.socket(); s.bind(("127.0.0.1", 0)); s.listen(8); s.settimeout(0.2); return s
+        while True:   # never inside the relay range 40000-49999 (see free_port)
+            s = socket.socket(); s.bind(("127.0.0.1", 0))
+            if not 40000 <= s.getsockname()[1] <= 49999:
+                break
+            s.close()
+        s.listen(8); s.settimeout(0.2); return s
 
     def accept(self, lst):
         while not self.stop:
@@ -60,7 +65,12 @@ class Servers:
 
 
 def free_port():
-    s = socket.socket(); s.bind(("127.0.0.1", 0)); p = s.getsockname()[1]; s.close(); return p
+    # never inside the coturn relay range 40000-49999: the fixture's ufw has a range rule there, so a random port in it would match TWO rules and the
+    # "ufw_allow_rules=1" assertions failed on about one run in five (CI, 2026-10-31)
+    while True:
+        s = socket.socket(); s.bind(("127.0.0.1", 0)); p = s.getsockname()[1]; s.close()
+        if not 40000 <= p <= 49999:
+            return p
 
 
 class CallsPorts(unittest.TestCase):
