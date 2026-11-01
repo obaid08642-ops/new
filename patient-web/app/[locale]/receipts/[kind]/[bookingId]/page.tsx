@@ -7,7 +7,9 @@ import { isLocale } from "@/lib/i18n";
 import { extractReceipt, isReceiptKind } from "@/lib/receipt/model";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
+import { ReceiptActions } from "@/components-next/receipt/receipt-actions";
 import { ReceiptPaper } from "@/components-next/receipt/receipt-paper";
+import { receiptLabels } from "@/lib/receipt/labels";
 
 type Props = { params: Promise<{ locale: string; kind: string; bookingId: string }> };
 
@@ -35,15 +37,10 @@ export default async function ReceiptPage({ params }: Props) {
       </ConsultPage>
     );
   }
-  const pdfHref = `/api/patient/billing/invoice/${kind}/${encodeURIComponent(bookingId)}/pdf`;
-  const labels = {
-    region: t("title"), simplified: t("simplified"), invoiceNo: t("invoiceNo"), vatNumber: t("vatNumber"), dateTime: t("dateTime"),
-    subtotal: t("subtotal"), vat: t("vat", { rate: formatNumber(locale, Math.round(receipt.vatRate * 100)) }), total: t("total"), qr: t("qr"), downloadPdf: t("downloadPdf"),
-    share: t("share"), shareTitle: t("shareTitle", { no: receipt.invoiceNo }), brand: t("brand"),
-  };
+  const labels = receiptLabels((key, values) => t(key, values), receipt, (percent) => formatNumber(locale, percent));
   return (
     <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/receipts`}>
-      <ReceiptPaper locale={locale} receipt={receipt} labels={labels} pdfHref={pdfHref} pageHref={`/${locale}/receipts/${kind}/${encodeURIComponent(bookingId)}`} />
+      <ReceiptPaper locale={locale} receipt={receipt} labels={labels} actions={<ReceiptActions locale={locale} kind={kind} bookingId={bookingId} invoiceNo={receipt.invoiceNo} labels={labels} />} />
     </ConsultPage>
   );
 }

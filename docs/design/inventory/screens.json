@@ -1,5 +1,5 @@
 {
- "commit": "b87b63144",
+ "commit": "2d1ecd5d8",
  "routes": [
   {
    "app": "patient-app",
@@ -6851,7 +6851,7 @@
      "line": 21,
      "file": "patient-app/app/receipts/index.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:537"
+     "backend": "backend/src/modules/billing/billing.module.ts:670"
     }
    ],
    "files": 38,
@@ -6872,13 +6872,13 @@
      "path": "/billing/invoice/:param/:param",
      "target": "backend",
      "query": "",
-     "line": 22,
+     "line": 25,
      "file": "patient-app/app/receipts/[kind]/[bookingId].tsx",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:508"
+     "backend": "backend/src/modules/billing/billing.module.ts:624"
     }
    ],
-   "files": 41,
+   "files": 43,
    "unresolved": 0
   },
   {
@@ -19738,6 +19738,30 @@
   },
   {
    "app": "patient-web",
+   "route": "/receipt/shared/[token]",
+   "file": "patient-web/app/[locale]/receipt/shared/[token]/page.tsx",
+   "redirect": null,
+   "template": "detail",
+   "board": "none",
+   "batch": 12,
+   "status": "—",
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/billing/shared/:param",
+     "target": "backend",
+     "query": "",
+     "line": 15,
+     "file": "patient-web/lib/api/billing-server.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/billing/billing.module.ts:698"
+    }
+   ],
+   "files": 24,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-web",
    "route": "/receipts",
    "file": "patient-web/app/[locale]/receipts/page.tsx",
    "redirect": null,
@@ -19794,7 +19818,7 @@
      "line": 6,
      "file": "patient-web/lib/api/billing-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:537"
+     "backend": "backend/src/modules/billing/billing.module.ts:670"
     }
    ],
    "files": 57,
@@ -19858,10 +19882,10 @@
      "line": 10,
      "file": "patient-web/lib/api/billing-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:508"
+     "backend": "backend/src/modules/billing/billing.module.ts:624"
     }
    ],
-   "files": 60,
+   "files": 65,
    "unresolved": 1
   },
   {
