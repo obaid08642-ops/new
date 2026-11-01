@@ -5,6 +5,8 @@ function build(opts: { booking?: any; txns?: any[]; cfg?: any; existing?: any })
   const invoices = {
     findOne: jest.fn(() => ({ lean: async () => opts.existing ?? created[0] ?? null })),
     create: jest.fn(async (d: any) => { const row = { id: 'inv-1', ...d }; created.push(row); return row; }),
+    find: jest.fn(() => ({ lean: async () => [] })), // no credit notes
+    updateOne: jest.fn(async () => ({})),
   };
   const collections: Record<string, any> = {
     transactions: { find: jest.fn(() => ({ toArray: async () => opts.txns ?? [] })), findOne: jest.fn(async () => null) },

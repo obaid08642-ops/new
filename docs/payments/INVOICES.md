@@ -23,3 +23,21 @@ A credit note (`type: 'credit_note'`, number `CN-<year>-<seq>`, `original_invoic
 - **One invoice per booking.** A booking with two settled payments gets one invoice for the sum; there is no unique index on (kind, booking), so two simultaneous issues can create two. The loser of an insert error re-reads the winner, but a true race is not closed by a database constraint.
 - **ZATCA Phase 2** (clearance, signing) is not built; `ZATCA_VAT_NUMBER` and `ZATCA_SELLER_NAME` must be set in production.
 - **PDF** is English plus an Arabic title; the layout is the Phase-1 simplified invoice. Arabic item names depend on the PDF font; not checked.
+
+## Receipt API: what `GET /billing/invoice/:kind/:id` returns (invoice and receipt backend gaps)
+Every figure is stored from the payment and the booking when the invoice is issued. The client only displays it.
+
+| Field | Meaning |
+| --- | --- |
+| `invoice_no`, `type` (`invoice` \| `credit_note`), `issued_at`, `currency` | identity and time of issue |
+| `lines[]` `{ key, name_ar, name_en, qty, unit_price, amount }` | the service lines (items, or consultation / platform / home-visit / transport / delivery fee lines; one `adjustment` line only if the lines do not add up to the price) |
+| `discount` | what was taken off (coupon, points); `lines` add up to the price before it, `total` is after it |
+| `subtotal`, `vat_rate`, `vat_amount`, `total` | `subtotal + vat_amount = total`; VAT is inside the total |
+| `payment` `{ method, last4 }` | from the gateway record; `last4` is never more than the last 4 digits (null for cash) |
+| `insured` `{ insurer, price, insurer_share, patient_share }` or `null` | when an insurer paid part; `total` is then the patient's share |
+| `seller` `{ legal_name, vat_number, configured }` | from `finance_config` (`invoice`: `seller_name`, `vat_number`) or `ZATCA_SELLER_NAME` / `ZATCA_VAT_NUMBER`. Never invented: with either empty, `configured` is `false`, both are `null`, `qr` is `null`, and the PDF says so. The document is sealed (seller and QR written, with the original issue time) on the first read after the owner fills them in. |
+| `qr` `{ format, payload }` or `null` | ZATCA phase-1 TLV, base64: seller, VAT number, `issued_at`, `total`, `vat_amount` (same figures as above) |
+| `state` (`paid` \| `partially_refunded` \| `refunded`; `credit_note` on a credit note), `refunded_total`, `credit_notes[]` `{ invoice_no, total, vat_amount, issued_at }` | the refund state, derived from the credit notes that reverse the invoice |
+| `pdf_url` | `GET /billing/documents/:invoiceNo/pdf`, drawn from the same stored document |
+
+`GET /billing/my` and `GET /billing/admin/list` return the same shape per row (one credit-note query for the whole list).

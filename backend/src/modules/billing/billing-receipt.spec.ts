@@ -7,6 +7,8 @@ function build(o: Opts) {
   const match = (q: any) => (d: any) => Object.entries(q).every(([k, v]: [string, any]) => (v && typeof v === 'object' && '$ne' in v ? d[k] !== v.$ne : v && typeof v === 'object' && '$eq' in v ? d[k] === v.$eq : d[k] === v));
   const invoices = {
     findOne: jest.fn((q: any) => ({ lean: async () => store.find(match(q)) ?? null })),
+    find: jest.fn((q: any) => ({ lean: async () => store.filter((d) => Object.entries(q).every(([k, v]: [string, any]) => (v && typeof v === 'object' && '$in' in v ? v.$in.includes(d[k]) : d[k] === v))) })),
+    updateOne: jest.fn(async () => ({})),
     create: jest.fn(async (d: any) => { const row = { id: `i${store.length + 1}`, ...d }; store.push(row); return row; }),
   };
   const collections: Record<string, any> = {
@@ -24,6 +26,7 @@ function build(o: Opts) {
 }
 const patient = { id: 'p1', role: 'patient' };
 const env = { ...process.env };
+beforeEach(() => { process.env.ZATCA_SELLER_NAME = 'Test Seller'; process.env.ZATCA_VAT_NUMBER = '300000000000003'; }); // the owner's values; the service never invents them
 afterEach(() => { process.env = { ...env }; });
 
 describe('ZATCA phase-1 QR payload', () => {
@@ -54,11 +57,13 @@ describe('ZATCA phase-1 QR payload', () => {
     expect(tags[2]).toBe('311111111100003');
   });
 
-  it('production with no VAT number refuses to issue', async () => {
-    process.env.NODE_ENV = 'production';
+  it('with no seller configured the invoice is issued, says so, and carries no QR and no invented name or number', async () => {
+    delete process.env.ZATCA_SELLER_NAME;
     delete process.env.ZATCA_VAT_NUMBER;
-    const { svc } = build({ booking: { patient_id: 'p1' }, txns: [{ amount: 23 }] });
-    await expect(svc.issue(patient, 'lab', 'b1')).rejects.toThrow('ZATCA_VAT_NUMBER');
+    const { svc } = build({ booking: { patient_id: 'p1' }, txns: [{ amount: 115 }] });
+    const inv: any = await svc.present(await svc.issue(patient, 'lab', 'b1'));
+    expect(inv).toMatchObject({ seller_complete: false, seller: { legal_name: null, vat_number: null, configured: false }, qr: null, total: 115 });
+    expect(inv.qr_base64).toBeNull();
   });
 });
 
@@ -77,7 +82,7 @@ describe('receipt content', () => {
 
   it('a consultation shows its fee and platform fee lines; the API adds the QR block and the PDF link', async () => {
     const { svc } = build({ booking: { patient_id: 'p1', price: 200, service_fee: 30, total_price: 230 }, txns: [{ amount: 230 }] });
-    const inv: any = svc.present(await svc.issue(patient, 'consultation', 'b1'));
+    const inv: any = await svc.present(await svc.issue(patient, 'consultation', 'b1'));
     expect(inv.lines.map((l: any) => [l.key, l.amount])).toEqual([['consultation_fee', 200], ['platform_fee', 30]]);
     expect(inv.qr).toEqual({ format: 'zatca-phase1-tlv-base64', payload: inv.qr_base64 });
     expect(inv.pdf_url).toBe(`/billing/documents/${inv.invoice_no}/pdf`);

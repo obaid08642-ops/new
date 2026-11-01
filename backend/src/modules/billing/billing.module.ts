@@ -48,6 +48,10 @@ export class EInvoice {
   @Prop({ type: Object }) insured: any; // { insurer, price, covered, copay } when an insurer paid part
   @Prop() seller_name: string;
   @Prop() vat_number: string;
+  /** false while the seller's legal name or VAT number is not configured: the document says so and carries no QR until they are (then it is sealed on the next read). */
+  @Prop({ default: true }) seller_complete: boolean;
+  /** What was taken off the price (coupon, points): the lines add up to the price before it, `total` is after it. */
+  @Prop({ default: 0 }) discount: number;
   @Prop() issued_at: Date; // the instant in tag 3 of the QR
 }
 export const EInvoiceSchema = SchemaFactory.createForClass(EInvoice);
@@ -142,13 +146,16 @@ export class BillingService {
     return Math.round((card > 0 ? card : cash > 0 ? cash : 0) * 100) / 100;
   }
 
-  /** Who sells: the finance config (`finance_config` key `invoice`: seller_name, vat_number) else the environment. */
-  async seller(): Promise<{ name: string; vatNumber: string | null }> {
-    const cfg: any = await this.conn.collection('finance_config').findOne({ key: 'invoice' }).catch(() => null);
-    const name = String(cfg?.seller_name || process.env.ZATCA_SELLER_NAME || 'منصة نَبْض للرعاية الصحية');
-    const vatNumber = String(cfg?.vat_number || process.env.ZATCA_VAT_NUMBER || '')
-      || (process.env.NODE_ENV === 'production' ? '' : '300000000000003'); // sandbox number, non-prod only
-    return { name, vatNumber: vatNumber || null };
+  /**
+   * Who sells: the finance config (`finance_config` key `invoice`: seller_name, vat_number) else `ZATCA_SELLER_NAME` /
+   * `ZATCA_VAT_NUMBER`. The owner supplies them; nothing is invented, so an empty one stays null and the invoice says so.
+   */
+  async seller(): Promise<{ name: string | null; vatNumber: string | null; configured: boolean }> {
+    let cfg: any = null;
+    try { cfg = await this.conn.collection('finance_config').findOne({ key: 'invoice' }); } catch { /* no config store: the environment */ }
+    const name = String(cfg?.seller_name || process.env.ZATCA_SELLER_NAME || '').trim() || null;
+    const vatNumber = String(cfg?.vat_number || process.env.ZATCA_VAT_NUMBER || '').trim() || null;
+    return { name, vatNumber, configured: !!(name && vatNumber) };
   }
 
   /** How it was paid: the method and the last 4 digits of the card (the gateway gives a masked number; nothing longer is kept). */
@@ -164,7 +171,7 @@ export class BillingService {
   }
 
   /** What was bought. Items when the booking has them, else its fee lines; a rounding or discount difference becomes one adjustment line, so the lines add up to the booking price. */
-  buildLines(kind: string, booking: any): any[] {
+  buildLines(kind: string, booking: any, discount = 0): any[] {
     const n = (v: unknown) => { const x = Number(v); return Number.isFinite(x) && x > 0 ? Math.round(x * 100) / 100 : 0; };
     const lines: any[] = [];
     const items: any[] = Array.isArray(booking?.items) ? booking.items : [];
@@ -176,17 +183,71 @@ export class BillingService {
     if (!lines.length && n(booking?.price)) lines.push({ key: this.transactionKind(kind) === 'consultation' ? 'consultation_fee' : 'service', name_ar: null, name_en: null, qty: 1, unit_price: n(booking.price), amount: n(booking.price) });
     const fees: Array<[string, unknown]> = [['platform_fee', booking?.service_fee && this.transactionKind(kind) === 'consultation' ? booking.service_fee : 0], ['home_visit_fee', booking?.home_visit_fee], ['transport_fee', booking?.transportation_fee], ['delivery_fee', booking?.delivery_fee]];
     for (const [key, v] of fees) if (n(v)) lines.push({ key, name_ar: null, name_en: null, qty: 1, unit_price: n(v), amount: n(v) });
-    const price = n(booking?.total_price) || n(booking?.total) || n(booking?.price);
+    // the booking total is after the discount: the lines add up to the price before it
+    const base = n(booking?.total_price) || n(booking?.total) || n(booking?.price);
+    const price = base ? base + (discount > 0 ? discount : 0) : 0;
     const sum = Math.round(lines.reduce((a, l) => a + l.amount, 0) * 100) / 100;
     if (price && Math.abs(price - sum) >= 0.01) lines.push({ key: 'adjustment', name_ar: null, name_en: null, qty: 1, unit_price: Math.round((price - sum) * 100) / 100, amount: Math.round((price - sum) * 100) / 100 });
     return lines;
   }
 
-  /** The invoice as the API returns it: the document, the link to its PDF, and the QR payload (also `qr_base64`). */
-  present(inv: any): any {
+  /** What was taken off the booking's price, from the booking's own fields (coupon, loyalty points, a plain discount). */
+  discountOf(booking: any): number {
+    const n = (v: unknown) => { const x = Number(v); return Number.isFinite(x) && x > 0 ? x : 0; };
+    return Math.round((n(booking?.coupon_discount) + n(booking?.loyalty_discount) + n(booking?.discount)) * 100) / 100;
+  }
+
+  /** Writes the seller and the QR onto a document that was issued before the seller was configured, once it is. */
+  private async sealIfPossible(doc: any): Promise<any> {
+    if (!doc || doc.seller_complete !== false) return doc;
+    const seller = await this.seller();
+    if (!seller.configured) return doc;
+    const issuedAt = new Date(doc.issued_at || doc.createdAt || Date.now());
+    const qr_base64 = tlvQr(seller.name as string, seller.vatNumber as string, issuedAt.toISOString(), Number(doc.total), Number(doc.vat_amount));
+    await this.invoices.updateOne({ id: doc.id }, { $set: { seller_name: seller.name, vat_number: seller.vatNumber, seller_complete: true, qr_base64 } });
+    return { ...doc, seller_name: seller.name, vat_number: seller.vatNumber, seller_complete: true, qr_base64 };
+  }
+
+  /**
+   * The document as the API returns it. Everything on it was stored from the payment and the booking when it was issued; the client
+   * only displays it:
+   *   lines, discount, subtotal, vat_rate, vat_amount, total          the amounts (total = lines - discount; VAT is inside the total)
+   *   payment { method, last4 }                                       from the gateway record, never more than the last 4 digits
+   *   insured { insurer, price, insurer_share, patient_share }        when an insurer paid part (total = the patient's share)
+   *   seller { legal_name, vat_number, configured }                   from config; null and configured:false when the owner has not filled them in
+   *   qr { format, payload } and pdf_url                              the ZATCA phase-1 TLV (null while the seller is not configured) and the PDF
+   *   state, refunded_total, credit_notes                             paid | partially_refunded | refunded, with the credit notes that reverse it
+   */
+  async present(inv: any): Promise<any> {
     if (!inv) return inv;
-    const doc = inv.invoice_no;
-    return { ...inv, qr: { format: 'zatca-phase1-tlv-base64', payload: inv.qr_base64 }, pdf_url: `/billing/documents/${doc}/pdf` };
+    const doc = await this.sealIfPossible(inv);
+    const notes: any[] = doc.type === 'credit_note' ? [] : await this.invoices.find({ type: 'credit_note', original_invoice_no: doc.invoice_no }, { _id: 0, __v: 0 }).lean();
+    return this.shape(doc, notes);
+  }
+
+  /** `present` for a list: one query for the credit notes of all of them. */
+  async presentMany(rows: any[]): Promise<any[]> {
+    const sealed = await Promise.all(rows.map((r) => this.sealIfPossible(r)));
+    const nos = sealed.filter((r) => r.type !== 'credit_note').map((r) => r.invoice_no);
+    const notes: any[] = nos.length ? await this.invoices.find({ type: 'credit_note', original_invoice_no: { $in: nos } }, { _id: 0, __v: 0 }).lean() : [];
+    return sealed.map((r) => this.shape(r, notes.filter((n) => n.original_invoice_no === r.invoice_no)));
+  }
+
+  private shape(doc: any, notes: any[]): any {
+    const money = (v: unknown) => Math.round(Number(v) * 100) / 100;
+    const refunded = money(notes.reduce((sum, n) => sum + Math.abs(Number(n.total) || 0), 0));
+    const state = doc.type === 'credit_note' ? 'credit_note' : !notes.length ? 'paid' : refunded >= money(doc.total) - 0.001 ? 'refunded' : 'partially_refunded';
+    const ins = doc.insured;
+    return {
+      ...doc,
+      insured: ins ? { ...ins, insurer_share: ins.covered, patient_share: ins.copay } : null,
+      seller: { legal_name: doc.seller_name ?? null, vat_number: doc.vat_number ?? null, configured: doc.seller_complete !== false },
+      qr: doc.qr_base64 ? { format: 'zatca-phase1-tlv-base64', payload: doc.qr_base64 } : null,
+      pdf_url: `/billing/documents/${doc.invoice_no}/pdf`,
+      state,
+      refunded_total: doc.type === 'credit_note' ? 0 : refunded,
+      credit_notes: notes.map((n) => ({ invoice_no: n.invoice_no, total: n.total, vat_amount: n.vat_amount, issued_at: n.issued_at ?? n.createdAt ?? null })),
+    };
   }
 
   /**
@@ -198,7 +259,7 @@ export class BillingService {
     const existing: any = await this.invoices.findOne({ booking_kind: kind, booking_id: bookingId, status: 'ISSUED', type: { $ne: 'credit_note' } }, { _id: 0, __v: 0 }).lean();
     if (existing) {
       if (user && existing.patient_id !== user.id && user.role !== 'admin') throw new BadRequestException('not your booking');
-      return existing;
+      return this.sealIfPossible(existing);
     }
 
     const booking: any = await this.findBooking(kind, bookingId);
@@ -212,12 +273,14 @@ export class BillingService {
     const vat = Math.round((total - total / (1 + rate)) * 100) / 100; // VAT-inclusive extraction
     const subtotal = Math.round((total - vat) * 100) / 100;
 
+    // The seller's legal name and VAT number are the owner's to supply. Without them the invoice is still issued so the patient has it,
+    // says the seller is not configured, and carries no QR (a QR with an empty seller would be invalid); it is sealed on a later read.
     const seller = await this.seller();
-    if (!seller.vatNumber) throw new BadRequestException('ZATCA_VAT_NUMBER is not configured — cannot issue compliant invoices');
     const issuedAt = new Date();
-    const qr = tlvQr(seller.name, seller.vatNumber, issuedAt.toISOString(), total, vat);
+    const qr = seller.configured ? tlvQr(seller.name as string, seller.vatNumber as string, issuedAt.toISOString(), total, vat) : null;
 
-    const lines = this.buildLines(kind, booking);
+    const discount = this.discountOf(booking);
+    const lines = this.buildLines(kind, booking, discount);
     const bookingPrice = Math.round(Number(booking?.total_price ?? booking?.total ?? booking?.price ?? 0) * 100) / 100;
     const insured = String(booking?.payment_method || '').toLowerCase() === 'insurance' || Number(booking?.insurance_copay) > 0
       ? { insurer: booking?.insurance_provider ?? booking?.insurance?.provider ?? null, price: bookingPrice, covered: Math.max(0, Math.round((bookingPrice - total) * 100) / 100), copay: total }
@@ -232,8 +295,8 @@ export class BillingService {
         booking_id: bookingId,
         patient_id: owner,
         subtotal, vat_rate: rate, vat_amount: vat, total,
-        qr_base64: qr, lines, payment, insured,
-        seller_name: seller.name, vat_number: seller.vatNumber, issued_at: issuedAt,
+        qr_base64: qr, lines, payment, insured, discount,
+        seller_name: seller.name, vat_number: seller.vatNumber, seller_complete: seller.configured, issued_at: issuedAt,
       });
       return await this.invoices.findOne({ id: doc.id }, { _id: 0, __v: 0 }).lean();
     } catch (e: any) {
@@ -266,8 +329,10 @@ export class BillingService {
       const vat = -Math.round((capped - capped / (1 + rate)) * 100) / 100;
       const total = -capped;
       const issuedAt = new Date();
-      const seller = { name: original.seller_name || (await this.seller()).name, vatNumber: original.vat_number || (await this.seller()).vatNumber };
-      if (!seller.vatNumber) return null;
+      // the seller of the invoice it reverses, else the configured one; with neither the credit note is still issued, flagged, with no QR
+      const cfgSeller = original.seller_name && original.vat_number ? null : await this.seller();
+      const seller = { name: original.seller_name || cfgSeller?.name || null, vatNumber: original.vat_number || cfgSeller?.vatNumber || null };
+      const sellerComplete = !!(seller.name && seller.vatNumber);
       const year = issuedAt.getFullYear();
       const counter: any = await this.conn.collection('counters').findOneAndUpdate({ _id: `creditnote-${year}` } as any, { $inc: { seq: 1 } }, { upsert: true, returnDocument: 'after' });
       const seq = counter?.seq ?? counter?.value?.seq ?? 1;
@@ -276,10 +341,10 @@ export class BillingService {
         type: 'credit_note', original_invoice_no: original.invoice_no, refund_ref: e.refund_ref,
         booking_kind: kind, booking_id: e.booking_id, patient_id: original.patient_id,
         subtotal: Math.round((total - vat) * 100) / 100, vat_rate: rate, vat_amount: vat, total,
-        qr_base64: tlvQr(seller.name, seller.vatNumber, issuedAt.toISOString(), total, vat),
+        qr_base64: sellerComplete ? tlvQr(seller.name as string, seller.vatNumber as string, issuedAt.toISOString(), total, vat) : null,
         lines: [{ key: 'refund', name_ar: null, name_en: null, qty: 1, unit_price: total, amount: total }],
         payment: original.payment ?? null, insured: null,
-        seller_name: seller.name, vat_number: seller.vatNumber, issued_at: issuedAt,
+        seller_name: seller.name, vat_number: seller.vatNumber, seller_complete: sellerComplete, issued_at: issuedAt,
       });
       return await this.invoices.findOne({ id: doc.id }, { _id: 0, __v: 0 }).lean();
     } catch (err: any) {
@@ -312,11 +377,11 @@ export class BillingService {
   }
 
   myInvoices(user: any) {
-    return this.invoices.find({ patient_id: user.id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(100).lean().then((rows: any[]) => rows.map((r) => this.present(r)));
+    return this.invoices.find({ patient_id: user.id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(100).lean().then((rows: any[]) => this.presentMany(rows));
   }
 
   adminList(limit = 100) {
-    return this.invoices.find({}, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(Math.min(limit, 500)).lean().then((rows: any[]) => rows.map((r) => this.present(r)));
+    return this.invoices.find({}, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(Math.min(limit, 500)).lean().then((rows: any[]) => this.presentMany(rows));
   }
 
   /** E1 S17: patient invoice PDF with embedded ZATCA QR image. */
@@ -333,13 +398,14 @@ export class BillingService {
   }
 
   /** The PDF is drawn from the stored document, with the QR it stores: the picture and the API payload are one value. */
-  async renderPdf(inv: any): Promise<Buffer> {
+  async renderPdf(stored: any): Promise<Buffer> {
+    const inv: any = stored?.state ? stored : await this.present(stored); // sealed, with its state and credit notes
     const credit = inv.type === 'credit_note';
     const money = (v: unknown) => `${Number(v).toFixed(2)} SAR`;
     const qrPng: Buffer | null = await (async () => {
       try {
         const QRCode = require('qrcode');
-        return await QRCode.toBuffer(inv.qr_base64, { type: 'png', width: 140, margin: 1 });
+        return inv.qr_base64 ? await QRCode.toBuffer(inv.qr_base64, { type: 'png', width: 140, margin: 1 }) : null;
       } catch { return null; }
     })();
     const LABELS: Record<string, string> = { consultation_fee: 'Consultation', service: 'Service', platform_fee: 'Platform fee', home_visit_fee: 'Home visit', transport_fee: 'Transport', delivery_fee: 'Delivery', adjustment: 'Adjustment', refund: 'Refund' };
@@ -354,8 +420,13 @@ export class BillingService {
 
       doc.fontSize(20).fillColor('#0F766E').text(credit ? 'Nabd — Credit Note / إشعار دائن' : 'Nabd — Tax Invoice / فاتورة ضريبية', { align: 'center' });
       doc.moveDown(0.5);
-      doc.fontSize(10).fillColor('#555555').text(inv.seller_name || 'Nabd Health Platform', { align: 'center' });
-      if (inv.vat_number) doc.text(`VAT No: ${inv.vat_number}`, { align: 'center' });
+      // the seller is the owner's to supply: an empty one is said to be empty, never filled in
+      if (inv.seller.configured) {
+        doc.fontSize(10).fillColor('#555555').text(String(inv.seller.legal_name), { align: 'center' });
+        doc.text(`VAT No: ${inv.seller.vat_number}`, { align: 'center' });
+      } else {
+        doc.fontSize(10).fillColor('#B45309').text('Seller legal name and VAT number are not configured yet', { align: 'center' });
+      }
       doc.moveDown(1.5);
 
       doc.fontSize(11).fillColor('#111111');
@@ -364,6 +435,9 @@ export class BillingService {
       doc.text(`Issued At: ${new Date(inv.issued_at || inv.createdAt || Date.now()).toISOString()}`);
       doc.text(`Booking: ${inv.booking_kind} #${inv.booking_id}`);
       if (inv.payment?.method) doc.text(`Paid by: ${inv.payment.method}${inv.payment.last4 ? ` •••• ${inv.payment.last4}` : ''}`);
+      if (inv.state === 'refunded' || inv.state === 'partially_refunded') {
+        doc.fillColor('#B91C1C').text(`${inv.state === 'refunded' ? 'REFUNDED' : 'PARTLY REFUNDED'} — credit note${inv.credit_notes.length > 1 ? 's' : ''}: ${inv.credit_notes.map((n: any) => n.invoice_no).join(', ')}`).fillColor('#111111');
+      }
       doc.moveDown();
 
       const lines: any[] = Array.isArray(inv.lines) ? inv.lines : [];
@@ -375,8 +449,12 @@ export class BillingService {
         });
         doc.moveDown();
       }
+      if (Number(inv.discount) > 0) {
+        doc.fontSize(10).text(`Discount: -${money(inv.discount)}`);
+        doc.moveDown(0.3);
+      }
       if (inv.insured) {
-        doc.fontSize(10).text(`Insurance${inv.insured.insurer ? ` (${inv.insured.insurer})` : ''}: price ${money(inv.insured.price)}, covered by insurer ${money(inv.insured.covered)}, paid by patient ${money(inv.insured.copay)}`);
+        doc.fontSize(10).text(`Insurance${inv.insured.insurer ? ` (${inv.insured.insurer})` : ''}: price ${money(inv.insured.price)}, covered by insurer ${money(inv.insured.insurer_share)}, paid by patient ${money(inv.insured.patient_share)}`);
         doc.moveDown();
       }
 
@@ -389,8 +467,10 @@ export class BillingService {
       if (qrPng) {
         doc.image(qrPng, { fit: [140, 140], align: 'center' });
         doc.fontSize(8).fillColor('#555555').text('ZATCA TLV QR', { align: 'center' });
-      } else {
+      } else if (inv.qr_base64) {
         doc.fontSize(8).fillColor('#555555').text(`ZATCA TLV payload: ${inv.qr_base64}`);
+      } else {
+        doc.fontSize(8).fillColor('#555555').text('ZATCA QR is added once the seller details are configured', { align: 'center' });
       }
 
       doc.fontSize(9).fillColor('#999999').text('Generated by Nabd Health Platform — Phase-1 simplified e-invoice', 50, 760, { align: 'center' });

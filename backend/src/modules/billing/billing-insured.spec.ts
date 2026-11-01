@@ -6,6 +6,8 @@ function build(opts: { booking: any; copay?: any; request?: any }) {
   const match = (q: any) => (d: any) => Object.entries(q).every(([k, v]: [string, any]) => (v && typeof v === 'object' && '$ne' in v ? d[k] !== v.$ne : v && typeof v === 'object' && '$eq' in v ? d[k] === v.$eq : d[k] === v));
   const invoices = {
     findOne: jest.fn((q: any) => ({ lean: async () => store.find(match(q)) ?? null })),
+    find: jest.fn((q: any) => ({ lean: async () => store.filter((d) => Object.entries(q).every(([k, v]: [string, any]) => (v && typeof v === 'object' && '$in' in v ? v.$in.includes(d[k]) : d[k] === v))) })),
+    updateOne: jest.fn(async () => ({})),
     create: jest.fn(async (d: any) => { const row = { id: `i${store.length + 1}`, status: 'ISSUED', ...d }; store.push(row); return row; }),
   };
   const collections: Record<string, any> = {
@@ -28,6 +30,7 @@ function build(opts: { booking: any; copay?: any; request?: any }) {
   return { svc: new BillingService(conn), store };
 }
 const patient = { id: 'p1', role: 'patient' };
+beforeEach(() => { process.env.ZATCA_SELLER_NAME = 'Test Seller'; process.env.ZATCA_VAT_NUMBER = '300000000000003'; });
 const booking = { patient_id: 'p1', payment_method: 'insurance', total_price: 400, insurance_provider: 'Bupa', items: [] };
 const copay = { status: 'paid', amount: 80, method: 'card', webhook_payload: { source: { number: 'XXXX-XXXX-XXXX-1881' } } };
 
