@@ -8,6 +8,7 @@ import { SP, FS, FW } from '../../constants';
 import client from '../../api/client';
 import { useAuth, useToast } from '../../context';
 import { reasonFromProgress, type BlockedAccountState } from '../../utils/accountStatus';
+import { localeTag } from '../../i18n';
 
 interface ReviewedDoc { doc_type?: string; review_status?: string; reviewer_note?: string }
 function errorText(err: unknown, fallback: string): string {
@@ -27,7 +28,7 @@ export function PendingDashboard({ onExplore, onLogout, providerType, status = '
   onExplore: () => void; onLogout: () => void; providerType?: string; status?: BlockedAccountState; onOpenDocuments?: () => void; onOpenDetails?: () => void;
 }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const { user, refreshSession } = useAuth();
   const AR = lang === 'ar';
   const { show } = useToast();
@@ -59,7 +60,7 @@ export function PendingDashboard({ onExplore, onLogout, providerType, status = '
       await client.post('/provider/auth/send-otp', { email: user.email });
       setOtpSent(true);
     } catch (e) {
-      show(AR ? 'فشل إرسال رمز التحقق' : 'Failed to send OTP', 'error');
+      show(t('status.toast.otpFailed'), 'error');
     } finally {
       setLoading(false);
     }
@@ -73,7 +74,7 @@ export function PendingDashboard({ onExplore, onLogout, providerType, status = '
       setEmailVerified(true);
        // refresh global state
     } catch (e) {
-      show(AR ? 'رمز غير صحيح أو منتهي الصلاحية' : 'Invalid OTP or expired', 'error');
+      show(t('status.toast.otpInvalid'), 'error');
     } finally {
       setLoading(false);
     }
@@ -89,16 +90,16 @@ export function PendingDashboard({ onExplore, onLogout, providerType, status = '
       setCheckedAt(new Date());
       const s = String(profile.status || '').toLowerCase();
       if (s === 'active' || s === 'approved') { setApproved(true); setSessionEnded(false); }
-      else if (!silent) show(AR ? 'حسابك ما زال قيد المراجعة' : 'Your account is still under review', 'info');
+      else if (!silent) show(t('status.toast.stillReview'), 'info');
     } catch (e) {
       const code = (e as { statusCode?: number; response?: { status?: number } } | null);
       const http = code?.statusCode ?? code?.response?.status;
       if ((http === 401 || http === 403) && !silent) setSessionEnded(true);
-      else if (!silent) show(AR ? 'تعذر تحديث الحالة' : 'Could not refresh the status', 'error');
+      else if (!silent) show(t('status.toast.refreshFailed'), 'error');
     } finally {
       setChecking(false);
     }
-  }, [AR, show]);
+  }, [t, show]);
 
   // A1: the reviewer's reason and the documents that need replacing.
   const loadReview = useCallback(async () => {
@@ -122,10 +123,10 @@ export function PendingDashboard({ onExplore, onLogout, providerType, status = '
     setResubmitting(true);
     try {
       await client.post('/provider/onboarding/submit', {});
-      show(AR ? 'أُعيد إرسال طلبك للمراجعة' : 'Your application was resubmitted for review', 'success');
+      show(t('status.toast.resubmitted'), 'success');
       await refreshSession();
     } catch (e) {
-      show(errorText(e, AR ? 'تعذر إعادة الإرسال' : 'Could not resubmit'), 'error');
+      show(errorText(e, t('status.toast.resubmitFailed')), 'error');
     } finally {
       setResubmitting(false);
     }
@@ -134,31 +135,23 @@ export function PendingDashboard({ onExplore, onLogout, providerType, status = '
   const copy = {
     pending: {
       icon: 'hourglass', tint: theme.warnBg,
-      title: AR ? 'حسابك قيد المراجعة' : 'Account Under Review',
-      body: AR
-        ? 'تم استلام طلبك بنجاح وهو الآن قيد المراجعة الإدارية. ستتمكن من ممارسة عملك بمجرد اعتماده.'
-        : 'Your application has been received and is under administrative review. You can start working once approved.',
+      title: t('status.pending.title'),
+      body: t('status.pending.body'),
     },
     needs_changes: {
       icon: 'edit', tint: theme.warnBg,
-      title: AR ? 'مطلوب تعديلات على طلبك' : 'Changes Requested',
-      body: AR
-        ? 'راجعت الإدارة طلبك وتحتاج إلى تعديلات قبل الاعتماد. حدّث المستندات المطلوبة ثم أعد الإرسال للمراجعة.'
-        : 'The review team needs changes before approval. Update the requested documents, then resubmit for review.',
+      title: t('status.changes.title'),
+      body: t('status.changes.body'),
     },
     rejected: {
       icon: 'close', tint: theme.danger,
-      title: AR ? 'تم رفض طلبك' : 'Application Rejected',
-      body: AR
-        ? 'لم يُعتمد طلبك. يمكنك تصحيح بياناتك ومستنداتك ثم إعادة الإرسال للمراجعة.'
-        : 'Your application was not approved. You can correct your details and documents, then resubmit for review.',
+      title: t('status.rejected.title'),
+      body: t('status.rejected.body'),
     },
     suspended: {
       icon: 'lock', tint: theme.danger,
-      title: AR ? 'حسابك موقوف' : 'Account Suspended',
-      body: AR
-        ? 'تم إيقاف حسابك. تواصل مع دعم نبض لمعرفة السبب وطلب إعادة التفعيل.'
-        : 'Your account has been suspended. Contact Nabd support to learn why and ask for reactivation.',
+      title: t('status.suspended.title'),
+      body: t('status.suspended.body'),
     },
   }[status];
 
@@ -189,10 +182,10 @@ export function PendingDashboard({ onExplore, onLogout, providerType, status = '
         {status !== 'pending' && (
           <NCard style={{ marginBottom: SP.xl, borderColor: theme.warn, borderWidth: 1 }}>
             <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>
-              {AR ? 'سبب القرار' : 'Reason'}
+              {t('status.reason')}
             </Text>
             <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
-              {reason || (AR ? 'لم يُسجَّل سبب مكتوب. تواصل مع الدعم لمعرفة التفاصيل.' : 'No written reason was recorded. Contact support for details.')}
+              {reason || t('status.noReason')}
             </Text>
             {flaggedDocs.map((d, i) => (
               <View key={`${d.doc_type}-${i}`} style={{ marginTop: SP.md }}>
@@ -205,45 +198,45 @@ export function PendingDashboard({ onExplore, onLogout, providerType, status = '
 
         {canResubmit && (
           <View style={{ marginBottom: SP.xl, gap: SP.md }}>
-            {onOpenDetails ? <NBtn label={AR ? 'تصحيح البيانات' : 'Fix details'} variant="outline" onPress={onOpenDetails} /> : null}
-            {onOpenDocuments ? <NBtn label={AR ? 'تحديث المستندات' : 'Update documents'} variant="outline" onPress={onOpenDocuments} /> : null}
-            <NBtn label={AR ? 'إعادة الإرسال للمراجعة' : 'Resubmit for review'} loading={resubmitting} onPress={resubmit} />
+            {onOpenDetails ? <NBtn label={t('status.fixDetails')} variant="outline" onPress={onOpenDetails} /> : null}
+            {onOpenDocuments ? <NBtn label={t('status.updateDocs')} variant="outline" onPress={onOpenDocuments} /> : null}
+            <NBtn label={t('status.resubmit')} loading={resubmitting} onPress={resubmit} />
           </View>
         )}
 
         {status === 'pending' && (approved || sessionEnded) && (
           <NCard style={{ marginBottom: SP.xl, backgroundColor: theme.successBg, borderColor: theme.success, borderWidth: 1 }}>
             <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.success, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>
-              {approved ? (AR ? 'تم اعتماد حسابك' : 'Your account is approved') : (AR ? 'انتهت الجلسة' : 'Your session has ended')}
+              {approved ? t('status.approved') : t('status.sessionEnded')}
             </Text>
             <Text style={{ fontSize: FS.sm, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>
-              {AR ? 'سجّل الخروج ثم سجّل الدخول من جديد لفتح لوحة العمل.' : 'Sign out and sign in again to open your dashboard.'}
+              {t('status.signInAgainHint')}
             </Text>
-            <NBtn label={AR ? 'تسجيل الخروج وإعادة الدخول' : 'Sign out and sign in again'} onPress={onLogout} />
+            <NBtn label={t('status.signInAgain')} onPress={onLogout} />
           </NCard>
         )}
 
         {status === 'pending' && !emailVerified && user?.email && (
           <NCard style={{ marginBottom: SP.xl, borderColor: theme.warn, borderWidth: 1 }}>
             <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.warn, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>
-              {AR ? 'تأكيد البريد الإلكتروني' : 'Verify Email Address'}
+              {t('status.verifyEmail.title')}
             </Text>
             <Text style={{ fontSize: FS.sm, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>
-              {AR ? `نحتاج لتأكيد بريدك الإلكتروني (${user.email}) لضمان أمان حسابك.` : `Please verify your email (${user.email}) to secure your account.`}
+              {t('status.verifyEmail.body', { email: user.email })}
             </Text>
 
             {!otpSent ? (
-              <NBtn label={AR ? 'إرسال رمز التحقق' : 'Send Verification Code'} onPress={sendOtp} loading={loading} />
+              <NBtn label={t('status.verifyEmail.send')} onPress={sendOtp} loading={loading} />
             ) : (
               <View>
                 <NInput
-                  label={AR ? 'أدخل الرمز' : 'Enter Code'}
+                  label={t('status.verifyEmail.enter')}
                   value={otp}
                   onChange={setOtp}
                   kbType="number-pad"
                   placeholder="123456"
                 />
-                <NBtn label={AR ? 'تأكيد الرمز' : 'Verify'} onPress={verifyOtp} loading={loading} />
+                <NBtn label={t('status.verifyEmail.confirm')} onPress={verifyOtp} loading={loading} />
               </View>
             )}
           </NCard>
@@ -252,7 +245,7 @@ export function PendingDashboard({ onExplore, onLogout, providerType, status = '
         {status === 'pending' && emailVerified && (
           <NCard style={{ marginBottom: SP.xl, backgroundColor: theme.successBg, borderColor: theme.success, borderWidth: 1 }}>
             <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.success, textAlign: 'center' }}>
-              {AR?'البريد الإلكتروني مؤكد':'Email Verified'}
+              {t('status.verifyEmail.done')}
             </Text>
           </NCard>
         )}
@@ -260,16 +253,12 @@ export function PendingDashboard({ onExplore, onLogout, providerType, status = '
         {status === 'pending' && (
           <NCard style={{ marginBottom: SP.xl }}>
             <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>
-              {AR ? 'الخطوات القادمة' : 'Next Steps'}
+              {t('status.next.title')}
             </Text>
-            {[
-              { ar: 'مراجعة التراخيص والمستندات', en: 'Review licenses and documents' },
-              { ar: 'مراجعة المواعيد وقائمة الأسعار', en: 'Review schedules and pricing' },
-              { ar: 'اعتماد الحساب و تفعيله', en: 'Account approval and activation' }
-            ].map((s, i) => (
+            {(['status.next.docs', 'status.next.prices', 'status.next.activate'] as const).map((key, i) => (
               <View key={i} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', marginBottom: SP.sm }}>
                 <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: theme.primary, marginHorizontal: SP.sm }} />
-                <Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? s.ar : s.en}</Text>
+                <Text style={{ fontSize: FS.sm, color: theme.text }}>{t(key)}</Text>
               </View>
             ))}
           </NCard>
@@ -277,17 +266,17 @@ export function PendingDashboard({ onExplore, onLogout, providerType, status = '
 
         {status === 'pending' && (
           <View style={{ marginBottom: SP.md }}>
-            <NBtn label={AR ? 'تحديث الحالة' : 'Refresh status'} variant="outline" loading={checking} onPress={() => void checkStatus(false)} />
+            <NBtn label={t('status.refresh')} variant="outline" loading={checking} onPress={() => void checkStatus(false)} />
             {checkedAt ? (
               <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: 'center', marginTop: SP.xs }}>
-                {(AR ? 'آخر تحديث: ' : 'Last checked: ') + checkedAt.toLocaleTimeString(AR ? 'ar-SA' : 'en-GB')}
+                {t('status.lastChecked', { time: checkedAt.toLocaleTimeString(localeTag(lang)) })}
               </Text>
             ) : null}
           </View>
         )}
 
-        <NBtn label={AR ? 'استكشاف التطبيق' : 'Explore App'} onPress={onExplore} style={{ marginBottom: SP.md }} />
-        <NBtn label={AR ? 'تسجيل الخروج' : 'Log Out'} variant="ghost" onPress={onLogout} />
+        <NBtn label={t('status.explore')} onPress={onExplore} style={{ marginBottom: SP.md }} />
+        <NBtn label={t('logout')} variant="ghost" onPress={onLogout} />
 
       </ScrollView>
     </View>

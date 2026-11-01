@@ -30,7 +30,7 @@ import { tokens, withAlpha } from '../../../theme/tokens';
 import { asTickets, asFaqs, faqText, serverMessage, type SupportTicket, type SupportFaq } from './supportTickets';
 
 export function SupportCenter({ onBack }: { onBack: () => void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
  const [tab, setTab] = useState<'tickets' | 'faq' | 'new'>('tickets');
  const [subject, setSubject] = useState(''); const [body, setBody] = useState(''); const [loading, setLoading] = useState(false);
 
@@ -49,7 +49,7 @@ export function SupportCenter({ onBack }: { onBack: () => void }) {
 
  return (
  <NScroll>
- <NHeader title={AR ? 'مركز الدعم' : 'Support Center'} onBack={onBack} />
+ <NHeader title={t('support.title')} onBack={onBack} />
 
  {/* Tabs */}
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginBottom: SP.xl }}>
@@ -65,7 +65,7 @@ export function SupportCenter({ onBack }: { onBack: () => void }) {
 
  {tab === 'tickets' && (tickets === null ? <ActivityIndicator color={theme.primary} style={{ marginTop: SP.xl }} /> : (
    <>
-   {loadFailed && <NEmpty title={AR ? 'تعذر تحميل تذاكرك' : 'Could not load your tickets'} actionLabel={AR ? 'إعادة المحاولة' : 'Retry'} onAction={loadSupport} />}
+   {loadFailed && <NEmpty title={t('support.loadFailed')} actionLabel={t('common.retry')} onAction={loadSupport} />}
    {!loadFailed && tickets.length === 0 && <NEmpty title={AR ? 'لا توجد تذاكر بعد' : 'No tickets yet'} />}
    {tickets.map(ticket => (
  <NCard key={ticket.id} style={{ marginBottom: SP.md }}

@@ -1,5 +1,5 @@
 {
- "commit": "17db45513",
+ "commit": "fa161d851",
  "screens": {
   "PendingDashboard": [
    {
@@ -8,64 +8,74 @@
     "src": "GET /provider-onboarding/progress, GET /provider/kyc/documents → flaggedDocs",
     "status": "ok",
     "file": "provider-app/src/screens/auth/PendingDashboard.tsx",
-    "line": 197,
+    "line": 190,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Fix details",
+    "label": "{t('status.fixDetails')}",
     "src": "parent callback onOpenDetails",
     "status": "ok",
     "file": "provider-app/src/screens/auth/PendingDashboard.tsx",
-    "line": 208,
+    "line": 201,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Update documents",
+    "label": "{t('status.updateDocs')}",
     "src": "parent callback onOpenDocuments",
     "status": "ok",
     "file": "provider-app/src/screens/auth/PendingDashboard.tsx",
-    "line": 209,
+    "line": 202,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Resubmit for review",
+    "label": "{t('status.resubmit')}",
     "src": "POST /provider/onboarding/submit",
     "status": "ok",
     "file": "provider-app/src/screens/auth/PendingDashboard.tsx",
-    "line": 210,
+    "line": 203,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Sign out and sign in again",
+    "label": "{t('status.signInAgain')}",
     "src": "parent callback onLogout",
     "status": "ok",
     "file": "provider-app/src/screens/auth/PendingDashboard.tsx",
-    "line": 222,
+    "line": 215,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Send Verification Code",
+    "label": "{t('status.verifyEmail.send')}",
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/auth/PendingDashboard.tsx",
-    "line": 236,
+    "line": 229,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Enter Code",
+    "label": "{t('status.verifyEmail.enter')}",
     "src": "user input → otp → request body",
+    "status": "ok",
+    "file": "provider-app/src/screens/auth/PendingDashboard.tsx",
+    "line": 232,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{t('status.verifyEmail.confirm'}",
+    "src": "POST /provider/auth/verify-email",
     "status": "ok",
     "file": "provider-app/src/screens/auth/PendingDashboard.tsx",
     "line": 239,
@@ -74,41 +84,31 @@
    },
    {
     "kind": "button",
-    "label": "Verify",
-    "src": "POST /provider/auth/verify-email",
-    "status": "ok",
-    "file": "provider-app/src/screens/auth/PendingDashboard.tsx",
-    "line": 246,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Refresh status",
+    "label": "{t('status.refresh')}",
     "src": "GET /provider-onboarding/my-profile",
     "status": "ok",
     "file": "provider-app/src/screens/auth/PendingDashboard.tsx",
-    "line": 280,
+    "line": 269,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Explore App",
+    "label": "{t('status.explore')}",
     "src": "parent callback onExplore",
     "status": "ok",
     "file": "provider-app/src/screens/auth/PendingDashboard.tsx",
-    "line": 289,
+    "line": 278,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Log Out",
+    "label": "{t('logout')}",
     "src": "parent callback onLogout",
     "status": "ok",
     "file": "provider-app/src/screens/auth/PendingDashboard.tsx",
-    "line": 290,
+    "line": 279,
     "via": null,
     "note": null
    }
@@ -136,7 +136,7 @@
    },
    {
     "kind": "button",
-    "label": "Retry",
+    "label": "{t('common.retry')}",
     "src": "GET /provider-onboarding/progress",
     "status": "ok",
     "file": "provider-app/src/screens/auth/ResubmitDetailsScreen.tsx",
@@ -167,7 +167,7 @@
    },
    {
     "kind": "button",
-    "label": "Save",
+    "label": "{t('common.save')}",
     "src": "POST /provider-onboarding/step2",
     "status": "ok",
     "file": "provider-app/src/screens/auth/ResubmitDetailsScreen.tsx",
@@ -11635,7 +11635,7 @@
     "src": "parent callback onReupload",
     "status": "ok",
     "file": "provider-app/src/components/ScanStatusBadge.tsx",
-    "line": 31,
+    "line": 32,
     "via": "ScanStatusBadge",
     "note": null
    },
@@ -12075,7 +12075,7 @@
     "src": "POST /calls/initiate, POST /calls/:param/join, POST /calls/:param/metrics → remoteTrack",
     "status": "ok",
     "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-    "line": 65,
+    "line": 69,
     "via": null,
     "note": null
    },
@@ -12085,7 +12085,7 @@
     "src": "POST /calls/initiate, POST /calls/:param/join, POST /calls/:param/metrics → localTrack",
     "status": "ok",
     "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-    "line": 66,
+    "line": 70,
     "via": null,
     "note": null
    },
@@ -12095,7 +12095,7 @@
     "src": "POST /calls/initiate, POST /calls/:param/join, POST /calls/:param/metrics → problem",
     "status": "ok",
     "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-    "line": 71,
+    "line": 75,
     "via": null,
     "note": null
    },
@@ -12105,7 +12105,7 @@
     "src": "POST /calls/initiate, POST /calls/:param/join, POST /calls/:param/metrics → audioOnly",
     "status": "ok",
     "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-    "line": 74,
+    "line": 78,
     "via": null,
     "note": null
    },
@@ -12115,7 +12115,7 @@
     "src": "POST /calls/initiate, POST /calls/:param/join, POST /calls/:param/metrics → quality",
     "status": "ok",
     "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-    "line": 75,
+    "line": 79,
     "via": null,
     "note": null
    },
@@ -12125,7 +12125,7 @@
     "src": "native action",
     "status": "ok",
     "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-    "line": 283,
+    "line": 295,
     "via": null,
     "note": null
    },
@@ -12135,7 +12135,7 @@
     "src": "POST /calls/initiate, POST /calls/:param/join, POST /calls/:param/metrics",
     "status": "ok",
     "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-    "line": 288,
+    "line": 300,
     "via": null,
     "note": null
    },
@@ -12145,7 +12145,7 @@
     "src": "parent callback onEnd",
     "status": "ok",
     "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-    "line": 290,
+    "line": 302,
     "via": null,
     "note": null
    },
@@ -12155,7 +12155,7 @@
     "src": "native action",
     "status": "ok",
     "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-    "line": 328,
+    "line": 340,
     "via": null,
     "note": null
    },
@@ -12165,7 +12165,7 @@
     "src": "local state setMicOn",
     "status": "ok",
     "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-    "line": 350,
+    "line": 362,
     "via": null,
     "note": null
    },
@@ -12175,7 +12175,7 @@
     "src": "local state setCamOn",
     "status": "ok",
     "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-    "line": 354,
+    "line": 366,
     "via": null,
     "note": null
    },
@@ -12185,7 +12185,7 @@
     "src": "local state setCamOn",
     "status": "ok",
     "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-    "line": 359,
+    "line": 371,
     "via": null,
     "note": null
    },
@@ -12195,7 +12195,7 @@
     "src": "POST /calls/:param/end",
     "status": "ok",
     "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-    "line": 363,
+    "line": 375,
     "via": null,
     "note": null
    }

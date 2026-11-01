@@ -1,5 +1,5 @@
 {
- "commit": "17db45513",
+ "commit": "fa161d851",
  "routes": [
   {
    "app": "provider-app",
@@ -781,7 +781,7 @@
      "role": "app",
      "name": "Register:DoctorRegistration",
      "file": "provider-app/App.tsx",
-     "line": 171
+     "line": 199
     }
    ],
    "template": "n/a",
@@ -996,7 +996,7 @@
      "role": "app",
      "name": "Register:FacilityRegistration",
      "file": "provider-app/App.tsx",
-     "line": 172
+     "line": 200
     }
    ],
    "template": "n/a",
@@ -1211,7 +1211,7 @@
      "role": "app",
      "name": "Forgot",
      "file": "provider-app/App.tsx",
-     "line": 167
+     "line": 195
     }
    ],
    "template": "n/a",
@@ -1234,7 +1234,7 @@
      "path": "/provider/auth/login",
      "target": "backend",
      "query": "",
-     "line": 329,
+     "line": 330,
      "file": "provider-app/src/context/index.tsx",
      "via": "useAuth().login",
      "status": "OK",
@@ -1277,7 +1277,7 @@
      "role": "app",
      "name": "Register:LabRegistration",
      "file": "provider-app/App.tsx",
-     "line": 174
+     "line": 202
     }
    ],
    "template": "n/a",
@@ -1482,7 +1482,7 @@
      "role": "app",
      "name": "Login",
      "file": "provider-app/App.tsx",
-     "line": 164
+     "line": 192
     }
    ],
    "template": "n/a",
@@ -1495,7 +1495,7 @@
      "path": "/provider/auth/login",
      "target": "backend",
      "query": "",
-     "line": 329,
+     "line": 330,
      "file": "provider-app/src/context/index.tsx",
      "via": "useAuth().login",
      "status": "OK",
@@ -1518,7 +1518,7 @@
      "role": "app",
      "name": "Register:NursingRegistration",
      "file": "provider-app/App.tsx",
-     "line": 176
+     "line": 204
     }
    ],
    "template": "n/a",
@@ -1717,25 +1717,25 @@
    "component": "PendingDashboard",
    "area": "auth-onboarding",
    "file": "provider-app/src/screens/auth/PendingDashboard.tsx",
-   "line": 26,
+   "line": 27,
    "registrations": [
     {
      "role": "app",
      "name": "Pending",
      "file": "provider-app/App.tsx",
-     "line": 122
+     "line": 146
     },
     {
      "role": "app",
      "name": "Register:PendingDashboard",
      "file": "provider-app/App.tsx",
-     "line": 177
+     "line": 205
     },
     {
      "role": "app",
      "name": "Pending",
      "file": "provider-app/App.tsx",
-     "line": 181
+     "line": 209
     }
    ],
    "template": "n/a",
@@ -1748,7 +1748,7 @@
      "path": "/provider-onboarding/my-profile",
      "target": "backend",
      "query": "",
-     "line": 87,
+     "line": 88,
      "file": "provider-app/src/screens/auth/PendingDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:550"
@@ -1758,7 +1758,7 @@
      "path": "/provider-onboarding/progress",
      "target": "backend",
      "query": "",
-     "line": 106,
+     "line": 107,
      "file": "provider-app/src/screens/auth/PendingDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:565"
@@ -1768,7 +1768,7 @@
      "path": "/provider/auth/send-otp",
      "target": "backend",
      "query": "",
-     "line": 59,
+     "line": 60,
      "file": "provider-app/src/screens/auth/PendingDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/provider.controllers.ts:56"
@@ -1778,7 +1778,7 @@
      "path": "/provider/auth/verify-email",
      "target": "backend",
      "query": "",
-     "line": 72,
+     "line": 73,
      "file": "provider-app/src/screens/auth/PendingDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/provider.controllers.ts:61"
@@ -1788,7 +1788,7 @@
      "path": "/provider/kyc/documents",
      "target": "backend",
      "query": "",
-     "line": 110,
+     "line": 111,
      "file": "provider-app/src/screens/auth/PendingDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/provider.controllers.ts:106"
@@ -1798,13 +1798,13 @@
      "path": "/provider/onboarding/submit",
      "target": "backend",
      "query": "",
-     "line": 124,
+     "line": 125,
      "file": "provider-app/src/screens/auth/PendingDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/provider.controllers.ts:135"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -1820,7 +1820,7 @@
      "role": "app",
      "name": "Register:PharmacyRegistration",
      "file": "provider-app/App.tsx",
-     "line": 173
+     "line": 201
     }
    ],
    "template": "n/a",
@@ -2025,7 +2025,7 @@
      "role": "app",
      "name": "Register:RadiologyRegistration",
      "file": "provider-app/App.tsx",
-     "line": 175
+     "line": 203
     }
    ],
    "template": "n/a",
@@ -2230,7 +2230,7 @@
      "role": "app",
      "name": "FixDetails",
      "file": "provider-app/App.tsx",
-     "line": 125
+     "line": 149
     }
    ],
    "template": "n/a",
@@ -2299,7 +2299,7 @@
      "role": "app",
      "name": "Welcome",
      "file": "provider-app/App.tsx",
-     "line": 161
+     "line": 189
     }
    ],
    "template": "n/a",
@@ -2551,7 +2551,7 @@
      "path": "/provider/ops/availability/toggle-instant",
      "target": "backend",
      "query": "",
-     "line": 415,
+     "line": 416,
      "file": "provider-app/src/context/index.tsx",
      "via": "useAuth().toggleOnline",
      "status": "OK",
@@ -4913,7 +4913,7 @@
      "path": "/provider/ops/availability/toggle-instant",
      "target": "backend",
      "query": "",
-     "line": 415,
+     "line": 416,
      "file": "provider-app/src/context/index.tsx",
      "via": "useAuth().toggleOnline",
      "status": "OK",
@@ -5929,7 +5929,7 @@
      "path": "/provider/ops/availability/toggle-instant",
      "target": "backend",
      "query": "",
-     "line": 415,
+     "line": 416,
      "file": "provider-app/src/context/index.tsx",
      "via": "useAuth().toggleOnline",
      "status": "OK",
@@ -7012,7 +7012,7 @@
      "path": "/provider/ops/availability/toggle-instant",
      "target": "backend",
      "query": "",
-     "line": 415,
+     "line": 416,
      "file": "provider-app/src/context/index.tsx",
      "via": "useAuth().toggleOnline",
      "status": "OK",
@@ -7837,7 +7837,7 @@
      "role": "app",
      "name": "Documents",
      "file": "provider-app/App.tsx",
-     "line": 128
+     "line": 152
     },
     {
      "role": "doctor",
@@ -7906,7 +7906,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:105"
     }
    ],
-   "files": 15,
+   "files": 16,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7997,7 +7997,7 @@
      "backend": "backend/src/modules/media/media.controller.ts:31"
     }
    ],
-   "files": 16,
+   "files": 17,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8375,7 +8375,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 17,
+   "files": 18,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8391,13 +8391,13 @@
      "role": "app",
      "name": "GuestDrugIndex",
      "file": "provider-app/App.tsx",
-     "line": 134
+     "line": 158
     },
     {
      "role": "app",
      "name": "GuestDrugIndex",
      "file": "provider-app/App.tsx",
-     "line": 187
+     "line": 215
     },
     {
      "role": "doctor",
@@ -8546,7 +8546,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:578"
     }
    ],
-   "files": 21,
+   "files": 22,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8562,13 +8562,13 @@
      "role": "app",
      "name": "GuestJobs",
      "file": "provider-app/App.tsx",
-     "line": 131
+     "line": 155
     },
     {
      "role": "app",
      "name": "GuestJobs",
      "file": "provider-app/App.tsx",
-     "line": 184
+     "line": 212
     },
     {
      "role": "doctor",
@@ -8747,7 +8747,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 20,
+   "files": 21,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8908,7 +8908,7 @@
      "role": "app",
      "name": "Dashboard",
      "file": "provider-app/App.tsx",
-     "line": 155
+     "line": 180
     }
    ],
    "template": "n/a",
@@ -8931,7 +8931,7 @@
      "path": "/provider/auth/logout",
      "target": "backend",
      "query": "",
-     "line": 390,
+     "line": 391,
      "file": "provider-app/src/context/index.tsx",
      "via": "useAuth().logout",
      "status": "OK",
@@ -8952,7 +8952,7 @@
      "path": "/provider/ops/availability/toggle-instant",
      "target": "backend",
      "query": "",
-     "line": 415,
+     "line": 416,
      "file": "provider-app/src/context/index.tsx",
      "via": "useAuth().toggleOnline",
      "status": "OK",
@@ -9086,7 +9086,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:118"
     }
    ],
-   "files": 15,
+   "files": 16,
    "unresolved": 0,
    "navIssues": []
   },
@@ -9453,7 +9453,7 @@
    "component": "VideoCallRoom",
    "area": "shared",
    "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
-   "line": 58,
+   "line": 62,
    "registrations": [
     {
      "role": "doctor",
@@ -9472,7 +9472,7 @@
      "path": "/calls/:param/end",
      "target": "backend",
      "query": "",
-     "line": 258,
+     "line": 270,
      "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
      "status": "OK",
      "backend": "backend/src/modules/livekit/livekit.controller.ts:59"
@@ -9482,7 +9482,7 @@
      "path": "/calls/:param/join",
      "target": "backend",
      "query": "",
-     "line": 143,
+     "line": 149,
      "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
      "status": "OK",
      "backend": "backend/src/modules/livekit/livekit.controller.ts:53"
@@ -9492,7 +9492,7 @@
      "path": "/calls/:param/metrics",
      "target": "backend",
      "query": "",
-     "line": 113,
+     "line": 117,
      "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
      "status": "OK",
      "backend": "backend/src/modules/livekit/livekit.controller.ts:83"
@@ -9502,13 +9502,13 @@
      "path": "/calls/initiate",
      "target": "backend",
      "query": "",
-     "line": 136,
+     "line": 141,
      "file": "provider-app/src/screens/shared/VideoCallRoom.tsx",
      "status": "OK",
      "backend": "backend/src/modules/livekit/livekit.controller.ts:43"
     }
    ],
-   "files": 12,
+   "files": 14,
    "unresolved": 0,
    "navIssues": []
   },

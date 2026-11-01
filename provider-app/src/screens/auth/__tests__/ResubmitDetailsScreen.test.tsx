@@ -9,7 +9,9 @@ const mockShow = jest.fn();
 jest.mock('../../../api/client', () => ({ __esModule: true, default: { get: (...a: unknown[]) => mockGet(...a), post: (...a: unknown[]) => mockPost(...a) } }));
 jest.mock('../../../context', () => {
   const theme = new Proxy({}, { get: () => 'transparent' });
-  return { useTheme: () => ({ theme, isDark: false }), useLang: () => ({ lang: 'en', isRTL: false }), useToast: () => ({ show: mockShow }) };
+  const { translate } = require('../../../i18n');
+  const lang = { lang: 'en', isRTL: false, t: (key: string, params?: Record<string, string | number>) => translate('en', key, params) };
+  return { useTheme: () => ({ theme, isDark: false }), useLang: () => lang, useToast: () => ({ show: mockShow }) };
 });
 jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }) }));
 
