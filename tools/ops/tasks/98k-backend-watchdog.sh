@@ -5,7 +5,7 @@
 #   Run 2 (APPLY=yes): writes the cron file $CRON_FILE: every minute, WATCHDOG_APPLY=yes (restarts for real, once per 15 min per container, after 3 unhealthy minutes).
 #   ROLLBACK=yes: removes the cron file (the script and its state directory stay).
 set -u
-APPLY=""
+APPLY="yes"
 ROLLBACK=""
 CRON_DIR=${OPS_CRON_DIR:-/etc/cron.d}
 CRON_FILE=$CRON_DIR/nabd-backend-watchdog
