@@ -85,10 +85,26 @@ export type ReceiptView = {
   seller: ZatcaPayload | null;
   /** the invoice was cancelled (status CANCELLED): the list says so */
   cancelled: boolean;
+  /** "invoice" or "credit_note" */
+  type: string;
+  /** paid | partially_refunded | refunded | credit_note; null when the backend sent none */
+  state: string | null;
+  refundedTotal: number;
+  creditNotes: ReceiptCreditNote[];
+  /** our company as the API sends it: each field null when the owner has not configured it */
+  company: { legalName: string | null; vatNumber: string | null; crNumber: string | null; address: string | null; configured: boolean };
+  /** the party that delivered the service (a snapshot taken at issue); null when none was recorded */
+  provider: ReceiptProvider | null;
+  bookingRef: string | null;
 };
+
+export type ReceiptCreditNote = { invoiceNo: string; total: number; vatAmount: number; issuedAt: string | null };
+export type ReceiptProvider = { nameAr: string | null; nameEn: string | null; facility: string | null; type: string | null; licence: string | null };
 
 const num = (v: unknown): number | null => (typeof v === 'number' && Number.isFinite(v) ? v : typeof v === 'string' && v.trim() !== '' && Number.isFinite(Number(v)) ? Number(v) : null);
 const text = (v: unknown): string | null => (typeof v === 'string' && v.trim() !== '' ? v : null);
+
+const obj = (v: unknown): Record<string, unknown> | null => (v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : null);
 
 export function extractReceipt(raw: unknown): ReceiptView | null {
   if (!raw || typeof raw !== 'object') return null;
@@ -101,8 +117,62 @@ export function extractReceipt(raw: unknown): ReceiptView | null {
   if (!invoiceNo || total === null || vatAmount === null || subtotal === null || !bookingId) return null;
   const qr = text(r.qr_base64);
   const seller = decodeZatcaTlv(qr);
-  return { invoiceNo, kind: text(r.booking_kind) ?? '', bookingId, issuedAt: seller?.issuedAt ?? text(r.createdAt), subtotal, vatRate: num(r.vat_rate) ?? 0, vatAmount, total, currency: text(r.currency) ?? 'SAR', qr, seller, cancelled: r.status === 'CANCELLED' };
+  const company = obj(r.seller);
+  const p = obj(r.provider);
+  const provider: ReceiptProvider | null = p ? { nameAr: text(p.name_ar), nameEn: text(p.name_en), facility: text(p.facility_name), type: text(p.type), licence: text(p.license_number) } : null;
+  return {
+    invoiceNo, kind: text(r.booking_kind) ?? '', bookingId, issuedAt: seller?.issuedAt ?? text(r.issued_at) ?? text(r.createdAt), subtotal, vatRate: num(r.vat_rate) ?? 0, vatAmount, total,
+    currency: text(r.currency) ?? 'SAR', qr, seller, cancelled: r.status === 'CANCELLED',
+    type: text(r.type) ?? 'invoice', state: text(r.state), refundedTotal: num(r.refunded_total) ?? 0,
+    creditNotes: Array.isArray(r.credit_notes) ? r.credit_notes.flatMap((n) => {
+      const note = obj(n);
+      const no = text(note?.invoice_no);
+      const noteTotal = num(note?.total);
+      return note && no && noteTotal !== null ? [{ invoiceNo: no, total: noteTotal, vatAmount: num(note.vat_amount) ?? 0, issuedAt: text(note.issued_at) }] : [];
+    }) : [],
+    company: {
+      legalName: text(company?.legal_name) ?? seller?.seller ?? null,
+      vatNumber: text(company?.vat_number) ?? seller?.vatNumber ?? null,
+      crNumber: text(company?.cr_number),
+      address: text(company?.address),
+      configured: company ? company.configured !== false : seller !== null,
+    },
+    provider: provider && (provider.nameAr || provider.nameEn || provider.facility) ? provider : null,
+    bookingRef: text(r.booking_ref),
+  };
 }
+
+/** The provider's name in the app language (Arabic for ar and ur, English otherwise), else the other one, else the facility. */
+export function providerName(provider: ReceiptProvider, lang: string): string {
+  const arabicScript = lang === 'ar' || lang === 'ur';
+  return (arabicScript ? provider.nameAr ?? provider.nameEn : provider.nameEn ?? provider.nameAr) ?? provider.facility ?? '';
+}
+
+const TYPE_KEY: Record<string, string> = { doctor: 'receipt.typeDoctor', pharmacy: 'receipt.typePharmacy', lab: 'receipt.typeLab', laboratory: 'receipt.typeLab', radiology: 'receipt.typeRadiology', nursing: 'receipt.typeNursing', home_care: 'receipt.typeNursing', clinic: 'receipt.typeClinic', hospital: 'receipt.typeHospital' };
+export const providerTypeKey = (type: string | null): string | null => (type ? TYPE_KEY[type.toLowerCase()] ?? null : null);
+
+export type ShareLinkRow = { id: string; createdAt: string | null; expiresAt: string | null; viewCount: number; status: 'active' | 'expired' | 'revoked' };
+
+export function extractShareLinks(raw: unknown): ShareLinkRow[] {
+  return (Array.isArray(raw) ? raw : []).flatMap((entry) => {
+    const l = obj(entry);
+    const id = text(l?.id);
+    const status = text(l?.status);
+    if (!l || !id || (status !== 'active' && status !== 'expired' && status !== 'revoked')) return [];
+    return [{ id, createdAt: text(l.created_at), expiresAt: text(l.expires_at), viewCount: num(l.view_count) ?? 0, status }];
+  });
+}
+
+/** The answer of POST .../share-link: the token is shown once. */
+export function extractNewShareLink(raw: unknown): { id: string; token: string; expiresAt: string | null } | null {
+  const l = obj(raw);
+  const id = text(l?.id);
+  const token = text(l?.token);
+  return l && id && token ? { id, token, expiresAt: text(l.expires_at) } : null;
+}
+
+/** The address a person opens: the web page of the shared receipt, in the reader's language (the app and the web use the same codes). */
+export const sharedPageUrl = (lang: string, token: string) => `https://nabd.plus/${lang}/receipt/shared/${encodeURIComponent(token)}`;
 
 export function extractReceipts(raw: unknown): ReceiptView[] {
   const list = Array.isArray(raw) ? raw : raw && typeof raw === 'object' && Array.isArray((raw as { data?: unknown }).data) ? (raw as { data: unknown[] }).data : [];

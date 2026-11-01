@@ -443,6 +443,13 @@ const MOCKS = {
       return s === 'undetermined' ? [null, async () => {}] : [{ granted: s === 'granted', canAskAgain: s !== 'blocked', status: s }, async () => {}];
     };
     export const CameraView = React.forwardRef(({ style }, ref) => <div ref={ref} style={{ ...(Array.isArray(style) ? Object.assign({}, ...style.flat()) : style), background: 'transparent' }} />);`,
+  // the receipt's native boundaries: nothing is captured, saved or copied in a render
+  'receipt-native': `
+    export const captureRef = async () => '';
+    export const requestPermissionsAsync = async () => ({ granted: false });
+    export const saveToLibraryAsync = async () => undefined;
+    export const setStringAsync = async () => true;
+  `,
   'expo-image-picker': `
     export const requestCameraPermissionsAsync = async () => ({ granted: false });
     export const requestMediaLibraryPermissionsAsync = async () => ({ granted: false });
@@ -491,6 +498,7 @@ const mockPlugin = {
     build.onResolve({ filter: /context\/SocketContext$/ }, (a) => (a.importer.startsWith(APP + sep) ? virtual('socket-context') : undefined));
     build.onResolve({ filter: /^@livekit\/react-native(-webrtc)?$/ }, () => virtual('livekit-native'));
     build.onResolve({ filter: /^react-native-webview$/ }, () => virtual('react-native-webview'));
+    build.onResolve({ filter: /^(react-native-view-shot|expo-media-library|expo-clipboard)$/ }, () => virtual('receipt-native'));
     build.onResolve({ filter: /^expo-camera$/ }, () => virtual('expo-camera'));
     build.onResolve({ filter: /^expo-image-picker$/ }, () => virtual('expo-image-picker'));
     build.onResolve({ filter: /^expo-apple-authentication$/ }, () => virtual('expo-apple-authentication'));
@@ -577,6 +585,7 @@ for (const s of SCREENS) {
     const page = await browser.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 2, colorScheme: theme });
     const errors = [];
     page.on('pageerror', (e) => errors.push(String(e)));
+    page.on('console', (m) => { if (m.type() === 'error' && process.env.RENDER_DEBUG) console.warn('console:', m.text().slice(0, 300)); });
     // no backend in a design render: every request that is not this server fails like an offline phone
     // the TEST picture host of the fixtures (R2_PUBLIC_URL in a render) answers a plain marked SVG; anything else fails
     await page.route('**/*', (r) => {
@@ -601,6 +610,7 @@ for (const s of SCREENS) {
     });
     await page.evaluate(() => document.fonts.ready);
     await page.waitForTimeout(WAIT); // AppProvider hydrates theme/language from storage; entrance animations settle (the home ECG line draws for 1.7 s)
+    if (process.env.RENDER_DEBUG) console.warn('text:', (await page.evaluate(() => document.body.innerText)).slice(0, 600));
     for (const sel of CLICKS) { await page.locator(sel).first().click(); await page.waitForTimeout(500); }
     const frameBox = await page.locator('#frame').boundingBox();
     const cropClip = CROP_BOTTOM ? { x: frameBox.x, y: frameBox.y + H - CROP_BOTTOM, width: W, height: CROP_BOTTOM } : null;
