@@ -41,3 +41,29 @@ Every figure is stored from the payment and the booking when the invoice is issu
 | `pdf_url` | `GET /billing/documents/:invoiceNo/pdf`, drawn from the same stored document |
 
 `GET /billing/my` and `GET /billing/admin/list` return the same shape per row (one credit-note query for the whole list).
+
+## Owner content and sharing (PDF and share link)
+
+### The PDF, top to bottom (Arabic on the right, English on the left of every line)
+Title "فاتورة ضريبية مبسطة / Simplified tax invoice" (a credit note: "إشعار دائن / Credit note") with the logo and the ZATCA QR; **Issued by** (our company: legal name, VAT number, CR number, address); **Invoice details** (number, issue date and time, booking / order number, optional customer name, state and credit notes); **Service provider** (name, type, licence number if we hold one; labelled as the party that delivered the service, our company stays the issuer); **Items** (name Arabic and English, qty, unit price, amount); discount, subtotal, VAT and rate, total; **Payment** (method and last 4, the insurance shares); footer on every page (support contact, refund-policy link, "electronically generated").
+
+Arabic is shaped by fontkit from the embedded Noto Naskh Arabic font; lines that mix Arabic with numbers or English are ordered by `common/pdf-bidi.ts` (Arabic words, brackets mirrored, numbers kept whole, Latin and digits in Helvetica, which has the glyphs Naskh lacks). Checked by rendering the PDF to an image and reading it, not only by tests. The logo is the existing app icon (`assets/brand/nabd-icon.png`, the Noon Dot on the brand colour); no new variant. Names in Devanagari (Hindi) or Bengali script are not drawn correctly: neither embedded font has their glyphs, so a patient name in those scripts shows as missing characters (the name is optional on a simplified invoice). Urdu names in Arabic script depend on the Naskh font's coverage of the Urdu letters; not checked.
+
+### Company fields: `finance_config` document `{ key: 'invoice' }`
+`seller_name`, `vat_number`, `cr_number`, `address`, `support_email`, `support_phone`; the environment names `ZATCA_SELLER_NAME`, `ZATCA_VAT_NUMBER`, `ZATCA_CR_NUMBER`, `ZATCA_SELLER_ADDRESS`, `INVOICE_SUPPORT_EMAIL`, `INVOICE_SUPPORT_PHONE` are used when the document has no value. Empty means "not configured": the PDF and the API say so (`null`), nothing is invented. Legal name and VAT number are needed for the QR; CR number and address are shown when set. The refund-policy link is `NABD_PUBLIC_URL` (default https://nabd.plus) + `/ar/refund-policy` or `/en/refund-policy`.
+
+### New fields on the invoice API
+`seller.cr_number`, `seller.address`; `provider` `{ name_ar, name_en, facility_name, type, license_number }` (a snapshot taken at issue from the provider's profile, nothing else of the profile); `patient_name` (optional, only when the booking carries one); `booking_ref` (tracking id, else the first 8 characters of the booking id); `footer` `{ support_email, support_phone, refund_policy_url: { ar, en } }`.
+
+### Share link
+| Endpoint | What |
+| --- | --- |
+| `POST /billing/invoice/:kind/:id/share-link` body `{ expires_in_days?: 1..30 }` (default 7) | owner only; returns `{ id, token, url, page_url, path, pdf_path, expires_at }`. The token is 32 random bytes, shown once; only its SHA-256 is stored. `url` opens the PDF, `page_url` the JSON of the same invoice (both need `API_BASE_URL`; without it they are `null` and the paths are given). Rate limited: 5 requests a minute, 10 links an hour per patient, 20 live links per invoice (429). |
+| `GET /billing/invoice/:kind/:id/share-links` | the owner's links with status (`active`, `expired`, `revoked`), view count, last view; never a token |
+| `DELETE /billing/invoice/:kind/:id/share-links/:linkId` | revoke; repeating it changes nothing |
+| `GET /billing/shared/:token` and `/pdf` (no login) | read-only. An unknown, expired or revoked token answers the same 404. Shows the invoice and no other account data: no patient id, no patient name, no internal booking id. `Cache-Control: private, no-store`, `X-Robots-Tag: noindex`, `Referrer-Policy: no-referrer`. Every view is logged in `invoice_share_views` (time, link, page or PDF, a hash of the address, the browser string). 30 requests a minute per address. |
+
+`POST /billing/invoice/:kind/:id/email` is unchanged.
+
+### Not changed
+The VAT position (G7 of `docs/qa/money-flows.md`): whether VAT is due on the whole price or only on the commission (exempt healthcare) still needs the accountant. Prices stay VAT-inclusive and the invoice shows the VAT inside the total, as before.
