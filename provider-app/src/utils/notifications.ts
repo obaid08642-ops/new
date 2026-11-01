@@ -31,6 +31,7 @@ function getNotifications(): any {
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 import { apiFetch } from './api';
+import { canRingNatively } from './callkeep';
 
 // Configure notification behavior
 
@@ -95,35 +96,49 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
           provider,
           platform: Platform.OS,
           device_name: Device.modelName || 'Device',
+          // a device with the native call module rings itself from a data-only push (killed app, locked phone)
+          call_ring: canRingNatively(),
         }),
       });
     } catch {
       // Backend registration failed — non-critical
     }
 
-    // Set up Android notification channel for calls
-    if (Platform.OS === 'android') {
-      await Notifications.setNotificationChannelAsync('calls', {
-        name: 'Calls',
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF3B30',
-        sound: 'default',
-      });
-
-      await Notifications.setNotificationChannelAsync('default', {
-        name: 'Default',
-        importance: Notifications.AndroidImportance.DEFAULT,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#4F46E5',
-      });
-    }
+    await ensureAndroidChannels();
 
     return token;
   } catch (e) {
     // Non-critical — push notifications degraded gracefully
     return null;
   }
+}
+
+/**
+ * Android channels, created once and before any push can arrive (a push to a channel that does not exist falls back to the
+ * quiet default). `new_order` is the loud one for new orders and bookings: its own name in the phone's settings, maximum
+ * importance (heads-up on the lock screen), a long vibration and its own sound (assets/sounds/new_order.wav, bundled by the
+ * expo-notifications plugin in app.json). `calls` is separate so it can be tuned on its own; `default` (HIGH) carries chat messages and every other notice.
+ */
+export async function ensureAndroidChannels(): Promise<void> {
+  const Notifications = getNotifications();
+  if (!Notifications || Platform.OS !== 'android') return;
+  const { AndroidImportance, AndroidNotificationVisibility } = Notifications;
+  const channels: Array<[string, Record<string, unknown>]> = [
+    ['new_order', { name: 'New orders and bookings', importance: AndroidImportance.MAX, sound: 'new_order.wav', vibrationPattern: [0, 600, 250, 600, 250, 600], lightColor: '#D42A38', lockscreenVisibility: AndroidNotificationVisibility.PUBLIC, enableVibrate: true }],
+    ['calls', { name: 'Calls', importance: AndroidImportance.MAX, sound: 'default', vibrationPattern: [0, 500, 300, 500, 300, 500], lightColor: '#D42A38', lockscreenVisibility: AndroidNotificationVisibility.PUBLIC }],
+    // messages and every other provider notice: heads-up, but private on the lock screen
+    ['default', { name: 'Messages and updates', importance: AndroidImportance.HIGH, sound: 'default', vibrationPattern: [0, 250, 150, 250], lockscreenVisibility: AndroidNotificationVisibility.PRIVATE }],
+  ];
+  for (const [id, spec] of channels) {
+    try { await Notifications.setNotificationChannelAsync(id, spec); } catch { /* one channel failing must not stop the others */ }
+  }
+}
+
+/** The notification the user tapped to start the app from a killed state (null when the app was opened normally). */
+export async function getLastPushResponse(): Promise<any | null> {
+  const Notifications = getNotifications();
+  if (!Notifications?.getLastNotificationResponseAsync) return null;
+  try { return (await Notifications.getLastNotificationResponseAsync()) ?? null; } catch { return null; }
 }
 
 export function initNotificationListeners(

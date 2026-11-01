@@ -172,6 +172,10 @@ export class LiveKitService {
       throw new BadRequestException('appointment_not_no_show_eligible');
     }
 
+    // A no-show can only be recorded once the patient has been late for a while: never before the visit starts.
+    const startAt = appt.slot_start ? new Date(appt.slot_start).getTime() : 0;
+    if (startAt && Date.now() < startAt + 10 * 60_000) throw new BadRequestException('no_show_too_early');
+
     const from = appt.status;
     appt.status = 'NO_SHOW';
     appt.cancellation_reason = appt.cancellation_reason || 'provider_marked_no_show';
@@ -179,6 +183,8 @@ export class LiveKitService {
     appt.refund_destination = 'none';
     appt.state_history = [...(appt.state_history || []), { state: 'NO_SHOW', at: new Date(), by_user_id: providerId, by_role: 'doctor', note: 'no_show' }];
     await appt.save();
+    // the patient is told the visit was recorded as missed (the refund rule is the finance engine's, not decided here)
+    this.events.emit('doctor_appointment.no_show', { id: appt.id, patient_id: appt.patient_id, patient_account_id: appt.patient_account_id, doctor_id: providerId });
     return { success: true, message: 'Marked as no-show', previous_status: from };
   }
 
@@ -331,10 +337,15 @@ export class LiveKitService {
     this.logger.log(`User ${userId} ended call ${sessionId}`);
     const started = session.started_at ? new Date(session.started_at).getTime() : null;
     const duration = started ? Math.max(0, Math.round((Date.now() - started) / 1000)) : 0;
-    await this.callSessions.updateOne(
+    const res: any = await this.callSessions.updateOne(
       { id: session.id, status: { $in: ['INITIATED', 'ACTIVE'] } },
       { $set: { status: 'ENDED', ended_at: new Date(), duration_seconds: duration, ended_by: userId, updatedAt: new Date() } },
     );
+    // ended while still ringing: tell the other side's devices to stop ringing (push reaches a backgrounded or killed app)
+    if (session.status === 'INITIATED' && (res?.modifiedCount ?? 1) > 0) {
+      const other = session.patient_id === userId ? session.provider_id : session.patient_id;
+      if (other) this.events.emit('call.cancelled', { callee_id: String(other), caller_id: userId, session_id: session.id });
+    }
     return { success: true };
   }
 

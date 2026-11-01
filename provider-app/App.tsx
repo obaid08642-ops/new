@@ -1,5 +1,10 @@
-import { setupPushNotifications } from "./src/utils/PushNotifications";
-import { registerForPushNotificationsAsync } from "./src/utils/notifications";
+import { registerForPushNotificationsAsync, initNotificationListeners, getLastPushResponse, ensureAndroidChannels } from "./src/utils/notifications";
+import { resolvePushTarget } from "./src/utils/pushRouting";
+import { navigationRef } from "./src/navigation/navigationRef";
+import { registerCallRingTask, handleRingPayload, type RingData } from "./src/calls/ringTask";
+import { setVoipAuth, startVoipListeners } from "./src/calls/voipPush";
+import { displayNativeIncomingCall } from "./src/utils/callkeep";
+import { IncomingCallScreen, CallRoomScreen } from "./src/screens/shared/IncomingCallScreen";
 /**
  * NABDAH PLUS — App.tsx
  * Phase 0-5: Doctor + Facility + Pharmacy + Lab/Radiology + Nursing
@@ -36,7 +41,6 @@ import { NavigationContainer, createNavigationContainerRef } from '@react-naviga
 
 // E2E-only hook: in a test build (EXPO_PUBLIC_NABD_E2E=1, inlined at build time) the browser test harness reads
 // the focused screen and opens registered screens by name through this ref. Absent from production builds.
-const navigationRef = createNavigationContainerRef<any>();
 if (process.env.EXPO_PUBLIC_NABD_E2E === '1' && typeof window !== 'undefined') {
   (window as any).__NABD_NAV__ = navigationRef;
 }
@@ -85,6 +89,45 @@ function AppNavigator() {
     registerForPushNotificationsAsync().catch(() => null);
   }, [appState, user?.id]);
 
+  // Calls ring with the app killed or the phone locked: the Android background task, and on iOS PushKit (VoIP) once its token is sent.
+  React.useEffect(() => {
+    void registerCallRingTask();
+    void startVoipListeners();
+  }, []);
+  React.useEffect(() => { setVoipAuth(appState === 'logged_in'); }, [appState]);
+
+  // A tap on a push (app in the background, or started by the tap from a killed state) opens the order, or the notifications list.
+  React.useEffect(() => {
+    if (appState !== 'logged_in') return;
+    const providerType = String(user?.providerType ?? pType);
+    const open = (response: any) => {
+      const target = resolvePushTarget(response?.notification?.request?.content?.data, providerType);
+      let tries = 0;
+      const go = () => {
+        // the navigator mounts a moment after the sign-in on a cold start
+        if (navigationRef.isReady()) {
+          if (target.root) navigationRef.navigate(target.screen, target.params);
+          else navigationRef.navigate('Dashboard', { screen: target.screen, params: target.params });
+          return;
+        }
+        if (++tries < 20) setTimeout(go, 300);
+      };
+      go();
+    };
+    // a push that arrives while the app is open: a call rings (system call screen, else the in-app one), a cancelled call stops ringing
+    const received = (notification: any) => {
+      const data = (notification?.request?.content?.data ?? {}) as RingData & { type?: string };
+      if (data.type === 'call' && (data.session_id || data.sessionId)) {
+        void displayNativeIncomingCall(String(data.session_id || data.sessionId), String(data.caller_name || data.callerName || notification?.request?.content?.title || ''), (data.call_type || data.callType) !== 'voice');
+      } else if (data.type === 'call_cancelled' || data.type === 'call_missed' || data.type === 'call_ended') {
+        void handleRingPayload(data);
+      }
+    };
+    const stop = initNotificationListeners(received, open);
+    getLastPushResponse().then((r) => { if (r) open(r); }).catch(() => null);
+    return stop;
+  }, [appState, user?.providerType]);
+
   if (appState === 'checking') {
     return <SplashScreen onDone={() => {}} />;
   }
@@ -123,6 +166,7 @@ function AppNavigator() {
     <NavigationContainer ref={navigationRef} linking={linking}>
       <Stack.Navigator id={undefined as any} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.bg } }}>
         {appState === 'logged_in' ? (
+          <>
           <Stack.Screen name="Dashboard">
             {(props) => {
               const t = (user?.providerType ?? pType).toLowerCase();
@@ -136,6 +180,9 @@ function AppNavigator() {
               return <ProviderHome onLogout={doLogout} />;
             }}
           </Stack.Screen>
+          <Stack.Screen name="IncomingCall" component={IncomingCallScreen as any} options={{ gestureEnabled: false }} />
+          <Stack.Screen name="CallRoom" component={CallRoomScreen as any} options={{ gestureEnabled: false }} />
+          </>
         ) : (
           <>
             <Stack.Screen name="Welcome">
@@ -183,7 +230,7 @@ initProviderSentry();
 
 export default function App() {
   React.useEffect(() => {
-    setupPushNotifications();
+    ensureAndroidChannels().catch(() => null);
   }, []);
   // Cross-platform online presence (admin/analytics/online): heartbeat every 60s while logged in.
   React.useEffect(() => {

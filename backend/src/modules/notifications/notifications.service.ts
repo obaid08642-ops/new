@@ -1,4 +1,5 @@
 import { delayCreditText } from '../loyalty/guaranteed-appointment';
+import { pushChannel, NEW_ORDER_SOUND } from '../../common/push-channel';
 import { BadGatewayException, BadRequestException, Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { I18nService } from '../i18n/i18n.service';
 import { Model } from 'mongoose';
@@ -317,6 +318,9 @@ export class NotificationsService {
       type: String(n.type || 'info'),
       action: JSON.stringify(n.action || {}),
     };
+    // the channel the phone shows it on (loud for a new order) and what the tap should open
+    dataPayload.channel = pushChannel(n.type, n.channel);
+    for (const [k, v] of Object.entries(n.data || {})) if (v != null && dataPayload[k] === undefined) dataPayload[k] = String(v);
     if (n.action?.route) dataPayload.screen = String(n.action.route);
     if (n.action?.payload) dataPayload.params = JSON.stringify(n.action.payload);
 
@@ -365,9 +369,14 @@ export class NotificationsService {
         }),
       });
     }
+    // High priority wakes a dozing phone (normal priority is held back until the next maintenance window), and the channel
+    // decides how loud it is: without them every provider notice arrived quietly and late.
+    const loud = dataPayload.channel === 'new_order';
     const payload = {
       notification: { title: n.title || n.title_key, body: n.body || n.body_key },
       data: dataPayload,
+      android: { priority: 'high' as const, notification: { channelId: String(dataPayload.channel || 'default'), ...(loud ? { sound: NEW_ORDER_SOUND } : { sound: 'default' }) } },
+      apns: { headers: { 'apns-priority': '10' }, payload: { aps: { sound: loud ? NEW_ORDER_SOUND : 'default' } } },
     };
     if (tokens && tokens.length > 0) {
       const res = await getMessaging().sendEachForMulticast({ tokens, ...payload });
@@ -387,7 +396,9 @@ export class NotificationsService {
         title: n.title || n.title_key,
         body: n.body || n.body_key,
         data: dataPayload,
-        sound: n.priority === 'HIGH' || n.priority === 'CRITICAL' ? 'default' : undefined,
+        sound: dataPayload.channel === 'new_order' ? NEW_ORDER_SOUND : n.priority === 'HIGH' || n.priority === 'CRITICAL' ? 'default' : undefined,
+        priority: 'high',
+        channelId: String(dataPayload.channel || 'default'),
       }));
       const res = await axios.post('https://exp.host/--/api/v2/push/send', messages, {
         headers: { 'Content-Type': 'application/json' },
@@ -563,6 +574,31 @@ export class NotificationsService {
     });
   }
 
+  /** PV-12: a facility invited a clinician: the invitee finds out in the app and answers from the invitations screen. */
+  @OnEvent('hospital.invitation_created')
+  async onFacilityInvitation(p: any) {
+    if (!p?.invitee_id) return;
+    await this.notifyProviderAccount(String(p.invitee_id), {
+      type: 'admin_message',
+      title_ar: 'دعوة للانضمام إلى منشأة', title_en: 'You are invited to join a facility',
+      body_ar: 'وصلتك دعوة للعمل ضمن منشأة. افتح الدعوات لقبولها أو رفضها.', body_en: 'A facility invited you to work with it. Open invitations to accept or decline.',
+      related_id: String(p.invitation_id), related_type: 'facility_invitation',
+    });
+  }
+
+  /** PV-12: the invitee answered: the facility is told. */
+  @OnEvent('hospital.invitation_answered')
+  async onFacilityInvitationAnswered(p: any) {
+    if (!p?.facility_id) return;
+    await this.notifyProviderAccount(String(p.facility_id), {
+      type: 'admin_message',
+      title_ar: p.accepted ? 'قُبلت دعوتك' : 'رُفضت دعوتك', title_en: p.accepted ? 'Your invitation was accepted' : 'Your invitation was declined',
+      body_ar: p.accepted ? 'انضم مقدّم الخدمة إلى منشأتك.' : 'اعتذر مقدّم الخدمة عن الانضمام.',
+      body_en: p.accepted ? 'The provider joined your facility.' : 'The provider declined to join.',
+      related_id: String(p.invitation_id), related_type: 'facility_invitation_answered',
+    });
+  }
+
   /** PV-08: the licence ends soon (30/14/7/3/1 days): the provider is told in the app, with a push, before bookings stop. */
   @OnEvent('provider.license_expiring')
   async onProviderLicenseExpiring(p: any) {
@@ -677,6 +713,8 @@ export class NotificationsService {
       await this.sendPush({
         user_id: providerAccountId, type: 'info',
         title: input.title_ar || input.title_en, body: input.body_ar || input.body_en || '',
+        channel: input.type === 'new_request' || input.type === 'request_cancelled' ? 'new_order' : 'default',
+        data: { related_type: input.related_type, related_id: input.related_id },
         action: input.action || (input.related_id ? { route: `/provider/job/${input.related_id}` } : {}),
         // A new request or a cancellation is time-critical work: HIGH makes the Expo push play its sound on iOS too (sendExpoPush sets
         // `sound` only for HIGH and CRITICAL; without it a provider's phone was silent for every new order).
@@ -907,6 +945,12 @@ export class NotificationsService {
     const uid = p.patient_account_id || p.patient_id;
     if (!uid) return;
     await this.create({ user_id: uid, title_key: 'notif.appt_cancelled.title', body_key: 'notif.appt_cancelled.body', type: NotificationType.APPOINTMENT, priority: NotificationPriority.HIGH });
+  }
+  @OnEvent('doctor_appointment.no_show')
+  async onApptNoShow(p: any) {
+    const uid = p.patient_account_id || p.patient_id;
+    if (!uid) return;
+    await this.create({ user_id: uid, title_key: 'notif.appt_no_show.title', body_key: 'notif.appt_no_show.body', type: NotificationType.APPOINTMENT, priority: NotificationPriority.HIGH, action: { route: `/consultations/appointments` } });
   }
   @OnEvent('doctor_appointment.completed')
   async onApptCompleted(p: any) {

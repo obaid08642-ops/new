@@ -22,7 +22,7 @@ export default function OnboardingLanguage() {
   const footer = (
     <StickyFooter theme={theme}>
       <AuthFooter>
-        <Button label={tr('متابعة')} variant="primary" size="lg" fullWidth theme={theme} onPress={next} testID="language-continue" />
+        <Button label={tr('onboarding.language.continue')} variant="primary" size="lg" fullWidth theme={theme} onPress={next} testID="language-continue" />
       </AuthFooter>
     </StickyFooter>
   );
@@ -31,7 +31,7 @@ export default function OnboardingLanguage() {
     <Screen theme={theme} edges={['top', 'start', 'end']} scroll footer={footer} testID="onboarding-language">
       <AuthBody>
         <AuthTopBar />
-        <AuthTitle title="اختر لغتك" sub="يمكنك تغييرها لاحقًا من الإعدادات." />
+        <AuthTitle title="onboarding.language.title" sub="onboarding.language.sub" />
         <View style={{ marginTop: 24 }}>
           <Card elevation="flat" padding="none" theme={theme}>
             <View>

@@ -21,8 +21,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: zap-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   ZAP_IMAGE: ghcr.io/zaproxy/zaproxy:2.17.0

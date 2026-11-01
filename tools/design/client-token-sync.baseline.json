@@ -65,8 +65,6 @@
     "provider-app/src/screens/shared/shared/NotificationsCenter.tsx": 1,
     "provider-app/src/screens/shared/shared/ProviderWalletScreen.tsx": 3,
     "provider-app/src/screens/shared/shared/SupportCenter.tsx": 1,
-    "provider-app/src/utils/PushNotifications.ts": 1,
-    "provider-app/src/utils/notifications.ts": 2,
     "admin/src/components/EmptyIcon.tsx": 1,
     "admin/src/pages/admin/ai-control.tsx": 9,
     "admin/src/pages/admin/analytics-suite.tsx": 4,

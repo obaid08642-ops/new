@@ -14,6 +14,7 @@ import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { statusIs } from '../../src/utils/statusCase';
+import { ReceiptButton } from '../../src/components/billing/ReceiptButton';
 
 /**
  * Appointment details — board Consult's card language. One page for the whole booking (merge map 2, section 1): status,
@@ -34,6 +35,7 @@ interface Appointment {
   patient_notes?: string;
   state_history?: HistoryRow[];
   payment_method?: string;
+  payment_status?: string;
   doctor_id?: string;
   doctor_name?: string;
   specialty?: string;
@@ -159,6 +161,7 @@ export default function AppointmentDetailScreen() {
                 <InfoRow label={k('consult.detail.number')} value={id.substring(0, 8).toUpperCase()} last={amount === null} />
                 {amount !== null ? <InfoRow label={k('consult.detail.amount')} value={`${money(Number(amount))} ${k('consult.currency')}`} strong last /> : null}
               </Card>
+              {String(a?.payment_status ?? '').toLowerCase() === 'paid' && id ? <ReceiptButton bookingKind="appointment" bookingId={id} testID="appointment-receipt" /> : null}
             </Section>
 
             {done ? (

@@ -28,5 +28,7 @@ describe("ReceiptPaper", () => {
     const css = readFileSync("components-next/receipt/receipt.module.css", "utf8");
     expect(css).toMatch(/prefers-reduced-motion: reduce\)\s*\{\s*\.paper, \.actions \{ animation: none; \}/);
     expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b|rgba?\(|hsla?\(/);
+    // dark: the code is flipped to dark-on-light so it still scans
+    expect(css).toMatch(/:global\(\[data-theme="dark"\]\) \.qr \{ filter: invert\(1\); \}/);
   });
 });
