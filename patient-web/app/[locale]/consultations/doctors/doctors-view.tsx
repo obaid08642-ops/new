@@ -28,7 +28,7 @@ import { effectiveType, filterPageParams, nearestApplies, parseDoctorFilters, ty
 import { formatPrice } from "@/lib/format-price";
 import { cardFacts } from "@/lib/consult/doctor-card-facts";
 import { SpecialtyRow } from "@/components-next/consult/specialty-tiles";
-import { orderSpecialties } from "@/components-next/ui-generated/icons/specialty-art";
+import { orderSpecialties } from "@/components-next/ui-generated/icons/specialty-look";
 import styles from "@/components-next/consult/consult.module.css";
 
 // The empty and error states are rare: their chunk (it carries the Feedback components and the icon record) loads only when one is drawn, so the list page stays under its script budget.
@@ -86,11 +86,10 @@ export async function DoctorsView({ params, searchParams }: Props) {
   // The guarantee line comes from the server's public setting (minutes and points); no setting, no line.
   const guarantee = parseLateGuarantee(await getPublicConfig().catch(() => null));
   const guaranteeText = guarantee ? t("guaranteeLine", { minutes: guarantee.minutes, points: guarantee.points }) : null;
-  // the specialty row: every specialty of the endpoint, the ones with doctors first (most doctors first), the rest "Coming soon"; a failed read leaves the row out
+  // the specialty row: every specialty of the endpoint, the ones with doctors first (most doctors first), the rest after them; a failed read leaves the row out
   const specialtyRes = await getCachedSpecialties();
   const specialtyRows = specialtyRes?.ok ? extractSpecialties(await specialtyRes.json().catch(() => null)) : [];
   const tiles = orderSpecialties(specialtyRows, (row) => specialtyLabel(names, row.slug) ?? (locale === "ar" || locale === "ur" ? row.nameAr ?? row.nameEn : row.nameEn ?? row.nameAr) ?? "");
-  const soonTile = tiles.find((tile) => tile.slug === sp.specialty?.trim() && tile.comingSoon);
 
   // a specialty slug (from the pharmacy cart "Consult a doctor") filters the list and shows by its name, never as raw text in the search field
   const specialtyName = specialtyLabel(names, sp.specialty);
@@ -157,7 +156,6 @@ export async function DoctorsView({ params, searchParams }: Props) {
           allSelected={!sp.specialty}
           moreLabel={t("allSpecialties")}
           moreHref={`/${locale}/consultations/specialties`}
-          comingSoonLabel={t("comingSoon")}
           selectedSlug={sp.specialty?.trim()}
           tiles={tiles}
           hrefOf={(slug) => pageHref(filterPageParams(filters, { q: sp.q, specialty: slug, sort: sp.sort }))}
@@ -182,8 +180,6 @@ export async function DoctorsView({ params, searchParams }: Props) {
       ) : null}
       {failed ? (
         <ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailableBody")} retryLabel={t("retry")} />
-      ) : soonTile && doctors.length === 0 ? (
-        <ConsultState kind="empty" title={t("comingSoonTitle", { specialty: soonTile.name })} body={t("comingSoonBody")} actionLabel={t("clearSearch")} actionHref={`/${locale}/consultations/doctors`} />
       ) : doctors.length === 0 ? (
         <ConsultState
           kind="empty"
