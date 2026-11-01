@@ -10,6 +10,8 @@ import tempfile
 import unittest
 
 TASK = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "tasks", "99p-publish-agreement.sh")
+BASES = ["02_PRIVACY_POLICY", "01_PATIENT_TERMS", "04_TELEHEALTH_CONSENT", "05_CANCELLATION_REFUND", "03_PROVIDER_AGREEMENT"]
+KEYS = ["privacy_policy", "patient_terms", "telehealth_consent", "refund_policy", "provider_agreement"]
 AR = "03_PROVIDER_AGREEMENT.ar.md"
 EN = "03_PROVIDER_AGREEMENT.en.md"
 SECRET = "pw-must-never-be-printed-9f3a"
@@ -49,7 +51,8 @@ class PublishAgreement(unittest.TestCase):
         shutil.rmtree(src, ignore_errors=True)
         os.makedirs(os.path.join(src, prefix), exist_ok=True)
         os.makedirs(os.path.join(src, "deploy"), exist_ok=True)
-        for f, text in ((AR, "**الإصدار:** 1.0\nنص عربي\n"), (EN, "**Version:** 1.0\nenglish text\n")):
+        files = [(b + ".ar.md", "**الإصدار:** 1.0\nنص عربي\n") for b in BASES] + [(b + ".en.md", "**Version:** 1.0\nenglish text\n") for b in BASES]
+        for f, text in files:
             if f != drop:
                 with open(os.path.join(src, prefix, f), "w") as h:
                     h.write(text)
@@ -77,19 +80,25 @@ case "$1" in
     esac;;
   exec) {"exit 0" if has_tool else "exit 1"};;
   run)
-    apply=no; envf=""; vol=""; prev=""
+    apply=no; envf=""; vol=""; prev=""; pol=""
     for a in "$@"; do
       case "$prev" in --env-file) envf="$a";; -v) vol="$a";; esac
-      case "$a" in APPLY=*) apply="${{a#APPLY=}}";; esac
+      case "$a" in APPLY=*) apply="${{a#APPLY=}}";; POLICIES=*) pol="${{a#POLICIES=}}";; esac
       prev="$a"
     done
-    echo "ENVFILE=$envf MODE=$(stat -c %a "$envf" 2>/dev/null)" >> "{self.log}"
+    echo "ENVFILE=$envf MODE=$(stat -c %a "$envf" 2>/dev/null) POLICIES=$pol" >> "{self.log}"
     grep -q '^MONGO_URL=' "$envf" 2>/dev/null && echo "ENV_HAS_MONGO_URL" >> "{self.log}"
     ls "${{vol%%:*}}" >> "{self.log}" 2>/dev/null
-    [ {tool_exit} -ne 0 ] && {{ echo "a version 1.0 is already published; publish a higher version"; exit {tool_exit}; }}
-    if [ "$apply" = yes ]; then echo ok > "{self.state}"; echo '{{"step":"publish","version":"1.0","result":"published","published":true,"previous_version":null,"draft_retired":true,"backup_ids":["64f0c0ffee11"],"sha_ar":"aaaaaaaaaaaa","sha_en":"bbbbbbbbbbbb","acceptance_required":false}}'
-    elif [ -f "{self.state}" ]; then echo '{{"step":"publish","version":"1.0","result":"unchanged","published":false,"previous_version":"1.0","draft_retired":false,"backup_ids":[],"sha_ar":"aaaaaaaaaaaa","sha_en":"bbbbbbbbbbbb","acceptance_required":false}}'
-    else echo '{{"step":"publish","version":"1.0","result":"dry-run-would-publish","published":false,"previous_version":null,"draft_retired":true,"backup_ids":[],"sha_ar":"aaaaaaaaaaaa","sha_en":"bbbbbbbbbbbb","acceptance_required":false}}'; fi;;
+    [ {tool_exit} -ne 0 ] && {{ echo "refused: a version 1.0 is already published; publish a higher version"; exit {tool_exit}; }}
+    keys="$pol"; [ "$pol" = all ] && keys="privacy_policy patient_terms telehealth_consent refund_policy provider_agreement"
+    keys="${{keys//,/ }}"
+    for k in $keys; do
+      if [ "$apply" = yes ]; then echo '{{"step":"publish","key":"'$k'","version":"1.0","result":"published","published":true,"previous_version":null,"draft_retired":false,"backup_ids":["64f0c0ffee11"],"sha_ar":"aaaaaaaaaaaa","sha_en":"bbbbbbbbbbbb","acceptance_required":true}}'
+      elif [ -f "{self.state}" ]; then echo '{{"step":"publish","key":"'$k'","version":"1.0","result":"unchanged","published":false,"previous_version":"1.0","draft_retired":false,"backup_ids":[],"sha_ar":"aaaaaaaaaaaa","sha_en":"bbbbbbbbbbbb","acceptance_required":true}}'
+      else echo '{{"step":"publish","key":"'$k'","version":"1.0","result":"dry-run-would-publish","published":false,"previous_version":null,"draft_retired":false,"backup_ids":[],"sha_ar":"aaaaaaaaaaaa","sha_en":"bbbbbbbbbbbb","acceptance_required":true}}'; fi
+    done
+    [ "$apply" = yes ] && echo ok > "{self.state}"
+    echo '{{"step":"summary","keys":5,"registration_ready":true}}';;
 esac
 exit 0
 ''')
@@ -111,8 +120,11 @@ exit 0
         p = self.run_task()
         self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
         self.assertIn("published: no. Dry run only", p.stdout)
-        self.assertIn("version 1.0: dry-run-would-publish; hashes ar=aaaaaaaaaaaa en=bbbbbbbbbbbb", p.stdout)
-        self.assertIn("texts from release aa11bb22: ar sha256=", p.stdout)
+        self.assertIn("provider_agreement 1.0: dry-run-would-publish; hashes ar=aaaaaaaaaaaa en=bbbbbbbbbbbb; published row before: none", p.stdout)
+        self.assertIn("patient registration ready after this run: true", p.stdout)
+        for k in KEYS:
+            self.assertIn(f"{k} 1.0: dry-run-would-publish", p.stdout)
+        self.assertIn("texts of patient_terms from release aa11bb22: ar sha256=", p.stdout)
         self.assertEqual(len(self.runs()), 1)
         self.assertFalse(os.path.exists(self.state))
         for line in p.stdout.splitlines():
@@ -129,25 +141,40 @@ exit 0
         self.assertIn(":/legal:ro", r)
         self.assertIn("LEGAL_DOCS_DIR=/legal", r)
         self.assertIn("REQUIRE_ACCEPTANCE=no", r)
-        self.assertIn("node dist/scripts/publish-provider-agreement.js", r)
+        self.assertIn("node dist/scripts/publish-legal-policy.js", r)
+        self.assertIn("POLICIES=all", r)
         self.assertIn("nabdah-backend:test", r)
         log = slurp(self.log)
         self.assertIn("MODE=600", log)
         self.assertIn("ENV_HAS_MONGO_URL", log)
-        self.assertIn(AR, log); self.assertIn(EN, log)   # both texts were visible in the mounted directory
+        for b in BASES:
+            self.assertIn(b + ".ar.md", log); self.assertIn(b + ".en.md", log)   # every text was visible in the mounted directory
         envf = re.search(r"ENVFILE=(\S+)", log).group(1)
         self.assertFalse(os.path.exists(envf), "the temp env file is removed at the end")
 
     def test_apply_publishes_prints_the_backup_id_and_verifies(self):
         p = self.run_task(APPLY="yes")
         self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
-        self.assertIn("version 1.0: published", p.stdout)
+        for k in KEYS:
+            self.assertIn(f"{k} 1.0: published", p.stdout)
         self.assertIn("backup row ids: 64f0c0ffee11", p.stdout)
-        self.assertIn("draft row retired: true", p.stdout)
-        self.assertIn("verified: the published row equals the texts of release aa11bb22. published: yes", p.stdout)
+        self.assertIn("verified: the 5 published row(s) equal the texts of release aa11bb22. published: yes", p.stdout)
         self.assertEqual(len(self.runs()), 3)   # plan, apply, verify
         self.assertTrue(any("APPLY=yes" in r for r in self.runs()))
         self.assertNotIn(SECRET, p.stdout + p.stderr)
+
+    def test_a_subset_of_keys_extracts_and_runs_only_those(self):
+        self.run_task(POLICIES="patient_terms,privacy_policy")
+        r = self.runs()[0]
+        self.assertIn("POLICIES=patient_terms,privacy_policy", r)
+        p = self.run_task(POLICIES="patient_terms")
+        self.assertIn("texts of patient_terms", p.stdout); self.assertNotIn("texts of provider_agreement", p.stdout)
+
+    def test_an_unknown_key_aborts_before_anything_runs(self):
+        p = self.run_task(POLICIES="patient_terms nope")
+        self.assertEqual(p.returncode, 1)
+        self.assertIn("unknown policy key 'nope'", p.stdout)
+        self.assertEqual(self.runs(), [])
 
     def test_require_acceptance_yes_is_passed_on(self):
         self.run_task(REQUIRE_ACCEPTANCE="yes")
@@ -157,7 +184,7 @@ exit 0
         self.release(prefix="deploy/legal")
         p = self.run_task()
         self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
-        self.assertIn("texts from release aa11bb22", p.stdout)
+        self.assertIn("texts of provider_agreement from release aa11bb22", p.stdout)
 
     def test_a_release_without_the_texts_aborts_before_any_container_runs(self):
         self.release(drop=EN)
@@ -195,7 +222,7 @@ exit 0
         self.docker(tool_exit=1)
         p = self.run_task(APPLY="yes")
         self.assertEqual(p.returncode, 1)
-        self.assertIn("the tool refused or failed (exit 1): a version 1.0 is already published", p.stdout)
+        self.assertIn("the tool refused or failed (exit 1): refused: a version 1.0 is already published", p.stdout)
         self.assertNotIn("published: yes", p.stdout)
         self.assertFalse(os.path.exists(self.state))
         self.assertEqual(len(self.runs()), 1)   # the plan failed, so no apply was attempted
