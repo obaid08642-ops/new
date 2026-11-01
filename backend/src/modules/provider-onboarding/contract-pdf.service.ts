@@ -64,6 +64,82 @@ export function policyLine(raw: string): { text: string; heading: boolean } {
   return { text: body.trimEnd(), heading: !!h };
 }
 
+
+export type ContractLang = 'ar' | 'en';
+
+/** Which annex (A to D) holds the terms of a provider type. Annex E (commissions and settlement) applies to every type. */
+const ANNEX_FOR_TYPE: Record<string, string> = {
+  pharmacy: 'A',
+  doctor: 'B', hospital: 'B', clinic: 'B', facility: 'B',
+  lab: 'C', laboratory: 'C', radiology: 'C',
+  nursing: 'D', home_care: 'D',
+};
+const ANNEX_LETTER: Record<string, string> = { 'أ': 'A', 'ب': 'B', 'ج': 'C', 'د': 'D', 'هـ': 'E', 'ه': 'E', A: 'A', B: 'B', C: 'C', D: 'D', E: 'E' };
+const ANNEX_HEADING = /^##\s+(?:ملحق|Annex)\s+(\S+?)\s*[:：]/;
+const ANNEXES_TITLE = /^#\s+(?:الملاحق|Annexes)\b/;
+
+export interface AgreementForType { lines: string[]; applied: string[]; omitted: string[] }
+
+/**
+ * The agreement as it applies to one provider type: the whole body (articles) and the annex of that type, then annex E (fees and
+ * settlement, for everyone). The annexes of other types are left out and named, so the reader sees what was not printed. A text
+ * with no annexes, or a type with no annex, is printed whole. No word of a printed part is changed.
+ */
+export function agreementForType(content: string, providerType: string): AgreementForType {
+  const lines = String(content ?? '').split(/\r?\n/);
+  const firstAnnex = lines.findIndex((l) => ANNEX_HEADING.test(l));
+  const mine = ANNEX_FOR_TYPE[String(providerType || '').toLowerCase()];
+  if (firstAnnex < 0 || !mine) return { lines, applied: [], omitted: [] };
+  const titleAt = lines.findIndex((l, i) => i < firstAnnex && ANNEXES_TITLE.test(l));
+  const bodyEnd = titleAt >= 0 ? titleAt : firstAnnex;
+  const out = lines.slice(0, bodyEnd).filter((l) => l.trim() !== '---');
+  if (titleAt >= 0) out.push(lines[titleAt]);
+  const applied: string[] = []; const omitted: string[] = [];
+  for (let i = firstAnnex; i < lines.length; ) {
+    const m = ANNEX_HEADING.exec(lines[i]);
+    if (!m) { i++; continue; }
+    let j = i + 1;
+    while (j < lines.length && !/^#{1,2}\s/.test(lines[j])) j++;
+    const key = ANNEX_LETTER[m[1]] ?? m[1];
+    const title = lines[i].replace(/^##\s+/, '').trim();
+    if (key === mine || key === 'E') { applied.push(title); out.push(...lines.slice(i, j)); } else omitted.push(title);
+    i = j;
+  }
+  return { lines: out, applied, omitted };
+}
+
+/** The words of the PDF around the policy text, in both languages. The policy text itself is never translated here. */
+const LABELS = {
+  ar: {
+    title: 'عقد شراكة مزود خدمة — منصة نبض', number: (id: string, v: number) => `رقم العقد: ${id} · الإصدار ${v}`,
+    text: (t: string, v: string) => `نص الاتفاقية: ${t} — الإصدار ${v}`,
+    parties: 'أطراف الاتفاق', first: 'الطرف الأول: منصة نبض الصحية.',
+    second: (n: string, t: string) => `الطرف الثاني: ${n} — مزود خدمة من فئة (${t}).`,
+    license: 'رقم الترخيص', cr: 'السجل التجاري', city: 'المدينة', email: 'البريد الإلكتروني', phone: 'الجوال',
+    agreement: 'نص الاتفاقية', omitted: (list: string[]) => `ملاحق الاتفاقية التي لا تنطبق على نوع مقدم الخدمة هذا ولم تُطبع: ${list.join('، ')}.`,
+    signing: 'الموافقة والتوقيع',
+    accepted: (v: string, when: string) => `وافق على نص الاتفاقية (الإصدار ${v}) بتاريخ: ${when}`,
+    net: (ip: string, dev: string, pl: string) => `عنوان الشبكة (IP): ${ip} · الجهاز: ${dev} · المنصة: ${pl}`,
+    agent: (ua: string) => `المتصفح/التطبيق: ${ua}`,
+    signer: (n: string, r: string) => `اسم الموقّع: ${n}${r ? ` (${r})` : ''}`, holder: (n: string) => `صاحب الحساب: ${n}`,
+    signedAt: (when: string) => `تاريخ ووقت التوقيع: ${when}`,
+  },
+  en: {
+    title: 'Nabd Platform — Provider Partnership Agreement', number: (id: string, v: number) => `Contract no.: ${id} · Version ${v}`,
+    text: (t: string, v: string) => `Agreement text: ${t} — version ${v}`,
+    parties: 'Parties', first: 'First party: Nabd Health Platform.',
+    second: (n: string, t: string) => `Second party: ${n} — service provider of type (${t}).`,
+    license: 'Licence number', cr: 'Commercial register', city: 'City', email: 'Email', phone: 'Mobile',
+    agreement: 'Agreement text', omitted: (list: string[]) => `Annexes of the agreement that do not apply to this provider type and are not printed: ${list.join('; ')}.`,
+    signing: 'Acceptance and signature',
+    accepted: (v: string, when: string) => `Accepted the agreement (version ${v}) on: ${when}`,
+    net: (ip: string, dev: string, pl: string) => `Network address (IP): ${ip} · Device: ${dev} · Platform: ${pl}`,
+    agent: (ua: string) => `Browser/app: ${ua}`,
+    signer: (n: string, r: string) => `Signatory: ${n}${r ? ` (${r})` : ''}`, holder: (n: string) => `Account holder: ${n}`,
+    signedAt: (when: string) => `Date and time of signing: ${when}`,
+  },
+} as const;
+
 @Injectable()
 export class ContractPdfService {
   private logger = new Logger('ContractPdf');
@@ -200,14 +276,19 @@ export class ContractPdfService {
 
 
   /**
-   * Builds the PDF. Returns the full SHA-256 of the FINAL bytes (the hash cannot be printed in the document it hashes; it is stored
-   * with the row and shown beside it). The same inputs always give a document of the same text; only the PDF's own ids differ.
+   * Builds the PDF in one language. Returns the full SHA-256 of the FINAL bytes (the hash cannot be printed in the document it hashes;
+   * it is stored with the row and shown beside it). The text is the agreement of the accepted version in that language, cut to the
+   * annexes of the provider's type (`agreementForType`); a language with no text is refused, not filled in.
    */
-  async generate(party: ContractParty, agreement: ContractAgreement, signature: ContractSignature, meta: ContractMeta): Promise<{ pdf: Buffer; sha256: string }> {
+  async generate(party: ContractParty, agreement: ContractAgreement, signature: ContractSignature, meta: ContractMeta, lang: ContractLang = 'ar'): Promise<{ pdf: Buffer; sha256: string }> {
+    const T = LABELS[lang];
+    const content = lang === 'en' ? agreement.policy.content_en : agreement.policy.content_ar;
+    if (!String(content || '').trim()) throw typed(HttpStatus.CONFLICT, 'provider_agreement_language_unavailable', { language: lang });
+    const forType = agreementForType(content, party.providerType);
     const Doc: any = (PDFDocument as any).default || PDFDocument;
     const doc = new Doc({
       size: 'A4', margin: 50, bufferPages: true,
-      info: { Title: 'Nabd Provider Partnership Agreement', Subject: `contract ${meta.contractId} v${meta.versionNo}; agreement ${agreement.policy.version}` },
+      info: { Title: lang === 'en' ? 'Nabd Provider Partnership Agreement' : 'عقد شراكة مزود خدمة — نبض', Subject: `contract ${meta.contractId} v${meta.versionNo}; agreement ${agreement.policy.version}; ${lang}` },
     });
     const chunks: Buffer[] = [];
     doc.on('data', (c: Buffer) => chunks.push(c));
@@ -238,47 +319,49 @@ export class ContractPdfService {
       y += o.gap ?? 0;
     };
     const rule = () => { room(12); doc.moveTo(X, y).lineTo(X + W, y).strokeColor(teal).lineWidth(1.2).stroke(); y += 10; };
+    const name = (lang === 'en' ? party.nameEn || party.nameAr : party.nameAr || party.nameEn) || '—';
+    const policyTitle = (lang === 'en' ? agreement.policy.title_en : agreement.policy.title_ar) || agreement.policy.key;
 
     // ── Header ──
-    para('عقد شراكة مزود خدمة — منصة نبض', { size: 18, bold: true, color: teal, gap: 2 });
-    para(`رقم العقد: ${meta.contractId} · الإصدار ${meta.versionNo}`, { size: 9, color: muted });
-    para(`نص الاتفاقية: ${agreement.policy.title_ar || agreement.policy.key} — الإصدار ${agreement.policy.version}`, { size: 9, color: muted, gap: 4 });
+    para(T.title, { size: 18, bold: true, color: teal, gap: 2 });
+    para(T.number(meta.contractId, meta.versionNo), { size: 9, color: muted });
+    para(T.text(policyTitle, agreement.policy.version), { size: 9, color: muted, gap: 4 });
     rule();
 
     // ── Parties ──
-    para('أطراف الاتفاق', { size: 13, bold: true, gap: 2 });
-    para('الطرف الأول: منصة نبض الصحية.');
-    para(`الطرف الثاني: ${party.nameAr || party.nameEn || '—'} — مزود خدمة من فئة (${party.providerType}).`);
-    if (party.licenseNumber) para(`رقم الترخيص: ${party.licenseNumber}`);
-    if (party.crNumber) para(`السجل التجاري: ${party.crNumber}`);
-    if (party.city) para(`المدينة: ${party.city}`);
-    if (party.email) para(`البريد الإلكتروني: ${party.email}`);
-    if (party.phone) para(`الجوال: ${party.phone}`);
+    para(T.parties, { size: 13, bold: true, gap: 2 });
+    para(T.first);
+    para(T.second(name, party.providerType));
+    if (party.licenseNumber) para(`${T.license}: ${party.licenseNumber}`);
+    if (party.crNumber) para(`${T.cr}: ${party.crNumber}`);
+    if (party.city) para(`${T.city}: ${party.city}`);
+    if (party.email) para(`${T.email}: ${party.email}`);
+    if (party.phone) para(`${T.phone}: ${party.phone}`);
     y += 6; rule();
 
-    // ── The text the provider read and accepted, exactly as published ──
-    para('نص الاتفاقية', { size: 13, bold: true, gap: 2 });
-    const body = agreement.policy.content_ar || agreement.policy.content_en;
-    for (const raw of body.split(/\r?\n/)) {
+    // ── The text the provider read and accepted: the body and the annexes of this provider's type ──
+    para(T.agreement, { size: 13, bold: true, gap: 2 });
+    for (const raw of forType.lines) {
       if (!raw.trim()) { y += 5; continue; }
       const { text, heading } = policyLine(raw);
       para(text, { size: heading ? 12 : 10.5, bold: heading, gap: heading ? 2 : 1.5 });
     }
+    if (forType.omitted.length) para(T.omitted(forType.omitted), { size: 9, color: muted, gap: 2 });
     y += 6; rule();
 
     // ── Acceptance and signature ──
     room(190);
-    para('الموافقة والتوقيع', { size: 13, bold: true, gap: 2 });
+    para(T.signing, { size: 13, bold: true, gap: 2 });
     const a = agreement.acceptance;
-    para(`وافق على نص الاتفاقية (الإصدار ${a.version}) بتاريخ: ${when(a.accepted_at)}`, { size: 10 });
-    para(`عنوان الشبكة (IP): ${a.ip || '—'} · الجهاز: ${a.device || '—'} · المنصة: ${a.platform || '—'}`, { size: 9, color: muted });
-    if (a.user_agent) para(`المتصفح/التطبيق: ${a.user_agent}`, { size: 8, color: muted });
-    para(`اسم الموقّع: ${party.signerName || '—'}${party.signerRole ? ` (${party.signerRole})` : ''}`, { size: 10.5, bold: true });
-    if (party.accountName) para(`صاحب الحساب: ${party.accountName}`, { size: 9, color: muted });
-    para(`تاريخ ووقت التوقيع: ${when(meta.signedAt)}`, { size: 10.5, bold: true, gap: 4 });
+    para(T.accepted(a.version, when(a.accepted_at)), { size: 10 });
+    para(T.net(a.ip || '—', a.device || '—', a.platform || '—'), { size: 9, color: muted });
+    if (a.user_agent) para(T.agent(a.user_agent), { size: 8, color: muted });
+    para(T.signer(party.signerName || '—', party.signerRole || ''), { size: 10.5, bold: true });
+    if (party.accountName) para(T.holder(party.accountName), { size: 9, color: muted });
+    para(T.signedAt(when(meta.signedAt)), { size: 10.5, bold: true, gap: 4 });
     room(80);
     try {
-      doc.image(signature.bytes, X + W - 150, y, { fit: [140, 64] });
+      doc.image(signature.bytes, lang === 'en' ? X : X + W - 150, y, { fit: [140, 64] });
     } catch {
       // A corrupt upload is not a signature: the provider signs again instead of getting a contract without one.
       doc.end();
@@ -292,7 +375,7 @@ export class ContractPdfService {
       doc.switchToPage(range.start + i);
       doc.page.margins.bottom = 0;
       doc.fillColor(muted);
-      drawBidi(pdfDoc, `${meta.contractId} · v${meta.versionNo} · ${agreement.policy.key} ${agreement.policy.version} · ${i + 1}/${range.count}`, X, doc.page.height - 38, W, { fonts: fonts.reg, size: 8, align: 'left', base: 'ltr' });
+      drawBidi(pdfDoc, `${meta.contractId} · v${meta.versionNo} · ${agreement.policy.key} ${agreement.policy.version} · ${lang} · ${i + 1}/${range.count}`, X, doc.page.height - 38, W, { fonts: fonts.reg, size: 8, align: 'left', base: 'ltr' });
     }
 
     doc.end();

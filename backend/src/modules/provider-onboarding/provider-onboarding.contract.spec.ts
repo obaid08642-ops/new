@@ -9,8 +9,10 @@ const AGREEMENT = {
 };
 const typedErr = (status: number, code: string) => Object.assign(new Error(code), { status, response: { code } });
 
-function setup(opts: { agreement?: Error; signature?: Error } = {}) {
+function setup(opts: { agreement?: Error; signature?: Error; mail?: any; noEnglish?: boolean; email?: string | null } = {}) {
   const rows: any[] = [];
+  const emails: any[] = [];
+  const emailsCol = { insertOne: jest.fn(async (d: any) => { emails.push(d); }) };
   const contractsCol = {
     countDocuments: jest.fn(async (q: any) => rows.filter((r) => r.profile_id === q.profile_id).length),
     insertOne: jest.fn(async (d: any) => { rows.push(d); }),
@@ -26,18 +28,19 @@ function setup(opts: { agreement?: Error; signature?: Error } = {}) {
     id: 'prof-1', user_id: 'u1', type: ProviderType.LAB, onboarding_step: 3, name_ar: 'مختبر', signer_name: 'سارة', signer_role: 'مالك', signature_url: 'sig-1', account_id: 'acc-prof',
     toObject: () => ({ type: ProviderType.LAB }), save: jest.fn(async () => undefined),
   };
-  const providerModel: any = { findOne: jest.fn(async () => profile), db: { collection: (n: string) => (n === 'provider_contracts' ? contractsCol : { findOne: async () => null }) } };
-  const userModel: any = { findOne: jest.fn(() => ({ lean: async () => ({ email: 'a@b.test', phone: '+966500000000', full_name: 'Sara' }) })) };
+  const providerModel: any = { findOne: jest.fn(async () => profile), db: { collection: (n: string) => (n === 'provider_contracts' ? contractsCol : n === 'provider_contract_emails' ? emailsCol : { findOne: async () => null }) } };
+  const userModel: any = { findOne: jest.fn(() => ({ lean: async () => ({ email: opts.email === undefined ? 'a@b.test' : opts.email, phone: '+966500000000', full_name: 'Sara' }) })) };
   const real = new (ContractPdfService as any)({ collection: () => ({ findOne: async () => null }) });
   const contracts: any = {
-    loadAgreement: jest.fn(async () => { if (opts.agreement) throw opts.agreement; return AGREEMENT; }),
+    loadAgreement: jest.fn(async () => { if (opts.agreement) throw opts.agreement; return opts.noEnglish ? { ...AGREEMENT, policy: { ...AGREEMENT.policy, content_en: '' } } : AGREEMENT; }),
     resolveSignature: jest.fn(async () => { if (opts.signature) throw opts.signature; return { bytes: PNG, sha256: 'sigsha' }; }),
     generate: (...a: unknown[]) => real.generate(...a),
   };
   const bus = { emit: jest.fn(async () => undefined) };
-  const svc: any = new ProviderOnboardingService(userModel, providerModel, bus as any, contracts, { recordAtSubmission: async () => undefined } as any);
+  const mail = opts.mail ?? { sendWithAttachment: jest.fn(async () => ({ ok: true, provider: 'brevo', fallback_used: false })) };
+  const svc: any = new ProviderOnboardingService(userModel, providerModel, bus as any, contracts, { recordAtSubmission: async () => undefined } as any, mail);
   jest.spyOn(svc as any, 'mirrorToModerationQueue').mockResolvedValue(undefined);
-  return { svc, profile, rows, contractsCol, contracts };
+  return { svc, profile, rows, contractsCol, contracts, emails, mail };
 }
 
 describe('submit: no contract without an accepted agreement and a clean signature', () => {
@@ -95,5 +98,74 @@ describe('submit: no contract without an accepted agreement and a clean signatur
     const { svc } = setup();
     await expect(svc.getContractForOwner({ id: 'u1' })).rejects.toMatchObject({ response: { message: 'contract_not_generated' } });
     await expect(svc.getContractForAdmin('prof-1')).rejects.toMatchObject({ response: { message: 'contract_not_generated' } });
+  });
+});
+
+describe('gap 4 and 13: both languages are stored, and a correct copy is e-mailed after signing', () => {
+  it('stores the Arabic and the English PDF with their own full hashes', async () => {
+    const { svc, rows } = setup();
+    await svc.submit({ id: 'u1' }, {});
+    const c = rows[0];
+    expect(c.languages).toEqual(['ar', 'en']);
+    const ar = Buffer.from(c.pdf_base64, 'base64'); const en = Buffer.from(c.pdf_en_base64, 'base64');
+    expect(c.sha256).toBe(require('crypto').createHash('sha256').update(ar).digest('hex'));
+    expect(c.sha256_en).toBe(require('crypto').createHash('sha256').update(en).digest('hex'));
+    expect(ar.equals(en)).toBe(false);
+  });
+  it('an agreement with no English text gives an Arabic-only contract (and the English PDF is not offered)', async () => {
+    const { svc, rows } = setup({ noEnglish: true });
+    await svc.submit({ id: 'u1' }, {});
+    expect(rows[0].languages).toEqual(['ar']);
+    expect(rows[0].pdf_en_base64).toBeNull();
+    expect(() => svc.contractPdf(rows[0], 'en')).toThrow('contract_language_unavailable');
+    expect(svc.contractPdf(rows[0], 'ar').language).toBe('ar');
+  });
+  it('the e-mail carries the stored PDFs byte for byte as Buffers, to the provider, and the outcome is logged', async () => {
+    const { svc, rows, mail, emails } = setup();
+    await svc.submit({ id: 'u1' }, {});
+    expect(mail.sendWithAttachment).toHaveBeenCalledTimes(1);
+    const arg = (mail.sendWithAttachment as jest.Mock).mock.calls[0][0];
+    expect(arg.to).toBe('a@b.test');
+    expect(arg.attachments.map((a: any) => a.filename)).toEqual(['nabd-contract-v1-ar.pdf', 'nabd-contract-v1-en.pdf']);
+    expect(Buffer.isBuffer(arg.attachments[0].content)).toBe(true);
+    expect(arg.attachments[0].content.equals(Buffer.from(rows[0].pdf_base64, 'base64'))).toBe(true);
+    expect(arg.attachments[1].content.equals(Buffer.from(rows[0].pdf_en_base64, 'base64'))).toBe(true);
+    expect(arg.attachments.every((a: any) => a.contentType === 'application/pdf')).toBe(true);
+    expect(emails[0]).toMatchObject({ contract_id: rows[0].id, version_no: 1, to: 'a@b.test', ok: true, provider: 'brevo', error: null });
+  });
+  it.each([
+    ['the mailer reports a failure', { mail: { sendWithAttachment: jest.fn(async () => ({ ok: false, provider: 'none', fallback_used: false, error: 'no_provider_configured' })) } }, 'no_provider_configured'],
+    ['the mailer throws', { mail: { sendWithAttachment: jest.fn(async () => { throw new Error('smtp down'); }) } }, 'smtp down'],
+    ['there is no e-mail on file', { email: null }, 'no_email_on_file'],
+  ])('%s: the signing stands, the contract is stored, the failure is logged', async (_n, opts, error) => {
+    const { svc, rows, emails } = setup(opts as any);
+    await expect(svc.submit({ id: 'u1' }, {})).resolves.toBeDefined();
+    expect(rows).toHaveLength(1);
+    expect(emails[0]).toMatchObject({ ok: false, error });
+  });
+});
+
+describe('gaps 11 and 12: admin routes, and the signer can always read their contract', () => {
+  it('a row the old switch had hidden is still readable by its signer', async () => {
+    const { svc, rows } = setup();
+    await svc.submit({ id: 'u1' }, {});
+    rows[0].visible_to_provider = false; // an old row
+    await expect(svc.getContractForOwner({ id: 'u1' })).resolves.toMatchObject({ version_no: 1 });
+  });
+  it('the metadata route has no PDF and no signature reference, and lists the versions', async () => {
+    const { svc } = setup();
+    await svc.submit({ id: 'u1' }, {});
+    await new Promise((r) => setTimeout(r, 5));
+    await svc.submit({ id: 'u1' }, {});
+    const meta = await svc.getContractMeta('prof-1');
+    expect(meta).not.toHaveProperty('pdf_base64');
+    expect(meta).not.toHaveProperty('pdf_en_base64');
+    expect(meta).not.toHaveProperty('signature_url');
+    expect(meta).toMatchObject({ version_no: 2, policy_version: '1.0', accepted_ip: '203.0.113.9', signer_name: 'سارة', languages: ['ar', 'en'] });
+    expect(meta.sha256).toHaveLength(64);
+    expect(meta.versions.map((v: any) => v.version_no)).toEqual([2, 1]);
+  });
+  it('there is no visibility switch any more', () => {
+    expect((ProviderOnboardingService.prototype as any).setContractVisibility).toBeUndefined();
   });
 });
