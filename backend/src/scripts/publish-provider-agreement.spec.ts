@@ -73,6 +73,9 @@ describe('publishing the provider agreement', () => {
     expect(await col('legal_policies').countDocuments({ key: DRAFT_KEY })).toBe(0);
     const b: any = await col('legal_policy_backups').findOne({ backup_of: DRAFT_KEY });
     expect(b).toMatchObject({ content_ar: 'old draft' });
+    expect(r.backupIds).toEqual([String(b._id)]);
+    expect(r.sha_ar).toHaveLength(12);
+    expect(r.sha_en).toHaveLength(12);
   });
 
   it('REQUIRE_ACCEPTANCE=no does not lock anyone out', async () => {
