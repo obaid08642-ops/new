@@ -1,3 +1,4 @@
+import { postWalletEntry } from '../../common/wallet-ledger';
 import axios from 'axios';
 import { withRefunds } from './order-refund';
 import { escapeRegex } from '../../common/slug.util';
@@ -498,19 +499,12 @@ export class OrdersService {
         walletApplied = round2(debits.reduce((s: number, t: any) => s + Number(t.amount || 0), 0));
       }
       if (walletApplied > 0) {
-        const already: any = await this.conn.collection('wallet_transactions').findOne({ referenceId: `cancel_${orderId}` } as any);
-        if (!already) {
-          const wallet: any = await this.conn.collection('wallets').findOne({ ownerId: order.patient_id, ownerType: 'patient' } as any);
-          if (wallet) {
-            await this.conn.collection('wallets').updateOne({ _id: wallet._id } as any, { $inc: { balance: walletApplied }, $set: { updatedAt: new Date() } });
-            await this.conn.collection('wallet_transactions').insertOne({
-              id: require('uuid').v4(), walletId: wallet.id, amount: walletApplied, type: 'credit',
-              referenceType: 'refund', referenceId: `cancel_${orderId}`,
-              description: `استرداد محفظة لإلغاء الطلب #${orderId.slice(0, 8)}`,
-              createdAt: new Date(), updatedAt: new Date(),
-            } as any);
-          }
-        }
+        // through the wallet ledger, once per cancelled order (idempotency key), never by changing the balance in place
+        await postWalletEntry(this.conn, {
+          ownerId: order.patient_id, ownerType: 'patient', amount: walletApplied, type: 'credit',
+          referenceType: 'refund', referenceId: `cancel_${orderId}`,
+          description: `استرداد محفظة لإلغاء الطلب #${orderId.slice(0, 8)}`,
+        });
       }
       const upd: any = { refund_status: 'REFUNDED', payment_status: 'refunded', refunded_at: new Date() };
       if (policy.fee_sar > 0) {

@@ -21,6 +21,11 @@ export type ProviderRow = {
   nameAr: string | null;
   nameEn: string | null;
   total: number;
+  /** The server's breakdown of `total`: the home-collection fee inside it, and the VAT in it (never worked out here). */
+  homeFee: number;
+  vat: number;
+  vatRate: number;
+  subtotal: number;
   distanceKm: number | null;
   rating: number | null;
   inNetwork: boolean;
@@ -57,7 +62,8 @@ function parseRow(v: unknown): ProviderRow | null {
   if (!r || !providerId || total === null) return null;
   const missing = Array.isArray(r.missing) ? r.missing.filter((x): x is string => typeof x === "string") : [];
   return {
-    providerId, nameAr: str(r.name_ar), nameEn: str(r.name_en), total, distanceKm: num(r.distance_km), rating: num(r.rating),
+    providerId, nameAr: str(r.name_ar), nameEn: str(r.name_en), total, homeFee: num(r.home_fee) ?? 0, vat: num(r.vat) ?? 0, vatRate: num(r.vat_rate) ?? 0, subtotal: num(r.subtotal) ?? total,
+    distanceKm: num(r.distance_km), rating: num(r.rating),
     inNetwork: r.in_network === true, earliestAt: str(r.earliest_at), turnaroundHours: num(r.turnaround_hours),
     coversAll: r.covers_all !== false, missing,
   };
@@ -165,7 +171,7 @@ export function summarize(groups: QuoteGroup[]): QuoteSummary {
     if (!b) { complete = false; continue; }
     const lines = Math.round(b.lines.reduce((s, l) => s + l.price, 0) * 100) / 100;
     itemsTotal += lines;
-    homeFee += Math.max(0, Math.round((b.total - lines) * 100) / 100);
+    homeFee += b.homeFee;
     insuranceShare += b.estimatedInsuranceShare;
     patientShare += b.patientShare;
   }

@@ -215,40 +215,6 @@ export class FinanceCoreService {
 }
 
 // ============================================================================
-// Quote (BR-1) — the server decides allowed payment methods, never the UI
-// ============================================================================
-
-const ONLINE_ONLY_CHANNELS = ['online', 'video', 'audio', 'chat', 'home', 'home_visit', 'delivery', 'nursing', 'physiotherapy'];
-
-@Controller('bookings')
-@UseGuards(JwtAuthGuard)
-export class QuoteController {
-  @Get('quote') quote(@Query() q: any) {
-    const channel = (q?.channel || 'clinic').toLowerCase();
-    const price = Number(q?.price || 0);
-    const withInsurance = q?.with_insurance === 'true' || q?.with_insurance === '1';
-    const onlineOnly = ONLINE_ONLY_CHANNELS.includes(channel);
-
-    const allowed_methods: string[] = [];
-    if (withInsurance) allowed_methods.push('insurance');
-    allowed_methods.push('online');
-    if (!onlineOnly) allowed_methods.push('clinic_pay');
-
-    return {
-      service_type: q?.service_type || 'consultation',
-      channel,
-      price,
-      currency: 'SAR',
-      allowed_methods,
-      insurance_applicable: true,
-      notes_ar: onlineOnly
-        ? 'هذه الخدمة تتطلب الدفع الإلكتروني مسبقًا'
-        : 'يمكنك الدفع إلكترونيًا الآن أو نقدًا في العيادة عند الزيارة',
-    };
-  }
-}
-
-// ============================================================================
 // Insurance flow service + controllers (BR-2)
 // ============================================================================
 
@@ -1141,7 +1107,7 @@ export class FinanceCoreController {
     ]),
   ],
   controllers: [
-    QuoteController, InsuranceFlowController, InsuranceAliasController,
+    InsuranceFlowController, InsuranceAliasController,
     RefundController, AdminFinanceCoreController, FinanceCoreController, AdminInsuranceController,
   ],
   providers: [InsuranceFlowService, FinanceCoreService, RefundService],

@@ -155,6 +155,8 @@
   "incomingCall.patient": "مريض",
   "incomingCall.decline": "رفض",
   "incomingCall.answer": "رد",
+  "support.title": "مركز الدعم",
+  "support.loadFailed": "تعذر تحميل تذاكرك",
   "pa3.patientFile.2": "سجل الزيارات السابقة غير متاح في هذه الشاشة. افتح المواعيد لرؤية زيارات هذا المريض معك.",
   "pa3.facilityLeave.1": "تعذر تحميل طلبات الإجازة. اسحب للتحديث أو أعد فتح الشاشة.",
   "pa3.facilityCalendar.1": "تعذر تحميل التقويم. أعد فتح الشاشة.",

@@ -155,6 +155,8 @@
   "incomingCall.patient": "A patient",
   "incomingCall.decline": "Decline",
   "incomingCall.answer": "Answer",
+  "support.title": "Support Center",
+  "support.loadFailed": "Could not load your tickets",
   "pa3.patientFile.2": "Past visits are not shown on this screen. Open your appointments to see this patient's visits with you.",
   "pa3.facilityLeave.1": "Could not load leave requests. Reopen the screen to retry.",
   "pa3.facilityCalendar.1": "Could not load the calendar. Reopen the screen.",

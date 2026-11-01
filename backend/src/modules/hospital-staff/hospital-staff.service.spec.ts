@@ -10,7 +10,7 @@ describe('HospitalStaffService: membership changes', () => {
   let events: any[];
 
   const make = (staff: any) => {
-    const users: any = { findOne: jest.fn(async () => staff), updateOne: jest.fn().mockResolvedValue({}), deleteOne: jest.fn(), create: jest.fn() };
+    const users: any = { findOne: jest.fn(async () => staff), updateOne: jest.fn().mockResolvedValue({}), deleteOne: jest.fn(), create: jest.fn(), db: { collection: () => ({ updateMany: jest.fn().mockResolvedValue({}) }) } };
     const accounts: any = { findOne: jest.fn(async () => facility) };
     return { service: new HospitalStaffService(users, accounts, {} as any), users };
   };
@@ -44,9 +44,13 @@ describe('HospitalStaffService: membership changes', () => {
   });
 
   it('suspend and unsuspend are audited too', async () => {
-    const { service } = make(staffRow('fac-1'));
+    const { service, users } = make(staffRow('fac-1'));
     await service.suspend(owner, 'doc-1', true);
     await service.suspend(owner, 'doc-1', false);
     expect(events.map((e) => e.action)).toEqual(['facility_staff.suspended', 'facility_staff.unsuspended']);
+    // X4: login reads `active`: suspending turns it off and ends the open sessions; unsuspending turns it back on
+    const calls = (users as any).updateOne.mock.calls.map((c: any[]) => c[1]);
+    expect(calls[0]).toEqual({ $set: { suspended: true, active: false }, $inc: { token_version: 1 } });
+    expect(calls[1]).toEqual({ $set: { suspended: false, active: true } });
   });
 });

@@ -1,3 +1,4 @@
+import { readVatRate } from '../../common/quote';
 import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { homeCollectionFee } from '../../common/provider-home-fees';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -53,6 +54,12 @@ const bad = (code: string) => new BadRequestException(code);
 export interface Snapshot { account_id: string; auto_accept: boolean; prices: Record<string, number>; home_fee: number; in_network: boolean; coverage: Record<string, Coverage>; walk_in: boolean; staff_genders: string[] }
 interface QuoteGroup { mode: Mode; items: Array<{ catalog_id: string; facility_only?: true }>; candidates: Record<string, Snapshot>; names: Record<string, { ar: string | null; en: string | null }> }
 
+/** The breakdown the clients show for one quoted provider: the home fee inside the total, and the VAT in it (prices are VAT-inclusive). */
+export function quoteBreakdown(total: number, homeFee: unknown, vatRate: number) {
+  const vat = round2(total - total / (1 + vatRate));
+  return { home_fee: round2(Number(homeFee) || 0), vat_rate: vatRate, vat, subtotal: round2(total - vat) };
+}
+
 @Injectable()
 export class OrderingService implements OnModuleInit {
   private readonly logger = new Logger(OrderingService.name);
@@ -92,6 +99,7 @@ export class OrderingService implements OnModuleInit {
     const policy = await this.policyOf(user.id, context.payer, context.family_member_id);
     const weights = mergeWeights((await this.conn.collection('system_configs').findOne({ key: 'ordering_ranking_weights' }))?.value);
     const shareRate = await this.shareRate();
+    const vatRate = await readVatRate(this.conn);
 
     // a mixed basket is split automatically: what cannot be done at home goes to a facility group, labelled
     const homeIds: string[] = [];
@@ -125,6 +133,8 @@ export class OrderingService implements OnModuleInit {
       const row = (x: { c: Candidate; total: number }) => ({
         ...(step.ids.every((id) => x.c.prices[id] != null) ? {} : { covers_all: false, missing: step.ids.filter((id) => x.c.prices[id] == null) }),
         provider_id: x.c.provider_id, name_ar: x.c.name_ar, name_en: x.c.name_en, total: x.total, distance_km: round1(x.c.distance_km),
+        // the breakdown the clients show, stated by the server: the home-collection fee inside the total, and the VAT in it
+        ...quoteBreakdown(x.total, x.c.home_fee, vatRate),
         rating: x.c.rating, in_network: x.c.in_network, earliest_at: x.c.earliest_at.toISOString(), turnaround_hours: x.c.turnaround_hours,
       });
       sections.push({

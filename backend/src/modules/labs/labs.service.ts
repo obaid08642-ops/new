@@ -1,4 +1,5 @@
 import { flattenResultEntries } from './lab-booking-results';
+import { withholdLegacyBeforeAcceptance } from '../provider-jobs/provider-job-privacy';
 import { assertPaymentMethod } from '../../common/payment-policy';
 import { homeCollectionFee } from '../../common/provider-home-fees';
 import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
@@ -789,7 +790,9 @@ export class LabsService {
     const q: any = {};
     if (user.role !== 'admin') q.provider_account_id = user.id;
     if (status) q.state = status;
-    return this.bkgModel.find(q, { _id: 0, __v: 0 }).sort({ scheduled_at: 1 }).limit(200);
+    // R7 (13.R4): a request nobody has accepted shows the area only, not the patient's phone and exact address.
+    const rows = await this.bkgModel.find(q, { _id: 0, __v: 0 }).sort({ scheduled_at: 1 }).limit(200).lean();
+    return (rows as any[]).map((r) => withholdLegacyBeforeAcceptance(r, [LabBookingState.NEW_REQUEST]));
   }
 
   /** Provider: assign technician to a booking. */
@@ -833,6 +836,10 @@ export class LabsService {
       throw new BadRequestException(`invalid_transition_${b.state}_to_REPORTED`);
     }
     
+    // X2: the app uploads in three calls and retries on a bad network. The same stored file again is the same report:
+    // answer with the booking as it is instead of pushing a second copy and telling the patient twice.
+    if (stored && (b.reports as any[]).some((r) => r?.storage_object_id === stored.id)) return b.toObject();
+
     let base64Data: string | undefined;
     let mimeType = stored?.mime || 'application/pdf';
     

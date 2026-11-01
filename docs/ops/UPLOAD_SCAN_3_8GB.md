@@ -44,3 +44,7 @@ of a scan (the "others absorb the swap" rule of the memory plan was written for 
   (otherwise puts them back), starts them again when the scanner stops or is not running.
 - `docs/ops/60-deploy-main-clamav-message.patch` (for `review/server-inspect`): with `UPLOAD_SCAN=defer` the deploy no longer prints "uploads_refused_until_scanner_runs" and does not start
   the ClamAV container when `CLAMAV_ON_DEMAND=1` (the window owns it); it prints what really happens to uploads.
+
+## Update 2026-10-31 (run 76)
+The deploy of `main@c929c4ef` skipped ClamAV with `SKIPPED_LOW_MEMORY` at **647 MB available**. The start needs `MemAvailable >= CLAMAV_MIN_FREE_MB` (1,700 by default in `clamav-window.sh`; clamd itself needs about 1,200 to 1,500 for its signatures), so the shortfall on this host is about 1,050 MB at this moment: still no start, with or without the optional containers (they free about 410 at most). The plan therefore stays as decided by the owner: ClamAV off here, the remote scanner (`docs/ops/REMOTE_CLAMD.md`, `CLAMD_HOST`, `CLAMD_PORT`, `UPLOAD_SCAN=required`) when it is ready.
+Whether `UPLOAD_SCAN=defer` (91b) is live on the server is not visible from the repo: `96c-uploads-state.sh` (read-only) prints `UPLOAD_SCAN=...`, `/config` `uploads_enabled` and `uploads_pending_scan`, and the quarantine queue. `defer` is live when it says `UPLOAD_SCAN=defer` and `uploads_pending_scan=true`; with `unset` or `required` uploads are refused (503) until a scanner answers.

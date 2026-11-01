@@ -93,7 +93,7 @@ describe("insured evidence", () => {
 describe("chosen group snapshot and error keys", () => {
   const g = {
     items: [{ catalogId: "a" }, { catalogId: "b" }], split: null,
-    bestMatch: { providerId: "p1", lines: [{ catalogId: "a", price: 70 }, { catalogId: "b", price: 70, coverage: "covered" as const }], total: 165, estimatedInsuranceShare: 56, patientShare: 109 },
+    bestMatch: { providerId: "p1", lines: [{ catalogId: "a", price: 70 }, { catalogId: "b", price: 70, coverage: "covered" as const }], total: 165, homeFee: 25, estimatedInsuranceShare: 56, patientShare: 109 },
     compare: [{ providerId: "p1", nameAr: "ا", nameEn: "P1", total: 165 }, { providerId: "p2", nameAr: null, nameEn: "P2", total: 180 }],
   };
   it("keeps lines, home fee and shares only for the best match", () => {

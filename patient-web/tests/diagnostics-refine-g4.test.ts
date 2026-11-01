@@ -167,7 +167,7 @@ describe("C: Order now skips the cart", () => {
 });
 
 describe("D: the lab-choice step lists every lab with its own price", () => {
-  const row = (providerId: string, total: number, extra: Partial<ProviderRow> = {}): ProviderRow => ({ providerId, nameAr: null, nameEn: providerId, total, distanceKm: null, rating: null, inNetwork: false, earliestAt: null, turnaroundHours: null, coversAll: true, missing: [], ...extra });
+  const row = (providerId: string, total: number, extra: Partial<ProviderRow> = {}): ProviderRow => ({ providerId, nameAr: null, nameEn: providerId, total, homeFee: 0, vat: 0, vatRate: 0, subtotal: total, distanceKm: null, rating: null, inNetwork: false, earliestAt: null, turnaroundHours: null, coversAll: true, missing: [], ...extra });
   const best = { ...row("b", 80), lines: [{ catalogId: "t1", price: 70 }], estimatedInsuranceShare: 0, patientShare: 80, estimatedPatientShare: null };
   const compare = [row("a", 90), row("b", 80), row("c", 60, { coversAll: false, missing: ["t1"] }), row("d", 120, { inNetwork: true })];
   it("best first with its total, then every other lab with its own total, none dropped", () => {

@@ -49,7 +49,13 @@ export class WalletTransaction {
 
   @Prop({ required: true })
   description: string;
+
+  /** `<walletId>:<type>:<referenceType>:<referenceId>`: one row per wallet, direction and business event (common/wallet-ledger.ts). Absent on older rows. */
+  @Prop()
+  idempotency_key?: string;
 }
 
 export const WalletTransactionSchema = SchemaFactory.createForClass(WalletTransaction);
 WalletTransactionSchema.index({ walletId: 1, createdAt: -1 });
+// sparse: rows written before the key existed carry none; same name and options as the index common/wallet-ledger.ts ensures
+WalletTransactionSchema.index({ idempotency_key: 1 }, { unique: true, sparse: true, name: 'wallet_tx_idempotency_key' });
