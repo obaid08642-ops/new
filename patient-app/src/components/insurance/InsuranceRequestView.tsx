@@ -48,6 +48,9 @@ function useRequestParams() {
   return { id: text('id') || text('request_id') || text('requestId'), bookingId: text('bookingId') || text('booking_id') };
 }
 
+/** An error whose message is already a translated, user-facing line. */
+class ShownError extends Error {}
+
 export function InsuranceRequestView() {
   const { id: given, bookingId } = useRequestParams();
   const { k, theme } = useScreenUi();
@@ -100,9 +103,9 @@ export function InsuranceRequestView() {
     const path = kind === 'copay' ? `/insurance/requests/${encodeURIComponent(request.id)}/capabilities` : `/insurance/requests/${encodeURIComponent(request.id)}/self-pay-capabilities`;
     const capabilities = await apiFetch<{ methods?: { id?: string }[] }>(path);
     const method = capabilities?.methods?.find((item) => item?.id === 'card')?.id;
-    if (method !== 'card') throw new Error(k('insurance.request.cardUnavailable'));
+    if (method !== 'card') throw new ShownError(k('insurance.request.cardUnavailable'));
     const transaction = await apiFetch<{ checkout_url?: string }>(`/payments/intent/insurance/${encodeURIComponent(request.id)}`, { method: 'POST', headers: paymentIntentHeaders('insurance', request.id), body: JSON.stringify({ method }) });
-    if (!isHttpsCheckout(transaction?.checkout_url)) throw new Error(k('insurance.request.checkoutUnavailable'));
+    if (!isHttpsCheckout(transaction?.checkout_url)) throw new ShownError(k('insurance.request.checkoutUnavailable'));
     await Linking.openURL(transaction.checkout_url as string);
     await load(true);
   };
@@ -137,7 +140,8 @@ export function InsuranceRequestView() {
       else if (action === 'covered' || action === 'paid') await returnToAppointmentStatus();
     } catch (reason) {
       logError('insurance:request:proceed', reason);
-      setError((reason as { message?: string } | null)?.message || k('insurance.request.failed'));
+      // only our own translated messages are shown; a server error (raw code or English) becomes the translated failure line
+      setError(reason instanceof ShownError ? reason.message : k('insurance.request.failed'));
     } finally {
       inFlight.current = false;
       setSubmitting(false);

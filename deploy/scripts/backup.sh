@@ -6,6 +6,7 @@
 # Exit: 0 only when the local dump AND the off-server copy succeeded.
 set -uo pipefail
 source "$(dirname "$0")/_backup-common.sh"
+source "$(dirname "$0")/_dump-guard.sh"
 nabd_load_env
 
 TS=$(date +%Y%m%d-%H%M%S)
@@ -21,6 +22,14 @@ if ! mongodump_oneoff "$FILE" --db="$DB_NAME" --gzip --archive || [ ! -s "$FILE"
   rm -f "$FILE"
   echo "[$(date)] FAIL: mongodump failed or wrote nothing"
   report local false "" "mongodump failed or wrote nothing"
+  exit 1
+fi
+
+# a dump far smaller than the ones before it is not a backup (2026-10-31: 3.5 MB where 354 MB was normal): keep it aside as .suspect, keep the earlier dumps, fail loudly
+if ! dump_guard "$FILE" "$BACKUP_DIR" 'nabd_*.gz' 'nabd_*.gz.gpg'; then
+  mv -f "$FILE" "$FILE.suspect"
+  echo "[$(date)] FAIL: the dump is far smaller than the earlier ones; kept as $(basename "$FILE").suspect, not counted as a backup"
+  report local false "" "dump under 50% of the earlier dumps"
   exit 1
 fi
 
@@ -51,7 +60,7 @@ echo "[$(date)] local backup: $(basename "$FILE") ($SIZE bytes)"
 report local true "$SIZE"
 
 # retention: 14 days on the server
-find "$BACKUP_DIR" -maxdepth 1 \( -name "nabd_*.gz" -o -name "nabd_*.gz.gpg" -o -name "nabd_*.oplogts" \) -mtime +14 -delete
+find "$BACKUP_DIR" -maxdepth 1 \( -name "nabd_*.gz" -o -name "nabd_*.gz.gpg" -o -name "nabd_*.oplogts" -o -name "nabd_*.suspect" \) -mtime +14 -delete
 
 ERR=$(private_bucket_error)
 if [ -n "$ERR" ]; then

@@ -3,7 +3,7 @@
   "totals": {
     "patient-web": 13,
     "patient-app": 10,
-    "provider-app": 228,
+    "provider-app": 227,
     "admin": 167
   },
   "files": {
@@ -63,7 +63,6 @@
     "provider-app/src/screens/nursing/NursingDashboard.tsx": 5,
     "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx": 8,
     "provider-app/src/screens/radiology/RadiologyDashboard.tsx": 7,
-    "provider-app/src/utils/PushNotifications.ts": 1,
     "provider-app/src/utils/notifications.ts": 2,
     "admin/src/components/EmptyIcon.tsx": 1,
     "admin/src/components/ProviderFullDetail.tsx": 7,
