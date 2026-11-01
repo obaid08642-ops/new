@@ -1,9 +1,10 @@
-import { isTaxRegistered } from './tax-registration';
+import { isTaxRegistered, platformVatOf } from './tax-registration';
 
 /**
  * One quote shape for every booking kind. The server states every amount (lines, VAT, discount, total); the clients only display it.
- * Prices are VAT-inclusive (the invoice takes VAT out of the total the same way), so `total` is what the patient is charged and
- * `subtotal + vat = total`.
+ * `total` is what the patient is charged and `subtotal + vat = total`. Model A (owner, 2026-11-01): the provider supplies the service,
+ * so the service price carries no platform VAT; the only platform VAT on a quote is the VAT inside the `delivery_fee` line (the
+ * platform charges it). `vat` is 0 when there is no such line, and null while the platform has no VAT number.
  */
 export interface QuoteLine {
   /** Stable key the clients translate: consultation_fee, platform_fee, home_visit_fee, transport_fee, service, sessions ... */
@@ -49,7 +50,7 @@ export function buildQuote(input: { kind: string; lines: QuoteLine[]; vat_rate: 
   const discount = round2(Math.max(0, input.discount ?? 0));
   const total = round2(Math.max(0, lines.reduce((s, l) => s + l.amount, 0) - discount));
   const registered = input.vat_rate !== null;
-  const vat = registered ? round2(total - total / (1 + (input.vat_rate as number))) : null;
+  const vat = registered ? platformVatOf(lines, input.vat_rate as number, total) : null;
   return {
     kind: input.kind, currency: 'SAR', lines, discount,
     subtotal: vat === null ? total : round2(total - vat), vat_rate: input.vat_rate, vat, total, tax_registered: registered,

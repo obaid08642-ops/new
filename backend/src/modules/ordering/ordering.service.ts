@@ -56,8 +56,10 @@ interface QuoteGroup { mode: Mode; items: Array<{ catalog_id: string; facility_o
 
 /** The breakdown the clients show for one quoted provider: the home fee inside the total, and the VAT in it (prices are VAT-inclusive). */
 export function quoteBreakdown(total: number, homeFee: unknown, vatRate: number | null) {
-  // vatRate null = the platform is not VAT-registered: no VAT line, subtotal = total
-  const vat = vatRate === null ? null : round2(total - total / (1 + vatRate));
+  // vatRate null = the platform is not VAT-registered: no VAT line, subtotal = total.
+  // Model A (owner, 2026-11-01): the provider supplies the service, so the price carries no platform VAT; a lab or radiology quote has
+  // no delivery-fee line (the home-collection fee is the provider's), so the platform VAT here is 0.
+  const vat = vatRate === null ? null : 0;
   return { home_fee: round2(Number(homeFee) || 0), vat_rate: vatRate, vat, subtotal: vat === null ? round2(total) : round2(total - vat), tax_registered: vatRate !== null };
 }
 

@@ -18,6 +18,8 @@ export type ReceiptLabels = Readonly<{
  */
 export function ReceiptPaper({ locale, receipt, labels, pdfHref, pageHref }: Readonly<{ locale: string; receipt: ReceiptView; labels: ReceiptLabels; pdfHref: string; pageHref: string }>) {
   const qr = receipt.qr ? qrPath(receipt.qr) : null;
+  // model A: the platform's VAT is only the VAT inside the delivery fee; with none, there is no VAT row
+  const showVat = receipt.taxInvoice && receipt.vatAmount > 0;
   const money = (value: number) => formatPrice(locale, value).text;
   const when = formatDate(locale, receipt.issuedAt, { dateStyle: "medium", timeStyle: "short" });
   return (
@@ -36,8 +38,8 @@ export function ReceiptPaper({ locale, receipt, labels, pdfHref, pageHref }: Rea
             {when ? (<><dt>{labels.dateTime}</dt><dd><bdi>{when}</bdi></dd></>) : null}
           </dl>
           <dl className={`${styles.meta} ${styles.sums}`}>
-            {receipt.taxInvoice ? (<><dt>{labels.subtotal}</dt><dd><bdi>{money(receipt.subtotal)}</bdi></dd></>) : null}
-            {receipt.taxInvoice ? (<><dt>{labels.vat}</dt><dd><bdi>{money(receipt.vatAmount)}</bdi></dd></>) : null}
+            {showVat ? (<><dt>{labels.subtotal}</dt><dd><bdi>{money(receipt.subtotal)}</bdi></dd></>) : null}
+            {showVat ? (<><dt>{labels.vat}</dt><dd><bdi>{money(receipt.vatAmount)}</bdi></dd></>) : null}
             <dt className={styles.totalLabel}>{receipt.taxInvoice ? labels.total : labels.totalPaid}</dt><dd className={styles.totalValue}><bdi>{money(receipt.total)}</bdi></dd>
           </dl>
           {qr ? (

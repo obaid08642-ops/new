@@ -46,3 +46,22 @@ export function documentKindOf(doc: { document_kind?: string; seller_complete?: 
   if (doc?.document_kind === 'tax_invoice' || doc?.document_kind === 'receipt') return doc.document_kind;
   return doc?.seller_complete === false || !doc?.vat_number ? 'receipt' : 'tax_invoice';
 }
+
+/**
+ * WHERE platform VAT applies (owner decision 2026-11-01, "Model A"): the provider is the supplier of the service and the platform
+ * issues the patient's document as a third party. The platform's VAT appears ONLY on
+ *   1. its commission (the platform → provider commission invoice; the settlement takes VAT on the commission), and
+ *   2. the delivery fee, a line the platform charges.
+ * The service price itself carries no platform VAT. Without a platform VAT number there are no VAT lines at all (receipt mode).
+ */
+export const PLATFORM_VAT_LINE_KEYS: readonly string[] = ['delivery_fee'];
+
+const r2 = (n: number) => Math.round(n * 100) / 100;
+
+/** The part of a VAT-inclusive total that is platform VAT: the VAT inside the delivery-fee lines, never more than what was paid. */
+export function platformVatOf(lines: Array<{ key?: string; amount?: number }> | null | undefined, rate: number, paidTotal: number): number {
+  if (!(rate > 0)) return 0;
+  const fee = (lines ?? []).filter((l) => PLATFORM_VAT_LINE_KEYS.includes(String(l?.key))).reduce((sum, l) => sum + (Number(l?.amount) > 0 ? Number(l.amount) : 0), 0);
+  const base = Math.min(fee, Math.max(0, paidTotal));
+  return r2(base - base / (1 + rate));
+}
