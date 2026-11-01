@@ -4,7 +4,7 @@ import { BillingService, decodeTlv } from './billing.module';
  * GET /billing/invoice/:kind/:id: what the receipt screens may show, every figure stored from the payment and the booking when the
  * invoice was issued. Cash, card, insured and refunded invoices; the seller fields come from config and are never invented.
  */
-type World = { booking: any; txns?: any[]; copayTxn?: any; cfg?: Record<string, any> };
+type World = { booking: any; txns?: any[]; copayTxn?: any; cfg?: Record<string, any>; profile?: any };
 
 function world(w: World, store: any[] = []) {
   const match = (q: any) => (d: any) => Object.entries(q).every(([k, v]: [string, any]) => {
@@ -27,6 +27,8 @@ function world(w: World, store: any[] = []) {
     insuranceservicerequests: { find: () => ({ limit: () => ({ toArray: async () => (w.copayTxn ? [{ id: 'req-1' }] : []) }) }), findOne: async () => null },
     finance_config: { findOne: async (q: any) => w.cfg?.[q.key] ?? null },
     pharmacy_orders: { findOne: async () => null },
+    provider_profiles: { findOne: async () => w.profile ?? null },
+    pharmacy_allocations: { findOne: async () => null },
     counters: { findOneAndUpdate: async () => ({ seq: 1 }) },
   };
   const conn: any = {
@@ -59,7 +61,7 @@ describe('a cash invoice', () => {
     expect(inv).toMatchObject({ type: 'invoice', total: 150, vat_amount: 19.57, subtotal: 130.43, discount: 0, insured: null, state: 'paid', refunded_total: 0, credit_notes: [] });
     expect(inv.lines).toEqual([{ key: 'item', name_ar: 'سكر', name_en: 'Glucose', qty: 1, unit_price: 150, amount: 150 }]);
     expect(inv.payment).toEqual({ method: 'cash', last4: null });
-    expect(inv.seller).toEqual({ legal_name: 'Nabd Health Co', vat_number: '300000000000003', configured: true });
+    expect(inv.seller).toEqual({ legal_name: 'Nabd Health Co', vat_number: '300000000000003', cr_number: null, address: null, configured: true });
     expectQrMatches(inv);
   });
 });
@@ -161,14 +163,14 @@ describe('the seller is the owner\'s to supply', () => {
     process.env.ZATCA_SELLER_NAME = 'Nabd Health Co';
     process.env.ZATCA_VAT_NUMBER = '300000000000003';
     const sealed = await svc.present(await svc.issue(patient, 'lab', 'b1'));
-    expect(sealed.seller).toEqual({ legal_name: 'Nabd Health Co', vat_number: '300000000000003', configured: true });
+    expect(sealed.seller).toEqual({ legal_name: 'Nabd Health Co', vat_number: '300000000000003', cr_number: null, address: null, configured: true });
     expect(qrOf(sealed)[3]).toBe(new Date(first.issued_at).toISOString()); // the time of issue, not of sealing
     expectQrMatches(sealed);
   });
 
   it('finance_config wins over the environment', async () => {
     const { svc } = world({ booking: { patient_id: 'p1' }, txns: [{ amount: 23, method: 'card' }], cfg: { invoice: { seller_name: 'Config Co', vat_number: '311111111100003' } } });
-    expect((await svc.present(await svc.issue(patient, 'lab', 'b1'))).seller).toEqual({ legal_name: 'Config Co', vat_number: '311111111100003', configured: true });
+    expect((await svc.present(await svc.issue(patient, 'lab', 'b1'))).seller).toEqual({ legal_name: 'Config Co', vat_number: '311111111100003', cr_number: null, address: null, configured: true });
   });
 });
 
@@ -179,5 +181,51 @@ describe('the PDF', () => {
     const { svc } = world({ booking: { patient_id: 'p1' }, txns: [{ amount: 23, method: 'card' }] });
     const pdf = await svc.renderPdf(await svc.issue(patient, 'lab', 'b1'));
     expect(pdf.subarray(0, 5).toString()).toBe('%PDF-');
+  });
+});
+
+describe('the content the owner asked for', () => {
+  const lab = { type: 'lab', name_ar: 'مختبر الحبيب', name_en: 'Al Habib Lab', moh_license_number: 'MOH-LAB-2210', email: 'private@lab.test', phone: '+966500000000', bank: { iban: 'SA00' } };
+  const booking = { patient_id: 'p1', patient_name: 'أحمد القحطاني', tracking_id: 'LAB-7F3A', provider_account_id: 'lab-1', items: [{ name_en: 'CBC', price: 115, qty: 1 }] };
+
+  it('the provider block: name, type and licence number of the party that delivered the service, and nothing else of its profile', async () => {
+    const { svc } = world({ booking, txns: [{ amount: 115, method: 'card' }], profile: lab });
+    const inv = await svc.present(await svc.issue(patient, 'lab', 'b1'));
+    expect(inv.provider).toEqual({ name_ar: 'مختبر الحبيب', name_en: 'Al Habib Lab', facility_name: null, type: 'lab', license_number: 'MOH-LAB-2210' });
+    expect(JSON.stringify(inv)).not.toMatch(/private@lab|\+966500000000|SA00/);
+  });
+
+  it('a doctor\'s licence is the SCFHS one; a pharmacy\'s is the SFDA one', async () => {
+    const doctor = { type: 'doctor', display_name_ar: 'د. سارة', name_en: 'Dr Sara', clinic_name: 'Sara Clinic', scfhs_license_number: 'SCFHS-1', moh_license_number: 'MOH-9' };
+    const a = world({ booking: { patient_id: 'p1', doctor_id: 'd1', price: 100, total_price: 115, service_fee: 15 }, txns: [{ amount: 115, method: 'card' }], profile: doctor });
+    expect((await a.svc.present(await a.svc.issue(patient, 'consultation', 'b1'))).provider).toMatchObject({ name_ar: 'د. سارة', name_en: 'Dr Sara', facility_name: 'Sara Clinic', type: 'doctor', license_number: 'SCFHS-1' });
+    const ph = world({ booking: { patient_id: 'p1', pharmacy_id: 'ph1', total: 40 }, txns: [{ amount: 40, method: 'card' }], profile: { type: 'pharmacy', name_ar: 'صيدلية النور', sfda_license_number: 'SFDA-5', moh_license_number: 'MOH-2' } });
+    expect((await ph.svc.present(await ph.svc.issue(patient, 'pharmacy', 'b1'))).provider).toMatchObject({ type: 'pharmacy', license_number: 'SFDA-5' });
+  });
+
+  it('a provider we cannot find, or hold no licence for, is null or has a null licence: nothing invented', async () => {
+    const none = world({ booking, txns: [{ amount: 115, method: 'card' }] });
+    expect((await none.svc.present(await none.svc.issue(patient, 'lab', 'b1'))).provider).toBeNull();
+    const noLicence = world({ booking, txns: [{ amount: 115, method: 'card' }], profile: { type: 'lab', name_ar: 'مختبر' } });
+    expect((await noLicence.svc.present(await noLicence.svc.issue(patient, 'lab', 'b1'))).provider.license_number).toBeNull();
+  });
+
+  it('the seller block carries the CR number and the address from config; empty stays null', async () => {
+    const full = world({ booking, txns: [{ amount: 115, method: 'card' }], cfg: { invoice: { seller_name: 'شركة نبض', vat_number: '300000000000003', cr_number: '1010000000', address: 'الرياض' } } });
+    expect((await full.svc.present(await full.svc.issue(patient, 'lab', 'b1'))).seller).toEqual({ legal_name: 'شركة نبض', vat_number: '300000000000003', cr_number: '1010000000', address: 'الرياض', configured: true });
+    const bare = world({ booking, txns: [{ amount: 115, method: 'card' }] });
+    expect((await bare.svc.present(await bare.svc.issue(patient, 'lab', 'b1'))).seller).toMatchObject({ cr_number: null, address: null });
+  });
+
+  it('the booking number, the optional patient name, and the footer with support contact and the refund policy link', async () => {
+    const w = world({ booking, txns: [{ amount: 115, method: 'card' }], cfg: { invoice: { seller_name: 'N', vat_number: '3', support_email: 'help@nabd.example', support_phone: '+966110000000' } } });
+    const inv = await w.svc.present(await w.svc.issue(patient, 'lab', 'b1'));
+    expect(inv).toMatchObject({ booking_ref: 'LAB-7F3A', patient_name: 'أحمد القحطاني' });
+    expect(inv.footer).toEqual({ support_email: 'help@nabd.example', support_phone: '+966110000000', refund_policy_url: { ar: 'https://nabd.plus/ar/refund-policy', en: 'https://nabd.plus/en/refund-policy' } });
+    const anon = world({ booking: { ...booking, patient_name: undefined, tracking_id: undefined }, txns: [{ amount: 115, method: 'card' }] });
+    const bare = await anon.svc.present(await anon.svc.issue(patient, 'lab', 'booking-1234567'));
+    expect(bare.patient_name).toBeNull();
+    expect(bare.booking_ref).toBe('booking-');
+    expect(bare.footer.support_email).toBeNull(); // nothing invented
   });
 });

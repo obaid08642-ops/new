@@ -132,12 +132,16 @@ export default function ConfigPortal() {
 
   const savePricing = async () => {
     setPricingMsg('');
+    // The server keeps who changed the pricing and why (audit log): the reason is required, 10 characters or more.
+    const pricingReason = window.prompt('سبب تعديل التسعير (يُحفظ في سجل التدقيق — 10 أحرف على الأقل):', '');
+    if (pricingReason === null) return;
+    if (pricingReason.trim().length < 10) { setPricingMsg('يرجى إدخال سبب لا يقل عن 10 أحرف'); return; }
     try {
       const s = await fetchWithAdminGuard('/api/admin/business-rules/config/surge', {
-        method: 'POST', body: JSON.stringify({ startHour: surgeStart, endHour: surgeEnd, multiplier: surgeMult }),
+        method: 'POST', body: JSON.stringify({ startHour: surgeStart, endHour: surgeEnd, multiplier: surgeMult, reason: pricingReason.trim() }),
       });
       const f = await fetchWithAdminGuard('/api/admin/business-rules/config/fees', {
-        method: 'POST', body: JSON.stringify({ delivery_fee: deliveryFee, service_fee: serviceFee }),
+        method: 'POST', body: JSON.stringify({ delivery_fee: deliveryFee, service_fee: serviceFee, reason: pricingReason.trim() }),
       });
       setPricingMsg(s.ok && f.ok ? 'تم حفظ التسعير' : 'فشل الحفظ — تحقق من القيم');
     } catch { setPricingMsg('فشل الحفظ'); }
