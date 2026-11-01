@@ -30,10 +30,11 @@ export function ProviderCommissionPanel() {
   const [own, setOwn] = useState({ cash: '', insurance: '' });
   const [promo, setPromo] = useState({ percent: '', starts_at: '', ends_at: '', max_orders: '', note: '' });
 
-  const call = async (path: string, method: string, body?: unknown) => {
+  const pid = encodeURIComponent(id.trim());
+  const call = async (url: string, method: string, body?: unknown) => {
     setMsg('');
     try {
-      const v = await apiFetch<View>(`/api/admin/admin/provider-commissions/${encodeURIComponent(id.trim())}${path}`, { method, ...(body ? { body: JSON.stringify(body) } : {}) });
+      const v = await apiFetch<View>(url, { method, ...(body ? { body: JSON.stringify(body) } : {}) });
       setView(v);
       return true;
     } catch (e: any) { setMsg(e?.message || 'تعذر تنفيذ الطلب'); return false; }
@@ -45,14 +46,14 @@ export function ProviderCommissionPanel() {
     if (!needReason()) return;
     const cash = num(own.cash); const insurance = num(own.insurance);
     if (cash === undefined && insurance === undefined) { setMsg('أدخل نسبة الكاش أو التأمين'); return; }
-    if (await call('', 'PUT', { cash, insurance, reason: reason.trim() })) setMsg('تم حفظ عمولة المزود');
+    if (await call(`/api/admin/admin/provider-commissions/${pid}`, 'PUT', { cash, insurance, reason: reason.trim() })) setMsg('تم حفظ عمولة المزود');
   };
   const savePromo = async () => {
     if (!needReason()) return;
     const percent = num(promo.percent);
     if (percent === undefined || !(percent >= 0 && percent <= 100)) { setMsg('نسبة العرض بين 0 و100'); return; }
     if (!promo.ends_at && !promo.max_orders) { setMsg('حدّد تاريخ الانتهاء أو عدد الطلبات'); return; }
-    const ok = await call('/promo', 'PUT', {
+    const ok = await call(`/api/admin/admin/provider-commissions/${pid}/promo`, 'PUT', {
       percent, starts_at: promo.starts_at || undefined, ends_at: promo.ends_at || undefined,
       max_orders: promo.max_orders ? Number(promo.max_orders) : undefined, note: promo.note || undefined, reason: reason.trim(),
     });
@@ -65,7 +66,7 @@ export function ProviderCommissionPanel() {
       <p className="text-xs text-gray-500 mb-4">الأولوية: حملة ← عرض المزود ← عمولة المزود ← فئة ← خدمة ← الإعدادات ← الافتراضي العام. العرض ينتهي تلقائياً ثم تعود العمولة المعتادة.</p>
       <div className="flex gap-2">
         <input value={id} onChange={(e) => setId(e.target.value)} dir="ltr" className="flex-1 border rounded p-2 text-sm" placeholder="account id" />
-        <button onClick={() => id.trim() && call('', 'GET')} className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-bold">عرض</button>
+        <button onClick={() => id.trim() && call(`/api/admin/admin/provider-commissions/${pid}`, 'GET')} className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-bold">عرض</button>
       </div>
       {msg && <p className="mt-2 text-sm font-bold">{msg}</p>}
       {view && (
@@ -98,7 +99,7 @@ export function ProviderCommissionPanel() {
                 <label className="text-sm">تأمين %<input type="number" min={0} max={100} step={0.1} dir="ltr" value={own.insurance} onChange={(e) => setOwn({ ...own, insurance: e.target.value })} className="mt-1 w-full border rounded p-2" /></label>
                 <div className="flex gap-2">
                   <button onClick={saveOwn} className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-bold">حفظ عمولة المزود</button>
-                  <button onClick={() => needReason() && call('', 'DELETE', { reason: reason.trim() })} className="px-4 py-2 border rounded-lg text-sm">إزالة</button>
+                  <button onClick={() => needReason() && call(`/api/admin/admin/provider-commissions/${pid}`, 'DELETE', { reason: reason.trim() })} className="px-4 py-2 border rounded-lg text-sm">إزالة</button>
                 </div>
               </div>
               <div className="grid md:grid-cols-5 gap-3 items-end">
@@ -108,7 +109,7 @@ export function ProviderCommissionPanel() {
                 <label className="text-sm">أو أول N طلب<input type="number" min={1} dir="ltr" value={promo.max_orders} onChange={(e) => setPromo({ ...promo, max_orders: e.target.value })} className="mt-1 w-full border rounded p-2" /></label>
                 <div className="flex gap-2">
                   <button onClick={savePromo} className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-bold">حفظ العرض</button>
-                  <button onClick={() => needReason() && call('/promo', 'DELETE', { reason: reason.trim() })} className="px-4 py-2 border rounded-lg text-sm">إلغاء</button>
+                  <button onClick={() => needReason() && call(`/api/admin/admin/provider-commissions/${pid}/promo`, 'DELETE', { reason: reason.trim() })} className="px-4 py-2 border rounded-lg text-sm">إلغاء</button>
                 </div>
               </div>
             </>
