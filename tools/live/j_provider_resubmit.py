@@ -35,6 +35,8 @@ def run():
 
     journey('provider resubmit: the provider resubmits for review')
     sig = upload(prov, 'signature.png', 'image/png')
+    r = prov.post('/legal/accept/provider_agreement', {})
+    step('the provider reads and accepts the provider agreement', r.ok, r)
     r = prov.post('/provider-onboarding/submit', {'signer_name': 'مدير صيدلية اختبار', 'signer_role': 'owner', 'lat': loc['lat'], 'lng': loc['lng'],
                                                   'signature_url': sig, 'full_data': {'nameAr': 'طبيب إعادة التقديم', 'city': 'الرياض'}})
     step('the provider resubmits (POST /provider-onboarding/submit)', r.ok, r)

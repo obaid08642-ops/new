@@ -15,6 +15,9 @@ import { LegalEnterpriseController } from './legal-enterprise.controller';
 import { PROVIDER_ROLES, UserRole } from '../../common/enums';
 import { UpdateLegalPolicyDto } from './legal.dto';
 import { DEFAULT_COMMISSIONS } from '../../common/commission-defaults';
+import { createHash } from 'crypto';
+import { policySnapshotDoc } from './policy-snapshot';
+import { ProviderAgreementGuard } from './provider-agreement';
 
 
 import { Permission, RequirePermissions } from '../../common/permissions';
@@ -27,6 +30,16 @@ export class LegalService {
 
   private get policies() { return this.conn.collection('legal_policies'); }
   private get acceptances() { return this.conn.collection('legal_acceptances'); }
+  private get snapshots() { return this.conn.collection('legal_policy_snapshots'); }
+
+  /**
+   * The exact text of one version of a policy, kept for good: an edit replaces `legal_policies.content_*`, so without this a
+   * signed contract could not show what was read. Written once per (key, version) and never changed.
+   */
+  async snapshotPolicy(policy: any): Promise<void> {
+    if (!policy?.key || !policy?.version) return;
+    await this.snapshots.updateOne({ key: policy.key, version: policy.version }, { $setOnInsert: policySnapshotDoc(policy) }, { upsert: true });
+  }
   private get financeConfig() { return this.conn.collection('finance_config'); }
 
   private async ensureFinanceConfig() {
@@ -80,6 +93,7 @@ export class LegalService {
         applies_to: fields.applies_to || ['all'],
       };
       await this.policies.insertOne(doc as any);
+      await this.snapshotPolicy(doc);
       return { created: true, version: doc.version };
     }
     // D-36: an edit is a minor version (no new acceptance); `major: true` publishes the next major version, which
@@ -90,6 +104,7 @@ export class LegalService {
       $set: { ...fields, version: newVersion, last_updated: new Date() },
       $push: { change_log: { version: newVersion, date: new Date(), note: change_note || 'update', by: adminId } } as any,
     });
+    await this.snapshotPolicy(await this.policies.findOne({ key }));
     await this.enterprise.recordAudit(adminId, 'legal.policy.edit', `legal_policies:${key}`, { version: existing.version, content_len: (existing.content_ar || '').length }, { version: newVersion, patch: fields }, {});
     return { updated: true, version: newVersion };
   }
@@ -99,10 +114,13 @@ export class LegalService {
     if (!policy) throw new BadRequestException('policy_not_found');
     const existing = await this.acceptances.findOne({ user_id: user.id, policy_key: key, version: policy.version });
     if (existing) return { ok: true, already_accepted: true, version: policy.version };
+    await this.snapshotPolicy(policy);
     await this.acceptances.insertOne({
       user_id: user.id,
       policy_key: key,
       version: policy.version,
+      content_sha256_ar: createHash('sha256').update(String(policy.content_ar || '')).digest('hex'),
+      content_sha256_en: createHash('sha256').update(String(policy.content_en || '')).digest('hex'),
       timestamp: new Date(),
       device: (req.headers['x-device-id'] as string) || null,
       ip: (req as any).ip || null,
@@ -110,6 +128,7 @@ export class LegalService {
       user_agent: req.headers['user-agent'] || null,
     });
     // 23.2: consent and policy acceptance are in the audit trail (version, time, device and origin come with the row)
+    ProviderAgreementGuard.forget(user.id);
     await recordAudit(this.conn, { action: 'policy_accepted', user_id: user.id, role: user.role, resource_kind: 'legal_policy', resource_id: key, details: { version: policy.version } });
     // Immutable PDF-ready archive with SHA256 (legally traceable)
     const archive = await this.enterprise.snapshotAcceptance(user, policy, {
