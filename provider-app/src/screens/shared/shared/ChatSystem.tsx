@@ -177,6 +177,21 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
     }
   };
 
+  /** Opens an attachment (image, file or voice note) through the short-lived link the server gives for its media id. */
+  const openMedia = async (mediaId: string) => {
+    try {
+      const res = await client.get(`/media/${encodeURIComponent(mediaId)}/url`);
+      const url = res?.data?.url;
+      if (typeof url !== 'string' || !url) throw new Error('no_url');
+      await Linking.openURL(url);
+    } catch (e) {
+      // a file still being scanned (423) or one the scan refused is a state of the attachment, not an error
+      const state = scanStateOfRequestError(e);
+      if (state) { announceScan(show, lang, state); return; }
+      show(AR ? 'تعذر فتح المرفق' : 'Could not open the attachment', 'error');
+    }
+  };
+
   const attachFile = async (kind: string) => {
     setShowAttach(false);
     try {
@@ -240,11 +255,15 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
  const isMe = m.sender === 'me';
  return (
  <View key={m.id} style={{ alignItems: isMe ? 'flex-end' : 'flex-start', marginBottom: SP.md }}>
- {m.type === 'image' ? (
- <View style={[st.imgBubble, { backgroundColor: theme.surface2, borderColor: theme.border }]}>
- <I name="camera" size={30} color={theme.textSub} />
- <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: SP.xs }}>{AR ? 'صورة مرفقة' : 'Attached image'}</Text>
- </View>
+ {m.mediaId && (m.type === 'image' || m.type === 'file' || m.type === 'voice') ? (
+ <TouchableOpacity onPress={() => { void openMedia(m.mediaId as string); }} accessibilityRole="button"
+ accessibilityLabel={m.type === 'image' ? (AR ? 'فتح الصورة' : 'Open the image') : m.type === 'voice' ? (AR ? 'تشغيل الرسالة الصوتية' : 'Play the voice message') : (AR ? 'فتح الملف' : 'Open the file')}
+ style={[st.imgBubble, { backgroundColor: theme.surface2, borderColor: theme.border }]}>
+ <I name={m.type === 'image' ? 'camera' : m.type === 'voice' ? 'mic' : 'document'} size={30} color={theme.textSub} />
+ <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: SP.xs }} numberOfLines={1}>
+ {m.type === 'image' ? (AR ? 'صورة مرفقة، اضغط للفتح' : 'Attached image, tap to open') : m.text}
+ </Text>
+ </TouchableOpacity>
  ) : (
  <View style={[st.msgBubble, {
  backgroundColor: isMe ? theme.primary : theme.surface2,

@@ -13,8 +13,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: acceptance-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # a newer commit on the same PR replaces the older run (the newest commit still runs every suite); a run on main, a schedule and a manual run are never cancelled
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   acceptance:

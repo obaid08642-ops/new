@@ -1,4 +1,5 @@
 import { UseInterceptors } from '@nestjs/common';
+import { assertPaymentMethod } from '../../common/payment-policy';
 import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import { loadOffers, withOfferSummary, withOffers } from '../../common/service-offers';
 import { SearchModule } from '../search/search.controller';
@@ -164,9 +165,7 @@ export class HomeCareCompatController {
     if (!body?.service_id) throw new BadRequestException('service_id is required');
     if (!body?.scheduled_at) throw new BadRequestException('scheduled_at is required');
     // D-25: a home visit is paid by card or insurance, never cash (same rule as POST /nursing/bookings).
-    if (String(body.payment_method || '').trim().toLowerCase() === 'cash') {
-      throw new BadRequestException('payment_method_cash_not_allowed_for_home_visit');
-    }
+    if (String(body.payment_method || '').trim().toLowerCase() === 'cash') assertPaymentMethod('cash', 'home_visit');
     const svc: any = await this.services.findOne({ id: { $eq: body.service_id }, active: true }).lean();
     if (!svc) throw new NotFoundException('service not found');
     const address = body.address_id ? await this.savedAddress(u.id, body.address_id) : body.address;

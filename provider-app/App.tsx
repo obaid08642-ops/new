@@ -1,5 +1,5 @@
-import { setupPushNotifications } from "./src/utils/PushNotifications";
-import { registerForPushNotificationsAsync } from "./src/utils/notifications";
+import { registerForPushNotificationsAsync, initNotificationListeners, getLastPushResponse, ensureAndroidChannels } from "./src/utils/notifications";
+import { resolvePushTarget } from "./src/utils/pushRouting";
 /**
  * NABDAH PLUS — App.tsx
  * Phase 0-5: Doctor + Facility + Pharmacy + Lab/Radiology + Nursing
@@ -84,6 +84,25 @@ function AppNavigator() {
     if (appState !== 'logged_in') return;
     registerForPushNotificationsAsync().catch(() => null);
   }, [appState, user?.id]);
+
+  // A tap on a push (app in the background, or started by the tap from a killed state) opens the order, or the notifications list.
+  React.useEffect(() => {
+    if (appState !== 'logged_in') return;
+    const providerType = String(user?.providerType ?? pType);
+    const open = (response: any) => {
+      const target = resolvePushTarget(response?.notification?.request?.content?.data, providerType);
+      let tries = 0;
+      const go = () => {
+        // the navigator mounts a moment after the sign-in on a cold start
+        if (navigationRef.isReady()) { navigationRef.navigate('Dashboard', { screen: target.screen, params: target.params }); return; }
+        if (++tries < 20) setTimeout(go, 300);
+      };
+      go();
+    };
+    const stop = initNotificationListeners(() => {}, open);
+    getLastPushResponse().then((r) => { if (r) open(r); }).catch(() => null);
+    return stop;
+  }, [appState, user?.providerType]);
 
   if (appState === 'checking') {
     return <SplashScreen onDone={() => {}} />;
@@ -183,7 +202,7 @@ initProviderSentry();
 
 export default function App() {
   React.useEffect(() => {
-    setupPushNotifications();
+    ensureAndroidChannels().catch(() => null);
   }, []);
   // Cross-platform online presence (admin/analytics/online): heartbeat every 60s while logged in.
   React.useEffect(() => {

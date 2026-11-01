@@ -139,7 +139,10 @@ describe('payment result', () => {
     expect(readResultParams({ id: 'pay_abc', status: 'paid' })).toMatchObject({ transactionId: null, gatewayId: 'pay_abc' });
     expect(readResultParams({ status: 'success' })).toMatchObject({ transactionId: null, gatewayId: null });
     // the hosted page other services hand over: https only
-    expect(readResultParams({ moyasarId: 'txn-2', paymentUrl: 'https://pay.example.test/x' }).paymentUrl).toBe('https://pay.example.test/x');
+    expect(readResultParams({ moyasarId: 'txn-2', paymentUrl: 'https://checkout.tap.company/x' }).paymentUrl).toBe('https://checkout.tap.company/x');
+    // only a payment gateway or a Nabd domain: a crafted deep link cannot open any other page from the payment screen
+    for (const evil of ['https://pay.example.test/x', 'https://moyasar.com.evil.test/x', 'https://evil.test/?h=moyasar.com', 'https://user:pw@api.moyasar.com/x', 'https://notmoyasar.com/x']) expect(readResultParams({ moyasarId: 'txn-2', paymentUrl: evil }).paymentUrl).toBeNull();
+    expect(readResultParams({ moyasarId: 'txn-2', paymentUrl: 'https://api.moyasar.com/v1/transaction_url/1' }).paymentUrl).toBe('https://api.moyasar.com/v1/transaction_url/1');
     expect(readResultParams({ moyasarId: 'txn-2', paymentUrl: 'javascript:alert(1)' }).paymentUrl).toBeNull();
     expect(readResultParams({ moyasarId: 'txn-2', paymentUrl: '' }).paymentUrl).toBeNull();
   });

@@ -164,10 +164,14 @@ export class ProviderProductionService {
     const col = this.conn.collection(collection);
     const b: any = await col.findOne({ id: bookingId });
     if (!b) throw new NotFoundException('booking_not_found');
-    if (!isAdmin(user) && b.provider_account_id && b.provider_account_id !== user.id) {
+    // Home-care bookings name their nurse in provider_id (labs and radiology in provider_account_id).
+    const owner = kind === 'nursing' ? (b.provider_id ?? b.provider_account_id ?? b.account_id) : b.provider_account_id;
+    if (!isAdmin(user) && owner && owner !== user.id) {
       throw new ForbiddenException('booking_not_owned');
     }
-    if (!['NEW_REQUEST', 'PENDING_INSURANCE', 'WAITING_COPAY'].includes(String(b.state))) {
+    // A nurse chosen at booking starts in PROVIDER_ASSIGNED (home-care.service), which is where the insurance request waits.
+    const decidable = kind === 'nursing' ? ['NEW_REQUEST', 'PENDING_INSURANCE', 'WAITING_COPAY', 'PROVIDER_ASSIGNED'] : ['NEW_REQUEST', 'PENDING_INSURANCE', 'WAITING_COPAY'];
+    if (!decidable.includes(String(b.state))) {
       throw new BadRequestException(`invalid_state:${b.state}`);
     }
     const reason = String(body?.reason || '').trim();
@@ -186,7 +190,10 @@ export class ProviderProductionService {
 
     const now = new Date();
     const mirrorStatus = decisionToMirror(decision, kind);
-    const nextState = decision === 'APPROVED_FULL' ? 'CONFIRMED' : decision === 'APPROVED_PARTIAL' ? 'WAITING_COPAY' : 'INSURANCE_REJECTED';
+    // A rejection keeps the booking where it is, with insurance_status 'rejected': the accept gate holds, and the patient can pay
+    // themselves (labs: acceptSelfPay) or cancel. The old target 'INSURANCE_REJECTED' is in no state enum or transition table, so the booking
+    // had no way out, not even a cancel.
+    const nextState = decision === 'APPROVED_FULL' ? 'CONFIRMED' : decision === 'APPROVED_PARTIAL' ? 'WAITING_COPAY' : String(b.state);
     await col.updateOne({ id: bookingId }, {
       $set: {
         state: nextState,
