@@ -203,5 +203,10 @@
   "contract.mine.notReady": "لم يُولَّد العقد بعد",
   "contract.mine.failed": "تعذر تحميل العقد",
   "contract.mine.close": "إغلاق",
-  "radiology.approve.handledByYou": "رفعتَ هذا التقرير أو أرسلتَه للمراجعة، لذلك يعتمده مختص آخر في المركز."
+  "radiology.approve.handledByYou": "رفعتَ هذا التقرير أو أرسلتَه للمراجعة، لذلك يعتمده مختص آخر في المركز.",
+  "radiology.tab.home": "الرئيسية",
+  "radiology.tab.orders": "الطلبات",
+  "radiology.tab.catalog": "الكتالوج",
+  "radiology.tab.schedule": "الجدول",
+  "radiology.tab.settings": "الإعدادات"
 }

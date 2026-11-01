@@ -50,15 +50,15 @@ const Stack = createNativeStackNavigator();
 
 export function RadiologyDashboardNavigator({ onLogout }: { onLogout: () => void }) {
   const [activeTab, setActiveTab] = useState('home');
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const AR = lang === 'ar';
   
   const tabs = [
-    { key: 'home',     icon: 'home',     label: AR ? 'الرئيسية' : 'Home'    },
-    { key: 'orders',   icon: 'document', label: AR ? 'الطلبات'  : 'Orders'  },
-    { key: 'catalog',  icon: 'grid',     label: AR ? 'الكتالوج' : 'Catalog' },
-    { key: 'schedule', icon: 'calendar', label: AR ? 'الجدول'   : 'Schedule'},
-    { key: 'settings', icon: 'settings', label: AR ? 'الإعدادات': 'Settings'},
+    { key: 'home',     icon: 'home',     label: t('radiology.tab.home') },
+    { key: 'orders',   icon: 'document', label: t('radiology.tab.orders') },
+    { key: 'catalog',  icon: 'grid',     label: t('radiology.tab.catalog') },
+    { key: 'schedule', icon: 'calendar', label: t('radiology.tab.schedule') },
+    { key: 'settings', icon: 'settings', label: t('radiology.tab.settings') },
   ];
 
   return (

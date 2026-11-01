@@ -203,5 +203,10 @@
   "contract.mine.notReady": "The contract has not been generated yet",
   "contract.mine.failed": "Could not download the contract",
   "contract.mine.close": "Close",
-  "radiology.approve.handledByYou": "You uploaded this report or sent it for review, so another specialist at the centre approves it."
+  "radiology.approve.handledByYou": "You uploaded this report or sent it for review, so another specialist at the centre approves it.",
+  "radiology.tab.home": "Home",
+  "radiology.tab.orders": "Orders",
+  "radiology.tab.catalog": "Catalog",
+  "radiology.tab.schedule": "Schedule",
+  "radiology.tab.settings": "Settings"
 }
