@@ -13,6 +13,7 @@
  * 11. GET    /provider/reports/inbound               التقارير الواردة الحقيقية
  * 12. PATCH  /provider/profile/availability          round-trip كامل
  */
+import { nextClaimStatus } from '../../common/claim-state';
 import {
   Module, Controller, Get, Post, Patch, Put, Delete, Param, Body, Query, UseGuards,
   ForbiddenException, BadRequestException, NotFoundException, Injectable,
@@ -466,8 +467,9 @@ export class ProviderProductionService {
     const claim: any = await col.findOne({ id: claimId });
     if (!claim) throw new NotFoundException('claim_not_found');
 
-    const statusMap: Record<string, string> = { resubmit: 'pending', approve: 'approved', reject: 'rejected' };
-    const nextStatus = statusMap[action];
+    const claimAction = ({ resubmit: 'facility_resubmit', approve: 'facility_approve', reject: 'facility_reject' } as const)[action];
+    // the one claim state machine (common/claim-state.ts): an action that does not apply to the claim's status is refused
+    const nextStatus = nextClaimStatus(claimAction, claim.status);
 
     if (action === 'reject' && !String(body?.reason || '').trim()) {
       throw new BadRequestException('rejection reason is required');
@@ -481,9 +483,6 @@ export class ProviderProductionService {
       if (!(myFacility && claimFacility && String(myFacility) === String(claimFacility))) {
         throw new ForbiddenException('claim_not_owned');
       }
-    }
-    if (action === 'approve' && !['pending', 'resubmitted'].includes(String(claim.status))) {
-      throw new BadRequestException(`invalid_claim_status:${claim.status}`);
     }
     await col.updateOne({ id: claimId }, {
       $set: { status: nextStatus, updatedAt: new Date(), last_action: action, last_action_by: user.id, last_action_at: new Date() },

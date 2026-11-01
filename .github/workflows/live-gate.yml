@@ -76,9 +76,15 @@ jobs:
           key: playwright-1.60-chromium-${{ runner.os }}
 
       - name: Real browser for admin click tests (R7-1)
+        # `--with-deps` runs apt-get; a stalled mirror once held this step for 75 minutes. Cap the step, cap apt's network waits, retry.
+        timeout-minutes: 10
         run: |
           pip install 'playwright==1.60.*'
-          python3 -m playwright install --with-deps chromium
+          printf 'Acquire::Retries "3";\nAcquire::http::Timeout "20";\nAcquire::https::Timeout "20";\n' | sudo tee /etc/apt/apt.conf.d/99ci-timeouts >/dev/null
+          for i in 1 2 3; do
+            timeout 240 python3 -m playwright install --with-deps chromium && break
+            echo "playwright install attempt $i failed"; [ "$i" = 3 ] && exit 1; sleep 5
+          done
           python3 -c "from playwright.sync_api import sync_playwright; p = sync_playwright().start(); b = p.chromium.launch(); print('chromium ok:', b.version); b.close(); p.stop()"
 
       # Decision 4 (2026-10-14): video calls are proven against a real local LiveKit (tools/live/j_web_call.py).

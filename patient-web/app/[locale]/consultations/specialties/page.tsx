@@ -8,7 +8,7 @@ import { isLocale } from "@/lib/i18n";
 import { specialtyLabel } from "@/lib/specialties";
 import { JsonLd } from "@/components-next/json-ld";
 import { hubMetadata } from "@/lib/seo";
-import { filterSpecialties, orderSpecialties } from "@/components-next/ui-generated/icons/specialty-art";
+import { filterSpecialties, orderSpecialties } from "@/components-next/ui-generated/icons/specialty-look";
 import { SpecialtyGrid } from "@/components-next/consult/specialty-tiles";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return hubMetadata(locale, "/consultations/specialties", t("consultations/specialties.title"), t("consultations/specialties.description"));
 }
 
-/** All specialties: a search field and a grid of illustrated tiles (those with doctors first, the rest "Coming soon"), each going to the doctors of that specialty. */
+/** All specialties: a search field and a grid of illustrated tiles (those with doctors first, then the others), each going to the doctors of that specialty. */
 export default async function SpecialtySelectPage({ params, searchParams }: Props) {
   const { locale } = await params;
   const { q = "" } = (await searchParams) ?? {};
@@ -71,7 +71,7 @@ export default async function SpecialtySelectPage({ params, searchParams }: Prop
       {filtered.length === 0 ? (
         <ConsultState kind="empty" icon="magnifying-glass" title={t("emptyTitle")} body={specialties.length === 0 ? t("emptyBody") : t("noMatch")} />
       ) : (
-        <SpecialtyGrid label={t("title")} comingSoonLabel={t("comingSoon")} tiles={filtered} hrefOf={(slug) => `/${locale}/consultations/doctors?specialty=${encodeURIComponent(slug)}`} />
+        <SpecialtyGrid label={t("title")} tiles={filtered} hrefOf={(slug) => `/${locale}/consultations/doctors?specialty=${encodeURIComponent(slug)}`} />
       )}
 
       <SectionCard id="specialties-faq" title={t("faqTitle")}>

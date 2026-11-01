@@ -1,5 +1,6 @@
 import { buildPatientPolicy, insuranceCompanyFilter, policyClass, policyCompanyKeys } from '../../common/insurance-policy';
 import { copayRefundable, findCopayTransaction } from '../../common/copay-transaction';
+import { nextClaimStatus } from '../../common/claim-state';
 import { Module, Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Injectable, BadRequestException, ConflictException, NotFoundException, ServiceUnavailableException, Logger, Req } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -375,7 +376,8 @@ Use null for any field not clearly visible. Do not guess.`;
   async decideClaim(adminUser: any, id: string, approve: boolean, note?: string) {
     const claim: any = await this.claimModel.findOne({ id: { $eq: id } });
     if (!claim) throw new NotFoundException('claim not found');
-    if (claim.status !== 'pending') throw new BadRequestException(`claim already ${claim.status}`);
+    // the one claim state machine (common/claim-state.ts): a claim the facility approved can be reimbursed; a decided one cannot be decided again
+    nextClaimStatus(approve ? 'reimburse' : 'admin_reject', claim.status);
     if (approve) {
       if (!this.refundExec) throw new ServiceUnavailableException('refund_executor_unavailable');
       await this.refundExec.execute({
