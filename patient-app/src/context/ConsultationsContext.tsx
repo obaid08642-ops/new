@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { useSelector } from 'react-redux';
 import { apiFetch } from '../utils/api';
 
 import { Appointment, AppointmentStatus, AppointmentMode } from '../types/contracts';
@@ -12,7 +13,16 @@ interface ConsultationsContextValue {
 
 const ConsultationsContext = createContext<ConsultationsContextValue | undefined>(undefined);
 
+/** The signed-in patient (not a guest): the list belongs to this account, so it is read again when the account changes. */
+function useSignedInUserId(): string | null {
+  return useSelector((state: { auth?: { isAuthenticated?: boolean; isGuest?: boolean; user?: { id?: unknown } | null } }) => {
+    const auth = state.auth;
+    return auth?.isAuthenticated && !auth.isGuest && typeof auth.user?.id === 'string' && auth.user.id ? auth.user.id : null;
+  });
+}
+
 export function ConsultationsProvider({ children }: { children: ReactNode }) {
+  const userId = useSignedInUserId();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -52,9 +62,17 @@ export function ConsultationsProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // The provider mounts at app start, before anyone has signed in: that first read is refused (401) and left "Could not load" on the
+  // screen for the whole session (native e2e runs 104-106). Read again whenever the signed-in account changes, and drop the list on sign-out.
   useEffect(() => {
-    fetchAppointments();
-  }, [fetchAppointments]);
+    if (userId) {
+      void fetchAppointments();
+    } else {
+      setAppointments([]);
+      setError(false);
+      setIsLoading(false);
+    }
+  }, [userId, fetchAppointments]);
 
   return (
     <ConsultationsContext.Provider value={{ appointments, isLoading, error, fetchAppointments }}>

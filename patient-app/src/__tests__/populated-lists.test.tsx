@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react-native';
+import { act, render, screen, waitFor } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import NotificationsScreen from '../../app/notifications/index';
@@ -11,6 +11,7 @@ import { ConsultationsProvider } from '../context/ConsultationsContext';
 import { message } from '../components/screen/ScreenKit';
 import { healthDayT } from '../i18n/health-day';
 import { dateLocaleFor } from '../utils/dates';
+import { loginSuccess } from '../store/slices/authSlice';
 import { makeStore, withStore } from './utils/testStore';
 
 /**
@@ -57,6 +58,12 @@ jest.useFakeTimers({
 const k = (key: string, vars?: Record<string, string | number>) => message(mockLang, key, vars);
 const metrics = { frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 47, bottom: 34, left: 0, right: 0 } };
 const mount = (ui: React.ReactElement) => withStore(<SafeAreaProvider initialMetrics={metrics}>{ui}</SafeAreaProvider>, makeStore());
+/** A patient is signed in: the appointments list is read for the signed-in account (it is not read before sign-in). */
+const mountSignedIn = (ui: React.ReactElement) => {
+  const store = makeStore();
+  store.dispatch(loginSuccess({ user: { id: 'patient-1' } as never, token: 'test-token' }));
+  return withStore(<SafeAreaProvider initialMetrics={metrics}>{ui}</SafeAreaProvider>, store);
+};
 const ago = (ms: number) => new Date(Date.now() - ms).toISOString();
 const MIN = 60_000;
 const APPT_ID = 'b3d1c2a4-0000-4000-8000-000000000424';
@@ -175,7 +182,7 @@ describe('issue 424: populated lists', () => {
 
   it('My appointments draws the booking: doctor, specialty, start time, price, day tile, mode and status', async () => {
     backend({ '/care/appointments': APPOINTMENTS });
-    await render(mount(<ConsultationsProvider><AppointmentsScreen /></ConsultationsProvider>));
+    await render(mountSignedIn(<ConsultationsProvider><AppointmentsScreen /></ConsultationsProvider>));
     await waitFor(() => expect(screen.getByText('د. سالم الحربي')).toBeTruthy());
     const start = new Date(SLOT_START);
     const clock = start.toLocaleTimeString(dateLocaleFor('en'), { hour: '2-digit', minute: '2-digit', numberingSystem: 'latn' });
@@ -187,10 +194,26 @@ describe('issue 424: populated lists', () => {
     expect(screen.queryByText(k('consult.appt.emptyUpcoming'))).toBeNull();
   });
 
+  it('My appointments are read when the patient signs in after the app started (not before: that first read was refused and stayed on screen)', async () => {
+    const calls: string[] = [];
+    apiFetch.mockImplementation(async (path: string) => {
+      if (!path.startsWith('/care/appointments')) throw new Error('unreachable');
+      calls.push(path);
+      return APPOINTMENTS;
+    });
+    const store = makeStore();
+    await render(withStore(<SafeAreaProvider initialMetrics={metrics}><ConsultationsProvider><AppointmentsScreen /></ConsultationsProvider></SafeAreaProvider>, store));
+    // signed out: nothing is requested
+    expect(calls).toHaveLength(0);
+    await act(async () => { store.dispatch(loginSuccess({ user: { id: 'patient-1' } as never, token: 'test-token' })); });
+    await waitFor(() => expect(screen.getByText('د. سالم الحربي')).toBeTruthy());
+    expect(calls).toHaveLength(1);
+  });
+
   it('My appointments in Arabic draws the Arabic specialty name', async () => {
     mockLang = 'ar';
     backend({ '/care/appointments': APPOINTMENTS });
-    await render(mount(<ConsultationsProvider><AppointmentsScreen /></ConsultationsProvider>));
+    await render(mountSignedIn(<ConsultationsProvider><AppointmentsScreen /></ConsultationsProvider>));
     await waitFor(() => expect(screen.getByText('د. سالم الحربي')).toBeTruthy());
     expect(screen.getByText(/^قلب · .+ · .+/)).toBeTruthy();
   });
