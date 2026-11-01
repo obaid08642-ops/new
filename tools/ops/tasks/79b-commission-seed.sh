@@ -5,7 +5,7 @@
 #   (APPLY empty)  DRY RUN: prints what is missing and what is already set (service names and percents only). Nothing is written.
 #   APPLY=yes      (set in this file by the reviewer after reading the dry run): writes the missing defaults, then checks that nothing is missing.
 set -u
-APPLY="yes"
+APPLY=""
 CT=${COMMISSION_SEED_CONTAINER:-nabdah-backend}
 DK="sudo -n docker"
 echo "## commission-seed"

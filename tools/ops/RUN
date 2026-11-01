@@ -1,16 +1,4 @@
-# 2026-11-01 19:55 lead reviewer: run 86 = deploy main@d484e9fe + publish the provider agreement + seed commission defaults (owner decisions).
-# Deploy brings: contract integrity (#2364: the PDF prints the accepted text/version/signing time, immutable versions, agreement guard),
-#   per-provider commission + promos (#2373), commission single source (#2369), final agreement text (#2372), publish task (#2375),
-#   missed calls (#2371), chat history (#2377), QA journeys (#2370).
-# #2364 makes registration need a published agreement, so 99p runs in the SAME run, right after the deploy:
-#   99p APPLY: the tool first refuses a draft/blank text or a non-higher version, backs up the existing rows, publishes provider_agreement 1.0
-#   (REQUIRE_ACCEPTANCE=no: existing providers are not locked out until the provider app with the contract gate is in the stores), then verifies.
-# 79b APPLY: writes the commission defaults (pharmacy 10, doctor 15, lab 12, radiology 12, nursing 15, VAT 15) ONLY where finance_config lacks them;
-#   an admin-set value (even 0) is never overwritten.
+# 2026-11-01 20:30 lead reviewer: run 87 (READ-ONLY): the live provider_agreement row (99p refused: 2.0 already published).
 release:d484e9fe7a806701d2d63524090ce6c47d8a90d1
-97-free-old-predeploy
-93-free-unused-images
-60-deploy-main
+99q-agreement-state
 99p-publish-agreement
-79b-commission-seed
-cf-purge-api

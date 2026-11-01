@@ -15,7 +15,7 @@
 # snapshot, retires provider_agreement_draft; it refuses a text with "draft" or a blank bracket and a version that is not higher than the published one. Nothing is deleted without a backup.
 # Prints `status:` lines only: version, the first 12 characters of the hashes of the texts, the backup row ids, published yes/no. Never a text, a URI or a value of the environment.
 set -u
-APPLY="yes"
+APPLY=""
 REQUIRE_ACCEPTANCE="no"
 CT=${PUBLISH_AGREEMENT_CONTAINER:-nabdah-backend}
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
