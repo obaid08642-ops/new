@@ -51,7 +51,7 @@ export function compileRule(rule: SegmentRule): Record<string, any> {
   const op = rule?.op;
   const v = rule?.value;
   switch (op) {
-    case 'eq': return { [field]: normalize(field, v) };
+    case 'eq': return { [field]: { $eq: normalize(field, v) } }; // $eq keeps the value a value, never an operator
     case 'ne': return { [field]: { $ne: normalize(field, v) } };
     case 'gt': return { [field]: { $gt: normalize(field, v) } };
     case 'gte': return { [field]: { $gte: normalize(field, v) } };

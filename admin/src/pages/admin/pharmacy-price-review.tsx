@@ -37,8 +37,8 @@ export default function PharmacyPriceReviewPage() {
     try {
       const q = new URLSearchParams({ status, page: String(page), limit: '25', ...(reason ? { reason } : {}) });
       setData(await apiFetch<ReviewPage>(`/admin/admin/pharmacy/price-review?${q.toString()}`));
-    } catch {
-      setError('تعذر تحميل قائمة مراجعة الأسعار.');
+    } catch (e: any) {
+      setError(e?.message ? `تعذر تحميل قائمة مراجعة الأسعار: ${e.message}` : 'تعذر تحميل قائمة مراجعة الأسعار.');
     } finally {
       setLoading(false);
     }
@@ -55,8 +55,8 @@ export default function PharmacyPriceReviewPage() {
     try {
       await apiFetch(`/medicines/admin/catalog/${encodeURIComponent(line.medicine_id)}`, { method: 'PATCH', body: JSON.stringify({ sfda_price: value, reason: 'مراجعة سعر عرض صيدلية (قرار 12)' }) });
       setNotice(`حُدّث سعر الكتالوج إلى ${sar(value)}.`);
-    } catch {
-      setError('تعذر تحديث سعر الكتالوج.');
+    } catch (e: any) {
+      setError(e?.message ? `تعذر تحديث سعر الكتالوج: ${e.message}` : 'تعذر تحديث سعر الكتالوج.');
     } finally {
       setBusy('');
     }
@@ -69,8 +69,8 @@ export default function PharmacyPriceReviewPage() {
       await apiFetch(`/admin/admin/pharmacy/price-review/${encodeURIComponent(review.id)}/resolve`, { method: 'POST', body: JSON.stringify({ resolution }) });
       setNotice('أُغلقت المراجعة.');
       await load();
-    } catch {
-      setError('تعذر إغلاق المراجعة.');
+    } catch (e: any) {
+      setError(e?.message ? `تعذر إغلاق المراجعة: ${e.message}` : 'تعذر إغلاق المراجعة.');
     } finally {
       setBusy('');
     }
@@ -125,7 +125,7 @@ export default function PharmacyPriceReviewPage() {
               </ul>
             ) },
             { key: 'when', header: 'آخر تحديث', className: 'text-xs text-slate-500', render: (row) => (row.updatedAt ? new Date(row.updatedAt).toLocaleString('ar-SA-u-ca-gregory') : '—') },
-            { key: 'action', header: 'الإجراء', render: (row) => (row.status === 'open' ? (
+            { key: 'action', header: 'الإجراء', render: (row) => (row.status === 'open' ? (!canWritePrice ? <span className="text-xs text-slate-500">لا تملك صلاحية تعديل الأسعار</span> :
               <div className="flex flex-col gap-2">
                 <button disabled={busy === row.id} onClick={() => void resolve(row, 'catalogue_updated')} className="rounded bg-teal-700 px-3 py-1 text-xs font-bold text-white">أُغلقت: حُدّث سعر الكتالوج</button>
                 <button disabled={busy === row.id} onClick={() => void resolve(row, 'price_confirmed')} className="rounded border px-3 py-1 text-xs font-semibold">أُغلقت: السعر المعروض مؤكَّد</button>

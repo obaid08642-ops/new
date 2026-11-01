@@ -96,7 +96,7 @@ const SAMPLE_STAGES = [
 // ══════════════════════════════════════════════════════════════════
 
 function LabOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t } = useLang(); const AR = lang === 'ar';
   const [subTab, setSubTab] = useState<'incoming' | 'scheduled' | 'processing' | 'results'>('incoming');
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -188,7 +188,7 @@ const Stack = createNativeStackNavigator();
 
 export function LabDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
  const [tab, setTab] = useState('home');
- const { lang } = useLang(); const AR = lang==='ar';
+ const { lang, t } = useLang(); const AR = lang==='ar';
  const [alarmVisible, setAlarmVisible] = useState(false);
 
   const tabs = [
@@ -267,7 +267,7 @@ export function LabDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
 // ══════════════════════════════════════════════════════════════════
 function LabHome({ onNav, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; onTriggerAlarm?:()=>void }) {
  const insets = useSafeAreaInsets();
- const { theme } = useTheme(); const { lang } = useLang(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const AR = lang==='ar';
  const { user, toggleOnline } = useAuth();
  const [refreshing, setR] = useState(false);
  const [orders, setOrders] = useState<any[]>([]);
@@ -386,7 +386,7 @@ function LabHome({ onNav, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; onTr
 // ORDER DETAIL
 // ══════════════════════════════════════════════════════════════════
 function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; onNav:(s:string,p?:any)=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
   const [showRegister, setShowRegister] = useState(false);
   const [showApproval, setShowApproval] = useState(false);
   const [showAssign, setShowAssign] = useState(false);
@@ -700,7 +700,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
 // ══════════════════════════════════════════════════════════════════
 function SampleTracking({ onBack, onNav }:{ onBack:()=>void; onNav:(s:string,p?:any)=>void }) {
  const insets = useSafeAreaInsets();
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
  const [filter, setFilter] = useState('all');
  const [samples, setSamples] = useState<any[]>([]);
  const [loading, setLoading] = useState(true);
@@ -710,7 +710,8 @@ function SampleTracking({ onBack, onNav }:{ onBack:()=>void; onNav:(s:string,p?:
  const res = await client.get('/labs/samples');
  setSamples(res.data || []);
  } catch (err) {
-  setSamples([]); // Silent fail — show empty state
+  setSamples([]);
+  show(t('pa3.labDash.1'), 'error');   // a failed load is told, not shown as "no samples"
  } finally {
  setLoading(false);
  }
@@ -800,7 +801,7 @@ function SampleTracking({ onBack, onNav }:{ onBack:()=>void; onNav:(s:string,p?:
 // RESULT REVIEW — Preview before sending
 // ══════════════════════════════════════════════════════════════════
 function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
   const [sendTo, setSendTo] = useState<'patient'|'both'>('both');
  const [loading, setLoading] = useState(false);
  const [resultRows, setResultRows] = useState<any[]>(Array.isArray(sample?.structured_results) ? sample.structured_results : []);
@@ -902,7 +903,7 @@ function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
 // BUNDLE MANAGEMENT
 // ══════════════════════════════════════════════════════════════════
 function BundleMgmt({ onBack }:{ onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
  const [bundlesList, setBundlesList] = useState<any[]>([]);
  useEffect(() => { client.get('/labs/packages').then(r => setBundlesList(r.data || [])).catch(() => {}); }, []);
  return (
@@ -940,7 +941,7 @@ function BundleMgmt({ onBack }:{ onBack:()=>void }) {
 // ADD CUSTOM TEST → Admin Approval
 // ══════════════════════════════════════════════════════════════════
 function AddCustomTest({ onBack }:{ onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
  const [nameAr,setNameAr]=useState(''); const [nameEn,setNameEn]=useState(''); const [price,setPrice]=useState('');
  const [hours,setHours]=useState(''); const [fasting,setFasting]=useState(false); const [refLow,setRefLow]=useState('');
  const [refHigh,setRefHigh]=useState(''); const [unit,setUnit]=useState(''); const [loading,setLoading]=useState(false);
@@ -1005,7 +1006,7 @@ function haversineKm(aLat: number, aLng: number, bLat: number, bLng: number): nu
 }
 
 function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
  // R7-3: real technicians from the lab team endpoint — never hard-coded names.
  const [collectors, setCollectors] = useState<any[]>([]);
  const [loadingTeam, setLoadingTeam] = useState(true);
@@ -1184,7 +1185,7 @@ function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
 // QR SAMPLE LABEL
 // ══════════════════════════════════════════════════════════════════
 function QRSampleLabel({ sample, onBack }:{ sample:any; onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const AR = lang==='ar';
  return (
  <NScroll>
  <NHeader title={AR?'ملصق QR للعينة':'QR Sample Label'} onBack={onBack} />
@@ -1210,7 +1211,7 @@ function QRSampleLabel({ sample, onBack }:{ sample:any; onBack:()=>void }) {
 // TURNAROUND TIME TRACKER
 // ══════════════════════════════════════════════════════════════════
 function TATTracker({ onBack }:{ onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
  const [samples, setSamples] = useState<any[]>([]);
  const [loading, setLoading] = useState(true);
  useEffect(() => {
@@ -1260,12 +1261,13 @@ function TATTracker({ onBack }:{ onBack:()=>void }) {
 // LAB INSURANCE CLAIMS
 // ══════════════════════════════════════════════════════════════════
 function LabInsurance({ onBack }:{ onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
  const [orders, setOrders] = useState<any[]>([]);
  const [loading, setLoading] = useState(true);
  const [selectedOrder, setSelectedOrder] = useState<any>(null);
  // D-37: the insurer's approval number from the lab's own system (required to approve).
  const [approvalRef, setApprovalRef] = useState('');
+ const [rejectNote, setRejectNote] = useState('');   // the insurer's reason when the claim is rejected (the server needs one)
 
  const fetchOrders = async () => {
  try {
@@ -1283,6 +1285,10 @@ function LabInsurance({ onBack }:{ onBack:()=>void }) {
  useEffect(() => { fetchOrders(); }, []);
 
  const handleUpdateInsurance = async (status: string) => {
+ if (status === 'rejected' && rejectNote.trim().length < 3) {
+ show(t('pa3.labDash.2'), 'error');
+ return;
+ }
  if (status !== 'rejected' && !approvalRef.trim()) {
  show(AR ? 'رقم موافقة التأمين إلزامي' : 'The insurer approval number is required', 'error');
  return;
@@ -1290,16 +1296,16 @@ function LabInsurance({ onBack }:{ onBack:()=>void }) {
  try {
  await client.patch(`/labs/bookings/${selectedOrder.id}/insurance`, {
  status,
- ...(status !== 'rejected' ? { approval_ref: approvalRef.trim() } : {}),
+ ...(status !== 'rejected' ? { approval_ref: approvalRef.trim() } : { reason: rejectNote.trim() }),
  totalCopay: selectedOrder.insurance_copay || 0,
  items: selectedOrder.items
  });
  show(AR ? 'تم التحديث بنجاح' : 'Updated successfully', 'success');
- setApprovalRef('');
+ setApprovalRef(''); setRejectNote('');
  setSelectedOrder(null);
  fetchOrders();
- } catch(e) {
- show(AR ? 'خطأ في التحديث' : 'Error updating', 'error');
+ } catch(e: any) {
+ show(e?.response?.data?.message || (t('pa3.labDash.3')), 'error');
  }
  };
 
@@ -1361,6 +1367,7 @@ function LabInsurance({ onBack }:{ onBack:()=>void }) {
 
  <NCard style={{marginTop: SP.lg}}>
  <NInput label={AR ? 'رقم موافقة التأمين (إلزامي للاعتماد)' : 'Insurer approval number (required to approve)'} placeholder="APR-XXXXX" value={approvalRef} onChange={setApprovalRef} />
+ <NInput label={t('pa3.labDash.4')} value={rejectNote} onChange={setRejectNote} />
  </NCard>
  <View style={{flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.xl, marginBottom: SP.xxl}}>
  <NBtn label={AR ? 'رفض' : 'Reject'} variant="danger" onPress={() => handleUpdateInsurance('rejected')} style={{flex: 1}} />
@@ -1476,7 +1483,7 @@ function LabSettings({ onLogout, onNavigate }:{ onLogout:()=>void; onNavigate:(s
 // ══════════════════════════════════════════════════════════════════
 function ResultsList({ onNav }:{ onNav:(s:string,p?:any)=>void }) {
  const insets = useSafeAreaInsets();
- const { theme } = useTheme(); const { lang } = useLang(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const AR = lang==='ar';
  // Samples past accessioning: results being entered, ready to send, or sent.
  const [items, setItems] = useState<any[]>([]);
  const load = useCallback(() => {
@@ -1538,7 +1545,7 @@ const s = StyleSheet.create({
 // the patient app shows the one for its language, and with none only says the lab will confirm any preparation.
 
 function LabTestMenuScreen({ onBack }: { onBack: () => void }) {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
   const [showAddSheet, setShowAddSheet] = useState(false);

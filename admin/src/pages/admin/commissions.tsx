@@ -2,19 +2,16 @@ import React, { useEffect, useState, useCallback } from 'react';
 import Head from 'next/head';
 import { apiFetch } from '../../utils/api';
 import { DataTable, type LooseRow } from '@/components/DataTable';
+import { useCan } from '@/components/AdminGuard';
 
 /**
  * M5: platform commissions + ledger summary.
  * GET /admin/finance/ledger/summary (M3 finance core) · GET /admin/finance/commissions/records (legacy ledger)
- * Rates (BR): استشارة 15% · صيدلية 10% · معمل/أشعة/عيادة 12% · منزلي/تمريض/طبيعي 18%
+ * The rates are the server's (finance_config and the commission rules); this page shows the effective rate it computes, never a fixed table.
  */
 const SERVICE_AR: Record<string, string> = {
   consultation: 'استشارات', pharmacy: 'صيدلية', lab: 'مختبر', radiology: 'أشعة',
   clinic: 'عيادات', home_care: 'رعاية منزلية', nursing: 'تمريض', physiotherapy: 'علاج طبيعي',
-};
-const RATE_AR: Record<string, string> = {
-  consultation: '15%', pharmacy: '10%', lab: '12%', radiology: '12%', clinic: '12%',
-  home_care: '18%', nursing: '18%', physiotherapy: '18%',
 };
 
 export default function CommissionsPage() {
@@ -26,18 +23,20 @@ export default function CommissionsPage() {
   const [history, setHistory] = useState<any[]>([]);
   const [rule, setRule] = useState({ scope: 'provider', scope_id: '', service_type: '', percent: '', effective_from: '', effective_to: '' });
   const [ruleMsg, setRuleMsg] = useState('');
+  const canEditRules = useCan('finance.config.edit');   // POST commission-rules needs it (FINANCE_CONFIG_EDIT)
 
   const loadHistory = async () => {
     try {
       const rows = await apiFetch<any[]>('/api/admin/admin/finance-engine/commission-rules/history');
       setHistory(Array.isArray(rows) ? rows : []);
-    } catch { /* history optional */ }
+    } catch (e: any) { setRuleMsg(e?.message || 'تعذر تحميل سجل القواعد'); }
   };
 
   const saveRule = async () => {
     const percent = Number(rule.percent);
     if (!rule.scope || !(percent >= 0 && percent <= 100)) { setRuleMsg('النسبة 0-100 والنطاق مطلوبان'); return; }
     if (rule.scope !== 'service' && !rule.scope_id.trim()) { setRuleMsg('scope_id مطلوب لغير نطاق الخدمة'); return; }
+    if (rule.scope === 'service' && !rule.service_type.trim()) { setRuleMsg('نوع الخدمة مطلوب لنطاق الخدمة'); return; }
     try {
       await apiFetch('/api/admin/admin/finance-engine/commission-rules', {
         method: 'POST',
@@ -58,8 +57,8 @@ export default function CommissionsPage() {
     setError(null);
     try {
       const [s, c] = await Promise.all([
-        apiFetch('/api/admin/admin/finance/ledger/summary').catch(() => null),
-        apiFetch('/api/admin/admin/finance/commissions/records').catch(() => ({ data: [] })),
+        apiFetch('/api/admin/admin/finance/ledger/summary'),
+        apiFetch('/api/admin/admin/finance/commissions/records'),   // a failure is shown (below), not turned into zeros
       ]);
       setSummary(s);
       setLegacy(c?.data || []);
@@ -111,10 +110,10 @@ export default function CommissionsPage() {
               <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
                 <div className="p-5 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
                   <h2 className="font-bold text-slate-800">العمولات حسب نوع الخدمة</h2>
-                  <span className="text-xs text-slate-400">النسب المعتمدة: استشارة 15% · صيدلية 10% · معمل/أشعة/عيادة 12% · منزلي 18%</span>
+                  <span className="text-xs text-slate-400">النسبة الفعلية = العمولة ÷ إجمالي القيمة، وتأتي من الإعدادات والقواعد في الخادم</span>
                 </div>
                 {(summary?.by_service || []).length === 0 ? (
-                  <div className="p-12 text-center text-slate-500">لا قيود مستحقة بعد — تُسجل تلقائيًا عند اكتمال المدفوعات.</div>
+                  <div className="p-12 text-center text-slate-500">لا قيود مستحقة مسجّلة في الأستاذ بعد.</div>
                 ) : (
                   <DataTable
                     bare
@@ -126,7 +125,7 @@ export default function CommissionsPage() {
                       { key: 'svc', header: 'نوع الخدمة', className: 'font-medium', render: (r: LooseRow) => SERVICE_AR[r._id] || r._id || 'أخرى' },
                       { key: 'count', header: 'عدد العمليات', render: (r: LooseRow) => r.count },
                       { key: 'gross', header: 'إجمالي القيمة', render: (r: LooseRow) => `${Math.round(r.gross * 100) / 100} ر.س` },
-                      { key: 'rate', header: 'النسبة', render: (r: LooseRow) => <span className="px-2 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold">{RATE_AR[r._id] || '—'}</span> },
+                      { key: 'rate', header: 'النسبة', render: (r: LooseRow) => <span className="px-2 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold">{r.gross > 0 ? `${Math.round((r.commission / r.gross) * 1000) / 10}%` : '—'}</span> },
                       { key: 'comm', header: 'عمولة المنصة', className: 'font-bold text-emerald-600', render: (r: LooseRow) => `${Math.round(r.commission * 100) / 100} ر.س` },
                     ]}
                   />
@@ -151,16 +150,19 @@ export default function CommissionsPage() {
                       rowClassName={() => 'hover:bg-slate-50'}
                       columns={[
                         { key: 'id', header: 'المعرف', className: 'font-mono', render: ({ c }) => String(c._id || c.id || '').slice(0, 10) },
-                        { key: 'provider', header: 'المزود', className: 'font-mono', render: ({ c }) => String(c.providerId || c.provider_id || '').slice(0, 10) },
-                        { key: 'amount', header: 'المبلغ', render: ({ c }) => c.amount ?? c.gross_amount ?? '—' },
-                        { key: 'comm', header: 'العمولة', className: 'text-emerald-600 font-bold', render: ({ c }) => c.commission ?? c.commission_amount ?? '—' },
-                        { key: 'status', header: 'الحالة', render: ({ c }) => c.status || c.state || '—' },
+                        { key: 'provider', header: 'المزود', render: ({ c }) => c.providerName || String(c.providerId || c.provider_id || '').slice(0, 10) || '—' },
+                        { key: 'ptype', header: 'النوع', render: ({ c }) => c.providerType || '—' },
+                        { key: 'base', header: 'قيمة الفاتورة', render: ({ c }) => c.baseBill ?? '—' },
+                        { key: 'comm', header: 'عمولة المنصة', className: 'text-emerald-600 font-bold', render: ({ c }) => c.systemCommission ?? '—' },
+                        { key: 'vat', header: 'ضريبة العمولة', render: ({ c }) => c.vatOnCommission ?? '—' },
+                        { key: 'earn', header: 'مستحق المزود', render: ({ c }) => c.providerEarning ?? '—' },
                       ]}
                     />
                   </div>
                 )}
               </div>
           {/* P6.x-4: per-service/provider/category/campaign commission rules */}
+          {canEditRules && (
           <div className="bg-white rounded-2xl border p-6 mt-6">
             <h2 className="text-lg font-bold mb-1">قواعد العمولات (تتجاوز الافتراضي)</h2>
             <p className="text-xs text-gray-500 mb-4">الأولوية: حملة ← مزود ← فئة ← خدمة ← الإعدادات ← 10%. القواعد المنتهية لا تُطبق.</p>
@@ -205,6 +207,7 @@ export default function CommissionsPage() {
               />
             )}
           </div>
+          )}
             </>
           )}
         </div>
