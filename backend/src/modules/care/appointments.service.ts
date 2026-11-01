@@ -649,6 +649,10 @@ export class AppointmentsService {
     const appt = await this.apptModel.findOne({ id });
     if (!appt) throw new NotFoundException();
     await this.assertAppointmentAccess(appt, user);
+    // X3: a visit that is already over is never rewritten. A repeated "finish" (a retry after a lost answer) just reports it;
+    // a cancelled or missed one is refused before anything is written.
+    if (appt.status === APPT_STATES.COMPLETED) return { success: true, appointment: appt.toObject(), already_completed: true };
+    if ([APPT_STATES.CANCELLED, 'NO_SHOW', 'RESCHEDULED'].includes(String(appt.status))) throw new BadRequestException('appointment_not_finishable');
     if (body && (body.diagnosis || body.notes || body.recommendations || (Array.isArray(body.prescription) && body.prescription.length))) {
       // 660: keep the catalogue id per line (sent by the doctor app, else resolved by name).
       const lines: any[] = [];
