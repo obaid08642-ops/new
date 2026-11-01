@@ -1,4 +1,4 @@
-import { bidiPieces, bidiRuns, hasArabic } from './pdf-bidi';
+import { bidiPieces, bidiRuns, chunkParagraph, hasArabic, MAX_LINE_CHARS } from './pdf-bidi';
 
 /** The line as it is drawn left to right on the page: the pieces joined in drawing order (each Arabic word is a piece, so words appear last-first). */
 const visual = (text: string, base: 'ltr' | 'rtl' = hasArabic(text) ? 'rtl' : 'ltr') => bidiPieces(text, base).map((p) => p.text).join('');
@@ -46,5 +46,21 @@ describe('mixed Arabic, Latin and numbers in one line', () => {
 
   it('an empty line has no runs', () => {
     expect(bidiRuns('', 'rtl')).toEqual([]);
+  });
+});
+
+describe('line length bound (CodeQL loop-bound-injection)', () => {
+  it('chunkParagraph keeps every character, cutting at spaces and hard for a long word', () => {
+    const text = Array.from({ length: 900 }, (_, i) => `كلمة${i}`).join(' ');
+    const parts = chunkParagraph(text, 500);
+    expect(parts.length).toBeGreaterThan(5);
+    expect(parts.every((p) => [...p].length <= 500)).toBe(true);
+    expect(parts.join(' ')).toBe(text);
+    const word = 'x'.repeat(1300);
+    expect(chunkParagraph(word, 500).join('')).toBe(word);
+  });
+  it('a line over the bound is refused, not looped over', () => {
+    expect(() => bidiRuns('a'.repeat(MAX_LINE_CHARS + 1), 'ltr')).toThrow('bidi_line_too_long');
+    expect(bidiRuns('a'.repeat(MAX_LINE_CHARS), 'ltr')).toHaveLength(1);
   });
 });

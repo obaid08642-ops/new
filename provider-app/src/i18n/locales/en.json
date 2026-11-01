@@ -202,5 +202,7 @@
   "contract.mine.notShared": "Contract not shared yet — the admin can enable it from the review panel",
   "contract.mine.notReady": "The contract has not been generated yet",
   "contract.mine.failed": "Could not download the contract",
-  "contract.mine.close": "Close"
+  "contract.mine.close": "Close",
+  "contract.signaturePending": "Your signature is still being checked. Try again in a minute.",
+  "contract.signatureUnusable": "The signature could not be used. Sign again and resubmit."
 }

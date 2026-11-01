@@ -1,5 +1,5 @@
 {
- "commit": "b87b63144",
+ "commit": "e3e609388",
  "routes": [
   {
    "app": "patient-app",
@@ -805,7 +805,7 @@
      "line": 31,
      "file": "patient-app/src/components/legal/TelehealthConsent.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:176"
+     "backend": "backend/src/modules/legal/legal.module.ts:195"
     },
     {
      "method": "GET",
@@ -815,7 +815,7 @@
      "line": 49,
      "file": "patient-app/src/components/legal/TelehealthConsent.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:166"
+     "backend": "backend/src/modules/legal/legal.module.ts:185"
     },
     {
      "method": "GET",
@@ -1466,7 +1466,7 @@
      "line": 31,
      "file": "patient-app/src/components/legal/TelehealthConsent.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:176"
+     "backend": "backend/src/modules/legal/legal.module.ts:195"
     },
     {
      "method": "GET",
@@ -1476,7 +1476,7 @@
      "line": 49,
      "file": "patient-app/src/components/legal/TelehealthConsent.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:166"
+     "backend": "backend/src/modules/legal/legal.module.ts:185"
     }
    ],
    "files": 42,
@@ -6669,7 +6669,7 @@
      "line": 68,
      "file": "patient-app/src/components/legal/LegalKit.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:166"
+     "backend": "backend/src/modules/legal/legal.module.ts:185"
     }
    ],
    "files": 29,
@@ -6851,7 +6851,7 @@
      "line": 21,
      "file": "patient-app/app/receipts/index.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:537"
+     "backend": "backend/src/modules/billing/billing.module.ts:670"
     }
    ],
    "files": 38,
@@ -6875,7 +6875,7 @@
      "line": 22,
      "file": "patient-app/app/receipts/[kind]/[bookingId].tsx",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:508"
+     "backend": "backend/src/modules/billing/billing.module.ts:624"
     }
    ],
    "files": 41,
@@ -7356,7 +7356,7 @@
      "line": 46,
      "file": "patient-app/src/components/account/AboutView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:162"
+     "backend": "backend/src/modules/legal/legal.module.ts:181"
     },
     {
      "method": "GET",
@@ -7366,7 +7366,7 @@
      "line": 61,
      "file": "patient-app/src/components/account/AboutView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:166"
+     "backend": "backend/src/modules/legal/legal.module.ts:185"
     },
     {
      "method": "GET",
@@ -7782,7 +7782,7 @@
      "line": 68,
      "file": "patient-app/src/components/legal/LegalKit.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:166"
+     "backend": "backend/src/modules/legal/legal.module.ts:185"
     }
    ],
    "files": 29,
@@ -8352,7 +8352,7 @@
      "line": 15,
      "file": "patient-web/lib/api/legal-policy.ts",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:166"
+     "backend": "backend/src/modules/legal/legal.module.ts:185"
     },
     {
      "method": "GET",
@@ -9228,7 +9228,7 @@
      "line": 15,
      "file": "patient-web/lib/api/legal-policy.ts",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:166"
+     "backend": "backend/src/modules/legal/legal.module.ts:185"
     },
     {
      "method": "GET",
@@ -10412,7 +10412,7 @@
      "line": 15,
      "file": "patient-web/lib/api/legal-policy.ts",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:166"
+     "backend": "backend/src/modules/legal/legal.module.ts:185"
     }
    ],
    "files": 68,
@@ -19018,7 +19018,7 @@
      "line": 15,
      "file": "patient-web/lib/api/legal-policy.ts",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:166"
+     "backend": "backend/src/modules/legal/legal.module.ts:185"
     }
    ],
    "files": 56,
@@ -19794,7 +19794,7 @@
      "line": 6,
      "file": "patient-web/lib/api/billing-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:537"
+     "backend": "backend/src/modules/billing/billing.module.ts:670"
     }
    ],
    "files": 57,
@@ -19858,7 +19858,7 @@
      "line": 10,
      "file": "patient-web/lib/api/billing-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:508"
+     "backend": "backend/src/modules/billing/billing.module.ts:624"
     }
    ],
    "files": 60,
@@ -19922,7 +19922,7 @@
      "line": 15,
      "file": "patient-web/lib/api/legal-policy.ts",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:166"
+     "backend": "backend/src/modules/legal/legal.module.ts:185"
     }
    ],
    "files": 56,
@@ -20763,7 +20763,7 @@
      "line": 52,
      "file": "patient-web/app/[locale]/settings/about/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:162"
+     "backend": "backend/src/modules/legal/legal.module.ts:181"
     },
     {
      "method": "GET",
@@ -20773,7 +20773,7 @@
      "line": 15,
      "file": "patient-web/lib/api/legal-policy.ts",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:166"
+     "backend": "backend/src/modules/legal/legal.module.ts:185"
     },
     {
      "method": "GET",
@@ -21569,7 +21569,7 @@
      "line": 15,
      "file": "patient-web/lib/api/legal-policy.ts",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:166"
+     "backend": "backend/src/modules/legal/legal.module.ts:185"
     }
    ],
    "files": 56,
@@ -21633,7 +21633,7 @@
      "line": 15,
      "file": "patient-web/lib/api/legal-policy.ts",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:166"
+     "backend": "backend/src/modules/legal/legal.module.ts:185"
     }
    ],
    "files": 56,
