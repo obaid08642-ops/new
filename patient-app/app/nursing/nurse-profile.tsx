@@ -121,10 +121,22 @@ export default function NursingMegaProfile() {
 
   const slots = slotList.map((x) => ({ id: x.start, label: clock(x.start), available: x.available !== false }));
 
-  // Financial calculation: the real price only; the backend recomputes the total from the service record
-  const basePrice = Number(nurse?.price);
-  const priced = Number.isFinite(basePrice) && nurse?.price !== null && nurse?.price !== undefined;
-  const totalServiceFee = basePrice * daysCount; // an estimate shown to the patient
+  // The price is the server's: GET /bookings/quote states the price of one visit and the total of the days chosen, from the same
+  // pricing function the booking charges by. Nothing is multiplied here; with no quote the screen says the price is set at booking.
+  const [quote, setQuote] = useState<{ unit: number; total: number } | null>(null);
+  useEffect(() => {
+    if (!nurseId || !serviceId) { setQuote(null); return; }
+    let active = true;
+    apiFetch<{ total?: number; lines?: Array<{ unit_price?: number }> }>(`/bookings/quote?kind=nursing&service_id=${encodeURIComponent(String(serviceId))}&provider_id=${encodeURIComponent(String(nurseId))}&sessions_count=${daysCount}`)
+      .then((res) => {
+        const total = Number(res?.total);
+        const unit = Number(res?.lines?.[0]?.unit_price);
+        if (active) setQuote(Number.isFinite(total) && total > 0 && Number.isFinite(unit) ? { unit, total } : null);
+      })
+      .catch((err) => { logError('nursing:nurse-profile:quote', err); if (active) setQuote(null); });
+    return () => { active = false; };
+  }, [nurseId, serviceId, daysCount]);
+  const priced = quote !== null;
 
   /** Starts the card payment of a created booking; true when the patient was sent to the payment page. */
   const startPayment = async (bookingId: string): Promise<boolean> => {
@@ -254,7 +266,7 @@ export default function NursingMegaProfile() {
         fullWidth
         loading={processing}
         disabled={processing || !selectedTime}
-        label={flow === 'insurance' ? k('nur.book.sendInsurance') : priced ? k('nur.book.confirmPrice', { amount: money(totalServiceFee), currency: k('pharmacy.currency') }) : k('nur.book.confirm')}
+        label={flow === 'insurance' ? k('nur.book.sendInsurance') : priced ? k('nur.book.confirmPrice', { amount: money(quote!.total), currency: k('pharmacy.currency') }) : k('nur.book.confirm')}
         onPress={() => void handleSubmit()}
       />
     ) : undefined;
@@ -304,9 +316,9 @@ export default function NursingMegaProfile() {
             <Block gap={10}>
               {priced ? (
                 <>
-                  <AmountLine label={k('nur.book.visitPrice')} amount={basePrice} />
+                  <AmountLine label={k('nur.book.visitPrice')} amount={quote!.unit} />
                   <InfoRow label={k('nur.book.daysCount')} value={num(daysCount)} />
-                  <AmountLine label={k('nur.book.estimate')} amount={totalServiceFee} strong />
+                  <AmountLine label={k('nur.book.estimate')} amount={quote!.total} strong />
                 </>
               ) : (
                 <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...textFlow }}>{k('nur.details.priceAtBooking')}</Text>

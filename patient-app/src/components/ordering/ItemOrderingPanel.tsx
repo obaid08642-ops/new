@@ -23,7 +23,7 @@ export function ItemOrderingPanel({ kind, catalogId }: { kind: OrderingKind; cat
   const group = q.quote?.groups[0];
   const best = group?.best_match ?? null;
   const cov = itemCoverage(group, catalogId);
-  const homeFee = best && group?.mode === 'home' ? Math.round((best.total - best.items.reduce((s, l) => s + l.price, 0)) * 100) / 100 : 0;
+  const homeFee = best && group?.mode === 'home' ? best.home_fee || 0 : 0;
   const covLabel = cov ? (cov.coverage === 'covered' ? k('ordering.item.cov.yes') : cov.coverage === 'needs_approval' ? k('ordering.item.cov.likely') : k('ordering.item.cov.no')) : '';
   return (
     <View style={{ gap: 16 }}>
