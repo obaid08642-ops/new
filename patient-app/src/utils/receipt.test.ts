@@ -30,6 +30,10 @@ describe('extractReceipt', () => {
   it('falls back to createdAt and no seller without a QR', () => {
     expect(extractReceipt({ ...base, qr_base64: undefined })).toMatchObject({ issuedAt: '2026-10-31T10:00:01.000Z', seller: null, qr: null });
   });
+  it('marks a cancelled invoice', () => {
+    expect(extractReceipt({ ...base, status: 'CANCELLED' })?.cancelled).toBe(true);
+    expect(extractReceipt({ ...base, status: 'ISSUED' })?.cancelled).toBe(false);
+  });
   it('drops an invoice without its number, booking or an amount', () => {
     expect(extractReceipt({ ...base, invoice_no: '' })).toBeNull();
     expect(extractReceipt({ ...base, total: undefined })).toBeNull();

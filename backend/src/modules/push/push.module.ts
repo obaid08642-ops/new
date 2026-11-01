@@ -599,6 +599,9 @@ export class PushService implements OnModuleInit {
     const apnsTokens = tokenDocs.filter(t => t.provider === 'apns').map(t => t.token);
     const voipTokens = tokenDocs.filter(t => t.provider === 'apns_voip').map(t => t.token);
     const isCall = data?.type === 'call';
+    // a cancel reaches a ringing killed app the same way the ring did (data-only, high priority); it never goes to PushKit,
+    // because Apple requires a CallKit call for every VoIP push
+    const isRing = isCall || data?.type === 'call_cancelled';
     const ringTokens = new Set(tokenDocs.filter(t => t.call_ring === true).map(t => t.token));
     const results = { sent: 0, failed: 0, errors: [] as string[] };
 
@@ -640,7 +643,7 @@ export class PushService implements OnModuleInit {
       const chunks = this.chunkArray(expoTokens, 100);
       for (const chunk of chunks) {
         try {
-          const messages = chunk.map(to => isCall && ringTokens.has(to)
+          const messages = chunk.map(to => isRing && ringTokens.has(to)
             ? { to, data: { ...data, title, body }, priority: 'high', ttl: 30, channelId: 'calls', _contentAvailable: true }
             : {
               to,
@@ -701,14 +704,14 @@ export class PushService implements OnModuleInit {
                 Authorization: `Bearer ${accessToken}`,
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify(this.fcmMessage(token, title, body, data, isCall && ringTokens.has(token))),
+              body: JSON.stringify(this.fcmMessage(token, title, body, data, isRing && ringTokens.has(token))),
             });
             // Token belongs to the OTHER Firebase project (e.g. patient-iOS app) — retry with secondary credentials
             if (resp.status === 404 && this.fcmProjects().length > 1) {
               const altToken = await this.getFcmAccessToken(1);
               const altProject = this.fcmProjects()[1].projectId;
               if (altToken) {
-                const payloadStr = JSON.stringify(this.fcmMessage(token, title, body, data, isCall && ringTokens.has(token)));
+                const payloadStr = JSON.stringify(this.fcmMessage(token, title, body, data, isRing && ringTokens.has(token)));
                 resp = await pushFetch(`https://fcm.googleapis.com/v1/projects/${altProject}/messages:send`, {
                   method: 'POST',
                   headers: { Authorization: `Bearer ${altToken}`, 'Content-Type': 'application/json' },
@@ -818,6 +821,19 @@ export class PushService implements OnModuleInit {
     );
   }
 
+
+  /** The caller hung up before the callee answered: stop the ringing on the callee's devices. */
+  @OnEvent('call.cancelled')
+  async onCallCancelled(evt: any) {
+    if (!evt?.callee_id || !evt?.session_id) return;
+    await this.queueNotification(
+      evt.callee_id,
+      'تم إلغاء المكالمة',
+      'أنهى المتصل المكالمة قبل الرد',
+      { type: 'call_cancelled', session_id: evt.session_id },
+      'high',
+    );
+  }
 
   @OnEvent('call.missed')
   async onCallMissed(evt: any) {

@@ -28,7 +28,8 @@
  * line before it) that carries `// i18n-ok: <reason>`.
  *
  * Usage:
- *   node tools/design/no-literal-ui-string.mjs [--update] [--changed <ref>] [--list <path-substring>]
+ *   node tools/design/no-literal-ui-string.mjs [--update] [--seed <path-prefix>] [--changed <ref>] [--list <path-substring>]
+ *   --seed puts a new client under the ratchet once (records the literals its files carry today; never raises an existing entry).
  */
 import { readFileSync, readdirSync, statSync, writeFileSync, existsSync } from 'node:fs';
 import { join, relative, resolve, dirname, extname, sep } from 'node:path';
@@ -52,13 +53,16 @@ const UPDATE = argv.includes('--update');
 const arg = (n) => { const i = argv.indexOf(n); return i === -1 ? null : argv[i + 1]; };
 const CHANGED = arg('--changed');
 const LIST = arg('--list');
+const SEED = arg('--seed');
 
-/** The clients whose screens must not carry text. provider-app and admin are out of scope (owner: app and web). */
+/** The clients whose screens must not carry text: patient app and web, and (owner round 2026-10-31) the provider app. Admin is Arabic-only and out of scope. */
 const ROOTS = [
   { dir: 'patient-web/app', ts: true },
   { dir: 'patient-web/components-next', ts: false },
   { dir: 'patient-app/app', ts: true },
   { dir: 'patient-app/src', ts: false },
+  { dir: 'provider-app/src', ts: false },
+  { dir: 'provider-app/App.tsx', ts: false },
 ];
 const SKIP_DIRS = new Set(['node_modules', '.next', 'dist', 'build', 'coverage', '__tests__', '__mocks__', '__snapshots__', 'fixtures', 'stories', 'i18n', 'locales', 'messages', 'ui-generated', 'design-tokens', 'assets', 'public']);
 const SKIP_FILE = /(\.test\.|\.spec\.|\.stories\.|\.d\.ts$|fixtures?\.|\.mock\.)/;
@@ -154,6 +158,7 @@ function scan(file, text) {
 
 function* files(dir, tsToo) {
   if (!existsSync(dir)) return;
+  if (statSync(dir).isFile()) { yield dir; return; }
   for (const name of readdirSync(dir)) {
     const full = join(dir, name);
     const st = statSync(full);
@@ -193,13 +198,25 @@ if (!baseline && !UPDATE) { console.error('no-literal-ui-string: no baseline. Ru
 const base = baseline?.files ?? {};
 const baseTotal = Object.values(base).reduce((a, b) => a + b, 0);
 
+if (SEED) {
+  // One-time: record the starting debt of a client that is being put under the ratchet (files under the prefix that the baseline does not list).
+  // Everything already listed keeps its entry, so this can never raise an existing file.
+  const next = { ...base };
+  let added = 0;
+  for (const [f, n] of Object.entries(result)) if (f.startsWith(SEED) && !(f in base)) { next[f] = n; added += n; }
+  const out = { note: baseline?.note ?? '', files: Object.fromEntries(Object.entries(next).sort(([a], [b]) => a.localeCompare(b))) };
+  writeFileSync(BASELINE_PATH, JSON.stringify(out, null, 2) + '\n');
+  console.log(`no-literal-ui-string: seeded ${SEED}: ${added} literal(s) in ${Object.keys(next).filter((f) => f.startsWith(SEED)).length} file(s); baseline ${baseTotal} -> ${baseTotal + added}.`);
+  process.exit(0);
+}
+
 if (UPDATE) {
   const next = {};
   for (const [f, n] of Object.entries(result)) next[f] = baseline ? Math.min(n, base[f] ?? n) : n; // only ever lowers
   for (const f of Object.keys(next)) if (baseline && !(f in base)) delete next[f]; // a new file with literals is a failure, never recorded
   const raised = baseline ? Object.entries(result).filter(([f, n]) => n > (base[f] ?? 0)) : [];
   if (raised.length) { console.error('no-literal-ui-string: refusing to raise the baseline:'); for (const [f, n] of raised.slice(0, 20)) console.error(`  ${f}: ${base[f] ?? 0} -> ${n}`); process.exit(1); }
-  const out = { note: 'Literal UI strings per file (patient-web, patient-app). Ratcheted: --update only ever lowers it. Rule: owner 2026-10-06, see QUALITY_STANDARDS.md section 8.', files: Object.fromEntries(Object.entries(next).sort(([a], [b]) => a.localeCompare(b))) };
+  const out = { note: 'Literal UI strings per file (patient-web, patient-app, provider-app). Ratcheted: --update only ever lowers it. Rule: owner 2026-10-06, see QUALITY_STANDARDS.md section 8.', files: Object.fromEntries(Object.entries(next).sort(([a], [b]) => a.localeCompare(b))) };
   writeFileSync(BASELINE_PATH, JSON.stringify(out, null, 2) + '\n');
   const t = Object.values(out.files).reduce((a, b) => a + b, 0);
   console.log(`no-literal-ui-string: ${baseline ? `baseline ${baseTotal} -> ${t}` : `recorded ${t}`} literal(s) in ${Object.keys(out.files).length} file(s).`);
@@ -208,7 +225,7 @@ if (UPDATE) {
 
 const worse = Object.entries(result).filter(([f, n]) => n > (base[f] ?? 0));
 if (worse.length) {
-  console.error('no-literal-ui-string: FAILED. User-visible text must come from the translation files (patient-web/messages, patient-app/src/i18n/locales), in all six languages:');
+  console.error('no-literal-ui-string: FAILED. User-visible text must come from the translation files (patient-web/messages, patient-app/src/i18n/locales, provider-app/src/i18n/locales, ar and en only), in every language the client has:');
   for (const [f] of worse.slice(0, 15)) for (const i of details[f].slice(0, 5)) console.error(`  ${f}:${i.line}  ${i.what}  "${i.value}"`);
   console.error(`  (${worse.length} file(s) over their baseline; list them with --list <path>)`);
   process.exit(1);

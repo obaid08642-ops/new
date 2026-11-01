@@ -37,6 +37,7 @@ export default function ReceiptsScreen() {
                 tone="blue"
                 title={k(KIND_KEY[r.kind] ?? 'receipt.kindPharmacy')}
                 subtitle={`${r.invoiceNo} · ${fmt.dateTime(r.issuedAt)}`}
+                caption={r.cancelled ? k('receipt.cancelled') : undefined}
                 trailing={<Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary }}>{k('pharmacy.price', { n: money(r.total) })}</Text>}
                 last={i === all.length - 1}
                 onPress={() => router.push({ pathname: '/receipts/[kind]/[bookingId]', params: { kind: r.kind, bookingId: r.bookingId } } as unknown as Href)}

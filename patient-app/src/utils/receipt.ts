@@ -83,6 +83,8 @@ export type ReceiptView = {
   currency: string;
   qr: string | null;
   seller: ZatcaPayload | null;
+  /** the invoice was cancelled (status CANCELLED): the list says so */
+  cancelled: boolean;
 };
 
 const num = (v: unknown): number | null => (typeof v === 'number' && Number.isFinite(v) ? v : typeof v === 'string' && v.trim() !== '' && Number.isFinite(Number(v)) ? Number(v) : null);
@@ -99,7 +101,7 @@ export function extractReceipt(raw: unknown): ReceiptView | null {
   if (!invoiceNo || total === null || vatAmount === null || subtotal === null || !bookingId) return null;
   const qr = text(r.qr_base64);
   const seller = decodeZatcaTlv(qr);
-  return { invoiceNo, kind: text(r.booking_kind) ?? '', bookingId, issuedAt: seller?.issuedAt ?? text(r.createdAt), subtotal, vatRate: num(r.vat_rate) ?? 0, vatAmount, total, currency: text(r.currency) ?? 'SAR', qr, seller };
+  return { invoiceNo, kind: text(r.booking_kind) ?? '', bookingId, issuedAt: seller?.issuedAt ?? text(r.createdAt), subtotal, vatRate: num(r.vat_rate) ?? 0, vatAmount, total, currency: text(r.currency) ?? 'SAR', qr, seller, cancelled: r.status === 'CANCELLED' };
 }
 
 export function extractReceipts(raw: unknown): ReceiptView[] {

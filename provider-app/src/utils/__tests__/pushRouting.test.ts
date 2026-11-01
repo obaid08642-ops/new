@@ -24,4 +24,9 @@ describe('push tap routing', () => {
   it('a chat push opens the lab chat', () => {
     expect(resolvePushTarget({ type: 'chat', thread_id: 't1' }, 'lab')).toEqual({ screen: 'chat' });
   });
+
+  it('a call push opens the incoming call of that session at the root', () => {
+    expect(resolvePushTarget({ type: 'call', session_id: 's1', caller_name: 'Sara', call_type: 'voice' }, 'doctor')).toEqual({ screen: 'IncomingCall', root: true, params: { sessionId: 's1', callerName: 'Sara', mode: 'voice' } });
+    expect(resolvePushTarget({ type: 'call' }, 'doctor')).toEqual({ screen: 'notifications' });
+  });
 });
