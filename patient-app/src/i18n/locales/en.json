@@ -4048,6 +4048,8 @@
   "set.receiptsHint": "Your tax invoices as PDF",
   "receipt.brand": "Nabd Plus",
   "receipt.simplified": "Simplified tax invoice",
+  "receipt.paymentReceipt": "Payment receipt",
+  "receipt.totalPaid": "Total paid",
   "receipt.invoiceNo": "Invoice no.",
   "receipt.vatNumber": "VAT registration no.",
   "receipt.dateTime": "Date and time",

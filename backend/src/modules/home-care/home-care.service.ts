@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Inject, Optional } from '@nestjs/common';
 import { assertPaymentMethod, PAYMENT_METHODS_BY_CONTEXT } from '../../common/payment-policy';
-import { buildQuote, readVatRate } from '../../common/quote';
+import { buildQuote, readQuoteVatRate } from '../../common/quote';
 import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
 import { ownPrices } from '../../common/service-offers';
 import { SearchService } from '../search/search.service';
@@ -103,7 +103,7 @@ export class HomeCareSvc {
     const providerId = typeof data.provider_id === 'string' ? data.provider_id : '';
     const { sessions, unitPrice } = await this.nursingPricing(svc, providerId, data);
     return {
-      ...buildQuote({ kind: 'nursing', lines: [{ key: 'visits', amount: unitPrice * sessions, qty: sessions, unit_price: unitPrice }], vat_rate: await readVatRate(this.svcModel.db), allowed_methods: PAYMENT_METHODS_BY_CONTEXT.home_visit }),
+      ...buildQuote({ kind: 'nursing', lines: [{ key: 'visits', amount: unitPrice * sessions, qty: sessions, unit_price: unitPrice }], vat_rate: await readQuoteVatRate(this.svcModel.db), allowed_methods: PAYMENT_METHODS_BY_CONTEXT.home_visit }),
       service_id: svc.id, provider_id: providerId || null, sessions_count: sessions,
     };
   }
