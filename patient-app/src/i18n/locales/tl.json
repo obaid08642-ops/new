@@ -4048,6 +4048,8 @@
   "set.receiptsHint": "Ang iyong mga tax invoice bilang PDF",
   "receipt.brand": "Nabd Plus",
   "receipt.simplified": "Pinasimpleng tax invoice",
+  "receipt.paymentReceipt": "Resibo ng bayad",
+  "receipt.totalPaid": "Kabuuang binayaran",
   "receipt.invoiceNo": "Numero ng invoice",
   "receipt.vatNumber": "Numero ng rehistrasyon sa VAT",
   "receipt.dateTime": "Petsa at oras",

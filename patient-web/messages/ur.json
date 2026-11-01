@@ -5783,6 +5783,8 @@
     "title": "رسید",
     "brand": "نبض پلس",
     "simplified": "سادہ ٹیکس انوائس",
+    "paymentReceipt": "ادائیگی کی رسید",
+    "totalPaid": "ادا کی گئی کل رقم",
     "invoiceNo": "انوائس نمبر",
     "vatNumber": "ویٹ رجسٹریشن نمبر",
     "dateTime": "تاریخ اور وقت",
