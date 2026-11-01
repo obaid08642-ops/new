@@ -1,11 +1,8 @@
-# 2026-11-01 10:15 lead reviewer: run 83 = APPLY of the two plans checked in run 82 (owner approved).
-# 1. Catalogue (plan 870dbf18…, 179 changes): radiology +67 market rows, approve barium_study / dental_panoramic / pet_ct_scan / hysterosalpingography_hsg
-#    (hsg merged), 85 duplicate re-points, hidden unused rows removed (lab 9, nursing 3, radiology 15). Backup of every touched row first; verify; rollback on failure.
-# 2. Medicine translations (plan adfa265c…, 19,984 EMPTY fields) from the providers' file (Grok/OpenAI/DeepSeek/Gemini answers), marked machine:<model>;
-#    compare-and-set on empty values only; backup first; verify; rollback on failure.
-# Each refuses to write if its plan changed since run 82. One-off container (oom_score_adj 1000), never inside the API.
-release:328263b5edd6e23c211d0584960b99df925938a7
-90-catalogue-apply
-90c-catalogue-translations
-98-memory-report
+# 2026-11-01 12:20 lead reviewer: run 84 = deploy main@b87b6314.
+# Brings: the specialty row gap fix the owner circled (#2359), invoice API with lines/payment/last4/insurer share (#2356),
+# radiology notice removed (#2357), appointments after sign-in (#2352), monitor cron + mongod memory plan + appName (#2355, tasks dry by default).
+release:b87b6314493e0793c7766ac3366c59dcb13662fe
+97-free-old-predeploy
+93-free-unused-images
+60-deploy-main
 cf-purge-api
