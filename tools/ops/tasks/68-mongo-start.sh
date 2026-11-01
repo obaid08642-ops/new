@@ -1,4 +1,5 @@
 #!/bin/bash
+# ops-detach: waits up to 5 min for mongod and 3 min for readiness (longer than the 420 s non-detached limit).
 # MongoDB after the disk-full crash (review session, 2026-10-16). 8.7 GB are free now; mongodb stays "unhealthy"
 # after `compose up --no-recreate`, and the backend gives 502 after its restart. This task:
 #   1. prints the container state and the last mongod log lines (credentials dropped)

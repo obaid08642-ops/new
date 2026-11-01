@@ -1,10 +1,14 @@
-# 2026-10-31 lead reviewer: run 78.
-# Run 77: meili still crash-loops at 1 GB (345 restarts in ~75 min, 834 kills by its own memcg, ~1 GB anon each, every ~18 s);
-# 89,117 stale tasks; the cancel cannot run (engine dies first). Mongo search_index holds 21,311 docs = the source of truth.
-# Uploads: UPLOAD_SCAN=defer is live, /config uploads_enabled=true (quarantine + scan window), so uploads work.
-# 1. 98f-meili-fresh APPLY: stop meili, RENAME its old data dir to backups (no delete), start empty, worker refills from Mongo (paced, #2261),
-#    watch 12 min; automatic rollback if the engine will not start. Search is already down while it loops, so no user loses anything.
-# 2. Read-only memory report after.
+# 2026-11-01 04:15 lead reviewer: run 79 = OUTAGE recovery.
+# Run 78 OK: meili fresh start, 21,311/21,311 docs in 2 min, 0 restarts, meili 406 MB, host MemAvailable 1,051 MB.
+# Since then (04:10 UTC) production is DOWN from outside: nabd.plus/ar 503, api /health timeout, /catalogs/specialties 504.
+# Run 78's memory report showed 3 mongod kills by its own memcg (1600m limit) in the last 3 h.
+# 1. Read-only state first: mongo state, memory report, what runs (69).
+# 2. 68-mongo-start: start mongod if it is down (same container and volume, never a repair), then restart backend + worker once, readiness.
+# 3. Read-only outage inspection (55) for the cause.
 release:c929c4efa59a60ff70b245284fb7f99b3520b0ed
-98f-meili-fresh
+99m-mongo-state
 98-memory-report
+69-deploy-check
+68-mongo-start
+55-inspect-outage
+cf-purge-api
