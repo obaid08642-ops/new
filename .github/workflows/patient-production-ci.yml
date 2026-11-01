@@ -202,7 +202,11 @@ jobs:
       # playwright is not a patient-web dependency: install the pinned version on the side and
       # its matching browser, and point the audit at it.
       - name: Install Playwright and a browser
+        timeout-minutes: 15
         run: |
+          # apt on the runner can stall for an hour on its mirror (run 41256134312, shard 5/5: no journey ran, the job was cancelled at the limit):
+          # bound every apt request and retry, and bound the step itself, so a stall fails in minutes and a re-run gets a fresh runner
+          printf 'Acquire::Retries "3";\nAcquire::http::Timeout "20";\nAcquire::https::Timeout "20";\n' | sudo tee /etc/apt/apt.conf.d/99-ci-timeouts >/dev/null
           npm install --no-save --no-package-lock --prefix "$RUNNER_TEMP/pw" playwright@1.63.0
           "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
       - name: Build
