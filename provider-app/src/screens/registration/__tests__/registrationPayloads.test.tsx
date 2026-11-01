@@ -51,7 +51,12 @@ jest.mock('../../../api/catalogs', () => ({
 }));
 jest.mock('../../../components/GeoPicker', () => ({ GeoPicker: () => null }));
 jest.mock('../../../components/LocationPickerModal', () => ({ LocationPickerModal: () => null }));
-jest.mock('../../../components/ContractModal', () => ({ ContractModal: () => null }));
+// The contract must be opened and accepted before the code is sent: the stand-in reports version 1.0 when "accepted".
+jest.mock('../../../components/ContractModal', () => {
+  const { Text } = require('react-native');
+  return { ContractModal: ({ visible, onAccepted, onClose }: { visible: boolean; onAccepted?: (v: string) => void; onClose: () => void }) =>
+    visible ? <Text onPress={() => { onAccepted?.('1.0'); onClose(); }}>accept contract</Text> : null };
+});
 jest.mock('../../../components/SignatureCanvasModal', () => ({ SignatureCanvasModal: () => null }));
 jest.mock('../../../components/PlatformMap', () => ({ __esModule: true, default: () => null, Circle: () => null, Marker: () => null }));
 jest.mock('react-native-signature-canvas', () => ({ __esModule: true, default: () => null }));
@@ -109,6 +114,8 @@ async function drive(c: Case) {
     await fireEvent.press(screen.getAllByText('Next').slice(-1)[0]);
     await settle();
   }
+  await fireEvent.press(screen.getByText('contract.view'));
+  await fireEvent.press(screen.getByText('accept contract'));
   if (c.agree) await fireEvent.press(screen.getByText(c.agree));
   await fireEvent.press(screen.getByText(c.submit));
   await waitFor(() => screen.getByTestId('otp-ok'), { timeout: 5000 }).catch((e) => {
@@ -150,5 +157,24 @@ describe('registration: a required file that was not picked', () => {
     expect(mockToasts).toContain('Attach the SFDA licence');
     expect(mockCalls.filter((c) => c.fn === 'uploadFile' || c.fn === 'step2')).toEqual([]);
     expect(screen.getAllByText('Next').length).toBeGreaterThan(0); // still on the first page
+  });
+});
+
+describe('the contract gates the submit', () => {
+  it('without an accepted contract no code is sent and the provider is told to accept it', async () => {
+    const c = CASES.find((x) => x.name === 'doctor')!;
+    mockCalls.length = 0; mockToasts.length = 0;
+    await render(c.render());
+    for (let i = 0; i < c.pages; i++) {
+      await waitFor(() => screen.getAllByText('Next'), { timeout: 5000 });
+      await fireEvent.press(screen.getAllByText('Next').slice(-1)[0]);
+      await settle();
+    }
+    if (c.agree) await fireEvent.press(screen.getByText(c.agree));
+    await fireEvent.press(screen.getByText(c.submit));
+    expect(mockToasts).toContain('contract.mustAccept');
+    expect(screen.queryByTestId('otp-ok')).toBeNull();
+    expect(screen.getByText('accept contract')).toBeTruthy(); // the contract was opened for them
+    expect(mockCalls.some((x) => x.fn === 'submit')).toBe(false);
   });
 });

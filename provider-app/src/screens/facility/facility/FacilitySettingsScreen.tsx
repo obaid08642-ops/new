@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { MyContractRow } from '../../../components/MyContract';
 import { useTheme, useLang, useAuth, useToast } from '../../../context';
 import {
  NBtn, NCard, NInput, NPhoneInput, NStatCard, NAvatar,
@@ -211,6 +212,8 @@ return (
  onPress={() => onNavigate('support')} />
  ))}
  </NCard>
+
+ <NCard style={{ marginBottom: SP.md }}><MyContractRow /></NCard>
 
  <NCard>
  <NSettingsRow icon="" label={AR?'تسجيل الخروج':'Log Out'}
