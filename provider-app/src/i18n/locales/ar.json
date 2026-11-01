@@ -202,5 +202,6 @@
   "contract.mine.notShared": "العقد غير متاح بعد — يمكن للإدارة إتاحته لك من لوحة المراجعة",
   "contract.mine.notReady": "لم يُولَّد العقد بعد",
   "contract.mine.failed": "تعذر تحميل العقد",
-  "contract.mine.close": "إغلاق"
+  "contract.mine.close": "إغلاق",
+  "radiology.approve.handledByYou": "رفعتَ هذا التقرير أو أرسلتَه للمراجعة، لذلك يعتمده مختص آخر في المركز."
 }

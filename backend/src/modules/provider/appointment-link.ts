@@ -14,3 +14,17 @@ export async function ownAppointmentId(conn: Connection, doctorUserId: string, p
   const found = new Set(rows.map((r: any) => String(r.id)));
   return ids.find((c) => found.has(c)) ?? null;
 }
+
+/**
+ * The doctor's own appointment by id, with the patient it is for: what a medical report is written on when the id is a normal
+ * appointment (those never create a provider request). Another doctor's visit, an operator in the id, or no id: null.
+ */
+export async function ownedVisit(conn: Connection, doctorUserId: string, id: unknown): Promise<{ id: string; patient_id: string; patient_name: string | null } | null> {
+  if (typeof id !== 'string' || !id || id === 'new' || !doctorUserId) return null;
+  const a: any = await conn.collection('appointments').findOne(
+    { id: { $eq: id }, $or: [{ doctor_user_id: { $eq: String(doctorUserId) } }, { provider_id: { $eq: String(doctorUserId) } }] },
+    { projection: { _id: 0, id: 1, patient_id: 1, patient_name: 1 } },
+  );
+  if (!a?.patient_id) return null;
+  return { id: String(a.id), patient_id: String(a.patient_id), patient_name: a.patient_name ?? null };
+}

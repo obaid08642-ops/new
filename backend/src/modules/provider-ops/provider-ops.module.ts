@@ -511,12 +511,14 @@ export class ProviderOpsService {
     const bucketCount = period === 'week' ? 7 : 12;
     const bucketMs = (days * 24 * 60 * 60 * 1000) / bucketCount;
     const sources: Array<{ coll: string; label: string }> = [
-      { coll: 'doctor_appointments', label: 'consultation' },
+      // consultations are the appointments of the appointments module (doctor_appointments is not a collection anything writes)
+      { coll: 'appointments', label: 'consultation' },
       { coll: 'labbookings', label: 'lab' },
       { coll: 'homecarebookings', label: 'home_care' },
       { coll: 'radiologybookings', label: 'radiology' },
     ];
-    const idFields = ['doctor_id', 'lab_id', 'provider_id', 'nurse_id', 'radiology_id', 'pharmacy_id', 'account_id'];
+    // `doctor_user_id` is the doctor's account id (an appointment's `doctor_id` is the profile id)
+    const idFields = ['doctor_user_id', 'doctor_id', 'lab_id', 'provider_id', 'nurse_id', 'radiology_id', 'pharmacy_id', 'account_id'];
     let appointments = 0;
     const perService: Record<string, number> = {};
     const patientIds = new Set<string>();
@@ -551,10 +553,11 @@ export class ProviderOpsService {
       const idx = Math.min(bucketCount - 1, Math.max(0, Math.floor((new Date(t.createdAt).getTime() - rangeStart.getTime()) / bucketMs)));
       series[idx] += Math.round((t.amount || 0) * 100) / 100;
     }
+    // Ratings are stored by the ratings module as `score` (1 to 5) and count once published, the same rule as the public average.
     const ratingRows: any[] = await this.conn.collection('ratings')
-      .find({ $or: [{ provider_id: providerId }, { entity_id: providerId }], createdAt: { $gte: rangeStart } } as any)
-      .project({ rating: 1, value: 1, stars: 1 }).toArray();
-    const ratingValues = ratingRows.map((r: any) => Number(r.rating ?? r.value ?? r.stars)).filter((v: number) => Number.isFinite(v) && v > 0);
+      .find({ $or: [{ provider_id: providerId }, { entity_id: providerId }], status: 'published', createdAt: { $gte: rangeStart } } as any)
+      .project({ score: 1, rating: 1, value: 1, stars: 1 }).toArray();
+    const ratingValues = ratingRows.map((r: any) => Number(r.score ?? r.rating ?? r.value ?? r.stars)).filter((v: number) => Number.isFinite(v) && v > 0);
     const rating = ratingValues.length ? Math.round((ratingValues.reduce((a: number, b: number) => a + b, 0) / ratingValues.length) * 10) / 10 : null;
     const topService = Object.entries(perService).sort((a, b) => b[1] - a[1])[0];
     const service_breakdown = Object.entries(perService)

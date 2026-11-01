@@ -42,7 +42,9 @@ const DAY = 86_400_000;
 const VALID_DAYS = [30, 90, 180];
 const EXPIRY_WARNING_DAYS = 3;
 const MAX_SESSIONS = 30;
-const VISITED = ['completed', 'in_progress'];
+// Appointments are stored upper case (APPT_STATES); rows written before that rule may be lower case, so both match.
+const VISITED = ['COMPLETED', 'IN_PROGRESS', 'completed', 'in_progress'];
+const statusIs = (status: unknown, want: 'completed' | 'in_progress') => String(status ?? '').toLowerCase() === want;
 /** How long after a completed visit the doctor may still write the order (SystemConfig `medical_order_after_visit_days`). */
 const DEFAULT_AFTER_VISIT_DAYS = 30;
 const MAX_AFTER_VISIT_DAYS = 365;
@@ -88,7 +90,7 @@ export class MedicalOrdersService implements OnModuleInit {
     if (appt.doctor_user_id !== user.id && appt.provider_id !== user.id) throw new ForbiddenException('not_your_appointment');
     if (!VISITED.includes(String(appt.status))) throw bad('appointment_not_visited');
     // A visit in progress is always open; a completed one only for the window after it ended.
-    if (appt.status === 'completed' && !this.withinWindow(appt, await this.afterVisitDays(), new Date())) throw bad('visit_window_closed');
+    if (statusIs(appt.status, 'completed') && !this.withinWindow(appt, await this.afterVisitDays(), new Date())) throw bad('visit_window_closed');
 
     const items: OrderItem[] = [];
     for (const g of GROUPS) {
@@ -176,7 +178,7 @@ export class MedicalOrdersService implements OnModuleInit {
       { projection: VISIT_FIELDS },
     ).sort({ createdAt: -1 }).limit(200).toArray() as unknown as VisitRow[];
     const open = rows
-      .filter((a) => a.status === 'in_progress' || this.withinWindow(a, days, now))
+      .filter((a) => statusIs(a.status, 'in_progress') || this.withinWindow(a, days, now))
       .slice(0, RECENT_VISITS_LIMIT);
     // The patient's display name (full_name only) lets the doctor tell two visits on one day apart; the doctor already sees it
     // in the appointment. No phone or any other field of the patient leaves here.

@@ -62,6 +62,41 @@ export function radiologySearchClause(search: string): { $or: Array<Record<strin
   return { $or: RADIOLOGY_NAME_FIELDS.map((field) => ({ [field]: pattern })) };
 }
 
+
+/** Two people: whoever uploaded the files or sent the report for review cannot publish it. True when this user did either. */
+export function reportHandledBy(b: any, userId: unknown): boolean {
+  return (Array.isArray(b?.state_history) ? b.state_history : []).some((h: any) => String(h?.by_user_id) === String(userId)
+    && [RadiologyBookingState.REPORT_DRAFT, RadiologyBookingState.UNDER_REVIEW].includes(h?.to));
+}
+
+/** What the app needs to show the publish button honestly: may this user approve this report now, and did they handle it themselves. */
+export function reportApprovalFor(b: any, userId: unknown): { report_can_approve: boolean; report_handled_by_me: boolean } {
+  const handled = reportHandledBy(b, userId);
+  return { report_can_approve: (b?.state || b?.status) === RadiologyBookingState.UNDER_REVIEW && !handled, report_handled_by_me: handled };
+}
+
+
+export interface RadiologySchedule {
+  working_days?: unknown; morning_shift?: { from?: unknown; to?: unknown } | null; evening_shift?: { from?: unknown; to?: unknown } | null; emergency_available?: unknown;
+}
+const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+/**
+ * The opening windows of one weekday (0 = Sunday) from the schedule the centre saved on its availability screen
+ * (`provider_settings.radiology_schedule`, applied when the admin approves it): seven booleans from Sunday, and a morning and an
+ * evening shift as `{from, to}`. A closed day, or a shift without a valid HH:MM pair, gives no window.
+ */
+export function radiologyWindows(schedule: RadiologySchedule | null | undefined, weekday: number): Array<{ open: string; close: string }> {
+  const days = Array.isArray(schedule?.working_days) ? (schedule!.working_days as unknown[]) : null;
+  if (!days || days[weekday] !== true) return [];
+  const out: Array<{ open: string; close: string }> = [];
+  for (const shift of [schedule!.morning_shift, schedule!.evening_shift]) {
+    const from = String(shift?.from ?? ''); const to = String(shift?.to ?? '');
+    if (HHMM.test(from) && HHMM.test(to)) out.push({ open: from, close: to });
+  }
+  return out;
+}
+
 @Injectable()
 export class RadiologyOpsService {
   constructor(
@@ -283,8 +318,7 @@ export class RadiologyOpsService {
     if (!b) throw new NotFoundException();
     if ((b.state || b.status) !== RadiologyBookingState.UNDER_REVIEW) throw new BadRequestException('Report must be UNDER_REVIEW to approve');
     // Two people: whoever uploaded the files or sent the report for review cannot publish it.
-    const handled = (Array.isArray(b.state_history) ? b.state_history : []).some((h: any) => String(h?.by_user_id) === String(user.id) && [RadiologyBookingState.REPORT_DRAFT, RadiologyBookingState.UNDER_REVIEW].includes(h?.to));
-    if (handled) throw new ForbiddenException('report_reviewer_must_differ_from_uploader');
+    if (reportHandledBy(b, user.id)) throw new ForbiddenException('report_reviewer_must_differ_from_uploader');
     // Through the workflow engine: publishing the report completes the service, and `service.completed` (once) is what credits the
     // centre's earning. Writing the state directly left the report published but the wallet empty.
     const fromState = b.state || b.status;
@@ -724,7 +758,7 @@ export class RadiologyOpsService {
     }
     // Design parity (#1819): the technician's name and, once the report is published, the files the patient may open.
     const [named] = await this.withNames([b]);
-    return { ...named, technician: await this.technicianView(b), report_files: b.patient_id === user.id ? await this.reportFilesView(b) : undefined };
+    return { ...named, ...(isProvider ? reportApprovalFor(b, user.id) : {}), technician: await this.technicianView(b), report_files: b.patient_id === user.id ? await this.reportFilesView(b) : undefined };
   }
 
   /** The technician assigned to a booking: display name only (never the account id, phone or licence). */
@@ -783,7 +817,7 @@ export class RadiologyOpsService {
     if (status) q.state = { $eq: status };
     const rows = await this.bkgModel.find(q).sort({ scheduled_at: 1 }).lean();
     // R7 (13.R4): a request nobody has accepted shows the area only, not the patient's phone and exact address.
-    return (rows as any[]).map((r) => withholdLegacyBeforeAcceptance(r, [RadiologyBookingState.NEW_REQUEST, RadiologyBookingState.PENDING]));
+    return (rows as any[]).map((r) => ({ ...withholdLegacyBeforeAcceptance(r, [RadiologyBookingState.NEW_REQUEST, RadiologyBookingState.PENDING]), ...reportApprovalFor(r, user.id) }));
   }
 
   async assignTechnician(id: string, user: any, body: any) {
@@ -903,7 +937,12 @@ export class RadiologyOpsService {
       medical_review_status: 'approved',
     }).lean();
     if (!profile) throw new NotFoundException('provider_not_found');
-    if (!(profile as any).schedule_clinic || !(profile as any).schedule_clinic.length) {
+    // The centre's own approved availability schedule wins; a centre that never saved one keeps the opening hours of its profile.
+    const settings: any = this.conn
+      ? await this.conn.collection('provider_settings').findOne({ provider_id: { $eq: providerAccountId } }, { projection: { _id: 0, radiology_schedule: 1 } }).catch(() => null)
+      : null;
+    const ownSchedule: RadiologySchedule | null = Array.isArray(settings?.radiology_schedule?.working_days) ? settings.radiology_schedule : null;
+    if (!ownSchedule && (!(profile as any).schedule_clinic || !(profile as any).schedule_clinic.length)) {
       return { date: dateStr, slots: [], reason: 'no_schedule' };
     }
 
@@ -919,7 +958,7 @@ export class RadiologyOpsService {
       return v === 'all' || v === String(dow) || v === dayKeys[dow] || v === fullDays[dow];
     };
 
-    const windows = ((profile as any).schedule_clinic || []).filter((w) => w && !w.closed && dayMatches(w.day)).flatMap((w) => [
+    const windows = ownSchedule ? radiologyWindows(ownSchedule, dow) : ((profile as any).schedule_clinic || []).filter((w) => w && !w.closed && dayMatches(w.day)).flatMap((w) => [
       ...(w.open && w.close ? [{ open: w.open, close: w.close }] : []),
       ...(w.open_evening && w.close_evening ? [{ open: w.open_evening, close: w.close_evening }] : []),
     ]);
