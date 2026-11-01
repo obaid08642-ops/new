@@ -27,30 +27,29 @@ import { useInsuranceCatalog } from '../../../api/catalogs';
 import { SK, Vault } from '../../../security/Security';
 import { tokens, withAlpha } from '../../../theme/tokens';
 
+import { asTickets, asFaqs, faqText, serverMessage, type SupportTicket, type SupportFaq } from './supportTickets';
+
 export function SupportCenter({ onBack }: { onBack: () => void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
  const [tab, setTab] = useState<'tickets' | 'faq' | 'new'>('tickets');
  const [subject, setSubject] = useState(''); const [body, setBody] = useState(''); const [loading, setLoading] = useState(false);
 
- const TICKETS = [
- { id: 't1', subject_ar: 'مشكلة في الدفع', subject_en: 'Payment issue', status: 'open', date: 'اليوم', priority: 'high' },
- { id: 't2', subject_ar: 'طلب تفعيل ميزة', subject_en: 'Feature request', status: 'resolved', date: 'أمس', priority: 'low' },
- { id: 't3', subject_ar: 'خطأ في النتائج', subject_en: 'Results error', status: AppointmentStatus.IN_PROGRESS, date: '3 أيام', priority: 'medium' },
- ];
-
- const FAQ = [
- { q_ar: 'كيف أسحب أرباحي؟', q_en: 'How to withdraw earnings?', a_ar: 'اذهب للمحفظة > سحب > أدخل المبلغ > تأكيد. الحد الأدنى 100 ريال.', a_en: 'Go to Wallet > Withdraw > Enter amount > Confirm. Minimum 100 SAR.' },
- { q_ar: 'كيف أحدّث أسعاري؟', q_en: 'How to update pricing?', a_ar: 'من الإعدادات > الأسعار والرسوم > عدّل السعر > حفظ.', a_en: 'Settings > Pricing > Edit price > Save.' },
- { q_ar: 'كيف أضيف موظف جديد؟', q_en: 'How to add staff?', a_ar: 'من إدارة الكوادر > + إضافة > أدخل البيانات > إنشاء.', a_en: 'Staff Management > + Add > Enter info > Create.' },
- { q_ar: 'ما هي العمولة؟', q_en: 'What is the commission?', a_ar: 'نسبة عمولة المنصة تُحدد لك عند اعتماد حسابك وتظهر في صفحة المحفظة والإيرادات.', a_en: 'Your commission rate is set at account approval and shown in Wallet & Revenue.' },
- { q_ar: 'كيف ألغي طلباً؟', q_en: 'How to cancel an order?', a_ar: 'من تفاصيل الطلب > رفض. ملاحظة: الإلغاء المتكرر يؤثر على تقييمك.', a_en: 'Order Details > Reject. Note: frequent cancellations affect your rating.' },
- ];
+ // The provider's own requests and the FAQs the admin wrote: both from the server (they were hard-coded sample tickets and FAQ text).
+ const [tickets, setTickets] = useState<SupportTicket[] | null>(null);
+ const [faqs, setFaqs] = useState<SupportFaq[] | null>(null);
+ const [loadFailed, setLoadFailed] = useState(false);
+ const loadSupport = useCallback(() => {
+   setLoadFailed(false);
+   client.get('/support/tickets').then((r: any) => setTickets(asTickets(r?.data))).catch(() => { setTickets([]); setLoadFailed(true); });
+   client.get('/support/faqs').then((r: any) => setFaqs(asFaqs(r?.data))).catch(() => setFaqs([]));
+ }, []);
+ useEffect(() => { loadSupport(); }, [loadSupport]);
 
  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
  return (
  <NScroll>
- <NHeader title={AR ? 'مركز الدعم' : 'Support Center'} onBack={onBack} />
+ <NHeader title={t('support.title')} onBack={onBack} />
 
  {/* Tabs */}
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginBottom: SP.xl }}>
@@ -64,28 +63,35 @@ export function SupportCenter({ onBack }: { onBack: () => void }) {
  ))}
  </View>
 
- {tab === 'tickets' && TICKETS.map(ticket => (
+ {tab === 'tickets' && (tickets === null ? <ActivityIndicator color={theme.primary} style={{ marginTop: SP.xl }} /> : (
+   <>
+   {loadFailed && <NEmpty title={t('support.loadFailed')} actionLabel={t('common.retry')} onAction={loadSupport} />}
+   {!loadFailed && tickets.length === 0 && <NEmpty title={AR ? 'لا توجد تذاكر بعد' : 'No tickets yet'} />}
+   {tickets.map(ticket => (
  <NCard key={ticket.id} style={{ marginBottom: SP.md }}
- accent={ticket.status === 'open' ? tokens.warning : ticket.status === AppointmentStatus.IN_PROGRESS ? tokens.info : tokens.success}>
+ accent={ticket.status === 'open' ? tokens.warning : ticket.status === 'in_progress' ? tokens.info : tokens.success}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: SP.sm }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{AR ? ticket.subject_ar : ticket.subject_en}</Text>
- <NBadge label={ticket.status === 'open' ? (AR ? 'مفتوحة' : 'Open') : ticket.status === AppointmentStatus.IN_PROGRESS ? (AR ? 'قيد المعالجة' : 'In Progress') : (AR ? 'محلولة' : 'Resolved')}
- variant={ticket.status === 'open' ? 'warning' : ticket.status === AppointmentStatus.IN_PROGRESS ? 'primary' : 'success'} size="xs" />
+ <Text style={{ flex: 1, fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{ticket.subject}</Text>
+ <NBadge label={ticket.status === 'open' ? (AR ? 'مفتوحة' : 'Open') : ticket.status === 'in_progress' ? (AR ? 'قيد المعالجة' : 'In Progress') : (AR ? 'محلولة' : 'Resolved')}
+ variant={ticket.status === 'open' ? 'warning' : ticket.status === 'in_progress' ? 'primary' : 'success'} size="xs" />
  </View>
- <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{ticket.date} | {AR ? `أولوية: ${ticket.priority === 'high' ? 'عالية' : ticket.priority === 'medium' ? 'متوسطة' : 'منخفضة'}` : `Priority: ${ticket.priority}`}</Text>
+ <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{ticket.tracking_id ? `${ticket.tracking_id} | ` : ''}{ticket.createdAt ? new Date(ticket.createdAt).toLocaleDateString(AR ? 'ar-SA-u-ca-gregory' : 'en-GB') : ''}</Text>
  </NCard>
+   ))}
+   </>
  ))}
 
- {tab === 'faq' && FAQ.map((faq, i) => (
- <NCard key={i} style={{ marginBottom: SP.sm }}>
+ {tab === 'faq' && faqs !== null && faqs.length === 0 && <NEmpty title={AR ? 'لا توجد أسئلة شائعة بعد' : 'No FAQs yet'} />}
+ {tab === 'faq' && (faqs || []).map((faq, i) => (
+ <NCard key={faq.id} style={{ marginBottom: SP.sm }}>
  <TouchableOpacity onPress={() => setExpandedFaq(expandedFaq === i ? null : i)}
  style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md }}>
  <I name={expandedFaq === i ? 'close' : 'plus'} size={16} color={theme.primary} />
- <Text style={{ flex: 1, fontSize: FS.md, fontWeight: FW.semi, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{AR ? faq.q_ar : faq.q_en}</Text>
+ <Text style={{ flex: 1, fontSize: FS.md, fontWeight: FW.semi, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{faqText(faq, AR).q}</Text>
  </TouchableOpacity>
  {expandedFaq === i && (
  <Text style={{ fontSize: FS.sm, color: theme.textSub, lineHeight: 22, marginTop: SP.md, textAlign: AR ? 'right' : 'left', paddingHorizontal: SP.xl }}>
- {AR ? faq.a_ar : faq.a_en}
+ {faqText(faq, AR).a}
  </Text>
  )}
  </NCard>
@@ -98,13 +104,14 @@ export function SupportCenter({ onBack }: { onBack: () => void }) {
  onPress={async () => {
    setLoading(true);
    try {
-      await client.post('/support/tickets', { subject, message: body });
+      await client.post('/support/tickets', { subject: subject.trim(), message: body.trim() });
      show(AR ? 'تم إرسال التذكرة — سنرد خلال 24 ساعة' : 'Ticket submitted — reply within 24h', 'success');
      setSubject('');
      setBody('');
      setTab('tickets');
+     loadSupport();
    } catch (e: any) {
-     show(e.message, 'error');
+     show(serverMessage(e, AR ? 'تعذر إرسال التذكرة' : 'Could not submit the ticket'), 'error');
    } finally {
      setLoading(false);
    }

@@ -154,5 +154,7 @@
   "incomingCall.video": "مكالمة فيديو واردة",
   "incomingCall.patient": "مريض",
   "incomingCall.decline": "رفض",
-  "incomingCall.answer": "رد"
+  "incomingCall.answer": "رد",
+  "support.title": "مركز الدعم",
+  "support.loadFailed": "تعذر تحميل تذاكرك"
 }

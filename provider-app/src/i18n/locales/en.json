@@ -154,5 +154,7 @@
   "incomingCall.video": "Incoming video call",
   "incomingCall.patient": "A patient",
   "incomingCall.decline": "Decline",
-  "incomingCall.answer": "Answer"
+  "incomingCall.answer": "Answer",
+  "support.title": "Support Center",
+  "support.loadFailed": "Could not load your tickets"
 }
