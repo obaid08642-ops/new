@@ -144,6 +144,7 @@ import { CompatModule } from './modules/compat/compat.module';
 import { AdminSpaModule } from './modules/compat/admin-spa.module';
 import { CatalogsModule } from './modules/catalogs/catalogs.module';
 import { InsuranceEngineModule } from './modules/insurance-engine/insurance-engine.module';
+import { QuotesModule } from './modules/quotes/quotes.module';
 import { BillingModule } from './modules/billing/billing.module';
 import { ArticlesModule } from './modules/articles/articles.module';
 
@@ -160,6 +161,8 @@ import { ProductRankingModule } from './modules/product-ranking/product-ranking.
 import { CatalogueRankingModule } from './modules/catalogue-ranking/catalogue-ranking.module';
 import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
 import { mongoDirectConnection } from './common/database/mongo-uri';
+import { mongoConnectionOptions } from './common/database/mongo-options';
+import { MongoSelfHealService } from './common/database/mongo-selfheal.service';
 
 @Module({
   imports: [
@@ -200,17 +203,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     ConfigModule.forRoot({ isGlobal: true, validate: validateEnvironment }),
     MongooseModule.forRootAsync({
       useFactory: () => ({
-        uri: process.env.MONGO_URL || 'mongodb://localhost:27017',
-        dbName: process.env.DB_NAME || 'nabd_nestjs',
-        directConnection: mongoDirectConnection(process.env.MONGO_URL),
-        // ── High-concurrency connection pool (default Mongoose pool = 5, insufficient) ──
-        maxPoolSize: parseInt(process.env.MONGO_MAX_POOL_SIZE || '200', 10),
-        minPoolSize: parseInt(process.env.MONGO_MIN_POOL_SIZE || '20', 10),
-        maxIdleTimeMS: 60_000,
-        serverSelectionTimeoutMS: 5_000,
-        socketTimeoutMS: 45_000,
-        heartbeatFrequencyMS: 10_000,
-        connectTimeoutMS: 10_000,
+        ...mongoConnectionOptions(),
         connectionFactory: (connection) => {
           connection.plugin(require('./common/database/audit.plugin').AuditPlugin);
           return connection;
@@ -316,6 +309,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     BillingModule,
     ArticlesModule,
     InsuranceEngineModule,
+    QuotesModule,
     AdminModule,
     CompatModule, // gap-fill endpoints from the screen↔API wiring audit — registered last
     AdminSpaModule, // admin console SPA REST surface (top-level paths, admin-role guarded)
@@ -325,6 +319,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
   controllers: [HealthController, HealthDashboardController, ProviderPayoutsController],
   providers: [
     GracefulDrain,
+    MongoSelfHealService,   // 2026-11-01: exits when the Mongo connection stays unusable while mongod answers (restart policy brings the process back)
     ImpersonationSessionService,
     ...backgroundProviders([WorkerHeartbeatService]),
     { provide: APP_GUARD, useClass: JwtAuthGuard },

@@ -76,3 +76,20 @@ Honest reading: steady use is about 3.2 GB of 3.8 GB, so the margin is thin and 
 OVH has no larger VPS in stock in Europe, so the host stays at 3.8 GB until one is available (fallback: Hetzner Cloud, see `docs/ops/SERVER_MOVE.md`). Every user-facing feature stays on, search included, ClamAV stays off (remote scanner). The room for meilisearch (+384 MB of limit) comes from limits that were far above use: patient-web 640 -> 448 (uses 274), backend 768 -> 576 (330), redis-cache 384 -> 192 (26), admin-web 384 -> 256 (28). Limits are ceilings, not reservations, so the steady sum in the rule above does not change.
 
 Heavy batch work (catalogue and translation applies, the nightly translation cron, dumps) runs only off-peak and in small batches; the nightly translation resume is already a 00:30 UTC cron (about 03:30 in Riyadh, capped at 600 requests per run), the nightly dump is 03:00 UTC, and the one-off cap rule above (one at a time, 700 MB) stays.
+
+## mongod memory plan (outage 2026-11-01, `99n` on run 81)
+
+| number (MB) | value | meaning |
+|---|---:|---|
+| container limit | 1600 | `mem_limit` |
+| cgroup anon (heap, cache, connections) | 790 | what counts against the limit; page cache is reclaimable and is not an OOM risk (`memory.events max` 2626 is reclaim at the limit, not kills) |
+| tcmalloc heap / allocated / free | 823 / 585 / 238 | mongod holds 238 MB it is not using |
+| WiredTiger cache configured live | 512 | `mongod.conf` says 0.6 GB; applies at the next recreate |
+| connections | 101 (no appName) | ~1 MB each |
+
+**Decision, one change: cacheSizeGB: 0.6 stays** (no cache change) and tcmalloc is asked to release its free pages sooner (`98n-mongod-tcmalloc.sh`, `tcmallocReleaseRate` 1 -> 5, runtime only, dry run first).
+- Cache 0.5 vs 0.6: 0.6 adds about 90 MB of anon (790 -> ~880 MB), which leaves ~720 MB under the 1600 MB limit. The test `test_the_wiredtiger_cache_is_at_most_40_percent_of_the_mongod_limit` keeps the cache at or below 640 MB (40 %); going to 0.7 or more needs a new decision with a new measurement.
+- Why not `minPoolSize` 20 -> lower: 20 idle connections per backend process cost about 20 MB in mongod each way, 40 MB for api + worker at most; it is the smaller number. It changes nothing for the outage and slows the first requests after a restart, so it stays.
+- Why tcmalloc: 238 MB is the largest memory that is held and unused. `tcmallocReleaseRate` is applied with `setParameter` at runtime and is **not** written to `mongod.conf`: a parameter this build rejects would stop mongod from starting. The task prints allocated / heap / free before and after 60 s; if the free part does not fall, `ROLLBACK=yes`. After it has been seen to work, it can be added to `mongod.conf` in the same change as the next recreate.
+- Attribution: the backend and the worker now connect with `appName` `nabd-api`, `nabd-worker` (`nabd-all` in dev) and the self-heal probe as `nabd-selfheal`, so `99n` lists the connection count per client.
+- Alerts: `98m-monitor-cron.sh` shows where `monitor.sh` is scheduled (the 99n search missed root's crontab: the glob was expanded by the caller, which cannot read `/var/spool/cron/crontabs`), `TESTMAIL=yes` sends one mail and prints only sent / failed, `APPLY=yes` installs `/etc/cron.d/nabd-monitor` only when nothing else schedules it.

@@ -42,7 +42,7 @@ describe("specialties SSR boundary", () => {
     expect(html).not.toContain("NAME(future_specialty)");
   });
 
-  it("orders specialties with doctors first, says Coming soon for the ones without, and searches by name", async () => {
+  it("orders specialties with doctors first, keeps the ones without as normal tiles (no coming-soon label), and searches by name", async () => {
     const rows = [
       { slug: "dermatology", name_ar: "جلدية", name_en: "Dermatology", count: 0 },
       { slug: "cardiology", name_ar: "قلب", name_en: "Cardiology", count: 7 },
@@ -50,8 +50,8 @@ describe("specialties SSR boundary", () => {
     state.getPublicSpecialties.mockResolvedValue(new Response(JSON.stringify({ data: rows }), { status: 200 }));
     const html = renderToStaticMarkup(await SpecialtySelectPage({ params: Promise.resolve({ locale: "en" }) }));
     expect(html.indexOf("NAME(cardiology)")).toBeLessThan(html.indexOf("NAME(dermatology)"));
-    expect(html).toContain('data-soon="true"');
-    expect(html).toContain("comingSoon");
+    expect(html).toContain("NAME(dermatology)");
+    expect(html).not.toMatch(/soon/i);
     state.getPublicSpecialties.mockResolvedValue(new Response(JSON.stringify({ data: rows }), { status: 200 }));
     const found = renderToStaticMarkup(await SpecialtySelectPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ q: "جلد" }) }));
     expect(found).toContain("NAME(dermatology)");

@@ -132,12 +132,16 @@ export default function ConfigPortal() {
 
   const savePricing = async () => {
     setPricingMsg('');
+    // The server keeps who changed the pricing and why (audit log): the reason is required, 10 characters or more.
+    const pricingReason = window.prompt('سبب تعديل التسعير (يُحفظ في سجل التدقيق — 10 أحرف على الأقل):', '');
+    if (pricingReason === null) return;
+    if (pricingReason.trim().length < 10) { setPricingMsg('يرجى إدخال سبب لا يقل عن 10 أحرف'); return; }
     try {
       const s = await fetchWithAdminGuard('/api/admin/business-rules/config/surge', {
-        method: 'POST', body: JSON.stringify({ startHour: surgeStart, endHour: surgeEnd, multiplier: surgeMult }),
+        method: 'POST', body: JSON.stringify({ startHour: surgeStart, endHour: surgeEnd, multiplier: surgeMult, reason: pricingReason.trim() }),
       });
       const f = await fetchWithAdminGuard('/api/admin/business-rules/config/fees', {
-        method: 'POST', body: JSON.stringify({ delivery_fee: deliveryFee, service_fee: serviceFee }),
+        method: 'POST', body: JSON.stringify({ delivery_fee: deliveryFee, service_fee: serviceFee, reason: pricingReason.trim() }),
       });
       setPricingMsg(s.ok && f.ok ? 'تم حفظ التسعير' : 'فشل الحفظ — تحقق من القيم');
     } catch { setPricingMsg('فشل الحفظ'); }
@@ -214,14 +218,19 @@ export default function ConfigPortal() {
             const slaReason = window.prompt('سبب تعديل SLA (يُحفظ في سجل التدقيق — 5 أحرف على الأقل):', '');
             if (slaReason === null) { setIsSubmitting(false); return; }
             if (slaReason.trim().length < 5) { alert('يرجى إدخال سبب لا يقل عن 5 أحرف'); setIsSubmitting(false); return; }
-            await fetchWithAdminGuard(`/api/admin/admin/config/sla`, {
+            const slaRes = await fetchWithAdminGuard(`/api/admin/admin/config/sla`, {
         method: 'PUT',
         body: JSON.stringify({ consultationDuration, callRingingDuration, jwtExpiry, reason: slaReason.trim() })
       });
-      alert('SLA variables globally overridden successfully.');
+      // fetchWithAdminGuard does not throw on a 4xx: a refused save (400, or 403 for a role without settings.edit) must not say it worked
+      if (!slaRes.ok) {
+        const body = await slaRes.json().catch(() => ({}));
+        throw new Error(String(Array.isArray(body?.message) ? body.message[0] : body?.message ?? slaRes.status));
+      }
+      alert('تم حفظ متغيرات SLA.');
     } catch (error) {
       console.error(error);
-      alert('Error updating SLA');
+      alert(`تعذر حفظ SLA: ${error instanceof Error ? error.message : ''}`);
     } finally {
       setIsSubmitting(false);
     }

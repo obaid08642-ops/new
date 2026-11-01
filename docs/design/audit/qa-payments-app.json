@@ -1,0 +1,50 @@
+{
+  "slice": "qa-payments-app",
+  "batch": 0,
+  "app": "patient-app",
+  "screens": [
+    {
+      "route": "/payments/failed",
+      "elements": [
+        ["Whole screen app/payments/failed.tsx:5", "redirect to /payments/result with the params kept; the status in the address is dropped and never read, so a link cannot show a payment as failed or paid", "ok"]
+      ],
+      "notes": []
+    },
+    {
+      "route": "/payments/processing",
+      "elements": [
+        ["Whole screen app/payments/processing.tsx:5", "redirect to /payments/result with the params kept", "ok"]
+      ],
+      "notes": []
+    },
+    {
+      "route": "/payments/success",
+      "elements": [
+        ["Whole screen app/payments/success.tsx:5", "redirect to /payments/result with the params kept; the status in the address is dropped, so it never shows 'paid' by itself", "ok"]
+      ],
+      "notes": []
+    },
+    {
+      "route": "/payments/result",
+      "elements": [
+        ["Status check on open and every 3 s (15 times) app/payments/result.tsx:60-61", "GET /payments/status/:ref (payments.module.ts:779, own payment only) and, on the first check and every fourth one, POST /payments/verify/:txn (payments.module.ts:766); no body", "ok"],
+        ["Check again when the app returns to the foreground and when the phone is back online :100,111", "same two calls; local timers", "ok"],
+        ["Paid state: ring, amount, reference, paid on :166-187", "server fields status=paid, amount, currency, id / moyasar_id, paid_at; shown only when the server says paid", "ok"],
+        ["Primary action after paid :170", "navigation to /consultations/booking-status (visit types), /pharmacy/order-tracking (pharmacy) or /(tabs)", "ok"],
+        ["Failed / cancelled state: Try again :190", "pharmacy: navigation to /pharmacy/payment {orderId}; other services: navigation back", "ok"],
+        ["Refunded state body :193", "static key payments.result.refundedBody (it read the 'No payment can be made' text of the cancelled order)", "fixed"],
+        ["Pending state and 'Check again' button :196-207", "same two calls; local attempts counter", "ok"],
+        ["Unknown state (no id, or the server answered an unknown status) :158", "static keys; navigation to the order or home", "ok"],
+        ["Unreachable state: Retry :161", "same two calls again", "ok"],
+        ["Hosted payment page opener :94", "Linking.openURL(paymentUrl) once, https addresses only (diagnostics, nursing, insurance co-pay hand it over)", "ok"],
+        ["Header back :144", "navigation back or /(tabs)", "ok"],
+        ["Remember a payment under way :90", "device storage (paymentInFlight); no request", "ok"]
+      ],
+      "notes": []
+    }
+  ],
+  "needsReview": [
+    { "route": "/payments/result", "element": "Hosted payment page opener", "kind": "client", "note": "Any https address in the paymentUrl param is opened in the browser (deep links can carry it); there is no allow-list of the gateway's hosts, so a crafted link could open a look-alike page from the app; an allow-list needs the gateway host list from the owner.", "file": "patient-app/app/payments/result.tsx", "line": 94 },
+    { "route": "/payments/result", "element": "Verify only with our id", "kind": "client", "note": "When only the gateway id (pay_...) is on the address, the screen never calls the verify refresh and relies on webhooks to settle the stored status.", "file": "patient-app/app/payments/result.tsx", "line": 59, "backend": "backend/src/modules/payments/payments.module.ts:766" }
+  ]
+}

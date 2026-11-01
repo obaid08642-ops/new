@@ -1342,8 +1342,7 @@
         "a": "جی ہاں، میری اپائنٹمنٹس سے پالیسی کے مطابق۔"
       }
     },
-    "faqTitle": "عام سوالات",
-    "comingSoon": "جلد آ رہا ہے"
+    "faqTitle": "عام سوالات"
   },
   "HomeCareServices": {
     "eyebrow": "گھر کی دیکھ بھال",
@@ -1520,10 +1519,7 @@
     "activeFilters": "فعال فلٹر",
     "removeFilter": "فلٹر {filter} ہٹائیں",
     "filterAll": "سب",
-    "specialtyAll": "سب",
-    "comingSoon": "جلد آ رہا ہے",
-    "comingSoonTitle": "{specialty} جلد آ رہا ہے",
-    "comingSoonBody": "اس شعبے میں ابھی کوئی ڈاکٹر نہیں ہے۔ کوئی اور شعبہ منتخب کریں۔"
+    "specialtyAll": "سب"
   },
   "LabsServices": {
     "eyebrow": "لیبارٹری کیئر",
@@ -1627,7 +1623,6 @@
     "turnaround": "{value} گھنٹے",
     "fasting": "روزہ درکار ہو سکتا ہے",
     "preparationTitle": "تیاری",
-    "bookingUnavailableNotice": "اس سروس کی آن لائن بکنگ ابھی دستیاب نہیں۔",
     "facilityVisit": "مرکز پر وزٹ"
   },
   "Wishlist": {

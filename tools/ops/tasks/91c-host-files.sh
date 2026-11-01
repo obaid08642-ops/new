@@ -25,10 +25,10 @@ REL_ROOT=${OPS_RELEASE_DIR:-/opt/nabdah/releases}
 ENVF=$D/.env.production
 RC=${REDIS_CONTAINER:-nabdah-redis}
 # path under the release's deploy/ dir (= under $D on the server)
-# scripts/clamav-window.sh + _backup-common.sh (the window cron), backup.sh + _dump-guard.sh (the nightly dump and its size guard), _mongodump-oneoff.sh + _mongorestore-list.sh (what both source):
+# scripts/clamav-window.sh + _backup-common.sh (the window cron), backup.sh + _dump-guard.sh (the nightly dump and its size guard), _mongodump-oneoff.sh + _mongorestore-list.sh (what both source), backend-watchdog.sh (the unhealthy-container watchdog cron, installed by 98k), monitor.sh (disk/container/backup alerts and the test mail, scheduled by 98m):
 # the deploy task writes none of them, so the server kept the copies of whenever they were last installed by hand (run 77: the window script on the server differs from the release).
 # backup.sh and _dump-guard.sh MUST travel together: a backup.sh that sources a _dump-guard.sh the server lacks would treat every dump as suspect.
-FILES="mongo/mongod.conf redis/redis.conf scripts/oplog-backup.sh scripts/_oplog-mongo-wait.sh scripts/memory-report.sh scripts/clamav-window.sh scripts/_backup-common.sh scripts/backup.sh scripts/_dump-guard.sh scripts/_mongodump-oneoff.sh scripts/_mongorestore-list.sh"
+FILES="mongo/mongod.conf redis/redis.conf scripts/oplog-backup.sh scripts/_oplog-mongo-wait.sh scripts/memory-report.sh scripts/clamav-window.sh scripts/_backup-common.sh scripts/backup.sh scripts/_dump-guard.sh scripts/_mongodump-oneoff.sh scripts/_mongorestore-list.sh scripts/backend-watchdog.sh scripts/monitor.sh"
 TS=$(date -u +%Y%m%dT%H%M%SZ)
 DK="sudo -n docker"
 echo "## host-files"

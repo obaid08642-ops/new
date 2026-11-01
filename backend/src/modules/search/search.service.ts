@@ -266,6 +266,13 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
         this.applyChange(source, _id, ev.operationType === 'delete' ? null : ev.fullDocument ?? null)
           .catch((e) => this.log.warn(`search sync ${source}: ${(e as Error).message}`));
       });
+      // a stream that is closed by the server (a mongod restart) without an error event is not reopened by the error handler below
+      stream.on('close', () => {
+        if (this.stopped || this.stream !== stream || this.retry) return;
+        this.stream = null;
+        this.retry = setTimeout(() => { this.retry = null; this.watch(); }, 5000);
+        this.retry.unref?.();
+      });
       stream.on('error', (e: Error) => {
         void stream.close().catch(() => null);
         this.stream = null;

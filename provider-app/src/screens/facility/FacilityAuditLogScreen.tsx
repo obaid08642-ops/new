@@ -34,10 +34,10 @@ export function FacilityAuditLogScreen({ onBack }: { onBack: () => void }) {
             <NCard key={log.id} style={{ marginBottom: SP.md, borderLeftWidth: 4, borderLeftColor: log.severity === 'danger' ? theme.danger : log.severity === 'warning' ? theme.warn : theme.primary }}>
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: SP.sm }}>
                 <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text }}>
-                  {log.user}
+                  {log.user || (log.actor ? String(log.actor).slice(0, 8) : '—')}
                 </Text>
                 <Text style={{ fontSize: 10, color: theme.textSub }}>
-                  {log.date}
+                  {log.date || (log.created_at ? new Date(log.created_at).toLocaleString() : '')}
                 </Text>
               </View>
               

@@ -45,6 +45,9 @@ export function CrmHub({ onBack, onNavigate }: { onBack: () => void; onNavigate:
  const [blockReason, setBlockReason] = useState('');
  const [noteText, setNoteText] = useState('');
  const [notesList, setNotesList] = useState<string[]>([]);
+ // what the server holds, kept so a save does not wipe the tags or re-date every note (the PUT replaces the whole record)
+ const [loadedNotes, setLoadedNotes] = useState<Array<{ id?: string; date?: string; text: string }>>([]);
+ const [loadedTags, setLoadedTags] = useState<string[]>([]);
  const [saveLoading, setSaveLoading] = useState(false);
 
  const openPatientCrm = async (pat: typeof PATIENTS[0]) => {
@@ -56,7 +59,10 @@ export function CrmHub({ onBack, onNavigate }: { onBack: () => void; onNavigate:
  setIsFav(Boolean(res.data.favorite));
  setIsBlocked(Boolean(res.data.blocked));
  setBlockReason(res.data.blocked_reason || '');
- setNotesList(Array.isArray(res.data.notes) ? res.data.notes.map((note: any) => typeof note === 'string' ? note : note.text).filter(Boolean) : []);
+ const rawNotes: Array<{ id?: string; date?: string; text: string }> = Array.isArray(res.data.notes) ? res.data.notes.map((note: any) => (typeof note === 'string' ? { text: note } : { id: note.id, date: note.date, text: note.text })).filter((n: { text: string }) => n.text) : [];
+ setLoadedNotes(rawNotes);
+ setLoadedTags(Array.isArray(res.data.tags) ? res.data.tags.map(String) : []);
+ setNotesList(rawNotes.map((n) => n.text));
  setNoteText('');
  } catch (e) {
  show(AR ? 'فشل تحميل بيانات العميل' : 'Failed to fetch CRM data', 'error');
@@ -78,12 +84,16 @@ export function CrmHub({ onBack, onNavigate }: { onBack: () => void; onNavigate:
  favorite: isFav,
  blocked: isBlocked,
  blocked_reason: isBlocked ? blockReason : '',
- notes: updatedNotes.map((text, index) => ({ id: `${selectedPat.id}-${index}`, date: new Date().toISOString().slice(0, 10), text })),
+ tags: loadedTags,
+ notes: updatedNotes.map((text, index) => {
+   const kept = loadedNotes[index];
+   return kept && kept.text === text ? { id: kept.id || `${selectedPat.id}-${index}`, date: kept.date || new Date().toISOString().slice(0, 10), text } : { id: `${selectedPat.id}-${Date.now()}-${index}`, date: new Date().toISOString().slice(0, 10), text };
+ }),
  });
  show(AR ? 'تم حفظ تفاصيل العميل بنجاح' : 'Patient CRM updated successfully', 'success');
  setSelectedPat(null);
- } catch (e) {
- show(AR ? 'فشل حفظ التحديثات' : 'Failed to update CRM data', 'error');
+ } catch (e: any) {
+ show(e?.response?.data?.message || (AR ? 'فشل حفظ التحديثات' : 'Failed to update CRM data'), 'error');
  } finally {
  setSaveLoading(false);
  }
