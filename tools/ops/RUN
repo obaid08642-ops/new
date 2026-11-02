@@ -1,4 +1,10 @@
-# 2026-11-02 lead reviewer: run 90 (READ-ONLY): why Mailjet sends little now. 99z: provider order, which have keys, the month's primary (the app rotates it monthly), mail_log per provider per day for 21 days, last errors, keep-alives. 74: Mailjet's own answer to the keys in .env.production (status codes only). Nothing is sent or changed.
-release:ba829e5f4551fa5491c79d843037be73c180661f
-99z-mail-providers
-74-mailjet-diagnose
+# 2026-11-02 11:30 lead reviewer: run 91 = deploy main@ac91b2a1. Brings: pharmacy own couriers + zone + fee (#2389), credential fields via admin review (#2391),
+#   refund matrix fixes (#2394: gross after partial refund, commission + VAT reversal, provider/admin cancel refunds in full), provider lifecycle gaps (#2385),
+#   app telehealth consent at call join (#2388), app filters Shortest wait + prescription any/only/none (#2393), 99x defensive listing (#2392).
+# 99x: READ-ONLY inspect of the extra databases (nabd_staging, temp_restore); nothing is dropped (DROP needs the owner's approval later).
+release:ac91b2a1b796fbe37fcc56607e75b85317e6ad8d
+97-free-old-predeploy
+93-free-unused-images
+60-deploy-main
+99x-extra-dbs
+cf-purge-api

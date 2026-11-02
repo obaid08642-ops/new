@@ -25,10 +25,18 @@ echo "## extra-dbs"
 say() { echo "status: extra-dbs: $*"; }
 mb() { echo $(( ($1 + 524288) / 1048576 )); }
 q() { $DK exec "$CT" sh -c 'mongosh --quiet -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --eval "$1"' sh "$1" 2>/dev/null | tr -d '\r'; }
+qraw() { $DK exec "$CT" sh -c 'mongosh --quiet -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --eval "$1"' sh "$1" 2>&1 < /dev/null | tr -d '\r'; }
 APP=$($DK exec nabdah-backend printenv DB_NAME 2>/dev/null | tr -d '\r'); APP=${APP:-nabd_nestjs}
 # print() writes the raw JSON (a bare expression would be printed quoted by mongosh)
-ALL=$(q "const o={};for(const x of db.adminCommand({listDatabases:1}).databases){if(['admin','local','config'].includes(x.name))continue;const d=db.getSiblingDB(x.name);const cs={};for(const c of d.getCollectionNames()){if(c.startsWith('system.'))continue;let m=null;for(const f of ['updatedAt','createdAt','updated_at','created_at']){const r=d.getCollection(c).find({[f]:{\$exists:true}},{[f]:1,_id:0}).sort({[f]:-1}).limit(1).toArray()[0];if(r&&r[f]){const t=new Date(r[f]).toISOString().slice(0,10);if(!m||t>m)m=t}}cs[c]={n:d.getCollection(c).estimatedDocumentCount(),newest:m,mb:Math.round(d.getCollection(c).stats().storageSize/1048576)}}o[x.name]={mb:Math.round(x.sizeOnDisk/1048576),c:cs}}print(JSON.stringify(o))" | grep -E '^\{' | tail -1)
-echo "$ALL" | jq -e . >/dev/null 2>&1 || { say "ABORT the database list is unreadable"; exit 1; }
+# The listing is ONE read-only mongosh script, defensive per collection (a view, a failing stats call or an unreadable collection becomes an `err` mark, never the end of the task); the newest date comes from one
+# $group/$max pass per collection (no sort, so no in-memory sort limit). print() writes the raw JSON (a bare expression would be printed quoted by mongosh).
+# stderr is kept (2>&1) so a mongosh failure is visible: the ABORT line says WHY in one line, with anything that looks like a URI cut out.
+RAW=$(qraw "const o={};for(const x of db.adminCommand({listDatabases:1}).databases){if(['admin','local','config'].includes(x.name))continue;const d=db.getSiblingDB(x.name);const cs={};let names=[];try{names=d.getCollectionNames()}catch(e){cs['(unreadable)']={n:0,newest:null,mb:0,err:String(e.message||e).slice(0,80)}}for(const c of names){if(c.startsWith('system.'))continue;const k=d.getCollection(c);const r={n:0,newest:null,mb:0};try{r.n=k.estimatedDocumentCount()}catch(e){r.err='count'}try{r.mb=Math.round(d.runCommand({collStats:c}).storageSize/1048576)||0}catch(e){r.err=(r.err||'')+' stats'}try{const g=k.aggregate([{\$group:{_id:null,a:{\$max:'\$updatedAt'},b:{\$max:'\$createdAt'},c:{\$max:'\$updated_at'},e:{\$max:'\$created_at'}}}],{allowDiskUse:true}).toArray()[0];if(g){for(const f of ['a','b','c','e']){const v=g[f];if(v===null||v===undefined)continue;const t=new Date(v);if(isNaN(t.getTime()))continue;const day=t.toISOString().slice(0,10);if(!r.newest||day>r.newest)r.newest=day}}}catch(e){r.err=(r.err||'')+' newest'}cs[c]=r}o[x.name]={mb:Math.round(x.sizeOnDisk/1048576),c:cs}}print(JSON.stringify(o))")
+ALL=$(echo "$RAW" | grep -E '^\{' | tail -1)
+if ! echo "$ALL" | jq -e . >/dev/null 2>&1; then
+  WHY=$(echo "$RAW" | grep -v '^[[:space:]]*$' | tail -1 | sed -E 's#[a-zA-Z+]+://[^[:space:]]*#<uri>#g' | cut -c1-200)
+  say "ABORT the database list is unreadable: ${WHY:-mongosh printed nothing (is $CT running? are its root credentials set?)}"; exit 1
+fi
 say "app database: $APP (never touched by this task)"
 say "databases: $(echo "$ALL" | jq -r 'to_entries | map("\(.key)=\(.value.mb)MB") | join(" ")')"
 EXTRA=$(echo "$ALL" | jq -r --arg a "$APP" 'keys[] | select(. != $a)')
