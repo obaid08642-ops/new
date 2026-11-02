@@ -37,6 +37,7 @@ import { moyasarBase } from '../../common/moyasar-base';
 import { timedFetch } from '../../common/external-call';
 import { settlementDelayDefault, DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT } from '../../common/commission-defaults';
 import { PROMO_COLLECTION, promoState, type CommissionPromo } from '../../common/commission-promo';
+import { toHalalas } from '../../common/money';
 
 export const LEDGER_TYPES = [
   'provider_earning', 'provider_debit', 'payout', 'refund', 'commission',
@@ -101,6 +102,11 @@ export class LedgerService {
       type: entry.type,
       state: entry.state || 'cleared',
       amount: round2(entry.amount),
+      // R11 dual write: integer halalas next to the legacy double (docs/platform/R11-money-integrity.md); readers still use the doubles
+      amount_halalas: toHalalas(round2(entry.amount)),
+      ...(entry.gross !== undefined && entry.gross !== null ? { gross_halalas: toHalalas(entry.gross) } : {}),
+      ...(entry.commission !== undefined && entry.commission !== null ? { commission_halalas: toHalalas(entry.commission) } : {}),
+      ...(entry.vat !== undefined && entry.vat !== null ? { vat_halalas: toHalalas(entry.vat) } : {}),
       ...(entry.available_at ? { available_at: entry.available_at } : {}),
       ref_type: entry.ref_type, ref_id: entry.ref_id, order_id: entry.order_id,
       gross: entry.gross, commission_percent: entry.commission_percent,
