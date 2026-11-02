@@ -1,0 +1,18 @@
+# R4: a second API replica behind nginx. NOT used on the 3.8 GB host (a second backend is +576m limit / +400m reservation: see docs/platform/R4-horizontal-scale.md,
+# it needs the RAM upgrade first). Use:
+#   docker compose -f docker-compose.production.yml -f docker-compose.scale-api.yml up -d backend-2
+# `backend-2` is the same service as `backend` (same image, env, healthcheck, limits, PROCESS_ROLE=api) under another container name. Both carry the network alias
+# `backend`, so Docker DNS returns both addresses and nginx (upstream backend_pool, `server backend:8002 resolve`) balances over them and drops a replica that fails
+# its health check or connections (max_fails/fail_timeout). Socket.IO needs no stickiness: clients use the websocket transport only and rooms go through the Redis adapter.
+# Rolling deploy of one replica at a time: deploy/scripts/rolling-deploy.sh backend, then the same for backend-2 (the script rolls the service it is given).
+services:
+  backend-2:
+    extends:
+      file: docker-compose.production.yml
+      service: backend
+    container_name: nabdah-backend-2
+    networks:
+      internal:
+        aliases: [backend]
+      web:
+        aliases: [backend]
