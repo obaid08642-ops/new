@@ -14,7 +14,7 @@ import { LegalEnterpriseService } from './legal-enterprise.service';
 import { LegalEnterpriseController } from './legal-enterprise.controller';
 import { PROVIDER_ROLES, UserRole } from '../../common/enums';
 import { UpdateLegalPolicyDto } from './legal.dto';
-import { DEFAULT_COMMISSIONS } from '../../common/commission-defaults';
+import { DEFAULT_COMMISSIONS, DEFAULT_COMMISSION_PERCENT } from '../../common/commission-defaults';
 
 
 import { Permission, RequirePermissions } from '../../common/permissions';
@@ -150,7 +150,7 @@ export class LegalService {
     const override = (cfg.provider_overrides as any)?.[providerId];
     if (override) return { percent: override.percent, source: 'provider_override' };
     const t = (cfg.service_types as any)?.[serviceType];
-    return { percent: t?.percent ?? 10, source: `service_type:${serviceType}` };
+    return { percent: t?.percent ?? DEFAULT_COMMISSION_PERCENT, source: `service_type:${serviceType}` };
   }
 }
 

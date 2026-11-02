@@ -196,7 +196,8 @@ export default function ProviderFullDetail({ detail, accountId }: { detail: any;
   const [contractMeta, setContractMeta] = useState<any | null>(null);
   const [contractBusy, setContractBusy] = useState(false);
 
-  const downloadContract = async () => {
+  /** Fetches the stored signed PDF once; `view` opens it in a new tab, otherwise it is downloaded. Both show the fingerprint and the sharing switch. */
+  const openContract = async (mode: 'view' | 'download') => {
     if (!cid) return;
     setContractBusy(true);
     try {
@@ -205,16 +206,22 @@ export default function ProviderFullDetail({ detail, accountId }: { detail: any;
       const data = await res.json();
       const bytes = Uint8Array.from(atob(data.pdf_base64), c => c.charCodeAt(0));
       const url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
-      const a = document.createElement('a');
-      a.href = url; a.download = `contract-${cid}.pdf`; a.click();
-      URL.revokeObjectURL(url);
-      setContractMeta({ visible_to_provider: data.visible_to_provider, sha256: data.sha256 });
+      if (mode === 'view') {
+        window.open(url, '_blank', 'noopener');
+        setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      } else {
+        const a = document.createElement('a');
+        a.href = url; a.download = `contract-${cid}.pdf`; a.click();
+        URL.revokeObjectURL(url);
+      }
+      setContractMeta({ visible_to_provider: data.visible_to_provider, sha256: data.sha256, generated_at: data.generated_at, signer_name: data.signer_name, signer_role: data.signer_role });
     } catch {
       alert('تعذر تحميل العقد — لم يُولّد عقد لهذا المزود بعد.');
     } finally {
       setContractBusy(false);
     }
   };
+  const downloadContract = () => openContract('download');
 
   const hasOnboarding = !!detail?.onboarding;
   const extraKeys = Object.keys(ob).filter(k => !RENDERED_ONBOARDING_KEYS.has(k));
@@ -563,7 +570,18 @@ export default function ProviderFullDetail({ detail, accountId }: { detail: any;
             disabled={contractBusy || !cid}
             className="bg-teal-700 hover:bg-teal-800 disabled:opacity-50 text-white text-xs font-bold px-3 py-2 rounded-lg shadow"
           >{contractBusy ? 'جاري التحميل…' : 'تحميل العقد PDF'}</button>
+          <button
+            onClick={() => openContract('view')}
+            disabled={contractBusy || !cid}
+            className="bg-white border border-teal-700 text-teal-800 disabled:opacity-50 text-xs font-bold px-3 py-2 rounded-lg"
+          >عرض العقد</button>
         </div>
+        {contractMeta && (
+          <div className="text-xs text-gray-600 space-y-1">
+            {contractMeta.generated_at && <p>تاريخ توليد العقد: {new Date(contractMeta.generated_at).toLocaleString('ar-SA-u-ca-gregory')}</p>}
+            {contractMeta.signer_name && <p>الموقّع: {contractMeta.signer_name}{contractMeta.signer_role ? ` (${contractMeta.signer_role})` : ''}</p>}
+          </div>
+        )}
         {contractMeta && (
           <div className="flex items-center justify-between text-xs text-gray-600">
             <span className="font-mono break-all">SHA: {contractMeta.sha256}</span>

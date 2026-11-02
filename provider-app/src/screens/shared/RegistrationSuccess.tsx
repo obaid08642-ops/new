@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import * as LegacyFS from 'expo-file-system/legacy';
+import { contractFileName, saveContractPdf } from '../../utils/contractFile';
 import client from '../../api/client';
 import { sendEmailOtp, verifyEmailOtp } from '../../api/otp';
 import { useTheme, useLang, useToast } from '../../context';
@@ -58,15 +58,7 @@ export function RegistrationSuccess({ onDone, email, providerType = 'provider' }
       const res = await client.get('/provider-onboarding/contract');
       const b64 = res.data?.pdf_base64;
       if (!b64) throw new Error('empty');
-      const name = `nabd-contract-${Date.now()}.pdf`;
-      if (Platform.OS === 'android') {
-        const perm = await LegacyFS.StorageAccessFramework.requestDirectoryPermissionsAsync();
-        if (!perm.granted) throw new Error('no_perm');
-        const uri = await LegacyFS.StorageAccessFramework.createFileAsync(perm.directoryUri, name.replace('.pdf', ''), 'application/pdf');
-        await LegacyFS.writeAsStringAsync(uri, b64, { encoding: LegacyFS.EncodingType.Base64 });
-      } else {
-        await LegacyFS.writeAsStringAsync(LegacyFS.documentDirectory + name, b64, { encoding: LegacyFS.EncodingType.Base64 });
-      }
+      await saveContractPdf(b64, contractFileName(res.data?.sha256));
       show(AR ? 'تم حفظ العقد بنجاح' : 'Contract saved successfully', 'success');
     } catch (e: any) {
       const st = e?.response?.status;

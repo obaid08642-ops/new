@@ -51,12 +51,14 @@ export function ReviewStep<T extends ReviewData>({ config, data, update, uploads
   config: ReviewConfig<T>; data: T; update: (patch: Partial<T>) => void; uploads: Uploader;
   step: number; total: number; onBack: () => void; onDone: () => void;
 }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t } = useLang(); const AR = lang === 'ar';
   const { show } = useToast();
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [showContract, setShowContract] = useState(false);
+  // the version of the contract the provider read to the end and accepted (the server recorded it with time, device and address)
+  const [acceptedVersion, setAcceptedVersion] = useState<string | null>(null);
   const [showSigModal, setShowSigModal] = useState(false);
   const [showOtp, setShowOtp] = useState(false);
   const align = AR ? 'right' : 'left';
@@ -81,6 +83,7 @@ export function ReviewStep<T extends ReviewData>({ config, data, update, uploads
     const problem = config.precheck?.(data, AR);
     if (problem) { show(problem, 'error'); return; }
     if (config.agree && !agreed) { show(AR ? 'يرجى الموافقة على الشروط' : 'Please agree to terms', 'warning'); return; }
+    if (!acceptedVersion) { show(t('contract.mustAccept'), 'warning'); setShowContract(true); return; }
     if (!data.signatureData) { show(AR ? 'الرجاء توقيع العقد أولاً' : 'Please sign the contract first', 'error'); return; }
     // The real e-mail OTP is sent by the backend mailer before the modal opens.
     sendEmailOtp(emailOf(data))
@@ -145,8 +148,11 @@ export function ReviewStep<T extends ReviewData>({ config, data, update, uploads
         <TouchableOpacity onPress={() => setShowContract(true)} style={{
           backgroundColor: theme.surface, padding: SP.md, borderRadius: R.md, borderWidth: 1, borderColor: theme.primary, alignItems: 'center', marginBottom: SP.lg,
         }}>
-          <Text style={{ color: theme.primary, fontWeight: FW.bold, fontSize: FS.md }}>{AR ? 'الاطلاع على العقد' : 'View Contract'}</Text>
+          <Text style={{ color: theme.primary, fontWeight: FW.bold, fontSize: FS.md }}>{t('contract.view')}</Text>
         </TouchableOpacity>
+        {acceptedVersion && (
+          <Text style={{ fontSize: FS.xs, color: theme.success, textAlign: align, marginBottom: SP.md }}>{t('contract.viewAccepted', { version: acceptedVersion })}</Text>
+        )}
 
         <Text style={{ ...heading, marginTop: SP.md }}>{AR ? 'اسم الموقّع' : 'Signatory Name'}</Text>
         <NInput value={data.signerName} onChange={(v) => update({ signerName: v } as Partial<T>)} placeholder={AR ? 'الاسم الثلاثي' : 'Full Name'} />
@@ -187,7 +193,7 @@ export function ReviewStep<T extends ReviewData>({ config, data, update, uploads
           style={{ marginBottom: 50, backgroundColor: theme.success }} />
       </ScrollView>
 
-      <ContractModal visible={showContract} onClose={() => setShowContract(false)} pricingDetails={config.contractPricing?.(data)} />
+      <ContractModal visible={showContract} onClose={() => setShowContract(false)} onAccepted={setAcceptedVersion} pricingDetails={config.contractPricing?.(data)} />
       <SignatureCanvasModal visible={showSigModal} onClose={() => setShowSigModal(false)} onOK={(sig) => update({ signatureData: sig } as Partial<T>)} />
       <OtpModal visible={showOtp} onClose={() => setShowOtp(false)} target={emailOf(data)}
         onVerify={async (code) => {

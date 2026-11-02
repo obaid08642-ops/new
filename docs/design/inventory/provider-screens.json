@@ -1,5 +1,5 @@
 {
- "commit": "2b07a9f7a",
+ "commit": "b87b63144",
  "routes": [
   {
    "app": "provider-app",
@@ -781,502 +781,6 @@
      "role": "app",
      "name": "Register:DoctorRegistration",
      "file": "provider-app/App.tsx",
-     "line": 199
-    }
-   ],
-   "template": "n/a",
-   "board": "— (not redesigned)",
-   "batch": "provider",
-   "status": "not redesigned",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/auth/login",
-     "target": "backend",
-     "query": "",
-     "line": 36,
-     "file": "provider-app/src/api/provider.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/auth/auth.controller.ts:192"
-    },
-    {
-     "method": "GET",
-     "path": "/catalogs/specialties",
-     "target": "backend",
-     "query": "",
-     "line": 150,
-     "file": "provider-app/src/api/catalogs.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/catalogs/catalogs.controller.ts:52"
-    },
-    {
-     "method": "GET",
-     "path": "/config",
-     "target": "backend",
-     "query": "",
-     "line": 15,
-     "file": "provider-app/src/hooks/useUploadsEnabled.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/config/config.controller.ts:10"
-    },
-    {
-     "method": "GET",
-     "path": "/insurance/companies",
-     "target": "backend",
-     "query": "",
-     "line": 30,
-     "file": "provider-app/src/api/catalogs.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/insurance/insurance.module.ts:461"
-    },
-    {
-     "method": "POST",
-     "path": "/legal/accept/provider_agreement",
-     "target": "backend",
-     "query": "",
-     "line": 119,
-     "file": "provider-app/src/components/ContractModal.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:176"
-    },
-    {
-     "method": "GET",
-     "path": "/legal/policy/provider_agreement",
-     "target": "backend",
-     "query": "?lang=:param",
-     "line": 26,
-     "file": "provider-app/src/components/ContractModal.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:166"
-    },
-    {
-     "method": "GET",
-     "path": "/locations/cities",
-     "target": "backend",
-     "query": "",
-     "line": 26,
-     "file": "provider-app/src/components/GeoPicker.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/location/location.controller.ts:20"
-    },
-    {
-     "method": "GET",
-     "path": "/locations/districts",
-     "target": "backend",
-     "query": "?city=:param",
-     "line": 30,
-     "file": "provider-app/src/components/GeoPicker.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/location/location.controller.ts:27"
-    },
-    {
-     "method": "GET",
-     "path": "/locations/regions",
-     "target": "backend",
-     "query": "",
-     "line": 25,
-     "file": "provider-app/src/components/GeoPicker.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/location/location.controller.ts:13"
-    },
-    {
-     "method": "GET",
-     "path": "/provider-onboarding/contract",
-     "target": "backend",
-     "query": "",
-     "line": 58,
-     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:569"
-    },
-    {
-     "method": "POST",
-     "path": "/provider-onboarding/start",
-     "target": "backend",
-     "query": "",
-     "line": 27,
-     "file": "provider-app/src/api/provider.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:547"
-    },
-    {
-     "method": "POST",
-     "path": "/provider-onboarding/step2",
-     "target": "backend",
-     "query": "",
-     "line": 123,
-     "file": "provider-app/src/api/provider.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:553"
-    },
-    {
-     "method": "POST",
-     "path": "/provider-onboarding/step3",
-     "target": "backend",
-     "query": "",
-     "line": 129,
-     "file": "provider-app/src/api/provider.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:557"
-    },
-    {
-     "method": "POST",
-     "path": "/provider-onboarding/submit",
-     "target": "backend",
-     "query": "",
-     "line": 135,
-     "file": "provider-app/src/api/provider.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:561"
-    },
-    {
-     "method": "POST",
-     "path": "/provider/auth/change-password",
-     "target": "backend",
-     "query": "",
-     "line": 71,
-     "file": "provider-app/src/api/provider.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:70"
-    },
-    {
-     "method": "POST",
-     "path": "/provider/auth/login",
-     "target": "backend",
-     "query": "",
-     "line": 52,
-     "file": "provider-app/src/api/provider.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:42"
-    },
-    {
-     "method": "POST",
-     "path": "/provider/auth/send-otp",
-     "target": "backend",
-     "query": "",
-     "line": 10,
-     "file": "provider-app/src/api/otp.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:56"
-    },
-    {
-     "method": "POST",
-     "path": "/provider/auth/verify-email",
-     "target": "backend",
-     "query": "",
-     "line": 19,
-     "file": "provider-app/src/api/otp.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:61"
-    },
-    {
-     "method": "POST",
-     "path": "/storage/upload",
-     "target": "backend",
-     "query": "",
-     "line": 97,
-     "file": "provider-app/src/api/provider.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:540"
-    }
-   ],
-   "files": 33,
-   "unresolved": 1,
-   "navIssues": []
-  },
-  {
-   "app": "provider-app",
-   "route": "FacilityRegistration",
-   "component": "FacilityRegistration",
-   "area": "auth-onboarding",
-   "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-   "line": 143,
-   "registrations": [
-    {
-     "role": "app",
-     "name": "Register:FacilityRegistration",
-     "file": "provider-app/App.tsx",
-     "line": 200
-    }
-   ],
-   "template": "n/a",
-   "board": "— (not redesigned)",
-   "batch": "provider",
-   "status": "not redesigned",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/auth/login",
-     "target": "backend",
-     "query": "",
-     "line": 36,
-     "file": "provider-app/src/api/provider.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/auth/auth.controller.ts:192"
-    },
-    {
-     "method": "GET",
-     "path": "/catalogs/specialties",
-     "target": "backend",
-     "query": "",
-     "line": 150,
-     "file": "provider-app/src/api/catalogs.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/catalogs/catalogs.controller.ts:52"
-    },
-    {
-     "method": "GET",
-     "path": "/config",
-     "target": "backend",
-     "query": "",
-     "line": 15,
-     "file": "provider-app/src/hooks/useUploadsEnabled.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/config/config.controller.ts:10"
-    },
-    {
-     "method": "GET",
-     "path": "/insurance/companies",
-     "target": "backend",
-     "query": "",
-     "line": 30,
-     "file": "provider-app/src/api/catalogs.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/insurance/insurance.module.ts:461"
-    },
-    {
-     "method": "POST",
-     "path": "/legal/accept/provider_agreement",
-     "target": "backend",
-     "query": "",
-     "line": 119,
-     "file": "provider-app/src/components/ContractModal.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:176"
-    },
-    {
-     "method": "GET",
-     "path": "/legal/policy/provider_agreement",
-     "target": "backend",
-     "query": "?lang=:param",
-     "line": 26,
-     "file": "provider-app/src/components/ContractModal.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:166"
-    },
-    {
-     "method": "GET",
-     "path": "/locations/cities",
-     "target": "backend",
-     "query": "",
-     "line": 26,
-     "file": "provider-app/src/components/GeoPicker.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/location/location.controller.ts:20"
-    },
-    {
-     "method": "GET",
-     "path": "/locations/districts",
-     "target": "backend",
-     "query": "?city=:param",
-     "line": 30,
-     "file": "provider-app/src/components/GeoPicker.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/location/location.controller.ts:27"
-    },
-    {
-     "method": "GET",
-     "path": "/locations/regions",
-     "target": "backend",
-     "query": "",
-     "line": 25,
-     "file": "provider-app/src/components/GeoPicker.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/location/location.controller.ts:13"
-    },
-    {
-     "method": "GET",
-     "path": "/provider-onboarding/contract",
-     "target": "backend",
-     "query": "",
-     "line": 58,
-     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:569"
-    },
-    {
-     "method": "POST",
-     "path": "/provider-onboarding/start",
-     "target": "backend",
-     "query": "",
-     "line": 27,
-     "file": "provider-app/src/api/provider.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:547"
-    },
-    {
-     "method": "POST",
-     "path": "/provider-onboarding/step2",
-     "target": "backend",
-     "query": "",
-     "line": 123,
-     "file": "provider-app/src/api/provider.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:553"
-    },
-    {
-     "method": "POST",
-     "path": "/provider-onboarding/step3",
-     "target": "backend",
-     "query": "",
-     "line": 129,
-     "file": "provider-app/src/api/provider.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:557"
-    },
-    {
-     "method": "POST",
-     "path": "/provider-onboarding/submit",
-     "target": "backend",
-     "query": "",
-     "line": 135,
-     "file": "provider-app/src/api/provider.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:561"
-    },
-    {
-     "method": "POST",
-     "path": "/provider/auth/change-password",
-     "target": "backend",
-     "query": "",
-     "line": 71,
-     "file": "provider-app/src/api/provider.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:70"
-    },
-    {
-     "method": "POST",
-     "path": "/provider/auth/login",
-     "target": "backend",
-     "query": "",
-     "line": 52,
-     "file": "provider-app/src/api/provider.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:42"
-    },
-    {
-     "method": "POST",
-     "path": "/provider/auth/send-otp",
-     "target": "backend",
-     "query": "",
-     "line": 10,
-     "file": "provider-app/src/api/otp.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:56"
-    },
-    {
-     "method": "POST",
-     "path": "/provider/auth/verify-email",
-     "target": "backend",
-     "query": "",
-     "line": 19,
-     "file": "provider-app/src/api/otp.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:61"
-    },
-    {
-     "method": "POST",
-     "path": "/storage/upload",
-     "target": "backend",
-     "query": "",
-     "line": 97,
-     "file": "provider-app/src/api/provider.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:540"
-    }
-   ],
-   "files": 33,
-   "unresolved": 1,
-   "navIssues": []
-  },
-  {
-   "app": "provider-app",
-   "route": "ForgotPasswordScreen",
-   "component": "ForgotPasswordScreen",
-   "area": "auth-onboarding",
-   "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-   "line": 572,
-   "registrations": [
-    {
-     "role": "app",
-     "name": "Forgot",
-     "file": "provider-app/App.tsx",
-     "line": 195
-    }
-   ],
-   "template": "n/a",
-   "board": "— (not redesigned)",
-   "batch": "provider",
-   "status": "not redesigned",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/provider/auth/forgot-password",
-     "target": "backend",
-     "query": "",
-     "line": 607,
-     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:63"
-    },
-    {
-     "method": "POST",
-     "path": "/provider/auth/login",
-     "target": "backend",
-     "query": "",
-     "line": 330,
-     "file": "provider-app/src/context/index.tsx",
-     "via": "useAuth().login",
-     "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:42"
-    },
-    {
-     "method": "POST",
-     "path": "/provider/auth/reset-password",
-     "target": "backend",
-     "query": "",
-     "line": 651,
-     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:67"
-    },
-    {
-     "method": "POST",
-     "path": "/provider/auth/verify-reset-code",
-     "target": "backend",
-     "query": "",
-     "line": 629,
-     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:65"
-    }
-   ],
-   "files": 10,
-   "unresolved": 0,
-   "navIssues": []
-  },
-  {
-   "app": "provider-app",
-   "route": "LabRegistration",
-   "component": "LabRegistration",
-   "area": "auth-onboarding",
-   "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-   "line": 273,
-   "registrations": [
-    {
-     "role": "app",
-     "name": "Register:LabRegistration",
-     "file": "provider-app/App.tsx",
      "line": 202
     }
    ],
@@ -1297,244 +801,13 @@
     },
     {
      "method": "GET",
-     "path": "/config",
+     "path": "/catalogs/specialties",
      "target": "backend",
      "query": "",
-     "line": 15,
-     "file": "provider-app/src/hooks/useUploadsEnabled.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/config/config.controller.ts:10"
-    },
-    {
-     "method": "GET",
-     "path": "/insurance/companies",
-     "target": "backend",
-     "query": "",
-     "line": 30,
+     "line": 150,
      "file": "provider-app/src/api/catalogs.ts",
      "status": "OK",
-     "backend": "backend/src/modules/insurance/insurance.module.ts:461"
-    },
-    {
-     "method": "POST",
-     "path": "/legal/accept/provider_agreement",
-     "target": "backend",
-     "query": "",
-     "line": 119,
-     "file": "provider-app/src/components/ContractModal.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:176"
-    },
-    {
-     "method": "GET",
-     "path": "/legal/policy/provider_agreement",
-     "target": "backend",
-     "query": "?lang=:param",
-     "line": 26,
-     "file": "provider-app/src/components/ContractModal.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:166"
-    },
-    {
-     "method": "GET",
-     "path": "/locations/cities",
-     "target": "backend",
-     "query": "",
-     "line": 26,
-     "file": "provider-app/src/components/GeoPicker.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/location/location.controller.ts:20"
-    },
-    {
-     "method": "GET",
-     "path": "/locations/districts",
-     "target": "backend",
-     "query": "?city=:param",
-     "line": 30,
-     "file": "provider-app/src/components/GeoPicker.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/location/location.controller.ts:27"
-    },
-    {
-     "method": "GET",
-     "path": "/locations/regions",
-     "target": "backend",
-     "query": "",
-     "line": 25,
-     "file": "provider-app/src/components/GeoPicker.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/location/location.controller.ts:13"
-    },
-    {
-     "method": "GET",
-     "path": "/provider-onboarding/contract",
-     "target": "backend",
-     "query": "",
-     "line": 58,
-     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:569"
-    },
-    {
-     "method": "POST",
-     "path": "/provider-onboarding/start",
-     "target": "backend",
-     "query": "",
-     "line": 27,
-     "file": "provider-app/src/api/provider.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:547"
-    },
-    {
-     "method": "POST",
-     "path": "/provider-onboarding/step2",
-     "target": "backend",
-     "query": "",
-     "line": 123,
-     "file": "provider-app/src/api/provider.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:553"
-    },
-    {
-     "method": "POST",
-     "path": "/provider-onboarding/step3",
-     "target": "backend",
-     "query": "",
-     "line": 129,
-     "file": "provider-app/src/api/provider.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:557"
-    },
-    {
-     "method": "POST",
-     "path": "/provider-onboarding/submit",
-     "target": "backend",
-     "query": "",
-     "line": 135,
-     "file": "provider-app/src/api/provider.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:561"
-    },
-    {
-     "method": "POST",
-     "path": "/provider/auth/change-password",
-     "target": "backend",
-     "query": "",
-     "line": 71,
-     "file": "provider-app/src/api/provider.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:70"
-    },
-    {
-     "method": "POST",
-     "path": "/provider/auth/login",
-     "target": "backend",
-     "query": "",
-     "line": 52,
-     "file": "provider-app/src/api/provider.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:42"
-    },
-    {
-     "method": "POST",
-     "path": "/provider/auth/send-otp",
-     "target": "backend",
-     "query": "",
-     "line": 10,
-     "file": "provider-app/src/api/otp.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:56"
-    },
-    {
-     "method": "POST",
-     "path": "/provider/auth/verify-email",
-     "target": "backend",
-     "query": "",
-     "line": 19,
-     "file": "provider-app/src/api/otp.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:61"
-    },
-    {
-     "method": "POST",
-     "path": "/storage/upload",
-     "target": "backend",
-     "query": "",
-     "line": 97,
-     "file": "provider-app/src/api/provider.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:540"
-    }
-   ],
-   "files": 33,
-   "unresolved": 1,
-   "navIssues": []
-  },
-  {
-   "app": "provider-app",
-   "route": "LoginScreen",
-   "component": "LoginScreen",
-   "area": "auth-onboarding",
-   "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-   "line": 343,
-   "registrations": [
-    {
-     "role": "app",
-     "name": "Login",
-     "file": "provider-app/App.tsx",
-     "line": 192
-    }
-   ],
-   "template": "n/a",
-   "board": "— (not redesigned)",
-   "batch": "provider",
-   "status": "not redesigned",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/provider/auth/login",
-     "target": "backend",
-     "query": "",
-     "line": 330,
-     "file": "provider-app/src/context/index.tsx",
-     "via": "useAuth().login",
-     "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:42"
-    }
-   ],
-   "files": 8,
-   "unresolved": 0,
-   "navIssues": []
-  },
-  {
-   "app": "provider-app",
-   "route": "NursingRegistration",
-   "component": "NursingRegistration",
-   "area": "auth-onboarding",
-   "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-   "line": 240,
-   "registrations": [
-    {
-     "role": "app",
-     "name": "Register:NursingRegistration",
-     "file": "provider-app/App.tsx",
-     "line": 204
-    }
-   ],
-   "template": "n/a",
-   "board": "— (not redesigned)",
-   "batch": "provider",
-   "status": "not redesigned",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/auth/login",
-     "target": "backend",
-     "query": "",
-     "line": 36,
-     "file": "provider-app/src/api/provider.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/auth/auth.controller.ts:192"
+     "backend": "backend/src/modules/catalogs/catalogs.controller.ts:52"
     },
     {
      "method": "GET",
@@ -1558,20 +831,20 @@
     },
     {
      "method": "POST",
-     "path": "/legal/accept/provider_agreement",
+     "path": "/legal/accept/:param",
      "target": "backend",
      "query": "",
-     "line": 119,
+     "line": 66,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
      "backend": "backend/src/modules/legal/legal.module.ts:176"
     },
     {
      "method": "GET",
-     "path": "/legal/policy/provider_agreement",
+     "path": "/legal/policy/:param",
      "target": "backend",
      "query": "?lang=:param",
-     "line": 26,
+     "line": 47,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
      "backend": "backend/src/modules/legal/legal.module.ts:166"
@@ -1713,6 +986,733 @@
   },
   {
    "app": "provider-app",
+   "route": "FacilityRegistration",
+   "component": "FacilityRegistration",
+   "area": "auth-onboarding",
+   "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
+   "line": 143,
+   "registrations": [
+    {
+     "role": "app",
+     "name": "Register:FacilityRegistration",
+     "file": "provider-app/App.tsx",
+     "line": 203
+    }
+   ],
+   "template": "n/a",
+   "board": "— (not redesigned)",
+   "batch": "provider",
+   "status": "not redesigned",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/auth/login",
+     "target": "backend",
+     "query": "",
+     "line": 36,
+     "file": "provider-app/src/api/provider.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/auth/auth.controller.ts:192"
+    },
+    {
+     "method": "GET",
+     "path": "/catalogs/specialties",
+     "target": "backend",
+     "query": "",
+     "line": 150,
+     "file": "provider-app/src/api/catalogs.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/catalogs/catalogs.controller.ts:52"
+    },
+    {
+     "method": "GET",
+     "path": "/config",
+     "target": "backend",
+     "query": "",
+     "line": 15,
+     "file": "provider-app/src/hooks/useUploadsEnabled.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/config/config.controller.ts:10"
+    },
+    {
+     "method": "GET",
+     "path": "/insurance/companies",
+     "target": "backend",
+     "query": "",
+     "line": 30,
+     "file": "provider-app/src/api/catalogs.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/insurance/insurance.module.ts:461"
+    },
+    {
+     "method": "POST",
+     "path": "/legal/accept/:param",
+     "target": "backend",
+     "query": "",
+     "line": 66,
+     "file": "provider-app/src/components/ContractModal.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/legal/legal.module.ts:176"
+    },
+    {
+     "method": "GET",
+     "path": "/legal/policy/:param",
+     "target": "backend",
+     "query": "?lang=:param",
+     "line": 47,
+     "file": "provider-app/src/components/ContractModal.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/legal/legal.module.ts:166"
+    },
+    {
+     "method": "GET",
+     "path": "/locations/cities",
+     "target": "backend",
+     "query": "",
+     "line": 26,
+     "file": "provider-app/src/components/GeoPicker.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/location/location.controller.ts:20"
+    },
+    {
+     "method": "GET",
+     "path": "/locations/districts",
+     "target": "backend",
+     "query": "?city=:param",
+     "line": 30,
+     "file": "provider-app/src/components/GeoPicker.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/location/location.controller.ts:27"
+    },
+    {
+     "method": "GET",
+     "path": "/locations/regions",
+     "target": "backend",
+     "query": "",
+     "line": 25,
+     "file": "provider-app/src/components/GeoPicker.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/location/location.controller.ts:13"
+    },
+    {
+     "method": "GET",
+     "path": "/provider-onboarding/contract",
+     "target": "backend",
+     "query": "",
+     "line": 58,
+     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:569"
+    },
+    {
+     "method": "POST",
+     "path": "/provider-onboarding/start",
+     "target": "backend",
+     "query": "",
+     "line": 27,
+     "file": "provider-app/src/api/provider.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:547"
+    },
+    {
+     "method": "POST",
+     "path": "/provider-onboarding/step2",
+     "target": "backend",
+     "query": "",
+     "line": 123,
+     "file": "provider-app/src/api/provider.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:553"
+    },
+    {
+     "method": "POST",
+     "path": "/provider-onboarding/step3",
+     "target": "backend",
+     "query": "",
+     "line": 129,
+     "file": "provider-app/src/api/provider.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:557"
+    },
+    {
+     "method": "POST",
+     "path": "/provider-onboarding/submit",
+     "target": "backend",
+     "query": "",
+     "line": 135,
+     "file": "provider-app/src/api/provider.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:561"
+    },
+    {
+     "method": "POST",
+     "path": "/provider/auth/change-password",
+     "target": "backend",
+     "query": "",
+     "line": 71,
+     "file": "provider-app/src/api/provider.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:70"
+    },
+    {
+     "method": "POST",
+     "path": "/provider/auth/login",
+     "target": "backend",
+     "query": "",
+     "line": 52,
+     "file": "provider-app/src/api/provider.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:42"
+    },
+    {
+     "method": "POST",
+     "path": "/provider/auth/send-otp",
+     "target": "backend",
+     "query": "",
+     "line": 10,
+     "file": "provider-app/src/api/otp.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:56"
+    },
+    {
+     "method": "POST",
+     "path": "/provider/auth/verify-email",
+     "target": "backend",
+     "query": "",
+     "line": 19,
+     "file": "provider-app/src/api/otp.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:61"
+    },
+    {
+     "method": "POST",
+     "path": "/storage/upload",
+     "target": "backend",
+     "query": "",
+     "line": 97,
+     "file": "provider-app/src/api/provider.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/storage/storage.module.ts:540"
+    }
+   ],
+   "files": 34,
+   "unresolved": 1,
+   "navIssues": []
+  },
+  {
+   "app": "provider-app",
+   "route": "ForgotPasswordScreen",
+   "component": "ForgotPasswordScreen",
+   "area": "auth-onboarding",
+   "file": "provider-app/src/screens/auth/AuthScreens.tsx",
+   "line": 572,
+   "registrations": [
+    {
+     "role": "app",
+     "name": "Forgot",
+     "file": "provider-app/App.tsx",
+     "line": 198
+    }
+   ],
+   "template": "n/a",
+   "board": "— (not redesigned)",
+   "batch": "provider",
+   "status": "not redesigned",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/provider/auth/forgot-password",
+     "target": "backend",
+     "query": "",
+     "line": 607,
+     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:63"
+    },
+    {
+     "method": "POST",
+     "path": "/provider/auth/login",
+     "target": "backend",
+     "query": "",
+     "line": 330,
+     "file": "provider-app/src/context/index.tsx",
+     "via": "useAuth().login",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:42"
+    },
+    {
+     "method": "POST",
+     "path": "/provider/auth/reset-password",
+     "target": "backend",
+     "query": "",
+     "line": 651,
+     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:67"
+    },
+    {
+     "method": "POST",
+     "path": "/provider/auth/verify-reset-code",
+     "target": "backend",
+     "query": "",
+     "line": 629,
+     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:65"
+    }
+   ],
+   "files": 10,
+   "unresolved": 0,
+   "navIssues": []
+  },
+  {
+   "app": "provider-app",
+   "route": "LabRegistration",
+   "component": "LabRegistration",
+   "area": "auth-onboarding",
+   "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+   "line": 273,
+   "registrations": [
+    {
+     "role": "app",
+     "name": "Register:LabRegistration",
+     "file": "provider-app/App.tsx",
+     "line": 205
+    }
+   ],
+   "template": "n/a",
+   "board": "— (not redesigned)",
+   "batch": "provider",
+   "status": "not redesigned",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/auth/login",
+     "target": "backend",
+     "query": "",
+     "line": 36,
+     "file": "provider-app/src/api/provider.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/auth/auth.controller.ts:192"
+    },
+    {
+     "method": "GET",
+     "path": "/config",
+     "target": "backend",
+     "query": "",
+     "line": 15,
+     "file": "provider-app/src/hooks/useUploadsEnabled.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/config/config.controller.ts:10"
+    },
+    {
+     "method": "GET",
+     "path": "/insurance/companies",
+     "target": "backend",
+     "query": "",
+     "line": 30,
+     "file": "provider-app/src/api/catalogs.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/insurance/insurance.module.ts:461"
+    },
+    {
+     "method": "POST",
+     "path": "/legal/accept/:param",
+     "target": "backend",
+     "query": "",
+     "line": 66,
+     "file": "provider-app/src/components/ContractModal.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/legal/legal.module.ts:176"
+    },
+    {
+     "method": "GET",
+     "path": "/legal/policy/:param",
+     "target": "backend",
+     "query": "?lang=:param",
+     "line": 47,
+     "file": "provider-app/src/components/ContractModal.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/legal/legal.module.ts:166"
+    },
+    {
+     "method": "GET",
+     "path": "/locations/cities",
+     "target": "backend",
+     "query": "",
+     "line": 26,
+     "file": "provider-app/src/components/GeoPicker.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/location/location.controller.ts:20"
+    },
+    {
+     "method": "GET",
+     "path": "/locations/districts",
+     "target": "backend",
+     "query": "?city=:param",
+     "line": 30,
+     "file": "provider-app/src/components/GeoPicker.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/location/location.controller.ts:27"
+    },
+    {
+     "method": "GET",
+     "path": "/locations/regions",
+     "target": "backend",
+     "query": "",
+     "line": 25,
+     "file": "provider-app/src/components/GeoPicker.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/location/location.controller.ts:13"
+    },
+    {
+     "method": "GET",
+     "path": "/provider-onboarding/contract",
+     "target": "backend",
+     "query": "",
+     "line": 58,
+     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:569"
+    },
+    {
+     "method": "POST",
+     "path": "/provider-onboarding/start",
+     "target": "backend",
+     "query": "",
+     "line": 27,
+     "file": "provider-app/src/api/provider.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:547"
+    },
+    {
+     "method": "POST",
+     "path": "/provider-onboarding/step2",
+     "target": "backend",
+     "query": "",
+     "line": 123,
+     "file": "provider-app/src/api/provider.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:553"
+    },
+    {
+     "method": "POST",
+     "path": "/provider-onboarding/step3",
+     "target": "backend",
+     "query": "",
+     "line": 129,
+     "file": "provider-app/src/api/provider.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:557"
+    },
+    {
+     "method": "POST",
+     "path": "/provider-onboarding/submit",
+     "target": "backend",
+     "query": "",
+     "line": 135,
+     "file": "provider-app/src/api/provider.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:561"
+    },
+    {
+     "method": "POST",
+     "path": "/provider/auth/change-password",
+     "target": "backend",
+     "query": "",
+     "line": 71,
+     "file": "provider-app/src/api/provider.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:70"
+    },
+    {
+     "method": "POST",
+     "path": "/provider/auth/login",
+     "target": "backend",
+     "query": "",
+     "line": 52,
+     "file": "provider-app/src/api/provider.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:42"
+    },
+    {
+     "method": "POST",
+     "path": "/provider/auth/send-otp",
+     "target": "backend",
+     "query": "",
+     "line": 10,
+     "file": "provider-app/src/api/otp.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:56"
+    },
+    {
+     "method": "POST",
+     "path": "/provider/auth/verify-email",
+     "target": "backend",
+     "query": "",
+     "line": 19,
+     "file": "provider-app/src/api/otp.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:61"
+    },
+    {
+     "method": "POST",
+     "path": "/storage/upload",
+     "target": "backend",
+     "query": "",
+     "line": 97,
+     "file": "provider-app/src/api/provider.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/storage/storage.module.ts:540"
+    }
+   ],
+   "files": 34,
+   "unresolved": 1,
+   "navIssues": []
+  },
+  {
+   "app": "provider-app",
+   "route": "LoginScreen",
+   "component": "LoginScreen",
+   "area": "auth-onboarding",
+   "file": "provider-app/src/screens/auth/AuthScreens.tsx",
+   "line": 343,
+   "registrations": [
+    {
+     "role": "app",
+     "name": "Login",
+     "file": "provider-app/App.tsx",
+     "line": 195
+    }
+   ],
+   "template": "n/a",
+   "board": "— (not redesigned)",
+   "batch": "provider",
+   "status": "not redesigned",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/provider/auth/login",
+     "target": "backend",
+     "query": "",
+     "line": 330,
+     "file": "provider-app/src/context/index.tsx",
+     "via": "useAuth().login",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:42"
+    }
+   ],
+   "files": 8,
+   "unresolved": 0,
+   "navIssues": []
+  },
+  {
+   "app": "provider-app",
+   "route": "NursingRegistration",
+   "component": "NursingRegistration",
+   "area": "auth-onboarding",
+   "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
+   "line": 240,
+   "registrations": [
+    {
+     "role": "app",
+     "name": "Register:NursingRegistration",
+     "file": "provider-app/App.tsx",
+     "line": 207
+    }
+   ],
+   "template": "n/a",
+   "board": "— (not redesigned)",
+   "batch": "provider",
+   "status": "not redesigned",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/auth/login",
+     "target": "backend",
+     "query": "",
+     "line": 36,
+     "file": "provider-app/src/api/provider.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/auth/auth.controller.ts:192"
+    },
+    {
+     "method": "GET",
+     "path": "/config",
+     "target": "backend",
+     "query": "",
+     "line": 15,
+     "file": "provider-app/src/hooks/useUploadsEnabled.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/config/config.controller.ts:10"
+    },
+    {
+     "method": "GET",
+     "path": "/insurance/companies",
+     "target": "backend",
+     "query": "",
+     "line": 30,
+     "file": "provider-app/src/api/catalogs.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/insurance/insurance.module.ts:461"
+    },
+    {
+     "method": "POST",
+     "path": "/legal/accept/:param",
+     "target": "backend",
+     "query": "",
+     "line": 66,
+     "file": "provider-app/src/components/ContractModal.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/legal/legal.module.ts:176"
+    },
+    {
+     "method": "GET",
+     "path": "/legal/policy/:param",
+     "target": "backend",
+     "query": "?lang=:param",
+     "line": 47,
+     "file": "provider-app/src/components/ContractModal.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/legal/legal.module.ts:166"
+    },
+    {
+     "method": "GET",
+     "path": "/locations/cities",
+     "target": "backend",
+     "query": "",
+     "line": 26,
+     "file": "provider-app/src/components/GeoPicker.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/location/location.controller.ts:20"
+    },
+    {
+     "method": "GET",
+     "path": "/locations/districts",
+     "target": "backend",
+     "query": "?city=:param",
+     "line": 30,
+     "file": "provider-app/src/components/GeoPicker.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/location/location.controller.ts:27"
+    },
+    {
+     "method": "GET",
+     "path": "/locations/regions",
+     "target": "backend",
+     "query": "",
+     "line": 25,
+     "file": "provider-app/src/components/GeoPicker.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/location/location.controller.ts:13"
+    },
+    {
+     "method": "GET",
+     "path": "/provider-onboarding/contract",
+     "target": "backend",
+     "query": "",
+     "line": 58,
+     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:569"
+    },
+    {
+     "method": "POST",
+     "path": "/provider-onboarding/start",
+     "target": "backend",
+     "query": "",
+     "line": 27,
+     "file": "provider-app/src/api/provider.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:547"
+    },
+    {
+     "method": "POST",
+     "path": "/provider-onboarding/step2",
+     "target": "backend",
+     "query": "",
+     "line": 123,
+     "file": "provider-app/src/api/provider.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:553"
+    },
+    {
+     "method": "POST",
+     "path": "/provider-onboarding/step3",
+     "target": "backend",
+     "query": "",
+     "line": 129,
+     "file": "provider-app/src/api/provider.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:557"
+    },
+    {
+     "method": "POST",
+     "path": "/provider-onboarding/submit",
+     "target": "backend",
+     "query": "",
+     "line": 135,
+     "file": "provider-app/src/api/provider.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:561"
+    },
+    {
+     "method": "POST",
+     "path": "/provider/auth/change-password",
+     "target": "backend",
+     "query": "",
+     "line": 71,
+     "file": "provider-app/src/api/provider.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:70"
+    },
+    {
+     "method": "POST",
+     "path": "/provider/auth/login",
+     "target": "backend",
+     "query": "",
+     "line": 52,
+     "file": "provider-app/src/api/provider.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:42"
+    },
+    {
+     "method": "POST",
+     "path": "/provider/auth/send-otp",
+     "target": "backend",
+     "query": "",
+     "line": 10,
+     "file": "provider-app/src/api/otp.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:56"
+    },
+    {
+     "method": "POST",
+     "path": "/provider/auth/verify-email",
+     "target": "backend",
+     "query": "",
+     "line": 19,
+     "file": "provider-app/src/api/otp.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:61"
+    },
+    {
+     "method": "POST",
+     "path": "/storage/upload",
+     "target": "backend",
+     "query": "",
+     "line": 97,
+     "file": "provider-app/src/api/provider.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/storage/storage.module.ts:540"
+    }
+   ],
+   "files": 35,
+   "unresolved": 1,
+   "navIssues": []
+  },
+  {
+   "app": "provider-app",
    "route": "PendingDashboard",
    "component": "PendingDashboard",
    "area": "auth-onboarding",
@@ -1723,19 +1723,19 @@
      "role": "app",
      "name": "Pending",
      "file": "provider-app/App.tsx",
-     "line": 146
+     "line": 147
     },
     {
      "role": "app",
      "name": "Register:PendingDashboard",
      "file": "provider-app/App.tsx",
-     "line": 205
+     "line": 208
     },
     {
      "role": "app",
      "name": "Pending",
      "file": "provider-app/App.tsx",
-     "line": 209
+     "line": 212
     }
    ],
    "template": "n/a",
@@ -1820,7 +1820,7 @@
      "role": "app",
      "name": "Register:PharmacyRegistration",
      "file": "provider-app/App.tsx",
-     "line": 201
+     "line": 204
     }
    ],
    "template": "n/a",
@@ -1860,20 +1860,20 @@
     },
     {
      "method": "POST",
-     "path": "/legal/accept/provider_agreement",
+     "path": "/legal/accept/:param",
      "target": "backend",
      "query": "",
-     "line": 119,
+     "line": 66,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
      "backend": "backend/src/modules/legal/legal.module.ts:176"
     },
     {
      "method": "GET",
-     "path": "/legal/policy/provider_agreement",
+     "path": "/legal/policy/:param",
      "target": "backend",
      "query": "?lang=:param",
-     "line": 26,
+     "line": 47,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
      "backend": "backend/src/modules/legal/legal.module.ts:166"
@@ -2009,7 +2009,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 33,
+   "files": 34,
    "unresolved": 1,
    "navIssues": []
   },
@@ -2025,7 +2025,7 @@
      "role": "app",
      "name": "Register:RadiologyRegistration",
      "file": "provider-app/App.tsx",
-     "line": 203
+     "line": 206
     }
    ],
    "template": "n/a",
@@ -2065,20 +2065,20 @@
     },
     {
      "method": "POST",
-     "path": "/legal/accept/provider_agreement",
+     "path": "/legal/accept/:param",
      "target": "backend",
      "query": "",
-     "line": 119,
+     "line": 66,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
      "backend": "backend/src/modules/legal/legal.module.ts:176"
     },
     {
      "method": "GET",
-     "path": "/legal/policy/provider_agreement",
+     "path": "/legal/policy/:param",
      "target": "backend",
      "query": "?lang=:param",
-     "line": 26,
+     "line": 47,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
      "backend": "backend/src/modules/legal/legal.module.ts:166"
@@ -2214,7 +2214,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 33,
+   "files": 34,
    "unresolved": 1,
    "navIssues": []
   },
@@ -2230,7 +2230,7 @@
      "role": "app",
      "name": "FixDetails",
      "file": "provider-app/App.tsx",
-     "line": 149
+     "line": 150
     }
    ],
    "template": "n/a",
@@ -2299,7 +2299,7 @@
      "role": "app",
      "name": "Welcome",
      "file": "provider-app/App.tsx",
-     "line": 189
+     "line": 192
     }
    ],
    "template": "n/a",
@@ -2758,6 +2758,16 @@
      "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:107"
     },
     {
+     "method": "GET",
+     "path": "/provider-onboarding/contract",
+     "target": "backend",
+     "query": "",
+     "line": 29,
+     "file": "provider-app/src/components/MyContract.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:569"
+    },
+    {
      "method": "POST",
      "path": "/provider/settings/delta",
      "target": "backend",
@@ -2788,7 +2798,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:891"
     }
    ],
-   "files": 12,
+   "files": 14,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4304,7 +4314,7 @@
    "component": "FacilitySettingsScreen",
    "area": "facility",
    "file": "provider-app/src/screens/facility/facility/FacilitySettingsScreen.tsx",
-   "line": 44,
+   "line": 45,
    "registrations": [
     {
      "role": "facility",
@@ -4319,11 +4329,21 @@
    "status": "not redesigned",
    "calls": [
     {
+     "method": "GET",
+     "path": "/provider-onboarding/contract",
+     "target": "backend",
+     "query": "",
+     "line": 29,
+     "file": "provider-app/src/components/MyContract.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:569"
+    },
+    {
      "method": "POST",
      "path": "/provider/settings/delta",
      "target": "backend",
      "query": "",
-     "line": 116,
+     "line": 117,
      "file": "provider-app/src/screens/facility/facility/FacilitySettingsScreen.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/provider.controllers.ts:138"
@@ -4333,7 +4353,7 @@
      "path": "/provider/settings/tariffs",
      "target": "backend",
      "query": "",
-     "line": 69,
+     "line": 70,
      "file": "provider-app/src/screens/facility/facility/FacilitySettingsScreen.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:901"
@@ -4343,13 +4363,13 @@
      "path": "/provider/settings/tariffs",
      "target": "backend",
      "query": "",
-     "line": 100,
+     "line": 101,
      "file": "provider-app/src/screens/facility/facility/FacilitySettingsScreen.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:909"
     }
    ],
-   "files": 11,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5218,9 +5238,19 @@
      "file": "provider-app/src/api/central-catalog.ts",
      "status": "OK",
      "backend": "backend/src/modules/catalogs/catalogs.controller.ts:52"
+    },
+    {
+     "method": "GET",
+     "path": "/provider-onboarding/contract",
+     "target": "backend",
+     "query": "",
+     "line": 29,
+     "file": "provider-app/src/components/MyContract.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:569"
     }
    ],
-   "files": 14,
+   "files": 16,
    "unresolved": 0,
    "navIssues": []
   },
@@ -6032,6 +6062,16 @@
    "calls": [
     {
      "method": "GET",
+     "path": "/provider-onboarding/contract",
+     "target": "backend",
+     "query": "",
+     "line": 29,
+     "file": "provider-app/src/components/MyContract.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:569"
+    },
+    {
+     "method": "GET",
      "path": "/provider/me",
      "target": "backend",
      "query": "",
@@ -6051,7 +6091,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:138"
     }
    ],
-   "files": 13,
+   "files": 15,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7343,6 +7383,16 @@
    "calls": [
     {
      "method": "GET",
+     "path": "/provider-onboarding/contract",
+     "target": "backend",
+     "query": "",
+     "line": 29,
+     "file": "provider-app/src/components/MyContract.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:569"
+    },
+    {
+     "method": "GET",
      "path": "/provider/pharmacy/inventory-tracking",
      "target": "backend",
      "query": "",
@@ -7382,7 +7432,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:98"
     }
    ],
-   "files": 12,
+   "files": 14,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7427,13 +7477,13 @@
    "component": "AvailabilityScheduleTab",
    "area": "radiology",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 572,
+   "line": 573,
    "registrations": [
     {
      "role": "radiology",
      "name": "tab:schedule",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 73
+     "line": 74
     }
    ],
    "template": "n/a",
@@ -7446,7 +7496,7 @@
      "path": "/radiology/catalog/delta-request",
      "target": "backend",
      "query": "",
-     "line": 587,
+     "line": 588,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:208"
@@ -7462,13 +7512,13 @@
    "component": "CatalogManagerTab",
    "area": "radiology",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 510,
+   "line": 511,
    "registrations": [
     {
      "role": "radiology",
      "name": "tab:catalog",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 72
+     "line": 73
     }
    ],
    "template": "n/a",
@@ -7501,7 +7551,7 @@
      "path": "/radiology/catalog/delta-request",
      "target": "backend",
      "query": "",
-     "line": 540,
+     "line": 541,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:208"
@@ -7517,13 +7567,13 @@
    "component": "OrderDetailScreen",
    "area": "radiology",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 221,
+   "line": 222,
    "registrations": [
     {
      "role": "radiology",
      "name": "order_detail",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 82
+     "line": 83
     }
    ],
    "template": "n/a",
@@ -7536,7 +7586,7 @@
      "path": "/radiology/bookings/:param",
      "target": "backend",
      "query": "",
-     "line": 234,
+     "line": 235,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:99"
@@ -7546,7 +7596,7 @@
      "path": "/radiology/bookings/:param/:param",
      "target": "backend",
      "query": "",
-     "line": 237,
+     "line": 238,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:103"
@@ -7556,7 +7606,7 @@
      "path": "/radiology/bookings/:param/abort",
      "target": "backend",
      "query": "",
-     "line": 275,
+     "line": 276,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:168"
@@ -7566,7 +7616,7 @@
      "path": "/radiology/bookings/:param/coverage-decision",
      "target": "backend",
      "query": "",
-     "line": 248,
+     "line": 249,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider-production/provider-production.module.ts:652"
@@ -7576,7 +7626,7 @@
      "path": "/radiology/bookings/:param/reschedule",
      "target": "backend",
      "query": "",
-     "line": 291,
+     "line": 292,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:195"
@@ -7586,7 +7636,7 @@
      "path": "/radiology/bookings/:param/state",
      "target": "backend",
      "query": "",
-     "line": 262,
+     "line": 263,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:107"
@@ -7602,13 +7652,13 @@
    "component": "RadiologyHome",
    "area": "radiology",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 168,
+   "line": 169,
    "registrations": [
     {
      "role": "radiology",
      "name": "tab:home",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 70
+     "line": 71
     }
    ],
    "template": "n/a",
@@ -7621,7 +7671,7 @@
      "path": "/radiology/provider/inbox",
      "target": "backend",
      "query": "",
-     "line": 114,
+     "line": 115,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:134"
@@ -7637,13 +7687,13 @@
    "component": "RadiologyOrdersTab",
    "area": "radiology",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 194,
+   "line": 195,
    "registrations": [
     {
      "role": "radiology",
      "name": "tab:orders",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 71
+     "line": 72
     }
    ],
    "template": "n/a",
@@ -7656,7 +7706,7 @@
      "path": "/radiology/provider/inbox",
      "target": "backend",
      "query": "",
-     "line": 114,
+     "line": 115,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:134"
@@ -7672,21 +7722,32 @@
    "component": "RadiologySettingsScreen",
    "area": "radiology",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 620,
+   "line": 621,
    "registrations": [
     {
      "role": "radiology",
      "name": "tab:settings",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 74
+     "line": 75
     }
    ],
    "template": "n/a",
    "board": "— (not redesigned)",
    "batch": "provider",
    "status": "not redesigned",
-   "calls": [],
-   "files": 8,
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/provider-onboarding/contract",
+     "target": "backend",
+     "query": "",
+     "line": 29,
+     "file": "provider-app/src/components/MyContract.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:569"
+    }
+   ],
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7696,13 +7757,13 @@
    "component": "ReportingScreen",
    "area": "radiology",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 406,
+   "line": 407,
    "registrations": [
     {
      "role": "radiology",
      "name": "reporting",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 83
+     "line": 84
     }
    ],
    "template": "n/a",
@@ -7795,7 +7856,7 @@
      "path": "/radiology/bookings/:param/approve-report",
      "target": "backend",
      "query": "",
-     "line": 458,
+     "line": 459,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:181"
@@ -7805,7 +7866,7 @@
      "path": "/radiology/bookings/:param/submit-report-for-review",
      "target": "backend",
      "query": "",
-     "line": 452,
+     "line": 453,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:175"
@@ -7815,7 +7876,7 @@
      "path": "/radiology/bookings/:param/upload-report",
      "target": "backend",
      "query": "",
-     "line": 439,
+     "line": 440,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:146"
@@ -7847,7 +7908,7 @@
      "role": "app",
      "name": "Documents",
      "file": "provider-app/App.tsx",
-     "line": 152
+     "line": 153
     },
     {
      "role": "doctor",
@@ -8187,7 +8248,7 @@
      "role": "radiology",
      "name": "insurance_requests",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 84
+     "line": 85
     }
    ],
    "template": "n/a",
@@ -8401,13 +8462,13 @@
      "role": "app",
      "name": "GuestDrugIndex",
      "file": "provider-app/App.tsx",
-     "line": 158
+     "line": 159
     },
     {
      "role": "app",
      "name": "GuestDrugIndex",
      "file": "provider-app/App.tsx",
-     "line": 215
+     "line": 218
     },
     {
      "role": "doctor",
@@ -8467,7 +8528,7 @@
      "role": "radiology",
      "name": "drug_index",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 89
+     "line": 90
     }
    ],
    "template": "n/a",
@@ -8572,13 +8633,13 @@
      "role": "app",
      "name": "GuestJobs",
      "file": "provider-app/App.tsx",
-     "line": 155
+     "line": 156
     },
     {
      "role": "app",
      "name": "GuestJobs",
      "file": "provider-app/App.tsx",
-     "line": 212
+     "line": 215
     },
     {
      "role": "doctor",
@@ -8638,7 +8699,7 @@
      "role": "radiology",
      "name": "medical_jobs",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 88
+     "line": 89
     }
    ],
    "template": "n/a",
@@ -8848,7 +8909,7 @@
      "role": "radiology",
      "name": "notifications",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 81
+     "line": 82
     }
    ],
    "template": "n/a",
@@ -8918,7 +8979,7 @@
      "role": "app",
      "name": "Dashboard",
      "file": "provider-app/App.tsx",
-     "line": 180
+     "line": 183
     }
    ],
    "template": "n/a",
@@ -9142,7 +9203,7 @@
      "role": "radiology",
      "name": "wallet",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 86
+     "line": 87
     }
    ],
    "template": "n/a",
@@ -9564,7 +9625,7 @@
      "role": "radiology",
      "name": "withdrawal_workflow",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 87
+     "line": 88
     }
    ],
    "template": "n/a",

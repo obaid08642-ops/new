@@ -84,11 +84,12 @@ export function SlotGrid({ slots, value, onChange, loading, emptyText }: { slots
   }
   return (
     <View accessibilityRole="radiogroup" style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-      {slots.map((s) => {
+      {slots.map((s, index) => {
         const on = value === s.id;
         return (
           <Pressable
             key={s.id}
+            testID={`book-slot-${index}`}
             accessibilityRole="radio"
             accessibilityState={{ selected: on, disabled: !s.available }}
             accessibilityLabel={s.label}
