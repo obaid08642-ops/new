@@ -407,7 +407,9 @@ export class OrdersConsoleService {
       await this.conn.collection((p as any)._source).updateOne(
         { _id: (p as any)._id },
         { $set: {
-          status: fullyRefunded ? 'refunded' : (p as any).status,
+          // The refund executor already set the gateway row's status. This mirror kept the status it had READ BEFORE the refund, so a partial
+          // refund put a card transaction back to 'paid' (with refunded_amount set): the patient's payment looked unrefunded.
+          status: fullyRefunded ? 'refunded' : ((p as any)._source === 'transactions' ? 'partially_refunded' : (p as any).status),
           refunded_amount: Math.min(paid, Number((p as any).refunded_amount || 0) + amount),
           refunded_at: new Date(),
         } },
