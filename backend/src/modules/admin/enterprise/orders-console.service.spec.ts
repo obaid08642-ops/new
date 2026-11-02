@@ -89,3 +89,17 @@ describe('OrdersConsoleService: pharmacy orders live in two collections', () => 
     await expect(svc.reassign('pharmacy', 'po-1', { provider_id: 'x', reason: 'سبب كاف للتحويل' }, { id: 'adm' })).rejects.toThrow('kind_has_no_provider_field');
   });
 });
+
+describe('order detail after a partial refund', () => {
+  it('gross_paid is what was paid, refunded_total the refund, refundable_max the rest (the status is partially_refunded, not paid)', async () => {
+    const cols: Record<string, any> = {
+      moyasar_payments: { find: () => ({ sort: () => ({ limit: () => ({ toArray: async () => [] }) }) }) },
+      transactions: { find: () => ({ sort: () => ({ limit: () => ({ toArray: async () => [{ _id: 't', id: 't1', booking_id: 'n1', amount: 100, refunded_amount: 50, status: 'partially_refunded' }] }) }) }) },
+      platformledgerentries: { find: () => ({ project: () => ({ toArray: async () => [{ amount: 50, description: 'Patient refund' }] }) }) },
+      homecarebookings: { findOne: async () => ({ id: 'n1', patient_id: 'p1', state: 'COMPLETED', state_history: [] }) },
+    };
+    const svc: any = new (OrdersConsoleService as any)({ collection: (n: string) => cols[n] ?? { find: () => ({ toArray: async () => [] }), findOne: async () => null } }, { write: jest.fn() }, {}, {});
+    const d = await svc.detail('nursing', 'n1');
+    expect(d.financials).toEqual({ gross_paid: 100, refunded_total: 50, refundable_max: 50 });
+  });
+});

@@ -42,6 +42,8 @@ export const LEDGER_TYPES = [
   'provider_earning', 'provider_debit', 'payout', 'refund', 'commission',
   'vat', 'adjustment', 'chargeback', 'penalty', 'bonus', 'referral',
   'loyalty', 'settlement',
+  // platform-side reversal of the commission and of the VAT on it, in proportion to a refund of a service whose earning was credited
+  'commission_reversal', 'vat_reversal',
 ] as const;
 export type LedgerType = typeof LEDGER_TYPES[number];
 
@@ -780,8 +782,22 @@ export class RefundExecutor {
       $or: [{ ref_id: opts.booking_id }, { order_id: opts.booking_id }],
     } as any);
     if (earning && Number(earning.amount) > 0) {
-      const fraction = Math.min(1, amount / Number(earning.gross || amount));
+      // The share of what the PATIENT PAID that is refunded. The earning's gross is only the provider's own lines (the platform's service, home-visit and
+      // transport fees are not in it), so dividing by it clawed back all of the provider's net when only half of the payment was refunded.
+      const fraction = Math.min(1, amount / (paidTotal > 0 ? Number(paidTotal) : Number(earning.gross || amount)));
       providerDebited = round2(Number(earning.amount) * fraction);
+      // The platform's commission and the VAT on it were earned on the part of the price that is now refunded: they are reversed in the same
+      // proportion (provider net share + commission share + VAT share = the refund). They are platform rows (no provider), so a provider's
+      // balance does not move twice; the finance report subtracts them (ReportsService.summary).
+      for (const [type, share] of [['commission_reversal', round2(Number(earning.commission || 0) * fraction)], ['vat_reversal', round2(Number(earning.vat || 0) * fraction)]] as const) {
+        if (share > 0 && !(await this.ledger.exists(type, 'refund', opts.refund_id))) {
+          await this.ledger.append({
+            type, amount: share, provider_account_id: null, ref_type: 'refund', ref_id: opts.refund_id, order_id: opts.booking_id,
+            description: `${type === 'commission_reversal' ? 'Commission' : 'VAT on the commission'} reversed with refund ${opts.refund_id} on earning ${earning.id}`,
+            actor_id: opts.actor_id, meta: { provider_account_id: earning.provider_account_id, earning_id: earning.id, fraction: round2(fraction * 10000) / 10000 },
+          });
+        }
+      }
       if (providerDebited > 0) {
         const dupDebit = await this.ledger.exists('provider_debit', 'refund', opts.refund_id);
         if (!dupDebit) {
@@ -1031,6 +1047,55 @@ export class PharmacyRefundListener {
   }
 }
 
+// ═════════════════════════════════════════════════════════════════════
+// ProviderCancelRefundListener — a provider or admin cancels a paid booking (refund policy 3.0: "the provider cancels or does not attend:
+// 100%", for nursing, lab, radiology and pharmacy).
+// The kind listeners above answer the PATIENT's own cancel (and the lab's / the pharmacy's own routes). The generic provider action
+// (POST /provider/jobs/:type/:id/reject) and the admin cancel move the booking to CANCELLED through the workflow engine and emit only
+// `service.cancelled`, which nothing refunded: a paid booking the nurse rejected stayed paid. This listens to that universal event for a
+// non-patient actor and refunds what was paid in full, under the SAME refund id as the kind listener (so one cancel is never refunded
+// twice, whichever path announced it first). Never throws; a failure goes to the dead-letter queue.
+// ═════════════════════════════════════════════════════════════════════
+@Injectable()
+export class ProviderCancelRefundListener {
+  private readonly logger = new Logger('ProviderCancelRefundListener');
+  constructor(
+    @InjectConnection() private readonly conn: Connection,
+    private readonly refundExec: RefundExecutor,
+  ) {}
+
+  private static readonly KINDS: Record<string, { kind: 'nursing' | 'lab' | 'radiology' | 'pharmacy'; id: (b: string) => string }> = {
+    nursing_booking: { kind: 'nursing', id: (b) => `nursing-cancel-${b}` },
+    lab_booking: { kind: 'lab', id: (b) => `lab-cancel-${b}` },
+    radiology_booking: { kind: 'radiology', id: (b) => `radiology-cancel-${b}` },
+    order: { kind: 'pharmacy', id: (b) => `pharmacy-cancel-${b}` },
+  };
+
+  @OnEvent('service.cancelled')
+  async onServiceCancelled(e: any) {
+    const spec = ProviderCancelRefundListener.KINDS[String(e?.entity_type || '')];
+    const role = String(e?.actor_role || '').toLowerCase();
+    if (!spec || !e?.entity_id || !e?.patient_account_id || !role || role === 'patient') return;
+    const bookingId = String(e.entity_id);
+    try {
+      const paid: any = await this.conn.collection('transactions').findOne({ booking_kind: spec.kind, booking_id: bookingId, status: 'paid' } as any);
+      if (!paid) return; // cash, insurance or never paid by card: nothing to send back
+      const left = Math.max(0, Math.round((Number(paid.amount || 0) - Number(paid.refunded_amount || 0)) * 100) / 100);
+      if (!(left > 0)) return;
+      await this.refundExec.execute({
+        refund_id: spec.id(bookingId), booking_kind: spec.kind, booking_id: bookingId, patient_id: String(e.patient_account_id),
+        amount: left, reason: `${spec.kind}_cancel_by_${role}`, actor_id: 'system',
+      });
+    } catch (err: any) {
+      this.logger.error(`${spec.kind} provider-cancel refund failed: ${err?.message} (booking ${bookingId})`);
+      await this.conn.collection('event_dlq').insertOne({
+        original_event_id: spec.id(bookingId), type: 'service.cancelled', entity_type: String(e.entity_type), entity_id: bookingId,
+        payload: e, attempts: 0, last_error: String(err?.message || err).slice(0, 500), status: 'pending', createdAt: new Date(), updatedAt: new Date(),
+      } as any).catch((dlqErr: any) => this.logger.error(`provider-cancel refund failure not queued: ${dlqErr?.message}`));
+    }
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // ReportsService — daily/weekly/monthly financial aggregation (EPIC S16)
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1089,9 +1154,10 @@ export class ReportsService {
       paid_count: pc('paid'),
       failed_count: pc('failed'),
       failed_volume: round2(p('failed')),
-      commission: round2(e.commission || 0),
-      vat_on_commission: round2(e.vat || 0),
-      net_revenue: round2((e.commission || 0) + (e.vat || 0)),
+      // the commission and the VAT on it that refunds took back are subtracted: a refunded order earned the platform nothing
+      commission: round2((e.commission || 0) - l('commission_reversal')),
+      vat_on_commission: round2((e.vat || 0) - l('vat_reversal')),
+      net_revenue: round2((e.commission || 0) - l('commission_reversal') + (e.vat || 0) - l('vat_reversal')),
       provider_net: round2(e.net || 0),
       refunds_completed: round2(r('COMPLETED') + r('completed')),
       refunds_requested_count: (refunds as any[]).reduce((s, x) => s + (x.count || 0), 0),
@@ -1379,7 +1445,8 @@ export class LabRadiologyRefundListener {
       const left = Math.max(0, Math.round((Number(paid.amount || 0) - Number(paid.refunded_amount || 0)) * 100) / 100);
       const policyDoc: any = await this.conn.collection('system_configs').findOne({ key: 'refund_policy' }).catch(() => null);
       const tripFee = Number(policyDoc?.value?.home_visit?.trip_fee_sar ?? 40);
-      const keepsTripFee = kind === 'lab' && String(e?.prior_state || '').toUpperCase() === 'IN_TRANSIT';
+      // refund policy 3.0: after the collector set off the PATIENT bears the trip fee; the provider cancelling or not attending refunds 100%
+      const keepsTripFee = kind === 'lab' && String(e?.prior_state || '').toUpperCase() === 'IN_TRANSIT' && e?.cancelled_by !== 'provider';
       const amount = keepsTripFee ? Math.max(0, Math.round((left - tripFee) * 100) / 100) : left;
       if (!(amount > 0)) return;
       await this.refundExec.execute({
@@ -1405,7 +1472,7 @@ export class LabRadiologyRefundListener {
 @Global()
 @Module({
   controllers: [FinanceEngineController, AdminFinanceEngineController],
-  providers: [LedgerService, CommissionResolver, CouponService, LoyaltyRedeemService, FraudService, RefundExecutor, CancellationPolicy, ReportsService, ApprovalService, AppointmentRefundListener, NursingRefundListener, PharmacyRefundListener, LabRadiologyRefundListener],
+  providers: [LedgerService, CommissionResolver, CouponService, LoyaltyRedeemService, FraudService, RefundExecutor, CancellationPolicy, ReportsService, ApprovalService, AppointmentRefundListener, NursingRefundListener, PharmacyRefundListener, LabRadiologyRefundListener, ProviderCancelRefundListener],
   exports: [LedgerService, CommissionResolver, CouponService, LoyaltyRedeemService, FraudService, RefundExecutor, CancellationPolicy, ReportsService, ApprovalService],
 })
 export class FinanceEngineModule {}
