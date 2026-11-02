@@ -90,6 +90,7 @@ const LINE_LABELS: Record<string, { ar: string; en: string }> = {
   home_visit_fee: { ar: 'رسوم الزيارة المنزلية', en: 'Home visit fee' },
   transport_fee: { ar: 'رسوم النقل', en: 'Transport fee' },
   delivery_fee: { ar: 'رسوم التوصيل', en: 'Delivery fee' },
+  pharmacy_delivery_fee: { ar: 'رسوم توصيل الصيدلية', en: 'Pharmacy delivery fee' },
   visits: { ar: 'زيارات تمريض منزلي', en: 'Home nursing visits' },
   adjustment: { ar: 'تسوية', en: 'Adjustment' },
   refund: { ar: 'استرداد', en: 'Refund' },
