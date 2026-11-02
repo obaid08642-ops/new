@@ -20,7 +20,9 @@ class Handler:
 def accept_any(server, session, envelope, mechanism, auth_data):
     return AuthResult(success=True)
 
-c = Controller(Handler(), hostname='127.0.0.1', port=PORT, authenticator=accept_any, auth_require_tls=False)
+# aiosmtpd checks that the server answers within ready_timeout (default 5 s) and raises TimeoutError otherwise; a busy macOS runner
+# (native e2e iOS job, run 41433341508) needed longer, and a dead sink means every OTP / admin 2FA mail fails with otp_no_channel
+c = Controller(Handler(), hostname='127.0.0.1', port=PORT, authenticator=accept_any, auth_require_tls=False, ready_timeout=60)
 c.start()
 print(f'smtp sink on {PORT} -> {OUT}', flush=True)
 while True:
