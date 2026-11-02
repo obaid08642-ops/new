@@ -36,6 +36,7 @@ case "$*" in
   *"printenv DB_NAME"*) echo nabd_nestjs;;
   *printenv*) echo x;;
   *dropDatabase*) echo '{{"ok":1}}';;
+  *listDatabases*) if [ -n "${{FAKE_MONGO_OUT+x}}" ]; then printf '%s' "$FAKE_MONGO_OUT"; else echo '{ALL}'; fi;;
   *) echo '{ALL}';;
 esac
 ''')
@@ -111,6 +112,39 @@ esac
         self.assertIn("temp_restore: ABORT size guard", p.stdout)
         self.assertNotIn("dropDatabase", calls)
         self.assertEqual(len([f for f in os.listdir(self.bk) if f.startswith("extra-db-")]), 2)   # the archives are kept
+
+    # --- the database listing (run 89: "ABORT the database list is unreadable" with no reason)
+    def test_the_listing_script_is_sent_to_mongosh_with_its_dollar_operators_intact(self):
+        _, calls = self.run_task()
+        self.assertIn("listDatabases", calls)
+        self.assertIn("$group", calls); self.assertIn("$max:'$updatedAt'", calls)     # not expanded by the shell
+        self.assertIn("print(JSON.stringify(o))", calls); self.assertIn("allowDiskUse:true", calls)
+
+    def test_warning_and_prompt_lines_around_the_json_are_ignored(self):
+        out = "Warning: a newer version is available\n" + ALL + "\nmongosh done"
+        p, _ = self.run_task({"FAKE_MONGO_OUT": out})
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn("nabd_staging: 259 MB, 2 collection(s), 127 document(s)", p.stdout)
+
+    def test_a_collection_that_could_not_be_read_is_marked_and_does_not_stop_the_listing(self):
+        out = ('{"nabd_nestjs":{"mb":601,"c":{"users":{"n":900,"newest":"2026-10-31","mb":5}}},'
+               '"nabd_staging":{"mb":259,"c":{"a_view":{"n":0,"newest":null,"mb":0,"err":" stats"},"users":{"n":120,"newest":"2026-08-01","mb":3}}}}')
+        p, _ = self.run_task({"FAKE_MONGO_OUT": out})
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn("nabd_staging.a_view: 0 docs, 0 MB, newest none", p.stdout)
+        self.assertIn("nabd_staging: newest document date in any collection: 2026-08-01", p.stdout)
+
+    def test_a_mongosh_error_is_reported_as_the_reason_without_a_uri_or_a_secret(self):
+        out = "MongoServerError: Authentication failed. (mongodb://root:topsecret@mongodb:27017/?authSource=admin)"
+        p, calls = self.run_task({"FAKE_MONGO_OUT": out}, apply=True)
+        self.assertEqual(p.returncode, 1)
+        self.assertIn("ABORT the database list is unreadable: MongoServerError: Authentication failed. (<uri>", p.stdout)   # the redaction is greedy on purpose: it never leaves part of a password
+        self.assertNotIn("topsecret", p.stdout + p.stderr); self.assertNotIn("dropDatabase", calls); self.assertEqual(os.listdir(self.bk), [])
+
+    def test_an_empty_answer_says_what_to_check(self):
+        p, _ = self.run_task({"FAKE_MONGO_OUT": ""})
+        self.assertEqual(p.returncode, 1)
+        self.assertIn("ABORT the database list is unreadable: mongosh printed nothing (is nabdah-mongodb running?", p.stdout)
 
 
 if __name__ == "__main__":

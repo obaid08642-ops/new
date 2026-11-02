@@ -35,6 +35,10 @@ describe('medical orders: visits after the consultation', () => {
       visit('v-live', DOC, 'in_progress', ago(2)),
       visit('v-scheduled', DOC, 'scheduled', ago(1)),
       visit('v-other', OTHER, 'completed', ago(1)),
+      // how the appointments module really stores a status: upper case (APPT_STATES)
+      visit('v-upper-done', DOC, 'COMPLETED', ago(2)),
+      visit('v-upper-live', DOC, 'IN_PROGRESS', ago(1)),
+      visit('v-upper-sched', DOC, 'CONFIRMED', ago(1)),
     ]);
     svc = new MedicalOrdersService(conn);
   });
@@ -56,16 +60,22 @@ describe('medical orders: visits after the consultation', () => {
 
   it('lists only the doctor\'s own open visits, with id, status, patient id, patient name and an ISO date, and nothing else', async () => {
     const rows = await svc.recentVisits({ id: DOC });
-    expect(rows.map((r) => r.id).sort()).toEqual(['v-live', 'v-recent']);
+    expect(rows.map((r) => r.id).sort()).toEqual(['v-live', 'v-recent', 'v-upper-done', 'v-upper-live']);
     for (const r of rows) {
       expect(Object.keys(r).sort()).toEqual(['date', 'id', 'patient_id', 'patient_name', 'status']);
       expect(typeof r.date).toBe('string');
       expect(new Date(r.date as string).toISOString()).toBe(r.date);
     }
     // two visits are told apart by the patient's name; a patient with no user row has no name, not an invented one
-    expect(Object.fromEntries(rows.map((r) => [r.id, r.patient_name]))).toEqual({ 'v-recent': 'Huda A.', 'v-live': 'Omar B.' });
+    expect(Object.fromEntries(rows.filter((r) => !String(r.id).startsWith('v-upper')).map((r) => [r.id, r.patient_name]))).toEqual({ 'v-recent': 'Huda A.', 'v-live': 'Omar B.' });
     expect(JSON.stringify(rows)).not.toMatch(/Secret|966500|9665[12]|huda@|diagnosis/);
     expect((await svc.recentVisits({ id: 'doc-nobody' }))).toEqual([]);
+  });
+
+  it('visits stored the way the appointments module stores them (upper case) are listed and can be ordered on; a confirmed one cannot', async () => {
+    expect(await svc.create({ id: DOC }, 'v-upper-done', labOrder)).toMatchObject({ status: 'active' });
+    expect(await svc.create({ id: DOC }, 'v-upper-live', labOrder)).toMatchObject({ status: 'active' });
+    await expect(svc.create({ id: DOC }, 'v-upper-sched', labOrder)).rejects.toMatchObject({ response: { message: 'appointment_not_visited' } });
   });
 
   it('the window is read from SystemConfig `medical_order_after_visit_days`', async () => {

@@ -1,5 +1,5 @@
 {
- "commit": "9bd1bd1e9",
+ "commit": "7b283bf3f",
  "routes": [
   {
    "app": "provider-app",
@@ -583,7 +583,7 @@
      "line": 30,
      "file": "provider-app/src/screens/shared/blueprint/ReputationHub.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:916"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:919"
     }
    ],
    "files": 12,
@@ -654,7 +654,7 @@
      "line": 40,
      "file": "provider-app/src/screens/shared/blueprint/RevenueInsights.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:812"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:815"
     }
    ],
    "files": 11,
@@ -2414,7 +2414,7 @@
      "line": 191,
      "file": "provider-app/src/screens/doctor/doctor/StatisticsScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:595"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:600"
     },
     {
      "method": "POST",
@@ -2424,7 +2424,7 @@
      "line": 207,
      "file": "provider-app/src/screens/doctor/doctor/StatisticsScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:596"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:601"
     },
     {
      "method": "DELETE",
@@ -2434,7 +2434,7 @@
      "line": 219,
      "file": "provider-app/src/screens/doctor/doctor/StatisticsScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:597"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:602"
     }
    ],
    "files": 14,
@@ -2469,7 +2469,7 @@
      "line": 297,
      "file": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:784"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:787"
     },
     {
      "method": "DELETE",
@@ -2479,7 +2479,7 @@
      "line": 305,
      "file": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:782"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:785"
     }
    ],
    "files": 11,
@@ -2555,7 +2555,7 @@
      "file": "provider-app/src/context/index.tsx",
      "via": "useAuth().toggleOnline",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:834"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:837"
     },
     {
      "method": "GET",
@@ -2565,7 +2565,7 @@
      "line": 150,
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:871"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:874"
     }
    ],
    "files": 12,
@@ -2600,7 +2600,7 @@
      "line": 40,
      "file": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:762"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:765"
     },
     {
      "method": "POST",
@@ -2610,7 +2610,7 @@
      "line": 50,
      "file": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:760"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:763"
     },
     {
      "method": "DELETE",
@@ -2620,7 +2620,7 @@
      "line": 64,
      "file": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:764"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:767"
     }
    ],
    "files": 11,
@@ -2690,7 +2690,7 @@
      "line": 60,
      "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:546"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:551"
     },
     {
      "method": "POST",
@@ -2700,7 +2700,7 @@
      "line": 109,
      "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:547"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:552"
     },
     {
      "method": "DELETE",
@@ -2710,7 +2710,7 @@
      "line": 164,
      "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:548"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:553"
     }
    ],
    "files": 12,
@@ -2785,7 +2785,7 @@
      "line": 75,
      "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:884"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:887"
     },
     {
      "method": "PUT",
@@ -2795,7 +2795,7 @@
      "line": 106,
      "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:888"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:891"
     }
    ],
    "files": 15,
@@ -2866,7 +2866,7 @@
      "line": 64,
      "file": "provider-app/src/screens/doctor/doctor/EPrescriptionScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:770"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:773"
     },
     {
      "method": "POST",
@@ -2876,7 +2876,7 @@
      "line": 346,
      "file": "provider-app/src/screens/doctor/doctor/EPrescriptionScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:768"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:771"
     },
     {
      "method": "DELETE",
@@ -2886,7 +2886,7 @@
      "line": 326,
      "file": "provider-app/src/screens/doctor/doctor/EPrescriptionScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:774"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:777"
     },
     {
      "method": "POST",
@@ -2896,7 +2896,7 @@
      "line": 83,
      "file": "provider-app/src/screens/doctor/doctor/EPrescriptionScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:772"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:775"
     }
    ],
    "files": 13,
@@ -3191,7 +3191,7 @@
      "line": 68,
      "file": "provider-app/src/screens/doctor/doctor/PatientFileScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:784"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:787"
     },
     {
      "method": "DELETE",
@@ -3201,7 +3201,7 @@
      "line": 138,
      "file": "provider-app/src/screens/doctor/doctor/PatientFileScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:782"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:785"
     },
     {
      "method": "POST",
@@ -3211,7 +3211,7 @@
      "line": 137,
      "file": "provider-app/src/screens/doctor/doctor/PatientFileScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:780"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:783"
     },
     {
      "method": "GET",
@@ -3221,7 +3221,7 @@
      "line": 61,
      "file": "provider-app/src/screens/doctor/doctor/PatientFileScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:786"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:789"
     },
     {
      "method": "PUT",
@@ -3231,7 +3231,7 @@
      "line": 86,
      "file": "provider-app/src/screens/doctor/doctor/PatientFileScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:788"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:791"
     }
    ],
    "files": 12,
@@ -3266,7 +3266,7 @@
      "line": 144,
      "file": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:770"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:773"
     },
     {
      "method": "POST",
@@ -3276,7 +3276,7 @@
      "line": 158,
      "file": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:768"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:771"
     },
     {
      "method": "DELETE",
@@ -3286,7 +3286,7 @@
      "line": 169,
      "file": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:774"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:777"
     }
    ],
    "files": 11,
@@ -3506,7 +3506,7 @@
      "line": 231,
      "file": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:778"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:781"
     },
     {
      "method": "POST",
@@ -3516,7 +3516,7 @@
      "line": 241,
      "file": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:776"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:779"
     }
    ],
    "files": 11,
@@ -3911,7 +3911,7 @@
      "line": 58,
      "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:871"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:874"
     }
    ],
    "files": 12,
@@ -4356,7 +4356,7 @@
      "line": 70,
      "file": "provider-app/src/screens/facility/facility/FacilitySettingsScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:898"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:901"
     },
     {
      "method": "PUT",
@@ -4366,7 +4366,7 @@
      "line": 101,
      "file": "provider-app/src/screens/facility/facility/FacilitySettingsScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:906"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:909"
     }
    ],
    "files": 14,
@@ -4937,7 +4937,7 @@
      "file": "provider-app/src/context/index.tsx",
      "via": "useAuth().toggleOnline",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:834"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:837"
     }
    ],
    "files": 12,
@@ -5137,7 +5137,7 @@
      "line": 27,
      "file": "provider-app/src/screens/lab/LabQcActions.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:792"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:795"
     }
    ],
    "files": 13,
@@ -5312,7 +5312,7 @@
      "line": 48,
      "file": "provider-app/src/screens/shared/MyServicesScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:564"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:569"
     },
     {
      "method": "PUT",
@@ -5322,7 +5322,7 @@
      "line": 72,
      "file": "provider-app/src/screens/shared/MyServicesScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:567"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:572"
     }
    ],
    "files": 14,
@@ -5963,7 +5963,7 @@
      "file": "provider-app/src/context/index.tsx",
      "via": "useAuth().toggleOnline",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:834"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:837"
     }
    ],
    "files": 15,
@@ -6033,7 +6033,7 @@
      "line": 1041,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:941"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:944"
     }
    ],
    "files": 11,
@@ -6078,7 +6078,7 @@
      "line": 745,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:503"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:508"
     },
     {
      "method": "POST",
@@ -6178,7 +6178,7 @@
      "line": 457,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:796"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:799"
     }
    ],
    "files": 12,
@@ -6763,7 +6763,7 @@
      "line": 1065,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:534"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:539"
     },
     {
      "method": "POST",
@@ -6773,7 +6773,7 @@
      "line": 1121,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:535"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:540"
     },
     {
      "method": "POST",
@@ -7056,7 +7056,7 @@
      "file": "provider-app/src/context/index.tsx",
      "via": "useAuth().toggleOnline",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:834"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:837"
     },
     {
      "method": "GET",
@@ -7497,7 +7497,7 @@
    "component": "AvailabilityScheduleTab",
    "area": "radiology",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 573,
+   "line": 574,
    "registrations": [
     {
      "role": "radiology",
@@ -7516,7 +7516,7 @@
      "path": "/radiology/catalog/delta-request",
      "target": "backend",
      "query": "",
-     "line": 588,
+     "line": 589,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:208"
@@ -7532,7 +7532,7 @@
    "component": "CatalogManagerTab",
    "area": "radiology",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 511,
+   "line": 512,
    "registrations": [
     {
      "role": "radiology",
@@ -7554,7 +7554,7 @@
      "line": 48,
      "file": "provider-app/src/screens/shared/MyServicesScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:564"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:569"
     },
     {
      "method": "PUT",
@@ -7564,14 +7564,14 @@
      "line": 72,
      "file": "provider-app/src/screens/shared/MyServicesScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:567"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:572"
     },
     {
      "method": "POST",
      "path": "/radiology/catalog/delta-request",
      "target": "backend",
      "query": "",
-     "line": 541,
+     "line": 542,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:208"
@@ -7742,7 +7742,7 @@
    "component": "RadiologySettingsScreen",
    "area": "radiology",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 621,
+   "line": 622,
    "registrations": [
     {
      "role": "radiology",
@@ -7777,7 +7777,7 @@
    "component": "ReportingScreen",
    "area": "radiology",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 407,
+   "line": 408,
    "registrations": [
     {
      "role": "radiology",
@@ -7876,7 +7876,7 @@
      "path": "/radiology/bookings/:param/approve-report",
      "target": "backend",
      "query": "",
-     "line": 459,
+     "line": 460,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:181"
@@ -7886,7 +7886,7 @@
      "path": "/radiology/bookings/:param/submit-report-for-review",
      "target": "backend",
      "query": "",
-     "line": 453,
+     "line": 454,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:175"
@@ -7896,7 +7896,7 @@
      "path": "/radiology/bookings/:param/upload-report",
      "target": "backend",
      "query": "",
-     "line": 440,
+     "line": 441,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:146"
@@ -8329,7 +8329,7 @@
      "line": 365,
      "file": "provider-app/src/screens/shared/RealScreensExtended.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:538"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:543"
     }
    ],
    "files": 11,
@@ -8364,7 +8364,7 @@
      "line": 433,
      "file": "provider-app/src/screens/shared/RealScreensExtended.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:586"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:591"
     }
    ],
    "files": 11,
@@ -8870,7 +8870,7 @@
      "line": 48,
      "file": "provider-app/src/screens/shared/MyServicesScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:564"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:569"
     },
     {
      "method": "PUT",
@@ -8880,7 +8880,7 @@
      "line": 72,
      "file": "provider-app/src/screens/shared/MyServicesScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:567"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:572"
     }
    ],
    "files": 12,
@@ -8945,7 +8945,7 @@
      "line": 296,
      "file": "provider-app/src/screens/shared/RealScreens.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:486"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:491"
     }
    ],
    "files": 10,
@@ -9036,7 +9036,7 @@
      "line": 32,
      "file": "provider-app/src/screens/shared/ProviderHome.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:504"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:509"
     },
     {
      "method": "POST",
@@ -9047,7 +9047,7 @@
      "file": "provider-app/src/context/index.tsx",
      "via": "useAuth().toggleOnline",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:834"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:837"
     },
     {
      "method": "GET",
@@ -9239,7 +9239,7 @@
      "line": 55,
      "file": "provider-app/src/screens/shared/shared/ProviderWalletScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:503"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:508"
     },
     {
      "method": "GET",
@@ -9259,7 +9259,7 @@
      "line": 52,
      "file": "provider-app/src/screens/shared/shared/ProviderWalletScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:857"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:860"
     }
    ],
    "files": 11,
@@ -9294,7 +9294,7 @@
      "line": 20,
      "file": "provider-app/src/screens/shared/RealScreens.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:916"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:919"
     },
     {
      "method": "POST",
@@ -9304,7 +9304,7 @@
      "line": 28,
      "file": "provider-app/src/screens/shared/RealScreens.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:921"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:924"
     }
    ],
    "files": 11,
@@ -9752,7 +9752,7 @@
      "line": 123,
      "file": "provider-app/src/screens/shared/RealScreens.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:927"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:930"
     },
     {
      "method": "PUT",
@@ -9762,7 +9762,7 @@
      "line": 167,
      "file": "provider-app/src/screens/shared/RealScreens.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:931"
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:934"
     }
    ],
    "files": 11,

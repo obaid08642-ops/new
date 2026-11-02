@@ -1846,7 +1846,7 @@ export class MedicinesService {
     'requires_prescription', 'controlled', 'online_exclusive', 'barcode', 'price', 'sfda_price', 'images', 'image',
     'indications_ar', 'indications_en', 'contraindications_ar', 'contraindications_en',
     'warnings_ar', 'warnings_en', 'side_effects_ar', 'side_effects_en',
-    'precautions_ar', 'precautions_en', 'interactions', 'package_size', 'storage_conditions',
+    'precautions_ar', 'precautions_en', 'interactions', 'package_size', 'storage_conditions', 'storage_conditions_ar', 'storage_conditions_en',
   ];
 
   /** Decision 10 / needs-review admin-catalogue#20: the prescription and controlled flags are as sensitive as the

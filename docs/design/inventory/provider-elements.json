@@ -1,5 +1,5 @@
 {
- "commit": "9bd1bd1e9",
+ "commit": "7b283bf3f",
  "screens": {
   "PendingDashboard": [
    {
@@ -20178,7 +20178,7 @@
     "src": "prepItems: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 525,
+    "line": 526,
     "via": null,
     "note": null
    },
@@ -20188,7 +20188,7 @@
     "src": "local state setShowAdd",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 550,
+    "line": 551,
     "via": null,
     "note": null
    },
@@ -20198,7 +20198,7 @@
     "src": "local state setModality",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 555,
+    "line": 556,
     "via": null,
     "note": null
    },
@@ -20208,7 +20208,7 @@
     "src": "from MODALITIES (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 555,
+    "line": 556,
     "via": null,
     "note": null,
     "untraced": true
@@ -20219,7 +20219,7 @@
     "src": "user input → nameAr → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 557,
+    "line": 558,
     "via": null,
     "note": null
    },
@@ -20229,7 +20229,7 @@
     "src": "user input → nameEn → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 558,
+    "line": 559,
     "via": null,
     "note": null
    },
@@ -20239,7 +20239,7 @@
     "src": "user input → price → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 559,
+    "line": 560,
     "via": null,
     "note": null
    },
@@ -20249,7 +20249,7 @@
     "src": "user input → duration → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 560,
+    "line": 561,
     "via": null,
     "note": null
    },
@@ -20259,7 +20259,7 @@
     "src": "user input → parent callback item.set",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 562,
+    "line": 563,
     "via": null,
     "note": null
    },
@@ -20269,7 +20269,7 @@
     "src": "user input → portableUS → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 563,
+    "line": 564,
     "via": null,
     "note": null
    },
@@ -20279,7 +20279,7 @@
     "src": "parent callback prev.includes, prev.filter",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 565,
+    "line": 566,
     "via": null,
     "note": null
    },
@@ -20289,7 +20289,7 @@
     "src": "from PREP_OPTIONS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 565,
+    "line": 566,
     "via": null,
     "note": null,
     "untraced": true
@@ -20300,7 +20300,7 @@
     "src": "POST /radiology/catalog/delta-request",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 566,
+    "line": 567,
     "via": null,
     "note": null
    }
@@ -20312,7 +20312,7 @@
     "src": "workingDays: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 578,
+    "line": 579,
     "via": null,
     "note": null
    },
@@ -20322,7 +20322,7 @@
     "src": "local state setWorkingDays",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 597,
+    "line": 598,
     "via": null,
     "note": null
    },
@@ -20332,7 +20332,7 @@
     "src": "from DAYS_AR (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 597,
+    "line": 598,
     "via": null,
     "note": null,
     "untraced": true
@@ -20343,7 +20343,7 @@
     "src": "user input → morningFrom → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 601,
+    "line": 602,
     "via": null,
     "note": null
    },
@@ -20353,7 +20353,7 @@
     "src": "user input → morningTo → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 602,
+    "line": 603,
     "via": null,
     "note": null
    },
@@ -20363,7 +20363,7 @@
     "src": "user input → eveningFrom → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 606,
+    "line": 607,
     "via": null,
     "note": null
    },
@@ -20373,7 +20373,7 @@
     "src": "user input → eveningTo → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 607,
+    "line": 608,
     "via": null,
     "note": null
    },
@@ -20383,7 +20383,7 @@
     "src": "user input → emergencyAvailable → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 612,
+    "line": 613,
     "via": null,
     "note": null
    },
@@ -20393,7 +20393,7 @@
     "src": "POST /radiology/catalog/delta-request",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 615,
+    "line": 616,
     "via": null,
     "note": null
    }
@@ -20465,7 +20465,7 @@
     "src": "navigate → insurance_requests",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 630,
+    "line": 631,
     "via": null,
     "note": null
    },
@@ -20475,7 +20475,7 @@
     "src": "navigate (back / dynamic target)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 634,
+    "line": 635,
     "via": null,
     "note": null
    },
@@ -20485,7 +20485,7 @@
     "src": "navigate → drug_index",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 638,
+    "line": 639,
     "via": null,
     "note": null
    },
@@ -20495,7 +20495,7 @@
     "src": "navigate → medical_jobs",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 639,
+    "line": 640,
     "via": null,
     "note": null
    },
@@ -20505,7 +20505,7 @@
     "src": "parent callback onLogout",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 642,
+    "line": 643,
     "via": null,
     "note": null
    }
@@ -20637,7 +20637,7 @@
     "src": "local state setShowReschedule",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 363,
+    "line": 364,
     "via": null,
     "note": null
    },
@@ -20647,7 +20647,7 @@
     "src": "user input → decisionRef → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 369,
+    "line": 370,
     "via": null,
     "note": null
    },
@@ -20657,7 +20657,7 @@
     "src": "user input → copay (local)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 370,
+    "line": 371,
     "via": null,
     "note": null
    },
@@ -20667,7 +20667,7 @@
     "src": "POST /radiology/bookings/:param/coverage-decision, GET /radiology/bookings/:param",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 372,
+    "line": 373,
     "via": null,
     "note": null
    },
@@ -20677,7 +20677,7 @@
     "src": "user input → rejectReason (local)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 377,
+    "line": 378,
     "via": null,
     "note": null
    },
@@ -20687,7 +20687,7 @@
     "src": "parent callback rejectReason.trim",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 378,
+    "line": 379,
     "via": null,
     "note": null
    },
@@ -20697,7 +20697,7 @@
     "src": "from ABORT_REASONS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 382,
+    "line": 383,
     "via": null,
     "note": null,
     "untraced": true
@@ -20708,7 +20708,7 @@
     "src": "local state setAbortReason",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 383,
+    "line": 384,
     "via": null,
     "note": null
    },
@@ -20718,7 +20718,7 @@
     "src": "POST /radiology/bookings/:param/abort, GET /radiology/bookings/:param",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 388,
+    "line": 389,
     "via": null,
     "note": null
    },
@@ -20728,7 +20728,7 @@
     "src": "from RESCHEDULE_OPTIONS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 394,
+    "line": 395,
     "via": null,
     "note": null,
     "untraced": true
@@ -20739,7 +20739,7 @@
     "src": "local state setRescheduleDays",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 395,
+    "line": 396,
     "via": null,
     "note": null
    },
@@ -20749,7 +20749,7 @@
     "src": "PATCH /radiology/bookings/:param/reschedule, GET /radiology/bookings/:param",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 400,
+    "line": 401,
     "via": null,
     "note": null
    }
@@ -20761,7 +20761,7 @@
     "src": "reportFile: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 412,
+    "line": 413,
     "via": null,
     "note": null
    },
@@ -20771,7 +20771,7 @@
     "src": "dicomFile: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 413,
+    "line": 414,
     "via": null,
     "note": null
    },
@@ -20781,7 +20781,7 @@
     "src": "from STEPS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 475,
+    "line": 476,
     "via": null,
     "note": null,
     "untraced": true
@@ -20792,7 +20792,7 @@
     "src": "native action",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 483,
+    "line": 484,
     "via": null,
     "note": null
    },
@@ -20802,7 +20802,7 @@
     "src": "user input → findings → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 485,
+    "line": 486,
     "via": null,
     "note": null
    },
@@ -20812,7 +20812,7 @@
     "src": "POST /storage/upload, POST /radiology/bookings/:param/upload-report",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 487,
+    "line": 488,
     "via": null,
     "note": null
    },
@@ -20822,7 +20822,7 @@
     "src": "native action",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 496,
+    "line": 497,
     "via": null,
     "note": null
    },
@@ -20832,7 +20832,7 @@
     "src": "POST /radiology/bookings/:param/submit-report-for-review",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 503,
+    "line": 504,
     "via": null,
     "note": null
    },
@@ -20842,7 +20842,7 @@
     "src": "POST /radiology/bookings/:param/approve-report",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 504,
+    "line": 505,
     "via": null,
     "note": null
    }

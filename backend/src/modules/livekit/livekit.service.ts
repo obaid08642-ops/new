@@ -100,7 +100,14 @@ export class LiveKitService {
     return { provider: 'livekit', token, room, ice_servers: await this.iceServersFor(String(user?.id)), audio_only: advice.audio_only, audio_only_reason: advice.reason };
   }
 
-  async getProviderWaitingRoom(providerId: string) {
+  /** The kinds of appointment the schedule has: a clinic visit, a video consultation, a home visit. */
+  static readonly SERVICE_TYPES = ['clinic', 'video', 'home'] as const;
+
+  /** Today's patients of this doctor; `serviceType` keeps one kind (the virtual waiting room asks for `video`). Every row says its kind. */
+  async getProviderWaitingRoom(providerId: string, serviceType?: string) {
+    if (serviceType !== undefined && !(LiveKitService.SERVICE_TYPES as readonly string[]).includes(serviceType)) {
+      throw new BadRequestException('invalid_service_type');
+    }
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
@@ -112,12 +119,14 @@ export class LiveKitService {
       doctor_user_id: providerId,
       status: { $in: ['PENDING', 'CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS'] },
       slot_start: { $gte: today, $lt: tomorrow },
+      ...(serviceType ? { service_type: serviceType } : {}),
     }).lean();
 
     return appointments.map((a: any) => ({
       id: a.id || a._id?.toString(),
       name: a.patient_name || 'مريض',
       time: a.slot_start,
+      service_type: a.service_type ?? null,
       checkedIn: a.status === 'CHECKED_IN',
       status: a.status,
     }));
