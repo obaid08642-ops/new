@@ -194,14 +194,32 @@ export default function ProviderFullDetail({ detail, accountId }: { detail: any;
   };
 
   const [contractMeta, setContractMeta] = useState<any | null>(null);
+  const [contractState, setContractState] = useState<'loading' | 'ready' | 'none' | 'error'>('loading');
   const [contractBusy, setContractBusy] = useState(false);
 
-  /** Fetches the stored signed PDF once; `view` opens it in a new tab, otherwise it is downloaded. Both show the fingerprint and the sharing switch. */
-  const openContract = async (mode: 'view' | 'download') => {
+  // The facts of the signed contract (no PDF): shown as soon as the page opens.
+  useEffect(() => {
+    if (!cid) return;
+    let live = true;
+    setContractState('loading');
+    fetchWithAdminGuard(`/api/admin/provider-onboarding/admin/contracts/${cid}/meta`)
+      .then(async (res) => {
+        if (!live) return;
+        if (res.status === 404) { setContractMeta(null); setContractState('none'); return; }
+        if (!res.ok) { setContractState('error'); return; }
+        setContractMeta(await res.json());
+        setContractState('ready');
+      })
+      .catch(() => { if (live) setContractState('error'); });
+    return () => { live = false; };
+  }, [cid]);
+
+  /** Fetches the stored signed PDF of one language; `view` opens it in a new tab, otherwise it is downloaded. */
+  const openContract = async (mode: 'view' | 'download', lang: 'ar' | 'en' = 'ar') => {
     if (!cid) return;
     setContractBusy(true);
     try {
-      const res = await fetchWithAdminGuard(`/api/admin/provider-onboarding/admin/contracts/${cid}`);
+      const res = await fetchWithAdminGuard(`/api/admin/provider-onboarding/admin/contracts/${cid}?lang=${lang}`);
       if (!res.ok) throw new Error('no_contract');
       const data = await res.json();
       const bytes = Uint8Array.from(atob(data.pdf_base64), c => c.charCodeAt(0));
@@ -211,17 +229,16 @@ export default function ProviderFullDetail({ detail, accountId }: { detail: any;
         setTimeout(() => URL.revokeObjectURL(url), 60_000);
       } else {
         const a = document.createElement('a');
-        a.href = url; a.download = `contract-${cid}.pdf`; a.click();
+        a.href = url; a.download = `contract-${cid}-${lang}.pdf`; a.click();
         URL.revokeObjectURL(url);
       }
-      setContractMeta({ visible_to_provider: data.visible_to_provider, sha256: data.sha256, generated_at: data.generated_at, signer_name: data.signer_name, signer_role: data.signer_role });
     } catch {
-      alert('تعذر تحميل العقد — لم يُولّد عقد لهذا المزود بعد.');
+      alert('تعذر تحميل العقد.');
     } finally {
       setContractBusy(false);
     }
   };
-  const downloadContract = () => openContract('download');
+  const hasEnglishContract = Array.isArray(contractMeta?.languages) && contractMeta.languages.includes('en');
 
   const hasOnboarding = !!detail?.onboarding;
   const extraKeys = Object.keys(ob).filter(k => !RENDERED_ONBOARDING_KEYS.has(k));
@@ -563,35 +580,31 @@ export default function ProviderFullDetail({ detail, accountId }: { detail: any;
 
       {/* ═══ 6) العقد والتوقيع ═══ */}
       <Section title="العقد والتوقيع الإلكتروني" tone="amber">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <label className="text-sm font-bold text-gray-500">عقد الشراكة الموقّع</label>
-          <button
-            onClick={downloadContract}
-            disabled={contractBusy || !cid}
-            className="bg-teal-700 hover:bg-teal-800 disabled:opacity-50 text-white text-xs font-bold px-3 py-2 rounded-lg shadow"
-          >{contractBusy ? 'جاري التحميل…' : 'تحميل العقد PDF'}</button>
-          <button
-            onClick={() => openContract('view')}
-            disabled={contractBusy || !cid}
-            className="bg-white border border-teal-700 text-teal-800 disabled:opacity-50 text-xs font-bold px-3 py-2 rounded-lg"
-          >عرض العقد</button>
-        </div>
-        {contractMeta && (
-          <div className="text-xs text-gray-600 space-y-1">
-            {contractMeta.generated_at && <p>تاريخ توليد العقد: {new Date(contractMeta.generated_at).toLocaleString('ar-SA-u-ca-gregory')}</p>}
-            {contractMeta.signer_name && <p>الموقّع: {contractMeta.signer_name}{contractMeta.signer_role ? ` (${contractMeta.signer_role})` : ''}</p>}
+          <div className="flex flex-wrap gap-2">
+            {(['ar', ...(hasEnglishContract ? ['en'] : [])] as Array<'ar' | 'en'>).map((l) => (
+              <span key={l} className="flex gap-1">
+                <button onClick={() => openContract('download', l)} disabled={contractBusy || !cid || contractState !== 'ready'}
+                  className="bg-teal-700 hover:bg-teal-800 disabled:opacity-50 text-white text-xs font-bold px-3 py-2 rounded-lg shadow">{l === 'ar' ? 'تحميل PDF عربي' : 'تحميل PDF إنجليزي'}</button>
+                <button onClick={() => openContract('view', l)} disabled={contractBusy || !cid || contractState !== 'ready'}
+                  className="bg-white border border-teal-700 text-teal-800 disabled:opacity-50 text-xs font-bold px-3 py-2 rounded-lg">{l === 'ar' ? 'عرض العربي' : 'عرض الإنجليزي'}</button>
+              </span>
+            ))}
           </div>
-        )}
-        {contractMeta && (
-          <div className="flex items-center justify-between text-xs text-gray-600">
-            <span className="font-mono break-all">SHA: {contractMeta.sha256}</span>
-            <label className="flex items-center gap-2 font-bold whitespace-nowrap">
-              <input type="checkbox" checked={!!contractMeta.visible_to_provider} onChange={async (e) => {
-                const res = await fetchWithAdminGuard(`/api/admin/provider-onboarding/admin/contracts/${cid}/visibility`, { method: 'POST', body: JSON.stringify({ visible: e.target.checked }) });
-                if (res.ok) setContractMeta({ ...contractMeta, visible_to_provider: e.target.checked });
-              }} />
-              إتاحة العقد للمزود
-            </label>
+        </div>
+        {contractState === 'loading' && <p className="text-xs text-gray-400">جاري تحميل بيانات العقد…</p>}
+        {contractState === 'none' && <p className="text-xs text-red-500">لم يُوقَّع عقد لهذا المزود بعد.</p>}
+        {contractState === 'error' && <p className="text-xs text-red-500">تعذر تحميل بيانات العقد.</p>}
+        {contractState === 'ready' && contractMeta && (
+          <div className="text-xs text-gray-600 space-y-1">
+            <p>الإصدار {contractMeta.version_no ?? '—'} من العقد · نص الاتفاقية الإصدار {contractMeta.policy_version ?? '—'}{(contractMeta.versions?.length ?? 0) > 1 ? ` · ${contractMeta.versions.length} إصدارات موقّعة` : ''}</p>
+            {contractMeta.signed_at && <p>وقت التوقيع: {new Date(contractMeta.signed_at).toLocaleString('ar-SA-u-ca-gregory')}</p>}
+            {contractMeta.signer_name && <p>الموقّع: {contractMeta.signer_name}{contractMeta.signer_role ? ` (${contractMeta.signer_role})` : ''}</p>}
+            {contractMeta.accepted_at && <p>الموافقة على النص: {new Date(contractMeta.accepted_at).toLocaleString('ar-SA-u-ca-gregory')} · IP {contractMeta.accepted_ip || '—'} · الجهاز {contractMeta.accepted_device || '—'}</p>}
+            <p className="font-mono break-all">SHA-256 (عربي): {contractMeta.sha256}</p>
+            {contractMeta.sha256_en && <p className="font-mono break-all">SHA-256 (English): {contractMeta.sha256_en}</p>}
+            <p className="text-gray-500">المزود يطّلع على عقده دائماً من التطبيق؛ لا يوجد خيار لإخفائه.</p>
           </div>
         )}
         <div className="grid grid-cols-2 gap-4 items-end">
