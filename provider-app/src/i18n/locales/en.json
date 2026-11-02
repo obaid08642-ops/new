@@ -209,5 +209,7 @@
   "radiology.tab.schedule": "Schedule",
   "radiology.tab.settings": "Settings",
   "contract.signaturePending": "Your signature is still being checked. Try again in a minute.",
-  "contract.signatureUnusable": "The signature could not be used. Sign again and resubmit."
+  "contract.signatureUnusable": "The signature could not be used. Sign again and resubmit.",
+  "profile.credential.pending": "Pending review: {value}",
+  "profile.credential.sent": "Credential change sent for admin review"
 }

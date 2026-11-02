@@ -1,5 +1,5 @@
 {
- "commit": "d46595463",
+ "commit": "1f7cff534",
  "routes": [
   {
    "app": "provider-app",
@@ -9050,7 +9050,7 @@
    "component": "ProviderProfileEditor",
    "area": "shared",
    "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
-   "line": 95,
+   "line": 97,
    "registrations": [
     {
      "role": "doctor",
@@ -9121,7 +9121,7 @@
      "path": "/provider/profile",
      "target": "backend",
      "query": "",
-     "line": 112,
+     "line": 115,
      "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/provider.controllers.ts:96"
@@ -9131,7 +9131,7 @@
      "path": "/provider/profile",
      "target": "backend",
      "query": "",
-     "line": 133,
+     "line": 136,
      "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/provider.controllers.ts:98"

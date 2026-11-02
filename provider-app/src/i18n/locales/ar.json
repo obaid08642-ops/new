@@ -209,5 +209,7 @@
   "radiology.tab.schedule": "الجدول",
   "radiology.tab.settings": "الإعدادات",
   "contract.signaturePending": "جارٍ فحص توقيعك. أعد المحاولة بعد دقيقة.",
-  "contract.signatureUnusable": "تعذر استخدام التوقيع. وقّع من جديد ثم أعد الإرسال."
+  "contract.signatureUnusable": "تعذر استخدام التوقيع. وقّع من جديد ثم أعد الإرسال.",
+  "profile.credential.pending": "بانتظار المراجعة: {value}",
+  "profile.credential.sent": "أُرسل تعديل الاعتماد للمراجعة من الإدارة"
 }
