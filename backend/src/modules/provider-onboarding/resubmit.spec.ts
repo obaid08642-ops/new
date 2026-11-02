@@ -9,7 +9,7 @@ describe('ProviderOnboardingService.submit after a rejection', () => {
       findOne: jest.fn().mockResolvedValue(account),
       updateOne: jest.fn().mockImplementation(async (_f: any, u: any) => { updates.push(u); }),
     };
-    const contractsCol = { updateOne: jest.fn().mockResolvedValue({}), findOne: jest.fn() };
+    const contractsCol = { insertOne: jest.fn().mockResolvedValue({}), countDocuments: jest.fn().mockResolvedValue(0), findOne: jest.fn() };
     const profile: any = {
       id: 'p1', user_id: 'u1', type: 'lab', onboarding_step: 3, status: 'rejected', name_ar: 'مختبر',
       save: jest.fn().mockResolvedValue(undefined), toObject() { return { ...this }; },
@@ -20,7 +20,11 @@ describe('ProviderOnboardingService.submit after a rejection', () => {
     };
     const userModel: any = { findOne: () => ({ lean: async () => ({ id: 'u1', email: 'a@b.test', phone: '500000001' }) }) };
     const bus = { emit: jest.fn().mockResolvedValue(undefined) };
-    const contracts = { generate: jest.fn().mockResolvedValue({ pdf: Buffer.from('x'), sha256: 'h' }) };
+    const contracts = {
+      loadAgreement: jest.fn().mockResolvedValue({ policy: { key: 'provider_agreement', version: '1.0' }, acceptance: { id: 'acc' } }),
+      resolveSignature: jest.fn().mockResolvedValue({ bytes: Buffer.from('s'), sha256: 'sig' }),
+      generate: jest.fn().mockResolvedValue({ pdf: Buffer.from('x'), sha256: 'h' }),
+    };
     const scfhs = { recordAtSubmission: jest.fn().mockResolvedValue(undefined) };
     const service = new ProviderOnboardingService(userModel, providerModel, bus as any, contracts as any, scfhs as any);
     return { service, profile, updates, bus };

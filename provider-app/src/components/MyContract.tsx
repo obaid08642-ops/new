@@ -6,11 +6,25 @@ import { I as NIcon } from './icons';
 import client from '../api/client';
 import { contractFileName, saveContractPdf, shareContractPdf } from '../utils/contractFile';
 
-type Signed = { pdf_base64: string; sha256?: string; generated_at?: string };
+type Signed = { pdf_base64: string; sha256?: string; generated_at?: string; signed_at?: string | null; language?: 'ar' | 'en' };
 
-/** What the server said when the signed PDF was asked for: 403 = the admin has not shared it, 404 = it was never generated. */
-export const contractErrorKey = (status?: number): 'contract.mine.notShared' | 'contract.mine.notReady' | 'contract.mine.failed' =>
-  status === 403 ? 'contract.mine.notShared' : status === 404 ? 'contract.mine.notReady' : 'contract.mine.failed';
+/** What the server said when the signed PDF was asked for: 404 = there is no signed contract yet. The signer is never refused (no admin switch). */
+export const contractErrorKey = (status?: number): 'contract.mine.notReady' | 'contract.mine.failed' =>
+  status === 404 ? 'contract.mine.notReady' : 'contract.mine.failed';
+
+/** The signed PDF in the app's language; a contract with no PDF in that language (the agreement had no English text) comes in Arabic. */
+export async function fetchMyContract(lang: 'ar' | 'en'): Promise<Signed> {
+  try {
+    const res: any = await client.get('/provider-onboarding/contract', { params: { lang } });
+    return res.data as Signed;
+  } catch (e: any) {
+    if (lang === 'en' && e?.response?.status === 404 && JSON.stringify(e?.response?.data ?? '').includes('contract_language_unavailable')) {
+      const res: any = await client.get('/provider-onboarding/contract', { params: { lang: 'ar' } });
+      return res.data as Signed;
+    }
+    throw e;
+  }
+}
 
 /** A settings row that opens the provider's own signed contract: when it was signed, its fingerprint, and download or share. */
 export function MyContractRow() {
@@ -26,9 +40,9 @@ export function MyContractRow() {
   const load = async () => {
     setBusy(true); setErrorKey(null); setSigned(null);
     try {
-      const res: any = await client.get('/provider-onboarding/contract');
-      if (!res?.data?.pdf_base64) throw Object.assign(new Error('empty'), { response: { status: 404 } });
-      setSigned(res.data as Signed);
+      const data = await fetchMyContract(AR ? 'ar' : 'en');
+      if (!data?.pdf_base64) throw Object.assign(new Error('empty'), { response: { status: 404 } });
+      setSigned(data);
     } catch (e: any) {
       setErrorKey(contractErrorKey(e?.response?.status));
     } finally { setBusy(false); }
@@ -43,7 +57,7 @@ export function MyContractRow() {
   const share = async () => {
     if (!signed) return;
     try {
-      const r = await shareContractPdf(signed.pdf_base64, contractFileName(signed.sha256));
+      const r = await shareContractPdf(signed.pdf_base64, contractFileName(signed.sha256), t('contract.mine.title'));
       if (r === 'unsupported') show(t('contract.mine.shareUnsupported'), 'info');
     } catch { show(t('contract.mine.failed'), 'error'); }
   };
@@ -58,7 +72,8 @@ export function MyContractRow() {
     error: { fontSize: FS.sm, color: theme.danger, textAlign: AR ? 'right' : 'left' },
     btn: { padding: SP.md, borderRadius: R.md, alignItems: 'center' },
   });
-  const when = signed?.generated_at ? new Date(signed.generated_at).toLocaleDateString(AR ? 'ar' : 'en') : '—';
+  const signedAt = signed?.signed_at || signed?.generated_at;
+  const when = signedAt ? new Date(signedAt).toLocaleDateString(AR ? 'ar' : 'en') : '—';
 
   return (
     <>

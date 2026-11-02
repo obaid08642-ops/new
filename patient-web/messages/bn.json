@@ -5783,6 +5783,8 @@
     "title": "রসিদ",
     "brand": "নবজ প্লাস",
     "simplified": "সরলীকৃত কর চালান",
+    "paymentReceipt": "পেমেন্ট রসিদ",
+    "totalPaid": "মোট পরিশোধ",
     "invoiceNo": "চালান নম্বর",
     "vatNumber": "ভ্যাট নিবন্ধন নম্বর",
     "dateTime": "তারিখ ও সময়",
