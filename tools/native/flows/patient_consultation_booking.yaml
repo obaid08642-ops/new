@@ -1,0 +1,79 @@
+# Patient books a clinic consultation through the real screens, paying at the clinic, up to the booking-placed screen and the booking
+# status screen: Consultations tab -> doctor card -> doctor profile (day, time) -> Book -> confirm (cash) -> booking placed -> status.
+# The doctor, his clinic hours and the appointment come from the seeded backend (tools/native/seed.py runs the live journeys), nothing is
+# mocked. Controls are found by testID (patient-app/app/(tabs)/consultations, consultations/doctor/[id], book/[id],
+# src/components/BookingConfirmForm.tsx, consultations/booking-status).
+appId: com.patient.nabd
+---
+- runFlow: lib/patient_signin.yaml
+- tapOn:
+    id: "main-tab-bar-consult"
+- extendedWaitUntil:
+    visible:
+      id: "consultations-hub"
+    timeout: 30000
+# the hub opens on "clinic" visits; its first doctor card opens the doctor's profile
+- scrollUntilVisible:
+    element:
+      id: "hub-doctor-0"
+    timeout: 60000
+- tapOn:
+    id: "hub-doctor-0"
+- extendedWaitUntil:
+    visible:
+      id: "doctor-screen"
+    timeout: 30000
+# the profile has its own day strip and time grid (the same components as the book screen); "Book" stays disabled until a time is chosen
+# (run 103: tapping it first did nothing, so the book screen never opened). Tomorrow is day 1 of the strip: the first free time of that day.
+# run 113: scrolling DOWN never found the strip (the page ended on the FAQ) - the strip can sit above the first view of a long profile, so look up first
+- scrollUntilVisible:
+    element:
+      id: "book-day-1"
+    direction: UP
+    timeout: 15000
+    optional: true
+- scrollUntilVisible:
+    element:
+      id: "book-day-1"
+    visibilityPercentage: 60
+    timeout: 30000
+- tapOn:
+    id: "book-day-1"
+- extendedWaitUntil:
+    visible:
+      id: "book-slot-.*"
+      enabled: true
+    timeout: 30000
+- tapOn:
+    id: "book-slot-.*"
+    enabled: true
+- scrollUntilVisible:
+    element:
+      id: "doctor-book"
+      enabled: true
+    timeout: 30000
+# with a time chosen, Book opens the confirm form (booking-status in confirm mode)
+- tapOn:
+    id: "doctor-book"
+- extendedWaitUntil:
+    visible:
+      id: "booking-confirm-screen"
+    timeout: 30000
+# clinic visits can be paid at the clinic: no card checkout (it opens the browser) is needed
+- tapOn:
+    id: "booking-pay-method-cash"
+- tapOn:
+    id: "booking-confirm-submit"
+# POST /care/appointments answered: the booking-placed screen, then the appointment's own status screen
+- extendedWaitUntil:
+    visible:
+      id: "booking-success-screen"
+    timeout: 60000
+- takeScreenshot: patient_booking_placed
+- tapOn:
+    id: "booking-track"
+- extendedWaitUntil:
+    visible:
+      id: "booking-pending-screen"
+    timeout: 30000
+- takeScreenshot: patient_booking_status
