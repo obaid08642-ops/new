@@ -12,6 +12,7 @@ import { ProfileImageMetadataRepository } from "./repositories/profileimagemetad
 import { ImageProcessingJobRepository } from "./repositories/imageprocessingjob.repository";
 import { ProviderAccountProfileRepository } from "./repositories/provideraccountprofile.repository";
 import { ProfileImageAuditLogRepository } from "./repositories/profileimageauditlog.repository";
+import { ScheduledOnce } from '../../../common/scheduled-once';
 
 @Injectable()
 export class ProviderImageProcessorService {
@@ -104,6 +105,7 @@ export class ProviderImageProcessorService {
 
   /** Run background image processor every 10 seconds */
   @Cron('*/10 * * * * *')
+  @ScheduledOnce({ holdMs: 3000 })
   async processPendingJobs() {
     let jobs: any[];
     try {

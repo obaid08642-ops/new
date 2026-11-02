@@ -26,6 +26,7 @@ import { localizeMedicineStructured, DbLang, missingPublicMedicineTranslations, 
 import { normalizeRankingSort, popularPage, ProductRankingService } from '../product-ranking/product-ranking.service';
 import { ManualBoostsService } from '../product-ranking/manual-boosts.service';
 import { escapeRegex } from '../../common/slug.util';
+import { ScheduledOnce } from '../../common/scheduled-once';
 
 /** A trending term needs at least this many searches in the week before it is shown to everyone. */
 export const TRENDING_MIN_SEARCHES = Number(process.env.TRENDING_MIN_SEARCHES) || 5;
@@ -1061,6 +1062,7 @@ export class MedicinesService {
   // ── Pre-computed Aggregations Cron Jobs (Task 2.5) ─────────────────
   // Every 5 min: warm homepage catalog (200 items sorted by usage_count)
   @Cron('*/5 * * * *')
+  @ScheduledOnce()
   async warmHomepageCatalog(): Promise<void> {
     try {
       const data = await this.model
@@ -1078,6 +1080,7 @@ export class MedicinesService {
 
   // Every 10 min: warm trending (20 items)
   @Cron('*/10 * * * *')
+  @ScheduledOnce()
   async warmTrendingCatalog(): Promise<void> {
     try {
       const data = await this.model

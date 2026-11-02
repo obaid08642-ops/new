@@ -15,6 +15,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { externalFetch } from '../../../common/external-call';
 import { decideScfhs, LicenseDecision, ManualLicenseCheck, recheckVerdict, requiresScfhs, ScfhsResult, scfhsNumberOf } from '../../../common/scfhs-license';
+import { ScheduledOnce } from '../../../common/scheduled-once';
 
 const LOOKUP_TIMEOUT_MS = 5000;
 
@@ -85,6 +86,7 @@ export class ScfhsLicenseService {
 
   /** Daily: re-check every public licensed provider and hide the ones whose licence is no longer good. */
   @Cron(CronExpression.EVERY_DAY_AT_4AM)
+  @ScheduledOnce()
   async dailyRecheck(): Promise<{ checked: number; hidden: number }> {
     if (!this.configured()) return { checked: 0, hidden: 0 };
     const graceDays = Number(process.env.SCFHS_RECHECK_GRACE_DAYS) || 14;
