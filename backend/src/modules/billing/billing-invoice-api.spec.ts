@@ -1,3 +1,7 @@
+import { spawnSync } from 'child_process';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import { BillingService, decodeTlv } from './billing.module';
 
 /**
@@ -27,6 +31,7 @@ function world(w: World, store: any[] = []) {
     insuranceservicerequests: { find: () => ({ limit: () => ({ toArray: async () => (w.copayTxn ? [{ id: 'req-1' }] : []) }) }), findOne: async () => null },
     finance_config: { findOne: async (q: any) => w.cfg?.[q.key] ?? null },
     pharmacy_orders: { findOne: async () => null },
+    users: { findOne: async () => ({ id: 'p1', email: 'patient@example.test' }) },
     provider_profiles: { findOne: async () => w.profile ?? null },
     pharmacy_allocations: { findOne: async () => null },
     counters: { findOneAndUpdate: async () => ({ seq: 1 }) },
@@ -152,35 +157,9 @@ describe('a refunded invoice', () => {
 });
 
 describe('the seller is the owner\'s to supply', () => {
-  it('empty config: issued, says so, no QR, nothing invented; sealed with the original time once the owner fills it in', async () => {
-    delete process.env.ZATCA_SELLER_NAME;
-    delete process.env.ZATCA_VAT_NUMBER;
-    const { svc } = world({ booking: { patient_id: 'p1', items: [{ name_en: 'CBC', price: 115, qty: 1 }] }, txns: [{ amount: 115, method: 'card' }] });
-    const first = await svc.present(await svc.issue(patient, 'lab', 'b1'));
-    expect(first).toMatchObject({ seller: { legal_name: null, vat_number: null, configured: false }, qr: null, total: 115 });
-    expect(first.seller_name == null && first.vat_number == null).toBe(true);
-
-    process.env.ZATCA_SELLER_NAME = 'Nabd Health Co';
-    process.env.ZATCA_VAT_NUMBER = '300000000000003';
-    const sealed = await svc.present(await svc.issue(patient, 'lab', 'b1'));
-    expect(sealed.seller).toEqual({ legal_name: 'Nabd Health Co', vat_number: '300000000000003', cr_number: null, address: null, configured: true });
-    expect(qrOf(sealed)[3]).toBe(new Date(first.issued_at).toISOString()); // the time of issue, not of sealing
-    expectQrMatches(sealed);
-  });
-
   it('finance_config wins over the environment', async () => {
     const { svc } = world({ booking: { patient_id: 'p1' }, txns: [{ amount: 23, method: 'card' }], cfg: { invoice: { seller_name: 'Config Co', vat_number: '311111111100003' } } });
     expect((await svc.present(await svc.issue(patient, 'lab', 'b1'))).seller).toEqual({ legal_name: 'Config Co', vat_number: '311111111100003', cr_number: null, address: null, configured: true });
-  });
-});
-
-describe('the PDF', () => {
-  it('says the seller is not configured instead of printing a made-up one', async () => {
-    delete process.env.ZATCA_SELLER_NAME;
-    delete process.env.ZATCA_VAT_NUMBER;
-    const { svc } = world({ booking: { patient_id: 'p1' }, txns: [{ amount: 23, method: 'card' }] });
-    const pdf = await svc.renderPdf(await svc.issue(patient, 'lab', 'b1'));
-    expect(pdf.subarray(0, 5).toString()).toBe('%PDF-');
   });
 });
 
@@ -227,5 +206,142 @@ describe('the content the owner asked for', () => {
     expect(bare.patient_name).toBeNull();
     expect(bare.booking_ref).toBe('booking-');
     expect(bare.footer.support_email).toBeNull(); // nothing invented
+  });
+});
+
+/**
+ * ONE switch (common/tax-registration.ts): a VAT number on file = simplified tax invoice; none = payment receipt. The platform is not
+ * registered yet, so the receipt is what patients get today. Prices and amounts are the same in both modes.
+ */
+describe('receipt mode: the platform has no VAT number', () => {
+  const booking = { patient_id: 'p1', payment_method: 'card', items: [{ name_en: 'CBC', name_ar: 'صورة دم', price: 115, qty: 1 }] };
+  const txns = [{ amount: 115, method: 'card', webhook_payload: { source: { number: 'XXXX-XXXX-XXXX-4242' } } }];
+  const unregistered = () => { delete process.env.ZATCA_SELLER_NAME; delete process.env.ZATCA_VAT_NUMBER; };
+  const owner = { seller_name: 'منصة نبض الطبية' }; // issued: the name only; CR number, VAT number and address are not issued yet
+
+  it('a payment receipt: its own number series, no VAT, no rate, no QR, the total is what was paid', async () => {
+    unregistered();
+    const { svc } = world({ booking, txns, cfg: { invoice: owner } });
+    const r = await svc.present(await svc.issue(patient, 'lab', 'b1'));
+    expect(r).toMatchObject({
+      document_kind: 'receipt', title: { ar: 'إيصال دفع', en: 'Payment receipt' }, type: 'invoice',
+      vat_rate: null, vat_amount: null, subtotal: 115, total: 115, qr: null,
+      seller: { legal_name: 'منصة نبض الطبية', vat_number: null, cr_number: null, address: null, configured: false },
+      state: 'paid', payment: { method: 'card', last4: '4242' },
+    });
+    expect(r.invoice_no).toMatch(/^RCT-\d{4}-\d{6}$/);
+    expect(JSON.stringify(r)).not.toMatch(/Simplified tax invoice|فاتورة ضريبية/);
+  });
+
+  it('the same booking paid the same amount is a tax invoice once a VAT number is on file: same total, VAT split, QR', async () => {
+    const { svc } = world({ booking, txns, cfg: { invoice: { ...owner, vat_number: '300000000000003' } } });
+    const t = await svc.present(await svc.issue(patient, 'lab', 'b1'));
+    expect(t).toMatchObject({ document_kind: 'tax_invoice', title: { ar: 'فاتورة ضريبية مبسطة', en: 'Simplified tax invoice' }, total: 115, subtotal: 100, vat_rate: 0.15, vat_amount: 15, seller: { vat_number: '300000000000003', configured: true } });
+    expect(t.invoice_no).toMatch(/^INV-/);
+    expectQrMatches(t);
+  });
+
+  it('a receipt is never re-labelled: after the VAT number is set the old receipt stays a receipt; a new payment gets a tax invoice', async () => {
+    unregistered();
+    const { svc } = world({ booking, txns });
+    const first = await svc.present(await svc.issue(patient, 'lab', 'b1'));
+    expect(first.document_kind).toBe('receipt');
+
+    process.env.ZATCA_SELLER_NAME = 'منصة نبض الطبية';
+    process.env.ZATCA_VAT_NUMBER = '300000000000003';
+    const again = await svc.present(await svc.issue(patient, 'lab', 'b1')); // the same booking: the same document
+    expect(again).toMatchObject({ invoice_no: first.invoice_no, document_kind: 'receipt', vat_rate: null, vat_amount: null, qr: null, subtotal: 115 });
+    expect(again.seller.vat_number).toBeNull();
+    expect((await svc.presentMany([again]))[0]).toMatchObject({ document_kind: 'receipt', qr: null });
+
+    const next = await svc.present(await svc.issue(patient, 'lab', 'b2'));
+    expect(next).toMatchObject({ document_kind: 'tax_invoice', vat_amount: 15 });
+    expect(next.invoice_no).toMatch(/^INV-/);
+    expectQrMatches(next);
+  });
+
+  it('a receipt picks up the legal name and CR number when they are issued later, never a VAT number or a QR', async () => {
+    unregistered();
+    const { svc } = world({ booking, txns });
+    const first = await svc.present(await svc.issue(patient, 'lab', 'b1'));
+    expect(first.seller).toMatchObject({ legal_name: null, cr_number: null });
+    process.env.ZATCA_SELLER_NAME = 'منصة نبض الطبية';
+    process.env.ZATCA_CR_NUMBER = '1010000000';
+    const later = await svc.present(await svc.issue(patient, 'lab', 'b1'));
+    expect(later).toMatchObject({ document_kind: 'receipt', seller: { legal_name: 'منصة نبض الطبية', cr_number: '1010000000', vat_number: null, configured: false }, qr: null, vat_amount: null });
+  });
+
+  it('a refund of a receipt is a refund receipt: no credit-note VAT, no QR, the state follows', async () => {
+    unregistered();
+    const { svc, store } = world({ booking, txns, cfg: { invoice: owner } });
+    const issued = await svc.issue(patient, 'lab', 'b1');
+    const note: any = await svc.issueCreditNote({ booking_kind: 'lab', booking_id: 'b1', amount: 115, refund_ref: 'rf_1' });
+    expect(note.invoice_no).toMatch(/^RRC-\d{4}-\d{6}$/);
+    const inv = await svc.present(issued);
+    expect(inv).toMatchObject({ state: 'refunded', refunded_total: 115 });
+    expect(inv.credit_notes).toEqual([expect.objectContaining({ invoice_no: note.invoice_no, total: -115, vat_amount: null })]);
+    const rr = await svc.present(store.find((d) => d.invoice_no === note.invoice_no));
+    expect(rr).toMatchObject({ document_kind: 'receipt', title: { ar: 'إيصال استرداد', en: 'Refund receipt' }, total: -115, subtotal: -115, vat_rate: null, vat_amount: null, qr: null });
+  });
+
+  it('a refund of a tax invoice after the switch back is still a credit note with VAT', async () => {
+    const { svc } = world({ booking, txns });
+    const issued = await svc.issue(patient, 'lab', 'b1');
+    const note: any = await svc.issueCreditNote({ booking_kind: 'lab', booking_id: 'b1', amount: 115, refund_ref: 'rf_1' });
+    expect(note.invoice_no).toMatch(/^CN-/);
+    delete process.env.ZATCA_VAT_NUMBER; // unregistered again: the documents already issued keep their kind
+    expect((await svc.present(issued)).document_kind).toBe('tax_invoice');
+  });
+
+  it('a document from before the switch existed: sealed = tax invoice, unsealed (seller not configured) = receipt', async () => {
+    unregistered();
+    const store: any[] = [];
+    const { svc } = world({ booking, txns }, store);
+    const base = { booking_kind: 'lab', booking_id: 'old', patient_id: 'p1', total: 115, subtotal: 100, vat_rate: 0.15, vat_amount: 15, status: 'ISSUED', type: 'invoice', issued_at: new Date() };
+    const sealed = await svc.present({ id: 'a', invoice_no: 'INV-2026-000001', ...base, seller_name: 'Co', vat_number: '300000000000003', seller_complete: true, qr_base64: 'AAAA' });
+    const unsealed = await svc.present({ id: 'b', invoice_no: 'INV-2026-000002', ...base, seller_complete: false, qr_base64: null });
+    expect(sealed).toMatchObject({ document_kind: 'tax_invoice', vat_amount: 15 });
+    expect(unsealed).toMatchObject({ document_kind: 'receipt', vat_amount: null, vat_rate: null, subtotal: 115, qr: null });
+  });
+
+  it('the e-mail of a receipt names a receipt and the amount paid, with no VAT line', async () => {
+    unregistered();
+    const { svc } = world({ booking, txns, cfg: { invoice: owner } });
+    const mail = { send: jest.fn(async () => ({})) } as any;
+    await svc.emailInvoice(patient, 'lab', 'b1', mail);
+    const [, subject, html, plain] = mail.send.mock.calls[0];
+    expect(`${subject} ${html} ${plain}`).toMatch(/إيصال/);
+    expect(`${subject} ${html} ${plain}`).not.toMatch(/الضريبة|فاتورة|VAT|Invoice/);
+    expect(html).toContain('115.00');
+  });
+
+  const hasPdftotext = spawnSync('pdftotext', ['-v']).error === undefined;
+  const text = (pdf: Buffer) => { const f = path.join(os.tmpdir(), `receipt-${process.pid}-${Date.now()}.pdf`); fs.writeFileSync(f, pdf); try { return spawnSync('pdftotext', ['-layout', f, '-'], { encoding: 'utf8' }).stdout; } finally { fs.unlinkSync(f); } };
+  const images = (pdf: Buffer) => (pdf.toString('latin1').match(/\/Subtype \/Image/g) ?? []).length;
+
+  it('the receipt PDF: titled Payment receipt, no VAT line, no tax-invoice wording, no QR image, no "QR pending" warning', async () => {
+    unregistered();
+    const { svc } = world({ booking, txns, cfg: { invoice: owner } });
+    const pdf = await svc.renderPdf(await svc.issue(patient, 'lab', 'b1'));
+    expect(pdf.subarray(0, 5).toString()).toBe('%PDF-');
+    const tax = await world({ booking, txns, cfg: { invoice: { ...owner, vat_number: '300000000000003' } } }).svc.renderPdf(await world({ booking, txns, cfg: { invoice: { ...owner, vat_number: '300000000000003' } } }).svc.issue(patient, 'lab', 'b1'));
+    expect(images(tax)).toBeGreaterThan(images(pdf)); // the tax invoice has the ZATCA QR, the receipt does not
+    if (hasPdftotext) {
+      const t = text(pdf);
+      expect(t).toContain('Payment receipt');
+      expect(t).toContain('Total paid');
+      expect(t).toContain('115.00 SAR');
+      expect(t).not.toMatch(/VAT|tax invoice|Simplified|QR/i);
+    }
+  });
+
+  it('the tax-invoice PDF still says tax invoice with the VAT line', async () => {
+    const { svc } = world({ booking, txns });
+    const pdf = await svc.renderPdf(await svc.issue(patient, 'lab', 'b1'));
+    if (hasPdftotext) {
+      const t = text(pdf);
+      expect(t).toContain('Simplified tax invoice');
+      expect(t).toMatch(/VAT 15%/);
+    }
   });
 });

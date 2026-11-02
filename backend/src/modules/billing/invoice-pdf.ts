@@ -4,7 +4,7 @@ import * as PDFDocument from 'pdfkit';
 import { drawBidi, measureBidi, wrapBidi, hasArabic } from '../../common/pdf-bidi';
 
 /**
- * The PDF of an invoice or a credit note: a simplified tax invoice in Arabic and English (Arabic on the right, English on the left of
+ * The PDF of an invoice, a credit note or (while the platform is not VAT-registered) a payment receipt: a simplified tax invoice in Arabic and English (Arabic on the right, English on the left of
  * every line), drawn from the presented document (`BillingService.present`), so it shows exactly what the API returns.
  * Arabic is shaped by fontkit (inside pdfkit) from an embedded Naskh font and laid out right to left; lines that mix Arabic with
  * numbers or English go through `common/pdf-bidi.ts`. Nothing here is invented: an empty seller or provider field is printed as
@@ -64,6 +64,19 @@ const T = {
   creditNotes: { ar: 'إشعارات دائنة', en: 'Credit notes' },
   qr: { ar: 'رمز الاستجابة السريعة (هيئة الزكاة والضريبة والجمارك)', en: 'ZATCA QR code' },
   qrPending: { ar: 'يُضاف رمز QR بعد إعداد بيانات البائع', en: 'The QR code is added once the seller details are configured' },
+  // receipt mode: the platform is not VAT-registered, so these documents are not tax invoices and carry no VAT line or QR
+  receiptTitle: { ar: 'إيصال دفع', en: 'Payment receipt' },
+  refundReceiptTitle: { ar: 'إيصال استرداد', en: 'Refund receipt' },
+  receiptIssuer: { ar: 'الجهة المصدرة للإيصال', en: 'Issued by' },
+  receiptDetails: { ar: 'بيانات الإيصال', en: 'Receipt details' },
+  receiptNo: { ar: 'رقم الإيصال', en: 'Receipt no.' },
+  refundReceiptNo: { ar: 'رقم إيصال الاسترداد', en: 'Refund receipt no.' },
+  reversesReceipt: { ar: 'يخص الإيصال', en: 'Refers to receipt' },
+  refundReceipts: { ar: 'إيصالات الاسترداد', en: 'Refund receipts' },
+  totalPaid: { ar: 'المبلغ المدفوع', en: 'Total paid' },
+  totalRefunded: { ar: 'المبلغ المسترد', en: 'Amount refunded' },
+  providerNoteReceipt: { ar: 'الجهة التي قدّمت الخدمة؛ الجهة المصدرة للإيصال هي الشركة أعلاه', en: 'The party that delivered the service; the issuer of this receipt is the company above' },
+  electronicReceipt: { ar: 'صدر هذا الإيصال إلكترونياً ولا يحتاج إلى توقيع', en: 'Electronically generated; no signature required' },
   support: { ar: 'الدعم', en: 'Support' },
   refundPolicy: { ar: 'سياسة الاسترداد', en: 'Refund policy' },
   electronic: { ar: 'صدرت هذه الفاتورة إلكترونياً ولا تحتاج إلى توقيع', en: 'Electronically generated; no signature required' },
@@ -122,7 +135,9 @@ export function renderInvoicePdf({ inv, qrPng }: InvoicePdfInput): Promise<Buffe
   return new Promise((resolve, reject) => {
     const Doc: any = (PDFDocument as any).default ?? PDFDocument; // the namespace import is the class in the build, an object with `default` under ts-jest
     const credit = inv.type === 'credit_note';
-    const doc = new Doc({ size: 'A4', margin: X, bufferPages: true, info: { Title: credit ? `Credit note ${inv.invoice_no}` : `Invoice ${inv.invoice_no}`, Producer: 'Nabd+' } });
+    // one switch: a document issued without a VAT number is a payment receipt (no VAT, no QR); see common/tax-registration.ts
+    const receipt = inv.document_kind === 'receipt';
+    const doc = new Doc({ size: 'A4', margin: X, bufferPages: true, info: { Title: receipt ? `${credit ? 'Refund receipt' : 'Payment receipt'} ${inv.invoice_no}` : credit ? `Credit note ${inv.invoice_no}` : `Invoice ${inv.invoice_no}`, Producer: 'Nabd+' } });
     const chunks: Buffer[] = [];
     doc.on('data', (c: Buffer) => chunks.push(c));
     doc.on('end', () => resolve(Buffer.concat(chunks)));
@@ -185,7 +200,7 @@ export function renderInvoicePdf({ inv, qrPng }: InvoicePdfInput): Promise<Buffe
     // ── Header: logo, title ──
     const logo = assetPath('brand', 'nabd-icon.png');
     if (logo) { try { doc.image(logo, X, y, { fit: [54, 54] }); } catch { /* a bad logo never blocks an invoice */ } }
-    const title = credit ? T.creditTitle : T.title;
+    const title = receipt ? (credit ? T.refundReceiptTitle : T.receiptTitle) : credit ? T.creditTitle : T.title;
     if (qrPng) { try { doc.image(qrPng, X + 66, y - 2, { fit: [62, 62] }); } catch { /* the QR is also in the API payload */ } }
     drawBidi(doc, title.ar, X + 140, y + 4, W - 140, { fonts: bold, size: 18, align: 'right' });
     doc.fillColor(INK);
@@ -193,24 +208,30 @@ export function renderInvoicePdf({ inv, qrPng }: InvoicePdfInput): Promise<Buffe
     y += 64;
     rule(INK);
     y += 2;
-    if (!qrPng) {
+    if (!qrPng && !receipt) {
       doc.fillColor(WARN);
       drawBidi(doc, `${T.qrPending.ar} / ${T.qrPending.en}`, X, y + 2, W, { fonts: reg, size: 8, align: 'center' });
       y += 16;
     }
 
     // ── Issuer: our company, from config ──
-    section(T.issuer);
+    section(receipt ? T.receiptIssuer : T.issuer);
     const s = inv.seller ?? {};
     row(T.legalName, notSet(s.legal_name), { bold: !!s.legal_name, color: s.legal_name ? INK : WARN });
-    row(T.vat, notSet(s.vat_number), { color: s.vat_number ? INK : WARN });
-    row(T.cr, notSet(s.cr_number), { color: s.cr_number ? INK : WARN });
-    row(T.address, notSet(s.address), { color: s.address ? INK : WARN });
+    if (receipt) {
+      // no VAT number exists, so none is printed; the CR number and the address only when they have been issued
+      if (s.cr_number) row(T.cr, String(s.cr_number));
+      if (s.address) row(T.address, String(s.address));
+    } else {
+      row(T.vat, notSet(s.vat_number), { color: s.vat_number ? INK : WARN });
+      row(T.cr, notSet(s.cr_number), { color: s.cr_number ? INK : WARN });
+      row(T.address, notSet(s.address), { color: s.address ? INK : WARN });
+    }
 
     // ── Invoice details ──
-    section(T.details);
-    row(credit ? T.creditNo : T.invoiceNo, String(inv.invoice_no), { bold: true });
-    if (credit && inv.original_invoice_no) row(T.reverses, String(inv.original_invoice_no));
+    section(receipt ? T.receiptDetails : T.details);
+    row(receipt ? (credit ? T.refundReceiptNo : T.receiptNo) : credit ? T.creditNo : T.invoiceNo, String(inv.invoice_no), { bold: true });
+    if (credit && inv.original_invoice_no) row(receipt ? T.reversesReceipt : T.reverses, String(inv.original_invoice_no));
     row(T.issuedAt, new Date(inv.issued_at || inv.createdAt || Date.now()).toISOString().replace('T', ' ').slice(0, 16) + ' UTC');
     row(T.booking, String(inv.booking_ref || inv.booking_id));
     if (inv.patient_name) row(T.patient, String(inv.patient_name));
@@ -218,15 +239,16 @@ export function renderInvoicePdf({ inv, qrPng }: InvoicePdfInput): Promise<Buffe
       const st = inv.state === 'refunded' ? T.refunded : inv.state === 'partially_refunded' ? T.partlyRefunded : T.paid;
       row(T.status, `${st.ar} / ${st.en}`, { bold: true, color: inv.state === 'paid' ? INK : ACCENT });
       if (Array.isArray(inv.credit_notes) && inv.credit_notes.length) {
-        row(T.creditNotes, inv.credit_notes.map((n: any) => `${n.invoice_no} (${sar(n.total)})`).join('\n'), { color: ACCENT });
+        row(receipt ? T.refundReceipts : T.creditNotes, inv.credit_notes.map((n: any) => `${n.invoice_no} (${sar(n.total)})`).join('\n'), { color: ACCENT });
       }
     }
 
     // ── The service provider: who delivered the service (our company stays the issuer above) ──
     section(T.provider);
     doc.fillColor(MUTED);
-    drawBidi(doc, `${T.providerNote.ar}`, X, y - 2, W, { fonts: reg, size: 8, align: 'right' });
-    drawBidi(doc, `${T.providerNote.en}`, X, y + 1, W, { fonts: reg, size: 7, align: 'left', base: 'ltr' });
+    const pNote = receipt ? T.providerNoteReceipt : T.providerNote;
+    drawBidi(doc, `${pNote.ar}`, X, y - 2, W, { fonts: reg, size: 8, align: 'right' });
+    drawBidi(doc, `${pNote.en}`, X, y + 1, W, { fonts: reg, size: 7, align: 'left', base: 'ltr' });
     y += 14;
     const p = inv.provider;
     if (p) {
@@ -272,9 +294,14 @@ export function renderInvoicePdf({ inv, qrPng }: InvoicePdfInput): Promise<Buffe
 
     // ── Totals ──
     if (Number(inv.discount) > 0) row(T.discount, `-${sar(inv.discount)}`);
-    row(T.subtotal, sar(inv.subtotal));
-    row({ ar: `${T.vatLine.ar} ${Math.round((Number(inv.vat_rate) || 0) * 1000) / 10}%`, en: `${T.vatLine.en} ${Math.round((Number(inv.vat_rate) || 0) * 1000) / 10}%` }, sar(inv.vat_amount));
-    row(T.total, sar(inv.total), { bold: true, size: 12, color: credit ? ACCENT : INK });
+    if (receipt) {
+      // not VAT-registered: no subtotal, no VAT line, no rate; the total is what was paid (or refunded)
+      row(credit ? T.totalRefunded : T.totalPaid, sar(inv.total), { bold: true, size: 12, color: credit ? ACCENT : INK });
+    } else {
+      row(T.subtotal, sar(inv.subtotal));
+      row({ ar: `${T.vatLine.ar} ${Math.round((Number(inv.vat_rate) || 0) * 1000) / 10}%`, en: `${T.vatLine.en} ${Math.round((Number(inv.vat_rate) || 0) * 1000) / 10}%` }, sar(inv.vat_amount));
+      row(T.total, sar(inv.total), { bold: true, size: 12, color: credit ? ACCENT : INK });
+    }
 
     // ── Payment, insurance, state ──
     section(T.paymentSection);
@@ -304,8 +331,9 @@ export function renderInvoicePdf({ inv, qrPng }: InvoicePdfInput): Promise<Buffe
       drawBidi(doc, `${T.refundPolicy.ar}: ${f.refund_policy_url?.ar ?? ''}`, X + W / 2, fy, W / 2, { fonts: reg, size: 8, align: 'right' });
       if (f.refund_policy_url?.ar) doc.link(X + W / 2, fy, W / 2, 10, f.refund_policy_url.ar);
       fy += 12;
-      drawBidi(doc, `${T.electronic.en}`, X, fy, W / 2, { fonts: reg, size: 8, align: 'left', base: 'ltr' });
-      drawBidi(doc, `${T.electronic.ar}`, X + W / 2, fy, W / 2, { fonts: reg, size: 8, align: 'right' });
+      const elec = receipt ? T.electronicReceipt : T.electronic;
+      drawBidi(doc, `${elec.en}`, X, fy, W / 2, { fonts: reg, size: 8, align: 'left', base: 'ltr' });
+      drawBidi(doc, `${elec.ar}`, X + W / 2, fy, W / 2, { fonts: reg, size: 8, align: 'right' });
       fy += 12;
       drawBidi(doc, `${inv.invoice_no}  ·  ${i - pages.start + 1}/${pages.count}`, X, fy, W, { fonts: reg, size: 7, align: 'center', base: 'ltr' });
     }

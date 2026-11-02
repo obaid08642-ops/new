@@ -21,7 +21,7 @@ import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { isOnlineConsultation } from '../chat/consultation-window';
 import { assertTelehealthConsent } from '../legal/telehealth-consent';
 import { consultationPricing } from './consultation-pricing';
-import { buildQuote, readVatRate } from '../../common/quote';
+import { buildQuote, readQuoteVatRate } from '../../common/quote';
 import { PAYMENT_METHODS_BY_CONTEXT } from '../../common/payment-policy';
 
 /**
@@ -505,7 +505,7 @@ export class AppointmentsService {
     const lines = [{ key: 'consultation_fee', amount: p.price }, { key: 'platform_fee', amount: p.service_fee }];
     if (p.home_visit_fee) lines.push({ key: 'home_visit_fee', amount: p.home_visit_fee });
     if (p.transportation_fee) lines.push({ key: 'transport_fee', amount: p.transportation_fee });
-    return { ...buildQuote({ kind: 'consultation', lines, vat_rate: await readVatRate(this.connection), allowed_methods: PAYMENT_METHODS_BY_CONTEXT[context] }), doctor_id: doctor.id, service_type: serviceType };
+    return { ...buildQuote({ kind: 'consultation', lines, vat_rate: await readQuoteVatRate(this.connection), allowed_methods: PAYMENT_METHODS_BY_CONTEXT[context] }), doctor_id: doctor.id, service_type: serviceType };
   }
 
   // High-level commands
