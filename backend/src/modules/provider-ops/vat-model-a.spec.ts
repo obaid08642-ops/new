@@ -28,16 +28,12 @@ describe('the settlement takes VAT on the commission only', () => {
 });
 
 describe('the provider statement', () => {
-  it('shows VAT on the commission, not on the order total', async () => {
-    const orders = [{ id: 'o1', total: 200, createdAt: new Date('2026-11-01'), state: 'completed' }];
-    const cols: Record<string, any> = {
-      orders: { find: () => ({ sort: () => ({ limit: () => ({ toArray: async () => orders }) }) }) },
-      platformledgerentries: { find: () => ({ sort: () => ({ limit: () => ({ toArray: async () => [] }) }) }) },
-      finance_config: { findOne: async () => config },
-    };
-    const svc = new LegalEnterpriseService({ collection: (n: string) => cols[n] } as any);
+  it('shows VAT on the commission (what the settlement wrote), not on the order total', async () => {
+    const earnings = [{ ref_id: 'o1', ref_type: 'appointment', createdAt: new Date('2026-11-01'), gross: 200, commission_percent: 10, commission_source: 'finance_config', commission: 20, vat: 3, amount: 177, state: 'pending' }];
+    const col = { find: (q: any) => ({ sort: () => ({ limit: () => ({ toArray: async () => (q.type === 'provider_earning' ? earnings : []) }) }) }) };
+    const svc = new LegalEnterpriseService({ collection: () => col } as any);
     const data = await svc.settlementData('p1');
     expect(data.rows[0]).toMatchObject({ total: 200, commission: 20, vat_on_commission: 3, net_provider: 177 });
-    expect(data.totals).toMatchObject({ total: 200, commission: 20, vat: 3, net: 177 });
+    expect(data.totals).toMatchObject({ total: 200, commission: 20, vat: 3, net: 177 }); // 3 = 15% of the 20 commission, none on the 200
   });
 });
