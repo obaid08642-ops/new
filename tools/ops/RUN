@@ -1,3 +1,4 @@
-# 2026-11-02 05:05 lead reviewer: run 89 (READ-ONLY): the extra databases nabd_staging and temp_restore on the production mongod: collections, counts, sizes, and which DB each container uses. Nothing is dropped.
+# 2026-11-02 lead reviewer: run 90 (READ-ONLY): why Mailjet sends little now. 99z: provider order, which have keys, the month's primary (the app rotates it monthly), mail_log per provider per day for 21 days, last errors, keep-alives. 74: Mailjet's own answer to the keys in .env.production (status codes only). Nothing is sent or changed.
 release:ba829e5f4551fa5491c79d843037be73c180661f
-99x-extra-dbs
+99z-mail-providers
+74-mailjet-diagnose
