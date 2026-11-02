@@ -39,8 +39,10 @@ appId: com.patient.nabd
     timeout: 30000
 - tapOn:
     id: "book-day-1"
-- extendedWaitUntil:
-    visible:
+# run 116: the app received the 20 times of the day (log: '[e2e] slots 2026-11-03 clinic count 20') but the grid sits below the first screen, behind the
+# sticky Book bar, and the hierarchy lists only what is on screen: scroll to it instead of waiting for it
+- scrollUntilVisible:
+    element:
       id: "book-slot-.*"
       enabled: true
     timeout: 30000

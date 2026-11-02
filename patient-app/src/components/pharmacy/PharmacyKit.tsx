@@ -278,6 +278,7 @@ export function MedAddControl({ med, size = 40, disabled = false, addLabel }: { 
       accessibilityState={{ disabled }}
       disabled={disabled}
       testID={`med-add-${id}`}
+      onPressIn={() => console.log('[e2e] med add press-in', id)}
       hitSlop={4}
       onPress={(event) => { console.log('[e2e] med add pressed', id); addToCart(med); fly(event); }}
       style={{ ...box, width: size, opacity: disabled ? 0.4 : 1 }}
