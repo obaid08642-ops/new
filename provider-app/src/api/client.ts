@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios';
+import { AGREEMENT_REQUIRED_CODE, emitAgreementRequired, errorCode } from '../utils/contractEvents';
 import { DEFAULT_TIMEOUT_MS, MAX_RETRIES, pause, planRetries, retryAfterTooLong, retryDelayMs, shouldRetryStatus, timeoutFor } from './requestPolicy';
 import { API_BASE } from '../constants';
 import { buildHeaders, Tokens, Vault, SK, CryptoUtils } from '../security/Security';
@@ -83,6 +84,9 @@ client.interceptors.response.use(
    }
  }
  
+ // A new major version of the provider agreement must be accepted before any provider call works (the gate opens the contract).
+ if (error.response?.status === 403 && errorCode(error) === AGREEMENT_REQUIRED_CODE) emitAgreementRequired();
+
  // If unauthorized (401) and not already retrying, session expired
  if (error.response?.status === 401 && !originalRequest._retry) {
  originalRequest._retry = true;

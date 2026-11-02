@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { ownAppointmentId } from './appointment-link';
+import { ownAppointmentId, ownedVisit } from './appointment-link';
 
 jest.setTimeout(120_000);
 let mongod: MongoMemoryServer;
@@ -29,5 +29,19 @@ describe('ownAppointmentId: the visit a certificate or report is written for', (
   it('ignores "new", empty and non-string candidates, and operators', async () => {
     expect(await ownAppointmentId(c(), 'doc-1', 'p1', ['new', '', undefined, null, { $ne: 'x' }, 7])).toBeNull();
     expect(await ownAppointmentId(c(), '', 'p1', ['a1'])).toBeNull();
+  });
+});
+
+describe('ownedVisit: a normal appointment of this doctor, with its patient', () => {
+  const c = () => mongoose.connection;
+  it('answers the patient of the doctor\'s own appointment', async () => {
+    expect(await ownedVisit(c(), 'doc-1', 'a2')).toEqual({ id: 'a2', patient_id: 'p2', patient_name: null });
+  });
+  it('never another doctor\'s visit, an unknown id, "new", or an operator', async () => {
+    expect(await ownedVisit(c(), 'doc-1', 'a3')).toBeNull();
+    expect(await ownedVisit(c(), 'doc-1', 'nope')).toBeNull();
+    expect(await ownedVisit(c(), 'doc-1', 'new')).toBeNull();
+    expect(await ownedVisit(c(), 'doc-1', { $ne: 'x' })).toBeNull();
+    expect(await ownedVisit(c(), '', 'a1')).toBeNull();
   });
 });

@@ -1,4 +1,4 @@
-import { readVatRate } from '../../common/quote';
+import { readQuoteVatRate } from '../../common/quote';
 import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { homeCollectionFee } from '../../common/provider-home-fees';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -55,9 +55,12 @@ export interface Snapshot { account_id: string; auto_accept: boolean; prices: Re
 interface QuoteGroup { mode: Mode; items: Array<{ catalog_id: string; facility_only?: true }>; candidates: Record<string, Snapshot>; names: Record<string, { ar: string | null; en: string | null }> }
 
 /** The breakdown the clients show for one quoted provider: the home fee inside the total, and the VAT in it (prices are VAT-inclusive). */
-export function quoteBreakdown(total: number, homeFee: unknown, vatRate: number) {
-  const vat = round2(total - total / (1 + vatRate));
-  return { home_fee: round2(Number(homeFee) || 0), vat_rate: vatRate, vat, subtotal: round2(total - vat) };
+export function quoteBreakdown(total: number, homeFee: unknown, vatRate: number | null) {
+  // vatRate null = the platform is not VAT-registered: no VAT line, subtotal = total.
+  // Model A (owner, 2026-11-01): the provider supplies the service, so the price carries no platform VAT; a lab or radiology quote has
+  // no delivery-fee line (the home-collection fee is the provider's), so the platform VAT here is 0.
+  const vat = vatRate === null ? null : 0;
+  return { home_fee: round2(Number(homeFee) || 0), vat_rate: vatRate, vat, subtotal: vat === null ? round2(total) : round2(total - vat), tax_registered: vatRate !== null };
 }
 
 @Injectable()
@@ -99,7 +102,7 @@ export class OrderingService implements OnModuleInit {
     const policy = await this.policyOf(user.id, context.payer, context.family_member_id);
     const weights = mergeWeights((await this.conn.collection('system_configs').findOne({ key: 'ordering_ranking_weights' }))?.value);
     const shareRate = await this.shareRate();
-    const vatRate = await readVatRate(this.conn);
+    const vatRate = await readQuoteVatRate(this.conn);
 
     // a mixed basket is split automatically: what cannot be done at home goes to a facility group, labelled
     const homeIds: string[] = [];

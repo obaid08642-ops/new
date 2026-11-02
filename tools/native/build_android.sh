@@ -4,8 +4,8 @@
 # Test-build-only changes, applied to the CI checkout and never committed:
 #  - the app talks to the local test backend (http://10.0.2.2:8002), so cleartext HTTP is allowed in the
 #    generated AndroidManifest;
-#  - patient-app's app.json points at google-services.json, which is not in the repository (the real file
-#    is provided to store builds); it is dropped here, so FCM push is not part of this run;
+#  - google-services.json is not in the repository (the real file reaches store builds as an EAS file variable, docs/ops/FIREBASE_SETUP.md);
+#    app.config.js adds it only when the file exists, so FCM push is not part of this run;
 #  - only one ABI is compiled: x86_64 for the emulator (default) or ANDROID_ARCHS=arm64-v8a for real devices (Firebase Test Lab).
 set -euo pipefail
 APP="$1"

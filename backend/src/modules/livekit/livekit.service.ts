@@ -10,6 +10,7 @@ import { APPT_STATES } from '../../schemas/appointment.schema';
 import { isChaosFail } from '../../common/chaos-switches';
 import { CoturnService } from '../coturn/coturn.service';
 import { cloudflareTurn } from '../coturn/cloudflare-turn.service';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { audioOnlyAdvice, chooseTransport, maxCallsPerHost, type LinkSample } from './call-transport';
 
 /** A ringing call that nobody answered stops counting against the host after this long; an active call after the longest consultation. */
@@ -99,7 +100,14 @@ export class LiveKitService {
     return { provider: 'livekit', token, room, ice_servers: await this.iceServersFor(String(user?.id)), audio_only: advice.audio_only, audio_only_reason: advice.reason };
   }
 
-  async getProviderWaitingRoom(providerId: string) {
+  /** The kinds of appointment the schedule has: a clinic visit, a video consultation, a home visit. */
+  static readonly SERVICE_TYPES = ['clinic', 'video', 'home'] as const;
+
+  /** Today's patients of this doctor; `serviceType` keeps one kind (the virtual waiting room asks for `video`). Every row says its kind. */
+  async getProviderWaitingRoom(providerId: string, serviceType?: string) {
+    if (serviceType !== undefined && !(LiveKitService.SERVICE_TYPES as readonly string[]).includes(serviceType)) {
+      throw new BadRequestException('invalid_service_type');
+    }
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
@@ -111,12 +119,14 @@ export class LiveKitService {
       doctor_user_id: providerId,
       status: { $in: ['PENDING', 'CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS'] },
       slot_start: { $gte: today, $lt: tomorrow },
+      ...(serviceType ? { service_type: serviceType } : {}),
     }).lean();
 
     return appointments.map((a: any) => ({
       id: a.id || a._id?.toString(),
       name: a.patient_name || 'مريض',
       time: a.slot_start,
+      service_type: a.service_type ?? null,
       checkedIn: a.status === 'CHECKED_IN',
       status: a.status,
     }));
@@ -241,6 +251,7 @@ export class LiveKitService {
     const sessionId = `call_${randomUUID()}`;
     await this.callSessions.insertOne({
       id: sessionId, appointment_id: bookingId, patient_id: patientId, provider_id: providerId,
+      caller_id: String(callerId), callee_id: String(resolvedCallee),
       room_name: roomName, call_type: callType || 'video', status: 'INITIATED', transport,
       createdAt: new Date(), updatedAt: new Date(),
     });
@@ -330,6 +341,30 @@ export class LiveKitService {
     );
     // P14.22: the web call room links a dropped call to this appointment's chat
     return { room_name: session.room_name, token, appointment_id: session.appointment_id ?? null, ...(await this.transportInfo(transport, userId)) };
+  }
+
+  /**
+   * A call nobody answered within the ringing time becomes MISSED and the callee gets the missed-call push/notice (`call.missed`:
+   * push.module `onCallMissed`, notifications.service). Sessions written before caller/callee were stored are left as they are.
+   */
+  @Cron(CronExpression.EVERY_MINUTE)
+  async sweepUnanswered(now: Date = new Date()): Promise<number> {
+    const cutoff = new Date(now.getTime() - RINGING_MS);
+    const due: any[] = await this.callSessions.find({ status: 'INITIATED', createdAt: { $lt: cutoff }, callee_id: { $exists: true } }, { projection: { _id: 0 } }).limit(200).toArray();
+    let missed = 0;
+    for (const session of due) {
+      const res: any = await this.callSessions.updateOne(
+        { id: session.id, status: 'INITIATED' },
+        { $set: { status: 'MISSED', end_reason: 'unanswered', ended_at: now, updatedAt: now } },
+      );
+      if ((res?.modifiedCount ?? 0) < 1) continue;   // answered or ended meanwhile
+      missed += 1;
+      this.events.emit('call.missed', {
+        callee_id: String(session.callee_id), caller_id: String(session.caller_id), session_id: session.id,
+        patient_id: String(session.callee_id) === String(session.patient_id) ? String(session.patient_id) : undefined,
+      });
+    }
+    return missed;
   }
 
   async endCall(sessionId: string, userId: string) {

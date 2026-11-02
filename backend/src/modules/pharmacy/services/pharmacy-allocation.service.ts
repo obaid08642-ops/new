@@ -11,13 +11,30 @@ import { PharmacyAllocationRepository } from "./repositories/pharmacyallocation.
 import { PharmacyOrderRepository } from "./repositories/pharmacyorder.repository";
 import { PharmacyInventoryItemRepository } from "./repositories/pharmacyinventoryitem.repository";
 import { isProviderRole } from '../../../common/enums';
-import { settlementDelayDefault } from '../../../common/commission-defaults';
+import { settlementDelayDefault, DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT } from '../../../common/commission-defaults';
+import { deliveryModeOf, type DeliveryMode } from '../../../common/tax-registration';
 import { assertSubstituteInsidePrescription } from './rx-rules';
 
 function assertProvider(u: any) { if (!u || !isProviderRole(u.role)) throw new ForbiddenException('provider_scope_required'); }
 function assertPatient(u: any) { if (!u || u.role !== 'patient') throw new ForbiddenException('patient_scope_required'); }
 
 /** P13-R2: totals are always derived from the decided items, never from a pending proposal. */
+/**
+ * What the pharmacy's gross is in an allocation, and the delivery fee the platform keeps (owner decision 2026-11-02). The order's delivery
+ * mode (`allocation.fulfillment.delivery_mode`, else `order.delivery_mode`, default 'platform'; common/tax-registration.ts):
+ *  - 'platform': the platform set the fee and keeps it: outside the pharmacy's gross (no commission on it, not credited to the pharmacy);
+ *    with cash on delivery the pharmacy owes it.
+ *  - 'pharmacy_own': a pharmacy with its own couriers set its own fee: it is the pharmacy's, part of its gross (commission by the usual rules).
+ */
+export function pharmacySettlementGross(a: any, order?: any): { gross: number; platformDeliveryFee: number; delivery_mode: DeliveryMode } {
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+  const total = round2(Number(a?.totals?.total) || 0);
+  const fee = round2(Number(a?.totals?.delivery_fee) || 0);
+  const delivery_mode = deliveryModeOf(a, order);
+  const platformDeliveryFee = fee > 0 && delivery_mode === 'platform' ? Math.min(fee, total) : 0;
+  return { gross: round2(total - platformDeliveryFee), platformDeliveryFee, delivery_mode };
+}
+
 export function recalcAllocationTotals(a: any) {
   a.totals.subtotal = a.items.filter((i: any) => i.action === AllocationItemAction.AVAILABLE || i.action === AllocationItemAction.SUBSTITUTE).reduce((s: number, i: any) => s + (i.unit_price || 0) * (i.qty_offered || 0), 0);
   a.totals.total = a.totals.subtotal + (a.totals.delivery_fee || 0);
@@ -538,11 +555,16 @@ export class PharmacyAllocationService {
     const refId = String(a.id);
     const dup = await ledger.findOne({ ref_type: refType, ref_id: refId, type: { $in: ['provider_earning', 'provider_debit'] } });
     if (dup) return;
-    const gross = Math.round(Number(a.totals?.total || 0) * 100) / 100;
+    // the allocation carries the chosen offer's delivery mode; an older one falls back to the order (then to 'platform')
+    let orderDoc: any = null;
+    if (!a?.fulfillment?.delivery_mode) {
+      try { orderDoc = await this.orders.db.collection('pharmacy_orders').findOne({ id: a.order_id }, { projection: { delivery_mode: 1 } }); } catch { /* no order store: the default mode */ }
+    }
+    const { gross, platformDeliveryFee, delivery_mode } = pharmacySettlementGross(a, orderDoc);
     if (!(gross > 0)) return;
     const cfg: any = await this.orders.db.collection('finance_config').findOne({ key: 'commissions' });
-    const pct = Number(cfg?.service_types?.pharmacy?.percent ?? 10);
-    const vatPct = Number(cfg?.tax?.vat_percent ?? 15);
+    const pct = Number(cfg?.service_types?.pharmacy?.percent ?? DEFAULT_COMMISSION_PERCENT);
+    const vatPct = Number(cfg?.tax?.vat_percent ?? DEFAULT_VAT_PERCENT);
     const commission = Math.round(gross * pct) / 100;
     const vat = Math.round(commission * vatPct) / 100;
     const now = new Date();
@@ -550,10 +572,11 @@ export class PharmacyAllocationService {
       await ledger.insertOne({
         id: `le_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
         provider_account_id: a.pharmacy_account_id, type: 'provider_debit', state: 'cleared',
-        amount: Math.round((commission + vat) * 100) / 100,
+        // the pharmacy collected the whole cash: it owes the commission, the VAT on it and the delivery fee the platform keeps
+        amount: Math.round((commission + vat + platformDeliveryFee) * 100) / 100,
         ref_type: refType, ref_id: refId, order_id: a.order_id,
-        gross, commission_percent: pct, commission, vat,
-        description: 'COD commission + VAT owed to platform (cash collected by pharmacy)',
+        gross, commission_percent: pct, commission, vat, platform_delivery_fee: platformDeliveryFee, delivery_mode,
+        description: 'COD commission + VAT + platform delivery fee owed to platform (cash collected by pharmacy)',
         actor_id: 'system', createdAt: now,
       });
       return;
@@ -564,7 +587,7 @@ export class PharmacyAllocationService {
       id: `earn_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       provider_account_id: a.pharmacy_account_id, type: 'provider_earning', state: 'pending',
       available_at: new Date(now.getTime() + delayDays * 24 * 3600 * 1000),
-      amount: net, gross, commission_percent: pct, commission, vat,
+      amount: net, gross, commission_percent: pct, commission, vat, platform_delivery_fee: platformDeliveryFee, delivery_mode,
       ref_type: refType, ref_id: refId, order_id: a.order_id,
       description: 'Pharmacy order earning (escrow until settlement delay)',
       actor_id: 'system', createdAt: now,
@@ -598,10 +621,37 @@ export class PharmacyAllocationService {
     this.transition(a, PharmacyAllocationState.CANCELLED, user.id, { reason });
     a.cancellation_reason = reason;
     await a.save();
-    await this.refreshOrderAfterAllocationChange(a.order_id);
+    // with no live allocation left the order is cancelled (and refunded); only otherwise does the order follow the others
+    if (!(await this.cancelOrderWhenNoAllocationLeft(a, user, reason))) await this.refreshOrderAfterAllocationChange(a.order_id);
     await this.notif.notifyPatientAllocationCancelled(a, reason);
     await this.bus.emit({ type: 'allocation.cancelled', entity_type: 'allocation', entity_id: a.id, actor_account_id: user.id, actor_role: 'provider', pharmacy_account_id: user.id, reason_code: reason || 'pharmacy_cancelled', meta: { order_id: a.order_id } });
     return a.toObject();
+  }
+
+  /**
+   * The pharmacy cancels its allocation (refund policy 3.0: "the pharmacy cancels: 100%"). When it was the order's only live allocation the order
+   * cannot be fulfilled any more: it is cancelled through the workflow engine as a PROVIDER cancel, which announces `service.cancelled`
+   * (ProviderCancelRefundListener refunds what the patient paid by card, in full, delivery fee included). Before this the allocation was
+   * cancelled and the patient told, but the order stayed open and the card payment stayed paid.
+   */
+  private async cancelOrderWhenNoAllocationLeft(a: any, user: any, reason: string): Promise<boolean> {
+    const order = await this.orders.findOne({ id: a.order_id });
+    if (!order || [PharmacyOrderState.DELIVERED, PharmacyOrderState.COMPLETED, PharmacyOrderState.CANCELLED].includes(order.status)) return false;
+    const others = await this.allocs.find({ order_id: a.order_id }).lean();
+    const live = others.some((x: any) => x.id !== a.id && ![PharmacyAllocationState.CANCELLED, PharmacyAllocationState.REJECTED, PharmacyAllocationState.EXPIRED].includes(x.status as any));
+    if (live) return false;
+    const ok = await this.engine.transition({
+      kind: 'pharmacy', entity_id: order.id, from_domain: order.status, to_domain: PharmacyOrderState.CANCELLED,
+      actor_account_id: user.id, actor_role: 'provider', patient_account_id: order.patient_account_id, reason: reason || 'pharmacy_cancelled',
+      mutate: async () => {
+        order.status = PharmacyOrderState.CANCELLED;
+        order.cancellation_reason = reason || 'pharmacy_cancelled';
+        order.timeline.push({ ts: new Date(), event: 'cancelled_by_provider', by: user.id, meta: { reason, allocation_id: a.id } });
+        await order.save();
+        return order.toObject();
+      },
+    }).then(() => true).catch((e: any) => { this.logger.error(`order ${order.id}: not cancelled after the pharmacy cancelled its allocation: ${e?.message}`); return false; });
+    return ok;
   }
 
   private async refreshOrderAfterAllocationChange(orderId: string) {
@@ -609,7 +659,8 @@ export class PharmacyAllocationService {
     if (!order) return;
     const allocs = await this.allocs.find({ order_id: orderId }).lean();
     const allConfirmed = allocs.every(a => [PharmacyAllocationState.CONFIRMED, PharmacyAllocationState.PARTIALLY_CONFIRMED, PharmacyAllocationState.PREPARING, PharmacyAllocationState.READY_FOR_PICKUP, PharmacyAllocationState.OUT_FOR_DELIVERY, PharmacyAllocationState.DELIVERED, PharmacyAllocationState.REJECTED, PharmacyAllocationState.CANCELLED].includes(a.status as any));
-    const allDelivered = allocs.length > 0 && allocs.every(a => [PharmacyAllocationState.DELIVERED, PharmacyAllocationState.CANCELLED, PharmacyAllocationState.REJECTED].includes(a.status as any));
+    // at least one allocation really was delivered: an order whose only allocation was cancelled or rejected is not a delivered order (it was marked delivered)
+    const allDelivered = allocs.length > 0 && allocs.some(a => a.status === PharmacyAllocationState.DELIVERED) && allocs.every(a => [PharmacyAllocationState.DELIVERED, PharmacyAllocationState.CANCELLED, PharmacyAllocationState.REJECTED].includes(a.status as any));
     const anyOut = allocs.some(a => a.status === PharmacyAllocationState.OUT_FOR_DELIVERY);
     const anyPreparing = allocs.some(a => [PharmacyAllocationState.PREPARING, PharmacyAllocationState.READY_FOR_PICKUP].includes(a.status as any));
     // Target stage from the allocations, then walk the order there one ALLOWED step at a time

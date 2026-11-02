@@ -40,6 +40,7 @@ import { RedisThrottlerStorage } from './modules/redis/throttler-redis.storage';
 import { backgroundImports, backgroundProviders } from './common/process-role';
 import { WorkerHeartbeatService } from './common/worker-heartbeat.service';
 import { BullModule } from '@nestjs/bullmq';
+import { ProviderAgreementGuard } from './modules/legal/provider-agreement';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { GracefulDrain } from './common/graceful-drain';
 import { LoadSheddingGuard } from './common/load-shedding.guard';
@@ -325,6 +326,7 @@ import { MongoSelfHealService } from './common/database/mongo-selfheal.service';
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: GuestPolicyGuard },          // 21.3: the guest permission matrix, after the caller is known
     { provide: APP_GUARD, useClass: WriteGuard },
+    { provide: APP_GUARD, useClass: ProviderAgreementGuard },    // a provider whose accepted contract has an older major version is refused until they accept the new one
     { provide: APP_GUARD, useClass: RateLimitAuditGuard },
     { provide: APP_GUARD, useClass: AdminGateGuard },
     { provide: APP_GUARD, useClass: LoadSheddingGuard },

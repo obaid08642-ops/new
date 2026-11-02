@@ -19,6 +19,9 @@
  * ╚══════════════════════════════════════════════════════════════════════════════╝
  */
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { OwnDeliveryFields } from './OwnDeliveryForm';
+import { EMPTY_OWN_DELIVERY, ownDeliveryError, ownDeliveryFromServer, ownDeliveryPayload } from './ownDelivery';
+import type { OwnDeliveryForm as OwnDeliveryFormState } from './ownDelivery';
 import { io, Socket } from 'socket.io-client';
 import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
 import { CameraView, useCameraPermissions } from 'expo-camera';
@@ -1500,19 +1503,20 @@ function PharmacyChatScreen({ onBack, orderId, lines }: { onBack: () => void; or
   );
 }
 function SettingsScreen({ onBack, onNavigate }: any) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [loading, setLoading] = useState(false);
   // the saved values, not invented defaults (10 km, 50, 15 and "accepts insurance" were shown to every pharmacy)
-  const [deliveryRadius, setDeliveryRadius] = useState('');
-  const [deliveryFee, setDeliveryFee] = useState('');
+  const [ownDelivery, setOwnDelivery] = useState<OwnDeliveryFormState>({ ...EMPTY_OWN_DELIVERY });
+  const [cityCode, setCityCode] = useState<string | undefined>(undefined);
   const [trackInventory, setTrackInventory] = useState(false);
 
   useEffect(() => {
     client.get('/provider/profile').then((r: any) => {
       const p = r?.data?.profile ?? r?.data ?? {};
-      if (p.max_delivery_radius_km != null) setDeliveryRadius(String(p.max_delivery_radius_km));
-      if (p.delivery_fee != null) setDeliveryFee(String(p.delivery_fee));
+      const city = p.address?.city;
+      if (typeof city === 'string' && city) setCityCode(city);
     }).catch(() => undefined);
+    client.get('/provider/pharmacy/delivery-settings').then((r: any) => setOwnDelivery(ownDeliveryFromServer(r?.data?.own_delivery))).catch(() => undefined);
   }, []);
 
   useEffect(() => {
@@ -1525,20 +1529,15 @@ function SettingsScreen({ onBack, onNavigate }: any) {
   const handleSave = async () => {
     setLoading(true);
     try {
-      const radius = Number(deliveryRadius); const fee = Number(deliveryFee);
-      if (!Number.isFinite(radius) || radius <= 0 || !Number.isFinite(fee) || fee < 0) {
-        show(AR ? 'أدخل نطاق توصيل أكبر من صفر ورسوماً صحيحة' : 'Enter a delivery radius above zero and a valid fee', 'error');
-        setLoading(false);
-        return;
-      }
-      // the two fields the profile really has (max_delivery_radius_km, delivery_fee); the old call sent names the server does not
-      // know (deliveryRadius, minOrder, ...), so nothing was ever applied
-      await client.patch('/provider/profile', { max_delivery_radius_km: radius, delivery_fee: fee });
-      show(AR ? 'بانتظار موافقة الإدارة على التعديلات' : 'Pending admin approval for changes', 'success');
+      const problem = ownDeliveryError(ownDelivery);
+      if (problem) { show(t(problem), 'error'); setLoading(false); return; }
+      // own couriers, zone, fee and threshold: applied at once (the server validates again)
+      await client.put('/provider/pharmacy/delivery-settings', { own_delivery: ownDeliveryPayload(ownDelivery) });
+      show(t('pharmacy.ownDelivery.saved'), 'success');
       onBack();
     } catch (e: any) {
       const m = e?.response?.data?.message;
-      show((Array.isArray(m) ? m[0] : m) || (AR ? 'فشل إرسال التعديلات' : 'Failed to submit changes'), 'error');
+      show((Array.isArray(m) ? m[0] : m) || t('pharmacy.ownDelivery.saveFailed'), 'error');
     }
     setLoading(false);
   };
@@ -1549,9 +1548,9 @@ function SettingsScreen({ onBack, onNavigate }: any) {
       <ScrollView contentContainerStyle={{ padding: SP.xl, gap: SP.md }}>
         <NSecHeader title={AR ? 'خيارات التوصيل' : 'Delivery Options'} />
         <NCard style={{ gap: SP.md }}>
-          <NInput label={AR ? 'نطاق التوصيل (كم)' : 'Delivery Radius (KM)'} value={deliveryRadius} onChange={setDeliveryRadius} kbType="numeric" />
-          <NPriceInput label={AR ? 'رسوم التوصيل' : 'Delivery Fee'} value={deliveryFee} onChange={setDeliveryFee} />
+          <OwnDeliveryFields value={ownDelivery} onChange={(patch) => setOwnDelivery((cur) => ({ ...cur, ...patch }))} cityCode={cityCode} />
         </NCard>
+
 
         <NSecHeader title={AR ? 'طرق الدفع' : 'Payment Methods'} />
         <NBtn label={AR ? 'طلبات التأمين الواردة (قرار يدوي)' : 'Inbound Insurance Requests'} variant="outline" icon="shield" onPress={() => onNavigate && onNavigate('insurance_decisions')} />

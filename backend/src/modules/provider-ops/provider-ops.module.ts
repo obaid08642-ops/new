@@ -22,7 +22,7 @@ import { JwtAuthGuard, CurrentUser, Roles, hasEffectiveRole } from '../../common
 import { UserRole } from '../../common/enums';
 import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, PutPricingDto, PutTariffsDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto, ToggleInstantDto } from './provider-ops.dto';
 import { CommissionResolver, LedgerService } from '../finance-engine/finance-engine.module';
-import { settlementDelayDefault } from '../../common/commission-defaults';
+import { settlementDelayDefault, DEFAULT_VAT_PERCENT } from '../../common/commission-defaults';
 
 /** Provider withdrawal requests (consumed by admin-web-core finance controller). */
 export const ProviderWithdrawalSchema = new Schema(
@@ -421,7 +421,7 @@ export class ProviderOpsService {
     if (o.patient_id !== requester.id && requester.role !== 'admin' && o.pharmacy_id !== requester.id) throw new BadRequestException('forbidden');
     const svc = new (require('../legal/legal-enterprise.service').LegalEnterpriseService)(this.conn);
     const total = o.total ?? o.totals?.total ?? 0;
-    const pdf = svc.buildPdf(`Invoice ${o.id}`, [
+    const pdf = await svc.buildPdf(`Invoice ${o.id}`, [
       `Date: ${new Date(o.createdAt).toISOString().slice(0, 10)}`,
       `Order: ${o.id}`,
       `Patient: ${o.patient_id}`,
@@ -511,12 +511,14 @@ export class ProviderOpsService {
     const bucketCount = period === 'week' ? 7 : 12;
     const bucketMs = (days * 24 * 60 * 60 * 1000) / bucketCount;
     const sources: Array<{ coll: string; label: string }> = [
-      { coll: 'doctor_appointments', label: 'consultation' },
+      // consultations are the appointments of the appointments module (doctor_appointments is not a collection anything writes)
+      { coll: 'appointments', label: 'consultation' },
       { coll: 'labbookings', label: 'lab' },
       { coll: 'homecarebookings', label: 'home_care' },
       { coll: 'radiologybookings', label: 'radiology' },
     ];
-    const idFields = ['doctor_id', 'lab_id', 'provider_id', 'nurse_id', 'radiology_id', 'pharmacy_id', 'account_id'];
+    // `doctor_user_id` is the doctor's account id (an appointment's `doctor_id` is the profile id)
+    const idFields = ['doctor_user_id', 'doctor_id', 'lab_id', 'provider_id', 'nurse_id', 'radiology_id', 'pharmacy_id', 'account_id'];
     let appointments = 0;
     const perService: Record<string, number> = {};
     const patientIds = new Set<string>();
@@ -551,10 +553,11 @@ export class ProviderOpsService {
       const idx = Math.min(bucketCount - 1, Math.max(0, Math.floor((new Date(t.createdAt).getTime() - rangeStart.getTime()) / bucketMs)));
       series[idx] += Math.round((t.amount || 0) * 100) / 100;
     }
+    // Ratings are stored by the ratings module as `score` (1 to 5) and count once published, the same rule as the public average.
     const ratingRows: any[] = await this.conn.collection('ratings')
-      .find({ $or: [{ provider_id: providerId }, { entity_id: providerId }], createdAt: { $gte: rangeStart } } as any)
-      .project({ rating: 1, value: 1, stars: 1 }).toArray();
-    const ratingValues = ratingRows.map((r: any) => Number(r.rating ?? r.value ?? r.stars)).filter((v: number) => Number.isFinite(v) && v > 0);
+      .find({ $or: [{ provider_id: providerId }, { entity_id: providerId }], status: 'published', createdAt: { $gte: rangeStart } } as any)
+      .project({ score: 1, rating: 1, value: 1, stars: 1 }).toArray();
+    const ratingValues = ratingRows.map((r: any) => Number(r.score ?? r.rating ?? r.value ?? r.stars)).filter((v: number) => Number.isFinite(v) && v > 0);
     const rating = ratingValues.length ? Math.round((ratingValues.reduce((a: number, b: number) => a + b, 0) / ratingValues.length) * 10) / 10 : null;
     const topService = Object.entries(perService).sort((a, b) => b[1] - a[1])[0];
     const service_breakdown = Object.entries(perService)
@@ -687,8 +690,14 @@ export class ProviderOpsService {
     const dup = await this.conn.collection('platformledgerentries').findOne({ ref_type: refType, ref_id: refId, type: 'provider_earning' });
     if (dup) return dup;
     const cfg: any = await this.conn.collection('finance_config').findOne({ key: 'commissions' });
-    const { percent: pct, source: commissionSource } = await this.commissionFor(serviceType, providerId, opts.paymentMethod);
-    const vatPct = cfg?.tax?.vat_percent ?? 15;
+    let { percent: pct, source: commissionSource, promo_id: promoId } = await this.commissionFor(serviceType, providerId, opts.paymentMethod);
+    // an order-limited promotion: this order counts against it; with none left the provider's normal commission applies (and the promo is skipped)
+    const skipped: string[] = [];
+    while (promoId && !(await new CommissionResolver(this.conn).claimPromoOrder(promoId))) {
+      skipped.push(promoId);
+      ({ percent: pct, source: commissionSource, promo_id: promoId } = await this.commissionFor(serviceType, providerId, opts.paymentMethod, skipped));
+    }
+    const vatPct = cfg?.tax?.vat_percent ?? DEFAULT_VAT_PERCENT;
     const delayDays = cfg?.settlement?.delay_days?.[serviceType] ?? cfg?.settlement?.delay_days?.default ?? settlementDelayDefault();
     const commission = Math.round(gross * pct) / 100;
     const vat = Math.round(commission * vatPct) / 100;
@@ -698,7 +707,7 @@ export class ProviderOpsService {
       provider_account_id: providerId,
       type: 'provider_earning', state: 'pending',
       available_at: new Date(Date.now() + delayDays * 24 * 3600 * 1000),
-      amount: net, gross, commission_percent: pct, commission_source: commissionSource, commission, vat,
+      amount: net, gross, commission_percent: pct, commission_source: commissionSource, ...(promoId ? { promo_id: promoId } : {}), commission, vat,
       ref_type: refType, ref_id: refId, createdAt: new Date(),
     };
     await this.conn.collection('platformledgerentries').insertOne(row as any);
@@ -706,22 +715,13 @@ export class ProviderOpsService {
   }
 
   /**
-   * The commission percent of one provider's earning, in one order (most specific first): a campaign or provider rule of the
-   * commission rules, then the rate the admin set on the provider itself (`commission_insurance_pct` for an insured visit,
-   * else `commission_cash_pct`), then the service default, the finance config and the system default (CommissionResolver).
-   * The profile's `commission_rate` is not read: it carries a schema default of 10 for every provider, so it cannot tell
-   * "set by the admin" from "never set".
+   * The commission percent of one provider's earning: CommissionResolver's order (campaign rule, the provider's running promotion,
+   * the provider's own commission, category and service rules, finance_config, the system default). The profile's `commission_rate`
+   * is not read: it carries a schema default for every provider, so it cannot tell "set by the admin" from "never set"; the admin
+   * screens write `commission_cash_pct` / `commission_insurance_pct`.
    */
-  async commissionFor(serviceType: string, providerAccountId: string, paymentMethod?: string): Promise<{ percent: number; source: string }> {
-    const resolved = await new CommissionResolver(this.conn).resolve(serviceType, { providerId: providerAccountId });
-    if (resolved.source === 'campaign_override' || resolved.source === 'provider_override') return resolved;
-    const profile: any = await this.conn.collection('provider_profiles').findOne(
-      { $or: [{ account_id: providerAccountId }, { user_id: providerAccountId }] },
-      { projection: { _id: 0, commission_cash_pct: 1, commission_insurance_pct: 1 } },
-    );
-    const own = String(paymentMethod || '').toLowerCase() === 'insurance' ? profile?.commission_insurance_pct : profile?.commission_cash_pct;
-    if (typeof own === 'number' && Number.isFinite(own) && own >= 0 && own <= 100) return { percent: own, source: 'provider_profile' };
-    return resolved;
+  async commissionFor(serviceType: string, providerAccountId: string, paymentMethod?: string, skipPromoIds?: string[]): Promise<{ percent: number; source: string; promo_id?: string }> {
+    return new CommissionResolver(this.conn).resolve(serviceType, { providerId: providerAccountId, paymentMethod, skipPromoIds });
   }
 
   /**

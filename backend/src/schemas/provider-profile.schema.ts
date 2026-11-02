@@ -4,6 +4,7 @@ import { ProviderType, ProviderStatus } from '../common/enums';
 import { v4 as uuid } from 'uuid';
 import { InsuranceNetworkContract, InsuranceNetworkContractSchema } from './insurance.schema';
 import { buildSlug } from '../common/slug.util';
+import { DEFAULT_COMMISSION_PERCENT } from '../common/commission-defaults';
 
 /**
  * Q-12: GeoJSON point as its own sub-schema. Declared inline, Mongoose reads the inner `type` key as a type
@@ -130,6 +131,8 @@ export class ProviderProfile {
   @Prop() estimated_delivery_time?: string;
   @Prop() delivery_fee?: number;
   @Prop() free_delivery_above?: number;
+  /** Pharmacy with its own couriers: zone, fee and free threshold (modules/pharmacy/pharmacy-delivery.ts). */
+  @Prop({ type: Object }) own_delivery?: { enabled: boolean; zone_type: 'radius' | 'districts'; radius_km: number | null; district_codes: string[]; fee_sar: number; free_over_sar: number | null };
   @Prop() min_order_sar?: number;
   @Prop({ default: false }) express_delivery: boolean;
   @Prop() express_fee?: number;
@@ -229,7 +232,7 @@ export class ProviderProfile {
     default: [],
   })
   working_hours: { day: string; open: string; close: string; open_evening?: string; close_evening?: string; closed?: boolean }[];
-  @Prop({ default: 10 }) commission_rate?: number;
+  @Prop({ default: DEFAULT_COMMISSION_PERCENT }) commission_rate?: number;
   // Per-payment-method commission (set by admin at approval; falls back to commission_rate)
   @Prop() commission_cash_pct?: number;
   @Prop() commission_insurance_pct?: number;

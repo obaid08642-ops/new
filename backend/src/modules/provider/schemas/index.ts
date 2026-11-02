@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { makeAppendOnly } from '../../../common/append-only';
+import { DEFAULT_COMMISSION_PERCENT } from '../../../common/commission-defaults';
 import { OperatorPermission, OperatorRole, ProviderAccountStatus, ProviderDocumentType, ProviderType } from '../provider.enums';
 
 // ===================== ACCOUNT =====================
@@ -69,6 +70,10 @@ export class ProviderProfile extends Document {
   @Prop() tax_number?: string;
   @Prop() medical_license_number?: string;
   @Prop() facility_license_number?: string;
+  // Credential fields: written only when an admin approves a credentials delta (provider-profile.service.ts)
+  @Prop() specialty?: string;
+  @Prop() degree?: string;
+  @Prop() license_expiry_date?: Date;
   @Prop() established_year?: number;
   @Prop() years_of_experience?: number;
   // phones: [{id,type,country_code,number,is_primary,verified}]
@@ -82,7 +87,7 @@ export class ProviderProfile extends Document {
   @Prop() delivery_fee?: number;
   @Prop() estimated_delivery_minutes?: number;
   @Prop({ default: [], type: [String] }) enabled_modules: string[];
-  @Prop({ default: 10 }) commission_rate?: number;
+  @Prop({ default: DEFAULT_COMMISSION_PERCENT }) commission_rate?: number;
   @Prop() commission_cash_pct?: number;
   @Prop() commission_insurance_pct?: number;
   @Prop({ default: 0 }) profile_completeness: number;

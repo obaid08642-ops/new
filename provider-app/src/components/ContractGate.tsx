@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { AppState } from 'react-native';
+import { onAgreementRequired } from '../utils/contractEvents';
 import client from '../api/client';
 import { ContractModal, PROVIDER_AGREEMENT_KEY } from './ContractModal';
 
@@ -9,16 +11,21 @@ import { ContractModal, PROVIDER_AGREEMENT_KEY } from './ContractModal';
  */
 export function ContractGate() {
   const [pending, setPending] = useState(false);
-  useEffect(() => {
-    let live = true;
+  const check = useCallback(() => {
     client.get('/legal/pending')
       .then((res: any) => {
         const rows: any[] = Array.isArray(res?.data) ? res.data : Array.isArray(res?.data?.data) ? res.data.data : [];
-        if (live) setPending(rows.some((p) => p?.key === PROVIDER_AGREEMENT_KEY));
+        setPending(rows.some((p) => p?.key === PROVIDER_AGREEMENT_KEY));
       })
       .catch(() => undefined);
-    return () => { live = false; };
   }, []);
+  // on start, when the app comes back to the front, and when the server refuses a call with provider_agreement_required
+  useEffect(() => {
+    check();
+    const sub = AppState.addEventListener('change', (s) => { if (s === 'active') check(); });
+    const off = onAgreementRequired(check);
+    return () => { sub.remove(); off(); };
+  }, [check]);
   if (!pending) return null;
   return <ContractModal visible required onClose={() => setPending(false)} onAccepted={() => setPending(false)} />;
 }
