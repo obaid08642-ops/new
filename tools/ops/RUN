@@ -1,4 +1,13 @@
-# 2026-11-01 20:30 lead reviewer: run 87 (READ-ONLY): the live provider_agreement row (99p refused: 2.0 already published).
-release:d484e9fe7a806701d2d63524090ce6c47d8a90d1
-99q-agreement-state
+# 2026-11-02 02:20 lead reviewer: run 88 = deploy main@ba829e5f + publish the launch legal texts in the SAME run.
+# #2379 brings ProviderAgreementGuard; production's provider_agreement 2.0 has requires_acceptance=true, so the publish of 3.0 with
+# requires_acceptance=false MUST follow the deploy immediately (else providers who never accepted 2.0 get 403).
+# Deploy also brings: model A VAT (#2374), payment receipt while not VAT-registered (#2368), settlement journey fixes (#2386: admin
+#   provider-commissions route, provider statement, Moyasar return URL guard), legal texts v3.0 (#2380), contract PR2 (#2382), QA (#2384).
+# 99p APPLY: POLICIES=privacy_policy,patient_terms,refund_policy,provider_agreement (telehealth NOT published), REQUIRE_ACCEPTANCE=no for the
+#   agreement; refuses drafts/blanks/non-higher versions; backs up each existing row; verifies after.
+release:ba829e5f4551fa5491c79d843037be73c180661f
+97-free-old-predeploy
+93-free-unused-images
+60-deploy-main
 99p-publish-agreement
+cf-purge-api
