@@ -12,13 +12,12 @@ name: P15 web browsers
 # build itself (same pin style as patient-production-ci.yml) with
 # --with-deps so the browsers exist too.
 #
-# API TARGET: the public, read-only production API (https://api.nabd.plus/api/v1), as
-# patient-production-ci.yml and lighthouse.yml already do. Staging sits behind
-# Cloudflare Access (it answers 302) and has been off since 2026-10-04; a static
-# page with no data throws to keep its last good copy, so a staging target made
-# the smoke report 500/503. The smoke only loads public pages anonymously (GET,
-# no sign-in, no form, no click); the guard step below fails the job if the
-# smoke script ever starts interacting with the page or sending a body.
+# API TARGET: a LOCAL backend started by .github/actions/local-api (the same start the
+# live gate uses), at http://127.0.0.1:8002/api/v1. Production is never a CI dependency:
+# on 2026-11-02 api.nabd.plus was down for hours and every PR went red. (Staging sits
+# behind Cloudflare Access and has been off since 2026-10-04.) The smoke only loads
+# public pages anonymously (GET, no sign-in, no form, no click); the guard step below
+# fails the job if the smoke script ever starts interacting with the page or sending a body.
 on:
   pull_request:
     paths:
@@ -35,7 +34,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NABD_API_BASE_URL: https://api.nabd.plus/api/v1
+  NABD_API_BASE_URL: http://127.0.0.1:8002/api/v1
+  INTERNAL_API_BASE_URL: http://127.0.0.1:8002/api/v1
 
 jobs:
   browsers:
@@ -58,17 +58,19 @@ jobs:
       - name: Install
         working-directory: patient-web
         run: corepack enable && pnpm install --frozen-lockfile
+      - name: Local API (MongoDB, Redis, the backend; no production dependency)
+        uses: ./.github/actions/local-api
       - name: Install Playwright + browsers (self-contained, pinned)
         # The smoke script imports 'playwright' from tools/live, so the package is installed
         # there (not only the CLI through npx); then only this matrix leg's browser.
         run: |
           npm install --no-save --no-package-lock --prefix tools/live playwright@1.63.0
           tools/live/node_modules/.bin/playwright install --with-deps ${{ matrix.browser }}
-      - name: Guard — the smoke against the production API stays read-only
+      - name: Guard — the smoke stays read-only (anonymous GET of public pages)
         run: |
           set -euo pipefail
           if grep -nE '\.(click|fill|type|press|check|selectOption|setInputFiles|dblclick|tap)\(|method:|postData|request\.(post|put|patch|delete)|fetch\(' tools/live/web_browsers_smoke.mjs; then
-            echo "REFUSING: tools/live/web_browsers_smoke.mjs interacts with pages or sends requests; it runs against the production API and must only load public pages" >&2
+            echo "REFUSING: tools/live/web_browsers_smoke.mjs interacts with pages or sends requests; it must only load public pages anonymously" >&2
             exit 1
           fi
           echo "API base for the build and the smoke run: $NABD_API_BASE_URL (public pages, anonymous GET only)"
