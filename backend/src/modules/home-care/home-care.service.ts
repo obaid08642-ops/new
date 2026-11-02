@@ -26,10 +26,21 @@ import { CarePlanRepository } from "./repositories/careplan.repository";
 import { MedicalSupplyRequestRepository } from "./repositories/medicalsupplyrequest.repository";
 import { RedisService } from '../redis/redis.service';
 import { hasEffectiveRole } from '../../common/auth.guard';
-import { resolveBookingChoice } from './booking-mode';
+import { billableUnits, effectiveBookingOptions, resolveBookingChoice } from './booking-mode';
 import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
 import { isAdminUser } from '../../common/enums';
 import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
+
+/**
+ * The catalogue rows as the apps see them: `booking_options` is what the service really offers (booking-mode.ts: the admin's own lists, else the current defaults), so the booking
+ * screen shows exactly the durations and recurrences the server will accept.
+ */
+function withEffectiveOptions<T>(rows: T[]): T[] {
+  return (rows ?? []).map((r: any) => {
+    const o = r && typeof r.toObject === 'function' ? r.toObject() : r;
+    return o ? { ...o, booking_options: effectiveBookingOptions(o) } : o;
+  });
+}
 
 @Injectable()
 export class HomeCareSvc {
@@ -61,9 +72,9 @@ export class HomeCareSvc {
         q.$or = [{ name_ar: re }, { name_en: re }, { tags: re }];
       }
     }
-    if (!this.redis?.getWithSWR) return this.svcModel.find(q, { _id: 0, __v: 0 }).sort(catalogueSortSpec(opts.sort)).limit(120);
+    if (!this.redis?.getWithSWR) return withEffectiveOptions(await this.svcModel.find(q, { _id: 0, __v: 0 }).sort(catalogueSortSpec(opts.sort)).limit(120));
     const cacheKey = `cache:home-care-services:public:v1:${JSON.stringify(opts)}`;
-    return this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q, { _id: 0, __v: 0 }).sort(catalogueSortSpec(opts.sort)).limit(120));
+    return withEffectiveOptions(await this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q, { _id: 0, __v: 0 }).sort(catalogueSortSpec(opts.sort)).limit(120)));
   }
 
   async categoryCounts() {
@@ -78,7 +89,7 @@ export class HomeCareSvc {
   async getById(id: string) {
     const s = await this.svcModel.findOne({ id }, { _id: 0, __v: 0 });
     if (!s) throw new NotFoundException();
-    return s;
+    return withEffectiveOptions([s])[0];
   }
 
   /**
@@ -88,11 +99,11 @@ export class HomeCareSvc {
    */
   private async nursingPricing(svc: any, providerId: string, data: any) {
     const choice = resolveBookingChoice(svc as any, data);
-    const sessions = choice.sessions_count;
+    const sessions = billableUnits(choice, svc as any);
     const ownPrice = providerId ? (await ownPrices(this.svcModel.db as never, 'nursing', [providerId], [svc as any])).get(providerId)?.get(svc.id) : undefined;
     const unitPrice = ownPrice ?? svc.price;
     if (!(typeof unitPrice === 'number' && unitPrice > 0)) throw new BadRequestException('service_price_not_set');
-    return { choice, sessions, unitPrice, total: unitPrice * sessions };
+    return { choice, sessions, unitPrice, total: Math.round(unitPrice * sessions * 100) / 100 };
   }
 
   /** The breakdown of a nursing booking (service, nurse, booking choice): every line, VAT and the total, from the price the booking charges. */
@@ -101,10 +112,12 @@ export class HomeCareSvc {
     const svc = await this.svcModel.findOne({ id: { $eq: data.service_id }, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' });
     if (!svc) throw new NotFoundException('service');
     const providerId = typeof data.provider_id === 'string' ? data.provider_id : '';
-    const { sessions, unitPrice } = await this.nursingPricing(svc, providerId, data);
+    const { choice, sessions, unitPrice } = await this.nursingPricing(svc, providerId, data);
     return {
       ...buildQuote({ kind: 'nursing', lines: [{ key: 'visits', amount: unitPrice * sessions, qty: sessions, unit_price: unitPrice }], vat_rate: await readQuoteVatRate(this.svcModel.db), allowed_methods: PAYMENT_METHODS_BY_CONTEXT.home_visit }),
-      service_id: svc.id, provider_id: providerId || null, sessions_count: sessions,
+      service_id: svc.id, provider_id: providerId || null, sessions_count: choice.sessions_count,
+      // the booking choice as the server understood it and the units it bills (unit price x units = the nursing line above)
+      booking: { ...choice, billable_units: sessions, unit_price: unitPrice },
     };
   }
 
@@ -158,10 +171,12 @@ export class HomeCareSvc {
       state_history: [{ from: '', to: providerId ? NursingBookingState.PROVIDER_ASSIGNED : NursingBookingState.NEW_REQUEST, by_user_id: user.id, at: new Date() }],
       notes: data.notes,
       payment_method: paymentMethod,
-      sessions_count: sessions,
+      sessions_count: choice.sessions_count,
       booking_mode: choice.booking_mode,
       ...(choice.recurrence ? { recurrence: choice.recurrence } : {}),
       ...(choice.hours !== undefined ? { hours: choice.hours, shift: choice.shift, period: choice.period } : {}),
+      ...(choice.days !== undefined ? { days: choice.days } : {}),
+      billable_units: sessions,
       // P17-17.5: campaign attribution for the campaign report.
       attribution: pickAttribution(data) ?? undefined,
     });

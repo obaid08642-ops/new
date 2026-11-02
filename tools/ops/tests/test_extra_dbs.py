@@ -1,4 +1,5 @@
 """99x-extra-dbs.sh with a fake docker/sudo and stub dump helpers: read-only by default; a named database is dropped only after a verified dump; the app database and the system databases never."""
+import json
 import os
 import re
 import stat
@@ -19,7 +20,7 @@ def wx(path, text):
 
 
 class ExtraDbs(unittest.TestCase):
-    def run_task(self, env=None, apply=False, listed=2, cenv="MONGO_URL=mongodb://root:topsecret@mongodb:27017/?authSource=admin"):
+    def run_task(self, env=None, apply=False, listed=2, cenv="MONGO_URL=mongodb://root:topsecret@mongodb:27017/?authSource=admin", all_json=None):
         tmp = tempfile.TemporaryDirectory(); self.addCleanup(tmp.cleanup)
         d = tmp.name; b = os.path.join(d, "bin"); os.makedirs(b); self.bk = os.path.join(d, "backups"); os.makedirs(self.bk)
         dep = os.path.join(d, "deploy"); os.makedirs(os.path.join(dep, "scripts"))
@@ -28,16 +29,38 @@ class ExtraDbs(unittest.TestCase):
         wx(os.path.join(b, "sudo"), '#!/bin/bash\n[ "$1" = -n ] && shift\nexec "$@"\n')
         wx(os.path.join(b, "gzip"), '#!/bin/bash\nexit 0\n')
         self.calls = os.path.join(d, "calls.log"); open(self.calls, "w").close()
+        self.d = d
+        data = json.loads(all_json or ALL)
+        with open(os.path.join(d, "list.json"), "w") as f:
+            json.dump([{"name": n, "mb": v["mb"]} for n, v in [("admin", {"mb": 0}), ("local", {"mb": 0}), ("config", {"mb": 0})] + list(data.items())], f)
+        for n, v in data.items():
+            with open(os.path.join(d, "db_%s.json" % n), "w") as f:
+                json.dump(v["c"], f)
         wx(os.path.join(b, "docker"), f'''#!/bin/bash
 echo "$*" >> "{self.calls}"
+D="{d}"
 case "$*" in
   "ps --format"*) printf 'nabdah-backend\\nnabdah-fastapi\\n';;
+  "run "*)
+    ef=$(echo "$*" | sed -n 's/.*--env-file \\([^ ]*\\).*/\\1/p'); [ -f "$ef" ] && {{ stat -c %a "$ef" > "$D/envfile.mode"; cp "$ef" "$D/envfile.copy"; }}
+    case "$*" in
+      *listDatabases*) [ -n "${{FAKE_LIST_RC:-}}" ] && {{ printf '%s' "${{FAKE_LIST_OUT-}}"; exit "$FAKE_LIST_RC"; }}
+                       if [ -n "${{FAKE_LIST_OUT+x}}" ]; then printf '%s\\n' "$FAKE_LIST_OUT"; else cat "$D/list.json"; fi;;
+      *) for f in "$D"/db_*.json; do n=${{f##*/db_}}; n=${{n%.json}}
+           case "$*" in *"getSiblingDB('$n')"*)
+             [ "${{FAKE_FAIL_DB:-}}" = "$n" ] && exit 137
+             cat "$f"; break;; esac
+         done;;
+    esac;;
   *inspect*Config.Env*) case "$*" in *nabdah-backend*) printf 'DB_NAME=nabd_nestjs\\nMONGO_URL=mongodb://root:topsecret@mongodb:27017/nabd_nestjs?authSource=admin\\nSOMETHING=else\\n';; *) printf '%s\\n' "{cenv}";; esac;;
+  *Config.Image*) echo mongo:7;;
+  *IPAddress*) echo 172.18.0.2;;
+  *NetworkSettings.Networks*) echo nabdah_default;;
   *"printenv DB_NAME"*) echo nabd_nestjs;;
+  *"printenv MONGO_INITDB_ROOT_PASSWORD"*) echo s3cr3t-pw;;
   *printenv*) echo x;;
   *dropDatabase*) echo '{{"ok":1}}';;
-  *listDatabases*) if [ -n "${{FAKE_MONGO_OUT+x}}" ]; then printf '%s' "$FAKE_MONGO_OUT"; else echo '{ALL}'; fi;;
-  *) echo '{ALL}';;
+  *) echo '{{}}';;
 esac
 ''')
         e = dict(os.environ, PATH=b + os.pathsep + os.environ["PATH"], OPS_DEPLOY_DIR=dep, OPS_BACKUP_DIR=self.bk, **(env or {}))
@@ -113,39 +136,70 @@ esac
         self.assertNotIn("dropDatabase", calls)
         self.assertEqual(len([f for f in os.listdir(self.bk) if f.startswith("extra-db-")]), 2)   # the archives are kept
 
-    # --- the database listing (run 89: "ABORT the database list is unreadable" with no reason)
-    def test_the_listing_script_is_sent_to_mongosh_with_its_dollar_operators_intact(self):
-        _, calls = self.run_task()
+    # --- the database listing (run 89 and run 91: "ABORT the database list is unreadable"; the script itself runs fine against a real mongod + mongosh)
+    def test_the_listing_runs_in_a_one_off_container_not_inside_mongod_with_dollar_operators_intact(self):
+        p, calls = self.run_task()
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        runs = [l for l in calls.splitlines() if l.startswith("run ")]
+        self.assertEqual(len(runs), 4)                                   # the names, then one call per database (3)
+        for l in runs:
+            for flag in ("--rm", "--memory 300m", "--memory-swap 300m", "--oom-score-adj 1000", "--network nabdah_default", "--entrypoint sh mongo:7"):
+                self.assertIn(flag, l)
+        self.assertNotIn("exec nabdah-mongodb sh -c mongosh", calls)     # nothing is started inside the mongod container for the listing
         self.assertIn("listDatabases", calls)
         self.assertIn("$group", calls); self.assertIn("$max:'$updatedAt'", calls)     # not expanded by the shell
-        self.assertIn("print(JSON.stringify(o))", calls); self.assertIn("allowDiskUse:true", calls)
+        self.assertIn("print(JSON.stringify(cs))", calls); self.assertIn("allowDiskUse:true", calls)
+
+    def test_the_credentials_reach_the_container_in_a_mode_600_env_file_never_on_a_command_line_or_in_the_output(self):
+        p, calls = self.run_task()
+        self.assertNotIn("s3cr3t-pw", calls + p.stdout + p.stderr)
+        with open(os.path.join(self.d, "envfile.mode")) as f:
+            self.assertEqual(f.read().strip(), "600")
+        with open(os.path.join(self.d, "envfile.copy")) as f:
+            text = f.read()
+        self.assertIn("MONGO_PASS=s3cr3t-pw", text); self.assertIn("MONGO_HOST=172.18.0.2", text)
 
     def test_warning_and_prompt_lines_around_the_json_are_ignored(self):
-        out = "Warning: a newer version is available\n" + ALL + "\nmongosh done"
-        p, _ = self.run_task({"FAKE_MONGO_OUT": out})
+        names = json.dumps([{"name": "nabd_nestjs", "mb": 601}, {"name": "nabd_staging", "mb": 259}])
+        p, _ = self.run_task({"FAKE_LIST_OUT": "Warning: a newer version is available\n" + names + "\nmongosh done"})
         self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
         self.assertIn("nabd_staging: 259 MB, 2 collection(s), 127 document(s)", p.stdout)
 
     def test_a_collection_that_could_not_be_read_is_marked_and_does_not_stop_the_listing(self):
-        out = ('{"nabd_nestjs":{"mb":601,"c":{"users":{"n":900,"newest":"2026-10-31","mb":5}}},'
-               '"nabd_staging":{"mb":259,"c":{"a_view":{"n":0,"newest":null,"mb":0,"err":" stats"},"users":{"n":120,"newest":"2026-08-01","mb":3}}}}')
-        p, _ = self.run_task({"FAKE_MONGO_OUT": out})
+        data = {"nabd_nestjs": {"mb": 601, "c": {"users": {"n": 900, "newest": "2026-10-31", "mb": 5}}},
+                "nabd_staging": {"mb": 259, "c": {"a_view": {"n": 0, "newest": None, "mb": 0, "err": " stats"}, "users": {"n": 120, "newest": "2026-08-01", "mb": 3}}}}
+        p, _ = self.run_task(all_json=json.dumps(data))
         self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
         self.assertIn("nabd_staging.a_view: 0 docs, 0 MB, newest none", p.stdout)
         self.assertIn("nabd_staging: newest document date in any collection: 2026-08-01", p.stdout)
 
+    def test_a_killed_listing_says_the_exit_code_and_what_it_usually_means(self):
+        p, calls = self.run_task({"FAKE_LIST_OUT": "", "FAKE_LIST_RC": "137"}, apply=True)
+        self.assertEqual(p.returncode, 1)
+        self.assertIn("ABORT the database list is unreadable: exit code 137 (killed, usually out of memory): mongosh printed nothing", p.stdout)
+        self.assertNotIn("dropDatabase", calls); self.assertEqual(os.listdir(self.bk), [])
+
     def test_a_mongosh_error_is_reported_as_the_reason_without_a_uri_or_a_secret(self):
-        out = "MongoServerError: Authentication failed. (mongodb://root:topsecret@mongodb:27017/?authSource=admin)"
-        p, calls = self.run_task({"FAKE_MONGO_OUT": out}, apply=True)
+        out = "MongoServerError: Authentication failed. (mongodb://root:s3cr3t-pw@mongodb:27017/?authSource=admin)"
+        p, calls = self.run_task({"FAKE_LIST_OUT": out, "FAKE_LIST_RC": "1"}, apply=True)
         self.assertEqual(p.returncode, 1)
-        self.assertIn("ABORT the database list is unreadable: MongoServerError: Authentication failed. (<uri>", p.stdout)   # the redaction is greedy on purpose: it never leaves part of a password
-        self.assertNotIn("topsecret", p.stdout + p.stderr); self.assertNotIn("dropDatabase", calls); self.assertEqual(os.listdir(self.bk), [])
+        self.assertIn("ABORT the database list is unreadable: exit code 1: MongoServerError: Authentication failed. (<uri>", p.stdout)   # the cut is greedy on purpose: it never leaves part of a password
+        self.assertNotIn("s3cr3t-pw", p.stdout + p.stderr); self.assertNotIn("dropDatabase", calls); self.assertEqual(os.listdir(self.bk), [])
 
-    def test_an_empty_answer_says_what_to_check(self):
-        p, _ = self.run_task({"FAKE_MONGO_OUT": ""})
+    def test_an_empty_answer_with_exit_zero_says_so(self):
+        p, _ = self.run_task({"FAKE_LIST_OUT": ""})
         self.assertEqual(p.returncode, 1)
-        self.assertIn("ABORT the database list is unreadable: mongosh printed nothing (is nabdah-mongodb running?", p.stdout)
+        self.assertIn("ABORT the database list is unreadable: exit code 0: mongosh printed nothing", p.stdout)
 
+    def test_one_database_that_cannot_be_listed_is_reported_kept_and_never_dropped_while_the_others_go_on(self):
+        p, calls = self.run_task({"FAKE_FAIL_DB": "temp_restore", "DROP_DBS": "temp_restore nabd_staging"}, apply=True)
+        self.assertIn("temp_restore: listing FAILED: exit code 137 (killed, usually out of memory): mongosh printed nothing; it is never dropped", p.stdout)
+        self.assertIn("temp_restore: its collections could not be listed (see above): no comparison, and it cannot be dropped", p.stdout)
+        self.assertIn("nabd_staging: 259 MB, 2 collection(s), 127 document(s)", p.stdout)                 # the other database is still listed
+        self.assertIn("temp_restore: REFUSED (its collections could not be listed", p.stdout)
+        self.assertIn("nabd_staging: DROPPED", p.stdout)
+        self.assertNotIn("--db=temp_restore", calls)                                                      # no dump, no drop of the one that could not be read
+        self.assertEqual(p.returncode, 1)
 
 if __name__ == "__main__":
     unittest.main()
