@@ -103,7 +103,7 @@ function RootLayout() {
       <AppProvider>
         <ModulesProvider>
           <SocketProvider>
-            <GestureHandlerRootView style={{ flex: 1 }} onTouchStart={(e) => console.log('[e2e] touch', Math.round(e.nativeEvent.pageX), Math.round(e.nativeEvent.pageY))}>
+            <GestureHandlerRootView style={{ flex: 1 }}>
               <SafeAreaProvider>
                 <CartProvider>
                   <DiagnosticsCartProvider>
