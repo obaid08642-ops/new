@@ -195,7 +195,7 @@ jobs:
         if: always()
         run: |
           mkdir -p /tmp/native/out
-          cp /tmp/native/seed.log /tmp/nabd-backend.log /tmp/native/out/ 2>/dev/null || true
+          cp /tmp/native/seed.log /tmp/nabd-backend.log /tmp/smtp.log /tmp/native/out/ 2>/dev/null || true
       - id: name
         if: always()
         run: echo "n=run-android-${{ matrix.run.app }}-$(echo '${{ matrix.run.arg }}' | tr '/' 'of')" >> "$GITHUB_OUTPUT"
@@ -283,7 +283,7 @@ jobs:
         if: always()
         run: |
           mkdir -p /tmp/native/out
-          cp /tmp/native/seed.log /tmp/nabd-backend.log /tmp/native/out/ 2>/dev/null || true
+          cp /tmp/native/seed.log /tmp/nabd-backend.log /tmp/smtp.log /tmp/native/out/ 2>/dev/null || true
       - id: name
         if: always()
         run: echo "n=run-ios-${{ matrix.run.app }}-$(echo '${{ matrix.run.arg }}' | tr '/' 'of')" >> "$GITHUB_OUTPUT"
