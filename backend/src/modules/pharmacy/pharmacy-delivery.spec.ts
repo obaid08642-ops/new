@@ -54,8 +54,8 @@ describe('deliveryTerms', () => {
   });
   it('own couriers: the pharmacy fee, 0 allowed, free at or above the threshold', () => {
     const p = { own_delivery: radius({ fee_sar: 9, free_over_sar: 100 }) };
-    expect(deliveryTerms(p, 50, false, 12)).toEqual({ mode: 'pharmacy_own', fee: 9, source: 'pharmacy_own' });
-    expect(deliveryTerms(p, 100, false, 12)).toEqual({ mode: 'pharmacy_own', fee: 0, source: 'pharmacy_own_free_over' });
+    expect(deliveryTerms(p, 50, false, 12)).toEqual({ mode: 'pharmacy_own', fee: 9, source: 'pharmacy' });
+    expect(deliveryTerms(p, 100, false, 12)).toEqual({ mode: 'pharmacy_own', fee: 0, source: 'pharmacy' });
     expect(deliveryTerms({ own_delivery: radius({ fee_sar: 0 }) }, 10, false, 12).fee).toBe(0);
   });
   it('pickup has no delivery mode', () => {

@@ -7,6 +7,7 @@ import * as crypto from 'crypto';
 import { PharmacyAllocationState, PharmacyOrderState } from '../schemas/pharmacy.schema';
 import { EventBusService } from '../../events/event-bus.service';
 import { BusinessRulesService } from '../../business-rules/business-rules.module';
+import { deliveryModeOf } from '../../../common/tax-registration';
 import { PharmacyNotificationService } from './pharmacy-notification.service';
 import { CATALOGUE_PROJECTION, cataloguePrice, catalogueSku } from './catalogue-lines';
 import { assertSubstituteInsidePrescription } from './rx-rules';
@@ -621,7 +622,7 @@ export class PharmacyOfferService {
           offer_id: offer.id, offer_version: offer.version,
           status: PharmacyAllocationState.PENDING_REVIEW, stock_reserved: tracking,
           items: offer.items.map((item: any) => ({ id: uuidv4(), order_item_id: item.order_item_id, action: item.action, inventory_id: item.inventory_item_id, sku: item.sku, name: item.name_ar || item.name_en, qty_requested: item.qty_requested, qty_offered: item.qty_offered, unit_price: item.unit_price, updated_at: now })),
-          totals: offer.totals, estimated_preparation_minutes: offer.estimated_preparation_minutes,
+          totals: offer.totals, estimated_preparation_minutes: offer.estimated_preparation_minutes, fulfillment: offer.fulfillment,
           timeline: [{ ts: now, event: 'created_after_patient_offer_selection', by: user.id, meta: { offer_id: offer.id, offer_version: offer.version } }],
         }], { session });
         await this.offers.updateOne({ id: offer.id, status: 'submitted' }, { $set: { status: 'selected', selected_at: now, selected_by_patient_account_id: user.id, allocation_id: allocation[0].id } }, { session });
@@ -639,7 +640,7 @@ export class PharmacyOfferService {
             payment_method: paymentMethod,
             coverage_mode: coverage === 'insurance' ? 'insurance' : 'cash',
             totals: offer.totals,
-            delivery_mode: offer.fulfillment?.delivery_mode ?? null,
+            delivery_mode: deliveryModeOf(offer.fulfillment),
             delivery_fee_source: offer.fulfillment?.delivery_fee_source ?? null,
             pricing_snapshot: { offer_id: offer.id, offer_version: offer.version, totals: offer.totals, hash: quoteHash, captured_at: now },
           },

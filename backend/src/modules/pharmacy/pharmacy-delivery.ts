@@ -104,8 +104,8 @@ export function deliveryTerms(profile: any, subtotal: number, pickup: boolean, p
   // is unchanged (F's), only the mode is empty.
   if (pickup) return od ? { mode: null, fee: 0, source: 'pickup' } : { mode: null, fee: money(platformFee), source: platformFee > 0 ? 'platform_pricing_config' : 'no_active_server_delivery_policy' };
   if (!od) return { mode: 'platform', fee: money(platformFee), source: platformFee > 0 ? 'platform_pricing_config' : 'no_active_server_delivery_policy' };
-  if (od.free_over_sar != null && subtotal >= od.free_over_sar) return { mode: 'pharmacy_own', fee: 0, source: 'pharmacy_own_free_over' };
-  return { mode: 'pharmacy_own', fee: money(od.fee_sar), source: 'pharmacy_own' };
+  if (od.free_over_sar != null && subtotal >= od.free_over_sar) return { mode: 'pharmacy_own', fee: 0, source: 'pharmacy' };
+  return { mode: 'pharmacy_own', fee: money(od.fee_sar), source: 'pharmacy' };
 }
 
 /** The legacy profile fields other code still reads, kept in step with the config. */

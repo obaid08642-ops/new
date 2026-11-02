@@ -165,8 +165,7 @@ export class PharmacyOrder extends Document {
   @Prop({ type: Object }) manual_request?: { name?: string; details?: string | null; qty?: number; photo_uri?: string };
   /** F73: draft fulfillment + payment mode. */
   @Prop({ type: String, enum: ['delivery', 'pickup'], default: 'delivery' }) fulfillment?: 'delivery' | 'pickup';
-  /** Who delivers, taken from the chosen offer: the pharmacy's own couriers or the platform (null for pickup / before a choice). */
-  @Prop({ type: String, enum: ['pharmacy_own', 'platform'], default: null }) delivery_mode?: 'pharmacy_own' | 'platform' | null;
+  /** The delivery fee source of the chosen offer (delivery_mode is declared below, F's). */
   @Prop({ type: String, default: null }) delivery_fee_source?: string | null;
   @Prop({ type: String, enum: ['cash', 'insurance'], default: 'cash' }) payment_mode?: 'cash' | 'insurance';
   @Prop() insurance_policy_id?: string;
@@ -204,6 +203,8 @@ export class PharmacyOrder extends Document {
   @Prop() selected_offer_version?: number;
   @Prop() selected_allocation_id?: string;
   @Prop() offer_selection_idempotency_key?: string;
+  /** who delivers and whose the delivery fee is: 'platform' | 'pharmacy_own', copied from the chosen offer at checkout (common/tax-registration.ts) */
+  @Prop({ enum: ['platform', 'pharmacy_own'] }) delivery_mode?: string;
   @Prop({ type: Object }) pricing_snapshot?: { offer_id: string; offer_version: number; totals: { subtotal: number; delivery_fee: number; total: number; currency: string }; captured_at: Date };
 
   // EXPLAINABILITY: full snapshot of the split decision
