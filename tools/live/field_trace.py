@@ -181,6 +181,8 @@ def trace(admin, ptype):
     t0 = time.time()
     c.post('/provider/auth/send-otp', {'email': email, 'purpose': 'email_verification'})
     c.post('/provider/auth/verify-email', {'email': email, 'code': mail_code(email, t0)})
+    r = c.post('/legal/accept/provider_agreement', {})
+    step('the provider reads and accepts the provider agreement', r.ok, r)
     sub = c.post('/provider-onboarding/submit', {'signer_name': f'مسؤول {ptype}', 'signer_role': 'owner', 'lat': 24.7, 'lng': 46.7, 'signature_url': sig, 'full_data': {}})
 
     # stored records (everything that mentions this email's account)

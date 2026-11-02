@@ -1,5 +1,5 @@
 {
- "commit": "b87b63144",
+ "commit": "60f595367",
  "screens": {
   "PendingDashboard": [
    {
@@ -2329,11 +2329,21 @@
    },
    {
     "kind": "data",
+    "label": "Data acceptedVersion",
+    "src": "POST /provider-onboarding/step2, POST /provider-onboarding/submit → acceptedVersion",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 62,
+    "via": "ReviewStep",
+    "note": null
+   },
+   {
+    "kind": "data",
     "label": "List rows",
     "src": "from rows (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 123,
+    "line": 126,
     "via": "ReviewStep",
     "note": null,
     "untraced": true
@@ -2344,7 +2354,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 139,
+    "line": 142,
     "via": "ReviewStep",
     "note": null
    },
@@ -2354,7 +2364,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 141,
+    "line": 144,
     "via": "ReviewStep",
     "note": null
    },
@@ -2364,7 +2374,7 @@
     "src": "local state setShowContract",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 148,
+    "line": 151,
     "via": "ReviewStep",
     "note": null
    },
@@ -2374,7 +2384,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 158,
+    "line": 161,
     "via": "ReviewStep",
     "note": null
    },
@@ -2384,7 +2394,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 160,
+    "line": 163,
     "via": "ReviewStep",
     "note": null
    },
@@ -2394,7 +2404,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 173,
+    "line": 176,
     "via": "ReviewStep",
     "note": null
    },
@@ -2404,7 +2414,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 178,
+    "line": 181,
     "via": "ReviewStep",
     "note": null
    },
@@ -2414,7 +2424,7 @@
     "src": "user input → agreed (local)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 188,
+    "line": 191,
     "via": "ReviewStep",
     "note": null
    },
@@ -2424,7 +2434,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 192,
+    "line": 195,
     "via": "ReviewStep",
     "note": null
    },
@@ -3587,11 +3597,21 @@
    },
    {
     "kind": "data",
+    "label": "Data acceptedVersion",
+    "src": "POST /provider-onboarding/step2, POST /provider-onboarding/submit → acceptedVersion",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 62,
+    "via": "ReviewStep",
+    "note": null
+   },
+   {
+    "kind": "data",
     "label": "List rows",
     "src": "from rows (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 123,
+    "line": 126,
     "via": "ReviewStep",
     "note": null,
     "untraced": true
@@ -3602,7 +3622,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 139,
+    "line": 142,
     "via": "ReviewStep",
     "note": null
    },
@@ -3612,7 +3632,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 141,
+    "line": 144,
     "via": "ReviewStep",
     "note": null
    },
@@ -3622,7 +3642,7 @@
     "src": "local state setShowContract",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 148,
+    "line": 151,
     "via": "ReviewStep",
     "note": null
    },
@@ -3632,7 +3652,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 158,
+    "line": 161,
     "via": "ReviewStep",
     "note": null
    },
@@ -3642,7 +3662,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 160,
+    "line": 163,
     "via": "ReviewStep",
     "note": null
    },
@@ -3652,7 +3672,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 173,
+    "line": 176,
     "via": "ReviewStep",
     "note": null
    },
@@ -3662,7 +3682,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 178,
+    "line": 181,
     "via": "ReviewStep",
     "note": null
    },
@@ -3672,7 +3692,7 @@
     "src": "user input → agreed (local)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 188,
+    "line": 191,
     "via": "ReviewStep",
     "note": null
    },
@@ -3682,7 +3702,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 192,
+    "line": 195,
     "via": "ReviewStep",
     "note": null
    },
@@ -4670,11 +4690,21 @@
    },
    {
     "kind": "data",
+    "label": "Data acceptedVersion",
+    "src": "POST /provider-onboarding/step2, POST /provider-onboarding/submit → acceptedVersion",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 62,
+    "via": "ReviewStep",
+    "note": null
+   },
+   {
+    "kind": "data",
     "label": "List rows",
     "src": "from rows (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 123,
+    "line": 126,
     "via": "ReviewStep",
     "note": null,
     "untraced": true
@@ -4685,7 +4715,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 139,
+    "line": 142,
     "via": "ReviewStep",
     "note": null
    },
@@ -4695,7 +4725,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 141,
+    "line": 144,
     "via": "ReviewStep",
     "note": null
    },
@@ -4705,7 +4735,7 @@
     "src": "local state setShowContract",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 148,
+    "line": 151,
     "via": "ReviewStep",
     "note": null
    },
@@ -4715,7 +4745,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 158,
+    "line": 161,
     "via": "ReviewStep",
     "note": null
    },
@@ -4725,7 +4755,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 160,
+    "line": 163,
     "via": "ReviewStep",
     "note": null
    },
@@ -4735,7 +4765,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 173,
+    "line": 176,
     "via": "ReviewStep",
     "note": null
    },
@@ -4745,7 +4775,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 178,
+    "line": 181,
     "via": "ReviewStep",
     "note": null
    },
@@ -4755,7 +4785,7 @@
     "src": "user input → agreed (local)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 188,
+    "line": 191,
     "via": "ReviewStep",
     "note": null
    },
@@ -4765,7 +4795,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 192,
+    "line": 195,
     "via": "ReviewStep",
     "note": null
    },
@@ -5824,11 +5854,21 @@
    },
    {
     "kind": "data",
+    "label": "Data acceptedVersion",
+    "src": "POST /provider-onboarding/step2, POST /provider-onboarding/submit → acceptedVersion",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 62,
+    "via": "ReviewStep",
+    "note": null
+   },
+   {
+    "kind": "data",
     "label": "List rows",
     "src": "from rows (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 123,
+    "line": 126,
     "via": "ReviewStep",
     "note": null,
     "untraced": true
@@ -5839,7 +5879,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 139,
+    "line": 142,
     "via": "ReviewStep",
     "note": null
    },
@@ -5849,7 +5889,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 141,
+    "line": 144,
     "via": "ReviewStep",
     "note": null
    },
@@ -5859,7 +5899,7 @@
     "src": "local state setShowContract",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 148,
+    "line": 151,
     "via": "ReviewStep",
     "note": null
    },
@@ -5869,7 +5909,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 158,
+    "line": 161,
     "via": "ReviewStep",
     "note": null
    },
@@ -5879,7 +5919,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 160,
+    "line": 163,
     "via": "ReviewStep",
     "note": null
    },
@@ -5889,7 +5929,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 173,
+    "line": 176,
     "via": "ReviewStep",
     "note": null
    },
@@ -5899,7 +5939,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 178,
+    "line": 181,
     "via": "ReviewStep",
     "note": null
    },
@@ -5909,7 +5949,7 @@
     "src": "user input → agreed (local)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 188,
+    "line": 191,
     "via": "ReviewStep",
     "note": null
    },
@@ -5919,7 +5959,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 192,
+    "line": 195,
     "via": "ReviewStep",
     "note": null
    },
@@ -6978,11 +7018,21 @@
    },
    {
     "kind": "data",
+    "label": "Data acceptedVersion",
+    "src": "POST /provider-onboarding/step2, POST /provider-onboarding/submit → acceptedVersion",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 62,
+    "via": "ReviewStep",
+    "note": null
+   },
+   {
+    "kind": "data",
     "label": "List rows",
     "src": "from rows (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 123,
+    "line": 126,
     "via": "ReviewStep",
     "note": null,
     "untraced": true
@@ -6993,7 +7043,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 139,
+    "line": 142,
     "via": "ReviewStep",
     "note": null
    },
@@ -7003,7 +7053,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 141,
+    "line": 144,
     "via": "ReviewStep",
     "note": null
    },
@@ -7013,7 +7063,7 @@
     "src": "local state setShowContract",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 148,
+    "line": 151,
     "via": "ReviewStep",
     "note": null
    },
@@ -7023,7 +7073,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 158,
+    "line": 161,
     "via": "ReviewStep",
     "note": null
    },
@@ -7033,7 +7083,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 160,
+    "line": 163,
     "via": "ReviewStep",
     "note": null
    },
@@ -7043,7 +7093,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 173,
+    "line": 176,
     "via": "ReviewStep",
     "note": null
    },
@@ -7053,7 +7103,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 178,
+    "line": 181,
     "via": "ReviewStep",
     "note": null
    },
@@ -7063,7 +7113,7 @@
     "src": "user input → agreed (local)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 188,
+    "line": 191,
     "via": "ReviewStep",
     "note": null
    },
@@ -7073,7 +7123,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 192,
+    "line": 195,
     "via": "ReviewStep",
     "note": null
    },
@@ -7992,11 +8042,21 @@
    },
    {
     "kind": "data",
+    "label": "Data acceptedVersion",
+    "src": "POST /provider-onboarding/step2, POST /provider-onboarding/submit → acceptedVersion",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 62,
+    "via": "ReviewStep",
+    "note": null
+   },
+   {
+    "kind": "data",
     "label": "List rows",
     "src": "from rows (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 123,
+    "line": 126,
     "via": "ReviewStep",
     "note": null,
     "untraced": true
@@ -8007,7 +8067,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 139,
+    "line": 142,
     "via": "ReviewStep",
     "note": null
    },
@@ -8017,7 +8077,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 141,
+    "line": 144,
     "via": "ReviewStep",
     "note": null
    },
@@ -8027,7 +8087,7 @@
     "src": "local state setShowContract",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 148,
+    "line": 151,
     "via": "ReviewStep",
     "note": null
    },
@@ -8037,7 +8097,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 158,
+    "line": 161,
     "via": "ReviewStep",
     "note": null
    },
@@ -8047,7 +8107,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 160,
+    "line": 163,
     "via": "ReviewStep",
     "note": null
    },
@@ -8057,7 +8117,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 173,
+    "line": 176,
     "via": "ReviewStep",
     "note": null
    },
@@ -8067,7 +8127,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 178,
+    "line": 181,
     "via": "ReviewStep",
     "note": null
    },
@@ -8077,7 +8137,7 @@
     "src": "user input → agreed (local)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 188,
+    "line": 191,
     "via": "ReviewStep",
     "note": null
    },
@@ -8087,7 +8147,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 192,
+    "line": 195,
     "via": "ReviewStep",
     "note": null
    },
@@ -8722,7 +8782,7 @@
     "src": "GET /provider-onboarding/contract → signed",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 23,
+    "line": 37,
     "via": "MyContractRow",
     "note": null
    },
@@ -8732,7 +8792,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 65,
+    "line": 80,
     "via": "MyContractRow",
     "note": null
    },
@@ -8742,7 +8802,7 @@
     "src": "local state setOpen",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 76,
+    "line": 91,
     "via": "MyContractRow",
     "note": null
    },
@@ -8752,7 +8812,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 83,
+    "line": 98,
     "via": "MyContractRow",
     "note": null
    },
@@ -8762,17 +8822,17 @@
     "src": "parent callback name.replace, t",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 91,
+    "line": 106,
     "via": "MyContractRow",
     "note": null
    },
    {
     "kind": "button",
     "label": "{t('contract.mine.share')}",
-    "src": "parent callback name.replace, t",
+    "src": "parent callback t",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 92,
+    "line": 107,
     "via": "MyContractRow",
     "note": null
    },
@@ -12534,7 +12594,7 @@
     "src": "GET /provider-onboarding/contract → signed",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 23,
+    "line": 37,
     "via": "MyContractRow",
     "note": null
    },
@@ -12544,7 +12604,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 65,
+    "line": 80,
     "via": "MyContractRow",
     "note": null
    },
@@ -12554,7 +12614,7 @@
     "src": "local state setOpen",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 76,
+    "line": 91,
     "via": "MyContractRow",
     "note": null
    },
@@ -12564,7 +12624,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 83,
+    "line": 98,
     "via": "MyContractRow",
     "note": null
    },
@@ -12574,17 +12634,17 @@
     "src": "parent callback name.replace, t",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 91,
+    "line": 106,
     "via": "MyContractRow",
     "note": null
    },
    {
     "kind": "button",
     "label": "{t('contract.mine.share')}",
-    "src": "parent callback name.replace, t",
+    "src": "parent callback t",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 92,
+    "line": 107,
     "via": "MyContractRow",
     "note": null
    },
@@ -14382,7 +14442,7 @@
     "src": "GET /provider-onboarding/contract → signed",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 23,
+    "line": 37,
     "via": "MyContractRow",
     "note": null
    },
@@ -14392,7 +14452,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 65,
+    "line": 80,
     "via": "MyContractRow",
     "note": null
    },
@@ -14402,7 +14462,7 @@
     "src": "local state setOpen",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 76,
+    "line": 91,
     "via": "MyContractRow",
     "note": null
    },
@@ -14412,7 +14472,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 83,
+    "line": 98,
     "via": "MyContractRow",
     "note": null
    },
@@ -14422,17 +14482,17 @@
     "src": "parent callback name.replace, t",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 91,
+    "line": 106,
     "via": "MyContractRow",
     "note": null
    },
    {
     "kind": "button",
     "label": "{t('contract.mine.share')}",
-    "src": "parent callback name.replace, t",
+    "src": "parent callback t",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 92,
+    "line": 107,
     "via": "MyContractRow",
     "note": null
    },
@@ -15983,7 +16043,7 @@
     "src": "GET /provider-onboarding/contract → signed",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 23,
+    "line": 37,
     "via": "MyContractRow",
     "note": null
    },
@@ -15993,7 +16053,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 65,
+    "line": 80,
     "via": "MyContractRow",
     "note": null
    },
@@ -16003,7 +16063,7 @@
     "src": "local state setOpen",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 76,
+    "line": 91,
     "via": "MyContractRow",
     "note": null
    },
@@ -16013,7 +16073,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 83,
+    "line": 98,
     "via": "MyContractRow",
     "note": null
    },
@@ -16023,17 +16083,17 @@
     "src": "parent callback name.replace, t",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 91,
+    "line": 106,
     "via": "MyContractRow",
     "note": null
    },
    {
     "kind": "button",
     "label": "{t('contract.mine.share')}",
-    "src": "parent callback name.replace, t",
+    "src": "parent callback t",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 92,
+    "line": 107,
     "via": "MyContractRow",
     "note": null
    },
@@ -18628,7 +18688,7 @@
     "src": "GET /provider-onboarding/contract → signed",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 23,
+    "line": 37,
     "via": "MyContractRow",
     "note": null
    },
@@ -18638,7 +18698,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 65,
+    "line": 80,
     "via": "MyContractRow",
     "note": null
    },
@@ -18648,7 +18708,7 @@
     "src": "local state setOpen",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 76,
+    "line": 91,
     "via": "MyContractRow",
     "note": null
    },
@@ -18658,7 +18718,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 83,
+    "line": 98,
     "via": "MyContractRow",
     "note": null
    },
@@ -18668,17 +18728,17 @@
     "src": "parent callback name.replace, t",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 91,
+    "line": 106,
     "via": "MyContractRow",
     "note": null
    },
    {
     "kind": "button",
     "label": "{t('contract.mine.share')}",
-    "src": "parent callback name.replace, t",
+    "src": "parent callback t",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 92,
+    "line": 107,
     "via": "MyContractRow",
     "note": null
    },
@@ -20226,7 +20286,7 @@
     "src": "GET /provider-onboarding/contract → signed",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 23,
+    "line": 37,
     "via": "MyContractRow",
     "note": null
    },
@@ -20236,7 +20296,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 65,
+    "line": 80,
     "via": "MyContractRow",
     "note": null
    },
@@ -20246,7 +20306,7 @@
     "src": "local state setOpen",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 76,
+    "line": 91,
     "via": "MyContractRow",
     "note": null
    },
@@ -20256,7 +20316,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 83,
+    "line": 98,
     "via": "MyContractRow",
     "note": null
    },
@@ -20266,17 +20326,17 @@
     "src": "parent callback name.replace, t",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 91,
+    "line": 106,
     "via": "MyContractRow",
     "note": null
    },
    {
     "kind": "button",
     "label": "{t('contract.mine.share')}",
-    "src": "parent callback name.replace, t",
+    "src": "parent callback t",
     "status": "ok",
     "file": "provider-app/src/components/MyContract.tsx",
-    "line": 92,
+    "line": 107,
     "via": "MyContractRow",
     "note": null
    },
