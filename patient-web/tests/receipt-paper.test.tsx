@@ -4,8 +4,8 @@ import { describe, expect, it } from "vitest";
 import { ReceiptPaper } from "@/components-next/receipt/receipt-paper";
 import type { ReceiptView } from "@/lib/receipt/model";
 
-const labels = { region: "Receipt", simplified: "Simplified tax invoice", invoiceNo: "Invoice no.", vatNumber: "VAT registration no.", dateTime: "Date and time", subtotal: "Subtotal", vat: "VAT (15%)", total: "Total", qr: "QR", downloadPdf: "Download PDF", share: "Share", shareTitle: "Receipt", brand: "Nabd Plus" };
-const receipt: ReceiptView = { invoiceNo: "INV-2026-000001", kind: "lab", bookingId: "b1", issuedAt: "2026-10-31T10:00:00.000Z", subtotal: 100, vatRate: 0.15, vatAmount: 15, total: 115, currency: "SAR", qr: "AQVOYWJk", seller: { seller: "Nabd Health Platform", vatNumber: "300000000000003", issuedAt: "2026-10-31T10:00:00.000Z", total: 115, vat: 15 } };
+const labels = { region: "Receipt", simplified: "Simplified tax invoice", paymentReceipt: "Payment receipt", totalPaid: "Total paid", invoiceNo: "Invoice no.", vatNumber: "VAT registration no.", dateTime: "Date and time", subtotal: "Subtotal", vat: "VAT (15%)", total: "Total", qr: "QR", downloadPdf: "Download PDF", share: "Share", shareTitle: "Receipt", brand: "Nabd Plus" };
+const receipt: ReceiptView = { invoiceNo: "INV-2026-000001", kind: "lab", bookingId: "b1", issuedAt: "2026-10-31T10:00:00.000Z", subtotal: 100, taxInvoice: true, sellerName: null, vatRate: 0.15, vatAmount: 15, total: 115, currency: "SAR", qr: "AQVOYWJk", seller: { seller: "Nabd Health Platform", vatNumber: "300000000000003", issuedAt: "2026-10-31T10:00:00.000Z", total: 115, vat: 15 } };
 
 describe("ReceiptPaper", () => {
   it("draws the seller block, the amounts, the QR and the PDF link", () => {
@@ -23,6 +23,21 @@ describe("ReceiptPaper", () => {
     expect(html).not.toContain("VAT registration no.");
     expect(html).not.toContain('aria-label="QR"');
     expect(html).toContain("Nabd Plus");
+  });
+  it("a payment receipt (not VAT-registered): titled as a receipt, the amount paid, no VAT row, no VAT number, no QR", () => {
+    const paid: ReceiptView = { ...receipt, invoiceNo: "RCT-2026-000001", taxInvoice: false, subtotal: 115, vatRate: 0, vatAmount: 0, qr: null, seller: null, sellerName: "منصة نبض الطبية" };
+    const html = renderToStaticMarkup(<ReceiptPaper locale="en" receipt={paid} labels={labels} pdfHref="/p" pageHref="/r" />);
+    expect(html).toContain("Payment receipt");
+    expect(html).toContain("Total paid");
+    expect(html).toContain("منصة نبض الطبية");
+    expect(html).toContain("RCT-2026-000001");
+    expect(html).not.toMatch(/Simplified tax invoice|VAT|Subtotal|>Total<|aria-label="QR"/);
+  });
+  it("a tax invoice with no delivery fee has no VAT row (model A: the service price carries no platform VAT); with VAT it shows it", () => {
+    const none = renderToStaticMarkup(<ReceiptPaper locale="en" receipt={{ ...receipt, vatAmount: 0, subtotal: 115 }} labels={labels} pdfHref="/p" pageHref="/r" />);
+    expect(none).not.toMatch(/VAT \(15%\)|Subtotal/);
+    expect(none).toContain("Simplified tax invoice");
+    expect(renderToStaticMarkup(<ReceiptPaper locale="en" receipt={{ ...receipt, vatAmount: 1.96, subtotal: 113.04 }} labels={labels} pdfHref="/p" pageHref="/r" />)).toContain("VAT (15%)");
   });
   it("shows the paper at once under reduced motion and uses tokens only", () => {
     const css = readFileSync("components-next/receipt/receipt.module.css", "utf8");

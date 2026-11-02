@@ -421,7 +421,7 @@ export class ProviderOpsService {
     if (o.patient_id !== requester.id && requester.role !== 'admin' && o.pharmacy_id !== requester.id) throw new BadRequestException('forbidden');
     const svc = new (require('../legal/legal-enterprise.service').LegalEnterpriseService)(this.conn);
     const total = o.total ?? o.totals?.total ?? 0;
-    const pdf = svc.buildPdf(`Invoice ${o.id}`, [
+    const pdf = await svc.buildPdf(`Invoice ${o.id}`, [
       `Date: ${new Date(o.createdAt).toISOString().slice(0, 10)}`,
       `Order: ${o.id}`,
       `Patient: ${o.patient_id}`,

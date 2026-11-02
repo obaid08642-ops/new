@@ -3,6 +3,7 @@
  * full admin audit log, license monitoring, insurance matrix, SLA dashboard,
  * consent management, version diff, country-ready targeting.
  */
+import { renderTextPdf } from '../../common/pdf-text';
 import { suspendAccountForLicense } from '../provider-onboarding/facility-license';
 import { recordAudit } from '../../common/audit-record';
 import { BadRequestException, Injectable, Logger, Optional } from '@nestjs/common';
@@ -52,33 +53,9 @@ export class LegalEnterpriseService {
     return { archive_id: payload.acceptance_id, sha256 };
   }
 
-  /** Minimal valid PDF writer (text-based, one/two pages, CJK-safe via base font). */
-  buildPdf(title: string, lines: string[]): Buffer {
-    // ASCII-safe: strip non-latin to keep single-font PDF valid; full UTF-8 content is in DB/PDF-js clients
-    const safe = (s: string) => s.replace(/[^\x20-\x7E\n]/g, ' ');
-    const content = [
-      'BT /F1 18 Tf 50 780 Td (' + safe(title).replace(/[()\\]/g, '') + ') Tj ET',
-      ...lines.map((l, i) => `BT /F1 10 Tf 50 ${745 - i * 14} Td (${safe(l).replace(/[()\\]/g, '').slice(0, 110)}) Tj ET`),
-    ].join('\n');
-    const stream = content;
-    const objects = [
-      '1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj',
-      '2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj',
-      '3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >> endobj',
-      '4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj',
-      `5 0 obj << /Length ${stream.length} >> stream\n${stream}\nendstream endobj`,
-    ];
-    let pdf = '%PDF-1.4\n';
-    const offsets: number[] = [];
-    for (const o of objects) {
-      offsets.push(pdf.length);
-      pdf += o + '\n';
-    }
-    const xrefPos = pdf.length;
-    pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
-    for (const off of offsets) pdf += String(off).padStart(10, '0') + ' 00000 n \n';
-    pdf += `trailer << /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefPos}\n%%EOF`;
-    return Buffer.from(pdf, 'latin1');
+  /** A PDF of a title and lines of text. Arabic is kept (shaped and ordered by the shared helper); the old writer blanked every non-ASCII letter. */
+  buildPdf(title: string, lines: string[]): Promise<Buffer> {
+    return renderTextPdf(title, lines);
   }
 
   /** Download acceptance snapshot PDF (with hash verification info). */
@@ -89,7 +66,7 @@ export class LegalEnterpriseService {
     // Anyone else gets the same answer as a missing archive, so ids cannot be probed.
     const isAdmin = requester?.role === UserRole.ADMIN || requester?.role === UserRole.SUPER_ADMIN;
     if (!isAdmin && (!requester?.id || a.user_id !== requester.id)) return null;
-    const pdf = this.buildPdf(`Legal Acceptance Certificate`, [
+    const pdf = await this.buildPdf(`Legal Acceptance Certificate`, [
       `Acceptance ID: ${a.acceptance_id}`,
       `User: ${a.user_id} (${a.user_role})${a.user_name ? ' — ' + a.user_name : ''}`,
       `Policy: ${a.policy_key} — ${a.policy_title}`,
@@ -167,36 +144,32 @@ export class LegalEnterpriseService {
     const dateQ: any = {};
     if (range.from) dateQ.$gte = range.from;
     if (range.to) dateQ.$lte = range.to;
-    const match: any = { provider_account_id: providerId };
+    const match: any = { provider_account_id: providerId, type: 'provider_earning' };
     if (from || to) match.createdAt = dateQ;
 
-    const orders = await this.conn.collection('orders').find(
-      { $or: [{ pharmacy_id: providerId, ...match }, { provider_id: providerId }] },
-      { projection: { _id: 0 } },
-    ).sort({ createdAt: -1 }).limit(500).toArray();
-    const ledger = await this.conn.collection('platformledgerentries').find({ provider_account_id: providerId }).sort({ createdAt: -1 }).limit(500).toArray().catch(() => []);
+    // The statement is what the settlement WROTE: one row per earning in the platform ledger, with the percent, the commission and the
+    // VAT the settlement charged at that moment (the provider's override or promotion included), VAT on the commission only. It used to
+    // recompute every order of the legacy `orders` collection at the pharmacy percent, so a doctor's statement was empty and an
+    // override or a promotion never showed.
+    const earnings = await this.conn.collection('platformledgerentries').find(match, { projection: { _id: 0 } }).sort({ createdAt: -1 }).limit(500).toArray();
+    const ledger = await this.conn.collection('platformledgerentries').find({ provider_account_id: providerId, ...(from || to ? { createdAt: dateQ } : {}) }, { projection: { _id: 0 } }).sort({ createdAt: -1 }).limit(500).toArray().catch(() => []);
+    const round2 = (n: number) => Math.round(n * 100) / 100;
 
-    const commissionPercent = (await this.conn.collection('finance_config').findOne({ key: 'commissions' }))?.service_types?.pharmacy?.percent ?? DEFAULT_COMMISSION_PERCENT;
-    const vatPercent = (await this.conn.collection('finance_config').findOne({ key: 'commissions' }))?.tax?.vat_percent ?? DEFAULT_VAT_PERCENT;
-
-    const rows = orders.map((o: any) => {
-      const total = o.total ?? o.totals?.total ?? 0;
-      const commission = Math.round(total * commissionPercent / 100 * 100) / 100;
-      const vat = Math.round(commission * vatPercent / 100 * 100) / 100;
-      return {
-        order_id: o.id,
-        date: o.createdAt,
-        total,
-        commission_percent: commissionPercent,
-        commission,
-        vat_on_commission: vat,
-        net_provider: Math.round((total - commission - vat) * 100) / 100,
-        state: o.state || o.status,
-        payout_status: o.payout_state || 'pending',
-        payout_reference: o.payout_reference || null,
-        payment_date: o.payout_date || null,
-      };
-    });
+    const rows = earnings.map((e: any) => ({
+      order_id: e.ref_id,
+      ref_type: e.ref_type,
+      date: e.createdAt,
+      total: round2(Number(e.gross) || 0),
+      commission_percent: Number(e.commission_percent) || 0,
+      commission_source: e.commission_source ?? null,
+      commission: round2(Number(e.commission) || 0),
+      vat_on_commission: round2(Number(e.vat) || 0),
+      net_provider: round2(Number(e.amount) || 0),
+      state: e.state,
+      payout_status: e.payout_state || 'pending',
+      payout_reference: e.payout_reference || null,
+      payment_date: e.payout_date || null,
+    }));
 
     const totals = rows.reduce((acc: any, r: any) => ({
       total: acc.total + r.total,
@@ -204,6 +177,7 @@ export class LegalEnterpriseService {
       vat: acc.vat + r.vat_on_commission,
       net: acc.net + r.net_provider,
     }), { total: 0, commission: 0, vat: 0, net: 0 });
+    for (const k of Object.keys(totals)) totals[k] = round2(totals[k]);
 
     return { rows, totals, transfers: ledger, generated_at: new Date() };
   }

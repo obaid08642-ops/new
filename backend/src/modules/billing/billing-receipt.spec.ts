@@ -38,14 +38,15 @@ describe('ZATCA phase-1 QR payload', () => {
   it('an issued invoice carries seller, VAT number, its own timestamp, total incl. VAT and VAT', async () => {
     process.env.ZATCA_SELLER_NAME = 'Seller Env Co';
     process.env.ZATCA_VAT_NUMBER = '399999999900003';
-    const { svc } = build({ booking: { patient_id: 'p1' }, txns: [{ amount: 115 }] });
+    // Model A: platform VAT is the VAT inside the delivery fee (15 of the 115 paid)
+    const { svc } = build({ booking: { patient_id: 'p1', delivery_fee: 15 }, txns: [{ amount: 115 }] });
     const inv: any = await svc.issue(patient, 'lab', 'b1');
     const tags = decodeTlv(inv.qr_base64);
     expect(tags[1]).toBe('Seller Env Co');
     expect(tags[2]).toBe('399999999900003');
     expect(tags[3]).toBe(new Date(inv.issued_at).toISOString());
     expect(tags[4]).toBe('115.00');
-    expect(tags[5]).toBe('15.00');
+    expect(tags[5]).toBe('1.96');
   });
 
   it('finance_config wins over the environment for seller and VAT number', async () => {
@@ -108,7 +109,7 @@ describe('PDF', () => {
 });
 
 describe('credit note on refund', () => {
-  const paid = { invoice_no: 'INV-2026-000001', type: 'invoice', status: 'ISSUED', booking_kind: 'lab', booking_id: 'b1', patient_id: 'p1', total: 115, vat_rate: 0.15, seller_name: 'S', vat_number: '300000000000003', payment: { method: 'card', last4: '4242' } };
+  const paid = { invoice_no: 'INV-2026-000001', type: 'invoice', status: 'ISSUED', booking_kind: 'lab', booking_id: 'b1', patient_id: 'p1', total: 115, subtotal: 100, vat_amount: 15, vat_rate: 0.15, seller_name: 'S', vat_number: '300000000000003', payment: { method: 'card', last4: '4242' } };
 
   it('is a negative invoice that names the original and carries its own QR', async () => {
     const { svc } = build({ invoices: [paid] });
