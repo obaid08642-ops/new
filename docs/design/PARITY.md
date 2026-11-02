@@ -49,4 +49,26 @@ Only changes made on the **patient web** that the **app** may lack. Nothing is r
 
 - Web design PRs listed: 29. App done: 25 (the add-policy row is now checked). n/a (web-only by nature): 5.
 - Filters: 4 areas compared; labs/radiology and nursing were the same; consultations (sort) and pharmacy (prescription) differed and are ported in this PR. Nothing else differed.
-- Not covered yet: web changes before 2026-10-28 (next, list first).
+- Web changes from 2026-10-14 to 2026-10-28: compared in the section below. Earlier work (batches 0-9, components) was built for both apps at once.
+
+## Web design PRs 2026-10-14 to 2026-10-28 (web only, no app files in the PR)
+
+Compared by reading the code of both apps (grep for the feature in `patient-app`, no renders). Pure web infrastructure or colour sweeps are not listed.
+
+| PR | Change | App status |
+|---|---|---|
+| #1704 | order context bar on the diagnostics hub | done: `components/ordering/ContextBar.tsx` |
+| #1727 | result trend from earlier results | done: `app/diagnostics/lab-result.tsx` (`utils/result-trend`) |
+| #1805 | ordering screens checked against the Ord boards | n/a: web visual fixes |
+| #1867 | richer doctor card, doctor page, reviews, gender filter | done: gender filter in `consultations/index.tsx`; the doctor page was ported in #2036 |
+| #1877 | five differentiators (late guarantee, estimate, licence line, available-today sort, visit summary) | done: `components/consult/Differentiators.tsx`, "Available today" sort |
+| #1893 | cart icon with count on pharmacy headers and home | done: `ServiceCartButton`, `HomeTopRow`, `PharmacyKit` |
+| #1901 | bell unread dot, /c filters, cold chain, nurse filters | done: bell dot in `HomeTopRow`, nurse filters in `(tabs)/nursing.tsx`, cold chain in `pharmacy/product-detail.tsx` |
+| #1914 | 997 call button on /emergency, urgent-help on /mental-health | done: `components/emergency/UrgentHelpView.tsx`, `MentalHealthViews.tsx` |
+| #1926 | address add is map-first | done: the app opens the map picker from the address book (`AddressBookView.tsx:84`) |
+| #1932 | voice notes in the consultation chat | done: `consultations/chat-with-doctor.tsx` |
+| #1989 | consultations: three visit-type cards, one Filters sheet, "Without insurance (cash)" | not verified card by card; the app has its own filter sheet and cash payment (`consult.pay.cash`). Needs a render comparison: next |
+| #2006 | hologram provider pins on the facilities map | done: `components/map-hologram.ts`, `ProvidersMapView.tsx` |
+| #1892, #1941, #1949, #1959, #2057, #2074 | login empty-field message, hydration test, diagnostics photo fallback, doctor page 503 fix, lazy carts sheet, tab-bar reserve | n/a: web-only fixes or performance |
+
+Nothing found that the app lacks except the one row marked "next" (#1989): it needs a render comparison, not a code port.
