@@ -77,3 +77,22 @@ describe('BookingOpsService.invoice: platform VAT', () => {
     expect(inv.breakdown.total).toBe(215);
   });
 });
+
+describe('BookingOpsService.invoice: delivery mode', () => {
+  const cfg = { invoice: { seller_name: 'منصة نبض الطبية', vat_number: '300000000000003' }, commissions: { tax: { vat_percent: 15 } } };
+  function make(order: any) {
+    const col = (n: string) => (n === 'finance_config' ? { findOne: jest.fn(async (q: any) => (cfg as any)[q?.key] ?? null) } : {});
+    const orders: any = { findOne: jest.fn().mockReturnValue(chain(order)), updateOne: jest.fn() };
+    const none: any = { findOne: jest.fn(), updateOne: jest.fn() };
+    return new BookingOpsService(orders, none, none, none, { findOne: jest.fn(), db: { collection: col } } as any, {} as any, {} as any);
+  }
+  const order = { id: 'o1', patient_id: 'p1', subtotal: 100, total: 115, delivery_fee: 15 };
+  it('platform delivery: platform VAT is the 1.96 inside the fee', async () => {
+    const inv: any = await make({ ...order, delivery_mode: 'platform' }).invoice({ id: 'p1', role: 'patient' }, 'order', 'o1');
+    expect(inv.breakdown.tax).toBe(1.96);
+  });
+  it('the pharmacy\'s own fee carries no platform VAT', async () => {
+    const inv: any = await make({ ...order, delivery_mode: 'pharmacy_own' }).invoice({ id: 'p1', role: 'patient' }, 'order', 'o1');
+    expect(inv.breakdown.tax).toBe(0);
+  });
+});

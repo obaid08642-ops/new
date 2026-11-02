@@ -12,6 +12,7 @@ import { PharmacyOrderRepository } from "./repositories/pharmacyorder.repository
 import { PharmacyInventoryItemRepository } from "./repositories/pharmacyinventoryitem.repository";
 import { isProviderRole } from '../../../common/enums';
 import { settlementDelayDefault, DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT } from '../../../common/commission-defaults';
+import { deliveryModeOf, type DeliveryMode } from '../../../common/tax-registration';
 import { assertSubstituteInsidePrescription } from './rx-rules';
 
 function assertProvider(u: any) { if (!u || !isProviderRole(u.role)) throw new ForbiddenException('provider_scope_required'); }
@@ -19,17 +20,19 @@ function assertPatient(u: any) { if (!u || u.role !== 'patient') throw new Forbi
 
 /** P13-R2: totals are always derived from the decided items, never from a pending proposal. */
 /**
- * What the pharmacy's own gross is in an allocation, and the delivery fee the platform keeps. A delivery fee comes only from the platform
- * pricing config (an offer's `fulfillment.delivery_fee_source`, never set by the pharmacy): the platform charges it, so it is not the
- * pharmacy's. It is outside the pharmacy's gross (no commission, no credit) and, when the pharmacy collected the cash (COD), it is owed to
- * the platform. A fee the pharmacy sets itself (`delivery_fee_source: 'pharmacy'`, none exists today) stays in its gross.
+ * What the pharmacy's gross is in an allocation, and the delivery fee the platform keeps (owner decision 2026-11-02). The order's delivery
+ * mode (`allocation.fulfillment.delivery_mode`, else `order.delivery_mode`, default 'platform'; common/tax-registration.ts):
+ *  - 'platform': the platform set the fee and keeps it: outside the pharmacy's gross (no commission on it, not credited to the pharmacy);
+ *    with cash on delivery the pharmacy owes it.
+ *  - 'pharmacy_own': a pharmacy with its own couriers set its own fee: it is the pharmacy's, part of its gross (commission by the usual rules).
  */
-export function pharmacySettlementGross(a: any): { gross: number; platformDeliveryFee: number } {
+export function pharmacySettlementGross(a: any, order?: any): { gross: number; platformDeliveryFee: number; delivery_mode: DeliveryMode } {
   const round2 = (n: number) => Math.round(n * 100) / 100;
   const total = round2(Number(a?.totals?.total) || 0);
   const fee = round2(Number(a?.totals?.delivery_fee) || 0);
-  const platformDeliveryFee = fee > 0 && a?.fulfillment?.delivery_fee_source !== 'pharmacy' ? Math.min(fee, total) : 0;
-  return { gross: round2(total - platformDeliveryFee), platformDeliveryFee };
+  const delivery_mode = deliveryModeOf(a, order);
+  const platformDeliveryFee = fee > 0 && delivery_mode === 'platform' ? Math.min(fee, total) : 0;
+  return { gross: round2(total - platformDeliveryFee), platformDeliveryFee, delivery_mode };
 }
 
 export function recalcAllocationTotals(a: any) {
@@ -552,7 +555,12 @@ export class PharmacyAllocationService {
     const refId = String(a.id);
     const dup = await ledger.findOne({ ref_type: refType, ref_id: refId, type: { $in: ['provider_earning', 'provider_debit'] } });
     if (dup) return;
-    const { gross, platformDeliveryFee } = pharmacySettlementGross(a);
+    // the allocation carries the chosen offer's delivery mode; an older one falls back to the order (then to 'platform')
+    let orderDoc: any = null;
+    if (!a?.fulfillment?.delivery_mode) {
+      try { orderDoc = await this.orders.db.collection('pharmacy_orders').findOne({ id: a.order_id }, { projection: { delivery_mode: 1 } }); } catch { /* no order store: the default mode */ }
+    }
+    const { gross, platformDeliveryFee, delivery_mode } = pharmacySettlementGross(a, orderDoc);
     if (!(gross > 0)) return;
     const cfg: any = await this.orders.db.collection('finance_config').findOne({ key: 'commissions' });
     const pct = Number(cfg?.service_types?.pharmacy?.percent ?? DEFAULT_COMMISSION_PERCENT);
@@ -567,7 +575,7 @@ export class PharmacyAllocationService {
         // the pharmacy collected the whole cash: it owes the commission, the VAT on it and the delivery fee the platform keeps
         amount: Math.round((commission + vat + platformDeliveryFee) * 100) / 100,
         ref_type: refType, ref_id: refId, order_id: a.order_id,
-        gross, commission_percent: pct, commission, vat, platform_delivery_fee: platformDeliveryFee,
+        gross, commission_percent: pct, commission, vat, platform_delivery_fee: platformDeliveryFee, delivery_mode,
         description: 'COD commission + VAT + platform delivery fee owed to platform (cash collected by pharmacy)',
         actor_id: 'system', createdAt: now,
       });
@@ -579,7 +587,7 @@ export class PharmacyAllocationService {
       id: `earn_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       provider_account_id: a.pharmacy_account_id, type: 'provider_earning', state: 'pending',
       available_at: new Date(now.getTime() + delayDays * 24 * 3600 * 1000),
-      amount: net, gross, commission_percent: pct, commission, vat, platform_delivery_fee: platformDeliveryFee,
+      amount: net, gross, commission_percent: pct, commission, vat, platform_delivery_fee: platformDeliveryFee, delivery_mode,
       ref_type: refType, ref_id: refId, order_id: a.order_id,
       description: 'Pharmacy order earning (escrow until settlement delay)',
       actor_id: 'system', createdAt: now,

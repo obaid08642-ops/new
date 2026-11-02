@@ -17,7 +17,7 @@ import { JwtAuthGuard, CurrentUser, SelfService } from '../../common/auth.guard'
 import { ForbiddenException } from '@nestjs/common';
 import { OrderSchema, OrderDocument } from '../../schemas/order.schema';
 import { readQuoteVatRate } from '../../common/quote';
-import { platformVatOf } from '../../common/tax-registration';
+import { platformVatOf, deliveryModeOf, deliveryFeeLineKey } from '../../common/tax-registration';
 import { LabBookingSchema, LabBooking } from '../../schemas/lab.schema';
 import { RadiologyBookingSchema, RadiologyBooking } from '../../schemas/radiology.schema';
 import { HomeCareBookingSchema, HomeCareBooking } from '../../schemas/home-care.schema';
@@ -95,7 +95,7 @@ export class BookingOpsService {
     // inside the amounts, never added on top.
     const taxRate = await readQuoteVatRate(this.appts.db).catch(() => null);
     const deliveryFee = Math.max(0, Number(e.delivery_fee) || 0);
-    const tax = taxRate === null ? null : platformVatOf([{ key: 'delivery_fee', amount: deliveryFee }], taxRate, deliveryFee);
+    const tax = taxRate === null ? null : platformVatOf([{ key: deliveryFeeLineKey(deliveryModeOf(e)), amount: deliveryFee }], taxRate, deliveryFee);
     const insuranceDiscount = e.insurance_provider ? Math.round(subtotal * 0.8 * 100) / 100 : 0;
     const total = e.total ?? Math.max(0, subtotal - insuranceDiscount);
     return {
