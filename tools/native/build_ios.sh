@@ -43,9 +43,12 @@ PLIST=$(ls -d */Info.plist | head -1)
 
 pod install --repo-update
 WS=$(ls -d *.xcworkspace | head -1); SCHEME="${WS%.xcworkspace}"
+# Signed ad hoc ("-"), not unsigned: an unsigned simulator app has no entitlements, so every keychain write fails with -34018 "Client has neither
+# application-identifier nor keychain-access-groups entitlements" (simulator log of run 41473205316) and the app could not store its sign-in tokens.
+# Signing it afterwards with codesign made the simulator refuse to launch it (run 41482418620: denied by SBMainWorkspace), so Xcode signs it here.
 xcodebuild -workspace "$WS" -scheme "$SCHEME" -configuration Release -sdk iphonesimulator \
   -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/native/dd \
-  CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" ONLY_ACTIVE_ARCH=YES build | tail -n 40
+  CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=YES ONLY_ACTIVE_ARCH=YES build | tail -n 40
 
 BUILT=$(ls -d /tmp/native/dd/Build/Products/Release-iphonesimulator/*.app | head -1)
 (cd "$(dirname "$BUILT")" && ditto -c -k --sequesterRsrc --keepParent "$(basename "$BUILT")" "/tmp/native/$APP.app.zip")

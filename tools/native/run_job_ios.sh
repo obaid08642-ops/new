@@ -23,21 +23,6 @@ xcrun simctl bootstatus "$DEVICE" -b
 # ("iOS driver not ready in time" in run 97 at the default).
 export MAESTRO_DRIVER_STARTUP_TIMEOUT=300000
 rm -rf /tmp/native/app && mkdir -p /tmp/native/app && ditto -x -k "/tmp/native/${TARGET}-app.app.zip" /tmp/native/app
-# The build is unsigned (CODE_SIGNING_ALLOWED=NO), so the app has no entitlements and every keychain write fails with -34018 "Client has neither
-# application-identifier nor keychain-access-groups entitlements" (simulator log of run 41473205316): the sign-in answered 201 and the app then
-# could not store its tokens (expo-secure-store), so it stayed on the login screen. Sign it ad hoc with those two entitlements before installing.
-APP_DIR=$(ls -d /tmp/native/app/*.app | head -1)
-APP_BUNDLE_ID=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP_DIR/Info.plist")
-cat > /tmp/native/ent.plist <<PLIST
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0"><dict>
-<key>application-identifier</key><string>NABDTEST00.${APP_BUNDLE_ID}</string>
-<key>keychain-access-groups</key><array><string>NABDTEST00.${APP_BUNDLE_ID}</string></array>
-</dict></plist>
-PLIST
-codesign --force --deep --sign - --entitlements /tmp/native/ent.plist "$APP_DIR"
-codesign -d --entitlements - "$APP_DIR" 2>&1 | grep -E "application-identifier|keychain-access-groups" | head -2
 xcrun simctl install "$DEVICE" /tmp/native/app/*.app
 xcrun simctl spawn "$DEVICE" defaults write "$PKG" AppleLanguages -array ar
 xcrun simctl spawn "$DEVICE" defaults write "$PKG" AppleLocale ar_SA
