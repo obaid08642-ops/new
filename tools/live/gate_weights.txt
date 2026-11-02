@@ -124,3 +124,5 @@ j_web_signup 4
 j_web_translated_pages 15
 j_web_unnamed_images 46
 j_settlement_overrides 120
+j_provider_agreement_accept 22
+j_chat_attachment 25
