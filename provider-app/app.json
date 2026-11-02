@@ -48,6 +48,7 @@
       "expo-font",
       "expo-secure-store",
       "expo-camera",
+      "./plugins/with-firebase-messaging-manifest",
       ["expo-notifications", { "sounds": ["./assets/sounds/new_order.wav"], "defaultChannel": "default", "color": "#D42A38" }],
       "expo-location",
       "expo-local-authentication",
@@ -61,7 +62,6 @@
         }
       ],
       "@maplibre/maplibre-react-native",
-      "./plugins/with-firebase-messaging-manifest",
       "./plugins/with-ios-modular-headers"
     ],
     "extra": {

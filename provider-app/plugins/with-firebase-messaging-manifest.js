@@ -3,6 +3,8 @@
 // release manifest merge fails ("Attribute meta-data#... is also present at [:react-native-firebase_messaging]"). The app's values
 // (the "default" channel and the brand colour from the expo-notifications plugin options) are the ones to keep: mark both entries
 // tools:replace so they win over the library's empty ones.
+// Order matters: Expo runs manifest mods last-registered first, so this plugin is listed BEFORE expo-notifications in app.json; it then
+// runs after expo-notifications has written its entries.
 const { withAndroidManifest } = require('expo/config-plugins');
 
 const REPLACE = {
