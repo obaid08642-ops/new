@@ -721,7 +721,7 @@ export class LabsService {
         b.state = LabBookingState.CANCELLED;
         await b.save();
         this.events.emit('lab.booking_state_changed', { booking_id: b.id, patient_id: b.patient_id, state: b.state, tracking_id: b.tracking_id });
-        this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id, prior_state: priorState });
+        this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id, prior_state: priorState, cancelled_by: user?.id === b.patient_id ? 'patient' : 'provider' });
         return b.toObject();
       },
     });
@@ -747,7 +747,8 @@ export class LabsService {
         await b.save();
         this.events.emit('lab.booking_state_changed', { booking_id: b.id, patient_id: b.patient_id, state: to, tracking_id: b.tracking_id });
         // The lab cancelling a paid booking owes the patient the money back, the same as the patient cancelling.
-        if (to === LabBookingState.CANCELLED) this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id, prior_state: priorState });
+        // `cancelled_by`: the trip fee of a collector already on the way is the PATIENT's cost only when the patient cancels; the lab cancelling or not attending refunds all
+        if (to === LabBookingState.CANCELLED) this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id, prior_state: priorState, cancelled_by: user?.id === b.patient_id ? 'patient' : 'provider' });
         return b.toObject();
       },
     });

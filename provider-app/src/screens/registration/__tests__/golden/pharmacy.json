@@ -37,11 +37,13 @@
       "fn": "step3",
       "args": [
         {
-          "has_own_drivers": true,
-          "has_own_delivery": true,
-          "delivery_radius_km": 8,
-          "delivery_fee": 10,
-          "free_delivery_above": 150,
+          "own_delivery": {
+            "enabled": true,
+            "zone_type": "radius",
+            "radius_km": 8,
+            "fee_sar": 0,
+            "free_over_sar": null
+          },
           "min_order_sar": 25,
           "express_delivery": true,
           "express_fee": 15,
@@ -174,7 +176,14 @@
             "address": "Prince Sultan Road",
             "deliveryRadius": 8,
             "hasDelivery": true,
-            "hasOwnDrivers": true,
+            "ownDelivery": {
+              "enabled": true,
+              "zoneType": "radius",
+              "radius": "8",
+              "districts": [],
+              "fee": "0",
+              "freeOver": ""
+            },
             "workDays": [
               "SUN",
               "MON",

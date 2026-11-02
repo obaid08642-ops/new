@@ -131,6 +131,8 @@ export class ProviderProfile {
   @Prop() estimated_delivery_time?: string;
   @Prop() delivery_fee?: number;
   @Prop() free_delivery_above?: number;
+  /** Pharmacy with its own couriers: zone, fee and free threshold (modules/pharmacy/pharmacy-delivery.ts). */
+  @Prop({ type: Object }) own_delivery?: { enabled: boolean; zone_type: 'radius' | 'districts'; radius_km: number | null; district_codes: string[]; fee_sar: number; free_over_sar: number | null };
   @Prop() min_order_sar?: number;
   @Prop({ default: false }) express_delivery: boolean;
   @Prop() express_fee?: number;

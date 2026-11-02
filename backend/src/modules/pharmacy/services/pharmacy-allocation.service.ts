@@ -621,10 +621,37 @@ export class PharmacyAllocationService {
     this.transition(a, PharmacyAllocationState.CANCELLED, user.id, { reason });
     a.cancellation_reason = reason;
     await a.save();
-    await this.refreshOrderAfterAllocationChange(a.order_id);
+    // with no live allocation left the order is cancelled (and refunded); only otherwise does the order follow the others
+    if (!(await this.cancelOrderWhenNoAllocationLeft(a, user, reason))) await this.refreshOrderAfterAllocationChange(a.order_id);
     await this.notif.notifyPatientAllocationCancelled(a, reason);
     await this.bus.emit({ type: 'allocation.cancelled', entity_type: 'allocation', entity_id: a.id, actor_account_id: user.id, actor_role: 'provider', pharmacy_account_id: user.id, reason_code: reason || 'pharmacy_cancelled', meta: { order_id: a.order_id } });
     return a.toObject();
+  }
+
+  /**
+   * The pharmacy cancels its allocation (refund policy 3.0: "the pharmacy cancels: 100%"). When it was the order's only live allocation the order
+   * cannot be fulfilled any more: it is cancelled through the workflow engine as a PROVIDER cancel, which announces `service.cancelled`
+   * (ProviderCancelRefundListener refunds what the patient paid by card, in full, delivery fee included). Before this the allocation was
+   * cancelled and the patient told, but the order stayed open and the card payment stayed paid.
+   */
+  private async cancelOrderWhenNoAllocationLeft(a: any, user: any, reason: string): Promise<boolean> {
+    const order = await this.orders.findOne({ id: a.order_id });
+    if (!order || [PharmacyOrderState.DELIVERED, PharmacyOrderState.COMPLETED, PharmacyOrderState.CANCELLED].includes(order.status)) return false;
+    const others = await this.allocs.find({ order_id: a.order_id }).lean();
+    const live = others.some((x: any) => x.id !== a.id && ![PharmacyAllocationState.CANCELLED, PharmacyAllocationState.REJECTED, PharmacyAllocationState.EXPIRED].includes(x.status as any));
+    if (live) return false;
+    const ok = await this.engine.transition({
+      kind: 'pharmacy', entity_id: order.id, from_domain: order.status, to_domain: PharmacyOrderState.CANCELLED,
+      actor_account_id: user.id, actor_role: 'provider', patient_account_id: order.patient_account_id, reason: reason || 'pharmacy_cancelled',
+      mutate: async () => {
+        order.status = PharmacyOrderState.CANCELLED;
+        order.cancellation_reason = reason || 'pharmacy_cancelled';
+        order.timeline.push({ ts: new Date(), event: 'cancelled_by_provider', by: user.id, meta: { reason, allocation_id: a.id } });
+        await order.save();
+        return order.toObject();
+      },
+    }).then(() => true).catch((e: any) => { this.logger.error(`order ${order.id}: not cancelled after the pharmacy cancelled its allocation: ${e?.message}`); return false; });
+    return ok;
   }
 
   private async refreshOrderAfterAllocationChange(orderId: string) {
@@ -632,7 +659,8 @@ export class PharmacyAllocationService {
     if (!order) return;
     const allocs = await this.allocs.find({ order_id: orderId }).lean();
     const allConfirmed = allocs.every(a => [PharmacyAllocationState.CONFIRMED, PharmacyAllocationState.PARTIALLY_CONFIRMED, PharmacyAllocationState.PREPARING, PharmacyAllocationState.READY_FOR_PICKUP, PharmacyAllocationState.OUT_FOR_DELIVERY, PharmacyAllocationState.DELIVERED, PharmacyAllocationState.REJECTED, PharmacyAllocationState.CANCELLED].includes(a.status as any));
-    const allDelivered = allocs.length > 0 && allocs.every(a => [PharmacyAllocationState.DELIVERED, PharmacyAllocationState.CANCELLED, PharmacyAllocationState.REJECTED].includes(a.status as any));
+    // at least one allocation really was delivered: an order whose only allocation was cancelled or rejected is not a delivered order (it was marked delivered)
+    const allDelivered = allocs.length > 0 && allocs.some(a => a.status === PharmacyAllocationState.DELIVERED) && allocs.every(a => [PharmacyAllocationState.DELIVERED, PharmacyAllocationState.CANCELLED, PharmacyAllocationState.REJECTED].includes(a.status as any));
     const anyOut = allocs.some(a => a.status === PharmacyAllocationState.OUT_FOR_DELIVERY);
     const anyPreparing = allocs.some(a => [PharmacyAllocationState.PREPARING, PharmacyAllocationState.READY_FOR_PICKUP].includes(a.status as any));
     // Target stage from the allocations, then walk the order there one ALLOWED step at a time
