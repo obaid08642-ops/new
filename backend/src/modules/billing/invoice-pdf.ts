@@ -36,8 +36,9 @@ const T = {
   issuedAt: { ar: 'تاريخ ووقت الإصدار', en: 'Issue date and time' },
   booking: { ar: 'رقم الحجز / الطلب', en: 'Booking / order no.' },
   patient: { ar: 'العميل', en: 'Customer' },
-  provider: { ar: 'مقدّم الخدمة', en: 'Service provider' },
-  providerNote: { ar: 'الجهة التي قدّمت الخدمة؛ الجهة المصدرة للفاتورة هي الشركة أعلاه', en: 'The party that delivered the service; the issuer of this invoice is the company above' },
+  provider: { ar: 'مقدّم الخدمة (بائع الخدمة)', en: 'Service provider (seller of the service)' },
+  providerNote: { ar: 'مقدّم الخدمة هو بائعها؛ تصدر الشركة أعلاه هذه الفاتورة بصفتها طرفاً ثالثاً', en: 'The provider is the seller of the service; the company above issues this invoice as a third party' },
+  vatOnDelivery: { ar: 'ضريبة القيمة المضافة على رسوم التوصيل', en: 'VAT on the delivery fee' },
   paymentSection: { ar: 'الدفع', en: 'Payment' },
   providerName: { ar: 'الاسم', en: 'Name' },
   providerType: { ar: 'النوع', en: 'Type' },
@@ -75,7 +76,7 @@ const T = {
   refundReceipts: { ar: 'إيصالات الاسترداد', en: 'Refund receipts' },
   totalPaid: { ar: 'المبلغ المدفوع', en: 'Total paid' },
   totalRefunded: { ar: 'المبلغ المسترد', en: 'Amount refunded' },
-  providerNoteReceipt: { ar: 'الجهة التي قدّمت الخدمة؛ الجهة المصدرة للإيصال هي الشركة أعلاه', en: 'The party that delivered the service; the issuer of this receipt is the company above' },
+  providerNoteReceipt: { ar: 'مقدّم الخدمة هو بائعها؛ تصدر الشركة أعلاه هذا الإيصال بصفتها طرفاً ثالثاً', en: 'The provider is the seller of the service; the company above issues this receipt as a third party' },
   electronicReceipt: { ar: 'صدر هذا الإيصال إلكترونياً ولا يحتاج إلى توقيع', en: 'Electronically generated; no signature required' },
   support: { ar: 'الدعم', en: 'Support' },
   refundPolicy: { ar: 'سياسة الاسترداد', en: 'Refund policy' },
@@ -299,7 +300,10 @@ export function renderInvoicePdf({ inv, qrPng }: InvoicePdfInput): Promise<Buffe
       row(credit ? T.totalRefunded : T.totalPaid, sar(inv.total), { bold: true, size: 12, color: credit ? ACCENT : INK });
     } else {
       row(T.subtotal, sar(inv.subtotal));
-      row({ ar: `${T.vatLine.ar} ${Math.round((Number(inv.vat_rate) || 0) * 1000) / 10}%`, en: `${T.vatLine.en} ${Math.round((Number(inv.vat_rate) || 0) * 1000) / 10}%` }, sar(inv.vat_amount));
+      const pct = Math.round((Number(inv.vat_rate) || 0) * 1000) / 10;
+      // Model A: the platform's VAT is only the VAT in the delivery fee it charges; the service price carries none
+      const vatLabel = inv.vat_basis === 'delivery_fee' ? { ar: `${T.vatOnDelivery.ar} ${pct}%`, en: `${T.vatOnDelivery.en} ${pct}%` } : { ar: `${T.vatLine.ar} ${pct}%`, en: `${T.vatLine.en} ${pct}%` };
+      row(vatLabel, sar(inv.vat_amount));
       row(T.total, sar(inv.total), { bold: true, size: 12, color: credit ? ACCENT : INK });
     }
 

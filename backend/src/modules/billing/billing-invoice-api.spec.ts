@@ -63,7 +63,7 @@ describe('a cash invoice', () => {
   it('lines, the cash method with no card digits, no discount, no insurer, paid, seller from config, QR on the same totals', async () => {
     const { svc } = world({ booking: { patient_id: 'p1', payment_method: 'cash', collection_proof: { amount_collected: 150 }, items: [{ name_en: 'Glucose', name_ar: 'سكر', price: 150, qty: 1 }] } });
     const inv = await svc.present(await svc.issue(patient, 'lab', 'b1'));
-    expect(inv).toMatchObject({ type: 'invoice', total: 150, vat_amount: 19.57, subtotal: 130.43, discount: 0, insured: null, state: 'paid', refunded_total: 0, credit_notes: [] });
+    expect(inv).toMatchObject({ type: 'invoice', total: 150, vat_amount: 0, subtotal: 150, vat_basis: 'delivery_fee', discount: 0, insured: null, state: 'paid', refunded_total: 0, credit_notes: [] });
     expect(inv.lines).toEqual([{ key: 'item', name_ar: 'سكر', name_en: 'Glucose', qty: 1, unit_price: 150, amount: 150 }]);
     expect(inv.payment).toEqual({ method: 'cash', last4: null });
     expect(inv.seller).toEqual({ legal_name: 'Nabd Health Co', vat_number: '300000000000003', cr_number: null, address: null, configured: true });
@@ -79,7 +79,7 @@ describe('a card invoice', () => {
     const { svc } = world({ booking, txns: [card('XXXX-XXXX-XXXX-4242')] });
     const inv = await svc.present(await svc.issue(patient, 'lab', 'b1'));
     expect(inv.lines.map((l: any) => [l.name_en, l.amount])).toEqual([['CBC', 100], ['Vitamin D', 50]]);
-    expect(inv).toMatchObject({ discount: 10, total: 140, vat_amount: 18.26, subtotal: 121.74 });
+    expect(inv).toMatchObject({ discount: 10, total: 140, vat_amount: 0, subtotal: 140 });
     expect(inv.lines.reduce((s: number, l: any) => s + l.amount, 0) - inv.discount).toBe(inv.total);
     expect(inv.payment).toEqual({ method: 'card', last4: '4242' });
     expectQrMatches(inv);
@@ -115,7 +115,8 @@ describe('an insured invoice', () => {
 });
 
 describe('a refunded invoice', () => {
-  const booking = { patient_id: 'p1', payment_method: 'card', items: [{ name_en: 'CBC', price: 115, qty: 1 }] };
+  // Model A: the VAT on the document is the VAT inside the delivery fee (15 of the 115), nothing on the service price
+  const booking = { patient_id: 'p1', payment_method: 'card', items: [{ name_en: 'CBC', price: 100, qty: 1 }], delivery_fee: 15 };
   const txns = [{ amount: 115, method: 'card', webhook_payload: { source: { number: 'XXXX-XXXX-XXXX-4242' } } }];
 
   it('shows paid until a credit note exists', async () => {
@@ -129,11 +130,19 @@ describe('a refunded invoice', () => {
     const note: any = await svc.issueCreditNote({ booking_kind: 'lab', booking_id: 'b1', amount: 115, refund_ref: 'rf_1' });
     const inv = await svc.present(issued);
     expect(inv).toMatchObject({ state: 'refunded', refunded_total: 115 });
-    expect(inv.credit_notes).toEqual([expect.objectContaining({ invoice_no: note.invoice_no, total: -115, vat_amount: -15 })]);
+    expect(inv.credit_notes).toEqual([expect.objectContaining({ invoice_no: note.invoice_no, total: -115, vat_amount: -1.96 })]);
     const cn = await svc.present(store.find((d) => d.invoice_no === note.invoice_no));
     expect(cn).toMatchObject({ state: 'credit_note', type: 'credit_note', original_invoice_no: inv.invoice_no, total: -115 });
     expect(qrOf(cn)[4]).toBe('-115.00');
-    expect(qrOf(cn)[5]).toBe('-15.00');
+    expect(qrOf(cn)[5]).toBe('-1.96');
+  });
+
+  it('a partial refund takes its share of the VAT of the invoice it reverses', async () => {
+    const { svc, store } = world({ booking, txns });
+    await svc.issue(patient, 'lab', 'b1');
+    const note: any = await svc.issueCreditNote({ booking_kind: 'lab', booking_id: 'b1', amount: 23, refund_ref: 'rf_p' });
+    expect(note).toMatchObject({ total: -23, vat_amount: -0.39, subtotal: -22.61 }); // 1.96 x 23 / 115
+    expect(store.length).toBe(2);
   });
 
   it('a partial refund: partially_refunded, then refunded once the credit notes add up', async () => {
@@ -214,7 +223,7 @@ describe('the content the owner asked for', () => {
  * registered yet, so the receipt is what patients get today. Prices and amounts are the same in both modes.
  */
 describe('receipt mode: the platform has no VAT number', () => {
-  const booking = { patient_id: 'p1', payment_method: 'card', items: [{ name_en: 'CBC', name_ar: 'صورة دم', price: 115, qty: 1 }] };
+  const booking = { patient_id: 'p1', payment_method: 'card', items: [{ name_en: 'CBC', name_ar: 'صورة دم', price: 100, qty: 1 }], delivery_fee: 15 };
   const txns = [{ amount: 115, method: 'card', webhook_payload: { source: { number: 'XXXX-XXXX-XXXX-4242' } } }];
   const unregistered = () => { delete process.env.ZATCA_SELLER_NAME; delete process.env.ZATCA_VAT_NUMBER; };
   const owner = { seller_name: 'منصة نبض الطبية' }; // issued: the name only; CR number, VAT number and address are not issued yet
@@ -236,7 +245,7 @@ describe('receipt mode: the platform has no VAT number', () => {
   it('the same booking paid the same amount is a tax invoice once a VAT number is on file: same total, VAT split, QR', async () => {
     const { svc } = world({ booking, txns, cfg: { invoice: { ...owner, vat_number: '300000000000003' } } });
     const t = await svc.present(await svc.issue(patient, 'lab', 'b1'));
-    expect(t).toMatchObject({ document_kind: 'tax_invoice', title: { ar: 'فاتورة ضريبية مبسطة', en: 'Simplified tax invoice' }, total: 115, subtotal: 100, vat_rate: 0.15, vat_amount: 15, seller: { vat_number: '300000000000003', configured: true } });
+    expect(t).toMatchObject({ document_kind: 'tax_invoice', title: { ar: 'فاتورة ضريبية مبسطة', en: 'Simplified tax invoice' }, total: 115, subtotal: 113.04, vat_rate: 0.15, vat_amount: 1.96, vat_basis: 'delivery_fee', seller: { vat_number: '300000000000003', configured: true } });
     expect(t.invoice_no).toMatch(/^INV-/);
     expectQrMatches(t);
   });
@@ -255,7 +264,7 @@ describe('receipt mode: the platform has no VAT number', () => {
     expect((await svc.presentMany([again]))[0]).toMatchObject({ document_kind: 'receipt', qr: null });
 
     const next = await svc.present(await svc.issue(patient, 'lab', 'b2'));
-    expect(next).toMatchObject({ document_kind: 'tax_invoice', vat_amount: 15 });
+    expect(next).toMatchObject({ document_kind: 'tax_invoice', vat_amount: 1.96 });
     expect(next.invoice_no).toMatch(/^INV-/);
     expectQrMatches(next);
   });
@@ -341,7 +350,54 @@ describe('receipt mode: the platform has no VAT number', () => {
     if (hasPdftotext) {
       const t = text(pdf);
       expect(t).toContain('Simplified tax invoice');
-      expect(t).toMatch(/VAT 15%/);
+      expect(t).toMatch(/VAT on the delivery fee 15%/);
+      expect(t).toContain('seller of the service');
     }
+  });
+});
+
+/**
+ * VAT model A (owner, 2026-11-01): the provider is the supplier of the service; the platform issues the patient's document as a third
+ * party. Platform VAT is only the VAT inside the delivery fee it charges. The service price carries none.
+ */
+describe('VAT model A: platform VAT only on the delivery fee', () => {
+  const lab = { type: 'lab', name_ar: 'مختبر الحبيب', name_en: 'Al Habib Lab', moh_license_number: 'MOH-LAB-2210' };
+  const txns = [{ amount: 215, method: 'card' }];
+
+  it('a service price of 200 and a delivery fee of 15: VAT is the 1.96 inside the fee, the service line carries none; the QR says so', async () => {
+    const { svc } = world({ booking: { patient_id: 'p1', provider_account_id: 'lab-1', items: [{ name_en: 'CBC', price: 200, qty: 1 }], delivery_fee: 15 }, txns, profile: lab });
+    const inv = await svc.present(await svc.issue(patient, 'lab', 'b1'));
+    expect(inv).toMatchObject({ document_kind: 'tax_invoice', total: 215, vat_rate: 0.15, vat_amount: 1.96, subtotal: 213.04, vat_basis: 'delivery_fee' });
+    expect(inv.lines.map((l: any) => [l.key, l.amount])).toEqual([['item', 200], ['delivery_fee', 15]]);
+    expect(inv.provider).toMatchObject({ name_en: 'Al Habib Lab', type: 'lab' }); // the seller of the service
+    expect(inv.seller.legal_name).toBe('Nabd Health Co'); // the platform, issuing as a third party
+    expectQrMatches(inv);
+    expect(qrOf(inv)[5]).toBe('1.96');
+  });
+
+  it('no delivery fee: no platform VAT at all (0.00), the total is the price', async () => {
+    const { svc } = world({ booking: { patient_id: 'p1', items: [{ name_en: 'CBC', price: 200, qty: 1 }] }, txns: [{ amount: 200, method: 'card' }] });
+    const inv = await svc.present(await svc.issue(patient, 'lab', 'b1'));
+    expect(inv).toMatchObject({ total: 200, vat_amount: 0, subtotal: 200 });
+    expect(qrOf(inv)[5]).toBe('0.00');
+  });
+
+  it('a delivery fee larger than what was paid cannot carry more VAT than the payment', async () => {
+    const { svc } = world({ booking: { patient_id: 'p1', items: [{ name_en: 'x', price: 0, qty: 1 }], delivery_fee: 50 }, txns: [{ amount: 23, method: 'card' }] });
+    const inv = await svc.present(await svc.issue(patient, 'lab', 'b1'));
+    expect(inv.vat_amount).toBe(3);
+    expect(inv.subtotal + inv.vat_amount).toBeCloseTo(inv.total, 2);
+  });
+
+  it('no platform VAT number: no VAT lines at all, even with a delivery fee (receipt mode applies)', async () => {
+    delete process.env.ZATCA_SELLER_NAME; delete process.env.ZATCA_VAT_NUMBER;
+    const { svc } = world({ booking: { patient_id: 'p1', items: [{ name_en: 'CBC', price: 200, qty: 1 }], delivery_fee: 15 }, txns });
+    expect(await svc.present(await svc.issue(patient, 'lab', 'b1'))).toMatchObject({ document_kind: 'receipt', vat_rate: null, vat_amount: null, vat_basis: null, subtotal: 215, qr: null });
+  });
+
+  it('a document issued before model A keeps the VAT it was issued with and says its basis was the whole total', async () => {
+    const { svc } = world({ booking: { patient_id: 'p1' }, txns });
+    const legacy = await svc.present({ id: 'o', invoice_no: 'INV-2026-000009', booking_kind: 'lab', booking_id: 'old', patient_id: 'p1', total: 115, subtotal: 100, vat_rate: 0.15, vat_amount: 15, status: 'ISSUED', type: 'invoice', seller_name: 'Co', vat_number: '3', seller_complete: true, qr_base64: 'AAAA', issued_at: new Date() });
+    expect(legacy).toMatchObject({ vat_amount: 15, subtotal: 100, vat_basis: 'total' });
   });
 });

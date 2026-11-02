@@ -35,13 +35,15 @@ describe('e-invoice of a paid booking', () => {
   it('invoices what was charged, not the booking price: an insured co-pay', async () => {
     const { svc, created } = build({ booking: { patient_id: 'p1', total: 400 }, txns: [{ amount: 60 }], invoice: REGISTERED });
     await svc.issue(patient, 'lab', 'b1');
-    expect(created[0]).toMatchObject({ total: 60, vat_amount: 7.83, subtotal: 52.17, vat_rate: 0.15 });
+    // Model A: no delivery fee, so no platform VAT on the co-pay
+    expect(created[0]).toMatchObject({ total: 60, vat_amount: 0, subtotal: 60, vat_rate: 0.15 });
   });
 
   it('takes the VAT rate from the finance config', async () => {
-    const { svc, created } = build({ booking: { patient_id: 'p1' }, txns: [{ amount: 110 }], cfg: { tax: { vat_percent: 10 } }, invoice: REGISTERED });
+    // the rate is the finance config's; it applies to the delivery fee (11 of the 110 paid)
+    const { svc, created } = build({ booking: { patient_id: 'p1', delivery_fee: 11 }, txns: [{ amount: 110 }], cfg: { tax: { vat_percent: 10 } }, invoice: REGISTERED });
     await svc.issue(patient, 'consultation', 'b1');
-    expect(created[0]).toMatchObject({ total: 110, vat_amount: 10, subtotal: 100, vat_rate: 0.1 });
+    expect(created[0]).toMatchObject({ total: 110, vat_amount: 1, subtotal: 109, vat_rate: 0.1 });
   });
 
   it('asks the transactions under the payments name of the kind (appointment = consultation)', async () => {
@@ -65,7 +67,7 @@ describe('e-invoice of a paid booking', () => {
   it('payment.completed issues the invoice for the system and never throws', async () => {
     const { svc, created } = build({ booking: { patient_id: 'p1' }, txns: [{ amount: 115 }], invoice: REGISTERED });
     await svc.issueOnPayment({ booking_kind: 'lab', booking_id: 'b1' });
-    expect(created[0]).toMatchObject({ booking_kind: 'lab', total: 115, vat_amount: 15 });
+    expect(created[0]).toMatchObject({ booking_kind: 'lab', total: 115, vat_amount: 0 });
     const none = build({ booking: null as any, txns: [] });
     await expect(none.svc.issueOnPayment({ booking_kind: 'lab', booking_id: 'x' })).resolves.toBeUndefined();
     await expect(none.svc.issueOnPayment({ booking_kind: 'insurance', booking_id: 'x' })).resolves.toBeUndefined();

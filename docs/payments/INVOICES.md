@@ -89,3 +89,32 @@ The seller is "منصة نبض الطبية". Its CR number, VAT number and addr
 - **Prices and charges are unchanged.** Only what is shown and which document is issued depends on the switch. The VAT position (G7: whole price or commission only, exempt healthcare) is **not** changed; the settlement still takes VAT on the commission only.
 - **Provider agreement §5.4** says the provider issues the service invoice, while this document names the platform as issuer. S is reviewing the agreement; the code stays as is until the owner and the accountant decide.
 - Clients: the receipt screens (app and web) read `document_kind`; a receipt is drawn titled "Payment receipt" with "Total paid", no VAT rows and no QR (keys `receipt.paymentReceipt`, `receipt.totalPaid`, six languages). Design: the fields are `document_kind`, `title`, nullable `vat_rate` / `vat_amount`, `qr: null`, and on quotes `tax_registered`.
+
+
+## VAT model A: where platform VAT applies (owner decision, 2026-11-01), the exact rule
+
+The **provider is the supplier of the service**. The platform issues the patient's document as a **third party**. Therefore:
+
+1. **The patient document shows the provider as the seller of the service** (`provider`: name, type, licence number; PDF section "Service provider (seller of the service)"). The platform (`seller`) is the issuer, as a third party, and says so on the PDF.
+2. **Platform VAT applies only to two things:**
+   - **its commission**: on the platform → provider commission invoice (the settlement: `VAT = commission x vat_percent`; the provider statement shows "VAT on commission"). Never on the service price.
+   - **the delivery fee** (the `delivery_fee` line), a line the platform charges. It is VAT-inclusive: `VAT = fee - fee / (1 + rate)`, never more than what was paid.
+3. **The service price itself carries no platform VAT.** A document or quote with no delivery-fee line has `vat_amount` / `vat` = 0 (tax invoice) and `subtotal = total`.
+4. **No platform VAT number = no VAT lines at all** (receipt mode, above), even with a delivery fee.
+5. The rate is `finance_config` `commissions.tax.vat_percent` (default 15).
+
+| Where | Model A |
+| --- | --- |
+| Invoice / receipt (`billing.module.ts`) | `vat_amount` = VAT inside the delivery fee; `vat_basis: 'delivery_fee'`; `subtotal = total - vat_amount`; the QR carries the same figure (tag 5). Receipts: unchanged (null VAT). |
+| Credit note | its share of the original's `vat_amount`: `-(vat_amount x refund / total)` |
+| Documents issued before this change | keep the VAT they were issued with; the API says `vat_basis: 'total'` |
+| Quote (`common/quote.ts`, `GET /bookings/quote`, lab/radiology rows) | `vat` = VAT inside a `delivery_fee` line, else 0; `null` while unregistered |
+| Settlement (`provider-ops.creditEarning`, pharmacy allocation) and provider statement | VAT on the commission only (unchanged; now pinned by `vat-model-a.spec.ts`) |
+| PDF | VAT line "VAT on the delivery fee 15%"; provider labelled the seller of the service; issuer note says "third party" |
+| App and web receipt screens | the subtotal and VAT rows show only when the document has platform VAT (> 0) |
+
+**Found, not changed (they would change what a patient is charged; owner to confirm):**
+- `modules/unified-bookings/booking-ops.module.ts` `invoice()` (the derived booking invoice) and `modules/business-rules/business-rules.module.ts` `computePricing` (`taxRate = 0.15`) and `modules/ai-commerce/ai-commerce.service.ts` (checkout adds VAT on top of the subtotal) still add VAT to the service price.
+- `platform_fee` (consultation service fee), `home_visit_fee` and `transport_fee` are platform-charged lines (the settlement leaves them out of the provider's credit) but are neither commission nor delivery fee, so by the rule above they carry no VAT. If they should, say so.
+- Pharmacy `providerOwnAmount` counts the whole order total (delivery fee included) as the provider's gross, so commission and the provider credit include the delivery fee. If the platform keeps the delivery fee, the settlement must leave it out.
+- A tax invoice for the service itself (the supplier's invoice) needs the provider's VAT number; this document only carries the platform's VAT on its delivery fee (provider agreement §5.4, S is reviewing it).

@@ -33,6 +33,12 @@ describe("ReceiptPaper", () => {
     expect(html).toContain("RCT-2026-000001");
     expect(html).not.toMatch(/Simplified tax invoice|VAT|Subtotal|>Total<|aria-label="QR"/);
   });
+  it("a tax invoice with no delivery fee has no VAT row (model A: the service price carries no platform VAT); with VAT it shows it", () => {
+    const none = renderToStaticMarkup(<ReceiptPaper locale="en" receipt={{ ...receipt, vatAmount: 0, subtotal: 115 }} labels={labels} pdfHref="/p" pageHref="/r" />);
+    expect(none).not.toMatch(/VAT \(15%\)|Subtotal/);
+    expect(none).toContain("Simplified tax invoice");
+    expect(renderToStaticMarkup(<ReceiptPaper locale="en" receipt={{ ...receipt, vatAmount: 1.96, subtotal: 113.04 }} labels={labels} pdfHref="/p" pageHref="/r" />)).toContain("VAT (15%)");
+  });
   it("shows the paper at once under reduced motion and uses tokens only", () => {
     const css = readFileSync("components-next/receipt/receipt.module.css", "utf8");
     expect(css).toMatch(/prefers-reduced-motion: reduce\)\s*\{\s*\.paper, \.actions \{ animation: none; \}/);

@@ -25,7 +25,7 @@ import { UserRole } from '../../common/enums';
 import { findCopayTransaction } from '../../common/copay-transaction';
 import { renderInvoicePdf } from './invoice-pdf';
 import { MailModule, MailService } from '../mail/mail.module';
-import { readInvoiceConfig, documentKindOf, type DocumentKind } from '../../common/tax-registration';
+import { readInvoiceConfig, documentKindOf, platformVatOf, type DocumentKind } from '../../common/tax-registration';
 
 const VAT_RATE = 0.15;
 
@@ -56,6 +56,8 @@ export class EInvoice {
   @Prop({ default: true }) seller_complete: boolean;
   /** tax_invoice (VAT number configured when issued) | receipt (not VAT-registered: no VAT, no QR). Fixed at issue, never changed later. */
   @Prop({ enum: ['tax_invoice', 'receipt'], index: true }) document_kind: string;
+  /** What `vat_amount` is VAT on: 'delivery_fee' (Model A: the provider supplies the service, the platform's VAT is only on the delivery fee it charges). Absent on older documents, whose VAT was taken from the whole total. */
+  @Prop() vat_basis: string;
   @Prop() seller_cr_number: string; // commercial registration, from config
   @Prop() seller_address: string;
   /** The provider who delivered the service (a snapshot: name, type, licence number if we hold one); our company stays the issuer. */
@@ -277,6 +279,8 @@ export class BillingService {
    *   payment { method, last4 }                                       from the gateway record, never more than the last 4 digits
    *   insured { insurer, price, insurer_share, patient_share }        when an insurer paid part (total = the patient's share)
    *   document_kind, title { ar, en }                                 tax_invoice | receipt, fixed when the document was issued
+   *   provider                                                        the seller of the service (Model A); `seller` is the platform issuing it as a third party
+   *   vat_basis                                                       'delivery_fee' (platform VAT is only the VAT in the delivery fee) | 'total' (older documents) | null (receipt)
    *   seller { legal_name, vat_number, configured }                   from config; vat_number null and configured:false for a receipt
    *   qr { format, payload } and pdf_url                              the ZATCA phase-1 TLV (null on a receipt, which has no VAT) and the PDF
    *   state, refunded_total, credit_notes                             paid | partially_refunded | refunded, with the credit notes that reverse it
@@ -314,6 +318,7 @@ export class BillingService {
     return {
       ...doc,
       document_kind: kind,
+      vat_basis: receipt ? null : doc.vat_basis ?? 'total',
       title: documentTitle(kind, doc.type === 'credit_note'),
       vat_rate: receipt ? null : doc.vat_rate,
       vat_amount: receipt ? null : doc.vat_amount,
@@ -356,13 +361,16 @@ export class BillingService {
     const seller = await this.seller();
     const documentKind: DocumentKind = seller.configured ? 'tax_invoice' : 'receipt';
     const rate = documentKind === 'tax_invoice' ? await this.vatRate() : 0;
-    const vat = rate > 0 ? Math.round((total - total / (1 + rate)) * 100) / 100 : 0; // VAT-inclusive extraction
+    const discount = this.discountOf(booking);
+    const lines = this.buildLines(kind, booking, discount);
+    // Model A (owner, 2026-11-01): the provider is the supplier of the service and this document is issued by the platform as a third
+    // party. Platform VAT is only the VAT inside the delivery fee it charges; the service price carries none (the commission's VAT is
+    // on the platform → provider commission invoice, not here).
+    const vat = platformVatOf(lines, rate, total);
     const subtotal = Math.round((total - vat) * 100) / 100;
     const issuedAt = new Date();
     const qr = documentKind === 'tax_invoice' ? tlvQr(seller.name as string, seller.vatNumber as string, issuedAt.toISOString(), total, vat) : null;
 
-    const discount = this.discountOf(booking);
-    const lines = this.buildLines(kind, booking, discount);
     const bookingPrice = Math.round(Number(booking?.total_price ?? booking?.total ?? booking?.price ?? 0) * 100) / 100;
     const insured = String(booking?.payment_method || '').toLowerCase() === 'insurance' || Number(booking?.insurance_copay) > 0
       ? { insurer: booking?.insurance_provider ?? booking?.insurance?.provider ?? null, price: bookingPrice, covered: Math.max(0, Math.round((bookingPrice - total) * 100) / 100), copay: total }
@@ -379,7 +387,7 @@ export class BillingService {
         booking_kind: kind,
         booking_id: bookingId,
         patient_id: owner,
-        subtotal, vat_rate: rate, vat_amount: vat, total,
+        subtotal, vat_rate: rate, vat_amount: vat, vat_basis: documentKind === 'tax_invoice' ? 'delivery_fee' : undefined, total,
         qr_base64: qr, lines, payment, insured, discount, provider, patient_name: patientName, booking_ref: bookingRef,
         seller_name: seller.name, vat_number: seller.vatNumber, seller_cr_number: seller.crNumber, seller_address: seller.address, seller_complete: documentKind === 'tax_invoice', issued_at: issuedAt,
       });
@@ -413,7 +421,9 @@ export class BillingService {
       // a refund document has the kind of the document it reverses: a tax invoice gets a credit note (negative VAT, QR), a receipt a refund receipt
       const docKind = documentKindOf(original);
       const rate = docKind === 'tax_invoice' ? Number(original.vat_rate) || VAT_RATE : 0;
-      const vat = rate > 0 ? -Math.round((capped - capped / (1 + rate)) * 100) / 100 : 0;
+      // the VAT of a refund is its share of the VAT on the invoice it reverses (Model A: the VAT in the delivery fee; older invoices: of the whole total)
+      const originalTotal = Math.round(Number(original.total) * 100) / 100;
+      const vat = docKind === 'tax_invoice' && originalTotal > 0 ? -Math.round(Number(original.vat_amount || 0) * (capped / originalTotal) * 100) / 100 : 0;
       const total = -capped;
       const issuedAt = new Date();
       const cfgSeller = original.seller_name && (docKind === 'receipt' || original.vat_number) ? null : await this.seller();
@@ -425,7 +435,7 @@ export class BillingService {
         invoice_no: `${docKind === 'receipt' ? 'RRC' : 'CN'}-${year}-${String(seq).padStart(6, '0')}`,
         type: 'credit_note', document_kind: docKind, original_invoice_no: original.invoice_no, refund_ref: e.refund_ref,
         booking_kind: kind, booking_id: e.booking_id, patient_id: original.patient_id,
-        subtotal: Math.round((total - vat) * 100) / 100, vat_rate: rate, vat_amount: vat, total,
+        subtotal: Math.round((total - vat) * 100) / 100, vat_rate: rate, vat_amount: vat, vat_basis: original.vat_basis ?? undefined, total,
         qr_base64: docKind === 'tax_invoice' && seller.name && seller.vatNumber ? tlvQr(seller.name, seller.vatNumber, issuedAt.toISOString(), total, vat) : null,
         lines: [{ key: 'refund', name_ar: null, name_en: null, qty: 1, unit_price: total, amount: total }],
         payment: original.payment ?? null, insured: null,
