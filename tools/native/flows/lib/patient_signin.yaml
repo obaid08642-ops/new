@@ -44,16 +44,26 @@ appId: com.patient.nabd
       platform: Android
     commands:
       - inputText: ${EMAIL}
+# Run 41465535660 (iOS): the field held "n6313915093f46@nabd.test" for "native6313915093f46@nabd.test": the first characters are lost while
+# the keyboard is still coming up. Wait for the keyboard (its Return key), then type and CHECK the field, retrying from an empty field.
 - runFlow:
     when:
       platform: iOS
     commands:
-      - inputText: ${EMAIL_LOCAL}
-      - waitForAnimationToEnd
-      - inputText: "@"
-      - waitForAnimationToEnd
-      - inputText: ${EMAIL_DOMAIN}
-      - waitForAnimationToEnd
+      - extendedWaitUntil:
+          visible: "Return"
+          timeout: 30000
+      - retry:
+          maxRetries: 3
+          commands:
+            - eraseText: 80
+            - inputText: ${EMAIL_LOCAL}
+            - waitForAnimationToEnd
+            - inputText: "@"
+            - waitForAnimationToEnd
+            - inputText: ${EMAIL_DOMAIN}
+            - waitForAnimationToEnd
+            - assertVisible: ${EMAIL}
 # Run 100 (iOS): the identifier field ended up holding "n@nabd.test" + the PASSWORD, and the password field stayed empty, so either the
 # first characters are dropped while the keyboard is still coming up, or the tap on the password field did not move the focus. Assert
 # what the identifier field holds before going on, so the next failure names which of the two it is.
@@ -114,8 +124,17 @@ appId: com.patient.nabd
       platform: Android
     commands:
       - hideKeyboard
-- tapOn:
-    id: "login-submit"
+# Run 41465535660 (iOS): in one flow the tap on the button sent no request at all (no /auth/login in the backend log, the form stayed as it
+# was, password filled in), in another run the same tap worked. Tap again only when the form is still there 60 s later.
+- retry:
+    maxRetries: 2
+    commands:
+      - tapOn:
+          id: "login-submit"
+      - extendedWaitUntil:
+          notVisible:
+            id: "login-identifier"
+          timeout: 60000
 # a successful sign-in replaces the screen with Home (the tabs). Run 41455012126 (iOS): the password is right now (201), but the simulator
 # shares the macOS runner with the backend and the sign-in answered after 14 s (8.7 s on another flow), so 30 s ran out before the screen changed.
 - extendedWaitUntil:
