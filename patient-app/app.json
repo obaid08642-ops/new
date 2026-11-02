@@ -5354,8 +5354,7 @@
         "android.permission.FOREGROUND_SERVICE_MICROPHONE",
         "android.permission.FOREGROUND_SERVICE_CAMERA",
         "android.permission.WAKE_LOCK"
-      ],
-      "googleServicesFile": "./google-services.json"
+      ]
     },
     "ios": {
       "supportsTablet": false,
@@ -5379,8 +5378,7 @@
           "audio",
           "remote-notification"
         ]
-      },
-      "googleServicesFile": "./GoogleService-Info.plist"
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png",
