@@ -1,5 +1,5 @@
 {
- "commit": "b87b63144",
+ "commit": "7006cd8b1",
  "routes": [
   {
    "app": "provider-app",
@@ -2414,7 +2414,7 @@
      "line": 191,
      "file": "provider-app/src/screens/doctor/doctor/StatisticsScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:595"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:600"
     },
     {
      "method": "POST",
@@ -2424,7 +2424,7 @@
      "line": 207,
      "file": "provider-app/src/screens/doctor/doctor/StatisticsScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:596"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:601"
     },
     {
      "method": "DELETE",
@@ -2434,7 +2434,7 @@
      "line": 219,
      "file": "provider-app/src/screens/doctor/doctor/StatisticsScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:597"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:602"
     }
    ],
    "files": 13,
@@ -2690,7 +2690,7 @@
      "line": 60,
      "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:546"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:551"
     },
     {
      "method": "POST",
@@ -2700,7 +2700,7 @@
      "line": 109,
      "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:547"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:552"
     },
     {
      "method": "DELETE",
@@ -2710,7 +2710,7 @@
      "line": 164,
      "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:548"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:553"
     }
    ],
    "files": 11,
@@ -4446,7 +4446,7 @@
      "line": 54,
      "file": "provider-app/src/screens/facility/facility/InsuranceClaimsHubScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:877"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:878"
     }
    ],
    "files": 11,
@@ -5312,7 +5312,7 @@
      "line": 48,
      "file": "provider-app/src/screens/shared/MyServicesScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:564"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:569"
     },
     {
      "method": "PUT",
@@ -5322,7 +5322,7 @@
      "line": 72,
      "file": "provider-app/src/screens/shared/MyServicesScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:567"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:572"
     }
    ],
    "files": 13,
@@ -6078,7 +6078,7 @@
      "line": 745,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:503"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:508"
     },
     {
      "method": "POST",
@@ -6763,7 +6763,7 @@
      "line": 1062,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:534"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:539"
     },
     {
      "method": "POST",
@@ -6773,7 +6773,7 @@
      "line": 1118,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:535"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:540"
     },
     {
      "method": "POST",
@@ -7477,7 +7477,7 @@
    "component": "AvailabilityScheduleTab",
    "area": "radiology",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 573,
+   "line": 574,
    "registrations": [
     {
      "role": "radiology",
@@ -7496,7 +7496,7 @@
      "path": "/radiology/catalog/delta-request",
      "target": "backend",
      "query": "",
-     "line": 588,
+     "line": 589,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:208"
@@ -7512,7 +7512,7 @@
    "component": "CatalogManagerTab",
    "area": "radiology",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 511,
+   "line": 512,
    "registrations": [
     {
      "role": "radiology",
@@ -7534,7 +7534,7 @@
      "line": 48,
      "file": "provider-app/src/screens/shared/MyServicesScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:564"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:569"
     },
     {
      "method": "PUT",
@@ -7544,14 +7544,14 @@
      "line": 72,
      "file": "provider-app/src/screens/shared/MyServicesScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:567"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:572"
     },
     {
      "method": "POST",
      "path": "/radiology/catalog/delta-request",
      "target": "backend",
      "query": "",
-     "line": 541,
+     "line": 542,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:208"
@@ -7722,7 +7722,7 @@
    "component": "RadiologySettingsScreen",
    "area": "radiology",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 621,
+   "line": 622,
    "registrations": [
     {
      "role": "radiology",
@@ -7757,7 +7757,7 @@
    "component": "ReportingScreen",
    "area": "radiology",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 407,
+   "line": 408,
    "registrations": [
     {
      "role": "radiology",
@@ -7856,7 +7856,7 @@
      "path": "/radiology/bookings/:param/approve-report",
      "target": "backend",
      "query": "",
-     "line": 459,
+     "line": 460,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:181"
@@ -7866,7 +7866,7 @@
      "path": "/radiology/bookings/:param/submit-report-for-review",
      "target": "backend",
      "query": "",
-     "line": 453,
+     "line": 454,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:175"
@@ -7876,7 +7876,7 @@
      "path": "/radiology/bookings/:param/upload-report",
      "target": "backend",
      "query": "",
-     "line": 440,
+     "line": 441,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:146"
@@ -8264,7 +8264,7 @@
      "line": 100,
      "file": "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:879"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:880"
     },
     {
      "method": "GET",
@@ -8274,7 +8274,7 @@
      "line": 51,
      "file": "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:877"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:878"
     }
    ],
    "files": 10,
@@ -8309,7 +8309,7 @@
      "line": 365,
      "file": "provider-app/src/screens/shared/RealScreensExtended.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:538"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:543"
     }
    ],
    "files": 10,
@@ -8344,7 +8344,7 @@
      "line": 433,
      "file": "provider-app/src/screens/shared/RealScreensExtended.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:586"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:591"
     }
    ],
    "files": 10,
@@ -8850,7 +8850,7 @@
      "line": 48,
      "file": "provider-app/src/screens/shared/MyServicesScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:564"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:569"
     },
     {
      "method": "PUT",
@@ -8860,7 +8860,7 @@
      "line": 72,
      "file": "provider-app/src/screens/shared/MyServicesScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:567"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:572"
     }
    ],
    "files": 11,
@@ -8925,7 +8925,7 @@
      "line": 296,
      "file": "provider-app/src/screens/shared/RealScreens.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:486"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:491"
     }
    ],
    "files": 9,
@@ -9016,7 +9016,7 @@
      "line": 32,
      "file": "provider-app/src/screens/shared/ProviderHome.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:504"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:509"
     },
     {
      "method": "POST",
@@ -9219,7 +9219,7 @@
      "line": 55,
      "file": "provider-app/src/screens/shared/shared/ProviderWalletScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:503"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:508"
     },
     {
      "method": "GET",
