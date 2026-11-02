@@ -1,5 +1,5 @@
 {
- "commit": "60f595367",
+ "commit": "ba829e5f4",
  "screens": {
   "PendingDashboard": [
    {
@@ -10998,48 +10998,18 @@
   ],
   "ProviderProfileEditor": [
    {
+    "kind": "data",
+    "label": "Data pendingCred",
+    "src": "GET /provider/profile → pendingCred",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
+    "line": 101,
+    "via": null,
+    "note": null
+   },
+   {
     "kind": "input",
     "label": "Full Name (Arabic)",
-    "src": "user input → form (local)",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
-    "line": 192,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Full Name (English)",
-    "src": "user input → form (local)",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
-    "line": 193,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Bio (Arabic)",
-    "src": "user input → form (local)",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
-    "line": 194,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Bio (English)",
-    "src": "user input → form (local)",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
-    "line": 195,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Years of Experience",
     "src": "user input → form (local)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
@@ -11049,7 +11019,7 @@
    },
    {
     "kind": "input",
-    "label": "Website",
+    "label": "Full Name (English)",
     "src": "user input → form (local)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
@@ -11059,7 +11029,27 @@
    },
    {
     "kind": "input",
-    "label": "Specialty",
+    "label": "Bio (Arabic)",
+    "src": "user input → form (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
+    "line": 198,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "Bio (English)",
+    "src": "user input → form (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
+    "line": 199,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "Years of Experience",
     "src": "user input → form (local)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
@@ -11069,11 +11059,31 @@
    },
    {
     "kind": "input",
-    "label": "Degree / Title",
+    "label": "Website",
     "src": "user input → form (local)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
     "line": 201,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "Specialty",
+    "src": "user input → form (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
+    "line": 204,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "Degree / Title",
+    "src": "user input → form (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
+    "line": 206,
     "via": null,
     "note": null
    },
@@ -11083,7 +11093,7 @@
     "src": "parent callback DocPicker.getDocumentAsync, ProviderApi.uploadFile",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
-    "line": 206,
+    "line": 212,
     "via": null,
     "note": null
    },
@@ -11093,7 +11103,7 @@
     "src": "GET /provider/profile → form",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
-    "line": 211,
+    "line": 217,
     "via": null,
     "note": null
    },
@@ -11103,7 +11113,7 @@
     "src": "local state setForm",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
-    "line": 213,
+    "line": 219,
     "via": null,
     "note": null
    },
@@ -11113,7 +11123,7 @@
     "src": "local state setForm",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
-    "line": 237,
+    "line": 243,
     "via": null,
     "note": null
    },
@@ -11123,7 +11133,7 @@
     "src": "parent callback requestForegroundPermissionsAsync, getCurrentPositionAsync",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
-    "line": 242,
+    "line": 248,
     "via": null,
     "note": null
    },
@@ -11133,7 +11143,7 @@
     "src": "user input → form (local)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
-    "line": 247,
+    "line": 253,
     "via": null,
     "note": null
    },
@@ -11143,7 +11153,7 @@
     "src": "user input → form (local)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
-    "line": 251,
+    "line": 257,
     "via": null,
     "note": null
    },
@@ -11153,7 +11163,7 @@
     "src": "user input → form (local)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
-    "line": 261,
+    "line": 267,
     "via": null,
     "note": null
    },
@@ -11163,7 +11173,7 @@
     "src": "user input → form (local)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
-    "line": 268,
+    "line": 274,
     "via": null,
     "note": null
    },
@@ -11173,7 +11183,7 @@
     "src": "native action",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
-    "line": 274,
+    "line": 280,
     "via": null,
     "note": null
    },
@@ -11183,7 +11193,7 @@
     "src": "from sections (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
-    "line": 289,
+    "line": 295,
     "via": null,
     "note": null,
     "untraced": true
@@ -11194,7 +11204,7 @@
     "src": "local state setSection",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
-    "line": 290,
+    "line": 296,
     "via": null,
     "note": null
    },
@@ -11204,7 +11214,7 @@
     "src": "PATCH /provider/profile",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx",
-    "line": 303,
+    "line": 309,
     "via": null,
     "note": null
    }

@@ -203,5 +203,7 @@
   "contract.mine.failed": "تعذر تحميل العقد",
   "contract.mine.close": "إغلاق",
   "contract.signaturePending": "جارٍ فحص توقيعك. أعد المحاولة بعد دقيقة.",
-  "contract.signatureUnusable": "تعذر استخدام التوقيع. وقّع من جديد ثم أعد الإرسال."
+  "contract.signatureUnusable": "تعذر استخدام التوقيع. وقّع من جديد ثم أعد الإرسال.",
+  "profile.credential.pending": "بانتظار المراجعة: {value}",
+  "profile.credential.sent": "أُرسل تعديل الاعتماد للمراجعة من الإدارة"
 }
