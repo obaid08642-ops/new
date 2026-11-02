@@ -472,6 +472,8 @@ export interface ServiceTileProps extends StateProps, A11yProps {
  */
 export interface FIconProps extends A11yProps {
   icon: FillIconName;
+  /** The outline to draw instead of the one looked up by `icon` (a named export of icons/glyphs/<name>). */
+  glyph?: string;
   tone: ServiceTone;
   /** Edge in px. */
   size?: number;

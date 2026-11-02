@@ -9,6 +9,7 @@ import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import { ConfirmDialog } from "@/components-next/confirm/confirm-dialog";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import forms from "@/components-next/consult/consult.module.css";
+import { FILL_TRASH } from "@/components-next/ui-generated/icons/glyphs/trash";
 
 export const CALENDAR_TYPES = ["appointment", "reminder", "medication", "lab"] as const;
 
@@ -104,7 +105,7 @@ export function DeleteEventButton({ eventId }: { eventId: string }) {
   return (
     <>
       <button type="button" className="nabd-icon-button nabd-icon-button--md nabd-icon-button--circle nabd-icon-button--tone-neutral" aria-label={t("calendarDelete")} onClick={() => setConfirming(true)}>
-        <FIcon icon="trash" tone={SERVICE_ICONS.family.tone} size={32} chip="none" />
+        <FIcon icon="trash" glyph={FILL_TRASH} tone={SERVICE_ICONS.family.tone} size={32} chip="none" />
       </button>
       {failed ? <span className={`${forms.error} ${rx.note}`} role="alert">{t("calendarDeleteFailed")}</span> : null}
       <ConfirmDialog

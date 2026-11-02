@@ -14,7 +14,7 @@
 import * as React from 'react';
 
 import type { FIconProps } from './contract';
-import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX } from '../icons/fill';
+import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, type FillIconName } from '../icons/fill';
 
 /**
  * <FIcon> — web. Handoff §1 "Icons" and canvas/FIcon.dc.html: a filled Phosphor
@@ -30,13 +30,19 @@ import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX } from '../icons/fill';
  * tile is drawn as one SVG so its size can vary without a `style` attribute
  * (components.css explains why there is none).
  * Decorative (aria-hidden) unless `label` is given, then it is role="img".
+ *
+ * `glyph` is the outline itself (a named export of icons/glyphs/<name>): given, it is drawn instead of the one looked up by `icon`.
+ * patient-web's mirror keeps only a small core set in the by-name record and REQUIRES `glyph` for every other name (see
+ * tools/design/sync-ui-components.mjs), so a page ships only the outlines it draws.
  */
-export function FIcon({ icon, tone, size = 52, chip = 'soft', label, testID }: FIconProps) {
+export function FIcon({ icon, glyph: outline, tone, size = 52, chip = 'soft', label, testID }: FIconProps) {
   // Tone and size in the id as well as useId: two separately rendered roots (the
   // gallery renders each cell on its own) can mint the same useId, and then the
   // first gradient with that id would paint the other's tile.
   const gradientId = `nabd-ficon-${tone}-${size}-${React.useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
-  const glyph = chip === 'none' ? size : Math.round(size * 0.52);
+  const glyphSize = chip === 'none' ? size : Math.round(size * 0.52);
+  const path = outline ?? FILL_ICON_PATHS[icon as FillIconName];
+  if (path === undefined && process.env.NODE_ENV !== 'production') throw new Error('FIcon: ' + icon + ' is not a core glyph, pass its outline as the glyph prop (icons/glyphs/<name>)');
   const radius = Math.round(size * 0.32);
   // CSS `linear-gradient(160deg, …)` on a size×size box: the gradient line runs
   // through the centre at 160deg and is |w·sin a| + |h·cos a| long.
@@ -60,8 +66,8 @@ export function FIcon({ icon, tone, size = 52, chip = 'soft', label, testID }: F
     >
       {/* The glyph is the first grid item, centred by the grid: it gives the tile the
           baseline and the pixel position it always had. The chip is stacked behind it. */}
-      <svg className="nabd-ficon__glyphbox" width={glyph} height={glyph} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true" focusable="false">
-        <path className="nabd-ficon__glyph" d={FILL_ICON_PATHS[icon]} />
+      <svg className="nabd-ficon__glyphbox" width={glyphSize} height={glyphSize} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true" focusable="false">
+        <path className="nabd-ficon__glyph" d={path} />
       </svg>
       {chip === 'none' ? null : (
         <svg className="nabd-ficon__chipbox" width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true" focusable="false">

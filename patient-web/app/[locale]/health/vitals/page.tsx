@@ -17,12 +17,12 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { LocalTimeLine } from "@/components-next/consult/local-time-line";
 import { Notice } from "@/components-next/consult/consult-parts";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { FormSheet } from "@/components-next/health/form-sheet";
 import { HealthTabs, RowsCard, VitalTile } from "@/components-next/health/health-kit";
 import { VitalsForm } from "@/components-next/health/vitals-form";
 import styles from "@/components-next/health/health.module.css";
 import forms from "@/components-next/consult/consult.module.css";
+import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string | string[]; add?: string | string[]; vital?: string | string[] }> };
 const TABS = ["today", "history", "trends"] as const;
@@ -121,7 +121,7 @@ export default async function VitalsPage({ params, searchParams }: Props) {
           {readings.map((reading) => (
             <li key={reading.id}>
               <div className={styles.row}>
-                <FIcon icon={VITAL_VIEW[reading.key].icon} tone={VITAL_VIEW[reading.key].tone} size={40} />
+                <FIconByName icon={VITAL_VIEW[reading.key].icon} tone={VITAL_VIEW[reading.key].tone} size={40} />
                 <span className={styles.rowBody}>
                   <span className={styles.rowTitle}>{label(reading.key)} · <bdi>{reading.value}{reading.unit ? ` ${reading.unit}` : ""}</bdi></span>
                   {reading.context ? <span className={styles.rowSub}>{contextLabel(reading.context)}</span> : null}
