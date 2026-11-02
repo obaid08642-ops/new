@@ -49,6 +49,7 @@ export function ReceiptPaper({ receipt, onDownload, onShare, onSaveImage, busy, 
   const typeKey = receipt.provider ? providerTypeKey(receipt.provider.type) : null;
   const price = (n: number) => k('pharmacy.price', { n: money(n) });
   const rate = num(Math.round(receipt.vatRate * 100));
+  const showVat = receipt.taxInvoice && receipt.vatAmount > 0;
   const label = { ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow };
   const value = { ...scale(t, 'meta', 'regular'), color: c.text.primary };
   const row = (name: string, text: string, { strong = false, muted = false }: { strong?: boolean; muted?: boolean } = {}) => (
@@ -72,7 +73,7 @@ export function ReceiptPaper({ receipt, onDownload, onShare, onSaveImage, busy, 
             <View style={{ alignItems: 'center', gap: 4 }}>
               <NabdLogo size={40} label={k('receipt.brand')} />
               <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, textAlign: 'center' }}>{receipt.company.legalName ?? k('receipt.brand')}</Text>
-              <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary }}>{credit ? k('receipt.creditNoteTitle') : k('receipt.simplified')}</Text>
+              <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary }}>{credit ? k('receipt.creditNoteTitle') : k(receipt.taxInvoice ? 'receipt.simplified' : 'receipt.paymentReceipt')}</Text>
             </View>
             <View style={dash} accessibilityLabel={k('receipt.issuedBy')}>
               {row(k('receipt.vatNumber'), receipt.company.vatNumber ?? notSet, { muted: !receipt.company.vatNumber })}
@@ -94,9 +95,9 @@ export function ReceiptPaper({ receipt, onDownload, onShare, onSaveImage, busy, 
               </View>
             ) : null}
             <View style={dash}>
-              {row(k('receipt.subtotal'), price(receipt.subtotal))}
-              {row(k('receipt.vat', { rate }), price(receipt.vatAmount))}
-              {row(k('receipt.total'), price(receipt.total), { strong: true })}
+              {showVat ? row(k('receipt.subtotal'), price(receipt.subtotal)) : null}
+              {showVat ? row(k('receipt.vat', { rate }), price(receipt.vatAmount)) : null}
+              {row(k(receipt.taxInvoice ? 'receipt.total' : 'receipt.totalPaid'), price(receipt.total), { strong: true })}
             </View>
             {receipt.creditNotes.length > 0 ? (
               <View style={dash}>

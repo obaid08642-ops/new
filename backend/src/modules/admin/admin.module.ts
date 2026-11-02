@@ -51,6 +51,7 @@ import { AdminAuditService } from './enterprise/audit.service';
 import { WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
 import { SystemConfig, SystemConfigSchema } from '../../schemas/system-config.schema';
 import { B2BRequest, B2BRequestSchema } from '../../schemas/b2b-request.schema';
+import { ProviderCommissionService, ProviderCommissionsController } from './governance/provider-commission.service';
 import {
   AdminGovernanceService,
   AdminGovernanceController as GovernanceAdminController,
@@ -153,6 +154,7 @@ import { AdminUrgentAlertsService } from './alerts/admin-urgent-alerts.service';
     // P5.3: merged from AdminGovernanceModule
     GovernanceAdminController,
     CommissionsController,
+    ProviderCommissionsController,
     B2BController,
     SystemConfigController,
     PublicSystemConfigController,
@@ -169,6 +171,7 @@ import { AdminUrgentAlertsService } from './alerts/admin-urgent-alerts.service';
     AdminUrgentAlertsController,
 ],
   providers: [
+    ProviderCommissionService,
     // issue 1541: the one list of a provider's own rows, used by the user delete and the orphan-profile delete
     ProviderErasureService,
     // P5.3: merged from AdminAuthorityModule

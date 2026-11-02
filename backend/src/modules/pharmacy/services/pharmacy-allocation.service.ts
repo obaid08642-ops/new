@@ -11,7 +11,7 @@ import { PharmacyAllocationRepository } from "./repositories/pharmacyallocation.
 import { PharmacyOrderRepository } from "./repositories/pharmacyorder.repository";
 import { PharmacyInventoryItemRepository } from "./repositories/pharmacyinventoryitem.repository";
 import { isProviderRole } from '../../../common/enums';
-import { settlementDelayDefault } from '../../../common/commission-defaults';
+import { settlementDelayDefault, DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT } from '../../../common/commission-defaults';
 import { assertSubstituteInsidePrescription } from './rx-rules';
 
 function assertProvider(u: any) { if (!u || !isProviderRole(u.role)) throw new ForbiddenException('provider_scope_required'); }
@@ -541,8 +541,8 @@ export class PharmacyAllocationService {
     const gross = Math.round(Number(a.totals?.total || 0) * 100) / 100;
     if (!(gross > 0)) return;
     const cfg: any = await this.orders.db.collection('finance_config').findOne({ key: 'commissions' });
-    const pct = Number(cfg?.service_types?.pharmacy?.percent ?? 10);
-    const vatPct = Number(cfg?.tax?.vat_percent ?? 15);
+    const pct = Number(cfg?.service_types?.pharmacy?.percent ?? DEFAULT_COMMISSION_PERCENT);
+    const vatPct = Number(cfg?.tax?.vat_percent ?? DEFAULT_VAT_PERCENT);
     const commission = Math.round(gross * pct) / 100;
     const vat = Math.round(commission * vatPct) / 100;
     const now = new Date();

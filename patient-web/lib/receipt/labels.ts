@@ -2,7 +2,7 @@ import type { ReceiptView } from "./model";
 
 /** Every string the receipt card and its actions show, read once from the `Receipt` namespace (server pages and tests build the same object). */
 export const RECEIPT_LABEL_KEYS = [
-  "region", "simplified", "creditNoteTitle", "invoiceNo", "vatNumber", "crNumber", "address", "issuedBy", "notConfigured", "bookingNo", "dateTime", "status",
+  "region", "simplified", "paymentReceipt", "totalPaid", "creditNoteTitle", "invoiceNo", "vatNumber", "crNumber", "address", "issuedBy", "notConfigured", "bookingNo", "dateTime", "status",
   "statePaid", "statePartial", "stateRefunded", "refunded", "creditNoteRow",
   "subtotal", "vat", "total", "qr", "downloadPdf", "saveImage", "saveImageFailed", "share", "shareTitle", "brand",
   "providerHeading", "providerName", "providerType", "licence",

@@ -11,7 +11,7 @@ const labels = receiptLabels((key, values) => (messages[key] ?? key).replace(/\{
 const receipt: ReceiptView = {
   invoiceNo: "INV-2026-000001", kind: "lab", bookingId: "b1", issuedAt: "2026-10-31T10:00:00.000Z", subtotal: 100, vatRate: 0.15, vatAmount: 15, total: 115, currency: "SAR", qr: "AQVOYWJk",
   seller: { seller: "Nabd Health Platform", vatNumber: "300000000000003", issuedAt: "2026-10-31T10:00:00.000Z", total: 115, vat: 15 },
-  type: "invoice", state: "paid", refundedTotal: 0, creditNotes: [],
+  taxInvoice: true, sellerName: null, type: "invoice", state: "paid", refundedTotal: 0, creditNotes: [],
   company: { legalName: "Nabd Health Platform", vatNumber: "300000000000003", crNumber: "1010000000", address: "Riyadh", configured: true },
   provider: { nameAr: "د. سارة", nameEn: "Dr Sara", facility: null, type: "doctor", licence: "SC-1234" },
   bookingRef: "AB12CD34",
@@ -57,6 +57,21 @@ describe("ReceiptPaper", () => {
     const html = renderToStaticMarkup(<ReceiptPaper locale="en" receipt={receipt} labels={labels} actions={<a href="/pdf" download>Download PDF</a>} />);
     expect(html).toContain('href="/pdf"');
     expect(html).toContain("download");
+  });
+  it("a payment receipt (not VAT-registered): titled as a receipt, the amount paid, no VAT row, no VAT number, no QR", () => {
+    const paid: ReceiptView = { ...receipt, invoiceNo: "RCT-2026-000001", taxInvoice: false, subtotal: 115, vatRate: 0, vatAmount: 0, qr: null, seller: null, sellerName: "منصة نبض الطبية", company: { legalName: null, vatNumber: null, crNumber: null, address: null, configured: false } };
+    const html = renderToStaticMarkup(<ReceiptCard locale="en" receipt={paid} labels={labels} />);
+    expect(html).toContain("Payment receipt");
+    expect(html).toContain("Total paid");
+    expect(html).toContain("منصة نبض الطبية");
+    expect(html).toContain("RCT-2026-000001");
+    expect(html).not.toMatch(/Simplified tax invoice|VAT|Subtotal|>Total<|aria-label="ZATCA e-invoice QR code"/);
+  });
+  it("a tax invoice with no delivery fee has no VAT row (model A: the service price carries no platform VAT); with VAT it shows it", () => {
+    const none = renderToStaticMarkup(<ReceiptCard locale="en" receipt={{ ...receipt, vatAmount: 0, subtotal: 115 }} labels={labels} />);
+    expect(none).not.toMatch(/VAT \(15%\)|Subtotal/);
+    expect(none).toContain("Simplified tax invoice");
+    expect(renderToStaticMarkup(<ReceiptCard locale="en" receipt={{ ...receipt, vatAmount: 1.96, subtotal: 113.04 }} labels={labels} />)).toContain("VAT (15%)");
   });
   it("shows the paper at once under reduced motion and uses tokens only", () => {
     const css = readFileSync("components-next/receipt/receipt.module.css", "utf8");

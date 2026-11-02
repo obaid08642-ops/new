@@ -18,6 +18,7 @@ import { RealtimeService } from '../realtime/realtime.service';
 import { RealtimeModule } from '../realtime/realtime.module';
 import { FraudService } from '../finance-engine/finance-engine.module';
 import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
+import { paymentReturnBase } from '../../common/payment-return-url';
 import { CircuitBreakerService } from '../../common/circuit-breaker.service';
 import { externalFetch, externalUnavailable, runExternalCall, timedFetch } from '../../common/external-call';
 import * as crypto from 'crypto';
@@ -142,10 +143,12 @@ export class MoyasarAdapter implements PaymentGateway {
     return { Authorization: `Basic ${b}`, 'Content-Type': 'application/json' };
   }
   async createIntent(o: CreateIntentRequest) {
+    const returned = paymentReturnBase();
+    if ('error' in returned) throw new ServiceUnavailableException(returned.error); // production without an https return address: say so, never call Moyasar with a bad one
     // Moyasar's Payments API needs a card `source` collected client-side with the publishable key, so a server-created
     // hosted checkout is an Invoice (POST /invoices -> `url`). The payer pays on that page; Moyasar redirects to callback_url.
     const run = async (req: CreateIntentRequest) => {
-      const base = process.env.PAYMENT_RESULT_URL || `${process.env.PUBLIC_APP_URL || ''}/payments/result`;
+      const base = returned.base;
       // #550: the return address names our transaction (`?ref=`); the provider appends its own id and status after it.
       const callback = req.return_ref ? `${base}${base.includes('?') ? '&' : '?'}ref=${encodeURIComponent(req.return_ref)}` : base;
       const body = JSON.stringify({ amount: Math.round(req.amount * 100), currency: req.currency || 'SAR', description: req.description, callback_url: callback, success_url: callback, back_url: callback });

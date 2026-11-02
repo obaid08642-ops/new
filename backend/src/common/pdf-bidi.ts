@@ -20,8 +20,12 @@ const NUMBER_SIGN = /[+\-%$٪]/; // beside a number: -15 15%
 
 type Kind = 'R' | 'L' | 'N' | 'X'; // Arabic, Latin, number, neutral
 
+/** A single line passed to the helpers is never longer than this (callers wrap or chunk first, see `chunkParagraph`): the loops below are bounded by it. */
+export const MAX_LINE_CHARS = 20000;
+
 function kinds(text: string): Kind[] {
   const chars = [...text];
+  if (chars.length > MAX_LINE_CHARS) throw new RangeError('bidi_line_too_long');
   const k: Kind[] = chars.map((c) => (R.test(c) && !DIGIT.test(c) ? 'R' : L.test(c) ? 'L' : DIGIT.test(c) ? 'N' : 'X'));
   // a joiner between two digits, and a sign right before or after digits, belong to the number
   for (let i = 0; i < chars.length; i++) {
@@ -163,4 +167,19 @@ export function wrapBidi(doc: PdfLike, text: string, width: number, opts: { font
   }
   if (cur) lines.push(cur);
   return lines;
+}
+
+/** Cuts a long paragraph into pieces of at most `max` characters at spaces (a longer word is cut hard), so no text is lost and no single line is unbounded. */
+export function chunkParagraph(text: string, max = 2000): string[] {
+  const out: string[] = [];
+  let rest = String(text ?? '');
+  while ([...rest].length > max) {
+    const head = [...rest].slice(0, max).join('');
+    const cut = head.lastIndexOf(' ');
+    const at = cut > max / 2 ? cut : head.length;
+    out.push(head.slice(0, at));
+    rest = rest.slice(at).replace(/^ /, '');
+  }
+  out.push(rest);
+  return out;
 }

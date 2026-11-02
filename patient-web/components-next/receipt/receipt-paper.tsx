@@ -18,8 +18,11 @@ const STATE_KEY = { paid: "statePaid", partially_refunded: "statePartial", refun
  */
 export function ReceiptCard({ locale, receipt, labels }: Readonly<{ locale: string; receipt: ReceiptView; labels: ReceiptLabels }>) {
   const qr = receipt.qr ? qrPath(receipt.qr) : null;
+  // model A: the platform's VAT is only the VAT inside the delivery fee; with none, there is no VAT row
+  const showVat = receipt.taxInvoice && receipt.vatAmount > 0;
   const money = (value: number) => formatPrice(locale, value).text;
   const when = formatDate(locale, receipt.issuedAt, { dateStyle: "medium", timeStyle: "short" });
+  // model A: the platform's VAT is only the VAT inside the delivery fee; with none, there is no VAT row
   const credit = receipt.type === "credit_note";
   const { company, provider } = receipt;
   const stateKey = receipt.state && receipt.state in STATE_KEY ? STATE_KEY[receipt.state as keyof typeof STATE_KEY] : null;
@@ -29,12 +32,12 @@ export function ReceiptCard({ locale, receipt, labels }: Readonly<{ locale: stri
     <article className={styles.paper} data-receipt-card>
       <header className={styles.head}>
         <NabdMark size={40} />
-        <p className={styles.seller}>{company.legalName ?? labels.brand}</p>
-        <p className={styles.kind}>{credit ? labels.creditNoteTitle : labels.simplified}</p>
+        <p className={styles.seller}>{company.legalName ?? receipt.sellerName ?? labels.brand}</p>
+        <p className={styles.kind}>{credit ? labels.creditNoteTitle : receipt.taxInvoice ? labels.simplified : labels.paymentReceipt}</p>
       </header>
       <section aria-label={labels.issuedBy}>
         <dl className={styles.meta}>
-          <dt>{labels.vatNumber}</dt><dd>{dash(company.vatNumber)}</dd>
+          {receipt.taxInvoice ? (<><dt>{labels.vatNumber}</dt><dd>{dash(company.vatNumber)}</dd></>) : null}
           <dt>{labels.crNumber}</dt><dd>{dash(company.crNumber)}</dd>
           <dt>{labels.address}</dt><dd>{dash(company.address)}</dd>
         </dl>
@@ -56,9 +59,9 @@ export function ReceiptCard({ locale, receipt, labels }: Readonly<{ locale: stri
         </section>
       ) : null}
       <dl className={`${styles.meta} ${styles.sums}`}>
-        <dt>{labels.subtotal}</dt><dd><bdi>{money(receipt.subtotal)}</bdi></dd>
-        <dt>{labels.vat}</dt><dd><bdi>{money(receipt.vatAmount)}</bdi></dd>
-        <dt className={styles.totalLabel}>{labels.total}</dt><dd className={styles.totalValue}><bdi>{money(receipt.total)}</bdi></dd>
+        {showVat ? (<><dt>{labels.subtotal}</dt><dd><bdi>{money(receipt.subtotal)}</bdi></dd></>) : null}
+        {showVat ? (<><dt>{labels.vat}</dt><dd><bdi>{money(receipt.vatAmount)}</bdi></dd></>) : null}
+        <dt className={styles.totalLabel}>{receipt.taxInvoice ? labels.total : labels.totalPaid}</dt><dd className={styles.totalValue}><bdi>{money(receipt.total)}</bdi></dd>
       </dl>
       {receipt.creditNotes.length > 0 ? (
         <dl className={styles.meta}>

@@ -108,7 +108,12 @@ describe('Gate P2 provider onboarding journeys', () => {
         { provide: EventBusService, useValue: { emit: () => Promise.resolve() } },
         { provide: EventEmitter2, useValue: { emit: () => ({}) } },
         { provide: AutoEntitySeoPipelineService, useValue: { processEntity: async () => ({}) } },
-        { provide: ContractPdfService, useValue: { generate: async () => ({ pdf: Buffer.from('fake-pdf'), sha256: 'abc123' }) } },
+        { provide: ContractPdfService, useValue: {
+          // the agreement and a clean signature are checked by the real service's own spec; here the journey is about the flow
+          loadAgreement: async () => ({ policy: { key: 'provider_agreement', version: '1.0', content_sha256_ar: 'a', content_sha256_en: 'b' }, acceptance: { id: 'acc-1', accepted_at: new Date(), ip: null, device: null } }),
+          resolveSignature: async () => ({ bytes: Buffer.from('sig'), sha256: 'sig' }),
+          generate: async () => ({ pdf: Buffer.from('fake-pdf'), sha256: 'abc123' }),
+        } },
         { provide: StorageService, useValue: {} },
         { provide: ProviderOtpService, useValue: {} },
         Reflector,

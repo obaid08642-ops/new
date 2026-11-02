@@ -11,6 +11,8 @@ export type ReceiptView = {
   bookingId: string;
   issuedAt: string | null;
   subtotal: number;
+  /** false = a payment receipt (the platform is not VAT-registered): no VAT line, no VAT number, no QR */
+  taxInvoice: boolean;
   vatRate: number;
   vatAmount: number;
   total: number;
@@ -29,6 +31,8 @@ export type ReceiptView = {
   /** the party that delivered the service (a snapshot taken at issue); null when none was recorded */
   provider: ReceiptProvider | null;
   bookingRef: string | null;
+  /** the legal name from the document's `seller` block (a receipt has no QR to read it from) */
+  sellerName: string | null;
 };
 
 export type ReceiptCreditNote = { invoiceNo: string; total: number; vatAmount: number; issuedAt: string | null };
@@ -46,8 +50,10 @@ export function extractReceipt(raw: unknown, opts: { shared?: boolean } = {}): R
   const r = raw as Record<string, unknown>;
   const invoiceNo = text(r.invoice_no);
   const total = num(r.total);
-  const vatAmount = num(r.vat_amount);
-  const subtotal = num(r.subtotal);
+  const taxInvoice = r.document_kind !== "receipt";
+  // a receipt states no VAT (null) and its subtotal is the total paid; a tax invoice must state both
+  const vatAmount = taxInvoice ? num(r.vat_amount) : 0;
+  const subtotal = taxInvoice ? num(r.subtotal) : total;
   const bookingId = text(r.booking_id);
   if (!invoiceNo || total === null || vatAmount === null || subtotal === null || (!bookingId && !opts.shared)) return null;
   // the list and the single read send `qr_base64`; the share-link view sends `qr: { payload }`
@@ -59,12 +65,14 @@ export function extractReceipt(raw: unknown, opts: { shared?: boolean } = {}): R
     bookingId: bookingId ?? "",
     issuedAt: seller?.issuedAt ?? text(r.issued_at) ?? text(r.createdAt),
     subtotal,
+    taxInvoice,
     vatRate: num(r.vat_rate) ?? 0,
     vatAmount,
     total,
     currency: text(r.currency) ?? "SAR",
-    qr,
-    seller,
+    qr: taxInvoice ? qr : null,
+    seller: taxInvoice ? seller : null,
+    sellerName: text(obj(r.seller)?.legal_name),
     type: text(r.type) ?? "invoice",
     state: text(r.state),
     refundedTotal: num(r.refunded_total) ?? 0,

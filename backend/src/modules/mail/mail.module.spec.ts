@@ -183,6 +183,30 @@ describe('email provider chain', () => {
       });
     });
 
+    // gap 13: a PDF is binary. It used to go through Buffer.from(string, 'utf-8'), which replaces every byte that is not valid UTF-8.
+    const PDF = Buffer.concat([Buffer.from('%PDF-1.7\n'), Buffer.from([0xff, 0xfe, 0x80, 0x00, 0xc3, 0x28, 0xe2, 0x82]), Buffer.from('\n%%EOF')]);
+
+    it('Brevo carries a PDF byte for byte, and several attachments', async () => {
+      process.env.MAIL_PROVIDER_ORDER = 'brevo';
+      const fetchMock = jest.fn(async () => new Response(JSON.stringify({ messageId: 'm1' }), { status: 201 }));
+      global.fetch = fetchMock as unknown as typeof fetch;
+      const r = await plain().sendWithAttachment({ to: 'u@example.test', subject: 'S', html: '<p>h</p>', attachments: [{ filename: 'contract-ar.pdf', content: PDF }, { filename: 'contract-en.pdf', content: PDF }] });
+      expect(r.ok).toBe(true);
+      const body = JSON.parse(String((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body));
+      expect(body.attachment.map((a: any) => a.name)).toEqual(['contract-ar.pdf', 'contract-en.pdf']);
+      expect(Buffer.from(body.attachment[0].content, 'base64').equals(PDF)).toBe(true);
+    });
+
+    it('Mailjet carries a PDF byte for byte with the PDF content type', async () => {
+      process.env.MAIL_PROVIDER_ORDER = 'mailjet';
+      const fetchMock = jest.fn(async () => new Response(JSON.stringify({ Messages: [{ Status: 'success' }] }), { status: 200 }));
+      global.fetch = fetchMock as unknown as typeof fetch;
+      await plain().sendWithAttachment({ to: 'u@example.test', subject: 'S', html: '<p>h</p>', filename: 'contract.pdf', content: PDF });
+      const att = JSON.parse(String((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body)).Messages[0].Attachments[0];
+      expect(att.ContentType).toBe('application/pdf');
+      expect(Buffer.from(att.Base64Content, 'base64').equals(PDF)).toBe(true);
+    });
+
     it('Brevo error is a failed send with its status', async () => {
       process.env.MAIL_PROVIDER_ORDER = 'brevo';
       global.fetch = jest.fn(async () => new Response('{}', { status: 401 })) as unknown as typeof fetch;

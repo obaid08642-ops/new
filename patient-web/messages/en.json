@@ -5783,6 +5783,8 @@
     "title": "Receipt",
     "brand": "Nabd Plus",
     "simplified": "Simplified tax invoice",
+    "paymentReceipt": "Payment receipt",
+    "totalPaid": "Total paid",
     "invoiceNo": "Invoice no.",
     "vatNumber": "VAT registration no.",
     "dateTime": "Date and time",

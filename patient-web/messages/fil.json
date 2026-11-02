@@ -5783,6 +5783,8 @@
     "title": "Resibo",
     "brand": "Nabd Plus",
     "simplified": "Pinasimpleng tax invoice",
+    "paymentReceipt": "Resibo ng bayad",
+    "totalPaid": "Kabuuang binayaran",
     "invoiceNo": "Numero ng invoice",
     "vatNumber": "Numero ng rehistrasyon sa VAT",
     "dateTime": "Petsa at oras",

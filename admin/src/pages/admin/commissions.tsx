@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { apiFetch } from '../../utils/api';
 import { DataTable, type LooseRow } from '@/components/DataTable';
 import { useCan } from '@/components/AdminGuard';
+import { ProviderCommissionPanel } from '@/components/ProviderCommissionPanel';
 
 /**
  * M5: platform commissions + ledger summary.
@@ -165,7 +166,7 @@ export default function CommissionsPage() {
           {canEditRules && (
           <div className="bg-white rounded-2xl border p-6 mt-6">
             <h2 className="text-lg font-bold mb-1">قواعد العمولات (تتجاوز الافتراضي)</h2>
-            <p className="text-xs text-gray-500 mb-4">الأولوية: حملة ← مزود ← فئة ← خدمة ← الإعدادات ← 10%. القواعد المنتهية لا تُطبق.</p>
+            <p className="text-xs text-gray-500 mb-4">الأولوية: حملة ← عرض المزود ← مزود ← فئة ← خدمة ← الإعدادات ← الافتراضي العام. القواعد المنتهية لا تُطبق.</p>
             <div className="grid md:grid-cols-3 gap-3">
               <label className="text-sm">النطاق
                 <select value={rule.scope} onChange={(e) => setRule({ ...rule, scope: e.target.value })} className="mt-1 w-full border rounded p-2">
@@ -208,6 +209,7 @@ export default function CommissionsPage() {
             )}
           </div>
           )}
+          <ProviderCommissionPanel />
             </>
           )}
         </div>

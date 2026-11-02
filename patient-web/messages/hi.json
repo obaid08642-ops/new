@@ -5783,6 +5783,8 @@
     "title": "रसीद",
     "brand": "नब्ज़ प्लस",
     "simplified": "सरलीकृत कर चालान",
+    "paymentReceipt": "भुगतान रसीद",
+    "totalPaid": "कुल भुगतान",
     "invoiceNo": "चालान क्रमांक",
     "vatNumber": "वैट पंजीकरण संख्या",
     "dateTime": "तारीख और समय",
