@@ -234,6 +234,7 @@ export function MedAddControl({ med, size = 40, disabled = false, addLabel }: { 
   const { c, k, num } = useScreenUi();
   const addToCart = useAddMedToCart();
   const id = String(med.id);
+  const addRef = useRef<React.ComponentRef<typeof Pressable>>(null);
   const name = medName(med);
   const qty = items.find((line) => line.id === id)?.qty ?? 0;
   const fly = (event: GestureResponderEvent) => flyToCart({ x: event.nativeEvent.pageX, y: event.nativeEvent.pageY }, medGallery(med)[0] || (typeof med.image === 'string' ? med.image : null));
@@ -279,6 +280,8 @@ export function MedAddControl({ med, size = 40, disabled = false, addLabel }: { 
       disabled={disabled}
       testID={`med-add-${id}`}
       onPressIn={() => console.log('[e2e] med add press-in', id)}
+      ref={addRef}
+      onLayout={() => addRef.current?.measureInWindow((x, y, w, h) => console.log('[e2e] med add window', id.slice(0, 8), Math.round(x), Math.round(y), Math.round(w), Math.round(h)))}
       hitSlop={4}
       onPress={(event) => { console.log('[e2e] med add pressed', id); addToCart(med); fly(event); }}
       style={{ ...box, width: size, opacity: disabled ? 0.4 : 1 }}
