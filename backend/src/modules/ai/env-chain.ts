@@ -102,7 +102,7 @@ async function callProvider(p: ProviderConfig, key: string, model: string, promp
  * cannot be read the preferred ids are tried directly. A free-only provider (OpenRouter) only ever uses its preference list; with none listed it fails with
  * `<key>_no_preferred_free_model`. The failed ids are remembered, so the same id is not tried twice.
  */
-const MAX_CANDIDATES = 3;
+const MAX_CANDIDATES = 5;
 function modelAwareCall(p: ProviderConfig, key: string, startModel: string, f: typeof fetch, timeoutMs?: number): { call: (prompt: string) => Promise<string>; model: () => string; listStatus: () => Promise<number>; preferredListed: () => Promise<number | null> } {
   const preferred = MODEL_PREFERENCE[p.key] ?? [];
   const freeOnly = FREE_ONLY.has(p.key);
@@ -110,7 +110,12 @@ function modelAwareCall(p: ProviderConfig, key: string, startModel: string, f: t
   if (freeOnly && !preferred.includes(model)) model = preferred[0] ?? model;
   const failed = new Set<string>();
   let list: Promise<{ status: number; ids: string[] | null }> | null = null;
-  const getList = () => (list ??= fetchModelList(p.key, p.base_url, key, f));
+  // a list that could not be read (429, outage) is asked again on the next failure; only a read list is kept
+  const getList = () => {
+    const l = (list ??= fetchModelList(p.key, p.base_url, key, f));
+    void l.then((r) => { if (!r.ids && list === l) list = null; }, () => { if (list === l) list = null; });
+    return l;
+  };
   const call = async (prompt: string): Promise<string> => {
     try {
       return await callProvider(p, key, model, prompt, f, timeoutMs);
