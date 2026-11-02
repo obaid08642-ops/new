@@ -25,7 +25,7 @@ import { UserRole } from '../../common/enums';
 import { findCopayTransaction } from '../../common/copay-transaction';
 import { renderInvoicePdf } from './invoice-pdf';
 import { MailModule, MailService } from '../mail/mail.module';
-import { readInvoiceConfig, documentKindOf, platformVatOf, type DocumentKind } from '../../common/tax-registration';
+import { readInvoiceConfig, documentKindOf, platformVatOf, deliveryModeOf, deliveryFeeLineKey, type DocumentKind } from '../../common/tax-registration';
 
 const VAT_RATE = 0.15;
 
@@ -238,7 +238,7 @@ export class BillingService {
       lines.push({ key: 'item', name_ar: it?.name_ar ?? it?.name ?? it?.title ?? null, name_en: it?.name_en ?? it?.name ?? it?.title ?? null, qty, unit_price: unit, amount: Math.round(unit * qty * 100) / 100 });
     }
     if (!lines.length && n(booking?.price)) lines.push({ key: this.transactionKind(kind) === 'consultation' ? 'consultation_fee' : 'service', name_ar: null, name_en: null, qty: 1, unit_price: n(booking.price), amount: n(booking.price) });
-    const fees: Array<[string, unknown]> = [['platform_fee', booking?.service_fee && this.transactionKind(kind) === 'consultation' ? booking.service_fee : 0], ['home_visit_fee', booking?.home_visit_fee], ['transport_fee', booking?.transportation_fee], ['delivery_fee', booking?.delivery_fee]];
+    const fees: Array<[string, unknown]> = [['platform_fee', booking?.service_fee && this.transactionKind(kind) === 'consultation' ? booking.service_fee : 0], ['home_visit_fee', booking?.home_visit_fee], ['transport_fee', booking?.transportation_fee], [deliveryFeeLineKey(deliveryModeOf(booking)), booking?.delivery_fee]];
     for (const [key, v] of fees) if (n(v)) lines.push({ key, name_ar: null, name_en: null, qty: 1, unit_price: n(v), amount: n(v) });
     // the booking total is after the discount: the lines add up to the price before it
     const base = n(booking?.total_price) || n(booking?.total) || n(booking?.price);

@@ -65,3 +65,22 @@ export function platformVatOf(lines: Array<{ key?: string; amount?: number }> | 
   const base = Math.min(fee, Math.max(0, paidTotal));
   return r2(base - base / (1 + rate));
 }
+
+/**
+ * WHO delivers, and so whose the delivery fee is (owner decision 2026-11-02). Stored on the order at checkout from the chosen offer
+ * (`order.delivery_mode`, copied from `offer.fulfillment.delivery_mode` and kept on `allocation.fulfillment.delivery_mode`):
+ *  - 'platform' (default; also a pharmacy without couriers or one that chooses platform delivery): the PLATFORM sets the fee (the platform
+ *    pricing config), keeps it, and it carries platform VAT when the platform is registered; it is outside the pharmacy's gross.
+ *  - 'pharmacy_own': a pharmacy with its own couriers sets its own fee. It is the PHARMACY's: part of its gross (commission by the usual
+ *    rules) and with no platform VAT.
+ * Documents name the line `delivery_fee` (platform) or `pharmacy_delivery_fee` (pharmacy): only the first is in PLATFORM_VAT_LINE_KEYS.
+ */
+export type DeliveryMode = 'platform' | 'pharmacy_own';
+export function deliveryModeOf(...docs: Array<{ delivery_mode?: unknown; fulfillment?: { delivery_mode?: unknown } | string | null } | null | undefined>): DeliveryMode {
+  for (const d of docs) {
+    const v = (d as any)?.delivery_mode ?? ((d as any)?.fulfillment && typeof (d as any).fulfillment === 'object' ? (d as any).fulfillment.delivery_mode : undefined);
+    if (v === 'pharmacy_own' || v === 'platform') return v;
+  }
+  return 'platform';
+}
+export const deliveryFeeLineKey = (mode: DeliveryMode): string => (mode === 'pharmacy_own' ? 'pharmacy_delivery_fee' : 'delivery_fee');
