@@ -167,36 +167,32 @@ export class LegalEnterpriseService {
     const dateQ: any = {};
     if (range.from) dateQ.$gte = range.from;
     if (range.to) dateQ.$lte = range.to;
-    const match: any = { provider_account_id: providerId };
+    const match: any = { provider_account_id: providerId, type: 'provider_earning' };
     if (from || to) match.createdAt = dateQ;
 
-    const orders = await this.conn.collection('orders').find(
-      { $or: [{ pharmacy_id: providerId, ...match }, { provider_id: providerId }] },
-      { projection: { _id: 0 } },
-    ).sort({ createdAt: -1 }).limit(500).toArray();
-    const ledger = await this.conn.collection('platformledgerentries').find({ provider_account_id: providerId }).sort({ createdAt: -1 }).limit(500).toArray().catch(() => []);
+    // The statement is what the settlement WROTE: one row per earning in the platform ledger, with the percent, the commission and the
+    // VAT the settlement charged at that moment (the provider's override or promotion included), VAT on the commission only. It used to
+    // recompute every order of the legacy `orders` collection at the pharmacy percent, so a doctor's statement was empty and an
+    // override or a promotion never showed.
+    const earnings = await this.conn.collection('platformledgerentries').find(match, { projection: { _id: 0 } }).sort({ createdAt: -1 }).limit(500).toArray();
+    const ledger = await this.conn.collection('platformledgerentries').find({ provider_account_id: providerId, ...(from || to ? { createdAt: dateQ } : {}) }, { projection: { _id: 0 } }).sort({ createdAt: -1 }).limit(500).toArray().catch(() => []);
+    const round2 = (n: number) => Math.round(n * 100) / 100;
 
-    const commissionPercent = (await this.conn.collection('finance_config').findOne({ key: 'commissions' }))?.service_types?.pharmacy?.percent ?? DEFAULT_COMMISSION_PERCENT;
-    const vatPercent = (await this.conn.collection('finance_config').findOne({ key: 'commissions' }))?.tax?.vat_percent ?? DEFAULT_VAT_PERCENT;
-
-    const rows = orders.map((o: any) => {
-      const total = o.total ?? o.totals?.total ?? 0;
-      const commission = Math.round(total * commissionPercent / 100 * 100) / 100;
-      const vat = Math.round(commission * vatPercent / 100 * 100) / 100;
-      return {
-        order_id: o.id,
-        date: o.createdAt,
-        total,
-        commission_percent: commissionPercent,
-        commission,
-        vat_on_commission: vat,
-        net_provider: Math.round((total - commission - vat) * 100) / 100,
-        state: o.state || o.status,
-        payout_status: o.payout_state || 'pending',
-        payout_reference: o.payout_reference || null,
-        payment_date: o.payout_date || null,
-      };
-    });
+    const rows = earnings.map((e: any) => ({
+      order_id: e.ref_id,
+      ref_type: e.ref_type,
+      date: e.createdAt,
+      total: round2(Number(e.gross) || 0),
+      commission_percent: Number(e.commission_percent) || 0,
+      commission_source: e.commission_source ?? null,
+      commission: round2(Number(e.commission) || 0),
+      vat_on_commission: round2(Number(e.vat) || 0),
+      net_provider: round2(Number(e.amount) || 0),
+      state: e.state,
+      payout_status: e.payout_state || 'pending',
+      payout_reference: e.payout_reference || null,
+      payment_date: e.payout_date || null,
+    }));
 
     const totals = rows.reduce((acc: any, r: any) => ({
       total: acc.total + r.total,
@@ -204,6 +200,7 @@ export class LegalEnterpriseService {
       vat: acc.vat + r.vat_on_commission,
       net: acc.net + r.net_provider,
     }), { total: 0, commission: 0, vat: 0, net: 0 });
+    for (const k of Object.keys(totals)) totals[k] = round2(totals[k]);
 
     return { rows, totals, transfers: ledger, generated_at: new Date() };
   }

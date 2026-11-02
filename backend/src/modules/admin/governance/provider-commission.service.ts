@@ -146,7 +146,7 @@ export class ProviderCommissionService {
   }
 }
 
-@Controller('provider-commissions')
+@Controller('admin/provider-commissions')
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
 export class ProviderCommissionsController {
