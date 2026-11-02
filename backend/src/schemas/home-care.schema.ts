@@ -94,6 +94,9 @@ export class HomeCareBooking extends Document {
   @Prop() hours?: number;
   @Prop() shift?: string;
   @Prop() period?: string;
+  /** "for N days" (period `days`), and the catalogue units this booking was billed for (booking-mode.ts billableUnits) */
+  @Prop() days?: number;
+  @Prop() billable_units?: number;
   @Prop({ required: true }) duration: string;
   @Prop({ required: true }) total: number;
   
