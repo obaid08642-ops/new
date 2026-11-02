@@ -24,6 +24,12 @@ export EXPO_PUBLIC_SOCKET_URL=ws://127.0.0.1:8002
 export EXPO_PUBLIC_APP_ENV=development
 export SENTRY_DISABLE_AUTO_UPLOAD=true
 npm ci --no-audit --no-fund --legacy-peer-deps
+# expo-modules-autolinking gives the `ExpoModulesMacros scan-modules` process 5000 ms (build/platforms/apple/moduleScanner.js) and fails the
+# Xcode "[Expo] Configure project" phase when it takes longer ("timed out after 5000 ms", exit 65: nightly of 2026-11-02, a slow macOS
+# runner where the cold scanner needed more). The scan is not skipped, it gets time to finish.
+SCANNER=node_modules/expo-modules-autolinking/build/platforms/apple/moduleScanner.js
+grep -q "timeout: 5000" "$SCANNER" || { echo "moduleScanner.js no longer has the 5000 ms timeout: remove this patch from build_ios.sh"; exit 1; }
+sed -i.bak "s/timeout: 5000/timeout: 120000/" "$SCANNER" && rm -f "$SCANNER.bak"
 export NODE_ENV=production   # after the install: npm must not drop devDependencies (Metro resolves some of them)
 npx expo prebuild -p ios --clean --no-install
 

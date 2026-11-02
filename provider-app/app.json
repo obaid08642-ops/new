@@ -60,7 +60,9 @@
           "project": "provider-app"
         }
       ],
-      "@maplibre/maplibre-react-native"
+      "@maplibre/maplibre-react-native",
+      "./plugins/with-firebase-messaging-manifest",
+      "./plugins/with-ios-modular-headers"
     ],
     "extra": {
       "apiBaseUrl": "https://api.nabd.plus/api/v1"
