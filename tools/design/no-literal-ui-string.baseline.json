@@ -110,7 +110,7 @@
     "provider-app/src/screens/pharmacy/PharmacyPrescriptionReview.tsx": 28,
     "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx": 161,
     "provider-app/src/screens/pharmacy/PharmacyReturnDetail.tsx": 46,
-    "provider-app/src/screens/radiology/RadiologyDashboard.tsx": 244,
+    "provider-app/src/screens/radiology/RadiologyDashboard.tsx": 235,
     "provider-app/src/screens/registration/ReviewStep.tsx": 23,
     "provider-app/src/screens/registration/WizardParts.tsx": 32,
     "provider-app/src/screens/shared/blueprint/AffiliatePortal.tsx": 22,
