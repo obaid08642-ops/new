@@ -24,6 +24,7 @@ export EXPO_PUBLIC_BACKEND_URL=http://10.0.2.2:8002
 export EXPO_PUBLIC_SOCKET_URL=ws://10.0.2.2:8002
 export EXPO_PUBLIC_APP_ENV=development
 export SENTRY_DISABLE_AUTO_UPLOAD=true
+export NABD_KEEP_CONSOLE=1   # test build only: console.* stays, so a failed flow's adb logcat has the app's JS errors (release builds strip it)
 # provider-app has no .npmrc and its test-only devDependency react-test-renderer@^19.2.8 conflicts with the
 # pinned react 19.2.3, so a plain `npm ci` fails (Q58). patient-app already sets legacy-peer-deps in .npmrc.
 npm ci --no-audit --no-fund --legacy-peer-deps
