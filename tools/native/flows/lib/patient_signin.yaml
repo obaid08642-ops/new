@@ -76,7 +76,28 @@ appId: com.patient.nabd
 - tapOn:
     id: "login-password"
 - waitForAnimationToEnd
-- inputText: ${PASSWORD}
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - inputText: ${PASSWORD}
+# Run 41444366476 (iOS): the field is focused now, but the app answered 401 three times: the typed password was not the account's (the
+# app clears the field after a refused sign-in). Same cure as the e-mail address: type in pieces with the keyboard settled between them
+# (run_job_ios.sh passes PASS_1..PASS_4), then reveal the field and assert what it holds, so a mismatch shows the actual text.
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - inputText: ${PASS_1}
+      - waitForAnimationToEnd
+      - inputText: ${PASS_2}
+      - waitForAnimationToEnd
+      - inputText: ${PASS_3}
+      - waitForAnimationToEnd
+      - inputText: ${PASS_4}
+      - waitForAnimationToEnd
+      - tapOn: "إظهار كلمة المرور|Show password"
+      - assertVisible: ${PASSWORD}
 # Maestro cannot dismiss the iOS keyboard ("Couldn't hide the keyboard"); the submit button sits in a footer that rides above the
 # keyboard there, so it can be tapped without hiding it. Android hides it.
 - runFlow:
