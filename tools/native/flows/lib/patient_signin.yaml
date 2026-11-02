@@ -62,6 +62,17 @@ appId: com.patient.nabd
       platform: iOS
     commands:
       - assertVisible: ${EMAIL}
+# Run 41438178943 (iOS): with the keyboard up, the form scrolls so the identifier sits at the top of the visible area and the password
+# field is under the sticky footer (app/(auth)/login.tsx StickyFooter), so the tap landed on the footer, focus stayed on the identifier
+# and the password was typed into it (screenshot: "...nabd.testNb-69XU..."). Scroll the form up first so both fields are above the footer.
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - swipe:
+          start: 50%, 25%
+          end: 50%, 8%
+      - waitForAnimationToEnd
 - tapOn:
     id: "login-password"
 - waitForAnimationToEnd
