@@ -37,6 +37,8 @@ import {
 } from './payment-gateway';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { DurableEventsService, emitDurable } from '../durable-events/durable-events.service';
+import { paymentCompletedKey } from '../durable-events/payment-events.reconciler';
 /**
  * Fallback for a failed or short-circuited payment-gateway operation.
  *
@@ -225,6 +227,7 @@ export class PaymentsService {
     private events: EventEmitter2,
     private realtime: RealtimeService,
     private readonly fraud: FraudService,
+    @Optional() private readonly durable?: DurableEventsService,
   ) {
     this.adapter = selectAdapter();
     if (this.adapter.name === 'disabled') {
@@ -589,7 +592,7 @@ export class PaymentsService {
       await t.save();
       // For online/home services we emit an event so the workflow engine (provider-jobs / booking-flow)
       // can transition CONFIRMED when payment is required pre-confirmation.
-      this.events.emit('payment.completed', {
+      await emitDurable(this.durable, this.events, 'payment.completed', {
         kind: t.booking_kind,
         id: t.booking_id,
         booking_kind: t.booking_kind,
@@ -597,13 +600,13 @@ export class PaymentsService {
         patient_id: t.patient_id,
         amount: t.amount,
         transaction_id: t.id
-      });
+      }, paymentCompletedKey(t.id));
       this.realtime.emitToUser(t.patient_id, 'payment.updated', { transaction_id: t.id, status: 'paid', booking_id: t.booking_id });
       // E1 S15: a second PAID payment for the same booking is a double charge — alert admins
       await this.fraud.detectDuplicatePayments(t.booking_id).catch(() => null);
     } else if (t.status === 'failed') {
       t.failure_reason = t.failure_reason || (result.raw as any)?.last_payment_error?.message || 'gateway_failure';
-      this.events.emit('payment.failed', {
+      await emitDurable(this.durable, this.events, 'payment.failed', {
         kind: t.booking_kind,
         id: t.booking_id,
         booking_kind: t.booking_kind,
@@ -612,7 +615,7 @@ export class PaymentsService {
         amount: t.amount,
         transaction_id: t.id,
         reason: t.failure_reason
-      });
+      }, `payment.failed:${t.id}`);
       this.realtime.emitToUser(t.patient_id, 'payment.updated', { transaction_id: t.id, status: 'failed', booking_id: t.booking_id });
       // E1 S15: repeated failures in a short window = card testing / bot activity
       await this.fraud.checkPaymentVelocity(t.patient_id).catch(() => false);
@@ -669,7 +672,8 @@ export class PaymentsService {
     this.realtime.emitToUser(t.patient_id, 'payment.updated', { transaction_id: t.id, status: t.status });
     const raw: any = (r as any).raw || {};
     // Every card refund passes here: the tax document (a credit note) follows it, once per refund.
-    this.events.emit('payment.refund.card', { booking_kind: t.booking_kind, booking_id: t.booking_id, amount: value, refund_ref: raw?.id || raw?.refund_id || `${t.id}:${t.refunded_amount}` });
+    const refundRef = raw?.id || raw?.refund_id || `${t.id}:${t.refunded_amount}`;
+    await emitDurable(this.durable, this.events, 'payment.refund.card', { booking_kind: t.booking_kind, booking_id: t.booking_id, amount: value, refund_ref: refundRef }, `payment.refund.card:${refundRef}`);
     return { txn: t, gateway_refund_id: raw?.id || raw?.refund_id };
   }
 
@@ -704,10 +708,10 @@ export class PaymentsService {
     if (!(t.booking_kind === 'pharmacy' && await this.finalizeGovernedPharmacyPaid(t))) {
       await this.modelFor(t.booking_kind).updateOne({ id: t.booking_id }, { $set: { payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at } });
     }
-    this.events.emit('payment.completed', {
+    await emitDurable(this.durable, this.events, 'payment.completed', {
       kind: t.booking_kind, id: t.booking_id, booking_kind: t.booking_kind, booking_id: t.booking_id,
       patient_id: t.patient_id, amount: t.amount, transaction_id: t.id,
-    });
+    }, paymentCompletedKey(t.id));
     this.realtime.emitToUser(t.patient_id, 'payment.updated', { transaction_id: t.id, status: 'paid', booking_id: t.booking_id });
     return this.publicTxn(t);
   }
@@ -827,6 +831,7 @@ export class PaymentAbandonService {
     @InjectModel(Appointment.name) private readonly appts: Model<any>,
     private readonly payments: PaymentsService,
     private readonly events: EventEmitter2,
+    @Optional() private readonly durable?: DurableEventsService,
   ) {}
 
   @Cron('*/5 * * * *')
@@ -856,7 +861,7 @@ export class PaymentAbandonService {
         { booking_kind: 'consultation', booking_id: { $eq: appt.id }, status: { $in: ['initiating', 'pending', 'authorized', 'failed'] } },
         { $set: { status: 'cancelled', failure_reason: 'payment_abandoned' } },
       );
-      this.events.emit('payment.abandoned', { booking_kind: 'consultation', booking_id: appt.id, patient_id: appt.patient_id });
+      await emitDurable(this.durable, this.events, 'payment.abandoned', { booking_kind: 'consultation', booking_id: appt.id, patient_id: appt.patient_id }, `payment.abandoned:${appt.id}`);
       released.push(appt.id);
     }
     if (released.length) this.logger.log(`released ${released.length} unpaid consultation slot(s)`);

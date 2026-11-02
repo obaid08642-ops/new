@@ -34,6 +34,7 @@ import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema
 import { UserRole } from '../../common/enums';
 import { SavePolicyDto, CreateRequestDto, PayCopayDto, ResubmitDto, AppealDto, DecideDto, GatekeeperDto, PaymentConfirmDto, PayCopayDto2, RequestDto, DecideRefundDto, AccrueDto } from './insurance-engine.dto';
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { DurableEventsService, emitDurable } from '../durable-events/durable-events.service';
 
 // ============================================================================
 // Schemas
@@ -927,6 +928,7 @@ export class RefundService {
     private readonly fraud: FraudService,
     @Optional() @InjectConnection() private readonly conn?: Connection,
     @Optional() private readonly refundExec?: RefundExecutor,
+    @Optional() private readonly durable?: DurableEventsService,
   ) {}
 
   policyFor(scheduledAt?: Date) {
@@ -955,7 +957,7 @@ export class RefundService {
       moyasar_payment_id: body?.payment_id,
       history: [{ state: 'REQUESTED', at: new Date(), by: user.id }],
     });
-    this.events.emit('refund.requested', { refund_id: doc.id });
+    await emitDurable(this.durable, this.events, 'refund.requested', { refund_id: doc.id }, `refund.requested:${doc.id}`);
     return doc.toObject();
   }
 

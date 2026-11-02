@@ -58,6 +58,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { PriceAlertsModule } from './modules/price-alerts/price-alerts.module';
 import { CatalogueInterestModule } from './modules/catalogue-interest/catalogue-interest.module';
 import { EventsModule } from './modules/events/events.module';
+import { DurableEventsModule } from './modules/durable-events/durable-events.module';
 import { SeedModule } from './modules/seed/seed.module';
 import { CareModule } from './modules/care/care.module';
 import { LabsModule } from './modules/labs/labs.module';
@@ -245,6 +246,7 @@ import { MongoSelfHealService } from './common/database/mongo-selfheal.service';
     PriceAlertsModule,
     CatalogueInterestModule,
     EventsModule,
+    DurableEventsModule,
     RealtimeModule,
     SeedModule,
     CareModule,
