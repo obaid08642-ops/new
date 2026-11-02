@@ -77,6 +77,6 @@ appId: com.patient.nabd
     id: "booking-track"
 - extendedWaitUntil:
     visible:
-      id: "booking-pending-screen"
+      id: "clinic-confirm-screen"
     timeout: 30000
-- takeScreenshot: patient_booking_status
+- takeScreenshot: patient_booking_confirm

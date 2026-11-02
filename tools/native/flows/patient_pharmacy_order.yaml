@@ -19,6 +19,7 @@ appId: com.patient.nabd
       id: "med-add-.*"
       enabled: true
     timeout: 60000
+    centerElement: true
 # let the list settle (the catalogue refetches right after sign-in and a re-render can swallow a tap), then add; the add button turns into the
 # quantity stepper once the item is in the cart, so the tap is repeated until the stepper shows (run 106: the tap did nothing, no error, no crash)
 - waitForAnimationToEnd
