@@ -61,7 +61,7 @@ describe('Phase 21.8 guest data lifecycle (real erasure)', () => {
     (await col('addresses').countDocuments({ user_id: id })) + (await col('guest_devices').countDocuments({ guest_id: id }));
 
   it('the daily job is scheduled and runs the purge', async () => {
-    const meta = Reflect.getMetadata(SCHEDULE_CRON_OPTIONS, GuestLifecycleService.prototype.purgeInactiveGuests);
+    const meta = Reflect.getMetadata(SCHEDULE_CRON_OPTIONS, GuestLifecycleService.prototype.purgeInactiveGuestsScheduled);
     expect(meta?.cronTime).toBe(CronExpression.EVERY_DAY_AT_4AM);
     await seedGuest('g-idle');
     expect(await lifecycle.purgeInactiveGuests()).toEqual({ anonymised: 0, deleted: 1 });
