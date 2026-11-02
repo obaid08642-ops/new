@@ -95,7 +95,7 @@ appId: com.patient.nabd
           when:
             visible: "ض"
           commands:
-            - tapOn: "Next keyboard"
+            - tapOn: "لوحة المفاتيح التالية|Next keyboard"
             - waitForAnimationToEnd
       - inputText: ${PASS_1}
       - waitForAnimationToEnd
