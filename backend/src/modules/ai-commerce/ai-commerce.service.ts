@@ -5,7 +5,8 @@ import { Connection } from 'mongoose';
 import { randomBytes } from 'crypto';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { publicMedicineFilter } from '../medicines/public-medicine-filter';
-import { readVatRate } from '../business-rules/business-rules.module';
+import { readQuoteVatRate } from '../../common/quote';
+import { platformVatOf } from '../../common/tax-registration';
 
 export interface ProductFeedQuery {
   page?: number;
@@ -273,9 +274,11 @@ export class AiCommerceService {
     }
 
     const subtotalFormatted = Number(subtotal.toFixed(2));
-    const vatRate = await readVatRate(this.connection).catch(() => 0.15);
-    const vatAmount = Number((subtotalFormatted * vatRate).toFixed(2));
-    const totalSar = Number((subtotalFormatted + vatAmount).toFixed(2));
+    // VAT model A (owner, 2026-11-01): the price of the items carries no platform VAT; only a delivery-fee line would (`platformVatOf`),
+    // and it is inside the price, not added on top. null rate = the platform has no VAT number: no VAT at all.
+    const vatRate = await readQuoteVatRate(this.connection).catch(() => null);
+    const vatAmount = vatRate === null ? 0 : platformVatOf(validatedItems.map((i: any) => ({ key: i.type, amount: i.line_total })), vatRate, subtotalFormatted);
+    const totalSar = subtotalFormatted;
 
     const sessionId = `ai_chk_${randomBytes(16).toString('hex')}`;
     const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes validity
@@ -289,6 +292,8 @@ export class AiCommerceService {
         currency: 'SAR',
         subtotal: subtotalFormatted,
         vat_amount: vatAmount,
+        vat_rate: vatRate,
+        tax_registered: vatRate !== null,
         total_sar: totalSar,
       },
       requires_prescription: hasPrescriptionItem,
@@ -312,6 +317,8 @@ export class AiCommerceService {
         currency: 'SAR',
         subtotal: subtotalFormatted,
         vat_amount: vatAmount,
+        vat_rate: vatRate,
+        tax_registered: vatRate !== null,
         total_sar: totalSar,
       },
       items_count: validatedItems.length,

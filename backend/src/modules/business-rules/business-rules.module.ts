@@ -234,8 +234,9 @@ export class BusinessRulesService {
   // ─── PRICING (base + tax + insurance discount + surge) ──────────
   private computePricing(ctx: RuleContext, r: RuleResult) {
     const base = ctx.service?.price ?? 0;
-    const taxRate = 0.15; // KSA VAT
-    const tax = Math.round(base * taxRate * 100) / 100;
+    // VAT model A (owner, 2026-11-01): the service price carries no platform VAT (the provider is the supplier). Platform VAT is only on
+    // the delivery fee and the commission (common/tax-registration.ts `platformVatOf`); a rules context has neither, so none here.
+    const tax = 0;
     let insuranceDiscount = 0;
     if (ctx.insurance?.provider && r.meta.insurance_validated && r.ok) {
       // Flat 80% covered for insured services (simplified rule)
