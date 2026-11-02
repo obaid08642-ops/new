@@ -134,7 +134,7 @@ export interface HubFilters {
 /** How many filters are on: the category, each form, each brand, "prescription only" and the price range. */
 export function countFilters(f: HubFilters): number {
   const list = (v?: string) => (v ? v.split(',').filter(Boolean).length : 0);
-  return (f.category && f.category !== 'all' ? 1 : 0) + list(f.forms) + list(f.brands) + (f.rx === '1' ? 1 : 0) + (f.minPrice || f.maxPrice ? 1 : 0);
+  return (f.category && f.category !== 'all' ? 1 : 0) + list(f.forms) + list(f.brands) + (f.rx === '1' || f.rx === 'none' ? 1 : 0) + (f.minPrice || f.maxPrice ? 1 : 0);
 }
 
 /**
@@ -146,7 +146,7 @@ export function filterMeds(rows: Med[], q: { activeCat: string; search: string; 
   const { filters } = q;
   return rows
     .filter((m) => {
-      const matchRx = filters.rx === '1' ? needsRx(m) : true;
+      const matchRx = filters.rx === '1' ? needsRx(m) : filters.rx === 'none' ? !needsRx(m) : true;
       const price = Number(m.price ?? m.p ?? 0);
       const matchMin = filters.minPrice ? price >= parseFloat(filters.minPrice) : true;
       const matchMax = filters.maxPrice ? price <= parseFloat(filters.maxPrice) : true;
