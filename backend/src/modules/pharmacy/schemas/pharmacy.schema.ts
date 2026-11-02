@@ -201,6 +201,8 @@ export class PharmacyOrder extends Document {
   @Prop() selected_offer_version?: number;
   @Prop() selected_allocation_id?: string;
   @Prop() offer_selection_idempotency_key?: string;
+  /** who delivers and whose the delivery fee is: 'platform' | 'pharmacy_own', copied from the chosen offer at checkout (common/tax-registration.ts) */
+  @Prop({ enum: ['platform', 'pharmacy_own'] }) delivery_mode?: string;
   @Prop({ type: Object }) pricing_snapshot?: { offer_id: string; offer_version: number; totals: { subtotal: number; delivery_fee: number; total: number; currency: string }; captured_at: Date };
 
   // EXPLAINABILITY: full snapshot of the split decision
@@ -445,6 +447,7 @@ export class PharmacyOffer extends Document {
     delivery_option?: 'delivery' | 'pickup' | null;
     eta_minutes?: number | null;
     delivery_fee_source?: string;
+    delivery_mode?: 'platform' | 'pharmacy_own';
   };
   @Prop({ default: 'provider_capabilities_pharmacy' }) pricing_source: string;
   @Prop() created_by?: string;

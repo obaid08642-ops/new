@@ -1,5 +1,5 @@
 {
- "commit": "ba829e5f4",
+ "commit": "e4628916b",
  "routes": [
   {
    "app": "patient-app",
@@ -471,7 +471,7 @@
      "path": "/care/doctors",
      "target": "backend",
      "query": "?:param",
-     "line": 206,
+     "line": 215,
      "file": "patient-app/app/(tabs)/consultations/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:35"
@@ -481,7 +481,7 @@
      "path": "/care/specialties",
      "target": "backend",
      "query": "",
-     "line": 234,
+     "line": 243,
      "file": "patient-app/app/(tabs)/consultations/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:15"
@@ -501,7 +501,7 @@
      "path": "/home/offers",
      "target": "backend",
      "query": "",
-     "line": 240,
+     "line": 249,
      "file": "patient-app/app/(tabs)/consultations/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home/home.controller.ts:18"
@@ -511,7 +511,7 @@
      "path": "/insurance/companies",
      "target": "backend",
      "query": "",
-     "line": 246,
+     "line": 255,
      "file": "patient-app/app/(tabs)/consultations/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/insurance/insurance.module.ts:461"
@@ -521,7 +521,7 @@
      "path": "/insurance/companies/:param/networks",
      "target": "backend",
      "query": "",
-     "line": 263,
+     "line": 272,
      "file": "patient-app/app/(tabs)/consultations/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/insurance/insurance.module.ts:557"
@@ -541,7 +541,7 @@
      "path": "/providers",
      "target": "backend",
      "query": "?type=doctor",
-     "line": 206,
+     "line": 215,
      "file": "patient-app/app/(tabs)/consultations/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/providers.controller.ts:16"
@@ -5731,13 +5731,13 @@
      "path": "/medicines/filters",
      "target": "backend",
      "query": "",
-     "line": 89,
+     "line": 92,
      "file": "patient-app/src/components/pharmacy/FilterSheet.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medicines/medicines.controller.ts:109"
     }
    ],
-   "files": 69,
+   "files": 68,
    "unresolved": 0
   },
   {
@@ -7186,13 +7186,33 @@
      "path": "/calls/:param/join",
      "target": "backend",
      "query": "",
-     "line": 133,
+     "line": 137,
      "file": "patient-app/app/room/[id].tsx",
      "status": "OK",
      "backend": "backend/src/modules/livekit/livekit.controller.ts:53"
+    },
+    {
+     "method": "POST",
+     "path": "/legal/accept/telehealth_consent",
+     "target": "backend",
+     "query": "",
+     "line": 31,
+     "file": "patient-app/src/components/legal/TelehealthConsent.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/legal/legal.module.ts:195"
+    },
+    {
+     "method": "GET",
+     "path": "/legal/policy/telehealth_consent",
+     "target": "backend",
+     "query": "?lang=:param",
+     "line": 49,
+     "file": "patient-app/src/components/legal/TelehealthConsent.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/legal/legal.module.ts:185"
     }
    ],
-   "files": 26,
+   "files": 37,
    "unresolved": 0
   },
   {

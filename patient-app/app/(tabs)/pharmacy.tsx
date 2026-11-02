@@ -218,6 +218,7 @@ export default function PharmacyHub() {
   csv(filters.forms).forEach((f) => activeItems.push({ key: `form-${f}`, label: f, onRemove: () => router.setParams({ filter_forms: without(filters.forms, f) }) }));
   csv(filters.brands).forEach((b) => activeItems.push({ key: `brand-${b}`, label: b, onRemove: () => router.setParams({ filter_brands: without(filters.brands, b) }) }));
   if (filters.rx === '1') activeItems.push({ key: 'rx', label: k('pharmacy.filters.rxOnly'), onRemove: () => router.setParams({ filter_rx: '' }) });
+  if (filters.rx === 'none') activeItems.push({ key: 'rx', label: k('pharmacy.filters.rxNone'), onRemove: () => router.setParams({ filter_rx: '' }) });
   if (filters.minPrice || filters.maxPrice) {
     activeItems.push({ key: 'price', label: [filters.minPrice ? num(Number(filters.minPrice)) : '', filters.maxPrice ? num(Number(filters.maxPrice)) : ''].join(' - ').trim(), onRemove: () => router.setParams({ filter_min_price: '', filter_max_price: '' }) });
   }
