@@ -84,10 +84,19 @@ appId: com.patient.nabd
 # Run 41444366476 (iOS): the field is focused now, but the app answered 401 three times: the typed password was not the account's (the
 # app clears the field after a refused sign-in). Same cure as the e-mail address: type in pieces with the keyboard settled between them
 # (run_job_ios.sh passes PASS_1..PASS_4), then reveal the field and assert what it holds, so a mismatch shows the actual text.
+# Run 41446867266 (iOS): the password field opens with the ARABIC keyboard (the app is in Arabic; only the e-mail field forces a Latin one),
+# so the Latin letters were dropped and the field held "969-" of the password. Switch to the English keyboard (the globe key) when the
+# Arabic one is up, and only then type.
 - runFlow:
     when:
       platform: iOS
     commands:
+      - runFlow:
+          when:
+            visible: "ض"
+          commands:
+            - tapOn: "Next keyboard"
+            - waitForAnimationToEnd
       - inputText: ${PASS_1}
       - waitForAnimationToEnd
       - inputText: ${PASS_2}
