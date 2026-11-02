@@ -4,7 +4,7 @@ import { Connection } from 'mongoose';
 import { v4 as uuid } from 'uuid';
 import { validateReason, MIN_FINANCIAL_REASON_LENGTH, ReasonError } from '../../../common/rbac';
 import { AdminAuditService } from './audit.service';
-import { COMMISSION_SERVICE_TYPES, DEFAULT_COMMISSIONS, payoutMinimumDefault, settlementDelayDefault } from '../../../common/commission-defaults';
+import { COMMISSION_SERVICE_TYPES, DEFAULT_COMMISSION_PERCENT, DEFAULT_COMMISSIONS, DEFAULT_VAT_PERCENT, payoutMinimumDefault, settlementDelayDefault } from '../../../common/commission-defaults';
 
 const PAID_STATUSES = ['paid', 'confirmed', 'succeeded'];
 const VERTICALS: Record<string, string[]> = {
@@ -162,9 +162,9 @@ export class FinanceSuiteService {
     // The same percent and VAT the settlement writes to the ledger (provider-ops creditEarning, pharmacy allocation):
     // service_types.<type>.percent (default 10) and tax.vat_percent (default 15). The report used its own `rates`
     // field before, which no payment read, so the screen and the money could disagree.
-    const percentOf = (t: string): number => Number(cfg?.service_types?.[t]?.percent ?? 10);
+    const percentOf = (t: string): number => Number(cfg?.service_types?.[t]?.percent ?? DEFAULT_COMMISSION_PERCENT);
     const percents: Record<string, number> = Object.fromEntries(COMMISSION_SERVICE_TYPES.map((t) => [t, percentOf(t)]));
-    const vatRate = Number(cfg?.tax?.vat_percent ?? 15) / 100;
+    const vatRate = Number(cfg?.tax?.vat_percent ?? DEFAULT_VAT_PERCENT) / 100;
     const rateOf = async (vertical: string): Promise<number> => percentOf(SERVICE_OF_VERTICAL[vertical] || vertical) / 100;
     const payments = await this.conn.collection('moyasar_payments').find({
       status: { $in: PAID_STATUSES },
@@ -309,6 +309,31 @@ export class FinanceSuiteService {
     return this.conn.collection('platformledgerentries').findOne({ type: 'payout', state: 'locked', ref_type: 'withdrawal_reservation', ref_id: w.id, provider_account_id: w.provider_id });
   }
 
+  /** Display names for provider accounts (the payout queue shows who is being paid): the account's own name, else the profile's. */
+  async providerNames(ids: unknown[]): Promise<Map<string, string>> {
+    const out = new Map<string, string>();
+    const list = [...new Set((ids || []).filter(Boolean).map(String))];
+    if (!list.length) return out;
+    const accounts: any[] = await this.conn.collection('provider_accounts')
+      .find({ $or: [{ id: { $in: list } }, { user_id: { $in: list } }] } as any)
+      .project({ _id: 0, id: 1, user_id: 1, full_name: 1, name: 1 }).toArray().catch(() => []);
+    for (const a of accounts) {
+      const n = a.full_name || a.name;
+      if (n) for (const k of [a.id, a.user_id]) if (k) out.set(String(k), String(n));
+    }
+    const missing = list.filter((i) => !out.has(i));
+    if (missing.length) {
+      const profiles: any[] = await this.conn.collection('provider_profiles')
+        .find({ $or: [{ account_id: { $in: missing } }, { user_id: { $in: missing } }, { id: { $in: missing } }] } as any)
+        .project({ _id: 0, id: 1, account_id: 1, user_id: 1, full_name: 1, name: 1, display_name: 1 }).toArray().catch(() => []);
+      for (const pr of profiles) {
+        const n = pr.display_name || pr.full_name || pr.name;
+        if (n) for (const k of [pr.account_id, pr.user_id, pr.id]) if (k && !out.has(String(k))) out.set(String(k), String(n));
+      }
+    }
+    return out;
+  }
+
   async payoutQueue(status?: string, page = 1, limit = 25) {
     const q: any = status ? { state: String(status).toUpperCase() } : {};
     const l = Math.min(100, Math.max(1, limit));
@@ -319,8 +344,9 @@ export class FinanceSuiteService {
       this.withdrawals.aggregate([{ $group: { _id: '$state', n: { $sum: 1 }, amount: { $sum: '$amount' } } }]).toArray().catch(() => []),
       this.dualThreshold(),
     ]);
+    const names = await this.providerNames((items as any[]).map((w) => w.provider_id));
     return {
-      data: items,
+      data: (items as any[]).map((w) => ({ ...w, provider_name: names.get(String(w.provider_id)) || null })),
       total, page, pages: Math.ceil(total / l),
       dual_approval_threshold_sar: threshold,
       by_state: (byState as any[]).map((s) => ({ state: s._id, count: s.n, amount: s.amount })),

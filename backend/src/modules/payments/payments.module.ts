@@ -18,6 +18,7 @@ import { RealtimeService } from '../realtime/realtime.service';
 import { RealtimeModule } from '../realtime/realtime.module';
 import { FraudService } from '../finance-engine/finance-engine.module';
 import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
+import { paymentReturnBase } from '../../common/payment-return-url';
 import { CircuitBreakerService } from '../../common/circuit-breaker.service';
 import { externalFetch, externalUnavailable, runExternalCall, timedFetch } from '../../common/external-call';
 import * as crypto from 'crypto';
@@ -142,10 +143,12 @@ export class MoyasarAdapter implements PaymentGateway {
     return { Authorization: `Basic ${b}`, 'Content-Type': 'application/json' };
   }
   async createIntent(o: CreateIntentRequest) {
+    const returned = paymentReturnBase();
+    if ('error' in returned) throw new ServiceUnavailableException(returned.error); // production without an https return address: say so, never call Moyasar with a bad one
     // Moyasar's Payments API needs a card `source` collected client-side with the publishable key, so a server-created
     // hosted checkout is an Invoice (POST /invoices -> `url`). The payer pays on that page; Moyasar redirects to callback_url.
     const run = async (req: CreateIntentRequest) => {
-      const base = process.env.PAYMENT_RESULT_URL || `${process.env.PUBLIC_APP_URL || ''}/payments/result`;
+      const base = returned.base;
       // #550: the return address names our transaction (`?ref=`); the provider appends its own id and status after it.
       const callback = req.return_ref ? `${base}${base.includes('?') ? '&' : '?'}ref=${encodeURIComponent(req.return_ref)}` : base;
       const body = JSON.stringify({ amount: Math.round(req.amount * 100), currency: req.currency || 'SAR', description: req.description, callback_url: callback, success_url: callback, back_url: callback });
@@ -665,6 +668,8 @@ export class PaymentsService {
     if (t.status === 'refunded') await this.modelFor(t.booking_kind).updateOne({ id: { $eq: t.booking_id } }, { $set: { payment_status: 'refunded' } });
     this.realtime.emitToUser(t.patient_id, 'payment.updated', { transaction_id: t.id, status: t.status });
     const raw: any = (r as any).raw || {};
+    // Every card refund passes here: the tax document (a credit note) follows it, once per refund.
+    this.events.emit('payment.refund.card', { booking_kind: t.booking_kind, booking_id: t.booking_id, amount: value, refund_ref: raw?.id || raw?.refund_id || `${t.id}:${t.refunded_amount}` });
     return { txn: t, gateway_refund_id: raw?.id || raw?.refund_id };
   }
 

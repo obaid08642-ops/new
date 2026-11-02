@@ -13,12 +13,12 @@ Complete list of user scenarios, from the owner's request ("make sure there are 
 
 ## Counts
 
-| Measure | First catalogue | Re-scored on main `c17aa3461` (#2292) | Re-scored on main `365b2d580` (this PR) |
-|---|---|---|---|
-| Scenarios listed | 100 | 100 | 100 |
-| COVERED | 52 | 55 | 62 |
-| PARTIAL | 16 | 16 | 16 |
-| NOT COVERED | 32 | 29 | 22 |
+| Measure | First catalogue | Re-scored on main `c17aa3461` (#2292) | Re-scored on main `365b2d580` (#2335) | Batch 2 (local, not pushed) |
+|---|---|---|---|---|
+| Scenarios listed | 100 | 100 | 100 | 100 |
+| COVERED | 52 | 55 | 62 | 65 |
+| PARTIAL | 16 | 16 | 16 | 13 |
+| NOT COVERED | 32 | 29 | 22 | 22 |
 
 This PR: seven scenarios moved to COVERED. Four are covered by journeys another session added to main (`j_dispute.py`, `j_payment_failed_retry.py`, `j_web_dark_a11y.py`), which were run here and pass. Three are new journeys in this PR (`j_notification_settings.py`, `j_doctor_leave.py`) and pass locally on main `365b2d580`.
 
@@ -49,7 +49,7 @@ Not run in this PR: the other 22 NOT COVERED scenarios (see the rows).
 | PT-18 | Insurance policy edit | PARTIAL | `j_insurance.py` name only | P2 | H |
 | PT-19 | Insurance claim | NOT COVERED | none named | P1 | F |
 | PT-20 | Coupons and promotions | PARTIAL | `j_loyalty.py` covers loyalty, not coupons; no coupon journey found | P2 | F |
-| PT-21 | Cash vs card vs insurance selection | PARTIAL | `j_insurance_selfpay_filters.py`, `j_consultation.py` | P1 | F |
+| PT-21 | Cash vs card vs insurance selection | COVERED | `j_consultation.py` matrix (124/124 in the live run): cash (line 211), insurance (lines 193, 223) and card bookings each recorded with their method | P1 | F |
 | PT-22 | Card payment success | COVERED | `j_consultation.py` (payment verified) | P0 | — |
 | PT-23 | Card payment failure and retry | COVERED | `j_payment_failed_retry.py` (43/43 on main 365b2d580): declined card reported as failed, retry makes a new checkout, paid booking cannot be charged again | P0 | F |
 | PT-24 | Payment return (deep link back from gateway) | NOT COVERED | no journey | P0 | H |
@@ -95,8 +95,8 @@ Types: doctor, pharmacy, lab, radiology, nursing (and any other registered type)
 | ID | Scenario | Status | Evidence | Priority | Route |
 |---|---|---|---|---|---|
 | PV-01 | Registration (doctor) | COVERED | `j_onboarding.py` (112/112) | P1 | — |
-| PV-02 | Registration (pharmacy) | PARTIAL | `j_onboarding.py` covers the flow; pharmacy type not confirmed | P1 | P2 |
-| PV-03 | Registration (lab, radiology) | PARTIAL | `j_radiology_basket.py` uses the radiology onboarding path | P1 | P2 |
+| PV-02 | Registration (pharmacy) | COVERED | `j_onboarding.py` `register_pharmacy` (112/112 in the live run): pharmacy starts, fills the steps, submits | P1 | P2 |
+| PV-03 | Registration (lab, radiology) | COVERED | `j_onboarding.py` `register_type('lab')` (16 journeys) and `register_type('radiology')` (5 journeys): lab and radiology register, submit and are approved | P1 | P2 |
 | PV-04 | Approval | COVERED | `j_provider_review.py` (20/20) | P0 | — |
 | PV-05 | Rejection with reason | COVERED | `j_provider_resubmit.py` (25/25) | P1 | — |
 | PV-06 | Resubmit after rejection | COVERED | `j_provider_resubmit.py` | P1 | — |

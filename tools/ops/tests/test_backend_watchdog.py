@@ -9,6 +9,9 @@ import unittest
 HERE = os.path.dirname(os.path.abspath(__file__))
 WATCHDOG = os.path.join(HERE, "..", "..", "..", "deploy", "scripts", "backend-watchdog.sh")
 INSTALL = os.path.join(HERE, "..", "tasks", "98k-backend-watchdog.sh")
+MONITOR_TASK = os.path.join(HERE, "..", "tasks", "98m-monitor-cron.sh")
+TCMALLOC = os.path.join(HERE, "..", "tasks", "98n-mongod-tcmalloc.sh")
+MONITOR_SH = os.path.join(HERE, "..", "..", "..", "deploy", "scripts", "monitor.sh")
 REPORT = os.path.join(HERE, "..", "tasks", "99n-mongod-memory.sh")
 
 
@@ -177,6 +180,149 @@ exit 0
         self.assertIn("connections: current=42", p.stdout)
         verbs = {l.split()[0] for l in slurp(self.log).splitlines()}
         self.assertTrue(verbs <= {"exec", "inspect", "stats", "ps", "logs"}, verbs)
+
+
+class MonitorCron(Base):
+    def setUp(self):
+        super().setUp()
+        self.cron = os.path.join(self.t, "cron.d"); os.makedirs(self.cron)
+        self.deploy = os.path.join(self.t, "deploy"); os.makedirs(os.path.join(self.deploy, "scripts"))
+        self.script = os.path.join(self.deploy, "scripts", "monitor.sh")
+        self.roottab = os.path.join(self.t, "roottab")
+        write_exec(os.path.join(self.b, "crontab"), f'#!/bin/bash\n[ -f "{self.roottab}" ] && cat "{self.roottab}"\nexit 0\n')
+        self.other = os.path.join(self.t, "spool"); os.makedirs(self.other)
+
+    def run_task(self, env_extra=None, **kv):
+        src = slurp(MONITOR_TASK)
+        for k, v in kv.items():
+            src = re.sub(rf'^{k}=""', f'{k}="{v}"', src, count=1, flags=re.M)
+        script = os.path.join(self.t, "task.sh"); write_exec(script, src)
+        env = dict(os.environ, PATH=self.b + os.pathsep + os.environ["PATH"], OPS_CRON_DIR=self.cron, OPS_DEPLOY_DIR=self.deploy,
+                   OPS_SCHED_PATHS=self.other + "/*", OPS_ALERT_LOG=os.path.join(self.t, "alerts.log"), OPS_MONITOR_STATE=os.path.join(self.t, "state"),
+                   OPS_WATCHDOG_LOG=os.path.join(self.t, "b.log"))
+        env.update(env_extra or {})
+        return subprocess.run(["bash", script], env=env, capture_output=True, text=True, timeout=30)
+
+    def test_dry_run_reports_nowhere_and_writes_nothing(self):
+        write_exec(self.script, "#!/bin/bash\n")
+        p = self.run_task()
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn("monitor.sh scheduled in: NOWHERE; script on the host: yes", p.stdout)
+        self.assertIn("dry run only", p.stdout)
+        self.assertEqual(os.listdir(self.cron), [])
+
+    def test_it_sees_a_schedule_in_a_directory_only_root_can_read_and_in_the_root_crontab(self):
+        with open(os.path.join(self.other, "root"), "w") as f:
+            f.write("*/15 * * * * /opt/nabdah/deploy/scripts/monitor.sh\n")
+        p = self.run_task()
+        self.assertIn("monitor.sh scheduled in: root;", p.stdout)
+        os.remove(os.path.join(self.other, "root"))
+        with open(self.roottab, "w") as f:
+            f.write("*/15 * * * * /opt/nabdah/deploy/scripts/monitor.sh\n")
+        p = self.run_task()
+        self.assertIn("monitor.sh scheduled in: root-crontab;", p.stdout)
+
+    def test_apply_refuses_a_second_schedule_and_a_missing_script(self):
+        p = self.run_task(APPLY="yes")
+        self.assertEqual(p.returncode, 1); self.assertIn("run 91c-host-files first", p.stdout)
+        write_exec(self.script, "#!/bin/bash\n")
+        with open(os.path.join(self.cron, "other"), "w") as f:
+            f.write("*/5 * * * * root /x/monitor.sh\n")
+        p = self.run_task(APPLY="yes")
+        self.assertEqual(p.returncode, 1); self.assertIn("already scheduled in: other", p.stdout)
+        self.assertFalse(os.path.exists(os.path.join(self.cron, "nabd-monitor")))
+
+    def test_apply_installs_every_15_minutes_and_is_idempotent_and_rolls_back(self):
+        write_exec(self.script, "#!/bin/bash\n")
+        p = self.run_task(APPLY="yes")
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn(f"*/15 * * * * root {self.script}", slurp(os.path.join(self.cron, "nabd-monitor")))
+        p = self.run_task(APPLY="yes")
+        self.assertIn("already installed by this task", p.stdout)
+        p = self.run_task(ROLLBACK="yes")
+        self.assertFalse(os.path.exists(os.path.join(self.cron, "nabd-monitor")))
+
+    def test_mail_settings_are_reported_as_set_or_unset_never_as_values(self):
+        write_exec(self.script, "#!/bin/bash\n")
+        with open(os.path.join(self.deploy, ".env.production"), "w") as f:
+            f.write("OPS_ALERT_EMAIL=ops@secret.invalid\nRESEND_API_KEY=re_supersecret\n")
+        p = self.run_task()
+        self.assertIn("OPS_ALERT_EMAIL=set MAIL_FROM=unset RESEND_API_KEY=set BREVO_API_KEY=unset", p.stdout)
+        self.assertNotIn("secret", p.stdout)
+
+    def test_testmail_prints_only_sent_or_failed(self):
+        import shutil
+        shutil.copy(MONITOR_SH, self.script)
+        mailfile = os.path.join(self.t, "mail.txt")
+        envf = os.path.join(self.deploy, ".env.production")
+        with open(envf, "w") as f:
+            f.write("OPS_ALERT_EMAIL=ops@example.invalid\nMAIL_FROM=x@y.invalid\n")
+        p = self.run_task({"MONITOR_MAIL_CMD": f"tee -a {mailfile}", "MONITOR_LOG_DIR": self.t}, TESTMAIL="yes")
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn("status: monitor-cron: test mail: sent", p.stdout)
+        self.assertNotIn("ops@example.invalid", p.stdout)
+        self.assertIn("test mail from monitor.sh", slurp(mailfile))
+        with open(envf, "w") as f:
+            f.write("OPS_ALERT_EMAIL=ops@example.invalid\nMAIL_FROM=x@y.invalid\n")
+        p = self.run_task({"MONITOR_LOG_DIR": self.t, "RESEND_API_KEY": "", "BREVO_API_KEY": "", "MAILJET_API_KEY": ""}, TESTMAIL="yes")
+        self.assertIn("status: monitor-cron: test mail: failed", p.stdout)
+
+
+class Tcmalloc(Base):
+    def docker(self, supported=True, refuse=False):
+        state = os.path.join(self.t, "rate")
+        with open(state, "w") as f:
+            f.write("1")
+        write_exec(os.path.join(self.b, "docker"), f'''#!/bin/bash
+echo "$@" >> "{self.log}"
+[ "$1" = exec ] || exit 0
+last="${{@: -1}}"
+case "$last" in
+  *getParameter*) {'echo \'{"r":null}\'' if not supported else 'echo "{\\"r\\":$(cat ' + state + ')}"'};;
+  *setParameter*) {'echo \'{"ok":0}\'' if refuse else 'v=$(echo "$last" | sed -E "s/.*tcmallocReleaseRate:([0-9.]+).*/\\1/"); echo "$v" > ' + state + '; echo \'{"ok":1}\''};;
+  *serverStatus*) echo '{{"a":613416960,"h":862978048,"f":249561088,"c":1048576}}';;
+esac
+exit 0
+''')
+
+    def run_task(self, **kv):
+        src = slurp(TCMALLOC)
+        for k, v in kv.items():
+            src = re.sub(rf'^{k}=""', f'{k}="{v}"', src, count=1, flags=re.M)
+        script = os.path.join(self.t, "task.sh"); write_exec(script, src)
+        env = dict(os.environ, PATH=self.b + os.pathsep + os.environ["PATH"], WAIT="0")
+        return subprocess.run(["bash", script], env=env, capture_output=True, text=True, timeout=30)
+
+    def sets(self):
+        return [l for l in slurp(self.log).splitlines() if "setParameter" in l]
+
+    def test_dry_run_reads_and_changes_nothing(self):
+        self.docker()
+        p = self.run_task()
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn("tcmallocReleaseRate now: 1", p.stdout)
+        self.assertIn("before: allocated=585MB heap=823MB free_in_page_heap=238MB", p.stdout)
+        self.assertIn("dry run only", p.stdout)
+        self.assertEqual(self.sets(), [])
+
+    def test_apply_sets_the_rate_and_prints_before_and_after(self):
+        self.docker()
+        p = self.run_task(APPLY="yes")
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn("set: tcmallocReleaseRate 1 -> 5", p.stdout)
+        self.assertIn("after 0s: allocated=585MB", p.stdout)
+        self.assertEqual(len(self.sets()), 1)
+        p = self.run_task(ROLLBACK="yes")
+        self.assertIn("rolled back: tcmallocReleaseRate=1.0", p.stdout)
+
+    def test_a_server_that_does_not_know_the_parameter_or_refuses_it_is_left_alone(self):
+        self.docker(supported=False)
+        p = self.run_task(APPLY="yes")
+        self.assertEqual(p.returncode, 1); self.assertIn("does not know tcmallocReleaseRate", p.stdout)
+        self.assertEqual(self.sets(), [])
+        self.docker(refuse=True)
+        p = self.run_task(APPLY="yes")
+        self.assertEqual(p.returncode, 1); self.assertIn("refused the parameter: nothing changed", p.stdout)
 
 
 if __name__ == "__main__":

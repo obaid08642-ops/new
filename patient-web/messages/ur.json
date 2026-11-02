@@ -1623,7 +1623,6 @@
     "turnaround": "{value} گھنٹے",
     "fasting": "روزہ درکار ہو سکتا ہے",
     "preparationTitle": "تیاری",
-    "bookingUnavailableNotice": "اس سروس کی آن لائن بکنگ ابھی دستیاب نہیں۔",
     "facilityVisit": "مرکز پر وزٹ"
   },
   "Wishlist": {
@@ -5784,6 +5783,8 @@
     "title": "رسید",
     "brand": "نبض پلس",
     "simplified": "سادہ ٹیکس انوائس",
+    "paymentReceipt": "ادائیگی کی رسید",
+    "totalPaid": "ادا کی گئی کل رقم",
     "invoiceNo": "انوائس نمبر",
     "vatNumber": "ویٹ رجسٹریشن نمبر",
     "dateTime": "تاریخ اور وقت",

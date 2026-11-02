@@ -124,7 +124,11 @@ export function escapeHtml(value: unknown): string {
     .replace(/'/g, '&#39;');
 }
 
-type Attachment = { filename: string; content: string } | null;
+/** A file to attach: text (CSV reports) or binary (a signed PDF). Text is sent as UTF-8; a Buffer is sent byte for byte. */
+export type MailAttachment = { filename: string; content: Buffer | string; contentType?: string };
+type Attachment = MailAttachment[];
+const attachmentBytes = (a: MailAttachment): Buffer => (Buffer.isBuffer(a.content) ? a.content : Buffer.from(a.content, 'utf-8'));
+const attachmentType = (a: MailAttachment): string => a.contentType || (/\.pdf$/i.test(a.filename) ? 'application/pdf' : 'text/csv');
 interface LocalState {
   consecutiveFailures: number; cooldownUntil: number;
   dailyUsed: number; dailyWindowStart: number; monthlyUsed: number; monthlyWindowStart: number;
@@ -312,7 +316,7 @@ export class MailService {
       subject,
       html,
       ...(text ? { text } : {}),
-      ...(attachment ? { attachments: [{ filename: attachment.filename, content: Buffer.from(attachment.content, 'utf-8').toString('base64') }] } : {}),
+      ...(attachment?.length ? { attachments: attachment.map((a) => ({ filename: a.filename, content: attachmentBytes(a).toString('base64') })) } : {}),
     });
     if (error) throw new BadGatewayException(error.message || 'resend_error');
   }
@@ -331,7 +335,7 @@ export class MailService {
       subject,
       html,
       ...(text ? { text } : {}),
-      ...(attachment ? { attachments: [{ filename: attachment.filename, content: Buffer.from(attachment.content, 'utf-8') }] } : {}),
+      ...(attachment?.length ? { attachments: attachment.map((a) => ({ filename: a.filename, content: attachmentBytes(a), contentType: attachmentType(a) })) } : {}),
     });
   }
 
@@ -347,7 +351,7 @@ export class MailService {
         subject,
         htmlContent: html,
         ...(text ? { textContent: text } : {}),
-        ...(attachment ? { attachment: [{ name: attachment.filename, content: Buffer.from(attachment.content, 'utf-8').toString('base64') }] } : {}),
+        ...(attachment?.length ? { attachment: attachment.map((a) => ({ name: a.filename, content: attachmentBytes(a).toString('base64') })) } : {}),
       }),
     }, MAIL_FETCH);
     if (!res.ok) throw new BadGatewayException(`brevo_http_${res.status}`);
@@ -369,7 +373,7 @@ export class MailService {
           Subject: subject,
           HTMLPart: html,
           ...(text ? { TextPart: text } : {}),
-          ...(attachment ? { Attachments: [{ ContentType: 'text/csv', Filename: attachment.filename, Base64Content: Buffer.from(attachment.content, 'utf-8').toString('base64') }] } : {}),
+          ...(attachment?.length ? { Attachments: attachment.map((a) => ({ ContentType: attachmentType(a), Filename: a.filename, Base64Content: attachmentBytes(a).toString('base64') })) } : {}),
         }],
       }),
     }, MAIL_FETCH);
@@ -387,8 +391,12 @@ export class MailService {
    * Send with an optional CSV attachment (scheduled reports, A7).
    * Attachment is base64 for the REST providers, Buffer for nodemailer (SES).
    */
-  async sendWithAttachment(opts: { to: string; subject: string; html: string; text?: string; filename?: string; content?: string }): Promise<MailResult> {
-    const attachment = opts.filename && opts.content ? { filename: opts.filename, content: opts.content } : null;
+  async sendWithAttachment(opts: { to: string; subject: string; html: string; text?: string; filename?: string; content?: Buffer | string; attachments?: MailAttachment[] }): Promise<MailResult> {
+    // One file (filename + content) or several (attachments). A Buffer travels as the bytes it holds: a PDF is no longer turned into UTF-8 text.
+    const attachment: Attachment = [
+      ...(opts.filename && opts.content ? [{ filename: opts.filename, content: opts.content }] : []),
+      ...(opts.attachments ?? []).filter((a) => a?.filename && a.content && (typeof a.content === 'string' ? a.content.length : a.content.length)),
+    ];
     const now = this.now();
     let attempted = 0;
     let lastError = 'no_provider_configured';

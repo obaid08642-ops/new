@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import * as LegacyFS from 'expo-file-system/legacy';
+import { contractFileName, saveContractPdf } from '../../utils/contractFile';
+import { fetchMyContract } from '../../components/MyContract';
 import client from '../../api/client';
 import { sendEmailOtp, verifyEmailOtp } from '../../api/otp';
 import { useTheme, useLang, useToast } from '../../context';
@@ -55,23 +56,14 @@ export function RegistrationSuccess({ onDone, email, providerType = 'provider' }
   const downloadContract = async () => {
     setContractLoading(true);
     try {
-      const res = await client.get('/provider-onboarding/contract');
-      const b64 = res.data?.pdf_base64;
+      const data = await fetchMyContract(AR ? 'ar' : 'en');
+      const b64 = data?.pdf_base64;
       if (!b64) throw new Error('empty');
-      const name = `nabd-contract-${Date.now()}.pdf`;
-      if (Platform.OS === 'android') {
-        const perm = await LegacyFS.StorageAccessFramework.requestDirectoryPermissionsAsync();
-        if (!perm.granted) throw new Error('no_perm');
-        const uri = await LegacyFS.StorageAccessFramework.createFileAsync(perm.directoryUri, name.replace('.pdf', ''), 'application/pdf');
-        await LegacyFS.writeAsStringAsync(uri, b64, { encoding: LegacyFS.EncodingType.Base64 });
-      } else {
-        await LegacyFS.writeAsStringAsync(LegacyFS.documentDirectory + name, b64, { encoding: LegacyFS.EncodingType.Base64 });
-      }
+      await saveContractPdf(b64, contractFileName(data?.sha256));
       show(AR ? 'تم حفظ العقد بنجاح' : 'Contract saved successfully', 'success');
     } catch (e: any) {
-      const st = e?.response?.status;
-      if (st === 403) show(AR ? 'العقد غير متاح بعد — يمكن للإدارة إتاحته لك من لوحة المراجعة' : 'Contract not shared yet — admin can enable it from the review panel', 'error');
-      else show(AR ? 'تعذر تحميل العقد' : 'Could not download the contract', 'error');
+      // 404: nothing signed yet. The signer is never refused: there is no admin switch over their own contract.
+      show(e?.response?.status === 404 ? (AR ? 'لم يُولَّد العقد بعد' : 'The contract has not been generated yet') : (AR ? 'تعذر تحميل العقد' : 'Could not download the contract'), 'error');
     } finally { setContractLoading(false); }
   };
 

@@ -1623,7 +1623,6 @@
     "turnaround": "{value} hours",
     "fasting": "Fasting may be required",
     "preparationTitle": "Preparation",
-    "bookingUnavailableNotice": "Online booking for this service is not available yet.",
     "facilityVisit": "Center visit"
   },
   "Wishlist": {
@@ -5784,6 +5783,8 @@
     "title": "Receipt",
     "brand": "Nabd Plus",
     "simplified": "Simplified tax invoice",
+    "paymentReceipt": "Payment receipt",
+    "totalPaid": "Total paid",
     "invoiceNo": "Invoice no.",
     "vatNumber": "VAT registration no.",
     "dateTime": "Date and time",

@@ -1,7 +1,6 @@
 {
   "note": "Client files carrying colour literals that tokens.json does not declare, per file. --update only ever lowers a count. 12.A11 clears these as screens are rebuilt.",
   "files": {
-    "provider-app/src/components/ContractModal.tsx": 1,
     "provider-app/src/components/GeoPicker.tsx": 7,
     "provider-app/src/components/LocationPickerModal.tsx": 1,
     "provider-app/src/components/OtpModal.tsx": 1,

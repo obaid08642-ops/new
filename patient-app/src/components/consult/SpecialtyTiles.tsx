@@ -24,9 +24,11 @@ export type SpecialtyTileProps = {
   onPress: () => void;
   /** Fills its cell (the grid) instead of the row's fixed width. */
   fill?: boolean;
+  /** The row's tile: the name on one line (the board's), so every tile is as tall as the others and nothing is left empty under a short name; the grid keeps two lines. */
+  oneLine?: boolean;
 };
 
-export function SpecialtyTile({ id, label, look, selected = false, onPress, fill = false }: SpecialtyTileProps) {
+export function SpecialtyTile({ id, label, look, selected = false, onPress, fill = false, oneLine = false }: SpecialtyTileProps) {
   const { theme, t, c } = useScreenUi();
   const tone = c.service[look.tone];
   return (
@@ -41,7 +43,7 @@ export function SpecialtyTile({ id, label, look, selected = false, onPress, fill
       <View style={{ borderRadius: 20, borderWidth: 2, borderColor: selected ? tone.fg : 'transparent', padding: 1 }}>
         <FIcon icon={look.icon} tone={look.tone} chip="soft" size={SPECIALTY_CHIP} theme={theme} />
       </View>
-      <Text numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.8} style={{ ...scale(t, 'meta', selected ? 'bold' : 'medium'), color: c.text.primary, textAlign: 'center' }}>{label}</Text>
+      <Text numberOfLines={oneLine ? 1 : 2} adjustsFontSizeToFit minimumFontScale={0.8} style={{ ...scale(t, 'meta', selected ? 'bold' : 'medium'), color: c.text.primary, textAlign: 'center' }}>{label}</Text>
     </Pressable>
   );
 }
@@ -60,12 +62,12 @@ export type SpecialtyRowProps = {
 /** "All" first, the specialties with doctors (most doctors first), the others, then "All specialties" (the grid with search). */
 export function SpecialtyRow({ tiles, allLabel, moreLabel, activeSlug, onAll, onSelect, onMore }: SpecialtyRowProps) {
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: GAP, padding: 2 }} testID="specialty-row">
-      <SpecialtyTile id="all" label={allLabel} look={SPECIALTY_ALL_LOOK} selected={activeSlug === ''} onPress={onAll} />
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: GAP, paddingTop: 2, paddingHorizontal: 2, paddingBottom: 0 }} testID="specialty-row">
+      <SpecialtyTile id="all" label={allLabel} look={SPECIALTY_ALL_LOOK} selected={activeSlug === ''} onPress={onAll} oneLine />
       {tiles.map((tile) => (
-        <SpecialtyTile key={tile.slug} id={tile.slug} label={tile.name} look={tile.look} selected={activeSlug === tile.slug} onPress={() => onSelect(tile)} />
+        <SpecialtyTile key={tile.slug} id={tile.slug} label={tile.name} look={tile.look} selected={activeSlug === tile.slug} onPress={() => onSelect(tile)} oneLine />
       ))}
-      <SpecialtyTile id="more" label={moreLabel} look={SPECIALTY_MORE_LOOK} onPress={onMore} />
+      <SpecialtyTile id="more" label={moreLabel} look={SPECIALTY_MORE_LOOK} onPress={onMore} oneLine />
     </ScrollView>
   );
 }

@@ -55,7 +55,9 @@ else
 fi
 
 # ---- 4. alerts
-CRONS=$(sudo -n grep -ls 'monitor.sh' /etc/cron.d/* /etc/crontab /var/spool/cron/crontabs/* /var/spool/cron/* 2>/dev/null | sed 's#.*/##' | tr '\n' ' ')
+# the globs are expanded by root (sh -c under sudo): /var/spool/cron/crontabs is not readable by the ops user, so a glob expanded by the caller stayed literal and missed root's crontab (run 81)
+CRONS=$(sudo -n sh -c 'grep -ls "monitor\.sh" /etc/cron.d/* /etc/crontab /var/spool/cron/crontabs/* /var/spool/cron/* /etc/systemd/system/*.service /etc/systemd/system/*.timer 2>/dev/null' | sed 's#.*/##' | sort -u | tr '\n' ' ')
+sudo -n crontab -l 2>/dev/null | grep -q 'monitor\.sh' && CRONS="${CRONS}root-crontab "
 say "monitor.sh scheduled in: ${CRONS:-NOWHERE (no cron file or crontab names it)}; script on the server: $(sudo -n test -x "$D/scripts/monitor.sh" && echo yes || echo no)"
 LOGF=${OPS_ALERT_LOG:-/var/log/nabdah-alerts.log}
 if sudo -n test -r "$LOGF"; then

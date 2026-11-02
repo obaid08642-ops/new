@@ -21,7 +21,7 @@ import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { isOnlineConsultation } from '../chat/consultation-window';
 import { assertTelehealthConsent } from '../legal/telehealth-consent';
 import { consultationPricing } from './consultation-pricing';
-import { buildQuote, readVatRate } from '../../common/quote';
+import { buildQuote, readQuoteVatRate } from '../../common/quote';
 import { PAYMENT_METHODS_BY_CONTEXT } from '../../common/payment-policy';
 
 /**
@@ -335,7 +335,22 @@ export class AppointmentsService {
   async adminList(limit = 50, status?: ApptState) {
     const q: any = {};
     if (status) q.status = status;
-    return this.apptModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(limit).lean().catch(() => []);
+    const rows: any[] = await this.apptModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(limit).lean().catch(() => []);
+    // The oversight list says who and with whom (two batched lookups for the page, never one per row).
+    const patientIds = [...new Set(rows.map((r) => r.patient_id).filter(Boolean).map(String))];
+    const doctorIds = [...new Set(rows.map((r) => r.doctor_id).filter(Boolean).map(String))];
+    const [patients, doctors]: [any[], any[]] = await Promise.all([
+      patientIds.length
+        ? this.connection.collection('users').find({ $or: [{ id: { $in: patientIds } }, { _id: { $in: patientIds } as any }] } as any).project({ id: 1, full_name: 1 }).toArray().catch(() => [])
+        : Promise.resolve([]),
+      doctorIds.length
+        ? this.providerModel.find({ id: { $in: doctorIds }, type: ProviderType.DOCTOR }, { id: 1, name_ar: 1, name: 1, _id: 0 }).lean().catch(() => [])
+        : Promise.resolve([]),
+    ]);
+    const patientName = new Map<string, string>();
+    for (const u of patients) { const n = u.full_name; if (n) { if (u.id) patientName.set(String(u.id), n); if (u._id) patientName.set(String(u._id), n); } }
+    const doctorName = new Map(doctors.map((d: any) => [String(d.id), d.name_ar || d.name || null]));
+    return rows.map((r) => ({ ...r, patient_name: patientName.get(String(r.patient_id)) ?? null, doctor_name: doctorName.get(String(r.doctor_id)) ?? null }));
   }
   async listMine(user: any, status?: ApptState) {
     const q: any = {};
@@ -490,7 +505,7 @@ export class AppointmentsService {
     const lines = [{ key: 'consultation_fee', amount: p.price }, { key: 'platform_fee', amount: p.service_fee }];
     if (p.home_visit_fee) lines.push({ key: 'home_visit_fee', amount: p.home_visit_fee });
     if (p.transportation_fee) lines.push({ key: 'transport_fee', amount: p.transportation_fee });
-    return { ...buildQuote({ kind: 'consultation', lines, vat_rate: await readVatRate(this.connection), allowed_methods: PAYMENT_METHODS_BY_CONTEXT[context] }), doctor_id: doctor.id, service_type: serviceType };
+    return { ...buildQuote({ kind: 'consultation', lines, vat_rate: await readQuoteVatRate(this.connection), allowed_methods: PAYMENT_METHODS_BY_CONTEXT[context] }), doctor_id: doctor.id, service_type: serviceType };
   }
 
   // High-level commands

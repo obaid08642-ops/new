@@ -170,6 +170,12 @@ send_mail() { # subject body
   [ $any = 0 ] && echo "[$TS] alert mail not sent: no provider key set (RESEND_API_KEY, BREVO_API_KEY, MAILJET_API_KEY/MAILJET_SECRET_KEY)" >> "$LOG_DIR/nabdah-alerts.log"
   return 1
 }
+# MONITOR_TEST_MAIL=1 (ops task 98m): send ONE test mail through the real provider path and print only "sent" or "failed"; no alert logic, no state change
+if [ "${MONITOR_TEST_MAIL:-0}" = 1 ]; then
+  if [ -z "${OPS_ALERT_EMAIL:-}" ]; then echo "status: monitor-testmail: failed (OPS_ALERT_EMAIL is not set)"; exit 1; fi
+  if send_mail "[nabd.plus] test mail from monitor.sh" "Sent by ops task 98m at $TS UTC. If you read this, the alert mail path works."; then echo "status: monitor-testmail: sent"; exit 0; fi
+  echo "status: monitor-testmail: failed (see the last lines of $LOG_DIR/nabdah-alerts.log for the provider and HTTP code)"; exit 1
+fi
 if [ -n "${OPS_ALERT_EMAIL:-}" ]; then
   mkdir -p "$STATE_DIR" 2>/dev/null
   SIG=$(printf '%s\n' "${KEYS[@]}" | sort -u | tr '\n' ' ' | sed 's/ *$//')

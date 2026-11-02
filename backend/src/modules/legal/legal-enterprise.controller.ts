@@ -32,7 +32,7 @@ export class LegalEnterpriseController {
   async policyPdf(@Param('key') key: string, @Res() res: Response) {
     const p: any = await this.conn.collection('legal_policies').findOne({ key });
     if (!p) return res.status(404).json({ error: 'not_found' });
-    const pdf = this.svc.buildPdf(`${p.title_en} — v${p.version}`, [
+    const pdf = await this.svc.buildPdf(`${p.title_en} — v${p.version}`, [
       `${p.title_ar}`,
       `Version ${p.version} · Effective ${new Date(p.effective_date).toISOString().slice(0, 10)} · Updated ${new Date(p.last_updated).toISOString().slice(0, 10)}`,
       '',

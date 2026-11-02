@@ -68,7 +68,7 @@ export class MongoSelfHealService implements OnApplicationBootstrap, OnModuleDes
   /** A brand-new client, its own pool, the same URI: does mongod answer at all? */
   private async independentPing(): Promise<boolean> {
     const uri = process.env.MONGO_URL || 'mongodb://localhost:27017';
-    const client = new mongo.MongoClient(uri, { serverSelectionTimeoutMS: 3_000, connectTimeoutMS: 3_000, maxPoolSize: 1 });
+    const client = new mongo.MongoClient(uri, { serverSelectionTimeoutMS: 3_000, connectTimeoutMS: 3_000, maxPoolSize: 1, appName: 'nabd-selfheal' });
     try {
       await withTimeout(client.connect(), 5_000);
       await withTimeout(client.db('admin').command({ ping: 1 }), 3_000);

@@ -55,6 +55,14 @@ class MemoryBudget(unittest.TestCase):
         for n, a in allowance.items():
             self.assertLessEqual(a, self.s[n]["limit"] // 2, f"{n}: swap allowance above half its limit")
 
+    def test_the_wiredtiger_cache_is_at_most_40_percent_of_the_mongod_limit(self):
+        # run 81 (99n): tcmalloc heap 823 MB = 585 allocated (512 cache + ~73 other) + 238 free; cgroup anon 790 MB of the 1600 MB limit. A cache of 0.6 GB adds ~90 MB: anon ~880 MB,
+        # which leaves ~720 MB for connections, sorts and index builds. Above 40 % of the limit (640 MB) that room is gone (the outage of 2026-11-01 was a spike, not the steady use).
+        conf = open(os.path.join(ROOT, "deploy", "mongo", "mongod.conf")).read()
+        gb = float(re.search(r"cacheSizeGB:\s*([0-9.]+)", conf).group(1))
+        self.assertLessEqual(gb * 1024, 0.40 * self.s["mongodb"]["limit"], "WiredTiger cache above 40% of the mongod container limit")
+        self.assertIn(f"cacheSizeGB: {gb}", DOC, "docs/ops/MEMORY_BUDGET.md must state the cache size that mongod.conf has")
+
     def test_node_heaps_leave_a_quarter_of_the_limit_for_native_memory(self):
         heaps = {n: v for n, v in self.s.items() if v["heap"]}
         self.assertEqual(set(heaps), {"backend", "worker", "admin-web", "patient-web"})

@@ -1623,7 +1623,6 @@
     "turnaround": "{value} ساعة",
     "fasting": "قد يتطلب صياماً",
     "preparationTitle": "التحضير",
-    "bookingUnavailableNotice": "الحجز الإلكتروني لهذه الخدمة غير متاح بعد.",
     "facilityVisit": "زيارة المركز"
   },
   "Wishlist": {
@@ -5784,6 +5783,8 @@
     "title": "الإيصال",
     "brand": "نبض بلس",
     "simplified": "فاتورة ضريبية مبسّطة",
+    "paymentReceipt": "إيصال دفع",
+    "totalPaid": "المبلغ المدفوع",
     "invoiceNo": "رقم الفاتورة",
     "vatNumber": "الرقم الضريبي",
     "dateTime": "التاريخ والوقت",

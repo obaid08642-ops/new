@@ -36,6 +36,11 @@ describe("extractReceipt", () => {
   it("falls back to createdAt and no seller when the QR is missing", () => {
     expect(extractReceipt({ ...base, qr_base64: undefined })).toMatchObject({ issuedAt: "2026-10-31T10:00:01.000Z", seller: null, qr: null });
   });
+  it("a payment receipt (document_kind receipt, VAT null, no QR) is still a receipt: amount paid, no VAT, the seller name from the document", () => {
+    const rc = { invoice_no: "RCT-2026-000001", document_kind: "receipt", booking_kind: "lab", booking_id: "b1", subtotal: 115, vat_rate: null, vat_amount: null, total: 115, qr_base64: null, seller: { legal_name: "منصة نبض الطبية", vat_number: null }, createdAt: "2026-10-31T10:00:01.000Z" };
+    expect(extractReceipt(rc)).toMatchObject({ taxInvoice: false, total: 115, subtotal: 115, vatAmount: 0, qr: null, seller: null, sellerName: "منصة نبض الطبية" });
+    expect(extractReceipt({ ...base, vat_amount: null })).toBeNull(); // a tax invoice without its VAT is still refused
+  });
   it("is null when the number, a booking or an amount is missing", () => {
     expect(extractReceipt({ ...base, invoice_no: "" })).toBeNull();
     expect(extractReceipt({ ...base, total: undefined })).toBeNull();

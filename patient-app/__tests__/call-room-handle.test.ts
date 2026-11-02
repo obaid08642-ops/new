@@ -74,6 +74,6 @@ describe('screens use them', () => {
     expect(src).not.toContain('activeRoom');
   });
   it('the chat screen puts the loaded history in chronological order', () => {
-    expect(read('app/consultations/chat-with-doctor.tsx')).toContain('chronological(list.map((m) => fromServer(m, myId, stamp)))');
+    expect(read('app/consultations/chat-with-doctor.tsx')).toContain('chronological(serverMessages(mres).map((m) => fromServer(m, myId, stamp)))');
   });
 });

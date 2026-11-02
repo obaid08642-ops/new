@@ -15,6 +15,7 @@ import { ForbiddenException } from '@nestjs/common';
 import { Appointment } from '../../../schemas/appointment.schema';
 import { getEffectiveRoles } from '../../../common/auth.guard';
 import { recordAudit } from '../../../common/audit-record';
+import { DEFAULT_COMMISSION_PERCENT } from '../../../common/commission-defaults';
 
 // Whitelist of permission keys a facility may grant through an invitation —
 // anything else in the payload is silently dropped (mass-assignment guard).
@@ -256,7 +257,7 @@ export class HospitalService {
         await db.collection('provider_profiles').insertOne({
           // raw insert: the unique `id` (and other schema defaults) are not applied — without an id the
           // second sub-account collided on the unique index (409)
-          id: randomUUID(), phones: [], enabled_modules: [], commission_rate: 10, has_own_delivery: false,
+          id: randomUUID(), phones: [], enabled_modules: [], commission_rate: DEFAULT_COMMISSION_PERCENT, has_own_delivery: false,
           use_platform_delivery: true, profile_completeness: 0,
           account_id: accId, provider_type: clinical.ptype,
           display_name_ar: (data as any).name_ar || fullName,

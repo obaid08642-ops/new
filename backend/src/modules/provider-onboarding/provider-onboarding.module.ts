@@ -2,7 +2,7 @@ import { clinicFromRegistration, normalizeGender, normalizeEducation, normalizeP
 import { bankRowFromProfile, syncBankRow } from './bank-row';
 import { facilityLicenseProblems } from './facility-license';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
-import { Module, Controller, Post, Get, Body, Query, Param, UseGuards, Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
+import { Module, Controller, Post, Get, Body, Query, Param, UseGuards, Injectable, Optional, BadRequestException, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
 import { assertNursingServicePrices } from '../../common/nursing-price';
 import { isEmail } from 'class-validator';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
@@ -13,12 +13,13 @@ import { UserRole, ProviderType, ProviderStatus } from '../../common/enums';
 import { ProviderProfile, ProviderProfileDocument, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { User, UserDocument, UserSchema } from '../../schemas/user.schema';
 import { EventBusService } from '../events/event-bus.service';
-import { ContractPdfService } from './contract-pdf.service';
+import { ContractPdfService, ContractAgreement, ContractLang, ContractSignature } from './contract-pdf.service';
+import { MailModule, MailService } from '../mail/mail.module';
 import { ScfhsLicenseModule, ScfhsLicenseService } from '../provider/services/scfhs-license.service';
 import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { escapeRegex } from '../../common/slug.util';
-import { StartDto, SubmitDto, AdminContractVisibilityDto } from './provider-onboarding.dto';
+import { StartDto, SubmitDto } from './provider-onboarding.dto';
 import { PROVIDER_PUBLIC_PROJECTION } from './provider-private-fields';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
@@ -40,6 +41,7 @@ export class ProviderOnboardingService {
     private bus: EventBusService,
     private contracts: ContractPdfService,
     private scfhs: ScfhsLicenseService,
+    @Optional() private mail?: MailService,
   ) {}
 
   private typeToRole(type: ProviderType): UserRole {
@@ -280,6 +282,9 @@ export class ProviderOnboardingService {
     }
     const licenseProblems = facilityLicenseProblems(profile.toObject());
     if (licenseProblems.length) throw new BadRequestException({ message: 'license_expiry_invalid', code: 'license_expiry_invalid', missing: licenseProblems });
+    // No contract without what it is made of: the published agreement the provider accepted and a signature that passed its scan.
+    // Both are checked before anything is saved, so a refusal leaves the profile as it was and the provider can simply try again.
+    const prepared = await this.prepareContract(user, body?.signature_url || (profile as any).signature_url);
     profile.onboarding_completed = true;
     profile.status = ProviderStatus.PENDING;
     if (body) {
@@ -299,21 +304,33 @@ export class ProviderOnboardingService {
     // These are required review artifacts. Fail visibly rather than leaving a
     // pending profile that cannot be found by moderation or contract review.
     await this.mirrorToModerationQueue(user, profile);
-    await this.generateAndStoreContract(user, profile);
+    await this.generateAndStoreContract(user, profile, prepared);
     // 19.3: look the SCFHS licence up now so the reviewing admin sees the answer; submitting approves nobody.
     await this.scfhs.recordAtSubmission(profile.toObject()).catch(() => null);
     this.bus.emit({ type: 'provider.submitted_for_review', entity_type: 'provider', entity_id: profile.id, actor_account_id: user.id, actor_role: 'provider', meta: { type: profile.type } }).catch(() => null);
     return profile.toObject();
   }
 
+  /** The agreement text and acceptance, and the clean signature, a contract is made from (typed errors when either is missing). */
+  private async prepareContract(user: any, signatureUrl?: string | null) {
+    const agreement = await this.contracts.loadAgreement(user.id);
+    const signature = await this.contracts.resolveSignature(signatureUrl);
+    return { agreement, signature };
+  }
+
   /**
-   * Generate the two-party contract PDF (with the drawn e-signature merged into the
-   * provider signature area) and store it base64 in `provider_contracts`.
-   * Admin-only by default; provider visibility is an explicit admin grant.
+   * Make the signed contract PDFs and store them as a NEW version of this provider's contract. The Arabic PDF is always made; the
+   * English PDF when the accepted agreement has an English text. Rows in `provider_contracts` are only ever inserted: a
+   * re-submission (after a change request, say) adds version N+1 and the earlier signed PDFs stay as they were. A copy is e-mailed.
    */
-  private async generateAndStoreContract(user: any, profile: ProviderProfileDocument) {
-    const fullUser = await this.userModel.findOne({ id: user.id }).lean();
-    const { pdf, sha256 } = await this.contracts.generate({
+  private async generateAndStoreContract(user: any, profile: ProviderProfileDocument, prepared: { agreement: ContractAgreement; signature: ContractSignature }) {
+    const fullUser: any = await this.userModel.findOne({ id: user.id }).lean();
+    const col = this.providerModel.db.collection('provider_contracts');
+    const versionNo = (await col.countDocuments({ profile_id: profile.id })) + 1;
+    const id = uuidv4();
+    const signedAt = new Date();
+    const { agreement, signature } = prepared;
+    const party = {
       profileId: profile.id,
       accountId: (profile as any).account_id || null,
       userId: user.id,
@@ -326,77 +343,107 @@ export class ProviderOnboardingService {
       signerName: (profile as any).signer_name,
       signerRole: (profile as any).signer_role,
       signatureUrl: (profile as any).signature_url,
-      email: (fullUser as any)?.email,
-      phone: (fullUser as any)?.phone,
-    });
-    const now = new Date();
-    await this.providerModel.db.collection('provider_contracts').updateOne(
-      { profile_id: profile.id },
-      {
-        $set: {
-          account_id: (profile as any).account_id || null,
-          user_id: user.id,
-          provider_type: profile.type,
-          signer_name: (profile as any).signer_name || null,
-          signer_role: (profile as any).signer_role || null,
-          signature_url: (profile as any).signature_url || null,
-          pdf_base64: pdf.toString('base64'),
-          sha256,
-          updatedAt: now,
-        },
-        // Provider can download their own signed contract right after submitting;
-        // admins can still revoke visibility from the review panel.
-        $setOnInsert: { id: uuidv4(), visible_to_provider: true, createdAt: now },
-      },
-      { upsert: true },
-    );
+      email: fullUser?.email,
+      phone: fullUser?.phone,
+      accountName: fullUser?.full_name,
+    };
+    const meta = { contractId: id, versionNo, signedAt };
+    const ar = await this.contracts.generate(party, agreement, signature, meta, 'ar');
+    const en = String(agreement.policy.content_en || '').trim() ? await this.contracts.generate(party, agreement, signature, meta, 'en') : null;
+    await col.insertOne({
+      id,
+      profile_id: profile.id,
+      account_id: (profile as any).account_id || null,
+      user_id: user.id,
+      provider_type: profile.type,
+      version_no: versionNo,
+      status: 'signed',
+      // what was signed: the agreement version and the text hashes, and the acceptance row (who, when, IP, device) it rests on
+      policy_key: agreement.policy.key,
+      policy_version: agreement.policy.version,
+      policy_content_sha256_ar: agreement.policy.content_sha256_ar,
+      policy_content_sha256_en: agreement.policy.content_sha256_en,
+      acceptance_id: agreement.acceptance.id,
+      accepted_at: agreement.acceptance.accepted_at,
+      accepted_ip: agreement.acceptance.ip,
+      accepted_device: agreement.acceptance.device,
+      signer_name: (profile as any).signer_name || null,
+      signer_role: (profile as any).signer_role || null,
+      signed_at: signedAt,
+      signature_url: (profile as any).signature_url || null,
+      signature_sha256: signature.sha256,
+      languages: en ? ['ar', 'en'] : ['ar'],
+      pdf_base64: ar.pdf.toString('base64'),
+      sha256: ar.sha256, // the full SHA-256 of the stored Arabic bytes
+      size_bytes: ar.pdf.length,
+      pdf_en_base64: en ? en.pdf.toString('base64') : null,
+      sha256_en: en ? en.sha256 : null,
+      size_bytes_en: en ? en.pdf.length : null,
+      createdAt: signedAt,
+    } as any);
+    await this.emailContractCopy(id, versionNo, fullUser?.email, [{ lang: 'ar' as ContractLang, pdf: ar.pdf }, ...(en ? [{ lang: 'en' as ContractLang, pdf: en.pdf }] : [])]);
   }
 
-  /** Lazily (re)generate a contract from the stored profile when none exists yet. */
-  private async ensureContract(profile: any): Promise<any> {
-    const col = this.providerModel.db.collection('provider_contracts');
-    const existing: any = await col.findOne({ profile_id: profile.id });
-    if (existing) return existing;
-    const user = { id: profile.user_id };
-    await this.generateAndStoreContract(user, profile);
-    return col.findOne({ profile_id: profile.id });
+  /**
+   * E-mail the signed PDFs to the provider after signing. A failed send never undoes the signing (the contract is stored and the
+   * provider can open it in the app); the outcome is written to `provider_contract_emails` either way.
+   */
+  private async emailContractCopy(contractId: string, versionNo: number, to: string | undefined, files: Array<{ lang: ContractLang; pdf: Buffer }>) {
+    const log = this.providerModel.db.collection('provider_contract_emails');
+    const at = new Date();
+    let ok = false; let error: string | null = null; let provider: string | null = null;
+    try {
+      if (!to) throw new Error('no_email_on_file');
+      if (!this.mail) throw new Error('mailer_unavailable');
+      const res = await this.mail.sendWithAttachment({
+        to,
+        subject: 'نسخة من عقد الشراكة الموقّع — Your signed partnership contract',
+        text: 'مرفق نسخة PDF من عقد الشراكة الذي وقّعته مع منصة نبض. A PDF copy of the partnership contract you signed with Nabd is attached.',
+        html: '<p dir="rtl">مرفق نسخة PDF من عقد الشراكة الذي وقّعته مع منصة نبض. تجدها أيضاً في التطبيق ضمن الإعدادات.</p><p dir="ltr">A PDF copy of the partnership contract you signed with Nabd is attached. You can also open it in the app under Settings.</p>',
+        attachments: files.map((f) => ({ filename: `nabd-contract-v${versionNo}-${f.lang}.pdf`, content: f.pdf, contentType: 'application/pdf' })),
+      });
+      ok = !!res?.ok; provider = res?.provider ?? null; error = res?.ok ? null : (res?.error ?? 'mail_failed');
+    } catch (e: any) {
+      error = String(e?.message || e);
+    }
+    await log.insertOne({ contract_id: contractId, version_no: versionNo, to: to || null, ok, provider, error, languages: files.map((f) => f.lang), at } as any).catch(() => undefined);
   }
 
-  /** Provider-side contract download (gated by admin grant). */
+  /** The newest signed contract of a provider, found by user, account or profile id (older rows predate versions). */
+  private async latestContract(filter: Record<string, unknown>): Promise<any | null> {
+    const rows = await this.providerModel.db.collection('provider_contracts').find(filter as any).sort({ createdAt: -1 }).limit(1).toArray();
+    return rows[0] ?? null;
+  }
+
+  /** The signer's own newest contract. There is no switch that hides it: the provider can always read what they signed. */
   async getContractForOwner(user: any) {
-    let c: any = await this.providerModel.db.collection('provider_contracts').findOne({ user_id: user.id });
-    if (!c) {
-      // Contract missing (e.g. generation failed at submit) — rebuild it on demand.
-      const profile: any = await this.providerModel.findOne({ user_id: user.id }).lean();
-      if (!profile) throw new NotFoundException('contract_not_generated');
-      c = await this.ensureContract(profile);
-    }
+    const c = await this.latestContract({ user_id: user.id });
     if (!c) throw new NotFoundException('contract_not_generated');
-    if (!c.visible_to_provider) throw new ForbiddenException('contract_not_shared_by_admin');
     return c;
   }
 
-  /** Admin-side contract download — looks up by account id first, then profile id. */
+  /** Admin-side contract — by account id or profile id; the newest version, with the list of every version's metadata. */
   async getContractForAdmin(accountOrProfileId: string) {
-    const col = this.providerModel.db.collection('provider_contracts');
-    let c: any = await col.findOne({ $or: [{ account_id: accountOrProfileId }, { profile_id: accountOrProfileId }] } as any);
-    if (!c) {
-      const profile: any = await this.providerModel.findOne({ $or: [{ account_id: accountOrProfileId }, { id: accountOrProfileId }] } as any).lean();
-      if (!profile) throw new NotFoundException('contract_not_generated');
-      c = await this.ensureContract(profile);
-    }
+    const filter = { $or: [{ account_id: accountOrProfileId }, { profile_id: accountOrProfileId }] };
+    const c = await this.latestContract(filter);
     if (!c) throw new NotFoundException('contract_not_generated');
-    return c;
+    const versions = (await this.providerModel.db.collection('provider_contracts').find(filter as any).project({ _id: 0, id: 1, version_no: 1, sha256: 1, sha256_en: 1, policy_version: 1, signed_at: 1, createdAt: 1, languages: 1 }).sort({ createdAt: -1 }).limit(50).toArray());
+    return { ...c, versions };
   }
 
-  async setContractVisibility(accountOrProfileId: string, visible: boolean) {
-    const col = this.providerModel.db.collection('provider_contracts');
-    const res = await col.updateOne(
-      { $or: [{ account_id: accountOrProfileId }, { profile_id: accountOrProfileId }] } as any,
-      { $set: { visible_to_provider: visible, updatedAt: new Date() } },
-    );
-    if (!res.matchedCount) throw new NotFoundException('contract_not_generated');
-    return { ok: true, visible_to_provider: visible };
+  /** The PDF of one language of a stored contract (Arabic by default); the English one only when the agreement had an English text. */
+  contractPdf(c: any, lang?: string): { pdf_base64: string; sha256: string; language: ContractLang } {
+    if (lang === 'en') {
+      if (!c.pdf_en_base64) throw new NotFoundException('contract_language_unavailable');
+      return { pdf_base64: c.pdf_en_base64, sha256: c.sha256_en, language: 'en' };
+    }
+    return { pdf_base64: c.pdf_base64, sha256: c.sha256, language: 'ar' };
+  }
+
+  /** The facts of the newest contract without the PDF: who signed, when, the version, the acceptance, the hashes and every version. */
+  async getContractMeta(accountOrProfileId: string) {
+    const { pdf_base64, pdf_en_base64, _id, signature_url, ...c } = await this.getContractForAdmin(accountOrProfileId);
+    return c;
   }
 
   /**
@@ -565,29 +612,35 @@ export class ProviderOnboardingController {
   @UseGuards(JwtAuthGuard) @Get('progress')
   progress(@CurrentUser() u: any) { return this.svc.getProgress(u); }
 
-  /** Provider downloads own contract — only when an admin granted visibility. */
+  /** The signer reads their own newest contract, any time. `?lang=en` for the English PDF when the agreement has one. */
   @UseGuards(JwtAuthGuard) @Get('contract')
-  async myContract(@CurrentUser() u: any) {
+  async myContract(@CurrentUser() u: any, @Query('lang') lang?: string) {
     const c = await this.svc.getContractForOwner(u);
-    return { pdf_base64: c.pdf_base64, sha256: c.sha256, generated_at: c.createdAt };
+    return {
+      ...this.svc.contractPdf(c, lang), generated_at: c.createdAt, signed_at: c.signed_at ?? null, version_no: c.version_no ?? null,
+      policy_version: c.policy_version ?? null, languages: c.languages ?? ['ar'],
+    };
   }
 
-  /** Admin: fetch the stored signed contract for a moderation account/profile. */
+  /** Admin: the stored signed contract (newest version) for a moderation account or profile, with the version list. */
   @UseGuards(JwtAuthGuard) @Get('admin/contracts/:id')
   @Roles(UserRole.ADMIN)
-  async adminContract(@CurrentUser() u: any, @Param('id') id: string) {
+  async adminContract(@CurrentUser() u: any, @Param('id') id: string, @Query('lang') lang?: string) {
     if (u.role !== 'admin' && u.role !== 'super_admin') throw new ForbiddenException('admin only');
     const c = await this.svc.getContractForAdmin(id);
-    return { pdf_base64: c.pdf_base64, sha256: c.sha256, visible_to_provider: c.visible_to_provider, generated_at: c.createdAt, signer_name: c.signer_name, signer_role: c.signer_role };
+    return {
+      ...this.svc.contractPdf(c, lang), generated_at: c.createdAt, signed_at: c.signed_at ?? null, version_no: c.version_no ?? null,
+      policy_version: c.policy_version ?? null, accepted_at: c.accepted_at ?? null, accepted_ip: c.accepted_ip ?? null, accepted_device: c.accepted_device ?? null,
+      signer_name: c.signer_name, signer_role: c.signer_role, languages: c.languages ?? ['ar'], versions: c.versions,
+    };
   }
 
-  /** Admin: grant/revoke the provider's ability to view their signed contract. */
-  @RequirePermissions(Permission.FACILITY_EDIT)
-  @UseGuards(JwtAuthGuard) @Post('admin/contracts/:id/visibility')
+  /** Admin: the same facts without the PDF (the provider page shows them as soon as it opens). */
+  @UseGuards(JwtAuthGuard) @Get('admin/contracts/:id/meta')
   @Roles(UserRole.ADMIN)
-  async adminContractVisibility(@CurrentUser() u: any, @Param('id') id: string, @Body() b: AdminContractVisibilityDto) {
+  async adminContractMeta(@CurrentUser() u: any, @Param('id') id: string) {
     if (u.role !== 'admin' && u.role !== 'super_admin') throw new ForbiddenException('admin only');
-    return this.svc.setContractVisibility(id, !!b?.visible);
+    return this.svc.getContractMeta(id);
   }
 }
 
@@ -608,7 +661,7 @@ export class UnifiedSearchController {
 }
 
 @Module({
-  imports: [ScfhsLicenseModule, MongooseModule.forFeature([
+  imports: [ScfhsLicenseModule, MailModule, MongooseModule.forFeature([
     { name: 'User', schema: UserSchema },
     { name: 'ProviderProfile', schema: ProviderProfileSchema },
   ])],
