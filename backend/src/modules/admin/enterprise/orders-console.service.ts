@@ -105,7 +105,9 @@ export class OrdersConsoleService {
    * module records `moyasar_payments`. Both count; each row keeps its source so refunds are mirrored back.
    */
   private async paymentsFor(id: string, paidOnly = false): Promise<any[]> {
-    const paid = ['paid', 'confirmed', 'succeeded'];
+    // a payment that has been refunded, in part or in full, WAS paid: its gross is still what the patient paid. Without these two the order
+    // detail showed gross_paid 0 after a partial refund (refunded 50, refundable 0) and a second partial refund found "no confirmed payment".
+    const paid = ['paid', 'confirmed', 'succeeded', 'partially_refunded', 'refunded'];
     const [moy, txn] = await Promise.all([
       this.conn.collection('moyasar_payments').find({
         $or: [{ booking_id: id }, { reference_id: id }, { order_id: id }], ...(paidOnly ? { status: { $in: paid } } : {}),
@@ -307,7 +309,8 @@ export class OrdersConsoleService {
       .toArray();
 
     const refundsTotal = refunds.reduce((a: number, r: any) => a + Number(r.amount || 0), 0);
-    const paid = payments.filter((p: any) => ['paid', 'confirmed', 'succeeded'].includes(String(p.status || '').toLowerCase()))
+    // refunded (in part or in full) payments were paid: the refund total is shown next to the gross, so the gross must not disappear with the refund
+    const paid = payments.filter((p: any) => ['paid', 'confirmed', 'succeeded', 'partially_refunded', 'refunded'].includes(String(p.status || '').toLowerCase()))
       .reduce((a: number, p: any) => a + Number(p.amount || 0), 0);
 
     const { _id, __v, ...clean } = doc;
