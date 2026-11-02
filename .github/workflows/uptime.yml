@@ -16,10 +16,10 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
-# Runs never overlap and a running check is never cancelled (it would lose the state it is about to save).
+# Scheduled runs never overlap and a running scheduled check is never cancelled (it would lose the state it is about to save); a newer push to a pull request replaces the older PR run.
 concurrency:
   group: uptime-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'schedule' }}
-  cancel-in-progress: false
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   check:
