@@ -18,6 +18,20 @@ function assertProvider(u: any) { if (!u || !isProviderRole(u.role)) throw new F
 function assertPatient(u: any) { if (!u || u.role !== 'patient') throw new ForbiddenException('patient_scope_required'); }
 
 /** P13-R2: totals are always derived from the decided items, never from a pending proposal. */
+/**
+ * What the pharmacy's own gross is in an allocation, and the delivery fee the platform keeps. A delivery fee comes only from the platform
+ * pricing config (an offer's `fulfillment.delivery_fee_source`, never set by the pharmacy): the platform charges it, so it is not the
+ * pharmacy's. It is outside the pharmacy's gross (no commission, no credit) and, when the pharmacy collected the cash (COD), it is owed to
+ * the platform. A fee the pharmacy sets itself (`delivery_fee_source: 'pharmacy'`, none exists today) stays in its gross.
+ */
+export function pharmacySettlementGross(a: any): { gross: number; platformDeliveryFee: number } {
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+  const total = round2(Number(a?.totals?.total) || 0);
+  const fee = round2(Number(a?.totals?.delivery_fee) || 0);
+  const platformDeliveryFee = fee > 0 && a?.fulfillment?.delivery_fee_source !== 'pharmacy' ? Math.min(fee, total) : 0;
+  return { gross: round2(total - platformDeliveryFee), platformDeliveryFee };
+}
+
 export function recalcAllocationTotals(a: any) {
   a.totals.subtotal = a.items.filter((i: any) => i.action === AllocationItemAction.AVAILABLE || i.action === AllocationItemAction.SUBSTITUTE).reduce((s: number, i: any) => s + (i.unit_price || 0) * (i.qty_offered || 0), 0);
   a.totals.total = a.totals.subtotal + (a.totals.delivery_fee || 0);
@@ -538,7 +552,7 @@ export class PharmacyAllocationService {
     const refId = String(a.id);
     const dup = await ledger.findOne({ ref_type: refType, ref_id: refId, type: { $in: ['provider_earning', 'provider_debit'] } });
     if (dup) return;
-    const gross = Math.round(Number(a.totals?.total || 0) * 100) / 100;
+    const { gross, platformDeliveryFee } = pharmacySettlementGross(a);
     if (!(gross > 0)) return;
     const cfg: any = await this.orders.db.collection('finance_config').findOne({ key: 'commissions' });
     const pct = Number(cfg?.service_types?.pharmacy?.percent ?? DEFAULT_COMMISSION_PERCENT);
@@ -550,10 +564,11 @@ export class PharmacyAllocationService {
       await ledger.insertOne({
         id: `le_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
         provider_account_id: a.pharmacy_account_id, type: 'provider_debit', state: 'cleared',
-        amount: Math.round((commission + vat) * 100) / 100,
+        // the pharmacy collected the whole cash: it owes the commission, the VAT on it and the delivery fee the platform keeps
+        amount: Math.round((commission + vat + platformDeliveryFee) * 100) / 100,
         ref_type: refType, ref_id: refId, order_id: a.order_id,
-        gross, commission_percent: pct, commission, vat,
-        description: 'COD commission + VAT owed to platform (cash collected by pharmacy)',
+        gross, commission_percent: pct, commission, vat, platform_delivery_fee: platformDeliveryFee,
+        description: 'COD commission + VAT + platform delivery fee owed to platform (cash collected by pharmacy)',
         actor_id: 'system', createdAt: now,
       });
       return;
@@ -564,7 +579,7 @@ export class PharmacyAllocationService {
       id: `earn_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       provider_account_id: a.pharmacy_account_id, type: 'provider_earning', state: 'pending',
       available_at: new Date(now.getTime() + delayDays * 24 * 3600 * 1000),
-      amount: net, gross, commission_percent: pct, commission, vat,
+      amount: net, gross, commission_percent: pct, commission, vat, platform_delivery_fee: platformDeliveryFee,
       ref_type: refType, ref_id: refId, order_id: a.order_id,
       description: 'Pharmacy order earning (escrow until settlement delay)',
       actor_id: 'system', createdAt: now,

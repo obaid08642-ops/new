@@ -16,7 +16,8 @@ import { Document, Model } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, SelfService } from '../../common/auth.guard';
 import { ForbiddenException } from '@nestjs/common';
 import { OrderSchema, OrderDocument } from '../../schemas/order.schema';
-import { readVatRate } from '../business-rules/business-rules.module';
+import { readQuoteVatRate } from '../../common/quote';
+import { platformVatOf } from '../../common/tax-registration';
 import { LabBookingSchema, LabBooking } from '../../schemas/lab.schema';
 import { RadiologyBookingSchema, RadiologyBooking } from '../../schemas/radiology.schema';
 import { HomeCareBookingSchema, HomeCareBooking } from '../../schemas/home-care.schema';
@@ -89,10 +90,14 @@ export class BookingOpsService {
     const e = await this.fetchEntity(kind, id, user);
     if (!e) throw new NotFoundException();
     const subtotal = e.subtotal ?? e.total ?? e.price ?? 0;
-    const taxRate = await readVatRate(this.appts.db).catch(() => 0.15);
-    const tax = Math.round(subtotal * taxRate * 100) / 100;
+    // VAT model A (owner, 2026-11-01): the service price carries no platform VAT. The only platform VAT is the VAT inside the delivery fee
+    // the platform charges (`platformVatOf`, the rule the quote and the billing use); null while the platform has no VAT number. It is
+    // inside the amounts, never added on top.
+    const taxRate = await readQuoteVatRate(this.appts.db).catch(() => null);
+    const deliveryFee = Math.max(0, Number(e.delivery_fee) || 0);
+    const tax = taxRate === null ? null : platformVatOf([{ key: 'delivery_fee', amount: deliveryFee }], taxRate, deliveryFee);
     const insuranceDiscount = e.insurance_provider ? Math.round(subtotal * 0.8 * 100) / 100 : 0;
-    const total = e.total ?? Math.max(0, subtotal - insuranceDiscount) + tax;
+    const total = e.total ?? Math.max(0, subtotal - insuranceDiscount);
     return {
       booking_id: id, kind, tracking_id: e.tracking_id || id,
       patient_id: e.patient_id, provider_id: e.pharmacy_id || e.provider_account_id || e.doctor_user_id,
