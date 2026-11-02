@@ -3,7 +3,6 @@
 j_admin
 j_admin_ops
 j_admin_sweep
-j_catalog_suggest
 j_chat
 j_concurrency
 j_insurance
