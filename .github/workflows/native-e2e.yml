@@ -162,6 +162,9 @@ jobs:
       - name: Seed real test data (live journeys) and accounts
         run: |
           pip install -q requests
+          # a fresh database has no published provider agreement, so the provider registration journeys were refused (legal/accept 400
+          # policy_not_found, then submit 400) and no doctor was seeded (run 119); the same idempotent seed the live gate runs first
+          (cd tools/live && python3 seed_legal.py)
           python3 tools/native/seed.py /tmp/native/accounts.json > /tmp/native/seed.log 2>&1 || (tail -n 80 /tmp/native/seed.log; exit 1)
           tail -n 5 /tmp/native/seed.log
           python3 tools/native/routes.py > /tmp/native/routes.json
@@ -263,6 +266,9 @@ jobs:
       - name: Seed real test data (live journeys) and accounts
         run: |
           pip install -q requests
+          # a fresh database has no published provider agreement, so the provider registration journeys were refused (legal/accept 400
+          # policy_not_found, then submit 400) and no doctor was seeded (run 119); the same idempotent seed the live gate runs first
+          (cd tools/live && python3 seed_legal.py)
           python3 tools/native/seed.py /tmp/native/accounts.json > /tmp/native/seed.log 2>&1 || (tail -n 80 /tmp/native/seed.log; exit 1)
           tail -n 5 /tmp/native/seed.log
       - name: Maestro
