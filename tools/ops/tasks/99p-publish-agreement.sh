@@ -18,7 +18,7 @@
 # state that would block patient registration. Nothing is deleted without a backup.
 # Prints `status:` lines only: per key the version, the first 12 characters of the hashes of the texts, the backup row ids, published yes/no, and whether patient registration is ready. Never a text, a URI or a value of the environment.
 set -u
-APPLY="yes"
+APPLY=""
 REQUIRE_ACCEPTANCE="no"
 POLICIES="privacy_policy,patient_terms,refund_policy,provider_agreement"
 CT=${PUBLISH_AGREEMENT_CONTAINER:-nabdah-backend}
