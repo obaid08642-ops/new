@@ -1,7 +1,12 @@
-# 2026-11-02 lead reviewer: run 92 (READ-ONLY, after run 91): which env NAMES are set/missing per group (never values), the AI providers Also 99f: Firebase files on the server (public ids only) and push env names.
-# (keys present, gateway rows, a minimal live probe each), and the catalogue translation progress (answered / remaining, counts only).
+# 2026-11-02 13:25 lead reviewer: run 93 = OUTAGE RECOVERY. Since ~13:20 UTC nabd.plus/ar and /api/v1/health answer Cloudflare 522 (origin times out).
+# Run 91 deployed ac91b2a1 at 12:15 healthy; run 92 (read-only) touched nothing but did start a docker exec into the backend.
+# 1. Read-only state first: mongo state, memory report, what runs (69).
+# 2. 68-mongo-start: start mongod if it is down (same container and volume, never a repair), then restart backend + worker once, readiness.
+# 3. Read-only outage inspection (55) for the cause.
 release:ac91b2a1b796fbe37fcc56607e75b85317e6ad8d
-91-env-names
-96-ai-providers-check
-98b-translate-progress
-99f-firebase-check
+99m-mongo-state
+98-memory-report
+69-deploy-check
+68-mongo-start
+55-inspect-outage
+cf-purge-api
