@@ -75,6 +75,7 @@ import { OffersDetailController } from './offers-detail.controller';
 import { PromotionsOffersController } from './promotions-offers.controller';
 import { PharmacyCompatController } from './pharmacy-compat.controller';
 import { B2BVoiceController } from './pharmacy-b2b-voice.controller';
+import { PharmacyDeliveryService, ProviderPharmacyDeliveryController, AdminPharmacyDeliveryController } from './pharmacy-delivery';
 
 @Module({
   imports: [
@@ -113,6 +114,7 @@ import { B2BVoiceController } from './pharmacy-b2b-voice.controller';
     ]),
   ],
   providers: [
+    PharmacyDeliveryService,
     PharmacyPriceReviewService,
     PharmacyOrderService,
     PharmacyRefillService,
@@ -154,6 +156,8 @@ import { B2BVoiceController } from './pharmacy-b2b-voice.controller';
     { provide: "SystemConfigRepository", useClass: SystemConfigRepository }
   ],
   controllers: [
+    ProviderPharmacyDeliveryController,
+    AdminPharmacyDeliveryController,
     PaymentRulesController,
     PatientPharmacyController,
     ProviderPharmacyController,

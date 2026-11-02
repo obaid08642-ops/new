@@ -11,7 +11,7 @@ export const pharmacyFixture = {
   accountHolderName: 'Nabd Pharmacy Co', taxNumber: '300123456700003',
   crUri: 'file:///cache/cr.jpg', mohUri: 'file:///cache/moh.jpg', sfdaUri: 'file:///cache/sfda.jpg', logoUri: 'file:///cache/logo.jpg',
   region: 'riyadh', city: 'riyadh_city', district: 'olaya', address: 'Prince Sultan Road',
-  location: LOCATION, deliveryRadius: 8, hasDelivery: true, hasOwnDrivers: true,
+  location: LOCATION, deliveryRadius: 8, hasDelivery: true, ownDelivery: { enabled: true, zoneType: 'radius' as const, radius: '8', districts: [] as string[], fee: '0', freeOver: '' },
   workDays: ['SUN', 'MON', 'TUE'], is24_7: false, vacationDate: '2026-12-01',
   shiftType: 'both' as const, openTime: '08:00', closeTime: '14:00', eveningOpenTime: '16:00', eveningCloseTime: '22:00',
   enabledCategories: ['otc', 'rx'], rxDispensing: true, otcSelling: true,
@@ -104,7 +104,7 @@ export const labFixture = { ...diagnosticsBase, labCategory: 'Class A', labAccre
 export const radiologyFixture = { ...diagnosticsBase, radSafetyLicense: 'RAD-SAF-1', radEquipment: 'MRI 1.5T, X-ray' };
 
 export const pharmacy24Fixture = {
-  ...pharmacyFixture, type: 'hospital', is24_7: true, hasDelivery: false, hasOwnDrivers: false, deliveryRadius: 0, shiftType: 'morning' as const,
+  ...pharmacyFixture, type: 'hospital', is24_7: true, hasDelivery: false, ownDelivery: { enabled: false, zoneType: 'radius' as const, radius: '', districts: [] as string[], fee: '0', freeOver: '' }, deliveryRadius: 0, shiftType: 'morning' as const,
   workDays: [], cashOnly: true, acceptedInsurance: [], expressDelivery: false, vacationDate: '', logoUri: '', rxDispensing: false,
 };
 export const labNoHomeFixture = {

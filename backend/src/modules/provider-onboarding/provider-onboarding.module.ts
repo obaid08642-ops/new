@@ -1,3 +1,4 @@
+import { normalizeOwnDelivery, legacyFields } from '../pharmacy/pharmacy-delivery';
 import { clinicFromRegistration, normalizeGender, normalizeEducation, normalizeProcedures, assertFollowUp, normalizeClinicLocation, normalizeIban, doctorSubmitProblems } from './doctor-profile-fields';
 import { bankRowFromProfile, syncBankRow } from './bank-row';
 import { facilityLicenseProblems } from './facility-license';
@@ -216,7 +217,7 @@ export class ProviderOnboardingService {
         'pharmacy_chain', 'has_own_drivers', 'delivery_radius_km',
         'has_own_delivery', 'working_hours', 'accepts_insurance', 'accepted_insurance', 'insurance_plans',
         'accepts_cash', 'coverage_radius_km', 'delivery_fee', 'free_delivery_above',
-        'min_order_sar', 'express_delivery', 'express_fee', 'express_minutes',
+        'min_order_sar', 'express_delivery', 'express_fee', 'express_minutes', 'own_delivery',
         'rx_dispensing', 'otc_selling', 'enabled_categories', 'vacation_date'
       ],
       [ProviderType.HOME_CARE]: [
@@ -254,6 +255,12 @@ export class ProviderOnboardingService {
         if (!g) throw new BadRequestException('invalid_gender');
         body.gender = g;
       }
+    }
+    if (profile.type === ProviderType.PHARMACY && body.own_delivery !== undefined) {
+      // Own couriers (owner decision 2026-11-02): validated here, and the older delivery fields follow it.
+      body.own_delivery = normalizeOwnDelivery(body.own_delivery);
+      Object.assign(body, legacyFields(body.own_delivery));
+      for (const k of ['has_own_delivery', 'has_own_drivers', 'delivery_mode', 'delivery_fee', 'free_delivery_above', 'delivery_radius_km', 'max_delivery_radius_km']) if (body[k] !== undefined && !keys.includes(k)) keys.push(k);
     }
     for (const k of keys) if (body[k] !== undefined) (profile as any)[k] = body[k];
     this.snapshotStep(profile, 'step3', body);
