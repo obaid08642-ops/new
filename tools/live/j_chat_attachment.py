@@ -73,6 +73,7 @@ def run():
     stranger = Client(j_accounts.app_signup(label='chat-attach-stranger')['token'], 'patient')
     r = stranger.get(f'/chat/threads/{tid}/messages')
     step('a person outside the conversation is refused (403, or 404 thread_not_found)', r.status in (403, 404), r)
+    j_concurrency.remove_published_doctor()
     summary()
 
 
