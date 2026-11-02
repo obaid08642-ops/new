@@ -57,7 +57,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (userId) void store.adoptUser(userId);
   }, [store, userId]);
 
-  const addItem = useCallback((item: CartItemInput) => store.add(item), [store]);
+  const addItem = useCallback((item: CartItemInput) => { console.log('[e2e] cart add', item.id); return store.add(item).then(() => console.log('[e2e] cart add done', item.id), (err) => { console.log('[e2e] cart add failed', String(err)); throw err; }); }, [store]);
   const removeItem = useCallback((id: string) => store.remove(id), [store]);
   const updateQty = useCallback((id: string, delta: number) => store.update(id, delta), [store]);
   const clearCart = useCallback(() => store.clear(), [store]);

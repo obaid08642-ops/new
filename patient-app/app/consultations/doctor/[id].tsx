@@ -205,6 +205,7 @@ export default function DoctorProfile() {
       try {
         const vt = activeVt === 'online' ? 'video' : activeVt;
         const res = await apiFetch<{ slots?: Slot[]; reason?: string }>(`/care/doctors/${encodeURIComponent(doc.id)}/slots?date=${days[day].iso}&service_type=${vt}`);
+        console.log('[e2e] slots', days[day].iso, vt, 'active', active, 'count', Array.isArray(res?.slots) ? res.slots.length : 'n/a', 'reason', res?.reason ?? '');
         if (!active) return;
         setDaySlots(Array.isArray(res?.slots) ? res.slots : []);
         setSlotsReason(res?.reason || null);
