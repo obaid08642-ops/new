@@ -87,3 +87,7 @@ Money screens: client wiring only (field names, `res.ok`, hard-coded rates, text
 
 ## Left as found (not fixed here)
 Provider: referral (specialty target), request-a-test (wrong endpoints), PatientFile CRM partial-patch (needs gap 5), AI copilot, subscriptions/ads, nursing coverage and supplies, radiology availability, facility announcements/resources/shifts/sub-accounts/departments/surgery rooms/settings name (cosmetic or need gap 20), pharmacy refills. Admin: `users-management` and `loyalty-config` step-up (gap 26), `crm` and `impersonation` start (gap 27), `price-override-audit` (gap 28), `ai-control` swallowed errors, `risk-dashboard` rescore, `provider-audits`, `shortage-reports`, `image-suggestions`, `fraud-monitoring` and `dashboard` health strip (silent failures), `system-ops` queue selection and reason prompt, `config-portal` surge/fees (gap 30).
+
+## Marks added after the lifecycle group
+
+- Gap 11 (`specialty` / `degree` through `PATCH /provider/profile`): FIXED in 64c02788e, by reviewer decision: the credential fields (specialty, degree, medical and facility licence number, licence expiry) are never written directly; the PATCH records a pending `provider_deltas` row (target `credentials`, old and new values, uploaded proof) and the admin applies it on the deltas screen, with an audit entry. Other profile fields keep their existing path.

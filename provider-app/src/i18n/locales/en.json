@@ -227,5 +227,7 @@
   "pharmacy.ownDelivery.errFee": "Enter a delivery fee between 0 and 500 SAR",
   "pharmacy.ownDelivery.errFreeOver": "Enter a valid free-delivery amount",
   "pharmacy.ownDelivery.saved": "Delivery settings saved",
-  "pharmacy.ownDelivery.saveFailed": "Could not save the delivery settings"
+  "pharmacy.ownDelivery.saveFailed": "Could not save the delivery settings",
+  "profile.credential.pending": "Pending review: {value}",
+  "profile.credential.sent": "Credential change sent for admin review"
 }

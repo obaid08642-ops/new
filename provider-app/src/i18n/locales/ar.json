@@ -227,5 +227,7 @@
   "pharmacy.ownDelivery.errFee": "أدخل رسوم توصيل بين 0 و500 ر.س",
   "pharmacy.ownDelivery.errFreeOver": "أدخل مبلغاً صحيحاً للتوصيل المجاني",
   "pharmacy.ownDelivery.saved": "تم حفظ إعدادات التوصيل",
-  "pharmacy.ownDelivery.saveFailed": "تعذر حفظ إعدادات التوصيل"
+  "pharmacy.ownDelivery.saveFailed": "تعذر حفظ إعدادات التوصيل",
+  "profile.credential.pending": "بانتظار المراجعة: {value}",
+  "profile.credential.sent": "أُرسل تعديل الاعتماد للمراجعة من الإدارة"
 }
