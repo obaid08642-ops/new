@@ -375,6 +375,18 @@ describe('VAT model A: platform VAT only on the delivery fee', () => {
     expect(qrOf(inv)[5]).toBe('1.96');
   });
 
+  it('delivery mode decides whose the fee is: platform = line delivery_fee with VAT; pharmacy_own = the pharmacy\'s own fee, no platform VAT', async () => {
+    const order = { patient_id: 'p1', items: [{ name_en: 'x', price: 200, qty: 1 }], delivery_fee: 15 };
+    const platform = world({ booking: { ...order, delivery_mode: 'platform' }, txns });
+    const own = world({ booking: { ...order, delivery_mode: 'pharmacy_own' }, txns });
+    const a = await platform.svc.present(await platform.svc.issue(patient, 'pharmacy', 'b1'));
+    const b = await own.svc.present(await own.svc.issue(patient, 'pharmacy', 'b1'));
+    expect(a.lines.map((l: any) => l.key)).toEqual(['item', 'delivery_fee']);
+    expect(a.vat_amount).toBe(1.96);
+    expect(b.lines.map((l: any) => l.key)).toEqual(['item', 'pharmacy_delivery_fee']);
+    expect(b).toMatchObject({ vat_amount: 0, subtotal: 215, total: 215 });
+  });
+
   it('no delivery fee: no platform VAT at all (0.00), the total is the price', async () => {
     const { svc } = world({ booking: { patient_id: 'p1', items: [{ name_en: 'CBC', price: 200, qty: 1 }] }, txns: [{ amount: 200, method: 'card' }] });
     const inv = await svc.present(await svc.issue(patient, 'lab', 'b1'));
