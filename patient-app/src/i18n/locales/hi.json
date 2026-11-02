@@ -414,7 +414,6 @@
   "pharmacy.filters.sortRecommended": "अनुशंसित",
   "pharmacy.filters.category": "श्रेणी",
   "pharmacy.filters.rxOnly": "केवल पर्चे वाली (Rx)",
-  "pharmacy.filters.rxOnlyBody": "वे दवाएं दिखाएं जिन्हें पर्चे की जरूरत है",
   "pharmacy.filters.priceRange": "मूल्य सीमा (रियाल)",
   "pharmacy.filters.min": "न्यूनतम",
   "pharmacy.filters.max": "अधिकतम",
@@ -4121,5 +4120,9 @@
   "receipt.linkRevokeFailed": "लिंक रद्द नहीं हो सका। फिर कोशिश करें।",
   "receipt.linkNone": "अभी कोई लिंक नहीं।",
   "receipt.imageSaved": "फ़ोटो में सहेज लिया गया",
-  "receipt.imagePermission": "रसीद सहेजने के लिए फ़ोटो तक पहुँच की अनुमति दें।"
+  "receipt.imagePermission": "रसीद सहेजने के लिए फ़ोटो तक पहुँच की अनुमति दें।",
+  "consult.hub.sortWait": "सबसे कम प्रतीक्षा",
+  "pharmacy.filters.rx": "प्रिस्क्रिप्शन",
+  "pharmacy.filters.rxAny": "कोई भी",
+  "pharmacy.filters.rxNone": "बिना प्रिस्क्रिप्शन"
 }

@@ -414,7 +414,6 @@
   "pharmacy.filters.sortRecommended": "المقترح",
   "pharmacy.filters.category": "التصنيف",
   "pharmacy.filters.rxOnly": "يحتاج وصفة طبية فقط (Rx)",
-  "pharmacy.filters.rxOnlyBody": "عرض الأدوية التي تتطلب روشتة",
   "pharmacy.filters.priceRange": "نطاق السعر (ر.س)",
   "pharmacy.filters.min": "الحد الأدنى",
   "pharmacy.filters.max": "الحد الأقصى",
@@ -4121,5 +4120,9 @@
   "receipt.linkRevokeFailed": "تعذّر إلغاء الرابط. حاول مرة أخرى.",
   "receipt.linkNone": "لا توجد روابط بعد.",
   "receipt.imageSaved": "تم الحفظ في الصور",
-  "receipt.imagePermission": "اسمح بالوصول إلى الصور لحفظ الإيصال."
+  "receipt.imagePermission": "اسمح بالوصول إلى الصور لحفظ الإيصال.",
+  "consult.hub.sortWait": "أقل انتظار",
+  "pharmacy.filters.rx": "الوصفة الطبية",
+  "pharmacy.filters.rxAny": "الكل",
+  "pharmacy.filters.rxNone": "بدون وصفة"
 }

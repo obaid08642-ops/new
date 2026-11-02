@@ -53,7 +53,7 @@ describe('PharmacyExpiryCommandService', () => {
     const { service, broadcasts, orders, outbox, recipients, broadcastService } = setup({ offers: [], broadcasts: [dueBroadcast], eligible: [{ account_id: 'pharmacy-1' }, { account_id: 'pharmacy-2' }] });
     const result = await service.expireDuePharmacyOffers(now);
     expect(result).toEqual(expect.objectContaining({ scanned_broadcasts: 1, advanced_rounds: 1, closed_broadcasts: 0, recipient_intents: 1 }));
-    expect(broadcastService.findEligiblePharmaciesWithin).toHaveBeenCalledWith({ lat: 24.7, lng: 46.7 }, 5, { extended: false });
+    expect(broadcastService.findEligiblePharmaciesWithin).toHaveBeenCalledWith({ lat: 24.7, lng: 46.7 }, 5, { extended: false, pickup: false, district: null });
     expect(recipients.updateOne).toHaveBeenCalledWith({ broadcast_id: 'broadcast-1', pharmacy_account_id: 'pharmacy-2' }, expect.anything(), expect.objectContaining({ upsert: true }));
     expect(broadcasts.updateOne).toHaveBeenCalledWith(expect.objectContaining({ id: 'broadcast-1', 'expiry_claim.token': expect.any(String) }), expect.objectContaining({ $set: expect.objectContaining({ current_round: 2 }), $addToSet: { notified_pharmacies: { $each: ['pharmacy-2'] } } }), expect.anything());
     expect(orders.updateOne).not.toHaveBeenCalled();
@@ -88,7 +88,7 @@ describe('PharmacyExpiryCommandService', () => {
     const result = await service.expireDuePharmacyOffers(now);
     expect(result).toEqual(expect.objectContaining({ advanced_rounds: 1, closed_broadcasts: 0 }));
     // Fixture order has no pickup flag → extended own-delivery stage at the last standard radius.
-    expect(broadcastService.findEligiblePharmaciesWithin).toHaveBeenCalledWith({ lat: 24.7, lng: 46.7 }, 10, { extended: true });
+    expect(broadcastService.findEligiblePharmaciesWithin).toHaveBeenCalledWith({ lat: 24.7, lng: 46.7 }, 10, { extended: true, pickup: false, district: null });
     expect(broadcasts.updateOne).toHaveBeenCalledWith(expect.objectContaining({ id: 'broadcast-1' }),
       expect.objectContaining({ $set: expect.objectContaining({ current_round: 4, current_radius_km: 10, extended_stage: true }) }), expect.anything());
   });

@@ -414,7 +414,6 @@
   "pharmacy.filters.sortRecommended": "Inirerekomenda",
   "pharmacy.filters.category": "Kategorya",
   "pharmacy.filters.rxOnly": "Reseta (Rx) lang",
-  "pharmacy.filters.rxOnlyBody": "Ipakita ang mga gamot na nangangailangan ng reseta",
   "pharmacy.filters.priceRange": "Saklaw ng presyo (SAR)",
   "pharmacy.filters.min": "Pinakamababa",
   "pharmacy.filters.max": "Pinakamataas",
@@ -4121,5 +4120,9 @@
   "receipt.linkRevokeFailed": "Hindi nabawi ang link. Subukan muli.",
   "receipt.linkNone": "Wala pang link.",
   "receipt.imageSaved": "Na-save sa iyong mga larawan",
-  "receipt.imagePermission": "Payagan ang access sa mga larawan para ma-save ang resibo."
+  "receipt.imagePermission": "Payagan ang access sa mga larawan para ma-save ang resibo.",
+  "consult.hub.sortWait": "Pinakamaikling paghihintay",
+  "pharmacy.filters.rx": "Reseta",
+  "pharmacy.filters.rxAny": "Alinman",
+  "pharmacy.filters.rxNone": "Walang reseta"
 }

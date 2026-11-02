@@ -13,6 +13,8 @@
 #   Before any drop it also proves that no RUNNING container uses the database: for every container it reads MONGO_URL / MONGODB_URI / MONGO_URI / DATABASE_URL (the database is the path of the
 #   URI) and DB_NAME, and prints only the database NAMES each container uses, never a URI. A database used by any running container is refused.
 #   A database that is not named is never touched. The app database is never touched by this task.
+#   How it reads the server: mongosh in a ONE-OFF container of the mongo image (own cap 300m, no swap, oom_score_adj 1000, credentials in a mode-600 env file), NOT inside nabdah-mongodb, one call for the
+#   database names and one per database; a call that fails is reported with its exit code (137 = killed, usually memory) and that database is listed as unreadable and is never dropped.
 set -u
 APPLY=${APPLY:-no}
 DROP=${DROP:-}
@@ -26,9 +28,52 @@ say() { echo "status: extra-dbs: $*"; }
 mb() { echo $(( ($1 + 524288) / 1048576 )); }
 q() { $DK exec "$CT" sh -c 'mongosh --quiet -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --eval "$1"' sh "$1" 2>/dev/null | tr -d '\r'; }
 APP=$($DK exec nabdah-backend printenv DB_NAME 2>/dev/null | tr -d '\r'); APP=${APP:-nabd_nestjs}
-# print() writes the raw JSON (a bare expression would be printed quoted by mongosh)
-ALL=$(q "const o={};for(const x of db.adminCommand({listDatabases:1}).databases){if(['admin','local','config'].includes(x.name))continue;const d=db.getSiblingDB(x.name);const cs={};for(const c of d.getCollectionNames()){if(c.startsWith('system.'))continue;let m=null;for(const f of ['updatedAt','createdAt','updated_at','created_at']){const r=d.getCollection(c).find({[f]:{\$exists:true}},{[f]:1,_id:0}).sort({[f]:-1}).limit(1).toArray()[0];if(r&&r[f]){const t=new Date(r[f]).toISOString().slice(0,10);if(!m||t>m)m=t}}cs[c]={n:d.getCollection(c).estimatedDocumentCount(),newest:m,mb:Math.round(d.getCollection(c).stats().storageSize/1048576)}}o[x.name]={mb:Math.round(x.sizeOnDisk/1048576),c:cs}}print(JSON.stringify(o))" | grep -E '^\{' | tail -1)
-echo "$ALL" | jq -e . >/dev/null 2>&1 || { say "ABORT the database list is unreadable"; exit 1; }
+# The listing runs in a ONE-OFF container of the same mongo image on mongod's network, NOT inside nabdah-mongodb (the same reason as deploy/scripts/_mongodump-oneoff.sh: that
+# container is capped at 1200m with no swap and mongod already uses most of it, so a tool started inside it is the process the kernel kills, and `docker exec` then prints NOTHING;
+# run 91 printed "mongosh printed nothing" while the identical script ran fine against a real mongod 8.2 + mongosh here). The one-off container has its own cap (300m, no swap) and
+# the highest oom_score_adj, so if the host runs short it is the listing that dies, never mongod. The credentials go to it in a mode-600 env file, never on a command line.
+# print() writes the raw JSON (a bare expression would be printed quoted by mongosh).
+mongosh_oneoff() {   # $1 = the script; prints mongosh's stdout and stderr; returns its exit code (137 = killed, usually for memory)
+  local img net ip user pass envf out rc
+  img=$($DK inspect -f '{{.Config.Image}}' "$CT" 2>/dev/null)
+  net=$($DK inspect -f '{{range $k, $v := .NetworkSettings.Networks}}{{$k}} {{end}}' "$CT" 2>/dev/null | awk '{print $1}')
+  ip=$([ -n "$net" ] && $DK inspect -f "{{(index .NetworkSettings.Networks \"$net\").IPAddress}}" "$CT" 2>/dev/null)
+  if [ -z "$img" ] || [ -z "$net" ] || [ -z "$ip" ]; then echo "cannot read the image, network or address of $CT"; return 125; fi
+  user=$($DK exec "$CT" printenv MONGO_INITDB_ROOT_USERNAME 2>/dev/null < /dev/null | tr -d '\r'); pass=$($DK exec "$CT" printenv MONGO_INITDB_ROOT_PASSWORD 2>/dev/null < /dev/null | tr -d '\r')
+  envf=$(mktemp) && chmod 600 "$envf" || { echo "no temp file"; return 125; }
+  printf 'MONGO_HOST=%s\nMONGO_USER=%s\nMONGO_PASS=%s\n' "$ip" "$user" "$pass" > "$envf"
+  out=$($DK run --rm --name "nabd-extradb-$$" --network "$net" --memory 300m --memory-swap 300m --oom-score-adj 1000 --env-file "$envf" -e HOME=/tmp --entrypoint sh "$img" \
+    -c 'exec mongosh --quiet --host "$MONGO_HOST" -u "$MONGO_USER" -p "$MONGO_PASS" --authenticationDatabase admin --eval "$1"' sh "$1" 2>&1 < /dev/null); rc=$?
+  rm -f "$envf"
+  [ -n "$pass" ] && out=${out//"$pass"/<hidden>}
+  printf '%s\n' "$out" | tr -d '\r'
+  return $rc
+}
+# why a listing call failed, in one line: the exit code with its usual meaning, then the last line of the output with anything URI-shaped cut out
+why() { # $1 = exit code, $2 = output
+  local last; last=$(printf '%s\n' "$2" | grep -v '^[[:space:]]*$' | tail -1 | sed -E 's#[a-zA-Z+]+://[^[:space:]]*#<uri>#g' | cut -c1-200)
+  echo "exit code $1$([ "$1" = 137 ] && echo ' (killed, usually out of memory)'): ${last:-mongosh printed nothing}"
+}
+# 1. the database names and sizes (a tiny script); 2. one call per database for its collections (a view, a failing stats call or an unreadable collection becomes an `err` mark, never the
+# end of the listing; the newest date comes from one $group/$max pass per collection, no sort). A database whose call failed is listed with err=true and is NEVER dropped.
+RAW=$(mongosh_oneoff "print(JSON.stringify(db.adminCommand({listDatabases:1}).databases.map(function(x){return {name:x.name,mb:Math.round(x.sizeOnDisk/1048576)}})))"); RC=$?
+LIST=$(echo "$RAW" | grep -E '^\[' | tail -1)
+if ! echo "$LIST" | jq -e 'type == "array"' >/dev/null 2>&1; then say "ABORT the database list is unreadable: $(why "$RC" "$RAW")"; exit 1; fi
+ALL='{}'
+for n in $(echo "$LIST" | jq -r '.[].name'); do
+  case "$n" in admin|local|config) continue;; esac
+  MB=$(echo "$LIST" | jq -r --arg n "$n" '[.[] | select(.name == $n) | .mb][0] // 0')
+  if ! echo "$n" | grep -Eq '^[A-Za-z0-9_.-]{1,64}$'; then say "$n: listing skipped (unusual name); it is never dropped"; ALL=$(echo "$ALL" | jq --arg n "$n" --argjson mb "$MB" '. + {($n): {mb: $mb, c: {}, err: true}}'); continue; fi
+  JS="const d=db.getSiblingDB('$n');const cs={};let names=[];try{names=d.getCollectionNames()}catch(e){cs['(unreadable)']={n:0,newest:null,mb:0,err:String(e.message||e).slice(0,80)}}for(const c of names){if(c.startsWith('system.'))continue;const k=d.getCollection(c);const r={n:0,newest:null,mb:0};try{r.n=k.estimatedDocumentCount()}catch(e){r.err='count'}try{r.mb=Math.round(d.runCommand({collStats:c}).storageSize/1048576)||0}catch(e){r.err=(r.err||'')+' stats'}try{const g=k.aggregate([{\$group:{_id:null,a:{\$max:'\$updatedAt'},b:{\$max:'\$createdAt'},c:{\$max:'\$updated_at'},e:{\$max:'\$created_at'}}}],{allowDiskUse:true}).toArray()[0];if(g){for(const f of ['a','b','c','e']){const v=g[f];if(v===null||v===undefined)continue;const t=new Date(v);if(isNaN(t.getTime()))continue;const day=t.toISOString().slice(0,10);if(!r.newest||day>r.newest)r.newest=day}}}catch(e){r.err=(r.err||'')+' newest'}cs[c]=r}print(JSON.stringify(cs))"
+  OUT=$(mongosh_oneoff "$JS"); RC=$?
+  CS=$(echo "$OUT" | grep -E '^\{' | tail -1)
+  if echo "$CS" | jq -e 'type == "object"' >/dev/null 2>&1; then
+    ALL=$(echo "$ALL" | jq --arg n "$n" --argjson mb "$MB" --argjson c "$CS" '. + {($n): {mb: $mb, c: $c}}')
+  else
+    say "$n: listing FAILED: $(why "$RC" "$OUT"); it is never dropped"
+    ALL=$(echo "$ALL" | jq --arg n "$n" --argjson mb "$MB" '. + {($n): {mb: $mb, c: {}, err: true}}')
+  fi
+done
 say "app database: $APP (never touched by this task)"
 say "databases: $(echo "$ALL" | jq -r 'to_entries | map("\(.key)=\(.value.mb)MB") | join(" ")')"
 EXTRA=$(echo "$ALL" | jq -r --arg a "$APP" 'keys[] | select(. != $a)')
@@ -47,6 +92,7 @@ done
 users_of() { awk -v d="$1" '{ for (i = 2; i <= NF; i++) if ($i == d) { printf "%s ", $1; break } }' "$CUSE"; }
 for db in $EXTRA; do
   say "$db: used by running containers: $(users_of "$db")$([ -z "$(users_of "$db")" ] && echo none)"
+  if echo "$ALL" | jq -e --arg d "$db" '.[$d].err // false' >/dev/null; then say "$db: its collections could not be listed (see above): no comparison, and it cannot be dropped"; continue; fi
   say "$db: newest document date in any collection: $(echo "$ALL" | jq -r --arg d "$db" '[.[$d].c[].newest | select(. != null)] | max // "none"')"
   say "$db: $(echo "$ALL" | jq -r --arg d "$db" '.[$d] | "\(.mb) MB, \(.c|length) collection(s), \([.c[].n]|add // 0) document(s)"')"
   for c in $(echo "$ALL" | jq -r --arg d "$db" '.[$d].c | keys[]'); do
@@ -67,6 +113,7 @@ for db in $DROP_DBS; do
   case "$db" in admin|local|config) say "$db: REFUSED (system database)"; RC_ALL=1; continue;; esac
   [ "$db" != "$APP" ] || { say "$db: REFUSED (this is the app database)"; RC_ALL=1; continue; }
   echo "$ALL" | jq -e --arg d "$db" 'has($d)' >/dev/null || { say "$db: REFUSED (no such database on the server)"; RC_ALL=1; continue; }
+  echo "$ALL" | jq -e --arg d "$db" '(.[$d].err // false) | not' >/dev/null || { say "$db: REFUSED (its collections could not be listed, so what a dump must contain is not known)"; RC_ALL=1; continue; }
   USERS=$(users_of "$db"); [ -z "$USERS" ] || { say "$db: REFUSED (running container(s) use it: $USERS)"; RC_ALL=1; continue; }
   NS=$(echo "$ALL" | jq -r --arg d "$db" '.[$d].c | length')
   OUT="$B/extra-db-${db}-$(date -u +%Y%m%d-%H%M%S).archive.gz"; TMP=$(mktemp)

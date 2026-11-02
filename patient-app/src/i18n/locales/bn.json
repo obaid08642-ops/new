@@ -414,7 +414,6 @@
   "pharmacy.filters.sortRecommended": "প্রস্তাবিত",
   "pharmacy.filters.category": "বিভাগ",
   "pharmacy.filters.rxOnly": "শুধু প্রেসক্রিপশনের (Rx)",
-  "pharmacy.filters.rxOnlyBody": "যেসব ওষুধে প্রেসক্রিপশন লাগে সেগুলো দেখান",
   "pharmacy.filters.priceRange": "মূল্য পরিসর (রিয়াল)",
   "pharmacy.filters.min": "সর্বনিম্ন",
   "pharmacy.filters.max": "সর্বাধিক",
@@ -4121,5 +4120,9 @@
   "receipt.linkRevokeFailed": "লিংক প্রত্যাহার করা যায়নি। আবার চেষ্টা করুন।",
   "receipt.linkNone": "এখনও কোনো লিংক নেই।",
   "receipt.imageSaved": "ফটোতে সংরক্ষিত হয়েছে",
-  "receipt.imagePermission": "রসিদ সংরক্ষণ করতে ছবিতে অ্যাক্সেসের অনুমতি দিন।"
+  "receipt.imagePermission": "রসিদ সংরক্ষণ করতে ছবিতে অ্যাক্সেসের অনুমতি দিন।",
+  "consult.hub.sortWait": "সর্বনিম্ন অপেক্ষা",
+  "pharmacy.filters.rx": "প্রেসক্রিপশন",
+  "pharmacy.filters.rxAny": "যেকোনো",
+  "pharmacy.filters.rxNone": "প্রেসক্রিপশন ছাড়া"
 }
