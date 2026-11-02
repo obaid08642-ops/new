@@ -1,10 +1,7 @@
-# 2026-11-02 11:30 lead reviewer: run 91 = deploy main@ac91b2a1. Brings: pharmacy own couriers + zone + fee (#2389), credential fields via admin review (#2391),
-#   refund matrix fixes (#2394: gross after partial refund, commission + VAT reversal, provider/admin cancel refunds in full), provider lifecycle gaps (#2385),
-#   app telehealth consent at call join (#2388), app filters Shortest wait + prescription any/only/none (#2393), 99x defensive listing (#2392).
-# 99x: READ-ONLY inspect of the extra databases (nabd_staging, temp_restore); nothing is dropped (DROP needs the owner's approval later).
+# 2026-11-02 lead reviewer: run 92 (READ-ONLY, after run 91): which env NAMES are set/missing per group (never values), the AI providers Also 99f: Firebase files on the server (public ids only) and push env names.
+# (keys present, gateway rows, a minimal live probe each), and the catalogue translation progress (answered / remaining, counts only).
 release:ac91b2a1b796fbe37fcc56607e75b85317e6ad8d
-97-free-old-predeploy
-93-free-unused-images
-60-deploy-main
-99x-extra-dbs
-cf-purge-api
+91-env-names
+96-ai-providers-check
+98b-translate-progress
+99f-firebase-check
