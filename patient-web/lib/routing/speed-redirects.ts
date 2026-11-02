@@ -15,7 +15,6 @@ const appointmentAlias = (page: string): Redirect[] => [
 // captured id is limited to letters, digits, "-" and "_" (a path parameter is not encoded in the destination), anything else still reaches the page.
 export const speedRedirects: Redirect[] = [
   { source: "/:locale/consultations/offers/:offerId", destination: "/:locale/offers", permanent: false },
-  { source: "/:locale/community/:postId", destination: "/:locale/articles", permanent: false },
   { source: "/:locale/diagnostics/results", destination: "/:locale/orders?tab=results", permanent: false },
   { source: "/:locale/diagnostics/bookings", has: [{ type: "query", key: "tab", value: "previous" }], destination: "/:locale/orders?tab=previous", permanent: false },
   { source: "/:locale/diagnostics/bookings", destination: "/:locale/orders", permanent: false },

@@ -35,7 +35,6 @@ const other = "11111111-2222-4333-8444-555555555555";
 describe("redirect-only pages are config redirects that land where the page did", () => {
   it.each([
     ["/ar/consultations/offers/abc", "/ar/offers"],
-    ["/en/community/post-1", "/en/articles"],
     ["/ar/diagnostics/results", "/ar/orders?tab=results"],
     ["/ar/diagnostics/bookings", "/ar/orders"],
     ["/ar/diagnostics/bookings?tab=previous", "/ar/orders?tab=previous"],
@@ -64,6 +63,7 @@ describe("redirect-only pages are config redirects that land where the page did"
     ["/ar/pharmacy/filters", "/ar/c"],
     ["/ar/pharmacy/filters?category=all", "/ar/c?category=all"],
     ["/ar/pharmacy/filters?category=pain", "/ar/c/pain?category=pain"],
+    ["/en/pharmacy/filters?filter_category=vitamins&filter_sort=trending", "/en/c/vitamins?filter_category=vitamins&filter_sort=trending"],
     ["/ar/pharmacy/filters?filter_category=skin&q=cream", "/ar/c/skin?filter_category=skin&q=cream"],
     ["/ar/pharmacy/filters?q=cream&page=2", "/ar/c?q=cream&page=2"],
   ])("%s -> %s", (from, to) => {
