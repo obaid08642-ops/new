@@ -17,6 +17,18 @@ import { JwtAuthGuard, Public } from '../../common/auth.guard';
 export class StepUpController {
   constructor(private auth: AuthService, private stepUp: StepUpService) {}
 
+  /** Step 1: assertion options (challenge stored server-side) for an admin's registered passkeys. */
+  @Public()
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Post('options')
+  async options(@Body() body: { identifier?: string }) {
+    const identifier = String(body?.identifier || '').trim().toLowerCase();
+    if (!identifier) throw new BadRequestException('identifier_required');
+    const u: any = await (this.auth as any).userModel.findOne({ email: identifier });
+    if (!u || (u.role !== 'admin' && u.role !== 'super_admin')) throw new ForbiddenException('admin_only');
+    return this.stepUp.startAssertion(u.id);
+  }
+
   @Public()
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('issue')
