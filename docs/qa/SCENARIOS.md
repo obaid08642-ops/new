@@ -48,7 +48,7 @@ Not run in this PR: the other 22 NOT COVERED scenarios (see the rows).
 | PT-17 | Insurance policy add | COVERED | `j_insurance.py` | P1 | — |
 | PT-18 | Insurance policy edit | PARTIAL | `j_insurance.py` name only | P2 | H |
 | PT-19 | Insurance claim | NOT COVERED | none named | P1 | F |
-| PT-20 | Coupons and promotions | PARTIAL | `j_loyalty.py` covers loyalty, not coupons; no coupon journey found | P2 | F |
+| PT-20 | Coupons and promotions | COVERED (checkout pricing) | `j_coupons.py` (27 steps: admin creates, patient prices, same figure as the admin tester, expired, off, unknown, rate limit); `coupon-rules.spec.ts` (apply, per-user, give-back on cancel, real MongoDB); `concurrency-races.spec.ts` (50 parallel). Applying on an order has no live flow: only the legacy cash cart applies a coupon | P2 | F |
 | PT-21 | Cash vs card vs insurance selection | COVERED | `j_consultation.py` matrix (124/124 in the live run): cash (line 211), insurance (lines 193, 223) and card bookings each recorded with their method | P1 | F |
 | PT-22 | Card payment success | COVERED | `j_consultation.py` (payment verified) | P0 | — |
 | PT-23 | Card payment failure and retry | COVERED | `j_payment_failed_retry.py` (43/43 on main 365b2d580): declined card reported as failed, retry makes a new checkout, paid booking cannot be charged again | P0 | F |

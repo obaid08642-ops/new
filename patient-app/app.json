@@ -5435,7 +5435,8 @@
       ],
       "expo-status-bar",
       "expo-asset",
-      "./plugins/with-android-lint-app-links"
+      "./plugins/with-android-lint-app-links",
+      "./plugins/with-callkeep-android-service"
     ],
     "experiments": {
       "typedRoutes": true

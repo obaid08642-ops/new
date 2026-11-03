@@ -28,17 +28,6 @@ def earnings(doctor):
     return sorted([x for x in rows if x.get('type') == 'provider_earning'], key=lambda x: str(x.get('createdAt')))
 
 
-def earnings_after(doctor, count, timeout=30):
-    """The earning is written by the `service.completed` event listener (provider-ops creditCompletedService), after the finish request has
-    answered, so the ledger is read until it holds `count` earnings (or the time is up); the step still asserts exactly `count`."""
-    end = time.time() + timeout
-    rows = earnings(doctor)
-    while len(rows) < count and time.time() < end:
-        time.sleep(0.5)
-        rows = earnings(doctor)
-    return rows
-
-
 def finish_consultation(doc, aid):
     r = doc.get('/provider/jobs/queue?status=incoming&kind=consultation')
     inc = [j.get('id') for j in (r.body if isinstance(r.body, list) else r.items())]
@@ -97,7 +86,13 @@ def run():
         step(f'consultation {i}: paid by card', j_consultation.pay_card(pat, aid))
         if not finish_consultation(doctor, aid):
             return summary()
-    rows = earnings_after(doctor, 3)
+    # earnings are credited by an event listener after each visit is finished: wait for the third (up to 20 s), then assert the exact count
+    rows = earnings(doctor)
+    for _ in range(20):
+        if len(rows) >= 3:
+            break
+        time.sleep(1)
+        rows = earnings(doctor)
     step('three earnings were credited', len(rows) == 3, [x.get('commission_percent') for x in rows])
     if len(rows) != 3:
         return summary()

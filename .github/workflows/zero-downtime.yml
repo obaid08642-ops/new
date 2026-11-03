@@ -40,7 +40,8 @@ jobs:
           assert "SHUTDOWN_DRAIN_MS" in c["backend"]["environment"], "backend: SHUTDOWN_DRAIN_MS missing"
           n = open("deploy/nginx/nginx.conf").read()
           for up in ("backend:8002", "patient-web:3000", "admin-web:3000"):
-              assert f"server {up} resolve;" in n, f"nginx upstream {up} lost `resolve`"
+              # the `resolve` token must stay on the server line; extra parameters (max_fails, fail_timeout: R4) are allowed after it
+              assert re.search(rf"server {re.escape(up)} resolve(\s+[a-z_]+=\S+)*;", n), f"nginx upstream {up} lost `resolve`"
           print("compose and nginx: ok")
           PY
       - name: Scripts parse

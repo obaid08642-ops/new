@@ -1,0 +1,27 @@
+name: mongo-pool-budget
+# R7: the worst-case number of MongoDB connections (every process's maxPoolSize x replicas + a tools reserve) must fit mongod's maxIncomingConnections and 25 % of its memory limit.
+on:
+  pull_request:
+    paths:
+      - 'deploy/docker-compose.production.yml'
+      - 'deploy/docker-compose.scale-api.yml'
+      - 'deploy/mongo/mongod.conf'
+      - 'backend/src/common/database/mongo-options.ts'
+      - 'tools/ops/mongo_pool_budget.py'
+      - 'tools/ops/tests/test_mongo_pool_budget.py'
+      - '.github/workflows/mongo-pool-budget.yml'
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  budget:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - run: pip install -q pyyaml
+      - name: The committed pools fit
+        run: python3 tools/ops/mongo_pool_budget.py
+      - name: Tests
+        run: python3 -W error -m unittest tools.ops.tests.test_mongo_pool_budget

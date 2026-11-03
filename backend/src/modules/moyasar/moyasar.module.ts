@@ -35,6 +35,7 @@ import { PaymentsModule, PaymentsService } from '../payments/payments.module';
 import { timedFetch } from '../../common/external-call';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { DurableEventsService, emitDurable } from '../durable-events/durable-events.service';
 // ── Schemas ──────────────────────────────────────────────────────────────────
 
 @Schema({ timestamps: true, collection: 'moyasar_payments' })
@@ -82,6 +83,7 @@ export class MoyasarService {
     @InjectConnection() private readonly conn: Connection,
     private readonly events: EventEmitter2,
     @Optional() private readonly payments?: PaymentsService,
+    @Optional() private readonly durable?: DurableEventsService,
   ) {
     this.apiKey = process.env.MOYASAR_API_KEY || process.env.MOYASAR_SECRET_KEY || process.env.MOYASAR_SECRET || '';
     if (!this.apiKey) {
@@ -339,11 +341,11 @@ export class MoyasarService {
         (payment.refunded_amount || 0) + (amount ?? payment.amount);
       await payment.save();
 
-      this.events.emit('payment.refund', {
+      await emitDurable(this.durable, this.events, 'payment.refund', {
         actor_id: 'admin', transaction_id: payment.moyasar_id,
         booking_id: payment.booking_id, booking_kind: payment.booking_kind,
         patient_id: payment.patient_id, amount: amount ?? payment.amount,
-      });
+      }, `payment.refund:moyasar:${payment.moyasar_id}:${payment.refunded_amount}`);
 
       return { ok: true, refund: data };
     } catch (e: any) {

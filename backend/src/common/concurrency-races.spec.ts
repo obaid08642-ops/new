@@ -79,6 +79,38 @@ describe('coupon limits (CouponService.apply)', () => {
   });
 });
 
+describe('coupon per-user counter, repeated and with history', () => {
+  const coupons = () => conn.collection('coupons');
+  beforeEach(async () => { for (const c of ['coupons', 'coupon_usages', 'coupon_failures', 'coupon_user_counts']) await conn.collection(c).deleteMany({}); });
+
+  it('15 rounds of "limit 3, one user, 50 orders at once" always end at exactly 3 (an ordering-based check passed 2 of 3 runs)', async () => {
+    const svc = new CouponService(conn as any);
+    for (let round = 0; round < 15; round++) {
+      const code = `ROUND${round}`;
+      await coupons().insertOne({ code, active: true, discount_percent: 10, usage_limit_per_user: 3, used_count: 0 });
+      const r = await burst((i) => svc.apply('u', code, `o-${round}-${i}`, { order_total: 100 }));
+      expect(ok(r)).toBe(3);
+      expect(await conn.collection('coupon_usages').countDocuments({ code, user_id: 'u' })).toBe(3);
+    }
+  });
+
+  it('uses that predate the counter are counted: 2 earlier uses of a limit-3 coupon leave exactly 1 more under 50 parallel orders', async () => {
+    await coupons().insertOne({ code: 'OLD', active: true, discount_percent: 10, usage_limit_per_user: 3, used_count: 2 });
+    await conn.collection('coupon_usages').insertMany([{ id: 'x1', code: 'OLD', user_id: 'u', order_id: 'old1' }, { id: 'x2', code: 'OLD', user_id: 'u', order_id: 'old2' }]);
+    const r = await burst((i) => new CouponService(conn as any).apply('u', 'OLD', `n-${i}`, { order_total: 100 }));
+    expect(ok(r)).toBe(1);
+  });
+
+  it('cancelling an unpaid order gives the use back', async () => {
+    await coupons().insertOne({ code: 'BACK', active: true, discount_percent: 10, used_count: 0 });
+    const svc = new CouponService(conn as any);
+    await svc.apply('u', 'BACK', 'ord-1', { order_total: 100 });
+    await expect(svc.apply('u', 'BACK', 'ord-2', { order_total: 100 })).rejects.toBeDefined();
+    await svc.release('ord-1');
+    await expect(svc.apply('u', 'BACK', 'ord-3', { order_total: 100 })).resolves.toMatchObject({ code: 'BACK' });
+  });
+});
+
 describe('refund cap and idempotency (RefundExecutor.execute)', () => {
   const world = async (booking: string) => {
     await conn.collection('transactions').insertOne({ id: `t-${booking}`, booking_kind: 'consultation', booking_id: booking, patient_id: 'p1', status: 'paid', method: 'cash', amount: 100 });
