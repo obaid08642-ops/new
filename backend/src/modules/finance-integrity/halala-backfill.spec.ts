@@ -7,7 +7,7 @@ describe('halala backfill (expand phase)', () => {
   let mongod: MongoMemoryServer; let conn: Connection; let db: any;
   beforeAll(async () => { mongod = await MongoMemoryServer.create(); conn = await mongoose.createConnection(mongod.getUri()).asPromise(); db = conn.getClient().db(conn.name); });
   afterAll(async () => { await conn.close(); await mongod.stop(); });
-  beforeEach(async () => { for (const c of ['transactions', 'moyasar_payments', 'platformledgerentries']) await db.collection(c).deleteMany({}); });
+  beforeEach(async () => { for (const c of ['transactions', 'moyasar_payments', 'platformledgerentries', 'einvoices', 'refundrequests']) await db.collection(c).deleteMany({}); });
 
   const seed = async () => {
     await db.collection('transactions').insertMany([
@@ -50,5 +50,24 @@ describe('halala backfill (expand phase)', () => {
     ]);
     expect(await applyBackfill(db, { batch: 3 })).toMatchObject({ written: 1 });
     expect(await db.collection('transactions').findOne({ id: 'good' })).toMatchObject({ amount_halalas: 999 });
+  });
+
+  it('invoices keep the sign of a credit note; refund requests are filled; a negative amount elsewhere is still listed as unclean', async () => {
+    await db.collection('einvoices').insertMany([
+      { id: 'i1', subtotal: 130.43, vat_amount: 19.57, total: 150, discount: 0 },
+      { id: 'c1', type: 'credit_note', subtotal: -65.22, vat_amount: -9.78, total: -75 },
+    ]);
+    await db.collection('refundrequests').insertOne({ id: 'r1', amount: 49.9 });
+    await db.collection('refundrequests').insertOne({ id: 'r2', amount_paid: 200, refund_amount: 100 });
+    await db.collection('transactions').insertOne({ id: 'neg', amount: -5 });
+    const plan = await planBackfill(db);
+    expect(plan.find((p) => p.collection === 'einvoices' && p.field === 'total')).toMatchObject({ to_fill: 2, unclean: 0 });
+    expect(plan.find((p) => p.collection === 'transactions' && p.field === 'amount')).toMatchObject({ unclean: 1 });
+    await applyBackfill(db);
+    const cn = await db.collection('einvoices').findOne({ id: 'c1' });
+    expect([cn.subtotal_halalas, cn.vat_amount_halalas, cn.total_halalas]).toEqual([-6522, -978, -7500]);
+    expect((await db.collection('refundrequests').findOne({ id: 'r1' })).amount_halalas).toBe(4990);
+    expect((await db.collection('refundrequests').findOne({ id: 'r2' })).refund_amount_halalas).toBe(10000);
+    expect((await db.collection('transactions').findOne({ id: 'neg' })).amount_halalas).toBeUndefined();
   });
 });
