@@ -13,9 +13,13 @@ appId: com.patient.nabd
       id: "consultations-hub"
     timeout: 30000
 # the hub opens on "clinic" visits; its first doctor card opens the doctor's profile
+# Run 41593508288 (iOS): the doctor card sat half under the sticky search/filter header, the tap hit the search field (keyboard up, no doctor
+# page). centerElement scrolls it to the middle of the screen before the tap.
+- runFlow: lib/dismiss_save_password.yaml
 - scrollUntilVisible:
     element:
       id: "hub-doctor-0"
+    centerElement: true
     timeout: 60000
 - tapOn:
     id: "hub-doctor-0"
@@ -70,6 +74,7 @@ appId: com.patient.nabd
             id: "book-slot-19"
             enabled: true
           speed: 15
+          centerElement: true
           timeout: 60000
 - tapOn:
     id: "book-slot-19"

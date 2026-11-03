@@ -24,9 +24,11 @@ appId: com.patient.nabd
     timeout: 30000
 - tapOn:
     id: "appointments-tabs-past"
+- runFlow: lib/dismiss_save_password.yaml
 - scrollUntilVisible:
     element:
       id: "appointment-${APPT_ID}-open"
+    centerElement: true
     timeout: 60000
 - tapOn:
     id: "appointment-${APPT_ID}-open"
@@ -53,10 +55,12 @@ appId: com.patient.nabd
                 timeout: 15000
       - waitForAnimationToEnd
       - takeScreenshot: detail-before-chat-tap
+      - runFlow: lib/dismiss_save_password.yaml
       - scrollUntilVisible:
           element:
             id: "detail-chat"
           speed: 15
+          centerElement: true
           timeout: 20000
       - tapOn: "محادثة الطبيب|Chat with the doctor"
       - extendedWaitUntil:

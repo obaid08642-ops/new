@@ -144,6 +144,8 @@ appId: com.patient.nabd
       - tapOn:
           text: "Not Now|ليس الآن"
           optional: true
+      - waitForAnimationToEnd
+      - runFlow: dismiss_save_password.yaml
 # a successful sign-in replaces the screen with Home (the tabs). Run 41455012126 (iOS): the password is right now (201), but the simulator
 # shares the macOS runner with the backend and the sign-in answered after 14 s (8.7 s on another flow), so 30 s ran out before the screen changed.
 - extendedWaitUntil:

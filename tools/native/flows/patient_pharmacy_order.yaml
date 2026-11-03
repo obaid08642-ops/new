@@ -51,13 +51,19 @@ appId: com.patient.nabd
     visible:
       id: "checkout-screen"
     timeout: 30000
-- tapOn:
-    id: "checkout-submit"
-# POST /patient/pharmacy/orders + /submit answered: the screen that waits for the pharmacies' offers
-- extendedWaitUntil:
-    visible:
-      id: "broadcast-status-screen"
-    timeout: 60000
+# Run 41593508288 (iOS): the tap on the send button did nothing once (the page stayed as it was, after two runs where it worked); tap again only
+# when the waiting screen has not come after 45 s.
+- runFlow: lib/dismiss_save_password.yaml
+- retry:
+    maxRetries: 2
+    commands:
+      - tapOn:
+          id: "checkout-submit"
+      # POST /patient/pharmacy/orders + /submit answered: the screen that waits for the pharmacies' offers
+      - extendedWaitUntil:
+          visible:
+            id: "broadcast-status-screen"
+          timeout: 45000
 - extendedWaitUntil:
     notVisible:
       id: "checkout-screen"
