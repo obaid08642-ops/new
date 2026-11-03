@@ -10,6 +10,7 @@
 Delivery-fee VAT (the platform collects the fee) is on the patient document, which needs a VAT number in finance_config; this stack
 has none (receipt mode), so that rule is covered by the billing specs (billing-invoice-api.spec.ts, vat-model-a.spec.ts).
 """
+import time
 import uuid
 from lib import Client, journey, step, summary
 
@@ -85,7 +86,13 @@ def run():
         step(f'consultation {i}: paid by card', j_consultation.pay_card(pat, aid))
         if not finish_consultation(doctor, aid):
             return summary()
+    # earnings are credited by an event listener after each visit is finished: wait for the third (up to 20 s), then assert the exact count
     rows = earnings(doctor)
+    for _ in range(20):
+        if len(rows) >= 3:
+            break
+        time.sleep(1)
+        rows = earnings(doctor)
     step('three earnings were credited', len(rows) == 3, [x.get('commission_percent') for x in rows])
     if len(rows) != 3:
         return summary()

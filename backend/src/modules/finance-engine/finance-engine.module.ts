@@ -397,27 +397,43 @@ export class CouponService {
       await this.coupons.updateOne({ code: c.code } as any, { $inc: { used_count: 1 }, $set: { updatedAt: new Date() } });
     }
 
-    const usageId = `cu_${uuid()}`;
-    try {
-      await this.usages.insertOne({
-        id: usageId, code: c.code, user_id: userId, order_id: orderId,
-        discount: v.discount, createdAt: new Date(),
-      } as any);
-    } catch (e: any) {
-      // duplicate (user, code, order) — roll the counter back
-      await this.coupons.updateOne({ code: c.code } as any, { $inc: { used_count: -1 } });
-      throw new BadRequestException('coupon_invalid: already_applied');
-    }
-    // R21: validate() counted this user's earlier uses, then many parallel orders could each pass that count. Insert first, then check that this usage is among
-    // the first `limit` of the user's usages (by insertion order): exactly `limit` of any number of parallel applies keep their discount.
+    // R21: validate() counted this user's earlier uses, then many parallel orders could each pass that count. The per-user use is TAKEN with one conditional
+    // atomic update on a counter (coupon_user_counts) before the usage row is written: exactly `limit` of any number of parallel applies get it.
     const perUserLimit = Number(c.usage_limit_per_user ?? 1);
-    const firstN: any[] = await this.usages.find({ code: c.code, user_id: userId } as any, { projection: { id: 1 } }).sort({ _id: 1 }).limit(perUserLimit).toArray();
-    if (!firstN.some((u) => u.id === usageId)) {
-      await this.usages.deleteOne({ id: usageId } as any);
+    if (!(await this.takePerUserUse(c.code, userId, perUserLimit))) {
       await this.coupons.updateOne({ code: c.code } as any, { $inc: { used_count: -1 } });
       throw new BadRequestException('coupon_invalid: per_user_limit_reached');
     }
+    try {
+      await this.usages.insertOne({
+        id: `cu_${uuid()}`, code: c.code, user_id: userId, order_id: orderId,
+        discount: v.discount, createdAt: new Date(),
+      } as any);
+    } catch (e: any) {
+      // duplicate (user, code, order) — roll both counters back
+      await this.userCounts.updateOne({ code: c.code, user_id: userId } as any, { $inc: { count: -1 } });
+      await this.coupons.updateOne({ code: c.code } as any, { $inc: { used_count: -1 } });
+      throw new BadRequestException('coupon_invalid: already_applied');
+    }
     return { discount: v.discount, code: c.code };
+  }
+
+  private userCountIndex?: Promise<void>;
+  private get userCounts() { return this.conn.collection('coupon_user_counts'); }
+
+  /**
+   * Takes one of the user's `limit` uses of a coupon. The counter row is seeded once from the usages that already exist (uses from before this counter), then raised
+   * with `count < limit` in the filter, so two requests can never both get the last use. Usage rows are written AFTER this call, so the seed never counts them twice.
+   */
+  private async takePerUserUse(code: string, userId: string, limit: number): Promise<boolean> {
+    await (this.userCountIndex ??= this.userCounts.createIndex({ code: 1, user_id: 1 }, { unique: true }).then(() => undefined));
+    const filter = { code, user_id: userId } as any;
+    if (!(await this.userCounts.findOne(filter))) {
+      const existing = await this.usages.countDocuments(filter);
+      await this.userCounts.updateOne(filter, { $setOnInsert: { code, user_id: userId, count: existing } }, { upsert: true }).catch((e: any) => { if (e?.code !== 11000) throw e; });
+    }
+    const r = await this.userCounts.updateOne({ ...filter, count: { $lt: limit } }, { $inc: { count: 1 } });
+    return r.matchedCount === 1;
   }
 
   /** Release a coupon usage when an unpaid order is cancelled. */
@@ -425,6 +441,7 @@ export class CouponService {
     const usage: any = await this.usages.findOne({ order_id: orderId } as any);
     if (!usage) return;
     await this.usages.deleteOne({ order_id: orderId } as any);
+    await this.userCounts.updateOne({ code: usage.code, user_id: usage.user_id, count: { $gt: 0 } } as any, { $inc: { count: -1 } });
     await this.coupons.updateOne({ code: usage.code } as any, { $inc: { used_count: -1 } });
   }
 
