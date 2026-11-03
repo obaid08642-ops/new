@@ -132,6 +132,7 @@ def facility_calendar(hosp, doctor, pat, admin):
     r = hosp.get('/provider/facility/calendar')
     ev = next((x for x in rows(r) if x.get('id') == aid), None)
     step('unified calendar lists the appointment with its time', r.ok and ev and ev.get('scheduled_at'), r)
+    step('and with the patient\'s name and the doctor\'s name, not only ids (audit-3 gap 20)', bool(ev) and bool(ev.get('patient_name')) and bool(ev.get('provider_name')), {k: (ev or {}).get(k) for k in ('patient_name', 'provider_name')})
     pid = doctor.get(f'/care/appointments/{aid}').get('patient_id')
     r = hosp.get('/provider/facility/patients/active')
     step('patient tracker lists the booked patient', r.ok and pid in str(r.body), r)

@@ -97,12 +97,19 @@ export class ProviderPharmacyController {
     private providerOrders: PharmacyOrdersProviderService,
     private insurance: PharmacyInsuranceDecisionService,
     @Optional() private offersSvc?: PharmacyOfferService,
+    @Optional() private broadcastSvc?: PharmacyBroadcastService,
   ) {}
 
   /** P3 "My offers": ?status=draft|sent|chosen|not_chosen|expired|cancelled */
   @Get('offers') myOffers(@CurrentUser() u: any, @Query('status') status?: string) {
     if (!isProviderRole(u?.role)) throw new ForbiddenException();
     return this.offersSvc!.listForPharmacy(u, status);
+  }
+
+  /** Refills: orders that repeat an earlier order of a patient, among those this pharmacy was asked to price (the "refills" screens). */
+  @Get('refills') myRefills(@CurrentUser() u: any) {
+    if (!isProviderRole(u?.role)) throw new ForbiddenException();
+    return this.broadcastSvc!.listRefillsForPharmacy(u);
   }
 
   @Get('allocations') list(@CurrentUser() u: any, @Query('status') status?: string) {
