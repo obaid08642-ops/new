@@ -9,6 +9,8 @@ import { ROUTE_CLASSES, routeClass } from './route-classes';
 import { cronLeaseStats } from './scheduled-once';
 import { currentTraceId, traced } from './trace';
 import { buildLogRecord } from './structured-logger';
+import './overload';   // registers nabd_overload_level
+import './admission';  // registers nabd_admission_*
 
 const OPS = path.resolve(__dirname, '..', '..', '..', 'ops');
 
@@ -90,7 +92,14 @@ describe('ops/ queries only use metrics the API really emits (drift guard)', () 
     const missing: string[] = [];
     for (const r of rs) { expect(r.expr.length).toBeGreaterThan(0); for (const n of metricsIn(r.expr)) if (!known(n)) missing.push(`${r.alert}: ${n}`); }
     expect(missing).toEqual([]);
-    expect(rs.map((r) => r.alert)).toEqual(expect.arrayContaining(['ApiAvailabilitySLOBurn', 'ClassP95High', 'PaymentErrorRatio', 'CronLeaseLost']));
+    expect(rs.map((r) => r.alert)).toEqual(expect.arrayContaining(['ApiAvailabilitySLOBurn', 'ClassP95High', 'PaymentErrorRatio', 'CronLeaseLost', 'OverloadStrained', 'OverloadShedding']));
+  });
+
+  it('every runbook_url in the Prometheus rules is a file in the repository', () => {
+    const root = path.resolve(OPS, '..');
+    const urls = [...fs.readFileSync(path.join(OPS, 'prometheus', 'nabd-alerts.yml'), 'utf8').matchAll(/runbook_url:\s*"([^"]+)"/g)].map((m) => m[1]);
+    expect(urls.length).toBeGreaterThan(5);
+    for (const u of urls) expect(fs.existsSync(path.join(root, u))).toBe(true);
   });
 
   it.each(fs.readdirSync(path.join(OPS, 'grafana', 'dashboards')))('every nabd_* metric in dashboard %s is emitted and every panel has a query', (file) => {
