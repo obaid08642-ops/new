@@ -151,7 +151,8 @@ export function ReferralScreen({ apt, onBack }:
   }
   await client.post('/provider/referrals', {
   appointment_id: apt.id || apt.appointment_id,
-  target_type: spec,
+  target_type: 'specialty',
+  target_specialty: spec,
   notes: reason,
   patient_id: apt.patient_id,
   patient_name: apt.patient || apt.patient_name || '',

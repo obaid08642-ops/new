@@ -13,6 +13,7 @@
  * 11. GET    /provider/reports/inbound               التقارير الواردة الحقيقية
  * 12. PATCH  /provider/profile/availability          round-trip كامل
  */
+import { listCrmRecords, mergeCrm, readCrm } from './crm-store';
 import { nextClaimStatus } from '../../common/claim-state';
 import {
   Module, Controller, Get, Post, Patch, Put, Delete, Param, Body, Query, UseGuards,
@@ -239,9 +240,7 @@ export class ProviderProductionService {
   // ═══ 5-6. CRM persistence (exact governed paths) ═══
   async listCrmPatients(user: any) {
     assertProviderRole(user);
-    const records = await this.conn.collection('doctor_patient_crm')
-      .find({ owner_id: user.id }, { projection: { _id: 0, patient_id: 1, data: 1, updatedAt: 1 } })
-      .sort({ updatedAt: -1 }).limit(200).toArray();
+    const records = await listCrmRecords(this.conn, user.id);
     // Patients this provider has served, so the CRM can be opened for them before any note exists
     // (the screen only opens patients from this list).
     const served = new Set<string>();
@@ -277,41 +276,24 @@ export class ProviderProductionService {
       updated_at: record.updatedAt || null,
     }));
   }
+  /** The patient's file; a patient this provider served and never wrote a note about has the empty file (the list offers every served patient). */
   async getCrm(user: any, patientId: string) {
     assertProviderRole(user);
-    const doc: any = await this.conn.collection('doctor_patient_crm').findOne(
-      { owner_id: user.id, patient_id: patientId },
-      { projection: { _id: 0 } },
-    );
-    if (!doc) throw new NotFoundException('crm_record_not_found');
-    return doc.data || {};
+    return readCrm(this.conn, user.id, patientId);
   }
 
+  /** Saves the fields sent and keeps the others. `blocked` also goes to the doctor's block list, which is what stops that patient booking. */
   async putCrm(user: any, patientId: string, data: any) {
     assertProviderRole(user);
-    const clean = {
-      tags: Array.isArray(data?.tags) ? data.tags.slice(0, 50).map((t: any) => String(t).slice(0, 60)) : [],
-      notes: Array.isArray(data?.notes)
-        ? data.notes.slice(0, 200).map((n: any) => ({
-            id: String(n?.id || `n_${Date.now()}`),
-            date: String(n?.date || new Date().toISOString().slice(0, 10)),
-            text: String(n?.text || '').slice(0, 2000),
-          })).filter((n: any) => n.text)
-        : [],
-      vip: !!data?.vip,
-      favorite: !!data?.favorite,
-      blocked: !!data?.blocked,
-      blocked_reason: data?.blocked ? String(data?.blocked_reason || '').slice(0, 500) : '',
-    };
-    await this.conn.collection('doctor_patient_crm').updateOne(
-      { owner_id: user.id, patient_id: patientId },
-      {
-        $set: { data: clean, updatedAt: new Date() },
-        $setOnInsert: { id: `crm_${Date.now()}`, owner_id: user.id, patient_id: patientId, createdAt: new Date() },
-      },
-      { upsert: true },
-    );
-    return clean;
+    const saved = await mergeCrm(this.conn, user.id, patientId, data);
+    if (data?.blocked !== undefined && hasEffectiveRole(user, 'doctor')) {
+      await this.conn.collection('doctor_blacklist').updateOne(
+        { doctor_id: { $eq: user.id }, patient_id: { $eq: patientId } },
+        { $set: { doctor_id: user.id, patient_id: patientId, reason: saved.blocked ? saved.blocked_reason || null : null, active: saved.blocked, updatedAt: new Date() }, $setOnInsert: { createdAt: new Date() } },
+        { upsert: true },
+      );
+    }
+    return saved;
   }
 
   // ═══ 7. Referral tracking (mine) ═══
@@ -357,12 +339,22 @@ export class ProviderProductionService {
 
   async createReferral(user: any, body: any) {
     assertProviderRole(user);
-    const role = ROLE_ALIASES[String(user?.role || '').toLowerCase()] || String(user?.role || '').toLowerCase();
-    if (!isAdmin(user) && role !== UserRole.DOCTOR) throw new ForbiddenException('doctor_scope_required');
+    // A provider signs in with role "provider" and a provider type: the doctor is known by either (the role check alone refused every doctor).
+    if (!isAdmin(user) && !hasEffectiveRole(user, UserRole.DOCTOR)) throw new ForbiddenException('doctor_scope_required');
     const patientId = String(body?.patient_id || '').trim();
     const targetType = String(body?.target_type || '').trim().toLowerCase();
-    if (!patientId || !['lab', 'radiology', 'nursing'].includes(targetType) || !String(body?.notes || '').trim()) {
+    if (!patientId || !['lab', 'radiology', 'nursing', 'specialty'].includes(targetType) || !String(body?.notes || '').trim()) {
       throw new BadRequestException('patient_target_and_notes_required');
+    }
+    // A referral to a specialty (the doctor's screen offers specialties): the code must be one of the catalogue's.
+    let targetSpecialty: string | null = null;
+    let specialtyName = '';
+    if (targetType === 'specialty') {
+      const code = String(body?.target_specialty || '').trim();
+      const spec: any = code ? await this.conn.collection('specialties').findOne({ $or: [{ code: { $eq: code } }, { id: { $eq: code } }], is_active: { $ne: false } }, { projection: { _id: 0, code: 1, id: 1, name_ar: 1, name_en: 1 } }) : null;
+      if (!spec) throw new BadRequestException('unknown_specialty');
+      targetSpecialty = String(spec.code || spec.id);
+      specialtyName = spec.name_ar || spec.name_en || '';
     }
 
     const patient: any = await this.conn.collection('users').findOne({ id: patientId });
@@ -386,7 +378,7 @@ export class ProviderProductionService {
     if (targetProviderId) {
       const targetProfile: any = await this.conn.collection('provider_profiles').findOne({ account_id: targetProviderId });
       const profileType = String(targetProfile?.type || targetProfile?.provider_type || '').toLowerCase();
-      if (!targetProfile || profileType !== targetType) throw new BadRequestException('invalid_referral_destination');
+      if (!targetProfile || profileType !== (targetType === 'specialty' ? 'doctor' : targetType)) throw new BadRequestException('invalid_referral_destination');
       const targetAccount: any = await this.conn.collection('provider_accounts').findOne({ id: targetProviderId, status: { $in: ['approved', 'active'] } });
       if (!targetAccount) throw new BadRequestException('inactive_referral_destination');
       targetName = targetProfile.display_name_ar || targetProfile.business_name || targetProfile.display_name_en || targetName;
@@ -400,8 +392,9 @@ export class ProviderProductionService {
       patient_id: patientId,
       patient_name: patient.full_name || patient.name || patient.name_ar || patient.name_en || '',
       target_type: targetType,
+      ...(targetSpecialty ? { target_specialty: targetSpecialty } : {}),
       target_provider_id: targetProviderId || null,
-      target_name: targetName,
+      target_name: targetName || specialtyName,
       requested_tests: Array.isArray(body.requested_tests) ? body.requested_tests.slice(0, 50).map(String) : [],
       referral_code: `REF-${randomUUID().replace(/-/g, '').slice(0, 10).toUpperCase()}`,
       notes: String(body.notes).trim(),

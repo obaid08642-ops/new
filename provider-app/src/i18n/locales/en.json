@@ -229,5 +229,6 @@
   "pharmacy.ownDelivery.saved": "Delivery settings saved",
   "pharmacy.ownDelivery.saveFailed": "Could not save the delivery settings",
   "profile.credential.pending": "Pending review: {value}",
-  "profile.credential.sent": "Credential change sent for admin review"
+  "profile.credential.sent": "Credential change sent for admin review",
+  "referral.requestedTests": "Requested tests"
 }
