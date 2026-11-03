@@ -11,6 +11,7 @@
  * histogram rather than a sliding window, so the numbers are stable enough to
  * alert on.
  */
+import { routeClass } from './route-classes';
 import { Injectable } from '@nestjs/common';
 
 /** Latency buckets in milliseconds, matching the plan's p50/p95/p99 need. */
@@ -29,9 +30,9 @@ interface RouteStat {
  * Gauges other modules register (20.10): name, help and a function read at scrape time, e.g. the realtime gateway's
  * open socket count. Process-wide so a module needs no constructor change to publish one.
  */
-const registeredGauges = new Map<string, { help: string; read: () => number }>();
-export function registerGauge(name: string, help: string, read: () => number): void {
-  registeredGauges.set(name, { help, read });
+const registeredGauges = new Map<string, { help: string; read: () => number; type: 'gauge' | 'counter' }>();
+export function registerGauge(name: string, help: string, read: () => number, type: 'gauge' | 'counter' = 'gauge'): void {
+  registeredGauges.set(name, { help, read, type });
 }
 
 @Injectable()
@@ -115,7 +116,7 @@ export class MetricsService {
     for (const [name, g] of registeredGauges) {
       let v = 0;
       try { v = Number(g.read()) || 0; } catch { /* a broken gauge must not break the scrape */ }
-      push(name, 'gauge', g.help, v);
+      push(name, g.type, g.help, v);
     }
 
     // One HELP/TYPE per metric name, then one series per route. Declaring the
@@ -151,6 +152,30 @@ export class MetricsService {
       lines.push(`nabd_http_p95_ms${labels} ${this.percentile(stat, 95)}`);
       lines.push(`nabd_http_p99_ms${labels} ${this.percentile(stat, 99)}`);
     }
+
+    // R5: Rate / Errors / Duration by route class (about 9 series sets instead of every route pattern), built from the same counters.
+    declare('nabd_http_class_requests_total', 'counter', 'HTTP requests completed, by route class.');
+    declare('nabd_http_class_errors_total', 'counter', 'HTTP requests that answered 5xx, by route class.');
+    declare('nabd_http_class_duration_ms_sum', 'counter', 'Total request duration in ms, by route class.');
+    declare('nabd_http_class_duration_ms_bucket', 'histogram', 'Request duration in ms, by route class.');
+    declare('nabd_http_class_p95_ms', 'gauge', 'p95 latency in ms, by route class.');
+    const byClass = new Map<string, RouteStat>();
+    for (const [route, stat] of this.routes) {
+      const c = routeClass(route);
+      const agg = byClass.get(c) ?? { count: 0, errors: 0, buckets: new Array(LATENCY_BUCKETS.length).fill(0), totalMs: 0, maxMs: 0 };
+      agg.count += stat.count; agg.errors += stat.errors; agg.totalMs += stat.totalMs; agg.maxMs = Math.max(agg.maxMs, stat.maxMs);
+      stat.buckets.forEach((b, k) => { agg.buckets[k] += b; });
+      byClass.set(c, agg);
+    }
+    for (const [c, agg] of byClass) {
+      lines.push(`nabd_http_class_requests_total{class="${c}"} ${agg.count}`);
+      lines.push(`nabd_http_class_errors_total{class="${c}"} ${agg.errors}`);
+      lines.push(`nabd_http_class_duration_ms_sum{class="${c}"} ${agg.totalMs}`);
+      for (let k = 0; k < LATENCY_BUCKETS.length; k += 1) lines.push(`nabd_http_class_duration_ms_bucket{class="${c}",le="${LATENCY_BUCKETS[k]}"} ${agg.buckets[k]}`);
+      lines.push(`nabd_http_class_duration_ms_bucket{class="${c}",le="+Inf"} ${agg.count}`);
+      lines.push(`nabd_http_class_p95_ms{class="${c}"} ${this.percentile(agg, 95)}`);
+    }
+
 
     return `${lines.join('\n')}\n`;
   }
