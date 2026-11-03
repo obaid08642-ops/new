@@ -176,15 +176,23 @@ if [ "${MONITOR_TEST_MAIL:-0}" = 1 ]; then
   if send_mail "[nabd.plus] test mail from monitor.sh" "Sent by ops task 98m at $TS UTC. If you read this, the alert mail path works."; then echo "status: monitor-testmail: sent"; exit 0; fi
   echo "status: monitor-testmail: failed (see the last lines of $LOG_DIR/nabdah-alerts.log for the provider and HTTP code)"; exit 1
 fi
+# Owner, 2026-11-02: the on-host alerts sent dozens of mails a day while the one that mattered (the site down) never arrived. Only what can
+# take the site down or lose data is mailed at once (containers, mongodb, redis, the backend, the CRITICAL disk level, backups); every other
+# alert (warn-level disk, disk filling, container layers and logs, ram, load, certificates) is logged and goes into the daily summary mail only.
+CRIT_ALERTS=(); CRIT_KEYS=()
+for i in "${!KEYS[@]}"; do
+  case "${KEYS[$i]}" in container-*|mongodb|redis|backend|disk-crit|backup) CRIT_KEYS+=("${KEYS[$i]}"); CRIT_ALERTS+=("${ALERTS[$i]}") ;; esac
+done
 if [ -n "${OPS_ALERT_EMAIL:-}" ]; then
   mkdir -p "$STATE_DIR" 2>/dev/null
-  SIG=$(printf '%s\n' "${KEYS[@]}" | sort -u | tr '\n' ' ' | sed 's/ *$//')
+  SIG=$(printf '%s\n' "${CRIT_KEYS[@]}" | sort -u | tr '\n' ' ' | sed 's/ *$//')
   LAST_SIG=$(cat "$STATE_DIR/last-signature" 2>/dev/null)
   LAST_SENT=$(cat "$STATE_DIR/last-sent" 2>/dev/null || echo 0)
-  if [ ${#ALERTS[@]} -gt 0 ]; then
+  if [ ${#CRIT_ALERTS[@]} -gt 0 ]; then
     if [ "$SIG" != "$LAST_SIG" ] || [ $(( NOW - LAST_SENT )) -ge $(( ALERT_REPEAT_HOURS * 3600 )) ]; then
-      BODY="$(hostname) at $TS UTC:"$'\n'"$(printf -- '- %s\n' "${ALERTS[@]}")"
-      send_mail "[nabd.plus] ${#ALERTS[@]} alert(s): ${ALERTS[0]:0:80}" "$BODY" \
+      BODY="$(hostname) at $TS UTC:"$'\n'"$(printf -- '- %s\n' "${CRIT_ALERTS[@]}")"
+      [ ${#ALERTS[@]} -gt ${#CRIT_ALERTS[@]} ] && BODY+=$'\n'"$(( ${#ALERTS[@]} - ${#CRIT_ALERTS[@]} )) other alert(s) are in the daily summary mail."
+      send_mail "[nabd.plus] ${#CRIT_ALERTS[@]} alert(s): ${CRIT_ALERTS[0]:0:80}" "$BODY" \
         && { printf '%s' "$SIG" > "$STATE_DIR/last-signature"; echo "$NOW" > "$STATE_DIR/last-sent"; }
     fi
   elif [ -n "$LAST_SIG" ]; then

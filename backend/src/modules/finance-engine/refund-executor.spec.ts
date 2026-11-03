@@ -1,3 +1,4 @@
+import { refundGuardCollections } from './refund-guard.fake';
 import { BadRequestException } from '@nestjs/common';
 import { RefundExecutor } from './finance-engine.module';
 
@@ -7,6 +8,7 @@ describe('RefundExecutor original payment behavior (LJ-05, 7A-A2)', () => {
     const ledger = { exists: jest.fn().mockResolvedValue(null), append };
     const cashTransaction = { status: 'paid', method: 'cash', amount: 80 };
     const booking = { payment_method: 'cash', payment_status: 'paid', total_price: 80 };
+    const guard = refundGuardCollections();
     const conn = {
       collection: jest.fn((name: string) => {
         if (name === 'moyasar_payments') return { findOne: jest.fn().mockResolvedValue(null) };
@@ -15,6 +17,7 @@ describe('RefundExecutor original payment behavior (LJ-05, 7A-A2)', () => {
         if (name === 'pharmacy_orders') return { updateOne: jest.fn().mockResolvedValue({}) };
         if (name === 'platformledgerentries') return { findOne: jest.fn().mockResolvedValue(null) };
         if (name === 'notifications') return { insertOne: jest.fn().mockResolvedValue({}) };
+        if (name === 'refund_reservations' || name === 'refund_totals') return (guard as any)[name];
         if (name === 'wallets' || name === 'wallet_transactions') throw new Error('patient wallet must not be accessed');
         return {};
       }),

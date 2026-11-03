@@ -34,6 +34,7 @@ import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema
 import { UserRole } from '../../common/enums';
 import { SavePolicyDto, CreateRequestDto, PayCopayDto, ResubmitDto, AppealDto, DecideDto, GatekeeperDto, PaymentConfirmDto, PayCopayDto2, RequestDto, DecideRefundDto, AccrueDto } from './insurance-engine.dto';
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { ScheduledOnce } from '../../common/scheduled-once';
 
 // ============================================================================
 // Schemas
@@ -796,6 +797,7 @@ export class InsuranceFlowService {
   // 60s safety net means a failed event delivery holds the service for a full
   // minute. The sweep is cheap (one indexed find + at most 100 guarded writes).
   @Cron('*/15 * * * * *')
+  @ScheduledOnce({ holdMs: 3000 })
   async reconcileCopays() {
     try {
       const stale = await this.requests.find({ state: 'COPAY_PENDING', payment_id: { $in: [null, undefined] } })

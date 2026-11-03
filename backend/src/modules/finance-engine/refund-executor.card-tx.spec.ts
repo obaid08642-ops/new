@@ -1,3 +1,4 @@
+import { refundGuardCollections } from './refund-guard.fake';
 import { RefundExecutor } from './finance-engine.module';
 
 /**
@@ -9,8 +10,10 @@ function stack(opts: { tx: any; booking: any; copayTx?: any; requests?: any[] })
   const append = jest.fn().mockResolvedValue({});
   const refundTransactionAsSystem = jest.fn().mockResolvedValue({ gateway_refund_id: 'rf_1' });
   const moduleRef = { get: jest.fn(() => ({ refundTransactionAsSystem })) };
+  const guard = refundGuardCollections();
   const conn = {
     collection: jest.fn((name: string) => {
+      if (name === 'refund_reservations' || name === 'refund_totals') return (guard as any)[name];
       if (name === 'moyasar_payments') return { findOne: jest.fn().mockResolvedValue(null) };
       if (name === 'transactions') {
         return { findOne: jest.fn(async (q: any) => (q.booking_kind === 'insurance' ? opts.copayTx ?? null : opts.tx)) };
