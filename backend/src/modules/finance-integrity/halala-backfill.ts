@@ -13,6 +13,8 @@ export const TARGETS: Target[] = [
   { collection: 'transactions', fields: ['amount', 'refunded_amount'] },
   { collection: 'moyasar_payments', fields: ['amount', 'refunded_amount'] },
   { collection: 'platformledgerentries', fields: ['amount', 'gross', 'commission', 'vat'], ledger: true },
+  { collection: 'wallets', fields: ['balance'] },
+  { collection: 'wallet_transactions', fields: ['amount'] },
 ];
 
 export interface PlanRow { collection: string; field: string; to_fill: number; unclean: number; unclean_sample: Array<{ id: unknown; value: unknown }> }
