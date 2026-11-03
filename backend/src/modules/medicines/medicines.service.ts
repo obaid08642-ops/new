@@ -12,7 +12,7 @@ import { Medicine, MedicineDocument } from '../../schemas/medicine.schema';
 import { EVENTS } from '../../common/events';
 import { clampPageInt } from '../../common/safe-query';
 import { PurgeBus } from '../../common/purge-bus';
-import { connectionFlagSource, isKilled } from '../../common/killswitches/killswitches.helper';
+import { connectionFlagSource, shouldDegrade } from '../../common/killswitches/killswitches.helper';
 import { MedicineRepository } from "./repositories/medicine.repository";
 import { RedisService } from '../redis/redis.service';
 import { HotCache } from '../redis/hot-cache.service';
@@ -406,7 +406,7 @@ export class MedicinesService {
   /** False only when analytics ingestion is explicitly killed (fail-open). */
   private async analyticsIngestAllowed(): Promise<boolean> {
     try {
-      return !(await isKilled('analyticsIngestion', connectionFlagSource(this.conn)));
+      return !(await shouldDegrade('analyticsIngestion', connectionFlagSource(this.conn)));
     } catch {
       return true;
     }
@@ -421,7 +421,7 @@ export class MedicinesService {
     if (t.length < 3) return { suggestion: null };
     // Kill switch (search suggestions): direct matches only, no suggestion
     // expansion and no suggester (pool) reads.
-    if (await isKilled('searchSuggestions', connectionFlagSource(this.conn))) {
+    if (await shouldDegrade('searchSuggestions', connectionFlagSource(this.conn))) {
       return { suggestion: null, alternatives: [], query: term };
     }
 
