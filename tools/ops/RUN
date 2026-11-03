@@ -1,12 +1,8 @@
-# 2026-11-02 13:25 lead reviewer: run 93 = OUTAGE RECOVERY. Since ~13:20 UTC nabd.plus/ar and /api/v1/health answer Cloudflare 522 (origin times out).
-# Run 91 deployed ac91b2a1 at 12:15 healthy; run 92 (read-only) touched nothing but did start a docker exec into the backend.
-# 1. Read-only state first: mongo state, memory report, what runs (69).
-# 2. 68-mongo-start: start mongod if it is down (same container and volume, never a repair), then restart backend + worker once, readiness.
-# 3. Read-only outage inspection (55) for the cause.
+# 2026-11-03 00:12 lead reviewer: run 94 (READ-ONLY) after the outage. Cause: the OVH renewal of 2026-11-01 did not go through, the VPS was
+# STOPPED by the provider from ~13:20 UTC 11-02; the owner paid and started it ~00:00 UTC. Check that every service came back healthy, mongo state,
+# memory, and that nothing was lost (the 12:10 pre-deploy backup is the reference).
 release:ac91b2a1b796fbe37fcc56607e75b85317e6ad8d
+69-deploy-check
 99m-mongo-state
 98-memory-report
-69-deploy-check
-68-mongo-start
 55-inspect-outage
-cf-purge-api
