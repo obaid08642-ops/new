@@ -1,5 +1,5 @@
 {
- "commit": "929a06fb8",
+ "commit": "e6aedd035",
  "routes": [
   {
    "app": "provider-app",
@@ -50,7 +50,7 @@
      "backend": "backend/src/modules/referral/referral.controller.ts:18"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -115,7 +115,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:824"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -174,7 +174,7 @@
      "backend": "backend/src/modules/provider-production/provider-production.module.ts:670"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -253,7 +253,7 @@
      "backend": "backend/src/modules/provider-production/provider-production.module.ts:657"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -288,7 +288,7 @@
      "backend": "backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:154"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -333,7 +333,7 @@
      "backend": "backend/src/modules/labs/labs.controller.ts:188"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -368,7 +368,7 @@
      "backend": "backend/src/modules/home-care/home-care-compat.module.ts:415"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -403,7 +403,7 @@
      "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:293"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -478,7 +478,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:567"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -537,7 +537,7 @@
      "backend": "backend/src/modules/provider-production/provider-production.module.ts:668"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -596,7 +596,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:966"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -667,7 +667,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:862"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -712,7 +712,7 @@
      "backend": "backend/src/modules/provider-production/provider-production.module.ts:664"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 1,
    "navIssues": []
   },
@@ -775,7 +775,7 @@
      "backend": "backend/src/modules/provider-production/provider-production.module.ts:670"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -990,7 +990,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 36,
+   "files": 37,
    "unresolved": 1,
    "navIssues": []
   },
@@ -1205,7 +1205,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 36,
+   "files": 37,
    "unresolved": 1,
    "navIssues": []
   },
@@ -1271,7 +1271,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:65"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -1476,7 +1476,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 36,
+   "files": 37,
    "unresolved": 1,
    "navIssues": []
   },
@@ -1717,7 +1717,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 37,
+   "files": 38,
    "unresolved": 1,
    "navIssues": []
   },
@@ -1814,7 +1814,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:135"
     }
    ],
-   "files": 13,
+   "files": 14,
    "unresolved": 0,
    "navIssues": []
   },
@@ -2019,7 +2019,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 39,
+   "files": 40,
    "unresolved": 1,
    "navIssues": []
   },
@@ -2224,7 +2224,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 36,
+   "files": 37,
    "unresolved": 1,
    "navIssues": []
   },
@@ -2269,7 +2269,7 @@
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:607"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -2362,7 +2362,7 @@
      "backend": "backend/src/modules/care/appointments.controller.ts:96"
     }
    ],
-   "files": 13,
+   "files": 14,
    "unresolved": 0,
    "navIssues": []
   },
@@ -2447,7 +2447,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:602"
     }
    ],
-   "files": 14,
+   "files": 15,
    "unresolved": 1,
    "navIssues": []
   },
@@ -2492,7 +2492,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:832"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -2578,7 +2578,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:921"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -2633,7 +2633,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:812"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -2668,7 +2668,7 @@
      "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:293"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -2723,7 +2723,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:553"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -2808,7 +2808,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:938"
     }
    ],
-   "files": 15,
+   "files": 16,
    "unresolved": 0,
    "navIssues": []
   },
@@ -2909,7 +2909,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:820"
     }
    ],
-   "files": 13,
+   "files": 14,
    "unresolved": 0,
    "navIssues": []
   },
@@ -2954,7 +2954,7 @@
      "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:93"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -2989,7 +2989,7 @@
      "backend": "backend/src/modules/provider-production/provider-production.module.ts:681"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3054,7 +3054,7 @@
      "backend": "backend/src/modules/care/appointments.controller.ts:108"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3099,7 +3099,7 @@
      "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:71"
     }
    ],
-   "files": 13,
+   "files": 14,
    "unresolved": 1,
    "navIssues": []
   },
@@ -3134,7 +3134,7 @@
      "backend": "backend/src/modules/medical-orders/medical-orders.controller.ts:27"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3169,7 +3169,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:422"
     }
    ],
-   "files": 14,
+   "files": 15,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3244,7 +3244,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:838"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3299,7 +3299,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:822"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3374,7 +3374,7 @@
      "backend": "backend/src/modules/home-care/home-care-compat.module.ts:453"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3429,7 +3429,7 @@
      "backend": "backend/src/modules/provider-production/provider-production.module.ts:661"
     }
    ],
-   "files": 15,
+   "files": 16,
    "unresolved": 1,
    "navIssues": []
   },
@@ -3464,7 +3464,7 @@
      "backend": "backend/src/modules/provider-production/provider-production.module.ts:664"
     }
    ],
-   "files": 13,
+   "files": 14,
    "unresolved": 1,
    "navIssues": []
   },
@@ -3509,7 +3509,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:826"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3544,7 +3544,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:370"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3579,7 +3579,7 @@
      "backend": "backend/src/modules/livekit/livekit.controller.ts:16"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3644,7 +3644,7 @@
      "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:377"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3679,7 +3679,7 @@
      "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:39"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3714,7 +3714,7 @@
      "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:39"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3759,7 +3759,7 @@
      "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:397"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3804,7 +3804,7 @@
      "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:493"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3839,7 +3839,7 @@
      "backend": "backend/src/modules/provider/provider-facility.controller.ts:29"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3904,7 +3904,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:921"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -3959,7 +3959,7 @@
      "backend": "backend/src/modules/chat/chat.module.ts:129"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4014,7 +4014,7 @@
      "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:86"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4059,7 +4059,7 @@
      "backend": "backend/src/modules/provider/leave-requests.controller.ts:54"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4094,7 +4094,7 @@
      "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:298"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4149,7 +4149,7 @@
      "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:293"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4184,7 +4184,7 @@
      "backend": "backend/src/modules/provider/provider-facility.controller.ts:62"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4239,7 +4239,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:98"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 1,
    "navIssues": []
   },
@@ -4294,7 +4294,7 @@
      "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:539"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4359,7 +4359,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:956"
     }
    ],
-   "files": 14,
+   "files": 15,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4404,7 +4404,7 @@
      "backend": "backend/src/modules/provider/provider-facility.controller.ts:42"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4439,7 +4439,7 @@
      "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:881"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4484,7 +4484,7 @@
      "backend": "backend/src/modules/provider/provider-facility.controller.ts:62"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4559,7 +4559,7 @@
      "backend": "backend/src/modules/provider/provider-facility.controller.ts:81"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4614,7 +4614,7 @@
      "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:446"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4659,7 +4659,7 @@
      "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:44"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4694,7 +4694,7 @@
      "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:463"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4749,7 +4749,7 @@
      "backend": "backend/src/modules/catalogs/catalogs.controller.ts:52"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4854,7 +4854,7 @@
      "backend": "backend/src/modules/labs/labs.controller.ts:125"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4930,7 +4930,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:884"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -4995,7 +4995,7 @@
      "backend": "backend/src/modules/labs/labs.controller.ts:112"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5130,7 +5130,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:842"
     }
    ],
-   "files": 13,
+   "files": 14,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5185,7 +5185,7 @@
      "backend": "backend/src/modules/labs/labs.controller.ts:112"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5240,7 +5240,7 @@
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:623"
     }
    ],
-   "files": 17,
+   "files": 18,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5315,7 +5315,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:572"
     }
    ],
-   "files": 14,
+   "files": 15,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5360,7 +5360,7 @@
      "backend": "backend/src/modules/catalogs/catalogs.controller.ts:52"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5505,7 +5505,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 15,
+   "files": 16,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5570,7 +5570,7 @@
      "backend": "backend/src/modules/labs/labs.controller.ts:188"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5625,7 +5625,7 @@
      "backend": "backend/src/modules/labs/labs.controller.ts:194"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5670,7 +5670,7 @@
      "backend": "backend/src/modules/home-care/home-care-compat.module.ts:324"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5715,7 +5715,7 @@
      "backend": "backend/src/modules/home-care/home-care-compat.module.ts:419"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5770,7 +5770,7 @@
      "backend": "backend/src/modules/chat/chat.module.ts:108"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5815,7 +5815,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:138"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5910,7 +5910,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 16,
+   "files": 17,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5956,7 +5956,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:884"
     }
    ],
-   "files": 15,
+   "files": 16,
    "unresolved": 1,
    "navIssues": []
   },
@@ -5991,7 +5991,7 @@
      "backend": "backend/src/modules/home-care/nursing-compat.controller.ts:38"
     }
    ],
-   "files": 9,
+   "files": 10,
    "unresolved": 0,
    "navIssues": []
   },
@@ -6026,7 +6026,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:991"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -6081,7 +6081,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:138"
     }
    ],
-   "files": 16,
+   "files": 17,
    "unresolved": 0,
    "navIssues": []
   },
@@ -6126,7 +6126,7 @@
      "backend": "backend/src/modules/home-care/home-care.controller.ts:94"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -6171,7 +6171,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:846"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -6306,7 +6306,7 @@
      "backend": "backend/src/modules/provider/provider-ordering.controller.ts:19"
     }
    ],
-   "files": 14,
+   "files": 15,
    "unresolved": 1,
    "navIssues": []
   },
@@ -6441,7 +6441,7 @@
      "backend": "backend/src/modules/provider/provider-ordering.controller.ts:19"
     }
    ],
-   "files": 14,
+   "files": 15,
    "unresolved": 0,
    "navIssues": []
   },
@@ -6576,7 +6576,7 @@
      "backend": "backend/src/modules/provider/provider-ordering.controller.ts:19"
     }
    ],
-   "files": 14,
+   "files": 15,
    "unresolved": 0,
    "navIssues": []
   },
@@ -6711,7 +6711,7 @@
      "backend": "backend/src/modules/provider/provider-ordering.controller.ts:19"
     }
    ],
-   "files": 14,
+   "files": 15,
    "unresolved": 0,
    "navIssues": []
   },
@@ -6796,7 +6796,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:168"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -6877,7 +6877,7 @@
      "backend": "backend/src/modules/returns/returns.controller.ts:26"
     }
    ],
-   "files": 14,
+   "files": 15,
    "unresolved": 0,
    "navIssues": []
   },
@@ -6938,7 +6938,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:119"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7013,7 +7013,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:165"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7069,7 +7069,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:362"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7114,7 +7114,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:125"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7169,7 +7169,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:125"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7193,7 +7193,7 @@
    "batch": "provider",
    "status": "not redesigned",
    "calls": [],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7217,7 +7217,7 @@
    "batch": "provider",
    "status": "not redesigned",
    "calls": [],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7292,7 +7292,7 @@
      "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:83"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7347,7 +7347,7 @@
      "backend": "backend/src/modules/returns/returns.controller.ts:26"
     }
    ],
-   "files": 13,
+   "files": 14,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7442,7 +7442,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:96"
     }
    ],
-   "files": 17,
+   "files": 18,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7477,7 +7477,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:165"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7512,7 +7512,7 @@
      "backend": "backend/src/modules/radiology/radiology.controller.ts:208"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7567,7 +7567,7 @@
      "backend": "backend/src/modules/radiology/radiology.controller.ts:208"
     }
    ],
-   "files": 13,
+   "files": 14,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7652,7 +7652,7 @@
      "backend": "backend/src/modules/radiology/radiology.controller.ts:107"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7687,7 +7687,7 @@
      "backend": "backend/src/modules/radiology/radiology.controller.ts:134"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7722,7 +7722,7 @@
      "backend": "backend/src/modules/radiology/radiology.controller.ts:134"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7757,7 +7757,7 @@
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:623"
     }
    ],
-   "files": 14,
+   "files": 15,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7902,7 +7902,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 16,
+   "files": 17,
    "unresolved": 0,
    "navIssues": []
   },
@@ -7987,7 +7987,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:105"
     }
    ],
-   "files": 17,
+   "files": 18,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8078,7 +8078,7 @@
      "backend": "backend/src/modules/media/media.controller.ts:31"
     }
    ],
-   "files": 18,
+   "files": 19,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8113,7 +8113,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy_ops.controller.ts:30"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8212,7 +8212,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:138"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 1,
    "navIssues": []
   },
@@ -8287,7 +8287,7 @@
      "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:881"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8322,7 +8322,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:543"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8357,7 +8357,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:591"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8456,7 +8456,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 19,
+   "files": 20,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8627,7 +8627,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:578"
     }
    ],
-   "files": 23,
+   "files": 24,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8828,7 +8828,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 22,
+   "files": 23,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8873,7 +8873,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:572"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8938,7 +8938,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:491"
     }
    ],
-   "files": 10,
+   "files": 11,
    "unresolved": 0,
    "navIssues": []
   },
@@ -8973,7 +8973,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:96"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -9050,7 +9050,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:96"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -9167,7 +9167,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:118"
     }
    ],
-   "files": 17,
+   "files": 18,
    "unresolved": 0,
    "navIssues": []
   },
@@ -9252,7 +9252,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:907"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -9297,7 +9297,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:971"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -9438,7 +9438,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:540"
     }
    ],
-   "files": 14,
+   "files": 15,
    "unresolved": 0,
    "navIssues": []
   },
@@ -9483,7 +9483,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:477"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -9524,7 +9524,7 @@
      "backend": "backend/src/modules/support/support.controller.ts:15"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   },
@@ -9589,7 +9589,7 @@
      "backend": "backend/src/modules/livekit/livekit.controller.ts:43"
     }
    ],
-   "files": 15,
+   "files": 16,
    "unresolved": 0,
    "navIssues": []
   },
@@ -9704,7 +9704,7 @@
      "backend": "backend/src/modules/payouts/provider-payouts.controller.ts:54"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
@@ -9755,7 +9755,7 @@
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:981"
     }
    ],
-   "files": 11,
+   "files": 12,
    "unresolved": 0,
    "navIssues": []
   }

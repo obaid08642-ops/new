@@ -1,5 +1,5 @@
 {
- "commit": "929a06fb8",
+ "commit": "e6aedd035",
  "routes": [
   {
    "app": "patient-app",
@@ -132,7 +132,7 @@
      "backend": "backend/src/modules/users/users.controller.ts:19"
     }
    ],
-   "files": 61,
+   "files": 62,
    "unresolved": 0
   },
   {
@@ -156,7 +156,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:218"
     }
    ],
-   "files": 28,
+   "files": 29,
    "unresolved": 0
   },
   {
@@ -200,7 +200,7 @@
      "backend": "backend/src/modules/config/config.controller.ts:10"
     }
    ],
-   "files": 42,
+   "files": 43,
    "unresolved": 0
   },
   {
@@ -280,7 +280,7 @@
      "backend": "backend/src/modules/health/health.controller.ts:33"
     }
    ],
-   "files": 43,
+   "files": 44,
    "unresolved": 0
   },
   {
@@ -376,7 +376,7 @@
      "backend": "backend/src/modules/articles/articles.module.ts:182"
     }
    ],
-   "files": 47,
+   "files": 48,
    "unresolved": 0
   },
   {
@@ -430,7 +430,7 @@
      "backend": "backend/src/modules/articles/articles.module.ts:275"
     }
    ],
-   "files": 41,
+   "files": 42,
    "unresolved": 0
   },
   {
@@ -567,7 +567,7 @@
      "backend": "backend/src/modules/users/users.addresses.controller.ts:42"
     }
    ],
-   "files": 68,
+   "files": 69,
    "unresolved": 0
   },
   {
@@ -671,7 +671,7 @@
      "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:63"
     }
    ],
-   "files": 55,
+   "files": 56,
    "unresolved": 0
   },
   {
@@ -728,7 +728,7 @@
      "backend": "backend/src/modules/users/users.addresses.controller.ts:42"
     }
    ],
-   "files": 43,
+   "files": 44,
    "unresolved": 0
   },
   {
@@ -858,7 +858,7 @@
      "backend": "backend/src/modules/users/users.controller.ts:35"
     }
    ],
-   "files": 58,
+   "files": 59,
    "unresolved": 0
   },
   {
@@ -895,7 +895,7 @@
      "backend": "backend/src/modules/livekit/livekit.controller.ts:92"
     }
    ],
-   "files": 37,
+   "files": 38,
    "unresolved": 0
   },
   {
@@ -959,7 +959,7 @@
      "backend": "backend/src/modules/unified-bookings/unified-bookings.module.ts:613"
     }
    ],
-   "files": 42,
+   "files": 43,
    "unresolved": 0
   },
   {
@@ -1053,7 +1053,7 @@
      "backend": "backend/src/modules/media/media.controller.ts:31"
     }
    ],
-   "files": 47,
+   "files": 48,
    "unresolved": 0
   },
   {
@@ -1113,7 +1113,7 @@
      "backend": "backend/src/modules/entity-graph/entity-graph.controller.ts:10"
     }
    ],
-   "files": 41,
+   "files": 42,
    "unresolved": 0
   },
   {
@@ -1180,7 +1180,7 @@
      "line": 167,
      "file": "patient-app/app/consultations/doctor/[id].tsx",
      "status": "OK",
-     "backend": "backend/src/modules/ratings/ratings.module.ts:209"
+     "backend": "backend/src/modules/ratings/ratings.module.ts:233"
     },
     {
      "method": "GET",
@@ -1193,7 +1193,7 @@
      "backend": "backend/src/modules/admin/governance/system-config.controller.ts:54"
     }
    ],
-   "files": 48,
+   "files": 49,
    "unresolved": 0
   },
   {
@@ -1230,7 +1230,7 @@
      "backend": "backend/src/modules/care/appointments.controller.ts:50"
     }
    ],
-   "files": 39,
+   "files": 40,
    "unresolved": 0
   },
   {
@@ -1264,7 +1264,7 @@
      "backend": "backend/src/modules/livekit/livekit.controller.ts:97"
     }
    ],
-   "files": 32,
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -1301,7 +1301,7 @@
      "backend": "backend/src/modules/patient-ux/patient-ux.module.ts:184"
     }
    ],
-   "files": 34,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -1378,7 +1378,7 @@
      "backend": "backend/src/modules/medical-reports/medical-reports.controller.ts:42"
     }
    ],
-   "files": 42,
+   "files": 43,
    "unresolved": 0
   },
   {
@@ -1402,7 +1402,7 @@
      "backend": "backend/src/modules/care/care.controller.ts:15"
     }
    ],
-   "files": 40,
+   "files": 41,
    "unresolved": 0
   },
   {
@@ -1479,7 +1479,7 @@
      "backend": "backend/src/modules/legal/legal.module.ts:185"
     }
    ],
-   "files": 42,
+   "files": 43,
    "unresolved": 0
   },
   {
@@ -1513,7 +1513,7 @@
      "backend": "backend/src/modules/config/config.controller.ts:10"
     }
    ],
-   "files": 32,
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -1603,7 +1603,7 @@
      "backend": "backend/src/modules/users/users.addresses.controller.ts:42"
     }
    ],
-   "files": 76,
+   "files": 77,
    "unresolved": 0
   },
   {
@@ -1723,7 +1723,7 @@
      "backend": "backend/src/modules/payments/payments.module.ts:773"
     }
    ],
-   "files": 46,
+   "files": 47,
    "unresolved": 0
   },
   {
@@ -1760,7 +1760,7 @@
      "backend": "backend/src/modules/ordering/ordering.controller.ts:17"
     }
    ],
-   "files": 50,
+   "files": 51,
    "unresolved": 0
   },
   {
@@ -1814,7 +1814,7 @@
      "backend": "backend/src/modules/radiology/radiology.controller.ts:93"
     }
    ],
-   "files": 50,
+   "files": 51,
    "unresolved": 0
   },
   {
@@ -1878,7 +1878,7 @@
      "backend": "backend/src/modules/ordering/ordering-lifecycle.controller.ts:17"
     }
    ],
-   "files": 43,
+   "files": 44,
    "unresolved": 0
   },
   {
@@ -2012,7 +2012,7 @@
      "backend": "backend/src/modules/users/users.controller.ts:35"
     }
    ],
-   "files": 47,
+   "files": 48,
    "unresolved": 0
   },
   {
@@ -2049,7 +2049,7 @@
      "backend": "backend/src/modules/ordering/ordering.controller.ts:17"
     }
    ],
-   "files": 50,
+   "files": 51,
    "unresolved": 0
   },
   {
@@ -2083,7 +2083,7 @@
      "backend": "backend/src/modules/labs/lab-results.controller.ts:14"
     }
    ],
-   "files": 45,
+   "files": 46,
    "unresolved": 0
   },
   {
@@ -2117,7 +2117,7 @@
      "backend": "backend/src/modules/provider/providers.controller.ts:35"
     }
    ],
-   "files": 51,
+   "files": 52,
    "unresolved": 0
   },
   {
@@ -2184,7 +2184,7 @@
      "backend": "backend/src/modules/radiology/radiology.controller.ts:103"
     }
    ],
-   "files": 45,
+   "files": 46,
    "unresolved": 0
   },
   {
@@ -2218,7 +2218,7 @@
      "backend": "backend/src/modules/radiology/radiology.controller.ts:118"
     }
    ],
-   "files": 58,
+   "files": 59,
    "unresolved": 1
   },
   {
@@ -2242,7 +2242,7 @@
      "backend": "backend/src/modules/labs/labs.controller.ts:261"
     }
    ],
-   "files": 54,
+   "files": 55,
    "unresolved": 0
   },
   {
@@ -2286,7 +2286,7 @@
      "backend": "backend/src/modules/labs/labs.controller.ts:53"
     }
    ],
-   "files": 50,
+   "files": 51,
    "unresolved": 0
   },
   {
@@ -2333,7 +2333,7 @@
      "backend": "backend/src/modules/labs/labs.controller.ts:149"
     }
    ],
-   "files": 41,
+   "files": 42,
    "unresolved": 0
   },
   {
@@ -2367,7 +2367,7 @@
      "backend": "backend/src/modules/labs/labs.controller.ts:19"
     }
    ],
-   "files": 47,
+   "files": 48,
    "unresolved": 0
   },
   {
@@ -2411,7 +2411,7 @@
      "backend": "backend/src/modules/labs/labs.controller.ts:53"
     }
    ],
-   "files": 72,
+   "files": 73,
    "unresolved": 0
   },
   {
@@ -2498,7 +2498,7 @@
      "backend": "backend/src/modules/radiology/radiology.controller.ts:89"
     }
    ],
-   "files": 67,
+   "files": 68,
    "unresolved": 0
   },
   {
@@ -2565,7 +2565,7 @@
      "backend": "backend/src/modules/ordering/ordering.controller.ts:20"
     }
    ],
-   "files": 41,
+   "files": 42,
    "unresolved": 0
   },
   {
@@ -2589,7 +2589,7 @@
      "backend": "backend/src/modules/entity-graph/entity-graph.controller.ts:10"
     }
    ],
-   "files": 29,
+   "files": 30,
    "unresolved": 0
   },
   {
@@ -2636,7 +2636,7 @@
      "backend": "backend/src/modules/mental-health/mental-health-urgent-help.controller.ts:27"
     }
    ],
-   "files": 36,
+   "files": 37,
    "unresolved": 0
   },
   {
@@ -2660,7 +2660,7 @@
      "backend": "backend/src/modules/entity-graph/entity-graph.controller.ts:10"
     }
    ],
-   "files": 29,
+   "files": 30,
    "unresolved": 0
   },
   {
@@ -2724,7 +2724,7 @@
      "backend": "backend/src/modules/family/family.controller.ts:131"
     }
    ],
-   "files": 43,
+   "files": 44,
    "unresolved": 0
   },
   {
@@ -2758,7 +2758,7 @@
      "backend": "backend/src/modules/family/family.controller.ts:44"
     }
    ],
-   "files": 41,
+   "files": 42,
    "unresolved": 0
   },
   {
@@ -2812,7 +2812,7 @@
      "backend": "backend/src/modules/family/family.controller.ts:89"
     }
    ],
-   "files": 46,
+   "files": 47,
    "unresolved": 0
   },
   {
@@ -2866,7 +2866,7 @@
      "backend": "backend/src/modules/users/users.controller.ts:35"
     }
    ],
-   "files": 40,
+   "files": 41,
    "unresolved": 0
   },
   {
@@ -2979,7 +2979,7 @@
      "backend": "backend/src/modules/family/family.controller.ts:79"
     }
    ],
-   "files": 45,
+   "files": 46,
    "unresolved": 0
   },
   {
@@ -3044,7 +3044,7 @@
    "batch": 0,
    "status": "done (#285)",
    "calls": [],
-   "files": 30,
+   "files": 31,
    "unresolved": 0
   },
   {
@@ -3098,7 +3098,7 @@
      "backend": "backend/src/modules/home/home.controller.ts:23"
     }
    ],
-   "files": 39,
+   "files": 40,
    "unresolved": 0
   },
   {
@@ -3374,7 +3374,7 @@
      "backend": "backend/src/modules/health/health.controller.ts:68"
     }
    ],
-   "files": 49,
+   "files": 50,
    "unresolved": 0
   },
   {
@@ -3531,7 +3531,7 @@
      "backend": "backend/src/modules/users/users.controller.ts:40"
     }
    ],
-   "files": 49,
+   "files": 50,
    "unresolved": 1
   },
   {
@@ -3585,7 +3585,7 @@
      "backend": "backend/src/modules/medical-reports/medical-reports.controller.ts:22"
     }
    ],
-   "files": 41,
+   "files": 42,
    "unresolved": 0
   },
   {
@@ -3668,7 +3668,7 @@
      "backend": "backend/src/modules/health/health.controller.ts:91"
     }
    ],
-   "files": 46,
+   "files": 47,
    "unresolved": 0
   },
   {
@@ -3774,7 +3774,7 @@
      "backend": "backend/src/modules/health/health.controller.ts:33"
     }
    ],
-   "files": 41,
+   "files": 42,
    "unresolved": 0
   },
   {
@@ -3831,7 +3831,7 @@
      "backend": "backend/src/modules/health/wearables-compat.controller.ts:23"
     }
    ],
-   "files": 42,
+   "files": 43,
    "unresolved": 0
   },
   {
@@ -3945,7 +3945,7 @@
      "backend": "backend/src/modules/users/users.controller.ts:35"
     }
    ],
-   "files": 50,
+   "files": 51,
    "unresolved": 0
   },
   {
@@ -4009,7 +4009,7 @@
      "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:848"
     }
    ],
-   "files": 39,
+   "files": 40,
    "unresolved": 0
   },
   {
@@ -4079,7 +4079,7 @@
      "backend": "backend/src/modules/payments/payments.module.ts:773"
     }
    ],
-   "files": 40,
+   "files": 41,
    "unresolved": 0
   },
   {
@@ -4103,7 +4103,7 @@
      "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:853"
     }
    ],
-   "files": 34,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -4249,7 +4249,7 @@
      "backend": "backend/src/modules/users/users.insurance.controller.ts:42"
     }
    ],
-   "files": 43,
+   "files": 44,
    "unresolved": 0
   },
   {
@@ -4332,7 +4332,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:402"
     }
    ],
-   "files": 41,
+   "files": 42,
    "unresolved": 0
   },
   {
@@ -4449,7 +4449,7 @@
      "backend": "backend/src/modules/referral/referral.controller.ts:18"
     }
    ],
-   "files": 44,
+   "files": 45,
    "unresolved": 0
   },
   {
@@ -4509,7 +4509,7 @@
      "backend": "backend/src/modules/users/user.insurance.controller.ts:21"
     }
    ],
-   "files": 42,
+   "files": 43,
    "unresolved": 0
   },
   {
@@ -4569,7 +4569,7 @@
      "backend": "backend/src/modules/maternity/maternity.controller.ts:21"
     }
    ],
-   "files": 42,
+   "files": 43,
    "unresolved": 0
   },
   {
@@ -4593,7 +4593,7 @@
      "backend": "backend/src/modules/maternity/maternity.controller.ts:27"
     }
    ],
-   "files": 34,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -4643,7 +4643,7 @@
      "backend": "backend/src/modules/medical-orders/medical-orders.controller.ts:23"
     }
    ],
-   "files": 48,
+   "files": 49,
    "unresolved": 1
   },
   {
@@ -4677,7 +4677,7 @@
      "backend": "backend/src/modules/medical-orders/medical-orders.controller.ts:36"
     }
    ],
-   "files": 47,
+   "files": 48,
    "unresolved": 1
   },
   {
@@ -4789,7 +4789,7 @@
      "backend": "backend/src/modules/mental-health/mental-health.controller.ts:23"
     }
    ],
-   "files": 41,
+   "files": 42,
    "unresolved": 0
   },
   {
@@ -4859,7 +4859,7 @@
      "backend": "backend/src/modules/notifications/notifications.controller.ts:53"
     }
    ],
-   "files": 37,
+   "files": 38,
    "unresolved": 0
   },
   {
@@ -4903,7 +4903,7 @@
      "backend": "backend/src/modules/home-care/home-care-compat.module.ts:61"
     }
    ],
-   "files": 54,
+   "files": 55,
    "unresolved": 0
   },
   {
@@ -4937,7 +4937,7 @@
      "backend": "backend/src/modules/home-care/home-care-compat.module.ts:193"
     }
    ],
-   "files": 37,
+   "files": 38,
    "unresolved": 0
   },
   {
@@ -4981,7 +4981,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:567"
     }
    ],
-   "files": 39,
+   "files": 40,
    "unresolved": 0
   },
   {
@@ -5085,7 +5085,7 @@
      "backend": "backend/src/modules/users/users.controller.ts:35"
     }
    ],
-   "files": 48,
+   "files": 49,
    "unresolved": 0
   },
   {
@@ -5119,7 +5119,7 @@
      "backend": "backend/src/modules/home-care/home-care-compat.module.ts:61"
     }
    ],
-   "files": 42,
+   "files": 43,
    "unresolved": 0
   },
   {
@@ -5173,7 +5173,7 @@
      "backend": "backend/src/modules/home-care/home-care-compat.module.ts:79"
     }
    ],
-   "files": 51,
+   "files": 52,
    "unresolved": 0
   },
   {
@@ -5197,7 +5197,7 @@
      "backend": "backend/src/modules/home-care/home-care.controller.ts:167"
     }
    ],
-   "files": 40,
+   "files": 41,
    "unresolved": 0
   },
   {
@@ -5398,7 +5398,7 @@
      "backend": "backend/src/modules/nutrition/nutrition.controller.ts:76"
     }
    ],
-   "files": 41,
+   "files": 42,
    "unresolved": 0
   },
   {
@@ -5422,7 +5422,7 @@
      "backend": "backend/src/modules/nutrition/nutrition.controller.ts:56"
     }
    ],
-   "files": 35,
+   "files": 36,
    "unresolved": 0
   },
   {
@@ -5472,7 +5472,7 @@
      "backend": "backend/src/modules/home/home.controller.ts:18"
     }
    ],
-   "files": 35,
+   "files": 36,
    "unresolved": 0
   },
   {
@@ -5506,7 +5506,7 @@
      "backend": "backend/src/modules/pharmacy/promotions-offers.controller.ts:16"
     }
    ],
-   "files": 42,
+   "files": 43,
    "unresolved": 0
   },
   {
@@ -5540,7 +5540,7 @@
      "backend": "backend/src/modules/radiology/radiology.controller.ts:118"
     }
    ],
-   "files": 58,
+   "files": 59,
    "unresolved": 1
   },
   {
@@ -5553,7 +5553,7 @@
    "batch": 0,
    "status": "done (#285)",
    "calls": [],
-   "files": 38,
+   "files": 39,
    "unresolved": 0
   },
   {
@@ -5577,7 +5577,7 @@
      "backend": "backend/src/modules/entity-graph/entity-graph.controller.ts:10"
     }
    ],
-   "files": 29,
+   "files": 30,
    "unresolved": 0
   },
   {
@@ -5650,7 +5650,7 @@
      "backend": "backend/src/modules/payments/payments.module.ts:783"
     }
    ],
-   "files": 36,
+   "files": 37,
    "unresolved": 0
   },
   {
@@ -5737,7 +5737,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:109"
     }
    ],
-   "files": 68,
+   "files": 69,
    "unresolved": 0
   },
   {
@@ -5771,7 +5771,7 @@
      "backend": "backend/src/modules/scanner/scanner.controller.ts:15"
     }
    ],
-   "files": 41,
+   "files": 42,
    "unresolved": 0
   },
   {
@@ -5845,7 +5845,7 @@
      "backend": "backend/src/modules/admin/governance/system-config.controller.ts:54"
     }
    ],
-   "files": 46,
+   "files": 47,
    "unresolved": 0
   },
   {
@@ -5869,7 +5869,7 @@
      "backend": "backend/src/modules/medicines/rx-consult.controller.ts:57"
     }
    ],
-   "files": 42,
+   "files": 43,
    "unresolved": 0
   },
   {
@@ -5943,7 +5943,7 @@
      "backend": "backend/src/modules/users/users.insurance.controller.ts:42"
     }
    ],
-   "files": 44,
+   "files": 45,
    "unresolved": 0
   },
   {
@@ -6016,7 +6016,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:42"
     }
    ],
-   "files": 37,
+   "files": 38,
    "unresolved": 0
   },
   {
@@ -6060,7 +6060,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:74"
     }
    ],
-   "files": 40,
+   "files": 41,
    "unresolved": 0
   },
   {
@@ -6084,7 +6084,7 @@
      "backend": "backend/src/modules/ai/ai-compat.controller.ts:16"
     }
    ],
-   "files": 31,
+   "files": 32,
    "unresolved": 0
   },
   {
@@ -6121,7 +6121,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:115"
     }
    ],
-   "files": 44,
+   "files": 45,
    "unresolved": 0
   },
   {
@@ -6145,7 +6145,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:39"
     }
    ],
-   "files": 33,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -6192,7 +6192,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:39"
     }
    ],
-   "files": 41,
+   "files": 42,
    "unresolved": 0
   },
   {
@@ -6236,7 +6236,7 @@
      "backend": "backend/src/modules/payments/payments.module.ts:794"
     }
    ],
-   "files": 37,
+   "files": 38,
    "unresolved": 0
   },
   {
@@ -6280,7 +6280,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:450"
     }
    ],
-   "files": 33,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -6404,7 +6404,7 @@
      "backend": "backend/src/modules/users/users.controller.ts:50"
     }
    ],
-   "files": 64,
+   "files": 65,
    "unresolved": 0
   },
   {
@@ -6481,7 +6481,7 @@
      "backend": "backend/src/modules/users/users.addresses.controller.ts:42"
     }
    ],
-   "files": 42,
+   "files": 43,
    "unresolved": 0
   },
   {
@@ -6588,7 +6588,7 @@
      "backend": "backend/src/modules/users/users.addresses.controller.ts:42"
     }
    ],
-   "files": 42,
+   "files": 43,
    "unresolved": 0
   },
   {
@@ -6648,7 +6648,7 @@
      "backend": "backend/src/modules/users/users.controller.ts:50"
     }
    ],
-   "files": 50,
+   "files": 51,
    "unresolved": 0
   },
   {
@@ -6726,7 +6726,7 @@
      "backend": "backend/src/modules/users/users.addresses.controller.ts:42"
     }
    ],
-   "files": 41,
+   "files": 42,
    "unresolved": 0
   },
   {
@@ -6770,7 +6770,7 @@
      "backend": "backend/src/modules/users/users.addresses.controller.ts:73"
     }
    ],
-   "files": 43,
+   "files": 44,
    "unresolved": 0
   },
   {
@@ -6817,7 +6817,7 @@
      "backend": "backend/src/modules/medical-programs/medical-programs.module.ts:90"
     }
    ],
-   "files": 41,
+   "files": 42,
    "unresolved": 0
   },
   {
@@ -6854,7 +6854,7 @@
      "backend": "backend/src/modules/billing/billing.module.ts:704"
     }
    ],
-   "files": 38,
+   "files": 39,
    "unresolved": 0
   },
   {
@@ -6878,7 +6878,7 @@
      "backend": "backend/src/modules/billing/billing.module.ts:658"
     }
    ],
-   "files": 41,
+   "files": 42,
    "unresolved": 0
   },
   {
@@ -6912,7 +6912,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:402"
     }
    ],
-   "files": 46,
+   "files": 47,
    "unresolved": 0
   },
   {
@@ -6972,7 +6972,7 @@
      "backend": "backend/src/modules/medical-profile/medical-profile.controller.ts:15"
     }
    ],
-   "files": 38,
+   "files": 39,
    "unresolved": 0
   },
   {
@@ -7009,7 +7009,7 @@
      "backend": "backend/src/modules/timeline/timeline-compat.controller.ts:32"
     }
    ],
-   "files": 39,
+   "files": 40,
    "unresolved": 0
   },
   {
@@ -7022,7 +7022,7 @@
    "batch": 0,
    "status": "done (#285)",
    "calls": [],
-   "files": 31,
+   "files": 32,
    "unresolved": 0
   },
   {
@@ -7046,7 +7046,7 @@
      "backend": "backend/src/modules/returns/returns.controller.ts:61"
     }
    ],
-   "files": 40,
+   "files": 41,
    "unresolved": 0
   },
   {
@@ -7080,7 +7080,7 @@
      "backend": "backend/src/modules/admin/governance/system-config.controller.ts:54"
     }
    ],
-   "files": 41,
+   "files": 42,
    "unresolved": 0
   },
   {
@@ -7144,7 +7144,7 @@
      "backend": "backend/src/modules/admin/governance/system-config.controller.ts:54"
     }
    ],
-   "files": 42,
+   "files": 43,
    "unresolved": 0
   },
   {
@@ -7168,7 +7168,7 @@
      "backend": "backend/src/modules/patient-ux/patient-ux.module.ts:184"
     }
    ],
-   "files": 36,
+   "files": 37,
    "unresolved": 0
   },
   {
@@ -7212,7 +7212,7 @@
      "backend": "backend/src/modules/legal/legal.module.ts:185"
     }
    ],
-   "files": 37,
+   "files": 38,
    "unresolved": 0
   },
   {
@@ -7236,7 +7236,7 @@
      "backend": "backend/src/modules/articles/seo.controller.ts:20"
     }
    ],
-   "files": 29,
+   "files": 30,
    "unresolved": 0
   },
   {
@@ -7280,7 +7280,7 @@
      "backend": "backend/src/modules/admin/governance/system-config.controller.ts:54"
     }
    ],
-   "files": 65,
+   "files": 66,
    "unresolved": 0
   },
   {
@@ -7419,7 +7419,7 @@
      "backend": "backend/src/modules/admin/governance/system-config.controller.ts:54"
     }
    ],
-   "files": 45,
+   "files": 46,
    "unresolved": 0
   },
   {
@@ -7466,7 +7466,7 @@
      "backend": "backend/src/modules/users/users.controller.ts:56"
     }
    ],
-   "files": 42,
+   "files": 43,
    "unresolved": 0
   },
   {
@@ -7533,7 +7533,7 @@
      "backend": "backend/src/modules/users/users.controller.ts:67"
     }
    ],
-   "files": 44,
+   "files": 45,
    "unresolved": 0
   },
   {
@@ -7600,7 +7600,7 @@
      "backend": "backend/src/modules/users/users.controller.ts:138"
     }
    ],
-   "files": 42,
+   "files": 43,
    "unresolved": 0
   },
   {
@@ -7703,7 +7703,7 @@
      "backend": "backend/src/modules/users/users.addresses.controller.ts:48"
     }
    ],
-   "files": 37,
+   "files": 38,
    "unresolved": 0
   },
   {
@@ -7757,7 +7757,7 @@
      "backend": "backend/src/modules/support/support-chat.controller.ts:52"
     }
    ],
-   "files": 43,
+   "files": 44,
    "unresolved": 0
   },
   {
@@ -7781,7 +7781,7 @@
      "backend": "backend/src/modules/support/support.controller.ts:16"
     }
    ],
-   "files": 38,
+   "files": 39,
    "unresolved": 0
   },
   {
@@ -7875,7 +7875,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:402"
     }
    ],
-   "files": 39,
+   "files": 40,
    "unresolved": 0
   },
   {
@@ -9855,7 +9855,7 @@
      "line": 43,
      "file": "patient-web/lib/api/doctors-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/ratings/ratings.module.ts:209"
+     "backend": "backend/src/modules/ratings/ratings.module.ts:233"
     }
    ],
    "files": 57,
