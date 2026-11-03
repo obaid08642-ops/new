@@ -1,3 +1,4 @@
+import { halalaShadowPlugin } from '../../common/halala-shadow';
 import { PROVIDER_ROLES } from '../../common/enums';
 /**
  * M3 — Insurance Engine (BR-2) + Unified Booking Quote (BR-1) + Financial Core.
@@ -132,8 +133,12 @@ export class RefundRequest {
   @Prop({ default: 'REQUESTED', index: true, enum: ['REQUESTED', 'APPROVED', 'EXECUTED', 'REJECTED', 'FAILED'] }) state: string;
   @Prop() executed_at?: Date;
   @Prop({ type: [Object], default: [] }) history: { state: string; at: Date; by: string; note?: string }[];
+  /** R11 P1: integer halalas next to the doubles (halalaShadowPlugin). */
+  @Prop() amount_paid_halalas?: number;
+  @Prop() refund_amount_halalas?: number;
 }
 export const RefundRequestSchema = SchemaFactory.createForClass(RefundRequest);
+halalaShadowPlugin(RefundRequestSchema, ['amount_paid', 'refund_amount']);
 
 @Schema({ timestamps: true })
 export class PlatformLedgerEntry {
