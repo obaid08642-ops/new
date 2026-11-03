@@ -1,5 +1,11 @@
-# 2026-11-03 05:20 lead reviewer: run 96 = Cloudflare edge resilience APPLY (run 95 check: Tiered Cache already on; Cache Reserve unknown -> on;
-# Always Online off -> on). Each setting is read back; a setting the plan lacks is reported and skipped; the old value is restored if the read-back
-# disagrees. No server change.
-release:7e8694d72c5803d13bb272a4cb0ee039fb51ee3e
-cf:52-edge-resilience-apply
+# 2026-11-03 08:40 lead reviewer: run 97 = deploy main@929a06fb + earlyoom/swap guard DRY RUN.
+# Deploy brings: R1 memory budget tooling, R2 durable outbox for payment/refund/order events, R4 horizontal-scale readiness (nginx upstream retry
+#   for idempotent requests), R5 observability (RED metrics, structured logs), R7 Mongo pool budget (api 80, worker 40), coupon race fixes,
+#   CallKeep ConnectionService (apps, next build), provider scenarios (doctor sees app reviews + reply), Moyasar env checker, uptime probe fix.
+# 98p-earlyoom: DRY RUN only (prints what it would install so the host never hangs on memory; apply in a later run after review).
+release:929a06fb82bc5128bfa893bd738e500f8e1670f4
+97-free-old-predeploy
+93-free-unused-images
+60-deploy-main
+98p-earlyoom
+cf-purge-api
