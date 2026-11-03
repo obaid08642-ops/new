@@ -10,6 +10,7 @@
 Delivery-fee VAT (the platform collects the fee) is on the patient document, which needs a VAT number in finance_config; this stack
 has none (receipt mode), so that rule is covered by the billing specs (billing-invoice-api.spec.ts, vat-model-a.spec.ts).
 """
+import time
 import uuid
 from lib import Client, journey, step, summary
 
@@ -25,6 +26,17 @@ def earnings(doctor):
     r = doctor.get('/provider/ops/wallet/ledger')
     rows = (r.get('transactions') or []) if r.ok else []
     return sorted([x for x in rows if x.get('type') == 'provider_earning'], key=lambda x: str(x.get('createdAt')))
+
+
+def earnings_after(doctor, count, timeout=30):
+    """The earning is written by the `service.completed` event listener (provider-ops creditCompletedService), after the finish request has
+    answered, so the ledger is read until it holds `count` earnings (or the time is up); the step still asserts exactly `count`."""
+    end = time.time() + timeout
+    rows = earnings(doctor)
+    while len(rows) < count and time.time() < end:
+        time.sleep(0.5)
+        rows = earnings(doctor)
+    return rows
 
 
 def finish_consultation(doc, aid):
@@ -85,7 +97,7 @@ def run():
         step(f'consultation {i}: paid by card', j_consultation.pay_card(pat, aid))
         if not finish_consultation(doctor, aid):
             return summary()
-    rows = earnings(doctor)
+    rows = earnings_after(doctor, 3)
     step('three earnings were credited', len(rows) == 3, [x.get('commission_percent') for x in rows])
     if len(rows) != 3:
         return summary()
