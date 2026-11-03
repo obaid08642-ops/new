@@ -17,6 +17,7 @@ Commits end with `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>` and
    (`curl -I`) gives exactly the reported symptoms: pages `private, no-cache` + `Set-Cookie: NEXT_LOCALE=ar` + DYNAMIC, API DYNAMIC. Cause: `guestCopyIsShared` in `patient-web/server/nonce-server.mjs`
    requires `req.method === "GET"`, and the cache rules (`cf/46`, `cf/47`) match `http.request.method eq "GET"`. Visitors use GET, so they are cached; a HEAD probe is not and shows the wrong picture. Decision for the
    lead: leave it, or (a) let the origin answer HEAD with the same headers as GET and (b) add HEAD to the two rule expressions. I did not change either. Use `cf/54-edge-cache-check.sh` (GET) to see the truth.
+   Re-measured 08:39 UTC: `/ar` EXPIRED then HIT, `api.nabd.plus/api/v1/doctors?limit=5` REVALIDATED then HIT. Changing HEAD to behave like GET would break `patient-web/tests/nonce-server.test.ts` (it deliberately keeps HEAD private and asserts exactly 4 nonces), so it needs the lead's decision first; I made no change.
    Still unproven: that a stored copy is served when the origin is really down.
 2. **GitHub cron is not a clock here.** `uptime.yml` is `*/5` but its scheduled runs landed hours apart (about 06:51, 11:27, 17:12, 21:11 on Nov 2; 23:40, 04:01 on Nov 3); `edge-warmup.yml` (every 15 min) had no scheduled run at all
    after it merged. So the 5-minute owner alert mail and the warm-up cannot be relied on. Needs a scheduler that is on time (Cloudflare Worker cron trigger, or the server's cron plus an external monitor). Not built.
@@ -40,3 +41,6 @@ Full live stack recipe that worked: mongod from `backend/node_modules/.cache/mon
 `npx nest build`, `tools/live/start-backend.sh`, `node tools/live/seed_admin.js`, admin BFF `next build` then `next start -p 3001` with `ADMIN_GATE_TOKEN=live-gate-token`, `redis-cli flushall` before a journey that uses the 3/day guest-post throttle.
 Journeys take minutes: run them in the background with a long timeout and a monitor on the output file. The GitHub MCP connection drops and returns often; just retry. Do not `grep -r` the whole repo (it hangs); use `git grep` on named paths.
 Large CI logs come back as a saved file: parse them with python (`.replace('\n', '\n')`, then match FAIL / ##### / ##[error]).
+
+## Handoff
+Written at the end of my context (2026-11-03 08:40 UTC). Branch state: `s/state-file` (this file, PR #2428, open). No other branch of mine has unmerged work except #2398's branch (not touched this stretch). `patient-web` has a partial `node_modules` locally (58 entries), so a #2398 build needs `pnpm install --frozen-lockfile` and a running local backend.
