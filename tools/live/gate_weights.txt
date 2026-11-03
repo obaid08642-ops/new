@@ -68,6 +68,7 @@ j_pharmacy_catalogue_lines 6
 j_pharmacy_insurance_first 7
 j_pharmacy_insurance_inline 6
 j_pharmacy_owner_decisions 13
+j_pharmacy_refill 15
 j_pregnancy_weeks 67
 j_product_insurance_row 4
 j_provider_proposals 15

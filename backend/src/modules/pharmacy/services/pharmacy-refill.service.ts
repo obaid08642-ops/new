@@ -76,6 +76,9 @@ export class PharmacyRefillService {
       delivery_address: source.delivery_address,
     });
 
+    // the pharmacy's refills screen lists the orders that came from a refill: the draft says which order it repeats
+    await this.conn.collection('pharmacy_orders').updateOne({ id: draft.id }, { $set: { refill_of: source.id } });
+
     // one refill is taken now, conditionally: a concurrent refill that took the last one makes this one a 409
     if (rx) {
       const taken = await this.conn.collection('prescriptions').updateOne(
