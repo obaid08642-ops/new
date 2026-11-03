@@ -141,9 +141,13 @@ appId: com.patient.nabd
     when:
       platform: iOS
     commands:
-      - tapOn:
-          text: "Not Now|ليس الآن"
+      # the sheet comes several seconds AFTER the sign-in (run 41623266710: it appeared after the checks had run and covered Home, "main-tab-bar-consult
+      # not found"): wait for it up to 20 s, it is simply not there on a device that has it switched off
+      - extendedWaitUntil:
+          visible: "Not Now|ليس الآن"
+          timeout: 20000
           optional: true
+      - runFlow: dismiss_save_password.yaml
       - waitForAnimationToEnd
       - runFlow: dismiss_save_password.yaml
 # a successful sign-in replaces the screen with Home (the tabs). Run 41455012126 (iOS): the password is right now (201), but the simulator

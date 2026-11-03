@@ -40,19 +40,50 @@ appId: com.patient.nabd
 # the profile has its own day strip and time grid (the same components as the book screen); "Book" stays disabled until a time is chosen
 # (run 103: tapping it first did nothing, so the book screen never opened). Tomorrow is day 1 of the strip: the first free time of that day.
 # run 113: scrolling DOWN never found the strip (the page ended on the FAQ) - the strip can sit above the first view of a long profile, so look up first
-- scrollUntilVisible:
-    element:
-      id: "book-day-1"
-    direction: UP
-    timeout: 15000
-    optional: true
-- scrollUntilVisible:
-    element:
-      id: "book-day-1"
-    visibilityPercentage: 60
-    timeout: 30000
-- tapOn:
-    id: "book-day-1"
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: "book-day-1"
+          direction: UP
+          timeout: 15000
+          optional: true
+      - scrollUntilVisible:
+          element:
+            id: "book-day-1"
+          visibilityPercentage: 60
+          timeout: 30000
+      - tapOn:
+          id: "book-day-1"
+# Run 41623266710 (iOS): the hierarchy and the screenshot after "tap book-day-1" show TODAY still selected ("the doctor is not available this day", no
+# slots): the tap, made with the strip only 60% in view next to the sticky header, selected nothing. Bring the strip fully into view, tap, and
+# check that day 1 is selected, again from the top when it is not.
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - retry:
+          maxRetries: 3
+          commands:
+            - scrollUntilVisible:
+                element:
+                  id: "book-day-1"
+                direction: UP
+                timeout: 15000
+                optional: true
+            - scrollUntilVisible:
+                element:
+                  id: "book-day-1"
+                centerElement: true
+                timeout: 30000
+            - waitForAnimationToEnd
+            - tapOn:
+                id: "book-day-1"
+            - assertVisible:
+                id: "book-day-1"
+                selected: true
 # run 116: the app received the 20 times of the day (log: '[e2e] slots 2026-11-03 clinic count 20') but the grid sits below the first screen, behind the
 # sticky Book bar, and the hierarchy lists only what is on screen: scroll to it instead of waiting for it
 # the LAST time of the day: the seeded patient already holds the first ones through the journeys' bookings (run 117: POST /care/appointments 400 lock_not_holdable)
@@ -66,25 +97,17 @@ appId: com.patient.nabd
             id: "book-slot-19"
             enabled: true
           timeout: 30000
-# Run 41608649378 (iOS): the page is back at the top after the day tap (screenshot) and 60 s of small downward scrolling never found book-slot-19.
-# Bring the area under the visit-type heading into view, keep a screenshot of it, and ASSERT that some slot is there: when none is, the failure
-# dumps the hierarchy of that screen, which says whether iOS exposes the slots at all. Then pick any enabled time of the last rows (the seeded
-# patient already holds the early ones, see above), not one fixed index.
+# iOS: with day 1 really selected the 20 times of the day load right under the strip; wait for them, then take one of the last rows (the seeded
+# patient already holds the early ones, see above), not one fixed index. (Run 41623266710: the earlier waits failed only because today was selected.)
 - runFlow:
     when:
       platform: iOS
     commands:
-      - scrollUntilVisible:
-          element: "نوع الزيارة|Visit type"
-          timeout: 20000
-          optional: true
-      - swipe:
-          start: 50%, 75%
-          end: 50%, 30%
-      - waitForAnimationToEnd
+      - extendedWaitUntil:
+          visible:
+            id: "book-slot-.*"
+          timeout: 30000
       - takeScreenshot: booking-grid-area
-      - assertVisible:
-          id: "book-slot-.*"
       - scrollUntilVisible:
           element:
             id: "book-slot-1[0-9]"
