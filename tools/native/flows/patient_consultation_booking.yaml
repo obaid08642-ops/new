@@ -21,6 +21,16 @@ appId: com.patient.nabd
       id: "hub-doctor-0"
     centerElement: true
     timeout: 60000
+# Run 41598780677 (iOS): even centred, the hierarchy still reported the first card as visible while its top half was under the sticky header, so the
+# tap at its middle hit the search field. Pull the list down to its first card (the header then ends above it) before the tap.
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - swipe:
+          start: 50%, 40%
+          end: 50%, 75%
+      - waitForAnimationToEnd
 - tapOn:
     id: "hub-doctor-0"
 - extendedWaitUntil:
