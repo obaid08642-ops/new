@@ -1,37 +1,61 @@
 name: uptime
-
-# P20.6: an external vantage point (GitHub's network, a different region from Cloudflare's edge) probes the public site and API every
-# 5 minutes and reports to the status page. A down component fails the run, which GitHub emails to the repository's watchers.
-# GitHub may delay a scheduled run under load; the status page counts a report as fresh for 15 minutes.
+# Owner, 2026-11-02: an EXTERNAL uptime check. The on-host monitor.sh and watchdog die with the server, so a day-long outage sent no mail.
+# Every 5 minutes this GETs https://nabd.plus/ar and https://nabd.plus/api/v1/health; two failed runs in a row send ONE mail to the owner,
+# and one more when the site is back (tools/uptime/external-uptime.sh). The state between runs is kept with the Actions cache.
+# Repository secrets the owner sets (names only): OPS_ALERT_EMAIL, MAIL_FROM, and at least one provider: RESEND_API_KEY, or BREVO_API_KEY, or
+# MAILJET_API_KEY + MAILJET_SECRET_KEY. Notes: GitHub may delay a scheduled run by several minutes under load, and switches scheduled
+# workflows off after 60 days without repository activity; a manual "Run workflow" turns the schedule back on.
 on:
   schedule:
     - cron: '*/5 * * * *'
-  workflow_dispatch:
   pull_request:
     paths:
       - 'tools/uptime/**'
+      - 'tools/ops/tests/test_external_uptime.py'
       - '.github/workflows/uptime.yml'
-
+  workflow_dispatch:
 permissions:
   contents: read
-
+# Scheduled runs never overlap and a running scheduled check is never cancelled (it would lose the state it is about to save); a newer push to a pull request replaces the older PR run.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: uptime-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'schedule' }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  probe:
+  check:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      STATE_DIR: ${{ github.workspace }}/.uptime-state
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: restore the last state
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: .uptime-state
+          key: uptime-state-none
+          restore-keys: uptime-state-
+      - name: check the site
+        env:
+          OPS_ALERT_EMAIL: ${{ secrets.OPS_ALERT_EMAIL }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          MAILJET_API_KEY: ${{ secrets.MAILJET_API_KEY }}
+          MAILJET_SECRET_KEY: ${{ secrets.MAILJET_SECRET_KEY }}
+        run: bash tools/uptime/external-uptime.sh
+      - name: save the state
+        if: always()
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: .uptime-state
+          key: uptime-state-${{ github.run_id }}-${{ github.run_attempt }}
+  tools:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: 22
-      - name: The probe script itself (offline tests)
-        run: node --test tools/uptime/probe.test.mjs
-      - name: Probe the public site and API, report to the status page
-        if: github.event_name != 'pull_request'
-        env:
-          STATUS_INGEST_SECRET: ${{ secrets.STATUS_INGEST_SECRET }}
-        run: node tools/uptime/probe.mjs --vantage github-actions
+      - run: bash -n tools/uptime/external-uptime.sh
+      - run: python3 -W error -m unittest tools/ops/tests/test_external_uptime.py -v

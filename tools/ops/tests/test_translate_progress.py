@@ -48,12 +48,17 @@ class TranslateProgress(unittest.TestCase):
             env["OPS_TRANSLATE_DIR"] = wd
         return subprocess.run(["bash", TASK], env=env, capture_output=True, text=True, timeout=30)
 
+    def test_a_stale_stats_file_is_reported_as_a_dead_run(self):
+        p = self.run_task(json.dumps(STATS))
+        self.assertIn('LIVENESS: the stats file was last written', p.stdout)
+        self.assertIn('DEAD or hung', p.stdout)
+
     def test_prints_whitelisted_counts_per_provider_and_overall(self):
         p = self.run_task(json.dumps(STATS))
         self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
         self.assertIn("answered=300 of 1404, remaining=1104", p.stdout)
         self.assertIn("last_answer_at=2026-10-28T01:59:30.000Z", p.stdout)
-        self.assertIn("gemini: sent=80 ok=70 limited=8 errors=2 rejected=3 avg_ms=4100 parked_until=2026-10-28T02:03:00.000Z retired=no classes=[http_429=8 timeout=2]", p.stdout)
+        self.assertIn("gemini: sent=80 ok=70 limited=8 errors=2 rejected=3 avg_ms=4100 parked_until=2026-10-28T02:03:00.000Z retired=no retired_until=- revived=0 classes=[http_429=8 timeout=2]", p.stdout)
         self.assertIn("groq: sent=5", p.stdout)
         self.assertIn("groq: retired because: refused by the provider (http_404)", p.stdout)
 

@@ -3,6 +3,7 @@ import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Interval } from '@nestjs/schedule';
 import { Connection, Model } from 'mongoose';
 import { PharmacyNotificationService } from './pharmacy-notification.service';
+import { ScheduledOnce } from '../../../common/scheduled-once';
 
 const EVENT = 'pharmacy.broadcast.recipient_added';
 const BATCH = 50;
@@ -31,6 +32,7 @@ export class PharmacyBroadcastDispatchService {
   ) {}
 
   @Interval(3_000)
+  @ScheduledOnce({ holdMs: 1000 })
   async tick() {
     try { await this.dispatchDue(new Date()); } catch (error: any) { this.logger.warn(`pharmacy broadcast dispatch failed: ${error?.message || error}`); }
   }
