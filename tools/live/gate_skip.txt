@@ -3,8 +3,5 @@
 j_admin
 j_admin_ops
 j_admin_sweep
-j_catalog_suggest
-j_concurrency
 j_insurance
-j_jobs
 j_returns
