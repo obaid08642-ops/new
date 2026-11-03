@@ -58,6 +58,9 @@ export PAYOUT_DUAL_APPROVAL_SAR="${PAYOUT_DUAL_APPROVAL_SAR:-1}"
 export SETTLEMENT_DELAY_DAYS="${SETTLEMENT_DELAY_DAYS:-0}" PAYOUT_MINIMUM_SAR="${PAYOUT_MINIMUM_SAR:-1}"
 # Card payments go to tools/live/fake_moyasar.py (:9100); /__pay/<id> plays the patient completing checkout.
 export MOYASAR_API_KEY="${MOYASAR_API_KEY:-sk_test_live_journeys}" MOYASAR_API_BASE="${MOYASAR_API_BASE:-http://127.0.0.1:9100/v1}"
+# #551: the names the owner must set on the server, so the gate runs the production configuration: the provider is chosen
+# explicitly and refunds use the secret key (docs/payments/MOYASAR_GO_LIVE.md; tools/payments/check-moyasar-env.mjs checks a server).
+export PAYMENT_PROVIDER="${PAYMENT_PROVIDER:-moyasar}" MOYASAR_SECRET_KEY="${MOYASAR_SECRET_KEY:-$MOYASAR_API_KEY}"
 # #551: the Moyasar webhook is refused without a configured secret; journeys post it with this one (j_payment_webhook.py)
 export MOYASAR_WEBHOOK_SECRET="${MOYASAR_WEBHOOK_SECRET:-live-journeys-webhook-token}"
 # 7C-C3: the backend network-gate check requires this header on /api/v1/admin/*.

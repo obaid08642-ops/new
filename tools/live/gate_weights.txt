@@ -63,6 +63,7 @@ j_patient_sessions 3
 j_payment_webhook 16
 j_payouts 80
 j_pharmacy 71
+j_pharmacy_broadcast_responses 15
 j_pharmacy_catalogue_lines 6
 j_pharmacy_insurance_first 7
 j_pharmacy_insurance_inline 6
@@ -71,6 +72,7 @@ j_pregnancy_weeks 67
 j_product_insurance_row 4
 j_provider_proposals 15
 j_provider_review 76
+j_provider_scenarios 25
 j_provider_side_b 81
 j_public_medicine_fields 2
 j_radiology 18
@@ -128,5 +130,6 @@ j_web_translated_pages 15
 j_web_unnamed_images 46
 j_settlement_overrides 120
 j_provider_agreement_accept 22
+j_provider_edits 70
 j_chat_attachment 25
 j_refund_matrix 900

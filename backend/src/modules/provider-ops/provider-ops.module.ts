@@ -578,11 +578,37 @@ export class ProviderOpsService {
     };
   }
 
+  /**
+   * The ids a patient's review can carry for this provider: a consultation review stores the doctor's PROFILE id (the id the public
+   * page and the booking use), while the provider signs in with the ACCOUNT id.
+   */
+  private async reviewProviderIds(providerId: string): Promise<string[]> {
+    const profiles = await this.conn.collection('provider_profiles')
+      .find({ $or: [{ account_id: { $eq: providerId } }, { user_id: { $eq: providerId } }] }, { projection: { _id: 0, id: 1 } }).limit(5).toArray();
+    return [...new Set([providerId, ...profiles.map((p: any) => p.id).filter((v: unknown) => typeof v === 'string' && v)])];
+  }
+
   async providerReviews(providerId: string): Promise<any[]> {
     const rows = await this.conn.collection('ratings')
       .find({ $or: [{ provider_id: providerId }, { entity_id: providerId }] })
       .sort({ createdAt: -1 }).limit(100).toArray();
-    return rows.map((r: any) => ({ ...r, id: r.id || r._id?.toString(), _id: undefined }));
+    // The apps send a patient's review to POST /patient-ux/review, which stores it in `reviews` (rating, status approved or
+    // pending_review). The provider screen read only `ratings`, so the doctor saw none of the reviews patients actually wrote.
+    const written = await this.conn.collection('reviews')
+      .find({ provider_id: { $in: await this.reviewProviderIds(providerId) } })
+      .sort({ createdAt: -1 }).limit(100).toArray();
+    const fromReviews = written.map((r: any) => ({
+      id: r.id, provider_id: r.provider_id, score: r.rating, comment: r.comment ?? null, createdAt: r.createdAt ?? null,
+      // the same words the ratings rows use, so the screen needs no second reading: approved = published
+      status: r.status === 'approved' ? 'published' : r.status === 'pending_review' ? 'pending' : r.status,
+      reply: r.reply ?? null, reply_at: r.reply_at ?? null, booking_kind: r.booking_kind, booking_id: r.booking_id, source: 'review',
+    }));
+    const all = [
+      ...rows.map((r: any) => ({ ...r, id: r.id || r._id?.toString(), _id: undefined })),
+      ...fromReviews,
+    ];
+    all.sort((a: any, b: any) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime());
+    return all.slice(0, 100);
   }
 
   async replyReview(providerId: string, ratingId: string, reply: string) {
@@ -602,6 +628,16 @@ export class ProviderOpsService {
           row = await col.findOne({ ...byId, ...own } as any);
         }
       } catch { /* invalid ObjectId format */ }
+    }
+    if (!row) {
+      // a review the patient wrote in the app (POST /patient-ux/review): approved is published, pending_review waits for a moderator
+      const written: any = await this.conn.collection('reviews').findOne({ id: { $eq: String(ratingId) }, provider_id: { $in: await this.reviewProviderIds(providerId) } });
+      if (written) {
+        if (written.status !== 'approved') throw new BadRequestException('review_not_published');
+        await this.conn.collection('reviews').updateOne({ _id: written._id }, { $set: { reply: text, reply_at: new Date() } });
+        if (written.patient_id) this.events?.emit('rating.replied', { user_id: written.patient_id, provider_id: providerId, rating_id: written.id });
+        return { ok: true };
+      }
     }
     if (!row) throw new NotFoundException('review not found');
     // a review still waiting for moderation, or refused, is not public: nothing to answer yet

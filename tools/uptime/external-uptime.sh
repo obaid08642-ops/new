@@ -1,6 +1,6 @@
 #!/bin/bash
 # External uptime check (owner, 2026-11-02: the site was down for hours and no alert mail came, because monitor.sh and the watchdog run ON the
-# host and die with it). Runs from GitHub Actions (.github/workflows/uptime.yml, every 5 minutes), GET only:
+# host and die with it). Runs from GitHub Actions (.github/workflows/uptime-alert.yml, every 5 minutes), GET only:
 #   $SITE_URL/ar            the public page        $SITE_URL/api/v1/health   the API health
 # Down = either answers anything but 2xx (or times out) on two runs in a row (FAIL_THRESHOLD). Then ONE mail goes to OPS_ALERT_EMAIL, and one
 # more when it is back. The state (consecutive failures, whether the outage mail was sent, since when) lives in $STATE_DIR, which the workflow
