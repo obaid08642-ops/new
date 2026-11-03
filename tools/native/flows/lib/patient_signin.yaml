@@ -135,6 +135,15 @@ appId: com.patient.nabd
           notVisible:
             id: "login-identifier"
           timeout: 60000
+# iOS offers to save the password ("Save Password?", the system Passwords sheet) right after a sign-in; it covers the app and the next tap
+# ("main-tab-bar-consult not found", run 41576141752) never reaches it. Answer Not Now when it shows.
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn:
+          text: "Not Now|ليس الآن"
+          optional: true
 # a successful sign-in replaces the screen with Home (the tabs). Run 41455012126 (iOS): the password is right now (201), but the simulator
 # shares the macOS runner with the backend and the sign-in answered after 14 s (8.7 s on another flow), so 30 s ran out before the screen changed.
 - extendedWaitUntil:

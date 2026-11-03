@@ -55,6 +55,10 @@ for FLOW in tools/native/flows/${TARGET}_*.yaml; do
       echo "setup failed: $(tail -n 3 "$OUT/setup_${TAG}__${NAME}.log" | tr '\n' ' ')" > "$OUT/flow_${TAG}__${NAME}.txt"; cat "$OUT/setup_${TAG}__${NAME}.log"; continue
     fi
   fi
+  # The iOS keychain survives launchApp clearState (expo-secure-store keeps the sign-in tokens there), so a flow that follows another one
+  # started already signed in and never saw the first-launch screen (run 41576141752: "onboarding-language is visible" failed in three flows,
+  # the screenshot is Home). Empty the simulator's keychain before every flow.
+  xcrun simctl keychain "$DEVICE" reset >/dev/null 2>&1 || echo "keychain reset not available"
   run_flow() { "$HOME/.maestro/bin/maestro" --device "$DEVICE" test -e EMAIL="$EMAIL" -e EMAIL_LOCAL="$EMAIL_LOCAL" -e EMAIL_DOMAIN="$EMAIL_DOMAIN" -e PASSWORD="$PASS" -e PASS_1="${PASS:0:7}" -e PASS_2="${PASS:7:7}" -e PASS_3="${PASS:14:7}" -e PASS_4="${PASS:21}" ${EXTRA[@]+"${EXTRA[@]}"} --test-output-dir "$OUT/maestro_${TAG}__${NAME}" "$FLOW" > "$OUT/maestro_${TAG}__${NAME}.log" 2>&1; }
   # one retry, and only when Maestro's driver itself did not start (before any step ran); a failed step is never retried
   if run_flow || { grep -q "iOS driver not ready in time" "$OUT/maestro_${TAG}__${NAME}.log" && { echo "maestro driver did not start, retrying once"; run_flow; }; }; then
