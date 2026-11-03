@@ -1,3 +1,4 @@
+import { halalaShadowPlugin } from '../../common/halala-shadow';
 import { GatewayTimeoutException, ServiceUnavailableException } from '@nestjs/common';
 import {
   Module,
@@ -58,6 +59,9 @@ export class MoyasarPayment {
   @Prop() paid_at?: Date;
   @Prop() refunded_at?: Date;
   @Prop({ default: 0 }) refunded_amount: number;
+  /** R11 P1: integer halalas next to the doubles (halalaShadowPlugin). */
+  @Prop() amount_halalas?: number;
+  @Prop() refunded_amount_halalas?: number;
   @Prop({ type: Object }) raw_response?: Record<string, any>;
   @Prop() callback_url?: string;
   @Prop() description?: string;
@@ -65,6 +69,7 @@ export class MoyasarPayment {
 
 export type MoyasarPaymentDocument = MoyasarPayment & Document;
 export const MoyasarPaymentSchema = SchemaFactory.createForClass(MoyasarPayment);
+halalaShadowPlugin(MoyasarPaymentSchema, ['amount', 'refunded_amount']);
 MoyasarPaymentSchema.index({ booking_id: 1, status: 1 });
 MoyasarPaymentSchema.index({ patient_id: 1, createdAt: -1 });
 MoyasarPaymentSchema.index({ moyasar_id: 1 }, { sparse: true });

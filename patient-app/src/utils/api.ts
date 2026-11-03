@@ -1,3 +1,4 @@
+import { APP_HEADERS } from './appVersion';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { STORAGE_KEYS } from '../constants';
@@ -132,6 +133,8 @@ export async function apiFetch<T = any>(endpoint: string, options: ApiFetchOptio
   }
   // 21.2: signing in while a guest session is held carries the guest's own
   // token, so the backend can prove the session and move its data.
+  // R12: which app and build is asking (server-side minimum version, traffic per build)
+  for (const [k, v] of Object.entries(APP_HEADERS)) if (!headers.has(k)) headers.set(k, v);
   if (SESSION_ESTABLISHING.test(endpoint) && !headers.has('x-guest-token')) {
     const guestToken = await currentGuestToken();
     if (guestToken) headers.set('x-guest-token', guestToken);
