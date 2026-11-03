@@ -4,7 +4,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
 import { ShedOnOverload } from '../../common/load-shedding.guard';
-import { connectionFlagSource, isKilled } from '../../common/killswitches/killswitches.helper';
+import { connectionFlagSource, shouldDegrade } from '../../common/killswitches/killswitches.helper';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { NotificationsService } from '../notifications/notifications.service';
@@ -71,7 +71,7 @@ export class EngagementController {
 
     // Kill switch: the interest event above is still recorded (analytics),
     // but nothing is enqueued and nothing is sent.
-    if (await isKilled('nudges', connectionFlagSource(this.conn))) {
+    if (await shouldDegrade('nudges', connectionFlagSource(this.conn))) {
       this.logger.debug(`nudges killed \u2014 dropped enqueue for event ${event.id}`);
       return { ok: true, event_id: event.id, nudges_killed: true };
     }
@@ -102,7 +102,7 @@ export async function processNudge(
   eventId: string,
 ) {
   // Kill switch also stops already-queued jobs from sending; dropped silently.
-  if (await isKilled('nudges', connectionFlagSource(conn))) return;
+  if (await shouldDegrade('nudges', connectionFlagSource(conn))) return;
   const event = await conn.collection('user_interest_events').findOne({ id: eventId });
   if (!event) return;
 
