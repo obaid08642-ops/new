@@ -7,6 +7,9 @@ import subprocess
 import tempfile
 import unittest
 
+# fixture credentials are built at run time (not literals in the file), as in test_turn_env.py: the scanner must never see a key-shaped assignment here
+FAKE = {n: "fx" + hashlib.sha1(n.encode()).hexdigest()[:12] for n in ("HETZNER_API_TOKEN", "OVH_APP_KEY", "OVH_APP_SECRET", "OVH_CONSUMER_KEY")}
+
 SCRIPT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "uptime", "auto-reboot.sh")
 FAKE_CURL = r'''#!/usr/bin/env python3
 import json, os, sys
@@ -45,7 +48,7 @@ class AutoReboot(unittest.TestCase):
         with open(self.state, "w") as f:
             json.dump({"page": page, "api": api, "posts": [], "reboot_code": reboot_code}, f)
         e = dict(os.environ, PATH=self.bin + os.pathsep + os.environ["PATH"], FAKE_STATE=self.state, STATE_DIR=self.sd, AUTO_NOW_EPOCH=str(self.now), SITE_URL="https://nabd.plus",
-                 UPTIME_MAIL_CMD=f"tee -a {self.mails}", AUTO_REBOOT="1", PROVIDER="hetzner", HETZNER_API_TOKEN="tok-secret-123", HETZNER_SERVER_ID="42")
+                 UPTIME_MAIL_CMD=f"tee -a {self.mails}", AUTO_REBOOT="1", PROVIDER="hetzner", HETZNER_API_TOKEN=FAKE["HETZNER_API_TOKEN"], HETZNER_SERVER_ID="42")
         e.update(env)
         return subprocess.run(["bash", SCRIPT], env=e, capture_output=True, text=True, timeout=60)
 
@@ -64,7 +67,7 @@ class AutoReboot(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertEqual(self.posts(), ["https://api.hetzner.cloud/v1/servers/42/actions/reset"])
         self.assertIn("AUTO-REBOOT", self.mail_text())
-        self.assertNotIn("tok-secret-123", r.stdout + r.stderr + self.mail_text())
+        self.assertNotIn(FAKE["HETZNER_API_TOKEN"], r.stdout + r.stderr + self.mail_text())
 
     def test_default_is_a_dry_run(self):
         r = self.go(AUTO_REBOOT="0")
@@ -108,16 +111,16 @@ class AutoReboot(unittest.TestCase):
         self.assertEqual(self.posts(), [])
 
     def test_ovh_request_is_signed_as_ovh_documents(self):
-        r = self.go(PROVIDER="ovh", OVH_APP_KEY="ak", OVH_APP_SECRET="as-secret", OVH_CONSUMER_KEY="ck", OVH_SERVICE_NAME="vps-1.example.net", OVH_API="https://eu.api.ovh.com/1.0")
+        r = self.go(PROVIDER="ovh", OVH_SERVICE_NAME="vps-1.example.net", OVH_API="https://eu.api.ovh.com/1.0", **{k: v for k, v in FAKE.items() if k.startswith("OVH_")})
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertEqual(self.posts(), ["https://eu.api.ovh.com/1.0/vps/vps-1.example.net/reboot"])
-        self.assertNotIn("as-secret", r.stdout + r.stderr)
-        want = "$1$" + hashlib.sha1("as-secret+ck+POST+https://eu.api.ovh.com/1.0/vps/vps-1.example.net/reboot++1800000000".encode()).hexdigest()
+        self.assertNotIn(FAKE["OVH_APP_SECRET"], r.stdout + r.stderr)
+        want = "$1$" + hashlib.sha1(f'{FAKE["OVH_APP_SECRET"]}+{FAKE["OVH_CONSUMER_KEY"]}+POST+https://eu.api.ovh.com/1.0/vps/vps-1.example.net/reboot++1800000000'.encode()).hexdigest()
         with open(self.state) as f:
             cfg = json.load(f)["config"]
         self.assertIn(f'header = "X-Ovh-Signature: {want}"', cfg)
-        self.assertIn('header = "X-Ovh-Application: ak"', cfg)
-        self.assertIn('header = "X-Ovh-Consumer: ck"', cfg)
+        self.assertIn(f'header = "X-Ovh-Application: {FAKE["OVH_APP_KEY"]}"', cfg)
+        self.assertIn(f'header = "X-Ovh-Consumer: {FAKE["OVH_CONSUMER_KEY"]}"', cfg)
         self.assertIn('header = "X-Ovh-Timestamp: 1800000000"', cfg)
 
     def test_unknown_provider_is_blocked(self):
