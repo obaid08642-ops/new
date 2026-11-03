@@ -1,6 +1,7 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { reportAggregate } from '../../../common/reports/report-read';
 import { v4 as uuid } from 'uuid';
 import { validateReason, MIN_FINANCIAL_REASON_LENGTH, ReasonError } from '../../../common/rbac';
 import { AdminAuditService } from './audit.service';
@@ -128,11 +129,11 @@ export class FinanceSuiteService {
     });
 
     const mom = momComparison(rows, from, to, seriesToRows(prevPayments as any[], opts.granularity));
-    const refundsAgg = await this.conn.collection('moyasar_payments').aggregate([
+    const refundsAgg = await reportAggregate(this.conn, 'moyasar_payments', [
       { $match: { status: 'refunded', refunded_at: { $gte: from, $lte: to } } },
       { $group: { _id: null, total: { $sum: '$refunded_amount' }, n: { $sum: 1 } } },
     ]).toArray().catch(() => []);
-    const walletRefundsAgg = await this.conn.collection('wallet_transactions').aggregate([
+    const walletRefundsAgg = await reportAggregate(this.conn, 'wallet_transactions', [
       { $match: { type: 'credit', referenceType: 'refund', createdAt: { $gte: from, $lte: to } } },
       { $group: { _id: null, total: { $sum: '$amount' }, n: { $sum: 1 } } },
     ]).toArray().catch(() => []);
@@ -247,7 +248,7 @@ export class FinanceSuiteService {
     const start = new Date(day.toISOString().slice(0, 10));
     const end = new Date(start.getTime() + 86_400_000);
 
-    const gateway = await this.conn.collection('moyasar_payments').aggregate([
+    const gateway = await reportAggregate(this.conn, 'moyasar_payments', [
       { $match: { status: { $in: PAID_STATUSES }, $or: [{ paid_at: { $gte: start, $lt: end } }, { paid_at: null, createdAt: { $gte: start, $lt: end } }] } },
       { $group: { _id: '$booking_kind', total: { $sum: '$amount' }, n: { $sum: 1 }, ids: { $push: '$booking_id' } } },
     ]).toArray().catch(() => []);
@@ -262,7 +263,7 @@ export class FinanceSuiteService {
     ];
     const platformRows: any[] = [];
     for (const k of kinds) {
-      const agg = await this.conn.collection(k.collection).aggregate([
+      const agg = await reportAggregate(this.conn, k.collection, [
         { $match: { payment_status: { $in: ['paid', 'confirmed'] }, paid_at: { $gte: start, $lt: end } } },
         { $group: { _id: null, total: { $sum: { $ifNull: ['$total_price', '$total'] } }, n: { $sum: 1 }, ids: { $push: '$id' } } },
       ]).toArray().catch(() => []);
