@@ -30,17 +30,22 @@ jobs:
       - name: Install
         working-directory: patient-web
         run: corepack enable && pnpm install --frozen-lockfile
+      # production is never a CI dependency: the pages are built and audited against the live gate's local backend
+      - id: api
+        uses: ./.github/actions/local-api
       - name: Build
         working-directory: patient-web
         run: pnpm run build
         env:
           NEXT_TELEMETRY_DISABLED: 1
-          NABD_API_BASE_URL: https://api.nabd.plus/api/v1
+          NABD_API_BASE_URL: ${{ steps.api.outputs.api-base-url }}
+          INTERNAL_API_BASE_URL: ${{ steps.api.outputs.api-base-url }}
           NEXT_PUBLIC_SITE_ORIGIN: http://localhost:3000
       - name: Start production server (standalone) and wait until ready
         working-directory: patient-web
         env:
-          NABD_API_BASE_URL: https://api.nabd.plus/api/v1
+          NABD_API_BASE_URL: ${{ steps.api.outputs.api-base-url }}
+          INTERNAL_API_BASE_URL: ${{ steps.api.outputs.api-base-url }}
           NEXT_PUBLIC_SITE_ORIGIN: http://localhost:3000
           PORT: 3000
           HOSTNAME: 127.0.0.1
