@@ -165,6 +165,8 @@ export class PharmacyOrder extends Document {
   @Prop({ type: Object }) manual_request?: { name?: string; details?: string | null; qty?: number; photo_uri?: string };
   /** F73: draft fulfillment + payment mode. */
   @Prop({ type: String, enum: ['delivery', 'pickup'], default: 'delivery' }) fulfillment?: 'delivery' | 'pickup';
+  /** The delivery fee source of the chosen offer (delivery_mode is declared below, F's). */
+  @Prop({ type: String, default: null }) delivery_fee_source?: string | null;
   @Prop({ type: String, enum: ['cash', 'insurance'], default: 'cash' }) payment_mode?: 'cash' | 'insurance';
   @Prop() insurance_policy_id?: string;
   @Prop() delivery_address_id?: string;
@@ -447,7 +449,9 @@ export class PharmacyOffer extends Document {
     delivery_option?: 'delivery' | 'pickup' | null;
     eta_minutes?: number | null;
     delivery_fee_source?: string;
-    delivery_mode?: 'platform' | 'pharmacy_own';
+    /** Who delivers: the pharmacy's own couriers or the platform (null for pickup). The fee is the one the patient pays. */
+    delivery_mode?: 'pharmacy_own' | 'platform' | null;
+    delivery_fee?: number;
   };
   @Prop({ default: 'provider_capabilities_pharmacy' }) pricing_source: string;
   @Prop() created_by?: string;

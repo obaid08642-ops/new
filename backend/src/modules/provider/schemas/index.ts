@@ -70,6 +70,10 @@ export class ProviderProfile extends Document {
   @Prop() tax_number?: string;
   @Prop() medical_license_number?: string;
   @Prop() facility_license_number?: string;
+  // Credential fields: written only when an admin approves a credentials delta (provider-profile.service.ts)
+  @Prop() specialty?: string;
+  @Prop() degree?: string;
+  @Prop() license_expiry_date?: Date;
   @Prop() established_year?: number;
   @Prop() years_of_experience?: number;
   // phones: [{id,type,country_code,number,is_primary,verified}]

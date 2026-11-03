@@ -23,8 +23,7 @@ import { ModuleRef } from '@nestjs/core';
 import {
   Module, Global, Injectable, Controller, Post, Get, Put, Body, Param, Query,
   UseGuards, BadRequestException, NotFoundException, ForbiddenException, Logger,
-  Optional,
-} from '@nestjs/common';
+  Optional, ConflictException } from '@nestjs/common';
 import { ValidateCouponDto, LoyaltyQuoteDto, SetCommissionRuleDto, ResolveCommissionDto, RequestApprovalDto, DecideApprovalDto } from './finance-engine.dto';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -37,11 +36,14 @@ import { moyasarBase } from '../../common/moyasar-base';
 import { timedFetch } from '../../common/external-call';
 import { settlementDelayDefault, DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT } from '../../common/commission-defaults';
 import { PROMO_COLLECTION, promoState, type CommissionPromo } from '../../common/commission-promo';
+import { toHalalas } from '../../common/money';
 
 export const LEDGER_TYPES = [
   'provider_earning', 'provider_debit', 'payout', 'refund', 'commission',
   'vat', 'adjustment', 'chargeback', 'penalty', 'bonus', 'referral',
   'loyalty', 'settlement',
+  // platform-side reversal of the commission and of the VAT on it, in proportion to a refund of a service whose earning was credited
+  'commission_reversal', 'vat_reversal',
 ] as const;
 export type LedgerType = typeof LEDGER_TYPES[number];
 
@@ -99,6 +101,11 @@ export class LedgerService {
       type: entry.type,
       state: entry.state || 'cleared',
       amount: round2(entry.amount),
+      // R11 dual write: integer halalas next to the legacy double (docs/platform/R11-money-integrity.md); readers still use the doubles
+      amount_halalas: toHalalas(round2(entry.amount)),
+      ...(entry.gross !== undefined && entry.gross !== null ? { gross_halalas: toHalalas(entry.gross) } : {}),
+      ...(entry.commission !== undefined && entry.commission !== null ? { commission_halalas: toHalalas(entry.commission) } : {}),
+      ...(entry.vat !== undefined && entry.vat !== null ? { vat_halalas: toHalalas(entry.vat) } : {}),
       ...(entry.available_at ? { available_at: entry.available_at } : {}),
       ref_type: entry.ref_type, ref_id: entry.ref_id, order_id: entry.order_id,
       gross: entry.gross, commission_percent: entry.commission_percent,
@@ -390,15 +397,25 @@ export class CouponService {
       await this.coupons.updateOne({ code: c.code } as any, { $inc: { used_count: 1 }, $set: { updatedAt: new Date() } });
     }
 
+    const usageId = `cu_${uuid()}`;
     try {
       await this.usages.insertOne({
-        id: `cu_${uuid()}`, code: c.code, user_id: userId, order_id: orderId,
+        id: usageId, code: c.code, user_id: userId, order_id: orderId,
         discount: v.discount, createdAt: new Date(),
       } as any);
     } catch (e: any) {
       // duplicate (user, code, order) — roll the counter back
       await this.coupons.updateOne({ code: c.code } as any, { $inc: { used_count: -1 } });
       throw new BadRequestException('coupon_invalid: already_applied');
+    }
+    // R21: validate() counted this user's earlier uses, then many parallel orders could each pass that count. Insert first, then check that this usage is among
+    // the first `limit` of the user's usages (by insertion order): exactly `limit` of any number of parallel applies keep their discount.
+    const perUserLimit = Number(c.usage_limit_per_user ?? 1);
+    const firstN: any[] = await this.usages.find({ code: c.code, user_id: userId } as any, { projection: { id: 1 } }).sort({ _id: 1 }).limit(perUserLimit).toArray();
+    if (!firstN.some((u) => u.id === usageId)) {
+      await this.usages.deleteOne({ id: usageId } as any);
+      await this.coupons.updateOne({ code: c.code } as any, { $inc: { used_count: -1 } });
+      throw new BadRequestException('coupon_invalid: per_user_limit_reached');
     }
     return { discount: v.discount, code: c.code };
   }
@@ -597,6 +614,10 @@ export class FraudService {
 // ═══════════════════════════════════════════════════════════════════════════
 // RefundExecutor — real refund execution (EPIC S4) + negative balance (S9)
 // ═══════════════════════════════════════════════════════════════════════════
+interface RefundExecuteOpts { refund_id: string; booking_kind: string; booking_id: string; patient_id: string; amount: number; reason: string; actor_id: string }
+interface RefundReservation { refund_id: string; booking_id: string; halalas: number; takenOver?: boolean }
+interface RefundCtx { reservation: RefundReservation | null; committed: boolean }
+
 @Injectable()
 export class RefundExecutor {
   private readonly logger = new Logger('RefundExecutor');
@@ -627,15 +648,63 @@ export class RefundExecutor {
    *     from the next settlement. The platform never loses money (S9).
    *  5. Update booking payment_status + notify the patient.
    */
-  async execute(opts: {
-    refund_id: string;
-    booking_kind: string;
-    booking_id: string;
-    patient_id: string;
-    amount: number;
-    reason: string;
-    actor_id: string;
-  }): Promise<{ ok: boolean; method: string; gateway_refund_id?: string; provider_debited?: number }> {
+  async execute(opts: RefundExecuteOpts): Promise<{ ok: boolean; method: string; gateway_refund_id?: string; provider_debited?: number }> {
+    // R21: the reservation (see reserveRefund) is taken inside the core once the paid total is known, and given back here if anything fails before the ledger row exists.
+    const ctx: RefundCtx = { reservation: null, committed: false };
+    try {
+      return await this.executeCore(opts, ctx);
+    } catch (e) {
+      if (ctx.reservation && !ctx.committed) await this.releaseRefund(ctx.reservation).catch(() => undefined);
+      throw e;
+    }
+  }
+
+  private refundIndexes?: Promise<void>;
+  private static readonly RESERVATION_STALE_MS = 10 * 60_000;
+  private get reservations() { return this.conn.collection('refund_reservations'); }
+  private get refundTotals() { return this.conn.collection('refund_totals'); }
+
+  /**
+   * R21: two refunds of one booking at the same time (different refund ids), or the same refund id twice (a double click on "execute"), both passed the
+   * read-then-write checks and could refund twice. Now: (1) a unique row per refund id (`refund_reservations`): the second execution of the same id
+   * gets a conflict while the first runs, and a no-op once it is done; (2) a per-booking running total in integer halalas (`refund_totals`) raised with a
+   * conditional atomic update, so the sum of reservations can never pass what was paid.
+   */
+  private async reserveRefund(refundId: string, bookingId: string, amount: number, paidTotal: number, alreadyRefunded: number): Promise<RefundReservation | 'done'> {
+    await (this.refundIndexes ??= Promise.all([
+      this.reservations.createIndex({ refund_id: 1 }, { unique: true }),
+      this.refundTotals.createIndex({ booking_id: 1 }, { unique: true }),
+    ]).then(() => undefined));
+    const cents = (x: number) => Math.round((Number(x) + Number.EPSILON) * 100);
+    const reservation: RefundReservation = { refund_id: refundId, booking_id: bookingId, halalas: cents(amount) };
+    try {
+      await this.reservations.insertOne({ ...reservation, state: 'reserved', createdAt: new Date() } as any);
+    } catch (e: any) {
+      if (e?.code !== 11000) throw e;
+      const row: any = await this.reservations.findOne({ refund_id: refundId } as any);
+      if (row?.state === 'done') return 'done';
+      // a crashed execution leaves 'reserved' behind: after 10 minutes another one may take it over (its amount is already counted in the total)
+      const took = await this.reservations.findOneAndUpdate({ refund_id: refundId, state: 'reserved', createdAt: { $lt: new Date(Date.now() - RefundExecutor.RESERVATION_STALE_MS) } } as any, { $set: { createdAt: new Date() } });
+      if (!took) throw new ConflictException('refund_in_progress');
+      return { ...reservation, takenOver: true };
+    }
+    await this.refundTotals.updateOne({ booking_id: bookingId } as any, { $setOnInsert: { booking_id: bookingId, refunded_halalas: cents(alreadyRefunded), createdAt: new Date() } }, { upsert: true }).catch((e: any) => { if (e?.code !== 11000) throw e; });
+    const room = cents(paidTotal) - reservation.halalas;
+    const raised = await this.refundTotals.updateOne({ booking_id: bookingId, refunded_halalas: { $lte: room } } as any, { $inc: { refunded_halalas: reservation.halalas } });
+    if (!raised.matchedCount) {
+      await this.reservations.deleteOne({ refund_id: refundId, state: 'reserved' } as any);
+      throw new BadRequestException(`refund_exceeds_paid: paid ${paidTotal}, already refunded or being refunded`);
+    }
+    return reservation;
+  }
+
+  private async releaseRefund(r: RefundReservation) {
+    if (r.takenOver) return;     // the first execution's amount stays counted; only a clean failure of the owner gives it back
+    await this.refundTotals.updateOne({ booking_id: r.booking_id } as any, { $inc: { refunded_halalas: -r.halalas } });
+    await this.reservations.deleteOne({ refund_id: r.refund_id, state: 'reserved' } as any);
+  }
+
+  private async executeCore(opts: RefundExecuteOpts, ctx: RefundCtx): Promise<{ ok: boolean; method: string; gateway_refund_id?: string; provider_debited?: number }> {
     let amount = round2(opts.amount);
     if (!(amount > 0)) throw new BadRequestException('refund amount must be positive');
 
@@ -719,6 +788,11 @@ export class RefundExecutor {
       if (alreadyRefunded + amount > paidTotal + 0.001) {
         throw new BadRequestException(`refund_exceeds_paid: paid ${paidTotal}, already refunded ${alreadyRefunded}`);
       }
+      if (paidTotal > 0) {
+        const got = await this.reserveRefund(opts.refund_id, opts.booking_id, amount, Number(paidTotal), alreadyRefunded);
+        if (got === 'done') return { ok: true, method: 'already_executed' };
+        ctx.reservation = got;
+      }
     }
 
     let method = 'cash';
@@ -772,6 +846,9 @@ export class RefundExecutor {
       actor_id: opts.actor_id,
       meta: { booking_kind: opts.booking_kind, patient_id: opts.patient_id, method, gateway_refund_id: gatewayRefundId },
     });
+    // the refund is now in the ledger: the reservation is spent, not to be given back whatever fails below
+    ctx.committed = true;
+    if (ctx.reservation) await this.reservations.updateOne({ refund_id: opts.refund_id } as any, { $set: { state: 'done', done_at: new Date() } }).catch(() => undefined);
 
     // 4) Provider debit — claw back the credited net earning (S9)
     let providerDebited = 0;
@@ -780,8 +857,22 @@ export class RefundExecutor {
       $or: [{ ref_id: opts.booking_id }, { order_id: opts.booking_id }],
     } as any);
     if (earning && Number(earning.amount) > 0) {
-      const fraction = Math.min(1, amount / Number(earning.gross || amount));
+      // The share of what the PATIENT PAID that is refunded. The earning's gross is only the provider's own lines (the platform's service, home-visit and
+      // transport fees are not in it), so dividing by it clawed back all of the provider's net when only half of the payment was refunded.
+      const fraction = Math.min(1, amount / (paidTotal > 0 ? Number(paidTotal) : Number(earning.gross || amount)));
       providerDebited = round2(Number(earning.amount) * fraction);
+      // The platform's commission and the VAT on it were earned on the part of the price that is now refunded: they are reversed in the same
+      // proportion (provider net share + commission share + VAT share = the refund). They are platform rows (no provider), so a provider's
+      // balance does not move twice; the finance report subtracts them (ReportsService.summary).
+      for (const [type, share] of [['commission_reversal', round2(Number(earning.commission || 0) * fraction)], ['vat_reversal', round2(Number(earning.vat || 0) * fraction)]] as const) {
+        if (share > 0 && !(await this.ledger.exists(type, 'refund', opts.refund_id))) {
+          await this.ledger.append({
+            type, amount: share, provider_account_id: null, ref_type: 'refund', ref_id: opts.refund_id, order_id: opts.booking_id,
+            description: `${type === 'commission_reversal' ? 'Commission' : 'VAT on the commission'} reversed with refund ${opts.refund_id} on earning ${earning.id}`,
+            actor_id: opts.actor_id, meta: { provider_account_id: earning.provider_account_id, earning_id: earning.id, fraction: round2(fraction * 10000) / 10000 },
+          });
+        }
+      }
       if (providerDebited > 0) {
         const dupDebit = await this.ledger.exists('provider_debit', 'refund', opts.refund_id);
         if (!dupDebit) {
@@ -1031,6 +1122,55 @@ export class PharmacyRefundListener {
   }
 }
 
+// ═════════════════════════════════════════════════════════════════════
+// ProviderCancelRefundListener — a provider or admin cancels a paid booking (refund policy 3.0: "the provider cancels or does not attend:
+// 100%", for nursing, lab, radiology and pharmacy).
+// The kind listeners above answer the PATIENT's own cancel (and the lab's / the pharmacy's own routes). The generic provider action
+// (POST /provider/jobs/:type/:id/reject) and the admin cancel move the booking to CANCELLED through the workflow engine and emit only
+// `service.cancelled`, which nothing refunded: a paid booking the nurse rejected stayed paid. This listens to that universal event for a
+// non-patient actor and refunds what was paid in full, under the SAME refund id as the kind listener (so one cancel is never refunded
+// twice, whichever path announced it first). Never throws; a failure goes to the dead-letter queue.
+// ═════════════════════════════════════════════════════════════════════
+@Injectable()
+export class ProviderCancelRefundListener {
+  private readonly logger = new Logger('ProviderCancelRefundListener');
+  constructor(
+    @InjectConnection() private readonly conn: Connection,
+    private readonly refundExec: RefundExecutor,
+  ) {}
+
+  private static readonly KINDS: Record<string, { kind: 'nursing' | 'lab' | 'radiology' | 'pharmacy'; id: (b: string) => string }> = {
+    nursing_booking: { kind: 'nursing', id: (b) => `nursing-cancel-${b}` },
+    lab_booking: { kind: 'lab', id: (b) => `lab-cancel-${b}` },
+    radiology_booking: { kind: 'radiology', id: (b) => `radiology-cancel-${b}` },
+    order: { kind: 'pharmacy', id: (b) => `pharmacy-cancel-${b}` },
+  };
+
+  @OnEvent('service.cancelled')
+  async onServiceCancelled(e: any) {
+    const spec = ProviderCancelRefundListener.KINDS[String(e?.entity_type || '')];
+    const role = String(e?.actor_role || '').toLowerCase();
+    if (!spec || !e?.entity_id || !e?.patient_account_id || !role || role === 'patient') return;
+    const bookingId = String(e.entity_id);
+    try {
+      const paid: any = await this.conn.collection('transactions').findOne({ booking_kind: spec.kind, booking_id: bookingId, status: 'paid' } as any);
+      if (!paid) return; // cash, insurance or never paid by card: nothing to send back
+      const left = Math.max(0, Math.round((Number(paid.amount || 0) - Number(paid.refunded_amount || 0)) * 100) / 100);
+      if (!(left > 0)) return;
+      await this.refundExec.execute({
+        refund_id: spec.id(bookingId), booking_kind: spec.kind, booking_id: bookingId, patient_id: String(e.patient_account_id),
+        amount: left, reason: `${spec.kind}_cancel_by_${role}`, actor_id: 'system',
+      });
+    } catch (err: any) {
+      this.logger.error(`${spec.kind} provider-cancel refund failed: ${err?.message} (booking ${bookingId})`);
+      await this.conn.collection('event_dlq').insertOne({
+        original_event_id: spec.id(bookingId), type: 'service.cancelled', entity_type: String(e.entity_type), entity_id: bookingId,
+        payload: e, attempts: 0, last_error: String(err?.message || err).slice(0, 500), status: 'pending', createdAt: new Date(), updatedAt: new Date(),
+      } as any).catch((dlqErr: any) => this.logger.error(`provider-cancel refund failure not queued: ${dlqErr?.message}`));
+    }
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // ReportsService — daily/weekly/monthly financial aggregation (EPIC S16)
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1089,9 +1229,10 @@ export class ReportsService {
       paid_count: pc('paid'),
       failed_count: pc('failed'),
       failed_volume: round2(p('failed')),
-      commission: round2(e.commission || 0),
-      vat_on_commission: round2(e.vat || 0),
-      net_revenue: round2((e.commission || 0) + (e.vat || 0)),
+      // the commission and the VAT on it that refunds took back are subtracted: a refunded order earned the platform nothing
+      commission: round2((e.commission || 0) - l('commission_reversal')),
+      vat_on_commission: round2((e.vat || 0) - l('vat_reversal')),
+      net_revenue: round2((e.commission || 0) - l('commission_reversal') + (e.vat || 0) - l('vat_reversal')),
       provider_net: round2(e.net || 0),
       refunds_completed: round2(r('COMPLETED') + r('completed')),
       refunds_requested_count: (refunds as any[]).reduce((s, x) => s + (x.count || 0), 0),
@@ -1379,7 +1520,8 @@ export class LabRadiologyRefundListener {
       const left = Math.max(0, Math.round((Number(paid.amount || 0) - Number(paid.refunded_amount || 0)) * 100) / 100);
       const policyDoc: any = await this.conn.collection('system_configs').findOne({ key: 'refund_policy' }).catch(() => null);
       const tripFee = Number(policyDoc?.value?.home_visit?.trip_fee_sar ?? 40);
-      const keepsTripFee = kind === 'lab' && String(e?.prior_state || '').toUpperCase() === 'IN_TRANSIT';
+      // refund policy 3.0: after the collector set off the PATIENT bears the trip fee; the provider cancelling or not attending refunds 100%
+      const keepsTripFee = kind === 'lab' && String(e?.prior_state || '').toUpperCase() === 'IN_TRANSIT' && e?.cancelled_by !== 'provider';
       const amount = keepsTripFee ? Math.max(0, Math.round((left - tripFee) * 100) / 100) : left;
       if (!(amount > 0)) return;
       await this.refundExec.execute({
@@ -1405,7 +1547,7 @@ export class LabRadiologyRefundListener {
 @Global()
 @Module({
   controllers: [FinanceEngineController, AdminFinanceEngineController],
-  providers: [LedgerService, CommissionResolver, CouponService, LoyaltyRedeemService, FraudService, RefundExecutor, CancellationPolicy, ReportsService, ApprovalService, AppointmentRefundListener, NursingRefundListener, PharmacyRefundListener, LabRadiologyRefundListener],
+  providers: [LedgerService, CommissionResolver, CouponService, LoyaltyRedeemService, FraudService, RefundExecutor, CancellationPolicy, ReportsService, ApprovalService, AppointmentRefundListener, NursingRefundListener, PharmacyRefundListener, LabRadiologyRefundListener, ProviderCancelRefundListener],
   exports: [LedgerService, CommissionResolver, CouponService, LoyaltyRedeemService, FraudService, RefundExecutor, CancellationPolicy, ReportsService, ApprovalService],
 })
 export class FinanceEngineModule {}

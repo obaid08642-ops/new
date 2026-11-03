@@ -1,6 +1,6 @@
 import { UseInterceptors } from '@nestjs/common';
 import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
-import { ownAppointmentId } from './appointment-link';
+import { ownAppointmentId, ownedVisit } from './appointment-link';
 import { protectHealthDoc } from '../../common/health-fields';
 import { PROVIDER_ROLES } from '../../common/enums';
 import { isProviderRole } from '../../common/enums';
@@ -422,7 +422,12 @@ export class ProviderRequestsController {
   @Post(':id/medical-report')
   async issueMedicalReport(@CurrentUser() u: any, @Param('id') id: string, @Body() body: IssueMedicalReportDto) {
     if (!body?.findings?.trim() && !body?.summary?.trim()) throw new BadRequestException('findings required');
-    const request: any = await this.svc.detail(u, id);
+    // The id is a provider request, or a normal appointment of this doctor (appointments never create a request).
+    let request: any = null;
+    try { request = await this.svc.detail(u, id); } catch (e) { if (!(e instanceof NotFoundException)) throw e; }
+    const visit = request ? null : await ownedVisit(this.conn, String(u?.id), id);
+    if (!request && !visit) throw new NotFoundException('request not found');
+    if (visit) request = { patient: { id: visit.patient_id, name: visit.patient_name } };
     const patientId = request.patient?.id || request.patient_id || request.patient_user_id || request.user_id;
     if (!patientId) throw new BadRequestException('linked patient required');
     if (body?.patient_id && String(body.patient_id) !== String(patientId)) {

@@ -33,6 +33,10 @@ import { GuaranteeLine, useLateGuarantee } from '../../../src/components/consult
 
 interface Doc {
   id?: string;
+  /** the average wait in minutes, under the names the doctor payload may carry it in (the web reads the same three) */
+  avg_wait_minutes?: number | null;
+  average_wait?: number | null;
+  wait_time?: number | null;
   n: string;
   sp: string;
   specialty?: string;
@@ -104,7 +108,7 @@ interface Named {
   name?: string;
 }
 
-type Sort = 'rating' | 'price' | 'available_today' | 'nearest' | 'available_now';
+type Sort = 'rating' | 'price' | 'wait' | 'available_today' | 'nearest' | 'available_now';
 type TitleF = 'all' | DoctorDegree;
 type GenderF = 'all' | 'male' | 'female';
 type PayF = 'all' | 'cash' | 'insurance';
@@ -114,6 +118,11 @@ const VISIT_CARDS: Array<{ mode: VisitMode; tone: 'blue' | 'violet' | 'peach'; s
   { mode: 'online', tone: 'violet', sub: 'consult.hub.visitSubVideo' },
   { mode: 'home', tone: 'peach', sub: 'consult.hub.visitSubHome' },
 ];
+/** The average wait in minutes, from the same fields the web reads; a doctor with no figure sorts last. */
+const waitOf = (d: Doc): number => {
+  const n = Number(d.avg_wait_minutes ?? d.average_wait ?? d.wait_time);
+  return Number.isFinite(n) && n > 0 ? n : Number.POSITIVE_INFINITY;
+};
 const priceOf = (d: Doc): number => d.consultation_fee || Number(String(d.p ?? '0').replace(/\D/g, '')) || 0;
 
 export default function Consultations() {
@@ -327,8 +336,10 @@ export default function Consultations() {
       })
       .sort((a, b) => {
         // "Nearest": the server's distance order is kept (the sort is stable)
-        if (keepsServerOrder(doctorsPath) && filterSort !== 'price') return 0;
+        if (keepsServerOrder(doctorsPath) && filterSort !== 'price' && filterSort !== 'wait') return 0;
         if (filterSort === 'price') return priceOf(a) - priceOf(b);
+        // "Shortest wait" (as the web's sort): the average wait of a doctor, the ones with no figure last
+        if (filterSort === 'wait') { const wa = waitOf(a); const wb = waitOf(b); return wa === wb ? 0 : wa - wb; }
         return (b.rating || Number(b.r || 0)) - (a.rating || Number(a.r || 0));
       });
   }, [doctors, searchQuery, activeVt, activePay, activeSpec, insCompany, insClass, filterGender, filterTitle, filterSort, doctorsPath]);
@@ -336,7 +347,7 @@ export default function Consultations() {
   const openDoctor = (d: Doc) => router.push((d.id ? `/consultations/doctor/${d.id}` : '/consultations/doctor-search') as Href);
   const nameOf = (n: Named) => pickLocalized(n.name_ar, n.name_en || n.name) || n.code || '';
   const listed = filteredDocs.slice(0, 10);
-  const sortKey: Record<Sort, string> = { rating: 'consult.hub.sortRating', price: 'consult.hub.sortPrice', available_today: 'consult.hub.sortAvailable', nearest: 'consult.hub.nearest', available_now: 'consult.hub.availableNow' };
+  const sortKey: Record<Sort, string> = { rating: 'consult.hub.sortRating', price: 'consult.hub.sortPrice', wait: 'consult.hub.sortWait', available_today: 'consult.hub.sortAvailable', nearest: 'consult.hub.nearest', available_now: 'consult.hub.availableNow' };
   const insuranceName = insCompany ? nameOf(insuranceCompanies.find((x) => String(x.id || x._id || x.code || '') === insCompany) ?? {}) : '';
   const activeItems: ActiveFilter[] = [
     ...(filterGender !== 'all' ? [{ key: 'gender', label: k(filterGender === 'male' ? 'consult.hub.male' : 'consult.hub.female'), onRemove: () => setFilterGender('all') }] : []),
@@ -533,7 +544,7 @@ export default function Consultations() {
         {choice<GenderF>(k('consult.hub.gender'), draft.gender, (v) => setDraft((d) => ({ ...d, gender: v })), [['all', k('consult.hub.all')], ['male', k('consult.hub.male')], ['female', k('consult.hub.female')]])}
         {choice<TitleF>(k('consult.hub.grade'), draft.title, (v) => setDraft((d) => ({ ...d, title: v })), [['all', k('consult.hub.all')], ...DOCTOR_DEGREES.map((g): [TitleF, string] => [g, k(`consult.hub.degree.${g}`)])])}
         {choice<PayF>(k('consult.hub.payment'), draft.pay, (v) => setDraft((d) => ({ ...d, pay: v })), [['all', k('consult.hub.payAll')], ['insurance', k('consult.hub.payInsurance')], ['cash', k('consult.hub.payCash')]])}
-        {choice<Sort>(k('consult.hub.sort'), draft.sort, (v) => setDraft((d) => ({ ...d, sort: v })), [['rating', k('consult.hub.sortRating')], ['price', k('consult.hub.sortPrice')], ...(nearestApplies(activeVt) ? [['nearest', k('consult.hub.nearest')] as [Sort, string]] : []), ['available_now', k('consult.hub.availableNow')], ['available_today', k('consult.hub.sortAvailable')]])}
+        {choice<Sort>(k('consult.hub.sort'), draft.sort, (v) => setDraft((d) => ({ ...d, sort: v })), [['rating', k('consult.hub.sortRating')], ['price', k('consult.hub.sortPrice')], ['wait', k('consult.hub.sortWait')], ...(nearestApplies(activeVt) ? [['nearest', k('consult.hub.nearest')] as [Sort, string]] : []), ['available_now', k('consult.hub.availableNow')], ['available_today', k('consult.hub.sortAvailable')]])}
         <View style={{ flexDirection: 'row', gap: 10 }}>
           <Chip label={k('consult.hub.filtersClearAll')} onPress={() => { clearAll(); setShowFilter(false); }} theme={theme} testID="hub-filters-clear" />
           <Chip label={k('consult.hub.apply')} selected onPress={() => void commit(draft)} theme={theme} testID="hub-filters-apply" />

@@ -40,6 +40,15 @@ word = re.compile(r"^[a-z0-9_]{1,40}$")
 def n(v): return v if isinstance(v, int) and not isinstance(v, bool) else 0
 def ts(v): return v if isinstance(v, str) and re.match(r"^\d{4}-\d\d-\d\dT[\d:.]+Z$", v) else "-"
 def say(t): print("status: translate-progress: stats: " + t)
+import datetime
+try:
+    age = (datetime.datetime.now(datetime.timezone.utc) - datetime.datetime.strptime(d.get("at", "")[:19], "%Y-%m-%dT%H:%M:%S").replace(tzinfo=datetime.timezone.utc)).total_seconds() / 60
+except Exception:
+    age = None
+if age is not None and age > 15:
+    say("LIVENESS: the stats file was last written %d min ago (it is written every 30 s while the run lives): a run that says still running is DEAD or hung; restart it (docs/ops/TRANSLATE_RESTART.md)" % age)
+elif age is not None:
+    say("LIVENESS: stats written %d min ago, the run is alive" % age)
 say("at=%s started=%s answered_this_run=%d remaining_this_run=%d failed=%d last_answer_at=%s | all: answered=%d of %d, remaining=%d" % (
     ts(d.get("at")), ts(d.get("started_at")), n(d.get("answered")), n(d.get("remaining")), n(d.get("failed")), ts(d.get("last_answer_at")),
     n(d.get("answered_total")), n(d.get("requests_total")), n(d.get("remaining_total"))))
@@ -48,8 +57,9 @@ for name, p in sorted((d.get("providers") or {}).items()):
     ec = p.get("error_classes") if isinstance(p.get("error_classes"), dict) else {}
     classes = " ".join("%s=%d" % (k, n(v)) for k, v in sorted(ec.items()) if word.match(str(k)))
     ret = "yes" if p.get("retired") else "no"
-    say("%s: sent=%d ok=%d limited=%d errors=%d rejected=%d avg_ms=%d parked_until=%s retired=%s classes=[%s]" % (
-        name, n(p.get("sent")), n(p.get("ok")), n(p.get("limited")), n(p.get("errors")), n(p.get("rejected")), n(p.get("avg_latency_ms")), ts(p.get("parked_until")), ret, classes))
+    ru = ts(p.get("retired_until")); rv = n(p.get("revived"))
+    say("%s: sent=%d ok=%d limited=%d errors=%d rejected=%d avg_ms=%d parked_until=%s retired=%s retired_until=%s revived=%d classes=[%s]" % (
+        name, n(p.get("sent")), n(p.get("ok")), n(p.get("limited")), n(p.get("errors")), n(p.get("rejected")), n(p.get("avg_latency_ms")), ts(p.get("parked_until")), ret, ru, rv, classes))
     if p.get("retired"):
         why = str(p.get("retired"))
         known = {"key rejected", "daily budget used", "limited again and again (daily limit presumed)", "its answers keep failing the checks"}

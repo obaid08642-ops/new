@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
 import { DataTable, type LooseRow } from '@/components/DataTable';
 import { useCan } from '@/components/AdminGuard';
+import PharmacyOwnDeliveryAdmin from '@/components/PharmacyOwnDeliveryAdmin';
 
 const DAY_AR: Record<string, string> = {
   SUN: 'الأحد', MON: 'الاثنين', TUE: 'الثلاثاء', WED: 'الأربعاء',
@@ -448,6 +449,8 @@ export default function ProviderFullDetail({ detail, accountId }: { detail: any;
               </div>
             )}
           </Section>
+
+          {(acc.provider_type || ob.type) === 'pharmacy' && cid ? <PharmacyOwnDeliveryAdmin accountId={String(cid)} cityCode={typeof prof.address?.city === 'string' ? prof.address.city : undefined} /> : null}
 
           {/* النوع-المحدد: صيدلية/معمل/أشعة/تمريض/إسعاف */}
           {(ob.enabled_categories?.length > 0 || ob.test_categories?.length > 0 || ob.pricingModel?.length > 0 ||

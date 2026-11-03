@@ -186,7 +186,7 @@ export class PharmacyExpiryCommandService {
       nextStage = { stage: Number(claimed.current_round || 1) + 1, radius_km: isPickup ? 15 : Number(lastStage.radius_km), timeout_seconds: Number(lastStage.timeout_seconds) };
       extendedEvent = isPickup ? 'extended_round_self_pickup_15km' : 'extended_round_own_delivery';
     }
-    const eligible = await this.broadcastService.findEligiblePharmaciesWithin(order?.delivery_address?.geo, nextStage.radius_km, { extended: Boolean(extendedEvent) });
+    const eligible = await this.broadcastService.findEligiblePharmaciesWithin(order?.delivery_address?.geo, nextStage.radius_km, { extended: Boolean(extendedEvent), pickup: order?.fulfillment === 'pickup' || order?.delivery?.method === 'pickup', district: order?.delivery_address?.district ?? null });
     const knownRecipients = new Set<string>(Array.isArray(claimed.notified_pharmacies) ? claimed.notified_pharmacies : []);
     const candidateRecipients = eligible.map((profile: any) => String(profile.account_id)).filter((accountId: string) => accountId && !knownRecipients.has(accountId));
     const nextRound = Number(claimed.current_round || 1) + 1;

@@ -50,15 +50,15 @@ const Stack = createNativeStackNavigator();
 
 export function RadiologyDashboardNavigator({ onLogout }: { onLogout: () => void }) {
   const [activeTab, setActiveTab] = useState('home');
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const AR = lang === 'ar';
   
   const tabs = [
-    { key: 'home',     icon: 'home',     label: AR ? 'الرئيسية' : 'Home'    },
-    { key: 'orders',   icon: 'document', label: AR ? 'الطلبات'  : 'Orders'  },
-    { key: 'catalog',  icon: 'grid',     label: AR ? 'الكتالوج' : 'Catalog' },
-    { key: 'schedule', icon: 'calendar', label: AR ? 'الجدول'   : 'Schedule'},
-    { key: 'settings', icon: 'settings', label: AR ? 'الإعدادات': 'Settings'},
+    { key: 'home',     icon: 'home',     label: t('radiology.tab.home') },
+    { key: 'orders',   icon: 'document', label: t('radiology.tab.orders') },
+    { key: 'catalog',  icon: 'grid',     label: t('radiology.tab.catalog') },
+    { key: 'schedule', icon: 'calendar', label: t('radiology.tab.schedule') },
+    { key: 'settings', icon: 'settings', label: t('radiology.tab.settings') },
   ];
 
   return (
@@ -220,7 +220,7 @@ function RadiologyOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) 
 
 // ══════ ORDER DETAIL SCREEN — PILLAR 4+5+6 ══════
 function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () => void; onNav: (s: string, p?: any) => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast();
+  const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast();
   const AR = lang === 'ar';
   const [loading, setLoading] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(order);
@@ -359,7 +359,8 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
           <NBtn label={AR?' إلغاء الفحص طارئ':' Emergency Abort Scan'} variant="danger" onPress={() => setShowAbort(true)} />
         </>)}
         {currentOrder.state ==='REPORT_DRAFT' && <NBtn label={AR?' إرسال للمراجعة الطبية':' Submit for Radiologist Review'} loading={loading} onPress={() => doAction('submit-report-for-review')} />}
-        {currentOrder.state ==='UNDER_REVIEW' && <NBtn label={AR?' اعتماد وإرسال التقرير':' Approve & Publish Report'} loading={loading} onPress={() => doAction('approve-report')} style={{ backgroundColor:tokens.success }} />}
+        {currentOrder.state ==='UNDER_REVIEW' && currentOrder.report_can_approve !== false && <NBtn label={AR?' اعتماد وإرسال التقرير':' Approve & Publish Report'} loading={loading} onPress={() => doAction('approve-report')} style={{ backgroundColor:tokens.success }} />}
+        {currentOrder.state ==='UNDER_REVIEW' && currentOrder.report_handled_by_me === true && <Text style={{ color: theme.textSub, fontSize: FS.sm, textAlign: AR ? 'right' : 'left' }}>{t('radiology.approve.handledByYou')}</Text>}
         {currentOrder.state ==='SCAN_ABORTED' && (<View style={{ backgroundColor:withAlpha(tokens.error, 0.12), borderRadius: R.md, padding: SP.md }}><Text style={{ color:tokens.error, fontWeight: FW.bold, textAlign:'center', marginBottom: SP.md }}>{AR?` سبب الإلغاء: ${currentOrder.abort_reason}`:` Abort Reason: ${currentOrder.abort_reason}`}</Text><NBtn label={AR?' إعادة الجدولة':' Reschedule'} loading={loading} onPress={() => setShowReschedule(true)} /></View>)}
         {currentOrder.state ==='REPORT_READY' && (<View style={{ backgroundColor:withAlpha(tokens.success, 0.12), borderRadius: R.md, padding: SP.lg, alignItems:'center' }}><Text style={{ color:tokens.success, fontSize: FS.lg, fontWeight: FW.bold }}>{AR?' التقرير أُرسل للمريض':' Report Sent to Patient'}</Text>{currentOrder.doctor_notified && <Text style={{ color:tokens.mintDeep, fontSize: FS.sm, marginTop: SP.sm }}>{AR?' تم إشعار الطبيب المحيل':' Referring doctor notified'}</Text>}</View>)}
       </View>

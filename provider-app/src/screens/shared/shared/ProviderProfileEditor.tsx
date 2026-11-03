@@ -38,6 +38,8 @@ interface ProfileResponse {
   profile_image_id?: string; clinic_images?: unknown[];
   geo?: { lat?: number | string; lng?: number | string }; max_delivery_radius_km?: number | string | null; delivery_fee?: number | string | null;
   public_eligibility?: boolean; social?: { website?: string; url?: string }; slug?: string;
+  /** credential changes waiting for admin review (specialty, degree, licence): shown as "pending review" */
+  pending_credentials?: { fields?: Record<string, string> } | null;
 }
 
 const EMPTY: ProfileForm = {
@@ -94,8 +96,9 @@ export function buildProfilePatch(base: ProfileForm, cur: ProfileForm, role: Pro
 
 export function ProviderProfileEditor({ role, onBack, initialSection }: { role: ProfileEditorRole; onBack: () => void; initialSection?: ProfileSection }) {
   const uploadsOn = useUploadsEnabled();
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const { user } = useAuth();
+  const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const { user } = useAuth();
   const AR = lang === 'ar';
+  const [pendingCred, setPendingCred] = useState<Record<string, string>>({});
   const sections = SECTIONS_BY_ROLE[role];
   const [section, setSection] = useState<ProfileSection>(initialSection && sections.includes(initialSection) ? initialSection : sections[0]);
   const [base, setBase] = useState<ProfileForm>(EMPTY);
@@ -113,7 +116,7 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
       if (!alive) return;
       const p: ProfileResponse = res?.data?.data || res?.data || {};
       const f = toForm(p);
-      setBase(f); setForm(f); setSlug(p.slug || null);
+      setBase(f); setForm(f); setSlug(p.slug || null); setPendingCred(p.pending_credentials?.fields ?? {});
     }).catch(() => {
       if (alive) show(AR ? 'فشل تحميل الملف الشخصي' : 'Failed to load profile', 'error');
     }).finally(() => { if (alive) setLoading(false); });
@@ -130,8 +133,9 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
     if (Object.keys(patch).length === 0) { show(AR ? 'لا توجد تعديلات للحفظ' : 'No changes to save', 'info'); return; }
     setSaving(true);
     try {
-      await client.patch('/provider/profile', patch);
-      show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
+      const res: any = await client.patch('/provider/profile', patch);
+      const credSent = Array.isArray(res?.data?.credentials_pending) && res.data.credentials_pending.length > 0;
+      show(credSent ? t('profile.credential.sent') : (AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval'), 'success');
       onBack();
     } catch (err) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
@@ -198,7 +202,9 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
       {role === 'doctor' && (
         <>
           <NInput label={AR ? 'التخصص الطبي' : 'Specialty'} value={form.specialty} onChange={(v: string) => set('specialty', v)} />
+          {pendingCred.specialty ? <Text style={{ fontSize: FS.xs, color: theme.warn }}>{t('profile.credential.pending', { value: pendingCred.specialty })}</Text> : null}
           <NInput label={AR ? 'الدرجة العلمية' : 'Degree / Title'} value={form.degree} onChange={(v: string) => set('degree', v)} />
+          {pendingCred.degree ? <Text style={{ fontSize: FS.xs, color: theme.warn }}>{t('profile.credential.pending', { value: pendingCred.degree })}</Text> : null}
           <NSecHeader title={AR ? 'صور العيادة' : 'Clinic Images'} />
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <View style={{ flexDirection: row, gap: SP.md }}>

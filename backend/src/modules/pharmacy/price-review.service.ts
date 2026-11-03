@@ -9,6 +9,7 @@ import { ProviderAdminService } from '../provider/services/provider-admin.servic
 import { ProviderNotificationsService } from '../provider/services/provider-notifications.service';
 import { ProviderNotificationType } from '../provider/schemas/requests.schema';
 import { PRICE_REVIEWS, type PriceReviewAction } from './price-review';
+import { ScheduledOnce } from '../../common/scheduled-once';
 
 /**
  * Admin side of the price reviews (owner decision 2026-10-25). Every action needs a reason, is recorded on the row (admin_id, action, note,
@@ -160,6 +161,7 @@ export class PharmacyPriceReviewService {
    * A failed reactivation (for example the licence check) gives the claim back and is retried on the next run.
    */
   @Cron('*/10 * * * *')
+  @ScheduledOnce()
   async liftExpiredSuspensions(now: Date = new Date()): Promise<{ lifted: number; skipped: number; failed: number }> {
     const out = { lifted: 0, skipped: 0, failed: 0 };
     if (this.lifting) return out;

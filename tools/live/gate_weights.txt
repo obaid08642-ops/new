@@ -1,15 +1,18 @@
 # Measured wall seconds per live-gate journey (run 40837646796, design/r7-map, 2026-10-29, one job running all journeys).
 # tools/live/gate_shard.py balances the shards of the gate by these; a journey that is not listed counts 20 s.
 j_accounts 76
+j_admin 3
 j_admin_catalogue_fields 6
 j_admin_clicks 90
 j_admin_kill_switches 77
 j_admin_locations_states 6
+j_admin_ops 25
 j_admin_orders_export 5
 j_admin_problems 68
 j_admin_provider_delete 24
 j_admin_roles_restrictive 65
 j_admin_super_catalog 3
+j_admin_sweep 8
 j_admin_urgent_alerts 80
 j_ai_keys_at_rest 2
 j_ai_scanner 27
@@ -124,3 +127,6 @@ j_web_signup 4
 j_web_translated_pages 15
 j_web_unnamed_images 46
 j_settlement_overrides 120
+j_provider_agreement_accept 22
+j_chat_attachment 25
+j_refund_matrix 900

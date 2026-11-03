@@ -12,6 +12,7 @@ import { CoturnService } from '../coturn/coturn.service';
 import { cloudflareTurn } from '../coturn/cloudflare-turn.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { audioOnlyAdvice, chooseTransport, maxCallsPerHost, type LinkSample } from './call-transport';
+import { ScheduledOnce } from '../../common/scheduled-once';
 
 /** A ringing call that nobody answered stops counting against the host after this long; an active call after the longest consultation. */
 const RINGING_MS = 2 * 60_000;
@@ -100,7 +101,14 @@ export class LiveKitService {
     return { provider: 'livekit', token, room, ice_servers: await this.iceServersFor(String(user?.id)), audio_only: advice.audio_only, audio_only_reason: advice.reason };
   }
 
-  async getProviderWaitingRoom(providerId: string) {
+  /** The kinds of appointment the schedule has: a clinic visit, a video consultation, a home visit. */
+  static readonly SERVICE_TYPES = ['clinic', 'video', 'home'] as const;
+
+  /** Today's patients of this doctor; `serviceType` keeps one kind (the virtual waiting room asks for `video`). Every row says its kind. */
+  async getProviderWaitingRoom(providerId: string, serviceType?: string) {
+    if (serviceType !== undefined && !(LiveKitService.SERVICE_TYPES as readonly string[]).includes(serviceType)) {
+      throw new BadRequestException('invalid_service_type');
+    }
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
@@ -112,12 +120,14 @@ export class LiveKitService {
       doctor_user_id: providerId,
       status: { $in: ['PENDING', 'CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS'] },
       slot_start: { $gte: today, $lt: tomorrow },
+      ...(serviceType ? { service_type: serviceType } : {}),
     }).lean();
 
     return appointments.map((a: any) => ({
       id: a.id || a._id?.toString(),
       name: a.patient_name || 'مريض',
       time: a.slot_start,
+      service_type: a.service_type ?? null,
       checkedIn: a.status === 'CHECKED_IN',
       status: a.status,
     }));
@@ -339,6 +349,7 @@ export class LiveKitService {
    * push.module `onCallMissed`, notifications.service). Sessions written before caller/callee were stored are left as they are.
    */
   @Cron(CronExpression.EVERY_MINUTE)
+  @ScheduledOnce()
   async sweepUnanswered(now: Date = new Date()): Promise<number> {
     const cutoff = new Date(now.getTime() - RINGING_MS);
     const due: any[] = await this.callSessions.find({ status: 'INITIATED', createdAt: { $lt: cutoff }, callee_id: { $exists: true } }, { projection: { _id: 0 } }).limit(200).toArray();
