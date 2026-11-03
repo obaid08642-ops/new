@@ -167,6 +167,8 @@ export class PharmacyOrder extends Document {
   @Prop({ type: String, enum: ['delivery', 'pickup'], default: 'delivery' }) fulfillment?: 'delivery' | 'pickup';
   /** The delivery fee source of the chosen offer (delivery_mode is declared below, F's). */
   @Prop({ type: String, default: null }) delivery_fee_source?: string | null;
+  /** The earlier order a patient's "refill" repeats (set on the new draft by PharmacyRefillService). */
+  @Prop({ type: String }) refill_of?: string;
   @Prop({ type: String, enum: ['cash', 'insurance'], default: 'cash' }) payment_mode?: 'cash' | 'insurance';
   @Prop() insurance_policy_id?: string;
   @Prop() delivery_address_id?: string;
