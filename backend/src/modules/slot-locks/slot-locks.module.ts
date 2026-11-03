@@ -1,6 +1,7 @@
 import { Module, Injectable, Controller, Post, Body, Get, Param, BadRequestException, ConflictException, UseGuards } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { OnEvent } from '@nestjs/event-emitter';
 import { SlotLock, SlotLockSchema } from '../../schemas/slot-lock.schema';
 import { JwtAuthGuard, CurrentUser, SelfService } from '../../common/auth.guard';
 import { ReserveDto, ConfirmSlotLockDto } from './slot-locks.dto';
@@ -103,6 +104,18 @@ export class SlotLocksService {
     } catch {
       return { ok: true };
     }
+  }
+
+  /**
+   * A cancelled appointment gives its slot back. The booking turned the patient's hold into a `confirmed` lock that lives for a year
+   * ("until completion"), and the unique index on provider + slot counts a confirmed lock: after any cancellation (by the doctor or the
+   * patient) nobody could hold that slot again, and the same patient was handed the old lock back, which then failed with
+   * lock_not_holdable. The appointment state machine emits `appointment.cancelled` with the appointment id.
+   */
+  @OnEvent('appointment.cancelled')
+  async releaseForCancelledBooking(event: { id?: string } | undefined) {
+    if (!event?.id) return;
+    await this.locks.updateMany({ booking_id: { $eq: String(event.id) }, status: 'confirmed' }, { $set: { status: 'released', expires_at: new Date() } });
   }
 
   async mine(user: any) { return this.locks.find({ patient_id: user.id, status: { $in: ['held', 'confirmed'] } }).lean(); }
