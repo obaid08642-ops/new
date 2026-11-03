@@ -1,11 +1,5 @@
-# 2026-11-03 04:05 lead reviewer: run 95 = deploy main@7e8694d7 + Cloudflare edge check (read-only).
-# Deploy brings: nursing durations/recurrences server-priced (#2397), patient-app Firebase via EAS (#2400), translation self-heal (#2401),
-#   public stale-if-error 30 days (#2406 backend part), cron leases (#2411), money integrity checks + halala shadow fields (#2413, backfill NOT run),
-#   coupon/refund/pharmacy race guards (#2414), live-gate/CI changes (no runtime effect).
-# cf:52-edge-resilience-check: reads Tiered Cache / Cache Reserve / Always Online and prints what apply would change; nothing written.
+# 2026-11-03 05:20 lead reviewer: run 96 = Cloudflare edge resilience APPLY (run 95 check: Tiered Cache already on; Cache Reserve unknown -> on;
+# Always Online off -> on). Each setting is read back; a setting the plan lacks is reported and skipped; the old value is restored if the read-back
+# disagrees. No server change.
 release:7e8694d72c5803d13bb272a4cb0ee039fb51ee3e
-97-free-old-predeploy
-93-free-unused-images
-60-deploy-main
-cf:52-edge-resilience-check
-cf-purge-api
+cf:52-edge-resilience-apply
