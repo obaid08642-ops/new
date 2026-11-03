@@ -100,22 +100,22 @@ Types: doctor, pharmacy, lab, radiology, nursing (and any other registered type)
 | PV-04 | Approval | COVERED | `j_provider_review.py` (20/20) | P0 | — |
 | PV-05 | Rejection with reason | COVERED | `j_provider_resubmit.py` (25/25) | P1 | — |
 | PV-06 | Resubmit after rejection | COVERED | `j_provider_resubmit.py` | P1 | — |
-| PV-07 | Rating reply | NOT COVERED | none | P3 | P2 |
+| PV-07 | Rating reply | COVERED | `j_provider_scenarios.py`: the doctor sees the review a patient wrote in the app, answers it, the public doctor page shows the reply; another doctor, an empty and a too-long reply are refused | P3 | P2 |
 | PV-08 | Licence expiry warning | NOT COVERED | `j_onboarding.py` checks licence at approval only | P0 | P2 |
 | PV-09 | Suspension on licence expiry | NOT COVERED | none | P0 | P2, A |
-| PV-10 | Services, prices, hours and area edits | PARTIAL | `j_provider_proposals.py`, `j_radiology_delta_request.py` | P1 | P2 |
+| PV-10 | Services, prices, hours and area edits | COVERED | `j_provider_edits.py` (working hours, prices, delivery area and fee: pending until approved, refused leaves the live value), `j_provider_proposals.py`, `j_radiology_delta_request.py` | P1 | P2 |
 | PV-11 | Edit approval (admin accepts or refuses an edit) | COVERED | `j_provider_proposals.py` | P1 | — |
-| PV-12 | Staff invite | NOT COVERED | none | P2 | P2 |
+| PV-12 | Staff invite | COVERED | `j_provider_scenarios.py` `staff_invite`: invite by e-mail, duplicate and owner refused, accept with the mailed token (once), disable, enable, revoke | P2 | P2 |
 | PV-13 | Vacation or unavailability | COVERED | `j_doctor_leave.py` (35/35 on main 365b2d580): doctor adds vacation, listed, cancelled and no longer active; missing range refused (400) | P1 | P2 |
 | PV-14 | Payout request and approval | COVERED | `j_payouts.py`, `j_payout_paid.py` | P0 | — |
 | PV-15 | Dispute raised by the patient, seen by the provider | NOT COVERED | none | P1 | P2, F |
 | PV-16 | Consultation online, clinic and home | COVERED | `j_consultation.py`, `j_web_call.py` | P1 | — |
-| PV-17 | Pharmacy broadcast accept, reject, timeout | PARTIAL | `j_pharmacy_owner_decisions.py`, `j_pharmacy_catalogue_lines.py` | P1 | P2 |
+| PV-17 | Pharmacy broadcast accept, reject, timeout | COVERED | `j_pharmacy_broadcast_responses.py` (reject with a reason, rounds that time out and close the broadcast, a quote that lapses), `j_pharmacy.py` (accept) | P1 | P2 |
 | PV-18 | Lab home visit and centre with result upload | COVERED | `j_lab.py`, `j_lab_result_push.py` | P1 | — |
-| PV-19 | Radiology report upload | PARTIAL | `j_radiology.py`, service path only | P1 | P2 |
+| PV-19 | Radiology report upload | COVERED | `j_radiology.py` (upload, review, the uploader cannot publish, `report_can_approve` / `report_handled_by_me` on the booking and the inbox) | P1 | P2 |
 | PV-20 | Nursing visit or programme | COVERED | `j_nursing.py` | P1 | — |
-| PV-21 | Provider cancels after acceptance | NOT COVERED | none | P1 | P2 |
-| PV-22 | No-show marked by the provider | NOT COVERED | none | P1 | P2 |
+| PV-21 | Provider cancels after acceptance | COVERED | `j_provider_scenarios.py`: a reason is required, the patient gets 100% back, the doctor carries the penalty, the slot can be booked again | P1 | P2 |
+| PV-22 | No-show marked by the provider | COVERED | `j_provider_scenarios.py`: refused before the grace period, accepted after it, the patient sees NO_SHOW with no refund, a second one is refused | P1 | P2 |
 
 ## Admin
 
@@ -154,7 +154,7 @@ Types: doctor, pharmacy, lab, radiology, nursing (and any other registered type)
 - **S (backend)**: PT-05, PT-10, PT-12, PT-14, PT-36, PT-37, PT-47, SY-03, SY-05, SY-06, PV-09 (with A), and PV-08.
 - **F (money)**: PT-15, PT-19, PT-20, PT-21, PT-23, PV-15, AD-03.
 - **H (patient app)**: PT-03, PT-08, PT-24, PT-28, PT-29, PT-30, PT-33, PT-38, PT-40.
-- **P2 (provider app)**: PV-02 through PV-22 not covered.
+- **P2 (provider app)**: PV-07, PV-10, PV-12, PV-17, PV-19, PV-21 and PV-22 now have journeys (this PR); PV-08, PV-09 (S, A) and PV-15 (F) remain with their owners.
 - **D (design, web)**: PT-33, PT-40.
 - **A (admin)**: AD-02, AD-03, AD-07, PV-09.
 
