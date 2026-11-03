@@ -20,7 +20,7 @@ import { BadGatewayException, BadRequestException, Injectable, Logger, NotFoundE
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'crypto';
-import { connectionFlagSource, isKilled } from '../../common/killswitches/killswitches.helper';
+import { connectionFlagSource, shouldDegrade } from '../../common/killswitches/killswitches.helper';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { RedisService } from '../redis/redis.service';
 
@@ -408,7 +408,7 @@ export class AiGatewayService {
   async generate(opts: AiGenerateOptions): Promise<AiGenerateResult> {
     // Kill switch: when explicitly disabled, skip every provider call and
     // return nothing billable. Absent flag / store outage fails open.
-    if (await isKilled('ai', connectionFlagSource(this.conn))) {
+    if (await shouldDegrade('ai', connectionFlagSource(this.conn))) {
       throw new ServiceUnavailableException('ai_disabled_by_kill_switch');
     }
     // P13-R21: identical requests (e.g. translations) are served from cache.
