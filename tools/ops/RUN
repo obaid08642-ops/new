@@ -1,7 +1,7 @@
-# 2026-11-03 12:40 lead reviewer: run 99 = deploy main@38ea5777.
-# Brings: pharmacy refills + facility calendar names (#2434), PT-25 tracking journey, R14 nightly DB integrity check (read-only), insurance claim decision,
-#   R15 external auto-reboot (dry run by default), INV-7 payment shadow check, R16 load priority (overload degrade, read timeouts).
-release:38ea577731ded3b756622af65428049f4941f86d
+# 2026-11-03 14:20 lead reviewer: run 100 = deploy main@9ac45f91.
+# Brings: admin passkey fix (#2438: one WebAuthn rpID/origin config, step-up options for the signed-in admin, failure reason logged), R17 heavy admin reads with a time cap (#2444),
+#   halalas dual write for invoices and refund requests (#2443).
+release:9ac45f916a661f8e8455394a13adfc63ceed47d9
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
