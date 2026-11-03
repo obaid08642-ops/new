@@ -34,12 +34,30 @@ appId: com.patient.nabd
     visible:
       id: "detail-chat"
     timeout: 30000
-- tapOn:
-    id: "detail-chat"
-- extendedWaitUntil:
-    visible:
-      id: "chat-screen"
-    timeout: 30000
+# Run 41585188487 (iOS): the tap on detail-chat opened the clinic location screen instead: the detail page of a finished visit loads its
+# sections (summary, prescription, ...) after the button is already visible and the layout shifts under the tap. Settle first, and when the
+# tap lands elsewhere, go back and tap again.
+- waitForAnimationToEnd
+- retry:
+    maxRetries: 3
+    commands:
+      - runFlow:
+          when:
+            visible:
+              id: "clinic-location-screen"
+          commands:
+            - tapOn: "رجوع|Back"
+            - extendedWaitUntil:
+                visible:
+                  id: "detail-chat"
+                timeout: 15000
+      - waitForAnimationToEnd
+      - tapOn:
+          id: "detail-chat"
+      - extendedWaitUntil:
+          visible:
+            id: "chat-screen"
+          timeout: 15000
 # receive: the doctor's message (posted before the flow) is in the conversation
 - extendedWaitUntil:
     visible: ${DOCTOR_MSG}

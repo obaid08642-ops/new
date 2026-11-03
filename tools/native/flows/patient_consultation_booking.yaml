@@ -42,6 +42,15 @@ appId: com.patient.nabd
 # run 116: the app received the 20 times of the day (log: '[e2e] slots 2026-11-03 clinic count 20') but the grid sits below the first screen, behind the
 # sticky Book bar, and the hierarchy lists only what is on screen: scroll to it instead of waiting for it
 # the LAST time of the day: the seeded patient already holds the first ones through the journeys' bookings (run 117: POST /care/appointments 400 lock_not_holdable)
+# Run 41585188487 (iOS): after the day tap the page stood at the bottom ("choose a time" in the Book bar, the grid above it), so scrolling only
+# DOWN never found the slot. Look up first (it returns at once when the slot is already on screen), then down, as for the day strip.
+- scrollUntilVisible:
+    element:
+      id: "book-slot-19"
+      enabled: true
+    direction: UP
+    timeout: 20000
+    optional: true
 - scrollUntilVisible:
     element:
       id: "book-slot-19"
