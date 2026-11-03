@@ -30,6 +30,15 @@ interface RouteStat {
  * Gauges other modules register (20.10): name, help and a function read at scrape time, e.g. the realtime gateway's
  * open socket count. Process-wide so a module needs no constructor change to publish one.
  */
+/** R12: requests per mobile app and version (from X-App-Id / X-App-Version), capped so a client sending random versions cannot grow the series. */
+const clientVersions = new Map<string, number>();
+const MAX_CLIENT_VERSION_SERIES = 60;
+export function recordClientVersion(app: string, version: string): void {
+  const key = `${app}\u0000${/^[0-9]+(\.[0-9]+){0,3}$/.test(version) ? version : 'other'}`;
+  if (!clientVersions.has(key) && clientVersions.size >= MAX_CLIENT_VERSION_SERIES) return;
+  clientVersions.set(key, (clientVersions.get(key) ?? 0) + 1);
+}
+
 const registeredGauges = new Map<string, { help: string; read: () => number; type: 'gauge' | 'counter' }>();
 export function registerGauge(name: string, help: string, read: () => number, type: 'gauge' | 'counter' = 'gauge'): void {
   registeredGauges.set(name, { help, read, type });
@@ -152,6 +161,9 @@ export class MetricsService {
       lines.push(`nabd_http_p95_ms${labels} ${this.percentile(stat, 95)}`);
       lines.push(`nabd_http_p99_ms${labels} ${this.percentile(stat, 99)}`);
     }
+
+    declare('nabd_client_requests_total', 'counter', 'Requests per mobile app and app version (X-App-Id, X-App-Version).');
+    for (const [k, n] of clientVersions) { const [a, v] = k.split('\u0000'); lines.push(`nabd_client_requests_total{app="${escapeLabel(a)}",version="${escapeLabel(v)}"} ${n}`); }
 
     // R5: Rate / Errors / Duration by route class (about 9 series sets instead of every route pattern), built from the same counters.
     declare('nabd_http_class_requests_total', 'counter', 'HTTP requests completed, by route class.');
