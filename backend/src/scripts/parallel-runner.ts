@@ -21,7 +21,11 @@ export interface ProviderLimits {
   lanes?: number;
 }
 
-export interface ParallelProvider { name: string; call: Caller; limits: ProviderLimits }
+export interface ParallelProvider {
+  name: string; call: Caller; limits: ProviderLimits;
+  /** IANA time zone in which the provider's day resets (default UTC): a retirement that a new day heals ends at its next midnight. */
+  resetTz?: string;
+}
 
 export interface ParallelRequest { id: string; prompt: string }
 
@@ -33,6 +37,10 @@ export interface ProviderStats {
   error_classes: Record<string, number>;
   /** ISO time until which the provider is parked, null when it is not */
   parked_until: string | null;
+  /** ISO time at which a retirement ends by itself (the provider's next daily reset), null for a final one or when it is not retired */
+  retired_until?: string | null;
+  /** how many times this provider was brought back after a retirement during this run */
+  revived?: number;
 }
 
 /** What /tmp/translate-work/stats.json holds: counts only, no message, no key, no prompt. */
@@ -49,7 +57,7 @@ export interface ParallelIo {
   log(line: string): void;
 }
 
-export interface ParallelResult { sent: number; skipped: number; failed: number; providers: Record<string, ProviderStats> }
+export interface ParallelResult { sent: number; skipped: number; failed: number; providers: Record<string, ProviderStats>; /** the run stopped itself: no answer for `stallAfterMs`; the unanswered requests stay for the next run */ stalled?: boolean }
 
 export interface ParallelOptions {
   /** A request that fails this many times (on any providers) is given up for this run; it stays unanswered. */
@@ -63,6 +71,12 @@ export interface ParallelOptions {
   /** Called with a snapshot (counts only) at most every `snapshotEveryMs` and once at the end. */
   onSnapshot?: (s: RunSnapshot) => void;
   snapshotEveryMs?: number;
+  /**
+   * The watchdog: when nothing has been answered for this long while requests are still waiting, the run ends cleanly (exit code 3 in the tool) so the daily resume cron, or the
+   * next run, starts it again with fresh connections and budgets. Off when unset. Covers a provider that hangs, every provider parked or retired until the next day, and a run
+   * whose lanes are all waiting for something that will not come.
+   */
+  stallAfterMs?: number;
 }
 
 /** A fixed vocabulary for what went wrong, so no raw error text (which can carry a key) ever reaches a log or a file. */
@@ -78,6 +92,23 @@ export function errorClass(e: unknown): string {
   if (/TimeoutError|AbortError/.test(name) || /aborted|timed? ?out|timeout/i.test(msg)) return 'timeout';
   if (/fetch failed|ECONN|ENOTFOUND|EAI_AGAIN|socket|network|certificate/i.test(msg)) return 'network';
   return 'other';
+}
+
+
+/** The local calendar day of an instant in a time zone (YYYY-MM-DD). */
+const dayIn = (ms: number, tz: string): string => new Date(ms).toLocaleDateString('en-CA', { timeZone: tz });
+
+/**
+ * The first instant after `nowMs` at which the calendar day in `tz` is another day: when a provider's daily budget starts again. Found by bisection over the next 26 hours,
+ * so it needs no offset arithmetic (a day with 23 or 25 hours is handled). An unknown zone falls back to UTC.
+ */
+export function nextResetMs(nowMs: number, tz = 'UTC'): number {
+  let zone = tz;
+  try { dayIn(nowMs, zone); } catch { zone = 'UTC'; }
+  const today = dayIn(nowMs, zone);
+  let lo = nowMs; let hi = nowMs + 26 * 3_600_000;
+  while (hi - lo > 1000) { const mid = Math.floor((lo + hi) / 2); if (dayIn(mid, zone) === today) lo = mid; else hi = mid; }
+  return Math.floor(hi / 1000) * 1000;     // a day changes on a whole second, and it is in (lo, hi]
 }
 
 const isLimited = (cls: string): boolean => cls === 'http_429' || cls === 'http_503';   // 503 = overloaded: backed off like a limit (30 s, doubling), not retried at once
@@ -104,11 +135,11 @@ export async function runParallel(reqs: ParallelRequest[], providers: ParallelPr
   const snapshotEveryMs = opts.snapshotEveryMs ?? 30_000;
 
   const stats: Record<string, ProviderStats> = {};
-  const state = new Map<string, { base: number; interval: number; nextStart: number; parkedUntil: number; limitedStreak: number; clientStreak: number; rejectedStreak: number; okStreak: number; level: number; reqs: number; tokens: number; latencySum: number; retired: boolean }>();
+  const state = new Map<string, { base: number; interval: number; nextStart: number; parkedUntil: number; limitedStreak: number; clientStreak: number; rejectedStreak: number; okStreak: number; level: number; reqs: number; tokens: number; latencySum: number; retired: boolean; retiredUntil: number | null }>();
   for (const p of providers) {
-    stats[p.name] = { sent: 0, ok: 0, limited: 0, errors: 0, rejected: 0, avg_latency_ms: 0, parked_ms: 0, retired: null, error_classes: {}, parked_until: null };
+    stats[p.name] = { sent: 0, ok: 0, limited: 0, errors: 0, rejected: 0, avg_latency_ms: 0, parked_ms: 0, retired: null, error_classes: {}, parked_until: null, retired_until: null, revived: 0 };
     const base = Math.ceil(60_000 / Math.max(0.1, p.limits.rpm));
-    state.set(p.name, { base, interval: base, nextStart: 0, parkedUntil: 0, limitedStreak: 0, clientStreak: 0, rejectedStreak: 0, okStreak: 0, level: 0, reqs: 0, tokens: 0, latencySum: 0, retired: false });
+    state.set(p.name, { base, interval: base, nextStart: 0, parkedUntil: 0, limitedStreak: 0, clientStreak: 0, rejectedStreak: 0, okStreak: 0, level: 0, reqs: 0, tokens: 0, latencySum: 0, retired: false, retiredUntil: null });
   }
 
   const status = () => {
@@ -119,7 +150,7 @@ export async function runParallel(reqs: ParallelRequest[], providers: ParallelPr
   const snapshot = (): RunSnapshot => {
     const now = io.now();
     const providersOut: Record<string, ProviderStats> = {};
-    for (const p of providers) providersOut[p.name] = { ...stats[p.name], error_classes: { ...stats[p.name].error_classes }, parked_until: state.get(p.name)!.parkedUntil > now ? new Date(state.get(p.name)!.parkedUntil).toISOString() : null };
+    for (const p of providers) providersOut[p.name] = { ...stats[p.name], error_classes: { ...stats[p.name].error_classes }, parked_until: state.get(p.name)!.parkedUntil > now ? new Date(state.get(p.name)!.parkedUntil).toISOString() : null, retired_until: state.get(p.name)!.retired && state.get(p.name)!.retiredUntil ? new Date(state.get(p.name)!.retiredUntil as number).toISOString() : null };
     return { at: new Date(now).toISOString(), started_at: startedAt, answered: sent, remaining: queue.length + inFlight, failed, last_answer_at: lastAnswerAt, providers: providersOut };
   };
   const maybeSnapshot = (force = false) => {
@@ -132,15 +163,42 @@ export async function runParallel(reqs: ParallelRequest[], providers: ParallelPr
   const tally = (s: ProviderStats, cls: string) => { s.error_classes[cls] = (s.error_classes[cls] ?? 0) + 1; };
   const park = (st: { parkedUntil: number }, s: ProviderStats, ms: number) => { st.parkedUntil = io.now() + ms; s.parked_ms += ms; };
 
-  const retire = (p: ParallelProvider, why: string) => { state.get(p.name)!.retired = true; stats[p.name].retired = why; };
+  // A retirement ends at the provider's next daily reset (a new day heals a used budget, an account that was topped up, a model an admin fixed), except a rejected key, which only a
+  // person can fix: that one lasts for the run. The provider then starts again with its budget and streaks cleared; if it fails the same way, it is retired until the day after.
+  const retire = (p: ParallelProvider, why: string, final = false) => {
+    const st = state.get(p.name)!;
+    if (st.retired) return;
+    st.retired = true; stats[p.name].retired = why;
+    st.retiredUntil = final ? null : nextResetMs(io.now(), p.resetTz) + 60_000;
+  };
+  const revive = (p: ParallelProvider) => {
+    const st = state.get(p.name)!; const s = stats[p.name];
+    st.retired = false; st.retiredUntil = null; st.reqs = 0; st.tokens = 0; st.level = 0; st.limitedStreak = 0; st.clientStreak = 0; st.rejectedStreak = 0; st.okStreak = 0;
+    st.interval = st.base; st.parkedUntil = 0; s.retired = null; s.revived = (s.revived ?? 0) + 1;
+    io.log(`status: ${p.name} is back: a new day, its budget starts again`);
+  };
+  let lastProgress = io.now(); let stalled = false;
+  // While any provider is still working, a provider retired until its next daily reset is brought back when that moment passes, and its lanes start again. When every provider
+  // is used up the run ends (the requests stay for the next run: the daily resume cron), as it always did.
+  const lanes: Promise<void>[] = [];
+  const spawn = (q: ParallelProvider) => { for (let i = 0; i < (q.limits.lanes ?? 3); i += 1) lanes.push(lane(q)); };
+  const reviveDue = () => {
+    for (const q of providers) {
+      const t = state.get(q.name)!;
+      if (t.retired && t.retiredUntil !== null && io.now() >= t.retiredUntil) { revive(q); spawn(q); }
+    }
+  };
 
   const lane = async (p: ParallelProvider) => {
     const st = state.get(p.name)!;
     const s = stats[p.name];
     for (;;) {
       maybeSnapshot();
-      if (st.retired) return;
+      if (stalled) return;
+      if (st.retired) return;                 // this provider's lanes end; an active lane starts new ones when its new day comes (reviveDue)
+      reviveDue();
       if (!queue.length && !inFlight) return;
+      if (opts.stallAfterMs && io.now() - lastProgress > opts.stallAfterMs) { stalled = true; io.log(`status: stalled: nothing answered for ${Math.round((io.now() - lastProgress) / 60_000)} min with ${queue.length + inFlight} request(s) waiting; stopping so the next run restarts`); return; }
       if (!queue.length) { await io.sleep(200); continue; }     // others may still hand a failed request back
       const t0 = io.now();
       const wait = Math.max(st.nextStart, st.parkedUntil) - t0;
@@ -173,7 +231,7 @@ export async function runParallel(reqs: ParallelRequest[], providers: ParallelPr
         st.rejectedStreak = 0;
         io.write(JSON.stringify({ id: item.req.id, text }));
         io.done.add(item.req.id);
-        sent += 1; inFlight -= 1; lastAnswerAt = new Date(io.now()).toISOString();
+        sent += 1; inFlight -= 1; lastAnswerAt = new Date(io.now()).toISOString(); lastProgress = io.now();
         if (sent - lastStatus >= statusEvery) { lastStatus = sent; status(); }
       } catch (e) {
         inFlight -= 1;
@@ -181,7 +239,7 @@ export async function runParallel(reqs: ParallelRequest[], providers: ParallelPr
         tally(s, cls);
         st.okStreak = 0;
         item.attempts += 1; item.tried.add(p.name);
-        if (isAuth(cls)) { retire(p, 'key rejected'); s.errors += 1; }
+        if (isAuth(cls)) { retire(p, 'key rejected', true); s.errors += 1; }
         else if (isExhausted(cls)) { retire(p, 'no balance or quota left'); s.errors += 1; }
         else if (cls === 'no_model') { retire(p, 'no preferred free model'); s.errors += 1; }
         else if (cls === 'empty') {
@@ -208,12 +266,11 @@ export async function runParallel(reqs: ParallelRequest[], providers: ParallelPr
     }
   };
 
-  const lanes: Promise<void>[] = [];
-  for (const p of providers) for (let i = 0; i < (p.limits.lanes ?? 3); i += 1) lanes.push(lane(p));
-  await Promise.all(lanes);
+  for (const p of providers) spawn(p);
+  for (let i = 0; i < lanes.length; i += 1) await lanes[i];     // lanes started later by reviveDue are awaited too
   // requests nobody could take (every provider retired) stay unanswered: counted, not lost
-  failed += queue.length;
+  if (!stalled) failed += queue.length;     // a stalled run leaves its requests for the next run: they are not failures
   status();
   maybeSnapshot(true);
-  return { sent, skipped, failed, providers: stats };
+  return { sent, skipped, failed, providers: stats, ...(stalled ? { stalled: true } : {}) };
 }

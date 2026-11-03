@@ -8,6 +8,7 @@ import {
   expectedPublication,
   CatalogEntityType,
 } from '../events/catalog-publication.service';
+import { ScheduledOnce } from '../../common/scheduled-once';
 
 export interface ReconcileOptions {
   limit?: number;
@@ -42,6 +43,7 @@ export class ReconciliationService {
 
   /** Nightly drift sweep (manual runs via POST events/reconciliation/run). */
   @Cron('17 4 * * *')
+  @ScheduledOnce()
   async nightly() {
     try {
       await this.reconcile({ limit: 500 });

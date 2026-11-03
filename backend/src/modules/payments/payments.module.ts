@@ -37,6 +37,7 @@ import {
 } from './payment-gateway';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { ScheduledOnce } from '../../common/scheduled-once';
 /**
  * Fallback for a failed or short-circuited payment-gateway operation.
  *
@@ -830,6 +831,7 @@ export class PaymentAbandonService {
   ) {}
 
   @Cron('*/5 * * * *')
+  @ScheduledOnce()
   async sweepScheduled() {
     if (this.running) return;
     this.running = true;

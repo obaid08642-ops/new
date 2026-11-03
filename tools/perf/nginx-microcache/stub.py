@@ -10,7 +10,7 @@ class H(http.server.BaseHTTPRequestHandler):
         public = self.path.startswith('/api/v1/medicines')
         self.send_response(200)
         self.send_header('content-type', 'application/json')
-        self.send_header('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=60, stale-if-error=86400' if public else 'private, no-store')
+        self.send_header('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=60, stale-if-error=2592000' if public else 'private, no-store')
         self.end_headers()
         who = self.headers.get('authorization') or self.headers.get('cookie') or 'anon'
         self.wfile.write(json.dumps({'owner': who}).encode())

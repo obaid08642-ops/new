@@ -182,6 +182,9 @@ export class AppointmentsService {
       throw new ConflictException('slot_already_booked_or_conflicts_with_buffer');
     }
 
+    // someone else's unexpired hold on this slot also refuses the booking (the hold protects the patient who reserved it)
+    if (this.locks) await this.locks.assertNotHeldByOther(user, doctor.id, slotStart, slotEnd);
+
     // Optional slot hold (POST /slot-locks/reserve): validated before any
     // write so a mismatched/expired lock fails fast without side effects.
     const lockId: string | undefined = (body as any)?.slot_lock_id;

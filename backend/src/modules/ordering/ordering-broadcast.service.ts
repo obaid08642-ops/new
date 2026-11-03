@@ -8,6 +8,7 @@ import { LabsService } from '../labs/labs.service';
 import { AsapDto, BroadcastOfferDto, PhotoOrderDto } from './ordering.dto';
 import { homeWindows, round1, round2 } from './ordering-engine';
 import { KIND_CATALOG, Kind, OrderingService } from './ordering.service';
+import { ScheduledOnce } from '../../common/scheduled-once';
 
 // M4: ASAP home visits and photo orders, as a staged broadcast to the providers around the patient
 // (docs/product/ORDERING_MODEL_2026-10-16.md phase M4). The pharmacy broadcast stays as it is; this one reads
@@ -66,6 +67,7 @@ export class OrderingBroadcastService implements OnModuleInit {
 
   /** Moves due stages on in the worker; any API process also does it when a broadcast is read (see `advance`). */
   @Interval(5_000)
+  @ScheduledOnce({ holdMs: 2000 })
   async tick() {
     if (this.ticking) return;
     this.ticking = true;
