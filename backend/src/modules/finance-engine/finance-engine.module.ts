@@ -36,6 +36,7 @@ import { moyasarBase } from '../../common/moyasar-base';
 import { timedFetch } from '../../common/external-call';
 import { settlementDelayDefault, DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT } from '../../common/commission-defaults';
 import { PROMO_COLLECTION, promoState, type CommissionPromo } from '../../common/commission-promo';
+import { DurableEventsService, emitDurable } from '../durable-events/durable-events.service';
 import { toHalalas } from '../../common/money';
 
 export const LEDGER_TYPES = [
@@ -644,6 +645,7 @@ export class RefundExecutor {
     private readonly fraud: FraudService,
     private readonly events: EventEmitter2,
     @Optional() private readonly moduleRef?: ModuleRef,
+    @Optional() private readonly durable?: DurableEventsService,
   ) {}
 
   private moyasarKey(): string {
@@ -925,11 +927,12 @@ export class RefundExecutor {
       params: {}, type: 'payment', priority: 'high', read_by: [],
       status: 'DELIVERED', createdAt: new Date(), updatedAt: new Date(),
     } as any);
-    this.events.emit('payment.refund', {
+    // R2: recorded durably under the refund id (the same id the refund listeners and the ledger use), so a replay of execute() never announces twice.
+    await emitDurable(this.durable, this.events, 'payment.refund', {
       actor_id: opts.actor_id, transaction_id: gatewayRefundId || opts.refund_id,
       booking_id: opts.booking_id, booking_kind: opts.booking_kind,
       patient_id: opts.patient_id, amount, method,
-    });
+    }, `payment.refund:${opts.refund_id}`);
 
     return { ok: true, method, gateway_refund_id: gatewayRefundId, provider_debited: providerDebited };
   }
