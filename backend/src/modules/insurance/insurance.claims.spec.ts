@@ -97,6 +97,11 @@ describe('InsuranceService claims (LJ-02)', () => {
     await expect(service.submitClaim('patient-1', { booking_kind: 'lab', booking_id: 'lab-1' })).rejects.toThrow('claim_already_filed');
   });
 
+  it('a fully reimbursed booking (nothing left paid) answers claim_already_filed, not booking_not_paid', async () => {
+    const { service } = serviceFor({ id: 'lab-2', patient_id: 'patient-1' }, { id: 'claim-2', status: 'reimbursed' }, [{ amount: 100, refunded_amount: 100 }]);
+    await expect(service.submitClaim('patient-1', { booking_kind: 'lab', booking_id: 'lab-2' })).rejects.toThrow('claim_already_filed');
+  });
+
   it('reimburses through RefundExecutor on approval', async () => {
     const claim: any = { id: 'claim-9', patient_id: 'patient-1', booking_kind: 'lab', booking_id: 'lab-1', amount: 250, status: 'pending', save: jest.fn(), toObject: () => ({ id: 'claim-9' }) };
     const { service } = serviceFor(null, claim);
