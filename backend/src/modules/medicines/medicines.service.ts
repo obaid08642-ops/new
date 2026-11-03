@@ -1,6 +1,6 @@
 import { assertScanned } from '../storage/pending-scan';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
-import { Injectable, NotFoundException, Inject, BadRequestException, Logger, Optional } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject, BadRequestException, Logger, Optional, HttpException, HttpStatus } from '@nestjs/common';
 import { Permission } from '../../common/permissions';
 import { hasEffectivePermission } from '../../common/effective-permissions';
 import { Cron } from '@nestjs/schedule';
@@ -26,6 +26,7 @@ import { localizeMedicineStructured, DbLang, missingPublicMedicineTranslations, 
 import { normalizeRankingSort, popularPage, ProductRankingService } from '../product-ranking/product-ranking.service';
 import { ManualBoostsService } from '../product-ranking/manual-boosts.service';
 import { escapeRegex } from '../../common/slug.util';
+import { ScheduledOnce } from '../../common/scheduled-once';
 
 /** A trending term needs at least this many searches in the week before it is shown to everyone. */
 export const TRENDING_MIN_SEARCHES = Number(process.env.TRENDING_MIN_SEARCHES) || 5;
@@ -1061,6 +1062,7 @@ export class MedicinesService {
   // ── Pre-computed Aggregations Cron Jobs (Task 2.5) ─────────────────
   // Every 5 min: warm homepage catalog (200 items sorted by usage_count)
   @Cron('*/5 * * * *')
+  @ScheduledOnce()
   async warmHomepageCatalog(): Promise<void> {
     try {
       const data = await this.model
@@ -1078,6 +1080,7 @@ export class MedicinesService {
 
   // Every 10 min: warm trending (20 items)
   @Cron('*/10 * * * *')
+  @ScheduledOnce()
   async warmTrendingCatalog(): Promise<void> {
     try {
       const data = await this.model
@@ -1898,6 +1901,8 @@ export class MedicinesService {
   }
 
   /** User proposes a change to an existing catalog item. */
+  static readonly GUEST_PENDING_PER_ITEM = 10;
+
   async suggestChange(medicineId: string, reporter: { id: string; role: string }, body: { type?: string; changes?: any; note?: string }) {
     const med: any = await this.getById(medicineId);
     if (!med) throw new NotFoundException('الصنف غير موجود');
@@ -1916,6 +1921,10 @@ export class MedicinesService {
     if (reporter.id !== 'guest') {
       const dup = await this.changeRequests.findOne({ medicine_id: medicineId, reporter_id: reporter.id, type, status: 'pending' });
       if (dup) return { ok: true, request_id: dup.id, note: 'already_pending' };
+    } else {
+      // guests share one id, so the per-account duplicate guard cannot apply: cap what an anonymous visitor can leave waiting for one item, or the admin inbox floods
+      const waiting = await this.changeRequests.countDocuments({ medicine_id: medicineId, reporter_id: 'guest', status: 'pending' });
+      if (waiting >= MedicinesService.GUEST_PENDING_PER_ITEM) throw new HttpException('too_many_pending_suggestions', HttpStatus.TOO_MANY_REQUESTS);
     }
 
     const id = `ccr_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;

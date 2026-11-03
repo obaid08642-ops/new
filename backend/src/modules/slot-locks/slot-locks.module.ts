@@ -75,6 +75,22 @@ export class SlotLocksService {
     return l;
   }
 
+  /**
+   * A booking made WITHOUT a hold (or with another one) must not take a slot someone else is holding: the hold would otherwise only
+   * protect against other holds, and the patient who reserved it would lose the slot to a booking that skipped the reservation.
+   */
+  async assertNotHeldByOther(user: any, provider_id: string, start: Date, end: Date) {
+    const held: any = await this.locks.findOne({
+      provider_id: { $eq: provider_id },
+      status: 'held',
+      expires_at: { $gt: new Date() },
+      patient_id: { $ne: user.id },
+      slot_start: { $lt: end },
+      slot_end: { $gt: start },
+    });
+    if (held) throw new ConflictException('slot_held_by_another');
+  }
+
   /** Best-effort release used on booking failure paths. Only releases held locks; never throws. */
   async releaseQuietly(user: any, lockId: string) {
     try {

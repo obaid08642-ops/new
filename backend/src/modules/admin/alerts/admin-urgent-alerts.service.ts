@@ -10,6 +10,7 @@ import { FINANCE_DEFAULTS } from '../../finance-engine/finance-engine.module';
 import { countFailedPaymentsSince, findSlaBreaches, findStuckOrders, opsStuckMinutes } from '../../ops/ops-alert-queries';
 import { AdminAuditService } from '../enterprise/audit.service';
 import { ADMIN_ALERT_KINDS, AdminAlertKind, AdminAlertRuleDto } from './admin-urgent-alerts.dto';
+import { ScheduledOnce } from '../../../common/scheduled-once';
 
 /**
  * Urgent admin alerts (issue #1235). The today screen (admin/src/pages/admin/today.tsx) shows SLA breaches, stuck
@@ -144,6 +145,7 @@ export class AdminUrgentAlertsService implements OnModuleInit {
 
   /** Runs where background work runs (common/process-role.ts), like the other admin crons. */
   @Cron('*/5 * * * *')
+  @ScheduledOnce()
   async scheduledRun() {
     if (this.running) return;
     this.running = true;
