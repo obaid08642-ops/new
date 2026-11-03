@@ -52,8 +52,13 @@ appId: com.patient.nabd
                   id: "detail-chat"
                 timeout: 15000
       - waitForAnimationToEnd
-      - tapOn:
-          id: "detail-chat"
+      - takeScreenshot: detail-before-chat-tap
+      - scrollUntilVisible:
+          element:
+            id: "detail-chat"
+          speed: 15
+          timeout: 20000
+      - tapOn: "محادثة الطبيب|Chat with the doctor"
       - extendedWaitUntil:
           visible:
             id: "chat-screen"
