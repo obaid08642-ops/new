@@ -1,11 +1,7 @@
-# 2026-11-03 08:40 lead reviewer: run 97 = deploy main@929a06fb + earlyoom/swap guard DRY RUN.
-# Deploy brings: R1 memory budget tooling, R2 durable outbox for payment/refund/order events, R4 horizontal-scale readiness (nginx upstream retry
-#   for idempotent requests), R5 observability (RED metrics, structured logs), R7 Mongo pool budget (api 80, worker 40), coupon race fixes,
-#   CallKeep ConnectionService (apps, next build), provider scenarios (doctor sees app reviews + reply), Moyasar env checker, uptime probe fix.
-# 98p-earlyoom: DRY RUN only (prints what it would install so the host never hangs on memory; apply in a later run after review).
-release:929a06fb82bc5128bfa893bd738e500f8e1670f4
+# 2026-11-03 10:25 lead reviewer: run 98 = deploy main@e6aedd03.
+# Deploy brings: R12 mobile compat, R13 admin hardening, design parity, patient gaps-3, halalas phase 1, S state file.
+release:e6aedd035b49f56c105c774650810ae4c524702c
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
-98p-earlyoom
 cf-purge-api
