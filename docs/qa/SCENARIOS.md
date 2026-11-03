@@ -13,16 +13,16 @@ Complete list of user scenarios, from the owner's request ("make sure there are 
 
 ## Counts
 
-| Measure | First catalogue | Re-scored on main `c17aa3461` (#2292) | Re-scored on main `365b2d580` (#2335) | Batch 2 (local, not pushed) |
-|---|---|---|---|---|
-| Scenarios listed | 100 | 100 | 100 | 100 |
-| COVERED | 52 | 55 | 62 | 65 |
-| PARTIAL | 16 | 16 | 16 | 13 |
-| NOT COVERED | 32 | 29 | 22 | 22 |
+| Measure | First catalogue | Re-scored on main `c17aa3461` (#2292) | Re-scored on main `365b2d580` (#2335) | Batch 2 (#2351) | This PR (PT-25) |
+|---|---|---|---|---|---|
+| Scenarios listed | 100 | 100 | 100 | 100 | 100 |
+| COVERED | 52 | 55 | 62 | 65 | 73 |
+| PARTIAL | 16 | 16 | 16 | 13 | 8 |
+| NOT COVERED | 32 | 29 | 22 | 22 | 18 |
 
 This PR: seven scenarios moved to COVERED. Four are covered by journeys another session added to main (`j_dispute.py`, `j_payment_failed_retry.py`, `j_web_dark_a11y.py`), which were run here and pass. Three are new journeys in this PR (`j_notification_settings.py`, `j_doctor_leave.py`) and pass locally on main `365b2d580`.
 
-Not run in this PR: the other 22 NOT COVERED scenarios (see the rows).
+This PR (PT-25 delivery tracking) moved one PARTIAL row to COVERED. The 'This PR' column is a recount of the rows on this branch (73 / 8 / 18), which includes other sessions' updates to the catalogue since #2351.
 ---
 
 ## Patient (app and web)
@@ -53,7 +53,7 @@ Not run in this PR: the other 22 NOT COVERED scenarios (see the rows).
 | PT-22 | Card payment success | COVERED | `j_consultation.py` (payment verified) | P0 | — |
 | PT-23 | Card payment failure and retry | COVERED | `j_payment_failed_retry.py` (43/43 on main 365b2d580): declined card reported as failed, retry makes a new checkout, paid booking cannot be charged again | P0 | F |
 | PT-24 | Payment return (deep link back from gateway) | NOT COVERED | no journey | P0 | H |
-| PT-25 | Delivery tracking | PARTIAL | `j_pharmacy.py` (delivery stage) | P1 | H |
+| PT-25 | Delivery tracking | COVERED | `j_pharmacy_tracking.py` (62/62 on main): the owner reads GET /orders/:id/tracking (state broadcasting), another patient gets 403, an unknown order id gets 404 | P1 | H |
 | PT-26 | Prescription photo upload | COVERED | `j_upload_security.py`, `j_ai_scanner.py` | P1 | — |
 | PT-27 | Prescription OCR result shown and corrected | PARTIAL | `j_ai_scanner.py` | P1 | H |
 | PT-28 | Notification preferences saved | COVERED | `j_notification_settings.py` (13/13 on main 365b2d580): change offers off and on, value holds on a new sign-in, a bad value refused (400) | P2 | H |
