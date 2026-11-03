@@ -66,29 +66,42 @@ appId: com.patient.nabd
             id: "book-slot-19"
             enabled: true
           timeout: 30000
-# Run 41589757199 (iOS): after the day tap neither scrolling up nor down found book-slot-19, and the screenshots show the page at the top and at
-# the bottom but never the grid. Give the grid a moment, keep a screenshot of the screen right after the day tap, then scroll in small steps
-# (speed 40 can jump past a tall grid between two checks).
+# Run 41608649378 (iOS): the page is back at the top after the day tap (screenshot) and 60 s of small downward scrolling never found book-slot-19.
+# Bring the area under the visit-type heading into view, keep a screenshot of it, and ASSERT that some slot is there: when none is, the failure
+# dumps the hierarchy of that screen, which says whether iOS exposes the slots at all. Then pick any enabled time of the last rows (the seeded
+# patient already holds the early ones, see above), not one fixed index.
 - runFlow:
     when:
       platform: iOS
     commands:
-      - extendedWaitUntil:
-          visible:
-            id: "book-slot-.*"
-          timeout: 15000
+      - scrollUntilVisible:
+          element: "نوع الزيارة|Visit type"
+          timeout: 20000
           optional: true
-      - takeScreenshot: booking-after-day
+      - swipe:
+          start: 50%, 75%
+          end: 50%, 30%
+      - waitForAnimationToEnd
+      - takeScreenshot: booking-grid-area
+      - assertVisible:
+          id: "book-slot-.*"
       - scrollUntilVisible:
           element:
-            id: "book-slot-19"
+            id: "book-slot-1[0-9]"
             enabled: true
           speed: 15
           centerElement: true
           timeout: 60000
-- tapOn:
-    id: "book-slot-19"
-    enabled: true
+      - tapOn:
+          id: "book-slot-1[0-9]"
+          enabled: true
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - tapOn:
+          id: "book-slot-19"
+          enabled: true
 - scrollUntilVisible:
     element:
       id: "doctor-book"
