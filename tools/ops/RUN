@@ -1,6 +1,7 @@
-# 2026-11-03 10:25 lead reviewer: run 98 = deploy main@e6aedd03.
-# Deploy brings: R12 mobile compat, R13 admin hardening, design parity, patient gaps-3, halalas phase 1, S state file.
-release:e6aedd035b49f56c105c774650810ae4c524702c
+# 2026-11-03 12:40 lead reviewer: run 99 = deploy main@38ea5777.
+# Brings: pharmacy refills + facility calendar names (#2434), PT-25 tracking journey, R14 nightly DB integrity check (read-only), insurance claim decision,
+#   R15 external auto-reboot (dry run by default), INV-7 payment shadow check, R16 load priority (overload degrade, read timeouts).
+release:38ea577731ded3b756622af65428049f4941f86d
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
