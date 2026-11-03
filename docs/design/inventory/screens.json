@@ -1,5 +1,5 @@
 {
- "commit": "1676c74a6",
+ "commit": "a8f4990bc",
  "routes": [
   {
    "app": "patient-app",
@@ -4998,8 +4998,8 @@
      "method": "GET",
      "path": "/bookings/quote",
      "target": "backend",
-     "query": "?kind=nursing&service_id=:param&provider_id=:param&sessions_count=:param",
-     "line": 130,
+     "query": "?kind=nursing&service_id=:param&provider_id=:param:suffix",
+     "line": 164,
      "file": "patient-app/app/nursing/nurse-profile.tsx",
      "status": "OK",
      "backend": "backend/src/modules/quotes/quotes.module.ts:24"
@@ -5009,7 +5009,7 @@
      "path": "/home-care/providers/:param",
      "target": "backend",
      "query": "",
-     "line": 76,
+     "line": 93,
      "file": "patient-app/app/nursing/nurse-profile.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home-care/home-care-compat.module.ts:136"
@@ -5019,17 +5019,27 @@
      "path": "/home-care/providers/:param/slots",
      "target": "backend",
      "query": "?date=:param",
-     "line": 101,
+     "line": 134,
      "file": "patient-app/app/nursing/nurse-profile.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home-care/patient-home-care.controller.ts:43"
     },
     {
      "method": "GET",
+     "path": "/home-care/services/:param",
+     "target": "backend",
+     "query": "",
+     "line": 116,
+     "file": "patient-app/app/nursing/nurse-profile.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:79"
+    },
+    {
+     "method": "GET",
      "path": "/insurance/coverage-check",
      "target": "backend",
      "query": "?provider_id=:param&service_type=home_nursing",
-     "line": 80,
+     "line": 97,
      "file": "patient-app/app/nursing/nurse-profile.tsx",
      "status": "OK",
      "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:850"
@@ -5039,7 +5049,7 @@
      "path": "/nursing/bookings",
      "target": "backend",
      "query": "",
-     "line": 223,
+     "line": 253,
      "file": "patient-app/app/nursing/nurse-profile.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home-care/home-care.controller.ts:164"
@@ -5049,7 +5059,7 @@
      "path": "/payments/intent/nursing/:param",
      "target": "backend",
      "query": "",
-     "line": 144,
+     "line": 174,
      "file": "patient-app/app/nursing/nurse-profile.tsx",
      "status": "OK",
      "backend": "backend/src/modules/payments/payments.module.ts:768"
@@ -5079,13 +5089,13 @@
      "path": "/users/me/profile",
      "target": "backend",
      "query": "",
-     "line": 187,
+     "line": 217,
      "file": "patient-app/app/nursing/nurse-profile.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:35"
     }
    ],
-   "files": 48,
+   "files": 49,
    "unresolved": 0
   },
   {

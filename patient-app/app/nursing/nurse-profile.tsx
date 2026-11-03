@@ -16,13 +16,28 @@ import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { paymentIntentHeaders } from '../../src/utils/payment-idempotency';
 import { formatAddressLine, resolveEffectiveAddress } from '../../src/utils/selectedAddress';
+import {
+  choiceFields,
+  choiceQuery,
+  defaultChoice,
+  normalizeChoice,
+  optionErrorKey,
+  parseNursingOptions,
+  parseQuote,
+  type NursingChoice,
+  type NursingOptions,
+  type NursingQuote,
+} from '../../src/utils/nursingOptions';
 
 type Rec = Record<string, unknown>;
 const str = (v: unknown): string => (typeof v === 'string' || typeof v === 'number' ? String(v) : '');
 
 /** One time of the nurse's home-visit schedule (GET /home-care/providers/:id/slots): `start` is the ISO instant. */
 interface Slot { start: string; available?: boolean }
-const DAY_COUNTS = Array.from({ length: 20 }, (_, i) => i + 1);
+const range = (n: number): number[] => Array.from({ length: n }, (_, i) => i + 1);
+
+/** One choice field of the booking options: its label, the value shown, and the values the server offers. */
+interface OptionField { id: 'recurrence' | 'times' | 'hours' | 'shift' | 'period' | 'days'; label: string; value: string; values: Array<{ id: string | number; label: string }>; current: string | number | undefined }
 
 /**
  * The booking page of one nurse (board DoctorFull, booking part): who it is, the day, time and number of days, where
@@ -49,8 +64,10 @@ export default function NursingMegaProfile() {
   const [slotsReason, setSlotsReason] = useState<string | null>(null);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const { clock } = useConsultFormat();
-  const [daysCount, setDaysCount] = useState(1);
-  const [frequencyOpen, setFrequencyOpen] = useState(false);
+  // What the service accepts (GET /home-care/services/:id); null = not loaded, so one single visit is booked as before.
+  const [options, setOptions] = useState<NursingOptions | null>(null);
+  const [choice, setChoice] = useState<NursingChoice>({});
+  const [pickerId, setPickerId] = useState<OptionField['id'] | null>(null);
   const [gpsLocation, setGpsLocation] = useState<string | null>(null);
   const [addressObj, setAddressObj] = useState<Awaited<ReturnType<typeof resolveEffectiveAddress>>>(null);
   const selectedDate = days[dayIndex]?.iso ?? '';
@@ -92,6 +109,22 @@ export default function NursingMegaProfile() {
   }, [load]);
 
   useEffect(() => {
+    setOptions(null);
+    setChoice({});
+    if (!serviceId) return;
+    let active = true;
+    apiFetch<Rec>(`/home-care/services/${encodeURIComponent(String(serviceId))}`)
+      .then((res) => {
+        const parsed = parseNursingOptions(res);
+        if (!active || !parsed) return;
+        setOptions(parsed);
+        setChoice(defaultChoice(parsed));
+      })
+      .catch((err) => logError('nursing:nurse-profile:service', err));
+    return () => { active = false; };
+  }, [serviceId]);
+
+  useEffect(() => {
     if (!nurseId || !selectedDate) return;
     let active = true;
     setLoadingSlots(true);
@@ -123,19 +156,16 @@ export default function NursingMegaProfile() {
 
   // The price is the server's: GET /bookings/quote states the price of one visit and the total of the days chosen, from the same
   // pricing function the booking charges by. Nothing is multiplied here; with no quote the screen says the price is set at booking.
-  const [quote, setQuote] = useState<{ unit: number; total: number } | null>(null);
+  const [quote, setQuote] = useState<NursingQuote | null>(null);
+  const quoteTail = choiceQuery(options, choice);
   useEffect(() => {
     if (!nurseId || !serviceId) { setQuote(null); return; }
     let active = true;
-    apiFetch<{ total?: number; lines?: Array<{ unit_price?: number }> }>(`/bookings/quote?kind=nursing&service_id=${encodeURIComponent(String(serviceId))}&provider_id=${encodeURIComponent(String(nurseId))}&sessions_count=${daysCount}`)
-      .then((res) => {
-        const total = Number(res?.total);
-        const unit = Number(res?.lines?.[0]?.unit_price);
-        if (active) setQuote(Number.isFinite(total) && total > 0 && Number.isFinite(unit) ? { unit, total } : null);
-      })
+    apiFetch<Rec>(`/bookings/quote?kind=nursing&service_id=${encodeURIComponent(String(serviceId))}&provider_id=${encodeURIComponent(String(nurseId))}${quoteTail}`)
+      .then((res) => { if (active) setQuote(parseQuote(res)); })
       .catch((err) => { logError('nursing:nurse-profile:quote', err); if (active) setQuote(null); });
     return () => { active = false; };
-  }, [nurseId, serviceId, daysCount]);
+  }, [nurseId, serviceId, quoteTail]);
   const priced = quote !== null;
 
   /** Starts the card payment of a created booking; true when the patient was sent to the payment page. */
@@ -206,8 +236,8 @@ export default function NursingMegaProfile() {
         service_id: serviceId || undefined,
         service_name_ar: nurse?.service_name_ar || undefined,
         scheduled_at: scheduled.toISOString(),
-        // the number of visits the total shown above is built from; the server prices unit price x sessions_count
-        sessions_count: daysCount,
+        // the choice exactly as the service offers it (recurrence / hours / shift / period / sessions); the server prices it
+        ...choiceFields(options, choice),
         // with coordinates: the nurse navigates to it and the arrival geofence checks against it
         address: {
           address: addressObj ? formatAddressLine(addressObj) : undefined,
@@ -230,11 +260,39 @@ export default function NursingMegaProfile() {
         showLocalizedAlert(k('nur.book.sentTitle'), k('nur.book.sentBody'), [{ text: k('nur.ok'), onPress: () => router.back() }]);
       }
     } catch (err) {
-      showLocalizedAlert(k('nur.book.failTitle'), (err as { message?: string } | null)?.message || k('nur.book.failBody'));
+      const message = (err as { message?: string } | null)?.message;
+      const codeKey = optionErrorKey(message);
+      showLocalizedAlert(k('nur.book.failTitle'), codeKey ? k(codeKey) : message || k('nur.book.failBody'));
     } finally {
       setProcessing(false);
     }
   };
+
+  // The fields come only from what the service offers; with no options there is nothing to choose (one visit).
+  const fields: OptionField[] = [];
+  if (options) {
+    const n = normalizeChoice(options, choice);
+    const cap = (id: string) => k(`nur.book.${id}`);
+    if (options.mode === 'visit') {
+      const rl = (r: string) => cap(`recurrence${r[0].toUpperCase()}${r.slice(1)}`);
+      fields.push({ id: 'recurrence', label: k('nur.book.recurrence'), value: rl(n.recurrence!), current: n.recurrence, values: options.recurrence.map((r) => ({ id: r, label: rl(r) })) });
+      if (n.recurrence !== 'once' && options.maxTimes > 1) {
+        fields.push({ id: 'times', label: k('nur.book.times'), value: k('nur.book.timesN', { n: num(n.times!) }), current: n.times, values: range(options.maxTimes).map((x) => ({ id: x, label: k('nur.book.timesN', { n: num(x) }) })) });
+      }
+    } else if (options.mode === 'programme') {
+      fields.push({ id: 'times', label: k('nur.book.sessions'), value: k('nur.book.sessionsN', { n: num(n.times!) }), current: n.times, values: options.sessions.map((x) => ({ id: x, label: k('nur.book.sessionsN', { n: num(x) }) })) });
+    } else {
+      const pl = (p: string) => cap(`period${p[0].toUpperCase()}${p.slice(1)}`);
+      const sl = (x: string) => cap(`shift${x[0].toUpperCase()}${x.slice(1)}`);
+      fields.push({ id: 'hours', label: k('nur.book.hours'), value: k('nur.book.hoursN', { n: num(n.hours!) }), current: n.hours, values: options.hours.map((x) => ({ id: x, label: k('nur.book.hoursN', { n: num(x) }) })) });
+      fields.push({ id: 'shift', label: k('nur.book.shift'), value: sl(n.shift!), current: n.shift, values: options.shift.map((x) => ({ id: x, label: sl(x) })) });
+      fields.push({ id: 'period', label: k('nur.book.period'), value: pl(n.period!), current: n.period, values: options.period.map((x) => ({ id: x, label: pl(x) })) });
+      if (n.period === 'days') {
+        fields.push({ id: 'days', label: k('nur.book.days'), value: k('nur.book.daysN', { n: num(n.days!) }), current: n.days, values: range(options.maxDays).map((x) => ({ id: x, label: k('nur.book.daysN', { n: num(x) }) })) });
+      }
+    }
+  }
+  const picker = fields.find((f) => f.id === pickerId) ?? null;
 
   const crumbs: string[] = [str(nurse?.facility)].filter(Boolean);
   const reviews = Array.isArray(nurse?.reviews) ? (nurse?.reviews as Rec[]) : [];
@@ -290,10 +348,12 @@ export default function NursingMegaProfile() {
         <Section title={k('nur.book.when')}>
           <DayStrip days={days} value={dayIndex} onChange={setDayIndex} label={k('nur.book.day')} />
           <SlotGrid slots={slots} value={selectedTime} onChange={setSelectedTime} loading={loadingSlots} emptyText={k(slotsEmptyKey(slotsReason))} />
-          <Pressable accessibilityRole="button" accessibilityLabel={`${k('nur.book.frequency')}: ${daysCount === 1 ? k('nur.book.once') : k('nur.book.everyDay', { n: num(daysCount) })}`} onPress={() => setFrequencyOpen(true)} style={({ pressed }) => ({ minHeight: 56, borderRadius: 18, paddingHorizontal: 16, paddingVertical: 8, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, justifyContent: 'center', gap: 2, opacity: pressed ? 0.85 : 1 })}>
-            <Text style={{ ...scale(t, 'tag', 'regular'), color: c.text.secondary, ...textFlow }}>{k('nur.book.frequency')}</Text>
-            <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...textFlow }}>{daysCount === 1 ? k('nur.book.once') : k('nur.book.everyDay', { n: num(daysCount) })}</Text>
-          </Pressable>
+          {fields.map((f) => (
+            <Pressable key={f.id} accessibilityRole="button" accessibilityLabel={`${f.label}: ${f.value}`} onPress={() => setPickerId(f.id)} style={({ pressed }) => ({ minHeight: 56, borderRadius: 18, paddingHorizontal: 16, paddingVertical: 8, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, justifyContent: 'center', gap: 2, opacity: pressed ? 0.85 : 1 })}>
+              <Text style={{ ...scale(t, 'tag', 'regular'), color: c.text.secondary, ...textFlow }}>{f.label}</Text>
+              <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...textFlow }}>{f.value}</Text>
+            </Pressable>
+          ))}
         </Section>
 
         <Section title={k('nur.book.where')}>
@@ -316,8 +376,8 @@ export default function NursingMegaProfile() {
             <Block gap={10}>
               {priced ? (
                 <>
-                  <AmountLine label={k('nur.book.visitPrice')} amount={quote!.unit} />
-                  <InfoRow label={k('nur.book.daysCount')} value={num(daysCount)} />
+                  <AmountLine label={k('nur.book.unitPrice')} amount={quote!.unit} />
+                  {quote!.billableUnits !== null ? <InfoRow label={k('nur.book.billableUnits')} value={num(quote!.billableUnits)} /> : null}
                   <AmountLine label={k('nur.book.estimate')} amount={quote!.total} strong />
                 </>
               ) : (
@@ -331,18 +391,18 @@ export default function NursingMegaProfile() {
         </Section>
       </Gate>
 
-      <Sheet open={frequencyOpen} title={k('nur.book.durationTitle')} onClose={() => setFrequencyOpen(false)} closeLabel={k('nur.close')}>
+      <Sheet open={picker !== null} title={picker?.label ?? ''} onClose={() => setPickerId(null)} closeLabel={k('nur.close')}>
         <View>
-          {DAY_COUNTS.map((n, i) => (
+          {(picker?.values ?? []).map((v, i, all) => (
             <Radio
-              key={n}
+              key={String(v.id)}
               theme={theme}
-              label={n === 1 ? k('nur.book.once') : k('nur.book.consecutive', { n: num(n) })}
-              selected={daysCount === n}
-              divider={i < DAY_COUNTS.length - 1}
+              label={v.label}
+              selected={picker?.current === v.id}
+              divider={i < all.length - 1}
               onChange={() => {
-                setDaysCount(n);
-                setFrequencyOpen(false);
+                if (picker && options) setChoice((prev) => normalizeChoice(options, { ...prev, [picker.id]: v.id }));
+                setPickerId(null);
               }}
             />
           ))}
