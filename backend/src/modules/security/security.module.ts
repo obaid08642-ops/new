@@ -18,6 +18,7 @@ import { currentLogContext, logEvent, runWithLogContext } from '../../common/str
 
 import { AuditCollectionMigration } from './audit-collection-migration';
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { ScheduledOnce } from '../../common/scheduled-once';
 /** 23.1 — the full field set the plan requires of every event. */
 export interface AuditEntry {
   action: string;
@@ -579,6 +580,7 @@ export class AuditRetentionJob {
   private readonly logger = new Logger(AuditRetentionJob.name);
   constructor(private readonly retention: AuditRetentionService, private readonly audit: AuditService) {}
   @Cron(CronExpression.EVERY_DAY_AT_3AM)
+  @ScheduledOnce()
   async run() {
     if (process.env.AUDIT_RETENTION_ENABLED !== 'true') return; // off until the owner/lawyer confirm the periods
     try {

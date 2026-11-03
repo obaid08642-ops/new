@@ -1,0 +1,36 @@
+name: edge-warmup
+# Owner, 2026-11-02: public pages must open from the Cloudflare edge while the origin is down. A quiet data centre holds nothing, so this
+# requests the public pages (home per locale + a rotating slice of the sitemap URLs) every 15 minutes as an anonymous visitor, which keeps the
+# upper tier of Tiered Cache (tools/ops/cf/52-edge-resilience.sh) warm. Counts only in the log; no secret is used. A red run means the site
+# answered fewer than half of the requests with 2xx.
+on:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+  pull_request:
+    paths:
+      - 'tools/ops/cf/53-edge-warmup.sh'
+      - 'tools/ops/tests/test_cf_edge.py'
+      - '.github/workflows/edge-warmup.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  warm:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - run: bash tools/ops/cf/53-edge-warmup.sh
+  tools:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - run: bash -n tools/ops/cf/53-edge-warmup.sh
+      - run: python3 -W error -m unittest tools/ops/tests/test_cf_edge.py -v

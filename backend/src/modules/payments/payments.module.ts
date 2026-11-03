@@ -39,6 +39,7 @@ import {
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { DurableEventsService, emitDurable } from '../durable-events/durable-events.service';
 import { paymentCompletedKey } from '../durable-events/payment-events.reconciler';
+import { ScheduledOnce } from '../../common/scheduled-once';
 /**
  * Fallback for a failed or short-circuited payment-gateway operation.
  *
@@ -835,6 +836,7 @@ export class PaymentAbandonService {
   ) {}
 
   @Cron('*/5 * * * *')
+  @ScheduledOnce()
   async sweepScheduled() {
     if (this.running) return;
     this.running = true;

@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { SlotLocksService } from './slot-locks.module';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, ConflictException } from '@nestjs/common';
 
 describe('SlotLocksService', () => {
   let service: SlotLocksService;
@@ -132,6 +132,23 @@ describe('SlotLocksService', () => {
       await expect(service.releaseQuietly({ id: 'u1' }, 'nope')).resolves.toEqual({ ok: true });
       locksModel.findOne.mockRejectedValueOnce(new Error('db down'));
       await expect(service.releaseQuietly({ id: 'u1' }, 'lock1')).resolves.toEqual({ ok: true });
+    });
+  });
+
+  describe('assertNotHeldByOther', () => {
+    const start = new Date('2030-01-01T10:00:00Z'); const end = new Date('2030-01-01T10:30:00Z');
+    it('refuses a booking while another patient holds an unexpired lock on the slot', async () => {
+      locksModel.findOne.mockResolvedValue({ id: 'l1', patient_id: 'u2' });
+      await expect(service.assertNotHeldByOther({ id: 'u1' }, 'doc1', start, end)).rejects.toThrow(ConflictException);
+      const q = locksModel.findOne.mock.calls[0][0];
+      expect(q.patient_id).toEqual({ $ne: 'u1' });
+      expect(q.status).toBe('held');
+      expect(q.slot_start).toEqual({ $lt: end });
+      expect(q.slot_end).toEqual({ $gt: start });
+    });
+    it('lets the booking through when no one else holds it', async () => {
+      locksModel.findOne.mockResolvedValue(null);
+      await expect(service.assertNotHeldByOther({ id: 'u1' }, 'doc1', start, end)).resolves.toBeUndefined();
     });
   });
 });
