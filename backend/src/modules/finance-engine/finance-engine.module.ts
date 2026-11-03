@@ -1,4 +1,5 @@
 import { normalizeCoupon } from '../../common/coupon-doc';
+import { shadowFields } from '../../common/halala-shadow';
 import { copayRefundable, findCopayTransaction } from '../../common/copay-transaction';
 import { riyadhDayRange, riyadhMonthStart } from '../../common/riyadh-clock';
 import { ModuleRef } from '@nestjs/core';
@@ -840,7 +841,7 @@ export class RefundExecutor {
       const newRefunded = round2(Number(paidPayment.refunded_amount || 0) + amount);
       await this.conn.collection('moyasar_payments').updateOne(
         { _id: paidPayment._id } as any,
-        { $set: { refunded_amount: newRefunded, status: newRefunded >= Number(paidPayment.amount || 0) - 0.001 ? 'refunded' : 'paid', refunded_at: new Date() } },
+        { $set: { refunded_amount: newRefunded, ...shadowFields({ refunded_amount: newRefunded }, ['refunded_amount']), status: newRefunded >= Number(paidPayment.amount || 0) - 0.001 ? 'refunded' : 'paid', refunded_at: new Date() } },
       );
     }
     // 1b) A card payment kept in `transactions` (the current checkout, copays included) goes back
