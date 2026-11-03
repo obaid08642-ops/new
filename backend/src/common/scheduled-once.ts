@@ -1,6 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { randomBytes } from 'crypto';
 import { hostname } from 'os';
+import { registerGauge } from './metrics.service';
 
 /**
  * R3: `@ScheduledOnce()` under `@Cron`/`@Interval` makes a job run on ONE worker at a time, however many workers are started.
@@ -26,6 +27,11 @@ type RedisLike = { set: (...a: any[]) => Promise<any>; eval?: (...a: any[]) => P
 const logger = new Logger('ScheduledOnce');
 let clientProvider: () => RedisLike | null = () => null;
 export const cronLeaseStats = { ran: 0, skipped: 0, failedOpen: 0, failedClosed: 0, lost: 0 };
+// R5: visible to Prometheus, so a lost lease or a Redis outage under CRON_LEASE_FAIL_CLOSED=1 shows up without reading logs
+registerGauge('nabd_cron_lease_ran_total', 'Scheduled job runs that held the Redis lease.', () => cronLeaseStats.ran, 'counter');
+registerGauge('nabd_cron_lease_skipped_total', 'Scheduled job ticks skipped because another worker holds the lease.', () => cronLeaseStats.skipped, 'counter');
+registerGauge('nabd_cron_lease_unavailable_total', 'Ticks where Redis was unavailable (ran without a lease, or skipped when fail-closed).', () => cronLeaseStats.failedOpen + cronLeaseStats.failedClosed, 'counter');
+registerGauge('nabd_cron_lease_lost_total', 'Leases lost while the job was still running.', () => cronLeaseStats.lost, 'counter');
 
 export const CronLease = {
   /** Called once by the Redis module. */
