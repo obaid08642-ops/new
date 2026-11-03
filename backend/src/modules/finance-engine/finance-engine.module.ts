@@ -1,3 +1,4 @@
+import { normalizeCoupon } from '../../common/coupon-doc';
 import { copayRefundable, findCopayTransaction } from '../../common/copay-transaction';
 import { riyadhDayRange, riyadhMonthStart } from '../../common/riyadh-clock';
 import { ModuleRef } from '@nestjs/core';
@@ -338,8 +339,9 @@ export class CouponService {
     // 16.12 / D-10: a coupon never discounts a prescription-only line. What it can discount is the rest of the cart.
     const eligibleTotal = couponEligibleTotal(ctx);
     if (!(eligibleTotal > 0)) return { valid: false, discount: 0, reason: 'rx_only_cart' };
-    const c: any = await this.coupons.findOne({ code: String(code).toUpperCase() } as any);
-    if (!c) return { valid: false, discount: 0, reason: 'not_found' };
+    const raw: any = await this.coupons.findOne({ code: String(code).toUpperCase() } as any);
+    if (!raw) return { valid: false, discount: 0, reason: 'not_found' };
+    const c: any = normalizeCoupon(raw);
     if (c.active === false) return { valid: false, discount: 0, reason: 'inactive' };
     const now = new Date();
     if (c.valid_from && new Date(c.valid_from) > now) return { valid: false, discount: 0, reason: 'not_yet_valid' };
@@ -386,7 +388,7 @@ export class CouponService {
   async apply(userId: string, code: string, orderId: string, ctx: CouponContext) {
     const v = await this.validate(userId, code, ctx);
     if (!v.valid) throw new BadRequestException(`coupon_invalid: ${v.reason}`);
-    const c: any = await this.coupons.findOne({ code: String(code).toUpperCase() } as any);
+    const c: any = normalizeCoupon(await this.coupons.findOne({ code: String(code).toUpperCase() } as any) as any);
 
     if (c.max_uses != null) {
       const r = await this.coupons.updateOne(
