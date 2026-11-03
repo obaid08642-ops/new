@@ -106,7 +106,7 @@ export class LabsService {
     const labsRunning = async () => {
       const labs: any[] = await this.providerProfiles.find({
         type: { $in: ['lab', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
-      }, { projection: { _id: 0, test_categories: 1, rating_avg: 1, rating_count: 1 } }).lean();
+      }, { _id: 0, test_categories: 1, rating_avg: 1, rating_count: 1 }).lean();
       return labs;
     };
     const runs = (svc: any, lab: any) => {
@@ -122,7 +122,7 @@ export class LabsService {
       const labs: any[] = await this.providerProfiles.find({
         type: { $in: ['lab', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
         'geo.lat': { $type: 'number' }, 'geo.lng': { $type: 'number' },
-      }, { projection: { _id: 0, geo: 1, test_categories: 1 } }).lean();
+      }, { _id: 0, geo: 1, test_categories: 1 }).lean();
       const services: any[] = await this.svcModel.find(q, { _id: 0, __v: 0 }).lean();
       return finish(nearestFirst(services, labs, here, runs).slice(0, 120));
     }

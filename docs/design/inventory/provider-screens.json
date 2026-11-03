@@ -1,5 +1,5 @@
 {
- "commit": "929a06fb8",
+ "commit": "b077c4749",
  "routes": [
   {
    "app": "provider-app",
@@ -435,7 +435,7 @@
      "line": 66,
      "file": "provider-app/src/screens/shared/blueprint/PharmacyBroadcastResponse.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:165"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:172"
     },
     {
      "method": "POST",
@@ -445,7 +445,7 @@
      "line": 150,
      "file": "provider-app/src/screens/shared/blueprint/PharmacyBroadcastResponse.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:358"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:365"
     },
     {
      "method": "POST",
@@ -455,7 +455,7 @@
      "line": 134,
      "file": "provider-app/src/screens/shared/blueprint/PharmacyBroadcastResponse.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:357"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:364"
     },
     {
      "method": "POST",
@@ -465,7 +465,7 @@
      "line": 118,
      "file": "provider-app/src/screens/shared/blueprint/PharmacyBroadcastResponse.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:356"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:363"
     },
     {
      "method": "GET",
@@ -4181,7 +4181,7 @@
      "line": 16,
      "file": "provider-app/src/screens/facility/FacilityPatientTrackerScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider-facility.controller.ts:62"
+     "backend": "backend/src/modules/provider/provider-facility.controller.ts:81"
     }
    ],
    "files": 10,
@@ -4481,7 +4481,7 @@
      "line": 98,
      "file": "provider-app/src/screens/facility/facility/QRCheckinScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider-facility.controller.ts:62"
+     "backend": "backend/src/modules/provider/provider-facility.controller.ts:81"
     }
    ],
    "files": 12,
@@ -4556,7 +4556,7 @@
      "line": 83,
      "file": "provider-app/src/screens/facility/facility/ShiftManagementScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider-facility.controller.ts:81"
+     "backend": "backend/src/modules/provider/provider-facility.controller.ts:100"
     }
    ],
    "files": 12,
@@ -6773,7 +6773,7 @@
      "line": 1105,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:166"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:173"
     },
     {
      "method": "GET",
@@ -6783,7 +6783,7 @@
      "line": 1084,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:167"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:174"
     },
     {
      "method": "POST",
@@ -6793,7 +6793,7 @@
      "line": 1094,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:168"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:175"
     }
    ],
    "files": 11,
@@ -6915,7 +6915,7 @@
      "line": 779,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:108"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:115"
     },
     {
      "method": "GET",
@@ -6925,7 +6925,7 @@
      "line": 797,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:112"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:119"
     },
     {
      "method": "POST",
@@ -6935,7 +6935,7 @@
      "line": 806,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:119"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:126"
     }
    ],
    "files": 11,
@@ -6970,7 +6970,7 @@
      "line": 1350,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:446"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:453"
     },
     {
      "method": "POST",
@@ -6980,7 +6980,7 @@
      "line": 1370,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:449"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:456"
     },
     {
      "method": "GET",
@@ -6990,7 +6990,7 @@
      "line": 1361,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:450"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:457"
     },
     {
      "method": "POST",
@@ -7000,7 +7000,7 @@
      "line": 1399,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:453"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:460"
     },
     {
      "method": "GET",
@@ -7010,7 +7010,7 @@
      "line": 1385,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:165"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:172"
     }
    ],
    "files": 11,
@@ -7056,7 +7056,7 @@
      "line": 250,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:354"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:361"
     },
     {
      "method": "POST",
@@ -7066,7 +7066,7 @@
      "line": 305,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:362"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:369"
     }
    ],
    "files": 12,
@@ -7101,7 +7101,7 @@
      "line": 121,
      "file": "provider-app/src/screens/pharmacy/PharmacyInsuranceDecision.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:112"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:119"
     },
     {
      "method": "POST",
@@ -7111,7 +7111,7 @@
      "line": 188,
      "file": "provider-app/src/screens/pharmacy/PharmacyInsuranceDecision.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:125"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:132"
     }
    ],
    "files": 11,
@@ -7146,7 +7146,7 @@
      "line": 40,
      "file": "provider-app/src/screens/pharmacy/PharmacyInsuranceDecision.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:108"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:115"
     },
     {
      "method": "GET",
@@ -7156,7 +7156,7 @@
      "line": 44,
      "file": "provider-app/src/screens/pharmacy/PharmacyInsuranceDecision.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:112"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:119"
     },
     {
      "method": "POST",
@@ -7166,7 +7166,7 @@
      "line": 188,
      "file": "provider-app/src/screens/pharmacy/PharmacyInsuranceDecision.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:125"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:132"
     }
    ],
    "files": 11,
@@ -7419,7 +7419,7 @@
      "line": 1523,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:129"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:136"
     },
     {
      "method": "PUT",
@@ -7429,7 +7429,7 @@
      "line": 1561,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:130"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:137"
     },
     {
      "method": "GET",
@@ -7474,7 +7474,7 @@
      "line": 1001,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:165"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:172"
     }
    ],
    "files": 11,
@@ -8104,13 +8104,13 @@
    "calls": [
     {
      "method": "GET",
-     "path": "/pharmacy/orders/refills",
+     "path": "/provider/pharmacy/refills",
      "target": "backend",
      "query": "",
      "line": 65,
      "file": "provider-app/src/screens/shared/RealScreensExtended.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy_ops.controller.ts:30"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:110"
     }
    ],
    "files": 10,
@@ -9470,7 +9470,7 @@
      "line": 290,
      "file": "provider-app/src/screens/shared/RealScreensExtended.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:478"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:485"
     },
     {
      "method": "POST",
@@ -9480,7 +9480,7 @@
      "line": 303,
      "file": "provider-app/src/screens/shared/RealScreensExtended.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:477"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:484"
     }
    ],
    "files": 11,
