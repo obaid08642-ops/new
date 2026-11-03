@@ -152,8 +152,13 @@ export class CreateReferralDto {
   patient_id: string;
 
   @IsDefined()
-  @IsIn(['lab', 'radiology', 'nursing'])
+  @IsIn(['lab', 'radiology', 'nursing', 'specialty'])
   target_type: string;
+
+  /** With target_type "specialty": the code of the specialty (catalogue `specialties`) the patient is referred to. */
+  @IsOptional()
+  @IsString()
+  target_specialty?: string;
 
   @IsDefined()
   @IsString()
