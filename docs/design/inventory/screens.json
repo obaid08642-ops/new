@@ -14012,7 +14012,7 @@
      "backend": "backend/src/modules/home-care/home-care.controller.ts:108"
     }
    ],
-   "files": 80,
+   "files": 81,
    "unresolved": 0
   },
   {
@@ -14086,7 +14086,7 @@
      "backend": "backend/src/modules/home-care/home-care-compat.module.ts:79"
     }
    ],
-   "files": 67,
+   "files": 68,
    "unresolved": 0
   },
   {
@@ -14234,7 +14234,7 @@
      "backend": "backend/src/modules/location/location.controller.ts:20"
     }
    ],
-   "files": 71,
+   "files": 72,
    "unresolved": 0
   },
   {
@@ -16686,7 +16686,7 @@
      "path": "/api/patient/home-care/providers/:param/slots",
      "target": "web-proxy",
      "query": "?date=:param",
-     "line": 113,
+     "line": 120,
      "file": "patient-web/components-next/home-care-booking-form.tsx",
      "backend": "backend/src/modules/home-care/patient-home-care.controller.ts:43",
      "status": "PROXY_BLOCKED?",
@@ -16743,7 +16743,7 @@
      "backend": "backend/src/modules/users/users.addresses.controller.ts:42"
     }
    ],
-   "files": 74,
+   "files": 75,
    "unresolved": 1
   },
   {

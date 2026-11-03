@@ -68,3 +68,25 @@ describe("the booking request", () => {
     expect(keys[2]).not.toBe(keys[1]);
   });
 });
+
+describe("the booking options of the service", () => {
+  const continuous = { mode: "continuous" as const, hours: [4, 12], shift: ["day" as const], period: ["day" as const, "days" as const], maxDays: 5 };
+  it("draws only the choices the service offers, with the server's quote pending", () => {
+    const out = html({ bookingOptions: continuous } as never);
+    expect(out).toContain("4 hours");
+    expect(out).toContain("12 hours");
+    expect(out).not.toContain("8 hours");
+    expect(out).not.toContain("Night");
+    expect(out).toContain("Calculating the price");
+  });
+  it("draws the programme sessions from the list", () => {
+    const out = html({ bookingOptions: { mode: "programme", sessions: [6, 10] } } as never);
+    expect(out).toContain("6 sessions");
+    expect(out).toContain("10 sessions");
+  });
+  it("sends the choice with the booking", async () => {
+    const send = vi.fn().mockResolvedValue(json({ id: "b-1" }, 201));
+    await createHomeCareBookingAttempt(send as never, () => "k".repeat(20))({ ...input, choice: { mode: "continuous", hours: 12, shift: "day", period: "days", days: 3 } });
+    expect(JSON.parse(send.mock.calls[0][1].body)).toMatchObject({ hours: 12, shift: "day", period: "days", days: 3 });
+  });
+});

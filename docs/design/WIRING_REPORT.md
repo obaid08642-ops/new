@@ -123,7 +123,7 @@ None needed.
 - `patient-app/src/components/orders/OrderList.tsx:82` `apiFetch(path)`
 - `patient-app/src/components/health/ProfileView.tsx:58` `probeStoredFile(waitingPath)`
 - `patient-app/src/utils/useCatalogNames.ts:32` `apiFetch<unknown>(catalogPath(group, id))`
-- `patient-web/components-next/home-care-booking-form.tsx:48` `fetch(...a)`
+- `patient-web/components-next/home-care-booking-form.tsx:49` `fetch(...a)`
 - `patient-web/components-next/receipt/receipt-share.tsx:19` `fetch(pdfHref, { cache: "no-store" })`
 
 ## 4. Endpoints that are not wired (fix in the batch that rebuilds the screen)
@@ -131,7 +131,7 @@ None needed.
 | Batch | App | Status | Call | Called at | Screens | Note |
 |---|---|---|---|---|---|---|
 | 3 | web | PROXY_BLOCKED? | `POST /api/patient/:param/bookings/:param/cancel` | `patient-web/components-next/diagnostics/booking-cancel.tsx:25` | `/diagnostics/bookings/[domain]/[bookingId]` | blocked for every sample param value (UUID, slug, literals of the file) |
-| 4 | web | PROXY_BLOCKED? | `GET /api/patient/home-care/providers/:param/slots` | `patient-web/components-next/home-care-booking-form.tsx:113` | `/nursing/nurses/[nurseId]` | blocked for every sample param value (UUID, slug, literals of the file) |
+| 4 | web | PROXY_BLOCKED? | `GET /api/patient/home-care/providers/:param/slots` | `patient-web/components-next/home-care-booking-form.tsx:120` | `/nursing/nurses/[nurseId]` | blocked for every sample param value (UUID, slug, literals of the file) |
 
 ## 5. Screens with no API call found
 
