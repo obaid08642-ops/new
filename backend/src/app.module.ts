@@ -152,6 +152,7 @@ import { BillingModule } from './modules/billing/billing.module';
 import { ArticlesModule } from './modules/articles/articles.module';
 
 import { CorrelationMiddleware } from './common/correlation.middleware';
+import { AppVersionMiddleware } from './common/app-version.middleware';
 import { RequestMetaMiddleware } from './common/request-meta';
 import { ObservabilityModule } from './modules/observability/observability.module';
 import { LogsModule } from './modules/logs/logs.module';
@@ -345,6 +346,6 @@ import { MongoSelfHealService } from './common/database/mongo-selfheal.service';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(BansMiddleware, CorrelationMiddleware, RequestMetaMiddleware).forRoutes('*');
+    consumer.apply(BansMiddleware, CorrelationMiddleware, RequestMetaMiddleware, AppVersionMiddleware).forRoutes('*');
   }
 }
