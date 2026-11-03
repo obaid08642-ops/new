@@ -1,3 +1,4 @@
+import { OPEN_CLAIM_STATUSES } from '../common/claim-state';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuid } from 'uuid';
@@ -105,6 +106,13 @@ export class InsuranceClaim {
 }
 export type InsuranceClaimDocument = InsuranceClaim & Document;
 export const InsuranceClaimSchema = SchemaFactory.createForClass(InsuranceClaim);
+// One open claim per booking, enforced by the database (two submits in the same instant used to both pass the read-then-create check).
+// Deployment: run scripts/migrations/2026-11-claim-duplicates.ts first; with duplicates in the data this index cannot build (the error is logged, the
+// service keeps its read-side check) - same pattern as the transaction intent index.
+InsuranceClaimSchema.index(
+  { booking_kind: 1, booking_id: 1 },
+  { unique: true, name: 'claim_one_open_per_booking', partialFilterExpression: { status: { $in: [...OPEN_CLAIM_STATUSES] }, booking_id: { $type: 'string' } } },
+);
 
 @Schema({ _id: false })
 export class InsuranceDetails {

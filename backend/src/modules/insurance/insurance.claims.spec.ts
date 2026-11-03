@@ -102,6 +102,21 @@ describe('InsuranceService claims (LJ-02)', () => {
     await expect(service.submitClaim('patient-1', { booking_kind: 'lab', booking_id: 'lab-2' })).rejects.toThrow('claim_already_filed');
   });
 
+  it('a claim the facility approved but nobody has paid yet also blocks a second one', async () => {
+    const { service } = serviceFor({ id: 'lab-3', patient_id: 'patient-1' }, { id: 'claim-3', status: 'approved' }, [{ amount: 100 }]);
+    const asked = service.claimModel.findOne;
+    await expect(service.submitClaim('patient-1', { booking_kind: 'lab', booking_id: 'lab-3' })).rejects.toThrow('claim_already_filed');
+    expect(asked.mock.calls[0][0].status.$in).toEqual(expect.arrayContaining(['pending', 'approved', 'reimbursed']));
+  });
+
+  it('two submits in the same instant: the database refuses the second and the patient gets claim_already_filed, not a 500', async () => {
+    const { service } = serviceFor({ id: 'lab-4', patient_id: 'patient-1' }, null, [{ amount: 100 }]);
+    service.claimModel.create = jest.fn().mockRejectedValue(Object.assign(new Error('E11000 duplicate key'), { code: 11000 }));
+    await expect(service.submitClaim('patient-1', { booking_kind: 'lab', booking_id: 'lab-4' })).rejects.toThrow('claim_already_filed');
+    service.claimModel.create = jest.fn().mockRejectedValue(new Error('disk full'));
+    await expect(service.submitClaim('patient-1', { booking_kind: 'lab', booking_id: 'lab-4' })).rejects.toThrow('disk full');
+  });
+
   it('reimburses through RefundExecutor on approval', async () => {
     const claim: any = { id: 'claim-9', patient_id: 'patient-1', booking_kind: 'lab', booking_id: 'lab-1', amount: 250, status: 'pending', save: jest.fn(), toObject: () => ({ id: 'claim-9' }) };
     const { service } = serviceFor(null, claim);
