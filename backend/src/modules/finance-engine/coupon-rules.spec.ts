@@ -19,7 +19,7 @@ describe('CouponService rules', () => {
     await svc.ensureIndexes();
   });
   afterAll(async () => { await conn?.close(); await mongo?.stop(); });
-  beforeEach(async () => { for (const c of ['coupons', 'coupon_usages', 'coupon_failures', 'orders', 'pharmacy_orders']) await conn.collection(c).deleteMany({}); });
+  beforeEach(async () => { for (const c of ['coupons', 'coupon_usages', 'coupon_user_counts', 'coupon_failures', 'orders', 'pharmacy_orders']) await conn.collection(c).deleteMany({}); });
 
   const why = async (ctx: any = { order_total: 100 }, code = 'C1', user = 'u1') => (await svc.validate(user, code, ctx)).reason;
 
