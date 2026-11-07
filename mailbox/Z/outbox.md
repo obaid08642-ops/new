@@ -1,3 +1,9 @@
+## 21:18 UTC 2026-11-07 — check 21:17
+Status: two PRs ready for review
+PR: #2469 (CI: all green incl. Backend build and tests (the Mongo-backed suites) and live shards 1,3,4; shards 2 and 5 still running), #2404 (CI: everything green except lighthouse = lane X script budget; all 5 live shards green; conflict-free), #2464 (docs only)
+What changed: nothing pushed. Inbox unchanged, no new orders.
+Left / blockers / questions: waiting for lead review/merge; at the PR limit (3) so the SCENARIOS money rows (payouts, settlement, invoices) start when one merges. Question still open from #2469: half cent now rounds up (1.005 -> 1.01); I chose the toHalalas rule.
+
 ## 20:47 UTC 2026-11-07 — check 20:47
 Status: in progress
 PR: #2469 (CI: pending, runners queued, acceptance green, no red), #2404 (CI: pending after main merge, not re-read), #2464 (docs only)
