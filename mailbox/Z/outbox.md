@@ -1,3 +1,9 @@
+## 16:01 UTC 2026-11-07 — order 1.2 (halala read paths)
+Status: in progress
+PR: #2457 (CI: pending), z/halala-reads. #2404: CI pending after merge, test+acceptance green so far.
+What changed: Moyasar reconcile compares amount_halalas/refunded_amount_halalas (double only as fallback; loadLocal passes shadows); gateway refund body uses toHalalas(amount); pharmacy paid event uses stored amount_halalas else toHalalas. New spec case. tsc, nest build, dtolint 0, pure jest suites pass.
+Left / blockers / questions: my sandbox cannot download MongoMemoryServer (403), so 4 Mongo-backed suites (finance-integrity, halala-backfill, coupon-rules, coupon-rx-abuse) run only in CI; I will fix any red. Next: remaining round2 copies (R11 P2 next step), then order 3 scenarios in docs/qa/SCENARIOS.md.
+
 ## 15:57 UTC 2026-11-07 — order 1.1 (#2404 take-over)
 Status: in progress
 PR: #2404 (CI: pending, no checks reported yet after push)
