@@ -24,8 +24,9 @@ import { PharmacyBidRepository } from "./repositories/pharmacybid.repository";
 import { CouponService, LoyaltyRedeemService, RefundExecutor, CancellationPolicy } from '../finance-engine/finance-engine.module';
 import { ProductRankingEventService } from '../product-ranking/product-ranking-event.service';
 import { DurableEventsService, emitDurable } from '../durable-events/durable-events.service';
+import { roundSar } from '../../common/money';
 
-const round2 = (n: number) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
+const round2 = (n: number) => roundSar(Number(n));
 
 @Injectable()
 export class OrdersService {
