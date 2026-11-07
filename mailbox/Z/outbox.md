@@ -1,3 +1,9 @@
+## 18:48 UTC 2026-11-07 — check 18:47
+Status: in progress
+PR: #2457 (CI: ALL GREEN, no conflict: ready to review), #2456 (CI: live gate shard 3/5 red, fix pushed a08d2040, re-running), #2404 (CI: lighthouse red only (lane X); live shards 1,3 green, 2/4/5 were running at 18:17), #2464 (CI: not re-read)
+What changed: #2456 shard 3 failed with the same cause as #2404 shard 1 (admin GETs got 503 server_shedding_load, then provider_approval_required cascades in j_payment_webhook and j_pharmacy_tracking). Cherry-picked the tools/live/lib.py Retry-After retry (identical hunk to #2404, merges cleanly) onto f/refund-halalas-money. Backend/mobile/web all green on #2456.
+Left / blockers / questions: for lead: this lib.py retry is needed by every PR whose live gate runs on the strained runner; consider merging it from #2404 or #2456 first (same hunk). Inbox: no new orders. Next: re-read #2404/#2456/#2464 CI.
+
 ## 18:18 UTC 2026-11-07 — check 18:17
 Status: in progress
 PR: #2404 (CI: lighthouse red only (lane X budget); live gate shards 1 and 3 green, 2/4/5 running; backend, mobile, web, admin, provider, acceptance green), #2457/#2456/#2464 (CI not re-read this round)
