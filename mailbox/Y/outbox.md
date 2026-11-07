@@ -1,5 +1,17 @@
 # Lane Y outbox
 
+## 2026-11-07 17:xx UTC — lead order 2: D, A, B done; #2398 note
+Status: in progress
+PR: #2453 (CI: pending after fix d65c40a), #2458 uptime probe (pending), #2459 gitleaks (pending), #2450 / #2451 / #2452 no red seen, #2398 s/speed-sweep (CI: RED lighthouse only)
+What changed:
+- D: CodeQL on #2453 = tools/supply-chain/majors.mjs:50 incomplete sanitization (`replace("/")` once). Now `replaceAll`; its 4 tests pass. Pushed.
+- A (#2458): uptime + auto-reboot probe now GET https://api.nabd.plus/api/v1/health/liveness (route from backend/src/health.controller.ts), API_URL env, new test; 18 ops tests OK.
+- B (#2459): 18 fixture fingerprints added to .gitleaksignore. **SECURITY: 3 findings are NOT fixtures and I did not ignore them**: historical backend/infra/fastapi/server.py lines 41-42 (an R2 access key of 32 hex and secret of 64 hex) and deploy/coturn/turnserver.conf line 13 (48-char static-auth-secret). Owner should rotate them; the gitleaks job stays red until then (or until you decide to ignore them after rotation). Values never printed.
+- #2398: lighthouse red only on resource-summary.script.size /ar 179213, /ar/c 176985, /ar/consultations/doctors 182962 vs 174080; identical to the numbers before my main merge, so this branch does not move them; per your answer it is lane X's script-size gap. Budget not raised.
+- Note: my first commit on #2458 carries a Co-Authored-By model-name trailer (added by my session template before I saw rule 8); later commits have none. Not rewriting history.
+Left: C (Android manifest merger), R22 then R9, docs-only PR for stale m6/PROGRESS, HEAD-vs-GET small PR if needed. Open PRs: 8 (over cap of 3); the takeovers need green first.
+
+
 ## 2026-11-07 12:3x UTC — Item 5 check, CI wait
 Status: in progress (waiting on CI queue + one question)
 PR: #2450, #2452, #2398, #2451, #2453: no red so far; the runs are queued/in progress (GitHub runner backlog). #2452 and #2453 are green except Live gate.
