@@ -141,20 +141,44 @@ export class RatingsService {
     return Object.keys(out).length ? out : undefined;
   }
 
-  /** Admin moderation queue: written reviews waiting for a decision, oldest first. The admin sees the reviewer's full name. */
+  /**
+   * Admin moderation queue: written reviews waiting for a decision, oldest first. The admin sees the reviewer's full name.
+   * It holds both stores: `ratings` (POST /ratings) and `reviews` (POST /patient-ux/review, what the apps send, where a review under
+   * 3 stars waits as `pending_review`). The queue used to read only `ratings`, so a low-star app review waited for ever.
+   */
   async pendingReviews(page = 1, limit = 20): Promise<{ data: unknown[]; total: number; page: number }> {
     const lim = Math.min(Math.max(limit, 1), 100);
-    const filter = { status: 'pending', id: { $type: 'string' } };
-    const [rows, total] = await Promise.all([
-      this.ratings.find(filter, { projection: { _id: 0, user_id: 0 } }).sort({ createdAt: 1 }).skip((Math.max(page, 1) - 1) * lim).limit(lim).toArray(),
-      this.ratings.countDocuments(filter),
+    const pg = Math.max(page, 1);
+    const upTo = pg * lim;
+    const ratingFilter = { status: 'pending', id: { $type: 'string' } };
+    const reviews = this.conn.collection('reviews');
+    const [rows, ratingTotal, written, reviewTotal] = await Promise.all([
+      this.ratings.find(ratingFilter, { projection: { _id: 0, user_id: 0 } }).sort({ createdAt: 1 }).limit(upTo).toArray(),
+      this.ratings.countDocuments(ratingFilter),
+      reviews.find({ status: 'pending_review' }, { projection: { _id: 0 } }).sort({ createdAt: 1 }).limit(upTo).toArray(),
+      reviews.countDocuments({ status: 'pending_review' }),
     ]);
-    return { data: rows, total, page };
+    const ids = [...new Set((written as any[]).map((r) => String(r.patient_id)).filter(Boolean))];
+    const users = ids.length ? await this.conn.collection('users').find({ id: { $in: ids } }, { projection: { _id: 0, id: 1, full_name: 1 } }).toArray() : [];
+    const names = new Map((users as any[]).map((u) => [String(u.id), u.full_name || null]));
+    const fromReviews = (written as any[]).map((r) => ({
+      id: r.id, provider_id: r.provider_id, score: r.rating, comment: r.comment ?? null, status: 'pending', source: 'review',
+      booking_kind: r.booking_kind, booking_id: r.booking_id, user_name: names.get(String(r.patient_id)) ?? null, createdAt: r.createdAt ?? null,
+    }));
+    const merged = [...(rows as any[]), ...fromReviews].sort((a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime());
+    return { data: merged.slice((pg - 1) * lim, upTo), total: ratingTotal + reviewTotal, page: pg };
   }
 
   async moderate(admin: any, id: string, decision: 'approve' | 'reject', reason?: string) {
     const existing: any = await this.ratings.findOne({ id: { $eq: String(id) }, status: 'pending' });
-    if (!existing) throw new NotFoundException('review_not_pending');
+    if (!existing) {
+      // a review the patient wrote in the app (POST /patient-ux/review): approved / rejected, the same words the ratings use for the decision
+      const written: any = await this.conn.collection('reviews').findOne({ id: { $eq: String(id) }, status: 'pending_review' });
+      if (!written) throw new NotFoundException('review_not_pending');
+      const next = decision === 'approve' ? 'approved' : 'rejected';
+      await this.conn.collection('reviews').updateOne({ _id: written._id }, { $set: { status: next, moderated_by: admin?.id ?? null, moderated_at: new Date(), moderation_reason: decision === 'reject' ? (reason || null) : null } });
+      return { ok: true, id, status: decision === 'approve' ? 'published' : 'rejected' };
+    }
     const status = decision === 'approve' ? 'published' : 'rejected';
     await this.ratings.updateOne({ _id: existing._id }, { $set: { status, moderated_by: admin?.id ?? null, moderated_at: new Date(), moderation_reason: decision === 'reject' ? (reason || null) : null } });
     await this.recompute(existing.provider_id);
