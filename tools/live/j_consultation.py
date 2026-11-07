@@ -43,8 +43,10 @@ def doctor_publishes_hours(doctor, admin, service_types=('clinic',)):
     step('the hours are live on the doctor schedule', r.ok and len(r.items() if not isinstance(r.body, list) else r.body) > 0, r)
 
 
-def book_paid(pat, doctor):
-    """patient finds the doctor, holds a clinic slot tomorrow, books and pays by card; returns the appointment id."""
+def book_paid(pat, doctor, slot_index=0):
+    """patient finds the doctor, holds a clinic slot tomorrow, books and pays by card; returns the appointment id.
+    `slot_index` picks a later free slot: a visit finished in a journey stays listed (its time is still ahead), so a second booking by the same
+    patient must not take the first slot again (its hold stays confirmed, as it would be for a visit in the past)."""
     doc_id = doctor.get('/provider/me').get('account', 'id')
     journey('consultation: patient finds the doctor and a slot')
     r = pat.get('/care/specialties')
@@ -66,7 +68,7 @@ def book_paid(pat, doctor):
     step('the doctor has free clinic slots tomorrow', r.ok and free, r)
     if not free:
         return None
-    s0 = free[0]
+    s0 = free[min(slot_index, len(free) - 1)]
     slot = s0.get('start') or s0.get('slot_start') or s0.get('time') if isinstance(s0, dict) else s0
 
     journey('consultation: patient books and pays by card')

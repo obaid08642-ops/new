@@ -5,7 +5,9 @@
 # Only URLs the cache rule of 46-public-html-cache would keep are requested (home, /c /p /doctor /doctors /articles, the doctors list); anything
 # else in a sitemap is skipped. Reads only; it changes nothing at Cloudflare or the origin. Run every 15 minutes by .github/workflows/edge-warmup.yml.
 # Env: SITE_URL (https://nabd.plus), MAX_URLS (300 per run), PARALLEL (6), SITEMAP_LIMIT (sitemaps read per run, 12).
-# Exit 1 when the site answers fewer than MIN_OK_PERCENT (50) of the requests with 2xx, so a down origin shows as a red run.
+# A 404 is the app answering "no such page" (a sitemap entry that does not exist), not an outage: 404s are counted and up to 8 are listed (public
+# URLs only), and are left out of the 2xx share. Exit 1 when fewer than MIN_OK_PERCENT (50) of the NON-404 answers are 2xx (a down origin: 5xx,
+# 522, timeouts), or when every request answered 404, so a down origin shows as a red run and a bad sitemap does not.
 set -uo pipefail
 SITE=${SITE_URL:-https://nabd.plus}
 MAX=${MAX_URLS:-300}
@@ -41,11 +43,17 @@ say "requesting $TOTAL url(s)"
 one() { curl -s -o /dev/null --max-time 40 -D - -w 'code=%{http_code}\n' -H 'Accept-Encoding: gzip' "$1" | tr -d '\r' \
   | awk 'tolower($1)=="cf-cache-status:"{c=$2} /^code=/{s=substr($0,6)} END{print s, (c==""?"none":c)}'; }
 export -f one
-xargs -P "$PAR" -I{} bash -c 'one "$1"' _ {} < "$TMP/list" > "$TMP/res"
+xargs -P "$PAR" -I{} bash -c 'echo "$(one "$1") $1"' _ {} < "$TMP/list" > "$TMP/res"
 
 OK=$(awk '$1 ~ /^2/' "$TMP/res" | wc -l | tr -d ' ')
+NF=$(awk '$1 == "404"' "$TMP/res" | wc -l | tr -d ' ')
 say "answered 2xx: $OK of $TOTAL"
 say "status codes: $(awk '{print $1}' "$TMP/res" | sort | uniq -c | awk '{printf "%s=%s ", $2, $1}')"
 say "cf-cache-status: $(awk '{print $2}' "$TMP/res" | sort | uniq -c | awk '{printf "%s=%s ", $2, $1}')"
+if [ "$NF" -gt 0 ]; then
+  say "404 (not counted against the origin): $NF of $TOTAL; first ones: $(awk '$1 == "404" {print $3}' "$TMP/res" | sort | head -n 8 | tr '\n' ' ')"
+fi
 [ "$TOTAL" -gt 0 ] || { say "FAIL no url to request"; exit 1; }
-[ $(( OK * 100 / TOTAL )) -ge "$MIN_OK" ] || { say "FAIL fewer than $MIN_OK% answered 2xx: the origin or the edge is down"; exit 1; }
+ANSWERED=$(( TOTAL - NF ))
+[ "$ANSWERED" -gt 0 ] || { say "FAIL every request answered 404"; exit 1; }
+[ $(( OK * 100 / ANSWERED )) -ge "$MIN_OK" ] || { say "FAIL fewer than $MIN_OK% answered 2xx: the origin or the edge is down"; exit 1; }

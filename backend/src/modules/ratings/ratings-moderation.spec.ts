@@ -9,7 +9,7 @@ import { Permission } from '../../common/permissions';
 
 /** Owner decision 2026-10-24: written reviews with sub-ratings, from a completed appointment only, once per appointment, moderated, first name + initial. */
 describe('doctor reviews: sub-ratings, moderation, reviewer label', () => {
-  const make = (opts: { appointment?: any; existing?: any } = {}) => {
+  const make = (opts: { appointment?: any; existing?: any; written?: any[] } = {}) => {
     const rows: any[] = opts.existing ? [opts.existing] : [];
     const updates: any[] = [];
     const ratings = {
@@ -18,13 +18,23 @@ describe('doctor reviews: sub-ratings, moderation, reviewer label', () => {
       updateOne: async (q: any, u: any) => { updates.push(u.$set); const r = rows.find((x) => x._id === q._id); if (r) Object.assign(r, u.$set); },
       aggregate: () => ({ toArray: async () => [] }),
       countDocuments: async () => rows.filter((r) => r.status === 'pending').length,
-      find: () => ({ sort: () => ({ skip: () => ({ limit: () => ({ toArray: async () => rows.filter((r) => r.status === 'pending') }) }) }) }),
+      find: () => ({ sort: () => ({ limit: () => ({ toArray: async () => rows.filter((r) => r.status === 'pending') }) }) }),
     };
     const profiles = { updateMany: jest.fn(async () => undefined) };
     const appts = { findOne: async () => opts.appointment === undefined ? { id: 'ap1', patient_id: 'pat1', status: 'COMPLETED', doctor_user_id: 'doc1' } : opts.appointment };
-    const conn: any = { collection: (n: string) => (n === 'ratings' ? ratings : n === 'provider_profiles' ? profiles : appts) };
+    // `reviews` is where the apps' POST /patient-ux/review stores a review (pending_review under 3 stars)
+    const written = opts.written ?? [];
+    const sortedPending = () => written.filter((r) => r.status === 'pending_review');
+    const reviews = {
+      find: () => ({ sort: () => ({ limit: () => ({ toArray: async () => sortedPending() }) }) }),
+      countDocuments: async () => sortedPending().length,
+      findOne: async (q: any) => written.find((r) => r.id === (q.id?.$eq ?? q.id) && r.status === q.status) ?? null,
+      updateOne: async (q: any, u: any) => { const r = written.find((x) => x._id === q._id); if (r) Object.assign(r, u.$set); },
+    };
+    const users = { find: () => ({ toArray: async () => [{ id: 'pat9', full_name: 'Huda Al-Otaibi' }] }) };
+    const conn: any = { collection: (n: string) => (n === 'ratings' ? ratings : n === 'provider_profiles' ? profiles : n === 'reviews' ? reviews : n === 'users' ? users : appts) };
     const svc: any = new (RatingsService as any)(conn);
-    return { svc, rows, updates, profiles };
+    return { svc, rows, updates, profiles, written };
   };
   const user = { id: 'pat1', full_name: 'Huda Al-Otaibi' };
   const body = (over: any = {}) => ({ entity_type: 'appointment', entity_id: 'ap1', provider_id: 'doc1', score: 5, ...over });
@@ -81,6 +91,31 @@ describe('doctor reviews: sub-ratings, moderation, reviewer label', () => {
     const r = make({ existing: { _id: 'o2', id: 'rev2', provider_id: 'doc1', status: 'pending', comment: 'spam' } });
     expect(await r.svc.moderate({ id: 'adm' }, 'rev2', 'reject', 'spam')).toMatchObject({ status: 'rejected' });
     expect(r.rows[0].moderation_reason).toBe('spam');
+  });
+
+  it('the queue holds the low-star reviews the apps send, next to the ratings, oldest first, with the reviewer\'s name', async () => {
+    const t = make({
+      existing: { _id: 'o1', id: 'rat1', provider_id: 'doc1', score: 4, status: 'pending', createdAt: new Date('2026-11-02') },
+      written: [
+        { _id: 'w1', id: 'rev1', provider_id: 'doc1', patient_id: 'pat9', rating: 2, comment: 'انتظار طويل', status: 'pending_review', booking_kind: 'consultation', booking_id: 'ap1', createdAt: new Date('2026-11-01') },
+        { _id: 'w2', id: 'rev2', provider_id: 'doc1', patient_id: 'pat9', rating: 5, status: 'approved', createdAt: new Date('2026-10-30') },
+      ],
+    });
+    const q = await t.svc.pendingReviews(1, 20);
+    expect(q.total).toBe(2);
+    expect(q.data.map((r: any) => r.id)).toEqual(['rev1', 'rat1']);
+    expect(q.data[0]).toMatchObject({ score: 2, comment: 'انتظار طويل', status: 'pending', source: 'review', user_name: 'Huda Al-Otaibi' });
+    expect(q.data[0]).not.toHaveProperty('patient_id');
+  });
+
+  it('an admin approves or rejects a pending app review', async () => {
+    const t = make({ written: [{ _id: 'w1', id: 'rev1', provider_id: 'doc1', patient_id: 'pat9', rating: 2, status: 'pending_review' }] });
+    expect(await t.svc.moderate({ id: 'adm' }, 'rev1', 'approve')).toEqual({ ok: true, id: 'rev1', status: 'published' });
+    expect(t.written[0]).toMatchObject({ status: 'approved', moderated_by: 'adm' });
+    await expect(t.svc.moderate({ id: 'adm' }, 'rev1', 'reject')).rejects.toBeInstanceOf(NotFoundException);
+    const r = make({ written: [{ _id: 'w1', id: 'rev3', provider_id: 'doc1', patient_id: 'pat9', rating: 1, status: 'pending_review' }] });
+    expect(await r.svc.moderate({ id: 'adm' }, 'rev3', 'reject', 'abusive')).toEqual({ ok: true, id: 'rev3', status: 'rejected' });
+    expect(r.written[0]).toMatchObject({ status: 'rejected', moderation_reason: 'abusive' });
   });
 
   it('the moderation routes are admin-only and need the moderate permission', () => {

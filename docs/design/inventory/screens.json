@@ -1,5 +1,5 @@
 {
- "commit": "5a8e0caf",
+ "commit": "8a68e9f7",
  "routes": [
   {
    "app": "patient-app",
@@ -1180,7 +1180,7 @@
      "line": 167,
      "file": "patient-app/app/consultations/doctor/[id].tsx",
      "status": "OK",
-     "backend": "backend/src/modules/ratings/ratings.module.ts:209"
+     "backend": "backend/src/modules/ratings/ratings.module.ts:233"
     },
     {
      "method": "GET",
@@ -9865,7 +9865,7 @@
      "line": 43,
      "file": "patient-web/lib/api/doctors-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/ratings/ratings.module.ts:209"
+     "backend": "backend/src/modules/ratings/ratings.module.ts:233"
     }
    ],
    "files": 57,

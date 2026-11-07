@@ -51,7 +51,7 @@ if url.endswith("/sitemap.xml"):
 if url.endswith("/sitemaps/static.xml"):
     print("<urlset><url><loc>https://nabd.plus/ar/p/abc</loc></url><url><loc>https://nabd.plus/ar/cart</loc></url><url><loc>https://nabd.plus/en/articles/x</loc></url></urlset>"); sys.exit(0)
 if "-D" in args:
-    code = st.get("page_code", "200")
+    code = next((c for k, c in st.get("codes_by", {}).items() if k in url), st.get("page_code", "200"))
     print(f"HTTP/2 {code}\ncf-cache-status: {st.get('cache', 'HIT')}\ncode={code}")
     sys.exit(0)
 '''
@@ -121,6 +121,24 @@ class EdgeResilience(Base):
 
 
 class Warmup(Base):
+    def test_404_sitemap_entries_are_listed_but_do_not_make_a_red_run(self):
+        p = self.run_task("53-edge-warmup.sh", extra={"codes_by": {"/ar/p/abc": "404", "/en/articles/x": "404"}})
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn("answered 2xx: 12 of 14", p.stdout)
+        self.assertIn("404 (not counted against the origin): 2 of 14", p.stdout)
+        self.assertIn("https://nabd.plus/ar/p/abc", p.stdout)
+        self.assertIn("https://nabd.plus/en/articles/x", p.stdout)
+
+    def test_404_does_not_hide_a_down_origin(self):
+        p = self.run_task("53-edge-warmup.sh", extra={"page_code": "522", "codes_by": {"/ar/p/abc": "404"}})
+        self.assertEqual(p.returncode, 1, p.stdout)
+        self.assertIn("FAIL fewer than 50% answered 2xx", p.stdout)
+
+    def test_every_request_404_is_a_red_run(self):
+        p = self.run_task("53-edge-warmup.sh", extra={"page_code": "404"})
+        self.assertEqual(p.returncode, 1, p.stdout)
+        self.assertIn("FAIL every request answered 404", p.stdout)
+
     def test_requests_home_pages_and_only_cacheable_sitemap_urls(self):
         p = self.run_task("53-edge-warmup.sh", env={"SITE_URL": "https://nabd.plus"})
         self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
