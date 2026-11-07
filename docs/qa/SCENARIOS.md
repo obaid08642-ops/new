@@ -13,14 +13,16 @@ Complete list of user scenarios, from the owner's request ("make sure there are 
 
 ## Counts
 
-| Measure | First catalogue | Re-scored on main `c17aa3461` (#2292) | Re-scored on main `365b2d580` (#2335) | Batch 2 (#2351) | This PR (PT-25) |
-|---|---|---|---|---|---|
-| Scenarios listed | 100 | 100 | 100 | 100 | 100 |
-| COVERED | 52 | 55 | 62 | 65 | 73 |
-| PARTIAL | 16 | 16 | 16 | 13 | 8 |
-| NOT COVERED | 32 | 29 | 22 | 22 | 18 |
+| Measure | First catalogue | Re-scored on main `c17aa3461` (#2292) | Re-scored on main `365b2d580` (#2335) | Batch 2 (#2351) | PT-25 (#2435) | Batch 5 (this PR) |
+|---|---|---|---|---|---|---|
+| Scenarios listed | 100 | 100 | 100 | 100 | 100 | 100 |
+| COVERED | 52 | 55 | 62 | 65 | 73 | 79 |
+| PARTIAL | 16 | 16 | 16 | 13 | 8 | 9 |
+| NOT COVERED | 32 | 29 | 22 | 22 | 18 | 12 |
 
 This PR: seven scenarios moved to COVERED. Four are covered by journeys another session added to main (`j_dispute.py`, `j_payment_failed_retry.py`, `j_web_dark_a11y.py`), which were run here and pass. Three are new journeys in this PR (`j_notification_settings.py`, `j_doctor_leave.py`) and pass locally on main `365b2d580`.
+
+Batch 5 (this PR) moved four rows to COVERED (PT-10 chat window, PT-12 reviews, PT-14 complaint, SY-03 dead-letter queue) and AD-02 to PARTIAL (approve path only). PT-05 (referral to a booking) and PV-15 (provider sees a patient dispute) stay NOT COVERED: both are blocked by product gaps, recorded with file:line in `docs/qa/findings/batch5-2026-11-07.md`. The batch is four covered scenarios, not the 5-8 target, because the other candidates in the P1 list were blocked or app-only (PT-38, H).
 
 This PR (PT-25 delivery tracking) moved one PARTIAL row to COVERED. The 'This PR' column is a recount of the rows on this branch (73 / 8 / 18), which includes other sessions' updates to the catalogue since #2351.
 ---
@@ -33,16 +35,16 @@ This PR (PT-25 delivery tracking) moved one PARTIAL row to COVERED. The 'This PR
 | PT-02 | Book for a family member | COVERED | `j_family_book_for_member.py` | P1 | — |
 | PT-03 | Guardian books for a dependant (minor) | NOT COVERED | none; `j_family_book_for_member.py` covers a family member, not guardianship | P1 | H |
 | PT-04 | Family member's medicines and history | COVERED | `j_family_meds.py` | P2 | — |
-| PT-05 | Referral from a visit to a booking | NOT COVERED | `j_consultation.py` mentions referral only in passing, no referral assertion | P1 | S |
+| PT-05 | Referral from a visit to a booking | NOT COVERED | blocked: the referral issue route rejects the apps' UUID ids and no client calls it (`docs/qa/findings/batch5-2026-11-07.md`) | P1 | S |
 | PT-06 | Prescription → pharmacy order | COVERED | `j_pharmacy.py`, `j_pharmacy_insurance_first.py` | P1 | — |
 | PT-07 | Pharmacy broadcast receives competing offers and the patient picks one | COVERED | `j_web_offers_waiting.py` (web) | P1 | — |
 | PT-08 | Sick leave request and report | NOT COVERED | no journey | P2 | H |
 | PT-09 | Reports (lab, radiology) viewed and downloaded | PARTIAL | `j_lab_result_push.py` checks push, not download | P2 | H |
-| PT-10 | Follow-up chat window opens and closes after a visit | NOT COVERED | `j_chat.py` has no window open/close assertion | P1 | S |
+| PT-10 | Follow-up chat window opens and closes after a visit | COVERED | `j_chat_followup_window.py` (62/62): closed before the visit ends, opens on finish, the doctor closes it and the patient can still read, one extension reopens it, a second is refused | P1 | — |
 | PT-11 | Chat delivered and seen receipts | COVERED | `j_chat_receipts.py` (63/63, PR #2259) | P1 | — |
-| PT-12 | Reviews and rating of a provider | NOT COVERED | no journey | P2 | S |
+| PT-12 | Reviews and rating of a provider | COVERED | `j_review_rating.py` (73/73): only a patient who used the visit can rate, stars publish at once, text waits for admin approval, public after approval; the author's read omits `status` (`docs/qa/findings/batch5-2026-11-07.md`) | P2 | — |
 | PT-13 | Reply to a review (provider side, see PV-07) | NOT COVERED | no journey | P3 | S |
-| PT-14 | Complaint raised | NOT COVERED | `j_support.py` covers support tickets; complaint not named | P2 | S |
+| PT-14 | Complaint raised | COVERED | `j_complaint.py` (18/18): feedback filed as a complaint, the patient and the admin queue both show the complaint category, an empty complaint is refused | P2 | — |
 | PT-15 | Dispute on a charge or visit | COVERED | `j_dispute.py` (56/56 on main 365b2d580): the patient's payment dispute, the admin refunds part once, a second refund refused | P1 | F |
 | PT-16 | Support ticket create and reply | COVERED | `j_support.py` | P2 | — |
 | PT-17 | Insurance policy add | COVERED | `j_insurance.py` | P1 | — |
@@ -100,7 +102,7 @@ Types: doctor, pharmacy, lab, radiology, nursing (and any other registered type)
 | PV-04 | Approval | COVERED | `j_provider_review.py` (20/20) | P0 | — |
 | PV-05 | Rejection with reason | COVERED | `j_provider_resubmit.py` (25/25) | P1 | — |
 | PV-06 | Resubmit after rejection | COVERED | `j_provider_resubmit.py` | P1 | — |
-| PV-07 | Rating reply | COVERED | `j_provider_scenarios.py`: the doctor sees the review a patient wrote in the app, answers it, the public doctor page shows the reply; another doctor, an empty and a too-long reply are refused | P3 | P2 |
+| PV-07 | Rating reply | COVERED | `j_provider_scenarios.py`: the doctor sees the review a patient wrote in the app, answers it, the public doctor page shows the reply; a review under 3 stars waits in the admin moderation queue, cannot be answered or shown until approved; another doctor, an empty and a too-long reply are refused | P3 | P2 |
 | PV-08 | Licence expiry warning | NOT COVERED | `j_onboarding.py` checks licence at approval only | P0 | P2 |
 | PV-09 | Suspension on licence expiry | NOT COVERED | none | P0 | P2, A |
 | PV-10 | Services, prices, hours and area edits | COVERED | `j_provider_edits.py` (working hours, prices, delivery area and fee: pending until approved, refused leaves the live value), `j_provider_proposals.py`, `j_radiology_delta_request.py` | P1 | P2 |
@@ -108,7 +110,7 @@ Types: doctor, pharmacy, lab, radiology, nursing (and any other registered type)
 | PV-12 | Staff invite | COVERED | `j_provider_scenarios.py` `staff_invite`: invite by e-mail, duplicate and owner refused, accept with the mailed token (once), disable, enable, revoke | P2 | P2 |
 | PV-13 | Vacation or unavailability | COVERED | `j_doctor_leave.py` (35/35 on main 365b2d580): doctor adds vacation, listed, cancelled and no longer active; missing range refused (400) | P1 | P2 |
 | PV-14 | Payout request and approval | COVERED | `j_payouts.py`, `j_payout_paid.py` | P0 | — |
-| PV-15 | Dispute raised by the patient, seen by the provider | NOT COVERED | none | P1 | P2, F |
+| PV-15 | Dispute raised by the patient, seen by the provider | NOT COVERED | blocked: no provider route shows a patient's dispute (`docs/qa/findings/batch5-2026-11-07.md`) | P1 | P2, F |
 | PV-16 | Consultation online, clinic and home | COVERED | `j_consultation.py`, `j_web_call.py` | P1 | — |
 | PV-17 | Pharmacy broadcast accept, reject, timeout | COVERED | `j_pharmacy_broadcast_responses.py` (reject with a reason, rounds that time out and close the broadcast, a quote that lapses), `j_pharmacy.py` (accept) | P1 | P2 |
 | PV-18 | Lab home visit and centre with result upload | COVERED | `j_lab.py`, `j_lab_result_push.py` | P1 | — |
@@ -122,7 +124,7 @@ Types: doctor, pharmacy, lab, radiology, nursing (and any other registered type)
 | ID | Scenario | Status | Evidence | Priority | Route |
 |---|---|---|---|---|---|
 | AD-01 | Approvals (providers) | COVERED | `j_admin_ops.py`, `j_provider_review.py` | P0 | — |
-| AD-02 | Moderation of reviews | NOT COVERED | none | P2 | A |
+| AD-02 | Moderation of reviews | PARTIAL | `j_review_rating.py` (approve path: the pending queue lists the review, approve publishes it); reject is not covered | P2 | A |
 | AD-03 | Disputes handled by admin | COVERED | `j_dispute.py` (56/56 on main 365b2d580): the admin's refund on a dispute, once | P1 | A, F |
 | AD-04 | Refunds | COVERED | `j_qa_refund_consultation.py` | P0 | — |
 | AD-05 | Payouts (approve, execute, PAID) | COVERED | `j_payouts.py`, `j_payout_paid.py` | P0 | — |
@@ -138,7 +140,7 @@ Types: doctor, pharmacy, lab, radiology, nursing (and any other registered type)
 |---|---|---|---|---|---|
 | SY-01 | Nightly jobs run once and report | PARTIAL | `j_jobs.py` | P1 | S |
 | SY-02 | Retries after a transient failure | PARTIAL | `j_chaos.py` | P1 | S |
-| SY-03 | Dead-letter queue inspection | NOT COVERED | none | P1 | S |
+| SY-03 | Dead-letter queue inspection | COVERED | `j_dead_letter.py` (20/20): queue counts, failed-job list, unknown state refused, retry of an unknown job 404, bulk retry needs a reason and reports counts, patient refused | P1 | — |
 | SY-04 | Rate limits (per IP, per account) | COVERED | `j_otp_abuse.py`, `j_password_lockout.py`, `j_concurrency.py` | P1 | — |
 | SY-05 | Backups restore | NOT COVERED | none | P0 | S |
 | SY-06 | Monitoring alerts fire | PARTIAL | `j_admin_urgent_alerts.py` | P1 | S |
