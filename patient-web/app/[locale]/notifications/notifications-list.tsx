@@ -5,8 +5,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Card, Chip, SectionHeader } from "@/components-next/ui-generated/components/Surfaces";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
-import type { FillIconName, ServiceTone } from "@/components-next/ui-generated/icons/fill";
+import { FIconGlyph } from "@/components-next/icons/ficon-glyph";
+import type { FillAnyName, ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import styles from "./notifications.module.css";
 
 export type NotificationRowData = {
@@ -14,7 +14,9 @@ export type NotificationRowData = {
   title: string | null;
   body: string | null;
   when: { text: string; iso: string } | null;
-  icon: FillIconName;
+  icon: FillAnyName;
+  /** The outline of the glyph: the server adds it (fillGlyph), so this client list carries only the outlines its rows use. */
+  glyph: string;
   tone: ServiceTone;
   unread: boolean;
   /** The web page the notification opens, resolved on the server (null: the row only marks it as read). */
@@ -87,7 +89,7 @@ export function NotificationsList({ groups }: { groups: NotificationGroup[] }) {
             {group.items.map((item) => {
               const unread = isUnread(item);
               const content = <>
-                <FIcon icon={item.icon} tone={item.tone} size={42} />
+                <FIconGlyph icon={item.icon} glyph={item.glyph} tone={item.tone} size={42} />
                 <span className={styles.body}>
                   <span className={`${styles.title} ${unread ? styles.titleUnread : ""}`}>{item.title || t("untitled")}</span>
                   {item.body ? <span className={styles.copy}>{item.body}</span> : null}

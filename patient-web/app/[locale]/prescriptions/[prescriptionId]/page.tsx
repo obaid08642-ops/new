@@ -16,6 +16,7 @@ import { RxMedicineList } from "@/components-next/pharmacy/rx-medicines";
 import { prescriptionStateTone } from "@/components-next/pharmacy/rx-state";
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
 import rx from "@/components-next/pharmacy/rx.module.css";
+import { FILL_PRESCRIPTION } from "@/components-next/ui-generated/icons/glyphs/prescription";
 
 type Props = { params: Promise<{ locale: string; prescriptionId: string }> };
 
@@ -64,7 +65,7 @@ export default async function PrescriptionDetailPage({ params }: Props) {
 
         <section className={rx.card} aria-label={t("detailTitle")}>
           <div className={rx.cardRow}>
-            <FIcon icon="prescription" tone={PHARMACY_TONE} size={40} />
+            <FIcon icon="prescription" glyph={FILL_PRESCRIPTION} tone={PHARMACY_TONE} size={40} />
             <div className={rx.cardBody}>
               <span className={rx.cardValue}>{t(prescriptionStateKey(detail.state))}</span>
               {issued ? <span className={rx.cardLabel}>{t("issuedOn", { date: issued })}</span> : null}

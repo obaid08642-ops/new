@@ -17,6 +17,7 @@ import { MAX_RX_FILE_BYTES, checkRxFile, ocrItems, postJsonWithProgress, prepare
 import { PHARMACY_TONE } from "./tones";
 import rx from "./rx.module.css";
 import { UploadsUnavailable, useUploadsEnabled } from "@/components-next/uploads/uploads-provider";
+import { FILL_PRESCRIPTION } from "@/components-next/ui-generated/icons/glyphs/prescription";
 
 type Failure = "type" | "size" | "read" | "unreadable" | "ocr" | "busy" | "save" | "session";
 type Phase =
@@ -153,7 +154,7 @@ export function RxUploadScreen({ locale, via = "photo", before, after }: { local
 
         {!uploadsEnabled ? <UploadsUnavailable className={rx.dropHint} /> : (
         <section className={rx.drop}>
-          <FIcon icon="prescription" tone={PHARMACY_TONE} size={72} />
+          <FIcon icon="prescription" glyph={FILL_PRESCRIPTION} tone={PHARMACY_TONE} size={72} />
           <h2 className={rx.dropTitle}>{t("dropTitle")}</h2>
           <p className={rx.dropHint}>{t("dropHint")}</p>
           <div className={rx.dropButtons}>

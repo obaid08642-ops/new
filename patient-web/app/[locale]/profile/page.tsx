@@ -17,9 +17,9 @@ import { RetryButton } from "@/components-next/retry-button";
 import { AccountSummary, profileIdentity } from "@/components-next/account/account-summary";
 import { SignOutAction } from "@/components-next/account/sign-out-action";
 import { NavRows } from "@/components-next/settings/settings-kit";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import styles from "@/components-next/settings/settings.module.css";
+import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
 type Props = { params: Promise<{ locale: string }> };
 type Domain = { id: string; title: string; fields: ProfileField[]; state: ProfileDomainState };
@@ -124,7 +124,7 @@ export default async function ProfilePage({ params }: Props) {
         {shownTiles.map((tile) => (
           <li key={tile.href}>
             <Link href={tile.href} className={styles.tile}>
-              <FIcon icon={tile.icon} tone={tile.tone} size={40} />
+              <FIconByName icon={tile.icon} tone={tile.tone} size={40} />
               <span className={styles.tileLabel}>{tile.label}</span>
               {"value" in tile && tile.value ? <span className={styles.tileValue}><bdi>{tile.value}</bdi></span> : null}
             </Link>

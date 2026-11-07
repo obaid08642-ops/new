@@ -12,8 +12,9 @@ import { returnStatus, returnTone } from "@/components-next/returns/return-kit";
 import { extractReturns } from "@/lib/api/returns";
 import { formatMoney } from "@/components-next/pharmacy-offers/format";
 import { statusKey as pharmacyStatusKey } from "@/components-next/pharmacy-offers/status";
-import { SERVICE_ICONS, type FillIconName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
+import { SERVICE_ICONS, type FillAnyName, type FillIconName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { statusTone as pharmacyTone } from "./status-tone";
+import { FILL_ARROWS_LEFT_RIGHT } from "@/components-next/ui-generated/icons/glyphs/arrows-left-right";
 
 /**
  * The web order center (issue 378): one list of everything the patient asked for, built from what each service's own list
@@ -33,7 +34,9 @@ export type CenterRow = {
   key: string;
   kind: OrderKind;
   href: string;
-  icon: FillIconName;
+  icon: FillAnyName;
+  /** The outline, for a glyph that is not a core one (the returns row). */
+  glyph?: string;
   tone: ServiceTone;
   title: string;
   /** Set when the title is not in the page language (drawn with its own lang/dir and the "available in X only" note). */
@@ -50,14 +53,14 @@ export type CenterRow = {
   action: { href: string; label: string };
 };
 
-export const KIND_VISUAL: Record<OrderKind, { icon: FillIconName; tone: ServiceTone }> = {
+export const KIND_VISUAL: Record<OrderKind, { icon: FillAnyName; glyph?: string; tone: ServiceTone }> = {
   pharmacy: SERVICE_ICONS.pharmacy,
   consultation: SERVICE_ICONS.consult,
   labs: SERVICE_ICONS.lab,
   radiology: SERVICE_ICONS.radiology,
   nursing: SERVICE_ICONS.nursing,
   // the returns page's own look (app/[locale]/returns/page.tsx)
-  returns: { icon: "arrows-left-right", tone: "amber" },
+  returns: { icon: "arrows-left-right", glyph: FILL_ARROWS_LEFT_RIGHT, tone: "amber" },
 };
 
 type Translate = (key: string, values?: Record<string, string | number>) => string;
@@ -141,7 +144,8 @@ const DIAG_DONE = new Set(["report", "cancelled"]);
 export type ResultRow = {
   key: string;
   domain: "labs" | "radiology";
-  icon: FillIconName;
+  icon: FillAnyName;
+  glyph?: string;
   tone: ServiceTone;
   title: string;
   titleMark?: FieldMark;

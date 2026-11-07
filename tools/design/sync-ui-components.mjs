@@ -70,17 +70,18 @@ const FILES = [
   { from: 'packages/ui/icons/category-art.ts', to: 'patient-web/components-next/ui-generated/icons/category-art.ts' },
   { from: 'packages/ui/icons/diag-art.ts', to: 'patient-web/components-next/ui-generated/icons/diag-art.ts' },
   { from: 'packages/ui/icons/nav-art.ts', to: 'patient-web/components-next/ui-generated/icons/nav-art.ts' },
-  { from: 'packages/ui/icons/specialty-look.ts', to: 'patient-web/components-next/ui-generated/icons/specialty-look.ts' },
+  // a specialty's icon is any glyph name (the extra ones are drawn with their outline: see fill-all.ts)
+  { from: 'packages/ui/icons/specialty-look.ts', to: 'patient-web/components-next/ui-generated/icons/specialty-look.ts', transform: (body) => body.replace(/\bFillIconName\b/g, 'FillAnyName') },
   { from: 'packages/ui/icons/marks.ts', to: 'patient-web/components-next/ui-generated/icons/marks.ts' },
   { from: 'packages/ui/icons/social-brands.ts', to: 'patient-web/components-next/ui-generated/icons/social-brands.ts' },
   { from: 'packages/ui/icons/social-brands.css', to: 'patient-web/components-next/ui-generated/icons/social-brands.css' },
-  { from: 'packages/ui/icons/fill-glyphs.ts', to: 'patient-web/components-next/ui-generated/icons/fill-glyphs.ts' },
+  { from: 'packages/ui/icons/fill.ts', to: 'patient-web/components-next/ui-generated/icons/fill-all.ts', transform: (body) => makeFillAll(body) },
   { from: 'packages/ui/icons/line.ts', to: 'patient-web/components-next/ui-generated/icons/line.ts' },
-  { from: 'packages/ui/components/contract.ts', to: 'patient-web/components-next/ui-generated/components/contract.ts' },
+  { from: 'packages/ui/components/contract.ts', to: 'patient-web/components-next/ui-generated/components/contract.ts', transform: (body) => mirrorContract(body) },
   // FIcon is NOT a Client Component: it only uses useId, which a Server Component may call, and as a server module the whole
   // outline record (icons/fill.ts) stays out of the browser bundle of every page that draws it from the server (the doctors page
   // is at its script budget).
-  { from: 'packages/ui/components/FIcon.tsx', to: 'patient-web/components-next/ui-generated/components/FIcon.tsx' },
+  { from: 'packages/ui/components/FIcon.tsx', to: 'patient-web/components-next/ui-generated/components/FIcon.tsx', transform: (body) => mirrorFIcon(body) },
   ...['Button', 'Spinner', 'Inputs', 'Controls', 'Surfaces', 'Cards', 'Feedback'].map((name) => ({
     from: `packages/ui/components/${name}.tsx`,
     to: `patient-web/components-next/ui-generated/components/${name}.tsx`,
@@ -109,49 +110,106 @@ const FILES = [
 
 
 /**
- * The web mirror of fill.ts carries only the filled glyphs patient-web (and the components themselves) name.
+ * The web mirror of fill.ts: a CORE record plus type-enforced `glyph` for everything else.
  *
- * `FIcon` picks its outline by name at run time, so the whole record is in every bundle that draws one FIcon:
- * 78 outlines, about 10 KB gz, of which a page uses a handful (issue #286). The package keeps the full set
- * (native, the gallery and the board comparison read it); the mirror is filtered to the names that appear as a
- * quoted string anywhere in patient-web's own source, in the component sources, or in SERVICE_ICONS. The
- * mirror is regenerated (and `--check`ed) from those same sources, and `FillIconName` is derived from the
- * record, so a name that is not in the mirror is a type error until `sync-ui-components` is run again.
+ * `FIcon` used to pick its outline by name at run time, so the whole record (78 outlines, about 8 KB gz) was in every bundle that
+ * drew one FIcon from a client component, which includes the shell on every page (issue #286, then the F82 script budget). Now:
+ *   - `FILL_ICON_PATHS` / `FillIconName` hold only the CORE glyphs: those named in SERVICE_ICONS, in packages/ui/components/*.tsx
+ *     (the components draw them by name themselves) and in tools/design/fill-core.json (what the shell draws);
+ *   - every other glyph is `FillExtraName`: `<FIcon icon="tooth" glyph={FILL_TOOTH} />` (one module per glyph: icons/glyphs/tooth.ts)
+ *     is REQUIRED for it by the mirrored contract, so a missing glyph is a type error, and the bundler keeps only the outlines a
+ *     module imports (icons/glyphs/<name>.ts, one module per glyph: the bundler does not tree-shake the named exports of one big module);
+ *   - icons/fill-all.ts is the by-name record of ALL glyphs for server components and data-driven places: no client module may
+ *     import it (tests/fill-glyph-boundary.test.ts).
+ * The package keeps the full record (native, the gallery and the board comparison read it).
  */
-function walk(dir, out = []) {
-  if (!existsSync(dir)) return out;
-  for (const name of readdirSync(dir)) {
-    const full = join(dir, name);
-    if (statSync(full).isDirectory()) {
-      if (name === 'node_modules' || name === '.next' || name === 'ui-generated') continue;
-      walk(full, out);
-    } else if (/\.(ts|tsx)$/.test(name) && !/\.(test|spec)\./.test(name)) out.push(full);
-  }
-  return out;
-}
-function usedFillGlyphs(fillSource) {
-  const record = fillSource.match(/export const FILL_ICON_PATHS = (\{[\s\S]*?\n\}) as const;/);
+const glyphConst = (name) => `FILL_${name.toUpperCase().replace(/-/g, '_')}`;
+
+function parseFill(source) {
+  const record = source.match(/export const FILL_ICON_PATHS = (\{[\s\S]*?\n\}) as const;/);
   if (!record) throw new Error('sync-ui-components: FILL_ICON_PATHS not found in packages/ui/icons/fill.ts');
   const paths = JSON.parse(record[1]);
-  const sources = [
-    ...['patient-web/app', 'patient-web/components-next', 'patient-web/lib'].flatMap((d) => walk(join(REPO, d))),
-    ...['packages/ui/components', 'packages/ui/src', 'packages/ui/shells'].flatMap((d) => walk(join(REPO, d))),
-    // the specialty look names its icons in packages/ui (the web draws them through the mirror of that file)
-    join(REPO, 'packages/ui/icons/specialty-look.ts'),
-  ].map((f) => readFileSync(f, 'utf8')).join('\n');
-  const service = [...fillSource.matchAll(/icon: '([a-z0-9-]+)'/g)].map((m) => m[1]);
-  const keep = Object.keys(paths).filter((n) => service.includes(n) || new RegExp(`["'\`]${n}["'\`]`).test(sources));
-  return { record, paths, keep };
+  return { record, paths };
+}
+function coreFillNames(source) {
+  const { paths } = parseFill(source);
+  const names = new Set(JSON.parse(readFileSync(join(REPO, 'tools/design/fill-core.json'), 'utf8')).names);
+  for (const m of source.matchAll(/icon: '([a-z0-9-]+)'/g)) names.add(m[1]); // SERVICE_ICONS
+  const dir = join(REPO, 'packages/ui/components');
+  for (const f of readdirSync(dir)) {
+    if (!f.endsWith('.tsx')) continue;
+    const text = readFileSync(join(dir, f), 'utf8');
+    for (const n of Object.keys(paths)) if (new RegExp(`["'\`]${n}["'\`]`).test(text)) names.add(n);
+  }
+  for (const n of names) if (!(n in paths)) throw new Error(`sync-ui-components: core glyph "${n}" is not in packages/ui/icons/fill.ts`);
+  return Object.keys(paths).filter((n) => names.has(n));
 }
 function filterFill(body) {
-  const { record, paths, keep } = usedFillGlyphs(body);
-  const filtered = Object.fromEntries(keep.map((n) => [n, paths[n]]));
+  const { record, paths } = parseFill(body);
+  const core = coreFillNames(body);
+  const extra = Object.keys(paths).filter((n) => !core.includes(n));
+  const filtered = Object.fromEntries(core.map((n) => [n, paths[n]]));
+  const union = (list) => (list.length ? list.map((n) => `'${n}'`).join(' | ') : 'never');
   return body.replace(
     record[0],
-    `// WEB MIRROR: only the ${keep.length} of ${Object.keys(paths).length} glyphs patient-web names (tools/design/sync-ui-components.mjs, issue #286).\nexport const FILL_ICON_PATHS = ${JSON.stringify(filtered, null, 2)} as const;`,
+    `// WEB MIRROR: only the ${core.length} CORE glyphs of ${Object.keys(paths).length} are looked up by name (tools/design/sync-ui-components.mjs, tools/design/fill-core.json).\n` +
+      `// Any other glyph is drawn with FIcon's \`glyph\` prop (icons/glyphs/<name>.ts), which the mirrored contract requires for it.\n` +
+      `export const FILL_ICON_PATHS = ${JSON.stringify(filtered, null, 2)} as const;\n\n` +
+      `/** The glyphs that are NOT in FILL_ICON_PATHS: drawn with \`glyph\`, never by name alone. */\n` +
+      `export type FillExtraName = ${union(extra)};\n` +
+      `/** Every glyph of the set, core or extra. */\n` +
+      `export type FillAnyName = FillIconName | FillExtraName;`,
   );
 }
+/** icons/fill-all.ts: every glyph by name, from the named exports. Server components and data-driven places only. */
+function makeFillAll(source) {
+  const { paths } = parseFill(source);
+  const names = Object.keys(paths);
+  return [
+    "import type { FillAnyName } from './fill';",
+    ...names.map((n) => `import { ${glyphConst(n)} } from './glyphs/${n}';`),
+    '',
+    '/**',
+    ' * Every filled glyph by name. A CLIENT component must never import this file (it would put all outlines in its bundle):',
+    ' * a client component imports the named glyphs it draws from ./glyphs/<name> and passes them as FIcon\'s `glyph`. A server',
+    ' * component, or a lib that only server code reads, may use this record (tests/fill-glyph-boundary.test.ts holds the line).',
+    ' */',
+    'export const FILL_ALL_PATHS: Record<FillAnyName, string> = {',
+    ...names.map((n) => `  '${n}': ${glyphConst(n)},`),
+    '};',
+    '',
+    'export const fillGlyph = (name: FillAnyName): string => FILL_ALL_PATHS[name];',
+    '',
+  ].join('\n');
+}
+/** Replace `from` with `to` in `body`, failing loudly when the package's text moved (a silent miss would ship an unenforced mirror). */
+function must(body, from, to, what) {
+  if (!body.includes(from)) throw new Error(`sync-ui-components: ${what}: expected text not found: ${from.slice(0, 80)}`);
+  return body.replace(from, to);
+}
 
+/** The mirrored contract: FIcon takes `icon` by name for a core glyph and REQUIRES `glyph` for any other. Every other component (Button, EmptyState, ListItem...) takes core names only, so a non-core name is a type error there. */
+function mirrorContract(body) {
+  let out = must(body, "import type { FillIconName, ServiceName, ServiceTone } from '../icons/fill';", "import type { FillExtraName, FillIconName, ServiceName, ServiceTone } from '../icons/fill';", 'contract import');
+  const start = out.indexOf('export interface FIconProps extends A11yProps {');
+  if (start < 0) throw new Error('sync-ui-components: FIconProps not found in contract.ts');
+  const end = out.indexOf('\n}\n', start) + 3;
+  const block = out.slice(start, end)
+    .replace('export interface FIconProps extends A11yProps {', 'interface FIconBase extends A11yProps {')
+    .replace(/\n  icon: FillIconName;\n  \/\*\*[^\n]*\*\/\n  glyph\?: string;/, '');
+  const union =
+    '\n/** A core glyph is looked up by name; any other glyph is passed as `glyph` (import it from icons/glyphs/<name>): required by the type. */\n' +
+    'export type FIconRef = { icon: FillIconName; glyph?: string } | { icon: FillExtraName; glyph: string };\n' +
+    'export type FIconProps = FIconBase & FIconRef;\n';
+  out = out.slice(0, start) + block + union + out.slice(end);
+  return out;
+}
+/** FIcon: draws `glyph` when given, else the core record; a name that is in neither is a bug (throws outside production). */
+function mirrorFIcon(body) {
+  let out = must(body, "import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX } from '../icons/fill';", "import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, type FillIconName } from '../icons/fill';", 'FIcon import');
+  out = must(out, "  const glyphSize = chip === 'none' ? size : Math.round(size * 0.52);", "  const glyphSize = chip === 'none' ? size : Math.round(size * 0.52);\n  const path = outline ?? FILL_ICON_PATHS[icon as FillIconName];\n  if (path === undefined && process.env.NODE_ENV !== 'production') throw new Error('FIcon: ' + icon + ' is not a core glyph, pass its outline as the glyph prop (icons/glyphs/<name>)');", 'FIcon path');
+  return must(out, 'd={outline ?? FILL_ICON_PATHS[icon]}', 'd={path}', 'FIcon d');
+}
 const banner = (from) => `// GENERATED FILE — DO NOT EDIT.
 //
 // Mirrored from ${from} by tools/design/sync-ui-components.mjs.
@@ -165,6 +223,16 @@ const banner = (from) => `// GENERATED FILE — DO NOT EDIT.
 //
 // tests/module-boundary.test.ts enforces the boundary this mirror exists to work
 // around.`;
+
+// One module per glyph (icons/glyphs/<name>.ts): the bundler does NOT tree-shake the named exports of one big module, so a client file
+// that imported two outlines from a single icons/fill-glyphs.ts shipped all 78 (the route-state boundary put them in every route).
+for (const name of Object.keys(parseFill(readFileSync(join(REPO, 'packages/ui/icons/fill.ts'), 'utf8')).paths)) {
+  FILES.push({
+    from: 'packages/ui/icons/fill.ts',
+    to: `patient-web/components-next/ui-generated/icons/glyphs/${name}.ts`,
+    transform: (body) => `export const ${glyphConst(name)} = ${JSON.stringify(parseFill(body).paths[name])};\n`,
+  });
+}
 
 let stale = 0;
 for (const file of FILES) {

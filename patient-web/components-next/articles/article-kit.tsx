@@ -10,6 +10,7 @@ import type { ArticleSummary } from "@/lib/api/articles";
 import health from "@/components-next/health/health.module.css";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "./articles.module.css";
+import { FILL_FILE_TEXT } from "@/components-next/ui-generated/icons/glyphs/file-text";
 
 /** The glyph tone of an article row: the articles tile of the home screen (never written as a colour). */
 export const ARTICLE_TONE: ServiceTone = "ink";
@@ -34,7 +35,7 @@ export function ArticleRows({ locale, articles, label, untitled }: { locale: Loc
         return (
           <li key={article.slug}>
             <Link className={`${health.row} ${rx.rowLink}`} href={`/${locale}/articles/${article.slug}`}>
-              <FIcon icon="file-text" tone={ARTICLE_TONE} size={40} />
+              <FIcon icon="file-text" glyph={FILL_FILE_TEXT} tone={ARTICLE_TONE} size={40} />
               <span className={health.rowBody}>
                 <span className={health.rowTitle} dir="auto">{articleTitle(locale, article, untitled)}</span>
                 {parts.length ? <span className={health.rowSub}>{parts.map((part, index) => <Fragment key={index}>{index > 0 ? " · " : null}<bdi>{part}</bdi></Fragment>)}</span> : null}

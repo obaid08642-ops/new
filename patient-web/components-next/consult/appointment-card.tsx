@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { MODE_VISUAL, type Mode } from "@/lib/consult/appointment-view";
 import { SERVICE_ICONS, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { LocalTile } from "./local-tile";
 import styles from "./consult.module.css";
+import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
 export type CardAction = { href: string; label: string };
 
@@ -52,7 +52,7 @@ export function AppointmentCard({
   return (
     <li className={styles.appt}>
       <Link href={href} className={styles.apptLink}>
-        {slotStart ? <LocalTile iso={slotStart} locale={locale} tone={SERVICE_ICONS.health.tone} /> : visual ? <FIcon icon={visual.icon} tone={visual.tone} size={52} /> : null}
+        {slotStart ? <LocalTile iso={slotStart} locale={locale} tone={SERVICE_ICONS.health.tone} /> : visual ? <FIconByName icon={visual.icon} tone={visual.tone} size={52} /> : null}
         <span className={styles.apptText}>
           <span className={styles.apptTitle}>{title}</span>
           {specialty || timeLine || priceText ? <span className={styles.apptMeta}>{[specialty, timeLine, priceText].reduce<React.ReactNode[]>((parts, part, index) => (part ? [...parts, ...(parts.length ? [" · "] : []), <span key={index}>{part}</span>] : parts), [])}</span> : null}
