@@ -10,6 +10,7 @@
  * deep in a service still carries the id of the request that caused it without
  * threading the parameter through every function.
  */
+import { currentTraceId } from './trace';
 import { Logger } from '@nestjs/common';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { processRole } from './process-role';
@@ -130,6 +131,8 @@ export interface LogRecord {
   duration_ms: number | null;
   /** Everything else the caller passed, after maskPii. */
   details: Record<string, unknown> | null;
+  /** R5: trace id of the active span, present only inside a traced request or job. */
+  trace_id?: string;
 }
 
 /** Keys of the fields bag that become top-level columns instead of `details`. */
@@ -153,6 +156,7 @@ export function buildLogRecord(
   module = 'app',
 ): LogRecord {
   const ctx = currentLogContext();
+  const traceId = currentTraceId();
   const rest: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(fields)) if (!TOP_LEVEL_KEYS.has(k)) rest[k] = v;
   const details = Object.keys(rest).length ? (maskPii(rest) as Record<string, unknown>) : null;
@@ -168,6 +172,8 @@ export function buildLogRecord(
     status: numberOrNull(fields.status),
     duration_ms: numberOrNull(fields.duration_ms),
     details,
+    // R5: a line written inside a traced request/job carries the trace id, so a log line leads to its trace (absent when tracing is off)
+    ...(traceId ? { trace_id: traceId } : {}),
   };
 }
 

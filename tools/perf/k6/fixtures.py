@@ -50,6 +50,11 @@ def main():
     # j_web_call.setup signs the admin in through the panel; the API session above stands in for it
     import j_admin
     j_admin.login = lambda *a, **k: (admin, None)
+    # A fresh database has no published provider agreement, and the doctor cannot submit for review without one (provider_agreement_not_published).
+    # The live gate seeds the repository texts first (run_gate.sh); the capacity stacks start empty, so do the same here (test database only, idempotent).
+    import seed_legal
+    if seed_legal.main():
+        sys.exit('fixtures.py: the legal texts could not be seeded')
     real_tomorrow = j_consultation.tomorrow
     s = j_web_call.setup()   # doctor (video), patient, a paid video visit the doctor has started
     if not s:

@@ -10,14 +10,7 @@ import { isVersionBlocked, pickAppConfig } from '../utils/version';
 import { tokens } from '../../../packages/design-tokens/dist/ts/tokens';
 const T = tokens('light').color;
 
-const APP_VERSION: string = (() => {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    return require('../../app.json')?.expo?.version || '1.0.0';
-  } catch {
-    return '1.0.0';
-  }
-})();
+import { APP_VERSION } from '../utils/appVersion';
 
 // the admin writes this message in Arabic only: it is shown to Arabic readers, everyone else gets the translated default
 const adminMessage = (ar?: string) => (i18nManager.currentLanguage === 'ar' ? ar : undefined);

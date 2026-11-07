@@ -41,6 +41,7 @@ import { VitalReadingRepository } from "./repositories/vitalreading.repository";
 import { OrderRepository } from "./repositories/order.repository";
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
 import { UserRepository } from "./repositories/user.repository";
+import { ScheduledOnce } from '../../common/scheduled-once';
 
 @Injectable()
 export class NabdExtensionsService {
@@ -416,6 +417,7 @@ export class NabdExtensionsService {
 
   // SLA Cron running every 1 minute
   @Cron('*/1 * * * *')
+  @ScheduledOnce()
   async runSlaAudit() {
     this.logger.log('Running SLA Audit Cron job...');
     const fiveMinutesAgo = new Date();
@@ -575,6 +577,7 @@ export class NabdExtensionsService {
 
   // Expiry notifications cron checking inventory for items expiring in less than 90 days
   @Cron('0 0 * * *') // Daily at midnight
+  @ScheduledOnce()
   async checkInventoryExpiry() {
     this.logger.log('Checking inventory expiry schedules...');
     const ninetyDaysFromNow = new Date();

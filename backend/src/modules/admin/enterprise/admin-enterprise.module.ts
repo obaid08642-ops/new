@@ -5,6 +5,7 @@ import { SeoSearchModule } from '../../seo-search/seo-search.module';
 import { FinanceEngineModule } from '../../finance-engine/finance-engine.module';
 import { PresenceModule } from '../../presence/presence.module';
 import { AdminAuditService } from './audit.service';
+import { AdminAuditChainVerifier } from './audit-chain.verifier';
 import { AdminSecurityController } from './admin-security.controller';
 import { AdminDisputesController } from './admin-disputes.controller';
 import { AdminOrdersConsoleController } from './admin-orders.controller';
@@ -69,6 +70,7 @@ import { ImpersonationSecurityModule } from '../../../common/impersonation-secur
   ],
   providers: [
     AdminAuditService,
+    AdminAuditChainVerifier,
     OrdersConsoleService,
     FinanceSuiteService,
     AnalyticsSuiteService,

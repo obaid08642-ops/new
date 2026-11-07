@@ -1,6 +1,6 @@
 import { buildPatientPolicy, insuranceCompanyFilter, policyClass, policyCompanyKeys } from '../../common/insurance-policy';
 import { copayRefundable, findCopayTransaction } from '../../common/copay-transaction';
-import { nextClaimStatus } from '../../common/claim-state';
+import { nextClaimStatus, OPEN_CLAIM_STATUSES } from '../../common/claim-state';
 import { Module, Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Injectable, BadRequestException, ConflictException, NotFoundException, ServiceUnavailableException, Logger, Req } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -327,6 +327,11 @@ Use null for any field not clearly visible. Do not guess.`;
     const owner = booking ? String(booking.patient_id ?? booking.patient_account_id ?? '') : '';
     if (!booking || owner !== String(patientId)) throw new NotFoundException('owned_booking_not_found');
 
+    // one claim per booking: an open one (pending, facility-approved or reimbursed) blocks a second. Checked before the paid amount: a booking whose
+    // reimbursement refunded everything has nothing left "paid", and the patient must be told the claim exists, not that it was never paid.
+    const open = await this.claimModel.findOne({ booking_kind: bookingKind, booking_id: bookingId, status: { $in: [...OPEN_CLAIM_STATUSES] } });
+    if (open) throw new ConflictException('claim_already_filed');
+
     // A reimbursement is for what the patient paid, never for an amount the client types: the settled card payments of the
     // booking (less what was already refunded), else the cash the provider recorded as collected. A claim above that is cut to it.
     const kindKey = bookingKind === 'order' ? 'pharmacy' : bookingKind === 'appointment' ? 'consultation' : bookingKind;
@@ -341,10 +346,8 @@ Use null for any field not clearly visible. Do not guess.`;
     if (!(paid > 0)) throw new BadRequestException('booking_not_paid');
     const asked = Number(claimData?.amount);
     const amount = asked > 0 ? Math.min(Math.round(asked * 100) / 100, paid) : paid;
-    // one claim per booking: a pending or already reimbursed one blocks a second
-    const open = await this.claimModel.findOne({ booking_kind: bookingKind, booking_id: bookingId, status: { $in: ['pending', 'reimbursed'] } });
-    if (open) throw new ConflictException('claim_already_filed');
 
+    // the unique index (claim_one_open_per_booking) settles two submits in the same instant: the loser gets the same answer as the check above
     const claim = await this.claimModel.create({
       patient_id: patientId,
       service: String(claimData?.service || claimData?.claim_type || bookingKind).trim(),
@@ -358,7 +361,7 @@ Use null for any field not clearly visible. Do not guess.`;
       attachment_url: claimData?.attachment_url,
       note: claimData?.note,
       date: new Date().toISOString(),
-    });
+    }).catch((e: any) => { if (e?.code === 11000) throw new ConflictException('claim_already_filed'); throw e; });
     return {
       success: true,
       claim_id: claim.id,

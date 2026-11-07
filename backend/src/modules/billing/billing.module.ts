@@ -8,6 +8,7 @@
  * NOTE: booking models are fetched from the shared mongoose connection
  * (already registered by their owning modules) — no re-registration here.
  */
+import { halalaShadowPlugin } from '../../common/halala-shadow';
 import {
   Body, Delete, HttpException, HttpStatus, Req,
   BadRequestException, Controller, Get, Post, Module, Param, Query,
@@ -67,8 +68,14 @@ export class EInvoice {
   /** What was taken off the price (coupon, points): the lines add up to the price before it, `total` is after it. */
   @Prop({ default: 0 }) discount: number;
   @Prop() issued_at: Date; // the instant in tag 3 of the QR
+  /** R11 P1: integer halalas next to the doubles (halalaShadowPlugin). */
+  @Prop() subtotal_halalas?: number;
+  @Prop() vat_amount_halalas?: number;
+  @Prop() total_halalas?: number;
+  @Prop() discount_halalas?: number;
 }
 export const EInvoiceSchema = SchemaFactory.createForClass(EInvoice);
+halalaShadowPlugin(EInvoiceSchema, ['subtotal', 'vat_amount', 'total', 'discount']);
 
 /** The title of a document, in both languages. A receipt is never called a tax invoice. */
 export function documentTitle(kind: DocumentKind, refund = false): { ar: string; en: string } {

@@ -5,6 +5,7 @@ import { Connection } from 'mongoose';
 import { NotificationType } from '../../common/enums';
 import { NotificationsService } from '../notifications/notifications.service';
 import { publicMedicineFilter } from '../medicines/public-medicine-filter';
+import { ScheduledOnce } from '../../common/scheduled-once';
 
 /** 22.2: a price-drop alert fires when the price falls by this many percent or more since the last recorded price. */
 export const PRICE_DROP_THRESHOLD_PCT = 5;
@@ -48,6 +49,7 @@ export class PriceAlertsService implements OnModuleInit {
   }
 
   @Cron(CronExpression.EVERY_HOUR)
+  @ScheduledOnce()
   async scheduledSweep() {
     if (this.running) {
       this.logger.warn('price sweep skipped: the previous run has not finished');
