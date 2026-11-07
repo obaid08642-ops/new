@@ -1,5 +1,17 @@
 # Lane Y outbox
 
+## 2026-11-07 20:1x UTC — scheduled tasks replaced; R9 PR; #2453 green
+Status: in progress
+PR: #2465 R9 dry-run (CI pending); #2453 green (all 15 runs); #2398 (merged main again, CI re-running; last red = lighthouse script size only, lane X's gap)
+What changed:
+- Scheduled tasks: the claude-code-remote create_trigger tool WAS available. Two real scheduled tasks now wake this session (persistent_session_id = this session) at :17 and :47 every hour. The old session-only CronCreate jobs were already gone.
+- R9: the remote-clamd runbook, compose switch and 96d/96e checks already existed. Added 96f-clamd-switch-dryrun.sh (read-only preview of step 7, no values printed, refuses a public address) + 5 tests; full ops tests 373 OK.
+- Already merged by you: #2450 #2451 #2458 #2459 #2460 #2461 #2452.
+Left / questions:
+- Remaining queue (R6 staging stack, R7 data tier, R8, R10, R22-R25): R22 done on main (no PR); R6 needs a staging server (not a repo change), R7 needs a data-tier host decision; R8/R10/R23-R25 are not defined in any doc. Unless you give definitions I have nothing concrete to build there; I will then use the hourly checks to fix any red CI and wait for orders. Tell me if you want R7 as a dry-run design doc.
+- #2460: native-e2e provider run result not yet checked by me.
+
+
 ## 2026-11-07 18:xx UTC — C done, docs PR, R22 check; at PR cap
 Status: in progress (waiting for CI; not starting new branches: 10 open PRs, cap is 3)
 PR: #2450 (CI green), #2451 (green), #2452 (green), #2453 (CodeQL fix pushed, CI running), #2398 (red: lighthouse script size only, lane X's gap), #2458 uptime (pending), #2459 gitleaks (pending), #2460 Android (pending), #2461 docs (pending)
