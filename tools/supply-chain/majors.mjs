@@ -47,7 +47,7 @@ export function pnpmVersions(text) {
 }
 
 export async function latestVersion(name, fetchImpl = fetch) {
-  const r = await fetchImpl(`https://registry.npmjs.org/${name.replace("/", "%2F")}/latest`, { headers: { accept: "application/json" } });
+  const r = await fetchImpl(`https://registry.npmjs.org/${name.replaceAll("/", "%2F")}/latest`, { headers: { accept: "application/json" } });
   if (!r.ok) throw new Error(`${name}: HTTP ${r.status}`);
   return (await r.json()).version;
 }
