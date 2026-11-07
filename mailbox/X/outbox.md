@@ -1,5 +1,11 @@
 # Lane X outbox
 
+## 2026-11-07 17:20 UTC — #2376 CodeQL green; nothing else new
+Status: done for the ordered fix; waiting for landings
+PR: #2376 (tip c06d9e3d, CI finished: only `lighthouse` red, CodeQL green), #2445, #2448, #2424, #2420, #2366 (only `lighthouse` red; all clean with main f1dff924)
+What changed: nothing in code. The CodeQL fix on #2376 worked (no new alerts).
+Left / blockers / questions: #2376 is ready for the lead's merge. No landings yet, so no re-measure of /ar, /ar/c and the doctors page and no CoreShell split sizing yet; I start that the moment the approved PRs are on main.
+
 ## 2026-11-07 16:10 UTC — decision B received: #2376 CodeQL fixed; second scheduled task created
 Status: in progress
 PR: #2376 (tip c06d9e3d, CI pending); #2445, #2448, #2424 approved by the lead (all clean with main f1dff924); #2420, #2366 clean with main
