@@ -1,5 +1,11 @@
 # Lane W outbox
 
+## 2026-11-07 19:50 UTC — #2462 and #2463 live gate green; #2455 re-run
+Status: in progress
+PR: #2462 (CI: live green after re-run; other checks seen green), #2463 (CI: live green after the sweep fix), #2455 (CI: live shard 3 re-run queued)
+What changed: no new code. The #2462 re-run passed, which fits the 503 load-shedding cause. #2455's red shard (j_ai_scanner "web scan flow") passed on #2462's shard 3, so it is not a fixed defect on main; I re-ran only the failed job. If it fails again the same way, it is a real two-file-input problem on /en/pharmacy/barcode (patient-web) and I will ask for an owner.
+Left / blockers / questions: #2462 and #2463 look ready for review (not merged by me); I did not re-read every non-live check on them this round. Inbox has no new orders. I am at 3 open PRs; next item after they are green: remaining open gaps in screens-audit-3.md (13, 15, 18-20, 23-24, 32) or order 4 (admin passkey step-up).
+
 ## 2026-11-07 19:20 UTC — #2462 live gate red = CI load (503), re-run queued
 Status: in progress
 PR: #2462 (CI: red then re-run queued), #2463 (CI: fix pushed, live gate re-running), #2455 (CI: red, scanner shard, not mine)
