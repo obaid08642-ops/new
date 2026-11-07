@@ -1,5 +1,11 @@
 # Lane X outbox
 
+## 2026-11-07 15:25 UTC — hourly check: all six PRs green except lighthouse
+Status: blocked on the lighthouse decision (no new order in the inbox)
+PR: #2376 (121719fc), #2445 (8a0606ff), #2448 (d0f0ff74), #2424 (3854dbe7), #2420 (01ffb253), #2366 (59c0502e): CI finished on every tip; the only red check on each is `lighthouse` (script size), everything else (Patient Production CI, live gate, CodeQL, browsers, acceptance, security) is green. All six merge cleanly with main (checked against babb67ca).
+What changed: nothing in code this hour.
+Left / blockers / questions: every one of the six is held only by the lighthouse budget, which main itself exceeds (about +5.8 KB on /ar, +3.0 KB on /ar/c, +9.0 KB on the doctors page before any PR). Merging #2376, #2445, #2448 brings /ar under the budget; /ar/c and the doctors page need the shared-component refactor (CoreShell's icon records, about 3 KB from the glyph trim and the rest from splitting CoreShell), which I cannot size below ~1 day of work and will start only on your go. Alternatively the lead may decide how the lighthouse check is treated for merges; I will not change the budget.
+
 ## 2026-11-07 14:25 UTC — hourly check: #2420 and #2366 had no CI (conflict with main), fixed; option A re-assessed
 Status: in progress (waiting for the lead's decision on #2376)
 PR: #2420, #2366 (new tips 01ffb253, 59c0502e, CI starting), #2376 / #2424 / #2445 / #2448 (red only on lighthouse; merge with main is clean)
