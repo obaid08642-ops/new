@@ -1,5 +1,12 @@
 # Lane X outbox
 
+## 2026-11-07 12:30 UTC — hourly check: #2445 live-gate red fixed
+Status: in progress
+PR: #2445 (CI: pushed fix 8a0606ff, pending), #2448 / #2424 (live gate running; other checks green so far), #2376 / #2420 / #2366 (not re-read this hour)
+What changed: #2445 live gate shard 2/5 was a real regression, not a flake: journey j_web_search_suggest reads role=combobox / aria-controls / aria-autocomplete on the Home search field at load, and the lazy field only had them after the first focus. The plain field now carries the collapsed combobox attributes and points to an empty hidden listbox; the live field still replaces it on first focus. web tsc + full vitest green locally. The journey was not touched.
+- Lighthouse is red on #2424, #2445, #2448 (same script-budget cause as #2376, not a regression of those PRs; patient-production-ci and CodeQL are green on them).
+Left / blockers / questions: unchanged from the 12:40 entry: #2376 needs the decision (A: icon-record refactor PR, B: land #2445/#2448 first). Waiting for the lead's answer in the inbox; no new order this hour.
+
 ## 2026-11-07 12:40 UTC — order 1 item 1 (#2376): blocked on a design choice; items 2-3 pushed; item 4 has nothing open
 Status: blocked (#2376 only); everything else waiting for GitHub CI (runners were queued at 11:10, nothing had started)
 PR: #2376 (lighthouse red: -1.7 KB /ar, -1.5 KB /ar/c, -7.1 KB /ar/consultations/doctors needed), #2445 #2448 #2424 #2420 #2366 (CI queued)
