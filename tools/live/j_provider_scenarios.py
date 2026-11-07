@@ -182,6 +182,35 @@ def staff_invite(doctor):
     step('a revoked member is no longer active', row.get('status') != 'active', row)
 
 
+def licence_expiry(admin, doctor):
+    """PV-08 / PV-09: a licence close to its end warns the provider; an expired one suspends the account and its login."""
+    import datetime, db_raw
+    journey('PV-08/PV-09: licence expiry warning, then suspension')
+    me = doctor.get('/auth/me')
+    uid = me.get('id') or me.get('user', 'id')
+    step('the provider account is known', me.ok and uid, me)
+    flt = {'$or': [{'account_id': uid}, {'user_id': uid}]}
+    soon = (datetime.datetime.utcnow() + datetime.timedelta(days=20)).strftime('%Y-%m-%dT00:00:00Z')
+    # TEST DATABASE ONLY: a licence cannot reach its end in real time, so its stored expiry date is moved.
+    step('test setup: licence ends in 20 days', db_raw.set_raw('provider_profiles', flt, {'license_expiry_date': {'$date': soon}}) == 1)
+    r = admin.post('/admin/providers/license-monitor/run', {})
+    step('admin runs the licence monitor', r.ok, r)
+    r = doctor.get('/notifications')
+    items = r.body if isinstance(r.body, list) else r.items()
+    warned = [n for n in items if 'license_expiring' in str(n)]
+    step('PV-08: the provider got a licence-expiring warning', r.ok and warned, r)
+    r = doctor.get('/auth/me')
+    step('PV-08: the account is still active after the warning', r.ok, r)
+    past = (datetime.datetime.utcnow() - datetime.timedelta(days=1)).strftime('%Y-%m-%dT00:00:00Z')
+    step('test setup: licence ended yesterday', db_raw.set_raw('provider_profiles', flt, {'license_expiry_date': {'$date': past}}) == 1)
+    r = admin.post('/admin/providers/license-monitor/run', {})
+    step('admin runs the licence monitor again', r.ok, r)
+    r = doctor.get('/provider/profile')
+    step('PV-09: the provider profile is suspended', (not r.ok) or r.get('status') == 'suspended', r)
+    r = doctor.get('/auth/me')
+    step('PV-09: the login no longer works', not r.ok, r)
+
+
 if __name__ == '__main__':
     import os
     import j_admin, j_accounts, j_onboarding, j_consultation
@@ -206,4 +235,5 @@ if __name__ == '__main__':
     review_reply(pat, doc, doctor_account())
     low_star_moderation(pat, doc, admin)
     staff_invite(doc)
+    licence_expiry(admin, doctor_account())
     summary()
