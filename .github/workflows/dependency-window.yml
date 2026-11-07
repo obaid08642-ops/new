@@ -1,0 +1,29 @@
+name: Dependency window (weekly)
+
+# R20: the weekly window. Saturday 00:00 UTC (03:00 in Riyadh) is when Dependabot opens its PRs (.github/dependabot.yml, one grouped PR per app for minor and patch updates).
+# This workflow runs a few minutes earlier and writes the list of MAJOR upgrades still pending per app (tools/supply-chain/majors.mjs) to the run summary and keeps it as an artifact,
+# so the person doing the window sees both lists together. It changes nothing and opens no PR; majors are done in the planned batches of docs/ops/UPGRADE_PLAN_MAJORS.md.
+on:
+  schedule:
+    - cron: '40 23 * * 5'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  majors:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Pending majors per app
+        run: node tools/supply-chain/majors.mjs | tee majors.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: pending-majors
+          path: majors.md
+          retention-days: 30

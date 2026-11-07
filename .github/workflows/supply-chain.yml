@@ -1,0 +1,38 @@
+name: Supply chain (R20)
+
+# Production base images stay pinned by digest, the image-signing helpers keep working, and the majors report script is sound. All offline: no registry or network call.
+on:
+  pull_request:
+    paths:
+      - 'tools/supply-chain/**'
+      - 'deploy/scripts/verify-image.sh'
+      - 'backend/Dockerfile.production'
+      - 'deploy/docker/Dockerfile.*'
+      - 'deploy/docker-compose.production.yml'
+      - '.github/workflows/image-publish.yml'
+      - '.github/workflows/supply-chain.yml'
+      - '.github/workflows/dependency-window.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  supply-chain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Every production image reference is pinned by digest
+        run: python3 tools/supply-chain/pin_images.py --check
+      - name: Helper tests (pinning, image SBOM check, signature verification wrapper)
+        run: python3 -m unittest tools/supply-chain/tests/test_*.py
+      - name: Majors report tests
+        run: node --test tools/supply-chain/majors.test.mjs
