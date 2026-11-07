@@ -1,0 +1,24 @@
+# Lead reviewer state (read this instead of any long history)
+Updated 2026-11-07 11:30 UTC. Public repo: never write secrets, server names or emails here.
+
+## Role
+Review and merge session PRs, prepare server deploy runs, follow worker sessions, reply to the owner in Egyptian Arabic (short).
+Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest checks are green, lighthouse aside) — run it from a checkout of this branch with `gh` available; add a PR number to approved.txt only after reviewing its diff. Never approve/merge your own PRs.
+
+## Owner rules (binding)
+Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
+TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
+
+## Production
+main@641bbe2f deployed 2026-11-07 (run 101 OK). Site 200. Edge cache HIT verified (pages + /api/v1/doctors).
+
+## Workers
+- Lanes on other accounts via this branch: X (web/design) mailbox/X, Y (backend/ops/R/ordering) mailbox/Y. RULES.md binding. Read their outbox each run; write the next order at the top of their inbox.
+- This account: F, P2, T2, H were asked to write docs/review/{F,P2,T2,H}_STATE.md and stop (2026-11-07 11:20); their hourly wake-ups are disabled. Restart them as FRESH sessions (small context) reading only their STATE file, at most every 3 hours, one PR per run.
+- Stopped for good: Design, S2, R (work moved to X/Y).
+
+## Open PRs to watch
+2454 (QA, pending CI) · 2453 (R20, CodeQL red → Y) · 2450/2398/2451 (→ Y) · 2376/2445/2448/2424/2420/2366 (→ X) · 2404 (F, waits on lighthouse fix from X) · 2225 draft (H) · old drafts 1967/1891/1897/2015/1924/2336 ignore.
+
+## Owner to-dos (remind once, not every run)
+GitHub secrets for uptime alert mail; Moyasar/APNs/social login keys; decisions: standby VPS, KSA hosting, RAM upgrade at launch; earlyoom apply run.
