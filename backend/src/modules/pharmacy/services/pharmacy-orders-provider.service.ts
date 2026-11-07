@@ -22,19 +22,24 @@ export class PharmacyOrdersProviderService {
   async acceptOrder(user: any, orderId: string) {
     // Redis SETNX Lock to prevent race condition across multiple pharmacies
     const lockKey = `order:accept:lock:${orderId}`;
-    const acquired = await this.redis.setnx(lockKey, user.id);
+    // R21: lock and expiry in ONE command (SET NX EX). The old setnx + expire could leave a lock with no expiry if the process died between the two.
+    const acquired = await this.redis.getClient().set(lockKey, user.id, 'EX', 300, 'NX');
 
-    if (!acquired) {
+    if (acquired !== 'OK') {
       throw new BadRequestException('Order already accepted by another pharmacy');
     }
 
-    // Set an expiry on the lock in case of processing failure
-    await this.redis.expire(lockKey, 300);
-
     // Real persistence: confirm this pharmacy's allocation (state machine +
     // patient notification + parent order refresh handled by the service).
-    const alloc = await this.allocs.findByOrderForProvider(user, orderId);
-    const confirmed = await this.allocs.confirm(user, alloc.id);
+    let alloc: any; let confirmed: any;
+    try {
+      alloc = await this.allocs.findByOrderForProvider(user, orderId);
+      confirmed = await this.allocs.confirm(user, alloc.id);
+    } catch (e) {
+      // R21: a failed acceptance (not this pharmacy's order, a validation error) must not lock every other pharmacy out for 5 minutes
+      await this.redis.del(lockKey).catch(() => undefined);
+      throw e;
+    }
 
     this.bus.emit({
       type: 'system.event',

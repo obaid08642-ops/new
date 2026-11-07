@@ -1,4 +1,5 @@
 import { RefundExecutor, ReportsService } from './finance-engine.module';
+import { refundGuardCollections } from './refund-guard.fake';
 
 /**
  * A refund of a service whose earning was credited: the patient gets R back; the provider's net, the platform's commission and the VAT on
@@ -10,7 +11,9 @@ function world(earning: any, paidAmount = 200) {
     exists: jest.fn(async (type: string, _rt: string, id: string) => rows.find((r) => r.type === type && r.ref_id === id) ?? null),
     append: jest.fn(async (r: any) => { rows.push(r); return r; }),
   };
+  const guard = refundGuardCollections();
   const cols: Record<string, any> = {
+    refund_reservations: guard.refund_reservations, refund_totals: guard.refund_totals,
     moyasar_payments: { findOne: async () => null },
     transactions: { findOne: async () => ({ id: 't1', status: 'paid', method: 'cash', amount: paidAmount }) },
     appointments: { findOne: async () => ({ id: 'a1', patient_id: 'p1', payment_method: 'cash', payment_status: 'paid', total_price: paidAmount }), updateOne: async () => ({ matchedCount: 1 }) },

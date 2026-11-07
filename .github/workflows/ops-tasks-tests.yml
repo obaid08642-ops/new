@@ -7,6 +7,10 @@ on:
     paths:
       - 'tools/ops/tasks/**'
       - 'tools/ops/tests/**'
+      - 'tools/ops/mem_budget.py'
+      - 'deploy/HOST_RAM_MB'
+      - 'deploy/docker-compose.production.yml'
+      - 'deploy/mongo/mongod.conf'
       - '.github/workflows/ops-tasks-tests.yml'
   workflow_dispatch:
 concurrency:
@@ -22,3 +26,5 @@ jobs:
         run: for f in tools/ops/tasks/*.sh; do bash -n "$f"; done
       - name: Task tests (fake docker)
         run: python3 -W error -m unittest discover -s tools/ops/tests -v
+      - name: Memory budget (R1) - compose + mongod.conf match the plan for deploy/HOST_RAM_MB
+        run: python3 tools/ops/mem_budget.py check

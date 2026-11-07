@@ -1,6 +1,6 @@
 """Journey: admin operations through the admin BFF (payouts.tsx, users-management.tsx, legal-policies.tsx, commissions.tsx)
 against real data: a doctor who earned from a completed consultation asks for a payout (provider-app SharedScreens)."""
-import uuid
+import datetime, os, uuid
 from lib import Client, journey, step
 
 
@@ -13,8 +13,8 @@ def live_env_hold_zero(admin):
     # so the payout flow can complete in one run (production keeps the delay
     # and the 100 SAR minimum).
     journey('payouts: live env releases the escrow hold')
-    r = admin.put('/admin/admin/legal/commissions-policy', {'settlement': {'delay_days': {'default': 0}},
-                                                       'payout_schedule': {'minimum_payout_sar': 0}})
+    r = admin.post('/admin/admin/finance/commissions/config', {'settlement_delay_days': 0, 'minimum_payout_sar': 0,
+                                                              'reason': 'live env: no escrow hold and no payout minimum'})
     step('settlement hold set to 0 for the live env', r.ok, r)
 
 
@@ -32,7 +32,7 @@ def bank_setup(admin, doctor):
     step('the account reads back approved', r.ok and r.get('review_status') == 'approved', r)
 
 
-def payouts(admin, doctor):
+def payouts(admin, doctor, owner):
     journey('payouts: provider asks, admin approves and records the transfer (payouts.tsx)')
     r = doctor.get('/provider/payouts/balance')
     bal = float(r.get('available') or r.get('balance') or 0)
@@ -49,7 +49,13 @@ def payouts(admin, doctor):
         r = admin.post(f'/admin/admin/finance/payouts/{pid}/execute', {'reason': reason})
         step('a payout cannot be paid before it is approved', r.status == 400, r)
         r = admin.post(f'/admin/admin/finance/payouts/{pid}/approve', {'reason': reason})
-        step('admin approves it', r.ok, r)
+        step('admin approves it (the live env asks for two admins: it now awaits the second)', r.ok and r.get('state') == 'AWAITING_SECOND_APPROVAL', r)
+        r = admin.post(f'/admin/admin/finance/payouts/{pid}/approve', {'reason': reason})
+        step('the same admin cannot give the second approval', not r.ok, r)
+        r = admin.post(f'/admin/admin/finance/payouts/{pid}/execute', {'reason': reason})
+        step('a payout awaiting its second approval cannot be paid', r.status == 400, r)
+        r = owner.post(f'/admin/admin/finance/payouts/{pid}/approve', {'reason': reason})
+        step('a second, distinct admin approves it', r.ok and r.get('state') == 'APPROVED_FOR_PAYOUT', r)
         r = admin.post(f'/admin/admin/finance/payouts/{pid}/execute', {'reason': reason})
         step('admin records the transfer (PAID)', r.ok, r)
         r = doctor.get('/provider/payouts/mine')
@@ -75,6 +81,8 @@ def users(admin, pat, pat_email):
 
 
 def legal_and_commissions(admin):
+    today = datetime.date.today()
+    report = f'/admin/admin/finance/commissions?from={today - datetime.timedelta(days=30)}&to={today}'   # the report needs a date range
     journey('legal policies and commissions (legal-policies.tsx, commissions.tsx)')
     text = f'سياسة الخصوصية — تحديث {uuid.uuid4().hex[:6]}'
     r = admin.put('/admin/admin/legal/policy/privacy', {'content_ar': text, 'change_note': 'admin edit from dashboard'})
@@ -83,21 +91,16 @@ def legal_and_commissions(admin):
     step('the public policy shows the new text', r.ok and text in str(r.body), r)
     r = admin.get('/legal/policies')
     step('policies list includes it', r.ok and 'privacy' in str(r.body), r)
-    r = admin.get('/admin/admin/legal/commissions-policy')
-    step('commissions load', r.ok, r)
-    cur = r.body if isinstance(r.body, dict) else {}
-    st = dict((cur.get('service_types') or {}))
-    ph = dict(st.get('pharmacy') or {})
-    old = ph.get('percent')
-    ph['percent'] = 11
-    st['pharmacy'] = ph
-    r = admin.put('/admin/admin/legal/commissions-policy', {'service_types': st})
+    r = admin.get(report)
+    step('commissions load', r.ok and isinstance(r.get('config_used', 'percents'), dict), r)
+    old = (r.get('config_used', 'percents') or {}).get('pharmacy')
+    r = admin.post('/admin/admin/finance/commissions/config', {'percents': {'pharmacy': 11}, 'reason': 'journey check: commission edit'})
     step('admin changes the pharmacy commission', r.ok, r)
-    r = admin.get('/admin/admin/legal/commissions-policy')
-    step('the change is saved', r.ok and ((r.get('service_types') or {}).get('pharmacy') or {}).get('percent') == 11, r)
+    r = admin.get(report)
+    step('the change is saved', r.ok and float((r.get('config_used', 'percents') or {}).get('pharmacy', -1)) == 11, r)
     if old is not None:
-        st['pharmacy']['percent'] = old
-        admin.put('/admin/admin/legal/commissions-policy', {'service_types': st})
+        r = admin.post('/admin/admin/finance/commissions/config', {'percents': {'pharmacy': old}, 'reason': 'journey check: commission restored'})
+        step('the commission is put back', r.ok, r)
     r = admin.get('/admin/admin/finance/ledger/summary')
     step('ledger summary loads', r.ok, r)
 
@@ -106,6 +109,7 @@ if __name__ == '__main__':
     import j_admin, j_accounts, j_onboarding, j_consultation
     from lib import summary
     admin, _ = j_admin.login()
+    owner, _ = j_admin.login(os.environ.get('LIVE_OWNER_EMAIL', 'owner@nabd.test'), os.environ.get('LIVE_OWNER_PASSWORD', 'Own3r!Live-Pass'))
     specs = Client(None, 'anon').get('/catalogs/specialties')
     spec = next((x.get('code') or x.get('id') for x in (specs.body if isinstance(specs.body, list) else specs.items())), 'cardiology')
     p = j_onboarding.register_type('doctor', {'specialty': spec, 'academic_degree': 'consultant'})
@@ -118,7 +122,7 @@ if __name__ == '__main__':
     pa = j_accounts.app_signup(label='ops-patient')
     pat = Client(pa['token'], 'patient')
     j_consultation.run(pat, doc, admin)
-    payouts(admin, doc)
+    payouts(admin, doc, owner)
     users(admin, pat, pa.get('email'))
     legal_and_commissions(admin)
     summary()

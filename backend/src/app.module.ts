@@ -44,6 +44,8 @@ import { ProviderAgreementGuard } from './modules/legal/provider-agreement';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { GracefulDrain } from './common/graceful-drain';
 import { LoadSheddingGuard } from './common/load-shedding.guard';
+import { AdmissionMiddleware } from './common/admission';
+import { RouteTimeoutInterceptor } from './common/route-timeout.interceptor';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { OrdersModule } from './modules/orders/orders.module';
@@ -58,6 +60,9 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { PriceAlertsModule } from './modules/price-alerts/price-alerts.module';
 import { CatalogueInterestModule } from './modules/catalogue-interest/catalogue-interest.module';
 import { EventsModule } from './modules/events/events.module';
+import { DbIntegrityModule } from './modules/db-integrity/db-integrity.module';
+import { DurableEventsModule } from './modules/durable-events/durable-events.module';
+import { FinanceIntegrityModule } from './modules/finance-integrity/finance-integrity.module';
 import { SeedModule } from './modules/seed/seed.module';
 import { CareModule } from './modules/care/care.module';
 import { LabsModule } from './modules/labs/labs.module';
@@ -150,6 +155,7 @@ import { BillingModule } from './modules/billing/billing.module';
 import { ArticlesModule } from './modules/articles/articles.module';
 
 import { CorrelationMiddleware } from './common/correlation.middleware';
+import { AppVersionMiddleware } from './common/app-version.middleware';
 import { RequestMetaMiddleware } from './common/request-meta';
 import { ObservabilityModule } from './modules/observability/observability.module';
 import { LogsModule } from './modules/logs/logs.module';
@@ -245,6 +251,9 @@ import { MongoSelfHealService } from './common/database/mongo-selfheal.service';
     PriceAlertsModule,
     CatalogueInterestModule,
     EventsModule,
+    DbIntegrityModule,
+    DurableEventsModule,
+    FinanceIntegrityModule,
     RealtimeModule,
     SeedModule,
     CareModule,
@@ -330,6 +339,7 @@ import { MongoSelfHealService } from './common/database/mongo-selfheal.service';
     { provide: APP_GUARD, useClass: RateLimitAuditGuard },
     { provide: APP_GUARD, useClass: AdminGateGuard },
     { provide: APP_GUARD, useClass: LoadSheddingGuard },
+    { provide: APP_INTERCEPTOR, useClass: RouteTimeoutInterceptor },
     { provide: APP_GUARD, useClass: StepUpGuard },
     StepUpService,
     { provide: APP_INTERCEPTOR, useClass: GuestChatListInterceptor },
@@ -341,6 +351,6 @@ import { MongoSelfHealService } from './common/database/mongo-selfheal.service';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(BansMiddleware, CorrelationMiddleware, RequestMetaMiddleware).forRoutes('*');
+    consumer.apply(BansMiddleware, CorrelationMiddleware, RequestMetaMiddleware, AppVersionMiddleware, AdmissionMiddleware).forRoutes('*');
   }
 }
