@@ -12,6 +12,7 @@ import { CoturnService } from '../coturn/coturn.service';
 import { cloudflareTurn } from '../coturn/cloudflare-turn.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { audioOnlyAdvice, chooseTransport, maxCallsPerHost, type LinkSample } from './call-transport';
+import { ScheduledOnce } from '../../common/scheduled-once';
 
 /** A ringing call that nobody answered stops counting against the host after this long; an active call after the longest consultation. */
 const RINGING_MS = 2 * 60_000;
@@ -348,6 +349,7 @@ export class LiveKitService {
    * push.module `onCallMissed`, notifications.service). Sessions written before caller/callee were stored are left as they are.
    */
   @Cron(CronExpression.EVERY_MINUTE)
+  @ScheduledOnce()
   async sweepUnanswered(now: Date = new Date()): Promise<number> {
     const cutoff = new Date(now.getTime() - RINGING_MS);
     const due: any[] = await this.callSessions.find({ status: 'INITIATED', createdAt: { $lt: cutoff }, callee_id: { $exists: true } }, { projection: { _id: 0 } }).limit(200).toArray();

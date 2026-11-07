@@ -14,7 +14,10 @@ function build(opts: { order?: any; rx?: any; taken?: number; draftStatus?: stri
   const order = opts.order === undefined
     ? { id: 'ord-1', patient_account_id: 'pat-1', items: [{ raw_name: 'Amlodipine', medicine_id: 'med-1', qty: 2, matched_sku: 'SKU-1', dosage: '5mg' }], prescription_id: 'rx-1', fulfillment: 'delivery', payment_mode: 'cash', payment_method: 'cash', delivery_address_id: 'addr-1' }
     : opts.order;
-  const pharmacy = { findOne: jest.fn().mockImplementation(async (filter: any) => (filter.patient_account_id ? order : { status: opts.draftStatus ?? 'draft' })) };
+  const pharmacy = {
+    findOne: jest.fn().mockImplementation(async (filter: any) => (filter.patient_account_id ? order : { status: opts.draftStatus ?? 'draft' })),
+    updateOne: jest.fn().mockResolvedValue({ modifiedCount: 1 }),
+  };
   const prescriptions = {
     findOne: jest.fn().mockResolvedValue(opts.rx === undefined ? { id: 'rx-1', valid_until: FUTURE, refills_remaining: 2 } : opts.rx),
     updateOne: jest.fn().mockResolvedValue({ modifiedCount: opts.taken ?? 1 }),
@@ -132,5 +135,13 @@ describe('PharmacyRefillService (22.1)', () => {
     expect(orders.create).toHaveBeenCalled();
     expect(orders.cancel).toHaveBeenCalledWith(user, 'draft-1', 'refill_not_submitted');
     expect(orders.submit).not.toHaveBeenCalled();
+  });
+
+  it('marks the new draft as a refill of the order it repeats, before it is sent out', async () => {
+    flags.mockResolvedValue([{ medicine_id: 'med-1', requires_prescription: false, controlled: false } as any]);
+    const { service, pharmacy, orders } = build({ order: { id: 'ord-1', patient_account_id: 'pat-1', items: [{ raw_name: 'Panadol', medicine_id: 'med-1', qty: 1 }] } });
+    await service.refill(user, 'ord-1', NOW);
+    expect(pharmacy.updateOne).toHaveBeenCalledWith({ id: 'draft-1' }, { $set: { refill_of: 'ord-1' } });
+    expect(pharmacy.updateOne.mock.invocationCallOrder[0]).toBeLessThan(orders.submit.mock.invocationCallOrder[0]);
   });
 });

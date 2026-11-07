@@ -4,6 +4,7 @@ import { Interval } from '@nestjs/schedule';
 import { Connection } from 'mongoose';
 import { ClamavService } from './clamav.service';
 import { PENDING_PREFIX, isPendingKey, promotedKey } from './pending-scan';
+import { ScheduledOnce } from '../../common/scheduled-once';
 
 /** The bucket operations the worker needs (a test injects an in-memory one). */
 export interface ObjectStore {
@@ -82,6 +83,7 @@ export class PendingScanService {
   }
 
   @Interval(60_000)
+  @ScheduledOnce({ holdMs: 20000 })
   async tick(): Promise<void> {
     if (this.running) return;
     this.running = true;

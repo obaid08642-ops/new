@@ -30,7 +30,7 @@ const REVIEWED: Record<string, Record<string, number>> = {
   'modules/pharmacy/services/pharmacy-order.service.ts': { prescriptions: 2 },       // ownership check, projection id
   'modules/pharmacy/services/rx-rules.ts': { prescriptions: 1 },                     // existence check
   'modules/pharmacy/services/pharmacy-refill.service.ts': { prescriptions: 3 },       // refill: projection id/valid_until/refills_remaining only; the refill counter is a non-health update
-  'modules/provider-ops/provider-ops.module.ts': { consultationnotes: 1, prescriptions: 1 }, // both writes protected
+  'modules/provider-ops/provider-ops.module.ts': { consultationnotes: 1, prescriptions: 1, appointments: 1 }, // both writes protected; the doctor-note ownership check projects id/patient_id/doctor_user_id only
   'modules/provider-production/provider-production.module.ts': { appointments: 1 },  // ownership check
   'modules/provider/appointment-link.ts': { appointments: 2 },                       // projection ids only: which of the ids is this doctor's visit of this patient; ownedVisit projects id/patient_id/patient_name (no health field)
   'modules/provider/provider-facility.controller.ts': { appointments: 2 },           // schedule list, distinct patient ids

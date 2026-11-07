@@ -67,8 +67,8 @@ Compared by reading the code of both apps (grep for the feature in `patient-app`
 | #1914 | 997 call button on /emergency, urgent-help on /mental-health | done: `components/emergency/UrgentHelpView.tsx`, `MentalHealthViews.tsx` |
 | #1926 | address add is map-first | done: the app opens the map picker from the address book (`AddressBookView.tsx:84`) |
 | #1932 | voice notes in the consultation chat | done: `consultations/chat-with-doctor.tsx` |
-| #1989 | consultations: three visit-type cards, one Filters sheet, "Without insurance (cash)" | not verified card by card; the app has its own filter sheet and cash payment (`consult.pay.cash`). Needs a render comparison: next |
+| #1989 | consultations: three visit-type cards, one Filters sheet, payment filter | done: the app has the three cards in the same order, tones and subtitle keys (`consultations/index.tsx:117-119`, `consult.hub.visitSub*`), one filter sheet with the payment choice (`:546`), and the same label "Without insurance" (`consult.hub.payCash`; the web reads `payment_self_pay`). Compared by code, not by render |
 | #2006 | hologram provider pins on the facilities map | done: `components/map-hologram.ts`, `ProvidersMapView.tsx` |
 | #1892, #1941, #1949, #1959, #2057, #2074 | login empty-field message, hydration test, diagnostics photo fallback, doctor page 503 fix, lazy carts sheet, tab-bar reserve | n/a: web-only fixes or performance |
 
-Nothing found that the app lacks except the one row marked "next" (#1989): it needs a render comparison, not a code port.
+Nothing found that the app lacks.

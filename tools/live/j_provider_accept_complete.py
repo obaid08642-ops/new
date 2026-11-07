@@ -32,6 +32,7 @@ def run():
     doc = j_concurrency.DOCTOR_CLIENT
     r = doc.req('PATCH', f'/care/appointments/{aid}/complete', None, headers={'Idempotency-Key': __import__('uuid').uuid4().__str__()})
     step('a second completion is refused by the state rule (400/409/422)', r.status in (400, 409, 422), r)
+    j_concurrency.remove_published_doctor()
     summary()
 
 

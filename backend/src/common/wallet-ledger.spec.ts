@@ -32,12 +32,24 @@ const wallet2 = () => ({ _id: 'w-doc2', id: 'w2', ownerId: 'prov1', ownerType: '
 const entry = { ownerId: 'p1', ownerType: 'patient', amount: 40, type: 'credit' as const, referenceType: 'refund', referenceId: 'cancel_o1', description: 'x' };
 
 describe('wallet entries go through the ledger, once per event', () => {
+  it('a wallet created by the first credit starts with a zero shadow and ends with the halalas of the ledger sum', async () => {
+    const wallets: any[] = []; const txs: any[] = [];
+    const { conn } = fakeConn(wallets, txs);
+    const out = await postWalletEntry(conn, { ...entry, amount: 12.34 }, { createWalletIfMissing: true });
+    expect(out).toEqual({ credited: true, balance: 12.34 });
+    expect(wallets[0]).toMatchObject({ balance: 12.34, balance_halalas: 1234 });
+    expect(txs[0].amount_halalas).toBe(1234);
+  });
+
   it('writes a keyed ledger row and sets the balance to the ledger sum', async () => {
     const w = wallet(); const txs: any[] = [{ walletId: 'w1', type: 'credit', amount: 10, referenceType: 'topup', referenceId: 't1' }];
     const { conn } = fakeConn([w], txs);
     const out = await postWalletEntry(conn, entry);
     expect(out).toEqual({ credited: true, balance: 50 });
     expect(txs.at(-1)).toMatchObject({ idempotency_key: 'w1:credit:refund:cancel_o1', walletId: 'w1', amount: 40, type: 'credit' });
+    // R11 P1: integer halalas next to the doubles, in the same writes
+    expect(txs.at(-1).amount_halalas).toBe(4000);
+    expect(w).toMatchObject({ balance: 50, balance_halalas: 5000 });
     expect(w.balance).toBe(50);
   });
 

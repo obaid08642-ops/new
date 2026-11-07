@@ -19,6 +19,7 @@ import { Permission, RequirePermissions } from '../../common/permissions';
 import { EventsModule } from '../events/events.module';
 import { EventBusService } from '../events/event-bus.service';
 import { RateDto, RebookDto, CancelDto, TransitionDto } from './patient-ux.dto';
+import { DurableEventsService, emitDurable } from '../durable-events/durable-events.service';
 
 /** Reviews + Refund Requests + Rebook */
 @Injectable()
@@ -34,6 +35,7 @@ export class PatientUxService {
     private events: EventEmitter2,
     private bus: EventBusService,
     @Optional() private readonly killSwitches?: KillSwitchesService,
+    @Optional() private readonly durable?: DurableEventsService,
   ) {}
 
   private model(k: string): Model<any> {
@@ -108,7 +110,7 @@ export class PatientUxService {
     const existing = await this.refunds.findOne({ booking_id: { $eq: body.booking_id }, status: 'requested' });
     if (existing) return existing.toObject();
     const rr = await this.refunds.create({ booking_kind: body.booking_kind, booking_id: body.booking_id, patient_id: user.id, reason: body.reason, amount: body.amount });
-    this.events.emit('refund.requested', rr.toObject());
+    await emitDurable(this.durable, this.events, 'refund.requested', rr.toObject(), `refund.requested:${rr.id}`);
     return rr.toObject();
   }
 
@@ -152,7 +154,7 @@ export class PatientUxService {
       reason_code: r.reason,
       meta: { booking_kind: r.booking_kind, booking_id: r.booking_id, amount: r.amount, note },
     }).catch(() => null);
-    this.events.emit('refund.decided', { id, decision });
+    await emitDurable(this.durable, this.events, 'refund.decided', { id, decision }, `refund.decided:${id}:${decision}`);
     return r.toObject();
   }
 

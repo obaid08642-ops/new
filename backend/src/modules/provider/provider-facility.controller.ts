@@ -51,11 +51,30 @@ export class ProviderFacilityController {
         slot_start: { $gte: new Date(Date.now() - 86400000), $lte: horizon },
       } as any)
       .sort({ slot_start: 1 }).limit(300).toArray();
-    return rows.map((a: any) => ({
-      id: a.id || String(a._id), patient_id: a.patient_id, provider_id: a.provider_id || a.doctor_id,
-      scheduled_at: a.slot_start || a.scheduled_at, status: a.status, kind: a.kind || 'consultation',
-      service_type: a.service_type || null, payment_status: a.payment_status || null,
-    }));
+    // the calendar shows who and with whom, not ids: the patient's name (as the patient tracker already gives it to the facility) and the doctor's
+    const patientIds = [...new Set(rows.map((a: any) => a.patient_id).filter(Boolean).map(String))];
+    const providerRefs = [...new Set(rows.flatMap((a: any) => [a.provider_id, a.doctor_id, a.doctor_user_id]).filter(Boolean).map(String))];
+    const [patients, profiles] = await Promise.all([
+      patientIds.length ? this.conn.collection('users').find({ id: { $in: patientIds } } as any).project({ id: 1, full_name: 1 }).toArray() : [],
+      providerRefs.length ? this.conn.collection('provider_profiles').find({ $or: [{ id: { $in: providerRefs } }, { account_id: { $in: providerRefs } }, { user_id: { $in: providerRefs } }] } as any)
+        .project({ id: 1, account_id: 1, user_id: 1, display_name_ar: 1, display_name_en: 1, name_ar: 1, name_en: 1 }).toArray() : [],
+    ]);
+    const patientName = new Map((patients as any[]).map((u) => [String(u.id), u.full_name || null]));
+    const providerName = new Map<string, { ar: string | null; en: string | null }>();
+    for (const p of profiles as any[]) {
+      const name = { ar: p.display_name_ar || p.name_ar || null, en: p.display_name_en || p.name_en || null };
+      for (const k of [p.id, p.account_id, p.user_id]) if (k) providerName.set(String(k), name);
+    }
+    return rows.map((a: any) => {
+      const providerId = a.provider_id || a.doctor_id;
+      const pn = providerName.get(String(providerId)) ?? providerName.get(String(a.doctor_user_id)) ?? null;
+      return {
+        id: a.id || String(a._id), patient_id: a.patient_id, patient_name: a.patient_name || patientName.get(String(a.patient_id)) || null,
+        provider_id: providerId, provider_name: pn?.ar || pn?.en || null, provider_name_en: pn?.en || pn?.ar || null,
+        scheduled_at: a.slot_start || a.scheduled_at, status: a.status, kind: a.kind || 'consultation',
+        service_type: a.service_type || null, payment_status: a.payment_status || null,
+      };
+    });
   }
 
   @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)

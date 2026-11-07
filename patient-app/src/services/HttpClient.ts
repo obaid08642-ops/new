@@ -1,3 +1,4 @@
+import { APP_HEADERS } from '../utils/appVersion';
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 import { config } from '../core/config';
@@ -13,6 +14,8 @@ export const HttpClient = axios.create({
 
 // 15.1: the same timeouts as apiFetch (15 s; 60 s for an upload; 45 s for the AI routes) unless the caller set one.
 HttpClient.interceptors.request.use((request) => {
+  // R12: which app and build is asking (server-side minimum version, traffic per build)
+  for (const [k, v] of Object.entries(APP_HEADERS)) (request.headers as any)?.set?.(k, v);
   if (request.timeout === undefined || request.timeout === DEFAULT_TIMEOUT_MS) {
     request.timeout = timeoutFor(String(request.url || ''), request.data);
   }

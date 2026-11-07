@@ -5,6 +5,7 @@ import { UserRole } from '../../common/enums';
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { ProductRankingService } from './product-ranking.service';
 import { CatalogueRankingService } from '../catalogue-ranking/catalogue-ranking.service';
+import { ScheduledOnce } from '../../common/scheduled-once';
 
 /** The score job on a timer: decay reaches products that have had no event since. */
 @Injectable()
@@ -13,6 +14,7 @@ export class RankingScoreJob {
   constructor(private readonly ranking: ProductRankingService) {}
 
   @Cron(CronExpression.EVERY_30_MINUTES)
+  @ScheduledOnce()
   async run(): Promise<void> {
     try {
       const { updated } = await this.ranking.recomputeAll();
