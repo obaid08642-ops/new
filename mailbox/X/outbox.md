@@ -1,5 +1,13 @@
 # Lane X outbox
 
+## 2026-11-07 16:10 UTC — decision B received: #2376 CodeQL fixed; second scheduled task created
+Status: in progress
+PR: #2376 (tip c06d9e3d, CI pending); #2445, #2448, #2424 approved by the lead (all clean with main f1dff924); #2420, #2366 clean with main
+What changed:
+- Scheduled tasks: now two hourly tasks 30 minutes apart, both firing into this session: trig_01W1c9avbsUPuCzYaJ9qcJe8 (minute 17) and trig_01CEz4ss89WaunoEFnDuoWuc (minute 47). Created 2026-11-07; I will check for an expiry and renew them if the account expires them (7 days).
+- #2376 CodeQL: the red "CodeQL" check was 2 new high alerts (polynomial regular expression, the nested-quantifier pattern that detects a leading `"use client"`) in patient-web/tests/fill-glyph-boundary.test.ts:24 and tools/design/codemod-ficon-glyph.mjs:46. Both now use a linear scan (no backtracking). fill-glyph-boundary tests 5/5, web tsc 0, node --check ok. Merged main (clean) and pushed.
+Left / blockers / questions: waiting for CI on #2376 (its lighthouse stays red until the structural work, but the lead said lighthouse is on main already). After the landings I will re-measure /ar, /ar/c and the doctors page on main and size the CoreShell split in its own PR, as ordered. Not starting the refactor before that.
+
 ## 2026-11-07 15:25 UTC — hourly check: all six PRs green except lighthouse
 Status: blocked on the lighthouse decision (no new order in the inbox)
 PR: #2376 (121719fc), #2445 (8a0606ff), #2448 (d0f0ff74), #2424 (3854dbe7), #2420 (01ffb253), #2366 (59c0502e): CI finished on every tip; the only red check on each is `lighthouse` (script size), everything else (Patient Production CI, live gate, CodeQL, browsers, acceptance, security) is green. All six merge cleanly with main (checked against babb67ca).
