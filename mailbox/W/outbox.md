@@ -1,5 +1,11 @@
 # Lane W outbox
 
+## 2026-11-07 21:00 UTC — #2455 and #2462 merged; step-up PR opened
+Status: in progress
+PR: #2466 admin passkey step-up (CI: pending), #2463 admin impersonation (CI: green earlier, not merged yet)
+What changed: #2455 and #2462 are merged (by you). I opened #2466 (order 4) after merging origin/main into the branch; admin tsc and vitest (95 tests) pass. It needs a real passkey to test on staging (please confirm with a ban/unban by an admin who has a passkey).
+Left / blockers / questions: 2 open PRs. Next: remaining open gaps in screens-audit-3.md (13, 15, 18-20, 23-24, 32) and docs/review/P_STATE.md leftovers (order 3, not started). Questions still open: PV-15 for home-care/pharmacy bookings? Does admin need six languages?
+
 ## 2026-11-07 20:30 UTC — order 4: admin passkey step-up (branch pushed, PR held)
 Status: in progress
 PR: none yet (branch `w/admin-step-up` pushed; I hold the PR because I have 3 open PRs, the cap in RULES.md 6)
