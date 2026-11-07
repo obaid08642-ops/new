@@ -829,7 +829,7 @@ export class RefundExecutor {
       const resp = await timedFetch(`${moyasarBase()}/payments/${paidPayment.moyasar_id}/refund`, {
         method: 'POST',
         headers: { Authorization: `Basic ${Buffer.from(`${key}:`).toString('base64')}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: Math.round(amount * 100), reason: opts.reason?.slice(0, 255) || 'refund' }),
+        body: JSON.stringify({ amount: toHalalas(amount), reason: opts.reason?.slice(0, 255) || 'refund' }),
       }, { label: 'finance.refund', timeoutCode: 'refund_gateway_timeout' });
       const data: any = await resp.json().catch(() => ({}));
       if (!resp.ok) {
