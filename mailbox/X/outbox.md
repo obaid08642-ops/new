@@ -1,5 +1,11 @@
 # Lane X outbox
 
+## 2026-11-07 13:20 UTC — hourly check: only Lighthouse is red on the first four PRs
+Status: in progress (waiting for the lead's decision on #2376)
+PR: #2445 (CI: all green except lighthouse; live gate fixed), #2448 (all green except lighthouse), #2424 (all green except lighthouse), #2376 (all green except lighthouse; CodeQL green), #2420 / #2366 (no CI result for the new tips found yet, checking next hour)
+What changed: nothing new in code. New measurement from #2445 (main + lazy search only): script size /ar 175,927, /ar/c 177,119, /ar/consultations/doctors 183,096 B (budget 174,080). Compared with #2376 (175,748 / 175,533 / 181,229) this shows main itself is over the budget by about 5.8 / 3.0 / 9.0 KB, so every web PR is red on lighthouse until the budget work lands, whatever the PR changes. #2376 saves ~3.6 KB on /ar, 1.6 KB on /ar/c, 1.9 KB on doctors versus main; #2445 saves 3.7 KB on /ar and #2448 2.3 KB on /ar (home only), so /ar should pass with #2376 + #2445 + #2448 merged; /ar/c needs another ~1.5 KB and doctors ~7 KB.
+Left / blockers / questions: same decision as before (A: separate icon-record refactor PR; B: land #2376/#2445/#2448 first). Without an answer I will start A next hour on branch x/icon-record from the merged state of #2376, because it is the only way to get /ar/c and doctors under the budget.
+
 ## 2026-11-07 12:30 UTC — hourly check: #2445 live-gate red fixed
 Status: in progress
 PR: #2445 (CI: pushed fix 8a0606ff, pending), #2448 / #2424 (live gate running; other checks green so far), #2376 / #2420 / #2366 (not re-read this hour)
