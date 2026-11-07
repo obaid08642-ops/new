@@ -697,8 +697,7 @@ export class RefundExecutor {
       this.reservations.createIndex({ refund_id: 1 }, { unique: true }),
       this.refundTotals.createIndex({ booking_id: 1 }, { unique: true }),
     ]).then(() => undefined));
-    const cents = (x: number) => Math.round((Number(x) + Number.EPSILON) * 100);
-    const reservation: RefundReservation = { refund_id: refundId, booking_id: bookingId, halalas: cents(amount) };
+    const reservation: RefundReservation = { refund_id: refundId, booking_id: bookingId, halalas: toHalalas(amount) };
     try {
       await this.reservations.insertOne({ ...reservation, state: 'reserved', createdAt: new Date() } as any);
     } catch (e: any) {
@@ -710,8 +709,8 @@ export class RefundExecutor {
       if (!took) throw new ConflictException('refund_in_progress');
       return { ...reservation, takenOver: true };
     }
-    await this.refundTotals.updateOne({ booking_id: bookingId } as any, { $setOnInsert: { booking_id: bookingId, refunded_halalas: cents(alreadyRefunded), createdAt: new Date() } }, { upsert: true }).catch((e: any) => { if (e?.code !== 11000) throw e; });
-    const room = cents(paidTotal) - reservation.halalas;
+    await this.refundTotals.updateOne({ booking_id: bookingId } as any, { $setOnInsert: { booking_id: bookingId, refunded_halalas: toHalalas(alreadyRefunded), createdAt: new Date() } }, { upsert: true }).catch((e: any) => { if (e?.code !== 11000) throw e; });
+    const room = toHalalas(paidTotal) - reservation.halalas;
     const raised = await this.refundTotals.updateOne({ booking_id: bookingId, refunded_halalas: { $lte: room } } as any, { $inc: { refunded_halalas: reservation.halalas } });
     if (!raised.matchedCount) {
       await this.reservations.deleteOne({ refund_id: refundId, state: 'reserved' } as any);
