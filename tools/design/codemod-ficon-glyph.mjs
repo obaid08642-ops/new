@@ -29,6 +29,18 @@ const glyphConst = (n) => `FILL_${n.toUpperCase().replace(/-/g, '_')}`;
 const GLYPHS = '@/components-next/ui-generated/icons/glyphs';
 const BYNAME = '@/components-next/icons/ficon-by-name';
 
+// linear scan (no backtracking): skips leading whitespace, // lines and /* */ blocks, then looks for the directive
+function startsWithUseClient(text) {
+  let i = 0;
+  for (;;) {
+    while (i < text.length && /\s/.test(text[i])) i++;
+    if (text.startsWith('//', i)) { const n = text.indexOf('\n', i); if (n < 0) return false; i = n + 1; }
+    else if (text.startsWith('/*', i)) { const e = text.indexOf('*/', i + 2); if (e < 0) return false; i = e + 2; }
+    else break;
+  }
+  return /^["']use client["']/.test(text.slice(i, i + 12));
+}
+
 function walk(dir, out = []) {
   for (const name of readdirSync(dir)) {
     if (['node_modules', '.next', 'ui-generated'].includes(name)) continue;
@@ -43,7 +55,7 @@ const report = { literal: 0, byName: 0, clientDataDriven: [], typeRenames: 0 };
 for (const file of [...walk(join(WEB, 'app')), ...walk(join(WEB, 'components-next')), ...walk(join(WEB, 'lib'))]) {
   let text = readFileSync(file, 'utf8');
   if (!/\bFIcon\b|\bFillIconName\b/.test(text)) continue;
-  const isClient = /^\s*(\/\/[^\n]*\n|\/\*[\s\S]*?\*\/\s*)*["']use client["']/.test(text);
+  const isClient = startsWithUseClient(text);
   const sf = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
   const edits = []; const needGlyphs = new Set(); let needByName = false;
   const visit = (node) => {

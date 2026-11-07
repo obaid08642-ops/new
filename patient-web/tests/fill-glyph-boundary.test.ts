@@ -21,7 +21,17 @@ function walk(dir: string, out: string[] = []): string[] {
   return out;
 }
 const files = ["app", "components-next", "lib"].flatMap((d) => walk(join(root, d)));
-const isClient = (text: string) => /^\s*(\/\/[^\n]*\n|\/\*[\s\S]*?\*\/\s*)*["']use client["']/.test(text);
+// linear scan (no backtracking): skips leading whitespace, // lines and /* */ blocks, then looks for the directive
+const isClient = (text: string) => {
+  let i = 0;
+  for (;;) {
+    while (i < text.length && /\s/.test(text[i])) i++;
+    if (text.startsWith("//", i)) { const n = text.indexOf("\n", i); if (n < 0) return false; i = n + 1; }
+    else if (text.startsWith("/*", i)) { const e = text.indexOf("*/", i + 2); if (e < 0) return false; i = e + 2; }
+    else break;
+  }
+  return /^["']use client["']/.test(text.slice(i, i + 12));
+};
 
 describe("the full glyph record stays out of client modules", () => {
   it("there is no module that holds several outlines but fill-all (the bundler keeps a whole module)", () => {
