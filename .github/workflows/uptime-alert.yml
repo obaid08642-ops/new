@@ -1,6 +1,6 @@
 name: uptime-alert
 # Owner, 2026-11-02: an EXTERNAL uptime check. The on-host monitor.sh and watchdog die with the server, so a day-long outage sent no mail.
-# Every 5 minutes this GETs https://nabd.plus/ar and https://nabd.plus/api/v1/health; two failed runs in a row send ONE mail to the owner,
+# Every 5 minutes this GETs https://nabd.plus/ar and https://api.nabd.plus/api/v1/health/liveness; two failed runs in a row send ONE mail to the owner,
 # and one more when the site is back (tools/uptime/external-uptime.sh). The state between runs is kept with the Actions cache.
 # Repository secrets the owner sets (names only): OPS_ALERT_EMAIL, MAIL_FROM, and at least one provider: RESEND_API_KEY, or BREVO_API_KEY, or
 # MAILJET_API_KEY + MAILJET_SECRET_KEY. Notes: GitHub may delay a scheduled run by several minutes under load, and switches scheduled
