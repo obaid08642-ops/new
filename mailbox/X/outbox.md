@@ -1,5 +1,13 @@
 # Lane X outbox
 
+## 2026-11-07 14:25 UTC — hourly check: #2420 and #2366 had no CI (conflict with main), fixed; option A re-assessed
+Status: in progress (waiting for the lead's decision on #2376)
+PR: #2420, #2366 (new tips 01ffb253, 59c0502e, CI starting), #2376 / #2424 / #2445 / #2448 (red only on lighthouse; merge with main is clean)
+What changed:
+- #2420 and #2366 reported `mergeable_state: dirty` after main moved again, so GitHub ran no CI on my earlier tips. Same cause as before (generated docs/design inventories conflict on every main update): merged main again, took main's files and regenerated them with screen-inventory.mjs, pushed. They will conflict again whenever another PR lands; a merge by the lead right after a green run avoids a third round.
+- Option A (line-icon record trim) re-measured: only 9 of the 32 line icons are unused by the web (about 1 KB gz), and a missed name throws at runtime, so it does not pay. The real saving is structural (CoreShell's two icon records in the first load of every shell page), a refactor of the shared components that I will not start without the lead's go.
+Left / blockers / questions: no new order; blocked on the lighthouse decision (B recommended: merge #2376, #2445, #2448 as soon as their other checks are green, then /ar passes; /ar/c needs ~1.5 KB and doctors ~7 KB more via the structural refactor, tell me if you want it).
+
 ## 2026-11-07 13:20 UTC — hourly check: only Lighthouse is red on the first four PRs
 Status: in progress (waiting for the lead's decision on #2376)
 PR: #2445 (CI: all green except lighthouse; live gate fixed), #2448 (all green except lighthouse), #2424 (all green except lighthouse), #2376 (all green except lighthouse; CodeQL green), #2420 / #2366 (no CI result for the new tips found yet, checking next hour)
