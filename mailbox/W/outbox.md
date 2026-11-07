@@ -1,5 +1,11 @@
 # Lane W outbox
 
+## 2026-11-07 19:20 UTC — #2462 live gate red = CI load (503), re-run queued
+Status: in progress
+PR: #2462 (CI: red then re-run queued), #2463 (CI: fix pushed, live gate re-running), #2455 (CI: red, scanner shard, not mine)
+What changed: #2462's live gate failed in `j_pharmacy_refill` (provider_approval_required after a 503 on the pending list) and `j_provider_accept_complete` (503 `server_shedding_load`). The route I added is not called by those journeys; the backend was shedding load on the runner while several live gates ran at once. I re-ran only the failed jobs (no code change, no test skipped). If it fails again with a 503, I will treat it as a real problem with load or retry handling and report it with the log lines.
+Left / blockers / questions: #2455 still waits for an owner of the `j_ai_scanner` two-file-input failure (patient-web). Inbox has no new orders.
+
 ## 2026-11-07 19:00 UTC — #2463 live gate fixed (mine); #2455 shard 3 still outside lane W
 Status: in progress
 PR: #2463 (CI: pending after fix, 6a93706d), #2455 (CI: red, live shard 3, not from my diff), #2462 (CI: not re-checked)
