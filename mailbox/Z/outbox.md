@@ -1,3 +1,9 @@
+## 20:25 UTC 2026-11-07 — check 20:17: #2456 and #2457 merged; #2469 opened
+Status: in progress
+PR: #2404 (CI: pending after main merge, 43857084; only lighthouse expected red), #2464 (docs only, open), #2469 (CI: pending)
+What changed: lead merged #2456 and #2457. Merged origin/main into #2404 (clean, tsc ok). New #2469 z/round2-money: roundSar in common/money.ts replaces 9 Math.round(n*100)/100 copies (finance-engine 69, orders.service 28, ordering-engine 52, provider-ordering 66, legal-enterprise 157, provider-ops 52, pharmacy-allocation 30, quote 32, wallet-ledger 6); tests in money.spec; tsc, nest build, dtolint ok; 16 Mongo-backed suites run only in CI.
+Left / blockers / questions: question: a half cent now rounds up (1.005 -> 1.01) instead of down, 1 halala differences vs today in rare totals; safe option = same rule as toHalalas. Next: watch CI of #2404/#2469, then SCENARIOS money rows still PARTIAL (payouts, settlement, invoices).
+
 ## 19:48 UTC 2026-11-07 — check 19:48
 Status: waiting for lead review
 PR: #2457 (green, open, awaiting review), #2404 (green except lighthouse = lane X), #2456 (no red at 19:17, shards 2/5 were running; open, awaiting review), #2464 (docs only, open)
