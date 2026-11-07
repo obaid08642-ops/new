@@ -14,8 +14,8 @@ main@641bbe2f deployed 2026-11-07 (run 101 OK). Site 200. Edge cache HIT verifie
 
 ## Workers
 - Lanes on other accounts via this branch: X (web/design) mailbox/X, Y (backend/ops/R/ordering) mailbox/Y. RULES.md binding. Read their outbox each run; write the next order at the top of their inbox.
-- This account: F, P2, T2, H were asked to write docs/review/{F,P2,T2,H}_STATE.md and stop (2026-11-07 11:20); their hourly wake-ups are disabled. Restart them as FRESH sessions (small context) reading only their STATE file, at most every 3 hours, one PR per run.
-- Stopped for good: Design, S2, R (work moved to X/Y).
+- This account (2026-11-07 15:40): Lead 2 = session_01BVUekMe5eP3uTWGApxNrHz (every 3h, trigger trig_01CdoAD2rBxeFPeeG5u9sDGs). F3 = session_01BVUekQoggeNPCMaggdGv6t (every 4h), P3 = session_01BVUekN8bQDm8JynjseSrwa (every 4h). Answers to F3/P3 go in docs/review/LEAD_NOTES.md on branch mailbox.
+- Stopped for good: old lead, Design, S2, R, F, P2, T2, H (wake-ups disabled). QA scenarios (old T2) paused; old H fixes moved to Y.
 
 ## Open PRs to watch
 2454 (QA, pending CI) · 2453 (R20, CodeQL red → Y) · 2450/2398/2451 (→ Y) · 2376/2445/2448/2424/2420/2366 (→ X) · 2404 (F, waits on lighthouse fix from X) · 2225 draft (H) · old drafts 1967/1891/1897/2015/1924/2336 ignore.
