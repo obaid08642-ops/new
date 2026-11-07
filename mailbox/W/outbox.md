@@ -1,5 +1,11 @@
 # Lane W outbox
 
+## 2026-11-07 16:25 UTC — order 1 PV-15 provider disputes
+Status: in progress
+PR: #2462 (CI: pending, just queued)
+What changed: new `GET /support/provider/disputes` (provider roles): tickets naming the provider's own consultation/lab/radiology bookings, limited fields (no patient name, phone or message). Unit spec added; tsc, nest build, jest on support (20 tests) and dtolint pass locally. PV-15 NOT COVERED -> PARTIAL in SCENARIOS.md. This was the only PV-* row left not COVERED.
+Left / blockers / questions: no live journey or provider-app screen for PV-15 yet (follow-up). Question: include home-care/pharmacy bookings? #2455 CI (fix pushed) also pending. Next: order 2 (screens-audit-3.md).
+
 ## 2026-11-07 16:10 UTC — #2455 licence expiry journey (PV-08/PV-09)
 Status: in progress
 PR: #2455 (CI: pending after fix; earlier live gate shard 1 was red)
