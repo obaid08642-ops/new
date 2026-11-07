@@ -1,4 +1,5 @@
 import { isTaxRegistered, platformVatOf } from './tax-registration';
+import { roundSar } from './money';
 
 /**
  * One quote shape for every booking kind. The server states every amount (lines, VAT, discount, total); the clients only display it.
@@ -29,7 +30,7 @@ export interface Quote {
   allowed_methods: string[];
 }
 
-const round2 = (n: number) => Math.round(n * 100) / 100;
+const round2 = roundSar;
 export const DEFAULT_VAT_RATE = 0.15;
 
 /** The VAT rate of `finance_config.tax.vat_percent` (the one the settlement and the invoice use), 15% when none is set. */
