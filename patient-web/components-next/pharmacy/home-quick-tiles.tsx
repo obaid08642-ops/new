@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { visibleItems, type DisabledModules } from "@/lib/modules";
-import { OrderAgainCard } from "./order-again-card";
+import { OrderAgainGate } from "./order-again-gate";
 import { PHARMACY_TONE } from "./tones";
 import styles from "./pharmacy.module.css";
 
@@ -31,7 +31,7 @@ export function HomeQuickTiles({ locale, disabled, labels }: { locale: string; d
           </li>
         ))}
       </ul>
-      <OrderAgainCard locale={locale} />
+      <OrderAgainGate locale={locale} />
     </section>
   );
 }
