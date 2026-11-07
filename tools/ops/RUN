@@ -1,7 +1,6 @@
-# 2026-11-03 14:20 lead reviewer: run 100 = deploy main@9ac45f91.
-# Brings: admin passkey fix (#2438: one WebAuthn rpID/origin config, step-up options for the signed-in admin, failure reason logged), R17 heavy admin reads with a time cap (#2444),
-#   halalas dual write for invoices and refund requests (#2443).
-release:9ac45f916a661f8e8455394a13adfc63ceed47d9
+# 2026-11-07 10:15 lead reviewer: run 101 = deploy main@641bbe2f.
+# Brings: wallet halalas dual write (#2446), one open insurance claim per booking (#2449, partial unique index; logs and keeps the read check if old duplicates exist), R18 alerts/runbooks (#2447).
+release:641bbe2fac2ea3c609a0ce3cfa352da2fb00c404
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
