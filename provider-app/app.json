@@ -49,6 +49,7 @@
       "expo-font",
       "expo-secure-store",
       "expo-camera",
+      "./plugins/with-firebase-messaging-manifest",
       ["expo-notifications", { "sounds": ["./assets/sounds/new_order.wav"], "defaultChannel": "default", "color": "#D42A38" }],
       "expo-location",
       "expo-local-authentication",
@@ -61,7 +62,8 @@
           "project": "provider-app"
         }
       ],
-      "@maplibre/maplibre-react-native"
+      "@maplibre/maplibre-react-native",
+      "./plugins/with-ios-modular-headers"
     ],
     "extra": {
       "apiBaseUrl": "https://api.nabd.plus/api/v1"

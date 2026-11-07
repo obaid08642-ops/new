@@ -29,7 +29,8 @@ module.exports = function (api) {
           },
         },
       ],
-      ...(process.env.NODE_ENV === 'production' || process.env.BABEL_ENV === 'production'
+      // NABD_KEEP_CONSOLE=1 (the native e2e build only) keeps console.* in a release build, so adb logcat shows the app's JS errors
+      ...((process.env.NODE_ENV === 'production' || process.env.BABEL_ENV === 'production') && process.env.NABD_KEEP_CONSOLE !== '1'
         ? ['transform-remove-console']
         : []),
     ],

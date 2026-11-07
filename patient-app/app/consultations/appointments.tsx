@@ -99,6 +99,7 @@ export default function AppointmentsScreen() {
             status={{ label: k(st.key), tone: st.tone }}
             actions={actions}
             onPress={() => open(String(a.id), '/consultations/appointment-detail')}
+            testID={`appointment-${a.id}`}
           />
         );
       }}

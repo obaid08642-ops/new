@@ -24,6 +24,12 @@ export EXPO_PUBLIC_SOCKET_URL=ws://127.0.0.1:8002
 export EXPO_PUBLIC_APP_ENV=development
 export SENTRY_DISABLE_AUTO_UPLOAD=true
 npm ci --no-audit --no-fund --legacy-peer-deps
+# expo-modules-autolinking gives the `ExpoModulesMacros scan-modules` process 5000 ms (build/platforms/apple/moduleScanner.js) and fails the
+# Xcode "[Expo] Configure project" phase when it takes longer ("timed out after 5000 ms", exit 65: nightly of 2026-11-02, a slow macOS
+# runner where the cold scanner needed more). The scan is not skipped, it gets time to finish.
+SCANNER=node_modules/expo-modules-autolinking/build/platforms/apple/moduleScanner.js
+grep -q "timeout: 5000" "$SCANNER" || { echo "moduleScanner.js no longer has the 5000 ms timeout: remove this patch from build_ios.sh"; exit 1; }
+sed -i.bak "s/timeout: 5000/timeout: 120000/" "$SCANNER" && rm -f "$SCANNER.bak"
 export NODE_ENV=production   # after the install: npm must not drop devDependencies (Metro resolves some of them)
 npx expo prebuild -p ios --clean --no-install
 
@@ -37,9 +43,12 @@ PLIST=$(ls -d */Info.plist | head -1)
 
 pod install --repo-update
 WS=$(ls -d *.xcworkspace | head -1); SCHEME="${WS%.xcworkspace}"
+# Signed ad hoc ("-"), not unsigned: an unsigned simulator app has no entitlements, so every keychain write fails with -34018 "Client has neither
+# application-identifier nor keychain-access-groups entitlements" (simulator log of run 41473205316) and the app could not store its sign-in tokens.
+# Signing it afterwards with codesign made the simulator refuse to launch it (run 41482418620: denied by SBMainWorkspace), so Xcode signs it here.
 xcodebuild -workspace "$WS" -scheme "$SCHEME" -configuration Release -sdk iphonesimulator \
   -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/native/dd \
-  CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" ONLY_ACTIVE_ARCH=YES build | tail -n 40
+  CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=YES ONLY_ACTIVE_ARCH=YES build | tail -n 40
 
 BUILT=$(ls -d /tmp/native/dd/Build/Products/Release-iphonesimulator/*.app | head -1)
 (cd "$(dirname "$BUILT")" && ditto -c -k --sequesterRsrc --keepParent "$(basename "$BUILT")" "/tmp/native/$APP.app.zip")

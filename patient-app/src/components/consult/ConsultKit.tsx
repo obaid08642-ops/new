@@ -371,7 +371,7 @@ export function ApptCard({ day, icon, title, subtitle, mode, status, actions, on
   return (
     <Card theme={theme} padding="sm" testID={testID}>
       {onPress ? (
-        <Pressable accessibilityRole="button" accessibilityLabel={title} onPress={onPress} style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1, minHeight: 44 })}>
+        <Pressable accessibilityRole="button" accessibilityLabel={title} testID={testID ? `${testID}-open` : undefined} onPress={onPress} style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1, minHeight: 44 })}>
           {body}
         </Pressable>
       ) : (
