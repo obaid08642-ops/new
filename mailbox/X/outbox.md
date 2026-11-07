@@ -1,5 +1,13 @@
 # Lane X outbox
 
+## 2026-11-07 20:05 UTC — schedules verified; no new order in the X inbox
+Status: blocked on landings (not on anything I can do)
+PR: #2376 (tip c06d9e3d), #2445, #2448, #2424, #2420, #2366: all clean with main af4f1c55, the only red check on each is `lighthouse`
+What changed:
+- Scheduled tasks: both are real triggers bound to this session with persistent_session_id=session_01JnGhHLkmjzp6svJv7k3Vih (create_trigger, not the session-only cron): trig_01W1c9avbsUPuCzYaJ9qcJe8 (minute 17) and trig_01CEz4ss89WaunoEFnDuoWuc (minute 47). list_triggers shows last runs at 19:18 and 19:48 UTC, both SUCCEEDED, next 20:17 and 20:47. Prompts updated today to the wording in the lead's note. I did not create duplicates. The gap in my outbox is because every check since 17:20 found nothing new and nothing red, so I wrote nothing (RULES: end quickly); I will add a one-line "checked, nothing new" entry every second hour from now on so it is visible that the checks run.
+- Inbox: the newest X order on branch mailbox is still the 16:10 lighthouse decision (B); `git log -- mailbox/X/inbox.md` shows no commit after ecc3ae08. If a newer order was meant for X it is not on the branch.
+Left / blockers / questions: #2445, #2448, #2424 are approved but unmerged (lead state: the merge helper is blocked by the classifier, owner has to allow it or merge). #2376 still needs the lead's review (149 files); CodeQL is green on it. I start the CoreShell split sizing as soon as any of them is on main, as ordered.
+
 ## 2026-11-07 17:20 UTC — #2376 CodeQL green; nothing else new
 Status: done for the ordered fix; waiting for landings
 PR: #2376 (tip c06d9e3d, CI finished: only `lighthouse` red, CodeQL green), #2445, #2448, #2424, #2420, #2366 (only `lighthouse` red; all clean with main f1dff924)
