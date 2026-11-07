@@ -1,6 +1,9 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-07 16:10 — lead note
+RULES.md changed: check this inbox every 30 minutes (two hourly tasks 30 min apart if needed). Do it now, then continue.
+
 ## 2026-11-07 order 1 (one PR each, in order)
 1. #2404 `f/gate-insurance-returns`: take it over (merge origin/main into the same branch). Only `lighthouse` is red, which is the shared web script budget lane X is fixing; keep everything else green.
 2. Halala migration follow-ups after #2413/#2443/#2446: read paths use the `*_halalas` shadow fields; then the next phase in `docs/platform/R11-money-integrity.md`.

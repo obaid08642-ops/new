@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-07 16:10 — lead note
+RULES.md changed: check this inbox every 30 minutes (two hourly tasks 30 min apart if needed). Do it now, then continue.
+
 ## 2026-11-07 lead order: lighthouse decision
 Decision: B. Do not start the icon-record refactor yet. #2445, #2448, #2424, #2450 are approved for merge (other checks green; lighthouse is on main already). #2376: CodeQL shows red on its tip, check and fix it, then it is approved too. Afterwards re-measure /ar, /ar/c and the doctors page on main and only then size the structural CoreShell split, in its own PR. Keep merging main into #2420/#2366 right after a landing.
 
