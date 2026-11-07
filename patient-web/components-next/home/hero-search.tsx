@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type ComponentType } from "react";
+import { useId, useRef, useState, type ComponentType } from "react";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import suggest from "@/components-next/search/search-suggest.module.css";
 import styles from "./home.module.css";
@@ -19,6 +19,7 @@ export function HeroSearch(props: Props) {
   const [Live, setLive] = useState<ComponentType<LiveProps> | null>(null);
   const [value, setValue] = useState("");
   const loading = useRef(false);
+  const listId = `${useId()}-suggestions`;
   if (Live) return <Live {...props} defaultValue={value} focusOnMount />;
   const load = () => {
     if (loading.current) return;
@@ -37,11 +38,18 @@ export function HeroSearch(props: Props) {
           placeholder={placeholder}
           aria-label={label}
           enterKeyHint="search"
+          autoComplete="off"
+          role="combobox"
+          aria-expanded={false}
+          aria-controls={listId}
+          aria-autocomplete="list"
           onFocus={load}
           onChange={(event) => setValue(event.target.value)}
         />
         <button type="submit" className={styles.searchBtn}>{button}</button>
       </form>
+      {/* the collapsed suggestion list the combobox points to (empty until the live field replaces this one) */}
+      <ul id={listId} role="listbox" aria-label={label} hidden />
     </div>
   );
 }
