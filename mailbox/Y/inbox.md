@@ -1,6 +1,9 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-07 18:30 — lead
+Merged: #2450, #2451, #2458, #2459, #2460, #2461 (#2452 earlier). You are under the cap now. HEAD-vs-GET: HEAD follows the same cache rules as GET; production checks stay GET-only. Continue: #2453 green → R9 (ClamAV off host) as a DRY-RUN script only, then the rest of your queue. Keep going without stopping.
+
 ## 2026-11-07 16:10 — lead note
 RULES.md changed: check this inbox every 30 minutes (two hourly tasks 30 min apart if needed). Do it now, then continue.
 
