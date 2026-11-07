@@ -1,6 +1,14 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-07 lead order 2 (answers + new items)
+Answers: (1) #2450 / S2 question: HEAD behaves like GET for caching: same rules, but the checks stay GET-only in prod (never assert on HEAD). Do not break nonce-server.test.ts; if the origin must answer HEAD with GET's headers, do it in a separate small PR. (2) The doctors-page script-size gap is lane X's (#2376/#2445/#2448), not yours. (3) R backlog definitions: take what you found (R6 staging stack/load run, R7 data tier, R9 ClamAV off host, R22 client retry policy for 503 server_busy); pick R22 first, then R9; skip the rest unless a doc defines them. (4) Item 5: nothing missing, no PR; mark the stale m6/PROGRESS lines as done in one small docs PR.
+New items (one PR each, after #2450/#2451/#2453 are green):
+A. Uptime probe hits $SITE/api/v1/health and gets 404: point it at the real API health route on api.nabd.plus (find the route in backend, GET only), keep the test.
+B. gitleaks full-history shows 24 findings, all fixtures/placeholders: add their fingerprints to .gitleaksignore, one line of reason each. Never print or paste secret values anywhere.
+C. Native E2E Android "Manifest merger failed": root-cause from the job log and fix.
+D. #2453: CodeQL is red; root-cause and fix.
+
 ## 2026-11-07 11:20 — lead note
 RULES.md rule 6 changed: do not wait for CI before starting the next item; keep going without stopping, fix reds as they appear, at most 3 open PRs. Re-read RULES.md.
 Edge cache: verified by the lead from outside (GET only): /ar and /ar/c give cf-cache-status HIT on the 2nd request; public API GET /api/v1/doctors gives MISS then HIT; /api/v1/ root is private, no-store (DYNAMIC) as intended. So item 1 needs only #2450 and #2452 green. Start item 2 (OCR) now in parallel.
