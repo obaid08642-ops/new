@@ -7,7 +7,7 @@ describe('halala backfill (expand phase)', () => {
   let mongod: MongoMemoryServer; let conn: Connection; let db: any;
   beforeAll(async () => { mongod = await MongoMemoryServer.create(); conn = await mongoose.createConnection(mongod.getUri()).asPromise(); db = conn.getClient().db(conn.name); });
   afterAll(async () => { await conn.close(); await mongod.stop(); });
-  beforeEach(async () => { for (const c of ['transactions', 'moyasar_payments', 'platformledgerentries', 'einvoices', 'refundrequests']) await db.collection(c).deleteMany({}); });
+  beforeEach(async () => { for (const c of ['transactions', 'moyasar_payments', 'platformledgerentries', 'einvoices', 'refundrequests', 'wallets', 'wallet_transactions']) await db.collection(c).deleteMany({}); });
 
   const seed = async () => {
     await db.collection('transactions').insertMany([
@@ -50,6 +50,16 @@ describe('halala backfill (expand phase)', () => {
     ]);
     expect(await applyBackfill(db, { batch: 3 })).toMatchObject({ written: 1 });
     expect(await db.collection('transactions').findOne({ id: 'good' })).toMatchObject({ amount_halalas: 999 });
+  });
+
+  it('wallet balances and wallet ledger rows are filled', async () => {
+    await db.collection('wallets').insertOne({ id: 'w1', ownerId: 'p1', balance: 50.5 });
+    await db.collection('wallet_transactions').insertMany([{ id: 'x1', walletId: 'w1', amount: 40 }, { id: 'x2', walletId: 'w1', amount: 10.5 }]);
+    const plan = await planBackfill(db);
+    expect(plan.find((p) => p.collection === 'wallets' && p.field === 'balance')).toMatchObject({ to_fill: 1, unclean: 0 });
+    await applyBackfill(db);
+    expect((await db.collection('wallets').findOne({ id: 'w1' })).balance_halalas).toBe(5050);
+    expect((await db.collection('wallet_transactions').findOne({ id: 'x2' })).amount_halalas).toBe(1050);
   });
 
   it('invoices keep the sign of a credit note; refund requests are filled; a negative amount elsewhere is still listed as unclean', async () => {

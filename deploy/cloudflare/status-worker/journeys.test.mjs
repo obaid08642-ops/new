@@ -155,7 +155,7 @@ test("the cron: reports as the journeys vantage, alerts after the second failing
 });
 
 test("the scheduled handler picks the journeys on their cron and the probes on the other", async () => {
-  assert.equal(JOURNEY_CRON, "*/10 * * * *");
+  assert.equal(JOURNEY_CRON, "2-59/5 * * * *");
   const ran = [];
   const realFetch = globalThis.fetch;
   globalThis.fetch = async (url) => { ran.push(String(url)); return new Response("ok", { status: 200 }); };
@@ -167,7 +167,7 @@ test("the scheduled handler picks the journeys on their cron and the probes on t
     await Promise.all(tasks);
     assert.ok(ran.some((u) => u.includes("health/readiness")) && !ran.some((u) => u.includes("search/suggest")));
     ran.length = 0;
-    worker.scheduled({ cron: "*/10 * * * *" }, env, { waitUntil: (p) => tasks.push(p) });
+    worker.scheduled({ cron: "2-59/5 * * * *" }, env, { waitUntil: (p) => tasks.push(p) });
     await Promise.all(tasks);
     assert.ok(ran.some((u) => u.includes("search/suggest")));
   } finally { globalThis.fetch = realFetch; }
