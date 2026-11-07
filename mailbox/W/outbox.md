@@ -1,5 +1,11 @@
 # Lane W outbox
 
+## 2026-11-07 19:00 UTC — #2463 live gate fixed (mine); #2455 shard 3 still outside lane W
+Status: in progress
+PR: #2463 (CI: pending after fix, 6a93706d), #2455 (CI: red, live shard 3, not from my diff), #2462 (CI: not re-checked)
+What changed: #2463's red was caused by my change: `j_admin_sweep.py` expected the old generic context path to answer 403; the dedicated route `/api/admin/impersonation/context` rightly answers 401 `support_session_required` without a support cookie. I added it to `EXPECTED_REFUSAL` with the exact status and code (the old entry stays). Reviewer: this edits a verification tool, so please confirm it.
+Left / blockers / questions: #2455 shard 3 is `j_ai_scanner` "web scan flow" (2 file inputs on /en/pharmacy/barcode), patient-web, not my lane; please say who owns it or whether main is red too. Re-run of #2455 needs that resolved.
+
 ## 2026-11-07 18:30 UTC — CI status of #2455 / #2463 (live gate red, not from my change)
 Status: blocked (on a failure outside lane W)
 PR: #2455 (CI: red, live shard 3), #2463 (CI: red, live shard 1), #2462 (CI: not re-checked)
