@@ -34,7 +34,7 @@ class EdgeCacheCheck(unittest.TestCase):
     def test_all_hit_passes(self):
         p = self.run_check("hit")
         self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
-        self.assertIn("second request HIT: 10 of 10 (100%)", p.stdout)
+        self.assertIn("HIT within 4 asks: 10 of 10 (100%); HIT on the second ask: 10 of 10", p.stdout)
 
     def test_private_with_cookie_fails_and_says_why(self):
         p = self.run_check("private")
@@ -47,6 +47,22 @@ class EdgeCacheCheck(unittest.TestCase):
         p = self.run_check("rule")
         self.assertEqual(p.returncode, 1, p.stdout)
         self.assertIn("the Cloudflare cache rule does not match this URL", p.stdout)
+
+    def test_one_refresh_then_hit_is_kept(self):
+        """MISS, EXPIRED, then HIT (a refresh at s-maxage): kept, not a rule mismatch."""
+        with tempfile.TemporaryDirectory() as d:
+            b = os.path.join(d, "bin"); os.makedirs(b)
+            counter = os.path.join(d, "n")
+            fake = FAKE_CURL.replace('if mode == "hit":', 'if mode == "refresh":\n    n = int(open(os.environ["COUNTER"]).read() or 0) if os.path.exists(os.environ["COUNTER"]) else 0\n    open(os.environ["COUNTER"], "w").write(str(n + 1))\n    print("cache-control: public, s-maxage=60"); print("cf-cache-status: " + ("EXPIRED" if n % 3 < 2 else "HIT"))\nelif mode == "hit":', 1)
+            for name, text in (("curl", fake), ("sleep", "#!/bin/bash\nexit 0\n")):
+                pth = os.path.join(b, name)
+                with open(pth, "w") as f: f.write(text)
+                os.chmod(pth, os.stat(pth).st_mode | stat.S_IEXEC)
+            e = dict(os.environ, PATH=b + os.pathsep + os.environ["PATH"], FAKE_MODE="refresh", SAMPLE_PAUSE="0", COUNTER=counter)
+            p = subprocess.run(["bash", SCRIPT], env=e, capture_output=True, text=True, timeout=60)
+            self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+            self.assertIn("HIT within 4 asks: 10 of 10", p.stdout)
+            self.assertIn("HIT on the second ask: 0 of 10", p.stdout)
 
 
 if __name__ == "__main__":
