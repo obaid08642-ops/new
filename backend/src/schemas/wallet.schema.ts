@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuid } from 'uuid';
+import { halalaShadowPlugin } from '../common/halala-shadow';
 
 export type WalletDocument = Wallet & Document;
 
@@ -18,11 +19,16 @@ export class Wallet {
   @Prop({ required: true, default: 0 })
   balance: number;
 
+  /** R11 P1: integer halalas next to the double (halalaShadowPlugin; the ledger code writes it with shadowFields). */
+  @Prop()
+  balance_halalas?: number;
+
   @Prop({ type: [{ id: String, type: String, last4: String, holderName: String, expiry: String, isDefault: Boolean, gradient: [String] }], default: [] })
   savedCards: any[];
 }
 
 export const WalletSchema = SchemaFactory.createForClass(Wallet);
+halalaShadowPlugin(WalletSchema, ['balance']);
 WalletSchema.index({ ownerId: 1, ownerType: 1 }, { unique: true });
 
 export type WalletTransactionDocument = WalletTransaction & Document;
@@ -37,6 +43,10 @@ export class WalletTransaction {
 
   @Prop({ required: true })
   amount: number;
+
+  /** R11 P1: integer halalas next to the double. */
+  @Prop()
+  amount_halalas?: number;
 
   @Prop({ required: true, enum: ['credit', 'debit'] })
   type: 'credit' | 'debit';
@@ -56,6 +66,7 @@ export class WalletTransaction {
 }
 
 export const WalletTransactionSchema = SchemaFactory.createForClass(WalletTransaction);
+halalaShadowPlugin(WalletTransactionSchema, ['amount']);
 WalletTransactionSchema.index({ walletId: 1, createdAt: -1 });
 // sparse: rows written before the key existed carry none; same name and options as the index common/wallet-ledger.ts ensures
 WalletTransactionSchema.index({ idempotency_key: 1 }, { unique: true, sparse: true, name: 'wallet_tx_idempotency_key' });

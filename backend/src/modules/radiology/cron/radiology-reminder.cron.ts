@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { isDbOutageError } from '../../../common/db-outage';
+import { ScheduledOnce } from '../../../common/scheduled-once';
 
 @Injectable()
 export class RadiologyReminderCron {
@@ -15,6 +16,7 @@ export class RadiologyReminderCron {
   ) {}
 
   @Cron(CronExpression.EVERY_HOUR)
+  @ScheduledOnce()
   async handlePreparationReminders() {
     this.logger.debug('Running Radiology Preparation Reminders Cron Job...');
     const now = new Date();

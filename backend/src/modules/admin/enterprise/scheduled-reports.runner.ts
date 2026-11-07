@@ -5,6 +5,7 @@ import { Connection } from 'mongoose';
 import { AnalyticsSuiteService } from './analytics-suite.service';
 import { FinanceSuiteService, Granularity } from './finance-suite.service';
 import { MailService } from '../../mail/mail.module';
+import { ScheduledOnce } from '../../../common/scheduled-once';
 
 /**
  * A7 — scheduled reports runner.
@@ -25,6 +26,7 @@ export class ScheduledReportsRunner {
   ) {}
 
   @Cron('*/30 * * * *')
+  @ScheduledOnce()
   async runDue() {
     if (this.running) return;
     this.running = true;

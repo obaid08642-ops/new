@@ -6,6 +6,7 @@
  * ║   before creating or transitioning a booking.                  ║
  * ╚════════════════════════════════════════════════════════════════╝
  */
+import { appendAdminAudit } from '../../common/admin-audit-chain';
 import { PAYMENT_METHODS_BY_CONTEXT } from '../../common/payment-policy';
 import { Module, Controller, Post, Get, Body, UseGuards, Injectable, BadRequestException } from '@nestjs/common';
 import { InjectModel, InjectConnection, MongooseModule } from '@nestjs/mongoose';
@@ -133,11 +134,11 @@ export class BusinessRulesService {
   }
   /** Who changed the pricing, why, and what it was before: one row in admin_actions_log (same shape as AdminAuditService). */
   private async auditPricing(action: string, ctx: { admin: any; reason: string }, before: any, after: any) {
-    await this.conn.collection('admin_actions_log').insertOne({
+    await appendAdminAudit(this.conn, {
       id: uuidv4(), action, admin_id: ctx.admin?.id || 'unknown', admin_name: ctx.admin?.full_name || ctx.admin?.email || null,
       admin_role: ctx.admin?.role || null, target_type: 'pricing_config', target_id: 'pricing', reason: ctx.reason,
       before, after, meta: null, ip: null, user_agent: null, createdAt: new Date(),
-    } as any).catch(() => undefined);
+    }).catch(() => undefined);
   }
 
   async updateSurgeConfig(config: Omit<UpdateSurgeDto, 'reason'>, ctx?: { admin: any; reason: string }) {

@@ -33,8 +33,9 @@ env MONITOR_SKIP_SERVICES=1 MONITOR_LOG_DIR="$W/log" MONITOR_STATE_DIR="$W/state
 [ ! -s "$W/mails2" ] && [ "$(grep -c ALERT "$W/log/nabdah-alerts.log")" -gt "$before" ] && echo "ok - no OPS_ALERT_EMAIL: logged, no mail" || { echo "FAIL - without OPS_ALERT_EMAIL"; fail=1; }
 
 # ── warn vs critical ──
-run 6000000 1 "15% free: warn-level alert"   MONITOR_STATE_DIR="$W/state-w"
-grep -q 'disk / has 15% free (5.7 GB), below 20%' "$W/mails" && echo "ok - warn text" || { echo "FAIL - warn text"; fail=1; }
+# owner 2026-11-02: only outage-class alerts are mailed at once; a warn-level alert is logged and goes into the daily summary
+run 6000000 0 "15% free: warn-level alert is logged, not mailed"   MONITOR_STATE_DIR="$W/state-w"
+grep -q 'disk / has 15% free (5.7 GB), below 20%' "$W/log/nabdah-alerts.log" && echo "ok - warn text (in the alert log)" || { echo "FAIL - warn text"; fail=1; }
 run 4194304 1 "4 GB free (10.5%): critical by the 5 GB rule" MONITOR_STATE_DIR="$W/state-c"
 grep -q 'disk / has 10% free (4.0 GB), CRITICAL' "$W/mails" && echo "ok - critical by absolute free space" || { echo "FAIL - critical text"; fail=1; }
 
@@ -50,8 +51,8 @@ fill() { # label want avail_k now [extra env]
 }
 fill "start: 12 GB free, one sample only: no fill alert" 0 12582912 $T
 fill "1 h later, 11.9 GB: the only older sample is under 2 h old: no alert" 0 12480000 $((T + 3600))
-fill "6 h later, 10 GB free: filling at ~340 MB/h, ~30 h left: alert" 1 10485760 $((T + 21600))
-grep -q 'disk / is filling at 3[0-9][0-9] MB/h: full in about 3[0-9] h' "$W/mails-f" && echo "ok - fill text" || { echo "FAIL - fill text"; cat "$W/mails-f"; fail=1; }
+fill "6 h later, 10 GB free: filling at ~340 MB/h, ~30 h left: logged, not mailed at once" 0 10485760 $((T + 21600))
+grep -q 'disk / is filling at 3[0-9][0-9] MB/h: full in about 3[0-9] h' "$W/log/nabdah-alerts.log" && echo "ok - fill text (in the alert log)" || { echo "FAIL - fill text"; fail=1; }
 rm -rf "$W/state-f" "$W/mails-f"; FILL_SEEN=0
 fill "slow loss (100 MB in 6 h): no alert" 0 12480000 $((T + 21600)) 
 fill "baseline for slow loss" 0 12582912 $T
@@ -63,8 +64,8 @@ cstats() { # label want "stats"
   rm -f "$W/mails-c"
   env MONITOR_SKIP_SERVICES=1 MONITOR_CONTAINER_STATS="$stats" MONITOR_LOG_DIR="$W/log" MONITOR_STATE_DIR="$W/state-k$n" MONITOR_DF_OUTPUT="$(df_line 11953766)" \
       MONITOR_SUMMARY_HOUR=99 MONITOR_MAIL_CMD="tee -a $W/mails-c" OPS_ALERT_EMAIL=ops@example.invalid bash "$W/deploy/scripts/monitor.sh" >/dev/null
-  n=$((n+1)); local got; got=$(grep -c "$want" "$W/mails-c" 2>/dev/null || true)
-  if [ "${got:-0}" -ge 1 ]; then echo "ok $n - $label"; else echo "FAIL $n - $label (no mail with: $want)"; cat "$W/mails-c" 2>/dev/null; fail=1; fi
+  n=$((n+1)); local got; got=$(grep -c "$want" "$W/log/nabdah-alerts.log" 2>/dev/null || true)
+  if [ "${got:-0}" -ge 1 ] && [ ! -s "$W/mails-c" ]; then echo "ok $n - $label (logged, no mail at once)"; else echo "FAIL $n - $label (not logged, or mailed at once: $want)"; cat "$W/mails-c" 2>/dev/null; fail=1; fi
 }
 cstats "a container that wrote 5.8 GB into its layer" 'container nabdah-patient-web has written 5.6 GB into its own layer' "nabdah-patient-web|6000000000|20m|1000"
 cstats "a container without log rotation" 'container nabdah-coturn has no log rotation' "nabdah-coturn|1000||1000"
@@ -93,6 +94,16 @@ summary "07:30 UTC, nothing wrong: one summary" 1 $DAY0
 summary "08:30 UTC same day: no second summary" 0 $((DAY0 + 3600))
 summary "next day 07:30: one more" 1 $DAY1
 grep -q 'disk /: [0-9]*% free (11.4 GB)' "$W/mails-s" && echo "ok - summary text" || { echo "FAIL - summary text"; cat "$W/mails-s"; fail=1; }
+# the non-critical alerts reach the owner in the summary
+rm -f "$W/mails-s" "$W/state-s"/last-summary
+env MONITOR_SKIP_SERVICES=1 MONITOR_CONTAINER_STATS="nabdah-coturn|1000||1000" MONITOR_LOG_DIR="$W/log" MONITOR_STATE_DIR="$W/state-s" MONITOR_DF_OUTPUT="$(df_line 6000000)" MONITOR_NOW_EPOCH=$DAY0 \
+    MONITOR_MAIL_CMD="tee -a $W/mails-s" OPS_ALERT_EMAIL=ops@example.invalid bash "$W/deploy/scripts/monitor.sh" >/dev/null
+n=$((n+1)); if [ "$(grep -c '^SUBJECT:' "$W/mails-s")" = 1 ] && grep -q 'disk / has 15% free' "$W/mails-s" && grep -q 'container nabdah-coturn has no log rotation' "$W/mails-s"; then echo "ok $n - warn-level alerts are in the one daily summary mail"; else echo "FAIL $n - warn alerts missing from the summary"; cat "$W/mails-s"; fail=1; fi
+# a critical alert is mailed at once and says how many other alerts wait for the summary
+rm -f "$W/mails-x"; rm -rf "$W/state-x"
+env MONITOR_SKIP_SERVICES=1 MONITOR_CONTAINER_STATS="nabdah-coturn|1000||1000" MONITOR_LOG_DIR="$W/log" MONITOR_STATE_DIR="$W/state-x" MONITOR_DF_OUTPUT="$(df_line 2097152)" MONITOR_SUMMARY_HOUR=99 \
+    MONITOR_MAIL_CMD="tee -a $W/mails-x" OPS_ALERT_EMAIL=ops@example.invalid bash "$W/deploy/scripts/monitor.sh" >/dev/null
+n=$((n+1)); if [ "$(grep -c '^SUBJECT:' "$W/mails-x")" = 1 ] && grep -q 'CRITICAL' "$W/mails-x" && ! grep -q 'no log rotation' "$W/mails-x" && grep -q 'other alert(s) are in the daily summary' "$W/mails-x"; then echo "ok $n - a critical alert is mailed at once, the others wait for the summary"; else echo "FAIL $n - critical mail"; cat "$W/mails-x"; fail=1; fi
 
 # ── mail providers: Resend fails -> Brevo; both fail -> Mailjet; only configured providers are tried ──
 cat > "$W/stub.py" <<'PY'

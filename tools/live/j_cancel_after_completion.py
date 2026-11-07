@@ -41,6 +41,7 @@ def run():
     journey('cancel after completion: a second attempt is refused too (PT-47)')
     r = pat.post(f'/unified-bookings/consultation/{aid}/cancel', {'reason': 'qa: second try'}, headers={'Idempotency-Key': str(uuid.uuid4())})
     step('a second cancel is refused by the state rule (400/409/422, not a missing route)', r.status in (400, 409, 422), r)
+    j_concurrency.remove_published_doctor()
     summary()
 
 

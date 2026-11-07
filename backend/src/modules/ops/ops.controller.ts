@@ -5,7 +5,7 @@ import { JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { RedisService } from '../redis/redis.service';
 import { FAILED_PAYMENT_STATUSES, findStuckOrders, opsStuckMinutes } from './ops-alert-queries';
-import { connectionFlagSource, isKilled } from '../../common/killswitches/killswitches.helper';
+import { connectionFlagSource, shouldDegrade } from '../../common/killswitches/killswitches.helper';
 
 /**
  * Operations Center — one admin surface answering:
@@ -249,7 +249,7 @@ export class OpsController {
   async liveMap(@Query('limit') limit?: string) {
     // Kill switch: serve the static degraded answer (no realtime markers,
     // no collection scans) instead of live positions.
-    if (await isKilled('liveMap', connectionFlagSource(this.conn))) {
+    if (await shouldDegrade('liveMap', connectionFlagSource(this.conn))) {
       return {
         generated_at: new Date().toISOString(),
         total: 0,

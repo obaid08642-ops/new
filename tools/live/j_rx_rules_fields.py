@@ -201,6 +201,9 @@ def web(pat, tag, online_name, oid, indexed_rx):
         ctx = browser.new_context(locale='ar-SA', viewport={'width': 390, 'height': 844})
         page = ctx.new_page()
         r = ctx.request.post(f'{WEB}/api/auth/login', data={'identifier': pat['email'], 'password': pat['password']}, headers={'origin': WEB})
+        if r.status == 429 and os.environ.get('NABD_LIVE_WAIT_429', '1') == '1':   # the per-IP login throttle (10/min; every journey signs in from one machine), waited out once as lib.web_login does
+            time.sleep(62)
+            r = ctx.request.post(f'{WEB}/api/auth/login', data={'identifier': pat['email'], 'password': pat['password']}, headers={'origin': WEB})
         step('patient signs in on the website', r.ok, r.status)
 
         journey('rx-rules-web#3 (web): the wishlist row says "online only"')

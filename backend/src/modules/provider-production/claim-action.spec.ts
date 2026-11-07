@@ -28,4 +28,11 @@ describe('facility claim actions', () => {
     await s.claimAction(admin, 'c1', 'resubmit', {});
     expect(updateOne).toHaveBeenCalledWith({ id: 'c1' }, expect.objectContaining({ $set: expect.objectContaining({ status: 'pending' }) }));
   });
+  it('resubmitting a rejected claim while the patient has a new open claim for the booking answers claim_already_filed (unique index), not a 500', async () => {
+    const { s, updateOne } = svc({ id: 'c1', status: 'rejected' });
+    updateOne.mockRejectedValueOnce(Object.assign(new Error('E11000 duplicate key'), { code: 11000 }));
+    await expect(s.claimAction(admin, 'c1', 'resubmit', {})).rejects.toThrow('claim_already_filed');
+    updateOne.mockRejectedValueOnce(new Error('network'));
+    await expect(s.claimAction(admin, 'c1', 'resubmit', {})).rejects.toThrow('network');
+  });
 });

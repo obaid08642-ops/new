@@ -30,6 +30,7 @@ import { runsBackgroundWork } from '../../common/process-role';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { timedFetch } from '../../common/external-call';
+import { ScheduledOnce } from '../../common/scheduled-once';
 
 /** FCM / Expo / Google oauth: 8 s per attempt, sent once (a repeat could notify twice). The callers already treat a failure as `failed`, never as a failed request. */
 const pushFetch = (url: string, init?: RequestInit) => timedFetch(url, init, { timeoutMs: 8000, label: 'push', timeoutCode: 'push_gateway_timeout' });
@@ -425,6 +426,7 @@ export class PushService implements OnModuleInit {
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_2AM)
+  @ScheduledOnce()
   async cleanupStaleTokens() {
     this.logger.log('Starting stale push tokens cleanup cron job...');
     const result = await this.tokens.deleteMany({
