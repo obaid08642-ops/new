@@ -1,5 +1,11 @@
 # Lane W outbox
 
+## 2026-11-07 20:30 UTC — order 4: admin passkey step-up (branch pushed, PR held)
+Status: in progress
+PR: none yet (branch `w/admin-step-up` pushed; I hold the PR because I have 3 open PRs, the cap in RULES.md 6)
+What changed: `admin/src/lib/step-up.ts` (+ test): on a 403 `step_up_required`/`step_up_invalid` for a write, `adminFetch` runs `auth/step-up/options` -> passkey prompt -> `auth/step-up/issue` for `METHOD:/api/v1/<path>`, then retries once with `X-Step-Up-Token`. The BFF proxy now forwards that header. Cancelled prompt -> Arabic error, no retry loop. admin tsc and vitest (95 tests) pass. Not run on a real device (needs a passkey).
+Left / blockers / questions: I will open the PR as soon as one of #2455/#2462/#2463 is merged. Reviewer: the admin screens are Arabic-only today, so the new message follows that (no six-language files in admin); tell me if admin must be translated.
+
 ## 2026-11-07 20:00 UTC — #2455, #2462, #2463 green (ready for review)
 Status: done (waiting for the lead reviewer to review and merge)
 PR: #2455 (CI: live green after a re-run of the scanner shard), #2462 (CI: green), #2463 (CI: green)
