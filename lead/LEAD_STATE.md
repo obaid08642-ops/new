@@ -1,5 +1,5 @@
 # Lead reviewer state (read this instead of any long history)
-Updated 2026-11-07 ~16:00 UTC. Public repo: never write secrets, server names or emails here.
+Updated 2026-11-07 ~16:15 UTC. Public repo: never write secrets, server names or emails here.
 
 ## Role
 Review and merge session PRs, prepare server deploy runs, follow worker sessions, reply to the owner in Egyptian Arabic (short).
@@ -21,6 +21,8 @@ main@641bbe2f deployed 2026-11-07 (run 101 OK). Site 200. Edge cache HIT verifie
 Main babb67ca (5 commits after the deployed SHA); site 200; no deploy prepared yet (wait for approved PRs to land, then one run).
 Approved this run (oncepass was BLOCKED by the auto-mode classifier in the new lead session, merges still pending; owner must allow `bash lead/oncepass.sh` or merge): 2450 2451 2454 2445 2448 2424. 2376 waits for its CodeQL red. Lighthouse decision = B (orders in X inbox). Y got the answers to S2 plus items A-D (uptime probe 404, gitleaks ignore, Android manifest, CodeQL on 2453).
 Red runs on main: not checked this run (API query for failures returned 404; retry next run with -X GET).
+
+Run 16:10: main f1dff924 (2454 merged by someone else). Site 200. Still merge-blocked for 2450 2451 2445 2448 2424 (classifier denied oncepass; owner to run/allow). Y: #2458 uptime probe, #2459 gitleaks, #2453 CodeQL fix pushed. SECURITY: gitleaks found 3 real secrets in history (an R2 key pair in backend/infra/fastapi/server.py, a coturn static secret in deploy/coturn/turnserver.conf): OWNER MUST ROTATE; never ignore them. F3: PR #2456 (refund halalas) new, unreviewed; P3: idle since 15:40, no PR, no state file on main. Red on main: ZAP, Security Scan, uptime-alert, Native E2E (Y has C, not started).
 
 ## Open PRs to watch
 2454 (QA, pending CI) · 2453 (R20, CodeQL red → Y) · 2450/2398/2451 (→ Y) · 2376/2445/2448/2424/2420/2366 (→ X) · 2404 (F, waits on lighthouse fix from X) · 2225 draft (H) · old drafts 1967/1891/1897/2015/1924/2336 ignore.
