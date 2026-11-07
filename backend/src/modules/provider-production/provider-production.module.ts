@@ -17,7 +17,7 @@ import { listCrmRecords, mergeCrm, readCrm } from './crm-store';
 import { nextClaimStatus } from '../../common/claim-state';
 import {
   Module, Controller, Get, Post, Patch, Put, Delete, Param, Body, Query, UseGuards,
-  ForbiddenException, BadRequestException, NotFoundException, Injectable,
+  ForbiddenException, BadRequestException, NotFoundException, ConflictException, Injectable,
 } from '@nestjs/common';
 import { OrderInsuranceDto, LabCoverageDto, RadCoverageDto, NursingCoverageDto, PostCrmDto, PutCrmDto, CreateReferralDto, CreatePromotionDto, ClaimResubmitDto, ClaimApproveDto, ClaimRejectDto, PatchAvailabilityDto } from './provider-production.dto';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -477,6 +477,7 @@ export class ProviderProductionService {
         throw new ForbiddenException('claim_not_owned');
       }
     }
+    // a resubmitted claim becomes pending again: if the patient filed a new open claim for the booking meanwhile, the unique index (claim_one_open_per_booking) refuses it
     await col.updateOne({ id: claimId }, {
       $set: { status: nextStatus, updatedAt: new Date(), last_action: action, last_action_by: user.id, last_action_at: new Date() },
       $push: {
@@ -486,7 +487,7 @@ export class ProviderProductionService {
           documents: action === 'resubmit' ? (body.updated_documents || []) : undefined,
         },
       } as any,
-    });
+    }).catch((e: any) => { if (e?.code === 11000) throw new ConflictException('claim_already_filed'); throw e; });
     const updated: any = await col.findOne({ id: claimId }, { projection: { _id: 0 } });
     return { ok: true, claim_id: claimId, claim_status: nextStatus.toUpperCase(), acted_by: user.id, acted_at: new Date().toISOString(), claim: updated };
   }

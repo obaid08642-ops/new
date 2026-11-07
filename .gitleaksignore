@@ -65,3 +65,5 @@ f1f7eca54632fca1913601402d9bee2baa621f4b:tools/ops/tests/test_translate_progress
 c51da700ef932546ae288651e54624b5f3899d2e:backend/src/modules/payments/payment-charged-amount.spec.ts:generic-api-key:18
 # - #2244: fake key/token fixture in the first version of this branch's test_turn_env.py (replaced by the runtime-built fixture of main; the commit stays in history)
 55270a0276c511e85dc91908cbaf424b5f8ac0d1:tools/ops/tests/test_turn_env.py:generic-api-key:12
+# - R15 (#2439): fake provider-credential fixtures in the first version of tools/ops/tests/test_auto_reboot.py (now built at run time); the commit stays in history
+d9c998b23270877db738d0d1ff06acdf93e57911:tools/ops/tests/test_auto_reboot.py:generic-api-key:111

@@ -7,7 +7,7 @@ import { isCleanSar, sumHalalas, toHalalas } from '../../common/money';
  * a `commission_reversal` and a `vat_reversal`, all with ref_type 'refund' and the refund id as ref_id.
  */
 export interface LedgerRow { id?: string; type: string; amount: number; ref_type?: string; ref_id?: string; gross?: number; commission?: number; vat?: number; state?: string }
-export interface PaymentRow { amount: number; refunded_amount?: number; status?: string; kind: 'transaction' | 'moyasar_payment'; id?: string; method?: string }
+export interface PaymentRow { amount: number; refunded_amount?: number; amount_halalas?: number; refunded_amount_halalas?: number; status?: string; kind: 'transaction' | 'moyasar_payment'; id?: string; method?: string }
 export interface OrderContext { order_id: string; ledger: LedgerRow[]; earnings: LedgerRow[]; payments: PaymentRow[] }
 export interface Finding { code: string; entity_id: string; detail: Record<string, unknown> }
 
@@ -28,6 +28,16 @@ export function checkOrder(ctx: OrderContext): Finding[] {
       const v = (r as any)[f];
       if (v === undefined || v === null) continue;
       if (!isCleanSar(v) || v < 0) add('ledger_amount_unclean', { ledger_id: r.id, type: r.type, field: f, value: v });
+    }
+  }
+  // INV-7 shadow consistency (R11 P1): a payment row that carries `<field>_halalas` must carry the halalas of its double. A mismatch means a write changed the
+  // double without the shadow (a raw collection write that skipped common/halala-shadow.ts). A row with no shadow yet is not a finding: the backfill fills history.
+  for (const p of ctx.payments) {
+    for (const f of ['amount', 'refunded_amount'] as const) {
+      const shadow = (p as any)[`${f}_halalas`];
+      const v = (p as any)[f];
+      if (shadow === undefined || shadow === null || v === undefined || v === null || !isCleanSar(v)) continue;
+      if (shadow !== toHalalas(v)) add('payment_shadow_mismatch', { payment: p.kind, payment_id: p.id, field: f, value: v, shadow });
     }
   }
   // INV-6 idempotency: one row per (type, ref_type, ref_id) for the types that are written once per business event

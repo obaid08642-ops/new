@@ -1,5 +1,5 @@
 {
- "commit": "e6aedd035",
+ "commit": "735344735",
  "screens": {
   "PendingDashboard": [
    {
@@ -19411,7 +19411,7 @@
    {
     "kind": "data",
     "label": "List patients",
-    "src": "GET /pharmacy/orders/refills → patients",
+    "src": "GET /provider/pharmacy/refills → patients",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreensExtended.tsx",
     "line": 104,

@@ -16,7 +16,7 @@ import {
 } from './search-documents';
 import { MeiliClient } from './meili.client';
 import { runsBackgroundWork } from '../../common/process-role';
-import { connectionFlagSource, isKilled } from '../../common/killswitches/killswitches.helper';
+import { connectionFlagSource, shouldDegrade } from '../../common/killswitches/killswitches.helper';
 import { PurgeBus } from '../../common/purge-bus';
 import { SearchRefine, hasRefine, refineItems } from './search-refine';
 import { JudgedSuggestion, SuggestRow, TextRange, compareSuggestions, judgeSuggestion } from './suggest-rank';
@@ -380,7 +380,7 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
    * The "search suggestions" kill switch answers `{ suggestions: [], disabled: true }`: the clients draw no dropdown.
    */
   async suggest(q: string, locale: SearchLocale = 'ar', scope: SuggestScope = {}): Promise<{ suggestions: SuggestItem[]; disabled?: true }> {
-    if (await isKilled('searchSuggestions', connectionFlagSource(this.conn))) return { suggestions: [], disabled: true };
+    if (await shouldDegrade('searchSuggestions', connectionFlagSource(this.conn))) return { suggestions: [], disabled: true };
     const query = normalizeSearchText(q || '').slice(0, 60);
     if (query.length < suggestMinLength(query)) return { suggestions: [] };
 
