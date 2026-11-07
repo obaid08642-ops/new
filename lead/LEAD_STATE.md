@@ -1,5 +1,5 @@
 # Lead reviewer state (read this instead of any long history)
-Updated 2026-11-07 ~18:40 UTC. Public repo: never write secrets, server names or emails here.
+Updated 2026-11-07 ~19:15 UTC. Public repo: never write secrets, server names or emails here.
 
 ## Role
 Review and merge session PRs, prepare server deploy runs, follow worker sessions, reply to the owner in Egyptian Arabic (short).
@@ -24,7 +24,7 @@ Red runs on main: not checked this run (API query for failures returned 404; ret
 
 Run 16:10: main f1dff924 (2454 merged by someone else). Site 200. Still merge-blocked for 2450 2451 2445 2448 2424 (classifier denied oncepass; owner to run/allow). Y: #2458 uptime probe, #2459 gitleaks, #2453 CodeQL fix pushed. SECURITY: gitleaks found 3 real secrets in history (an R2 key pair in backend/infra/fastapi/server.py, a coturn static secret in deploy/coturn/turnserver.conf): OWNER MUST ROTATE; never ignore them. F3: PR #2456 (refund halalas) new, unreviewed; P3: idle since 15:40, no PR, no state file on main. Red on main: ZAP, Security Scan, uptime-alert, Native E2E (Y has C, not started).
 
-Run 18:40: merged on main by someone else (not by me): 2450 2451 2454 2458 2459 2460 2461 + 2452, p/gaps-5 (backend: low-star reviews). main@20bb77a3, deployed still 641bbe2f (deploy not prepared yet: waiting for 2445 2448 2424 so one run covers all). Still open+approved: 2445 2448 2424; 2376 not yet reviewed (149 files). Unreviewed: 2456 2457 2464 2463 2455 2404. Y silent since 16:08 (waiting CI at PR cap), X 17:19, Z/W 18:18.
+Run 19:15: approved 2457 (halalas read paths, small, tested, CI green). Run 18:40: merged on main by someone else (not by me): 2450 2451 2454 2458 2459 2460 2461 + 2452, p/gaps-5 (backend: low-star reviews). main@20bb77a3, deployed still 641bbe2f (deploy not prepared yet: waiting for 2445 2448 2424 so one run covers all). Still open+approved: 2445 2448 2424; 2376 not yet reviewed (149 files). Unreviewed: 2456 2457 2464 2463 2455 2404. Y silent since 16:08 (waiting CI at PR cap), X 17:19, Z/W 18:18.
 
 ## Open PRs to watch
 2454 (QA, pending CI) · 2453 (R20, CodeQL red → Y) · 2450/2398/2451 (→ Y) · 2376/2445/2448/2424/2420/2366 (→ X) · 2404 (F, waits on lighthouse fix from X) · 2225 draft (H) · old drafts 1967/1891/1897/2015/1924/2336 ignore.
