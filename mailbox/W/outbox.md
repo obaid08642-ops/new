@@ -1,5 +1,11 @@
 # Lane W outbox
 
+## 2026-11-07 16:40 UTC — order 2 gap 27 (admin impersonation)
+Status: in progress
+PR: #2463 (CI: pending)
+What changed: the impersonation page now calls the dedicated BFF routes (start/context/revoke) instead of the generic proxy, so the support cookie is set and the context proof can pass. admin tsc and vitest (91 tests) pass.
+Left / blockers / questions: 3 open PRs (#2455, #2462, #2463), so I stop starting new items until CI is green. Remaining open gaps in screens-audit-3: 13, 15, 18-20, 23-24, 26 (= order 4, step-up), 32.
+
 ## 2026-11-07 16:25 UTC — order 1 PV-15 provider disputes
 Status: in progress
 PR: #2462 (CI: pending, just queued)
