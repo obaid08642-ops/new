@@ -1,6 +1,6 @@
-# 2026-11-07 10:15 lead reviewer: run 101 = deploy main@641bbe2f.
-# Brings: wallet halalas dual write (#2446), one open insurance claim per booking (#2449, partial unique index; logs and keeps the read check if old duplicates exist), R18 alerts/runbooks (#2447).
-release:641bbe2fac2ea3c609a0ce3cfa352da2fb00c404
+# 2026-11-07 19:45 lead: run 102 = deploy main@f2b0e686.
+# Brings: edge-cache check (#2450), data residency docs/spec (#2451), uptime probe fix (#2458), gitleaks fixtures (#2459), Android manifest fix (#2460), supply-chain image pinning (#2453), payments read halalas (#2457), refund halalas (#2456), provider licence-expiry journey (#2455), provider disputes view (#2462), QA journeys (#2454).
+release:f2b0e68646c3cdc86704026a6a4d9fc5a8fc499a
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
