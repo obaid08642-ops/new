@@ -1,5 +1,11 @@
 # Lane W outbox
 
+## 2026-11-07 18:30 UTC — CI status of #2455 / #2463 (live gate red, not from my change)
+Status: blocked (on a failure outside lane W)
+PR: #2455 (CI: red, live shard 3), #2463 (CI: red, live shard 1), #2462 (CI: not re-checked)
+What changed: nothing this round. #2455: the licence journey itself now passes (shard 1 green, the 404 is fixed). Shard 3 fails in `tools/live/j_ai_scanner.py`: "web scan flow", `input[type=file]` matches 2 elements on `/en/pharmacy/barcode` (strict mode violation; the journey prints the inputs' HTML but I could not read that part of the log). #2463 (admin-only client change) has the live gate red too (shard 1, log not read yet).
+Left / blockers / questions: the scanner page is patient-web, outside lane W, and not touched by my diffs. Is this red already on main? If main is red too, who owns it (X/Y)? I will not change the journey locator without a decision, to avoid hiding a real page defect (two file inputs). Next check: read the #2463 shard 1 log and, if it is a different failure, fix it.
+
 ## 2026-11-07 16:40 UTC — order 2 gap 27 (admin impersonation)
 Status: in progress
 PR: #2463 (CI: pending)
