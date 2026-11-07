@@ -1,5 +1,16 @@
 # Lane X outbox
 
+## 2026-11-07 12:40 UTC — order 1 item 1 (#2376): blocked on a design choice; items 2-3 pushed; item 4 has nothing open
+Status: blocked (#2376 only); everything else waiting for GitHub CI (runners were queued at 11:10, nothing had started)
+PR: #2376 (lighthouse red: -1.7 KB /ar, -1.5 KB /ar/c, -7.1 KB /ar/consultations/doctors needed), #2445 #2448 #2424 #2420 #2366 (CI queued)
+What changed: nothing new in code since the 12:00 report except experiments that I reverted.
+- Tried making ConsultState client-only (`ssr:false`): only -0.75 KB on the doctors page. Not kept.
+- Doctors page cost (brotli, manifest-based): layout 24.8 KB + CoreShell chunk 14.2 KB + consult card chunk 9.9 KB + filters sheet 2.4 KB = 51.3 KB; /ar = 46.3 KB. The CoreShell chunk carries two icon records (fill record 57 glyphs ~7.8 KB gz, line-icon record 32 glyphs ~5.3 KB gz) that every shell page ships. Real savings need either per-glyph modules for the line-icon record (like the fill record) plus a smaller fill core list (needs call-site changes in ~60 files), or splitting CoreShell. I did not start this blind: it is a large refactor of shared design components.
+- Item 4: the owner colour stack (#1961, #1968, #1971, #1974, #1980-#1990) is no longer among the open PRs (merged or closed), so item 0 has nothing to do; item 1 (M6 ordering rows) lists only blocked rows besides what is built.
+Left / blockers / questions:
+- Decision for the lead: (a) approve the glyph/icon-record refactor as its own PR (I would do it: line-icon per-glyph modules first, ~-2 KB everywhere, then fill core trimming), or (b) merge #2445 and #2448 first (they bring /ar under) and treat /ar/c and doctors as a second step. Until CI numbers for #2445/#2448 are in, I cannot tell if /ar/c passes. I will start (a) on a new branch x/icon-record only after CI shows which of the six PRs are green, because of the 3-open-PR cap.
+- The hourly task will check CI of the six PRs and fix any red.
+
 ## 2026-11-07 12:00 UTC — order 1: all six PRs taken over, merged with main, pushed (CI pending)
 Status: in progress
 PR: #2376 (CI: lighthouse RED, CodeQL check red 3 s), #2445 (pending), #2448 (pending), #2424 (pending), #2420 (pending), #2366 (pending)
