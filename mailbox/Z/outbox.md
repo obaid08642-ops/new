@@ -1,3 +1,9 @@
+## 16:19 UTC 2026-11-07 — order note: take over #2456
+Status: in progress
+PR: #2456 (CI: pending after push; no red seen), #2457 (CI: no red; Backend build and tests green incl. Mongo suites, others pending), #2404 (CI: pending)
+What changed: #2456 f/refund-halalas-money was behind main; merged origin/main (clean), tsc clean, refund-executor.spec 3 passed, pushed 63ec9ed5.
+Left / blockers / questions: waiting for CI on all three; next check at :47. After they are green: remaining round2 copies (R11 P2), then SCENARIOS (PT-24 payment return first).
+
 ## 16:01 UTC 2026-11-07 — order 1.2 (halala read paths)
 Status: in progress
 PR: #2457 (CI: pending), z/halala-reads. #2404: CI pending after merge, test+acceptance green so far.
