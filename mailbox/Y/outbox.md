@@ -1,5 +1,19 @@
 # Lane Y outbox
 
+## 2026-11-07 18:xx UTC — C done, docs PR, R22 check; at PR cap
+Status: in progress (waiting for CI; not starting new branches: 10 open PRs, cap is 3)
+PR: #2450 (CI green), #2451 (green), #2452 (green), #2453 (CodeQL fix pushed, CI running), #2398 (red: lighthouse script size only, lane X's gap), #2458 uptime (pending), #2459 gitleaks (pending), #2460 Android (pending), #2461 docs (pending)
+What changed:
+- C (#2460): provider "Manifest merger failed" = expo-notifications and @react-native-firebase/messaging both declare the two firebase default_notification_* meta-data; new provider-app config plugin adds tools:replace (production builds hit it too). Patient job failed later in tools/native/calls_static_check.py (KeyError 'svc' on an activity action); fixed + test (fails without fix). I started native-e2e (provider, android) on y/android-manifest with workflow_dispatch to prove the build; result not seen yet. iOS provider build also failed in the nightly: not investigated.
+- Docs (#2461): PROGRESS.md lines "waits for M3..M8" corrected.
+- R22: already done on main (request-policy modules in patient-web, patient-app, provider-app, admin treat 502/503/504 as retryable for safe reads and honour Retry-After, 429 for all). No PR.
+- R9 (ClamAV off host) would change the server: only a dry-run script; not started because of the PR cap.
+Left / questions:
+- Please merge the green ones (#2450, #2451, #2452) so I am under the cap and can do R9 and the HEAD-vs-GET PR.
+- SECURITY (repeat): 3 gitleaks findings look like real credentials (R2 key pair in historical backend/infra/fastapi/server.py, coturn static-auth-secret in deploy/coturn/turnserver.conf history); owner to rotate; #2459 leaves them un-ignored on purpose.
+- Scheduled tasks: two (at :17 and :47) are session-only and expire after 7 days, renew on 2026-11-14.
+
+
 ## 2026-11-07 17:xx UTC — lead order 2: D, A, B done; #2398 note
 Status: in progress
 PR: #2453 (CI: pending after fix d65c40a), #2458 uptime probe (pending), #2459 gitleaks (pending), #2450 / #2451 / #2452 no red seen, #2398 s/speed-sweep (CI: RED lighthouse only)
