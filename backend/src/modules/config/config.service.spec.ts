@@ -34,4 +34,14 @@ describe('CHI inquiry link in /config', () => {
     expect(open.uploads_enabled).toBe(true);
     expect(open.uploads_pending_scan).toBe(true); // accepted, but the file waits for its scan before anyone can open it
   });
+
+  it('carries site_notice_enabled: ON by default, switched off by the admin flag row', async () => {
+    const rows: any[] = [];
+    const conn = { collection: () => ({ find: () => ({ project: () => ({ toArray: async () => rows }) }), findOne: async () => null }) };
+    const clamav = { uploadsAvailable: jest.fn().mockResolvedValue(true), uploadsPendingScan: jest.fn().mockResolvedValue(false) };
+    const svc = new ConfigService(conn as never, clamav as never);
+    expect((await svc.getClientConfig()).features.site_notice_enabled).toBe(true);
+    rows.push({ key: 'site_notice_enabled', enabled: false, rollout_percentage: 100 });
+    expect((await svc.getClientConfig()).features.site_notice_enabled).toBe(false);
+  });
 });
