@@ -17,7 +17,7 @@ import { PUBLIC_CACHE_KEY, PublicCacheOptions } from './public-cache.decorator';
  *  - `@PublicCache` + any auth signal (Authorization header or `req.user`) →
  *    `private, no-store`. Fail closed.
  *  - `@PublicCache` + anonymous GET → `public, s-maxage=<ttl>,`
- *    `stale-while-revalidate=60, stale-if-error=86400`, plus `Cache-Tag` (14.8
+ *    `stale-while-revalidate=60, stale-if-error=2592000`, plus `Cache-Tag` (14.8
  *    purge) and `Vary: Accept-Language` when the body depends on locale.
  *  - Non-GET → `no-store`.
  */
@@ -55,7 +55,7 @@ export class CacheControlInterceptor implements NestInterceptor {
         }
         res.setHeader?.(
           'Cache-Control',
-          meta.cacheControl ?? `public, s-maxage=${meta.ttl}, stale-while-revalidate=60, stale-if-error=86400`,
+          meta.cacheControl ?? `public, s-maxage=${meta.ttl}, stale-while-revalidate=60, stale-if-error=2592000`,
         );
         if (meta.tags && meta.tags.length) {
           res.setHeader?.('Cache-Tag', meta.tags.join(', '));

@@ -94,6 +94,7 @@ run)
   A=$(sudo -n wc -l < "$W/responses.jsonl")
   if [ $RC -eq 0 ]; then say "batch done; answers on the host: $A (run again until remaining=0, then STEP=plan)"
   elif [ $RC -eq 2 ]; then say "ABORT no AI provider key is set in the container: nothing was sent"
+  elif [ $RC -eq 3 ]; then say "the run STALLED (nothing answered for TRANSLATE_STALL_MINUTES) and stopped cleanly; answers kept ($A). Run again: the daily resume (99) or STEP=run restarts it"
   else say "some requests failed after retries (exit $RC); answers kept ($A). Run again to retry the rest"; fi
   cleanup; exit $RC ;;
 plan)

@@ -15,6 +15,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import * as crypto from 'crypto';
 import * as ExcelJS from 'exceljs';
 import { DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT } from '../../common/commission-defaults';
+import { ScheduledOnce } from '../../common/scheduled-once';
 
 @Injectable()
 export class LegalEnterpriseService {
@@ -228,6 +229,10 @@ export class LegalEnterpriseService {
 
   // ── 5) Provider license monitoring (auto-notify + auto-suspend) ───────────
   @Cron(CronExpression.EVERY_DAY_AT_6AM)
+  @ScheduledOnce()
+  async licenseMonitorScheduled() { await this.licenseMonitor(); }
+
+  /** Called directly by licenseMonitorRun (manual run): never skipped by a lease. */
   async licenseMonitor() {
     const now = Date.now();
     const profiles = await this.conn.collection('provider_profiles').find(

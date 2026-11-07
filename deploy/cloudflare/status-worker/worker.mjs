@@ -268,7 +268,7 @@ export async function runCron(env, now = Date.now(), fetchImpl = fetch) {
   return results;
 }
 
-/** The journeys cron (every 10 minutes): run them, report as the "journeys" vantage, alert on a second failure in a row. */
+/** The journeys cron (every 5 minutes, offset by 2 so it never shares a tick with the probes cron): run them, report as the "journeys" vantage, alert on a second failure in a row. */
 export async function runJourneyCron(env, now = Date.now(), fetchImpl = fetch) {
   const results = await runJourneys(env, { fetchImpl, now });
   if (!results.length) return { results, sent: [] };
@@ -281,7 +281,7 @@ export async function runJourneyCron(env, now = Date.now(), fetchImpl = fetch) {
   return { results, sent };
 }
 
-export const JOURNEY_CRON = "*/10 * * * *";
+export const JOURNEY_CRON = "2-59/5 * * * *";
 
 export default {
   fetch: (request, env) => handle(request, env),

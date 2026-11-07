@@ -10,6 +10,7 @@ import { PaymentsService } from '../payments/payments.module';
 import { ArriveDto, ResultsDto, StaffDto } from './ordering.dto';
 import { rank, mergeWeights, reliabilityRates, round2 } from './ordering-engine';
 import { KIND_CATALOG, LIFECYCLE, OrderingService } from './ordering.service';
+import { ScheduledOnce } from '../../common/scheduled-once';
 
 // M7: after the booking and the safeguards. The provider confirms in time (else auto-cancel, refund started, next best offered),
 // the visit (staff, 4-digit arrival code that locks after 3 wrong tries), preparation reminders, results with trends,
@@ -54,6 +55,7 @@ export class OrderingLifecycleService implements OnModuleInit {
   }
 
   @Interval(5_000)
+  @ScheduledOnce({ holdMs: 2000 })
   async tick() {
     if (this.ticking) return;
     this.ticking = true;

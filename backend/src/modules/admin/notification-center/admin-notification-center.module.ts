@@ -28,6 +28,7 @@ import { PushModule, PushService } from '../../push/push.module';
 import { compileSegment } from '../enterprise/segments.engine';
 
 import { Permission, RequirePermissions } from '../../../common/permissions';
+import { ScheduledOnce } from '../../../common/scheduled-once';
 // ── Schema ────────────────────────────────────────────────────────────
 
 @Schema({ timestamps: true })
@@ -238,6 +239,7 @@ export class AdminNotificationCenterService {
    * one page in flight is queued again (same job ids, so the queue skips those it still holds).
    */
   @Interval(10_000)
+  @ScheduledOnce({ holdMs: 4000 })
   async runFanouts(): Promise<void> {
     if (this.fanoutRunning) return;
     this.fanoutRunning = true;
@@ -329,6 +331,7 @@ export class AdminNotificationCenterService {
   // ── Scheduler: due scheduled campaigns every minute ─────────────────
 
   @Cron(CronExpression.EVERY_MINUTE)
+  @ScheduledOnce()
   async runScheduledCampaigns() {
     const due = await this.campaigns.find({
       status: 'scheduled',
@@ -342,6 +345,7 @@ export class AdminNotificationCenterService {
   // ── Reminders: appointments 24h ahead ───────────────────────────────
 
   @Cron(CronExpression.EVERY_HOUR)
+  @ScheduledOnce()
   async appointmentReminders() {
     const now = Date.now();
     const in24h = new Date(now + 24 * 3600 * 1000);
@@ -382,6 +386,7 @@ export class AdminNotificationCenterService {
   // ── Retargeting: stale carts / unpaid orders (48h cooldown) ─────────
 
   @Cron(CronExpression.EVERY_6_HOURS)
+  @ScheduledOnce()
   async retargetIncompleteOrders() {
     const cooldown = new Date(Date.now() - 48 * 3600 * 1000);
     const staleSince = new Date(Date.now() - 24 * 3600 * 1000);

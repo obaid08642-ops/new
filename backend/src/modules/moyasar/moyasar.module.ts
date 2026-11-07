@@ -1,3 +1,4 @@
+import { halalaShadowPlugin } from '../../common/halala-shadow';
 import { GatewayTimeoutException, ServiceUnavailableException } from '@nestjs/common';
 import {
   Module,
@@ -35,6 +36,7 @@ import { PaymentsModule, PaymentsService } from '../payments/payments.module';
 import { timedFetch } from '../../common/external-call';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { DurableEventsService, emitDurable } from '../durable-events/durable-events.service';
 // ── Schemas ──────────────────────────────────────────────────────────────────
 
 @Schema({ timestamps: true, collection: 'moyasar_payments' })
@@ -57,6 +59,9 @@ export class MoyasarPayment {
   @Prop() paid_at?: Date;
   @Prop() refunded_at?: Date;
   @Prop({ default: 0 }) refunded_amount: number;
+  /** R11 P1: integer halalas next to the doubles (halalaShadowPlugin). */
+  @Prop() amount_halalas?: number;
+  @Prop() refunded_amount_halalas?: number;
   @Prop({ type: Object }) raw_response?: Record<string, any>;
   @Prop() callback_url?: string;
   @Prop() description?: string;
@@ -64,6 +69,7 @@ export class MoyasarPayment {
 
 export type MoyasarPaymentDocument = MoyasarPayment & Document;
 export const MoyasarPaymentSchema = SchemaFactory.createForClass(MoyasarPayment);
+halalaShadowPlugin(MoyasarPaymentSchema, ['amount', 'refunded_amount']);
 MoyasarPaymentSchema.index({ booking_id: 1, status: 1 });
 MoyasarPaymentSchema.index({ patient_id: 1, createdAt: -1 });
 MoyasarPaymentSchema.index({ moyasar_id: 1 }, { sparse: true });
@@ -82,6 +88,7 @@ export class MoyasarService {
     @InjectConnection() private readonly conn: Connection,
     private readonly events: EventEmitter2,
     @Optional() private readonly payments?: PaymentsService,
+    @Optional() private readonly durable?: DurableEventsService,
   ) {
     this.apiKey = process.env.MOYASAR_API_KEY || process.env.MOYASAR_SECRET_KEY || process.env.MOYASAR_SECRET || '';
     if (!this.apiKey) {
@@ -339,11 +346,11 @@ export class MoyasarService {
         (payment.refunded_amount || 0) + (amount ?? payment.amount);
       await payment.save();
 
-      this.events.emit('payment.refund', {
+      await emitDurable(this.durable, this.events, 'payment.refund', {
         actor_id: 'admin', transaction_id: payment.moyasar_id,
         booking_id: payment.booking_id, booking_kind: payment.booking_kind,
         patient_id: payment.patient_id, amount: amount ?? payment.amount,
-      });
+      }, `payment.refund:moyasar:${payment.moyasar_id}:${payment.refunded_amount}`);
 
       return { ok: true, refund: data };
     } catch (e: any) {

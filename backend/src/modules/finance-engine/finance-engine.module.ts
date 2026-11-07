@@ -1,3 +1,5 @@
+import { normalizeCoupon } from '../../common/coupon-doc';
+import { shadowFields } from '../../common/halala-shadow';
 import { copayRefundable, findCopayTransaction } from '../../common/copay-transaction';
 import { riyadhDayRange, riyadhMonthStart } from '../../common/riyadh-clock';
 import { ModuleRef } from '@nestjs/core';
@@ -23,8 +25,7 @@ import { ModuleRef } from '@nestjs/core';
 import {
   Module, Global, Injectable, Controller, Post, Get, Put, Body, Param, Query,
   UseGuards, BadRequestException, NotFoundException, ForbiddenException, Logger,
-  Optional,
-} from '@nestjs/common';
+  Optional, ConflictException } from '@nestjs/common';
 import { ValidateCouponDto, LoyaltyQuoteDto, SetCommissionRuleDto, ResolveCommissionDto, RequestApprovalDto, DecideApprovalDto } from './finance-engine.dto';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -37,6 +38,8 @@ import { moyasarBase } from '../../common/moyasar-base';
 import { timedFetch } from '../../common/external-call';
 import { settlementDelayDefault, DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT } from '../../common/commission-defaults';
 import { PROMO_COLLECTION, promoState, type CommissionPromo } from '../../common/commission-promo';
+import { DurableEventsService, emitDurable } from '../durable-events/durable-events.service';
+import { toHalalas } from '../../common/money';
 
 export const LEDGER_TYPES = [
   'provider_earning', 'provider_debit', 'payout', 'refund', 'commission',
@@ -101,6 +104,11 @@ export class LedgerService {
       type: entry.type,
       state: entry.state || 'cleared',
       amount: round2(entry.amount),
+      // R11 dual write: integer halalas next to the legacy double (docs/platform/R11-money-integrity.md); readers still use the doubles
+      amount_halalas: toHalalas(round2(entry.amount)),
+      ...(entry.gross !== undefined && entry.gross !== null ? { gross_halalas: toHalalas(entry.gross) } : {}),
+      ...(entry.commission !== undefined && entry.commission !== null ? { commission_halalas: toHalalas(entry.commission) } : {}),
+      ...(entry.vat !== undefined && entry.vat !== null ? { vat_halalas: toHalalas(entry.vat) } : {}),
       ...(entry.available_at ? { available_at: entry.available_at } : {}),
       ref_type: entry.ref_type, ref_id: entry.ref_id, order_id: entry.order_id,
       gross: entry.gross, commission_percent: entry.commission_percent,
@@ -332,8 +340,9 @@ export class CouponService {
     // 16.12 / D-10: a coupon never discounts a prescription-only line. What it can discount is the rest of the cart.
     const eligibleTotal = couponEligibleTotal(ctx);
     if (!(eligibleTotal > 0)) return { valid: false, discount: 0, reason: 'rx_only_cart' };
-    const c: any = await this.coupons.findOne({ code: String(code).toUpperCase() } as any);
-    if (!c) return { valid: false, discount: 0, reason: 'not_found' };
+    const raw: any = await this.coupons.findOne({ code: String(code).toUpperCase() } as any);
+    if (!raw) return { valid: false, discount: 0, reason: 'not_found' };
+    const c: any = normalizeCoupon(raw);
     if (c.active === false) return { valid: false, discount: 0, reason: 'inactive' };
     const now = new Date();
     if (c.valid_from && new Date(c.valid_from) > now) return { valid: false, discount: 0, reason: 'not_yet_valid' };
@@ -380,7 +389,7 @@ export class CouponService {
   async apply(userId: string, code: string, orderId: string, ctx: CouponContext) {
     const v = await this.validate(userId, code, ctx);
     if (!v.valid) throw new BadRequestException(`coupon_invalid: ${v.reason}`);
-    const c: any = await this.coupons.findOne({ code: String(code).toUpperCase() } as any);
+    const c: any = normalizeCoupon(await this.coupons.findOne({ code: String(code).toUpperCase() } as any) as any);
 
     if (c.max_uses != null) {
       const r = await this.coupons.updateOne(
@@ -392,17 +401,43 @@ export class CouponService {
       await this.coupons.updateOne({ code: c.code } as any, { $inc: { used_count: 1 }, $set: { updatedAt: new Date() } });
     }
 
+    // R21: validate() counted this user's earlier uses, then many parallel orders could each pass that count. The per-user use is TAKEN with one conditional
+    // atomic update on a counter (coupon_user_counts) before the usage row is written: exactly `limit` of any number of parallel applies get it.
+    const perUserLimit = Number(c.usage_limit_per_user ?? 1);
+    if (!(await this.takePerUserUse(c.code, userId, perUserLimit))) {
+      await this.coupons.updateOne({ code: c.code } as any, { $inc: { used_count: -1 } });
+      throw new BadRequestException('coupon_invalid: per_user_limit_reached');
+    }
     try {
       await this.usages.insertOne({
         id: `cu_${uuid()}`, code: c.code, user_id: userId, order_id: orderId,
         discount: v.discount, createdAt: new Date(),
       } as any);
     } catch (e: any) {
-      // duplicate (user, code, order) — roll the counter back
+      // duplicate (user, code, order) — roll both counters back
+      await this.userCounts.updateOne({ code: c.code, user_id: userId } as any, { $inc: { count: -1 } });
       await this.coupons.updateOne({ code: c.code } as any, { $inc: { used_count: -1 } });
       throw new BadRequestException('coupon_invalid: already_applied');
     }
     return { discount: v.discount, code: c.code };
+  }
+
+  private userCountIndex?: Promise<void>;
+  private get userCounts() { return this.conn.collection('coupon_user_counts'); }
+
+  /**
+   * Takes one of the user's `limit` uses of a coupon. The counter row is seeded once from the usages that already exist (uses from before this counter), then raised
+   * with `count < limit` in the filter, so two requests can never both get the last use. Usage rows are written AFTER this call, so the seed never counts them twice.
+   */
+  private async takePerUserUse(code: string, userId: string, limit: number): Promise<boolean> {
+    await (this.userCountIndex ??= this.userCounts.createIndex({ code: 1, user_id: 1 }, { unique: true }).then(() => undefined));
+    const filter = { code, user_id: userId } as any;
+    if (!(await this.userCounts.findOne(filter))) {
+      const existing = await this.usages.countDocuments(filter);
+      await this.userCounts.updateOne(filter, { $setOnInsert: { code, user_id: userId, count: existing } }, { upsert: true }).catch((e: any) => { if (e?.code !== 11000) throw e; });
+    }
+    const r = await this.userCounts.updateOne({ ...filter, count: { $lt: limit } }, { $inc: { count: 1 } });
+    return r.matchedCount === 1;
   }
 
   /** Release a coupon usage when an unpaid order is cancelled. */
@@ -410,6 +445,7 @@ export class CouponService {
     const usage: any = await this.usages.findOne({ order_id: orderId } as any);
     if (!usage) return;
     await this.usages.deleteOne({ order_id: orderId } as any);
+    await this.userCounts.updateOne({ code: usage.code, user_id: usage.user_id, count: { $gt: 0 } } as any, { $inc: { count: -1 } });
     await this.coupons.updateOne({ code: usage.code } as any, { $inc: { used_count: -1 } });
   }
 
@@ -599,6 +635,10 @@ export class FraudService {
 // ═══════════════════════════════════════════════════════════════════════════
 // RefundExecutor — real refund execution (EPIC S4) + negative balance (S9)
 // ═══════════════════════════════════════════════════════════════════════════
+interface RefundExecuteOpts { refund_id: string; booking_kind: string; booking_id: string; patient_id: string; amount: number; reason: string; actor_id: string }
+interface RefundReservation { refund_id: string; booking_id: string; halalas: number; takenOver?: boolean }
+interface RefundCtx { reservation: RefundReservation | null; committed: boolean }
+
 @Injectable()
 export class RefundExecutor {
   private readonly logger = new Logger('RefundExecutor');
@@ -608,6 +648,7 @@ export class RefundExecutor {
     private readonly fraud: FraudService,
     private readonly events: EventEmitter2,
     @Optional() private readonly moduleRef?: ModuleRef,
+    @Optional() private readonly durable?: DurableEventsService,
   ) {}
 
   private moyasarKey(): string {
@@ -629,15 +670,63 @@ export class RefundExecutor {
    *     from the next settlement. The platform never loses money (S9).
    *  5. Update booking payment_status + notify the patient.
    */
-  async execute(opts: {
-    refund_id: string;
-    booking_kind: string;
-    booking_id: string;
-    patient_id: string;
-    amount: number;
-    reason: string;
-    actor_id: string;
-  }): Promise<{ ok: boolean; method: string; gateway_refund_id?: string; provider_debited?: number }> {
+  async execute(opts: RefundExecuteOpts): Promise<{ ok: boolean; method: string; gateway_refund_id?: string; provider_debited?: number }> {
+    // R21: the reservation (see reserveRefund) is taken inside the core once the paid total is known, and given back here if anything fails before the ledger row exists.
+    const ctx: RefundCtx = { reservation: null, committed: false };
+    try {
+      return await this.executeCore(opts, ctx);
+    } catch (e) {
+      if (ctx.reservation && !ctx.committed) await this.releaseRefund(ctx.reservation).catch(() => undefined);
+      throw e;
+    }
+  }
+
+  private refundIndexes?: Promise<void>;
+  private static readonly RESERVATION_STALE_MS = 10 * 60_000;
+  private get reservations() { return this.conn.collection('refund_reservations'); }
+  private get refundTotals() { return this.conn.collection('refund_totals'); }
+
+  /**
+   * R21: two refunds of one booking at the same time (different refund ids), or the same refund id twice (a double click on "execute"), both passed the
+   * read-then-write checks and could refund twice. Now: (1) a unique row per refund id (`refund_reservations`): the second execution of the same id
+   * gets a conflict while the first runs, and a no-op once it is done; (2) a per-booking running total in integer halalas (`refund_totals`) raised with a
+   * conditional atomic update, so the sum of reservations can never pass what was paid.
+   */
+  private async reserveRefund(refundId: string, bookingId: string, amount: number, paidTotal: number, alreadyRefunded: number): Promise<RefundReservation | 'done'> {
+    await (this.refundIndexes ??= Promise.all([
+      this.reservations.createIndex({ refund_id: 1 }, { unique: true }),
+      this.refundTotals.createIndex({ booking_id: 1 }, { unique: true }),
+    ]).then(() => undefined));
+    const cents = (x: number) => Math.round((Number(x) + Number.EPSILON) * 100);
+    const reservation: RefundReservation = { refund_id: refundId, booking_id: bookingId, halalas: cents(amount) };
+    try {
+      await this.reservations.insertOne({ ...reservation, state: 'reserved', createdAt: new Date() } as any);
+    } catch (e: any) {
+      if (e?.code !== 11000) throw e;
+      const row: any = await this.reservations.findOne({ refund_id: refundId } as any);
+      if (row?.state === 'done') return 'done';
+      // a crashed execution leaves 'reserved' behind: after 10 minutes another one may take it over (its amount is already counted in the total)
+      const took = await this.reservations.findOneAndUpdate({ refund_id: refundId, state: 'reserved', createdAt: { $lt: new Date(Date.now() - RefundExecutor.RESERVATION_STALE_MS) } } as any, { $set: { createdAt: new Date() } });
+      if (!took) throw new ConflictException('refund_in_progress');
+      return { ...reservation, takenOver: true };
+    }
+    await this.refundTotals.updateOne({ booking_id: bookingId } as any, { $setOnInsert: { booking_id: bookingId, refunded_halalas: cents(alreadyRefunded), createdAt: new Date() } }, { upsert: true }).catch((e: any) => { if (e?.code !== 11000) throw e; });
+    const room = cents(paidTotal) - reservation.halalas;
+    const raised = await this.refundTotals.updateOne({ booking_id: bookingId, refunded_halalas: { $lte: room } } as any, { $inc: { refunded_halalas: reservation.halalas } });
+    if (!raised.matchedCount) {
+      await this.reservations.deleteOne({ refund_id: refundId, state: 'reserved' } as any);
+      throw new BadRequestException(`refund_exceeds_paid: paid ${paidTotal}, already refunded or being refunded`);
+    }
+    return reservation;
+  }
+
+  private async releaseRefund(r: RefundReservation) {
+    if (r.takenOver) return;     // the first execution's amount stays counted; only a clean failure of the owner gives it back
+    await this.refundTotals.updateOne({ booking_id: r.booking_id } as any, { $inc: { refunded_halalas: -r.halalas } });
+    await this.reservations.deleteOne({ refund_id: r.refund_id, state: 'reserved' } as any);
+  }
+
+  private async executeCore(opts: RefundExecuteOpts, ctx: RefundCtx): Promise<{ ok: boolean; method: string; gateway_refund_id?: string; provider_debited?: number }> {
     let amount = round2(opts.amount);
     if (!(amount > 0)) throw new BadRequestException('refund amount must be positive');
 
@@ -721,6 +810,11 @@ export class RefundExecutor {
       if (alreadyRefunded + amount > paidTotal + 0.001) {
         throw new BadRequestException(`refund_exceeds_paid: paid ${paidTotal}, already refunded ${alreadyRefunded}`);
       }
+      if (paidTotal > 0) {
+        const got = await this.reserveRefund(opts.refund_id, opts.booking_id, amount, Number(paidTotal), alreadyRefunded);
+        if (got === 'done') return { ok: true, method: 'already_executed' };
+        ctx.reservation = got;
+      }
     }
 
     let method = 'cash';
@@ -747,7 +841,7 @@ export class RefundExecutor {
       const newRefunded = round2(Number(paidPayment.refunded_amount || 0) + amount);
       await this.conn.collection('moyasar_payments').updateOne(
         { _id: paidPayment._id } as any,
-        { $set: { refunded_amount: newRefunded, status: newRefunded >= Number(paidPayment.amount || 0) - 0.001 ? 'refunded' : 'paid', refunded_at: new Date() } },
+        { $set: { refunded_amount: newRefunded, ...shadowFields({ refunded_amount: newRefunded }, ['refunded_amount']), status: newRefunded >= Number(paidPayment.amount || 0) - 0.001 ? 'refunded' : 'paid', refunded_at: new Date() } },
       );
     }
     // 1b) A card payment kept in `transactions` (the current checkout, copays included) goes back
@@ -774,6 +868,9 @@ export class RefundExecutor {
       actor_id: opts.actor_id,
       meta: { booking_kind: opts.booking_kind, patient_id: opts.patient_id, method, gateway_refund_id: gatewayRefundId },
     });
+    // the refund is now in the ledger: the reservation is spent, not to be given back whatever fails below
+    ctx.committed = true;
+    if (ctx.reservation) await this.reservations.updateOne({ refund_id: opts.refund_id } as any, { $set: { state: 'done', done_at: new Date() } }).catch(() => undefined);
 
     // 4) Provider debit — claw back the credited net earning (S9)
     let providerDebited = 0;
@@ -833,11 +930,12 @@ export class RefundExecutor {
       params: {}, type: 'payment', priority: 'high', read_by: [],
       status: 'DELIVERED', createdAt: new Date(), updatedAt: new Date(),
     } as any);
-    this.events.emit('payment.refund', {
+    // R2: recorded durably under the refund id (the same id the refund listeners and the ledger use), so a replay of execute() never announces twice.
+    await emitDurable(this.durable, this.events, 'payment.refund', {
       actor_id: opts.actor_id, transaction_id: gatewayRefundId || opts.refund_id,
       booking_id: opts.booking_id, booking_kind: opts.booking_kind,
       patient_id: opts.patient_id, amount, method,
-    });
+    }, `payment.refund:${opts.refund_id}`);
 
     return { ok: true, method, gateway_refund_id: gatewayRefundId, provider_debited: providerDebited };
   }
