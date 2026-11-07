@@ -13,6 +13,8 @@ export const TARGETS: Target[] = [
   { collection: 'transactions', fields: ['amount', 'refunded_amount'] },
   { collection: 'moyasar_payments', fields: ['amount', 'refunded_amount'] },
   { collection: 'platformledgerentries', fields: ['amount', 'gross', 'commission', 'vat'], ledger: true },
+  { collection: 'wallets', fields: ['balance'] },
+  { collection: 'wallet_transactions', fields: ['amount'] },
   { collection: 'einvoices', fields: ['subtotal', 'vat_amount', 'total', 'discount'], signed: true },        // credit notes are negative: shadows keep the sign
   { collection: 'refundrequests', fields: ['amount', 'amount_paid', 'refund_amount'] },       // two schemas share this collection
 ];
