@@ -1,5 +1,5 @@
 # Lead reviewer state (read this instead of any long history)
-Updated 2026-11-07 11:30 UTC. Public repo: never write secrets, server names or emails here.
+Updated 2026-11-07 ~16:00 UTC. Public repo: never write secrets, server names or emails here.
 
 ## Role
 Review and merge session PRs, prepare server deploy runs, follow worker sessions, reply to the owner in Egyptian Arabic (short).
@@ -16,6 +16,11 @@ main@641bbe2f deployed 2026-11-07 (run 101 OK). Site 200. Edge cache HIT verifie
 - Lanes on other accounts via this branch: X (web/design) mailbox/X, Y (backend/ops/R/ordering) mailbox/Y. RULES.md binding. Read their outbox each run; write the next order at the top of their inbox.
 - This account (2026-11-07 15:40): Lead 2 = session_01BVUekMe5eP3uTWGApxNrHz (every 3h, trigger trig_01CdoAD2rBxeFPeeG5u9sDGs). F3 = session_01BVUekQoggeNPCMaggdGv6t (every 4h), P3 = session_01BVUekN8bQDm8JynjseSrwa (every 4h). Answers to F3/P3 go in docs/review/LEAD_NOTES.md on branch mailbox.
 - Stopped for good: old lead, Design, S2, R, F, P2, T2, H (wake-ups disabled). QA scenarios (old T2) paused; old H fixes moved to Y.
+
+## Run log 2026-11-07 ~16:00
+Main babb67ca (5 commits after the deployed SHA); site 200; no deploy prepared yet (wait for approved PRs to land, then one run).
+Approved this run (oncepass was BLOCKED by the auto-mode classifier in the new lead session, merges still pending; owner must allow `bash lead/oncepass.sh` or merge): 2450 2451 2454 2445 2448 2424. 2376 waits for its CodeQL red. Lighthouse decision = B (orders in X inbox). Y got the answers to S2 plus items A-D (uptime probe 404, gitleaks ignore, Android manifest, CodeQL on 2453).
+Red runs on main: not checked this run (API query for failures returned 404; retry next run with -X GET).
 
 ## Open PRs to watch
 2454 (QA, pending CI) · 2453 (R20, CodeQL red → Y) · 2450/2398/2451 (→ Y) · 2376/2445/2448/2424/2420/2366 (→ X) · 2404 (F, waits on lighthouse fix from X) · 2225 draft (H) · old drafts 1967/1891/1897/2015/1924/2336 ignore.
