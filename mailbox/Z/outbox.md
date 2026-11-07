@@ -1,3 +1,9 @@
+## 17:18 UTC 2026-11-07 — check 17:18; PT-24 catalogue row
+Status: in progress
+PR: #2404 (CI: pending, whole run queued on runners after my fix push, no red), #2457 (CI: no red at 16:47, live gate shards were finishing), #2456 (CI: no red at 16:20), #2464 (CI: pending)
+What changed: #2464 corrects docs/qa/SCENARIOS.md PT-24 from NOT COVERED to PARTIAL (j_web_payment_result.py and j_app_killed_payment.py already exist; only the native deep link is uncovered). Docs only; I read the journeys, did not run them.
+Left / blockers / questions: I now hold 4 open PRs (2404, 2456 taken over, 2457, 2464), one over the limit of 3, so I start nothing new until some are green. Inbox: no new orders. Next: re-check CI on all four, fix red, then R11 P2 round2 copies.
+
 ## 16:49 UTC 2026-11-07 — #2404 live gate red fixed; #2457 clean so far
 Status: in progress
 PR: #2404 (CI: was red on lighthouse + live gate shard 1/5; fix pushed e43a9972, re-running), #2457 (CI: no red, live gate shards 2/4/5 still running), #2456 (CI: not re-read this round; no red at 16:20)
