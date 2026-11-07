@@ -193,7 +193,7 @@ def licence_expiry(admin, doctor):
     soon = (datetime.datetime.utcnow() + datetime.timedelta(days=20)).strftime('%Y-%m-%dT00:00:00Z')
     # TEST DATABASE ONLY: a licence cannot reach its end in real time, so its stored expiry date is moved.
     step('test setup: licence ends in 20 days', db_raw.set_raw('provider_profiles', flt, {'license_expiry_date': {'$date': soon}}) == 1)
-    r = admin.post('/admin/providers/license-monitor/run', {})
+    r = admin.post('/admin/admin/providers/license-monitor/run', {})
     step('admin runs the licence monitor', r.ok, r)
     r = doctor.get('/notifications')
     items = r.body if isinstance(r.body, list) else r.items()
@@ -203,7 +203,7 @@ def licence_expiry(admin, doctor):
     step('PV-08: the account is still active after the warning', r.ok, r)
     past = (datetime.datetime.utcnow() - datetime.timedelta(days=1)).strftime('%Y-%m-%dT00:00:00Z')
     step('test setup: licence ended yesterday', db_raw.set_raw('provider_profiles', flt, {'license_expiry_date': {'$date': past}}) == 1)
-    r = admin.post('/admin/providers/license-monitor/run', {})
+    r = admin.post('/admin/admin/providers/license-monitor/run', {})
     step('admin runs the licence monitor again', r.ok, r)
     r = doctor.get('/provider/profile')
     step('PV-09: the provider profile is suspended', (not r.ok) or r.get('status') == 'suspended', r)
