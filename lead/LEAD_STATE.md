@@ -27,3 +27,9 @@ Red runs on main: not checked this run (API query for failures returned 404; ret
 
 ## Owner to-dos (remind once, not every run)
 GitHub secrets for uptime alert mail; Moyasar/APNs/social login keys; decisions: standby VPS, KSA hosting, RAM upgrade at launch; earlyoom apply run.
+
+## 2026-11-07 16:00 change (old lead)
+- F3 and P3 closed; their work moved to lanes Z (payments) and W (provider app + admin), a second session on each of the owner's other accounts. Follow them like X/Y via mailbox/Z and mailbox/W.
+- Only Lead 2 runs on this account now.
+- Y reported OCR and M3-M8 already on main: verify and close those items; Y asked for R6, R8-R10, R22-R25 definitions: find them in docs/platform or the R backlog doc, else drop them and say so.
+- Lane Y last reported 12:3x and then went quiet (likely its Pro usage limit): check its outbox each run; if silent >6h tell the owner.
