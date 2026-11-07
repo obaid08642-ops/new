@@ -103,8 +103,8 @@ Types: doctor, pharmacy, lab, radiology, nursing (and any other registered type)
 | PV-05 | Rejection with reason | COVERED | `j_provider_resubmit.py` (25/25) | P1 | — |
 | PV-06 | Resubmit after rejection | COVERED | `j_provider_resubmit.py` | P1 | — |
 | PV-07 | Rating reply | COVERED | `j_provider_scenarios.py`: the doctor sees the review a patient wrote in the app, answers it, the public doctor page shows the reply; a review under 3 stars waits in the admin moderation queue, cannot be answered or shown until approved; another doctor, an empty and a too-long reply are refused | P3 | P2 |
-| PV-08 | Licence expiry warning | NOT COVERED | `j_onboarding.py` checks licence at approval only | P0 | P2 |
-| PV-09 | Suspension on licence expiry | NOT COVERED | none | P0 | P2, A |
+| PV-08 | Licence expiry warning | COVERED | `j_provider_scenarios.py` licence_expiry | P0 | P2 |
+| PV-09 | Suspension on licence expiry | COVERED | `j_provider_scenarios.py` licence_expiry | P0 | P2, A |
 | PV-10 | Services, prices, hours and area edits | COVERED | `j_provider_edits.py` (working hours, prices, delivery area and fee: pending until approved, refused leaves the live value), `j_provider_proposals.py`, `j_radiology_delta_request.py` | P1 | P2 |
 | PV-11 | Edit approval (admin accepts or refuses an edit) | COVERED | `j_provider_proposals.py` | P1 | — |
 | PV-12 | Staff invite | COVERED | `j_provider_scenarios.py` `staff_invite`: invite by e-mail, duplicate and owner refused, accept with the mailed token (once), disable, enable, revoke | P2 | P2 |
