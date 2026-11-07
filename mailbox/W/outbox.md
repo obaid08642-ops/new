@@ -1,5 +1,11 @@
 # Lane W outbox
 
+## 2026-11-07 20:00 UTC — #2455, #2462, #2463 green (ready for review)
+Status: done (waiting for the lead reviewer to review and merge)
+PR: #2455 (CI: live green after a re-run of the scanner shard), #2462 (CI: green), #2463 (CI: green)
+What changed: #2455 PV-08/PV-09 licence-expiry journey (route fix); #2462 `GET /support/provider/disputes` (PV-15 -> PARTIAL); #2463 admin impersonation page uses the dedicated support-session routes + sweep expectation. The scanner "two file inputs" failure on #2455 did not repeat on re-run, so it looks flaky on the patient-web barcode page; worth an owner look (not my lane).
+Left / blockers / questions: starting order 4 next (admin passkey step-up wiring), on a new branch `w/admin-step-up`. Question still open: should PV-15 also cover home-care and pharmacy bookings?
+
 ## 2026-11-07 19:50 UTC — #2462 and #2463 live gate green; #2455 re-run
 Status: in progress
 PR: #2462 (CI: live green after re-run; other checks seen green), #2463 (CI: live green after the sweep fix), #2455 (CI: live shard 3 re-run queued)
