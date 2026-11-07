@@ -152,7 +152,7 @@ def add_policy(pat, code=None, providers=()):
     return c
 
 
-def claims(pat, booking_kind=None, booking_id=None):
+def claims(pat, booking_kind=None, booking_id=None, admin=None):
     journey('insurance: submit-claim -> claim-tracking')
     if booking_kind and booking_id:
         r = pat.post('/insurance/claims/submit', {'booking_kind': booking_kind, 'booking_id': booking_id,
@@ -166,9 +166,33 @@ def claims(pat, booking_kind=None, booking_id=None):
         step('the claim is for what was paid, not for an amount typed by the client', bool(mine) and 0 < float(mine.get('amount') or 0) < 99999, mine)
         r = pat.post('/insurance/claims/submit', {'booking_kind': booking_kind, 'booking_id': booking_id, 'claim_type': 'reimbursement', 'amount': 99999})
         step('a second claim for the same booking is refused', r.status == 409, r)
+        if admin and cid:
+            claim_decision(admin, pat, cid, booking_kind, booking_id, mine)
     else:
         r = pat.get('/insurance/claims')
         step('claims list loads', r.ok, r)
+
+
+def claim_decision(admin, pat, cid, booking_kind, booking_id, mine):
+    """PT-19: the admin's decision on a claim is the one step that moves money (common/claim-state.ts)."""
+    journey('insurance: admin decides the claim (reimbursement moves money once)')
+    r = admin.get('/admin/admin/insurance/claims?status=pending')
+    rows = r.body if isinstance(r.body, list) else r.items()
+    step('the admin claims list shows the pending claim', r.ok and any((x.get('id') or x.get('claim_id')) == cid for x in rows), r)
+    r = admin.post(f'/admin/admin/insurance/claims/{cid}/decide', {'approve': True, 'note': 'مطالبة مستحقة بعد مراجعة الوثيقة'})
+    step('approve: the claim is reimbursed', r.ok and r.get('status') == 'reimbursed', r)
+    r = admin.post(f'/admin/admin/insurance/claims/{cid}/decide', {'approve': True, 'note': 'مرة ثانية'})
+    step('a decided claim cannot be decided again (no second payment)', r.status == 400 and 'invalid_claim_status' in str(r.body), r)
+    r = admin.post(f'/admin/admin/insurance/claims/{cid}/decide', {'approve': False, 'note': 'رفض بعد الصرف'})
+    step('a reimbursed claim cannot be rejected afterwards', r.status == 400, r)
+    r = pat.get('/insurance/claims')
+    rows = r.body if isinstance(r.body, list) else r.items()
+    now = next((x for x in rows if (x.get('id') or x.get('claim_id')) == cid), {})
+    step('claim-tracking shows it reimbursed', now.get('status') == 'reimbursed', now)
+    r = pat.get('/refunds/my')
+    step('the patient sees the reimbursement among their refunds, once', r.ok and str(r.body).count(cid) >= 1, r)
+    r = pat.post('/insurance/claims/submit', {'booking_kind': booking_kind, 'booking_id': booking_id, 'claim_type': 'reimbursement'})
+    step('the reimbursed booking cannot be claimed again', r.status == 409, r)
 
 
 def insured_consultation(pat, doctor, decision='approve_partial'):
@@ -343,7 +367,7 @@ def run(pat, doctor, admin, labs=None):
     claims(pat)
     reject_out = insured_consultation(pat, doctor, 'reject')
     if reject_out and reject_out[0]:
-        claims(pat, 'consultation', reject_out[0])
+        claims(pat, 'consultation', reject_out[0], admin)
     insured_consultation(pat, doctor, 'approve_partial')
     insured_consultation(pat, doctor, 'approve_full')
     if labs:

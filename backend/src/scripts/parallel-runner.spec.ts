@@ -1,4 +1,4 @@
-import { runParallel, ParallelProvider, errorClass, RunSnapshot } from './parallel-runner';
+import { runParallel, ParallelProvider, errorClass, nextResetMs, RunSnapshot } from './parallel-runner';
 
 function harness() {
   let t = 0;
@@ -201,7 +201,7 @@ describe('one bad provider cannot stall the rest (offline reproduction with stub
     const last = snaps[snaps.length - 1];
     expect(last).toMatchObject({ answered: 40, remaining: 0, failed: 0 });
     expect(last.last_answer_at).toMatch(/^\d{4}-/);
-    expect(Object.keys(last.providers.good).sort()).toEqual(['avg_latency_ms', 'error_classes', 'errors', 'limited', 'ok', 'parked_ms', 'parked_until', 'rejected', 'retired', 'sent']);
+    expect(Object.keys(last.providers.good).sort()).toEqual(['avg_latency_ms', 'error_classes', 'errors', 'limited', 'ok', 'parked_ms', 'parked_until', 'rejected', 'retired', 'retired_until', 'revived', 'sent']);
     expect(snaps.some((x) => x.providers.leaky.parked_until !== null)).toBe(true);
     const text = JSON.stringify(snaps) + h.logs.join('\n');
     expect(text).not.toContain(secret);                           // the error text never leaves the class
@@ -217,3 +217,85 @@ describe('errorClass', () => {
   ])('%s -> %s', (msg, cls) => { expect(errorClass(new Error(msg))).toBe(cls); });
 });
 
+
+
+describe('a retirement heals at the provider\'s next daily reset (2026-11-02: cerebras, deepseek, openai and groq were retired for the whole run)', () => {
+  const HOUR = 3_600_000;
+  const at = (iso: string) => Date.parse(iso);
+
+  it('nextResetMs: the next midnight of the provider\'s own zone, also across a day of 23 or 25 hours', () => {
+    expect(new Date(nextResetMs(at('2026-11-02T13:00:00Z'), 'UTC')).toISOString()).toBe('2026-11-03T00:00:00.000Z');
+    expect(new Date(nextResetMs(at('2026-11-02T23:59:30Z'), 'UTC')).toISOString()).toBe('2026-11-03T00:00:00.000Z');
+    expect(new Date(nextResetMs(at('2026-11-02T13:00:00Z'), 'America/Los_Angeles')).toISOString()).toBe('2026-11-03T08:00:00.000Z');   // PST (UTC-8) after the clocks went back on 11-01
+    expect(new Date(nextResetMs(at('2026-11-01T05:00:00Z'), 'America/Los_Angeles')).toISOString()).toBe('2026-11-01T07:00:00.000Z');   // 22:00 on Oct 31 (PDT): midnight is 07:00Z
+    expect(new Date(nextResetMs(at('2026-11-01T08:00:00Z'), 'America/Los_Angeles')).toISOString()).toBe('2026-11-02T08:00:00.000Z');   // 01:00 on Nov 1 (PDT): the 25-hour day of the change ends at 08:00Z
+    expect(new Date(nextResetMs(at('2026-11-02T13:00:00Z'), 'Not/AZone')).toISOString()).toBe('2026-11-03T00:00:00.000Z');              // an unknown zone is UTC
+  });
+
+  it('a provider whose budget is used is brought back on the new day by the providers still working, with its budget cleared, and answers again', async () => {
+    const h = harness();
+    h.advance(at('2026-11-02T22:00:00Z'));                                     // two hours before the reset
+    const slowGood: ParallelProvider = { name: 'good', limits: { rpm: 2, lanes: 1 }, call: async (p) => { h.advance(30_000); return `good:${p}`; } };   // about 1 request a minute
+    const capped: ParallelProvider = { name: 'capped', limits: { rpm: 6000, lanes: 1, rpd: 3 }, call: async (p) => { h.advance(100); return `capped:${p}`; } };
+    const res = await runParallel(reqs(400), [slowGood, capped], h.io);
+    expect(res.providers.capped.revived).toBeGreaterThanOrEqual(1);
+    expect(res.providers.capped.ok).toBeGreaterThan(3);                        // more than its 3 of the first day: the second day's three (and more)
+    expect(res.sent).toBe(400);
+  });
+
+  it('a rejected key is final for the run: it is not brought back', async () => {
+    const h = harness();
+    h.advance(at('2026-11-02T22:00:00Z'));
+    const bad: ParallelProvider = { name: 'bad', limits: fast, call: async () => { throw new Error('ai_provider_auth_failed'); } };
+    const slowGood: ParallelProvider = { name: 'good', limits: { rpm: 2, lanes: 1 }, call: async (p) => { h.advance(30_000); return `good:${p}`; } };
+    const res = await runParallel(reqs(150), [bad, slowGood], h.io);
+    expect(res.providers.bad.retired).toBe('key rejected');
+    expect(res.providers.bad.revived).toBe(0);
+  });
+
+  it('when EVERY provider is used up the run ends at once (nothing waits for tomorrow); the requests stay for the next run', async () => {
+    const h = harness();
+    const used = (n: string): ParallelProvider => ({ name: n, limits: { rpm: 6000, lanes: 1, rpd: 2 }, call: async (p) => `${n}:${p}` });
+    const res = await runParallel(reqs(20), [used('a'), used('b')], h.io);
+    expect(res.sent).toBe(4);
+    expect(res.failed).toBe(16);
+    expect(res.providers.a.retired).toBe('daily budget used');
+    expect(h.time()).toBeLessThan(HOUR);
+  });
+
+  it('the snapshot says when a retirement ends', async () => {
+    const h = harness(); const snaps: RunSnapshot[] = [];
+    h.advance(at('2026-11-02T13:00:00Z'));
+    const used: ParallelProvider = { name: 'a', limits: { rpm: 6000, lanes: 1, rpd: 1 }, call: async (p) => `a:${p}` };
+    await runParallel(reqs(3), [used], h.io, { onSnapshot: (x) => snaps.push(x) });
+    expect(snaps[snaps.length - 1].providers.a.retired_until).toBe('2026-11-03T00:01:00.000Z');     // the reset plus a minute
+  });
+});
+
+describe('the watchdog: a run that answers nothing for too long ends cleanly so the resume cron restarts it', () => {
+  it('stops with stalled=true after stallAfterMs without an answer; the waiting requests are not counted as failures', async () => {
+    const h = harness();
+    const hung: ParallelProvider = { name: 'hung', limits: { rpm: 6000, lanes: 1 }, call: async () => { h.advance(5 * 60_000); throw new Error('hung_http_500'); } };   // every call takes 5 min and fails
+    const res = await runParallel(reqs(10), [hung], h.io, { stallAfterMs: 20 * 60_000, maxAttempts: 100 });
+    expect(res.stalled).toBe(true);
+    expect(res.sent).toBe(0);
+    expect(res.failed).toBe(0);
+    expect(h.logs.some((l) => /stalled: nothing answered for \d+ min/.test(l))).toBe(true);
+    expect(h.time()).toBeLessThan(40 * 60_000);
+  });
+
+  it('is not triggered while answers keep coming, however long the run is', async () => {
+    const h = harness();
+    const res = await runParallel(reqs(300), [ok('a', h, 10_000)], h.io, { stallAfterMs: 20 * 60_000 });
+    expect(res.stalled).toBeUndefined();
+    expect(res.sent).toBe(300);
+  });
+
+  it('is off unless stallAfterMs is given', async () => {
+    const h = harness();
+    const slow: ParallelProvider = { name: 's', limits: { rpm: 6000, lanes: 1 }, call: async (p) => { h.advance(60 * 60_000); return `s:${p}`; } };
+    const res = await runParallel(reqs(3), [slow], h.io);
+    expect(res.stalled).toBeUndefined();
+    expect(res.sent).toBe(3);
+  });
+});

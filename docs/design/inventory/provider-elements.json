@@ -1,5 +1,5 @@
 {
- "commit": "1676c74a6",
+ "commit": "b077c4749",
  "screens": {
   "PendingDashboard": [
    {
@@ -10155,7 +10155,7 @@
    {
     "kind": "button",
     "label": "Send Request",
-    "src": "POST /labs/bookings, POST /radiology/bookings, POST /home-care/bookings",
+    "src": "POST /provider/referrals",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/RequestTestScreen.tsx",
     "line": 111,
@@ -11535,7 +11535,7 @@
     "src": "soap: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/AiMedicalCopilot.tsx",
-    "line": 29,
+    "line": 30,
     "via": null,
     "note": null
    },
@@ -11545,7 +11545,7 @@
     "src": "parent callback onBack",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/AiMedicalCopilot.tsx",
-    "line": 98,
+    "line": 101,
     "via": null,
     "note": null
    },
@@ -11555,7 +11555,7 @@
     "src": "POST /ai/copilot/suggest",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/AiMedicalCopilot.tsx",
-    "line": 115,
+    "line": 118,
     "via": null,
     "note": null
    },
@@ -11565,7 +11565,7 @@
     "src": "GET /provider/jobs/queue → patients",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/AiMedicalCopilot.tsx",
-    "line": 130,
+    "line": 133,
     "via": null,
     "note": null
    },
@@ -11575,7 +11575,7 @@
     "src": "local state setSelectedPatient",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/AiMedicalCopilot.tsx",
-    "line": 135,
+    "line": 138,
     "via": null,
     "note": null
    },
@@ -11585,7 +11585,7 @@
     "src": "user input → soap (local)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/AiMedicalCopilot.tsx",
-    "line": 153,
+    "line": 156,
     "via": null,
     "note": null
    },
@@ -11595,7 +11595,7 @@
     "src": "user input → soap (local)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/AiMedicalCopilot.tsx",
-    "line": 158,
+    "line": 161,
     "via": null,
     "note": null
    },
@@ -11605,7 +11605,7 @@
     "src": "user input → soap (local)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/AiMedicalCopilot.tsx",
-    "line": 163,
+    "line": 166,
     "via": null,
     "note": null
    },
@@ -11615,17 +11615,17 @@
     "src": "user input → soap (local)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/AiMedicalCopilot.tsx",
-    "line": 168,
+    "line": 171,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
     "label": "Save EMR Entry",
-    "src": "POST /nursing/notes",
+    "src": "POST /provider/ops/doctor/notes, POST /nursing/notes",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/AiMedicalCopilot.tsx",
-    "line": 171,
+    "line": 174,
     "via": null,
     "note": null
    }
@@ -19411,7 +19411,7 @@
    {
     "kind": "data",
     "label": "List patients",
-    "src": "GET /pharmacy/orders/refills → patients",
+    "src": "GET /provider/pharmacy/refills → patients",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreensExtended.tsx",
     "line": 104,

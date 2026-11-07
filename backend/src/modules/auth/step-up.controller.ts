@@ -1,8 +1,9 @@
-import { Body, Controller, Post, UseGuards, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, BadRequestException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { StepUpService } from '../../common/step-up.guard';
-import { JwtAuthGuard, Public } from '../../common/auth.guard';
+import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
+import { UserRole } from '../../common/enums';
 
 /**
  * C4: step-up re-authentication.
@@ -16,6 +17,23 @@ import { JwtAuthGuard, Public } from '../../common/auth.guard';
 @Controller('auth/step-up')
 export class StepUpController {
   constructor(private auth: AuthService, private stepUp: StepUpService) {}
+
+  /**
+   * Step 1: assertion options (challenge stored server-side) for the SIGNED-IN admin's own
+   * registered passkeys. Not public: the user comes from the JWT, never from the body, so an
+   * anonymous caller learns nothing about which emails are admins or what credentials they hold.
+   */
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Post('options')
+  async options(@CurrentUser() user: any) {
+    if (!user?.id) throw new UnauthorizedException('authentication_required');
+    if (user.role !== UserRole.ADMIN && user.role !== UserRole.SUPER_ADMIN) {
+      throw new ForbiddenException('admin_only');
+    }
+    return this.stepUp.startAssertion(user.id);
+  }
 
   @Public()
   @Throttle({ default: { limit: 10, ttl: 60000 } })

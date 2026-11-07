@@ -1,9 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { reportAggregate, cachedReport } from '../../../common/reports/report-read';
 import { ORDER_KINDS } from './orders-console.service';
 
 // ── Pure analytics math (unit-tested, cross-checked vs SQL) ──────────────
+
+/** R17: how long an analytics report is served from its precomputed snapshot (REPORT_TTL_SEC, default 5 min). */
+const REPORT_TTL_SEC = Number(process.env.REPORT_TTL_SEC) || 300;
 
 export interface DailyPoint { date: string; value: number }
 
@@ -89,6 +93,10 @@ export class AnalyticsSuiteService {
    * registered → verified → first booking → repeat booking.
    */
   async funnel(from: string, to: string) {
+    return cachedReport(this.conn, 'analytics.funnel', { from, to }, REPORT_TTL_SEC, () => this.funnelCompute(from, to));
+  }
+
+  private async funnelCompute(from: string, to: string) {
     const { f, t } = this.range(from, to);
     const users = this.conn.collection('users');
     const windowMatch = { role: 'patient', createdAt: { $gte: f, $lte: t } };
@@ -104,7 +112,7 @@ export class AnalyticsSuiteService {
     void unionPipeline;
     const bookingCounts = await Promise.all(
       ORDER_KINDS.map((k) =>
-        this.conn.collection(k.collection).aggregate([
+        reportAggregate(this.conn, k.collection, [
           { $match: { createdAt: { $gte: f, $lte: t } } },
           { $group: { _id: `$${k.patientField}`, n: { $sum: 1 }, first_at: { $min: '$createdAt' } } },
         ]).toArray().catch(() => [] as any[]),
@@ -139,6 +147,10 @@ export class AnalyticsSuiteService {
 
   /** Weekly cohorts with D1/D7/D30 retention + LTV per vertical. */
   async cohorts(from: string, to: string) {
+    return cachedReport(this.conn, 'analytics.cohorts', { from, to }, REPORT_TTL_SEC, () => this.cohortsCompute(from, to));
+  }
+
+  private async cohortsCompute(from: string, to: string) {
     const { f, t } = this.range(from, to);
     const users = await this.conn.collection('users')
       .find({ role: 'patient', createdAt: { $gte: f, $lte: t } }, { projection: { id: 1, createdAt: 1 } })
@@ -164,7 +176,7 @@ export class AnalyticsSuiteService {
 
     // LTV per cohort via gateway payments
     const ids = users.map((u: any) => u.id);
-    const ltvRows = await this.conn.collection('moyasar_payments').aggregate([
+    const ltvRows = await reportAggregate(this.conn, 'moyasar_payments', [
       { $match: { patient_id: { $in: ids }, status: { $in: ['paid', 'confirmed', 'succeeded'] } } },
       { $lookup: { from: 'users', localField: 'patient_id', foreignField: 'id', as: 'u' } },
       { $unwind: '$u' },
@@ -193,12 +205,16 @@ export class AnalyticsSuiteService {
 
   /** Provider league table: acceptance, response time, cancellations, rating. */
   async providerLeague(from: string, to: string, domain?: string) {
+    return cachedReport(this.conn, 'analytics.providerLeague', { from, to, domain }, REPORT_TTL_SEC, () => this.providerLeagueCompute(from, to, domain));
+  }
+
+  private async providerLeagueCompute(from: string, to: string, domain?: string) {
     const { f, t } = this.range(from, to);
     const kinds = domain ? ORDER_KINDS.filter((k) => k.kind === domain) : ORDER_KINDS;
     const rows: any[] = [];
     for (const k of kinds) {
       if (!k.providerField) continue;
-      const agg = await this.conn.collection(k.collection).aggregate([
+      const agg = await reportAggregate(this.conn, k.collection, [
         { $match: { createdAt: { $gte: f, $lte: t } } },
         { $group: {
           _id: `$${k.providerField}`,
@@ -216,7 +232,7 @@ export class AnalyticsSuiteService {
       { projection: { id: 1, full_name: 1, name_ar: 1, name_en: 1 } },
     ).toArray().catch(() => []) : [];
     const nameById = new Map((profiles as any[]).map((p) => [p.id, p.full_name || p.name_ar || p.name_en]));
-    const ratingsAgg = providerIds.length ? await this.conn.collection('ratings').aggregate([
+    const ratingsAgg = providerIds.length ? await reportAggregate(this.conn, 'ratings', [
       { $match: { provider_id: { $in: providerIds } } },
       { $group: { _id: '$provider_id', avg_rating: { $avg: '$rating' }, count: { $sum: 1 } } },
     ]).toArray().catch(() => []) : [];
@@ -234,15 +250,18 @@ export class AnalyticsSuiteService {
 
   /** Search queries → catalog opportunities (top zero/low-result searches). */
   async searchAnalytics(from: string, to: string) {
+    return cachedReport(this.conn, 'analytics.searchAnalytics', { from, to }, REPORT_TTL_SEC, () => this.searchAnalyticsCompute(from, to));
+  }
+
+  private async searchAnalyticsCompute(from: string, to: string) {
     const { f, t } = this.range(from, to);
-    const events = this.conn.collection('analytics_events');
     const [top, zeroResults] = await Promise.all([
-      events.aggregate([
+      reportAggregate(this.conn, 'analytics_events', [
         { $match: { event_type: 'search', createdAt: { $gte: f, $lte: t } } },
         { $group: { _id: '$metadata.query', count: { $sum: 1 }, domain: { $first: '$domain' } } },
         { $sort: { count: -1 } }, { $limit: 40 },
       ]).toArray().catch(() => []),
-      events.aggregate([
+      reportAggregate(this.conn, 'analytics_events', [
         { $match: { event_type: 'search', createdAt: { $gte: f, $lte: t } } },
         { $match: { $or: [{ 'metadata.results': 0 }, { 'metadata.result_count': 0 }] } },
         { $group: { _id: '$metadata.query', count: { $sum: 1 }, domain: { $first: '$domain' } } },
@@ -254,8 +273,12 @@ export class AnalyticsSuiteService {
 
   /** NPS distribution from the ratings collection. */
   async nps(from: string, to: string) {
+    return cachedReport(this.conn, 'analytics.nps', { from, to }, REPORT_TTL_SEC, () => this.npsCompute(from, to));
+  }
+
+  private async npsCompute(from: string, to: string) {
     const { f, t } = this.range(from, to);
-    const rows = await this.conn.collection('ratings').aggregate([
+    const rows = await reportAggregate(this.conn, 'ratings', [
       { $match: { createdAt: { $gte: f, $lte: t } } },
       { $group: { _id: '$rating', n: { $sum: 1 } } },
     ]).toArray().catch(() => []);
@@ -269,7 +292,7 @@ export class AnalyticsSuiteService {
   /** Cancellation & payment-failure anomalies (z-score vs trailing 14d). */
   async anomalies(daysBack = 45) {
     const since = new Date(Date.now() - daysBack * 86_400_000);
-    const dailyFromMatch = (col: string, stateField: string, states: string[]) => this.conn.collection(col).aggregate([
+    const dailyFromMatch = (col: string, stateField: string, states: string[]) => reportAggregate(this.conn, col, [
       { $match: { createdAt: { $gte: since } } },
       { $group: {
         _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
@@ -287,7 +310,7 @@ export class AnalyticsSuiteService {
         for (const r of rows) cancelSeries.push({ date: r._id, value: r.flagged });
       })),
       (async () => {
-        const rows = await this.conn.collection('moyasar_payments').aggregate([
+        const rows = await reportAggregate(this.conn, 'moyasar_payments', [
           { $match: { createdAt: { $gte: since } } },
           { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, failed: { $sum: { $cond: [{ $eq: ['$status', 'failed'] }, 1, 0] } }, total: { $sum: 1 } } },
           { $sort: { _id: 1 } },

@@ -8,6 +8,13 @@ import { BadRequestException } from '@nestjs/common';
  * Before this the facility could reject or resubmit a claim in any state (even one already reimbursed) and the admin could decide
  * only a claim the facility had not touched.
  */
+/**
+ * A claim in one of these statuses is "open" for its booking: it blocks a second claim for the same booking. `approved` (the facility said yes,
+ * the admin has not paid yet) counts: before this the duplicate check listed only pending and reimbursed, so a booking could be claimed again
+ * while its first claim waited for payment. Used by the check in submitClaim and by the partial unique index on the claim schema.
+ */
+export const OPEN_CLAIM_STATUSES = ['pending', 'approved', 'reimbursed'] as const;
+
 export type ClaimAction = 'facility_approve' | 'facility_reject' | 'facility_resubmit' | 'reimburse' | 'admin_reject';
 
 export const CLAIM_TRANSITIONS: Record<ClaimAction, { from: readonly string[]; to: string }> = {

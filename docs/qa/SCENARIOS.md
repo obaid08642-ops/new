@@ -13,16 +13,16 @@ Complete list of user scenarios, from the owner's request ("make sure there are 
 
 ## Counts
 
-| Measure | First catalogue | Re-scored on main `c17aa3461` (#2292) | Re-scored on main `365b2d580` (#2335) | Batch 2 (local, not pushed) |
-|---|---|---|---|---|
-| Scenarios listed | 100 | 100 | 100 | 100 |
-| COVERED | 52 | 55 | 62 | 65 |
-| PARTIAL | 16 | 16 | 16 | 13 |
-| NOT COVERED | 32 | 29 | 22 | 22 |
+| Measure | First catalogue | Re-scored on main `c17aa3461` (#2292) | Re-scored on main `365b2d580` (#2335) | Batch 2 (#2351) | This PR (PT-25) |
+|---|---|---|---|---|---|
+| Scenarios listed | 100 | 100 | 100 | 100 | 100 |
+| COVERED | 52 | 55 | 62 | 65 | 73 |
+| PARTIAL | 16 | 16 | 16 | 13 | 8 |
+| NOT COVERED | 32 | 29 | 22 | 22 | 18 |
 
 This PR: seven scenarios moved to COVERED. Four are covered by journeys another session added to main (`j_dispute.py`, `j_payment_failed_retry.py`, `j_web_dark_a11y.py`), which were run here and pass. Three are new journeys in this PR (`j_notification_settings.py`, `j_doctor_leave.py`) and pass locally on main `365b2d580`.
 
-Not run in this PR: the other 22 NOT COVERED scenarios (see the rows).
+This PR (PT-25 delivery tracking) moved one PARTIAL row to COVERED. The 'This PR' column is a recount of the rows on this branch (73 / 8 / 18), which includes other sessions' updates to the catalogue since #2351.
 ---
 
 ## Patient (app and web)
@@ -47,13 +47,13 @@ Not run in this PR: the other 22 NOT COVERED scenarios (see the rows).
 | PT-16 | Support ticket create and reply | COVERED | `j_support.py` | P2 | — |
 | PT-17 | Insurance policy add | COVERED | `j_insurance.py` | P1 | — |
 | PT-18 | Insurance policy edit | PARTIAL | `j_insurance.py` name only | P2 | H |
-| PT-19 | Insurance claim | NOT COVERED | none named | P1 | F |
-| PT-20 | Coupons and promotions | PARTIAL | `j_loyalty.py` covers loyalty, not coupons; no coupon journey found | P2 | F |
+| PT-19 | Insurance claim | COVERED | `j_insurance.py` `claims()` + `claim_decision()`: submit for a paid booking, amount is what was paid, a second claim 409, admin lists and approves (reimbursed, money moves once), a decided claim cannot be decided or rejected again, tracking and `/refunds/my` show it, the reimbursed booking answers `claim_already_filed`; `insurance.claims.spec.ts` | P1 | F |
+| PT-20 | Coupons and promotions | COVERED (checkout pricing) | `j_coupons.py` (27 steps: admin creates, patient prices, same figure as the admin tester, expired, off, unknown, rate limit); `coupon-rules.spec.ts` (apply, per-user, give-back on cancel, real MongoDB); `concurrency-races.spec.ts` (50 parallel). Applying on an order has no live flow: only the legacy cash cart applies a coupon | P2 | F |
 | PT-21 | Cash vs card vs insurance selection | COVERED | `j_consultation.py` matrix (124/124 in the live run): cash (line 211), insurance (lines 193, 223) and card bookings each recorded with their method | P1 | F |
 | PT-22 | Card payment success | COVERED | `j_consultation.py` (payment verified) | P0 | — |
 | PT-23 | Card payment failure and retry | COVERED | `j_payment_failed_retry.py` (43/43 on main 365b2d580): declined card reported as failed, retry makes a new checkout, paid booking cannot be charged again | P0 | F |
 | PT-24 | Payment return (deep link back from gateway) | NOT COVERED | no journey | P0 | H |
-| PT-25 | Delivery tracking | PARTIAL | `j_pharmacy.py` (delivery stage) | P1 | H |
+| PT-25 | Delivery tracking | COVERED | `j_pharmacy_tracking.py` (62/62 on main): the owner reads GET /orders/:id/tracking (state broadcasting), another patient gets 403, an unknown order id gets 404 | P1 | H |
 | PT-26 | Prescription photo upload | COVERED | `j_upload_security.py`, `j_ai_scanner.py` | P1 | — |
 | PT-27 | Prescription OCR result shown and corrected | PARTIAL | `j_ai_scanner.py` | P1 | H |
 | PT-28 | Notification preferences saved | COVERED | `j_notification_settings.py` (13/13 on main 365b2d580): change offers off and on, value holds on a new sign-in, a bad value refused (400) | P2 | H |
@@ -100,22 +100,22 @@ Types: doctor, pharmacy, lab, radiology, nursing (and any other registered type)
 | PV-04 | Approval | COVERED | `j_provider_review.py` (20/20) | P0 | — |
 | PV-05 | Rejection with reason | COVERED | `j_provider_resubmit.py` (25/25) | P1 | — |
 | PV-06 | Resubmit after rejection | COVERED | `j_provider_resubmit.py` | P1 | — |
-| PV-07 | Rating reply | NOT COVERED | none | P3 | P2 |
+| PV-07 | Rating reply | COVERED | `j_provider_scenarios.py`: the doctor sees the review a patient wrote in the app, answers it, the public doctor page shows the reply; another doctor, an empty and a too-long reply are refused | P3 | P2 |
 | PV-08 | Licence expiry warning | NOT COVERED | `j_onboarding.py` checks licence at approval only | P0 | P2 |
 | PV-09 | Suspension on licence expiry | NOT COVERED | none | P0 | P2, A |
-| PV-10 | Services, prices, hours and area edits | PARTIAL | `j_provider_proposals.py`, `j_radiology_delta_request.py` | P1 | P2 |
+| PV-10 | Services, prices, hours and area edits | COVERED | `j_provider_edits.py` (working hours, prices, delivery area and fee: pending until approved, refused leaves the live value), `j_provider_proposals.py`, `j_radiology_delta_request.py` | P1 | P2 |
 | PV-11 | Edit approval (admin accepts or refuses an edit) | COVERED | `j_provider_proposals.py` | P1 | — |
-| PV-12 | Staff invite | NOT COVERED | none | P2 | P2 |
+| PV-12 | Staff invite | COVERED | `j_provider_scenarios.py` `staff_invite`: invite by e-mail, duplicate and owner refused, accept with the mailed token (once), disable, enable, revoke | P2 | P2 |
 | PV-13 | Vacation or unavailability | COVERED | `j_doctor_leave.py` (35/35 on main 365b2d580): doctor adds vacation, listed, cancelled and no longer active; missing range refused (400) | P1 | P2 |
 | PV-14 | Payout request and approval | COVERED | `j_payouts.py`, `j_payout_paid.py` | P0 | — |
 | PV-15 | Dispute raised by the patient, seen by the provider | NOT COVERED | none | P1 | P2, F |
 | PV-16 | Consultation online, clinic and home | COVERED | `j_consultation.py`, `j_web_call.py` | P1 | — |
-| PV-17 | Pharmacy broadcast accept, reject, timeout | PARTIAL | `j_pharmacy_owner_decisions.py`, `j_pharmacy_catalogue_lines.py` | P1 | P2 |
+| PV-17 | Pharmacy broadcast accept, reject, timeout | COVERED | `j_pharmacy_broadcast_responses.py` (reject with a reason, rounds that time out and close the broadcast, a quote that lapses), `j_pharmacy.py` (accept) | P1 | P2 |
 | PV-18 | Lab home visit and centre with result upload | COVERED | `j_lab.py`, `j_lab_result_push.py` | P1 | — |
-| PV-19 | Radiology report upload | PARTIAL | `j_radiology.py`, service path only | P1 | P2 |
+| PV-19 | Radiology report upload | COVERED | `j_radiology.py` (upload, review, the uploader cannot publish, `report_can_approve` / `report_handled_by_me` on the booking and the inbox) | P1 | P2 |
 | PV-20 | Nursing visit or programme | COVERED | `j_nursing.py` | P1 | — |
-| PV-21 | Provider cancels after acceptance | NOT COVERED | none | P1 | P2 |
-| PV-22 | No-show marked by the provider | NOT COVERED | none | P1 | P2 |
+| PV-21 | Provider cancels after acceptance | COVERED | `j_provider_scenarios.py`: a reason is required, the patient gets 100% back, the doctor carries the penalty, the slot can be booked again | P1 | P2 |
+| PV-22 | No-show marked by the provider | COVERED | `j_provider_scenarios.py`: refused before the grace period, accepted after it, the patient sees NO_SHOW with no refund, a second one is refused | P1 | P2 |
 
 ## Admin
 
@@ -154,7 +154,7 @@ Types: doctor, pharmacy, lab, radiology, nursing (and any other registered type)
 - **S (backend)**: PT-05, PT-10, PT-12, PT-14, PT-36, PT-37, PT-47, SY-03, SY-05, SY-06, PV-09 (with A), and PV-08.
 - **F (money)**: PT-15, PT-19, PT-20, PT-21, PT-23, PV-15, AD-03.
 - **H (patient app)**: PT-03, PT-08, PT-24, PT-28, PT-29, PT-30, PT-33, PT-38, PT-40.
-- **P2 (provider app)**: PV-02 through PV-22 not covered.
+- **P2 (provider app)**: PV-07, PV-10, PV-12, PV-17, PV-19, PV-21 and PV-22 now have journeys (this PR); PV-08, PV-09 (S, A) and PV-15 (F) remain with their owners.
 - **D (design, web)**: PT-33, PT-40.
 - **A (admin)**: AD-02, AD-03, AD-07, PV-09.
 

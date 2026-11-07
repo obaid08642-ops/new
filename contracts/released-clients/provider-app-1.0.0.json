@@ -1,0 +1,2564 @@
+[
+ {
+  "method": "PUT",
+  "url": "/provider/ordering/settings",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:s",
+  "at": "provider-app/src/api/ordering.ts:54",
+  "callee": "client.put",
+  "idem": false
+ },
+ {
+  "method": "PUT",
+  "url": "/provider/ordering/items",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:b",
+  "at": "provider-app/src/api/ordering.ts:59",
+  "callee": "client.put",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/ordering/items/bulk-price",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:b",
+  "at": "provider-app/src/api/ordering.ts:61",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/ordering/items/copy-mode",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:b",
+  "at": "provider-app/src/api/ordering.ts:63",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/ordering/items/import",
+  "keys": [
+   "service_kind",
+   "csv"
+  ],
+  "spread": false,
+  "at": "provider-app/src/api/ordering.ts:67",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/auth/send-otp",
+  "keys": [
+   "email",
+   "purpose"
+  ],
+  "spread": false,
+  "at": "provider-app/src/api/otp.ts:10",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/auth/verify-email",
+  "keys": [
+   "email",
+   "code"
+  ],
+  "spread": false,
+  "at": "provider-app/src/api/otp.ts:19",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider-onboarding/start",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:payload",
+  "at": "provider-app/src/api/provider.ts:27",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/auth/login",
+  "keys": [
+   "identifier",
+   "password"
+  ],
+  "spread": false,
+  "at": "provider-app/src/api/provider.ts:36",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/auth/login",
+  "keys": [
+   "email",
+   "password"
+  ],
+  "spread": false,
+  "at": "provider-app/src/api/provider.ts:52",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/auth/change-password",
+  "keys": [
+   "current_password",
+   "new_password"
+  ],
+  "spread": false,
+  "at": "provider-app/src/api/provider.ts:71",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/storage/upload",
+  "keys": [
+   "data_base64",
+   "mime",
+   "original_name"
+  ],
+  "spread": false,
+  "at": "provider-app/src/api/provider.ts:97",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/storage/upload",
+  "keys": [
+   "data_base64",
+   "mime",
+   "original_name"
+  ],
+  "spread": false,
+  "at": "provider-app/src/api/provider.ts:112",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider-onboarding/step2",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:payload",
+  "at": "provider-app/src/api/provider.ts:123",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider-onboarding/step3",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:payload",
+  "at": "provider-app/src/api/provider.ts:129",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider-onboarding/submit",
+  "keys": [],
+  "spread": false,
+  "unresolved": "payload || {}",
+  "at": "provider-app/src/api/provider.ts:135",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/push/register",
+  "keys": [
+   "token",
+   "provider",
+   "platform",
+   "device_name",
+   "call_ring"
+  ],
+  "spread": false,
+  "at": "provider-app/src/calls/voipPush.ts:39",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/legal/accept/:x",
+  "keys": [],
+  "spread": false,
+  "at": "provider-app/src/components/ContractModal.tsx:66",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/profile/image/upload",
+  "keys": [
+   "data_base64",
+   "mime",
+   "original_name"
+  ],
+  "spread": false,
+  "at": "provider-app/src/components/ui.tsx:975",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/auth/refresh",
+  "keys": [
+   "refresh_token",
+   "session_id",
+   "device_identifier"
+  ],
+  "spread": false,
+  "at": "provider-app/src/context/index.tsx:284",
+  "callee": "timedFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/auth/login",
+  "keys": [
+   "email",
+   "password",
+   "meta"
+  ],
+  "spread": false,
+  "at": "provider-app/src/context/index.tsx:330",
+  "callee": "timedFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/auth/logout",
+  "keys": [
+   "session_id"
+  ],
+  "spread": false,
+  "at": "provider-app/src/context/index.tsx:391",
+  "callee": "timedFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/ops/availability/toggle-instant",
+  "keys": [
+   "available"
+  ],
+  "spread": false,
+  "at": "provider-app/src/context/index.tsx:416",
+  "callee": "timedFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/auth/forgot-password",
+  "keys": [
+   "email"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/auth/AuthScreens.tsx:607",
+  "callee": "timedFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/auth/verify-reset-code",
+  "keys": [
+   "email",
+   "code"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/auth/AuthScreens.tsx:629",
+  "callee": "timedFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/auth/reset-password",
+  "keys": [
+   "email",
+   "code",
+   "new_password"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/auth/AuthScreens.tsx:651",
+  "callee": "timedFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/auth/send-otp",
+  "keys": [
+   "email"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/auth/PendingDashboard.tsx:60",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/auth/verify-email",
+  "keys": [
+   "email",
+   "code"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/auth/PendingDashboard.tsx:73",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/onboarding/submit",
+  "keys": [],
+  "spread": false,
+  "at": "provider-app/src/screens/auth/PendingDashboard.tsx:125",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider-onboarding/step2",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:changed",
+  "at": "provider-app/src/screens/auth/ResubmitDetailsScreen.tsx:46",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/ops/doctor/leave",
+  "keys": [
+   "start_date",
+   "end_date",
+   "type",
+   "note"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx:50",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "DELETE",
+  "url": "/provider/ops/doctor/leave/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "none",
+  "at": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx:64",
+  "callee": "client.delete",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/ops/doctor/templates",
+  "keys": [
+   "name",
+   "items"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx:158",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "DELETE",
+  "url": "/provider/ops/doctor/templates/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "none",
+  "at": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx:169",
+  "callee": "client.delete",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/ops/doctor/diagnoses",
+  "keys": [
+   "name_ar",
+   "name_en",
+   "icd"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx:241",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "DELETE",
+  "url": "/provider/ops/doctor/blacklist/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "none",
+  "at": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx:305",
+  "callee": "client.delete",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/hospital/invitations/:x/respond",
+  "keys": [
+   "accept"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/FacilityInvitationsScreen.tsx:57",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/care/appointments/:x/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "body || {}",
+  "at": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx:74",
+  "callee": "client.patch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/care/appointments/:x/position",
+  "keys": [
+   "lat",
+   "lng"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx:190",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/care/appointments/:x/:x",
+  "keys": [],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx:200",
+  "callee": "client.patch",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/provider/profile/availability",
+  "keys": [
+   "instant_available",
+   "instant_available_minutes"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/doctor/AvailabilityPulseScreen.tsx:136",
+  "callee": "client.patch",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/provider/profile/availability",
+  "keys": [
+   "is_accepting_requests",
+   "vacation_mode",
+   "weekly_schedule",
+   "availability_exceptions"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx:146",
+  "callee": "client.patch",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/provider/profile/availability",
+  "keys": [
+   "accepted_insurance"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx:172",
+  "callee": "client.patch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/jobs/:x/:x/accept",
+  "keys": [],
+  "spread": false,
+  "unresolved": "none",
+  "at": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx:166",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/jobs/:x/:x/reject",
+  "keys": [],
+  "spread": false,
+  "unresolved": "none",
+  "at": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx:176",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/jobs/consultation/:x/insurance",
+  "keys": [
+   "status",
+   "copay",
+   "coverage",
+   "approval_code"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx:189",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/capabilities/doctor-sessions",
+  "keys": [
+   "consultation_type",
+   "specialty",
+   "price",
+   "duration_minutes",
+   "available"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx:109",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/capabilities/doctor-sessions",
+  "keys": [
+   "consultation_type",
+   "specialty",
+   "price",
+   "duration_minutes",
+   "available",
+   "insurance_covered"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx:121",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/capabilities/doctor-sessions",
+  "keys": [
+   "consultation_type",
+   "specialty",
+   "price",
+   "duration_minutes",
+   "available"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx:150",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "DELETE",
+  "url": "/provider/capabilities/doctor-sessions/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "none",
+  "at": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx:164",
+  "callee": "client.delete",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/capabilities/doctor-sessions",
+  "keys": [
+   "consultation_type",
+   "specialty",
+   "price",
+   "duration_minutes",
+   "available"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx:189",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/settings/delta",
+  "keys": [
+   "newData"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx:105",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PUT",
+  "url": "/provider/settings/pricing",
+  "keys": [
+   "pricing"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx:106",
+  "callee": "client.put",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/hospital/leave-facility",
+  "keys": [],
+  "spread": false,
+  "unresolved": "none",
+  "at": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx:118",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/ops/doctor/templates/:x/use",
+  "keys": [],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/doctor/EPrescriptionScreen.tsx:83",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/prescriptions/create",
+  "keys": [
+   "patient_id",
+   "appointment_id",
+   "diagnosis",
+   "notes",
+   "erx",
+   "labs",
+   "radiology"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/doctor/EPrescriptionScreen.tsx:165",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/ai/drug-interactions",
+  "keys": [
+   "drugs"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/doctor/EPrescriptionScreen.tsx:207",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "DELETE",
+  "url": "/provider/ops/doctor/templates/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "none",
+  "at": "provider-app/src/screens/doctor/doctor/EPrescriptionScreen.tsx:326",
+  "callee": "client.delete",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/ops/doctor/templates",
+  "keys": [
+   "name",
+   "items"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/doctor/EPrescriptionScreen.tsx:346",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/care/appointments/:x/check-in",
+  "keys": [],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx:90",
+  "callee": "client.patch",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/care/appointments/:x/start",
+  "keys": [],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx:91",
+  "callee": "client.patch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/care/appointments/:x/finish",
+  "keys": [
+   "diagnosis",
+   "notes",
+   "recommendations"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx:94",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/doctors/appointments/:x/medical-order",
+  "keys": [],
+  "spread": false,
+  "unresolved": "buildPayload(s)",
+  "at": "provider-app/src/screens/doctor/doctor/MedicalOrderComposer.tsx:83",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/requests/:x/medical-report",
+  "keys": [
+   "patient_id",
+   "type",
+   "findings",
+   "conclusion",
+   "recommendations"
+  ],
+  "spread": true,
+  "at": "provider-app/src/screens/doctor/doctor/MedicalReportScreen.tsx:125",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/notifications/read-all",
+  "keys": [],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/doctor/NotificationsScreen.tsx:93",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PUT",
+  "url": "/provider/ops/doctor/patient-crm/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:patch",
+  "at": "provider-app/src/screens/doctor/doctor/PatientFileScreen.tsx:86",
+  "callee": "client.put",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/ops/doctor/blacklist/:x",
+  "keys": [
+   "reason"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/doctor/PatientFileScreen.tsx:137",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "DELETE",
+  "url": "/provider/ops/doctor/blacklist/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "none",
+  "at": "provider-app/src/screens/doctor/doctor/PatientFileScreen.tsx:138",
+  "callee": "client.delete",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/chat/threads/:x/close",
+  "keys": [],
+  "spread": false,
+  "unresolved": "none",
+  "at": "provider-app/src/screens/doctor/doctor/PreVisitChatScreen.tsx:59",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/chat/threads/:x/extend",
+  "keys": [],
+  "spread": false,
+  "unresolved": "none",
+  "at": "provider-app/src/screens/doctor/doctor/PreVisitChatScreen.tsx:68",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/chat/send",
+  "keys": [
+   "appointment_id",
+   "message"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/doctor/PreVisitChatScreen.tsx:81",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/referrals",
+  "keys": [
+   "appointment_id",
+   "target_type",
+   "notes",
+   "patient_id",
+   "patient_name",
+   "urgent"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/doctor/ReferralScreen.tsx:152",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/requests/:x/sick-leave",
+  "keys": [
+   "patient_id",
+   "duration_days",
+   "start_date",
+   "diagnosis"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx:126",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/schedule-slots",
+  "keys": [
+   "day_of_week",
+   "start_time",
+   "end_time",
+   "service_type"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/doctor/doctor/StatisticsScreen.tsx:207",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "DELETE",
+  "url": "/provider/schedule-slots/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "none",
+  "at": "provider-app/src/screens/doctor/doctor/StatisticsScreen.tsx:219",
+  "callee": "client.delete",
+  "idem": false
+ },
+ {
+  "method": "PUT",
+  "url": "/facility/beds/discharge/:x",
+  "keys": [
+   "diagnosis",
+   "medications",
+   "instructions"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/facility/DischargeSummaryScreen.tsx:45",
+  "callee": "client.put",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/facility/announcements",
+  "keys": [
+   "text"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/facility/FacilityAnnouncementsScreen.tsx:32",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/chat/threads/:x/messages",
+  "keys": [
+   "body",
+   "type"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/facility/FacilityInternalChatScreen.tsx:55",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/hospital/invitations/:x/cancel",
+  "keys": [],
+  "spread": false,
+  "at": "provider-app/src/screens/facility/FacilityInvitationScreen.tsx:29",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/hospital/invitations",
+  "keys": [
+   "identifier",
+   "role",
+   "permissions"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/facility/FacilityInvitationScreen.tsx:74",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/leave-requests/action",
+  "keys": [
+   "id",
+   "action"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/facility/FacilityLeaveRequestsScreen.tsx:49",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/provider/profile",
+  "keys": [
+   "description_ar",
+   "description_en",
+   "website",
+   "social",
+   "sub_specialties"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/facility/FacilityProfileConfigScreen.tsx:46",
+  "callee": "client.patch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/facility/resources",
+  "keys": [
+   "name_ar",
+   "name_en",
+   "type"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/facility/FacilityResourcesScreen.tsx:47",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PUT",
+  "url": "/facility/resources/:x",
+  "keys": [
+   "status"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/facility/FacilityResourcesScreen.tsx:60",
+  "callee": "client.put",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/care/appointments/:x/:x",
+  "keys": [],
+  "spread": false,
+  "at": "provider-app/src/screens/facility/FacilityUnifiedCalendarScreen.tsx:36",
+  "callee": "client.patch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/hospital/staff",
+  "keys": [
+   "full_name",
+   "name_ar",
+   "name_en",
+   "legal_name",
+   "phone",
+   "email",
+   "password",
+   "staff_role",
+   "department",
+   "scfhs",
+   "permissions"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/facility/facility/AddSubAccountScreen.tsx:85",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/facility/beds/admission",
+  "keys": [
+   "patient_id",
+   "bed_id"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/facility/facility/BedManagementScreen.tsx:83",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PUT",
+  "url": "/facility/beds/discharge/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "none",
+  "at": "provider-app/src/screens/facility/facility/BedManagementScreen.tsx:111",
+  "callee": "client.put",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/facility/beds/wards",
+  "keys": [
+   "name",
+   "total_beds"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/facility/facility/BedManagementScreen.tsx:128",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/jobs/:x/:x/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "none",
+  "at": "provider-app/src/screens/facility/facility/FacilityOrderDetail.tsx:52",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/facility/inbox/:x/read",
+  "keys": [],
+  "spread": false,
+  "unresolved": "none",
+  "at": "provider-app/src/screens/facility/facility/FacilityOrdersTab.tsx:63",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PUT",
+  "url": "/provider/settings/tariffs",
+  "keys": [],
+  "spread": false,
+  "at": "provider-app/src/screens/facility/facility/FacilitySettingsScreen.tsx:101",
+  "callee": "client.put",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/settings/delta",
+  "keys": [
+   "newData"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/facility/facility/FacilitySettingsScreen.tsx:117",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/care/appointments/:x/check-in",
+  "keys": [],
+  "spread": false,
+  "unresolved": "none",
+  "at": "provider-app/src/screens/facility/facility/QRCheckinScreen.tsx:66",
+  "callee": "client.patch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/facility/shifts",
+  "keys": [
+   "user_id",
+   "day_of_week",
+   "start_time",
+   "end_time",
+   "department_id"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/facility/facility/ShiftManagementScreen.tsx:96",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/facility/shifts/:x/substitute",
+  "keys": [],
+  "spread": false,
+  "at": "provider-app/src/screens/facility/facility/ShiftManagementScreen.tsx:143",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/facility/shifts/:x/substitute",
+  "keys": [],
+  "spread": false,
+  "at": "provider-app/src/screens/facility/facility/ShiftManagementScreen.tsx:174",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/facility/shifts/attendance/check-in",
+  "keys": [
+   "lat",
+   "lng"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/facility/facility/StaffAttendanceScreen.tsx:72",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/facility/shifts/attendance/check-out/:x",
+  "keys": [],
+  "spread": false,
+  "at": "provider-app/src/screens/facility/facility/StaffAttendanceScreen.tsx:83",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "DELETE",
+  "url": "/hospital/staff/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "none",
+  "at": "provider-app/src/screens/facility/facility/SubAccountsScreen.tsx:94",
+  "callee": "client.delete",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/facility/surgeries/book",
+  "keys": [
+   "patient_id",
+   "primary_surgeon_id",
+   "ot_room_number",
+   "scheduled_at",
+   "duration_mins",
+   "assistants"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/facility/facility/SurgeryScheduleScreen.tsx:90",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/labs/bookings/:x/state",
+  "keys": [
+   "state",
+   "note"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/lab/LabDashboard.tsx:421",
+  "callee": "client.patch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/labs/bookings/:x/coverage-decision",
+  "keys": [
+   "decision",
+   "decision_reference"
+  ],
+  "spread": true,
+  "at": "provider-app/src/screens/lab/LabDashboard.tsx:438",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/labs/bookings/:x/state",
+  "keys": [
+   "state",
+   "note"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/lab/LabDashboard.tsx:457",
+  "callee": "client.patch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/labs/bookings/:x/assign-technician",
+  "keys": [
+   "technician_id"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/lab/LabDashboard.tsx:470",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/labs/bookings/:x/reschedule",
+  "keys": [
+   "new_date",
+   "reason"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/lab/LabDashboard.tsx:485",
+  "callee": "client.patch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/labs/samples/register",
+  "keys": [
+   "lab_order_id",
+   "barcode",
+   "tests"
+  ],
+  "spread": true,
+  "at": "provider-app/src/screens/lab/LabDashboard.tsx:500",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/labs/samples/:x/stage",
+  "keys": [
+   "stage"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/lab/LabDashboard.tsx:522",
+  "callee": "client.patch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/labs/bookings/:x/emergency",
+  "keys": [
+   "reason"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/lab/LabDashboard.tsx:598",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/labs/samples/:x/stage",
+  "keys": [
+   "stage"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/lab/LabDashboard.tsx:726",
+  "callee": "client.patch",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/labs/samples/:x/stage",
+  "keys": [
+   "stage"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/lab/LabDashboard.tsx:835",
+  "callee": "client.patch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/labs/bookings/:x/upload-report",
+  "keys": [
+   "send_to"
+  ],
+  "spread": true,
+  "at": "provider-app/src/screens/lab/LabDashboard.tsx:837",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/labs/samples/:x/stage",
+  "keys": [
+   "stage"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/lab/LabDashboard.tsx:838",
+  "callee": "client.patch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/approval-workflow/requests",
+  "keys": [
+   "entity_type",
+   "change_data"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/lab/LabDashboard.tsx:977",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/labs/bookings/:x/gps",
+  "keys": [
+   "lat",
+   "lng",
+   "eta",
+   "distance"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/lab/LabDashboard.tsx:1051",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/labs/bookings/:x/state",
+  "keys": [
+   "state",
+   "note"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/lab/LabDashboard.tsx:1103",
+  "callee": "client.patch",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/labs/bookings/:x/state",
+  "keys": [
+   "state"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/lab/LabDashboard.tsx:1113",
+  "callee": "client.patch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/labs/bookings/:x/emergency",
+  "keys": [
+   "reason"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/lab/LabDashboard.tsx:1124",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/labs/bookings/:x/emergency",
+  "keys": [
+   "reason"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/lab/LabDashboard.tsx:1129",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/labs/bookings/:x/reassign",
+  "keys": [],
+  "spread": false,
+  "unresolved": "none",
+  "at": "provider-app/src/screens/lab/LabDashboard.tsx:1134",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/labs/bookings/:x/assign-technician",
+  "keys": [
+   "technician_id"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/lab/LabDashboard.tsx:1169",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/labs/bookings/:x/insurance",
+  "keys": [
+   "status",
+   "totalCopay",
+   "items"
+  ],
+  "spread": true,
+  "at": "provider-app/src/screens/lab/LabDashboard.tsx:1297",
+  "callee": "client.patch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/approval-workflow/requests",
+  "keys": [
+   "entity_type",
+   "change_data"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/lab/LabDashboard.tsx:1562",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/ops/lab/bookings/:x/qc/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:body",
+  "at": "provider-app/src/screens/lab/LabQcActions.tsx:27",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/jobs/nursing/:x/accept",
+  "keys": [],
+  "spread": false,
+  "at": "provider-app/src/screens/nursing/NursingDashboard.tsx:155",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/jobs/nursing/:x/reject",
+  "keys": [
+   "reason"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/nursing/NursingDashboard.tsx:166",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/home-care/provider/availability",
+  "keys": [
+   "available"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/nursing/NursingDashboard.tsx:241",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/ops/nursing/bookings/:x/checklist/before",
+  "keys": [
+   "items"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/nursing/NursingDashboard.tsx:457",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/home-care/care-plans/:x",
+  "keys": [
+   "title",
+   "tasks"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/nursing/NursingDashboard.tsx:529",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/nursing/notes",
+  "keys": [
+   "patient_id",
+   "booking_id",
+   "vitals",
+   "note"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/nursing/NursingDashboard.tsx:627",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/home-care/inventory/request",
+  "keys": [
+   "items"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/nursing/NursingDashboard.tsx:677",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/settings/delta",
+  "keys": [
+   "newData"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/nursing/NursingDashboard.tsx:752",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/nursing/coverage/verify-gps",
+  "keys": [
+   "radius"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/nursing/NursingDashboard.tsx:857",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/settings/delta",
+  "keys": [
+   "newData"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/nursing/NursingDashboard.tsx:926",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/chats/threads/booking",
+  "keys": [
+   "booking_kind",
+   "booking_id"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/nursing/NursingDashboard.tsx:964",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/chats/threads/:x/messages",
+  "keys": [
+   "body",
+   "client_message_id"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/nursing/NursingDashboard.tsx:992",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/schedule/settings",
+  "keys": [
+   "shifts",
+   "maxVisits",
+   "emergencyReady"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/nursing/NursingDashboard.tsx:1041",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/nursing/visits/:x/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "body || {}",
+  "at": "provider-app/src/screens/nursing/NursingFieldOps.tsx:68",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/jobs/nursing/:x/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "kind === 'reject' ? { reason: 'provider_declined' } : {}",
+  "at": "provider-app/src/screens/nursing/NursingFieldOps.tsx:86",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/home-care/bookings/:x/visit-report",
+  "keys": [],
+  "spread": false,
+  "unresolved": "buildVisitReportBody({ attachments, vitals, notes, followUp,",
+  "at": "provider-app/src/screens/nursing/NursingFieldOps.tsx:133",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/nursing/visits/:x/position",
+  "keys": [
+   "lat",
+   "lng"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/nursing/NursingFieldOps.tsx:167",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/storage/upload",
+  "keys": [
+   "data_base64",
+   "mime",
+   "original_name"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/nursing/visitFiles.ts:30",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/pharmacy/broadcasts/:x/reject",
+  "keys": [
+   "reason"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:305",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/pharmacy/procurement/analyze-file",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:payload",
+  "at": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:463",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/pharmacy/procurement/submit-request",
+  "keys": [
+   "items"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:502",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/pharmacy/allocations/:x/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "body || {}",
+  "at": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:806",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/inventory/low-stock-alerts/:x/ack",
+  "keys": [],
+  "spread": false,
+  "unresolved": "none",
+  "at": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1094",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/inventory/:x/restock",
+  "keys": [
+   "qty"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1105",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/capabilities/pharmacy",
+  "keys": [],
+  "spread": false,
+  "unresolved": "editable({ ...item, ...patch })",
+  "at": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1121",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/capabilities/pharmacy",
+  "keys": [
+   "sku",
+   "name_ar",
+   "name_en",
+   "price",
+   "stock",
+   "available"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1182",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/pharmacy/chat/threads",
+  "keys": [
+   "order_id",
+   "order_item_id"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1370",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/pharmacy/chat/threads/:x/messages",
+  "keys": [],
+  "spread": true,
+  "at": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1399",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PUT",
+  "url": "/provider/pharmacy/delivery-settings",
+  "keys": [
+   "own_delivery"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1535",
+  "callee": "client.put",
+  "idem": false
+ },
+ {
+  "method": "PUT",
+  "url": "/provider/pharmacy/inventory-tracking",
+  "keys": [
+   "inventory_tracking"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1561",
+  "callee": "client.put",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/pharmacy/orders/:x/insurance-decision",
+  "keys": [
+   "idempotency_key",
+   "approval_reference",
+   "items"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/pharmacy/PharmacyInsuranceDecision.tsx:188",
+  "callee": "client.post",
+  "idem": true
+ },
+ {
+  "method": "POST",
+  "url": "/prescriptions/:x/verify",
+  "keys": [],
+  "spread": false,
+  "at": "provider-app/src/screens/pharmacy/PharmacyPrescriptionReview.tsx:57",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/prescriptions/:x/substitute",
+  "keys": [
+   "item_index",
+   "new_medicine_id"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/pharmacy/PharmacyPrescriptionReview.tsx:87",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/pharmacy/returns/provider/:x/respond",
+  "keys": [],
+  "spread": false,
+  "unresolved": "buildRespondBody(sheet === 'agree', note)",
+  "at": "provider-app/src/screens/pharmacy/PharmacyReturnDetail.tsx:40",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/radiology/bookings/:x/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "body || {}",
+  "at": "provider-app/src/screens/radiology/RadiologyDashboard.tsx:238",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/radiology/bookings/:x/coverage-decision",
+  "keys": [
+   "decision",
+   "decision_reference"
+  ],
+  "spread": true,
+  "at": "provider-app/src/screens/radiology/RadiologyDashboard.tsx:249",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/radiology/bookings/:x/state",
+  "keys": [
+   "state",
+   "note"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/radiology/RadiologyDashboard.tsx:263",
+  "callee": "client.patch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/radiology/bookings/:x/abort",
+  "keys": [
+   "reason"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/radiology/RadiologyDashboard.tsx:276",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/radiology/bookings/:x/reschedule",
+  "keys": [
+   "new_date",
+   "reason"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/radiology/RadiologyDashboard.tsx:292",
+  "callee": "client.patch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/radiology/bookings/:x/upload-report",
+  "keys": [
+   "report_storage_object_id",
+   "dicom_storage_object_id",
+   "findings"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/radiology/RadiologyDashboard.tsx:441",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/radiology/bookings/:x/submit-report-for-review",
+  "keys": [],
+  "spread": false,
+  "at": "provider-app/src/screens/radiology/RadiologyDashboard.tsx:454",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/radiology/bookings/:x/approve-report",
+  "keys": [],
+  "spread": false,
+  "at": "provider-app/src/screens/radiology/RadiologyDashboard.tsx:460",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/radiology/catalog/delta-request",
+  "keys": [
+   "name_ar",
+   "name_en",
+   "modality_category",
+   "price",
+   "estimated_duration_minutes",
+   "insurance_availability",
+   "portable_ultrasound",
+   "requires_pregnancy_check",
+   "requires_metal_implant_check",
+   "requires_contrast_allergy_check",
+   "preparation_keys"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/radiology/RadiologyDashboard.tsx:542",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/radiology/catalog/delta-request",
+  "keys": [
+   "type",
+   "working_days",
+   "morning_shift",
+   "evening_shift",
+   "emergency_available"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/radiology/RadiologyDashboard.tsx:589",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/calls/:x/reject",
+  "keys": [],
+  "spread": false,
+  "unresolved": "none",
+  "at": "provider-app/src/screens/shared/IncomingCallScreen.tsx:37",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/insurance/requests/:x/decide",
+  "keys": [
+   "decision"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx:100",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PUT",
+  "url": "/provider/services/:x/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "buildBody(vertical, row, d)",
+  "at": "provider-app/src/screens/shared/MyServicesScreen.tsx:72",
+  "callee": "client.put",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/reviews/:x/reply",
+  "keys": [
+   "reply"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/RealScreens.tsx:28",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PUT",
+  "url": "/provider/working-hours",
+  "keys": [
+   "hours"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/RealScreens.tsx:167",
+  "callee": "client.put",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/support/tickets",
+  "keys": [
+   "subject",
+   "message"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/RealScreens.tsx:356",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/approval-workflow/requests",
+  "keys": [
+   "entity_type",
+   "change_data"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/RealScreensExtended.tsx:176",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/pharmacy/shortage-flags",
+  "keys": [],
+  "spread": true,
+  "at": "provider-app/src/screens/shared/RealScreensExtended.tsx:303",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/calls/:x/metrics",
+  "keys": [
+   "metrics"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/VideoCallRoom.tsx:117",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/calls/initiate",
+  "keys": [
+   "appointmentId",
+   "call_type"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/VideoCallRoom.tsx:141",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/calls/:x/join",
+  "keys": [],
+  "spread": false,
+  "unresolved": "none",
+  "at": "provider-app/src/screens/shared/VideoCallRoom.tsx:149",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/calls/:x/end",
+  "keys": [],
+  "spread": false,
+  "unresolved": "none",
+  "at": "provider-app/src/screens/shared/VideoCallRoom.tsx:270",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/ai/copilot/suggest",
+  "keys": [
+   "notes"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/blueprint/AiMedicalCopilot.tsx:54",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/nursing/notes",
+  "keys": [
+   "patient_id",
+   "booking_id",
+   "note"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/blueprint/AiMedicalCopilot.tsx:85",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/promotions",
+  "keys": [
+   "title_ar",
+   "title_en",
+   "original_price",
+   "discounted_price",
+   "start_date",
+   "end_date"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/blueprint/CreateCampaignScreen.tsx:41",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PUT",
+  "url": "/provider/crm/:x",
+  "keys": [
+   "vip",
+   "favorite",
+   "blocked",
+   "blocked_reason",
+   "tags",
+   "notes"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/blueprint/CrmHub.tsx:82",
+  "callee": "client.put",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/labs/samples/:x/stage",
+  "keys": [
+   "stage"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/blueprint/LabSampleScannerScreen.tsx:54",
+  "callee": "client.patch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/pharmacy/broadcasts/:x/offers/preview",
+  "keys": [
+   "items"
+  ],
+  "spread": true,
+  "at": "provider-app/src/screens/shared/blueprint/PharmacyBroadcastResponse.tsx:118",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/pharmacy/broadcasts/:x/offers/draft",
+  "keys": [
+   "items"
+  ],
+  "spread": true,
+  "at": "provider-app/src/screens/shared/blueprint/PharmacyBroadcastResponse.tsx:134",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/pharmacy/broadcasts/:x/offers/:x/submit",
+  "keys": [],
+  "spread": false,
+  "unresolved": "none",
+  "at": "provider-app/src/screens/shared/blueprint/PharmacyBroadcastResponse.tsx:150",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/referrals",
+  "keys": [
+   "patient_id",
+   "target_type",
+   "target_provider_id",
+   "target_name",
+   "notes",
+   "requested_tests"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/blueprint/SmartOutboundReferralNetwork.tsx:63",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/promotions",
+  "keys": [
+   "title_ar",
+   "title_en",
+   "original_price",
+   "discounted_price",
+   "start_date",
+   "end_date",
+   "target_parameters"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/blueprint/SubscriptionsAdsScreen.tsx:51",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/kyc/documents",
+  "keys": [
+   "doc_type",
+   "file"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/shared/CertificatesConfigScreen.tsx:87",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/chat/threads/:x/messages",
+  "keys": [
+   "type",
+   "body",
+   "client_message_id"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/shared/ChatSystem.tsx:168",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/media/upload",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:form",
+  "at": "provider-app/src/screens/shared/shared/ChatSystem.tsx:218",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/chat/threads/:x/messages",
+  "keys": [
+   "type",
+   "body",
+   "media_ids",
+   "attachment_mime",
+   "attachment_name",
+   "client_message_id"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/shared/ChatSystem.tsx:221",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/settings/delta",
+  "keys": [
+   "changes"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/shared/InsuranceConfigScreen.tsx:95",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PUT",
+  "url": "/provider/insurance-matrix",
+  "keys": [
+   "companies",
+   "tiers"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/shared/InsuranceConfigScreen.tsx:105",
+  "callee": "client.put",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/settings/delta",
+  "keys": [
+   "changes"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/shared/MediaConfigScreen.tsx:74",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/storage/upload",
+  "keys": [
+   "data_base64",
+   "mime",
+   "original_name",
+   "visibility",
+   "target"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/shared/MediaConfigScreen.tsx:101",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/medicines/:x/suggest-change",
+  "keys": [
+   "type",
+   "changes",
+   "note"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/shared/MedicalDrugIndexScreen.tsx:138",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/storage/upload",
+  "keys": [
+   "data_base64",
+   "mime",
+   "original_name",
+   "visibility"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/shared/MedicalDrugIndexScreen.tsx:163",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/storage/upload-suggestion-image",
+  "keys": [
+   "data_base64",
+   "mime",
+   "original_name"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/shared/MedicalDrugIndexScreen.tsx:171",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/medicines/:x/suggest-image",
+  "keys": [
+   "storage_id",
+   "note"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/shared/MedicalDrugIndexScreen.tsx:179",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/storage/upload",
+  "keys": [
+   "data_base64",
+   "mime",
+   "original_name"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/shared/MedicalJobsApplicant.tsx:88",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/recruitment/candidate/profile",
+  "keys": [
+   "cv_url",
+   "scfhs_license_number",
+   "scfhs_license_expiry"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/shared/MedicalJobsApplicant.tsx:91",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/recruitment/jobs/guest",
+  "keys": [
+   "device_id",
+   "title",
+   "description",
+   "scfhs_role",
+   "post_type",
+   "company",
+   "contact_phone",
+   "contact_preference",
+   "nationality",
+   "experience_years",
+   "contract_type",
+   "location",
+   "salary_range"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/shared/MedicalJobsScreen.tsx:204",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/recruitment/jobs",
+  "keys": [
+   "title",
+   "description",
+   "scfhs_role",
+   "post_type",
+   "company",
+   "contact_phone",
+   "contact_preference",
+   "nationality",
+   "experience_years",
+   "contract_type",
+   "location",
+   "salary_range",
+   "requirements",
+   "status"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/shared/MedicalJobsScreen.tsx:224",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/recruitment/jobs/:x/guest-apply",
+  "keys": [
+   "device_id",
+   "name",
+   "phone",
+   "cover_letter"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/shared/MedicalJobsScreen.tsx:262",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/recruitment/jobs/:x/apply",
+  "keys": [
+   "cover_letter"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/shared/MedicalJobsScreen.tsx:281",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/notifications/read-all",
+  "keys": [],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/shared/NotificationsCenter.tsx:48",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/notifications/:x/read",
+  "keys": [],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/shared/NotificationsCenter.tsx:57",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/provider/profile",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:patch",
+  "at": "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx:136",
+  "callee": "client.patch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/reviews/:x/reply",
+  "keys": [
+   "reply"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/shared/ReviewsSystem.tsx:52",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/support/tickets",
+  "keys": [
+   "subject",
+   "message"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/shared/SupportCenter.tsx:107",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/bank-account",
+  "keys": [
+   "bank_code",
+   "holder_name",
+   "iban"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx:92",
+  "callee": "client.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/provider/payouts/request",
+  "keys": [
+   "amount",
+   "iban",
+   "idempotency_key"
+  ],
+  "spread": false,
+  "at": "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx:102",
+  "callee": "client.post",
+  "idem": true
+ },
+ {
+  "method": "POST",
+  "url": "/calls/:x/reject",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "provider-app/src/utils/callkeep.ts:71",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/calls/:x/reject",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "provider-app/src/utils/callkeep.ts:81",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/push/register",
+  "keys": [
+   "token",
+   "provider",
+   "platform",
+   "device_name",
+   "call_ring"
+  ],
+  "spread": false,
+  "at": "provider-app/src/utils/notifications.ts:92",
+  "callee": "apiFetch",
+  "idem": false
+ }
+]
