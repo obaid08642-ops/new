@@ -37,7 +37,6 @@ vi.mock("@/lib/api/articles-server", () => ({
 // a request with a query (?q=, ?category=, ?tab=) is answered by the dynamic twin (F82-3), which renders the same view
 import ArticlesPage from "@/app/[locale]/q/articles/page";
 import ArticlePage from "@/app/[locale]/articles/[slug]/page";
-import CommunityPostRedirect from "@/app/[locale]/community/[postId]/page";
 import { extractSearchResults } from "@/lib/api/search";
 
 const render = (node: ReactNode) => renderToStaticMarkup(node);
