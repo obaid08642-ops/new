@@ -59,3 +59,12 @@ Read once, fully. Public repo: no secrets, server names, IPs or emails here or a
 
 ## 6. Owner rules (also in lead/OWNER_DECISIONS.md — binding)
 Never skip/disable tests, never raise budgets, no secrets in chat/repo, no model names in commits/PRs, no paid services without price approval, site notice decision, LiveKit self-hosted, one bigger VPS at launch. Owner to-dos to remind once: GitHub secrets for uptime alert mail; Moyasar/APNs/social login keys; standby VPS/KSA hosting/RAM decisions; earlyoom apply.
+
+## 7. Corrections (old lead, 2026-11-07 19:50) — binding
+- MERGING: `gh pr merge` does NOT work here (GraphQL blocked) and loops/scripts get blocked. Merge exactly like this, ONE PR per Bash call, only after you reviewed it and all checks are green:
+  `gh api -X PUT repos/obaid08642-ops/new/pulls/<n>/merge -f merge_method=merge --jq .message`
+  Do not ask the owner to merge; merging is your job. Do not ask to allow oncepass.sh.
+- Lighthouse-red PRs (#2445, #2448, #2424): do not merge while lighthouse is red; push lane X to finish the budget fix (#2376) first.
+- Secrets: coturn `static-auth-secret` in old commit 9260da183 is a placeholder (not real). The R2 key pair in old commit fd59d435 (`backend/infra/fastapi/server.py`, Aug 2026, file no longer on main) looks real: the owner was told to roll that R2 API token in Cloudflare. Once the owner confirms, order lane Y to add those 2 gitleaks fingerprints to `.gitleaksignore` with reason "rotated <date>". Do not repeat this to the owner every run.
+- Deploy run 102 (main after the 19:40 merges) was prepared by the old lead: https://github.com/obaid08642-ops/new/actions/runs/42408534185 — after the owner approves, check its result.
+- Merged 19:40 by the old lead: #2457 #2453 #2456 #2455 #2462.
