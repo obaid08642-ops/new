@@ -1,5 +1,5 @@
 {
- "commit": "735344735",
+ "commit": "836537b2",
  "routes": [
   {
    "app": "patient-app",
@@ -6872,13 +6872,13 @@
      "path": "/billing/invoice/:param/:param",
      "target": "backend",
      "query": "",
-     "line": 22,
+     "line": 25,
      "file": "patient-app/app/receipts/[kind]/[bookingId].tsx",
      "status": "OK",
      "backend": "backend/src/modules/billing/billing.module.ts:665"
     }
    ],
-   "files": 42,
+   "files": 44,
    "unresolved": 0
   },
   {
@@ -19758,6 +19758,30 @@
   },
   {
    "app": "patient-web",
+   "route": "/receipt/shared/[token]",
+   "file": "patient-web/app/[locale]/receipt/shared/[token]/page.tsx",
+   "redirect": null,
+   "template": "detail",
+   "board": "none",
+   "batch": 12,
+   "status": "—",
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/billing/shared/:param",
+     "target": "backend",
+     "query": "",
+     "line": 15,
+     "file": "patient-web/lib/api/billing-server.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/billing/billing.module.ts:739"
+    }
+   ],
+   "files": 24,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-web",
    "route": "/receipts",
    "file": "patient-web/app/[locale]/receipts/page.tsx",
    "redirect": null,
@@ -19881,7 +19905,7 @@
      "backend": "backend/src/modules/billing/billing.module.ts:665"
     }
    ],
-   "files": 60,
+   "files": 65,
    "unresolved": 1
   },
   {

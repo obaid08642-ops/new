@@ -104,6 +104,8 @@ const patientReadRoutes = [
   // The receipt: the patient's invoices and the PDF of one (the backend checks the booking is theirs).
   new RegExp("^/billing/my$"),
   new RegExp(`^/billing/invoice/(pharmacy|order|appointment|consultation|lab|radiology|home_care|nursing)/${orderId}/pdf$`, "i"),
+  // The share links of one receipt (the list never carries a token; the backend checks the booking is theirs).
+  new RegExp(`^/billing/invoice/(pharmacy|order|appointment|consultation|lab|radiology|home_care|nursing)/${orderId}/share-links$`, "i"),
   // A1: the patient wallet is gone — these backend routes no longer exist.
 ];
 
@@ -211,12 +213,19 @@ const notificationMutationRoutes: Array<{ method: "POST"; route: RegExp }> = [
   { method: "POST", route: new RegExp("^/push/web/unsubscribe$") },
 ];
 
+// The receipt: make a read-only link to it (POST) and revoke one (DELETE); components-next/receipt/receipt-links.
+const receiptMutationRoutes: Array<{ method: "POST" | "DELETE"; route: RegExp }> = [
+  { method: "POST", route: new RegExp(`^/billing/invoice/(pharmacy|order|appointment|consultation|lab|radiology|home_care|nursing)/${orderId}/share-link$`, "i") },
+  { method: "DELETE", route: new RegExp(`^/billing/invoice/(pharmacy|order|appointment|consultation|lab|radiology|home_care|nursing)/${orderId}/share-links/${orderId}$`, "i") },
+];
+
 export function isAllowedPatientApiRequest(path: string, method: string) {
   return (method === "GET" && isAllowedPatientApiPath(path))
     || notificationMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
     || healthMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
     || addressMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
     || diagnosticsMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
+    || receiptMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
     || pharmacyMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path));
 }
 
