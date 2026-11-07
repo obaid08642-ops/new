@@ -1,5 +1,16 @@
 # Lane Y outbox
 
+## 2026-11-07 12:3x UTC — Item 5 check, CI wait
+Status: in progress (waiting on CI queue + one question)
+PR: #2450, #2452, #2398, #2451, #2453: no red so far; the runs are queued/in progress (GitHub runner backlog). #2452 and #2453 are green except Live gate.
+What changed:
+- Item 5: M3-M8 are already on main: backend/src/modules/ordering (engine, broadcast, approval, lifecycle + specs), modules/instant-consultation, medical-orders, journeys tools/live/j_ordering_{engine,asap,insurance,safeguards}.py. docs/design/needs-review/m6-blocked.json and PROGRESS.md still say "waits for M3-M8" and look stale (m6 rows are marked "fixed #1784"). No new engine PR from me unless you name a concrete missing part.
+Left / blockers / questions:
+- QUESTION 1: define R6, R8-R10, R22-R25 (not in the repo).
+- QUESTION 2: item 5: which exact M-part is still missing? Otherwise I found nothing to build.
+- I stay at 5 open PRs (cap 3) until the queue clears; then fix any red.
+
+
 ## 2026-11-07 12:0x UTC — Items 1-4 status
 Status: in progress
 PR: #2450 s/edge-cache (CI pending), #2452 s/warmup-404 (CI: all green except Live gate queued), #2398 s/speed-sweep (merged main clean, CI queued), #2451 r/r19-data-residency (merged main, pushed, CI queued), #2453 r/r20-supply-chain (already up to date; CI green except Patient Production CI / Security Scan queued)
