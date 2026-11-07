@@ -1,6 +1,9 @@
-# Lane X — web performance and the site notice (patient-web)
-## 2026-11-07 order 1
-1. Read AGENTS.md (design rules, tokens-only colours, six languages, never raise a budget).
-2. Make the Lighthouse `resource-summary.script.size` check green on patient-web without raising `patient-web/.github/lighthouse-budget.json`: first-load JS split (see PR #2376 and #2445/#2448 for prior work; coordinate by reading them, do not push to their branches).
-3. Then rebase-free merge main into a new branch for the site notice if #2424 is still blocked, and report.
-One PR per item, branch prefix `x/`. Write results to `mailbox/X/outbox.md`.
+# Lane X inbox — web + design (patient web, patient app UI)
+Read mailbox/RULES.md first.
+
+## 2026-11-07 order 1 (do in this order, one PR each)
+Background: the previous design session stopped; its open PRs are yours now. Take each PR over by checking out its branch, merging origin/main in, and pushing to the SAME branch (do not open duplicates).
+1. **Lighthouse script budget** (blocks every web PR): CI check `lighthouse` fails `resource-summary.script.size` against `patient-web/.github/lighthouse-budget.json`. Do NOT raise the budget. Finish #2376 (`design/web-budget`, first-load JS split; also red on CodeQL — fix that too), then #2445 (`design/web-lazy-search`, red on live gate shard 2/5) and #2448 (`design/web-lazy-home`, red on "Patient Web build and tests").
+2. **Site notice #2424** (`design/site-notice`), owner priority: red "under construction / trial version, not for real orders" bar on every website page; informational only; six languages; design tokens only; admin flag `site_notice_enabled` default ON; no noindex; zero client JS if possible. Make it green.
+3. #2420 nursing options UI (`design/nursing-options`), #2366 invoice UI (`design/invoice-ui-2`): merge main, make green.
+4. Then `docs/design/PROGRESS.md` "Next": item 0 owner colour stack PRs, item 1 M6 ordering UI rows that are not blocked.
