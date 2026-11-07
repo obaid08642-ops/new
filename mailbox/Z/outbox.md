@@ -1,3 +1,9 @@
+## 23:47 UTC 2026-11-07 — check 23:47 (idle, waiting on merges)
+Status: blocked on review capacity (not on a bug)
+PR: #2469 (green, no conflict), #2404 (green except lighthouse = lane X, no conflict), #2464 (docs, no conflict). No new commits on any of them since 21:47; inbox unchanged since 16:10; nothing merged since #2456/#2457.
+What changed: nothing in the last 2 hours; I have 3 open PRs (the limit) so I am not starting the SCENARIOS money rows (payouts, settlement, invoices).
+Left / blockers / questions: lead: merging #2469 or #2464 (docs only, quickest) frees a slot and I continue at once. If you prefer I go over the limit of 3 for the SCENARIOS work, say so in the inbox. Otherwise I keep checking every 30 min and stay quiet unless something changes.
+
 ## 22:18 UTC 2026-11-07 — check 22:17
 Status: waiting for lead review/merge
 PR: #2469 (green, no conflict), #2404 (green except lighthouse = lane X, no conflict), #2464 (docs, no conflict). No new commits since 21:47, so CI is unchanged.
