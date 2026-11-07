@@ -147,6 +147,10 @@ export class AppointmentsService {
     if ((doctor as any).license_expiry_date && new Date((doctor as any).license_expiry_date).getTime() <= Date.now()) {
       throw new BadRequestException('doctor_license_expired');
     }
+    // The doctor's own block list (provider-ops blacklist, kept in step with the patient file's `blocked`): a blocked patient cannot book.
+    if (await this.isBlockedByDoctor([(doctor as any).user_id, (doctor as any).account_id], patientId)) {
+      throw new ForbiddenException('booking_declined_by_provider');
+    }
     if (!doctor.consultation_modes?.includes(body.service_type)) {
       throw new BadRequestException(`doctor does not support service_type=${body.service_type}`);
     }
@@ -181,6 +185,9 @@ export class AppointmentsService {
     if (overlapping) {
       throw new ConflictException('slot_already_booked_or_conflicts_with_buffer');
     }
+
+    // someone else's unexpired hold on this slot also refuses the booking (the hold protects the patient who reserved it)
+    if (this.locks) await this.locks.assertNotHeldByOther(user, doctor.id, slotStart, slotEnd);
 
     // Optional slot hold (POST /slot-locks/reserve): validated before any
     // write so a mismatched/expired lock fails fast without side effects.
@@ -509,6 +516,17 @@ export class AppointmentsService {
   }
 
   // High-level commands
+
+  /** Whether any of the doctor's account ids has this patient on its active block list. Never throws: a read problem must not stop a booking. */
+  private async isBlockedByDoctor(accountIds: unknown[], patientId: string): Promise<boolean> {
+    const ids = accountIds.filter((v): v is string => typeof v === 'string' && !!v);
+    if (!ids.length || !patientId) return false;
+    try {
+      const col = (this.connection as any)?.collection?.('doctor_blacklist') ?? (this.connection as any)?.db?.collection?.('doctor_blacklist');
+      if (!col) return false;
+      return !!(await col.findOne({ doctor_id: { $in: ids }, patient_id: { $eq: String(patientId) }, active: true }));
+    } catch { return false; }
+  }
 
   async cancel(id: string, user: any, reason?: string, isNoShow: boolean = false) {
     const appt = await this.apptModel.findOne({ id });

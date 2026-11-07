@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { SlotLocksService } from './slot-locks.module';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, ConflictException } from '@nestjs/common';
 
 describe('SlotLocksService', () => {
   let service: SlotLocksService;
@@ -13,6 +13,7 @@ describe('SlotLocksService', () => {
       findOne: jest.fn(),
       create: jest.fn(),
       find: jest.fn(),
+      updateMany: jest.fn().mockResolvedValue({ modifiedCount: 1 }),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -132,6 +133,38 @@ describe('SlotLocksService', () => {
       await expect(service.releaseQuietly({ id: 'u1' }, 'nope')).resolves.toEqual({ ok: true });
       locksModel.findOne.mockRejectedValueOnce(new Error('db down'));
       await expect(service.releaseQuietly({ id: 'u1' }, 'lock1')).resolves.toEqual({ ok: true });
+    });
+  });
+
+  describe('assertNotHeldByOther', () => {
+    const start = new Date('2030-01-01T10:00:00Z'); const end = new Date('2030-01-01T10:30:00Z');
+    it('refuses a booking while another patient holds an unexpired lock on the slot', async () => {
+      locksModel.findOne.mockResolvedValue({ id: 'l1', patient_id: 'u2' });
+      await expect(service.assertNotHeldByOther({ id: 'u1' }, 'doc1', start, end)).rejects.toThrow(ConflictException);
+      const q = locksModel.findOne.mock.calls[0][0];
+      expect(q.patient_id).toEqual({ $ne: 'u1' });
+      expect(q.status).toBe('held');
+      expect(q.slot_start).toEqual({ $lt: end });
+      expect(q.slot_end).toEqual({ $gt: start });
+    });
+    it('lets the booking through when no one else holds it', async () => {
+      locksModel.findOne.mockResolvedValue(null);
+      await expect(service.assertNotHeldByOther({ id: 'u1' }, 'doc1', start, end)).resolves.toBeUndefined();
+    });
+  });
+
+  describe('a cancelled appointment gives its slot back', () => {
+    it('releases the confirmed lock of that booking only', async () => {
+      await service.releaseForCancelledBooking({ id: 'appt-1' });
+      expect(locksModel.updateMany).toHaveBeenCalledWith(
+        { booking_id: { $eq: 'appt-1' }, status: 'confirmed' },
+        { $set: { status: 'released', expires_at: expect.any(Date) } },
+      );
+    });
+    it('does nothing without an appointment id', async () => {
+      await service.releaseForCancelledBooking(undefined);
+      await service.releaseForCancelledBooking({});
+      expect(locksModel.updateMany).not.toHaveBeenCalled();
     });
   });
 });

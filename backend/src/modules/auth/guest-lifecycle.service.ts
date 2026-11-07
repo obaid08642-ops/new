@@ -9,6 +9,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { GuestService } from './guest.service';
+import { ScheduledOnce } from '../../common/scheduled-once';
 
 @Injectable()
 export class GuestLifecycleService {
@@ -16,12 +17,18 @@ export class GuestLifecycleService {
 
   constructor(private readonly guests: GuestService) {}
 
-  @Cron(CronExpression.EVERY_DAY_AT_4AM)
+  /** The admin endpoint calls this directly, so it must never be skipped by a lease: only the scheduled entry below takes one. */
   async purgeInactiveGuests(opts: { retentionDays?: number } = {}): Promise<{ anonymised: number; deleted: number }> {
     const result = await this.guests.purgeInactiveGuests(new Date(), opts);
     if (result.anonymised || result.deleted) {
       this.logger.log(`guest lifecycle: ${result.anonymised} anonymised, ${result.deleted} deleted`);
     }
     return result;
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_4AM)
+  @ScheduledOnce()
+  async purgeInactiveGuestsScheduled(): Promise<void> {
+    await this.purgeInactiveGuests();
   }
 }

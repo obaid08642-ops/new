@@ -1,6 +1,6 @@
 # Push and calls matrix (app × platform × state × event)
 
-Written from the code at `main` (2026-10-31). Nothing here was run on a device: no device, emulator or push key exists on this runner.
+Written from the code at `main` (2026-11-03). Nothing here was run on a device: no device, emulator push or push key exists on this runner. What CI proves without a key is the static section "CI check" below.
 Cell values: **PASS** = covered by a test named in the cell; **NEEDS-KEY** = code is ready, a key is missing (names in `docs/ops/PUSH_KEYS.md`); **FAIL** = a gap, with file:line; **UNVERIFIED** = code exists but no test or device run proves it.
 "States": open / background / killed / locked (screen off).
 
@@ -39,8 +39,9 @@ Cell values: **PASS** = covered by a test named in the cell; **NEEDS-KEY** = cod
 | State | Event | Android | iOS |
 |---|---|---|---|
 | open / background | chat, booking, order | NEEDS-KEY FCM; token registered as `fcm` (`provider-app/src/utils/notifications.ts:49-65`); tap handling UNVERIFIED | provider iOS registers an **Expo** token only (`:45-64`, `provider: 'expo'`): it needs Expo push, not APNs direct (NEEDS-KEY `EXPO_TOKEN` plus APNs key uploaded to Expo, or add `getDevicePushTokenAsync` for iOS) |
-| any | incoming call | FAIL no CallKeep, no ring task, no full-screen intent: `provider-app/package.json` has no `react-native-callkeep` or `expo-task-manager`, and `calls` channel importance MAX (`notifications.ts:98`) only shows a heads-up banner, not a ringing call screen | FAIL no CallKit/PushKit at all |
-| killed / locked | any | FAIL for calls (above); chat/booking NEEDS-KEY | same |
+| any | incoming call | Android: code PASS (revised, the earlier FAIL is out of date): `provider-app/src/utils/callkeep.ts` (CallKeep), `src/calls/ringTask.ts` (data-only push → system call screen), `package.json` has `react-native-callkeep` and `expo-task-manager`, `app.json` has `USE_FULL_SCREEN_INTENT`, `MANAGE_OWN_CALLS`, `FOREGROUND_SERVICE_PHONE_CALL`. The ConnectionService was **not declared** in the manifest (FAIL, fixed in this PR by `plugins/with-callkeep-android-service.js`, checked on the built APK in CI); sending NEEDS-KEY FCM | iOS: FAIL `src/calls/voipPush.ts:28` loads `react-native-voip-push-notification`, which is in neither `package.json` nor the lockfile (the `require` is wrapped, so it silently returns null): no PushKit token, no ring when killed |
+| killed / locked | call | Android: UNVERIFIED on a device (needs FCM key + a phone); the static prerequisites are checked in CI. iOS: FAIL, same PushKit module gap | same |
+| killed / locked | chat / booking | NEEDS-KEY | NEEDS-KEY |
 | any | token removed on sign-out | PASS (server-side, see Backend) |
 | any | badge | FAIL: nothing sets a badge count from unread items (`push.module.ts` sends `badge: 1` always; app only resets to 0 at `patient-app/src/services/Notifications.ts:128`); provider has none |
 | any | deep link on tap | UNVERIFIED: response listener exists (`initNotificationListeners`), router target not traced |
@@ -54,10 +55,22 @@ Cell values: **PASS** = covered by a test named in the cell; **NEEDS-KEY** = cod
 | browser fully closed / phone locked | any | Honest limit: browsers cannot ring like a phone. A closed browser receives nothing on desktop; Android Chrome may show the notification if the OS keeps the browser's push service alive; iOS needs the site added to the Home Screen (installed PWA) |
 
 ## What must be built (not keys), in priority order
-1. iOS: add `react-native-voip-push-notification` (config plugin + AppDelegate `reportNewIncomingCall` call) to the patient app; same for the provider app if providers receive calls.
-2. Provider app: CallKeep + ring task (mirror `patient-app/src/calls/ringTask.ts` and `src/utils/callkeep.ts`).
+1. iOS: add `react-native-voip-push-notification` (config plugin + AppDelegate `reportNewIncomingCall` call) to BOTH apps: `patient-app/src/calls/voipPush.ts` and `provider-app/src/calls/voipPush.ts` already require it, neither `package.json` lists it, so the iOS killed-app ring cannot work. Needs a native rebuild and a device to prove, so it is not done blind here.
+2. ~~Provider app: CallKeep + ring task~~ exists on `main` (`provider-app/src/calls/*`, commit 3bdc4d793); what was missing was the Android ConnectionService declaration in both apps: fixed in this PR.
 3. Backend: per-app VoIP topic.
 4. Both apps: badge counts from unread items; battery-optimisation guidance screen (needs six-language strings).
 
 Done in this PR: `call_cancelled` push (backend). Corrected: sign-out token removal already works server-side.
 5. A real-device run of every cell marked UNVERIFIED once the keys are installed.
+
+
+## CI check (no key, no device): `tools/native/calls_static_check.py`
+Run by `native-e2e.yml` on every built app (`build` for the release APK, `build-ios` for the simulator `.app`); results also go to the job summary.
+| Check | Where | Gate |
+|---|---|---|
+| `service:connection`, `service:bind-permission`: the merged manifest declares `io.wazo.callkeep.VoiceConnectionService` with action `android.telecom.ConnectionService` and `BIND_TELECOM_CONNECTION_SERVICE` | Android APK, both apps | required (red if missing); proven on a prebuilt manifest, it FAILS without the plugin and PASSES with it |
+| `perm:` `MANAGE_OWN_CALLS`, `USE_FULL_SCREEN_INTENT`, `FOREGROUND_SERVICE_PHONE_CALL`, `FOREGROUND_SERVICE_MICROPHONE` | Android APK, both apps | required |
+| `plist:voip`, `plist:remote-notification`: `UIBackgroundModes` | iOS `.app`, both apps | required |
+| `binary:pushkit`: the binary links `PushKit.framework` | iOS `.app`, both apps | reported, not gated: it is the known PushKit gap above, so it shows FAIL until the module is added |
+
+Not provable without a device or a key: that the phone actually rings killed or locked, answer and decline from the lock screen, and every NEEDS-KEY cell. Those wait for the keys in `docs/ops/PUSH_KEYS.md` (APNs: `APNS_KEY_ID`, `APNS_TEAM_ID`, `APNS_AUTH_KEY`, `APNS_BUNDLE_ID`; the four Firebase app files: `docs/ops/FIREBASE_SETUP.md`).

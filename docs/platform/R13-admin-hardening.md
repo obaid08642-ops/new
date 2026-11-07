@@ -1,0 +1,25 @@
+# R13 - Admin hardening (2026-11-03)
+
+## Status of each point in the brief (checked in the code, not assumed)
+| point | state | evidence |
+|---|---|---|
+| Least-privilege admin roles (open question 29: "every admin holds all permissions") | **Already done**: an admin's effective permissions are the union of their custom roles plus grants on their own record; only `super_admin` holds everything | `common/effective-permissions.ts` ("Owner decision 29: admin roles are restrictive"), `admin-write-permission-coverage.spec.ts` (every admin write route names a permission); 142 admin specs pass here |
+| Mandatory 2FA for admin | **Already done**: a passkey is mandatory for every admin/super_admin, no OTP fallback, new-device alert mail | `auth.service.ts` (C1 comment ~line 976, C5 alerts) |
+| Admin behind Cloudflare Access | **Added (script, not applied)**: `tools/ops/cf/52-admin-access-{check,apply}.sh` | below |
+| Immutable audit log of admin writes | **Added: tamper-evident hash chain** (not write-once, see the limit) | below |
+
+## 1. Tamper-evident audit log (`common/admin-audit-chain.ts`)
+Every admin audit row (`admin_actions_log`) now carries `seq`, `prev_hash`, `hash = sha256(prev_hash + canonical row)`, and `admin_audit_head` holds the newest `{seq, hash}`; row and head are written in **one transaction**, so concurrent admins get gap-free sequence numbers (30 parallel writes tested). All three writers use it: `AdminAuditService`, the pricing audit in business-rules, and `AdminAuthorityService` (the latter was inserting through a Mongoose model with a different shape; it now writes the same shape). Verification: `GET /api/v1/admin/audit/chain` (permission `data.export`) and a nightly job in the worker (`AdminAuditChainVerifier`, 02:15 UTC, once across workers via the R3 lease): an error-level log line (Sentry) and `nabd_admin_audit_chain_ok 0` on a break. Findings: `hash_mismatch` (a row was edited), `seq_gap` / `chain_break` (a row was deleted or inserted), `head_mismatch` (the newest rows were cut off), `unchained_entry`.
+- If the transaction cannot run, the row is **still written** (an audit entry is never dropped), flagged `chained:false`, counted in `nabd_admin_audit_unchained_total`, logged at error level, and the verifier reports it. Auditing still never blocks the business action (unchanged policy); making high-risk admin writes fail closed is a product decision I did not take.
+- Old rows (before this PR) have no `seq`; the chain starts at the first new row.
+- **Limit, stated and tested**: this makes tampering *evident*, not *impossible*. Someone with database root can rewrite the whole chain and the head consistently, and the chain alone will say OK (`admin-audit-chain.spec.ts` has a test that proves exactly that). The defence is a copy of the head outside the database: every nightly off-site dump contains both collections, so the head of an older dump must be a prefix of the live chain. Proposed check (not built): the monthly DR drill, after restoring, compares the restored head with the live chain at that `seq`. A real write-once store would need an external append-only service (object-lock bucket) and an owner decision on cost.
+
+## 2. Cloudflare Access in front of the admin dashboard (`tools/ops/cf/52-admin-access.sh`)
+`check` reads only; `apply` (APPLY=1) creates a self-hosted Access application for `admin.nabd.plus` (session 8 h) with one allow policy for `ACCESS_ALLOW_EMAILS`, then proves an unauthenticated request now gets 302/401/403 and deletes the application again if not (or if the policy is refused). It refuses an empty allow list (lock-out), prints counts and never addresses, never touches an application it did not create. Tested with a fake curl (7 tests).
+**Prerequisites (owner)**: a Zero Trust organisation (free plan covers up to 50 users, check the current plan terms), the API token with Access edit permission, the list of admin addresses.
+**What it does NOT cover, important**: the admin dashboard calls the API on `api.nabd.plus`; a browser cannot do the Access login redirect inside an XHR, so the admin API stays reachable with a valid JWT + passkey session, as today. Closing that needs both (a) the admin UI served same-origin for its API (nginx `admin.nabd.plus/api/` proxied to the backend, so the Access cookie covers it) and (b) a backend guard that requires a valid `Cf-Access-Jwt-Assertion` on `/admin/**`, verified against the team's certs. (b) is small, but it must be switched on only together with (a) and with a tested break-glass path (an env switch and a documented SSH route), otherwise a mistake locks the owner out of the dashboard. I did not build (a)/(b) in this PR: they change what the admin app can reach and need the owner at the keyboard.
+
+## Open points
+- Number of `super_admin` accounts and a break-glass procedure: not examined here.
+- Admin session length, IP allow-list and re-authentication for the most dangerous actions (payout approval, refund execution, role changes): not examined here.
+- Alert on `nabd_admin_audit_chain_ok == 0` once Prometheus runs somewhere (R5).

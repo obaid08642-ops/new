@@ -1,5 +1,5 @@
 import { OnEvent } from '@nestjs/event-emitter';
-import { Logger } from '@nestjs/common';
+import { Logger, Optional } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import {
   ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit,
@@ -13,6 +13,8 @@ import { Appointment, AppointmentDocument } from '../../schemas/appointment.sche
 import { getWebSocketCorsOptions } from '../../config/websocket-cors';
 import { ChatService } from '../chat/chat.service';
 import { LiveKitService } from '../livekit/livekit.service';
+import { RedisService } from '../redis/redis.service';
+import { WaitingRoomQueue } from './waiting-room-queue';
 import { registerGauge } from '../../common/metrics.service';
 import { realtimeTransports } from '../../common/cluster-config';
 
@@ -26,7 +28,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   // userId -> Set<socketId>
   private userSockets = new Map<string, Set<string>>();
   // doctor_id -> array of appointmentIds in queue
-  private doctorQueues = new Map<string, string[]>();
+  private readonly queue: WaitingRoomQueue;
 
   constructor(
     private readonly jwt: JwtService,
@@ -34,7 +36,10 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     @InjectModel(Appointment.name) private readonly apptModel: Model<AppointmentDocument>,
     private readonly chat: ChatService,
     private readonly livekit: LiveKitService,
-  ) {}
+    @Optional() redis?: RedisService,
+  ) {
+    this.queue = new WaitingRoomQueue(redis);
+  }
 
   afterInit(server: Server) {
     this.realtime.setServer(server);
@@ -114,7 +119,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
       try {
         const appt = await this.apptModel.findOne({ id: apptId }).lean();
         if (appt) {
-          this.removeFromQueue(appt.doctor_id, apptId);
+          await this.removeFromQueue(appt.doctor_id, apptId);
         }
       } catch (err) {
         this.logger.warn(`Failed to clean up queue for appointment ${apptId}: ${err.message}`);
@@ -345,14 +350,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
       client.data.appointmentId = data.appointmentId;
 
       const doctorId = appt.doctor_id;
-      if (!this.doctorQueues.has(doctorId)) {
-        this.doctorQueues.set(doctorId, []);
-      }
-
-      const queue = this.doctorQueues.get(doctorId)!;
-      if (!queue.includes(data.appointmentId)) {
-        queue.push(data.appointmentId);
-      }
+      await this.queue.add(doctorId, data.appointmentId);
 
       await this.broadcastQueueUpdates(doctorId);
       return { ok: true };
@@ -378,7 +376,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
 
       client.leave(`appointment:${data.appointmentId}`);
       if (client.data?.appointmentId === data.appointmentId) delete client.data.appointmentId;
-      this.removeFromQueue(appt.doctor_id, data.appointmentId);
+      await this.removeFromQueue(appt.doctor_id, data.appointmentId);
       return { ok: true };
     } catch (err) {
       return { ok: false, error: 'internal_error' };
@@ -396,7 +394,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   }
 
   private async broadcastQueueUpdates(doctorId: string) {
-    const queue = this.doctorQueues.get(doctorId) || [];
+    const queue = await this.queue.list(doctorId);
     const totalInQueue = queue.length;
 
     for (let i = 0; i < queue.length; i++) {
@@ -418,15 +416,8 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     }
   }
 
-  private removeFromQueue(doctorId: string, appointmentId: string) {
-    const queue = this.doctorQueues.get(doctorId);
-    if (queue) {
-      const idx = queue.indexOf(appointmentId);
-      if (idx !== -1) {
-        queue.splice(idx, 1);
-        this.broadcastQueueUpdates(doctorId);
-      }
-    }
+  private async removeFromQueue(doctorId: string, appointmentId: string) {
+    if (await this.queue.remove(doctorId, appointmentId)) await this.broadcastQueueUpdates(doctorId);
   }
 
   // ── Event Fanout from internal events ───────────────────────
@@ -492,7 +483,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
         appointmentId: payload.id,
       });
       if (fullAppt) {
-        this.removeFromQueue(fullAppt.doctor_id, payload.id);
+        await this.removeFromQueue(fullAppt.doctor_id, payload.id);
       }
     }
   }

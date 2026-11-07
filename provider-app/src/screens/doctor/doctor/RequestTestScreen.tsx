@@ -40,7 +40,7 @@ import { DoctorSettingsTab } from './DoctorSettingsTab';
 export function RequestTestScreen({ apt, onBack }:
  { apt: any; onBack: () => void }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
  const [type, setType] = useState<'lab'|'radiology'|'nursing'>(apt?.initialType || 'lab');
@@ -115,11 +115,14 @@ export function RequestTestScreen({ apt, onBack }:
         show(AR ? 'لا يمكن إرسال الطلب دون مريض مرتبط بالاستشارة' : 'Cannot request services without a linked patient', 'error');
         return;
       }
-      const endpoint = type === 'lab' ? '/labs/bookings' : type === 'radiology' ? '/radiology/bookings' : '/home-care/bookings';
-      await client.post(endpoint, {
-        items: selected,
-        notes: notes,
-        patient_id: patientId
+      // A doctor's request is a referral of the patient to a lab, a radiology centre or a nursing service (POST /provider/referrals); the
+      // patient booking routes (/labs/bookings ...) book for the caller and need a slot, so they could never take a doctor's request.
+      await client.post('/provider/referrals', {
+        appointment_id: apt?.id || apt?.appointment_id,
+        target_type: type,
+        requested_tests: selected,
+        notes: notes.trim() || t('referral.requestedTests'),
+        patient_id: patientId,
       });
  show(AR?`تم إرسال طلب ${selected.length} فحص `:`${selected.length} test(s) requested `,'success'); 
  onBack(); 

@@ -8,6 +8,7 @@ import { loadOffers, summarize, type Vertical } from '../../common/service-offer
 import { NotificationType } from '../../common/enums';
 import { NotificationsService } from '../notifications/notifications.service';
 import type { InterestServiceType } from './catalogue-interest.dto';
+import { ScheduledOnce } from '../../common/scheduled-once';
 
 export const INTEREST_COLLECTION = 'service_interests';
 
@@ -77,6 +78,7 @@ export class CatalogueInterestService {
   }
 
   @Cron(CronExpression.EVERY_HOUR)
+  @ScheduledOnce()
   async scheduledSweep() {
     if (this.running) return;
     this.running = true;

@@ -75,7 +75,7 @@ export function translateProviders(env: NodeJS.ProcessEnv, rpmCap?: number, regi
     };
     const limits = { ...base, ...(over[provider.key] ?? {}) };
     if (rpmCap) limits.rpm = Math.min(limits.rpm, rpmCap);
-    return { name: provider.key, call, limits };
+    return { name: provider.key, call, limits, resetTz: provider.reset_tz };
   });
 }
 
@@ -307,9 +307,12 @@ export async function main(argv: string[]): Promise<number> {
     const t0 = Date.now();
     const byId = new Map(reqs.map((r) => [r.id, r]));
     const statsFile = process.env.TRANSLATE_STATS_FILE || path.join(path.dirname(outFile), 'stats.json');
+    // a run that answers nothing for this long is hung (provider timeouts, a dead socket): it stops cleanly (exit 3) so the daily resume starts a fresh one
+    const stallMinutes = Number(process.env.TRANSLATE_STALL_MINUTES) || 20;
     const res = await runParallel(batch.map((r) => ({ id: r.id, prompt: r.prompt })), providers, {
       done, write: (l) => fs.appendFileSync(outFile, `${l}\n`), sleep: (ms) => new Promise((r) => setTimeout(r, ms)), now: Date.now, log: (l) => process.stderr.write(`${l}\n`),
     }, {
+      stallAfterMs: stallMinutes * 60_000,
       tokensOf: approxTokens,
       validate: (id, text) => rejectionOf(byId.get(id), text),
       // counts only (no message, no prompt, no key); written whole, then renamed, so a reader never sees half a file
@@ -318,7 +321,8 @@ export async function main(argv: string[]): Promise<number> {
         fs.writeFileSync(`${statsFile}.tmp`, body); fs.renameSync(`${statsFile}.tmp`, statsFile);
       },
     });
-    out({ step, sent: res.sent, skipped: res.skipped, failed: res.failed, providers: res.providers, minutes: Math.round((Date.now() - t0) / 600) / 100, batch: batch.length, remaining: reqs.length - done.size });
+    out({ step, sent: res.sent, skipped: res.skipped, failed: res.failed, ...(res.stalled ? { stalled: true } : {}), providers: res.providers, minutes: Math.round((Date.now() - t0) / 600) / 100, batch: batch.length, remaining: reqs.length - done.size });
+    if (res.stalled) return 3;
     return res.failed ? 1 : 0;
   }
   if (step === 'plan') {

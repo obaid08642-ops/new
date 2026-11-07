@@ -50,11 +50,18 @@ def refund_docs(pat, kind, bid, want_total=None):
     return inv
 
 
-def provider_ledger(prov, ref):
-    """Ledger rows of this provider that belong to the booking (earnings, debits, payouts)."""
-    r = prov.get('/provider/ops/wallet/ledger?limit=200')
-    rows = (r.get('transactions') or []) if r.ok else []
-    return [x for x in rows if ref in (x.get('ref_id'), x.get('order_id')) or str(x.get('ref_id', '')).endswith(ref)]
+def provider_ledger(prov, ref, ready=None, tries=15, delay=1.0):
+    """Ledger rows of this provider that belong to the booking (earnings, debits, payouts).
+    The rows are written by event listeners just after the API answers (the cancellation answers first, the penalty row follows), so when the caller
+    knows what it expects (`ready(rows)`), wait up to tries*delay seconds for it; the caller still asserts the exact value on what it gets."""
+    rows = []
+    for _ in range(tries if ready else 1):
+        r = prov.get('/provider/ops/wallet/ledger?limit=200')
+        rows = [x for x in ((r.get('transactions') or []) if r.ok else []) if ref in (x.get('ref_id'), x.get('order_id')) or str(x.get('ref_id', '')).endswith(ref)]
+        if not ready or ready(rows):
+            break
+        time.sleep(delay)
+    return rows
 
 
 def check_money(service, case, pat, prov, kind, bid, paid, refund, deduction=0.0, earned=False):
@@ -75,7 +82,8 @@ def check_money(service, case, pat, prov, kind, bid, paid, refund, deduction=0.0
         ok &= step(f'{service} / {case}: the invoice says {"refunded" if r2(refund) >= r2(paid) else "partially_refunded"}', inv.get('state') == ('refunded' if r2(refund) >= r2(paid) else 'partially_refunded'), inv.get('state'))
     else:
         ok &= step(f'{service} / {case}: no refund document when nothing is refunded', docsum == 0, notes)
-    rows = provider_ledger(prov, bid)
+    debit_total = lambda rs: r2(sum(float(x.get('amount') or 0) for x in rs if x.get('type') == 'provider_debit'))
+    rows = provider_ledger(prov, bid, (lambda rs: debit_total(rs) == r2(deduction)) if (not earned and deduction) else None)
     earnings = [x for x in rows if x.get('type') == 'provider_earning']
     debits = [x for x in rows if x.get('type') == 'provider_debit']
     if not earned:

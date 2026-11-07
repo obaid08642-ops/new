@@ -22,6 +22,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { createHmac, randomUUID } from 'crypto';
 import { currentLogContext } from '../../common/structured-logger';
 import { DEFAULT_RISK_RULES, RiskLevel, RiskRules, SignalType, levelOf, mergeRules } from './risk.rules';
+import { ScheduledOnce } from '../../common/scheduled-once';
 
 export interface Signal {
   type: SignalType;
@@ -278,6 +279,7 @@ export class RiskService {
    * person who went quiet sees their score fall when the windows move. One replica runs it (a lock row per day).
    */
   @Cron(CronExpression.EVERY_DAY_AT_3AM)
+  @ScheduledOnce()
   async rescoreRecent(): Promise<number> {
     await this.ensureIndexes();
     try {

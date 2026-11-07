@@ -10,7 +10,7 @@ export const MODEL_PREFERENCE: Partial<Record<AiProviderName, readonly string[]>
   gemini: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-flash-latest', 'gemini-flash-lite-latest', 'gemini-2.0-flash-lite'],
   // non-reasoning chat models first: a reasoning model (gpt-oss, qwen3) can spend its whole token budget thinking and return empty content
   groq: ['llama-3.1-8b-instant', 'meta-llama/llama-4-scout-17b-16e-instruct', 'llama-3.3-70b-versatile', 'openai/gpt-oss-20b', 'openai/gpt-oss-120b', 'qwen/qwen3-32b'],
-  cerebras: ['llama3.1-8b', 'llama-3.3-70b', 'llama-4-scout-17b-16e-instruct', 'gpt-oss-120b', 'qwen-3-32b'],
+  cerebras: ['llama-4-scout-17b-16e-instruct', 'llama3.1-8b', 'llama-3.3-70b', 'gpt-oss-120b', 'qwen-3-32b'],
   openai: ['gpt-4o-mini', 'gpt-4.1-mini', 'gpt-4.1-nano', 'gpt-5-mini'],
   deepseek: ['deepseek-chat'],
   // OpenRouter's free chat models on 2026-10-29 (its public list, `:free` ids). Chat-native ones first: the reasoning-first ones answer slowly (79 s) and can come back empty.
