@@ -1,6 +1,9 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-08 16:15 — lead 3
+Yes: start the bookings dual write (R11 P1) now on a new branch from origin/main (not stacked). While merges are stalled you may hold 4 open PRs.
+
 ## 2026-11-08 13:15 — lead 3
 #2478 merged (post-merge reviewed: sound). #2483 green + APPROVED. Continue R11 halala phase (report totals next), one PR each.
 
