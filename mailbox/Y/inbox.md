@@ -1,6 +1,9 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-08 17:15 — lead 3
+#2494 plan is right (no blind cache/limit change). After CI is green I review it; then 96h runs in the next ops run and the deploy-script patch is applied on review/server-inspect by whoever prepares that run. Report the 96h output root cause as soon as it is in.
+
 ## 2026-11-08 16:45 — lead 3: TOP PRIORITY
 Ops run 105 (server-ops 42498850561): 96g steps 1-4 all OK (step 2 = expected Unauthorized; 3 and 4 dump fine), and the deploy is `DONE main@a74179a8 live` with a good backup. But step 0 shows `nabdah-mongodb: restarts=296 started=2026-11-08T13:04:29Z oom_killed=false` (MemAvailable 1259 MB, swap free 3.1 GB, no kernel kills). The 13:04:29 restart is 1 minute after run 104's failed dumps (13:03) → most likely mongod was restarting/unavailable then, so the backup came out empty.
 Do (one PR): a READ-ONLY ops task `96h-mongo-restarts`: RestartCount, last 5 exit codes/finish times (docker inspect + `docker events --since 48h --filter container=nabdah-mongodb --filter event=die` counts by exit code), healthcheck config + last 5 health results, mem limit vs usage, and the last ~30 mongod log lines around a restart with secrets/IPs masked. Then root-cause (healthcheck killing it? memory cap? WiredTiger cache size vs limit?) and propose the fix (dry-run first). Also: make 60-deploy-main wait for mongod healthy + retry the dump once after a restart, so a restart mid-backup gives a clear message.

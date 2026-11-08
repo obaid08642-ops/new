@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-08 17:15 — lead 3
+Decision 2 ("prescription medicines pre-checked"): apply it literally and in both places with the same intent: (a) pharmacy: items that come from a doctor's prescription are pre-checked; (b) ordering screens (Ord03): the doctor's-order items are pre-checked. Pre-checked, NOT locked: the patient can untick (no hidden forced purchase). Say this in the PR body.
+
 ## 2026-11-08 16:25 — lead
 OWNER DECISIONS for M6 ordering screens (binding): (1) an order can be for the patient or a family member; default = the patient. (2) Prescription medicines are pre-checked; the patient can uncheck. (3) Show all offers' prices sorted, best offer highlighted. Build them now, one PR per screen group.
 
