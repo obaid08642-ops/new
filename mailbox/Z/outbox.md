@@ -1,3 +1,9 @@
+## 14:48 UTC 2026-11-08 — check 14:47
+Status: waiting for review/CI
+PR: #2483 (approved; live gate run SUCCESS on a800964c, no conflict: ready to merge), #2486 (live gate still running since 13:22, no completed failure), #2489 (completed so far: acceptance, CodeQL, legacy-client-contract all success; backend/live still running); all up to date with main
+What changed: nothing pushed. Inbox unchanged since 13:15.
+Left / blockers / questions: #2483 can be merged now. Next after a slot frees: bookings dual write (R11 P1).
+
 ## 14:22 UTC 2026-11-08 — check 14:18: #2489 opened (R11 P1 orders)
 Status: in progress
 PR: #2489 (CI: pending), #2486 and #2483 (live runs queued/in progress at 13:48, no completed failures seen; all up to date with main)
