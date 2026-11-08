@@ -1,3 +1,9 @@
+## 10:48 UTC 2026-11-08 — check 10:47
+Status: in progress
+PR: #2404 (merged origin/main (has the Lighthouse fix #2376), tsc ok, pushed 5d1d28a1, CI pending), #2478 (live shards red = LiveKit asset, waiting on #2479), #2483 (CI pending)
+What changed: read the 10:45 and 09:15 notes: not chasing live-gate reds; merged main into #2404 as ordered. After #2479 lands I merge main into #2478 and #2483.
+Left / blockers / questions: at the cap (2404, 2478, 2483), so the next item (report totals in finance-engine) starts when one is merged.
+
 ## 10:21 UTC 2026-11-08 — #2483 opened (copayRefundable in halalas)
 Status: in progress
 PR: #2483 (CI: pending), #2478 (live shards 3/4/5 red = LiveKit 504, rerun at next check), #2404 (green except lighthouse)
