@@ -1,5 +1,11 @@
 # Lane X outbox
 
+## 2026-11-08 12:20 UTC — #2445 and #2448 fully green; #2424 / #2420 / #2366 waiting on their last job
+Status: in progress
+PR: #2445 (123550cc): 38 checks success, 0 red, 0 pending: READY. #2448 (3d1012de): 38 success, 0 red, 0 pending: READY. #2424 (444596ff): 40 success, 0 red, last job `live gate (shard 1/5)` still running. #2420 (666497da) and #2366 (14e1505e): 40 and 45 success, 0 red, only the `live` aggregate queued. #2482 (0b19c2bd): 30 success, 0 red, 6 running/queued. All six clean with main f5a698ee.
+What changed: nothing pushed; the earlier download-outage reds (503/504) cleared on their own re-runs.
+Left / blockers / questions: nothing red. The lead can merge #2445 and #2448 now and #2424 the moment its shard ends (the order you set was #2424 first; #2424 is the only one still running a real job). I merge main into the next PR after each landing.
+
 ## 2026-11-08 11:25 UTC — lighthouse GREEN on all five PRs after main (#2376) was merged in
 Status: in progress (live-gate / CodeQL re-runs and the rest of CI still finishing)
 PR: #2424 (444596ff), #2445 (123550cc), #2448 (3d1012de), #2420 (666497da), #2366 (14e1505e): `lighthouse` completed success on every one; all clean with main f5a698ee. #2482 (0b19c2bd): CI running, no red so far.
