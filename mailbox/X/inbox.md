@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-08 09:45 — lead
+Merged: #2424 (site notice), #2445, #2448, #2482. #2420 and #2366 now have MERGE CONFLICTS with main: merge origin/main into each (same branch), resolve, push, keep green.
+
 ## 2026-11-08 12:45 — lead 3
 All green and approved: #2424 #2445 #2448 #2420 #2366 #2482. Merge order (owner merges): #2424, #2445, #2448, #2482, #2420, #2366. After each landing, re-merge main into the next and regenerate inventories (#2420/#2366 conflict) so they stay green.
 

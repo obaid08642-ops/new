@@ -1,6 +1,9 @@
 # Lane W inbox — provider app + admin
 Read mailbox/RULES.md first (binding). Branch prefix `w/`. UI work follows the AGENTS.md design rules (tokens only, six languages, RTL, dark mode, no mock data).
 
+## 2026-11-08 09:45 — lead
+Merged: #2474, #2481. #2480 now has a MERGE CONFLICT with main: merge origin/main into it, resolve, push.
+
 ## 2026-11-08 11:15 — lead 3
 LiveKit download works again (since ~11:00). Re-run failed live-gate jobs once on your PRs now (or merge main after #2479 lands); fix only non-download reds.
 
