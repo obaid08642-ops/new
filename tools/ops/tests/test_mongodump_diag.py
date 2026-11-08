@@ -31,7 +31,7 @@ esac
 FAKE_SUDO = '#!/bin/bash\n[ "$1" = -n ] && shift\nexec "$@"\n'
 
 
-def run(**extra):
+def run(full=False, **extra):
     d = tempfile.mkdtemp()
     os.mkdir(os.path.join(d, "bin"))
     for name, body in (("docker", FAKE_DOCKER), ("sudo", FAKE_SUDO)):
@@ -40,7 +40,11 @@ def run(**extra):
         os.chmod(p, os.stat(p).st_mode | stat.S_IXUSR)
     log = os.path.join(d, "log")
     env = {**os.environ, "PATH": os.path.join(d, "bin") + ":" + os.environ["PATH"], "FAKE_LOG": log, "FAKE_PW": PW, "FAKE_USER": USER, "OPS_BACKUP_DIR": d, **extra}
-    r = subprocess.run(["bash", TASK], env=env, capture_output=True, text=True, timeout=60)
+    task = TASK
+    if full:
+        task = os.path.join(d, "t.sh")
+        with open(TASK) as src, open(task, "w") as dst: dst.write(src.read().replace('FULL=""', 'FULL="yes"', 1))
+    r = subprocess.run(["bash", task], env=env, capture_output=True, text=True, timeout=60)
     calls = open(log).read() if os.path.exists(log) else ""
     return r.stdout + r.stderr, calls
 
@@ -78,6 +82,17 @@ class Diag(unittest.TestCase):
     def test_every_step_container_is_removed(self):
         _, calls = run()
         self.assertEqual(len([l for l in calls.splitlines() if l.startswith("rm -f")]), 4)
+
+    def test_step_5_is_off_by_default_and_runs_the_production_scope_with_no_quiet(self):
+        out, calls = run()
+        self.assertNotIn("step 5", out)
+        out, calls = run(full=True)
+        self.assertIn("step 5 full dump", out)
+        run5 = [l for l in calls.splitlines() if l.startswith("run ")][-1]
+        self.assertIn("--gzip --archive", run5)
+        self.assertNotIn("--quiet", run5)
+        self.assertNotIn("--db=", run5)
+        self.assertIn("gzip_archive_bytes=13", out)
 
 
 if __name__ == "__main__":

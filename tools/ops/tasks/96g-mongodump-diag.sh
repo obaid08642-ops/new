@@ -6,10 +6,13 @@
 #   2 network   one tiny collection (admin.system.version) WITHOUT credentials: reachable? mongod's real answer (normally "requires authentication") shows the network path works
 #   3 auth      the same collection WITH the credentials (password in a mode-600 file, as in production), `--archive` to /dev/null, no --quiet
 #   4 flags     the same as 3 with the production flags (--quiet --numParallelCollections=1 --gzip): if 3 works and 4 does not, the flags are the cause
+#   5 full      ONLY with FULL=yes: what 60-deploy-main.sh really runs (`--gzip --archive`, every database) but WITHOUT --quiet, the bytes counted and thrown away, the LAST 8 stderr lines
+#               shown (the failing collection, if any). Heavy: it reads the whole database once, the load of a backup. Off by default.
 # Nothing is written to disk but three mode-600 temp files (the password file, stderr, and the few bytes of the one tiny collection; all removed at the end); each step's container is removed; no dump is kept; nothing is stopped, restarted or
 # changed. The password is never an argument and never printed: every output line has the user and password masked and is cut at 200 characters; at most 8 lines per step.
 # The credentials come from the container's own environment, like 96-mongodump-check.sh. The answer is `status:` lines.
 set -u
+FULL=""   # set to yes IN THIS FILE by the reviewer for step 5 (heavy: a full dump of every database, counted and thrown away; 15 minute limit)
 DK="sudo -n docker"
 CT=${MONGO_CONTAINER:-nabdah-mongodb}
 B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}
@@ -73,5 +76,15 @@ say "step 3 credentials, no --quiet"
 step "3 auth" "$NET" yes -- --numParallelCollections=1 --host="$IP" --port=27017 --db=admin --collection=system.version --archive
 say "step 4 credentials, the production flags"
 step "4 prodflags" "$NET" yes -- --quiet --numParallelCollections=1 --gzip --host="$IP" --port=27017 --db=admin --collection=system.version --archive
+if [ "$FULL" = yes ]; then
+  say "step 5 full dump (counted, not kept), no --quiet, 15 minute limit"
+  : > "$ERR"; rc=0; name="nabd-diag-$$-5"
+  nbytes=$( ( timeout 900 $DK run --name "$name" --user 0:0 --network "$NET" --memory "${CAP}m" --memory-swap "${CAP}m" --oom-score-adj 1000 -v "$CFG:/cfg/mongodump.yml:ro" --entrypoint mongodump "$IMG" \
+      --numParallelCollections=1 --config=/cfg/mongodump.yml --username="$MONGO_ROOT_USER" --authenticationDatabase=admin --host="$IP" --port=27017 --gzip --archive 2> "$ERR" | wc -c ) 2>/dev/null )
+  st=$($DK inspect -f '{{.State.ExitCode}} {{.State.OOMKilled}}' "$name" 2>/dev/null); ec=${st% *}; oom=${st#* }
+  $DK rm -f "$name" >/dev/null 2>&1 || true
+  say "step 5 full: container_exit=${ec:-?} oom_killed=${oom:-?} gzip_archive_bytes=${nbytes:-0} stderr_lines=$(wc -l < "$ERR")"
+  tail -n 8 "$ERR" > "$OUT"; mask < "$OUT"
+fi
 rm -f "$CFG" "$ERR" "$OUT"
 say "READ: step1 fails -> the container cannot start (image/cap/docker); step2 prints no error -> network or mongod; step3 fails with text -> that text is the cause; step3 ok and step4 fails -> the flags"
