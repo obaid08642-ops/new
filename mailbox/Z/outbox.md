@@ -1,3 +1,9 @@
+## 08:50 UTC 2026-11-08 — #2478 opened (refund split on halalas)
+Status: in progress
+PR: #2478 (CI: pending), #2472 (all green), #2404 (green except lighthouse)
+What changed: #2478 z/halala-refund-math: the refund clawback / commission reversal / VAT reversal split in RefundExecutor.executeCore (finance-engine.module.ts ~884) is now computed on integer halalas by a pure clawbackShares() in finance-engine/refund-clawback.ts (rateOf, BigInt); 8 unit tests; tsc, nest build, dtolint ok; Mongo suites run only in CI; live gate runs j_refund_matrix (476 steps). A part can differ by 1 halala from before where the old double product landed on the wrong side of a half halala.
+Left / blockers / questions: next halala step: copayRefundable and the report totals in finance-engine, one PR each. 3 open PRs now (limit).
+
 ## 08:48 UTC 2026-11-08 — check 08:47
 Status: two PRs ready for review
 PR: #2472 (CI: ALL GREEN, all 5 live shards pass so the new edit_policy journey passed in CI; no conflict), #2404 (green except lighthouse = lane X; no conflict)
