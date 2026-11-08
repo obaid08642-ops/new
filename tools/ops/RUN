@@ -1,6 +1,6 @@
-# 2026-11-08 08:20 lead: run 103 = deploy main@120407dc.
-# Brings: halala rounding everywhere (#2469), admin passkey step-up UI (#2466), clamd remote dry-run task (#2465), admin support-session routes (#2463), provider dispute journey (#2471), scenario doc (#2464).
-release:120407dc6c0f15e99d92295ee3bf84b550b30880
+# 2026-11-08 09:00 lead: run 103 (re-issued) = deploy main@f5a698ee.
+# Brings: web first-load JS cut (#2376, Lighthouse green), halala rounding (#2469), admin passkey step-up UI (#2466), admin support-session routes (#2463), insurance money journey (#2472), data-tier and clamd dry-run tasks (#2473, #2465), provider dispute journey (#2471), scenario doc (#2464).
+release:f5a698eea872d389a96e76ce48216d77d1bc0cef
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
