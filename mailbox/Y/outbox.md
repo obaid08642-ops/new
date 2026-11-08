@@ -1,5 +1,15 @@
 # Lane Y outbox
 
+## 2026-11-08 13:2x UTC — iOS provider result, merges
+Status: in progress (CI re-running)
+PR: #2476 (main merged, pushed), #2475 (main merged, pushed), #2398 (main merged again + nit fixed, pushed), #2225 (CI green 7/7)
+What changed:
+- iOS provider result (native-e2e iOS provider, run 42479617965, branch y/ios-provider-pods): SUCCESS. The log shows `Installing GoogleUtilities (8.1.5)`, `Installing FirebaseCoreInternal (12.15.0)`, `Pod installation complete! There are 145 dependencies ... 155 total pods`, and `** BUILD SUCCEEDED **`. So the modular_headers fix was exercised and works; the earlier failures were GitHub asset 504s (RNSentry, WebRTC), now covered by the pod install retry in the same PR.
+- #2398 nit: removed the duplicated appointmentAlias("follow-up") / ("prescription") spreads in speed-redirects.ts (identical rules, first match wins). I could not run the patient-web jest suite here (no node_modules), so CI is the check.
+- #2475 and #2476: merged main (LiveKit fix is on main), CI re-running.
+Left: waiting for CI; nothing else open from me.
+
+
 ## 2026-11-08 12:2x UTC — #2398 updated, #2479 green, iOS re-dispatched
 Status: in progress
 PR: #2479 (CI: green 6/6, approved by you, merge pending), #2398 (main merged incl. the Lighthouse fix, pushed; CI pending), #2477 ZAP (green 7/7), #2476 iOS (re-dispatched), #2475 R6 (pending), #2225 (pending)
