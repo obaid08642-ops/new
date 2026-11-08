@@ -104,6 +104,11 @@ export class UpdateInsDto {
   @IsString()
   approval_ref?: string;
 
+  // The insurer's rejection reason (sent by the provider app on reject).
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  reason?: string;
 
   @IsOptional()
   @IsNumber()

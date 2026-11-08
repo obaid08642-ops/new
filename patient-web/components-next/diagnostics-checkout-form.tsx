@@ -128,7 +128,7 @@ export function DiagnosticsCheckoutForm({
         });
         const payData = await payRes.json().catch(() => null);
         if (!payRes.ok) {
-          setError((payData as { message?: string })?.message || t("errPay"));
+          setError(/payment_gateway_not_configured|payment_return_url_not_configured|payment_gateway_unavailable/i.test(String((payData as { message?: unknown } | null)?.message ?? "")) ? t("errPayDown") : t("errPay"));
           return;
         }
         const checkoutUrl = (payData as { checkout_url?: string })?.checkout_url;

@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-vi.mock("@/components-next/pharmacy/order-again-card", () => ({ OrderAgainCard: () => null })); // a client card with its own translations; not the tile
+vi.mock("@/components-next/pharmacy/order-again-gate", () => ({ OrderAgainGate: () => null })); // a client card with its own translations; not the tile
 import { HomeQuickTiles } from "@/components-next/pharmacy/home-quick-tiles";
 
 const read = (rel: string) => readFileSync(join(__dirname, "..", rel), "utf8");

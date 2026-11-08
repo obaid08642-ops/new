@@ -68,6 +68,10 @@ export async function getPublicConfig(): Promise<any | null> { return (await rea
 export async function getUploadsEnabled(): Promise<boolean> {
   return (await getPublicConfig().catch(() => null))?.features?.uploads_enabled !== false;
 }
+/** features.site_notice_enabled from GET /config: the "under construction" notice is ON unless the owner switched it off (absent or unreadable config = ON). */
+export async function getSiteNoticeEnabled(): Promise<boolean> {
+  return (await getPublicConfig().catch(() => null))?.features?.site_notice_enabled !== false;
+}
 export async function getHomeContent(): Promise<any | null> { return (await readHomeContent()).data; }
 
 /**
