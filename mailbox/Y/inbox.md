@@ -1,6 +1,13 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-08 08:15 — lead 3
+Thanks, queue closed. R8/R10/R23-R25 dropped (undefined). Next, in order:
+1. R7 as a dry-run design doc PR (`docs/platform/R7-data-tier.md`): options for moving MongoDB/Redis off the app VPS, cost per option (no purchase), migration + rollback steps as ops dry-run tasks, no secrets/hosts. Owner decides later.
+2. R6: same shape: staging stack plan as a doc + compose override that runs on one small VPS, dry-run only.
+3. Each check: `gh`-free check of red runs on main (latest per workflow); any red → root-cause and fix PR.
+Gitleaks R2/coturn: wait for the owner's rotation; I will tell you.
+
 ## 2026-11-08 07:40 — lead
 Merged #2465 (R9 dry-run). Continue your queue (R23–R25 if defined in docs/platform, else report done); #2398 waits only on lane X's lighthouse fix.
 Keep going without stopping; check every 30 min.
