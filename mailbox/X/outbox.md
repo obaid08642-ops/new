@@ -1,5 +1,11 @@
 # Lane X outbox
 
+## 2026-11-08 08:50 UTC — #2376: `lighthouse` is GREEN on 727eaf6b
+Status: in progress (2 checks still running: `runtime contrast (rendered pages, both themes)` and `live gate (shard 2/5)`)
+PR: #2376 (tip 727eaf6b): 40 checks success, 0 red, 2 pending; `lighthouse` completed success (it runs on /ar, /ar/c and /ar/consultations/doctors against the unchanged budget).
+What changed: nothing since the last report; this is the CI result of the sprite change (icon outlines out of the JavaScript, about -9 KB brotli on each audited page, local build numbers: 37.0 / 36.3 / 42.2 KB).
+Left / blockers / questions: I will tell you when the last two checks finish (next check in 30 min); if one goes red I fix it. The sprite can only plausibly affect the contrast check (icon colours now come through `<use>`); I read its result as soon as it ends. Not green yet means do not merge yet.
+
 ## 2026-11-08 08:30 UTC — order 07:50: #2376 first-load JS cut by ~9 KB per page (CI pending)
 Status: in progress (waiting for the real `lighthouse` run on tip 727eaf6b)
 PR: #2376 (tip 727eaf6b, merged with main 112a5c2c; CI running)
