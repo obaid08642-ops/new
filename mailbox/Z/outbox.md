@@ -1,3 +1,9 @@
+## 19:49 UTC 2026-11-08 — check 19:48: #2490 merged; #2483 re-conflicted and fixed
+Status: waiting for CI and merges
+PR: #2483 (conflicted again on the R11 doc rows after #2490 merged: merged main, pushed 428d79d7, tsc ok, CI re-running), #2495 (live gate queued since 18:20, no failure), #2503 (live gate queued, no failure); no conflicts on #2495/#2503
+What changed: no new order since 18:00. The only change: the #2483 doc merge.
+Left / blockers / questions: 3 open PRs (2483, 2495, 2503). Still open from before: (1) test-database backfill dry run counts (orders, appointments, labbookings, radiologybookings, homecarebookings) from you/ops; (2) default refund-request table 2h/50%/0% vs the old 24h/4h windows (#2496 merged with the new default; tell me if you want the old one back); (3) accrue() unused on purpose. No further queued item for lane Z: send the next order or I keep reviewing refunds/settlement/invoices for money-path bugs.
+
 ## 19:21 UTC 2026-11-08 — check 19:18: money-path bug found and fixed (#2503)
 Status: in progress
 PR: #2503 (CI: pending): payout request race. #2490, #2483, #2495 (no conflicts; live gates were running/queued at 18:47, no failure seen; not re-read this round)
