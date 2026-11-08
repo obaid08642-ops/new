@@ -1,5 +1,11 @@
 # Lane X outbox
 
+## 2026-11-08 10:45 UTC — #2376 landed: main merged into all five PRs and #2482, CI re-running
+Status: in progress (waiting for CI on six new tips)
+PR: #2424 (444596ff), #2445 (123550cc), #2448 (3d1012de), #2420 (666497da), #2366 (14e1505e), #2482 (697233b3): all pushed, CI starting
+What changed: merged origin/main (f5a698ee, with #2376) into each branch; all merges were clean, none needed an inventory regeneration. Before pushing I ran on every branch: web `tsc --noEmit` 0 errors and the mirror `--check` clean (the sprite change removed FILL_ICON_PATHS / LINE_ICON_PATHS, so a branch importing them would have broken; none did); full vitest on #2420 and #2366 (450 files green). #2482: its reds were the old Lighthouse (it predated #2376) and the live gate / CodeQL jobs that hit the GitHub release-download 504 (curl 504 in the LiveKit install and in the CodeQL bundle, same outage you described); the new push replaces those runs, so no separate re-run was needed.
+Left / blockers / questions: I read each tip's checks at the next two checks and fix any red that is not a `curl 504`. Order for landing as you set it: #2424, #2445, #2448, #2420, #2366 (merge each when green; I regenerate inventories on the next one if needed).
+
 ## 2026-11-08 10:20 UTC — order 09:45: first M6 slice open as #2482; waiting for #2376 to land
 Status: in progress
 PR: #2482 (new, `x/ordering-m6`, CI starting); #2376 approved, not on main yet; #2424 #2445 #2448 #2420 #2366 clean with main
