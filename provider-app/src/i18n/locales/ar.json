@@ -254,5 +254,9 @@
   "disputes.category.SUGGESTION": "اقتراح",
   "disputes.booking.consultation": "استشارة",
   "disputes.booking.lab": "تحاليل",
-  "disputes.booking.radiology": "أشعة"
+  "disputes.booking.radiology": "أشعة",
+  "supplies.requested": "تم إرسال طلب المستلزمات لهذه الزيارة",
+  "supplies.failed": "تعذر إرسال طلب المستلزمات",
+  "supplies.forVisit": "الزيارة المطلوب لها المستلزمات",
+  "supplies.noVisit": "ليس لديك زيارة مؤكدة لطلب المستلزمات لها."
 }
