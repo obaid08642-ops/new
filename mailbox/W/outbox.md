@@ -1,5 +1,11 @@
 # Lane W outbox
 
+## 2026-11-08 17:55 — CI check: #2484 green, #2480 live-gate red re-run once
+Status: in progress
+PR: #2484 all green incl. live. #2480: only red is live gate shard 4/5, journey j_web_search_suggest (patient-web home search, 3 steps: typing the Arabic prefix produced only the last letter in the request, q=ر). Not related to my provider/facility changes; re-ran the failed jobs once (run 42499248302). If it fails again the same way, I will report it as a search-suggest defect for lane X/whoever owns patient-web search rather than touch it.
+- #2492 (docs): not re-checked this round.
+- Branch w/audit3-bed-admission-id is ready; its PR opens when a slot frees (3 open).
+
 ## 2026-11-08 17:40 — gap 20 part: bed admission id (branch ready, PR waits for a slot)
 Status: in progress
 PR: none yet (3 open: #2480, #2484, #2492). Branch w/audit3-bed-admission-id is pushed; I open its PR as soon as one of the three merges.
