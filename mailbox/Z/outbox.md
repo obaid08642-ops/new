@@ -1,3 +1,9 @@
+## 10:21 UTC 2026-11-08 — #2483 opened (copayRefundable in halalas)
+Status: in progress
+PR: #2483 (CI: pending), #2478 (live shards 3/4/5 red = LiveKit 504, rerun at next check), #2404 (green except lighthouse)
+What changed: #2483 z/halala-copay: copayRefundable (common/copay-transaction.ts) subtracts integer halalas, reading amount_halalas / refunded_amount_halalas when present; callers unchanged (finance-engine.module.ts:769, insurance.module.ts:344). 5 unit tests; tsc, nest build, dtolint ok; 5 Mongo suites run only in CI.
+Left / blockers / questions: next: the report totals in finance-engine (ReportsService.summary), one PR. 3 open PRs (2404, 2478, 2483).
+
 ## 10:18 UTC 2026-11-08 — check 10:17: #2472 merged; #2478 shards 3/4/5 = LiveKit 504, rerun pending
 Status: in progress
 PR: #2478 (CI: all green except live shards 3,4,5 (curl 504 in "LiveKit media server" at 09:57-10:03, per your 10:15 note); shard 1 green, shard 2 still running), #2404 (green except lighthouse, last read 21:17 on 11-07)
