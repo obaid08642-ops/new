@@ -95,7 +95,7 @@
     "provider-app/src/screens/lab/LabDashboard.tsx": 371,
     "provider-app/src/screens/lab/LabQcActions.tsx": 40,
     "provider-app/src/screens/lab/LabRegistration.tsx": 212,
-    "provider-app/src/screens/nursing/NursingDashboard.tsx": 260,
+    "provider-app/src/screens/nursing/NursingDashboard.tsx": 258,
     "provider-app/src/screens/nursing/NursingFieldOps.tsx": 69,
     "provider-app/src/screens/nursing/NursingRegistration.tsx": 140,
     "provider-app/src/screens/ordering/common.tsx": 4,

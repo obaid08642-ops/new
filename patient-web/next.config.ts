@@ -4,6 +4,7 @@ import createNextIntlPlugin from "next-intl/plugin";
 import { withSentryConfig } from "@sentry/nextjs";
 import { contentSecurityPolicy } from "./csp";
 import { localeOnlyRedirects } from "./lib/routing/locale-redirects";
+import { speedRedirects } from "./lib/routing/speed-redirects";
 import { IMAGE_HOSTS } from "./lib/image-hosts";
 import { queryTwinRewrites, unavailablePageRewrite } from "./lib/security/query-twin";
 
@@ -92,6 +93,7 @@ const nextConfig: NextConfig = {
       { source: "/:locale/ai/symptom-timeline", destination: "/:locale/ai?mode=symptoms", permanent: false },
       { source: "/:locale/ai/triage", destination: "/:locale/ai?mode=symptoms", permanent: false },
       { source: "/:locale/home-care/services", destination: "/:locale/nursing/catalog", permanent: false },
+      ...speedRedirects,
       { source: "/:locale/programs/active", destination: "/:locale/programs", permanent: false },
       { source: "/:locale/mental-health/breathing", destination: "/:locale/mental-health", permanent: false },
       { source: "/:locale/mental-health/self-assessment", destination: "/:locale/mental-health", permanent: false },

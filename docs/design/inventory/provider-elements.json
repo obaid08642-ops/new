@@ -1,5 +1,5 @@
 {
- "commit": "c3f5eb13",
+ "commit": "1df21188",
  "screens": {
   "PendingDashboard": [
    {
@@ -17036,12 +17036,22 @@
   ],
   "NursingCoverageSettings": [
    {
+    "kind": "data",
+    "label": "Data gpsResult",
+    "src": "POST /nursing/coverage/verify-gps → gpsResult",
+    "status": "ok",
+    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
+    "line": 862,
+    "via": null,
+    "note": null
+   },
+   {
     "kind": "button",
     "label": "Verify Current GPS Location",
     "src": "POST /nursing/coverage/verify-gps",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 907,
+    "line": 906,
     "via": null,
     "note": null
    },
@@ -17051,20 +17061,9 @@
     "src": "local state setRadius",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 919,
+    "line": 918,
     "via": null,
     "note": null
-   },
-   {
-    "kind": "data",
-    "label": "List getCoveredNeighborhoods()",
-    "src": "from getCoveredNeighborhoods (prop / derived; not traced)",
-    "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 932,
-    "via": null,
-    "note": null,
-    "untraced": true
    },
    {
     "kind": "button",
@@ -17072,7 +17071,7 @@
     "src": "POST /provider/settings/delta",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 940,
+    "line": 938,
     "via": null,
     "note": null
    }
@@ -17138,7 +17137,7 @@
     "src": "GET /chats/threads/:param/messages, POST /chats/threads/:param/messages → msgs",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1027,
+    "line": 1025,
     "via": null,
     "note": null
    },
@@ -17148,7 +17147,7 @@
     "src": "user input → msg (local)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1039,
+    "line": 1037,
     "via": null,
     "note": null
    },
@@ -17158,7 +17157,7 @@
     "src": "POST /chats/threads/:param/messages, GET /chats/threads/:param/messages",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1040,
+    "line": 1038,
     "via": null,
     "note": null
    }
@@ -17170,7 +17169,7 @@
     "src": "shifts: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1051,
+    "line": 1049,
     "via": null,
     "note": null
    },
@@ -17180,7 +17179,7 @@
     "src": "user input → shifts → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1074,
+    "line": 1072,
     "via": null,
     "note": null
    },
@@ -17190,7 +17189,7 @@
     "src": "user input → shifts → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1078,
+    "line": 1076,
     "via": null,
     "note": null
    },
@@ -17200,7 +17199,7 @@
     "src": "user input → shifts → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1082,
+    "line": 1080,
     "via": null,
     "note": null
    },
@@ -17210,7 +17209,7 @@
     "src": "user input → maxVisits → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1088,
+    "line": 1086,
     "via": null,
     "note": null
    },
@@ -17220,7 +17219,7 @@
     "src": "user input → emergencyReady → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1094,
+    "line": 1092,
     "via": null,
     "note": null
    },
@@ -17230,7 +17229,7 @@
     "src": "POST /provider/schedule/settings",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1098,
+    "line": 1096,
     "via": null,
     "note": null
    }
