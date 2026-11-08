@@ -58,7 +58,9 @@ describe("pharmacy page layout (owner decisions 2026-10-26, items 3 to 9)", () =
     const tiles = read("components-next/pharmacy/home-quick-tiles.tsx");
     expect(tiles).toContain("/health/medications?tab=all");
     expect(tiles).toContain("/orders");
-    expect(tiles).toContain("<OrderAgainCard");
+    expect(tiles).toContain("<OrderAgainGate");
+    // the gate loads the card only for a signed-in patient (not in the first load)
+    expect(read("components-next/pharmacy/order-again-gate.tsx")).toContain('import("./order-again-card")');
     expect(read("app/[locale]/page.tsx")).toContain("<HomeQuickTiles");
   });
 });

@@ -1,8 +1,7 @@
 "use client";
 
 import { createContext, useContext, useMemo, type ReactNode } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { ErrorState } from "@/components-next/ui-generated/components/Feedback";
+import { usePathname } from "next/navigation";
 import { NONE_DISABLED, isPathHidden, type DisabledModules, type ModuleKey } from "@/lib/modules";
 
 /**
@@ -19,17 +18,12 @@ export function ModulesProvider({ disabled, children }: { disabled: readonly Mod
 export const useDisabledModules = (): DisabledModules => useContext(ModulesContext);
 
 /**
- * A deep link into a switched-off module shows a calm "service unavailable" state instead of the page. The words come
- * from the server (the layout translates them), so this component reads no message catalogue.
+ * A deep link into a switched-off module shows a calm "service unavailable" state instead of the page. The state is built by the
+ * server layout (ModuleBlocked, which also translates the words) and passed in as `blocked`, so this client file does not import it.
  */
-export function ModuleRouteGate({ locale, title, body, homeLabel, children }: { locale: string; title: string; body: string; homeLabel: string; children: ReactNode }) {
+export function ModuleRouteGate({ blocked, children }: { blocked: ReactNode; children: ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
   const disabled = useDisabledModules();
   if (!isPathHidden(pathname, disabled)) return <>{children}</>;
-  return (
-    <main data-module-unavailable="">
-      <ErrorState title={title} body={body} retryLabel={homeLabel} onRetry={() => router.push(`/${locale}`)} />
-    </main>
-  );
+  return <>{blocked}</>;
 }

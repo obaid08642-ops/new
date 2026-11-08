@@ -25,6 +25,8 @@ import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/health/health.module.css";
+import { FILL_IDENTIFICATION_CARD } from "@/components-next/ui-generated/icons/glyphs/identification-card";
+import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -83,7 +85,7 @@ export default async function HealthPage({ params }: Props) {
       <div className={styles.toolbar}>
         <span />
         <Link href={`/${locale}/reports/passport`} className={styles.iconButton} aria-label={t("healthId")}>
-          <FIcon icon="identification-card" tone="blue" size={32} chip="none" />
+          <FIcon icon="identification-card" glyph={FILL_IDENTIFICATION_CARD} tone="blue" size={32} chip="none" />
         </Link>
       </div>
 
@@ -178,7 +180,7 @@ export default async function HealthPage({ params }: Props) {
         ].map((row) => (
           <li key={row.href}>
             <Link className={`${styles.row} ${rx.rowLink}`} href={row.href}>
-              <FIcon icon={row.icon} tone={row.tone} size={40} />
+              <FIconByName icon={row.icon} tone={row.tone} size={40} />
               <span className={styles.rowBody}><span className={styles.rowTitle}>{row.label}</span>{"sub" in row && row.sub ? <span className={styles.rowSub}>{row.sub}</span> : null}</span>
               <span className={rx.rowEnd}><Icon name={caret} size={16} tone="secondary" /></span>
             </Link>
@@ -196,7 +198,7 @@ export default async function HealthPage({ params }: Props) {
         ].map((row) => (
           <li key={row.href}>
             <Link className={`${styles.row} ${rx.rowLink}`} href={row.href}>
-              <FIcon icon={row.icon} tone={row.tone} size={40} />
+              <FIconByName icon={row.icon} tone={row.tone} size={40} />
               <span className={styles.rowBody}><span className={styles.rowTitle}>{row.label}</span><span className={styles.rowSub}>{row.sub}</span></span>
               <span className={rx.rowEnd}><Icon name={caret} size={16} tone="secondary" /></span>
             </Link>

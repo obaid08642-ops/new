@@ -24,6 +24,9 @@ import { ShareButton } from "@/components-next/health/share-button";
 import type { FillIconName, ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/health/health.module.css";
+import { FILL_FILE_TEXT } from "@/components-next/ui-generated/icons/glyphs/file-text";
+import { FILL_PRESCRIPTION } from "@/components-next/ui-generated/icons/glyphs/prescription";
+import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string | string[]; type?: string | string[]; kind?: string | string[] }> };
 const TABS = ["reports", "prescriptions", "timeline"] as const;
@@ -99,7 +102,7 @@ export default async function RecordsPage({ params, searchParams }: Props) {
               return (
                 <li key={report.id}>
                   <Link className={`${styles.row} ${rx.rowLink}`} href={`/${locale}/reports/${encodeURIComponent(report.id)}`}>
-                    <FIcon icon={look.icon} tone={look.tone} size={40} />
+                    <FIconByName icon={look.icon} tone={look.tone} size={40} />
                     <span className={styles.rowBody}>
                       <span className={styles.rowTitle}>{report.title}</span>
                       {[report.type, issued].filter(Boolean).length ? <span className={styles.rowSub}>{[report.type, issued].filter(Boolean).join(" · ")}</span> : null}
@@ -127,7 +130,7 @@ export default async function RecordsPage({ params, searchParams }: Props) {
                 return (
                   <li key={report.id}>
                     <div className={styles.row}>
-                      <FIcon icon="file-text" tone={TEAL} size={40} />
+                      <FIcon icon="file-text" glyph={FILL_FILE_TEXT} tone={TEAL} size={40} />
                       <span className={styles.rowBody}>
                         <span className={styles.rowTitle}>{report.title}</span>
                         {sub ? <span className={styles.rowSub}>{sub}</span> : null}
@@ -159,7 +162,7 @@ export default async function RecordsPage({ params, searchParams }: Props) {
             return (
               <li key={item.id}>
                 <Link className={`${styles.row} ${rx.rowLink}`} href={`/${locale}/prescriptions/${encodeURIComponent(item.id)}`}>
-                  <FIcon icon="prescription" tone={PHARMACY_TONE} size={40} />
+                  <FIcon icon="prescription" glyph={FILL_PRESCRIPTION} tone={PHARMACY_TONE} size={40} />
                   <span className={styles.rowBody}>
                     <span className={styles.rowTitle}>{item.doctorName ? rxt("fromDoctor", { doctor: item.doctorName }) : rxt(prescriptionStateKey(item.state))}</span>
                     {item.medicationNames.length ? <span className={`${styles.rowSub} ${rx.clamp2}`}>{list.format(item.medicationNames)}</span> : null}

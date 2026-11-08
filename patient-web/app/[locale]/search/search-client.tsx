@@ -11,7 +11,7 @@ import { EmptyState, ErrorState, Skeleton } from "@/components-next/ui-generated
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { SearchSuggest, useSearchSuggest } from "@/components-next/search/search-suggest";
 import { SuggestSearchField } from "@/components-next/search/search-suggest-field";
-import { SERVICE_ICONS, type FillIconName, type ServiceName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
+import { SERVICE_ICONS, type FillAnyName, type ServiceName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { extractGroupedResults, intentRedirect, truncateQuery, type SearchResult } from "@/lib/api/search";
@@ -19,6 +19,8 @@ import { specialtyLabel, type SpecialtySlug } from "@/lib/specialties";
 import { isLocale, type Locale } from "@/lib/i18n";
 import { readRecentSearches, rememberSearch, writeRecentSearches } from "@/lib/search/recent-searches";
 import styles from "./search.module.css";
+import { FIconGlyph } from "@/components-next/icons/ficon-glyph";
+import { FILL_FILE_TEXT } from "@/components-next/ui-generated/icons/glyphs/file-text";
 
 type Tab = "all" | "medicines" | "doctors" | "labs" | "radiology" | "other";
 
@@ -49,7 +51,7 @@ async function loadTrending(signal: AbortSignal): Promise<string[]> {
  */
 const toneOf = (service: ServiceName): ServiceTone => SERVICE_ICONS[service].tone;
 type KindLabel = "kindMedicine" | "kindDoctor" | "kindSpecialty" | "kindLab" | "kindLabPackage" | "kindRadiology" | "kindNursing" | "kindArticle";
-const KINDS: Record<string, { group: Exclude<Tab, "all">; icon: FillIconName; tone: ServiceTone; label: KindLabel; href?: (id: string, locale: string) => string }> = {
+const KINDS: Record<string, { group: Exclude<Tab, "all">; icon: FillAnyName; glyph?: string; tone: ServiceTone; label: KindLabel; href?: (id: string, locale: string) => string }> = {
   Medicine: { group: "medicines", icon: "pill", tone: toneOf("pharmacy"), label: "kindMedicine", href: (id, l) => `/${l}/medicines/${encodeURIComponent(id)}` }, // i18n-ok: label is a Search message key
   Doctor: { group: "doctors", icon: "stethoscope", tone: toneOf("consult"), label: "kindDoctor", href: (id, l) => `/${l}/consultations/doctors/${encodeURIComponent(id)}` }, // i18n-ok: label is a Search message key
   Specialty: { group: "doctors", icon: "stethoscope", tone: toneOf("consult"), label: "kindSpecialty", href: (code, l) => `/${l}/consultations/doctors?specialty=${encodeURIComponent(code)}` }, // i18n-ok: label is a Search message key
@@ -57,9 +59,9 @@ const KINDS: Record<string, { group: Exclude<Tab, "all">; icon: FillIconName; to
   LabPackage: { group: "labs", icon: "test-tube", tone: toneOf("lab"), label: "kindLabPackage" }, // i18n-ok: label is a Search message key
   Radiology: { group: "radiology", icon: "scan", tone: toneOf("radiology"), label: "kindRadiology", href: (id, l) => `/${l}/diagnostics/radiology/${encodeURIComponent(id)}` }, // i18n-ok: label is a Search message key
   Nursing: { group: "other", icon: SERVICE_ICONS.nursing.icon, tone: toneOf("nursing"), label: "kindNursing", href: (id, l) => `/${l}/home-care/services/${encodeURIComponent(id)}` }, // i18n-ok: label is a Search message key
-  Article: { group: "other", icon: "file-text", tone: toneOf("nutrition"), label: "kindArticle", href: (slug, l) => `/${l}/articles/${encodeURIComponent(slug)}` }, // i18n-ok: label is a Search message key
+  Article: { group: "other", icon: "file-text", glyph: FILL_FILE_TEXT, tone: toneOf("nutrition"), label: "kindArticle", href: (slug, l) => `/${l}/articles/${encodeURIComponent(slug)}` }, // i18n-ok: label is a Search message key
 };
-const FALLBACK = { group: "other" as const, icon: "magnifying-glass" as FillIconName, tone: toneOf("consult") };
+const FALLBACK = { group: "other" as const, icon: "magnifying-glass" as FillAnyName, tone: toneOf("consult") };
 
 const BROWSE: Array<{ name: ServiceName; label: "catPharmacy" | "catConsult" | "catLab" | "catRadiology" | "catNursing" | "catMind" | "catNutrition" | "catFamily"; path: string }> = [
   { name: "pharmacy", label: "catPharmacy", path: "/pharmacy" }, // i18n-ok: label is a Search message key
@@ -101,7 +103,7 @@ export function ResultItem({ result, locale, query, onOpen }: { result: SearchRe
   const price = result.price && Number(result.price) > 0 ? result.price : undefined;
   const rate = result.rate && Number(result.rate) > 0 ? result.rate : undefined;
   const body = <>
-    <span className={styles.media}><FIcon icon={kind.icon} tone={kind.tone} chip="none" size={40} /></span>
+    <span className={styles.media}><FIconGlyph icon={kind.icon} glyph={kind.glyph} tone={kind.tone} chip="none" size={40} /></span>
     <span className={styles.main}>
       <span className={styles.name} {...langAttrs(markByScript(locale, result.name))}><Highlighted text={result.name} query={query} /></span>
       {sub ? <span className={styles.sub}>{sub}</span> : null}

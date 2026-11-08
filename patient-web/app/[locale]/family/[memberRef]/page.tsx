@@ -19,12 +19,12 @@ import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { BookForMemberButton } from "@/components-next/family/book-for-member-button";
 import { ReminderForm } from "@/components-next/health/reminder-form";
 import { HealthTabs, PartUnavailable } from "@/components-next/health/health-kit";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { Avatar } from "@/components-next/ui-generated/components/Surfaces";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import health from "@/components-next/health/health.module.css";
 import styles from "@/components-next/family/family.module.css";
+import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
 type Props = { params: Promise<{ locale: string; memberRef: string }>; searchParams: Promise<{ tab?: string | string[]; add?: string | string[]; edit?: string | string[] }> };
 const TABS = ["records", "permissions"] as const;
@@ -122,7 +122,7 @@ export default async function FamilyMemberPage({ params, searchParams }: Props) 
               return (
                 <li key={item.id}>
                   <div className={health.row}>
-                    <FIcon icon={meds.icon} tone={meds.tone} size={40} />
+                    <FIconByName icon={meds.icon} tone={meds.tone} size={40} />
                     <span className={health.rowBody}>
                       <span className={health.rowTitle}>{title}</span>
                       {item.dose ? <span className={health.rowSub}><bdi>{item.dose}</bdi></span> : null}
@@ -155,7 +155,7 @@ export default async function FamilyMemberPage({ params, searchParams }: Props) 
             {records.appointments.map((item) => (
               <li key={item.id}>
                 <div className={health.row}>
-                  <FIcon icon={consult.icon} tone={consult.tone} size={40} />
+                  <FIconByName icon={consult.icon} tone={consult.tone} size={40} />
                   <span className={health.rowBody}>
                     <span className={health.rowTitle}>{item.doctor ?? t("apptFallback")}</span>
                     {item.at ? <LocalTimeLine iso={item.at} locale={locale} className={health.rowSub} /> : null}

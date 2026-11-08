@@ -26,7 +26,8 @@ import type {
   StepperProps,
 } from './contract';
 import { Icon } from '../src/Icon';
-import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, type FillIconName } from '../icons/fill';
+import { FILL_ICON_VIEWBOX, type FillIconName } from '../icons/fill';
+import { fillHref } from '../icons/sprite';
 
 /**
  * The form controls — 12.A7, web.
@@ -377,7 +378,7 @@ export function Search({
 function FillGlyph({ name, size }: { name: FillIconName; size: number }) {
   return (
     <svg width={size} height={size} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true">
-      <path d={FILL_ICON_PATHS[name]} fill="var(--nabd-color-icon-secondary)" />
+      <use href={fillHref(name)} fill="var(--nabd-color-icon-secondary)" />
     </svg>
   );
 }

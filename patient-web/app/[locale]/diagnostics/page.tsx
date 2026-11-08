@@ -35,6 +35,8 @@ import { CATALOG_PAGE_SIZE, catalogSortOf, serverCategoryOf } from "@/lib/diagno
 import { HubFilterSheet } from "@/components-next/diagnostics/hub-filter-sheet";
 import { publicReadSignal } from "@/lib/api/public-timeout";
 import { pickName, pickTexts, perLocaleOf } from "@/lib/i18n/localized";
+import { FILL_PRESCRIPTION } from "@/components-next/ui-generated/icons/glyphs/prescription";
+import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ kind?: string; place?: string; pay?: string; q?: string; show?: string; sort?: string; more?: string; cat?: string; nofast?: string; sameday?: string }> };
 
@@ -193,11 +195,11 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
       {/* Two big tabs first (labs / radiology), then the search row: [search][filter button][prescription icon button]. */}
       <nav className={styles.kinds} aria-label={t("kindLabel")}>
         <Link href={href({ kind: "labs" })} replace className={styles.kind} aria-current={kind === "labs" ? "page" : undefined}>
-          <FIcon icon={LAB.icon} tone={LAB.tone} size={40} />
+          <FIconByName icon={LAB.icon} tone={LAB.tone} size={40} />
           <span className={styles.kindTitle}>{t("kindLabs")}</span>
         </Link>
         <Link href={href({ kind: "radiology" })} replace className={styles.kind} aria-current={kind === "radiology" ? "page" : undefined}>
-          <FIcon icon={RADIOLOGY.icon} tone={RADIOLOGY.tone} size={40} />
+          <FIconByName icon={RADIOLOGY.icon} tone={RADIOLOGY.tone} size={40} />
           <span className={styles.kindTitle}>{t("kindRadiology")}</span>
         </Link>
       </nav>
@@ -225,7 +227,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
             />
             {/* "Have a doctor's order?": what the old full-width row opened */}
             <Link href={`/${locale}/medical-orders`} className={styles.rxButton} aria-label={o("orderTitle")}>
-              <FIcon icon="prescription" tone={LAB.tone} size={36} />
+              <FIcon icon="prescription" glyph={FILL_PRESCRIPTION} tone={LAB.tone} size={36} />
             </Link>
           </>
         }

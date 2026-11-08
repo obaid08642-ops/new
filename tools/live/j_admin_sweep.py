@@ -18,7 +18,11 @@ PAGE_QUERY = {
 # Pages the gate admin (operations role) is not meant to open: they belong to the designated owner (modules.manage). The sweep loads them as the owner.
 OWNER_ONLY = {'/api/admin/admin/governance/emergency-maintenance', '/api/admin/kill-switches'}
 # A call that is refused on purpose until an action has been taken: the page shows that state. The sweep proves the refusal is the intended one.
-EXPECTED_REFUSAL = {'/support-session/context': (403, 'impersonation_session_required')}
+EXPECTED_REFUSAL = {
+    '/support-session/context': (403, 'impersonation_session_required'),
+    # the impersonation page proves a session through its dedicated route (support cookie, not the admin token): no cookie = 401 until a session is started
+    '/api/admin/impersonation/context': (401, 'support_session_required'),
+}
 
 
 def admin_gets():

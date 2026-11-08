@@ -88,8 +88,30 @@ jobs:
           python3 -c "from playwright.sync_api import sync_playwright; p = sync_playwright().start(); b = p.chromium.launch(); print('chromium ok:', b.version); b.close(); p.stop()"
 
       # Decision 4 (2026-10-14): video calls are proven against a real local LiveKit (tools/live/j_web_call.py).
+      # The release binary is cached (key = the script, which pins version + sha256), so a GitHub release-CDN 504 only matters on a cache miss; the script retries with backoff.
+      - name: LiveKit release cache (restore)
+        id: livekit-cache
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.cache/nabd-livekit
+          key: livekit-${{ runner.os }}-${{ hashFiles('tools/live/start-livekit.sh') }}
+
       - name: LiveKit media server
         run: bash tools/live/start-livekit.sh
+
+      # Saved as soon as the binary exists and EVEN IF a later step fails (the combined cache action saves only when the whole job passes, so one red shard
+      # would leave the cache empty and every retry would download again during the same outage).
+      - name: LiveKit binary present?
+        id: livekit-bin
+        if: always() && steps.livekit-cache.outputs.cache-hit != 'true'
+        run: if ls ~/.cache/nabd-livekit/*/livekit-server >/dev/null 2>&1; then echo "present=true" >> "$GITHUB_OUTPUT"; fi
+
+      - name: LiveKit release cache (save)
+        if: always() && steps.livekit-bin.outputs.present == 'true'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.cache/nabd-livekit
+          key: livekit-${{ runner.os }}-${{ hashFiles('tools/live/start-livekit.sh') }}
 
       - name: Backend
         working-directory: backend
@@ -164,7 +186,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Every journey runs in exactly one shard
-        run: python3 tools/live/test_gate_shards.py
+        run: python3 tools/live/test_gate_shards.py && python3 tools/live/test_start_livekit_retry.py
       - name: Every shard passed
         run: |
           echo "shards: ${{ needs.live-shard.result }}"

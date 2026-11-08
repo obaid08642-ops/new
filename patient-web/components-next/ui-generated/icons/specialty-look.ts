@@ -18,9 +18,9 @@
 //
 // tests/module-boundary.test.ts enforces the boundary this mirror exists to work
 // around.
-import type { FillIconName, ServiceTone } from './fill';
+import type { FillAnyName, ServiceTone } from './fill';
 
-export type SpecialtyLook = { icon: FillIconName; tone: ServiceTone };
+export type SpecialtyLook = { icon: FillAnyName; tone: ServiceTone };
 
 /** The backend's specialty slugs (SPECIALTY_MASTER, GET /care/specialties) and the look of each. */
 export const SPECIALTY_LOOK = {
