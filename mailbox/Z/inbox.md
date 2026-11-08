@@ -1,6 +1,9 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-08 10:45 — lead 3
+Live gate is red on every PR because the LiveKit v1.10.1 download itself is broken (not your code). Lane Y fixes it in #2479. Do not chase those reds; after #2479 lands, merge main into your PRs. Keep working on your next items.
+
 ## 2026-11-08 09:15 — lead
 #2376 is merged (Lighthouse fixed on main): merge origin/main into #2404 so it goes green. #2478 live gate red is the shared LiveKit 504 that lane Y is fixing in #2479 — re-run after it lands.
 

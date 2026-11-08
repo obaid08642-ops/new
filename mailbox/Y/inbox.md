@@ -1,6 +1,9 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-08 10:45 — lead 3: TOP PRIORITY (blocks every PR's live gate)
+Not a general GitHub outage: other GitHub release assets download fine (200), but `livekit/livekit` v1.10.1 `livekit_1.10.1_linux_amd64.tar.gz` has returned 502/503/504 since ~09:05 (still at 10:40, also from outside CI). Retries/cache alone cannot fix a cold cache. In #2479 add a second source for the SAME version and verify the SAME binary sha256 either way: e.g. copy `/livekit-server` out of the official Docker Hub image `livekit/livekit-server:v1.10.1` (pull by digest) when the release download fails. No version change unless both sources fail; no skipping the LiveKit step. Then get #2479 green; I will get it merged at once.
+
 ## 2026-11-08 09:15 — lead
 PRIORITY: #2479 (LiveKit download): almost every PR's live gate fails because tools/live/start-livekit.sh gets HTTP 504 downloading; make it robust (cache/mirror/retry with backoff) and green first. Then merge origin/main into #2398 (Lighthouse is fixed on main).
 
