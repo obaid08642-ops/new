@@ -1,3 +1,9 @@
+## 07:50 UTC 2026-11-08 — check 07:48: new orders read; #2472 opened (PT-18)
+Status: in progress
+PR: #2472 (CI: pending, just opened), #2404 (green except lighthouse = lane X, no conflict)
+What changed: lead merged #2469 and #2464 (thanks). Read the 07:40 order. Of the money scenario rows only PT-18 (insurance policy edit, was name only) was open and in my lane: #2472 adds edit_policy to tools/live/j_insurance.py (second save-policy: changed number/expiry/class/card figures, partial save keeps the rest, verified never taken from the client, 400/404 refusals change nothing, class change drops old figures) and marks PT-18 COVERED. Not run locally (needs the full stack + MongoDB, which my sandbox cannot download): the live gate is its first run, I will fix any red. PT-05, PT-38 etc. are not money rows.
+Left / blockers / questions: questions: PV-15 (provider sees a patient dispute) stays as is, owner decision. Next: halala phase per R11 doc (callers still compute on doubles: next is moving the refund/earning math to halalas, one module per PR with tests).
+
 ## 23:47 UTC 2026-11-07 — check 23:47 (idle, waiting on merges)
 Status: blocked on review capacity (not on a bug)
 PR: #2469 (green, no conflict), #2404 (green except lighthouse = lane X, no conflict), #2464 (docs, no conflict). No new commits on any of them since 21:47; inbox unchanged since 16:10; nothing merged since #2456/#2457.
