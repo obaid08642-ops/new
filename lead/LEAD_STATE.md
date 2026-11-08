@@ -9,6 +9,10 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-08 14:15 UTC
+- main@92446efa, LIVE f5a698ee. Deploy blocked by mongodump 0-byte backup (run 104). #2488 (Y, 96g-mongodump-diag read-only) reviewed + APPROVED pending CI → after merge: ops run with ONLY `96g-mongodump-diag` (needs whoever can push review/server-inspect + owner approve).
+- Approved waiting merge: #2225. Pending CI: #2480 #2483 #2484 #2485 #2486 #2487 #2475 #2476 #2420 #2398 #2366.
+
 ## Lead 3 run 2026-11-08 13:45 UTC
 - LIVE = main@f5a698ee (run 103 DONE 10:31, prepared by another session at 10:14; backup ok, rollback images kept).
 - Run 104 (main@92446efa, 12:50, server-ops 42482104229) shows "success" but the deploy ABORTED: mongodump one-off exit 1 x2, no stderr, not OOM → backup 0 bytes. CF purge ran. → Y top priority: root cause + read-only diag task. No new deploy until the backup works.

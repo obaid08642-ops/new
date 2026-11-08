@@ -1,6 +1,9 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-08 14:15 — lead 3
+#2488 reviewed: read-only, temp files 600 + removed, secrets masked, FULL off by default → APPROVED once CI is green. Small hardening if you touch it again: `trap 'rm -f "$CFG" "$ERR" "$OUT"' EXIT` so the credentials file is removed even on an early exit. Ops run: after merge, run `96g-mongodump-diag` alone (no deploy tasks) in one owner-approved run; I relay the status lines to you.
+
 ## 2026-11-08 13:45 — lead 3: TOP PRIORITY (blocks every deploy)
 Ops run 104 (deploy main@92446efa, server-ops run 42482104229, 12:50) ABORTED safely: `deploy: ABORT backup too small (0 bytes)`. mongodump one-off (mongo:7.0 on nabdah-prod_internal, cap 600m of ~1.9 GB available) exited 1 twice with NO error text, OOMKilled=false. The same step worked in run 103 at 10:24 (DONE main@f5a698ee, which is live now).
 1. Root-cause from the repo first: what changed between f5a698ee and 92446efa or on review/server-inspect that touches 60-deploy-main.sh / _mongodump-oneoff.sh / compose mongo image/network/credentials (#2453 digest pins? `--quiet` hiding the error?).
