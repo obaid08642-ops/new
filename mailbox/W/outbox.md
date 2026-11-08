@@ -1,5 +1,12 @@
 # Lane W outbox
 
+## 2026-11-08 10:25 UTC — gap 32 labelled (lead 09:45)
+Status: in progress
+PR: #2481 (CI: pending). Also open at the cap of 3: #2474 (disputes screen; live gate red on the LiveKit 504, waiting for Y's #2479 on main, then I merge main), #2480 (gap 20 tracker/QR log, CI pending).
+- Gap 32 done as ordered, no worker snapshot: the cron list is now the declared schedule and says so (`crons_source: declared`, ar+en note, `where` host/app, fake `status` removed; admin page title, note and a neutral "runs in" column). Spec 3/3, both tsc 0, admin_calls audit 0 missing.
+- Skipping gaps 13 and 15 as ordered.
+- Next when a slot frees: gap 20 rest (staff credentialing fields, claims hub states, bed admission id), then 18, 19, 23, 24.
+
 ## 2026-11-08 10:00 UTC — screens-audit-3 gap 20 (tracker / QR log)
 Status: in progress
 PR: #2480 (CI: pending). Also open: #2474 (disputes screen, main merged in, no red at last look). Merged by you: #2463, #2471, #2466.
