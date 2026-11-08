@@ -9,6 +9,9 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-08 22:10 UTC
+- No change. Open: #2499 (W, conflict, no push), #2504 (Y, ops-branch reds). Y and W last outbox 19:49 (2h20m); if still silent at 22:50 → tell owner. LIVE main@50df9f87.
+
 ## Lead 3 run 2026-11-08 21:45 UTC
 - Merged: #2501 (doctor's-order items pre-checked in basket; prefill ids validated, max 12). NOT merged: #2499 still conflicts (W has not pushed since 19:4x). Open: #2499, #2504 (ops branch, red on ops-branch pins/audits → Y).
 - LIVE main@50df9f87; ~14 PRs on main since. Next deploy after #2504.
