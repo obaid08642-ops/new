@@ -9,6 +9,11 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-08 21:15 UTC
+- Merged: #2503 (payout withdrawal per-provider lock, txn) #2497 (bcrypt in worker threads + overload level-change log; fixes live-gate 503 shedding) #2483 (copay halalas). #2499 conflicts again → W.
+- #2504 (ops branch) still red on ops-branch pins/audits → Y. Pending: #2501.
+- LIVE main@50df9f87; main has ~12 PRs since → next deploy after #2504 is merged into review/server-inspect.
+
 ## Lead 3 run 2026-11-08 20:45 UTC
 - Merged: #2500 (claims hub; CodeQL NoSQL fixed with state allow-list) #2495 (refund policy rules: nursing no-show refund, default 0%, idempotent id) #2502 (Rx pre-checked UI).
 - #2504 (Y → review/server-inspect: mongo wait/retry + 96h): code sound, but red on ops-branch unpinned actions + dependency audits → Y fixes in same PR, then I merge.
