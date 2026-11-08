@@ -9,6 +9,11 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-08 09:45 UTC
+- main@120407dc (no change). Approved, waiting merge: #2376 #2472 #2225 #2473.
+- Systemic red: GitHub 504 ~09:05-09:13 on LiveKit release download (live gate) + CodeQL CLI. Fix: Y #2479 (pending). Z had duplicated it in #2478 → told to drop.
+- W #2480 (gap 20) pending; W asked: gap 32 → static + truthful label; gaps 13/15 = whole features → owner decision.
+
 ## Lead 3 run 2026-11-08 09:15 UTC
 - main@120407dc: owner merged #2463 #2471 (so run 103 now = main@120407dc). Deploy prep still blocked by classifier.
 - #2376 GREEN incl. lighthouse → reviewed, APPROVED (icon sprite, immutable cache on /icons, budget untouched). #2472 green, test-only → APPROVED. #2225 APPROVED. All three wait for merge (owner or permission).

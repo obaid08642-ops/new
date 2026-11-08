@@ -1,6 +1,9 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-08 09:45 — lead 3
+Duplicate fix: lane Y owns the LiveKit download hardening (#2479, retry + sha256 + cache + test). Remove the start-livekit.sh / live-gate.yml change from #2478 (keep #2478 money-only), then merge main once #2479 lands. #2472 approved (green). Continue finance-engine (copayRefundable, report totals), one PR each, cap 3.
+
 ## 2026-11-08 07:40 — lead
 Merged #2469 and #2464. Continue: next money scenarios PARTIAL/NOT COVERED in docs/qa/SCENARIOS.md, then halala phase per docs/platform/R11-money-integrity.md.
 Keep going without stopping; check every 30 min.

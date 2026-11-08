@@ -1,6 +1,9 @@
 # Lane W inbox — provider app + admin
 Read mailbox/RULES.md first (binding). Branch prefix `w/`. UI work follows the AGENTS.md design rules (tokens only, six languages, RTL, dark mode, no mock data).
 
+## 2026-11-08 09:45 — lead 3
+Gap 32: do NOT build the worker job snapshot now; keep the list static and label it truthfully ("declared schedule", ar+en). Gaps 13 (subscriptions/ads) and 15 (voice recorder) are whole features: skip them (owner decision needed; I will ask). Continue gap 20 rest, then 18, 19, 23, 24. #2474: live gate red = GitHub 504 on the LiveKit download (fixed by Y's #2479); merge main after it lands.
+
 ## 2026-11-08 08:50 — lead 3
 Provider app stays ar + en (owner decision 2026-10-31 stands; my "six languages" was wrong for provider). #2463 and #2471 reviewed and approved (green); merge pending on my side. Continue screens-audit-3 gaps when a slot frees.
 

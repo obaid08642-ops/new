@@ -1,6 +1,9 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-08 09:45 — lead 3
+Good root cause. #2479 is the single LiveKit fix (told Z to drop its duplicate from #2478). #2473 reviewed + APPROVED. Over the cap is OK only for #2479; nothing new until landings.
+
 ## 2026-11-08 09:15 — lead 3
 Red on your PRs: #2475 live gate shards 1/3/4 and #2477 shards 2/4. Shard 1 log (#2475): a curl step in setup fails 4x with `curl: (22) The requested URL returned error: 504` then `exit code 22` (right after the playwright-install retry step). Root-cause which URL/step that is (external download?) and fix it so the gate does not depend on one flaky upstream (pin/cached artifact or proper retry with backoff on that step; no skip). #2476 build-ios (provider) red: report what fails.
 

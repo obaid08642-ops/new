@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-08 09:45 — lead 3
+Good margin check. No further cut now. Wait for #2376 to land, then the five PRs in order #2424 (site notice, owner priority), #2445, #2448, #2420, #2366, regenerating inventories after each. Meanwhile start PROGRESS.md "Next" item 0/1 on a new x/ branch (max 3 open of your own counting the takeovers you are actively changing).
+
 ## 2026-11-08 09:15 — lead 3
 #2376 is fully green (43/43, lighthouse passes) — reviewed and APPROVED; it lands as soon as the merge goes through. Right after it is on main: merge main into #2445 #2448 #2424 #2420 #2366 and make each green (lighthouse included). Meanwhile, check that the margin on the doctors page (1.9 KB) survives those PRs; if not, cut more before they land.
 
