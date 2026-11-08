@@ -1,5 +1,5 @@
 {
- "commit": "1df21188",
+ "commit": "ecdd1c55",
  "screens": {
   "PendingDashboard": [
    {
@@ -13885,27 +13885,27 @@
     "src": "GET /provider/facility/patients/active → patients",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityPatientTrackerScreen.tsx",
-    "line": 33,
+    "line": 35,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Discharge Summary",
+    "label": "{t('tracker.discharge')}",
     "src": "navigate → discharge_summary",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityPatientTrackerScreen.tsx",
-    "line": 66,
+    "line": 61,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Prescription",
+    "label": "{t('tracker.prescription')}",
     "src": "navigate → prescription",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityPatientTrackerScreen.tsx",
-    "line": 69,
+    "line": 65,
     "via": null,
     "note": null
    }

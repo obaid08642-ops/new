@@ -5451,6 +5451,8 @@
     "fromWhere": "Pinakamababang presyo sa mga akmang provider",
     "prepNone": "Walang kailangang paghahanda",
     "basketTitle": "Kariton",
+    "fromOrderTitle": "Mula sa order ng iyong doktor",
+    "fromOrderSub": "Nasa kariton mo na ang mga ito. I-untick ang mga gusto mong gawin sa ibang pagkakataon.",
     "splitNote": "Awtomatiko naming hinati ang order mo: dalawang booking, isang bayad, at hiwalay na status ng bawat booking",
     "singleNote": "Ito lang ang inoorder mo. Walang magbabago sa cart mo.",
     "gHome": "Sa bahay · {n} item",
