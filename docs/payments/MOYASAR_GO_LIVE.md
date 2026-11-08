@@ -29,6 +29,26 @@ Every row was checked in the code (file:line below) or by a journey/spec that ra
 | 20 | Invoices: seller name and VAT number | owner-key | CORRECTION of the earlier note: production did **not** refuse to issue without a VAT number (nothing in `billing.module.ts` checks `NODE_ENV`); the invoice was issued with "seller not configured". With #2368 (receipt mode) a document without a VAT number is a payment receipt. Set `finance_config` `invoice` (`seller_name`, `vat_number`, `cr_number`, `address`) or `ZATCA_SELLER_NAME` / `ZATCA_VAT_NUMBER`; there is no admin screen for it yet |
 | 21 | Refund to card issues a credit note / refund receipt and the provider is debited | done | `RefundExecutor` (`finance-engine.module.ts:630-`), `billing.module.ts` `issueCreditNote` (`payment.refund.card`), `docs/payments/INVOICES.md` |
 
+## Sandbox path (#551): what the owner must set now (names only)
+The server has `MOYASAR_API_KEY`. It lacks these three:
+
+| Name | Value | Without it |
+| --- | --- | --- |
+| `PAYMENT_PROVIDER` | `moyasar` | With a single gateway key the gateway is still picked automatically; set it so a second key can never change the processor silently |
+| `MOYASAR_SECRET_KEY` | the same secret key as `MOYASAR_API_KEY` | Refund and capture fall back to `MOYASAR_API_KEY` (`payments.module.ts:683`), so refunds still work with a single key |
+| `MOYASAR_WEBHOOK_SECRET` | the secret token set on the webhook in the Moyasar dashboard | Every webhook is refused (`moyasar-webhook-auth.ts:21`); payments still settle through `POST /payments/verify` and the 5-minute abandon sweep, but late |
+
+Also needed for the hosted checkout in production: `PAYMENT_RESULT_URL` (https) or `PUBLIC_APP_URL`. Use an `sk_test_` key for the sandbox.
+
+How the product refuses without them (all plain codes, no setting name in the answer):
+
+| Missing | Server answer | App and web |
+| --- | --- | --- |
+| gateway key | `503 payment_gateway_not_configured` (`payments.module.ts:463`) | a translated "payment not available, nothing was charged" sentence on pharmacy, consultation, nursing, diagnostics (app `utils/paymentGateway.ts`, web `errPayDown`); the booking is kept |
+| https return address (production) | `503 payment_return_url_not_configured` before Moyasar is called | same sentence |
+| webhook secret | `400 invalid_webhook_signature` (`payments.module.ts:735`), nothing is marked paid | the result page reads the status from the server, so it shows "processing" until verify or the sweep settles it |
+| wrong `PAYMENT_PROVIDER` | the server refuses to start (`payment_provider_unknown` / `payment_gateway_not_configured`, `payment-gateway.ts:93-105`) | not applicable |
+
 ## Check a server, and what the gate proves (#551)
 `node tools/payments/check-moyasar-env.mjs` (run where the environment is loaded) prints each setting NAME with a fixed verdict sentence, never a value, and exits 1 while anything required is missing: `PAYMENT_PROVIDER`, `MOYASAR_API_KEY`, `MOYASAR_SECRET_KEY`, `MOYASAR_WEBHOOK_SECRET`, and `PAYMENT_RESULT_URL` or `PUBLIC_APP_URL` (https in production). `tools/payments/check-moyasar-env.test.mjs` pins that no value is printed (its keys are built at run time so the repository holds no key-shaped text). The live gate starts the backend with the same names (`tools/live/start-backend.sh`), and `j_payment_webhook` 44/44, `j_payment_failed_retry` 44/44 and `j_refund_matrix` 458/458 pass under it. Still needs the owner: an `sk_test_` key in the server environment, then `tools/payments/record-moyasar-sandbox.mjs` for real sandbox answers and one test-card payment through the hosted page (rows 12 and 18).
 

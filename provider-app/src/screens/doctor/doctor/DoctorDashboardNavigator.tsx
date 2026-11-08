@@ -20,6 +20,7 @@ import client from '../../../api/client';
 import { useServicesCatalog, getInsuranceCatalog, useSpecialtiesCatalog } from '../../../api/catalogs';
 import { VideoCallRoom } from '../../shared/VideoCallRoom';
 import { InsuranceRequestsScreen } from '../../shared/InsuranceRequestsScreen';
+import { ProviderDisputesScreen } from '../../shared/ProviderDisputesScreen';
 import { WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, GlobalSystemSettings, ChatSystem, MediaConfigScreen } from '../../shared/SharedScreens';
 import { DoctorStatsRow } from '../components/DoctorStatsRow';
 import { DoctorUrgentRequests } from '../components/DoctorUrgentRequests';
@@ -128,6 +129,7 @@ export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void })
      <Stack.Screen name="profile_edit">{({ navigation }: any) => <ProviderProfileEditor role="doctor" onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="insurance_config">{({ navigation }: any) => <InsuranceConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
     <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+    <Stack.Screen name="provider_disputes">{({ navigation }: any) => <ProviderDisputesScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="certificates_config">{({ navigation }: any) => <CertificatesConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="media_config">{({ navigation }: any) => <MediaConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="virtual_waiting_room">{({ navigation }: any) => <VirtualWaitingRoomScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>

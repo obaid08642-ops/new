@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import type { FillIconName, ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { getDirection, type Locale } from "@/lib/i18n";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "./settings.module.css";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 
 export type NavRow = { href: string; icon: FillIconName; tone: ServiceTone; title: string; sub?: ReactNode };
 

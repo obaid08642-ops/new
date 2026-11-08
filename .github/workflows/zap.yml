@@ -107,7 +107,7 @@ jobs:
           # ZAP adds this header to every request it sends (the packaged scans read ZAP_AUTH_HEADER_VALUE)
           docker run --rm --network host -e ZAP_AUTH_HEADER=Authorization -e ZAP_AUTH_HEADER_VALUE="Bearer ${TOKEN}" \
             -v "$PWD/zap-out:/zap/wrk:rw" "$ZAP_IMAGE" zap-api-scan.py \
-            -t openapi.json -f openapi -O http://127.0.0.1:8002 -r api.html -J api.json -I
+            -t openapi.json -f openapi -O http://127.0.0.1:8002 -r api.html -J api.json -I -d
 
       - name: Baseline scan of the website and the admin sign-in
         if: matrix.target == 'web'
@@ -117,6 +117,15 @@ jobs:
             -t http://127.0.0.1:3100/en -r web.html -J web.json -I
           docker run --rm --network host -v "$PWD/zap-out:/zap/wrk:rw" "$ZAP_IMAGE" zap-baseline.py \
             -t http://127.0.0.1:3001/ -r admin.html -J admin.json -I
+
+      # Evidence for the intermittent "Failed to connect to ZAP after 600 seconds" (3 of the last 8 scheduled runs): the ZAP container is --rm, so its log is gone
+      # when the step fails. `-d` on the API scan prints ZAP's own startup output into this log; this step shows what listens on the host and how loaded it is.
+      - name: Diagnose a failed ZAP start
+        if: failure()
+        run: |
+          echo "--- listening sockets"; (ss -ltnp 2>/dev/null || ss -ltn) | head -40
+          echo "--- load and memory"; uptime; free -m
+          echo "--- containers"; docker ps -a --format '{{.Names}} {{.Status}}'
 
       - name: Gate - 0 high findings
         run: |

@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { ProgressRing } from "@/components-next/ui-generated/components/Cards";
 import type { FillIconName, ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import health from "@/components-next/health/health.module.css";
 import styles from "./care.module.css";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 
 /**
  * The summary card of the care hubs (canvas/CareHub: a tinted card with a ring and three lines). With `ring` it draws the

@@ -47,7 +47,7 @@ import { PatientFileScreen } from './PatientFileScreen';
 
 export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => void, onNavigate: (s: string) => void }) {
   const { theme, mode, toggle: toggleTheme } = useTheme();
-  const { lang, toggle: toggleLang } = useLang();
+  const { lang, t, toggle: toggleLang } = useLang();
   const { show } = useToast();
   const { user } = useAuth();
   const AR = lang === 'ar';
@@ -234,6 +234,7 @@ export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => vo
         <NSettingsRow icon="calendar" label={AR ? 'مواعيد العمل (Scheduler)' : 'Availability Engine'} onPress={() => onNavigate('availability_engine')} />
         <NSettingsRow icon="shield" label={AR ? 'شركات التأمين' : 'Insurance Config'} onPress={() => onNavigate('insurance_config')} />
        <NSettingsRow icon="shield" label={AR ? 'طلبات التأمين الواردة' : 'Insurance Requests'} onPress={() => onNavigate('insurance_requests')} />
+        <NSettingsRow icon="shield" label={t('disputes.title')} onPress={() => onNavigate('provider_disputes')} />
         <GlobalSystemSettings />
         
         <NBtn label={AR ? 'تسجيل الخروج' : 'Logout'} onPress={onLogout} variant="outline" style={{ borderColor: theme.danger, marginTop: SP.lg }} labelStyle={{ color: theme.danger }} />

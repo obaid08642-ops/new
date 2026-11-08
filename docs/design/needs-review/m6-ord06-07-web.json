@@ -115,6 +115,6 @@
     "line": 150,
     "found": "[client] Preparation lines come from the lab catalogue (server, per item, at most 12); radiology and nursing items show none because their catalogue reads are not wired into this step.",
     "suspect": "Same loader as the item page for radiology/nursing in the next slice.",
-    "review_status": "open"
+    "review_status": "fixed x/ordering-m6 (the confirm step reads the preparation of lab, radiology and nursing items through the item page's own loadItem: patient-web/lib/ordering/preparation.ts)"
   }
 ]

@@ -20,7 +20,8 @@ import {
   type IconName as SharedIconName,
   type LineIconName as SharedLineIconName,
 } from '../icons/names';
-import { LINE_ICON_PATHS, LINE_ICON_VIEWBOX } from '../icons/line';
+import { LINE_ICON_VIEWBOX } from '../icons/line';
+import { lineHref } from '../icons/sprite';
 
 /**
  * `<Icon>` — the ONE icon entry point for patient-web and admin (12.A6).
@@ -126,8 +127,7 @@ export function Icon({
     );
   }
 
-  const path = LINE_ICON_PATHS[name as LineIconName];
-  if (!path) {
+  if (!(LINE_ICON_NAMES as readonly string[]).includes(name)) {
     throw new Error(
       `Unknown icon: ${String(name)}. Use an illustrated icon (${ILLUSTRATED_ICONS.join(', ')}) ` +
         `or a line icon (${LINE_ICON_NAMES.join(', ')}).`,
@@ -152,7 +152,7 @@ export function Icon({
       data-icon={name}
       style={style}
     >
-      <path d={path} />
+      <use href={lineHref(name)} />
     </svg>
   );
 }
