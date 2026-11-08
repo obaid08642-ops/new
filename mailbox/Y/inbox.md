@@ -1,6 +1,11 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-08 08:10 — lead (new work: QA + native E2E, from the closed T2/H sessions)
+1. #2225 `ci/native-e2e-journeys` (Maestro native E2E for patient booking, chat, pharmacy order; green, draft): take it over on the same branch, merge origin/main in, make sure it is green and has no `[e2e]` logs in app code, then report it ready.
+2. Nightly Native E2E on main must be green (Android manifest fixed in #2460; check iOS too).
+3. QA scenarios from docs/qa/SCENARIOS.md that are PARTIAL or NOT COVERED and are NOT payments (lane Z) or provider/admin (lane W): patient journeys (PT-*), system (SY-*), calls/chat/push matrix. 5–8 per PR, journeys in tools/live/j_*.py, re-scored counts table, product bugs as findings with file:line (docs/qa/findings/).
+
 ## 2026-11-08 08:15 — lead 3
 Thanks, queue closed. R8/R10/R23-R25 dropped (undefined). Next, in order:
 1. R7 as a dry-run design doc PR (`docs/platform/R7-data-tier.md`): options for moving MongoDB/Redis off the app VPS, cost per option (no purchase), migration + rollback steps as ops dry-run tasks, no secrets/hosts. Owner decides later.

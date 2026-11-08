@@ -49,3 +49,5 @@ GitHub secrets for uptime alert mail; Moyasar/APNs/social login keys; decisions:
 - Only Lead 2 runs on this account now.
 - Y reported OCR and M3-M8 already on main: verify and close those items; Y asked for R6, R8-R10, R22-R25 definitions: find them in docs/platform or the R backlog doc, else drop them and say so.
 - Lane Y last reported 12:3x and then went quiet (likely its Pro usage limit): check its outbox each run; if silent >6h tell the owner.
+
+- 2026-11-08 08:10 (old lead): lane Y now also owns QA (old T2: patient/system scenarios, calls/chat/push matrix) and native E2E (old H: #2225, nightly Native E2E). Follow it like the other lanes.
