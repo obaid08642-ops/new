@@ -1,5 +1,5 @@
 {
- "commit": "666497da",
+ "commit": "1df21188",
  "screens": {
   "PendingDashboard": [
    {
@@ -15906,7 +15906,7 @@
     "src": "user input → POST /provider/ops/availability/toggle-instant, POST /home-care/provider/availability",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 261,
+    "line": 262,
     "via": null,
     "note": null
    },
@@ -15916,7 +15916,7 @@
     "src": "navigate → notifications",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 263,
+    "line": 264,
     "via": null,
     "note": null
    },
@@ -15926,7 +15926,7 @@
     "src": "value ← String(pending)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 272,
+    "line": 273,
     "via": null,
     "note": null
    },
@@ -15936,7 +15936,7 @@
     "src": "value ← String(active)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 273,
+    "line": 274,
     "via": null,
     "note": null
    },
@@ -15946,7 +15946,7 @@
     "src": "value ← String(completed)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 274,
+    "line": 275,
     "via": null,
     "note": null
    },
@@ -15956,7 +15956,7 @@
     "src": "value ← String(totalRev)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 275,
+    "line": 276,
     "via": null,
     "note": null
    },
@@ -15966,7 +15966,7 @@
     "src": "navigate (back / dynamic target)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 290,
+    "line": 291,
     "via": null,
     "note": null
    },
@@ -15976,7 +15976,7 @@
     "src": "from jobs (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 304,
+    "line": 305,
     "via": null,
     "note": null,
     "untraced": true
@@ -15987,7 +15987,7 @@
     "src": "navigate → order_detail",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 306,
+    "line": 307,
     "via": null,
     "note": null
    },
@@ -15997,7 +15997,7 @@
     "src": "from order (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 324,
+    "line": 325,
     "via": null,
     "note": null,
     "untraced": true
@@ -16008,7 +16008,7 @@
     "src": "from jobs (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 337,
+    "line": 338,
     "via": null,
     "note": null,
     "untraced": true
@@ -16019,7 +16019,7 @@
     "src": "navigate → order_detail",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 339,
+    "line": 340,
     "via": null,
     "note": null
    },
@@ -16029,7 +16029,7 @@
     "src": "navigate → order_detail",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 353,
+    "line": 354,
     "via": null,
     "note": null
    },
@@ -16039,7 +16039,7 @@
     "src": "navigate → checklist",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 354,
+    "line": 355,
     "via": null,
     "note": null
    }
@@ -16051,7 +16051,7 @@
     "src": "local state setTab",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 391,
+    "line": 392,
     "via": null,
     "note": null
    },
@@ -16061,7 +16061,7 @@
     "src": "local state setTab",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 394,
+    "line": 395,
     "via": null,
     "note": null
    },
@@ -16071,7 +16071,7 @@
     "src": "GET /nursing/jobs/active",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 402,
+    "line": 403,
     "via": null,
     "note": null
    },
@@ -16081,7 +16081,7 @@
     "src": "from pending (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 409,
+    "line": 410,
     "via": null,
     "note": null,
     "untraced": true
@@ -16092,7 +16092,7 @@
     "src": "navigate → order_detail",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 410,
+    "line": 411,
     "via": null,
     "note": null
    },
@@ -16102,7 +16102,7 @@
     "src": "from active (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 424,
+    "line": 425,
     "via": null,
     "note": null,
     "untraced": true
@@ -16113,7 +16113,7 @@
     "src": "navigate → order_detail",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 425,
+    "line": 426,
     "via": null,
     "note": null
    }
@@ -16185,7 +16185,7 @@
     "src": "GET /provider/me → caps",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 743,
+    "line": 759,
     "via": null,
     "note": null
    },
@@ -16195,7 +16195,7 @@
     "src": "navigate → profile_edit",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 782,
+    "line": 798,
     "via": null,
     "note": null
    },
@@ -16205,7 +16205,7 @@
     "src": "navigate → nursing_services",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 783,
+    "line": 799,
     "via": null,
     "note": null
    },
@@ -16215,7 +16215,7 @@
     "src": "navigate → nursing_coverage",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 784,
+    "line": 800,
     "via": null,
     "note": null
    },
@@ -16225,7 +16225,7 @@
     "src": "navigate → working_hours",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 785,
+    "line": 801,
     "via": null,
     "note": null
    },
@@ -16235,7 +16235,7 @@
     "src": "navigate → insurance_config",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 786,
+    "line": 802,
     "via": null,
     "note": null
    },
@@ -16245,7 +16245,7 @@
     "src": "navigate → insurance_requests",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 787,
+    "line": 803,
     "via": null,
     "note": null
    },
@@ -16255,7 +16255,7 @@
     "src": "navigate (back / dynamic target)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 788,
+    "line": 804,
     "via": null,
     "note": null
    },
@@ -16265,7 +16265,7 @@
     "src": "navigate → certificates_config",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 789,
+    "line": 805,
     "via": null,
     "note": null
    },
@@ -16275,7 +16275,7 @@
     "src": "navigate → media_config",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 790,
+    "line": 806,
     "via": null,
     "note": null
    },
@@ -16285,7 +16285,7 @@
     "src": "parent callback row.action",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 809,
+    "line": 825,
     "via": null,
     "note": null
    },
@@ -16295,7 +16295,7 @@
     "src": "navigate → notifications",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 815,
+    "line": 831,
     "via": null,
     "note": null
    },
@@ -16305,7 +16305,7 @@
     "src": "navigate → medical_jobs",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 816,
+    "line": 832,
     "via": null,
     "note": null
    },
@@ -16315,7 +16315,7 @@
     "src": "navigate → drug_index",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 817,
+    "line": 833,
     "via": null,
     "note": null
    },
@@ -16325,7 +16325,7 @@
     "src": "parent callback r.action",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 826,
+    "line": 842,
     "via": null,
     "note": null
    },
@@ -16335,7 +16335,7 @@
     "src": "local state setShowLO",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 829,
+    "line": 845,
     "via": null,
     "note": null
    },
@@ -16639,7 +16639,7 @@
     "src": "GET /provider/nursing/checklist, POST /provider/ops/nursing/bookings/:param/checklist/before → items",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 482,
+    "line": 483,
     "via": null,
     "note": null
    },
@@ -16649,7 +16649,7 @@
     "src": "POST /provider/ops/nursing/bookings/:param/checklist/before",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 483,
+    "line": 484,
     "via": null,
     "note": null
    },
@@ -16659,7 +16659,7 @@
     "src": "navigate → order_detail",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 495,
+    "line": 496,
     "via": null,
     "note": null
    }
@@ -16671,7 +16671,7 @@
     "src": "GET /home-care/care-plans/:param → plans",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 553,
+    "line": 554,
     "via": null,
     "note": null
    },
@@ -16681,7 +16681,7 @@
     "src": "user input → title → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 570,
+    "line": 571,
     "via": null,
     "note": null
    },
@@ -16691,7 +16691,7 @@
     "src": "user input → taskText → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 571,
+    "line": 572,
     "via": null,
     "note": null
    },
@@ -16701,7 +16701,7 @@
     "src": "POST /home-care/care-plans/:param, GET /home-care/care-plans/:param",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 572,
+    "line": 573,
     "via": null,
     "note": null
    }
@@ -16713,7 +16713,7 @@
     "src": "POST /nursing/notes, GET /nursing/notes/:param → vitals",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 584,
+    "line": 585,
     "via": null,
     "note": null
    },
@@ -16723,7 +16723,7 @@
     "src": "user input → vitals → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 613,
+    "line": 614,
     "via": null,
     "note": null
    },
@@ -16733,7 +16733,7 @@
     "src": "user input → vitals → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 614,
+    "line": 615,
     "via": null,
     "note": null
    },
@@ -16743,7 +16743,7 @@
     "src": "user input → vitals → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 615,
+    "line": 616,
     "via": null,
     "note": null
    },
@@ -16753,7 +16753,7 @@
     "src": "user input → vitals → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 618,
+    "line": 619,
     "via": null,
     "note": null
    },
@@ -16763,7 +16763,7 @@
     "src": "user input → vitals → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 619,
+    "line": 620,
     "via": null,
     "note": null
    },
@@ -16773,7 +16773,7 @@
     "src": "user input → note → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 621,
+    "line": 622,
     "via": null,
     "note": null
    },
@@ -16783,7 +16783,7 @@
     "src": "POST /nursing/notes, GET /nursing/notes/:param",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 623,
+    "line": 624,
     "via": null,
     "note": null
    },
@@ -16793,19 +16793,29 @@
     "src": "GET /nursing/notes/:param → pastNotes",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 644,
+    "line": 645,
     "via": null,
     "note": null
    }
   ],
   "MedicalSupplies": [
    {
+    "kind": "data",
+    "label": "Data visitId",
+    "src": "GET /nursing/jobs/active → visitId",
+    "status": "ok",
+    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
+    "line": 666,
+    "via": null,
+    "note": null
+   },
+   {
     "kind": "number",
     "label": "Stat: Delivered",
     "src": "value ← String(supplies.filter(s=>s.status==='delivered'",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 706,
+    "line": 711,
     "via": null,
     "note": null
    },
@@ -16815,7 +16825,7 @@
     "src": "value ← String(supplies.filter(s=>s.status==='ordered').",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 707,
+    "line": 712,
     "via": null,
     "note": null
    },
@@ -16825,17 +16835,37 @@
     "src": "value ← String(supplies.filter(s=>s.status==='pending').",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 708,
+    "line": 713,
     "via": null,
     "note": null
    },
    {
     "kind": "data",
     "label": "List supplies",
-    "src": "GET /provider/nursing/supplies, POST /home-care/inventory/request → supplies",
+    "src": "GET /provider/nursing/supplies → supplies",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 712,
+    "line": 717,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "data",
+    "label": "List visits",
+    "src": "GET /nursing/jobs/active → visits",
+    "status": "ok",
+    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
+    "line": 737,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{String(v.id)}",
+    "src": "local state setVisitId",
+    "status": "ok",
+    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
+    "line": 738,
     "via": null,
     "note": null
    },
@@ -16845,7 +16875,7 @@
     "src": "user input → newItem → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 727,
+    "line": 743,
     "via": null,
     "note": null
    },
@@ -16855,7 +16885,7 @@
     "src": "user input → newQty → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 728,
+    "line": 744,
     "via": null,
     "note": null
    },
@@ -16865,7 +16895,7 @@
     "src": "POST /home-care/inventory/request",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 730,
+    "line": 746,
     "via": null,
     "note": null
    }
@@ -17006,12 +17036,22 @@
   ],
   "NursingCoverageSettings": [
    {
+    "kind": "data",
+    "label": "Data gpsResult",
+    "src": "POST /nursing/coverage/verify-gps → gpsResult",
+    "status": "ok",
+    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
+    "line": 862,
+    "via": null,
+    "note": null
+   },
+   {
     "kind": "button",
     "label": "Verify Current GPS Location",
     "src": "POST /nursing/coverage/verify-gps",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 891,
+    "line": 906,
     "via": null,
     "note": null
    },
@@ -17021,20 +17061,9 @@
     "src": "local state setRadius",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 903,
+    "line": 918,
     "via": null,
     "note": null
-   },
-   {
-    "kind": "data",
-    "label": "List getCoveredNeighborhoods()",
-    "src": "from getCoveredNeighborhoods (prop / derived; not traced)",
-    "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 916,
-    "via": null,
-    "note": null,
-    "untraced": true
    },
    {
     "kind": "button",
@@ -17042,7 +17071,7 @@
     "src": "POST /provider/settings/delta",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 924,
+    "line": 938,
     "via": null,
     "note": null
    }
@@ -17108,7 +17137,7 @@
     "src": "GET /chats/threads/:param/messages, POST /chats/threads/:param/messages → msgs",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1011,
+    "line": 1025,
     "via": null,
     "note": null
    },
@@ -17118,7 +17147,7 @@
     "src": "user input → msg (local)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1023,
+    "line": 1037,
     "via": null,
     "note": null
    },
@@ -17128,7 +17157,7 @@
     "src": "POST /chats/threads/:param/messages, GET /chats/threads/:param/messages",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1024,
+    "line": 1038,
     "via": null,
     "note": null
    }
@@ -17140,7 +17169,7 @@
     "src": "shifts: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1035,
+    "line": 1049,
     "via": null,
     "note": null
    },
@@ -17148,36 +17177,6 @@
     "kind": "input",
     "label": "<Switch>",
     "src": "user input → shifts → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1058,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "<Switch>",
-    "src": "user input → shifts → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1062,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "<Switch>",
-    "src": "user input → shifts → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1066,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Max Daily Visits",
-    "src": "user input → maxVisits → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
     "line": 1072,
@@ -17187,10 +17186,40 @@
    {
     "kind": "input",
     "label": "<Switch>",
+    "src": "user input → shifts → request body",
+    "status": "ok",
+    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
+    "line": 1076,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "<Switch>",
+    "src": "user input → shifts → request body",
+    "status": "ok",
+    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
+    "line": 1080,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "Max Daily Visits",
+    "src": "user input → maxVisits → request body",
+    "status": "ok",
+    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
+    "line": 1086,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "<Switch>",
     "src": "user input → emergencyReady → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1078,
+    "line": 1092,
     "via": null,
     "note": null
    },
@@ -17200,7 +17229,7 @@
     "src": "POST /provider/schedule/settings",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1082,
+    "line": 1096,
     "via": null,
     "note": null
    }

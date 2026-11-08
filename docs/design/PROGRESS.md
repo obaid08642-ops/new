@@ -3,7 +3,7 @@
 > **Session start (owner, 2026-10-06): read only this file's "Next", then grep `SCREEN_INVENTORY.md` and `WIRING_REPORT.md` for the routes of the current batch. Do not read those two files in full.** History: `PROGRESS_ARCHIVE.md` (do not read at session start). Rules: `/AGENTS.md`, `QUALITY_STANDARDS.md`, `README.md`.
 > After every PR: update this file (keep it under 8 KB). Context low: commit, push, update this file, stop.
 
-_Updated 2026-10-26._
+_Updated 2026-11-08._
 
 ## State
 
@@ -20,6 +20,7 @@ _Updated 2026-10-26._
 
 ## Next
 
+00. **Invoice UI (2026-11-01, one PR `design/invoice-ui`, web + app, on #2362's fields):** company block with "not configured", booking number, provider block, refund state and credit notes, Save as image, Share, share links (create, copy, expiry, revoke), public `/[locale]/receipt/shared/[token]` (noindex, no-store, no referrer), the existing Receipts list extended. new keys in 6 languages (web 'Receipt', app 'receipt.'). Open lines: `needs-review/invoice-ui.json` (5; owner: new native module `react-native-view-shot` needs a new app build; share address uses nabd.plus). Parity: web lists >= 28 PRs done in `PARITY.md`; before 2026-10-28 still to list.
 0. **Owner colour + layout stack (2026-10-25/26): all merged** (colour #1961, #1968, #1971, #1974, #1975, #1980; layout #1981-#1990). Most of it was **not seen at runtime** (no backend or render tool in the sandbox).
    - **Open owner/reviewer questions:** pharmacy category art is picked by keywords in the localized name, needs a backend `categoryKey`; the app has no hamburger menu (what would it open?) and no favourites count badge; consultations app: price-band filter removed, "Shortest wait" not offered (no backend value), `DoctorSearchView` still has its own chips; web grade filter shows six degrees (brief said three); labs still say "Self-pay" (`needs-review/layout-consult-web.json`); next-slot only on `/care/doctors` rows (`needs-review/layout-consult-app.json`).
    - Colour audit tables: `docs/design/COLOUR_AUDIT.md` (index), `COLOUR_AUDIT_web-slice1.md`, `_web-public.md`, `_app.md` (these land with #1965/#1971/#1975/#1974). Signed-in screens were never seen at runtime (no backend in the sandbox).
