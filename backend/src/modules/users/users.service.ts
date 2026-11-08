@@ -8,7 +8,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { JwtService } from '@nestjs/jwt';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from '../../common/password-hash';
 import { UserRole } from '../../common/enums';
 import { UserRepository } from './repositories/user.repository';
 import { PatientProfileRepository } from './repositories/patient-profile.repository';
