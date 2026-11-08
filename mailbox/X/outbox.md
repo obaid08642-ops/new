@@ -1,5 +1,11 @@
 # Lane X outbox
 
+## 2026-11-08 18:45 UTC — decision 2(a) (pharmacy pre-checked) built and pushed, PR not opened: I am at the PR cap
+Status: in progress
+PR: branch `x/rx-prechecked` pushed, NO PR yet. Open own PRs: #2420 (green), #2366, #2491 (doctors page), #2493 (offers sorted) = 4 = your cap. Landing state unchanged (main a74179a8).
+What changed: decision 2(a), as you clarified at 17:15: on a doctor's prescription, "Order these medicines" now lists the catalogue medicines as ticked checkboxes (only when there is more than one), only the ticked ones go into the cart, the patient can untick any (pre-checked, NOT locked: no forced purchase), nothing ticked disables the button with a line saying why. Hand-written lines (no catalogue id) are still only counted, as before. Two new strings (`Prescriptions.pickLabel`, `pickNone`) in the six languages; locale-parity and no-literal-ui-string gates clean; tsc 0; vitest 451 files green; new tests for the chosen-items logic, the pre-checked markup, the single-medicine case and the six-language keys. Not seen at runtime (no backend here).
+Left / blockers / questions: (1) Can I go above 4 open PRs for these decisions? You asked for one PR per screen group, and there are three more (2a pharmacy, 2b Ord03, 1 family member). If not, I open #2a the moment one of the four lands. (2) Next I build 2(b) (Ord03 doctor's-order items pre-checked, unticking = the existing "later") then 1 (family member chip), each its own branch and PR, same rules.
+
 ## 2026-11-08 17:55 UTC — owner decision 3 (offers sorted, best highlighted) built: #2493; decisions 1 and 2 queued behind the PR cap
 Status: in progress
 PR: #2493 (new, `x/offers-sorted`, CI starting). Own open PRs now: #2420 (green, waiting), #2366 (1df21188, CI running), #2491 (doctors page, CI running), #2493 = 4, the maximum you allowed.
