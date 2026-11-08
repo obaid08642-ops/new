@@ -3,6 +3,7 @@ import { Document } from 'mongoose';
 import { OrderState, OrderRejectionReason } from '../common/enums';
 import { v4 as uuid } from 'uuid';
 import { InsuranceDetails, InsuranceDetailsSchema } from './insurance.schema';
+import { halalaShadowPlugin } from '../common/halala-shadow';
 
 @Schema({ _id: false })
 export class OrderResult {
@@ -122,6 +123,11 @@ export class Order {
 }
 export type OrderDocument = Order & Document;
 export const OrderSchema = SchemaFactory.createForClass(Order);
+// R11 P1: the order's own SAR doubles get an integer `<field>_halalas` next to them (items' prices and the pharmacy bids are not part of this step).
+// The backfill (finance-integrity/halala-backfill.ts) uses the same list, and order-halala-fields.spec.ts keeps the two equal.
+export const ORDER_HALALA_FIELDS = ['subtotal', 'delivery_fee', 'total', 'wallet_applied', 'coupon_discount', 'loyalty_discount',
+  'price_before_discounts', 'cancellation_fee', 'pre_review_total', 'insurance_copay'];
+halalaShadowPlugin(OrderSchema, ORDER_HALALA_FIELDS);
 OrderSchema.index({ patient_id: 1, createdAt: -1 });
 OrderSchema.index({ pharmacy_id: 1, state: 1 });
 
