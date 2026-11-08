@@ -152,6 +152,49 @@ def add_policy(pat, code=None, providers=()):
     return c
 
 
+def edit_policy(pat, c):
+    """PT-18: the patient edits the saved policy (a second save-policy). One writer (common/insurance-policy.ts buildPatientPolicy):
+    a field the caller leaves out changes nothing, `verified` is never taken from the client, the card figures are validated and
+    are dropped when the class changes without new ones. Ends on class A again, with no card figures, as add_policy left it."""
+    journey('insurance: patient edits the saved policy (PT-18)')
+    if not c:
+        return
+    code = c.get('code')
+    base = {'company_id': code, 'provider': c.get('name_ar') or c.get('name_en') or code}
+    new_no = f'EDIT-{uuid.uuid4().hex[:8].upper()}'
+    r = pat.post('/insurance/save-policy', {**base, 'class': 'B', 'policy_number': new_no, 'expiry_date': '2028-06-30',
+                                            'copay_percent': 20, 'copay_cap_sar': 500, 'verified': True})
+    step('edit: save-policy with changed number, expiry, class and card figures', r.ok, r)
+    pol = pat.get('/insurance/my-policy').get('policy') or {}
+    step('edit: the new number and expiry are what my-policy shows', pol.get('policy_number') == new_no and pol.get('expiry_date') == '2028-06-30', pol)
+    step('edit: class and plan_class both say B (readers use either)', pol.get('class') == 'B' and pol.get('plan_class') == 'B', pol)
+    step('edit: the card figures are saved as printed', pol.get('copay_percent') == 20 and pol.get('copay_cap_sar') == 500, pol)
+    step('edit: the client cannot mark the edited policy verified', not pol.get('verified'), pol)
+    step('edit: the national id from the first save is kept (a field left out changes nothing)', bool(pol.get('national_id')), pol)
+
+    r = pat.post('/insurance/save-policy', {**base, 'policy_number': new_no + 'X'})
+    pol = pat.get('/insurance/my-policy').get('policy') or {}
+    step('edit: a save that sends only the number changes only the number', r.ok and pol.get('policy_number') == new_no + 'X'
+         and pol.get('class') == 'B' and pol.get('copay_percent') == 20 and pol.get('expiry_date') == '2028-06-30', pol)
+
+    for label, body in (('a copay percent over 100', {'copay_percent': 150}), ('a negative copay cap', {'copay_cap_sar': -1}),
+                        ('a copay percent sent as text', {'copay_percent': '20'})):
+        r = pat.post('/insurance/save-policy', {**base, **body})
+        step(f'edit: {label} is refused with 400', r.status == 400, r)
+    r = pat.post('/insurance/save-policy', {'company_id': 'no-such-insurer-' + uuid.uuid4().hex[:6]})
+    step('edit: an unknown insurer is refused with 404', r.status == 404, r)
+    pol = pat.get('/insurance/my-policy').get('policy') or {}
+    step('edit: the refused saves changed nothing', pol.get('policy_number') == new_no + 'X' and pol.get('copay_percent') == 20 and pol.get('class') == 'B', pol)
+
+    r = pat.post('/insurance/save-policy', {**base, 'class': 'A'})
+    pol = pat.get('/insurance/my-policy').get('policy') or {}
+    step('edit: changing the class without new figures drops the old card figures', r.ok and pol.get('class') == 'A'
+         and pol.get('copay_percent') is None and pol.get('copay_cap_sar') is None, pol)
+    r = pat.get('/users/me/profile')
+    step('edit: profile.insurance (what the booking form reads) shows the edited policy', r.ok and (r.get('insurance') or {}).get('policy_number') == new_no + 'X'
+         and (r.get('insurance') or {}).get('class') == 'A', r)
+
+
 def claims(pat, booking_kind=None, booking_id=None, admin=None):
     journey('insurance: submit-claim -> claim-tracking')
     if booking_kind and booking_id:
@@ -360,7 +403,8 @@ def insured_lab_outcome(pat, lab, outcome):
 
 
 def run(pat, doctor, admin, labs=None):
-    add_policy(pat, admin_adds_company(admin), providers=[doctor, *(labs[:1] if labs else [])])
+    c = add_policy(pat, admin_adds_company(admin), providers=[doctor, *(labs[:1] if labs else [])])
+    edit_policy(pat, c)
     for path in PATIENT_GETS:
         r = pat.get(path)
         step(f'GET {path}', r.ok, r)

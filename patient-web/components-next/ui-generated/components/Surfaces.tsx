@@ -36,7 +36,8 @@ import type {
 import { Icon } from '../src/Icon';
 import { FIcon } from './FIcon';
 import { NAV_ART, NAV_ART_TONE, NAV_FAB_ART, NAV_ART_VIEWBOX, type NavArtKey } from '../icons/nav-art';
-import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, SERVICE_ICONS } from '../icons/fill';
+import { FILL_ICON_VIEWBOX, SERVICE_ICONS } from '../icons/fill';
+import { fillHref } from '../icons/sprite';
 
 /**
  * The layout and navigation surfaces — 12.A7, web.
@@ -298,7 +299,7 @@ export function Rating({ value, count, max = 5, size = 'sm', surface = 'default'
       className={clsx('nabd-rating', `nabd-rating--${size}`, { 'nabd-rating--on-brand': onBrand })}
     >
       <svg aria-hidden="true" width={px} height={px} viewBox="0 0 256 256">
-        <path d={FILL_ICON_PATHS.star} fill={onBrand ? 'var(--nabd-color-icon-ratingStarOnBrand)' : 'var(--nabd-color-icon-ratingStar)'} />
+        <use href={fillHref('star')} fill={onBrand ? 'var(--nabd-color-icon-ratingStarOnBrand)' : 'var(--nabd-color-icon-ratingStar)'} />
       </svg>
       <span aria-hidden className="nabd-rating__value">
         {shown}
@@ -501,7 +502,7 @@ export function BottomTabBar({ items, value, onChange, label = 'Main navigation'
                   </svg>
                 ) : (
                   <svg width={28} height={28} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true">
-                    <path d={FILL_ICON_PATHS[item.icon]} fill="var(--nabd-color-action-fab-fg)" />
+                    <use href={fillHref(item.icon)} fill="var(--nabd-color-action-fab-fg)" />
                   </svg>
                 )}
               </span>
@@ -516,7 +517,7 @@ export function BottomTabBar({ items, value, onChange, label = 'Main navigation'
           >
             {item.art ? <NavArt art={item.art} /> : (
               <svg width={24} height={24} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true">
-                <path d={FILL_ICON_PATHS[item.icon]} fill="currentColor" />
+                <use href={fillHref(item.icon)} fill="currentColor" />
               </svg>
             )}
             {active ? <span aria-hidden>{item.label}</span> : null}

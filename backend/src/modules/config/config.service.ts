@@ -54,6 +54,9 @@ export class ConfigService {
     featureFlags['uploads_enabled'] = await this.clamav.uploadsAvailable();
     // true while a new upload is accepted but waits for its virus scan before anyone can open it (UPLOAD_SCAN=defer, scanner down)
     featureFlags['uploads_pending_scan'] = await this.clamav.uploadsPendingScan();
+    // The web "under construction / trial version" notice: ON by default; an admin feature-flag row with key site_notice_enabled
+    // (enabled=false) switches it off without a deploy (applied by the loop below).
+    featureFlags['site_notice_enabled'] = true;
     const featureRollouts: Record<string, number> = {};
     try {
       const rows = await this.conn.collection('feature_flags').find({}).project({ _id: 0, key: 1, enabled: 1, rollout_percentage: 1 }).toArray();
