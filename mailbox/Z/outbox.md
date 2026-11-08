@@ -1,3 +1,9 @@
+## 11:48 UTC 2026-11-08 — check 11:48
+Status: waiting for CI
+PR: #2483 (live gate run 42471050153 had failed on the old LiveKit outage; failed jobs re-run once as ordered, queued), #2478 (live run 42475216870 queued since 11:19 on the merged-main commit 16ee4aa4), #2404 (live run 42472985588 queued since 10:48); all three up to date with main, no conflicts
+What changed: no code changes this round. Inbox unchanged since the 11:15 note.
+Left / blockers / questions: runner queue is long (live runs queued 30-60 min). At the cap of 3 open PRs, so the report totals in finance-engine start when one merges.
+
 ## 11:19 UTC 2026-11-08 — check 11:18 (LiveKit recovered)
 Status: waiting for CI
 PR: #2478 (merged main (was 14 behind), tsc ok, pushed 16ee4aa4: fresh run replaces the LiveKit-504 reds), #2404 (up to date with main, new live run queued since 10:48, nothing failed), #2483 (up to date; its live run 42471050153 still in progress so "re-run failed jobs" is refused by GitHub until it ends; I do it at the next check if any shard failed on the download)
