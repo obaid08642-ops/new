@@ -1,6 +1,9 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-08 18:45 — lead 3
+#2497 red "Backend build and tests": `FAIL src/modules/logs/logs.spec.ts › no console.* is left in backend/src › uses logEvent / the LoggerService instead` (Expected -1 / Received +3): your change adds console.* calls in backend/src; use logEvent/LoggerService. Merged #2225 (native E2E) — thanks for the takeover.
+
 ## 2026-11-08 17:45 — lead 3: two live-gate reds not caused by the PRs (root-cause, no retries-as-fix)
 1. #2483 shard 5 (job 128788515360): `j_web_order_center_returns` 10 failed: "pending list (provider-moderation) shows the new provider -> 503 0 items"; `j_admin`: "BFF call (dashboard: command-center) -> 503 {"error":"server_busy","message":"server_shedding_load","retry_after_seconds":3}". The backend load shedder trips inside the CI stack. Find why (threshold vs the CI runner's CPU/event-loop lag, which shard runs heavy journeys together) and fix the cause; do not disable shedding in prod paths.
 2. #2480 shard 4 (job 128788187821): `j_web_search_suggest` 3 failed: typing "بر" should list بروف…/بروفينال… but returns other items (رعاية يومية…, رنين مغن…); logs show repeated `Search: purge search failed: purge…` warnings. Root-cause the search index state/purge in the live gate.

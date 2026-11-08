@@ -9,6 +9,11 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-08 18:45 UTC
+- Merged by lead 3: #2496 (commission KPIs from real ledger rows) #2491 (doctors-page JS) #2480 (W gap 20) #2225 (native E2E, marked ready). Total today by me: 10.
+- #2497 red (console.* in backend/src) → Y. Pending: #2494 #2498 #2502 #2501 #2500 #2499 #2495 #2490 #2483 #2366.
+- LIVE main@a74179a8; main now well ahead; deploy after #2494 lands.
+
 ## Lead 3 run 2026-11-08 18:10 UTC
 - Merged: #2493 (offers sorted, best flagged) #2492 (gaps 13/15 deferred, docs). Earlier 18:00: #2484 #2398 #2420 #2486.
 - Waiting lane merge of main: #2490 (Z), #2366 (X). Pending CI: #2494 (mongo wait/retry + 96h), #2497 (Y shed in CI), #2498 (Y search suggest), #2495 #2496 (Z), #2491 (X), #2480 (W).
