@@ -21,6 +21,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useLang, useAuth, useToast } from '../../context';
+import { localeTag } from '../../i18n';
 import client from '../../api/client';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
 import { orderingStackScreens, ORDERING_ENTRY } from '../ordering';
@@ -660,7 +661,14 @@ function ProgressNotes({ patient, onBack }:{ patient:any; onBack:()=>void }) {
 // MEDICAL SUPPLIES
 // ══════════════════════════════════════════════════════════════════
 function MedicalSupplies({ onBack }:{ onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const [visits, setVisits] = useState<any[]>([]);
+ const [visitId, setVisitId] = useState<string | null>(null);
+ useEffect(() => { client.get('/nursing/jobs/active').then(r => {
+   const list: any[] = Array.isArray(r.data) ? r.data : [];
+   // The API returns only this nurse's active visits (the ones that can take a supply request).
+   setVisits(list); setVisitId(list[0]?.id ?? null);
+ }).catch(() => {}); }, []);
  const [newItem, setNewItem] = useState('');
  const [newQty, setNewQty] = useState('');
  const [supplies, setSupplies] = useState<any[]>([]);
@@ -675,17 +683,14 @@ function MedicalSupplies({ onBack }:{ onBack:()=>void }) {
  setLoading(true);
  try {
  await client.post('/home-care/inventory/request', {
+ booking_id: visitId,
  items: [{ name: newItem, qty: parseInt(newQty, 10), unit: 'pcs' }],
  });
- setSupplies(prev => [
- ...prev,
- { id: `ms_${Date.now()}`, name: newItem, nameEn: newItem, qty: parseInt(newQty, 10), unit: 'pcs', status: 'pending' }
- ]);
- show(AR ? 'تم طلب المستلزم من مخزن المستشفى بنجاح' : 'Supply requested from hospital inventory', 'success');
+ show(t('supplies.requested'), 'success');
  setNewItem('');
  setNewQty('');
  } catch (e: any) {
- show(e.message || 'Error requesting supply', 'error');
+ show(e?.message || t('supplies.failed'), 'error');
  } finally {
  setLoading(false);
  }
@@ -724,9 +729,20 @@ function MedicalSupplies({ onBack }:{ onBack:()=>void }) {
 
  <NDivider style={{marginVertical:SP.xl}} />
  <NSecHeader title={AR?'طلب مستلزم جديد':'Request New Supply'} />
+ <NSecHeader title={t('supplies.forVisit')} />
+ {visits.length === 0 ? (
+ <NCard style={{marginBottom:SP.md}}><Text style={{fontSize:FS.sm,color:theme.textSub,textAlign:AR?'right':'left'}}>{t('supplies.noVisit')}</Text></NCard>
+ ) : (
+ <View style={{flexDirection:AR?'row-reverse':'row',flexWrap:'wrap',gap:SP.sm,marginBottom:SP.md}}>
+ {visits.map(v => (
+ <NBtn key={v.id} size="sm" full={false} variant={visitId===v.id?'primary':'outline'} onPress={() => setVisitId(v.id)}
+ label={[v.service, v.scheduled_at ? new Date(v.scheduled_at).toLocaleDateString(localeTag(lang)) : null].filter(Boolean).join(' · ') || String(v.id)} />
+ ))}
+ </View>
+ )}
  <NInput label={AR?'اسم المستلزم':'Supply Name'} placeholder={AR?'قفازات طبية L':'Medical Gloves L'} value={newItem} onChange={setNewItem} />
  <NInput label={AR?'الكمية':'Quantity'} placeholder="1" value={newQty} onChange={v=>setNewQty(v.replace(/\D/g,''))} kbType="numeric" />
- <NBtn label={AR?'إرسال الطلب':'Submit Request'} disabled={!newItem.trim()||!newQty} loading={loading}
+ <NBtn label={AR?'إرسال الطلب':'Submit Request'} disabled={!visitId||!newItem.trim()||!newQty} loading={loading}
  onPress={handleRequest} />
  </NScroll>
  );

@@ -260,5 +260,9 @@
   "coverage.noGeofence": "لم يتم تحديد نطاق تغطية في ملفك بعد",
   "coverage.inside": "موقعك داخل نطاق تغطيتك",
   "coverage.outside": "موقعك خارج نطاق تغطيتك",
-  "coverage.distance": "المسافة من الموقع الأساسي: {distance} كم (نصف قطر التغطية {radius} كم)"
+  "coverage.distance": "المسافة من الموقع الأساسي: {distance} كم (نصف قطر التغطية {radius} كم)",
+  "supplies.requested": "تم إرسال طلب المستلزمات لهذه الزيارة",
+  "supplies.failed": "تعذر إرسال طلب المستلزمات",
+  "supplies.forVisit": "الزيارة المطلوب لها المستلزمات",
+  "supplies.noVisit": "ليس لديك زيارة مؤكدة لطلب المستلزمات لها."
 }

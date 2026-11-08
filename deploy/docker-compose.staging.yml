@@ -1,0 +1,62 @@
+# R6 — STAGING stack on ONE small VPS (docs/platform/R6-staging-stack.md). An OVERRIDE of docker-compose.production.yml: same images, same services, same code path,
+# smaller limits, and the services that need a second public IP, a real phone network or a lot of RAM switched off. DRY RUN ONLY in this repository: nothing here is applied;
+# the owner buys the VPS later. Use on the staging host only, never on the production host (container names are the same on purpose, so the production scripts work unchanged):
+#   docker compose --env-file .env.staging -p nabdah-staging -f docker-compose.production.yml -f docker-compose.staging.yml config      # prints the merged file, starts nothing
+# Staging has its OWN .env.staging (own database name, own secrets, test payment and mail keys, UPLOAD_SCAN=optional because clamav is off): never copy .env.production, never reuse
+# a production secret, never restore production data into it without the anonymising step of the R6 doc.
+# Off in staging (profile `off`, started only with --profile off): clamav (1.5 GB), fastapi, admin-web, livekit, coturn (calls need a public UDP range), certbot (staging uses one certificate by hand).
+# Sizes fit a 4 GB / 2 vCPU VPS with 1 GB left for the system; tools/ops/check-compose-limits.py still applies (logging rule) to this file's services.
+name: nabdah-staging
+
+services:
+  mongodb:
+    mem_limit: 768m
+    memswap_limit: 768m
+    mem_reservation: 512m
+  redis:
+    mem_limit: 128m
+    memswap_limit: 128m
+  redis-cache:
+    mem_limit: 64m
+    memswap_limit: 64m
+  meilisearch:
+    mem_limit: 384m
+    memswap_limit: 384m
+  backend:
+    env_file: !override [.env.staging]   # staging has its own env file only
+    mem_limit: 512m
+    memswap_limit: 512m
+    mem_reservation: 320m
+    environment:
+      NODE_OPTIONS: --max-old-space-size=384
+      NODE_ENV: production
+      APP_ENV: staging
+      MONGO_MAX_POOL_SIZE: "20"
+      MONGO_MIN_POOL_SIZE: "2"
+  worker:
+    env_file: !override [.env.staging]
+    mem_limit: 384m
+    memswap_limit: 384m
+    environment:
+      APP_ENV: staging
+      MONGO_MAX_POOL_SIZE: "10"
+      MONGO_MIN_POOL_SIZE: "2"
+  patient-web:
+    mem_limit: 384m
+  nginx:
+    mem_limit: 96m
+    memswap_limit: 96m
+    depends_on: !override [backend]   # production waits for admin-web and livekit, which are off here (upstreams use `resolve`); `!override` needs docker compose >= 2.24
+  clamav:
+    profiles: ["off"]
+  fastapi:
+    env_file: !override [.env.staging]
+    profiles: ["off"]
+  admin-web:
+    profiles: ["off"]
+  livekit:
+    profiles: ["off"]
+  coturn:
+    profiles: ["off"]
+  certbot:
+    profiles: ["off"]

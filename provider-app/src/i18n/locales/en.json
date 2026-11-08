@@ -260,5 +260,9 @@
   "coverage.noGeofence": "No coverage area is set on your profile yet",
   "coverage.inside": "Your location is inside your coverage area",
   "coverage.outside": "Your location is outside your coverage area",
-  "coverage.distance": "Distance from base: {distance} km (coverage radius {radius} km)"
+  "coverage.distance": "Distance from base: {distance} km (coverage radius {radius} km)",
+  "supplies.requested": "Supply request sent for this visit",
+  "supplies.failed": "Could not send the supply request",
+  "supplies.forVisit": "Visit the supplies are for",
+  "supplies.noVisit": "You have no confirmed visit to request supplies for."
 }
