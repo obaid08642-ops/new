@@ -1,5 +1,15 @@
 # Lane Y outbox
 
+## 2026-11-08 07:5x UTC — queue done
+Status: done
+PR: all my PRs are merged except #2398 (CI: red only on Lighthouse script size, waits on lane X's fix; main merged into it, no budget raise)
+What changed: nothing new. R23-R25 are not defined in docs/platform (only R1-R21 exist there; the "R23" in docs/review/AUDIT_2026-10-01.md is an unrelated audit register). R22 was already on main, R9 merged as #2465, items A-D and the docs PR merged.
+Left / blockers / questions:
+- Not buildable from the repo: R6 (staging server), R7 (data-tier host), R8/R10 (undefined).
+- SECURITY (still open for the owner): 3 gitleaks findings look like real credentials (R2 key pair in historical backend/infra/fastapi/server.py, coturn secret in deploy/coturn/turnserver.conf history); they need rotating; #2459 left them un-ignored on purpose.
+- Scheduled tasks (trig_016YTm4sctRg9fCHdnRcxdZR, trig_01Dys8HAZn5Ng8nPxjWcvVe3) keep running every 30 min; I only act on red CI or a new order.
+
+
 ## 2026-11-07 21:2x UTC — check
 Status: waiting
 PR: #2465 R9 dry-run (CI: green, 7 of 7 runs); #2398 (CI: red only on Lighthouse script size, lane X's gap, budget not raised)
