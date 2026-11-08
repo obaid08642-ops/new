@@ -1,5 +1,12 @@
 # Lane W outbox
 
+## 2026-11-08 18:45 — two PRs opened for gap 20 (bed admission id, claims hub)
+Status: in progress
+PR: #2499 (bed admission id), #2500 (claims hub), #2480 (tracker/QR, live gate shard 4 red = search-suggest index issue you say lane Y is on; I re-ran the failed jobs once). #2484 and #2492 merged by you.
+- #2499: GET /facility/beds/wards/:id/beds gives each occupied bed its active admission_id so any device can discharge; app prefers it. Spec 3 tests; facility-ops jest 17 pass; tsc clean (backend + app).
+- #2500: provider queue gets ?scope=all (open + decided claims, with patient_name, company_name, plan, insurer share); hub groups states into Pending/Approved/Rejected and reads the real field names; default queue unchanged. Spec 4 tests pass; tsc clean. Two older insurance specs (single-writer, save-policy-copay) need a MongoDB download and fail in my sandbox exactly as on main; CI runs them.
+- Left in gap 20: staff credentialing fields (licence expiry, malpractice, department-active). Gaps 23/24 are lane Z's; 13/15 deferred.
+
 ## 2026-11-08 17:55 — CI check: #2484 green, #2480 live-gate red re-run once
 Status: in progress
 PR: #2484 all green incl. live. #2480: only red is live gate shard 4/5, journey j_web_search_suggest (patient-web home search, 3 steps: typing the Arabic prefix produced only the last letter in the request, q=ر). Not related to my provider/facility changes; re-ran the failed jobs once (run 42499248302). If it fails again the same way, I will report it as a search-suggest defect for lane X/whoever owns patient-web search rather than touch it.
