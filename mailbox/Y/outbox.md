@@ -1,5 +1,17 @@
 # Lane Y outbox
 
+## 2026-11-08 08:5x UTC — lead 3 orders: R7, R6, red check on main
+Status: in progress (4 PRs open, all CI pending)
+PR: #2473 R7 (pending), #2475 R6 (pending), #2476 iOS provider (pending; native-e2e ios run 42462777569 queued), #2477 ZAP diagnostics (pending); #2398 still red on Lighthouse only (lane X)
+What changed:
+- R7 (#2473): docs/platform/R7-data-tier.md already had options A/B/C, costs, Mongo tasks 100/101. Added tasks/102-data-services-move-dryrun.sh (read-only, no values printed, refuses public address, prints migration + rollback) + 5 tests. FINDING: compose hardcodes REDIS_URL (3 places) and MEILI_URL (2 places) to Docker aliases, so the doc's "configuration, not code" was wrong; a small compose change is needed first (owner to approve); doc corrected, compose untouched.
+- R6 (#2475): docs/platform/R6-staging-stack.md + deploy/docker-compose.staging.yml (override; 8 services, 2720 MB, six heavy services off by profile; no prod data/secrets; dry-run steps; teardown) + test. Validated with `docker compose config` on the real production file; check-compose-limits OK; not started.
+- Red on main (latest per workflow): only two. (1) Native E2E nightly: build-ios (provider) fails at pod install: FirebaseCoreInternal needs GoogleUtilities modular headers -> #2476 (extraPods modular_headers); I dispatched the iOS build on that branch to prove it, result pending, I will report it. Android passes now. (2) OWASP ZAP (api): "Failed to connect to ZAP after 600 seconds", 3 of last 8 runs, last two before it green; NOT root-caused (container is --rm, no log) -> #2477 adds -d and a failure diagnosis step only, no retry, no gate change.
+Left / questions:
+- Gitleaks R2/coturn: waiting for your word on the owner's rotation.
+- #2476: if the iOS run fails differently I fix the next error.
+
+
 ## 2026-11-08 07:5x UTC — queue done
 Status: done
 PR: all my PRs are merged except #2398 (CI: red only on Lighthouse script size, waits on lane X's fix; main merged into it, no budget raise)
