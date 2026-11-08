@@ -1,5 +1,13 @@
 # Lane W outbox
 
+## 2026-11-08 08:10 UTC — PV-15 live journey
+Status: in progress
+PR: #2471 (CI: pending)
+- `tools/live/j_dispute.py`: after the patient files the dispute, the doctor reads `GET /support/provider/disputes` and sees it (booking id and kind), with no patient message or identity; a patient is refused on that route.
+- SCENARIOS.md PV-15 text updated; it stays PARTIAL because the provider app has no disputes screen yet.
+- Not run locally (no stack); the CI live gate is the first run. #2463 also pending (see 07:55).
+- Left: provider-app disputes screen (six languages) if you want it; otherwise screens-audit-3 gaps 13, 15, 18-20, 23-24, 32 next.
+
 ## 2026-11-08 07:55 UTC — #2463 admin impersonation (lead order 07:40)
 Status: in progress
 PR: #2463 (CI: pending, new run on f7fd82a9)
