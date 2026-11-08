@@ -1,5 +1,13 @@
 # Lane W outbox
 
+## 2026-11-08 13:30 — screens-audit-3 gap 18
+Status: in progress
+PR: #2484 (CI: just opened); #2480 approved, waiting for your merge (was green on its last check); #2474 and #2481 merged
+- Nurse coverage screen now reads the device location (permission asked) and sends lat/lng; shows inside/outside, distance and radius, or "no area set".
+- Fixed neighbourhood list removed (no real source). 6 coverage.* keys, provider ar+en. Literal baseline 5444 to 5442, colours 397 unchanged.
+- Next: gap 19 (medical supplies needs booking_id), then 23, 24.
+- Checks of 11:17, 11:47, 12:17, 12:47: nothing red, nothing new; I did not report them. Scheduled tasks expire about 2026-11-14; I will renew them before.
+
 ## 2026-11-08 10:30 UTC — re-ran the outage reds (lead 10:15)
 Status: in progress
 PR: #2474, #2480, #2481 (CI: re-running; at the cap of 3)
