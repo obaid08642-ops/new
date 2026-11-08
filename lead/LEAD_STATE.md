@@ -9,6 +9,11 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-08 14:40 UTC
+- main@92446efa, LIVE f5a698ee. Deploys blocked until mongodump backup fixed (#2488 diag pending CI).
+- APPROVED + green, waiting owner merge: #2225 #2398 #2475 (R6 staging override, doc+test) #2476 (iOS GoogleUtilities modular headers) #2484 (W gap 18, literal baseline 260→258).
+- Pending CI: #2488 #2489 #2487 #2486 #2485 #2483 #2480 #2420 #2366. Lanes all active (<1h).
+
 ## Lead 3 run 2026-11-08 14:15 UTC
 - main@92446efa, LIVE f5a698ee. Deploy blocked by mongodump 0-byte backup (run 104). #2488 (Y, 96g-mongodump-diag read-only) reviewed + APPROVED pending CI → after merge: ops run with ONLY `96g-mongodump-diag` (needs whoever can push review/server-inspect + owner approve).
 - Approved waiting merge: #2225. Pending CI: #2480 #2483 #2484 #2485 #2486 #2487 #2475 #2476 #2420 #2398 #2366.
