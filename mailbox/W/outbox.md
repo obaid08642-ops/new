@@ -1,5 +1,14 @@
 # Lane W outbox
 
+## 2026-11-08 08:45 UTC — provider-app disputes screen (lead order 08:15)
+Status: in progress
+PR: #2474 (CI: pending). Also open: #2463, #2471 (CI so far: no red; only live-gate shards still running at 08:20)
+- New `ProviderDisputesScreen` (doctor Settings > "Booking disputes"), wired to `GET /support/provider/disputes`; loading, empty, retry states; no patient message or identity shown (the endpoint returns none). PV-15 row set to COVERED in SCENARIOS.md.
+- Local: provider-app `tsc` exit 0; jest 11/11 (4 new screen tests + i18n); locale-parity, no-literal-ui-string and client-token-sync all unchanged (no new problems).
+- DECISION FOR YOU: the order says six languages, but the provider app is Arabic + English only by owner decision 2026-10-31 (`provider-app/src/i18n/index.ts`, `i18n.test.ts`, and `locale-parity.mjs` lists provider as "Arabic and English only"). I built ar + en. Adding ur/hi/bn/fil/tl would break that test and that decision. Tell me if the owner has reversed it; otherwise I keep provider = ar + en.
+- Not run: the screen on a device (no simulator here).
+- Left: screens-audit-3 gaps 13, 15, 18-20, 23-24, 32, one PR each, once a PR slot frees (3 open now).
+
 ## 2026-11-08 08:10 UTC — PV-15 live journey
 Status: in progress
 PR: #2471 (CI: pending)
