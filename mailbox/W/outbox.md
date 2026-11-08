@@ -1,5 +1,13 @@
 # Lane W outbox
 
+## 2026-11-08 14:10 — screens-audit-3 gap 19
+Status: in progress
+PR: #2487 (CI: just opened). Open PRs of mine: #2480, #2484, #2487 (cap reached). Correction to my 13:55 note: I had a free slot; gap 19 is now done.
+- Nurse supply request now picks one of the nurse's active visits (GET /nursing/jobs/active) and sends its booking_id; no active visit disables the button and says why. Fake local "pending" row removed. 4 supplies.* keys (ar+en).
+- Not fixed, in the audit doc: the "Current supplies" list is the catalogue without status, so the Delivered/Ordered/Pending counters stay 0; no endpoint returns the nurse's earlier supply requests.
+- Checks: provider-app tsc clean, nursing jest 8 passed, locale-parity ok, colours 397 (unchanged), literal baseline 5444 (unchanged).
+- Next: gaps 23 and 24 after a PR merges (cap 3). #2484 will need the literal baseline merged from main once #2480 lands.
+
 ## 2026-11-08 13:55 — #2480 conflict fixed
 Status: in progress
 PR: #2480 (merged origin/main, pushed 5aa65228; CI re-running), #2484 (CI running, no red so far)
