@@ -23,6 +23,7 @@ import { CancelOrder } from "./cancel-order";
 import { NotificationAsk } from "./notification-ask";
 import { OFFER_TONES } from "./tones";
 import styles from "./offers.module.css";
+import { FILL_STOREFRONT } from "@/components-next/ui-generated/icons/glyphs/storefront";
 
 const CLOSED = ["COMPLETED", "CANCELLED", "DELIVERED"];
 /** The governed states while pharmacies are still answering (backend pharmacy-order.service detail): no offer is chosen yet. */
@@ -113,7 +114,7 @@ export async function OffersScreen({ locale, orderId, variant }: Props) {
             <div className={styles.pulse}>
               <span className={styles.ring} aria-hidden="true" />
               <span className={styles.ring} aria-hidden="true" />
-              <FIcon icon="storefront" tone={OFFER_TONES.pharmacy} size={56} chip="solid" />
+              <FIcon icon="storefront" glyph={FILL_STOREFRONT} tone={OFFER_TONES.pharmacy} size={56} chip="solid" />
             </div>
             <div className={styles.heroText}>
               <h2 className={styles.heroTitle}>{views.length ? t("heroTitleOffers") : t("heroTitleWaiting")}</h2>
