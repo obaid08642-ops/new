@@ -1,3 +1,9 @@
+## 18:48 UTC 2026-11-08 — check 18:47: #2496 merged; the backfill dry run needs a test database I do not have
+Status: waiting for CI and merges
+PR: #2496 merged (thanks). #2490 (live gate running since 18:20, no failure), #2483 and #2495 (live gate queued, no failure); all three up to date enough (no conflicts; 57 commits behind main, the merge commits already resolved)
+What changed: nothing pushed. Inbox: no new order since 18:00.
+Left / blockers / questions: the planned backfill dry run (orders, appointments, labbookings, radiologybookings, homecarebookings) cannot be done from my sandbox: there is no MongoDB here (the memory-server binary download is blocked) and I must not point it at staging or production. Proposal: you or ops run `halala-backfill` in dry-run mode on the test database after #2490 merges, and send me the unclean counts per collection; I will fix whatever it lists (float-drift values). Until then my lane has no further queued item: tell me the next order, or I will look for money-path bugs in refunds/payouts/settlement (file:line in the PR).
+
 ## 18:20 UTC 2026-11-08 — check 18:18: #2486 merged, three conflicts fixed
 Status: in progress
 PR: #2483 (merged main, R11 doc P2 row only, pushed 14ab3ae4), #2490 (merged main, R11 doc rows, pushed f0eb43fa), #2495 (merged main, only two adjacent imports in finance-engine.module.ts, both kept, 23 tests pass, pushed 412c1e85); #2496 (no conflict, 29 behind main, CI queued earlier). CI re-running on all of them.
