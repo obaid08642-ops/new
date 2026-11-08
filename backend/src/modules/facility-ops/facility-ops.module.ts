@@ -58,7 +58,16 @@ export class BedsService {
   async getWardBeds(facilityId: string, wardId: string) {
     const ward = await this.wardModel.findOne({ id: { $eq: wardId }, facility_id: { $eq: facilityId } }).lean();
     if (!ward) throw new NotFoundException('ward_not_found');
-    return this.bedModel.find({ ward_id: { $eq: wardId } }).lean();
+    const beds: any[] = await this.bedModel.find({ ward_id: { $eq: wardId } }).lean();
+    // An occupied bed carries the id of its active admission, so any staff member on any device can discharge it
+    // (the app used to keep that id only in the admitting device's own storage).
+    const occupied = beds.filter((b) => b.status === 'occupied').map((b) => String(b.id));
+    if (!occupied.length) return beds;
+    const active: any[] = await this.admissionModel
+      .find({ facility_id: { $eq: facilityId }, bed_id: { $in: occupied }, status: 'active' })
+      .lean();
+    const byBed = new Map<string, string>(active.map((a) => [String(a.bed_id), String(a.id)]));
+    return beds.map((b) => (b.status === 'occupied' ? { ...b, admission_id: byBed.get(String(b.id)) ?? null } : b));
   }
 
   async createWard(facilityId: string, name: string, totalBeds: number) {
