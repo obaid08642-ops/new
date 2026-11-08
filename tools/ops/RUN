@@ -1,6 +1,8 @@
-# 2026-11-08 09:45 lead: run 104 = deploy main@92446efa.
-# Brings: site notice bar (#2424, admin flag site_notice_enabled, default ON), web lazy search/home (#2445, #2448), medical orders UI M6 (#2482), insurance/returns live gate (#2404), refund + halala math (#2478), provider disputes screen (#2474), audit gap fix (#2481), CI: LiveKit download cache (#2479), ZAP diagnostics (#2477).
-release:92446efae9ea04edb462a5a0cf2e22bcab679ed6
+# 2026-11-08 13:30 lead: run 105 = mongodump diagnosis (read-only) + deploy main@a74179a8.
+# Run 104 ABORTED before changing anything: the pre-deploy backup failed (mongodump exit 1, no error text). 96g prints the real mongodump error (names only).
+# The deploy step aborts again by itself if the backup still fails (nothing changes on the server then).
+release:a74179a87ae1b06c16a73c5a2d9906e3b5d40a51
+96g-mongodump-diag
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
