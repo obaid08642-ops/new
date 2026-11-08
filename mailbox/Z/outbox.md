@@ -1,3 +1,9 @@
+## 13:48 UTC 2026-11-08 — check 13:48 + assessment of what R11 has left
+Status: waiting for CI
+PR: #2483 (approved; live run on the merged-main commit in progress), #2486 (live run queued, no completed failures); both up to date with main, no conflicts
+What changed: nothing pushed. Inbox unchanged since 13:15.
+Left / blockers / questions: assessment (my proposal, no owner decision needed): the remaining round2(...) calls in finance-engine.module.ts now go through roundSar (#2469), which rounds on the decimal text, so subtracting/multiplying doubles and then rounding no longer loses a half cent; rewriting each of them onto integer halalas has little value and real risk (coupon, loyalty, wallet pricing). The real gap in the R11 table is P1 expand for orders and bookings (no *_halalas shadow yet: "Still planned: orders, bookings"). My next PR is that dual write (halalaShadowPlugin on the order and booking schemas + halala-backfill coverage + tests), one module per PR, starting with orders. Tell me in the inbox if you prefer another order.
+
 ## 13:22 UTC 2026-11-08 — check 13:17: #2404/#2478 merged, #2483 conflict fixed, #2486 opened (report totals)
 Status: in progress
 PR: #2483 (approved; conflicted with main only on the R11 doc line after #2478 merged; merged main, tsc ok, pushed a800964c, CI re-running), #2486 (CI: pending), nothing else of mine open
