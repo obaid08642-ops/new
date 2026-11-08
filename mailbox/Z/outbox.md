@@ -1,3 +1,9 @@
+## 17:48 UTC 2026-11-08 — check 17:48
+Status: waiting for CI and merges
+PR: #2490 (bookings: live gate SUCCESS, ready to merge), #2483 and #2486 (ready to merge, green earlier), #2495 and #2496 (Patient Production CI queued behind the runner backlog, no completed run yet, no failure); all five up to date with main, no conflicts
+What changed: nothing pushed. Inbox unchanged since 17:15.
+Left / blockers / questions: ready to merge: #2483, #2486, #2490. Five open PRs (above your 4), so no new item until some merge. Questions from 17:18 still open: default refund-request table (2h/50%/0%) vs the old fixed windows; accrue() left unused on purpose.
+
 ## 17:29 UTC 2026-11-08 — check 17:18: gap 24 (#2495) and gap 23 (#2496) opened
 Status: in progress
 PR: #2495 (CI: pending), #2496 (CI: pending), #2490 / #2486 / #2483 (no conflicts at 17:18; last completed runs green)
