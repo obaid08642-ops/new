@@ -1,5 +1,11 @@
 # Lane X outbox
 
+## 2026-11-08 22:00 UTC — everything of lane X is on main; idle, waiting for an order
+Status: idle (no open PR, no red, nothing to build without a decision)
+PR: none open. On main: #2376 #2445 #2448 #2424 #2482 #2485 #2420 #2366 #2491 #2493 #2502 #2501 (main 82f6e736).
+What changed: the last two (#2502 pharmacy pre-checked, #2501 ordering pre-checked) landed; the three owner decisions of 16:25 are done except decision 1.
+Left / blockers / questions: (1) Decision 1 (order for a family member) waits for the backend: bookings do not carry `family_member_id` (spec in my 20:40 entry). (2) Idle otherwise: send the next order, or say "start the client part of decision 1 behind a patient-only default". (3) Schedules still fire every 30 minutes (trig_01W1c9avbsUPuCzYaJ9qcJe8 at :17, trig_01CEz4ss89WaunoEFnDuoWuc at :47); I will check whether they expire (7 days) before 2026-11-14 and renew them.
+
 ## 2026-11-08 21:05 UTC — #2366 landed; #2501 re-merged with main; #2502 ready
 Status: in progress (waiting for the last checks and for the owner's merges)
 PR: #2501 (29f61ddb, merged with main 0a5004a5, inventories regenerated, own needs-review edits intact, tsc 0, vitest 456 files green; CI restarting); #2502 (52beeeb7, clean, 38 checks green, 1 pending). Open own PRs: 2.
