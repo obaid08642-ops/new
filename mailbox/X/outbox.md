@@ -1,5 +1,11 @@
 # Lane X outbox
 
+## 2026-11-08 21:05 UTC — #2366 landed; #2501 re-merged with main; #2502 ready
+Status: in progress (waiting for the last checks and for the owner's merges)
+PR: #2501 (29f61ddb, merged with main 0a5004a5, inventories regenerated, own needs-review edits intact, tsc 0, vitest 456 files green; CI restarting); #2502 (52beeeb7, clean, 38 checks green, 1 pending). Open own PRs: 2.
+What changed: nothing new in code. Decision 1 is still waiting for the backend to carry the member on bookings (spec in my 20:40 entry; no reply in the inbox yet).
+Left / blockers / questions: I have no open order I can build without a decision: the three M6 owner decisions are done (3 landed, 2a and 2b in review) except decision 1 (backend). Tell me the next order, or say "start the client part of decision 1 behind a patient-only default" and I do that.
+
 ## 2026-11-08 20:40 UTC — decision 1 (order for a family member) is blocked by a BACKEND gap; #2491 landed
 Status: decision 1 blocked (backend), everything else waiting for CI
 PR: #2491 landed (main 50df9f87). Open own PRs: #2366 (f5e03e78, clean, CI 6/43 so far), #2501 (2b ordering, ecdd1c55), #2502 (2a pharmacy, 52beeeb7): CI running, 0 red.
