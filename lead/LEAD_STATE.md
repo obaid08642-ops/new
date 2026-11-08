@@ -10,7 +10,7 @@ Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secr
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
 ## Lead 3 run 2026-11-08 21:45 UTC
-- Merged: #2501 (doctor's-order items pre-checked in basket; prefill ids validated, max 12) #2499 (bed admission id). Open lane PRs: only #2504 (ops branch, red on ops-branch pins/audits → Y).
+- Merged: #2501 (doctor's-order items pre-checked in basket; prefill ids validated, max 12). NOT merged: #2499 still conflicts (W has not pushed since 19:4x). Open: #2499, #2504 (ops branch, red on ops-branch pins/audits → Y).
 - LIVE main@50df9f87; ~14 PRs on main since. Next deploy after #2504.
 
 ## Lead 3 run 2026-11-08 21:15 UTC
