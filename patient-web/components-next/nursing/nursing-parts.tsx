@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { SERVICE_ICONS, type FillIconName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 import styles from "./nursing.module.css";
+import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
 /** The nursing service's own icon and tone, from the handoff service map (never written as a colour name). */
 export const NURSING = SERVICE_ICONS.nursing;
@@ -134,7 +134,7 @@ export function NurseFacts({ facts, available }: { facts: string[]; available?: 
 export function NursingPackageCard({ href, title, sub, price, cta, icon }: { href: string; title: ReactNode; sub?: string; price?: string; cta: string; icon: FillIconName }) {
   return (
     <Link href={href} className={styles.pack}>
-      <FIcon icon={icon} tone={NURSING.tone} size={48} />
+      <FIconByName icon={icon} tone={NURSING.tone} size={48} />
       <span className={styles.packBody}>
         <span className={styles.packName}>{title}</span>
         {sub ? <span className={styles.packDesc}>{sub}</span> : null}

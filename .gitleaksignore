@@ -67,3 +67,41 @@ c51da700ef932546ae288651e54624b5f3899d2e:backend/src/modules/payments/payment-ch
 55270a0276c511e85dc91908cbaf424b5f8ac0d1:tools/ops/tests/test_turn_env.py:generic-api-key:12
 # - R15 (#2439): fake provider-credential fixtures in the first version of tools/ops/tests/test_auto_reboot.py (now built at run time); the commit stays in history
 d9c998b23270877db738d0d1ff06acdf93e57911:tools/ops/tests/test_auto_reboot.py:generic-api-key:111
+
+# gitleaks full-history, 2026-11-07: reviewed by file, all are test fixtures or placeholders (values not repeated here). Fingerprint = commit:file:rule:line.
+# monitor test script: fake value
+10582a4fc3bfb63d0d4b50457e6b1df1fd4620c4:tools/ops/monitor/test-monitor.sh:generic-api-key:142
+# admin http client unit test: fake token strings
+112074fb3fc8082217db6fdaf9cfd2db0a410a00:admin/src/lib/http/__tests__/client.test.ts:generic-api-key:221
+# admin http client unit test: fake token strings
+18077312e1281476c3c136b0f36659ea517a4d49:admin/src/lib/http/__tests__/client.test.ts:generic-api-key:221
+# rehearsal script: placeholder mail-provider values for a local fake mail server
+3640ee292e5fa2197f71f567e13f8b966c1efb4b:tools/ops/rehearsal/mail-scenarios.sh:generic-api-key:18
+# unit test of secret scrubbing: fake values
+486191c670c8eb1e0f91bb938a2ec7d054a4e245:backend/src/common/secret-scrub.spec.ts:generic-api-key:14
+# admin http client unit test: fake token strings
+49b17e7ece2c5b696228dc2f1ca5571471cace9c:admin/src/lib/http/__tests__/client.test.ts:generic-api-key:221
+# rehearsal script: placeholder mail-provider values for a local fake mail server
+5707aaa7514d15cc8311fd280018700bcf339388:tools/ops/rehearsal/mail-scenarios.sh:generic-api-key:18
+# acceptance test server: fixed fake test secret
+69d8c3d88ff85f817dbaae0b67e0faf5e7593d5b:backend/acceptance/d-16/live-server.ts:generic-api-key:16
+# admin http client unit test: fake token strings
+80d5a558854a751f550611692675cf59f0ae9a05:admin/src/lib/http/__tests__/client.test.ts:generic-api-key:221
+# unit test: throw-away generated test key material, not a credential
+88ba60a72a2c505310958fef955844a4c9f59592:tools/ops/tests/test_push_keys.py:private-key:10
+# patient-web test fixture: fake value
+9260da1838cb67a057ed29172e2aaf6548314ec0:patient-web/tests/wpk-nurse-booking.test.ts:generic-api-key:47
+# unit test fixture: fake payment-key strings to test the env checker
+aca106ba9f480ee1b4375d93f0d988ad357a9161:tools/payments/check-moyasar-env.test.mjs:stripe-access-token:11
+# unit test fixture: fake payment-key strings to test the env checker
+aca106ba9f480ee1b4375d93f0d988ad357a9161:tools/payments/check-moyasar-env.test.mjs:stripe-access-token:4
+# CI rehearsal: throw-away test key for the local stack
+b752ce5462182f1ccf2dd3bb268cf95f668a65b4:.github/workflows/ops-rehearsal.yml:generic-api-key:177
+# CI rehearsal: throw-away test key for the local stack
+b752ce5462182f1ccf2dd3bb268cf95f668a65b4:.github/workflows/ops-rehearsal.yml:generic-api-key:189
+# curl header built from a variable, no literal credential
+b752ce5462182f1ccf2dd3bb268cf95f668a65b4:tools/ops/tasks/60-deploy-main.sh:curl-auth-header:159
+# patient-app test fixture: fake value
+f0ab3488b07b5c274efef0b29cce33f9e9b0c0a8:patient-app/src/__tests__/receipt/receipt-screen.test.tsx:generic-api-key:51
+# local test script: fake test secret
+fd59d435e68207e370a3e39d2cf51617c3300065:backend/scripts/test-extensions.ts:generic-api-key:27

@@ -12,9 +12,9 @@ import { RowsCard } from "@/components-next/health/health-kit";
 import { FormSheet } from "@/components-next/health/form-sheet";
 import { AddEventForm, DeleteEventButton } from "@/components-next/family/calendar-actions";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { SERVICE_ICONS, type FillIconName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import health from "@/components-next/health/health.module.css";
+import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ add?: string | string[] }> };
 
@@ -77,7 +77,7 @@ export default async function FamilyCalendarPage({ params, searchParams }: Props
             return (
               <li key={event.id}>
                 <div className={health.row}>
-                  <FIcon icon={look.icon} tone={look.tone} size={40} />
+                  <FIconByName icon={look.icon} tone={look.tone} size={40} />
                   <span className={health.rowBody}>
                     <span className={health.rowTitle}>{event.title ?? t("calendarEvent")}</span>
                     {event.member ? <span className={health.rowSub}>{event.member}</span> : null}

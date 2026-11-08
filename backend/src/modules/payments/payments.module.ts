@@ -3,6 +3,7 @@ import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
+import { toHalalas } from '../../common/money';
 import { Transaction, TransactionSchema } from '../../schemas/transaction.schema';
 import { DiagnosticsIntentDto, IntentMethodDto, RefundPaymentDto } from './payments.dto';
 import { OrderSchema } from '../../schemas/order.schema';
@@ -445,7 +446,7 @@ export class PaymentsService {
     await this.events.emitAsync('moyasar.payment.paid', {
       id: String(t.gateway_charge_id || t.gateway_intent_id || t.id),
       event_id: `txn_${t.id}`,
-      amount_halalas: Math.round(Number(t.amount) * 100),
+      amount_halalas: Number.isSafeInteger(t.amount_halalas) ? t.amount_halalas : toHalalas(Number(t.amount)),
       currency: String(order.pricing_snapshot?.totals?.currency || 'SAR'),
       metadata: {
         order_id: order.id,

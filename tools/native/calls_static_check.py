@@ -50,7 +50,7 @@ def manifest_from_aapt_dump(text):
             key, val = a.groups()
             if cur.get('tag') == 'perm' and key == 'name': perms.add(val)
             elif cur.get('tag') == 'service': cur['name' if key == 'name' else 'permission'] = val
-            elif cur.get('tag') == 'action' and key == 'name': cur['svc']['actions'].add(val)
+            elif cur.get('tag') == 'action' and 'svc' in cur and key == 'name': cur['svc']['actions'].add(val)
     return perms, services
 
 

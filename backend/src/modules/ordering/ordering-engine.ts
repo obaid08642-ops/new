@@ -1,6 +1,8 @@
 // M3 ordering engine: the pure parts (distance, ranking, split suggestion, time windows). No database here, so every
 // rule can be tested on its own; OrderingService does the loading and the writing.
 
+import { roundSar } from '../../common/money';
+
 export type Mode = 'home' | 'facility';
 
 export interface Candidate {
@@ -49,7 +51,7 @@ export function haversineKm(aLat: number, aLng: number, bLat: number, bLng: numb
 }
 
 export const round1 = (n: number) => Math.round(n * 10) / 10;
-export const round2 = (n: number) => Math.round(n * 100) / 100;
+export const round2 = roundSar;
 
 export function totalOf(c: Candidate, catalogIds: string[], mode: Mode): number {
   return round2(catalogIds.reduce((s, id) => s + (c.prices[id] ?? 0), 0) + (mode === 'home' ? c.home_fee : 0));
