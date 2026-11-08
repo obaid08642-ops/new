@@ -7,6 +7,7 @@ from lib import Client, journey, step, uniq, phone
 
 FACILITY_SCREEN_GETS = ['/facility/beds/wards', '/facility/beds/admissions', '/facility/inbox', '/facility/shifts', '/facility/shifts/attendance',
                         '/facility/surgeries/schedule', '/hospital/branches', '/hospital/staff', '/insurance/requests/provider/queue',
+                        '/insurance/requests/provider/queue?scope=all',
                         '/provider/facility/patients/active', '/provider/jobs/queue?status=active&kind=appointment&today=true',
                         '/provider/jobs/queue?status=incoming', '/provider/jobs/queue?status=active', '/provider/ops/wallet/ledger',
                         '/provider/stats/today', '/facility/announcements', '/provider/facility/audit-logs', '/facility/resources',
