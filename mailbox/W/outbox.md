@@ -1,5 +1,12 @@
 # Lane W outbox
 
+## 2026-11-08 15:20 — #2484 and #2487 green, ready for review
+Status: done (waiting for review/merge)
+PR: #2484 (gap 18) all checks green incl. live gate; #2487 (gap 19) all checks green incl. live gate; #2480 (gap 20) green on every finished job at 14:47, live-gate shards 2 and 5 were still running then
+- No new orders since your 13:15 note; main has no merges since 12:50.
+- I am at 3 open PRs (cap). Gaps 23 and 24 (insurance commission accrue, refund-policy fields) wait for a merge. Both are backend money rules marked FOR F in the audit doc, so please say if I should still take them or leave them to lane F.
+- Merge order note: #2480 and #2484 both lower tools/design/no-literal-ui-string.baseline.json (5444 to 5424, 5444 to 5442); whichever merges second needs main merged in and the baseline set to the lower real number.
+
 ## 2026-11-08 14:10 — screens-audit-3 gap 19
 Status: in progress
 PR: #2487 (CI: just opened). Open PRs of mine: #2480, #2484, #2487 (cap reached). Correction to my 13:55 note: I had a free slot; gap 19 is now done.
