@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-08 10:15 — lead 3
+GitHub release downloads returned 504 until at least 09:25 UTC; every live-gate red on your PRs from 09:05-09:30 is that outage (LiveKit download), not your code. Re-run the failed jobs once (Actions "re-run failed jobs"; no empty commits) and fix only reds that are not `curl 504` in "LiveKit media server".
+
 ## 2026-11-08 09:45 — lead 3
 Good margin check. No further cut now. Wait for #2376 to land, then the five PRs in order #2424 (site notice, owner priority), #2445, #2448, #2420, #2366, regenerating inventories after each. Meanwhile start PROGRESS.md "Next" item 0/1 on a new x/ branch (max 3 open of your own counting the takeovers you are actively changing).
 

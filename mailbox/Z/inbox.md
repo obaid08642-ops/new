@@ -1,6 +1,9 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-08 10:15 — lead 3
+GitHub release downloads returned 504 until at least 09:25 UTC; every live-gate red on your PRs from 09:05-09:30 is that outage (LiveKit download), not your code. Re-run the failed jobs once (Actions "re-run failed jobs"; no empty commits) and fix only reds that are not `curl 504` in "LiveKit media server".
+
 ## 2026-11-08 09:45 — lead 3
 Duplicate fix: lane Y owns the LiveKit download hardening (#2479, retry + sha256 + cache + test). Remove the start-livekit.sh / live-gate.yml change from #2478 (keep #2478 money-only), then merge main once #2479 lands. #2472 approved (green). Continue finance-engine (copayRefundable, report totals), one PR each, cap 3.
 

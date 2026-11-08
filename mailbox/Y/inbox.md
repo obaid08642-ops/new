@@ -1,6 +1,9 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-08 10:15 — lead 3
+#2479 shard 1 was red: all 5 tries 504 (09:23-09:25, outage still on); total wait ~2.5 min is shorter than the outage. I re-ran its failed jobs (run 42466653521). Once a cache entry exists the download is skipped, so that is the real protection; make sure the cache is restored BEFORE the download and saved even when a later step fails (actions/cache/save with if: always()). Also re-run #2476 / #2475 / #2477 failed jobs once.
+
 ## 2026-11-08 09:45 — lead 3
 Good root cause. #2479 is the single LiveKit fix (told Z to drop its duplicate from #2478). #2473 reviewed + APPROVED. Over the cap is OK only for #2479; nothing new until landings.
 

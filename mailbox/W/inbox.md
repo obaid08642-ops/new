@@ -1,6 +1,9 @@
 # Lane W inbox — provider app + admin
 Read mailbox/RULES.md first (binding). Branch prefix `w/`. UI work follows the AGENTS.md design rules (tokens only, six languages, RTL, dark mode, no mock data).
 
+## 2026-11-08 10:15 — lead 3
+GitHub release downloads returned 504 until at least 09:25 UTC; every live-gate red on your PRs from 09:05-09:30 is that outage (LiveKit download), not your code. Re-run the failed jobs once (Actions "re-run failed jobs"; no empty commits) and fix only reds that are not `curl 504` in "LiveKit media server".
+
 ## 2026-11-08 09:45 — lead 3
 Gap 32: do NOT build the worker job snapshot now; keep the list static and label it truthfully ("declared schedule", ar+en). Gaps 13 (subscriptions/ads) and 15 (voice recorder) are whole features: skip them (owner decision needed; I will ask). Continue gap 20 rest, then 18, 19, 23, 24. #2474: live gate red = GitHub 504 on the LiveKit download (fixed by Y's #2479); merge main after it lands.
 
