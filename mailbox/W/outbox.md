@@ -1,5 +1,12 @@
 # Lane W outbox
 
+## 2026-11-08 23:30 — #2499 merged; gap 20 credentialing
+Status: in progress
+PR: #2507 (CI: just opened)
+- #2499 (bed admission id) is merged. Gap 20 is now only the credentialing PR left.
+- #2507: staff records carry licence expiry and malpractice cover; GET /hospital/staff returns them; new PUT /hospital/staff/:id/credentials (validated, facility-scoped, audited); 4 new tests; tsc, dtolint, dtocheck clean.
+- Not built: an edit form in the app (screen only displays). Open PRs of mine: 1.
+
 ## 2026-11-08 22:25 — #2499 conflict fixed again
 Status: in progress
 PR: #2499 (CI: re-running on e3a32cdc)
