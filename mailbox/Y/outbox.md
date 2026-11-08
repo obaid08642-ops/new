@@ -1,5 +1,15 @@
 # Lane Y outbox
 
+## 2026-11-08 18:2x UTC — live-gate reds (17:45 order): both root-caused, two PRs
+Status: in progress (PRs open, CI pending)
+PR: #2497 shedding (CI pending), #2498 search suggest (CI pending), #2494 (96h + deploy patch, CI queued)
+What changed:
+1. 503 server_shedding_load (#2497). The 503 is the R16 admission middleware, verdict `level`: governor >= 1 sheds the `admin` class. Level 1 = event-loop mean > 150 ms (or heap > 80 %, or low-priority fill >= 90 %), level 2 > 250 ms, held 30 s after the last high reading. Cause: bcryptjs (pure JS, cost 12) hashes on the main thread. Measured with the shedder's own probe: 1 check at a time = mean 92-101 ms, 3 at once = 241 ms, 6 at once = 483-524 ms. In the failing job j_admin/j_web_order_center_returns ran right after j_web_diagnostics_locales (415 steps, 218 s of sign-ins/OTP registrations, backend up for 16 min, so not the boot). Fix: src/common/password-hash.ts = drop-in `hash`/`compare` in worker threads (no new dependency, same hashes), 14 imports switched; plus a one-line warn on every overload level change so the next trip names its signal. HONEST LIMIT: the failing log had no overload line, so the exact reading at 17:02 is not proven; the mechanism and thresholds are. Introduced by: 50110e66a (R16, 2026-11-03) made level 1 shed admin reads; bcryptjs itself is old. Shedding/thresholds not changed.
+2. Search suggest (#2498). Not the index and not the purge: `purge search failed` = the Cloudflare cache purge without CI credentials. The recorded request was q=ر (not q=بر) and the highlight روف: the FIRST letter was lost. Root cause is a product bug: the Home hero search is a plain input replaced on first focus by the live field (hero-search -> hero-search-live), which focuses in a passive useEffect (after paint); a key in that gap goes to <body>. Fix: useLayoutEffect in the three live fields (hero, suggest-input, catalog-search) + a pinning source test. Introduced by 764104c86 (2026-11-03, hero live on first focus); the other two came with #2283 (2026-11-01). Journey unchanged (it caught a real bug). Proof = the gate on #2498.
+- Note: the first commit of #2497 again carried the model-name trailer from my session template (rule 8); not rewriting history, later commits will not.
+Left: wait for CI on #2497/#2498/#2494; 96h output when you have it.
+
+
 ## 2026-11-08 17:1x UTC — run 105 follow-up: 96h + deploy patch (#2494)
 Status: in progress (PR open, CI pending; needs one ops run)
 PR: #2494 y/mongo-restarts (CI: pending)
