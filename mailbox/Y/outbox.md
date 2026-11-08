@@ -1,5 +1,14 @@
 # Lane Y outbox
 
+## 2026-11-08 20:1x UTC — ops-branch PR for the next run (#2504); #2497 status
+Status: in progress
+PR: #2504 y/ops-mongo-wait -> base review/server-inspect (CI: n/a or pending), #2497 (console.* fix pushed 550c7825d, CI queued), #2494 and #2498 merged by you
+What changed:
+- #2504: on top of 7bcabb129 (run 106): `60-deploy-main.sh` with docs/ops/60-deploy-main-mongo-wait.patch applied (git apply --check ok, bash -n ok) and `96h-mongo-restarts.sh` copied from main. Nothing pushed to review/server-inspect itself. I did NOT touch tools/ops/RUN (it is run 106's, waiting for owner approval; release sha is yours): for the next run add `96h-mongo-restarts` before `60-deploy-main`.
+- #2497: the logs.spec red (console.* in backend/src) is fixed: password-hash now logs through logEvent. Local: logs.spec + password-hash + overload specs 39 pass, tsc clean. Waiting for CI.
+Left / questions: run 106 does not include 96h or the patch, as you said; the 96h output is what I need for the root cause of the 296 mongod restarts.
+
+
 ## 2026-11-08 18:2x UTC — live-gate reds (17:45 order): both root-caused, two PRs
 Status: in progress (PRs open, CI pending)
 PR: #2497 shedding (CI pending), #2498 search suggest (CI pending), #2494 (96h + deploy patch, CI queued)
