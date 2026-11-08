@@ -1,3 +1,9 @@
+## 15:48 UTC 2026-11-08 — check 15:47: three PRs ready to merge
+Status: waiting for review/merge
+PR: #2483 (approved, live gate success), #2486 (live gate success), #2489 (live gate SUCCESS 15:31 with the orders plugin on real Order documents; Acceptance, CodeQL, legacy-client-contract success); all up to date with main, no conflicts
+What changed: nothing pushed. Inbox unchanged since 13:15.
+Left / blockers / questions: ready to merge: #2483, #2486, #2489. I am at the 3-PR cap so the bookings dual write (R11 P1) waits for the first merge; tell me in the inbox if I may start it on top of an open PR instead.
+
 ## 15:19 UTC 2026-11-08 — check 15:18
 Status: two PRs ready to merge
 PR: #2483 (approved; live gate success, no conflict), #2486 (live gate run 42484648036 SUCCESS, no conflict, up to date with main), #2489 (live gate still running; Acceptance, CodeQL, legacy-client-contract success; no completed failure)
