@@ -371,7 +371,7 @@ export interface DoctorCardProps extends A11yProps {
   modes?: Array<{ mode: ConsultMode; label: string }>;
   rating?: { value: number | null; count: number };
   /** Already formatted, e.g. "اليوم ٧:٣٠ م". */
-  nextSlot?: string;
+  nextSlot?: ReactNode;
   price?: string;
   currency?: string;
   bookLabel: string;
