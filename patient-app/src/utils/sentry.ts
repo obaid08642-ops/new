@@ -32,7 +32,8 @@ export const initSentry = () => {
       debug: __DEV__,
       environment: __DEV__ ? 'development' : 'production',
       enableAutoSessionTracking: true,
-      tracesSampleRate: 1.0,
+      // R18: 10 % in production (app start, screen load and slow-frame data without paying for every session), everything in development
+      tracesSampleRate: __DEV__ ? 1.0 : 0.1,
     });
     console.log('[Sentry] Initialized successfully');
   } catch (e: any) {

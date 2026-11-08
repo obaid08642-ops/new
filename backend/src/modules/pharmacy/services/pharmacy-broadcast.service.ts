@@ -482,6 +482,28 @@ export class PharmacyBroadcastService {
     })));
   }
 
+  /**
+   * The orders this pharmacy was asked to price that are patients' refills of an earlier order (`refill_of`, set when the patient taps
+   * "refill"), newest first, in any state. Same privacy as the broadcast list: no patient identity before the patient chooses.
+   */
+  async listRefillsForPharmacy(user: any): Promise<any[]> {
+    await this.assertActiveNotifiedPharmacy(user);
+    const bcs = await this.broadcasts.find({ notified_pharmacies: user.id }).sort({ createdAt: -1 }).limit(300).lean();
+    const orders = await this.orders.find({ id: { $in: bcs.map((b) => b.order_id) }, refill_of: { $type: 'string' } }).lean();
+    const byId = new Map(orders.map((o: any) => [o.id, o]));
+    const viewer = await this.viewerProfile(user.id);
+    const out: any[] = [];
+    for (const b of bcs) {
+      const order: any = byId.get(b.order_id);
+      if (!order) continue;
+      out.push({
+        ...(await this.providerBroadcastDto(b, order, viewer)),
+        id: order.id, refill_of: order.refill_of, order_status: order.status ?? null, created_at: order.createdAt ?? null,
+      });
+    }
+    return out;
+  }
+
   async detail(user: any, broadcast_id: string): Promise<any> {
     await this.assertActiveNotifiedPharmacy(user);
     const bc = await this.broadcasts.findOne({ id: broadcast_id }).lean();

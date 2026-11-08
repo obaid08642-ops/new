@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { ModuleRef } from '@nestjs/core';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { reportAggregate } from '../../../common/reports/report-read';
 import { validateReason, MIN_FINANCIAL_REASON_LENGTH, ReasonError } from '../../../common/rbac';
 import { AdminAuditService } from './audit.service';
 import { RefundExecutor } from '../../finance-engine/finance-engine.module';
@@ -248,7 +249,7 @@ export class OrdersConsoleService {
     const byStatus: Record<string, number> = {};
     if (opts.kind && opts.kind !== 'all') {
       for (const spec of kinds) {
-        const facetRows = await this.conn.collection(spec.collection).aggregate([
+        const facetRows = await reportAggregate(this.conn, spec.collection, [
           { $group: { _id: `$${spec.stateField}`, n: { $sum: 1 } } },
         ]).toArray().catch(() => []);
         for (const r of facetRows as any[]) {
@@ -259,7 +260,7 @@ export class OrdersConsoleService {
     }
     const byKind: Record<string, number> = {};
     for (const spec of ORDER_KINDS) {
-      const [c] = await this.conn.collection(spec.collection).aggregate([{ $count: 'n' }]).toArray().catch(() => [{ n: 0 }]);
+      const [c] = await reportAggregate(this.conn, spec.collection, [{ $count: 'n' }]).toArray().catch(() => [{ n: 0 }]);
       byKind[spec.kind] = (byKind[spec.kind] || 0) + (c?.n || 0);
     }
 

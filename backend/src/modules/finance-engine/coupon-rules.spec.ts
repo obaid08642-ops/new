@@ -19,7 +19,7 @@ describe('CouponService rules', () => {
     await svc.ensureIndexes();
   });
   afterAll(async () => { await conn?.close(); await mongo?.stop(); });
-  beforeEach(async () => { for (const c of ['coupons', 'coupon_usages', 'coupon_failures', 'orders', 'pharmacy_orders']) await conn.collection(c).deleteMany({}); });
+  beforeEach(async () => { for (const c of ['coupons', 'coupon_usages', 'coupon_user_counts', 'coupon_failures', 'orders', 'pharmacy_orders']) await conn.collection(c).deleteMany({}); });
 
   const why = async (ctx: any = { order_total: 100 }, code = 'C1', user = 'u1') => (await svc.validate(user, code, ctx)).reason;
 
@@ -51,6 +51,19 @@ describe('CouponService rules', () => {
     expect(await why({ order_total: 200, provider_id: 'ph2', categories: ['skin'] })).toBe('wrong_provider');
     expect(await why({ order_total: 200, provider_id: 'ph1', categories: ['hair'] })).toBe('wrong_category');
     expect((await svc.validate('u1', 'C1', { order_total: 200, provider_id: 'ph1', categories: ['skin'] })).valid).toBe(true);
+  });
+
+  it('a coupon made on the admin screen (discount_type/value, min_basket, expires_at, usage_limit_total) is priced and limited at checkout', async () => {
+    const adminShape = { discount_percent: undefined, discount_type: 'percent', value: 20, max_discount_cap: 15, min_basket: 100, usage_limit_total: 1, expires_at: new Date(Date.now() + day) };
+    await add(adminShape);
+    expect(await why({ order_total: 99 })).toBe('min_order_100');
+    expect((await svc.validate('u1', 'C1', { order_total: 200 })).discount).toBe(15); // 20% = 40, capped at 15
+    await svc.apply('u1', 'C1', 'o1', { order_total: 200 });
+    expect(await why({ order_total: 200 }, 'C1', 'u2')).toBe('max_uses_reached'); // usage_limit_total = 1
+    await conn.collection('coupons').updateOne({ code: 'C1' }, { $set: { expires_at: new Date(Date.now() - day), used_count: 0 } });
+    expect(await why({ order_total: 200 }, 'C1', 'u3')).toBe('expired');
+    await conn.collection('coupons').updateOne({ code: 'C1' }, { $set: { discount_type: 'amount', value: 30, expires_at: null, max_discount_cap: null } });
+    expect((await svc.validate('u3', 'C1', { order_total: 200 })).discount).toBe(30);
   });
 
   it('first order only: a previous order (legacy or current) refuses it', async () => {

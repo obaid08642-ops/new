@@ -13,6 +13,7 @@ describe('SlotLocksService', () => {
       findOne: jest.fn(),
       create: jest.fn(),
       find: jest.fn(),
+      updateMany: jest.fn().mockResolvedValue({ modifiedCount: 1 }),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -149,6 +150,21 @@ describe('SlotLocksService', () => {
     it('lets the booking through when no one else holds it', async () => {
       locksModel.findOne.mockResolvedValue(null);
       await expect(service.assertNotHeldByOther({ id: 'u1' }, 'doc1', start, end)).resolves.toBeUndefined();
+    });
+  });
+
+  describe('a cancelled appointment gives its slot back', () => {
+    it('releases the confirmed lock of that booking only', async () => {
+      await service.releaseForCancelledBooking({ id: 'appt-1' });
+      expect(locksModel.updateMany).toHaveBeenCalledWith(
+        { booking_id: { $eq: 'appt-1' }, status: 'confirmed' },
+        { $set: { status: 'released', expires_at: expect.any(Date) } },
+      );
+    });
+    it('does nothing without an appointment id', async () => {
+      await service.releaseForCancelledBooking(undefined);
+      await service.releaseForCancelledBooking({});
+      expect(locksModel.updateMany).not.toHaveBeenCalled();
     });
   });
 });

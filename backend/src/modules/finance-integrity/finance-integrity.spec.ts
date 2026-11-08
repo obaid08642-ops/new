@@ -50,6 +50,15 @@ describe('ledger invariants (pure)', () => {
     expect(codes(base({ ledger: [{ ...earning, amount: 0.1 + 0.2 }], earnings: [{ ...earning, amount: 0.1 + 0.2 }] }))).toContain('ledger_amount_unclean');
     expect(codes(base({ ledger: [{ ...earning, vat: -1 }] }))).toContain('ledger_amount_unclean');
   });
+  it('INV-7: a shadow that differs from its double is a finding; a missing shadow (not backfilled yet) and a matching one are not', () => {
+    expect(codes(base({ payments: [pay({ amount_halalas: 10000, refunded_amount_halalas: 0 })] }))).toEqual([]);
+    expect(codes(base({ payments: [pay()] }))).toEqual([]);
+    const f = checkOrder(base({ payments: [pay({ amount_halalas: 9000 })] }));
+    expect(f.map((x) => x.code)).toEqual(['payment_shadow_mismatch']);
+    expect(f[0].detail).toMatchObject({ payment: 'transaction', payment_id: 't1', field: 'amount', value: 100, shadow: 9000 });
+    // a double with float drift has no shadow by design (common/halala-shadow.ts) and is reported by the hygiene check, not as a mismatch
+    expect(codes(base({ payments: [pay({ amount: 0.1 + 0.2, amount_halalas: 30 })] }))).not.toContain('payment_shadow_mismatch');
+  });
   it('one halala of rounding per refund is tolerated: 3 refunds of 33.33 on 100.00', () => {
     const refunds = ['r1', 'r2', 'r3'].flatMap((id) => [
       { type: 'refund', amount: 33.33, ref_type: 'refund', ref_id: id, meta: { method: 'gateway' } },
@@ -77,6 +86,14 @@ describe('Moyasar day reconciliation (pure)', () => {
     ['refund differs', [gw({ refunded: 2500, status: 'refunded' })], [local({ status: 'partially_refunded', refunded_amount: 20 })], 'refund_mismatch'],
   ])('%s', (_n, g, l, code) => {
     expect(reconcileDay(g as any, l as any).map((f) => f.code)).toContain(code);
+  });
+  it('the integer shadow is compared when present; the double only when it is missing', () => {
+    expect(reconcileDay([gw({ amount: 10050 })], [local({ amount: 100.5, amount_halalas: 10050 })])).toEqual([]);
+    // a double with float drift (no clean halalas) matches through its shadow instead of being rounded
+    expect(reconcileDay([gw({ amount: 10050 })], [local({ amount: 100.50000001, amount_halalas: 10050 })])).toEqual([]);
+    expect(reconcileDay([gw({ amount: 10050 })], [local({ amount: 100.5, amount_halalas: 10051 })]).map((f) => f.code)).toContain('amount_mismatch');
+    expect(reconcileDay([gw({ amount: 10000, refunded: 2500, status: 'partially_refunded' })], [local({ status: 'partially_refunded', refunded_amount: 25, refunded_amount_halalas: 2500, amount_halalas: 10000 })])).toEqual([]);
+    expect(reconcileDay([gw({ amount: 10000, refunded: 2500, status: 'partially_refunded' })], [local({ status: 'partially_refunded', refunded_amount: 25, refunded_amount_halalas: 2400 })]).map((f) => f.code)).toContain('refund_mismatch');
   });
   it('a failed gateway payment unknown here is not a finding', () => {
     expect(reconcileDay([gw({ id: 'pay_f', status: 'failed' })], [])).toEqual([]);
@@ -111,6 +128,17 @@ describe('FinanceIntegrityService (real MongoDB)', () => {
     await conn.collection('platformledgerentries').insertOne({ ...earning, createdAt: new Date() } as any);
     expect(await svc.runLedgerCheck(new Date(0), new Date('2026-11-03T00:00:00Z'))).toEqual({ checked: 1, findings: 0 });
     expect(await svc.openFindings()).toEqual([]);
+  });
+
+  it('INV-7 through the service: a raw write that changed refunded_amount without its shadow is stored as a finding', async () => {
+    await conn.collection('platformledgerentries').insertOne({ ...earning, createdAt: new Date() } as any);
+    await conn.collection('transactions').insertOne({ id: 't9', booking_id: 'o1', booking_kind: 'lab', amount: 100, amount_halalas: 10000, refunded_amount: 0, refunded_amount_halalas: 0, status: 'paid', method: 'card', gateway: 'moyasar', createdAt: new Date(), paid_at: new Date() } as any);
+    expect(await svc.runLedgerCheck(new Date(0), new Date('2026-11-04T00:00:00Z'))).toEqual({ checked: 1, findings: 0 });
+    await conn.collection('transactions').updateOne({ id: 't9' }, { $set: { refunded_amount: 25 } });   // bypasses the Mongoose plugin: the shadow stays 0
+    await conn.collection('platformledgerentries').insertOne({ type: 'refund', amount: 25, ref_type: 'refund', ref_id: 'r9', order_id: 'o1', meta: { method: 'gateway' }, createdAt: new Date() } as any);
+    await svc.runLedgerCheck(new Date(0), new Date('2026-11-05T00:00:00Z'));
+    const open: any[] = await svc.openFindings();
+    expect(open.map((f) => f.code)).toContain('payment_shadow_mismatch');
   });
 
   it('Moyasar reconciliation pages through the gateway list and compares with our records', async () => {

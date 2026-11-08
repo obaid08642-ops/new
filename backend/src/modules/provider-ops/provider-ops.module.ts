@@ -1,3 +1,4 @@
+import { mergeCrm, readCrm } from '../provider-production/crm-store';
 import { protectHealthDoc } from '../../common/health-fields';
 import { PROVIDER_ROLES } from '../../common/enums';
 import { escapeRegex } from '../../common/slug.util';
@@ -20,9 +21,10 @@ import { OnEvent, EventEmitter2 } from '@nestjs/event-emitter';
 import { randomUUID } from 'crypto';
 import { JwtAuthGuard, CurrentUser, Roles, hasEffectiveRole } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
-import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, PutPricingDto, PutTariffsDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto, ToggleInstantDto } from './provider-ops.dto';
+import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, PutPricingDto, PutTariffsDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto, ToggleInstantDto, SaveDoctorNoteDto } from './provider-ops.dto';
 import { CommissionResolver, LedgerService } from '../finance-engine/finance-engine.module';
 import { settlementDelayDefault, DEFAULT_VAT_PERCENT } from '../../common/commission-defaults';
+import { roundSar } from '../../common/money';
 
 /** Provider withdrawal requests (consumed by admin-web-core finance controller). */
 export const ProviderWithdrawalSchema = new Schema(
@@ -48,7 +50,7 @@ export const ProviderWithdrawalSchema = new Schema(
  */
 export function providerOwnAmount(kind: string, booking: any): number {
   const n = (v: unknown) => { const x = Number(v); return Number.isFinite(x) && x > 0 ? x : 0; };
-  const round2 = (x: number) => Math.round(x * 100) / 100;
+  const round2 = roundSar;
   if (kind === 'consultation') return round2(n(booking?.price));
   if (kind === 'lab' || kind === 'radiology') {
     const gross = n(booking?.total_price) || n(booking?.total);
@@ -246,6 +248,8 @@ export class ProviderOpsService {
       { $set: { doctor_id: doctorId, patient_id: patientId, reason: reason || null, active: true, createdAt: new Date() } },
       { upsert: true },
     );
+    // the patient file says the same (one truth for "blocked")
+    await mergeCrm(this.conn, doctorId, patientId, { blocked: true, blocked_reason: reason || '' });
     return { ok: true, blacklisted: true };
   }
 
@@ -254,44 +258,29 @@ export class ProviderOpsService {
       { doctor_id: doctorId, patient_id: patientId },
       { $set: { active: false, updatedAt: new Date() } },
     );
+    await mergeCrm(this.conn, doctorId, patientId, { blocked: false });
     return { ok: true };
   }
 
+  /** The doctor's block list, with the patient's name (the screen showed only an id). */
   async myBlacklist(doctorId: string): Promise<any[]> {
-    return this.conn.collection('doctor_blacklist').find({ doctor_id: doctorId, active: true }, { projection: { _id: 0 } }).toArray();
+    const rows = await this.conn.collection('doctor_blacklist').find({ doctor_id: doctorId, active: true }, { projection: { _id: 0 } }).toArray();
+    const ids = rows.map((r: any) => String(r.patient_id)).filter(Boolean);
+    const users = ids.length
+      ? await this.conn.collection('users').find({ id: { $in: ids } }, { projection: { _id: 0, id: 1, full_name: 1, name: 1, phone: 1 } }).toArray()
+      : [];
+    const names = new Map(users.map((u: any) => [String(u.id), u.full_name || u.name || u.phone || null]));
+    return rows.map((r: any) => ({ ...r, patient_name: names.get(String(r.patient_id)) ?? null }));
   }
 
   // ═══ DOCTOR: per-patient CRM (tags / notes / vip / favorite) ═══
+  // Same store as provider-production's /provider/crm (crm-store.ts): one file per patient, a save changes only the fields it sends.
   async getPatientCrm(doctorId: string, patientId: string): Promise<any> {
-    const doc: any = await this.conn.collection('doctor_patient_crm').findOne(
-      { doctor_id: doctorId, patient_id: patientId },
-      { projection: { _id: 0 } },
-    );
-    return doc?.data || { tags: [], notes: [], vip: false, favorite: false };
+    return readCrm(this.conn, doctorId, patientId);
   }
 
   async putPatientCrm(doctorId: string, patientId: string, data: any): Promise<any> {
-    const clean = {
-      tags: Array.isArray(data?.tags) ? data.tags.slice(0, 50).map((t: any) => String(t).slice(0, 60)) : [],
-      notes: Array.isArray(data?.notes)
-        ? data.notes.slice(0, 200).map((n: any) => ({
-            id: String(n?.id || `n_${Date.now()}`),
-            date: String(n?.date || new Date().toISOString().slice(0, 10)),
-            text: String(n?.text || '').slice(0, 2000),
-          })).filter((n: any) => n.text)
-        : [],
-      vip: !!data?.vip,
-      favorite: !!data?.favorite,
-    };
-    await this.conn.collection('doctor_patient_crm').updateOne(
-      { doctor_id: doctorId, patient_id: patientId },
-      {
-        $set: { data: clean, updatedAt: new Date() },
-        $setOnInsert: { id: `crm_${Date.now()}`, doctor_id: doctorId, patient_id: patientId, createdAt: new Date() },
-      },
-      { upsert: true },
-    );
-    return clean;
+    return mergeCrm(this.conn, doctorId, patientId, data);
   }
 
   /** Booking guard: blocked if patient blacklisted by this doctor. */
@@ -578,11 +567,37 @@ export class ProviderOpsService {
     };
   }
 
+  /**
+   * The ids a patient's review can carry for this provider: a consultation review stores the doctor's PROFILE id (the id the public
+   * page and the booking use), while the provider signs in with the ACCOUNT id.
+   */
+  private async reviewProviderIds(providerId: string): Promise<string[]> {
+    const profiles = await this.conn.collection('provider_profiles')
+      .find({ $or: [{ account_id: { $eq: providerId } }, { user_id: { $eq: providerId } }] }, { projection: { _id: 0, id: 1 } }).limit(5).toArray();
+    return [...new Set([providerId, ...profiles.map((p: any) => p.id).filter((v: unknown) => typeof v === 'string' && v)])];
+  }
+
   async providerReviews(providerId: string): Promise<any[]> {
     const rows = await this.conn.collection('ratings')
       .find({ $or: [{ provider_id: providerId }, { entity_id: providerId }] })
       .sort({ createdAt: -1 }).limit(100).toArray();
-    return rows.map((r: any) => ({ ...r, id: r.id || r._id?.toString(), _id: undefined }));
+    // The apps send a patient's review to POST /patient-ux/review, which stores it in `reviews` (rating, status approved or
+    // pending_review). The provider screen read only `ratings`, so the doctor saw none of the reviews patients actually wrote.
+    const written = await this.conn.collection('reviews')
+      .find({ provider_id: { $in: await this.reviewProviderIds(providerId) } })
+      .sort({ createdAt: -1 }).limit(100).toArray();
+    const fromReviews = written.map((r: any) => ({
+      id: r.id, provider_id: r.provider_id, score: r.rating, comment: r.comment ?? null, createdAt: r.createdAt ?? null,
+      // the same words the ratings rows use, so the screen needs no second reading: approved = published
+      status: r.status === 'approved' ? 'published' : r.status === 'pending_review' ? 'pending' : r.status,
+      reply: r.reply ?? null, reply_at: r.reply_at ?? null, booking_kind: r.booking_kind, booking_id: r.booking_id, source: 'review',
+    }));
+    const all = [
+      ...rows.map((r: any) => ({ ...r, id: r.id || r._id?.toString(), _id: undefined })),
+      ...fromReviews,
+    ];
+    all.sort((a: any, b: any) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime());
+    return all.slice(0, 100);
   }
 
   async replyReview(providerId: string, ratingId: string, reply: string) {
@@ -602,6 +617,16 @@ export class ProviderOpsService {
           row = await col.findOne({ ...byId, ...own } as any);
         }
       } catch { /* invalid ObjectId format */ }
+    }
+    if (!row) {
+      // a review the patient wrote in the app (POST /patient-ux/review): approved is published, pending_review waits for a moderator
+      const written: any = await this.conn.collection('reviews').findOne({ id: { $eq: String(ratingId) }, provider_id: { $in: await this.reviewProviderIds(providerId) } });
+      if (written) {
+        if (written.status !== 'approved') throw new BadRequestException('review_not_published');
+        await this.conn.collection('reviews').updateOne({ _id: written._id }, { $set: { reply: text, reply_at: new Date() } });
+        if (written.patient_id) this.events?.emit('rating.replied', { user_id: written.patient_id, provider_id: providerId, rating_id: written.id });
+        return { ok: true };
+      }
     }
     if (!row) throw new NotFoundException('review not found');
     // a review still waiting for moderation, or refused, is not public: nothing to answer yet
@@ -650,6 +675,32 @@ export class ProviderOpsService {
     return d ? { id: d.id, value: d.requested_changes?.value ?? null, submitted_at: d.createdAt } : null;
   }
 
+  /** The one writer of a doctor's consultation note: the health fields are encrypted here (16.9: a raw write skips the model). */
+  private async storeConsultationNote(doctorId: string, appointmentId: string, notes: string | null | undefined, diagnosis: string | null | undefined, at: Date, patientId?: string | null) {
+    await this.conn.collection('consultationnotes').insertOne(protectHealthDoc('consultationnotes', {
+      id: `note_${Date.now()}`, appointment_id: appointmentId, doctor_id: doctorId, ...(patientId ? { patient_id: patientId } : {}),
+      notes: notes || null, diagnosis: diagnosis || null, createdAt: at,
+    }));
+  }
+
+  /**
+   * A doctor's note on one of their own visits, saved from the EMR / AI copilot screen (SOAP text). It used to post to the nursing notes
+   * route, which only a nurse may call, so a doctor's save always failed. The visit must be the doctor's and the patient's.
+   */
+  async saveDoctorNote(user: any, body: { patient_id: string; appointment_id: string; note: string }) {
+    const note = String(body?.note ?? '').trim().slice(0, 4000);
+    if (!note) throw new BadRequestException('note is required');
+    const appt: any = await this.conn.collection('appointments').findOne(
+      { id: { $eq: String(body?.appointment_id ?? '') } },
+      { projection: { _id: 0, id: 1, patient_id: 1, doctor_user_id: 1 } },
+    );
+    if (!appt) throw new NotFoundException('appointment not found');
+    if (user?.role !== 'admin' && String(appt.doctor_user_id ?? '') !== String(user?.id ?? '')) throw new ForbiddenException('appointment_not_owned');
+    if (String(appt.patient_id ?? '') !== String(body?.patient_id ?? '')) throw new BadRequestException('patient/appointment mismatch');
+    await this.storeConsultationNote(user.id, appt.id, note, null, new Date(), appt.patient_id);
+    return { ok: true };
+  }
+
   async endConsultation(user: any, body: any) {
     const appointmentId = body.appointment_id || body.id;
     if (!appointmentId) throw new BadRequestException('appointment_id required');
@@ -663,12 +714,7 @@ export class ProviderOpsService {
     );
     if (!r.matchedCount) throw new NotFoundException('appointment not found');
     // Store consultation notes if provided
-    if (body.notes || body.diagnosis) {
-      await this.conn.collection('consultationnotes').insertOne(protectHealthDoc('consultationnotes', {
-        id: `note_${Date.now()}`, appointment_id: appointmentId, doctor_id: user.id,
-        notes: body.notes || null, diagnosis: body.diagnosis || null, createdAt: now,
-      }));
-    }
+    if (body.notes || body.diagnosis) await this.storeConsultationNote(user.id, appointmentId, body.notes, body.diagnosis, now);
     // Store e-prescription if provided
     const appt: any = await this.conn.collection('doctor_appointments').findOne({ id: appointmentId });
     if (Array.isArray(body.prescription) && body.prescription.length) {
@@ -775,6 +821,8 @@ export class ProviderOpsController {
   @Post('doctor/templates/:id/use') useTemplate(@CurrentUser() u: any, @Param('id') id: string): Promise<any> { return this.svc.useTemplate(u.id, id); }
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   @Delete('doctor/templates/:id') delTemplate(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.deleteTemplate(u.id, id); }
+  @Roles(UserRole.DOCTOR, UserRole.ADMIN)
+  @Post('doctor/notes') saveNote(@CurrentUser() u: any, @Body() b: SaveDoctorNoteDto) { return this.svc.saveDoctorNote(u, b); }
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   @Post('doctor/diagnoses') saveDx(@CurrentUser() u: any, @Body() b: SaveDxDto) { return this.svc.saveDiagnosis(u.id, b); }
   @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)

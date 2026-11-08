@@ -1,0 +1,45 @@
+name: legacy-client-contract
+# R12: builds already in the stores keep working. contracts/released-clients/<app>-<version>.json freezes every write call (URL + body keys) of a released mobile build
+# (tools/ci/freeze-client-contract.sh, run at release time). This job checks the CURRENT backend DTOs against each frozen file: a call that would now get HTTP 400
+# (a field removed, a new required field, a type changed) fails the PR. Request bodies only; see docs/platform/R12-mobile-compat.md.
+on:
+  pull_request:
+    paths:
+      - 'backend/src/**'
+      - 'contracts/released-clients/**'
+      - 'tools/ci/legacy-client-contract.sh'
+      - 'tools/ci/freeze-client-contract.sh'
+      - 'tools/audit/dtocheck.js'
+      - 'tools/audit/clientbodies.js'
+      - '.github/workflows/legacy-client-contract.yml'
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci --ignore-scripts
+        working-directory: backend
+      - name: Every frozen released build is still accepted by the current DTOs
+        run: bash tools/ci/legacy-client-contract.sh
+      - name: Negative control - a frozen call with a field no DTO knows MUST fail (proves the check can fail)
+        run: |
+          mkdir -p "$RUNNER_TEMP/doctored"
+          node -e '
+            const fs = require("fs");
+            const d = JSON.parse(fs.readFileSync("contracts/released-clients/patient-app-1.0.0.json", "utf8"));
+            for (const c of d) c.keys = [...(c.keys || []), "zz_unknown_field"];
+            fs.writeFileSync(process.argv[1], JSON.stringify(d));
+          ' "$RUNNER_TEMP/doctored/doctored-1.0.0.json"
+          if CONTRACT_DIR="$RUNNER_TEMP/doctored" bash tools/ci/legacy-client-contract.sh; then echo "the doctored contract passed: the check cannot fail"; exit 1; else echo "failed as it must"; fi

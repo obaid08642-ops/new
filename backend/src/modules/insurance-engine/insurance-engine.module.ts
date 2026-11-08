@@ -1,3 +1,4 @@
+import { halalaShadowPlugin } from '../../common/halala-shadow';
 import { PROVIDER_ROLES } from '../../common/enums';
 /**
  * M3 — Insurance Engine (BR-2) + Unified Booking Quote (BR-1) + Financial Core.
@@ -34,6 +35,7 @@ import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema
 import { UserRole } from '../../common/enums';
 import { SavePolicyDto, CreateRequestDto, PayCopayDto, ResubmitDto, AppealDto, DecideDto, GatekeeperDto, PaymentConfirmDto, PayCopayDto2, RequestDto, DecideRefundDto, AccrueDto } from './insurance-engine.dto';
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { DurableEventsService, emitDurable } from '../durable-events/durable-events.service';
 import { ScheduledOnce } from '../../common/scheduled-once';
 
 // ============================================================================
@@ -131,8 +133,12 @@ export class RefundRequest {
   @Prop({ default: 'REQUESTED', index: true, enum: ['REQUESTED', 'APPROVED', 'EXECUTED', 'REJECTED', 'FAILED'] }) state: string;
   @Prop() executed_at?: Date;
   @Prop({ type: [Object], default: [] }) history: { state: string; at: Date; by: string; note?: string }[];
+  /** R11 P1: integer halalas next to the doubles (halalaShadowPlugin). */
+  @Prop() amount_paid_halalas?: number;
+  @Prop() refund_amount_halalas?: number;
 }
 export const RefundRequestSchema = SchemaFactory.createForClass(RefundRequest);
+halalaShadowPlugin(RefundRequestSchema, ['amount_paid', 'refund_amount']);
 
 @Schema({ timestamps: true })
 export class PlatformLedgerEntry {
@@ -929,6 +935,7 @@ export class RefundService {
     private readonly fraud: FraudService,
     @Optional() @InjectConnection() private readonly conn?: Connection,
     @Optional() private readonly refundExec?: RefundExecutor,
+    @Optional() private readonly durable?: DurableEventsService,
   ) {}
 
   policyFor(scheduledAt?: Date) {
@@ -957,7 +964,7 @@ export class RefundService {
       moyasar_payment_id: body?.payment_id,
       history: [{ state: 'REQUESTED', at: new Date(), by: user.id }],
     });
-    this.events.emit('refund.requested', { refund_id: doc.id });
+    await emitDurable(this.durable, this.events, 'refund.requested', { refund_id: doc.id }, `refund.requested:${doc.id}`);
     return doc.toObject();
   }
 

@@ -43,6 +43,8 @@
       ]
     },
     "plugins": [
+      "./plugins/with-callkeep-android-service",
+      "./plugins/with-firebase-messaging-manifest-merge",
       ["expo-splash-screen", { "image": "./assets/splash.png", "resizeMode": "contain", "backgroundColor": "#F5F5F7" }],
       ["expo-build-properties", { "android": { "usesCleartextTraffic": false } }],
       "expo-font",

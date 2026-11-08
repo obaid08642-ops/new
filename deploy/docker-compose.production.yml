@@ -19,7 +19,7 @@ x-logging: &logopts
 services:
   # ── MongoDB ──────────────────────────────────────────────────────
   mongodb:
-    image: mongo:7.0
+    image: mongo:7.0@sha256:8bb4442761a63a8dda452744082cdac9644b429807eb977b42324a63cef59ca4
     container_name: nabdah-mongodb
     restart: unless-stopped
     mem_limit: 1600m   # run 58: with 1200m mongod sat at the limit (memory.events max=6159) and was restarted 32 times in 6 hours; 1600m leaves room above the 0.5 GB cache
@@ -46,7 +46,7 @@ services:
 
   # ── Redis ────────────────────────────────────────────────────────
   redis:
-    image: redis:7-alpine
+    image: redis:7-alpine@sha256:c5d34a98396a4775e223c74e929162c35c5a2182901ba26b50ade939941ce14b
     container_name: nabdah-redis
     restart: unless-stopped
     mem_limit: 512m
@@ -73,7 +73,7 @@ services:
   # never touches the app's data. Nothing is saved (no RDB, no AOF), nothing is on a volume, the root filesystem is read-only:
   # this container cannot write to the disk at all. A restart empties it; pages are rendered again on demand.
   redis-cache:
-    image: redis:7-alpine
+    image: redis:7-alpine@sha256:c5d34a98396a4775e223c74e929162c35c5a2182901ba26b50ade939941ce14b
     container_name: nabdah-redis-cache
     restart: unless-stopped
     command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}", "--maxmemory", "${REDIS_CACHE_MAXMEMORY:-256mb}",
@@ -95,7 +95,7 @@ services:
 
   # ── Meilisearch (D-29 search engine; ~300 MB RAM; mirror of the MongoDB search_index) ──
   meilisearch:
-    image: getmeili/meilisearch:v1.10
+    image: getmeili/meilisearch:v1.10@sha256:9d1b9b02fe6c68f60b54ce40092d8078f051b9341c400c90f907607636b7c9c1
     container_name: nabdah-meilisearch
     restart: unless-stopped
     mem_limit: 1024m   # run 70: killed 491 times in 3 h at its OWN 640m limit (anon_rss ~643 MB each time, restarts=782): it needs more than 640m while it indexes
@@ -147,6 +147,10 @@ services:
       HTTP_COMPRESSION: edge   # P14.25: nginx gzips (gzip_proxied any); the API does not compress twice
       MONGO_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
       DB_NAME: ${DB_NAME:-nabd_nestjs}
+      # R7: connection budget. mongod accepts 300 connections (mongod.conf) and each costs about 1 MB; the driver default was 200 per process, so api + worker could ask for 400.
+      # tools/ops/mongo_pool_budget.py keeps the sum of every pool (x replicas) + the tools reserve under the limit.
+      MONGO_MAX_POOL_SIZE: "80"
+      MONGO_MIN_POOL_SIZE: "10"
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       REDIS_CACHE_URL: ${REDIS_CACHE_URL:-}   # P14.14: empty = the cache shares REDIS_URL (one Redis until scale step 2)
       REDIS_HOST: redis
@@ -211,6 +215,10 @@ services:
       PORT: "8002"
       MONGO_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
       DB_NAME: ${DB_NAME:-nabd_nestjs}
+      # R7: connection budget. mongod accepts 300 connections (mongod.conf) and each costs about 1 MB; the driver default was 200 per process, so api + worker could ask for 400.
+      # tools/ops/mongo_pool_budget.py keeps the sum of every pool (x replicas) + the tools reserve under the limit.
+      MONGO_MAX_POOL_SIZE: "40"
+      MONGO_MIN_POOL_SIZE: "5"
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       REDIS_CACHE_URL: ${REDIS_CACHE_URL:-}   # P14.14: empty = the cache shares REDIS_URL (one Redis until scale step 2)
       REDIS_HOST: redis
@@ -238,7 +246,7 @@ services:
   # signature database lives on a volume so a restart does not download it again; the first start takes a few minutes
   # (freshclam), during which uploads are refused rather than waved through (UPLOAD_SCAN=required on the backend).
   clamav:
-    image: clamav/clamav:1.4
+    image: clamav/clamav:1.4@sha256:8ad6197396974726c35d017e50aaaaf4b91745726a04faec8480c203edd98052
     container_name: nabdah-clamav
     restart: unless-stopped
     mem_limit: 1536m
@@ -319,7 +327,7 @@ services:
 
   # ── LiveKit (self-hosted SFU) ─────────────────────────────────────
   livekit:
-    image: livekit/livekit-server:v1.8.3
+    image: livekit/livekit-server:v1.8.3@sha256:05342e1f630e95d82f85effe856507b75d70e6526b82f483ffcbfe7baae2ead9
     container_name: nabdah-livekit
     restart: unless-stopped
     mem_limit: 256m
@@ -344,7 +352,7 @@ services:
 
   # ── Coturn (STUN/TURN, self-hosted) ───────────────────────────────
   coturn:
-    image: coturn/coturn:4.6.2
+    image: coturn/coturn:4.6.2@sha256:4873c54f213ec81f6b4c4c4938b69c922f50b2293ded427f5191472b9a127227
     container_name: nabdah-coturn
     restart: unless-stopped
     mem_limit: 128m
@@ -375,7 +383,7 @@ services:
 
   # ── Nginx reverse proxy (TLS termination + routing + caching) ─────
   nginx:
-    image: nginx:1.28.0-alpine   # pinned: upstream `resolve` (deploy/nginx/nginx.conf) needs >= 1.27.3
+    image: nginx:1.28.0-alpine@sha256:30f1c0d78e0ad60901648be663a710bdadf19e4c10ac6782c235200619158284   # pinned: upstream `resolve` (deploy/nginx/nginx.conf) needs >= 1.27.3
     container_name: nabdah-nginx
     restart: unless-stopped
     mem_limit: 128m
@@ -442,7 +450,7 @@ services:
     logging: *logopts
 
   certbot:
-    image: certbot/certbot:v2.11.0
+    image: certbot/certbot:v2.11.0@sha256:ddf9e5d226a56e886986838fa0ebedc0237511c78664352e8d0f4346ee022cd8
     container_name: nabdah-certbot
     volumes:
       - ./certs/live:/etc/letsencrypt

@@ -15,6 +15,9 @@ on:
       - 'deploy/scripts/memory-report.sh'
       - 'deploy/scripts/test_memory_report.py'
       - 'deploy/scripts/test_compose_memory.py'
+      - 'deploy/scripts/test_rebuild_timer.py'
+      - 'deploy/scripts/rebuild-timer.sh'
+      - 'deploy/scripts/rebuild-budget.tsv'
       - 'deploy/docker-compose.production.yml'
       - 'deploy/mongo/mongod.conf'
       - 'deploy/redis/redis.conf'
@@ -34,7 +37,7 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Recovery plan logic (unit tests)
-        run: cd deploy/scripts && python3 -m unittest test_dr_plan test_clamav_window test_oplog_mongo_wait test_memory_report test_compose_memory -v
+        run: cd deploy/scripts && python3 -m unittest test_dr_plan test_clamav_window test_oplog_mongo_wait test_memory_report test_compose_memory test_rebuild_timer -v
       - name: Shell syntax
         run: for f in deploy/scripts/*.sh tools/ops/dr-rehearsal/run.sh; do bash -n "$f"; done
   real-mongo:

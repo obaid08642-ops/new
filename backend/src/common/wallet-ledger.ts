@@ -1,8 +1,10 @@
 import { randomUUID } from 'crypto';
+import { shadowFields } from './halala-shadow';
+import { roundSar } from './money';
 
 type Conn = { collection(name: string): any };
 
-const round2 = (n: number) => Math.round(n * 100) / 100;
+const round2 = roundSar;
 /** The unique index behind the idempotency key. Sparse: rows written before the key existed carry none and must not collide with each other. */
 export const WALLET_TX_INDEX = { keys: { idempotency_key: 1 }, options: { unique: true, sparse: true, name: 'wallet_tx_idempotency_key' } } as const;
 let indexReady: Promise<unknown> | null = null;
@@ -40,7 +42,7 @@ export async function postWalletEntry(
   if (!wallet && opts.createWalletIfMissing) {
     // one wallet per owner (unique index on ownerId + ownerType): a concurrent creator wins, we read its row
     const now0 = new Date();
-    await conn.collection('wallets').updateOne({ ownerId: entry.ownerId, ownerType: entry.ownerType }, { $setOnInsert: { id: randomUUID(), ownerId: entry.ownerId, ownerType: entry.ownerType, balance: 0, savedCards: [], createdAt: now0, updatedAt: now0 } }, { upsert: true });
+    await conn.collection('wallets').updateOne({ ownerId: entry.ownerId, ownerType: entry.ownerType }, { $setOnInsert: { id: randomUUID(), ownerId: entry.ownerId, ownerType: entry.ownerType, balance: 0, balance_halalas: 0, savedCards: [], createdAt: now0, updatedAt: now0 } }, { upsert: true });
     wallet = await conn.collection('wallets').findOne({ ownerId: entry.ownerId, ownerType: entry.ownerType });
   }
   if (!wallet) return { credited: false, balance: null };
@@ -54,7 +56,7 @@ export async function postWalletEntry(
   const now = new Date();
   const res: any = await conn.collection('wallet_transactions').updateOne(
     { idempotency_key: key },
-    { $setOnInsert: { id: randomUUID(), walletId: wallet.id, amount, type: entry.type, referenceType: entry.referenceType, referenceId: entry.referenceId, description: entry.description, idempotency_key: key, createdAt: now, updatedAt: now } },
+    { $setOnInsert: { id: randomUUID(), walletId: wallet.id, amount, ...shadowFields({ amount }, ['amount']), type: entry.type, referenceType: entry.referenceType, referenceId: entry.referenceId, description: entry.description, idempotency_key: key, createdAt: now, updatedAt: now } },
     { upsert: true },
   );
   const created = (res?.upsertedCount ?? 0) > 0 || !!res?.upsertedId;
@@ -65,7 +67,7 @@ export async function postWalletEntry(
     balance = await walletLedgerBalance(conn, wallet.id);
     throw new WalletInsufficientError(balance);
   }
-  if (created) await conn.collection('wallets').updateOne({ _id: wallet._id }, { $set: { balance, updatedAt: now } });
+  if (created) await conn.collection('wallets').updateOne({ _id: wallet._id }, { $set: { balance, ...shadowFields({ balance }, ['balance']), updatedAt: now } });   // R11 P1: integer halalas next to the double
   return { credited: created, balance };
 }
 

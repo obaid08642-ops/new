@@ -114,6 +114,10 @@ jobs:
       - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
       - name: Build release APK (x86_64, test backend)
         run: bash tools/native/build_android.sh ${{ matrix.app }}-app
+      # No push key and no device needed: the merged manifest of the APK must declare the call ConnectionService and the call permissions
+      # (docs/qa/push-calls-matrix.md); a missing declaration means Android cannot ring a killed or locked phone through the system call screen.
+      - name: Call-ring readiness of the APK (static)
+        run: python3 tools/native/calls_static_check.py android /tmp/native/${{ matrix.app }}-app.apk --app ${{ matrix.app }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: apk-${{ matrix.app }}-app
@@ -224,6 +228,10 @@ jobs:
           cache-dependency-path: ${{ matrix.app }}-app/package-lock.json
       - name: Build unsigned simulator app (expo prebuild + xcodebuild)
         run: bash tools/native/build_ios.sh ${{ matrix.app }}-app
+      - name: Call-ring readiness of the app (static)
+        run: |
+          rm -rf /tmp/native/chk && mkdir -p /tmp/native/chk && ditto -x -k /tmp/native/${{ matrix.app }}-app.app.zip /tmp/native/chk
+          python3 tools/native/calls_static_check.py ios /tmp/native/chk/*.app --app ${{ matrix.app }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: ios-${{ matrix.app }}-app

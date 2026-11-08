@@ -175,6 +175,19 @@ class Client:
             parsed = json.loads(txt) if txt else None
         except ValueError:
             parsed = txt
+        # Admission control (backend/src/common/admission.ts) answers a safe read with 503 server_busy / server_shedding_load + Retry-After
+        # when the API is strained (the shared CI runner is). That is its documented contract: a client waits and asks again. Only GET/HEAD
+        # are ever refused that way, so repeating them is safe; a bounded wait (the overload level calms after 30 s) and then the 503 is reported as is.
+        if (status == 503 and method in ('GET', 'HEAD') and isinstance(parsed, dict)
+                and parsed.get('message') in ('server_busy', 'server_shedding_load')):
+            tries = getattr(self, '_busy_tries', 0)
+            if tries < 12:
+                self._busy_tries = tries + 1
+                try:
+                    time.sleep(min(10, max(1, int(parsed.get('retry_after_seconds') or 3))))
+                    return self.req(method, path, body, headers, idem)
+                finally:
+                    self._busy_tries = 0 if tries == 0 else tries
         return Resp(status, parsed, hdrs)
 
     def get(self, p, **kw): return self.req('GET', p, **kw)

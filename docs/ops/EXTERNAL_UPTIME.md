@@ -4,8 +4,8 @@ The site was down from about 13:20 UTC and no mail came: `deploy/scripts/monitor
 check now also runs **outside** the server.
 
 ## What runs
-`.github/workflows/uptime.yml` (every 5 minutes) runs `tools/uptime/external-uptime.sh`: GET `https://nabd.plus/ar` and
-`https://nabd.plus/api/v1/health` (GET only, 20 s timeout, one retry). Two failed runs in a row send **one** mail to the owner; one more mail
+`.github/workflows/uptime-alert.yml` (every 5 minutes) runs `tools/uptime/external-uptime.sh`: GET `https://nabd.plus/ar` and
+`https://api.nabd.plus/api/v1/health/liveness` (GET only, 20 s timeout, one retry). Two failed runs in a row send **one** mail to the owner; one more mail
 when it is back, with the duration. The state is kept between runs with the Actions cache, so a long outage is one mail, not one per run.
 `REMIND_HOURS` (default off) can add a reminder every N hours. A mail that cannot be sent fails the run and is retried on the next one.
 

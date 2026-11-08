@@ -551,6 +551,9 @@ export class CareService {
         rating: r.rating,
         text: r.comment || '',
         date: r.createdAt || null,
+        // the doctor's answer, shown under the review
+        reply: r.reply ?? null,
+        reply_at: r.reply_at ?? null,
       }));
     }
     obj.is_online = this.isOnlineDoc(doc, await this.onlineSet([doc]));
