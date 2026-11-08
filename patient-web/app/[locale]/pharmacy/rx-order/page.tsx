@@ -18,6 +18,7 @@ import { RxWays, type RxWay } from "@/components-next/pharmacy/rx-ways";
 import { prescriptionStateTone } from "@/components-next/pharmacy/rx-state";
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
 import rx from "@/components-next/pharmacy/rx.module.css";
+import { FILL_PRESCRIPTION } from "@/components-next/ui-generated/icons/glyphs/prescription";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ prescriptionId?: string | string[]; id?: string | string[]; via?: string | string[]; name?: string | string[] }> };
 const idPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -89,7 +90,7 @@ export default async function PharmacyRxOrderPage({ params, searchParams }: Prop
             return (
               <li key={item.id}>
                 <Link className={`${rx.listRow} ${rx.rowLink}`} href={`/${locale}/pharmacy/rx-order?prescriptionId=${encodeURIComponent(item.id)}`}>
-                  <FIcon icon="prescription" tone={PHARMACY_TONE} size={40} />
+                  <FIcon icon="prescription" glyph={FILL_PRESCRIPTION} tone={PHARMACY_TONE} size={40} />
                   <span className={rx.rowBody}>
                     <span className={rx.rowTitle}>{t("rxNumber", { code: item.id.slice(-6).toUpperCase() })}</span>
                     <span className={rx.rowSub}>{[t("medicineCount", { count: item.itemCount }), issued].filter(Boolean).join(" · ")}</span>

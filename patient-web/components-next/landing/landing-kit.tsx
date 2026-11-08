@@ -8,12 +8,12 @@ import { LinkEmptyState } from "@/components-next/pharmacy/link-empty-state";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import { Caret } from "@/components-next/nursing/nursing-parts";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import type { FillIconName, ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { getDirection, type Locale } from "@/lib/i18n";
 import styles from "./landing.module.css";
 import type { Crumb } from "@/components-next/navigation/breadcrumbs";
+import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
 /**
  * The frame of the public directory and detail pages (Batch 13: doctors by specialty and city, facilities, conditions, home
@@ -58,7 +58,7 @@ export function ServiceCard({ icon, tone, title, titleMark, sub, chips = [], chi
   return (
     <article className={`${rx.card} ${styles.card}`}>
       <div className={styles.cardHead}>
-        <FIcon icon={icon} tone={tone} size={44} />
+        <FIconByName icon={icon} tone={tone} size={44} />
         <div className={styles.cardText}>
           <h3 className={styles.cardTitle}><FieldText text={title} mark={titleMark} /></h3>
           {sub ? <p className={styles.cardSub}>{sub}</p> : null}

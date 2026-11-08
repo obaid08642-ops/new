@@ -23,6 +23,7 @@ import { WebMcpLoader } from "@/components-next/web-mcp-loader";
 import { pickClientMessages } from "@/lib/i18n/client-messages";
 import { ThemeToggle } from "@/components-next/theme-toggle";
 import { THEME_INIT_SCRIPT } from "@/app/theme";
+import { ModuleBlocked } from "@/components-next/modules/module-blocked";
 import { ModuleRouteGate, ModulesProvider } from "@/components-next/modules/modules-provider";
 import { getDisabledModules, getUploadsEnabled } from "@/lib/api/public-config-server";
 import { UploadsProvider } from "@/components-next/uploads/uploads-provider";
@@ -158,7 +159,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             <ModulesProvider disabled={[...disabled]}>
               <UploadsProvider enabled={uploadsEnabled}>
               <CartProvider>
-                <ModuleRouteGate locale={typedLocale} title={moduleCopy("unavailableTitle")} body={moduleCopy("unavailableBody")} homeLabel={moduleCopy("unavailableHome")}>
+                <ModuleRouteGate blocked={<ModuleBlocked locale={typedLocale} title={moduleCopy("unavailableTitle")} body={moduleCopy("unavailableBody")} homeLabel={moduleCopy("unavailableHome")} />}>
                   {children}
                 </ModuleRouteGate>
               </CartProvider>
