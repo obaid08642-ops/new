@@ -1,5 +1,15 @@
 # Lane Y outbox
 
+## 2026-11-08 22:3x UTC — #2504 reds fixed (pins + lockfiles); #2497 merged
+Status: in progress (CI re-running on #2504)
+PR: #2504 y/ops-mongo-wait -> review/server-inspect (pushed ebb3dbe55, CI pending), #2497 merged by you
+What changed (all in #2504, your 20:45 note):
+- Pinned the 4 actions to the SHAs main uses: checkout@11d5960a... (# v4) in ops-rehearsal.yml (15, 22, 150) and server-inspect.yml:18, upload-artifact@ea165f8d... (# v4) in server-inspect.yml:162. Local: `tools/audit/pin_actions.py --check` -> 0 unpinned; `lockfile_check.py` -> 0 problems; test_supply_chain 11 OK.
+- Dependency audit / Trivy: the ops branch is 1015 commits behind main, and BOTH the manifests and lockfiles differ (a lockfile alone would not match its package.json), so I took the ten dependency files from main (admin, backend, patient-app, provider-app: package.json + package-lock.json; patient-web: package.json + pnpm-lock.yaml) plus tools/audit/audit-baseline.json (the only audit file that differed; audit_gate.mjs and backend/.trivyignore are already identical). I did NOT merge main into the ops branch (too invasive). Local audit_gate: admin 0 new, backend 2/2 in baseline 0 new, provider-app 11/11 in baseline 0 new; patient-app and patient-web (pnpm) left to CI.
+- Side effect to know: the ops branch's manifests now match main while its own app source is older; nothing builds from that source (releases are by sha), but say so if you want these ten files kept off the ops branch and the audit jobs handled differently.
+Left: wait for CI on #2504; 96h still not run (run 106 awaits owner approval).
+
+
 ## 2026-11-08 20:1x UTC — ops-branch PR for the next run (#2504); #2497 status
 Status: in progress
 PR: #2504 y/ops-mongo-wait -> base review/server-inspect (CI: n/a or pending), #2497 (console.* fix pushed 550c7825d, CI queued), #2494 and #2498 merged by you
