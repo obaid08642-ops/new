@@ -3,7 +3,7 @@ import { HospitalService } from '../services/hospital.service';
 import { JwtAuthGuard, CurrentUser, Roles } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
 import { Permission, RequirePermissions } from '../../../common/permissions';
-import { AddStaffDto, OnboardDoctorDto, UpdateAppointmentStatusDto, CreateInvitationDto, RespondInvitationDto, CreateBranchDto, CreateDepartmentDto, AdminFacilityQueryDto } from './hospital.dto';
+import { AddStaffDto, UpdateStaffCredentialsDto, OnboardDoctorDto, UpdateAppointmentStatusDto, CreateInvitationDto, RespondInvitationDto, CreateBranchDto, CreateDepartmentDto, AdminFacilityQueryDto } from './hospital.dto';
 
 @Controller('hospital')
 @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
@@ -39,6 +39,11 @@ export class HospitalController {
   @Get('staff')
   async getStaff(@CurrentUser() user: any) {
     return this.hospitalService.getStaff(user.id, user);
+  }
+
+  @Put('staff/:id/credentials')
+  async updateStaffCredentials(@CurrentUser() user: any, @Param('id') id: string, @Body() body: UpdateStaffCredentialsDto) {
+    return this.hospitalService.updateStaffCredentials(user.id, id, body, user);
   }
 
   @Delete('staff/:id')

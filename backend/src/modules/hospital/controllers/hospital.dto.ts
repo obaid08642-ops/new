@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDefined, IsEmail, IsIn, IsInt, IsNumber, IsObject, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEmail, IsIn, IsInt, IsNumber, IsObject, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateBranchDto {
@@ -77,6 +77,13 @@ export class AddStaffDto {
   @IsOptional()
   @IsString()
   department_id?: string;
+}
+
+export class UpdateStaffCredentialsDto {
+  @IsOptional() @IsString() scfhs?: string;
+  @IsOptional() @IsDateString() license_expiry?: string;
+  @IsOptional() @IsBoolean() malpractice_insurance?: boolean;
+  @IsOptional() @IsDateString() malpractice_expiry?: string;
 }
 
 export class OnboardDoctorDto {
