@@ -3,6 +3,7 @@ import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { trackingId, TRACK_PREFIX } from '../common/tracking';
 import { InsuranceDetails, InsuranceDetailsSchema } from './insurance.schema';
+import { halalaShadowPlugin } from '../common/halala-shadow';
 
 /**
  * RadiologyService — independent catalog from LabService (X-Ray / CT / MRI / Ultrasound / Mammography / DEXA).
@@ -221,6 +222,9 @@ export class RadiologyBooking extends Document {
   @Prop() refund_status?: string;
 }
 export const RadiologyBookingSchema = SchemaFactory.createForClass(RadiologyBooking);
+// R11 P1: the booking's own SAR doubles get an integer `<field>_halalas` next to them (halalaShadowPlugin); the backfill uses the same list.
+export const RADIOLOGY_BOOKING_HALALA_FIELDS = ['total', 'service_fee', 'home_visit_fee', 'transportation_fee', 'total_price', 'insurance_copay'];
+halalaShadowPlugin(RadiologyBookingSchema, RADIOLOGY_BOOKING_HALALA_FIELDS);
 RadiologyBookingSchema.index({ patient_id: 1, createdAt: -1 });
 RadiologyBookingSchema.index({ state: 1, scheduled_at: 1 });
 

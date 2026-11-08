@@ -1,3 +1,7 @@
+import { APPOINTMENT_HALALA_FIELDS } from '../../schemas/appointment.schema';
+import { LAB_BOOKING_HALALA_FIELDS } from '../../schemas/lab.schema';
+import { RADIOLOGY_BOOKING_HALALA_FIELDS } from '../../schemas/radiology.schema';
+import { HOME_CARE_BOOKING_HALALA_FIELDS } from '../../schemas/home-care.schema';
 import { ORDER_HALALA_FIELDS } from '../../schemas/order.schema';
 import type { mongo } from 'mongoose';
 
@@ -19,6 +23,10 @@ export const TARGETS: Target[] = [
   { collection: 'einvoices', fields: ['subtotal', 'vat_amount', 'total', 'discount'], signed: true },        // credit notes are negative: shadows keep the sign
   { collection: 'refundrequests', fields: ['amount', 'amount_paid', 'refund_amount'] },       // two schemas share this collection
   { collection: 'orders', fields: ORDER_HALALA_FIELDS },
+  { collection: 'appointments', fields: APPOINTMENT_HALALA_FIELDS },
+  { collection: 'labbookings', fields: LAB_BOOKING_HALALA_FIELDS },
+  { collection: 'radiologybookings', fields: RADIOLOGY_BOOKING_HALALA_FIELDS },
+  { collection: 'homecarebookings', fields: HOME_CARE_BOOKING_HALALA_FIELDS },
 ];
 
 export interface PlanRow { collection: string; field: string; to_fill: number; unclean: number; unclean_sample: Array<{ id: unknown; value: unknown }> }

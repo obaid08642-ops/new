@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { SearchSuggest, useSearchSuggest } from "@/components-next/search/search-suggest";
 import styles from "./home.module.css";
@@ -12,7 +12,9 @@ import styles from "./home.module.css";
 export function HeroSearchLive({ locale, placeholder, label, button, defaultValue, focusOnMount }: { locale: string; placeholder: string; label: string; button: string; defaultValue?: string; focusOnMount?: boolean }) {
   const { state, controller } = useSearchSuggest(locale);
   const input = useRef<HTMLInputElement>(null);
-  useEffect(() => {
+  // A layout effect, not a passive one: this field REPLACES a plain one the moment its code arrives. A passive effect runs after the paint, and a key pressed in that gap goes to <body>
+  // (the old input is gone, the new one is not focused yet) and is lost: live gate #2480 shard 4, the request was `q=ر` for "بر". A layout effect runs in the same task as the commit.
+  useLayoutEffect(() => {
     if (focusOnMount && input.current) { input.current.focus(); const n = input.current.value.length; input.current.setSelectionRange(n, n); if (n) controller.input(input.current.value); }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on mount
   }, []);

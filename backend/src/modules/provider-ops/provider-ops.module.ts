@@ -1,3 +1,4 @@
+import { shadowFields } from '../../common/halala-shadow';
 import { mergeCrm, readCrm } from '../provider-production/crm-store';
 import { protectHealthDoc } from '../../common/health-fields';
 import { PROVIDER_ROLES } from '../../common/enums';
@@ -756,8 +757,10 @@ export class ProviderOpsService {
       amount: net, gross, commission_percent: pct, commission_source: commissionSource, ...(promoId ? { promo_id: promoId } : {}), commission, vat,
       ref_type: refType, ref_id: refId, createdAt: new Date(),
     };
-    await this.conn.collection('platformledgerentries').insertOne(row as any);
-    return row;
+    // R11 P1: a raw insert adds its own integer shadows (LedgerService.append does the same for the rows it writes)
+    const withShadows = { ...row, ...shadowFields(row, ['amount', 'gross', 'commission', 'vat']) };
+    await this.conn.collection('platformledgerentries').insertOne(withShadows as any);
+    return withShadows;
   }
 
   /**
