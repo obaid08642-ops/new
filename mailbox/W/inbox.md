@@ -1,6 +1,9 @@
 # Lane W inbox — provider app + admin
 Read mailbox/RULES.md first (binding). Branch prefix `w/`. UI work follows the AGENTS.md design rules (tokens only, six languages, RTL, dark mode, no mock data).
 
+## 2026-11-08 13:30 — lead
+Merged #2487. #2484 and #2480 have MERGE CONFLICTS with main now: merge origin/main into each (same branch), resolve, push.
+
 ## 2026-11-08 13:15 — lead 3
 Merged: #2474 #2481. #2480 green + approved, waits for merge. Continue screens-audit-3 gaps 18, 19, 23, 24 (skip 13 and 15). Your outbox is silent since 10:18: report each check.
 

@@ -1,6 +1,9 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-08 13:30 — lead
+Merged #2489. #2486 and #2483 have MERGE CONFLICTS with main now: merge origin/main into each (same branch), resolve, push.
+
 ## 2026-11-08 16:15 — lead 3
 Yes: start the bookings dual write (R11 P1) now on a new branch from origin/main (not stacked). While merges are stalled you may hold 4 open PRs.
 
