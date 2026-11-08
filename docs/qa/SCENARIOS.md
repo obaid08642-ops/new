@@ -110,7 +110,7 @@ Types: doctor, pharmacy, lab, radiology, nursing (and any other registered type)
 | PV-12 | Staff invite | COVERED | `j_provider_scenarios.py` `staff_invite`: invite by e-mail, duplicate and owner refused, accept with the mailed token (once), disable, enable, revoke | P2 | P2 |
 | PV-13 | Vacation or unavailability | COVERED | `j_doctor_leave.py` (35/35 on main 365b2d580): doctor adds vacation, listed, cancelled and no longer active; missing range refused (400) | P1 | P2 |
 | PV-14 | Payout request and approval | COVERED | `j_payouts.py`, `j_payout_paid.py` | P0 | — |
-| PV-15 | Dispute raised by the patient, seen by the provider | PARTIAL | `GET /support/provider/disputes` (limited fields, unit-tested in `support-provider-disputes.spec.ts`); no live journey or provider-app screen yet | P1 | P2, F |
+| PV-15 | Dispute raised by the patient, seen by the provider | PARTIAL | `GET /support/provider/disputes` (limited fields, unit-tested in `support-provider-disputes.spec.ts`); live journey in `j_dispute.py` (the doctor sees the dispute on their booking, no patient message or identity, a patient is refused); no provider-app screen yet | P1 | P2, F |
 | PV-16 | Consultation online, clinic and home | COVERED | `j_consultation.py`, `j_web_call.py` | P1 | — |
 | PV-17 | Pharmacy broadcast accept, reject, timeout | COVERED | `j_pharmacy_broadcast_responses.py` (reject with a reason, rounds that time out and close the broadcast, a quote that lapses), `j_pharmacy.py` (accept) | P1 | P2 |
 | PV-18 | Lab home visit and centre with result upload | COVERED | `j_lab.py`, `j_lab_result_push.py` | P1 | — |

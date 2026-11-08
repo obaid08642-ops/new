@@ -41,6 +41,15 @@ def run():
     r = admin.get(f'/admin/admin/disputes/{did}')
     step('the admin sees the dispute with its booking', r.ok and r.get('booking_id') == aid and r.get('booking_kind') == 'consultation', r)
 
+    # PV-15: the provider whose booking it is sees that a dispute exists (status and booking only), never the patient's words or identity.
+    r = j_concurrency.DOCTOR_CLIENT.get('/support/provider/disputes')
+    mine = next((x for x in r.items() if x.get('id') == did), {})
+    step("the doctor sees the dispute raised on their booking", r.ok and mine.get('booking_id') == aid and mine.get('booking_kind') == 'consultation', r)
+    leaked = [k for k in ('message', 'thread', 'user_id', 'patient_name', 'phone', 'email') if k in mine]
+    step("the doctor's view carries no patient message or identity", mine and not leaked, leaked or mine)
+    r = pat.get('/support/provider/disputes')
+    step('a patient cannot use the provider dispute list', r.status in (401, 403), r)
+
     amount = max(1, int(float(txn['amount']) // 4))
     body = {'decision': 'refund_partial', 'amount': amount, 'reason': 'تم التحقق من الخصم المكرر مع بوابة الدفع'}
     r = admin.post(f'/admin/admin/disputes/{did}/resolve', body)
