@@ -35,7 +35,14 @@ PLIST=$(ls -d */Info.plist | head -1)
 /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSAllowsArbitraryLoads bool true" "$PLIST" 2>/dev/null \
   || /usr/libexec/PlistBuddy -c "Set :NSAppTransportSecurity:NSAllowsArbitraryLoads true" "$PLIST"
 
-pod install --repo-update
+# The pod specs download some binaries from GitHub releases at install time (RNSentry: Sentry.xcframework.zip; run 42462777569 got a 504 there). Retry ONLY a
+# download/network failure, with growing waits; any other pod error (a real integration problem) fails at once on the first try.
+for wait in 0 20 60 120; do
+  [ "$wait" != 0 ] && { echo "pod install: network failure, waiting ${wait}s before the next try"; sleep "$wait"; }
+  if pod install --repo-update 2>&1 | tee /tmp/native/pod_install.log; [ "${PIPESTATUS[0]}" = 0 ]; then break; fi
+  grep -q -E 'Failed to download|returned error: 5[0-9][0-9]|curl: \([0-9]+\)|Gateway Time-?out|HTTPError|timed out|Connection (reset|refused)|SSL_connect|Could not resolve' /tmp/native/pod_install.log || exit 1
+  [ "$wait" = 120 ] && exit 1
+done
 WS=$(ls -d *.xcworkspace | head -1); SCHEME="${WS%.xcworkspace}"
 xcodebuild -workspace "$WS" -scheme "$SCHEME" -configuration Release -sdk iphonesimulator \
   -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/native/dd \
