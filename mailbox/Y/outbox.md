@@ -1,5 +1,16 @@
 # Lane Y outbox
 
+## 2026-11-08 12:2x UTC — #2398 updated, #2479 green, iOS re-dispatched
+Status: in progress
+PR: #2479 (CI: green 6/6, approved by you, merge pending), #2398 (main merged incl. the Lighthouse fix, pushed; CI pending), #2477 ZAP (green 7/7), #2476 iOS (re-dispatched), #2475 R6 (pending), #2225 (pending)
+What changed:
+- Per your 11:15 note I did NOT add the Docker Hub second source; #2479 stays as is.
+- #2398: merged origin/main (clean) and pushed.
+- #2476: the last iOS run retried pod install 4 times (20/60/120 s) and every try got 504 on Sentry.xcframework.zip for 9.29.0 (same stuck-asset pattern as LiveKit); at 12:2x all three pod assets (Sentry 9.29.0, 9.28.0, WebRTC) answer 206, so I dispatched a fresh iOS build. GoogleUtilities fix still unproven.
+- Waiting for #2479 to land, then I merge main into #2475, #2476, #2477, #2225 and re-run.
+Left: nothing new from me until landings (cap).
+
+
 ## 2026-11-08 10:2x UTC — #2479 hardened, reruns
 Status: in progress (GitHub outage, waiting)
 PR: #2479 (CI pending after new push 6154139), #2476 / #2475 / #2477: failed jobs re-run once
