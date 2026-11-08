@@ -41,6 +41,7 @@ import { PROMO_COLLECTION, promoState, type CommissionPromo } from '../../common
 import { DurableEventsService, emitDurable } from '../durable-events/durable-events.service';
 import { roundSar, toHalalas } from '../../common/money';
 import { clawbackShares } from './refund-clawback';
+import { patientAbsentPercent, patientAbsentRefund, pharmacyCancelRefund, refundsDeliveryFeeBeforeDispatch } from './refund-policy-rules';
 
 export const LEDGER_TYPES = [
   'provider_earning', 'provider_debit', 'payout', 'refund', 'commission',
@@ -1106,6 +1107,46 @@ export class NursingRefundListener {
   }
 }
 
+// ════════════════════════════════════════════════════════════
+// NursingNoShowRefundListener — consumes homecare.booking_no_show (screens-audit-3 gap 24).
+// The nurse marked the visit "patient absent" after the 10-minute wait. The admin policy
+// `home_visit.patient_absent_percent` (default 0: nothing is refunded, as before) is the share of what the patient paid that comes back.
+// Never throws.
+// ════════════════════════════════════════════════════════════
+@Injectable()
+export class NursingNoShowRefundListener {
+  private readonly logger = new Logger('NursingNoShowRefundListener');
+  constructor(
+    @InjectConnection() private readonly conn: Connection,
+    private readonly refundExec: RefundExecutor,
+  ) {}
+
+  @OnEvent('homecare.booking_no_show')
+  async onNoShow(e: any) {
+    try {
+      const bookingId = String(e?.booking_id || '');
+      const patientId = String(e?.patient_id || '');
+      if (!bookingId || !patientId) return;
+      const policyDoc: any = await this.conn.collection('system_configs').findOne({ key: 'refund_policy' }).catch(() => null);
+      const percent = patientAbsentPercent(policyDoc?.value);
+      if (!(percent > 0)) return;
+      const amount = patientAbsentRefund(Number(e?.total || 0), percent);
+      if (!(amount > 0)) return;
+      await this.refundExec.execute({
+        refund_id: `nursing-noshow-${bookingId}`,
+        booking_kind: 'nursing',
+        booking_id: bookingId,
+        patient_id: patientId,
+        amount,
+        reason: 'nursing_patient_absent',
+        actor_id: 'system',
+      });
+    } catch (err: any) {
+      this.logger.error(`nursing no-show refund consumer failed: ${err?.message} (booking ${e?.booking_id})`);
+    }
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // PharmacyRefundListener — consumes pharmacy.order.cancelled (D-26).
 // Cancel before dispatch: 100% including the delivery fee. Once the order is
@@ -1129,7 +1170,9 @@ export class PharmacyRefundListener {
       if (!(total > 0)) return;
       const dispatched = String(e?.meta?.prior_status || '').toLowerCase() === 'out_for_delivery';
       const fee = Math.round(Number(e?.meta?.delivery_fee || 0) * 100) / 100;
-      const amount = dispatched ? Math.max(0, Math.round((total - fee) * 100) / 100) : total;
+      // screens-audit-3 gap 24: `pharmacy.refund_delivery_fee_before_dispatch` is read (default yes: 100 % before dispatch, the fee kept after)
+      const policyDoc: any = await this.conn.collection('system_configs').findOne({ key: 'refund_policy' }).catch(() => null);
+      const amount = pharmacyCancelRefund(total, fee, dispatched, refundsDeliveryFeeBeforeDispatch(policyDoc?.value));
       if (!(amount > 0)) return;
       await this.refundExec.execute({
         refund_id: `pharmacy-cancel-${orderId}`,
@@ -1571,7 +1614,7 @@ export class LabRadiologyRefundListener {
 @Global()
 @Module({
   controllers: [FinanceEngineController, AdminFinanceEngineController],
-  providers: [LedgerService, CommissionResolver, CouponService, LoyaltyRedeemService, FraudService, RefundExecutor, CancellationPolicy, ReportsService, ApprovalService, AppointmentRefundListener, NursingRefundListener, PharmacyRefundListener, LabRadiologyRefundListener, ProviderCancelRefundListener],
+  providers: [LedgerService, CommissionResolver, CouponService, LoyaltyRedeemService, FraudService, RefundExecutor, CancellationPolicy, ReportsService, ApprovalService, AppointmentRefundListener, NursingRefundListener, NursingNoShowRefundListener, PharmacyRefundListener, LabRadiologyRefundListener, ProviderCancelRefundListener],
   exports: [LedgerService, CommissionResolver, CouponService, LoyaltyRedeemService, FraudService, RefundExecutor, CancellationPolicy, ReportsService, ApprovalService],
 })
 export class FinanceEngineModule {}
