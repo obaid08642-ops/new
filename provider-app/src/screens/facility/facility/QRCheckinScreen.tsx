@@ -43,7 +43,7 @@ import { tokens } from '../../../theme/tokens';
 
 export function QRCheckinScreen({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
  const [mode, setMode] = useState<'scan'|'manual'|'history'>('scan');
@@ -97,9 +97,9 @@ export function QRCheckinScreen({ onBack }: { onBack: () => void }) {
  const fetchHistory = () => {
    client.get('/provider/facility/patients/active')
      .then((res: any) => setCheckinHistory((res.data || []).map((p: any) => ({
-       id: p.id, patient: p.patient_name || p.patient || '—',
-       time: (p.checked_in_at || p.createdAt || '').slice(11, 16) || '—',
-       dept: p.department || p.dept || '—', status: p.status || 'checked_in',
+       id: p.id, patient: p.name || '—',
+       time: String(p.appointment_at || p.admitted_at || '').slice(11, 16) || '—',
+       dept: p.ward_name || '—', status: String(p.appointment_status || '').toUpperCase() === 'CHECKED_IN' ? 'checked_in' : 'expected',
      }))))
      .catch(() => setCheckinHistory([]));
  };
@@ -178,8 +178,8 @@ export function QRCheckinScreen({ onBack }: { onBack: () => void }) {
  textAlign: AR?'right':'left' }}>{ch.patient}</Text>
  <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{ch.dept} · {ch.time}</Text>
  </View>
- <NBadge label={ch.status==='checked_in'?(AR?' حضر':' Arrived'):(AR?' لم يحضر':' No-Show')}
- variant={ch.status==='checked_in'?'success':'danger'} size="xs" />
+ <NBadge label={t(ch.status==='checked_in'?'tracker.arrived':'tracker.expected')}
+ variant={ch.status==='checked_in'?'success':'default'} size="xs" />
  </View>
  </NCard>
  ))}

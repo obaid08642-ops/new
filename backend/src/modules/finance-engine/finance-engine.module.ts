@@ -41,6 +41,7 @@ import { PROMO_COLLECTION, promoState, type CommissionPromo } from '../../common
 import { DurableEventsService, emitDurable } from '../durable-events/durable-events.service';
 import { roundSar, toHalalas } from '../../common/money';
 import { clawbackShares } from './refund-clawback';
+import { halalasSum, reportFigures } from './report-totals';
 
 export const LEDGER_TYPES = [
   'provider_earning', 'provider_debit', 'payout', 'refund', 'commission',
@@ -1213,18 +1214,19 @@ export class ReportsService {
     const to = toQ ? new Date(toQ) : now;
     const dateQ = { createdAt: { $gte: from, $lte: to } };
 
+    // R11 P2: the groups add whole halalas (the `*_halalas` shadow, the double only for a row that has none); see report-totals.ts
     const [payments, ledgerRows, refunds, cancelledOrders] = await Promise.all([
       this.conn.collection('moyasar_payments').aggregate([
         { $match: dateQ },
-        { $group: { _id: '$status', total: { $sum: '$amount' }, count: { $sum: 1 } } },
+        { $group: { _id: '$status', total: halalasSum('amount'), count: { $sum: 1 } } },
       ] as any[]).toArray().catch(() => [] as any[]),
       this.conn.collection('platformledgerentries').aggregate([
         { $match: dateQ },
-        { $group: { _id: { type: '$type', state: '$state' }, total: { $sum: '$amount' }, count: { $sum: 1 } } },
+        { $group: { _id: { type: '$type', state: '$state' }, total: halalasSum('amount'), count: { $sum: 1 } } },
       ] as any[]).toArray().catch(() => [] as any[]),
       this.conn.collection('refundrequests').aggregate([
         { $match: dateQ },
-        { $group: { _id: '$state', total: { $sum: '$refund_amount' }, count: { $sum: 1 } } },
+        { $group: { _id: '$state', total: halalasSum('refund_amount'), count: { $sum: 1 } } },
       ] as any[]).toArray().catch(() => [] as any[]),
       Promise.all([
         this.conn.collection('orders').countDocuments({ ...dateQ, state: 'CANCELLED' } as any),
@@ -1232,38 +1234,15 @@ export class ReportsService {
       ]).then(([a, b]) => a + b).catch(() => 0),
     ]);
 
-    const p = (st: string) => (payments as any[]).filter((x) => x._id === st).reduce((s, x) => s + (x.total || 0), 0);
-    const pc = (st: string) => (payments as any[]).filter((x) => x._id === st).reduce((s, x) => s + (x.count || 0), 0);
-    const l = (type: string, state?: string) =>
-      (ledgerRows as any[]).filter((x) => x._id?.type === type && (!state || x._id?.state === state)).reduce((s, x) => s + (x.total || 0), 0);
-    const r = (st: string) => (refunds as any[]).filter((x) => String(x._id).toUpperCase() === st).reduce((s, x) => s + (x.total || 0), 0);
-
-    const gross = round2(p('paid') + p('refunded'));
-
     // commission & vat come from earning rows' embedded fields
     const ev: any[] = await this.conn.collection('platformledgerentries').aggregate([
       { $match: { ...dateQ, type: 'provider_earning' } },
-      { $group: { _id: null, commission: { $sum: '$commission' }, vat: { $sum: '$vat' }, gross: { $sum: '$gross' }, net: { $sum: '$amount' } } },
+      { $group: { _id: null, commission: halalasSum('commission'), vat: halalasSum('vat'), gross: halalasSum('gross'), net: halalasSum('amount') } },
     ] as any[]).toArray().catch(() => [] as any[]);
-    const e = ev[0] || {};
 
     return {
       period, from, to,
-      gross_revenue: gross,
-      paid_count: pc('paid'),
-      failed_count: pc('failed'),
-      failed_volume: round2(p('failed')),
-      // the commission and the VAT on it that refunds took back are subtracted: a refunded order earned the platform nothing
-      commission: round2((e.commission || 0) - l('commission_reversal')),
-      vat_on_commission: round2((e.vat || 0) - l('vat_reversal')),
-      net_revenue: round2((e.commission || 0) - l('commission_reversal') + (e.vat || 0) - l('vat_reversal')),
-      provider_net: round2(e.net || 0),
-      refunds_completed: round2(r('COMPLETED') + r('completed')),
-      refunds_requested_count: (refunds as any[]).reduce((s, x) => s + (x.count || 0), 0),
-      chargebacks: round2(l('chargeback')),
-      provider_pending_escrow: round2(l('provider_earning', 'pending')),
-      provider_settled: round2(l('payout')),
-      provider_debits: round2(l('provider_debit')),
+      ...reportFigures(payments as any[], ledgerRows as any[], refunds as any[], ev[0] || {}),
       canceled_orders: cancelledOrders,
     };
   }

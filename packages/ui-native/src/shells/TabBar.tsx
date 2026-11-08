@@ -152,6 +152,7 @@ export function TabBar({ items, value, onChange, label = 'Main navigation', back
               key={item.key}
               accessibilityRole="tab"
               accessibilityLabel={item.label}
+              testID={testID ? `${testID}-${item.key}` : undefined}
               accessibilityState={{ selected }}
               onPress={() => onChange(item.key)}
               onLayout={(e) => {
@@ -196,6 +197,7 @@ export function TabBar({ items, value, onChange, label = 'Main navigation', back
             key={item.key}
             accessibilityRole="tab"
             accessibilityLabel={item.label}
+            testID={testID ? `${testID}-${item.key}` : undefined}
             accessibilityState={{ selected }}
             onPress={() => onChange(item.key)}
             style={({ pressed }) => ({
