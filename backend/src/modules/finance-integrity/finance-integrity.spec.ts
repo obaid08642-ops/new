@@ -87,6 +87,14 @@ describe('Moyasar day reconciliation (pure)', () => {
   ])('%s', (_n, g, l, code) => {
     expect(reconcileDay(g as any, l as any).map((f) => f.code)).toContain(code);
   });
+  it('the integer shadow is compared when present; the double only when it is missing', () => {
+    expect(reconcileDay([gw({ amount: 10050 })], [local({ amount: 100.5, amount_halalas: 10050 })])).toEqual([]);
+    // a double with float drift (no clean halalas) matches through its shadow instead of being rounded
+    expect(reconcileDay([gw({ amount: 10050 })], [local({ amount: 100.50000001, amount_halalas: 10050 })])).toEqual([]);
+    expect(reconcileDay([gw({ amount: 10050 })], [local({ amount: 100.5, amount_halalas: 10051 })]).map((f) => f.code)).toContain('amount_mismatch');
+    expect(reconcileDay([gw({ amount: 10000, refunded: 2500, status: 'partially_refunded' })], [local({ status: 'partially_refunded', refunded_amount: 25, refunded_amount_halalas: 2500, amount_halalas: 10000 })])).toEqual([]);
+    expect(reconcileDay([gw({ amount: 10000, refunded: 2500, status: 'partially_refunded' })], [local({ status: 'partially_refunded', refunded_amount: 25, refunded_amount_halalas: 2400 })]).map((f) => f.code)).toContain('refund_mismatch');
+  });
   it('a failed gateway payment unknown here is not a finding', () => {
     expect(reconcileDay([gw({ id: 'pay_f', status: 'failed' })], [])).toEqual([]);
   });

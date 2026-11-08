@@ -46,6 +46,11 @@ class AndroidChecks(unittest.TestCase):
         r = c.android_checks(write(DUMP.replace('io.wazo.callkeep.VoiceConnectionService', 'a.B', 1), '.txt'))
         self.assertFalse(r['service:connection'])
 
+    def test_an_action_outside_any_service_does_not_crash(self):
+        # a real APK has activities with <action> intent filters; the parser used to raise KeyError: 'svc' on the first one
+        dump = DUMP.replace('    E: application (line=20)\n', f'    E: application (line=20)\n      E: activity (line=21)\n        E: intent-filter (line=22)\n          E: action (line=23)\n            A: {A}:name(0x01010003)="android.intent.action.MAIN" (Raw: "android.intent.action.MAIN")\n', 1)
+        self.assertTrue(c.android_checks(write(dump, '.txt'))['service:connection'])
+
 
 class IosChecks(unittest.TestCase):
     def plist(self, modes):

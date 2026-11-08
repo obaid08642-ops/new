@@ -14,6 +14,7 @@ import { isProviderRole } from '../../../common/enums';
 import { settlementDelayDefault, DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT } from '../../../common/commission-defaults';
 import { deliveryModeOf, type DeliveryMode } from '../../../common/tax-registration';
 import { assertSubstituteInsidePrescription } from './rx-rules';
+import { roundSar } from '../../../common/money';
 
 function assertProvider(u: any) { if (!u || !isProviderRole(u.role)) throw new ForbiddenException('provider_scope_required'); }
 function assertPatient(u: any) { if (!u || u.role !== 'patient') throw new ForbiddenException('patient_scope_required'); }
@@ -27,7 +28,7 @@ function assertPatient(u: any) { if (!u || u.role !== 'patient') throw new Forbi
  *  - 'pharmacy_own': a pharmacy with its own couriers set its own fee: it is the pharmacy's, part of its gross (commission by the usual rules).
  */
 export function pharmacySettlementGross(a: any, order?: any): { gross: number; platformDeliveryFee: number; delivery_mode: DeliveryMode } {
-  const round2 = (n: number) => Math.round(n * 100) / 100;
+  const round2 = roundSar;
   const total = round2(Number(a?.totals?.total) || 0);
   const fee = round2(Number(a?.totals?.delivery_fee) || 0);
   const delivery_mode = deliveryModeOf(a, order);

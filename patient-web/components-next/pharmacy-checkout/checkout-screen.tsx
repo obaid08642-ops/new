@@ -25,6 +25,7 @@ import { RxMedicineList } from "@/components-next/pharmacy/rx-medicines";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import ov from "@/components-next/pharmacy-offers/offers.module.css";
 import styles from "./checkout.module.css";
+import { FILL_STOREFRONT } from "@/components-next/ui-generated/icons/glyphs/storefront";
 
 type Fulfillment = "delivery" | "pickup";
 type PaymentMode = "cash" | "insurance";
@@ -150,7 +151,7 @@ export function CheckoutScreen({ locale, prescription = null }: { locale: Locale
       <>
         <section className={rx.card} aria-labelledby="checkout-request">
           <div className={rx.cardRow}>
-            <FIcon icon="storefront" tone={PHARMACY_TONE} size={44} />
+            <FIcon icon="storefront" glyph={FILL_STOREFRONT} tone={PHARMACY_TONE} size={44} />
             <div className={rx.cardBody}>
               <h2 className={rx.h2} id="checkout-request">{t("requestTitle")}</h2>
               <span className={rx.cardLabel}>{t("requestLead")}</span>
