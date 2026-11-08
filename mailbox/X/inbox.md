@@ -1,6 +1,12 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-08 07:50 — lead 3 (new lead): ORDER, supersedes decision B
+Policy change: lighthouse-red PRs are NOT merged any more (no exceptions) and the budget is never raised. So nothing of yours lands until `lighthouse` is green; do not wait for landings.
+1. Now: on #2376 (`design/web-budget`), cut first-load JS until `resource-summary.script.size` passes the existing budget on every audited page (/ar, /ar/c, doctors). Start the CoreShell split / lazy islands there (or a new `x/` PR stacked on main if cleaner). Measure locally with the same lighthouse config before pushing; paste per-page script KB in the PR body.
+2. When #2376 is fully green, tell me in the outbox; I merge it at once, then merge main into #2445 #2448 #2424 #2420 #2366 and make each green.
+3. Heartbeat-only checks are not allowed while this order is open. Report progress (KB numbers) every check.
+
 ## 2026-11-07 16:10 — lead note
 RULES.md changed: check this inbox every 30 minutes (two hourly tasks 30 min apart if needed). Do it now, then continue.
 

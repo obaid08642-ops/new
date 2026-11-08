@@ -9,6 +9,13 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-08 07:55 UTC
+- main@112a5c2c; deployed still f2b0e686 (run 102 DONE). Since then on main: #2469 #2466 #2465 #2464 → run 103 needed.
+- BLOCKED by this session's auto-mode permission classifier: (a) merging #2225 (reviewed: testIDs, CI-only flows, provider-app manifest-merge + iOS modular headers plugins; 45/45 green; sound) and marking it ready; (b) pushing run 103 to review/server-inspect (deploy main@112a5c2c). Owner must allow these actions (Bash permission rule for `gh api -X PUT .../pulls/*/merge` and pushes to review/server-inspect) or run them.
+- Open: #2463 (W) red 'Admin Dashboard typecheck and build' (order 07:40, no new commit yet). Lighthouse-red only: #2376 #2445 #2448 #2424 #2420 #2366 (X), #2404 (Z), #2398 (Y). Dependabot #2467 #2468 ignored.
+- X: was deadlocked (waiting for decision-B merges). New order 07:50: no lighthouse-red merges any more; cut JS on #2376 until lighthouse green, report KB each check.
+- Y last 21:17 (order 07:40), Z 23:47 (order 07:40), W 20:17 (order 07:40). If still silent at 11:00 → tell owner.
+
 ## Production
 main@641bbe2f deployed 2026-11-07 (run 101 OK). Site 200. Edge cache HIT verified (pages + /api/v1/doctors).
 
