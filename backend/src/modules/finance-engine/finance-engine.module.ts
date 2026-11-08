@@ -40,6 +40,7 @@ import { settlementDelayDefault, DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT
 import { PROMO_COLLECTION, promoState, type CommissionPromo } from '../../common/commission-promo';
 import { DurableEventsService, emitDurable } from '../durable-events/durable-events.service';
 import { roundSar, toHalalas } from '../../common/money';
+import { clawbackShares } from './refund-clawback';
 
 export const LEDGER_TYPES = [
   'provider_earning', 'provider_debit', 'payout', 'refund', 'commission',
@@ -880,17 +881,18 @@ export class RefundExecutor {
     if (earning && Number(earning.amount) > 0) {
       // The share of what the PATIENT PAID that is refunded. The earning's gross is only the provider's own lines (the platform's service, home-visit and
       // transport fees are not in it), so dividing by it clawed back all of the provider's net when only half of the payment was refunded.
-      const fraction = Math.min(1, amount / (paidTotal > 0 ? Number(paidTotal) : Number(earning.gross || amount)));
-      providerDebited = round2(Number(earning.amount) * fraction);
+      const shares = clawbackShares(earning, amount, Number(paidTotal) || 0);
+      const fraction = shares.fraction;
+      providerDebited = shares.provider;
       // The platform's commission and the VAT on it were earned on the part of the price that is now refunded: they are reversed in the same
       // proportion (provider net share + commission share + VAT share = the refund). They are platform rows (no provider), so a provider's
       // balance does not move twice; the finance report subtracts them (ReportsService.summary).
-      for (const [type, share] of [['commission_reversal', round2(Number(earning.commission || 0) * fraction)], ['vat_reversal', round2(Number(earning.vat || 0) * fraction)]] as const) {
+      for (const [type, share] of [['commission_reversal', shares.commission], ['vat_reversal', shares.vat]] as const) {
         if (share > 0 && !(await this.ledger.exists(type, 'refund', opts.refund_id))) {
           await this.ledger.append({
             type, amount: share, provider_account_id: null, ref_type: 'refund', ref_id: opts.refund_id, order_id: opts.booking_id,
             description: `${type === 'commission_reversal' ? 'Commission' : 'VAT on the commission'} reversed with refund ${opts.refund_id} on earning ${earning.id}`,
-            actor_id: opts.actor_id, meta: { provider_account_id: earning.provider_account_id, earning_id: earning.id, fraction: round2(fraction * 10000) / 10000 },
+            actor_id: opts.actor_id, meta: { provider_account_id: earning.provider_account_id, earning_id: earning.id, fraction },
           });
         }
       }

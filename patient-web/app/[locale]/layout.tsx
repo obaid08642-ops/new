@@ -25,7 +25,8 @@ import { ThemeToggle } from "@/components-next/theme-toggle";
 import { THEME_INIT_SCRIPT } from "@/app/theme";
 import { ModuleBlocked } from "@/components-next/modules/module-blocked";
 import { ModuleRouteGate, ModulesProvider } from "@/components-next/modules/modules-provider";
-import { getDisabledModules, getUploadsEnabled } from "@/lib/api/public-config-server";
+import { SiteNotice } from "@/components-next/site-notice/site-notice";
+import { getDisabledModules, getSiteNoticeEnabled, getUploadsEnabled } from "@/lib/api/public-config-server";
 import { UploadsProvider } from "@/components-next/uploads/uploads-provider";
 import { isPathHidden } from "@/lib/modules";
 import { ImageFallbackGuard } from "@/components-next/core/image-fallback-guard";
@@ -105,11 +106,12 @@ export default async function LocaleLayout({ children, params }: Props) {
   // F82-1: only the namespaces client components read go into the HTML (lib/i18n/client-messages.ts).
   // module switches (#953): a public fetch revalidated every 15 s (no cookie, no header, so static/ISR pages stay
   // cacheable), fail-open; hides entry points and stops deep links into a switched-off module
-  const [allMessages, t, disabled, uploadsEnabled, moduleCopy, legalLinks] = await Promise.all([
+  const [allMessages, t, disabled, uploadsEnabled, siteNotice, moduleCopy, legalLinks] = await Promise.all([
     getMessages({ locale: typedLocale }),
     getTranslations({ locale: typedLocale, namespace: "Shared" }),
     getDisabledModules(),
     getUploadsEnabled(),
+    getSiteNoticeEnabled(),
     getTranslations({ locale: typedLocale, namespace: "Modules" }),
     getTranslations({ locale: typedLocale, namespace: "LegalLinks" }),
   ]);
@@ -138,6 +140,8 @@ export default async function LocaleLayout({ children, params }: Props) {
                 render is the cached copy, so the time is that copy's, not the visit's. Early in the document so it is read
                 first; the banner itself is fixed at the bottom edge. */}
             <OfflineBanner renderedAt={Date.now()} />
+            {/* Owner request 2026-11-03: informational notice above the header; switch it off with the public flag site_notice_enabled. */}
+            {siteNotice ? <SiteNotice text={t("siteNotice")} /> : null}
             <header className="topbar">
               <Link className="brand" href={`/${typedLocale}`}>
                 <span className="brand-mark">

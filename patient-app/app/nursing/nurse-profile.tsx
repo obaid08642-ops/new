@@ -1,3 +1,4 @@
+import { gatewayDownKey } from '../../src/utils/paymentGateway';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
@@ -162,7 +163,8 @@ export default function NursingMegaProfile() {
       }
       showLocalizedAlert(k('nur.book.payFailTitle'), k('nur.book.payFailBody'));
     } catch (payErr) {
-      showLocalizedAlert(k('nur.book.payFailTitle'), (payErr as { message?: string } | null)?.message || k('nur.book.payFailBody'));
+      const down = gatewayDownKey(payErr);
+      showLocalizedAlert(k('nur.book.payFailTitle'), down ? k(down) : (payErr as { message?: string } | null)?.message || k('nur.book.payFailBody'));
     }
     return false;
   };
