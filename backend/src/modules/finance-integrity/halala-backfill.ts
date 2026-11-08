@@ -1,3 +1,4 @@
+import { ORDER_HALALA_FIELDS } from '../../schemas/order.schema';
 import type { mongo } from 'mongoose';
 
 type Db = mongo.Db;
@@ -17,6 +18,7 @@ export const TARGETS: Target[] = [
   { collection: 'wallet_transactions', fields: ['amount'] },
   { collection: 'einvoices', fields: ['subtotal', 'vat_amount', 'total', 'discount'], signed: true },        // credit notes are negative: shadows keep the sign
   { collection: 'refundrequests', fields: ['amount', 'amount_paid', 'refund_amount'] },       // two schemas share this collection
+  { collection: 'orders', fields: ORDER_HALALA_FIELDS },
 ];
 
 export interface PlanRow { collection: string; field: string; to_fill: number; unclean: number; unclean_sample: Array<{ id: unknown; value: unknown }> }

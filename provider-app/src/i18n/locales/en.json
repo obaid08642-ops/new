@@ -267,5 +267,9 @@
   "disputes.category.SUGGESTION": "Suggestion",
   "disputes.booking.consultation": "Consultation",
   "disputes.booking.lab": "Lab test",
-  "disputes.booking.radiology": "Radiology"
+  "disputes.booking.radiology": "Radiology",
+  "supplies.requested": "Supply request sent for this visit",
+  "supplies.failed": "Could not send the supply request",
+  "supplies.forVisit": "Visit the supplies are for",
+  "supplies.noVisit": "You have no confirmed visit to request supplies for."
 }
