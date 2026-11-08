@@ -230,5 +230,18 @@
   "pharmacy.ownDelivery.saveFailed": "Could not save the delivery settings",
   "profile.credential.pending": "Pending review: {value}",
   "profile.credential.sent": "Credential change sent for admin review",
-  "referral.requestedTests": "Requested tests"
+  "referral.requestedTests": "Requested tests",
+  "tracker.empty.title": "No patients right now",
+  "tracker.empty.sub": "Inpatients and booked patients of the facility appear here.",
+  "tracker.inpatient": "Inpatient",
+  "tracker.booked": "Booked",
+  "tracker.bed": "{ward} · Bed {bed}",
+  "tracker.location": "Location",
+  "tracker.doctor": "Doctor",
+  "tracker.admitted": "Admitted",
+  "tracker.nextVisit": "Next visit",
+  "tracker.discharge": "Discharge summary",
+  "tracker.prescription": "Prescription",
+  "tracker.arrived": "Arrived",
+  "tracker.expected": "Expected"
 }
