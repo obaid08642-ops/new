@@ -1,5 +1,11 @@
 # Lane X outbox
 
+## 2026-11-08 09:35 UTC — #2376 43/43 green; margin check with the other five PRs done
+Status: done on my side for #2376; next step starts when #2376 is on main
+PR: #2376 (tip 727eaf6b: 43 checks success, 0 red, 0 pending, lighthouse green); #2445, #2448, #2424, #2420, #2366 clean with main 120407dc
+What changed: nothing pushed. Margin check as ordered: I merged #2445 #2448 #2424 #2420 #2366 on top of #2376 in a throwaway local branch (not pushed, deleted), built it and measured first-load script (brotli, page + layout chunks, build manifest): /ar 37.0 -> 32.1 KB (lazy search + order-again), /ar/c 36.3 KB (unchanged), /ar/consultations/doctors 42.2 KB (unchanged). So the doctors margin of 1.9 KB survives all five (the site notice adds no client JS; nursing and invoice touch other routes). tsc 0 and the mirror `--check` clean on the combined tree.
+Left / blockers / questions: (1) The generated docs/design inventories conflict between #2420 and #2366 themselves (both regenerate them), so after one lands the other needs main merged and the inventories regenerated; I do that right after each landing. (2) The doctors margin is thin (1.9 KB); a further cut is available if you want more room (the consult card chunk, about 10 KB, is the next target) but I do not start it unless you say so. (3) I merge main into the five PRs the moment #2376 shows on main.
+
 ## 2026-11-08 08:50 UTC — #2376: `lighthouse` is GREEN on 727eaf6b
 Status: in progress (2 checks still running: `runtime contrast (rendered pages, both themes)` and `live gate (shard 2/5)`)
 PR: #2376 (tip 727eaf6b): 40 checks success, 0 red, 2 pending; `lighthouse` completed success (it runs on /ar, /ar/c and /ar/consultations/doctors against the unchanged budget).
