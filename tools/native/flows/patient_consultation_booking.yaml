@@ -1,0 +1,157 @@
+# Patient books a clinic consultation through the real screens, paying at the clinic, up to the booking-placed screen and the booking
+# status screen: Consultations tab -> doctor card -> doctor profile (day, time) -> Book -> confirm (cash) -> booking placed -> status.
+# The doctor, his clinic hours and the appointment come from the seeded backend (tools/native/seed.py runs the live journeys), nothing is
+# mocked. Controls are found by testID (patient-app/app/(tabs)/consultations, consultations/doctor/[id], book/[id],
+# src/components/BookingConfirmForm.tsx, consultations/booking-status).
+appId: com.patient.nabd
+---
+- runFlow: lib/patient_signin.yaml
+- tapOn:
+    id: "main-tab-bar-consult"
+- extendedWaitUntil:
+    visible:
+      id: "consultations-hub"
+    timeout: 30000
+# the hub opens on "clinic" visits; its first doctor card opens the doctor's profile
+# Run 41593508288 (iOS): the doctor card sat half under the sticky search/filter header, the tap hit the search field (keyboard up, no doctor
+# page). centerElement scrolls it to the middle of the screen before the tap.
+- runFlow: lib/dismiss_save_password.yaml
+- scrollUntilVisible:
+    element:
+      id: "hub-doctor-0"
+    centerElement: true
+    timeout: 60000
+# Run 41598780677 (iOS): even centred, the hierarchy still reported the first card as visible while its top half was under the sticky header, so the
+# tap at its middle hit the search field. Pull the list down to its first card (the header then ends above it) before the tap.
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - swipe:
+          start: 50%, 40%
+          end: 50%, 75%
+      - waitForAnimationToEnd
+- tapOn:
+    id: "hub-doctor-0"
+- extendedWaitUntil:
+    visible:
+      id: "doctor-screen"
+    timeout: 30000
+# the profile has its own day strip and time grid (the same components as the book screen); "Book" stays disabled until a time is chosen
+# (run 103: tapping it first did nothing, so the book screen never opened). Tomorrow is day 1 of the strip: the first free time of that day.
+# run 113: scrolling DOWN never found the strip (the page ended on the FAQ) - the strip can sit above the first view of a long profile, so look up first
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: "book-day-1"
+          direction: UP
+          timeout: 15000
+          optional: true
+      - scrollUntilVisible:
+          element:
+            id: "book-day-1"
+          visibilityPercentage: 60
+          timeout: 30000
+      - tapOn:
+          id: "book-day-1"
+# Run 41623266710 (iOS): the hierarchy and the screenshot after "tap book-day-1" show TODAY still selected ("the doctor is not available this day", no
+# slots): the tap, made with the strip only 60% in view next to the sticky header, selected nothing. Bring the strip fully into view, tap, and
+# check that day 1 is selected, again from the top when it is not.
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - retry:
+          maxRetries: 3
+          commands:
+            - scrollUntilVisible:
+                element:
+                  id: "book-day-1"
+                direction: UP
+                timeout: 15000
+                optional: true
+            - scrollUntilVisible:
+                element:
+                  id: "book-day-1"
+                centerElement: true
+                timeout: 30000
+            - waitForAnimationToEnd
+            - tapOn:
+                id: "book-day-1"
+            - assertVisible:
+                id: "book-day-1"
+                selected: true
+# run 116: the app received the 20 times of the day (log: '[e2e] slots 2026-11-03 clinic count 20') but the grid sits below the first screen, behind the
+# sticky Book bar, and the hierarchy lists only what is on screen: scroll to it instead of waiting for it
+# the LAST time of the day: the seeded patient already holds the first ones through the journeys' bookings (run 117: POST /care/appointments 400 lock_not_holdable)
+# Android: the grid sits below the first screen and the hierarchy lists only what is on screen, so scroll to it (as before).
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: "book-slot-19"
+            enabled: true
+          timeout: 30000
+# iOS: with day 1 really selected the 20 times of the day load right under the strip; wait for them, then take one of the last rows (the seeded
+# patient already holds the early ones, see above), not one fixed index. (Run 41623266710: the earlier waits failed only because today was selected.)
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - extendedWaitUntil:
+          visible:
+            id: "book-slot-.*"
+          timeout: 30000
+      - takeScreenshot: booking-grid-area
+      - scrollUntilVisible:
+          element:
+            id: "book-slot-1[0-9]"
+            enabled: true
+          speed: 15
+          centerElement: true
+          timeout: 60000
+      - tapOn:
+          id: "book-slot-1[0-9]"
+          enabled: true
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - tapOn:
+          id: "book-slot-19"
+          enabled: true
+- scrollUntilVisible:
+    element:
+      id: "doctor-book"
+      enabled: true
+    timeout: 30000
+# with a time chosen, Book opens the confirm form (booking-status in confirm mode)
+- tapOn:
+    id: "doctor-book"
+- extendedWaitUntil:
+    visible:
+      id: "booking-confirm-screen"
+    timeout: 30000
+# clinic visits can be paid at the clinic: no card checkout (it opens the browser) is needed
+- tapOn:
+    id: "booking-pay-method-cash"
+- tapOn:
+    id: "booking-confirm-submit"
+# POST /care/appointments answered: the booking-placed screen, then the appointment's own status screen
+- extendedWaitUntil:
+    visible:
+      id: "booking-success-screen"
+    timeout: 60000
+- takeScreenshot: patient_booking_placed
+- tapOn:
+    id: "booking-track"
+- extendedWaitUntil:
+    visible:
+      id: "clinic-confirm-screen"
+    timeout: 30000
+- takeScreenshot: patient_booking_confirm
