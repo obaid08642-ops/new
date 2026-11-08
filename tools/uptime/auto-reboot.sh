@@ -17,6 +17,7 @@
 # Test hooks: AUTO_NOW_EPOCH, UPTIME_MAIL_CMD, REBOOT_API_BASE (replaces the Hetzner base URL), OVH_API, PROBE_PAGE_URL/PROBE_API_URL.
 set -uo pipefail
 SITE=${SITE_URL:-https://nabd.plus}
+API_URL=${API_URL:-https://api.nabd.plus}
 STATE_DIR=${STATE_DIR:-${RUNNER_TEMP:-/tmp}/uptime-state}
 AFTER=${REBOOT_AFTER_FAILS:-3}
 COOL_H=${COOLDOWN_H:-6}
@@ -29,7 +30,7 @@ FAILS=$(cat "$STATE_DIR/fails" 2>/dev/null || echo 0)
 [ "$FAILS" -ge "$AFTER" ] 2>/dev/null || { say "not acting: $FAILS consecutive failed check(s), needs $AFTER"; exit 0; }
 
 probe() { curl -s -o /dev/null -L --max-redirs 3 --max-time 20 -w '%{http_code}' "$1" 2>/dev/null || true; }
-PAGE=$(probe "${PROBE_PAGE_URL:-$SITE/ar}"); API=$(probe "${PROBE_API_URL:-$SITE/api/v1/health}")
+PAGE=$(probe "${PROBE_PAGE_URL:-$SITE/ar}"); API=$(probe "${PROBE_API_URL:-$API_URL/api/v1/health/liveness}")
 PAGE=${PAGE:-000}; API=${API:-000}
 hung() { case "$1" in 000|522|523|524) return 0 ;; *) return 1 ;; esac; }
 say "fresh probe: page=$PAGE api=$API"

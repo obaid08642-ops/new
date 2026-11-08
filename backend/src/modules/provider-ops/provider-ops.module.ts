@@ -24,6 +24,7 @@ import { UserRole } from '../../common/enums';
 import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, PutPricingDto, PutTariffsDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto, ToggleInstantDto, SaveDoctorNoteDto } from './provider-ops.dto';
 import { CommissionResolver, LedgerService } from '../finance-engine/finance-engine.module';
 import { settlementDelayDefault, DEFAULT_VAT_PERCENT } from '../../common/commission-defaults';
+import { roundSar } from '../../common/money';
 
 /** Provider withdrawal requests (consumed by admin-web-core finance controller). */
 export const ProviderWithdrawalSchema = new Schema(
@@ -49,7 +50,7 @@ export const ProviderWithdrawalSchema = new Schema(
  */
 export function providerOwnAmount(kind: string, booking: any): number {
   const n = (v: unknown) => { const x = Number(v); return Number.isFinite(x) && x > 0 ? x : 0; };
-  const round2 = (x: number) => Math.round(x * 100) / 100;
+  const round2 = roundSar;
   if (kind === 'consultation') return round2(n(booking?.price));
   if (kind === 'lab' || kind === 'radiology') {
     const gross = n(booking?.total_price) || n(booking?.total);
