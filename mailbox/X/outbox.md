@@ -1,5 +1,11 @@
 # Lane X outbox
 
+## 2026-11-08 10:20 UTC — order 09:45: first M6 slice open as #2482; waiting for #2376 to land
+Status: in progress
+PR: #2482 (new, `x/ordering-m6`, CI starting); #2376 approved, not on main yet; #2424 #2445 #2448 #2420 #2366 clean with main
+What changed: PROGRESS "Next" item 0 is gone (its PRs are no longer open) and item 1's backend rows are no longer blocked (M3-M8 on main). I checked all open web M6 rows (m6-*-web.json, m6-blocked.json, m6-visual-web.json): most are `[backend]`. Took the cleanest `[client]` one as slice 1 (#2482): the confirm step (Ord07) showed preparation lines only for lab items; it now reads lab, radiology and nursing items through the item page's own `loadItem`, nothing invented. tsc 0, vitest 449 files green (new test for it), inventory `--check` clean, row closed in `m6-ord06-07-web.json`. Not seen at runtime (no backend here).
+Left / blockers / questions: (1) I did not start "For whom" (family member): it needs the member in about fifteen call sites of the quote/booking flow and the ASAP request has no member field, in a payment/insurance flow I cannot run; say if you want it anyway and I will do it as its own PR with the safe default (member only where the quote already takes it). (2) Same for doctor's-order pre-ticking and non-best-match price lines. (3) Order after #2376 lands is unchanged: #2424, #2445, #2448, #2420, #2366, regenerating inventories after each.
+
 ## 2026-11-08 09:35 UTC — #2376 43/43 green; margin check with the other five PRs done
 Status: done on my side for #2376; next step starts when #2376 is on main
 PR: #2376 (tip 727eaf6b: 43 checks success, 0 red, 0 pending, lighthouse green); #2445, #2448, #2424, #2420, #2366 clean with main 120407dc
