@@ -1,3 +1,11 @@
+## 17:29 UTC 2026-11-08 — check 17:18: gap 24 (#2495) and gap 23 (#2496) opened
+Status: in progress
+PR: #2495 (CI: pending), #2496 (CI: pending), #2490 / #2486 / #2483 (no conflicts at 17:18; last completed runs green)
+What changed: 17:15 order (screens-audit-3 gaps 23, 24):
+ - #2495 z/refund-policy-fields (gap 24): home_visit.patient_absent_percent and pharmacy.refund_delivery_fee_before_dispatch are read now. Pharmacy cancel listener honours the delivery-fee flag; the nurse's no-show (home-care.controller visits/:id/no-show) emits homecare.booking_no_show and a new NursingNoShowRefundListener refunds the policy percent (default 0 = as today). Lab/radiology have no patient-absent state, so not wired (product decision if wanted). 11 tests.
+ - #2496 z/commission-kpis (gap 23): the commission KPIs were 0 because accrue() has no caller; I did NOT wire accrue() into payments (it writes another row shape into the real ledger collection and would double-count): platformSummary / providerSummary / admin commissions list now read the real provider_earning and commission/vat_reversal rows in halalas, net of refunds; patient refund requests and policy-preview follow refund_policy.consultation instead of fixed 24h/4h windows (default table 2h/50%/0%); money-path bug found: provider-ops creditEarning (~758) raw-inserted earning rows without the R11 *_halalas shadows, fixed. 22 tests.
+Left / blockers / questions: questions (safe options taken): (1) refund requests now use the owner's default table (2h/50%/0%), so a request 3h before the start gets 100% (was 0%); say so if you want the old windows kept as the default. (2) accrue() left unused on purpose. 5 open PRs (2483, 2486, 2490, 2495, 2496) - above the 4 you allowed; I start nothing new until some merge.
+
 ## 16:48 UTC 2026-11-08 — check 16:47
 Status: waiting for CI
 PR: #2483 / #2486 / #2490: every completed run is success (acceptance, CodeQL, schemathesis, legacy-client-contract; #2486 and #2483 also passed live gate/CI on their previous commits); the live gate and Patient Production CI on the merge commits are still running; no completed failure; all three up to date with main, no conflicts
