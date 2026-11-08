@@ -39,13 +39,15 @@ def run(full=False, **extra):
         with open(p, "w") as f: f.write(body)
         os.chmod(p, os.stat(p).st_mode | stat.S_IXUSR)
     log = os.path.join(d, "log")
-    env = {**os.environ, "PATH": os.path.join(d, "bin") + ":" + os.environ["PATH"], "FAKE_LOG": log, "FAKE_PW": PW, "FAKE_USER": USER, "OPS_BACKUP_DIR": d, **extra}
+    tmp = os.path.join(d, "tmp"); os.mkdir(tmp)
+    env = {**os.environ, "TMPDIR": tmp, "PATH": os.path.join(d, "bin") + ":" + os.environ["PATH"], "FAKE_LOG": log, "FAKE_PW": PW, "FAKE_USER": USER, "OPS_BACKUP_DIR": d, **extra}
     task = TASK
     if full:
         task = os.path.join(d, "t.sh")
         with open(TASK) as src, open(task, "w") as dst: dst.write(src.read().replace('FULL=""', 'FULL="yes"', 1))
     r = subprocess.run(["bash", task], env=env, capture_output=True, text=True, timeout=60)
     calls = open(log).read() if os.path.exists(log) else ""
+    run.leftover = os.listdir(tmp)
     return r.stdout + r.stderr, calls
 
 
@@ -93,6 +95,17 @@ class Diag(unittest.TestCase):
         self.assertNotIn("--quiet", run5)
         self.assertNotIn("--db=", run5)
         self.assertIn("gzip_archive_bytes=13", out)
+
+
+    def test_no_temp_file_is_left_after_a_normal_run_or_a_full_run(self):
+        run()
+        self.assertEqual(run.leftover, [])
+        run(full=True)
+        self.assertEqual(run.leftover, [])
+
+    def test_the_credentials_file_is_removed_by_a_trap_on_any_exit(self):
+        with open(TASK) as f: src = f.read()
+        self.assertIn("trap 'rm -f \"$CFG\" \"$ERR\" \"$OUT\"' EXIT", src)
 
 
 if __name__ == "__main__":

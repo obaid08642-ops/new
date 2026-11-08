@@ -49,6 +49,7 @@ if [ -z "$IMG" ] || [ -z "$NET" ] || [ -z "$IP" ]; then say "RESULT: cannot read
 
 AVAIL=$(awk '/^MemAvailable:/ {print int($2/1024)}' /proc/meminfo); CAP=600; [ "${AVAIL:-0}" -gt 0 ] && CAP=$((AVAIL - 250)); [ "$CAP" -gt 600 ] && CAP=600; [ "$CAP" -lt 350 ] && CAP=350
 ERR=$(mktemp); CFG=$(mktemp); OUT=$(mktemp); chmod 600 "$ERR" "$CFG" "$OUT"
+trap 'rm -f "$CFG" "$ERR" "$OUT"' EXIT   # the credentials file goes away on ANY exit, also an early one or a signal
 printf "password: '%s'\n" "${MONGO_ROOT_PASSWORD//\'/\'\'}" > "$CFG"
 
 step() { # label network use_cfg -- mongodump args
