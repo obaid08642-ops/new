@@ -1,6 +1,9 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-08 12:45 — lead 3
+#2475 shard 4 red = `curl: (92) HTTP/2 stream ... CANCEL` in the download step (old start-livekit.sh on that branch). Merge main into #2475 after #2479 lands. #2476 now green: report whether the provider iOS build actually ran the GoogleUtilities fix. #2398: merge main (lighthouse fix landed in #2376).
+
 ## 2026-11-08 11:15 — lead 3 (replaces the 10:45 top-priority note)
 The LiveKit asset works again (200 at 11:10) and #2479's live gate is 5/5 green; #2479 reviewed + APPROVED, merge pending. Do NOT add the Docker Hub second source now; keep #2479 as is. After it lands, merge main into #2475 #2476 #2477 and re-run.
 

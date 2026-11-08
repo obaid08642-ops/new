@@ -9,6 +9,11 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-08 12:45 UTC
+- main@f5a698ee (no merges). REVIEWED + APPROVED, all green (owner to merge): #2479 #2477 #2445 #2448 #2225 #2482 #2480 #2474 #2424 #2420 #2404 #2366. Suggested order: 2479, 2477, 2225, 2424, 2445, 2448, 2482, 2404, 2480, 2474, 2420, 2366 (2420/2366 conflict on inventories → X re-merges).
+- Red: #2475 (curl 92 download, fixed by 2479). Pending: #2483 #2478 #2481 #2476 #2398.
+- W last outbox 10:18.
+
 ## Lead 3 run 2026-11-08 12:10 UTC
 - main@f5a698ee (no merges). APPROVED + all green, waiting owner merge: #2479 (LiveKit cache), #2477 (ZAP diagnostics only), #2445 (lazy hero search), #2448 (lazy order-again). #2225 approved, CI pending.
 - Re-ran #2474 (stale LiveKit 504). Red: #2476 build-ios provider (Y), #2398 lighthouse (Y: merge main). Deploy run 103 still unprepared (classifier).

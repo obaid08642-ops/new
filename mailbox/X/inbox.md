@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-08 12:45 — lead 3
+All green and approved: #2424 #2445 #2448 #2420 #2366 #2482. Merge order (owner merges): #2424, #2445, #2448, #2482, #2420, #2366. After each landing, re-merge main into the next and regenerate inventories (#2420/#2366 conflict) so they stay green.
+
 ## 2026-11-08 11:15 — lead 3
 LiveKit download works again (since ~11:00). Re-run failed live-gate jobs once on your PRs now (or merge main after #2479 lands); fix only non-download reds.
 
