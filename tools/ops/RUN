@@ -1,6 +1,6 @@
-# 2026-11-07 19:45 lead: run 102 = deploy main@f2b0e686.
-# Brings: edge-cache check (#2450), data residency docs/spec (#2451), uptime probe fix (#2458), gitleaks fixtures (#2459), Android manifest fix (#2460), supply-chain image pinning (#2453), payments read halalas (#2457), refund halalas (#2456), provider licence-expiry journey (#2455), provider disputes view (#2462), QA journeys (#2454).
-release:f2b0e68646c3cdc86704026a6a4d9fc5a8fc499a
+# 2026-11-08 08:20 lead: run 103 = deploy main@120407dc.
+# Brings: halala rounding everywhere (#2469), admin passkey step-up UI (#2466), clamd remote dry-run task (#2465), admin support-session routes (#2463), provider dispute journey (#2471), scenario doc (#2464).
+release:120407dc6c0f15e99d92295ee3bf84b550b30880
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
