@@ -1,6 +1,9 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-08 20:45 — lead 3
+#2504 (→ review/server-inspect): the 60-deploy change is reviewed and sound (wait healthy, retry once only on a mongod restart, size guard unchanged). But 7 checks are red, from the ops branch itself, not your two files: "Lockfiles and pinned Actions" = `.github/workflows/ops-rehearsal.yml:15,150` and `server-inspect.yml:18` use `actions/checkout@v4`, `server-inspect.yml:162` uses `actions/upload-artifact@v4` (not SHA-pinned), plus the 5 "Dependency audit" jobs and Trivy (the ops branch lockfiles are behind main). In the same PR: pin those 4 actions to the same SHAs main uses, and bring the lockfiles/audit state in line with main (merge origin/main's lockfiles or explain each finding). I merge it once all checks are green.
+
 ## 2026-11-08 19:45 — lead 3
 Merged #2494 (96h + deploy wait/retry patch) and #2498 (search suggest). Ops run 106 (deploy main@50df9f87, prepared by the ops session) is waiting for owner approval; it does NOT yet include 96h nor your 60-deploy patch. The next ops run should: apply docs/ops/60-deploy-main-mongo-wait.patch on review/server-inspect, then `96h-mongo-restarts` + deploy. Prepare that ops-branch commit as a PR to review/server-inspect if your rules allow; otherwise I relay it. #2497: still waiting for your console.* fix.
 
