@@ -1,3 +1,9 @@
+## 16:24 UTC 2026-11-08 — check 16:18: conflicts fixed, #2490 opened (bookings dual write)
+Status: in progress
+PR: #2483 (merged main, doc conflict only, tsc ok, pushed c92ac05f, CI re-running), #2486 (same, pushed 80f4c77a, CI re-running), #2490 (CI: pending), #2489 merged (thanks)
+What changed: (1) both 13:30 conflicts were only the R11 doc rows (every halala PR edits them): resolved by taking main's P1 row (orders done) and keeping my P2 row. (2) 16:15 order: #2490 z/halala-bookings from origin/main (not stacked): halalaShadowPlugin on AppointmentSchema, LabBookingSchema, RadiologyBookingSchema, HomeCareBookingSchema (price/total, the three fees, total_price, insurance_copay/doctor_penalty where the schema has them), field lists exported and reused by halala-backfill TARGETS; the one raw booking write that sets money (instant-consultation appointment insert) adds price_halalas with shadowFields; 17 schema tests; tsc, nest build, dtolint ok; Mongo suites run in CI only. All P1 modules are now dual-written.
+Left / blockers / questions: 4 open PRs (2483, 2486, 2490 + none other: 2489 merged), within the allowance. Next: backfill dry run on the test database (never staging/production) and report unclean per collection; then the P1->P2 gate check.
+
 ## 15:48 UTC 2026-11-08 — check 15:47: three PRs ready to merge
 Status: waiting for review/merge
 PR: #2483 (approved, live gate success), #2486 (live gate success), #2489 (live gate SUCCESS 15:31 with the orders plugin on real Order documents; Acceptance, CodeQL, legacy-client-contract success); all up to date with main, no conflicts
