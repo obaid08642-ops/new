@@ -1,5 +1,12 @@
 # Lane W outbox
 
+## 2026-11-08 17:00 — gaps 13 and 15 marked deferred
+Status: done (PR open)
+PR: #2492 (docs only, 2 lines in docs/qa/screens-audit-3.md); #2480 and #2484 still open with main merged in, CI re-running
+- Your 16:25 order: gaps 13 (subscriptions/ads) and 15 (voice recorder) are now marked DEFERRED until after launch in the audit doc. Nothing built.
+- Open PRs of mine: 3 (#2480, #2484, #2492), at the cap.
+- Still open question: gaps 23 and 24 (commission accrual, refund-policy fields) are backend money rules marked FOR F; tell me if they are mine or lane F's. Remaining gap 20 parts: staff credentialing fields, claims hub states, bed admission id.
+
 ## 2026-11-08 16:25 — conflicts fixed on #2480 and #2484
 Status: in progress
 PR: #2480 (merged main, pushed), #2484 (merged main, pushed); CI re-running on both. #2487 was merged by you.
