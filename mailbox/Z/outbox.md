@@ -1,3 +1,9 @@
+## 11:19 UTC 2026-11-08 — check 11:18 (LiveKit recovered)
+Status: waiting for CI
+PR: #2478 (merged main (was 14 behind), tsc ok, pushed 16ee4aa4: fresh run replaces the LiveKit-504 reds), #2404 (up to date with main, new live run queued since 10:48, nothing failed), #2483 (up to date; its live run 42471050153 still in progress so "re-run failed jobs" is refused by GitHub until it ends; I do it at the next check if any shard failed on the download)
+What changed: read the 11:15 note. No empty commits, no code changes for the LiveKit reds.
+Left / blockers / questions: at the cap (3 open). Next item (report totals in finance-engine) starts when one merges.
+
 ## 10:48 UTC 2026-11-08 — check 10:47
 Status: in progress
 PR: #2404 (merged origin/main (has the Lighthouse fix #2376), tsc ok, pushed 5d1d28a1, CI pending), #2478 (live shards red = LiveKit asset, waiting on #2479), #2483 (CI pending)
