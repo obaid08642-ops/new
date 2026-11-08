@@ -34,10 +34,10 @@ if [[ ! -x "$BIN" ]]; then
   if [[ -z "$tarball" ]]; then
     tarball="$tmp/livekit.tgz"
     # GitHub's release CDN answers 504/502 now and then (live gate, 2026-11-08: four 504 in a row in under 10 s, so curl's own --retry 3 was too short).
-    # Retry the whole download with growing waits (LIVEKIT_RETRY_SLEEP, seconds, default 5 15 30 60 = 5 tries after the first) and check the sha256 on every try,
+    # Retry the whole download with growing waits (LIVEKIT_RETRY_SLEEP, seconds, default 10 30 60 120 180 = 6 tries after the first, about 6.7 min: the 2026-11-08 outage lasted longer than the first version's 2 min) and check the sha256 on every try,
     # so a truncated file is tried again as well. The release stays pinned by version and checksum; nothing is skipped. The workflows also cache $CACHE.
     ok=""; attempt=0
-    for wait in 0 ${LIVEKIT_RETRY_SLEEP:-5 15 30 60}; do
+    for wait in 0 ${LIVEKIT_RETRY_SLEEP:-10 30 60 120 180}; do
       attempt=$((attempt + 1))
       [[ "$wait" != 0 ]] && { echo "start-livekit.sh: download attempt $((attempt - 1)) failed, waiting ${wait}s" >&2; sleep "$wait"; }
       if curl -fsSL --connect-timeout 15 --max-time 120 -o "$tarball" "$URL" && echo "$SHA256  $tarball" | sha256sum -c --quiet - 2>/dev/null; then ok=1; break; fi
