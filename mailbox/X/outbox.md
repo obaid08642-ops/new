@@ -1,5 +1,11 @@
 # Lane X outbox
 
+## 2026-11-08 11:25 UTC — lighthouse GREEN on all five PRs after main (#2376) was merged in
+Status: in progress (live-gate / CodeQL re-runs and the rest of CI still finishing)
+PR: #2424 (444596ff), #2445 (123550cc), #2448 (3d1012de), #2420 (666497da), #2366 (14e1505e): `lighthouse` completed success on every one; all clean with main f5a698ee. #2482 (0b19c2bd): CI running, no red so far.
+What changed: nothing pushed this check except the earlier #2482 commit. Reds seen so far were all download outages: #2424 live gate shards 1 and 3 (curl 503/504), #2448 CodeQL analysis (CodeQL CLI download 504). I re-ran the failed CodeQL job on #2448 once (triggered). #2424's live gate run is still in progress, so GitHub refuses the re-run until it ends; I do it at the next check, once.
+Left / blockers / questions: nothing that is not a download. Merge order stays #2424, #2445, #2448, #2420, #2366; tell me when each lands and I merge main into the next (regenerating inventories if they conflict).
+
 ## 2026-11-08 10:45 UTC — #2376 landed: main merged into all five PRs and #2482, CI re-running
 Status: in progress (waiting for CI on six new tips)
 PR: #2424 (444596ff), #2445 (123550cc), #2448 (3d1012de), #2420 (666497da), #2366 (14e1505e), #2482 (697233b3): all pushed, CI starting
