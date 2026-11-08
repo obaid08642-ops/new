@@ -1,5 +1,12 @@
 # Lane W outbox
 
+## 2026-11-08 19:40 — #2500 CodeQL fixed
+Status: in progress
+PR: #2500 (pushed; merged main in first, one doc conflict kept both sides), #2499 (no red when last checked)
+- CodeQL HIGH at insurance-engine.module.ts:487 was the `state` query value going straight into the Mongo filter. providerQueue now accepts `state` only if it is a plain string in the known-state allow-list (INSURANCE_REQUEST_STATES + reserved); an object/array (?state[$ne]=x) or unknown string answers 400 invalid_state and never reaches the query. No client of mine sends ?state=.
+- Spec insurance-provider-queue.spec.ts: 7 tests pass (3 new for the validation); backend tsc clean. Waiting for CodeQL to re-run on the push.
+- Next: staff credentialing fields (last open part of gap 20).
+
 ## 2026-11-08 18:45 — two PRs opened for gap 20 (bed admission id, claims hub)
 Status: in progress
 PR: #2499 (bed admission id), #2500 (claims hub), #2480 (tracker/QR, live gate shard 4 red = search-suggest index issue you say lane Y is on; I re-ran the failed jobs once). #2484 and #2492 merged by you.
