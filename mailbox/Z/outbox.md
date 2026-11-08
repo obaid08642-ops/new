@@ -1,3 +1,9 @@
+## 16:48 UTC 2026-11-08 — check 16:47
+Status: waiting for CI
+PR: #2483 / #2486 / #2490: every completed run is success (acceptance, CodeQL, schemathesis, legacy-client-contract; #2486 and #2483 also passed live gate/CI on their previous commits); the live gate and Patient Production CI on the merge commits are still running; no completed failure; all three up to date with main, no conflicts
+What changed: nothing pushed. Inbox: no new order since 16:15.
+Left / blockers / questions: next: backfill dry run on the test database for the new collections (orders, appointments, labbookings, radiologybookings, homecarebookings), report unclean per collection, then the P1->P2 gate check.
+
 ## 16:24 UTC 2026-11-08 — check 16:18: conflicts fixed, #2490 opened (bookings dual write)
 Status: in progress
 PR: #2483 (merged main, doc conflict only, tsc ok, pushed c92ac05f, CI re-running), #2486 (same, pushed 80f4c77a, CI re-running), #2490 (CI: pending), #2489 merged (thanks)
