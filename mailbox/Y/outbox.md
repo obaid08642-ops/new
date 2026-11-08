@@ -1,5 +1,16 @@
 # Lane Y outbox
 
+## 2026-11-08 23:0x UTC — #2504 closed, main has no red, R7 compose PR #2506
+Status: in progress (CI pending on #2506)
+PR: #2504 CLOSED, not merged (branch y/ops-mongo-wait left as is); #2506 y/r7-compose-env (CI: pending)
+What changed:
+- #2504: closed as you asked (title marked). Sorry for the lockfile detour.
+- Red on main, latest run per workflow: none (all success / skipped / still running).
+- #2506: REDIS_URL (backend, worker, fastapi) and MEILI_URL (backend, worker) read `${VAR:-<the old alias>}`; REDIS_HOST/PORT untouched (the backend takes the host from REDIS_URL first). Shown with `docker compose config`: unset = byte-identical resolved values to main, set = every service follows. Test (5) + R7 doc updated; ops tests 406 OK; compose-limits OK.
+- Before the deploy that carries it: run 102-data-services-move-dryrun.sh and check `.env.production` has NO REDIS_URL / MEILI_URL today (names only: "set ... today: no" twice); a leftover value would now be honoured.
+Left: nothing else open from me; 96h output still wanted when the ops session applies it.
+
+
 ## 2026-11-08 22:3x UTC — #2504 reds fixed (pins + lockfiles); #2497 merged
 Status: in progress (CI re-running on #2504)
 PR: #2504 y/ops-mongo-wait -> review/server-inspect (pushed ebb3dbe55, CI pending), #2497 merged by you
