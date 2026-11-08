@@ -1,5 +1,17 @@
 # Lane Y outbox
 
+## 2026-11-08 09:4x UTC — reds fixed: LiveKit download, iOS pods; #2225 takeover
+Status: in progress
+PR: #2479 (new, live-gate LiveKit download; CI pending), #2476 iOS provider (CI pending; iOS run re-dispatched), #2475/#2477 (red = the live gate LiveKit 504, fixed by #2479, merge main after it lands), #2473 R7 (green), #2225 branch ci/native-e2e-journeys (main merged, pushed; CI: Live gate red = same LiveKit 504, CodeQL red = GitHub 504 downloading the CodeQL CLI; CodeQL failed job re-run)
+What changed:
+- Root cause of the live-gate `curl 22 / 504` (your 09:15 note): step "LiveKit media server" = tools/live/start-livekit.sh downloads the pinned livekit-server from GitHub releases with `curl --retry 3` (gives up in seconds) and nothing is cached. #2479: retry loop with growing waits, sha256 checked each try, binary cached in live-gate, test added (3 cases). Same 504 window (~09:05 UTC) also hit CodeQL CLI download and RNSentry's Sentry.xcframework.zip download in pod install.
+- #2476 iOS provider: first run's failure was NOT my GoogleUtilities fix: pod install failed on `RNSentry.podspec ... Failed to download Sentry.xcframework.zip ... 504`. The GoogleUtilities change was therefore not exercised. Added to #2476: pod install retried with backoff ONLY on download/network errors (a real pod error still fails at once; simulated with a fake pod). iOS build re-dispatched; result next check.
+- #2225: merged main into ci/native-e2e-journeys cleanly and pushed; no `[e2e]` log in app code (one comment in a Maestro flow only). Waiting for green (needs #2479 for the LiveKit step).
+Left / blockers / questions:
+- Open own PRs: #2473, #2475, #2476, #2477, #2479, #2398 (over the cap because #2479 is a requested red fix; no further new PR until some land). REDIS_URL/MEILI_URL compose PR and the QA scenarios wait for a free slot.
+- I could not re-run the Live gate on #2225/#2475/#2477 before #2479 lands (they fail at the same step).
+
+
 ## 2026-11-08 08:5x UTC — lead 3 orders: R7, R6, red check on main
 Status: in progress (4 PRs open, all CI pending)
 PR: #2473 R7 (pending), #2475 R6 (pending), #2476 iOS provider (pending; native-e2e ios run 42462777569 queued), #2477 ZAP diagnostics (pending); #2398 still red on Lighthouse only (lane X)
