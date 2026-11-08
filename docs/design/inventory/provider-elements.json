@@ -1,5 +1,5 @@
 {
- "commit": "8a68e9f7",
+ "commit": "666497da",
  "screens": {
   "PendingDashboard": [
    {
@@ -9128,11 +9128,21 @@
    },
    {
     "kind": "button",
+    "label": "{t('disputes.title')}",
+    "src": "navigate → provider_disputes",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
+    "line": 237,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
     "label": "Logout",
     "src": "parent callback onLogout",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
-    "line": 239,
+    "line": 240,
     "via": null,
     "note": null
    },
@@ -11864,6 +11874,18 @@
     "status": "ok",
     "file": "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx",
     "line": 303,
+    "via": null,
+    "note": null
+   }
+  ],
+  "ProviderDisputesScreen": [
+   {
+    "kind": "data",
+    "label": "List items",
+    "src": "GET /support/provider/disputes → items",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/ProviderDisputesScreen.tsx",
+    "line": 81,
     "via": null,
     "note": null
    }
