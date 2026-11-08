@@ -9,6 +9,10 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-08 17:45 UTC
+- LIVE main@a74179a8. main unchanged. Reds (not PR-caused) → Y: load shedder 503 in live gate (#2483 shard 5), search suggest wrong results + purge failures (#2480 shard 4).
+- Green + approved: #2484 #2420 #2398 #2225. New pending: #2495 #2496 (Z gaps 23/24), #2494 #2493 #2492 #2491 #2490 #2486 #2366.
+
 ## Lead 3 run 2026-11-08 17:15 UTC
 - LIVE main@a74179a8 (run 105). main unchanged since. A merge bot (hourly :50) merges reviewed green non-risky PRs; old lead relays owner decisions (M6 ×3, gaps 13/15 deferred).
 - Answered: X decision 2 = pre-checked not locked (pharmacy prescriptions + Ord03 doctor's orders); W gaps 23/24 → Z.
