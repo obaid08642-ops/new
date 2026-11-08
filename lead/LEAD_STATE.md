@@ -9,6 +9,11 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-08 15:40 UTC
+- main@92446efa (no merges since 13:00), LIVE f5a698ee. #2488 (mongodump diag, now with trap cleanup) GREEN + APPROVED → owner: merge, then ops run with only `96g-mongodump-diag`.
+- APPROVED + green, waiting owner merge (14): #2488 #2225 #2398 #2475 #2476 #2484 #2485 #2483 #2420 #2366 #2480 #2486 (report totals in halalas) #2487 (W gap 19) #2489 (order halala shadow fields + backfill list).
+- No open reds. Lanes active (X/Y last 13:2x/13:54 — waiting on merges).
+
 ## Lead 3 run 2026-11-08 15:10 UTC
 - main@92446efa (no merges since 13:00), LIVE f5a698ee. Deploys blocked until the mongodump backup is fixed (#2488 diag, CI 6 pending).
 - APPROVED + green, waiting owner merge (9): #2225 #2398 #2475 #2476 #2484 #2485 (PROGRESS.md) #2483 #2420 #2366.
