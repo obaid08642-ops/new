@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { SPECIALTY_ALL_LOOK, SPECIALTY_MORE_LOOK, type SpecialtyLook, type SpecialtyTileModel } from "@/components-next/ui-generated/icons/specialty-look";
 import styles from "./specialty-tiles.module.css";
+import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
 /** The board's chip (docs/design/canvas/Consult.dc.html): a filled icon of the board's set in a soft tonal chip, 58, over the name. */
 const CHIP = 58;
@@ -23,7 +23,7 @@ export function SpecialtyTile({ href, label, look, selected = false }: Specialty
       aria-current={selected ? "true" : undefined}
       data-selected={selected ? "true" : undefined}
     >
-      <span className={styles.picture}><FIcon icon={look.icon} tone={look.tone} chip="soft" size={CHIP} /></span>
+      <span className={styles.picture}><FIconByName icon={look.icon} tone={look.tone} chip="soft" size={CHIP} /></span>
       <span className={styles.label}>{label}</span>
     </Link>
   );

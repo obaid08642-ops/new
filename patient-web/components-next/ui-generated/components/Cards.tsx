@@ -19,7 +19,8 @@ import clsx from 'clsx';
 import type { ConsultMode, DoctorCardProps, OfferCardProps, ProductCardProps, ProgressRingProps, TimelineProps } from './contract';
 import { FIcon } from './FIcon';
 import { Rating } from './Surfaces';
-import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, type FillIconName } from '../icons/fill';
+import { FILL_ICON_VIEWBOX, type FillIconName } from '../icons/fill';
+import { fillHref } from '../icons/sprite';
 import { CLOCK_PATH, MARK_VIEWBOX_24, PLUS_SQUARE_PATH, SEAL_CHECK_PATH, SEAL_PATH } from '../icons/marks';
 
 /**
@@ -36,7 +37,7 @@ import { CLOCK_PATH, MARK_VIEWBOX_24, PLUS_SQUARE_PATH, SEAL_CHECK_PATH, SEAL_PA
 function Glyph({ name, size, color }: { name: FillIconName; size: number; color: string }) {
   return (
     <svg width={size} height={size} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true" className="nabd-cards-glyph">
-      <path d={FILL_ICON_PATHS[name]} fill={color} />
+      <use href={fillHref(name)} fill={color} />
     </svg>
   );
 }

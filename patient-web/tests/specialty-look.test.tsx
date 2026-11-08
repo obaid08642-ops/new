@@ -3,7 +3,8 @@ import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { SPECIALTY_ALL_LOOK, SPECIALTY_LOOK, SPECIALTY_SLUGS as LOOK_SLUGS, filterSpecialties, orderSpecialties, specialtyLook } from "@/components-next/ui-generated/icons/specialty-look";
-import { FILL_ICON_PATHS, SERVICE_TONES } from "@/components-next/ui-generated/icons/fill";
+import { SERVICE_TONES } from "@/components-next/ui-generated/icons/fill";
+import { FILL_ALL_PATHS } from "@/components-next/ui-generated/icons/fill-all";
 import { SPECIALTY_SLUGS } from "@/lib/specialties";
 import { SpecialtyGrid, SpecialtyRow, SpecialtyTile } from "@/components-next/consult/specialty-tiles";
 
@@ -31,7 +32,7 @@ describe("specialty look", () => {
     expect([...LOOK_SLUGS].sort()).toEqual([...slugs].sort());
     expect([...SPECIALTY_SLUGS].sort()).toEqual([...slugs].sort());
     for (const slug of LOOK_SLUGS) {
-      expect(Object.keys(FILL_ICON_PATHS), slug).toContain(SPECIALTY_LOOK[slug].icon);
+      expect(Object.keys(FILL_ALL_PATHS), slug).toContain(SPECIALTY_LOOK[slug].icon);
       expect(SERVICE_TONES, slug).toContain(SPECIALTY_LOOK[slug].tone);
     }
   });

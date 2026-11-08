@@ -13,6 +13,7 @@ import { MAX_RX_FILE_BYTES, checkRxFile, ocrItemsWithLeaflet, prepareRxImage, ty
 import { AnswerCard } from "./assistant-kit";
 import styles from "./assistant.module.css";
 import { UploadsUnavailable, useUploadsEnabled } from "@/components-next/uploads/uploads-provider";
+import { FILL_PRESCRIPTION } from "@/components-next/ui-generated/icons/glyphs/prescription";
 
 type Failure = "type" | "size" | "read" | "unreadable" | "ocr";
 type Phase = { kind: "idle" } | { kind: "preparing" } | { kind: "reading" } | { kind: "failed"; reason: Failure } | { kind: "answered"; items: Array<RxItem & { slug: string | null }> };
@@ -86,7 +87,7 @@ export function PrescriptionClient() {
 
       {phase.kind === "answered" ? null : !uploadsEnabled ? <UploadsUnavailable className={rx.dropHint} /> : (
         <section className={rx.drop}>
-          <FIcon icon="prescription" tone={PHARMACY_TONE} size={72} />
+          <FIcon icon="prescription" glyph={FILL_PRESCRIPTION} tone={PHARMACY_TONE} size={72} />
           <h2 className={rx.dropTitle}>{rxText("dropTitle")}</h2>
           <p className={rx.dropHint}>{rxText("dropHint")}</p>
           <div className={rx.dropButtons}>

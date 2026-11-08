@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { SERVICE_ICONS, type FillIconName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "./consult.module.css";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 
 /** The consultation service's own icon and tone, from the handoff service map (never written as a colour name). */
 export const CONSULT = SERVICE_ICONS.consult;

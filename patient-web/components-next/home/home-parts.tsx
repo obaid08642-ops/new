@@ -20,6 +20,8 @@ import type { Locale } from "@/lib/i18n";
 import type { RecordRow, ReminderCard as ReminderCardData } from "@/lib/api/dashboard-extras";
 import { NONE_DISABLED, isPathHidden, visibleItems, type DisabledModules } from "@/lib/modules";
 import styles from "./home.module.css";
+import { FILL_SPARKLE } from "@/components-next/ui-generated/icons/glyphs/sparkle";
+import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
 type T = Awaited<ReturnType<typeof getTranslations>>;
 
@@ -137,7 +139,7 @@ export function AiCard({ locale, t, disabled = NONE_DISABLED }: { locale: Locale
   return (
     <section className={styles.ai} aria-labelledby="home-ai-title">
       <div className={styles.aiHead}>
-        <FIcon icon="sparkle" tone="violet" chip="solid" size={56} />
+        <FIcon icon="sparkle" glyph={FILL_SPARKLE} tone="violet" chip="solid" size={56} />
         <div className={styles.aiText}>
           <h2 id="home-ai-title" className={styles.aiTitle}>{t("aiTitle")}</h2>
           <span className={styles.aiSub}>{t("aiSub")}</span>
@@ -148,7 +150,7 @@ export function AiCard({ locale, t, disabled = NONE_DISABLED }: { locale: Locale
         {tools.map((tool) => (
           <li key={tool.href}>
             <Link href={tool.href} className={styles.aiTool}>
-              <FIcon icon={tool.icon} tone={tool.tone} chip="none" size={22} />
+              <FIconByName icon={tool.icon} tone={tool.tone} chip="none" size={22} />
               <span>{tool.label}</span>
             </Link>
           </li>
