@@ -18,6 +18,8 @@ const patientReadRoutes = [
   new RegExp("^/home-care/bookings/[A-Za-z0-9-]{1,64}$", "i"),
   // components-next/home-care-booking-form: the chosen nurse's free times for one day (journeys#60).
   new RegExp("^/home-care/providers/[A-Za-z0-9-]{1,64}/slots\\?date=\\d{4}-\\d{2}-\\d{2}$", "i"),
+  // components-next/home-care-booking-form: the server's price of a nursing booking for the choice made (docs/product/NURSING_BOOKING_OPTIONS.md).
+  new RegExp("^/bookings/quote\\?kind=nursing&service_id=[A-Za-z0-9_-]{1,128}&provider_id=[A-Za-z0-9-]{1,64}(&(hours|days|sessions_count)=\\d{1,3}|&(shift|period|recurrence)=[a-z]{1,10}){0,6}$", "i"),
   new RegExp("^/family/chat/messages$", "i"),
   new RegExp(`^/offers/${orderId}$`, "i"),
   new RegExp(`^/promotions/offers/${orderId}/providers$`, "i"),
