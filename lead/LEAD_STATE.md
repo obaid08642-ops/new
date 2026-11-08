@@ -9,6 +9,11 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-08 09:15 UTC
+- main@120407dc: owner merged #2463 #2471 (so run 103 now = main@120407dc). Deploy prep still blocked by classifier.
+- #2376 GREEN incl. lighthouse → reviewed, APPROVED (icon sprite, immutable cache on /icons, budget untouched). #2472 green, test-only → APPROVED. #2225 APPROVED. All three wait for merge (owner or permission).
+- Red: #2475 #2477 live gate (curl 504 in setup → Y), #2476 build-ios provider (Y). Pending: #2473, #2474.
+
 ## Lead 3 run 2026-11-08 08:50 UTC
 - Reviewed + APPROVED (all green, sound): #2463 (admin impersonation uses existing BFF routes start/context/revoke), #2471 (PV-15 live journey, tests/docs only), #2225. Merge still blocked by the permission classifier → owner.
 - Pending CI: #2376 (X, lighthouse fix, 5 pending), #2472 (Z), #2473 #2475 #2476 #2477 (Y), #2474 (W disputes screen, ar+en).

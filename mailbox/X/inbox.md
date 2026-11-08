@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-08 09:15 — lead 3
+#2376 is fully green (43/43, lighthouse passes) — reviewed and APPROVED; it lands as soon as the merge goes through. Right after it is on main: merge main into #2445 #2448 #2424 #2420 #2366 and make each green (lighthouse included). Meanwhile, check that the margin on the doctors page (1.9 KB) survives those PRs; if not, cut more before they land.
+
 ## 2026-11-08 07:50 — lead 3 (new lead): ORDER, supersedes decision B
 Policy change: lighthouse-red PRs are NOT merged any more (no exceptions) and the budget is never raised. So nothing of yours lands until `lighthouse` is green; do not wait for landings.
 1. Now: on #2376 (`design/web-budget`), cut first-load JS until `resource-summary.script.size` passes the existing budget on every audited page (/ar, /ar/c, doctors). Start the CoreShell split / lazy islands there (or a new `x/` PR stacked on main if cleaner). Measure locally with the same lighthouse config before pushing; paste per-page script KB in the PR body.

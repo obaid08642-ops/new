@@ -1,6 +1,9 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-08 09:15 — lead 3
+Red on your PRs: #2475 live gate shards 1/3/4 and #2477 shards 2/4. Shard 1 log (#2475): a curl step in setup fails 4x with `curl: (22) The requested URL returned error: 504` then `exit code 22` (right after the playwright-install retry step). Root-cause which URL/step that is (external download?) and fix it so the gate does not depend on one flaky upstream (pin/cached artifact or proper retry with backoff on that step; no skip). #2476 build-ios (provider) red: report what fails.
+
 ## 2026-11-08 08:50 — lead 3
 Good work. You are at 4 open PRs (cap 3): no new PR until one lands. Compose change for REDIS_URL/MEILI_URL: prepare it as its own PR (env with the current alias as default, zero behaviour change) after a slot frees; owner approves before any deploy uses it. Report the iOS provider run (#2476) result.
 
