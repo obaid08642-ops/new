@@ -3,6 +3,7 @@ import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { trackingId, TRACK_PREFIX } from '../common/tracking';
 import { InsuranceDetails, InsuranceDetailsSchema } from './insurance.schema';
+import { halalaShadowPlugin } from '../common/halala-shadow';
 
 @Schema({ timestamps: true, collection: 'lab_services' })
 export class LabService extends Document {
@@ -163,6 +164,9 @@ export class LabBooking extends Document {
   @Prop({ index: true }) status?: string;
 }
 export const LabBookingSchema = SchemaFactory.createForClass(LabBooking);
+// R11 P1: the booking's own SAR doubles get an integer `<field>_halalas` next to them (halalaShadowPlugin); the backfill uses the same list.
+export const LAB_BOOKING_HALALA_FIELDS = ['total', 'service_fee', 'home_visit_fee', 'transportation_fee', 'total_price', 'insurance_copay'];
+halalaShadowPlugin(LabBookingSchema, LAB_BOOKING_HALALA_FIELDS);
 LabBookingSchema.index({ patient_id: 1, createdAt: -1 });
 LabBookingSchema.index({ state: 1, scheduled_at: 1 });
 

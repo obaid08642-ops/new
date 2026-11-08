@@ -1,3 +1,4 @@
+import { shadowFields } from '../../common/halala-shadow';
 import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { randomUUID } from 'crypto';
@@ -233,6 +234,7 @@ export class InstantConsultationService implements OnModuleInit {
       status: 'scheduled',
       payment_status: 'not_charged',
       price: typeof price === 'number' ? price : 0,
+      ...shadowFields({ price: typeof price === 'number' ? price : 0 }, ['price']),   // R11 P1: a raw insert adds its own shadow
       createdAt: now,
       updatedAt: now,
     });
