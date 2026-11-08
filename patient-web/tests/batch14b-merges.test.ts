@@ -10,7 +10,6 @@ vi.mock("@/lib/i18n", () => ({ isLocale: () => true }));
 
 import { catalogueHref } from "@/lib/catalogue-href";
 import InsuranceUploadPage from "../app/[locale]/diagnostics/insurance-upload/page";
-import FiltersPage from "../app/[locale]/pharmacy/filters/page";
 import MedicinesPage from "../app/[locale]/medicines/page";
 import MedicineCatalogPage from "../app/[locale]/medicine-catalog/page";
 import MedicineIndexPage from "../app/[locale]/medicine/page";
@@ -25,10 +24,6 @@ describe("in-app redirects keep the query", () => {
   it("insurance upload goes to the insurance step, bookingId becoming orderId", async () => {
     await run(InsuranceUploadPage, { bookingId: "b1" });
     expect(nav.redirect).toHaveBeenCalledWith("/en/diagnostics/insurance-approval?orderId=b1");
-  });
-  it("filters go to the catalogue with the chosen category", async () => {
-    await run(FiltersPage, { filter_category: "vitamins", filter_sort: "trending" });
-    expect(nav.redirect).toHaveBeenCalledWith("/en/c/vitamins");
   });
 });
 

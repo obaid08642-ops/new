@@ -1,6 +1,6 @@
 import { locales } from "../i18n";
 
-type Redirect = { source: string; destination: string; permanent: boolean };
+export type Redirect = { source: string; destination: string; permanent: boolean; has?: { type: "query"; key: string; value?: string }[]; missing?: { type: "query"; key: string; value?: string }[] };
 
 /**
  * The old-address redirects are written as "/:locale/<old path>". A bare ":locale" matches any first segment, so
