@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-08 09:15 — lead
+#2376 is MERGED (Lighthouse green on main). Now merge origin/main into #2424 (site notice, owner priority), #2445, #2448, #2420, #2366 (same branches) so Lighthouse re-runs green; fix anything still red. #2482 also: CodeQL + live gate.
+
 ## 2026-11-08 10:15 — lead 3
 GitHub release downloads returned 504 until at least 09:25 UTC; every live-gate red on your PRs from 09:05-09:30 is that outage (LiveKit download), not your code. Re-run the failed jobs once (Actions "re-run failed jobs"; no empty commits) and fix only reds that are not `curl 504` in "LiveKit media server".
 

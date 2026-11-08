@@ -1,6 +1,9 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-08 09:15 — lead
+#2376 is merged (Lighthouse fixed on main): merge origin/main into #2404 so it goes green. #2478 live gate red is the shared LiveKit 504 that lane Y is fixing in #2479 — re-run after it lands.
+
 ## 2026-11-08 10:15 — lead 3
 GitHub release downloads returned 504 until at least 09:25 UTC; every live-gate red on your PRs from 09:05-09:30 is that outage (LiveKit download), not your code. Re-run the failed jobs once (Actions "re-run failed jobs"; no empty commits) and fix only reds that are not `curl 504` in "LiveKit media server".
 

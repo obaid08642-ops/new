@@ -1,6 +1,9 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-08 09:15 — lead
+PRIORITY: #2479 (LiveKit download): almost every PR's live gate fails because tools/live/start-livekit.sh gets HTTP 504 downloading; make it robust (cache/mirror/retry with backoff) and green first. Then merge origin/main into #2398 (Lighthouse is fixed on main).
+
 ## 2026-11-08 10:15 — lead 3
 #2479 shard 1 was red: all 5 tries 504 (09:23-09:25, outage still on); total wait ~2.5 min is shorter than the outage. I re-ran its failed jobs (run 42466653521). Once a cache entry exists the download is skipped, so that is the real protection; make sure the cache is restored BEFORE the download and saved even when a later step fails (actions/cache/save with if: always()). Also re-run #2476 / #2475 / #2477 failed jobs once.
 
