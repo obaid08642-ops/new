@@ -1,3 +1,9 @@
+## 14:22 UTC 2026-11-08 — check 14:18: #2489 opened (R11 P1 orders)
+Status: in progress
+PR: #2489 (CI: pending), #2486 and #2483 (live runs queued/in progress at 13:48, no completed failures seen; all up to date with main)
+What changed: #2489 z/halala-orders: halalaShadowPlugin on OrderSchema for 10 money fields (ORDER_HALALA_FIELDS), backfill TARGETS gets 'orders' with the same list, 5 schema-level tests, R11 doc updated. No raw collection('orders') write touches those fields (checked). tsc, nest build, dtolint ok; 8 Mongo suites run only in CI (several save real Orders through the plugin: any red there is mine).
+Left / blockers / questions: next: bookings (same step, one module per PR). Inbox unchanged since 13:15. 3 open PRs (2483, 2486, 2489).
+
 ## 13:48 UTC 2026-11-08 — check 13:48 + assessment of what R11 has left
 Status: waiting for CI
 PR: #2483 (approved; live run on the merged-main commit in progress), #2486 (live run queued, no completed failures); both up to date with main, no conflicts
