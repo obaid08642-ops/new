@@ -1,3 +1,9 @@
+## 21:18 UTC 2026-11-08 — check 21:17: all my PRs merged; no open PR, no open order
+Status: idle, reviewing
+PR: none open. Merged since the last report: #2495 (refund policy fields), #2503 (payout request lock), #2483 (copayRefundable). Earlier: #2486, #2490, #2496, #2469, #2472, #2464, #2478, #2457, #2456, #2404.
+What changed: nothing pushed. Inbox unchanged since 18:00. Started a read-through of RefundExecutor.executeCore (finance-engine.module.ts ~line 720-860) for money-path bugs; nothing wrong found in the first part (idempotency, owner check, copay cap, card evidence); continuing.
+Left / blockers / questions: needs from you: (1) test-database backfill dry-run counts for orders/appointments/labbookings/radiologybookings/homecarebookings (I cannot run MongoDB here); (2) confirm the new default refund-request table (2h/50%/0%) is intended; (3) next order if you have one (R11 P2 beyond the points done: send Moyasar amount_halalas directly, DTOs with @IsInt halalas, need an API-contract decision from you).
+
 ## 20:48 UTC 2026-11-08 — check 20:48: #2495 merged; #2503 live gate green
 Status: waiting for merges
 PR: #2503 (payout request lock: live gate run SUCCESS, which includes j_payouts.py against the replica set; no conflict: ready to merge), #2483 (live gate running since 19:49, no failure, no conflict)
