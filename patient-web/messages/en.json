@@ -3480,6 +3480,7 @@
     "errPast": "That time has passed. Choose a later time.",
     "errOrder": "The order could not be created",
     "errPay": "The payment could not be started",
+    "errPayDown": "Payment is not available right now. Try later; your booking is kept.",
     "checkoutWhen": "Day and time",
     "checkoutDay": "Day",
     "checkoutTime": "Time",

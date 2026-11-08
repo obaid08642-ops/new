@@ -1,3 +1,4 @@
+import { gatewayDownKey } from '../utils/paymentGateway';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
 import * as Linking from 'expo-linking';
@@ -174,7 +175,8 @@ export default function BookingConfirmScreen() {
         setConsentOpen(true);
         return;
       }
-      showLocalizedAlert(k('consult.confirm.failedTitle'), (error instanceof Error && error.message) || k('consult.confirm.tryLater'));
+      const down = gatewayDownKey(error);
+      showLocalizedAlert(k('consult.confirm.failedTitle'), down ? k(down) : (error instanceof Error && error.message) || k('consult.confirm.tryLater'));
     } finally {
       setLoading(false);
     }

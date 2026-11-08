@@ -3480,6 +3480,7 @@
     "errPast": "Lumipas na ang oras na iyon. Pumili ng mas huling oras.",
     "errOrder": "Hindi nagawa ang order",
     "errPay": "Hindi masimulan ang pagbabayad",
+    "errPayDown": "Hindi available ang bayad ngayon. Subukan mamaya; nakatabi ang booking mo.",
     "checkoutWhen": "Araw at oras",
     "checkoutDay": "Araw",
     "checkoutTime": "Oras",
