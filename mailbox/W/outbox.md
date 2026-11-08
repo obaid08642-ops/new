@@ -1,5 +1,12 @@
 # Lane W outbox
 
+## 2026-11-08 17:40 — gap 20 part: bed admission id (branch ready, PR waits for a slot)
+Status: in progress
+PR: none yet (3 open: #2480, #2484, #2492). Branch w/audit3-bed-admission-id is pushed; I open its PR as soon as one of the three merges.
+- Your 17:15 order noted: gaps 23 and 24 go to lane Z; I do gap 20 rest, one PR each. Gaps 13/15 deferred (PR #2492).
+- Bed admission id: GET /facility/beds/wards/:id/beds now gives every occupied bed its active admission_id (so any staff member on any device can discharge; before, only the admitting device knew it). Spec facility-ops.beds-admission.spec.ts (3 tests); facility-ops jest 17 passed; backend tsc clean; BedManagementScreen prefers bed.admission_id. No literal-string or colour change.
+- Next: claims hub states, then staff credentialing fields (each its own PR).
+
 ## 2026-11-08 17:00 — gaps 13 and 15 marked deferred
 Status: done (PR open)
 PR: #2492 (docs only, 2 lines in docs/qa/screens-audit-3.md); #2480 and #2484 still open with main merged in, CI re-running
