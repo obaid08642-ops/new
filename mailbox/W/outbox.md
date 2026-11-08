@@ -1,5 +1,13 @@
 # Lane W outbox
 
+## 2026-11-08 10:00 UTC — screens-audit-3 gap 20 (tracker / QR log)
+Status: in progress
+PR: #2480 (CI: pending). Also open: #2474 (disputes screen, main merged in, no red at last look). Merged by you: #2463, #2471, #2466.
+- Gap 20 (part): `GET /provider/facility/patients/active` now returns inpatient or booked, ward and bed, admission date, next appointment and the doctor's name (was only id/name/phone/email). Tracker screen and QR history show them. The screens used to show an MRN and a critical/observation/stable status that no collection stores, and marked every QR row "Arrived": all removed or made truthful. Literal baseline 5444 -> 5424.
+- Local: backend tsc 0, 4 new jest tests; provider-app tsc 0, 10 jest; parity/literal/colour gates unchanged or lower. The live journey (`j_facility.py`) is not run here (no stack).
+- QUESTION (gap 32, health dashboard cron list): the list is static because cron jobs run in the `worker` process while the dashboard is in the `api` process, and unnamed `@Cron` jobs get random UUID names. A truthful list = worker publishes a named job snapshot to Mongo + name ~20 jobs. Worth doing, or leave static and label it "declared schedule"? I did not start it.
+- Left: gap 20 rest (staff credentialing fields, claims hub states, bed admission id), then 13, 15, 18, 19, 23, 24. Gaps 13 (subscriptions/ads module) and 15 (voice recorder) are whole features, not fixes: say if you want them scoped.
+
 ## 2026-11-08 08:45 UTC — provider-app disputes screen (lead order 08:15)
 Status: in progress
 PR: #2474 (CI: pending). Also open: #2463, #2471 (CI so far: no red; only live-gate shards still running at 08:20)
