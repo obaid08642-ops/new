@@ -1,3 +1,5 @@
+import { earningsPipeline, foldPlatformSummary, foldProviderSummary, reversalsPipeline } from '../finance-engine/commission-summary';
+import { consultationRefundWindow, consultationRefundWindows } from '../finance-engine/consultation-refund-table';
 import { halalaShadowPlugin } from '../../common/halala-shadow';
 import { PROVIDER_ROLES } from '../../common/enums';
 /**
@@ -204,21 +206,24 @@ export class FinanceCoreService {
     return doc.toObject();
   }
 
+  /**
+   * One provider's totals from the real ledger (screens-audit-3 gap 23): the `provider_earning` rows the settlement credits for the provider's account(s).
+   * `providerId` is the signed-in user; the earnings are filed under the provider ACCOUNT id, so both are looked up.
+   */
   async providerSummary(providerId: string) {
-    const agg = await this.ledger.aggregate([
-      { $match: { provider_id: providerId, state: 'ACCRUED' } },
-      { $group: { _id: null, gross: { $sum: '$gross_amount' }, commission: { $sum: '$commission_amount' }, net: { $sum: '$net_provider_amount' }, count: { $sum: 1 } } },
-    ]);
-    return agg[0] || { gross: 0, commission: 0, net: 0, count: 0 };
+    const account: any = await this.ledger.db.collection('provider_accounts').findOne({ $or: [{ id: providerId }, { user_id: providerId }] }).catch(() => null);
+    const ids = [...new Set([providerId, account?.id, account?.user_id].filter(Boolean).map(String))];
+    const rows = await this.ledger.aggregate(earningsPipeline(ids) as any[]);
+    return foldProviderSummary(rows as any[]);
   }
 
+  /** The platform commissions KPI from the real ledger, net of what refunds reversed (see finance-engine/commission-summary.ts). */
   async platformSummary() {
-    const agg = await this.ledger.aggregate([
-      { $match: { state: 'ACCRUED' } },
-      { $group: { _id: '$service_type', gross: { $sum: '$gross_amount' }, commission: { $sum: '$commission_amount' }, count: { $sum: 1 } } },
+    const [earnings, reversals] = await Promise.all([
+      this.ledger.aggregate(earningsPipeline() as any[]),
+      this.ledger.aggregate(reversalsPipeline() as any[]),
     ]);
-    const total = agg.reduce((s, r) => s + r.commission, 0);
-    return { total_commission: Math.round(total * 100) / 100, by_service: agg };
+    return foldPlatformSummary(earnings as any[], reversals as any[]);
   }
 }
 
@@ -946,6 +951,25 @@ export class RefundService {
     return REFUND_WINDOWS[REFUND_WINDOWS.length - 1];
   }
 
+  /** The stored refund policy (`system_configs {key:'refund_policy'}`), or undefined when there is none or no connection. */
+  private async storedRefundPolicy(): Promise<any> {
+    if (!this.conn) return undefined;
+    const doc: any = await this.conn.collection('system_configs').findOne({ key: 'refund_policy' }, { projection: { _id: 0, value: 1 } }).catch(() => null);
+    return doc?.value;
+  }
+
+  /** The window of a refund request: the admin policy's consultation table (screens-audit-3 gap 23). Without a connection (unit tests) the fixed windows. */
+  async policyForRequest(scheduledAt?: Date): Promise<{ percent: number; note_ar: string }> {
+    if (!this.conn) return this.policyFor(scheduledAt);
+    return consultationRefundWindow(scheduledAt, await this.storedRefundPolicy());
+  }
+
+  /** What `GET refunds/policy-preview` lists: the same table. */
+  async policyTable(): Promise<{ windows: Array<{ hours_before: number; percent: number; note_ar: string }>; no_show_percent?: number }> {
+    if (!this.conn) return { windows: REFUND_WINDOWS };
+    return consultationRefundWindows(await this.storedRefundPolicy());
+  }
+
   async request(user: any, body: any) {
     if (!body?.booking_id) throw new BadRequestException('booking_id is required');
     const paid = Number(body?.amount_paid || 0);
@@ -955,7 +979,7 @@ export class RefundService {
     if (dup) return dup.toObject();
     // E1 S15: refund-abuse detection — frequent refunders are flagged for admin review
     await this.fraud.checkRefundAbuse(user.id).catch(() => false);
-    const policy = this.policyFor(body?.scheduled_at ? new Date(body.scheduled_at) : undefined);
+    const policy = await this.policyForRequest(body?.scheduled_at ? new Date(body.scheduled_at) : undefined);
     const doc = await this.refunds.create({
       patient_id: user.id, booking_id: body.booking_id, booking_kind: body.booking_kind,
       amount_paid: paid, refund_percent: policy.percent,
@@ -1045,9 +1069,10 @@ export class RefundController {
   constructor(private readonly svc: RefundService) {}
   @Post('request') request(@CurrentUser() u: any, @Body() b: RequestDto) { return this.svc.request(u, b); }
   @Get('my') my(@CurrentUser() u: any) { return this.svc.myRefunds(u); }
-  @Get('policy-preview') preview(@Query('scheduled_at') s?: string) {
-    const w = this.svc.policyFor(s ? new Date(s) : undefined);
-    return { refund_percent: w.percent, note_ar: w.note_ar, windows: REFUND_WINDOWS };
+  @Get('policy-preview') async preview(@Query('scheduled_at') s?: string) {
+    const w = await this.svc.policyForRequest(s ? new Date(s) : undefined);
+    const table = await this.svc.policyTable();
+    return { refund_percent: w.percent, note_ar: w.note_ar, windows: table.windows, ...(table.no_show_percent !== undefined ? { no_show_percent: table.no_show_percent } : {}) };
   }
 }
 
