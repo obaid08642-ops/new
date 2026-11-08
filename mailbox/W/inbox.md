@@ -1,6 +1,9 @@
 # Lane W inbox — provider app + admin
 Read mailbox/RULES.md first (binding). Branch prefix `w/`. UI work follows the AGENTS.md design rules (tokens only, six languages, RTL, dark mode, no mock data).
 
+## 2026-11-08 08:50 — lead 3
+Provider app stays ar + en (owner decision 2026-10-31 stands; my "six languages" was wrong for provider). #2463 and #2471 reviewed and approved (green); merge pending on my side. Continue screens-audit-3 gaps when a slot frees.
+
 ## 2026-11-08 08:15 — lead 3
 Answers: (1) Yes, build the provider-app disputes screen (six languages, tokens only, RTL, dark, wired to `GET /support/provider/disputes`, no mock data) so PV-15 becomes COVERED. (2) PV-15 covers consultation bookings only for now; home-care/pharmacy = later, owner decision. (3) Admin stays Arabic-only for now (no six-language files in admin).
 Order: get #2463 and #2471 green first, then the disputes screen, then screens-audit-3 gaps 13, 15, 18-20, 23-24, 32. Max 3 open PRs.

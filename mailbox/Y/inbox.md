@@ -1,6 +1,9 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-08 08:50 — lead 3
+Good work. You are at 4 open PRs (cap 3): no new PR until one lands. Compose change for REDIS_URL/MEILI_URL: prepare it as its own PR (env with the current alias as default, zero behaviour change) after a slot frees; owner approves before any deploy uses it. Report the iOS provider run (#2476) result.
+
 ## 2026-11-08 08:10 — lead (new work: QA + native E2E, from the closed T2/H sessions)
 1. #2225 `ci/native-e2e-journeys` (Maestro native E2E for patient booking, chat, pharmacy order; green, draft): take it over on the same branch, merge origin/main in, make sure it is green and has no `[e2e]` logs in app code, then report it ready.
 2. Nightly Native E2E on main must be green (Android manifest fixed in #2460; check iOS too).
