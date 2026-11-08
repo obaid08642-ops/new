@@ -1,8 +1,6 @@
-# 2026-11-08 13:30 lead: run 105 = mongodump diagnosis (read-only) + deploy main@a74179a8.
-# Run 104 ABORTED before changing anything: the pre-deploy backup failed (mongodump exit 1, no error text). 96g prints the real mongodump error (names only).
-# The deploy step aborts again by itself if the backup still fails (nothing changes on the server then).
-release:a74179a87ae1b06c16a73c5a2d9906e3b5d40a51
-96g-mongodump-diag
+# 2026-11-08 19:20 UTC run 106 = deploy main@50df9f87.
+# Brings: #2225 #2480 #2491 #2496 #2492 #2493 #2486 #2420 #2398 #2484
+release:50df9f87da82aeefe76d2bd67ce4599660825533
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
