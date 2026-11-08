@@ -1,7 +1,7 @@
 import { Injectable, ForbiddenException, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from '../../../common/password-hash';
 import { PharmacyOrder, PharmacyOrderState, OrderItemMatchStatus } from '../schemas/pharmacy.schema';
 import { PharmacyInventoryItem } from '../../provider/schemas/capabilities.schema';
 import { ProviderProfile, ProviderAccount } from '../../provider/schemas';

@@ -3,7 +3,7 @@ import express from 'express';
 import request from 'supertest';
 import { of, NEVER, delay as rxDelay } from 'rxjs';
 import { firstValueFrom } from 'rxjs';
-import { OVERLOAD, OverloadGovernor, autoDegraded, resetOverloadForTests } from './overload';
+import { OVERLOAD, OverloadGovernor, autoDegraded, describeLevelChange, resetOverloadForTests } from './overload';
 import { ADMISSION, AdmissionMiddleware, admissionStats, admit } from './admission';
 import { READ_BUDGET_MS, RouteTimeoutInterceptor } from './route-timeout.interceptor';
 import { AdaptiveConcurrencyInterceptor } from './adaptive-concurrency.interceptor';
@@ -24,6 +24,21 @@ describe('OverloadGovernor', () => {
     t += 600; s.heap = 0.81; expect(g.level()).toBe(1);
     t += 600; s.heap = 0.9; expect(g.level()).toBe(2);
     t += OVERLOAD.calmMs + 1; s.heap = 0.1; fill = 0.95; expect(g.level()).toBe(1);   // the low-priority budget nearly full is "strained"
+  });
+  it('reports every CHANGE of level once, with the readings that caused it (not once per request)', () => {
+    let t = 7_000_000; const s = sig(); const seen: string[] = [];
+    const g = new OverloadGovernor(s as any, () => t, () => 0, (from, to, why) => seen.push(`${from}->${to} loop=${why.loopMs} heap=${why.heapRatio}`));
+    g.level(); t += 600; s.loop = 160; g.level(); g.level(); t += 600; s.loop = 170; g.level();   // 0->1 once, then still 1
+    t += 600; s.loop = 300; g.level();                                                              // 1->2
+    t += OVERLOAD.calmMs + 1_000; s.loop = 5; g.level();                                            // 2->0 after the calm period
+    expect(seen).toEqual(['0->1 loop=160 heap=0', '1->2 loop=300 heap=0', '2->0 loop=5 heap=0']);
+  });
+  it('the log line names the signal and its thresholds', () => {
+    const line = describeLevelChange(0, 1, { loopMs: 163.4, heapRatio: 0.12, lowFill: 0.5 });
+    expect(line).toContain('overload level 0 -> 1');
+    expect(line).toContain('event-loop mean 163 ms');
+    expect(line).toContain('heap 12 %');
+    expect(line).toContain('low-priority in-flight 50 %');
   });
   it('is evaluated at most every 500 ms (hot path)', () => {
     let t = 5_000_000; let calls = 0; const s = { eventLoopDelayMs: () => { calls++; return 0; }, heapUsedRatio: () => 0 };

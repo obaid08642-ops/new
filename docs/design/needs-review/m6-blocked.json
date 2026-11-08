@@ -151,7 +151,7 @@
     "line": 38,
     "found": "[client] The Order button calls POST …/order, which returns the prefill (service_kind, items), then sends the patient to the group hub. The lab, radiology and nursing flows do not read the prefill, so the items are not pre-ticked.",
     "suspect": "Client: the flows must read the medical_order prefill (M3 flow).",
-    "review_status": "open"
+    "review_status": "fixed x/orders-prechecked (the Order route hands the backend's prefill to the basket: patient-web/lib/ordering/prefill.ts, route.ts)"
   },
   {
     "batch": "m6-orders",

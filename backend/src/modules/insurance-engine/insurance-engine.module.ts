@@ -69,8 +69,14 @@ export const INSURANCE_REQUEST_STATES = [
   'CANCELLED',
 ] as const;
 
+/** States a provider's claims hub lists (`GET /insurance/requests/provider/queue?scope=all`): open and decided, not cancelled or expired. */
+export const PROVIDER_CLAIM_STATES = ['PENDING_PROVIDER_REVIEW', 'COPAY_PENDING', 'COPAY_PAID', 'APPROVED_FULL', 'APPROVED_PARTIAL', 'REJECTED', 'APPEAL_PENDING'];
+
 /** Declared on the schema but never written. See the note above. */
 export const INSURANCE_REQUEST_RESERVED_STATES = ['APPROVED_PARTIAL', 'EXPIRED'] as const;
+
+/** Every state a request can hold (schema enum): the allow-list for a `state` filter taken from a query string. */
+export const KNOWN_REQUEST_STATES: string[] = [...INSURANCE_REQUEST_STATES, ...INSURANCE_REQUEST_RESERVED_STATES];
 
 
 @Schema({ timestamps: true })
@@ -481,10 +487,29 @@ export class InsuranceFlowService {
     return (rows as any[]).map((r) => this.presentRequest(r));
   }
 
-  async providerQueue(user: any, state?: string) {
+  async providerQueue(user: any, state?: string, scope?: string) {
     const filter: any = { provider_id: user.id };
-    if (state) filter.state = state; else filter.state = { $in: ['PENDING_PROVIDER_REVIEW', 'COPAY_PENDING', 'COPAY_PAID'] };
-    return this.requests.find(filter, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(100).lean();
+    if (state !== undefined && state !== null && state !== '') {
+      // The query value is untrusted: only a plain string that names a known state reaches the Mongo filter (never an object such as ?state[$ne]=x).
+      const wanted = typeof state === 'string' ? state : '';
+      if (!KNOWN_REQUEST_STATES.includes(wanted)) throw new BadRequestException('invalid_state');
+      filter.state = wanted;
+    } else if (scope === 'all') filter.state = { $in: PROVIDER_CLAIM_STATES };
+    else filter.state = { $in: ['PENDING_PROVIDER_REVIEW', 'COPAY_PENDING', 'COPAY_PAID'] };
+    const rows: any[] = await this.requests.find(filter, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(100).lean();
+    if (scope !== 'all') return rows;
+    // The claims hub (`?scope=all`) lists every decided state too, with the patient's name, the company and the insurer's share.
+    const ids = [...new Set(rows.map((r) => String(r.patient_id)).filter(Boolean))];
+    const users: any[] = ids.length
+      ? await (this.requests as any).db.collection('users').find({ id: { $in: ids } }, { projection: { _id: 0, id: 1, name: 1, full_name: 1 } }).toArray()
+      : [];
+    const nameOf = new Map<string, string>(users.map((u) => [String(u.id), String(u.name || u.full_name || '')]));
+    return rows.map((r) => ({
+      ...this.presentRequest(r),
+      patient_name: nameOf.get(String(r.patient_id)) || null,
+      company_name: r.policy?.company_name || null,
+      plan: r.policy?.plan_class || null,
+    }));
   }
 
   /** M5: admin supervision queue — all requests, optionally filtered by state. */
@@ -888,7 +913,7 @@ export class InsuranceFlowController {
 
   // ---- provider ----
   @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
-  @Get('requests/provider/queue') providerQueue(@CurrentUser() u: any, @Query('state') state?: string) { return this.svc.providerQueue(u, state); }
+  @Get('requests/provider/queue') providerQueue(@CurrentUser() u: any, @Query('state') state?: string, @Query('scope') scope?: string) { return this.svc.providerQueue(u, state, scope); }
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
   @Post('requests/:id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() b: DecideDto) { return this.svc.decide(u, id, b); }
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)

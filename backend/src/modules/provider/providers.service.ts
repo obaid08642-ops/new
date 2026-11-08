@@ -2,7 +2,7 @@ import { randomBytes } from 'crypto';
 import { Injectable, NotFoundException, BadRequestException, ConflictException, ForbiddenException, Inject } from '@nestjs/common';
 import { Connection, Model, Types } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from '../../common/password-hash';
 import { User, UserDocument } from '../../schemas/user.schema';
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
 import { ProviderBranch, ProviderBranchDocument } from '../../schemas/provider-branch.schema';

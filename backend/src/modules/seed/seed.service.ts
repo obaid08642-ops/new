@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleInit, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from '../../common/password-hash';
 import { User, UserDocument } from '../../schemas/user.schema';
 import { PatientProfile, PatientProfileDocument } from '../../schemas/patient-profile.schema';
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';

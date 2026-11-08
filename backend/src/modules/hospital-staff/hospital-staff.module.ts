@@ -11,7 +11,7 @@ import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
 import { User, UserSchema, UserDocument } from '../../schemas/user.schema';
 import { ProviderAccount, ProviderAccountSchema } from '../provider/schemas';
 import { UserRole } from '../../common/enums';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from '../../common/password-hash';
 import { v4 as uuid } from 'uuid';
 import { CreateDto, UpdateDto, SuspendStaffDto, ResetStaffPasswordDto } from './hospital-staff.dto';
 import { enforcePasswordPolicy } from '../../common/password-security.service';
