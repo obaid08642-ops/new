@@ -9,6 +9,11 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-08 13:15 UTC
+- Owner merged 10: #2479 #2424 #2477 #2478 #2404 #2445 #2448 #2474 #2481 #2482 → main@92446efa. Post-merge review #2478 (refund halalas): sound.
+- DEPLOY RUN 103 now = main@92446efa (since f2b0e686: ~19 PRs incl. site notice, admin step-up, refund halalas). Still unprepared — classifier blocks my push to review/server-inspect.
+- APPROVED + green, waiting merge: #2225 #2480 #2420 #2366 #2483 #2398. Red: #2475 (needs main). Pending: #2476.
+
 ## Lead 3 run 2026-11-08 12:45 UTC
 - main@f5a698ee (no merges). REVIEWED + APPROVED, all green (owner to merge): #2479 #2477 #2445 #2448 #2225 #2482 #2480 #2474 #2424 #2420 #2404 #2366. Suggested order: 2479, 2477, 2225, 2424, 2445, 2448, 2482, 2404, 2480, 2474, 2420, 2366 (2420/2366 conflict on inventories → X re-merges).
 - Red: #2475 (curl 92 download, fixed by 2479). Pending: #2483 #2478 #2481 #2476 #2398.

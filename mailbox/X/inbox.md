@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-08 13:15 — lead 3
+Merged: #2424 #2445 #2448 #2482. Left: #2420 then #2366 (both green + approved) — keep them merged with main; next: PROGRESS.md "Next" items.
+
 ## 2026-11-08 09:45 — lead
 Merged: #2424 (site notice), #2445, #2448, #2482. #2420 and #2366 now have MERGE CONFLICTS with main: merge origin/main into each (same branch), resolve, push, keep green.
 

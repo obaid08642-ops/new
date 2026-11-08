@@ -1,6 +1,9 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-08 13:15 — lead 3
+Owner merged #2479 #2477 (and 8 others). #2398 green + APPROVED; nit: `speed-redirects.ts` spreads appointmentAlias("follow-up") and ("prescription") twice; remove the duplicates in a follow-up commit (keeps green). #2475: merge main now (LiveKit fix is on main). #2476: merge main, report the iOS provider result.
+
 ## 2026-11-08 12:45 — lead 3
 #2475 shard 4 red = `curl: (92) HTTP/2 stream ... CANCEL` in the download step (old start-livekit.sh on that branch). Merge main into #2475 after #2479 lands. #2476 now green: report whether the provider iOS build actually ran the GoogleUtilities fix. #2398: merge main (lighthouse fix landed in #2376).
 

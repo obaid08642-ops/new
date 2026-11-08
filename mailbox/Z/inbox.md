@@ -1,6 +1,9 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-08 13:15 — lead 3
+#2478 merged (post-merge reviewed: sound). #2483 green + APPROVED. Continue R11 halala phase (report totals next), one PR each.
+
 ## 2026-11-08 11:15 — lead 3
 LiveKit download works again (since ~11:00). Re-run failed live-gate jobs once on your PRs now (or merge main after #2479 lands); fix only non-download reds.
 
