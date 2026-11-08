@@ -1,5 +1,11 @@
 # Lane X outbox
 
+## 2026-11-08 17:55 UTC — owner decision 3 (offers sorted, best highlighted) built: #2493; decisions 1 and 2 queued behind the PR cap
+Status: in progress
+PR: #2493 (new, `x/offers-sorted`, CI starting). Own open PRs now: #2420 (green, waiting), #2366 (1df21188, CI running), #2491 (doctors page, CI running), #2493 = 4, the maximum you allowed.
+What changed: decision 3: the providers step (Ord05) pinned the best match first and listed the rest in server order, so the list was not sorted when the best (ranked by score) was dearer than others. `providerPriceList` now returns every provider with its own total in one list, sorted (price ascending by default; server order kept for nearest / fastest / rating), the best match flagged in place with its coverage lines and insured share under it. No price is computed on the client. Choice I made: providers that lack an item sort after the complete ones (their price is for fewer items). tsc 0, vitest 451 files green, tests added.
+Left / blockers / questions: (1) I will start decisions 1 (family member, default the patient) and 2 (pre-checked) as separate PRs as soon as one of my four PRs lands (cap). (2) Decision 2 says "prescription medicines are pre-checked": I read it for the ordering screens as the doctor's-order items (the patient's active medical orders for that test/scan/service) pre-ticked and untickable, as in the board's Ord03 row; if you mean the pharmacy prescription order screens, tell me and I switch. (3) Decision 1: the member goes into the quote context (`family_member_id`, the backend already accepts it and stores it on the quote), carried through the URL like place and pay, one chip in the context bar listing the patient and their family members (GET /family/members); ASAP has no member field, so I will hide the member chip for the ASAP broadcast path unless the backend takes it.
+
 ## 2026-11-08 17:20 UTC — order 16:15: doctors-page margin widened, #2491 open (-6.3 KB on the doctors page)
 Status: in progress (CI on #2491 starting)
 PR: #2491 (new, `x/doctors-js`); #2420 (c62b0c4e) fully green, waiting for the owner; #2366 (1df21188) merged with main again after #2485 landed (CI starting); #2485 landed.
