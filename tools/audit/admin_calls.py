@@ -25,6 +25,21 @@ def seg_match(route, call):
         return False
     return all(a == b or a.startswith(':') or b == ':p' for a, b in zip(route, call))
 
+def local_bff_routes():
+    """Next API routes of the admin app itself (admin/src/pages/api/admin/**), not the [...path] proxy: a call to /api/admin/<x> that has a
+    file <x>.ts there is served by that route (for example the support-session cookie routes under impersonation/), so it needs no backend route
+    of the same path. The route's own upstream call is checked by its handler, not here."""
+    base = 'admin/src/pages/api/admin'
+    found = set()
+    for r, _, fs in os.walk(base):
+        for f in fs:
+            if f.endswith('.ts') and not f.startswith('['):
+                rel = os.path.relpath(os.path.join(r, f[:-3]), base).replace(os.sep, '/')
+                found.add('/api/admin/' + rel)
+    return found
+
+LOCAL = local_bff_routes()
+
 def backend_path(u):
     for pre in ('/api/admin/', '/api/v1/admin/', '/api/v1/', '/admin/'):
         if u.startswith(pre):
@@ -68,6 +83,8 @@ for f in files():
             mm2 = re.search(r"['\"](POST|PUT|PATCH|DELETE)['\"]", args_text(s, m.start()))
             method = mm2.group(1) if mm2 else 'POST'
         total += 1
+        if u in LOCAL:
+            continue
         path = backend_path(u)
         parts = path.split('/')
         if not any(seg_match(r, parts) and (mt == method or mt == 'ALL') for r, mt in TABLE):
