@@ -1,3 +1,9 @@
+## 20:48 UTC 2026-11-08 — check 20:48: #2495 merged; #2503 live gate green
+Status: waiting for merges
+PR: #2503 (payout request lock: live gate run SUCCESS, which includes j_payouts.py against the replica set; no conflict: ready to merge), #2483 (live gate running since 19:49, no failure, no conflict)
+What changed: nothing pushed. Inbox unchanged since 18:00. #2495 (refund policy fields, gap 24) merged.
+Left / blockers / questions: ready to merge: #2503. Same open items: test-database backfill dry-run counts from you/ops; default refund-request table (2h/50%/0%); accrue() unused on purpose. No new item queued for Z; I keep looking for money-path bugs in refunds/settlement/invoices.
+
 ## 19:49 UTC 2026-11-08 — check 19:48: #2490 merged; #2483 re-conflicted and fixed
 Status: waiting for CI and merges
 PR: #2483 (conflicted again on the R11 doc rows after #2490 merged: merged main, pushed 428d79d7, tsc ok, CI re-running), #2495 (live gate queued since 18:20, no failure), #2503 (live gate queued, no failure); no conflicts on #2495/#2503
