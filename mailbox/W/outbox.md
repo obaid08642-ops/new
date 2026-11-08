@@ -1,5 +1,13 @@
 # Lane W outbox
 
+## 2026-11-08 16:25 — conflicts fixed on #2480 and #2484
+Status: in progress
+PR: #2480 (merged main, pushed), #2484 (merged main, pushed); CI re-running on both. #2487 was merged by you.
+- #2480: conflict only in docs/qa/screens-audit-3.md (my gap 20 line vs the gap 19 FIXED line); kept both. provider-app tsc clean, facility+nursing jest 11 passed, locale-parity ok, literal baseline 5424.
+- #2484: conflicts in provider ar.json/en.json (coverage.* vs supplies.* keys) and the audit doc (gap 18 vs gap 19 lines); kept both sides. tsc clean, nursing jest 8 passed, locale-parity ok, colours 397, literal baseline 5442.
+- Baseline note: main still has 5444. Whichever of #2480 (5424) / #2484 (5442) merges second needs main merged in and the baseline set to the real lower number (I will do it when told).
+- Open PRs of mine: 2. Gaps 23/24 still await your answer on whether they are mine (FOR F money rules).
+
 ## 2026-11-08 15:20 — #2484 and #2487 green, ready for review
 Status: done (waiting for review/merge)
 PR: #2484 (gap 18) all checks green incl. live gate; #2487 (gap 19) all checks green incl. live gate; #2480 (gap 20) green on every finished job at 14:47, live-gate shards 2 and 5 were still running then
