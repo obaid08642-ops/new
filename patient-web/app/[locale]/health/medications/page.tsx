@@ -14,7 +14,6 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { Notice } from "@/components-next/consult/consult-parts";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { DoseRows } from "@/components-next/health/dose-rows";
@@ -28,6 +27,7 @@ import { extractFamilyMembers } from "@/lib/api/family";
 import { manageableMembers } from "@/lib/family/view";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/health/health.module.css";
+import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string | string[]; add?: string | string[]; edit?: string | string[] }> };
 const TABS = ["today", "all", "refills", "chronic"] as const;
@@ -125,7 +125,7 @@ export default async function MedicationsPage({ params, searchParams }: Props) {
           {listed.map((reminder) => (
             <li key={reminder.id}>
               <div className={styles.row}>
-                <FIcon icon={pharmacy.icon} tone={pharmacy.tone} size={40} />
+                <FIconByName icon={pharmacy.icon} tone={pharmacy.tone} size={40} />
                 <span className={styles.rowBody}>
                   <span className={styles.rowTitle}>{medicineName(reminder.medicineName)}</span>
                   {reminder.dose ? <span className={styles.rowSub}><bdi>{reminder.dose}</bdi></span> : null}
@@ -161,7 +161,7 @@ export default async function MedicationsPage({ params, searchParams }: Props) {
           return (
             <li key={med.id}>
               <div className={styles.row}>
-                <FIcon icon={pharmacy.icon} tone={pharmacy.tone} size={40} />
+                <FIconByName icon={pharmacy.icon} tone={pharmacy.tone} size={40} />
                 <span className={styles.rowBody}>
                   <span className={styles.rowTitle}>{med.name ?? t("medicineUnnamed")}</span>
                   {[med.dose, med.frequency].filter(Boolean).length ? <span className={styles.rowSub}>{med.dose ? <bdi>{med.dose}</bdi> : null}{med.dose && med.frequency ? " · " : ""}{med.frequency ? freq(med.frequency) : null}</span> : null}

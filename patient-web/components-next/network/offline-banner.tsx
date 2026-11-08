@@ -3,13 +3,21 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { Toast } from "@/components-next/ui-generated/components/Feedback";
 import { formatLastUpdated, getOnlineSnapshot, getServerOnlineSnapshot, subscribeOnline, validRenderedAt } from "@/lib/network/offline-status";
 
-/** The banner itself, without the browser: what it shows for a given state (tests render this). */
+/**
+ * The banner itself, without the browser: what it shows for a given state (tests render this). It is the markup of the shared Toast
+ * (Feedback.tsx: role="status", polite, the warning tone) written out here on purpose: importing Feedback.tsx from the locale layout
+ * would put Button, FIcon and every icon outline into the first-load JS of every page. It cannot be fetched on demand either, because
+ * it is needed exactly when the network is gone.
+ */
 export function OfflineBannerView({ online, message }: { online: boolean; message: string }) {
   if (online) return null;
-  return <Toast message={message} tone="warning" testID="offline-banner" />;
+  return (
+    <div role="status" aria-live="polite" data-testid="offline-banner" className="nabd-toast nabd-toast--warning">
+      <span className="nabd-toast__message">{message}</span>
+    </div>
+  );
 }
 
 /**
@@ -29,7 +37,6 @@ export function OfflineBanner({ renderedAt }: { renderedAt: number }) {
   useEffect(() => {
     if (!online) setNow(Date.now());
   }, [online]);
-
   if (online || /^\/[a-z]{2,3}\/offline\/?$/.test(pathname ?? "")) return null;
   const at = now === null ? null : validRenderedAt(renderedAt, now);
   const message = at === null || now === null ? t("offline") : t("offlineLastUpdated", { time: formatLastUpdated(locale, at, now) });

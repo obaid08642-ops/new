@@ -24,6 +24,7 @@ import { TrackingRefresh } from "./tracking-refresh";
 import { TrackingTimeline } from "./tracking-timeline";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "./orders.module.css";
+import { FILL_STOREFRONT } from "@/components-next/ui-generated/icons/glyphs/storefront";
 
 /**
  * `/orders/:id/tracking` (canvas/OrderTracking). Everything is read from the order the backend returns
@@ -80,7 +81,7 @@ export async function TrackingScreen({ locale, orderId }: { locale: Locale; orde
         {legacy.pharmacyName || legacy.total !== undefined ? (
           <section className={rx.card} aria-label={orders("detailTitle")}>
             <div className={styles.summaryLink}>
-              <FIcon icon="storefront" tone={PHARMACY_TONE} size={40} />
+              <FIcon icon="storefront" glyph={FILL_STOREFRONT} tone={PHARMACY_TONE} size={40} />
               <span className={styles.summaryText}>
                 <span className={rx.rowTitle} dir="auto">{legacy.pharmacyName ?? orders("detailTitle")}</span>
                 {legacy.total !== undefined ? <span className={rx.rowSub}>{formatMoney(locale, legacy.total)}</span> : null}
@@ -163,7 +164,7 @@ export async function TrackingScreen({ locale, orderId }: { locale: Locale; orde
 
       <section className={rx.card} aria-label={orders("detailTitle")}>
         <Link className={styles.summaryLink} href={orderHref}>
-          <FIcon icon="storefront" tone={PHARMACY_TONE} size={40} />
+          <FIcon icon="storefront" glyph={FILL_STOREFRONT} tone={PHARMACY_TONE} size={40} />
           <span className={styles.summaryText}>
             <span className={rx.rowTitle} data-testid="tracking-pharmacy-name">{pharmacyName ?? fulfilLine}</span>
             <span className={rx.rowSub}>

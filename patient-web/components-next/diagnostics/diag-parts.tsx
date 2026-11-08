@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { SERVICE_ICONS, type FillIconName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { allowedImageUrl } from "@/lib/image-hosts";
@@ -16,6 +15,7 @@ import consult from "@/components-next/consult/consult.module.css";
 import type { DiagArtKey } from "@/components-next/ui-generated/icons/diag-art";
 import { DiagArt } from "./diag-art";
 import styles from "./diag.module.css";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 
 /** The laboratory and radiology services' own icon and tone, from the handoff service map (never written as a colour name). */
 export const LAB = SERVICE_ICONS.lab;

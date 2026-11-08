@@ -5,7 +5,8 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
-import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, SERVICE_ICONS, type FillIconName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
+import { fillHref } from "@/components-next/ui-generated/icons/sprite";
+import { FILL_ICON_VIEWBOX, SERVICE_ICONS, type FillIconName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { Spinner } from "@/components-next/ui-generated/components/Spinner";
 import { peekSwr, putSwr } from "@/lib/swr-lite";
 import { mapBookHref } from "@/lib/map/book-href";
@@ -223,7 +224,7 @@ export function MapExplorerClient({ locale, labels, cityNames, initialType = nul
           </span>
           {prov.rating ? (
             <span className={styles.rating}>
-              <svg aria-hidden="true" width={14} height={14} viewBox={FILL_ICON_VIEWBOX}><path d={FILL_ICON_PATHS.star} fill="var(--nabd-color-icon-ratingStar)" /></svg>
+              <svg aria-hidden="true" width={14} height={14} viewBox={FILL_ICON_VIEWBOX}><use href={fillHref("star")} fill="var(--nabd-color-icon-ratingStar)" /></svg>
               <bdi>{prov.rating}</bdi>
             </span>
           ) : null}
