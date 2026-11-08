@@ -10,6 +10,24 @@ import { UserRole } from '../../common/enums';
 import { RedisService } from '../redis/redis.service';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 
+export type DeclaredCron = { name: string; schedule: string; where: 'host' | 'app' };
+
+/** The jobs the platform is set up to run, with their schedule. Declared, not observed. */
+export const DECLARED_CRONS: readonly DeclaredCron[] = [
+  { name: 'daily-backup', schedule: '03:00 daily', where: 'host' },
+  { name: 'monitor', schedule: '*/15min', where: 'host' },
+  { name: 'hot-medicines', schedule: '04:00 daily', where: 'host' },
+  { name: 'appointment-reminders', schedule: 'hourly', where: 'app' },
+  { name: 'retargeting', schedule: 'every 6h', where: 'app' },
+  { name: 'scheduled-campaigns', schedule: 'every minute', where: 'app' },
+  { name: 'certbot-renew', schedule: '12h', where: 'host' },
+];
+
+export const CRONS_NOTE = {
+  ar: 'الجدول المعلن للمهام، وليس حالة تشغيل فعلية: لا تسجّل المهام تنفيذها، فلا يمكن للوحة أن تقول إن مهمة ما نُفّذت أم لا.',
+  en: 'The declared schedule of the jobs, not live run status: jobs do not record their runs, so this page cannot say whether one ran.',
+} as const;
+
 @Controller('admin/health-dashboard')
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
@@ -89,17 +107,6 @@ export class HealthDashboardController {
       }
     } catch { queues = null; }
 
-    // Cron jobs (static known schedule + last backup file age)
-    const crons = [
-      { name: 'daily-backup', schedule: '03:00 daily', status: 'scheduled' },
-      { name: 'monitor', schedule: '*/15min', status: 'scheduled' },
-      { name: 'hot-medicines', schedule: '04:00 daily', status: 'scheduled' },
-      { name: 'appointment-reminders', schedule: 'hourly', status: 'in-app' },
-      { name: 'retargeting', schedule: 'every 6h', status: 'in-app' },
-      { name: 'scheduled-campaigns', schedule: 'every minute', status: 'in-app' },
-      { name: 'certbot-renew', schedule: '12h', status: 'scheduled' },
-    ];
-
     return {
       generated_at: new Date().toISOString(),
       elapsed_ms: Date.now() - t0,
@@ -125,7 +132,11 @@ export class HealthDashboardController {
         db_storage_mb: dbStats ? Math.round((dbStats.storageSize || 0) / 1024 / 1024) : null,
       },
       queues,
-      crons,
+      // The schedule as declared in the code and on the host, NOT live run status: no job records its runs, so the dashboard cannot say
+      // whether one ran. `where`: 'host' = a cron on the server (scripts/monitor.sh, backup, certbot), 'app' = a job inside the worker process.
+      crons: DECLARED_CRONS,
+      crons_source: 'declared' as const,
+      crons_note: CRONS_NOTE,
       recent_errors: recentErrors,
       // Disk/RAM/CPU/SSL/backup come from the monitor cron log (host-level)
       host_note: 'Host metrics (disk/ram/cpu/ssl/backup) are tracked by scripts/monitor.sh — see /var/log/nabdah-monitor.log on the VPS',

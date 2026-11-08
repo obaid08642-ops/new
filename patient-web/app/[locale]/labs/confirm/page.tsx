@@ -4,11 +4,9 @@ import type { Metadata } from "next";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConfirmClient } from "@/components-next/ordering/confirm-client";
 import { loadOrderingContext } from "@/components-next/ordering/ordering-context";
-import { extractLabService, parseLabServiceId } from "@/lib/api/labs";
-import { getPublicLabPackage, getPublicLabService } from "@/lib/api/labs-server";
 import { isLocale } from "@/lib/i18n";
 import { contextQuery, payOf, placeOf } from "@/lib/ordering/context";
-import { fromLab, preparationFor } from "@/lib/ordering/item";
+import { itemPreparation } from "@/lib/ordering/preparation";
 import { parseSingleItem } from "@/lib/ordering/single";
 import { activeMedicalOrders, kindOf, optionalToken } from "@/lib/ordering/server";
 
@@ -19,20 +17,6 @@ export async function generateMetadata({ params }: Pick<Props, "params">): Promi
   if (!isLocale(locale)) return {};
   const t = await getTranslations({ locale, namespace: "OrderingFlow" });
   return { title: t("payTitle"), robots: { index: false, follow: false } };
-}
-
-/** Preparation lines of one lab test or package from the catalogue (empty when the catalogue does not answer; nothing is made up). */
-async function labPreparation(locale: string, id: string): Promise<string[]> {
-  if (!parseLabServiceId(id).success) return [];
-  try {
-    let res = await getPublicLabService(id);
-    if (res && res.status === 404) res = await getPublicLabPackage(id);
-    if (!res || !res.ok) return [];
-    const item = extractLabService(await res.json().catch(() => null));
-    return item ? preparationFor(locale, fromLab(item)) : [];
-  } catch {
-    return [];
-  }
 }
 
 /** Ord07 (canvas/Ord07-ConfirmPay): confirm and pay. The choices come from the previous steps (this browser session); the doctor's orders are read here. */
@@ -52,7 +36,7 @@ export default async function ConfirmPage({ params, searchParams }: Props) {
   const [{ bar }, orders, prepRows] = await Promise.all([
     loadOrderingContext({ locale, token, path: "/labs/confirm", kind, place, pay, item }),
     pay === "insurance" ? activeMedicalOrders(token) : Promise.resolve([]),
-    Promise.all(kind === "lab" ? ids.map(async (id) => [id, await labPreparation(locale, id)] as const) : []),
+    Promise.all(ids.map(async (id) => [id, await itemPreparation(kind, locale, id)] as const)),
   ]);
   const prep = Object.fromEntries(prepRows);
 
