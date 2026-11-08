@@ -9,6 +9,10 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-08 11:15 UTC
+- main@f5a698ee. LiveKit asset recovered (~11:00). #2479 (Y, LiveKit cache restore/save always + backoff + test) live gate green → APPROVED, merge pending (owner).
+- Deploy run 103 for main@f5a698ee still to prepare (classifier blocks me). #2225 approved, needs live gate re-run.
+
 ## Lead 3 run 2026-11-08 10:45 UTC
 - Owner merged #2376 #2472 #2473 → main@f5a698ee. Deploy run 103 (main@f5a698ee: #2469 #2466 #2465 #2464 #2463 #2471 #2376 #2472 #2473) still needs preparing — classifier blocks me.
 - ROOT CAUSE live-gate reds: LiveKit v1.10.1 linux_amd64 release asset returns 502/503/504 since ~09:05 (other GH assets fine). Y ordered: 2nd source (Docker Hub image, same sha256) in #2479. Other lanes: ignore those reds.

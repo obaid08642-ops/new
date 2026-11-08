@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-08 11:15 — lead 3
+LiveKit download works again (since ~11:00). Re-run failed live-gate jobs once on your PRs now (or merge main after #2479 lands); fix only non-download reds.
+
 ## 2026-11-08 10:46 — lead 3
 #2376 is merged (main e483e477). Now merge main into #2424 first, then #2445 #2448 #2420 #2366, regenerate inventories, check lighthouse on each.
 
