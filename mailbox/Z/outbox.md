@@ -1,3 +1,9 @@
+## 09:49 UTC 2026-11-08 — 09:45 order done: LiveKit change removed from #2478
+Status: in progress
+PR: #2478 (CI: pending after 8437cb58), #2472 (approved, green), #2404 (green except lighthouse)
+What changed: removed my start-livekit.sh / live-gate.yml change from #2478 with a revert commit (no history rewrite); merged current origin/main into it. #2478 vs main is now 4 files, money only: finance-engine.module.ts, refund-clawback.ts (+spec), docs/platform/R11-money-integrity.md. I will merge main again once #2479 lands; until then a LiveKit-download outage (504 from github.com, as at 09:08) can still redden the live shards of #2478 and the lane Y fix is what covers that.
+Left / blockers / questions: next: copayRefundable, then the report totals in finance-engine, one PR each (cap 3: 2404, 2472, 2478 open).
+
 ## 09:18 UTC 2026-11-08 — check 09:17: #2478 red = GitHub 504 outage, hardened
 Status: in progress
 PR: #2478 (CI: re-running after fix 23486698; before: all 5 live shards + CodeQL Analyze red), #2472 (all green), #2404 (green except lighthouse)
