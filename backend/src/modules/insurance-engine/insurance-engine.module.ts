@@ -75,6 +75,9 @@ export const PROVIDER_CLAIM_STATES = ['PENDING_PROVIDER_REVIEW', 'COPAY_PENDING'
 /** Declared on the schema but never written. See the note above. */
 export const INSURANCE_REQUEST_RESERVED_STATES = ['APPROVED_PARTIAL', 'EXPIRED'] as const;
 
+/** Every state a request can hold (schema enum): the allow-list for a `state` filter taken from a query string. */
+export const KNOWN_REQUEST_STATES: string[] = [...INSURANCE_REQUEST_STATES, ...INSURANCE_REQUEST_RESERVED_STATES];
+
 
 @Schema({ timestamps: true })
 export class InsuranceServiceRequest {
@@ -486,8 +489,12 @@ export class InsuranceFlowService {
 
   async providerQueue(user: any, state?: string, scope?: string) {
     const filter: any = { provider_id: user.id };
-    if (state) filter.state = state;
-    else if (scope === 'all') filter.state = { $in: PROVIDER_CLAIM_STATES };
+    if (state !== undefined && state !== null && state !== '') {
+      // The query value is untrusted: only a plain string that names a known state reaches the Mongo filter (never an object such as ?state[$ne]=x).
+      const wanted = typeof state === 'string' ? state : '';
+      if (!KNOWN_REQUEST_STATES.includes(wanted)) throw new BadRequestException('invalid_state');
+      filter.state = wanted;
+    } else if (scope === 'all') filter.state = { $in: PROVIDER_CLAIM_STATES };
     else filter.state = { $in: ['PENDING_PROVIDER_REVIEW', 'COPAY_PENDING', 'COPAY_PAID'] };
     const rows: any[] = await this.requests.find(filter, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(100).lean();
     if (scope !== 'all') return rows;

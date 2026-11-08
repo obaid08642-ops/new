@@ -44,3 +44,24 @@ describe('providerQueue', () => {
     expect(row.company_name).toBeNull();
   });
 });
+
+describe('providerQueue: the state filter is validated', () => {
+  it('a known state is passed on as a plain string', async () => {
+    const { service, find } = setup([]);
+    await service.providerQueue(user, 'REJECTED', undefined);
+    expect(find.mock.calls[0][0]).toEqual({ provider_id: 'prov1', state: 'REJECTED' });
+  });
+
+  it('an object or array (?state[$ne]=x) is refused, never reaching the query', async () => {
+    const { service, find } = setup([]);
+    await expect(service.providerQueue(user, { $ne: 'x' } as any, undefined)).rejects.toThrow('invalid_state');
+    await expect(service.providerQueue(user, ['REJECTED'] as any, undefined)).rejects.toThrow('invalid_state');
+    expect(find).not.toHaveBeenCalled();
+  });
+
+  it('an unknown state string is refused', async () => {
+    const { service, find } = setup([]);
+    await expect(service.providerQueue(user, 'NOT_A_STATE', undefined)).rejects.toThrow('invalid_state');
+    expect(find).not.toHaveBeenCalled();
+  });
+});
