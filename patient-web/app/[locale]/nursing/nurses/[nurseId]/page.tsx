@@ -121,6 +121,7 @@ export default async function NurseProfilePage({ params, searchParams }: Props) 
         price={nurse.price ?? service.price}
         initialMethod={pay}
         insuranceOnFile={insuranceOnFile}
+        bookingOptions={service.bookingOptions}
       />
     </ConsultPage>
   );
