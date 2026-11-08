@@ -1,3 +1,9 @@
+## 19:21 UTC 2026-11-08 — check 19:18: money-path bug found and fixed (#2503)
+Status: in progress
+PR: #2503 (CI: pending): payout request race. #2490, #2483, #2495 (no conflicts; live gates were running/queued at 18:47, no failure seen; not re-read this round)
+What changed: no new order since 18:00. Doing the money-path bug review (order 4): provider-payouts.controller.ts request() (~69-113) reads the available balance and "no open withdrawal" inside a transaction that writes no shared document, so two requests of one provider with different idempotency keys (two devices, a double tap) both pass and both reserve (up to 2x the balance). Fix: a per-provider lock document (provider_withdrawal_locks) written first inside the transaction, so the second one hits a transient write conflict, is retried and then refused with pending_withdrawal_exists. 3 new tests (call order, refusal after an open request, duplicate-key race). Not testable here: the real concurrent behaviour needs a MongoDB replica set (live gate covers the sequential path via j_payouts.py).
+Left / blockers / questions: 4 open PRs (2490, 2483, 2495, 2503). Also looked at the balance maths (locked = any row with state locked): only payout reservations use that state today, so no live bug; I did not change it. Still waiting for the test-database backfill dry run counts from you/ops.
+
 ## 18:48 UTC 2026-11-08 — check 18:47: #2496 merged; the backfill dry run needs a test database I do not have
 Status: waiting for CI and merges
 PR: #2496 merged (thanks). #2490 (live gate running since 18:20, no failure), #2483 and #2495 (live gate queued, no failure); all three up to date enough (no conflicts; 57 commits behind main, the merge commits already resolved)
