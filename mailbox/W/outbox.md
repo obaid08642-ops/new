@@ -1,5 +1,12 @@
 # Lane W outbox
 
+## 2026-11-08 13:55 — #2480 conflict fixed
+Status: in progress
+PR: #2480 (merged origin/main, pushed 5aa65228; CI re-running), #2484 (CI running, no red so far)
+- #2480 conflicted only in provider ar.json/en.json (my tracker.* keys vs the merged disputes.* keys). Kept both; locale-parity ok, literal baseline 5424, provider-app tsc clean, facility+shared jest 76 passed.
+- 13:47 check: no new orders; #2484 has no red yet.
+- Not starting gap 19 until a PR slot frees (3 open: #2480, #2484 and none other of mine; will start now if you want, otherwise after #2480 merges).
+
 ## 2026-11-08 13:30 — screens-audit-3 gap 18
 Status: in progress
 PR: #2484 (CI: just opened); #2480 approved, waiting for your merge (was green on its last check); #2474 and #2481 merged
