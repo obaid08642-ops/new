@@ -102,3 +102,13 @@ export function isCleanSar(x: unknown): boolean {
   if (typeof x !== 'number' || !Number.isFinite(x)) return false;
   try { return fromHalalas(toHalalas(x)) === x; } catch { return false; }
 }
+
+/**
+ * SAR rounded to 2 decimals the way toHalalas decides it (half away from zero on the decimal text), replacing the `Math.round(n * 100) / 100` copies:
+ * Math.round(1.005 * 100) is 100 (1.005 is 1.00499999999999989 in binary) and rounds the customer's cent down, roundSar(1.005) is 1.01.
+ * Non-finite input and values beyond the safe range keep the old behaviour (NaN stays NaN) so a caller that relied on it does not start throwing.
+ */
+export function roundSar(n: number): number {
+  if (!Number.isFinite(n)) return Math.round(n * 100) / 100;
+  try { return fromHalalas(toHalalas(n)); } catch { return Math.round(n * 100) / 100; }
+}

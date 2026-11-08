@@ -104,8 +104,8 @@ export class FinanceIntegrityService {
     const mp: any[] = await this.conn.collection('moyasar_payments').find({ createdAt: win } as any).toArray();
     const real = (s?: string) => !!s && !String(s).startsWith('sandbox_');
     return [
-      ...tx.map((t) => ({ source: 'transactions' as const, id: String(t.id), gateway_ids: [t.gateway_charge_id, t.gateway_intent_id].filter(real) as string[], status: t.status, amount: t.amount, refunded_amount: t.refunded_amount })),
-      ...mp.map((m) => ({ source: 'moyasar_payments' as const, id: String(m.moyasar_id), gateway_ids: [m.raw_response?.id, m.moyasar_id].filter(real) as string[], status: m.status, amount: m.amount, refunded_amount: m.refunded_amount })),
+      ...tx.map((t) => ({ source: 'transactions' as const, id: String(t.id), gateway_ids: [t.gateway_charge_id, t.gateway_intent_id].filter(real) as string[], status: t.status, amount: t.amount, refunded_amount: t.refunded_amount, amount_halalas: t.amount_halalas, refunded_amount_halalas: t.refunded_amount_halalas })),
+      ...mp.map((m) => ({ source: 'moyasar_payments' as const, id: String(m.moyasar_id), gateway_ids: [m.raw_response?.id, m.moyasar_id].filter(real) as string[], status: m.status, amount: m.amount, refunded_amount: m.refunded_amount, amount_halalas: m.amount_halalas, refunded_amount_halalas: m.refunded_amount_halalas })),
     ].filter((l) => l.gateway_ids.length > 0);
   }
 

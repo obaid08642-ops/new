@@ -6,6 +6,7 @@ import { getEffectiveRoles } from '../../../common/auth.guard';
 import { recordAudit } from '../../../common/audit-record';
 import { CATALOG_COLLECTIONS } from '../../catalogs/catalog-collections';
 import { OrderingBulkPriceDto, OrderingCopyModeDto, OrderingImportDto, OrderingItemDto, OrderingSettingsDto } from '../provider-ordering.dto';
+import { roundSar } from '../../../common/money';
 
 // M1 provider item model (docs/product/ORDERING_MODEL_2026-10-16.md, phase M1). A provider's ordering declaration is its own
 // commercial data: it takes effect at once and every write is audited. The national catalogue stays admin-governed.
@@ -63,7 +64,7 @@ const SETTINGS = 'provider_ordering_settings';
 const ITEMS = 'provider_ordering_items';
 
 const bad = (code: string) => new BadRequestException(code);
-const round2 = (n: number) => Math.round(n * 100) / 100;
+const round2 = roundSar;
 const isPrice = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v) && v >= 0;
 
 /** Indexes that make one row per (provider, kind, catalogue item) and one settings row per provider. */
