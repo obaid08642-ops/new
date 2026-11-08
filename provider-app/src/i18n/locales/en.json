@@ -254,5 +254,11 @@
   "disputes.category.SUGGESTION": "Suggestion",
   "disputes.booking.consultation": "Consultation",
   "disputes.booking.lab": "Lab test",
-  "disputes.booking.radiology": "Radiology"
+  "disputes.booking.radiology": "Radiology",
+  "coverage.permission": "Location permission is required to verify coverage",
+  "coverage.failed": "Could not verify coverage",
+  "coverage.noGeofence": "No coverage area is set on your profile yet",
+  "coverage.inside": "Your location is inside your coverage area",
+  "coverage.outside": "Your location is outside your coverage area",
+  "coverage.distance": "Distance from base: {distance} km (coverage radius {radius} km)"
 }

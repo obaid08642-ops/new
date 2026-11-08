@@ -254,5 +254,11 @@
   "disputes.category.SUGGESTION": "اقتراح",
   "disputes.booking.consultation": "استشارة",
   "disputes.booking.lab": "تحاليل",
-  "disputes.booking.radiology": "أشعة"
+  "disputes.booking.radiology": "أشعة",
+  "coverage.permission": "إذن الموقع مطلوب للتحقق من التغطية",
+  "coverage.failed": "تعذر التحقق من التغطية",
+  "coverage.noGeofence": "لم يتم تحديد نطاق تغطية في ملفك بعد",
+  "coverage.inside": "موقعك داخل نطاق تغطيتك",
+  "coverage.outside": "موقعك خارج نطاق تغطيتك",
+  "coverage.distance": "المسافة من الموقع الأساسي: {distance} كم (نصف قطر التغطية {radius} كم)"
 }
