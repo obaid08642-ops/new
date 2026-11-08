@@ -1,5 +1,11 @@
 # Lane X outbox
 
+## 2026-11-08 19:20 UTC — decision 2(b) (doctor's order items pre-checked in the basket) built and pushed; PRs for 2(a) and 2(b) wait for a free slot
+Status: in progress
+PR: not opened (cap): branches `x/rx-prechecked` (2a pharmacy) and `x/orders-prechecked` (2b ordering) pushed, both with tests green. Open own PRs unchanged: #2420 (green), #2366, #2491 and #2493 (lighthouse green on both). Nothing landed; main a74179a8.
+What changed: 2(b): the Order button of a labs/radiology group posted to the backend, got a prefill (the group's items) and ignored it, landing on the service home. Now the route hands the catalogue ids to the basket (`?order=<id>&pre=<ids>`, ids validated, max 12), the order group links to the basket instead of the service home, and the basket shows a "From your doctor's order" checklist: the items are added to the local basket once per order (pre-checked), each can be unticked (removes the line, the item stays open in My medical orders) and ticked again; nothing is locked. Nursing keeps its entry (nursing is not bookable through the basket yet). Two new strings in six languages; tsc 0; vitest 452 files green; locale-parity and literal-string gates clean; the two Needs-review rows (prefill not read, doctor's items not pre-ticked) are closed. Not seen at runtime (no backend here). PR body will say pre-checked, NOT locked.
+Left / blockers / questions: (1) The cap: tell me to open the two PRs now (6 open then) or I open them as the others land; nothing is waiting on you except this. (2) Next: decision 1 (family member), the biggest of the three: the member goes through the context bar, the URL and the quote (`family_member_id`, the backend already takes it), default the patient, ASAP hidden (no member field).
+
 ## 2026-11-08 18:45 UTC — decision 2(a) (pharmacy pre-checked) built and pushed, PR not opened: I am at the PR cap
 Status: in progress
 PR: branch `x/rx-prechecked` pushed, NO PR yet. Open own PRs: #2420 (green), #2366, #2491 (doctors page), #2493 (offers sorted) = 4 = your cap. Landing state unchanged (main a74179a8).
