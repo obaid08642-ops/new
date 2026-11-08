@@ -16,6 +16,7 @@ import type { FillIconName, ServiceTone } from "@/components-next/ui-generated/i
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
 import styles from "@/components-next/pharmacy/pharmacy.module.css";
 import { publicReadSignal } from "@/lib/api/public-timeout";
+import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -123,7 +124,7 @@ export default async function PharmacyCanonicalPage({ params }: Props) {
             <dl className={styles.facts}>
               {facts.map((fact) => (
                 <div key={fact.label} className={styles.fact}>
-                  <FIcon icon={fact.icon} tone={fact.tone} size={40} />
+                  <FIconByName icon={fact.icon} tone={fact.tone} size={40} />
                   <div className={styles.factBody}>
                     <dt className={styles.factLabel}>{fact.label}</dt>
                     <dd className={styles.factValue}>{fact.value}</dd>

@@ -27,8 +27,8 @@ _Updated 2026-11-01._
 1. **Ordering M6 (M1 and M2 backend on main, #1759):**
    - This batch (one PR): "My medical orders" Ord20 and Ord21, web and app. Order button per group (prefill request, then the group's flow), "later" per item, expired orders disabled. Six languages (`MedicalOrders`, `medorders.*`).
    - **Built in #1775 (`design/m6-ord22-ord30`):** Ord22 doctor's composer (`POST /doctors/appointments/:id/medical-order`) and Ord30–33 provider declaration (`/provider/ordering/*`), provider-app ar/en. Open rows: `needs-review/m6-ord22.json` (5), `m6-ord30.json` (13).
-   - **BLOCKED: waits for M3** (ordering engine, #1750 spec): Ord02, Ord04, Ord05, Ord07, app Ord01.
-   - **BLOCKED: waits for M4**: Ord06 ASAP timer, Ord08. **M5**: Ord03 coverage, Ord09. **M7**: Ord10 (arrival code, staff profile). **M8**: Ord11 "discuss with a doctor".
+   - **Backend M3 is on main** (ordering engine: `backend/src/modules/ordering/ordering-engine.ts`, journey `tools/live/j_ordering_engine.py`). Ord02, Ord04, Ord05, Ord07, app Ord01 are no longer blocked by the backend; the rows in `m6-blocked.json` still say "waits for M3" and are stale until the UI is wired to the engine endpoints (lane review 2026-11-07).
+   - **Backend M4, M5, M7, M8 are also on main:** M4 ASAP broadcast (`ordering-broadcast.*`, `j_ordering_asap.py`), M5 insurance per item (`ordering-approval.*`, `j_ordering_insurance.py`), M7 safeguards (`ordering-lifecycle.*`, `j_ordering_safeguards.py`), M8 `modules/instant-consultation`. Ord06, Ord08, Ord03 coverage, Ord09, Ord10, Ord11 are UI wiring work, not backend-blocked. Whether each UI row now reads the real endpoint is not verified here.
    - Every open row: `docs/design/needs-review/m6-blocked.json`; this batch's gaps (no item names, prefill not read by the flows, no renew action) are in the same file.
 2. **Refs (#1255/#1256):** triaged in `docs/design/NR_REPORTS_TRIAGE.md`: 10 fixed on main, 1 owner decision (#953), the rest backend or reviewer.
 3. **Reviewer:** close the 50 stale Needs-review lines, regenerate the audit files once. Real-device checks: Urdu font, voice notes, first launch.

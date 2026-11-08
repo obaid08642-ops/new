@@ -1,6 +1,7 @@
 "use client";
 
-import { FILL_MAP_TRIFOLD, FILL_WARNING } from "@/components-next/ui-generated/icons/fill-glyphs";
+import { FILL_MAP_TRIFOLD } from "@/components-next/ui-generated/icons/glyphs/map-trifold";
+import { FILL_WARNING } from "@/components-next/ui-generated/icons/glyphs/warning";
 
 type Props = {
   kind: "error" | "not-found";

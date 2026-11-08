@@ -11,8 +11,10 @@ describe("patient-web security headers (16.4)", () => {
     const rules = await (config as unknown as { headers: () => Promise<{ source: string; headers: { key: string; value: string }[] }[]> }).headers();
     const merged = new Map<string, string>();
     for (const rule of rules) {
-      // the same matching as Next: a plain "/:path*" matches everything; the document rule excludes /_next/static/
-      const matches = rule.source === "/:path*" || (rule.source.includes("(?!_next/static/)") && !source.startsWith("/_next/static/"));
+      // the same matching as Next: a plain "/:path*" matches everything; the document rule excludes the paths of its negative lookahead
+      // (/_next/static/ and the icon sprite); "/icons/:file*" is the sprite's own rule
+      const excluded = /\(\?!([^)]*)\)/.exec(rule.source)?.[1].split("|");
+      const matches = rule.source === "/:path*" || (excluded !== undefined && !excluded.some((p) => source.startsWith(`/${p}`))) || (rule.source === "/icons/:file*" && source.startsWith("/icons/"));
       if (matches) for (const h of rule.headers) merged.set(h.key, h.value);
     }
     vi.unstubAllEnvs();
@@ -45,5 +47,13 @@ describe("patient-web security headers (16.4)", () => {
     const expires = new Date(/^Expires: (.+)$/m.exec(text)![1]).getTime();
     // renew it at least 30 days before it lapses (a file past its date is ignored by researchers' tools)
     expect(expires - Date.now()).toBeGreaterThan(30 * 24 * 3600 * 1000);
+  });
+  it("the icon sprite is kept for good and carries no document headers", async () => {
+    const h = await headersFor("production", "/icons/sprite-00000000.svg");
+    expect(h.get("Cache-Control")).toBe("public, max-age=31536000, immutable");
+    expect(h.get("X-Content-Type-Options")).toBe("nosniff");
+    expect(h.get("Content-Security-Policy")).toBeUndefined();
+    expect(h.get("X-Frame-Options")).toBeUndefined();
+    expect((await headersFor("production", "/ar")).get("Cache-Control")).toBeUndefined();
   });
 });

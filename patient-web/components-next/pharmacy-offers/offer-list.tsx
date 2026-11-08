@@ -11,6 +11,7 @@ import { formatKilometres, formatMinutes, formatMoney, formatRemaining, formatWh
 import { usePharmacyAction } from "./use-pharmacy-action";
 import { OFFER_TONES } from "./tones";
 import styles from "./offers.module.css";
+import { FILL_STOREFRONT } from "@/components-next/ui-generated/icons/glyphs/storefront";
 
 /** One pharmacy's offer, as the page hands it over: the server's numbers, nothing derived. */
 export type OfferView = {
@@ -155,7 +156,7 @@ export function OfferList({ orderId, offers, after, coverage }: Props & { offers
           return (
             <li key={offer.id} className={styles.offer}>
               <div className={styles.offerHead}>
-                <FIcon icon="storefront" tone={OFFER_TONES.pharmacy} size={48} />
+                <FIcon icon="storefront" glyph={FILL_STOREFRONT} tone={OFFER_TONES.pharmacy} size={48} />
                 <div className={styles.offerId}>
                   <h2 className={styles.pharmacy}>{offer.pharmacyName ?? t("pharmacyFallback")}</h2>
                   {meta.length ? <span className={styles.meta}>{meta.join(" · ")}</span> : null}

@@ -1,4 +1,4 @@
-import { MoneyError, allocate, formatSar, fromHalalas, isCleanSar, percentOf, rateOf, sumHalalas, toHalalas } from './money';
+import { MoneyError, allocate, formatSar, fromHalalas, isCleanSar, percentOf, rateOf, roundSar, sumHalalas, toHalalas } from './money';
 
 describe('toHalalas / fromHalalas', () => {
   it.each([[0, 0], [12.34, 1234], [0.1, 10], [0.07, 7], [19.99, 1999], [1e6 + 0.01, 100000001], [-5.5, -550]])('%p SAR is %p halalas', (sar, h) => {
@@ -90,5 +90,26 @@ describe('isCleanSar', () => {
     expect(isCleanSar(10.005)).toBe(false);
     expect(isCleanSar(NaN)).toBe(false);
     expect(isCleanSar('12')).toBe(false);
+  });
+});
+
+describe('roundSar (replaces the Math.round(n * 100) / 100 copies)', () => {
+  it('rounds half away from zero on the decimal text, where the old formula lost the half cent', () => {
+    expect(Math.round(1.005 * 100) / 100).toBe(1);          // the bug being replaced
+    expect(roundSar(1.005)).toBe(1.01);
+    expect(roundSar(4.35)).toBe(4.35);                       // 4.35 * 100 = 434.99999999999994
+    expect(roundSar(-1.005)).toBe(-1.01);
+    expect(roundSar(0.1 + 0.2)).toBe(0.3);
+    expect(roundSar(12.344)).toBe(12.34);
+    expect(roundSar(12.346)).toBe(12.35);
+  });
+  it('keeps whole and clean values unchanged, and never returns -0', () => {
+    for (const v of [0, 1, 19.99, 100.5, 1234567.89]) expect(roundSar(v)).toBe(v);
+    expect(Object.is(roundSar(-0.001), 0)).toBe(true);
+  });
+  it('does not throw on non-finite or huge input: old behaviour is kept', () => {
+    expect(roundSar(NaN)).toBeNaN();
+    expect(roundSar(Infinity)).toBe(Infinity);
+    expect(roundSar(1e20)).toBe(1e20);
   });
 });

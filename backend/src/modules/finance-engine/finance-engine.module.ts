@@ -39,7 +39,7 @@ import { timedFetch } from '../../common/external-call';
 import { settlementDelayDefault, DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT } from '../../common/commission-defaults';
 import { PROMO_COLLECTION, promoState, type CommissionPromo } from '../../common/commission-promo';
 import { DurableEventsService, emitDurable } from '../durable-events/durable-events.service';
-import { toHalalas } from '../../common/money';
+import { roundSar, toHalalas } from '../../common/money';
 
 export const LEDGER_TYPES = [
   'provider_earning', 'provider_debit', 'payout', 'refund', 'commission',
@@ -66,7 +66,7 @@ const DEFAULTS = {
 /** Read-only view of the finance defaults for other modules (admin urgent-alert rule defaults). */
 export const FINANCE_DEFAULTS: Readonly<typeof DEFAULTS> = DEFAULTS;
 
-const round2 = (n: number) => Math.round((Number(n) || 0) * 100) / 100;
+const round2 = (n: number) => roundSar(Number(n) || 0);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // LedgerService — append-only + escrow (EPIC S8/S9/S10)
@@ -697,8 +697,7 @@ export class RefundExecutor {
       this.reservations.createIndex({ refund_id: 1 }, { unique: true }),
       this.refundTotals.createIndex({ booking_id: 1 }, { unique: true }),
     ]).then(() => undefined));
-    const cents = (x: number) => Math.round((Number(x) + Number.EPSILON) * 100);
-    const reservation: RefundReservation = { refund_id: refundId, booking_id: bookingId, halalas: cents(amount) };
+    const reservation: RefundReservation = { refund_id: refundId, booking_id: bookingId, halalas: toHalalas(amount) };
     try {
       await this.reservations.insertOne({ ...reservation, state: 'reserved', createdAt: new Date() } as any);
     } catch (e: any) {
@@ -710,8 +709,8 @@ export class RefundExecutor {
       if (!took) throw new ConflictException('refund_in_progress');
       return { ...reservation, takenOver: true };
     }
-    await this.refundTotals.updateOne({ booking_id: bookingId } as any, { $setOnInsert: { booking_id: bookingId, refunded_halalas: cents(alreadyRefunded), createdAt: new Date() } }, { upsert: true }).catch((e: any) => { if (e?.code !== 11000) throw e; });
-    const room = cents(paidTotal) - reservation.halalas;
+    await this.refundTotals.updateOne({ booking_id: bookingId } as any, { $setOnInsert: { booking_id: bookingId, refunded_halalas: toHalalas(alreadyRefunded), createdAt: new Date() } }, { upsert: true }).catch((e: any) => { if (e?.code !== 11000) throw e; });
+    const room = toHalalas(paidTotal) - reservation.halalas;
     const raised = await this.refundTotals.updateOne({ booking_id: bookingId, refunded_halalas: { $lte: room } } as any, { $inc: { refunded_halalas: reservation.halalas } });
     if (!raised.matchedCount) {
       await this.reservations.deleteOne({ refund_id: refundId, state: 'reserved' } as any);
@@ -829,7 +828,7 @@ export class RefundExecutor {
       const resp = await timedFetch(`${moyasarBase()}/payments/${paidPayment.moyasar_id}/refund`, {
         method: 'POST',
         headers: { Authorization: `Basic ${Buffer.from(`${key}:`).toString('base64')}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: Math.round(amount * 100), reason: opts.reason?.slice(0, 255) || 'refund' }),
+        body: JSON.stringify({ amount: toHalalas(amount), reason: opts.reason?.slice(0, 255) || 'refund' }),
       }, { label: 'finance.refund', timeoutCode: 'refund_gateway_timeout' });
       const data: any = await resp.json().catch(() => ({}));
       if (!resp.ok) {

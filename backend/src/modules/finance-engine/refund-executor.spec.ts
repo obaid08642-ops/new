@@ -35,6 +35,26 @@ describe('RefundExecutor original payment behavior (LJ-05, 7A-A2)', () => {
     expect(conn.collection).not.toHaveBeenCalledWith('wallets');
   });
 
+  it('reserves a float-drift refund amount as exact integer halalas (money.ts, no local rounding)', async () => {
+    const ledger = { exists: jest.fn().mockResolvedValue(null), append: jest.fn().mockResolvedValue({}) };
+    const guard = refundGuardCollections();
+    const conn = {
+      collection: jest.fn((name: string) => {
+        if (name === 'moyasar_payments') return { findOne: jest.fn().mockResolvedValue(null) };
+        if (name === 'transactions') return { findOne: jest.fn().mockResolvedValue({ status: 'paid', method: 'cash', amount: 0.3 }) };
+        if (name === 'orders') return { findOne: jest.fn().mockResolvedValue({ payment_method: 'cash', payment_status: 'paid', total_price: 0.3 }), updateOne: jest.fn().mockResolvedValue({ matchedCount: 1 }), updateMany: jest.fn().mockResolvedValue({}) };
+        if (name === 'pharmacy_orders') return { updateOne: jest.fn().mockResolvedValue({}) };
+        if (name === 'platformledgerentries') return { findOne: jest.fn().mockResolvedValue(null) };
+        if (name === 'notifications') return { insertOne: jest.fn().mockResolvedValue({}) };
+        if (name === 'refund_reservations' || name === 'refund_totals') return (guard as any)[name];
+        return {};
+      }),
+    };
+    const executor = new RefundExecutor(conn as any, ledger as any, {} as any, { emit: jest.fn() } as any);
+    await executor.execute({ refund_id: 'drift-1', booking_kind: 'pharmacy', booking_id: 'order-d', patient_id: 'p1', amount: 0.1 + 0.2, reason: 'damaged item', actor_id: 'admin-1' });
+    expect(guard._totals.find((t: any) => t.booking_id === 'order-d').refunded_halalas).toBe(30);
+  });
+
   it('refuses a refund when no original payment evidence exists', async () => {
     const conn = {
       collection: jest.fn((name: string) => name === 'moyasar_payments'
