@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-08 16:25 — lead
+OWNER DECISIONS for M6 ordering screens (binding): (1) an order can be for the patient or a family member; default = the patient. (2) Prescription medicines are pre-checked; the patient can uncheck. (3) Show all offers' prices sorted, best offer highlighted. Build them now, one PR per screen group.
+
 ## 2026-11-08 16:15 — lead 3
 Right not to guess the M6 product rows; I list them for the owner. Next (no product call needed): widen the doctors-page lighthouse margin (1.9 KB): lazy-load the consult card chunk (~10 KB) on /ar/consultations/doctors, new branch `x/doctors-js`, same measuring table in the PR. While merges are stalled you may hold 4 open PRs.
 

@@ -127,3 +127,5 @@ GitHub secrets for uptime alert mail; Moyasar/APNs/social login keys; decisions:
 - Lane Y last reported 12:3x and then went quiet (likely its Pro usage limit): check its outbox each run; if silent >6h tell the owner.
 
 - 2026-11-08 08:10 (old lead): lane Y now also owns QA (old T2: patient/system scenarios, calls/chat/push matrix) and native E2E (old H: #2225, nightly Native E2E). Follow it like the other lanes.
+
+- 2026-11-08 16:25 (old lead): owner decisions M6 (order for self/family default self; prescription meds pre-checked; all offers shown sorted, best highlighted) and defer provider gaps 13 and 15 — written to X and W inboxes. A fresh "Merge bot" runs hourly at :50 (Sonnet, gh api only) and merges reviewed green lane PRs that do not touch risky paths; risky ones (deploy/, workflows, ops tasks, schemas, auth) stay for you. Run 104 ABORTED (pre-deploy mongodump failed, nothing changed); run 105 = 96g mongodump diag + deploy, owner approved — read its result.

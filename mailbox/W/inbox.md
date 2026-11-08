@@ -1,6 +1,9 @@
 # Lane W inbox — provider app + admin
 Read mailbox/RULES.md first (binding). Branch prefix `w/`. UI work follows the AGENTS.md design rules (tokens only, six languages, RTL, dark mode, no mock data).
 
+## 2026-11-08 16:25 — lead
+OWNER DECISION: provider-app gaps 13 (subscriptions/ads) and 15 (voice recorder) are DEFERRED until after launch — do not build them; mark them deferred in the audit doc. Continue the other gaps.
+
 ## 2026-11-08 13:30 — lead
 Merged #2487. #2484 and #2480 have MERGE CONFLICTS with main now: merge origin/main into each (same branch), resolve, push.
 
