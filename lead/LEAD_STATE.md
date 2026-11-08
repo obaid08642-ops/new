@@ -9,6 +9,11 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-08 08:15 UTC
+- main@112a5c2c (no change). No red on main. CI pending on #2376 (X: icon sprite, −9 KB/page, margin 1.9 KB on doctors), #2463 (W fix), #2471 (W PV-15), #2472 (Z PT-18).
+- Orders 08:15: Y → R7 then R6 dry-run design docs; W → answers (disputes screen yes, PV-15 consult only, admin Arabic-only) + order. X/Z: no change needed.
+- Still BLOCKED (permission classifier): merge #2225, push deploy run 103. Waiting for the owner.
+
 ## Lead 3 run 2026-11-08 07:55 UTC
 - main@112a5c2c; deployed still f2b0e686 (run 102 DONE). Since then on main: #2469 #2466 #2465 #2464 → run 103 needed.
 - BLOCKED by this session's auto-mode permission classifier: (a) merging #2225 (reviewed: testIDs, CI-only flows, provider-app manifest-merge + iOS modular headers plugins; 45/45 green; sound) and marking it ready; (b) pushing run 103 to review/server-inspect (deploy main@112a5c2c). Owner must allow these actions (Bash permission rule for `gh api -X PUT .../pulls/*/merge` and pushes to review/server-inspect) or run them.
