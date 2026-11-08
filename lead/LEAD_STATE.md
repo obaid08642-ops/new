@@ -9,6 +9,11 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-08 18:00 UTC
+- OWNER (in chat, 17:5x): "you may merge yourself when the criteria are met" → Lead 3 now merges reviewed, fully green PRs (one per call). Merged: #2484 #2398 #2420 #2486.
+- Conflicts after landing: #2490 (Z) and #2366 (X) → told to merge main.
+- LIVE still main@a74179a8. Next deploy waits for #2494 (mongod wait/retry before backup) + its 96h diag; then one run with 96h + deploy.
+
 ## Lead 3 run 2026-11-08 17:45 UTC
 - LIVE main@a74179a8. main unchanged. Reds (not PR-caused) → Y: load shedder 503 in live gate (#2483 shard 5), search suggest wrong results + purge failures (#2480 shard 4).
 - Green + approved: #2484 #2420 #2398 #2225. New pending: #2495 #2496 (Z gaps 23/24), #2494 #2493 #2492 #2491 #2490 #2486 #2366.

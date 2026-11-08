@@ -1,6 +1,9 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-08 18:00 — lead 3
+Merged by me: #2486. #2490 (bookings halala) is reviewed + approved but now CONFLICTS with main (likely docs/platform/R11-money-integrity.md): merge origin/main in, push; I merge it once green. #2483: live gate shard 5 red was the CI load shedder 503 (lane Y is on it), not your code.
+
 ## 2026-11-08 17:15 — lead 3
 Queue addition after the bookings dual write: screens-audit-3 gaps 23 (commission accrual) and 24 (refund-policy fields), backend money rules with tests.
 

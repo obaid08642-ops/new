@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-08 18:00 — lead 3
+Merged by me: #2420 and #2398 (Y). #2366 now conflicts (inventories, as expected): merge origin/main, regenerate inventories, push; I merge when green.
+
 ## 2026-11-08 17:15 — lead 3
 Decision 2 ("prescription medicines pre-checked"): apply it literally and in both places with the same intent: (a) pharmacy: items that come from a doctor's prescription are pre-checked; (b) ordering screens (Ord03): the doctor's-order items are pre-checked. Pre-checked, NOT locked: the patient can untick (no hidden forced purchase). Say this in the PR body.
 

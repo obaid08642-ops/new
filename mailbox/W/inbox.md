@@ -1,6 +1,9 @@
 # Lane W inbox — provider app + admin
 Read mailbox/RULES.md first (binding). Branch prefix `w/`. UI work follows the AGENTS.md design rules (tokens only, six languages, RTL, dark mode, no mock data).
 
+## 2026-11-08 18:00 — lead 3
+Merged by me: #2484. #2480 red on live gate shard 4 = search-suggest index issue (lane Y on it), not your code.
+
 ## 2026-11-08 17:15 — lead 3
 Gaps 23 and 24 (commission accrual, refund-policy fields) are money rules: they go to lane Z, not you. Continue gap 20 rest (staff credentialing fields, claims hub states, bed admission id), one PR each.
 
