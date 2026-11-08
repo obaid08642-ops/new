@@ -37,7 +37,7 @@ export {
   Rating, SectionHeader, ServiceTile, Sidebar, Tabs,
 } from './components/Surfaces';
 export { FIcon } from './components/FIcon';
-export { FILL_ICON_NAMES, FILL_ICON_PATHS, SERVICE_ICONS, SERVICE_TONES } from './icons/fill';
+export { FILL_ICON_NAMES, SERVICE_ICONS, SERVICE_TONES } from './icons/fill';
 export type { FillIconName, ServiceName, ServiceTone } from './icons/fill';
 export { ChartCard, DataTable, EmptyState, ErrorState, OfflineState, Modal, Skeleton, Toast } from './components/Feedback';
 

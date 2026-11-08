@@ -83,6 +83,7 @@ does not catch the test file, or the address is a public one.
 (`pending-scan.service.ts`), so nothing has to be done for them.
 
 ## 7. The switch (the only change)
+Dry run first (read-only, prints names and yes/no only): `96f-clamd-switch-dryrun.sh` (set `CLAMD_NEW_HOST` in the file) shows which of the four lines would change and whether compose reads them for the backend and the worker.
 In `/opt/nabdah/deploy/.env.production` set:
 ```
 CLAMD_HOST=10.77.0.2

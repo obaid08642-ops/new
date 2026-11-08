@@ -184,7 +184,9 @@ const nextConfig: NextConfig = {
     ];
     return [
       { source: "/:path*", headers: everyResponse },
-      { source: "/:path((?!_next/static/).*)", headers: documentOnly },
+      { source: "/:path((?!_next/static/|icons/).*)", headers: documentOnly },
+      // the icon sprite (public/icons/sprite-<hash>.svg, tools/design/sync-ui-components.mjs): the name carries the hash, so it is kept for good
+      { source: "/icons/:file*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
     ];
   }
 };

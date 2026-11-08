@@ -18,12 +18,12 @@ import { PermissionRequests } from "@/components-next/family/permission-requests
 import { PartUnavailable, SectionHead } from "@/components-next/health/health-kit";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { Avatar } from "@/components-next/ui-generated/components/Surfaces";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import health from "@/components-next/health/health.module.css";
 import styles from "@/components-next/family/family.module.css";
+import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -100,7 +100,7 @@ export default async function FamilyPage({ params }: Props) {
 
       <section className={`${rx.card} ${styles.stack}`} aria-label={t("heroTitle")}>
         <div className={styles.heroRow}>
-          <FIcon icon={FAMILY.icon} tone={FAMILY.tone} size={52} chip="solid" />
+          <FIconByName icon={FAMILY.icon} tone={FAMILY.tone} size={52} chip="solid" />
           <span className={styles.heroText}>
             <h2 className={styles.heroTitle}>{t("heroTitle")}</h2>
             <span className={styles.heroSub}>{t("heroSub")}</span>

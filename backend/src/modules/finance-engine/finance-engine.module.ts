@@ -39,7 +39,7 @@ import { timedFetch } from '../../common/external-call';
 import { settlementDelayDefault, DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT } from '../../common/commission-defaults';
 import { PROMO_COLLECTION, promoState, type CommissionPromo } from '../../common/commission-promo';
 import { DurableEventsService, emitDurable } from '../durable-events/durable-events.service';
-import { toHalalas } from '../../common/money';
+import { roundSar, toHalalas } from '../../common/money';
 
 export const LEDGER_TYPES = [
   'provider_earning', 'provider_debit', 'payout', 'refund', 'commission',
@@ -66,7 +66,7 @@ const DEFAULTS = {
 /** Read-only view of the finance defaults for other modules (admin urgent-alert rule defaults). */
 export const FINANCE_DEFAULTS: Readonly<typeof DEFAULTS> = DEFAULTS;
 
-const round2 = (n: number) => Math.round((Number(n) || 0) * 100) / 100;
+const round2 = (n: number) => roundSar(Number(n) || 0);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // LedgerService — append-only + escrow (EPIC S8/S9/S10)

@@ -4,8 +4,24 @@
  * Look (from the first app map): a flat translucent base platform in the kind's shape, a light beam rising from it, and a
  * glowing icon bubble floating above; the selected pin is bigger and lifted higher.
  */
-import { FILL_ICON_PATHS } from "@/components-next/ui-generated/icons/fill";
+import { FILL_HOSPITAL } from "@/components-next/ui-generated/icons/glyphs/hospital";
+import { FILL_PILL } from "@/components-next/ui-generated/icons/glyphs/pill";
+import { FILL_SCAN } from "@/components-next/ui-generated/icons/glyphs/scan";
+import { FILL_STETHOSCOPE } from "@/components-next/ui-generated/icons/glyphs/stethoscope";
+import { FILL_TEST_TUBE } from "@/components-next/ui-generated/icons/glyphs/test-tube";
+import { FILL_FIRST_AID_KIT } from "@/components-next/ui-generated/icons/glyphs/first-aid-kit";
+import type { FillIconName } from "@/components-next/ui-generated/icons/fill";
 import { HOLO_STYLE, type HoloKind } from "@/lib/map/hologram";
+
+// the outlines of the six pins (a canvas cannot draw an <use>); one module per glyph, so only these six are bundled
+const PIN_GLYPHS: Partial<Record<FillIconName, string>> = {
+  hospital: FILL_HOSPITAL,
+  stethoscope: FILL_STETHOSCOPE,
+  pill: FILL_PILL,
+  "test-tube": FILL_TEST_TUBE,
+  scan: FILL_SCAN,
+  "first-aid-kit": FILL_FIRST_AID_KIT,
+};
 
 export const HOLO_W = 64;
 export const HOLO_H = 84;
@@ -110,6 +126,6 @@ export function drawHologram(canvas: HTMLCanvasElement, kind: HoloKind, opts: { 
   ctx.translate(cx - 128 * g, bubbleY - 128 * g);
   ctx.scale(g, g);
   ctx.fillStyle = pal.glyph;
-  ctx.fill(new Path2D(FILL_ICON_PATHS[icon]));
+  ctx.fill(new Path2D(PIN_GLYPHS[icon] ?? ""));
   ctx.restore();
 }

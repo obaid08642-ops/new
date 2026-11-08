@@ -48,13 +48,13 @@ This PR (PT-25 delivery tracking) moved one PARTIAL row to COVERED. The 'This PR
 | PT-15 | Dispute on a charge or visit | COVERED | `j_dispute.py` (56/56 on main 365b2d580): the patient's payment dispute, the admin refunds part once, a second refund refused | P1 | F |
 | PT-16 | Support ticket create and reply | COVERED | `j_support.py` | P2 | — |
 | PT-17 | Insurance policy add | COVERED | `j_insurance.py` | P1 | — |
-| PT-18 | Insurance policy edit | PARTIAL | `j_insurance.py` name only | P2 | H |
+| PT-18 | Insurance policy edit | COVERED | `j_insurance.py` `edit_policy`: a second `save-policy` changes number, expiry, class and card figures; a field left out changes nothing; the client cannot set `verified`; a copay over 100, a negative cap, a text percent and an unknown insurer are refused; a class change without new figures drops the old ones; `profile.insurance` shows the edit | P2 | H |
 | PT-19 | Insurance claim | COVERED | `j_insurance.py` `claims()` + `claim_decision()`: submit for a paid booking, amount is what was paid, a second claim 409, admin lists and approves (reimbursed, money moves once), a decided claim cannot be decided or rejected again, tracking and `/refunds/my` show it, the reimbursed booking answers `claim_already_filed`; `insurance.claims.spec.ts` | P1 | F |
 | PT-20 | Coupons and promotions | COVERED (checkout pricing) | `j_coupons.py` (27 steps: admin creates, patient prices, same figure as the admin tester, expired, off, unknown, rate limit); `coupon-rules.spec.ts` (apply, per-user, give-back on cancel, real MongoDB); `concurrency-races.spec.ts` (50 parallel). Applying on an order has no live flow: only the legacy cash cart applies a coupon | P2 | F |
 | PT-21 | Cash vs card vs insurance selection | COVERED | `j_consultation.py` matrix (124/124 in the live run): cash (line 211), insurance (lines 193, 223) and card bookings each recorded with their method | P1 | F |
 | PT-22 | Card payment success | COVERED | `j_consultation.py` (payment verified) | P0 | — |
 | PT-23 | Card payment failure and retry | COVERED | `j_payment_failed_retry.py` (43/43 on main 365b2d580): declined card reported as failed, retry makes a new checkout, paid booking cannot be charged again | P0 | F |
-| PT-24 | Payment return (deep link back from gateway) | NOT COVERED | no journey | P0 | H |
+| PT-24 | Payment return (deep link back from gateway) | PARTIAL | web return: `j_web_payment_result.py` (real browser, `/payments/result?id=` resolves the gateway payment id to the paid appointment); app killed after paying: `j_app_killed_payment.py` (reopen reads the server state, no duplicate charge). Not covered: the native deep link into the app (device farm only) | P0 | H |
 | PT-25 | Delivery tracking | COVERED | `j_pharmacy_tracking.py` (62/62 on main): the owner reads GET /orders/:id/tracking (state broadcasting), another patient gets 403, an unknown order id gets 404 | P1 | H |
 | PT-26 | Prescription photo upload | COVERED | `j_upload_security.py`, `j_ai_scanner.py` | P1 | — |
 | PT-27 | Prescription OCR result shown and corrected | PARTIAL | `j_ai_scanner.py` | P1 | H |
@@ -110,7 +110,7 @@ Types: doctor, pharmacy, lab, radiology, nursing (and any other registered type)
 | PV-12 | Staff invite | COVERED | `j_provider_scenarios.py` `staff_invite`: invite by e-mail, duplicate and owner refused, accept with the mailed token (once), disable, enable, revoke | P2 | P2 |
 | PV-13 | Vacation or unavailability | COVERED | `j_doctor_leave.py` (35/35 on main 365b2d580): doctor adds vacation, listed, cancelled and no longer active; missing range refused (400) | P1 | P2 |
 | PV-14 | Payout request and approval | COVERED | `j_payouts.py`, `j_payout_paid.py` | P0 | — |
-| PV-15 | Dispute raised by the patient, seen by the provider | PARTIAL | `GET /support/provider/disputes` (limited fields, unit-tested in `support-provider-disputes.spec.ts`); no live journey or provider-app screen yet | P1 | P2, F |
+| PV-15 | Dispute raised by the patient, seen by the provider | PARTIAL | `GET /support/provider/disputes` (limited fields, unit-tested in `support-provider-disputes.spec.ts`); live journey in `j_dispute.py` (the doctor sees the dispute on their booking, no patient message or identity, a patient is refused); no provider-app screen yet | P1 | P2, F |
 | PV-16 | Consultation online, clinic and home | COVERED | `j_consultation.py`, `j_web_call.py` | P1 | — |
 | PV-17 | Pharmacy broadcast accept, reject, timeout | COVERED | `j_pharmacy_broadcast_responses.py` (reject with a reason, rounds that time out and close the broadcast, a quote that lapses), `j_pharmacy.py` (accept) | P1 | P2 |
 | PV-18 | Lab home visit and centre with result upload | COVERED | `j_lab.py`, `j_lab_result_push.py` | P1 | — |
