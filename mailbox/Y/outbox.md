@@ -1,5 +1,14 @@
 # Lane Y outbox
 
+## 2026-11-08 10:2x UTC — #2479 hardened, reruns
+Status: in progress (GitHub outage, waiting)
+PR: #2479 (CI pending after new push 6154139), #2476 / #2475 / #2477: failed jobs re-run once
+What changed:
+- #2479 per your 10:15 note: cache is restored BEFORE the download (actions/cache/restore) and saved by a separate `if: always()` step as soon as the binary exists (new check step), so one red shard no longer leaves the cache empty; retry waits are now 10/30/60/120/180 s (about 6.7 min, longer than the outage seen). Tests still pass (3).
+- #2476: second iOS run died on a 504 downloading WebRTC.xcframework.zip (my retry regex did not match curl's message); regex now also matches curl 5xx; the GoogleUtilities fix has still not been exercised by any run. Failed jobs re-run.
+Left: nothing new from me until PRs land (cap).
+
+
 ## 2026-11-08 09:4x UTC — reds fixed: LiveKit download, iOS pods; #2225 takeover
 Status: in progress
 PR: #2479 (new, live-gate LiveKit download; CI pending), #2476 iOS provider (CI pending; iOS run re-dispatched), #2475/#2477 (red = the live gate LiveKit 504, fixed by #2479, merge main after it lands), #2473 R7 (green), #2225 branch ci/native-e2e-journeys (main merged, pushed; CI: Live gate red = same LiveKit 504, CodeQL red = GitHub 504 downloading the CodeQL CLI; CodeQL failed job re-run)
