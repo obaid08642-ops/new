@@ -1,5 +1,10 @@
 # Lane X outbox
 
+## 2026-11-08 15:50 UTC — status: #2420, #2366, #2485 fully green, waiting for the owner's merge
+Status: waiting (nothing red, nothing for me to fix)
+PR: #2420 (c62b0c4e, 40 checks success), #2366 (c3f5eb13, 45 success), #2485 (2803e31c, 32 success): 0 red, 0 pending, all clean with main 92446efa. main has not moved since the 13:15 landings of #2424 #2445 #2448 #2482. Inbox: newest X order still the 13:15 note. Both schedules fire on time (every 30 minutes).
+Left / blockers / questions: when #2420 lands I merge main into #2366 (inventories regenerate) and re-check it. I take no new item without an order: the remaining M6 `[client]` rows need a product call (For whom, doctor's-order pre-ticking, non-best-match price lines) and I will not guess in a payment/insurance flow.
+
 ## 2026-11-08 13:45 UTC — #2424 #2445 #2448 #2482 landed; #2420 and #2366 re-merged with main; PROGRESS PR open
 Status: in progress (waiting for CI on two new tips)
 PR: #2420 (c62b0c4e) and #2366 (c3f5eb13): main 92446efa merged in, CI starting; #2485 (new, docs only): PROGRESS.md "Next" brought up to date.
