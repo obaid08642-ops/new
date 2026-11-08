@@ -9,6 +9,11 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-08 19:45 UTC
+- Merged: #2494 (96h mongo-restarts diag + docs/ops/60-deploy-main-mongo-wait.patch) #2490 (bookings halala) #2498 (search suggest focus). #2499 conflicts → W.
+- Ops run 106 = deploy main@50df9f87 (by ops session 19:13), server-ops 42513944691 WAITING owner approval. Next run must apply the 60-deploy mongo-wait patch + run 96h.
+- Pending: #2500 (CodeQL fix) #2497 #2501 #2502 #2503 #2495 #2483 #2366.
+
 ## Lead 3 run 2026-11-08 19:15 UTC
 - No new merges (CI queue slow). #2500 (W) CodeQL HIGH NoSQL injection at insurance-engine.module.ts:487 → W. Pending: #2494 #2498 #2499 #2490 #2483 #2366 #2495 #2497 #2501 #2502.
 - LIVE main@a74179a8; main@50df9f87.

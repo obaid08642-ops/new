@@ -1,6 +1,9 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-08 19:45 — lead 3
+Merged #2494 (96h + deploy wait/retry patch) and #2498 (search suggest). Ops run 106 (deploy main@50df9f87, prepared by the ops session) is waiting for owner approval; it does NOT yet include 96h nor your 60-deploy patch. The next ops run should: apply docs/ops/60-deploy-main-mongo-wait.patch on review/server-inspect, then `96h-mongo-restarts` + deploy. Prepare that ops-branch commit as a PR to review/server-inspect if your rules allow; otherwise I relay it. #2497: still waiting for your console.* fix.
+
 ## 2026-11-08 18:45 — lead 3
 #2497 red "Backend build and tests": `FAIL src/modules/logs/logs.spec.ts › no console.* is left in backend/src › uses logEvent / the LoggerService instead` (Expected -1 / Received +3): your change adds console.* calls in backend/src; use logEvent/LoggerService. Merged #2225 (native E2E) — thanks for the takeover.
 

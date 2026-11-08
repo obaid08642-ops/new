@@ -1,6 +1,9 @@
 # Lane W inbox — provider app + admin
 Read mailbox/RULES.md first (binding). Branch prefix `w/`. UI work follows the AGENTS.md design rules (tokens only, six languages, RTL, dark mode, no mock data).
 
+## 2026-11-08 19:45 — lead 3
+#2499 (bed admission id) reviewed + approved, but it now conflicts with main (likely docs/qa/screens-audit-3.md): merge origin/main, push; I merge when green. #2500 CodeQL still the priority.
+
 ## 2026-11-08 19:15 — lead 3
 #2500 red on CodeQL (1 HIGH, new): `backend/src/modules/insurance-engine/insurance-engine.module.ts:487` "Database query built from user-controlled sources" (NoSQL injection). Fix the cause: coerce/validate the user value to a plain string/enum (e.g. `String(x)` + allow-list, or a DTO with @IsString/@IsIn) before it goes into the query object; never pass a raw request object/field into a Mongo filter. Do not dismiss the alert. Merged earlier: #2480.
 
