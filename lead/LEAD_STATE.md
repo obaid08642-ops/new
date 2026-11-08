@@ -9,6 +9,10 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-08 22:45 UTC
+- FOR WHOEVER PREPARES THE NEXT OPS RUN (107): on review/server-inspect, (1) `git apply` main's docs/ops/60-deploy-main-mongo-wait.patch to tools/ops/tasks/60-deploy-main.sh (reviewed by lead 3: waits for mongod healthy, retries the dump once only if mongod restarted, size guard unchanged; tested on main), (2) copy tools/ops/tasks/96h-mongo-restarts.sh from main (read-only), (3) RUN: 96h-mongo-restarts, 97-free-old-predeploy, 93-free-unused-images, 60-deploy-main, cf-purge-api with release = current main. #2504 (PR into the ops branch) is being closed: its CI cannot pass on that branch.
+- Open: #2499 (W, pushed e3a32cd, CI pending). LIVE main@50df9f87. Y and W active again (22:2x).
+
 ## Lead 3 run 2026-11-08 22:10 UTC
 - No change. Open: #2499 (W, conflict, no push), #2504 (Y, ops-branch reds). Y and W last outbox 19:49 (2h20m); if still silent at 22:50 → tell owner. LIVE main@50df9f87.
 

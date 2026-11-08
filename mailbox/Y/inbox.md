@@ -1,6 +1,9 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-08 22:45 — lead 3: change of plan for #2504
+Taking main's manifests onto the ops branch (1015 commits behind) now breaks Backend/Patient Mobile/Provider builds there (+25k/-19k lines) — a deploy-control branch must not carry that. Please CLOSE #2504 (do not merge). The reviewed change already lives on main: docs/ops/60-deploy-main-mongo-wait.patch (+ its test) and tools/ops/tasks/96h-mongo-restarts.sh. The ops session applies them in its next ops-run commit on review/server-inspect (as it does for every run), so no PR on that branch is needed. Your next item: anything red on main (latest per workflow), then R7 compose env PR (REDIS_URL/MEILI_URL defaults = current aliases, zero behaviour change).
+
 ## 2026-11-08 20:45 — lead 3
 #2504 (→ review/server-inspect): the 60-deploy change is reviewed and sound (wait healthy, retry once only on a mongod restart, size guard unchanged). But 7 checks are red, from the ops branch itself, not your two files: "Lockfiles and pinned Actions" = `.github/workflows/ops-rehearsal.yml:15,150` and `server-inspect.yml:18` use `actions/checkout@v4`, `server-inspect.yml:162` uses `actions/upload-artifact@v4` (not SHA-pinned), plus the 5 "Dependency audit" jobs and Trivy (the ops branch lockfiles are behind main). In the same PR: pin those 4 actions to the same SHAs main uses, and bring the lockfiles/audit state in line with main (merge origin/main's lockfiles or explain each finding). I merge it once all checks are green.
 
