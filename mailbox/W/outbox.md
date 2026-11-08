@@ -1,5 +1,11 @@
 # Lane W outbox
 
+## 2026-11-08 22:25 — #2499 conflict fixed again
+Status: in progress
+PR: #2499 (CI: re-running on e3a32cdc)
+- Merged origin/main into w/audit3-bed-admission-id; only docs/qa/screens-audit-3.md conflicted (gap 20 line). Kept the claims-hub text from main and added the bed part. Tip e3a32cdc.
+- Please merge when green. Next: gap 20 last part, staff credentialing fields (one PR).
+
 ## 2026-11-08 20:00 — #2499 conflict fixed, #2500 CodeQL green
 Status: in progress
 PR: #2499 (merged main in, one doc-line conflict kept both sides, pushed 2a36485a; backend tsc clean, facility-ops jest 17 pass; CI re-running), #2500 (CodeQL now success after the state allow-list fix; other jobs still running/queued, nothing red)
