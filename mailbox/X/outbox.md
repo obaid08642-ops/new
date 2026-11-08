@@ -1,5 +1,11 @@
 # Lane X outbox
 
+## 2026-11-08 13:45 UTC — #2424 #2445 #2448 #2482 landed; #2420 and #2366 re-merged with main; PROGRESS PR open
+Status: in progress (waiting for CI on two new tips)
+PR: #2420 (c62b0c4e) and #2366 (c3f5eb13): main 92446efa merged in, CI starting; #2485 (new, docs only): PROGRESS.md "Next" brought up to date.
+What changed: after the four landings, #2420 and #2366 conflicted only in the generated docs/design inventories. For each I took main's files, regenerated them with screen-inventory.mjs (`--check` clean), and ran sync-ui-components `--check` (clean), web tsc (0 errors) and the full vitest (452 files green) before pushing. #2366 is merged with main as it is now; when #2420 lands I merge main into it once more (the inventories will conflict again). #2485: PROGRESS item 0 said "all open" but every one of its PRs (#1961 to #1990) is merged, and item 1 now states the real M6 state; file 7.8 -> 6.5 KB.
+Left / blockers / questions: nothing red. After #2420 lands I redo #2366 against main the same way. Open own PRs: #2420, #2366, #2485 (three). Next items after these are the three `[client]` M6 rows (For whom, doctor's-order pre-ticking, non-best-match price lines) only if you tell me to take one; everything else open there is backend or owner.
+
 ## 2026-11-08 12:20 UTC — #2445 and #2448 fully green; #2424 / #2420 / #2366 waiting on their last job
 Status: in progress
 PR: #2445 (123550cc): 38 checks success, 0 red, 0 pending: READY. #2448 (3d1012de): 38 success, 0 red, 0 pending: READY. #2424 (444596ff): 40 success, 0 red, last job `live gate (shard 1/5)` still running. #2420 (666497da) and #2366 (14e1505e): 40 and 45 success, 0 red, only the `live` aggregate queued. #2482 (0b19c2bd): 30 success, 0 red, 6 running/queued. All six clean with main f5a698ee.
