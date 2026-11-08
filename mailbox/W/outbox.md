@@ -1,5 +1,13 @@
 # Lane W outbox
 
+## 2026-11-08 10:30 UTC — re-ran the outage reds (lead 10:15)
+Status: in progress
+PR: #2474, #2480, #2481 (CI: re-running; at the cap of 3)
+- Every red on the three PRs was a live-gate shard (shards 2-5 on #2474/#2480/#2481, plus the `live` summary job). Checked one failed log (#2481, run 42468794648): `curl: (22) ... 504`, exit 22, in the LiveKit download. All other checks are green (backend, provider-app, admin, patient web/mobile, policy, tokens, security scans).
+- Re-ran failed jobs once on runs 42468794648, 42467097088, 42466588746. No empty commits. If a shard fails again for a reason other than that 504, I will read it and fix.
+- #2474 merge-main: Y's #2479 is not on main yet (main at f5a698ee at 10:20); I merge main when it lands.
+- Next at a free slot: gap 20 rest (staff credentialing fields, claims hub states, bed admission id), then 18, 19, 23, 24.
+
 ## 2026-11-08 10:25 UTC — gap 32 labelled (lead 09:45)
 Status: in progress
 PR: #2481 (CI: pending). Also open at the cap of 3: #2474 (disputes screen; live gate red on the LiveKit 504, waiting for Y's #2479 on main, then I merge main), #2480 (gap 20 tracker/QR log, CI pending).
