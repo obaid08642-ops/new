@@ -34,6 +34,4 @@ export const speedRedirects: Redirect[] = [
   { source: "/:locale/pharmacy/filters", destination: "/:locale/c", permanent: false },
   ...appointmentAlias("follow-up"),
   ...appointmentAlias("prescription"),
-  ...appointmentAlias("follow-up"),
-  ...appointmentAlias("prescription"),
 ];
