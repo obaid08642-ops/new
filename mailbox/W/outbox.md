@@ -1,5 +1,14 @@
 # Lane W outbox
 
+## 2026-11-08 07:55 UTC — #2463 admin impersonation (lead order 07:40)
+Status: in progress
+PR: #2463 (CI: pending, new run on f7fd82a9)
+- Cause of the red 'Admin Dashboard typecheck and build': `tools/audit/admin_calls.py` looked for a backend route with the same path as `/api/admin/impersonation/{start,context,revoke}`. Those calls are served by the admin app's own Next routes (`admin/src/pages/api/admin/impersonation/*.ts`, support cookie), so none exists in the backend.
+- Fix: the check now counts a call as served when a file for it exists under `pages/api/admin/` (not the `[...path]` proxy). Locally: 230 calls, 0 without a route (was 3); admin `tsc` exit 0, vitest 95/95.
+- Reviewer please check: this edits a verification tool (AGENTS.md rule). The change only adds the local-route case; backend-route matching is unchanged. If you prefer an allow-list in the tool, say so and I redo it.
+- Also merged main (conflict in docs/qa/screens-audit-3.md: gap 26 fixed by step-up, gap 27 fixed here).
+- Left: next, PV scenarios (order 1) and screens-audit-3 open gaps (13, 15, 18-20, 23-24, 32) once CI is green.
+
 ## 2026-11-07 21:00 UTC — #2455 and #2462 merged; step-up PR opened
 Status: in progress
 PR: #2466 admin passkey step-up (CI: pending), #2463 admin impersonation (CI: green earlier, not merged yet)
