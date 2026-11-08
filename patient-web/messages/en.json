@@ -978,6 +978,8 @@
     "timesPerDay": "{count, plural, one {Once a day} other {# times a day}}",
     "durationDays": "{days, plural, one {For # day} other {For # days}}",
     "orderCta": "Order these medicines",
+    "pickLabel": "Choose the medicines to add to your cart",
+    "pickNone": "Tick at least one medicine to order.",
     "notInCart": "{count} of {total} medicines were written by hand by the doctor and can't be added to the cart",
     "notOrderable": "This prescription can no longer be ordered from.",
     "back": "Back to prescriptions"
