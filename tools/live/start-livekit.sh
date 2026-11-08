@@ -33,7 +33,9 @@ if [[ ! -x "$BIN" ]]; then
   tarball="${LIVEKIT_TARBALL:-}"
   if [[ -z "$tarball" ]]; then
     tarball="$tmp/livekit.tgz"
-    curl -fsSL --retry 3 -o "$tarball" "$URL"
+    # A short GitHub release-download outage (HTTP 504 for ~30 s) failed all five gate shards at once with `--retry 3` (about 7 s in all).
+    # Wait it out: up to 8 tries, 10 s apart, any transient error, and a connect timeout so a stalled try does not eat the step.
+    curl -fsSL --retry 8 --retry-delay 10 --retry-all-errors --connect-timeout 20 --max-time 300 -o "$tarball" "$URL"
   fi
   echo "$SHA256  $tarball" | sha256sum -c --quiet - || { echo "start-livekit.sh: checksum mismatch for $tarball" >&2; exit 1; }
   tar -xzf "$tarball" -C "$tmp" livekit-server
