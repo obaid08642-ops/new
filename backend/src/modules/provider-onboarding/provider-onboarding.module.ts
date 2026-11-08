@@ -17,7 +17,7 @@ import { EventBusService } from '../events/event-bus.service';
 import { ContractPdfService, ContractAgreement, ContractLang, ContractSignature } from './contract-pdf.service';
 import { MailModule, MailService } from '../mail/mail.module';
 import { ScfhsLicenseModule, ScfhsLicenseService } from '../provider/services/scfhs-license.service';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from '../../common/password-hash';
 import { v4 as uuidv4 } from 'uuid';
 import { escapeRegex } from '../../common/slug.util';
 import { StartDto, SubmitDto } from './provider-onboarding.dto';

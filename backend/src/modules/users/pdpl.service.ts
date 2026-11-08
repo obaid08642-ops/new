@@ -198,7 +198,7 @@ export class PdplService {
       // bcrypt is neither declared nor installed, so the moment a patient supplied
       // a password the check threw "Cannot find module 'bcrypt'" and erasure 500'd
       // instead of verifying. The old test missed it by never passing a password.
-      const bcrypt = require('bcryptjs');
+      const bcrypt = require('../../common/password-hash');
       const ok = await bcrypt.compare(opts.password, user.password_hash);
       if (!ok) throw new BadRequestException('invalid_password');
     }

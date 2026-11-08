@@ -3,7 +3,7 @@ import { Optional, Injectable, BadRequestException, UnauthorizedException, NotFo
 import { isEmail } from 'class-validator';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from '../../../common/password-hash';
 import { randomUUID } from 'crypto';
 import { HospitalBranch } from '../schemas/hospital-branch.schema';
 import { HospitalDepartment } from '../schemas/hospital-department.schema';
