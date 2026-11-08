@@ -96,6 +96,50 @@ def review_reply(pat, doctor, other_doctor):
     step('the doctor\'s public page shows the reply under the review', page.ok and shown.get('reply') == reply, shown or page.status)
 
 
+def low_star_moderation(pat, doctor, admin):
+    """PV-07 (the part the apps hit): a review under 3 stars waits for a moderator, and only then can the doctor answer it."""
+    import j_consultation
+    aid = j_consultation.book_paid(pat, doctor, slot_index=3)   # the first slots are used by the visits before
+    if not aid:
+        return
+    journey('PV-07: a low-star review is moderated before the doctor can answer it')
+    r = doctor.get('/provider/jobs/queue?status=incoming&kind=consultation')
+    if aid in [j.get('id') for j in (r.body if isinstance(r.body, list) else r.items())]:
+        doctor.post(f'/provider/jobs/consultation/{aid}/accept', {})
+    for action in ('check-in', 'start'):
+        doctor.req('PATCH', f'/care/appointments/{aid}/{action}', {})
+    r = doctor.post(f'/care/appointments/{aid}/finish', {'diagnosis': 'متابعة', 'notes': 'راحة', 'recommendations': 'مراجعة عند الحاجة'})
+    step('the second visit is finished', r.ok, r)
+    comment = 'الانتظار كان طويلاً جداً'
+    r = pat.post('/patient-ux/review', {'booking_kind': 'consultation', 'booking_id': aid, 'rating': 2, 'comment': comment, 'aspects': {}, 'anonymous': False})
+    rid = r.get('id')
+    step('the patient rates the visit 2 stars', r.ok and rid and r.get('status') == 'pending_review', r)
+    r = doctor.get('/provider/reviews')
+    row = next((x for x in (r.body if isinstance(r.body, list) else r.items()) if x.get('id') == rid), {})
+    step('the doctor sees it as waiting for moderation', r.ok and row.get('score') == 2 and row.get('status') == 'pending', row)
+    r = doctor.post(f'/provider/reviews/{rid}/reply', {'reply': 'نعتذر عن الانتظار'})
+    step('and cannot answer it yet (review_not_published)', r.status == 400 and 'review_not_published' in str(r.body), r)
+    prof_id = doctor.get('/provider-onboarding/my-profile').get('id')
+    page = pat.get(f'/care/doctors/{prof_id}')
+    step('it is not on the doctor\'s public page', page.ok and not any(x.get('id') == rid for x in (page.get('reviews_data') or [])), page.status)
+    r = admin.get('/admin/admin/ratings/pending')
+    pend = (r.body.get('data') if isinstance(r.body, dict) else r.items()) or []
+    queued = next((x for x in pend if x.get('id') == rid), {})
+    step('the admin moderation queue holds it, with the reviewer\'s name', r.ok and queued.get('score') == 2 and queued.get('user_name') and queued.get('comment') == comment, queued or r.status)
+    r = admin.post(f'/admin/admin/ratings/{rid}/approve', {})
+    step('the admin approves it', r.ok and r.get('status') == 'published', r)
+    r = admin.get('/admin/admin/ratings/pending')
+    pend = (r.body.get('data') if isinstance(r.body, dict) else r.items()) or []
+    step('it leaves the queue', r.ok and not any(x.get('id') == rid for x in pend), r.status)
+    r = admin.post(f'/admin/admin/ratings/{rid}/approve', {})
+    step('approving it again is refused (review_not_pending)', r.status == 404, r)
+    r = doctor.post(f'/provider/reviews/{rid}/reply', {'reply': 'نعتذر عن الانتظار ونعمل على تقليله'})
+    step('now the doctor answers it', r.ok, r)
+    page = pat.get(f'/care/doctors/{prof_id}')
+    shown = next((x for x in (page.get('reviews_data') or []) if x.get('id') == rid), {})
+    step('the public page shows the review with the reply', page.ok and shown.get('rating') == 2 and 'نعتذر' in str(shown.get('reply')), shown or page.status)
+
+
 def staff_invite(doctor):
     """PV-12."""
     journey('PV-12: the provider invites a staff member')
@@ -138,6 +182,35 @@ def staff_invite(doctor):
     step('a revoked member is no longer active', row.get('status') != 'active', row)
 
 
+def licence_expiry(admin, doctor):
+    """PV-08 / PV-09: a licence close to its end warns the provider; an expired one suspends the account and its login."""
+    import datetime, db_raw
+    journey('PV-08/PV-09: licence expiry warning, then suspension')
+    me = doctor.get('/auth/me')
+    uid = me.get('id') or me.get('user', 'id')
+    step('the provider account is known', me.ok and uid, me)
+    flt = {'$or': [{'account_id': uid}, {'user_id': uid}]}
+    soon = (datetime.datetime.utcnow() + datetime.timedelta(days=20)).strftime('%Y-%m-%dT00:00:00Z')
+    # TEST DATABASE ONLY: a licence cannot reach its end in real time, so its stored expiry date is moved.
+    step('test setup: licence ends in 20 days', db_raw.set_raw('provider_profiles', flt, {'license_expiry_date': {'$date': soon}}) == 1)
+    r = admin.post('/admin/admin/providers/license-monitor/run', {})
+    step('admin runs the licence monitor', r.ok, r)
+    r = doctor.get('/notifications')
+    items = r.body if isinstance(r.body, list) else r.items()
+    warned = [n for n in items if 'license_expiring' in str(n)]
+    step('PV-08: the provider got a licence-expiring warning', r.ok and warned, r)
+    r = doctor.get('/auth/me')
+    step('PV-08: the account is still active after the warning', r.ok, r)
+    past = (datetime.datetime.utcnow() - datetime.timedelta(days=1)).strftime('%Y-%m-%dT00:00:00Z')
+    step('test setup: licence ended yesterday', db_raw.set_raw('provider_profiles', flt, {'license_expiry_date': {'$date': past}}) == 1)
+    r = admin.post('/admin/admin/providers/license-monitor/run', {})
+    step('admin runs the licence monitor again', r.ok, r)
+    r = doctor.get('/provider/profile')
+    step('PV-09: the provider profile is suspended', (not r.ok) or r.get('status') == 'suspended', r)
+    r = doctor.get('/auth/me')
+    step('PV-09: the login no longer works', not r.ok, r)
+
+
 if __name__ == '__main__':
     import os
     import j_admin, j_accounts, j_onboarding, j_consultation
@@ -160,5 +233,7 @@ if __name__ == '__main__':
     no_show(pat, doc)
     j_consultation.run(pat, doc, admin)   # a completed visit with the patient's 5-star review
     review_reply(pat, doc, doctor_account())
+    low_star_moderation(pat, doc, admin)
     staff_invite(doc)
+    licence_expiry(admin, doctor_account())
     summary()

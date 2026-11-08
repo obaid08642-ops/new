@@ -16,6 +16,7 @@ import * as crypto from 'crypto';
 import * as ExcelJS from 'exceljs';
 import { DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT } from '../../common/commission-defaults';
 import { ScheduledOnce } from '../../common/scheduled-once';
+import { roundSar } from '../../common/money';
 
 @Injectable()
 export class LegalEnterpriseService {
@@ -154,7 +155,7 @@ export class LegalEnterpriseService {
     // override or a promotion never showed.
     const earnings = await this.conn.collection('platformledgerentries').find(match, { projection: { _id: 0 } }).sort({ createdAt: -1 }).limit(500).toArray();
     const ledger = await this.conn.collection('platformledgerentries').find({ provider_account_id: providerId, ...(from || to ? { createdAt: dateQ } : {}) }, { projection: { _id: 0 } }).sort({ createdAt: -1 }).limit(500).toArray().catch(() => []);
-    const round2 = (n: number) => Math.round(n * 100) / 100;
+    const round2 = roundSar;
 
     const rows = earnings.map((e: any) => ({
       order_id: e.ref_id,

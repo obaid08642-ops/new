@@ -135,6 +135,14 @@ class Uptime(unittest.TestCase):
         self.assertEqual(p.returncode, 0, p.stdout)
         self.assertIn("mail sent via brevo", p.stdout)
 
+    def test_api_probe_targets_the_api_host_health_route(self):
+        # the site host has no /api route (it answered 404); the real route is GET /api/v1/health/liveness on the API host
+        for rel in ("external-uptime.sh", "auto-reboot.sh"):
+            src = open(os.path.join(os.path.dirname(SCRIPT), rel)).read()
+            self.assertIn("API_URL=${API_URL:-https://api.nabd.plus}", src)
+            self.assertIn("$API_URL/api/v1/health/liveness", src)
+            self.assertNotIn("$SITE/api/", src)
+
 
 if __name__ == "__main__":
     unittest.main()

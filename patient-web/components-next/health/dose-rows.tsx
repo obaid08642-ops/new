@@ -1,9 +1,9 @@
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import { doseTone, formatTimeKey, type DoseRow } from "@/lib/health/doses";
 import { TakeDoseButton } from "./reminder-actions";
 import styles from "./health.module.css";
+import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
 type Labels = { statuses: Record<DoseRow["status"], string>; medicineUnavailable: string };
 
@@ -19,7 +19,7 @@ export function DoseRows({ rows, labels, locale, withAction = false }: { rows: D
       {rows.map((row) => (
         <li key={`${row.reminder.id}-${row.timeKey}`}>
           <div className={styles.row}>
-            <FIcon icon={pharmacy.icon} tone={pharmacy.tone} size={40} />
+            <FIconByName icon={pharmacy.icon} tone={pharmacy.tone} size={40} />
             <span className={styles.rowBody}>
               <span className={styles.rowTitle}>{row.reminder.medicineName ?? labels.medicineUnavailable}</span>
               <span className={styles.rowSub}>{row.reminder.dose ? <><bdi>{row.reminder.dose}</bdi> · </> : null}<bdi>{locale ? formatTimeKey(locale, row.timeKey) : row.timeKey}</bdi></span>

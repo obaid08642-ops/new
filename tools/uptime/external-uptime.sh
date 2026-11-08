@@ -1,7 +1,7 @@
 #!/bin/bash
 # External uptime check (owner, 2026-11-02: the site was down for hours and no alert mail came, because monitor.sh and the watchdog run ON the
 # host and die with it). Runs from GitHub Actions (.github/workflows/uptime-alert.yml, every 5 minutes), GET only:
-#   $SITE_URL/ar            the public page        $SITE_URL/api/v1/health   the API health
+#   $SITE_URL/ar            the public page        $API_URL/api/v1/health/liveness   the API (api.nabd.plus; the site host has no /api route: it answered 404)
 # Down = either answers anything but 2xx (or times out) on two runs in a row (FAIL_THRESHOLD). Then ONE mail goes to OPS_ALERT_EMAIL, and one
 # more when it is back. The state (consecutive failures, whether the outage mail was sent, since when) lives in $STATE_DIR, which the workflow
 # keeps between runs with the Actions cache, so a long outage is one mail, not one every 5 minutes. REMIND_HOURS (default 0 = off) adds a
@@ -13,6 +13,7 @@
 # Test hooks: UPTIME_NOW_EPOCH, UPTIME_MAIL_CMD (gets "SUBJECT: ..." and the body on stdin instead of a provider), the provider URLs below.
 set -uo pipefail
 SITE=${SITE_URL:-https://nabd.plus}
+API_URL=${API_URL:-https://api.nabd.plus}
 STATE_DIR=${STATE_DIR:-${RUNNER_TEMP:-/tmp}/uptime-state}
 THRESH=${FAIL_THRESHOLD:-2}
 REMIND_H=${REMIND_HOURS:-0}
@@ -33,7 +34,7 @@ probe() { # url -> "<code>"; one retry after a failure so one dropped packet is 
   done
   echo "$c"
 }
-PAGE=$(probe "$SITE/ar"); API=$(probe "$SITE/api/v1/health")
+PAGE=$(probe "$SITE/ar"); API=$(probe "$API_URL/api/v1/health/liveness")
 case "$PAGE" in 2??) PAGE_OK=1 ;; *) PAGE_OK=0 ;; esac
 case "$API" in 2??) API_OK=1 ;; *) API_OK=0 ;; esac
 say "$TS UTC page=$PAGE api=$API (consecutive failures before this run: $FAILS)"
@@ -64,7 +65,7 @@ if [ "$SEND" != 0 ]; then
   WHAT="$([ "$SEND" = 2 ] && echo 'STILL DOWN' || echo 'DOWN')"
   if send_mail "[nabd.plus] $WHAT: $SITE is not answering" "$SITE has failed $FAILS checks in a row (every 5 minutes), since $(date -u -d "@$SINCE" '+%Y-%m-%d %H:%M:%S') UTC.
 - $SITE/ar: HTTP $PAGE
-- $SITE/api/v1/health: HTTP $API
+- $API_URL/api/v1/health/liveness: HTTP $API
 (000 = no answer / timeout; 5xx or 522 = the origin or the server behind it is down)
 This check runs outside the server (GitHub Actions), so it still reaches you when the server and its own monitor are down.
 You get one mail for the outage and one when it is back. Run: $RUN_URL"; then

@@ -20,6 +20,7 @@ import { productCardImageSrc } from "@/components-next/pharmacy/catalog-image";
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
 import styles from "@/components-next/pharmacy/pharmacy.module.css";
 import consult from "@/components-next/consult/consult.module.css";
+import { FILL_PRESCRIPTION } from "@/components-next/ui-generated/icons/glyphs/prescription";
 
 /**
  * F82-3: the category list is one view with two routes. The static/ISR page (no `searchParams`: page 1, no search) is the
@@ -239,7 +240,7 @@ export async function CategoryView({ params, searchParams }: Props) {
         {isAll && !q && page === 1 ? (
           <nav aria-label={t("hubShortcuts")} className={styles.hub}>
             <Link className={`${styles.row} ${styles.hubUpload}`} href={`/${locale}/pharmacy/rx-order?via=photo`}>
-              <span className={styles.rowMedia}><FIcon icon="prescription" tone={PHARMACY_TONE} chip="solid" size={56} /></span>
+              <span className={styles.rowMedia}><FIcon icon="prescription" glyph={FILL_PRESCRIPTION} tone={PHARMACY_TONE} chip="solid" size={56} /></span>
               <span className={styles.rowBody}>
                 <span className={styles.rowName}>{t("hubUploadTitle")}</span>
                 <span className={styles.rowSub}>{t("hubUploadBody")}</span>

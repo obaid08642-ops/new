@@ -1,9 +1,10 @@
 import { randomUUID } from 'crypto';
 import { shadowFields } from './halala-shadow';
+import { roundSar } from './money';
 
 type Conn = { collection(name: string): any };
 
-const round2 = (n: number) => Math.round(n * 100) / 100;
+const round2 = roundSar;
 /** The unique index behind the idempotency key. Sparse: rows written before the key existed carry none and must not collide with each other. */
 export const WALLET_TX_INDEX = { keys: { idempotency_key: 1 }, options: { unique: true, sparse: true, name: 'wallet_tx_idempotency_key' } } as const;
 let indexReady: Promise<unknown> | null = null;

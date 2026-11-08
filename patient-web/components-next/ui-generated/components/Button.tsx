@@ -23,7 +23,8 @@ import {
   type Variant,
 } from './contract';
 import { Icon } from '../src/Icon';
-import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, type FillIconName } from '../icons/fill';
+import { FILL_ICON_NAMES, FILL_ICON_VIEWBOX, type FillIconName } from '../icons/fill';
+import { fillHref } from '../icons/sprite';
 import type { IconName } from '../icons/names';
 import { Spinner } from './Spinner';
 
@@ -47,10 +48,10 @@ const ICON_PX: Record<Size, number> = { sm: 16, md: 18, lg: 22 };
 
 /** A handoff fill glyph when the name is one (the boards draw button icons filled), else the line icon. */
 function ButtonIcon({ name, size }: { name: IconName | FillIconName; size: number }) {
-  if (name in FILL_ICON_PATHS) {
+  if ((FILL_ICON_NAMES as readonly string[]).includes(name)) {
     return (
       <svg width={size} height={size} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true" className="nabd-button__icon">
-        <path d={FILL_ICON_PATHS[name as FillIconName]} fill="currentColor" />
+        <use href={fillHref(name as FillIconName)} fill="currentColor" />
       </svg>
     );
   }
