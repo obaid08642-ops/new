@@ -1,3 +1,9 @@
+## 13:22 UTC 2026-11-08 — check 13:17: #2404/#2478 merged, #2483 conflict fixed, #2486 opened (report totals)
+Status: in progress
+PR: #2483 (approved; conflicted with main only on the R11 doc line after #2478 merged; merged main, tsc ok, pushed a800964c, CI re-running), #2486 (CI: pending), nothing else of mine open
+What changed: #2486 z/halala-report-totals: ReportsService.summary adds whole halalas in the $group (halalasSum: integer shadow first, double*100 rounded only for rows without one) and converts to SAR once (finance-engine/report-totals.ts, pure reportFigures); same response shape and units. 5 unit tests; refund-commission-reversal.spec's report test now feeds halala group rows (assertion unchanged). tsc, nest build, dtolint ok; the pipeline against real MongoDB is exercised only in CI (not runnable in my sandbox).
+Left / blockers / questions: next: remaining round2 callers in finance-engine (wallet, coupon, loyalty math), one PR each. 2 open PRs (2483, 2486).
+
 ## 12:48 UTC 2026-11-08 — check 12:47: #2478 green, #2404 Lighthouse green
 Status: ready for review
 PR: #2478 (CI: live gate run 42475216870 completed SUCCESS, plus acceptance, CodeQL, security, schemathesis, legacy-client-contract, patient CI; money-only diff, no conflict), #2404 (Lighthouse now green on the merged-main commit; acceptance, CodeQL, schemathesis, P15 browsers, design-gate green; live gate run 42472985588 had shards 1,3,4 green at 12:17, last two still running then), #2483 (earlier runs green; re-run of the failed live jobs had shards 1,3,5 green, 2,4 queued at 12:17)
