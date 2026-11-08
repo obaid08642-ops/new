@@ -170,9 +170,22 @@ describe("D: the lab-choice step lists every lab with its own price", () => {
   const row = (providerId: string, total: number, extra: Partial<ProviderRow> = {}): ProviderRow => ({ providerId, nameAr: null, nameEn: providerId, total, homeFee: 0, vat: 0, vatRate: 0, subtotal: total, distanceKm: null, rating: null, inNetwork: false, earliestAt: null, turnaroundHours: null, coversAll: true, missing: [], ...extra });
   const best = { ...row("b", 80), lines: [{ catalogId: "t1", price: 70 }], estimatedInsuranceShare: 0, patientShare: 80, estimatedPatientShare: null };
   const compare = [row("a", 90), row("b", 80), row("c", 60, { coversAll: false, missing: ["t1"] }), row("d", 120, { inNetwork: true })];
-  it("best first with its total, then every other lab with its own total, none dropped", () => {
+  it("every lab with its own total, sorted by price, the labs that lack an item after the complete ones, none dropped", () => {
     const list = providerPriceList({ bestMatch: best, compare });
-    expect(list.map((x) => [x.row.providerId, x.row.total, x.best])).toEqual([["b", 80, true], ["a", 90, false], ["c", 60, false], ["d", 120, false]]);
+    expect(list.map((x) => [x.row.providerId, x.row.total, x.best])).toEqual([["b", 80, true], ["a", 90, false], ["d", 120, false], ["c", 60, false]]);
+  });
+  it("owner decision 2026-11-08: the best offer is highlighted where it falls in the sorted list, not pinned first", () => {
+    const pricey = { ...row("a", 90), lines: [{ catalogId: "t1", price: 80 }], estimatedInsuranceShare: 0, patientShare: 90, estimatedPatientShare: null };
+    const list = providerPriceList({ bestMatch: pricey, compare: [row("a", 90), row("e", 70), row("f", 75)] });
+    expect(list.map((x) => [x.row.providerId, x.best])).toEqual([["e", false], ["f", false], ["a", true]]);
+  });
+  it("another sort keeps the server's order (nearest, fastest, rating), the best still flagged", () => {
+    const list = providerPriceList({ bestMatch: best, compare }, { inNetworkOnly: false }, "nearest");
+    expect(list.map((x) => [x.row.providerId, x.best])).toEqual([["a", false], ["b", true], ["c", false], ["d", false]]);
+  });
+  it("a best match the compare list does not hold is added on top, one in the filtered-out list is not", () => {
+    expect(providerPriceList({ bestMatch: best, compare: [row("a", 90)] }).map((x) => [x.row.providerId, x.best])).toEqual([["b", true], ["a", false]]);
+    expect(providerPriceList({ bestMatch: { ...best, inNetwork: false }, compare: [row("a", 90, { inNetwork: true })] }, { inNetworkOnly: true }).map((x) => x.row.providerId)).toEqual(["a"]);
   });
   it("keeps labs that lack an item (they are shown, not chosen) and honours the in-network filter", () => {
     expect(providerPriceList({ bestMatch: best, compare }).find((x) => x.row.providerId === "c")?.row.coversAll).toBe(false);
@@ -181,7 +194,7 @@ describe("D: the lab-choice step lists every lab with its own price", () => {
   });
   it("the step draws the price of each row", () => {
     const step = code("components-next/ordering/providers-client.tsx");
-    expect(step).toContain("providerPriceList(g, { inNetworkOnly })");
+    expect(step).toContain("providerPriceList(g, { inNetworkOnly }, sort)");
     expect(step).toContain("moneyText(locale, r.total)");
   });
 });
