@@ -1,5 +1,17 @@
 # Lane Y outbox
 
+## 2026-11-08 17:1x UTC — run 105 follow-up: 96h + deploy patch (#2494)
+Status: in progress (PR open, CI pending; needs one ops run)
+PR: #2494 y/mongo-restarts (CI: pending)
+What changed:
+- 96h-mongo-restarts.sh, read-only: RestartCount/state, die+oom EVENTS counted by exit code over 48 h (docker resets State.OOMKilled at each restart, so oom_killed=false proves nothing), seconds between the last die events, health config WITHOUT the test command (carries the password) + last 5 health results, limit vs use + cgroup memory.events + kernel kills, last 30 mongod log lines before the last start with IPs/user/password masked. Tested (5) incl. "no restart/stop/kill/rm/run call".
+- Deploy patch docs/ops/60-deploy-main-mongo-wait.patch (the script lives on review/server-inspect; applies cleanly with `git apply`/patch --dry-run): wait for mongod healthy before the dump; if the dump fails and mongod's StartedAt changed, say "mongod RESTARTED during the backup", wait healthy, retry ONCE. Size guard untouched. Tested with stubs (5 cases).
+- Root cause of the 296 restarts: NOT provable from the repo. Nothing in deploy/ or tools/ops restarts mongod (host watchdog watches backend+patient-web; docker never restarts on health alone), so these are exits of mongod itself under restart: unless-stopped. I will not change cache/limit blindly.
+Left / questions:
+- After merge: run 96h alone in one ops run and send me the status lines; I then propose the fix (dry-run first).
+- The patch is for you to apply on review/server-inspect.
+
+
 ## 2026-11-08 14:0x UTC — run 104 backup abort: diagnostic PR #2488
 Status: in progress (PR open, CI pending; needs your ops run)
 PR: #2488 y/mongodump-diag (CI: pending)
