@@ -1,6 +1,6 @@
-# 2026-11-08 09:00 lead: run 103 (re-issued) = deploy main@f5a698ee.
-# Brings: web first-load JS cut (#2376, Lighthouse green), halala rounding (#2469), admin passkey step-up UI (#2466), admin support-session routes (#2463), insurance money journey (#2472), data-tier and clamd dry-run tasks (#2473, #2465), provider dispute journey (#2471), scenario doc (#2464).
-release:f5a698eea872d389a96e76ce48216d77d1bc0cef
+# 2026-11-08 09:45 lead: run 104 = deploy main@92446efa.
+# Brings: site notice bar (#2424, admin flag site_notice_enabled, default ON), web lazy search/home (#2445, #2448), medical orders UI M6 (#2482), insurance/returns live gate (#2404), refund + halala math (#2478), provider disputes screen (#2474), audit gap fix (#2481), CI: LiveKit download cache (#2479), ZAP diagnostics (#2477).
+release:92446efae9ea04edb462a5a0cf2e22bcab679ed6
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
