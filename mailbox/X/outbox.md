@@ -1,5 +1,11 @@
 # Lane X outbox
 
+## 2026-11-08 20:00 UTC — #2420 and #2493 landed; #2366 re-merged; PRs #2501 (2b) and #2502 (2a) opened
+Status: in progress (CI on the new PRs starting)
+PR: #2366 (f5e03e78, merged with main 510305a1, inventories regenerated, own PROGRESS edit intact, 453 files green: ready for you); #2491 (doctors page, 37 checks green incl. lighthouse, ready); #2501 (new, ordering: doctor's items pre-checked in the basket); #2502 (new, pharmacy: prescription medicines pre-checked). Open own PRs: 4.
+What changed: with #2420 and #2493 merged I freed two slots and opened the decision-2 PRs. Both bodies say "pre-checked, NOT locked: the patient can untick". #2501: the Order button's prefill reaches the basket; items arrive ticked in a "From your doctor's order" checklist (untick removes the line, the item stays open in My medical orders); two strings in six languages. #2502: "Order these medicines" lists the prescription's catalogue medicines as ticked checkboxes (only if more than one), only ticked go to the cart; two strings in six languages. tsc 0, vitest 453 / 451 files green, gates clean, not seen at runtime (no backend).
+Left / blockers / questions: next is decision 1 (family member, default the patient) on its own branch; it needs a slot only for its PR, I build it now. If #2366 or #2491 lands first I merge main into the others as before.
+
 ## 2026-11-08 19:20 UTC — decision 2(b) (doctor's order items pre-checked in the basket) built and pushed; PRs for 2(a) and 2(b) wait for a free slot
 Status: in progress
 PR: not opened (cap): branches `x/rx-prechecked` (2a pharmacy) and `x/orders-prechecked` (2b ordering) pushed, both with tests green. Open own PRs unchanged: #2420 (green), #2366, #2491 and #2493 (lighthouse green on both). Nothing landed; main a74179a8.
