@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
@@ -80,34 +80,11 @@ export function ProvidersClient({ locale, kind, place, pay, item, point }: Props
     const multi = quote.groups.length > 1;
     const section = (g: QuoteGroup) => {
       const rows = filterCompare(g.compare, { inNetworkOnly });
-      const rest = providerPriceList(g, { inNetworkOnly }).filter((x) => !x.best).map((x) => x.row); // every lab with its own price for the chosen items
+      const list = providerPriceList(g, { inNetworkOnly }, sort); // every lab with its own price for the chosen items, sorted, the best one flagged in place
       const nameById = (id: string) => nameOfRow(g.compare.find((r) => r.providerId === id) ?? ({ nameAr: null, nameEn: null } as ProviderRow));
       return (
         <section key={g.mode} className={styles.stack} aria-label={g.mode === "home" ? t("gHome", { n: g.items.length }) : t("gCentre", { n: g.items.length })}>
           {multi ? <h2 className={styles.title}>{g.mode === "home" ? t("gHome", { n: g.items.length }) : t("gCentre", { n: g.items.length })}</h2> : null}
-          {g.bestMatch ? (
-            <>
-              {renderRow({ r: g.bestMatch, mode: g.mode, best: true })}
-              {g.bestMatch.lines.some((l) => l.coverage) ? (
-                <ul className={styles.items} aria-label={t("secCov")}>
-                  {g.bestMatch.lines.map((l) => (
-                    <li key={l.catalogId}>
-                      <span className={styles.itemText}>
-                        <span className={styles.itemName}>{pickName(locale, lines.find((x) => x.id === l.catalogId)?.nameAr, lines.find((x) => x.id === l.catalogId)?.nameEn) ?? t("unnamedItem")}</span>
-                        {l.coverage ? <span className={styles.chips}><CoverageChip coverage={l.coverage} /></span> : null}
-                      </span>
-                      <span className={styles.price}><bdi>{moneyText(locale, l.price)}</bdi></span>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-              {(() => {
-                const share = insuredShareLine(g.bestMatch, pay);
-                if (!share) return null;
-                return <p className={styles.sub}>{share.kind === "estimate" ? t("shareEstimate", { p: moneyText(locale, share.amount) }) : t("shareAccepted")}</p>;
-              })()}
-            </>
-          ) : null}
           {g.split ? (
             <div className={styles.card}>
               <h3 className={styles.title}>{t("splitTitle")}</h3>
@@ -124,10 +101,36 @@ export function ProvidersClient({ locale, kind, place, pay, item, point }: Props
             </div>
           ) : null}
           {g.empty ? <p className={styles.note} role="status">{g.mode === "home" ? t("altTitle") : t("altTitleCentre")} <Link href={basketHref}>{t("backToBasket")}</Link></p> : null}
-          {rest.length > 0 ? (
+          {list.length > 0 ? (
             <>
               <h3 className={styles.title}>{t("compare")}</h3>
-              {rest.map((r) => renderRow({ r, mode: g.mode }))}
+              {list.map(({ row: r, best }) => (
+                <Fragment key={r.providerId}>
+                  {renderRow({ r, mode: g.mode, best })}
+                  {best && g.bestMatch ? (
+                    <>
+                      {g.bestMatch.lines.some((l) => l.coverage) ? (
+                        <ul className={styles.items} aria-label={t("secCov")}>
+                          {g.bestMatch.lines.map((l) => (
+                            <li key={l.catalogId}>
+                              <span className={styles.itemText}>
+                                <span className={styles.itemName}>{pickName(locale, lines.find((x) => x.id === l.catalogId)?.nameAr, lines.find((x) => x.id === l.catalogId)?.nameEn) ?? t("unnamedItem")}</span>
+                                {l.coverage ? <span className={styles.chips}><CoverageChip coverage={l.coverage} /></span> : null}
+                              </span>
+                              <span className={styles.price}><bdi>{moneyText(locale, l.price)}</bdi></span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                      {(() => {
+                        const share = insuredShareLine(g.bestMatch, pay);
+                        if (!share) return null;
+                        return <p className={styles.sub}>{share.kind === "estimate" ? t("shareEstimate", { p: moneyText(locale, share.amount) }) : t("shareAccepted")}</p>;
+                      })()}
+                    </>
+                  ) : null}
+                </Fragment>
+              ))}
             </>
           ) : null}
           {rows.length === 0 && g.compare.length > 0 ? (
