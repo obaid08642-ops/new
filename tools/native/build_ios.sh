@@ -40,7 +40,7 @@ PLIST=$(ls -d */Info.plist | head -1)
 for wait in 0 20 60 120; do
   [ "$wait" != 0 ] && { echo "pod install: network failure, waiting ${wait}s before the next try"; sleep "$wait"; }
   if pod install --repo-update 2>&1 | tee /tmp/native/pod_install.log; [ "${PIPESTATUS[0]}" = 0 ]; then break; fi
-  grep -q -E 'Failed to download|Gateway Time-?out|HTTPError|timed out|Connection (reset|refused)|SSL_connect|Could not resolve' /tmp/native/pod_install.log || exit 1
+  grep -q -E 'Failed to download|returned error: 5[0-9][0-9]|curl: \([0-9]+\)|Gateway Time-?out|HTTPError|timed out|Connection (reset|refused)|SSL_connect|Could not resolve' /tmp/native/pod_install.log || exit 1
   [ "$wait" = 120 ] && exit 1
 done
 WS=$(ls -d *.xcworkspace | head -1); SCHEME="${WS%.xcworkspace}"
