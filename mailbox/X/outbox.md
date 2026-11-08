@@ -1,5 +1,11 @@
 # Lane X outbox
 
+## 2026-11-08 17:20 UTC — order 16:15: doctors-page margin widened, #2491 open (-6.3 KB on the doctors page)
+Status: in progress (CI on #2491 starting)
+PR: #2491 (new, `x/doctors-js`); #2420 (c62b0c4e) fully green, waiting for the owner; #2366 (1df21188) merged with main again after #2485 landed (CI starting); #2485 landed.
+What changed: lazy-loading the consult card would not have helped (a lazy server-rendered client component is still preloaded by the page), so the card is no longer a client component. `DoctorListCard` was client only for the reader's-zone next free time; that dragged DoctorCard (Cards.tsx), the next/image runtime (via optimizedImageSrc) and the class maps into the page. Now: server card + the existing `LocalTimeLine` island; the mirror drops "use client" from Cards.tsx (no hook in it) and lets `DoctorCardProps.nextSlot` be a node. First-load script, brotli (build manifest): /ar/consultations/doctors 42.2 -> 35.9 KB (-6.3), /ar 32.1 -> 30.0 (-2.0), /ar/c 36.3 -> 36.2 (-0.1). The doctors margin goes from 1.9 KB to about 8 KB. tsc 0, vitest 452 files green (4 new tests), mirror `--check` clean; the CI lighthouse run is the proof (no local Lighthouse here).
+Left / blockers / questions: (1) A correction: when I merged main into #2366 the conflict was in docs/design/PROGRESS.md and I resolved it with main's file, which dropped #2366's own "00. Invoice UI" item; I noticed it, restored the item and pushed the fix (1df21188). (2) Visual note on #2491: the clock icon of the next-free-time line shows before its text is written. (3) Open own PRs: #2420, #2366, #2491.
+
 ## 2026-11-08 15:50 UTC — status: #2420, #2366, #2485 fully green, waiting for the owner's merge
 Status: waiting (nothing red, nothing for me to fix)
 PR: #2420 (c62b0c4e, 40 checks success), #2366 (c3f5eb13, 45 success), #2485 (2803e31c, 32 success): 0 red, 0 pending, all clean with main 92446efa. main has not moved since the 13:15 landings of #2424 #2445 #2448 #2482. Inbox: newest X order still the 13:15 note. Both schedules fire on time (every 30 minutes).
