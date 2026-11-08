@@ -9,6 +9,12 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-08 16:45 UTC
+- LIVE = main@a74179a8 (run 105, server-ops 42498850561, DONE 16:27; backup pre-deploy-a74179a8 ok; rollback images kept). Prepared by another session/owner.
+- Merged since 13:00: #2488 #2489 #2487 #2485 #2476 #2475.
+- 96g diag: dump works now; FINDING nabdah-mongodb restarts=296, last restart 13:04:29 (right after run 104's failed dump) → Y top priority: read-only 96h restart diag + root cause.
+- Approved waiting merge: #2225 #2398 #2484 #2483 #2420 #2366 #2480 #2486. New pending: #2490 (Z bookings halala) #2491 (X doctors JS).
+
 ## Lead 3 run 2026-11-08 16:15 UTC
 - No change: main@92446efa, LIVE f5a698ee, 14 approved PRs waiting owner merge (#2488 first, then diag ops run).
 - X: next = doctors-page JS margin (x/doctors-js). Z: start bookings dual write. Cap raised to 4 while merges are stalled. Owner decisions pending: M6 ordering rows (for whom, doctor's-order pre-ticking, non-best-match price lines); provider gaps 13/15.
