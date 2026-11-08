@@ -1,3 +1,5 @@
+import { fromHalalas, toHalalas } from './money';
+
 /**
  * An insured booking's copay is paid on its insurance request
  * (transactions.booking_kind 'insurance', booking_id = the request id), never
@@ -28,5 +30,13 @@ export function gatewayPaymentIdOf(tx: any): string | undefined {
 
 /** What can still be refunded on a copay transaction (amount minus earlier refunds). */
 export function copayRefundable(tx: any): number {
-  return Math.max(0, Number(tx?.amount || 0) - Number(tx?.refunded_amount || 0));
+  // R11 P2: whole halalas. The integer shadow (`amount_halalas`, `refunded_amount_halalas`) is read when the row has one, else the double is
+  // converted exactly; the subtraction is on integers, so 0.3 - 0.1 is 0.2 and not 0.19999999999999998.
+  return fromHalalas(Math.max(0, halalasOf(tx?.amount_halalas, tx?.amount) - halalasOf(tx?.refunded_amount_halalas, tx?.refunded_amount)));
+}
+
+function halalasOf(shadow: unknown, sar: unknown): number {
+  if (typeof shadow === 'number' && Number.isSafeInteger(shadow)) return shadow;
+  const n = Number(sar || 0);
+  return Number.isFinite(n) ? toHalalas(n) : 0;
 }
