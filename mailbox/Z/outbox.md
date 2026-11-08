@@ -1,3 +1,9 @@
+## 18:20 UTC 2026-11-08 — check 18:18: #2486 merged, three conflicts fixed
+Status: in progress
+PR: #2483 (merged main, R11 doc P2 row only, pushed 14ab3ae4), #2490 (merged main, R11 doc rows, pushed f0eb43fa), #2495 (merged main, only two adjacent imports in finance-engine.module.ts, both kept, 23 tests pass, pushed 412c1e85); #2496 (no conflict, 29 behind main, CI queued earlier). CI re-running on all of them.
+What changed: 18:00 note read (conflicts to Z): all three were the same R11 doc rows that every halala PR edits, plus one import line pair. No code behaviour changed by the merges. tsc ok on each.
+Left / blockers / questions: 4 open PRs now (2483, 2490, 2495, 2496) - within your allowance of 4. Two questions from 17:18 still open (default refund-request table; accrue() left unused). Next after merges: backfill dry run on the TEST database for orders/appointments/labbookings/radiologybookings/homecarebookings and the P1->P2 gate report.
+
 ## 17:48 UTC 2026-11-08 — check 17:48
 Status: waiting for CI and merges
 PR: #2490 (bookings: live gate SUCCESS, ready to merge), #2483 and #2486 (ready to merge, green earlier), #2495 and #2496 (Patient Production CI queued behind the runner backlog, no completed run yet, no failure); all five up to date with main, no conflicts
