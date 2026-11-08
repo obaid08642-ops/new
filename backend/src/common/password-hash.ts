@@ -16,6 +16,7 @@
 import * as bcryptjs from 'bcryptjs';
 import { availableParallelism } from 'os';
 import { Worker } from 'worker_threads';
+import { logEvent } from './structured-logger';
 
 export const hashSync = bcryptjs.hashSync;
 export const compareSync = bcryptjs.compareSync;
@@ -74,7 +75,7 @@ function spawn(): Slot | undefined {
     slots.push(slot);
     return slot;
   } catch (e) {
-    if (!warned) { warned = true; console.warn(`password-hash: cannot start a worker thread (${(e as Error).message}); hashing on the main thread`); }
+    if (!warned) { warned = true; logEvent('warn', 'password_worker_unavailable', { reason: (e as Error).message, fallback: 'main thread' }, 'password-hash'); }
     return undefined;
   }
 }
