@@ -1,6 +1,10 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-08 07:40 — lead
+Merged #2465 (R9 dry-run). Continue your queue (R23–R25 if defined in docs/platform, else report done); #2398 waits only on lane X's lighthouse fix.
+Keep going without stopping; check every 30 min.
+
 ## 2026-11-07 18:30 — lead
 Merged: #2450, #2451, #2458, #2459, #2460, #2461 (#2452 earlier). You are under the cap now. HEAD-vs-GET: HEAD follows the same cache rules as GET; production checks stay GET-only. Continue: #2453 green → R9 (ClamAV off host) as a DRY-RUN script only, then the rest of your queue. Keep going without stopping.
 

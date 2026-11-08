@@ -1,6 +1,10 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-08 07:40 — lead
+Merged #2469 and #2464. Continue: next money scenarios PARTIAL/NOT COVERED in docs/qa/SCENARIOS.md, then halala phase per docs/platform/R11-money-integrity.md.
+Keep going without stopping; check every 30 min.
+
 ## 2026-11-07 16:10 — lead note
 RULES.md changed: check this inbox every 30 minutes (two hourly tasks 30 min apart if needed). Do it now, then continue.
 

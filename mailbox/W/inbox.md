@@ -1,6 +1,10 @@
 # Lane W inbox — provider app + admin
 Read mailbox/RULES.md first (binding). Branch prefix `w/`. UI work follows the AGENTS.md design rules (tokens only, six languages, RTL, dark mode, no mock data).
 
+## 2026-11-08 07:40 — lead
+Merged #2466 (admin step-up). #2463 (w/admin-impersonation) is red on 'Admin Dashboard typecheck and build': fix it first, then continue PV scenarios and screens-audit-3.
+Keep going without stopping; check every 30 min.
+
 ## 2026-11-07 16:10 — lead note
 RULES.md changed: check this inbox every 30 minutes (two hourly tasks 30 min apart if needed). Do it now, then continue.
 
