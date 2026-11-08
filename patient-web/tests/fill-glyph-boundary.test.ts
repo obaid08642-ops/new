@@ -1,3 +1,4 @@
+import { LINE_ICON_NAMES } from "@/components-next/ui-generated/icons/names";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -78,13 +79,20 @@ describe("the full glyph record stays out of client modules", () => {
     expect(isClient(text)).toBe(false); // used from server and client modules alike
   });
 
-  it("the by-name record of the mirror holds only the core glyphs, the rest are type-enforced extras", () => {
+  it("the by-name set of the mirror holds only the core glyph NAMES (no outline), the rest are type-enforced extras, the core outlines are in the sprite", () => {
     const fill = readFileSync(join(root, "components-next/ui-generated/icons/fill.ts"), "utf8");
-    const record = JSON.parse(fill.match(/export const FILL_ICON_PATHS = (\{[\s\S]*?\n\}) as const;/)![1]) as Record<string, string>;
+    expect(fill).not.toMatch(/FILL_ICON_PATHS|"M\d/); // no outline in the module a client component imports
+    const core = JSON.parse(fill.match(/export const FILL_CORE_NAMES = (\[[^\]]*\]) as const;/)![1]) as string[];
     const extra = fill.match(/export type FillExtraName = ([^;]+);/)![1].split("|").map((s) => s.trim().replace(/'/g, ""));
     expect(extra.length).toBeGreaterThan(20);
-    for (const name of extra) expect(record[name], name).toBeUndefined();
+    for (const name of extra) expect(core, name).not.toContain(name);
     const contract = readFileSync(join(root, "components-next/ui-generated/components/contract.ts"), "utf8");
     expect(contract).toMatch(/\{ icon: FillExtraName; glyph: string \}/); // a non-core name REQUIRES its outline
+    // the sprite: one symbol per core glyph (f-) and per line icon (l-), at the URL icons/sprite.ts names
+    const url = readFileSync(join(root, "components-next/ui-generated/icons/sprite.ts"), "utf8").match(/ICON_SPRITE_URL = '([^']+)'/)![1];
+    const sprite = readFileSync(join(root, "public", url), "utf8");
+    for (const name of core) expect(sprite, name).toContain(`<symbol id="f-${name}" `);
+    expect(LINE_ICON_NAMES.length).toBeGreaterThan(20);
+    for (const name of LINE_ICON_NAMES) expect(sprite, name).toContain(`<symbol id="l-${name}" `);
   });
 });

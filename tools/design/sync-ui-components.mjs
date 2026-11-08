@@ -29,7 +29,8 @@
  *   node tools/design/sync-ui-components.mjs --check   # fail if stale
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, statSync, unlinkSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { resolve, dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -54,7 +55,7 @@ const FILES = [
   { from: 'packages/ui/icons/illustrated-names.ts', to: 'patient-web/components-next/ui-generated/icons/illustrated-names.ts' },
   { from: 'packages/ui/icons/names.ts', to: 'patient-web/components-next/ui-generated/icons/names.ts' },
   { from: 'packages/ui/icons/illustrations.ts', to: 'patient-web/components-next/ui-generated/icons/illustrations.ts' },
-  { from: 'packages/ui/src/Icon.tsx', to: 'patient-web/components-next/ui-generated/src/Icon.tsx', useClient: true },
+  { from: 'packages/ui/src/Icon.tsx', to: 'patient-web/components-next/ui-generated/src/Icon.tsx', useClient: true, transform: (body) => mirrorIcon(body) },
   // The illustrated artwork, loaded on demand by <Icon> (issue #286).
   { from: 'packages/ui/src/Illustrated.tsx', to: 'patient-web/components-next/ui-generated/src/Illustrated.tsx', useClient: true },
   // DEVICE_STANDARD §1 web shells. AppShell holds the rail state, so it is a Client Component.
@@ -76,7 +77,8 @@ const FILES = [
   { from: 'packages/ui/icons/social-brands.ts', to: 'patient-web/components-next/ui-generated/icons/social-brands.ts' },
   { from: 'packages/ui/icons/social-brands.css', to: 'patient-web/components-next/ui-generated/icons/social-brands.css' },
   { from: 'packages/ui/icons/fill.ts', to: 'patient-web/components-next/ui-generated/icons/fill-all.ts', transform: (body) => makeFillAll(body) },
-  { from: 'packages/ui/icons/line.ts', to: 'patient-web/components-next/ui-generated/icons/line.ts' },
+  // the line outlines are in the icon sprite (icons/sprite.ts): this module keeps only the view box
+  { from: 'packages/ui/icons/line.ts', to: 'patient-web/components-next/ui-generated/icons/line.ts', transform: (body) => body.replace("import type { LineIconName } from './names';\n", '').replace(/export const LINE_ICON_PATHS[\s\S]*$/, '') },
   { from: 'packages/ui/components/contract.ts', to: 'patient-web/components-next/ui-generated/components/contract.ts', transform: (body) => mirrorContract(body) },
   // FIcon is NOT a Client Component: it only uses useId, which a Server Component may call, and as a server module the whole
   // outline record (icons/fill.ts) stays out of the browser bundle of every page that draws it from the server (the doctors page
@@ -86,6 +88,8 @@ const FILES = [
     from: `packages/ui/components/${name}.tsx`,
     to: `patient-web/components-next/ui-generated/components/${name}.tsx`,
     useClient: true,
+    // the outlines are in the icon sprite, not in the bundle of the client component that draws them
+    transform: name === 'Button' ? (body) => mirrorButton(body) : ['Inputs', 'Surfaces', 'Cards'].includes(name) ? (body) => spriteFill(body, name) : undefined,
   })),
   // The component sheet (the components are styled by class: the CSP refuses style attributes).
   ...['components.css', 'css/tones.css', 'css/Spinner.css', 'css/FIcon.css', 'css/Button.css', 'css/Controls.css', 'css/Inputs.css', 'css/Surfaces.css', 'css/Cards.css', 'css/Feedback.css'].map((name) => ({
@@ -104,7 +108,8 @@ const FILES = [
         .join('\n')
         .replace(/from '\.\/Icon'/g, "from './src/Icon'")
         .replace(/from '\.\/Illustrated'/g, "from './src/Illustrated'")
-        .replace(/from '\.\.\//g, "from './"),
+        .replace(/from '\.\.\//g, "from './")
+        .replace('FILL_ICON_NAMES, FILL_ICON_PATHS, ', 'FILL_ICON_NAMES, '),
   },
 ];
 
@@ -148,14 +153,15 @@ function filterFill(body) {
   const { record, paths } = parseFill(body);
   const core = coreFillNames(body);
   const extra = Object.keys(paths).filter((n) => !core.includes(n));
-  const filtered = Object.fromEntries(core.map((n) => [n, paths[n]]));
   const union = (list) => (list.length ? list.map((n) => `'${n}'`).join(' | ') : 'never');
-  return body.replace(
+  let out = must(body, 'export type FillIconName = keyof typeof FILL_ICON_PATHS;', 'export type FillIconName = (typeof FILL_CORE_NAMES)[number];', 'fill names type');
+  out = must(out, 'export const FILL_ICON_NAMES = Object.keys(FILL_ICON_PATHS) as FillIconName[];', 'export const FILL_ICON_NAMES: readonly FillIconName[] = FILL_CORE_NAMES;', 'fill names');
+  return out.replace(
     record[0],
-    `// WEB MIRROR: only the ${core.length} CORE glyphs of ${Object.keys(paths).length} are looked up by name (tools/design/sync-ui-components.mjs, tools/design/fill-core.json).\n` +
+    `// WEB MIRROR: only the ${core.length} CORE glyph NAMES of ${Object.keys(paths).length} (tools/design/sync-ui-components.mjs, tools/design/fill-core.json): the outlines are not in this module (a client bundle would ship them all); a core glyph is drawn from the icon sprite (icons/sprite.ts), any other with FIcon's \`glyph\` prop.\n` +
       `// Any other glyph is drawn with FIcon's \`glyph\` prop (icons/glyphs/<name>.ts), which the mirrored contract requires for it.\n` +
-      `export const FILL_ICON_PATHS = ${JSON.stringify(filtered, null, 2)} as const;\n\n` +
-      `/** The glyphs that are NOT in FILL_ICON_PATHS: drawn with \`glyph\`, never by name alone. */\n` +
+      `export const FILL_CORE_NAMES = ${JSON.stringify(core)} as const;\n\n` +
+      `/** The glyphs that are NOT core: drawn with \`glyph\`, never by name alone. */\n` +
       `export type FillExtraName = ${union(extra)};\n` +
       `/** Every glyph of the set, core or extra. */\n` +
       `export type FillAnyName = FillIconName | FillExtraName;`,
@@ -204,11 +210,64 @@ function mirrorContract(body) {
   out = out.slice(0, start) + block + union + out.slice(end);
   return out;
 }
-/** FIcon: draws `glyph` when given, else the core record; a name that is in neither is a bug (throws outside production). */
+/** FIcon: draws `glyph` (an outline from icons/glyphs/<name>) when given, else the core glyph from the icon sprite (a <use>, no outline in any bundle). */
 function mirrorFIcon(body) {
-  let out = must(body, "import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX } from '../icons/fill';", "import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, type FillIconName } from '../icons/fill';", 'FIcon import');
-  out = must(out, "  const glyphSize = chip === 'none' ? size : Math.round(size * 0.52);", "  const glyphSize = chip === 'none' ? size : Math.round(size * 0.52);\n  const path = outline ?? FILL_ICON_PATHS[icon as FillIconName];\n  if (path === undefined && process.env.NODE_ENV !== 'production') throw new Error('FIcon: ' + icon + ' is not a core glyph, pass its outline as the glyph prop (icons/glyphs/<name>)');", 'FIcon path');
-  return must(out, 'd={outline ?? FILL_ICON_PATHS[icon]}', 'd={path}', 'FIcon d');
+  let out = must(body, "import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX } from '../icons/fill';", "import { FILL_ICON_VIEWBOX } from '../icons/fill';\nimport { fillHref } from '../icons/sprite';", 'FIcon import');
+  return must(out, '<path className="nabd-ficon__glyph" d={outline ?? FILL_ICON_PATHS[icon]} />', '{outline === undefined ? <use className="nabd-ficon__glyph" href={fillHref(icon)} /> : <path className="nabd-ficon__glyph" d={outline} />}', 'FIcon glyph');
+}
+
+/**
+ * The icon sprite (patient-web/public/icons/sprite-<hash>.svg): the core fill glyphs (id f-<name>) and the line icons (id l-<name>)
+ * as <symbol>s, drawn with <use href="/icons/sprite-<hash>.svg#f-<name>">. The outlines were a record inside the JavaScript of every
+ * page that draws an icon from a client component (about 12 KB brotli, the Lighthouse script budget); a static SVG is not script, is
+ * cached forever (the name carries the hash) and renders without JavaScript.
+ */
+function lineRecord(source) {
+  const m = source.match(/export const LINE_ICON_PATHS[^{]*(\{[\s\S]*?\n\});/);
+  if (!m) throw new Error('sync-ui-components: LINE_ICON_PATHS not found in packages/ui/icons/line.ts');
+  const out = {};
+  for (const l of m[1].split('\n')) {
+    const e = l.match(/^\s*["']?([a-z0-9-]+)["']?:\s*"([^"]+)",?\s*$/);
+    if (e) out[e[1]] = e[2];
+  }
+  return out;
+}
+function makeSprite() {
+  const fillSrc = readFileSync(join(REPO, 'packages/ui/icons/fill.ts'), 'utf8');
+  const paths = parseFill(fillSrc).paths;
+  const line = lineRecord(readFileSync(join(REPO, 'packages/ui/icons/line.ts'), 'utf8'));
+  const symbol = (id, d) => `<symbol id="${id}" viewBox="0 0 256 256"><path d="${d}"/></symbol>`;
+  const body = [
+    ...coreFillNames(fillSrc).map((n) => symbol(`f-${n}`, paths[n])),
+    ...Object.keys(line).map((n) => symbol(`l-${n}`, line[n])),
+  ].join('\n');
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg">\n${body}\n</svg>\n`;
+  const hash = createHash('sha1').update(svg).digest('hex').slice(0, 8);
+  return { svg, hash, url: `/icons/sprite-${hash}.svg` };
+}
+const SPRITE = makeSprite();
+const spriteModule = () =>
+  `/** The icon sprite (see tools/design/sync-ui-components.mjs): <use href={fillHref(name)}> / <use href={lineHref(name)}>. The file name carries its hash. */\n` +
+  `export const ICON_SPRITE_URL = '${SPRITE.url}';\n` +
+  'export const fillHref = (name: string): string => `${ICON_SPRITE_URL}#f-${name}`;\n' +
+  'export const lineHref = (name: string): string => `${ICON_SPRITE_URL}#l-${name}`;\n';
+/** Components that drew an outline from the record now draw it from the sprite. */
+function spriteFill(body, what) {
+  let out = body
+    .replace(/<path d=\{FILL_ICON_PATHS\.([a-z]+)\}/g, "<use href={fillHref('$1')}")
+    .replace(/<path d=\{FILL_ICON_PATHS\[([^\]]+)\]\}/g, '<use href={fillHref($1)}');
+  out = out.replace(/(import \{[^}]*?)\bFILL_ICON_PATHS,\s*([^}]*\} from '\.\.\/icons\/fill';)/, '$1$2');
+  out = out.replace(/(import \{[^}]*\} from '\.\.\/icons\/fill';)/, "$1\nimport { fillHref } from '../icons/sprite';");
+  if (/FILL_ICON_PATHS/.test(out)) throw new Error(`sync-ui-components: ${what}: a FILL_ICON_PATHS use is left`);
+  return out;
+}
+function mirrorButton(body) {
+  return spriteFill(must(body, 'if (name in FILL_ICON_PATHS) {', 'if ((FILL_ICON_NAMES as readonly string[]).includes(name)) {', 'Button core test').replace("import { FILL_ICON_PATHS, ", "import { FILL_ICON_NAMES, FILL_ICON_PATHS, "), 'Button');
+}
+function mirrorIcon(body) {
+  let out = must(body, "import { LINE_ICON_PATHS, LINE_ICON_VIEWBOX } from '../icons/line';", "import { LINE_ICON_VIEWBOX } from '../icons/line';\nimport { lineHref } from '../icons/sprite';", 'Icon import');
+  out = must(out, '  const path = LINE_ICON_PATHS[name as LineIconName];\n  if (!path) {', "  if (!(LINE_ICON_NAMES as readonly string[]).includes(name)) {", 'Icon lookup');
+  return must(out, '<path d={path} />', '<use href={lineHref(name)} />', 'Icon use');
 }
 const banner = (from) => `// GENERATED FILE — DO NOT EDIT.
 //
@@ -234,7 +293,18 @@ for (const name of Object.keys(parseFill(readFileSync(join(REPO, 'packages/ui/ic
   });
 }
 
+FILES.push(
+  { from: 'packages/ui/icons/fill.ts', to: 'patient-web/components-next/ui-generated/icons/sprite.ts', transform: () => spriteModule() },
+  { from: 'packages/ui/icons/fill.ts', to: `patient-web/public${SPRITE.url}`, transform: () => SPRITE.svg, raw: true },
+);
+// an old sprite (another hash) must not linger in public/
+const spriteDir = join(REPO, 'patient-web/public/icons');
+const oldSprites = existsSync(spriteDir) ? readdirSync(spriteDir).filter((f) => /^sprite-[0-9a-f]{8}\.svg$/.test(f) && `/icons/${f}` !== SPRITE.url) : [];
+
 let stale = 0;
+for (const f of oldSprites) {
+  if (CHECK_ONLY) { console.error(`sync-ui-components: public/icons/${f} is an old sprite (delete it).`); stale++; } else unlinkSync(join(spriteDir, f));
+}
 for (const file of FILES) {
   const src = join(REPO, file.from);
   const out = join(REPO, file.to);
@@ -257,7 +327,9 @@ for (const file of FILES) {
   }
   // CSS has no // comments: the same banner goes in a /* */ block, at the top.
   const isCss = file.from.endsWith('.css');
-  const content = isCss
+  const content = file.raw
+    ? body
+    : isCss
     ? ['/*', ...banner(file.from).split('\n').map((l) => ' *' + l.replace(/^\/\//, '')), ' */', body].join('\n')
     : [
         ...(file.useClient ? ['"use client";', ''] : []),
