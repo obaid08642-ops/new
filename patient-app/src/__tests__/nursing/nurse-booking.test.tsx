@@ -49,6 +49,10 @@ const tap = async (el: Parameters<typeof fireEvent.press>[0]) => {
 };
 
 const quoteUnit: { current: number } = { current: 100 };
+// the service the page loads: null = it cannot be loaded (single visit as before)
+const service: { current: unknown } = { current: null };
+const VISIT = { booking_mode: 'visit', booking_options: { recurrence: ['once', 'daily', 'weekly'], max_times: 5 } };
+const CONTINUOUS = { booking_mode: 'continuous', booking_options: { hours: [4, 12], shift: ['day', 'night'], period: ['day', 'days', 'week'], max_days: 7 } };
 const SLOT = new Date(Date.now() + 2 * 86_400_000).toISOString();
 const nurse = { id: 'nurse-1', name: 'Test Nurse', facility: 'Test facility', rating: 4.5, reviews_count: 3, degree: 'Test degree', price: 100, reviews: [{ user: 'Test user', text: 'Test review' }] };
 
@@ -57,11 +61,14 @@ function answer(profile: unknown, post: (path: string) => unknown = () => ({})) 
     if (init?.method === 'POST') return post(path);
     // #642: the nurse's own free times for the day
     if (path.startsWith('/home-care/providers/nurse-1/slots')) return { slots: [{ start: SLOT, available: true }] };
+    if (path.startsWith('/home-care/services/')) return service.current;
     if (path.startsWith('/home-care/providers/')) return nurse;
     // the server's quote: one visit costs 100, the total is 100 x the days asked for
     if (path.startsWith('/bookings/quote?kind=nursing')) {
-      const days = Number(new URL(`https://x.test${path}`).searchParams.get('sessions_count')) || 1;
-      return { kind: 'nursing', total: quoteUnit.current * days, lines: [{ key: 'visits', qty: days, unit_price: quoteUnit.current, amount: quoteUnit.current * days }] };
+      const q = new URL(`https://x.test${path}`).searchParams;
+      // test rule of the server: continuous = hours x days / 4-hour unit; otherwise the visit count
+      const units = q.get('hours') ? Math.ceil((Number(q.get('hours')) * (q.get('period') === 'week' ? 7 : 1)) / 4) : Number(q.get('sessions_count')) || 1;
+      return { kind: 'nursing', total: quoteUnit.current * units, lines: [{ key: 'visits', qty: units, unit_price: quoteUnit.current, amount: quoteUnit.current * units }], booking: { billable_units: units, unit_price: quoteUnit.current } };
     }
     if (path.startsWith('/insurance/coverage-check')) return { provider: 'Test insurer', policy: 'P-1' };
     if (path.startsWith('/users/me/profile')) return profile;
@@ -76,6 +83,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockAddress.current = { city: 'Test city', district: 'Test district', lat: 24.7, lng: 46.7 };
   quoteUnit.current = 100;
+  service.current = null;
 });
 
 describe('nurse booking page', () => {
@@ -109,22 +117,73 @@ describe('nurse booking page', () => {
     await waitFor(() => expect(mockRouter.replace).toHaveBeenCalled());
     const [first, second] = posts();
     expect(first[0]).toBe('/nursing/bookings');
-    expect(JSON.parse(first[1].body)).toMatchObject({ provider_id: 'nurse-1', service_id: 'svc-1', payment_method: 'card', scheduled_at: SLOT, sessions_count: 1 });
+    expect(JSON.parse(first[1].body)).toMatchObject({ provider_id: 'nurse-1', service_id: 'svc-1', payment_method: 'card', scheduled_at: SLOT });
+    expect(JSON.parse(first[1].body)).not.toHaveProperty('sessions_count'); // service options not loaded: one visit as before
     expect(apiFetch.mock.calls.some(([path]) => String(path).startsWith('/home-care/providers/nurse-1/slots?date='))).toBe(true);
     expect(second[0]).toBe('/payments/intent/nursing/b-1');
     expect(mockRouter.replace.mock.calls[0][0]).toMatchObject({ pathname: '/payments/result', params: { bookingKind: 'nursing', bookingId: 'b-1' } });
   });
 
-  it('books the number of visits the total shows: sessions_count equals the days chosen', async () => {
+  it('visit mode: books the recurrence and count the quote was asked for, and shows the server billable units', async () => {
     mockParams.current = { nurseId: 'nurse-1', flow: 'cash', serviceId: 'svc-1' };
+    service.current = VISIT;
     answer({}, (path) => (path === '/nursing/bookings' ? { id: 'b-3' } : { id: 'txn-3', checkout_url: 'https://pay.example.test/y', amount: 300 }));
     await render(wrap(<NurseBookingScreen />));
     await screen.findByText('Test Nurse');
-    await tap(screen.getByLabelText(new RegExp(`^${k('nur.book.frequency')}`)));
-    await tap(await screen.findByText(k('nur.book.consecutive', { n: '3' })));
+    expect(screen.queryByLabelText(new RegExp(`^${k('nur.book.times')}`))).toBeNull(); // once: no count
+    await tap(await screen.findByLabelText(new RegExp(`^${k('nur.book.recurrence')}`)));
+    await tap(await screen.findByText(k('nur.book.recurrenceDaily')));
+    await tap(await screen.findByLabelText(new RegExp(`^${k('nur.book.times')}`)));
+    await tap(await screen.findByText(k('nur.book.timesN', { n: '3' })));
     await tap(await screen.findByLabelText(new RegExp(`^${k('nur.book.confirmPrice', { amount: '300.00', currency: k('pharmacy.currency') })}`)));
     await waitFor(() => expect(mockRouter.replace).toHaveBeenCalled());
-    expect(JSON.parse(posts()[0][1].body)).toMatchObject({ provider_id: 'nurse-1', sessions_count: 3 });
+    expect(apiFetch.mock.calls.some(([path]) => String(path).endsWith('&recurrence=daily&sessions_count=3'))).toBe(true);
+    expect(JSON.parse(posts()[0][1].body)).toMatchObject({ provider_id: 'nurse-1', recurrence: 'daily', sessions_count: 3 });
+  });
+
+  it('continuous mode: sends hours, shift and period (days only for "days") and shows the billable units from the quote', async () => {
+    mockParams.current = { nurseId: 'nurse-1', flow: 'cash', serviceId: 'svc-1' };
+    service.current = CONTINUOUS;
+    answer({}, (path) => (path === '/nursing/bookings' ? { id: 'b-4' } : { id: 'txn-4', checkout_url: 'https://pay.example.test/z', amount: 300 }));
+    await render(wrap(<NurseBookingScreen />));
+    await screen.findByText('Test Nurse');
+    expect(screen.queryByLabelText(new RegExp(`^${k('nur.book.days')}:`))).toBeNull();
+    await tap(await screen.findByLabelText(new RegExp(`^${k('nur.book.hours')}`)));
+    await tap(await screen.findByText(k('nur.book.hoursN', { n: '12' })));
+    await tap(await screen.findByLabelText(new RegExp(`^${k('nur.book.period')}`)));
+    await tap(await screen.findByText(k('nur.book.periodWeek')));
+    // 12 h x 7 days / 4 h unit = 21 units x 100
+    expect(await screen.findByLabelText(new RegExp(`^${k('nur.book.confirmPrice', { amount: '2,100.00', currency: k('pharmacy.currency') }).slice(0, 20)}`))).toBeTruthy();
+    expect(await screen.findByText(k('nur.book.billableUnits'))).toBeTruthy();
+    await tap(await screen.findByLabelText(new RegExp(`^${k('nur.book.confirm')}`)));
+    await waitFor(() => expect(mockRouter.replace).toHaveBeenCalled());
+    const body = JSON.parse(posts()[0][1].body);
+    expect(body).toMatchObject({ hours: 12, shift: 'day', period: 'week' });
+    expect(body).not.toHaveProperty('days');
+    expect(body).not.toHaveProperty('sessions_count');
+  });
+
+  it('continuous mode: choosing "a number of days" adds the days field', async () => {
+    mockParams.current = { nurseId: 'nurse-1', flow: 'cash', serviceId: 'svc-1' };
+    service.current = CONTINUOUS;
+    answer({});
+    await render(wrap(<NurseBookingScreen />));
+    await screen.findByText('Test Nurse');
+    await tap(await screen.findByLabelText(new RegExp(`^${k('nur.book.period')}`)));
+    await tap(await screen.findByText(k('nur.book.periodDays')));
+    await tap(await screen.findByLabelText(new RegExp(`^${k('nur.book.days')}:`)));
+    await tap(await screen.findByText(k('nur.book.daysN', { n: '3' })));
+    await waitFor(() => expect(apiFetch.mock.calls.some(([path]) => String(path).endsWith('&hours=4&shift=day&period=days&days=3'))).toBe(true));
+  });
+
+  it('a server refusal code is shown translated', async () => {
+    mockParams.current = { nurseId: 'nurse-1', flow: 'cash', serviceId: 'svc-1' };
+    service.current = CONTINUOUS;
+    answer({}, () => { throw new Error('booking_hours_not_offered'); });
+    await render(wrap(<NurseBookingScreen />));
+    await screen.findByText('Test Nurse');
+    await tap(await screen.findByLabelText(new RegExp(`^${k('nur.book.confirm')}`)));
+    await waitFor(() => expect(showLocalizedAlert).toHaveBeenCalledWith(k('nur.book.failTitle'), k('nur.book.err.booking_hours_not_offered')));
   });
 
   it('shows the price the server quotes, not the nurse\'s listed price times the days', async () => {
@@ -134,7 +193,7 @@ describe('nurse booking page', () => {
     await render(wrap(<NurseBookingScreen />));
     await screen.findByText('Test Nurse');
     expect(await screen.findByLabelText(new RegExp(`^${k('nur.book.confirmPrice', { amount: '250.00', currency: k('pharmacy.currency') })}`))).toBeTruthy();
-    expect(apiFetch.mock.calls.some(([path]) => String(path).startsWith('/bookings/quote?kind=nursing&service_id=svc-1&provider_id=nurse-1&sessions_count=1'))).toBe(true);
+    expect(apiFetch.mock.calls.some(([path]) => String(path).startsWith('/bookings/quote?kind=nursing&service_id=svc-1&provider_id=nurse-1'))).toBe(true);
   });
 
   it('with no quote the screen says the price is set at booking and the button carries no amount', async () => {

@@ -1,5 +1,5 @@
 {
- "commit": "186c790b",
+ "commit": "7070d01b",
  "routes": [
   {
    "app": "provider-app",
@@ -5735,7 +5735,7 @@
    "component": "NursingChatScreen",
    "area": "nursing",
    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-   "line": 965,
+   "line": 963,
    "registrations": [
     {
      "role": "nursing",
@@ -5754,7 +5754,7 @@
      "path": "/chats/threads/:param/messages",
      "target": "backend",
      "query": "",
-     "line": 993,
+     "line": 991,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/chat/chat.module.ts:118"
@@ -5764,7 +5764,7 @@
      "path": "/chats/threads/:param/messages",
      "target": "backend",
      "query": "",
-     "line": 1008,
+     "line": 1006,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/chat/chat.module.ts:129"
@@ -5774,7 +5774,7 @@
      "path": "/chats/threads/booking",
      "target": "backend",
      "query": "",
-     "line": 980,
+     "line": 978,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/chat/chat.module.ts:108"
@@ -5809,7 +5809,7 @@
      "path": "/nursing/coverage/verify-gps",
      "target": "backend",
      "query": "",
-     "line": 873,
+     "line": 871,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home-care/nursing-compat.controller.ts:76"
@@ -5819,7 +5819,7 @@
      "path": "/provider/settings/delta",
      "target": "backend",
      "query": "",
-     "line": 942,
+     "line": 940,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/provider.controllers.ts:138"
@@ -6011,7 +6011,7 @@
    "component": "NursingScheduleScreen",
    "area": "nursing",
    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-   "line": 1049,
+   "line": 1047,
    "registrations": [
     {
      "role": "nursing",
@@ -6030,7 +6030,7 @@
      "path": "/provider/schedule/settings",
      "target": "backend",
      "query": "",
-     "line": 1057,
+     "line": 1055,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:992"

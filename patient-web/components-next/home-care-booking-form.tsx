@@ -11,6 +11,7 @@ import { SectionCard } from "@/components-next/consult/consult-parts";
 import { startNursingPayment } from "@/components-next/nursing/nursing-pay";
 import styles from "@/components-next/consult/consult.module.css";
 import { formatPrice } from "@/lib/format-price";
+import { bookingErrorKey, choiceFields, defaultChoice, normalizeChoice, parseNursingQuote, quotePath, type BookingChoice, type BookingOptions, type NursingQuote } from "@/lib/nursing/booking-options";
 import type { InsuranceOnFile } from "@/lib/nursing/nurse";
 import { chosenSlot, nurseSlotsView, parseNurseSlots, type NurseSlotsResult } from "@/lib/nursing/nurse-slots";
 import nursing from "@/components-next/nursing/nursing.module.css";
@@ -37,7 +38,7 @@ function newKey(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
 }
 
-export type HomeCareBookingInput = { nurseId: string; serviceId: string; slot: string; addressId: string; /** The browser's current position, used instead of a saved address. */ location?: { lat: number; lng: number }; notes: string; method: Method };
+export type HomeCareBookingInput = { nurseId: string; serviceId: string; slot: string; addressId: string; /** The browser's current position, used instead of a saved address. */ location?: { lat: number; lng: number }; notes: string; method: Method; /** The duration/recurrence/package chosen from the service's options; unset for a service that sends none. */ choice?: BookingChoice };
 export type HomeCareBookingResult = { ok: true; id: string } | { ok: false; status: number; code: string };
 
 /**
@@ -53,7 +54,7 @@ export function createHomeCareBookingAttempt(send: typeof fetch = (...a) => fetc
     const res = await send("/api/nursing/bookings", {
       method: "POST",
       headers: { "content-type": "application/json", "idempotency-key": key },
-      body: JSON.stringify({ provider_id: input.nurseId, service_id: input.serviceId, scheduled_at: input.slot, ...(input.location ? { location: input.location } : { address_id: input.addressId }), notes: input.notes.trim() || undefined, payment_method: input.method }),
+      body: JSON.stringify({ provider_id: input.nurseId, service_id: input.serviceId, scheduled_at: input.slot, ...(input.location ? { location: input.location } : { address_id: input.addressId }), notes: input.notes.trim() || undefined, payment_method: input.method, ...(input.choice ? choiceFields(input.choice) : {}) }),
     });
     pending = null;
     const data = (await res.json().catch(() => null)) as { id?: unknown; message?: unknown } | null;
@@ -69,7 +70,7 @@ export function createHomeCareBookingAttempt(send: typeof fetch = (...a) => fetc
  * visit is paid by card (the Moyasar page) or sent to the insurer (decision 25: no cash). The booking request keeps its
  * idempotency key until the server gives a definite answer, so a retry after a lost connection never books twice.
  */
-export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insurance, price, initialMethod = "card", insuranceOnFile }: {
+export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insurance, price, initialMethod = "card", insuranceOnFile, bookingOptions }: {
   locale: string;
   serviceId: string;
   nurses: BookableNurse[];
@@ -81,6 +82,8 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
   initialMethod?: Method;
   /** The patient's policy from the coverage check (insurance flow only); null when it could not be read. */
   insuranceOnFile?: InsuranceOnFile | null;
+  /** What the server accepts for this service (GET /home-care/services/:id); the choice is built from it, never from constants. */
+  bookingOptions?: BookingOptions;
 }) {
   const t = useTranslations("NursingWeb");
   const router = useRouter();
@@ -101,6 +104,10 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
   const [notes, setNotes] = useState("");
   const [method, setMethod] = useState<Method>(insurance && initialMethod === "insurance" ? "insurance" : "card");
   const noPolicy = method === "insurance" && insuranceOnFile?.has === false;
+  const [choice, setChoice] = useState<BookingChoice | null>(bookingOptions ? defaultChoice(bookingOptions) : null);
+  const [quote, setQuote] = useState<{ key: string; state: "ready" | "failed"; value: NursingQuote | null } | null>(null);
+  const quoteUrl = nurseId ? quotePath(serviceId, nurseId, choice) : "";
+  const quoteNow = quote?.key === quoteUrl ? quote : null;
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const busy = useRef(false);
@@ -116,6 +123,26 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
       .catch(() => { if (!controller.signal.aborted) setSlotsResult({ nurseId, day, state: "failed", slots: [] }); });
     return () => controller.abort();
   }, [nurseId, day]);
+
+  // The price is the server's quote for the choice made, asked again whenever the choice changes; it is never computed here.
+  useEffect(() => {
+    if (!quoteUrl) return;
+    const controller = new AbortController();
+    fetch(quoteUrl, { cache: "no-store", signal: controller.signal })
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error("quote_unavailable"))))
+      .then((data: unknown) => {
+        if (controller.signal.aborted) return;
+        const value = parseNursingQuote(data);
+        setQuote({ key: quoteUrl, state: value ? "ready" : "failed", value });
+      })
+      .catch(() => { if (!controller.signal.aborted) setQuote({ key: quoteUrl, state: "failed", value: null }); });
+    return () => controller.abort();
+  }, [quoteUrl]);
+
+  function change(patch: Partial<BookingChoice>) {
+    if (!bookingOptions || !choice) return;
+    setChoice(normalizeChoice(bookingOptions, { ...choice, ...patch } as BookingChoice));
+  }
 
   function useMyLocation() {
     if (!("geolocation" in navigator)) { setLocationError(true); return; }
@@ -138,9 +165,10 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
     setSaving(true);
     attempt.current ??= createHomeCareBookingAttempt();
     try {
-      const result = await attempt.current({ nurseId, serviceId, slot, addressId, ...(here ? { location: here } : {}), notes, method });
+      const result = await attempt.current({ nurseId, serviceId, slot, addressId, ...(here ? { location: here } : {}), notes, method, ...(choice ? { choice } : {}) });
       if (!result.ok) {
-        setError(result.code === "address_location_required" ? t("addressNeedsLocation") : /slot|conflict|taken/i.test(result.code) || result.status === 409 ? t("slotTaken") : t("formFailed"));
+        const optionsKey = bookingErrorKey(result.code);
+        setError(optionsKey ? t(optionsKey) : result.code === "address_location_required" ? t("addressNeedsLocation") : /slot|conflict|taken/i.test(result.code) || result.status === 409 ? t("slotTaken") : t("formFailed"));
         return;
       }
       const bookingId = result.id;
@@ -201,6 +229,11 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
             </div>
           )}
       </SectionCard>
+      {bookingOptions && choice ? (
+        <SectionCard id="home-care-options" title={t(bookingOptions.mode === "continuous" ? "hours" : bookingOptions.mode === "visit" ? "recurrence" : "sessionsPackage")}>
+          <BookingChoiceFields options={bookingOptions} choice={choice} onChange={change} locale={locale} />
+        </SectionCard>
+      ) : null}
       <SectionCard id="home-care-address" title={t("formAddress")}>
         {here ? (
           <>
@@ -237,6 +270,9 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
             {noPolicy ? <p className={styles.error} role="alert">{t("insNoPolicy")} <Link href={`/${locale}/insurance/add-policy`} className={nursing.addAddress}>{t("insAddPolicy")}</Link></p> : null}
             <p className={`${styles.body} ${styles.muted}`}>{t("insuranceNote")}</p>
           </>
+        ) : null}
+        {method === "insurance" ? null : choice ? (
+          <QuoteLines locale={locale} state={quoteNow?.state ?? "loading"} value={quoteNow?.value ?? null} />
         ) : price !== undefined ? (
           <p className={styles.body}>{t("visitPrice")}: <bdi>{formatPrice(locale, price).text}</bdi></p>
         ) : (
@@ -244,7 +280,70 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
         )}
       </SectionCard>
       {error ? <p role="alert" className={styles.error}>{error}</p> : null}
-      <Button fullWidth size="lg" loading={saving} disabled={saving || !slot || (!addressId && !here) || noPolicy} label={saving ? t("formBooking") : method === "card" && price !== undefined ? t("confirmWithAmount", { amount: formatPrice(locale, price).text }) : t("formConfirm")} onClick={() => void submit()} />
+      <Button fullWidth size="lg" loading={saving} disabled={saving || !slot || (!addressId && !here) || noPolicy} label={saving ? t("formBooking") : method === "card" && choice && quoteNow?.value ? t("confirmWithAmount", { amount: formatPrice(locale, quoteNow.value.total).text }) : method === "card" && !choice && price !== undefined ? t("confirmWithAmount", { amount: formatPrice(locale, price).text }) : t("formConfirm")} onClick={() => void submit()} />
     </>
   );
+}
+
+const RECURRENCE_KEY = { once: "recurrenceOnce", daily: "recurrenceDaily", weekly: "recurrenceWeekly", monthly: "recurrenceMonthly" } as const;
+const SHIFT_KEY = { day: "shiftDay", night: "shiftNight" } as const;
+const PERIOD_KEY = { day: "periodDay", days: "periodDays", week: "periodWeek", month: "periodMonth", open: "periodOpen" } as const;
+
+function QuoteLines({ locale, state, value }: { locale: string; state: "loading" | "ready" | "failed"; value: NursingQuote | null }) {
+  const t = useTranslations("NursingWeb");
+  if (state === "loading") return <p className={`${styles.body} ${styles.muted}`} role="status">{t("quoteLoading")}</p>;
+  if (state === "failed" || !value) return <p className={`${styles.body} ${styles.muted}`} role="status">{t("quoteFailed")}</p>;
+  const number = new Intl.NumberFormat(locale);
+  return (
+    <dl className={styles.body} aria-live="polite">
+      <dt>{t("unitPrice")}</dt><dd><bdi>{formatPrice(locale, value.unitPrice).text}</bdi></dd>
+      <dt>{t("billableUnits")}</dt><dd><bdi>{number.format(value.billableUnits)}</bdi></dd>
+      <dt>{t("quoteTotal")}</dt><dd><bdi>{formatPrice(locale, value.total).text}</bdi></dd>
+    </dl>
+  );
+}
+
+function Choices<T extends string | number>({ label, values, value, text, onPick }: { label: string; values: T[]; value: T; text: (v: T) => string; onPick: (v: T) => void }) {
+  return (
+    <div role="group" aria-label={label}>
+      <p className={styles.body}>{label}</p>
+      <div className={styles.slots}>
+        {values.map((v) => (
+          <button key={String(v)} type="button" className={styles.choice} aria-pressed={v === value} onClick={() => onPick(v)}>{text(v)}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function BookingChoiceFields({ options, choice, onChange, locale }: { options: BookingOptions; choice: BookingChoice; onChange: (patch: Partial<BookingChoice>) => void; locale: string }) {
+  const t = useTranslations("NursingWeb");
+  const number = new Intl.NumberFormat(locale, { useGrouping: false });
+  const range = (max: number) => Array.from({ length: Math.max(0, max) }, (_, i) => i + 1);
+  if (options.mode === "visit" && choice.mode === "visit") {
+    return (
+      <>
+        <Choices label={t("recurrence")} values={options.recurrence} value={choice.recurrence} text={(r) => t(RECURRENCE_KEY[r])} onPick={(recurrence) => onChange({ recurrence } as Partial<BookingChoice>)} />
+        {choice.recurrence !== "once" ? (
+          <Select label={t("times")} value={String(choice.times)} onChange={(v) => onChange({ times: Number(v) } as Partial<BookingChoice>)} options={range(options.maxTimes).map((n) => ({ value: String(n), label: number.format(n) }))} />
+        ) : null}
+      </>
+    );
+  }
+  if (options.mode === "continuous" && choice.mode === "continuous") {
+    return (
+      <>
+        <Choices label={t("hours")} values={options.hours} value={choice.hours} text={(n) => t("hoursN", { n })} onPick={(hours) => onChange({ hours } as Partial<BookingChoice>)} />
+        <Choices label={t("shift")} values={options.shift} value={choice.shift} text={(v) => t(SHIFT_KEY[v])} onPick={(shift) => onChange({ shift } as Partial<BookingChoice>)} />
+        <Choices label={t("period")} values={options.period} value={choice.period} text={(v) => t(PERIOD_KEY[v])} onPick={(period) => onChange({ period } as Partial<BookingChoice>)} />
+        {choice.period === "days" ? (
+          <Select label={t("periodDays")} value={String(choice.days)} onChange={(v) => onChange({ days: Number(v) } as Partial<BookingChoice>)} options={range(options.maxDays).map((n) => ({ value: String(n), label: t("daysN", { n }) }))} />
+        ) : null}
+      </>
+    );
+  }
+  if (options.mode === "programme" && choice.mode === "programme") {
+    return <Choices label={t("sessionsPackage")} values={options.sessions} value={choice.sessions} text={(n) => t("sessionsN", { n })} onPick={(sessions) => onChange({ sessions } as Partial<BookingChoice>)} />;
+  }
+  return null;
 }

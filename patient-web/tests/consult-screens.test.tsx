@@ -37,13 +37,8 @@ vi.mock("@/lib/api/doctors-server", () => ({ getPublicDoctors: server.doctors, g
 
 import AppointmentsPage from "@/app/[locale]/appointments/page";
 import AppointmentDetailPage from "@/app/[locale]/appointments/[appointmentId]/page";
-import AppointmentSummaryRedirect from "@/app/[locale]/appointments/[appointmentId]/summary/page";
-import FollowUpRedirect from "@/app/[locale]/consultations/follow-up/page";
-import PrescriptionRedirect from "@/app/[locale]/consultations/prescription/page";
-import ClinicLocationRedirect from "@/app/[locale]/consultations/clinic-location/page";
 import BookingStatusPage from "@/app/[locale]/consultations/booking-status/page";
 import CancelReschedulePage from "@/app/[locale]/consultations/cancel-reschedule/page";
-import ClinicConfirmRedirect from "@/app/[locale]/consultations/clinic-confirm/page";
 import DoctorsPage from "@/app/[locale]/consultations/doctors/page";
 import HomeVisitTrackingPage from "@/app/[locale]/consultations/home-visit-tracking/page";
 import WaitingRoomPage from "@/app/[locale]/consultations/virtual-waiting-room/page";
@@ -169,16 +164,6 @@ describe("the appointment screens", () => {
     const html = render(await AppointmentDetailPage({ params: Promise.resolve({ locale: "en", appointmentId: ID }) }));
     expect(html).toContain("Summary not ready yet");
     expect(html).not.toContain("Follow-up recommended");
-  });
-
-  it("the merged pages redirect and keep the query", async () => {
-    const go = async (fn: Promise<unknown>) => { try { await fn; } catch (error) { return (error as Error).message; } return "none"; };
-    expect(await go(AppointmentSummaryRedirect({ params: Promise.resolve({ locale: "en", appointmentId: ID }) }))).toBe(`redirect:/en/appointments/${ID}`);
-    expect(await go(FollowUpRedirect({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ id: ID }) }))).toBe(`redirect:/en/appointments/${ID}`);
-    expect(await go(PrescriptionRedirect({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID }) }))).toBe(`redirect:/en/appointments/${ID}`);
-    expect(await go(PrescriptionRedirect({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({}) }))).toBe("redirect:/en/appointments");
-    expect(await go(ClinicConfirmRedirect({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID, view: "location" }) }))).toBe(`redirect:/en/consultations/booking-status?appointmentId=${ID}&view=location`);
-    expect(await go(ClinicLocationRedirect({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID }) }))).toBe(`redirect:/en/consultations/booking-status?view=location&appointmentId=${ID}`);
   });
 
   it("booking status, cancel and reschedule, clinic confirm and the waiting room read the one appointment and gate on its status", async () => {

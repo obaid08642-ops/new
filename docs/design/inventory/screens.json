@@ -1,5 +1,5 @@
 {
- "commit": "186c790b",
+ "commit": "7070d01b",
  "routes": [
   {
    "app": "patient-app",
@@ -4998,8 +4998,8 @@
      "method": "GET",
      "path": "/bookings/quote",
      "target": "backend",
-     "query": "?kind=nursing&service_id=:param&provider_id=:param&sessions_count=:param",
-     "line": 131,
+     "query": "?kind=nursing&service_id=:param&provider_id=:param:suffix",
+     "line": 165,
      "file": "patient-app/app/nursing/nurse-profile.tsx",
      "status": "OK",
      "backend": "backend/src/modules/quotes/quotes.module.ts:24"
@@ -5009,7 +5009,7 @@
      "path": "/home-care/providers/:param",
      "target": "backend",
      "query": "",
-     "line": 77,
+     "line": 94,
      "file": "patient-app/app/nursing/nurse-profile.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home-care/home-care-compat.module.ts:136"
@@ -5019,17 +5019,27 @@
      "path": "/home-care/providers/:param/slots",
      "target": "backend",
      "query": "?date=:param",
-     "line": 102,
+     "line": 135,
      "file": "patient-app/app/nursing/nurse-profile.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home-care/patient-home-care.controller.ts:43"
     },
     {
      "method": "GET",
+     "path": "/home-care/services/:param",
+     "target": "backend",
+     "query": "",
+     "line": 117,
+     "file": "patient-app/app/nursing/nurse-profile.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:79"
+    },
+    {
+     "method": "GET",
      "path": "/insurance/coverage-check",
      "target": "backend",
      "query": "?provider_id=:param&service_type=home_nursing",
-     "line": 81,
+     "line": 98,
      "file": "patient-app/app/nursing/nurse-profile.tsx",
      "status": "OK",
      "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:858"
@@ -5039,7 +5049,7 @@
      "path": "/nursing/bookings",
      "target": "backend",
      "query": "",
-     "line": 225,
+     "line": 255,
      "file": "patient-app/app/nursing/nurse-profile.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home-care/home-care.controller.ts:164"
@@ -5049,7 +5059,7 @@
      "path": "/payments/intent/nursing/:param",
      "target": "backend",
      "query": "",
-     "line": 145,
+     "line": 175,
      "file": "patient-app/app/nursing/nurse-profile.tsx",
      "status": "OK",
      "backend": "backend/src/modules/payments/payments.module.ts:774"
@@ -5079,13 +5089,13 @@
      "path": "/users/me/profile",
      "target": "backend",
      "query": "",
-     "line": 189,
+     "line": 219,
      "file": "patient-app/app/nursing/nurse-profile.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:35"
     }
    ],
-   "files": 50,
+   "files": 51,
    "unresolved": 0
   },
   {
@@ -8434,19 +8444,6 @@
   },
   {
    "app": "patient-web",
-   "route": "/appointments/[appointmentId]/summary",
-   "file": "patient-web/app/[locale]/appointments/[appointmentId]/summary/page.tsx",
-   "redirect": "/appointments/…",
-   "template": "redirect",
-   "board": "— (redirect)",
-   "batch": 2,
-   "status": "n/a",
-   "calls": [],
-   "files": 3,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
    "route": "/articles",
    "file": "patient-web/app/[locale]/articles/page.tsx",
    "redirect": null,
@@ -9508,32 +9505,6 @@
   },
   {
    "app": "patient-web",
-   "route": "/consultations/clinic-confirm",
-   "file": "patient-web/app/[locale]/consultations/clinic-confirm/page.tsx",
-   "redirect": "/consultations/booking-status…",
-   "template": "redirect",
-   "board": "— (redirect)",
-   "batch": 2,
-   "status": "n/a",
-   "calls": [],
-   "files": 2,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/consultations/clinic-location",
-   "file": "patient-web/app/[locale]/consultations/clinic-location/page.tsx",
-   "redirect": "/consultations/booking-status?view=location…",
-   "template": "redirect",
-   "board": "— (redirect)",
-   "batch": 2,
-   "status": "n/a",
-   "calls": [],
-   "files": 2,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
    "route": "/consultations/clinics/[clinicId]",
    "file": "patient-web/app/[locale]/consultations/clinics/[clinicId]/page.tsx",
    "redirect": null,
@@ -9843,19 +9814,6 @@
   },
   {
    "app": "patient-web",
-   "route": "/consultations/follow-up",
-   "file": "patient-web/app/[locale]/consultations/follow-up/page.tsx",
-   "redirect": "/appointments/…",
-   "template": "redirect",
-   "board": "— (redirect)",
-   "batch": 2,
-   "status": "n/a",
-   "calls": [],
-   "files": 3,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
    "route": "/consultations/home-visit-tracking",
    "file": "patient-web/app/[locale]/consultations/home-visit-tracking/page.tsx",
    "redirect": null,
@@ -9994,19 +9952,6 @@
   },
   {
    "app": "patient-web",
-   "route": "/consultations/offers/[offerId]",
-   "file": "patient-web/app/[locale]/consultations/offers/[offerId]/page.tsx",
-   "redirect": "/offers",
-   "template": "redirect",
-   "board": "— (redirect)",
-   "batch": 2,
-   "status": "n/a",
-   "calls": [],
-   "files": 1,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
    "route": "/consultations/post-call-rating",
    "file": "patient-web/app/[locale]/consultations/post-call-rating/page.tsx",
    "redirect": null,
@@ -10067,19 +10012,6 @@
     }
    ],
    "files": 52,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/consultations/prescription",
-   "file": "patient-web/app/[locale]/consultations/prescription/page.tsx",
-   "redirect": "/appointments/…",
-   "template": "redirect",
-   "board": "— (redirect)",
-   "batch": 2,
-   "status": "n/a",
-   "calls": [],
-   "files": 3,
    "unresolved": 0
   },
   {
@@ -10416,19 +10348,6 @@
     }
    ],
    "files": 69,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/consultations/waiting-room",
-   "file": "patient-web/app/[locale]/consultations/waiting-room/page.tsx",
-   "redirect": "/consultations/virtual-waiting-room…",
-   "template": "redirect",
-   "board": "— (redirect)",
-   "batch": 2,
-   "status": "n/a",
-   "calls": [],
-   "files": 2,
    "unresolved": 0
   },
   {
@@ -10774,19 +10693,6 @@
     }
    ],
    "files": 54,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/diagnostics/bookings",
-   "file": "patient-web/app/[locale]/diagnostics/bookings/page.tsx",
-   "redirect": "/orders…",
-   "template": "redirect",
-   "board": "— (redirect)",
-   "batch": 3,
-   "status": "n/a",
-   "calls": [],
-   "files": 2,
    "unresolved": 0
   },
   {
@@ -11678,19 +11584,6 @@
     }
    ],
    "files": 75,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/diagnostics/results",
-   "file": "patient-web/app/[locale]/diagnostics/results/page.tsx",
-   "redirect": "/orders?tab=results",
-   "template": "redirect",
-   "board": "— (redirect)",
-   "batch": 3,
-   "status": "n/a",
-   "calls": [],
-   "files": 2,
    "unresolved": 0
   },
   {
@@ -13972,7 +13865,7 @@
      "backend": "backend/src/modules/home-care/home-care.controller.ts:108"
     }
    ],
-   "files": 81,
+   "files": 82,
    "unresolved": 0
   },
   {
@@ -14046,7 +13939,7 @@
      "backend": "backend/src/modules/home-care/home-care-compat.module.ts:79"
     }
    ],
-   "files": 68,
+   "files": 69,
    "unresolved": 0
   },
   {
@@ -14194,7 +14087,7 @@
      "backend": "backend/src/modules/location/location.controller.ts:20"
     }
    ],
-   "files": 152,
+   "files": 153,
    "unresolved": 0
   },
   {
@@ -16726,7 +16619,7 @@
      "path": "/api/patient/home-care/providers/:param/slots",
      "target": "web-proxy",
      "query": "?date=:param",
-     "line": 113,
+     "line": 120,
      "file": "patient-web/components-next/home-care-booking-form.tsx",
      "backend": "backend/src/modules/home-care/patient-home-care.controller.ts:43",
      "status": "PROXY_BLOCKED?",
@@ -16783,21 +16676,8 @@
      "backend": "backend/src/modules/users/users.addresses.controller.ts:42"
     }
    ],
-   "files": 75,
+   "files": 76,
    "unresolved": 1
-  },
-  {
-   "app": "patient-web",
-   "route": "/nursing/service-info",
-   "file": "patient-web/app/[locale]/nursing/service-info/page.tsx",
-   "redirect": "/home-care/services/…",
-   "template": "redirect",
-   "board": "— (redirect)",
-   "batch": 4,
-   "status": "n/a",
-   "calls": [],
-   "files": 2,
-   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -18038,32 +17918,6 @@
   },
   {
    "app": "patient-web",
-   "route": "/payments/failed",
-   "file": "patient-web/app/[locale]/payments/failed/page.tsx",
-   "redirect": "/payments/result…",
-   "template": "redirect",
-   "board": "— (redirect)",
-   "batch": 1,
-   "status": "n/a",
-   "calls": [],
-   "files": 1,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/payments/processing",
-   "file": "patient-web/app/[locale]/payments/processing/page.tsx",
-   "redirect": "/payments/result…",
-   "template": "redirect",
-   "board": "— (redirect)",
-   "batch": 1,
-   "status": "n/a",
-   "calls": [],
-   "files": 1,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
    "route": "/payments/result",
    "file": "patient-web/app/[locale]/payments/result/page.tsx",
    "redirect": null,
@@ -18114,19 +17968,6 @@
     }
    ],
    "files": 53,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/payments/success",
-   "file": "patient-web/app/[locale]/payments/success/page.tsx",
-   "redirect": "/payments/result…",
-   "template": "redirect",
-   "board": "— (redirect)",
-   "batch": 1,
-   "status": "n/a",
-   "calls": [],
-   "files": 1,
    "unresolved": 0
   },
   {
@@ -18517,19 +18358,6 @@
     }
    ],
    "files": 53,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/pharmacy/filters",
-   "file": "patient-web/app/[locale]/pharmacy/filters/page.tsx",
-   "redirect": "?",
-   "template": "redirect",
-   "board": "— (redirect)",
-   "batch": 1,
-   "status": "n/a",
-   "calls": [],
-   "files": 3,
    "unresolved": 0
   },
   {
