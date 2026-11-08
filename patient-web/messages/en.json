@@ -5413,6 +5413,8 @@
     "fromWhere": "Lowest price among fitting providers",
     "prepNone": "No preparation",
     "basketTitle": "Basket",
+    "fromOrderTitle": "From your doctor's order",
+    "fromOrderSub": "These are already in your basket. Untick any you want to do later.",
     "splitNote": "We split your order automatically: two bookings, one payment, and a separate status for each booking",
     "singleNote": "You are ordering this one item only. Your cart is not changed.",
     "gHome": "At home · {n, plural, one {# item} other {# items}}",

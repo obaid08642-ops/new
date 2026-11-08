@@ -88,8 +88,9 @@ export function ordersOf(payload: unknown): MedicalOrder[] {
 
 /** Where the Order button of a group leads: the existing flow for that kind of service. */
 export function groupFlowHref(locale: string, group: OrderGroupKey, order: MedicalOrder): string {
-  if (group === "labs") return `/${locale}/diagnostics?kind=labs`;
-  if (group === "radiology") return `/${locale}/diagnostics?kind=radiology`;
+  // the basket: the Order button brings the doctor's items there pre-checked (lib/ordering/prefill.ts)
+  if (group === "labs") return `/${locale}/labs/basket`;
+  if (group === "radiology") return `/${locale}/labs/basket?kind=radiology`;
   if (group === "nursing") return `/${locale}/nursing`;
   const rx = order.groups.prescription?.prescription_id;
   return rx ? `/${locale}/pharmacy/rx-order?prescriptionId=${encodeURIComponent(rx)}` : `/${locale}/pharmacy/request`;
