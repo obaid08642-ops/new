@@ -1,6 +1,12 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-08 13:45 — lead 3: TOP PRIORITY (blocks every deploy)
+Ops run 104 (deploy main@92446efa, server-ops run 42482104229, 12:50) ABORTED safely: `deploy: ABORT backup too small (0 bytes)`. mongodump one-off (mongo:7.0 on nabdah-prod_internal, cap 600m of ~1.9 GB available) exited 1 twice with NO error text, OOMKilled=false. The same step worked in run 103 at 10:24 (DONE main@f5a698ee, which is live now).
+1. Root-cause from the repo first: what changed between f5a698ee and 92446efa or on review/server-inspect that touches 60-deploy-main.sh / _mongodump-oneoff.sh / compose mongo image/network/credentials (#2453 digest pins? `--quiet` hiding the error?).
+2. Add a READ-ONLY diagnostic ops task (e.g. 96g-mongodump-diag: one dump of one small collection to /dev/null without `--quiet`, print exit code + the first stderr lines with secrets masked; no writes, no restarts) and, if the cause is in the script, the fix with tests. One PR. I will run it via the owner-approved ops run.
+Never weaken the backup check.
+
 ## 2026-11-08 13:15 — lead 3
 Owner merged #2479 #2477 (and 8 others). #2398 green + APPROVED; nit: `speed-redirects.ts` spreads appointmentAlias("follow-up") and ("prescription") twice; remove the duplicates in a follow-up commit (keeps green). #2475: merge main now (LiveKit fix is on main). #2476: merge main, report the iOS provider result.
 
