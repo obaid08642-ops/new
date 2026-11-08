@@ -1,3 +1,9 @@
+## 10:18 UTC 2026-11-08 — check 10:17: #2472 merged; #2478 shards 3/4/5 = LiveKit 504, rerun pending
+Status: in progress
+PR: #2478 (CI: all green except live shards 3,4,5 (curl 504 in "LiveKit media server" at 09:57-10:03, per your 10:15 note); shard 1 green, shard 2 still running), #2404 (green except lighthouse, last read 21:17 on 11-07)
+What changed: #2472 merged (thanks). Read the 10:15 note. Tried "re-run failed jobs" on run 42468764851: GitHub answers 403 "already running" while shard 2 is still in progress, so I rerun it at the next check once the run is complete. I do not touch the code for it.
+Left / blockers / questions: next: copayRefundable in finance-engine (new PR, the 3-PR cap has room again: 2404, 2478 open).
+
 ## 09:49 UTC 2026-11-08 — 09:45 order done: LiveKit change removed from #2478
 Status: in progress
 PR: #2478 (CI: pending after 8437cb58), #2472 (approved, green), #2404 (green except lighthouse)
