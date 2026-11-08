@@ -3,6 +3,7 @@ import { Document } from 'mongoose';
 import { v4 as uuid } from 'uuid';
 import { InsuranceDetails, InsuranceDetailsSchema } from './insurance.schema';
 import { healthFieldsPlugin } from '../common/health-fields';
+import { halalaShadowPlugin } from '../common/halala-shadow';
 
 /**
  * Appointment state machine
@@ -152,6 +153,9 @@ export class Appointment {
 }
 export type AppointmentDocument = Appointment & Document;
 export const AppointmentSchema = SchemaFactory.createForClass(Appointment);
+// R11 P1: the booking's own SAR doubles get an integer `<field>_halalas` next to them (halalaShadowPlugin); the backfill uses the same list.
+export const APPOINTMENT_HALALA_FIELDS = ['price', 'service_fee', 'home_visit_fee', 'transportation_fee', 'total_price', 'doctor_penalty'];
+halalaShadowPlugin(AppointmentSchema, APPOINTMENT_HALALA_FIELDS);
 // 16.9: the doctor's consultation summary and the patient's note are ciphertext at rest
 AppointmentSchema.plugin(healthFieldsPlugin, { registry: 'appointments' });
 // Prevent double-booking at the SAME slot for the SAME doctor
