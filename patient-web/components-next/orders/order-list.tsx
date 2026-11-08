@@ -10,7 +10,7 @@ import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
 import { Segmented, StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { Chip } from "@/components-next/ui-generated/components/Surfaces";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import { FIconGlyph } from "@/components-next/icons/ficon-glyph";
 import type { CenterRow, OrderKind, ResultRow } from "./center-rows";
 import { KIND_ORDER, ordersQuery, type OrdersTab as Tab } from "./orders-query";
 import { FieldText } from "@/components-next/ui/localized-field";
@@ -69,7 +69,7 @@ export function OrderList({ locale, rows, results, partialNote, initialTab, init
             {results.map((row) => (
               <li className={styles.order} key={row.key}>
                 <Link className={styles.orderLink} href={row.viewHref}>
-                  <FIcon icon={row.icon} tone={row.tone} size={44} />
+                  <FIconGlyph icon={row.icon} glyph={row.glyph} tone={row.tone} size={44} />
                   <span className={styles.orderText}>
                     <span className={styles.orderTitle}><FieldText text={row.title} mark={row.titleMark} /></span>
                     <span className={styles.orderMeta}>
@@ -104,7 +104,7 @@ export function OrderList({ locale, rows, results, partialNote, initialTab, init
           {shown.map((row) => (
             <li className={styles.order} key={row.key}>
               <Link className={styles.orderLink} href={row.href}>
-                <FIcon icon={row.icon} tone={row.tone} size={44} />
+                <FIconGlyph icon={row.icon} glyph={row.glyph} tone={row.tone} size={44} />
                 <span className={styles.orderText}>
                   <span className={styles.orderTitle}><FieldText text={row.title} mark={row.titleMark} /></span>
                   <span className={styles.orderMeta}>

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import { NabdMark } from "@/components-next/nabd-mark";
@@ -8,6 +7,7 @@ import { LocaleSelector } from "@/components-next/locale-selector";
 import { ThemeToggle } from "@/components-next/theme-toggle";
 import { getDirection, type Locale } from "@/lib/i18n";
 import styles from "./auth.module.css";
+import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
 /**
  * The sign-in family's page (boards Login, Register, Otp, Welcome on a phone;
@@ -63,9 +63,9 @@ export async function AuthLayout({
         <div className={styles.body}>{children}</div>
       </div>
       <aside className={styles.hero} aria-hidden="true">
-        <span className={`${styles.tile} ${styles.tileA}`}><FIcon icon={SERVICE_ICONS.pharmacy.icon} tone={SERVICE_ICONS.pharmacy.tone} chip="none" size={96} /></span>
-        <span className={`${styles.tile} ${styles.tileB}`}><FIcon icon={SERVICE_ICONS.consult.icon} tone={SERVICE_ICONS.consult.tone} chip="none" size={110} /></span>
-        <span className={`${styles.tile} ${styles.tileC}`}><FIcon icon={SERVICE_ICONS.lab.icon} tone={SERVICE_ICONS.lab.tone} chip="none" size={86} /></span>
+        <span className={`${styles.tile} ${styles.tileA}`}><FIconByName icon={SERVICE_ICONS.pharmacy.icon} tone={SERVICE_ICONS.pharmacy.tone} chip="none" size={96} /></span>
+        <span className={`${styles.tile} ${styles.tileB}`}><FIconByName icon={SERVICE_ICONS.consult.icon} tone={SERVICE_ICONS.consult.tone} chip="none" size={110} /></span>
+        <span className={`${styles.tile} ${styles.tileC}`}><FIconByName icon={SERVICE_ICONS.lab.icon} tone={SERVICE_ICONS.lab.tone} chip="none" size={86} /></span>
         <p className={styles.heroTitle}>{frame("heroTitleA")}<br />{frame("heroTitleB")}</p>
         <ul className={styles.points}>
           {heroPoints.map((p) => (

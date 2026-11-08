@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { CardImageRotator } from "./card-image-rotator";
-import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX } from "@/components-next/ui-generated/icons/fill";
+import { FILL_ICON_VIEWBOX } from "@/components-next/ui-generated/icons/fill";
+import { fillHref } from "@/components-next/ui-generated/icons/sprite";
 
 /**
  * The design system's ProductCard (ui-generated/components/Cards.tsx) drawn on the server: the same markup and classes, with
@@ -45,7 +46,7 @@ export function ProductCardStatic({ name, nameMark, meta, price, currency, image
             />
           ) : (
             <svg width={40} height={40} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true" className="nabd-cards-glyph">
-              <path d={FILL_ICON_PATHS.pill} fill="var(--nabd-color-icon-secondary)" />
+              <use href={fillHref("pill")} fill="var(--nabd-color-icon-secondary)" />
             </svg>
           )}
           {imageSrc && moreImages && moreImages.length > 0 ? <CardImageRotator srcs={[imageSrc, ...moreImages]} /> : null}
