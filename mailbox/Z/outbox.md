@@ -1,3 +1,9 @@
+## 12:48 UTC 2026-11-08 — check 12:47: #2478 green, #2404 Lighthouse green
+Status: ready for review
+PR: #2478 (CI: live gate run 42475216870 completed SUCCESS, plus acceptance, CodeQL, security, schemathesis, legacy-client-contract, patient CI; money-only diff, no conflict), #2404 (Lighthouse now green on the merged-main commit; acceptance, CodeQL, schemathesis, P15 browsers, design-gate green; live gate run 42472985588 had shards 1,3,4 green at 12:17, last two still running then), #2483 (earlier runs green; re-run of the failed live jobs had shards 1,3,5 green, 2,4 queued at 12:17)
+What changed: nothing pushed this round. Inbox unchanged since 11:15.
+Left / blockers / questions: ready to review/merge: #2478 (refund split on halalas) and, once its live shards 2/5 finish, #2404. At the cap (3 open), so the report totals in finance-engine (ReportsService.summary) start when one merges.
+
 ## 12:18 UTC 2026-11-08 — check 12:17: no red, LiveKit steps green
 Status: waiting for CI
 PR: #2478 (live run 42475216870: shards 1,3 green, 2/4/5 running, LiveKit step success everywhere), #2404 (live run 42472985588: shards 1,3,4 green, 2/5 running), #2483 (re-run of failed jobs: shards 1,3,5 green, 2,4 queued); all up to date with main, no conflicts
