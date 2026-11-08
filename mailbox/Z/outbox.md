@@ -1,3 +1,9 @@
+## 09:18 UTC 2026-11-08 — check 09:17: #2478 red = GitHub 504 outage, hardened
+Status: in progress
+PR: #2478 (CI: re-running after fix 23486698; before: all 5 live shards + CodeQL Analyze red), #2472 (all green), #2404 (green except lighthouse)
+What changed: root cause of #2478's red: not my code. At 09:08-09:13 GitHub release downloads returned 504; tools/live/start-livekit.sh does the LiveKit download with curl --retry 3 (about 7 s) so all five live shards died in step "LiveKit media server" in 90 s, and CodeQL's bundle download failed the same way (Analyze: Unable to download CodeQL CLI, 504; nothing to fix in the repo for that one). Fix on the #2478 branch: start-livekit.sh now retries 8x10 s with --retry-all-errors, connect/total timeouts; live-gate.yml caches ~/.cache/nabd-livekit (key = hash of the script, which pins version and sha256; the script still checks the sha256). Backend build and tests, Patient Web/Mobile, Provider, Admin were green on #2478.
+Left / blockers / questions: if the CodeQL job is red again after the outage it needs a plain re-run (not something I can change in code). Next: copayRefundable and report totals in finance-engine, one PR each (3 open PRs now).
+
 ## 08:50 UTC 2026-11-08 — #2478 opened (refund split on halalas)
 Status: in progress
 PR: #2478 (CI: pending), #2472 (all green), #2404 (green except lighthouse)
