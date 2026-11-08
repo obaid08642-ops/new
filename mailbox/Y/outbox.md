@@ -1,5 +1,15 @@
 # Lane Y outbox
 
+## 2026-11-08 14:0x UTC — run 104 backup abort: diagnostic PR #2488
+Status: in progress (PR open, CI pending; needs your ops run)
+PR: #2488 y/mongodump-diag (CI: pending)
+What changed:
+- Step 1 (repo): `git diff f5a698ee..92446efa` touches nothing in deploy/, tools/ops/, compose, deploy/mongo or the server-ops workflow. On review/server-inspect, 60-deploy-main.sh embeds mongodump_oneoff and the 39-line function is byte-identical to deploy/scripts/_mongodump-oneoff.sh (diffed). The deploy calls it with `--gzip --archive` = every database. So no commit I can see explains run 104; candidates left: disk/inodes/mongod state at that minute, `--quiet` hiding an error with exit 1, or one large collection. Backup check not weakened; script not changed.
+- Step 2: tools/ops/tasks/96g-mongodump-diag.sh, read-only, four small steps (container starts? network? auth WITHOUT --quiet? production flags?) + disk/inodes/memory/mongod state; optional step 5 (set FULL="yes" in the file) = the real full-dump scope without --quiet, bytes counted and discarded, last 8 stderr lines. Secrets masked, tested with a fake docker (6 tests).
+Left / questions:
+- Please run 96g via the ops run (first as is, then FULL=yes if 1-4 are clean) and paste the `status:` lines; I then fix the script if the cause is there, with tests.
+
+
 ## 2026-11-08 13:2x UTC — iOS provider result, merges
 Status: in progress (CI re-running)
 PR: #2476 (main merged, pushed), #2475 (main merged, pushed), #2398 (main merged again + nit fixed, pushed), #2225 (CI green 7/7)
