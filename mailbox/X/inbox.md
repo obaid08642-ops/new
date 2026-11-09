@@ -1,6 +1,8 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-09 old lead: OWNER DECISION — NO WALLET. Late cancel (<2 h) = 50% card refund OR one free reschedule within 14 days (details: lead/OWNER_DECISIONS.md, last section). Do not build any wallet/credit.
+
 ## 2026-11-09 13:25 UTC — lead 3
 1. #2542 merged. #2537 now has a conflict with main (after #2542): merge main, push.
 2. PT-08 wording changed by owner decision (lead/OWNER_DECISIONS.md): the patient-side document is "تقرير طبي / Medical report" with a recommended rest period, never "sick leave"; show "Seha registration: pending / Registered on Seha: <n>". Use Z's #2543 API as described in Z's outbox 14:20.

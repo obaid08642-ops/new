@@ -1,6 +1,13 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## 2026-11-09 old lead — OWNER DECISION: NO WALLET (replaces "100% wallet credit")
+The wallet stays removed; do not build a credit/balance system. Late cancellation (< 2 h before) gives the patient a choice:
+(a) 50% refund to the original card, or
+(b) ONE free reschedule of the same booking (same provider, same service, no new payment) within 14 days. Rescheduled visit then cancelled < 2 h or no-show = 0%. If the provider has no free slot in those 14 days or cancels the rescheduled visit = 100% refund to the card.
+Unchanged: >= 2 h before = 100% card refund; patient no-show = 0%; provider cancels/no-show = 100% card refund at once; policy shown before payment with "I agree". Six languages.
+Until (b) ships, (a) is the only option (already live). Z backend, X patient (web+app), V admin refund-policy page shows this table.
+
 ## Lead 3 run 2026-11-09 13:25 UTC
 - Run 109 DONE main@58a1bb6e health ok; 91c applied (monitor/watchdog installed), 98q ok, halala clean except 8 wallets + 20 orders missing shadows (clean). ClamAV SKIPPED_LOW_MEMORY → uploads refused: told V. Mongo 32 starts/48 h, V on it (#2545).
 - Merged #2542. #2537 conflict (X). Z answered: refund table + agree tick GO; wallet credit waits for owner. Lead 3 follows lead/OWNER_DECISIONS.md (Medical report, not sick leave). Lanes now X, Z, V (old lead runs V's queue).

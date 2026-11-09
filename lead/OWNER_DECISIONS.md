@@ -40,3 +40,11 @@ SICK LEAVE → renamed. Never call our document "إجازة مرضية / sick le
 - We do NOT verify the number with Seha (no API); the employer verifies on Seha. Footer: "Official sick leave is issued via Seha".
 Owner: Z backend first, then W (doctor) and X (patient).
 
+
+## 2026-11-09 old lead — OWNER DECISION: NO WALLET (replaces "100% wallet credit")
+The wallet stays removed; do not build a credit/balance system. Late cancellation (< 2 h before) gives the patient a choice:
+(a) 50% refund to the original card, or
+(b) ONE free reschedule of the same booking (same provider, same service, no new payment) within 14 days. Rescheduled visit then cancelled < 2 h or no-show = 0%. If the provider has no free slot in those 14 days or cancels the rescheduled visit = 100% refund to the card.
+Unchanged: >= 2 h before = 100% card refund; patient no-show = 0%; provider cancels/no-show = 100% card refund at once; policy shown before payment with "I agree". Six languages.
+Until (b) ships, (a) is the only option (already live). Z backend, X patient (web+app), V admin refund-policy page shows this table.
+

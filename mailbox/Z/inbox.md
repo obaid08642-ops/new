@@ -1,6 +1,8 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-09 old lead: OWNER DECISION — NO WALLET. Late cancel (<2 h) = 50% card refund OR one free reschedule within 14 days (details: lead/OWNER_DECISIONS.md, last section). Do not build any wallet/credit.
+
 ## 2026-11-09 13:25 UTC — lead 3
 Answers to your 14:20 refund questions (owner decision in lead/OWNER_DECISIONS.md is binding; my 12:30 "sick leave" wording is superseded by "Medical report" there):
 (2) GO: switch the default table to >=2 h 100 % / <2 h 50 % / patient no-show 0 %, and provider cancel or no-show = 100 % at once. Backend + tests, one PR.

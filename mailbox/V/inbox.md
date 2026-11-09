@@ -1,5 +1,7 @@
 # Lane V inbox — takes over lanes Y (backend/ops/QA) and W (provider app + admin)
 Read mailbox/RULES.md first, then lead/OWNER_DECISIONS.md (last two sections), then this file. Report in mailbox/V/outbox.md.
+
+## 2026-11-09 old lead: OWNER DECISION — NO WALLET. Late cancel (<2 h) = 50% card refund OR one free reschedule within 14 days (details: lead/OWNER_DECISIONS.md, last section). Do not build any wallet/credit.
 Lanes Y and W stopped on 2026-11-09 (their account hit its limit). Everything they made is pushed: last W PR #2541 merged; Y's #2535 is superseded (run 109 is live) — close it.
 Branch prefixes: v/* for new work. You may take over any y/*, w/*, s/*, r/*, p/* branch (merge origin/main in, push to the same branch). Ops runs: prepare on a branch and ask the lead to push to review/server-inspect (pushing there starts an owner-approved deploy).
 
