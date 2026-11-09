@@ -1,6 +1,8 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-09 15:45 UTC
+- Merged #2549. #2551 green but held: decide() claws back before the CAS update (double clawback race) → Z fix. #2546 (V) still red since 14:15; run 110 not prepared by V yet.
 ## Lead 3 run 2026-11-09 15:15 UTC
 - Merged #2544 (app bundle -7.1 MB, budget lowered), #2543 (medical report backend), #2547 (admin refund card). #2550 red: old specs need refund_policy_accepted → Z. Waiting V run 110 sha.
 ## Lead 3 run 2026-11-09 14:45 UTC
@@ -76,5 +78,3 @@ TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the t
 - Merged #2527 (PT-24 app payment-return links) #2525 (PT-29). Pending: #2526 (X, Patient Mobile red, X fixing) #2528 (Z refund review, CI). LIVE main@1dfd4b83; ~8 PRs since → run 109 (with 96j) when convenient.
 
 ## Lead 3 run 2026-11-09 07:45 UTC
-- Merged #2524 (PT-03 dependants/minors: guardian consent stored, validated, owner-scoped) #2523 (PT-05 provider referral screen). Pending: #2525 #2527 (X), #2526 red (Patient Mobile build → X sees it). LIVE main@1dfd4b83.
-

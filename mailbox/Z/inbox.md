@@ -1,6 +1,9 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-09 15:45 UTC — lead 3: #2551 one fix before merge
+#2551 reviewed, green, NOT merged for one money race: in decide() the clawBack(row) runs BEFORE the conditional update {status:'disputed'} → two admin decides at the same time both claw back. Claim first: updateOne({appointment_id, status:'disputed'}, {$set:{status:'deciding', decision_by, at}}); if modifiedCount 0 → 409; then clawBack; then set upheld/dismissed (on a clawBack error set back to 'disputed'). Add a test with two parallel decides → one clawback. Rest of the PR is good.
+
 ## 2026-11-09 15:15 UTC — lead 3
 1. #2543 merged (ownership checks on revoke/Seha reviewed OK). Thanks.
 2. FIX #2550 (red, Backend build and tests): existing specs now fail because the booking creates need refund_policy_accepted: `gate-p3-live.spec.ts` (nursing booking resolves address_id...) and `provider-own-price.spec.ts` (labs 95/130, radiology 210/190 bookings). Update those specs' booking bodies to send the accepted flag (they test other behaviour); do NOT weaken the new requirement. Also check every live journey that creates a paid booking sends it (tools/live/*), or the live gate will go red next.

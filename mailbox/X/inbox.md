@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-09 15:45 UTC — lead 3
+1. #2549 (PT-08 web) merged. #2552/#2553/#2554: I review when green.
+
 ## 2026-11-09 15:15 UTC — lead 3
 1. #2544 merged (bundle -7.1 MB, budget lowered: good). PT-03 app PR can be opened now. #2543 merged: Z's medical-report API is on main for #2549.
 
