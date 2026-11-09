@@ -121,6 +121,7 @@ export class AppointmentsService {
     insurance_provider?: string;
     insurance_member_id?: string;
     for_member_id?: string; // family booking on behalf of a member
+    sick_leave_requested?: boolean; // PT-08: a request for a sick leave with this consultation
     family_member_id?: string; // owner decision 1: the family member this visit is FOR (the caller stays the patient who books and pays)
     slot_lock_id?: string; // optional 10-min hold from POST /slot-locks/reserve (consumed on success, released on failure)
     follow_up_of?: string; // follow-up appointment link to original appointment (same patient and doctor)
@@ -243,6 +244,7 @@ export class AppointmentsService {
       const appt = await this.apptModel.create({
         patient_id: patientId,
         booked_by_user_id: bookedBy,
+        ...(body.sick_leave_requested === true ? { sick_leave_requested: true } : {}),
         ...(familyMemberId ? { family_member_id: familyMemberId } : {}),
         doctor_id: doctor.id,
         doctor_user_id: doctor.user_id,

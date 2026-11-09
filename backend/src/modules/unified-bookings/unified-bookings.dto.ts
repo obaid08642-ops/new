@@ -56,6 +56,11 @@ export class CreateDto {
   @MaxLength(128)
   family_member_id?: string;
 
+  /** PT-08: the patient asks for a sick leave with this consultation (a request, not a guarantee). */
+  @IsOptional()
+  @IsBoolean()
+  sick_leave_requested?: boolean;
+
 
 }
 

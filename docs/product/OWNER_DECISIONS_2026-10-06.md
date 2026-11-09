@@ -508,3 +508,26 @@ This page reports what happened. It does not replace the alerts: a backup failur
 | 21 | #340 | owner (no code now) |
 | 22 | #341 | owner (no code now) |
 | 23 | #342 | owner (no code now) |
+
+## Addendum 2026-11-09: sick leave (PT-08), both sides
+
+**Decision (owner, 2026-11-09)**
+- **Patient side:** when booking a consultation there is an option "I need a sick leave". It is a request, not a guarantee.
+- **Doctor side:** the doctor can issue a sick leave with a set period whether or not the patient asked.
+- **The leave is a stamped certificate, like the invoice:** shown in the app and on the web, downloadable as a PDF, with:
+  - the platform name and logo (Noon Dot, tokens only), the certificate serial number, the issue date and time;
+  - the doctor's name, specialty and licence number;
+  - the patient's name and ID / iqama number (masked in lists, in full on the certificate);
+  - the consultation date and booking reference;
+  - the leave from, to and number of days;
+  - the reason in the doctor's wording (the diagnosis only if the doctor ticks "show diagnosis");
+  - the doctor's electronic signature / stamp;
+  - a QR code and a short code that open a public verify page: valid or revoked, the name's initials, the dates; no diagnosis.
+- **Rules:** no back-dating before the consultation date; a revoke with a reason; an audit log.
+
+**Legal note (for the owner, not a blocker to build).** In KSA the Ministry of Health says sick-leave reports are legitimate only through Seha / Sehhaty, and fakes carry fines (SAR 100,000). Facilities connect by registering on Seha or by an e-link. Ours is built so a Seha reference or link can be added later (`seha_ref`, empty today) and it is **not labelled as a government document**: the certificate says it is issued through the platform by a licensed provider.
+
+**Backend (lane Z, `z/sick-leave-cert`)**
+- Certificates are the existing `medicalreports` rows (`certificate_kind: 'sick_leave'`), extended with a serial `SLC-<year>-<6 digits>`, a status (`issued` / `revoked`), an 8-character verify code, the consultation, the licence and the revoke data. The reason and the ID number are encrypted as health data (`common/health-fields.ts`).
+- Rules (`modules/sick-leave/sick-leave-rules.ts`): the leave starts on or after the consultation day (Riyadh days) and at most 30 days after it; 1 to 30 days; the end date is the last day off (inclusive). A certificate needs a consultation of this doctor with this patient that has started.
+- API: see the sick-leave section of the lane Z outbox entry of 2026-11-09 and `modules/sick-leave/sick-leave.controller.ts`.

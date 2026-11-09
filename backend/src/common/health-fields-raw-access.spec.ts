@@ -35,7 +35,8 @@ const REVIEWED: Record<string, Record<string, number>> = {
   'modules/provider-production/provider-production.module.ts': { appointments: 1 },  // ownership check
   'modules/provider/appointment-link.ts': { appointments: 2 },                       // projection ids only: which of the ids is this doctor's visit of this patient; ownedVisit projects id/patient_id/patient_name (no health field)
   'modules/provider/provider-facility.controller.ts': { appointments: 2 },           // schedule list, distinct patient ids
-  'modules/provider/provider.controllers.ts': { medicalreports: 2, appointments: 1 }, // report inserts protected; sick-leave reason encrypted
+  'modules/provider/provider.controllers.ts': { medicalreports: 1 },                 // the report insert is protected (the sick-leave one moved to modules/sick-leave)
+  'modules/sick-leave/sick-leave.service.ts': { medicalreports: 1, appointments: 2 }, // PT-08: the certificate row is written through protectHealthDoc and read through revealHealthDoc; appointments: one ownership read (ids, status, slot, booking ref) and one $push of the encrypted short record
   'modules/referral/referral.service.ts': { appointments: 1 },                       // count
   'modules/timeline/timeline-compat.controller.ts': { medicalreports: 2 },           // list has no health field; byId revealed
   'modules/users/users.service.ts': { medicalreports: 1 },                           // attachment size aggregate
