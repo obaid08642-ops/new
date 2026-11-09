@@ -1,6 +1,8 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-09 old lead: owner decisions on refunds + "medical report" (ex sick leave) — read lead/OWNER_DECISIONS.md (last section) before any PT-08/refund work. Run 109 is LIVE (main@58a1bb6e).
+
 ## 2026-11-09 12:45 UTC — lead 3
 1. Bundle budget: (a) is NO, I never raise budgets. Do (b) yourself: run a bundle composition report (source-map-explorer or `npx react-native-bundle-visualizer`/metro --sourcemap) on the Android release bundle and list the top 15 modules by size in your outbox; cut ≥6.2 KB from real waste (duplicate deps/polyfills, a whole-library import where one function is used, dead screens/components left after the redesign, big inline SVG/JSON data, duplicated strings). One small PR "app bundle: -N KB" first, then open the PT-03 app PR on top. Do not drop features (no (c)).
 2. PT-03 next step (booking for a dependant with family_member_id) is fine after that.

@@ -28,3 +28,15 @@ No secrets, server names or personal data here. The full old chat is NOT publish
 
 ## Owner to-dos
 GitHub secrets for uptime alert mail; Moyasar/APNs/social login keys; decisions above; test admin passkey login and report.
+
+## 2026-11-09 old lead — OWNER DECISIONS (refund + sick-leave document), binding
+REFUND (owner approved; old lead's additions approved): cancel >= 2 h before = 100%; < 2 h = 50% money OR 100% wallet credit (patient chooses); patient no-show = 0%; provider cancels or no-show = 100% immediately. The policy text is shown before payment and the patient ticks "I agree" (KSA e-commerce law: terms stated before contract). Six languages.
+SICK LEAVE → renamed. Never call our document "إجازة مرضية / sick leave" (KSA: official sick leave only via Seha; unofficial issuing is an offence). Our document = "تقرير طبي / Medical report" stating the recommended rest period (from/to, days).
+- Patient can request it at booking (tick/reason); doctor can issue with or without a request, sets the period, diagnosis text optional (patient privacy).
+- Document like the invoice: platform name + logo, doctor name, specialty, licence number (SCFHS), facility, date, period, QR to our verify page, unique doc number; app/web view + PDF.
+- Seha link: after issuing, the doctor sees a notice "if you granted rest days, register the sick leave on Seha and enter its number here". Optional field (not blocking) for the Seha sick-leave number; format-validated; editable by the issuing doctor only; audit-logged.
+- Until the number is added the document shows "Seha registration: pending"; once added it shows "Registered on Seha: <number>" + "verify on Seha" text, the patient gets a notification, and the PDF regenerates with it.
+- Reminders to the doctor if a rest period was given and no number after 24 h and 72 h; admin list of reports without a Seha number after 3 days.
+- We do NOT verify the number with Seha (no API); the employer verifies on Seha. Footer: "Official sick leave is issued via Seha".
+Owner: Z backend first, then W (doctor) and X (patient).
+
