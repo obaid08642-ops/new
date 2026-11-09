@@ -1,7 +1,5 @@
-# 2026-11-09 run 110 = deploy main@5227a794 (brings #2537-#2549, #2555, #2556: refund 2h table, admin refund/offers pages, medical report API+web, dependants web, mongo restart probe, G6 reason, SY-05).
-# 91c back to dry run.
-release:5227a794269e74b78a93fe3a090b4678f557f511
-97-free-old-predeploy
-93-free-unused-images
-60-deploy-main
-cf-purge-api
+# 2026-11-09 run 111 = READ-ONLY, no deploy. Why are uploads refused (clamav=SKIPPED_LOW_MEMORY in runs 109 and 110), and who restarts mongod?
+# 96k mongod restart evidence + 96m ClamAV/memory state + 96c uploads state (UPLOAD_SCAN, /config uploads_enabled, scan queue, window script log, container memory).
+96k-mongo-restart-who
+96m-clamav-state
+96c-uploads-state
