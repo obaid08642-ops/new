@@ -175,6 +175,26 @@ describe('the admin decision and the clawback', () => {
     const m = make({ provider_no_show_reports: [{ ...disputed }] });
     expect(await m.svc.decide(admin, 'a1', 'uphold_report', 'the door log shows nobody came')).toMatchObject({ status: 'upheld', clawback_amount: 0, clawback_note: 'no_earning_credited' });
   });
+  it('two admins deciding at the same moment: one clawback, the other gets 409', async () => {
+    const m = make({ provider_no_show_reports: [{ ...disputed }], platformledgerentries: [earning] }, 500);
+    const results = await Promise.allSettled([
+      m.svc.decide(admin, 'a1', 'uphold_report', 'the door log shows nobody came'),
+      m.svc.decide({ id: 'adm2', role: 'admin' }, 'a1', 'uphold_report', 'confirmed by the second admin'),
+    ]);
+    expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(1);
+    const lost = results.find((r) => r.status === 'rejected') as PromiseRejectedResult;
+    expect(lost.reason).toBeInstanceOf(ConflictException);
+    expect(m.appended).toHaveLength(1);
+    expect(m.st.data.provider_no_show_reports[0].status).toBe('upheld');
+  });
+  it('a failing clawback gives the report back to "disputed" so it can be decided again', async () => {
+    const m = make({ provider_no_show_reports: [{ ...disputed }], platformledgerentries: [earning] }, 500);
+    m.ledger.append.mockRejectedValueOnce(new Error('db down'));
+    await expect(m.svc.decide(admin, 'a1', 'uphold_report', 'the door log shows nobody came')).rejects.toThrow('db down');
+    expect(m.st.data.provider_no_show_reports[0].status).toBe('disputed');
+    expect(await m.svc.decide(admin, 'a1', 'uphold_report', 'the door log shows nobody came')).toMatchObject({ status: 'upheld', clawback_amount: 120 });
+    expect(m.appended).toHaveLength(1);
+  });
   it('accepting the dispute moves no money', async () => {
     const m = make({ provider_no_show_reports: [{ ...disputed }], platformledgerentries: [earning] });
     expect(await m.svc.decide(admin, 'a1', 'accept_dispute', 'the doctor showed the check-in log')).toMatchObject({ status: 'dismissed', clawback_amount: 0 });

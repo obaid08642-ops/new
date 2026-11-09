@@ -117,15 +117,23 @@ export class ProviderNoShowService {
     if (!row) throw new NotFoundException('no_show_report_not_found');
     if (row.status !== 'disputed') throw new ConflictException(row.status === 'reported' ? 'no_show_not_disputed' : 'no_show_already_decided');
 
+    // Claim first (one atomic conditional update), then move money: two admins deciding at the same moment cannot both claw back.
+    const claim = await this.reports.updateOne({ appointment_id: row.appointment_id, status: 'disputed' }, { $set: { status: 'deciding', deciding_by: String(admin?.id), deciding_at: new Date() } });
+    if (!claim.modifiedCount) throw new ConflictException('no_show_already_decided');
     let clawed = 0;
     let clawNote: string | null = null;
-    if (decision === 'uphold_report') {
-      const result = await this.clawBack(row, admin);
-      clawed = result.amount; clawNote = result.note;
-    }
     const status = decision === 'uphold_report' ? 'upheld' : 'dismissed';
-    const res = await this.reports.updateOne({ appointment_id: row.appointment_id, status: 'disputed' }, { $set: { status, decision: { decision, note, by_user_id: String(admin?.id), at: new Date(), clawback_amount: clawed, clawback_note: clawNote } } });
-    if (!res.modifiedCount) throw new ConflictException('no_show_already_decided');
+    try {
+      if (decision === 'uphold_report') {
+        const result = await this.clawBack(row, admin);
+        clawed = result.amount; clawNote = result.note;
+      }
+      await this.reports.updateOne({ appointment_id: row.appointment_id, status: 'deciding' }, { $set: { status, decision: { decision, note, by_user_id: String(admin?.id), at: new Date(), clawback_amount: clawed, clawback_note: clawNote } } });
+    } catch (e) {
+      // the clawback failed before its ledger row: give the report back so the decision can be taken again (the ledger ref keeps a retry from taking twice)
+      await this.reports.updateOne({ appointment_id: row.appointment_id, status: 'deciding' }, { $set: { status: 'disputed' } }).catch(() => undefined);
+      throw e;
+    }
     await recordAudit(this.conn, { action: 'provider_no_show.decided', user_id: String(admin?.id), role: admin?.role, resource_kind: 'appointment', resource_id: row.appointment_id, details: { decision, clawback_amount: clawed, note: note.slice(0, 200) } } as any);
     await this.notify(row.doctor_user_id, 'notif.provider_no_show.decided', { decision }, `/requests/${row.appointment_id}`);
     return { ok: true, status, clawback_amount: clawed, clawback_note: clawNote };
