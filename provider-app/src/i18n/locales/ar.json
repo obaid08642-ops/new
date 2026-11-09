@@ -351,5 +351,14 @@
   "medicalReport.revoke.done": "تم سحب التقرير",
   "medicalReport.revoke.failed": "تعذر سحب التقرير",
   "medicalReport.open": "تقرير طبي (فترة راحة)",
-  "medicalReport.openList": "تقاريري الطبية"
+  "medicalReport.openList": "تقاريري الطبية",
+  "bookingChat.open": "محادثة المريض",
+  "bookingChat.title": "محادثة المريض",
+  "bookingChat.notice": "هذه المحادثة خاصة بهذا الحجز فقط. تُرسل النتائج والتقارير من خلال الحجز وليس في المحادثة.",
+  "bookingChat.loading": "جارٍ تحميل المحادثة...",
+  "bookingChat.empty": "لا توجد رسائل بعد. ابدأ المحادثة.",
+  "bookingChat.placeholder": "اكتب رسالة",
+  "bookingChat.send": "إرسال",
+  "bookingChat.openFailed": "تعذر فتح المحادثة",
+  "bookingChat.sendFailed": "تعذر إرسال الرسالة"
 }
