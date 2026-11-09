@@ -1,6 +1,5 @@
-# 2026-11-09 run 110 = deploy main@5227a794 (brings #2537-#2549, #2555, #2556: refund 2h table, admin refund/offers pages, medical report API+web, dependants web, mongo restart probe, G6 reason, SY-05).
-# 91c back to dry run.
-release:5227a794269e74b78a93fe3a090b4678f557f511
+# 2026-11-09 run 111 = deploy main@a063da06 (brings #2550-#2562: refund-policy tick web/app, provider no-show dispute, medical report doctor+app, dependants app, G5 radiology publish, clamav swap window).
+release:a063da0609c374e0af0c259f88f918347880af2f
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
