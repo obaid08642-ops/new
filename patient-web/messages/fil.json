@@ -5974,5 +5974,12 @@
     "verifyBusy": "Napakaraming pag-verify. Subukan ulit pagkalipas ng ilang minuto",
     "verifySehaRegistered": "Nakarehistro sa Seha",
     "verifyNote": "Kinukumpirma ng pahinang ito na umiiral ang ulat at ipinapakita ang mga petsa nito. Walang pangalan, ID, dahilan o diagnosis na ipinapakita."
+  },
+  "RefundPolicy": {
+    "title": "Patakaran sa refund",
+    "general": "Ang mga tuntunin sa refund ay depende sa serbisyo. Basahin ito bago magbayad.",
+    "read": "Basahin ang buong patakaran sa refund",
+    "agree": "Nabasa ko ang patakaran sa refund at sumasang-ayon ako rito",
+    "needAgree": "Sumang-ayon sa patakaran sa refund para magpatuloy"
   }
 }

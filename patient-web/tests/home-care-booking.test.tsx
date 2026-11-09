@@ -43,7 +43,7 @@ describe("the booking request", () => {
     const [url, init] = send.mock.calls[0];
     expect(url).toBe("/api/nursing/bookings");
     expect(init.headers["idempotency-key"]).toBe("key-0000000000000001");
-    expect(JSON.parse(init.body)).toEqual({ provider_id: "nurse-1", service_id: "svc-wound", scheduled_at: "2026-10-20T09:00:00.000Z", address_id: "addr-1", notes: "ring twice", payment_method: "card" });
+    expect(JSON.parse(init.body)).toEqual({ provider_id: "nurse-1", service_id: "svc-wound", scheduled_at: "2026-10-20T09:00:00.000Z", address_id: "addr-1", notes: "ring twice", payment_method: "card", refund_policy_accepted: true });
   });
 
   it("sends the current position instead of a saved address when the patient chose it", async () => {

@@ -28,6 +28,8 @@ const schema = z.object({
   shift: z.enum(["day", "night"]).optional(),
   period: z.enum(["day", "days", "week", "month", "open"]).optional(),
   days: z.number().int().min(1).max(30).optional(),
+  // the patient agreed to the refund policy before booking (the backend refuses without it; an explicit false is never accepted)
+  refund_policy_accepted: z.literal(true),
 }).strict().superRefine((value, ctx) => {
   const trio = [value.hours, value.shift, value.period].filter((v) => v !== undefined).length;
   if (trio !== 0 && trio !== 3) ctx.addIssue({ code: "custom", message: "booking_options_required" });
@@ -67,6 +69,7 @@ export async function POST(request: Request) {
       address: place,
       ...(parsed.data.notes?.trim() ? { notes: parsed.data.notes.trim() } : {}),
       payment_method: parsed.data.payment_method,
+      refund_policy_accepted: true,
       ...(parsed.data.recurrence !== undefined ? { recurrence: parsed.data.recurrence } : {}),
       ...(parsed.data.sessions_count !== undefined ? { sessions_count: parsed.data.sessions_count } : {}),
       ...(parsed.data.hours !== undefined ? { hours: parsed.data.hours, shift: parsed.data.shift, period: parsed.data.period } : {}),

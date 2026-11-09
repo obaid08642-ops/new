@@ -7,7 +7,7 @@ vi.mock("@/lib/api/upstream", () => ({ callPatientApi: mocks.api }));
 
 import { POST as book } from "@/app/api/appointments/book/route";
 
-const base = { doctor_id: "22222222-2222-4222-8222-222222222222", service_type: "video", slot_start: "2026-11-01T10:00:00+03:00", payment_method: "cash" };
+const base = { doctor_id: "22222222-2222-4222-8222-222222222222", service_type: "video", slot_start: "2026-11-01T10:00:00+03:00", payment_method: "cash", refund_policy_accepted: true };
 const send = (extra: Record<string, unknown>) => book(new Request("http://x", { method: "POST", headers: { "idempotency-key": "k".repeat(20) }, body: JSON.stringify({ ...base, ...extra }) }));
 beforeEach(() => { mocks.api.mockReset(); mocks.api.mockResolvedValue(new Response(JSON.stringify({ id: "11111111-1111-4111-8111-111111111111", status: "pending" }))); });
 

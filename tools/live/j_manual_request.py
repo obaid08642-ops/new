@@ -62,7 +62,11 @@ def main():
         page.locator('input[type="file"]').first.set_input_files(path)
         page.get_by_role('img', name='صورة علبة الدواء').wait_for(timeout=30000)
         step('the photo is uploaded and shown', True, '')
-        page.get_by_role('button', name='أرسل للصيدليات القريبة').last.click(timeout=30000)
+        # the refund policy is shown before the request is sent: the button stays off until the patient agrees (owner decision 2026-11-09)
+        send = page.get_by_role('button', name='أرسل للصيدليات القريبة').last
+        step('without the refund policy tick the send button stays disabled', send.is_disabled(), '')
+        page.get_by_role('checkbox', name='قرأت سياسة الاسترداد وأوافق عليها').check(timeout=30000)
+        send.click(timeout=30000)
         page.wait_for_url('**/broadcast-status**', timeout=60000)
         oid = page.url.split('orderId=')[1].split('&')[0] if 'orderId=' in page.url else None
         step('the request is sent', oid, page.url)

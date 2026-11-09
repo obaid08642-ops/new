@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { ProvidersService } from './providers.service';
 
 describe('ProvidersService.myProfile', () => {
@@ -76,5 +76,20 @@ describe('REVIEW-P3: generated provider passwords are unguessable', () => {
     expect(r.err).toBeUndefined();
     expect(r.generated_password).toMatch(/^[A-Za-z0-9_-]{16,}$/);
     expect(r.generated_password).not.toMatch(/^Temp@\d{1,4}$/);
+  });
+});
+
+describe('ProvidersService.reject (the older admin path)', () => {
+  const make = (profile: any) => {
+    const providerRepository = { findOne: jest.fn().mockResolvedValue(profile) };
+    const events = { emit: jest.fn() };
+    const publication = { refresh: jest.fn() };
+    return { service: new ProvidersService({} as any, providerRepository as any, {} as any, events as any, publication as any, {} as any, {} as any), providerRepository };
+  };
+
+  it('refuses a rejection with no reason or a very short one and reads nothing', async () => {
+    const { service, providerRepository } = make({ save: jest.fn() });
+    for (const reason of ['', '  no ', undefined as any]) await expect(service.reject('p1', { id: 'a1' }, reason)).rejects.toThrow(BadRequestException);
+    expect(providerRepository.findOne).not.toHaveBeenCalled();
   });
 });

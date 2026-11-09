@@ -5974,5 +5974,12 @@
     "verifyBusy": "Too many checks. Try again in a few minutes",
     "verifySehaRegistered": "Registered on Seha",
     "verifyNote": "This page confirms that the report exists and shows its dates. It shows no name, ID number, reason or diagnosis."
+  },
+  "RefundPolicy": {
+    "title": "Refund policy",
+    "general": "Refund rules depend on the service. Read them before you pay.",
+    "read": "Read the full refund policy",
+    "agree": "I have read the refund policy and I agree to it",
+    "needAgree": "Agree to the refund policy to continue"
   }
 }

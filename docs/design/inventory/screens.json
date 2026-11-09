@@ -1,5 +1,5 @@
 {
- "commit": "eeb14251",
+ "commit": "93b55011",
  "routes": [
   {
    "app": "patient-app",
@@ -6973,7 +6973,7 @@
      "line": 21,
      "file": "patient-app/app/receipts/index.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:711"
+     "backend": "backend/src/modules/billing/billing.module.ts:716"
     }
    ],
    "files": 40,
@@ -6997,7 +6997,7 @@
      "line": 25,
      "file": "patient-app/app/receipts/[kind]/[bookingId].tsx",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:665"
+     "backend": "backend/src/modules/billing/billing.module.ts:670"
     }
    ],
    "files": 45,
@@ -8915,7 +8915,7 @@
      "path": "/api/patient/insurance/my-policy",
      "target": "web-proxy",
      "query": "",
-     "line": 79,
+     "line": 82,
      "file": "patient-web/components-next/pharmacy-checkout/checkout-screen.tsx",
      "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:884",
      "status": "OK"
@@ -8951,7 +8951,7 @@
      "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:94"
     }
    ],
-   "files": 67,
+   "files": 69,
    "unresolved": 0
   },
   {
@@ -9224,7 +9224,7 @@
      "path": "/api/appointments/book",
      "target": "web-bff",
      "query": "",
-     "line": 165,
+     "line": 169,
      "file": "patient-web/components-next/booking-flow.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/appointments/book/route.ts"
@@ -9254,7 +9254,7 @@
      "path": "/api/consultations/doctors/:param/slots",
      "target": "web-bff",
      "query": "?date=:param&service_type=:param",
-     "line": 115,
+     "line": 119,
      "file": "patient-web/components-next/booking-flow.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/consultations/doctors/[doctorId]/slots/route.ts"
@@ -9264,7 +9264,7 @@
      "path": "/api/family/booking-for",
      "target": "web-bff",
      "query": "",
-     "line": 186,
+     "line": 190,
      "file": "patient-web/components-next/booking-flow.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/family/booking-for/route.ts"
@@ -9304,7 +9304,7 @@
      "path": "/api/slot-locks/reserve",
      "target": "web-bff",
      "query": "",
-     "line": 152,
+     "line": 156,
      "file": "patient-web/components-next/booking-flow.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/slot-locks/reserve/route.ts"
@@ -9370,7 +9370,7 @@
      "backend": "backend/src/modules/users/users.addresses.controller.ts:42"
     }
    ],
-   "files": 86,
+   "files": 88,
    "unresolved": 0
   },
   {
@@ -10069,7 +10069,7 @@
      "backend": "backend/src/modules/ordering/ordering-lifecycle.controller.ts:16"
     }
    ],
-   "files": 62,
+   "files": 63,
    "unresolved": 0
   },
   {
@@ -11001,7 +11001,7 @@
      "path": "/api/diagnostics/cart",
      "target": "web-bff",
      "query": "",
-     "line": 29,
+     "line": 31,
      "file": "patient-web/components-next/diagnostics-checkout-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/diagnostics/cart/route.ts"
@@ -11011,7 +11011,7 @@
      "path": "/api/diagnostics/orders",
      "target": "web-bff",
      "query": "",
-     "line": 90,
+     "line": 94,
      "file": "patient-web/components-next/diagnostics-checkout-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/diagnostics/orders/route.ts"
@@ -11041,13 +11041,13 @@
      "path": "/api/payments/intent/diagnostics",
      "target": "web-bff",
      "query": "",
-     "line": 121,
+     "line": 125,
      "file": "patient-web/components-next/diagnostics-checkout-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/payments/intent/diagnostics/route.ts"
     }
    ],
-   "files": 55,
+   "files": 57,
    "unresolved": 0
   },
   {
@@ -15371,7 +15371,7 @@
      "backend": "backend/src/modules/users/users.insurance.controller.ts:42"
     }
    ],
-   "files": 88,
+   "files": 90,
    "unresolved": 0
   },
   {
@@ -15503,7 +15503,7 @@
      "path": "/api/ordering/asap",
      "target": "web-bff",
      "query": "",
-     "line": 69,
+     "line": 72,
      "file": "patient-web/lib/ordering/client.ts",
      "status": "OK",
      "handler": "patient-web/app/api/ordering/asap/route.ts"
@@ -15513,7 +15513,7 @@
      "path": "/api/ordering/asap/:param",
      "target": "web-bff",
      "query": "",
-     "line": 71,
+     "line": 74,
      "file": "patient-web/lib/ordering/client.ts",
      "status": "OK",
      "handler": "patient-web/app/api/ordering/asap/[id]/route.ts"
@@ -15523,7 +15523,7 @@
      "path": "/api/ordering/asap/:param/cancel",
      "target": "web-bff",
      "query": "",
-     "line": 72,
+     "line": 75,
      "file": "patient-web/lib/ordering/client.ts",
      "status": "OK",
      "handler": "patient-web/app/api/ordering/asap/[id]/cancel/route.ts"
@@ -15569,7 +15569,7 @@
      "backend": "backend/src/modules/users/users.insurance.controller.ts:42"
     }
    ],
-   "files": 67,
+   "files": 68,
    "unresolved": 0
   },
   {
@@ -16939,7 +16939,7 @@
      "path": "/api/patient/home-care/providers/:param/slots",
      "target": "web-proxy",
      "query": "?date=:param",
-     "line": 120,
+     "line": 123,
      "file": "patient-web/components-next/home-care-booking-form.tsx",
      "backend": "backend/src/modules/home-care/patient-home-care.controller.ts:43",
      "status": "PROXY_BLOCKED?",
@@ -16996,7 +16996,7 @@
      "backend": "backend/src/modules/users/users.addresses.controller.ts:42"
     }
    ],
-   "files": 76,
+   "files": 77,
    "unresolved": 1
   },
   {
@@ -19017,7 +19017,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:39"
     }
    ],
-   "files": 64,
+   "files": 66,
    "unresolved": 0
   },
   {
@@ -19085,7 +19085,7 @@
      "path": "/api/pharmacy/box-photo",
      "target": "web-bff",
      "query": "",
-     "line": 61,
+     "line": 64,
      "file": "patient-web/components-next/pharmacy/request-screen.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/pharmacy/box-photo/route.ts"
@@ -19111,7 +19111,7 @@
      "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:63"
     }
    ],
-   "files": 75,
+   "files": 77,
    "unresolved": 0
   },
   {
@@ -19972,7 +19972,7 @@
      "line": 15,
      "file": "patient-web/lib/api/billing-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:739"
+     "backend": "backend/src/modules/billing/billing.module.ts:744"
     }
    ],
    "files": 25,
@@ -20036,7 +20036,7 @@
      "line": 6,
      "file": "patient-web/lib/api/billing-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:711"
+     "backend": "backend/src/modules/billing/billing.module.ts:716"
     }
    ],
    "files": 58,
@@ -20100,7 +20100,7 @@
      "line": 10,
      "file": "patient-web/lib/api/billing-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:665"
+     "backend": "backend/src/modules/billing/billing.module.ts:670"
     }
    ],
    "files": 66,

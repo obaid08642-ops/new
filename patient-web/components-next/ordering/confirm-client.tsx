@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { RefundPolicyTick } from "@/components-next/refund-policy/refund-policy-tick";
+import { withRefundPolicy } from "@/lib/refund-policy";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
@@ -47,6 +49,8 @@ export function ConfirmClient({ locale, kind, place, pay, who, item, orders, pre
   const [phase, setPhase] = useState<"idle" | "creating" | "paying">("idle");
   const [payingId, setPayingId] = useState<string | null>(null);
   const [errorKey, setErrorKey] = useState<string | null>(null);
+  // the refund policy is shown before the booking is made and agreed here (the backend refuses a booking without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
   const [failedId, setFailedId] = useState<string | null>(null);
   const busy = useRef(false);
   const attempts = useRef(0);
@@ -111,7 +115,7 @@ export function ConfirmClient({ locale, kind, place, pay, who, item, orders, pre
     busy.current = true; setPhase("creating"); setErrorKey(null);
     try {
       // labs on the ordering route, radiology on the radiology booking route (one booking per scan), the same sheet either way
-      const made = Array.isArray(body) ? await createRadiologyBookings(body, postRadiologyBooking) : await createBooking(body);
+      const made = Array.isArray(body) ? await createRadiologyBookings(body, postRadiologyBooking) : await createBooking(withRefundPolicy(body));
       setResult(made);
       for (const id of allIds) remove(kind, id);
       try { window.sessionStorage.removeItem(SELECTION_KEY); window.sessionStorage.removeItem(SCHEDULE_KEY); } catch { /* nothing to clear */ }
@@ -262,7 +266,8 @@ export function ConfirmClient({ locale, kind, place, pay, who, item, orders, pre
         {!insured ? <p className={styles.sub}>{t("paySecure")}</p> : null}
         {phase === "creating" ? <div className={styles.note} role="status"><strong>{t("payProcessing")}</strong><p className={styles.sub}>{t("payProcessingSub")}</p></div> : null}
         {errorKey && phase !== "paying" ? <p className={styles.errorBox} role="alert">{t(errorKey)}</p> : null}
-        <button type="button" className={`${styles.linkBtn} ${styles.cta}`} disabled={!ready || phase !== "idle"} aria-busy={phase !== "idle"} onClick={submit}>{ready ? btn : t("payBtnOff")}</button>
+        <RefundPolicyTick locale={locale} checked={refundAgreed} onChange={setRefundAgreed} />
+        <button type="button" className={`${styles.linkBtn} ${styles.cta}`} disabled={!ready || !refundAgreed || phase !== "idle"} aria-busy={phase !== "idle"} onClick={submit}>{ready ? btn : t("payBtnOff")}</button>
         <p className={styles.sub}>{t("payCancelFree")}</p>
       </section>
     </div>
