@@ -25,6 +25,9 @@ on:
       - 'tools/ops/dr-rehearsal/**'
       - '.github/workflows/dr-drill.yml'
   workflow_dispatch:
+  # SY-05: the restore rehearsal also runs every week, so a restore that stops working is noticed without a change to the backup scripts.
+  schedule:
+    - cron: '23 4 * * 1'
 # A newer push to the same PR replaces the older run (it would be thrown away anyway); pushes to main and scheduled runs are never cancelled.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
