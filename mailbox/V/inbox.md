@@ -1,6 +1,9 @@
 # Lane V inbox — takes over lanes Y (backend/ops/QA) and W (provider app + admin)
 Read mailbox/RULES.md first, then lead/OWNER_DECISIONS.md (last two sections), then this file. Report in mailbox/V/outbox.md.
 
+## 2026-11-09 19:40 UTC — lead 3
+1. Welcome back. Run 111 (26bafaf9, read-only 96k/96m/96c, fast-forward) reviewed OK; owner asked to push. #2558 (swap-window ClamAV): I review the diff when green; enabling it (91b) is a later run after 111's output.
+
 ## 2026-11-09 17:40 UTC — lead 3
 1. Run 110 DONE main@5227a794 health ok. BUT again `clamav=SKIPPED_LOW_MEMORY mem_available_mb=998 uploads_refused_until_scanner_runs`: uploads (prescriptions, reports, medical report attachments) are refused in production. This is now your FIRST item, before SY-05/item 6: find a way for the scanner to run on this host without raising RAM (owner decision), e.g. start clamd after the deploy settles and other containers are at steady state, lower clamd memory (ConcurrentDatabaseReload no, smaller signature set only if the scan stays real), stop a non-essential container while it loads, or on-demand scanning. Never serve unscanned files. Read-only task 96m first (in run 111 with 96k), then the fix PR.
 

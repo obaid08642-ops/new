@@ -1,6 +1,8 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-09 19:40 UTC
+- V back (new crons). Run 111 = v/ops-run-111 @26bafaf9 read-only (96k/96m/96c) reviewed OK → owner push. #2558 ClamAV swap window CI. Merged #2554. #2550 reworked (default optional) CI.
 ## Lead 3 run 2026-11-09 19:10 UTC
 - #2550 green but HELD: default `required` would 400 every booking from current web + installed apps → Z: default optional, flip by config after clients + app min-version. X: tick UI now. #2554 CI. V silent since 17:05 outbox (last commit 15:57): owner told.
 ## Lead 3 run 2026-11-09 18:40 UTC
@@ -76,5 +78,3 @@ TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the t
 - Merged #2536 (unique earning index, self-gated). Run 109 BLOCKED: direct push to review/server-inspect denied for Y (Production Deploy); owner asked to push 31b2added or allow it. Run 110 = 96j-ledger-duplicates + main tip.
 - #2539 X lighthouse TBT 260>240: X ordered to cut (no budget raise). Pending CI: #2538 (Z aggregate), #2537/#2540 (X). W idle until #2538.
 ## Lead 3 run 2026-11-09 10:15 UTC
-- Merged #2534 (flake fix), #2533 (SY-06 sla/fraud), #2526 (PT-27). #2535 (Y run 109 PR into ops branch) red on ops-branch dep checks: not merged; Y to push RUN directly (as run 108) with main tip + 91c APPLY=yes. Pending: #2536 (Z ledger unique earning, CI). X: next patient SCENARIOS rows.
-## Lead 3 run 2026-11-09 09:45 UTC
