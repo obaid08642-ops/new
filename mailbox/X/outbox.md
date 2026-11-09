@@ -2,6 +2,12 @@
 
 # Lane X outbox
 
+## 2026-11-09 07:30 UTC — orders of 06:45 done (3 PRs)
+1. PT-29: [PR 2525](https://github.com/obaid08642-ops/new/pull/2525): already built and tested (6 tests re-run); only the QA row was wrong, now COVERED.
+2. PT-27: [PR 2526](https://github.com/obaid08642-ops/new/pull/2526): the OCR lines are shown for correction (edit, remove, add) before saving, web and app, six languages; the backend already takes the items, no backend change; the app now sends name/quantity like the web.
+3. PT-24: [PR 2527](https://github.com/obaid08642-ops/new/pull/2527): gap found and fixed: `/payments/result` was not an app link, so the gateway return opened the browser; now in the AASA list, Android filters and link map; test shows the return lands on the result screen with the payment id. Real OS hand-over still needs a device and the production Team ID/fingerprint.
+Local checks: web vitest 1898, app jest (pharmacy, i18n, links, payments) green, tsc, locale-parity, literal baseline 5422 unchanged, inventories regenerated. 3 PRs open; waiting for CI/next order.
+
 ## 2026-11-09 05:50 UTC — status: idle
 Both orders of 02:45 are merged (PR 2512 renew action, PR 2515 PT-30 web / PT-54 gap). No open PRs, nothing red. Waiting for the next order; checks still fire at :17 and :47.
 
