@@ -23,6 +23,7 @@ import { randomUUID } from 'crypto';
 import { JwtAuthGuard, CurrentUser, Roles, hasEffectiveRole } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, PutPricingDto, PutTariffsDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto, ToggleInstantDto, SaveDoctorNoteDto } from './provider-ops.dto';
+import { ensureEarningUniqueIndex } from '../finance-engine/earning-key';
 import { CommissionResolver, LedgerService } from '../finance-engine/finance-engine.module';
 import { settlementDelayDefault, DEFAULT_VAT_PERCENT } from '../../common/commission-defaults';
 import { roundSar } from '../../common/money';
@@ -63,6 +64,9 @@ export function providerOwnAmount(kind: string, booking: any): number {
 @Injectable()
 export class ProviderOpsService {
   private readonly logger = new Logger(ProviderOpsService.name);
+
+  /** Built once per process, the first time an earning is credited (earning-key.ts); a database with duplicate earnings keeps its old behaviour until finance resolves them. */
+  private earningIndex?: Promise<string>;
 
   constructor(@InjectConnection() private readonly conn: Connection, @Optional() private readonly events?: EventEmitter2) {}
 
@@ -759,7 +763,18 @@ export class ProviderOpsService {
     };
     // R11 P1: a raw insert adds its own integer shadows (LedgerService.append does the same for the rows it writes)
     const withShadows = { ...row, ...shadowFields(row, ['amount', 'gross', 'commission', 'vat']) };
-    await this.conn.collection('platformledgerentries').insertOne(withShadows as any);
+    // The read above is not atomic: two parallel service.completed events both pass it. The unique partial index (earning-key.ts) makes the database refuse the second row;
+    // that refusal means "already credited", and an order the loser claimed on a limited promotion is given back.
+    await (this.earningIndex ??= ensureEarningUniqueIndex(this.conn, (m) => this.logger.warn(m)));
+    try {
+      await this.conn.collection('platformledgerentries').insertOne(withShadows as any);
+    } catch (e: any) {
+      if (e?.code !== 11000) throw e;
+      if (promoId) await new CommissionResolver(this.conn).releasePromoOrder(promoId).catch(() => undefined);
+      const existing = await this.conn.collection('platformledgerentries').findOne({ ref_type: refType, ref_id: refId, type: 'provider_earning' });
+      if (existing) return existing;
+      throw e;
+    }
     return withShadows;
   }
 
@@ -805,7 +820,7 @@ export class ProviderOpsService {
 @Controller('provider/ops')
 @UseGuards(JwtAuthGuard)
 export class ProviderOpsController {
-  constructor(private readonly svc: ProviderOpsService) {}
+  constructor(private readonly svc: ProviderOpsService, @Optional() private readonly ledger?: LedgerService) {}
 
   // Doctor: leave/vacation
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
@@ -863,7 +878,14 @@ export class ProviderOpsController {
     return new StreamableFile(Readable.from(pdf));
   }
   @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
-  @Get('wallet/ledger') wallet(@CurrentUser() u: any, @Query('limit') l?: string): Promise<any> { return this.svc.walletLedger(u.id, l ? parseInt(l) : 100); }
+  @Get('wallet/ledger') async wallet(@CurrentUser() u: any, @Query('limit') l?: string): Promise<any> {
+    const out = await this.svc.walletLedger(u.id, l ? parseInt(l) : 100);
+    if (!this.ledger) return out;
+    // The summary used to add up the newest <=200 rows of any type, with escrow counted as earned and clawbacks ignored, so the revenue screen showed a balance that
+    // disagreed with the wallet. It now comes from the same balance the wallet and the payout request use (matured earnings - payouts - debits - locked).
+    const b = await this.ledger.providerBalance(u.id);
+    return { ...out, summary: { earned: b.lifetime_earned, paid: b.paid_out, pending: b.pending, balance: b.available, debits: b.debits, locked: b.locked } };
+  }
 }
 
 /**

@@ -41,21 +41,24 @@ describe('password-hash (bcrypt off the main thread)', () => {
   });
 
   it('the event loop keeps ticking while a cost-12 hash runs in the worker (it does not while inline)', async () => {
+    /** Longest gap between two 5 ms timer ticks while one cost-12 hash runs, measured by a plain timer (not a histogram that can come back empty). */
     const gap = async (): Promise<number> => {
-      const h = monitorEventLoopDelay({ resolution: 10 });
-      h.enable();
       const p = hash('timing-probe', 12);
       await new Promise((r) => setTimeout(r, 50));   // let the worker start before measuring the busy part
-      h.reset();
+      let last = Date.now();
+      let max = 0;
+      const iv = setInterval(() => { const n = Date.now(); max = Math.max(max, n - last); last = n; }, 5);
       await p;
-      h.disable();
-      return h.max / 1e6;
+      clearInterval(iv);
+      return Math.max(max, Date.now() - last);
     };
     process.env.BCRYPT_FORCE_WORKER = '1';
     const inWorker = await gap();
     delete process.env.BCRYPT_FORCE_WORKER;   // inline under jest
     const inline = await gap();
+    // Each is judged on its own, never against the other run: bcryptjs works in time-boxed slices of ~100 ms, so inline always leaves a gap of
+    // at least 50 ms on any machine, while the worker leaves the loop free (a shared runner may stretch a tick, hence the roomy bound).
     expect(inWorker).toBeLessThan(60);
-    expect(inline).toBeGreaterThan(inWorker);
+    expect(inline).toBeGreaterThanOrEqual(50);
   }, 30_000);
 });
