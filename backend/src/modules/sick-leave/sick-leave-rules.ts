@@ -49,7 +49,22 @@ export function newVerifyCode(): string {
   for (let i = 0; i < 8; i++) s += CODE_ALPHABET[randomInt(CODE_ALPHABET.length)];
   return s;
 }
-export const serialOf = (year: number, seq: number) => `SLC-${year}-${String(seq).padStart(6, '0')}`;
+export const serialOf = (year: number, seq: number) => `MED-${year}-${String(seq).padStart(6, '0')}`;
+
+/**
+ * The number of the sick leave the doctor registered on Seha (owner decision 2026-11-09). We cannot check it with Seha (no API) and the exact format is not published to us,
+ * so only its shape is checked: 6 to 30 letters, digits or hyphens, kept in capitals. The employer verifies it on Seha.
+ */
+export const SEHA_NUMBER_RE = /^[A-Z0-9-]{6,30}$/;
+export function normaliseSehaNumber(raw: unknown): string {
+  const v = typeof raw === 'string' ? raw.trim().toUpperCase() : '';
+  if (!SEHA_NUMBER_RE.test(v)) throw new BadRequestException('seha_number_invalid');
+  return v;
+}
+
+/** Reminders to the doctor while the Seha number is missing: after 24 h and after 72 h. The admin list shows what is still missing after 3 days. */
+export const SEHA_REMINDER_HOURS = [24, 72] as const;
+export const SEHA_ADMIN_LIST_DAYS = 3;
 
 /** An ID / iqama number for a list: only the last 3 characters show. */
 export function maskNationalId(id: unknown): string | null {

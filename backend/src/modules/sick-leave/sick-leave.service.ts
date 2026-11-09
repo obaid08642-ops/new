@@ -1,13 +1,16 @@
 import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException, OnModuleInit, Optional } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Cron } from '@nestjs/schedule';
 import { Connection } from 'mongoose';
 import { v4 as uuid } from 'uuid';
 import { recordAudit } from '../../common/audit-record';
-import { SPECIALTY_MASTER } from '../../common/enums';
+import { NotificationType, SPECIALTY_MASTER } from '../../common/enums';
+import { ScheduledOnce } from '../../common/scheduled-once';
+import { NotificationsService } from '../notifications/notifications.service';
 import { protectHealthDoc, revealHealthDoc, revealHealthDocs } from '../../common/health-fields';
 import { TRACK_PREFIX, trackingId } from '../../common/tracking';
-import { CODE_RE, initialsOf, maskNationalId, newVerifyCode, planLeave, serialOf } from './sick-leave-rules';
+import { CODE_RE, SEHA_ADMIN_LIST_DAYS, SEHA_REMINDER_HOURS, initialsOf, maskNationalId, newVerifyCode, normaliseSehaNumber, planLeave, serialOf } from './sick-leave-rules';
 import { renderSickLeavePdf } from './sick-leave-pdf';
 
 const ISSUABLE_STATES = ['IN_PROGRESS', 'COMPLETED'];
@@ -27,7 +30,19 @@ export interface IssueSickLeaveInput {
 @Injectable()
 export class SickLeaveService implements OnModuleInit {
   private readonly logger = new Logger(SickLeaveService.name);
-  constructor(@InjectConnection() private readonly conn: Connection, @Optional() private readonly events?: EventEmitter2) {}
+  constructor(
+    @InjectConnection() private readonly conn: Connection,
+    @Optional() private readonly events?: EventEmitter2,
+    @Optional() private readonly notifications?: NotificationsService,
+  ) {}
+
+  /** A push / in-app notification by i18n key (texts in i18n.service.ts); a failure to notify never fails the action. */
+  private async notify(userId: unknown, key: string, params: Record<string, unknown>, route: string): Promise<void> {
+    if (!this.notifications || typeof userId !== 'string' || !userId) return;
+    try {
+      await this.notifications.create({ user_id: userId, title_key: `${key}.title`, body_key: `${key}.body`, params, type: NotificationType.LABS, action: { route } });
+    } catch (e: any) { this.logger.warn(`notification ${key} not sent: ${e?.message}`); }
+  }
 
   /** A serial and a verify code are each unique among certificates (partial: other medical reports have neither). A failure here is logged; issuing still works (a clash is retried). */
   async onModuleInit() {
@@ -85,8 +100,9 @@ export class SickLeaveService implements OnModuleInit {
       patient_national_id: patient?.national_id || null,
       report_type: 'medical_certificate',
       certificate_kind: 'sick_leave',
-      title_ar: `إجازة مرضية لمدة ${days} ${days === 1 ? 'يوم' : 'أيام'}`,
-      title_en: `${days}-day sick leave certificate`,
+      // Owner decision 2026-11-09: our document is a MEDICAL REPORT that states a recommended rest period; the words "sick leave" are only for the official Seha document.
+      title_ar: `تقرير طبي: راحة موصى بها لمدة ${days} ${days === 1 ? 'يوم' : 'أيام'}`,
+      title_en: `Medical report: ${days}-day recommended rest`,
       summary: diagnosis,
       diagnosis,
       reason,
@@ -105,6 +121,7 @@ export class SickLeaveService implements OnModuleInit {
       booking_ref: appt.tracking_id || String(appt.id),
       requested_by_patient: appt.sick_leave_requested === true,
       seha_ref: null,
+      seha_registered_at: null,
       attachments: [],
       issued_at: now, createdAt: now, updatedAt: now,
     };
@@ -123,6 +140,8 @@ export class SickLeaveService implements OnModuleInit {
     return {
       ok: true, message: 'sick_leave_issued', id: base.id, serial, code: doc.verify_code, tracking_id: base.tracking_id,
       verify_url: `/verify/sick-leave/${doc.verify_code}`, days, start_date: plan.start, end_date: plan.end,
+      // the doctor is told to register the leave on Seha and enter its number (setSehaNumber); until then the report says "Seha registration: pending"
+      seha_registration: 'pending' as const,
     };
   }
 
@@ -139,8 +158,74 @@ export class SickLeaveService implements OnModuleInit {
     const res: any = await this.reports.updateOne({ id: cert.id, status: { $ne: 'revoked' } } as any, { $set: { status: 'revoked', revoked_at: now, revoked_by: String(user?.id), revoke_reason: why.slice(0, 500), updatedAt: now } });
     if (!res?.matchedCount) throw new ConflictException('sick_leave_already_revoked');
     this.events?.emit('sick_leave.revoked', { patient_id: cert.patient_id, doctor_id: cert.doctor_id, serial: cert.serial });
+    await this.notify(cert.patient_id, 'notif.medical_report.revoked', { serial: cert.serial }, `/reports/${cert.id}`);
     await recordAudit(this.conn, { action: 'sick_leave.revoked', user_id: String(user?.id), role: user?.role, resource_kind: 'sick_leave', resource_id: cert.serial, details: { reason: why.slice(0, 500) } } as any);
     return { ok: true, serial: cert.serial, status: 'revoked', revoked_at: now };
+  }
+
+  /**
+   * The doctor enters the number of the sick leave they registered on Seha (optional, never blocking). Only the issuing doctor may set or change it, on a certificate that
+   * is not revoked; the old and the new value are audit-logged; the patient is told, and the PDF (drawn on demand) shows "Registered on Seha: <number>" from then on.
+   * We do not check the number with Seha (there is no API): the employer verifies it there.
+   */
+  async setSehaNumber(doctor: any, idOrSerial: string, raw: unknown) {
+    const number = normaliseSehaNumber(raw);
+    const key = String(idOrSerial || '');
+    const cert: any = await this.reports.findOne({ certificate_kind: 'sick_leave', $or: [{ id: { $eq: key } }, { serial: { $eq: key } }] });
+    if (!cert || cert.doctor_id !== String(doctor?.id)) throw new NotFoundException('sick_leave_not_found');
+    if (cert.status === 'revoked') throw new ConflictException('sick_leave_revoked');
+    const now = new Date();
+    const previous: string | null = cert.seha_ref ?? null;
+    const registeredAt = previous === number ? cert.seha_registered_at ?? now : now;
+    await this.reports.updateOne({ id: cert.id } as any, { $set: { seha_ref: number, seha_registered_at: registeredAt, seha_set_by: String(doctor.id), updatedAt: now } });
+    await recordAudit(this.conn, { action: 'sick_leave.seha_number_set', user_id: String(doctor.id), role: 'doctor', resource_kind: 'sick_leave', resource_id: cert.serial, details: { previous, current: number } } as any);
+    if (previous !== number) {
+      this.events?.emit('sick_leave.seha_registered', { patient_id: cert.patient_id, doctor_id: cert.doctor_id, serial: cert.serial });
+      await this.notify(cert.patient_id, 'notif.medical_report.seha_added', { serial: cert.serial, seha_number: number }, `/reports/${cert.id}`);
+    }
+    return { ok: true, serial: cert.serial, seha_status: 'registered' as const, seha_number: number };
+  }
+
+  /**
+   * Hourly: a doctor who gave a rest period and has not entered the Seha number is reminded after 24 h and again after 72 h (one reminder each, never repeated).
+   * After a long stop only the latest due reminder is sent. Returns how many were sent.
+   */
+  @Cron('7 * * * *')
+  @ScheduledOnce({ ttlMs: 10 * 60_000, holdMs: 60_000 })
+  async remindDoctors(now: Date = new Date()): Promise<number> {
+    const [h24, h72] = SEHA_REMINDER_HOURS;
+    const due = await this.reports.find(
+      { certificate_kind: 'sick_leave', status: 'issued', seha_ref: null, issued_at: { $lte: new Date(now.getTime() - h24 * 3600_000) } },
+      { projection: { _id: 0, id: 1, serial: 1, doctor_id: 1, issued_at: 1, seha_reminder_24h_at: 1, seha_reminder_72h_at: 1 } },
+    ).sort({ issued_at: 1 }).limit(200).toArray();
+    let sent = 0;
+    for (const c of due as any[]) {
+      const age = now.getTime() - new Date(c.issued_at).getTime();
+      const which = age >= h72 * 3600_000 ? 72 : 24;
+      if (c[`seha_reminder_${which}h_at`]) continue;
+      const set: Record<string, Date> = { [`seha_reminder_${which}h_at`]: now };
+      if (which === 72) set.seha_reminder_24h_at = c.seha_reminder_24h_at ?? now;
+      const res: any = await this.reports.updateOne({ id: c.id, [`seha_reminder_${which}h_at`]: { $exists: false } } as any, { $set: set });
+      if (!res?.matchedCount) continue;                                    // another worker took it
+      await this.notify(c.doctor_id, 'notif.medical_report.seha_reminder', { serial: c.serial, hours: which }, `/sick-leaves/${c.id}`);
+      sent++;
+    }
+    return sent;
+  }
+
+  /** Admin: reports whose Seha number is still missing after `days` days (default 3), oldest first. No patient data beyond the doctor's own name and the serial. */
+  async listWithoutSeha(daysRaw?: unknown, now: Date = new Date()) {
+    const d = Math.trunc(Number(daysRaw));
+    const days = Number.isFinite(d) && d >= 0 ? Math.min(d, 365) : SEHA_ADMIN_LIST_DAYS;
+    const rows = await this.reports.find(
+      { certificate_kind: 'sick_leave', status: 'issued', seha_ref: null, issued_at: { $lte: new Date(now.getTime() - days * 86_400_000) } },
+      { projection: { _id: 0, id: 1, serial: 1, doctor_id: 1, doctor_name: 1, doctor_license_no: 1, issued_at: 1, sick_leave: 1 } },
+    ).sort({ issued_at: 1 }).limit(200).toArray();
+    return {
+      days,
+      count: rows.length,
+      items: (rows as any[]).map((r) => ({ id: r.id, serial: r.serial, doctor_id: r.doctor_id, doctor_name: r.doctor_name ?? null, doctor_license_no: r.doctor_license_no ?? null, issued_at: r.issued_at, days: r.sick_leave?.duration_days ?? null, age_hours: Math.floor((now.getTime() - new Date(r.issued_at).getTime()) / 3600_000) })),
+    };
   }
 
   private shape(cert: any, full: boolean) {
@@ -151,14 +236,15 @@ export class SickLeaveService implements OnModuleInit {
       from: leave.start_date ?? null, to: leave.end_date ?? null, days: leave.duration_days ?? null,
       doctor_name: c.doctor_name ?? null, national_id: maskNationalId(c.patient_national_id),
       verify_code: c.verify_code ?? null, revoked_at: c.revoked_at ?? null,
+      seha_number: c.seha_ref ?? null, seha_status: c.seha_ref ? 'registered' : 'pending', seha_registered_at: c.seha_registered_at ?? null,
     };
     if (full) {
       Object.assign(out, {
         patient_name: c.patient_name ?? null, national_id: c.patient_national_id ?? null,
-        doctor_specialty_ar: c.doctor_specialty_ar ?? null, doctor_specialty_en: c.doctor_specialty_en ?? null, doctor_license_no: c.doctor_license_no ?? null,
+        facility_name: c.facility_name ?? null, doctor_specialty_ar: c.doctor_specialty_ar ?? null, doctor_specialty_en: c.doctor_specialty_en ?? null, doctor_license_no: c.doctor_license_no ?? null,
         consultation_at: c.consultation_at ?? null, booking_ref: c.booking_ref ?? null, reason: c.reason ?? null,
         diagnosis: c.show_diagnosis === true ? c.diagnosis ?? null : null, show_diagnosis: c.show_diagnosis === true,
-        revoke_reason: c.revoke_reason ?? null, seha_ref: c.seha_ref ?? null, tracking_id: c.tracking_id ?? null,
+        revoke_reason: c.revoke_reason ?? null, tracking_id: c.tracking_id ?? null,
       });
     }
     return out;
@@ -197,13 +283,13 @@ export class SickLeaveService implements OnModuleInit {
   async verify(code: string) {
     const c = String(code || '').trim().toUpperCase();
     if (!CODE_RE.test(c)) throw new NotFoundException('not_found');
-    const cert: any = await this.reports.findOne({ verify_code: { $eq: c }, certificate_kind: 'sick_leave' }, { projection: { _id: 0, patient_name: 1, serial: 1, status: 1, sick_leave: 1, issued_at: 1, revoked_at: 1 } });
+    const cert: any = await this.reports.findOne({ verify_code: { $eq: c }, certificate_kind: 'sick_leave' }, { projection: { _id: 0, patient_name: 1, serial: 1, status: 1, sick_leave: 1, issued_at: 1, revoked_at: 1, seha_ref: 1 } });
     if (!cert) throw new NotFoundException('not_found');
     const r: any = revealHealthDoc(REPORTS, { ...cert });
     return {
       valid: (cert.status ?? 'issued') === 'issued', status: cert.status ?? 'issued', serial: cert.serial ?? null, initials: initialsOf(r.patient_name),
       from: cert.sick_leave?.start_date ?? null, to: cert.sick_leave?.end_date ?? null, days: cert.sick_leave?.duration_days ?? null,
-      issued_at: cert.issued_at ?? null, ...(cert.status === 'revoked' ? { revoked_at: cert.revoked_at ?? null } : {}),
+      issued_at: cert.issued_at ?? null, seha_registered: !!cert.seha_ref, ...(cert.status === 'revoked' ? { revoked_at: cert.revoked_at ?? null } : {}),
     };
   }
 }

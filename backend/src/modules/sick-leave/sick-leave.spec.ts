@@ -2,6 +2,7 @@ import { BadRequestException, ConflictException, NotFoundException } from '@nest
 import { initialsOf, maskNationalId, newVerifyCode, planLeave, riyadhDay, serialOf, CODE_RE } from './sick-leave-rules';
 import { SickLeaveService } from './sick-leave.service';
 import { renderSickLeavePdf } from './sick-leave-pdf';
+import { registerAuditSink } from '../../common/audit-record';
 
 // PT-08 (owner decision 2026-11-09): the sick leave is a certificate with rules. The rules first, then the service against an in-memory store.
 const CONSULT = new Date('2026-11-09T09:00:00Z');                 // 12:00 on 9 November in Riyadh
@@ -47,7 +48,7 @@ describe('planLeave: no back-dating, inclusive end, 1 to 30 days', () => {
 describe('codes, serials, masks', () => {
   it('a verify code is 8 characters from an alphabet without 0/O/1/I; a serial is year + 6 digits', () => {
     for (let i = 0; i < 200; i++) expect(newVerifyCode()).toMatch(CODE_RE);
-    expect(serialOf(2026, 42)).toBe('SLC-2026-000042');
+    expect(serialOf(2026, 42)).toBe('MED-2026-000042');
     expect('O0I1l'.split('').some((c) => CODE_RE.test(`ABCDEFG${c}`))).toBe(false);
   });
   it('the ID number shows its last 3 characters only; initials are at most 3 letters', () => {
@@ -63,13 +64,15 @@ describe('codes, serials, masks', () => {
 // ── the service, against an in-memory store ──────────────────────────────────────────────────────────────────────────────────────────────
 function store() {
   const data: Record<string, any[]> = { medicalreports: [], appointments: [], provider_profiles: [], users: [], provider_accounts: [], sick_leave_counters: [] };
-  const eq = (a: any, b: any) => a === b;
+  const eq = (a: any, b: any) => (b === null ? a == null : a === b);
   const match = (row: any, f: any): boolean => Object.entries(f).every(([k, v]: [string, any]) => {
     if (k === '$or') return (v as any[]).some((c) => match(row, c));
     if (v && typeof v === 'object' && !(v instanceof Date)) {
       if ('$in' in v) return v.$in.includes(row[k]);
       if ('$eq' in v) return eq(row[k], v.$eq);
       if ('$ne' in v) return row[k] !== v.$ne;
+      if ('$exists' in v) return (row[k] !== undefined) === v.$exists;
+      if ('$lte' in v) return row[k] != null && new Date(row[k]).getTime() <= new Date(v.$lte).getTime();
     }
     return eq(row[k], v);
   });
@@ -104,9 +107,10 @@ function world(opts: { status?: string; requested?: boolean } = {}) {
   s.data.users.push({ id: 'pat-1', full_name: 'Sara Ahmed Ali', national_id: '1098765432' });
   s.data.provider_accounts.push({ _id: 'acc-1', user_id: 'doc-1', display_name: 'Clinic' });
   const events = { emit: jest.fn() } as any;
-  const svc = new SickLeaveService(s.conn, events);
+  const notifications = { create: jest.fn().mockResolvedValue({}) } as any;
+  const svc = new SickLeaveService(s.conn, events, notifications);
   jest.useFakeTimers({ now: NOW, doNotFake: ['nextTick', 'setImmediate', 'setTimeout', 'setInterval'] });
-  return { svc, events, ...s };
+  return { svc, events, notifications, ...s };
 }
 afterEach(() => { jest.useRealTimers(); });
 const DOCTOR = { id: 'doc-1', role: 'doctor', full_name: 'Dr Sami' };
@@ -116,17 +120,17 @@ describe('SickLeaveService.issue', () => {
   it('issues a certificate on the doctor\'s own consultation with serial, code, consultation, licence; the diagnosis is hidden unless the doctor shows it', async () => {
     const w = world({ requested: true });
     const out = await w.svc.issue(DOCTOR, 'appt-1', ISSUE);
-    expect(out).toMatchObject({ ok: true, serial: 'SLC-2026-000001', days: 3 });
+    expect(out).toMatchObject({ ok: true, serial: 'MED-2026-000001', days: 3 });
     expect(out.code).toMatch(CODE_RE);
     expect(out.verify_url).toBe(`/verify/sick-leave/${out.code}`);
     const row = w.data.medicalreports[0];
     expect(row).toMatchObject({ certificate_kind: 'sick_leave', status: 'issued', booking_ref: 'APT-0001', doctor_license_no: '12-R-34567', requested_by_patient: true, show_diagnosis: false, seha_ref: null });
     expect(row.doctor_specialty_en).toBeTruthy();
     expect(row.consultation_at).toEqual(CONSULT);
-    expect(w.events.emit).toHaveBeenCalledWith('sick_leave.issued', expect.objectContaining({ serial: 'SLC-2026-000001' }));
+    expect(w.events.emit).toHaveBeenCalledWith('sick_leave.issued', expect.objectContaining({ serial: 'MED-2026-000001' }));
     // the second certificate gets the next serial
     w.data.appointments.push({ id: 'appt-2', patient_id: 'pat-1', doctor_user_id: 'doc-1', status: 'COMPLETED', slot_start: CONSULT });
-    expect((await w.svc.issue(DOCTOR, 'appt-2', ISSUE)).serial).toBe('SLC-2026-000002');
+    expect((await w.svc.issue(DOCTOR, 'appt-2', ISSUE)).serial).toBe('MED-2026-000002');
   });
 
   it('NO BACK-DATING: a start before the consultation day is refused and nothing is stored', async () => {
@@ -230,7 +234,7 @@ describe('the public verify page shows the minimum', () => {
     const v: any = await w.svc.verify(a.code);
     expect(v).toMatchObject({ valid: true, status: 'issued', serial: a.serial, initials: 'S. A. A.', days: 3 });
     expect(new Date(v.from).toISOString()).toBe('2026-11-09T00:00:00.000Z');
-    expect(Object.keys(v).sort()).toEqual(['days', 'from', 'initials', 'issued_at', 'serial', 'status', 'to', 'valid']);
+    expect(Object.keys(v).sort()).toEqual(['days', 'from', 'initials', 'issued_at', 'seha_registered', 'serial', 'status', 'to', 'valid']);
     const text = JSON.stringify(v);
     for (const secret of ['Sara Ahmed', '1098765432', 'Acute illness', 'viral', 'Sami', 'pat-1', 'doc-1']) expect(text).not.toContain(secret);
   });
@@ -254,7 +258,7 @@ describe('the public verify page shows the minimum', () => {
 
 describe('renderSickLeavePdf', () => {
   it('draws without a QR and without optional fields', async () => {
-    const buf = await renderSickLeavePdf({ cert: { serial: 'SLC-2026-000009', status: 'issued', days: 1 }, qrPng: null, verifyUrl: 'https://nabd.plus/verify/sick-leave/ABCDEFGH' });
+    const buf = await renderSickLeavePdf({ cert: { serial: 'MED-2026-000009', status: 'issued', days: 1 }, qrPng: null, verifyUrl: 'https://nabd.plus/verify/sick-leave/ABCDEFGH' });
     expect(buf.subarray(0, 5).toString()).toBe('%PDF-');
   });
 });
@@ -277,5 +281,155 @@ describe('the request flag and the indexes', () => {
     expect(created.map((c) => [Object.keys(c[0])[0], c[1].unique, c[1].partialFilterExpression])).toEqual([
       ['serial', true, { serial: { $type: 'string' } }], ['verify_code', true, { verify_code: { $type: 'string' } }],
     ]);
+  });
+});
+
+describe('the document is a medical report, never a "sick leave"', () => {
+  it('the stored titles say medical report and a recommended rest period', async () => {
+    const w = world();
+    await w.svc.issue(DOCTOR, 'appt-1', ISSUE);
+    const row = w.data.medicalreports[0];
+    expect(row.title_ar).toBe('تقرير طبي: راحة موصى بها لمدة 3 أيام');
+    expect(row.title_en).toBe('Medical report: 3-day recommended rest');
+    expect(`${row.title_ar} ${row.title_en}`).not.toMatch(/إجازة مرضية|sick leave/i);
+    expect(row.serial).toMatch(/^MED-2026-\d{6}$/);
+  });
+
+  it('the PDF source names the document "Medical report" and mentions Seha only in the official-leave footer and the Seha lines', () => {
+    const src = require('fs').readFileSync(require('path').join(__dirname, 'sick-leave-pdf.ts'), 'utf8');
+    const labels = src.slice(src.indexOf('const L = {'), src.indexOf('const dateOf'));
+    expect(labels).toContain("en: 'Medical report'");
+    expect(labels).toContain("en: 'Recommended rest period'");
+    const uses = labels.split('\n').filter((l: string) => /sick leave|إجازة مرضية|الإجازات المرضية/i.test(l)).map((l: string) => l.trim().split(':')[0]);
+    expect(uses.sort()).toEqual(['sehaFooter', 'sehaVerify']);
+  });
+});
+
+describe('the Seha number (owner decision 2026-11-09)', () => {
+  it('a new report is "pending" on Seha and the issuing doctor is told in the answer', async () => {
+    const w = world();
+    const a = await w.svc.issue(DOCTOR, 'appt-1', ISSUE);
+    expect(a.seha_registration).toBe('pending');
+    expect(await w.svc.oneForPatient('pat-1', a.id)).toMatchObject({ seha_status: 'pending', seha_number: null });
+  });
+
+  it('the issuing doctor adds the number: normalised, audit-logged with the old and the new value, the patient is notified, the report shows it', async () => {
+    const w = world();
+    const a = await w.svc.issue(DOCTOR, 'appt-1', ISSUE);
+    const out = await w.svc.setSehaNumber(DOCTOR, a.serial, '  pgb-12345678 ');
+    expect(out).toEqual({ ok: true, serial: a.serial, seha_status: 'registered', seha_number: 'PGB-12345678' });
+    expect(w.notifications.create).toHaveBeenCalledWith(expect.objectContaining({ user_id: 'pat-1', title_key: 'notif.medical_report.seha_added.title', params: expect.objectContaining({ seha_number: 'PGB-12345678' }) }));
+    expect(w.events.emit).toHaveBeenCalledWith('sick_leave.seha_registered', expect.anything());
+    expect(await w.svc.oneForPatient('pat-1', a.id)).toMatchObject({ seha_status: 'registered', seha_number: 'PGB-12345678' });
+    const again = await w.svc.setSehaNumber(DOCTOR, a.serial, 'PGB-12345678');       // the same number: no second notification
+    expect(again.ok).toBe(true);
+    expect(w.notifications.create).toHaveBeenCalledTimes(1);
+    await w.svc.setSehaNumber(DOCTOR, a.serial, 'PGB-87654321');                       // a correction: the patient is told again
+    expect(w.notifications.create).toHaveBeenCalledTimes(2);
+  });
+
+  it('the shape is checked, and only the issuing doctor may set it (not another doctor, not an admin, not the patient)', async () => {
+    const w = world();
+    const a = await w.svc.issue(DOCTOR, 'appt-1', ISSUE);
+    for (const bad of ['', 'abc', 'has space 123', 'x'.repeat(31), undefined, { $ne: 1 }]) await expect(w.svc.setSehaNumber(DOCTOR, a.id, bad)).rejects.toThrow('seha_number_invalid');
+    await expect(w.svc.setSehaNumber({ id: 'doc-2', role: 'doctor' }, a.id, 'PGB-12345678')).rejects.toBeInstanceOf(NotFoundException);
+    await expect(w.svc.setSehaNumber({ id: 'admin-1', role: 'admin' }, a.id, 'PGB-12345678')).rejects.toBeInstanceOf(NotFoundException);
+    await expect(w.svc.setSehaNumber({ id: 'pat-1', role: 'patient' }, a.id, 'PGB-12345678')).rejects.toBeInstanceOf(NotFoundException);
+    expect(w.data.medicalreports[0].seha_ref).toBeNull();
+  });
+
+  it('a revoked report cannot get a number', async () => {
+    const w = world();
+    const a = await w.svc.issue(DOCTOR, 'appt-1', ISSUE);
+    await w.svc.revoke(DOCTOR, a.id, 'mistake');
+    await expect(w.svc.setSehaNumber(DOCTOR, a.id, 'PGB-12345678')).rejects.toBeInstanceOf(ConflictException);
+    expect(w.notifications.create).toHaveBeenCalledWith(expect.objectContaining({ title_key: 'notif.medical_report.revoked.title' }));
+  });
+
+  it('the public verify page says only whether a Seha number exists, never the number', async () => {
+    const w = world();
+    const a = await w.svc.issue(DOCTOR, 'appt-1', ISSUE);
+    expect((await w.svc.verify(a.code) as any).seha_registered).toBe(false);
+    await w.svc.setSehaNumber(DOCTOR, a.id, 'PGB-12345678');
+    const v: any = await w.svc.verify(a.code);
+    expect(v.seha_registered).toBe(true);
+    expect(JSON.stringify(v)).not.toContain('PGB-12345678');
+  });
+
+  it('the PDF is still drawn with the number (pending and registered)', async () => {
+    const w = world();
+    const a = await w.svc.issue(DOCTOR, 'appt-1', ISSUE);
+    jest.useRealTimers();
+    expect((await w.svc.pdfForPatient('pat-1', a.id)).subarray(0, 5).toString()).toBe('%PDF-');
+    await w.svc.setSehaNumber(DOCTOR, a.id, 'PGB-12345678');
+    expect((await w.svc.pdfForPatient('pat-1', a.id)).subarray(0, 5).toString()).toBe('%PDF-');
+  });
+});
+
+describe('reminders to the doctor and the admin list', () => {
+  const H = 3600_000;
+  it('one reminder after 24 h and one after 72 h, never repeated; none once the number is in, none for a revoked report', async () => {
+    const w = world();
+    const a = await w.svc.issue(DOCTOR, 'appt-1', ISSUE);
+    const issuedAt = w.data.medicalreports[0].issued_at.getTime();
+    expect(await w.svc.remindDoctors(new Date(issuedAt + 23 * H))).toBe(0);
+    expect(await w.svc.remindDoctors(new Date(issuedAt + 25 * H))).toBe(1);
+    expect(w.notifications.create).toHaveBeenLastCalledWith(expect.objectContaining({ user_id: 'doc-1', title_key: 'notif.medical_report.seha_reminder.title', params: { serial: a.serial, hours: 24 } }));
+    expect(await w.svc.remindDoctors(new Date(issuedAt + 26 * H))).toBe(0);              // not repeated
+    expect(await w.svc.remindDoctors(new Date(issuedAt + 73 * H))).toBe(1);
+    expect(w.notifications.create).toHaveBeenLastCalledWith(expect.objectContaining({ params: { serial: a.serial, hours: 72 } }));
+    expect(await w.svc.remindDoctors(new Date(issuedAt + 200 * H))).toBe(0);             // both sent
+  });
+
+  it('after a long stop only the 72 h reminder is sent (and the 24 h one is marked, so it never follows)', async () => {
+    const w = world();
+    await w.svc.issue(DOCTOR, 'appt-1', ISSUE);
+    const issuedAt = w.data.medicalreports[0].issued_at.getTime();
+    expect(await w.svc.remindDoctors(new Date(issuedAt + 100 * H))).toBe(1);
+    expect(w.notifications.create).toHaveBeenCalledTimes(1);
+    expect(await w.svc.remindDoctors(new Date(issuedAt + 101 * H))).toBe(0);
+  });
+
+  it('a registered or revoked report is not reminded', async () => {
+    const w = world();
+    const a = await w.svc.issue(DOCTOR, 'appt-1', ISSUE);
+    await w.svc.setSehaNumber(DOCTOR, a.id, 'PGB-12345678');
+    w.data.appointments.push({ id: 'appt-2', patient_id: 'pat-1', doctor_user_id: 'doc-1', status: 'COMPLETED', slot_start: CONSULT });
+    const b = await w.svc.issue(DOCTOR, 'appt-2', ISSUE);
+    await w.svc.revoke(DOCTOR, b.id, 'mistake');
+    w.notifications.create.mockClear();
+    expect(await w.svc.remindDoctors(new Date(NOW.getTime() + 100 * H))).toBe(0);
+    expect(w.notifications.create).not.toHaveBeenCalled();
+  });
+
+  it('the admin list shows what is still without a number after 3 days, oldest first, with no patient data', async () => {
+    const w = world();
+    const a = await w.svc.issue(DOCTOR, 'appt-1', ISSUE);
+    expect((await w.svc.listWithoutSeha(undefined, new Date(NOW.getTime() + 2 * 24 * H))).count).toBe(0);
+    const list = await w.svc.listWithoutSeha(undefined, new Date(NOW.getTime() + 4 * 24 * H));
+    expect(list).toMatchObject({ days: 3, count: 1 });
+    expect(list.items[0]).toMatchObject({ serial: a.serial, doctor_id: 'doc-1', doctor_license_no: '12-R-34567', age_hours: 96 });
+    const text = JSON.stringify(list);
+    for (const secret of ['Sara', '1098765432', 'pat-1', 'viral']) expect(text).not.toContain(secret);
+    await w.svc.setSehaNumber(DOCTOR, a.id, 'PGB-12345678');
+    expect((await w.svc.listWithoutSeha(undefined, new Date(NOW.getTime() + 4 * 24 * H))).count).toBe(0);
+  });
+});
+
+describe('audit log', () => {
+  afterEach(() => registerAuditSink(null));
+  it('issue, Seha number (old and new value) and revoke each write an audit row', async () => {
+    const rows: any[] = [];
+    registerAuditSink(async (e: any) => { rows.push(e); });
+    const w = world();
+    const a = await w.svc.issue(DOCTOR, 'appt-1', ISSUE);
+    await w.svc.setSehaNumber(DOCTOR, a.id, 'PGB-12345678');
+    await w.svc.setSehaNumber(DOCTOR, a.id, 'PGB-87654321');
+    await w.svc.revoke(DOCTOR, a.id, 'mistake');
+    expect(rows.map((r) => r.action)).toEqual(['sick_leave.issued', 'sick_leave.seha_number_set', 'sick_leave.seha_number_set', 'sick_leave.revoked']);
+    expect(rows[1].details).toEqual({ previous: null, current: 'PGB-12345678' });
+    expect(rows[2].details).toEqual({ previous: 'PGB-12345678', current: 'PGB-87654321' });
+    expect(rows[3].details).toEqual({ reason: 'mistake' });
+    expect(rows.every((r) => r.user_id === 'doc-1' && r.resource_id === a.serial)).toBe(true);
   });
 });

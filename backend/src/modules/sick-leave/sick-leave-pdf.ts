@@ -4,7 +4,7 @@ import * as PDFDocument from 'pdfkit';
 import { drawBidi, wrapBidi, hasArabic } from '../../common/pdf-bidi';
 
 /**
- * The PDF of a sick-leave certificate (owner decision PT-08), drawn like the invoice's (billing/invoice-pdf.ts): Arabic shaped from the embedded Naskh font and
+ * The PDF of a MEDICAL REPORT that states a recommended rest period (owner decisions PT-08, 2026-11-09; we never call it a "sick leave": that is the official Seha document), drawn like the invoice's (billing/invoice-pdf.ts): Arabic shaped from the embedded Naskh font and
  * laid out right to left, English beside it. It carries the platform name and logo, the serial, the issue time, the doctor (name, specialty, licence), the
  * patient (name and ID number, in full: this is the patient's own copy), the consultation (date and booking reference), the leave (from, to, days), the
  * reason in the doctor's wording (the diagnosis only if the doctor chose to show it), the doctor's electronic signature block, and a QR code with the short
@@ -29,26 +29,31 @@ function assetPath(...parts: string[]): string | null {
 
 const L = {
   platform: { ar: 'نبض بلس', en: 'Nabd Plus' },
-  title: { ar: 'شهادة إجازة مرضية', en: 'Sick leave certificate' },
-  serial: { ar: 'الرقم التسلسلي', en: 'Certificate no.' },
+  title: { ar: 'تقرير طبي', en: 'Medical report' },
+  serial: { ar: 'رقم التقرير', en: 'Report no.' },
   issuedAt: { ar: 'تاريخ ووقت الإصدار', en: 'Issued on' },
   doctor: { ar: 'الطبيب المعالج', en: 'Treating doctor' },
   specialty: { ar: 'التخصص', en: 'Specialty' },
-  licence: { ar: 'رقم الترخيص', en: 'Licence no.' },
+  licence: { ar: 'رقم الترخيص (الهيئة السعودية للتخصصات الصحية)', en: 'Licence no. (SCFHS)' },
+  facility: { ar: 'المنشأة', en: 'Facility' },
   patient: { ar: 'المريض', en: 'Patient' },
   nationalId: { ar: 'رقم الهوية / الإقامة', en: 'ID / iqama no.' },
   consultation: { ar: 'تاريخ الاستشارة', en: 'Consultation date' },
   booking: { ar: 'رقم الحجز', en: 'Booking ref.' },
-  leave: { ar: 'مدة الإجازة', en: 'Leave period' },
+  leave: { ar: 'فترة الراحة الموصى بها', en: 'Recommended rest period' },
   from: { ar: 'من', en: 'From' },
   to: { ar: 'إلى', en: 'To' },
   days: { ar: 'عدد الأيام', en: 'Number of days' },
   reason: { ar: 'السبب', en: 'Reason' },
   diagnosis: { ar: 'التشخيص', en: 'Diagnosis' },
   signature: { ar: 'التوقيع الإلكتروني للطبيب', en: "Doctor's electronic signature" },
-  verify: { ar: 'للتحقق من صحة الشهادة امسح الرمز أو أدخل الرمز المختصر', en: 'To verify this certificate scan the code or enter the short code' },
+  verify: { ar: 'للتحقق من صحة التقرير امسح الرمز أو أدخل الرمز المختصر', en: 'To verify this report scan the code or enter the short code' },
+  sehaPending: { ar: 'التسجيل في صحة: قيد الانتظار', en: 'Seha registration: pending' },
+  sehaRegistered: { ar: 'مسجّل في صحة', en: 'Registered on Seha' },
+  sehaVerify: { ar: 'تحقق من الإجازة في صحة', en: 'Verify the sick leave on Seha' },
+  sehaFooter: { ar: 'الإجازات المرضية الرسمية تصدر عبر منصة صحة', en: 'Official sick leave is issued via Seha' },
   code: { ar: 'الرمز المختصر', en: 'Short code' },
-  note: { ar: 'صدرت هذه الشهادة عبر المنصة من مقدّم خدمة مرخّص، وليست وثيقة حكومية.', en: 'Issued through the platform by a licensed provider. This is not a government document.' },
+  note: { ar: 'صدر هذا التقرير عبر المنصة من مقدّم خدمة مرخّص، وليس وثيقة حكومية.', en: 'Issued through the platform by a licensed provider. This is not a government document.' },
   revoked: { ar: 'ملغاة', en: 'REVOKED' },
   revokedOn: { ar: 'ألغيت بتاريخ', en: 'Revoked on' },
   revokeReason: { ar: 'سبب الإلغاء', en: 'Reason for revoking' },
@@ -63,7 +68,7 @@ export interface SickLeavePdfInput { cert: any; qrPng: Buffer | null; verifyUrl:
 export function renderSickLeavePdf({ cert, qrPng, verifyUrl }: SickLeavePdfInput): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const Doc: any = (PDFDocument as any).default ?? PDFDocument;
-    const doc = new Doc({ size: 'A4', margin: X, info: { Title: `Sick leave certificate ${cert.serial ?? ''}`.trim(), Author: 'Nabd Plus' } });
+    const doc = new Doc({ size: 'A4', margin: X, info: { Title: `Medical report ${cert.serial ?? ''}`.trim(), Author: 'Nabd Plus' } });
     const chunks: Buffer[] = [];
     doc.on('data', (c: Buffer) => chunks.push(c));
     doc.on('end', () => resolve(Buffer.concat(chunks)));
@@ -112,6 +117,7 @@ export function renderSickLeavePdf({ cert, qrPng, verifyUrl }: SickLeavePdfInput
     row(L.doctor, cert.doctor_name);
     row(L.specialty, [cert.doctor_specialty_ar, cert.doctor_specialty_en].filter(Boolean).join(' / ') || null);
     row(L.licence, cert.doctor_license_no, { ltr: true });
+    row(L.facility, cert.facility_name);
     y += 4;
     row(L.patient, cert.patient_name);
     row(L.nationalId, cert.national_id, { ltr: true });
@@ -122,6 +128,7 @@ export function renderSickLeavePdf({ cert, qrPng, verifyUrl }: SickLeavePdfInput
     row(L.from, dateOf(cert.from), { bold: true, ltr: true });
     row(L.to, dateOf(cert.to), { bold: true, ltr: true });
     row(L.days, cert.days, { bold: true, ltr: true });
+    row(cert.seha_status === 'registered' ? L.sehaRegistered : L.sehaPending, cert.seha_status === 'registered' ? `${cert.seha_number}  ·  ${L.sehaVerify.ar} / ${L.sehaVerify.en}` : '—', { ltr: cert.seha_status === 'registered' });
     if (cert.reason) row(L.reason, cert.reason);
     if (cert.show_diagnosis && cert.diagnosis) row(L.diagnosis, cert.diagnosis);
 
@@ -146,6 +153,8 @@ export function renderSickLeavePdf({ cert, qrPng, verifyUrl }: SickLeavePdfInput
     text(L.note.ar, X, W, { size: 8, color: MUTED, align: 'right' });
     y += 13;
     text(L.note.en, X, W, { size: 7.5, color: MUTED, align: 'left', base: 'ltr' });
+    y += 13;
+    text(`${L.sehaFooter.ar}  /  ${L.sehaFooter.en}`, X, W, { size: 8, bold: true, color: MUTED, align: 'center' });
 
     // revoked: said across the face of the page
     if (cert.status === 'revoked') {

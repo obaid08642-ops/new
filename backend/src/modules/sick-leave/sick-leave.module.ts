@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
-import { PatientSickLeaveController, ProviderSickLeaveController, PublicSickLeaveVerifyController } from './sick-leave.controller';
+import { NotificationsModule } from '../notifications/notifications.module';
+import { AdminSickLeaveController, PatientSickLeaveController, ProviderSickLeaveController, PublicSickLeaveVerifyController } from './sick-leave.controller';
 import { SickLeaveService } from './sick-leave.service';
 
 @Module({
-  controllers: [PatientSickLeaveController, ProviderSickLeaveController, PublicSickLeaveVerifyController],
+  imports: [NotificationsModule],
+  controllers: [AdminSickLeaveController, PatientSickLeaveController, ProviderSickLeaveController, PublicSickLeaveVerifyController],
   providers: [SickLeaveService],
   exports: [SickLeaveService],
 })

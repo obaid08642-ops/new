@@ -1,5 +1,6 @@
-"""Journey PT-08: a doctor issues a sick-leave CERTIFICATE after a visit; the patient reads, downloads and shows it; anyone can verify it; the doctor can revoke it.
-  Owner decision 2026-11-09: serial + verify code, no back-dating (the leave cannot start before the consultation day), 1-30 days with an inclusive end,
+"""Journey PT-08: a doctor issues a MEDICAL REPORT with a recommended rest period (never called "sick leave": that is the official Seha document); the patient reads,
+  downloads and shows it; anyone can verify it; the doctor adds the Seha number or revokes it.
+  Owner decisions 2026-11-09: serial + verify code, no back-dating (the rest cannot start before the consultation day), 1-30 days with an inclusive end,
   the reason in the doctor's words (the diagnosis only if the doctor shows it, both encrypted at rest), a PDF, a public verify page that shows only
   valid / revoked, initials and dates, a revoke with a reason. Other patients get 404; a patient and another doctor cannot issue or revoke.
   Stack: backend :8002.
@@ -56,7 +57,8 @@ def main():
     r = doctor.post(f'/provider/requests/{aid}/sick-leave', body)
     step('the doctor issues a 3-day sick leave', r.ok and r.get('ok') is True and r.get('days') == 3 and r.get('tracking_id') and r.get('serial') and r.get('code'), r)
     cert_id, serial, code = r.get('id'), r.get('serial'), r.get('code')
-    step('the serial and the code have their shape', str(serial).startswith('SLC-') and len(str(code)) == 8, f'{serial} {code}')
+    step('the serial and the code have their shape', str(serial).startswith('MED-') and len(str(code)) == 8, f'{serial} {code}')
+    step('the doctor is told the Seha registration is pending', r.get('seha_registration') == 'pending', r)
     raw = health_db.find_raw('medicalreports', {'id': cert_id}) or {}
     step('the doctor\'s wording of the reason and the diagnosis are ciphertext in the database', health_db.is_cipher(raw.get('reason')) and health_db.is_cipher(raw.get('diagnosis')), raw.get('reason'))
     r = doctor.post(f'/care/appointments/{aid}/finish', {'diagnosis': 'التهاب حلق فيروسي', 'notes': 'راحة', 'recommendations': 'مراجعة عند الحاجة'})
@@ -92,12 +94,32 @@ def main():
     r = pat.req('PATCH', f'/care/appointments/{aid}/outcomes/seen', {})
     step('the patient marks the outcomes seen', r.ok, r)
 
+    journey('PT-08: the Seha number')
+    r = pat.get(f'/care/sick-leaves/{cert_id}')
+    step('the report says Seha registration is pending', r.ok and r.get('seha_status') == 'pending' and r.get('seha_number') is None, r)
+    r = pat.req('PUT', f'/provider/sick-leaves/{cert_id}/seha-number', {'seha_number': 'PGB-12345678'})
+    step('a patient cannot set the Seha number', r.status in (401, 403), r)
+    r = other_doctor.req('PUT', f'/provider/sick-leaves/{cert_id}/seha-number', {'seha_number': 'PGB-12345678'})
+    step('another doctor cannot (404)', r.status == 404, r)
+    r = doctor.req('PUT', f'/provider/sick-leaves/{cert_id}/seha-number', {'seha_number': 'no'})
+    step('a number of the wrong shape is refused', r.status == 400, r)
+    r = doctor.req('PUT', f'/provider/sick-leaves/{cert_id}/seha-number', {'seha_number': 'pgb-12345678'})
+    step('the issuing doctor adds the number (kept in capitals)', r.ok and r.get('seha_status') == 'registered' and r.get('seha_number') == 'PGB-12345678', r)
+    r = pat.get(f'/care/sick-leaves/{cert_id}')
+    step('the report now shows "registered on Seha" with the number', r.ok and r.get('seha_status') == 'registered' and r.get('seha_number') == 'PGB-12345678', r)
+    r = pat.get(f'/care/sick-leaves/{cert_id}/pdf')
+    step('and its PDF is regenerated', r.ok and isinstance(r.body, str) and r.body.startswith('%PDF'), r.status)
+    r = pat.get('/notifications')
+    step('the patient was notified of the Seha number', 'seha_added' in str(r.body), 'no seha_added notification')
+    r = admin.get('/admin/medical-reports/without-seha-number?days=0')
+    step('the admin list does not contain a report that has its number', r.ok and serial not in str(r.body), r)
+
     journey('PT-08: the public verify page (the QR)')
     anon = Client(None, 'anon')
     r = anon.get(f'/verify/sick-leave/{code}')
-    step('anyone with the code sees valid, the dates and the initials', r.ok and r.get('valid') is True and r.get('status') == 'issued' and r.get('days') == 3 and r.get('initials') and r.get('serial') == serial, r)
+    step('anyone with the code sees valid, the dates and the initials', r.ok and r.get('valid') is True and r.get('status') == 'issued' and r.get('days') == 3 and r.get('initials') and r.get('serial') == serial and r.get('seha_registered') is True, r)
     text = str(r.body)
-    step('and nothing else: no diagnosis, no reason, no name, no ID, no doctor', 'التهاب' not in text and 'مرض حاد' not in text and pid not in text and 'doctor' not in text.lower().replace('doctor_id', ''), text)
+    step('and nothing else: no diagnosis, no reason, no name, no ID, no doctor, not even the Seha number', 'التهاب' not in text and 'مرض حاد' not in text and pid not in text and 'PGB-12345678' not in text and 'doctor' not in text.lower().replace('doctor_id', ''), text)
     r = anon.get('/verify/sick-leave/ABCDEFGH')
     step('an unknown code is 404', r.status == 404, r)
 
