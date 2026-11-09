@@ -1,5 +1,13 @@
 # Lane W outbox
 
+## 2026-11-09 12:12 UTC — RevenueInsights on Z's aggregate
+Status: done (waiting for CI/review)
+PR: #2541 (CI: just opened)
+- RevenueInsights.tsx: revenue, refunds and the 12-month trend from GET /provider/stats/revenue?months=24; the on-phone sums of the newest 200 ledger rows are gone. Period switch Month / 3 months / Year (aggregate is monthly: Week removed). ar+en, tests (period maths + screen). tsc clean, jest 414 pass, token-sync 397, literal baseline 5422 -> 5420, locale-parity no new.
+- Still on the phone (Needs review, backend gap): pending/balance, top services, breakdown by type come from the ledger's newest rows; they need a server aggregate like #2538.
+- Everything I made is pushed (owner asked); no local-only commits.
+- Reminder: renew the two scheduled checks (:17, :47) before 2026-11-14.
+
 ## 2026-11-09 10:48 UTC — RevenueInsights: read #2538, waiting for merge
 Status: in progress (waiting, no code)
 PR: none yet
