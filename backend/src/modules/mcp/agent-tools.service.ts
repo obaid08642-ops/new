@@ -19,6 +19,9 @@ import { issuer } from '../agent-oauth/agent-oauth.constants';
 import type { AgentPrincipal } from '../agent-oauth/agent-oauth.service';
 import type { ServiceType } from '../../schemas/appointment.schema';
 
+/** The assistant's tick as the create expects it: true / false as given, a MISSING argument stays missing (the rollout lets that through while REFUND_POLICY_ACCEPTANCE is optional; an explicit false is always refused). */
+const tick = (v: unknown): boolean | undefined => (v === true ? true : v === false ? false : undefined);
+
 /**
  * AC-3 (docs/review/AGENT_COMMERCE_SPEC_2026-10-12.md): authenticated MCP tools for AI
  * assistants. Every tool reuses the existing service the apps use — no copies of booking
@@ -409,7 +412,7 @@ export class AgentToolsService {
         return { medicine_id: l.medicine_id, qty: l.qty, name_ar: m.name_ar, name_en: m.name_en, sku: m.sku };
       }),
       delivery_address: deliveryAddress,
-      refund_policy_accepted: args.refund_policy_accepted === true,
+      refund_policy_accepted: tick(args.refund_policy_accepted),
       fulfillment: 'delivery',
     });
     const submitted = await this.pharmacyOrders.submit(user, String(created.id));
@@ -510,7 +513,7 @@ export class AgentToolsService {
     let appt: Record<string, unknown>;
     try {
       appt = await this.appts.create(user, {
-        doctor_id: doctorId, service_type: mode as ServiceType, slot_start: slotIso, payment_method: 'card', refund_policy_accepted: args.refund_policy_accepted === true,
+        doctor_id: doctorId, service_type: mode as ServiceType, slot_start: slotIso, payment_method: 'card', refund_policy_accepted: tick(args.refund_policy_accepted),
       }) as Record<string, unknown>;
     } catch (e: unknown) {
       await this.locks.releaseQuietly(user, String(lock.id ?? lock._id ?? '')).catch(() => null);
@@ -544,7 +547,7 @@ export class AgentToolsService {
     // Same pattern through the lab booking service with its real slot engine (capacity +
     // collision checks inside book). Card stays unpaid until the patient pays on Nabd Plus.
     const booking = await this.labs.book(user, {
-      refund_policy_accepted: args.refund_policy_accepted === true,
+      refund_policy_accepted: tick(args.refund_policy_accepted),
       items: ids.map((service_id) => ({ service_id })),
       scheduled_at: scheduledAt,
       provider_account_id: typeof args.provider_account_id === 'string' ? args.provider_account_id : undefined,
@@ -573,7 +576,7 @@ export class AgentToolsService {
     // Same pattern through the radiology booking service (approved catalogue, centre/scan
     // compatibility and slot checks inside book). Card stays unpaid until the patient pays on Nabd Plus.
     const booking = await this.radiology.book(user, {
-      refund_policy_accepted: args.refund_policy_accepted === true,
+      refund_policy_accepted: tick(args.refund_policy_accepted),
       service_id: serviceId,
       provider_account_id: providerId,
       scheduled_at: scheduledAt,
@@ -596,7 +599,7 @@ export class AgentToolsService {
     }
     // Same pattern through the nursing booking service (approved catalogue + nurse checks inside).
     const booking = await this.nursing.book(user, {
-      refund_policy_accepted: args.refund_policy_accepted === true,
+      refund_policy_accepted: tick(args.refund_policy_accepted),
       service_id: serviceId,
       scheduled_at: scheduledAt,
       provider_id: typeof args.provider_id === 'string' ? args.provider_id : undefined,

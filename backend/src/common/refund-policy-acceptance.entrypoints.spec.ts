@@ -40,7 +40,9 @@ const cases: Case[] = [
     .startPhoto(patient, { service_kind: 'lab', upload_id: 'up1', lat: 24, lng: 46, payer: 'cash' })],
 ];
 
-describe('every patient create asks for the refund-policy tick', () => {
+describe('every patient create asks for the refund-policy tick (with REFUND_POLICY_ACCEPTANCE=required)', () => {
+  beforeAll(() => { process.env.REFUND_POLICY_ACCEPTANCE = 'required'; });
+  afterAll(() => { delete process.env.REFUND_POLICY_ACCEPTANCE; });
   it.each(cases)('%s: 400 refund_policy_acceptance_required without it', async (_name, run) => {
     await expect(run()).rejects.toThrow(new BadRequestException(REFUND_POLICY_REQUIRED_CODE));
   });

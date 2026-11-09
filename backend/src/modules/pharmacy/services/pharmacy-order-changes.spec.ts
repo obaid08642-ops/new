@@ -164,10 +164,11 @@ describe('22.5 order changes', () => {
       expect(events.find((e) => e.type === 'pharmacy.order.split')).toMatchObject({ entity_id: 'o1', meta: { child_order_id: child.id } });
     });
 
-    it('a parent from before the refund-policy tick cannot split until it carries one (nothing is created, the claim is released)', async () => {
+    it('with REFUND_POLICY_ACCEPTANCE=required a parent from before the refund-policy tick cannot split until it carries one (nothing is created, the claim is released)', async () => {
       await selectedOrder({ refund_policy_acceptance: null });
       await alloc([{ order_item_id: 'i1', action: 'unavailable', qty_offered: 0 }]);
-      await expect(service.splitRemaining(patient, 'o1')).rejects.toThrow('refund_policy_acceptance_required');
+      process.env.REFUND_POLICY_ACCEPTANCE = 'required';
+      try { await expect(service.splitRemaining(patient, 'o1')).rejects.toThrow('refund_policy_acceptance_required'); } finally { delete process.env.REFUND_POLICY_ACCEPTANCE; }
       expect(created).toHaveLength(0);
       const parent: any = await conn.collection('pharmacy_orders').findOne({ id: 'o1' });
       expect(parent.split_claim).toBeUndefined();

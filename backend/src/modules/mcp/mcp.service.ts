@@ -20,8 +20,8 @@ export interface McpToolDefinition {
 const IDEM = { type: 'string', description: 'Unique key per attempt; a retry with the same key returns the same result and creates nothing twice.' };
 const SCOPE_NOTE = (tool: string) => ` Needs the patient's Nabd sign-in (OAuth scope ${AGENT_TOOL_SCOPES[tool]}).`;
 const CHECKOUT_NOTE = ' Returns checkout_url: give it to the patient, who confirms and pays on Nabd Plus. The assistant never pays and cannot select an offer.';
-/** Owner decision 2026-11-09: a booking or an order is only made after the patient agreed to the refund policy: the assistant shows it, asks, and sends true. Without it the tool answers refund_policy_acceptance_required. */
-const REFUND_POLICY_ARG = { type: 'boolean', description: 'The patient agreed to the refund policy (ask them first; true only after they said yes). Required: without it the booking is refused with refund_policy_acceptance_required.' };
+/** Owner decision 2026-11-09: a booking or an order is only made after the patient agreed to the refund policy: the assistant shows it, asks, and sends true. The server is in a rollout where a missing value is still accepted (counted); false is always refused, and a missing value becomes refused once the server turns the requirement on. */
+const REFUND_POLICY_ARG = { type: 'boolean', description: 'The patient agreed to the refund policy (ask them first; true only after they said yes). Always ask and send it: false is refused, and a missing value will be refused once the requirement is switched on (refund_policy_acceptance_required).' };
 
 /**
  * AC-3 tools advertised in tools/list so an assistant can discover and call them. Calling one
