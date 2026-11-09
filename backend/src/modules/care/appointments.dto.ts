@@ -1,4 +1,4 @@
-import { IsArray, IsDefined, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min, ValidateNested, MaxLength } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min, ValidateNested, MaxLength } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ServiceType } from '../../schemas/appointment.schema';
 import { AttributionDto } from '../../common/attribution';
@@ -62,6 +62,11 @@ export class CreateAppointmentDto {
   @IsIn(['cash', 'card', 'insurance'])
   @IsOptional()
   payment_method?: 'cash' | 'card' | 'insurance';
+
+  /** PT-08: the patient asks for a sick leave with this consultation. A request, not a guarantee: the doctor decides (SickLeaveService.issue). */
+  @IsOptional()
+  @IsBoolean()
+  sick_leave_requested?: boolean;
 
   /** Issue 684: book on behalf of a family member (AppointmentsService checks the family group and the booking permission). */
   @IsOptional()

@@ -62,7 +62,12 @@ const patientReadRoutes = [
   new RegExp("^/health/chronic-meds$"),
   new RegExp("^/health/trends$"),
   new RegExp("^/family/my-group$"),
+  // PT-08: the patient's medical reports (the routes keep the backend's old name): list, one in full, its PDF
+  new RegExp("^/care/sick-leaves$"),
+  new RegExp(`^/care/sick-leaves/${memberId}$`, "i"),
+  new RegExp(`^/care/sick-leaves/${memberId}/pdf$`, "i"),
   new RegExp("^/family/members$"),
+  new RegExp("^/family/dependants$"),
   new RegExp(`^/family/member-records/${memberId}$`, "i"),
   new RegExp("^/family/calendar$"),
   new RegExp("^/insurance/my-policy$"),
@@ -141,6 +146,9 @@ const diagnosticsMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp
 // The health screens add a night of sleep and add or remove the patient's own emergency contacts (backend health.controller);
 // the article page saves or unsaves one article (backend articles.module: POST /articles/bookmarks/:slug/toggle).
 const healthMutationRoutes: Array<{ method: "POST" | "DELETE"; route: RegExp }> = [
+  // PT-03: a guardian adds and removes a dependant (a minor with no account)
+  { method: "POST", route: new RegExp("^/family/dependants$") },
+  { method: "DELETE", route: new RegExp("^/family/dependants/[A-Za-z0-9_-]{1,128}$") },
   { method: "POST", route: new RegExp("^/health/sleep$") },
   { method: "POST", route: new RegExp("^/health/emergency-contacts$") },
   // Owner decision 14: "send my location to my family" (POST /emergency/share-location, the patient's own contacts, #665).

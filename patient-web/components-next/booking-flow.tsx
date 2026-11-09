@@ -76,6 +76,8 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
   const [loading, setLoading] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
+  // PT-08: "I need a medical report" (a recommended rest period): a request the doctor decides on
+  const [reportRequested, setReportRequested] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "card" | "insurance">("card");
   const [homeAddressId, setHomeAddressId] = useState(homeAddresses[0]?.id ?? "");
   const [error, setError] = useState<string | null>(null);
@@ -170,6 +172,7 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
           duration_minutes: durationMinutes ?? undefined,
           payment_method: paymentMethod,
           patient_notes: notes.trim() || undefined,
+          sick_leave_requested: reportRequested || undefined,
           visit_location: visitLocation,
           slot_lock_id: slotLockId,
           for_member_id: bookingFor?.id,
@@ -270,6 +273,12 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
       ) : null}
       <SectionCard id="book-notes" title={t("notes")}>
         <Input value={notes} onChange={(value) => setNotes(value.slice(0, 2000))} multiline rows={3} placeholder={t("notesPlaceholder")} />
+      </SectionCard>
+      <SectionCard id="book-report" title={t("reportTitle")}>
+        <label className={styles.field}>
+          <span><input type="checkbox" checked={reportRequested} onChange={(event) => setReportRequested(event.target.checked)} /> {t("reportRequest")}</span>
+        </label>
+        <p className={rx.note}>{t("reportHint")}</p>
       </SectionCard>
       <SectionCard id="book-payment" title={t("payment")}>
         <Segmented
