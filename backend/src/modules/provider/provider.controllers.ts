@@ -1,3 +1,4 @@
+import { SickLeaveService } from '../sick-leave/sick-leave.service';
 import { UseInterceptors } from '@nestjs/common';
 import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import { ownAppointmentId, ownedVisit } from './appointment-link';
@@ -5,7 +6,7 @@ import { protectHealthDoc } from '../../common/health-fields';
 import { PROVIDER_ROLES } from '../../common/enums';
 import { isProviderRole } from '../../common/enums';
 import { Controller, Post, Get, Patch, Put, Delete, Body, Param, Query, Req, Inject } from '@nestjs/common';
-import { ServiceUnavailableException } from '@nestjs/common';
+import { ServiceUnavailableException, Optional } from '@nestjs/common';
 import { DisableDto, EndConsultationDto, IssueSickLeaveDto, IssueMedicalReportDto, SetAvailDto, PreviewAdHocDto, DispatchDto, WithdrawAliasDto, UploadProfileImageDto, ReplaceImageDto, AssignStaffDto } from './provider.controllers.dto';
 import { RegisterDto, LoginDto, RefreshDto, LogoutDto, SendOtpDto, VerifyEmailDto, ForgotDto, VerifyResetCodeDto, ResetDto, AddPhoneDto, UploadDocDto, UploadDocDto2, UpsertBankDto, SubmitDeltaDto, SubmitDeltaDto2, InviteDto, AcceptDto, UpdateDto2, RejectDeltaDto, RejectDeltaDto2, RejectBankDto, LicenseExpiryQueryDto, ApproveDto, RejectDto, NeedsChangesDto, SuspendDto, ReactivateDto, ReviewDocumentDto, AcceptDto2, RejectDto2, StartDto, CompleteDto, CancelDto, UpsertPharmaDto, UpsertLabDto, UpsertLabDto2, UpsertRadDto, UpsertRadDto2, UpsertDocDto, UpsertDocDto2, UpsertHcDto, UpsertHcDto2, UpsertDto, UpsertDto2 } from './provider.controllers.generated.dto';
 import { LedgerService } from '../finance-engine/finance-engine.module';
@@ -236,7 +237,8 @@ export class ProviderRequestsController {
     private readonly svc: ProviderRequestEngineService,
     @Inject('ProviderRequestRepository') private readonly reqRepo: any,
     private readonly events: EventEmitter2,
-    @InjectConnection() private readonly conn: Connection
+    @InjectConnection() private readonly conn: Connection,
+    @Optional() private readonly sickLeave?: SickLeaveService,
   ) {}
   @Get() list(@CurrentUser() u: any, @Query() q: any) { return this.svc.list(u, q); }
   @Get(':id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.detail(u, id); }
@@ -367,56 +369,11 @@ export class ProviderRequestsController {
     return { ok: true, request_id: requestId, state, copay_amount: patientShare };
   }
 
+  /** Issue a sick-leave certificate on a consultation of this doctor (owner decision PT-08): the rules, the serial and the verify code are in SickLeaveService. */
   @Post(':id/sick-leave')
   async issueSickLeave(@CurrentUser() u: any, @Param('id') id: string, @Body() body: IssueSickLeaveDto) {
-    if (!body?.patient_id) throw new BadRequestException('patient_id required');
-    if (!body?.diagnosis?.trim()) throw new BadRequestException('diagnosis required');
-    const days = Math.max(1, Math.min(30, parseInt(String(body?.duration_days)) || 1));
-    const start = body?.start_date ? new Date(body.start_date) : new Date();
-    if (isNaN(start.getTime())) throw new BadRequestException('invalid start_date');
-    const end = new Date(start.getTime() + days * 24 * 60 * 60 * 1000);
-
-    const provider: any = await this.conn.collection('provider_accounts').findOne({ $or: [{ user_id: String(u?.id) }, { _id: u?.id as any }] } as any);
-    const doc = {
-      id: uuid(),
-      tracking_id: trackingId(TRACK_PREFIX.medical_report),
-      patient_id: String(body.patient_id),
-      patient_name: body.patient_name || null,
-      report_type: 'medical_certificate',
-      certificate_kind: 'sick_leave',
-      title_ar: `إجازة مرضية لمدة ${days} ${days === 1 ? 'يوم' : 'أيام'}`,
-      title_en: `${days}-day sick leave certificate`,
-      summary: body.diagnosis.trim(),
-      diagnosis: body.diagnosis.trim(),
-      recommendations: body.recommendations || null,
-      sick_leave: { start_date: start, end_date: end, duration_days: days },
-      doctor_id: String(u?.id),
-      doctor_name: u?.full_name || provider?.display_name || null,
-      facility_id: provider?._id ? String(provider._id) : null,
-      facility_name: provider?.display_name || null,
-      appointment_id: await ownAppointmentId(this.conn, String(u?.id), String(body.patient_id), [body.appointment_id, id]),
-      attachments: [],
-      issued_at: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    // 16.9: the certificate text is health data; the raw write encrypts it (the appointment keeps its own encrypted copy of the reason)
-    const reasonCipher = protectHealthDoc('appointments', { sickLeaves: [{ reason: doc.diagnosis }] }).sickLeaves[0].reason;
-    await this.conn.collection('medicalreports').insertOne(protectHealthDoc('medicalreports', { ...doc }) as any);
-
-    // Record on the appointment for the patient's timeline
-    if (id && id !== 'new') {
-      await this.conn.collection('appointments').updateOne(
-        { $or: [{ id }, { _id: id as any }] } as any,
-        { $push: { sickLeaves: { days, reason: reasonCipher, tracking_id: doc.tracking_id, at: new Date() } } } as any,
-      );
-    }
-
-    // Notify the patient (push + in-app) through the standard pipeline
-    this.events.emit('medical_report.created', { id: doc.id, patient_id: doc.patient_id, critical: false, tracking_id: doc.tracking_id });
-    this.events.emit('sick_leave.issued', { patient_id: doc.patient_id, doctor_id: doc.doctor_id, tracking_id: doc.tracking_id, days });
-
-    return { ok: true, message: 'sick_leave_issued', tracking_id: doc.tracking_id, verify_url: `/api/v1/medical-reports/track/${doc.tracking_id}`, days, start_date: start, end_date: end };
+    if (!this.sickLeave) throw new ServiceUnavailableException('sick_leave_unavailable');
+    return this.sickLeave.issue(u, id, body);
   }
 
   @Post(':id/medical-report')
