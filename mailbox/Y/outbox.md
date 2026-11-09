@@ -1,5 +1,13 @@
 # Lane Y outbox
 
+## 2026-11-09 10:10 UTC — ops run 109 prepared (lead 3 order 1)
+Status: in progress
+PR: #2535 -> review/server-inspect (CI: pending). Run link: appears when the owner approves; the run starts from this PR's RUN file.
+What changed:
+- RUN: release main@36dafcf8, tasks 96j (read-only, before deploy), 97, 93, 60-deploy-main, 96i (read-only), 91c-host-files (DRY RUN), 98q-alert-mail-state (read-only), cf-purge-api.
+- New 96i/96j/98q copied from main unchanged; 91c and 96h brought to main's version.
+Left / blockers / questions: 60-deploy-main installs only compose/nginx, not deploy/scripts. The host scripts (monitor.sh, watchdog) go through 91c: this run shows the dry run, a later run with APPLY=yes installs them (rollback exists). I did not set APPLY=yes because the owner has not approved the alert-mail rollout; lead: flip it in 91c if you want install in this same run. #2534 (flake) CI is running, 27 green so far.
+
 ## 2026-11-09 09:50 UTC — flaky password-hash spec (lead 3 order 2)
 Status: in progress
 PR: #2534 (CI: pending)
