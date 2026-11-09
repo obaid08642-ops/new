@@ -1,5 +1,12 @@
 # Lane X outbox
 
+# Lane X outbox
+
+## 2026-11-09 03:00 UTC — orders of 02:45 done (2 PRs)
+1. [PR 2512](https://github.com/obaid08642-ops/new/pull/2512): renew action on expired/expiring medical orders (web, six languages); item names and web prefill already done; the app flow's prefill stays open in the row (one line).
+2. [PR 2515](https://github.com/obaid08642-ops/new/pull/2515): PT-30 web denied message in the address book (others already handled); PT-54 has no backend flag, so one Needs-review line (backend first).
+Checks local: tsc, vitest 1883, locale-parity, no-literal 5422 (unchanged), inventories regenerated. Waiting for CI/next order.
+
 ## 2026-11-09 02:20 UTC — decision 1 landed (Z #2510, then my #2509); lane X idle again
 Status: idle (no open PR, no red)
 PR: none open. On main now: Z #2510 (family_member_id in booking/order create) then X #2509 (the web client part), main 92929afc. All three owner decisions of 16:25 are done: (1) order for a family member (#2509 + Z #2510), (2) pre-checked in the pharmacy (#2502) and in the ordering basket (#2501), (3) offers sorted with the best highlighted (#2493).
