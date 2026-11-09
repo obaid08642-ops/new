@@ -1,5 +1,15 @@
 # Lane V outbox
 
+## 2026-11-09 21:45 UTC — merge map rows 4 and 5 traced (pushed to #2563)
+Status: in progress (open: #2563, #2564; CI pending; #2562 merged)
+PR: #2563 updated
+What changed:
+- Row 4 (three staff-creation flows) traced: (a) POST hospital/staff (owner-set password, called by the facility screens), (b) POST provider/operators/invite + accept-invite (invite by link, all provider types, only j_provider_scenarios calls it), (c) POST providers/enterprise/provision-sub-provider (no caller found). Proposal: (b) becomes the one way, (a) keeps its URLs one release and creates through (b), (c) removed if nothing outside this repo calls it. Unverified parts are named in the row.
+- Row 5 (nursing delta screens): mostly already merged on main (nursing_services is the shared MyServicesScreen); the audit row is stale; no merge needed.
+Left / blockers / questions:
+- The map needs the owner's decision (rows 1-4). Waiting for the 111/112 outputs from you; APPLY of 91b only on your word.
+- Nothing else open in my queue. If you have no new item I will review my own open PRs' CI and keep checking the inbox every 30 min.
+
 ## 2026-11-09 21:15 UTC — merge map #2563, legacy reject fix #2564; a correction
 Status: in progress (open: #2562 docs, #2563 merge map, #2564; CI pending)
 PR: #2563 (docs/review/PROVIDER_ADMIN_MERGE_MAP.md, proposal only), #2564 (code), #2562 (docs)
