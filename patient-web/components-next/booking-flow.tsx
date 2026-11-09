@@ -15,6 +15,8 @@ import { Segmented } from "@/components-next/ui-generated/components/Controls";
 import { StickyFooter } from "@/components-next/ui-generated/shells/StickyFooter";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { PolicyCard } from "@/components-next/consult/policy-lines";
+import { RefundPolicyTick } from "@/components-next/refund-policy/refund-policy-tick";
+import { withRefundPolicy } from "@/lib/refund-policy";
 import { TelehealthConsentCard, needsTelehealthConsent } from "@/components-next/consult/telehealth-consent-card";
 import type { TelehealthConsentText } from "@/lib/legal/telehealth-consent";
 import { Hero, SectionCard } from "@/components-next/consult/consult-parts";
@@ -78,6 +80,8 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
   const [notes, setNotes] = useState("");
   // PT-08: "I need a medical report" (a recommended rest period): a request the doctor decides on
   const [reportRequested, setReportRequested] = useState(false);
+  // the refund policy is shown before payment and agreed here (the backend refuses a booking without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "card" | "insurance">("card");
   const [homeAddressId, setHomeAddressId] = useState(homeAddresses[0]?.id ?? "");
   const [error, setError] = useState<string | null>(null);
@@ -165,7 +169,7 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
       const res = await fetch("/api/appointments/book", {
         method: "POST",
         headers: { "content-type": "application/json", "idempotency-key": newIdempotencyKey() },
-        body: JSON.stringify({
+        body: JSON.stringify(withRefundPolicy({
           doctor_id: doctorId,
           service_type: visitType,
           slot_start: selectedSlot,
@@ -178,7 +182,7 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
           for_member_id: bookingFor?.id,
           insurance_provider: paymentMethod === "insurance" ? insurance.providerId : undefined,
           insurance_member_id: paymentMethod === "insurance" ? insurance.memberId : undefined,
-        }),
+        })),
       });
       if (res.ok) {
         const data = await res.json().catch(() => null);
@@ -211,7 +215,7 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
   const fee = doctor ? priceForVisit(doctor, visitType) : undefined;
   const price = fee != null ? formatPrice(locale, fee) : null;
   const submitButton = (
-    <Button fullWidth size="lg" label={submitting ? t("submitting") : t("submit")} loading={submitting} disabled={!selectedSlot || (paymentMethod === "insurance" && !insurance.ready)} onClick={() => void submit()} />
+    <Button fullWidth size="lg" label={submitting ? t("submitting") : t("submit")} loading={submitting} disabled={!selectedSlot || !refundAgreed || (paymentMethod === "insurance" && !insurance.ready)} onClick={() => void submit()} />
   );
 
   return (
@@ -300,6 +304,7 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
           <Link className={rx.textLink} href={`/${locale}/refund-policy`}>{legal("refundPolicy")}</Link>
         </PolicyCard>
       ) : null}
+      <RefundPolicyTick locale={locale} checked={refundAgreed} onChange={setRefundAgreed} compact={Boolean(policy)} />
       {price || durationMinutes !== null ? (
         <section className={`${rx.card} ${styles.priceCard}`} aria-label={t("fee")}>
           {durationMinutes !== null ? <div className={styles.totalRow}><span>{t("duration")}</span><span>{t("durationValue", { n: new Intl.NumberFormat(locale).format(durationMinutes) })}</span></div> : null}

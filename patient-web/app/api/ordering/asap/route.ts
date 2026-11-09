@@ -13,6 +13,8 @@ const schema = z.object({
   lng: z.number().min(-180).max(180),
   payer: z.enum(["cash", "insurance"]),
   family_member_id: z.string().regex(/^[A-Za-z0-9_-]{8,64}$/).optional(),
+  // the patient agreed to the refund policy before the broadcast (the backend refuses without it; an explicit false is never accepted)
+  refund_policy_accepted: z.literal(true),
 });
 
 /** POST /ordering/asap: starts the staged ASAP broadcast for the signed-in patient. */

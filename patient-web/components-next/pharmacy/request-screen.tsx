@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { RefundPolicyTick } from "@/components-next/refund-policy/refund-policy-tick";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { StickyFooter } from "@/components-next/ui-generated/shells";
 import { Button } from "@/components-next/ui-generated/components/Button";
@@ -44,6 +45,8 @@ export function RequestScreen({ locale, before, initialName = "" }: { locale: Lo
   const [photoScan, setPhotoScan] = useState<ScanState>("ok");
   const photoInput = useRef<HTMLInputElement | null>(null);
   const [sending, setSending] = useState(false);
+  // the refund policy is shown before the request is sent and agreed here (the backend refuses an order without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
   const [failure, setFailure] = useState<"session" | "send" | null>(null);
   const attempt = useRef<{ signature: string; key: string } | null>(null);
 
@@ -70,7 +73,7 @@ export function RequestScreen({ locale, before, initialName = "" }: { locale: Lo
       setPhotoState("failed");
     }
   }
-  const canSend = valid && address.status === "ready";
+  const canSend = valid && address.status === "ready" && refundAgreed;
 
   async function send() {
     if (!canSend || sending || address.status !== "ready") return;
@@ -140,6 +143,7 @@ export function RequestScreen({ locale, before, initialName = "" }: { locale: Lo
           </div>
         ) : null}
 
+        <RefundPolicyTick locale={locale} checked={refundAgreed} onChange={setRefundAgreed} />
         <div className={rx.deskActions}>{sendButton}</div>
       </form>
     </CoreShell>
