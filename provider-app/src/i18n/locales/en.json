@@ -290,5 +290,11 @@
   "issueReferral.missing.patient": "No patient is linked to this visit",
   "issueReferral.missing.doctor": "Sign in again as the doctor",
   "issueReferral.missing.items": "Choose at least one test or scan, or write a note",
-  "consultation.issueReferral": "Refer to lab / radiology"
+  "consultation.issueReferral": "Refer to lab / radiology",
+  "revenue.period.month": "Month",
+  "revenue.period.quarter": "3 months",
+  "revenue.period.year": "Year",
+  "revenue.earned": "Earned",
+  "revenue.refunded": "Refunds",
+  "revenue.loadFailed": "Could not load the revenue figures. Try again later."
 }
