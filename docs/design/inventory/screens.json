@@ -1,5 +1,5 @@
 {
- "commit": "2c546291",
+ "commit": "58a1bb6e",
  "routes": [
   {
    "app": "patient-app",
@@ -12575,7 +12575,7 @@
      "path": "/api/family/invite",
      "target": "web-bff",
      "query": "",
-     "line": 39,
+     "line": 41,
      "file": "patient-web/components-next/family/add-family.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/family/invite/route.ts"
@@ -12585,7 +12585,7 @@
      "path": "/api/family/join",
      "target": "web-bff",
      "query": "",
-     "line": 124,
+     "line": 126,
      "file": "patient-web/components-next/family/add-family.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/family/join/route.ts"
@@ -12602,6 +12602,36 @@
     },
     {
      "method": "GET",
+     "path": "/api/patient/family/dependants",
+     "target": "web-proxy",
+     "query": "",
+     "line": 245,
+     "file": "patient-web/components-next/family/add-family.tsx",
+     "backend": "backend/src/modules/family/family.controller.ts:28",
+     "status": "OK"
+    },
+    {
+     "method": "POST",
+     "path": "/api/patient/family/dependants",
+     "target": "web-proxy",
+     "query": "",
+     "line": 262,
+     "file": "patient-web/components-next/family/add-family.tsx",
+     "backend": "backend/src/modules/family/family.controller.ts:23",
+     "status": "OK"
+    },
+    {
+     "method": "DELETE",
+     "path": "/api/patient/family/dependants/:param",
+     "target": "web-proxy",
+     "query": "",
+     "line": 283,
+     "file": "patient-web/components-next/family/add-family.tsx",
+     "backend": "backend/src/modules/family/family.controller.ts:33",
+     "status": "OK"
+    },
+    {
+     "method": "GET",
      "path": "/api/patient/users/me/wishlist",
      "target": "web-proxy",
      "query": "",
@@ -12611,7 +12641,7 @@
      "status": "OK"
     }
    ],
-   "files": 58,
+   "files": 60,
    "unresolved": 0
   },
   {
