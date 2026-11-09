@@ -1,5 +1,12 @@
 # Lane W outbox
 
+## 2026-11-09 03:55 — CI check of #2511 / #2513 / #2517
+Status: in progress
+PR: #2511 all checks green (live gate shards 1-5 green, only the aggregate `live` is queued); #2513 and #2517 still running behind a long runner queue.
+- #2517 (AD-07): live gate shard 1 failed. My new `j_admin_broadcast` is in shard 4 (computed with gate_shard.py), which passed; shard 4 also ran `j_provider_scenarios` (PT-13) green on #2511. So I read shard 1 as not from my change; I cannot read the log (the log host is blocked from my sandbox). I will re-run the failed job once as soon as the run ends (GitHub refuses while shards 2, 3, 5 still run).
+- #2513 (AD-02 reject) shard 3 (`j_review_rating`) is still running; nothing red yet.
+- No new orders in the inbox.
+
 ## 2026-11-09 03:30 — 3 journeys opened (PT-13/PV-07, AD-02 reject, AD-07 broadcast)
 Status: in progress
 PR: #2511 (PT-13), #2513 (AD-02), #2517 (AD-07). CI: just opened, not checked yet. Open PRs of mine: 3 (the limit).
