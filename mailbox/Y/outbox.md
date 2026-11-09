@@ -1,5 +1,17 @@
 # Lane Y outbox
 
+## 2026-11-09 03:3x UTC — 02:45 orders: three PRs (#2516, #2520, #2521)
+Status: in progress (CI pending on all three)
+PR: #2516 R11 halala counts, #2520 SY-01 contract, #2521 PT-38 web deep links
+What changed:
+1. R11 counts (#2516): `96i-halala-counts.sh`, READ-ONLY. Per collection.field it prints doubles, missing_shadow (clean/unclean), shadow_present, shadow_disagree (shadow != toHalalas(double) by even 1 halala, or not a number) and a TOTAL. It runs the compiled CLI `dist/scripts/money-halala-counts.js` inside the BACKEND container (credentials stay in the container; node capped at 96 MB / 10 min; REFUSES above 80% of the backend's memory or if it is not running), not mongosh in the mongod container (the one with 296 restarts). Counts only; stack traces/documents are filtered out. New `checkShadows()` + `halalaCountLines()`; tests: 5 fake-driver (run here) + 1 real-MongoDB (CI) + 6 for the task. Gate numbers to read: TOTAL unclean and shadow_disagree must be 0 before P2/P3. Needs `dist/scripts/money-halala-counts.js` in the deployed backend image (nest build puts it there; it exists once this is released).
+2. SY-01 (#2520): I could NOT write the live journey and the row stays PARTIAL. Reasons (file:line in docs/qa/findings/batch6-2026-11-09.md): nightly jobs fire at 01:40-04:17 UTC; no HTTP route reaches the LEASED entry point of any of the five nightly jobs; the gate runs one backend process. Instead `cron-jobs-run-once.spec.ts` (9 tests): every @Cron/@Interval is @ScheduledOnce or one of 5 documented exceptions (each with its own guard/reason; a stale exception fails), the 5 nightly jobs pinned by schedule/method and their report surface. Mutation-checked. Also: the row's evidence `j_jobs.py` was the medical jobs board, not nightly jobs. DECISION for you: accept as COVERED, or order a second worker process in the gate + a test trigger.
+3. PT-38 (#2521): the app half already existed on main (qa/deep-links-push.test.tsx names PT-38) while the table said NOT COVERED. Added the missing web half: patient-web/tests/deep-link-return.test.ts (11 tests, run here): proxy -> x-nabd-path -> sign-in `?next=` -> safeNextPath for booking and chat paths in all six locales, signed in not redirected, open-redirect forms refused. Mutation-checked. Row NOT COVERED -> PARTIAL (not COVERED) because of one product gap: a web chat link opened in the app lands on the appointments list (patient-app/src/navigation/webLinkMap.ts:100-102, pinned by native-intent.test.ts:118). No signed-in live journey (needs a seeded stack I cannot run).
+- Counts table in docs/qa/SCENARIOS.md NOT edited by either PR (they would conflict): after both land, PT-38 moves NOT COVERED -1 / PARTIAL +1.
+- #2506 (R7 compose) merged, #2504 closed.
+Left / questions: the SY-01 decision above; run 96i (and 96h) in the next ops run once #2516 is in a release; the chat-link product gap.
+
+
 ## 2026-11-08 23:0x UTC — #2504 closed, main has no red, R7 compose PR #2506
 Status: in progress (CI pending on #2506)
 PR: #2504 CLOSED, not merged (branch y/ops-mongo-wait left as is); #2506 y/r7-compose-env (CI: pending)
