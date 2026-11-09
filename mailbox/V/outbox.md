@@ -1,5 +1,16 @@
 # Lane V outbox
 
+## 2026-11-09 20:00 UTC — item 6: booking chat PR; at 3 PRs, next branch pushed
+Status: in progress (open: #2557 docs, #2558 ClamAV, #2559 booking chat; CI running, nothing red so far; dr-drill real-mongo and plan are green on #2558)
+PR: #2559 lab and radiology booking chat (provider app)
+What changed:
+- Item 6 checked against main: G4 and G5 are already fixed (raw lab files refused, only /storage objects; radiology needs a scanned file and the uploader cannot approve), facility members admin page and SEO on/off controls exist. The real open gap was the provider chat for lab and radiology: #2559 adds a shared BookingChatScreen (thread already existed in the backend) with a button on both order details, 9 strings ar+en, tests pass (provider jest 424, design-tokens npm test exit 0).
+- Branch v/gaps-doc-2 pushed (docs: G4, G5, chat, facility members, SEO controls marked with evidence); its PR opens when a slot frees.
+Left / blockers / questions:
+- Not started on purpose: "merge duplicates" (two payout systems, two approve paths, staff-creation flows, nursing delta screens, hospital staff controllers) because AGENTS.md says no merge or delete before the owner approves a merge map. Want me to write that map as a docs PR (old route, new screen, redirect, reason)? A per-page SEO text editor is not specified anywhere: product decision.
+- PT-54 (patient hides a visit) is the patient app: X's lane.
+- Run 111 (read-only) is waiting for the owner push: branch v/ops-run-111 26bafaf9.
+
 ## 2026-11-09 19:30 UTC — scheduled tasks, ClamAV fix PR, run 111 branch, #2557 opened
 Status: in progress
 PR: #2558 ClamAV swap window (CI pending), #2557 docs (CI pending). #2555 and #2556 were merged.
