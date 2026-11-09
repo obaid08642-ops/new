@@ -1,3 +1,16 @@
+## 13:50 UTC 2026-11-09 — order 12:30: sick-leave certificate backend (#2543), API for W and X
+Status: in progress (CI pending). #2538 merged, #2536 merged. Branch z/sick-leave-cert.
+PR: #2543 (CI: pending). Decision recorded in docs/product/OWNER_DECISIONS_2026-10-06.md (dated section 2026-11-09).
+API (details in the PR body):
+- ISSUE (doctor): POST /provider/requests/:appointmentId/sick-leave, same body as before + optional `reason` (the wording shown on the certificate), `show_diagnosis` (bool), `appointment_id`. Answer {ok,id,serial,code,tracking_id,verify_url,days,start_date,end_date}. 400 codes: sick_leave_before_consultation (no back-dating), sick_leave_start_too_late, sick_leave_duration_invalid (1-30), sick_leave_needs_consultation, sick_leave_consultation_not_started. Needs a consultation of this doctor+patient that is in progress or completed.
+- REVOKE (doctor/admin): POST /provider/sick-leaves/:id/revoke {reason}; GET /provider/sick-leaves = the doctor's issued list.
+- PATIENT: GET /care/sick-leaves (list, ID masked to last 3), GET /care/sick-leaves/:id (full: full ID, specialty+licence, consultation date, booking ref, reason, diagnosis only if shown, revoke_reason), GET /care/sick-leaves/:id/pdf (application/pdf). Another patient's = 404.
+- REQUEST: `sick_leave_requested: true` on POST /care/appointments (and the consultation contract). It is stored on the appointment and the doctor sees it in the booking.
+- PUBLIC: GET /verify/sick-leave/:code (no login, 30 per 10 min per address) -> {valid,status,serial,initials,from,to,days,issued_at,revoked_at?} only. 404 for unknown.
+- Visit outcomes sick-leave rows now also carry `serial` and `status` ('issued'|'revoked').
+Lane W: needs a PUBLIC web page /verify/sick-leave/[code] (the PDF's QR encodes NABD_PUBLIC_URL/verify/sick-leave/<code>) that calls the public route; the booking screen needs the "I need a sick leave" checkbox; the certificate screen (list, detail, PDF download, revoked state). Lane X/provider app: the issue form gets "reason", "show diagnosis" and a start date not before the consultation day, plus a "revoke" action with a reason.
+Left / blockers / questions: (1) the new journey steps have never run (no live stack in my sandbox); (2) an account with no `national_id` prints "not available" on the certificate: say if the booking should collect it; (3) invoices review next.
+
 ## 10:55 UTC 2026-11-09 — check 10:17: #2536 green; revenue aggregate done (#2538)
 Status: in progress (CI pending)
 PR: #2536 (CI: green except the live gate, still running; Backend build and tests passed incl. the real-MongoDB concurrency spec: ten parallel credits leave one row). #2538 (CI: pending) GET /provider/stats/revenue.
