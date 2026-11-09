@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { MyContractRow } from '../../components/MyContract';
 import { NotificationsCenterScreen } from '../shared/RealScreens';
+import { BookingChatScreen } from '../shared/BookingChatScreen';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, RefreshControl, ActivityIndicator, Switch } from 'react-native';
 import { useTheme, useLang, useToast } from '../../context';
@@ -81,6 +82,7 @@ export function RadiologyDashboardNavigator({ onLogout }: { onLogout: () => void
 
       <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="order_detail">{({ navigation, route }: any) => <OrderDetailScreen order={route.params?.param} onBack={() => navigation.goBack()} onNav={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+      <Stack.Screen name="booking_chat">{({ navigation, route }: any) => <BookingChatScreen kind="radiology" order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="reporting">{({ navigation, route }: any) => <ReportingScreen order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       {orderingStackScreens(Stack, 'radiology')}
@@ -339,6 +341,7 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
       {/* Actions by State — PILLAR 5 */}
       <NSecHeader title={AR ? 'الإجراءات' : 'Actions'} />
       <View style={{ gap: SP.md, marginBottom: SP.xl }}>
+        {!['CANCELLED', 'REJECTED'].includes(String(currentOrder.state)) && <NBtn label={t('bookingChat.open')} variant="outline" onPress={() => onNav('booking_chat', currentOrder)} />}
         {currentOrder.state === 'NEW_REQUEST' && (<>
           {currentOrder.payment_method === 'insurance' ? (
             <NBtn label={AR?' تسجيل قرار تغطية داخلي':' Record Internal Coverage Decision'} variant="outline" onPress={() => setShowApproval(true)} />
