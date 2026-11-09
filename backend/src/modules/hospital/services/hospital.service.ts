@@ -1,8 +1,9 @@
-import { Injectable, BadRequestException, UnauthorizedException, NotFoundException, ConflictException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Optional, Injectable, BadRequestException, UnauthorizedException, NotFoundException, ConflictException } from '@nestjs/common';
 import { isEmail } from 'class-validator';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from '../../../common/password-hash';
 import { randomUUID } from 'crypto';
 import { HospitalBranch } from '../schemas/hospital-branch.schema';
 import { HospitalDepartment } from '../schemas/hospital-department.schema';
@@ -14,6 +15,7 @@ import { ForbiddenException } from '@nestjs/common';
 import { Appointment } from '../../../schemas/appointment.schema';
 import { getEffectiveRoles } from '../../../common/auth.guard';
 import { recordAudit } from '../../../common/audit-record';
+import { DEFAULT_COMMISSION_PERCENT } from '../../../common/commission-defaults';
 
 // Whitelist of permission keys a facility may grant through an invitation —
 // anything else in the payload is silently dropped (mass-assignment guard).
@@ -32,6 +34,7 @@ export class HospitalService {
     @InjectModel(DoctorProfileExtended.name) private doctorModel: Model<DoctorProfileExtended>,
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Appointment.name) private appointmentModel: Model<Appointment>,
+    @Optional() private readonly events?: EventEmitter2,
   ) {}
 
   private assertFacilityActor(actor?: any, write = false): void {
@@ -74,13 +77,16 @@ export class HospitalService {
     // One pending invitation per facility+invitee — re-sending returns it.
     const existing = await this.invitationModel.findOne({ facility_id: facilityId, invitee_id: invitee.id, status: 'pending' });
     if (existing) return existing;
-    return this.invitationModel.create({
+    const created = await this.invitationModel.create({
       facility_id: facilityId,
       invitee_id: invitee.id,
       invitee_identifier: identifier,
       role: body?.role || 'doctor',
       permissions,
     });
+    // the invitee is told in the app (bell and push) instead of having to find the inbox
+    this.events?.emit('hospital.invitation_created', { invitation_id: (created as any)?.id, invitee_id: invitee.id, facility_id: facilityId });
+    return created;
   }
 
   async listFacilityInvitations(facilityId: string) {
@@ -115,6 +121,7 @@ export class HospitalService {
       await this.staffModel.db.collection('provider_accounts').updateOne(
         { $or: [{ id: userId }, { user_id: userId }] }, { $set: { facility_id: inv.facility_id, updatedAt: new Date() } });
     }
+    this.events?.emit('hospital.invitation_answered', { invitation_id: inv.id, invitee_id: userId, facility_id: inv.facility_id, accepted: accept });
     return inv;
   }
 
@@ -250,7 +257,7 @@ export class HospitalService {
         await db.collection('provider_profiles').insertOne({
           // raw insert: the unique `id` (and other schema defaults) are not applied — without an id the
           // second sub-account collided on the unique index (409)
-          id: randomUUID(), phones: [], enabled_modules: [], commission_rate: 10, has_own_delivery: false,
+          id: randomUUID(), phones: [], enabled_modules: [], commission_rate: DEFAULT_COMMISSION_PERCENT, has_own_delivery: false,
           use_platform_delivery: true, profile_completeness: 0,
           account_id: accId, provider_type: clinical.ptype,
           display_name_ar: (data as any).name_ar || fullName,
@@ -296,9 +303,27 @@ export class HospitalService {
         id: String(r._id), user_id: u.id || String(r.user_id), account_id: r.account_id || null,
         full_name: u.full_name || '', email: u.email || null, phone: u.phone || null,
         role: ROLE_KEY[r.role] || r.role, department: r.department || null, scfhs: r.scfhs || null,
+        license_expiry: r.license_expiry || null, malpractice_insurance: !!r.malpractice_insurance, malpractice_expiry: r.malpractice_expiry || null,
         suspended: u.active === false || !!u.suspended, createdAt: r.createdAt,
       };
     });
+  }
+
+  /** Licence number, licence expiry and malpractice cover of one staff member (what the credentialing screen tracks). */
+  async updateStaffCredentials(hospitalId: string, staffId: string, data: { scfhs?: string; license_expiry?: string; malpractice_insurance?: boolean; malpractice_expiry?: string }, actor?: any) {
+    this.assertFacilityActor(actor, true);
+    const set: Record<string, unknown> = {};
+    if (data.scfhs !== undefined) set.scfhs = String(data.scfhs);
+    if (data.license_expiry !== undefined) set.license_expiry = new Date(data.license_expiry);
+    if (data.malpractice_insurance !== undefined) set.malpractice_insurance = data.malpractice_insurance === true;
+    if (data.malpractice_expiry !== undefined) set.malpractice_expiry = new Date(data.malpractice_expiry);
+    const staff: any = await this.staffModel.findOneAndUpdate(
+      { _id: this.objectId(staffId, 'staff_id'), hospital_id: await this.objectIdForUser(hospitalId), is_active: true },
+      { $set: set }, { new: true },
+    ).lean();
+    if (!staff) throw new NotFoundException('staff_not_found');
+    await recordAudit(this.staffModel.db, { action: 'facility_staff.credentials_updated', user_id: String(actor?.id ?? hospitalId), role: String(actor?.role ?? 'facility'), resource_kind: 'facility_staff', resource_id: String(staff._id), details: { facility_id: hospitalId, fields: Object.keys(set) } });
+    return { id: String(staff._id), scfhs: staff.scfhs || null, license_expiry: staff.license_expiry || null, malpractice_insurance: !!staff.malpractice_insurance, malpractice_expiry: staff.malpractice_expiry || null };
   }
 
   /** Remove a staff member from the facility: the record is deactivated and their login is switched off. */

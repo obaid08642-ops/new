@@ -7,6 +7,7 @@ import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/
 import { CARE_TONE, RX_TONE, Chevron, Gate, Section, useConsultFormat } from '../../src/components/consult/ConsultKit';
 import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
 import { DoseMark, MetricGrid, MetricTile, Notice, Panel, Pill, Row, rowsOf, useRemote, vitalLook } from '../../src/components/health/HealthKit';
+import { featureFlags } from '../../src/services/FeatureFlags';
 import { apiFetch } from '../../src/utils/api';
 
 /**
@@ -35,6 +36,8 @@ export const scoreText = (k: (key: string) => string, key: string, fallback: str
 
 export default function HealthHub() {
   const { theme, t, c, dir, flow, k, num } = useScreenUi();
+  // wearables are a feature that may not be switched on: hidden, not labelled "soon"
+  const wearablesOn = featureFlags.isEnabled('wearables_enabled');
   const fmt = useConsultFormat();
   const barHeight = useTabBarHeight();
   const [refreshing, setRefreshing] = React.useState(false);
@@ -181,8 +184,8 @@ export default function HealthHub() {
           <Row icon="pill" tone={RX_TONE} title={k('health.hub.medications')} subtitle={k('health.hub.medicationsHint')} onPress={go('/health/medications')} />
           <Row icon="heartbeat" tone={RX_TONE} title={k('health.hub.chronic')} subtitle={k('health.hub.chronicHint')} onPress={go('/health/profile?tab=conditions')} />
           <Row icon="chart-line-up" tone={RX_TONE} title={k('health.hub.trends')} subtitle={k('health.hub.trendsHint')} onPress={go('/health/vitals?tab=trends')} />
-          <Row icon="moon" tone="violet" title={k('health.hub.sleep')} subtitle={k('health.hub.sleepHint')} onPress={go('/health/sleep')} />
-          <Row icon="heart" tone="blue" title={k('health.hub.wearables')} subtitle={k('health.hub.wearablesHint')} onPress={go('/health/wearables')} last />
+          <Row icon="moon" tone="violet" title={k('health.hub.sleep')} subtitle={k('health.hub.sleepHint')} onPress={go('/health/sleep')} last={!wearablesOn} />
+          {wearablesOn ? <Row icon="heart" tone="blue" title={k('health.hub.wearables')} subtitle={k('health.hub.wearablesHint')} onPress={go('/health/wearables')} last /> : null}
         </Panel>
 
         <Panel>

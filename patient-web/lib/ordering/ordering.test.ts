@@ -11,7 +11,7 @@ const quoteBody = {
   quote_id: "oq_1", expires_at: "2026-10-23T12:00:00.000Z", estimate: true,
   groups: [
     { mode: "home", items: [{ catalog_id: "a" }, { catalog_id: "b" }], from_price: { total: 165, providers_count: 3 },
-      best_match: { ...row("p1", 165), items: [{ catalog_id: "a", price: 70, coverage: "covered" }, { catalog_id: "b", price: 70, coverage: "not_covered" }], estimated_insurance_share: 56, patient_share: 109 },
+      best_match: { ...row("p1", 165, { home_fee: 25, vat_rate: 0.15, vat: 21.52, subtotal: 143.48 }), items: [{ catalog_id: "a", price: 70, coverage: "covered" }, { catalog_id: "b", price: 70, coverage: "not_covered" }], estimated_insurance_share: 56, patient_share: 109 },
       compare: [row("p1", 165), row("p2", 180, { covers_all: false, missing: ["b"] })], split_suggestion: null, empty: null },
     { mode: "facility", items: [{ catalog_id: "c", facility_only: true }], from_price: null, best_match: null, compare: [],
       split_suggestion: { assignments: [{ provider_id: "p3", catalog_ids: ["c"] }], total: 450 },
@@ -46,7 +46,7 @@ describe("parseQuote", () => {
 });
 
 describe("summarize", () => {
-  it("sums the server's lines, derives the home fee and flags a group without a best match", () => {
+  it("sums the server's lines, takes the home fee the server states and flags a group without a best match", () => {
     const s = summarize(parseQuote(quoteBody)!.groups);
     expect(s).toEqual({ itemsTotal: 140, homeFee: 25, insuranceShare: 56, patientShare: 109, total: 109, complete: false });
   });

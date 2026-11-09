@@ -2,20 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
 import { DataTable } from '@/components/DataTable';
 import Link from 'next/link';
+import { useCan } from '@/components/AdminGuard';
 
+// A row of the commission ledger as the server stores it (admin/web-core/schemas/commission-ledger.schema.ts): the amounts are
+// computed and stored by the server, this page only shows them.
 interface CommissionRow {
-  id: string;
-  providerName: string;
-  type: 'doctor' | 'home_care' | 'pharmacy';
-  baseBill: number;
+  _id?: string;
+  providerName?: string;
+  providerType?: string;
+  baseBill?: number;
+  systemCommission?: number;
+  vatOnCommission?: number;
+  providerEarning?: number;
 }
 
 
+// A procurement request as the server returns it (a raw document: `_id`, `pharmacy_id`, items with `raw_name_string` and `requested_quantity`).
 interface WarehouseOrder {
-  id: string;
-  pharmacyName: string;
-  items: { name: string; quantity: number; unitPrice: number }[];
-  status: 'PENDING_ADMIN_REVIEW' | 'QUOTATION_ISSUED';
+  _id: string;
+  pharmacy_id?: string;
+  items: { raw_name_string?: string; requested_quantity: number; unitPrice: number }[];
+  status: string;
 }
 
 interface FinanceSummary {
@@ -23,6 +30,7 @@ interface FinanceSummary {
   provider_pending_escrow: number;
   commission: number;
   vat_on_commission: number;
+  net_revenue?: number;
 }
 
 export default function FinancialLedger() {
@@ -35,6 +43,7 @@ export default function FinancialLedger() {
   const [financeUnavailable, setFinanceUnavailable] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
+  const canQuote = useCan('pharmacy.inventory.edit');   // issue-quote needs PHARMACY_INVENTORY_EDIT
 
   useEffect(() => {
     const fetchFinanceData = async () => {
@@ -55,6 +64,8 @@ export default function FinancialLedger() {
         if (commRes.ok) {
           const data = await commRes.json();
           setCommissions(data.data || []);
+        } else {
+          setFinanceUnavailable(true);
         }
 
         // Open payout requests, from the one payouts queue (the page /admin/payouts handles them)
@@ -71,10 +82,13 @@ export default function FinancialLedger() {
         const whRes = await fetchWithAdminGuard(`/api/admin/admin/extended-operations/procurement/pending`);
         if (whRes.ok) {
           const data = await whRes.json();
-          setWarehouseOrders(data.data || []);
+          setWarehouseOrders((data.data || []).map((o: WarehouseOrder) => ({ ...o, items: (o.items || []).map((i) => ({ ...i, unitPrice: Number(i.unitPrice) || 0 })) })));
+        } else {
+          setFinanceUnavailable(true);
         }
       } catch (error) {
         console.error('Finance fetch error:', error);
+        setFinanceUnavailable(true);
       } finally {
         setIsLoading(false);
       }
@@ -83,24 +97,9 @@ export default function FinancialLedger() {
     fetchFinanceData();
   }, []);
 
-  const getCommissionRate = (type: string) => {
-    if (type === 'doctor') return 0.15;
-    if (type === 'home_care') return 0.10;
-    if (type === 'pharmacy') return 0.05;
-    return 0;
-  };
-
-  const calculateNet = (base: number, type: string) => {
-    const rate = getCommissionRate(type);
-    const systemCommission = base * rate;
-    const vatOnCommission = systemCommission * 0.15; // VAT 15% on platform commission — remitted to tax, NOT paid to provider
-    const providerEarning = base - systemCommission;
-    return { systemCommission, vatOnCommission, providerEarning };
-  };
-
   const handleUpdateWarehousePrice = (orderId: string, itemIndex: number, price: number) => {
     setWarehouseOrders(prev => prev.map(order => {
-      if (order.id !== orderId) return order;
+      if (order._id !== orderId) return order;
       const newItems = [...order.items];
       newItems[itemIndex].unitPrice = price;
       return { ...order, items: newItems };
@@ -108,20 +107,25 @@ export default function FinancialLedger() {
   };
 
   const handleIssueQuotation = async (order: WarehouseOrder) => {
-    const total_warehouse_quotation_price = order.items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
-    if (total_warehouse_quotation_price <= 0) return alert('يجب تسعير العناصر أولاً');
+    const total_warehouse_quotation_price = order.items.reduce((sum, item) => sum + (item.requested_quantity * item.unitPrice), 0);
+    if (total_warehouse_quotation_price <= 0 || order.items.some((item) => !(item.unitPrice > 0))) return alert('يجب تسعير كل العناصر أولاً');
 
     try {
-            const res = await fetchWithAdminGuard(`/api/admin/admin/extended-operations/issue-quote/${order.id}`, {
+      const res = await fetchWithAdminGuard(`/api/admin/admin/extended-operations/issue-quote/${encodeURIComponent(order._id)}`, {
         method: 'PATCH',
         body: JSON.stringify({ pricingItems: order.items, totalPrice: total_warehouse_quotation_price })
       });
-      // Success state update
+      // fetchWithAdminGuard does not throw on a 4xx/5xx: the server's refusal is shown, and nothing is marked as sent
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        const msg = String(Array.isArray(body?.message) ? body.message[0] : body?.message ?? res.status);
+        throw new Error(msg.startsWith('quote_not_allowed_in_status_') ? 'هذا الطلب سُعِّر مسبقاً أو لم يعد بانتظار المراجعة، حدّث الصفحة' : msg);
+      }
       alert(`تم إرسال تسعيرة المشتريات بقيمة ${total_warehouse_quotation_price} SAR للصيدلية وتغيير الحالة إلى QUOTATION_ISSUED`);
-      setWarehouseOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'QUOTATION_ISSUED' } : o));
+      setWarehouseOrders(prev => prev.map(o => o._id === order._id ? { ...o, status: 'QUOTATION_ISSUED' } : o));
     } catch (e) {
       console.error(e);
-      alert('خطأ في إرسال التسعيرة');
+      alert(`خطأ في إرسال التسعيرة: ${e instanceof Error ? e.message : ''}`);
     }
   };
 
@@ -159,7 +163,7 @@ export default function FinancialLedger() {
           )}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm border-e-4 border-e-blue-500">
-              <p className="text-sm text-gray-500 font-bold mb-1">Total Out-of-Pocket Balance</p>
+              <p className="text-sm text-gray-500 font-bold mb-1">إجمالي مدفوعات البوابة (شهري)</p>
               <h3 className="text-2xl font-bold text-gray-900">{money(summary?.gross_revenue)}</h3>
             </div>
             <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm border-e-4 border-e-amber-500">
@@ -167,8 +171,8 @@ export default function FinancialLedger() {
               <h3 className="text-2xl font-bold text-gray-900">{money(summary?.provider_pending_escrow)}</h3>
             </div>
             <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm border-e-4 border-e-teal-500">
-              <p className="text-sm text-gray-500 font-bold mb-1">Commission Wallet Revenue Ledger</p>
-              <h3 className="text-2xl font-bold text-gray-900">{money(summary ? summary.commission + summary.vat_on_commission : null)}</h3>
+              <p className="text-sm text-gray-500 font-bold mb-1">صافي إيراد المنصة (عمولة + VAT)</p>
+              <h3 className="text-2xl font-bold text-gray-900">{money(summary ? (summary.net_revenue ?? summary.commission + summary.vat_on_commission) : null)}</h3>
             </div>
             <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm border-e-4 border-e-purple-500">
               <p className="text-sm text-gray-500 font-bold mb-1">Payout Request Queue</p>
@@ -185,21 +189,21 @@ export default function FinancialLedger() {
                   bare
                   dir="ltr"
                   rows={commissions}
-                  getRowKey={(c) => String(c.id)}
+                  getRowKey={(c) => String(c._id ?? c.providerName)}
                   columns={[
-                    { key: 'provider', header: 'Provider', className: 'font-medium text-gray-900', render: (c) => c.providerName },
+                    { key: 'provider', header: 'Provider', className: 'font-medium text-gray-900', render: (c) => c.providerName || '—' },
                     { key: 'type', header: 'Type', render: (c) => (
-                      <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">{c.type} ({(getCommissionRate(c.type) * 100)}%)</span>
+                      <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">{c.providerType || '—'}</span>
                     ) },
-                    { key: 'base', header: 'Base Bill', render: (c) => `${c.baseBill} SAR` },
-                    { key: 'comm', header: 'Sys Comm', className: 'text-red-600', render: (c) => `-${calculateNet(c.baseBill, c.type).systemCommission} SAR` },
-                    { key: 'vat', header: 'VAT (on Comm)', className: 'text-amber-600', render: (c) => `+${calculateNet(c.baseBill, c.type).vatOnCommission.toFixed(2)} SAR` },
-                    { key: 'earn', header: 'Provider Earning', headerClassName: 'bg-green-50 text-green-700', className: 'font-bold text-green-600 bg-green-50', render: (c) => `${calculateNet(c.baseBill, c.type).providerEarning.toFixed(2)} SAR` },
+                    { key: 'base', header: 'Base Bill', render: (c) => `${c.baseBill ?? '—'} SAR` },
+                    { key: 'comm', header: 'Sys Comm', className: 'text-red-600', render: (c) => `-${c.systemCommission ?? '—'} SAR` },
+                    { key: 'vat', header: 'VAT (on Comm)', className: 'text-amber-600', render: (c) => `+${c.vatOnCommission ?? '—'} SAR` },
+                    { key: 'earn', header: 'Provider Earning', headerClassName: 'bg-green-50 text-green-700', className: 'font-bold text-green-600 bg-green-50', render: (c) => `${c.providerEarning ?? '—'} SAR` },
                   ]}
                 />
               </div>
               <div className="p-4 bg-gray-50 border-t border-gray-200 text-xs text-gray-500 font-mono">
-                Provider Earning = (Base Bill - System Commission) + VAT 15% applied strictly to Platform Commission
+                القيم محسوبة ومحفوظة من الخادم لكل عملية؛ لا تُحسب في هذه الصفحة.
               </div>
             </div>
 
@@ -225,18 +229,18 @@ export default function FinancialLedger() {
 
           <div className="p-6">
             {warehouseOrders.map(order => {
-              const totalQuotation = order.items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+              const totalQuotation = order.items.reduce((sum, item) => sum + (item.requested_quantity * item.unitPrice), 0);
 
               return (
-                <div key={order.id} className="border border-gray-300 rounded-xl overflow-hidden mb-8">
+                <div key={order._id} className="border border-gray-300 rounded-xl overflow-hidden mb-8">
                   <div className="bg-gray-100 p-4 border-b border-gray-300 flex justify-between items-center">
                     <div>
-                      <h3 className="font-bold text-gray-800">{order.pharmacyName}</h3>
+                      <h3 className="font-bold text-gray-800">{order.pharmacy_id || '—'}</h3>
                       <span className={`text-xs font-bold px-2 py-1 rounded mt-2 inline-block ${order.status === 'PENDING_ADMIN_REVIEW' ? 'bg-amber-200 text-amber-800' : 'bg-green-200 text-green-800'}`}>
                         {order.status}
                       </span>
                     </div>
-                    {order.status === 'PENDING_ADMIN_REVIEW' && (
+                    {order.status === 'PENDING_ADMIN_REVIEW' && canQuote && (
                       <button onClick={() => handleIssueQuotation(order)} className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded shadow transition">
                         إرسال تسعيرة المشتريات للصيدلية
                       </button>
@@ -250,20 +254,20 @@ export default function FinancialLedger() {
                       rows={order.items.map((item, idx) => ({ item, idx }))}
                       getRowKey={({ idx }) => String(idx)}
                       columns={[
-                        { key: 'name', header: 'Item Name', className: 'font-medium text-gray-800', render: ({ item }) => item.name },
-                        { key: 'qty', header: 'Quantity', render: ({ item }) => item.quantity },
+                        { key: 'name', header: 'Item Name', className: 'font-medium text-gray-800', render: ({ item }) => item.raw_name_string || '—' },
+                        { key: 'qty', header: 'Quantity', render: ({ item }) => item.requested_quantity },
                         { key: 'price', header: 'Warehouse Cost Unit Price (SAR)', headerClassName: 'bg-amber-50 text-amber-800', className: 'bg-amber-50', render: ({ item, idx }) => (
                           <input
                             type="number"
                             min={0}
                             disabled={order.status !== 'PENDING_ADMIN_REVIEW'}
                             value={item.unitPrice || ''}
-                            onChange={(e) => handleUpdateWarehousePrice(order.id, idx, Number(e.target.value))}
+                            onChange={(e) => handleUpdateWarehousePrice(order._id, idx, Number(e.target.value))}
                             className="w-full border border-gray-300 rounded px-3 py-2 disabled:bg-gray-100"
                             placeholder="0.00"
                           />
                         ) },
-                        { key: 'total', header: 'Total', headerClassName: 'bg-slate-50', className: 'font-bold text-slate-800 bg-slate-50', render: ({ item }) => (item.quantity * item.unitPrice).toFixed(2) },
+                        { key: 'total', header: 'Total', headerClassName: 'bg-slate-50', className: 'font-bold text-slate-800 bg-slate-50', render: ({ item }) => (item.requested_quantity * item.unitPrice).toFixed(2) },
                       ]}
                       footerRow={(
                         <div className="flex items-center justify-between gap-4 bg-slate-900 p-4 text-lg font-bold text-white">

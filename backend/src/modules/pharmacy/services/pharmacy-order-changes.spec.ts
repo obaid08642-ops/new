@@ -132,6 +132,7 @@ describe('22.5 order changes', () => {
       status: PharmacyOrderState.CASH_CARD_PAYMENT_PENDING, selected_offer_id: 'of1', payment_mode: 'cash', fulfillment: 'delivery',
       items: [{ id: 'i1', raw_name: 'Panadol', qty: 3, matched_sku: 'sku-1' }, { id: 'i2', raw_name: 'Vitamin C', qty: 1 }, { id: 'i3', raw_name: 'Aspirin', qty: 2 }],
       prescription_attachments: [{ uri: '/api/v1/storage/rx-file', type: 'image' }], prescription_id: 'rx-9',
+      refund_policy_acceptance: { accepted: true, at: new Date('2026-11-09T10:00:00Z'), version: '2026-11-09' },
       ...over,
     });
     const alloc = (items: any[], status = 'pending_review') => conn.collection('pharmacy_allocations').insertOne({ id: 'al1', order_id: 'o1', status, items });
@@ -155,10 +156,22 @@ describe('22.5 order changes', () => {
       expect(child.items.map((i: any) => i.id)).not.toContain('i1'); // new lines, new ids
       expect(child).toMatchObject({ parent_order_id: 'o1', split_from_offer_id: 'of1', patient_account_id: 'pat', delivery_address: { street: 'Olaya 1' }, prescription_id: 'rx-9' });
       expect(child.prescription_attachments).toEqual([{ uri: '/api/v1/storage/rx-file', type: 'image' }]);
+      // the same agreement: the parent's tick with its own time and version
+      expect(child.refund_policy_acceptance).toMatchObject({ accepted: true, version: '2026-11-09', at: new Date('2026-11-09T10:00:00Z') });
       const parent: any = await conn.collection('pharmacy_orders').findOne({ id: 'o1' });
       expect(parent.split_child_order_id).toBe(child.id);
       expect(parent.timeline.at(-1)).toMatchObject({ event: 'split_remaining_created', meta: { items: 2 } });
       expect(events.find((e) => e.type === 'pharmacy.order.split')).toMatchObject({ entity_id: 'o1', meta: { child_order_id: child.id } });
+    });
+
+    it('with REFUND_POLICY_ACCEPTANCE=required a parent from before the refund-policy tick cannot split until it carries one (nothing is created, the claim is released)', async () => {
+      await selectedOrder({ refund_policy_acceptance: null });
+      await alloc([{ order_item_id: 'i1', action: 'unavailable', qty_offered: 0 }]);
+      process.env.REFUND_POLICY_ACCEPTANCE = 'required';
+      try { await expect(service.splitRemaining(patient, 'o1')).rejects.toThrow('refund_policy_acceptance_required'); } finally { delete process.env.REFUND_POLICY_ACCEPTANCE; }
+      expect(created).toHaveLength(0);
+      const parent: any = await conn.collection('pharmacy_orders').findOne({ id: 'o1' });
+      expect(parent.split_claim).toBeUndefined();
     });
 
     it('asking again returns the same child; two at once make exactly one', async () => {

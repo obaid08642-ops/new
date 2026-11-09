@@ -1,3 +1,5 @@
+import { refundPolicyAcceptance } from '../../../common/refund-policy-acceptance';
+import { resolveFamilyMemberId } from '../../../common/family-member';
 import { Injectable, ForbiddenException, NotFoundException, BadRequestException, ConflictException, Inject, Optional } from '@nestjs/common';
 import { assertUnverifiedCodAllowed, hasContactPhone } from '../../auth/checkout-contact.service';
 import { KillSwitchesService } from '../../kill-switches/kill-switches.service';
@@ -171,6 +173,10 @@ export class PharmacyOrderService {
     }
     if (!items.length && !body.prescription_id) throw new BadRequestException('items_required');
     await this.assertOwnPrescriptionRefs(user, body);
+    // owner decision 2026-11-09: the refund policy is agreed before the order exists
+    const policyAcceptance = refundPolicyAcceptance(user, body.refund_policy_accepted);
+    // owner decision 1: an order for a family member (the caller stays the patient account that orders and pays)
+    const familyMemberId = await resolveFamilyMemberId(this.conn as never, user.id, body.family_member_id);
     const attachments = await this.resolvePrescriptionAttachments(user, body.prescription_attachments);
     const addr = body.delivery_address || {};
     const geo = addr.geo || (addr.lat && addr.lng ? { lat: Number(addr.lat), lng: Number(addr.lng) } : null);
@@ -178,6 +184,8 @@ export class PharmacyOrderService {
     const order = await this.orders.create({
       id: uuidv4(),
       patient_account_id: user.id,
+      ...(familyMemberId ? { family_member_id: familyMemberId } : {}),
+      ...(policyAcceptance ? { refund_policy_acceptance: policyAcceptance } : {}),
       status: PharmacyOrderState.DRAFT,
       items,
       delivery_address: normalizedAddress,
@@ -850,8 +858,11 @@ export class PharmacyOrderService {
       throw new ConflictException('split_in_progress');
     }
     try {
+      // The child stands on the parent's refund-policy tick (same order, same agreement: its time and version are copied, none is invented); a parent from before the tick needs it first.
+      const parentAcceptance = order.refund_policy_acceptance?.accepted === true ? order.refund_policy_acceptance : null;
       const byId = new Map<string, any>((order.items || []).map((it: any) => [it.id, it]));
       const child: any = await this.create(user, {
+        ...(parentAcceptance ? { refund_policy_accepted: true } : {}),
         items: remaining.map((r) => { const it = byId.get(r.order_item_id) || {}; return { ...it, qty: r.remaining, sku: it.matched_sku, intake_source: 'split' }; }),
         delivery_address: order.delivery_address,
         delivery_address_id: order.delivery_address_id,
@@ -862,7 +873,7 @@ export class PharmacyOrderService {
         prescription_id: order.prescription_id,
       });
       // the same prescription files travel with the lines; the prescription rules run again when the child is sent
-      await this.orders.updateOne({ id: child.id }, { $set: { parent_order_id: id, split_from_offer_id: order.selected_offer_id, prescription_attachments: order.prescription_attachments || [], ...(order.prescription_id ? { prescription_id: order.prescription_id } : {}) } });
+      await this.orders.updateOne({ id: child.id }, { $set: { parent_order_id: id, split_from_offer_id: order.selected_offer_id, prescription_attachments: order.prescription_attachments || [], ...(order.prescription_id ? { prescription_id: order.prescription_id } : {}), ...(parentAcceptance ? { refund_policy_acceptance: parentAcceptance } : {}) } });
       const now = new Date();
       await this.orders.updateOne({ id }, { $set: { split_child_order_id: child.id }, $push: { timeline: { ts: now, event: 'split_remaining_created', by: user.id, meta: { child_order_id: child.id, items: remaining.length } } } as any });
       this.bus.emit({

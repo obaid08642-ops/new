@@ -22,7 +22,7 @@ import { _styles } from './_shared';
 export function PromotionsDashboard({ onBack, onNavigate }: { onBack: () => void; onNavigate: (s: string) => void }) {
  const insets = useSafeAreaInsets();
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
 
@@ -49,16 +49,16 @@ export function PromotionsDashboard({ onBack, onNavigate }: { onBack: () => void
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
  <View style={[_styles.topBar, { backgroundColor: theme.surface, borderBottomColor: theme.border, paddingTop: Math.max(insets.top, 16) }]}>
  <TouchableOpacity onPress={onBack}><I name="back" size={20} color={theme.primary} /></TouchableOpacity>
- <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>{AR ? 'مركز العروض الترويجية' : 'Promotions Center'}</Text>
+ <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>{t('pa3.promotions.center')}</Text>
  <TouchableOpacity onPress={() => onNavigate('create_promo')}><I name="plus" size={20} color={theme.primary} /></TouchableOpacity>
  </View>
 
  <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: SP.xl, paddingBottom: 100 }}>
- <NSecHeader title={AR ? 'العروض النشطة والمستمرة' : 'Active Promotions'} />
+ <NSecHeader title={t('pa3.promotions.active')} />
  {loading && <ActivityIndicator color={theme.primary} style={{ marginVertical: SP.xl }} />}
  {!loading && promos.length === 0 && (
  <Text style={{ textAlign: 'center', color: theme.textSub, marginVertical: SP.xl }}>
- {AR ? 'لا توجد عروض ترويجية حالياً' : 'No promotions available'}
+ {t('pa3.promotions.none')}
  </Text>
  )}
  {promos.map(item => (
@@ -68,8 +68,8 @@ export function PromotionsDashboard({ onBack, onNavigate }: { onBack: () => void
  {AR ? (item.title_ar || item.title_en) : (item.title_en || item.title_ar)}
  </Text>
  <NBadge
- label={AR ? (item.status === 'approved' ? 'مقبول' : item.status === 'pending' ? 'انتظار' : 'مؤرشف') : item.status.toUpperCase()}
- variant={item.status === 'approved' ? 'success' : item.status === 'pending' ? 'warning' : 'primary'}
+ label={AR ? (item.status === 'approved' ? 'مقبول' : ['pending', 'pending_review'].includes(item.status) ? 'قيد المراجعة' : item.status === 'rejected' ? 'مرفوض' : 'مؤرشف') : String(item.status || '').replace(/_/g, ' ').toUpperCase()}
+ variant={item.status === 'approved' ? 'success' : ['pending', 'pending_review'].includes(item.status) ? 'warning' : item.status === 'rejected' ? 'danger' : 'primary'}
  size="xs"
  />
  </View>

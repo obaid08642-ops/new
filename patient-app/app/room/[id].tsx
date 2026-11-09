@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, router, Stack } from 'expo-router';
-import { HttpClient } from '@/services/HttpClient';
 import { useAppSelector } from '@/store/hooks';
 
 import { ErrorState } from '../../../packages/ui-native/src';
 import { CallButton, CallIdentity, useCallUi } from '../../src/components/consult/CallKit';
 import { step as scale } from '../../src/components/screen/ScreenKit';
+import { TelehealthConsentSheet, isTelehealthConsentRefusal } from '../../src/components/legal/TelehealthConsent';
+import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
 import { ensureLiveKitGlobals, startCallAudio, stopCallAudio } from '../../src/calls/livekitNative';
 
@@ -41,7 +42,7 @@ try {
   VideoTrack = lk.VideoTrack;
   useTracks = lk.useTracks;
   useLocalParticipant = lk.useLocalParticipant;
-  CameraSource = require('livekit-client').Track.Source.Camera; // eslint-disable-line @typescript-eslint/no-require-imports
+  // CameraSource stays 'camera' (the value of livekit-client's Track.Source.Camera): a require('livekit-client') here made Metro bundle the library a second time (CommonJS next to the ES module the video call imports)
   LIVEKIT_NATIVE_OK = !!LiveKitRoom;
 } catch {
   LIVEKIT_NATIVE_OK = false;
@@ -113,6 +114,9 @@ export default function RoomScreen() {
   const { tk, c, k } = useCallUi();
   const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // the server refuses the join until the patient has accepted the current telehealth consent (D-38): the sheet is shown, then the join is tried again
+  const [consentAsked, setConsentAsked] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   const user = useAppSelector((state) => state.auth.user);
 
   // the audio session lives as long as the room screen (voice routing, no silence in the background)
@@ -130,9 +134,15 @@ export default function RoomScreen() {
     const fetchToken = async () => {
       try {
         if (!user) throw new Error('User not authenticated');
-        const response = await HttpClient.post<{ token: string }>(`/calls/${id}/join`, {});
-        setToken(response.data.token);
+        const response = await apiFetch<{ token?: string; data?: { token?: string } }>(`/calls/${id}/join`, { method: 'POST', body: '{}' });
+        const joined = response?.data || response;
+        if (!joined?.token) throw new Error('call_token_missing');
+        setToken(joined.token);
       } catch (err) {
+        if (isTelehealthConsentRefusal(err)) {
+          setConsentAsked(true);
+          return;
+        }
         logError('room:get-token', err);
         setError(k('consult.call.joinFailed'));
       }
@@ -140,13 +150,28 @@ export default function RoomScreen() {
 
     if (id) void fetchToken();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, user]);
+  }, [id, user, attempt]);
 
   const handleDisconnect = () => {
     router.back();
   };
 
   const shell = { flex: 1, backgroundColor: c.bg.canvas, justifyContent: 'center', alignItems: 'center', padding: 24 } as const;
+
+  if (consentAsked) {
+    return (
+      <View style={shell}>
+        <TelehealthConsentSheet
+          open
+          onClose={() => router.back()}
+          onAccepted={() => {
+            setConsentAsked(false);
+            setAttempt((n) => n + 1);
+          }}
+        />
+      </View>
+    );
+  }
 
   if (error) {
     return (

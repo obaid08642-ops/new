@@ -1,3 +1,5 @@
+import { shadowFields } from '../../common/halala-shadow';
+import { mergeCrm, readCrm } from '../provider-production/crm-store';
 import { protectHealthDoc } from '../../common/health-fields';
 import { PROVIDER_ROLES } from '../../common/enums';
 import { escapeRegex } from '../../common/slug.util';
@@ -20,9 +22,12 @@ import { OnEvent, EventEmitter2 } from '@nestjs/event-emitter';
 import { randomUUID } from 'crypto';
 import { JwtAuthGuard, CurrentUser, Roles, hasEffectiveRole } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
-import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, PutPricingDto, PutTariffsDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto, ToggleInstantDto } from './provider-ops.dto';
+import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, PutPricingDto, PutTariffsDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto, ToggleInstantDto, SaveDoctorNoteDto } from './provider-ops.dto';
+import { clampMonths, foldRevenue, rangeStart, revenuePipeline } from './revenue-by-month';
+import { ensureEarningUniqueIndex } from '../finance-engine/earning-key';
 import { CommissionResolver, LedgerService } from '../finance-engine/finance-engine.module';
-import { settlementDelayDefault } from '../../common/commission-defaults';
+import { settlementDelayDefault, DEFAULT_VAT_PERCENT } from '../../common/commission-defaults';
+import { roundSar } from '../../common/money';
 
 /** Provider withdrawal requests (consumed by admin-web-core finance controller). */
 export const ProviderWithdrawalSchema = new Schema(
@@ -48,7 +53,7 @@ export const ProviderWithdrawalSchema = new Schema(
  */
 export function providerOwnAmount(kind: string, booking: any): number {
   const n = (v: unknown) => { const x = Number(v); return Number.isFinite(x) && x > 0 ? x : 0; };
-  const round2 = (x: number) => Math.round(x * 100) / 100;
+  const round2 = roundSar;
   if (kind === 'consultation') return round2(n(booking?.price));
   if (kind === 'lab' || kind === 'radiology') {
     const gross = n(booking?.total_price) || n(booking?.total);
@@ -60,6 +65,9 @@ export function providerOwnAmount(kind: string, booking: any): number {
 @Injectable()
 export class ProviderOpsService {
   private readonly logger = new Logger(ProviderOpsService.name);
+
+  /** Built once per process, the first time an earning is credited (earning-key.ts); a database with duplicate earnings keeps its old behaviour until finance resolves them. */
+  private earningIndex?: Promise<string>;
 
   constructor(@InjectConnection() private readonly conn: Connection, @Optional() private readonly events?: EventEmitter2) {}
 
@@ -246,6 +254,8 @@ export class ProviderOpsService {
       { $set: { doctor_id: doctorId, patient_id: patientId, reason: reason || null, active: true, createdAt: new Date() } },
       { upsert: true },
     );
+    // the patient file says the same (one truth for "blocked")
+    await mergeCrm(this.conn, doctorId, patientId, { blocked: true, blocked_reason: reason || '' });
     return { ok: true, blacklisted: true };
   }
 
@@ -254,44 +264,29 @@ export class ProviderOpsService {
       { doctor_id: doctorId, patient_id: patientId },
       { $set: { active: false, updatedAt: new Date() } },
     );
+    await mergeCrm(this.conn, doctorId, patientId, { blocked: false });
     return { ok: true };
   }
 
+  /** The doctor's block list, with the patient's name (the screen showed only an id). */
   async myBlacklist(doctorId: string): Promise<any[]> {
-    return this.conn.collection('doctor_blacklist').find({ doctor_id: doctorId, active: true }, { projection: { _id: 0 } }).toArray();
+    const rows = await this.conn.collection('doctor_blacklist').find({ doctor_id: doctorId, active: true }, { projection: { _id: 0 } }).toArray();
+    const ids = rows.map((r: any) => String(r.patient_id)).filter(Boolean);
+    const users = ids.length
+      ? await this.conn.collection('users').find({ id: { $in: ids } }, { projection: { _id: 0, id: 1, full_name: 1, name: 1, phone: 1 } }).toArray()
+      : [];
+    const names = new Map(users.map((u: any) => [String(u.id), u.full_name || u.name || u.phone || null]));
+    return rows.map((r: any) => ({ ...r, patient_name: names.get(String(r.patient_id)) ?? null }));
   }
 
   // ═══ DOCTOR: per-patient CRM (tags / notes / vip / favorite) ═══
+  // Same store as provider-production's /provider/crm (crm-store.ts): one file per patient, a save changes only the fields it sends.
   async getPatientCrm(doctorId: string, patientId: string): Promise<any> {
-    const doc: any = await this.conn.collection('doctor_patient_crm').findOne(
-      { doctor_id: doctorId, patient_id: patientId },
-      { projection: { _id: 0 } },
-    );
-    return doc?.data || { tags: [], notes: [], vip: false, favorite: false };
+    return readCrm(this.conn, doctorId, patientId);
   }
 
   async putPatientCrm(doctorId: string, patientId: string, data: any): Promise<any> {
-    const clean = {
-      tags: Array.isArray(data?.tags) ? data.tags.slice(0, 50).map((t: any) => String(t).slice(0, 60)) : [],
-      notes: Array.isArray(data?.notes)
-        ? data.notes.slice(0, 200).map((n: any) => ({
-            id: String(n?.id || `n_${Date.now()}`),
-            date: String(n?.date || new Date().toISOString().slice(0, 10)),
-            text: String(n?.text || '').slice(0, 2000),
-          })).filter((n: any) => n.text)
-        : [],
-      vip: !!data?.vip,
-      favorite: !!data?.favorite,
-    };
-    await this.conn.collection('doctor_patient_crm').updateOne(
-      { doctor_id: doctorId, patient_id: patientId },
-      {
-        $set: { data: clean, updatedAt: new Date() },
-        $setOnInsert: { id: `crm_${Date.now()}`, doctor_id: doctorId, patient_id: patientId, createdAt: new Date() },
-      },
-      { upsert: true },
-    );
-    return clean;
+    return mergeCrm(this.conn, doctorId, patientId, data);
   }
 
   /** Booking guard: blocked if patient blacklisted by this doctor. */
@@ -421,7 +416,7 @@ export class ProviderOpsService {
     if (o.patient_id !== requester.id && requester.role !== 'admin' && o.pharmacy_id !== requester.id) throw new BadRequestException('forbidden');
     const svc = new (require('../legal/legal-enterprise.service').LegalEnterpriseService)(this.conn);
     const total = o.total ?? o.totals?.total ?? 0;
-    const pdf = svc.buildPdf(`Invoice ${o.id}`, [
+    const pdf = await svc.buildPdf(`Invoice ${o.id}`, [
       `Date: ${new Date(o.createdAt).toISOString().slice(0, 10)}`,
       `Order: ${o.id}`,
       `Patient: ${o.patient_id}`,
@@ -511,12 +506,14 @@ export class ProviderOpsService {
     const bucketCount = period === 'week' ? 7 : 12;
     const bucketMs = (days * 24 * 60 * 60 * 1000) / bucketCount;
     const sources: Array<{ coll: string; label: string }> = [
-      { coll: 'doctor_appointments', label: 'consultation' },
+      // consultations are the appointments of the appointments module (doctor_appointments is not a collection anything writes)
+      { coll: 'appointments', label: 'consultation' },
       { coll: 'labbookings', label: 'lab' },
       { coll: 'homecarebookings', label: 'home_care' },
       { coll: 'radiologybookings', label: 'radiology' },
     ];
-    const idFields = ['doctor_id', 'lab_id', 'provider_id', 'nurse_id', 'radiology_id', 'pharmacy_id', 'account_id'];
+    // `doctor_user_id` is the doctor's account id (an appointment's `doctor_id` is the profile id)
+    const idFields = ['doctor_user_id', 'doctor_id', 'lab_id', 'provider_id', 'nurse_id', 'radiology_id', 'pharmacy_id', 'account_id'];
     let appointments = 0;
     const perService: Record<string, number> = {};
     const patientIds = new Set<string>();
@@ -551,10 +548,11 @@ export class ProviderOpsService {
       const idx = Math.min(bucketCount - 1, Math.max(0, Math.floor((new Date(t.createdAt).getTime() - rangeStart.getTime()) / bucketMs)));
       series[idx] += Math.round((t.amount || 0) * 100) / 100;
     }
+    // Ratings are stored by the ratings module as `score` (1 to 5) and count once published, the same rule as the public average.
     const ratingRows: any[] = await this.conn.collection('ratings')
-      .find({ $or: [{ provider_id: providerId }, { entity_id: providerId }], createdAt: { $gte: rangeStart } } as any)
-      .project({ rating: 1, value: 1, stars: 1 }).toArray();
-    const ratingValues = ratingRows.map((r: any) => Number(r.rating ?? r.value ?? r.stars)).filter((v: number) => Number.isFinite(v) && v > 0);
+      .find({ $or: [{ provider_id: providerId }, { entity_id: providerId }], status: 'published', createdAt: { $gte: rangeStart } } as any)
+      .project({ score: 1, rating: 1, value: 1, stars: 1 }).toArray();
+    const ratingValues = ratingRows.map((r: any) => Number(r.score ?? r.rating ?? r.value ?? r.stars)).filter((v: number) => Number.isFinite(v) && v > 0);
     const rating = ratingValues.length ? Math.round((ratingValues.reduce((a: number, b: number) => a + b, 0) / ratingValues.length) * 10) / 10 : null;
     const topService = Object.entries(perService).sort((a, b) => b[1] - a[1])[0];
     const service_breakdown = Object.entries(perService)
@@ -575,11 +573,37 @@ export class ProviderOpsService {
     };
   }
 
+  /**
+   * The ids a patient's review can carry for this provider: a consultation review stores the doctor's PROFILE id (the id the public
+   * page and the booking use), while the provider signs in with the ACCOUNT id.
+   */
+  private async reviewProviderIds(providerId: string): Promise<string[]> {
+    const profiles = await this.conn.collection('provider_profiles')
+      .find({ $or: [{ account_id: { $eq: providerId } }, { user_id: { $eq: providerId } }] }, { projection: { _id: 0, id: 1 } }).limit(5).toArray();
+    return [...new Set([providerId, ...profiles.map((p: any) => p.id).filter((v: unknown) => typeof v === 'string' && v)])];
+  }
+
   async providerReviews(providerId: string): Promise<any[]> {
     const rows = await this.conn.collection('ratings')
       .find({ $or: [{ provider_id: providerId }, { entity_id: providerId }] })
       .sort({ createdAt: -1 }).limit(100).toArray();
-    return rows.map((r: any) => ({ ...r, id: r.id || r._id?.toString(), _id: undefined }));
+    // The apps send a patient's review to POST /patient-ux/review, which stores it in `reviews` (rating, status approved or
+    // pending_review). The provider screen read only `ratings`, so the doctor saw none of the reviews patients actually wrote.
+    const written = await this.conn.collection('reviews')
+      .find({ provider_id: { $in: await this.reviewProviderIds(providerId) } })
+      .sort({ createdAt: -1 }).limit(100).toArray();
+    const fromReviews = written.map((r: any) => ({
+      id: r.id, provider_id: r.provider_id, score: r.rating, comment: r.comment ?? null, createdAt: r.createdAt ?? null,
+      // the same words the ratings rows use, so the screen needs no second reading: approved = published
+      status: r.status === 'approved' ? 'published' : r.status === 'pending_review' ? 'pending' : r.status,
+      reply: r.reply ?? null, reply_at: r.reply_at ?? null, booking_kind: r.booking_kind, booking_id: r.booking_id, source: 'review',
+    }));
+    const all = [
+      ...rows.map((r: any) => ({ ...r, id: r.id || r._id?.toString(), _id: undefined })),
+      ...fromReviews,
+    ];
+    all.sort((a: any, b: any) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime());
+    return all.slice(0, 100);
   }
 
   async replyReview(providerId: string, ratingId: string, reply: string) {
@@ -599,6 +623,16 @@ export class ProviderOpsService {
           row = await col.findOne({ ...byId, ...own } as any);
         }
       } catch { /* invalid ObjectId format */ }
+    }
+    if (!row) {
+      // a review the patient wrote in the app (POST /patient-ux/review): approved is published, pending_review waits for a moderator
+      const written: any = await this.conn.collection('reviews').findOne({ id: { $eq: String(ratingId) }, provider_id: { $in: await this.reviewProviderIds(providerId) } });
+      if (written) {
+        if (written.status !== 'approved') throw new BadRequestException('review_not_published');
+        await this.conn.collection('reviews').updateOne({ _id: written._id }, { $set: { reply: text, reply_at: new Date() } });
+        if (written.patient_id) this.events?.emit('rating.replied', { user_id: written.patient_id, provider_id: providerId, rating_id: written.id });
+        return { ok: true };
+      }
     }
     if (!row) throw new NotFoundException('review not found');
     // a review still waiting for moderation, or refused, is not public: nothing to answer yet
@@ -647,6 +681,32 @@ export class ProviderOpsService {
     return d ? { id: d.id, value: d.requested_changes?.value ?? null, submitted_at: d.createdAt } : null;
   }
 
+  /** The one writer of a doctor's consultation note: the health fields are encrypted here (16.9: a raw write skips the model). */
+  private async storeConsultationNote(doctorId: string, appointmentId: string, notes: string | null | undefined, diagnosis: string | null | undefined, at: Date, patientId?: string | null) {
+    await this.conn.collection('consultationnotes').insertOne(protectHealthDoc('consultationnotes', {
+      id: `note_${Date.now()}`, appointment_id: appointmentId, doctor_id: doctorId, ...(patientId ? { patient_id: patientId } : {}),
+      notes: notes || null, diagnosis: diagnosis || null, createdAt: at,
+    }));
+  }
+
+  /**
+   * A doctor's note on one of their own visits, saved from the EMR / AI copilot screen (SOAP text). It used to post to the nursing notes
+   * route, which only a nurse may call, so a doctor's save always failed. The visit must be the doctor's and the patient's.
+   */
+  async saveDoctorNote(user: any, body: { patient_id: string; appointment_id: string; note: string }) {
+    const note = String(body?.note ?? '').trim().slice(0, 4000);
+    if (!note) throw new BadRequestException('note is required');
+    const appt: any = await this.conn.collection('appointments').findOne(
+      { id: { $eq: String(body?.appointment_id ?? '') } },
+      { projection: { _id: 0, id: 1, patient_id: 1, doctor_user_id: 1 } },
+    );
+    if (!appt) throw new NotFoundException('appointment not found');
+    if (user?.role !== 'admin' && String(appt.doctor_user_id ?? '') !== String(user?.id ?? '')) throw new ForbiddenException('appointment_not_owned');
+    if (String(appt.patient_id ?? '') !== String(body?.patient_id ?? '')) throw new BadRequestException('patient/appointment mismatch');
+    await this.storeConsultationNote(user.id, appt.id, note, null, new Date(), appt.patient_id);
+    return { ok: true };
+  }
+
   async endConsultation(user: any, body: any) {
     const appointmentId = body.appointment_id || body.id;
     if (!appointmentId) throw new BadRequestException('appointment_id required');
@@ -660,12 +720,7 @@ export class ProviderOpsService {
     );
     if (!r.matchedCount) throw new NotFoundException('appointment not found');
     // Store consultation notes if provided
-    if (body.notes || body.diagnosis) {
-      await this.conn.collection('consultationnotes').insertOne(protectHealthDoc('consultationnotes', {
-        id: `note_${Date.now()}`, appointment_id: appointmentId, doctor_id: user.id,
-        notes: body.notes || null, diagnosis: body.diagnosis || null, createdAt: now,
-      }));
-    }
+    if (body.notes || body.diagnosis) await this.storeConsultationNote(user.id, appointmentId, body.notes, body.diagnosis, now);
     // Store e-prescription if provided
     const appt: any = await this.conn.collection('doctor_appointments').findOne({ id: appointmentId });
     if (Array.isArray(body.prescription) && body.prescription.length) {
@@ -687,8 +742,14 @@ export class ProviderOpsService {
     const dup = await this.conn.collection('platformledgerentries').findOne({ ref_type: refType, ref_id: refId, type: 'provider_earning' });
     if (dup) return dup;
     const cfg: any = await this.conn.collection('finance_config').findOne({ key: 'commissions' });
-    const { percent: pct, source: commissionSource } = await this.commissionFor(serviceType, providerId, opts.paymentMethod);
-    const vatPct = cfg?.tax?.vat_percent ?? 15;
+    let { percent: pct, source: commissionSource, promo_id: promoId } = await this.commissionFor(serviceType, providerId, opts.paymentMethod);
+    // an order-limited promotion: this order counts against it; with none left the provider's normal commission applies (and the promo is skipped)
+    const skipped: string[] = [];
+    while (promoId && !(await new CommissionResolver(this.conn).claimPromoOrder(promoId))) {
+      skipped.push(promoId);
+      ({ percent: pct, source: commissionSource, promo_id: promoId } = await this.commissionFor(serviceType, providerId, opts.paymentMethod, skipped));
+    }
+    const vatPct = cfg?.tax?.vat_percent ?? DEFAULT_VAT_PERCENT;
     const delayDays = cfg?.settlement?.delay_days?.[serviceType] ?? cfg?.settlement?.delay_days?.default ?? settlementDelayDefault();
     const commission = Math.round(gross * pct) / 100;
     const vat = Math.round(commission * vatPct) / 100;
@@ -698,30 +759,34 @@ export class ProviderOpsService {
       provider_account_id: providerId,
       type: 'provider_earning', state: 'pending',
       available_at: new Date(Date.now() + delayDays * 24 * 3600 * 1000),
-      amount: net, gross, commission_percent: pct, commission_source: commissionSource, commission, vat,
+      amount: net, gross, commission_percent: pct, commission_source: commissionSource, ...(promoId ? { promo_id: promoId } : {}), commission, vat,
       ref_type: refType, ref_id: refId, createdAt: new Date(),
     };
-    await this.conn.collection('platformledgerentries').insertOne(row as any);
-    return row;
+    // R11 P1: a raw insert adds its own integer shadows (LedgerService.append does the same for the rows it writes)
+    const withShadows = { ...row, ...shadowFields(row, ['amount', 'gross', 'commission', 'vat']) };
+    // The read above is not atomic: two parallel service.completed events both pass it. The unique partial index (earning-key.ts) makes the database refuse the second row;
+    // that refusal means "already credited", and an order the loser claimed on a limited promotion is given back.
+    await (this.earningIndex ??= ensureEarningUniqueIndex(this.conn, (m) => this.logger.warn(m)));
+    try {
+      await this.conn.collection('platformledgerentries').insertOne(withShadows as any);
+    } catch (e: any) {
+      if (e?.code !== 11000) throw e;
+      if (promoId) await new CommissionResolver(this.conn).releasePromoOrder(promoId).catch(() => undefined);
+      const existing = await this.conn.collection('platformledgerentries').findOne({ ref_type: refType, ref_id: refId, type: 'provider_earning' });
+      if (existing) return existing;
+      throw e;
+    }
+    return withShadows;
   }
 
   /**
-   * The commission percent of one provider's earning, in one order (most specific first): a campaign or provider rule of the
-   * commission rules, then the rate the admin set on the provider itself (`commission_insurance_pct` for an insured visit,
-   * else `commission_cash_pct`), then the service default, the finance config and the system default (CommissionResolver).
-   * The profile's `commission_rate` is not read: it carries a schema default of 10 for every provider, so it cannot tell
-   * "set by the admin" from "never set".
+   * The commission percent of one provider's earning: CommissionResolver's order (campaign rule, the provider's running promotion,
+   * the provider's own commission, category and service rules, finance_config, the system default). The profile's `commission_rate`
+   * is not read: it carries a schema default for every provider, so it cannot tell "set by the admin" from "never set"; the admin
+   * screens write `commission_cash_pct` / `commission_insurance_pct`.
    */
-  async commissionFor(serviceType: string, providerAccountId: string, paymentMethod?: string): Promise<{ percent: number; source: string }> {
-    const resolved = await new CommissionResolver(this.conn).resolve(serviceType, { providerId: providerAccountId });
-    if (resolved.source === 'campaign_override' || resolved.source === 'provider_override') return resolved;
-    const profile: any = await this.conn.collection('provider_profiles').findOne(
-      { $or: [{ account_id: providerAccountId }, { user_id: providerAccountId }] },
-      { projection: { _id: 0, commission_cash_pct: 1, commission_insurance_pct: 1 } },
-    );
-    const own = String(paymentMethod || '').toLowerCase() === 'insurance' ? profile?.commission_insurance_pct : profile?.commission_cash_pct;
-    if (typeof own === 'number' && Number.isFinite(own) && own >= 0 && own <= 100) return { percent: own, source: 'provider_profile' };
-    return resolved;
+  async commissionFor(serviceType: string, providerAccountId: string, paymentMethod?: string, skipPromoIds?: string[]): Promise<{ percent: number; source: string; promo_id?: string }> {
+    return new CommissionResolver(this.conn).resolve(serviceType, { providerId: providerAccountId, paymentMethod, skipPromoIds });
   }
 
   /**
@@ -734,6 +799,16 @@ export class ProviderOpsService {
       { provider_account_id: providerId, type: 'provider_earning', createdAt: { $gte: since } },
       { projection: { _id: 0, amount: 1, createdAt: 1 } },
     ).toArray() as unknown as Array<{ amount: number; createdAt: Date }>;
+  }
+
+  /** Revenue per month for the last `months` months, refunds netted (revenue-by-month.ts). The earnings are filed under the provider ACCOUNT id, so both ids are read. */
+  async revenueByMonth(providerId: string, monthsRaw?: unknown): Promise<any> {
+    const months = clampMonths(monthsRaw);
+    const account: any = await this.conn.collection('provider_accounts').findOne({ $or: [{ id: providerId }, { user_id: providerId }] }).catch(() => null);
+    const ids = [...new Set([providerId, account?.id, account?.user_id].filter(Boolean).map(String))];
+    const now = new Date();
+    const rows = await this.conn.collection('platformledgerentries').aggregate(revenuePipeline(ids, rangeStart(now, months)) as any[]).toArray();
+    return foldRevenue(rows as any[], now, months);
   }
 
   async walletLedger(providerId: string, limit = 100): Promise<any> {
@@ -756,7 +831,7 @@ export class ProviderOpsService {
 @Controller('provider/ops')
 @UseGuards(JwtAuthGuard)
 export class ProviderOpsController {
-  constructor(private readonly svc: ProviderOpsService) {}
+  constructor(private readonly svc: ProviderOpsService, @Optional() private readonly ledger?: LedgerService) {}
 
   // Doctor: leave/vacation
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
@@ -775,6 +850,8 @@ export class ProviderOpsController {
   @Post('doctor/templates/:id/use') useTemplate(@CurrentUser() u: any, @Param('id') id: string): Promise<any> { return this.svc.useTemplate(u.id, id); }
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   @Delete('doctor/templates/:id') delTemplate(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.deleteTemplate(u.id, id); }
+  @Roles(UserRole.DOCTOR, UserRole.ADMIN)
+  @Post('doctor/notes') saveNote(@CurrentUser() u: any, @Body() b: SaveDoctorNoteDto) { return this.svc.saveDoctorNote(u, b); }
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   @Post('doctor/diagnoses') saveDx(@CurrentUser() u: any, @Body() b: SaveDxDto) { return this.svc.saveDiagnosis(u.id, b); }
   @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
@@ -812,7 +889,14 @@ export class ProviderOpsController {
     return new StreamableFile(Readable.from(pdf));
   }
   @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
-  @Get('wallet/ledger') wallet(@CurrentUser() u: any, @Query('limit') l?: string): Promise<any> { return this.svc.walletLedger(u.id, l ? parseInt(l) : 100); }
+  @Get('wallet/ledger') async wallet(@CurrentUser() u: any, @Query('limit') l?: string): Promise<any> {
+    const out = await this.svc.walletLedger(u.id, l ? parseInt(l) : 100);
+    if (!this.ledger) return out;
+    // The summary used to add up the newest <=200 rows of any type, with escrow counted as earned and clawbacks ignored, so the revenue screen showed a balance that
+    // disagreed with the wallet. It now comes from the same balance the wallet and the payout request use (matured earnings - payouts - debits - locked).
+    const b = await this.ledger.providerBalance(u.id);
+    return { ...out, summary: { earned: b.lifetime_earned, paid: b.paid_out, pending: b.pending, balance: b.available, debits: b.debits, locked: b.locked } };
+  }
 }
 
 /**
@@ -880,6 +964,12 @@ export class ProviderCompatController {
   @Get('stats/period') async statsPeriod(@CurrentUser() u: any, @Query('period') period?: string): Promise<any> {
     const p = period === 'week' || period === 'year' ? period : 'month';
     return this.svc.statsPeriod(u.id, p);
+  }
+
+  /** Revenue per month (default 12 months, at most 24), refunds netted: what the revenue screen draws. */
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
+  @Get('stats/revenue') async statsRevenue(@CurrentUser() u: any, @Query('months') months?: string): Promise<any> {
+    return this.svc.revenueByMonth(u.id, months);
   }
 
   /** Doctor pricing settings (clinic/online/home) — persisted server-side. */

@@ -15,10 +15,10 @@ const { apiFetch } = jest.requireMock('./api') as { apiFetch: jest.Mock };
 describe('public list cache', () => {
   beforeEach(() => { mockStore.clear(); apiFetch.mockReset(); });
 
-  it.each(['/care/specialties', '/labs/packages', '/labs/categories', '/radiology/modalities', '/home-care/catalog', '/locations/cities?region=1', '/catalogs/countries'])('%s is a public list', (p) => {
+  it.each(['/care/specialties', '/labs/packages', '/labs/categories', '/radiology/modalities', '/home-care/catalog', '/home-care/services', '/home-care/services?limit=200', '/home-care/packages', '/locations/cities?region=1', '/catalogs/countries'])('%s is a public list', (p) => {
     expect(isPublicList(p)).toBe(true);
   });
-  it.each(['/care/appointments', '/labs/bookings/1', '/users/me/profile', '/care/doctors?q=a', '/insurance/companies', '/labs/packages/12', '/auth/me'])('%s is never cached', (p) => {
+  it.each(['/care/appointments', '/labs/bookings/1', '/users/me/profile', '/care/doctors?q=a', '/insurance/companies', '/labs/packages/12', '/home-care/services/abc', '/home-care/bookings', '/auth/me'])('%s is never cached', (p) => {
     expect(isPublicList(p)).toBe(false);
   });
 

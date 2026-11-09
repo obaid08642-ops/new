@@ -2,7 +2,7 @@ import { Injectable, Logger, Optional } from '@nestjs/common';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { RedisService } from '../redis/redis.service';
-import { connectionFlagSource, isKilled } from '../../common/killswitches/killswitches.helper';
+import { connectionFlagSource, shouldDegrade } from '../../common/killswitches/killswitches.helper';
 import {
   ProductRankingMetrics,
   ProductRankingMetricsDocument,
@@ -532,7 +532,7 @@ export class ProductRankingService {
     // Kill switch: serve the non-personalized default list (deterministic
     // catalog order, no behavior signals) and never hydrate the Redis ZSets
     // with degraded reads.
-    if (await isKilled('recommendations', connectionFlagSource(this.conn))) {
+    if (await shouldDegrade('recommendations', connectionFlagSource(this.conn))) {
       const { docs, count } = await this.mongoRanked(scope, { drug_id: 1 });
       return { drugIds: docs.map((d: any) => d.drug_id), total: count };
     }

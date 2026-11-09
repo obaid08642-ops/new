@@ -3,6 +3,7 @@ import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { trackingId, TRACK_PREFIX } from '../common/tracking';
 import { InsuranceDetails, InsuranceDetailsSchema } from './insurance.schema';
+import { halalaShadowPlugin } from '../common/halala-shadow';
 
 @Schema({ timestamps: true, collection: 'lab_services' })
 export class LabService extends Document {
@@ -119,6 +120,10 @@ export class LabBooking extends Document {
   @Prop({ default: [] }) reports: any[]; // [{name, url_base64, uploaded_at}]
   @Prop() technician_id?: string;
   @Prop() notes?: string;
+  /** Owner decision 1: the family member this is for; the booker (patient_id) is unchanged. Absent = for the booker. */
+  @Prop({ type: String, required: false, index: true }) family_member_id?: string;
+  /** The refund policy the patient agreed to before paying (common/refund-policy-acceptance.ts): the tick, its time and the policy version. */
+  @Prop({ type: Object, required: false }) refund_policy_acceptance?: { accepted: boolean; at: Date; version: string };
   /** P17-17.5: UTM campaign attribution (utm_source/medium/campaign/term/content). */
   @Prop({ type: Object, required: false }) attribution?: Record<string, string>;
   @Prop({ enum: ['cash', 'card', 'insurance'], default: 'cash' }) payment_method: string;
@@ -163,6 +168,9 @@ export class LabBooking extends Document {
   @Prop({ index: true }) status?: string;
 }
 export const LabBookingSchema = SchemaFactory.createForClass(LabBooking);
+// R11 P1: the booking's own SAR doubles get an integer `<field>_halalas` next to them (halalaShadowPlugin); the backfill uses the same list.
+export const LAB_BOOKING_HALALA_FIELDS = ['total', 'service_fee', 'home_visit_fee', 'transportation_fee', 'total_price', 'insurance_copay'];
+halalaShadowPlugin(LabBookingSchema, LAB_BOOKING_HALALA_FIELDS);
 LabBookingSchema.index({ patient_id: 1, createdAt: -1 });
 LabBookingSchema.index({ state: 1, scheduled_at: 1 });
 

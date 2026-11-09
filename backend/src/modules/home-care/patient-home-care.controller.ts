@@ -143,10 +143,11 @@ export class PatientHomeCareController {
       scheduled_at: body.scheduled_at,
       notes: body.notes,
       payment_method: body.payment_method,
+      refund_policy_accepted: body.refund_policy_accepted,
       provider_id: body.provider_id,
       contact: body.contact,
       sessions_count: body.sessions_count,
-      booking_mode: body.booking_mode, recurrence: body.recurrence, hours: body.hours, shift: body.shift, period: body.period,
+      booking_mode: body.booking_mode, recurrence: body.recurrence, hours: body.hours, shift: body.shift, period: body.period, days: body.days,
       ...(body.address ? { address: body.address } : body.address_id ? { address: { address_id: body.address_id } } : {}),
     });
     const { _id, ...out } = booking as any;

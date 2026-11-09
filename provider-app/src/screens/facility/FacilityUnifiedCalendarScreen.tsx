@@ -7,17 +7,26 @@ import client from '../../api/client';
 
 export function FacilityUnifiedCalendarScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
   const [events, setEvents] = useState<any[]>([]);
   const [actingId, setActingId] = useState<string | null>(null);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   React.useEffect(() => {
     client.get('/provider/facility/calendar')
-      .then(res => setEvents(res.data || []))
-      .catch(() => setEvents([]));
+      // the server returns scheduled_at / patient_id / provider_id / service_type / status (no names): map them to what the card shows
+      .then(res => setEvents((Array.isArray(res.data) ? res.data : []).map((e: any) => ({
+        ...e,
+        time: e.time || (e.scheduled_at ? new Date(e.scheduled_at).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''),
+        patient: e.patient || e.patient_name || (e.patient_id ? String(e.patient_id).slice(0, 8) : '—'),
+        resource: e.resource || e.service_type || '—',
+        provider: e.provider || e.provider_name || (e.provider_id ? String(e.provider_id).slice(0, 8) : '—'),
+        type: e.type || (e.kind === 'surgery' || e.kind === 'emergency' ? e.kind : 'consultation'),
+      }))))
+      .catch(() => { setEvents([]); setLoadFailed(true); });
   }, []);
 
   async function act(id: string, action: 'confirm' | 'cancel') {
@@ -47,6 +56,7 @@ export function FacilityUnifiedCalendarScreen({ onBack }: { onBack: () => void }
 
       <NScroll>
         <View style={{ padding: SP.xl }}>
+          {loadFailed && events.length === 0 ? <Text style={{ textAlign: 'center', color: theme.danger, marginVertical: SP.xl }}>{t('pa3.facilityCalendar.1')}</Text> : null}
           {events.map(ev => (
             <NCard key={ev.id} style={{ marginBottom: SP.md, borderLeftWidth: 4, borderLeftColor: ev.type === 'surgery' ? theme.warn : ev.type === 'emergency' ? theme.danger : theme.primary }}>
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>

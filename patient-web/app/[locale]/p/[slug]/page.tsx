@@ -33,6 +33,7 @@ import { ProductSections, type DetailGroup, type DetailSection } from "@/compone
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
 import { englishNameUnder } from "@/lib/english-name-under";
 import styles from "@/components-next/pharmacy/product-detail.module.css";
+import { FILL_PRESCRIPTION } from "@/components-next/ui-generated/icons/glyphs/prescription";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -399,7 +400,7 @@ export default async function PublicProductPage({ params }: Props) {
 
                 {product.is_rx ? (
                   <div className={styles.rxCard}>
-                    <FIcon icon="prescription" tone={PHARMACY_TONE} size={44} />
+                    <FIcon icon="prescription" glyph={FILL_PRESCRIPTION} tone={PHARMACY_TONE} size={44} />
                     <div className={styles.rxBody}>
                       <p className={styles.rxTitle}>{b("rxCardTitle")}</p>
                       <p className={styles.rxText}>{b("rxCardBody")}</p>

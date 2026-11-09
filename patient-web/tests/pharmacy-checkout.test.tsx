@@ -405,7 +405,9 @@ describe("the checkout screen", () => {
     expect(html).toContain("Shown with each offer");
     // the cart holds no price, so nothing here can be added up or drawn as money
     expect(html).not.toMatch(/55\.00|12\.50|30\.00|SAR/);
-    expect(html).not.toMatch(/<input/);
+    // the only field is the refund policy tick (the backend refuses an order without the agreement); no text, card or identity field
+    expect(html).toContain("I have read the refund policy and I agree to it");
+    expect(html.replace(/<input[^>]*type="checkbox"[^>]*>/g, "")).not.toMatch(/<input/);
     expect(html).not.toMatch(/national|iqama|policy number|card number|cvv/i);
     expect(html).not.toContain("style=");
     // nothing can be sent before the address and the prescription have been read

@@ -47,8 +47,11 @@ export function DoctorLeavesScreen({ onBack }: { onBack: () => void }) {
     if (!start || !end) { show(AR ? 'حدد تاريخ البداية والنهاية' : 'Set start and end dates', 'error'); return; }
     setSaving(true);
     try {
-      await client.post('/provider/ops/doctor/leave', { start_date: start, end_date: end, type, note: note || undefined });
-      show(AR ? 'أُضيفت الإجازة — لن يستطيع المرضى الحجز فيها' : 'Leave added — patients cannot book during it', 'success');
+      const res: any = await client.post('/provider/ops/doctor/leave', { start_date: start, end_date: end, type, note: note || undefined });
+      // a doctor linked to a facility waits for the facility: patients can book those days until it approves
+      show(res?.data?.leave?.status === 'pending_facility'
+        ? (AR ? 'أُرسل طلب الإجازة إلى المنشأة، ولن تُحجب الأيام قبل موافقتها' : 'Leave sent to your facility; the days are blocked once it approves')
+        : (AR ? 'أُضيفت الإجازة — لن يستطيع المرضى الحجز فيها' : 'Leave added — patients cannot book during it'), 'success');
       setStart(''); setEnd(''); setNote('');
       load();
     } catch (e: any) {
@@ -150,7 +153,7 @@ export function PrescriptionTemplatesScreen({ onBack }: { onBack: () => void }) 
     try {
       const parsed = items.split('\n').filter(Boolean).map((line) => {
         const [med, dose] = line.split(' - ');
-        return { med: (med || '').trim(), dose: (dose || '').trim() };
+        return { name: (med || '').trim(), dose: (dose || '').trim() };   // the same shape the e-prescription screen saves and reads
       });
       await client.post('/provider/ops/doctor/templates', { name: name.trim(), items: parsed });
       show(AR ? 'حُفظ القالب' : 'Template saved', 'success');
@@ -191,7 +194,7 @@ export function PrescriptionTemplatesScreen({ onBack }: { onBack: () => void }) 
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{t.name}</Text>
                 <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
-                  {(t.items || []).map((i: any) => `${i.med}${i.dose ? ` (${i.dose})` : ''}`).join(' + ')}
+                  {(t.items || []).map((i: any) => `${i.name || i.med || ''}${i.dose ? ` (${i.dose})` : ''}`).join(' + ')}
                 </Text>
                 {t.usage_count > 0 && <NBadge label={`${AR ? 'استُخدم' : 'used'} ×${t.usage_count}`} variant="info" size="xs" />}
               </View>

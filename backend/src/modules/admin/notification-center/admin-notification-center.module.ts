@@ -28,6 +28,7 @@ import { PushModule, PushService } from '../../push/push.module';
 import { compileSegment } from '../enterprise/segments.engine';
 
 import { Permission, RequirePermissions } from '../../../common/permissions';
+import { ScheduledOnce } from '../../../common/scheduled-once';
 // ── Schema ────────────────────────────────────────────────────────────
 
 @Schema({ timestamps: true })
@@ -212,7 +213,9 @@ export class AdminNotificationCenterService {
     if (!c) throw new NotFoundException('Campaign not found');
     if (c.status === 'sent' || c.status === 'sending') return { ok: false, reason: `already_${c.status}` };
     const filter = await this.segmentFilter(c.segment);
-    const targeted = await this.users.countDocuments({ ...filter, id: { $exists: true } });
+    // $and, not a spread: a `user:<id>` audience is { id }, and `{ ...filter, id: {...} }` replaced it with the paging condition,
+    // so a message meant for one person was counted for, and sent to, every user
+    const targeted = await this.users.countDocuments({ $and: [filter, { id: { $exists: true } }] });
     if (targeted === 0) {
       await this.campaigns.updateOne({ id }, { $set: { status: 'failed', last_error: 'campaign audience is empty', updatedAt: new Date() } });
       throw new BadRequestException('campaign audience is empty');
@@ -238,6 +241,7 @@ export class AdminNotificationCenterService {
    * one page in flight is queued again (same job ids, so the queue skips those it still holds).
    */
   @Interval(10_000)
+  @ScheduledOnce({ holdMs: 4000 })
   async runFanouts(): Promise<void> {
     if (this.fanoutRunning) return;
     this.fanoutRunning = true;
@@ -278,7 +282,7 @@ export class AdminNotificationCenterService {
     let cursor: string | null = c.fanout?.cursor ?? null;
     for (;;) {
       const page = await this.users.find(
-        { ...filter, id: cursor === null ? { $exists: true } : { $gt: cursor } },
+        { $and: [filter, { id: cursor === null ? { $exists: true } : { $gt: cursor } }] },
         { projection: { id: 1, _id: 0 } },
       ).sort({ id: 1 }).limit(AdminNotificationCenterService.FANOUT_PAGE).toArray();
       const ids = page.map((u: any) => String(u.id)).filter(Boolean);
@@ -329,6 +333,7 @@ export class AdminNotificationCenterService {
   // ── Scheduler: due scheduled campaigns every minute ─────────────────
 
   @Cron(CronExpression.EVERY_MINUTE)
+  @ScheduledOnce()
   async runScheduledCampaigns() {
     const due = await this.campaigns.find({
       status: 'scheduled',
@@ -342,6 +347,7 @@ export class AdminNotificationCenterService {
   // ── Reminders: appointments 24h ahead ───────────────────────────────
 
   @Cron(CronExpression.EVERY_HOUR)
+  @ScheduledOnce()
   async appointmentReminders() {
     const now = Date.now();
     const in24h = new Date(now + 24 * 3600 * 1000);
@@ -382,6 +388,7 @@ export class AdminNotificationCenterService {
   // ── Retargeting: stale carts / unpaid orders (48h cooldown) ─────────
 
   @Cron(CronExpression.EVERY_6_HOURS)
+  @ScheduledOnce()
   async retargetIncompleteOrders() {
     const cooldown = new Date(Date.now() - 48 * 3600 * 1000);
     const staleSince = new Date(Date.now() - 24 * 3600 * 1000);

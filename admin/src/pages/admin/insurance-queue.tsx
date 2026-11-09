@@ -14,6 +14,10 @@ const STATE_AR: Record<string, { ar: string; cls: string }> = {
   COPAY_PENDING: { ar: 'بانتظار copay', cls: 'bg-blue-100 text-blue-700' },
   COPAY_PAID: { ar: 'تم الدفع', cls: 'bg-green-100 text-green-700' },
   REJECTED: { ar: 'مرفوض', cls: 'bg-red-100 text-red-700' },
+  APPROVED_PARTIAL: { ar: 'قبول جزئي', cls: 'bg-green-100 text-green-700' },
+  APPEAL_PENDING: { ar: 'استئناف قيد المراجعة', cls: 'bg-amber-100 text-amber-700' },
+  EXPIRED: { ar: 'منتهي', cls: 'bg-slate-100 text-slate-600' },
+  CANCELLED: { ar: 'ملغى', cls: 'bg-slate-100 text-slate-600' },
 };
 
 export default function InsuranceQueuePage() {
@@ -29,8 +33,8 @@ export default function InsuranceQueuePage() {
     setError(null);
     try {
       const [s, r] = await Promise.all([
-        apiFetch('/api/admin/admin/insurance/stats').catch(() => null),
-        apiFetch(`/api/admin/admin/insurance/requests${stateFilter ? `?state=${stateFilter}` : ''}`).catch(() => []),
+        apiFetch('/api/admin/admin/insurance/stats'),   // a failure reaches the error below; it used to look like an empty queue
+        apiFetch(`/api/admin/admin/insurance/requests${stateFilter ? `?state=${stateFilter}` : ''}`),
       ]);
       setStats(s);
       setRequests(Array.isArray(r) ? r : r?.data || []);
@@ -65,6 +69,8 @@ export default function InsuranceQueuePage() {
             {statCard('COPAY_PENDING', 'بانتظار دفع المريض', 'text-blue-600')}
             {statCard('COPAY_PAID', 'مدفوع — جاهز للخدمة', 'text-green-600')}
             {statCard('APPROVED_FULL', 'قبول كلي', 'text-green-700')}
+            {statCard('APPROVED_PARTIAL', 'قبول جزئي', 'text-green-700')}
+            {statCard('APPEAL_PENDING', 'استئناف قيد المراجعة', 'text-amber-600')}
             {statCard('REJECTED', 'مرفوض', 'text-red-600')}
           </div>
 
@@ -127,7 +133,7 @@ export default function InsuranceQueuePage() {
                 ['الحالة', (STATE_AR[selectedReq.state] || {}).ar || selectedReq.state],
                 ['مرجع القرار', selectedReq.approval_ref || '—'],
                 ['التاريخ', selectedReq.createdAt ? new Date(selectedReq.createdAt).toLocaleString(dateLocale(), { hour12: false, numberingSystem: 'latn' }) : '—'],
-                ['ملاحظات', selectedReq.note || selectedReq.notes || '—'],
+                ['ملاحظات', selectedReq.rejection_reason || selectedReq.note || selectedReq.notes || '—'],
               ].map(([k, v]) => (
                 <div key={String(k)} className="flex justify-between gap-4 border-b border-slate-50 pb-1.5">
                   <span className="text-slate-500">{k}</span>

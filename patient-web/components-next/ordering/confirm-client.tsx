@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { RefundPolicyTick } from "@/components-next/refund-policy/refund-policy-tick";
+import { withRefundPolicy } from "@/lib/refund-policy";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
@@ -20,7 +22,7 @@ import { useOrderLines } from "./use-order-lines";
 import styles from "./ordering.module.css";
 import { UploadsGate } from "@/components-next/uploads/uploads-provider";
 
-type Props = { locale: string; kind: ServiceKind; place: OrderMode; pay: Payer; item?: string; orders: MedicalOrder[] | null; prep: Record<string, string[]> };
+type Props = { locale: string; kind: ServiceKind; place: OrderMode; pay: Payer; who?: string; item?: string; orders: MedicalOrder[] | null; prep: Record<string, string[]> };
 type Doc = { filename: string; data: string };
 
 const keyOf = (e: unknown) => (e instanceof OrderingApiError ? (e.code === "network" ? "errNetwork" : orderingErrorKey(e.code)) : "errGeneric");
@@ -32,7 +34,7 @@ const r2 = (n: number) => Math.round(n * 100) / 100;
  * booking's own total on the server (POST /payments/intent/lab/:id takes no amount). The booking group is created once (the quote can be
  * used once: the server answers 409 `quote_already_booked` to a repeat) and each payment tap is guarded against a second submit.
  */
-export function ConfirmClient({ locale, kind, place, pay, item, orders, prep }: Props) {
+export function ConfirmClient({ locale, kind, place, pay, who, item, orders, prep }: Props) {
   const t = useTranslations("OrderingFlow");
   const router = useRouter();
   // a one-item order ("Order now") leaves the cart alone: `remove` does nothing then
@@ -47,6 +49,8 @@ export function ConfirmClient({ locale, kind, place, pay, item, orders, prep }: 
   const [phase, setPhase] = useState<"idle" | "creating" | "paying">("idle");
   const [payingId, setPayingId] = useState<string | null>(null);
   const [errorKey, setErrorKey] = useState<string | null>(null);
+  // the refund policy is shown before the booking is made and agreed here (the backend refuses a booking without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
   const [failedId, setFailedId] = useState<string | null>(null);
   const busy = useRef(false);
   const attempts = useRef(0);
@@ -64,7 +68,7 @@ export function ConfirmClient({ locale, kind, place, pay, item, orders, prep }: 
   const eligible = useMemo(() => (orders ?? []).filter((o) => orderCovers(o, allIds)), [orders, allIds]);
   useEffect(() => { if (insured && eligible.length === 1) setOrderId((cur) => cur ?? eligible[0].id); }, [insured, eligible]);
 
-  const timeHref = `/${locale}/labs/when${contextQuery({ kind, place, pay, item })}`;
+  const timeHref = `/${locale}/labs/when${contextQuery({ kind, place, pay, item, who })}`;
   if (choice === undefined) return <QuoteLoading label={t("whenLoading")} />;
   if (!choice || !schedule || modes.length === 0 || modes.some((m) => !schedule[m])) {
     return <EmptyState icon={SERVICE_ICONS.lab.icon} tone={SERVICE_ICONS.lab.tone} title={t("payNoTimeTitle")} body={t("payNoTimeSub")} actionLabel={t("payBackTime")} onAction={() => router.push(timeHref)} />;
@@ -105,13 +109,13 @@ export function ConfirmClient({ locale, kind, place, pay, item, orders, prep }: 
   const submit = async () => {
     if (busy.current || !ready || result) return;
     const body = kind === "radiology"
-      ? buildRadiologyRequests({ schedule, home: choice.home, facility: choice.facility, groups: choice.groups, insured, evidence })
-      : buildBookingRequest({ schedule, home: choice.home, facility: choice.facility, insured, gender: modes.includes("home") ? gender : undefined, evidence });
+      ? buildRadiologyRequests({ schedule, home: choice.home, facility: choice.facility, groups: choice.groups, insured, evidence, familyMemberId: who })
+      : buildBookingRequest({ schedule, home: choice.home, facility: choice.facility, insured, gender: modes.includes("home") ? gender : undefined, evidence, familyMemberId: who });
     if (!body) { setErrorKey("errGeneric"); return; }
     busy.current = true; setPhase("creating"); setErrorKey(null);
     try {
       // labs on the ordering route, radiology on the radiology booking route (one booking per scan), the same sheet either way
-      const made = Array.isArray(body) ? await createRadiologyBookings(body, postRadiologyBooking) : await createBooking(body);
+      const made = Array.isArray(body) ? await createRadiologyBookings(body, postRadiologyBooking) : await createBooking(withRefundPolicy(body));
       setResult(made);
       for (const id of allIds) remove(kind, id);
       try { window.sessionStorage.removeItem(SELECTION_KEY); window.sessionStorage.removeItem(SCHEDULE_KEY); } catch { /* nothing to clear */ }
@@ -262,7 +266,8 @@ export function ConfirmClient({ locale, kind, place, pay, item, orders, prep }: 
         {!insured ? <p className={styles.sub}>{t("paySecure")}</p> : null}
         {phase === "creating" ? <div className={styles.note} role="status"><strong>{t("payProcessing")}</strong><p className={styles.sub}>{t("payProcessingSub")}</p></div> : null}
         {errorKey && phase !== "paying" ? <p className={styles.errorBox} role="alert">{t(errorKey)}</p> : null}
-        <button type="button" className={`${styles.linkBtn} ${styles.cta}`} disabled={!ready || phase !== "idle"} aria-busy={phase !== "idle"} onClick={submit}>{ready ? btn : t("payBtnOff")}</button>
+        <RefundPolicyTick locale={locale} checked={refundAgreed} onChange={setRefundAgreed} />
+        <button type="button" className={`${styles.linkBtn} ${styles.cta}`} disabled={!ready || !refundAgreed || phase !== "idle"} aria-busy={phase !== "idle"} onClick={submit}>{ready ? btn : t("payBtnOff")}</button>
         <p className={styles.sub}>{t("payCancelFree")}</p>
       </section>
     </div>

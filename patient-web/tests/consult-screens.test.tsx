@@ -37,13 +37,8 @@ vi.mock("@/lib/api/doctors-server", () => ({ getPublicDoctors: server.doctors, g
 
 import AppointmentsPage from "@/app/[locale]/appointments/page";
 import AppointmentDetailPage from "@/app/[locale]/appointments/[appointmentId]/page";
-import AppointmentSummaryRedirect from "@/app/[locale]/appointments/[appointmentId]/summary/page";
-import FollowUpRedirect from "@/app/[locale]/consultations/follow-up/page";
-import PrescriptionRedirect from "@/app/[locale]/consultations/prescription/page";
-import ClinicLocationRedirect from "@/app/[locale]/consultations/clinic-location/page";
 import BookingStatusPage from "@/app/[locale]/consultations/booking-status/page";
 import CancelReschedulePage from "@/app/[locale]/consultations/cancel-reschedule/page";
-import ClinicConfirmRedirect from "@/app/[locale]/consultations/clinic-confirm/page";
 import DoctorsPage from "@/app/[locale]/consultations/doctors/page";
 import HomeVisitTrackingPage from "@/app/[locale]/consultations/home-visit-tracking/page";
 import WaitingRoomPage from "@/app/[locale]/consultations/virtual-waiting-room/page";
@@ -171,16 +166,6 @@ describe("the appointment screens", () => {
     expect(html).not.toContain("Follow-up recommended");
   });
 
-  it("the merged pages redirect and keep the query", async () => {
-    const go = async (fn: Promise<unknown>) => { try { await fn; } catch (error) { return (error as Error).message; } return "none"; };
-    expect(await go(AppointmentSummaryRedirect({ params: Promise.resolve({ locale: "en", appointmentId: ID }) }))).toBe(`redirect:/en/appointments/${ID}`);
-    expect(await go(FollowUpRedirect({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ id: ID }) }))).toBe(`redirect:/en/appointments/${ID}`);
-    expect(await go(PrescriptionRedirect({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID }) }))).toBe(`redirect:/en/appointments/${ID}`);
-    expect(await go(PrescriptionRedirect({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({}) }))).toBe("redirect:/en/appointments");
-    expect(await go(ClinicConfirmRedirect({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID, view: "location" }) }))).toBe(`redirect:/en/consultations/booking-status?appointmentId=${ID}&view=location`);
-    expect(await go(ClinicLocationRedirect({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID }) }))).toBe(`redirect:/en/consultations/booking-status?view=location&appointmentId=${ID}`);
-  });
-
   it("booking status, cancel and reschedule, clinic confirm and the waiting room read the one appointment and gate on its status", async () => {
     server.api.mockImplementation(async (path: string) => (path === "/system-config/public" ? json({ cancellation_policy: { full_hours: 24, half_hours: 12, half_refund_percent: 50 } }) : json(row({ slot_start: new Date(Date.now() + 48 * 3600000).toISOString(), cancellation: { refund_now: { percent: 100, amount: 115 } } }))));
     const status = render(await BookingStatusPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID }) }));
@@ -256,6 +241,23 @@ describe("the booking screen", () => {
     expect(html).toContain("Cash");
     expect(html).toContain("Home visit");
     expect(html).not.toContain("booking_failed");
+  });
+
+  it("PT-08: the booking offers a medical report request, worded as a request and never as sick leave", () => {
+    const html = render(<BookingFlow doctorId="doc-1" locale="en" doctor={{ id: "doc-1", name: "Doctor One", specialty: "Cardiology", price: 150, online: true, clinic: true, home: false, acceptsInsurance: false }} />);
+    expect(html).toContain("I need a medical report with a recommended rest period");
+    expect(html).toContain("A request to the doctor, who decides. It is not a guarantee.");
+    expect(html.replace("Official sick leave is issued through Seha.", "")).not.toMatch(/sick leave/i);
+  });
+
+  it("PT-03: a guardian booking for a family member sees who the visit is for and can switch back to themselves; without a member there is neither", () => {
+    const doctor = { id: "doc-1", name: "Doctor One", specialty: "Cardiology", price: 150, online: true, clinic: true, home: false, acceptsInsurance: false };
+    const forMember = render(<BookingFlow doctorId="doc-1" locale="en" doctor={doctor} bookingFor={{ id: "member-1", name: "Test Child" }} />);
+    expect(forMember).toContain("Booking for Test Child");
+    expect(forMember).toContain("Book for myself instead");
+    const forSelf = render(<BookingFlow doctorId="doc-1" locale="en" doctor={doctor} />);
+    expect(forSelf).not.toContain("Booking for");
+    expect(forSelf).not.toContain("Book for myself instead");
   });
 
   it("shows the cancellation and refund terms before the payment card when the page passes them (decision 26)", () => {

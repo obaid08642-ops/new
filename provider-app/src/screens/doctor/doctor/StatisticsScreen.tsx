@@ -72,7 +72,8 @@ export function StatisticsScreen({ onBack }: { onBack: () => void }) {
  const BAR_DATA: number[] = Array.isArray(stats?.series) ? stats.series : [];
  const maxBar = BAR_DATA.length ? Math.max(...BAR_DATA) : 1;
  const LABELS_WEEK = AR ? ['أحد','اثن','ثلا','أرب','خمس','جمع','سبت'] : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
- const LABELS_MONTH = AR ? Array.from({length:12},(_,i)=>`${i+1}`) : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+ // the month and year charts are 12 rolling slices of the period, not calendar months: number them instead of naming months
+ const LABELS_MONTH = Array.from({length:12},(_,i)=>`${i+1}`);
  const LABELS = period === 'week' ? LABELS_WEEK : LABELS_MONTH;
  const SERVICE_LABELS: Record<string, { ar: string; en: string }> = {
    consultation: { ar: 'استشارة', en: 'Consultation' },

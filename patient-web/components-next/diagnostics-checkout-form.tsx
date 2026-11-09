@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { RefundPolicyTick } from "@/components-next/refund-policy/refund-policy-tick";
+import { withRefundPolicy } from "@/lib/refund-policy";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import consult from "@/components-next/consult/consult.module.css";
 import rx from "@/components-next/pharmacy/rx.module.css";
@@ -61,6 +63,8 @@ export function DiagnosticsCheckoutForm({
   const [insuranceProvider, setInsuranceProvider] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  // the refund policy is shown before the order is made and agreed here (the backend refuses an order without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
 
   const allowedMethods = initialLocation === "home" ? ["card", "insurance"] : ["cash", "card", "insurance"];
 
@@ -93,7 +97,7 @@ export function DiagnosticsCheckoutForm({
           "content-type": "application/json",
           "idempotency-key": `web-diag-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
         },
-        body: JSON.stringify({
+        body: JSON.stringify(withRefundPolicy({
           lines: items.map((service_id) => ({
             kind: service_id.startsWith("rad_") ? "radiology" : "lab",
             service_id: service_id.replace(/^(rad_|lab_)/, ""),
@@ -102,7 +106,7 @@ export function DiagnosticsCheckoutForm({
           scheduled_at: scheduled.toISOString(),
           location_type: initialLocation,
           payment_method: method,
-        }),
+        })),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
@@ -128,7 +132,7 @@ export function DiagnosticsCheckoutForm({
         });
         const payData = await payRes.json().catch(() => null);
         if (!payRes.ok) {
-          setError((payData as { message?: string })?.message || t("errPay"));
+          setError(/payment_gateway_not_configured|payment_return_url_not_configured|payment_gateway_unavailable/i.test(String((payData as { message?: unknown } | null)?.message ?? "")) ? t("errPayDown") : t("errPay"));
           return;
         }
         const checkoutUrl = (payData as { checkout_url?: string })?.checkout_url;
@@ -207,7 +211,8 @@ export function DiagnosticsCheckoutForm({
       ) : null}
 
       {error ? <p className={consult.error} role="alert">{error}</p> : null}
-      <Button type="submit" label={saving ? t("checkoutSaving") : t("checkoutConfirm")} size="lg" fullWidth loading={saving} disabled={saving} />
+      <RefundPolicyTick locale={locale} checked={refundAgreed} onChange={setRefundAgreed} />
+      <Button type="submit" label={saving ? t("checkoutSaving") : t("checkoutConfirm")} size="lg" fullWidth loading={saving} disabled={saving || !refundAgreed} />
     </form>
   );
 }

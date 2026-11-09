@@ -81,6 +81,8 @@ def register_pharmacy():
     step('verification code emailed', code, 'no mail')
     r = c.post('/provider/auth/verify-email', {'email': email, 'code': code})
     step('verify email', r.ok, r)
+    r = c.post('/legal/accept/provider_agreement', {})
+    step('the provider reads and accepts the provider agreement', r.ok, r)
     r = c.post('/provider-onboarding/submit', {'signer_name': 'مدير صيدلية اختبار', 'signer_role': 'owner', 'lat': loc['lat'], 'lng': loc['lng'], 'signature_url': sig, 'full_data': {'nameAr': 'صيدلية الاختبار الحي', 'city': 'الرياض'}})
     step('submit for review', r.ok, r)
     r = c.get('/provider-onboarding/progress')
@@ -247,6 +249,8 @@ def register_type(ptype, overrides=None):
     code = mail_code(email, t0)
     r = c.post('/provider/auth/verify-email', {'email': email, 'code': code})
     step('email verified', r.ok, r)
+    r = c.post('/legal/accept/provider_agreement', {})
+    step('the provider reads and accepts the provider agreement', r.ok, r)
     r = c.post('/provider-onboarding/submit', {'signer_name': f'مسؤول {ptype}', 'signer_role': 'owner', 'lat': 24.7, 'lng': 46.7, 'signature_url': sig, 'full_data': {}})
     step('submit for review', r.ok, r)
     return {'email': email, 'password': pw, 'token': tok, 'type': ptype}

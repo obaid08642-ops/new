@@ -1,3 +1,4 @@
+import { applyCredentialTypes } from '../credential-changes';
 import { v4 as uuidv4 } from 'uuid';
 import { Injectable, BadRequestException, ConflictException, NotFoundException, ForbiddenException, Inject, Optional } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -218,9 +219,12 @@ export class ProviderAdminService {
 
   async reject(user: any, id: string, body: any) {
     this.assertAdmin(user);
+    // G6: the applicant reads this reason on the status screen and fixes what it names before resubmitting, so a rejection always carries one (the admin page asks for 5 characters).
+    const reason = typeof body?.reason === 'string' ? body.reason.trim() : '';
+    if (reason.length < 5) throw new BadRequestException('rejection_reason_required');
     const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
-    await this.transition(a, ProviderAccountStatus.REJECTED, user, body?.reason);
-    a.rejection_reason = body?.reason || 'rejected';
+    await this.transition(a, ProviderAccountStatus.REJECTED, user, reason);
+    a.rejection_reason = reason;
     await a.save();
     await this.accounts.model.db.collection('provider_profiles').updateMany(
       { account_id: id, user_id: { $exists: true } },
@@ -444,6 +448,8 @@ export class ProviderAdminService {
     const accountId = delta.account_id || delta.provider_account_id || delta.user_id || delta.provider_id;
     let applied = 0;
     const target = (delta as any).target || 'profile';
+    // a reviewed credential change: the day string becomes the profile's Date; the audit keeps the old values
+    if (target === 'credentials') changes = applyCredentialTypes(changes);
     const db = this.accounts.model.db.collection.bind(this.accounts.model.db);
     if (target === 'settings' && (changes as any).settings_key) {
       const res = await db('provider_settings').updateOne(
@@ -547,6 +553,7 @@ export class ProviderAdminService {
       actor_id: user.id,
       actor_role: 'admin',
       action: 'admin.provider_delta_approved',
+      before: target === 'credentials' ? (delta.old_values ?? null) : undefined,
       after: { delta_id: id, changes }
     });
 

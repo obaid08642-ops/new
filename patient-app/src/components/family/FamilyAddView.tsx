@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Share, StyleSheet, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { CameraView, useCameraPermissions } from 'expo-camera';
@@ -11,16 +11,17 @@ import { message, step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { useCopy } from '../screen/useCopy';
+import { DEPENDANT_RELATIONS, dependantBody, readDependants, type DependantRelation, type DependantRow } from '../../utils/dependants';
 import { FAMILY_HUB, FamilyScreen } from './FamilyKit';
 
 /**
- * Add or join (merge map row F, `/family/add?tab=invite|join|scan`): Invite shows the group's invite as a code (default) or a QR code;
+ * Add or join (merge map row F, `/family/add?tab=invite|join|scan|child`): Invite shows the group's invite as a code (default) or a QR code;
  * Join with code takes a code and the relation; Scan QR reads an invite QR with the camera (its permission
  * handling is the old screen's). POST /family/invite and POST /family/join. The old /family/invite, /family/join,
  * /family/scan and /health/add-family-member redirect here with their query (a `code` opens Join with the code filled).
  */
 
-const TABS = ['invite', 'join', 'scan'] as const;
+const TABS = ['invite', 'join', 'scan', 'child'] as const;
 const INVITE_URL = 'https://nabdahplus.app/join/';
 const RELATIONS = ['spouse', 'child', 'parent', 'sibling', 'caregiver', 'other'] as const;
 
@@ -45,6 +46,7 @@ export function FamilyAddView() {
       {tab === 'invite' ? <InviteTab cache={invite} /> : null}
       {tab === 'join' ? <JoinTab /> : null}
       {tab === 'scan' ? <ScanTab /> : null}
+      {tab === 'child' ? <ChildTab /> : null}
     </FamilyScreen>
   );
 }
@@ -218,5 +220,84 @@ function ScanTab() {
       </View>
       {invalid ? <Notice tone="danger" text={k('family.scan.invalid')} /> : <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('family.scan.hint')}</Text>}
     </View>
+  );
+}
+
+/**
+ * Add a child (PT-03): a dependant with no account of their own, managed by the guardian who adds them (POST /family/dependants,
+ * the guardian's consent is part of the request). The guardian's dependants are listed with a way to remove each one; they then
+ * appear as people an order or a booking can be made for.
+ */
+function ChildTab() {
+  const { k, theme, t, c } = useScreenUi();
+  const [name, setName] = useState('');
+  const [birthDate, setBirthDate] = useState('');
+  const [relation, setRelation] = useState<DependantRelation | ''>('');
+  const [consent, setConsent] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+  const [rows, setRows] = useState<DependantRow[]>([]);
+
+  const load = useCallback(() => {
+    apiFetch<unknown>('/family/dependants')
+      .then((answer) => setRows(readDependants(answer)))
+      .catch((e) => logError('family:dependants:list', e));
+  }, []);
+  useEffect(() => { load(); }, [load]);
+
+  const body = dependantBody({ name, birthDate, relation, consent });
+
+  const add = async () => {
+    if (!body || saving) return;
+    setSaving(true);
+    setError(null);
+    setSaved(false);
+    try {
+      await apiFetch('/family/dependants', { method: 'POST', body: JSON.stringify(body) });
+      setSaved(true);
+      setName('');
+      setBirthDate('');
+      setRelation('');
+      setConsent(false);
+      load();
+    } catch (e) {
+      logError('family:dependants:add', e);
+      setError(String((e as { message?: unknown })?.message ?? '').includes('dependants_limit_reached') ? k('family.child.limit') : k('family.child.error'));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const remove = async (id: string) => {
+    try {
+      await apiFetch(`/family/dependants/${encodeURIComponent(id)}`, { method: 'DELETE' });
+      setRows((current) => current.filter((row) => row.id !== id));
+    } catch (e) {
+      logError('family:dependants:remove', e);
+      setError(k('family.child.error'));
+    }
+  };
+
+  return (
+    <>
+      <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary }}>{k('family.child.hint')}</Text>
+      <Input label={k('family.child.name')} value={name} onChange={(v) => setName(v.slice(0, 80))} theme={theme} testID="child-name" />
+      <Input label={k('family.child.birth')} placeholder={k('family.child.birthHint')} value={birthDate} onChange={setBirthDate} keyboardType="number" theme={theme} testID="child-birth" />
+      <Section title={k('family.child.relation')}>
+        <HealthTabs tabs={DEPENDANT_RELATIONS.map((key) => ({ key, label: k(`family.relation.${key}`) }))} value={relation as DependantRelation} onChange={(v) => setRelation(v === relation ? '' : v)} testID="child-relation" />
+      </Section>
+      <HealthTabs tabs={[{ key: 'consent', label: k('family.child.consent') }]} value={(consent ? 'consent' : '') as 'consent'} onChange={() => setConsent((on) => !on)} testID="child-consent" />
+      {error ? <Notice tone="danger" text={error} /> : null}
+      {saved ? <Notice tone="info" text={k('family.child.saved')} /> : null}
+      <Button label={k('family.child.save')} size="lg" fullWidth loading={saving} disabled={!body} onPress={() => void add()} theme={theme} testID="child-save" />
+      {rows.length > 0 ? (
+        <Section title={k('family.child.listTitle')}>
+          {rows.map((row) => (
+            <Row key={row.id} icon="users" tone="blue" title={row.name} trailing={<Button label={k('family.child.remove')} variant="outline" size="sm" onPress={() => void remove(row.id)} theme={theme} testID={`child-remove-${row.id}`} />} />
+          ))}
+        </Section>
+      ) : null}
+    </>
   );
 }

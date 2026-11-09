@@ -164,9 +164,9 @@ export function InsuranceRequestsScreen({ onBack }: { onBack: () => void }) {
                 <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: 4, textAlign: AR ? 'right' : 'left' }}>
                   {(AR ? 'السعر: ' : 'Price: ') + (req.price ?? '—') + (AR ? ' ر.س' : ' SAR')}
                 </Text>
-                {!!req.policy?.company && (
+                {!!(req.policy?.company_name || req.policy?.company) && (
                   <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: 4, textAlign: AR ? 'right' : 'left' }}>
-                    {(AR ? 'شركة التأمين: ' : 'Insurer: ') + req.policy.company}
+                    {(AR ? 'شركة التأمين: ' : 'Insurer: ') + (req.policy.company_name || req.policy.company)}
                   </Text>
                 )}
                 {req.state === 'COPAY_PENDING' && (

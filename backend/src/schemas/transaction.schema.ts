@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
+import { halalaShadowPlugin } from '../common/halala-shadow';
 
 export type TransactionDocument = Transaction & Document;
 
@@ -26,10 +27,14 @@ export class Transaction {
   @Prop() failure_reason?: string;
   @Prop() refund_reason?: string;
   @Prop() refunded_amount?: number;
+  /** R11 P1: integer halalas next to the doubles above, written by halalaShadowPlugin. */
+  @Prop() amount_halalas?: number;
+  @Prop() refunded_amount_halalas?: number;
   @Prop() paid_at?: Date;
   @Prop() refunded_at?: Date;
 }
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);
+halalaShadowPlugin(TransactionSchema, ['amount', 'refunded_amount']);
 TransactionSchema.index({ booking_kind: 1, booking_id: 1, createdAt: -1 });
 // At most one gateway-intent reservation may be active for a booking. Deployment
 // must run the duplicate-active-intent preflight documented in Phase 8 before

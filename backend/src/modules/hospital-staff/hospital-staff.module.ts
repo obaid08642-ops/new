@@ -11,7 +11,7 @@ import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
 import { User, UserSchema, UserDocument } from '../../schemas/user.schema';
 import { ProviderAccount, ProviderAccountSchema } from '../provider/schemas';
 import { UserRole } from '../../common/enums';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from '../../common/password-hash';
 import { v4 as uuid } from 'uuid';
 import { CreateDto, UpdateDto, SuspendStaffDto, ResetStaffPasswordDto } from './hospital-staff.dto';
 import { enforcePasswordPolicy } from '../../common/password-security.service';
@@ -96,7 +96,12 @@ export class HospitalStaffService {
     const staff = await this.users.findOne({ id: staffId });
     if (!staff) throw new NotFoundException('staff_not_found');
     if (acc && ![staff.get('parent_provider_account_id'), staff.get('parent_account_id')].includes(acc.id) && user.role !== UserRole.ADMIN) throw new ForbiddenException('not_owner');
-    await this.users.updateOne({ id: staffId }, { $set: { suspended } });
+    // X4: login and the guard read `active`, never `suspended`, so a suspended member kept working. `active` follows, and
+    // suspending ends the open sessions (token_version) at once.
+    await this.users.updateOne({ id: staffId }, { $set: { suspended, active: !suspended }, ...(suspended ? { $inc: { token_version: 1 } } : {}) });
+    if (suspended) {
+      await this.users.db.collection('provider_accounts').updateMany({ $or: [{ user_id: staffId }, { id: staffId }] }, { $inc: { token_version: 1 } }).catch(() => undefined);
+    }
     await this.audit(user, suspended ? 'facility_staff.suspended' : 'facility_staff.unsuspended', staffId, acc?.id);
     return { ok: true, suspended };
   }

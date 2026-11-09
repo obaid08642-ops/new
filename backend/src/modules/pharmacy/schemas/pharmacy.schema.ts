@@ -160,11 +160,19 @@ export class PharmacyOrder extends Document {
   };
   @Prop() patient_notes?: string;
   @Prop() prescription_id?: string;
+  /** Owner decision 1: the family member this is for; the booker (patient_id) is unchanged. Absent = for the booker. */
+  @Prop({ type: String, required: false, index: true }) family_member_id?: string;
+  /** The refund policy the patient agreed to before paying (common/refund-policy-acceptance.ts): the tick, its time and the policy version. */
+  @Prop({ type: Object, required: false }) refund_policy_acceptance?: { accepted: boolean; at: Date; version: string };
   /** P17-17.5: UTM campaign attribution (utm_source/medium/campaign/term/content). */
   @Prop({ type: Object, required: false }) attribution?: Record<string, string>;
   @Prop({ type: Object }) manual_request?: { name?: string; details?: string | null; qty?: number; photo_uri?: string };
   /** F73: draft fulfillment + payment mode. */
   @Prop({ type: String, enum: ['delivery', 'pickup'], default: 'delivery' }) fulfillment?: 'delivery' | 'pickup';
+  /** The delivery fee source of the chosen offer (delivery_mode is declared below, F's). */
+  @Prop({ type: String, default: null }) delivery_fee_source?: string | null;
+  /** The earlier order a patient's "refill" repeats (set on the new draft by PharmacyRefillService). */
+  @Prop({ type: String }) refill_of?: string;
   @Prop({ type: String, enum: ['cash', 'insurance'], default: 'cash' }) payment_mode?: 'cash' | 'insurance';
   @Prop() insurance_policy_id?: string;
   @Prop() delivery_address_id?: string;
@@ -201,6 +209,8 @@ export class PharmacyOrder extends Document {
   @Prop() selected_offer_version?: number;
   @Prop() selected_allocation_id?: string;
   @Prop() offer_selection_idempotency_key?: string;
+  /** who delivers and whose the delivery fee is: 'platform' | 'pharmacy_own', copied from the chosen offer at checkout (common/tax-registration.ts) */
+  @Prop({ enum: ['platform', 'pharmacy_own'] }) delivery_mode?: string;
   @Prop({ type: Object }) pricing_snapshot?: { offer_id: string; offer_version: number; totals: { subtotal: number; delivery_fee: number; total: number; currency: string }; captured_at: Date };
 
   // EXPLAINABILITY: full snapshot of the split decision
@@ -445,6 +455,9 @@ export class PharmacyOffer extends Document {
     delivery_option?: 'delivery' | 'pickup' | null;
     eta_minutes?: number | null;
     delivery_fee_source?: string;
+    /** Who delivers: the pharmacy's own couriers or the platform (null for pickup). The fee is the one the patient pays. */
+    delivery_mode?: 'pharmacy_own' | 'platform' | null;
+    delivery_fee?: number;
   };
   @Prop({ default: 'provider_capabilities_pharmacy' }) pricing_source: string;
   @Prop() created_by?: string;

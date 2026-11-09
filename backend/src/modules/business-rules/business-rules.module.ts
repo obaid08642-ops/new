@@ -6,11 +6,14 @@
  * ║   before creating or transitioning a booking.                  ║
  * ╚════════════════════════════════════════════════════════════════╝
  */
+import { appendAdminAudit } from '../../common/admin-audit-chain';
 import { PAYMENT_METHODS_BY_CONTEXT } from '../../common/payment-policy';
 import { Module, Controller, Post, Get, Body, UseGuards, Injectable, BadRequestException } from '@nestjs/common';
 import { InjectModel, InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
-import { JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
+import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
+import { validateReason, MIN_FINANCIAL_REASON_LENGTH } from '../../common/rbac';
+import { v4 as uuidv4 } from 'uuid';
 import { UserRole, ServiceDomain } from '../../common/enums';
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { UpdateSurgeDto, UpdateFeesDto, ValidateRulesDto } from './business-rules.dto';
@@ -129,8 +132,18 @@ export class BusinessRulesService {
     const v = Number(cfg?.service_types?.[serviceType]?.percent);
     return Number.isFinite(v) && v >= 0 && v <= 100 ? v : fallback;
   }
-  async updateSurgeConfig(config: UpdateSurgeDto) {
+  /** Who changed the pricing, why, and what it was before: one row in admin_actions_log (same shape as AdminAuditService). */
+  private async auditPricing(action: string, ctx: { admin: any; reason: string }, before: any, after: any) {
+    await appendAdminAudit(this.conn, {
+      id: uuidv4(), action, admin_id: ctx.admin?.id || 'unknown', admin_name: ctx.admin?.full_name || ctx.admin?.email || null,
+      admin_role: ctx.admin?.role || null, target_type: 'pricing_config', target_id: 'pricing', reason: ctx.reason,
+      before, after, meta: null, ip: null, user_agent: null, createdAt: new Date(),
+    }).catch(() => undefined);
+  }
+
+  async updateSurgeConfig(config: Omit<UpdateSurgeDto, 'reason'>, ctx?: { admin: any; reason: string }) {
     await this.loadPricing();
+    const before = { ...this.surgeConfig };
     // Copy only finite, bounded numeric fields; never reflect body strings or
     // arbitrary properties into the response/config.
     const next = { ...this.surgeConfig };
@@ -148,12 +161,14 @@ export class BusinessRulesService {
     }
     this.surgeConfig = next;
     await this.savePricing();
+    if (ctx) await this.auditPricing('pricing_surge_update', ctx, before, { ...next });
     return { ok: true };
   }
 
   /** P6.x-14: platform fee defaults (persisted; runtime consumers adopt per flow). */
-  async updateFees(fees: { delivery_fee?: number; service_fee?: number }) {
+  async updateFees(fees: { delivery_fee?: number; service_fee?: number }, ctx?: { admin: any; reason: string }) {
     await this.loadPricing();
+    const before = { ...this.feeDefaults };
     if (fees.delivery_fee !== undefined) {
       if (!Number.isFinite(fees.delivery_fee) || fees.delivery_fee < 0 || fees.delivery_fee > 1000) throw new BadRequestException('delivery_fee_out_of_range');
       this.feeDefaults.delivery_fee = fees.delivery_fee;
@@ -163,6 +178,7 @@ export class BusinessRulesService {
       this.feeDefaults.service_fee = fees.service_fee;
     }
     await this.savePricing();
+    if (ctx) await this.auditPricing('pricing_fees_update', ctx, before, { ...this.feeDefaults });
     return { ok: true, fees: this.feeDefaults };
   }
 
@@ -219,8 +235,9 @@ export class BusinessRulesService {
   // ─── PRICING (base + tax + insurance discount + surge) ──────────
   private computePricing(ctx: RuleContext, r: RuleResult) {
     const base = ctx.service?.price ?? 0;
-    const taxRate = 0.15; // KSA VAT
-    const tax = Math.round(base * taxRate * 100) / 100;
+    // VAT model A (owner, 2026-11-01): the service price carries no platform VAT (the provider is the supplier). Platform VAT is only on
+    // the delivery fee and the commission (common/tax-registration.ts `platformVatOf`); a rules context has neither, so none here.
+    const tax = 0;
     let insuranceDiscount = 0;
     if (ctx.insurance?.provider && r.meta.insurance_validated && r.ok) {
       // Flat 80% covered for insured services (simplified rule)
@@ -290,7 +307,10 @@ export class BusinessRulesController {
   @Roles(UserRole.ADMIN)
   @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   @Post('config/surge')
-  updateSurge(@Body() body: UpdateSurgeDto) { return this.svc.updateSurgeConfig(body); }
+  updateSurge(@Body() body: UpdateSurgeDto, @CurrentUser() admin: any) {
+    const { reason, ...rest } = body;
+    return this.svc.updateSurgeConfig(rest, { admin, reason: validateReason(reason, MIN_FINANCIAL_REASON_LENGTH) });
+  }
 
   /** P6.x-14: platform pricing (surge + fee defaults, persisted). */
   @Roles(UserRole.ADMIN)
@@ -300,7 +320,10 @@ export class BusinessRulesController {
   @Roles(UserRole.ADMIN)
   @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   @Post('config/fees')
-  updateFees(@Body() body: UpdateFeesDto) { return this.svc.updateFees(body); }
+  updateFees(@Body() body: UpdateFeesDto, @CurrentUser() admin: any) {
+    const { reason, ...rest } = body;
+    return this.svc.updateFees(rest, { admin, reason: validateReason(reason, MIN_FINANCIAL_REASON_LENGTH) });
+  }
 
   @SelfService()
   @Post('validate') validate(@Body() body: ValidateRulesDto) { return this.svc.validate(body); }

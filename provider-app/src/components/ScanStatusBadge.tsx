@@ -1,11 +1,12 @@
 import React from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import { useLang, useTheme } from '../context';
-import { FS, FW, R, SP, TR } from '../constants';
+import { FS, FW, R, SP } from '../constants';
+import { translate, type Lang } from '../i18n';
 import type { ScanState } from '../utils/scanStatus';
 
 /** The two sentences, for a toast or a line of text (they live in TR so the screens do not repeat them). */
-export const scanText = (lang: 'ar' | 'en', key: 'scanChecking' | 'scanRejected' | 'scanUploadAnother'): string => TR[lang][key];
+export const scanText = (lang: Lang, key: 'scanChecking' | 'scanRejected' | 'scanUploadAnother'): string => translate(lang, `common.${key}`);
 
 /**
  * The state of an uploaded file that is not simply ready: "Being checked for safety" with a small spinner while the scan runs, and
@@ -40,7 +41,7 @@ export function ScanStatusBadge({ state, onReupload, style }: { state: ScanState
  * After an upload or a failed upload: tell the person, without treating "being checked" as an error. Returns true when the request
  * error was the scanner refusing the file (the rejection sentence was shown), so the caller does not show a second message.
  */
-export function announceScan(show: (msg: string, type?: 'success' | 'error' | 'warning' | 'info') => void, lang: 'ar' | 'en', state: ScanState): boolean {
+export function announceScan(show: (msg: string, type?: 'success' | 'error' | 'warning' | 'info') => void, lang: Lang, state: ScanState): boolean {
   if (state === 'pending') { show(scanText(lang, 'scanChecking'), 'info'); return false; }
   if (state === 'rejected') { show(scanText(lang, 'scanRejected'), 'error'); return true; }
   return false;

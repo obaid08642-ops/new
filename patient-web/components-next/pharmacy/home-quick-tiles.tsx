@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { visibleItems, type DisabledModules } from "@/lib/modules";
-import { OrderAgainCard } from "./order-again-card";
+import { OrderAgainGate } from "./order-again-gate";
 import { PHARMACY_TONE } from "./tones";
 import styles from "./pharmacy.module.css";
+import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
 /**
  * Home, under the services: Reminders and My orders as two quick tiles (moved from the pharmacy page, owner layout
@@ -25,13 +25,13 @@ export function HomeQuickTiles({ locale, disabled, labels }: { locale: string; d
         {items.map((item) => (
           <li key={item.key}>
             <Link className={styles.hubTile} href={item.href}>
-              <FIcon icon={item.icon} tone={item.tone} size={42} />
+              <FIconByName icon={item.icon} tone={item.tone} size={42} />
               <span className={styles.hubLabel}>{item.label}</span>
             </Link>
           </li>
         ))}
       </ul>
-      <OrderAgainCard locale={locale} />
+      <OrderAgainGate locale={locale} />
     </section>
   );
 }

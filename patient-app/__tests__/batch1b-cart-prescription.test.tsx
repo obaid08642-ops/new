@@ -247,7 +247,7 @@ describe('Order with a prescription: the photo and upload ways in (board RxUploa
     expect(mockApiFetch.mock.calls.filter(([p]) => p !== '/prescriptions/active')).toEqual([]);
   });
 
-  it('nothing is sent until the photo is chosen and the button is pressed; then it reads, saves and opens the prescription', async () => {
+  it('nothing is sent until the photo is chosen and the button is pressed; then it reads, shows the lines, and saves the confirmed ones', async () => {
     mockPickerPermission.mockResolvedValue({ granted: true });
     mockLaunchLibrary.mockResolvedValue({ canceled: false, assets: [{ uri: 'file://rx.jpg', base64: 'QUJD' }] });
     mockApiFetch.mockImplementation(async (p: string) => (p === '/ai/prescription-ocr' ? { items: [{ name: 'دواء' }] } : p === '/prescriptions/upload' ? { id: 'rx-new' } : p === '/prescriptions/active' ? [] : {}));
@@ -258,11 +258,15 @@ describe('Order with a prescription: the photo and upload ways in (board RxUploa
     expect(mockApiFetch.mock.calls.filter(([p]) => p !== '/prescriptions/active')).toEqual([]);
     await fireEvent.changeText(screen.getByTestId('scan-note'), 'بديل أرخص');
     await fireEvent.press(screen.getByTestId('scan-save'));
+    // PT-27: the reading is shown for correction first; nothing is saved until the patient confirms
+    await waitFor(() => expect(screen.getByTestId('scan-confirm')).toBeTruthy());
+    expect(mockApiFetch.mock.calls.find(([p]) => p === '/prescriptions/upload')).toBeUndefined();
+    await fireEvent.press(screen.getByTestId('scan-confirm'));
     await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith({ pathname: '/pharmacy/rx-order', params: { prescriptionId: 'rx-new' } }));
     const upload = mockApiFetch.mock.calls.find(([p]) => p === '/prescriptions/upload');
     const body = JSON.parse((upload?.[1] as { body: string }).body);
     expect(body.upload_image).toBe('data:image/jpeg;base64,QUJD');
-    expect(body.items).toEqual([{ name: 'دواء' }]);
+    expect(body.items).toEqual([{ name: 'دواء', quantity: 1 }]);
     expect(body.notes).toContain('بديل أرخص');
   });
 
@@ -290,6 +294,7 @@ describe('Order with a prescription: type the names (the old manual request)', (
     mockParams = { via: 'type' };
     await render(wrap(<RxOrder />));
     await waitFor(() => expect(screen.getByText('المنزل')).toBeTruthy());
+    await fireEvent.press(screen.getByTestId('refund-policy-agree'));
     await fireEvent.changeText(screen.getByTestId('request-name'), 'بن');
     expect(screen.getByText(T('pharmacy.request.nameHint'))).toBeTruthy();
     await fireEvent.press(screen.getByTestId('request-submit'));
@@ -309,6 +314,7 @@ describe('Order with a prescription: type the names (the old manual request)', (
     mockParams = { via: 'type' };
     await render(wrap(<RxOrder />));
     await waitFor(() => expect(screen.getByText('بلا موقع')).toBeTruthy());
+    await fireEvent.press(screen.getByTestId('refund-policy-agree'));
     await fireEvent.changeText(screen.getByTestId('request-name'), 'بنادول');
     await fireEvent.press(screen.getByTestId('request-submit'));
     await waitFor(() => expect(screen.getByText(T('pharmacy.request.noLocation'))).toBeTruthy());
@@ -321,6 +327,7 @@ describe('Order with a prescription: type the names (the old manual request)', (
     mockParams = { via: 'type' };
     await render(wrap(<RxOrder />));
     await waitFor(() => expect(screen.getByText('المنزل')).toBeTruthy());
+    await fireEvent.press(screen.getByTestId('refund-policy-agree'));
     await fireEvent.changeText(screen.getByTestId('request-name'), 'بنادول');
     await fireEvent.press(screen.getByTestId('request-submit'));
     await waitFor(() => expect(screen.getByText(T('pharmacy.request.failedTitle'))).toBeTruthy());

@@ -12,8 +12,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: live-gate-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # a newer commit on the same PR replaces the older run (the newest commit still runs every suite); a run on main, a schedule and a manual run are never cancelled
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   # The journeys are split over GATE_SHARDS jobs, each with its own stack (MongoDB, Redis, backend, admin, patient-web): they take about 78
@@ -68,15 +69,49 @@ jobs:
           for i in $(seq 1 30); do curl -s -o /dev/null http://127.0.0.1:9000 && break; sleep 1; done
           python3 -c "import boto3; boto3.client('s3', endpoint_url='http://127.0.0.1:9000', aws_access_key_id='live', aws_secret_access_key='live-secret', region_name='us-east-1').create_bucket(Bucket='nabd-live')"
 
+      - name: Playwright browser cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-1.60-chromium-${{ runner.os }}
+
       - name: Real browser for admin click tests (R7-1)
+        # `--with-deps` runs apt-get; a stalled mirror once held this step for 75 minutes. Cap the step, cap apt's network waits, retry.
+        timeout-minutes: 10
         run: |
           pip install 'playwright==1.60.*'
-          python3 -m playwright install --with-deps chromium
+          printf 'Acquire::Retries "3";\nAcquire::http::Timeout "20";\nAcquire::https::Timeout "20";\n' | sudo tee /etc/apt/apt.conf.d/99ci-timeouts >/dev/null
+          for i in 1 2 3; do
+            timeout 240 python3 -m playwright install --with-deps chromium && break
+            echo "playwright install attempt $i failed"; [ "$i" = 3 ] && exit 1; sleep 5
+          done
           python3 -c "from playwright.sync_api import sync_playwright; p = sync_playwright().start(); b = p.chromium.launch(); print('chromium ok:', b.version); b.close(); p.stop()"
 
       # Decision 4 (2026-10-14): video calls are proven against a real local LiveKit (tools/live/j_web_call.py).
+      # The release binary is cached (key = the script, which pins version + sha256), so a GitHub release-CDN 504 only matters on a cache miss; the script retries with backoff.
+      - name: LiveKit release cache (restore)
+        id: livekit-cache
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.cache/nabd-livekit
+          key: livekit-${{ runner.os }}-${{ hashFiles('tools/live/start-livekit.sh') }}
+
       - name: LiveKit media server
         run: bash tools/live/start-livekit.sh
+
+      # Saved as soon as the binary exists and EVEN IF a later step fails (the combined cache action saves only when the whole job passes, so one red shard
+      # would leave the cache empty and every retry would download again during the same outage).
+      - name: LiveKit binary present?
+        id: livekit-bin
+        if: always() && steps.livekit-cache.outputs.cache-hit != 'true'
+        run: if ls ~/.cache/nabd-livekit/*/livekit-server >/dev/null 2>&1; then echo "present=true" >> "$GITHUB_OUTPUT"; fi
+
+      - name: LiveKit release cache (save)
+        if: always() && steps.livekit-bin.outputs.present == 'true'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.cache/nabd-livekit
+          key: livekit-${{ runner.os }}-${{ hashFiles('tools/live/start-livekit.sh') }}
 
       - name: Backend
         working-directory: backend
@@ -85,6 +120,15 @@ jobs:
           npm run build
           node ../tools/live/seed_admin.js
           bash ../tools/live/start-backend.sh
+
+      - name: Next.js build cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            admin/.next/cache
+            patient-web/.next/cache
+          key: next-${{ runner.os }}-${{ hashFiles('admin/package-lock.json', 'patient-web/pnpm-lock.yaml') }}
+          restore-keys: next-${{ runner.os }}-
 
       - name: Admin panel (BFF)
         working-directory: admin
@@ -142,7 +186,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Every journey runs in exactly one shard
-        run: python3 tools/live/test_gate_shards.py
+        run: python3 tools/live/test_gate_shards.py && python3 tools/live/test_start_livekit_retry.py
       - name: Every shard passed
         run: |
           echo "shards: ${{ needs.live-shard.result }}"

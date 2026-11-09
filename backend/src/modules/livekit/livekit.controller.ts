@@ -14,8 +14,8 @@ export class LiveKitController {
 
   @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('provider/waiting-room')
-  getWaitingRoom(@CurrentUser() u: any) {
-    return this.svc.getProviderWaitingRoom(u.id);
+  getWaitingRoom(@CurrentUser() u: any, @Query('service_type') serviceType?: string) {
+    return this.svc.getProviderWaitingRoom(u.id, serviceType);
   }
 
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)

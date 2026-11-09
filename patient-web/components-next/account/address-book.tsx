@@ -28,7 +28,7 @@ function AddressFields({ form, onChange, locale, point, onPoint, map, onRegion }
   const t = useTranslations("Addresses");
   const [finding, setFinding] = useState(false);
   const [locating, setLocating] = useState(false);
-  const [locateNote, setLocateNote] = useState<"set" | "failed" | null>(null);
+  const [locateNote, setLocateNote] = useState<"set" | "failed" | "denied" | null>(null);
 
   /** The browser's own position puts the pin on the address (the app's "Use my current location"); the browser asks first. */
   function useMyLocation() {
@@ -44,7 +44,7 @@ function AddressFields({ form, onChange, locale, point, onPoint, map, onRegion }
         setLocating(false);
         if (next) { onPoint(next); setLocateNote("set"); } else setLocateNote("failed");
       },
-      () => { setLocating(false); setLocateNote("failed"); },
+      (error) => { setLocating(false); setLocateNote(error.code === 1 ? "denied" : "failed"); },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 },
     );
   }
@@ -101,6 +101,7 @@ function AddressFields({ form, onChange, locale, point, onPoint, map, onRegion }
         <>
           <Button label={locating ? t("locating") : t("useMyLocation")} variant="outline" size="sm" loading={locating} disabled={locating} onClick={useMyLocation} />
           {locateNote === "set" ? <p className={forms.ok} role="status">{t("locationSet")}</p> : null}
+          {locateNote === "denied" ? <p className={forms.error} role="alert">{t("locateDenied")}</p> : null}
           {locateNote === "failed" ? <p className={forms.error} role="alert">{t("locateFailed")}</p> : null}
         </>
       )}

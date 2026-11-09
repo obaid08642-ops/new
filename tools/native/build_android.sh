@@ -4,8 +4,8 @@
 # Test-build-only changes, applied to the CI checkout and never committed:
 #  - the app talks to the local test backend (http://10.0.2.2:8002), so cleartext HTTP is allowed in the
 #    generated AndroidManifest;
-#  - patient-app's app.json points at google-services.json, which is not in the repository (the real file
-#    is provided to store builds); it is dropped here, so FCM push is not part of this run;
+#  - google-services.json is not in the repository (the real file reaches store builds as an EAS file variable, docs/ops/FIREBASE_SETUP.md);
+#    app.config.js adds it only when the file exists, so FCM push is not part of this run;
 #  - only one ABI is compiled: x86_64 for the emulator (default) or ANDROID_ARCHS=arm64-v8a for real devices (Firebase Test Lab).
 set -euo pipefail
 APP="$1"
@@ -24,6 +24,7 @@ export EXPO_PUBLIC_BACKEND_URL=http://10.0.2.2:8002
 export EXPO_PUBLIC_SOCKET_URL=ws://10.0.2.2:8002
 export EXPO_PUBLIC_APP_ENV=development
 export SENTRY_DISABLE_AUTO_UPLOAD=true
+export NABD_KEEP_CONSOLE=1   # test build only: console.* stays, so a failed flow's adb logcat has the app's JS errors (release builds strip it)
 # provider-app has no .npmrc and its test-only devDependency react-test-renderer@^19.2.8 conflicts with the
 # pinned react 19.2.3, so a plain `npm ci` fails (Q58). patient-app already sets legacy-peer-deps in .npmrc.
 npm ci --no-audit --no-fund --legacy-peer-deps
@@ -59,7 +60,15 @@ sed -i '0,/<application /s//<application android:usesCleartextTraffic="true" /' 
 grep -o 'usesCleartextTraffic="true"' "$MAN"
 
 cd android
-./gradlew --no-daemon assembleRelease -PreactNativeArchitectures=${ANDROID_ARCHS:-x86_64} -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=1g"
+# The wrapper downloads the Gradle distribution and Gradle fetches dependencies at build time; nightly run 42583546535 got a 504 from
+# services.gradle.org. Retry ONLY a download/network failure, with growing waits; any other failure (a real build error) fails on the first try.
+mkdir -p /tmp/native
+for wait in 0 30 90 240; do
+  [ "$wait" != 0 ] && { echo "gradle: network failure, waiting ${wait}s before the next try"; sleep "$wait"; }
+  if ./gradlew --no-daemon assembleRelease -PreactNativeArchitectures=${ANDROID_ARCHS:-x86_64} -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=1g" 2>&1 | tee /tmp/native/gradle.log; [ "${PIPESTATUS[0]}" = 0 ]; then break; fi
+  grep -q -E 'Server returned HTTP response code: 5[0-9][0-9]|Could not (GET|HEAD|resolve)|Read timed out|Connect timed out|Connection (reset|refused)|SSLHandshakeException|UnknownHostException|Premature end of Content-Length' /tmp/native/gradle.log || exit 1
+  [ "$wait" = 240 ] && exit 1
+done
 OUT_APK="/tmp/native/$APP${APK_SUFFIX:-}.apk"
 cp app/build/outputs/apk/release/app-release.apk "$OUT_APK"
 ls -la "$OUT_APK"

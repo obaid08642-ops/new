@@ -3,6 +3,7 @@ import { Document } from 'mongoose';
 import { v4 as uuid } from 'uuid';
 import { InsuranceDetails, InsuranceDetailsSchema } from './insurance.schema';
 import { healthFieldsPlugin } from '../common/health-fields';
+import { halalaShadowPlugin } from '../common/halala-shadow';
 
 /**
  * Appointment state machine
@@ -94,8 +95,14 @@ export class Appointment {
 
   // Patient inputs
   @Prop() patient_notes?: string;
+  /** Owner decision 1: the family member this is for; the booker (patient_id) is unchanged. Absent = for the booker. */
+  @Prop({ type: String, required: false, index: true }) family_member_id?: string;
   /** P17-17.5: UTM campaign attribution (utm_source/medium/campaign/term/content). */
   @Prop({ type: Object, required: false }) attribution?: Record<string, string>;
+  /** The refund policy the patient agreed to before paying (common/refund-policy-acceptance.ts): the tick, its time and the policy version. */
+  @Prop({ type: Object, required: false }) refund_policy_acceptance?: { accepted: boolean; at: Date; version: string };
+  /** PT-08: the patient asked for a sick leave when booking (a request; the doctor decides). */
+  @Prop({ type: Boolean, required: false }) sick_leave_requested?: boolean;
   /** Set when a family member booked this appointment on behalf of the patient */
   @Prop() booked_by_user_id?: string;
   @Prop({ default: [] }) symptoms: string[];
@@ -152,6 +159,9 @@ export class Appointment {
 }
 export type AppointmentDocument = Appointment & Document;
 export const AppointmentSchema = SchemaFactory.createForClass(Appointment);
+// R11 P1: the booking's own SAR doubles get an integer `<field>_halalas` next to them (halalaShadowPlugin); the backfill uses the same list.
+export const APPOINTMENT_HALALA_FIELDS = ['price', 'service_fee', 'home_visit_fee', 'transportation_fee', 'total_price', 'doctor_penalty'];
+halalaShadowPlugin(AppointmentSchema, APPOINTMENT_HALALA_FIELDS);
 // 16.9: the doctor's consultation summary and the patient's note are ciphertext at rest
 AppointmentSchema.plugin(healthFieldsPlugin, { registry: 'appointments' });
 // Prevent double-booking at the SAME slot for the SAME doctor

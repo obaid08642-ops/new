@@ -20,6 +20,7 @@ import client from '../../../api/client';
 import { useServicesCatalog, getInsuranceCatalog, useSpecialtiesCatalog } from '../../../api/catalogs';
 import { VideoCallRoom } from '../../shared/VideoCallRoom';
 import { InsuranceRequestsScreen } from '../../shared/InsuranceRequestsScreen';
+import { ProviderDisputesScreen } from '../../shared/ProviderDisputesScreen';
 import { WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, GlobalSystemSettings, ChatSystem, MediaConfigScreen } from '../../shared/SharedScreens';
 import { DoctorStatsRow } from '../components/DoctorStatsRow';
 import { DoctorUrgentRequests } from '../components/DoctorUrgentRequests';
@@ -36,6 +37,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens } from '../../../theme/tokens';
 import { Stack, VirtualWaitingRoomScreen, styles } from './_shared';
 import { RequestTestScreen } from './RequestTestScreen';
+import { IssueReferralScreen } from './IssueReferralScreen';
+import { MedicalReportsListScreen } from './MedicalReportsListScreen';
 import { EPrescriptionScreen } from './EPrescriptionScreen';
 import { SickLeaveScreen } from './SickLeaveScreen';
 import { MedicalReportScreen } from './MedicalReportScreen';
@@ -43,6 +46,7 @@ import { ReferralScreen } from './ReferralScreen';
 import { DoctorAvailabilityScreen } from './DoctorAvailabilityScreen';
 import { DoctorServiceManagementScreen } from './DoctorServiceManagementScreen';
 import { CertificatesConfigScreen, ProviderWalletScreen, ProviderProfileEditor } from '../../shared/SharedScreens';
+import { NotificationsCenterScreen } from '../../shared/RealScreens';
 import { PreVisitChatScreen } from './PreVisitChatScreen';
 import { InboundMedicalReportsScreen } from './InboundMedicalReportsScreen';
 
@@ -100,15 +104,18 @@ export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void })
        }}
      </Stack.Screen>
 
+     <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="appointment_detail">{({ navigation, route }: any) => <AppointmentDetailScreen apt={route.params?.param} onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="consultation">{({ navigation, route }: any) => <LiveConsultationScreen apt={route.params?.param} onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="prescription">{({ navigation, route }: any) => <EPrescriptionScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="sick_leave">{({ navigation, route }: any) => <SickLeaveScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+     <Stack.Screen name="medical_reports_list">{({ navigation }: any) => <MedicalReportsListScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="medical_report">{({ navigation, route }: any) => <MedicalReportScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="referral">{({ navigation, route }: any) => <ReferralScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="medical_order_visits">{({ navigation }: any) => <MedicalOrderVisitsScreen onBack={() => navigation.goBack()} onOpen={(visit: any) => navigation.navigate('medical_order_composer', { param: visit })} />}</Stack.Screen>
      <Stack.Screen name="medical_order_composer">{({ navigation, route }: any) => <MedicalOrderComposer apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="request_test">{({ navigation, route }: any) => <RequestTestScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+     <Stack.Screen name="issue_referral">{({ navigation, route }: any) => <IssueReferralScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="patient_file">{({ navigation, route }: any) => <PatientFileScreen patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="withdrawal_workflow">{({ navigation }: any) => <WithdrawalWorkflow onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="revenue_insights">{({ navigation }: any) => <RevenueInsights onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -126,6 +133,7 @@ export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void })
      <Stack.Screen name="profile_edit">{({ navigation }: any) => <ProviderProfileEditor role="doctor" onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="insurance_config">{({ navigation }: any) => <InsuranceConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
     <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+    <Stack.Screen name="provider_disputes">{({ navigation }: any) => <ProviderDisputesScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="certificates_config">{({ navigation }: any) => <CertificatesConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="media_config">{({ navigation }: any) => <MediaConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="virtual_waiting_room">{({ navigation }: any) => <VirtualWaitingRoomScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>

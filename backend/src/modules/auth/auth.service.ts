@@ -2,7 +2,7 @@ import { NotFoundException, Injectable, BadRequestException, UnauthorizedExcepti
 import { currentRequestMeta, describeClient, maskIp } from '../../common/request-meta';
 import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from '../../common/password-hash';
 import { createHash, createHmac, createPublicKey, KeyObject, randomBytes } from 'crypto';
 import * as nodemailer from 'nodemailer';
 import { Optional } from '@nestjs/common';

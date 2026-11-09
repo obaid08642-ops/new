@@ -39,3 +39,53 @@ groups:
         annotations:
           summary: "Event-loop delay over 100ms"
           runbook_url: "docs/runbooks/slow-api.md"
+
+  # R5: per route class (backend/src/common/route-classes.ts). Targets are the proposals in that file; the in-process SLO alert service keeps paging on the
+  # old per-group 500 ms rule until the owner approves them.
+  - name: nabd-api-classes
+    rules:
+      - alert: ClassP95High
+        expr: |
+          nabd_http_class_p95_ms{class="payment"} > 400 or nabd_http_class_p95_ms{class="auth"} > 400
+          or nabd_http_class_p95_ms{class="booking"} > 500 or nabd_http_class_p95_ms{class="user_read"} > 500
+          or nabd_http_class_p95_ms{class="public_read"} > 300 or nabd_http_class_p95_ms{class="search"} > 800
+          or nabd_http_class_p95_ms{class="realtime"} > 1000 or nabd_http_class_p95_ms{class="admin"} > 1500
+        for: 15m
+        labels: { severity: warning, slo: p95_latency }
+        annotations:
+          summary: "p95 over its class target on {{ $labels.class }}"
+          runbook_url: "docs/runbooks/slow-api.md"
+
+      - alert: PaymentErrorRatio
+        expr: |
+          sum(rate(nabd_http_class_errors_total{class="payment"}[10m]))
+            / clamp_min(sum(rate(nabd_http_class_requests_total{class="payment"}[10m])), 0.001) > 0.005
+        for: 10m
+        labels: { severity: critical, slo: checkout_success }
+        annotations:
+          summary: "5xx ratio on payment routes is over 0.5% (availability target 99.95%)"
+          runbook_url: "docs/runbooks/checkout-failures.md"
+
+      - alert: CronLeaseLost
+        expr: increase(nabd_cron_lease_lost_total[15m]) > 0
+        labels: { severity: warning, slo: api_availability }
+        annotations:
+          summary: "A cron job lost its Redis lease while running (another worker may have started it)"
+          runbook_url: "docs/platform/R3-cron-leases.md"
+
+      # R18 (R16 gauges): the platform is shedding load on purpose
+      - alert: OverloadStrained
+        expr: max(nabd_overload_level) >= 1
+        for: 5m
+        labels: { severity: warning, slo: api_availability }
+        annotations:
+          summary: "Overload level 1 for 5 minutes: admin reports are being refused and optional features (recommendations, nudges, analytics ingestion) are degraded"
+          runbook_url: "docs/runbooks/overload.md"
+
+      - alert: OverloadShedding
+        expr: max(nabd_overload_level) >= 2
+        for: 2m
+        labels: { severity: critical, slo: api_availability }
+        annotations:
+          summary: "Overload level 2: browsing, search and reports are answered with 503 server_busy so payments, bookings and sign-in keep working"
+          runbook_url: "docs/runbooks/overload.md"

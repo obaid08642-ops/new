@@ -13,10 +13,11 @@ import { Icon } from "@/components-next/ui-generated/src/Icon";
 import type { ReactNode } from "react";
 import type { Locale } from "@/lib/i18n";
 import { newIdempotencyKey } from "@/lib/pharmacy/broadcast";
-import { MAX_RX_FILE_BYTES, checkRxFile, ocrItems, postJsonWithProgress, prepareRxImage, uploadedPrescriptionId } from "@/lib/pharmacy/rx-upload";
+import { MAX_RX_FILE_BYTES, checkRxFile, cleanItems, ocrItems, postJsonWithProgress, prepareRxImage, uploadedPrescriptionId } from "@/lib/pharmacy/rx-upload";
 import { PHARMACY_TONE } from "./tones";
 import rx from "./rx.module.css";
 import { UploadsUnavailable, useUploadsEnabled } from "@/components-next/uploads/uploads-provider";
+import { FILL_PRESCRIPTION } from "@/components-next/ui-generated/icons/glyphs/prescription";
 
 type Failure = "type" | "size" | "read" | "unreadable" | "ocr" | "busy" | "save" | "session";
 type Phase =
@@ -45,6 +46,8 @@ export function RxUploadScreen({ locale, via = "photo", before, after }: { local
   // it is both the preview and what is sent.
   const [image, setImage] = useState<string | null>(null);
   const [note, setNote] = useState("");
+  // PT-27: the lines the OCR read, shown for correction before anything is saved (quantity kept as typed until sent)
+  const [review, setReview] = useState<Array<{ name: string; quantity: string }> | null>(null);
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
   // the key of the last save attempt: the same request retried keeps its key, so a dropped connection never saves twice
   const attempt = useRef<{ signature: string; key: string } | null>(null);
@@ -72,6 +75,7 @@ export function RxUploadScreen({ locale, via = "photo", before, after }: { local
 
   function clear() {
     setImage(null);
+    setReview(null);
     setPhase({ kind: "idle" });
   }
 
@@ -95,7 +99,15 @@ export function RxUploadScreen({ locale, via = "photo", before, after }: { local
       return setPhase({ kind: "failed", reason: "ocr" });
     }
     if (items.length === 0) return setPhase({ kind: "failed", reason: "unreadable" });
+    setReview(items.map((item) => ({ name: item.name, quantity: String(item.quantity) })));
+    setPhase({ kind: "idle" });
+  }
 
+  /** The corrected lines are what is saved: the pharmacist and the order see what the patient confirmed, not the raw reading. */
+  async function save() {
+    if (!image || busy || !review) return;
+    const items = cleanItems(review);
+    if (items.length === 0) return;
     const trimmedNote = note.trim();
     const signature = `${image.length}:${image.slice(-48)}:${items.map((item) => `${item.name}*${item.quantity}`).join("|")}:${trimmedNote}`;
     if (attempt.current?.signature !== signature) attempt.current = { signature, key: newIdempotencyKey() };
@@ -132,7 +144,11 @@ export function RxUploadScreen({ locale, via = "photo", before, after }: { local
   };
 
   const submitButton = (
-    <Button label={t("submit")} size="lg" fullWidth disabled={!image} loading={busy} onClick={() => void submit()} />
+    review ? (
+      <Button label={t("confirmLines")} size="lg" fullWidth disabled={cleanItems(review).length === 0} loading={busy} onClick={() => void save()} />
+    ) : (
+      <Button label={t("submit")} size="lg" fullWidth disabled={!image} loading={busy} onClick={() => void submit()} />
+    )
   );
 
   return (
@@ -153,7 +169,7 @@ export function RxUploadScreen({ locale, via = "photo", before, after }: { local
 
         {!uploadsEnabled ? <UploadsUnavailable className={rx.dropHint} /> : (
         <section className={rx.drop}>
-          <FIcon icon="prescription" tone={PHARMACY_TONE} size={72} />
+          <FIcon icon="prescription" glyph={FILL_PRESCRIPTION} tone={PHARMACY_TONE} size={72} />
           <h2 className={rx.dropTitle}>{t("dropTitle")}</h2>
           <p className={rx.dropHint}>{t("dropHint")}</p>
           <div className={rx.dropButtons}>
@@ -176,6 +192,24 @@ export function RxUploadScreen({ locale, via = "photo", before, after }: { local
               </div>
               <p className={rx.note}>{t("oneNote")}</p>
             </div>
+          </section>
+        ) : null}
+
+        {review ? (
+          <section aria-labelledby="rx-lines">
+            <h2 className={rx.h2} id="rx-lines">{t("linesTitle")}</h2>
+            <p className={rx.note}>{t("linesHint")}</p>
+            <ul className={rx.lines}>
+              {review.map((line, index) => (
+                <li key={index} className={rx.line}>
+                  <Input label={t("lineName")} value={line.name} disabled={busy} onChange={(value) => setReview(review.map((l, i) => (i === index ? { ...l, name: value.slice(0, 240) } : l)))} />
+                  <Input label={t("lineQuantity")} value={line.quantity} keyboardType="number" disabled={busy} onChange={(value) => setReview(review.map((l, i) => (i === index ? { ...l, quantity: value.replace(/\D/g, "").slice(0, 3) } : l)))} />
+                  <Button label={t("lineRemove")} startIcon="close" size="sm" disabled={busy} onClick={() => setReview(review.filter((_, i) => i !== index))} />
+                </li>
+              ))}
+            </ul>
+            {review.length < 50 ? <Button label={t("lineAdd")} startIcon="plus" size="md" disabled={busy} onClick={() => setReview([...review, { name: "", quantity: "1" }])} /> : null}
+            {cleanItems(review).length === 0 ? <p className={rx.error} role="alert">{t("linesEmpty")}</p> : null}
           </section>
         ) : null}
 

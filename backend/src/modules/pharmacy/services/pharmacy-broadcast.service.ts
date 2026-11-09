@@ -16,6 +16,7 @@ import {
 import { PharmacyInventoryItem } from '../../provider/schemas/capabilities.schema';
 import { ProviderProfile } from '../../provider/schemas';
 import { ProviderAvailability, ProviderAvailabilityStatus } from '../../provider/schemas/requests.schema';
+import { ownDeliveryOf, ownZoneCovers } from '../pharmacy-delivery';
 import { GeoEngineService } from '../../provider/services/geo-engine.service';
 import { SmartSplitService } from './smart-split.service';
 import { PharmacyNotificationService } from './pharmacy-notification.service';
@@ -223,7 +224,7 @@ export class PharmacyBroadcastService {
     const center = order.delivery_address?.geo;
     // F73: pickup orders filter pharmacies to a 15 km radius (patient travels).
     const radius = (order as any).fulfillment === 'pickup' ? Math.min(Number(bc.current_radius_km) || 15, 15) : bc.current_radius_km;
-    const pharms = await this.findEligiblePharmaciesWithin(center, radius, { extended: Boolean((bc as any).extended_stage), insurance });
+    const pharms = await this.findEligiblePharmaciesWithin(center, radius, { extended: Boolean((bc as any).extended_stage), insurance, pickup: (order as any).fulfillment === 'pickup' || order?.delivery?.method === 'pickup', district: order.delivery_address?.district ?? null });
     const alreadyNotified = new Set<string>(Array.isArray(bc.notified_pharmacies) ? bc.notified_pharmacies : []);
     const candidates = pharms.map((pharmacy: any) => String(pharmacy.account_id)).filter((id: string) => id && !alreadyNotified.has(id));
     const now = new Date();
@@ -414,7 +415,7 @@ export class PharmacyBroadcastService {
 
   // ============== INTERNAL: geo filter ==============
   /** Eligible, approved and available recipient set computed server-side for a given round. */
-  async findEligiblePharmaciesWithin(center: any, radius_km: number, opts?: { extended?: boolean; insurance?: { companyKeys: string[]; cls: string } }) {
+  async findEligiblePharmaciesWithin(center: any, radius_km: number, opts?: { extended?: boolean; pickup?: boolean; district?: string | null; insurance?: { companyKeys: string[]; cls: string } }) {
     const accs = await (this.profiles as any).db.collection('provider_accounts').find({ provider_type: 'pharmacy', status: { $in: ['approved', 'active'] } }).project({ id: 1 }).toArray();
     if (!accs.length || !Number.isFinite(Number(center?.lat)) || !Number.isFinite(Number(center?.lng)) || !Number.isFinite(Number(radius_km)) || Number(radius_km) <= 0) return [];
     const ids = accs.map((a: any) => a.id);
@@ -433,6 +434,13 @@ export class PharmacyBroadcastService {
       // An insurance order reaches only pharmacies contracted for the patient's company AND class (fails closed
       // when the patient's policy has no company or class).
       if (opts?.insurance && !hasInsuranceContract(pharm.insurance_class_contracts, opts.insurance.companyKeys, opts.insurance.cls)) continue;
+      // Own couriers (owner decision 2026-11-02): a delivery order reaches the pharmacy only inside its OWN zone; a pickup order
+      // follows the distance rules below, because the patient travels.
+      const own = ownDeliveryOf(pharm);
+      if (own && !opts?.pickup) {
+        if (ownZoneCovers(own, p.geo, center, opts?.district)) out.push({ ...p, _distance: d });
+        continue;
+      }
       const hasOwnDelivery = Boolean(pharm.has_own_delivery || pharm.has_own_drivers);
       const ownRadius = Number(pharm.delivery_radius_km ?? pharm.max_delivery_radius_km);
       let qualifies = false;
@@ -472,6 +480,28 @@ export class PharmacyBroadcastService {
       ...(await this.providerBroadcastDto(broadcast, ordersMap.get(broadcast.order_id), viewer)),
       my_offer_status: myOffer.get(broadcast.order_id) ?? null,
     })));
+  }
+
+  /**
+   * The orders this pharmacy was asked to price that are patients' refills of an earlier order (`refill_of`, set when the patient taps
+   * "refill"), newest first, in any state. Same privacy as the broadcast list: no patient identity before the patient chooses.
+   */
+  async listRefillsForPharmacy(user: any): Promise<any[]> {
+    await this.assertActiveNotifiedPharmacy(user);
+    const bcs = await this.broadcasts.find({ notified_pharmacies: user.id }).sort({ createdAt: -1 }).limit(300).lean();
+    const orders = await this.orders.find({ id: { $in: bcs.map((b) => b.order_id) }, refill_of: { $type: 'string' } }).lean();
+    const byId = new Map(orders.map((o: any) => [o.id, o]));
+    const viewer = await this.viewerProfile(user.id);
+    const out: any[] = [];
+    for (const b of bcs) {
+      const order: any = byId.get(b.order_id);
+      if (!order) continue;
+      out.push({
+        ...(await this.providerBroadcastDto(b, order, viewer)),
+        id: order.id, refill_of: order.refill_of, order_status: order.status ?? null, created_at: order.createdAt ?? null,
+      });
+    }
+    return out;
   }
 
   async detail(user: any, broadcast_id: string): Promise<any> {

@@ -58,3 +58,9 @@ deploy/coturn/turnserver.rendered.conf
 !.env.*.example
 !**/.env.*.example
 __pycache__/
+
+# FCM / APNs credentials are per-owner and never committed (patient-app and provider-app app.config.js read them by path)
+provider-app/google-services.json
+provider-app/GoogleService-Info.plist
+patient-app/google-services.json
+patient-app/GoogleService-Info.plist

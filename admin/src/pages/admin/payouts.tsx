@@ -11,8 +11,11 @@ import { dateLocale } from '../../utils/dates';
  * (FinanceSuiteService): approve -> (a second, distinct admin from the large-amount threshold) -> transfer done (PAID); a
  * reject from any open state gives the locked balance back to the provider. PAID and REJECTED are final.
  */
-type Payout = { id: string; reference?: string; provider_id?: string; provider_name?: string; amount?: number; iban?: string; bank_name?: string; state?: string; createdAt?: string; approved_stage_one_name?: string; approved_by_name?: string; paid_by_name?: string; rejection_reason?: string };
+type Payout = { id: string; reference?: string; provider_id?: string; provider_type?: string; provider_name?: string; amount?: number; iban?: string; bank_name?: string; state?: string; createdAt?: string; approved_stage_one_name?: string; approved_by_name?: string; paid_by_name?: string; rejection_reason?: string };
 type Queue = { data: Payout[]; dual_approval_threshold_sar: number; by_state: Array<{ state: string; count: number; amount: number }> };
+
+/** The queue returns the provider's id and type, not a name (finance-suite payoutQueue): show the name when there is one, else type and id. */
+const providerLabel = (p: Payout): string => p.provider_name || [p.provider_type, p.provider_id].filter(Boolean).join(' ') || 'المزود';
 
 const STAGES: Array<{ state: string; label: string; empty: string }> = [
   { state: 'PENDING_ADMIN_APPROVAL', label: 'بانتظار الاعتماد', empty: 'لا توجد طلبات سحب بانتظار الاعتماد.' },
@@ -44,8 +47,10 @@ export default function PayoutsPage() {
   async function act(item: Payout, action: 'approve' | 'execute' | 'reject') {
     const verb = { approve: 'الاعتماد', execute: 'تأكيد التحويل', reject: 'الرفض' }[action];
     const reason = window.prompt(`سبب ${verb} (10 أحرف على الأقل):`);
-    if (!reason || reason.trim().length < 10) return;
-    const warning = action === 'execute' ? `تأكيد أن ${item.amount} ر.س حُوّلت إلى حساب ${item.provider_name || 'المزود'}؟ لا يمكن التراجع.` : 'هذا قرار مالي مسجل في التدقيق. متابعة؟';
+    if (reason === null) return; // cancelled
+    // the server refuses a reason under 10 characters (reason_too_short_min_10): say so instead of doing nothing
+    if (reason.trim().length < 10) { setError('سبب القرار 10 أحرف على الأقل.'); return; }
+    const warning = action === 'execute' ? `تأكيد أن ${item.amount} ر.س حُوّلت إلى حساب ${providerLabel(item)}؟ لا يمكن التراجع.` : 'هذا قرار مالي مسجل في التدقيق. متابعة؟';
     if (!window.confirm(warning)) return;
     setSaving(true); setError('');
     try {
@@ -86,7 +91,7 @@ export default function PayoutsPage() {
               getRowKey={(row) => row.id}
               columns={[
                 { key: 'ref', header: 'المرجع', className: 'font-mono text-xs', render: (row) => row.reference || row.id.slice(0, 12) },
-                { key: 'provider', header: 'المزوّد', render: (row) => row.provider_name || row.provider_id || '—' },
+                { key: 'provider', header: 'المزوّد', render: (row) => providerLabel(row) },
                 { key: 'amount', header: 'المبلغ', className: 'font-bold', render: (row) => `${row.amount ?? '—'} ر.س` },
                 { key: 'iban', header: 'الحساب البنكي', className: 'font-mono text-xs', render: (row) => <span dir="ltr">{[row.bank_name, row.iban].filter(Boolean).join(' · ') || '—'}</span> },
                 { key: 'who', header: 'القرارات', className: 'text-xs text-slate-600', render: (row) => [row.approved_stage_one_name && `اعتماد أول: ${row.approved_stage_one_name}`, row.approved_by_name && `معتمد: ${row.approved_by_name}`, row.paid_by_name && `حوّل: ${row.paid_by_name}`, row.rejection_reason && `سبب الرفض: ${row.rejection_reason}`].filter(Boolean).join(' · ') || '—' },

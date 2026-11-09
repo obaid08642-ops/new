@@ -6,18 +6,19 @@ import { getPatientNotifications } from "@/lib/api/notifications-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
-import { SERVICE_ICONS, type FillIconName, type ServiceName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
+import { SERVICE_ICONS, type FillAnyName, type ServiceName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { CoreShell } from "@/components-next/core/core-shell";
 import core from "@/components-next/core/core.module.css";
 import { RetryErrorState } from "@/components-next/core/core-states";
 import { NotificationsList, type NotificationGroup } from "./notifications-list";
 import styles from "./notifications.module.css";
+import { fillGlyph } from "@/components-next/ui-generated/icons/fill-all";
 
 type Props = { params: Promise<{ locale: string }> };
 
 /** The board's icon per kind of notification (canvas/Notifications); the tone follows the service the kind belongs to (handoff §1 service map). */
 const toneOf = (service: ServiceName): ServiceTone => SERVICE_ICONS[service].tone;
-const KIND: Record<string, { icon: FillIconName; tone: ServiceTone }> = {
+const KIND: Record<string, { icon: FillAnyName; tone: ServiceTone }> = {
   order: { icon: "moped", tone: toneOf("pharmacy") },
   appointment: { icon: "video-camera", tone: toneOf("radiology") },
   medication: { icon: "bell", tone: toneOf("nursing") },
@@ -97,6 +98,7 @@ export default async function NotificationsPage({ params }: Props) {
         body: n.type?.toLowerCase() === "late_compensation" ? t("lateCompensationBody") : n.body ?? null,
         when: n.createdAt ? whenLabel(n.createdAt, locale, now) : null,
         icon: kind.icon,
+        glyph: fillGlyph(kind.icon),
         tone: kind.tone,
         unread: n.read === false,
         href: webRouteForNotification(n.route, locale),

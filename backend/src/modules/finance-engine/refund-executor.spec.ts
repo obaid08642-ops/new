@@ -1,3 +1,4 @@
+import { refundGuardCollections } from './refund-guard.fake';
 import { BadRequestException } from '@nestjs/common';
 import { RefundExecutor } from './finance-engine.module';
 
@@ -7,6 +8,7 @@ describe('RefundExecutor original payment behavior (LJ-05, 7A-A2)', () => {
     const ledger = { exists: jest.fn().mockResolvedValue(null), append };
     const cashTransaction = { status: 'paid', method: 'cash', amount: 80 };
     const booking = { payment_method: 'cash', payment_status: 'paid', total_price: 80 };
+    const guard = refundGuardCollections();
     const conn = {
       collection: jest.fn((name: string) => {
         if (name === 'moyasar_payments') return { findOne: jest.fn().mockResolvedValue(null) };
@@ -15,6 +17,7 @@ describe('RefundExecutor original payment behavior (LJ-05, 7A-A2)', () => {
         if (name === 'pharmacy_orders') return { updateOne: jest.fn().mockResolvedValue({}) };
         if (name === 'platformledgerentries') return { findOne: jest.fn().mockResolvedValue(null) };
         if (name === 'notifications') return { insertOne: jest.fn().mockResolvedValue({}) };
+        if (name === 'refund_reservations' || name === 'refund_totals') return (guard as any)[name];
         if (name === 'wallets' || name === 'wallet_transactions') throw new Error('patient wallet must not be accessed');
         return {};
       }),
@@ -30,6 +33,26 @@ describe('RefundExecutor original payment behavior (LJ-05, 7A-A2)', () => {
       type: 'refund', amount: 80, ref_id: 'return-1', meta: expect.objectContaining({ method: 'cash', patient_id: 'patient-1' }),
     }));
     expect(conn.collection).not.toHaveBeenCalledWith('wallets');
+  });
+
+  it('reserves a float-drift refund amount as exact integer halalas (money.ts, no local rounding)', async () => {
+    const ledger = { exists: jest.fn().mockResolvedValue(null), append: jest.fn().mockResolvedValue({}) };
+    const guard = refundGuardCollections();
+    const conn = {
+      collection: jest.fn((name: string) => {
+        if (name === 'moyasar_payments') return { findOne: jest.fn().mockResolvedValue(null) };
+        if (name === 'transactions') return { findOne: jest.fn().mockResolvedValue({ status: 'paid', method: 'cash', amount: 0.3 }) };
+        if (name === 'orders') return { findOne: jest.fn().mockResolvedValue({ payment_method: 'cash', payment_status: 'paid', total_price: 0.3 }), updateOne: jest.fn().mockResolvedValue({ matchedCount: 1 }), updateMany: jest.fn().mockResolvedValue({}) };
+        if (name === 'pharmacy_orders') return { updateOne: jest.fn().mockResolvedValue({}) };
+        if (name === 'platformledgerentries') return { findOne: jest.fn().mockResolvedValue(null) };
+        if (name === 'notifications') return { insertOne: jest.fn().mockResolvedValue({}) };
+        if (name === 'refund_reservations' || name === 'refund_totals') return (guard as any)[name];
+        return {};
+      }),
+    };
+    const executor = new RefundExecutor(conn as any, ledger as any, {} as any, { emit: jest.fn() } as any);
+    await executor.execute({ refund_id: 'drift-1', booking_kind: 'pharmacy', booking_id: 'order-d', patient_id: 'p1', amount: 0.1 + 0.2, reason: 'damaged item', actor_id: 'admin-1' });
+    expect(guard._totals.find((t: any) => t.booking_id === 'order-d').refunded_halalas).toBe(30);
   });
 
   it('refuses a refund when no original payment evidence exists', async () => {

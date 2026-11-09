@@ -26,6 +26,17 @@ describe('LiveKit follow-up ownership fixes', () => {
     expect(save).toHaveBeenCalled();
   });
 
+  it('records a no-show only after the patient has been 10 minutes late, and tells the patient', async () => {
+    const mk = (startMs: number) => ({ id: 'a1', patient_id: 'pat-1', status: 'CONFIRMED', slot_start: new Date(startMs), state_history: [], save: jest.fn() });
+    const future = mk(Date.now() + 3600_000);
+    await expect(new LiveKitService({ findOne: jest.fn().mockResolvedValue(future) } as any, conn, events as any).markNoShow('d1', 'a1')).rejects.toThrow('no_show_too_early');
+    expect(future.save).not.toHaveBeenCalled();
+    const late = mk(Date.now() - 11 * 60_000);
+    await new LiveKitService({ findOne: jest.fn().mockResolvedValue(late) } as any, conn, events as any).markNoShow('d1', 'a1');
+    expect(late.status).toBe('NO_SHOW');
+    expect(events.emit).toHaveBeenCalledWith('doctor_appointment.no_show', expect.objectContaining({ patient_id: 'pat-1', doctor_id: 'd1' }));
+  });
+
   it('rejects markNoShow for terminal appointments', async () => {
     const findOne = jest.fn().mockResolvedValue({ id: 'appt-uuid-1', status: 'COMPLETED', save: jest.fn() });
     const service = new LiveKitService({ findOne } as any, conn, events as any);

@@ -27,6 +27,11 @@ export interface ProviderRow {
   name_ar: string | null;
   name_en: string | null;
   total: number;
+  /** The server's breakdown of `total`: the home-collection fee inside it and the VAT in it (never worked out here). */
+  home_fee: number;
+  vat: number;
+  vat_rate: number;
+  subtotal: number;
   distance_km: number | null;
   rating: number | null;
   in_network: boolean;
@@ -67,7 +72,8 @@ function parseRow(raw: unknown): ProviderRow | null {
   const total = num(r.total);
   if (total === null) return null;
   return {
-    provider_id: r.provider_id, name_ar: str(r.name_ar), name_en: str(r.name_en), total, distance_km: num(r.distance_km), rating: num(r.rating),
+    provider_id: r.provider_id, name_ar: str(r.name_ar), name_en: str(r.name_en), total, home_fee: num(r.home_fee) ?? 0, vat: num(r.vat) ?? 0, vat_rate: num(r.vat_rate) ?? 0, subtotal: num(r.subtotal) ?? total,
+    distance_km: num(r.distance_km), rating: num(r.rating),
     in_network: r.in_network === true, earliest_at: str(r.earliest_at), turnaround_hours: num(r.turnaround_hours),
     covers_all: r.covers_all !== false, missing: Array.isArray(r.missing) ? r.missing.filter((x): x is string => typeof x === 'string') : [],
   };
@@ -200,11 +206,11 @@ export function itemCoverage(group: QuoteGroup | undefined, catalogId: string): 
   return { coverage: line.coverage, price: line.price, insurance_share: best.estimated_insurance_share, patient_share: best.patient_share };
 }
 
-/** The items subtotal and the visit fee of the best matches: the fee is what the server's total holds beyond the item prices. */
+/** The items subtotal and the visit fee of the best matches: the fee is the `home_fee` the server states for each. */
 export function basketLines(groups: QuoteGroup[]): { items: number; fee: number } | null {
   if (groups.length === 0 || groups.some((g) => !g.best_match)) return null;
   const r2 = (n: number) => Math.round(n * 100) / 100;
   const items = groups.reduce((s, g) => s + (g.best_match as BestMatch).items.reduce((a, l) => a + l.price, 0), 0);
-  const total = groups.reduce((s, g) => s + (g.best_match as BestMatch).total, 0);
-  return { items: r2(items), fee: r2(total - items) };
+  const fee = groups.reduce((s, g) => s + ((g.best_match as BestMatch).home_fee || 0), 0);
+  return { items: r2(items), fee: r2(fee) };
 }

@@ -1,4 +1,5 @@
 import { API_BASE } from '../../../constants';
+import { toReviews } from '../../../utils/reviews';
 import { buildHeaders } from '../../../security/Security';
 import * as Crypto from 'expo-crypto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -28,18 +29,21 @@ import { SK, Vault } from '../../../security/Security';
 import { tokens, withAlpha } from '../../../theme/tokens';
 
 export function ReviewsSystem({ onBack }: { onBack: () => void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
  const [reviews, setReviews] = useState<any[]>([]);
  const [loadingReviews, setLoadingReviews] = useState(true);
  const [replyingTo, setReplyingTo] = useState<string | null>(null);
  const [replyText, setReplyText] = useState('');
 
- useEffect(() => {
+ const [loadFailed, setLoadFailed] = useState(false);
+ const load = () => {
+ setLoadingReviews(true); setLoadFailed(false);
  client.get('/provider/reviews')
- .then(res => setReviews(Array.isArray(res.data) ? res.data : (res.data?.items || [])))
- .catch(() => setReviews([]))
+ .then(res => setReviews(toReviews(res.data)))
+ .catch(() => { setReviews([]); setLoadFailed(true); })
  .finally(() => setLoadingReviews(false));
- }, []);
+ };
+ useEffect(load, []);
 
  const handleReply = async (id: string) => {
  const text = replyText.trim();
@@ -49,8 +53,8 @@ export function ReviewsSystem({ onBack }: { onBack: () => void }) {
  setReviews(rs => rs.map(r => r.id === id ? { ...r, reply: text } : r));
  setReplyingTo(null); setReplyText('');
  show(AR ? 'تم إرسال الرد' : 'Reply sent', 'success');
- } catch {
- show(AR ? 'تعذر إرسال الرد' : 'Failed to send reply', 'error');
+ } catch (e: any) {
+ show(e?.response?.data?.message === 'review_not_published' ? (t('pa3.reviews.1')) : (e?.response?.data?.message || (t('pa3.reviews.2'))), 'error');
  }
  };
 
@@ -73,7 +77,7 @@ export function ReviewsSystem({ onBack }: { onBack: () => void }) {
  {loadingReviews ? (
  <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: 'center', marginVertical: SP.xl }}>{AR ? 'جاري تحميل التقييمات...' : 'Loading reviews...'}</Text>
  ) : reviews.length === 0 ? (
- <NEmpty title={AR ? 'لا توجد تقييمات بعد' : 'No reviews yet'} subtitle={AR ? 'ستظهر تقييمات المرضى هنا فور وصولها' : 'Patient reviews will appear here'} />
+ loadFailed ? <NEmpty title={t('pa3.reviews.3')} actionLabel={t('pa3.reviews.4')} onAction={load} /> : <NEmpty title={t('pa3.reviews.5')} subtitle={t('pa3.reviews.6')} />
  ) : reviews.map(review => (
  <NCard key={review.id} style={{ marginBottom: SP.md }}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: SP.sm }}>
@@ -101,6 +105,8 @@ export function ReviewsSystem({ onBack }: { onBack: () => void }) {
  <NBtn label={AR ? 'إلغاء' : 'Cancel'} size="sm" variant="outline" onPress={() => { setReplyingTo(null); setReplyText(''); }} />
  </View>
  </View>
+ ) : !review.canReply ? (
+ <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{t('pa3.reviews.7')}</Text>
  ) : (
  <NBtn label={AR ? 'رد على التقييم' : 'Reply'} size="xs" variant="outline" full={false}
  style={{ alignSelf: AR ? 'flex-end' : 'flex-start', paddingHorizontal: SP.lg }}

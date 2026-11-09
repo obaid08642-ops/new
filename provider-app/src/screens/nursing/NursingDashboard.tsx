@@ -21,6 +21,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useLang, useAuth, useToast } from '../../context';
+import { localeTag } from '../../i18n';
 import client from '../../api/client';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
 import { orderingStackScreens, ORDERING_ENTRY } from '../ordering';
@@ -667,7 +668,14 @@ function ProgressNotes({ patient, onBack }:{ patient:any; onBack:()=>void }) {
 // MEDICAL SUPPLIES
 // ══════════════════════════════════════════════════════════════════
 function MedicalSupplies({ onBack }:{ onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const [visits, setVisits] = useState<any[]>([]);
+ const [visitId, setVisitId] = useState<string | null>(null);
+ useEffect(() => { client.get('/nursing/jobs/active').then(r => {
+   const list: any[] = Array.isArray(r.data) ? r.data : [];
+   // The API returns only this nurse's active visits (the ones that can take a supply request).
+   setVisits(list); setVisitId(list[0]?.id ?? null);
+ }).catch(() => {}); }, []);
  const [newItem, setNewItem] = useState('');
  const [newQty, setNewQty] = useState('');
  const [supplies, setSupplies] = useState<any[]>([]);
@@ -682,17 +690,14 @@ function MedicalSupplies({ onBack }:{ onBack:()=>void }) {
  setLoading(true);
  try {
  await client.post('/home-care/inventory/request', {
+ booking_id: visitId,
  items: [{ name: newItem, qty: parseInt(newQty, 10), unit: 'pcs' }],
  });
- setSupplies(prev => [
- ...prev,
- { id: `ms_${Date.now()}`, name: newItem, nameEn: newItem, qty: parseInt(newQty, 10), unit: 'pcs', status: 'pending' }
- ]);
- show(AR ? 'تم طلب المستلزم من مخزن المستشفى بنجاح' : 'Supply requested from hospital inventory', 'success');
+ show(t('supplies.requested'), 'success');
  setNewItem('');
  setNewQty('');
  } catch (e: any) {
- show(e.message || 'Error requesting supply', 'error');
+ show(e?.message || t('supplies.failed'), 'error');
  } finally {
  setLoading(false);
  }
@@ -731,9 +736,20 @@ function MedicalSupplies({ onBack }:{ onBack:()=>void }) {
 
  <NDivider style={{marginVertical:SP.xl}} />
  <NSecHeader title={AR?'طلب مستلزم جديد':'Request New Supply'} />
+ <NSecHeader title={t('supplies.forVisit')} />
+ {visits.length === 0 ? (
+ <NCard style={{marginBottom:SP.md}}><Text style={{fontSize:FS.sm,color:theme.textSub,textAlign:AR?'right':'left'}}>{t('supplies.noVisit')}</Text></NCard>
+ ) : (
+ <View style={{flexDirection:AR?'row-reverse':'row',flexWrap:'wrap',gap:SP.sm,marginBottom:SP.md}}>
+ {visits.map(v => (
+ <NBtn key={v.id} size="sm" full={false} variant={visitId===v.id?'primary':'outline'} onPress={() => setVisitId(v.id)}
+ label={[v.service, v.scheduled_at ? new Date(v.scheduled_at).toLocaleDateString(localeTag(lang)) : null].filter(Boolean).join(' · ') || String(v.id)} />
+ ))}
+ </View>
+ )}
  <NInput label={AR?'اسم المستلزم':'Supply Name'} placeholder={AR?'قفازات طبية L':'Medical Gloves L'} value={newItem} onChange={setNewItem} />
  <NInput label={AR?'الكمية':'Quantity'} placeholder="1" value={newQty} onChange={v=>setNewQty(v.replace(/\D/g,''))} kbType="numeric" />
- <NBtn label={AR?'إرسال الطلب':'Submit Request'} disabled={!newItem.trim()||!newQty} loading={loading}
+ <NBtn label={AR?'إرسال الطلب':'Submit Request'} disabled={!visitId||!newItem.trim()||!newQty} loading={loading}
  onPress={handleRequest} />
  </NScroll>
  );
@@ -845,27 +861,26 @@ return (
 // NURSING COVERAGE SETTINGS
 // ══════════════════════════════════════════════════════════════════
 function NursingCoverageSettings({ onBack }:{ onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
  
  const [radius, setRadius] = useState(15);
  const [gpsChecked, setGpsChecked] = useState(false);
  const [gpsLoading, setGpsLoading] = useState(false);
-
- const getCoveredNeighborhoods = () => {
- if (radius <= 5) return AR ? ['حي النرجس'] : ['Al-Narjis'];
- if (radius <= 15) return AR ? ['حي النرجس', 'حي الياسمين', 'حي الملقا'] : ['Al-Narjis', 'Al-Yasmine', 'Al-Malqa'];
- if (radius <= 30) return AR ? ['حي النرجس', 'حي الياسمين', 'حي الملقا', 'حي العقيق', 'حي الصحافة', 'حي العليا'] : ['Al-Narjis', 'Al-Yasmine', 'Al-Malqa', 'Al-Aqeeq', 'Al-Sahafa', 'Al-Olaya'];
- return AR ? ['جميع أحياء مدينة الرياض وضواحيها'] : ['All Riyadh neighborhoods and suburbs'];
- };
+ const [gpsResult, setGpsResult] = useState<{ covered: boolean; distance_km?: number; radius_km?: number; reason?: string } | null>(null);
 
  const handleGpsVerification = async () => {
  setGpsLoading(true);
  try {
-   await client.post('/nursing/coverage/verify-gps', { radius });
+   const { requestForegroundPermissionsAsync, getCurrentPositionAsync } = await import('expo-location');
+   const perm = await requestForegroundPermissionsAsync();
+   if (perm.status !== 'granted') { show(t('coverage.permission'), 'error'); return; }
+   const pos = await getCurrentPositionAsync({});
+   const r: any = await client.post('/nursing/coverage/verify-gps', { lat: pos.coords.latitude, lng: pos.coords.longitude });
+   const data = r?.data?.data ?? r?.data ?? r;
+   setGpsResult({ covered: !!data?.covered, distance_km: data?.distance_km, radius_km: data?.radius_km, reason: data?.reason });
    setGpsChecked(true);
-   show(AR ? ' تم تحديد موقع الـ GPS بنجاح والتحقق من التغطية الإقليمية!' : ' GPS location and regional coverage verified successfully!', 'success');
  } catch (e: any) {
-   show(e.message, 'error');
+   show(e?.message || t('coverage.failed'), 'error');
  } finally {
    setGpsLoading(false);
  }
@@ -918,15 +933,14 @@ function NursingCoverageSettings({ onBack }:{ onBack:()=>void }) {
  </View>
  </NCard>
 
- <NSecHeader title={AR ? 'الأحياء السعودية المغطاة حالياً:' : 'Covered Saudi Neighborhoods:'} />
+ {gpsResult ? (
  <NCard style={{ marginBottom: SP.xl, gap: SP.xs }}>
- {getCoveredNeighborhoods().map((n, idx) => (
- <View key={idx} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm, paddingVertical: SP.sm, borderBottomWidth: idx < getCoveredNeighborhoods().length - 1 ? 0.5 : 0, borderBottomColor: theme.border }}>
- <I name="pin" size={16} color={theme.primary} />
- <Text style={{ fontSize: FS.md, color: theme.text }}>{n}</Text>
- </View>
- ))}
+ <NBadge label={gpsResult.reason === 'no_geofence' ? t('coverage.noGeofence') : gpsResult.covered ? t('coverage.inside') : t('coverage.outside')} variant={gpsResult.covered ? 'success' : 'warning'} />
+ {gpsResult.distance_km != null && gpsResult.radius_km != null ? (
+ <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{t('coverage.distance', { distance: gpsResult.distance_km, radius: gpsResult.radius_km })}</Text>
+ ) : null}
  </NCard>
+ ) : null}
 
  <NBtn label={AR ? 'حفظ إعدادات التغطية الجغرافية' : 'Save Coverage Settings'} disabled={!gpsChecked} onPress={async () => {
     try {

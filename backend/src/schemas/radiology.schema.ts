@@ -3,6 +3,7 @@ import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { trackingId, TRACK_PREFIX } from '../common/tracking';
 import { InsuranceDetails, InsuranceDetailsSchema } from './insurance.schema';
+import { halalaShadowPlugin } from '../common/halala-shadow';
 
 /**
  * RadiologyService — independent catalog from LabService (X-Ray / CT / MRI / Ultrasound / Mammography / DEXA).
@@ -125,6 +126,10 @@ export class RadiologyBooking extends Document {
   @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
   @Prop({ unique: true, default: () => trackingId(TRACK_PREFIX.radiology_booking) }) tracking_id: string;
   @Prop({ required: true, index: true }) patient_id: string;
+  /** Owner decision 1: the family member this is for; the booker (patient_id) is unchanged. Absent = for the booker. */
+  @Prop({ type: String, required: false, index: true }) family_member_id?: string;
+  /** The refund policy the patient agreed to before paying (common/refund-policy-acceptance.ts): the tick, its time and the policy version. */
+  @Prop({ type: Object, required: false }) refund_policy_acceptance?: { accepted: boolean; at: Date; version: string };
   @Prop() patient_name?: string;
   @Prop() patient_phone?: string;
   @Prop({ default: [] }) items: any[]; // [{service_id, name_ar, name_en, modality, body_part, price}]
@@ -221,6 +226,9 @@ export class RadiologyBooking extends Document {
   @Prop() refund_status?: string;
 }
 export const RadiologyBookingSchema = SchemaFactory.createForClass(RadiologyBooking);
+// R11 P1: the booking's own SAR doubles get an integer `<field>_halalas` next to them (halalaShadowPlugin); the backfill uses the same list.
+export const RADIOLOGY_BOOKING_HALALA_FIELDS = ['total', 'service_fee', 'home_visit_fee', 'transportation_fee', 'total_price', 'insurance_copay'];
+halalaShadowPlugin(RadiologyBookingSchema, RADIOLOGY_BOOKING_HALALA_FIELDS);
 RadiologyBookingSchema.index({ patient_id: 1, createdAt: -1 });
 RadiologyBookingSchema.index({ state: 1, scheduled_at: 1 });
 

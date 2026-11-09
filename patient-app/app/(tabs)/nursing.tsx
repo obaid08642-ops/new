@@ -11,7 +11,7 @@ import { PillLink, Strip } from '../../src/components/diagnostics/DiagKit';
 import { NursingPackageCard } from '../../src/components/nursing/NursingKit';
 import { NursingServiceList } from '../../src/components/nursing/NursingServiceList';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
-import { apiFetch } from '../../src/utils/api';
+import { fetchPublicList } from '../../src/utils/publicCache';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { rowField } from '../../src/utils/rowField';
@@ -57,11 +57,11 @@ export default function NursingHub() {
     setLoading(true);
     setFailed(null);
     const [servicesRes, packagesRes] = await Promise.all([
-      apiFetch<unknown>('/home-care/services').catch((e) => {
+      fetchPublicList<unknown>('/home-care/services').catch((e) => {
         logError('nursing:tab', e);
         return null;
       }),
-      apiFetch<unknown>('/home-care/packages').catch((e) => {
+      fetchPublicList<unknown>('/home-care/packages').catch((e) => {
         logError('nursing:tab', e);
         return null;
       }),

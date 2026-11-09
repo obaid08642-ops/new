@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { RefundPolicyTick } from "@/components-next/refund-policy/refund-policy-tick";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
@@ -16,7 +17,7 @@ import type { WindowsAnswer } from "@/lib/ordering/windows";
 import { QuoteError, QuoteLoading } from "./quote-parts";
 import styles from "./ordering.module.css";
 
-type Props = { locale: string; kind: ServiceKind; place: OrderMode; pay: Payer; item?: string; point: Point | null };
+type Props = { locale: string; kind: ServiceKind; place: OrderMode; pay: Payer; who?: string; item?: string; point: Point | null };
 type Load = { status: "loading" } | { status: "ready"; answer: WindowsAnswer } | { status: "error"; errorKey: string };
 
 const POLL_MS = 5000; // the backend moves a stage on read; 5 s keeps the load low and the clock honest (the clock itself ticks locally from seconds_left)
@@ -27,7 +28,7 @@ function readStore<T>(key: string, parse: (raw: string | null) => T): T {
 }
 
 /** Ord06: the time per booking. Home: 2-hour windows for 3 days + ASAP (3/5/8 km stages). Centre: slots of a day, or walk-in. All from GET /ordering/windows and /ordering/asap. */
-export function WhenClient({ locale, kind, place, pay, item, point }: Props) {
+export function WhenClient({ locale, kind, place, pay, who, item, point }: Props) {
   const t = useTranslations("OrderingFlow");
   const router = useRouter();
   const [choice, setChoice] = useState<ProviderChoice | null | undefined>(undefined);
@@ -53,7 +54,7 @@ export function WhenClient({ locale, kind, place, pay, item, point }: Props) {
     });
   }, []);
 
-  const providersHref = `/${locale}/labs/providers${contextQuery({ kind, place, pay, item })}`;
+  const providersHref = `/${locale}/labs/providers${contextQuery({ kind, place, pay, item, who })}`;
   if (choice === undefined) return <QuoteLoading label={t("whenLoading")} />;
   if (!choice || !schedule || (!choice.home && !choice.facility)) {
     return <EmptyState icon={SERVICE_ICONS.lab.icon} tone={SERVICE_ICONS.lab.tone} title={t("whenNoChoiceTitle")} body={t("whenNoChoiceSub")} actionLabel={t("whenBackProviders")} onAction={() => router.push(providersHref)} />;
@@ -63,7 +64,7 @@ export function WhenClient({ locale, kind, place, pay, item, point }: Props) {
   const active: OrderMode = modes.includes(tab) ? tab : modes[0];
   const ready = modes.every((m) => !!schedule[m]);
   const itemIds = modes.flatMap((m) => choice.groups?.[m]?.itemIds ?? []);
-  const confirmHref = `/${locale}/labs/confirm${contextQuery({ kind, place, pay, item })}${itemIds.length ? `${contextQuery({ kind, place, pay, item }) ? "&" : "?"}ids=${encodeURIComponent(itemIds.slice(0, 12).join(","))}` : ""}`;
+  const confirmHref = `/${locale}/labs/confirm${contextQuery({ kind, place, pay, item, who })}${itemIds.length ? `${contextQuery({ kind, place, pay, item, who }) ? "&" : "?"}ids=${encodeURIComponent(itemIds.slice(0, 12).join(","))}` : ""}`;
 
   return (
     <div className={styles.stack}>
@@ -78,7 +79,7 @@ export function WhenClient({ locale, kind, place, pay, item, point }: Props) {
       ) : null}
 
       {active === "home" && choice.home ? (
-        <HomePicker locale={locale} kind={kind} pay={pay} point={point} providerId={choice.home} group={choice.groups?.home} schedule={schedule} update={update} onNext={modes.length > 1 && !schedule.facility ? () => setTab("facility") : undefined} />
+        <HomePicker locale={locale} kind={kind} pay={pay} who={who} point={point} providerId={choice.home} group={choice.groups?.home} schedule={schedule} update={update} onNext={modes.length > 1 && !schedule.facility ? () => setTab("facility") : undefined} />
       ) : null}
       {active === "facility" && choice.facility ? <CentrePicker locale={locale} providerId={choice.facility} schedule={schedule} update={update} /> : null}
 
@@ -117,7 +118,7 @@ function useWindows(providerId: string, mode: OrderMode, date?: string) {
 
 type Update = (next: (s: Schedule) => Schedule) => void;
 
-function HomePicker({ locale, kind, pay, point, providerId, group, schedule, update, onNext }: { locale: string; kind: ServiceKind; pay: Payer; point: Point | null; providerId: string; group?: ChosenGroup; schedule: Schedule; update: Update; onNext?: () => void }) {
+function HomePicker({ locale, kind, pay, who, point, providerId, group, schedule, update, onNext }: { locale: string; kind: ServiceKind; pay: Payer; who?: string; point: Point | null; providerId: string; group?: ChosenGroup; schedule: Schedule; update: Update; onNext?: () => void }) {
   const t = useTranslations("OrderingFlow");
   const { load, reload } = useWindows(providerId, "home");
   const [day, setDay] = useState<string | null>(null);
@@ -153,16 +154,18 @@ function HomePicker({ locale, kind, pay, point, providerId, group, schedule, upd
           ))}
         </div>
       </section>
-      {answer.asap ? <AsapCard locale={locale} kind={kind} pay={pay} point={point} group={group} schedule={schedule} update={update} /> : null}
+      {answer.asap ? <AsapCard locale={locale} kind={kind} pay={pay} who={who} point={point} group={group} schedule={schedule} update={update} /> : null}
     </>
   );
 }
 
-function AsapCard({ locale, kind, pay, point, group, schedule, update }: { locale: string; kind: ServiceKind; pay: Payer; point: Point | null; group?: ChosenGroup; schedule: Schedule; update: Update }) {
+function AsapCard({ locale, kind, pay, who, point, group, schedule, update }: { locale: string; kind: ServiceKind; pay: Payer; who?: string; point: Point | null; group?: ChosenGroup; schedule: Schedule; update: Update }) {
   const t = useTranslations("OrderingFlow");
   const [asap, setAsap] = useState<Asap | null>(null);
   const [busy, setBusy] = useState(false);
   const [errorKey, setErrorKey] = useState<string | null>(null);
+  // the refund policy is shown before the broadcast starts and agreed here (the backend refuses without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
   const [left, setLeft] = useState(0);
   const busyRef = useRef(false);
   const asapId = schedule.asapId;
@@ -197,7 +200,7 @@ function AsapCard({ locale, kind, pay, point, group, schedule, update }: { local
     if (busyRef.current || !point || ids.length === 0) return;
     busyRef.current = true; setBusy(true); setErrorKey(null);
     try {
-      const a = await startAsap({ service_kind: kind, items: ids, lat: point.lat, lng: point.lng, payer: pay });
+      const a = await startAsap({ service_kind: kind, items: ids, lat: point.lat, lng: point.lng, payer: pay, refund_policy_accepted: true, ...(who ? { family_member_id: who } : {}) });
       setAsap(a);
       update((s) => ({ ...s, asapId: a.id }));
     } catch (e) {
@@ -228,7 +231,10 @@ function AsapCard({ locale, kind, pay, point, group, schedule, update }: { local
         <p className={styles.sub}>{t("whenAsapSub")}</p>
       </div>
       {!asap || asap.status === "cancelled" ? (
-        <button type="button" className={`${styles.linkBtn} ${styles.cta}`} disabled={busy || !point || ids.length === 0} onClick={begin}>{t("whenAsapBtn")}</button>
+        <>
+          <RefundPolicyTick locale={locale} checked={refundAgreed} onChange={setRefundAgreed} />
+          <button type="button" className={`${styles.linkBtn} ${styles.cta}`} disabled={busy || !refundAgreed || !point || ids.length === 0} onClick={begin}>{t("whenAsapBtn")}</button>
+        </>
       ) : null}
       {asap && asapOpen(asap) ? (
         <>

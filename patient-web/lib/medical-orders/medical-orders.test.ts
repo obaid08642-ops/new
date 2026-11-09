@@ -30,8 +30,8 @@ describe("M6 medical orders (Ord20/Ord21)", () => {
 
   it("sends each group to the flow that already exists for it", () => {
     const o = orderOf(order)!;
-    expect(groupFlowHref("en", "labs", o)).toBe("/en/diagnostics?kind=labs");
-    expect(groupFlowHref("ar", "radiology", o)).toBe("/ar/diagnostics?kind=radiology");
+    expect(groupFlowHref("en", "labs", o)).toBe("/en/labs/basket");
+    expect(groupFlowHref("ar", "radiology", o)).toBe("/ar/labs/basket?kind=radiology");
     expect(groupFlowHref("en", "nursing", o)).toBe("/en/nursing");
     expect(groupFlowHref("en", "prescription", o)).toBe("/en/pharmacy/rx-order?prescriptionId=rx1");
   });

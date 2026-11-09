@@ -12,7 +12,7 @@ import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 import { useSocket } from '../../src/context/SocketContext';
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
-import { addIncoming, applyState, chronological, confirmSent, fromServer, type ChatMsg, type ServerMsg, type StateEvent } from '../../src/chat/chatState';
+import { addIncoming, applyState, chronological, confirmSent, fromServer, serverMessages, type ChatMsg, type ServerMsg, type StateEvent } from '../../src/chat/chatState';
 import { newestFromOther, sendThreadReceipts } from '../../src/chat/receipts';
 import { enqueue, forThread, isDead, resetAttempts, type OutboxItem } from '../../src/chat/outbox';
 import { flushOutbox, onOutboxEvent } from '../../src/chat/outboxRunner';
@@ -131,12 +131,11 @@ export default function ChatWithDoctorScreen() {
             if (!cancelled && parsed) setPerms(parsed);
           })
           .catch((e) => logError('consultations:chat:permissions', e));
-        return apiFetch<{ data?: ServerMsg[] } | ServerMsg[]>(`/chat/threads/${tid}/messages`);
+        return apiFetch<unknown>(`/chat/threads/${tid}/messages`);
       })
       .then((mres) => {
         if (!mres || cancelled) return;
-        const list = (Array.isArray(mres) ? mres : mres?.data) || [];
-        const loaded = Array.isArray(list) ? chronological(list.map((m) => fromServer(m, myId, stamp))) : [];
+        const loaded = chronological(serverMessages(mres).map((m) => fromServer(m, myId, stamp)));
         // messages written offline that the server does not have yet stay visible as queued
         void forThread(String(threadRef.current)).then((queued) => {
           if (cancelled) return;
@@ -373,6 +372,7 @@ export default function ChatWithDoctorScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <TextInput
                 accessibilityLabel={k('consult.chat.placeholder')}
+                testID="chat-input"
                 style={{ flex: 1, minHeight: 44, borderRadius: 22, paddingHorizontal: 16, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, color: c.text.primary, ...scale(t, 'small', 'regular'), textAlign: flow.textAlign, writingDirection: dir }}
                 placeholder={k('consult.chat.placeholder')}
                 placeholderTextColor={c.text.tertiary}

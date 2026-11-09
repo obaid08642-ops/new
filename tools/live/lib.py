@@ -135,6 +135,10 @@ class Resp:
         return []
 
 
+# the routes a patient creates a booking or an order with (backend: every one asks for `refund_policy_accepted`, common/refund-policy-acceptance.ts)
+_TICK_PATHS = re.compile(r'^/(care/appointments|unified-bookings|unified-bookings/(diagnostics/orders|nursing-broadcast|checkout-cart)|labs/bookings|radiology/bookings|home-care/bookings|nursing/bookings|cart/checkout|consultations/instant|ordering/(bookings|asap|photo-order)|patient/pharmacy/orders)/?$')
+
+
 class Client:
     def __init__(self, token=None, label='anon', admin=False):
         self.token, self.label = token, label
@@ -142,6 +146,10 @@ class Client:
         self.is_admin = admin or 'admin' in str(label or '')
 
     def req(self, method, path, body=None, headers=None, idem=True):
+        # Owner decision 2026-11-09: every patient create of a booking or an order carries the refund-policy tick. The journeys play an updated client: the field is added unless the
+        # journey set it itself (a journey that wants the refusal sends `refund_policy_accepted: None` or False).
+        if method == 'POST' and isinstance(body, dict) and 'refund_policy_accepted' not in body and _TICK_PATHS.match(re.sub(r'^https?://[^/]+', '', path).split('?')[0].replace('/api/v1', '', 1)):
+            body = {**body, 'refund_policy_accepted': True}
         url = path if path.startswith('http') else BASE + path
         h = {'accept': 'application/json'}
         if body is not None:
@@ -175,6 +183,19 @@ class Client:
             parsed = json.loads(txt) if txt else None
         except ValueError:
             parsed = txt
+        # Admission control (backend/src/common/admission.ts) answers a safe read with 503 server_busy / server_shedding_load + Retry-After
+        # when the API is strained (the shared CI runner is). That is its documented contract: a client waits and asks again. Only GET/HEAD
+        # are ever refused that way, so repeating them is safe; a bounded wait (the overload level calms after 30 s) and then the 503 is reported as is.
+        if (status == 503 and method in ('GET', 'HEAD') and isinstance(parsed, dict)
+                and parsed.get('message') in ('server_busy', 'server_shedding_load')):
+            tries = getattr(self, '_busy_tries', 0)
+            if tries < 12:
+                self._busy_tries = tries + 1
+                try:
+                    time.sleep(min(10, max(1, int(parsed.get('retry_after_seconds') or 3))))
+                    return self.req(method, path, body, headers, idem)
+                finally:
+                    self._busy_tries = 0 if tries == 0 else tries
         return Resp(status, parsed, hdrs)
 
     def get(self, p, **kw): return self.req('GET', p, **kw)

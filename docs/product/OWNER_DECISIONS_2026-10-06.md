@@ -508,3 +508,31 @@ This page reports what happened. It does not replace the alerts: a backup failur
 | 21 | #340 | owner (no code now) |
 | 22 | #341 | owner (no code now) |
 | 23 | #342 | owner (no code now) |
+
+## Addendum 2026-11-09: the medical report with a recommended rest period (PT-08), both sides
+
+**Decision (owner, 2026-11-09; the second set the same day replaces the wording of the first)**
+- **Name:** our document is a **"Medical report / تقرير طبي"** that states a recommended rest period (from, to, days). It is **never called "sick leave / إجازة مرضية"**: in KSA the official sick leave is issued only through Seha, and issuing an unofficial one is an offence. The footer says "Official sick leave is issued via Seha".
+- **Patient side:** when booking a consultation the patient can request it (a tick, and a reason). It is a request, not a guarantee.
+- **Doctor side:** the doctor can issue it with or without a request, sets the period, and the diagnosis text is optional (patient privacy: shown only if the doctor ticks "show diagnosis").
+- **The document is like the invoice:** shown in the app and on the web, downloadable as a PDF, with the platform name and logo (Noon Dot, tokens only), a unique document number, the issue date and time, the doctor's name, specialty and SCFHS licence number, the facility, the patient's name and ID / iqama number (masked in lists, in full on the document), the consultation date and booking reference, the period (from, to, days), the reason in the doctor's wording, the doctor's electronic signature block, and a QR code and short code that open our public verify page (valid or revoked, name initials, dates; no diagnosis).
+- **Rules:** no back-dating before the consultation date; a revoke with a reason; an audit log.
+- **Seha link:** after issuing, the doctor sees a notice "if you granted rest days, register the sick leave on Seha and enter its number here". The Seha number is an **optional** field (never blocking), format-checked, editable by the issuing doctor only, audit-logged (old and new value). Until it is entered the document shows "Seha registration: pending"; once entered it shows "Registered on Seha: <number>" and "verify on Seha", the patient gets a notification and the PDF is regenerated. **We do not verify the number with Seha** (there is no API): the employer verifies it on Seha.
+- **Reminders:** the doctor is reminded after 24 h and after 72 h if a rest period was given and there is no number; the admin has a list of reports without a number after 3 days.
+
+**Legal note (for the owner).** The Ministry of Health says sick-leave reports are legitimate only through Seha / Sehhaty, and fakes carry fines (SAR 100,000). Hence the name, the footer, the Seha number, and the line on the PDF: "issued through the platform by a licensed provider; this is not a government document".
+
+**Backend (lane Z, `z/sick-leave-cert`)**
+- Documents are the existing `medicalreports` rows (`certificate_kind: 'sick_leave'` stays as the internal key; **user-visible text must say "medical report"**), extended with a serial `MED-<year>-<6 digits>`, a status (`issued` / `revoked`), an 8-character verify code, the consultation, the licence and facility, `seha_ref` (the Seha number) and the revoke data. The reason and the ID number are encrypted as health data (`common/health-fields.ts`).
+- Rules (`modules/sick-leave/sick-leave-rules.ts`): the rest starts on or after the consultation day (Riyadh days) and at most 30 days after it; 1 to 30 days; the end date is the last day (inclusive). A document needs a consultation of this doctor with this patient that has started. The Seha number is 6 to 30 letters, digits or hyphens, kept in capitals (the real format is not published to us; only its shape is checked).
+- API: see the lane Z outbox entries of 2026-11-09 and `modules/sick-leave/sick-leave.controller.ts`.
+
+## Addendum 2026-11-09: the refund-policy tick ("I agree") and how it is rolled out
+
+**Decision (owner):** the refund policy is shown before payment and the patient ticks "I agree" (KSA e-commerce law). Every patient booking or order create carries `refund_policy_accepted: true`; the server stores `refund_policy_acceptance { accepted, at, version }` on the booking or order (`REFUND_POLICY_VERSION`, now `2026-11-09`).
+
+**Rollout (reviewer, 2026-11-09; safety first, because installed app versions can never send the field):**
+1. **Default = `optional`.** A create without the field is accepted (nothing stored) and counted in the metric `nabd_refund_policy_missing_total`. An explicit `false` (or any non-boolean) is always refused with 400 `refund_policy_acceptance_required`. Admin and system creates are exempt.
+2. **`required` is turned on later, by config only** (`REFUND_POLICY_ACCEPTANCE=required` on the backend), and only after (a) the website's tick is live and (b) the app release with the tick is the minimum supported version (the app min-version gate). Until then old clients keep working.
+3. **How to know it is safe to flip:** `nabd_refund_policy_missing_total` stops growing (no client is sending creates without the tick).
+4. Unit tests that test the refusal set `required` explicitly; every other test sends the tick like an updated client. The live gate runs with the default (no override).

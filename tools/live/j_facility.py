@@ -7,6 +7,7 @@ from lib import Client, journey, step, uniq, phone
 
 FACILITY_SCREEN_GETS = ['/facility/beds/wards', '/facility/beds/admissions', '/facility/inbox', '/facility/shifts', '/facility/shifts/attendance',
                         '/facility/surgeries/schedule', '/hospital/branches', '/hospital/staff', '/insurance/requests/provider/queue',
+                        '/insurance/requests/provider/queue?scope=all',
                         '/provider/facility/patients/active', '/provider/jobs/queue?status=active&kind=appointment&today=true',
                         '/provider/jobs/queue?status=incoming', '/provider/jobs/queue?status=active', '/provider/ops/wallet/ledger',
                         '/provider/stats/today', '/facility/announcements', '/provider/facility/audit-logs', '/facility/resources',
@@ -45,6 +46,8 @@ def run(hosp, admin, patient_id=None, emergency_id=None, invitee_email=None, inv
         step('admission listed (discharge screen)', r.ok and adm in str(r.body), r)
         r = hosp.get('/provider/facility/patients/active')
         step('patient tracker shows the admitted patient', r.ok and patient_id in str(r.body), r)
+        row = next((x for x in rows(r) if x.get('id') == patient_id), {})
+        step('and as an inpatient with the ward, the bed and the admission date (audit-3 gap 20)', row.get('kind') == 'inpatient' and bool(row.get('ward_name')) and bool(row.get('bed_number')) and bool(row.get('admitted_at')) and bool(row.get('admission_id')), {k: row.get(k) for k in ('kind', 'ward_name', 'bed_number', 'admitted_at', 'admission_id')})
         r = hosp.put(f'/facility/beds/discharge/{adm}', {'diagnosis': 'التهاب رئوي', 'medications': 'Amoxicillin 500mg', 'instructions': 'راحة ومراجعة بعد أسبوع'})
         step('discharge with a summary', r.ok, r)
         r = hosp.get(f"/facility/beds/wards/{ward.get('id')}/beds")
@@ -132,9 +135,12 @@ def facility_calendar(hosp, doctor, pat, admin):
     r = hosp.get('/provider/facility/calendar')
     ev = next((x for x in rows(r) if x.get('id') == aid), None)
     step('unified calendar lists the appointment with its time', r.ok and ev and ev.get('scheduled_at'), r)
+    step('and with the patient\'s name and the doctor\'s name, not only ids (audit-3 gap 20)', bool(ev) and bool(ev.get('patient_name')) and bool(ev.get('provider_name')), {k: (ev or {}).get(k) for k in ('patient_name', 'provider_name')})
     pid = doctor.get(f'/care/appointments/{aid}').get('patient_id')
     r = hosp.get('/provider/facility/patients/active')
     step('patient tracker lists the booked patient', r.ok and pid in str(r.body), r)
+    row = next((x for x in rows(r) if x.get('id') == pid), {})
+    step('with the next visit and the doctor\'s name, and no invented MRN or clinical status (audit-3 gap 20)', row.get('kind') in ('booked', 'inpatient') and bool(row.get('appointment_at')) and bool(row.get('doctor_name')) and 'mrn' not in row and 'status' not in row, {k: row.get(k) for k in ('kind', 'appointment_at', 'doctor_name', 'mrn', 'status')})
     if str((ev or {}).get('status')).upper() not in ('CONFIRMED',):
         r = hosp.patch(f'/care/appointments/{aid}/confirm', {})
         step('facility confirms (calendar Confirm)', r.ok, r)

@@ -124,8 +124,9 @@ export function EPrescriptionScreen({ apt, onBack }:
 
  const FREQS_AR = ['مرة/اليوم','مرتين/اليوم','3 مرات/اليوم','كل 8 ساعات','عند الحاجة'];
  const FREQS_EN = ['Once daily','Twice daily','3x daily','Every 8h','As needed'];
- const DURS_AR = ['3 أيام','5 أيام','7 أيام','10 أيام','أسبوعين','شهر','مستمر'];
- const DURS_EN = ['3 days','5 days','7 days','10 days','2 weeks','1 month','Ongoing'];
+ // "Ongoing" is not a number of days, which the server requires: it is not offered
+ const DURS_AR = ['3 أيام','5 أيام','7 أيام','10 أيام','أسبوعين','شهر'];
+ const DURS_EN = ['3 days','5 days','7 days','10 days','2 weeks','1 month'];
 
  const handleSavePrescription = async () => {
   const patientId = apt?.patient_id || apt?.raw?.patient_id;
@@ -138,7 +139,7 @@ export function EPrescriptionScreen({ apt, onBack }:
     show(AR ? 'أدخل التشخيص وأضف دواءً واحداً على الأقل.' : 'Enter a diagnosis and at least one medicine.', 'error');
     return;
   }
-  if (drugs.some(d => !d.name.trim() || !d.dose.trim() || !Number.isFinite(parseInt(d.duration, 10)))) {
+  if (drugs.some(d => !d.name.trim() || !d.dose.trim() || !(durationDays(d.duration) > 0))) {
     show(AR ? 'أكمل اسم الدواء والجرعة والمدة لكل بند.' : 'Complete medicine name, dose, and duration for every item.', 'error');
     return;
   }
@@ -155,7 +156,7 @@ export function EPrescriptionScreen({ apt, onBack }:
     return {
     ...(hit ? { medicine_id: hit.id } : { manual_name_en: d.name, manual_name_ar: d.name }),
     dose: d.dose,
-    duration_days: parseInt(d.duration, 10),
+    duration_days: durationDays(d.duration),
     instructions: `${d.freq}. ${d.notes}`.trim()
   }; }),
   labs: [],
@@ -359,3 +360,15 @@ export function EPrescriptionScreen({ apt, onBack }:
 
 // ══════════════════════════════════════════════════════════════════════════════
 // DIGITAL SICK LEAVE SCREEN
+
+/** The number of days a duration chip means ("10 days" 10, "2 weeks" 14, "1 month" 30, "أسبوعين" 14, "شهر" 30); 0 when it is not a number of days. */
+export function durationDays(label: string): number {
+  const t = String(label || '').trim().toLowerCase();
+  if (t === 'أسبوعين') return 14;
+  if (t === 'شهر') return 30;
+  const m = /^(\d+)\s*(day|days|week|weeks|month|months|يوم|أيام|ايام|أسبوع|أسابيع|شهر|أشهر)?/.exec(t);
+  if (!m) return 0;
+  const n = Number(m[1]);
+  const unit = m[2] || 'days';
+  return /week|أسبوع|أسابيع/.test(unit) ? n * 7 : /month|شهر|أشهر/.test(unit) ? n * 30 : n;
+}

@@ -54,6 +54,7 @@ export function SettingsHubView() {
         </View>
       </Card>
       <Panel testID="settings-sections">
+        <Row icon="receipt" tone="mint" title={k('set.receipts')} subtitle={k('set.receiptsHint')} onPress={go('/receipts')} testID="settings-receipts" />
         <Row icon="bell" tone={RX_TONE} title={k('set.notifications')} subtitle={k('set.notificationsHint')} onPress={go('/settings/notifications')} testID="settings-notifications" />
         <Row icon="lock" tone="violet" title={k('set.privacy')} subtitle={k('set.privacyHint')} onPress={go('/settings/privacy')} testID="settings-privacy" />
         <Row icon="shield-check" tone={CARE_TONE} title={k('set.security')} subtitle={k('set.securityHint')} onPress={go('/settings/security')} testID="settings-security" />

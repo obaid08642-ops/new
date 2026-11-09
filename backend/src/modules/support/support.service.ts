@@ -57,6 +57,28 @@ export class SupportService {
     throw new NotFoundException('booking_not_found');
   }
 
+  /**
+   * PV-15: the disputes (tickets that name a booking) about the provider's own bookings.
+   * Read-only and limited: no patient name, phone or message, only what the provider needs to answer the case.
+   */
+  async providerDisputes(user: any) {
+    const profiles: any[] = await this.conn.collection('provider_profiles')
+      .find({ $or: [{ account_id: { $eq: user.id } }, { user_id: { $eq: user.id } }] } as any, { projection: { id: 1, _id: 0 } }).toArray();
+    const doctorIds = [user.id, ...profiles.map((p) => p.id).filter(Boolean)];
+    const sources: Array<[string, string, Record<string, unknown>]> = [
+      ['consultation', 'appointments', { doctor_id: { $in: doctorIds } }],
+      ['lab', 'labbookings', { provider_account_id: { $eq: user.id } }],
+      ['radiology', 'radiologybookings', { provider_account_id: { $eq: user.id } }],
+    ];
+    const refs: Array<Record<string, unknown>> = [];
+    for (const [kind, name, filter] of sources) {
+      const rows: any[] = await this.conn.collection(name).find(filter as any, { projection: { id: 1, _id: 0 } }).limit(1000).toArray();
+      if (rows.length) refs.push({ booking_kind: kind, booking_id: { $in: rows.map((r) => r.id).filter(Boolean) } });
+    }
+    if (!refs.length) return [];
+    return this.req.find({ $or: refs } as any, { _id: 0, id: 1, category: 1, subject: 1, status: 1, booking_kind: 1, booking_id: 1, createdAt: 1, updatedAt: 1 }).sort({ createdAt: -1 }).limit(100);
+  }
+
   async mine(user: any) {
     return this.req.find({ user_id: user.id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(80);
   }

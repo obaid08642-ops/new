@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { apiFetch } from '../../utils/api';
+import { useCan } from '@/components/AdminGuard';
 
 type ReturnRow = {
   id: string;
@@ -12,6 +13,9 @@ type ReturnRow = {
   details?: string;
   items?: Array<{ medicine_id?: string; name_ar?: string; qty?: number; price?: number }>;
   amount: number;
+  pharmacy_response?: { agree?: boolean; note?: string };
+  admin_note?: string;
+  attached_docs?: string[];
   status: string;
   createdAt?: string;
 };
@@ -19,7 +23,7 @@ type ReturnRow = {
 const labels: Record<string, string> = {
   pharmacy: 'صيدلية', consultation: 'استشارة', diagnostics: 'تحاليل أو أشعة', nursing: 'تمريض', insurance: 'تأمين',
 };
-const statusLabels: Record<string, string> = { processing: 'قيد المراجعة', completed: 'مكتمل', rejected: 'مرفوض' };
+const statusLabels: Record<string, string> = { processing: 'قيد المراجعة', approved: 'معتمد', completed: 'مكتمل', rejected: 'مرفوض' };
 
 export default function ReturnsAdminPage() {
   const [rows, setRows] = useState<ReturnRow[]>([]);
@@ -27,6 +31,7 @@ export default function ReturnsAdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [workingId, setWorkingId] = useState('');
+  const canDecide = useCan('finance.payout.approve');   // POST returns/:id/decide needs FINANCE_PAYOUT_APPROVE
 
   async function load() {
     setLoading(true);
@@ -45,7 +50,8 @@ export default function ReturnsAdminPage() {
 
   async function decide(row: ReturnRow, decision: 'approved' | 'rejected') {
     const note = window.prompt(decision === 'approved' ? 'ملاحظة اعتماد الإرجاع' : 'سبب رفض الإرجاع');
-    if (note === null || (decision === 'rejected' && note.trim().length < 5)) return;
+    if (note === null) return;
+    if (decision === 'rejected' && note.trim().length < 5) { setError('سبب الرفض 5 أحرف على الأقل.'); return; }
     setWorkingId(row.id);
     setError('');
     try {
@@ -91,6 +97,9 @@ export default function ReturnsAdminPage() {
                       <h2 className="font-semibold text-slate-900">{labels[row.service_type] || row.service_type} · {row.reason}</h2>
                       <p className="text-xs text-slate-500">طلب {row.id} · حجز {row.order_id} · مريض {row.patient_id}</p>
                       {row.details && <p className="text-sm text-slate-700">{row.details}</p>}
+                      {row.pharmacy_response && <p className="text-sm text-slate-700">رد الصيدلية: {row.pharmacy_response.agree ? 'موافقة' : 'اعتراض'}{row.pharmacy_response.note ? ` — ${row.pharmacy_response.note}` : ''}</p>}
+                      {row.admin_note && <p className="text-sm text-slate-700">ملاحظة الإدارة: {row.admin_note}</p>}
+                      {row.attached_docs?.length ? <p className="text-sm">{row.attached_docs.map((url, i) => <a key={url} href={url} target="_blank" rel="noreferrer" className="ml-3 text-teal-700 underline">مرفق {i + 1}</a>)}</p> : null}
                       {row.items?.length ? <ul className="list-inside list-disc text-sm text-slate-600">
                         {row.items.map((item, index) => <li key={`${item.medicine_id || 'item'}-${index}`}>
                           {item.name_ar || item.medicine_id || 'عنصر'} · {item.qty || 1} × {item.price || 0} ر.س
@@ -99,10 +108,10 @@ export default function ReturnsAdminPage() {
                     </div>
                     <div className="shrink-0 text-left">
                       <p className="text-lg font-bold text-emerald-700">{Number(row.amount || 0).toFixed(2)} ر.س</p>
-                      <p className="text-xs text-slate-500">{row.booking_kind || labels[row.service_type] || row.service_type} · {row.status}</p>
+                      <p className="text-xs text-slate-500">{row.booking_kind || labels[row.service_type] || row.service_type} · {statusLabels[row.status] ?? row.status}</p>
                     </div>
                   </div>
-                  {status === 'processing' && <div className="mt-4 flex gap-2 border-t pt-3">
+                  {status === 'processing' && canDecide && <div className="mt-4 flex gap-2 border-t pt-3">
                     <button type="button" disabled={workingId === row.id} onClick={() => void decide(row, 'approved')}
                       className="rounded-lg bg-teal-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">اعتماد الاسترداد</button>
                     <button type="button" disabled={workingId === row.id} onClick={() => void decide(row, 'rejected')}

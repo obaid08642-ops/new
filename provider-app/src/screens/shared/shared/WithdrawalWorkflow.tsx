@@ -32,7 +32,7 @@ import { tokens, withAlpha } from '../../../theme/tokens';
 const PENDING_STATES = ['PENDING_ADMIN_APPROVAL', 'AWAITING_SECOND_APPROVAL', 'APPROVED_FOR_PAYOUT'];
 
 export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [loading, setLoading] = useState(true);
   const [loadErr, setLoadErr] = useState(false);
   const [balance, setBalance] = useState<{ available: number; pending: number; negative: boolean; minimum: number | null } | null>(null);
@@ -245,7 +245,7 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
         {bankRejected && (
           <NCard style={{ backgroundColor: theme.dangerBg }}>
             <Text style={{ fontSize: FS.sm, color: theme.danger, textAlign: AR ? 'right' : 'left' }}>
-              {AR ? 'رُفض حسابك البنكي. صحّح البيانات وأعد إرسالها للمراجعة.' : 'Your bank account was rejected. Correct the details and send them for review again.'}
+              {t('audit2.withdrawal.bankRejected')}
               {bank?.reviewer_note ? `\n${bank.reviewer_note}` : ''}
             </Text>
           </NCard>
@@ -253,7 +253,7 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
 
         {needsBankSetup && (
           <View style={{ gap: SP.md }}>
-            <NSecHeader title={bankRejected ? (AR ? 'تصحيح الحساب البنكي' : 'Correct the bank account') : (AR ? 'إعداد الحساب البنكي (أول مرة)' : 'Bank Account Setup (first time)')} />
+            <NSecHeader title={bankRejected ? (t('audit2.withdrawal.correctBank')) : (t('audit2.withdrawal.setupBank'))} />
             <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
               {AR ? 'اختر البنك:' : 'Select bank:'}
             </Text>

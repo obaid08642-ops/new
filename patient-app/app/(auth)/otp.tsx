@@ -11,7 +11,7 @@ import { startSession } from '../../src/utils/authSession';
 import { serverMessage } from '../../src/utils/serverMessage';
 import { LocalizedText } from '../../src/components/LocalizedText';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
-import { requestOtp, verifyOtp } from '../../src/auth/patientAuth';
+import { applyOtpInput, requestOtp, verifyOtp } from '../../src/auth/patientAuth';
 import { AuthAltLine, AuthBody, AuthFooter, AuthLink, AuthTitle, AuthTopBar, FONT, focusRing, useAuthUi } from '../../src/components/auth/AuthKit';
 
 export default function OtpScreen() {
@@ -35,13 +35,11 @@ export default function OtpScreen() {
   }, [timer]);
 
   const handleChange = (text: string, index: number) => {
-    const newOtp = [...otp];
-    newOtp[index] = text;
-    setOtp(newOtp);
-
-    if (text && index < 5) {
-      inputs.current[index + 1]?.focus();
-    }
+    // a pasted or auto-filled code arrives whole in one box: spread it over the boxes (applyOtpInput)
+    const { boxes, focus } = applyOtpInput(otp, text, index);
+    setOtp(boxes);
+    if (text && focus !== index) inputs.current[focus]?.focus();
+    else if (text && index < 5) inputs.current[index + 1]?.focus();
   };
 
   const handleResend = async () => {
@@ -167,7 +165,7 @@ export default function OtpScreen() {
                   color: c.text.primary,
                   outlineStyle: 'none',
                 } as object}
-                maxLength={1}
+                maxLength={6}
                 keyboardType="number-pad"
                 textContentType={i === 0 ? 'oneTimeCode' : 'none'}
                 autoComplete={i === 0 ? 'sms-otp' : 'off'}

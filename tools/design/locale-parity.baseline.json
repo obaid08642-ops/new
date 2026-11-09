@@ -30,7 +30,7 @@
       "fil": {
         "missing": 0,
         "empty": 0,
-        "english": 23
+        "english": 22
       }
     },
     "app": {
@@ -63,6 +63,18 @@
         "missing": 0,
         "empty": 0,
         "english": 4
+      }
+    },
+    "provider": {
+      "ar": {
+        "missing": 0,
+        "empty": 0,
+        "english": 0
+      },
+      "en": {
+        "missing": 0,
+        "empty": 0,
+        "english": 0
       }
     }
   }

@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { RefundPolicyTick } from "@/components-next/refund-policy/refund-policy-tick";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
@@ -39,6 +40,8 @@ export function ReorderPicker({ locale, orderId, lines, skipped, needsPrescripti
   const [picks, setPicks] = useState<Record<string, Pick>>(() => Object.fromEntries(lines.map((line) => [line.id, { on: true, qty: line.qty }])));
   const [adding, setAdding] = useState(false);
   const [sending, setSending] = useState(false);
+  // the refund policy is shown before the request is sent and agreed here (the backend refuses an order without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
   const [failure, setFailure] = useState<SendFailure | null>(null);
   const attempt = useRef(createBroadcastAttempt());
   const address = useDeliveryAddress(lines.length > 0);
@@ -53,7 +56,7 @@ export function ReorderPicker({ locale, orderId, lines, skipped, needsPrescripti
     );
   }
 
-  const canSend = chosen.length > 0 && address.status === "ready" && !sending && !adding;
+  const canSend = chosen.length > 0 && address.status === "ready" && refundAgreed && !sending && !adding;
 
   // a new request, the same single-flight send as the checkout; the cart is left exactly as it is
   async function send() {
@@ -129,6 +132,7 @@ export function ReorderPicker({ locale, orderId, lines, skipped, needsPrescripti
           {failure === "session" ? <div className={rx.errorActions}><Link className={rx.textLink} href={`/${locale}/login`}>{flow("signIn")}</Link></div> : null}
         </div>
       ) : null}
+      <RefundPolicyTick locale={locale} checked={refundAgreed} onChange={setRefundAgreed} />
       <div className={styles.actions}>
         <Button label={sending ? checkout("sending") : checkout("send")} fullWidth disabled={!canSend} loading={sending} onClick={() => void send()} />
         <Button label={t("addToCart")} variant="outline" fullWidth disabled={chosen.length === 0 || sending} loading={adding} onClick={add} />

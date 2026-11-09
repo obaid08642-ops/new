@@ -1,0 +1,56 @@
+# Moyasar go-live checklist (session F, re-verified 2026-11-02 against the code on `main`)
+
+Every row was checked in the code (file:line below) or by a journey/spec that ran. No key and no live call was used.
+**done** = in the code and covered by a test or journey. **owner-key** = needs a value or an account step only the owner has. **missing** = not in the code yet.
+
+## Checks
+
+| # | Item | Status | Evidence |
+| --- | --- | --- | --- |
+| 1 | Webhook authentication: body `secret_token` equals `MOYASAR_WEBHOOK_SECRET` (constant time), or an HMAC-SHA256 of the raw body; no secret = everything refused | done | `common/moyasar-webhook-auth.ts:17-45`; used by `payments.module.ts:733`, `webhooks.service.ts:71`, `moyasar.module.ts:389`. Journey `j_payment_webhook.py` (wrong secret, no secret, right secret, redelivery, unknown id) |
+| 2 | A forged "paid" cannot mark a payment paid: the webhook only triggers `verifyPayment`, which re-reads the invoice from Moyasar and compares amount and currency | done | `payments.module.ts:728-750` (`handleWebhook` → `verifyPayment`), `:262-273` (`gatewayAmountMatches`), `:568` (a mismatch is stored as failed) |
+| 3 | Charge idempotency: `Idempotency-Key` required (max 128), one live attempt per booking, repeat returns the same checkout, an already paid booking is refused | done | `payments.module.ts:454-458`; partial unique index `transaction_one_active_intent_per_booking` at `schemas/transaction.schema.ts:39`; `j_payment_failed_retry.py` |
+| 4 | Webhook and verify idempotency: a transaction already paid/refunded returns at once; gateway events are deduplicated for 24 h | done | `payments.module.ts:559` (`verifyPayment`), `webhooks.service.ts:51` (replay protection, 24 h) |
+| 5 | Refund idempotency per `refund_id`, capped at the amount paid | done | `finance-engine.module.ts:630-643` (`RefundExecutor.execute`) |
+| 6 | Failed or abandoned card payment frees the slot (last gateway check, then cancel; money arriving later is refunded) | done | `payments.module.ts:818-870` (`PaymentAbandonService`, every 5 min, `paymentWindowMinutes()` at `:810`, default 30) |
+| 7 | **Return address after the hosted checkout (3-D Secure included) is an absolute https URL** | **done (this PR)** | `common/payment-return-url.ts` + `payments.module.ts` `createIntent`: in production with neither `PAYMENT_RESULT_URL` nor `PUBLIC_APP_URL`, the address handed to Moyasar was the bare path `/payments/result` (Moyasar rejects it: every card payment would fail at go-live). Now `503 payment_return_url_not_configured` before Moyasar is called; spec `payment-return-url.spec.ts` |
+| 8 | Web result page reads the status from the server, never from the address | done | `patient-web/app/[locale]/payments/result`, journey `j_web_payment_result.py` |
+| 9 | App result screen reads the status from the server, polls, refreshes on foreground | done | `patient-app/app/payments/result.tsx`, journey `j_app_killed_payment.py` |
+| 10 | **The return address reopens the app** | **missing** | The return address is `https://nabd.plus/payments/result` (host `nabd.plus`, path `/payments/result`). The app registers app links only for `app.nabd.plus` with the paths `/ar`, `/en` ... and `/p/` (`patient-app/app.json:19-…` Android intent filters, `:5364` iOS associated domains), and `patient-web/public/.well-known/` holds only `security.txt`: there is no `assetlinks.json` and no `apple-app-site-association`. A patient who pays from the app lands in the browser, on the result page, which works but does not return to the app. Needs: the two association files (owner-key: the Android signing SHA-256 and the Apple team id) and either a registered return path or a return page that opens the app |
+| 11 | Sandbox journey against the provider double | done | `tools/live/fake_moyasar.py` with `j_payment_webhook.py`, `j_web_payment_result.py`, `j_app_killed_payment.py`, `j_payment_failed_retry.py`, `j_settlement_overrides.py` (end to end: card payments to payout) |
+| 12 | Journey against the real Moyasar sandbox | owner-key | `tools/payments/record-moyasar-sandbox.mjs` needs an `sk_test_` key |
+| 13 | `MOYASAR_API_KEY` (live key) | owner-key | selects the gateway and signs intents (`payment-gateway.ts:75`, `payments.module.ts:141`). `MOYASAR_SECRET_KEY` (same value) is read first by refund and capture (`payments.module.ts:683`, `finance-engine.module.ts:612`); `config/env.validation.ts:26-` treats placeholder values (`pending_real_key`, `changeme` ...) as unset, so a placeholder answers `payment_gateway_not_configured` |
+| 14 | `MOYASAR_WEBHOOK_SECRET` equal to the token set on the webhook in the Moyasar dashboard | owner-key | without it every webhook is refused (`moyasar-webhook-auth.ts:21`); payments would still settle through `POST /payments/verify` and the abandon sweeper, but late |
+| 15 | `PAYMENT_RESULT_URL` (https) or `PUBLIC_APP_URL` | owner-key | row 7 |
+| 16 | `PAYMENT_PROVIDER=moyasar` when more than one gateway key is present | owner-key | `payment-gateway.ts:93-105` (unknown or unconfigured provider fails at start) |
+| 17 | Optional `MOYASAR_API_BASE` (https in production), `PAYMENT_WINDOW_MINUTES` | done | `common/moyasar-base.ts:6-7`, `payments.module.ts:810` |
+| 18 | Register ONE webhook URL in the Moyasar dashboard: `/payments/webhook/moyasar` | owner-key | the canonical receiver is `payments.module.ts:799`. Two more receivers still exist (`/webhooks/moyasar`, `webhooks.controller.ts:20`; the legacy `moyasar.module.ts:528`); registering more than one makes every event arrive twice (safe, deduplicated, noisy) |
+| 19 | Legacy return handler `moyasar.module.ts:553` falls back to `https://nabd.plus/payments/result` | done | only used by the legacy `/moyasar/callback`; the web route has a locale prefix (`/[locale]/payments/result`), so the locale middleware must redirect `/payments/result`: not verified, check once on staging |
+| 20 | Invoices: seller name and VAT number | owner-key | CORRECTION of the earlier note: production did **not** refuse to issue without a VAT number (nothing in `billing.module.ts` checks `NODE_ENV`); the invoice was issued with "seller not configured". With #2368 (receipt mode) a document without a VAT number is a payment receipt. Set `finance_config` `invoice` (`seller_name`, `vat_number`, `cr_number`, `address`) or `ZATCA_SELLER_NAME` / `ZATCA_VAT_NUMBER`; there is no admin screen for it yet |
+| 21 | Refund to card issues a credit note / refund receipt and the provider is debited | done | `RefundExecutor` (`finance-engine.module.ts:630-`), `billing.module.ts` `issueCreditNote` (`payment.refund.card`), `docs/payments/INVOICES.md` |
+
+## Sandbox path (#551): what the owner must set now (names only)
+The server has `MOYASAR_API_KEY`. It lacks these three:
+
+| Name | Value | Without it |
+| --- | --- | --- |
+| `PAYMENT_PROVIDER` | `moyasar` | With a single gateway key the gateway is still picked automatically; set it so a second key can never change the processor silently |
+| `MOYASAR_SECRET_KEY` | the same secret key as `MOYASAR_API_KEY` | Refund and capture fall back to `MOYASAR_API_KEY` (`payments.module.ts:683`), so refunds still work with a single key |
+| `MOYASAR_WEBHOOK_SECRET` | the secret token set on the webhook in the Moyasar dashboard | Every webhook is refused (`moyasar-webhook-auth.ts:21`); payments still settle through `POST /payments/verify` and the 5-minute abandon sweep, but late |
+
+Also needed for the hosted checkout in production: `PAYMENT_RESULT_URL` (https) or `PUBLIC_APP_URL`. Use an `sk_test_` key for the sandbox.
+
+How the product refuses without them (all plain codes, no setting name in the answer):
+
+| Missing | Server answer | App and web |
+| --- | --- | --- |
+| gateway key | `503 payment_gateway_not_configured` (`payments.module.ts:463`) | a translated "payment not available, nothing was charged" sentence on pharmacy, consultation, nursing, diagnostics (app `utils/paymentGateway.ts`, web `errPayDown`); the booking is kept |
+| https return address (production) | `503 payment_return_url_not_configured` before Moyasar is called | same sentence |
+| webhook secret | `400 invalid_webhook_signature` (`payments.module.ts:735`), nothing is marked paid | the result page reads the status from the server, so it shows "processing" until verify or the sweep settles it |
+| wrong `PAYMENT_PROVIDER` | the server refuses to start (`payment_provider_unknown` / `payment_gateway_not_configured`, `payment-gateway.ts:93-105`) | not applicable |
+
+## Check a server, and what the gate proves (#551)
+`node tools/payments/check-moyasar-env.mjs` (run where the environment is loaded) prints each setting NAME with a fixed verdict sentence, never a value, and exits 1 while anything required is missing: `PAYMENT_PROVIDER`, `MOYASAR_API_KEY`, `MOYASAR_SECRET_KEY`, `MOYASAR_WEBHOOK_SECRET`, and `PAYMENT_RESULT_URL` or `PUBLIC_APP_URL` (https in production). `tools/payments/check-moyasar-env.test.mjs` pins that no value is printed (its keys are built at run time so the repository holds no key-shaped text). The live gate starts the backend with the same names (`tools/live/start-backend.sh`), and `j_payment_webhook` 44/44, `j_payment_failed_retry` 44/44 and `j_refund_matrix` 458/458 pass under it. Still needs the owner: an `sk_test_` key in the server environment, then `tools/payments/record-moyasar-sandbox.mjs` for real sandbox answers and one test-card payment through the hosted page (rows 12 and 18).
+
+## What the owner must set (names only)
+`MOYASAR_API_KEY` (and `MOYASAR_SECRET_KEY`, same value), `MOYASAR_WEBHOOK_SECRET`, `PAYMENT_RESULT_URL` or `PUBLIC_APP_URL`, `PAYMENT_PROVIDER=moyasar` if other gateway keys exist, optional `MOYASAR_API_BASE` and `PAYMENT_WINDOW_MINUTES`; in the Moyasar dashboard one webhook `/payments/webhook/moyasar` with that secret token; `ZATCA_SELLER_NAME` / `ZATCA_VAT_NUMBER` (or `finance_config` `invoice`) when the company is VAT-registered; for the app return: the Android signing SHA-256 and the Apple team id for the association files.

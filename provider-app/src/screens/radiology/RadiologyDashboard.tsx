@@ -1,5 +1,8 @@
 // @ts-nocheck
 import { confirmBlocker, confirmBlockerText } from '../../utils/confirmBlocker';
+import { MyContractRow } from '../../components/MyContract';
+import { NotificationsCenterScreen } from '../shared/RealScreens';
+import { BookingChatScreen } from '../shared/BookingChatScreen';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, RefreshControl, ActivityIndicator, Switch } from 'react-native';
 import { useTheme, useLang, useToast } from '../../context';
@@ -49,15 +52,15 @@ const Stack = createNativeStackNavigator();
 
 export function RadiologyDashboardNavigator({ onLogout }: { onLogout: () => void }) {
   const [activeTab, setActiveTab] = useState('home');
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const AR = lang === 'ar';
   
   const tabs = [
-    { key: 'home',     icon: 'home',     label: AR ? 'الرئيسية' : 'Home'    },
-    { key: 'orders',   icon: 'document', label: AR ? 'الطلبات'  : 'Orders'  },
-    { key: 'catalog',  icon: 'grid',     label: AR ? 'الكتالوج' : 'Catalog' },
-    { key: 'schedule', icon: 'calendar', label: AR ? 'الجدول'   : 'Schedule'},
-    { key: 'settings', icon: 'settings', label: AR ? 'الإعدادات': 'Settings'},
+    { key: 'home',     icon: 'home',     label: t('radiology.tab.home') },
+    { key: 'orders',   icon: 'document', label: t('radiology.tab.orders') },
+    { key: 'catalog',  icon: 'grid',     label: t('radiology.tab.catalog') },
+    { key: 'schedule', icon: 'calendar', label: t('radiology.tab.schedule') },
+    { key: 'settings', icon: 'settings', label: t('radiology.tab.settings') },
   ];
 
   return (
@@ -78,7 +81,9 @@ export function RadiologyDashboardNavigator({ onLogout }: { onLogout: () => void
         }}
       </Stack.Screen>
 
+      <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="order_detail">{({ navigation, route }: any) => <OrderDetailScreen order={route.params?.param} onBack={() => navigation.goBack()} onNav={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+      <Stack.Screen name="booking_chat">{({ navigation, route }: any) => <BookingChatScreen kind="radiology" order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="reporting">{({ navigation, route }: any) => <ReportingScreen order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       {orderingStackScreens(Stack, 'radiology')}
@@ -193,7 +198,7 @@ function RadiologyHome({ onNav }: { onNav: (s: string, p?: any) => void }) {
 
 // ══════ ORDERS TAB ══════
 function RadiologyOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) {
-  const { theme } = useTheme(); const { lang } = useLang();
+  const { theme } = useTheme(); const { lang, t } = useLang();
   const AR = lang === 'ar';
   const [tab, setTab] = useState<'new'|'insurance'|'confirmed'|'inScan'>('new');
   const { orders, loading, reload, loadFailed } = useRadiologyInbox();
@@ -213,8 +218,8 @@ function RadiologyOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) 
       </View>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}>
         {loadFailed && orders.length === 0
-          ? <NEmpty title={AR ? 'تعذر تحميل الطلبات' : 'Could not load the orders'} actionLabel={AR ? 'إعادة المحاولة' : 'Retry'} onAction={reload} icon="document" />
-          : <RadiologyInboxList orders={filtered} loading={loading} emptyTitle={AR ? 'لا توجد طلبات' : 'No orders'} onOpen={(o) => onNav('order_detail', o)} />}
+          ? <NEmpty title={t('audit2.radiology.loadFailed')} actionLabel={t('audit2.retry')} onAction={reload} icon="document" />
+          : <RadiologyInboxList orders={filtered} loading={loading} emptyTitle={t('audit2.radiology.noOrders')} onOpen={(o) => onNav('order_detail', o)} />}
       </ScrollView>
     </View>
   );
@@ -222,7 +227,7 @@ function RadiologyOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) 
 
 // ══════ ORDER DETAIL SCREEN — PILLAR 4+5+6 ══════
 function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () => void; onNav: (s: string, p?: any) => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast();
+  const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast();
   const AR = lang === 'ar';
   const [loading, setLoading] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(order);
@@ -341,6 +346,7 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
       {/* Actions by State — PILLAR 5 */}
       <NSecHeader title={AR ? 'الإجراءات' : 'Actions'} />
       <View style={{ gap: SP.md, marginBottom: SP.xl }}>
+        {!['CANCELLED', 'REJECTED'].includes(String(currentOrder.state)) && <NBtn label={t('bookingChat.open')} variant="outline" onPress={() => onNav('booking_chat', currentOrder)} />}
         {currentOrder.state === 'NEW_REQUEST' && (<>
           {currentOrder.payment_method === 'insurance' ? (
             <NBtn label={AR?' تسجيل قرار تغطية داخلي':' Record Internal Coverage Decision'} variant="outline" onPress={() => setShowApproval(true)} />
@@ -348,7 +354,7 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
             // server accepts only cash at the center or a paid card booking (radiology.service assertConfirmable)
             confirmBlocker(currentOrder)
               ? <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{confirmBlockerText(confirmBlocker(currentOrder)!, AR)}</Text>
-              : <NBtn label={AR?' قبول الحجز':' Accept booking'} loading={loading} onPress={acceptBooking} style={{ backgroundColor:tokens.mintDeep }} />
+              : <NBtn label={t('audit2.radiology.acceptBooking')} loading={loading} onPress={acceptBooking} style={{ backgroundColor:tokens.mintDeep }} />
           )}
           <NBtn label={AR?' رفض الحجز':' Reject booking'} variant="danger" onPress={() => setShowReject(true)} />
         </>)}
@@ -363,8 +369,9 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
           <NBtn label={AR?' إلغاء الفحص طارئ':' Emergency Abort Scan'} variant="danger" onPress={() => setShowAbort(true)} />
         </>)}
         {currentOrder.state ==='REPORT_DRAFT' && <NBtn label={AR?' إرسال للمراجعة الطبية':' Submit for Radiologist Review'} loading={loading} onPress={() => doAction('submit-report-for-review')} />}
-        {currentOrder.state ==='UNDER_REVIEW' && <NBtn label={AR?' اعتماد وإرسال التقرير':' Approve & Publish Report'} loading={loading} onPress={() => doAction('approve-report')} style={{ backgroundColor:tokens.success }} />}
-        {currentOrder.state ==='SCAN_ABORTED' && (<View style={{ backgroundColor:withAlpha(tokens.error, 0.12), borderRadius: R.md, padding: SP.md }}><Text style={{ color:tokens.error, fontWeight: FW.bold, textAlign:'center', marginBottom: SP.md }}>{AR?` سبب الإلغاء: ${currentOrder.abort_reason}`:` Abort Reason: ${currentOrder.abort_reason}`}</Text><Text style={{ color: theme.textSub, textAlign: 'center' }}>{AR ? 'أُلغي الفحص. يحجز المريض موعداً جديداً من تطبيقه.' : 'The scan was aborted. The patient books a new appointment from their app.'}</Text></View>)}
+        {currentOrder.state ==='UNDER_REVIEW' && currentOrder.report_can_approve !== false && <NBtn label={AR?' اعتماد وإرسال التقرير':' Approve & Publish Report'} loading={loading} onPress={() => doAction('approve-report')} style={{ backgroundColor:tokens.success }} />}
+        {currentOrder.state ==='UNDER_REVIEW' && currentOrder.report_handled_by_me === true && <Text style={{ color: theme.textSub, fontSize: FS.sm, textAlign: AR ? 'right' : 'left' }}>{t('radiology.approve.handledByYou')}</Text>}
+        {currentOrder.state ==='SCAN_ABORTED' && (<View style={{ backgroundColor:withAlpha(tokens.error, 0.12), borderRadius: R.md, padding: SP.md }}><Text style={{ color:tokens.error, fontWeight: FW.bold, textAlign:'center', marginBottom: SP.md }}>{AR?` سبب الإلغاء: ${currentOrder.abort_reason}`:` Abort Reason: ${currentOrder.abort_reason}`}</Text><NBtn label={AR?' إعادة الجدولة':' Reschedule'} loading={loading} onPress={() => setShowReschedule(true)} /></View>)}
         {currentOrder.state ==='REPORT_READY' && (<View style={{ backgroundColor:withAlpha(tokens.success, 0.12), borderRadius: R.md, padding: SP.lg, alignItems:'center' }}><Text style={{ color:tokens.success, fontSize: FS.lg, fontWeight: FW.bold }}>{AR?' التقرير أُرسل للمريض':' Report Sent to Patient'}</Text>{currentOrder.doctor_notified && <Text style={{ color:tokens.mintDeep, fontSize: FS.sm, marginTop: SP.sm }}>{AR?' تم إشعار الطبيب المحيل':' Referring doctor notified'}</Text>}</View>)}
       </View>
 
@@ -642,6 +649,7 @@ function RadiologySettingsScreen({ onLogout, onNav }: { onLogout: () => void; on
         <NBtn label={AR ? 'دليل الأدوية الطبي' : 'Medical Drug Index'} variant="outline" onPress={() => onNav && onNav('drug_index')} />
         <NBtn label={AR ? 'الوظائف الطبية' : 'Medical Jobs'} variant="outline" onPress={() => onNav && onNav('medical_jobs')} style={{ marginTop: SP.sm }} />
       </NCard>
+      <NCard style={{ marginBottom: SP.md }}><MyContractRow /></NCard>
       <NCard style={{ marginTop: SP.xl }}><NBtn label={AR ? 'تسجيل الخروج' : 'Logout'} onPress={onLogout} style={{ backgroundColor: tokens.error, borderColor: tokens.error }} /></NCard>
     </ScrollView>
   );

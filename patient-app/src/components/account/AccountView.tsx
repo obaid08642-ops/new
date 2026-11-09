@@ -121,7 +121,8 @@ export function AccountView() {
       <Panel testID="account-rows">
         <Row icon="map-pin-line" tone={RX_TONE} title={k('account.addresses')} subtitle={counts.addresses === null ? undefined : k('account.addressCount', { n: counts.addresses })} onPress={go('/profile/addresses')} last={!showFamily && !showInsurance} testID="account-addresses" />
         {showFamily ? <Row icon="users-three" tone="peach" title={k('account.family')} subtitle={counts.family === null ? undefined : k('account.familyCount', { n: counts.family })} onPress={guarded('/family', 'family')} last={!showInsurance} testID="account-family" /> : null}
-        {showInsurance ? <Row icon="shield-check" tone={CARE_TONE} title={k('account.insurance')} subtitle={counts.insurance ?? undefined} onPress={guarded('/profile/insurance', 'insurance')} last testID="account-insurance" /> : null}
+        {showInsurance ? <Row icon="shield-check" tone={CARE_TONE} title={k('account.insurance')} subtitle={counts.insurance ?? undefined} onPress={guarded('/profile/insurance', 'insurance')} testID="account-insurance" /> : null}
+        <Row icon="receipt" tone="blue" title={k('receipt.listTitle')} onPress={go('/receipts')} last testID="account-receipts" />
       </Panel>
       <Panel testID="account-settings-rows">
         <Row icon="gear" tone={CARE_TONE} title={k('account.settings')} subtitle={k('account.settingsHint')} onPress={go('/settings')} testID="account-settings" />

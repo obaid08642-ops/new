@@ -8,10 +8,10 @@ import { isLocale } from "@/lib/i18n";
 export const WEB_ROUTE_ROOTS = [
   "ai", "appointments", "articles", "c", "cart", "chat", "community", "condition", "consultations", "dashboard", "delivery",
   "diagnostics", "doctor", "doctors", "drug-scanner", "emergency", "facility", "family", "features", "health", "home-care", "home-nursing",
-  "insurance", "labs", "loyalty", "map", "maternity", "medical-orders", "medicine", "medicine-catalog", "medicines", "mental-health",
+  "insurance", "labs", "loyalty", "map", "maternity", "medical-orders", "medical-reports", "medicine", "medicine-catalog", "medicines", "mental-health",
   "notifications", "nursing", "nutrition", "offers", "orders", "p", "payments", "pharmacies", "pharmacy", "prescriptions", "privacy",
-  "profile", "programs", "provider-info", "radiology", "receipts", "refund-policy", "reports", "returns", "reviews", "room", "s", "search",
-  "services", "settings", "support", "telehealth-consent", "terms", "voice", "wishlist",
+  "profile", "programs", "provider-info", "radiology", "receipt", "receipts", "refund-policy", "reports", "returns", "reviews", "room", "s", "search",
+  "services", "settings", "support", "telehealth-consent", "terms", "verify", "voice", "wishlist",
 ] as const;
 
 const SAFE_PATH = /^\/[A-Za-z0-9\-._~%/]*(\?[A-Za-z0-9\-._~%=&]*)?$/;

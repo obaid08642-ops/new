@@ -10,7 +10,9 @@ import { APPT_STATES } from '../../schemas/appointment.schema';
 import { isChaosFail } from '../../common/chaos-switches';
 import { CoturnService } from '../coturn/coturn.service';
 import { cloudflareTurn } from '../coturn/cloudflare-turn.service';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { audioOnlyAdvice, chooseTransport, maxCallsPerHost, type LinkSample } from './call-transport';
+import { ScheduledOnce } from '../../common/scheduled-once';
 
 /** A ringing call that nobody answered stops counting against the host after this long; an active call after the longest consultation. */
 const RINGING_MS = 2 * 60_000;
@@ -99,7 +101,14 @@ export class LiveKitService {
     return { provider: 'livekit', token, room, ice_servers: await this.iceServersFor(String(user?.id)), audio_only: advice.audio_only, audio_only_reason: advice.reason };
   }
 
-  async getProviderWaitingRoom(providerId: string) {
+  /** The kinds of appointment the schedule has: a clinic visit, a video consultation, a home visit. */
+  static readonly SERVICE_TYPES = ['clinic', 'video', 'home'] as const;
+
+  /** Today's patients of this doctor; `serviceType` keeps one kind (the virtual waiting room asks for `video`). Every row says its kind. */
+  async getProviderWaitingRoom(providerId: string, serviceType?: string) {
+    if (serviceType !== undefined && !(LiveKitService.SERVICE_TYPES as readonly string[]).includes(serviceType)) {
+      throw new BadRequestException('invalid_service_type');
+    }
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
@@ -111,12 +120,14 @@ export class LiveKitService {
       doctor_user_id: providerId,
       status: { $in: ['PENDING', 'CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS'] },
       slot_start: { $gte: today, $lt: tomorrow },
+      ...(serviceType ? { service_type: serviceType } : {}),
     }).lean();
 
     return appointments.map((a: any) => ({
       id: a.id || a._id?.toString(),
       name: a.patient_name || 'مريض',
       time: a.slot_start,
+      service_type: a.service_type ?? null,
       checkedIn: a.status === 'CHECKED_IN',
       status: a.status,
     }));
@@ -172,6 +183,10 @@ export class LiveKitService {
       throw new BadRequestException('appointment_not_no_show_eligible');
     }
 
+    // A no-show can only be recorded once the patient has been late for a while: never before the visit starts.
+    const startAt = appt.slot_start ? new Date(appt.slot_start).getTime() : 0;
+    if (startAt && Date.now() < startAt + 10 * 60_000) throw new BadRequestException('no_show_too_early');
+
     const from = appt.status;
     appt.status = 'NO_SHOW';
     appt.cancellation_reason = appt.cancellation_reason || 'provider_marked_no_show';
@@ -179,6 +194,8 @@ export class LiveKitService {
     appt.refund_destination = 'none';
     appt.state_history = [...(appt.state_history || []), { state: 'NO_SHOW', at: new Date(), by_user_id: providerId, by_role: 'doctor', note: 'no_show' }];
     await appt.save();
+    // the patient is told the visit was recorded as missed (the refund rule is the finance engine's, not decided here)
+    this.events.emit('doctor_appointment.no_show', { id: appt.id, patient_id: appt.patient_id, patient_account_id: appt.patient_account_id, doctor_id: providerId });
     return { success: true, message: 'Marked as no-show', previous_status: from };
   }
 
@@ -235,6 +252,7 @@ export class LiveKitService {
     const sessionId = `call_${randomUUID()}`;
     await this.callSessions.insertOne({
       id: sessionId, appointment_id: bookingId, patient_id: patientId, provider_id: providerId,
+      caller_id: String(callerId), callee_id: String(resolvedCallee),
       room_name: roomName, call_type: callType || 'video', status: 'INITIATED', transport,
       createdAt: new Date(), updatedAt: new Date(),
     });
@@ -326,15 +344,45 @@ export class LiveKitService {
     return { room_name: session.room_name, token, appointment_id: session.appointment_id ?? null, ...(await this.transportInfo(transport, userId)) };
   }
 
+  /**
+   * A call nobody answered within the ringing time becomes MISSED and the callee gets the missed-call push/notice (`call.missed`:
+   * push.module `onCallMissed`, notifications.service). Sessions written before caller/callee were stored are left as they are.
+   */
+  @Cron(CronExpression.EVERY_MINUTE)
+  @ScheduledOnce()
+  async sweepUnanswered(now: Date = new Date()): Promise<number> {
+    const cutoff = new Date(now.getTime() - RINGING_MS);
+    const due: any[] = await this.callSessions.find({ status: 'INITIATED', createdAt: { $lt: cutoff }, callee_id: { $exists: true } }, { projection: { _id: 0 } }).limit(200).toArray();
+    let missed = 0;
+    for (const session of due) {
+      const res: any = await this.callSessions.updateOne(
+        { id: session.id, status: 'INITIATED' },
+        { $set: { status: 'MISSED', end_reason: 'unanswered', ended_at: now, updatedAt: now } },
+      );
+      if ((res?.modifiedCount ?? 0) < 1) continue;   // answered or ended meanwhile
+      missed += 1;
+      this.events.emit('call.missed', {
+        callee_id: String(session.callee_id), caller_id: String(session.caller_id), session_id: session.id,
+        patient_id: String(session.callee_id) === String(session.patient_id) ? String(session.patient_id) : undefined,
+      });
+    }
+    return missed;
+  }
+
   async endCall(sessionId: string, userId: string) {
     const session = await this.findOwnedSession(sessionId, userId);
     this.logger.log(`User ${userId} ended call ${sessionId}`);
     const started = session.started_at ? new Date(session.started_at).getTime() : null;
     const duration = started ? Math.max(0, Math.round((Date.now() - started) / 1000)) : 0;
-    await this.callSessions.updateOne(
+    const res: any = await this.callSessions.updateOne(
       { id: session.id, status: { $in: ['INITIATED', 'ACTIVE'] } },
       { $set: { status: 'ENDED', ended_at: new Date(), duration_seconds: duration, ended_by: userId, updatedAt: new Date() } },
     );
+    // ended while still ringing: tell the other side's devices to stop ringing (push reaches a backgrounded or killed app)
+    if (session.status === 'INITIATED' && (res?.modifiedCount ?? 1) > 0) {
+      const other = session.patient_id === userId ? session.provider_id : session.patient_id;
+      if (other) this.events.emit('call.cancelled', { callee_id: String(other), caller_id: userId, session_id: session.id });
+    }
     return { success: true };
   }
 

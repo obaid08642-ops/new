@@ -3,7 +3,7 @@
 > **Session start (owner, 2026-10-06): read only this file's "Next", then grep `SCREEN_INVENTORY.md` and `WIRING_REPORT.md` for the routes of the current batch. Do not read those two files in full.** History: `PROGRESS_ARCHIVE.md` (do not read at session start). Rules: `/AGENTS.md`, `QUALITY_STANDARDS.md`, `README.md`.
 > After every PR: update this file (keep it under 8 KB). Context low: commit, push, update this file, stop.
 
-_Updated 2026-10-26._
+_Updated 2026-11-08._
 
 ## State
 
@@ -20,14 +20,14 @@ _Updated 2026-10-26._
 
 ## Next
 
-0. **Owner colour + layout stack (2026-10-25/26), all open, none merged by the design session.** Colour: social buttons #1961; logo never black #1968 (+ `docs/design/LOGO_RULE.md`); public web ink sweep #1971; no ink on interactive elements #1974 (web, shared `packages/ui`; the app part #1975 is merged); follow-up (coral dark splash, Sign-in clip at 390, no ink tiles) #1980, stacked on #1974. Layout (each PR stacked on the one before, review/merge in order): header #1981 web, #1982 app; pharmacy #1984 web, #1985 app; labs/radiology #1986 web, #1988 app; consultations #1989 web, #1990 app. Most of it is **not seen at runtime** (no backend or no render tool in the sandbox): PR bodies say what was and was not seen.
+00. **Invoice UI (2026-11-01, one PR `design/invoice-ui`, web + app, on #2362's fields):** company block with "not configured", booking number, provider block, refund state and credit notes, Save as image, Share, share links (create, copy, expiry, revoke), public `/[locale]/receipt/shared/[token]` (noindex, no-store, no referrer), the existing Receipts list extended. new keys in 6 languages (web 'Receipt', app 'receipt.'). Open lines: `needs-review/invoice-ui.json` (5; owner: new native module `react-native-view-shot` needs a new app build; share address uses nabd.plus). Parity: web lists >= 28 PRs done in `PARITY.md`; before 2026-10-28 still to list.
+0. **Owner colour + layout stack (2026-10-25/26): all merged** (colour #1961, #1968, #1971, #1974, #1975, #1980; layout #1981-#1990). Most of it was **not seen at runtime** (no backend or render tool in the sandbox).
    - **Open owner/reviewer questions:** pharmacy category art is picked by keywords in the localized name, needs a backend `categoryKey`; the app has no hamburger menu (what would it open?) and no favourites count badge; consultations app: price-band filter removed, "Shortest wait" not offered (no backend value), `DoctorSearchView` still has its own chips; web grade filter shows six degrees (brief said three); labs still say "Self-pay" (`needs-review/layout-consult-web.json`); next-slot only on `/care/doctors` rows (`needs-review/layout-consult-app.json`).
    - Colour audit tables: `docs/design/COLOUR_AUDIT.md` (index), `COLOUR_AUDIT_web-slice1.md`, `_web-public.md`, `_app.md` (these land with #1965/#1971/#1975/#1974). Signed-in screens were never seen at runtime (no backend in the sandbox).
 1. **Ordering M6 (M1 and M2 backend on main, #1759):**
    - This batch (one PR): "My medical orders" Ord20 and Ord21, web and app. Order button per group (prefill request, then the group's flow), "later" per item, expired orders disabled. Six languages (`MedicalOrders`, `medorders.*`).
    - **Built in #1775 (`design/m6-ord22-ord30`):** Ord22 doctor's composer (`POST /doctors/appointments/:id/medical-order`) and Ord30–33 provider declaration (`/provider/ordering/*`), provider-app ar/en. Open rows: `needs-review/m6-ord22.json` (5), `m6-ord30.json` (13).
-   - **BLOCKED: waits for M3** (ordering engine, #1750 spec): Ord02, Ord04, Ord05, Ord07, app Ord01.
-   - **BLOCKED: waits for M4**: Ord06 ASAP timer, Ord08. **M5**: Ord03 coverage, Ord09. **M7**: Ord10 (arrival code, staff profile). **M8**: Ord11 "discuss with a doctor".
+   - **State 2026-11-08:** backend M3-M8 is on main (`ordering-engine`, `ordering-broadcast`, `ordering-approval`, `ordering-lifecycle`, `modules/instant-consultation`; journeys `tools/live/j_ordering_*.py`). The web UI Ord02-Ord11 was built in #1784, #1785 and the later M6 PRs; the `[backend]` rows of `m6-blocked.json` say fixed there. Slice #2482 (lane X): the confirm step shows the preparation of lab, radiology and nursing items. Still open and `[client]`: "For whom" (family member: the member must go through the quote, basket and booking steps), the doctor's-order items pre-ticked on the item page, price lines for a provider that is not the best match. Everything else open in `needs-review/m6-*-web.json` is `[backend]` or `[owner]`.
    - Every open row: `docs/design/needs-review/m6-blocked.json`; this batch's gaps (no item names, prefill not read by the flows, no renew action) are in the same file.
 2. **Refs (#1255/#1256):** triaged in `docs/design/NR_REPORTS_TRIAGE.md`: 10 fixed on main, 1 owner decision (#953), the rest backend or reviewer.
 3. **Reviewer:** close the 50 stale Needs-review lines, regenerate the audit files once. Real-device checks: Urdu font, voice notes, first launch.

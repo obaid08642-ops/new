@@ -109,7 +109,7 @@ const DAY_DEFS = [
 
 export function WorkingHoursEditorScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
@@ -168,7 +168,7 @@ export function WorkingHoursEditorScreen({ onBack }: { onBack: () => void }) {
     try {
       await client.put('/provider/working-hours', { hours });
       // the server files a change for the review team; the saved hours stay as they were until it is approved
-      show(AR ? 'أُرسل تعديل أوقات العمل للمراجعة، ويسري بعد الاعتماد' : 'Your working-hours change was sent for review and applies once approved', 'success');
+      show(t('audit2.hours.sentForReview'), 'success');
       onBack();
     } catch (e: any) {
       const msg = e?.response?.data?.message;
@@ -195,7 +195,7 @@ export function WorkingHoursEditorScreen({ onBack }: { onBack: () => void }) {
           icon="⚠️"
           title={AR ? 'تعذر تحميل أوقات العمل' : 'Could not load working hours'}
           sub={AR ? 'تحقق من اتصالك بالإنترنت ثم أعد المحاولة' : 'Check your connection and try again'}
-          actionLabel={AR ? 'إعادة المحاولة' : 'Retry'}
+          actionLabel={t('audit2.retry')}
           onAction={load}
         />
       ) : (
@@ -234,7 +234,7 @@ export function WorkingHoursEditorScreen({ onBack }: { onBack: () => void }) {
 // 3. SECURITY & 2FA MANAGEMENT SCREEN
 export function SecurityManagementScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
@@ -256,14 +256,14 @@ export function SecurityManagementScreen({ onBack }: { onBack: () => void }) {
       const m = e?.response?.data?.message;
       const text = Array.isArray(m) ? m[0] : m;
       show(text === 'current_password_incorrect' || e?.response?.status === 401
-        ? (AR ? 'كلمة المرور الحالية غير صحيحة' : 'The current password is incorrect')
-        : (typeof text === 'string' && text ? text : (AR ? 'حدث خطأ أثناء تغيير كلمة المرور' : 'Error changing password')), 'error');
+        ? (t('audit2.security.currentWrong'))
+        : (typeof text === 'string' && text ? text : (t('audit2.security.changeFailed'))), 'error');
     }
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'الأمان وكلمة المرور' : 'Security & Password'} onBack={onBack} />
+      <NHeader title={t('audit2.security.title')} onBack={onBack} />
       <NScroll pad>
         <NCard style={{ marginBottom: SP.md }}>
           <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>
@@ -283,7 +283,7 @@ export function SecurityManagementScreen({ onBack }: { onBack: () => void }) {
 // 4. NOTIFICATIONS CENTER SCREEN
 export function NotificationsCenterScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const AR = lang === 'ar';
 
   const [notifs, setNotifs] = useState<any[]>([]);
@@ -334,7 +334,7 @@ export function NotificationsCenterScreen({ onBack }: { onBack: () => void }) {
       <NScroll pad>
         {loading && <Text style={{ textAlign: 'center', color: theme.textSub, marginVertical: SP.xl }}>{AR ? 'جاري التحميل…' : 'Loading…'}</Text>}
         {!loading && loadFailed && notifs.length === 0 && (
-          <NEmpty title={AR ? 'تعذر تحميل الإشعارات' : 'Could not load notifications'} actionLabel={AR ? 'إعادة المحاولة' : 'Retry'} onAction={load} icon="bell" />
+          <NEmpty title={t('audit2.notifications.loadFailed')} actionLabel={t('audit2.retry')} onAction={load} icon="bell" />
         )}
         {!loading && !loadFailed && notifs.length === 0 && (
           <NCard style={{ alignItems: 'center', paddingVertical: SP.xxl }}>

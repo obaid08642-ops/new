@@ -190,7 +190,7 @@ export default function PaymentResultRoute() {
     return state(<ErrorState icon="x-circle" tone="peach" title={phaseNow === 'cancelled' ? k('payments.result.cancelledTitle') : k('payments.result.failedTitle')} body={k('payments.result.failedBody')} retryLabel={k('payments.result.tryAgain')} onRetry={retryPay} actionLabel={pharmacy ? k('pharmacy.quote.orderStatus') : k('payments.result.toHome')} onAction={pharmacy ? toOrder : home} theme={theme} />);
   }
   if (phaseNow === 'refunded') {
-    return state(<EmptyState icon="receipt" tone="blue" title={k('payments.result.refundedTitle')} body={k('pharmacy.pay.cancelledBody')} actionLabel={pharmacy ? k('pharmacy.quote.orderStatus') : k('payments.result.toHome')} onAction={pharmacy ? toOrder : home} theme={theme} />);
+    return state(<EmptyState icon="receipt" tone="blue" title={k('payments.result.refundedTitle')} body={k('payments.result.refundedBody')} actionLabel={pharmacy ? k('pharmacy.quote.orderStatus') : k('payments.result.toHome')} onAction={pharmacy ? toOrder : home} theme={theme} />);
   }
   // pending: still asking, or asked often enough and the gateway has not settled
   const slow = phase === 'slow';

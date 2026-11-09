@@ -8,6 +8,7 @@
  * - Multi-device support
  * - Retry logic
  */
+import { pushChannel } from '../../common/push-channel';
 import {
   Module, Injectable, Controller, Post, Get, Delete, Body, Param, UseGuards, Logger, OnModuleInit,
 } from '@nestjs/common';
@@ -29,6 +30,7 @@ import { runsBackgroundWork } from '../../common/process-role';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { timedFetch } from '../../common/external-call';
+import { ScheduledOnce } from '../../common/scheduled-once';
 
 /** FCM / Expo / Google oauth: 8 s per attempt, sent once (a repeat could notify twice). The callers already treat a failure as `failed`, never as a failed request. */
 const pushFetch = (url: string, init?: RequestInit) => timedFetch(url, init, { timeoutMs: 8000, label: 'push', timeoutCode: 'push_gateway_timeout' });
@@ -424,6 +426,7 @@ export class PushService implements OnModuleInit {
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_2AM)
+  @ScheduledOnce()
   async cleanupStaleTokens() {
     this.logger.log('Starting stale push tokens cleanup cron job...');
     const result = await this.tokens.deleteMany({
@@ -539,7 +542,7 @@ export class PushService implements OnModuleInit {
         token,
         notification: { title, body },
         data: flat,
-        android: { priority: 'high', notification: { sound: 'default', channel_id: data?.type === 'call' ? 'calls' : 'default' } },
+        android: { priority: 'high', notification: { sound: 'default', channel_id: pushChannel(data?.type, data?.channel) } },
         apns: { payload: { aps: { sound: 'default', badge: 1 } } },
       },
     };
@@ -598,6 +601,9 @@ export class PushService implements OnModuleInit {
     const apnsTokens = tokenDocs.filter(t => t.provider === 'apns').map(t => t.token);
     const voipTokens = tokenDocs.filter(t => t.provider === 'apns_voip').map(t => t.token);
     const isCall = data?.type === 'call';
+    // a cancel reaches a ringing killed app the same way the ring did (data-only, high priority); it never goes to PushKit,
+    // because Apple requires a CallKit call for every VoIP push
+    const isRing = isCall || data?.type === 'call_cancelled';
     const ringTokens = new Set(tokenDocs.filter(t => t.call_ring === true).map(t => t.token));
     const results = { sent: 0, failed: 0, errors: [] as string[] };
 
@@ -639,7 +645,7 @@ export class PushService implements OnModuleInit {
       const chunks = this.chunkArray(expoTokens, 100);
       for (const chunk of chunks) {
         try {
-          const messages = chunk.map(to => isCall && ringTokens.has(to)
+          const messages = chunk.map(to => isRing && ringTokens.has(to)
             ? { to, data: { ...data, title, body }, priority: 'high', ttl: 30, channelId: 'calls', _contentAvailable: true }
             : {
               to,
@@ -648,7 +654,7 @@ export class PushService implements OnModuleInit {
               data,
               sound: 'default',
               priority,
-              channelId: data?.type === 'call' ? 'calls' : 'default',
+              channelId: pushChannel(data?.type, data?.channel),
               categoryId: data?.type === 'call' ? 'call_actions' : data?.type === 'chat' ? 'chat_actions' : 'default',
               badge: 1,
             });
@@ -700,14 +706,14 @@ export class PushService implements OnModuleInit {
                 Authorization: `Bearer ${accessToken}`,
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify(this.fcmMessage(token, title, body, data, isCall && ringTokens.has(token))),
+              body: JSON.stringify(this.fcmMessage(token, title, body, data, isRing && ringTokens.has(token))),
             });
             // Token belongs to the OTHER Firebase project (e.g. patient-iOS app) — retry with secondary credentials
             if (resp.status === 404 && this.fcmProjects().length > 1) {
               const altToken = await this.getFcmAccessToken(1);
               const altProject = this.fcmProjects()[1].projectId;
               if (altToken) {
-                const payloadStr = JSON.stringify(this.fcmMessage(token, title, body, data, isCall && ringTokens.has(token)));
+                const payloadStr = JSON.stringify(this.fcmMessage(token, title, body, data, isRing && ringTokens.has(token)));
                 resp = await pushFetch(`https://fcm.googleapis.com/v1/projects/${altProject}/messages:send`, {
                   method: 'POST',
                   headers: { Authorization: `Bearer ${altToken}`, 'Content-Type': 'application/json' },
@@ -727,7 +733,7 @@ export class PushService implements OnModuleInit {
                 to: token,
                 notification: { title, body },
                 data: { ...data, click_action: 'FLUTTER_NOTIFICATION_CLICK' },
-                android: { priority: 'high', notification: { sound: 'default', channel_id: data?.type === 'call' ? 'calls' : 'default' } },
+                android: { priority: 'high', notification: { sound: 'default', channel_id: pushChannel(data?.type, data?.channel) } },
                 apns: { payload: { aps: { sound: 'default', badge: 1 } } },
               }),
             });
@@ -817,6 +823,19 @@ export class PushService implements OnModuleInit {
     );
   }
 
+
+  /** The caller hung up before the callee answered: stop the ringing on the callee's devices. */
+  @OnEvent('call.cancelled')
+  async onCallCancelled(evt: any) {
+    if (!evt?.callee_id || !evt?.session_id) return;
+    await this.queueNotification(
+      evt.callee_id,
+      'تم إلغاء المكالمة',
+      'أنهى المتصل المكالمة قبل الرد',
+      { type: 'call_cancelled', session_id: evt.session_id },
+      'high',
+    );
+  }
 
   @OnEvent('call.missed')
   async onCallMissed(evt: any) {

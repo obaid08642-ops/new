@@ -39,7 +39,7 @@ export class PharmacyRefillService {
     private readonly orders: PharmacyOrderService,
   ) {}
 
-  async refill(user: { id: string; role: string }, orderId: string, now: Date = new Date()) {
+  async refill(user: { id: string; role: string }, orderId: string, now: Date = new Date(), opts: { refund_policy_accepted?: boolean } = {}) {
     if (!user || user.role !== 'patient') throw new ForbiddenException('patient_scope_required');
     const source = (await this.conn.collection('pharmacy_orders').findOne(
       { id: orderId, patient_account_id: user.id },
@@ -74,7 +74,12 @@ export class PharmacyRefillService {
       insurance_policy_id: source.insurance_policy_id,
       delivery_address_id: source.delivery_address_id,
       delivery_address: source.delivery_address,
+      // owner decision 2026-11-09: a repeat order stands on the refund policy the patient agreed to on the first one; an order from before the tick existed needs it sent now
+      refund_policy_accepted: opts.refund_policy_accepted === true || (source as any).refund_policy_acceptance?.accepted === true ? true : opts.refund_policy_accepted,
     });
+
+    // the pharmacy's refills screen lists the orders that came from a refill: the draft says which order it repeats
+    await this.conn.collection('pharmacy_orders').updateOne({ id: draft.id }, { $set: { refill_of: source.id } });
 
     // one refill is taken now, conditionally: a concurrent refill that took the last one makes this one a 409
     if (rx) {

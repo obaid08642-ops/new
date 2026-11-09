@@ -24,6 +24,9 @@ interface DeltaMutation {
   createdAt?: string;
   oldData?: { [key: string]: any };
   newData: { [key: string]: any };
+  /** a credentials change: the proof the provider uploaded (oldData holds the values before) */
+  proof?: { document_id: string; doc_type: string; review_status?: string | null }[];
+  target?: string;
 }
 
 export default function ProviderModeration() {
@@ -109,6 +112,9 @@ export default function ProviderModeration() {
             status: d.status,
             createdAt: d.createdAt,
             newData: d.requested_changes || d.changes || {},
+            oldData: d.old_values || undefined,
+            proof: Array.isArray(d.proof) ? d.proof : undefined,
+            target: d.target,
           })));
         } else {
           setLoadError(true);
@@ -439,11 +445,22 @@ export default function ProviderModeration() {
                         <div key={key} className="flex justify-between items-start gap-4 p-3 bg-amber-50 rounded border border-amber-200">
                           <span className="text-gray-600 font-mono text-sm">{key}</span>
                           <span className="font-bold text-slate-800 text-sm text-left break-all" dir="ltr">
+                            {selectedDelta.oldData ? <span className="font-normal text-gray-500 line-through me-2">{String(selectedDelta.oldData[key] ?? '—')}</span> : null}
                             {typeof val === 'object' ? JSON.stringify(val) : String(val)}
                           </span>
                         </div>
                       ))}
                     </div>
+                    {selectedDelta.target === 'credentials' && (
+                      <div className="mt-4 text-sm">
+                        <p className="font-bold text-gray-600 mb-1">المستندات المرفوعة كإثبات</p>
+                        {selectedDelta.proof && selectedDelta.proof.length > 0
+                          ? selectedDelta.proof.map((pd) => (
+                              <p key={pd.document_id} className="text-gray-700" dir="ltr">{pd.doc_type} · {pd.review_status || '—'}</p>
+                            ))
+                          : <p className="text-red-600">لم يرفع المزود مستنداً لهذا التعديل.</p>}
+                      </div>
+                    )}
                     {selectedDelta.createdAt && (
                       <p className="text-xs text-gray-400 mt-4 text-center">أُرسل بتاريخ: {String(selectedDelta.createdAt).slice(0, 19).replace('T', ' ')}</p>
                     )}

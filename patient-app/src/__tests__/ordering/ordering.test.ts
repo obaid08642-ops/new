@@ -6,7 +6,7 @@ const quote = {
   quote_id: 'oq_1', expires_at: '2026-10-22T12:00:00Z', estimate: true,
   groups: [
     { mode: 'home', items: [{ catalog_id: 'a' }, { catalog_id: 'b' }], from_price: { total: 165, providers_count: 3 },
-      best_match: { ...row('p1', 165), items: [{ catalog_id: 'a', price: 70, coverage: 'covered' }, { catalog_id: 'b', price: 70, coverage: 'not_covered' }, { catalog_id: 'x', price: 1, coverage: 'bogus' }], estimated_insurance_share: 56, patient_share: 109 },
+      best_match: { ...row('p1', 165, { home_fee: 24, vat_rate: 0.15, vat: 21.52, subtotal: 143.48 }), items: [{ catalog_id: 'a', price: 70, coverage: 'covered' }, { catalog_id: 'b', price: 70, coverage: 'not_covered' }, { catalog_id: 'x', price: 1, coverage: 'bogus' }], estimated_insurance_share: 56, patient_share: 109 },
       compare: [row('p1', 165), row('p2', 140, { rating: 5, distance_km: 9, covers_all: false, missing: ['b'] }), { nope: 1 }], split_suggestion: null, empty: null },
     { mode: 'facility', items: [{ catalog_id: 'c', facility_only: true }], from_price: { total: 450, providers_count: 2 },
       best_match: { ...row('p3', 450), items: [], estimated_insurance_share: 190, patient_share: 260 }, compare: [], split_suggestion: null, empty: null },
@@ -91,10 +91,10 @@ describe('M6 ordering context', () => {
 });
 
 describe('M6 ordering basket lines', () => {
-  it('splits the best-match totals into items and the visit fee', () => {
+  it('takes the items from the lines and the visit fee the server states', () => {
     const { basketLines } = require('../../utils/ordering');
     const q = parseQuote(quote)!;
-    // group 1: items 70 + 70 + 1 (the unknown coverage line still has a price) = 141, total 165 -> fee 24; group 2: no item lines, total 450
+    // group 1: items 70 + 70 + 1 (the unknown coverage line still has a price) = 141, and the server states home_fee 24 (not total - items)
     expect(basketLines([q.groups[0]])).toEqual({ items: 141, fee: 24 });
     expect(basketLines([{ ...q.groups[0], best_match: null }])).toBeNull();
   });

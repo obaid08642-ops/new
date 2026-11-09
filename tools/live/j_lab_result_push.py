@@ -52,6 +52,17 @@ def main():
     bid = lab_reports(lab, pat, lab_id)
     if not bid:
         return
+
+    journey('PT-09: the patient downloads the report file (not only the push)')
+    b = pat.get(f'/labs/bookings/{bid}')
+    reports = b.get('reports') or []
+    step('the booking lists the report with a file', b.ok and len(reports) >= 1 and reports[0].get('has_file') is True and reports[0].get('id'), b)
+    if reports and reports[0].get('id'):
+        f = pat.get(f"/labs/bookings/{bid}/reports/{reports[0]['id']}")
+        ctype = next((v for k, v in f.headers.items() if k.lower() == 'content-type'), '')
+        step('the report downloads as a PDF', f.ok and 'application/pdf' in ctype and isinstance(f.body, str) and f.body.startswith('%PDF'), f'{f.status} {ctype} {str(f.body)[:20]!r}')
+        f2 = other.get(f"/labs/bookings/{bid}/reports/{reports[0]['id']}")
+        step('another patient cannot download it', f2.status in (403, 404), f2)
     import time
     note = {}
     for _ in range(10):

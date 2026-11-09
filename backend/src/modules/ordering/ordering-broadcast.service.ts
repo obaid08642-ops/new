@@ -1,3 +1,5 @@
+import { refundPolicyAcceptance, type RefundPolicyAcceptance } from '../../common/refund-policy-acceptance';
+import { resolveFamilyMemberId } from '../../common/family-member';
 import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Interval } from '@nestjs/schedule';
@@ -8,6 +10,7 @@ import { LabsService } from '../labs/labs.service';
 import { AsapDto, BroadcastOfferDto, PhotoOrderDto } from './ordering.dto';
 import { homeWindows, round1, round2 } from './ordering-engine';
 import { KIND_CATALOG, Kind, OrderingService } from './ordering.service';
+import { ScheduledOnce } from '../../common/scheduled-once';
 
 // M4: ASAP home visits and photo orders, as a staged broadcast to the providers around the patient
 // (docs/product/ORDERING_MODEL_2026-10-16.md phase M4). The pharmacy broadcast stays as it is; this one reads
@@ -34,6 +37,10 @@ interface Broadcast {
   accepted_by?: string; accepted_account_id?: string; booking_id?: string; accepted_offer_id?: string;
   fallback?: { earliest_window: { provider_id: string; start: string; end: string } | null };
   upload_id?: string; created_at: Date; expires_at?: Date;
+  /** Owner decision 1: the family member the order is for (the patient stays the payer); carried to the booking made when an offer is accepted. */
+  family_member_id?: string;
+  /** The refund policy the patient agreed to when the order was started; carried to the booking made when an offer is accepted. */
+  refund_policy_acceptance?: RefundPolicyAcceptance;
 }
 
 @Injectable()
@@ -66,6 +73,7 @@ export class OrderingBroadcastService implements OnModuleInit {
 
   /** Moves due stages on in the worker; any API process also does it when a broadcast is read (see `advance`). */
   @Interval(5_000)
+  @ScheduledOnce({ holdMs: 2000 })
   async tick() {
     if (this.ticking) return;
     this.ticking = true;
@@ -94,12 +102,16 @@ export class OrderingBroadcastService implements OnModuleInit {
   async startAsap(user: { id: string }, dto: AsapDto) {
     const items = [...new Set(dto.items)];
     if (!items.length) throw bad('asap_items_required');
+    const policyAcceptance = refundPolicyAcceptance(user as { role?: string }, dto.refund_policy_accepted);
     await this.assertHomeItems(dto.service_kind, items);
-    const policy = await this.ordering.policyOf(user.id, dto.payer);
+    const familyMemberId = await resolveFamilyMemberId(this.conn, user.id, dto.family_member_id);
+    const policy = await this.ordering.policyOf(user.id, dto.payer, familyMemberId);
     const stages = await this.stagesConfig();
     const now = new Date();
     const doc: Broadcast & { purge_at: Date } = {
       id: `ab_${randomUUID()}`, kind: 'asap', patient_id: user.id, service_kind: dto.service_kind, items, lat: dto.lat, lng: dto.lng, payer: dto.payer,
+      ...(familyMemberId ? { family_member_id: familyMemberId } : {}),
+      ...(policyAcceptance ? { refund_policy_acceptance: policyAcceptance } : {}),
       status: 'broadcasting', open: true, stage: 1, stages, stage_started_at: now, stage_ends_at: new Date(now.getTime() + stages[0].timeout_seconds * 1000),
       reached: [], created_at: now, purge_at: new Date(now.getTime() + PURGE_MS),
     };
@@ -135,7 +147,7 @@ export class OrderingBroadcastService implements OnModuleInit {
 
   /** Reaches the providers newly inside the current stage; an auto-accept provider takes it at once, nearest first. */
   private async enterStage(b: Broadcast, policy?: { keys: string[]; cls: string } | null): Promise<Broadcast> {
-    const pol = policy === undefined ? await this.ordering.policyOf(b.patient_id, b.payer).catch(() => null) : policy;
+    const pol = policy === undefined ? await this.ordering.policyOf(b.patient_id, b.payer, b.family_member_id).catch(() => null) : policy;
     const radius = b.stages[b.stage - 1].radius_km;
     const known = new Set(b.reached.map((r) => r.account_id));
     const fresh = (await this.reach(b, radius, pol)).filter((r) => !known.has(r.account_id)).sort((x, y) => x.distance_km - y.distance_km);
@@ -197,7 +209,7 @@ export class OrderingBroadcastService implements OnModuleInit {
 
   /** After the last stage: the earliest timed window of the nearest provider that could do every item at home. */
   private async earliestWindow(b: Broadcast) {
-    const found = await this.ordering.findCandidates(b.service_kind, 'home', b.items, { lat: b.lat, lng: b.lng, payer: b.payer }, await this.ordering.policyOf(b.patient_id, b.payer).catch(() => null), new Date());
+    const found = await this.ordering.findCandidates(b.service_kind, 'home', b.items, { lat: b.lat, lng: b.lng, payer: b.payer }, await this.ordering.policyOf(b.patient_id, b.payer, b.family_member_id).catch(() => null), new Date());
     const full = found.cands.filter((c) => b.items.every((id) => c.prices[id] != null)).sort((x, y) => x.distance_km - y.distance_km);
     const w = homeWindows(new Date(), 3)[0];
     return full.length && w ? { provider_id: full[0].provider_id, start: w.start, end: w.end } : null;
@@ -273,7 +285,7 @@ export class OrderingBroadcastService implements OnModuleInit {
       items: b.items.map((id) => ({ service_id: id, name_ar: nameOf.get(id)?.name_ar, name_en: nameOf.get(id)?.name_en, price: priceOf.get(id) as number })),
       home_fee: typeof settings?.home_fee === 'number' ? settings.home_fee : 0, scheduled_at: new Date(), asap: true,
       payment_method: b.payer === 'insurance' ? 'insurance' : 'card', awaiting_approval: b.payer === 'insurance',
-      address: { lat: b.lat, lng: b.lng }, order_group_id: b.id, quote_id: b.id,
+      address: { lat: b.lat, lng: b.lng }, order_group_id: b.id, quote_id: b.id, family_member_id: b.family_member_id, refund_policy_acceptance: b.refund_policy_acceptance,
     });
     return booking.id;
   }
@@ -285,11 +297,15 @@ export class OrderingBroadcastService implements OnModuleInit {
     const own = await this.conn.collection('storage_objects').findOne({ id: dto.upload_id, owner_account_id: user.id }, { projection: { id: 1 } })
       ?? await this.conn.collection('uploads').findOne({ id: dto.upload_id, owner_id: user.id }, { projection: { id: 1 } });
     if (!own) throw new NotFoundException('upload_not_found');
-    const policy = await this.ordering.policyOf(user.id, dto.payer);
+    const policyAcceptance = refundPolicyAcceptance(user as { role?: string }, dto.refund_policy_accepted);
+    const familyMemberId = await resolveFamilyMemberId(this.conn, user.id, dto.family_member_id);
+    const policy = await this.ordering.policyOf(user.id, dto.payer, familyMemberId);
     const stages = await this.stagesConfig();
     const now = new Date();
     const doc: Broadcast & { purge_at: Date } = {
       id: `pb_${randomUUID()}`, kind: 'photo', patient_id: user.id, service_kind: dto.service_kind, items: [], lat: dto.lat, lng: dto.lng, payer: dto.payer,
+      ...(familyMemberId ? { family_member_id: familyMemberId } : {}),
+      ...(policyAcceptance ? { refund_policy_acceptance: policyAcceptance } : {}),
       status: 'awaiting_offers', open: true, stage: 1, stages: [stages[0]], stage_started_at: now, stage_ends_at: new Date(now.getTime() + PHOTO_OPEN_MS),
       reached: [], upload_id: dto.upload_id, created_at: now, expires_at: new Date(now.getTime() + PHOTO_OPEN_MS), purge_at: new Date(now.getTime() + PURGE_MS),
     };
@@ -358,7 +374,7 @@ export class OrderingBroadcastService implements OnModuleInit {
         items: offer.items.map((i: { name: string; price: number }, n: number) => ({ service_id: `offer:${offerId}:${n}`, name_ar: i.name, name_en: i.name, price: i.price })),
         home_fee: 0, scheduled_at: new Date(), asap: true,
         payment_method: b.payer === 'insurance' ? 'insurance' : 'card', awaiting_approval: b.payer === 'insurance',
-        address: { lat: b.lat, lng: b.lng }, order_group_id: b.id, quote_id: b.id,
+        address: { lat: b.lat, lng: b.lng }, order_group_id: b.id, quote_id: b.id, family_member_id: b.family_member_id, refund_policy_acceptance: b.refund_policy_acceptance,
       });
       await this.col().updateOne({ id }, { $set: { booking_id: booking.id } });
       await recordAudit(this.conn, { action: 'ordering.photo_offer_accepted', user_id: user.id, role: 'patient', resource_kind: 'ordering_broadcast', resource_id: id, details: { booking_id: booking.id, total: offer.total } });
@@ -394,6 +410,7 @@ export class OrderingBroadcastService implements OnModuleInit {
       seconds_left: b.open ? Math.max(0, Math.ceil((new Date(b.stage_ends_at).getTime() - Date.now()) / 1000)) : 0,
       ...(b.accepted_by ? { accepted_by: b.accepted_by } : {}),
       ...(b.booking_id ? { booking_id: b.booking_id } : {}),
+      ...(b.family_member_id ? { family_member_id: b.family_member_id } : {}),
       ...(b.fallback ? { fallback: b.fallback } : {}),
     };
   }

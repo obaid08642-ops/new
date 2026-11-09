@@ -43,8 +43,10 @@ def doctor_publishes_hours(doctor, admin, service_types=('clinic',)):
     step('the hours are live on the doctor schedule', r.ok and len(r.items() if not isinstance(r.body, list) else r.body) > 0, r)
 
 
-def book_paid(pat, doctor):
-    """patient finds the doctor, holds a clinic slot tomorrow, books and pays by card; returns the appointment id."""
+def book_paid(pat, doctor, slot_index=0):
+    """patient finds the doctor, holds a clinic slot tomorrow, books and pays by card; returns the appointment id.
+    `slot_index` picks a later free slot: a visit finished in a journey stays listed (its time is still ahead), so a second booking by the same
+    patient must not take the first slot again (its hold stays confirmed, as it would be for a visit in the past)."""
     doc_id = doctor.get('/provider/me').get('account', 'id')
     journey('consultation: patient finds the doctor and a slot')
     r = pat.get('/care/specialties')
@@ -66,7 +68,7 @@ def book_paid(pat, doctor):
     step('the doctor has free clinic slots tomorrow', r.ok and free, r)
     if not free:
         return None
-    s0 = free[0]
+    s0 = free[min(slot_index, len(free) - 1)]
     slot = s0.get('start') or s0.get('slot_start') or s0.get('time') if isinstance(s0, dict) else s0
 
     journey('consultation: patient books and pays by card')
@@ -79,6 +81,8 @@ def book_paid(pat, doctor):
     step('appointment created', r.ok and aid, r)
     if not aid:
         return None
+    acc = (pat.get(f'/care/appointments/{aid}').get('refund_policy_acceptance') or {})
+    step('the refund policy the patient agreed to is stored on the booking (the tick, its time, the policy version)', acc.get('accepted') is True and acc.get('at') and acc.get('version') == '2026-11-09', acc)
     r2 = pat.post('/care/appointments', body, headers={'Idempotency-Key': f'appointment-create-{did}-{slot}-{uuid.uuid4()}'})
     step('the same slot cannot be booked twice', not r2.ok, r2)
     r = pat.get(f'/payments/consultation/{aid}/capabilities')

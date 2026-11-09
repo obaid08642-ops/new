@@ -18,6 +18,8 @@ const patientReadRoutes = [
   new RegExp("^/home-care/bookings/[A-Za-z0-9-]{1,64}$", "i"),
   // components-next/home-care-booking-form: the chosen nurse's free times for one day (journeys#60).
   new RegExp("^/home-care/providers/[A-Za-z0-9-]{1,64}/slots\\?date=\\d{4}-\\d{2}-\\d{2}$", "i"),
+  // components-next/home-care-booking-form: the server's price of a nursing booking for the choice made (docs/product/NURSING_BOOKING_OPTIONS.md).
+  new RegExp("^/bookings/quote\\?kind=nursing&service_id=[A-Za-z0-9_-]{1,128}&provider_id=[A-Za-z0-9-]{1,64}(&(hours|days|sessions_count)=\\d{1,3}|&(shift|period|recurrence)=[a-z]{1,10}){0,6}$", "i"),
   new RegExp("^/family/chat/messages$", "i"),
   new RegExp(`^/offers/${orderId}$`, "i"),
   new RegExp(`^/promotions/offers/${orderId}/providers$`, "i"),
@@ -60,7 +62,12 @@ const patientReadRoutes = [
   new RegExp("^/health/chronic-meds$"),
   new RegExp("^/health/trends$"),
   new RegExp("^/family/my-group$"),
+  // PT-08: the patient's medical reports (the routes keep the backend's old name): list, one in full, its PDF
+  new RegExp("^/care/sick-leaves$"),
+  new RegExp(`^/care/sick-leaves/${memberId}$`, "i"),
+  new RegExp(`^/care/sick-leaves/${memberId}/pdf$`, "i"),
   new RegExp("^/family/members$"),
+  new RegExp("^/family/dependants$"),
   new RegExp(`^/family/member-records/${memberId}$`, "i"),
   new RegExp("^/family/calendar$"),
   new RegExp("^/insurance/my-policy$"),
@@ -104,6 +111,8 @@ const patientReadRoutes = [
   // The receipt: the patient's invoices and the PDF of one (the backend checks the booking is theirs).
   new RegExp("^/billing/my$"),
   new RegExp(`^/billing/invoice/(pharmacy|order|appointment|consultation|lab|radiology|home_care|nursing)/${orderId}/pdf$`, "i"),
+  // The share links of one receipt (the list never carries a token; the backend checks the booking is theirs).
+  new RegExp(`^/billing/invoice/(pharmacy|order|appointment|consultation|lab|radiology|home_care|nursing)/${orderId}/share-links$`, "i"),
   // A1: the patient wallet is gone — these backend routes no longer exist.
 ];
 
@@ -137,6 +146,11 @@ const diagnosticsMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp
 // The health screens add a night of sleep and add or remove the patient's own emergency contacts (backend health.controller);
 // the article page saves or unsaves one article (backend articles.module: POST /articles/bookmarks/:slug/toggle).
 const healthMutationRoutes: Array<{ method: "POST" | "DELETE"; route: RegExp }> = [
+  // the doctor did not come (provider no-show, full refund): the patient or the booker, 10 minutes after the start
+  { method: "POST", route: new RegExp(`^/care/appointments/${orderId}/provider-no-show$`, "i") },
+  // PT-03: a guardian adds and removes a dependant (a minor with no account)
+  { method: "POST", route: new RegExp("^/family/dependants$") },
+  { method: "DELETE", route: new RegExp("^/family/dependants/[A-Za-z0-9_-]{1,128}$") },
   { method: "POST", route: new RegExp("^/health/sleep$") },
   { method: "POST", route: new RegExp("^/health/emergency-contacts$") },
   // Owner decision 14: "send my location to my family" (POST /emergency/share-location, the patient's own contacts, #665).
@@ -211,12 +225,19 @@ const notificationMutationRoutes: Array<{ method: "POST"; route: RegExp }> = [
   { method: "POST", route: new RegExp("^/push/web/unsubscribe$") },
 ];
 
+// The receipt: make a read-only link to it (POST) and revoke one (DELETE); components-next/receipt/receipt-links.
+const receiptMutationRoutes: Array<{ method: "POST" | "DELETE"; route: RegExp }> = [
+  { method: "POST", route: new RegExp(`^/billing/invoice/(pharmacy|order|appointment|consultation|lab|radiology|home_care|nursing)/${orderId}/share-link$`, "i") },
+  { method: "DELETE", route: new RegExp(`^/billing/invoice/(pharmacy|order|appointment|consultation|lab|radiology|home_care|nursing)/${orderId}/share-links/${orderId}$`, "i") },
+];
+
 export function isAllowedPatientApiRequest(path: string, method: string) {
   return (method === "GET" && isAllowedPatientApiPath(path))
     || notificationMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
     || healthMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
     || addressMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
     || diagnosticsMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
+    || receiptMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
     || pharmacyMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path));
 }
 

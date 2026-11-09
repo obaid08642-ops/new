@@ -19,6 +19,9 @@
  * ╚══════════════════════════════════════════════════════════════════════════════╝
  */
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { OwnDeliveryFields } from './OwnDeliveryForm';
+import { EMPTY_OWN_DELIVERY, ownDeliveryError, ownDeliveryFromServer, ownDeliveryPayload } from './ownDelivery';
+import type { OwnDeliveryForm as OwnDeliveryFormState } from './ownDelivery';
 import { io, Socket } from 'socket.io-client';
 import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
 import { CameraView, useCameraPermissions } from 'expo-camera';
@@ -191,7 +194,7 @@ const s = StyleSheet.create({
 
 function PharmacyHomeTab({ onNavigate, onSwitchTab, onToggleOnline }: any) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const AR = lang === 'ar';
   const insets = useSafeAreaInsets();
   const { show } = useToast();
@@ -393,7 +396,7 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab, onToggleOnline }: any) {
                 </View>
                 <View style={{ flexDirection: 'row', gap: 12 }}>
                   <NBtn label={AR ? 'رفض' : 'Reject'} variant="outline" style={{ flex: 1 }} onPress={() => { setRejectOrderId(b.order_id); setShowRejectModal(true); }} />
-                  <NBtn label={b.my_offer_status === 'submitted' ? (AR ? 'عرضك مُرسل — تعديل' : 'Offer sent — edit') : b.my_offer_status === 'draft' ? (AR ? 'متابعة المسودة' : 'Continue draft') : (AR ? 'إنشاء عرض' : 'Create offer')} variant="secondary" style={{ flex: 2 }} onPress={() => openOfferComposer(b)} />
+                  <NBtn label={b.my_offer_status === 'submitted' ? t('audit2.pharmacy.offerSentEdit') : b.my_offer_status === 'draft' ? t('audit2.pharmacy.continueDraft') : t('audit2.pharmacy.createOffer')} variant="secondary" style={{ flex: 2 }} onPress={() => openOfferComposer(b)} />
                 </View>
               </NCard>
             ))
@@ -449,7 +452,8 @@ function B2BSupplyRequestScreen({ onBack }: any) {
   const loadMyRequests = async () => {
     try {
       const res: any = await client.get('/pharmacy/procurement/my-requests');
-      setMyRequests(Array.isArray(res?.data) ? res.data : []);
+      // the server answers { success, data: [...] }
+      setMyRequests(Array.isArray(res?.data) ? res.data : Array.isArray(res?.data?.data) ? res.data.data : []);
     } catch { /* list is informational */ }
   };
   useEffect(() => { loadMyRequests(); }, []);
@@ -552,20 +556,13 @@ function B2BSupplyRequestScreen({ onBack }: any) {
             )}
 
             {b2bTab === 'voice' && (
-              <View style={{ alignItems: 'center', paddingVertical: 32 }}>
-                <View style={{ width: 120, height: 120, borderRadius: 60, backgroundColor: isRecording ? theme.danger + '20' : theme.surface2, justifyContent: 'center', alignItems: 'center', marginBottom: 24, borderWidth: 2, borderColor: isRecording ? theme.danger : theme.border }}>
-                  <Text style={{ fontSize: 48 }}>{isRecording?'':''}</Text>
-                </View>
-                {isRecording && <Text style={{ color: theme.danger, fontWeight: 'bold', marginBottom: 16 }}>00:14</Text>}
-                {!isRecording ? (
-                  <NBtn label={AR ? 'بدء التسجيل' : 'Start Recording'} onPress={() => setIsRecording(true)} />
-                ) : (
-                  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: 12, width: '100%' }}>
-                    <NBtn label={AR ? 'إلغاء' : 'Cancel'} variant="outline" onPress={() => setIsRecording(false)} style={{ flex: 1 }} />
-                    <NBtn label={AR ? 'إرسال المقطع' : 'Send Audio'} onPress={() => submitB2B('voice')} style={{ flex: 1 }} />
-                  </View>
-                )}
-              </View>
+              // No recorder exists in the app yet: the screen used to show a recording button, a fixed "00:14" timer and a "Send audio"
+              // that sent nothing. Say so, and point to the two ways that work.
+              <NCard style={{ padding: 16 }}>
+                <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
+                  {AR ? 'الطلب الصوتي غير متاح في التطبيق بعد. اكتب أسماء الأدوية في تبويب «يدوي» أو صوّر الرف أو الفاتورة في تبويب «تصوير».' : 'Voice orders are not available in the app yet. Type the medicine names in the Manual tab, or photograph the shelf or invoice in the Scan tab.'}
+                </Text>
+              </NCard>
             )}
 
             {b2bTab === 'ocr' && (
@@ -944,9 +941,9 @@ function DispatchWorkflowScreen({ onBack, onNavigate, initialSection = 'new' }: 
             {String(a.status) === 'ready_for_pickup' && (
               <>
                 {/* the server refuses to ship a pickup order and to hand over a cash-on-delivery one without the collection: the detail decides */}
-                {d && isPickup ? null : <NBtn label={AR ? 'انطلاق التوصيل' : 'Dispatch'} size="sm" onPress={() => { setCourierFor(a.id); if (!details[a.id]) loadDetail(a.id); }} />}
+                {d && isPickup ? null : <NBtn label={t('audit2.pharmacy.dispatch')} size="sm" onPress={() => { setCourierFor(a.id); if (!details[a.id]) loadDetail(a.id); }} />}
                 {d && !isPickup ? null : (
-                  <NBtn label={AR ? 'تسليم (استلام ذاتي)' : 'Hand over (pickup)'} size="sm" variant="outline" loading={actionId === a.id} disabled={!d}
+                  <NBtn label={t('audit2.pharmacy.handOverPickup')} size="sm" variant="outline" loading={actionId === a.id} disabled={!d}
                     onPress={() => { if (isCod) { setCollectFor(a.id); setCollectAmount(String(expectedTotal ?? '')); } else doAction(a.id, 'delivered'); }} />
                 )}
               </>
@@ -1072,14 +1069,17 @@ function ActiveInventoryScreen({ onBack, onNavigate }: { onBack: () => void; onN
 
   const [search, setSearch] = useState('');
   const [inventory, setInventory] = useState<any[]>([]);
+  const [inventoryFailed, setInventoryFailed] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const fetchInventory = useCallback(async () => {
     try {
       const res = await client.get('/provider/capabilities/pharmacy');
       setInventory(Array.isArray(res.data) ? res.data : []);
+      setInventoryFailed(false);
     } catch {
       setInventory([]);
+      setInventoryFailed(true);   // a failed load is an error with a retry, not "No inventory items"
     } finally {
       setLoading(false);
     }
@@ -1260,6 +1260,8 @@ function ActiveInventoryScreen({ onBack, onNavigate }: { onBack: () => void; onN
       </View>
       {loading ? (
         <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} />
+      ) : inventoryFailed ? (
+        <NEmpty title={AR ? 'تعذر تحميل المخزون' : 'Could not load the inventory'} actionLabel={AR ? 'إعادة المحاولة' : 'Retry'} onAction={() => { setLoading(true); void fetchInventory(); }} icon="document" />
       ) : !loading && filtered.length === 0 ? (
         <Text style={{ color: theme.textSub, textAlign: 'center', marginTop: 40 }}>
           {AR ? 'لا توجد أصناف في المخزون' : 'No inventory items'}
@@ -1513,13 +1515,21 @@ function PharmacyChatScreen({ onBack, orderId, lines }: { onBack: () => void; or
   );
 }
 function SettingsScreen({ onBack, onNavigate }: any) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [loading, setLoading] = useState(false);
-  const [deliveryRadius, setDeliveryRadius] = useState('10');
-  const [minOrder, setMinOrder] = useState('50');
-  const [deliveryFee, setDeliveryFee] = useState('15');
-  const [acceptsInsurance, setAcceptsInsurance] = useState(true);
+  // the saved values, not invented defaults (10 km, 50, 15 and "accepts insurance" were shown to every pharmacy)
+  const [ownDelivery, setOwnDelivery] = useState<OwnDeliveryFormState>({ ...EMPTY_OWN_DELIVERY });
+  const [cityCode, setCityCode] = useState<string | undefined>(undefined);
   const [trackInventory, setTrackInventory] = useState(false);
+
+  useEffect(() => {
+    client.get('/provider/profile').then((r: any) => {
+      const p = r?.data?.profile ?? r?.data ?? {};
+      const city = p.address?.city;
+      if (typeof city === 'string' && city) setCityCode(city);
+    }).catch(() => undefined);
+    client.get('/provider/pharmacy/delivery-settings').then((r: any) => setOwnDelivery(ownDeliveryFromServer(r?.data?.own_delivery))).catch(() => undefined);
+  }, []);
 
   useEffect(() => {
     client.get('/provider/pharmacy/inventory-tracking').then((r: any) => {
@@ -1531,13 +1541,15 @@ function SettingsScreen({ onBack, onNavigate }: any) {
   const handleSave = async () => {
     setLoading(true);
     try {
-      await client.post('/provider/settings/delta', { 
-        newData: { deliveryRadius, minOrder, deliveryFee, acceptsInsurance } 
-      });
-      show(AR ? 'بانتظار موافقة الإدارة على التعديلات' : 'Pending admin approval for changes', 'success');
+      const problem = ownDeliveryError(ownDelivery);
+      if (problem) { show(t(problem), 'error'); setLoading(false); return; }
+      // own couriers, zone, fee and threshold: applied at once (the server validates again)
+      await client.put('/provider/pharmacy/delivery-settings', { own_delivery: ownDeliveryPayload(ownDelivery) });
+      show(t('pharmacy.ownDelivery.saved'), 'success');
       onBack();
-    } catch (e) {
-      show(AR ? 'فشل إرسال التعديلات' : 'Failed to submit changes', 'error');
+    } catch (e: any) {
+      const m = e?.response?.data?.message;
+      show((Array.isArray(m) ? m[0] : m) || t('pharmacy.ownDelivery.saveFailed'), 'error');
     }
     setLoading(false);
   };
@@ -1548,15 +1560,13 @@ function SettingsScreen({ onBack, onNavigate }: any) {
       <ScrollView contentContainerStyle={{ padding: SP.xl, gap: SP.md }}>
         <NSecHeader title={AR ? 'خيارات التوصيل' : 'Delivery Options'} />
         <NCard style={{ gap: SP.md }}>
-          <NInput label={AR ? 'نطاق التوصيل (كم)' : 'Delivery Radius (KM)'} value={deliveryRadius} onChange={setDeliveryRadius} kbType="numeric" />
-          <NPriceInput label={AR ? 'الحد الأدنى للطلب' : 'Minimum Order'} value={minOrder} onChange={setMinOrder} />
-          <NPriceInput label={AR ? 'رسوم التوصيل' : 'Delivery Fee'} value={deliveryFee} onChange={setDeliveryFee} />
+          <OwnDeliveryFields value={ownDelivery} onChange={(patch) => setOwnDelivery((cur) => ({ ...cur, ...patch }))} cityCode={cityCode} />
         </NCard>
+
 
         <NSecHeader title={AR ? 'طرق الدفع' : 'Payment Methods'} />
         <NBtn label={AR ? 'طلبات التأمين الواردة (قرار يدوي)' : 'Inbound Insurance Requests'} variant="outline" icon="shield" onPress={() => onNavigate && onNavigate('insurance_decisions')} />
         <NCard style={{ gap: SP.md }}>
-          <NToggle label={AR ? 'قبول شركات التأمين' : 'Accept Insurance'} value={acceptsInsurance} onChange={setAcceptsInsurance} />
           <NToggle label={AR ? 'تتبع أرصدة المخزون (اختياري)' : 'Track inventory balances (optional)'} value={trackInventory} onChange={async (v: boolean) => {
             setTrackInventory(v);
             try {

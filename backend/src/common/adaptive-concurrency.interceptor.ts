@@ -4,6 +4,9 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
+import { RouteClass, routeClass } from './route-classes';
+
+const CRITICAL: RouteClass[] = ['payment', 'auth', 'booking', 'realtime'];
 
 @Injectable()
 export class AdaptiveConcurrencyInterceptor implements NestInterceptor {
@@ -19,7 +22,10 @@ export class AdaptiveConcurrencyInterceptor implements NestInterceptor {
     if (req?.url?.includes('/health')) {
       return next.handle();
     }
-    if (this.active >= this.limit) {
+    // R16: the limit used to refuse EVERYTHING at the same point, so a flood of searches could make a payment or a sign-in answer 503. The critical classes (payment, auth,
+    // booking, realtime) now have a ceiling of twice the limit; the rest are refused at the limit, as before.
+    const ceiling = CRITICAL.includes(routeClass(String(req?.originalUrl || req?.url || '').split('?')[0])) ? this.limit * 2 : this.limit;
+    if (this.active >= ceiling) {
       this.logger.warn(
         `Concurrency limit reached: active=${this.active}, limit=${this.limit}, avgLatency=${this.avgLatency.toFixed(0)}ms`,
       );

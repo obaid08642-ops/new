@@ -1,5 +1,5 @@
 """Journey: radiology scan, patient-app diagnostics -> radiology center (provider-app RadiologyDashboard) -> report -> patient.
-Payloads copied from patient-app app/(tabs)/diagnostics.tsx (scan "book now" -> cart), diagnostics/cart.tsx, diagnostics/checkout.tsx,
+Payloads copied from patient-app app/(tabs)/diagnostics.tsx (scan "book now" -> cart), diagnostics/cart.tsx, diagnostics/checkout.tsx (removed: the payloads are now the confirm screen's),
 provider-app screens/radiology/RadiologyDashboard.tsx (OrderDetailScreen, ReportingScreen) and api/provider.ts uploadFile."""
 import base64
 import uuid
@@ -84,6 +84,13 @@ def run(pat, center, other_center=None, admin=None):
     step('report attached (draft)', r.ok and r.get('state') == 'REPORT_DRAFT', r)
     r = center.post(f'/radiology/bookings/{bid}/submit-report-for-review', {})
     step('sent for radiologist review', r.ok and r.get('state') == 'UNDER_REVIEW', r)
+    # PV-19: the screens must know who may approve, so the uploader is not shown a button that is refused (audit-3 gap 16)
+    r = center.get(f'/radiology/bookings/{bid}')
+    step('the uploader\'s booking says it handled the report and cannot approve it (report_handled_by_me, report_can_approve=false)',
+         r.ok and r.get('report_handled_by_me') is True and r.get('report_can_approve') is False, {k: r.get(k) for k in ('report_handled_by_me', 'report_can_approve')})
+    r = center.get('/radiology/provider/inbox')
+    row = next((b for b in r.items() if b.get('id') == bid), {})
+    step('and so does the center\'s inbox row', row.get('report_can_approve') is False, {k: row.get(k) for k in ('report_handled_by_me', 'report_can_approve')})
     if admin:
         # two people: the user who uploaded and sent the report cannot publish it; the admin (a second person) does
         r = center.post(f'/radiology/bookings/{bid}/approve-report', {})

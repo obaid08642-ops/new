@@ -13,8 +13,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: acceptance-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # a newer commit on the same PR replaces the older run (the newest commit still runs every suite); a run on main, a schedule and a manual run are never cancelled
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   acceptance:
@@ -33,7 +34,15 @@ jobs:
           cache-dependency-path: backend/package-lock.json
 
       - name: redis-server for the specs that start the real backend
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq redis-server && sudo systemctl stop redis-server || true
+        # A stalled mirror once held this step for an hour: cap the step and every apt network call, retry, fail fast.
+        timeout-minutes: 6
+        run: |
+          APT="-o Acquire::Retries=3 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20"
+          for i in 1 2 3; do
+            timeout 120 sudo apt-get $APT update -qq && timeout 180 sudo apt-get $APT install -y -qq redis-server && break
+            echo "apt attempt $i failed"; [ "$i" = 3 ] && exit 1; sleep 5
+          done
+          sudo systemctl stop redis-server || true
 
       - run: npm ci --no-audit --no-fund
 

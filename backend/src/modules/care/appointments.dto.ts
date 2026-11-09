@@ -1,4 +1,4 @@
-import { IsArray, IsDefined, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min, ValidateNested, MaxLength } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min, ValidateNested, MaxLength } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ServiceType } from '../../schemas/appointment.schema';
 import { AttributionDto } from '../../common/attribution';
@@ -18,6 +18,17 @@ export class VisitLocationDto {
 }
 
 export class CreateAppointmentDto {
+  /** The patient ticked "I agree" to the refund policy shown before payment (a missing field is let through while the rollout is optional, an explicit false is refused; a missing field is 400 refund_policy_acceptance_required once REFUND_POLICY_ACCEPTANCE=required). */
+  @IsOptional()
+  @IsBoolean()
+  refund_policy_accepted?: boolean;
+
+  /** Owner decision 1: the family member this is FOR (the caller stays the booker and payer); checked server-side, see common/family-member.ts. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(128)
+  family_member_id?: string;
+
   @IsString()
   @IsNotEmpty()
   doctor_id: string;
@@ -56,6 +67,11 @@ export class CreateAppointmentDto {
   @IsIn(['cash', 'card', 'insurance'])
   @IsOptional()
   payment_method?: 'cash' | 'card' | 'insurance';
+
+  /** PT-08: the patient asks for a sick leave with this consultation. A request, not a guarantee: the doctor decides (SickLeaveService.issue). */
+  @IsOptional()
+  @IsBoolean()
+  sick_leave_requested?: boolean;
 
   /** Issue 684: book on behalf of a family member (AppointmentsService checks the family group and the booking permission). */
   @IsOptional()

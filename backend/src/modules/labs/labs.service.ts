@@ -1,4 +1,7 @@
+import { refundPolicyAcceptance, type RefundPolicyAcceptance } from '../../common/refund-policy-acceptance';
+import { resolveFamilyMemberId } from '../../common/family-member';
 import { flattenResultEntries } from './lab-booking-results';
+import { withholdLegacyBeforeAcceptance } from '../provider-jobs/provider-job-privacy';
 import { assertPaymentMethod } from '../../common/payment-policy';
 import { homeCollectionFee } from '../../common/provider-home-fees';
 import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
@@ -105,7 +108,7 @@ export class LabsService {
     const labsRunning = async () => {
       const labs: any[] = await this.providerProfiles.find({
         type: { $in: ['lab', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
-      }, { projection: { _id: 0, test_categories: 1, rating_avg: 1, rating_count: 1 } }).lean();
+      }, { _id: 0, test_categories: 1, rating_avg: 1, rating_count: 1 }).lean();
       return labs;
     };
     const runs = (svc: any, lab: any) => {
@@ -121,7 +124,7 @@ export class LabsService {
       const labs: any[] = await this.providerProfiles.find({
         type: { $in: ['lab', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
         'geo.lat': { $type: 'number' }, 'geo.lng': { $type: 'number' },
-      }, { projection: { _id: 0, geo: 1, test_categories: 1 } }).lean();
+      }, { _id: 0, geo: 1, test_categories: 1 }).lean();
       const services: any[] = await this.svcModel.find(q, { _id: 0, __v: 0 }).lean();
       return finish(nearestFirst(services, labs, here, runs).slice(0, 120));
     }
@@ -304,6 +307,10 @@ export class LabsService {
   async book(user: any, data: any) {
     if (!Array.isArray(data.items) || !data.items.length) throw new BadRequestException('items required');
     if (!data.scheduled_at) throw new BadRequestException('scheduled_at required');
+    // owner decision 2026-11-09: the refund policy is agreed before the booking exists
+    const policyAcceptance = refundPolicyAcceptance(user, data.refund_policy_accepted);
+    // owner decision 1: a booking for a family member (the caller stays the booker; checked to be the caller's own member)
+    const familyMemberId = await resolveFamilyMemberId(this.bkgModel.db, user.id, data.family_member_id);
     const services = await this.svcModel.find({ id: { $in: data.items.map((x: any) => x.service_id) } });
     if (!services.length) throw new BadRequestException('no_valid_services');
     const paymentMethod = ['cash', 'card', 'insurance'].includes(data.payment_method) ? data.payment_method : 'cash';
@@ -368,6 +375,8 @@ export class LabsService {
     const insurance_status = paymentMethod === 'insurance' ? 'pending' : 'none';
     const booking = await this.bkgModel.create({
       patient_id: user.id,
+      ...(familyMemberId ? { family_member_id: familyMemberId } : {}),
+      ...(policyAcceptance ? { refund_policy_acceptance: policyAcceptance } : {}),
       patient_name: data.contact?.name || user.full_name,
       patient_phone: data.contact?.phone || user.phone,
       items,
@@ -421,13 +430,19 @@ export class LabsService {
     provider_account_id: string; mode: 'home' | 'facility'; items: Array<{ service_id: string; name_ar?: string; name_en?: string; price: number; coverage?: string }>;
     home_fee: number; scheduled_at: Date; asap: boolean; payment_method: 'cash' | 'card' | 'insurance'; awaiting_approval: boolean;
     address?: { lat?: number; lng?: number }; order_group_id: string; quote_id: string; medical_order_id?: string;
-    gender_preference?: string; documents?: any[]; notes?: string; patient_name?: string;
+    gender_preference?: string; documents?: any[]; notes?: string; patient_name?: string; family_member_id?: string;
+    /** The acceptance the entry point already recorded (the quote booking, or the broadcast that was started with the tick); a patient's booking without one is refused. */
+    refund_policy_acceptance?: RefundPolicyAcceptance;
   }) {
+    const familyMemberId = await resolveFamilyMemberId(this.bkgModel.db, user.id, input.family_member_id);
+    const policyAcceptance = input.refund_policy_acceptance ?? refundPolicyAcceptance(user, undefined);
     const total = Math.round((input.items.reduce((s, i) => s + i.price, 0) + (input.mode === 'home' ? input.home_fee : 0)) * 100) / 100;
     const state = input.awaiting_approval ? LabBookingState.PENDING_INSURANCE : LabBookingState.NEW_REQUEST;
     const now = new Date();
     const booking = await this.bkgModel.create({
       patient_id: user.id,
+      ...(familyMemberId ? { family_member_id: familyMemberId } : {}),
+      ...(policyAcceptance ? { refund_policy_acceptance: policyAcceptance } : {}),
       patient_name: input.patient_name || user.full_name,
       patient_phone: user.phone,
       items: input.items,
@@ -720,7 +735,7 @@ export class LabsService {
         b.state = LabBookingState.CANCELLED;
         await b.save();
         this.events.emit('lab.booking_state_changed', { booking_id: b.id, patient_id: b.patient_id, state: b.state, tracking_id: b.tracking_id });
-        this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id, prior_state: priorState });
+        this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id, prior_state: priorState, cancelled_by: user?.id === b.patient_id ? 'patient' : 'provider' });
         return b.toObject();
       },
     });
@@ -746,7 +761,8 @@ export class LabsService {
         await b.save();
         this.events.emit('lab.booking_state_changed', { booking_id: b.id, patient_id: b.patient_id, state: to, tracking_id: b.tracking_id });
         // The lab cancelling a paid booking owes the patient the money back, the same as the patient cancelling.
-        if (to === LabBookingState.CANCELLED) this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id, prior_state: priorState });
+        // `cancelled_by`: the trip fee of a collector already on the way is the PATIENT's cost only when the patient cancels; the lab cancelling or not attending refunds all
+        if (to === LabBookingState.CANCELLED) this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id, prior_state: priorState, cancelled_by: user?.id === b.patient_id ? 'patient' : 'provider' });
         return b.toObject();
       },
     });
@@ -789,7 +805,9 @@ export class LabsService {
     const q: any = {};
     if (user.role !== 'admin') q.provider_account_id = user.id;
     if (status) q.state = status;
-    return this.bkgModel.find(q, { _id: 0, __v: 0 }).sort({ scheduled_at: 1 }).limit(200);
+    // R7 (13.R4): a request nobody has accepted shows the area only, not the patient's phone and exact address.
+    const rows = await this.bkgModel.find(q, { _id: 0, __v: 0 }).sort({ scheduled_at: 1 }).limit(200).lean();
+    return (rows as any[]).map((r) => withholdLegacyBeforeAcceptance(r, [LabBookingState.NEW_REQUEST]));
   }
 
   /** Provider: assign technician to a booking. */
@@ -833,6 +851,10 @@ export class LabsService {
       throw new BadRequestException(`invalid_transition_${b.state}_to_REPORTED`);
     }
     
+    // X2: the app uploads in three calls and retries on a bad network. The same stored file again is the same report:
+    // answer with the booking as it is instead of pushing a second copy and telling the patient twice.
+    if (stored && (b.reports as any[]).some((r) => r?.storage_object_id === stored.id)) return b.toObject();
+
     let base64Data: string | undefined;
     let mimeType = stored?.mime || 'application/pdf';
     

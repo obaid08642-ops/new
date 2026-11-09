@@ -23,7 +23,7 @@ exit 0
 
 
 class ClamavWindow(unittest.TestCase):
-    def run_script(self, pending, free_mb, running, now=10_000, idle_since=None, on_demand="1", exists="1", free_after_pause=None, paused_before=False, pause=None):
+    def run_script(self, pending, free_mb, running, now=10_000, idle_since=None, on_demand="1", exists="1", free_after_pause=None, paused_before=False, pause=None, swap_free_mb=None, swap_headroom=None):
         with tempfile.TemporaryDirectory() as d:
             bindir = os.path.join(d, "bin")
             os.mkdir(bindir)
@@ -34,6 +34,8 @@ class ClamavWindow(unittest.TestCase):
             meminfo = os.path.join(d, "meminfo")
             with open(meminfo, "w") as f:
                 f.write("MemTotal: 4000000 kB\nMemAvailable: %d kB\n" % (free_mb * 1024))
+                if swap_free_mb is not None:
+                    f.write("SwapFree: %d kB\n" % (swap_free_mb * 1024))
             state = os.path.join(d, "state")
             os.mkdir(state)
             if idle_since is not None:
@@ -47,6 +49,8 @@ class ClamavWindow(unittest.TestCase):
                 env["FAKE_FREE_AFTER_PAUSE"] = str(free_after_pause)
             if pause is not None:
                 env["CLAMAV_PAUSE"] = pause
+            if swap_headroom is not None:
+                env["CLAMAV_SWAP_HEADROOM_MB"] = str(swap_headroom)
             if paused_before:
                 with open(os.path.join(state, "paused"), "w") as f:
                     f.write("nabdah-meilisearch\n")
@@ -91,6 +95,26 @@ class ClamavWindow(unittest.TestCase):
     def test_a_running_scanner_keeps_the_pause_while_files_wait(self):
         p, calls, _ = self.run_script(pending=2, free_mb=100, running=True, paused_before=True)
         self.assertNotIn("start nabdah-meilisearch", calls)
+
+    def test_free_swap_counts_as_room_only_up_to_the_headroom_and_keeps_1_gb_free(self):
+        # 1000 MB available + min(3200 - 1024 kept, 700 headroom) = 1700 -> starts
+        p, calls, _ = self.run_script(pending=2, free_mb=1000, running=False, swap_free_mb=3200, swap_headroom=700)
+        self.assertIn("start nabdah-clamav", calls)
+        self.assertIn("1700 MB of room", p.stdout)
+        # the swap that is left after the 1 GB kept is too small: 1000 + (1500 - 1024) = 1476 < 1700 -> not started
+        p, calls, _ = self.run_script(pending=2, free_mb=1000, running=False, swap_free_mb=1500, swap_headroom=700)
+        self.assertNotIn("start nabdah-clamav", calls)
+        self.assertIn("files stay in quarantine", p.stdout)
+
+    def test_swap_headroom_defaults_to_700_and_zero_switches_it_off(self):
+        p, calls, _ = self.run_script(pending=2, free_mb=1000, running=False, swap_free_mb=3200)
+        self.assertIn("start nabdah-clamav", calls)   # 1000 + 700 = 1700
+        p, calls, _ = self.run_script(pending=2, free_mb=1000, running=False, swap_free_mb=3200, swap_headroom=0)
+        self.assertNotIn("start nabdah-clamav", calls)
+
+    def test_no_swap_line_in_meminfo_means_no_swap_is_counted(self):
+        p, calls, _ = self.run_script(pending=2, free_mb=1000, running=False)
+        self.assertNotIn("start nabdah-clamav", calls)
 
     def test_off_unless_enabled(self):
         p, calls, _ = self.run_script(pending=5, free_mb=4000, running=False, on_demand="0")

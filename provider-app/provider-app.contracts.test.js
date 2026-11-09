@@ -58,7 +58,9 @@ describe('Provider App release contracts', () => {
     expect(dashboard).not.toContain("'guest_patient'");
     expect(dashboard).not.toContain("patient_id: apt?.patient_id || 'test'");
     expect(dashboard).not.toContain("Sick leave issued successfully', 'success');\n     setIssued(true);");
-    expect(dashboard).toContain('server verifies appointment relation, doctor licence, legal signature');
+    // PT-08: the server (SickLeaveService) now verifies the consultation, the licence and the no-back-dating rule; the app only posts to it and shows its answers.
+    expect(dashboard).toContain("/provider/requests/${encodeURIComponent(appointmentId)}/sick-leave");
+    expect(dashboard).toContain('issueErrorKey(');
   });
 
   it('uses server-backed pharmacy broadcasts and a native barcode scanner', () => {
@@ -309,5 +311,13 @@ describe('Provider App release contracts', () => {
         expect(src).not.toMatch(/sos_dispatch|gps_router|ambulance_fleet|SosDispatchScreen|GpsRouterScreen|FleetScreen/);
       }
     });
+  });
+});
+
+describe('Expo build check (CI: expo export + expo prebuild for android and ios)', () => {
+  it('keeps @xmldom/xmldom on 0.8.x: @expo/plist calls parseFromString without a MIME type, which 0.9 rejects and breaks the iOS prebuild', () => {
+    const pkg = require('./package.json');
+    const pinned = (pkg.overrides || {})['@xmldom/xmldom'] || '';
+    expect(pinned).toMatch(/^\^0\.8\./);
   });
 });

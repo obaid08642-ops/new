@@ -1,5 +1,5 @@
 """Journey: lab test, patient-app diagnostics -> lab (provider-app LabDashboard) -> results -> admin console.
-Payloads copied from patient-app app/(tabs)/diagnostics.tsx, diagnostics/cart.tsx, diagnostics/checkout.tsx and
+Payloads copied from patient-app app/(tabs)/diagnostics.tsx, diagnostics/cart.tsx, diagnostics/checkout.tsx (removed: the payloads are now the confirm screen's) and
 provider-app screens/lab/LabDashboard.tsx (LabOrderDetail, SampleTracking, ResultReview)."""
 import datetime, uuid
 from lib import Client, journey, step
@@ -46,6 +46,10 @@ def patient_books(pat, lab_id, location='facility', method='cash', documents=Non
     r = pat.get('/labs/services')
     services = r.items()
     step('patient sees the lab test catalog', r.ok and len(services) > 0, f'{r.status} {len(services)}')
+    # the catalogue's other orders used to answer 500 (the lab read for "highest rated" and "nearest" passed the projection in the driver's form)
+    for label, qs in (('highest rated', 'highest_rated=true'), ('nearest', 'nearest=true&lat=24.7136&lng=46.6753'), ('lowest price', 'lowest_price=true')):
+        rr = pat.get(f'/labs/services?{qs}')
+        step(f'the catalogue sorted by {label} answers (not 500) and keeps the same tests', rr.ok and len(rr.items()) > 0, f'{rr.status} {len(rr.items())}')
     eligible = [s for s in services if location != 'home' or s.get('home_visit_supported')]
     picks = (eligible[offset:] + eligible[:offset])[:2]
     ids = ','.join(s['id'] for s in picks)

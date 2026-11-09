@@ -40,9 +40,12 @@ import { RedisThrottlerStorage } from './modules/redis/throttler-redis.storage';
 import { backgroundImports, backgroundProviders } from './common/process-role';
 import { WorkerHeartbeatService } from './common/worker-heartbeat.service';
 import { BullModule } from '@nestjs/bullmq';
+import { ProviderAgreementGuard } from './modules/legal/provider-agreement';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { GracefulDrain } from './common/graceful-drain';
 import { LoadSheddingGuard } from './common/load-shedding.guard';
+import { AdmissionMiddleware } from './common/admission';
+import { RouteTimeoutInterceptor } from './common/route-timeout.interceptor';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { OrdersModule } from './modules/orders/orders.module';
@@ -57,6 +60,9 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { PriceAlertsModule } from './modules/price-alerts/price-alerts.module';
 import { CatalogueInterestModule } from './modules/catalogue-interest/catalogue-interest.module';
 import { EventsModule } from './modules/events/events.module';
+import { DbIntegrityModule } from './modules/db-integrity/db-integrity.module';
+import { DurableEventsModule } from './modules/durable-events/durable-events.module';
+import { FinanceIntegrityModule } from './modules/finance-integrity/finance-integrity.module';
 import { SeedModule } from './modules/seed/seed.module';
 import { CareModule } from './modules/care/care.module';
 import { LabsModule } from './modules/labs/labs.module';
@@ -71,6 +77,7 @@ import { MedicalProfileModule } from './modules/medical-profile/medical-profile.
 import { TimelineModule } from './modules/timeline/timeline.module';
 import { RadiologyModule } from './modules/radiology/radiology.module';
 import { MedicalReportsModule } from './modules/medical-reports/medical-reports.module';
+import { SickLeaveModule } from './modules/sick-leave/sick-leave.module';
 import { ProviderModule } from './modules/provider/provider.module';
 import { MedicalOrdersModule } from './modules/medical-orders/medical-orders.module';
 import { InstantConsultationModule } from './modules/instant-consultation/instant-consultation.module';
@@ -144,10 +151,12 @@ import { CompatModule } from './modules/compat/compat.module';
 import { AdminSpaModule } from './modules/compat/admin-spa.module';
 import { CatalogsModule } from './modules/catalogs/catalogs.module';
 import { InsuranceEngineModule } from './modules/insurance-engine/insurance-engine.module';
+import { QuotesModule } from './modules/quotes/quotes.module';
 import { BillingModule } from './modules/billing/billing.module';
 import { ArticlesModule } from './modules/articles/articles.module';
 
 import { CorrelationMiddleware } from './common/correlation.middleware';
+import { AppVersionMiddleware } from './common/app-version.middleware';
 import { RequestMetaMiddleware } from './common/request-meta';
 import { ObservabilityModule } from './modules/observability/observability.module';
 import { LogsModule } from './modules/logs/logs.module';
@@ -160,6 +169,8 @@ import { ProductRankingModule } from './modules/product-ranking/product-ranking.
 import { CatalogueRankingModule } from './modules/catalogue-ranking/catalogue-ranking.module';
 import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
 import { mongoDirectConnection } from './common/database/mongo-uri';
+import { mongoConnectionOptions } from './common/database/mongo-options';
+import { MongoSelfHealService } from './common/database/mongo-selfheal.service';
 
 @Module({
   imports: [
@@ -200,17 +211,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     ConfigModule.forRoot({ isGlobal: true, validate: validateEnvironment }),
     MongooseModule.forRootAsync({
       useFactory: () => ({
-        uri: process.env.MONGO_URL || 'mongodb://localhost:27017',
-        dbName: process.env.DB_NAME || 'nabd_nestjs',
-        directConnection: mongoDirectConnection(process.env.MONGO_URL),
-        // ── High-concurrency connection pool (default Mongoose pool = 5, insufficient) ──
-        maxPoolSize: parseInt(process.env.MONGO_MAX_POOL_SIZE || '200', 10),
-        minPoolSize: parseInt(process.env.MONGO_MIN_POOL_SIZE || '20', 10),
-        maxIdleTimeMS: 60_000,
-        serverSelectionTimeoutMS: 5_000,
-        socketTimeoutMS: 45_000,
-        heartbeatFrequencyMS: 10_000,
-        connectTimeoutMS: 10_000,
+        ...mongoConnectionOptions(),
         connectionFactory: (connection) => {
           connection.plugin(require('./common/database/audit.plugin').AuditPlugin);
           return connection;
@@ -251,6 +252,9 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     PriceAlertsModule,
     CatalogueInterestModule,
     EventsModule,
+    DbIntegrityModule,
+    DurableEventsModule,
+    FinanceIntegrityModule,
     RealtimeModule,
     SeedModule,
     CareModule,
@@ -266,6 +270,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     TimelineModule,
     RadiologyModule,
     MedicalReportsModule,
+    SickLeaveModule,
     StorageModule,
     ProviderModule,
     MedicalOrdersModule,
@@ -316,6 +321,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     BillingModule,
     ArticlesModule,
     InsuranceEngineModule,
+    QuotesModule,
     AdminModule,
     CompatModule, // gap-fill endpoints from the screen↔API wiring audit — registered last
     AdminSpaModule, // admin console SPA REST surface (top-level paths, admin-role guarded)
@@ -325,14 +331,17 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
   controllers: [HealthController, HealthDashboardController, ProviderPayoutsController],
   providers: [
     GracefulDrain,
+    MongoSelfHealService,   // 2026-11-01: exits when the Mongo connection stays unusable while mongod answers (restart policy brings the process back)
     ImpersonationSessionService,
     ...backgroundProviders([WorkerHeartbeatService]),
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: GuestPolicyGuard },          // 21.3: the guest permission matrix, after the caller is known
     { provide: APP_GUARD, useClass: WriteGuard },
+    { provide: APP_GUARD, useClass: ProviderAgreementGuard },    // a provider whose accepted contract has an older major version is refused until they accept the new one
     { provide: APP_GUARD, useClass: RateLimitAuditGuard },
     { provide: APP_GUARD, useClass: AdminGateGuard },
     { provide: APP_GUARD, useClass: LoadSheddingGuard },
+    { provide: APP_INTERCEPTOR, useClass: RouteTimeoutInterceptor },
     { provide: APP_GUARD, useClass: StepUpGuard },
     StepUpService,
     { provide: APP_INTERCEPTOR, useClass: GuestChatListInterceptor },
@@ -344,6 +353,6 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(BansMiddleware, CorrelationMiddleware, RequestMetaMiddleware).forRoutes('*');
+    consumer.apply(BansMiddleware, CorrelationMiddleware, RequestMetaMiddleware, AppVersionMiddleware, AdmissionMiddleware).forRoutes('*');
   }
 }

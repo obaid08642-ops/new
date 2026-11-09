@@ -60,6 +60,8 @@ j_app_populated_lists
 j_rx_rules_fields
 j_consult_filters_b
 j_admin_urgent_alerts
+j_admin_stuck_alerts
+j_admin_sla_fraud_alerts
 j_doctor_home_position
 j_pharmacy_insurance_inline
 j_admin_kill_switches
@@ -102,3 +104,6 @@ j_guest_matrix
 j_checkout_contact
 j_guest_lifecycle
 j_user_history
+j_referral_booking
+j_sick_leave
+j_family_dependant

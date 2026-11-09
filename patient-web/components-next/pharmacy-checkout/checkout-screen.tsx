@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { RefundPolicyTick } from "@/components-next/refund-policy/refund-policy-tick";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { StickyFooter } from "@/components-next/ui-generated/shells";
 import { Button } from "@/components-next/ui-generated/components/Button";
@@ -25,6 +26,7 @@ import { RxMedicineList } from "@/components-next/pharmacy/rx-medicines";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import ov from "@/components-next/pharmacy-offers/offers.module.css";
 import styles from "./checkout.module.css";
+import { FILL_STOREFRONT } from "@/components-next/ui-generated/icons/glyphs/storefront";
 
 type Fulfillment = "delivery" | "pickup";
 type PaymentMode = "cash" | "insurance";
@@ -64,6 +66,8 @@ export function CheckoutScreen({ locale, prescription = null }: { locale: Locale
   const [mode, setMode] = useState<PaymentMode>("cash");
   const [policy, setPolicy] = useState<PolicyState>({ status: "idle" });
   const [sending, setSending] = useState(false);
+  // the refund policy is shown before the request is sent and agreed here (the backend refuses an order without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
   const [failure, setFailure] = useState<Failure | null>(null);
   const attempt = useRef(createBroadcastAttempt());
 
@@ -94,7 +98,7 @@ export function CheckoutScreen({ locale, prescription = null }: { locale: Locale
   const prescriptionOk = !hasRxItems || prescription !== null;
   const payMode: PaymentMode = prescription ? mode : "cash";
   const insuranceOk = payMode === "cash" || policy.status === "ok";
-  const canSend = active && address.status === "ready" && prescriptionOk && insuranceOk && !sending;
+  const canSend = active && address.status === "ready" && prescriptionOk && insuranceOk && refundAgreed && !sending;
 
   async function send() {
     if (!canSend || address.status !== "ready") return;
@@ -150,7 +154,7 @@ export function CheckoutScreen({ locale, prescription = null }: { locale: Locale
       <>
         <section className={rx.card} aria-labelledby="checkout-request">
           <div className={rx.cardRow}>
-            <FIcon icon="storefront" tone={PHARMACY_TONE} size={44} />
+            <FIcon icon="storefront" glyph={FILL_STOREFRONT} tone={PHARMACY_TONE} size={44} />
             <div className={rx.cardBody}>
               <h2 className={rx.h2} id="checkout-request">{t("requestTitle")}</h2>
               <span className={rx.cardLabel}>{t("requestLead")}</span>
@@ -225,6 +229,7 @@ export function CheckoutScreen({ locale, prescription = null }: { locale: Locale
           </div>
         ) : null}
 
+        <RefundPolicyTick locale={locale} checked={refundAgreed} onChange={setRefundAgreed} />
         <div className={rx.deskActions}>{sendButton}</div>
       </>
     );

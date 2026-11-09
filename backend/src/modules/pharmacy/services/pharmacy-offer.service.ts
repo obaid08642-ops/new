@@ -1,3 +1,4 @@
+import { deliveryTerms } from '../pharmacy-delivery';
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
@@ -6,6 +7,7 @@ import * as crypto from 'crypto';
 import { PharmacyAllocationState, PharmacyOrderState } from '../schemas/pharmacy.schema';
 import { EventBusService } from '../../events/event-bus.service';
 import { BusinessRulesService } from '../../business-rules/business-rules.module';
+import { deliveryModeOf } from '../../../common/tax-registration';
 import { PharmacyNotificationService } from './pharmacy-notification.service';
 import { CATALOGUE_PROJECTION, cataloguePrice, catalogueSku } from './catalogue-lines';
 import { assertSubstituteInsidePrescription } from './rx-rules';
@@ -329,16 +331,18 @@ export class PharmacyOfferService {
       items.push(await this.inventoryForOffer(userId, orderItem, byOrderItem.get(orderItem.id)!));
     }
     const subtotal = items.reduce((sum, item) => sum + (item.action === 'unavailable' ? 0 : item.unit_price * item.qty_offered), 0);
-    // R6-4: delivery fee comes from the saved platform pricing (admin config-portal).
-    let deliveryFee = 0;
-    let feeSource = 'no_active_server_delivery_policy';
+    // R6-4: the platform delivery fee comes from the saved platform pricing (admin config-portal). A pharmacy with its own couriers
+    // (owner decision 2026-11-02) charges its own fee instead, and the offer says which mode delivers.
+    let platformFee = 0;
     try {
       const fees = await this.pricing?.platformFees();
-      if (fees && Number.isFinite(fees.delivery_fee) && fees.delivery_fee > 0) {
-        deliveryFee = Math.round(fees.delivery_fee * 100) / 100;
-        feeSource = 'platform_pricing_config';
-      }
+      if (fees && Number.isFinite(fees.delivery_fee) && fees.delivery_fee > 0) platformFee = fees.delivery_fee;
     } catch { /* quote never fails on pricing config */ }
+    const roundedSubtotal = Math.round(subtotal * 100) / 100;
+    const profile: any = await this.connection.collection('provider_profiles').findOne({ account_id: { $eq: userId } }, { projection: { _id: 0, own_delivery: 1 } });
+    const terms = deliveryTerms(profile, roundedSubtotal, order?.fulfillment === 'pickup' || order?.delivery?.method === 'pickup', platformFee);
+    const deliveryFee = terms.fee;
+    const feeSource = terms.source;
     // #507: the preparation time is the pharmacy's own estimate when it gives one; without it there is none (the
     // patient sees no time and "fastest" sorts it last), never a number computed from the line count.
     const prep = Number(preparationMinutes);
@@ -356,6 +360,8 @@ export class PharmacyOfferService {
         delivery_option: null,
         eta_minutes: etaValue,
         delivery_fee_source: feeSource,
+        delivery_mode: terms.mode,
+        delivery_fee: deliveryFee,
       },
     };
   }
@@ -616,7 +622,7 @@ export class PharmacyOfferService {
           offer_id: offer.id, offer_version: offer.version,
           status: PharmacyAllocationState.PENDING_REVIEW, stock_reserved: tracking,
           items: offer.items.map((item: any) => ({ id: uuidv4(), order_item_id: item.order_item_id, action: item.action, inventory_id: item.inventory_item_id, sku: item.sku, name: item.name_ar || item.name_en, qty_requested: item.qty_requested, qty_offered: item.qty_offered, unit_price: item.unit_price, updated_at: now })),
-          totals: offer.totals, estimated_preparation_minutes: offer.estimated_preparation_minutes,
+          totals: offer.totals, estimated_preparation_minutes: offer.estimated_preparation_minutes, fulfillment: offer.fulfillment,
           timeline: [{ ts: now, event: 'created_after_patient_offer_selection', by: user.id, meta: { offer_id: offer.id, offer_version: offer.version } }],
         }], { session });
         await this.offers.updateOne({ id: offer.id, status: 'submitted' }, { $set: { status: 'selected', selected_at: now, selected_by_patient_account_id: user.id, allocation_id: allocation[0].id } }, { session });
@@ -634,6 +640,8 @@ export class PharmacyOfferService {
             payment_method: paymentMethod,
             coverage_mode: coverage === 'insurance' ? 'insurance' : 'cash',
             totals: offer.totals,
+            delivery_mode: deliveryModeOf(offer.fulfillment),
+            delivery_fee_source: offer.fulfillment?.delivery_fee_source ?? null,
             pricing_snapshot: { offer_id: offer.id, offer_version: offer.version, totals: offer.totals, hash: quoteHash, captured_at: now },
           },
           $push: { timeline: { ts: now, event: 'patient_offer_selected', by: user.id, meta: { offer_id: offer.id, offer_version: offer.version, payment_method: paymentMethod } } },

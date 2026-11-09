@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 
 import { Input } from '../../../packages/ui-native/src';
-import { filterSpecialties } from '../../../packages/ui/icons/specialty-art';
+import { filterSpecialties } from '../../../packages/ui/icons/specialty-look';
 import { ConsultList } from '../../src/components/consult/ConsultKit';
 import { SpecialtyTile } from '../../src/components/consult/SpecialtyTiles';
 import { specialtyNameKey, specialtyNamesBySlug, specialtyTileModels } from '../../src/utils/consultSpecialties';
@@ -19,7 +19,7 @@ import { pickLocalized } from '../../src/utils/localize';
  * with their live doctor counts, never a fallback list); choosing one opens the doctor search for it.
  */
 
-const PER_ROW = 3;
+const PER_ROW = 4;
 
 interface Specialty {
   slug?: string;
@@ -33,7 +33,6 @@ export default function SpecialtySelectScreen() {
   const { theme, t, c, flow, k, lang } = useScreenUi();
   const [q, setQ] = useState('');
   // a tapped specialty with no doctor yet: the "Coming soon" note shows instead of an empty doctor list
-  const [soonName, setSoonName] = useState('');
   const [specs, setSpecs] = useState<Specialty[]>([]);
   const [status, setStatus] = useState<'loading' | 'error' | 'offline' | 'ready'>('loading');
 
@@ -63,7 +62,7 @@ export default function SpecialtySelectScreen() {
   const arabicNames = useMemo(() => Object.fromEntries(specs.flatMap((row) => (row.slug ? [[row.slug, row.name_ar]] : []))) as Record<string, string | undefined>, [specs]);
   // search: the name in the app language, the Arabic and the English name
   const filtered = useMemo(() => filterSpecialties(tiles, q, specialtyNamesBySlug(specs)), [tiles, q, specs]);
-  // three tiles to a row, the list virtualised by rows
+  // four tiles to a row, the list virtualised by rows
   const rows = useMemo(() => Array.from({ length: Math.ceil(filtered.length / PER_ROW) }, (_, i) => filtered.slice(i * PER_ROW, i * PER_ROW + PER_ROW)), [filtered]);
 
   return (
@@ -73,12 +72,6 @@ export default function SpecialtySelectScreen() {
       top={
         <View style={{ gap: 10 }}>
           <Input label={k('consult.spec.searchLabel')} placeholder={k('consult.spec.search')} value={q} onChange={setQ} startIcon="search" theme={theme} testID="specialty-search" />
-          {soonName ? (
-            <View testID="specialty-soon-note" accessibilityRole="alert" style={{ borderRadius: 16, backgroundColor: c.bg.sunken, padding: 12, gap: 2 }}>
-              <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{k('consult.hub.comingSoonTitle', { specialty: soonName })}</Text>
-              <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.comingSoonBody')}</Text>
-            </View>
-          ) : null}
         </View>
       }
       data={rows}
@@ -94,11 +87,8 @@ export default function SpecialtySelectScreen() {
               id={tile.slug}
               fill
               label={tile.name}
-              art={tile.art}
-              fallbackName={arabicNames[tile.slug] ?? tile.name}
-              comingSoon={tile.comingSoon}
-              comingSoonLabel={k('consult.hub.comingSoon')}
-              onPress={() => (tile.comingSoon ? setSoonName(tile.name) : router.push({ pathname: '/consultations/doctor-search', params: { specialty: arabicNames[tile.slug] } } as unknown as Href))}
+              look={tile.look}
+              onPress={() => router.push({ pathname: '/consultations/doctor-search', params: { specialty: arabicNames[tile.slug] } } as unknown as Href)}
             />
           ))}
           {Array.from({ length: PER_ROW - row.length }, (_, i) => <View key={`pad${i}`} style={{ flex: 1 }} />)}

@@ -1,0 +1,620 @@
+{
+  "slice": "qa-health-programmes-app",
+  "batch": "qa",
+  "app": "patient-app",
+  "screens": [
+    {
+      "route": "/health/add-family-member",
+      "elements": [
+        [
+          "Redirect to /family/add?tab=invite (no UI)",
+          "patient-app/app/health/add-family-member.tsx:6 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/health/chronic-disease",
+      "elements": [
+        [
+          "Redirect to /health/profile?tab=conditions (no UI)",
+          "patient-app/app/health/chronic-disease.tsx:6 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/health/chronic-medications",
+      "elements": [
+        [
+          "Redirect to /health/medications?tab=chronic (no UI) (MedicationsView.tsx:55 reads the tab)",
+          "patient-app/app/health/chronic-medications.tsx:6 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/health/family-calendar",
+      "elements": [
+        [
+          "Redirect to /family/calendar (no UI)",
+          "patient-app/app/health/family-calendar.tsx:6 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/health/family-chat",
+      "elements": [
+        [
+          "Redirect to /family/chat (no UI)",
+          "patient-app/app/health/family-chat.tsx:6 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/health/family-hub",
+      "elements": [
+        [
+          "Redirect to /family (no UI)",
+          "patient-app/app/health/family-hub.tsx:6 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/health/family-member-detail",
+      "elements": [
+        [
+          "Redirect to /family/member-health (no UI)",
+          "patient-app/app/health/family-member-detail.tsx:6 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/health/profile",
+      "elements": [
+        [
+          "Tabs Basics / Conditions / Emergency",
+          "patient-app/src/components/health/ProfileView.tsx:37 local state (?tab=)",
+          "ok"
+        ],
+        [
+          "Profile read",
+          "patient-app/src/components/health/ProfileView.tsx:67 GET /medical-profile (medical-profile.controller.ts:14) and GET /users/me/profile (users.controller.ts:35)",
+          "ok"
+        ],
+        [
+          "Change photo (only when uploads are on)",
+          "patient-app/src/components/health/ProfileView.tsx:106-109 POST /media/upload (multipart) then PATCH /users/me/profile {avatar_url}; shown only when GET /config says uploads are enabled",
+          "ok"
+        ],
+        [
+          "Blood type chips, gender segmented, smoker / pregnant / breastfeeding toggles",
+          "patient-app/src/components/health/ProfileView.tsx:137,142,149-151 local state, sent in PATCH /medical-profile (UpdateDto fields blood_type, gender, is_pregnant, is_breastfeeding, is_smoker)",
+          "ok"
+        ],
+        [
+          "Height and weight fields",
+          "patient-app/src/components/health/ProfileView.tsx:140,141 local state; range-checked 40-260 cm and 1-1000 kg before sending height_cm / weight_kg (UpdateDto IsNumber)",
+          "ok"
+        ],
+        [
+          "Save",
+          "patient-app/src/components/health/ProfileView.tsx:86,156 PATCH /medical-profile; translated saved / error lines",
+          "ok"
+        ],
+        [
+          "Health ID card row",
+          "patient-app/src/components/health/ProfileView.tsx:158 navigation to /reports/passport",
+          "ok"
+        ],
+        [
+          "Conditions and allergies: add / delete",
+          "patient-app/src/components/health/ProfileView.tsx:187,196,206,210 POST /medical-profile/chronic-diseases|allergies {name} and DELETE /medical-profile/:list/:id (AddItemDto name)",
+          "ok"
+        ],
+        [
+          "Condition care plan (expand) and Book a check-up",
+          "patient-app/src/components/health/ProfileView.tsx:175,230,247 GET /health/chronic-diseases (health.controller.ts:127), navigation to booking",
+          "ok"
+        ],
+        [
+          "Emergency contacts: list, call, delete",
+          "patient-app/src/components/health/ProfileView.tsx:270,273,294,303,327 GET /health/emergency-contacts, tel: link, DELETE /health/emergency-contacts/:id",
+          "ok"
+        ],
+        [
+          "Emergency contacts: add sheet",
+          "patient-app/src/components/health/ProfileView.tsx:276-280,364-366 POST /health/emergency-contacts {name, phone, relation?, isPrimary}; name and phone required in the client (the DTO makes both optional, see Needs review)",
+          "ok"
+        ],
+        [
+          "Family emergency contacts and Invite",
+          "patient-app/src/components/health/ProfileView.tsx:271,340 GET /family/emergency-contacts (family.controller.ts:99); navigation to /family/add?tab=invite",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/health/records",
+      "elements": [
+        [
+          "Tabs Reports / Prescriptions / Timeline and kind filters",
+          "patient-app/src/components/health/RecordsView.tsx:30,60,167 local state",
+          "ok"
+        ],
+        [
+          "Reports list",
+          "patient-app/src/components/health/RecordsView.tsx:53,54 GET /medical-reports/mine?limit=100 and GET /health/reports; row opens /reports/view-report?id=",
+          "ok"
+        ],
+        [
+          "Prescriptions list",
+          "patient-app/src/components/health/RecordsView.tsx:114 GET /health/prescriptions (health.controller.ts:107)",
+          "ok"
+        ],
+        [
+          "Order medicines (unpurchased prescription)",
+          "patient-app/src/components/health/RecordsView.tsx:141 navigation to the pharmacy tab",
+          "ok"
+        ],
+        [
+          "Share prescription",
+          "patient-app/src/components/health/RecordsView.tsx:119,142 system share sheet with text built from the row, local",
+          "ok"
+        ],
+        [
+          "Upload a prescription footer",
+          "patient-app/src/components/health/RecordsView.tsx:27 navigation to /pharmacy/rx-order",
+          "ok"
+        ],
+        [
+          "Timeline",
+          "patient-app/src/components/health/RecordsView.tsx:163 GET /medical-reports/timeline (medical-reports.controller.ts:22)",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/health/sleep",
+      "elements": [
+        [
+          "Nights list, 7-day ring",
+          "patient-app/src/components/health/SleepView.tsx:30 GET /health/sleep?limit=30 (health.controller.ts:87): server data; the average and ring are computed on the device from those rows",
+          "ok"
+        ],
+        [
+          "Read-more articles",
+          "patient-app/src/components/health/SleepView.tsx:31 GET /articles?tag=sleep&limit=4",
+          "ok"
+        ],
+        [
+          "Add sleep sheet (hours, score)",
+          "patient-app/src/components/health/SleepView.tsx:56,145,158,159 POST /health/sleep {duration_hours, sleep_score, source:'manual'} (AddSleepDto IsNumber); checked 0-24 h and 0-100 in the client. The score is typed by the person, it is not measured or computed",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/maternity/baby-development",
+      "elements": [
+        [
+          "Redirect to /maternity/hub (no UI) (the baby development content is the hub's week entry)",
+          "patient-app/app/maternity/baby-development.tsx:3 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/maternity/baby-growth",
+      "elements": [
+        [
+          "Redirect to /maternity/hub (no UI) (no growth log exists any more)",
+          "patient-app/app/maternity/baby-growth.tsx:3 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/maternity/ovulation-tracker",
+      "elements": [
+        [
+          "Redirect to /maternity/hub (no UI) (cycle tab)",
+          "patient-app/app/maternity/ovulation-tracker.tsx:3 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/maternity/pregnancy-tracker",
+      "elements": [
+        [
+          "Redirect to /maternity/hub (no UI) (pregnancy tab)",
+          "patient-app/app/maternity/pregnancy-tracker.tsx:3 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/maternity/hub",
+      "elements": [
+        [
+          "Profile read, empty state to setup",
+          "patient-app/src/components/care/MaternityViews.tsx:115,124 GET /maternity/profile (maternity.controller.ts:21); no profile -> navigation to setup",
+          "ok"
+        ],
+        [
+          "Pregnancy / cycle tabs",
+          "patient-app/src/components/care/MaternityViews.tsx:134 local state",
+          "ok"
+        ],
+        [
+          "Pregnancy ring, trimester, due date",
+          "patient-app/src/components/care/MaternityViews.tsx:145-150 week and due date are fields of the profile (current_week, due_date) labelled 'estimate'",
+          "ok"
+        ],
+        [
+          "This week's entry and Read this week",
+          "patient-app/src/components/care/MaternityViews.tsx:65,98 GET /maternity/content (week text, size, image from the admin catalogue, CDN images); articles open /articles/[slug]",
+          "ok"
+        ],
+        [
+          "Cycle ring, ovulation, fertile window, next period",
+          "patient-app/src/components/care/MaternityViews.tsx:113,160-166 computed on the device (cycleEstimate) from last_period_date and cycle_length of the server profile, labelled 'estimate'",
+          "ok"
+        ],
+        [
+          "Update profile",
+          "patient-app/src/components/care/MaternityViews.tsx:151,171,175 navigation to setup",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/maternity/maternity-setup",
+      "elements": [
+        [
+          "Mode (pregnant / cycle) and regular toggle",
+          "patient-app/src/components/care/MaternityViews.tsx:219,237 local state",
+          "ok"
+        ],
+        [
+          "LMP / last period date and due date fields",
+          "patient-app/src/components/care/MaternityViews.tsx:228,230 typed as text (hint YYYY-MM-DD), no date picker and no client check",
+          "gap"
+        ],
+        [
+          "Cycle length",
+          "patient-app/src/components/care/MaternityViews.tsx:233 number field, required in cycle mode",
+          "ok"
+        ],
+        [
+          "Save",
+          "patient-app/src/components/care/MaternityViews.tsx:204,215 POST /maternity/profile {is_pregnant, lmp_date|last_period_date, due_date?, cycle_length, is_regular} (maternity.controller.ts:27, UpdateProfileDto)",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/mental-health",
+      "elements": [
+        [
+          "Redirect to /mental-health/hub (no UI)",
+          "patient-app/app/mental-health/index.tsx:6 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/mental-health/breathing",
+      "elements": [
+        [
+          "Redirect to /mental-health/hub (no UI) (no breathing tool in the app, nothing invented)",
+          "patient-app/app/mental-health/breathing.tsx:5 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/mental-health/meditation",
+      "elements": [
+        [
+          "Redirect to /mental-health/hub (no UI) (no meditation content, nothing invented)",
+          "patient-app/app/mental-health/meditation.tsx:5 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/mental-health/self-assessment",
+      "elements": [
+        [
+          "Redirect to /mental-health/hub (no UI) (no questionnaire, nothing invented)",
+          "patient-app/app/mental-health/self-assessment.tsx:5 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/mental-health/therapist-match",
+      "elements": [
+        [
+          "Redirect to /(tabs)/consultations (no UI) (the hub's consultation row is the entry)",
+          "patient-app/app/mental-health/therapist-match.tsx:5 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/mental-health/hub",
+      "elements": [
+        [
+          "Mood journal row",
+          "patient-app/src/components/care/MentalHealthViews.tsx:34 navigation",
+          "ok"
+        ],
+        [
+          "Consultation row",
+          "patient-app/src/components/care/MentalHealthViews.tsx:35 navigation to the consultations tab",
+          "ok"
+        ],
+        [
+          "Urgent help row",
+          "patient-app/src/components/care/MentalHealthViews.tsx:36 navigation to the emergency screen",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/mental-health/mood-journal",
+      "elements": [
+        [
+          "History (30 days)",
+          "patient-app/src/components/care/MentalHealthViews.tsx:63 GET /mental-health/mood?days=30 (mental-health.controller.ts:33)",
+          "ok"
+        ],
+        [
+          "Mood tiles, energy and stress scales, tags",
+          "patient-app/src/components/care/MentalHealthViews.tsx:105,116,128 local state",
+          "ok"
+        ],
+        [
+          "Sleep hours field",
+          "patient-app/src/components/care/MentalHealthViews.tsx:123 typed number; 0-24 checked in buildMoodJournalPayload; a refusal used to show 'could not save', now the sleep-hours message",
+          "fixed"
+        ],
+        [
+          "Note (500 chars)",
+          "patient-app/src/components/care/MentalHealthViews.tsx:131 local state, sent as notes",
+          "ok"
+        ],
+        [
+          "Save",
+          "patient-app/src/components/care/MentalHealthViews.tsx:82,112 POST /mental-health/mood {mood, energy_level?, stress_level?, sleep_hours?, notes?, tags?} (LogMoodDto)",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/nutrition",
+      "elements": [
+        [
+          "Redirect to /nutrition/hub (no UI)",
+          "patient-app/app/nutrition/index.tsx:6 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/nutrition/ai-meal-planner",
+      "elements": [
+        [
+          "Redirect to /nutrition/daily-tracker (no UI) (weekly plans are not stored by the API, so no fake planner)",
+          "patient-app/app/nutrition/ai-meal-planner.tsx:9 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/nutrition/ai-plan-builder",
+      "elements": [
+        [
+          "Redirect to /nutrition/hub (no UI) (the plan tab generates through the server)",
+          "patient-app/app/nutrition/ai-plan-builder.tsx:6 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/nutrition/body-composition",
+      "elements": [
+        [
+          "Redirect to /nutrition/body-target (no UI)",
+          "patient-app/app/nutrition/body-composition.tsx:6 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/nutrition/calorie-analyzer",
+      "elements": [
+        [
+          "Redirect to /nutrition/log-meal (no UI) (manual entry, no image analysis)",
+          "patient-app/app/nutrition/calorie-analyzer.tsx:6 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/nutrition/exercise-plan",
+      "elements": [
+        [
+          "Redirect to /nutrition/daily-tracker (no UI)",
+          "patient-app/app/nutrition/exercise-plan.tsx:6 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/nutrition/food-scanner",
+      "elements": [
+        [
+          "Redirect to /nutrition/log-meal (no UI) (manual entry, no scanner)",
+          "patient-app/app/nutrition/food-scanner.tsx:6 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/nutrition/nutrition-plan",
+      "elements": [
+        [
+          "Redirect to /nutrition/hub (no UI)",
+          "patient-app/app/nutrition/nutrition-plan.tsx:9 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/nutrition/water-tracker",
+      "elements": [
+        [
+          "Redirect to /nutrition/daily-tracker (no UI) (water buttons live there)",
+          "patient-app/app/nutrition/water-tracker.tsx:6 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/nutrition/hub",
+      "elements": [
+        [
+          "Tabs Today / Plan / Target",
+          "patient-app/src/components/care/NutritionViews.tsx:68 local state",
+          "ok"
+        ],
+        [
+          "Today: summary and meals",
+          "patient-app/src/components/care/NutritionViews.tsx:133 GET /nutrition/daily-summary?date= and GET /nutrition/meals?date= (nutrition.controller.ts:69,62): server data",
+          "ok"
+        ],
+        [
+          "Add 250 ml / 500 ml water",
+          "patient-app/src/components/care/NutritionViews.tsx:148,186,189 POST /nutrition/water {amount_ml} (LogWaterDto)",
+          "ok"
+        ],
+        [
+          "Log a meal, Set target",
+          "patient-app/src/components/care/NutritionViews.tsx:174,213 navigation",
+          "ok"
+        ],
+        [
+          "Plan: view, Generate / Regenerate",
+          "patient-app/src/components/care/NutritionViews.tsx:76,86,122 GET /nutrition/plan, POST /nutrition/plan/generate {} (nutrition-plan.service.ts:51 builds it through the AI service and stores it with source 'ai'); the screen invents nothing",
+          "ok"
+        ],
+        [
+          "Plan: nutritionist",
+          "patient-app/src/components/care/NutritionViews.tsx:123 navigation",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/nutrition/body-target",
+      "elements": [
+        [
+          "Profile read",
+          "patient-app/src/components/care/NutritionViews.tsx:227 GET /nutrition/profile (nutrition.controller.ts:43)",
+          "ok"
+        ],
+        [
+          "Goal and activity segmented, number and text fields",
+          "patient-app/src/components/care/NutritionViews.tsx:272-287 local state; the five numbers are required and finite-checked; restrictions and allergies are comma lists",
+          "ok"
+        ],
+        [
+          "Save",
+          "patient-app/src/components/care/NutritionViews.tsx:258,291 POST /nutrition/profile {goal, activity_level, height_cm, weight_kg, target_weight_kg, daily_calorie_target, daily_water_target_ml, dietary_restrictions, allergies} (UpdateProfileDto)",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/nutrition/log-meal",
+      "elements": [
+        [
+          "Meal type, name, calories, macros",
+          "patient-app/src/components/care/NutritionViews.tsx:334-344 local state; name and calories required, negatives refused",
+          "ok"
+        ],
+        [
+          "Save meal",
+          "patient-app/src/components/care/NutritionViews.tsx:321,332 POST /nutrition/meals {name, calories, meal_type, protein_g?, carbs_g?, fat_g?, fiber_g?} (LogMealDto), then navigation to the hub",
+          "ok"
+        ]
+      ]
+    }
+  ],
+  "needsReview": [
+    {
+      "route": "/maternity/maternity-setup",
+      "element": "LMP and due date typed as text",
+      "kind": "client",
+      "note": "Dates are typed as YYYY-MM-DD text with only a hint; nothing checks the format before POST, so a wrong date fails with the generic save error. Use the date picker.",
+      "file": "patient-app/src/components/care/MaternityViews.tsx",
+      "line": 228
+    },
+    {
+      "route": "/maternity/baby-growth",
+      "element": "Redirect screens with no replacement feature",
+      "kind": "owner",
+      "note": "baby-growth, baby-development, ovulation-tracker and pregnancy-tracker all land on the hub; there is no growth log and no kick or contraction tool. Confirm these were removed on purpose (product decisions) and not lost.",
+      "file": "patient-app/app/maternity/baby-growth.tsx",
+      "line": 3
+    },
+    {
+      "route": "/mental-health/breathing",
+      "element": "Redirect screens with no replacement feature",
+      "kind": "owner",
+      "note": "breathing, meditation and self-assessment redirect to the hub, which has only the mood journal, a consultation row and urgent help. No fake content is drawn; confirm the removal.",
+      "file": "patient-app/app/mental-health/breathing.tsx",
+      "line": 5
+    },
+    {
+      "route": "/nutrition/food-scanner",
+      "element": "Redirect screens with no replacement feature",
+      "kind": "owner",
+      "note": "food-scanner and calorie-analyzer redirect to manual meal entry; ai-meal-planner and nutrition-plan redirect because weekly plans are not stored. Confirm the removal.",
+      "file": "patient-app/app/nutrition/food-scanner.tsx",
+      "line": 6
+    },
+    {
+      "route": "/health/sleep",
+      "element": "Sleep score is typed by the person",
+      "kind": "client",
+      "note": "The 0-100 score is a manual field sent with source 'manual'; the ring and average show it as if it were a measured score. Label it as entered by the person or drop the field.",
+      "file": "patient-app/src/components/health/SleepView.tsx",
+      "line": 159
+    },
+    {
+      "route": "/health/profile",
+      "element": "Emergency contact DTO makes name and phone optional",
+      "kind": "backend",
+      "note": "AddEmergencyContactDto (backend/src/modules/health/health.dto.ts:157-163) has name and phone @IsOptional, so the API accepts an empty contact; only the client enforces both.",
+      "file": "patient-app/src/components/health/ProfileView.tsx",
+      "line": 280
+    },
+    {
+      "route": "/mental-health/mood-journal",
+      "element": "Numeric fields have no range on the server",
+      "kind": "backend",
+      "note": "LogMoodDto (energy_level, stress_level, sleep_hours), AddSleepDto (sleep_score, duration_hours), LogMealDto.calories and LogWaterDto.amount_ml are only @IsNumber with no @Min/@Max; the client enforces the ranges.",
+      "file": "patient-app/src/components/care/MentalHealthViews.tsx",
+      "line": 82
+    }
+  ]
+}

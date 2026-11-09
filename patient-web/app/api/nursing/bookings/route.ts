@@ -21,7 +21,21 @@ const schema = z.object({
   location: z.object({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180) }).strict().optional(),
   notes: z.string().max(2000).optional(),
   payment_method: z.enum(["card", "insurance"]),
-}).strict();
+  /** The choice of the service's booking mode (lib/nursing/booking-options); the server checks it against the service's options and prices it. */
+  recurrence: z.enum(["once", "daily", "weekly", "monthly"]).optional(),
+  sessions_count: z.number().int().min(1).max(30).optional(),
+  hours: z.number().int().min(1).max(24).optional(),
+  shift: z.enum(["day", "night"]).optional(),
+  period: z.enum(["day", "days", "week", "month", "open"]).optional(),
+  days: z.number().int().min(1).max(30).optional(),
+  // the patient agreed to the refund policy before booking (the backend refuses without it; an explicit false is never accepted)
+  refund_policy_accepted: z.literal(true),
+}).strict().superRefine((value, ctx) => {
+  const trio = [value.hours, value.shift, value.period].filter((v) => v !== undefined).length;
+  if (trio !== 0 && trio !== 3) ctx.addIssue({ code: "custom", message: "booking_options_required" });
+  if (value.days !== undefined && value.period !== "days") ctx.addIssue({ code: "custom", message: "days_need_period_days" });
+  if (value.recurrence === "once" && value.sessions_count !== undefined && value.sessions_count !== 1) ctx.addIssue({ code: "custom", message: "booking_times_need_recurrence" });
+});
 
 export async function POST(request: Request) {
   const parsed = schema.safeParse(await request.json().catch(() => null));
@@ -55,6 +69,11 @@ export async function POST(request: Request) {
       address: place,
       ...(parsed.data.notes?.trim() ? { notes: parsed.data.notes.trim() } : {}),
       payment_method: parsed.data.payment_method,
+      refund_policy_accepted: true,
+      ...(parsed.data.recurrence !== undefined ? { recurrence: parsed.data.recurrence } : {}),
+      ...(parsed.data.sessions_count !== undefined ? { sessions_count: parsed.data.sessions_count } : {}),
+      ...(parsed.data.hours !== undefined ? { hours: parsed.data.hours, shift: parsed.data.shift, period: parsed.data.period } : {}),
+      ...(parsed.data.days !== undefined ? { days: parsed.data.days } : {}),
     }),
   }, accessToken);
   const data = await upstream.json().catch(() => null);

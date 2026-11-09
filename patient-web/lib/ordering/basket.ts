@@ -115,13 +115,12 @@ export function parseChoice(raw: string | null): ProviderChoice | null {
 }
 
 /** The group snapshot of one chosen provider from the quote group (see ChosenGroup). */
-export function chosenGroup(g: { items: Array<{ catalogId: string }>; bestMatch: { providerId: string; lines: Array<{ catalogId: string; price: number; coverage?: "covered" | "needs_approval" | "not_covered" }>; total: number; estimatedInsuranceShare: number; patientShare: number } | null; compare: Array<{ providerId: string; nameAr: string | null; nameEn: string | null; total: number }>; split: unknown }, providerId: string): ChosenGroup | undefined {
+export function chosenGroup(g: { items: Array<{ catalogId: string }>; bestMatch: { providerId: string; lines: Array<{ catalogId: string; price: number; coverage?: "covered" | "needs_approval" | "not_covered" }>; total: number; homeFee: number; estimatedInsuranceShare: number; patientShare: number } | null; compare: Array<{ providerId: string; nameAr: string | null; nameEn: string | null; total: number }>; split: unknown }, providerId: string): ChosenGroup | undefined {
   const row = g.compare.find((r) => r.providerId === providerId);
   if (!row) return undefined;
   const b = g.bestMatch && g.bestMatch.providerId === providerId ? g.bestMatch : null;
-  const lineSum = b ? Math.round(b.lines.reduce((s, l) => s + l.price, 0) * 100) / 100 : 0;
   return {
     providerId, nameAr: row.nameAr, nameEn: row.nameEn, itemIds: g.items.map((i) => i.catalogId), total: row.total,
-    ...(b ? { lines: b.lines, homeFee: Math.max(0, Math.round((b.total - lineSum) * 100) / 100), estimatedInsuranceShare: b.estimatedInsuranceShare, patientShare: b.patientShare } : {}),
+    ...(b ? { lines: b.lines, homeFee: b.homeFee, estimatedInsuranceShare: b.estimatedInsuranceShare, patientShare: b.patientShare } : {}),
   };
 }

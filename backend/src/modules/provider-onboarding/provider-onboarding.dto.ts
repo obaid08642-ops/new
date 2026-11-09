@@ -2,6 +2,7 @@ import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsInt, IsNumber, I
 import { Transform, Type } from 'class-transformer';
 import { ProviderType } from '../../common/enums';
 import { parsePriceText } from '../../common/service-offers';
+import { OwnDeliveryDto } from '../pharmacy/pharmacy-delivery';
 
 /** A price typed or sent as a number or as text ("95", "٩٥", "1,200.50"); anything else is not a price. 0 is kept (the owner rejects it where the service is ticked, not here). */
 const priceOf = (v: unknown): number | null => {
@@ -362,6 +363,12 @@ export class Step3Dto {
   @IsBoolean()
   has_own_drivers?: boolean;
 
+  /** Pharmacy with its own couriers: zone, fee and free-delivery threshold. */
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => OwnDeliveryDto)
+  own_delivery?: OwnDeliveryDto;
+
   @IsOptional()
   @IsNumber()
   home_collector_count?: number;
@@ -696,10 +703,4 @@ export class SubmitDto {
   @IsOptional()
   @IsObject()
   full_data?: Record<string, unknown>;
-}
-
-export class AdminContractVisibilityDto {
-  @IsOptional()
-  @IsBoolean()
-  visible?: boolean;
 }

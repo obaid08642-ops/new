@@ -8,6 +8,7 @@ type AuditLog = {
   id: string;
   action: string;
   actor?: { id?: string; full_name?: string; email?: string };
+  admin_id?: string; admin_name?: string; admin_role?: string;   // what the audit service stores (no `actor` object)
   target_type?: string;
   target_id?: string;
   reason?: string;
@@ -47,7 +48,7 @@ export default function AuditLogsPage() {
     const escape = (value: unknown) => `"${String(value ?? '').replace(/"/g, '""')}"`;
     const lines = [header.join(',')].concat(data.data.map((row) => [
       row.createdAt || '',
-      row.actor?.full_name || row.actor?.email || row.actor?.id || '',
+      row.admin_name || row.actor?.full_name || row.actor?.email || row.admin_id || row.actor?.id || '',
       row.action,
       row.target_type || '',
       row.target_id || '',
@@ -89,7 +90,7 @@ export default function AuditLogsPage() {
         emptyText="لا توجد نتائج مطابقة."
         columns={[
           { key: 'time', header: 'الوقت', className: 'text-xs text-slate-500', render: (row) => (row.createdAt ? new Date(row.createdAt).toLocaleString('ar-SA-u-ca-gregory') : '—') },
-          { key: 'actor', header: 'المنفّذ', render: (row) => row.actor?.full_name || row.actor?.email || row.actor?.id || '—' },
+          { key: 'actor', header: 'المنفّذ', render: (row) => row.admin_name || row.actor?.full_name || row.actor?.email || row.admin_id || row.actor?.id || '—' },
           { key: 'action', header: 'الإجراء', className: 'font-medium', render: (row) => row.action },
           { key: 'resource', header: 'المورد', render: (row) => <>{row.target_type || '—'} {row.target_id || ''}</> },
           { key: 'reason', header: 'السبب', className: 'text-slate-600', render: (row) => row.reason || '—' },

@@ -7,23 +7,21 @@ name: Schemathesis fuzz
 # contract path, and runs it. A missing harness fails LOUDLY with the
 # contract text — never a silent pass.
 on:
+  # Every pull request and every push to main runs it (no path filter); the nightly run and the manual run stay.
   push:
     branches: [main]
-    paths:
-      - 'backend/**'
-      - '.github/workflows/schemathesis.yml'
   pull_request:
-    paths:
-      - 'backend/**'
-      - '.github/workflows/schemathesis.yml'
+  schedule:
+    - cron: '40 1 * * *'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: schemathesis-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # a newer commit on the same PR replaces the older run (the newest commit still runs every suite); a run on main, a schedule and a manual run are never cancelled
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   fuzz:

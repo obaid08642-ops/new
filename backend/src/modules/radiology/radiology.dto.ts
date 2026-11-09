@@ -1,9 +1,20 @@
-import { IsArray, IsBoolean, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { MaxLength, IsArray, IsBoolean, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { RadiologyBookingState } from '../../schemas/radiology.schema';
 import { AttributionDto } from '../../common/attribution';
 
 export class BookDto {
+  /** The patient ticked "I agree" to the refund policy shown before payment (a missing field is let through while the rollout is optional, an explicit false is refused; a missing field is 400 refund_policy_acceptance_required once REFUND_POLICY_ACCEPTANCE=required). */
+  @IsOptional()
+  @IsBoolean()
+  refund_policy_accepted?: boolean;
+
+  /** Owner decision 1: the family member this is FOR (the caller stays the booker and payer); checked server-side, see common/family-member.ts. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(128)
+  family_member_id?: string;
+
   @IsOptional()
   @IsString()
   service_id?: string;

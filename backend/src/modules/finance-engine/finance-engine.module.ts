@@ -1,3 +1,5 @@
+import { normalizeCoupon } from '../../common/coupon-doc';
+import { shadowFields } from '../../common/halala-shadow';
 import { copayRefundable, findCopayTransaction } from '../../common/copay-transaction';
 import { riyadhDayRange, riyadhMonthStart } from '../../common/riyadh-clock';
 import { ModuleRef } from '@nestjs/core';
@@ -23,8 +25,7 @@ import { ModuleRef } from '@nestjs/core';
 import {
   Module, Global, Injectable, Controller, Post, Get, Put, Body, Param, Query,
   UseGuards, BadRequestException, NotFoundException, ForbiddenException, Logger,
-  Optional,
-} from '@nestjs/common';
+  Optional, ConflictException } from '@nestjs/common';
 import { ValidateCouponDto, LoyaltyQuoteDto, SetCommissionRuleDto, ResolveCommissionDto, RequestApprovalDto, DecideApprovalDto } from './finance-engine.dto';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -35,18 +36,26 @@ import { UserRole } from '../../common/enums';
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { moyasarBase } from '../../common/moyasar-base';
 import { timedFetch } from '../../common/external-call';
-import { settlementDelayDefault } from '../../common/commission-defaults';
+import { settlementDelayDefault, DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT } from '../../common/commission-defaults';
+import { PROMO_COLLECTION, promoState, type CommissionPromo } from '../../common/commission-promo';
+import { DurableEventsService, emitDurable } from '../durable-events/durable-events.service';
+import { roundSar, toHalalas } from '../../common/money';
+import { clawbackShares } from './refund-clawback';
+import { halalasSum, reportFigures } from './report-totals';
+import { patientAbsentPercent, patientAbsentRefund, pharmacyCancelRefund, refundsDeliveryFeeBeforeDispatch } from './refund-policy-rules';
 
 export const LEDGER_TYPES = [
   'provider_earning', 'provider_debit', 'payout', 'refund', 'commission',
   'vat', 'adjustment', 'chargeback', 'penalty', 'bonus', 'referral',
   'loyalty', 'settlement',
+  // platform-side reversal of the commission and of the VAT on it, in proportion to a refund of a service whose earning was credited
+  'commission_reversal', 'vat_reversal',
 ] as const;
 export type LedgerType = typeof LEDGER_TYPES[number];
 
 const DEFAULTS = {
-  commission_percent: 10,
-  vat_percent: 15,
+  commission_percent: DEFAULT_COMMISSION_PERCENT,
+  vat_percent: DEFAULT_VAT_PERCENT,
   settlement_delay_days: 3,
   minimum_payout_sar: 100,
   large_payout_sar: 10000,
@@ -60,7 +69,7 @@ const DEFAULTS = {
 /** Read-only view of the finance defaults for other modules (admin urgent-alert rule defaults). */
 export const FINANCE_DEFAULTS: Readonly<typeof DEFAULTS> = DEFAULTS;
 
-const round2 = (n: number) => Math.round((Number(n) || 0) * 100) / 100;
+const round2 = (n: number) => roundSar(Number(n) || 0);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // LedgerService — append-only + escrow (EPIC S8/S9/S10)
@@ -98,6 +107,11 @@ export class LedgerService {
       type: entry.type,
       state: entry.state || 'cleared',
       amount: round2(entry.amount),
+      // R11 dual write: integer halalas next to the legacy double (docs/platform/R11-money-integrity.md); readers still use the doubles
+      amount_halalas: toHalalas(round2(entry.amount)),
+      ...(entry.gross !== undefined && entry.gross !== null ? { gross_halalas: toHalalas(entry.gross) } : {}),
+      ...(entry.commission !== undefined && entry.commission !== null ? { commission_halalas: toHalalas(entry.commission) } : {}),
+      ...(entry.vat !== undefined && entry.vat !== null ? { vat_halalas: toHalalas(entry.vat) } : {}),
       ...(entry.available_at ? { available_at: entry.available_at } : {}),
       ref_type: entry.ref_type, ref_id: entry.ref_id, order_id: entry.order_id,
       gross: entry.gross, commission_percent: entry.commission_percent,
@@ -170,11 +184,12 @@ export class CommissionResolver {
 
   /**
    * Resolution order (most specific wins):
-   *   campaign → provider → category → service default → finance_config → 10%
+   *   campaign rule → the provider's running promotion → the provider's own commission (provider rule, then the percent set on the
+   *   provider) → category rule → service rule → finance_config → the one system default (commission-defaults.ts)
    * Only rules that are active AND inside their effective window apply.
    */
-  async resolve(serviceType: string, opts: { providerId?: string; category?: string; campaignId?: string } = {}): Promise<{ percent: number; source: string; rule_id?: string }> {
-    const now = new Date();
+  async resolve(serviceType: string, opts: { providerId?: string; category?: string; campaignId?: string; paymentMethod?: string; now?: Date; skipPromoIds?: string[] } = {}): Promise<{ percent: number; source: string; rule_id?: string; promo_id?: string }> {
+    const now = opts.now ?? new Date();
     const windowQ: any = {
       active: { $ne: false },
       $and: [
@@ -182,13 +197,7 @@ export class CommissionResolver {
         { $or: [{ effective_to: { $exists: false } }, { effective_to: null }, { effective_to: { $gte: now } }] },
       ],
     };
-    const candidates: Array<{ scope: string; scope_id?: string; source: string }> = [];
-    if (opts.campaignId) candidates.push({ scope: 'campaign', scope_id: opts.campaignId, source: 'campaign_override' });
-    if (opts.providerId) candidates.push({ scope: 'provider', scope_id: opts.providerId, source: 'provider_override' });
-    if (opts.category) candidates.push({ scope: 'category', scope_id: opts.category, source: 'category_override' });
-    candidates.push({ scope: 'service', scope_id: serviceType, source: 'service_default' });
-
-    for (const c of candidates) {
+    const ruleFor = async (c: { scope: string; scope_id?: string; source: string }) => {
       const q: any = { ...windowQ, scope: c.scope };
       if (c.scope_id) q.scope_id = c.scope_id;
       if (c.scope === 'service') q.$or = [{ service_type: serviceType }, { scope_id: serviceType }];
@@ -196,11 +205,60 @@ export class CommissionResolver {
       if (rule && Number(rule.percent ?? rule.commission) >= 0) {
         return { percent: Number(rule.percent ?? rule.commission), source: c.source, rule_id: rule.id || String(rule._id) };
       }
+      return null;
+    };
+
+    // 1. a campaign rule
+    if (opts.campaignId) { const hit = await ruleFor({ scope: 'campaign', scope_id: opts.campaignId, source: 'campaign_override' }); if (hit) return hit; }
+    if (opts.providerId) {
+      // 2. the provider's promotion (commission X% from A to B, or for the first N orders; 0 is allowed). It ends by itself.
+      const promo = await this.activePromo(opts.providerId, now, opts.skipPromoIds);
+      if (promo) return { percent: promo.percent, source: 'provider_promo', promo_id: promo.id };
+      // 3. the provider's own commission: a provider rule, then the percent set on the provider (cash, or insurance for an insured visit)
+      const rule = await ruleFor({ scope: 'provider', scope_id: opts.providerId, source: 'provider_override' }); if (rule) return rule;
+      const own = await this.profileOverride(opts.providerId, opts.paymentMethod);
+      if (own !== null) return { percent: own, source: 'provider_profile' };
     }
+    // 4. a category rule, 5. the service rule, 6. finance_config, 7. the one system default
+    if (opts.category) { const hit = await ruleFor({ scope: 'category', scope_id: opts.category, source: 'category_override' }); if (hit) return hit; }
+    const service = await ruleFor({ scope: 'service', scope_id: serviceType, source: 'service_default' }); if (service) return service;
     const cfg: any = await this.conn.collection('finance_config').findOne({ key: 'commissions' } as any);
     const pct = cfg?.service_types?.[serviceType]?.percent;
     if (Number(pct) >= 0) return { percent: Number(pct), source: 'finance_config' };
     return { percent: DEFAULTS.commission_percent, source: 'system_default' };
+  }
+
+  /** The provider's promotion that is running at `now`, if any (the newest one when the admin left two). */
+  async activePromo(providerId: string, now: Date, skip: string[] = []): Promise<CommissionPromo | null> {
+    const rows: any[] = await this.conn.collection(PROMO_COLLECTION).find({ provider_account_id: providerId, active: { $ne: false } } as any).sort({ createdAt: -1 }).toArray();
+    return rows.find((p) => !skip.includes(p.id) && promoState({ ...p, max_orders: p.max_orders ?? null }, now) === 'active') ?? null;
+  }
+
+  /** The percent the admin set on the provider itself (`commission_insurance_pct` for an insured visit, else `commission_cash_pct`); null = none. */
+  private async profileOverride(providerId: string, paymentMethod?: string): Promise<number | null> {
+    const profile: any = await this.conn.collection('provider_profiles').findOne(
+      { $or: [{ account_id: providerId }, { user_id: providerId }] },
+      { projection: { _id: 0, commission_cash_pct: 1, commission_insurance_pct: 1 } },
+    );
+    const own = String(paymentMethod || '').toLowerCase() === 'insurance' ? profile?.commission_insurance_pct : profile?.commission_cash_pct;
+    return typeof own === 'number' && Number.isFinite(own) && own >= 0 && own <= 100 ? own : null;
+  }
+
+  /**
+   * Counts one completed order against a promo (at most `max_orders` ever succeed, even with two completions at once).
+   * false = the promo has no order left: the caller asks `resolve` again, skipping it.
+   */
+  async claimPromoOrder(promoId: string): Promise<boolean> {
+    const res: any = await this.conn.collection(PROMO_COLLECTION).updateOne(
+      { id: promoId, active: { $ne: false }, $or: [{ max_orders: null }, { max_orders: { $exists: false } }, { $expr: { $lt: ['$used_orders', '$max_orders'] } }] } as any,
+      { $inc: { used_orders: 1 }, $set: { updatedAt: new Date() } } as any,
+    );
+    return (res?.modifiedCount ?? res?.matchedCount ?? 0) > 0;
+  }
+
+  /** Gives back an order a losing creditEarning had claimed (the earning was already credited by a parallel call): never below 0. */
+  async releasePromoOrder(promoId: string): Promise<void> {
+    await this.conn.collection(PROMO_COLLECTION).updateOne({ id: promoId, used_orders: { $gt: 0 } } as any, { $inc: { used_orders: -1 }, $set: { updatedAt: new Date() } } as any);
   }
 
   /** Create a new rule version; supersedes older versions of the same scope. */
@@ -290,8 +348,9 @@ export class CouponService {
     // 16.12 / D-10: a coupon never discounts a prescription-only line. What it can discount is the rest of the cart.
     const eligibleTotal = couponEligibleTotal(ctx);
     if (!(eligibleTotal > 0)) return { valid: false, discount: 0, reason: 'rx_only_cart' };
-    const c: any = await this.coupons.findOne({ code: String(code).toUpperCase() } as any);
-    if (!c) return { valid: false, discount: 0, reason: 'not_found' };
+    const raw: any = await this.coupons.findOne({ code: String(code).toUpperCase() } as any);
+    if (!raw) return { valid: false, discount: 0, reason: 'not_found' };
+    const c: any = normalizeCoupon(raw);
     if (c.active === false) return { valid: false, discount: 0, reason: 'inactive' };
     const now = new Date();
     if (c.valid_from && new Date(c.valid_from) > now) return { valid: false, discount: 0, reason: 'not_yet_valid' };
@@ -338,7 +397,7 @@ export class CouponService {
   async apply(userId: string, code: string, orderId: string, ctx: CouponContext) {
     const v = await this.validate(userId, code, ctx);
     if (!v.valid) throw new BadRequestException(`coupon_invalid: ${v.reason}`);
-    const c: any = await this.coupons.findOne({ code: String(code).toUpperCase() } as any);
+    const c: any = normalizeCoupon(await this.coupons.findOne({ code: String(code).toUpperCase() } as any) as any);
 
     if (c.max_uses != null) {
       const r = await this.coupons.updateOne(
@@ -350,17 +409,43 @@ export class CouponService {
       await this.coupons.updateOne({ code: c.code } as any, { $inc: { used_count: 1 }, $set: { updatedAt: new Date() } });
     }
 
+    // R21: validate() counted this user's earlier uses, then many parallel orders could each pass that count. The per-user use is TAKEN with one conditional
+    // atomic update on a counter (coupon_user_counts) before the usage row is written: exactly `limit` of any number of parallel applies get it.
+    const perUserLimit = Number(c.usage_limit_per_user ?? 1);
+    if (!(await this.takePerUserUse(c.code, userId, perUserLimit))) {
+      await this.coupons.updateOne({ code: c.code } as any, { $inc: { used_count: -1 } });
+      throw new BadRequestException('coupon_invalid: per_user_limit_reached');
+    }
     try {
       await this.usages.insertOne({
         id: `cu_${uuid()}`, code: c.code, user_id: userId, order_id: orderId,
         discount: v.discount, createdAt: new Date(),
       } as any);
     } catch (e: any) {
-      // duplicate (user, code, order) — roll the counter back
+      // duplicate (user, code, order) — roll both counters back
+      await this.userCounts.updateOne({ code: c.code, user_id: userId } as any, { $inc: { count: -1 } });
       await this.coupons.updateOne({ code: c.code } as any, { $inc: { used_count: -1 } });
       throw new BadRequestException('coupon_invalid: already_applied');
     }
     return { discount: v.discount, code: c.code };
+  }
+
+  private userCountIndex?: Promise<void>;
+  private get userCounts() { return this.conn.collection('coupon_user_counts'); }
+
+  /**
+   * Takes one of the user's `limit` uses of a coupon. The counter row is seeded once from the usages that already exist (uses from before this counter), then raised
+   * with `count < limit` in the filter, so two requests can never both get the last use. Usage rows are written AFTER this call, so the seed never counts them twice.
+   */
+  private async takePerUserUse(code: string, userId: string, limit: number): Promise<boolean> {
+    await (this.userCountIndex ??= this.userCounts.createIndex({ code: 1, user_id: 1 }, { unique: true }).then(() => undefined));
+    const filter = { code, user_id: userId } as any;
+    if (!(await this.userCounts.findOne(filter))) {
+      const existing = await this.usages.countDocuments(filter);
+      await this.userCounts.updateOne(filter, { $setOnInsert: { code, user_id: userId, count: existing } }, { upsert: true }).catch((e: any) => { if (e?.code !== 11000) throw e; });
+    }
+    const r = await this.userCounts.updateOne({ ...filter, count: { $lt: limit } }, { $inc: { count: 1 } });
+    return r.matchedCount === 1;
   }
 
   /** Release a coupon usage when an unpaid order is cancelled. */
@@ -368,6 +453,7 @@ export class CouponService {
     const usage: any = await this.usages.findOne({ order_id: orderId } as any);
     if (!usage) return;
     await this.usages.deleteOne({ order_id: orderId } as any);
+    await this.userCounts.updateOne({ code: usage.code, user_id: usage.user_id, count: { $gt: 0 } } as any, { $inc: { count: -1 } });
     await this.coupons.updateOne({ code: usage.code } as any, { $inc: { used_count: -1 } });
   }
 
@@ -557,6 +643,14 @@ export class FraudService {
 // ═══════════════════════════════════════════════════════════════════════════
 // RefundExecutor — real refund execution (EPIC S4) + negative balance (S9)
 // ═══════════════════════════════════════════════════════════════════════════
+interface RefundExecuteOpts { refund_id: string; booking_kind: string; booking_id: string; patient_id: string; amount: number; reason: string; actor_id: string }
+interface RefundReservation {
+  refund_id: string; booking_id: string; halalas: number; takenOver?: boolean;
+  /** Set on a taken-over reservation from what the crashed execution recorded: the gateway's refund id, and the payment's refunded total (SAR) it expected once this refund was applied. */
+  gateway_refund_id?: string; expected_refunded_after?: number;
+}
+interface RefundCtx { reservation: RefundReservation | null; committed: boolean }
+
 @Injectable()
 export class RefundExecutor {
   private readonly logger = new Logger('RefundExecutor');
@@ -566,7 +660,57 @@ export class RefundExecutor {
     private readonly fraud: FraudService,
     private readonly events: EventEmitter2,
     @Optional() private readonly moduleRef?: ModuleRef,
+    @Optional() private readonly durable?: DurableEventsService,
   ) {}
+
+  /** What the gateway says was refunded on a Moyasar payment so far, in halalas; null when it cannot be read (no id, no key, a timeout, an error, an unreadable answer). */
+  private async gatewayRefundedHalalas(paymentId: string | undefined): Promise<number | null> {
+    if (!paymentId || String(paymentId).startsWith('sandbox_')) return null;
+    try {
+      const resp = await timedFetch(`${moyasarBase()}/payments/${paymentId}`, {
+        method: 'GET',
+        headers: { Authorization: `Basic ${Buffer.from(`${this.moyasarKey()}:`).toString('base64')}` },
+      }, { label: 'finance.refund.lookup', timeoutCode: 'refund_gateway_timeout' });
+      if (!resp.ok) return null;
+      const data: any = await resp.json().catch(() => ({}));
+      const n = Number(data?.refunded);
+      return Number.isSafeInteger(n) && n >= 0 ? n : null;
+    } catch { return null; }
+  }
+
+  /**
+   * Double-refund guard for a TAKEN-OVER reservation (an earlier execution of this refund id crashed and left `reserved` behind).
+   * The gateway call has no idempotency key, so before it is made again we must know whether the first execution already made it:
+   *  - 'applied': the payment row already shows the refunded total this refund was going to produce (the crashed run got as far as updating it);
+   *  - 'gateway_only': the gateway already refunded this amount on top of what we had recorded, but the local row was not updated;
+   *  - 'proceed': the gateway shows nothing more than we recorded, so the first run never reached it and the call is made now.
+   * If the gateway cannot be asked, the answer is not guessed: the takeover is refused (409) and an operator retries after checking the payment.
+   * An execution that is not a takeover is always 'proceed' and costs nothing extra.
+   */
+  private async takeoverState(ctx: RefundCtx, gatewayPaymentId: string | undefined, localRefundedSar: number, amountSar: number): Promise<'proceed' | 'applied' | 'gateway_only'> {
+    const r = ctx.reservation;
+    if (!r?.takenOver) return 'proceed';
+    if (typeof r.expected_refunded_after === 'number' && localRefundedSar >= r.expected_refunded_after - 0.001) return 'applied';
+    const gateway = await this.gatewayRefundedHalalas(gatewayPaymentId);
+    if (gateway === null) {
+      this.logger.error(`refund ${r.refund_id}: takeover refused, the gateway refund status of ${gatewayPaymentId || 'the payment'} cannot be read`);
+      throw new ConflictException('refund_gateway_status_unknown: check the payment at the gateway before retrying');
+    }
+    return gateway >= toHalalas(localRefundedSar) + toHalalas(amountSar) ? 'gateway_only' : 'proceed';
+  }
+
+  /** Written BEFORE the gateway call: the payment's refunded total once this refund is applied (what a takeover compares with). Refuses to go on if it cannot be written. */
+  private async recordExpectedAfter(ctx: RefundCtx, expected: number): Promise<void> {
+    if (!ctx.reservation) return;
+    await this.reservations.updateOne({ refund_id: ctx.reservation.refund_id } as any, { $set: { expected_refunded_after: expected } });
+  }
+
+  /** Written as soon as the gateway returned its refund id, for audit and for a takeover. The money has moved: a failure here is logged, never thrown. */
+  private async recordGatewayRefundId(ctx: RefundCtx, gatewayRefundId: string | undefined): Promise<void> {
+    if (!ctx.reservation || !gatewayRefundId) return;
+    await this.reservations.updateOne({ refund_id: ctx.reservation.refund_id } as any, { $set: { gateway_refund_id: gatewayRefundId } })
+      .catch((e: any) => this.logger.error(`refund ${ctx.reservation?.refund_id}: gateway refund id ${gatewayRefundId} not recorded on the reservation: ${e?.message}`));
+  }
 
   private moyasarKey(): string {
     const k = process.env.MOYASAR_SECRET_KEY || process.env.MOYASAR_SECRET || process.env.MOYASAR_API_KEY || '';
@@ -587,15 +731,62 @@ export class RefundExecutor {
    *     from the next settlement. The platform never loses money (S9).
    *  5. Update booking payment_status + notify the patient.
    */
-  async execute(opts: {
-    refund_id: string;
-    booking_kind: string;
-    booking_id: string;
-    patient_id: string;
-    amount: number;
-    reason: string;
-    actor_id: string;
-  }): Promise<{ ok: boolean; method: string; gateway_refund_id?: string; provider_debited?: number }> {
+  async execute(opts: RefundExecuteOpts): Promise<{ ok: boolean; method: string; gateway_refund_id?: string; provider_debited?: number }> {
+    // R21: the reservation (see reserveRefund) is taken inside the core once the paid total is known, and given back here if anything fails before the ledger row exists.
+    const ctx: RefundCtx = { reservation: null, committed: false };
+    try {
+      return await this.executeCore(opts, ctx);
+    } catch (e) {
+      if (ctx.reservation && !ctx.committed) await this.releaseRefund(ctx.reservation).catch(() => undefined);
+      throw e;
+    }
+  }
+
+  private refundIndexes?: Promise<void>;
+  private static readonly RESERVATION_STALE_MS = 10 * 60_000;
+  private get reservations() { return this.conn.collection('refund_reservations'); }
+  private get refundTotals() { return this.conn.collection('refund_totals'); }
+
+  /**
+   * R21: two refunds of one booking at the same time (different refund ids), or the same refund id twice (a double click on "execute"), both passed the
+   * read-then-write checks and could refund twice. Now: (1) a unique row per refund id (`refund_reservations`): the second execution of the same id
+   * gets a conflict while the first runs, and a no-op once it is done; (2) a per-booking running total in integer halalas (`refund_totals`) raised with a
+   * conditional atomic update, so the sum of reservations can never pass what was paid.
+   */
+  private async reserveRefund(refundId: string, bookingId: string, amount: number, paidTotal: number, alreadyRefunded: number): Promise<RefundReservation | 'done'> {
+    await (this.refundIndexes ??= Promise.all([
+      this.reservations.createIndex({ refund_id: 1 }, { unique: true }),
+      this.refundTotals.createIndex({ booking_id: 1 }, { unique: true }),
+    ]).then(() => undefined));
+    const reservation: RefundReservation = { refund_id: refundId, booking_id: bookingId, halalas: toHalalas(amount) };
+    try {
+      await this.reservations.insertOne({ ...reservation, state: 'reserved', createdAt: new Date() } as any);
+    } catch (e: any) {
+      if (e?.code !== 11000) throw e;
+      const row: any = await this.reservations.findOne({ refund_id: refundId } as any);
+      if (row?.state === 'done') return 'done';
+      // a crashed execution leaves 'reserved' behind: after 10 minutes another one may take it over (its amount is already counted in the total)
+      const took = await this.reservations.findOneAndUpdate({ refund_id: refundId, state: 'reserved', createdAt: { $lt: new Date(Date.now() - RefundExecutor.RESERVATION_STALE_MS) } } as any, { $set: { createdAt: new Date() } });
+      if (!took) throw new ConflictException('refund_in_progress');
+      return { ...reservation, takenOver: true, gateway_refund_id: row?.gateway_refund_id, expected_refunded_after: row?.expected_refunded_after };
+    }
+    await this.refundTotals.updateOne({ booking_id: bookingId } as any, { $setOnInsert: { booking_id: bookingId, refunded_halalas: toHalalas(alreadyRefunded), createdAt: new Date() } }, { upsert: true }).catch((e: any) => { if (e?.code !== 11000) throw e; });
+    const room = toHalalas(paidTotal) - reservation.halalas;
+    const raised = await this.refundTotals.updateOne({ booking_id: bookingId, refunded_halalas: { $lte: room } } as any, { $inc: { refunded_halalas: reservation.halalas } });
+    if (!raised.matchedCount) {
+      await this.reservations.deleteOne({ refund_id: refundId, state: 'reserved' } as any);
+      throw new BadRequestException(`refund_exceeds_paid: paid ${paidTotal}, already refunded or being refunded`);
+    }
+    return reservation;
+  }
+
+  private async releaseRefund(r: RefundReservation) {
+    if (r.takenOver) return;     // the first execution's amount stays counted; only a clean failure of the owner gives it back
+    await this.refundTotals.updateOne({ booking_id: r.booking_id } as any, { $inc: { refunded_halalas: -r.halalas } });
+    await this.reservations.deleteOne({ refund_id: r.refund_id, state: 'reserved' } as any);
+  }
+
+  private async executeCore(opts: RefundExecuteOpts, ctx: RefundCtx): Promise<{ ok: boolean; method: string; gateway_refund_id?: string; provider_debited?: number }> {
     let amount = round2(opts.amount);
     if (!(amount > 0)) throw new BadRequestException('refund amount must be positive');
 
@@ -674,10 +865,24 @@ export class RefundExecutor {
         if (retTotal > 0) paidTotal = retTotal;
       } catch { /* cap stays 0 → the guard below refuses */ }
     }
+    // What was refunded BEFORE this refund (SAR); used for the cap and for the booking's status below.
+    let alreadyRefunded = Number(paidPayment?.refunded_amount || paidTransaction?.refunded_amount || booking?.refunded_amount || 0);
     if (paidTotal != null) {
-      const alreadyRefunded = Number(paidPayment?.refunded_amount || paidTransaction?.refunded_amount || booking?.refunded_amount || 0);
+      // A takeover of a run that died after it updated the payment row: that row already contains THIS refund, so counting it again would make a
+      // full refund fail the cap on every retry (refund_exceeds_paid), and the ledger row, the provider clawback and the booking status would never be written.
+      try {
+        const prior: any = await this.reservations.findOne({ refund_id: opts.refund_id } as any);
+        if (prior?.state === 'reserved' && typeof prior.expected_refunded_after === 'number' && alreadyRefunded >= prior.expected_refunded_after - 0.001) {
+          alreadyRefunded = round2(alreadyRefunded - amount);
+        }
+      } catch { /* no reservation row to read: a normal first execution */ }
       if (alreadyRefunded + amount > paidTotal + 0.001) {
         throw new BadRequestException(`refund_exceeds_paid: paid ${paidTotal}, already refunded ${alreadyRefunded}`);
+      }
+      if (paidTotal > 0) {
+        const got = await this.reserveRefund(opts.refund_id, opts.booking_id, amount, Number(paidTotal), alreadyRefunded);
+        if (got === 'done') return { ok: true, method: 'already_executed' };
+        ctx.reservation = got;
       }
     }
 
@@ -686,27 +891,40 @@ export class RefundExecutor {
 
     // 1) Gateway refund (real money back to the card)
     if (paidPayment && paidPayment.moyasar_id && !String(paidPayment.moyasar_id).startsWith('sandbox_')) {
-      const key = this.moyasarKey();
-      // Sent once (no idempotency key, so a repeat could refund twice). On a timeout the refund is NOT recorded here:
-      // the gateway may or may not have done it, so the 504 tells the operator to check the payment's status first
-      // (syncPaymentStatus reads `refunded` from Moyasar) before asking again.
-      const resp = await timedFetch(`${moyasarBase()}/payments/${paidPayment.moyasar_id}/refund`, {
-        method: 'POST',
-        headers: { Authorization: `Basic ${Buffer.from(`${key}:`).toString('base64')}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: Math.round(amount * 100), reason: opts.reason?.slice(0, 255) || 'refund' }),
-      }, { label: 'finance.refund', timeoutCode: 'refund_gateway_timeout' });
-      const data: any = await resp.json().catch(() => ({}));
-      if (!resp.ok) {
-        this.logger.error(`Moyasar refund failed for ${paidPayment.moyasar_id}: ${data?.message || resp.status}`);
-        throw new BadRequestException(`gateway_refund_failed: ${data?.message || resp.status}`);
-      }
-      method = 'gateway';
-      gatewayRefundId = data?.id;
       const newRefunded = round2(Number(paidPayment.refunded_amount || 0) + amount);
-      await this.conn.collection('moyasar_payments').updateOne(
-        { _id: paidPayment._id } as any,
-        { $set: { refunded_amount: newRefunded, status: newRefunded >= Number(paidPayment.amount || 0) - 0.001 ? 'refunded' : 'paid', refunded_at: new Date() } },
-      );
+      // a taken-over reservation first finds out whether the crashed run already refunded at the gateway (see takeoverState)
+      const state = await this.takeoverState(ctx, paidPayment.moyasar_id, Number(paidPayment.refunded_amount || 0), amount);
+      if (state === 'applied') {
+        method = 'gateway';
+        gatewayRefundId = ctx.reservation?.gateway_refund_id;
+      } else {
+        if (state === 'proceed') {
+          await this.recordExpectedAfter(ctx, newRefunded);
+          const key = this.moyasarKey();
+          // Sent once (no idempotency key). On a timeout the refund is NOT recorded here: the gateway may or may not have done it. A retry of this
+          // refund id after the reservation goes stale first asks the gateway what it has refunded (takeoverState) instead of sending it again.
+          const resp = await timedFetch(`${moyasarBase()}/payments/${paidPayment.moyasar_id}/refund`, {
+            method: 'POST',
+            headers: { Authorization: `Basic ${Buffer.from(`${key}:`).toString('base64')}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: toHalalas(amount), reason: opts.reason?.slice(0, 255) || 'refund' }),
+          }, { label: 'finance.refund', timeoutCode: 'refund_gateway_timeout' });
+          const data: any = await resp.json().catch(() => ({}));
+          if (!resp.ok) {
+            this.logger.error(`Moyasar refund failed for ${paidPayment.moyasar_id}: ${data?.message || resp.status}`);
+            throw new BadRequestException(`gateway_refund_failed: ${data?.message || resp.status}`);
+          }
+          gatewayRefundId = data?.id;
+          await this.recordGatewayRefundId(ctx, gatewayRefundId);
+        } else {
+          this.logger.warn(`refund ${opts.refund_id}: the gateway already refunded ${amount} on ${paidPayment.moyasar_id}; not sent again, the local payment row is brought up to date`);
+          gatewayRefundId = ctx.reservation?.gateway_refund_id ?? 'recovered_from_gateway';
+        }
+        method = 'gateway';
+        await this.conn.collection('moyasar_payments').updateOne(
+          { _id: paidPayment._id } as any,
+          { $set: { refunded_amount: newRefunded, ...shadowFields({ refunded_amount: newRefunded }, ['refunded_amount']), status: newRefunded >= Number(paidPayment.amount || 0) - 0.001 ? 'refunded' : 'paid', refunded_at: new Date() } },
+        );
+      }
     }
     // 1b) A card payment kept in `transactions` (the current checkout, copays included) goes back
     // to the card through the gateway; before this it only got a ledger row.
@@ -716,9 +934,21 @@ export class RefundExecutor {
       const { PaymentsService } = await import('../payments/payments.module');
       const payments: any = this.moduleRef?.get(PaymentsService, { strict: false });
       if (!payments) throw new BadRequestException('payment_gateway_not_configured');
-      const r = await payments.refundTransactionAsSystem(String(paidTransaction.id), amount, opts.reason);
-      method = 'gateway';
-      gatewayRefundId = r?.gateway_refund_id;
+      const txGatewayId = paidTransaction.gateway === 'moyasar' ? (paidTransaction.gateway_charge_id || paidTransaction.gateway_intent_id) : undefined;
+      const state = await this.takeoverState(ctx, txGatewayId, Number(paidTransaction.refunded_amount || 0), amount);
+      if (state === 'applied') {
+        method = 'gateway';
+        gatewayRefundId = ctx.reservation?.gateway_refund_id;
+      } else {
+        if (state === 'proceed') await this.recordExpectedAfter(ctx, round2(Number(paidTransaction.refunded_amount || 0) + amount));
+        // 'gateway_only': the gateway already refunded it, so only the local transaction is brought up to date (no second gateway call)
+        const r = state === 'gateway_only'
+          ? await payments.refundTransactionAsSystem(String(paidTransaction.id), amount, opts.reason, { skipGateway: true })
+          : await payments.refundTransactionAsSystem(String(paidTransaction.id), amount, opts.reason);
+        method = 'gateway';
+        gatewayRefundId = r?.gateway_refund_id ?? (state === 'gateway_only' ? (ctx.reservation?.gateway_refund_id ?? 'recovered_from_gateway') : undefined);
+        await this.recordGatewayRefundId(ctx, r?.gateway_refund_id);
+      }
     }
     // 2) Cash: the money never entered the platform — record the refund in the
     // ledger only. No patient wallet is created, credited, or read here.
@@ -732,6 +962,9 @@ export class RefundExecutor {
       actor_id: opts.actor_id,
       meta: { booking_kind: opts.booking_kind, patient_id: opts.patient_id, method, gateway_refund_id: gatewayRefundId },
     });
+    // the refund is now in the ledger: the reservation is spent, not to be given back whatever fails below
+    ctx.committed = true;
+    if (ctx.reservation) await this.reservations.updateOne({ refund_id: opts.refund_id } as any, { $set: { state: 'done', done_at: new Date() } }).catch(() => undefined);
 
     // 4) Provider debit — claw back the credited net earning (S9)
     let providerDebited = 0;
@@ -740,8 +973,23 @@ export class RefundExecutor {
       $or: [{ ref_id: opts.booking_id }, { order_id: opts.booking_id }],
     } as any);
     if (earning && Number(earning.amount) > 0) {
-      const fraction = Math.min(1, amount / Number(earning.gross || amount));
-      providerDebited = round2(Number(earning.amount) * fraction);
+      // The share of what the PATIENT PAID that is refunded. The earning's gross is only the provider's own lines (the platform's service, home-visit and
+      // transport fees are not in it), so dividing by it clawed back all of the provider's net when only half of the payment was refunded.
+      const shares = clawbackShares(earning, amount, Number(paidTotal) || 0);
+      const fraction = shares.fraction;
+      providerDebited = shares.provider;
+      // The platform's commission and the VAT on it were earned on the part of the price that is now refunded: they are reversed in the same
+      // proportion (provider net share + commission share + VAT share = the refund). They are platform rows (no provider), so a provider's
+      // balance does not move twice; the finance report subtracts them (ReportsService.summary).
+      for (const [type, share] of [['commission_reversal', shares.commission], ['vat_reversal', shares.vat]] as const) {
+        if (share > 0 && !(await this.ledger.exists(type, 'refund', opts.refund_id))) {
+          await this.ledger.append({
+            type, amount: share, provider_account_id: null, ref_type: 'refund', ref_id: opts.refund_id, order_id: opts.booking_id,
+            description: `${type === 'commission_reversal' ? 'Commission' : 'VAT on the commission'} reversed with refund ${opts.refund_id} on earning ${earning.id}`,
+            actor_id: opts.actor_id, meta: { provider_account_id: earning.provider_account_id, earning_id: earning.id, fraction },
+          });
+        }
+      }
       if (providerDebited > 0) {
         const dupDebit = await this.ledger.exists('provider_debit', 'refund', opts.refund_id);
         if (!dupDebit) {
@@ -765,7 +1013,9 @@ export class RefundExecutor {
     };
     const coll = kindCollection[opts.booking_kind];
     if (coll) {
-      const newStatus = paidTotal != null && amount < paidTotal - 0.001 ? 'partially_refunded' : 'refunded';
+      // The booking is fully refunded when everything refunded so far (earlier refunds plus this one) reaches what was paid: a second partial refund
+      // that completes the payment used to leave it 'partially_refunded' because only this refund's amount was compared with the total.
+      const newStatus = paidTotal != null && round2(alreadyRefunded + amount) < paidTotal - 0.001 ? 'partially_refunded' : 'refunded';
       const set = { $set: { payment_status: newStatus, refund_status: 'REFUNDED', updatedAt: new Date() } };
       const res: any = await this.conn.collection(coll).updateOne({ id: opts.booking_id } as any, set);
       // Current pharmacy orders live in pharmacy_orders; `orders` is the legacy cart checkout.
@@ -777,11 +1027,12 @@ export class RefundExecutor {
       params: {}, type: 'payment', priority: 'high', read_by: [],
       status: 'DELIVERED', createdAt: new Date(), updatedAt: new Date(),
     } as any);
-    this.events.emit('payment.refund', {
+    // R2: recorded durably under the refund id (the same id the refund listeners and the ledger use), so a replay of execute() never announces twice.
+    await emitDurable(this.durable, this.events, 'payment.refund', {
       actor_id: opts.actor_id, transaction_id: gatewayRefundId || opts.refund_id,
       booking_id: opts.booking_id, booking_kind: opts.booking_kind,
       patient_id: opts.patient_id, amount, method,
-    });
+    }, `payment.refund:${opts.refund_id}`);
 
     return { ok: true, method, gateway_refund_id: gatewayRefundId, provider_debited: providerDebited };
   }
@@ -951,6 +1202,46 @@ export class NursingRefundListener {
   }
 }
 
+// ════════════════════════════════════════════════════════════
+// NursingNoShowRefundListener — consumes homecare.booking_no_show (screens-audit-3 gap 24).
+// The nurse marked the visit "patient absent" after the 10-minute wait. The admin policy
+// `home_visit.patient_absent_percent` (default 0: nothing is refunded, as before) is the share of what the patient paid that comes back.
+// Never throws.
+// ════════════════════════════════════════════════════════════
+@Injectable()
+export class NursingNoShowRefundListener {
+  private readonly logger = new Logger('NursingNoShowRefundListener');
+  constructor(
+    @InjectConnection() private readonly conn: Connection,
+    private readonly refundExec: RefundExecutor,
+  ) {}
+
+  @OnEvent('homecare.booking_no_show')
+  async onNoShow(e: any) {
+    try {
+      const bookingId = String(e?.booking_id || '');
+      const patientId = String(e?.patient_id || '');
+      if (!bookingId || !patientId) return;
+      const policyDoc: any = await this.conn.collection('system_configs').findOne({ key: 'refund_policy' }).catch(() => null);
+      const percent = patientAbsentPercent(policyDoc?.value);
+      if (!(percent > 0)) return;
+      const amount = patientAbsentRefund(Number(e?.total || 0), percent);
+      if (!(amount > 0)) return;
+      await this.refundExec.execute({
+        refund_id: `nursing-noshow-${bookingId}`,
+        booking_kind: 'nursing',
+        booking_id: bookingId,
+        patient_id: patientId,
+        amount,
+        reason: 'nursing_patient_absent',
+        actor_id: 'system',
+      });
+    } catch (err: any) {
+      this.logger.error(`nursing no-show refund consumer failed: ${err?.message} (booking ${e?.booking_id})`);
+    }
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // PharmacyRefundListener — consumes pharmacy.order.cancelled (D-26).
 // Cancel before dispatch: 100% including the delivery fee. Once the order is
@@ -974,7 +1265,9 @@ export class PharmacyRefundListener {
       if (!(total > 0)) return;
       const dispatched = String(e?.meta?.prior_status || '').toLowerCase() === 'out_for_delivery';
       const fee = Math.round(Number(e?.meta?.delivery_fee || 0) * 100) / 100;
-      const amount = dispatched ? Math.max(0, Math.round((total - fee) * 100) / 100) : total;
+      // screens-audit-3 gap 24: `pharmacy.refund_delivery_fee_before_dispatch` is read (default yes: 100 % before dispatch, the fee kept after)
+      const policyDoc: any = await this.conn.collection('system_configs').findOne({ key: 'refund_policy' }).catch(() => null);
+      const amount = pharmacyCancelRefund(total, fee, dispatched, refundsDeliveryFeeBeforeDispatch(policyDoc?.value));
       if (!(amount > 0)) return;
       await this.refundExec.execute({
         refund_id: `pharmacy-cancel-${orderId}`,
@@ -987,6 +1280,55 @@ export class PharmacyRefundListener {
       });
     } catch (err: any) {
       this.logger.error(`pharmacy refund consumer failed: ${err?.message} (order ${e?.entity_id || e?.order_id})`);
+    }
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// ProviderCancelRefundListener — a provider or admin cancels a paid booking (refund policy 3.0: "the provider cancels or does not attend:
+// 100%", for nursing, lab, radiology and pharmacy).
+// The kind listeners above answer the PATIENT's own cancel (and the lab's / the pharmacy's own routes). The generic provider action
+// (POST /provider/jobs/:type/:id/reject) and the admin cancel move the booking to CANCELLED through the workflow engine and emit only
+// `service.cancelled`, which nothing refunded: a paid booking the nurse rejected stayed paid. This listens to that universal event for a
+// non-patient actor and refunds what was paid in full, under the SAME refund id as the kind listener (so one cancel is never refunded
+// twice, whichever path announced it first). Never throws; a failure goes to the dead-letter queue.
+// ═════════════════════════════════════════════════════════════════════
+@Injectable()
+export class ProviderCancelRefundListener {
+  private readonly logger = new Logger('ProviderCancelRefundListener');
+  constructor(
+    @InjectConnection() private readonly conn: Connection,
+    private readonly refundExec: RefundExecutor,
+  ) {}
+
+  private static readonly KINDS: Record<string, { kind: 'nursing' | 'lab' | 'radiology' | 'pharmacy'; id: (b: string) => string }> = {
+    nursing_booking: { kind: 'nursing', id: (b) => `nursing-cancel-${b}` },
+    lab_booking: { kind: 'lab', id: (b) => `lab-cancel-${b}` },
+    radiology_booking: { kind: 'radiology', id: (b) => `radiology-cancel-${b}` },
+    order: { kind: 'pharmacy', id: (b) => `pharmacy-cancel-${b}` },
+  };
+
+  @OnEvent('service.cancelled')
+  async onServiceCancelled(e: any) {
+    const spec = ProviderCancelRefundListener.KINDS[String(e?.entity_type || '')];
+    const role = String(e?.actor_role || '').toLowerCase();
+    if (!spec || !e?.entity_id || !e?.patient_account_id || !role || role === 'patient') return;
+    const bookingId = String(e.entity_id);
+    try {
+      const paid: any = await this.conn.collection('transactions').findOne({ booking_kind: spec.kind, booking_id: bookingId, status: 'paid' } as any);
+      if (!paid) return; // cash, insurance or never paid by card: nothing to send back
+      const left = Math.max(0, Math.round((Number(paid.amount || 0) - Number(paid.refunded_amount || 0)) * 100) / 100);
+      if (!(left > 0)) return;
+      await this.refundExec.execute({
+        refund_id: spec.id(bookingId), booking_kind: spec.kind, booking_id: bookingId, patient_id: String(e.patient_account_id),
+        amount: left, reason: `${spec.kind}_cancel_by_${role}`, actor_id: 'system',
+      });
+    } catch (err: any) {
+      this.logger.error(`${spec.kind} provider-cancel refund failed: ${err?.message} (booking ${bookingId})`);
+      await this.conn.collection('event_dlq').insertOne({
+        original_event_id: spec.id(bookingId), type: 'service.cancelled', entity_type: String(e.entity_type), entity_id: bookingId,
+        payload: e, attempts: 0, last_error: String(err?.message || err).slice(0, 500), status: 'pending', createdAt: new Date(), updatedAt: new Date(),
+      } as any).catch((dlqErr: any) => this.logger.error(`provider-cancel refund failure not queued: ${dlqErr?.message}`));
     }
   }
 }
@@ -1009,18 +1351,19 @@ export class ReportsService {
     const to = toQ ? new Date(toQ) : now;
     const dateQ = { createdAt: { $gte: from, $lte: to } };
 
+    // R11 P2: the groups add whole halalas (the `*_halalas` shadow, the double only for a row that has none); see report-totals.ts
     const [payments, ledgerRows, refunds, cancelledOrders] = await Promise.all([
       this.conn.collection('moyasar_payments').aggregate([
         { $match: dateQ },
-        { $group: { _id: '$status', total: { $sum: '$amount' }, count: { $sum: 1 } } },
+        { $group: { _id: '$status', total: halalasSum('amount'), count: { $sum: 1 } } },
       ] as any[]).toArray().catch(() => [] as any[]),
       this.conn.collection('platformledgerentries').aggregate([
         { $match: dateQ },
-        { $group: { _id: { type: '$type', state: '$state' }, total: { $sum: '$amount' }, count: { $sum: 1 } } },
+        { $group: { _id: { type: '$type', state: '$state' }, total: halalasSum('amount'), count: { $sum: 1 } } },
       ] as any[]).toArray().catch(() => [] as any[]),
       this.conn.collection('refundrequests').aggregate([
         { $match: dateQ },
-        { $group: { _id: '$state', total: { $sum: '$refund_amount' }, count: { $sum: 1 } } },
+        { $group: { _id: '$state', total: halalasSum('refund_amount'), count: { $sum: 1 } } },
       ] as any[]).toArray().catch(() => [] as any[]),
       Promise.all([
         this.conn.collection('orders').countDocuments({ ...dateQ, state: 'CANCELLED' } as any),
@@ -1028,37 +1371,15 @@ export class ReportsService {
       ]).then(([a, b]) => a + b).catch(() => 0),
     ]);
 
-    const p = (st: string) => (payments as any[]).filter((x) => x._id === st).reduce((s, x) => s + (x.total || 0), 0);
-    const pc = (st: string) => (payments as any[]).filter((x) => x._id === st).reduce((s, x) => s + (x.count || 0), 0);
-    const l = (type: string, state?: string) =>
-      (ledgerRows as any[]).filter((x) => x._id?.type === type && (!state || x._id?.state === state)).reduce((s, x) => s + (x.total || 0), 0);
-    const r = (st: string) => (refunds as any[]).filter((x) => String(x._id).toUpperCase() === st).reduce((s, x) => s + (x.total || 0), 0);
-
-    const gross = round2(p('paid') + p('refunded'));
-
     // commission & vat come from earning rows' embedded fields
     const ev: any[] = await this.conn.collection('platformledgerentries').aggregate([
       { $match: { ...dateQ, type: 'provider_earning' } },
-      { $group: { _id: null, commission: { $sum: '$commission' }, vat: { $sum: '$vat' }, gross: { $sum: '$gross' }, net: { $sum: '$amount' } } },
+      { $group: { _id: null, commission: halalasSum('commission'), vat: halalasSum('vat'), gross: halalasSum('gross'), net: halalasSum('amount') } },
     ] as any[]).toArray().catch(() => [] as any[]);
-    const e = ev[0] || {};
 
     return {
       period, from, to,
-      gross_revenue: gross,
-      paid_count: pc('paid'),
-      failed_count: pc('failed'),
-      failed_volume: round2(p('failed')),
-      commission: round2(e.commission || 0),
-      vat_on_commission: round2(e.vat || 0),
-      net_revenue: round2((e.commission || 0) + (e.vat || 0)),
-      provider_net: round2(e.net || 0),
-      refunds_completed: round2(r('COMPLETED') + r('completed')),
-      refunds_requested_count: (refunds as any[]).reduce((s, x) => s + (x.count || 0), 0),
-      chargebacks: round2(l('chargeback')),
-      provider_pending_escrow: round2(l('provider_earning', 'pending')),
-      provider_settled: round2(l('payout')),
-      provider_debits: round2(l('provider_debit')),
+      ...reportFigures(payments as any[], ledgerRows as any[], refunds as any[], ev[0] || {}),
       canceled_orders: cancelledOrders,
     };
   }
@@ -1339,7 +1660,8 @@ export class LabRadiologyRefundListener {
       const left = Math.max(0, Math.round((Number(paid.amount || 0) - Number(paid.refunded_amount || 0)) * 100) / 100);
       const policyDoc: any = await this.conn.collection('system_configs').findOne({ key: 'refund_policy' }).catch(() => null);
       const tripFee = Number(policyDoc?.value?.home_visit?.trip_fee_sar ?? 40);
-      const keepsTripFee = kind === 'lab' && String(e?.prior_state || '').toUpperCase() === 'IN_TRANSIT';
+      // refund policy 3.0: after the collector set off the PATIENT bears the trip fee; the provider cancelling or not attending refunds 100%
+      const keepsTripFee = kind === 'lab' && String(e?.prior_state || '').toUpperCase() === 'IN_TRANSIT' && e?.cancelled_by !== 'provider';
       const amount = keepsTripFee ? Math.max(0, Math.round((left - tripFee) * 100) / 100) : left;
       if (!(amount > 0)) return;
       await this.refundExec.execute({
@@ -1365,7 +1687,7 @@ export class LabRadiologyRefundListener {
 @Global()
 @Module({
   controllers: [FinanceEngineController, AdminFinanceEngineController],
-  providers: [LedgerService, CommissionResolver, CouponService, LoyaltyRedeemService, FraudService, RefundExecutor, CancellationPolicy, ReportsService, ApprovalService, AppointmentRefundListener, NursingRefundListener, PharmacyRefundListener, LabRadiologyRefundListener],
+  providers: [LedgerService, CommissionResolver, CouponService, LoyaltyRedeemService, FraudService, RefundExecutor, CancellationPolicy, ReportsService, ApprovalService, AppointmentRefundListener, NursingRefundListener, NursingNoShowRefundListener, PharmacyRefundListener, LabRadiologyRefundListener, ProviderCancelRefundListener],
   exports: [LedgerService, CommissionResolver, CouponService, LoyaltyRedeemService, FraudService, RefundExecutor, CancellationPolicy, ReportsService, ApprovalService],
 })
 export class FinanceEngineModule {}

@@ -29,6 +29,8 @@ try {
   LIVEKIT_NATIVE_OK = false;
 }
 import client from '../../api/client';
+import { setActiveCall } from '../../calls/activeCall';
+import { onCallHold } from '../../calls/callHold';
 import { enableLocalMedia, isPermissionError, mediaProblemText, MediaProblem } from './callMedia';
 import { useTheme, useLang } from '../../context';
 import { NBtn } from '../../components/ui';
@@ -46,7 +48,9 @@ function ensureGlobals() {
 
 interface VideoCallRoomProps {
   /** Appointment id used to initiate/join the call session. */
-  appointmentId: string;
+  appointmentId?: string;
+  /** An incoming call the doctor answered: join this session instead of starting one. */
+  sessionId?: string;
   /** Display name of the remote side (patient). */
   peerName?: string;
   /** Voice-only consultation (no camera published). */
@@ -55,7 +59,7 @@ interface VideoCallRoomProps {
   onEnd: () => void;
 }
 
-export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: VideoCallRoomProps) {
+export function VideoCallRoom({ appointmentId, sessionId: answeredSessionId, peerName, voiceOnly, onEnd }: VideoCallRoomProps) {
   const { theme } = useTheme();
   const { lang } = useLang();
   const AR = lang === 'ar';
@@ -131,14 +135,16 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
     let room: Room | null = null;
     try {
       // One call session per screen: a retry or an auto-reconnect joins the same session, it never opens a second room.
-      let sessionId = sessionRef.current;
+      // An answered incoming call already has its session: only join it.
+      let sessionId = sessionRef.current || answeredSessionId || null;
       if (!sessionId) {
         const initRes = await client.post('/calls/initiate', { appointmentId, call_type: voiceOnly ? 'voice' : 'video' });
         const session = initRes.data || {};
         sessionId = session.session_id || session.id;
         if (!sessionId) throw new Error('no_session');
-        sessionRef.current = sessionId;
       }
+      sessionRef.current = sessionId;
+      setActiveCall(sessionId); // a second incoming call while this one runs is answered "busy"
 
       const joinRes = await client.post(`/calls/${encodeURIComponent(sessionId)}/join`);
       const token = joinRes.data?.token;
@@ -220,6 +226,7 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
     return () => {
       attemptRef.current++;
       endedRef.current = true;
+      setActiveCall(null);
       stopMetrics();
       resilienceRef.current?.dispose();
       resilienceRef.current = null;
@@ -229,8 +236,13 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
       try { AudioSession.stopAudioSession(); } catch { /* noop */ }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [appointmentId]);
+  }, [appointmentId, answeredSessionId]);
 
+  // a phone call or another app's call takes the line: stop sending while held, resume after, without leaving the room
+  useEffect(() => onCallHold((held) => {
+    roomRef.current?.localParticipant.setMicrophoneEnabled(!held && micOn).catch(() => {});
+    if (!voiceOnly) roomRef.current?.localParticipant.setCameraEnabled(!held && camOn).catch(() => {});
+  }), [micOn, camOn, voiceOnly]);
   useEffect(() => { wantRef.current = { ...wantRef.current, mic: micOn }; roomRef.current?.localParticipant.setMicrophoneEnabled(micOn).catch(() => {}); }, [micOn]);
   useEffect(() => {
     wantRef.current = { ...wantRef.current, camera: camOn };

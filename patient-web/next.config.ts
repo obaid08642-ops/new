@@ -4,6 +4,7 @@ import createNextIntlPlugin from "next-intl/plugin";
 import { withSentryConfig } from "@sentry/nextjs";
 import { contentSecurityPolicy } from "./csp";
 import { localeOnlyRedirects } from "./lib/routing/locale-redirects";
+import { speedRedirects } from "./lib/routing/speed-redirects";
 import { IMAGE_HOSTS } from "./lib/image-hosts";
 import { queryTwinRewrites, unavailablePageRewrite } from "./lib/security/query-twin";
 
@@ -92,6 +93,7 @@ const nextConfig: NextConfig = {
       { source: "/:locale/ai/symptom-timeline", destination: "/:locale/ai?mode=symptoms", permanent: false },
       { source: "/:locale/ai/triage", destination: "/:locale/ai?mode=symptoms", permanent: false },
       { source: "/:locale/home-care/services", destination: "/:locale/nursing/catalog", permanent: false },
+      ...speedRedirects,
       { source: "/:locale/programs/active", destination: "/:locale/programs", permanent: false },
       { source: "/:locale/mental-health/breathing", destination: "/:locale/mental-health", permanent: false },
       { source: "/:locale/mental-health/self-assessment", destination: "/:locale/mental-health", permanent: false },
@@ -182,7 +184,9 @@ const nextConfig: NextConfig = {
     ];
     return [
       { source: "/:path*", headers: everyResponse },
-      { source: "/:path((?!_next/static/).*)", headers: documentOnly },
+      { source: "/:path((?!_next/static/|icons/).*)", headers: documentOnly },
+      // the icon sprite (public/icons/sprite-<hash>.svg, tools/design/sync-ui-components.mjs): the name carries the hash, so it is kept for good
+      { source: "/icons/:file*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
     ];
   }
 };

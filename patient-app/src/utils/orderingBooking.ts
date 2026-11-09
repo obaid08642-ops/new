@@ -5,6 +5,7 @@
  * and book(), ordering-broadcast.service.ts shape(). Nothing is invented: a field the server did not send is absent and shown as nothing.
  * Amounts are the server's; this file never prices anything.
  */
+import { withRefundPolicy } from './refundAcceptance';
 import { apiFetch } from './api';
 import type { OrderingKind, OrderingMode, OrderingPayer, ProviderRow, Quote, QuoteGroup } from './ordering';
 import type { MedicalOrder } from './medicalOrders';
@@ -183,7 +184,7 @@ async function asapCall(path: string, init?: RequestInit): Promise<Asap> {
   return a;
 }
 export const startAsap = (body: { service_kind: OrderingKind; items: string[]; lat: number; lng: number; payer: OrderingPayer }) =>
-  asapCall('/ordering/asap', { method: 'POST', body: JSON.stringify(body) });
+  asapCall('/ordering/asap', { method: 'POST', body: JSON.stringify(withRefundPolicy(body)) });
 export const getAsap = (id: string) => asapCall(`/ordering/asap/${encodeURIComponent(id)}`);
 export const cancelAsap = (id: string) => asapCall(`/ordering/asap/${encodeURIComponent(id)}/cancel`, { method: 'POST' });
 
@@ -273,7 +274,7 @@ export function parseCreated(payload: unknown): CreatedGroup | null {
 }
 
 export async function createBookings(d: OrderingDraft, c: ConfirmChoices): Promise<CreatedGroup> {
-  const created = parseCreated(await apiFetch<unknown>('/ordering/bookings', { method: 'POST', body: JSON.stringify(buildBookingBody(d, c)) }));
+  const created = parseCreated(await apiFetch<unknown>('/ordering/bookings', { method: 'POST', body: JSON.stringify(withRefundPolicy(buildBookingBody(d, c))) }));
   if (!created) throw new Error('invalid_booking');
   return created;
 }
@@ -294,14 +295,14 @@ export async function createRadiologyBookings(d: OrderingDraft, c: ConfirmChoice
     for (const it of g.items) {
       const made = obj(await apiFetch<unknown>('/radiology/bookings', {
         method: 'POST',
-        body: JSON.stringify({
+        body: JSON.stringify(withRefundPolicy({
           service_id: it.catalog_id,
           provider_id: pick.row.provider_id,
           scheduled_at: scheduledAt,
           location_type: g.mode === 'home' ? 'home' : 'facility',
           payment_method: c.paymentMethod,
           ...(c.documents.length ? { documents: c.documents } : {}),
-        }),
+        })),
       }));
       const id = made && typeof made.id === 'string' ? made.id : null;
       const total = made ? (num(made.total_price) ?? num(made.total)) : null;

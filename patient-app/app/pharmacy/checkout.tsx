@@ -5,6 +5,7 @@ import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-ro
 import { AppHeader, Button, Card, EmptyState, ErrorState, FIcon, OfflineState, SERVICE_ICONS, Screen, Segmented, StickyFooter } from '../../../packages/ui-native/src';
 import { loadPolicy, type InsurancePolicy } from '../../src/components/insurance/InsuranceKit';
 import { Notice } from '../../src/components/pharmacy/OfferKit';
+import { RefundPolicyTick } from '../../src/components/legal/RefundPolicyTick';
 import { PHARMACY_TONE, goBack } from '../../src/components/pharmacy/PharmacyKit';
 import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useCart } from '../../src/context/CartContext';
@@ -56,6 +57,8 @@ export default function PharmacyCheckoutScreen() {
   const [rxState, setRxState] = useState<'idle' | 'loading' | 'ready' | 'error' | 'offline'>(rxId ? 'loading' : 'idle');
   const [rxTry, setRxTry] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  // the refund policy is shown before the order is sent and agreed here (the backend refuses an order without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
   const [problemKey, setProblemKey] = useState<string | null>(null);
   const [needsLocation, setNeedsLocation] = useState(false);
 
@@ -126,7 +129,7 @@ export default function PharmacyCheckoutScreen() {
   const lines = checkoutLines(rxId ? rxLines : [], items.map((i) => ({ id: i.id, name: i.name, qty: i.qty })));
   const hasPoint = Boolean(address) && Number.isFinite(Number(address?.lat)) && Number.isFinite(Number(address?.lng));
   const insuranceOk = payMode === 'cash' || (Boolean(rxId) && policy.status === 'ok');
-  const ready = !loadingAddress && (!rxId || rxState === 'ready') && lines.all.length > 0 && insuranceOk;
+  const ready = !loadingAddress && (!rxId || rxState === 'ready') && lines.all.length > 0 && insuranceOk && refundAgreed;
 
   const send = async () => {
     if (busy.current || !ready) return;
@@ -306,6 +309,7 @@ export default function PharmacyCheckoutScreen() {
             onAction={problemKey === 'pharmacy.checkout.err.signIn' ? () => router.push('/(auth)/login' as Href) : undefined}
           />
         ) : null}
+        <RefundPolicyTick checked={refundAgreed} onChange={setRefundAgreed} />
       </View>
     </Screen>
   );

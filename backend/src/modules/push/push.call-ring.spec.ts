@@ -72,4 +72,17 @@ describe('PushService call ring', () => {
     await service.deliverPush({ userId: 'u1', title: 'a', body: 'b', data: call });
     expect(service.tokens.updateOne).toHaveBeenCalledWith({ token: 'voip1' }, { $set: { active: false } });
   });
+
+  it('a cancel stops the ringing: data-only to ring tokens, and never a PushKit push', async () => {
+    const service = serviceWith([
+      { token: 'ExpoA', provider: 'expo', call_ring: true },
+      { token: 'voip1', provider: 'apns_voip', call_ring: true },
+    ]);
+    const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValue({ ok: true, status: 200, json: async () => ({ data: [{ status: 'ok' }] }) } as Response);
+    await service.deliverPush({ userId: 'u1', title: 'x', body: 'y', data: { type: 'call_cancelled', session_id: 's1' } });
+    const sent = JSON.parse((fetchSpy.mock.calls[0][1] as RequestInit).body as string);
+    expect(sent[0]).toMatchObject({ to: 'ExpoA', priority: 'high', _contentAvailable: true, data: { type: 'call_cancelled', session_id: 's1' } });
+    expect(sent[0].title).toBeUndefined();
+    expect(service.sendApnsVoip).not.toHaveBeenCalled();
+  });
 });

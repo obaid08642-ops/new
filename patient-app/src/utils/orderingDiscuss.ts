@@ -71,7 +71,7 @@ export const openDraft = async (bookingId: string): Promise<Draft> => {
   return d;
 };
 
-export async function startInstant(body: { specialty: string; mode: InstantMode; family_member_id?: string }): Promise<InstantRequest> {
+export async function startInstant(body: { specialty: string; mode: InstantMode; family_member_id?: string; /** the patient agreed to the refund policy before the request (the backend refuses without it) */ refund_policy_accepted: true }): Promise<InstantRequest> {
   const r = parseInstant(await apiFetch<unknown>('/consultations/instant', { method: 'POST', body: JSON.stringify(body) }));
   if (!r) throw new Error('invalid_instant');
   return r;

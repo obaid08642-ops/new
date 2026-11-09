@@ -1,0 +1,1 @@
+{ "provider-app/src/screens/shared/shared/SupportCenter.tsx:43": { "pr": "screen-audit", "what": "My Tickets was hard-coded; now GET /support/tickets with loading, empty and retry states" }, "provider-app/src/screens/shared/shared/SupportCenter.tsx:44": { "pr": "screen-audit", "what": "FAQ was hard-coded; now GET /support/faqs (ar/en)" } }

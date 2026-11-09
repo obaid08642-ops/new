@@ -39,7 +39,7 @@ describe("doctors page specialty row", () => {
     expect(html).not.toContain("<select");
     const labels = [...html.matchAll(/aria-label="([^"]+)"/g)].map((m) => m[1]);
     const row = labels.slice(labels.indexOf("specialtyAll"));
-    expect(row.slice(0, 5)).toEqual(["specialtyAll", "pediatrics", "cardiology", "dermatology, comingSoon", "allSpecialties"]);
+    expect(row.slice(0, 5)).toEqual(["specialtyAll", "pediatrics", "cardiology", "dermatology", "allSpecialties"]);
     expect(html).toContain('href="/en/consultations/doctors?specialty=cardiology"');
     expect(html).toContain('href="/en/consultations/specialties"');
   });
@@ -48,15 +48,15 @@ describe("doctors page specialty row", () => {
     state.doctors.mockResolvedValue(new Response(JSON.stringify([{ id: "d1", name_en: "A Doctor" }]), { status: 200 }));
     const html = renderToStaticMarkup(await DoctorsView({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ specialty: "cardiology", q: "x" }) }));
     expect(state.doctors).toHaveBeenCalledWith(expect.objectContaining({ specialty: "cardiology" }));
-    expect(html).toMatch(/aria-current="true"[^>]*data-selected="true"[^>]*data-art="cardiology"/);
+    expect(html).toMatch(/aria-current="true"[^>]*data-selected="true"/);
     expect(html).toContain('name="specialty" value="cardiology"');
   });
 
-  it("a specialty with no doctor yet shows the coming-soon state, not a silent empty list", async () => {
+  it("a specialty with no doctor yet is a normal tile and opens the normal empty state, with a way out, not a coming-soon label", async () => {
     state.doctors.mockResolvedValue(new Response("[]", { status: 200 }));
     const html = renderToStaticMarkup(await DoctorsView({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ specialty: "dermatology" }) }));
-    expect(html).toContain("comingSoonTitle");
-    expect(html).toContain("comingSoonBody");
-    expect(html).not.toContain("emptyTitle");
+    expect(html).toContain("emptyTitle");
+    expect(html).toContain("clearSearch");
+    expect(html).not.toMatch(/comingSoon/i);
   });
 });

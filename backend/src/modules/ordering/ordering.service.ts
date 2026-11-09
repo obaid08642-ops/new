@@ -1,3 +1,5 @@
+import { refundPolicyAcceptance } from '../../common/refund-policy-acceptance';
+import { readQuoteVatRate } from '../../common/quote';
 import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { homeCollectionFee } from '../../common/provider-home-fees';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -53,6 +55,15 @@ const bad = (code: string) => new BadRequestException(code);
 export interface Snapshot { account_id: string; auto_accept: boolean; prices: Record<string, number>; home_fee: number; in_network: boolean; coverage: Record<string, Coverage>; walk_in: boolean; staff_genders: string[] }
 interface QuoteGroup { mode: Mode; items: Array<{ catalog_id: string; facility_only?: true }>; candidates: Record<string, Snapshot>; names: Record<string, { ar: string | null; en: string | null }> }
 
+/** The breakdown the clients show for one quoted provider: the home fee inside the total, and the VAT in it (prices are VAT-inclusive). */
+export function quoteBreakdown(total: number, homeFee: unknown, vatRate: number | null) {
+  // vatRate null = the platform is not VAT-registered: no VAT line, subtotal = total.
+  // Model A (owner, 2026-11-01): the provider supplies the service, so the price carries no platform VAT; a lab or radiology quote has
+  // no delivery-fee line (the home-collection fee is the provider's), so the platform VAT here is 0.
+  const vat = vatRate === null ? null : 0;
+  return { home_fee: round2(Number(homeFee) || 0), vat_rate: vatRate, vat, subtotal: vat === null ? round2(total) : round2(total - vat), tax_registered: vatRate !== null };
+}
+
 @Injectable()
 export class OrderingService implements OnModuleInit {
   private readonly logger = new Logger(OrderingService.name);
@@ -92,6 +103,7 @@ export class OrderingService implements OnModuleInit {
     const policy = await this.policyOf(user.id, context.payer, context.family_member_id);
     const weights = mergeWeights((await this.conn.collection('system_configs').findOne({ key: 'ordering_ranking_weights' }))?.value);
     const shareRate = await this.shareRate();
+    const vatRate = await readQuoteVatRate(this.conn);
 
     // a mixed basket is split automatically: what cannot be done at home goes to a facility group, labelled
     const homeIds: string[] = [];
@@ -125,6 +137,8 @@ export class OrderingService implements OnModuleInit {
       const row = (x: { c: Candidate; total: number }) => ({
         ...(step.ids.every((id) => x.c.prices[id] != null) ? {} : { covers_all: false, missing: step.ids.filter((id) => x.c.prices[id] == null) }),
         provider_id: x.c.provider_id, name_ar: x.c.name_ar, name_en: x.c.name_en, total: x.total, distance_km: round1(x.c.distance_km),
+        // the breakdown the clients show, stated by the server: the home-collection fee inside the total, and the VAT in it
+        ...quoteBreakdown(x.total, x.c.home_fee, vatRate),
         rating: x.c.rating, in_network: x.c.in_network, earliest_at: x.c.earliest_at.toISOString(), turnaround_hours: x.c.turnaround_hours,
       });
       sections.push({
@@ -187,7 +201,7 @@ export class OrderingService implements OnModuleInit {
   }
 
   private async ownMember(userId: string, id: string) {
-    const m = await this.conn.collection('family_members').findOne({ id, $or: [{ owner_id: userId }, { user_id: userId }, { patient_id: userId }] });
+    const m = await this.conn.collection('family_members').findOne({ id, is_deleted: { $ne: true }, $or: [{ owner_id: userId }, { user_id: userId }, { patient_id: userId }] });
     if (!m) throw new NotFoundException('family_member_not_found');
     return m;
   }
@@ -359,6 +373,8 @@ export class OrderingService implements OnModuleInit {
   // ---------- booking ----------
 
   async book(user: any, dto: CreateOrderingBookingDto) {
+    // owner decision 2026-11-09: the refund policy is agreed before any booking is made from the quote
+    const policyAcceptance = refundPolicyAcceptance(user, dto.refund_policy_accepted);
     const quote: any = await this.conn.collection(QUOTES).findOne({ id: dto.quote_id, patient_id: user.id });
     if (!quote) throw new NotFoundException('quote_not_found');
     const now = new Date();
@@ -427,7 +443,7 @@ export class OrderingService implements OnModuleInit {
           home_fee: snap.home_fee, scheduled_at: scheduled[i].at, asap: scheduled[i].asap, payment_method: dto.payment_method, awaiting_approval: awaiting,
           address: g.mode === 'home' ? { lat: quote.context.lat, lng: quote.context.lng } : undefined,
           order_group_id: groupId, quote_id: quote.id, medical_order_id: order?.id, gender_preference: dto.gender_preference,
-          documents: dto.documents, notes: dto.notes,
+          documents: dto.documents, notes: dto.notes, family_member_id: quote.family_member_id ?? undefined, refund_policy_acceptance: policyAcceptance,
         });
         created.push({
           id: b.id, mode: g.mode, status: awaiting ? 'awaiting_approval' : 'pending', provider_id: sel.provider_id,

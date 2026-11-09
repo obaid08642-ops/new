@@ -18,7 +18,7 @@ const LABELS: Record<DetailField, [string, string]> = {
 
 /** Correct the registration details a reviewer pointed at, then go back to the status screen to resubmit. Saves through POST /provider-onboarding/step2. */
 export function ResubmitDetailsScreen({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [initial, setInitial] = useState<Details | null>(null);
   const [edited, setEdited] = useState<Details | null>(null);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -54,11 +54,11 @@ export function ResubmitDetailsScreen({ onBack }: { onBack: () => void }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'تصحيح بيانات الطلب' : 'Fix your details'} onBack={onBack} />
+      <NHeader title={t('resubmit.title')} onBack={onBack} />
       {loadFailed ? (
         <View style={{ padding: SP.xl, gap: SP.md }}>
-          <Text style={{ color: theme.text, fontSize: FS.md, textAlign: AR ? 'right' : 'left' }}>{AR ? 'تعذر تحميل بياناتك' : 'Could not load your details'}</Text>
-          <NBtn label={AR ? 'إعادة المحاولة' : 'Retry'} onPress={load} />
+          <Text style={{ color: theme.text, fontSize: FS.md, textAlign: AR ? 'right' : 'left' }}>{t('resubmit.loadFailed')}</Text>
+          <NBtn label={t('common.retry')} onPress={load} />
         </View>
       ) : !edited ? (
         <View style={{ padding: SP.xl }}><ActivityIndicator color={theme.primary} /></View>
@@ -69,7 +69,7 @@ export function ResubmitDetailsScreen({ onBack }: { onBack: () => void }) {
               caps={f === 'iban' ? 'characters' : 'none'} kbType={f === 'license_expiry_date' ? 'numbers-and-punctuation' : undefined}
               error={bad.includes(f) ? (AR ? 'قيمة غير صحيحة' : 'Not valid') : undefined} />
           ))}
-          <NBtn label={AR ? 'حفظ' : 'Save'} loading={saving} onPress={save} />
+          <NBtn label={t('common.save')} loading={saving} onPress={save} />
         </ScrollView>
       )}
     </View>

@@ -1,9 +1,12 @@
+import { gatewayDownKey } from '../utils/paymentGateway';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
 import * as Linking from 'expo-linking';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
-import { Button, Card, Segmented } from '../../../packages/ui-native/src';
+import { Button, Card, Chip, Segmented } from '../../../packages/ui-native/src';
+import { RefundPolicyTick } from './legal/RefundPolicyTick';
+import { withRefundPolicy } from '../utils/refundAcceptance';
 import { DoctorHead, ModeTiles } from './consult/ConsultBooking';
 import { ConsultScreen, useConsultFormat } from './consult/ConsultKit';
 import { Notice } from './pharmacy/OfferKit';
@@ -58,6 +61,10 @@ export default function BookingConfirmScreen() {
   const { isGuest, requireAuth } = useGuestGuard();
   const [visitType, setVisitType] = useState((params.visitType as string) || 'clinic');
   const [payMethod, setPayMethod] = useState<'card' | 'cash' | 'insurance'>('card');
+  // PT-08: "I need a medical report" (a recommended rest period): a request the doctor decides on
+  const [reportRequested, setReportRequested] = useState(false);
+  // the refund policy is shown before payment and agreed here (the backend refuses a booking without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
   // D-38: the server asks for the telehealth consent before the first online consultation
   const [consentOpen, setConsentOpen] = useState(false);
@@ -129,7 +136,7 @@ export default function BookingConfirmScreen() {
       const appointment = await apiFetch<CreatedAppointment>('/care/appointments', {
         method: 'POST',
         headers: appointmentMutationHeaders(params.doctorId, slotStartIso),
-        body: JSON.stringify({
+        body: JSON.stringify(withRefundPolicy({
           doctor_id: params.doctorId,
           service_type: visitType,
           slot_start: slotStartIso,
@@ -142,7 +149,8 @@ export default function BookingConfirmScreen() {
             : undefined,
           slot_lock_id: slotLockId,
           ...(bookingFor ? { for_member_id: bookingFor.id } : {}),
-        }),
+          ...(reportRequested ? { sick_leave_requested: true } : {}),
+        })),
       });
       if (!appointment?.id) throw new Error(k('consult.confirm.createFailed'));
       // the appointment exists: the next booking is for the person signed in again
@@ -174,7 +182,8 @@ export default function BookingConfirmScreen() {
         setConsentOpen(true);
         return;
       }
-      showLocalizedAlert(k('consult.confirm.failedTitle'), (error instanceof Error && error.message) || k('consult.confirm.tryLater'));
+      const down = gatewayDownKey(error);
+      showLocalizedAlert(k('consult.confirm.failedTitle'), down ? k(down) : (error instanceof Error && error.message) || k('consult.confirm.tryLater'));
     } finally {
       setLoading(false);
     }
@@ -187,7 +196,7 @@ export default function BookingConfirmScreen() {
   const submit = payMethod === 'insurance' ? 'consult.confirm.submitInsurance' : payMethod === 'card' ? 'consult.confirm.submitCard' : 'consult.confirm.submitCash';
 
   const footer = (
-    <Button label={k(submit)} size="lg" fullWidth startIcon={payMethod === 'insurance' ? 'shield-check' : 'check-circle'} loading={loading} disabled={loading || (payMethod === 'insurance' && !insuranceReady)} onPress={() => void handleConfirm()} theme={theme} testID="booking-confirm-submit" />
+    <Button label={k(submit)} size="lg" fullWidth startIcon={payMethod === 'insurance' ? 'shield-check' : 'check-circle'} loading={loading} disabled={loading || !refundAgreed || (payMethod === 'insurance' && !insuranceReady)} onPress={() => void handleConfirm()} theme={theme} testID="booking-confirm-submit" />
   );
 
   return (
@@ -220,6 +229,12 @@ export default function BookingConfirmScreen() {
         </Card>
       ) : null}
 
+      <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{k('consult.confirm.reportTitle')}</Text>
+      <View style={{ flexDirection: 'row' }}>
+        <Chip label={k('consult.confirm.reportRequest')} selected={reportRequested} onPress={() => setReportRequested((on) => !on)} theme={theme} testID="booking-report-request" />
+      </View>
+      <Text style={{ ...scale(t, 'meta', 'regular'), lineHeight: 20, color: c.text.secondary, ...flow }}>{k('consult.confirm.reportHint')}</Text>
+
       <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{k('consult.confirm.payTitle')}</Text>
       <Segmented label={k('consult.confirm.payTitle')} value={payMethod} onChange={(v) => setPayMethod(v === 'cash' ? 'cash' : v === 'insurance' ? 'insurance' : 'card')} options={options} theme={theme} testID="booking-pay-method" />
       <Text style={{ ...scale(t, 'meta', 'regular'), lineHeight: 20, color: c.text.secondary, ...flow }}>{k(hint)}</Text>
@@ -232,6 +247,7 @@ export default function BookingConfirmScreen() {
         </>
       ) : null}
 
+      <RefundPolicyTick checked={refundAgreed} onChange={setRefundAgreed} />
       <Notice tone="info" text={k('consult.confirm.stepsNote')} />
       <TelehealthConsentSheet
         open={consentOpen}

@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { ModuleRef } from '@nestjs/core';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { reportAggregate } from '../../../common/reports/report-read';
 import { validateReason, MIN_FINANCIAL_REASON_LENGTH, ReasonError } from '../../../common/rbac';
 import { AdminAuditService } from './audit.service';
 import { RefundExecutor } from '../../finance-engine/finance-engine.module';
@@ -105,7 +106,9 @@ export class OrdersConsoleService {
    * module records `moyasar_payments`. Both count; each row keeps its source so refunds are mirrored back.
    */
   private async paymentsFor(id: string, paidOnly = false): Promise<any[]> {
-    const paid = ['paid', 'confirmed', 'succeeded'];
+    // a payment that has been refunded, in part or in full, WAS paid: its gross is still what the patient paid. Without these two the order
+    // detail showed gross_paid 0 after a partial refund (refunded 50, refundable 0) and a second partial refund found "no confirmed payment".
+    const paid = ['paid', 'confirmed', 'succeeded', 'partially_refunded', 'refunded'];
     const [moy, txn] = await Promise.all([
       this.conn.collection('moyasar_payments').find({
         $or: [{ booking_id: id }, { reference_id: id }, { order_id: id }], ...(paidOnly ? { status: { $in: paid } } : {}),
@@ -246,7 +249,7 @@ export class OrdersConsoleService {
     const byStatus: Record<string, number> = {};
     if (opts.kind && opts.kind !== 'all') {
       for (const spec of kinds) {
-        const facetRows = await this.conn.collection(spec.collection).aggregate([
+        const facetRows = await reportAggregate(this.conn, spec.collection, [
           { $group: { _id: `$${spec.stateField}`, n: { $sum: 1 } } },
         ]).toArray().catch(() => []);
         for (const r of facetRows as any[]) {
@@ -257,7 +260,7 @@ export class OrdersConsoleService {
     }
     const byKind: Record<string, number> = {};
     for (const spec of ORDER_KINDS) {
-      const [c] = await this.conn.collection(spec.collection).aggregate([{ $count: 'n' }]).toArray().catch(() => [{ n: 0 }]);
+      const [c] = await reportAggregate(this.conn, spec.collection, [{ $count: 'n' }]).toArray().catch(() => [{ n: 0 }]);
       byKind[spec.kind] = (byKind[spec.kind] || 0) + (c?.n || 0);
     }
 
@@ -307,7 +310,8 @@ export class OrdersConsoleService {
       .toArray();
 
     const refundsTotal = refunds.reduce((a: number, r: any) => a + Number(r.amount || 0), 0);
-    const paid = payments.filter((p: any) => ['paid', 'confirmed', 'succeeded'].includes(String(p.status || '').toLowerCase()))
+    // refunded (in part or in full) payments were paid: the refund total is shown next to the gross, so the gross must not disappear with the refund
+    const paid = payments.filter((p: any) => ['paid', 'confirmed', 'succeeded', 'partially_refunded', 'refunded'].includes(String(p.status || '').toLowerCase()))
       .reduce((a: number, p: any) => a + Number(p.amount || 0), 0);
 
     const { _id, __v, ...clean } = doc;
@@ -407,7 +411,9 @@ export class OrdersConsoleService {
       await this.conn.collection((p as any)._source).updateOne(
         { _id: (p as any)._id },
         { $set: {
-          status: fullyRefunded ? 'refunded' : (p as any).status,
+          // The refund executor already set the gateway row's status. This mirror kept the status it had READ BEFORE the refund, so a partial
+          // refund put a card transaction back to 'paid' (with refunded_amount set): the patient's payment looked unrefunded.
+          status: fullyRefunded ? 'refunded' : ((p as any)._source === 'transactions' ? 'partially_refunded' : (p as any).status),
           refunded_amount: Math.min(paid, Number((p as any).refunded_amount || 0) + amount),
           refunded_at: new Date(),
         } },

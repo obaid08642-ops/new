@@ -5322,6 +5322,146 @@
               "pathPrefix": "/fil/chat/"
             },
             {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/ar/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/en/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/ur/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/hi/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/bn/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/fil/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/ar/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/en/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/ur/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/hi/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/bn/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/fil/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/ar/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/en/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/ur/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/hi/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/bn/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/fil/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/ar/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/en/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/ur/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/hi/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/bn/payments/result"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/fil/payments/result"
+            },
+            {
               "scheme": "nabdplus"
             }
           ],
@@ -5354,8 +5494,7 @@
         "android.permission.FOREGROUND_SERVICE_MICROPHONE",
         "android.permission.FOREGROUND_SERVICE_CAMERA",
         "android.permission.WAKE_LOCK"
-      ],
-      "googleServicesFile": "./google-services.json"
+      ]
     },
     "ios": {
       "supportsTablet": false,
@@ -5379,8 +5518,7 @@
           "audio",
           "remote-notification"
         ]
-      },
-      "googleServicesFile": "./GoogleService-Info.plist"
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -5437,7 +5575,8 @@
       ],
       "expo-status-bar",
       "expo-asset",
-      "./plugins/with-android-lint-app-links"
+      "./plugins/with-android-lint-app-links",
+      "./plugins/with-callkeep-android-service"
     ],
     "experiments": {
       "typedRoutes": true

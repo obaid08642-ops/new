@@ -24,11 +24,11 @@ interface Slide {
 
 /** The app's five intro slides, each on its service of the handoff service map (the AI assistant is the Home board's sparkle on violet). */
 const SLIDES: Slide[] = [
-  { title: 'رعايتك الصحية الشاملة', body: 'احجز أفضل الأطباء في جميع التخصصات في ثوانٍ', ...SERVICE_ICONS.consult },
-  { title: 'صيدليتك في جيبك', body: 'اطلب الأدوية والمستلزمات الطبية مع توصيل سريع لبابك', ...SERVICE_ICONS.pharmacy },
-  { title: 'فحوصاتك من المنزل', body: 'احجز التحاليل والأشعة مع زيارة منزلية وأسعار مقارنة', ...SERVICE_ICONS.lab },
-  { title: 'تمريض متخصص في بيتك', body: 'خدمات تمريضية احترافية على مدار الساعة في منزلك', ...SERVICE_ICONS.nursing },
-  { title: 'ذكاء اصطناعي يرافق صحتك', body: 'مساعد ذكي يحلل أعراضك ويترجم وصفاتك ويتابع صحتك يومياً', icon: 'sparkle', tone: 'violet' },
+  { title: 'onboarding.slide1.title', body: 'onboarding.slide1.body', ...SERVICE_ICONS.consult },
+  { title: 'onboarding.slide2.title', body: 'onboarding.slide2.body', ...SERVICE_ICONS.pharmacy },
+  { title: 'onboarding.slide3.title', body: 'onboarding.slide3.body', ...SERVICE_ICONS.lab },
+  { title: 'onboarding.slide4.title', body: 'onboarding.slide4.body', ...SERVICE_ICONS.nursing },
+  { title: 'onboarding.slide5.title', body: 'onboarding.slide5.body', icon: 'sparkle', tone: 'violet' },
 ];
 
 /** The column's side padding, as in AuthBody. */
@@ -74,7 +74,7 @@ export default function OnboardingIntro() {
   const footer = (
     <StickyFooter theme={theme}>
       <AuthFooter>
-        <Button label={tr(last ? 'ابدأ رحلتك الصحية' : 'التالي')} variant="primary" size="lg" fullWidth theme={theme} onPress={next} testID="onboarding-next" />
+        <Button label={tr(last ? 'onboarding.start' : 'onboarding.next')} variant="primary" size="lg" fullWidth theme={theme} onPress={next} testID="onboarding-next" />
       </AuthFooter>
     </StickyFooter>
   );
@@ -85,9 +85,9 @@ export default function OnboardingIntro() {
         {/* the mark, centred, with Skip at the end and a balance at the start */}
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View style={{ minWidth: 64 }} />
-          <NabdLogo size={30} label={tr('نبض بلس')} />
-          <Pressable accessibilityRole="button" accessibilityLabel={tr('تخطي')} onPress={() => void finish()} hitSlop={8} testID="onboarding-skip" style={{ minWidth: 64, minHeight: 44, alignItems: 'flex-end', justifyContent: 'center' }}>
-            <LocalizedText style={{ ...scale(t, 'body', 'medium'), color: c.text.primary }}>تخطي</LocalizedText>
+          <NabdLogo size={30} label={tr('common.appName')} />
+          <Pressable accessibilityRole="button" accessibilityLabel={tr('onboarding.skip')} onPress={() => void finish()} hitSlop={8} testID="onboarding-skip" style={{ minWidth: 64, minHeight: 44, alignItems: 'flex-end', justifyContent: 'center' }}>
+            <LocalizedText style={{ ...scale(t, 'body', 'medium'), color: c.text.primary }}>{'onboarding.skip'}</LocalizedText>
           </Pressable>
         </View>
 

@@ -112,7 +112,7 @@ def video_slots(pat, doctor):
 def web_book(web, did, slot):
     """What components-next/booking-flow.tsx sends: hold the slot, then book through the website."""
     lock = web.post('/api/slot-locks/reserve', {'provider_id': did, 'slot_start': slot})
-    body = {'doctor_id': did, 'service_type': 'video', 'slot_start': slot, 'payment_method': 'card'}
+    body = {'doctor_id': did, 'service_type': 'video', 'slot_start': slot, 'payment_method': 'card', 'refund_policy_accepted': True}
     if lock.ok and lock.get('id'):
         body['slot_lock_id'] = lock.get('id')
     return web.post('/api/appointments/book', body, headers={'idempotency-key': f'web-{uuid.uuid4()}'})

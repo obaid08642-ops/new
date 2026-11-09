@@ -48,3 +48,19 @@ The rule being checked, per path: *amount shown = amount charged = amount refund
 - Wallet top-up and wallet refunds (the executor says there is no patient wallet branch any more; legacy `wallet_applied` on pharmacy still exists).
 - The `service.completed` credit for nursing and radiology bookings with several payments.
 - Gateway behaviour against Moyasar itself (no keys here).
+
+## 5. Live journey results (session F, 2026-10-31)
+
+Run by hand on the CI recipe (`.github/workflows/live-gate.yml`) in one container: MongoDB 8 replica set, Redis, moto (S3), SMTP sink, ClamAV and Moyasar doubles, the built backend, the admin BFF in `next dev`. Patient web was not started (none of these journeys use it). The shared `j_*` helpers ran as well (doctor and lab onboarding), so step counts include them. Seeds: `seed_admin.js`.
+
+| Scenario / gap | Journey | Build | Result |
+| --- | --- | --- | --- |
+| PT-23 declined card, then retry | `j_payment_failed_retry.py` | PR #2317 branch | **PASS** 46/46 |
+| PT-15 dispute on a charge | `j_dispute.py` | PR #2317 branch | **PASS** 56/56 |
+| PT-19 insurance claim (amount, duplicate) | `j_insurance.py` | PR #2317 branch | claim steps **PASS** (the claim is for what was paid; a second claim is 409). Whole file 164/166: **FAIL** "lab rejected: the lab records the outcome" and "the booking links to the insurance request engine" |
+| G1 paid lab booking cancelled is refunded | `j_lab_cancel_refund.py` (new, this PR) | main at `c17aa3461` | **PASS** 52/52: patient cancel and lab cancel each refund the full card payment; a cash booking cancelled has nothing to refund |
+| G2 abandoned card payment releases the slot | one-off script, not committed (it waits for the 5-minute sweep) | main at `c17aa3461` | **PASS** 39/39: an unpaid card consultation older than the window is cancelled by the sweeper and its open payment attempt closed |
+
+**The two `j_insurance.py` failures are not from these changes.** The journey sends `reason` on `PATCH /labs/bookings/:id/insurance` when the lab rejects; the validation pipe refuses it (`property reason should not exist`). The provider app never sends `reason` there (`LabDashboard.tsx:1279`), so the journey, not the app, is out of step with the API. Left for the owner of that journey; I did not touch it.
+
+**Not run live:** radiology cancel refund (unit tests only, `lab-radiology-refund.spec.ts`), nursing and pharmacy cancel refunds (unit tests only), credit notes and invoices (PRs #2269, #2293, #2307 are not on main yet), `PT-20` coupons (real-MongoDB unit tests; no client flow applies a coupon end to end).

@@ -21,3 +21,15 @@ export function withholdBeforeAcceptance<T extends ProviderJobPrivacyFields>(job
   const city = typeof address?.city === 'string' && address.city.trim() ? address.city : null;
   return { ...job, address: null, contact: null, patient_phone: null, approx_area: district ?? city };
 }
+
+/**
+ * 13.R4 for the lab and radiology inboxes (they list the provider's own bookings in their own states, not universal states):
+ * a booking nobody has accepted yet shows the district or city only, without the patient's phone and exact address.
+ */
+export function withholdLegacyBeforeAcceptance<T extends { state?: string; address?: unknown; patient_phone?: unknown }>(b: T, preAcceptance: readonly string[]): T & { approx_area?: string | null } {
+  if (!preAcceptance.includes(String(b.state))) return b;
+  const address = b.address && typeof b.address === 'object' ? (b.address as Record<string, unknown>) : null;
+  const district = typeof address?.district === 'string' && address.district.trim() ? address.district : null;
+  const city = typeof address?.city === 'string' && address.city.trim() ? address.city : null;
+  return { ...b, address: null, patient_phone: null, approx_area: district ?? city };
+}
