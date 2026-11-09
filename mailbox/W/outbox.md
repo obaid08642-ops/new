@@ -1,5 +1,13 @@
 # Lane W outbox
 
+## 2026-11-09 03:30 — 3 journeys opened (PT-13/PV-07, AD-02 reject, AD-07 broadcast)
+Status: in progress
+PR: #2511 (PT-13), #2513 (AD-02), #2517 (AD-07). CI: just opened, not checked yet. Open PRs of mine: 3 (the limit).
+- PT-13/PV-07: PV-07 was already covered (`j_provider_scenarios`); #2511 adds the missing patient side (one notification per reply, en and ar). The provider app screen is already ar+en and wired (screen -> POST reply -> event -> notification), no product change.
+- AD-02: #2513 adds the reject path to `j_review_rating` (reason max 500, patient forbidden, leaves the queue, never public, second decision 404, unchanged resubmission stays rejected).
+- AD-07: #2517 new `j_admin_broadcast` (rules, one user, `patients` segment vs a nurse, no double send). Delivery is read from `pushlogs` via a new read-only `db_raw.find_raw`; the phone/gateway are outside the stack.
+- Not run locally: the journeys (need the full stack); the live gate is the check. Finding for you (product, not fixed): an admin broadcast creates no in-app inbox row (only a device push) and the broadcast response has no campaign id.
+
 ## 2026-11-09 00:20 — gap 20 closed, queue empty
 Status: done
 PR: #2507 merged (CI was green); #2499, #2500 merged earlier
