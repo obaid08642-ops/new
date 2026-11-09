@@ -1,6 +1,6 @@
-# 2026-11-09 run 111 = deploy main@a063da06 (brings #2550-#2562: refund-policy tick web/app, provider no-show dispute, medical report doctor+app, dependants app, G5 radiology publish, clamav swap window).
-release:a063da0609c374e0af0c259f88f918347880af2f
-97-free-old-predeploy
-93-free-unused-images
-60-deploy-main
-cf-purge-api
+# 2026-11-09 run 112 = READ-ONLY, no deploy (run 111 deployed main@a063da06 with the swap window of #2558). Why were uploads refused and who restarts mongod, and what would 91b change?
+# 96k mongod restart evidence + 96m ClamAV/memory state + 96c uploads state + 91b DRY RUN (UPLOAD_SCAN=defer + CLAMAV_ON_DEMAND=1 + window cron: prints what would change, writes nothing; APPLY is empty in the task file).
+96k-mongo-restart-who
+96m-clamav-state
+96c-uploads-state
+91b-upload-scan-defer
