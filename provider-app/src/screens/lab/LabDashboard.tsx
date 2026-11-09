@@ -9,6 +9,7 @@ import {
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useLang, useAuth, useToast } from '../../context';
+import { BookingChatScreen } from '../shared/BookingChatScreen';
 import client from '../../api/client';
 import { ProviderApi } from '../../api/provider';
 import * as DocumentPicker from 'expo-document-picker';
@@ -224,6 +225,7 @@ export function LabDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
      </Stack.Screen>
 
      <Stack.Screen name="order_detail">{({ navigation, route }: any) => <LabOrderDetail order={route.params?.param} onBack={() => navigation.goBack()} onNav={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+     <Stack.Screen name="booking_chat">{({ navigation, route }: any) => <BookingChatScreen kind="lab" order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="sample_tracking">{({ navigation }: any) => <SampleTracking onBack={() => navigation.goBack()} onNav={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="result_review">{({ navigation, route }: any) => <ResultReview sample={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="bundles">{({ navigation }: any) => <LabBundlesScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -571,6 +573,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
 
       {order?.status === 'NEW_REQUEST' && (
         <View style={{gap:SP.md}}>
+          <NBtn label={t('bookingChat.open')} variant="outline" onPress={() => onNav('booking_chat', order)} />
           {order?.is_insurance ? (
             <NBtn label={AR ? 'طلب موافقة التأمين' : 'Request Insurance Approval'} onPress={() => setShowApproval(true)} />
           ) : (

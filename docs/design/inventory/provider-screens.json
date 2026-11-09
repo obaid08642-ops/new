@@ -1,5 +1,5 @@
 {
- "commit": "fa99fed4",
+ "commit": "d8fc414a",
  "routes": [
   {
    "app": "provider-app",
@@ -143,7 +143,7 @@
      "role": "lab",
      "name": "create_promo",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 240
+     "line": 242
     },
     {
      "role": "nursing",
@@ -202,7 +202,7 @@
      "role": "lab",
      "name": "crm",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 243
+     "line": 245
     },
     {
      "role": "nursing",
@@ -304,7 +304,7 @@
      "role": "lab",
      "name": "lab_scanner",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 245
+     "line": 247
     }
    ],
    "template": "n/a",
@@ -506,7 +506,7 @@
      "role": "lab",
      "name": "promotions",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 239
+     "line": 241
     },
     {
      "role": "nursing",
@@ -565,7 +565,7 @@
      "role": "lab",
      "name": "reputation",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 242
+     "line": 244
     },
     {
      "role": "nursing",
@@ -636,7 +636,7 @@
      "role": "lab",
      "name": "revenue_insights",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 244
+     "line": 246
     },
     {
      "role": "nursing",
@@ -4793,13 +4793,13 @@
    "component": "AddCustomTest",
    "area": "lab",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 943,
+   "line": 946,
    "registrations": [
     {
      "role": "lab",
      "name": "add_test",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 230
+     "line": 232
     }
    ],
    "template": "n/a",
@@ -4812,7 +4812,7 @@
      "path": "/approval-workflow/requests",
      "target": "backend",
      "query": "",
-     "line": 977,
+     "line": 980,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/approval-workflow/approval-workflow.module.ts:358"
@@ -4848,13 +4848,13 @@
    "component": "HomeCollection",
    "area": "lab",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 1008,
+   "line": 1011,
    "registrations": [
     {
      "role": "lab",
      "name": "home_collection",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 231
+     "line": 233
     }
    ],
    "template": "n/a",
@@ -4887,7 +4887,7 @@
      "path": "/labs/bookings/:param/assign-technician",
      "target": "backend",
      "query": "",
-     "line": 1169,
+     "line": 1172,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:118"
@@ -4897,7 +4897,7 @@
      "path": "/labs/bookings/:param/emergency",
      "target": "backend",
      "query": "",
-     "line": 1124,
+     "line": 1127,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:155"
@@ -4907,7 +4907,7 @@
      "path": "/labs/bookings/:param/gps",
      "target": "backend",
      "query": "",
-     "line": 1051,
+     "line": 1054,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:144"
@@ -4917,7 +4917,7 @@
      "path": "/labs/bookings/:param/reassign",
      "target": "backend",
      "query": "",
-     "line": 1134,
+     "line": 1137,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:161"
@@ -4927,7 +4927,7 @@
      "path": "/labs/bookings/:param/state",
      "target": "backend",
      "query": "",
-     "line": 1103,
+     "line": 1106,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:89"
@@ -4937,7 +4937,7 @@
      "path": "/labs/team/technicians",
      "target": "backend",
      "query": "",
-     "line": 1015,
+     "line": 1018,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:125"
@@ -4953,287 +4953,11 @@
    "component": "LabHome",
    "area": "lab",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 268,
+   "line": 270,
    "registrations": [
     {
      "role": "lab",
      "name": "tab:home",
-     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 209
-    }
-   ],
-   "template": "n/a",
-   "board": "— (not redesigned)",
-   "batch": "provider",
-   "status": "not redesigned",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/catalogs/labs",
-     "target": "backend",
-     "query": "",
-     "line": 19,
-     "file": "provider-app/src/api/central-catalog.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/catalogs/catalogs.controller.ts:52"
-    },
-    {
-     "method": "GET",
-     "path": "/catalogs/radiology",
-     "target": "backend",
-     "query": "",
-     "line": 20,
-     "file": "provider-app/src/api/central-catalog.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/catalogs/catalogs.controller.ts:52"
-    },
-    {
-     "method": "GET",
-     "path": "/labs/provider/inbox",
-     "target": "backend",
-     "query": "",
-     "line": 279,
-     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:112"
-    },
-    {
-     "method": "GET",
-     "path": "/labs/samples",
-     "target": "backend",
-     "query": "",
-     "line": 283,
-     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:194"
-    },
-    {
-     "method": "POST",
-     "path": "/provider/ops/availability/toggle-instant",
-     "target": "backend",
-     "query": "",
-     "line": 416,
-     "file": "provider-app/src/context/index.tsx",
-     "via": "useAuth().toggleOnline",
-     "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:921"
-    }
-   ],
-   "files": 13,
-   "unresolved": 0,
-   "navIssues": []
-  },
-  {
-   "app": "provider-app",
-   "route": "LabInsurance",
-   "component": "LabInsurance",
-   "area": "lab",
-   "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 1263,
-   "registrations": [
-    {
-     "role": "lab",
-     "name": "insurance",
-     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 237
-    }
-   ],
-   "template": "n/a",
-   "board": "— (not redesigned)",
-   "batch": "provider",
-   "status": "not redesigned",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/catalogs/labs",
-     "target": "backend",
-     "query": "",
-     "line": 19,
-     "file": "provider-app/src/api/central-catalog.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/catalogs/catalogs.controller.ts:52"
-    },
-    {
-     "method": "GET",
-     "path": "/catalogs/radiology",
-     "target": "backend",
-     "query": "",
-     "line": 20,
-     "file": "provider-app/src/api/central-catalog.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/catalogs/catalogs.controller.ts:52"
-    },
-    {
-     "method": "PATCH",
-     "path": "/labs/bookings/:param/insurance",
-     "target": "backend",
-     "query": "",
-     "line": 1297,
-     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:101"
-    },
-    {
-     "method": "GET",
-     "path": "/labs/provider/inbox",
-     "target": "backend",
-     "query": "",
-     "line": 1275,
-     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:112"
-    }
-   ],
-   "files": 13,
-   "unresolved": 0,
-   "navIssues": []
-  },
-  {
-   "app": "provider-app",
-   "route": "LabOrderDetail",
-   "component": "LabOrderDetail",
-   "area": "lab",
-   "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 388,
-   "registrations": [
-    {
-     "role": "lab",
-     "name": "order_detail",
-     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 226
-    }
-   ],
-   "template": "n/a",
-   "board": "— (not redesigned)",
-   "batch": "provider",
-   "status": "not redesigned",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/catalogs/labs",
-     "target": "backend",
-     "query": "",
-     "line": 19,
-     "file": "provider-app/src/api/central-catalog.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/catalogs/catalogs.controller.ts:52"
-    },
-    {
-     "method": "GET",
-     "path": "/catalogs/radiology",
-     "target": "backend",
-     "query": "",
-     "line": 20,
-     "file": "provider-app/src/api/central-catalog.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/catalogs/catalogs.controller.ts:52"
-    },
-    {
-     "method": "POST",
-     "path": "/labs/bookings/:param/assign-technician",
-     "target": "backend",
-     "query": "",
-     "line": 470,
-     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:118"
-    },
-    {
-     "method": "POST",
-     "path": "/labs/bookings/:param/coverage-decision",
-     "target": "backend",
-     "query": "",
-     "line": 438,
-     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/provider-production/provider-production.module.ts:644"
-    },
-    {
-     "method": "POST",
-     "path": "/labs/bookings/:param/emergency",
-     "target": "backend",
-     "query": "",
-     "line": 598,
-     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:155"
-    },
-    {
-     "method": "PATCH",
-     "path": "/labs/bookings/:param/reschedule",
-     "target": "backend",
-     "query": "",
-     "line": 485,
-     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:138"
-    },
-    {
-     "method": "PATCH",
-     "path": "/labs/bookings/:param/state",
-     "target": "backend",
-     "query": "",
-     "line": 421,
-     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:89"
-    },
-    {
-     "method": "GET",
-     "path": "/labs/samples",
-     "target": "backend",
-     "query": "",
-     "line": 519,
-     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:194"
-    },
-    {
-     "method": "PATCH",
-     "path": "/labs/samples/:param/stage",
-     "target": "backend",
-     "query": "",
-     "line": 522,
-     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:188"
-    },
-    {
-     "method": "POST",
-     "path": "/labs/samples/register",
-     "target": "backend",
-     "query": "",
-     "line": 500,
-     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:181"
-    },
-    {
-     "method": "POST",
-     "path": "/provider/ops/lab/bookings/:param/qc/:param",
-     "target": "backend",
-     "query": "",
-     "line": 27,
-     "file": "provider-app/src/screens/lab/LabQcActions.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:872"
-    }
-   ],
-   "files": 14,
-   "unresolved": 0,
-   "navIssues": []
-  },
-  {
-   "app": "provider-app",
-   "route": "LabOrdersTab",
-   "component": "LabOrdersTab",
-   "area": "lab",
-   "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 98,
-   "registrations": [
-    {
-     "role": "lab",
-     "name": "tab:orders",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "line": 210
     }
@@ -5268,7 +4992,283 @@
      "path": "/labs/provider/inbox",
      "target": "backend",
      "query": "",
-     "line": 105,
+     "line": 281,
+     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/labs/labs.controller.ts:112"
+    },
+    {
+     "method": "GET",
+     "path": "/labs/samples",
+     "target": "backend",
+     "query": "",
+     "line": 285,
+     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/labs/labs.controller.ts:194"
+    },
+    {
+     "method": "POST",
+     "path": "/provider/ops/availability/toggle-instant",
+     "target": "backend",
+     "query": "",
+     "line": 416,
+     "file": "provider-app/src/context/index.tsx",
+     "via": "useAuth().toggleOnline",
+     "status": "OK",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:921"
+    }
+   ],
+   "files": 13,
+   "unresolved": 0,
+   "navIssues": []
+  },
+  {
+   "app": "provider-app",
+   "route": "LabInsurance",
+   "component": "LabInsurance",
+   "area": "lab",
+   "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+   "line": 1266,
+   "registrations": [
+    {
+     "role": "lab",
+     "name": "insurance",
+     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+     "line": 239
+    }
+   ],
+   "template": "n/a",
+   "board": "— (not redesigned)",
+   "batch": "provider",
+   "status": "not redesigned",
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/catalogs/labs",
+     "target": "backend",
+     "query": "",
+     "line": 19,
+     "file": "provider-app/src/api/central-catalog.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/catalogs/catalogs.controller.ts:52"
+    },
+    {
+     "method": "GET",
+     "path": "/catalogs/radiology",
+     "target": "backend",
+     "query": "",
+     "line": 20,
+     "file": "provider-app/src/api/central-catalog.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/catalogs/catalogs.controller.ts:52"
+    },
+    {
+     "method": "PATCH",
+     "path": "/labs/bookings/:param/insurance",
+     "target": "backend",
+     "query": "",
+     "line": 1300,
+     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/labs/labs.controller.ts:101"
+    },
+    {
+     "method": "GET",
+     "path": "/labs/provider/inbox",
+     "target": "backend",
+     "query": "",
+     "line": 1278,
+     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/labs/labs.controller.ts:112"
+    }
+   ],
+   "files": 13,
+   "unresolved": 0,
+   "navIssues": []
+  },
+  {
+   "app": "provider-app",
+   "route": "LabOrderDetail",
+   "component": "LabOrderDetail",
+   "area": "lab",
+   "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+   "line": 390,
+   "registrations": [
+    {
+     "role": "lab",
+     "name": "order_detail",
+     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+     "line": 227
+    }
+   ],
+   "template": "n/a",
+   "board": "— (not redesigned)",
+   "batch": "provider",
+   "status": "not redesigned",
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/catalogs/labs",
+     "target": "backend",
+     "query": "",
+     "line": 19,
+     "file": "provider-app/src/api/central-catalog.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/catalogs/catalogs.controller.ts:52"
+    },
+    {
+     "method": "GET",
+     "path": "/catalogs/radiology",
+     "target": "backend",
+     "query": "",
+     "line": 20,
+     "file": "provider-app/src/api/central-catalog.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/catalogs/catalogs.controller.ts:52"
+    },
+    {
+     "method": "POST",
+     "path": "/labs/bookings/:param/assign-technician",
+     "target": "backend",
+     "query": "",
+     "line": 472,
+     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/labs/labs.controller.ts:118"
+    },
+    {
+     "method": "POST",
+     "path": "/labs/bookings/:param/coverage-decision",
+     "target": "backend",
+     "query": "",
+     "line": 440,
+     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/provider-production/provider-production.module.ts:644"
+    },
+    {
+     "method": "POST",
+     "path": "/labs/bookings/:param/emergency",
+     "target": "backend",
+     "query": "",
+     "line": 601,
+     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/labs/labs.controller.ts:155"
+    },
+    {
+     "method": "PATCH",
+     "path": "/labs/bookings/:param/reschedule",
+     "target": "backend",
+     "query": "",
+     "line": 487,
+     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/labs/labs.controller.ts:138"
+    },
+    {
+     "method": "PATCH",
+     "path": "/labs/bookings/:param/state",
+     "target": "backend",
+     "query": "",
+     "line": 423,
+     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/labs/labs.controller.ts:89"
+    },
+    {
+     "method": "GET",
+     "path": "/labs/samples",
+     "target": "backend",
+     "query": "",
+     "line": 521,
+     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/labs/labs.controller.ts:194"
+    },
+    {
+     "method": "PATCH",
+     "path": "/labs/samples/:param/stage",
+     "target": "backend",
+     "query": "",
+     "line": 524,
+     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/labs/labs.controller.ts:188"
+    },
+    {
+     "method": "POST",
+     "path": "/labs/samples/register",
+     "target": "backend",
+     "query": "",
+     "line": 502,
+     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/labs/labs.controller.ts:181"
+    },
+    {
+     "method": "POST",
+     "path": "/provider/ops/lab/bookings/:param/qc/:param",
+     "target": "backend",
+     "query": "",
+     "line": 27,
+     "file": "provider-app/src/screens/lab/LabQcActions.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:872"
+    }
+   ],
+   "files": 14,
+   "unresolved": 0,
+   "navIssues": []
+  },
+  {
+   "app": "provider-app",
+   "route": "LabOrdersTab",
+   "component": "LabOrdersTab",
+   "area": "lab",
+   "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+   "line": 99,
+   "registrations": [
+    {
+     "role": "lab",
+     "name": "tab:orders",
+     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+     "line": 211
+    }
+   ],
+   "template": "n/a",
+   "board": "— (not redesigned)",
+   "batch": "provider",
+   "status": "not redesigned",
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/catalogs/labs",
+     "target": "backend",
+     "query": "",
+     "line": 19,
+     "file": "provider-app/src/api/central-catalog.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/catalogs/catalogs.controller.ts:52"
+    },
+    {
+     "method": "GET",
+     "path": "/catalogs/radiology",
+     "target": "backend",
+     "query": "",
+     "line": 20,
+     "file": "provider-app/src/api/central-catalog.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/catalogs/catalogs.controller.ts:52"
+    },
+    {
+     "method": "GET",
+     "path": "/labs/provider/inbox",
+     "target": "backend",
+     "query": "",
+     "line": 106,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:112"
@@ -5284,13 +5284,13 @@
    "component": "LabSettings",
    "area": "lab",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 1414,
+   "line": 1417,
    "registrations": [
     {
      "role": "lab",
      "name": "tab:settings",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 213
+     "line": 214
     }
    ],
    "template": "n/a",
@@ -5339,13 +5339,13 @@
    "component": "LabTestMenuScreen",
    "area": "lab",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 1547,
+   "line": 1550,
    "registrations": [
     {
      "role": "lab",
      "name": "test_menu",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 251
+     "line": 253
     }
    ],
    "template": "n/a",
@@ -5358,7 +5358,7 @@
      "path": "/approval-workflow/requests",
      "target": "backend",
      "query": "",
-     "line": 1562,
+     "line": 1565,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/approval-workflow/approval-workflow.module.ts:358"
@@ -5414,13 +5414,13 @@
    "component": "QRSampleLabel",
    "area": "lab",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 1187,
+   "line": 1190,
    "registrations": [
     {
      "role": "lab",
      "name": "qr_label",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 232
+     "line": 234
     }
    ],
    "template": "n/a",
@@ -5459,13 +5459,13 @@
    "component": "ResultReview",
    "area": "lab",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 803,
+   "line": 806,
    "registrations": [
     {
      "role": "lab",
      "name": "result_review",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 228
+     "line": 230
     }
    ],
    "template": "n/a",
@@ -5508,7 +5508,7 @@
      "path": "/labs/bookings/:param/upload-report",
      "target": "backend",
      "query": "",
-     "line": 837,
+     "line": 840,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:131"
@@ -5518,7 +5518,7 @@
      "path": "/labs/samples/:param/stage",
      "target": "backend",
      "query": "",
-     "line": 835,
+     "line": 838,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:188"
@@ -5604,13 +5604,13 @@
    "component": "SampleTracking",
    "area": "lab",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 701,
+   "line": 704,
    "registrations": [
     {
      "role": "lab",
      "name": "sample_tracking",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 227
+     "line": 229
     }
    ],
    "template": "n/a",
@@ -5643,7 +5643,7 @@
      "path": "/labs/samples",
      "target": "backend",
      "query": "",
-     "line": 710,
+     "line": 713,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:194"
@@ -5653,7 +5653,7 @@
      "path": "/labs/samples/:param/stage",
      "target": "backend",
      "query": "",
-     "line": 726,
+     "line": 729,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:188"
@@ -5669,13 +5669,13 @@
    "component": "TATTracker",
    "area": "lab",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 1213,
+   "line": 1216,
    "registrations": [
     {
      "role": "lab",
      "name": "tat_tracker",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 236
+     "line": 238
     }
    ],
    "template": "n/a",
@@ -5708,7 +5708,7 @@
      "path": "/labs/samples",
      "target": "backend",
      "query": "",
-     "line": 1218,
+     "line": 1221,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:194"
@@ -7586,13 +7586,13 @@
    "component": "AvailabilityScheduleTab",
    "area": "radiology",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 574,
+   "line": 577,
    "registrations": [
     {
      "role": "radiology",
      "name": "tab:schedule",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 74
+     "line": 75
     }
    ],
    "template": "n/a",
@@ -7605,7 +7605,7 @@
      "path": "/radiology/catalog/delta-request",
      "target": "backend",
      "query": "",
-     "line": 589,
+     "line": 592,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:208"
@@ -7621,13 +7621,13 @@
    "component": "CatalogManagerTab",
    "area": "radiology",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 512,
+   "line": 515,
    "registrations": [
     {
      "role": "radiology",
      "name": "tab:catalog",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 73
+     "line": 74
     }
    ],
    "template": "n/a",
@@ -7660,7 +7660,7 @@
      "path": "/radiology/catalog/delta-request",
      "target": "backend",
      "query": "",
-     "line": 542,
+     "line": 545,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:208"
@@ -7676,13 +7676,13 @@
    "component": "OrderDetailScreen",
    "area": "radiology",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 222,
+   "line": 224,
    "registrations": [
     {
      "role": "radiology",
      "name": "order_detail",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 83
+     "line": 84
     }
    ],
    "template": "n/a",
@@ -7695,7 +7695,7 @@
      "path": "/radiology/bookings/:param",
      "target": "backend",
      "query": "",
-     "line": 235,
+     "line": 237,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:99"
@@ -7705,7 +7705,7 @@
      "path": "/radiology/bookings/:param/:param",
      "target": "backend",
      "query": "",
-     "line": 238,
+     "line": 240,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:103"
@@ -7715,7 +7715,7 @@
      "path": "/radiology/bookings/:param/abort",
      "target": "backend",
      "query": "",
-     "line": 276,
+     "line": 278,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:168"
@@ -7725,7 +7725,7 @@
      "path": "/radiology/bookings/:param/coverage-decision",
      "target": "backend",
      "query": "",
-     "line": 249,
+     "line": 251,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider-production/provider-production.module.ts:646"
@@ -7735,7 +7735,7 @@
      "path": "/radiology/bookings/:param/reschedule",
      "target": "backend",
      "query": "",
-     "line": 292,
+     "line": 294,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:195"
@@ -7745,7 +7745,7 @@
      "path": "/radiology/bookings/:param/state",
      "target": "backend",
      "query": "",
-     "line": 263,
+     "line": 265,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:107"
@@ -7761,13 +7761,13 @@
    "component": "RadiologyHome",
    "area": "radiology",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 169,
+   "line": 171,
    "registrations": [
     {
      "role": "radiology",
      "name": "tab:home",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 71
+     "line": 72
     }
    ],
    "template": "n/a",
@@ -7780,7 +7780,7 @@
      "path": "/radiology/provider/inbox",
      "target": "backend",
      "query": "",
-     "line": 115,
+     "line": 117,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:134"
@@ -7796,13 +7796,13 @@
    "component": "RadiologyOrdersTab",
    "area": "radiology",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 195,
+   "line": 197,
    "registrations": [
     {
      "role": "radiology",
      "name": "tab:orders",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 72
+     "line": 73
     }
    ],
    "template": "n/a",
@@ -7815,7 +7815,7 @@
      "path": "/radiology/provider/inbox",
      "target": "backend",
      "query": "",
-     "line": 115,
+     "line": 117,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:134"
@@ -7831,13 +7831,13 @@
    "component": "RadiologySettingsScreen",
    "area": "radiology",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 622,
+   "line": 625,
    "registrations": [
     {
      "role": "radiology",
      "name": "tab:settings",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 75
+     "line": 76
     }
    ],
    "template": "n/a",
@@ -7866,13 +7866,13 @@
    "component": "ReportingScreen",
    "area": "radiology",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 408,
+   "line": 411,
    "registrations": [
     {
      "role": "radiology",
      "name": "reporting",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 84
+     "line": 86
     }
    ],
    "template": "n/a",
@@ -7965,7 +7965,7 @@
      "path": "/radiology/bookings/:param/approve-report",
      "target": "backend",
      "query": "",
-     "line": 460,
+     "line": 463,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:181"
@@ -7975,7 +7975,7 @@
      "path": "/radiology/bookings/:param/submit-report-for-review",
      "target": "backend",
      "query": "",
-     "line": 454,
+     "line": 457,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:175"
@@ -7985,7 +7985,7 @@
      "path": "/radiology/bookings/:param/upload-report",
      "target": "backend",
      "query": "",
-     "line": 441,
+     "line": 444,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:146"
@@ -8003,6 +8003,57 @@
    ],
    "files": 17,
    "unresolved": 0,
+   "navIssues": []
+  },
+  {
+   "app": "provider-app",
+   "route": "BookingChatScreen",
+   "component": "BookingChatScreen",
+   "area": "shared",
+   "file": "provider-app/src/screens/shared/BookingChatScreen.tsx",
+   "line": 10,
+   "registrations": [
+    {
+     "role": "lab",
+     "name": "booking_chat",
+     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+     "line": 228
+    },
+    {
+     "role": "radiology",
+     "name": "booking_chat",
+     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
+     "line": 85
+    }
+   ],
+   "template": "n/a",
+   "board": "— (not redesigned)",
+   "batch": "provider",
+   "status": "not redesigned",
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/chats/threads/:param/messages",
+     "target": "backend",
+     "query": "",
+     "line": 38,
+     "file": "provider-app/src/screens/shared/BookingChatScreen.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/chat/chat.module.ts:118"
+    },
+    {
+     "method": "POST",
+     "path": "/chats/threads/:param/messages",
+     "target": "backend",
+     "query": "",
+     "line": 50,
+     "file": "provider-app/src/screens/shared/BookingChatScreen.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/chat/chat.module.ts:129"
+    }
+   ],
+   "files": 13,
+   "unresolved": 1,
    "navIssues": []
   },
   {
@@ -8035,7 +8086,7 @@
      "role": "lab",
      "name": "certificates_config",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 249
+     "line": 251
     },
     {
      "role": "nursing",
@@ -8108,7 +8159,7 @@
      "role": "lab",
      "name": "chat",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 235
+     "line": 237
     }
    ],
    "template": "n/a",
@@ -8240,7 +8291,7 @@
      "role": "lab",
      "name": "insurance_config",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 248
+     "line": 250
     },
     {
      "role": "nursing",
@@ -8339,7 +8390,7 @@
      "role": "lab",
      "name": "insurance_requests",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 254
+     "line": 256
     },
     {
      "role": "nursing",
@@ -8357,7 +8408,7 @@
      "role": "radiology",
      "name": "insurance_requests",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 85
+     "line": 87
     }
    ],
    "template": "n/a",
@@ -8402,7 +8453,7 @@
      "role": "lab",
      "name": "bundles",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 229
+     "line": 231
     }
    ],
    "template": "n/a",
@@ -8437,7 +8488,7 @@
      "role": "lab",
      "name": "home_service",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 253
+     "line": 255
     }
    ],
    "template": "n/a",
@@ -8484,7 +8535,7 @@
      "role": "lab",
      "name": "media_config",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 250
+     "line": 252
     },
     {
      "role": "nursing",
@@ -8607,13 +8658,13 @@
      "role": "lab",
      "name": "tab:drugs",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 212
+     "line": 213
     },
     {
      "role": "lab",
      "name": "drug_index",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 247
+     "line": 249
     },
     {
      "role": "nursing",
@@ -8637,7 +8688,7 @@
      "role": "radiology",
      "name": "drug_index",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 90
+     "line": 92
     }
    ],
    "template": "n/a",
@@ -8778,13 +8829,13 @@
      "role": "lab",
      "name": "tab:jobs",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 211
+     "line": 212
     },
     {
      "role": "lab",
      "name": "medical_jobs",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 246
+     "line": 248
     },
     {
      "role": "nursing",
@@ -8808,7 +8859,7 @@
      "role": "radiology",
      "name": "medical_jobs",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 89
+     "line": 91
     }
    ],
    "template": "n/a",
@@ -9000,7 +9051,7 @@
      "role": "lab",
      "name": "notifications",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 260
+     "line": 262
     },
     {
      "role": "nursing",
@@ -9018,7 +9069,7 @@
      "role": "radiology",
      "name": "notifications",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 82
+     "line": 83
     }
    ],
    "template": "n/a",
@@ -9224,7 +9275,7 @@
      "role": "lab",
      "name": "web_config",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 241
+     "line": 243
     },
     {
      "role": "nursing",
@@ -9329,7 +9380,7 @@
      "role": "lab",
      "name": "wallet",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 233
+     "line": 235
     },
     {
      "role": "nursing",
@@ -9347,7 +9398,7 @@
      "role": "radiology",
      "name": "wallet",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 87
+     "line": 89
     }
    ],
    "template": "n/a",
@@ -9453,19 +9504,19 @@
      "role": "lab",
      "name": "password",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 257
+     "line": 259
     },
     {
      "role": "lab",
      "name": "2fa",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 258
+     "line": 260
     },
     {
      "role": "lab",
      "name": "devices",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 259
+     "line": 261
     },
     {
      "role": "nursing",
@@ -9751,7 +9802,7 @@
      "role": "lab",
      "name": "withdrawal_workflow",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 234
+     "line": 236
     },
     {
      "role": "nursing",
@@ -9769,7 +9820,7 @@
      "role": "radiology",
      "name": "withdrawal_workflow",
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-     "line": 88
+     "line": 90
     }
    ],
    "template": "n/a",
@@ -9854,7 +9905,7 @@
      "role": "lab",
      "name": "working_hours",
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-     "line": 256
+     "line": 258
     },
     {
      "role": "pharmacy",

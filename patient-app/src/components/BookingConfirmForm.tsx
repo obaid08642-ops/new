@@ -4,7 +4,7 @@ import { Text, View } from 'react-native';
 import * as Linking from 'expo-linking';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
-import { Button, Card, Segmented } from '../../../packages/ui-native/src';
+import { Button, Card, Chip, Segmented } from '../../../packages/ui-native/src';
 import { DoctorHead, ModeTiles } from './consult/ConsultBooking';
 import { ConsultScreen, useConsultFormat } from './consult/ConsultKit';
 import { Notice } from './pharmacy/OfferKit';
@@ -59,6 +59,8 @@ export default function BookingConfirmScreen() {
   const { isGuest, requireAuth } = useGuestGuard();
   const [visitType, setVisitType] = useState((params.visitType as string) || 'clinic');
   const [payMethod, setPayMethod] = useState<'card' | 'cash' | 'insurance'>('card');
+  // PT-08: "I need a medical report" (a recommended rest period): a request the doctor decides on
+  const [reportRequested, setReportRequested] = useState(false);
   const [loading, setLoading] = useState(false);
   // D-38: the server asks for the telehealth consent before the first online consultation
   const [consentOpen, setConsentOpen] = useState(false);
@@ -143,6 +145,7 @@ export default function BookingConfirmScreen() {
             : undefined,
           slot_lock_id: slotLockId,
           ...(bookingFor ? { for_member_id: bookingFor.id } : {}),
+          ...(reportRequested ? { sick_leave_requested: true } : {}),
         }),
       });
       if (!appointment?.id) throw new Error(k('consult.confirm.createFailed'));
@@ -221,6 +224,12 @@ export default function BookingConfirmScreen() {
           </View>
         </Card>
       ) : null}
+
+      <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{k('consult.confirm.reportTitle')}</Text>
+      <View style={{ flexDirection: 'row' }}>
+        <Chip label={k('consult.confirm.reportRequest')} selected={reportRequested} onPress={() => setReportRequested((on) => !on)} theme={theme} testID="booking-report-request" />
+      </View>
+      <Text style={{ ...scale(t, 'meta', 'regular'), lineHeight: 20, color: c.text.secondary, ...flow }}>{k('consult.confirm.reportHint')}</Text>
 
       <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{k('consult.confirm.payTitle')}</Text>
       <Segmented label={k('consult.confirm.payTitle')} value={payMethod} onChange={(v) => setPayMethod(v === 'cash' ? 'cash' : v === 'insurance' ? 'insurance' : 'card')} options={options} theme={theme} testID="booking-pay-method" />

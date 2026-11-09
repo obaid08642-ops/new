@@ -351,5 +351,14 @@
   "medicalReport.revoke.done": "The report was withdrawn",
   "medicalReport.revoke.failed": "Could not withdraw the report",
   "medicalReport.open": "Medical report (rest period)",
-  "medicalReport.openList": "My medical reports"
+  "medicalReport.openList": "My medical reports",
+  "bookingChat.open": "Chat with the patient",
+  "bookingChat.title": "Chat with the patient",
+  "bookingChat.notice": "This chat is only about this booking. Results and reports are sent through the booking, not in chat.",
+  "bookingChat.loading": "Loading the chat...",
+  "bookingChat.empty": "No messages yet. Start the conversation.",
+  "bookingChat.placeholder": "Type a message",
+  "bookingChat.send": "Send",
+  "bookingChat.openFailed": "Could not open the chat",
+  "bookingChat.sendFailed": "Could not send the message"
 }

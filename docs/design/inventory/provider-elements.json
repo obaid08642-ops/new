@@ -1,5 +1,5 @@
 {
- "commit": "fa99fed4",
+ "commit": "d8fc414a",
  "screens": {
   "PendingDashboard": [
    {
@@ -14584,7 +14584,7 @@
     "src": "GET /labs/provider/inbox, GET /labs/samples → samples",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 274,
+    "line": 276,
     "via": null,
     "note": null
    },
@@ -14594,7 +14594,7 @@
     "src": "GET /labs/provider/inbox, GET /labs/samples → stats",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 275,
+    "line": 277,
     "via": null,
     "note": null
    },
@@ -14604,7 +14604,7 @@
     "src": "user input → POST /provider/ops/availability/toggle-instant",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 323,
+    "line": 325,
     "via": null,
     "note": null
    },
@@ -14614,7 +14614,7 @@
     "src": "navigate → notifications",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 325,
+    "line": 327,
     "via": null,
     "note": null
    },
@@ -14624,7 +14624,7 @@
     "src": "value ← String(stats.todayCount)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 333,
+    "line": 335,
     "via": null,
     "note": null
    },
@@ -14634,7 +14634,7 @@
     "src": "value ← String(stats.analyzingCount)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 334,
+    "line": 336,
     "via": null,
     "note": null
    },
@@ -14644,7 +14644,7 @@
     "src": "value ← String(stats.revenue)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 335,
+    "line": 337,
     "via": null,
     "note": null
    },
@@ -14654,7 +14654,7 @@
     "src": "value ← String(stats.readyCount)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 336,
+    "line": 338,
     "via": null,
     "note": null
    },
@@ -14664,7 +14664,7 @@
     "src": "navigate (back / dynamic target)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 354,
+    "line": 356,
     "via": null,
     "note": null
    },
@@ -14674,7 +14674,7 @@
     "src": "from SAMPLE_STAGES (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 368,
+    "line": 370,
     "via": null,
     "note": null,
     "untraced": true
@@ -14687,7 +14687,7 @@
     "src": "local state setSubTab",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 131,
+    "line": 132,
     "via": null,
     "note": null
    },
@@ -14697,7 +14697,7 @@
     "src": "local state setSubTab",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 134,
+    "line": 135,
     "via": null,
     "note": null
    },
@@ -14707,7 +14707,7 @@
     "src": "local state setSubTab",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 137,
+    "line": 138,
     "via": null,
     "note": null
    },
@@ -14717,7 +14717,7 @@
     "src": "local state setSubTab",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 140,
+    "line": 141,
     "via": null,
     "note": null
    },
@@ -14727,7 +14727,7 @@
     "src": "from filtered (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 148,
+    "line": 149,
     "via": null,
     "note": null,
     "untraced": true
@@ -14738,7 +14738,7 @@
     "src": "navigate → order_detail",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 151,
+    "line": 152,
     "via": null,
     "note": null
    }
@@ -14810,7 +14810,7 @@
     "src": "navigate → test_menu",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1433,
+    "line": 1436,
     "via": null,
     "note": null
    },
@@ -14820,7 +14820,7 @@
     "src": "navigate → bundles",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1434,
+    "line": 1437,
     "via": null,
     "note": null
    },
@@ -14830,7 +14830,7 @@
     "src": "navigate → home_service",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1435,
+    "line": 1438,
     "via": null,
     "note": null
    },
@@ -14840,7 +14840,7 @@
     "src": "navigate → working_hours",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1436,
+    "line": 1439,
     "via": null,
     "note": null
    },
@@ -14850,7 +14850,7 @@
     "src": "navigate → insurance_config",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1437,
+    "line": 1440,
     "via": null,
     "note": null
    },
@@ -14860,7 +14860,7 @@
     "src": "navigate → insurance_requests",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1438,
+    "line": 1441,
     "via": null,
     "note": null
    },
@@ -14870,7 +14870,7 @@
     "src": "navigate (back / dynamic target)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1439,
+    "line": 1442,
     "via": null,
     "note": null
    },
@@ -14880,7 +14880,7 @@
     "src": "navigate → certificates_config",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1440,
+    "line": 1443,
     "via": null,
     "note": null
    },
@@ -14890,7 +14890,7 @@
     "src": "navigate → media_config",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1441,
+    "line": 1444,
     "via": null,
     "note": null
    },
@@ -14900,7 +14900,7 @@
     "src": "parent callback row.action",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1454,
+    "line": 1457,
     "via": null,
     "note": null
    },
@@ -14910,7 +14910,7 @@
     "src": "navigate → medical_jobs",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1460,
+    "line": 1463,
     "via": null,
     "note": null
    },
@@ -14920,7 +14920,7 @@
     "src": "navigate → drug_index",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1461,
+    "line": 1464,
     "via": null,
     "note": null
    },
@@ -14930,7 +14930,7 @@
     "src": "parent callback r.action",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1470,
+    "line": 1473,
     "via": null,
     "note": null
    },
@@ -14940,7 +14940,7 @@
     "src": "local state setShowLO",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1473,
+    "line": 1476,
     "via": null,
     "note": null
    },
@@ -14980,12 +14980,21 @@
     "kind": "text",
     "label": "mock-name: openSampleForResults = async () => {",
     "src": "mock-scan mock-name",
+    "status": "mock",
+    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+    "line": 519,
+    "via": null,
+    "note": "mock-name (mock-scan): openSampleForResults = async () => {"
+   },
+   {
+    "kind": "button",
+    "label": "{t('bookingChat.open')}",
+    "src": "navigate → booking_chat",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 517,
+    "line": 576,
     "via": null,
-    "note": null,
-    "reviewed": "'sample' is the lab specimen in the function name openSampleForResults, not sample data."
+    "note": null
    },
    {
     "kind": "button",
@@ -14993,7 +15002,7 @@
     "src": "local state setShowApproval",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 575,
+    "line": 578,
     "via": null,
     "note": null
    },
@@ -15003,7 +15012,7 @@
     "src": "PATCH /labs/bookings/:param/state",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 577,
+    "line": 580,
     "via": null,
     "note": null
    },
@@ -15013,7 +15022,7 @@
     "src": "local state setShowReject",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 579,
+    "line": 582,
     "via": null,
     "note": null
    },
@@ -15023,7 +15032,7 @@
     "src": "local state setShowAssign",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 592,
+    "line": 595,
     "via": null,
     "note": null
    },
@@ -15033,7 +15042,7 @@
     "src": "local state setShowRegister",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 594,
+    "line": 597,
     "via": null,
     "note": null
    },
@@ -15043,7 +15052,7 @@
     "src": "POST /labs/bookings/:param/emergency",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 596,
+    "line": 599,
     "via": null,
     "note": null
    },
@@ -15053,7 +15062,7 @@
     "src": "local state setShowReschedule",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 605,
+    "line": 608,
     "via": null,
     "note": null
    },
@@ -15063,7 +15072,7 @@
     "src": "navigate → home_collection",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 611,
+    "line": 614,
     "via": null,
     "note": null
    },
@@ -15073,7 +15082,7 @@
     "src": "local state setShowRegister",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 617,
+    "line": 620,
     "via": null,
     "note": null
    },
@@ -15083,7 +15092,7 @@
     "src": "GET /labs/samples, PATCH /labs/samples/:param/stage",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 623,
+    "line": 626,
     "via": null,
     "note": null
    },
@@ -15093,7 +15102,7 @@
     "src": "user input → rescheduleDate → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 639,
+    "line": 642,
     "via": null,
     "note": null
    },
@@ -15103,7 +15112,7 @@
     "src": "PATCH /labs/bookings/:param/reschedule",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 640,
+    "line": 643,
     "via": null,
     "note": null
    },
@@ -15113,7 +15122,7 @@
     "src": "user input → rejectReason → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 647,
+    "line": 650,
     "via": null,
     "note": null
    },
@@ -15123,7 +15132,7 @@
     "src": "PATCH /labs/bookings/:param/state",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 648,
+    "line": 651,
     "via": null,
     "note": null
    },
@@ -15133,7 +15142,7 @@
     "src": "user input → decisionRef → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 655,
+    "line": 658,
     "via": null,
     "note": null
    },
@@ -15143,7 +15152,7 @@
     "src": "user input → copay (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 656,
+    "line": 659,
     "via": null,
     "note": null
    },
@@ -15153,7 +15162,7 @@
     "src": "POST /labs/bookings/:param/coverage-decision",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 657,
+    "line": 660,
     "via": null,
     "note": null
    },
@@ -15163,7 +15172,7 @@
     "src": "user input → techName → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 664,
+    "line": 667,
     "via": null,
     "note": null
    },
@@ -15173,7 +15182,7 @@
     "src": "POST /labs/bookings/:param/assign-technician",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 665,
+    "line": 668,
     "via": null,
     "note": null
    },
@@ -15183,7 +15192,7 @@
     "src": "user input → barcode → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 672,
+    "line": 675,
     "via": null,
     "note": null
    },
@@ -15193,7 +15202,7 @@
     "src": "parent callback requestCamPerm",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 673,
+    "line": 676,
     "via": null,
     "note": null
    },
@@ -15203,7 +15212,7 @@
     "src": "user input → notes → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 674,
+    "line": 677,
     "via": null,
     "note": null
    },
@@ -15213,7 +15222,7 @@
     "src": "POST /labs/samples/register",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 675,
+    "line": 678,
     "via": null,
     "note": null
    },
@@ -15223,7 +15232,7 @@
     "src": "local state setShowCam",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 688,
+    "line": 691,
     "via": null,
     "note": null
    },
@@ -15358,6 +15367,38 @@
     "note": null
    }
   ],
+  "BookingChatScreen": [
+   {
+    "kind": "data",
+    "label": "List msgs",
+    "src": "GET /chats/threads/:param/messages, POST /chats/threads/:param/messages → msgs",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/BookingChatScreen.tsx",
+    "line": 67,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{t('bookingChat.placeholder')}",
+    "src": "user input → msg (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/BookingChatScreen.tsx",
+    "line": 77,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{t('bookingChat.send')}",
+    "src": "POST /chats/threads/:param/messages, GET /chats/threads/:param/messages",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/BookingChatScreen.tsx",
+    "line": 79,
+    "via": null,
+    "note": null
+   }
+  ],
   "SampleTracking": [
    {
     "kind": "data",
@@ -15365,7 +15406,7 @@
     "src": "GET /labs/samples → samples",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 705,
+    "line": 708,
     "via": null,
     "note": null
    },
@@ -15375,7 +15416,7 @@
     "src": "parent callback onBack",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 739,
+    "line": 742,
     "via": null,
     "note": null
    },
@@ -15385,7 +15426,7 @@
     "src": "local state setFilter",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 745,
+    "line": 748,
     "via": null,
     "note": null
    },
@@ -15395,7 +15436,7 @@
     "src": "from SAMPLE_STAGES (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 748,
+    "line": 751,
     "via": null,
     "note": null,
     "untraced": true
@@ -15406,7 +15447,7 @@
     "src": "local state setFilter",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 750,
+    "line": 753,
     "via": null,
     "note": null
    },
@@ -15416,7 +15457,7 @@
     "src": "from filtered (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 755,
+    "line": 758,
     "via": null,
     "note": null,
     "untraced": true
@@ -15427,7 +15468,7 @@
     "src": "from SAMPLE_STAGES (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 774,
+    "line": 777,
     "via": null,
     "note": null,
     "untraced": true
@@ -15438,7 +15479,7 @@
     "src": "PATCH /labs/samples/:param/stage, GET /labs/samples",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 788,
+    "line": 791,
     "via": null,
     "note": null
    },
@@ -15448,7 +15489,7 @@
     "src": "navigate → result_review",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 789,
+    "line": 792,
     "via": null,
     "note": null
    },
@@ -15458,7 +15499,7 @@
     "src": "navigate → result_review",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 790,
+    "line": 793,
     "via": null,
     "note": null
    },
@@ -15468,7 +15509,7 @@
     "src": "navigate → qr_label",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 791,
+    "line": 794,
     "via": null,
     "note": null
    }
@@ -15480,7 +15521,7 @@
     "src": "reportFile: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 813,
+    "line": 816,
     "via": null,
     "note": null
    },
@@ -15490,7 +15531,7 @@
     "src": "user input → analyte (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 858,
+    "line": 861,
     "via": null,
     "note": null
    },
@@ -15500,7 +15541,7 @@
     "src": "user input → value (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 859,
+    "line": 862,
     "via": null,
     "note": null
    },
@@ -15510,7 +15551,7 @@
     "src": "user input → unit (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 860,
+    "line": 863,
     "via": null,
     "note": null
    },
@@ -15520,7 +15561,7 @@
     "src": "user input → range (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 861,
+    "line": 864,
     "via": null,
     "note": null
    },
@@ -15530,7 +15571,7 @@
     "src": "user input → isCritical (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 862,
+    "line": 865,
     "via": null,
     "note": null
    },
@@ -15540,7 +15581,7 @@
     "src": "parent callback analyte.trim, value.trim",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 863,
+    "line": 866,
     "via": null,
     "note": null
    },
@@ -15550,7 +15591,7 @@
     "src": "resultRows: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 872,
+    "line": 875,
     "via": null,
     "note": null
    },
@@ -15560,7 +15601,7 @@
     "src": "local state setSendTo",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 885,
+    "line": 888,
     "via": null,
     "note": null
    },
@@ -15570,7 +15611,7 @@
     "src": "native action",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 895,
+    "line": 898,
     "via": null,
     "note": null
    },
@@ -15580,7 +15621,7 @@
     "src": "PATCH /labs/samples/:param/stage, POST /storage/upload, POST /labs/bookings/:param/upload-report",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 896,
+    "line": 899,
     "via": null,
     "note": null
    }
@@ -15604,7 +15645,7 @@
     "src": "user input → nameAr → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 958,
+    "line": 961,
     "via": null,
     "note": null
    },
@@ -15614,7 +15655,7 @@
     "src": "user input → nameEn → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 959,
+    "line": 962,
     "via": null,
     "note": null
    },
@@ -15624,7 +15665,7 @@
     "src": "user input → price → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 961,
+    "line": 964,
     "via": null,
     "note": null
    },
@@ -15634,7 +15675,7 @@
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 962,
+    "line": 965,
     "via": null,
     "note": null
    },
@@ -15644,7 +15685,7 @@
     "src": "user input → refLow → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 965,
+    "line": 968,
     "via": null,
     "note": null
    },
@@ -15654,7 +15695,7 @@
     "src": "user input → refHigh → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 966,
+    "line": 969,
     "via": null,
     "note": null
    },
@@ -15664,7 +15705,7 @@
     "src": "user input → unit → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 967,
+    "line": 970,
     "via": null,
     "note": null
    },
@@ -15674,7 +15715,7 @@
     "src": "user input → fasting → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 969,
+    "line": 972,
     "via": null,
     "note": null
    },
@@ -15684,7 +15725,7 @@
     "src": "POST /approval-workflow/requests",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 971,
+    "line": 974,
     "via": null,
     "note": null
    }
@@ -15696,7 +15737,7 @@
     "src": "POST /labs/bookings/:param/gps → eta",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1022,
+    "line": 1025,
     "via": null,
     "note": null
    },
@@ -15706,7 +15747,7 @@
     "src": "POST /labs/bookings/:param/gps → distance",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1023,
+    "line": 1026,
     "via": null,
     "note": null
    },
@@ -15716,7 +15757,7 @@
     "src": "PATCH /labs/bookings/:param/state",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1101,
+    "line": 1104,
     "via": null,
     "note": null
    },
@@ -15726,7 +15767,7 @@
     "src": "PATCH /labs/bookings/:param/state",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1111,
+    "line": 1114,
     "via": null,
     "note": null
    },
@@ -15736,7 +15777,7 @@
     "src": "POST /labs/bookings/:param/emergency",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1123,
+    "line": 1126,
     "via": null,
     "note": null
    },
@@ -15746,7 +15787,7 @@
     "src": "POST /labs/bookings/:param/emergency",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1128,
+    "line": 1131,
     "via": null,
     "note": null
    },
@@ -15756,7 +15797,7 @@
     "src": "POST /labs/bookings/:param/reassign",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1133,
+    "line": 1136,
     "via": null,
     "note": null
    },
@@ -15766,7 +15807,7 @@
     "src": "GET /labs/team/technicians → collectors",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1157,
+    "line": 1160,
     "via": null,
     "note": null
    },
@@ -15776,7 +15817,7 @@
     "src": "POST /labs/bookings/:param/assign-technician",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1166,
+    "line": 1169,
     "via": null,
     "note": null
    }
@@ -15789,7 +15830,7 @@
     "src": "value ← `${pct}%`",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1238,
+    "line": 1241,
     "via": null,
     "note": null
    },
@@ -15799,7 +15840,7 @@
     "src": "GET /labs/samples → samples",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1244,
+    "line": 1247,
     "via": null,
     "note": null
    }
@@ -15811,7 +15852,7 @@
     "src": "user input → String (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1349,
+    "line": 1352,
     "via": null,
     "note": null
    },
@@ -15821,7 +15862,7 @@
     "src": "PATCH /labs/bookings/:param/insurance, GET /labs/provider/inbox → selectedOrder",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1353,
+    "line": 1356,
     "via": null,
     "note": null
    },
@@ -15831,7 +15872,7 @@
     "src": "user input → item (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1357,
+    "line": 1360,
     "via": null,
     "note": null
    },
@@ -15841,7 +15882,7 @@
     "src": "user input → item (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1361,
+    "line": 1364,
     "via": null,
     "note": null
    },
@@ -15851,7 +15892,7 @@
     "src": "user input → String (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1362,
+    "line": 1365,
     "via": null,
     "note": null
    },
@@ -15861,7 +15902,7 @@
     "src": "user input → approvalRef → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1369,
+    "line": 1372,
     "via": null,
     "note": null
    },
@@ -15871,7 +15912,7 @@
     "src": "user input → rejectNote → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1370,
+    "line": 1373,
     "via": null,
     "note": null
    },
@@ -15881,7 +15922,7 @@
     "src": "PATCH /labs/bookings/:param/insurance, GET /labs/provider/inbox",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1373,
+    "line": 1376,
     "via": null,
     "note": null
    },
@@ -15891,7 +15932,7 @@
     "src": "PATCH /labs/bookings/:param/insurance, GET /labs/provider/inbox",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1374,
+    "line": 1377,
     "via": null,
     "note": null
    },
@@ -15901,7 +15942,7 @@
     "src": "value ← String(orders.filter(c=>c.insurance_status==='pe",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1386,
+    "line": 1389,
     "via": null,
     "note": null
    },
@@ -15911,7 +15952,7 @@
     "src": "value ← String(orders.filter(c=>c.insurance_status!=='pe",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1387,
+    "line": 1390,
     "via": null,
     "note": null
    },
@@ -15921,7 +15962,7 @@
     "src": "GET /labs/provider/inbox → orders",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1389,
+    "line": 1392,
     "via": null,
     "note": null
    },
@@ -15931,7 +15972,7 @@
     "src": "local state setSelectedOrder",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1390,
+    "line": 1393,
     "via": null,
     "note": null
    }
@@ -15986,7 +16027,7 @@
     "src": "POST /approval-workflow/requests → newPrice",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1554,
+    "line": 1557,
     "via": null,
     "note": null
    },
@@ -15996,7 +16037,7 @@
     "src": "local state setShowAddSheet",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1577,
+    "line": 1580,
     "via": null,
     "note": null
    },
@@ -16006,7 +16047,7 @@
     "src": "user input → newTitleEn → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1579,
+    "line": 1582,
     "via": null,
     "note": null
    },
@@ -16016,7 +16057,7 @@
     "src": "mock-scan dummy-value",
     "status": "mock",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1579,
+    "line": 1582,
     "via": null,
     "note": "dummy-value (mock-scan): Test Name (English)"
    },
@@ -16026,7 +16067,7 @@
     "src": "user input → newTitleAr → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1580,
+    "line": 1583,
     "via": null,
     "note": null
    },
@@ -16036,7 +16077,7 @@
     "src": "mock-scan dummy-value",
     "status": "mock",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1580,
+    "line": 1583,
     "via": null,
     "note": "dummy-value (mock-scan): Test Name (Arabic)"
    },
@@ -16046,7 +16087,7 @@
     "src": "user input → newPrice → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1581,
+    "line": 1584,
     "via": null,
     "note": null
    },
@@ -16056,7 +16097,7 @@
     "src": "POST /approval-workflow/requests",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1582,
+    "line": 1585,
     "via": null,
     "note": null
    }
@@ -20350,7 +20391,7 @@
     "src": "GET /radiology/provider/inbox → orders",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 139,
+    "line": 141,
     "via": null,
     "note": null
    },
@@ -20360,7 +20401,7 @@
     "src": "parent callback onOpen",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 143,
+    "line": 145,
     "via": null,
     "note": null
    },
@@ -20370,7 +20411,7 @@
     "src": "navigate → wallet",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 181,
+    "line": 183,
     "via": null,
     "note": null
    },
@@ -20380,7 +20421,7 @@
     "src": "value ← String(stats.todayCount)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 183,
+    "line": 185,
     "via": null,
     "note": null
    },
@@ -20390,7 +20431,7 @@
     "src": "value ← String(stats.inScanCount)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 184,
+    "line": 186,
     "via": null,
     "note": null
    },
@@ -20400,7 +20441,7 @@
     "src": "value ← String(stats.completedCount)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 185,
+    "line": 187,
     "via": null,
     "note": null
    },
@@ -20410,7 +20451,7 @@
     "src": "value ← String(stats.revenue)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 186,
+    "line": 188,
     "via": null,
     "note": null
    }
@@ -20422,7 +20463,7 @@
     "src": "GET /radiology/provider/inbox → orders",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 139,
+    "line": 141,
     "via": null,
     "note": null
    },
@@ -20432,7 +20473,7 @@
     "src": "parent callback onOpen",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 143,
+    "line": 145,
     "via": null,
     "note": null
    },
@@ -20442,7 +20483,7 @@
     "src": "local state setTab",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 212,
+    "line": 214,
     "via": null,
     "note": null
    },
@@ -20452,7 +20493,7 @@
     "src": "from subTabs (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 212,
+    "line": 214,
     "via": null,
     "note": null,
     "untraced": true
@@ -20465,7 +20506,7 @@
     "src": "prepItems: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 526,
+    "line": 529,
     "via": null,
     "note": null
    },
@@ -20475,7 +20516,7 @@
     "src": "local state setShowAdd",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 551,
+    "line": 554,
     "via": null,
     "note": null
    },
@@ -20485,7 +20526,7 @@
     "src": "local state setModality",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 556,
+    "line": 559,
     "via": null,
     "note": null
    },
@@ -20495,7 +20536,7 @@
     "src": "from MODALITIES (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 556,
+    "line": 559,
     "via": null,
     "note": null,
     "untraced": true
@@ -20506,7 +20547,7 @@
     "src": "user input → nameAr → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 558,
+    "line": 561,
     "via": null,
     "note": null
    },
@@ -20516,7 +20557,7 @@
     "src": "user input → nameEn → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 559,
+    "line": 562,
     "via": null,
     "note": null
    },
@@ -20526,7 +20567,7 @@
     "src": "user input → price → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 560,
+    "line": 563,
     "via": null,
     "note": null
    },
@@ -20536,7 +20577,7 @@
     "src": "user input → duration → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 561,
+    "line": 564,
     "via": null,
     "note": null
    },
@@ -20546,7 +20587,7 @@
     "src": "user input → parent callback item.set",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 563,
+    "line": 566,
     "via": null,
     "note": null
    },
@@ -20556,7 +20597,7 @@
     "src": "user input → portableUS → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 564,
+    "line": 567,
     "via": null,
     "note": null
    },
@@ -20566,7 +20607,7 @@
     "src": "parent callback prev.includes, prev.filter",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 566,
+    "line": 569,
     "via": null,
     "note": null
    },
@@ -20576,7 +20617,7 @@
     "src": "from PREP_OPTIONS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 566,
+    "line": 569,
     "via": null,
     "note": null,
     "untraced": true
@@ -20587,7 +20628,7 @@
     "src": "POST /radiology/catalog/delta-request",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 567,
+    "line": 570,
     "via": null,
     "note": null
    }
@@ -20599,7 +20640,7 @@
     "src": "workingDays: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 579,
+    "line": 582,
     "via": null,
     "note": null
    },
@@ -20609,7 +20650,7 @@
     "src": "local state setWorkingDays",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 598,
+    "line": 601,
     "via": null,
     "note": null
    },
@@ -20619,7 +20660,7 @@
     "src": "from DAYS_AR (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 598,
+    "line": 601,
     "via": null,
     "note": null,
     "untraced": true
@@ -20630,7 +20671,7 @@
     "src": "user input → morningFrom → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 602,
+    "line": 605,
     "via": null,
     "note": null
    },
@@ -20640,7 +20681,7 @@
     "src": "user input → morningTo → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 603,
+    "line": 606,
     "via": null,
     "note": null
    },
@@ -20650,7 +20691,7 @@
     "src": "user input → eveningFrom → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 607,
+    "line": 610,
     "via": null,
     "note": null
    },
@@ -20660,7 +20701,7 @@
     "src": "user input → eveningTo → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 608,
+    "line": 611,
     "via": null,
     "note": null
    },
@@ -20670,7 +20711,7 @@
     "src": "user input → emergencyAvailable → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 613,
+    "line": 616,
     "via": null,
     "note": null
    },
@@ -20680,7 +20721,7 @@
     "src": "POST /radiology/catalog/delta-request",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 616,
+    "line": 619,
     "via": null,
     "note": null
    }
@@ -20752,7 +20793,7 @@
     "src": "navigate → insurance_requests",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 631,
+    "line": 634,
     "via": null,
     "note": null
    },
@@ -20762,7 +20803,7 @@
     "src": "navigate (back / dynamic target)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 635,
+    "line": 638,
     "via": null,
     "note": null
    },
@@ -20772,7 +20813,7 @@
     "src": "navigate → drug_index",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 639,
+    "line": 642,
     "via": null,
     "note": null
    },
@@ -20782,7 +20823,7 @@
     "src": "navigate → medical_jobs",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 640,
+    "line": 643,
     "via": null,
     "note": null
    },
@@ -20792,7 +20833,7 @@
     "src": "parent callback onLogout",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 643,
+    "line": 646,
     "via": null,
     "note": null
    }
@@ -20804,7 +20845,17 @@
     "src": "PATCH /radiology/bookings/:param/reschedule, GET /radiology/bookings/:param → rescheduleDays",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 233,
+    "line": 235,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{t('bookingChat.open')}",
+    "src": "navigate → booking_chat",
+    "status": "ok",
+    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
+    "line": 344,
     "via": null,
     "note": null
    },
@@ -20814,7 +20865,7 @@
     "src": "local state setShowApproval",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 344,
+    "line": 347,
     "via": null,
     "note": null
    },
@@ -20824,7 +20875,7 @@
     "src": "local state setState",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 347,
+    "line": 350,
     "via": null,
     "note": null
    },
@@ -20834,7 +20885,7 @@
     "src": "local state setShowReject",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 349,
+    "line": 352,
     "via": null,
     "note": null
    },
@@ -20844,7 +20895,7 @@
     "src": "local state setShowApproval",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 351,
+    "line": 354,
     "via": null,
     "note": null
    },
@@ -20854,7 +20905,7 @@
     "src": "POST /radiology/bookings/:param/:param, GET /radiology/bookings/:param",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 352,
+    "line": 355,
     "via": null,
     "note": null
    },
@@ -20864,7 +20915,7 @@
     "src": "POST /radiology/bookings/:param/:param, GET /radiology/bookings/:param",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 354,
+    "line": 357,
     "via": null,
     "note": null
    },
@@ -20874,7 +20925,7 @@
     "src": "local state setShowAbort",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 355,
+    "line": 358,
     "via": null,
     "note": null
    },
@@ -20884,7 +20935,7 @@
     "src": "navigate → reporting",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 358,
+    "line": 361,
     "via": null,
     "note": null
    },
@@ -20894,7 +20945,7 @@
     "src": "local state setShowAbort",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 359,
+    "line": 362,
     "via": null,
     "note": null
    },
@@ -20904,7 +20955,7 @@
     "src": "POST /radiology/bookings/:param/:param, GET /radiology/bookings/:param",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 361,
+    "line": 364,
     "via": null,
     "note": null
    },
@@ -20914,7 +20965,7 @@
     "src": "POST /radiology/bookings/:param/:param, GET /radiology/bookings/:param",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 362,
+    "line": 365,
     "via": null,
     "note": null
    },
@@ -20924,7 +20975,7 @@
     "src": "local state setShowReschedule",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 364,
+    "line": 367,
     "via": null,
     "note": null
    },
@@ -20934,7 +20985,7 @@
     "src": "user input → decisionRef → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 370,
+    "line": 373,
     "via": null,
     "note": null
    },
@@ -20944,7 +20995,7 @@
     "src": "user input → copay (local)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 371,
+    "line": 374,
     "via": null,
     "note": null
    },
@@ -20954,7 +21005,7 @@
     "src": "POST /radiology/bookings/:param/coverage-decision, GET /radiology/bookings/:param",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 373,
+    "line": 376,
     "via": null,
     "note": null
    },
@@ -20964,7 +21015,7 @@
     "src": "user input → rejectReason (local)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 378,
+    "line": 381,
     "via": null,
     "note": null
    },
@@ -20974,7 +21025,7 @@
     "src": "parent callback rejectReason.trim",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 379,
+    "line": 382,
     "via": null,
     "note": null
    },
@@ -20984,7 +21035,7 @@
     "src": "from ABORT_REASONS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 383,
+    "line": 386,
     "via": null,
     "note": null,
     "untraced": true
@@ -20995,7 +21046,7 @@
     "src": "local state setAbortReason",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 384,
+    "line": 387,
     "via": null,
     "note": null
    },
@@ -21005,7 +21056,7 @@
     "src": "POST /radiology/bookings/:param/abort, GET /radiology/bookings/:param",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 389,
+    "line": 392,
     "via": null,
     "note": null
    },
@@ -21015,7 +21066,7 @@
     "src": "from RESCHEDULE_OPTIONS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 395,
+    "line": 398,
     "via": null,
     "note": null,
     "untraced": true
@@ -21026,7 +21077,7 @@
     "src": "local state setRescheduleDays",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 396,
+    "line": 399,
     "via": null,
     "note": null
    },
@@ -21036,7 +21087,7 @@
     "src": "PATCH /radiology/bookings/:param/reschedule, GET /radiology/bookings/:param",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 401,
+    "line": 404,
     "via": null,
     "note": null
    }
@@ -21048,7 +21099,7 @@
     "src": "reportFile: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 413,
+    "line": 416,
     "via": null,
     "note": null
    },
@@ -21058,7 +21109,7 @@
     "src": "dicomFile: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 414,
+    "line": 417,
     "via": null,
     "note": null
    },
@@ -21068,7 +21119,7 @@
     "src": "from STEPS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 476,
+    "line": 479,
     "via": null,
     "note": null,
     "untraced": true
@@ -21079,7 +21130,7 @@
     "src": "native action",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 484,
+    "line": 487,
     "via": null,
     "note": null
    },
@@ -21089,7 +21140,7 @@
     "src": "user input → findings → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 486,
+    "line": 489,
     "via": null,
     "note": null
    },
@@ -21099,7 +21150,7 @@
     "src": "POST /storage/upload, POST /radiology/bookings/:param/upload-report",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 488,
+    "line": 491,
     "via": null,
     "note": null
    },
@@ -21109,7 +21160,7 @@
     "src": "native action",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 497,
+    "line": 500,
     "via": null,
     "note": null
    },
@@ -21119,7 +21170,7 @@
     "src": "POST /radiology/bookings/:param/submit-report-for-review",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 504,
+    "line": 507,
     "via": null,
     "note": null
    },
@@ -21129,7 +21180,7 @@
     "src": "POST /radiology/bookings/:param/approve-report",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 505,
+    "line": 508,
     "via": null,
     "note": null
    }
