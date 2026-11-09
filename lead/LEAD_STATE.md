@@ -1,6 +1,8 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-09 14:15 UTC
+- Nothing green; 9 PRs in CI. #2546 (V) red on tokens + provider tests → V fix order. Live main@58a1bb6e.
 ## Lead 3 run 2026-11-09 13:45 UTC
 - Nothing green. #2543 red: admin medical-reports list 404 on live gate → Z fix order. Owner (via old lead): no wallet; late cancel = 50% or one free reschedule.
 ## 2026-11-09 old lead — OWNER DECISION: NO WALLET (replaces "100% wallet credit")
@@ -76,5 +78,3 @@ TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the t
 - Merged #2522 (Y: 96j-mongo-cache-check read-only; cache already explicit 0.6 GB in mongod.conf; root cause = host RAM 3800 MB vs compose mem_limits summing 7680 MB → host-level OOM). Next ops run (109) should run `96j-mongo-cache-check` (read-only) to see kill times/kinds; decision tree in docs/platform/R7-data-tier.md. Owner: RAM upgrade.
 - Pending CI: #2523 (W PT-05) #2524 (Z PT-03) #2525 #2526 #2527 (X). LIVE main@1dfd4b83.
 
-## Lead 3 run 2026-11-09 06:45 UTC
-- Pending: #2522 (Y wiredTiger cache). Orders: W (PT-05 provider referral screen), X (PT-29, PT-27, PT-24 app), Z (PT-03 guardian minors, money review). Owner decisions pending: RAM upgrade timing, PT-08 sick-leave request, default refund-request table.
