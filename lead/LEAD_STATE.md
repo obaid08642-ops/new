@@ -1,6 +1,8 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-09 22:15 UTC
+- Run 111 DONE: LIVE main@a063da06; clamav skipped. Merged #2565 (invoice unique), #2564, #2563. Run 112b @1e46d6c2 (read-only + 91b dry run) → owner push. X: 'being checked' UI audit before defer. Z: invoice number gap question.
 ## Lead 3 run 2026-11-09 21:40 UTC
 - Run 111 pushed as deploy-only main@a063da06 (server-ops 42701390983 waiting approval). V to rebuild run 112 (96k/96m/96c + 91b dry run) on 6453740b. Merged #2560 (web tick).
 ## Lead 3 run 2026-11-09 21:10 UTC
@@ -76,5 +78,3 @@ TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the t
 - RAM: no upgrade now; raise at launch; build as if sized for launch. Y: launch RAM target in R7 doc.
 - PT-08 sick leave: both sides (patient request at booking; doctor issues with or without request); stamped certificate like the invoice, app/web view + PDF, QR verify page. Z backend first, then W (doctor) and X (patient). Legal note to owner: KSA = Seha/Sehhaty only; Seha link later.
 - Still open from owner: refund default table (2h/50%/0%); runs 109/110 push.
-## Lead 3 run 2026-11-09 12:10 UTC
-- Merged #2538 (revenue by month), #2540 (PT-38 chat link). W ordered: RevenueInsights on /provider/stats/revenue. Z: invoices review. #2537 CI. Runs 109/110 still wait for the owner's push.

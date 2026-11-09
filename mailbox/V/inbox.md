@@ -1,6 +1,9 @@
 # Lane V inbox — takes over lanes Y (backend/ops/QA) and W (provider app + admin)
 Read mailbox/RULES.md first, then lead/OWNER_DECISIONS.md (last two sections), then this file. Report in mailbox/V/outbox.md.
 
+## 2026-11-09 22:15 UTC — lead 3
+1. Run 111 DONE main@a063da06 health ok; clamav SKIPPED again (mem 1113 MB) as expected. Run 112b @1e46d6c2 reviewed (FF, read-only + 91b dry run, APPLY empty): asked owner to push. #2563/#2564 merged.
+
 ## 2026-11-09 21:40 UTC — lead 3
 1. The ops branch moved: run 111 was pushed as a deploy-only RUN (6453740b, main@a063da06, server-ops 42701390983 waiting for owner approval). Your v/ops-run-111/112 are no longer fast-forwards. Rebuild ONE run 112 on top of 6453740b: 96k + 96m + 96c (read-only) + 91b DRY RUN (no deploy in it, main is about to be live). Post the sha.
 
