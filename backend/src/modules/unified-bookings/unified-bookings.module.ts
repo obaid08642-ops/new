@@ -299,6 +299,7 @@ export class UnifiedBookingsService {
     insurance_member_id?: string;
     for_member_id?: string;
     family_member_id?: string;
+    sick_leave_requested?: boolean;
   }) {
     const paymentMethod = body?.payment_method_id || 'cash';
     if (!['cash', 'card', 'insurance'].includes(paymentMethod)) {
@@ -321,6 +322,7 @@ export class UnifiedBookingsService {
       insurance_member_id: body?.insurance_member_id,
       for_member_id: body?.for_member_id,
       family_member_id: body?.family_member_id,
+      sick_leave_requested: body?.sick_leave_requested,
     });
     return {
       booking_id: booking.id,

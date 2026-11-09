@@ -371,6 +371,12 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   // ============ Notifications ============
   'notif.order_created.title': { ar: 'تم إنشاء طلبك', en: 'Order Created', ur: 'آرڈر بن گیا' },
   'notif.order_created.body': { ar: 'جاري إرساله للصيدلية', en: 'Sending to pharmacy', ur: 'فارمیسی بھیج رہے ہیں' },
+  'notif.medical_report.seha_added.title': { ar: 'أُضيف رقم صحة إلى تقريرك الطبي', en: 'A Seha number was added to your medical report', ur: 'آپ کی طبی رپورٹ میں صحت نمبر شامل کیا گیا' },
+  'notif.medical_report.seha_added.body': { ar: 'التقرير {serial}: مسجّل في صحة برقم {seha_number}', en: 'Report {serial}: registered on Seha, number {seha_number}', ur: 'رپورٹ {serial}: صحت پر درج، نمبر {seha_number}' },
+  'notif.medical_report.revoked.title': { ar: 'أُلغي تقريرك الطبي', en: 'Your medical report was withdrawn', ur: 'آپ کی طبی رپورٹ منسوخ کر دی گئی' },
+  'notif.medical_report.revoked.body': { ar: 'التقرير {serial} لم يعد صالحاً', en: 'Report {serial} is no longer valid', ur: 'رپورٹ {serial} اب درست نہیں' },
+  'notif.medical_report.seha_reminder.title': { ar: 'سجّل الإجازة في صحة وأدخل رقمها', en: 'Register the sick leave on Seha and enter its number', ur: 'صحت پر چھٹی درج کریں اور اس کا نمبر لکھیں' },
+  'notif.medical_report.seha_reminder.body': { ar: 'التقرير {serial}: لم يُدخل رقم صحة بعد {hours} ساعة', en: 'Report {serial}: no Seha number after {hours} hours', ur: 'رپورٹ {serial}: {hours} گھنٹے بعد بھی صحت نمبر نہیں' },
   'notif.price_drop.title': { ar: 'انخفض سعر دواء في قائمتك', en: 'A medicine on your wishlist is cheaper', ur: 'آپ کی فہرست کی ایک دوا سستی ہو گئی ہے' },
   'notif.price_drop.body': { ar: 'انخفض سعره. اطّلع عليه الآن', en: 'The price went down. Take a look now', ur: 'قیمت کم ہوئی ہے۔ ابھی دیکھیں' },
   'notif.service_available.title': { ar: 'الخدمة التي طلبتها صارت متاحة', en: 'The service you asked about is now available', ur: 'جس سروس کے بارے میں آپ نے پوچھا تھا وہ اب دستیاب ہے' },
