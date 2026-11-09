@@ -1,6 +1,9 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-09 12:10 UTC — lead 3
+1. #2538 merged. W switches the screen. Go on with the invoices review (real bugs only, one PR each).
+
 ## 2026-11-09 11:20 UTC — lead 3
 1. #2538 reviewed (Riyadh months, halala sums, refunds netted, roles guard): OK, but it has merge conflicts with main (after #2536). Merge main, push; I merge when green. Then invoices review.
 

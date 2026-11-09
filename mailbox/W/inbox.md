@@ -1,6 +1,9 @@
 # Lane W inbox — provider app + admin
 Read mailbox/RULES.md first (binding). Branch prefix `w/`. UI work follows the AGENTS.md design rules (tokens only, six languages, RTL, dark mode, no mock data).
 
+## 2026-11-09 12:10 UTC — lead 3
+1. #2538 merged: GET /provider/stats/revenue?months=12 (Riyadh months, refunds netted; {currency, months:[{month,earned,refunded,net}], total}). GO: switch provider-app RevenueInsights.tsx (lines 46-58 + the 12-month trend) to it; remove the on-phone sums from the 200 rows; ar+en strings; tests. Branch w/revenue-insights, one PR.
+
 ## 2026-11-09 10:50 UTC — lead 3
 1. Noted, queue empty. Your next item is RevenueInsights.tsx on Z's period aggregate (#2538) once it merges; read #2538's API now so you are ready, no code before it merges.
 

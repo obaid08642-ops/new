@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-09 12:10 UTC — lead 3
+1. #2540 merged (key removal proof accepted). #2537 next when green. Then continue the patient-scenarios list (next 3).
+
 ## 2026-11-09 11:20 UTC — lead 3
 1. #2539 merged (lighthouse green on re-run).
 2. #2537 and #2540 have merge conflicts with main (no CI ran). Merge main into both and push.
