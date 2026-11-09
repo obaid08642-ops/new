@@ -3012,6 +3012,13 @@
     "actionWaitingRoom": "Pumasok sa waiting room",
     "actionLocation": "Lokasyon ng klinika",
     "actionTrack": "Subaybayan ang pagbisita",
+    "noShowTitle": "Hindi dumating ang doktor",
+    "noShowButton": "Hindi dumating ang doktor",
+    "noShowConfirmBody": "Gamitin lang ito kung hindi pa sumasali o dumarating ang doktor. Kakanselahin ang bisita at buo kang ire-refund agad.",
+    "noShowConfirm": "Kanselahin ang bisita at i-refund ako",
+    "noShowKeep": "Huwag muna",
+    "noShowDone": "Nakansela ang bisita. Paparating na ang buo mong refund.",
+    "noShowError": "Hindi makansela ang bisita. Suriin ang koneksyon at subukan ulit.",
     "actionEdit": "Baguhin o kanselahin",
     "status": {
       "pending": "Nakabinbin",

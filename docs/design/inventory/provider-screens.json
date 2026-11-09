@@ -1,5 +1,5 @@
 {
- "commit": "89d19c86",
+ "commit": "4511b811",
  "routes": [
   {
    "app": "provider-app",
@@ -2369,7 +2369,7 @@
      "line": 190,
      "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:96"
+     "backend": "backend/src/modules/care/appointments.controller.ts:102"
     }
    ],
    "files": 14,
@@ -3065,7 +3065,7 @@
      "line": 90,
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:84"
+     "backend": "backend/src/modules/care/appointments.controller.ts:90"
     },
     {
      "method": "POST",
@@ -3075,7 +3075,7 @@
      "line": 94,
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:120"
+     "backend": "backend/src/modules/care/appointments.controller.ts:126"
     },
     {
      "method": "PATCH",
@@ -3085,7 +3085,7 @@
      "line": 91,
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:108"
+     "backend": "backend/src/modules/care/appointments.controller.ts:114"
     }
    ],
    "files": 13,
@@ -4505,7 +4505,7 @@
      "line": 66,
      "file": "provider-app/src/screens/facility/facility/QRCheckinScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:84"
+     "backend": "backend/src/modules/care/appointments.controller.ts:90"
     },
     {
      "method": "GET",
