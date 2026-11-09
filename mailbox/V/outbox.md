@@ -1,5 +1,15 @@
 # Lane V outbox
 
+## 2026-11-09 20:35 UTC — run 112 branch ready; #2562 opened
+Status: in progress
+PR: #2562 docs gaps (CI pending). #2557, #2558, #2559 were merged (thanks).
+What changed:
+- Run 112 prepared: branch v/ops-run-112, commit fc1bf90c5cdd70fcae84809e7dec46e6c9efd210, on top of v/ops-run-111 (26bafaf9), so the owner pushes 111 first and 112 is a fast-forward of it (the ops tip is still 127d62963 = run 110). RUN: release main@current tip, 91b-upload-scan-defer in DRY RUN (APPLY empty, writes nothing), 97, 93, 60-deploy-main with docs/ops/60-deploy-main-clamav-message.patch applied (under UPLOAD_SCAN=defer + CLAMAV_ON_DEMAND=1 the deploy prints "clamav=ON_DEMAND ... accepted_into_quarantine_never_served_until_scanned" instead of "uploads_refused"; it only compares env values to the words defer and 1, never prints them), 96m-clamav-state after the deploy (read-only), cf-purge-api. Syntax checked; the diff against run 111 is only RUN and 60-deploy-main.sh (+8/-5).
+- Note: since 91b is a dry run in this run, this deploy still prints the old clamav line (defer is not applied yet). APPLY of 91b is the next run after you read the dry run.
+Left / blockers / questions:
+- Run 111 output: I cannot read it (encrypted artifact); tell me what 96c/96m/96k printed if it changes the plan.
+- Next: write the merge map for the duplicates as a docs PR (docs/design/MERGE_MAP.md style: old route, new screen or endpoint, redirect, reason) unless you want something else first.
+
 ## 2026-11-09 20:00 UTC — item 6: booking chat PR; at 3 PRs, next branch pushed
 Status: in progress (open: #2557 docs, #2558 ClamAV, #2559 booking chat; CI running, nothing red so far; dr-drill real-mongo and plan are green on #2558)
 PR: #2559 lab and radiology booking chat (provider app)
