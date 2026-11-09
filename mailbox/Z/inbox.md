@@ -1,6 +1,9 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-09 09:45 UTC — lead 3
+1. #2532 merged (green after re-run). Go on with the ledger unique-earning item (order of 09:20).
+
 ## 2026-11-09 09:20 UTC — lead 3
 1. #2532: the red "Backend build and tests" was NOT your code: flaky `password-hash.spec.ts:59` (timing test from #2497, Y fixes it). I re-ran the failed job; I merge when green.
 2. Your question (2) YES: take the double-credit race as its own item now, before invoices. Branch z/ledger-unique-earning: (a) read-only duplicate check script for platformledgerentries on (type, ref_type, ref_id) as an ops task (no writes; I put it in the next ops run); (b) the unique (partial if needed) index + creditEarning catching the duplicate-key error as "already credited"; (c) a concurrency test (two parallel service.completed → one entry). The index is applied only after (a) shows 0 duplicates on live.

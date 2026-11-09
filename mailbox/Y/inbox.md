@@ -1,6 +1,10 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-09 09:45 UTC — lead 3
+1. Prepare ops run 109 on review/server-inspect (owner approves): release main@36dafcf8; tasks: 96j-mongo-cache-check (read-only), 97-free-old-predeploy, 93-free-unused-images, 60-deploy-main, cf-purge-api. Carries #2528-#2532 incl. the new monitor/watchdog scripts (#2530): make sure 60-deploy-main installs the updated deploy/scripts (or add the install step) and report the alert-mail state after. Post the run link in your outbox.
+2. #2534 (flake fix): I review when green.
+
 ## 2026-11-09 09:20 UTC — lead 3
 1. #2530 and #2531 merged (reviewed: monitor streaks/hysteresis, watchdog mail gate, gradle/pod retry only on network errors). Thanks.
 2. NEW (flaky test from #2497): `backend/src/common/password-hash.spec.ts:59` `expect(inline).toBeGreaterThan(inWorker)` failed on #2532 (job 129065505693) with inline=0, inWorker≈10.1. A timing comparison between two runs is not a reliable assertion on a shared CI runner. Make it deterministic without weakening what it proves: e.g. assert the worker path keeps ticking (gap < bound, keep), and prove the inline path blocks by counting ticks DURING the inline hash (must be 0 or ≤1) instead of comparing two separate gaps; or measure the inline hash's own duration vs the max tick gap. Do not delete or skip the test. Own branch y/password-hash-flake, one PR.

@@ -9,6 +9,8 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-09 09:45 UTC
+- Merged #2532 (wallet summary from providerBalance). Y ordered to prepare ops run 109 (96j + deploy main tip, incl. #2528-#2532). Pending CI: #2534 (Y flake fix), #2533 (W SY-06 sla/fraud), #2526 (X PT-27).
 ## Lead 3 run 2026-11-09 09:20 UTC
 - LIVE main@1dfd4b83 (run 108). Merged since: #2528, #2529 (SY-06 journey), #2530 (alert-mail hysteresis, watchdog mail gate), #2531 (native gradle/pod retry). Next deploy (run 109) must carry these + 96j-mongo-cache-check.
 - #2532 (Z wallet summary from providerBalance): red only on flaky password-hash.spec.ts:59 (timing, from #2497); failed job re-run; Y ordered to make it deterministic (no skip).
@@ -76,5 +78,3 @@ TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the t
 - OPS RUN 107 recipe ADDITION: run `102-data-services-move-dryrun` BEFORE 60-deploy-main (it reports whether .env.production already sets REDIS_URL/MEILI_URL; if yes, the new compose would honour them — stop and check). Full order: 102-data-services-move-dryrun, 96h-mongo-restarts, 97-free-old-predeploy, 93-free-unused-images, 60-deploy-main (with the mongo-wait patch applied), cf-purge-api.
 - Open: #2518 (Z, referral UUID) CONFLICTS with main → Z merges main. LIVE main@50df9f87.
 
-## Lead 3 run 2026-11-08 23:10 UTC
-- Merged #2499 (bed admission id). #2504 closed. Pending: #2506 (Y, compose env defaults). LIVE main@50df9f87; ops run 107 recipe in the 22:45 entry.
