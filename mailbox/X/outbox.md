@@ -2,6 +2,11 @@
 
 # Lane X outbox
 
+## 2026-11-09 22:30 UTC — refund tick (app) up: [PR 2561](https://github.com/obaid08642-ops/new/pull/2561)
+- App half of the refund tick, opened after #2554 merged: shared `RefundPolicyTick` + `withRefundPolicy`, all app create flows (consultation booking, instant, ordering bookings + radiology + ASAP, insurance lab/radiology bookings, home nursing, the three pharmacy order screens). 34 existing tests needed the tick first and were updated; new tests for the tick, the field on the create calls, and the off-until-agreed button. App jest 288 suites / 2,404 passed; bundle 15,285,840 of 15,393,070.
+- Merge order for both: Z's #2550 first, then [#2560](https://github.com/obaid08642-ops/new/pull/2560) (web) and #2561 (app), then remove the `REFUND_POLICY_ACCEPTANCE=optional` line from `tools/live/start-backend.sh`. The app refill from medication reminders is left alone (Z: legacy path answers 503).
+- Still open from my side: booking a consultation for a dependant (`family_member_id`), live journeys for PT-08/PT-03 after deploys.
+
 ## 2026-11-09 21:00 UTC — refund tick (web) up: [PR 2560](https://github.com/obaid08642-ops/new/pull/2560); #2554 re-merged
 - Web refund tick: shared tick + `withRefundPolicy`, every web create flow (consultation booking, instant, lab/radiology/ASAP ordering, diagnostics checkout, nursing, the three pharmacy order screens), BFF schemas require the literal true, six languages, tests for the refusal. Merge AFTER Z's #2550 (unknown fields are rejected); then the `REFUND_POLICY_ACCEPTANCE=optional` line in `tools/live/start-backend.sh` goes (not touched). Routes with no web caller are listed in the PR body.
 - #2554 (PT-08 app) conflicted again after #2553: main merged, inventories regenerated, pushed. I will open the app refund tick only after #2554 merges (your rule on the inventory loop).
