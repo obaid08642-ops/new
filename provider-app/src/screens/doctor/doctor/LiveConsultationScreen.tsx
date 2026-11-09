@@ -153,7 +153,8 @@ export function LiveConsultationScreen({ apt, onBack, onNavigate }: { apt: any; 
        : (AR ? 'ابدأ الاستشارة أولاً: لا تُصدر الوصفة إلا أثناء الزيارة الجارية.' : 'Start the consultation first: a prescription can only be issued while the visit is in progress.')}
      </Text>
     )}
-    <NBtn label={AR ? 'إجازة مرضية' : 'Sick leave'} variant="outline" onPress={() => onNavigate('sick_leave', fullApt)} style={{ marginBottom: SP.md }} />
+    <NBtn label={t('medicalReport.open')} variant="outline" onPress={() => onNavigate('sick_leave', fullApt)} style={{ marginBottom: SP.md }} />
+    <NBtn label={t('medicalReport.openList')} variant="outline" onPress={() => onNavigate('medical_reports_list')} style={{ marginBottom: SP.md }} />
     <NBtn label={AR ? 'تقرير طبي' : 'Medical report'} variant="outline" onPress={() => onNavigate('medical_report', fullApt)} style={{ marginBottom: SP.md }} />
     <NBtn label={AR ? 'تحويل طبي' : 'Referral'} variant="outline" onPress={() => onNavigate('referral', fullApt)} style={{ marginBottom: SP.md }} />
     <NBtn label={t('consultation.issueReferral')} variant="outline" onPress={() => onNavigate('issue_referral', fullApt)} style={{ marginBottom: SP.md }} />
