@@ -83,3 +83,5 @@ a.memberRow:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(
 @media (prefers-reduced-motion: reduce) {
   .memberRow { transition: none; }
 }
+
+.childRow { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 10px; }
