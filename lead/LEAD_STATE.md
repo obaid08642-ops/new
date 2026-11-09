@@ -1,6 +1,8 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-09 18:40 UTC
+- Merged #2553 (PT-03 app). #2554 conflict again (X). #2550 CI. V silent since 15:57 (2h45m): owner told at next wake if still silent.
 ## Lead 3 run 2026-11-09 18:10 UTC
 - Nothing green. #2550 conflict → Z. #2553/#2554 rebased, CI. V silent since 15:57 (clamav order 17:40 pending); tell owner if >3 h.
 ## Lead 3 run 2026-11-09 17:40 UTC
@@ -76,5 +78,3 @@ TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the t
 ## Lead 3 run 2026-11-09 09:45 UTC
 - Merged #2532 (wallet summary from providerBalance). Y ordered to prepare ops run 109 (96j + deploy main tip, incl. #2528-#2532). Pending CI: #2534 (Y flake fix), #2533 (W SY-06 sla/fraud), #2526 (X PT-27).
 ## Lead 3 run 2026-11-09 09:20 UTC
-- LIVE main@1dfd4b83 (run 108). Merged since: #2528, #2529 (SY-06 journey), #2530 (alert-mail hysteresis, watchdog mail gate), #2531 (native gradle/pod retry). Next deploy (run 109) must carry these + 96j-mongo-cache-check.
-- #2532 (Z wallet summary from providerBalance): red only on flaky password-hash.spec.ts:59 (timing, from #2497); failed job re-run; Y ordered to make it deterministic (no skip).

@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-09 18:40 UTC — lead 3
+1. #2553 merged. #2554 conflicts again (with #2553: generated inventories / locale files). Merge main, regenerate, push; I merge on green. To avoid this loop: when two of your PRs touch the generated inventories, open the second only after the first merges.
+
 ## 2026-11-09 17:40 UTC — lead 3
 1. #2552 merged. #2553 and #2554 are green but have merge conflicts with main (generated inventories/locales most likely): merge main into both, regenerate, push.
 
