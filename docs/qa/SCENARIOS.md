@@ -68,7 +68,7 @@ This PR (PT-25 delivery tracking) moved one PARTIAL row to COVERED. The 'This PR
 | PT-35 | Multi-device sign-in and sign-out | COVERED | `j_patient_sessions.py` | P1 | — |
 | PT-36 | Account deletion (PDPL) | COVERED | `j_pdpl_export_erase.py` (12/12 on main c17aa3461): wrong password refused, right password erases, old token and sign-in refused | P0 | — |
 | PT-37 | Data export (PDPL) | COVERED | `j_pdpl_export_erase.py`: export answers with the patient's own id and no password hash | P0 | — |
-| PT-38 | Deep links into a booking or chat | NOT COVERED | none | P1 | H |
+| PT-38 | Deep links into a booking or chat | PARTIAL | app: `qa/deep-links-push.test.tsx`, `native-intent.test.ts`, `usePushNotifications.routes.test.ts`; web: `patient-web/tests/deep-link-return.test.ts`; one product gap (a web chat link opens the appointments list in the app) in `docs/qa/findings/pt38-2026-11-09.md` | P1 | H |
 | PT-39 | Offline and flaky network | COVERED | `j_throttled_network.py`, `j_web_offline.py` | P1 | — |
 | PT-40 | Accessibility basics (labels, focus, contrast) | COVERED | `j_web_dark_a11y.py` (75/75 on main 365b2d580): page language and direction, one main and one h1, alt text, accessible names, skip link and focus ring | P2 | D, H |
 | PT-41 | Sign-in with a code (phone and e-mail) | COVERED | `j_qa_phone_otp.py`, `j_web_qa_signup.py` | P0 | — |
