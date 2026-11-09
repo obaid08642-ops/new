@@ -59,7 +59,7 @@ This PR (PT-25 delivery tracking) moved one PARTIAL row to COVERED. The 'This PR
 | PT-26 | Prescription photo upload | COVERED | `j_upload_security.py`, `j_ai_scanner.py` | P1 | — |
 | PT-27 | Prescription OCR result shown and corrected | PARTIAL | `j_ai_scanner.py` | P1 | H |
 | PT-28 | Notification preferences saved | COVERED | `j_notification_settings.py` (13/13 on main 365b2d580): change offers off and on, value holds on a new sign-in, a bad value refused (400) | P2 | H |
-| PT-29 | Push permission denied (app) | NOT COVERED | none | P2 | H |
+| PT-29 | Push permission denied (app) | COVERED | `patient-app/src/__tests__/qa/push-permission.test.tsx` (app start, "Turn on" refused, failing request, denied prompt with the phone settings link, no re-asking; 2026-11-09 re-run) | P2 | H |
 | PT-30 | Location permission denied (app and web) | COVERED (web: map, address, home care, emergency each show a message and keep manual entry) | `j_web_call.py` (camera/mic); no location denial journey | P2 | H |
 | PT-31 | Language switch (ar, en, ur, hi, bn, fil) | COVERED | `j_web_translated_pages.py`, `j_server_texts_langs.py` | P2 | — |
 | PT-32 | RTL and LTR layout | COVERED | `j_web_translated_pages.py` | P2 | — |
