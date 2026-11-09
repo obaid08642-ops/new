@@ -62,6 +62,10 @@ const patientReadRoutes = [
   new RegExp("^/health/chronic-meds$"),
   new RegExp("^/health/trends$"),
   new RegExp("^/family/my-group$"),
+  // PT-08: the patient's medical reports (the routes keep the backend's old name): list, one in full, its PDF
+  new RegExp("^/care/sick-leaves$"),
+  new RegExp(`^/care/sick-leaves/${memberId}$`, "i"),
+  new RegExp(`^/care/sick-leaves/${memberId}/pdf$`, "i"),
   new RegExp("^/family/members$"),
   new RegExp("^/family/dependants$"),
   new RegExp(`^/family/member-records/${memberId}$`, "i"),

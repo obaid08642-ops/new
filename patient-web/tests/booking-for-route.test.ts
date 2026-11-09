@@ -29,4 +29,11 @@ describe("booking for a family member", () => {
     expect(res.status).toBeLessThan(300);
     expect(JSON.parse(mocks.api.mock.calls[0][1].body)).toMatchObject({ for_member_id: "member-1", insurance_provider: "company-9", insurance_member_id: "P-1" });
   });
+  it("PT-08: sends the medical report request (sick_leave_requested) on to the booking", async () => {
+    mocks.api.mockResolvedValue(new Response(JSON.stringify({ id: "11111111-1111-4111-8111-111111111111", status: "pending" })));
+    const body = { doctor_id: "22222222-2222-4222-8222-222222222222", service_type: "video", slot_start: "2026-11-01T10:00:00+03:00", payment_method: "card", sick_leave_requested: true };
+    const res = await book(new Request("http://x", { method: "POST", headers: { "idempotency-key": "k".repeat(20) }, body: JSON.stringify(body) }));
+    expect(res.status).toBeLessThan(300);
+    expect(JSON.parse(mocks.api.mock.calls[mocks.api.mock.calls.length - 1][1].body)).toMatchObject({ sick_leave_requested: true });
+  });
 });
