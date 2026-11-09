@@ -19,7 +19,7 @@
 # REHEARSE_FAIL_AT=<step> forces a failure; REHEARSE_MISSING_IMAGE=<service> treats
 # that service's running image as gone from the host, as patient-web's is in production (rehearsal only).
 set -u
-SHA=${OPS_RELEASE_SHA:-3964d615b165277e6789fc1c4e0621d5109910d1}
+SHA=${OPS_RELEASE_SHA:-1dfd4b835bfdd2a2d43f5a23ef9942292d0ab046}
 S8=${SHA:0:8}
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
 B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}
@@ -115,7 +115,21 @@ mongodump_oneoff() {
   chmod 600 "$out" 2>/dev/null
   return 0
 }
-DUMP_TMP=$(mktemp); mongodump_oneoff "$DUMP_TMP" --gzip --archive && sudo -n install -m 600 "$DUMP_TMP" "$DUMP"
+# Run 104 (2026-11-08): mongod had restarted a minute before the pre-deploy dump (RestartCount 296); the dump exited 1 twice with no text and the deploy aborted with "backup too small (0 bytes)".
+# So: (1) wait for mongod to be healthy BEFORE the dump; (2) if the dump fails, compare mongod's StartedAt before and after: if it restarted meanwhile, say so, wait for healthy again and retry the
+# dump ONCE. The size/guard checks below are unchanged and still ABORT on a bad or missing dump.
+wait_healthy nabdah-mongodb 36 || { echo "deploy: ABORT mongod is not healthy after 3 minutes: no backup was taken"; exit 1; }
+MSTART1=$($DK inspect -f '{{.State.StartedAt}}' nabdah-mongodb 2>/dev/null)
+DUMP_TMP=$(mktemp)
+if ! mongodump_oneoff "$DUMP_TMP" --gzip --archive; then
+  MSTART2=$($DK inspect -f '{{.State.StartedAt}}' nabdah-mongodb 2>/dev/null)
+  if [ "$MSTART1" != "$MSTART2" ]; then
+    echo "deploy: mongod RESTARTED during the backup (started $MSTART1, then $MSTART2): waiting for it to be healthy and retrying the dump once"
+    wait_healthy nabdah-mongodb 36 || { echo "deploy: ABORT mongod not healthy after its restart: no backup was taken"; rm -f "$DUMP_TMP"; exit 1; }
+    : > "$DUMP_TMP"; mongodump_oneoff "$DUMP_TMP" --gzip --archive || echo "deploy: the dump failed again after the mongod restart"
+  fi
+fi
+[ -s "$DUMP_TMP" ] && sudo -n install -m 600 "$DUMP_TMP" "$DUMP"
 rm -f "$DUMP_TMP"
 sudo -n chmod 600 "$DUMP" 2>/dev/null
 SZ=$(sudo -n stat -c %s "$DUMP" 2>/dev/null || echo 0)
