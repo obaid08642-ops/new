@@ -1,5 +1,5 @@
 {
- "commit": "0440d8d7",
+ "commit": "9c0a5505",
  "routes": [
   {
    "app": "patient-app",
@@ -2681,7 +2681,7 @@
      "line": 65,
      "file": "patient-app/src/components/family/FamilyHubView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:23"
+     "backend": "backend/src/modules/family/family.controller.ts:39"
     },
     {
      "method": "GET",
@@ -2691,7 +2691,7 @@
      "line": 53,
      "file": "patient-app/src/components/family/FamilyKit.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:89"
+     "backend": "backend/src/modules/family/family.controller.ts:105"
     },
     {
      "method": "GET",
@@ -2701,7 +2701,7 @@
      "line": 47,
      "file": "patient-app/src/components/family/FamilyKit.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:28"
+     "backend": "backend/src/modules/family/family.controller.ts:44"
     },
     {
      "method": "GET",
@@ -2711,7 +2711,7 @@
      "line": 48,
      "file": "patient-app/src/components/family/FamilyHubView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:126"
+     "backend": "backend/src/modules/family/family.controller.ts:142"
     },
     {
      "method": "PUT",
@@ -2721,7 +2721,7 @@
      "line": 87,
      "file": "patient-app/src/components/family/FamilyHubView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:131"
+     "backend": "backend/src/modules/family/family.controller.ts:147"
     }
    ],
    "files": 44,
@@ -2745,7 +2745,7 @@
      "line": 65,
      "file": "patient-app/src/components/family/FamilyAddView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:37"
+     "backend": "backend/src/modules/family/family.controller.ts:53"
     },
     {
      "method": "POST",
@@ -2755,7 +2755,7 @@
      "line": 153,
      "file": "patient-app/src/components/family/FamilyAddView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:44"
+     "backend": "backend/src/modules/family/family.controller.ts:60"
     }
    ],
    "files": 42,
@@ -2779,7 +2779,7 @@
      "line": 38,
      "file": "patient-app/src/components/family/FamilyCalendarView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:110"
+     "backend": "backend/src/modules/family/family.controller.ts:126"
     },
     {
      "method": "POST",
@@ -2789,7 +2789,7 @@
      "line": 77,
      "file": "patient-app/src/components/family/FamilyCalendarView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:105"
+     "backend": "backend/src/modules/family/family.controller.ts:121"
     },
     {
      "method": "DELETE",
@@ -2799,7 +2799,7 @@
      "line": 96,
      "file": "patient-app/src/components/family/FamilyCalendarView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:115"
+     "backend": "backend/src/modules/family/family.controller.ts:131"
     },
     {
      "method": "GET",
@@ -2809,7 +2809,7 @@
      "line": 38,
      "file": "patient-app/src/components/family/FamilyCalendarView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:89"
+     "backend": "backend/src/modules/family/family.controller.ts:105"
     }
    ],
    "files": 47,
@@ -2853,7 +2853,7 @@
      "line": 56,
      "file": "patient-app/src/components/family/FamilyChatView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:89"
+     "backend": "backend/src/modules/family/family.controller.ts:105"
     },
     {
      "method": "GET",
@@ -2926,7 +2926,7 @@
      "line": 41,
      "file": "patient-app/src/components/family/FamilyMemberView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:69"
+     "backend": "backend/src/modules/family/family.controller.ts:85"
     },
     {
      "method": "PATCH",
@@ -2936,7 +2936,7 @@
      "line": 131,
      "file": "patient-app/src/components/family/FamilyMemberView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:64"
+     "backend": "backend/src/modules/family/family.controller.ts:80"
     },
     {
      "method": "GET",
@@ -2946,7 +2946,7 @@
      "line": 53,
      "file": "patient-app/src/components/family/FamilyKit.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:89"
+     "backend": "backend/src/modules/family/family.controller.ts:105"
     },
     {
      "method": "GET",
@@ -2956,7 +2956,7 @@
      "line": 47,
      "file": "patient-app/src/components/family/FamilyKit.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:28"
+     "backend": "backend/src/modules/family/family.controller.ts:44"
     },
     {
      "method": "POST",
@@ -2966,7 +2966,7 @@
      "line": 135,
      "file": "patient-app/src/components/family/FamilyMemberView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:121"
+     "backend": "backend/src/modules/family/family.controller.ts:137"
     },
     {
      "method": "DELETE",
@@ -2976,7 +2976,7 @@
      "line": 155,
      "file": "patient-app/src/components/family/FamilyMemberView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:79"
+     "backend": "backend/src/modules/family/family.controller.ts:95"
     }
    ],
    "files": 46,
@@ -3418,7 +3418,7 @@
      "line": 271,
      "file": "patient-app/src/components/health/ProfileView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:99"
+     "backend": "backend/src/modules/family/family.controller.ts:115"
     },
     {
      "method": "GET",
@@ -6522,7 +6522,7 @@
      "path": "/ai/prescription-ocr",
      "target": "backend",
      "query": "",
-     "line": 69,
+     "line": 96,
      "file": "patient-app/src/components/pharmacy/RxIntake.tsx",
      "status": "OK",
      "backend": "backend/src/modules/ai/ai.controller.ts:118"
@@ -6582,7 +6582,7 @@
      "path": "/prescriptions/upload",
      "target": "backend",
      "query": "",
-     "line": 76,
+     "line": 121,
      "file": "patient-app/src/components/pharmacy/RxIntake.tsx",
      "status": "OK",
      "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:19"
@@ -6703,7 +6703,7 @@
      "line": 45,
      "file": "patient-app/src/components/account/AccountView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:89"
+     "backend": "backend/src/modules/family/family.controller.ts:105"
     },
     {
      "method": "GET",
@@ -9205,7 +9205,7 @@
      "line": 5,
      "file": "patient-web/lib/api/family-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:89"
+     "backend": "backend/src/modules/family/family.controller.ts:105"
     },
     {
      "method": "GET",
@@ -12336,7 +12336,7 @@
      "line": 20,
      "file": "patient-web/lib/api/family-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:99"
+     "backend": "backend/src/modules/family/family.controller.ts:115"
     },
     {
      "method": "GET",
@@ -12346,7 +12346,7 @@
      "line": 5,
      "file": "patient-web/lib/api/family-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:89"
+     "backend": "backend/src/modules/family/family.controller.ts:105"
     },
     {
      "method": "GET",
@@ -12356,7 +12356,7 @@
      "line": 8,
      "file": "patient-web/lib/api/family-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:28"
+     "backend": "backend/src/modules/family/family.controller.ts:44"
     },
     {
      "method": "GET",
@@ -12366,7 +12366,7 @@
      "line": 11,
      "file": "patient-web/lib/api/family-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:126"
+     "backend": "backend/src/modules/family/family.controller.ts:142"
     }
    ],
    "files": 148,
@@ -12490,7 +12490,7 @@
      "line": 14,
      "file": "patient-web/lib/api/family-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:69"
+     "backend": "backend/src/modules/family/family.controller.ts:85"
     },
     {
      "method": "GET",
@@ -12500,7 +12500,7 @@
      "line": 5,
      "file": "patient-web/lib/api/family-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:89"
+     "backend": "backend/src/modules/family/family.controller.ts:105"
     },
     {
      "method": "GET",
@@ -12510,7 +12510,7 @@
      "line": 8,
      "file": "patient-web/lib/api/family-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:28"
+     "backend": "backend/src/modules/family/family.controller.ts:44"
     }
    ],
    "files": 151,
@@ -12668,7 +12668,7 @@
      "line": 17,
      "file": "patient-web/lib/api/family-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:110"
+     "backend": "backend/src/modules/family/family.controller.ts:126"
     },
     {
      "method": "GET",
@@ -12678,7 +12678,7 @@
      "line": 5,
      "file": "patient-web/lib/api/family-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:89"
+     "backend": "backend/src/modules/family/family.controller.ts:105"
     }
    ],
    "files": 143,
@@ -13080,7 +13080,7 @@
      "line": 5,
      "file": "patient-web/lib/api/family-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:89"
+     "backend": "backend/src/modules/family/family.controller.ts:105"
     },
     {
      "method": "GET",
@@ -13090,7 +13090,7 @@
      "line": 8,
      "file": "patient-web/lib/api/family-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:28"
+     "backend": "backend/src/modules/family/family.controller.ts:44"
     },
     {
      "method": "GET",
@@ -13234,7 +13234,7 @@
      "line": 20,
      "file": "patient-web/lib/api/family-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:99"
+     "backend": "backend/src/modules/family/family.controller.ts:115"
     },
     {
      "method": "GET",
@@ -14938,7 +14938,7 @@
      "line": 21,
      "file": "patient-web/components-next/ordering/ordering-context.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:89"
+     "backend": "backend/src/modules/family/family.controller.ts:105"
     },
     {
      "method": "GET",
@@ -15136,7 +15136,7 @@
      "line": 21,
      "file": "patient-web/components-next/ordering/ordering-context.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:89"
+     "backend": "backend/src/modules/family/family.controller.ts:105"
     },
     {
      "method": "GET",
@@ -15280,7 +15280,7 @@
      "line": 21,
      "file": "patient-web/components-next/ordering/ordering-context.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:89"
+     "backend": "backend/src/modules/family/family.controller.ts:105"
     },
     {
      "method": "GET",
@@ -15394,7 +15394,7 @@
      "line": 21,
      "file": "patient-web/components-next/ordering/ordering-context.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:89"
+     "backend": "backend/src/modules/family/family.controller.ts:105"
     },
     {
      "method": "GET",
@@ -18785,7 +18785,7 @@
      "path": "/api/patient/ai/prescription-ocr",
      "target": "web-proxy",
      "query": "",
-     "line": 84,
+     "line": 87,
      "file": "patient-web/components-next/pharmacy/rx-upload-screen.tsx",
      "backend": "backend/src/modules/ai/ai.controller.ts:118",
      "status": "OK"
@@ -19030,7 +19030,7 @@
      "line": 83,
      "file": "patient-web/app/[locale]/profile/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:89"
+     "backend": "backend/src/modules/family/family.controller.ts:105"
     },
     {
      "method": "GET",

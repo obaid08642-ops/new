@@ -39,7 +39,7 @@ This PR (PT-25 delivery tracking) moved one PARTIAL row to COVERED. The 'This PR
 | PT-06 | Prescription → pharmacy order | COVERED | `j_pharmacy.py`, `j_pharmacy_insurance_first.py` | P1 | — |
 | PT-07 | Pharmacy broadcast receives competing offers and the patient picks one | COVERED | `j_web_offers_waiting.py` (web) | P1 | — |
 | PT-08 | Sick leave request and report | NOT COVERED | no journey | P2 | H |
-| PT-09 | Reports (lab, radiology) viewed and downloaded | PARTIAL | `j_lab_result_push.py` checks push, not download | P2 | H |
+| PT-09 | Reports (lab, radiology) viewed and downloaded | COVERED (client) | app: `patient-app/src/__tests__/orders/report-download.test.tsx` (9 tests: PDF only for a lab booking's report file, download then share, refused download, radiology opens its report), `utils/shareFile.test.ts` (`docs/qa/h-scenarios-status-b-pt09.md`); web: `tests/orders-results-tab.test.ts` (PDF link only when the booking holds a file), `lib/api/patient-allowlist.test.ts` (the report file is read through the BFF, read only). Not covered: a live download and the device share sheet; `j_lab_result_push.py` checks push, not download | P2 | — |
 | PT-10 | Follow-up chat window opens and closes after a visit | COVERED | `j_chat_followup_window.py` (62/62): closed before the visit ends, opens on finish, the doctor closes it and the patient can still read, one extension reopens it, a second is refused | P1 | — |
 | PT-11 | Chat delivered and seen receipts | COVERED | `j_chat_receipts.py` (63/63, PR #2259) | P1 | — |
 | PT-12 | Reviews and rating of a provider | COVERED | `j_review_rating.py` (73/73): only a patient who used the visit can rate, stars publish at once, text waits for admin approval, public after approval; the author's read omits `status` (`docs/qa/findings/batch5-2026-11-07.md`) | P2 | — |
@@ -57,7 +57,7 @@ This PR (PT-25 delivery tracking) moved one PARTIAL row to COVERED. The 'This PR
 | PT-24 | Payment return (deep link back from gateway) | PARTIAL (link wiring now tested) | web return: `j_web_payment_result.py` (real browser, `/payments/result?id=` resolves the gateway payment id to the paid appointment); app killed after paying: `j_app_killed_payment.py` (reopen reads the server state, no duplicate charge). App: `/payments/result` is an app link (AASA list, Android intent filters, link map), tested in `patient-app/src/__tests__/native-intent.test.ts` (the return address opens the result screen with the payment id). Not covered: the real OS handing the link to the app (device farm only; needs the production Team ID and fingerprint) | P0 | H |
 | PT-25 | Delivery tracking | COVERED | `j_pharmacy_tracking.py` (62/62 on main): the owner reads GET /orders/:id/tracking (state broadcasting), another patient gets 403, an unknown order id gets 404 | P1 | H |
 | PT-26 | Prescription photo upload | COVERED | `j_upload_security.py`, `j_ai_scanner.py` | P1 | — |
-| PT-27 | Prescription OCR result shown and corrected | COVERED (client) | `j_ai_scanner.py` (live); `patient-app/src/__tests__/pharmacy/rx-ocr.test.tsx` (review, edit, remove, add; confirm sends the corrected lines); `patient-web/tests/pharmacy-rx.test.tsx` (`cleanItems`) | P1 | H |
+| PT-27 | Prescription OCR result shown and corrected | COVERED (client) | `j_ai_scanner.py` (live); `patient-app/src/__tests__/pharmacy/rx-ocr.test.tsx` (review, edit, remove, add, confirm sends corrected lines); `patient-web/tests/pharmacy-rx.test.tsx` `cleanItems` | P1 | H |
 | PT-28 | Notification preferences saved | COVERED | `j_notification_settings.py` (13/13 on main 365b2d580): change offers off and on, value holds on a new sign-in, a bad value refused (400) | P2 | H |
 | PT-29 | Push permission denied (app) | COVERED | `patient-app/src/__tests__/qa/push-permission.test.tsx` (app start, "Turn on" refused, failing request, denied prompt with the phone settings link, no re-asking; 2026-11-09 re-run) | P2 | H |
 | PT-30 | Location permission denied (app and web) | COVERED (web: map, address, home care, emergency each show a message and keep manual entry) | `j_web_call.py` (camera/mic); no location denial journey | P2 | H |
@@ -143,7 +143,7 @@ Types: doctor, pharmacy, lab, radiology, nursing (and any other registered type)
 | SY-03 | Dead-letter queue inspection | COVERED | `j_dead_letter.py` (20/20): queue counts, failed-job list, unknown state refused, retry of an unknown job 404, bulk retry needs a reason and reports counts, patient refused | P1 | — |
 | SY-04 | Rate limits (per IP, per account) | COVERED | `j_otp_abuse.py`, `j_password_lockout.py`, `j_concurrency.py` | P1 | — |
 | SY-05 | Backups restore | NOT COVERED | none | P0 | S |
-| SY-06 | Monitoring alerts fire | PARTIAL | `j_admin_urgent_alerts.py` (failed payments), `j_admin_stuck_alerts.py` (stuck order); not yet: `sla_breach`, `fraud_high` | P1 | S |
+| SY-06 | Monitoring alerts fire | COVERED | `j_admin_urgent_alerts.py` (failed payments), `j_admin_stuck_alerts.py` (stuck order), `j_admin_sla_fraud_alerts.py` (SLA breach, high fraud) | P1 | S |
 | SY-07 | Security headers | COVERED | `j_security_headers.py` | P1 | — |
 | SY-08 | Upload security (malware scan) | COVERED | `j_upload_security.py` | P1 | — |
 | SY-09 | Log scan for secrets | COVERED | `j_log_scan.py` | P1 | — |
