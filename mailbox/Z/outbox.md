@@ -1,3 +1,9 @@
+## 04:35 UTC 2026-11-09 — check 04:17: #2518 red fixed; #2514 green
+Status: in progress
+PR: #2514 (CI: green, all checks). #2518 (CI: Live gate green incl. the new j_referral_booking journey on all 5 shards; Backend build and tests was red, fixed, re-running). #2519 (CI: live gate running, no failure seen).
+What changed: #2518 red was the 16.9 raw-access spec (health-fields-raw-access.spec.ts): my referral controller reads `appointments` raw (projection _id/id/patient_id/doctor_id only) and was not on the reviewed list. I added the reviewed entry with that reason (no health field read) and pushed; the spec passes locally. No other change.
+Left / blockers / questions: unchanged: (1) PT-08 request side does not exist; (2) PT-05 needs a provider-app screen; (3) backfill counts are with lane Y. Waiting for green on #2518/#2519.
+
 ## 03:40 UTC 2026-11-09 — orders of 02:45: broadcast family member #2514, PT-05 #2518, PT-08/PT-09 #2519
 Status: in progress (3 PRs open, CI pending)
 PR: #2514 (CI: pending) ordering broadcasts (ASAP, photo order) carry family_member_id through offers to the accepted booking. #2518 (CI: pending) referral routes accept the apps' uuid ids + new journey j_referral_booking (PT-05). #2519 (CI: pending) journeys j_sick_leave (PT-08) and the report file download in j_lab_result_push (PT-09).
