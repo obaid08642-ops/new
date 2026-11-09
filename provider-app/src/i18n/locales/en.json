@@ -277,5 +277,18 @@
   "supplies.requested": "Supply request sent for this visit",
   "supplies.failed": "Could not send the supply request",
   "supplies.forVisit": "Visit the supplies are for",
-  "supplies.noVisit": "You have no confirmed visit to request supplies for."
+  "supplies.noVisit": "You have no confirmed visit to request supplies for.",
+  "issueReferral.title": "Refer to lab / radiology",
+  "issueReferral.kind.lab": "Lab tests",
+  "issueReferral.kind.radiology": "Radiology",
+  "issueReferral.selected": "{n} selected",
+  "issueReferral.notes": "Home-care notes (optional)",
+  "issueReferral.send": "Send referral to the patient",
+  "issueReferral.sent": "Referral sent. The patient can see it and book.",
+  "issueReferral.failed": "Could not send the referral",
+  "issueReferral.missing.visit": "No visit is linked to this referral",
+  "issueReferral.missing.patient": "No patient is linked to this visit",
+  "issueReferral.missing.doctor": "Sign in again as the doctor",
+  "issueReferral.missing.items": "Choose at least one test or scan, or write a note",
+  "consultation.issueReferral": "Refer to lab / radiology"
 }

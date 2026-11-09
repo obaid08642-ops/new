@@ -57,7 +57,7 @@ import { PatientFileScreen } from './PatientFileScreen';
 // ══════════════════════════════════════════════════════════════════════════════
 export function LiveConsultationScreen({ apt, onBack, onNavigate }: { apt: any; onBack: () => void; onNavigate: (s: string, p?: any) => void }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
  const [verified, setVerified] = useState<any | null>(null);
@@ -156,6 +156,7 @@ export function LiveConsultationScreen({ apt, onBack, onNavigate }: { apt: any; 
     <NBtn label={AR ? 'إجازة مرضية' : 'Sick leave'} variant="outline" onPress={() => onNavigate('sick_leave', fullApt)} style={{ marginBottom: SP.md }} />
     <NBtn label={AR ? 'تقرير طبي' : 'Medical report'} variant="outline" onPress={() => onNavigate('medical_report', fullApt)} style={{ marginBottom: SP.md }} />
     <NBtn label={AR ? 'تحويل طبي' : 'Referral'} variant="outline" onPress={() => onNavigate('referral', fullApt)} style={{ marginBottom: SP.md }} />
+    <NBtn label={t('consultation.issueReferral')} variant="outline" onPress={() => onNavigate('issue_referral', fullApt)} style={{ marginBottom: SP.md }} />
     <NBtn label={AR ? 'طلب فحص' : 'Request test'} variant="outline" onPress={() => onNavigate('request_test', fullApt)} />
    </>)}
    </NScroll>
