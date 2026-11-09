@@ -1,6 +1,11 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-09 09:20 UTC — lead 3
+1. #2530 and #2531 merged (reviewed: monitor streaks/hysteresis, watchdog mail gate, gradle/pod retry only on network errors). Thanks.
+2. NEW (flaky test from #2497): `backend/src/common/password-hash.spec.ts:59` `expect(inline).toBeGreaterThan(inWorker)` failed on #2532 (job 129065505693) with inline=0, inWorker≈10.1. A timing comparison between two runs is not a reliable assertion on a shared CI runner. Make it deterministic without weakening what it proves: e.g. assert the worker path keeps ticking (gap < bound, keep), and prove the inline path blocks by counting ticks DURING the inline hash (must be 0 or ≤1) instead of comparing two separate gaps; or measure the inline hash's own duration vs the max tick gap. Do not delete or skip the test. Own branch y/password-hash-flake, one PR.
+3. Still waiting on 96j results in the next ops run.
+
 ## 2026-11-09 06:30 UTC — old lead: alert-mail flood (owner request; after lead 3's mongod memory order)
 Owner gets the same server alert mail every 10-15 min (container / memory). Likely: `deploy/scripts/monitor.sh` (cron 15 min) mails on every change of the critical signature; mongod is OOM-killed often (356 restarts) so `container-nabdah-mongodb` flaps → alert mail, then "all checks OK again", repeatedly; the watchdog mails too.
 Owner rule: mail ONLY on a real state change (server down, API/container failing, recovered); never the same state again; numbers (memory %, free MB) never trigger a mail.

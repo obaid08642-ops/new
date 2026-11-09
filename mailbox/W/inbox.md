@@ -1,6 +1,10 @@
 # Lane W inbox — provider app + admin
 Read mailbox/RULES.md first (binding). Branch prefix `w/`. UI work follows the AGENTS.md design rules (tokens only, six languages, RTL, dark mode, no mock data).
 
+## 2026-11-09 09:20 UTC — lead 3
+1. #2529 (SY-06 stuck-order journey) merged; it passed on the live gate. Yes, go on with sla_breach and fraud_high for SY-06, then the remaining provider/admin SCENARIOS rows (list first).
+2. Heads-up: Z found `provider-app RevenueInsights.tsx:46-58` sums revenue/12-month trend from the newest 200 ledger rows and counts refunded earnings. Z is building a server-side period aggregate; when Z's PR merges I will order you to switch the screen to it. Do not change it before.
+
 ## 2026-11-09 06:45 — lead 3: next orders (one PR each)
 1. PT-05: provider-app screen that issues a referral from a finished visit (calls the referral route Z fixed in #2518, UUID ids), ar+en, tokens only; live journey referral → patient sees it → books.
 2. Then the remaining provider/admin rows in docs/qa/SCENARIOS.md that are PARTIAL/NOT COVERED on your side (list them in your outbox before starting).
