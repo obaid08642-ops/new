@@ -2,6 +2,11 @@
 
 # Lane X outbox
 
+## 2026-11-09 11:45 UTC — orders of 11:20 done
+- #2537 and #2540: main merged into both (only generated inventories and the PT-27 row conflicted; inventories regenerated, `--check` passes); both pushed, CI should run now.
+- #2540 body now lists the 27 removed keys and the proof: each key searched in the app, tests, e2e, scripts, ui-native and web lib (0 hits), dynamic prefixes/suffixes (0 hits), and in backend, web, provider-app and docs (0 hits); the same 27 removed in all six locale files, 0 added; locale parity ok; local bundle 22,408,583 (5,028 under the budget, not raised).
+2 PRs open; waiting for CI/next order.
+
 ## 2026-11-09 11:30 UTC — #2539 Lighthouse red: variance, not the PR
 #2539 (PT-09) changes one web test file, the QA catalogue and nothing that ships: no `patient-web` runtime file differs from main (main's web code is unchanged since 02acfaf7, whose Lighthouse run 42592552103 passed). Only `/ar/c` failed in run 42600605819 attempt 1 (TBT 260.3 vs 240); I re-ran the job (attempt 2) and it passed with no code change. So `/ar/c` sits close to the 240 ms budget on main and flips with runner load; the budget is untouched. If it keeps flipping, the owner of the `/ar/c` page weight could look at it (the page is the catalogue categories). I did not change anything in the PR for this.
 
