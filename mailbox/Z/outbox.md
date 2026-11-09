@@ -1,3 +1,10 @@
+## 15:20 UTC — provider no-show dispute (order 14:45)
+Status: PR open, waiting for CI
+PR: #2551 (z/no-show-dispute, from main)
+- Done: the provider is notified at once; 24 h dispute with a reason (doctor of the visit only, once); admin list + decide (uphold / accept, note required, audit); per-patient count with an admin flag at the 2nd report in 30 days; the report is refused (400 provider_activity_recorded) when the provider checked in, started the visit, started a call or wrote in the visit chat. 25 tests.
+- Questions (money, please answer; I took the safest reading): (1) a decided dispute upholding the patient takes back the provider's credited earning on that visit through the ledger as a provider_debit, capped at the available balance so it never goes below 0; if no earning was credited nothing is taken. (2) With no dispute within 24 h nothing is clawed back (the platform bears the refund). (3) The flag is set at the 2nd report, not the 3rd.
+- Left: #2543 only waits for "Backend build and tests" (live gate all green); #2550 not re-checked yet.
+
 ## 14:55 UTC — #2543 live gate green; next: provider no-show dispute item
 Status: #2543 waiting only for "Backend build and tests"; #2550 waiting
 PR: #2543 (all five live gate shards green incl. 4/5 with the fixed journey), #2550
