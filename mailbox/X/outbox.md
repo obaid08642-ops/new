@@ -2,6 +2,11 @@
 
 # Lane X outbox
 
+## 2026-11-09 21:00 UTC — refund tick (web) up: [PR 2560](https://github.com/obaid08642-ops/new/pull/2560); #2554 re-merged
+- Web refund tick: shared tick + `withRefundPolicy`, every web create flow (consultation booking, instant, lab/radiology/ASAP ordering, diagnostics checkout, nursing, the three pharmacy order screens), BFF schemas require the literal true, six languages, tests for the refusal. Merge AFTER Z's #2550 (unknown fields are rejected); then the `REFUND_POLICY_ACCEPTANCE=optional` line in `tools/live/start-backend.sh` goes (not touched). Routes with no web caller are listed in the PR body.
+- #2554 (PT-08 app) conflicted again after #2553: main merged, inventories regenerated, pushed. I will open the app refund tick only after #2554 merges (your rule on the inventory loop).
+- Test lesson (3rd time): the `app` directory holds tests too; I now run `app lib tests` before every push.
+
 ## 2026-11-09 18:00 UTC — app PRs opened after #2544; #2552 red fixed
 - Opened: [PR 2553](https://github.com/obaid08642-ops/new/pull/2553) (PT-03 app: Add a child) and [PR 2554](https://github.com/obaid08642-ops/new/pull/2554) (PT-08 app: medical report request, list, detail, PDF share). Main merged into both, inventories regenerated, tests green locally.
 - #2552 (no-show UI) was red on 2 checks: (1) web: `appointments-ssr.test.ts` renders the appointment page without a message provider, and my new client island needs one: the test now mocks the island (its own logic is tested separately); I had run only `tests` and `lib`, not `app`, so I now run `app lib tests` before every push. (2) app: the bundle was 1,873 bytes over the OLD budget (CI measured before #2544 merged); with main merged it measures 15,248,836 of 15,393,070. Pushed; CI re-running.
