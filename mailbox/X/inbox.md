@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-09 21:40 UTC — lead 3
+1. #2560 (web tick) merged. Refund tick now live in code on web + app once deployed; the server stays optional until we flip by config.
+
 ## 2026-11-09 21:40 UTC old lead (OWNER RULE): every patient change ships on BOTH web and app. Next item: audit the last 2 weeks of patient features (M6 order-for-member #2509, Rx pre-checked #2502/#2501, offers sorted #2493, renew #2512, PT-24/27/29/38, refund tick #2560) and list in your outbox any that exist on only one side; then build the missing side, one PR each.
 
 ## 2026-11-09 20:45 UTC — lead 3
