@@ -37,6 +37,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens } from '../../../theme/tokens';
 import { Stack, VirtualWaitingRoomScreen, styles } from './_shared';
 import { RequestTestScreen } from './RequestTestScreen';
+import { IssueReferralScreen } from './IssueReferralScreen';
 import { EPrescriptionScreen } from './EPrescriptionScreen';
 import { SickLeaveScreen } from './SickLeaveScreen';
 import { MedicalReportScreen } from './MedicalReportScreen';
@@ -112,6 +113,7 @@ export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void })
      <Stack.Screen name="medical_order_visits">{({ navigation }: any) => <MedicalOrderVisitsScreen onBack={() => navigation.goBack()} onOpen={(visit: any) => navigation.navigate('medical_order_composer', { param: visit })} />}</Stack.Screen>
      <Stack.Screen name="medical_order_composer">{({ navigation, route }: any) => <MedicalOrderComposer apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="request_test">{({ navigation, route }: any) => <RequestTestScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+     <Stack.Screen name="issue_referral">{({ navigation, route }: any) => <IssueReferralScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="patient_file">{({ navigation, route }: any) => <PatientFileScreen patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="withdrawal_workflow">{({ navigation }: any) => <WithdrawalWorkflow onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="revenue_insights">{({ navigation }: any) => <RevenueInsights onBack={() => navigation.goBack()} />}</Stack.Screen>

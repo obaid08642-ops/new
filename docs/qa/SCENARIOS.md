@@ -35,7 +35,7 @@ This PR (PT-25 delivery tracking) moved one PARTIAL row to COVERED. The 'This PR
 | PT-02 | Book for a family member | COVERED | `j_family_book_for_member.py` | P1 | — |
 | PT-03 | Guardian books for a dependant (minor) | NOT COVERED | none; `j_family_book_for_member.py` covers a family member, not guardianship | P1 | H |
 | PT-04 | Family member's medicines and history | COVERED | `j_family_meds.py` | P2 | — |
-| PT-05 | Referral from a visit to a booking | NOT COVERED | blocked: the referral issue route rejects the apps' UUID ids and no client calls it (`docs/qa/findings/batch5-2026-11-07.md`) | P1 | S |
+| PT-05 | Referral from a visit to a booking | COVERED | `tools/live/j_referral_booking.py` (doctor issues with UUID ids, patient sees the outcome and books); the provider app issues it from the finished visit (`IssueReferralScreen`, body built and unit-tested in `issueReferral.test.ts`) | P1 | S |
 | PT-06 | Prescription → pharmacy order | COVERED | `j_pharmacy.py`, `j_pharmacy_insurance_first.py` | P1 | — |
 | PT-07 | Pharmacy broadcast receives competing offers and the patient picks one | COVERED | `j_web_offers_waiting.py` (web) | P1 | — |
 | PT-08 | Sick leave request and report | NOT COVERED | no journey | P2 | H |
