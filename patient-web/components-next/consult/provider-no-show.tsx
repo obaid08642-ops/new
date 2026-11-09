@@ -14,7 +14,7 @@ import { SectionCard, Notice } from "./consult-parts";
  * The server decides again; its refusal is shown as an error, never as success.
  */
 export function ProviderNoShow({ appointmentId, status, slotStart }: { appointmentId: string; status?: string; slotStart?: string }) {
-  const t = useTranslations("ConsultWeb");
+  const t = useTranslations("ConsultClient");
   const router = useRouter();
   const [now, setNow] = useState<number | null>(null);
   const [asking, setAsking] = useState(false);
