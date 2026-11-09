@@ -9,6 +9,11 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-09 00:15 UTC
+- Merged: #2507 (facility staff credentials, role-guarded, hospital-scoped, audited) #2506 (compose REDIS_URL/MEILI_URL overridable; unset = identical resolved file).
+- OPS RUN 107 recipe ADDITION: run `102-data-services-move-dryrun` BEFORE 60-deploy-main (it reports whether .env.production already sets REDIS_URL/MEILI_URL; if yes, the new compose would honour them — stop and check). Full order: 102-data-services-move-dryrun, 96h-mongo-restarts, 97-free-old-predeploy, 93-free-unused-images, 60-deploy-main (with the mongo-wait patch applied), cf-purge-api.
+- No open lane PRs. LIVE main@50df9f87.
+
 ## Lead 3 run 2026-11-08 23:10 UTC
 - Merged #2499 (bed admission id). #2504 closed. Pending: #2506 (Y, compose env defaults). LIVE main@50df9f87; ops run 107 recipe in the 22:45 entry.
 
