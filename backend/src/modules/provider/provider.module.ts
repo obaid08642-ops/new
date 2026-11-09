@@ -1,3 +1,4 @@
+import { SickLeaveModule } from '../sick-leave/sick-leave.module';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
@@ -93,6 +94,7 @@ import { ProviderDrugIndexController } from './provider-drug-index.controller';
 @Module({
   imports: [
     ScfhsLicenseModule,
+    SickLeaveModule,
     MongooseModule.forFeature([
       { name: 'ProviderAccount', schema: ProviderAccountSchema },
       { name: 'LeaveRequest', schema: LeaveRequestSchema },

@@ -77,6 +77,7 @@ import { MedicalProfileModule } from './modules/medical-profile/medical-profile.
 import { TimelineModule } from './modules/timeline/timeline.module';
 import { RadiologyModule } from './modules/radiology/radiology.module';
 import { MedicalReportsModule } from './modules/medical-reports/medical-reports.module';
+import { SickLeaveModule } from './modules/sick-leave/sick-leave.module';
 import { ProviderModule } from './modules/provider/provider.module';
 import { MedicalOrdersModule } from './modules/medical-orders/medical-orders.module';
 import { InstantConsultationModule } from './modules/instant-consultation/instant-consultation.module';
@@ -269,6 +270,7 @@ import { MongoSelfHealService } from './common/database/mongo-selfheal.service';
     TimelineModule,
     RadiologyModule,
     MedicalReportsModule,
+    SickLeaveModule,
     StorageModule,
     ProviderModule,
     MedicalOrdersModule,
