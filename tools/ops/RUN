@@ -1,5 +1,9 @@
-# 2026-11-09 run 111 = READ-ONLY, no deploy. Why are uploads refused (clamav=SKIPPED_LOW_MEMORY in runs 109 and 110), and who restarts mongod?
-# 96k mongod restart evidence + 96m ClamAV/memory state + 96c uploads state (UPLOAD_SCAN, /config uploads_enabled, scan queue, window script log, container memory).
-96k-mongo-restart-who
+# 2026-11-09 run 112 = 91b DRY RUN (UPLOAD_SCAN=defer + CLAMAV_ON_DEMAND=1 + window cron: prints what would change, writes nothing) + deploy main@eff32b95 with the new clamav deploy line
+# (docs/ops/60-deploy-main-clamav-message.patch applied: under defer + on-demand the deploy no longer says uploads are refused) + 96m ClamAV state after the deploy (read-only). 91b APPLY only after the lead reads the dry run.
+release:eff32b95501f18cae95707c0daec0cfdf9903f0b
+91b-upload-scan-defer
+97-free-old-predeploy
+93-free-unused-images
+60-deploy-main
 96m-clamav-state
-96c-uploads-state
+cf-purge-api
