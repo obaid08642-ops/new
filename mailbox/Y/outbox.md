@@ -1,5 +1,15 @@
 # Lane Y outbox
 
+## 2026-11-09 08:3x UTC — owner request: alert-mail flood (#2530)
+Status: in progress (PR open, CI pending). #2522 (mongod memory) merged.
+PR: #2530 y/alert-mail-hysteresis
+What changed (the 5 points of the 06:30 order):
+- Cause (monitor.sh): mail on every change of the critical set + an "OK again" mail on every recovery; with mongod restarted by memory pressure the key container-nabdah-mongodb flapped every run (alert, recovery, alert...). The backend watchdog also mailed on every restart. RAM/load/free-MB were already non-critical (log + daily summary only); a test pins it.
+- (1) monitor.sh: a critical key is mailed only after 2 consecutive runs (ALERT_CONFIRM_RUNS), "OK again" only after 2 clean runs (RECOVER_CONFIRM_RUNS), per-key streaks; a mail needs a newly CONFIRMED key or the repeat window. (2) ALERT_REPEAT_HOURS 6 -> 24. (3) backend-watchdog: the restart is unchanged (15-min cooldown); the mail is at most one per container per 6 h (WATCHDOG_MAIL_HOURS) with the restarts and failed restarts since the last mail. (4) Tests: flap bad/good x3 = 0 mails; sustained outage = exactly 2 mails (alert + recovery) even with a flap inside; repeat not before 24 h (23 h none, 25 h one); six warn-level runs = 0; watchdog 6.5 h of 15-min restarts = 2 mails with the count. (5) Install: 91c-host-files ALREADY ships monitor.sh and backend-watchdog.sh (dry run, APPLY, ROLLBACK), cron lines unchanged, so no new installer; added read-only 98q-alert-mail-state.sh as the before/after check (host scripts carry the rule? .env.production overrides ALERT_REPEAT_HOURS? streaks, last mail, mails per day from the new "mail sent" log lines, watchdog counters; numbers of 4 named settings only).
+- Deviation, stated: your test "alert, ok, alert, ok -> 1 mail" gives 0 mails (a pure flap never reaches 2 runs); a sustained alert = 1 alert mail + 1 recovery. A real outage is mailed after ~30 min; the external uptime check is unaffected. The daily summary stays (heartbeat).
+Left: owner approval of the rollout: `98q`, then 91c dry run + APPLY, then `98q` a day later; check .env.production has no ALERT_REPEAT_HOURS=6 override (98q prints it). Still waiting for: 96j + 96i ops output; the SY-01 decision; SCENARIOS counts re-score.
+
+
 ## 2026-11-09 06:5x UTC — 96h result: mongod memory PR #2522
 Status: in progress (PR open, CI pending). #2516 #2520 #2521 are merged.
 PR: #2522 y/mongo-memory-cache
