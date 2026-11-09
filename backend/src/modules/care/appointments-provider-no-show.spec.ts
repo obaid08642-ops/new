@@ -104,3 +104,20 @@ describe('the provider does not attend: the patient reports it', () => {
     expect(refundEvent(svc).refund_percentage).toBe(50);
   });
 });
+
+describe('the provider side of the report (dispute, activity guard)', () => {
+  it('a visit with provider activity is not refunded by the report: nothing is cancelled or emitted', async () => {
+    const { svc } = make();
+    svc.noShow = { assertNoProviderActivity: jest.fn(async () => { throw new BadRequestException('provider_activity_recorded'); }), record: jest.fn() };
+    await expect(svc.reportProviderNoShow('a1', patient)).rejects.toThrow('provider_activity_recorded');
+    expect(svc.transition).not.toHaveBeenCalled();
+    expect(svc.noShow.record).not.toHaveBeenCalled();
+    expect(svc.events.emit).not.toHaveBeenCalled();
+  });
+  it('a refunded report is recorded for the provider (notice, 24 h dispute, count) after the cancel', async () => {
+    const { svc, appt } = make();
+    svc.noShow = { assertNoProviderActivity: jest.fn(async () => undefined), record: jest.fn(async () => ({ flagged: false, recent_reports: 1 })) };
+    await svc.reportProviderNoShow('a1', patient);
+    expect(svc.noShow.record).toHaveBeenCalledWith(appt, 'pat1');
+  });
+});

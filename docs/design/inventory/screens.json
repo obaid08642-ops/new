@@ -1,5 +1,5 @@
 {
- "commit": "05f1018e",
+ "commit": "e0dfbc7c",
  "routes": [
   {
    "app": "patient-app",
@@ -595,7 +595,7 @@
      "path": "/care/appointments/:param",
      "target": "backend",
      "query": "",
-     "line": 72,
+     "line": 73,
      "file": "patient-app/app/consultations/appointment-detail.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:50"
@@ -619,6 +619,16 @@
      "file": "patient-app/src/hooks/useNewOutcomesCount.ts",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:45"
+    },
+    {
+     "method": "POST",
+     "path": "/care/appointments/:param/provider-no-show",
+     "target": "backend",
+     "query": "",
+     "line": 39,
+     "file": "patient-app/src/components/consult/ProviderNoShow.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/care/appointments.controller.ts:68"
     },
     {
      "method": "GET",
@@ -645,7 +655,7 @@
      "path": "/insurance/requests/my",
      "target": "backend",
      "query": "",
-     "line": 101,
+     "line": 102,
      "file": "patient-app/app/consultations/appointment-detail.tsx",
      "status": "OK",
      "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:899"
@@ -671,7 +681,7 @@
      "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:63"
     }
    ],
-   "files": 57,
+   "files": 60,
    "unresolved": 0
   },
   {
@@ -8368,6 +8378,16 @@
     },
     {
      "method": "POST",
+     "path": "/api/patient/care/appointments/:param/provider-no-show",
+     "target": "web-proxy",
+     "query": "",
+     "line": 41,
+     "file": "patient-web/components-next/consult/provider-no-show.tsx",
+     "backend": "backend/src/modules/care/appointments.controller.ts:68",
+     "status": "OK"
+    },
+    {
+     "method": "POST",
      "path": "/api/patient/health/reminders",
      "target": "web-proxy",
      "query": "",
@@ -8421,7 +8441,7 @@
      "path": "/care/appointments/:param/summary",
      "target": "backend",
      "query": "",
-     "line": 90,
+     "line": 91,
      "file": "patient-web/app/[locale]/appointments/[appointmentId]/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:132"
@@ -8447,7 +8467,7 @@
      "backend": "backend/src/modules/admin/governance/system-config.controller.ts:54"
     }
    ],
-   "files": 85,
+   "files": 88,
    "unresolved": 0
   },
   {

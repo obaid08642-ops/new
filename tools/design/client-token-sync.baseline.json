@@ -22,7 +22,6 @@
     "provider-app/src/screens/doctor/doctor/NotificationsScreen.tsx": 1,
     "provider-app/src/screens/doctor/doctor/PatientFileScreen.tsx": 2,
     "provider-app/src/screens/doctor/doctor/RequestTestScreen.tsx": 2,
-    "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx": 1,
     "provider-app/src/screens/doctor/doctor/StatisticsScreen.tsx": 2,
     "provider-app/src/screens/doctor/doctor/_shared.tsx": 1,
     "provider-app/src/screens/facility/FacilityInternalChatScreen.tsx": 4,
