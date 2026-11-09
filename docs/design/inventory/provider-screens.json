@@ -1,5 +1,5 @@
 {
- "commit": "13a7f61d",
+ "commit": "89d19c86",
  "routes": [
   {
    "app": "provider-app",
@@ -606,7 +606,7 @@
    "component": "RevenueInsights",
    "area": "admin-ish",
    "file": "provider-app/src/screens/shared/blueprint/RevenueInsights.tsx",
-   "line": 30,
+   "line": 33,
    "registrations": [
     {
      "role": "doctor",
@@ -661,13 +661,23 @@
      "path": "/provider/ops/wallet/ledger",
      "target": "backend",
      "query": "",
-     "line": 40,
+     "line": 48,
      "file": "provider-app/src/screens/shared/blueprint/RevenueInsights.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:892"
+    },
+    {
+     "method": "GET",
+     "path": "/provider/stats/revenue",
+     "target": "backend",
+     "query": "",
+     "line": 45,
+     "file": "provider-app/src/screens/shared/blueprint/RevenueInsights.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:971"
     }
    ],
-   "files": 12,
+   "files": 13,
    "unresolved": 0,
    "navIssues": []
   },
