@@ -24,9 +24,10 @@ export default function RefundPolicyPage() {
     try {
       await apiFetch(URL, { method: 'PUT', body: JSON.stringify(policy) });
       setMsg('تم الحفظ');
-    } catch (e: any) {
+    } catch (e: unknown) {
       // the server names the invalid fields (400 invalid_refund_policy) or refuses the role (403): say which
-      setMsg(e?.message ? `تعذر الحفظ: ${e.message}` : 'تعذر الحفظ، حاول مرة أخرى');
+      const m = e instanceof Error ? e.message : '';
+      setMsg(m ? `تعذر الحفظ: ${m}` : 'تعذر الحفظ، حاول مرة أخرى');
     } finally {
       setSaving(false);
     }
