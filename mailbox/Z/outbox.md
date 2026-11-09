@@ -1,3 +1,9 @@
+## 03:40 UTC 2026-11-09 — orders of 02:45: broadcast family member #2514, PT-05 #2518, PT-08/PT-09 #2519
+Status: in progress (3 PRs open, CI pending)
+PR: #2514 (CI: pending) ordering broadcasts (ASAP, photo order) carry family_member_id through offers to the accepted booking. #2518 (CI: pending) referral routes accept the apps' uuid ids + new journey j_referral_booking (PT-05). #2519 (CI: pending) journeys j_sick_leave (PT-08) and the report file download in j_lab_result_push (PT-09).
+What changed: #2514: AsapDto/PhotoOrderDto optional family_member_id, checked against the caller's family members, stored on the broadcast, member's insurance policy used for insurance orders, passed to createPriced; 4 tests. #2518: issue-referrals-and-prescription / my-referrals / diagnostic-callback accept uuid or ObjectId and resolve to the _id the rows key by; the issue route now also checks the visit exists, belongs to the patient and is this doctor's own (before, any doctor could attach a referral to any appointment id); 7 tests; journey: doctor issues, patient and other doctor refused, patient sees the tests in the outcomes and books them at a lab. #2519: journeys only.
+Left / blockers / questions: (1) the three journeys have never run (no live stack in my sandbox): I checked every route and response key against the code; if the live gate is red on them I fix in the PR. (2) PT-08 stays PARTIAL: a patient request for a sick leave does not exist in app or backend (needs a product decision and a board). (3) PT-05: no client calls the referral route yet; the provider app needs a screen (lane X / provider app). (4) Backfill dry run is with lane Y per your answer.
+
 ## 02:20 UTC 2026-11-09 — check 02:17: #2510 merged; no open PR, no open order
 Status: idle, reviewing
 PR: none open. Merged since the last report: #2510 (family_member_id backend, 02:08). Earlier today: #2508.
