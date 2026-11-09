@@ -2,39 +2,41 @@ import * as React from 'react';
 import { ActivityIndicator } from 'react-native';
 import Svg, { Circle, Path, Rect, G as SvgG } from 'react-native-svg';
 import type { IconProps as PhosphorIconProps } from 'phosphor-react-native';
-// One deep import per glyph (the package allows `src/icons/*`): `import *` from the package root put every one of its ~1,500 icons in the bundle (5.7 MB of source) for the 32 used here.
-import { BellIcon } from 'phosphor-react-native/src/icons/Bell';
-import { CalendarBlankIcon } from 'phosphor-react-native/src/icons/CalendarBlank';
-import { CaretDownIcon } from 'phosphor-react-native/src/icons/CaretDown';
-import { CaretLeftIcon } from 'phosphor-react-native/src/icons/CaretLeft';
-import { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
-import { CaretUpIcon } from 'phosphor-react-native/src/icons/CaretUp';
-import { CheckCircleIcon } from 'phosphor-react-native/src/icons/CheckCircle';
-import { CheckIcon } from 'phosphor-react-native/src/icons/Check';
-import { ClockIcon } from 'phosphor-react-native/src/icons/Clock';
-import { CreditCardIcon } from 'phosphor-react-native/src/icons/CreditCard';
-import { DownloadSimpleIcon } from 'phosphor-react-native/src/icons/DownloadSimple';
-import { EyeIcon } from 'phosphor-react-native/src/icons/Eye';
-import { EyeSlashIcon } from 'phosphor-react-native/src/icons/EyeSlash';
-import { FunnelIcon } from 'phosphor-react-native/src/icons/Funnel';
-import { GearIcon } from 'phosphor-react-native/src/icons/Gear';
-import { HeartIcon } from 'phosphor-react-native/src/icons/Heart';
-import { HouseIcon } from 'phosphor-react-native/src/icons/House';
-import { ListIcon } from 'phosphor-react-native/src/icons/List';
-import { MagnifyingGlassIcon } from 'phosphor-react-native/src/icons/MagnifyingGlass';
-import { MapPinIcon } from 'phosphor-react-native/src/icons/MapPin';
-import { MinusIcon } from 'phosphor-react-native/src/icons/Minus';
-import { PhoneIcon } from 'phosphor-react-native/src/icons/Phone';
-import { PlusIcon } from 'phosphor-react-native/src/icons/Plus';
-import { ShoppingCartIcon } from 'phosphor-react-native/src/icons/ShoppingCart';
-import { SignOutIcon } from 'phosphor-react-native/src/icons/SignOut';
-import { SlidersHorizontalIcon } from 'phosphor-react-native/src/icons/SlidersHorizontal';
-import { StarIcon } from 'phosphor-react-native/src/icons/Star';
-import { TrashIcon } from 'phosphor-react-native/src/icons/Trash';
-import { UserIcon } from 'phosphor-react-native/src/icons/User';
-import { UsersThreeIcon } from 'phosphor-react-native/src/icons/UsersThree';
-import { WarningIcon } from 'phosphor-react-native/src/icons/Warning';
-import { XIcon } from 'phosphor-react-native/src/icons/X';
+// One glyph per module (see phosphorGlyphs.js): `import *` from the package root bundled every one of its ~1,500 icons for the 32 used here.
+import {
+  BellIcon,
+  CalendarBlankIcon,
+  CaretDownIcon,
+  CaretLeftIcon,
+  CaretRightIcon,
+  CaretUpIcon,
+  CheckCircleIcon,
+  CheckIcon,
+  ClockIcon,
+  CreditCardIcon,
+  DownloadSimpleIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  FunnelIcon,
+  GearIcon,
+  HeartIcon,
+  HouseIcon,
+  ListIcon,
+  MagnifyingGlassIcon,
+  MapPinIcon,
+  MinusIcon,
+  PhoneIcon,
+  PlusIcon,
+  ShoppingCartIcon,
+  SignOutIcon,
+  SlidersHorizontalIcon,
+  StarIcon,
+  TrashIcon,
+  UserIcon,
+  UsersThreeIcon,
+  WarningIcon,
+  XIcon,
+} from './phosphorGlyphs';
 
 import { tokens, type ThemeName } from '../../design-tokens/dist/ts/tokens';
 import {
