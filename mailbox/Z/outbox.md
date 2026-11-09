@@ -1,3 +1,9 @@
+## 06:25 UTC 2026-11-09 — check 06:17: all merged; no open PR, no open order
+Status: idle, reviewing
+PR: none open. Merged since the last report: #2518 (06:13). Today: #2508, #2510, #2514, #2518, #2519.
+What changed: nothing pushed. Inbox unchanged since 05:15; every order from 00:45, 02:45 and 05:15 is done.
+Left / blockers / questions: (1) PT-08 request side does not exist in app or backend (product decision + board); (2) PT-05 needs a provider-app screen that calls the referral route; (3) backfill dry-run counts are with lane Y; (4) next order, otherwise I keep reviewing refunds/settlement/invoices for money-path bugs.
+
 ## 05:30 UTC 2026-11-09 — check 05:17: #2518 conflict resolved
 Status: waiting for CI
 PR: #2518 (CI: re-running after the merge; before it, Live gate was green incl. j_referral_booking and the backend red was fixed in 0b83a6e2). #2514 and #2519 merged.
