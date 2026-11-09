@@ -1,3 +1,11 @@
+## 19:05 UTC — #2550 merged with main + whole-suite local run (order 18:10)
+Status: fix pushed, waiting for CI
+PR: #2550 (merge 91a847d3, fix after it)
+- Merged main (after #2551/#2552): one conflict, two imports in appointments.service.ts, kept both.
+- Ran the whole backend jest suite locally (782 suites): 678 pass; 103 fail, and 100 of those need MongoMemoryServer, which my sandbox cannot download (403 from the proxy), so they are CI-only. I re-ran the other failures alone: all pass except `durable-events` (also Mongo-backed).
+- That run found one REAL regression of mine, in `kill-switches.spec` (online_consultations): the refund-policy check ran before the kill switch, so a switched-off video booking answered 400 `refund_policy_acceptance_required` instead of the switch's own code. Fixed: the kill switch is checked first, then the tick. Spec passes (16/16). The other kill-switch cases (nursing_broadcast, pharmacy) were fine.
+- The Mongo-backed specs remain unverified here; if CI shows more red I fix all in one push.
+
 ## 18:20 UTC — #2550 third round (order 17:40): nursing bookings
 Status: fix pushed, waiting for CI
 PR: #2550 (commit 1e91b9fe)
