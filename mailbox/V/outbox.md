@@ -1,5 +1,18 @@
 # Lane V outbox
 
+## 2026-11-09 19:30 UTC — scheduled tasks, ClamAV fix PR, run 111 branch, #2557 opened
+Status: in progress
+PR: #2558 ClamAV swap window (CI pending), #2557 docs (CI pending). #2555 and #2556 were merged.
+What changed:
+- Persistent scheduled tasks (create_trigger, bound to this session): trig_015MPQtW5xxb6VxkEKuqiGXr (cron 17 * * * *) and trig_01VmkPp16Ze4hHxqNZFNNgzj (cron 47 * * * *). Prompt: check mailbox/V/inbox.md, continue the list, work on the next item while CI runs. (The old in-session CronCreate jobs were removed by the restart; sorry for the 2 h gap: my turn ended while at the PR limit and nothing woke me.)
+- ClamAV (your 17:40 first item): cause = host MemAvailable about 1,000 MB at steady state, clamd needs 1,200-1,500 MB, the window rule counted MemAvailable only (min 1,700) and ignored the 3.1 GB of free swap. #2558: the window counts free swap above 1 GB kept (cap 700 MB, default, 0 = old rule), so 1,000 + 700 = 1,700 starts the scanner only while files wait and stops it after 10 idle minutes. Safe because mongodb cannot swap (memswap = mem) and clamav has oom_score_adj 900 (the kernel kills the scanner first, files stay in quarantine, never served unscanned). Price: redis/patient-web/worker idle pages go to swap during a scan. 16 tests pass (3 new). Docs updated (UPLOAD_SCAN_3_8GB.md).
+- To enable: task 91b (UPLOAD_SCAN=defer + CLAMAV_ON_DEMAND=1 + window cron, dry run first); no new variable. Apply docs/ops/60-deploy-main-clamav-message.patch on review/server-inspect so the deploy line stops saying uploads are refused under defer.
+- Run 111 (read-only, no deploy): branch v/ops-run-111, commit 26bafaf9f6ac2ebba65ca5f5af9a304011d0c164, on the new ops tip 127d62963. RUN = 96k-mongo-restart-who, 96m-clamav-state, 96c-uploads-state (UPLOAD_SCAN word, /config uploads_enabled, scan queue, window log, container memory). 11 tests pass. Please ask the owner to push it; its output tells whether defer is already live.
+- #2557 (docs, G6-G9 state) opened.
+Left / blockers / questions:
+- After the 111 output: if the window works, a PR to make the deploy script not print the misleading refused line is yours (review branch).
+- Next: item 6 open rows, starting with G4/G5 (lab results through /storage with scan, radiology: the uploader cannot approve their own report).
+
 ## 2026-11-09 17:05 UTC — Item 5 PR opened, item 6 list; at the 3-PR limit
 Status: in progress (open: #2546, #2555, #2556, all CI queued, nothing red; the GitHub runner queue is long)
 PR: #2556 SY-05/SY-02/SY-01 (CI pending); branch v/provider-admin-rows pushed, PR waits for a slot
