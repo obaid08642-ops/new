@@ -1,3 +1,10 @@
+## 14:15 UTC — FIX #2543 (live gate shard 4/5, admin list 404)
+Status: fix pushed, waiting for the live gate
+PR: #2543 (commit f96a4de4)
+- Cause: the route is fine (checked all 2265 routes in the built app: only `AdminSickLeaveController` matches `GET /api/v1/admin/medical-reports/without-seha-number`; no earlier route shadows it). The journey's `admin` is the admin-web proxy client, which maps `/admin/<api path>`, so my call went to a page of the admin web that does not exist. The correct proxy path is `/admin/admin/medical-reports/without-seha-number` (same as the other journeys).
+- Fixed the call and added a step that the list shows the report BEFORE the Seha number is added (so the list is proven to work, not only to be empty).
+- Left: #2548 and #2550 CI not yet re-checked; questions from earlier entries are still open.
+
 ## 15:25 UTC 2026-11-09 — orders 13:25 + NO WALLET: #2548 provider no-show, #2550 refund_policy_accepted (key name for X)
 Status: in progress (3 PRs open: #2543, #2548, #2550; CI pending)
 PR: #2548 (CI: pending) provider no-show. #2550 (CI: pending) refund_policy_accepted. #2543 (CI: pending on the new push) medical report + Seha.
