@@ -123,6 +123,59 @@ esac
         self.assertEqual(self.restarts(), ["nabdah-backend", "nabdah-backend"])
 
 
+    def mails(self):
+        return slurp(self.mail).count("Subject:") if os.path.exists(self.mail) else 0
+
+    def test_many_restarts_in_hours_send_one_mail_per_container_per_six_hours_with_the_count(self):
+        # owner 2026-11-09 (alert-mail flood): the restarts go on at the cooldown, the MAIL does not
+        self.set("nabdah-backend", "unhealthy")
+        for _ in range(3):
+            self.tick()
+        self.assertEqual(len(self.restarts()), 1)
+        self.assertEqual(self.mails(), 1)                       # the first restart after a quiet period is mailed at once
+        for _ in range(300):                                    # five more hours: a restart about every 15 minutes
+            self.tick()
+        restarts_so_far = len(self.restarts())
+        self.assertGreaterEqual(restarts_so_far, 15)
+        self.assertEqual(self.mails(), 1, "held back inside the 6 h window")
+        for _ in range(90):                                     # past 6 h after the first mail
+            self.tick()
+        self.assertEqual(self.mails(), 2)
+        second = slurp(self.mail).split("Subject:")[-1]
+        m = re.search(r"Since the last mail about nabdah-backend: (\d+) restart\(s\) by the watchdog, (\d+) failed", second)
+        self.assertIsNotNone(m, second)
+        self.assertGreaterEqual(int(m.group(1)), restarts_so_far - 1)   # the restarts since the first mail, this one included
+        self.assertEqual(int(m.group(2)), 0)
+
+    def test_the_six_hour_gap_is_per_container(self):
+        self.set("nabdah-backend", "unhealthy"); self.set("nabdah-patient-web", "unhealthy")
+        for _ in range(3):
+            self.tick()
+        self.assertEqual(self.mails(), 2)                       # one each
+        for _ in range(60):
+            self.tick()
+        self.assertEqual(self.mails(), 2)                       # still one each
+
+    def test_repeated_failed_restarts_are_one_mail_with_the_failure_count(self):
+        self.set("nabdah-backend", "unhealthy")
+        write_exec(os.path.join(self.health, "FAIL"), "")
+        for _ in range(3):
+            self.tick()
+        self.assertEqual(self.mails(), 1)
+        for _ in range(10):
+            self.tick()                                         # more failed attempts, no cooldown after a failure
+        self.assertEqual(self.mails(), 1)
+        self.assertIn("could not restart it", slurp(self.mail))
+        self.assertTrue(int(slurp(os.path.join(self.state, "nabdah-backend.fails-since-mail")).strip()) >= 2)
+
+    def test_the_mail_gap_can_be_set(self):
+        self.set("nabdah-backend", "unhealthy")
+        for _ in range(3):
+            self.tick(WATCHDOG_MAIL_HOURS=1)
+        for _ in range(90):
+            self.tick(WATCHDOG_MAIL_HOURS=1)
+        self.assertGreaterEqual(self.mails(), 2)
+
 class Installer(Base):
     def setUp(self):
         super().setUp()
