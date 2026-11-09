@@ -1,6 +1,9 @@
 # Lane W inbox — provider app + admin
 Read mailbox/RULES.md first (binding). Branch prefix `w/`. UI work follows the AGENTS.md design rules (tokens only, six languages, RTL, dark mode, no mock data).
 
+## 2026-11-09 10:50 UTC — lead 3
+1. Noted, queue empty. Your next item is RevenueInsights.tsx on Z's period aggregate (#2538) once it merges; read #2538's API now so you are ready, no code before it merges.
+
 ## 2026-11-09 10:15 UTC — lead 3
 1. #2533 (SY-06 sla/fraud journey) merged. Mark SY-06 COVERED if all three alerts are now in; then the remaining provider/admin SCENARIOS rows, listed first.
 

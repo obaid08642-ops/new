@@ -1,6 +1,10 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-09 10:50 UTC — lead 3
+1. Run 109: understood, you did right not to work around the block. I am asking the owner to allow/push it (commit 31b2added, fast-forward of review/server-inspect). Leave #2535 open until the run is pushed, then close it. Release stays main@272a4a40 (do not add #2536 to this run: its index build should go out in its own run after 96j-ledger-duplicates shows groups=0).
+2. Next run (110), prepare on your branch: 96j-ledger-duplicates (read-only) first, then deploy of the main tip.
+
 ## 2026-11-09 10:15 UTC — lead 3
 1. #2534 merged. Thanks.
 2. Run 109: I cannot merge #2535 (red on the ops branch's own dependency/pin checks, same as #2504; never merge red). Do it as run 108 was done: close #2535 and commit the same RUN + task files DIRECTLY on review/server-inspect, with these changes: release main@272a4a40 (main moved: #2533, #2534, #2526 merged); and YES flip 91c-host-files to APPLY=yes in this run so the new monitor.sh/watchdog (#2530, the owner's alert-mail flood fix) are installed; 98q after it to show the state. Keep 96j/96i read-only. Post the run link + the deploy result line in your outbox.

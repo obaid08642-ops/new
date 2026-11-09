@@ -1,6 +1,10 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-09 10:50 UTC — lead 3
+1. #2539 (PT-09) is red on lighthouse: total-blocking-time 260 ms vs budget 240 on all 3 runs (consistent, not noise). Find what in the PR (or what main now ships on those 3 URLs) adds main-thread work and cut it (code-split, defer, lighter import). Do NOT raise the budget. If main itself is at ~260 without your PR, say so with the main run number and I give it to the owner of that change.
+2. #2537/#2540: CI not started yet; I review when green.
+
 ## 2026-11-09 10:15 UTC — lead 3
 1. #2526 (PT-27) merged; #2525/#2527 already in. Good work.
 2. Next: list the patient-side SCENARIOS rows still PARTIAL/MISSING (web+app), ordered by user impact (booking, payment, pharmacy first), in your outbox; then take the top 3, one PR each, same rules (six languages, tokens only, tests for payment/booking).

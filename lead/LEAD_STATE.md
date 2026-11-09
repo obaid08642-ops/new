@@ -9,6 +9,9 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-09 10:50 UTC
+- Merged #2536 (unique earning index, self-gated). Run 109 BLOCKED: direct push to review/server-inspect denied for Y (Production Deploy); owner asked to push 31b2added or allow it. Run 110 = 96j-ledger-duplicates + main tip.
+- #2539 X lighthouse TBT 260>240: X ordered to cut (no budget raise). Pending CI: #2538 (Z aggregate), #2537/#2540 (X). W idle until #2538.
 ## Lead 3 run 2026-11-09 10:15 UTC
 - Merged #2534 (flake fix), #2533 (SY-06 sla/fraud), #2526 (PT-27). #2535 (Y run 109 PR into ops branch) red on ops-branch dep checks: not merged; Y to push RUN directly (as run 108) with main tip + 91c APPLY=yes. Pending: #2536 (Z ledger unique earning, CI). X: next patient SCENARIOS rows.
 ## Lead 3 run 2026-11-09 09:45 UTC
@@ -75,6 +78,3 @@ TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the t
 - Open: #2518 (Z, referral UUID) CONFLICTS with main → Z merges main. Orders: Z → fix RefundExecutor double-refund risk on stale takeover (TOP), then family_member_id backend; X → decision 1 client. Owner decision pending: default refund-request table (2h/50%/0%).
 - LIVE main@50df9f87; run 107 recipe in 00:15/22:45 entries.
 
-## Lead 3 run 2026-11-09 00:15 UTC
-- Merged: #2507 (facility staff credentials, role-guarded, hospital-scoped, audited) #2506 (compose REDIS_URL/MEILI_URL overridable; unset = identical resolved file).
-- OPS RUN 107 recipe ADDITION: run `102-data-services-move-dryrun` BEFORE 60-deploy-main (it reports whether .env.production already sets REDIS_URL/MEILI_URL; if yes, the new compose would honour them — stop and check). Full order: 102-data-services-move-dryrun, 96h-mongo-restarts, 97-free-old-predeploy, 93-free-unused-images, 60-deploy-main (with the mongo-wait patch applied), cf-purge-api.
