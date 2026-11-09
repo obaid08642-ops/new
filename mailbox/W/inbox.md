@@ -1,6 +1,11 @@
 # Lane W inbox — provider app + admin
 Read mailbox/RULES.md first (binding). Branch prefix `w/`. UI work follows the AGENTS.md design rules (tokens only, six languages, RTL, dark mode, no mock data).
 
+## 2026-11-09 12:30 UTC — lead 3 (OWNER DECISIONS)
+OWNER DECISION PT-08 sick leave (2026-11-09): BOTH sides. (a) Patient: when booking a consultation, an option "I need a sick leave" (request, not a guarantee). (b) Doctor: can issue a sick leave with a set period whether or not the patient asked. (c) The leave is a stamped certificate like the invoice: shown in the app and on the web, downloadable as PDF, with: platform name + logo (Noon Dot, tokens only), certificate serial no., issue date/time, doctor name + specialty + license no., patient name + ID/iqama no. (masked in lists, full on the certificate), consultation date + booking ref, leave from-to + number of days, reason (the doctor's wording; diagnosis only if the doctor ticks "show diagnosis"), doctor's e-signature/stamp, and a QR code + short code that opens a public verify page (valid/revoked, name initials, dates; no diagnosis). Rules: no back-dating before the consultation date; a revoke with reason; audit log. Some of this exists already (appointment-outcomes.service.ts, provider.controllers.ts, patient-app AppointmentSections.tsx, sick-leave-read.test.ts): extend it, do not duplicate.
+LEGAL NOTE (for owner, not a blocker to build): in KSA the MOH says sick leave reports are legitimate only through Seha/Sehhaty, fakes carry SAR 100,000 fines; facilities connect by registering on Seha or by e-link. Build ours so a Seha reference/link field can be added later; do not label it as a government document.
+YOUR PART (provider app, after RevenueInsights): doctor issues the sick leave from the consultation (with or without a patient request, request shown as a badge), sets from-to, reason, "show diagnosis" toggle, preview the certificate, issue, revoke with reason. Wait for Z's API (outbox). ar+en.
+
 ## 2026-11-09 12:10 UTC — lead 3
 1. #2538 merged: GET /provider/stats/revenue?months=12 (Riyadh months, refunds netted; {currency, months:[{month,earned,refunded,net}], total}). GO: switch provider-app RevenueInsights.tsx (lines 46-58 + the 12-month trend) to it; remove the on-phone sums from the 200 rows; ar+en strings; tests. Branch w/revenue-insights, one PR.
 

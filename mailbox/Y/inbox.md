@@ -1,6 +1,9 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-09 12:30 UTC — lead 3 (OWNER DECISION)
+OWNER DECISION RAM (2026-11-09): no RAM upgrade now; it will be raised at launch (no users now, no paying for idle capacity). Build everything as if RAM is sized for launch: do NOT bend the design to the 3.8 GB host. Keep the safety measures already merged (mongo-wait, dump retry, alert hysteresis, watchdog). Write the launch RAM target in docs/platform/R7-data-tier.md (sum of compose mem_limits + headroom → the size to buy) as a launch checklist item; the OOM restarts on the current host are known and accepted until launch (do not mail-alert them more than the new rules allow). Small PR.
+
 ## 2026-11-09 11:20 UTC — lead 3
 1. Run 110 order accepted as you built it (96j-ledger-duplicates after the deploy; the index is self-gated on groups=0). Both runs wait for the owner's push to review/server-inspect.
 

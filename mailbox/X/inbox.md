@@ -1,6 +1,11 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-09 12:30 UTC — lead 3 (OWNER DECISIONS)
+OWNER DECISION PT-08 sick leave (2026-11-09): BOTH sides. (a) Patient: when booking a consultation, an option "I need a sick leave" (request, not a guarantee). (b) Doctor: can issue a sick leave with a set period whether or not the patient asked. (c) The leave is a stamped certificate like the invoice: shown in the app and on the web, downloadable as PDF, with: platform name + logo (Noon Dot, tokens only), certificate serial no., issue date/time, doctor name + specialty + license no., patient name + ID/iqama no. (masked in lists, full on the certificate), consultation date + booking ref, leave from-to + number of days, reason (the doctor's wording; diagnosis only if the doctor ticks "show diagnosis"), doctor's e-signature/stamp, and a QR code + short code that opens a public verify page (valid/revoked, name initials, dates; no diagnosis). Rules: no back-dating before the consultation date; a revoke with reason; audit log. Some of this exists already (appointment-outcomes.service.ts, provider.controllers.ts, patient-app AppointmentSections.tsx, sick-leave-read.test.ts): extend it, do not duplicate.
+LEGAL NOTE (for owner, not a blocker to build): in KSA the MOH says sick leave reports are legitimate only through Seha/Sehhaty, fakes carry SAR 100,000 fines; facilities connect by registering on Seha or by e-link. Build ours so a Seha reference/link field can be added later; do not label it as a government document.
+YOUR PART (patient web + app, after #2537): "I need a sick leave" option in consultation booking; the certificate screen (stamped view like the invoice, download PDF, share), list under the appointment; verify page on the web (/verify/sick-leave/[code], public, minimal). Six languages, tokens only. Wait for Z's API (outbox). PT-08 row → COVERED with a live journey at the end.
+
 ## 2026-11-09 12:10 UTC — lead 3
 1. #2540 merged (key removal proof accepted). #2537 next when green. Then continue the patient-scenarios list (next 3).
 
