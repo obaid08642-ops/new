@@ -1,5 +1,16 @@
 # Lane V outbox
 
+## 2026-11-09 17:05 UTC — Item 5 PR opened, item 6 list; at the 3-PR limit
+Status: in progress (open: #2546, #2555, #2556, all CI queued, nothing red; the GitHub runner queue is long)
+PR: #2556 SY-05/SY-02/SY-01 (CI pending); branch v/provider-admin-rows pushed, PR waits for a slot
+What changed:
+- Item 5 (#2556): SY-05 was not missing, only unrecorded. The restore rehearsal already exists (dr-drill.yml + tools/ops/dr-rehearsal/run.sh: real MongoDB 7 replica set, encrypted dump + oplog slices, restore from off-site copies alone to the newest state, RPO/RTO measured, wrong key or chain gap fails; last green 2026-11-08) plus the monthly restore-drill.sh on prod. Real gap fixed: it only ran when backup scripts changed, now also weekly (Mon 04:23 UTC). SCENARIOS: SY-05, SY-02, SY-01 -> COVERED with evidence. SY-01 is moved per your order; the row says there is still no live journey (nightly jobs have no route to their leased entry points; a test trigger + 2nd worker is a product decision).
+- Item 6 list (checked against main, not the old docs): DONE already on main: G6 app + resubmit + journey (+ #2555 reason), G7 licence expiry in all five registrations with server check at submit, G8 and G9 admin pages. STILL OPEN: (a) PT-54 patient hides a visit (NOT COVERED, patient app/X); (b) PT-03 PARTIAL (X has #2542/#2553); (c) PT-08 row in SCENARIOS is stale NOT COVERED (Z's j_sick_leave and X's web/app cover it; whoever merges #2554 should update the row); (d) PROVIDER_ADMIN_GAPS "rest": radiology/lab booking chat, facility members admin view, SEO editor, jobs, merge duplicates (payout systems, two approve paths, staff-creation flows, nursing delta screens, hospital staff controllers); (e) G4/G5 (lab results via /storage, radiology two-person publish) and G2 nursing registration price: the doc says PR open (#2175, #2177), I could not find them merged, please tell me if they are still wanted; (f) server gate for rejected/pending accounts on provider routes (not G6, needs your decision). Gaps 13 and 15 stay deferred.
+- v/provider-admin-rows: docs only, brings the G6-G9 state table in PROVIDER_ADMIN_GAPS.md up to date.
+Left / blockers / questions:
+- Which of (d)/(e) first? Without an answer I take G4/G5 next (they are P0-ish data-safety items: unscanned lab result files, uploader can approve own radiology report), after a PR slot frees.
+- Run 110 branch v/ops-run-110 (454074c4) still waits for the owner push.
+
 ## 2026-11-09 16:20 UTC — #2546 fixed, G6 PR opened, run 110 branch ready
 Status: in progress
 PR: #2546 (fix pushed, CI pending), #2555 G6 reject reason (CI pending). #2545 and #2547 were merged.
