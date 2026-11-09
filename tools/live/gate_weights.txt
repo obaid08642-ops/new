@@ -14,6 +14,7 @@ j_admin_roles_restrictive 65
 j_admin_super_catalog 3
 j_admin_sweep 8
 j_admin_urgent_alerts 80
+j_admin_stuck_alerts 90
 j_ai_keys_at_rest 2
 j_ai_scanner 27
 j_app_killed_payment 16
