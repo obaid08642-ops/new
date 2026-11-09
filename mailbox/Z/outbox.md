@@ -1,3 +1,9 @@
+## 05:30 UTC 2026-11-09 — check 05:17: #2518 conflict resolved
+Status: waiting for CI
+PR: #2518 (CI: re-running after the merge; before it, Live gate was green incl. j_referral_booking and the backend red was fixed in 0b83a6e2). #2514 and #2519 merged.
+What changed: merged origin/main into z/referral-uuid (c7c8e839): the only conflicts were the two list files tools/live/gate_order.txt and gate_weights.txt (both sides appended); kept all lines, the diff against main is now only my j_referral_booking entries. tsc clean; doctor-referrals and health-fields specs pass.
+Left / blockers / questions: none new. No open order other than getting #2518 green. Open items for you unchanged: PT-08 request side missing; PT-05 needs a provider-app screen.
+
 ## 04:35 UTC 2026-11-09 — check 04:17: #2518 red fixed; #2514 green
 Status: in progress
 PR: #2514 (CI: green, all checks). #2518 (CI: Live gate green incl. the new j_referral_booking journey on all 5 shards; Backend build and tests was red, fixed, re-running). #2519 (CI: live gate running, no failure seen).
