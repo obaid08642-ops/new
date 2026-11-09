@@ -9,6 +9,9 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-09 08:45 UTC
+- Merged #2528 (Z: refund takeover full-refund cap fix + cumulative booking refund status; tests). Pending: #2529 (W SY-06 alerts) #2530 (Y alert-mail hysteresis) #2531 (Y native gradle retry) #2526 (X, CI restarting). LIVE main@1dfd4b83.
+
 ## Lead 3 run 2026-11-09 08:15 UTC
 - Merged #2527 (PT-24 app payment-return links) #2525 (PT-29). Pending: #2526 (X, Patient Mobile red, X fixing) #2528 (Z refund review, CI). LIVE main@1dfd4b83; ~8 PRs since → run 109 (with 96j) when convenient.
 
