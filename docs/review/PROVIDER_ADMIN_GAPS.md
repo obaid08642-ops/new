@@ -123,6 +123,11 @@ G6 decided by the lead: a REJECTED applicant signs in, sees only the rejection r
 | G6 reject: reason + fix and resubmit | | todo (backend `provider-admin.service.ts:204-222` + `provider-auth.service.ts:156`; app: a rejected-state screen with the reason and a resubmit action) |
 | G8 admin per-provider service offers | | todo (`GET admin/service-offers/:vertical` has no admin page) |
 | G9 admin refund-policy UI | | todo (`GET/PUT admin/refund-policy`, `refund-policy.controller.ts:23-36`; no admin page) |
-| rest: radiology/lab booking chat, facility members admin view, SEO editor, jobs, merge duplicates (see UX table) | | todo |
+| G4 lab results through /storage with a scan | on main | checked by lane V 2026-11-09: `labs.service.ts` `uploadReport` refuses raw `base64`/`url` (`raw_report_file_not_allowed`) and takes only a scanned `/storage` object (`labs.report-storage.spec.ts`) |
+| G5 radiology report: scan and two people | on main | checked: `privateProviderStorage` calls `assertScanned`; `approveReport` refuses whoever uploaded or sent for review (`report_reviewer_must_differ_from_uploader`, `radiology.service.report-storage.spec.ts`) |
+| lab and radiology booking chat (provider side) | v/g5-radiology-publish (PR open) | shared `BookingChatScreen` on the lab and radiology order details; the backend thread already existed |
+| facility members admin view | on main | `admin/src/pages/admin/facility-members.tsx` |
+| SEO publishing controls (admin) | on main | on/off per route in `admin/src/pages/admin/system-ops.tsx` (`GET/POST admin/ops/seo/controls`). A per-page SEO text editor does not exist and is not specified: needs a product decision |
+| rest: jobs board admin view, merge duplicates (two payout systems, two approve paths, three staff-creation flows, two nursing delta screens, two `/hospital/staff` controllers) | | todo; the merges change behaviour and need a merge map approved by the owner first (AGENTS.md: merge or delete nothing before the map is approved), so they are not started |
 
 Method: one branch `p/<item>` from main per PR; provider-app and backend need `npm ci --legacy-peer-deps` (provider-app also `--ignore-scripts`); gate = jest of the touched area, `tsc --noEmit`, `nest build`, dtolint, dtocheck (run `node tools/audit/dtocheck.js` from the repo root).
