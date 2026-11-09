@@ -219,9 +219,12 @@ export class ProviderAdminService {
 
   async reject(user: any, id: string, body: any) {
     this.assertAdmin(user);
+    // G6: the applicant reads this reason on the status screen and fixes what it names before resubmitting, so a rejection always carries one (the admin page asks for 5 characters).
+    const reason = typeof body?.reason === 'string' ? body.reason.trim() : '';
+    if (reason.length < 5) throw new BadRequestException('rejection_reason_required');
     const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
-    await this.transition(a, ProviderAccountStatus.REJECTED, user, body?.reason);
-    a.rejection_reason = body?.reason || 'rejected';
+    await this.transition(a, ProviderAccountStatus.REJECTED, user, reason);
+    a.rejection_reason = reason;
     await a.save();
     await this.accounts.model.db.collection('provider_profiles').updateMany(
       { account_id: id, user_id: { $exists: true } },

@@ -20,6 +20,8 @@ Complete list of user scenarios, from the owner's request ("make sure there are 
 | PARTIAL | 16 | 16 | 16 | 13 | 8 | 9 |
 | NOT COVERED | 32 | 29 | 22 | 22 | 18 | 12 |
 
+Lane V (2026-11-09): SY-05 (backups restore, P0), SY-02 and SY-01 moved to COVERED with the evidence in their rows. The table above is the older count; a recount of the 94 rows whose status cell parses now gives 91 COVERED, 1 PARTIAL, 2 NOT COVERED.
+
 This PR: seven scenarios moved to COVERED. Four are covered by journeys another session added to main (`j_dispute.py`, `j_payment_failed_retry.py`, `j_web_dark_a11y.py`), which were run here and pass. Three are new journeys in this PR (`j_notification_settings.py`, `j_doctor_leave.py`) and pass locally on main `365b2d580`.
 
 Batch 5 (this PR) moved four rows to COVERED (PT-10 chat window, PT-12 reviews, PT-14 complaint, SY-03 dead-letter queue) and AD-02 to PARTIAL (approve path only). PT-05 (referral to a booking) and PV-15 (provider sees a patient dispute) stay NOT COVERED: both are blocked by product gaps, recorded with file:line in `docs/qa/findings/batch5-2026-11-07.md`. The batch is four covered scenarios, not the 5-8 target, because the other candidates in the P1 list were blocked or app-only (PT-38, H).
@@ -138,11 +140,11 @@ Types: doctor, pharmacy, lab, radiology, nursing (and any other registered type)
 
 | ID | Scenario | Status | Evidence | Priority | Route |
 |---|---|---|---|---|---|
-| SY-01 | Nightly jobs run once and report | PARTIAL | `backend/src/common/cron-jobs-run-once.spec.ts` (source contract: every `@Cron`/`@Interval` is leased or has a documented own guard; the 5 nightly jobs are scheduled, run once and have a report surface) + `scheduled-once.spec.ts` (real Redis, 2 and 8 workers on one tick -> 1 run); no live journey: see `docs/qa/findings/batch6-2026-11-09.md` (`j_jobs.py` is the medical jobs board, not nightly jobs) | P1 | S |
-| SY-02 | Retries after a transient failure | PARTIAL | `j_chaos.py` | P1 | S |
+| SY-01 | Nightly jobs run once and report | COVERED | `backend/src/common/cron-jobs-run-once.spec.ts` (source contract: every `@Cron`/`@Interval` is leased or has a documented own guard; the 5 nightly jobs are scheduled, run once and have a report surface) + `scheduled-once.spec.ts` (real Redis, 2 and 8 workers on one tick -> 1 run); accepted as COVERED by the lead's queue order of 2026-11-09 (no live journey: the five jobs fire at 01:40-04:17 UTC and no route reaches their leased entry points, see `docs/qa/findings/batch6-2026-11-09.md`; a test-only trigger and a second worker process stay a product decision) | P1 | S |
+| SY-02 | Retries after a transient failure | COVERED | `j_chaos.py` (redis down, Mongo primary step-down, slow API, payment gateway 500 retried on the healthy gateway: exactly one intent and one paid charge, canary record intact) + `j_payment_failed_retry.py` + `j_dead_letter.py` (a failed job is listed and retried with a reason) + the oplog backup retry in `dr-rehearsal/run.sh` (transient failure retried once, no failure report, chain unbroken) | P1 | S |
 | SY-03 | Dead-letter queue inspection | COVERED | `j_dead_letter.py` (20/20): queue counts, failed-job list, unknown state refused, retry of an unknown job 404, bulk retry needs a reason and reports counts, patient refused | P1 | — |
 | SY-04 | Rate limits (per IP, per account) | COVERED | `j_otp_abuse.py`, `j_password_lockout.py`, `j_concurrency.py` | P1 | — |
-| SY-05 | Backups restore | NOT COVERED | none | P0 | S |
+| SY-05 | Backups restore | COVERED | `tools/ops/dr-rehearsal/run.sh` in `.github/workflows/dr-drill.yml` (real MongoDB 7 replica set + private bucket, test data only): nightly dump + oplog slices encrypted off-site, restore from the off-site copies alone to the newest state (post-dump inserts, updates, deletes and a transaction come back; restored counts equal the live database), RPO and RTO measured, a wrong key or a gap in the chain FAILS the drill. Production: `deploy/scripts/restore-drill.sh` restores the latest dump into a throwaway database every month and reports `restore_test` to the admin page. Last green run of the drill: 2026-11-08 (run 50). Now also scheduled weekly | P0 | S |
 | SY-06 | Monitoring alerts fire | COVERED | `j_admin_urgent_alerts.py` (failed payments), `j_admin_stuck_alerts.py` (stuck order), `j_admin_sla_fraud_alerts.py` (SLA breach, high fraud) | P1 | S |
 | SY-07 | Security headers | COVERED | `j_security_headers.py` | P1 | — |
 | SY-08 | Upload security (malware scan) | COVERED | `j_upload_security.py` | P1 | — |

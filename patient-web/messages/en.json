@@ -3155,6 +3155,13 @@
     "callEnableSound": "Tap to turn the sound on"
   },
   "ConsultClient": {
+    "noShowTitle": "The doctor did not come",
+    "noShowButton": "The doctor did not come",
+    "noShowConfirmBody": "Use this only if the doctor has not joined or arrived. The visit is cancelled and you are refunded in full right away.",
+    "noShowConfirm": "Cancel the visit and refund me",
+    "noShowKeep": "Not now",
+    "noShowDone": "The visit was cancelled. Your full refund is on its way.",
+    "noShowError": "Could not cancel the visit. Check your connection and try again.",
     "payHeading": "Complete the payment through a secure gateway",
     "payNote": "Creating the appointment is not a payment confirmation. The appointment is confirmed once the payment succeeds.",
     "payAmountDue": "Amount due: {amount}",

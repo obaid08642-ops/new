@@ -38,6 +38,7 @@ import { tokens } from '../../../theme/tokens';
 import { Stack, VirtualWaitingRoomScreen, styles } from './_shared';
 import { RequestTestScreen } from './RequestTestScreen';
 import { IssueReferralScreen } from './IssueReferralScreen';
+import { MedicalReportsListScreen } from './MedicalReportsListScreen';
 import { EPrescriptionScreen } from './EPrescriptionScreen';
 import { SickLeaveScreen } from './SickLeaveScreen';
 import { MedicalReportScreen } from './MedicalReportScreen';
@@ -108,6 +109,7 @@ export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void })
      <Stack.Screen name="consultation">{({ navigation, route }: any) => <LiveConsultationScreen apt={route.params?.param} onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="prescription">{({ navigation, route }: any) => <EPrescriptionScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="sick_leave">{({ navigation, route }: any) => <SickLeaveScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+     <Stack.Screen name="medical_reports_list">{({ navigation }: any) => <MedicalReportsListScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="medical_report">{({ navigation, route }: any) => <MedicalReportScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="referral">{({ navigation, route }: any) => <ReferralScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="medical_order_visits">{({ navigation }: any) => <MedicalOrderVisitsScreen onBack={() => navigation.goBack()} onOpen={(visit: any) => navigation.navigate('medical_order_composer', { param: visit })} />}</Stack.Screen>

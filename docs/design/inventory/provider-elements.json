@@ -1,5 +1,5 @@
 {
- "commit": "92091ec3",
+ "commit": "0fce0f1e",
  "screens": {
   "PendingDashboard": [
    {
@@ -9464,7 +9464,7 @@
    },
    {
     "kind": "button",
-    "label": "Sick leave",
+    "label": "{t('medicalReport.open')}",
     "src": "navigate → sick_leave",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
@@ -9474,11 +9474,21 @@
    },
    {
     "kind": "button",
+    "label": "{t('medicalReport.openList')}",
+    "src": "navigate → medical_reports_list",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
+    "line": 157,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
     "label": "Medical report",
     "src": "navigate → medical_report",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-    "line": 157,
+    "line": 158,
     "via": null,
     "note": null
    },
@@ -9488,7 +9498,7 @@
     "src": "navigate → referral",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-    "line": 158,
+    "line": 159,
     "via": null,
     "note": null
    },
@@ -9498,7 +9508,7 @@
     "src": "navigate → issue_referral",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-    "line": 159,
+    "line": 160,
     "via": null,
     "note": null
    },
@@ -9508,7 +9518,7 @@
     "src": "navigate → request_test",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-    "line": 160,
+    "line": 161,
     "via": null,
     "note": null
    }
@@ -9728,52 +9738,205 @@
   ],
   "SickLeaveScreen": [
    {
+    "kind": "data",
+    "label": "Data issued",
+    "src": "POST /provider/requests/:param/sick-leave → issued",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 31,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "data",
+    "label": "Data sehaSaved",
+    "src": "PUT /provider/sick-leaves/:param/seha-number → sehaSaved",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 33,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{t('medicalReport.seha.label')}",
+    "src": "user input → seha (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 83,
+    "via": null,
+    "note": null
+   },
+   {
     "kind": "button",
-    "label": "Back",
+    "label": "{t('medicalReport.seha.save')}",
+    "src": "PUT /provider/sick-leaves/:param/seha-number",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 84,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{t('medicalReport.back')}",
     "src": "parent callback onBack",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 87,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{t('medicalReport.from')}",
+    "src": "user input → from (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 103,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{t('medicalReport.to')}",
+    "src": "user input → to (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 104,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "data",
+    "label": "List DAY_CHOICES",
+    "src": "from DAY_CHOICES (prop / derived; not traced)",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 107,
+    "via": null,
+    "note": null,
+    "untraced": true
+   },
+   {
+    "kind": "button",
+    "label": "{t('medicalReport.daysCount', {}",
+    "src": "parent callback ISO_DAY.test",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 111,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{t('medicalReport.reason')}",
+    "src": "user input → reason (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 119,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{t('medicalReport.showDiagnosis}",
+    "src": "user input → showDiag (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 120,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{t('medicalReport.diagnosis')}",
+    "src": "user input → diag (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 121,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{t('medicalReport.issue')}",
+    "src": "POST /provider/requests/:param/sick-leave",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 126,
+    "via": null,
+    "note": null
+   }
+  ],
+  "MedicalReportsListScreen": [
+   {
+    "kind": "data",
+    "label": "Data rows",
+    "src": "rows: set from user input / local logic",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/MedicalReportsListScreen.tsx",
+    "line": 15,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{t('medicalReport.list.retry')}",
+    "src": "local state setFailed, setRows",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/MedicalReportsListScreen.tsx",
+    "line": 47,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{t('medicalReport.list.close')}",
+    "src": "local state setOpen, setSeha",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/MedicalReportsListScreen.tsx",
+    "line": 61,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{t('medicalReport.seha.label')}",
+    "src": "user input → seha (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/MedicalReportsListScreen.tsx",
     "line": 65,
     "via": null,
     "note": null
    },
    {
-    "kind": "input",
-    "label": "Diagnosis",
-    "src": "user input → diag → request body",
+    "kind": "button",
+    "label": "{t('medicalReport.seha.save')}",
+    "src": "PUT /provider/sick-leaves/:param/seha-number",
     "status": "ok",
-    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
-    "line": 82,
+    "file": "provider-app/src/screens/doctor/doctor/MedicalReportsListScreen.tsx",
+    "line": 66,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Start Date",
-    "src": "user input → from → request body",
+    "label": "{t('medicalReport.revoke.reason}",
+    "src": "user input → why → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
-    "line": 85,
+    "file": "provider-app/src/screens/doctor/doctor/MedicalReportsListScreen.tsx",
+    "line": 67,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "{d} day",
-    "src": "local state setDays",
+    "label": "{t('medicalReport.revoke.action}",
+    "src": "POST /provider/sick-leaves/:param/revoke",
     "status": "ok",
-    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
-    "line": 95,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Issue & Send Sick Leave",
-    "src": "POST /provider/requests/:param/sick-leave",
-    "status": "ok",
-    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
-    "line": 118,
+    "file": "provider-app/src/screens/doctor/doctor/MedicalReportsListScreen.tsx",
+    "line": 68,
     "via": null,
     "note": null
    }

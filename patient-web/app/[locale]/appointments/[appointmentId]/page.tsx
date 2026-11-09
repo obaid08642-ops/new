@@ -16,6 +16,7 @@ import { PrescriptionClient } from "@/components-next/prescription-client";
 import { CallTokenLauncher } from "@/components-next/call-token-launcher";
 import { readTelehealthConsent } from "@/lib/legal/telehealth-consent";
 import { PolicyCard, policyLines } from "@/components-next/consult/policy-lines";
+import { ProviderNoShow } from "@/components-next/consult/provider-no-show";
 import { getCancellationPolicy } from "@/lib/consult/cancellation-policy";
 import { ConsultationPaymentAction } from "@/components-next/consultation-payment-action";
 import { ConsultPage } from "@/components-next/consult/consult-page";
@@ -164,6 +165,8 @@ export default async function AppointmentDetailPage({ params }: Props) {
           {appointment.insuranceRequestId ? <ActionLinks actions={[{ href: `/${locale}/insurance/requests/${appointment.insuranceRequestId}`, label: c("copayAction") }]} /> : null}
         </SectionCard>
       ) : null}
+      {/* the doctor did not come: 10 minutes after the start, only for a visit that never started (the server decides again) */}
+      <ProviderNoShow appointmentId={appointmentId} status={appointment.status} slotStart={appointment.slotStart} />
       {open ? (
         <ActionLinks actions={[
           ...(confirmed && mode === "clinic" ? [{ href: `/${locale}/consultations/booking-status?appointmentId=${id}&view=location`, label: c("actionLocation") }] : []),
