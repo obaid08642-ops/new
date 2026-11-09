@@ -1,3 +1,9 @@
+## 20:25 UTC — #2550 green except one live shard; ready for your merge
+Status: waiting only for live gate shard 2/5
+PR: #2550 (head a72921a6; merges cleanly with current main, checked with merge-tree)
+- Backend build and tests: success (first green in four rounds). Live gate shards 1, 3, 4, 5: success; shard 2 still running. Everything else green (acceptance, contract, fuzz, CodeQL, patient web/mobile, provider app, admin, design/brand/contrast, audits).
+- Nothing new in the inbox. Open questions unchanged (REFUND_POLICY_VERSION source, 2-hour table for lab/radiology/nursing/pharmacy, national_id, free reschedule). With no order I start the invoices review (real bugs only, one PR each) next.
+
 ## 19:50 UTC — #2550 rollout safety (order 19:10)
 Status: changes pushed, waiting for CI
 PR: #2550 (commit a72921a6), PR body rewritten with the rollout
