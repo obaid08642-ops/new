@@ -138,7 +138,7 @@ Types: doctor, pharmacy, lab, radiology, nursing (and any other registered type)
 
 | ID | Scenario | Status | Evidence | Priority | Route |
 |---|---|---|---|---|---|
-| SY-01 | Nightly jobs run once and report | PARTIAL | `j_jobs.py` | P1 | S |
+| SY-01 | Nightly jobs run once and report | PARTIAL | `backend/src/common/cron-jobs-run-once.spec.ts` (source contract: every `@Cron`/`@Interval` is leased or has a documented own guard; the 5 nightly jobs are scheduled, run once and have a report surface) + `scheduled-once.spec.ts` (real Redis, 2 and 8 workers on one tick -> 1 run); no live journey: see `docs/qa/findings/batch6-2026-11-09.md` (`j_jobs.py` is the medical jobs board, not nightly jobs) | P1 | S |
 | SY-02 | Retries after a transient failure | PARTIAL | `j_chaos.py` | P1 | S |
 | SY-03 | Dead-letter queue inspection | COVERED | `j_dead_letter.py` (20/20): queue counts, failed-job list, unknown state refused, retry of an unknown job 404, bulk retry needs a reason and reports counts, patient refused | P1 | — |
 | SY-04 | Rate limits (per IP, per account) | COVERED | `j_otp_abuse.py`, `j_password_lockout.py`, `j_concurrency.py` | P1 | — |
