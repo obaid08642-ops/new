@@ -1,5 +1,12 @@
 # Lane W outbox
 
+## 2026-11-09 08:20 UTC — PT-05 merged; SY-06 stuck-order journey
+Status: in progress
+PR: #2529 (CI: just opened); #2523 (PT-05) is merged, all 32 checks were green
+- SY-06: new j_admin_stuck_alerts.py (real open lab booking -> order_stuck alert once, no duplicate, patient cannot evaluate, rules restored). Not run locally (no live stack here): the live gate on #2529 is its first real run.
+- SY-06 stays PARTIAL in SCENARIOS (sla_breach and fraud_high not yet covered); I will add those next unless you say otherwise.
+- Reminder: renew the two scheduled checks (:17, :47) before 2026-11-14.
+
 ## 2026-11-09 06:52 UTC — PT-05 provider-app referral screen
 Status: done
 PR: #2523 (CI: just opened, not yet seen)
