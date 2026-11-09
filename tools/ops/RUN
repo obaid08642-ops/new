@@ -1,12 +1,12 @@
-# 2026-11-09 run 109 = deploy main@272a4a40 (brings #2528-#2534: monitor/watchdog alert-mail rules, password-hash worker, native build retries).
-# Lead 3 recipe: 96j mongo cache check (read-only, before the deploy) + 97/93 free space + 60 deploy + 96i R11 halala counts (read-only)
-# + 91c host files with APPLY=yes (installs monitor.sh + backend-watchdog.sh of #2530; rollback exists) + 98q alert-mail state (read-only).
-release:272a4a4088550d890922ef82785c09d55cd74f74
-96j-mongo-cache-check
+# 2026-11-09 run 110 = deploy main@15e591f2 (brings #2536: unique partial index provider_earning_ref_unique, built by the backend at start ONLY when there are no duplicate groups).
+# 96j-ledger-duplicates (read-only) runs AFTER the deploy: it execs the compiled CLI dist/scripts/ledger-earning-duplicates.js inside the running backend, and that file exists only in the
+# release that contains #2536. Run before the deploy it would only say "module not found". The backend itself gates the index (groups>0 = warning, no index), so the order is safe.
+# 91c is back to a dry run (APPLY empty): run 109 installed the host scripts.
+release:15e591f208557ec174ba1aff5d9468aef1096e2e
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
-96i-halala-counts
+96j-ledger-duplicates
 91c-host-files
 98q-alert-mail-state
 cf-purge-api
