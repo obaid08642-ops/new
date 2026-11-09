@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { apiFetch } from '../../utils/api';
 import { useCan } from '@/components/AdminGuard';
-import { POLICY_FIELDS, invalidFields, type RefundPolicy } from '@/lib/refund-policy';
+import { POLICY_FIELDS, consultationTableRows, invalidFields, type RefundPolicy } from '@/lib/refund-policy';
 
 const URL = '/api/admin/admin/refund-policy';
 
@@ -43,6 +43,17 @@ export default function RefundPolicyPage() {
       <h1 className="text-2xl font-bold mb-2">سياسة الإلغاء والاسترداد</h1>
       <p className="text-sm opacity-70 mb-6">تُطبَّق القيم على الإلغاءات الجديدة فور الحفظ، وتعود المبالغ إلى وسيلة الدفع الأصلية.</p>
       <p className="text-xs text-amber-700 mb-6">تنبيه: قيمتا «نسبة غياب المريض في الزيارة المنزلية» و«استرداد رسوم التوصيل قبل الشحن» تُحفظان لكن لا يقرؤهما النظام بعد، فلا أثر لتغييرهما حالياً. وطلبات الاسترداد التي يرفعها المريض من التطبيق تستخدم نوافذ ثابتة (24 ساعة = 100%، 4 ساعات = 50%).</p>
+      <section className="mb-6 border rounded-lg p-4" aria-label="الجدول المعمول به الآن">
+        <h2 className="font-bold mb-3">الجدول المعمول به الآن (من القيم المحفوظة)</h2>
+        <table className="w-full text-sm">
+          <tbody>
+            {consultationTableRows(policy).map((r) => (
+              <tr key={r.when} className="border-t first:border-t-0"><td className="py-1">{r.when}</td><td className="py-1 font-bold w-16">{r.refund}</td></tr>
+            ))}
+          </tbody>
+        </table>
+        <p className="text-xs opacity-70 mt-3">قرار المالك (٩ نوفمبر): عند الإلغاء قبل أقل من ساعتين يختار المريض بين ٥٠٪ إلى وسيلة الدفع أو ١٠٠٪ رصيدًا في المحفظة، وإلغاء المزود أو غيابه استرداد كامل فورًا. خيار الرصيد وقاعدة المزود لم يُضافا إلى الخادم بعد، فلا يظهران هنا كقيم قابلة للتعديل.</p>
+      </section>
       {(['consultation', 'home_visit'] as const).map((group) => (
         <section key={group} className="mb-6 border rounded-lg p-4">
           <h2 className="font-bold mb-3">{group === 'consultation' ? 'الاستشارات والمواعيد' : 'الزيارات المنزلية والتمريض'}</h2>
