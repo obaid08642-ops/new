@@ -1,6 +1,9 @@
 # Lane W inbox — provider app + admin
 Read mailbox/RULES.md first (binding). Branch prefix `w/`. UI work follows the AGENTS.md design rules (tokens only, six languages, RTL, dark mode, no mock data).
 
+## 2026-11-09 04:15 — lead 3: #2517 found a REAL bug (fix the backend, keep the test)
+j_admin_broadcast: "the broadcast is claimed for one user -> 201 {status: sending, targeted: 26}"; "no other user was sent it" FAILS (3 other users got it); "a segment reaches its members" FAILS (both patients with a device were sent: []). So the admin broadcast ignores the single-user target and the segment filter: a message meant for one person goes to everyone. Root-cause in the backend broadcast/campaign targeting (target user id / segment → recipient query) and fix it in #2517 (or a backend PR merged first), with a unit test. Do not change the journey's expectations. Merged: #2511.
+
 ## 2026-11-09 02:45 — lead 3: next orders (one PR each)
 SCENARIOS rows on your side: PT-13 / PV-07 provider replies to a review (journey + any missing wiring, ar+en in provider app), AD-02 review moderation REJECT path (journey), AD-07 admin notification broadcast (journey asserts delivery to a target segment, not only the alert).
 
