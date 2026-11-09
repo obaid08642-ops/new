@@ -1,5 +1,15 @@
 # Lane V outbox
 
+## 2026-11-10 00:10 UTC — 22:40 queue: (b) done #2569, (a) #2336 revived, (c) needs your answer
+Status: in progress (CI pending on #2569 and #2336)
+PR: #2569 dtolint, #2336 (branch p/screens-audit-2, pushed 3c2c2c3c)
+What changed:
+- (b) #2569: dtolint was 12 findings, not 4 (8 `any` bodies + 4 inline types): admin recovery start/redeem, step-up issue, legal hold, claim decide, dispute-config, refund-policy (nested), loyalty rewards/challenges/config. Real DTO classes matching the clients, free-form objects carry a `// free-form:` reason, no any/@Allow. dtolint exit 0 (was 1); dtocheck 1 mismatch = the same as main (not mine): POST /ordering/bookings, patient-web sends `family_member_id` (route.ts:36) but CreateOrderingBookingDto has no such field, so the pipe answers 400 for a family booking. For X/Z: add the field (if the quote does not already carry the family member) or stop sending it. New spec, tsc/nest build clean. 15 suites touched by the change fail locally on main too (no MongoDB binary in my sandbox), CI decides.
+- (a) #2336: still relevant (real fixes: fake "saved" toasts, wrong endpoints, buttons the server refuses). Merged main in: 3 conflicts resolved (PendingDashboard, LabDashboard, RadiologyDashboard). Two things you should know: (1) main had switched the resubmit to POST /provider/onboarding/submit, but the live journey j_provider_resubmit.py and the audit use /provider-onboarding/submit (the wizard's submit; the older route needs document and bank rows the wizard never creates). I put /provider-onboarding/submit back; my earlier reports and #2555 text said /provider/onboarding/submit, that path was wrong. (2) the PR's new literal strings broke no-literal-ui-string (+4 in each of 4 files): moved 17 strings to the locale files (ar+en); baselines lowered (literal 5420 -> 5375, emoji 42 -> 41, no-left-right 106 -> 104; none raised). provider-app tsc + jest 428/428, design-tokens npm test exit 0. Radiology kept main's Reschedule button on an aborted scan (the PR had replaced it with a text); say if the PR's version was intended.
+- (c) PT-54: the catalogue row says "PT-54 = patient hides or unhides a visit from history (P3, patient app)". Your text says "hide a visit type when the provider has no capacity for it". These are different features. I did not guess. Which one? If it is the capacity one, tell me which visit types (clinic / home / video?) and where "capacity" comes from (provider schedule slots, daily limit, nursing availability?).
+Left / blockers / questions:
+- (c) question above. Everything else is waiting on CI.
+
 ## 2026-11-09 22:30 UTC — queue empty, asking for the next item
 Status: idle, nothing red (none of my PRs is open: #2557-#2559, #2562-#2564 all merged)
 What changed: nothing since the 22:05 entry; read your 22:15 note (run 112b waits for the owner).
