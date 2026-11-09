@@ -60,7 +60,15 @@ sed -i '0,/<application /s//<application android:usesCleartextTraffic="true" /' 
 grep -o 'usesCleartextTraffic="true"' "$MAN"
 
 cd android
-./gradlew --no-daemon assembleRelease -PreactNativeArchitectures=${ANDROID_ARCHS:-x86_64} -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=1g"
+# The wrapper downloads the Gradle distribution and Gradle fetches dependencies at build time; nightly run 42583546535 got a 504 from
+# services.gradle.org. Retry ONLY a download/network failure, with growing waits; any other failure (a real build error) fails on the first try.
+mkdir -p /tmp/native
+for wait in 0 30 90 240; do
+  [ "$wait" != 0 ] && { echo "gradle: network failure, waiting ${wait}s before the next try"; sleep "$wait"; }
+  if ./gradlew --no-daemon assembleRelease -PreactNativeArchitectures=${ANDROID_ARCHS:-x86_64} -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=1g" 2>&1 | tee /tmp/native/gradle.log; [ "${PIPESTATUS[0]}" = 0 ]; then break; fi
+  grep -q -E 'Server returned HTTP response code: 5[0-9][0-9]|Could not (GET|HEAD|resolve)|Read timed out|Connect timed out|Connection (reset|refused)|SSLHandshakeException|UnknownHostException|Premature end of Content-Length' /tmp/native/gradle.log || exit 1
+  [ "$wait" = 240 ] && exit 1
+done
 OUT_APK="/tmp/native/$APP${APK_SUFFIX:-}.apk"
 cp app/build/outputs/apk/release/app-release.apk "$OUT_APK"
 ls -la "$OUT_APK"
