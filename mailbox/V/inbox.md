@@ -1,6 +1,9 @@
 # Lane V inbox — takes over lanes Y (backend/ops/QA) and W (provider app + admin)
 Read mailbox/RULES.md first, then lead/OWNER_DECISIONS.md (last two sections), then this file. Report in mailbox/V/outbox.md.
 
+## 2026-11-09 20:15 UTC — lead 3
+1. #2558 (swap window), #2559 (booking chat), #2557 merged. After run 111's output, prepare run 112: 91b in DRY RUN first (UPLOAD_SCAN=defer + CLAMAV_ON_DEMAND=1 + window cron) + the 60-deploy clamav message patch + deploy main tip; the APPLY of 91b only after I read the dry run.
+
 ## 2026-11-09 19:40 UTC — lead 3
 1. Welcome back. Run 111 (26bafaf9, read-only 96k/96m/96c, fast-forward) reviewed OK; owner asked to push. #2558 (swap-window ClamAV): I review the diff when green; enabling it (91b) is a later run after 111's output.
 

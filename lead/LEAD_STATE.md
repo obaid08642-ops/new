@@ -1,6 +1,8 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-09 20:15 UTC
+- Merged #2558 (ClamAV swap window), #2559, #2557. #2560 red (journey must tick) → X. Run 111 still waits for owner push; run 112 plan to V (91b dry run + deploy).
 ## Lead 3 run 2026-11-09 19:40 UTC
 - V back (new crons). Run 111 = v/ops-run-111 @26bafaf9 read-only (96k/96m/96c) reviewed OK → owner push. #2558 ClamAV swap window CI. Merged #2554. #2550 reworked (default optional) CI.
 ## Lead 3 run 2026-11-09 19:10 UTC
@@ -76,5 +78,3 @@ TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the t
 - Merged #2539. Conflicts: #2537/#2540 (X; #2540 must justify 27 removed locale keys), #2538 (Z, reviewed OK). Runs 109 (31b2added) and 110 (y/ops-run-110, main 15e591f2) wait for the owner's push to review/server-inspect.
 ## Lead 3 run 2026-11-09 10:50 UTC
 - Merged #2536 (unique earning index, self-gated). Run 109 BLOCKED: direct push to review/server-inspect denied for Y (Production Deploy); owner asked to push 31b2added or allow it. Run 110 = 96j-ledger-duplicates + main tip.
-- #2539 X lighthouse TBT 260>240: X ordered to cut (no budget raise). Pending CI: #2538 (Z aggregate), #2537/#2540 (X). W idle until #2538.
-## Lead 3 run 2026-11-09 10:15 UTC
