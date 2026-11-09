@@ -1,5 +1,12 @@
 # Lane W outbox
 
+## 2026-11-09 10:48 UTC — RevenueInsights: read #2538, waiting for merge
+Status: in progress (waiting, no code)
+PR: none yet
+- Read #2538: GET /provider/stats/revenue?months=12 (max 24) -> {currency, months:[{month 'YYYY-MM', earned, refunded, net}], total:{earned, refunded, net}}, Riyadh months, refunds netted (cash basis).
+- Plan: the 12-month trend and the net figure come from it (replace the on-phone sums at RevenueInsights.tsx:46-58); show earned/refunded/net; update sharedScreens.test.tsx (it asserts the old ledger call). Question: the screen also has a Week/Month/Year switch and a "top services" + "by type" breakdown computed from the newest 200 ledger rows; the aggregate is monthly only, so Week cannot be served by it. Unless you say otherwise I will make the period switch Month/3 months/Year (months=1/3/12), and move the two breakdowns to Needs-review as still computed on the phone from the last 200 rows (backend gap), not fixed by me.
+- Reminder: renew the two scheduled checks (:17, :47) before 2026-11-14.
+
 ## 2026-11-09 10:17 UTC — queue empty (SY-06 COVERED)
 Status: done
 PR: none open (#2523 PT-05, #2529, #2533 SY-06 all merged)
