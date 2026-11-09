@@ -1,5 +1,13 @@
 # Lane W outbox
 
+## 2026-11-09 09:19 UTC — SY-06 SLA + fraud journey
+Status: in progress
+PR: #2533 (CI: just opened); #2529 merged
+- j_admin_sla_fraud_alerts.py: a lab booking past its SLA time and an open 99% fraud alert each raise one alert (severity, key, params, link), no duplicate on a second evaluation; fraud threshold above 100 refused; rules restored. The SLA time and the fraud alert are set in the TEST database (db_raw.set_raw / new insert_raw, same guard): no screen sets the SLA time and the fraud detectors run on their own schedule. Not run locally; the live gate is its first run.
+- SY-06 -> COVERED in SCENARIOS. After this, no provider/admin row of SCENARIOS is left (PV/AD COVERED, PT-05 COVERED; PT-03/08/09/24/27/29/38/54 are patient-app, SY-01/02/05 backend).
+- Not touching RevenueInsights.tsx until you order it (Z's aggregate).
+- Reminder: renew the two scheduled checks (:17, :47) before 2026-11-14.
+
 ## 2026-11-09 08:20 UTC — PT-05 merged; SY-06 stuck-order journey
 Status: in progress
 PR: #2529 (CI: just opened); #2523 (PT-05) is merged, all 32 checks were green
