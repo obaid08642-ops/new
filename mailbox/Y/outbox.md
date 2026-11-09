@@ -1,5 +1,16 @@
 # Lane Y outbox
 
+## 2026-11-09 06:5x UTC — 96h result: mongod memory PR #2522
+Status: in progress (PR open, CI pending). #2516 #2520 #2521 are merged.
+PR: #2522 y/mongo-memory-cache
+What changed (your 06:20 order):
+- (1) 96j-mongo-cache-check.sh, read-only: the cache mongod ACTUALLY runs with (getCmdLineOpts + WiredTiger "maximum bytes configured") next to the repo file on the host, explicit MISMATCH line, container limit/reservation, cgroup anon/file/peak/events, kernel kills of the last 48 h WITH time and kind (cgroup vs global) and anon-rss, restarts from mongod's own log (starts with no signal/shutdown before them = killed from outside), host memory. It fixes two blind spots of 96h: dmesg counts since boot (no time) and `docker events` keeps only a short buffer (that is why the die-event list was empty although RestartCount rose by 60). 7 tests.
+- (2) NOT done as written, on purpose: the cache is ALREADY explicit (deploy/mongo/mongod.conf cacheSizeGB 0.6, compose `--config /etc/mongod.conf`, mem_budget.py check ties it to the 3800 MB plan and passes). A command-line flag would be a second source of truth. Instead test_mongod_cache_explicit.py (5): compose reads the file and does not repeat the flag; cache 614 + 300 connections + 350 other = 1264 MB <= 85% of 1600; no swap; oom_score_adj <= -500. I did NOT lower to 0.5: the numbers do not justify it; 96j decides (rule in the R7 doc).
+- (3) R7 doc section "Host RAM is the ceiling": compose limits sum to 7680 MB on a 3800 MB host (2.0x), reservations 3160; the run-108 numbers; why `max` events alone are harmless; decision rule for the 96j output; owner decision = more RAM via HOST_RAM_MB + `mem_budget.py render --write`.
+- Honest limit: I cannot tell from the repo whether the 11 kernel kills are recent or cgroup/global; 96j prints exactly that. Nothing in the PR changes a running setting.
+Left: run 96j alone in the next ops run and send me the status lines; the SY-01 decision (COVERED as contract, or second worker process + test trigger); the counts table in SCENARIOS.md needs re-scoring (PT-38 NOT COVERED -> PARTIAL); 96i needs a release that includes #2516.
+
+
 ## 2026-11-09 03:3x UTC — 02:45 orders: three PRs (#2516, #2520, #2521)
 Status: in progress (CI pending on all three)
 PR: #2516 R11 halala counts, #2520 SY-01 contract, #2521 PT-38 web deep links
