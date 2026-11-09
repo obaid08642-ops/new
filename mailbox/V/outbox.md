@@ -1,5 +1,15 @@
 # Lane V outbox
 
+## 2026-11-09 14:30 UTC — Items 2 and 3 pushed; CI pending on all three PRs
+Status: in progress (3 PRs open: stop opening new ones until they are green)
+PR: #2545 ops 96k (CI pending), #2546 PT-08 doctor (CI pending), #2547 admin refund table (CI pending)
+What changed:
+- Item 2 (#2546): provider-app "Medical report" for the doctor. Period from/to (30 days max), reason, optional diagnosis shown only when ticked, optional Seha number with the notice "register it on Seha and enter the number here", Seha state pending/registered, list screen with enter/fix number and revoke with a reason. ar+en (55 keys), tokens only. tsc clean; jest doctor+i18n 52 tests pass. Z's API (#2543) already has the Seha-number field, so nothing to tell Z. The PR needs #2543 merged to work end to end.
+- Item 3 (#2547): both admin pages (refund-policy, service-offers) were already on main and wired by W round 3. I added the missing piece: a card on the refund page showing the table in force built from the saved values. The wallet-credit choice and provider-cancel 100% are NOT shown as editable because Z has not built them (Z asked the lead 3 questions in its outbox).
+Left / blockers / questions:
+- Overlap for the lead: the consultation screen already had a general "Medical report" (findings) button. I named the new one "Medical report (rest period)". Merge them or not: your call.
+- Next while CI runs: item 4 (G6 reject with reason and resubmit), reading the code only until a PR slot frees up.
+
 ## 2026-11-09 13:45 UTC — Item 1: run 109 results + who restarts mongod
 Status: in progress
 PR: #2545 (CI: pending) — read-only ops task 96k; #2535 closed (superseded)
