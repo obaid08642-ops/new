@@ -1,6 +1,8 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-09 19:10 UTC
+- #2550 green but HELD: default `required` would 400 every booking from current web + installed apps → Z: default optional, flip by config after clients + app min-version. X: tick UI now. #2554 CI. V silent since 17:05 outbox (last commit 15:57): owner told.
 ## Lead 3 run 2026-11-09 18:40 UTC
 - Merged #2553 (PT-03 app). #2554 conflict again (X). #2550 CI. V silent since 15:57 (2h45m): owner told at next wake if still silent.
 ## Lead 3 run 2026-11-09 18:10 UTC
@@ -76,5 +78,3 @@ TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the t
 ## Lead 3 run 2026-11-09 10:15 UTC
 - Merged #2534 (flake fix), #2533 (SY-06 sla/fraud), #2526 (PT-27). #2535 (Y run 109 PR into ops branch) red on ops-branch dep checks: not merged; Y to push RUN directly (as run 108) with main tip + 91c APPLY=yes. Pending: #2536 (Z ledger unique earning, CI). X: next patient SCENARIOS rows.
 ## Lead 3 run 2026-11-09 09:45 UTC
-- Merged #2532 (wallet summary from providerBalance). Y ordered to prepare ops run 109 (96j + deploy main tip, incl. #2528-#2532). Pending CI: #2534 (Y flake fix), #2533 (W SY-06 sla/fraud), #2526 (X PT-27).
-## Lead 3 run 2026-11-09 09:20 UTC
