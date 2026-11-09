@@ -1,0 +1,38 @@
+// The 32 Phosphor glyphs Icon.tsx uses, one deep require per glyph (the package exposes `src/icons/*`). `import * from 'phosphor-react-native'`
+// put all of its ~1,500 icons in the bundle (5.7 MB of source). Plain JS with a .d.ts beside it (phosphorGlyphs.d.ts) on purpose: tsc takes the
+// types from the .d.ts and never opens the package's TypeScript source (lib/icon-base.tsx), which does not type-check under these projects' settings.
+/* eslint-disable @typescript-eslint/no-require-imports */
+module.exports = {
+  BellIcon: require('phosphor-react-native/src/icons/Bell').BellIcon,
+  CalendarBlankIcon: require('phosphor-react-native/src/icons/CalendarBlank').CalendarBlankIcon,
+  CaretDownIcon: require('phosphor-react-native/src/icons/CaretDown').CaretDownIcon,
+  CaretLeftIcon: require('phosphor-react-native/src/icons/CaretLeft').CaretLeftIcon,
+  CaretRightIcon: require('phosphor-react-native/src/icons/CaretRight').CaretRightIcon,
+  CaretUpIcon: require('phosphor-react-native/src/icons/CaretUp').CaretUpIcon,
+  CheckCircleIcon: require('phosphor-react-native/src/icons/CheckCircle').CheckCircleIcon,
+  CheckIcon: require('phosphor-react-native/src/icons/Check').CheckIcon,
+  ClockIcon: require('phosphor-react-native/src/icons/Clock').ClockIcon,
+  CreditCardIcon: require('phosphor-react-native/src/icons/CreditCard').CreditCardIcon,
+  DownloadSimpleIcon: require('phosphor-react-native/src/icons/DownloadSimple').DownloadSimpleIcon,
+  EyeIcon: require('phosphor-react-native/src/icons/Eye').EyeIcon,
+  EyeSlashIcon: require('phosphor-react-native/src/icons/EyeSlash').EyeSlashIcon,
+  FunnelIcon: require('phosphor-react-native/src/icons/Funnel').FunnelIcon,
+  GearIcon: require('phosphor-react-native/src/icons/Gear').GearIcon,
+  HeartIcon: require('phosphor-react-native/src/icons/Heart').HeartIcon,
+  HouseIcon: require('phosphor-react-native/src/icons/House').HouseIcon,
+  ListIcon: require('phosphor-react-native/src/icons/List').ListIcon,
+  MagnifyingGlassIcon: require('phosphor-react-native/src/icons/MagnifyingGlass').MagnifyingGlassIcon,
+  MapPinIcon: require('phosphor-react-native/src/icons/MapPin').MapPinIcon,
+  MinusIcon: require('phosphor-react-native/src/icons/Minus').MinusIcon,
+  PhoneIcon: require('phosphor-react-native/src/icons/Phone').PhoneIcon,
+  PlusIcon: require('phosphor-react-native/src/icons/Plus').PlusIcon,
+  ShoppingCartIcon: require('phosphor-react-native/src/icons/ShoppingCart').ShoppingCartIcon,
+  SignOutIcon: require('phosphor-react-native/src/icons/SignOut').SignOutIcon,
+  SlidersHorizontalIcon: require('phosphor-react-native/src/icons/SlidersHorizontal').SlidersHorizontalIcon,
+  StarIcon: require('phosphor-react-native/src/icons/Star').StarIcon,
+  TrashIcon: require('phosphor-react-native/src/icons/Trash').TrashIcon,
+  UserIcon: require('phosphor-react-native/src/icons/User').UserIcon,
+  UsersThreeIcon: require('phosphor-react-native/src/icons/UsersThree').UsersThreeIcon,
+  WarningIcon: require('phosphor-react-native/src/icons/Warning').WarningIcon,
+  XIcon: require('phosphor-react-native/src/icons/X').XIcon,
+};

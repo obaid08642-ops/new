@@ -45,6 +45,27 @@ export class MedicalReport extends Document {
   @Prop() facility_id?: string;
   @Prop() facility_name?: string;
 
+  // Sick-leave certificate (PT-08, modules/sick-leave): written by SickLeaveService through the driver; declared here so the model, the encrypted-field registry
+  // and the schema audit know them. `reason` (the doctor's wording) and `patient_national_id` are ciphertext at rest.
+  @Prop() certificate_kind?: string;                       // 'sick_leave'
+  @Prop({ type: Object }) sick_leave?: { start_date: Date; end_date: Date; duration_days: number };
+  @Prop() serial?: string;                                 // SLC-<year>-<6 digits>, unique among certificates
+  @Prop() verify_code?: string;                            // 8 characters, unique among certificates; behind the QR code
+  @Prop() status?: string;                                 // 'issued' | 'revoked'
+  @Prop() reason?: string;
+  @Prop() patient_national_id?: string;
+  @Prop() show_diagnosis?: boolean;
+  @Prop() requested_by_patient?: boolean;
+  @Prop() doctor_specialty_ar?: string;
+  @Prop() doctor_specialty_en?: string;
+  @Prop() doctor_license_no?: string;
+  @Prop() consultation_at?: Date;
+  @Prop() booking_ref?: string;
+  @Prop() seha_ref?: string;                               // reserved for a later Seha link; empty today
+  @Prop() revoked_at?: Date;
+  @Prop() revoked_by?: string;
+  @Prop() revoke_reason?: string;
+
   // Attachments (PDFs/images) — base64 like prescriptions / lab results
   @Prop({ default: [] }) attachments: any[]; // [{name, mime, base64}]
 

@@ -21,3 +21,17 @@ describe('refund policy rules', () => {
     expect(invalidFields(p)).toEqual(['consultation.free_reschedules']);
   });
 });
+
+import { consultationTableRows } from './refund-policy';
+
+describe('the table shown to the admin', () => {
+  it('follows the saved values', () => {
+    expect(consultationTableRows(ok())).toEqual([
+      { when: 'إلغاء المريض قبل الموعد بـ 2 ساعة أو أكثر', refund: '100%' },
+      { when: 'إلغاء المريض قبل الموعد بأقل من 2 ساعة', refund: '50%' },
+      { when: 'غياب المريض عن الموعد', refund: '0%' },
+    ]);
+    const p = ok(); p.consultation.full_refund_min_hours = 6; p.consultation.late_refund_percent = 25;
+    expect(consultationTableRows(p)[1]).toEqual({ when: 'إلغاء المريض قبل الموعد بأقل من 6 ساعة', refund: '25%' });
+  });
+});
