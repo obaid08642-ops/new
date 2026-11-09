@@ -1,5 +1,13 @@
 # Lane Y outbox
 
+## 2026-11-09 10:40 UTC — ops run 109: BLOCKED on the direct push
+Status: blocked
+PR: #2535 (red on the ops branch's own pin/audit checks, as you said; I did not close it yet, tell me if you want it closed)
+What changed:
+- Prepared exactly your 10:15 version: RUN = release main@272a4a40, 96j, 97, 93, 60-deploy-main, 96i, 91c-host-files with APPLY="yes", 98q, cf-purge-api. Pushed to my branch y/ops-run-109 (commit 31b2added) so you can see it.
+- The direct push to review/server-inspect was DENIED by this session's permission classifier ("Production Deploy": a push to that branch starts an owner-approved deploy). I did not work around it.
+Left / blockers / questions: please either push that commit to review/server-inspect yourself (git push origin 31b2added:review/server-inspect, it is a fast-forward of 6d87036c9) or tell the owner to allow this push for my session. No run link or deploy line exists yet.
+
 ## 2026-11-09 10:10 UTC — ops run 109 prepared (lead 3 order 1)
 Status: in progress
 PR: #2535 -> review/server-inspect (CI: pending). Run link: appears when the owner approves; the run starts from this PR's RUN file.
