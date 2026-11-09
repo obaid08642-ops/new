@@ -16,7 +16,7 @@ export async function resolveFamilyMemberId(
   if (typeof memberId !== 'string' || memberId.length > 128) throw new BadRequestException('family_member_id_invalid');
   if (memberId === userId) return undefined;
   const m = await db.collection('family_members').findOne(
-    { id: { $eq: memberId }, $or: [{ owner_id: userId }, { user_id: userId }, { patient_id: userId }] },
+    { id: { $eq: memberId }, is_deleted: { $ne: true }, $or: [{ owner_id: userId }, { user_id: userId }, { patient_id: userId }] },
     { projection: { _id: 0, id: 1 } },
   );
   if (!m) throw new NotFoundException('family_member_not_found');
