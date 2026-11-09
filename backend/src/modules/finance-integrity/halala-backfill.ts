@@ -49,6 +49,48 @@ export async function planBackfill(db: Db, targets: Target[] = TARGETS, sample =
   return rows;
 }
 
+export interface ShadowRow { collection: string; field: string; doubles: number; shadow_present: number; shadow_disagree: number }
+
+/**
+ * R11 gate check, READ-ONLY: for every double that already has its integer shadow, does the shadow equal what `toHalalas` makes of the double? A disagreement of even one halala
+ * means a write changed the double without the shadow (a raw `collection()` write that skipped `common/halala-shadow.ts`). A shadow that is not a number, or a double that
+ * `toHalalas` rejects, counts as a disagreement. Counts only: no id and no value leaves this function.
+ */
+export async function checkShadows(db: Db, targets: Target[] = TARGETS): Promise<ShadowRow[]> {
+  const rows: ShadowRow[] = [];
+  for (const t of targets) {
+    for (const f of t.fields) {
+      const col = db.collection(t.collection);
+      const doubles = await col.countDocuments({ [f]: { $type: 'number' } });
+      let present = 0; let disagree = 0;
+      const cursor = col.find({ [f]: { $type: 'number' }, [shadow(f)]: { $exists: true } }, { projection: { _id: 0, [f]: 1, [shadow(f)]: 1 } });
+      for await (const d of cursor) {
+        present++;
+        const have = (d as any)[shadow(f)];
+        let want: number | undefined;
+        try { want = toHalalas((d as any)[f]); } catch { want = undefined; }
+        if (typeof have !== 'number' || want === undefined || have !== want) disagree++;
+      }
+      rows.push({ collection: t.collection, field: f, doubles, shadow_present: present, shadow_disagree: disagree });
+    }
+  }
+  return rows;
+}
+
+/** The `halala-counts:` lines the ops task prints: per collection.field and one total. Names and counts only. */
+export function halalaCountLines(plan: PlanRow[], shadows: ShadowRow[]): string[] {
+  const out: string[] = [];
+  let missing = 0; let unclean = 0; let disagree = 0;
+  for (const p of plan) {
+    const sh = shadows.find((x) => x.collection === p.collection && x.field === p.field);
+    const m = p.to_fill + p.unclean;
+    missing += m; unclean += p.unclean; disagree += sh?.shadow_disagree ?? 0;
+    out.push(`halala-counts: ${p.collection}.${p.field} doubles=${sh?.doubles ?? 0} missing_shadow=${m} (clean=${p.to_fill} unclean=${p.unclean}) shadow_present=${sh?.shadow_present ?? 0} shadow_disagree=${sh?.shadow_disagree ?? 0}`);
+  }
+  out.push(`halala-counts: TOTAL fields=${plan.length} missing_shadow=${missing} unclean=${unclean} shadow_disagree=${disagree}`);
+  return out;
+}
+
 export async function applyBackfill(db: Db, opts: { targets?: Target[]; includeLedger?: boolean; batch?: number } = {}): Promise<{ written: number; skipped_unclean: number }> {
   const batch = opts.batch ?? 500;
   let written = 0; let skipped = 0;
