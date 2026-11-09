@@ -9,6 +9,9 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-09 07:45 UTC
+- Merged #2524 (PT-03 dependants/minors: guardian consent stored, validated, owner-scoped) #2523 (PT-05 provider referral screen). Pending: #2525 #2527 (X), #2526 red (Patient Mobile build → X sees it). LIVE main@1dfd4b83.
+
 ## Lead 3 run 2026-11-09 07:15 UTC
 - Merged #2522 (Y: 96j-mongo-cache-check read-only; cache already explicit 0.6 GB in mongod.conf; root cause = host RAM 3800 MB vs compose mem_limits summing 7680 MB → host-level OOM). Next ops run (109) should run `96j-mongo-cache-check` (read-only) to see kill times/kinds; decision tree in docs/platform/R7-data-tier.md. Owner: RAM upgrade.
 - Pending CI: #2523 (W PT-05) #2524 (Z PT-03) #2525 #2526 #2527 (X). LIVE main@1dfd4b83.
