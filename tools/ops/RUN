@@ -1,6 +1,6 @@
-# 2026-11-08 19:20 UTC run 106 = deploy main@50df9f87.
-# Brings: #2225 #2480 #2491 #2496 #2492 #2493 #2486 #2420 #2398 #2484
-release:50df9f87da82aeefe76d2bd67ce4599660825533
+# 2026-11-09 04:50 UTC run 107 = deploy main@3964d615.
+# Brings: 23 PRs merged since run 106 (#2366 #2483 #2490 #2494-#2503 #2506-#2515 #2519)
+release:3964d615b165277e6789fc1c4e0621d5109910d1
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
