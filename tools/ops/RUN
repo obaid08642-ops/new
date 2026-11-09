@@ -1,12 +1,10 @@
-# 2026-11-09 run 109 (= Y runs 109+110 in one, pushed by the ops session) = deploy main@58a1bb6e (brings #2526-#2540: alert-mail hysteresis, ledger unique earning, revenue by month, PT-24/27/29/38).
-# 96j mongo cache check (read-only, before) + 97/93 + 60 deploy + 96i halala counts + 96j ledger duplicates (read-only, after the deploy) + 91c host files APPLY=yes (installs monitor.sh + backend-watchdog.sh of #2530; backups + rollback) + 98q alert-mail state (read-only).
-release:58a1bb6e0d6e28c22a03ac4742382f0e71a02a2a
-96j-mongo-cache-check
+# 2026-11-09 run 110 = deploy main@9269ee61 (brings #2543 medical report API, #2544 bundle trim, #2547 admin refund table, #2549 PT-08 web, #2550-#2552 as merged).
+# 96k mongod restart evidence (read-only, BEFORE the deploy so the 48 h window is clean) + 96m ClamAV/upload-scan state (read-only) + 97/93 + 60 deploy + 96j ledger duplicates (read-only, after the deploy) + cf-purge-api.
+release:9269ee6128fd4c1290e54beda1996398831f84f3
+96k-mongo-restart-who
+96m-clamav-state
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
-96i-halala-counts
 96j-ledger-duplicates
-91c-host-files
-98q-alert-mail-state
 cf-purge-api
