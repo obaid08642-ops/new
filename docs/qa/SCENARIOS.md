@@ -129,7 +129,7 @@ Types: doctor, pharmacy, lab, radiology, nursing (and any other registered type)
 | AD-04 | Refunds | COVERED | `j_qa_refund_consultation.py` | P0 | — |
 | AD-05 | Payouts (approve, execute, PAID) | COVERED | `j_payouts.py`, `j_payout_paid.py` | P0 | — |
 | AD-06 | Catalogue edits | COVERED | `j_admin_catalogue_fields.py`, `j_admin_super_catalog.py` | P2 | — |
-| AD-07 | Notifications broadcast | PARTIAL | `j_admin_urgent_alerts.py` | P2 | A |
+| AD-07 | Notifications broadcast | COVERED | `j_admin_urgent_alerts.py` (the urgent alert) and `j_admin_broadcast.py` (the broadcast: audience rules, one user receives it and nobody else, a `patients` segment reaches every patient with a device and not a nurse, a sent campaign cannot be sent twice; delivery is read from the push log, the phone itself is outside the stack) | P2 | — |
 | AD-08 | Audit log | COVERED | `j_audit_events.py`, `j_audit_collection.py` | P1 | — |
 | AD-09 | Roles and permissions | COVERED | `j_admin_roles_restrictive.py` | P1 | — |
 | AD-10 | Kill switches | COVERED | `j_admin_kill_switches.py`, `j_killswitches.py` | P1 | — |
