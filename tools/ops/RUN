@@ -1,7 +1,7 @@
-# 2026-11-09 run 109 = deploy main@36dafcf8 (brings #2528-#2532: monitor/watchdog alert-mail rules, password-hash worker, native build retries).
+# 2026-11-09 run 109 = deploy main@272a4a40 (brings #2528-#2534: monitor/watchdog alert-mail rules, password-hash worker, native build retries).
 # Lead 3 recipe: 96j mongo cache check (read-only, before the deploy) + 97/93 free space + 60 deploy + 96i R11 halala counts (read-only)
-# + 91c host files in DRY RUN (APPLY empty: lists which host scripts differ, writes nothing) + 98q alert-mail state (read-only).
-release:36dafcf8087662f267582c71487cd1b92fbe454b
+# + 91c host files with APPLY=yes (installs monitor.sh + backend-watchdog.sh of #2530; rollback exists) + 98q alert-mail state (read-only).
+release:272a4a4088550d890922ef82785c09d55cd74f74
 96j-mongo-cache-check
 97-free-old-predeploy
 93-free-unused-images
