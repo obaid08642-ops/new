@@ -1,3 +1,9 @@
+## 07:15 UTC 2026-11-09 — order of 06:45: PT-03 guardian books for a minor (#2524)
+Status: in progress (CI pending)
+PR: #2524 (CI: pending) POST/GET/DELETE /family/dependants + journey j_family_dependant.
+What changed: finding first: the `family_members` collection (dependants with no account; read by ordering, instant consultation and by family_member_id since #2510) had NO writer in the backend, so a minor could not be created and #2510's check could never match a real record (the apps list family accounts from /family/members, which send no family_members id: the open m6-ord01-11 / m6-ord02-05 items). Built: guardian adds a dependant with the consent stored (given, time, author), is_minor recomputed at read, list/soft-delete own only, cap 20; a removed dependant is refused by the three checks; the guardian books and pays (family_member_id), the dependant has no account so cannot book alone; 12 tests + journey (not run here).
+Left / blockers / questions: (1) the Terms require 18+ but signup collects no birth date, so "a minor cannot hold an account / book alone" is not enforced for accounts: needs an owner decision and a signup field, I did not add a gate. (2) I allow any age as a dependant (consent always required): say if only minors. (3) lane W/X: the "for whom" choice must call GET /family/dependants. Next: refunds/settlement/invoices review.
+
 ## 06:25 UTC 2026-11-09 — check 06:17: all merged; no open PR, no open order
 Status: idle, reviewing
 PR: none open. Merged since the last report: #2518 (06:13). Today: #2508, #2510, #2514, #2518, #2519.
