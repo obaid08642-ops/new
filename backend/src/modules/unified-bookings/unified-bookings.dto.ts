@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { MaxLength, IsArray, IsBoolean, IsDateString, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateDto {
@@ -49,6 +49,12 @@ export class CreateDto {
   @IsOptional()
   @IsString()
   for_member_id?: string;
+
+  /** Owner decision 1: the family member this consultation is FOR (the caller stays the patient who books and pays). */
+  @IsOptional()
+  @IsString()
+  @MaxLength(128)
+  family_member_id?: string;
 
 
 }

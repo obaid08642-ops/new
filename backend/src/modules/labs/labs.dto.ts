@@ -4,6 +4,12 @@ import { LabBookingState } from '../../schemas/lab.schema';
 import { AttributionDto } from '../../common/attribution';
 
 export class BookDto {
+  /** Owner decision 1: the family member this is FOR (the caller stays the booker and payer); checked server-side, see common/family-member.ts. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(128)
+  family_member_id?: string;
+
   @IsDefined()
   @IsArray()
   items: unknown[];
