@@ -1,5 +1,13 @@
 # Lane W outbox
 
+## 2026-11-09 06:52 UTC — PT-05 provider-app referral screen
+Status: done
+PR: #2523 (CI: just opened, not yet seen)
+- IssueReferralScreen on the consultation screen posts to doctor-referrals/issue-referrals-and-prescription with UUID visit/patient/doctor ids, lab + radiology + home-care notes; ar+en, tokens only; body builder unit-tested. provider-app tsc clean, jest 408 pass; token-sync 397, literal baseline 5422, locale-parity no new.
+- SCENARIOS PT-05 -> COVERED (journey is Z's j_referral_booking.py; the RN screen itself is unit-tested only, not driven by the live gate).
+- Remaining rows on my side (provider/admin): all PV/AD rows are COVERED; only SY-06 (monitoring alerts, PARTIAL, admin side) is left. PT-03/08/09/24/27/29/38/54 are patient-app, SY-01/02/05 backend. Next: SY-06.
+- Reminder: renew the two scheduled checks (:17, :47) before 2026-11-14.
+
 ## 2026-11-09 05:20 — 02:45 orders done, queue empty
 Status: done
 PR: #2511 (PT-13), #2513 (AD-02 reject), #2517 (AD-07 broadcast + backend fix) all merged. No open PRs of mine.
