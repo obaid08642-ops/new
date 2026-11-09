@@ -1,3 +1,9 @@
+## 01:50 UTC 2026-11-09 — check 01:47: #2508 merged, #2510 fully green
+Status: waiting for merge
+PR: #2508 merged (01:38). #2510 (CI: green, all 7 workflows incl. Live gate and Backend build and tests; no conflict) ready to merge.
+What changed: nothing pushed. Inbox unchanged since 00:45; orders 1 and 2 are done, order 3 (keep refund table 2h/50%/0%) needs no work.
+Left / blockers / questions: unchanged from the 00:55 report: (1) for_member_id vs family_member_id for lane X; (2) ordering broadcast paths carry no member yet, say if wanted; (3) test-database backfill dry-run counts. No further order: I keep reviewing refunds/settlement/invoices for money-path bugs.
+
 ## 00:55 UTC 2026-11-09 — orders 1 and 2 (lead 3): refund takeover fix #2508, family member backend #2510
 Status: in progress (both PRs open, CI pending)
 PR: #2508 (CI: pending) refund executor: a taken-over reservation can no longer send a second gateway refund. #2510 (CI: pending) optional family_member_id on consultation, lab, radiology, home-care and pharmacy create.
