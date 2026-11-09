@@ -115,7 +115,7 @@ describe('redirectSystemPath: other links', () => {
   it('keeps the non-public mappings', () => {
     const cases: [string, string][] = [
       ['https://nabd.plus/ar/orders/order-1', '/orders'],
-      ['https://nabd.plus/en/chat/thread-1', '/consultations/appointments'],
+      ['https://nabd.plus/en/chat/thread-1', '/consultations/chat-link?threadId=thread-1'],
       ['https://nabd.plus/family/join?code=TEST01', '/family/add?tab=join&code=TEST01'],
       ['nabdplus://family/join?code=TEST01', '/family/add?tab=join&code=TEST01'],
       ['https://nabd.plus/en/community/post-1', '/articles'],

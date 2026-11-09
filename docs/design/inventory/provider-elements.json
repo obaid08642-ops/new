@@ -1,5 +1,5 @@
 {
- "commit": "0440d8d7",
+ "commit": "36dafcf8",
  "screens": {
   "PendingDashboard": [
    {
@@ -9494,11 +9494,21 @@
    },
    {
     "kind": "button",
+    "label": "{t('consultation.issueReferral'}",
+    "src": "navigate → issue_referral",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
+    "line": 159,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
     "label": "Request test",
     "src": "navigate → request_test",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-    "line": 159,
+    "line": 160,
     "via": null,
     "note": null
    }
@@ -10169,6 +10179,59 @@
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/RequestTestScreen.tsx",
     "line": 111,
+    "via": null,
+    "note": null
+   }
+  ],
+  "IssueReferralScreen": [
+   {
+    "kind": "button",
+    "label": "{t(KIND_LABEL[k])}",
+    "src": "local state setKind",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/IssueReferralScreen.tsx",
+    "line": 72,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "data",
+    "label": "List items",
+    "src": "from items (prop / derived; not traced)",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/IssueReferralScreen.tsx",
+    "line": 82,
+    "via": null,
+    "note": null,
+    "untraced": true
+   },
+   {
+    "kind": "button",
+    "label": "{item.ar}",
+    "src": "parent callback selected.includes, selected.filter",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/IssueReferralScreen.tsx",
+    "line": 85,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{t('issueReferral.notes')}",
+    "src": "user input → notes (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/IssueReferralScreen.tsx",
+    "line": 96,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{t('issueReferral.send')}",
+    "src": "parent callback t, onBack",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/IssueReferralScreen.tsx",
+    "line": 97,
     "via": null,
     "note": null
    }

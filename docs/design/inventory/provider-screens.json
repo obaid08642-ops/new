@@ -1,5 +1,5 @@
 {
- "commit": "0440d8d7",
+ "commit": "36dafcf8",
  "routes": [
   {
    "app": "provider-app",
@@ -13,7 +13,7 @@
      "role": "doctor",
      "name": "affiliate",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 124
+     "line": 126
     },
     {
      "role": "facility",
@@ -66,7 +66,7 @@
      "role": "doctor",
      "name": "ai_copilot",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 127
+     "line": 129
     }
    ],
    "template": "n/a",
@@ -131,7 +131,7 @@
      "role": "doctor",
      "name": "create_promo",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 121
+     "line": 123
     },
     {
      "role": "facility",
@@ -190,7 +190,7 @@
      "role": "doctor",
      "name": "crm",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 126
+     "line": 128
     },
     {
      "role": "facility",
@@ -494,7 +494,7 @@
      "role": "doctor",
      "name": "promotions",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 120
+     "line": 122
     },
     {
      "role": "facility",
@@ -553,7 +553,7 @@
      "role": "doctor",
      "name": "reputation",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 125
+     "line": 127
     },
     {
      "role": "facility",
@@ -612,7 +612,7 @@
      "role": "doctor",
      "name": "revenue_insights",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 117
+     "line": 119
     },
     {
      "role": "facility",
@@ -683,7 +683,7 @@
      "role": "doctor",
      "name": "outbound_referral",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 128
+     "line": 130
     }
    ],
    "template": "n/a",
@@ -728,7 +728,7 @@
      "role": "doctor",
      "name": "subscriptions_ads",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 123
+     "line": 125
     },
     {
      "role": "facility",
@@ -2333,7 +2333,7 @@
      "role": "doctor",
      "name": "appointment_detail",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 106
+     "line": 107
     }
    ],
    "template": "n/a",
@@ -2378,7 +2378,7 @@
      "role": "doctor",
      "name": "availability_engine",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 118
+     "line": 120
     }
    ],
    "template": "n/a",
@@ -2463,7 +2463,7 @@
      "role": "doctor",
      "name": "doctor_blacklist",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 142
+     "line": 144
     }
    ],
    "template": "n/a",
@@ -2508,7 +2508,7 @@
      "role": "doctor",
      "name": "tab:home",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 87
+     "line": 88
     }
    ],
    "template": "n/a",
@@ -2594,7 +2594,7 @@
      "role": "doctor",
      "name": "doctor_leaves",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 139
+     "line": 141
     }
    ],
    "template": "n/a",
@@ -2649,7 +2649,7 @@
      "role": "doctor",
      "name": "tab:schedule",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 88
+     "line": 89
     }
    ],
    "template": "n/a",
@@ -2684,7 +2684,7 @@
      "role": "doctor",
      "name": "service_management",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 119
+     "line": 121
     }
    ],
    "template": "n/a",
@@ -2739,7 +2739,7 @@
      "role": "doctor",
      "name": "tab:settings",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 91
+     "line": 92
     }
    ],
    "template": "n/a",
@@ -2824,7 +2824,7 @@
      "role": "doctor",
      "name": "prescription",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 108
+     "line": 109
     },
     {
      "role": "facility",
@@ -2925,7 +2925,7 @@
      "role": "doctor",
      "name": "facility_invitations",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 143
+     "line": 145
     }
    ],
    "template": "n/a",
@@ -2970,7 +2970,7 @@
      "role": "doctor",
      "name": "inbound_reports",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 145
+     "line": 147
     }
    ],
    "template": "n/a",
@@ -2995,6 +2995,30 @@
   },
   {
    "app": "provider-app",
+   "route": "IssueReferralScreen",
+   "component": "IssueReferralScreen",
+   "area": "doctor",
+   "file": "provider-app/src/screens/doctor/doctor/IssueReferralScreen.tsx",
+   "line": 21,
+   "registrations": [
+    {
+     "role": "doctor",
+     "name": "issue_referral",
+     "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
+     "line": 116
+    }
+   ],
+   "template": "n/a",
+   "board": "— (not redesigned)",
+   "batch": "provider",
+   "status": "not redesigned",
+   "calls": [],
+   "files": 15,
+   "unresolved": 2,
+   "navIssues": []
+  },
+  {
+   "app": "provider-app",
    "route": "LiveConsultationScreen",
    "component": "LiveConsultationScreen",
    "area": "doctor",
@@ -3005,7 +3029,7 @@
      "role": "doctor",
      "name": "consultation",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 107
+     "line": 108
     }
    ],
    "template": "n/a",
@@ -3070,7 +3094,7 @@
      "role": "doctor",
      "name": "medical_order_composer",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 113
+     "line": 114
     }
    ],
    "template": "n/a",
@@ -3115,7 +3139,7 @@
      "role": "doctor",
      "name": "medical_order_visits",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 112
+     "line": 113
     }
    ],
    "template": "n/a",
@@ -3150,7 +3174,7 @@
      "role": "doctor",
      "name": "medical_report",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 110
+     "line": 111
     }
    ],
    "template": "n/a",
@@ -3185,7 +3209,7 @@
      "role": "doctor",
      "name": "patient_file",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 115
+     "line": 117
     }
    ],
    "template": "n/a",
@@ -3260,7 +3284,7 @@
      "role": "doctor",
      "name": "rx_templates",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 140
+     "line": 142
     }
    ],
    "template": "n/a",
@@ -3315,7 +3339,7 @@
      "role": "doctor",
      "name": "pre_visit_chat",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 136
+     "line": 138
     }
    ],
    "template": "n/a",
@@ -3390,7 +3414,7 @@
      "role": "doctor",
      "name": "referral",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 111
+     "line": 112
     }
    ],
    "template": "n/a",
@@ -3445,7 +3469,7 @@
      "role": "doctor",
      "name": "request_test",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 114
+     "line": 115
     }
    ],
    "template": "n/a",
@@ -3480,7 +3504,7 @@
      "role": "doctor",
      "name": "saved_diagnoses",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 141
+     "line": 143
     }
    ],
    "template": "n/a",
@@ -3525,7 +3549,7 @@
      "role": "doctor",
      "name": "sick_leave",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 109
+     "line": 110
     }
    ],
    "template": "n/a",
@@ -3560,7 +3584,7 @@
      "role": "doctor",
      "name": "virtual_waiting_room",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 135
+     "line": 137
     }
    ],
    "template": "n/a",
@@ -7934,7 +7958,7 @@
      "role": "doctor",
      "name": "certificates_config",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 133
+     "line": 135
     },
     {
      "role": "facility",
@@ -8013,7 +8037,7 @@
      "role": "doctor",
      "name": "tab:chat",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 89
+     "line": 90
     },
     {
      "role": "lab",
@@ -8139,7 +8163,7 @@
      "role": "doctor",
      "name": "insurance_config",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 130
+     "line": 132
     },
     {
      "role": "facility",
@@ -8238,7 +8262,7 @@
      "role": "doctor",
      "name": "insurance_requests",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 131
+     "line": 133
     },
     {
      "role": "facility",
@@ -8383,7 +8407,7 @@
      "role": "doctor",
      "name": "media_config",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 134
+     "line": 136
     },
     {
      "role": "facility",
@@ -8494,13 +8518,13 @@
      "role": "doctor",
      "name": "tab:drugs",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 92
+     "line": 93
     },
     {
      "role": "doctor",
      "name": "drug_index",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 138
+     "line": 140
     },
     {
      "role": "facility",
@@ -8665,13 +8689,13 @@
      "role": "doctor",
      "name": "tab:jobs",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 93
+     "line": 94
     },
     {
      "role": "doctor",
      "name": "medical_jobs",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 137
+     "line": 139
     },
     {
      "role": "facility",
@@ -8899,7 +8923,7 @@
      "role": "doctor",
      "name": "notifications",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 105
+     "line": 106
     },
     {
      "role": "facility",
@@ -8999,7 +9023,7 @@
      "role": "doctor",
      "name": "provider_disputes",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 132
+     "line": 134
     }
    ],
    "template": "n/a",
@@ -9111,19 +9135,19 @@
      "role": "doctor",
      "name": "web_config",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 122
+     "line": 124
     },
     {
      "role": "doctor",
      "name": "profile_edit",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 129
+     "line": 131
     },
     {
      "role": "doctor",
      "name": "location_config",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 144
+     "line": 146
     },
     {
      "role": "facility",
@@ -9228,7 +9252,7 @@
      "role": "doctor",
      "name": "tab:wallet",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 90
+     "line": 91
     },
     {
      "role": "facility",
@@ -9585,7 +9609,7 @@
      "role": "doctor",
      "name": "video_call",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 150
+     "line": 152
     }
    ],
    "template": "n/a",
@@ -9650,7 +9674,7 @@
      "role": "doctor",
      "name": "withdrawal_workflow",
      "file": "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx",
-     "line": 116
+     "line": 118
     },
     {
      "role": "facility",
