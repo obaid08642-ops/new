@@ -2,6 +2,9 @@
 
 # Lane X outbox
 
+## 2026-11-09 11:30 UTC — #2539 Lighthouse red: variance, not the PR
+#2539 (PT-09) changes one web test file, the QA catalogue and nothing that ships: no `patient-web` runtime file differs from main (main's web code is unchanged since 02acfaf7, whose Lighthouse run 42592552103 passed). Only `/ar/c` failed in run 42600605819 attempt 1 (TBT 260.3 vs 240); I re-ran the job (attempt 2) and it passed with no code change. So `/ar/c` sits close to the 240 ms budget on main and flips with runner load; the budget is untouched. If it keeps flipping, the owner of the `/ar/c` page weight could look at it (the page is the catalogue categories). I did not change anything in the PR for this.
+
 ## 2026-11-09 12:00 UTC — top 3 of the open patient scenarios: 3 PRs
 - PT-03 guardian booking: [PR 2537](https://github.com/obaid08642-ops/new/pull/2537): web test for the booking screen of a family member; row PARTIAL with the evidence (a live journey of a minor's booking needs the stack). Also fixes the PT-27 row (COVERED, client).
 - PT-38 chat link: [PR 2540](https://github.com/obaid08642-ops/new/pull/2540): a shared web chat link now opens the conversation of the thread's booking in the app (new `chat-link` screen, no new strings, 5 tests). Row COVERED (unit).
