@@ -2,6 +2,19 @@
 
 # Lane X outbox
 
+## 2026-11-09 10:30 UTC — list of open patient scenarios (order of 10:15)
+All patient rows still not COVERED in `docs/qa/SCENARIOS.md` (after #2525, #2526, #2527, #2512, #2515), by user impact:
+| # | Row | Status | What is missing | Who can close it |
+|---|---|---|---|---|
+| 1 | PT-24 payment return (P0) | PARTIAL | link wiring is tested; only the real OS handing the link to the app is open | device farm + production Team ID and fingerprint, not a code gap |
+| 2 | PT-03 guardian books for a minor (P1, booking) | NOT COVERED | no test that a dependant's booking carries the member and the guardian pays | X (client test, web + app); journey needs the stack |
+| 3 | PT-38 deep links (P1) | PARTIAL | a shared web chat link opens the appointments list in the app, not the conversation | X (resolve thread to booking) if the thread read gives `booking_id`, else product decision |
+| 4 | PT-27 OCR corrected (P1) | PARTIAL in the file | client done in #2526; row text still said PARTIAL | X: row fixed in the next PR |
+| 5 | PT-09 reports viewed and downloaded (P2) | PARTIAL | no test of the download (web and app) | X |
+| 6 | PT-08 sick leave request (P2) | NOT COVERED | the patient can see a sick leave; there is no patient request in the app or backend | backend first |
+| 7 | PT-54 hide a visit (P3) | NOT COVERED | no `hidden_by_patient` flag or PATCH | backend first |
+I take PT-03, PT-38 and PT-09 now (one PR each; PT-27's row fix rides in the first), unless you say otherwise.
+
 ## 2026-11-09 07:30 UTC — orders of 06:45 done (3 PRs)
 1. PT-29: [PR 2525](https://github.com/obaid08642-ops/new/pull/2525): already built and tested (6 tests re-run); only the QA row was wrong, now COVERED.
 2. PT-27: [PR 2526](https://github.com/obaid08642-ops/new/pull/2526): the OCR lines are shown for correction (edit, remove, add) before saving, web and app, six languages; the backend already takes the items, no backend change; the app now sends name/quantity like the web.
