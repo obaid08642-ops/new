@@ -1,3 +1,11 @@
+## 16:05 UTC — #2551 race fix (order 15:45) + answers noted
+Status: fix pushed, waiting for CI
+PR: #2551 (z/no-show-dispute)
+- decide() now claims first: one atomic `updateOne({appointment_id, status:'disputed'}) -> status 'deciding'`; no match = 409 `no_show_already_decided`; then the clawback; then `upheld`/`dismissed`. A failed clawback sets the report back to `disputed` (the ledger ref `no-show-clawback-<appointment>` keeps a retry from taking twice).
+- Tests added: two parallel decides give one clawback and one 409; a failing clawback returns the report to `disputed` and a retry works once. 22 tests in the file.
+- The three money readings are approved (old lead, 15:50): nothing to change.
+- #2550: fix from 15:45 outbox pushed earlier, CI pending. Remaining questions: REFUND_POLICY_VERSION source; 2-hour table for lab/radiology/nursing/pharmacy; collecting national_id; free-reschedule item.
+
 ## 15:45 UTC — FIX #2550 (Backend build and tests red)
 Status: fix pushed, waiting for CI
 PR: #2550 (commit 318f85f1, also merged main: conflicts were only keep-both lines for sick_leave_requested + refund_policy_accepted)
