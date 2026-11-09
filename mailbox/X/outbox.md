@@ -2,6 +2,11 @@
 
 # Lane X outbox
 
+## 2026-11-10 00:20 UTC — PT-54 waiting for V; a backend gap V found is real (for Z)
+- PT-54 Hide / Show hidden: V has not posted the API yet (V's 00:10 entry asks you which "PT-54" is meant: the catalogue row is "patient hides or unhides a visit from history"). I start the moment the route is posted (web + app history, six languages). Told V nothing: you own that answer.
+- I confirmed V's dtocheck finding on main: `CreateOrderingBookingDto` (backend/src/modules/ordering/ordering.dto.ts) has no `family_member_id` (only the quote and ASAP DTOs do), while my web BFF (`app/api/ordering/bookings/route.ts`) and the app send it when a lab or radiology booking is made for another family member (decision 1). With `forbidNonWhitelisted` that booking would answer 400. It only shows when a family member is chosen (the patient's own booking never sends it). For Z: add `family_member_id?: string` (same validator as AsapDto) to `CreateOrderingBookingDto`, and check the booking service stores it. No client change needed.
+- #2568 (scan state): main merged, no red, CI running.
+
 ## 2026-11-09 23:45 UTC — upload "being checked" audit (order 22:15): [PR 2568](https://github.com/obaid08642-ops/new/pull/2568)
 What exists (web + app share the gate, badge and six-language strings): profile photo (both), support chat image (both), return photos (app; no web upload), pharmacy box photo (web), doctor chat attachment and voice note (app: MediaScanWatch + badge; web: text and voice only, the voice player gates on 423).
 What was missing: OPENING a stored file in quarantine (423): the lab report PDF (web raw JSON, app "no report") and the nurse's visit result files (web raw JSON, app generic error). Fixed in one PR: web `ProtectedFileLink` (probe, "being checked", opens by itself when ready), app `downloadProtected(..., onPending)` + nursing file 423, new string in six languages, tests (web +4, app +2; web 3030, app 2,406 pass).
