@@ -5,6 +5,7 @@ function fakeDb(userCount: number) {
   const users = Array.from({ length: userCount }, (_, i) => ({ id: `u${String(i).padStart(7, '0')}`, role: i % 10 === 0 ? 'doctor' : 'patient' }));
   const campaigns: any[] = [];
   const match = (doc: any, q: any): boolean => Object.entries(q).every(([k, v]: [string, any]) => {
+    if (k === '$and') return (v as any[]).every((sub) => match(doc, sub));
     const val = k.split('.').reduce((o: any, p) => (o == null ? undefined : o[p]), doc);
     if (v && typeof v === 'object' && !(v instanceof Date)) {
       if ('$in' in v) return v.$in.includes(val);
@@ -81,6 +82,41 @@ describe('campaign fan-out (P14.4)', () => {
     expect(campaigns[0].stats.sent).toBe(3500);
     expect(new Set(queued.map((x) => x.userId)).size).toBe(3500);
     expect(queued).toHaveLength(3500);
+  });
+
+  // AD-07: the audience of a campaign is the segment, not everybody. `{ ...segmentFilter, id: <paging> }` used to replace the
+  // `{ id }` of a single-user audience with the paging condition, so a message for one person was counted for, and sent to, every user.
+  it('a single-user audience is counted and queued for that user only', async () => {
+    const { conn, campaigns } = fakeDb(25);
+    const queued: any[] = [];
+    const push: any = { queueNotifications: jest.fn(async (items: any[]) => { queued.push(...items); }) };
+    const svc = new AdminNotificationCenterService(conn, push);
+    campaigns.push({ id: 'c4', status: 'draft', segment: 'user:u0000007', title: 'T', body: 'B' });
+    expect(await svc.sendCampaign('c4')).toEqual({ ok: true, status: 'sending', targeted: 1 });
+    await svc.runFanouts();
+    expect(queued.map((x) => x.userId)).toEqual(['u0000007']);
+    expect(campaigns[0].status).toBe('sent');
+    expect(campaigns[0].stats).toMatchObject({ targeted: 1, sent: 1 });
+  });
+
+  it('a role audience is counted and queued for that role only', async () => {
+    const { conn, campaigns } = fakeDb(25); // doctors are u0, u10, u20
+    const queued: any[] = [];
+    const push: any = { queueNotifications: jest.fn(async (items: any[]) => { queued.push(...items); }) };
+    const svc = new AdminNotificationCenterService(conn, push);
+    campaigns.push({ id: 'c5', status: 'draft', segment: 'role:doctor', title: 'T', body: 'B' });
+    expect(await svc.sendCampaign('c5')).toEqual({ ok: true, status: 'sending', targeted: 3 });
+    await svc.runFanouts();
+    expect(queued.map((x) => x.userId).sort()).toEqual(['u0000000', 'u0000010', 'u0000020']);
+  });
+
+  it('a single-user audience that does not exist is refused, nothing is queued', async () => {
+    const { conn, campaigns } = fakeDb(5);
+    const push: any = { queueNotifications: jest.fn() };
+    const svc = new AdminNotificationCenterService(conn, push);
+    campaigns.push({ id: 'c6', status: 'draft', segment: 'user:nobody', title: 'T', body: 'B' });
+    await expect(svc.sendCampaign('c6')).rejects.toThrow('target user not found');
+    expect(push.queueNotifications).not.toHaveBeenCalled();
   });
 
   it('an error that keeps coming back fails the campaign after five tries', async () => {

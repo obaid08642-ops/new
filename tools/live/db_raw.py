@@ -24,3 +24,18 @@ def set_raw(collection, flt, fields):
     if r.returncode != 0:
         raise RuntimeError(r.stderr[-300:])
     return int(r.stdout.strip().splitlines()[-1])
+
+
+def find_raw(collection, flt, limit=50):
+    """The first `limit` RAW documents matching `flt` (read only, TEST DATABASE ONLY), for a fact the API does not show, for example the
+    push log of a delivery. `_id` is dropped."""
+    if not re.search(r'test|live', DB, re.I):
+        raise RuntimeError(f'refused: DB_NAME "{DB}" is not a test database')
+    code = ("const m=require('mongoose');(async()=>{await m.connect(process.env.MONGO_URL,{dbName:process.env.DB_NAME});"
+            f"const r=await m.connection.db.collection({json.dumps(collection)}).find({json.dumps(flt)},{{projection:{{_id:0}}}}).limit({int(limit)}).toArray();"
+            "console.log(JSON.stringify(r));await m.disconnect();})().catch(e=>{console.error(e);process.exit(1)})")
+    r = subprocess.run(['node', '-e', code], cwd=BACKEND, capture_output=True, text=True, timeout=60,
+                       env={**os.environ, 'MONGO_URL': MONGO, 'DB_NAME': DB})
+    if r.returncode != 0:
+        raise RuntimeError(r.stderr[-300:])
+    return json.loads(r.stdout.strip().splitlines()[-1])

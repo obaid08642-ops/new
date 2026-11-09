@@ -152,6 +152,12 @@ export class CreateOrderingBookingDto {
 // ---------- M4: ASAP and photo-order broadcast ----------
 
 export class AsapDto {
+  /** Owner decision 1: the family member this order is for (the caller pays); checked server-side. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(128)
+  family_member_id?: string;
+
   @IsIn(['lab', 'radiology', 'nursing'])
   service_kind: 'lab' | 'radiology' | 'nursing';
 
@@ -172,6 +178,12 @@ export class AsapDto {
 }
 
 export class PhotoOrderDto {
+  /** Owner decision 1: the family member this order is for (the caller pays); checked server-side. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(128)
+  family_member_id?: string;
+
   @IsIn(['lab', 'radiology', 'nursing'])
   service_kind: 'lab' | 'radiology' | 'nursing';
 

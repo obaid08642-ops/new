@@ -43,7 +43,7 @@ This PR (PT-25 delivery tracking) moved one PARTIAL row to COVERED. The 'This PR
 | PT-10 | Follow-up chat window opens and closes after a visit | COVERED | `j_chat_followup_window.py` (62/62): closed before the visit ends, opens on finish, the doctor closes it and the patient can still read, one extension reopens it, a second is refused | P1 | — |
 | PT-11 | Chat delivered and seen receipts | COVERED | `j_chat_receipts.py` (63/63, PR #2259) | P1 | — |
 | PT-12 | Reviews and rating of a provider | COVERED | `j_review_rating.py` (73/73): only a patient who used the visit can rate, stars publish at once, text waits for admin approval, public after approval; the author's read omits `status` (`docs/qa/findings/batch5-2026-11-07.md`) | P2 | — |
-| PT-13 | Reply to a review (provider side, see PV-07) | NOT COVERED | no journey | P3 | S |
+| PT-13 | Reply to a review (provider side, see PV-07) | COVERED | `j_provider_scenarios.py` (the doctor answers a published review, the public page shows the reply, the patient gets one notification per reply in en and ar; a low-star review cannot be answered until a moderator approves it) | P3 | — |
 | PT-14 | Complaint raised | COVERED | `j_complaint.py` (18/18): feedback filed as a complaint, the patient and the admin queue both show the complaint category, an empty complaint is refused | P2 | — |
 | PT-15 | Dispute on a charge or visit | COVERED | `j_dispute.py` (56/56 on main 365b2d580): the patient's payment dispute, the admin refunds part once, a second refund refused | P1 | F |
 | PT-16 | Support ticket create and reply | COVERED | `j_support.py` | P2 | — |
@@ -60,7 +60,7 @@ This PR (PT-25 delivery tracking) moved one PARTIAL row to COVERED. The 'This PR
 | PT-27 | Prescription OCR result shown and corrected | PARTIAL | `j_ai_scanner.py` | P1 | H |
 | PT-28 | Notification preferences saved | COVERED | `j_notification_settings.py` (13/13 on main 365b2d580): change offers off and on, value holds on a new sign-in, a bad value refused (400) | P2 | H |
 | PT-29 | Push permission denied (app) | NOT COVERED | none | P2 | H |
-| PT-30 | Location permission denied (app and web) | PARTIAL | `j_web_call.py` (camera/mic); no location denial journey | P2 | H |
+| PT-30 | Location permission denied (app and web) | COVERED (web: map, address, home care, emergency each show a message and keep manual entry) | `j_web_call.py` (camera/mic); no location denial journey | P2 | H |
 | PT-31 | Language switch (ar, en, ur, hi, bn, fil) | COVERED | `j_web_translated_pages.py`, `j_server_texts_langs.py` | P2 | — |
 | PT-32 | RTL and LTR layout | COVERED | `j_web_translated_pages.py` | P2 | — |
 | PT-33 | Dark mode | COVERED | `j_web_dark_a11y.py` (75/75 on main 365b2d580): dark mode from the OS, stored choice wins and survives reload | P3 | D |
@@ -68,7 +68,7 @@ This PR (PT-25 delivery tracking) moved one PARTIAL row to COVERED. The 'This PR
 | PT-35 | Multi-device sign-in and sign-out | COVERED | `j_patient_sessions.py` | P1 | — |
 | PT-36 | Account deletion (PDPL) | COVERED | `j_pdpl_export_erase.py` (12/12 on main c17aa3461): wrong password refused, right password erases, old token and sign-in refused | P0 | — |
 | PT-37 | Data export (PDPL) | COVERED | `j_pdpl_export_erase.py`: export answers with the patient's own id and no password hash | P0 | — |
-| PT-38 | Deep links into a booking or chat | NOT COVERED | none | P1 | H |
+| PT-38 | Deep links into a booking or chat | PARTIAL | app: `qa/deep-links-push.test.tsx`, `native-intent.test.ts`, `usePushNotifications.routes.test.ts`; web: `patient-web/tests/deep-link-return.test.ts`; one product gap (a web chat link opens the appointments list in the app) in `docs/qa/findings/pt38-2026-11-09.md` | P1 | H |
 | PT-39 | Offline and flaky network | COVERED | `j_throttled_network.py`, `j_web_offline.py` | P1 | — |
 | PT-40 | Accessibility basics (labels, focus, contrast) | COVERED | `j_web_dark_a11y.py` (75/75 on main 365b2d580): page language and direction, one main and one h1, alt text, accessible names, skip link and focus ring | P2 | D, H |
 | PT-41 | Sign-in with a code (phone and e-mail) | COVERED | `j_qa_phone_otp.py`, `j_web_qa_signup.py` | P0 | — |
@@ -124,12 +124,12 @@ Types: doctor, pharmacy, lab, radiology, nursing (and any other registered type)
 | ID | Scenario | Status | Evidence | Priority | Route |
 |---|---|---|---|---|---|
 | AD-01 | Approvals (providers) | COVERED | `j_admin_ops.py`, `j_provider_review.py` | P0 | — |
-| AD-02 | Moderation of reviews | PARTIAL | `j_review_rating.py` (approve path: the pending queue lists the review, approve publishes it); reject is not covered | P2 | A |
+| AD-02 | Moderation of reviews | COVERED | `j_review_rating.py` (approve publishes; reject with a reason removes it from the queue, keeps it off the public list, is refused for a patient / an over-long reason / a second decision, and an unchanged resubmission stays rejected) | P2 | — |
 | AD-03 | Disputes handled by admin | COVERED | `j_dispute.py` (56/56 on main 365b2d580): the admin's refund on a dispute, once | P1 | A, F |
 | AD-04 | Refunds | COVERED | `j_qa_refund_consultation.py` | P0 | — |
 | AD-05 | Payouts (approve, execute, PAID) | COVERED | `j_payouts.py`, `j_payout_paid.py` | P0 | — |
 | AD-06 | Catalogue edits | COVERED | `j_admin_catalogue_fields.py`, `j_admin_super_catalog.py` | P2 | — |
-| AD-07 | Notifications broadcast | PARTIAL | `j_admin_urgent_alerts.py` | P2 | A |
+| AD-07 | Notifications broadcast | COVERED | `j_admin_urgent_alerts.py` (the urgent alert) and `j_admin_broadcast.py` (the broadcast: audience rules, one user receives it and nobody else, a `patients` segment reaches every patient with a device and not a nurse, a sent campaign cannot be sent twice; delivery is read from the push log, the phone itself is outside the stack) | P2 | — |
 | AD-08 | Audit log | COVERED | `j_audit_events.py`, `j_audit_collection.py` | P1 | — |
 | AD-09 | Roles and permissions | COVERED | `j_admin_roles_restrictive.py` | P1 | — |
 | AD-10 | Kill switches | COVERED | `j_admin_kill_switches.py`, `j_killswitches.py` | P1 | — |
@@ -138,7 +138,7 @@ Types: doctor, pharmacy, lab, radiology, nursing (and any other registered type)
 
 | ID | Scenario | Status | Evidence | Priority | Route |
 |---|---|---|---|---|---|
-| SY-01 | Nightly jobs run once and report | PARTIAL | `j_jobs.py` | P1 | S |
+| SY-01 | Nightly jobs run once and report | PARTIAL | `backend/src/common/cron-jobs-run-once.spec.ts` (source contract: every `@Cron`/`@Interval` is leased or has a documented own guard; the 5 nightly jobs are scheduled, run once and have a report surface) + `scheduled-once.spec.ts` (real Redis, 2 and 8 workers on one tick -> 1 run); no live journey: see `docs/qa/findings/batch6-2026-11-09.md` (`j_jobs.py` is the medical jobs board, not nightly jobs) | P1 | S |
 | SY-02 | Retries after a transient failure | PARTIAL | `j_chaos.py` | P1 | S |
 | SY-03 | Dead-letter queue inspection | COVERED | `j_dead_letter.py` (20/20): queue counts, failed-job list, unknown state refused, retry of an unknown job 404, bulk retry needs a reason and reports counts, patient refused | P1 | — |
 | SY-04 | Rate limits (per IP, per account) | COVERED | `j_otp_abuse.py`, `j_password_lockout.py`, `j_concurrency.py` | P1 | — |

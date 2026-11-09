@@ -1867,6 +1867,7 @@
     "useMyLocation": "Use my current location",
     "locating": "Finding your location…",
     "locationSet": "The address location is set.",
+    "locateDenied": "Location access is blocked. Allow it in your browser settings, or enter the address by hand below.",
     "locateFailed": "We could not get your current location.",
     "building": "Building number",
     "floor": "Floor"
@@ -5400,6 +5401,9 @@
     "free": "Your doctor does not pick the provider; you choose the best for price and place",
     "later": "Untick to order it later",
     "doctorNote": "Doctor's note",
+    "renewAction": "Ask your doctor to renew this order",
+    "renewSent": "Renewal request sent to your doctor",
+    "renewError": "Could not send the renewal request. Try again",
     "expiredDisabled": "Cannot order – order expired",
     "selected": "{a} of {b} selected",
     "validity": "Validity period",

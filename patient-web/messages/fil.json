@@ -1867,6 +1867,7 @@
     "useMyLocation": "Gamitin ang kasalukuyang lokasyon ko",
     "locating": "Hinahanap ang lokasyon mo…",
     "locationSet": "Naitakda na ang lokasyon ng address.",
+    "locateDenied": "Naka-block ang access sa lokasyon. Payagan ito sa settings ng browser, o ilagay ang address nang mano-mano sa ibaba.",
     "locateFailed": "Hindi makuha ang kasalukuyang lokasyon mo.",
     "building": "Numero ng gusali",
     "floor": "Palapag"
@@ -5400,6 +5401,9 @@
     "free": "Hindi pumipili ng provider ang doktor; ikaw ang pipili batay sa presyo at lugar",
     "later": "Alisin ang tsek para i-order mamaya",
     "doctorNote": "Tala ng doktor",
+    "renewAction": "Hilingin sa doktor mo na i-renew ang order",
+    "renewSent": "Naipadala na sa doktor mo ang hiling na i-renew",
+    "renewError": "Hindi naipadala ang hiling na i-renew. Subukan ulit",
     "expiredDisabled": "Hindi ma-order – nag-expire",
     "selected": "{a} sa {b} ang napili",
     "validity": "Panahon ng bisa",
