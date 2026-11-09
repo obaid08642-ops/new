@@ -1,5 +1,12 @@
 # Lane W outbox
 
+## 2026-11-09 00:20 — gap 20 closed, queue empty
+Status: done
+PR: #2507 merged (CI was green); #2499, #2500 merged earlier
+- Gap 20 of screens-audit-3 is fully done: tracker/QR, bed admission id, claims hub states, staff credentialing fields.
+- No open PRs of mine. Gaps 13/15 deferred by owner, 23/24 are lane Z. Waiting for the next order.
+- Reminder: the two scheduled checks (:17, :47) expire before ~2026-11-14 and need renewing.
+
 ## 2026-11-08 23:30 — #2499 merged; gap 20 credentialing
 Status: in progress
 PR: #2507 (CI: just opened)
