@@ -1,5 +1,5 @@
 {
- "commit": "0fce0f1e",
+ "commit": "df4f7003",
  "routes": [
   {
    "app": "patient-app",
@@ -782,7 +782,7 @@
      "path": "/care/appointments",
      "target": "backend",
      "query": "",
-     "line": 130,
+     "line": 132,
      "file": "patient-app/src/components/BookingConfirmForm.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:17"
@@ -802,7 +802,7 @@
      "path": "/care/doctors/:param",
      "target": "backend",
      "query": "",
-     "line": 70,
+     "line": 72,
      "file": "patient-app/src/components/BookingConfirmForm.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:88"
@@ -832,7 +832,7 @@
      "path": "/payments/consultation/:param/capabilities",
      "target": "backend",
      "query": "",
-     "line": 159,
+     "line": 162,
      "file": "patient-app/src/components/BookingConfirmForm.tsx",
      "status": "OK",
      "backend": "backend/src/modules/payments/payments.module.ts:797"
@@ -842,7 +842,7 @@
      "path": "/payments/intent/consultation/:param",
      "target": "backend",
      "query": "",
-     "line": 162,
+     "line": 165,
      "file": "patient-app/src/components/BookingConfirmForm.tsx",
      "status": "OK",
      "backend": "backend/src/modules/payments/payments.module.ts:775"
@@ -852,7 +852,7 @@
      "path": "/slot-locks/reserve",
      "target": "backend",
      "query": "",
-     "line": 119,
+     "line": 121,
      "file": "patient-app/src/components/BookingConfirmForm.tsx",
      "status": "OK",
      "backend": "backend/src/modules/slot-locks/slot-locks.module.ts:129"
@@ -862,7 +862,7 @@
      "path": "/users/me/profile",
      "target": "backend",
      "query": "",
-     "line": 77,
+     "line": 79,
      "file": "patient-app/src/components/BookingConfirmForm.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:35"
@@ -4743,6 +4743,54 @@
    ],
    "files": 49,
    "unresolved": 1
+  },
+  {
+   "app": "patient-app",
+   "route": "/medical-reports",
+   "file": "patient-app/app/medical-reports/index.tsx",
+   "redirect": null,
+   "template": "hub",
+   "board": "none",
+   "batch": 12,
+   "status": "—",
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/care/sick-leaves",
+     "target": "backend",
+     "query": "",
+     "line": 25,
+     "file": "patient-app/app/medical-reports/index.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:17"
+    }
+   ],
+   "files": 39,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-app",
+   "route": "/medical-reports/[id]",
+   "file": "patient-app/app/medical-reports/[id].tsx",
+   "redirect": null,
+   "template": "detail",
+   "board": "none",
+   "batch": 12,
+   "status": "—",
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/care/sick-leaves/:param",
+     "target": "backend",
+     "query": "",
+     "line": 34,
+     "file": "patient-app/app/medical-reports/[id].tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:18"
+    }
+   ],
+   "files": 39,
+   "unresolved": 0
   },
   {
    "app": "patient-app",
