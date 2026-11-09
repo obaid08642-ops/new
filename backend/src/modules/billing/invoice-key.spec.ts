@@ -76,3 +76,61 @@ describe('issue(): two writers race for the same booking', () => {
     await expect(w.svc.issue({ id: 'p1', role: 'patient' }, 'lab', 'b1')).rejects.toThrow('disk full');
   });
 });
+
+describe('the number is taken only after the insert wins (no gap in the series)', () => {
+  function numbered() {
+    const rows: any[] = [];
+    const counters = { findOneAndUpdate: jest.fn(async () => ({ seq: rows.filter((r) => !String(r.invoice_no).startsWith('PENDING-')).length + 1 })) };
+    let dupNext = false;
+    const invoices = {
+      findOne: jest.fn((q: any) => ({ lean: async () => rows.find((r) => (q.id === undefined || r.id === q.id) && (q.booking_id === undefined || r.booking_id === q.booking_id)) ?? null })),
+      create: jest.fn(async (d: any) => { if (dupNext) throw dupKey; const row = { id: `i${rows.length + 1}`, ...d }; rows.push(row); return row; }),
+      updateOne: jest.fn(async (q: any, u: any) => { const row = rows.find((r) => r.id === q.id && r.invoice_no === q.invoice_no); if (row) Object.assign(row, u.$set); return {}; }),
+      find: jest.fn(() => ({ lean: async () => [] })),
+    };
+    const conn: any = { model: () => invoices, collection: (n: string) => (n === 'counters' ? counters : undefined) };
+    const svc: any = new BillingService(conn);
+    return { svc, rows, counters, invoices, setDup: (v: boolean) => { dupNext = v; } };
+  }
+  const fields = { type: 'invoice', document_kind: 'receipt', booking_kind: 'lab', booking_id: 'b1', issued_at: new Date('2026-06-01T10:00:00Z') };
+
+  it('a winning insert gets its number AFTER it is stored; the stored row never keeps the placeholder', async () => {
+    const { svc, rows, counters } = numbered();
+    const doc = await svc.insertNumbered(fields, 'receipt', new Date('2026-06-01T10:00:00Z'));
+    expect(doc.invoice_no).toBe('RCT-2026-000001');
+    expect(rows[0].invoice_no).toBe('RCT-2026-000001');
+    expect(counters.findOneAndUpdate).toHaveBeenCalledTimes(1);
+  });
+  it('a LOSING insert (duplicate key) takes no number at all: the counter is not touched', async () => {
+    const { svc, counters, setDup } = numbered();
+    setDup(true);
+    await expect(svc.insertNumbered(fields, 'invoice', new Date())).rejects.toBe(dupKey);
+    expect(counters.findOneAndUpdate).not.toHaveBeenCalled();
+  });
+  it('two documents in a row get 1 and 2 (no gap), credit notes and refund receipts have their own series', async () => {
+    const { svc } = numbered();
+    const a = await svc.insertNumbered({ ...fields, booking_id: 'a' }, 'invoice', new Date('2026-06-01T10:00:00Z'));
+    expect(a.invoice_no).toBe('INV-2026-000001');
+    const cn = await svc.insertNumbered({ ...fields, type: 'credit_note', booking_id: 'a' }, 'creditnote', new Date('2026-06-01T10:00:00Z'));
+    expect(cn.invoice_no).toMatch(/^CN-2026-/);
+    const rr = await svc.insertNumbered({ ...fields, type: 'credit_note', booking_id: 'a' }, 'refundreceipt', new Date('2026-06-01T10:00:00Z'));
+    expect(rr.invoice_no).toMatch(/^RRC-2026-/);
+  });
+  it('a writer that died between the insert and the number leaves a placeholder: the next reader numbers it (once)', async () => {
+    const { svc, rows, counters } = numbered();
+    rows.push({ id: 'dead', invoice_no: 'PENDING-abc', type: 'invoice', document_kind: 'tax_invoice', booking_id: 'b9', issued_at: new Date('2026-06-01T10:00:00Z') });
+    const settled = await svc.settle(rows[0]);
+    expect(settled.invoice_no).toBe('INV-2026-000001');
+    expect(counters.findOneAndUpdate).toHaveBeenCalledTimes(1);
+    expect((await svc.settle(settled)).invoice_no).toBe('INV-2026-000001');   // already numbered: nothing more is taken
+    expect(counters.findOneAndUpdate).toHaveBeenCalledTimes(1);
+  });
+  it('seriesOf: the series a stored document belongs to', () => {
+    const { svc } = numbered();
+    expect(svc.seriesOf({ type: 'invoice', document_kind: 'tax_invoice' })).toBe('invoice');
+    expect(svc.seriesOf({ type: 'invoice', document_kind: 'receipt' })).toBe('receipt');
+    expect(svc.seriesOf({ type: 'credit_note', document_kind: 'tax_invoice' })).toBe('creditnote');
+    expect(svc.seriesOf({ type: 'credit_note', document_kind: 'receipt' })).toBe('refundreceipt');
+  });
+});
+

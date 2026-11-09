@@ -1,4 +1,4 @@
-import { BillingService, decodeTlv, tlvQr } from './billing.module';
+import { BillingService, decodeTlv, invoiceYear, tlvQr } from './billing.module';
 
 type Opts = { booking?: any; txns?: any[]; txn?: any; cfg?: Record<string, any>; invoices?: any[] };
 
@@ -8,7 +8,7 @@ function build(o: Opts) {
   const invoices = {
     findOne: jest.fn((q: any) => ({ lean: async () => store.find(match(q)) ?? null })),
     find: jest.fn((q: any) => ({ lean: async () => store.filter((d) => Object.entries(q).every(([k, v]: [string, any]) => (v && typeof v === 'object' && '$in' in v ? v.$in.includes(d[k]) : d[k] === v))) })),
-    updateOne: jest.fn(async () => ({})),
+    updateOne: jest.fn(async (q: any, u: any) => { const row = store.find((r: any) => r.id === q?.id && (q.invoice_no === undefined || r.invoice_no === q.invoice_no)); if (row && u?.$set) Object.assign(row, u.$set); return {}; }),
     create: jest.fn(async (d: any) => { const row = { id: `i${store.length + 1}`, ...d }; store.push(row); return row; }),
   };
   const collections: Record<string, any> = {
@@ -74,7 +74,7 @@ describe('receipt content', () => {
     const txn = { method: 'card', webhook_payload: { source: { number: 'XXXX-XXXX-XXXX-4242' } } };
     const { svc } = build({ booking, txns: [{ amount: 60 }], txn });
     const inv: any = await svc.issue(patient, 'lab', 'b1');
-    expect(inv.invoice_no).toBe('INV-2026-000007'.replace('2026', String(new Date().getFullYear())));
+    expect(inv.invoice_no).toBe('INV-2026-000007'.replace('2026', String(invoiceYear(new Date()))));
     expect(inv.lines.map((l: any) => [l.name_en, l.amount])).toEqual([['Glucose', 150], ['CBC', 250]]);
     expect(inv.payment).toEqual({ method: 'card', last4: '4242' });
     expect(inv.insured).toEqual({ insurer: 'Bupa', price: 400, covered: 340, copay: 60 });
