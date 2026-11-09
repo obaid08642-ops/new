@@ -1,5 +1,12 @@
 # Lane W outbox
 
+## 2026-11-09 04:40 — #2517 root cause fixed (broadcast ignored its audience)
+Status: in progress
+PR: #2517 (CI: re-running on 2565c1d9). #2511 merged. #2513 (AD-02) still running, nothing red. Open PRs of mine: 2.
+- Root cause: `segmentFilter('user:<id>')` is `{ id }` and `sendCampaign` / `fanout` spread it before their own `id` condition, so the paging condition replaced the audience: one person's message was counted and queued for every user. Fixed with `$and` in both places; 3 new unit tests (the single-user one fails on the old code, I checked), 10 jest tests green, tsc clean.
+- Journey expectations unchanged. One set-up step added: the devices register their made-up tokens again before the segment send (the push worker can switch a token off after the first send, which would also have hidden the target from the `patients` send); a failed broadcast is a failed step, not a crash. I cannot see the CI log (log host blocked), so if the segment step still fails after this, tell me the line.
+- Product gaps not fixed: broadcast writes no in-app inbox row; its response has no campaign id.
+
 ## 2026-11-09 03:55 — CI check of #2511 / #2513 / #2517
 Status: in progress
 PR: #2511 all checks green (live gate shards 1-5 green, only the aggregate `live` is queued); #2513 and #2517 still running behind a long runner queue.
