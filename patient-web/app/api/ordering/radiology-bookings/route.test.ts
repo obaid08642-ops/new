@@ -35,4 +35,13 @@ describe("radiology booking BFF (one scan of a radiology basket)", () => {
     expect(res.status).toBe(400);
     expect(JSON.stringify(await res.json())).toContain("provider_cannot_perform_scan");
   });
+  it("keeps the family member the order is for (owner decision 2026-11-08) and still refuses a malformed one", async () => {
+    state.call.mockResolvedValue(new Response(JSON.stringify({ id: "rb-2", state: "NEW_REQUEST", total_price: 90 }), { status: 201 }));
+    const forMember = { ...body, family_member_id: "member-abc-123" };
+    expect((await POST(req(forMember))).status).toBe(201);
+    expect(state.call).toHaveBeenCalledWith("/radiology/bookings", expect.objectContaining({ body: JSON.stringify(forMember) }), "server-access");
+    state.call.mockReset();
+    expect((await POST(req({ ...body, family_member_id: "../x" }))).status).toBe(400);
+    expect(state.call).not.toHaveBeenCalled();
+  });
 });

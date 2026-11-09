@@ -6,13 +6,13 @@ import { loadOrderingContext } from "@/components-next/ordering/ordering-context
 import { BasketClient } from "@/components-next/ordering/basket-client";
 import { DoctorOrderPrefill } from "@/components-next/ordering/doctor-order-prefill";
 import { isLocale } from "@/lib/i18n";
-import { payOf, placeOf } from "@/lib/ordering/context";
+import { payOf, placeOf, whoOf } from "@/lib/ordering/context";
 import { parseSingleItem } from "@/lib/ordering/single";
 import { loadItem } from "@/lib/ordering/load-item";
 import { parseOrderId, parsePrefillIds } from "@/lib/ordering/prefill";
 import { kindOf, optionalToken } from "@/lib/ordering/server";
 
-type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ item?: string; kind?: string; place?: string; pay?: string; order?: string; pre?: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ item?: string; kind?: string; place?: string; pay?: string; for?: string; order?: string; pre?: string }> };
 
 export async function generateMetadata({ params }: Pick<Props, "params">): Promise<Metadata> {
   const { locale } = await params;
@@ -30,11 +30,12 @@ export default async function BasketPage({ params, searchParams }: Props) {
   const kind = kindOf(query.kind);
   const place = placeOf(query.place);
   const pay = payOf(query.pay);
+  const who = whoOf(query.for); // another family member (the patient by default)
   const item = parseSingleItem(query.item); // "Order now": a one-item order that skips the basket
   const token = await optionalToken(locale);
   if (!token) redirect(`/${locale}/login`);
   const t = await getTranslations("OrderingFlow");
-  const { bar, point } = await loadOrderingContext({ locale, token, path: "/labs/basket", kind, place, pay, item });
+  const { bar, point } = await loadOrderingContext({ locale, token, path: "/labs/basket", kind, place, pay, item, who });
   // the doctor's order brought here by its Order button (owner decision 2026-11-08: its items are pre-checked, the patient can untick them)
   const orderId = parseOrderId(query.order);
   const preIds = orderId && !item && kind !== "nursing" ? parsePrefillIds(query.pre) : [];
@@ -44,7 +45,7 @@ export default async function BasketPage({ params, searchParams }: Props) {
     <ConsultPage locale={locale} title={t("basketTitle")} backHref={`/${locale}/diagnostics${kind === "radiology" ? "?kind=radiology" : ""}`}>
       {bar}
       {orderId && preLines.length > 0 ? <DoctorOrderPrefill locale={locale} kind={kind} orderId={orderId} lines={preLines} /> : null}
-      <BasketClient locale={locale} kind={kind} place={place} pay={pay} item={item} point={point} hubHref={`/${locale}/diagnostics${kind === "radiology" ? "?kind=radiology" : ""}`} />
+      <BasketClient locale={locale} kind={kind} place={place} pay={pay} who={who} item={item} point={point} hubHref={`/${locale}/diagnostics${kind === "radiology" ? "?kind=radiology" : ""}`} />
     </ConsultPage>
   );
 }

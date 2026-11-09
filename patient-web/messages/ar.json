@@ -3646,6 +3646,8 @@
     "catPackages": "باقات"
   },
   "OrderContext": {
+    "forLabel": "لمن الطلب",
+    "forMe": "أنا",
     "hint": "تتحدّث الأسعار والتغطية فور أي تغيير",
     "addAddress": "أضف عنوانك",
     "addInsurance": "أضف تأمينك",

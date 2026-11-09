@@ -9,7 +9,7 @@ import { useBasket } from "./use-basket";
 import styles from "./ordering.module.css";
 
 /** "Basket · n items" with a link to the basket, shown on a service screen once something is in the basket. */
-export function BasketBar({ locale, kind, place, pay }: { locale: string; kind: ServiceKind; place: OrderMode; pay: Payer }) {
+export function BasketBar({ locale, kind, place, pay, who }: { locale: string; kind: ServiceKind; place: OrderMode; pay: Payer; who?: string }) {
   const t = useTranslations("OrderingFlow");
   const { basket } = useBasket();
   const n = basket[kind].length;
@@ -31,7 +31,7 @@ export function BasketBar({ locale, kind, place, pay }: { locale: string; kind: 
   return (
     <div ref={ref} className={styles.basketBar} data-testid="basket-bar" role="region" aria-label={t("basket")}>
       <span className={styles.basketBarText}>{t("basketBar", { n })}</span>
-      <Link href={`/${locale}/labs/basket${contextQuery({ kind, place, pay })}`} className={styles.basketBarLink}>{t("viewBasket")}</Link>
+      <Link href={`/${locale}/labs/basket${contextQuery({ kind, place, pay, who })}`} className={styles.basketBarLink}>{t("viewBasket")}</Link>
     </div>
   );
 }

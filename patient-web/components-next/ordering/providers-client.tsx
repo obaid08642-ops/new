@@ -17,13 +17,13 @@ import { useOrderLines } from "./use-order-lines";
 import { useQuote } from "./use-quote";
 import styles from "./ordering.module.css";
 
-type Props = { locale: string; kind: ServiceKind; place: OrderMode; pay: Payer; item?: string; point: Point | null };
+type Props = { locale: string; kind: ServiceKind; place: OrderMode; pay: Payer; who?: string; item?: string; point: Point | null };
 const SORTS: Array<{ key: SortKey; labelKey: "sCheap" | "sNear" | "sFast" | "sRating" }> = [
   { key: "cheapest", labelKey: "sCheap" }, { key: "nearest", labelKey: "sNear" }, { key: "fastest", labelKey: "sFast" }, { key: "rating", labelKey: "sRating" },
 ];
 
 /** Ord05: best match per group, the compare list (sort and filters) and, when no single provider covers a group, the suggested split. */
-export function ProvidersClient({ locale, kind, place, pay, item, point }: Props) {
+export function ProvidersClient({ locale, kind, place, pay, who, item, point }: Props) {
   const t = useTranslations("OrderingFlow");
   const router = useRouter();
   const { lines } = useOrderLines(kind, item);
@@ -33,11 +33,11 @@ export function ProvidersClient({ locale, kind, place, pay, item, point }: Props
   const [chosen, setChosen] = useState<{ home?: string; facility?: string }>({});
 
   const request = useMemo(
-    () => (point && lines.length ? { service_kind: kind, items: lines.map((l) => l.id), sort, context: { mode: place, lat: point.lat, lng: point.lng, payer: pay, ...(gender ? { staff_gender: gender } : {}) } } : null),
-    [point, lines, kind, place, pay, sort, gender],
+    () => (point && lines.length ? { service_kind: kind, items: lines.map((l) => l.id), sort, context: { mode: place, lat: point.lat, lng: point.lng, payer: pay, ...(who ? { family_member_id: who } : {}), ...(gender ? { staff_gender: gender } : {}) } } : null),
+    [point, lines, kind, place, pay, who, sort, gender],
   );
   const { state, reload } = useQuote(request);
-  const basketHref = `/${locale}/labs/basket${contextQuery({ kind, place, pay, item })}`;
+  const basketHref = `/${locale}/labs/basket${contextQuery({ kind, place, pay, item, who })}`;
 
   if (lines.length === 0) return <EmptyState icon={SERVICE_ICONS.lab.icon} tone={SERVICE_ICONS.lab.tone} title={t("basketEmptyTitle")} body={t("basketEmptySub")} actionLabel={t("basket")} onAction={() => router.push(basketHref)} />;
   if (!point) return <div className={styles.card}><p className={styles.title}>{t("needAddressTitle")}</p><p className={styles.sub}>{t("needAddressBody")}</p><Link href={`/${locale}/profile/addresses`} className={styles.linkBtn}>{t("addAddress")}</Link></div>;
@@ -144,7 +144,7 @@ export function ProvidersClient({ locale, kind, place, pay, item, point }: Props
       try {
         window.sessionStorage.setItem(SELECTION_KEY, JSON.stringify({ quoteId: quote.quoteId, home: chosen.home, facility: chosen.facility, groups: Object.fromEntries(quote.groups.flatMap((g) => { const c = chosen[g.mode] ? chosenGroup(g, chosen[g.mode] as string) : undefined; return c ? [[g.mode, c]] : []; })) }));
       } catch { /* the next step also reads the choice from the address when storage is blocked */ }
-      router.push(`/${locale}/labs/when${contextQuery({ kind, place, pay, item })}`);
+      router.push(`/${locale}/labs/when${contextQuery({ kind, place, pay, item, who })}`);
     };
     return (
       <>
