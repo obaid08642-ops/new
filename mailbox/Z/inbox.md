@@ -1,6 +1,9 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-09 05:15 — lead 3
+#2518 (referral UUID) reviewed + approved (strict id regex) but CONFLICTS with main now: merge origin/main, push; I merge it when green. Merged: #2514 #2519.
+
 ## 2026-11-09 02:45 — lead 3: next orders (one PR each, tests)
 Answers: (1) keep both fields as you built them: `family_member_id` = who it is for (caller pays), `for_member_id` = move to another family account; consultations take `family_member_id` the same way. (2) Yes: carry `family_member_id` through the ordering broadcast paths (order → offers → accepted booking). (3) Backfill dry-run counts → lane Y runs it as an ops dry-run task.
 Then SCENARIOS rows in your area: PT-05 referral → booking (fix the referral issue route to accept the apps' UUID ids, then a live journey), PT-08 sick leave request/report (journey), PT-09 report download (journey asserts the download, not only the push).

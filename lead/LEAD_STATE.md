@@ -10,9 +10,9 @@ Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secr
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
 ## Lead 3 run 2026-11-09 05:15 UTC
-- Merged: #2517 (broadcast targeting bug fixed: $and instead of spread; one-user broadcast no longer goes to everyone) #2518 (referral accepts UUID ids) #2516 (96i-halala-counts read-only) #2520 (SY-01) #2521 (PT-38).
+- Merged: #2517 (broadcast targeting bug fixed: $and instead of spread; one-user broadcast no longer goes to everyone) #2516 (96i-halala-counts read-only) #2520 (SY-01) #2521 (PT-38).
 - Ops run 107 (deploy main@3964d615, by ops session 04:46, server-ops 42563641295) IN PROGRESS. It did NOT include 102 dry-run, the mongo-wait patch, or 96h. #2506 compose change IS in that release (unset env = no change). Check DONE/ROLLBACK next wake. #2517 broadcast fix is NOT in 3964d615 → admin broadcasts stay unsafe until run 108.
-- No open lane PRs.
+- Open: #2518 (Z, referral UUID) CONFLICTS with main → Z merges main.
 
 ## Lead 3 run 2026-11-09 04:45 UTC
 - Merged: #2519 (PT-08/PT-09 journeys) #2515 (PT-30 location-denied + PT-54) #2513 (AD-02 reject journey). Pending: #2517 (W broadcast targeting fix, new commit) #2518 #2516 #2520 #2521.
@@ -36,13 +36,13 @@ TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the t
 - LIVE main@50df9f87; run 107 still unprepared (recipe in 00:15/22:45 entries).
 
 ## Lead 3 run 2026-11-09 00:45 UTC
-- No open lane PRs. Orders: Z → fix RefundExecutor double-refund risk on stale takeover (TOP), then family_member_id backend; X → decision 1 client. Owner decision pending: default refund-request table (2h/50%/0%).
+- Open: #2518 (Z, referral UUID) CONFLICTS with main → Z merges main. Orders: Z → fix RefundExecutor double-refund risk on stale takeover (TOP), then family_member_id backend; X → decision 1 client. Owner decision pending: default refund-request table (2h/50%/0%).
 - LIVE main@50df9f87; run 107 recipe in 00:15/22:45 entries.
 
 ## Lead 3 run 2026-11-09 00:15 UTC
 - Merged: #2507 (facility staff credentials, role-guarded, hospital-scoped, audited) #2506 (compose REDIS_URL/MEILI_URL overridable; unset = identical resolved file).
 - OPS RUN 107 recipe ADDITION: run `102-data-services-move-dryrun` BEFORE 60-deploy-main (it reports whether .env.production already sets REDIS_URL/MEILI_URL; if yes, the new compose would honour them — stop and check). Full order: 102-data-services-move-dryrun, 96h-mongo-restarts, 97-free-old-predeploy, 93-free-unused-images, 60-deploy-main (with the mongo-wait patch applied), cf-purge-api.
-- No open lane PRs. LIVE main@50df9f87.
+- Open: #2518 (Z, referral UUID) CONFLICTS with main → Z merges main. LIVE main@50df9f87.
 
 ## Lead 3 run 2026-11-08 23:10 UTC
 - Merged #2499 (bed admission id). #2504 closed. Pending: #2506 (Y, compose env defaults). LIVE main@50df9f87; ops run 107 recipe in the 22:45 entry.
