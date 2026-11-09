@@ -4,6 +4,7 @@ import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-ro
 
 import { AppHeader, Button, Card, EmptyState, ErrorState, FIcon, OfflineState, Screen, Stepper, StickyFooter } from '../../../packages/ui-native/src';
 import { Notice } from '../../src/components/pharmacy/OfferKit';
+import { RefundPolicyTick } from '../../src/components/legal/RefundPolicyTick';
 import { Glyph, PHARMACY_TONE, goBack } from '../../src/components/pharmacy/PharmacyKit';
 import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch, newIdempotencyKey } from '../../src/utils/api';
@@ -36,6 +37,8 @@ export default function PharmacyReorderScreen() {
   const [address, setAddress] = useState<SelectedAddress | null>(null);
   const [loadingAddress, setLoadingAddress] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  // the refund policy is shown before the order is sent and agreed here (the backend refuses an order without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
   const [problemKey, setProblemKey] = useState<string | null>(null);
   const [needsLocation, setNeedsLocation] = useState(false);
 
@@ -87,7 +90,7 @@ export default function PharmacyReorderScreen() {
   const patch = (key: string, change: Partial<ReorderLine>) => setLines((all) => all.map((l) => (l.key === key ? { ...l, ...change } : l)));
 
   const send = async () => {
-    if (busy.current || submitting || !chosen.length || loadingAddress) return;
+    if (busy.current || submitting || !chosen.length || loadingAddress || !refundAgreed) return;
     if (!address || !hasPoint) {
       setNeedsLocation(true);
       return;
@@ -148,7 +151,7 @@ export default function PharmacyReorderScreen() {
   const footer = (
     <StickyFooter theme={theme} direction={dir}>
       <View style={COLUMN}>
-        <Button label={k('orders.reorder.submit')} size="lg" fullWidth disabled={!chosen.length || loadingAddress || submitting} loading={submitting} onPress={() => void send()} testID="reorder-submit" theme={theme} />
+        <Button label={k('orders.reorder.submit')} size="lg" fullWidth disabled={!chosen.length || !refundAgreed || loadingAddress || submitting} loading={submitting} onPress={() => void send()} testID="reorder-submit" theme={theme} />
       </View>
     </StickyFooter>
   );
@@ -225,6 +228,7 @@ export default function PharmacyReorderScreen() {
             onAction={problemKey === 'pharmacy.checkout.err.signIn' ? () => router.push('/(auth)/login' as Href) : undefined}
           />
         ) : null}
+        <RefundPolicyTick checked={refundAgreed} onChange={setRefundAgreed} />
       </View>
     </Screen>
   );

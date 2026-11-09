@@ -294,6 +294,7 @@ describe('Order with a prescription: type the names (the old manual request)', (
     mockParams = { via: 'type' };
     await render(wrap(<RxOrder />));
     await waitFor(() => expect(screen.getByText('المنزل')).toBeTruthy());
+    await fireEvent.press(screen.getByTestId('refund-policy-agree'));
     await fireEvent.changeText(screen.getByTestId('request-name'), 'بن');
     expect(screen.getByText(T('pharmacy.request.nameHint'))).toBeTruthy();
     await fireEvent.press(screen.getByTestId('request-submit'));
@@ -313,6 +314,7 @@ describe('Order with a prescription: type the names (the old manual request)', (
     mockParams = { via: 'type' };
     await render(wrap(<RxOrder />));
     await waitFor(() => expect(screen.getByText('بلا موقع')).toBeTruthy());
+    await fireEvent.press(screen.getByTestId('refund-policy-agree'));
     await fireEvent.changeText(screen.getByTestId('request-name'), 'بنادول');
     await fireEvent.press(screen.getByTestId('request-submit'));
     await waitFor(() => expect(screen.getByText(T('pharmacy.request.noLocation'))).toBeTruthy());
@@ -325,6 +327,7 @@ describe('Order with a prescription: type the names (the old manual request)', (
     mockParams = { via: 'type' };
     await render(wrap(<RxOrder />));
     await waitFor(() => expect(screen.getByText('المنزل')).toBeTruthy());
+    await fireEvent.press(screen.getByTestId('refund-policy-agree'));
     await fireEvent.changeText(screen.getByTestId('request-name'), 'بنادول');
     await fireEvent.press(screen.getByTestId('request-submit'));
     await waitFor(() => expect(screen.getByText(T('pharmacy.request.failedTitle'))).toBeTruthy());

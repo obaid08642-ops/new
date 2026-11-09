@@ -93,6 +93,7 @@ describe('nurse booking page', () => {
     answer({});
     await render(wrap(<NurseBookingScreen />));
     await screen.findByText('Test Nurse');
+    await tap(screen.getByTestId('refund-policy-agree'));
     await tap(screen.getByLabelText(new RegExp(`^${k('nur.book.confirm')}`)));
     expect(showLocalizedAlert).toHaveBeenCalledWith(k('nur.book.addressTitle'), k('nur.book.addressBody'));
     expect(posts()).toHaveLength(0);
@@ -103,6 +104,7 @@ describe('nurse booking page', () => {
     answer({});
     await render(wrap(<NurseBookingScreen />));
     await screen.findByText('Test Nurse');
+    await tap(screen.getByTestId('refund-policy-agree'));
     expect(screen.queryByText('I will provide the transport')).toBeNull();
     expect(screen.queryByText('The nurse provides the transport')).toBeNull();
     expect(screen.getByText(/^The nurse comes to your location/)).toBeTruthy();
@@ -113,6 +115,7 @@ describe('nurse booking page', () => {
     answer({}, (path) => (path === '/nursing/bookings' ? { id: 'b-1' } : { id: 'txn-1', checkout_url: 'https://pay.example.test/x', amount: 100 }));
     await render(wrap(<NurseBookingScreen />));
     await screen.findByText('Test Nurse');
+    await tap(screen.getByTestId('refund-policy-agree'));
     await tap(await screen.findByLabelText(new RegExp(`^${k('nur.book.confirmPrice', { amount: '100.00', currency: k('pharmacy.currency') }).slice(0, 20)}`)));
     await waitFor(() => expect(mockRouter.replace).toHaveBeenCalled());
     const [first, second] = posts();
@@ -130,6 +133,7 @@ describe('nurse booking page', () => {
     answer({}, (path) => (path === '/nursing/bookings' ? { id: 'b-3' } : { id: 'txn-3', checkout_url: 'https://pay.example.test/y', amount: 300 }));
     await render(wrap(<NurseBookingScreen />));
     await screen.findByText('Test Nurse');
+    await tap(screen.getByTestId('refund-policy-agree'));
     expect(screen.queryByLabelText(new RegExp(`^${k('nur.book.times')}`))).toBeNull(); // once: no count
     await tap(await screen.findByLabelText(new RegExp(`^${k('nur.book.recurrence')}`)));
     await tap(await screen.findByText(k('nur.book.recurrenceDaily')));
@@ -147,6 +151,7 @@ describe('nurse booking page', () => {
     answer({}, (path) => (path === '/nursing/bookings' ? { id: 'b-4' } : { id: 'txn-4', checkout_url: 'https://pay.example.test/z', amount: 300 }));
     await render(wrap(<NurseBookingScreen />));
     await screen.findByText('Test Nurse');
+    await tap(screen.getByTestId('refund-policy-agree'));
     expect(screen.queryByLabelText(new RegExp(`^${k('nur.book.days')}:`))).toBeNull();
     await tap(await screen.findByLabelText(new RegExp(`^${k('nur.book.hours')}`)));
     await tap(await screen.findByText(k('nur.book.hoursN', { n: '12' })));
@@ -169,6 +174,7 @@ describe('nurse booking page', () => {
     answer({});
     await render(wrap(<NurseBookingScreen />));
     await screen.findByText('Test Nurse');
+    await tap(screen.getByTestId('refund-policy-agree'));
     await tap(await screen.findByLabelText(new RegExp(`^${k('nur.book.period')}`)));
     await tap(await screen.findByText(k('nur.book.periodDays')));
     await tap(await screen.findByLabelText(new RegExp(`^${k('nur.book.days')}:`)));
@@ -182,6 +188,7 @@ describe('nurse booking page', () => {
     answer({}, () => { throw new Error('booking_hours_not_offered'); });
     await render(wrap(<NurseBookingScreen />));
     await screen.findByText('Test Nurse');
+    await tap(screen.getByTestId('refund-policy-agree'));
     await tap(await screen.findByLabelText(new RegExp(`^${k('nur.book.confirm')}`)));
     await waitFor(() => expect(showLocalizedAlert).toHaveBeenCalledWith(k('nur.book.failTitle'), k('nur.book.err.booking_hours_not_offered')));
   });
@@ -192,6 +199,7 @@ describe('nurse booking page', () => {
     answer({});
     await render(wrap(<NurseBookingScreen />));
     await screen.findByText('Test Nurse');
+    await tap(screen.getByTestId('refund-policy-agree'));
     expect(await screen.findByLabelText(new RegExp(`^${k('nur.book.confirmPrice', { amount: '250.00', currency: k('pharmacy.currency') })}`))).toBeTruthy();
     expect(apiFetch.mock.calls.some(([path]) => String(path).startsWith('/bookings/quote?kind=nursing&service_id=svc-1&provider_id=nurse-1'))).toBe(true);
   });
@@ -203,6 +211,7 @@ describe('nurse booking page', () => {
     apiFetch.mockImplementation(async (path: string, init?: RequestInit) => { if (path.startsWith('/bookings/quote')) throw new Error('quote down'); return base(path, init); });
     await render(wrap(<NurseBookingScreen />));
     await screen.findByText('Test Nurse');
+    await tap(screen.getByTestId('refund-policy-agree'));
     expect(screen.getByLabelText(new RegExp(`^${k('nur.book.confirm')}$`))).toBeTruthy();
   });
 
@@ -211,6 +220,7 @@ describe('nurse booking page', () => {
     answer({ insurance: null });
     await render(wrap(<NurseBookingScreen />));
     await screen.findByText('Test Nurse');
+    await tap(screen.getByTestId('refund-policy-agree'));
     await tap(screen.getByLabelText(k('nur.book.sendInsurance')));
     await waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith('/profile/insurance'));
     expect(posts()).toHaveLength(0);
@@ -221,6 +231,7 @@ describe('nurse booking page', () => {
     answer({ insurance: { policy_number: 'P-1' } }, () => ({ id: 'b-2' }));
     await render(wrap(<NurseBookingScreen />));
     await screen.findByText('Test Nurse');
+    await tap(screen.getByTestId('refund-policy-agree'));
     expect(screen.queryByText(k('nur.book.inReview'))).toBeNull();
     await tap(screen.getByLabelText(k('nur.book.sendInsurance')));
     expect(await screen.findByText(k('nur.book.inReview'))).toBeTruthy();
@@ -234,6 +245,7 @@ describe('nurse booking page', () => {
     });
     await render(wrap(<NurseBookingScreen />));
     await screen.findByText('Test Nurse');
+    await tap(screen.getByTestId('refund-policy-agree'));
     await tap(screen.getByLabelText(k('nur.book.sendInsurance')));
     await waitFor(() => expect(showLocalizedAlert).toHaveBeenCalledWith(k('nur.book.failTitle'), 'Test failure'));
     expect(screen.queryByText(k('nur.book.inReview'))).toBeNull();
@@ -253,6 +265,7 @@ describe('nurse booking page', () => {
     });
     await render(wrap(<NurseBookingScreen />));
     await screen.findByText('Test Nurse');
+    await tap(screen.getByTestId('refund-policy-agree'));
     const confirm = () => screen.getByLabelText(new RegExp(`^${k('nur.book.confirm')}`));
     await tap(confirm());
     expect(posts().filter(([path]) => path === '/nursing/bookings')).toHaveLength(1);

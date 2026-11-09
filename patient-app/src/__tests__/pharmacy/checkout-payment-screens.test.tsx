@@ -101,6 +101,7 @@ describe('checkout', () => {
     const creating = new Promise((r) => { release = r; });
     answer({ '/prescriptions/rx1': { id: 'rx1', items: [{ name: 'Panadol' }, { name: 'Amoxicillin' }] } }, (path) => (path.endsWith('/submit') ? {} : creating));
     await render(wrap(<CheckoutScreen />));
+    await tap(await screen.findByTestId('refund-policy-agree'));
     await screen.findByText('Amoxicillin');
     // the cart's Panadol is the prescription's Panadol: listed once; the cart's other line is kept
     expect(screen.getAllByText('Panadol')).toHaveLength(1);
@@ -125,6 +126,7 @@ describe('checkout', () => {
     mockParams.current = { prescriptionId: 'rx1' };
     answer({ '/prescriptions/rx1': { id: 'rx1', items: [{ name: 'Amoxicillin' }] }, '/users/me/insurance': { provider: 'Test insurer', policy_number: 'POL-1', class: 'A' } }, (path) => (path.endsWith('/submit') ? {} : { id: 'order-ins-1' }));
     await render(wrap(<CheckoutScreen />));
+    await tap(await screen.findByTestId('refund-policy-agree'));
     await screen.findByText('Amoxicillin');
     expect(screen.getByText(k('pharmacy.checkout.payFirst'))).toBeTruthy();
     await tap(screen.getByLabelText(k('pharmacy.offers.coverage.insurance')));
@@ -141,6 +143,7 @@ describe('checkout', () => {
     mockParams.current = { prescriptionId: 'rx1' };
     answer({ '/prescriptions/rx1': { id: 'rx1', items: [{ name: 'Amoxicillin' }] }, '/users/me/insurance': null });
     await render(wrap(<CheckoutScreen />));
+    await tap(await screen.findByTestId('refund-policy-agree'));
     await screen.findByText('Amoxicillin');
     await tap(screen.getByLabelText(k('pharmacy.offers.coverage.insurance')));
     await screen.findByText(k('pharmacy.checkout.insuranceNone'));
@@ -154,6 +157,7 @@ describe('checkout', () => {
     mockCart.items = [{ id: 'c1', name: 'Vitamin C', qty: 1, rx: false }];
     answer({}, (path) => (path.endsWith('/submit') ? {} : { id: 'order-cash-1' }));
     await render(wrap(<CheckoutScreen />));
+    await tap(await screen.findByTestId('refund-policy-agree'));
     await screen.findByText('Vitamin C');
     expect(screen.getByText(k('pharmacy.checkout.insuranceNeedsRx'))).toBeTruthy();
     await tap(screen.getByLabelText(k('pharmacy.offers.coverage.insurance')));
@@ -178,6 +182,7 @@ describe('checkout', () => {
       return { id: 'order-new-1' };
     });
     await render(wrap(<CheckoutScreen />));
+    await tap(await screen.findByTestId('refund-policy-agree'));
     const submit = await screen.findByLabelText(k('pharmacy.checkout.submit'));
     await waitFor(() => expect(submit.props.accessibilityState.disabled).toBe(false));
     await tap(submit); // no answer
@@ -199,6 +204,7 @@ describe('checkout', () => {
     mockAddress.current = { id: 'a1', label: 'No point' };
     answer({});
     await render(wrap(<CheckoutScreen />));
+    await tap(await screen.findByTestId('refund-policy-agree'));
     const submit = await screen.findByLabelText(k('pharmacy.checkout.submit'));
     await waitFor(() => expect(submit.props.accessibilityState.disabled).toBe(false));
     await tap(submit);
@@ -210,6 +216,7 @@ describe('checkout', () => {
     mockCart.items = [{ id: 'c1', name: 'Vitamin C', qty: 1, rx: false }];
     answer({}, () => new Error('AUTH_ERROR_403: Insufficient role'));
     await render(wrap(<CheckoutScreen />));
+    await tap(await screen.findByTestId('refund-policy-agree'));
     const submit = await screen.findByLabelText(k('pharmacy.checkout.submit'));
     await waitFor(() => expect(submit.props.accessibilityState.disabled).toBe(false));
     await tap(submit);

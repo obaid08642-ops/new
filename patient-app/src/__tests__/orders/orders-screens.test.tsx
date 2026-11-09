@@ -208,6 +208,7 @@ describe('order again', () => {
     answer({ '/patient/pharmacy/orders/ord-aaaaaa111111': earlier }, (path) => (path.endsWith('/submit') ? {} : creating));
     await render(wrap(<PharmacyReorderScreen />));
     await screen.findByText('Panadol');
+    await tap(screen.getByTestId('refund-policy-agree'));
     const submit = screen.getByLabelText(k('orders.reorder.submit'));
     await waitFor(() => expect(submit.props.accessibilityState.disabled).toBe(false));
     await tap(submit);
@@ -225,6 +226,7 @@ describe('order again', () => {
     answer({ '/patient/pharmacy/orders/ord-aaaaaa111111': earlier }, (path) => (path.endsWith('/submit') ? {} : { id: 'order-new-1' }));
     await render(wrap(<PharmacyReorderScreen />));
     await screen.findByText('Panadol');
+    await tap(screen.getByTestId('refund-policy-agree'));
     await tap(screen.getByLabelText('Vitamin C'));
     await tap(screen.getByLabelText(k('orders.reorder.submit')));
     await waitFor(() => expect(posts()).toHaveLength(2));
@@ -236,6 +238,7 @@ describe('order again', () => {
     answer({ '/patient/pharmacy/orders/ord-aaaaaa111111': earlier });
     await render(wrap(<PharmacyReorderScreen />));
     await screen.findByText('Panadol');
+    await tap(screen.getByTestId('refund-policy-agree'));
     const submit = screen.getByLabelText(k('orders.reorder.submit'));
     await waitFor(() => expect(submit.props.accessibilityState.disabled).toBe(false));
     await tap(submit);
@@ -254,6 +257,7 @@ describe('order again', () => {
     });
     await render(wrap(<PharmacyReorderScreen />));
     await screen.findByText('Panadol');
+    await tap(screen.getByTestId('refund-policy-agree'));
     const submit = screen.getByLabelText(k('orders.reorder.submit'));
     await waitFor(() => expect(submit.props.accessibilityState.disabled).toBe(false));
     await tap(submit);

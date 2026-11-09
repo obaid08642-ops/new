@@ -7,6 +7,8 @@ import { Notice, PHARMACY_TONE } from './PharmacyKit';
 import { COLUMN, step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch, newIdempotencyKey } from '../../utils/api';
 import { logError } from '../../utils/logger';
+import { RefundPolicyTick } from '../legal/RefundPolicyTick';
+import { withRefundPolicy } from '../../utils/refundAcceptance';
 import { buildPatientPharmacyDraft, extractPatientPharmacyOrderId } from '../../utils/pharmacy-draft';
 import { resolveEffectiveAddress, type SelectedAddress } from '../../utils/selectedAddress';
 
@@ -30,6 +32,8 @@ export function useManualRequest(): { body: React.ReactNode; footer: React.React
   const [address, setAddress] = useState<SelectedAddress | null>(null);
   const [loadingAddress, setLoadingAddress] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  // the refund policy is shown before the request is sent and agreed here (the backend refuses an order without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
   const [problem, setProblem] = useState<'location' | 'send' | null>(null);
 
   useFocusEffect(
@@ -55,7 +59,7 @@ export function useManualRequest(): { body: React.ReactNode; footer: React.React
   const medicine = name.trim();
   const nameTooShort = medicine.length > 0 && medicine.length < MIN_NAME;
   const hasPoint = Boolean(address) && Number.isFinite(Number(address?.lat)) && Number.isFinite(Number(address?.lng));
-  const canSend = medicine.length >= MIN_NAME && !submitting && !loadingAddress;
+  const canSend = medicine.length >= MIN_NAME && refundAgreed && !submitting && !loadingAddress;
 
   const submit = async () => {
     if (!canSend) return;
@@ -68,7 +72,7 @@ export function useManualRequest(): { body: React.ReactNode; footer: React.React
     try {
       const rawName = details.trim() ? `${medicine} — ${details.trim()}` : medicine;
       const draft = buildPatientPharmacyDraft([{ name: rawName, qty: 1, intake_source: 'manual' }], address);
-      const created = await apiFetch<{ id?: string; data?: { id?: string } }>('/patient/pharmacy/orders', { method: 'POST', headers: { 'Idempotency-Key': requestKey.current }, body: JSON.stringify(draft) });
+      const created = await apiFetch<{ id?: string; data?: { id?: string } }>('/patient/pharmacy/orders', { method: 'POST', headers: { 'Idempotency-Key': requestKey.current }, body: JSON.stringify(withRefundPolicy(draft)) });
       const orderId = extractPatientPharmacyOrderId(created);
       if (!orderId) throw new Error('governed_pharmacy_order_id_missing');
       await apiFetch(`/patient/pharmacy/orders/${orderId}/submit`, { method: 'POST', headers: { 'Idempotency-Key': `${requestKey.current}-submit` }, body: JSON.stringify({}) });
@@ -134,6 +138,8 @@ export function useManualRequest(): { body: React.ReactNode; footer: React.React
           <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.link, ...flow }}>{k('pharmacy.request.changeLocation')}</Text>
         </Pressable>
       </Card>
+
+      <RefundPolicyTick checked={refundAgreed} onChange={setRefundAgreed} />
 
       {problem === 'location' ? <Notice tone="warning" icon="map-pin" title={k('pharmacy.request.noLocation')} /> : null}
       {problem === 'send' ? <Notice tone="danger" icon="warning" title={k('pharmacy.request.failedTitle')} body={k('pharmacy.request.failedBody')} /> : null}

@@ -117,6 +117,7 @@ describe('confirm the booking', () => {
     );
     await render(wrap(<BookingConfirmScreen />));
     await screen.findByText('Test Doctor');
+    await tap(screen.getByTestId('refund-policy-agree'));
     await tap(screen.getByTestId('booking-confirm-submit'));
     await waitFor(() => expect(Linking.openURL).toHaveBeenCalledWith('https://pay.example.test/c/1'));
     expect(posts().map(([p]) => p)).toEqual(['/slot-locks/reserve', '/care/appointments', '/payments/intent/consultation/appt-1']);
@@ -137,10 +138,34 @@ describe('confirm the booking', () => {
     );
     await render(wrap(<BookingConfirmScreen />));
     await screen.findByText('Test Doctor');
+    await tap(screen.getByTestId('refund-policy-agree'));
     await tap(screen.getByTestId('booking-confirm-submit'));
     await waitFor(() => expect(posts().length).toBeGreaterThanOrEqual(2));
     expect(JSON.parse(posts()[0][1].body).slot_start).toBe(slot);
     expect(JSON.parse(posts()[1][1].body).slot_start).toBe(slot);
+  });
+
+  it('the refund policy is shown before payment: the confirm button is off until it is agreed, and the booking carries the agreement', async () => {
+    answer(
+      { '/care/doctors/doc-1': doctor, '/payments/consultation/appt-1/capabilities': { methods: [{ id: 'card' }] } },
+      (path) => {
+        if (path === '/slot-locks/reserve') return { id: 'lock-1' };
+        if (path === '/care/appointments') return { id: 'appt-1' };
+        if (path.startsWith('/payments/intent/consultation/')) return { checkout_url: 'https://pay.example.test/c/1' };
+        return {};
+      },
+    );
+    await render(wrap(<BookingConfirmScreen />));
+    await screen.findByText('Test Doctor');
+    expect(screen.getByText(k('refund.title'))).toBeTruthy();
+    expect(screen.getByTestId('booking-confirm-submit').props.accessibilityState).toMatchObject({ disabled: true });
+    await tap(screen.getByTestId('booking-confirm-submit'));
+    expect(posts()).toHaveLength(0);
+    await tap(screen.getByTestId('refund-policy-agree'));
+    expect(screen.getByTestId('booking-confirm-submit').props.accessibilityState?.disabled).toBeFalsy();
+    await tap(screen.getByTestId('booking-confirm-submit'));
+    await waitFor(() => expect(posts().length).toBeGreaterThanOrEqual(2));
+    expect(JSON.parse(posts()[1][1].body)).toMatchObject({ refund_policy_accepted: true });
   });
 
   it('PT-08: the medical report request is sent only when ticked, and the booking says it is a request', async () => {
@@ -158,6 +183,7 @@ describe('confirm the booking', () => {
       await screen.findByText('Test Doctor');
       expect(screen.getByText(k('consult.confirm.reportHint'))).toBeTruthy();
       if (tick) await tap(screen.getByTestId('booking-report-request'));
+      await tap(screen.getByTestId('refund-policy-agree'));
       await tap(screen.getByTestId('booking-confirm-submit'));
       await waitFor(() => expect(posts().length).toBeGreaterThanOrEqual(2));
       return JSON.parse(posts()[1][1].body);
@@ -179,6 +205,7 @@ describe('confirm the booking', () => {
     await render(wrap(<BookingConfirmScreen />));
     await screen.findByText('Test Doctor');
     expect(screen.getByText(k('consult.confirm.bookingFor', { name: 'Test Member' }))).toBeTruthy();
+    await tap(screen.getByTestId('refund-policy-agree'));
     await tap(screen.getByTestId('booking-confirm-submit'));
     await waitFor(() => expect(Linking.openURL).toHaveBeenCalled());
     expect(JSON.parse(posts()[1][1].body)).toMatchObject({ for_member_id: 'member-1' });
@@ -189,6 +216,7 @@ describe('confirm the booking', () => {
     answer({ '/care/doctors/doc-1': doctor }, (path) => (path === '/slot-locks/reserve' ? new Error('slot_taken') : {}));
     await render(wrap(<BookingConfirmScreen />));
     await screen.findByText('Test Doctor');
+    await tap(screen.getByTestId('refund-policy-agree'));
     await tap(screen.getByTestId('booking-confirm-submit'));
     await waitFor(() => expect(showLocalizedAlert).toHaveBeenCalledWith(k('consult.confirm.failedTitle'), k('consult.confirm.slotTaken')));
     expect(posts().map(([p]) => p)).toEqual(['/slot-locks/reserve']);
