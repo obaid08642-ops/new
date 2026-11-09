@@ -1,5 +1,5 @@
 {
- "commit": "e0dfbc7c",
+ "commit": "7980b02d",
  "routes": [
   {
    "app": "patient-app",
@@ -2772,11 +2772,41 @@
    "status": "done (batch 6 merged)",
    "calls": [
     {
+     "method": "GET",
+     "path": "/family/dependants",
+     "target": "backend",
+     "query": "",
+     "line": 243,
+     "file": "patient-app/src/components/family/FamilyAddView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:28"
+    },
+    {
+     "method": "POST",
+     "path": "/family/dependants",
+     "target": "backend",
+     "query": "",
+     "line": 257,
+     "file": "patient-app/src/components/family/FamilyAddView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:23"
+    },
+    {
+     "method": "DELETE",
+     "path": "/family/dependants/:param",
+     "target": "backend",
+     "query": "",
+     "line": 274,
+     "file": "patient-app/src/components/family/FamilyAddView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:33"
+    },
+    {
      "method": "POST",
      "path": "/family/invite",
      "target": "backend",
      "query": "",
-     "line": 65,
+     "line": 67,
      "file": "patient-app/src/components/family/FamilyAddView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/family/family.controller.ts:53"
@@ -2786,13 +2816,13 @@
      "path": "/family/join",
      "target": "backend",
      "query": "",
-     "line": 153,
+     "line": 155,
      "file": "patient-app/src/components/family/FamilyAddView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/family/family.controller.ts:60"
     }
    ],
-   "files": 43,
+   "files": 44,
    "unresolved": 0
   },
   {
