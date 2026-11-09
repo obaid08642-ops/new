@@ -12,12 +12,14 @@ import type { OrderMode } from "./quote";
 export type RadiologyBookingBody = {
   service_id: string; provider_id: string; scheduled_at: string; location_type: "home" | "facility"; payment_method: "card" | "insurance";
   documents?: Array<{ kind: "doctor_request"; url_or_b64: string; filename?: string }>;
+  /** another family member (the patient is the default and is not sent) */
+  family_member_id?: string;
 };
 export type RadiologyRequest = { mode: OrderMode; body: RadiologyBookingBody };
 
 /** One request per scan and place; null while a place has no time, no provider or no scan (nothing is invented). */
 export function buildRadiologyRequests(a: {
-  schedule: Schedule; home?: string; facility?: string; groups?: Partial<Record<OrderMode, { itemIds: string[] }>>; insured: boolean; evidence?: Evidence; now?: Date;
+  schedule: Schedule; home?: string; facility?: string; groups?: Partial<Record<OrderMode, { itemIds: string[] }>>; insured: boolean; evidence?: Evidence; now?: Date; familyMemberId?: string;
 }): RadiologyRequest[] | null {
   const out: RadiologyRequest[] = [];
   const documents = (a.evidence?.documents ?? []).filter((d): d is NonNullable<RadiologyBookingBody["documents"]>[number] => d.kind === "doctor_request");
@@ -29,7 +31,7 @@ export function buildRadiologyRequests(a: {
     if (!time || ids.length === 0) return null;
     const scheduledAt = time.type === "walk_in" ? (a.now ?? new Date()).toISOString() : time.start;
     for (const id of ids) {
-      out.push({ mode, body: { service_id: id, provider_id: provider, scheduled_at: scheduledAt, location_type: mode, payment_method: a.insured ? "insurance" : "card", ...(documents.length ? { documents } : {}) } });
+      out.push({ mode, body: { service_id: id, provider_id: provider, scheduled_at: scheduledAt, location_type: mode, payment_method: a.insured ? "insurance" : "card", ...(a.familyMemberId ? { family_member_id: a.familyMemberId } : {}), ...(documents.length ? { documents } : {}) } });
     }
   }
   return out.length > 0 ? out : null;

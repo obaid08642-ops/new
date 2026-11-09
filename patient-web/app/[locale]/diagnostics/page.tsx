@@ -13,7 +13,7 @@ import { patientApiUrl } from "@/lib/api/upstream";
 import { ItemActions } from "@/components-next/ordering/add-to-basket";
 import { BasketBar } from "@/components-next/ordering/basket-bar";
 import { isLocale, locales } from "@/lib/i18n";
-import { contextQuery } from "@/lib/ordering/context";
+import { contextQuery, whoOf } from "@/lib/ordering/context";
 import { localizedUrl } from "@/lib/seo";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
@@ -38,7 +38,7 @@ import { pickName, pickTexts, perLocaleOf } from "@/lib/i18n/localized";
 import { FILL_PRESCRIPTION } from "@/components-next/ui-generated/icons/glyphs/prescription";
 import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
-type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ kind?: string; place?: string; pay?: string; q?: string; show?: string; sort?: string; more?: string; cat?: string; nofast?: string; sameday?: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ kind?: string; place?: string; pay?: string; for?: string; q?: string; show?: string; sort?: string; more?: string; cat?: string; nofast?: string; sameday?: string }> };
 
 const LIMIT_PACKAGES = 6;
 const LIMIT_BOOKINGS = 3;
@@ -69,6 +69,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const query = (await searchParams) ?? {};
+  const who = whoOf(query.for); // another family member (the patient by default), kept on the links into the ordering steps
   const kind = query.kind === "radiology" ? "radiology" : "labs";
   const parsed = parseHubFilter(query);
   const filter = parsed;
@@ -155,8 +156,8 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
 
   const orderPlace: "home" | "facility" = place === "facility" ? "facility" : "home";
   const orderPay = pay === "insurance" ? "insurance" : "cash";
-  const itemHref = (id: string, itemKind: "lab" | "radiology", facilityOnly = false) => `/${locale}/labs/${encodeURIComponent(id)}${contextQuery({ kind: itemKind, place: facilityOnly ? "facility" : orderPlace, pay: orderPay })}`;
-  const orderHref = (itemKind: "lab" | "radiology") => `/${locale}/labs/basket${contextQuery({ kind: itemKind, place: orderPlace, pay: orderPay })}`;
+  const itemHref = (id: string, itemKind: "lab" | "radiology", facilityOnly = false) => `/${locale}/labs/${encodeURIComponent(id)}${contextQuery({ kind: itemKind, place: facilityOnly ? "facility" : orderPlace, pay: orderPay, who })}`;
+  const orderHref = (itemKind: "lab" | "radiology") => `/${locale}/labs/basket${contextQuery({ kind: itemKind, place: orderPlace, pay: orderPay, who })}`;
   const rowCtx = { locale, tr: (key: Parameters<typeof t>[0], values?: Record<string, string | number>) => t(key, values), itemHref };
   const order = { place: orderPlace, pay: (pay === "insurance" ? "insurance" : "self_pay") as "insurance" | "self_pay" };
   // The "Packages" chip (labs) opens the packages as cards of the same kind; a chip while it is open is a full navigation back to the tests.
@@ -334,7 +335,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
           })}
         </section>
       ))}
-      <BasketBar locale={locale} kind={kind === "radiology" ? "radiology" : "lab"} place={orderPlace} pay={orderPay} />
+      <BasketBar locale={locale} kind={kind === "radiology" ? "radiology" : "lab"} place={orderPlace} pay={orderPay} who={who} />
     </ConsultPage>
   );
 }

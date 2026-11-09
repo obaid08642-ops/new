@@ -13,6 +13,7 @@ const schema = z.object({
   scheduled_at: z.string().max(40),
   location_type: z.enum(["home", "facility"]),
   payment_method: z.enum(["card", "insurance"]),
+  family_member_id: id.optional(),
   documents: z.array(z.object({ kind: z.literal("doctor_request"), url_or_b64: z.string().max(2_000_000), filename: z.string().max(200).optional() })).max(5).optional(),
 });
 

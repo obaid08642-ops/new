@@ -160,7 +160,7 @@ describe("C: Order now skips the cart", () => {
     const onOrder = actions.slice(actions.indexOf('label={t("orderNow")}'));
     expect(onOrder).toContain("router.push(withItem(orderHref, line.id))");
     expect(onOrder).not.toContain("add(kind, line)");
-    for (const file of ["basket-client", "providers-client", "when-client", "confirm-client"]) expect(code(`components-next/ordering/${file}.tsx`)).toContain("item }");
+    for (const file of ["basket-client", "providers-client", "when-client", "confirm-client"]) expect(code(`components-next/ordering/${file}.tsx`)).toContain("item, who }");
     expect(code("components-next/ordering/use-order-lines.ts")).toContain("single ? keepBasket : remove");
     for (const page of ["basket", "providers", "when", "confirm"]) expect(code(`app/[locale]/labs/${page}/page.tsx`)).toContain("parseSingleItem(query.item)");
   });

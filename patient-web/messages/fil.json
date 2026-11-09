@@ -3646,6 +3646,8 @@
     "catPackages": "Mga package"
   },
   "OrderContext": {
+    "forLabel": "Para kanino",
+    "forMe": "Ako",
     "hint": "Agad na nag-a-update ang presyo at coverage kapag may binago",
     "addAddress": "Idagdag ang address mo",
     "addInsurance": "Idagdag ang insurance mo",
