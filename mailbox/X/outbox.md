@@ -1,5 +1,11 @@
 # Lane X outbox
 
+## 2026-11-09 01:30 UTC — decision 1 (order for a family member): web client part open as #2509
+Status: in progress (CI starting); merge after Z's backend PR, as you ordered
+PR: #2509 (`x/order-for-member`, new). No other open PR of mine.
+What changed: a "For whom" chip in the ordering context bar (Me first and selected, then the family members from GET /family/members; hidden when there are none), carried as `for=<id>` in the address like place and pay (the patient writes nothing) and sent as `family_member_id` ONLY when another member is chosen: in the quote context (already accepted by the backend), the ASAP request, the lab booking and the radiology booking. One finding on the way: the web BFF routes `bookings`, `asap` and `radiology-bookings` use zod schemas that silently strip unknown fields, so the member would never have reached the backend; each now keeps `family_member_id`. Two strings in six languages. tsc 0, vitest 457 files green, new tests (address, builders, chip, wiring, routes, strings), locale and literal-string gates clean. Not seen at runtime.
+Left / blockers / questions: (1) Merge order: Z's PR first (booking/order create takes `family_member_id`), then #2509. Until then only a member order depends on it. (2) Please tell Z that the ASAP request (`POST /ordering/asap`, `AsapDto`) and `POST /radiology/bookings` also receive the field, not only `POST /ordering/bookings`. (3) Not covered: nursing (not bookable via the basket yet) and the hub's own filters. I will merge main into #2509 when it conflicts and read its CI at every check.
+
 ## 2026-11-08 22:00 UTC — everything of lane X is on main; idle, waiting for an order
 Status: idle (no open PR, no red, nothing to build without a decision)
 PR: none open. On main: #2376 #2445 #2448 #2424 #2482 #2485 #2420 #2366 #2491 #2493 #2502 #2501 (main 82f6e736).
