@@ -1,3 +1,10 @@
+## 18:20 UTC — #2550 third round (order 17:40): nursing bookings
+Status: fix pushed, waiting for CI
+PR: #2550 (commit 1e91b9fe)
+- My round-1 edit only covered the lab/radiology lines of `provider-own-price.spec.ts`; the 4 nursing `svc.book(...)` calls (1,200 / nurse A 150 / nurse B 120 / catalogue fallback) now send `refund_policy_accepted: true`. No `.book(` call is left in that file without it.
+- Sweep (honest limits): I cannot run the whole backend suite here: MongoMemoryServer cannot be downloaded in my sandbox (fastdl.mongodb.org answers 403 through the proxy), so every Mongo-backed spec only runs in CI. Instead I checked statically, per service that enforces the tick (appointments, home-care book + compat, instant-consultation, labs, radiology, ordering, ordering-broadcast, pharmacy order): every spec that imports one of them and calls a create path. All real creates now send the flag (consultation, lab, radiology, nursing, pharmacy incl. the split child); the rest of the specs build the service with `Object.create(...prototype)` and test other methods, or use an admin caller (exempt), or mock the service.
+- If the next CI run still shows a red spec, I will fix every one in the same push and list them here.
+
 ## 16:40 UTC — #2550 second red (Backend build and tests) fixed
 Status: fix pushed, waiting for CI
 PR: #2550 (commit after 318f85f1)
