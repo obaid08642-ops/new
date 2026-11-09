@@ -200,7 +200,7 @@ export class OrderingService implements OnModuleInit {
   }
 
   private async ownMember(userId: string, id: string) {
-    const m = await this.conn.collection('family_members').findOne({ id, $or: [{ owner_id: userId }, { user_id: userId }, { patient_id: userId }] });
+    const m = await this.conn.collection('family_members').findOne({ id, is_deleted: { $ne: true }, $or: [{ owner_id: userId }, { user_id: userId }, { patient_id: userId }] });
     if (!m) throw new NotFoundException('family_member_not_found');
     return m;
   }

@@ -104,3 +104,4 @@ j_guest_lifecycle
 j_user_history
 j_referral_booking
 j_sick_leave
+j_family_dependant
