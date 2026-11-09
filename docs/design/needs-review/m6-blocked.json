@@ -140,7 +140,7 @@
     "line": 44,
     "found": "[backend] GET /medical-orders/:id gives catalog_id only, no test or scan name; items show their group (or sessions) instead of a name.",
     "suspect": "Backend gap: add the catalogue name to each item in the view (medical-orders.service.ts view()).",
-    "review_status": "open"
+    "review_status": "fixed on web: names come from the catalogue reads (loadItem); a backend name in view() would save one read per item [backend, optional]"
   },
   {
     "batch": "m6-orders",
@@ -162,7 +162,7 @@
     "line": 41,
     "found": "[client] Same as the web: the prefill is not read by the app flows; the patient lands on the generic flow.",
     "suspect": "Client: the flows must read the medical_order prefill (M3 flow).",
-    "review_status": "open"
+    "review_status": "open: web flows read the prefill (done); the app flow is not built in this lane slice [client, app]"
   },
   {
     "batch": "m6-orders",
@@ -173,6 +173,6 @@
     "line": 51,
     "found": "[backend] POST /medical-orders/:id/renew-request exists on main; the expired note has no renew action yet (not built in this batch).",
     "suspect": "Client: add the renew action (owner: wording and whether a doctor is asked).",
-    "review_status": "open"
+    "review_status": "fixed: renew action on web (POST /medical-orders/:id/renew-request via BFF, sent/error notice, six languages)"
   }
 ]
