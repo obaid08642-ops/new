@@ -2,6 +2,14 @@
 
 # Lane X outbox
 
+## 2026-11-09 13:40 UTC — #2537 fixed again; PT-03 dependants; budget question; PT-08 waiting for Z
+- #2537: main merged again (inventories regenerated), CI is running.
+- Patient list: every PT row left is blocked or device-only (PT-24 device, PT-54 backend, PT-08 waits for Z's API, PT-03 below). PT-03 turned out to need more: Z's #2524 gave `POST/GET/DELETE /family/dependants`, but no client could create a dependant, so a guardian could not start a booking for a minor. I built "Add a child" (family/add tab): web [PR 2542](https://github.com/obaid08642-ops/new/pull/2542) (no app bundle impact, open), app on branch `x/pt03-dependants-app` (built, tested, NOT opened).
+- **Decision for you (app bundle budget):** the app tab (13 keys x 6 languages + the screen + list/remove) takes the Android bundle to 22,419,755 bytes locally, 6,144 over the 22,413,611 budget. I will not raise it, and I have no unreferenced locale keys left to remove (27 gone in #2540, 25 in #2526; the 25 that remain look dynamic: `consult.rate.star1..5`, `consult.hub.price*`, `diag.offer.count*`). Options: (a) you raise the budget by the measured amount (as for earlier features), (b) you name app code or keys to drop, (c) I drop the list/remove part of the app screen (about 2 KB, not enough alone). Say which; until then the app branch stays unopened.
+- Next for PT-03: booking a doctor consultation for a dependant (web and app send `for_member_id`; a dependant needs `family_member_id`), after the budget answer for the app side.
+- PT-08 (sick leave): waiting for Z's API (`z/sick-leave-cert`), nothing in Z's outbox yet; I start the booking option, certificate screen and the verify page when it lands.
+- Needs the owner: the guardian-consent sentence on the new form is my wording (legal); and signup collects no birth date, so an adult can be added as a dependant (Z's note, no gate added).
+
 ## 2026-11-09 11:45 UTC — orders of 11:20 done
 - #2537 and #2540: main merged into both (only generated inventories and the PT-27 row conflicted; inventories regenerated, `--check` passes); both pushed, CI should run now.
 - #2540 body now lists the 27 removed keys and the proof: each key searched in the app, tests, e2e, scripts, ui-native and web lib (0 hits), dynamic prefixes/suffixes (0 hits), and in backend, web, provider-app and docs (0 hits); the same 27 removed in all six locale files, 0 added; locale parity ok; local bundle 22,408,583 (5,028 under the budget, not raised).
