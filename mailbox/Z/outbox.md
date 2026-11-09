@@ -1,3 +1,13 @@
+## 19:50 UTC — #2550 rollout safety (order 19:10)
+Status: changes pushed, waiting for CI
+PR: #2550 (commit a72921a6), PR body rewritten with the rollout
+- Default is now `optional`: a missing field passes (nothing stored), explicit `false` / non-boolean still 400 `refund_policy_acceptance_required`. Only the exact word `required` in `REFUND_POLICY_ACCEPTANCE` enforces. Unit tests that test the refusal set `required` explicitly (acceptance spec, entrypoints spec, radiology, split child); added tests for the default, for `required` and for the counter.
+- Live-gate override removed from `tools/live/start-backend.sh` (file identical to main again).
+- Rollout written in the PR body and in `docs/product/OWNER_DECISIONS_2026-10-06.md` (addendum 2026-11-09): `required` only by config, after X's web tick is live AND the app release with the tick is the minimum supported version.
+- Metric `nabd_refund_policy_missing_total` counts patient creates without the field (visible on the metrics endpoint), so the flip is safe when it stops growing.
+- Also fixed on the way: the AI assistant tools turned a missing argument into `false` (refused even under optional); a missing argument now stays missing.
+- Lane X: nothing breaks now; send `refund_policy_accepted: true` from the tick whenever ready.
+
 ## 19:05 UTC — #2550 merged with main + whole-suite local run (order 18:10)
 Status: fix pushed, waiting for CI
 PR: #2550 (merge 91a847d3, fix after it)
