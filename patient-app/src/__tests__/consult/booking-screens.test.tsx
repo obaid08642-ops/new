@@ -143,6 +143,28 @@ describe('confirm the booking', () => {
     expect(JSON.parse(posts()[1][1].body).slot_start).toBe(slot);
   });
 
+  it('PT-08: the medical report request is sent only when ticked, and the booking says it is a request', async () => {
+    const run = async (tick: boolean) => {
+      answer(
+        { '/care/doctors/doc-1': doctor, '/payments/consultation/appt-1/capabilities': { methods: [{ id: 'card' }] } },
+        (path) => {
+          if (path === '/slot-locks/reserve') return { id: 'lock-1' };
+          if (path === '/care/appointments') return { id: 'appt-1' };
+          if (path.startsWith('/payments/intent/consultation/')) return { checkout_url: 'https://pay.example.test/c/1' };
+          return {};
+        },
+      );
+      await render(wrap(<BookingConfirmScreen />));
+      await screen.findByText('Test Doctor');
+      expect(screen.getByText(k('consult.confirm.reportHint'))).toBeTruthy();
+      if (tick) await tap(screen.getByTestId('booking-report-request'));
+      await tap(screen.getByTestId('booking-confirm-submit'));
+      await waitFor(() => expect(posts().length).toBeGreaterThanOrEqual(2));
+      return JSON.parse(posts()[1][1].body);
+    };
+    expect(await run(true)).toMatchObject({ sick_leave_requested: true });
+  });
+
   it('issue 684: a booking started from a family member is sent for that member, said on screen, and cleared after', async () => {
     setBookingFor({ id: 'member-1', name: 'Test Member' });
     answer(

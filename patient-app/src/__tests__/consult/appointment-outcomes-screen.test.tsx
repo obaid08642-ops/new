@@ -45,7 +45,7 @@ function answer(map: Record<string, unknown>) {
 beforeEach(() => jest.clearAllMocks());
 
 describe('appointment outcome sections', () => {
-  it('draws sick leave and reports of this visit and opens one in view-report', async () => {
+  it('draws sick leave and reports of this visit and opens the medical report screen (PT-08)', async () => {
     answer({
       '/care/appointments/appt-1/summary': { diagnosis: 'Test diagnosis' },
       '/care/appointments/appt-1': appt,
@@ -61,7 +61,8 @@ describe('appointment outcome sections', () => {
     await act(async () => {
       fireEvent.press(row);
     });
-    expect(mockRouter.push).toHaveBeenCalledWith({ pathname: '/reports/view-report', params: { id: 'r1' } });
+    // PT-08: the sick-leave row is the medical report: it opens its own screen, the other rows still open the generic report view
+    expect(mockRouter.push).toHaveBeenCalledWith({ pathname: '/medical-reports/[id]', params: { id: 'r1' } });
   });
 
   it('adds the referred tests to the labs cart and leaves unknown codes out', async () => {

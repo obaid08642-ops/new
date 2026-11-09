@@ -371,7 +371,7 @@ export function OutcomeReportsSection({ outcomes }: { outcomes: VisitOutcomes | 
   const { date } = useConsultFormat();
   const data = outcomes && outcomes.sickLeaves.length + outcomes.certificates.length + outcomes.reports.length > 0 ? outcomes : null;
   if (!data) return null;
-  const open = (id: string) => router.push({ pathname: '/reports/view-report', params: { id } } as unknown as Href);
+  const open = (id: string, medicalReport = false) => router.push(medicalReport ? ({ pathname: '/medical-reports/[id]', params: { id } } as unknown as Href) : ({ pathname: '/reports/view-report', params: { id } } as unknown as Href));
   const group = (titleKey: string, icon: 'calendar-dots' | 'file-text', rows: OutcomeReport[], testID: string) =>
     rows.length === 0 ? null : (
       <Section title={k(titleKey)}>
@@ -387,7 +387,7 @@ export function OutcomeReportsSection({ outcomes }: { outcomes: VisitOutcomes | 
             .filter(Boolean)
             .join(' · ');
           return (
-            <Pressable key={r.id} accessibilityRole="button" accessibilityLabel={title} onPress={() => open(r.id)} testID={`${testID}-${r.id}`} style={{ minHeight: 44 }}>
+            <Pressable key={r.id} accessibilityRole="button" accessibilityLabel={title} onPress={() => open(r.id, testID === 'outcome-sick-leave')} testID={`${testID}-${r.id}`} style={{ minHeight: 44 }}>
               <Card theme={theme} padding="sm">
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                   <FIcon icon={icon} tone={RX_TONE} size={44} theme={theme} />
