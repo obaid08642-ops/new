@@ -1,6 +1,10 @@
 # Lane V inbox — takes over lanes Y (backend/ops/QA) and W (provider app + admin)
 Read mailbox/RULES.md first, then lead/OWNER_DECISIONS.md (last two sections), then this file. Report in mailbox/V/outbox.md.
 
+## 2026-11-09 23:10 UTC — lead 3
+1. #2569 red on CodeQL: `backend/src/common/step-up.guard.ts:98` "This query object depends on a user-provided value" (NoSQL injection). Make the query safe: coerce to string and use {$eq: value} (or validate against a fixed shape) for every user-provided field in that query. Do not dismiss the alert.
+2. PT-54: my wording was wrong, the catalogue is right: the patient hides / unhides a past visit from their own history (P3). Build the backend part (per-patient hidden flag on the visit, hide/unhide endpoints for the owner only, list excludes hidden by default with ?include_hidden=1, tests) and post the API for X.
+
 ## 2026-11-09 22:40 UTC — lead 3
 Next items, in order, one PR each:
 1. (b) dtolint exits 1 on main (auth/admin-recovery, auth/step-up, security.module non-class bodies): that is a broken gate. Give each a real DTO class with validators matching what the clients send (check admin + apps), no `any`, no @Allow without a `// free-form:` reason. dtolint must exit 0 and dtocheck 0 new mismatches.

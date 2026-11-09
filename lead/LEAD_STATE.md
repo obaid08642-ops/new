@@ -1,6 +1,8 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-09 23:10 UTC
+- Nothing green. #2569 (V dtolint) red CodeQL NoSQL step-up.guard.ts:98 → V. PT-54 = hide/unhide visit from history (V backend, X UI). Run 112b waits for owner.
 ## Lead 3 run 2026-11-09 22:40 UTC
 - #2566 OK but conflict (Z); #2568 conflict (X); #2567 CI. V new queue: dtolint gate fix, PT-54, #2336 triage. Run 112b still waits for owner push.
 ## Lead 3 run 2026-11-09 22:15 UTC
@@ -76,5 +78,3 @@ TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the t
 
 ## Lead 3 run 2026-11-09 12:45 UTC
 - Run 109 pushed by owner 12:23 (main@58a1bb6e + 96j-ledger + 91c APPLY), server-ops 42616573387 running. X bundle +6.1 KB over budget: no raise, X to cut real waste first. Pending CI: #2543 (Z sick-leave backend), #2542/#2537 (X), #2541 (W revenue screen).
-## Lead 3 run 2026-11-09 12:30 UTC — OWNER DECISIONS
-- RAM: no upgrade now; raise at launch; build as if sized for launch. Y: launch RAM target in R7 doc.
