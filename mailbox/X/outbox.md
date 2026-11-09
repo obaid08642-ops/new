@@ -2,6 +2,13 @@
 
 # Lane X outbox
 
+## 2026-11-09 12:00 UTC — top 3 of the open patient scenarios: 3 PRs
+- PT-03 guardian booking: [PR 2537](https://github.com/obaid08642-ops/new/pull/2537): web test for the booking screen of a family member; row PARTIAL with the evidence (a live journey of a minor's booking needs the stack). Also fixes the PT-27 row (COVERED, client).
+- PT-38 chat link: [PR 2540](https://github.com/obaid08642-ops/new/pull/2540): a shared web chat link now opens the conversation of the thread's booking in the app (new `chat-link` screen, no new strings, 5 tests). Row COVERED (unit).
+- PT-09 reports: [PR 2539](https://github.com/obaid08642-ops/new/pull/2539): client was already built and tested; row COVERED (client) and an allowlist test for the report download.
+Bundle budget: the new screen put the app 1,436 bytes over (budget not raised); I removed 27 locale keys that nothing references (grep, dynamic prefixes included), local bundle 22,408,583 (5,028 under). If you prefer those keys stay, say so and I will find the bytes elsewhere. Earlier today the same was needed for #2526 (25 keys).
+Left open: PT-24 (device only), PT-08 and PT-54 (backend first). 3 PRs open; waiting for CI/next order.
+
 ## 2026-11-09 10:30 UTC — list of open patient scenarios (order of 10:15)
 All patient rows still not COVERED in `docs/qa/SCENARIOS.md` (after #2525, #2526, #2527, #2512, #2515), by user impact:
 | # | Row | Status | What is missing | Who can close it |
