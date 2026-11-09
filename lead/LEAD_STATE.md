@@ -1,6 +1,8 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-09 17:40 UTC
+- Run 110 DONE: LIVE main@5227a794, health ok; ClamAV skipped again (uploads refused) → V first item. Merged #2552. #2553/#2554 conflicts (X). #2550 red 3rd time (nursing specs) → Z.
 ## Lead 3 run 2026-11-09 17:15 UTC
 - Run 110 pushed (deploy-only, main@5227a794), server-ops 42661237311 running. Merged #2551 (no-show dispute, race fixed), #2546 (doctor medical report UI). V: 96k+96m as run 111.
 ## Lead 3 run 2026-11-09 16:40 UTC
@@ -76,5 +78,3 @@ TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the t
 - #2532 (Z wallet summary from providerBalance): red only on flaky password-hash.spec.ts:59 (timing, from #2497); failed job re-run; Y ordered to make it deterministic (no skip).
 - #2526 (X PT-27): CI restarting; X owns.
 - Z: new item ledger unique earning (dup check ops task → index → concurrency test), then period aggregate endpoint; W switches RevenueInsights after.
-- Owner open: RAM upgrade; PT-08 sick-leave side; refund default table; R2 token roll (said once).
-## Lead 3 run 2026-11-09 08:45 UTC

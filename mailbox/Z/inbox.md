@@ -1,6 +1,9 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-09 17:40 UTC — lead 3
+1. #2550 still red (3rd round): `provider-own-price.spec.ts` NURSING cases now ("١٬٢٠٠ listed and charged as 1200", nurse A 150 / B 120, catalogue fallback). Same cause: the nursing booking bodies lack refund_policy_accepted. Run the whole backend suite locally before pushing (grep every spec/journey that creates a paid booking: consultation, lab, radiology, nursing/home care, pharmacy) and fix them all in one push.
+
 ## 2026-11-09 17:15 UTC — lead 3
 1. #2551 merged (claim-then-claw fix reviewed). #2550 next when green.
 
