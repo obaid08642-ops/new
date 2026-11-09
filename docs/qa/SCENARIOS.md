@@ -43,7 +43,7 @@ This PR (PT-25 delivery tracking) moved one PARTIAL row to COVERED. The 'This PR
 | PT-10 | Follow-up chat window opens and closes after a visit | COVERED | `j_chat_followup_window.py` (62/62): closed before the visit ends, opens on finish, the doctor closes it and the patient can still read, one extension reopens it, a second is refused | P1 | — |
 | PT-11 | Chat delivered and seen receipts | COVERED | `j_chat_receipts.py` (63/63, PR #2259) | P1 | — |
 | PT-12 | Reviews and rating of a provider | COVERED | `j_review_rating.py` (73/73): only a patient who used the visit can rate, stars publish at once, text waits for admin approval, public after approval; the author's read omits `status` (`docs/qa/findings/batch5-2026-11-07.md`) | P2 | — |
-| PT-13 | Reply to a review (provider side, see PV-07) | NOT COVERED | no journey | P3 | S |
+| PT-13 | Reply to a review (provider side, see PV-07) | COVERED | `j_provider_scenarios.py` (the doctor answers a published review, the public page shows the reply, the patient gets one notification per reply in en and ar; a low-star review cannot be answered until a moderator approves it) | P3 | — |
 | PT-14 | Complaint raised | COVERED | `j_complaint.py` (18/18): feedback filed as a complaint, the patient and the admin queue both show the complaint category, an empty complaint is refused | P2 | — |
 | PT-15 | Dispute on a charge or visit | COVERED | `j_dispute.py` (56/56 on main 365b2d580): the patient's payment dispute, the admin refunds part once, a second refund refused | P1 | F |
 | PT-16 | Support ticket create and reply | COVERED | `j_support.py` | P2 | — |
