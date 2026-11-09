@@ -656,14 +656,15 @@ export class PaymentsService {
    * the admin endpoint above, and RefundExecutor (approved refund requests, cancellation policy),
    * which before this only wrote a ledger row for card payments kept in `transactions`.
    */
-  async refundTransactionAsSystem(transactionId: string, amount?: number, reason?: string): Promise<{ txn: any; gateway_refund_id?: string }> {
+  async refundTransactionAsSystem(transactionId: string, amount?: number, reason?: string, opts: { skipGateway?: boolean } = {}): Promise<{ txn: any; gateway_refund_id?: string }> {
     const t = await this.txns.findOne({ id: transactionId });
     if (!t) throw new NotFoundException();
     if (t.status !== 'paid' && t.status !== 'partially_refunded') throw new BadRequestException('cannot_refund');
     const refundable = Math.max(0, Number(t.amount || 0) - Number(t.refunded_amount || 0));
     const value = amount === undefined ? refundable : Math.round(Number(amount) * 100) / 100;
     if (!(value > 0) || value > refundable + 0.001) throw new BadRequestException('refund_exceeds_paid');
-    const r = await this.adapter.refund(t.gateway_charge_id || t.gateway_intent_id, value);
+    // skipGateway: the gateway already made this refund (a crashed finance execution is being completed): only our own records are brought up to date
+    const r: any = opts.skipGateway ? { refunded: true, raw: {} } : await this.adapter.refund(t.gateway_charge_id || t.gateway_intent_id, value);
     if (!r.refunded) throw new BadRequestException('refund_failed');
     t.refunded_amount = Math.round((Number(t.refunded_amount || 0) + value) * 100) / 100;
     t.status = t.refunded_amount >= Number(t.amount || 0) - 0.001 ? 'refunded' : 'partially_refunded';
