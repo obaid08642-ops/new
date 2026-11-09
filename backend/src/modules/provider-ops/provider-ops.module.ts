@@ -24,6 +24,7 @@ import { JwtAuthGuard, CurrentUser, Roles, hasEffectiveRole } from '../../common
 import { UserRole } from '../../common/enums';
 import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, PutPricingDto, PutTariffsDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto, ToggleInstantDto, SaveDoctorNoteDto } from './provider-ops.dto';
 import { clampMonths, foldRevenue, rangeStart, revenuePipeline } from './revenue-by-month';
+import { ensureEarningUniqueIndex } from '../finance-engine/earning-key';
 import { CommissionResolver, LedgerService } from '../finance-engine/finance-engine.module';
 import { settlementDelayDefault, DEFAULT_VAT_PERCENT } from '../../common/commission-defaults';
 import { roundSar } from '../../common/money';
@@ -64,6 +65,9 @@ export function providerOwnAmount(kind: string, booking: any): number {
 @Injectable()
 export class ProviderOpsService {
   private readonly logger = new Logger(ProviderOpsService.name);
+
+  /** Built once per process, the first time an earning is credited (earning-key.ts); a database with duplicate earnings keeps its old behaviour until finance resolves them. */
+  private earningIndex?: Promise<string>;
 
   constructor(@InjectConnection() private readonly conn: Connection, @Optional() private readonly events?: EventEmitter2) {}
 
@@ -760,7 +764,18 @@ export class ProviderOpsService {
     };
     // R11 P1: a raw insert adds its own integer shadows (LedgerService.append does the same for the rows it writes)
     const withShadows = { ...row, ...shadowFields(row, ['amount', 'gross', 'commission', 'vat']) };
-    await this.conn.collection('platformledgerentries').insertOne(withShadows as any);
+    // The read above is not atomic: two parallel service.completed events both pass it. The unique partial index (earning-key.ts) makes the database refuse the second row;
+    // that refusal means "already credited", and an order the loser claimed on a limited promotion is given back.
+    await (this.earningIndex ??= ensureEarningUniqueIndex(this.conn, (m) => this.logger.warn(m)));
+    try {
+      await this.conn.collection('platformledgerentries').insertOne(withShadows as any);
+    } catch (e: any) {
+      if (e?.code !== 11000) throw e;
+      if (promoId) await new CommissionResolver(this.conn).releasePromoOrder(promoId).catch(() => undefined);
+      const existing = await this.conn.collection('platformledgerentries').findOne({ ref_type: refType, ref_id: refId, type: 'provider_earning' });
+      if (existing) return existing;
+      throw e;
+    }
     return withShadows;
   }
 
