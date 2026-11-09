@@ -8,6 +8,7 @@
  * NOTE: booking models are fetched from the shared mongoose connection
  * (already registered by their owning modules) — no re-registration here.
  */
+import { ensureInvoiceUniqueIndex } from './invoice-key';
 import { halalaShadowPlugin } from '../../common/halala-shadow';
 import {
   Body, Delete, HttpException, HttpStatus, Req,
@@ -116,6 +117,9 @@ export function decodeTlv(base64: string): Record<number, string> {
 export class BillingService {
   private readonly logger = new Logger('Billing');
   constructor(@InjectConnection() private conn: Connection) {}
+
+  /** The one-issued-invoice-per-booking index (invoice-key.ts), ensured once per process before the first invoice is written. */
+  private invoiceIndex?: Promise<unknown>;
 
   private get invoices() { return this.conn.model('EInvoice'); }
 
@@ -387,6 +391,7 @@ export class BillingService {
     const patientName = String(booking?.patient_name || '').trim() || null;
     const bookingRef = String(booking?.tracking_id || booking?.order_number || booking?.reference || bookingId.slice(0, 8));
 
+    await (this.invoiceIndex ??= ensureInvoiceUniqueIndex(this.conn, (m) => this.logger.warn(m)));
     try {
       const doc = await this.invoices.create({
         invoice_no: await this.nextInvoiceNo(documentKind),
