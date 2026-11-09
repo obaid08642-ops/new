@@ -125,7 +125,7 @@
     "provider-app/src/screens/shared/blueprint/PharmacyBroadcastResponse.tsx": 70,
     "provider-app/src/screens/shared/blueprint/PromotionsDashboard.tsx": 8,
     "provider-app/src/screens/shared/blueprint/ReputationHub.tsx": 7,
-    "provider-app/src/screens/shared/blueprint/RevenueInsights.tsx": 21,
+    "provider-app/src/screens/shared/blueprint/RevenueInsights.tsx": 19,
     "provider-app/src/screens/shared/blueprint/SmartOutboundReferralNetwork.tsx": 20,
     "provider-app/src/screens/shared/blueprint/SubscriptionsAdsScreen.tsx": 16,
     "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx": 46,

@@ -290,5 +290,11 @@
   "issueReferral.missing.patient": "لا يوجد مريض مرتبط بهذه الزيارة",
   "issueReferral.missing.doctor": "سجّل الدخول مجدداً كطبيب",
   "issueReferral.missing.items": "اختر فحصاً أو أشعة واحدة على الأقل، أو اكتب ملاحظة",
-  "consultation.issueReferral": "إحالة إلى مختبر / أشعة"
+  "consultation.issueReferral": "إحالة إلى مختبر / أشعة",
+  "revenue.period.month": "شهر",
+  "revenue.period.quarter": "٣ أشهر",
+  "revenue.period.year": "سنة",
+  "revenue.earned": "المكتسب",
+  "revenue.refunded": "المسترد",
+  "revenue.loadFailed": "تعذّر تحميل أرقام الإيرادات. حاول لاحقاً."
 }

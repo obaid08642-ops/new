@@ -60,6 +60,10 @@ export class CreateDto {
   @IsOptional()
   @IsBoolean()
   refund_policy_accepted?: boolean;
+  /** PT-08: the patient asks for a sick leave with this consultation (a request, not a guarantee). */
+  @IsOptional()
+  @IsBoolean()
+  sick_leave_requested?: boolean;
 
 
 }

@@ -101,6 +101,8 @@ export class Appointment {
   @Prop({ type: Object, required: false }) attribution?: Record<string, string>;
   /** The refund policy the patient agreed to before paying (common/refund-policy-acceptance.ts): the tick, its time and the policy version. */
   @Prop({ type: Object, required: false }) refund_policy_acceptance?: { accepted: boolean; at: Date; version: string };
+  /** PT-08: the patient asked for a sick leave when booking (a request; the doctor decides). */
+  @Prop({ type: Boolean, required: false }) sick_leave_requested?: boolean;
   /** Set when a family member booked this appointment on behalf of the patient */
   @Prop() booked_by_user_id?: string;
   @Prop({ default: [] }) symptoms: string[];

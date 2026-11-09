@@ -42,7 +42,7 @@ try {
   VideoTrack = lk.VideoTrack;
   useTracks = lk.useTracks;
   useLocalParticipant = lk.useLocalParticipant;
-  CameraSource = require('livekit-client').Track.Source.Camera; // eslint-disable-line @typescript-eslint/no-require-imports
+  // CameraSource stays 'camera' (the value of livekit-client's Track.Source.Camera): a require('livekit-client') here made Metro bundle the library a second time (CommonJS next to the ES module the video call imports)
   LIVEKIT_NATIVE_OK = !!LiveKitRoom;
 } catch {
   LIVEKIT_NATIVE_OK = false;
