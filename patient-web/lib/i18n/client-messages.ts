@@ -49,17 +49,17 @@ export function pickClientMessages<T extends Record<string, unknown>>(messages: 
  * when a listed section has no layout that provides its list.
  */
 export const ROUTE_GROUP_NAMESPACES: Record<string, readonly string[]> = {
-  "home-care": ["NursingWeb", "DiagWeb"],
+  "home-care": ["NursingWeb", "DiagWeb", "RefundPolicy"],
   // the public home-nursing service pages: only the notify-me button reads a client namespace (DiagWeb)
   "home-nursing": ["DiagWeb"],
   ai: ["AiHealthReport", "AssistantWeb", "Emergency", "RxUpload"],
   appointments: ["ConsultClient", "TelehealthConsent"],
   articles: ["Articles", "PharmacyBrowse"],
   c: ["PharmacyBrowse", "PublicProduct"],
-  cart: ["CartScreen", "LegalLinks", "PharmacyAddress", "PharmacyCheckout", "PharmacyFlow"],
+  cart: ["CartScreen", "LegalLinks", "PharmacyAddress", "PharmacyCheckout", "PharmacyFlow", "RefundPolicy"],
   chat: ["ChatDetail"],
   consultations: ["BookConsultation", "InstantConsult", "Doctors", "LegalLinks", "RefundPolicy", "ShareReport", "SpecialtyNames", "TelehealthConsent"],
-  diagnostics: ["DiagWeb", "OrderingFlow"],
+  diagnostics: ["DiagWeb", "OrderingFlow", "RefundPolicy"],
   emergency: ["Emergency"],
   family: ["CameraScan", "FamilyWeb", "HealthWeb"],
   "forgot-password": ["ForgotPassword"],
@@ -72,7 +72,7 @@ export const ROUTE_GROUP_NAMESPACES: Record<string, readonly string[]> = {
   maternity: ["LogForms", "MaternityWeb"],
   "mental-health": ["LogForms"],
   notifications: ["Notifications"],
-  nursing: ["NursingWeb", "OrderingFlow", "OrderTracking", "DiagWeb"],
+  nursing: ["NursingWeb", "OrderingFlow", "OrderTracking", "DiagWeb", "RefundPolicy"],
   nutrition: ["LogForms", "NutritionWeb"],
   offers: ["OffersWeb"],
   medicines: ["PharmacyBrowse"],
@@ -81,7 +81,7 @@ export const ROUTE_GROUP_NAMESPACES: Record<string, readonly string[]> = {
   p: ["PharmacyBrowse", "PublicProduct"],
   "password-reset": ["PasswordReset"],
   payments: ["Payments"],
-  pharmacy: ["CartScreen", "OrderReorder", "PharmacyAddress", "PharmacyBarcode", "PharmacyBrowse", "PharmacyChat", "PharmacyCheckout", "PharmacyFlow", "PharmacyOffers", "PharmacyRequest", "Prescriptions", "RxUpload"],
+  pharmacy: ["CartScreen", "OrderReorder", "PharmacyAddress", "PharmacyBarcode", "PharmacyBrowse", "PharmacyChat", "PharmacyCheckout", "PharmacyFlow", "PharmacyOffers", "PharmacyRequest", "Prescriptions", "RefundPolicy", "RxUpload"],
   profile: ["AccountWeb", "AddressMap", "Addresses", "DeliveryAddressSelect"],
   prescriptions: ["Prescriptions"],
   programs: ["ProgramsWeb"],

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { RefundPolicyTick } from "@/components-next/refund-policy/refund-policy-tick";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { Segmented } from "@/components-next/ui-generated/components/Controls";
 import { Input, Select } from "@/components-next/ui-generated/components/Inputs";
@@ -54,7 +55,7 @@ export function createHomeCareBookingAttempt(send: typeof fetch = (...a) => fetc
     const res = await send("/api/nursing/bookings", {
       method: "POST",
       headers: { "content-type": "application/json", "idempotency-key": key },
-      body: JSON.stringify({ provider_id: input.nurseId, service_id: input.serviceId, scheduled_at: input.slot, ...(input.location ? { location: input.location } : { address_id: input.addressId }), notes: input.notes.trim() || undefined, payment_method: input.method, ...(input.choice ? choiceFields(input.choice) : {}) }),
+      body: JSON.stringify({ provider_id: input.nurseId, service_id: input.serviceId, scheduled_at: input.slot, ...(input.location ? { location: input.location } : { address_id: input.addressId }), notes: input.notes.trim() || undefined, payment_method: input.method, refund_policy_accepted: true, ...(input.choice ? choiceFields(input.choice) : {}) }),
     });
     pending = null;
     const data = (await res.json().catch(() => null)) as { id?: unknown; message?: unknown } | null;
@@ -104,6 +105,8 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
   const [notes, setNotes] = useState("");
   const [method, setMethod] = useState<Method>(insurance && initialMethod === "insurance" ? "insurance" : "card");
   const noPolicy = method === "insurance" && insuranceOnFile?.has === false;
+  // the refund policy is shown before the booking and agreed here (the backend refuses a booking without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
   const [choice, setChoice] = useState<BookingChoice | null>(bookingOptions ? defaultChoice(bookingOptions) : null);
   const [quote, setQuote] = useState<{ key: string; state: "ready" | "failed"; value: NursingQuote | null } | null>(null);
   const quoteUrl = nurseId ? quotePath(serviceId, nurseId, choice) : "";
@@ -161,6 +164,7 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
     if (Date.parse(slot) < Date.now()) { setError(t("formPast")); return; }
     if (!addressId && !here) { setError(t("formAddAddress")); return; }
     if (noPolicy) { setError(t("insNoPolicy")); return; }
+    if (!refundAgreed) return;
     busy.current = true;
     setSaving(true);
     attempt.current ??= createHomeCareBookingAttempt();
@@ -280,7 +284,8 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
         )}
       </SectionCard>
       {error ? <p role="alert" className={styles.error}>{error}</p> : null}
-      <Button fullWidth size="lg" loading={saving} disabled={saving || !slot || (!addressId && !here) || noPolicy} label={saving ? t("formBooking") : method === "card" && choice && quoteNow?.value ? t("confirmWithAmount", { amount: formatPrice(locale, quoteNow.value.total).text }) : method === "card" && !choice && price !== undefined ? t("confirmWithAmount", { amount: formatPrice(locale, price).text }) : t("formConfirm")} onClick={() => void submit()} />
+      <RefundPolicyTick locale={locale} checked={refundAgreed} onChange={setRefundAgreed} />
+      <Button fullWidth size="lg" loading={saving} disabled={saving || !refundAgreed || !slot || (!addressId && !here) || noPolicy} label={saving ? t("formBooking") : method === "card" && choice && quoteNow?.value ? t("confirmWithAmount", { amount: formatPrice(locale, quoteNow.value.total).text }) : method === "card" && !choice && price !== undefined ? t("confirmWithAmount", { amount: formatPrice(locale, price).text }) : t("formConfirm")} onClick={() => void submit()} />
     </>
   );
 }
