@@ -805,7 +805,7 @@ export class ProviderOpsService {
 @Controller('provider/ops')
 @UseGuards(JwtAuthGuard)
 export class ProviderOpsController {
-  constructor(private readonly svc: ProviderOpsService) {}
+  constructor(private readonly svc: ProviderOpsService, @Optional() private readonly ledger?: LedgerService) {}
 
   // Doctor: leave/vacation
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
@@ -863,7 +863,14 @@ export class ProviderOpsController {
     return new StreamableFile(Readable.from(pdf));
   }
   @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
-  @Get('wallet/ledger') wallet(@CurrentUser() u: any, @Query('limit') l?: string): Promise<any> { return this.svc.walletLedger(u.id, l ? parseInt(l) : 100); }
+  @Get('wallet/ledger') async wallet(@CurrentUser() u: any, @Query('limit') l?: string): Promise<any> {
+    const out = await this.svc.walletLedger(u.id, l ? parseInt(l) : 100);
+    if (!this.ledger) return out;
+    // The summary used to add up the newest <=200 rows of any type, with escrow counted as earned and clawbacks ignored, so the revenue screen showed a balance that
+    // disagreed with the wallet. It now comes from the same balance the wallet and the payout request use (matured earnings - payouts - debits - locked).
+    const b = await this.ledger.providerBalance(u.id);
+    return { ...out, summary: { earned: b.lifetime_earned, paid: b.paid_out, pending: b.pending, balance: b.available, debits: b.debits, locked: b.locked } };
+  }
 }
 
 /**
