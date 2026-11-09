@@ -143,7 +143,7 @@ Types: doctor, pharmacy, lab, radiology, nursing (and any other registered type)
 | SY-03 | Dead-letter queue inspection | COVERED | `j_dead_letter.py` (20/20): queue counts, failed-job list, unknown state refused, retry of an unknown job 404, bulk retry needs a reason and reports counts, patient refused | P1 | — |
 | SY-04 | Rate limits (per IP, per account) | COVERED | `j_otp_abuse.py`, `j_password_lockout.py`, `j_concurrency.py` | P1 | — |
 | SY-05 | Backups restore | NOT COVERED | none | P0 | S |
-| SY-06 | Monitoring alerts fire | PARTIAL | `j_admin_urgent_alerts.py` (failed payments), `j_admin_stuck_alerts.py` (stuck order); not yet: `sla_breach`, `fraud_high` | P1 | S |
+| SY-06 | Monitoring alerts fire | COVERED | `j_admin_urgent_alerts.py` (failed payments), `j_admin_stuck_alerts.py` (stuck order), `j_admin_sla_fraud_alerts.py` (SLA breach, high fraud) | P1 | S |
 | SY-07 | Security headers | COVERED | `j_security_headers.py` | P1 | — |
 | SY-08 | Upload security (malware scan) | COVERED | `j_upload_security.py` | P1 | — |
 | SY-09 | Log scan for secrets | COVERED | `j_log_scan.py` | P1 | — |
