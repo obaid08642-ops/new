@@ -185,4 +185,20 @@ describe('universal links / app links coverage', () => {
       expect({ host, got }).toEqual({ host, got: expected });
     }
   });
+  it('PT-24: the gateway return address opens the payment result screen with the payment id, in every language and on every host', () => {
+    const readParams = (route: string) => Object.fromEntries(new URLSearchParams(route.split('?')[1] ?? ''));
+    for (const host of ['nabd.plus', 'www.nabd.plus', 'app.nabd.plus']) {
+      // our transaction id (`ref`, with the provider's own `id` next to it) and the provider's id alone
+      const ours = resolveWebLink(`https://${host}/payments/result?ref=test-txn-1&id=pay_test_1&status=paid`);
+      expect(ours.route.startsWith('/payments/result?')).toBe(true);
+      expect(readParams(ours.route)).toMatchObject({ ref: 'test-txn-1', id: 'pay_test_1' });
+      const gateway = resolveWebLink(`https://${host}/en/payments/result?id=pay_test_2`);
+      expect(gateway.route).toBe('/payments/result?id=pay_test_2');
+      expect(gateway.lang).toBe('en');
+    }
+    // the same link through the router hook, and a page of the payments section that is not the result is not claimed
+    expect(redirectSystemPath({ path: 'https://nabd.plus/ar/payments/result?ref=test-txn-3', initial: false })).toBe('/payments/result?ref=test-txn-3');
+    expect(mapWebSegments(['payments', 'receipts'])).toBeNull();
+    expect(routeExists('/payments/result')).toBe(true);
+  });
 });

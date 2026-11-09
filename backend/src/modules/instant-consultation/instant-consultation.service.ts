@@ -96,7 +96,7 @@ export class InstantConsultationService implements OnModuleInit {
     let familyMemberId: string | null = null;
     if (body.family_member_id) {
       const member = await this.conn.collection('family_members').findOne({
-        id: body.family_member_id, $or: [{ user_id: user.id }, { patient_id: user.id }],
+        id: body.family_member_id, is_deleted: { $ne: true }, $or: [{ user_id: user.id }, { patient_id: user.id }],
       }, { projection: { _id: 1 } });
       if (!member) throw new NotFoundException('family_member_not_found');
       familyMemberId = body.family_member_id;

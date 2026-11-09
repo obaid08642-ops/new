@@ -27,6 +27,7 @@ function world(opts: { payment?: any; reservation?: any; gatewayRefunded?: numbe
   };
   const append = jest.fn().mockResolvedValue({});
   const paymentUpdates: any[] = [];
+  const bookingUpdates: any[] = [];
   const conn = {
     collection: jest.fn((name: string) => {
       if (name === 'refund_reservations' || name === 'refund_totals') return (guard as any)[name];
@@ -37,7 +38,7 @@ function world(opts: { payment?: any; reservation?: any; gatewayRefunded?: numbe
         };
       }
       if (name === 'transactions') return { findOne: jest.fn(async () => opts.tx ?? null) };
-      if (name === 'appointments') return { findOne: jest.fn().mockResolvedValue(BOOKING), updateOne: jest.fn().mockResolvedValue({ matchedCount: 1 }) };
+      if (name === 'appointments') return { findOne: jest.fn().mockResolvedValue(BOOKING), updateOne: jest.fn(async (_q: any, u: any) => { bookingUpdates.push(u.$set); return { matchedCount: 1 }; }) };
       if (name === 'platformledgerentries') return { findOne: jest.fn().mockResolvedValue(null) };
       if (name === 'notifications') return { insertOne: jest.fn().mockResolvedValue({}) };
       return { findOne: jest.fn().mockResolvedValue(null), updateOne: jest.fn().mockResolvedValue({}), insertOne: jest.fn().mockResolvedValue({}) };
@@ -58,7 +59,7 @@ function world(opts: { payment?: any; reservation?: any; gatewayRefunded?: numbe
     if (opts.gatewayRefunded === 'down') return new Response('{}', { status: 500 });
     return new Response(JSON.stringify({ id: 'pay_123', refunded: opts.gatewayRefunded ?? 0 }), { status: 200 });
   }) as any);
-  return { executor, guard, append, calls, payment, paymentUpdates, refundTransactionAsSystem };
+  return { executor, guard, append, calls, payment, paymentUpdates, bookingUpdates, refundTransactionAsSystem };
 }
 
 const run = (e: RefundExecutor) => e.execute({ refund_id: 'r1', booking_kind: 'consultation', booking_id: 'bk1', patient_id: 'p1', amount: 100, reason: 'late cancel', actor_id: 'system' });
@@ -181,5 +182,32 @@ describe('RefundExecutor: taking over a card refund kept in transactions', () =>
     await run(w.executor);
     expect(w.refundTransactionAsSystem).toHaveBeenCalledWith('tx-1', 100, 'late cancel');
     expect(w.guard._reservations.find((r: any) => r.refund_id === 'r1')).toMatchObject({ expected_refunded_after: 100, gateway_refund_id: 'rf_tx' });
+  });
+});
+
+describe('RefundExecutor: bookkeeping of the whole refund (found while reviewing the takeover)', () => {
+  it('a FULL refund taken over after the crashed run updated the payment row is completed: the row already contains this refund, the cap must not count it twice', async () => {
+    const w = world({ payment: { ...PAY, amount: 100, refunded_amount: 100 }, reservation: { expected_refunded_after: 100, gateway_refund_id: 'rf_gw_first' } });
+    const r = await run(w.executor);
+    expect(r).toMatchObject({ ok: true, method: 'gateway', gateway_refund_id: 'rf_gw_first' });
+    expect(w.calls).toEqual({ refundPosts: 0, lookups: 0 });
+    expect(w.append).toHaveBeenCalledTimes(1);
+    expect(w.guard._reservations.find((x: any) => x.refund_id === 'r1').state).toBe('done');
+    expect(w.bookingUpdates[0]).toMatchObject({ payment_status: 'refunded' });
+  });
+
+  it('a refund that would pass what was paid is still refused (the cap is not loosened)', async () => {
+    const w = world({ payment: { ...PAY, amount: 100, refunded_amount: 60 } });
+    await expect(run(w.executor)).rejects.toThrow('refund_exceeds_paid');
+    expect(w.calls.refundPosts).toBe(0);
+  });
+
+  it('the booking is partially refunded after the first half and refunded once the second half completes the payment', async () => {
+    const first = world({ payment: { ...PAY, amount: 200, refunded_amount: 0 } });
+    await run(first.executor);
+    expect(first.bookingUpdates[0]).toMatchObject({ payment_status: 'partially_refunded' });
+    const second = world({ payment: { ...PAY, amount: 200, refunded_amount: 100 } });
+    await run(second.executor);
+    expect(second.bookingUpdates[0]).toMatchObject({ payment_status: 'refunded' });
   });
 });

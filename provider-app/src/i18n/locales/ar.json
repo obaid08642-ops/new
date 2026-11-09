@@ -277,5 +277,18 @@
   "supplies.requested": "تم إرسال طلب المستلزمات لهذه الزيارة",
   "supplies.failed": "تعذر إرسال طلب المستلزمات",
   "supplies.forVisit": "الزيارة المطلوب لها المستلزمات",
-  "supplies.noVisit": "ليس لديك زيارة مؤكدة لطلب المستلزمات لها."
+  "supplies.noVisit": "ليس لديك زيارة مؤكدة لطلب المستلزمات لها.",
+  "issueReferral.title": "إحالة إلى مختبر / أشعة",
+  "issueReferral.kind.lab": "تحاليل",
+  "issueReferral.kind.radiology": "أشعة",
+  "issueReferral.selected": "{n} مختارة",
+  "issueReferral.notes": "ملاحظات الرعاية المنزلية (اختياري)",
+  "issueReferral.send": "إرسال الإحالة للمريض",
+  "issueReferral.sent": "أُرسلت الإحالة. يستطيع المريض رؤيتها والحجز.",
+  "issueReferral.failed": "تعذّر إرسال الإحالة",
+  "issueReferral.missing.visit": "لا توجد زيارة مرتبطة بهذه الإحالة",
+  "issueReferral.missing.patient": "لا يوجد مريض مرتبط بهذه الزيارة",
+  "issueReferral.missing.doctor": "سجّل الدخول مجدداً كطبيب",
+  "issueReferral.missing.items": "اختر فحصاً أو أشعة واحدة على الأقل، أو اكتب ملاحظة",
+  "consultation.issueReferral": "إحالة إلى مختبر / أشعة"
 }

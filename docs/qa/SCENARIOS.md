@@ -35,7 +35,7 @@ This PR (PT-25 delivery tracking) moved one PARTIAL row to COVERED. The 'This PR
 | PT-02 | Book for a family member | COVERED | `j_family_book_for_member.py` | P1 | — |
 | PT-03 | Guardian books for a dependant (minor) | NOT COVERED | none; `j_family_book_for_member.py` covers a family member, not guardianship | P1 | H |
 | PT-04 | Family member's medicines and history | COVERED | `j_family_meds.py` | P2 | — |
-| PT-05 | Referral from a visit to a booking | NOT COVERED | blocked: the referral issue route rejects the apps' UUID ids and no client calls it (`docs/qa/findings/batch5-2026-11-07.md`) | P1 | S |
+| PT-05 | Referral from a visit to a booking | COVERED | `tools/live/j_referral_booking.py` (doctor issues with UUID ids, patient sees the outcome and books); the provider app issues it from the finished visit (`IssueReferralScreen`, body built and unit-tested in `issueReferral.test.ts`) | P1 | S |
 | PT-06 | Prescription → pharmacy order | COVERED | `j_pharmacy.py`, `j_pharmacy_insurance_first.py` | P1 | — |
 | PT-07 | Pharmacy broadcast receives competing offers and the patient picks one | COVERED | `j_web_offers_waiting.py` (web) | P1 | — |
 | PT-08 | Sick leave request and report | NOT COVERED | no journey | P2 | H |
@@ -54,12 +54,12 @@ This PR (PT-25 delivery tracking) moved one PARTIAL row to COVERED. The 'This PR
 | PT-21 | Cash vs card vs insurance selection | COVERED | `j_consultation.py` matrix (124/124 in the live run): cash (line 211), insurance (lines 193, 223) and card bookings each recorded with their method | P1 | F |
 | PT-22 | Card payment success | COVERED | `j_consultation.py` (payment verified) | P0 | — |
 | PT-23 | Card payment failure and retry | COVERED | `j_payment_failed_retry.py` (43/43 on main 365b2d580): declined card reported as failed, retry makes a new checkout, paid booking cannot be charged again | P0 | F |
-| PT-24 | Payment return (deep link back from gateway) | PARTIAL | web return: `j_web_payment_result.py` (real browser, `/payments/result?id=` resolves the gateway payment id to the paid appointment); app killed after paying: `j_app_killed_payment.py` (reopen reads the server state, no duplicate charge). Not covered: the native deep link into the app (device farm only) | P0 | H |
+| PT-24 | Payment return (deep link back from gateway) | PARTIAL (link wiring now tested) | web return: `j_web_payment_result.py` (real browser, `/payments/result?id=` resolves the gateway payment id to the paid appointment); app killed after paying: `j_app_killed_payment.py` (reopen reads the server state, no duplicate charge). App: `/payments/result` is an app link (AASA list, Android intent filters, link map), tested in `patient-app/src/__tests__/native-intent.test.ts` (the return address opens the result screen with the payment id). Not covered: the real OS handing the link to the app (device farm only; needs the production Team ID and fingerprint) | P0 | H |
 | PT-25 | Delivery tracking | COVERED | `j_pharmacy_tracking.py` (62/62 on main): the owner reads GET /orders/:id/tracking (state broadcasting), another patient gets 403, an unknown order id gets 404 | P1 | H |
 | PT-26 | Prescription photo upload | COVERED | `j_upload_security.py`, `j_ai_scanner.py` | P1 | — |
 | PT-27 | Prescription OCR result shown and corrected | COVERED (client) | `j_ai_scanner.py` (live); `patient-app/src/__tests__/pharmacy/rx-ocr.test.tsx` (review, edit, remove, add, confirm sends corrected lines); `patient-web/tests/pharmacy-rx.test.tsx` `cleanItems` | P1 | H |
 | PT-28 | Notification preferences saved | COVERED | `j_notification_settings.py` (13/13 on main 365b2d580): change offers off and on, value holds on a new sign-in, a bad value refused (400) | P2 | H |
-| PT-29 | Push permission denied (app) | NOT COVERED | none | P2 | H |
+| PT-29 | Push permission denied (app) | COVERED | `patient-app/src/__tests__/qa/push-permission.test.tsx` (app start, "Turn on" refused, failing request, denied prompt with the phone settings link, no re-asking; 2026-11-09 re-run) | P2 | H |
 | PT-30 | Location permission denied (app and web) | COVERED (web: map, address, home care, emergency each show a message and keep manual entry) | `j_web_call.py` (camera/mic); no location denial journey | P2 | H |
 | PT-31 | Language switch (ar, en, ur, hi, bn, fil) | COVERED | `j_web_translated_pages.py`, `j_server_texts_langs.py` | P2 | — |
 | PT-32 | RTL and LTR layout | COVERED | `j_web_translated_pages.py` | P2 | — |
@@ -143,7 +143,7 @@ Types: doctor, pharmacy, lab, radiology, nursing (and any other registered type)
 | SY-03 | Dead-letter queue inspection | COVERED | `j_dead_letter.py` (20/20): queue counts, failed-job list, unknown state refused, retry of an unknown job 404, bulk retry needs a reason and reports counts, patient refused | P1 | — |
 | SY-04 | Rate limits (per IP, per account) | COVERED | `j_otp_abuse.py`, `j_password_lockout.py`, `j_concurrency.py` | P1 | — |
 | SY-05 | Backups restore | NOT COVERED | none | P0 | S |
-| SY-06 | Monitoring alerts fire | PARTIAL | `j_admin_urgent_alerts.py` | P1 | S |
+| SY-06 | Monitoring alerts fire | PARTIAL | `j_admin_urgent_alerts.py` (failed payments), `j_admin_stuck_alerts.py` (stuck order); not yet: `sla_breach`, `fraud_high` | P1 | S |
 | SY-07 | Security headers | COVERED | `j_security_headers.py` | P1 | — |
 | SY-08 | Upload security (malware scan) | COVERED | `j_upload_security.py` | P1 | — |
 | SY-09 | Log scan for secrets | COVERED | `j_log_scan.py` | P1 | — |

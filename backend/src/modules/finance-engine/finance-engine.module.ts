@@ -860,8 +860,17 @@ export class RefundExecutor {
         if (retTotal > 0) paidTotal = retTotal;
       } catch { /* cap stays 0 → the guard below refuses */ }
     }
+    // What was refunded BEFORE this refund (SAR); used for the cap and for the booking's status below.
+    let alreadyRefunded = Number(paidPayment?.refunded_amount || paidTransaction?.refunded_amount || booking?.refunded_amount || 0);
     if (paidTotal != null) {
-      const alreadyRefunded = Number(paidPayment?.refunded_amount || paidTransaction?.refunded_amount || booking?.refunded_amount || 0);
+      // A takeover of a run that died after it updated the payment row: that row already contains THIS refund, so counting it again would make a
+      // full refund fail the cap on every retry (refund_exceeds_paid), and the ledger row, the provider clawback and the booking status would never be written.
+      try {
+        const prior: any = await this.reservations.findOne({ refund_id: opts.refund_id } as any);
+        if (prior?.state === 'reserved' && typeof prior.expected_refunded_after === 'number' && alreadyRefunded >= prior.expected_refunded_after - 0.001) {
+          alreadyRefunded = round2(alreadyRefunded - amount);
+        }
+      } catch { /* no reservation row to read: a normal first execution */ }
       if (alreadyRefunded + amount > paidTotal + 0.001) {
         throw new BadRequestException(`refund_exceeds_paid: paid ${paidTotal}, already refunded ${alreadyRefunded}`);
       }
@@ -999,7 +1008,9 @@ export class RefundExecutor {
     };
     const coll = kindCollection[opts.booking_kind];
     if (coll) {
-      const newStatus = paidTotal != null && amount < paidTotal - 0.001 ? 'partially_refunded' : 'refunded';
+      // The booking is fully refunded when everything refunded so far (earlier refunds plus this one) reaches what was paid: a second partial refund
+      // that completes the payment used to leave it 'partially_refunded' because only this refund's amount was compared with the total.
+      const newStatus = paidTotal != null && round2(alreadyRefunded + amount) < paidTotal - 0.001 ? 'partially_refunded' : 'refunded';
       const set = { $set: { payment_status: newStatus, refund_status: 'REFUNDED', updatedAt: new Date() } };
       const res: any = await this.conn.collection(coll).updateOne({ id: opts.booking_id } as any, set);
       // Current pharmacy orders live in pharmacy_orders; `orders` is the legacy cart checkout.
