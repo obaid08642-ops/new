@@ -109,12 +109,15 @@ def run(admin=None):
     step('no other user was sent it', all(x.get('user_id') == tid for x in logs), [x.get('user_id') for x in logs])
 
     journey('broadcast: a segment reaches its members and not the other roles (AD-07)')
+    # The push worker switches a token off when the gateway answers that the device is unknown (these tokens are made up), so the first
+    # send above can have turned the target's off. The app registers its token again at every launch: do the same before the next send.
+    step('the three devices register their tokens again', device(pat) and device(Client(other['token'], 'patient')) and device(Client(nurse['token'], 'nurse')), None)
     r = admin.get(f'{BASE}/segments')
     patients = (r.body.get('data', r.body) if isinstance(r.body, dict) else {}).get('patients')
     step('the segments screen counts the patients', r.ok and isinstance(patients, int) and patients >= 2, r)
     title2 = 'بث لكل المرضى ' + uuid.uuid4().hex[:6]
     r = admin.post(f'{BASE}/broadcasts', {'title': title2, 'body': 'تنبيه عام للمرضى', 'segment': 'patients', 'audience_confirmed': True})
-    step('the audience is the patient count of the segments screen', r.ok and r.get('status') == 'sending' and isinstance(patients, int) and r.get('targeted') >= patients, [r.body, patients])
+    step('the audience is the patient count of the segments screen', r.ok and r.get('status') == 'sending' and isinstance(patients, int) and (r.get('targeted') or 0) >= patients, [r.body, patients])
     camp2 = find_campaign(admin, title2)
     if camp2:
         done = wait_campaign(admin, camp2['id'])
