@@ -1,4 +1,5 @@
 import { refundPolicyAcceptance } from '../../common/refund-policy-acceptance';
+import { ProviderNoShowService } from '../provider-no-show/provider-no-show.service';
 import { resolveFamilyMemberId } from '../../common/family-member';
 import { buildFollowUpActions } from './follow-up-actions';
 import { assertPaymentMethod } from '../../common/payment-policy';
@@ -46,6 +47,7 @@ export class AppointmentsService {
     @Optional() private locks?: SlotLocksService,
     @Optional() private readonly killSwitches?: KillSwitchesService,
     @Optional() private readonly accessLog?: MedicalAccessLogService,
+    @Optional() private readonly noShow?: ProviderNoShowService,
   ) {}
 
   /**
@@ -596,7 +598,10 @@ export class AppointmentsService {
     if (!['CONFIRMED', 'CHECKED_IN', 'EN_ROUTE'].includes(String(appt.status || '').toUpperCase())) throw new BadRequestException('provider_no_show_not_applicable');
     const startAt = appt.slot_start ? new Date(appt.slot_start).getTime() : NaN;
     if (!Number.isFinite(startAt) || Date.now() < startAt + AppointmentsService.PROVIDER_NO_SHOW_GRACE_MS) throw new BadRequestException('provider_no_show_too_early');
+    // A provider who took part in the visit (checked in, started it, called, wrote) did not fail to come: no automatic 100 %.
+    await this.noShow?.assertNoProviderActivity(appt);
     const out = await this.cancel(id, user, 'provider_no_show', false, true);
+    await this.noShow?.record(appt, String(user?.id));
     this.events.emit('appointment.provider_no_show', { appointment_id: id, patient_id: appt.patient_id, doctor_id: appt.doctor_id, doctor_user_id: appt.doctor_user_id });
     return out;
   }
