@@ -8,6 +8,7 @@ shown after the admin approves it.
   - a rating with written text is stored as pending; the public provider list does not show the text
   - the patient reads their own review with its status (pending)
   - the admin sees it in the pending queue and approves it; the public list then shows the text
+  - AD-02 reject path: changed text goes back to pending, only an admin rejects (reason max 500), it leaves the queue, never reaches the public list, cannot be moderated twice and cannot be resubmitted unchanged
   Stack: backend :8002. TEST database only.
 """
 import uuid
@@ -67,6 +68,36 @@ def run():
         step('the admin approves the review', r.ok, r)
     r = Client(None, 'anon').get(f'/ratings/provider/{provider_id}')
     step('after approval the public list shows the text', r.ok and text in str(r.body), r)
+
+    journey('reviews: the admin rejects a review, it never becomes public (AD-02 reject path)')
+    bad = 'نص مرفوض ' + uuid.uuid4().hex[:6]
+    r = pat.post('/ratings', {**body, 'score': 1, 'comment': bad})
+    step('the patient changes the text: the review goes back to pending', r.ok and r.get('status') == 'pending', r)
+    r = admin.get('/admin/admin/ratings/pending?limit=200')
+    queued = [x for x in rows(r.body) if isinstance(x, dict) and bad in str(x.get('comment'))]
+    step('the admin queue lists the new text once', r.ok and len(queued) == 1, r)
+    bid = queued[0].get('id') if queued else None
+    if bid:
+        r = pat.post(f'/admin/ratings/{bid}/reject', {'reason': 'x'})   # the patient's client talks to the backend directly (no admin panel prefix)
+        step('a patient cannot moderate (401/403)', r.status in (401, 403), r)
+        r = admin.post(f'/admin/admin/ratings/{bid}/reject', {'reason': 'س' * 501})
+        step('a rejection reason over 500 characters is refused (400)', r.status == 400, r)
+        r = admin.post(f'/admin/admin/ratings/{bid}/reject', {'reason': 'محتوى مسيء'})
+        step('the admin rejects it with a reason', r.ok and r.get('status') == 'rejected', r)
+        r = admin.get('/admin/admin/ratings/pending?limit=200')
+        step('it leaves the queue', r.ok and not any(isinstance(x, dict) and x.get('id') == bid for x in rows(r.body)), r.status)
+        r = admin.post(f'/admin/admin/ratings/{bid}/reject', {'reason': 'مرة ثانية'})
+        step('rejecting it again is refused (review_not_pending, 404)', r.status == 404, r)
+        r = admin.post(f'/admin/admin/ratings/{bid}/approve', {})
+        step('approving a rejected review is refused (404)', r.status == 404, r)
+    r = Client(None, 'anon').get(f'/ratings/provider/{provider_id}')
+    step('the public list does not show the rejected text', r.ok and bad not in str(r.body), r)
+    r = pat.get(f'/ratings/mine/appointment/{aid}')
+    step('the patient still reads their own text back', r.ok and bad in str(r.body), r)
+    r = pat.post('/ratings', {**body, 'score': 1, 'comment': bad})
+    step('sending the same text again does not put it back in the queue (stays rejected)', r.ok and r.get('status') == 'rejected', r)
+    r = admin.get('/admin/admin/ratings/pending?limit=200')
+    step('and the queue does not hold it', r.ok and not any(isinstance(x, dict) and bad in str(x.get('comment')) for x in rows(r.body)), r.status)
     j_concurrency.remove_published_doctor()
     summary()
 

@@ -124,7 +124,7 @@ Types: doctor, pharmacy, lab, radiology, nursing (and any other registered type)
 | ID | Scenario | Status | Evidence | Priority | Route |
 |---|---|---|---|---|---|
 | AD-01 | Approvals (providers) | COVERED | `j_admin_ops.py`, `j_provider_review.py` | P0 | — |
-| AD-02 | Moderation of reviews | PARTIAL | `j_review_rating.py` (approve path: the pending queue lists the review, approve publishes it); reject is not covered | P2 | A |
+| AD-02 | Moderation of reviews | COVERED | `j_review_rating.py` (approve publishes; reject with a reason removes it from the queue, keeps it off the public list, is refused for a patient / an over-long reason / a second decision, and an unchanged resubmission stays rejected) | P2 | — |
 | AD-03 | Disputes handled by admin | COVERED | `j_dispute.py` (56/56 on main 365b2d580): the admin's refund on a dispute, once | P1 | A, F |
 | AD-04 | Refunds | COVERED | `j_qa_refund_consultation.py` | P0 | — |
 | AD-05 | Payouts (approve, execute, PAID) | COVERED | `j_payouts.py`, `j_payout_paid.py` | P0 | — |
