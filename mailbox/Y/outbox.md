@@ -1,5 +1,14 @@
 # Lane Y outbox
 
+## 2026-11-09 09:00 UTC — Native E2E red on main (upstream 504s)
+Status: in progress
+PR: #2531 (CI: pending)
+What changed:
+- Nightly run 42583546535: all 4 builds red. Android got a 504 on the Gradle distribution zip (no retry existed). iOS pod install got 504s and the retry ran, but the outage outlasted 20/60/120 s.
+- build_android.sh: gradlew retried (0/30/90/240 s) only on download/network errors; real build errors fail at once.
+- build_ios.sh: last wait 120 s -> 180 s.
+Left / blockers / questions: needs a Native E2E dispatch after merge as proof. #2530 (alert-mail flood) CI still running; owner rollout approval pending.
+
 ## 2026-11-09 08:3x UTC — owner request: alert-mail flood (#2530)
 Status: in progress (PR open, CI pending). #2522 (mongod memory) merged.
 PR: #2530 y/alert-mail-hysteresis
