@@ -17,13 +17,27 @@ const build = (opts: { profile?: any; equipment?: boolean; orderingItem?: boolea
   svc.engine = { announceCreated: jest.fn(async () => undefined) };
   return { svc, created };
 };
-const body = (over: any = {}) => ({ service_id: 'scan-1', scheduled_at: when(), location_type: 'facility', payment_method: 'card', ...over });
+const body = (over: any = {}) => ({ service_id: 'scan-1', scheduled_at: when(), location_type: 'facility', payment_method: 'card', refund_policy_accepted: true, ...over });
 
 describe('radiology booking: the provider of a quote', () => {
   it('a profile id (as the quote names it) resolves to the centre\'s account, which the booking belongs to', async () => {
     const { svc, created } = build({ profile: { account_id: 'acc-1' }, orderingItem: true });
     await svc.book(PATIENT, body({ provider_id: 'profile-1' }));
     expect(created[0]).toMatchObject({ provider_account_id: 'acc-1', total: 300 });
+  });
+
+  it('the refund policy the patient agreed to is stored on the booking with the time and the policy version (owner decision 2026-11-09)', async () => {
+    const { svc, created } = build({ profile: { account_id: 'acc-1' }, orderingItem: true });
+    await svc.book(PATIENT, body({ provider_id: 'profile-1' }));
+    expect(created[0].refund_policy_acceptance).toEqual({ accepted: true, at: expect.any(Date), version: '2026-11-09' });
+  });
+
+  it('a patient who did not tick it gets 400 and nothing is created; an admin creating a booking stores no acceptance', async () => {
+    const { svc, created } = build({ profile: { account_id: 'acc-1' }, orderingItem: true });
+    await expect(svc.book(PATIENT, body({ provider_id: 'profile-1', refund_policy_accepted: undefined }))).rejects.toThrow('refund_policy_acceptance_required');
+    expect(created).toHaveLength(0);
+    await svc.book({ id: 'adm', role: 'admin' }, body({ provider_id: 'profile-1', refund_policy_accepted: undefined }));
+    expect(created[0]).not.toHaveProperty('refund_policy_acceptance');
   });
 
   it('the centre is told about the new booking (bell + push), not only the patient', async () => {

@@ -4,6 +4,11 @@ import { LabBookingState } from '../../schemas/lab.schema';
 import { AttributionDto } from '../../common/attribution';
 
 export class BookDto {
+  /** The patient ticked "I agree" to the refund policy shown before payment (a patient's create is refused with 400 refund_policy_acceptance_required without it). */
+  @IsOptional()
+  @IsBoolean()
+  refund_policy_accepted?: boolean;
+
   /** Owner decision 1: the family member this is FOR (the caller stays the booker and payer); checked server-side, see common/family-member.ts. */
   @IsOptional()
   @IsString()

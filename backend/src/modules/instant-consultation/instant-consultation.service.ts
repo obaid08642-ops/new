@@ -1,3 +1,4 @@
+import { refundPolicyAcceptance } from '../../common/refund-policy-acceptance';
 import { shadowFields } from '../../common/halala-shadow';
 import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -17,6 +18,7 @@ interface InstantRequest {
   id: string;
   patient_id: string;
   family_member_id: string | null;
+  refund_policy_acceptance?: { accepted: true; at: Date; version: string };
   specialty: string;
   mode: Mode;
   status: Status;
@@ -93,6 +95,8 @@ export class InstantConsultationService implements OnModuleInit {
     if (!MODES.includes(body.mode as Mode)) throw bad('instant_mode_invalid');
     const mode = body.mode as Mode;
 
+    // owner decision 2026-11-09: the refund policy is agreed before the request goes out
+    const policyAcceptance = refundPolicyAcceptance(user as { role?: string }, body.refund_policy_accepted);
     let familyMemberId: string | null = null;
     if (body.family_member_id) {
       const member = await this.conn.collection('family_members').findOne({
@@ -120,7 +124,7 @@ export class InstantConsultationService implements OnModuleInit {
 
     const expiresAt = new Date(now.getTime() + (await this.timeoutSeconds()) * 1000);
     const doc: InstantRequest = {
-      id: randomUUID(), patient_id: user.id, family_member_id: familyMemberId, specialty, mode, status: 'broadcasting',
+      id: randomUUID(), patient_id: user.id, family_member_id: familyMemberId, ...(policyAcceptance ? { refund_policy_acceptance: policyAcceptance } : {}), specialty, mode, status: 'broadcasting',
       expires_at: expiresAt, created_at: now, notified_doctor_ids: notified, declined_by: [],
     };
     try {
@@ -224,6 +228,7 @@ export class InstantConsultationService implements OnModuleInit {
       id: appointmentId,
       patient_id: doc.patient_id,
       family_member_id: doc.family_member_id,
+      ...(doc.refund_policy_acceptance ? { refund_policy_acceptance: doc.refund_policy_acceptance } : {}),
       doctor_user_id: user.id,
       provider_id: user.id,
       service_type: 'consultation',

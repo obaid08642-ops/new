@@ -99,6 +99,8 @@ export class Appointment {
   @Prop({ type: String, required: false, index: true }) family_member_id?: string;
   /** P17-17.5: UTM campaign attribution (utm_source/medium/campaign/term/content). */
   @Prop({ type: Object, required: false }) attribution?: Record<string, string>;
+  /** The refund policy the patient agreed to before paying (common/refund-policy-acceptance.ts): the tick, its time and the policy version. */
+  @Prop({ type: Object, required: false }) refund_policy_acceptance?: { accepted: boolean; at: Date; version: string };
   /** Set when a family member booked this appointment on behalf of the patient */
   @Prop() booked_by_user_id?: string;
   @Prop({ default: [] }) symptoms: string[];

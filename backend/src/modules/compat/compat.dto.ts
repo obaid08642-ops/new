@@ -1,4 +1,4 @@
-import { IsArray, IsDateString, IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
+import { IsBoolean, IsArray, IsDateString, IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { AttributionDto } from '../../common/attribution';
 import { NursingBookingChoiceFields } from '../home-care/booking-mode';
@@ -93,6 +93,11 @@ export class CreateDto {
 }
 
 export class BookDto extends NursingBookingChoiceFields {
+  /** The patient ticked "I agree" to the refund policy shown before payment (a patient's create is refused with 400 refund_policy_acceptance_required without it). */
+  @IsOptional()
+  @IsBoolean()
+  refund_policy_accepted?: boolean;
+
   /** Owner decision 1: the family member this is FOR (the caller stays the booker and payer); checked server-side, see common/family-member.ts. */
   @IsOptional()
   @IsString()

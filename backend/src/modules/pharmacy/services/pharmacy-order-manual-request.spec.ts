@@ -33,6 +33,7 @@ describe('PharmacyOrderService.create manual request', () => {
     const out = await service.create(patient, {
       manual_request: { name: 'Panadol Extra', details: ' encounters' },
       payment_method: 'cash',
+      refund_policy_accepted: true,
     });
     expect(created).toHaveLength(1);
     expect(created[0].items).toHaveLength(1);

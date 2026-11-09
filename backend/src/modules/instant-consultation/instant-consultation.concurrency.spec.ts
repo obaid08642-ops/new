@@ -35,7 +35,7 @@ describe('instant consultation: one open request per patient under concurrency',
 
   it('five simultaneous requests from one patient: one is created, four are refused', async () => {
     const results = await Promise.allSettled(
-      Array.from({ length: 5 }, () => svc.create({ id: PATIENT }, { specialty: 'cardiology', mode: 'video' })),
+      Array.from({ length: 5 }, () => svc.create({ id: PATIENT }, { specialty: 'cardiology', mode: 'video', refund_policy_accepted: true })),
     );
     const created = results.filter((r) => r.status === 'fulfilled');
     const refused = results.filter((r) => r.status === 'rejected') as PromiseRejectedResult[];
@@ -52,7 +52,7 @@ describe('instant consultation: one open request per patient under concurrency',
       status: 'broadcasting', expires_at: new Date(Date.now() - 60_000), created_at: new Date(Date.now() - 120_000),
       notified_doctor_ids: [DOCTOR], declined_by: [],
     });
-    const r = await svc.create({ id: 'pat-expired-m8' }, { specialty: 'cardiology', mode: 'video' });
+    const r = await svc.create({ id: 'pat-expired-m8' }, { specialty: 'cardiology', mode: 'video', refund_policy_accepted: true });
     expect(r).toMatchObject({ status: 'broadcasting', payment_status: 'not_charged' });
     const old = await conn.collection('instant_consultations').findOne({ id: 'expired-unread-m8' });
     expect(old?.status).toBe('expired');

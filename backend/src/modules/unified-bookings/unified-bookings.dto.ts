@@ -56,6 +56,11 @@ export class CreateDto {
   @MaxLength(128)
   family_member_id?: string;
 
+  /** The patient ticked "I agree" to the refund policy shown before payment (a patient's create is refused with 400 refund_policy_acceptance_required without it). */
+  @IsOptional()
+  @IsBoolean()
+  refund_policy_accepted?: boolean;
+
 
 }
 
@@ -131,6 +136,11 @@ export class MatchDto {
 }
 
 export class NursingDto {
+  /** The patient ticked "I agree" to the refund policy shown before payment (a patient's create is refused with 400 refund_policy_acceptance_required without it). */
+  @IsOptional()
+  @IsBoolean()
+  refund_policy_accepted?: boolean;
+
   @IsDefined()
   @IsArray()
   service_keys: any[];
@@ -165,6 +175,11 @@ export class NursingDto {
 }
 
 export class CheckoutDto {
+  /** The patient ticked "I agree" to the refund policy shown before payment (a patient's create is refused with 400 refund_policy_acceptance_required without it). */
+  @IsOptional()
+  @IsBoolean()
+  refund_policy_accepted?: boolean;
+
   @IsOptional()
   @IsString()
   provider_account_id?: string;
@@ -208,6 +223,11 @@ export class DiagnosticLineDto {
 
 /** F74: one parent diagnostics order containing lab + radiology lines. */
 export class CreateDiagnosticOrderDto {
+  /** The patient ticked "I agree" to the refund policy shown before payment (a patient's create is refused with 400 refund_policy_acceptance_required without it). */
+  @IsOptional()
+  @IsBoolean()
+  refund_policy_accepted?: boolean;
+
   @IsDefined()
   @IsArray()
   @ValidateNested({ each: true })

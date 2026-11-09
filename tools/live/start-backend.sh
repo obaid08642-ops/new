@@ -48,6 +48,9 @@ export MAIL_PROVIDER_ORDER="${MAIL_PROVIDER_ORDER:-ses}"
 export ALLOWED_ORIGINS="${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3001,http://localhost:8081,http://localhost:8082}"
 export CORS_ORIGINS="$ALLOWED_ORIGINS"
 # The live suite drives many logins/OTPs from one IP; the limiter itself is covered by its own test.
+# TRANSITIONAL (owner decision 2026-11-09, refund-policy tick): the website cannot send `refund_policy_accepted` until lane X's web change lands (the server rejects unknown fields,
+# so X cannot ship first), so the live gate lets a MISSING tick through. The API journeys (tools/live/lib.py) send it like an updated client. Remove this line when X's PR is merged.
+export REFUND_POLICY_ACCEPTANCE="${REFUND_POLICY_ACCEPTANCE:-optional}"
 export DISABLE_RATE_LIMIT="${DISABLE_RATE_LIMIT:-true}" THROTTLER_LIMIT="${THROTTLER_LIMIT:-1000000}"
 # Same reason for the per-identifier OTP issue cap (the fixed admin account signs in on every journey run).
 export OTP_ISSUE_LIMIT="${OTP_ISSUE_LIMIT:-1000}"

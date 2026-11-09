@@ -1,3 +1,4 @@
+import { refundPolicyAcceptance } from '../../common/refund-policy-acceptance';
 import { UseInterceptors } from '@nestjs/common';
 import { assertPaymentMethod } from '../../common/payment-policy';
 import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
@@ -164,6 +165,8 @@ export class HomeCareCompatController {
     if (u?.role !== 'patient') throw new ForbiddenException('patient_only');
     if (!body?.service_id) throw new BadRequestException('service_id is required');
     if (!body?.scheduled_at) throw new BadRequestException('scheduled_at is required');
+    // owner decision 2026-11-09: the refund policy is agreed before the booking exists
+    const policyAcceptance = refundPolicyAcceptance(u, body.refund_policy_accepted);
     // D-25: a home visit is paid by card or insurance, never cash (same rule as POST /nursing/bookings).
     if (String(body.payment_method || '').trim().toLowerCase() === 'cash') assertPaymentMethod('cash', 'home_visit');
     const svc: any = await this.services.findOne({ id: { $eq: body.service_id }, active: true }).lean();
@@ -171,6 +174,7 @@ export class HomeCareCompatController {
     const address = body.address_id ? await this.savedAddress(u.id, body.address_id) : body.address;
     const doc = await this.bookings.create({
       patient_id: u.id,
+      ...(policyAcceptance ? { refund_policy_acceptance: policyAcceptance } : {}),
       service_id: svc?.id || body.service_id,
       service_name_ar: svc?.name_ar || body.service_name_ar,
       duration: svc.duration || 'hour',

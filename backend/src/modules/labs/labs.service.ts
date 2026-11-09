@@ -1,3 +1,4 @@
+import { refundPolicyAcceptance, type RefundPolicyAcceptance } from '../../common/refund-policy-acceptance';
 import { resolveFamilyMemberId } from '../../common/family-member';
 import { flattenResultEntries } from './lab-booking-results';
 import { withholdLegacyBeforeAcceptance } from '../provider-jobs/provider-job-privacy';
@@ -306,6 +307,8 @@ export class LabsService {
   async book(user: any, data: any) {
     if (!Array.isArray(data.items) || !data.items.length) throw new BadRequestException('items required');
     if (!data.scheduled_at) throw new BadRequestException('scheduled_at required');
+    // owner decision 2026-11-09: the refund policy is agreed before the booking exists
+    const policyAcceptance = refundPolicyAcceptance(user, data.refund_policy_accepted);
     // owner decision 1: a booking for a family member (the caller stays the booker; checked to be the caller's own member)
     const familyMemberId = await resolveFamilyMemberId(this.bkgModel.db, user.id, data.family_member_id);
     const services = await this.svcModel.find({ id: { $in: data.items.map((x: any) => x.service_id) } });
@@ -373,6 +376,7 @@ export class LabsService {
     const booking = await this.bkgModel.create({
       patient_id: user.id,
       ...(familyMemberId ? { family_member_id: familyMemberId } : {}),
+      ...(policyAcceptance ? { refund_policy_acceptance: policyAcceptance } : {}),
       patient_name: data.contact?.name || user.full_name,
       patient_phone: data.contact?.phone || user.phone,
       items,
@@ -427,14 +431,18 @@ export class LabsService {
     home_fee: number; scheduled_at: Date; asap: boolean; payment_method: 'cash' | 'card' | 'insurance'; awaiting_approval: boolean;
     address?: { lat?: number; lng?: number }; order_group_id: string; quote_id: string; medical_order_id?: string;
     gender_preference?: string; documents?: any[]; notes?: string; patient_name?: string; family_member_id?: string;
+    /** The acceptance the entry point already recorded (the quote booking, or the broadcast that was started with the tick); a patient's booking without one is refused. */
+    refund_policy_acceptance?: RefundPolicyAcceptance;
   }) {
     const familyMemberId = await resolveFamilyMemberId(this.bkgModel.db, user.id, input.family_member_id);
+    const policyAcceptance = input.refund_policy_acceptance ?? refundPolicyAcceptance(user, undefined);
     const total = Math.round((input.items.reduce((s, i) => s + i.price, 0) + (input.mode === 'home' ? input.home_fee : 0)) * 100) / 100;
     const state = input.awaiting_approval ? LabBookingState.PENDING_INSURANCE : LabBookingState.NEW_REQUEST;
     const now = new Date();
     const booking = await this.bkgModel.create({
       patient_id: user.id,
       ...(familyMemberId ? { family_member_id: familyMemberId } : {}),
+      ...(policyAcceptance ? { refund_policy_acceptance: policyAcceptance } : {}),
       patient_name: input.patient_name || user.full_name,
       patient_phone: user.phone,
       items: input.items,

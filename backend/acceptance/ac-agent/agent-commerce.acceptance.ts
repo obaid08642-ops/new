@@ -63,7 +63,8 @@ describe('Agent commerce (spec 2026-10-12 §3)', () => {
   };
   /** tools/call → { status, ok, data, code }. A tool error is a JSON-RPC error or an isError result; either way it carries a code. */
   const tool = async (name: string, args: Record<string, unknown>, token?: string) => {
-    const r = await rpc('tools/call', { name, arguments: args }, token);
+    // owner decision 2026-11-09: the assistant has asked the patient and sends refund_policy_accepted (a test can override it)
+    const r = await rpc('tools/call', { name, arguments: { refund_policy_accepted: true, ...args } }, token);
     const result = r.body?.result;
     let data: any = result?.structuredContent;
     if (data === undefined && Array.isArray(result?.content)) {
@@ -575,7 +576,7 @@ describe('Agent commerce (spec 2026-10-12 §3)', () => {
       let orderB = '';
       beforeAll(async () => {
         const created = await stack.call(0, 'POST', '/api/v1/patient/pharmacy/orders', patientB, {
-          items: [{ medicine_id: OTC.id, qty: 1 }], payment_method: 'cash', fulfillment: 'delivery',
+          items: [{ medicine_id: OTC.id, qty: 1 }], payment_method: 'cash', fulfillment: 'delivery', refund_policy_accepted: true,
           delivery_address: { label: 'home', city: 'Jeddah', district: 'Al Rawdah', street: 'Street 2', lat: 21.54, lng: 39.17 },
         });
         orderB = created.body?.id;

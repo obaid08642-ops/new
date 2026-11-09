@@ -97,6 +97,11 @@ export class ClrDto {
 }
 
 export class CheckoutDto {
+  /** The patient ticked "I agree" to the refund policy shown before payment (a patient's create is refused with 400 refund_policy_acceptance_required without it). */
+  @IsOptional()
+  @IsBoolean()
+  refund_policy_accepted?: boolean;
+
   @IsOptional()
   @IsString()
   address_id?: string;
