@@ -38,6 +38,7 @@ describe('provider-ops role guards: patient 403, provider allowed', () => {
     [ProviderCompatController, 'wallet', '/api/v1/provider/wallet'],
     [ProviderCompatController, 'statsToday', '/api/v1/provider/stats/today'],
     [ProviderCompatController, 'statsPeriod', '/api/v1/provider/stats/period'],
+    [ProviderCompatController, 'statsRevenue', '/api/v1/provider/stats/revenue'],
     [ProviderCompatController, 'getSched', '/api/v1/provider/schedule/settings'],
     [ProviderOpsController, 'leaves', '/api/v1/provider/ops/doctor/leave'],
     [ProviderOpsController, 'diagnoses', '/api/v1/provider/ops/doctor/diagnoses'],
