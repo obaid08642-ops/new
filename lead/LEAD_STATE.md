@@ -12,6 +12,8 @@ TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the t
 ## Old lead 2026-11-09 ~12:45 UTC
 - Runs 109+110 pushed as ONE run 109 on review/server-inspect (server-ops 42616573387, waiting for owner): main tip 58a1bb6e + 96j-mongo-cache-check, 96i, 96j-ledger-duplicates (after deploy), 91c APPLY=yes, 98q. y/ops-run-110 is superseded. Y: next ops run must set 91c back to APPLY="" (dry run).
 
+## Lead 3 run 2026-11-09 12:45 UTC
+- Run 109 pushed by owner 12:23 (main@58a1bb6e + 96j-ledger + 91c APPLY), server-ops 42616573387 running. X bundle +6.1 KB over budget: no raise, X to cut real waste first. Pending CI: #2543 (Z sick-leave backend), #2542/#2537 (X), #2541 (W revenue screen).
 ## Lead 3 run 2026-11-09 12:30 UTC — OWNER DECISIONS
 - RAM: no upgrade now; raise at launch; build as if sized for launch. Y: launch RAM target in R7 doc.
 - PT-08 sick leave: both sides (patient request at booking; doctor issues with or without request); stamped certificate like the invoice, app/web view + PDF, QR verify page. Z backend first, then W (doctor) and X (patient). Legal note to owner: KSA = Seha/Sehhaty only; Seha link later.
@@ -76,8 +78,3 @@ TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the t
 - Pending: #2513 #2515 #2516 #2518 #2519 #2520 #2521. LIVE main@50df9f87; run 107 not prepared.
 
 ## Lead 3 run 2026-11-09 02:45 UTC
-- All lanes idle, main green, no open PRs. New orders: Z (family_member_id in ordering broadcast, PT-05/08/09), W (PT-13/PV-07, AD-02 reject, AD-07), X (m6-blocked rows, PT-54, PT-30), Y (R11 backfill dry-run counts task, SY-01, PT-38).
-- LIVE main@50df9f87; run 107 still not prepared.
-
-## Lead 3 run 2026-11-09 02:15 UTC
-- Merged #2510 (family_member_id backend: ownership-checked, not-found on foreign ids, caller stays payer) and #2509 (client, regex-validated in BFF). Owner decision 1 done. No open lane PRs.
