@@ -1,6 +1,9 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Old lead 2026-11-09 13:30 UTC — LANES CHANGED
+- Lanes Y and W STOPPED (account B out of credit). New lane V (account A) takes over both: mailbox/V/inbox.md has the full queue. Send Y/W orders to V from now on. W #2541 merged by old lead. #2535 superseded (V closes it).
+
 ## 2026-11-09 old lead — OWNER DECISIONS (refund + sick-leave document), binding
 REFUND (owner approved; old lead's additions approved): cancel >= 2 h before = 100%; < 2 h = 50% money OR 100% wallet credit (patient chooses); patient no-show = 0%; provider cancels or no-show = 100% immediately. The policy text is shown before payment and the patient ticks "I agree" (KSA e-commerce law: terms stated before contract). Six languages.
 SICK LEAVE → renamed. Never call our document "إجازة مرضية / sick leave" (KSA: official sick leave only via Seha; unofficial issuing is an offence). Our document = "تقرير طبي / Medical report" stating the recommended rest period (from/to, days).
