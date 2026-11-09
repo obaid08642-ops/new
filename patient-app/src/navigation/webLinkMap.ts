@@ -100,9 +100,10 @@ export function mapWebSegments(parts: readonly string[]): string | null {
     // The provider map (the home screen's map tile opens the same screen)
     case 'map':
       return '/map';
-    // Web /chat redirects to the appointments list; a thread id is not an app appointment id
+    // A web chat link carries a thread id, not an appointment id: the chat-link screen asks the server which booking the thread
+    // belongs to and opens that conversation (PT-38)
     case 'chat':
-      return '/consultations/appointments';
+      return a ? `/consultations/chat-link?threadId=${seg(a)}` : '/consultations/appointments';
     case 'family':
       return a === 'join' ? '/family/add?tab=join' : null;
     // Community is removed (owner decision 1): its links open the articles
