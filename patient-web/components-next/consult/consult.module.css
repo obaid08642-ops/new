@@ -321,3 +321,5 @@ textarea.control { resize: vertical; line-height: 1.6; overflow-wrap: anywhere; 
 }
 .activeChip:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
 .activeChipX { font-size: var(--nabd-font-size-body); line-height: 1; color: var(--nabd-color-text-secondary); }
+
+.line { margin: 0; font-size: var(--nabd-font-size-control); line-height: 1.7; min-inline-size: 0; overflow-wrap: anywhere; }

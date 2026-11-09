@@ -243,6 +243,13 @@ describe("the booking screen", () => {
     expect(html).not.toContain("booking_failed");
   });
 
+  it("PT-08: the booking offers a medical report request, worded as a request and never as sick leave", () => {
+    const html = render(<BookingFlow doctorId="doc-1" locale="en" doctor={{ id: "doc-1", name: "Doctor One", specialty: "Cardiology", price: 150, online: true, clinic: true, home: false, acceptsInsurance: false }} />);
+    expect(html).toContain("I need a medical report with a recommended rest period");
+    expect(html).toContain("A request to the doctor, who decides. It is not a guarantee.");
+    expect(html.replace("Official sick leave is issued through Seha.", "")).not.toMatch(/sick leave/i);
+  });
+
   it("PT-03: a guardian booking for a family member sees who the visit is for and can switch back to themselves; without a member there is neither", () => {
     const doctor = { id: "doc-1", name: "Doctor One", specialty: "Cardiology", price: 150, online: true, clinic: true, home: false, acceptsInsurance: false };
     const forMember = render(<BookingFlow doctorId="doc-1" locale="en" doctor={doctor} bookingFor={{ id: "member-1", name: "Test Child" }} />);

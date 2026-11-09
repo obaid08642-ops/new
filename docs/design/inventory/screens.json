@@ -1,5 +1,5 @@
 {
- "commit": "35f326f7",
+ "commit": "92091ec3",
  "routes": [
   {
    "app": "patient-app",
@@ -9156,7 +9156,7 @@
      "path": "/api/appointments/book",
      "target": "web-bff",
      "query": "",
-     "line": 163,
+     "line": 165,
      "file": "patient-web/components-next/booking-flow.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/appointments/book/route.ts"
@@ -9186,7 +9186,7 @@
      "path": "/api/consultations/doctors/:param/slots",
      "target": "web-bff",
      "query": "?date=:param&service_type=:param",
-     "line": 113,
+     "line": 115,
      "file": "patient-web/components-next/booking-flow.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/consultations/doctors/[doctorId]/slots/route.ts"
@@ -9196,7 +9196,7 @@
      "path": "/api/family/booking-for",
      "target": "web-bff",
      "query": "",
-     "line": 183,
+     "line": 186,
      "file": "patient-web/components-next/booking-flow.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/family/booking-for/route.ts"
@@ -9236,7 +9236,7 @@
      "path": "/api/slot-locks/reserve",
      "target": "web-bff",
      "query": "",
-     "line": 150,
+     "line": 152,
      "file": "patient-web/components-next/booking-flow.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/slot-locks/reserve/route.ts"
@@ -16160,6 +16160,134 @@
   },
   {
    "app": "patient-web",
+   "route": "/medical-reports",
+   "file": "patient-web/app/[locale]/medical-reports/page.tsx",
+   "redirect": null,
+   "template": "hub",
+   "board": "none",
+   "batch": 12,
+   "status": "—",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 25,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/api/auth/session",
+     "target": "web-bff",
+     "query": "",
+     "line": 39,
+     "file": "patient-web/lib/auth/session-identity.ts",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/session/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/api/medical-reports/new-count",
+     "target": "web-bff",
+     "query": "",
+     "line": 29,
+     "file": "patient-web/components-next/core/appointments-link.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/medical-reports/new-count/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/api/patient/users/me/wishlist",
+     "target": "web-proxy",
+     "query": "",
+     "line": 37,
+     "file": "patient-web/components-next/core/wishlist-link.tsx",
+     "backend": "backend/src/modules/users/users.controller.ts:45",
+     "status": "OK"
+    },
+    {
+     "method": "GET",
+     "path": "/care/sick-leaves",
+     "target": "backend",
+     "query": "",
+     "line": 21,
+     "file": "patient-web/app/[locale]/medical-reports/page.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:17"
+    }
+   ],
+   "files": 57,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-web",
+   "route": "/medical-reports/[reportId]",
+   "file": "patient-web/app/[locale]/medical-reports/[reportId]/page.tsx",
+   "redirect": null,
+   "template": "detail",
+   "board": "none",
+   "batch": 12,
+   "status": "—",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 25,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/api/auth/session",
+     "target": "web-bff",
+     "query": "",
+     "line": 39,
+     "file": "patient-web/lib/auth/session-identity.ts",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/session/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/api/medical-reports/new-count",
+     "target": "web-bff",
+     "query": "",
+     "line": 29,
+     "file": "patient-web/components-next/core/appointments-link.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/medical-reports/new-count/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/api/patient/users/me/wishlist",
+     "target": "web-proxy",
+     "query": "",
+     "line": 37,
+     "file": "patient-web/components-next/core/wishlist-link.tsx",
+     "backend": "backend/src/modules/users/users.controller.ts:45",
+     "status": "OK"
+    },
+    {
+     "method": "GET",
+     "path": "/care/sick-leaves/:param",
+     "target": "backend",
+     "query": "",
+     "line": 29,
+     "file": "patient-web/app/[locale]/medical-reports/[reportId]/page.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:18"
+    }
+   ],
+   "files": 58,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-web",
    "route": "/medicine",
    "file": "patient-web/app/[locale]/medicine/page.tsx",
    "redirect": "?",
@@ -21737,6 +21865,70 @@
     }
    ],
    "files": 46,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-web",
+   "route": "/verify/sick-leave/[code]",
+   "file": "patient-web/app/[locale]/verify/sick-leave/[code]/page.tsx",
+   "redirect": null,
+   "template": "detail",
+   "board": "none",
+   "batch": 12,
+   "status": "—",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 25,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/api/auth/session",
+     "target": "web-bff",
+     "query": "",
+     "line": 39,
+     "file": "patient-web/lib/auth/session-identity.ts",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/session/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/api/medical-reports/new-count",
+     "target": "web-bff",
+     "query": "",
+     "line": 29,
+     "file": "patient-web/components-next/core/appointments-link.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/medical-reports/new-count/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/api/patient/users/me/wishlist",
+     "target": "web-proxy",
+     "query": "",
+     "line": 37,
+     "file": "patient-web/components-next/core/wishlist-link.tsx",
+     "backend": "backend/src/modules/users/users.controller.ts:45",
+     "status": "OK"
+    },
+    {
+     "method": "GET",
+     "path": "/verify/sick-leave/:param",
+     "target": "backend",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/app/[locale]/verify/sick-leave/[code]/page.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:62"
+    }
+   ],
+   "files": 54,
    "unresolved": 0
   },
   {
