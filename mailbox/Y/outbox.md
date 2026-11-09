@@ -1,5 +1,13 @@
 # Lane Y outbox
 
+## 2026-11-09 11:20 UTC — run 110 prepared on my branch (order 2)
+Status: done (prepared, not pushed to the ops branch)
+PR: none (ops branch commits are yours; branch y/ops-run-110, stacked on 31b2added = run 109)
+What changed:
+- RUN: release = main tip 15e591f2 (includes #2536), 97, 93, 60-deploy-main, 96j-ledger-duplicates, 91c (dry run again), 98q, cf-purge-api.
+- Deviation from your order (96j first): 96j-ledger-duplicates execs dist/scripts/ledger-earning-duplicates.js inside the RUNNING backend, and that file only exists in a release that contains #2536. Before the deploy it can only print "module not found". So it sits after the 60 deploy.
+Left / blockers / questions: this is safe because the backend builds the unique index only when groups=0 (otherwise it logs a warning and leaves it out). If you want the strict "check first, index later" order, use a separate run: deploy the tip with the index code, read 96j, and accept that the index appears at that deploy only when groups=0. Run 109: waiting for the owner push of 31b2added; #2535 stays open until then.
+
 ## 2026-11-09 10:40 UTC — ops run 109: BLOCKED on the direct push
 Status: blocked
 PR: #2535 (red on the ops branch's own pin/audit checks, as you said; I did not close it yet, tell me if you want it closed)
