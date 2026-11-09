@@ -4,6 +4,8 @@
 # rate); container layer / log-rotation / log-size alerts; the e-mail rule (new set of alerts, repeat window, recovery);
 # the daily summary mail; and the provider fallback Resend -> Brevo -> Mailjet.
 set -u
+# The cases below were written when ONE bad run was mailed at once: they pin the new confirmation knobs to 1. The "alert-mail flood" section at the end uses the real defaults (2 and 2).
+export ALERT_CONFIRM_RUNS=1 RECOVER_CONFIRM_RUNS=1
 ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
 W=$(mktemp -d); trap 'rm -rf "$W"' EXIT
 mkdir -p "$W/deploy/scripts" "$W/log" "$W/state"
@@ -152,4 +154,44 @@ T=$(env MONITOR_TEST_MAIL=1 MONITOR_SKIP_SERVICES=1 MONITOR_LOG_DIR="$W/log" MON
 case "$T" in "status: monitor-testmail: failed (OPS_ALERT_EMAIL is not set)") echo "ok - test mail: failed when no address is set";; *) echo "FAIL - test mail without address ($T)"; fail=1;; esac
 T=$(env -u RESEND_API_KEY -u BREVO_API_KEY -u MAILJET_API_KEY -u MAILJET_SECRET_KEY MONITOR_TEST_MAIL=1 MONITOR_SKIP_SERVICES=1 MONITOR_LOG_DIR="$W/log" MONITOR_STATE_DIR="$W/state-t" OPS_ALERT_EMAIL=ops@example.invalid MAIL_FROM=x@y.invalid bash "$W/deploy/scripts/monitor.sh" 2>&1)
 case "$T" in "status: monitor-testmail: failed (see"*) echo "ok - test mail: failed when no provider key is set";; *) echo "FAIL - test mail without key ($T)"; fail=1;; esac
+
+# ── alert-mail flood (owner, 2026-11-09): mail ONLY on a real state change ──
+# The real defaults: a critical alert must be seen in 2 consecutive runs, "OK again" needs 2 consecutive clean runs, the same state is not mailed again for 24 h.
+CRIT=2097152; GOOD=11953766; WARN=6000000   # disk-crit (5% free) / fine (30%) / warn-only (15%)
+flood() { # label statedir want_delta avail now [extra env]
+  local label=$1 sd=$2 want=$3 avail=$4 now=$5; shift 5
+  local before; before=$(grep -c '^SUBJECT:' "$W/mails-$sd" 2>/dev/null || true); before=${before:-0}
+  env -u ALERT_CONFIRM_RUNS -u RECOVER_CONFIRM_RUNS MONITOR_SKIP_SERVICES=1 MONITOR_LOG_DIR="$W/log-$sd" MONITOR_STATE_DIR="$W/state-$sd" MONITOR_DF_OUTPUT="$(df_line "$avail")" MONITOR_NOW_EPOCH=$now \
+      MONITOR_SUMMARY_HOUR=99 MONITOR_MAIL_CMD="tee -a $W/mails-$sd" OPS_ALERT_EMAIL=ops@example.invalid "$@" bash "$W/deploy/scripts/monitor.sh" >/dev/null
+  local after; after=$(grep -c '^SUBJECT:' "$W/mails-$sd" 2>/dev/null || true); after=${after:-0}
+  n=$((n+1)); if [ $((after-before)) = "$want" ]; then echo "ok $n - $label (mails +$((after-before)))"; else echo "FAIL $n - $label: mails +$((after-before)), wanted +$want"; fail=1; fi
+}
+mkdir -p "$W/log-flap" "$W/log-hold" "$W/log-rep" "$W/log-warn"
+T0=1800100000
+# A flap that never lasts two runs sends nothing at all (alert, ok, alert, ok, alert, ok)
+for i in 0 1 2; do
+  flood "flap: bad run $((i+1)) (seen once)" flap 0 $CRIT $((T0 + i*1800))
+  flood "flap: good run $((i+1))" flap 0 $GOOD $((T0 + i*1800 + 900))
+done
+# A sustained problem: mailed on the SECOND bad run, then silent through repeats and flaps, and "OK again" only after two clean runs
+flood "sustained: first bad run: nothing yet" hold 0 $CRIT $T0
+flood "sustained: second bad run in a row: ONE alert mail" hold 1 $CRIT $((T0 + 900))
+flood "sustained: third bad run: same state, no mail" hold 0 $CRIT $((T0 + 1800))
+flood "sustained: one clean run: no recovery mail yet" hold 0 $GOOD $((T0 + 2700))
+flood "sustained: bad again (a flap inside the outage): no mail" hold 0 $CRIT $((T0 + 3600))
+flood "sustained: bad again (streak 2, same state as the last mail): no mail" hold 0 $CRIT $((T0 + 4500))
+flood "sustained: clean run 1 of 2: no mail" hold 0 $GOOD $((T0 + 5400))
+flood "sustained: clean run 2 of 2: ONE recovery mail" hold 1 $GOOD $((T0 + 6300))
+flood "recovered: clean again: no mail" hold 0 $GOOD $((T0 + 7200))
+n=$((n+1)); [ "$(grep -c '^SUBJECT:' "$W/mails-hold")" = 2 ] && grep -q 'all checks OK again' "$W/mails-hold" && echo "ok $n - the whole outage cost exactly two mails (alert, recovery)" || { echo "FAIL $n - outage mails"; fail=1; }
+# The repeat window defaults to 24 h (was 6 h)
+flood "repeat: bad run 1" rep 0 $CRIT $T0
+flood "repeat: bad run 2: the alert mail" rep 1 $CRIT $((T0 + 900))
+flood "repeat: still bad 23 h later: no repeat before 24 h" rep 0 $CRIT $((T0 + 23*3600))
+flood "repeat: still bad 25 h after the mail: one reminder" rep 1 $CRIT $((T0 + 900 + 25*3600))
+# Numbers never trigger a mail: a warn-level disk reading (15% free) for many runs in a row is logged, never mailed
+for i in 0 1 2 3 4 5; do flood "warn-level reading, run $((i+1)): never mailed" warn 0 $WARN $((T0 + i*900)); done
+# Every mail sent is logged by name, so the number of mails of a day can be counted
+n=$((n+1)); [ "$(grep -c 'mail sent' "$W/log-hold/nabdah-monitor.log")" = 2 ] && echo "ok $n - each mail sent leaves a 'mail sent' line in the monitor log" || { echo "FAIL $n - 'mail sent' lines"; fail=1; }
+n=$((n+1)); if grep -q 'case "${KEYS\[\$i\]}" in container-\*|mongodb|redis|backend|disk-crit|backup)' "$ROOT/deploy/scripts/monitor.sh" && ! grep -E 'case "\$\{KEYS' "$ROOT/deploy/scripts/monitor.sh" | grep -q -E '\bram\b|\bload\b|disk-fill|layer-|logsize-|cert-'; then echo "ok $n - only outage-class keys can be mailed (ram, load, disk-fill, layers, logs, certificates are not)"; else echo "FAIL $n - critical key list"; fail=1; fi
 [ $fail = 0 ] && echo "PASS: monitor disk alert" || exit 1
