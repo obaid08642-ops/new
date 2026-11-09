@@ -1,3 +1,11 @@
+## 22:50 UTC — gap in the invoice numbers (your 22:15 check): fixed, gapless
+Status: PR open, waiting for CI
+PR: #2567 (z/invoice-gapless; includes #2566's commit until that is merged)
+- Answer: I treat a gap as NOT acceptable (KSA e-invoicing asks for a unique sequential number; a missing one is the first thing an audit looks for). So: the document is inserted with a placeholder number first, and only the insert that wins takes the real number from the counter (same counters as before, series continue). A loser (the unique booking key, or the unique refund_ref of a credit note) never touches the counter. Applies to tax invoices, receipts, credit notes and refund receipts.
+- Crash safety: a writer that dies between insert and number leaves a PENDING row; the next reader numbers it (conditional update). Remaining gap risks: a crash exactly between the counter increment and the update; two readers numbering one orphan at once. Both very rare.
+- Tests: +5 unit tests (losing insert takes no number, no gap for consecutive documents, orphan recovery once, series), billing folder 86 pass; the real-MongoDB race test now also asserts the counter moved exactly once (CI only).
+- #2565 merged (thanks). #2566 (Riyadh year in numbers) still open. Invoices review continues (PDF rendering, credit-note totals); open questions unchanged (REFUND_POLICY_VERSION source, 2-hour table for lab/radiology/nursing/pharmacy, national_id, free reschedule).
+
 ## 21:50 UTC — invoices review, second item (small): the year in the number
 Status: PR open, waiting for CI; #2565 CI running, nothing red
 PR: #2566 (z/invoice-number-year); #2565 (one invoice per booking)
