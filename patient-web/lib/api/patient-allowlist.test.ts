@@ -52,6 +52,10 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiRequest("/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/submit", "POST")).toBe(false);
     expect(isAllowedPatientApiRequest("/labs/bookings/91047ef2-ad36-422a-a184-629693e7c729/items/svc_cbc-1/opt-in-cash", "PATCH")).toBe(true);
     expect(isAllowedPatientApiRequest("/labs/bookings/91047ef2-ad36-422a-a184-629693e7c729/cancel", "POST")).toBe(true);
+    // the doctor did not come
+    expect(isAllowedPatientApiRequest("/care/appointments/5b1f3a2c-1d4e-4c7a-9a55-0e2f6d7c8b90/provider-no-show", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/care/appointments/5b1f3a2c-1d4e-4c7a-9a55-0e2f6d7c8b90/provider-no-show", "GET")).toBe(false);
+    expect(isAllowedPatientApiRequest("/care/appointments/not-an-id/provider-no-show", "POST")).toBe(false);
     // PT-08: the patient's medical reports (list, one, PDF), read only; the doctor's routes are not reachable from here
     expect(isAllowedPatientApiRequest("/care/sick-leaves", "GET")).toBe(true);
     expect(isAllowedPatientApiRequest("/care/sick-leaves/5b1f3a2c-1d4e-4c7a-9a55-0e2f6d7c8b90", "GET")).toBe(true);

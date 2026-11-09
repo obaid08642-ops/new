@@ -3155,6 +3155,13 @@
     "callEnableSound": "I-tap para buksan ang tunog"
   },
   "ConsultClient": {
+    "noShowTitle": "Hindi dumating ang doktor",
+    "noShowButton": "Hindi dumating ang doktor",
+    "noShowConfirmBody": "Gamitin lang ito kung hindi pa sumasali o dumarating ang doktor. Kakanselahin ang bisita at buo kang ire-refund agad.",
+    "noShowConfirm": "Kanselahin ang bisita at i-refund ako",
+    "noShowKeep": "Huwag muna",
+    "noShowDone": "Nakansela ang bisita. Paparating na ang buo mong refund.",
+    "noShowError": "Hindi makansela ang bisita. Suriin ang koneksyon at subukan ulit.",
     "payHeading": "Kumpletuhin ang bayad sa pamamagitan ng ligtas na gateway",
     "payNote": "Ang paggawa ng appointment ay hindi patunay ng bayad. Makukumpirma ito kapag matagumpay ang bayad.",
     "payAmountDue": "Halagang dapat bayaran: {amount}",
