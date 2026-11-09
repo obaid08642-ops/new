@@ -1,5 +1,5 @@
 {
- "commit": "3935271d",
+ "commit": "eeb14251",
  "routes": [
   {
    "app": "patient-app",
@@ -588,7 +588,7 @@
      "line": 432,
      "file": "patient-app/src/components/consult/AppointmentSections.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:79"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:80"
     },
     {
      "method": "GET",
@@ -966,7 +966,7 @@
      "line": 168,
      "file": "patient-app/app/consultations/cancel-reschedule.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/unified-bookings/unified-bookings.module.ts:617"
+     "backend": "backend/src/modules/unified-bookings/unified-bookings.module.ts:626"
     }
    ],
    "files": 44,
@@ -2432,7 +2432,7 @@
      "line": 62,
      "file": "patient-app/app/diagnostics/service-home.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:61"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:62"
     },
     {
      "method": "GET",
@@ -5002,7 +5002,7 @@
      "line": 64,
      "file": "patient-app/app/(tabs)/nursing.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:86"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:87"
     },
     {
      "method": "GET",
@@ -5012,7 +5012,7 @@
      "line": 60,
      "file": "patient-app/app/(tabs)/nursing.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:61"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:62"
     }
    ],
    "files": 56,
@@ -5046,7 +5046,7 @@
      "line": 37,
      "file": "patient-app/app/nursing/insurance-status.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:193"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:197"
     }
    ],
    "files": 39,
@@ -5067,7 +5067,7 @@
      "path": "/nursing/visits/:param",
      "target": "backend",
      "query": "",
-     "line": 77,
+     "line": 79,
      "file": "patient-app/app/nursing/live-tracking.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home-care/home-care.controller.ts:182"
@@ -5077,7 +5077,7 @@
      "path": "/nursing/visits/:param/tracking",
      "target": "backend",
      "query": "",
-     "line": 40,
+     "line": 42,
      "file": "patient-app/app/nursing/live-tracking.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home-care/home-care.controller.ts:191"
@@ -5087,13 +5087,13 @@
      "path": "/storage/:param/signed-url",
      "target": "backend",
      "query": "",
-     "line": 94,
+     "line": 96,
      "file": "patient-app/app/nursing/live-tracking.tsx",
      "status": "OK",
      "backend": "backend/src/modules/storage/storage.module.ts:567"
     }
    ],
-   "files": 41,
+   "files": 45,
    "unresolved": 0
   },
   {
@@ -5124,7 +5124,7 @@
      "line": 98,
      "file": "patient-app/app/nursing/nurse-profile.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:136"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:137"
     },
     {
      "method": "GET",
@@ -5144,7 +5144,7 @@
      "line": 121,
      "file": "patient-app/app/nursing/nurse-profile.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:79"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:80"
     },
     {
      "method": "GET",
@@ -5228,7 +5228,7 @@
      "line": 63,
      "file": "patient-app/app/nursing/service-details.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:91"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:92"
     },
     {
      "method": "GET",
@@ -5238,7 +5238,7 @@
      "line": 44,
      "file": "patient-app/app/nursing/service-details.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:61"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:62"
     }
    ],
    "files": 44,
@@ -5292,7 +5292,7 @@
      "line": 34,
      "file": "patient-app/app/nursing/service-info.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:79"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:80"
     }
    ],
    "files": 53,
@@ -9012,7 +9012,7 @@
      "line": 37,
      "file": "patient-web/app/[locale]/cart/prescription/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/cart/cart.module.ts:252"
+     "backend": "backend/src/modules/cart/cart.module.ts:253"
     }
    ],
    "files": 56,
@@ -10362,7 +10362,7 @@
      "line": 26,
      "file": "patient-web/app/[locale]/consultations/video-call/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/unified-bookings/unified-bookings.module.ts:614"
+     "backend": "backend/src/modules/unified-bookings/unified-bookings.module.ts:623"
     }
    ],
    "files": 61,
@@ -13826,7 +13826,7 @@
      "line": 65,
      "file": "patient-web/app/[locale]/home-care/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:86"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:87"
     },
     {
      "method": "GET",
@@ -13836,7 +13836,7 @@
      "line": 27,
      "file": "patient-web/lib/api/public-services-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:61"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:62"
     },
     {
      "method": "GET",
@@ -13856,7 +13856,7 @@
      "line": 6,
      "file": "patient-web/lib/api/home-care-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/unified-bookings/unified-bookings.module.ts:604"
+     "backend": "backend/src/modules/unified-bookings/unified-bookings.module.ts:613"
     }
    ],
    "files": 164,
@@ -13920,7 +13920,7 @@
      "line": 2,
      "file": "patient-web/lib/api/home-care-providers-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:91"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:92"
     },
     {
      "method": "GET",
@@ -14004,7 +14004,7 @@
      "line": 19,
      "file": "patient-web/lib/api/home-care-services-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:79"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:80"
     },
     {
      "method": "GET",
@@ -14078,7 +14078,7 @@
      "line": 54,
      "file": "patient-web/app/[locale]/home-care/services/[serviceId]/book/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:91"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:92"
     },
     {
      "method": "GET",
@@ -14088,7 +14088,7 @@
      "line": 19,
      "file": "patient-web/lib/api/home-care-services-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:79"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:80"
     }
    ],
    "files": 69,
@@ -14216,7 +14216,7 @@
      "line": 30,
      "file": "patient-web/app/[locale]/home-nursing/[citySlug]/[serviceSlug]/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:61"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:62"
     },
     {
      "method": "GET",
@@ -14226,7 +14226,7 @@
      "line": 38,
      "file": "patient-web/app/[locale]/home-nursing/[citySlug]/[serviceSlug]/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:79"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:80"
     },
     {
      "method": "GET",
@@ -14882,7 +14882,7 @@
      "line": 17,
      "file": "patient-web/lib/api/nursing-catalog-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:79"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:80"
     },
     {
      "method": "GET",
@@ -15100,7 +15100,7 @@
      "line": 17,
      "file": "patient-web/lib/api/nursing-catalog-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:79"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:80"
     },
     {
      "method": "GET",
@@ -15298,7 +15298,7 @@
      "line": 17,
      "file": "patient-web/lib/api/nursing-catalog-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:79"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:80"
     },
     {
      "method": "GET",
@@ -16170,7 +16170,7 @@
      "line": 17,
      "file": "patient-web/lib/api/nursing-catalog-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:79"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:80"
     },
     {
      "method": "GET",
@@ -16794,7 +16794,7 @@
      "line": 11,
      "file": "patient-web/lib/api/nursing-catalog-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:61"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:62"
     },
     {
      "method": "GET",
@@ -16878,7 +16878,7 @@
      "line": 45,
      "file": "patient-web/app/[locale]/nursing/insurance-status/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:193"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:197"
     }
    ],
    "files": 62,
@@ -16963,7 +16963,7 @@
      "line": 52,
      "file": "patient-web/app/[locale]/nursing/nurses/[nurseId]/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:136"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:137"
     },
     {
      "method": "GET",
@@ -16973,7 +16973,7 @@
      "line": 19,
      "file": "patient-web/lib/api/home-care-services-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:79"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:80"
     },
     {
      "method": "GET",
@@ -17128,7 +17128,7 @@
      "path": "/nursing/visits/:param",
      "target": "backend",
      "query": "",
-     "line": 40,
+     "line": 41,
      "file": "patient-web/app/[locale]/nursing/visits/[visitId]/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home-care/home-care.controller.ts:182"
@@ -17138,14 +17138,14 @@
      "path": "/nursing/visits/:param/tracking",
      "target": "backend",
      "query": "",
-     "line": 41,
+     "line": 42,
      "file": "patient-web/app/[locale]/nursing/visits/[visitId]/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home-care/home-care.controller.ts:191"
     }
    ],
-   "files": 64,
-   "unresolved": 0
+   "files": 69,
+   "unresolved": 1
   },
   {
    "app": "patient-web",
@@ -17651,8 +17651,8 @@
      "backend": "backend/src/modules/returns/returns.controller.ts:20"
     }
    ],
-   "files": 81,
-   "unresolved": 0
+   "files": 86,
+   "unresolved": 1
   },
   {
    "app": "patient-web",

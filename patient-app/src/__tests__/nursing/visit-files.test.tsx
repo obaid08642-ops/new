@@ -1,5 +1,5 @@
 import React from 'react';
-import { Linking } from 'react-native';
+import { Alert, Linking } from 'react-native';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -66,5 +66,18 @@ describe('nursing visit result files (N1)', () => {
     await act(async () => { fireEvent.press(await screen.findByText('CBC result.pdf')); });
     expect(await screen.findByText(k('nur.live.fileError'))).toBeTruthy();
     expect(Linking.openURL).not.toHaveBeenCalled();
+  });
+
+  it('a file still being scanned says it is being checked, not that it failed, and opens nothing (UPLOAD_SCAN=defer)', async () => {
+    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
+    answer([{ storage_id: 'f1', name: 'CBC result.pdf' }], () => { throw new Error('file_pending_scan'); });
+    await render(wrap(<NursingLiveTracking />));
+    await act(async () => { fireEvent.press(await screen.findByText('CBC result.pdf')); });
+    await waitFor(() => expect(alertSpy).toHaveBeenCalled());
+    expect(alertSpy.mock.calls[0][0]).toBe(k('scanStatus.checking'));
+    expect(alertSpy.mock.calls[0][1]).toBe(k('scanStatus.openLater'));
+    expect(screen.queryByText(k('nur.live.fileError'))).toBeNull();
+    expect(Linking.openURL).not.toHaveBeenCalled();
+    alertSpy.mockRestore();
   });
 });

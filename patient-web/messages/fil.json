@@ -5855,7 +5855,8 @@
   "ScanStatus": {
     "checking": "Sinusuri ang file para sa kaligtasan",
     "rejected": "Tinanggihan ang file na ito para sa kaligtasan. Mag-upload ng iba.",
-    "uploadAnother": "Mag-upload ng ibang file"
+    "uploadAnother": "Mag-upload ng ibang file",
+    "openLater": "Handa na ito sa loob ng isang minuto. Kusa itong bubuksan ng pahinang ito, o subukan ulit mamaya."
   },
   "Receipt": {
     "title": "Resibo",
