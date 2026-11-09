@@ -440,7 +440,7 @@ export class OrderingService implements OnModuleInit {
           home_fee: snap.home_fee, scheduled_at: scheduled[i].at, asap: scheduled[i].asap, payment_method: dto.payment_method, awaiting_approval: awaiting,
           address: g.mode === 'home' ? { lat: quote.context.lat, lng: quote.context.lng } : undefined,
           order_group_id: groupId, quote_id: quote.id, medical_order_id: order?.id, gender_preference: dto.gender_preference,
-          documents: dto.documents, notes: dto.notes,
+          documents: dto.documents, notes: dto.notes, family_member_id: quote.family_member_id ?? undefined,
         });
         created.push({
           id: b.id, mode: g.mode, status: awaiting ? 'awaiting_approval' : 'pending', provider_id: sel.provider_id,

@@ -1,3 +1,4 @@
+import { resolveFamilyMemberId } from '../../../common/family-member';
 import { Injectable, ForbiddenException, NotFoundException, BadRequestException, ConflictException, Inject, Optional } from '@nestjs/common';
 import { assertUnverifiedCodAllowed, hasContactPhone } from '../../auth/checkout-contact.service';
 import { KillSwitchesService } from '../../kill-switches/kill-switches.service';
@@ -171,6 +172,8 @@ export class PharmacyOrderService {
     }
     if (!items.length && !body.prescription_id) throw new BadRequestException('items_required');
     await this.assertOwnPrescriptionRefs(user, body);
+    // owner decision 1: an order for a family member (the caller stays the patient account that orders and pays)
+    const familyMemberId = await resolveFamilyMemberId(this.conn as never, user.id, body.family_member_id);
     const attachments = await this.resolvePrescriptionAttachments(user, body.prescription_attachments);
     const addr = body.delivery_address || {};
     const geo = addr.geo || (addr.lat && addr.lng ? { lat: Number(addr.lat), lng: Number(addr.lng) } : null);
@@ -178,6 +181,7 @@ export class PharmacyOrderService {
     const order = await this.orders.create({
       id: uuidv4(),
       patient_account_id: user.id,
+      ...(familyMemberId ? { family_member_id: familyMemberId } : {}),
       status: PharmacyOrderState.DRAFT,
       items,
       delivery_address: normalizedAddress,

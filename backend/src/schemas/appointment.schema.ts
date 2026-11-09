@@ -95,6 +95,8 @@ export class Appointment {
 
   // Patient inputs
   @Prop() patient_notes?: string;
+  /** Owner decision 1: the family member this is for; the booker (patient_id) is unchanged. Absent = for the booker. */
+  @Prop({ type: String, required: false, index: true }) family_member_id?: string;
   /** P17-17.5: UTM campaign attribution (utm_source/medium/campaign/term/content). */
   @Prop({ type: Object, required: false }) attribution?: Record<string, string>;
   /** Set when a family member booked this appointment on behalf of the patient */

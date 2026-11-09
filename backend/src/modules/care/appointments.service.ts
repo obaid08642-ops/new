@@ -1,3 +1,4 @@
+import { resolveFamilyMemberId } from '../../common/family-member';
 import { buildFollowUpActions } from './follow-up-actions';
 import { assertPaymentMethod } from '../../common/payment-policy';
 import { MedicalAccessLogService, logMedicalRead } from '../../common/pdpl-compliance.module';
@@ -120,6 +121,7 @@ export class AppointmentsService {
     insurance_provider?: string;
     insurance_member_id?: string;
     for_member_id?: string; // family booking on behalf of a member
+    family_member_id?: string; // owner decision 1: the family member this visit is FOR (the caller stays the patient who books and pays)
     slot_lock_id?: string; // optional 10-min hold from POST /slot-locks/reserve (consumed on success, released on failure)
     follow_up_of?: string; // follow-up appointment link to original appointment (same patient and doctor)
   }) {
@@ -131,6 +133,10 @@ export class AppointmentsService {
     // On-behalf family booking: patient becomes the member, booker is audited
     let patientId: string = user.id;
     let bookedBy: string | undefined;
+    // owner decision 1: `family_member_id` (a member of the caller's family list) keeps the caller as the patient and only records who it is for;
+    // `for_member_id` (issue 684) moves the visit to another account in the family group. They are two different things: not both.
+    if (body.family_member_id && body.for_member_id) throw new BadRequestException('family_member_id_and_for_member_id_exclusive');
+    const familyMemberId = body.family_member_id ? await resolveFamilyMemberId((this.connection as any).db ?? this.connection, user.id, body.family_member_id) : undefined;
     if (body.for_member_id && body.for_member_id !== user.id) {
       await this.assertFamilyBookingRight(user.id, body.for_member_id);
       patientId = body.for_member_id;
@@ -237,6 +243,7 @@ export class AppointmentsService {
       const appt = await this.apptModel.create({
         patient_id: patientId,
         booked_by_user_id: bookedBy,
+        ...(familyMemberId ? { family_member_id: familyMemberId } : {}),
         doctor_id: doctor.id,
         doctor_user_id: doctor.user_id,
         service_type: body.service_type,

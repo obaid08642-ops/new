@@ -1,3 +1,4 @@
+import { resolveFamilyMemberId } from '../../common/family-member';
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Optional, ServiceUnavailableException } from '@nestjs/common';
 import { withholdLegacyBeforeAcceptance } from '../provider-jobs/provider-job-privacy';
 import { assertPaymentMethod } from '../../common/payment-policy';
@@ -660,6 +661,8 @@ export class RadiologyOpsService {
     // Only the approved catalog decides what is booked and what it costs; the body names the scan and center.
     const serviceId = typeof body?.service_id === 'string' ? body.service_id : '';
     if (!serviceId || serviceId.length > 128) throw new BadRequestException('service_id_required');
+    // owner decision 1: a booking for a family member (the caller stays the booker; checked to be the caller's own member)
+    const familyMemberId = await resolveFamilyMemberId(this.svcModel.db, user.id, body?.family_member_id);
     const svc: any = await this.getById(serviceId).catch(() => null);
     if (!svc) throw new BadRequestException('service_not_available');
     const isAdmin = ['admin', 'super_admin', 'system'].includes(user?.role);
@@ -703,7 +706,7 @@ export class RadiologyOpsService {
     if (!(total > 0)) throw new BadRequestException('service_price_not_set');
     const booking = await this.bkgModel.create({
       id: require('uuid').v4(),
-      patient_id: user.id, patient_name: user.full_name, patient_phone: user.phone,
+      patient_id: user.id, ...(familyMemberId ? { family_member_id: familyMemberId } : {}), patient_name: user.full_name, patient_phone: user.phone,
       items: [{ service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, modality: svc.modality, body_part: svc.body_part, price: total }],
       total, total_price: total,
       scan_type_code: svc.short_code, scan_name_ar: svc.name_ar, scan_name_en: svc.name_en,
