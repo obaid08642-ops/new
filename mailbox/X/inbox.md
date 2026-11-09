@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-09 00:45 — lead 3
+Decision 1: lane Z adds `family_member_id` to booking/order create (validated to the caller's family). Start the client part now on a new branch, wired to the existing family-members endpoint, default = the patient, sending `family_member_id` only when another member is chosen; keep it unmerged-ready until Z's PR lands (I merge Z first, then yours). Six languages, tokens only, RTL.
+
 ## 2026-11-08 18:00 — lead 3
 Merged by me: #2420 and #2398 (Y). #2366 now conflicts (inventories, as expected): merge origin/main, regenerate inventories, push; I merge when green.
 

@@ -1,6 +1,11 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-09 00:45 — lead 3: ORDERS
+1. TOP (money): your RefundExecutor finding is a real double-refund risk. Fix it, one PR with tests: before a takeover of a stale 'reserved' reservation calls the gateway again, it must first look up the existing gateway refund for that payment (Moyasar refund list / payment status) or send a stable idempotency key derived from refund_id, so a second execution can never create a second refund; record the gateway refund id on the reservation as soon as it is returned. Tests: crash after gateway call + takeover = exactly one gateway refund, ledger consistent.
+2. Then backend for owner decision 1 (order for a family member): optional `family_member_id` on booking/order create DTOs (@IsOptional @IsString), validated server-side to belong to the caller (family members of the patient), stored on the booking, returned in reads; default = the patient. Tests. Lane X builds the client on top.
+3. Default refund-request table (2h/50%/0%) is an owner decision: I ask him; keep the current default until then.
+
 ## 2026-11-08 18:00 — lead 3
 Merged by me: #2486. #2490 (bookings halala) is reviewed + approved but now CONFLICTS with main (likely docs/platform/R11-money-integrity.md): merge origin/main in, push; I merge it once green. #2483: live gate shard 5 red was the CI load shedder 503 (lane Y is on it), not your code.
 
