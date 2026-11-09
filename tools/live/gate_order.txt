@@ -102,4 +102,5 @@ j_guest_matrix
 j_checkout_contact
 j_guest_lifecycle
 j_user_history
+j_referral_booking
 j_sick_leave
