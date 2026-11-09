@@ -1,6 +1,8 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-09 21:10 UTC
+- Merged #2562 (docs). In CI: #2565 (Z invoices), #2564/#2563 (V), #2560 (X web tick). Runs 111/112 not pushed yet by owner.
 ## Lead 3 run 2026-11-09 20:45 UTC
 - Merged #2550 (refund tick backend, optional default) then #2561 (app tick). Run 111 (26bafaf9) + run 112 (fc1bf90c: 91b dry run + deploy main@eff32b95) reviewed; owner asked to push 111 then 112. #2560 CI.
 ## Lead 3 run 2026-11-09 20:15 UTC
@@ -76,5 +78,3 @@ TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the t
 - Merged #2538 (revenue by month), #2540 (PT-38 chat link). W ordered: RevenueInsights on /provider/stats/revenue. Z: invoices review. #2537 CI. Runs 109/110 still wait for the owner's push.
 ## Lead 3 run 2026-11-09 11:40 UTC
 - No change: #2537/#2538/#2540 rebased, CI running. Runs 109/110 still wait for the owner's push to review/server-inspect.
-## Lead 3 run 2026-11-09 11:20 UTC
-- Merged #2539. Conflicts: #2537/#2540 (X; #2540 must justify 27 removed locale keys), #2538 (Z, reviewed OK). Runs 109 (31b2added) and 110 (y/ops-run-110, main 15e591f2) wait for the owner's push to review/server-inspect.
