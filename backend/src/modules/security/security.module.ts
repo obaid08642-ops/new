@@ -19,6 +19,7 @@ import { currentLogContext, logEvent, runWithLogContext } from '../../common/str
 import { AuditCollectionMigration } from './audit-collection-migration';
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { ScheduledOnce } from '../../common/scheduled-once';
+import { PlaceLegalHoldDto } from './legal-hold.dto';
 /** 23.1 — the full field set the plan requires of every event. */
 export interface AuditEntry {
   action: string;
@@ -542,7 +543,7 @@ export class AuditController {
   @RequirePermissions(Permission.SECURITY_MANAGE)
   @Post('retention/holds')
   @Roles(UserRole.SUPER_ADMIN)
-  async placeHold(@CurrentUser() admin: any, @Body() body: { user_id?: string; resource_id?: string; reason?: string; until?: string }) {
+  async placeHold(@CurrentUser() admin: any, @Body() body: PlaceLegalHoldDto) {
     const reason = typeof body?.reason === 'string' ? body.reason.trim() : '';
     if (reason.length < 5) throw new BadRequestException('legal_hold_reason_required');
     const user_id = typeof body?.user_id === 'string' && body.user_id ? body.user_id : undefined;

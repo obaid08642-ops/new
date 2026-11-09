@@ -5,7 +5,7 @@ import { Connection } from 'mongoose';
 import { JwtAuthGuard } from '../../../../common/auth.guard';
 import { Roles, CurrentUser } from '../../../../common/auth.guard';
 import { UserRole } from '../../../../common/enums';
-import { SlaDto, AppVersionsDto, OrdersConsoleConfigDto } from './admin-config.dto';
+import { SlaDto, AppVersionsDto, OrdersConsoleConfigDto, DisputeConfigDto } from './admin-config.dto';
 
 import { Permission, RequirePermissions } from '../../../../common/permissions';
 const SLA_KEY = 'sla';
@@ -49,7 +49,7 @@ export class AdminConfigController {
       resource_id: `system_config:${SLA_KEY}`,
       user_id: admin?.id,
       role: admin?.role,
-      reason: (body as any)?.reason || undefined,
+      reason: body?.reason || undefined,
       changes: { after: { value } },
       severity: 'warn',
     });
@@ -67,7 +67,7 @@ export class AdminConfigController {
   @RequirePermissions(Permission.SETTINGS_EDIT)
   @Put('dispute-config')
   @Roles(UserRole.ADMIN)
-  async updateDisputeConfig(@Body() body: any, @CurrentUser() admin: any) {
+  async updateDisputeConfig(@Body() body: DisputeConfigDto, @CurrentUser() admin: any) {
     const value: any = { ...DISPUTE_CONFIG_DEFAULTS };
     if (body?.max_refund_sar !== undefined) {
       const n = Number(body.max_refund_sar);

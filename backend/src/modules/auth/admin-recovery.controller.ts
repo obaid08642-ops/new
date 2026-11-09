@@ -5,6 +5,7 @@ import { StepUp } from '../../common/step-up.guard';
 import { AuthService } from './auth.service';
 import { AdminRecoveryService } from './admin-recovery.service';
 import { UserRole } from '../../common/enums';
+import { AdminRecoveryRedeemDto, AdminRecoveryStartDto } from './admin-recovery.dto';
 
 /**
  * C6: break-glass recovery for admin accounts.
@@ -37,7 +38,7 @@ export class AdminRecoveryController {
   @Public()
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('start')
-  async start(@Body() body: { email?: string }) {
+  async start(@Body() body: AdminRecoveryStartDto) {
     const email = String(body?.email || '').trim().toLowerCase();
     if (!email) throw new BadRequestException('email_required');
     const u: any = await (this.auth as any).userModel.findOne({ email });
@@ -53,7 +54,7 @@ export class AdminRecoveryController {
   @Public()
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('redeem')
-  async redeem(@Body() body: { email?: string; email_code?: string; recovery_code?: string }) {
+  async redeem(@Body() body: AdminRecoveryRedeemDto) {
     const email = String(body?.email || '').trim().toLowerCase();
     const emailCode = String(body?.email_code || '').trim();
     const recCode = String(body?.recovery_code || '').trim();

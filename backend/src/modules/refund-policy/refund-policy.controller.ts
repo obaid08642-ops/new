@@ -8,6 +8,7 @@ import { DEFAULT_REFUND_POLICY } from './refund-policy.defaults';
 
 
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { RefundPolicyDto } from './refund-policy.dto';
 @Controller('refund-policy')
 export class PublicRefundPolicyController {
   constructor(@InjectConnection() private readonly conn: Connection) {}
@@ -34,8 +35,8 @@ export class AdminRefundPolicyController {
 
   @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   @Put()
-  async set(@CurrentUser() u: any, @Body() body: any): Promise<any> {
-    const policy = body || {};
+  async set(@CurrentUser() u: any, @Body() body: RefundPolicyDto): Promise<any> {
+    const policy: any = body || {};
     const bad: string[] = [];
     const num = (v: unknown) => typeof v === 'number' && Number.isFinite(v);
     const c = policy.consultation || {};

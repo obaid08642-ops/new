@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import { IsDefined, IsIn, IsInt, IsNumber, IsObject, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
 
 export class SlaDto {
@@ -58,6 +59,19 @@ export class OrdersConsoleConfigDto {
   @Min(1)
   @Max(1440)
   stuck_minutes?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  reason?: string;
+}
+
+/** PUT admin/config/dispute-config: the largest refund a dispute decision may grant (the handler also refuses a value that is not above 0). */
+export class DisputeConfigDto {
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  max_refund_sar?: number;
 
   @IsOptional()
   @IsString()

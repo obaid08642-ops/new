@@ -159,3 +159,14 @@ export class SubmitClaimDto {
   @IsString()
   note?: string;
 }
+
+/** POST admin/insurance/claims/:id/decide: `approve: true` reimburses the claim, anything else rejects it; the note is kept with the decision. */
+export class DecideClaimDto {
+  @IsDefined()
+  @IsBoolean()
+  approve: boolean;
+
+  @IsOptional()
+  @IsString()
+  note?: string;
+}
