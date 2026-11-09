@@ -19,24 +19,32 @@ import { SP, R, FS, FW, C } from '../../../constants';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ledgerTypeLabel, serviceLabel } from '../../../utils/ledgerLabels';
+import { periodTotals, trendMonths, type RevenuePeriod, type RevenueReply } from './revenuePeriods';
 
 export type RevenueRole = 'provider' | 'facility';
 
 type LedgerTxn = { type?: string; amount?: number; createdAt?: string; service_type?: string; reference_type?: string };
 type Ledger = { transactions?: LedgerTxn[]; summary?: { pending: number; balance: number } } | null;
 
-// One revenue screen for every provider role (doctor, lab, nursing, pharmacy, radiology, facility). Same call for all:
-// GET /provider/ops/wallet/ledger. `role` only changes the header; facilities see the "unified" wording.
+// One revenue screen for every provider role (doctor, lab, nursing, pharmacy, radiology, facility). Same calls for all.
+// Revenue, refunds and the 12-month trend come from the server's monthly aggregate (GET /provider/stats/revenue, refunds netted,
+// Riyadh months); the phone adds nothing up for them. The wallet ledger (GET /provider/ops/wallet/ledger) still feeds the pending
+// and balance figures and the two breakdowns below, which are computed on the phone from its newest rows (see Needs review).
 export function RevenueInsights({ onBack, role = 'provider' }: { onBack: () => void; role?: RevenueRole }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t } = useLang();
  const AR = lang === 'ar';
- const [period, setPeriod] = useState<'week' | 'month' | 'year'>('month');
+ const [period, setPeriod] = useState<RevenuePeriod>(1);
+ const [revenue, setRevenue] = useState<RevenueReply | null>(null);
+ const [revenueFailed, setRevenueFailed] = useState(false);
  const [ledger, setLedger] = useState<Ledger>(null);
  const [loading, setLoading] = useState(true);
 
  useEffect(() => {
    // Live data only — no fabricated revenue figures.
+   client.get('/provider/stats/revenue', { params: { months: 24 } })
+     .then(r => setRevenue(r.data || null))
+     .catch(() => { setRevenue(null); setRevenueFailed(true); });
    client.get('/provider/ops/wallet/ledger')
      .then(r => setLedger(r.data || null))
      .catch(() => setLedger(null))
@@ -45,25 +53,18 @@ export function RevenueInsights({ onBack, role = 'provider' }: { onBack: () => v
 
  const txns: LedgerTxn[] = Array.isArray(ledger?.transactions) ? (ledger?.transactions as LedgerTxn[]) : [];
  const earningsAll = txns.filter(t => t.type === 'provider_earning');
- const sumIn = (from: number, to: number) => earningsAll
-   .filter(t => { const ts = new Date(t.createdAt || 0).getTime(); return ts >= from && ts < to; })
-   .reduce((a, t) => a + (t.amount || 0), 0);
- const periodDays = period === 'week' ? 7 : period === 'month' ? 30 : 365;
+ const periodDays = period === 1 ? 30 : period === 3 ? 90 : 365;
  const cutoff = Date.now() - periodDays * 86400000;
  const periodEarnings = earningsAll.filter(t => new Date(t.createdAt || 0).getTime() >= cutoff);
- const periodRev = periodEarnings.reduce((a, t) => a + (t.amount || 0), 0);
- const prevRev = sumIn(cutoff - periodDays * 86400000, cutoff);
- const delta = prevRev > 0 ? Math.round(((periodRev - prevRev) / prevRev) * 100) : null;
  const summary = ledger?.summary || null;
  const hasData = txns.length > 0;
 
- // Monthly trend (last 12 months) from the real ledger.
- const monthly: number[] = Array.from({ length: 12 }, (_, i) => {
-   const d = new Date(); d.setDate(1); d.setHours(0, 0, 0, 0); d.setMonth(d.getMonth() - (11 - i));
-   const next = new Date(d); next.setMonth(next.getMonth() + 1);
-   return sumIn(d.getTime(), next.getTime());
- });
- const maxB = Math.max(...monthly, 1);
+ // Revenue of the selected period and the 12-month trend: the server's monthly aggregate, refunds netted.
+ const months = revenue?.months || [];
+ const totals = periodTotals(months, period);
+ const delta = totals.delta;
+ const trend = trendMonths(months);
+ const maxB = Math.max(...trend.map(m => m.net), 1);
 
  // Earnings of the selected period grouped by service/reference type.
  const byRef: Record<string, number> = {};
@@ -80,7 +81,7 @@ export function RevenueInsights({ onBack, role = 'provider' }: { onBack: () => v
  const title = role === 'facility'
    ? (AR ? 'التقارير المالية الموحدة' : 'Unified Financial Reports')
    : (AR ? 'تفاصيل الإيرادات والتحليلات' : 'Revenue Insights');
- const periods: [typeof period, string][] = [['week', AR ? 'أسبوع' : 'Week'], ['month', AR ? 'شهر' : 'Month'], ['year', AR ? 'سنة' : 'Year']];
+ const periods: [RevenuePeriod, string][] = [[1, t('revenue.period.month')], [3, t('revenue.period.quarter')], [12, t('revenue.period.year')]];
  const dash = '—';
 
  return (
@@ -102,7 +103,7 @@ export function RevenueInsights({ onBack, role = 'provider' }: { onBack: () => v
  <NCard style={{ backgroundColor: theme.primary, alignItems: 'center' }}>
  <Text style={{ color: theme.textInv, opacity: 0.8, fontSize: FS.sm }}>{AR ? 'صافي الإيرادات' : 'Net earnings'}</Text>
  <Text style={{ color: theme.textInv, fontSize: FS['3xl'], fontWeight: '800', marginVertical: SP.xs }}>
- {loading ? '…' : `${periodRev.toLocaleString()} ${AR ? 'ريال' : 'SAR'}`}
+ {loading ? '…' : `${totals.net.toLocaleString()} ${AR ? 'ريال' : 'SAR'}`}
  </Text>
  {delta !== null && (
  <Text style={{ color: theme.textInv, opacity: 0.85, fontSize: FS.xs }}>
@@ -111,8 +112,12 @@ export function RevenueInsights({ onBack, role = 'provider' }: { onBack: () => v
  )}
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.xxl, marginTop: SP.lg }}>
  <View style={{ alignItems: 'center' }}>
- <Text style={{ color: theme.textInv, fontSize: FS.lg, fontWeight: FW.bold }}>{loading ? '…' : periodEarnings.length}</Text>
- <Text style={{ color: theme.textInv, opacity: 0.7, fontSize: FS.xs }}>{AR ? 'عملية' : 'Operations'}</Text>
+ <Text style={{ color: theme.textInv, fontSize: FS.lg, fontWeight: FW.bold }}>{loading ? '…' : totals.earned.toLocaleString()}</Text>
+ <Text style={{ color: theme.textInv, opacity: 0.7, fontSize: FS.xs }}>{t('revenue.earned')}</Text>
+ </View>
+ <View style={{ alignItems: 'center' }}>
+ <Text style={{ color: theme.textInv, fontSize: FS.lg, fontWeight: FW.bold }}>{loading ? '…' : totals.refunded.toLocaleString()}</Text>
+ <Text style={{ color: theme.textInv, opacity: 0.7, fontSize: FS.xs }}>{t('revenue.refunded')}</Text>
  </View>
  <View style={{ alignItems: 'center' }}>
  <Text style={{ color: theme.textInv, fontSize: FS.lg, fontWeight: FW.bold }}>{summary ? summary.pending.toLocaleString() : dash}</Text>
@@ -125,6 +130,12 @@ export function RevenueInsights({ onBack, role = 'provider' }: { onBack: () => v
  </View>
  </NCard>
 
+ {revenueFailed && (
+ <NCard>
+ <Text style={{ color: theme.danger, textAlign: 'center' }}>{t('revenue.loadFailed')}</Text>
+ </NCard>
+ )}
+
  {!loading && !hasData && (
  <NCard>
  <Text style={{ color: theme.textSub, textAlign: 'center' }}>{AR ? 'لا توجد حركات مالية بعد — ستظهر الإيرادات هنا فور اكتمال أول خدمة مدفوعة.' : 'No financial transactions yet — revenue will appear here once your first paid service completes.'}</Text>
@@ -135,14 +146,14 @@ export function RevenueInsights({ onBack, role = 'provider' }: { onBack: () => v
  <NCard>
  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
  <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: SP.sm, height: 120 }}>
- {monthly.map((val, i) => (
+ {trend.map((mo, i) => { const val = mo.net; return (
  <View key={i} style={{ alignItems: 'center', width: 36 }}>
  <View style={{ width: 28, height: Math.max(8, (val / maxB) * 100), backgroundColor: theme.primary, borderRadius: 6, opacity: val > 0 ? 0.85 : 0.2 }} />
  <Text style={{ fontSize: 9, color: theme.textSub, marginTop: 4 }}>
- {new Date(new Date().getFullYear(), new Date().getMonth() - (11 - i), 1).toLocaleDateString(AR ? 'ar' : 'en', { month: 'short' })}
+ {new Date(mo.year, mo.monthIndex, 1).toLocaleDateString(AR ? 'ar' : 'en', { month: 'short' })}
  </Text>
  </View>
- ))}
+ ); })}
  </View>
  </ScrollView>
  </NCard>

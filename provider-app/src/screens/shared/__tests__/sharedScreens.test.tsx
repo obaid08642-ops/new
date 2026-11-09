@@ -25,6 +25,7 @@ beforeEach(() => {
     if (url === '/provider/payouts/balance') return Promise.resolve({ data: { available: 120, pending: 5, locked: 0, lifetime_earned: 900 } });
     if (url === '/provider/wallet/transactions') return Promise.resolve({ data: [] });
     if (url === '/provider/me') return Promise.resolve({ data: { profile: {} } });
+    if (url === '/provider/stats/revenue') return Promise.resolve({ data: { currency: 'SAR', months: [{ month: '2026-10', earned: 100, refunded: 0, net: 100 }, { month: '2026-11', earned: 300.5, refunded: 50.25, net: 250.25 }], total: { earned: 400.5, refunded: 50.25, net: 350.25 } } });
     if (url === '/provider/ops/wallet/ledger') return Promise.resolve({ data: { transactions: [], summary: { pending: 0, balance: 0 } } });
     return Promise.reject(new Error('unexpected ' + url));
   });
@@ -53,16 +54,23 @@ describe('ProviderWalletScreen is the one wallet (M3)', () => {
 });
 
 describe('RevenueInsights is one screen with a role header (M4)', () => {
-  it('uses the same ledger call for a provider and for a facility', async () => {
+  it('uses the same calls for a provider and for a facility', async () => {
     await render(<RevenueInsights onBack={() => {}} />);
     await waitFor(() => expect(screen.getByText('Revenue Insights')).toBeTruthy());
     expect(get).toHaveBeenCalledWith('/provider/ops/wallet/ledger');
+    expect(get).toHaveBeenCalledWith('/provider/stats/revenue', { params: { months: 24 } });
+  });
+
+  it('shows the net revenue of the newest month from the server aggregate (refunds netted), not a sum on the phone', async () => {
+    await render(<RevenueInsights onBack={() => {}} />);
+    await waitFor(() => expect(screen.getByText(/250\.25/)).toBeTruthy());
   });
 
   it('only the header differs for a facility', async () => {
     await render(<RevenueInsights role="facility" onBack={() => {}} />);
     await waitFor(() => expect(screen.getByText('Unified Financial Reports')).toBeTruthy());
     expect(get).toHaveBeenCalledWith('/provider/ops/wallet/ledger');
+    expect(get).toHaveBeenCalledWith('/provider/stats/revenue', { params: { months: 24 } });
   });
 });
 
