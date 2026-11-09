@@ -222,7 +222,7 @@ describe('the price shown is the price charged, with only a registration price (
     const listed = (await controller.providers({ type: 'nt' })).find((r: any) => r.id === 'nurse-z').price;
     const { model, created } = bookingModel();
     const svc = new (HomeCareSvc as any)(NurseSvcModel, model, {}, {}, {}, { emit: jest.fn() }, { announceCreated: async () => undefined }, { emit: async () => undefined });
-    await svc.book(patient, { service_id: 'nt', provider_id: 'nurse-z', scheduled_at: when(), payment_method: 'card' });
+    await svc.book(patient, { service_id: 'nt', provider_id: 'nurse-z', scheduled_at: when(), payment_method: 'card', refund_policy_accepted: true });
     expect([listed, created[0].total]).toEqual([1200, 1200]);
   });
 });
@@ -252,10 +252,10 @@ describe('nursing: nurse A registered 150, nurse B 120; the catalogue says 100',
   it('the booking is charged the nurse\'s price (150 / 120 x sessions), not the catalogue 100', async () => {
     await seed();
     const { svc, created } = service();
-    await svc.book(patient, { service_id: 'nur-1', provider_id: 'nurse-a', scheduled_at: when(), payment_method: 'card' });
+    await svc.book(patient, { service_id: 'nur-1', provider_id: 'nurse-a', scheduled_at: when(), payment_method: 'card', refund_policy_accepted: true });
     expect(created[0].total).toBe(150);
     const b = service();
-    await b.svc.book({ ...patient, id: 'p2' }, { service_id: 'nur-1', provider_id: 'nurse-b', scheduled_at: when(), payment_method: 'card', sessions_count: 2 });
+    await b.svc.book({ ...patient, id: 'p2' }, { service_id: 'nur-1', provider_id: 'nurse-b', scheduled_at: when(), payment_method: 'card', refund_policy_accepted: true, sessions_count: 2 });
     expect(b.created[0].total).toBe(240);
   });
 
@@ -263,7 +263,7 @@ describe('nursing: nurse A registered 150, nurse B 120; the catalogue says 100',
     await seed();
     await col('provider_profiles').updateOne({ account_id: 'nurse-a' }, { $set: { nursing_services: [{ key: 'nur-1' }] } });
     const { svc, created } = service();
-    await svc.book(patient, { service_id: 'nur-1', provider_id: 'nurse-a', scheduled_at: when(), payment_method: 'card' });
+    await svc.book(patient, { service_id: 'nur-1', provider_id: 'nurse-a', scheduled_at: when(), payment_method: 'card', refund_policy_accepted: true });
     expect(created[0].total).toBe(100);
   });
 });
