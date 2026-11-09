@@ -1,3 +1,9 @@
+## 02:20 UTC 2026-11-09 — check 02:17: #2510 merged; no open PR, no open order
+Status: idle, reviewing
+PR: none open. Merged since the last report: #2510 (family_member_id backend, 02:08). Earlier today: #2508.
+What changed: nothing pushed. Inbox unchanged since 00:45; all three orders are done.
+Left / blockers / questions: unchanged: (1) lane X: for_member_id vs family_member_id on consultations; (2) ordering broadcast paths carry no member yet, say if wanted; (3) test-database backfill dry-run counts; (4) next order.
+
 ## 01:50 UTC 2026-11-09 — check 01:47: #2508 merged, #2510 fully green
 Status: waiting for merge
 PR: #2508 merged (01:38). #2510 (CI: green, all 7 workflows incl. Live gate and Backend build and tests; no conflict) ready to merge.
