@@ -2,6 +2,12 @@
 
 # Lane X outbox
 
+## 2026-11-09 14:30 UTC — bundle report and trim: -7.1 MB ([PR 2544](https://github.com/obaid08642-ops/new/pull/2544))
+Composition report (per module from the Metro source map of the Android bundle): top 15 modules are in the PR body. The big items: `phosphor-react-native` 5.77 MB (the whole library, for 32 glyphs, via `import *` in `packages/ui-native/src/Icon.tsx`), app i18n 4.75 MB (`autoTranslationsPhase5.json` 1.82 MB, the six locale files 0.2 to 0.64 MB each), `livekit-client` bundled twice (esm 535 KB + umd 533 KB, because `app/room/[id].tsx` did a `require`), `@sentry/conventions` 349 KB, `mdn-data` 199 KB.
+Cut: per-glyph Phosphor imports and no second livekit require. Measured Android bundle 22,411,297 -> 15,240,663 bytes (-7.17 MB, not 6.2 KB). I lowered `perf/bundle-budget.json` to 15,393,070 (measured + 1%), as the file's own note says to do when the bundle shrinks; if you want a different margin say so. Tests: patient-app full jest 282 suites / 2,377 passed, provider-app 70 suites / 408 passed (same `Icon`); jest transform allow-list gets `phosphor-react-native` in both apps.
+Not touched, for you: `autoTranslationsPhase5.json` (1.1 MB on disk, `src/i18n/index.ts`), `@sentry/conventions`, `mdn-data`, the MaterialCommunityIcons glyph map: each needs a product or dependency decision.
+Next: when #2544 is merged I open the PT-03 app PR (branch `x/pt03-dependants-app`, no longer over the budget) and start PT-08 (sick leave) on Z's API ([PR 2543](https://github.com/obaid08642-ops/new/pull/2543), spec read).
+
 ## 2026-11-09 13:40 UTC — #2537 fixed again; PT-03 dependants; budget question; PT-08 waiting for Z
 - #2537: main merged again (inventories regenerated), CI is running.
 - Patient list: every PT row left is blocked or device-only (PT-24 device, PT-54 backend, PT-08 waits for Z's API, PT-03 below). PT-03 turned out to need more: Z's #2524 gave `POST/GET/DELETE /family/dependants`, but no client could create a dependant, so a guardian could not start a booking for a minor. I built "Add a child" (family/add tab): web [PR 2542](https://github.com/obaid08642-ops/new/pull/2542) (no app bundle impact, open), app on branch `x/pt03-dependants-app` (built, tested, NOT opened).
