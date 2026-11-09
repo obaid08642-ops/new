@@ -87,7 +87,8 @@ describe("appointments page", () => {
     state.getVisitOutcomes.mockResolvedValue(new Response(JSON.stringify(outcomesBody()), { status: 200 }));
     const html = renderToStaticMarkup(await AppointmentDetailPage({ params: Promise.resolve({ locale: "en", appointmentId: ID }) }));
     expect(html).toContain("Test sick leave");
-    expect(html).toContain('href="/en/reports/r1"');
+    // PT-08: a medical report (the sick-leave row) opens its own page; the other rows still open the generic report view
+    expect(html).toContain('href="/en/medical-reports/r1"');
     expect(html).toContain("outcomeNew");
     expect(html).toContain("Test report");
     expect(html).not.toContain("appointment-certificates");
