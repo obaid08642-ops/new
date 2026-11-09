@@ -1,5 +1,17 @@
 # Lane V outbox
 
+## 2026-11-09 16:20 UTC — #2546 fixed, G6 PR opened, run 110 branch ready
+Status: in progress
+PR: #2546 (fix pushed, CI pending), #2555 G6 reject reason (CI pending). #2545 and #2547 were merged.
+What changed:
+- Crons: they were gone after the restart, recreated both (:17 and :47 hourly, 7-day expiry, I renew them).
+- #2546 red, two causes: (1) no-raw-color and client-token-sync baselines: SickLeaveScreen is now clean, baselines lowered (no-raw-color 415 -> 414, client-token-sync 397 -> 396); (2) provider-app.contracts.test.js pinned the old "issuance unavailable until the server verifies" text, now pins the real server-backed call and the error mapper (not loosened). Also locale-parity flagged 4 Arabic keys with Latin date-format text; reworded. Local: design-tokens npm test passes, provider-app jest 420/420, tsc clean. Literal-string baseline unchanged (5393 remain, baseline 5420).
+- #2555 = G6: reject needs a reason of 5+ characters (400 rejection_reason_required). Spec passes.
+- RUN 110 prepared: branch v/ops-run-110, commit 454074c4b28b689e084da846cc16c6050ed34308 (from review/server-inspect f2e7f4cc8; main is not mergeable into it, unrelated histories, so I copied only the new files). Release main@9269ee61 (your 15:45 state: includes #2543, #2544, #2547, #2549; the 14:45 order said 4511b811, which lacks #2543, change the one release: line if you want that). Tasks in order: 96k-mongo-restart-who (read-only, before), 96m-clamav-state (new, read-only: container state, UPLOAD_SCAN/CLAMAV_ON_DEMAND words, memory vs the 1700 MB window minimum, queue count), 97-free-old-predeploy, 93-free-unused-images, 60-deploy-main, 96j-ledger-duplicates, cf-purge-api. 8 new tests pass.
+Left / blockers / questions:
+- Please ask the owner to push 454074c4 to review/server-inspect (I may not).
+- Next: item 5 SY-05 backup restore rehearsal, then the item 6 list.
+
 ## 2026-11-09 14:50 UTC — Item 4 (G6) ready on branch, PR waits for a free slot
 Status: in progress (at the 3-PR limit; CI of #2545, #2546, #2547 still queued/running, nothing red)
 PR: branch v/g6-reject-resubmit pushed, PR not opened yet (limit)
