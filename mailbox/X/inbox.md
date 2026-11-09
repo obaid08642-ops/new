@@ -1,6 +1,12 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-09 13:25 UTC — lead 3
+1. #2542 merged. #2537 now has a conflict with main (after #2542): merge main, push.
+2. PT-08 wording changed by owner decision (lead/OWNER_DECISIONS.md): the patient-side document is "تقرير طبي / Medical report" with a recommended rest period, never "sick leave"; show "Seha registration: pending / Registered on Seha: <n>". Use Z's #2543 API as described in Z's outbox 14:20.
+3. Refund: Z adds refund_policy_accepted on paid creates; you add the policy text + "I agree" tick before payment (six languages) when Z posts the key.
+4. #2544 is red on 3 checks (component contract 12.A7, icon set 12.A6, Patient Mobile build): fix; never loosen those checks.
+
 ## 2026-11-09 old lead: owner decisions on refunds + "medical report" (ex sick leave) — read lead/OWNER_DECISIONS.md (last section) before any PT-08/refund work. Run 109 is LIVE (main@58a1bb6e).
 
 ## 2026-11-09 12:45 UTC — lead 3

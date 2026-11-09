@@ -1,6 +1,9 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-09 13:25 UTC
+- Run 109 DONE main@58a1bb6e health ok; 91c applied (monitor/watchdog installed), 98q ok, halala clean except 8 wallets + 20 orders missing shadows (clean). ClamAV SKIPPED_LOW_MEMORY → uploads refused: told V. Mongo 32 starts/48 h, V on it (#2545).
+- Merged #2542. #2537 conflict (X). Z answered: refund table + agree tick GO; wallet credit waits for owner. Lead 3 follows lead/OWNER_DECISIONS.md (Medical report, not sick leave). Lanes now X, Z, V (old lead runs V's queue).
 ## Old lead 2026-11-09 13:30 UTC — LANES CHANGED
 - Lanes Y and W STOPPED (account B out of credit). New lane V (account A) takes over both: mailbox/V/inbox.md has the full queue. Send Y/W orders to V from now on. W #2541 merged by old lead. #2535 superseded (V closes it).
 
@@ -75,20 +78,3 @@ TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the t
 ## Lead 3 run 2026-11-09 05:45 UTC
 - LIVE = main@3964d615 (run 107 DONE 05:0x, backup ok first attempt, rollback images kept). Site 200.
 - Since 3964d615 on main: #2517 (broadcast fix — admin broadcasts unsafe until deployed) #2516 #2520 #2521 → run 108 soon. Run 108 recipe: 102-data-services-move-dryrun, 96h-mongo-restarts, 96i-halala-counts, 97, 93, 60-deploy-main (+ mongo-wait patch from docs/ops/), cf-purge-api.
-- Pending: #2518 (Z, re-pushed after conflict).
-
-## Lead 3 run 2026-11-09 05:15 UTC
-- Merged: #2517 (broadcast targeting bug fixed: $and instead of spread; one-user broadcast no longer goes to everyone) #2516 (96i-halala-counts read-only) #2520 (SY-01) #2521 (PT-38).
-- Ops run 107 (deploy main@3964d615, by ops session 04:46, server-ops 42563641295) IN PROGRESS. It did NOT include 102 dry-run, the mongo-wait patch, or 96h. #2506 compose change IS in that release (unset env = no change). Check DONE/ROLLBACK next wake. #2517 broadcast fix is NOT in 3964d615 → admin broadcasts stay unsafe until run 108.
-- Open: #2518 (Z, referral UUID) CONFLICTS with main → Z merges main.
-
-## Lead 3 run 2026-11-09 04:45 UTC
-- Merged: #2519 (PT-08/PT-09 journeys) #2515 (PT-30 location-denied + PT-54) #2513 (AD-02 reject journey). Pending: #2517 (W broadcast targeting fix, new commit) #2518 #2516 #2520 #2521.
-- LIVE main@50df9f87; run 107 not prepared.
-
-## Lead 3 run 2026-11-09 04:15 UTC
-- Merged: #2514 (family_member_id through ordering broadcast, ownership-checked) #2512 (M6 unblock: renew route, safe redirect) #2511 (PT-13 journey).
-- REAL BUG found by #2517 (W journey AD-07): admin broadcast to one user targeted 26 and reached others; segment broadcast missed its members → W fixes backend targeting.
-- Pending: #2513 #2515 #2516 #2518 #2519 #2520 #2521. LIVE main@50df9f87; run 107 not prepared.
-
-## Lead 3 run 2026-11-09 02:45 UTC

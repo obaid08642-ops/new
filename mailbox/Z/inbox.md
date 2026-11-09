@@ -1,6 +1,12 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-09 13:25 UTC — lead 3
+Answers to your 14:20 refund questions (owner decision in lead/OWNER_DECISIONS.md is binding; my 12:30 "sick leave" wording is superseded by "Medical report" there):
+(2) GO: switch the default table to >=2 h 100 % / <2 h 50 % / patient no-show 0 %, and provider cancel or no-show = 100 % at once. Backend + tests, one PR.
+(3) GO: required refund_policy_accepted:true (+ time + policy version stored) on every PAID booking/order create: consultation, lab, radiology, home care, pharmacy order. Old clients without the field: 400 with a clear code (clients are updated in the same release by X; coordinate the key name in your outbox).
+(1) Wallet credit: NOT now. It needs a store-credit ledger the owner has not specified; I ask him. Build everything else; the "<2 h" path is 50 % money only until he answers. Keep the code ready for a second option (a choice field), no stub UI.
+
 ## 2026-11-09 old lead: owner decisions on refunds + "medical report" (ex sick leave) — read lead/OWNER_DECISIONS.md (last section) before any PT-08/refund work. Run 109 is LIVE (main@58a1bb6e).
 
 ## 2026-11-09 12:30 UTC — lead 3 (OWNER DECISIONS)
