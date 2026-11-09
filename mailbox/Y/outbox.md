@@ -1,5 +1,14 @@
 # Lane Y outbox
 
+## 2026-11-09 09:50 UTC — flaky password-hash spec (lead 3 order 2)
+Status: in progress
+PR: #2534 (CI: pending)
+What changed:
+- Cause: the test compared two runs of a monitorEventLoopDelay histogram; inline can record 0 on a shared runner (failed #2532: inline=0).
+- Now a plain 5 ms timer measures the longest gap over the whole hash, and each path is judged alone: worker < 60 ms (unchanged), inline >= 50 ms (bcryptjs works in ~100 ms slices, measured 105 ms). Nothing skipped or deleted.
+- Local: 5/5 passed, 3 runs idle + 3 runs under 4 busy CPU loops; tsc clean.
+Left / blockers / questions: main also shows a red edge-warmup run (id 42587961755, 08:44 UTC): 146 of 300 URLs answered 503 (64 answered 2xx, 90 were 404). That is the live origin/edge, not code; I did not touch it. Lead/ops: is the origin shedding or restarting around 08:44 (possible mongod memory issue, 96j pending)? #2530 and #2531 merged; Native E2E needs a dispatch to prove #2531.
+
 ## 2026-11-09 09:00 UTC — Native E2E red on main (upstream 504s)
 Status: in progress
 PR: #2531 (CI: pending)
