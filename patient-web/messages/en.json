@@ -1867,6 +1867,7 @@
     "useMyLocation": "Use my current location",
     "locating": "Finding your location…",
     "locationSet": "The address location is set.",
+    "locateDenied": "Location access is blocked. Allow it in your browser settings, or enter the address by hand below.",
     "locateFailed": "We could not get your current location.",
     "building": "Building number",
     "floor": "Floor"
