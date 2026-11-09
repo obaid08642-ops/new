@@ -136,7 +136,7 @@ class Resp:
 
 
 # the routes a patient creates a booking or an order with (backend: every one asks for `refund_policy_accepted`, common/refund-policy-acceptance.ts)
-_TICK_PATHS = re.compile(r'^/(care/appointments|unified-bookings|labs/bookings|radiology/bookings|home-care/bookings|consultations/instant|ordering/(bookings|asap|photo-order)|patient/pharmacy/orders)/?$')
+_TICK_PATHS = re.compile(r'^/(care/appointments|unified-bookings|unified-bookings/(diagnostics/orders|nursing-broadcast|checkout-cart)|labs/bookings|radiology/bookings|home-care/bookings|nursing/bookings|cart/checkout|consultations/instant|ordering/(bookings|asap|photo-order)|patient/pharmacy/orders)/?$')
 
 
 class Client:

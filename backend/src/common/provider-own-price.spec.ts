@@ -110,13 +110,13 @@ describe('labs: lab A registered 95, lab B 130; the catalogue says 110', () => {
   it('the patient pays what the lab set: 95 at lab A, 130 at lab B', async () => {
     await seed();
     const { svc, created } = make();
-    await svc.book(patient, { items: [{ service_id: 'test-1' }], provider_account_id: 'lab-a', scheduled_at: when(), location_type: 'facility', payment_method: 'card' });
+    await svc.book(patient, { items: [{ service_id: 'test-1' }], provider_account_id: 'lab-a', scheduled_at: when(), location_type: 'facility', payment_method: 'card', refund_policy_accepted: true });
     expect(created[0].items[0].price).toBe(95);
     expect(created[0].total).toBe(95);
     created.length = 0;
-    await make().svc.book({ ...patient, id: 'p2' }, { items: [{ service_id: 'test-1' }], provider_account_id: 'lab-b', scheduled_at: when(), location_type: 'facility', payment_method: 'card' }).catch(() => undefined);
+    await make().svc.book({ ...patient, id: 'p2' }, { items: [{ service_id: 'test-1' }], provider_account_id: 'lab-b', scheduled_at: when(), location_type: 'facility', payment_method: 'card', refund_policy_accepted: true }).catch(() => undefined);
     const second = make();
-    await second.svc.book({ ...patient, id: 'p3' }, { items: [{ service_id: 'test-1' }], provider_account_id: 'lab-b', scheduled_at: when(), location_type: 'facility', payment_method: 'card' });
+    await second.svc.book({ ...patient, id: 'p3' }, { items: [{ service_id: 'test-1' }], provider_account_id: 'lab-b', scheduled_at: when(), location_type: 'facility', payment_method: 'card', refund_policy_accepted: true });
     expect(second.created[0].total).toBe(130);
   });
 
@@ -126,12 +126,12 @@ describe('labs: lab A registered 95, lab B 130; the catalogue says 110', () => {
     expect((await ownPrices(mongoose.connection.db as never, 'lab', ['lab-a'], [{ id: 'test-1', short_code: 'T1' }])).get('lab-a')?.get('test-1')).toBe(100);   // capability row beats registration
     await col('provider_service_offers').insertOne({ provider_account_id: 'lab-a', vertical: 'lab', service_id: 'test-1', offered: true, where: 'both', insurance: true, price: 88 });
     const { svc, created } = make();
-    await svc.book(patient, { items: [{ service_id: 'test-1' }], provider_account_id: 'lab-a', scheduled_at: when(), location_type: 'facility', payment_method: 'card' });
+    await svc.book(patient, { items: [{ service_id: 'test-1' }], provider_account_id: 'lab-a', scheduled_at: when(), location_type: 'facility', payment_method: 'card', refund_policy_accepted: true });
     expect(created[0].total).toBe(88);                                                                                                                                  // its own choice beats both
     await col('provider_service_offers').deleteMany({}); await col('provider_capabilities_lab').deleteMany({});
     await col('provider_profiles').updateOne({ account_id: 'lab-a' }, { $unset: { test_prices: '' } });
     const fallback = make();
-    await fallback.svc.book({ ...patient, id: 'p4' }, { items: [{ service_id: 'test-1' }], provider_account_id: 'lab-a', scheduled_at: when(), location_type: 'facility', payment_method: 'card' });
+    await fallback.svc.book({ ...patient, id: 'p4' }, { items: [{ service_id: 'test-1' }], provider_account_id: 'lab-a', scheduled_at: when(), location_type: 'facility', payment_method: 'card', refund_policy_accepted: true });
     expect(fallback.created[0].total).toBe(110);                                                                                                                        // no price anywhere: the catalogue
   });
 });
@@ -158,11 +158,11 @@ describe('radiology: centre A registered 210, centre B 190; the catalogue says 2
     const cmp = await svc.priceComparison('scan-1');
     expect(cmp.catalog_price).toBe(250);
     expect(cmp.offers.map((o: any) => [o.provider.id, o.price, o.insurance_covered])).toEqual([['rad-b', 190, false], ['rad-a', 210, true]]);
-    await svc.book(patient, { service_id: 'scan-1', provider_account_id: 'rad-a', scheduled_at: when(), payment_method: 'card' });
+    await svc.book(patient, { service_id: 'scan-1', provider_account_id: 'rad-a', scheduled_at: when(), payment_method: 'card', refund_policy_accepted: true });
     expect(created[0].total).toBe(210);
     expect(created[0].items[0].price).toBe(210);
     const b = make();
-    await b.svc.book({ ...patient, id: 'p2' }, { service_id: 'scan-1', provider_account_id: 'rad-b', scheduled_at: when(), payment_method: 'card' });
+    await b.svc.book({ ...patient, id: 'p2' }, { service_id: 'scan-1', provider_account_id: 'rad-b', scheduled_at: when(), payment_method: 'card', refund_policy_accepted: true });
     expect(b.created[0].total).toBe(190);
   });
 });
@@ -190,7 +190,7 @@ describe('radiology: contrast and a missing price', () => {
   });
   it('a booking with no positive price anywhere is refused, never booked at 0', async () => {
     await seedOne(0, {});
-    await expect(make().svc.book(patient, { service_id: 'scan-2', provider_account_id: 'rad-c', scheduled_at: when(), payment_method: 'card' })).rejects.toThrow('service_price_not_set');
+    await expect(make().svc.book(patient, { service_id: 'scan-2', provider_account_id: 'rad-c', scheduled_at: when(), payment_method: 'card', refund_policy_accepted: true })).rejects.toThrow('service_price_not_set');
   });
 });
 
@@ -202,7 +202,7 @@ describe('the price shown is the price charged, with only a registration price (
     const svc = new (LabsService as any)(LabModel, model, {}, ProfileModel, { emit: jest.fn() }, { emit: async () => undefined }, { announceCreated: async () => undefined }, {});
     const listed = (await svc.compatibleProviders(['lt'])).find((r: any) => r.id === 'lab-z').price;
     const cmp = (await svc.priceComparison('lt')).offers[0].price;
-    await svc.book(patient, { items: [{ service_id: 'lt' }], provider_account_id: 'lab-z', scheduled_at: when(), location_type: 'facility', payment_method: 'card' });
+    await svc.book(patient, { items: [{ service_id: 'lt' }], provider_account_id: 'lab-z', scheduled_at: when(), location_type: 'facility', payment_method: 'card', refund_policy_accepted: true });
     expect([listed, cmp, created[0].total, created[0].items[0].price]).toEqual([1200, 1200, 1200, 1200]);
   });
   it('radiology: "95,5" is listed and charged as 95.5', async () => {
@@ -212,7 +212,7 @@ describe('the price shown is the price charged, with only a registration price (
     const svc = new (RadiologyOpsService as any)(RadModel, model, {}, {}, {}, {}, ProfileModel, { announceCreated: async () => undefined }, { emit: jest.fn() });
     const listed = (await svc.compatibleProviders(['rt'])).find((r: any) => r.id === 'rad-z').price;
     const cmp = (await svc.priceComparison('rt')).offers[0].price;
-    await svc.book(patient, { service_id: 'rt', provider_account_id: 'rad-z', scheduled_at: when(), payment_method: 'card' });
+    await svc.book(patient, { service_id: 'rt', provider_account_id: 'rad-z', scheduled_at: when(), payment_method: 'card', refund_policy_accepted: true });
     expect([listed, cmp, created[0].total, created[0].items[0].price]).toEqual([95.5, 95.5, 95.5, 95.5]);
   });
   it('nursing: "١٬٢٠٠" is listed and charged as 1200', async () => {
