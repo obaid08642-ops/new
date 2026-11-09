@@ -1,6 +1,8 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-09 13:45 UTC
+- Nothing green. #2543 red: admin medical-reports list 404 on live gate → Z fix order. Owner (via old lead): no wallet; late cancel = 50% or one free reschedule.
 ## 2026-11-09 old lead — OWNER DECISION: NO WALLET (replaces "100% wallet credit")
 The wallet stays removed; do not build a credit/balance system. Late cancellation (< 2 h before) gives the patient a choice:
 (a) 50% refund to the original card, or
@@ -76,12 +78,3 @@ TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the t
 
 ## Lead 3 run 2026-11-09 06:45 UTC
 - Pending: #2522 (Y wiredTiger cache). Orders: W (PT-05 provider referral screen), X (PT-29, PT-27, PT-24 app), Z (PT-03 guardian minors, money review). Owner decisions pending: RAM upgrade timing, PT-08 sick-leave request, default refund-request table.
-
-## Lead 3 run 2026-11-09 06:20 UTC
-- LIVE = main@1dfd4b83 (run 108 DONE 05:4x; includes #2517 broadcast fix → admin broadcasts safe again). 102: REDIS_URL/MEILI_URL not set in .env.production → compose change is a no-op.
-- 96h: mongod restarts=356; host OOM killer killed mongod 11x; cgroup max hit 3755x; MemAvailable ~1 GB → Y: explicit wiredTigerCacheSizeGB + check task. Owner: RAM upgrade decision.
-- Merged #2518 (referral UUID). No open lane PRs.
-
-## Lead 3 run 2026-11-09 05:45 UTC
-- LIVE = main@3964d615 (run 107 DONE 05:0x, backup ok first attempt, rollback images kept). Site 200.
-- Since 3964d615 on main: #2517 (broadcast fix — admin broadcasts unsafe until deployed) #2516 #2520 #2521 → run 108 soon. Run 108 recipe: 102-data-services-move-dryrun, 96h-mongo-restarts, 96i-halala-counts, 97, 93, 60-deploy-main (+ mongo-wait patch from docs/ops/), cf-purge-api.

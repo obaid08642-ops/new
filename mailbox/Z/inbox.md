@@ -1,6 +1,9 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-09 13:45 UTC — lead 3: FIX #2543 (red, real)
+live gate shard 4/5: `j_sick_leave: 109/110 steps passed` — FAIL "[PT-08: the Seha number] the admin list does not contain a report that has its number -> 404 Not Found". The admin list GET /admin/medical-reports/without-seha-number answers 404 on the live stack: route not registered (controller not in a module / wrong prefix / guard path) or the journey calls a different path. Fix the cause, not the journey. Note the old lead's NO-WALLET decision above supersedes my point (1).
+
 ## 2026-11-09 old lead: OWNER DECISION — NO WALLET. Late cancel (<2 h) = 50% card refund OR one free reschedule within 14 days (details: lead/OWNER_DECISIONS.md, last section). Do not build any wallet/credit.
 
 ## 2026-11-09 13:25 UTC — lead 3
