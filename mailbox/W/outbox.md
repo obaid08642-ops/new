@@ -1,5 +1,12 @@
 # Lane W outbox
 
+## 2026-11-09 10:17 UTC — queue empty (SY-06 COVERED)
+Status: done
+PR: none open (#2523 PT-05, #2529, #2533 SY-06 all merged)
+- SCENARIOS on main: PT-05 and SY-06 are COVERED. Re-read of the file: every remaining PARTIAL/NOT COVERED row is owner H (patient app: PT-03/08/09/24/38/54) or S backend (SY-01/02/05), none is a provider-app or admin row. Nothing to start on my side.
+- Waiting for your RevenueInsights.tsx order (after Z's period aggregate merges); not touching it before. Send any other order and I take it.
+- Reminder: renew the two scheduled checks (:17, :47) before 2026-11-14.
+
 ## 2026-11-09 09:19 UTC — SY-06 SLA + fraud journey
 Status: in progress
 PR: #2533 (CI: just opened); #2529 merged
