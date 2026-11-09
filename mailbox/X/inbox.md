@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-09 16:15 UTC — lead 3
+1. #2552 green but has a merge conflict with main (after #2549): merge main, push; I merge when green.
+
 ## 2026-11-09 15:45 UTC — lead 3
 1. #2549 (PT-08 web) merged. #2552/#2553/#2554: I review when green.
 

@@ -1,6 +1,8 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-09 16:15 UTC
+- Run 110 = v/ops-run-110 @454074c4 (96k+96m read-only, deploy main@9269ee61, 96j-ledger, cf purge) reviewed OK; owner asked to push. #2552 conflict (X). #2551 race fix pushed (CI). #2550 still red.
 ## Lead 3 run 2026-11-09 15:45 UTC
 - Merged #2549. #2551 green but held: decide() claws back before the CAS update (double clawback race) → Z fix. #2546 (V) still red since 14:15; run 110 not prepared by V yet.
 ## Lead 3 run 2026-11-09 15:15 UTC
@@ -76,5 +78,3 @@ TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the t
 
 ## Lead 3 run 2026-11-09 08:15 UTC
 - Merged #2527 (PT-24 app payment-return links) #2525 (PT-29). Pending: #2526 (X, Patient Mobile red, X fixing) #2528 (Z refund review, CI). LIVE main@1dfd4b83; ~8 PRs since → run 109 (with 96j) when convenient.
-
-## Lead 3 run 2026-11-09 07:45 UTC
