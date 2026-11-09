@@ -1,0 +1,35 @@
+// Types for phosphorGlyphs.js: every glyph is the package's own `Icon` component type.
+import type { Icon } from 'phosphor-react-native';
+
+export declare const BellIcon: Icon;
+export declare const CalendarBlankIcon: Icon;
+export declare const CaretDownIcon: Icon;
+export declare const CaretLeftIcon: Icon;
+export declare const CaretRightIcon: Icon;
+export declare const CaretUpIcon: Icon;
+export declare const CheckCircleIcon: Icon;
+export declare const CheckIcon: Icon;
+export declare const ClockIcon: Icon;
+export declare const CreditCardIcon: Icon;
+export declare const DownloadSimpleIcon: Icon;
+export declare const EyeIcon: Icon;
+export declare const EyeSlashIcon: Icon;
+export declare const FunnelIcon: Icon;
+export declare const GearIcon: Icon;
+export declare const HeartIcon: Icon;
+export declare const HouseIcon: Icon;
+export declare const ListIcon: Icon;
+export declare const MagnifyingGlassIcon: Icon;
+export declare const MapPinIcon: Icon;
+export declare const MinusIcon: Icon;
+export declare const PhoneIcon: Icon;
+export declare const PlusIcon: Icon;
+export declare const ShoppingCartIcon: Icon;
+export declare const SignOutIcon: Icon;
+export declare const SlidersHorizontalIcon: Icon;
+export declare const StarIcon: Icon;
+export declare const TrashIcon: Icon;
+export declare const UserIcon: Icon;
+export declare const UsersThreeIcon: Icon;
+export declare const WarningIcon: Icon;
+export declare const XIcon: Icon;
