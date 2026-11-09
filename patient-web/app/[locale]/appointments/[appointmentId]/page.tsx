@@ -222,7 +222,7 @@ export default async function AppointmentDetailPage({ params }: Props) {
                   ].filter(Boolean).join(" · ");
                   return (
                     <li key={row.id}>
-                      <Link href={`/${locale}/reports/${encodeURIComponent(row.id)}`}>{title}</Link>
+                      <Link href={`/${locale}/${row.kind === "sick_leave" ? "medical-reports" : "reports"}/${encodeURIComponent(row.id)}`}>{title}</Link>
                       {detail ? ` · ${detail}` : ""}
                       {row.isNew ? <>{" "}<StatusChip label={c("outcomeNew")} tone="blue" /></> : null}
                     </li>

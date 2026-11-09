@@ -243,6 +243,13 @@ describe("the booking screen", () => {
     expect(html).not.toContain("booking_failed");
   });
 
+  it("PT-08: the booking offers a medical report request, worded as a request and never as sick leave", () => {
+    const html = render(<BookingFlow doctorId="doc-1" locale="en" doctor={{ id: "doc-1", name: "Doctor One", specialty: "Cardiology", price: 150, online: true, clinic: true, home: false, acceptsInsurance: false }} />);
+    expect(html).toContain("I need a medical report with a recommended rest period");
+    expect(html).toContain("A request to the doctor, who decides. It is not a guarantee.");
+    expect(html.replace("Official sick leave is issued through Seha.", "")).not.toMatch(/sick leave/i);
+  });
+
   it("shows the cancellation and refund terms before the payment card when the page passes them (decision 26)", () => {
     const html = render(<BookingFlow doctorId="doc-1" locale="en" doctor={null} policy={{ title: "Cancellation and refund policy", lines: ["24 hours or more before: 100% refund"] }} />);
     expect(html).toContain("Cancellation and refund policy");
