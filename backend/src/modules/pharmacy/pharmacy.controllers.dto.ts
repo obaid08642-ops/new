@@ -46,6 +46,12 @@ export class ManualRequestDto {
 }
 
 export class CreateDto {
+  /** Owner decision 1: the family member this is FOR (the caller stays the booker and payer); checked server-side, see common/family-member.ts. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(128)
+  family_member_id?: string;
+
   @IsOptional()
   @IsArray()
   items: any[];

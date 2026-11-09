@@ -1,3 +1,4 @@
+import { resolveFamilyMemberId } from '../../common/family-member';
 import { flattenResultEntries } from './lab-booking-results';
 import { withholdLegacyBeforeAcceptance } from '../provider-jobs/provider-job-privacy';
 import { assertPaymentMethod } from '../../common/payment-policy';
@@ -305,6 +306,8 @@ export class LabsService {
   async book(user: any, data: any) {
     if (!Array.isArray(data.items) || !data.items.length) throw new BadRequestException('items required');
     if (!data.scheduled_at) throw new BadRequestException('scheduled_at required');
+    // owner decision 1: a booking for a family member (the caller stays the booker; checked to be the caller's own member)
+    const familyMemberId = await resolveFamilyMemberId(this.bkgModel.db, user.id, data.family_member_id);
     const services = await this.svcModel.find({ id: { $in: data.items.map((x: any) => x.service_id) } });
     if (!services.length) throw new BadRequestException('no_valid_services');
     const paymentMethod = ['cash', 'card', 'insurance'].includes(data.payment_method) ? data.payment_method : 'cash';
@@ -369,6 +372,7 @@ export class LabsService {
     const insurance_status = paymentMethod === 'insurance' ? 'pending' : 'none';
     const booking = await this.bkgModel.create({
       patient_id: user.id,
+      ...(familyMemberId ? { family_member_id: familyMemberId } : {}),
       patient_name: data.contact?.name || user.full_name,
       patient_phone: data.contact?.phone || user.phone,
       items,
@@ -422,13 +426,15 @@ export class LabsService {
     provider_account_id: string; mode: 'home' | 'facility'; items: Array<{ service_id: string; name_ar?: string; name_en?: string; price: number; coverage?: string }>;
     home_fee: number; scheduled_at: Date; asap: boolean; payment_method: 'cash' | 'card' | 'insurance'; awaiting_approval: boolean;
     address?: { lat?: number; lng?: number }; order_group_id: string; quote_id: string; medical_order_id?: string;
-    gender_preference?: string; documents?: any[]; notes?: string; patient_name?: string;
+    gender_preference?: string; documents?: any[]; notes?: string; patient_name?: string; family_member_id?: string;
   }) {
+    const familyMemberId = await resolveFamilyMemberId(this.bkgModel.db, user.id, input.family_member_id);
     const total = Math.round((input.items.reduce((s, i) => s + i.price, 0) + (input.mode === 'home' ? input.home_fee : 0)) * 100) / 100;
     const state = input.awaiting_approval ? LabBookingState.PENDING_INSURANCE : LabBookingState.NEW_REQUEST;
     const now = new Date();
     const booking = await this.bkgModel.create({
       patient_id: user.id,
+      ...(familyMemberId ? { family_member_id: familyMemberId } : {}),
       patient_name: input.patient_name || user.full_name,
       patient_phone: user.phone,
       items: input.items,

@@ -126,6 +126,8 @@ export class RadiologyBooking extends Document {
   @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
   @Prop({ unique: true, default: () => trackingId(TRACK_PREFIX.radiology_booking) }) tracking_id: string;
   @Prop({ required: true, index: true }) patient_id: string;
+  /** Owner decision 1: the family member this is for; the booker (patient_id) is unchanged. Absent = for the booker. */
+  @Prop({ type: String, required: false, index: true }) family_member_id?: string;
   @Prop() patient_name?: string;
   @Prop() patient_phone?: string;
   @Prop({ default: [] }) items: any[]; // [{service_id, name_ar, name_en, modality, body_part, price}]

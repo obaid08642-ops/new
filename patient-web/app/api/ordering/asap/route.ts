@@ -12,6 +12,7 @@ const schema = z.object({
   lat: z.number().min(-90).max(90),
   lng: z.number().min(-180).max(180),
   payer: z.enum(["cash", "insurance"]),
+  family_member_id: z.string().regex(/^[A-Za-z0-9_-]{8,64}$/).optional(),
 });
 
 /** POST /ordering/asap: starts the staged ASAP broadcast for the signed-in patient. */

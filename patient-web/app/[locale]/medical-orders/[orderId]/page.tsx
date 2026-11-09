@@ -15,7 +15,7 @@ import { pickText } from "@/components-next/diagnostics/diag-parts";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 import styles from "@/components-next/medical-orders/medical-orders.module.css";
 
-type Props = { params: Promise<{ locale: string; orderId: string }>; searchParams?: Promise<{ error?: string }> };
+type Props = { params: Promise<{ locale: string; orderId: string }>; searchParams?: Promise<{ error?: string; renew?: string }> };
 const ID = /^[A-Za-z0-9-]{8,64}$/;
 const GROUPS: OrderGroupKey[] = ["labs", "radiology", "nursing", "prescription"];
 
@@ -57,6 +57,10 @@ export default async function MedicalOrderPage({ params, searchParams }: Props) 
         {order.expires_soon ? <Notice warn>{t("expiresSoon")}</Notice> : null}
       </Hero>
       {order.expired ? <Notice warn>{t("expiredNote")}</Notice> : null}
+      {query.renew === "sent" ? <Notice>{t("renewSent")}</Notice> : query.renew === "error" ? <Notice warn>{t("renewError")}</Notice> : null}
+      {(order.expired || order.expires_soon) && query.renew !== "sent" ? (
+        <OrderFormButton action={`/api/medical-orders/${encodeURIComponent(order.id)}/renew`} fields={{}} label={t("renewAction")} next={self} />
+      ) : null}
       {query.error === "1" ? <Notice warn>{t("orderError")}</Notice> : null}
       {order.notes ? (
         <SectionCard id="medical-order-note" title={t("doctorNote")}>

@@ -639,7 +639,11 @@ export class FraudService {
 // RefundExecutor — real refund execution (EPIC S4) + negative balance (S9)
 // ═══════════════════════════════════════════════════════════════════════════
 interface RefundExecuteOpts { refund_id: string; booking_kind: string; booking_id: string; patient_id: string; amount: number; reason: string; actor_id: string }
-interface RefundReservation { refund_id: string; booking_id: string; halalas: number; takenOver?: boolean }
+interface RefundReservation {
+  refund_id: string; booking_id: string; halalas: number; takenOver?: boolean;
+  /** Set on a taken-over reservation from what the crashed execution recorded: the gateway's refund id, and the payment's refunded total (SAR) it expected once this refund was applied. */
+  gateway_refund_id?: string; expected_refunded_after?: number;
+}
 interface RefundCtx { reservation: RefundReservation | null; committed: boolean }
 
 @Injectable()
@@ -653,6 +657,55 @@ export class RefundExecutor {
     @Optional() private readonly moduleRef?: ModuleRef,
     @Optional() private readonly durable?: DurableEventsService,
   ) {}
+
+  /** What the gateway says was refunded on a Moyasar payment so far, in halalas; null when it cannot be read (no id, no key, a timeout, an error, an unreadable answer). */
+  private async gatewayRefundedHalalas(paymentId: string | undefined): Promise<number | null> {
+    if (!paymentId || String(paymentId).startsWith('sandbox_')) return null;
+    try {
+      const resp = await timedFetch(`${moyasarBase()}/payments/${paymentId}`, {
+        method: 'GET',
+        headers: { Authorization: `Basic ${Buffer.from(`${this.moyasarKey()}:`).toString('base64')}` },
+      }, { label: 'finance.refund.lookup', timeoutCode: 'refund_gateway_timeout' });
+      if (!resp.ok) return null;
+      const data: any = await resp.json().catch(() => ({}));
+      const n = Number(data?.refunded);
+      return Number.isSafeInteger(n) && n >= 0 ? n : null;
+    } catch { return null; }
+  }
+
+  /**
+   * Double-refund guard for a TAKEN-OVER reservation (an earlier execution of this refund id crashed and left `reserved` behind).
+   * The gateway call has no idempotency key, so before it is made again we must know whether the first execution already made it:
+   *  - 'applied': the payment row already shows the refunded total this refund was going to produce (the crashed run got as far as updating it);
+   *  - 'gateway_only': the gateway already refunded this amount on top of what we had recorded, but the local row was not updated;
+   *  - 'proceed': the gateway shows nothing more than we recorded, so the first run never reached it and the call is made now.
+   * If the gateway cannot be asked, the answer is not guessed: the takeover is refused (409) and an operator retries after checking the payment.
+   * An execution that is not a takeover is always 'proceed' and costs nothing extra.
+   */
+  private async takeoverState(ctx: RefundCtx, gatewayPaymentId: string | undefined, localRefundedSar: number, amountSar: number): Promise<'proceed' | 'applied' | 'gateway_only'> {
+    const r = ctx.reservation;
+    if (!r?.takenOver) return 'proceed';
+    if (typeof r.expected_refunded_after === 'number' && localRefundedSar >= r.expected_refunded_after - 0.001) return 'applied';
+    const gateway = await this.gatewayRefundedHalalas(gatewayPaymentId);
+    if (gateway === null) {
+      this.logger.error(`refund ${r.refund_id}: takeover refused, the gateway refund status of ${gatewayPaymentId || 'the payment'} cannot be read`);
+      throw new ConflictException('refund_gateway_status_unknown: check the payment at the gateway before retrying');
+    }
+    return gateway >= toHalalas(localRefundedSar) + toHalalas(amountSar) ? 'gateway_only' : 'proceed';
+  }
+
+  /** Written BEFORE the gateway call: the payment's refunded total once this refund is applied (what a takeover compares with). Refuses to go on if it cannot be written. */
+  private async recordExpectedAfter(ctx: RefundCtx, expected: number): Promise<void> {
+    if (!ctx.reservation) return;
+    await this.reservations.updateOne({ refund_id: ctx.reservation.refund_id } as any, { $set: { expected_refunded_after: expected } });
+  }
+
+  /** Written as soon as the gateway returned its refund id, for audit and for a takeover. The money has moved: a failure here is logged, never thrown. */
+  private async recordGatewayRefundId(ctx: RefundCtx, gatewayRefundId: string | undefined): Promise<void> {
+    if (!ctx.reservation || !gatewayRefundId) return;
+    await this.reservations.updateOne({ refund_id: ctx.reservation.refund_id } as any, { $set: { gateway_refund_id: gatewayRefundId } })
+      .catch((e: any) => this.logger.error(`refund ${ctx.reservation?.refund_id}: gateway refund id ${gatewayRefundId} not recorded on the reservation: ${e?.message}`));
+  }
 
   private moyasarKey(): string {
     const k = process.env.MOYASAR_SECRET_KEY || process.env.MOYASAR_SECRET || process.env.MOYASAR_API_KEY || '';
@@ -710,7 +763,7 @@ export class RefundExecutor {
       // a crashed execution leaves 'reserved' behind: after 10 minutes another one may take it over (its amount is already counted in the total)
       const took = await this.reservations.findOneAndUpdate({ refund_id: refundId, state: 'reserved', createdAt: { $lt: new Date(Date.now() - RefundExecutor.RESERVATION_STALE_MS) } } as any, { $set: { createdAt: new Date() } });
       if (!took) throw new ConflictException('refund_in_progress');
-      return { ...reservation, takenOver: true };
+      return { ...reservation, takenOver: true, gateway_refund_id: row?.gateway_refund_id, expected_refunded_after: row?.expected_refunded_after };
     }
     await this.refundTotals.updateOne({ booking_id: bookingId } as any, { $setOnInsert: { booking_id: bookingId, refunded_halalas: toHalalas(alreadyRefunded), createdAt: new Date() } }, { upsert: true }).catch((e: any) => { if (e?.code !== 11000) throw e; });
     const room = toHalalas(paidTotal) - reservation.halalas;
@@ -824,27 +877,40 @@ export class RefundExecutor {
 
     // 1) Gateway refund (real money back to the card)
     if (paidPayment && paidPayment.moyasar_id && !String(paidPayment.moyasar_id).startsWith('sandbox_')) {
-      const key = this.moyasarKey();
-      // Sent once (no idempotency key, so a repeat could refund twice). On a timeout the refund is NOT recorded here:
-      // the gateway may or may not have done it, so the 504 tells the operator to check the payment's status first
-      // (syncPaymentStatus reads `refunded` from Moyasar) before asking again.
-      const resp = await timedFetch(`${moyasarBase()}/payments/${paidPayment.moyasar_id}/refund`, {
-        method: 'POST',
-        headers: { Authorization: `Basic ${Buffer.from(`${key}:`).toString('base64')}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: toHalalas(amount), reason: opts.reason?.slice(0, 255) || 'refund' }),
-      }, { label: 'finance.refund', timeoutCode: 'refund_gateway_timeout' });
-      const data: any = await resp.json().catch(() => ({}));
-      if (!resp.ok) {
-        this.logger.error(`Moyasar refund failed for ${paidPayment.moyasar_id}: ${data?.message || resp.status}`);
-        throw new BadRequestException(`gateway_refund_failed: ${data?.message || resp.status}`);
-      }
-      method = 'gateway';
-      gatewayRefundId = data?.id;
       const newRefunded = round2(Number(paidPayment.refunded_amount || 0) + amount);
-      await this.conn.collection('moyasar_payments').updateOne(
-        { _id: paidPayment._id } as any,
-        { $set: { refunded_amount: newRefunded, ...shadowFields({ refunded_amount: newRefunded }, ['refunded_amount']), status: newRefunded >= Number(paidPayment.amount || 0) - 0.001 ? 'refunded' : 'paid', refunded_at: new Date() } },
-      );
+      // a taken-over reservation first finds out whether the crashed run already refunded at the gateway (see takeoverState)
+      const state = await this.takeoverState(ctx, paidPayment.moyasar_id, Number(paidPayment.refunded_amount || 0), amount);
+      if (state === 'applied') {
+        method = 'gateway';
+        gatewayRefundId = ctx.reservation?.gateway_refund_id;
+      } else {
+        if (state === 'proceed') {
+          await this.recordExpectedAfter(ctx, newRefunded);
+          const key = this.moyasarKey();
+          // Sent once (no idempotency key). On a timeout the refund is NOT recorded here: the gateway may or may not have done it. A retry of this
+          // refund id after the reservation goes stale first asks the gateway what it has refunded (takeoverState) instead of sending it again.
+          const resp = await timedFetch(`${moyasarBase()}/payments/${paidPayment.moyasar_id}/refund`, {
+            method: 'POST',
+            headers: { Authorization: `Basic ${Buffer.from(`${key}:`).toString('base64')}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: toHalalas(amount), reason: opts.reason?.slice(0, 255) || 'refund' }),
+          }, { label: 'finance.refund', timeoutCode: 'refund_gateway_timeout' });
+          const data: any = await resp.json().catch(() => ({}));
+          if (!resp.ok) {
+            this.logger.error(`Moyasar refund failed for ${paidPayment.moyasar_id}: ${data?.message || resp.status}`);
+            throw new BadRequestException(`gateway_refund_failed: ${data?.message || resp.status}`);
+          }
+          gatewayRefundId = data?.id;
+          await this.recordGatewayRefundId(ctx, gatewayRefundId);
+        } else {
+          this.logger.warn(`refund ${opts.refund_id}: the gateway already refunded ${amount} on ${paidPayment.moyasar_id}; not sent again, the local payment row is brought up to date`);
+          gatewayRefundId = ctx.reservation?.gateway_refund_id ?? 'recovered_from_gateway';
+        }
+        method = 'gateway';
+        await this.conn.collection('moyasar_payments').updateOne(
+          { _id: paidPayment._id } as any,
+          { $set: { refunded_amount: newRefunded, ...shadowFields({ refunded_amount: newRefunded }, ['refunded_amount']), status: newRefunded >= Number(paidPayment.amount || 0) - 0.001 ? 'refunded' : 'paid', refunded_at: new Date() } },
+        );
+      }
     }
     // 1b) A card payment kept in `transactions` (the current checkout, copays included) goes back
     // to the card through the gateway; before this it only got a ledger row.
@@ -854,9 +920,21 @@ export class RefundExecutor {
       const { PaymentsService } = await import('../payments/payments.module');
       const payments: any = this.moduleRef?.get(PaymentsService, { strict: false });
       if (!payments) throw new BadRequestException('payment_gateway_not_configured');
-      const r = await payments.refundTransactionAsSystem(String(paidTransaction.id), amount, opts.reason);
-      method = 'gateway';
-      gatewayRefundId = r?.gateway_refund_id;
+      const txGatewayId = paidTransaction.gateway === 'moyasar' ? (paidTransaction.gateway_charge_id || paidTransaction.gateway_intent_id) : undefined;
+      const state = await this.takeoverState(ctx, txGatewayId, Number(paidTransaction.refunded_amount || 0), amount);
+      if (state === 'applied') {
+        method = 'gateway';
+        gatewayRefundId = ctx.reservation?.gateway_refund_id;
+      } else {
+        if (state === 'proceed') await this.recordExpectedAfter(ctx, round2(Number(paidTransaction.refunded_amount || 0) + amount));
+        // 'gateway_only': the gateway already refunded it, so only the local transaction is brought up to date (no second gateway call)
+        const r = state === 'gateway_only'
+          ? await payments.refundTransactionAsSystem(String(paidTransaction.id), amount, opts.reason, { skipGateway: true })
+          : await payments.refundTransactionAsSystem(String(paidTransaction.id), amount, opts.reason);
+        method = 'gateway';
+        gatewayRefundId = r?.gateway_refund_id ?? (state === 'gateway_only' ? (ctx.reservation?.gateway_refund_id ?? 'recovered_from_gateway') : undefined);
+        await this.recordGatewayRefundId(ctx, r?.gateway_refund_id);
+      }
     }
     // 2) Cash: the money never entered the platform — record the refund in the
     // ledger only. No patient wallet is created, credited, or read here.

@@ -41,6 +41,8 @@ export type BookingRequest = {
   payment_method: "cash" | "card" | "insurance";
   gender_preference?: "female" | "male";
   medical_order_id?: string;
+  /** another family member (the patient is the default and is not sent) */
+  family_member_id?: string;
   documents?: Array<{ kind: "doctor_request" | "preauth"; url_or_b64: string; filename?: string }>;
   notes?: string;
 };
@@ -56,7 +58,7 @@ export async function postRadiologyBooking(body: import("./radiology").Radiology
   return call("/api/ordering/radiology-bookings", { method: "POST", body: JSON.stringify(body) });
 }
 
-export type AsapRequest = { service_kind: "lab" | "radiology" | "nursing"; items: string[]; lat: number; lng: number; payer: "cash" | "insurance" };
+export type AsapRequest = { service_kind: "lab" | "radiology" | "nursing"; items: string[]; lat: number; lng: number; payer: "cash" | "insurance"; family_member_id?: string };
 
 async function asapCall(url: string, init?: RequestInit): Promise<Asap> {
   const a = parseAsap(await call(url, init));

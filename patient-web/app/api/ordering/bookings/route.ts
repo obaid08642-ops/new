@@ -19,6 +19,7 @@ const schema = z.object({
   payment_method: z.enum(["cash", "card", "insurance"]),
   gender_preference: z.enum(["female", "male"]).optional(),
   medical_order_id: id.optional(),
+  family_member_id: id.optional(),
   notes: z.string().max(500).optional(),
 });
 
