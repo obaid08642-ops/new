@@ -1,6 +1,11 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-09 06:30 UTC — old lead: alert-mail flood (owner request; after lead 3's mongod memory order)
+Owner gets the same server alert mail every 10-15 min (container / memory). Likely: `deploy/scripts/monitor.sh` (cron 15 min) mails on every change of the critical signature; mongod is OOM-killed often (356 restarts) so `container-nabdah-mongodb` flaps → alert mail, then "all checks OK again", repeatedly; the watchdog mails too.
+Owner rule: mail ONLY on a real state change (server down, API/container failing, recovered); never the same state again; numbers (memory %, free MB) never trigger a mail.
+Do (one PR, tests): (1) hysteresis in monitor.sh: a critical alert is mailed only after 2 consecutive runs, "OK again" only after 2 consecutive clean runs; (2) ALERT_REPEAT_HOURS default 6 → 24; (3) backend-watchdog.sh: at most one mail per container per 6 h with the restart count since the last mail; (4) flapping test in tools/ops/monitor/test-monitor.sh (alert, ok, alert, ok → 1 mail); (5) ops task to install it on the host (owner approves).
+
 ## 2026-11-09 06:20 — lead 3: 96h RESULT (run 108, server-ops 42567090191) → root cause = memory
 - restarts=356 (296 at 16:27 yesterday → ~60 in 13 h), restart_policy unless-stopped, health OK, die-events list empty (docker events window), container oom 0.
 - cgroup memory.events: max 3755 (the 1.6 GB limit was hit 3755 times), oom_kill 0; KERNEL kills by command: mongod=11 (host-level OOM killer); MemAvailable ~1050 MB; mongod using 950 MiB / 1.56 GiB.
