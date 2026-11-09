@@ -94,6 +94,9 @@ export function mapWebSegments(parts: readonly string[]): string | null {
       return '/services';
     case 'orders':
       return '/orders';
+    // The gateway's return address (PT-24): the result screen reads `ref`/`id` from the query (kept by the link mapping) and asks the server
+    case 'payments':
+      return a === 'result' ? '/payments/result' : null;
     // The provider map (the home screen's map tile opens the same screen)
     case 'map':
       return '/map';
