@@ -67,16 +67,16 @@ describe('broadcast for a family member', () => {
 
   it('photo order: an own member is stored on the broadcast and used for the insurance policy', async () => {
     const { svc, ordering, inserted } = build();
-    await svc.startPhoto({ id: 'u1' }, { service_kind: 'lab', upload_id: 'up1', lat: 24, lng: 46, payer: 'insurance', family_member_id: 'fm-1' });
+    await svc.startPhoto({ id: 'u1' }, { service_kind: 'lab', upload_id: 'up1', lat: 24, lng: 46, payer: 'insurance', family_member_id: 'fm-1', refund_policy_accepted: true });
     expect(inserted[0].family_member_id).toBe('fm-1');
     expect(ordering.policyOf).toHaveBeenCalledWith('u1', 'insurance', 'fm-1');
   });
 
   it('asap order: another user\'s member is a 404 and nothing is stored; no member = no field', async () => {
     const { svc, inserted } = build();
-    await expect(svc.startAsap({ id: 'u1' }, { service_kind: 'lab', items: ['a'], lat: 24, lng: 46, payer: 'cash', family_member_id: 'fm-2' })).rejects.toBeInstanceOf(NotFoundException);
+    await expect(svc.startAsap({ id: 'u1' }, { service_kind: 'lab', items: ['a'], lat: 24, lng: 46, payer: 'cash', family_member_id: 'fm-2', refund_policy_accepted: true })).rejects.toBeInstanceOf(NotFoundException);
     expect(inserted).toHaveLength(0);
-    await svc.startAsap({ id: 'u1' }, { service_kind: 'lab', items: ['a'], lat: 24, lng: 46, payer: 'cash' });
+    await svc.startAsap({ id: 'u1' }, { service_kind: 'lab', items: ['a'], lat: 24, lng: 46, payer: 'cash', refund_policy_accepted: true });
     expect(inserted[0]).not.toHaveProperty('family_member_id');
   });
 

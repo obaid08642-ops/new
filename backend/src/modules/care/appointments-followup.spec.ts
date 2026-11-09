@@ -57,7 +57,7 @@ describe('AppointmentsService follow_up_of validation', () => {
 
     await expect(service.create(
       { id: 'pat-1', role: UserRole.PATIENT, full_name: 'Patient' },
-      { doctor_id: 'doc-1', service_type: 'clinic', slot_start: FUTURE, follow_up_of: 'appt-original' }
+      { doctor_id: 'doc-1', service_type: 'clinic', slot_start: FUTURE, follow_up_of: 'appt-original', refund_policy_accepted: true }
     )).rejects.toThrow(NotFoundException);
   });
 
@@ -71,7 +71,7 @@ describe('AppointmentsService follow_up_of validation', () => {
 
     await expect(service.create(
       { id: 'pat-1', role: UserRole.PATIENT, full_name: 'Patient' },
-      { doctor_id: 'doc-1', service_type: 'clinic', slot_start: FUTURE, follow_up_of: 'appt-original' }
+      { doctor_id: 'doc-1', service_type: 'clinic', slot_start: FUTURE, follow_up_of: 'appt-original', refund_policy_accepted: true }
     )).rejects.toThrow(ForbiddenException);
   });
 
@@ -85,7 +85,7 @@ describe('AppointmentsService follow_up_of validation', () => {
 
     await expect(service.create(
       { id: 'pat-1', role: UserRole.PATIENT, full_name: 'Patient' },
-      { doctor_id: 'doc-1', service_type: 'clinic', slot_start: FUTURE, follow_up_of: 'appt-original' }
+      { doctor_id: 'doc-1', service_type: 'clinic', slot_start: FUTURE, follow_up_of: 'appt-original', refund_policy_accepted: true }
     )).rejects.toThrow(ForbiddenException);
   });
 
@@ -99,7 +99,7 @@ describe('AppointmentsService follow_up_of validation', () => {
 
     await expect(service.create(
       { id: 'pat-1', role: UserRole.PATIENT, full_name: 'Patient' },
-      { doctor_id: 'doc-1', service_type: 'clinic', slot_start: FUTURE, follow_up_of: 'appt-original' }
+      { doctor_id: 'doc-1', service_type: 'clinic', slot_start: FUTURE, follow_up_of: 'appt-original', refund_policy_accepted: true }
     )).rejects.toThrow(BadRequestException);
   });
 
@@ -118,7 +118,7 @@ describe('AppointmentsService follow_up_of validation', () => {
 
     await service.create(
       { id: 'pat-1', role: UserRole.PATIENT, full_name: 'Patient' },
-      { doctor_id: 'doc-1', service_type: 'clinic', slot_start: FUTURE, follow_up_of: 'appt-original' }
+      { doctor_id: 'doc-1', service_type: 'clinic', slot_start: FUTURE, follow_up_of: 'appt-original', refund_policy_accepted: true }
     );
 
     expect(apptModel.create).toHaveBeenCalledWith(expect.objectContaining({ follow_up_of: 'appt-original' }));

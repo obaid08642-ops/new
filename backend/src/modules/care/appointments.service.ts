@@ -1,3 +1,4 @@
+import { refundPolicyAcceptance } from '../../common/refund-policy-acceptance';
 import { ProviderNoShowService } from '../provider-no-show/provider-no-show.service';
 import { resolveFamilyMemberId } from '../../common/family-member';
 import { buildFollowUpActions } from './follow-up-actions';
@@ -123,6 +124,7 @@ export class AppointmentsService {
     insurance_provider?: string;
     insurance_member_id?: string;
     for_member_id?: string; // family booking on behalf of a member
+    refund_policy_accepted?: boolean; // the patient ticked "I agree" to the refund policy shown before payment
     sick_leave_requested?: boolean; // PT-08: a request for a sick leave with this consultation
     family_member_id?: string; // owner decision 1: the family member this visit is FOR (the caller stays the patient who books and pays)
     slot_lock_id?: string; // optional 10-min hold from POST /slot-locks/reserve (consumed on success, released on failure)
@@ -131,8 +133,10 @@ export class AppointmentsService {
     if (!body?.doctor_id || !body?.service_type || !body?.slot_start) {
       throw new BadRequestException('doctor_id, service_type, slot_start required');
     }
-    // Issue 955: the admin kill switch for remote consultations refuses new video/voice bookings before anything is held.
+    // Issue 955: the admin kill switch for remote consultations refuses new video/voice bookings before anything is held (a switched-off service answers its own code, not the tick's).
     if (isOnlineConsultation({ service_type: body.service_type })) await this.killSwitches?.assertOn('online_consultations');
+    // owner decision 2026-11-09: the refund policy is agreed before anything is held or booked
+    const policyAcceptance = refundPolicyAcceptance(user, body.refund_policy_accepted);
     // On-behalf family booking: patient becomes the member, booker is audited
     let patientId: string = user.id;
     let bookedBy: string | undefined;
@@ -246,6 +250,7 @@ export class AppointmentsService {
       const appt = await this.apptModel.create({
         patient_id: patientId,
         booked_by_user_id: bookedBy,
+        ...(policyAcceptance ? { refund_policy_acceptance: policyAcceptance } : {}),
         ...(body.sick_leave_requested === true ? { sick_leave_requested: true } : {}),
         ...(familyMemberId ? { family_member_id: familyMemberId } : {}),
         doctor_id: doctor.id,
@@ -924,6 +929,7 @@ export class AppointmentsService {
       transportation_fee: (appt as any).transportation_fee || 0,
       total_price: (appt as any).total_price || appt.price,
       rescheduled_from_id: appt.id,
+      ...((appt as any).refund_policy_acceptance ? { refund_policy_acceptance: (appt as any).refund_policy_acceptance } : {}),   // the policy agreed at booking continues
       state_history: [{ state: APPT_STATES.CONFIRMED, at: new Date(), by_user_id: user.id, by_role: user.role, note: 'rescheduled-from-' + appt.id }],
     });
     try {

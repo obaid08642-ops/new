@@ -135,6 +135,10 @@ class Resp:
         return []
 
 
+# the routes a patient creates a booking or an order with (backend: every one asks for `refund_policy_accepted`, common/refund-policy-acceptance.ts)
+_TICK_PATHS = re.compile(r'^/(care/appointments|unified-bookings|unified-bookings/(diagnostics/orders|nursing-broadcast|checkout-cart)|labs/bookings|radiology/bookings|home-care/bookings|nursing/bookings|cart/checkout|consultations/instant|ordering/(bookings|asap|photo-order)|patient/pharmacy/orders)/?$')
+
+
 class Client:
     def __init__(self, token=None, label='anon', admin=False):
         self.token, self.label = token, label
@@ -142,6 +146,10 @@ class Client:
         self.is_admin = admin or 'admin' in str(label or '')
 
     def req(self, method, path, body=None, headers=None, idem=True):
+        # Owner decision 2026-11-09: every patient create of a booking or an order carries the refund-policy tick. The journeys play an updated client: the field is added unless the
+        # journey set it itself (a journey that wants the refusal sends `refund_policy_accepted: None` or False).
+        if method == 'POST' and isinstance(body, dict) and 'refund_policy_accepted' not in body and _TICK_PATHS.match(re.sub(r'^https?://[^/]+', '', path).split('?')[0].replace('/api/v1', '', 1)):
+            body = {**body, 'refund_policy_accepted': True}
         url = path if path.startswith('http') else BASE + path
         h = {'accept': 'application/json'}
         if body is not None:

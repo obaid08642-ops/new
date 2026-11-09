@@ -8,6 +8,8 @@ import { ConsultScreen, Gate, InfoRow, ResultHero, Section, Sheet, useConsultFor
 import { DayStrip, DoctorHead, SlotGrid, slotsEmptyKey, useDays } from '../../src/components/consult/ConsultBooking';
 import { AmountLine, Block, PlaceRow } from '../../src/components/diagnostics/DiagKit';
 import { Notice } from '../../src/components/pharmacy/OfferKit';
+import { RefundPolicyTick } from '../../src/components/legal/RefundPolicyTick';
+import { withRefundPolicy } from '../../src/utils/refundAcceptance';
 import { HomeVisitTerms } from '../../src/components/nursing/HomeVisitTerms';
 import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
@@ -54,6 +56,8 @@ export default function NursingMegaProfile() {
   const [insuranceData, setInsuranceData] = useState<Rec | null>(null);
   const [status, setStatus] = useState<GateStatus>('loading');
   const [processing, setProcessing] = useState(false);
+  // the refund policy is shown before the booking and agreed here (the backend refuses a booking without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
   const [insuranceSent, setInsuranceSent] = useState<string | boolean>(false);
   // Journey 6: a booking created whose payment did not start. The next tap retries the payment for THIS booking
   // (never a second booking), and the patient is never sent to tracking while it is unpaid.
@@ -252,7 +256,7 @@ export default function NursingMegaProfile() {
         payment_method: flow === 'insurance' ? 'insurance' : 'card',
       };
       // POST /nursing/bookings is the patient booking contract (P6-D): the legacy /home-care/bookings path never existed server-side.
-      const res = await apiFetch<Rec>('/nursing/bookings', { method: 'POST', body: JSON.stringify(payload) });
+      const res = await apiFetch<Rec>('/nursing/bookings', { method: 'POST', body: JSON.stringify(withRefundPolicy(payload)) });
       const bookingId = res?.id || res?.booking_id;
       if (flow === 'insurance') {
         setInsuranceSent(bookingId ? String(bookingId) : true);
@@ -325,7 +329,7 @@ export default function NursingMegaProfile() {
         size="lg"
         fullWidth
         loading={processing}
-        disabled={processing || !selectedTime}
+        disabled={processing || !selectedTime || !refundAgreed}
         label={flow === 'insurance' ? k('nur.book.sendInsurance') : priced ? k('nur.book.confirmPrice', { amount: money(quote!.total), currency: k('pharmacy.currency') }) : k('nur.book.confirm')}
         onPress={() => void handleSubmit()}
       />
@@ -390,6 +394,7 @@ export default function NursingMegaProfile() {
           )}
           {/* journeys 66 (decision 26): the cancellation terms are shown before payment */}
           <HomeVisitTerms />
+          <RefundPolicyTick checked={refundAgreed} onChange={setRefundAgreed} />
         </Section>
       </Gate>
 

@@ -153,10 +153,10 @@ describe('Gate P3 live: the accepted fields are stored, not dropped', () => {
     const services: any = { findOne: () => ({ lean: async () => ({ id: 's1', name_ar: 'تمريض', price: 100 }) }) };
     const conn: any = { collection: () => ({ findOne: async (q: any) => (q.user_id.$eq === 'p1' ? { addresses: [{ id: 'a1', line1: 'شارع', city: 'الرياض', lat: 24.7, lng: 46.6 }] } : null) }) };
     const c = new (HomeCareCompatController as any)(bookings, services, {} as any, {} as any, undefined, conn);
-    await c.createBooking({ id: 'p1', role: 'patient' }, { service_id: 's1', scheduled_at: '2027-01-01T10:00:00Z', address_id: 'a1', notes: ' الدور 2 ' } as any);
+    await c.createBooking({ id: 'p1', role: 'patient' }, { service_id: 's1', scheduled_at: '2027-01-01T10:00:00Z', address_id: 'a1', notes: ' الدور 2 ', refund_policy_accepted: true } as any);
     expect(created.address).toMatchObject({ address: 'شارع', city: 'الرياض', lat: 24.7 });
     expect(created.notes).toBe('الدور 2');
-    await expect(c.createBooking({ id: 'p2', role: 'patient' }, { service_id: 's1', scheduled_at: '2027-01-01T10:00:00Z', address_id: 'a1' } as any)).rejects.toThrow('address_not_found');
+    await expect(c.createBooking({ id: 'p2', role: 'patient' }, { service_id: 's1', scheduled_at: '2027-01-01T10:00:00Z', address_id: 'a1', refund_policy_accepted: true } as any)).rejects.toThrow('address_not_found');
   });
 });
 

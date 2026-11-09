@@ -81,6 +81,8 @@ def book_paid(pat, doctor, slot_index=0):
     step('appointment created', r.ok and aid, r)
     if not aid:
         return None
+    acc = (pat.get(f'/care/appointments/{aid}').get('refund_policy_acceptance') or {})
+    step('the refund policy the patient agreed to is stored on the booking (the tick, its time, the policy version)', acc.get('accepted') is True and acc.get('at') and acc.get('version') == '2026-11-09', acc)
     r2 = pat.post('/care/appointments', body, headers={'Idempotency-Key': f'appointment-create-{did}-{slot}-{uuid.uuid4()}'})
     step('the same slot cannot be booked twice', not r2.ok, r2)
     r = pat.get(f'/payments/consultation/{aid}/capabilities')

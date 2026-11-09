@@ -1,3 +1,4 @@
+import { refundPolicyAcceptance } from '../../common/refund-policy-acceptance';
 import { readQuoteVatRate } from '../../common/quote';
 import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { homeCollectionFee } from '../../common/provider-home-fees';
@@ -372,6 +373,8 @@ export class OrderingService implements OnModuleInit {
   // ---------- booking ----------
 
   async book(user: any, dto: CreateOrderingBookingDto) {
+    // owner decision 2026-11-09: the refund policy is agreed before any booking is made from the quote
+    const policyAcceptance = refundPolicyAcceptance(user, dto.refund_policy_accepted);
     const quote: any = await this.conn.collection(QUOTES).findOne({ id: dto.quote_id, patient_id: user.id });
     if (!quote) throw new NotFoundException('quote_not_found');
     const now = new Date();
@@ -440,7 +443,7 @@ export class OrderingService implements OnModuleInit {
           home_fee: snap.home_fee, scheduled_at: scheduled[i].at, asap: scheduled[i].asap, payment_method: dto.payment_method, awaiting_approval: awaiting,
           address: g.mode === 'home' ? { lat: quote.context.lat, lng: quote.context.lng } : undefined,
           order_group_id: groupId, quote_id: quote.id, medical_order_id: order?.id, gender_preference: dto.gender_preference,
-          documents: dto.documents, notes: dto.notes, family_member_id: quote.family_member_id ?? undefined,
+          documents: dto.documents, notes: dto.notes, family_member_id: quote.family_member_id ?? undefined, refund_policy_acceptance: policyAcceptance,
         });
         created.push({
           id: b.id, mode: g.mode, status: awaiting ? 'awaiting_approval' : 'pending', provider_id: sel.provider_id,
