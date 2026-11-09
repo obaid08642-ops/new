@@ -1,3 +1,9 @@
+## 09:10 UTC 2026-11-09 — check 08:47: #2528 merged; settlement review found a wrong balance (#2532)
+Status: in progress (CI pending)
+PR: #2532 (CI: pending). #2528 merged (08:39).
+What changed: GET /provider/ops/wallet/ledger built its summary from the newest 200 rows of any type: escrow counted as earned, clawbacks/chargebacks ignored, history truncated, so the provider app's revenue screen (RevenueInsights.tsx:118,122) showed a balance that disagreed with the wallet and the payout request. The summary now comes from LedgerService.providerBalance (same keys, no client change); 3 tests.
+Left / blockers / questions: (1) client (lane W/X): RevenueInsights.tsx:46-58 still sums revenue and the 12-month trend from the same 200 rows and counts refunded earnings: needs a server-side period aggregate (not built). (2) creditEarning checks "already credited" by read-then-insert and no unique index on platformledgerentries (type, ref_type, ref_id) exists; two concurrent service.completed events could credit twice. A unique index needs a duplicate check on live data first: say if you want that as its own item (migration plan + test). Next: invoices review.
+
 ## 08:15 UTC 2026-11-09 — check 07:47: #2524 merged; refund review found two bugs (#2528)
 Status: in progress (CI pending)
 PR: #2528 (CI: pending) refund executor bookkeeping. #2524 merged (07:37).
