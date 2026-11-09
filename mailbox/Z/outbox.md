@@ -1,3 +1,10 @@
+## 16:40 UTC — #2550 second red (Backend build and tests) fixed
+Status: fix pushed, waiting for CI
+PR: #2550 (commit after 318f85f1)
+- The 15:45 fix worked (gate-p3-live, provider-own-price pass; live gate all green). Two more specs came in from main and failed: `newsletter-17-5` (a pharmacy order create) and `pharmacy-order-changes` (the 22.5 split).
+- Real gap, not only specs: `PharmacyOrderService.splitRemaining` (22.5, from main) creates a child order server-side and had no tick. Now the child stands on the parent's stored acceptance (copied with its own time and version, nothing invented). A parent from before the tick gets 400 `refund_policy_acceptance_required` until it carries one (nothing created, claim released; test added). Other specs call no create path without the flag (searched).
+- #2551: race fix pushed 16:05, CI pending. Open questions unchanged (REFUND_POLICY_VERSION source, 2-hour table for lab/radiology/nursing/pharmacy, national_id, free reschedule).
+
 ## 16:05 UTC — #2551 race fix (order 15:45) + answers noted
 Status: fix pushed, waiting for CI
 PR: #2551 (z/no-show-dispute)
