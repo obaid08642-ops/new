@@ -9,6 +9,11 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-09 05:15 UTC
+- Merged: #2517 (broadcast targeting bug fixed: $and instead of spread; one-user broadcast no longer goes to everyone) #2518 (referral accepts UUID ids) #2516 (96i-halala-counts read-only) #2520 (SY-01) #2521 (PT-38).
+- Ops run 107 (deploy main@3964d615, by ops session 04:46, server-ops 42563641295) IN PROGRESS. It did NOT include 102 dry-run, the mongo-wait patch, or 96h. #2506 compose change IS in that release (unset env = no change). Check DONE/ROLLBACK next wake. #2517 broadcast fix is NOT in 3964d615 → admin broadcasts stay unsafe until run 108.
+- No open lane PRs.
+
 ## Lead 3 run 2026-11-09 04:45 UTC
 - Merged: #2519 (PT-08/PT-09 journeys) #2515 (PT-30 location-denied + PT-54) #2513 (AD-02 reject journey). Pending: #2517 (W broadcast targeting fix, new commit) #2518 #2516 #2520 #2521.
 - LIVE main@50df9f87; run 107 not prepared.
