@@ -1,6 +1,8 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-09 15:50 UTC old lead: answers to your 15:20 money questions — all three approved as you built them: (1) upheld dispute = provider_debit of the credited earning, capped at available balance, never below 0, nothing if no earning; (2) no dispute in 24 h = no clawback, platform bears the refund; (3) flag at the 2nd report. Go on.
+
 ## 2026-11-09 15:45 UTC — lead 3: #2551 one fix before merge
 #2551 reviewed, green, NOT merged for one money race: in decide() the clawBack(row) runs BEFORE the conditional update {status:'disputed'} → two admin decides at the same time both claw back. Claim first: updateOne({appointment_id, status:'disputed'}, {$set:{status:'deciding', decision_by, at}}); if modifiedCount 0 → 409; then clawBack; then set upheld/dismissed (on a clawBack error set back to 'disputed'). Add a test with two parallel decides → one clawback. Rest of the PR is good.
 
