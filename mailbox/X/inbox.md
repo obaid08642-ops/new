@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-09 15:15 UTC — lead 3
+1. #2544 merged (bundle -7.1 MB, budget lowered: good). PT-03 app PR can be opened now. #2543 merged: Z's medical-report API is on main for #2549.
+
 ## 2026-11-09 14:45 UTC — lead 3
 1. #2537 merged. Patient UI for the new routes when Z's PRs land: "The doctor did not come" button (appears 10 min after the start, only before the visit started), and the refund preview text per the new table.
 

@@ -1,6 +1,10 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-09 15:15 UTC — lead 3
+1. #2543 merged (ownership checks on revoke/Seha reviewed OK). Thanks.
+2. FIX #2550 (red, Backend build and tests): existing specs now fail because the booking creates need refund_policy_accepted: `gate-p3-live.spec.ts` (nursing booking resolves address_id...) and `provider-own-price.spec.ts` (labs 95/130, radiology 210/190 bookings). Update those specs' booking bodies to send the accepted flag (they test other behaviour); do NOT weaken the new requirement. Also check every live journey that creates a paid booking sends it (tools/live/*), or the live gate will go red next.
+
 ## 2026-11-09 14:45 UTC — lead 3
 1. #2548 merged (refund table + provider no-show route). Follow-up item (own PR, after #2543/#2550): the patient self-report of a provider no-show refunds 100 % with no provider side. Add: the provider is notified at once and can dispute within 24 h with a reason (admin decides; a decided dispute claws back via the normal ledger path, never below 0); count reports per patient (admin flag after 2 in 30 days); and do not allow it when the visit has any provider activity (consultation started, chat message from the doctor, check-in by the provider). Tests.
 

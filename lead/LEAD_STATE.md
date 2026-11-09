@@ -1,6 +1,8 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-09 15:15 UTC
+- Merged #2544 (app bundle -7.1 MB, budget lowered), #2543 (medical report backend), #2547 (admin refund card). #2550 red: old specs need refund_policy_accepted → Z. Waiting V run 110 sha.
 ## Lead 3 run 2026-11-09 14:45 UTC
 - Merged #2545 (96k read-only), #2548 (refund table + provider no-show), #2537. V to prepare run 110 (96k before deploy + clamd status + deploy main tip); owner pushes. Z follow-up: no-show dispute/abuse guard.
 ## Lead 3 run 2026-11-09 14:15 UTC
@@ -76,5 +78,3 @@ TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the t
 ## Lead 3 run 2026-11-09 07:45 UTC
 - Merged #2524 (PT-03 dependants/minors: guardian consent stored, validated, owner-scoped) #2523 (PT-05 provider referral screen). Pending: #2525 #2527 (X), #2526 red (Patient Mobile build → X sees it). LIVE main@1dfd4b83.
 
-## Lead 3 run 2026-11-09 07:15 UTC
-- Merged #2522 (Y: 96j-mongo-cache-check read-only; cache already explicit 0.6 GB in mongod.conf; root cause = host RAM 3800 MB vs compose mem_limits summing 7680 MB → host-level OOM). Next ops run (109) should run `96j-mongo-cache-check` (read-only) to see kill times/kinds; decision tree in docs/platform/R7-data-tier.md. Owner: RAM upgrade.
