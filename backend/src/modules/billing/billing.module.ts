@@ -9,6 +9,7 @@
  * (already registered by their owning modules) — no re-registration here.
  */
 import { ensureInvoiceUniqueIndex } from './invoice-key';
+import { riyadhParts } from '../../common/riyadh-clock';
 import { halalaShadowPlugin } from '../../common/halala-shadow';
 import {
   Body, Delete, HttpException, HttpStatus, Req,
@@ -112,6 +113,9 @@ export function decodeTlv(base64: string): Record<number, string> {
   return out;
 }
 
+/** The year of a document number: the calendar year in Riyadh (the platform's calendar), not the server's. At 00:30 on 1 January in Riyadh the server (UTC) is still on 31 December. */
+export function invoiceYear(at: Date): number { return Number(riyadhParts(at).ymd.slice(0, 4)); }
+
 // ── Service ────────────────────────────────────────────────────────────────
 @Injectable()
 export class BillingService {
@@ -124,8 +128,8 @@ export class BillingService {
   private get invoices() { return this.conn.model('EInvoice'); }
 
   /** Tax invoices INV-<year>-<n>; receipts have their own series, RCT-<year>-<n>, so a receipt never takes an invoice number. */
-  private async nextInvoiceNo(kind: DocumentKind = 'tax_invoice'): Promise<string> {
-    const year = new Date().getFullYear();
+  private async nextInvoiceNo(kind: DocumentKind = 'tax_invoice', at: Date = new Date()): Promise<string> {
+    const year = invoiceYear(at);
     const prefix = kind === 'receipt' ? 'RCT' : 'INV';
     const counter = await this.conn.collection('counters').findOneAndUpdate(
       { _id: `${kind === 'receipt' ? 'receipt' : 'invoice'}-${year}` } as any,
@@ -440,7 +444,7 @@ export class BillingService {
       const issuedAt = new Date();
       const cfgSeller = original.seller_name && (docKind === 'receipt' || original.vat_number) ? null : await this.seller();
       const seller = { name: original.seller_name || cfgSeller?.name || null, vatNumber: docKind === 'tax_invoice' ? original.vat_number || cfgSeller?.vatNumber || null : null };
-      const year = issuedAt.getFullYear();
+      const year = invoiceYear(issuedAt);
       const counter: any = await this.conn.collection('counters').findOneAndUpdate({ _id: `${docKind === 'receipt' ? 'refundreceipt' : 'creditnote'}-${year}` } as any, { $inc: { seq: 1 } }, { upsert: true, returnDocument: 'after' });
       const seq = counter?.seq ?? counter?.value?.seq ?? 1;
       const doc = await this.invoices.create({
