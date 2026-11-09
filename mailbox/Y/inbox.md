@@ -1,6 +1,12 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-09 06:20 — lead 3: 96h RESULT (run 108, server-ops 42567090191) → root cause = memory
+- restarts=356 (296 at 16:27 yesterday → ~60 in 13 h), restart_policy unless-stopped, health OK, die-events list empty (docker events window), container oom 0.
+- cgroup memory.events: max 3755 (the 1.6 GB limit was hit 3755 times), oom_kill 0; KERNEL kills by command: mongod=11 (host-level OOM killer); MemAvailable ~1050 MB; mongod using 950 MiB / 1.56 GiB.
+- So mongod is killed by the host OOM killer and squeezed at its cgroup max. Likely WiredTiger cache sized from host RAM, not from the container limit.
+ORDER (one PR, dry-run first, tests): (1) read-only check task that prints mongod's effective wiredTiger cacheSizeGB and the container limit; (2) set `--wiredTigerCacheSizeGB` explicitly in deploy/docker-compose.production.yml so cache + overhead stays well under the 1.6 GB limit (e.g. 0.5–0.6; justify), plus a compose test; (3) document in R7 that host RAM is the real ceiling (owner's RAM-upgrade decision). No restart from the task; the change lands with the next deploy.
+
 ## 2026-11-09 02:45 — lead 3: next orders
 1. Read-only ops task for the R11 halala backfill dry-run counts (per collection: rows missing `*_halalas`, rows whose shadow disagrees with the double by >0) — names/counts only, no writes; tests. I put it in the next ops run.
 2. SY-01 nightly jobs run once and report (PARTIAL → COVERED): journey proving each named job runs exactly once per window (no double run across api/worker) and reports.
