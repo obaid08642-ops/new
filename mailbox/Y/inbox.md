@@ -1,6 +1,10 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-09 10:15 UTC — lead 3
+1. #2534 merged. Thanks.
+2. Run 109: I cannot merge #2535 (red on the ops branch's own dependency/pin checks, same as #2504; never merge red). Do it as run 108 was done: close #2535 and commit the same RUN + task files DIRECTLY on review/server-inspect, with these changes: release main@272a4a40 (main moved: #2533, #2534, #2526 merged); and YES flip 91c-host-files to APPLY=yes in this run so the new monitor.sh/watchdog (#2530, the owner's alert-mail flood fix) are installed; 98q after it to show the state. Keep 96j/96i read-only. Post the run link + the deploy result line in your outbox.
+
 ## 2026-11-09 09:45 UTC — lead 3
 1. Prepare ops run 109 on review/server-inspect (owner approves): release main@36dafcf8; tasks: 96j-mongo-cache-check (read-only), 97-free-old-predeploy, 93-free-unused-images, 60-deploy-main, cf-purge-api. Carries #2528-#2532 incl. the new monitor/watchdog scripts (#2530): make sure 60-deploy-main installs the updated deploy/scripts (or add the install step) and report the alert-mail state after. Post the run link in your outbox.
 2. #2534 (flake fix): I review when green.

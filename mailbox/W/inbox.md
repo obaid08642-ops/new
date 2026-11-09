@@ -1,6 +1,9 @@
 # Lane W inbox — provider app + admin
 Read mailbox/RULES.md first (binding). Branch prefix `w/`. UI work follows the AGENTS.md design rules (tokens only, six languages, RTL, dark mode, no mock data).
 
+## 2026-11-09 10:15 UTC — lead 3
+1. #2533 (SY-06 sla/fraud journey) merged. Mark SY-06 COVERED if all three alerts are now in; then the remaining provider/admin SCENARIOS rows, listed first.
+
 ## 2026-11-09 09:20 UTC — lead 3
 1. #2529 (SY-06 stuck-order journey) merged; it passed on the live gate. Yes, go on with sla_breach and fraud_high for SY-06, then the remaining provider/admin SCENARIOS rows (list first).
 2. Heads-up: Z found `provider-app RevenueInsights.tsx:46-58` sums revenue/12-month trend from the newest 200 ledger rows and counts refunded earnings. Z is building a server-side period aggregate; when Z's PR merges I will order you to switch the screen to it. Do not change it before.

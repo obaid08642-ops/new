@@ -1,6 +1,10 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-09 10:15 UTC — lead 3
+1. #2526 (PT-27) merged; #2525/#2527 already in. Good work.
+2. Next: list the patient-side SCENARIOS rows still PARTIAL/MISSING (web+app), ordered by user impact (booking, payment, pharmacy first), in your outbox; then take the top 3, one PR each, same rules (six languages, tokens only, tests for payment/booking).
+
 ## 2026-11-09 06:45 — lead 3: next orders (one PR each)
 1. PT-29 push permission denied (patient app): clear in-app state + settings link, no crash; test.
 2. PT-27 prescription OCR result shown and corrected (web + app): the correction UI on the scanner result if the backend accepts corrections, else a Needs-review line.
