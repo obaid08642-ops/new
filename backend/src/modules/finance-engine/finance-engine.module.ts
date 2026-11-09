@@ -256,6 +256,11 @@ export class CommissionResolver {
     return (res?.modifiedCount ?? res?.matchedCount ?? 0) > 0;
   }
 
+  /** Gives back an order a losing creditEarning had claimed (the earning was already credited by a parallel call): never below 0. */
+  async releasePromoOrder(promoId: string): Promise<void> {
+    await this.conn.collection(PROMO_COLLECTION).updateOne({ id: promoId, used_orders: { $gt: 0 } } as any, { $inc: { used_orders: -1 }, $set: { updatedAt: new Date() } } as any);
+  }
+
   /** Create a new rule version; supersedes older versions of the same scope. */
   async setRule(adminId: string, rule: {
     scope: 'service' | 'provider' | 'category' | 'campaign';
