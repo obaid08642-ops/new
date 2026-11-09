@@ -858,8 +858,11 @@ export class PharmacyOrderService {
       throw new ConflictException('split_in_progress');
     }
     try {
+      // The child stands on the parent's refund-policy tick (same order, same agreement: its time and version are copied, none is invented); a parent from before the tick needs it first.
+      const parentAcceptance = order.refund_policy_acceptance?.accepted === true ? order.refund_policy_acceptance : null;
       const byId = new Map<string, any>((order.items || []).map((it: any) => [it.id, it]));
       const child: any = await this.create(user, {
+        ...(parentAcceptance ? { refund_policy_accepted: true } : {}),
         items: remaining.map((r) => { const it = byId.get(r.order_item_id) || {}; return { ...it, qty: r.remaining, sku: it.matched_sku, intake_source: 'split' }; }),
         delivery_address: order.delivery_address,
         delivery_address_id: order.delivery_address_id,
@@ -870,7 +873,7 @@ export class PharmacyOrderService {
         prescription_id: order.prescription_id,
       });
       // the same prescription files travel with the lines; the prescription rules run again when the child is sent
-      await this.orders.updateOne({ id: child.id }, { $set: { parent_order_id: id, split_from_offer_id: order.selected_offer_id, prescription_attachments: order.prescription_attachments || [], ...(order.prescription_id ? { prescription_id: order.prescription_id } : {}) } });
+      await this.orders.updateOne({ id: child.id }, { $set: { parent_order_id: id, split_from_offer_id: order.selected_offer_id, prescription_attachments: order.prescription_attachments || [], ...(order.prescription_id ? { prescription_id: order.prescription_id } : {}), ...(parentAcceptance ? { refund_policy_acceptance: parentAcceptance } : {}) } });
       const now = new Date();
       await this.orders.updateOne({ id }, { $set: { split_child_order_id: child.id }, $push: { timeline: { ts: now, event: 'split_remaining_created', by: user.id, meta: { child_order_id: child.id, items: remaining.length } } } as any });
       this.bus.emit({
