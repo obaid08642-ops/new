@@ -1,3 +1,9 @@
+## 10:25 UTC 2026-11-09 — check 09:52: #2532 merged; double-credit item done (#2536)
+Status: in progress (CI pending)
+PR: #2536 (CI: pending) z/ledger-unique-earning. #2532 merged.
+What changed: (a) ops task tools/ops/tasks/96j-ledger-duplicates.sh (read-only, same safety as 96i; counts only: groups, extra_rows, unique_index present/absent) + 6 ops tests; (b) unique partial index provider_earning_ref_unique on (ref_type, ref_id) for provider_earning rows with string refs; the backend builds it once per process ONLY when the duplicate count is 0 (otherwise a warning, no index, nothing breaks), so it can never be applied before 0 duplicates; creditEarning treats the duplicate-key error as "already credited" (returns the first row, gives back a claimed limited-promotion order); (c) 8 unit tests + a real-MongoDB spec: ten parallel credits leave one row.
+Left / blockers / questions: ops: please run 96j-ledger-duplicates on live after the deploy; groups=0 means the index builds itself on the first credit; groups>0 needs finance (I can write the id-listing query). The Mongo spec has never run (no MongoDB in my sandbox): CI is its first run. Next: item 3, the server-side revenue-per-month aggregate (refunds netted), then invoices.
+
 ## 09:10 UTC 2026-11-09 — check 08:47: #2528 merged; settlement review found a wrong balance (#2532)
 Status: in progress (CI pending)
 PR: #2532 (CI: pending). #2528 merged (08:39).
