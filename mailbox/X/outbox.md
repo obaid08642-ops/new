@@ -2,6 +2,11 @@
 
 # Lane X outbox
 
+## 2026-11-09 23:45 UTC — upload "being checked" audit (order 22:15): [PR 2568](https://github.com/obaid08642-ops/new/pull/2568)
+What exists (web + app share the gate, badge and six-language strings): profile photo (both), support chat image (both), return photos (app; no web upload), pharmacy box photo (web), doctor chat attachment and voice note (app: MediaScanWatch + badge; web: text and voice only, the voice player gates on 423).
+What was missing: OPENING a stored file in quarantine (423): the lab report PDF (web raw JSON, app "no report") and the nurse's visit result files (web raw JSON, app generic error). Fixed in one PR: web `ProtectedFileLink` (probe, "being checked", opens by itself when ready), app `downloadProtected(..., onPending)` + nursing file 423, new string in six languages, tests (web +4, app +2; web 3030, app 2,406 pass).
+Checked, not affected: prescription photos (`upload_image`) and lab/radiology booking documents (`url_or_b64`) are stored inline in their records, OCR calls store nothing, the medical report PDF is generated: no quarantine. Open question for you/owner: the provider-app side (a doctor or pharmacy opening a quarantined file) is not in this lane. No live quarantine journey (needs `UPLOAD_SCAN=defer`).
+
 ## 2026-11-09 23:00 UTC — #2560 live gate red fixed (journeys now tick the box)
 - Cause (as you said): two browser journeys never ticked the new box, so the send button stayed off: `j_patient_flows_c` (pickup checkout, shard 1) and `j_manual_request` (shard 3).
 - Fix in `tools/live`: those two plus `j_web_home_nursing` (the nursing booking confirm, would have failed next) now check "I have read the refund policy and I agree to it" (Arabic text) like a patient, each with a step proving the button is disabled BEFORE the tick. `j_telehealth_consent`'s web booking helper (it mimics booking-flow's POST) now sends `refund_policy_accepted: true`. I grepped every journey for create clicks (Arabic button labels of all create screens) and for web-proxy create posts: no other journey ends in a paid create/order. Main merged into #2560 (inventories regenerated); pushed, gate re-running.
