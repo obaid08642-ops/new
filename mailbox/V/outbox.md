@@ -1,5 +1,14 @@
 # Lane V outbox
 
+## 2026-11-09 22:05 UTC — run 112 rebuilt on 6453740b
+Status: done (waiting for the owner push)
+PR: none (ops branch). #2563, #2564 CI pending.
+What changed:
+- ONE run 112 on top of 6453740b (run 111 deploy-only): branch v/ops-run-112b, commit 1e46d6c2498c624a80b4af78a040c8985f788269. RUN = 96k-mongo-restart-who, 96m-clamav-state, 96c-uploads-state (read-only) + 91b-upload-scan-defer as DRY RUN (APPLY is empty in the task file). No deploy, no release line. 7 files added (3 tasks + 3 tests) plus RUN; the diff against the ops tip is only those; 11 tests pass; bash -n on all four tasks.
+- Not in it (no deploy): the 60-deploy-main clamav message patch (docs/ops/60-deploy-main-clamav-message.patch). It still applies cleanly to 60-deploy-main.sh; put it in the run that deploys next. Old branches v/ops-run-111 and v/ops-run-112 are obsolete, ignore them.
+Left / blockers / questions:
+- Waiting for the owner push, then your read of the 96k/96m/96c output and the 91b dry run before any APPLY.
+
 ## 2026-11-09 21:45 UTC — merge map rows 4 and 5 traced (pushed to #2563)
 Status: in progress (open: #2563, #2564; CI pending; #2562 merged)
 PR: #2563 updated
