@@ -8,6 +8,7 @@ import { ConsultScreen, Section } from '../../src/components/consult/ConsultKit'
 import { AmountLine, Block, LAB_TONE, NameArt, Price, goBackDiag } from '../../src/components/diagnostics/DiagKit';
 import { Notice } from '../../src/components/pharmacy/OfferKit';
 import { useOrderDates } from '../../src/components/ordering/OrderingKit';
+import { RefundPolicyTick } from '../../src/components/legal/RefundPolicyTick';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { cartIdsToClear } from '../../src/utils/singleOrder';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
@@ -45,6 +46,8 @@ export default function DiagnosticsConfirm() {
   const [orderId, setOrderId] = useState<string | null>(null);
   const [docs, setDocs] = useState<BookingDocument[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  // the refund policy is shown before the booking and agreed here (the backend refuses a booking without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
   const [error, setError] = useState('');
   const [created, setCreated] = useState<CreatedGroup | null>(null);
   const [names, setNames] = useState<Record<string, string>>({});
@@ -119,7 +122,7 @@ export default function DiagnosticsConfirm() {
   }
 
   async function submit() {
-    if (!draft || lock.current || needsEvidence) return;
+    if (!draft || lock.current || needsEvidence || !refundAgreed) return;
     lock.current = true; // one request per tap sequence: no double submit, the quote itself is single-use on the server
     setSubmitting(true);
     setError('');
@@ -204,7 +207,7 @@ export default function DiagnosticsConfirm() {
         size="lg"
         fullWidth
         loading={submitting}
-        disabled={needsEvidence || submitting}
+        disabled={needsEvidence || !refundAgreed || submitting}
         label={needsEvidence ? k('ordering.pay.btnOff') : method === 'card' ? k('ordering.pay.btnContinue', { a: money(dueSum) }) : k('ordering.pay.btnConfirm')}
         onPress={() => void submit()}
       />
@@ -321,6 +324,8 @@ export default function DiagnosticsConfirm() {
           </View>
         </Section>
       ) : null}
+
+      <RefundPolicyTick checked={refundAgreed} onChange={setRefundAgreed} />
 
       {error ? <Notice tone="danger" text={error} /> : null}
     </ConsultScreen>

@@ -5,6 +5,7 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { Button, EmptyState, FIcon, Radio, Segmented } from '../../../packages/ui-native/src';
 import { ConsultScreen, Gate, Section } from '../../src/components/consult/ConsultKit';
 import { Block, LAB_TONE, goBackDiag } from '../../src/components/diagnostics/DiagKit';
+import { RefundPolicyTick } from '../../src/components/legal/RefundPolicyTick';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
 import { fetchPublicList } from '../../src/utils/publicCache';
@@ -37,6 +38,8 @@ export default function DiscussScreen() {
   const [draft, setDraft] = useState<Draft | null>(null);
   const [req, setReq] = useState<InstantRequest | null>(null);
   const [busy, setBusy] = useState(false);
+  // the refund policy is shown before the request is sent and agreed here (the backend refuses an instant consultation without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
   const [errorKey, setErrorKey] = useState('');
   const [now, setNow] = useState(Date.now());
   const reqId = useRef<string | null>(null);
@@ -67,13 +70,13 @@ export default function DiscussScreen() {
   }, [broadcasting]);
 
   async function start() {
-    if (busy || !slug || !bookingId) return;
+    if (busy || !slug || !bookingId || !refundAgreed) return;
     setBusy(true);
     setErrorKey('');
     try {
       const d = draft ?? (await openDraft(bookingId));
       setDraft(d);
-      const r = await startInstant({ specialty: slug, mode, ...(memberId ? { family_member_id: memberId } : {}) });
+      const r = await startInstant({ specialty: slug, mode, refund_policy_accepted: true, ...(memberId ? { family_member_id: memberId } : {}) });
       reqId.current = r.id;
       setReq(r);
       setNow(Date.now());
@@ -188,7 +191,8 @@ export default function DiscussScreen() {
         ) : null}
         {body(k('ordering.res.notChargedFirst'))}
         {problem}
-        <Button theme={theme} size="lg" fullWidth label={k('ordering.res.start')} loading={busy} disabled={!slug} onPress={() => void start()} testID="ordering-discuss-start" />
+        <RefundPolicyTick checked={refundAgreed} onChange={setRefundAgreed} />
+        <Button theme={theme} size="lg" fullWidth label={k('ordering.res.start')} loading={busy} disabled={!slug || !refundAgreed} onPress={() => void start()} testID="ordering-discuss-start" />
         <Button theme={theme} size="lg" fullWidth variant="outline" label={k('ordering.res.later')} onPress={goBackDiag} testID="ordering-discuss-later" />
       </>
     );

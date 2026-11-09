@@ -2,6 +2,7 @@ import { apiFetch, newIdempotencyKey } from './api';
 import { extractPatientPharmacyOrderId } from './pharmacy-draft';
 import { noAnswerYet } from './pharmacyCheckout';
 import { idemKey } from './pharmacyOffers';
+import { withRefundPolicy } from './refundAcceptance';
 
 /**
  * The one create-and-submit of a governed pharmacy order (POST /patient/pharmacy/orders, then POST .../:id/submit), used by the
@@ -41,7 +42,8 @@ export function createPharmacyOrderSender(keyPrefix: 'pharmacy-broadcast' | 'pha
         created = { body, orderId };
       }
       if (!orderId) {
-        const response = await apiFetch('/patient/pharmacy/orders', { method: 'POST', headers: { 'Idempotency-Key': pair.create }, body });
+        // every send is behind the refund policy tick of its screen (the backend refuses an order without the agreement)
+        const response = await apiFetch('/patient/pharmacy/orders', { method: 'POST', headers: { 'Idempotency-Key': pair.create }, body: JSON.stringify(withRefundPolicy(draft)) });
         orderId = extractPatientPharmacyOrderId(response);
         if (!orderId) throw new Error('governed_pharmacy_order_id_missing');
         created = { body, orderId };
