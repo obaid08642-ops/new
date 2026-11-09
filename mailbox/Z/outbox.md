@@ -1,3 +1,9 @@
+## 10:55 UTC 2026-11-09 — check 10:17: #2536 green; revenue aggregate done (#2538)
+Status: in progress (CI pending)
+PR: #2536 (CI: green except the live gate, still running; Backend build and tests passed incl. the real-MongoDB concurrency spec: ten parallel credits leave one row). #2538 (CI: pending) GET /provider/stats/revenue.
+What changed: #2538: revenue per Saudi calendar month (default 12, max 24, every month present), earned = provider_earning rows, refunded = refund clawbacks booked that month (cash basis), net = earned - refunded, whole halalas, provider roles only; 11 tests (one real-MongoDB). Lane W: replace the client-side sums in RevenueInsights.tsx with this call (details in the PR).
+Left / blockers / questions: the screen's "top services" list needs earnings by service type, which the ledger rows do not carry: say if W needs it. Ops: 96j-ledger-duplicates after #2536 is deployed. Next: invoices review.
+
 ## 10:25 UTC 2026-11-09 — check 09:52: #2532 merged; double-credit item done (#2536)
 Status: in progress (CI pending)
 PR: #2536 (CI: pending) z/ledger-unique-earning. #2532 merged.
