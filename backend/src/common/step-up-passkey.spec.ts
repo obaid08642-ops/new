@@ -59,4 +59,19 @@ describe('webauthn-config + step-up on the admin origin', () => {
     (verifyAuthenticationResponse as jest.Mock).mockRejectedValue(new Error('Unexpected authentication response origin'));
     await expect(svc.issueFromAssertion('u1', 'a', { id: 'c' })).rejects.toThrow(ForbiddenException);
   });
+
+  it('the credential lookup only takes a string id and matches it with $eq (no operator object reaches the query)', async () => {
+    const findOne = jest.fn(() => ({ lean: async () => ({ credential_id: 'cred-1', public_key: Buffer.from([1, 2]), counter: 0 }) }));
+    const model: any = { find: () => ({ lean: async () => [{ credential_id: 'cred-1' }] }), findOne, updateOne: jest.fn() };
+    const svc = new TestStepUp(model);
+    await svc.startAssertion('u1');
+    (verifyAuthenticationResponse as jest.Mock).mockResolvedValue({ verified: true, authenticationInfo: { newCounter: 1 } });
+    await svc.issueFromAssertion('u1', 'POST:/x', { id: 'cred-1' });
+    expect(findOne).toHaveBeenCalledWith({ user_id: { $eq: 'u1' }, credential_id: { $eq: 'cred-1' } });
+    findOne.mockClear();
+    for (const id of [{ $ne: '' }, { $gt: '' }, 5, undefined, '']) {
+      await expect(svc.issueFromAssertion('u1', 'POST:/x', { id })).rejects.toThrow(ForbiddenException);
+    }
+    expect(findOne).not.toHaveBeenCalled();
+  });
 });
