@@ -1,3 +1,10 @@
+## 15:45 UTC — FIX #2550 (Backend build and tests red)
+Status: fix pushed, waiting for CI
+PR: #2550 (commit 318f85f1, also merged main: conflicts were only keep-both lines for sick_leave_requested + refund_policy_accepted)
+- `gate-p3-live.spec.ts` (nursing booking, address_id) and `provider-own-price.spec.ts` (10 lab/radiology bookings) now send `refund_policy_accepted: true`; the requirement is untouched. gate-p3-live passes here (21); provider-own-price needs MongoMemoryServer (CI only), checked by reading: every lab/radiology book() body has the flag. A search over all specs calling a booking/order create found no other spec without the flag.
+- Live journeys: `tools/live/lib.py` already adds the tick on the main create routes; I found it missed `/nursing/bookings` (used by j_nursing, j_refund_matrix, j_provider_side_b, j_web_nursing_visits), `/cart/checkout` and the `/unified-bookings/{diagnostics/orders,nursing-broadcast,checkout-cart}` routes: added. (The live gate also still has the transitional `optional` switch.)
+- Also open: #2551 (provider no-show dispute) waiting for CI; my questions from the 15:20 entry unanswered.
+
 ## 15:20 UTC — provider no-show dispute (order 14:45)
 Status: PR open, waiting for CI
 PR: #2551 (z/no-show-dispute, from main)
