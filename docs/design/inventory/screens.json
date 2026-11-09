@@ -1,5 +1,5 @@
 {
- "commit": "4511b811",
+ "commit": "973f8cc1",
  "routes": [
   {
    "app": "patient-app",
@@ -595,7 +595,7 @@
      "path": "/care/appointments/:param",
      "target": "backend",
      "query": "",
-     "line": 72,
+     "line": 73,
      "file": "patient-app/app/consultations/appointment-detail.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:50"
@@ -619,6 +619,16 @@
      "file": "patient-app/src/hooks/useNewOutcomesCount.ts",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:45"
+    },
+    {
+     "method": "POST",
+     "path": "/care/appointments/:param/provider-no-show",
+     "target": "backend",
+     "query": "",
+     "line": 39,
+     "file": "patient-app/src/components/consult/ProviderNoShow.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/care/appointments.controller.ts:68"
     },
     {
      "method": "GET",
@@ -645,7 +655,7 @@
      "path": "/insurance/requests/my",
      "target": "backend",
      "query": "",
-     "line": 101,
+     "line": 102,
      "file": "patient-app/app/consultations/appointment-detail.tsx",
      "status": "OK",
      "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:899"
@@ -671,7 +681,7 @@
      "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:63"
     }
    ],
-   "files": 56,
+   "files": 59,
    "unresolved": 0
   },
   {

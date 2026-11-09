@@ -14,6 +14,7 @@ import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { statusIs } from '../../src/utils/statusCase';
+import { ProviderNoShow } from '../../src/components/consult/ProviderNoShow';
 import { ReceiptButton } from '../../src/components/billing/ReceiptButton';
 
 /**
@@ -119,6 +120,7 @@ export default function AppointmentDetailScreen() {
   const footer = a ? (
     <>
       {primary ? <Button label={primary.label} size="lg" fullWidth onPress={primary.onPress} theme={theme} testID="detail-primary" /> : null}
+      {a.id ? <ProviderNoShow appointmentId={String(a.id)} status={a.status} slotStart={(a as { slot_start?: string }).slot_start} onDone={() => void load()} /> : null}
       <Button label={k('consult.appt.editCancel')} variant="outline" size="md" fullWidth onPress={() => go('/consultations/cancel-reschedule')} theme={theme} testID="detail-cancel" />
     </>
   ) : undefined;
