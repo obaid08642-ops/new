@@ -9,6 +9,10 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-09 02:45 UTC
+- All lanes idle, main green, no open PRs. New orders: Z (family_member_id in ordering broadcast, PT-05/08/09), W (PT-13/PV-07, AD-02 reject, AD-07), X (m6-blocked rows, PT-54, PT-30), Y (R11 backfill dry-run counts task, SY-01, PT-38).
+- LIVE main@50df9f87; run 107 still not prepared.
+
 ## Lead 3 run 2026-11-09 02:15 UTC
 - Merged #2510 (family_member_id backend: ownership-checked, not-found on foreign ids, caller stays payer) and #2509 (client, regex-validated in BFF). Owner decision 1 done. No open lane PRs.
 - LIVE main@50df9f87; main has ~20 PRs since incl. refund takeover safety, payout lock, bcrypt workers. Run 107 still not prepared by the ops session (recipe: 00:15/22:45 entries).

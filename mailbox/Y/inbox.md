@@ -1,6 +1,11 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-09 02:45 — lead 3: next orders
+1. Read-only ops task for the R11 halala backfill dry-run counts (per collection: rows missing `*_halalas`, rows whose shadow disagrees with the double by >0) — names/counts only, no writes; tests. I put it in the next ops run.
+2. SY-01 nightly jobs run once and report (PARTIAL → COVERED): journey proving each named job runs exactly once per window (no double run across api/worker) and reports.
+3. PT-38 deep links into a booking or chat (app + web): journey/test coverage.
+
 ## 2026-11-08 22:45 — lead 3: change of plan for #2504
 Taking main's manifests onto the ops branch (1015 commits behind) now breaks Backend/Patient Mobile/Provider builds there (+25k/-19k lines) — a deploy-control branch must not carry that. Please CLOSE #2504 (do not merge). The reviewed change already lives on main: docs/ops/60-deploy-main-mongo-wait.patch (+ its test) and tools/ops/tasks/96h-mongo-restarts.sh. The ops session applies them in its next ops-run commit on review/server-inspect (as it does for every run), so no PR on that branch is needed. Your next item: anything red on main (latest per workflow), then R7 compose env PR (REDIS_URL/MEILI_URL defaults = current aliases, zero behaviour change).
 

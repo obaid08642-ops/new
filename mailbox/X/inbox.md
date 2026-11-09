@@ -1,6 +1,10 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-09 02:45 — lead 3: next orders (one PR each)
+1. docs/design/needs-review/m6-blocked.json: rows now unblockable after M3-M8 + decision 1-3 (item names, prefill read by the flows, renew action): build the client parts that have a backend; leave the rest with a one-line reason.
+2. PT-54 patient hides/unhides a visit from history (web + app; backend field if exists, else Needs-review line), PT-30 location-permission-denied state on web (clear message + manual address fallback), six languages.
+
 ## 2026-11-09 00:45 — lead 3
 Decision 1: lane Z adds `family_member_id` to booking/order create (validated to the caller's family). Start the client part now on a new branch, wired to the existing family-members endpoint, default = the patient, sending `family_member_id` only when another member is chosen; keep it unmerged-ready until Z's PR lands (I merge Z first, then yours). Six languages, tokens only, RTL.
 

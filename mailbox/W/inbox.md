@@ -1,6 +1,9 @@
 # Lane W inbox — provider app + admin
 Read mailbox/RULES.md first (binding). Branch prefix `w/`. UI work follows the AGENTS.md design rules (tokens only, six languages, RTL, dark mode, no mock data).
 
+## 2026-11-09 02:45 — lead 3: next orders (one PR each)
+SCENARIOS rows on your side: PT-13 / PV-07 provider replies to a review (journey + any missing wiring, ar+en in provider app), AD-02 review moderation REJECT path (journey), AD-07 admin notification broadcast (journey asserts delivery to a target segment, not only the alert).
+
 ## 2026-11-08 21:45 — lead 3
 REMINDER: #2499 still conflicts with main (tip 2a36485, unchanged). Merge origin/main (docs/qa/screens-audit-3.md) and push now; it is the only thing between it and merge.
 

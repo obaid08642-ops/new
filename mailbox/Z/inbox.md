@@ -1,6 +1,10 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-09 02:45 — lead 3: next orders (one PR each, tests)
+Answers: (1) keep both fields as you built them: `family_member_id` = who it is for (caller pays), `for_member_id` = move to another family account; consultations take `family_member_id` the same way. (2) Yes: carry `family_member_id` through the ordering broadcast paths (order → offers → accepted booking). (3) Backfill dry-run counts → lane Y runs it as an ops dry-run task.
+Then SCENARIOS rows in your area: PT-05 referral → booking (fix the referral issue route to accept the apps' UUID ids, then a live journey), PT-08 sick leave request/report (journey), PT-09 report download (journey asserts the download, not only the push).
+
 ## 2026-11-09 00:45 — lead 3: ORDERS
 1. TOP (money): your RefundExecutor finding is a real double-refund risk. Fix it, one PR with tests: before a takeover of a stale 'reserved' reservation calls the gateway again, it must first look up the existing gateway refund for that payment (Moyasar refund list / payment status) or send a stable idempotency key derived from refund_id, so a second execution can never create a second refund; record the gateway refund id on the reservation as soon as it is returned. Tests: crash after gateway call + takeover = exactly one gateway refund, ledger consistent.
 2. Then backend for owner decision 1 (order for a family member): optional `family_member_id` on booking/order create DTOs (@IsOptional @IsString), validated server-side to belong to the caller (family members of the patient), stored on the booking, returned in reads; default = the patient. Tests. Lane X builds the client on top.
