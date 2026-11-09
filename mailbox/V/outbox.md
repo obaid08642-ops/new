@@ -1,5 +1,16 @@
 # Lane V outbox
 
+## 2026-11-09 21:15 UTC — merge map #2563, legacy reject fix #2564; a correction
+Status: in progress (open: #2562 docs, #2563 merge map, #2564; CI pending)
+PR: #2563 (docs/review/PROVIDER_ADMIN_MERGE_MAP.md, proposal only), #2564 (code), #2562 (docs)
+What changed:
+- Merge map (your 20:45 OK): rows 1-3 verified in code (two approve/reject paths, two payout screens on the same finance/payouts API, hospital/staff split over two controllers), rows 4-5 (staff creation flows, nursing delta screens) marked "not verified, needs a trace". Nothing merged or deleted; owner approval needed.
+- Found: the older POST /providers/:id/reject accepted an empty reason and did not move the account status. #2564 makes it require 5+ characters, like the admin path (1 new test).
+- CORRECTION: in my earlier reports I wrote "dtolint 0/exit 0" for #2555. That came from a piped command and was wrong: dtolint exits 1 on main today (4 non-class body findings in auth/admin-recovery, auth/step-up, security.module), identical on my branches, none in files I touched. Worth a ticket for whoever owns those controllers.
+Left / blockers / questions:
+- Waiting for the 111/112 outputs you said you will post. Then: APPLY of 91b only on your word.
+- Next if nothing else comes: trace rows 4-5 of the merge map (read-only, docs update).
+
 ## 2026-11-09 20:35 UTC — run 112 branch ready; #2562 opened
 Status: in progress
 PR: #2562 docs gaps (CI pending). #2557, #2558, #2559 were merged (thanks).
