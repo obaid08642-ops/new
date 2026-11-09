@@ -10,6 +10,7 @@
 #   4 memory      the limit, the use now, the cgroup's memory.events (max = times the limit was hit, oom_kill) and the kernel's kill counts by command name
 #   5 log         the last 30 mongod log lines before the last restart (time, severity, component, id, message cut at 90 chars) with IP addresses, user and password masked
 # Credentials are read from the container's own environment only to mask them; they are never printed.
+# NOTE (run 108): the die-event list came back empty although RestartCount rose by 60: `docker events` keeps only a short in-memory buffer (health checks fill it), and the kernel kill count is since BOOT. For kill history with times and for the restart cause from mongod's own log use 96j-mongo-cache-check.sh.
 set -u
 SINCE_H=48
 DK="sudo -n docker"

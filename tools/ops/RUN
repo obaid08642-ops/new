@@ -1,9 +1,12 @@
-# 2026-11-09 run 108 = deploy main@1dfd4b83 (brings #2517 admin broadcast audience fix + PRs since 107).
-# Lead 3 recipe: 102 dry-run (read-only) + 96h mongo restarts (read-only) + mongo-wait before the pre-deploy dump (from #2504).
-release:1dfd4b835bfdd2a2d43f5a23ef9942292d0ab046
-102-data-services-move-dryrun
-96h-mongo-restarts
+# 2026-11-09 run 109 (= Y runs 109+110 in one, pushed by the ops session) = deploy main@58a1bb6e (brings #2526-#2540: alert-mail hysteresis, ledger unique earning, revenue by month, PT-24/27/29/38).
+# 96j mongo cache check (read-only, before) + 97/93 + 60 deploy + 96i halala counts + 96j ledger duplicates (read-only, after the deploy) + 91c host files APPLY=yes (installs monitor.sh + backend-watchdog.sh of #2530; backups + rollback) + 98q alert-mail state (read-only).
+release:58a1bb6e0d6e28c22a03ac4742382f0e71a02a2a
+96j-mongo-cache-check
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
+96i-halala-counts
+96j-ledger-duplicates
+91c-host-files
+98q-alert-mail-state
 cf-purge-api
