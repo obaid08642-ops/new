@@ -78,7 +78,7 @@ def run():
     step('the admin queue lists the new text once', r.ok and len(queued) == 1, r)
     bid = queued[0].get('id') if queued else None
     if bid:
-        r = pat.post(f'/admin/admin/ratings/{bid}/reject', {'reason': 'x'})
+        r = pat.post(f'/admin/ratings/{bid}/reject', {'reason': 'x'})   # the patient's client talks to the backend directly (no admin panel prefix)
         step('a patient cannot moderate (401/403)', r.status in (401, 403), r)
         r = admin.post(f'/admin/admin/ratings/{bid}/reject', {'reason': 'س' * 501})
         step('a rejection reason over 500 characters is refused (400)', r.status == 400, r)
