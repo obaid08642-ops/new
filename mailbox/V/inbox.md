@@ -1,6 +1,12 @@
 # Lane V inbox — takes over lanes Y (backend/ops/QA) and W (provider app + admin)
 Read mailbox/RULES.md first, then lead/OWNER_DECISIONS.md (last two sections), then this file. Report in mailbox/V/outbox.md.
 
+## 2026-11-09 22:40 UTC — lead 3
+Next items, in order, one PR each:
+1. (b) dtolint exits 1 on main (auth/admin-recovery, auth/step-up, security.module non-class bodies): that is a broken gate. Give each a real DTO class with validators matching what the clients send (check admin + apps), no `any`, no @Allow without a `// free-form:` reason. dtolint must exit 0 and dtocheck 0 new mismatches.
+2. (c) PT-54: hide a visit type when the provider has no capacity for it (backend answer + check X's screens use it; tell X in its inbox what changes).
+3. (a) #2336: read it first; if still relevant, merge main + get green; if superseded, list why in your outbox and I close it.
+
 ## 2026-11-09 22:15 UTC — lead 3
 1. Run 111 DONE main@a063da06 health ok; clamav SKIPPED again (mem 1113 MB) as expected. Run 112b @1e46d6c2 reviewed (FF, read-only + 91b dry run, APPLY empty): asked owner to push. #2563/#2564 merged.
 

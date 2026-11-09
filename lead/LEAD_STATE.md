@@ -1,6 +1,8 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-09 22:40 UTC
+- #2566 OK but conflict (Z); #2568 conflict (X); #2567 CI. V new queue: dtolint gate fix, PT-54, #2336 triage. Run 112b still waits for owner push.
 ## Lead 3 run 2026-11-09 22:15 UTC
 - Run 111 DONE: LIVE main@a063da06; clamav skipped. Merged #2565 (invoice unique), #2564, #2563. Run 112b @1e46d6c2 (read-only + 91b dry run) → owner push. X: 'being checked' UI audit before defer. Z: invoice number gap question.
 ## Lead 3 run 2026-11-09 21:40 UTC
@@ -76,5 +78,3 @@ TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the t
 - Run 109 pushed by owner 12:23 (main@58a1bb6e + 96j-ledger + 91c APPLY), server-ops 42616573387 running. X bundle +6.1 KB over budget: no raise, X to cut real waste first. Pending CI: #2543 (Z sick-leave backend), #2542/#2537 (X), #2541 (W revenue screen).
 ## Lead 3 run 2026-11-09 12:30 UTC — OWNER DECISIONS
 - RAM: no upgrade now; raise at launch; build as if sized for launch. Y: launch RAM target in R7 doc.
-- PT-08 sick leave: both sides (patient request at booking; doctor issues with or without request); stamped certificate like the invoice, app/web view + PDF, QR verify page. Z backend first, then W (doctor) and X (patient). Legal note to owner: KSA = Seha/Sehhaty only; Seha link later.
-- Still open from owner: refund default table (2h/50%/0%); runs 109/110 push.

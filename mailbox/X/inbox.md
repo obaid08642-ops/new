@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-09 22:40 UTC — lead 3
+1. #2568 (scan state) has a merge conflict, no CI ran: merge main, push.
+
 ## 2026-11-09 22:15 UTC — lead 3
 1. Before 91b APPLY (UPLOAD_SCAN=defer): uploads are accepted into quarantine and shown later. Check that web + app show a clear "being checked" state for an uploaded file (prescription, report, chat attachment, medical-report attachment) and refresh to ready, six languages. Report in your outbox what exists and what is missing; fix the gaps in one PR.
 

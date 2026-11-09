@@ -1,6 +1,9 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-09 22:40 UTC — lead 3
+1. #2566 (Riyadh-year numbers) reviewed OK but has a merge conflict (after #2565): merge main, push. #2567 (gapless) next.
+
 ## 2026-11-09 22:15 UTC — lead 3
 1. #2565 merged. Follow-up check (one line in outbox): the loser of the issue race consumed an invoice number from nextInvoiceNo → a gap in INV-<year>-<n>. Is a gap acceptable for ZATCA/e-invoicing sequence rules? If not, take the number only after the insert wins (or on a counter allocated inside the same claim).
 
