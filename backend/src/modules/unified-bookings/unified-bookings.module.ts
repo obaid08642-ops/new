@@ -1,9 +1,9 @@
-import { Module, Controller, Get, Post, Patch, Delete, Body, Query, Param, UseGuards, Injectable, BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
+import { Optional, Module, Controller, Get, Post, Patch, Delete, Body, Query, Param, UseGuards, Injectable, BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { assertPaymentMethod } from '../../common/payment-policy';
 import { CreateDto, CancelRootDto, RescheduleRootDto, CancelDto, ReschedDto, MatchDto, NursingDto, CheckoutDto, CreateDiagnosticOrderDto } from './unified-bookings.dto';
 import { DiagnosticOrder, DiagnosticOrderSchema } from '../../schemas/diagnostic-order.schema';
-import { InjectModel, MongooseModule } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectConnection, InjectModel, MongooseModule } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, SelfService } from '../../common/auth.guard';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { Order, OrderDocument, OrderSchema } from '../../schemas/order.schema';
@@ -59,6 +59,7 @@ export class UnifiedBookingsService {
     private cart: CartService,
     private engine: WorkflowEngineService,
     private livekit: LiveKitService,
+    @Optional() @InjectConnection() private conn?: Connection,
   ) {}
 
   private kindMap: Record<string, ServiceDomain> = {
@@ -68,7 +69,7 @@ export class UnifiedBookingsService {
   };
 
   /** Unified timeline across pharmacy + lab + radiology + nursing + consultation. */
-  async myTimeline(user: any, filter: { state?: string; kind?: string } = {}) {
+  async myTimeline(user: any, filter: { state?: string; kind?: string; include_hidden?: boolean } = {}) {
     const [orders, pharmOrders, labs, rads, home, appts] = await Promise.all([
       this.orders.find({ patient_id: user.id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean(),
       this.pharmacyOrders.find({ patient_account_id: user.id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean(),
@@ -107,7 +108,61 @@ export class UnifiedBookingsService {
       ...appts.map(a => unify('consultation', a.status, a)),
     ].filter(x => (!filter.state || x.universal_state === filter.state) && (!filter.kind || x.kind === filter.kind))
      .sort((a, b) => new Date(b.createdAt as any).getTime() - new Date(a.createdAt as any).getTime());
-    return merged;
+    // PT-54: visits this patient hid from their own history are left out unless ?include_hidden=1 (then every row says whether it is hidden)
+    const hidden = await this.hiddenVisitKeys(user.id);
+    const marked = merged.map((x) => ({ ...x, hidden: hidden.has(`${x.kind}:${x.id}`) }));
+    return filter.include_hidden ? marked : marked.filter((x) => !x.hidden);
+  }
+
+  private hiddenCol() { return this.conn?.collection('patient_hidden_visits'); }
+
+  /** `kind:id` of every visit the patient hid. */
+  private async hiddenVisitKeys(patientId: string): Promise<Set<string>> {
+    const col = this.hiddenCol();
+    if (!col) return new Set();
+    const rows = await col.find({ patient_id: { $eq: String(patientId) } }, { projection: { _id: 0, kind: 1, booking_id: 1 } }).toArray();
+    return new Set(rows.map((r: any) => `${r.kind}:${r.booking_id}`));
+  }
+
+  /** The visit when it is this patient's own (404 otherwise), with the unified kind and state. Pharmacy orders live in two collections. */
+  private async ownedVisit(user: any, kind: string, id: string): Promise<{ kind: ServiceDomain; id: string; universal_state: ServiceState }> {
+    const k = this.kindMap[String(kind)];
+    if (!k) throw new BadRequestException('invalid_kind');
+    const bookingId = String(id);
+    let row: any; let state: string | undefined;
+    if (k === 'pharmacy') {
+      row = await this.orders.findOne({ id: { $eq: bookingId }, patient_id: { $eq: String(user.id) } }, { _id: 0, state: 1 }).lean();
+      state = row?.state;
+      if (!row) { row = await this.pharmacyOrders.findOne({ id: { $eq: bookingId }, patient_account_id: { $eq: String(user.id) } }, { _id: 0, status: 1 }).lean(); state = row?.status; }
+    } else {
+      const model: any = k === 'lab' ? this.labs : k === 'radiology' ? this.rads : k === 'nursing' ? this.home : this.appts;
+      const field = k === 'consultation' ? 'status' : 'state';
+      row = await model.findOne({ id: { $eq: bookingId }, patient_id: { $eq: String(user.id) } }, { _id: 0, state: 1, status: 1 }).lean();
+      state = row?.[field] ?? row?.state ?? row?.status;
+    }
+    if (!row) throw new NotFoundException('booking_not_found');
+    // a state the engine does not know is treated as not finished (the timeline itself refuses such a row)
+    let universal: ServiceState = ServiceState.REQUESTED;
+    try { universal = toUniversal(k, String(state)) as ServiceState; } catch { /* stays not finished */ }
+    return { kind: k, id: bookingId, universal_state: universal };
+  }
+
+  /**
+   * PT-54: the patient hides (or shows again) a finished visit in their own history. Only the owner can do it, only a COMPLETED or CANCELLED visit can be hidden
+   * (an open one is still being worked on), and nothing about the visit itself changes: the provider, the invoice and the medical record keep it. Idempotent.
+   */
+  async setVisitHidden(user: any, kind: string, id: string, hide: boolean) {
+    const v = await this.ownedVisit(user, kind, id);
+    const col = this.hiddenCol();
+    if (!col) throw new ConflictException('hidden_visits_unavailable');
+    const key = { patient_id: String(user.id), kind: v.kind, booking_id: v.id };
+    if (hide) {
+      if (v.universal_state !== ServiceState.COMPLETED && v.universal_state !== ServiceState.CANCELLED) throw new BadRequestException('visit_not_finished');
+      await col.updateOne(key, { $setOnInsert: { ...key, hidden_at: new Date() } }, { upsert: true });
+    } else {
+      await col.deleteMany(key);
+    }
+    return { ok: true, kind: v.kind, id: v.id, hidden: hide };
   }
 
   /**
@@ -610,7 +665,10 @@ export class UnifiedBookingsService {
 export class UnifiedBookingsController {
   constructor(private svc: UnifiedBookingsService) {}
 
-  @Get('mine') mine(@CurrentUser() u: any, @Query() q: any) { return this.svc.myTimeline(u, { state: q.state, kind: q.kind }); }
+  @Get('mine') mine(@CurrentUser() u: any, @Query() q: any) { return this.svc.myTimeline(u, { state: q.state, kind: q.kind, include_hidden: q.include_hidden === '1' || q.include_hidden === 'true' }); }
+  // PT-54: the patient hides or shows a finished visit in their own history (owner only; the visit itself is not changed)
+  @Post(':kind/:id/hide') hide(@CurrentUser() u: any, @Param('kind') k: string, @Param('id') id: string) { return this.svc.setVisitHidden(u, k, id, true); }
+  @Post(':kind/:id/unhide') unhide(@CurrentUser() u: any, @Param('kind') k: string, @Param('id') id: string) { return this.svc.setVisitHidden(u, k, id, false); }
   @Post()
   @RequireIdempotency()
   create(@CurrentUser() u: any, @Body() b: CreateDto) { return this.svc.createConsultationContract(u, b); }
