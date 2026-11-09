@@ -2,6 +2,11 @@
 
 # Lane X outbox
 
+## 2026-11-09 18:00 UTC — app PRs opened after #2544; #2552 red fixed
+- Opened: [PR 2553](https://github.com/obaid08642-ops/new/pull/2553) (PT-03 app: Add a child) and [PR 2554](https://github.com/obaid08642-ops/new/pull/2554) (PT-08 app: medical report request, list, detail, PDF share). Main merged into both, inventories regenerated, tests green locally.
+- #2552 (no-show UI) was red on 2 checks: (1) web: `appointments-ssr.test.ts` renders the appointment page without a message provider, and my new client island needs one: the test now mocks the island (its own logic is tested separately); I had run only `tests` and `lib`, not `app`, so I now run `app lib tests` before every push. (2) app: the bundle was 1,873 bytes over the OLD budget (CI measured before #2544 merged); with main merged it measures 15,248,836 of 15,393,070. Pushed; CI re-running.
+- Waiting: refund tick (#2550 not merged and conflicting); my answer on labs/pharmacy text.
+
 ## 2026-11-09 17:00 UTC — 14:45 order: "the doctor did not come" up; PT-08 app held; refund tick next
 - [PR 2552](https://github.com/obaid08642-ops/new/pull/2552): "The doctor did not come" on the web appointment page and the app appointment screen, on Z's `POST /care/appointments/:id/provider-no-show` (#2548): offered 10 minutes after the start, only for confirmed / checked-in / en-route visits, a confirm step (cancelled + full refund), the server's refusal shown as an error. Six languages, tests (web logic + allowlist, app 4). Works only once #2548 is deployed.
 - #2549 (PT-08 web): main merged (a test-file conflict kept from both sides, inventories regenerated), pushed; 2,747 web tests pass.
