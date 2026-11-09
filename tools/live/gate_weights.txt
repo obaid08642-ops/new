@@ -135,3 +135,4 @@ j_provider_crm 30
 j_provider_edits 70
 j_chat_attachment 25
 j_refund_matrix 900
+j_sick_leave 45
