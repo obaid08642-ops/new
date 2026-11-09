@@ -250,6 +250,16 @@ describe("the booking screen", () => {
     expect(html.replace("Official sick leave is issued through Seha.", "")).not.toMatch(/sick leave/i);
   });
 
+  it("PT-03: a guardian booking for a family member sees who the visit is for and can switch back to themselves; without a member there is neither", () => {
+    const doctor = { id: "doc-1", name: "Doctor One", specialty: "Cardiology", price: 150, online: true, clinic: true, home: false, acceptsInsurance: false };
+    const forMember = render(<BookingFlow doctorId="doc-1" locale="en" doctor={doctor} bookingFor={{ id: "member-1", name: "Test Child" }} />);
+    expect(forMember).toContain("Booking for Test Child");
+    expect(forMember).toContain("Book for myself instead");
+    const forSelf = render(<BookingFlow doctorId="doc-1" locale="en" doctor={doctor} />);
+    expect(forSelf).not.toContain("Booking for");
+    expect(forSelf).not.toContain("Book for myself instead");
+  });
+
   it("shows the cancellation and refund terms before the payment card when the page passes them (decision 26)", () => {
     const html = render(<BookingFlow doctorId="doc-1" locale="en" doctor={null} policy={{ title: "Cancellation and refund policy", lines: ["24 hours or more before: 100% refund"] }} />);
     expect(html).toContain("Cancellation and refund policy");

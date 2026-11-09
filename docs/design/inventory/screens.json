@@ -1,5 +1,5 @@
 {
- "commit": "10e94d60",
+ "commit": "f2d00e47",
  "routes": [
   {
    "app": "patient-app",
@@ -628,7 +628,7 @@
      "line": 129,
      "file": "patient-app/src/components/consult/AppointmentSections.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:126"
+     "backend": "backend/src/modules/care/appointments.controller.ts:132"
     },
     {
      "method": "POST",
@@ -926,7 +926,7 @@
      "line": 180,
      "file": "patient-app/app/consultations/cancel-reschedule.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:72"
+     "backend": "backend/src/modules/care/appointments.controller.ts:78"
     },
     {
      "method": "GET",
@@ -8376,7 +8376,7 @@
      "line": 90,
      "file": "patient-web/app/[locale]/appointments/[appointmentId]/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:126"
+     "backend": "backend/src/modules/care/appointments.controller.ts:132"
     },
     {
      "method": "GET",

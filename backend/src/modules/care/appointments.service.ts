@@ -535,7 +535,7 @@ export class AppointmentsService {
     } catch { return false; }
   }
 
-  async cancel(id: string, user: any, reason?: string, isNoShow: boolean = false) {
+  async cancel(id: string, user: any, reason?: string, isNoShow: boolean = false, providerNoShow: boolean = false) {
     const appt = await this.apptModel.findOne({ id });
     if (!appt) throw new NotFoundException();
     await this.assertAppointmentAccess(appt, user, { booker: true });
@@ -544,7 +544,7 @@ export class AppointmentsService {
     const byProvider = (hasEffectiveRole(user, UserRole.DOCTOR) || hasEffectiveRole(user, UserRole.HOSPITAL) || user?.id === appt.doctor_user_id) && user?.id !== appt.patient_id;
     if (byProvider && !hasEffectiveRole(user, UserRole.ADMIN) && String(reason ?? '').trim().length < 3) throw new BadRequestException('cancel_reason_required');
 
-    const { refundPercentage, refundDestination, penaltyAmount } = await this.calculateRefund(appt, user, reason, isNoShow);
+    const { refundPercentage, refundDestination, penaltyAmount } = await this.calculateRefund(appt, user, reason, isNoShow, providerNoShow);
 
     // The state change comes first: an illegal move (already completed, cancelled, ...) throws here, before any refund
     // figure is stored and before anything is emitted that moves money.
@@ -572,6 +572,28 @@ export class AppointmentsService {
     return { ...cancelled, ...refundFields };
   }
 
+  /** The visit must be this many minutes late before the patient can say the doctor did not come (the doctor's own no-show mark for a patient uses the same wait). */
+  static readonly PROVIDER_NO_SHOW_GRACE_MS = 10 * 60_000;
+
+  /**
+   * Owner decision 2026-11-09: the provider cancels or does not attend = 100 % refund to the card at once. A provider who cancels is already handled (calculateRefund);
+   * a provider who simply does not come had no route at all. The patient (or the person who booked) reports it once the visit is 10 minutes late and it never started:
+   * the appointment is cancelled as `provider_no_show` and the full amount goes back through the same refund event as any cancel. Not the doctor's own call, not an admin's.
+   */
+  async reportProviderNoShow(id: string, user: any) {
+    const appt = await this.apptModel.findOne({ id });
+    if (!appt) throw new NotFoundException();
+    await this.assertAppointmentAccess(appt, user, { booker: true });
+    const isPatientSide = user?.id === appt.patient_id || (!!appt.booked_by_user_id && user?.id === appt.booked_by_user_id);
+    if (!isPatientSide) throw new ForbiddenException('only_the_patient_reports_a_provider_no_show');
+    if (!['CONFIRMED', 'CHECKED_IN', 'EN_ROUTE'].includes(String(appt.status || '').toUpperCase())) throw new BadRequestException('provider_no_show_not_applicable');
+    const startAt = appt.slot_start ? new Date(appt.slot_start).getTime() : NaN;
+    if (!Number.isFinite(startAt) || Date.now() < startAt + AppointmentsService.PROVIDER_NO_SHOW_GRACE_MS) throw new BadRequestException('provider_no_show_too_early');
+    const out = await this.cancel(id, user, 'provider_no_show', false, true);
+    this.events.emit('appointment.provider_no_show', { appointment_id: id, patient_id: appt.patient_id, doctor_id: appt.doctor_id, doctor_user_id: appt.doctor_user_id });
+    return out;
+  }
+
   /**
    * Preview the refund that would be issued if the caller cancelled now (same rules as cancel).
    * Does NOT modify the appointment.
@@ -594,10 +616,13 @@ export class AppointmentsService {
   }
 
   // Cancellation & Refund Rules (shared by cancel and previewRefund)
-  private async calculateRefund(appt: any, user: any, reason?: string, isNoShow = false): Promise<{ refundPercentage: number; refundDestination: string; penaltyAmount: number }> {
+  private async calculateRefund(appt: any, user: any, reason?: string, isNoShow = false, providerNoShow = false): Promise<{ refundPercentage: number; refundDestination: string; penaltyAmount: number }> {
     let refundPercentage = 0;
     let penaltyAmount = 0;
     let refundDestination = 'source';
+    // Owner decision 2026-11-09: the provider did not attend = 100 % back to the card at once. This is a flag only reportProviderNoShow sets after its own checks, never the
+    // free-text cancel reason (a patient could write anything there).
+    if (providerNoShow) return { refundPercentage: 100, refundDestination: 'source', penaltyAmount: 0 };
 
     const policy = await this.getRefundPolicy();
     const consultationPolicy = policy.consultation || DEFAULT_REFUND_POLICY.consultation;
