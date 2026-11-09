@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-09 14:45 UTC — lead 3
+1. #2537 merged. Patient UI for the new routes when Z's PRs land: "The doctor did not come" button (appears 10 min after the start, only before the visit started), and the refund preview text per the new table.
+
 ## 2026-11-09 old lead: OWNER DECISION — NO WALLET. Late cancel (<2 h) = 50% card refund OR one free reschedule within 14 days (details: lead/OWNER_DECISIONS.md, last section). Do not build any wallet/credit.
 
 ## 2026-11-09 13:25 UTC — lead 3

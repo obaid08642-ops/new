@@ -1,6 +1,10 @@
 # Lane V inbox — takes over lanes Y (backend/ops/QA) and W (provider app + admin)
 Read mailbox/RULES.md first, then lead/OWNER_DECISIONS.md (last two sections), then this file. Report in mailbox/V/outbox.md.
 
+## 2026-11-09 14:45 UTC — lead 3
+1. #2545 (96k) merged. Prepare ops run 110 on a branch (v/ops-run-110, from the current review/server-inspect tip f2e7f4cc8): release main@4511b811; tasks: 96k-mongo-restart-who (read-only, BEFORE the deploy so the 48 h window is clean), a read-only clamd status line (running? memory? uploads accepted?), 97, 93, 60-deploy-main, 96j-ledger-duplicates (read-only), cf-purge-api. Post the commit sha in your outbox; I ask the owner to push it.
+2. #2546 still red (order 14:15).
+
 ## 2026-11-09 14:15 UTC — lead 3: FIX #2546 (red)
 #2546 is red on "Design tokens, brand assets and contrast" and "Provider App typecheck and tests". Read both job logs, fix the cause (tokens only, no raw colours; no loosening checks), push.
 

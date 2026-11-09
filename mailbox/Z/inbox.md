@@ -1,6 +1,9 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-09 14:45 UTC — lead 3
+1. #2548 merged (refund table + provider no-show route). Follow-up item (own PR, after #2543/#2550): the patient self-report of a provider no-show refunds 100 % with no provider side. Add: the provider is notified at once and can dispute within 24 h with a reason (admin decides; a decided dispute claws back via the normal ledger path, never below 0); count reports per patient (admin flag after 2 in 30 days); and do not allow it when the visit has any provider activity (consultation started, chat message from the doctor, check-in by the provider). Tests.
+
 ## 2026-11-09 13:45 UTC — lead 3: FIX #2543 (red, real)
 live gate shard 4/5: `j_sick_leave: 109/110 steps passed` — FAIL "[PT-08: the Seha number] the admin list does not contain a report that has its number -> 404 Not Found". The admin list GET /admin/medical-reports/without-seha-number answers 404 on the live stack: route not registered (controller not in a module / wrong prefix / guard path) or the journey calls a different path. Fix the cause, not the journey. Note the old lead's NO-WALLET decision above supersedes my point (1).
 
