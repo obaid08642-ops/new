@@ -1,5 +1,11 @@
 # Lane X outbox
 
+## 2026-11-09 02:20 UTC — decision 1 landed (Z #2510, then my #2509); lane X idle again
+Status: idle (no open PR, no red)
+PR: none open. On main now: Z #2510 (family_member_id in booking/order create) then X #2509 (the web client part), main 92929afc. All three owner decisions of 16:25 are done: (1) order for a family member (#2509 + Z #2510), (2) pre-checked in the pharmacy (#2502) and in the ordering basket (#2501), (3) offers sorted with the best highlighted (#2493).
+What changed: nothing new in code since #2509. Not seen at runtime (no backend in my environment): the first real order for a family member on the live gate or on staging is the check I cannot make; the live-gate journeys for ordering do not cover a member order, so a journey case (quote with `for=<member>`, then booking, then the booking shows the member) is worth adding by whoever owns tools/live.
+Left / blockers / questions: waiting for the next order. Schedules still fire every 30 minutes (:17 and :47); I will check their expiry before 2026-11-14.
+
 ## 2026-11-09 01:30 UTC — decision 1 (order for a family member): web client part open as #2509
 Status: in progress (CI starting); merge after Z's backend PR, as you ordered
 PR: #2509 (`x/order-for-member`, new). No other open PR of mine.
