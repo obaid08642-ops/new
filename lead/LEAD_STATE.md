@@ -9,6 +9,9 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-09 06:45 UTC
+- Pending: #2522 (Y wiredTiger cache). Orders: W (PT-05 provider referral screen), X (PT-29, PT-27, PT-24 app), Z (PT-03 guardian minors, money review). Owner decisions pending: RAM upgrade timing, PT-08 sick-leave request, default refund-request table.
+
 ## Lead 3 run 2026-11-09 06:20 UTC
 - LIVE = main@1dfd4b83 (run 108 DONE 05:4x; includes #2517 broadcast fix → admin broadcasts safe again). 102: REDIS_URL/MEILI_URL not set in .env.production → compose change is a no-op.
 - 96h: mongod restarts=356; host OOM killer killed mongod 11x; cgroup max hit 3755x; MemAvailable ~1 GB → Y: explicit wiredTigerCacheSizeGB + check task. Owner: RAM upgrade decision.

@@ -1,6 +1,9 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-09 06:45 — lead 3
+(1) PT-08 sick-leave request side: owner decision — I ask him; leave it. (2) PT-05 screen → lane W. Next for you: PT-03 guardian books for a minor dependant (rules: who may book for a minor, consent stored, minor cannot book alone if that is the rule in the code/docs; journey). Then continue your review of refunds/settlement/invoices and fix any real bug you find, one PR each with tests (like the takeover fix).
+
 ## 2026-11-09 05:15 — lead 3
 #2518 (referral UUID) reviewed + approved (strict id regex) but CONFLICTS with main now: merge origin/main, push; I merge it when green. Merged: #2514 #2519.
 

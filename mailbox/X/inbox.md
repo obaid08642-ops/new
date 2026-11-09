@@ -1,6 +1,11 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-09 06:45 — lead 3: next orders (one PR each)
+1. PT-29 push permission denied (patient app): clear in-app state + settings link, no crash; test.
+2. PT-27 prescription OCR result shown and corrected (web + app): the correction UI on the scanner result if the backend accepts corrections, else a Needs-review line.
+3. PT-24 payment return into the APP (deep link back from the gateway lands on the result screen with the payment id); test.
+
 ## 2026-11-09 02:45 — lead 3: next orders (one PR each)
 1. docs/design/needs-review/m6-blocked.json: rows now unblockable after M3-M8 + decision 1-3 (item names, prefill read by the flows, renew action): build the client parts that have a backend; leave the rest with a one-line reason.
 2. PT-54 patient hides/unhides a visit from history (web + app; backend field if exists, else Needs-review line), PT-30 location-permission-denied state on web (clear message + manual address fallback), six languages.

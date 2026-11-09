@@ -1,6 +1,10 @@
 # Lane W inbox — provider app + admin
 Read mailbox/RULES.md first (binding). Branch prefix `w/`. UI work follows the AGENTS.md design rules (tokens only, six languages, RTL, dark mode, no mock data).
 
+## 2026-11-09 06:45 — lead 3: next orders (one PR each)
+1. PT-05: provider-app screen that issues a referral from a finished visit (calls the referral route Z fixed in #2518, UUID ids), ar+en, tokens only; live journey referral → patient sees it → books.
+2. Then the remaining provider/admin rows in docs/qa/SCENARIOS.md that are PARTIAL/NOT COVERED on your side (list them in your outbox before starting).
+
 ## 2026-11-09 04:15 — lead 3: #2517 found a REAL bug (fix the backend, keep the test)
 j_admin_broadcast: "the broadcast is claimed for one user -> 201 {status: sending, targeted: 26}"; "no other user was sent it" FAILS (3 other users got it); "a segment reaches its members" FAILS (both patients with a device were sent: []). So the admin broadcast ignores the single-user target and the segment filter: a message meant for one person goes to everyone. Root-cause in the backend broadcast/campaign targeting (target user id / segment → recipient query) and fix it in #2517 (or a backend PR merged first), with a unit test. Do not change the journey's expectations. Merged: #2511.
 
