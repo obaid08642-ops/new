@@ -1,9 +1,12 @@
-# 2026-11-09 run 108 = deploy main@1dfd4b83 (brings #2517 admin broadcast audience fix + PRs since 107).
-# Lead 3 recipe: 102 dry-run (read-only) + 96h mongo restarts (read-only) + mongo-wait before the pre-deploy dump (from #2504).
-release:1dfd4b835bfdd2a2d43f5a23ef9942292d0ab046
-102-data-services-move-dryrun
-96h-mongo-restarts
+# 2026-11-09 run 109 = deploy main@36dafcf8 (brings #2528-#2532: monitor/watchdog alert-mail rules, password-hash worker, native build retries).
+# Lead 3 recipe: 96j mongo cache check (read-only, before the deploy) + 97/93 free space + 60 deploy + 96i R11 halala counts (read-only)
+# + 91c host files in DRY RUN (APPLY empty: lists which host scripts differ, writes nothing) + 98q alert-mail state (read-only).
+release:36dafcf8087662f267582c71487cd1b92fbe454b
+96j-mongo-cache-check
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
+96i-halala-counts
+91c-host-files
+98q-alert-mail-state
 cf-purge-api
