@@ -1,3 +1,9 @@
+## 08:15 UTC 2026-11-09 — check 07:47: #2524 merged; refund review found two bugs (#2528)
+Status: in progress (CI pending)
+PR: #2528 (CI: pending) refund executor bookkeeping. #2524 merged (07:37).
+What changed: reviewing executeCore after the takeover fix: (1) a FULL refund taken over after the crashed run had updated the payment row failed the cap check on every retry (the row already contains this refund), so the ledger row, provider clawback, commission/VAT reversal, booking status and notification were never written; (2) the booking status compared only this refund with the total, so a second partial refund that completed the payment stayed partially_refunded. Both fixed, 3 new tests (2 fail without the fix).
+Left / blockers / questions: cash refunds keep no cumulative total on the booking (refund_totals has it): status for cash stays as before, say if you want it cumulative. Inbox unchanged since 06:45. Next: settlement and invoices review.
+
 ## 07:15 UTC 2026-11-09 — order of 06:45: PT-03 guardian books for a minor (#2524)
 Status: in progress (CI pending)
 PR: #2524 (CI: pending) POST/GET/DELETE /family/dependants + journey j_family_dependant.
