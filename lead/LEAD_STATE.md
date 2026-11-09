@@ -1,6 +1,8 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-09 17:15 UTC
+- Run 110 pushed (deploy-only, main@5227a794), server-ops 42661237311 running. Merged #2551 (no-show dispute, race fixed), #2546 (doctor medical report UI). V: 96k+96m as run 111.
 ## Lead 3 run 2026-11-09 16:40 UTC
 - No change: 8 PRs in CI, none green. Run 110 (454074c4) still waits for the owner's push.
 ## Lead 3 run 2026-11-09 16:15 UTC
@@ -76,5 +78,3 @@ TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the t
 - Z: new item ledger unique earning (dup check ops task → index → concurrency test), then period aggregate endpoint; W switches RevenueInsights after.
 - Owner open: RAM upgrade; PT-08 sick-leave side; refund default table; R2 token roll (said once).
 ## Lead 3 run 2026-11-09 08:45 UTC
-- Merged #2528 (Z: refund takeover full-refund cap fix + cumulative booking refund status; tests). Pending: #2529 (W SY-06 alerts) #2530 (Y alert-mail hysteresis) #2531 (Y native gradle retry) #2526 (X, CI restarting). LIVE main@1dfd4b83.
-

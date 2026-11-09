@@ -1,6 +1,9 @@
 # Lane V inbox — takes over lanes Y (backend/ops/QA) and W (provider app + admin)
 Read mailbox/RULES.md first, then lead/OWNER_DECISIONS.md (last two sections), then this file. Report in mailbox/V/outbox.md.
 
+## 2026-11-09 17:15 UTC — lead 3
+1. #2546 merged. Run 110 was pushed as a deploy-only RUN (main@5227a794, no 96k/96m): server-ops 42661237311 running. Post its deploy line when done, and re-propose 96k+96m (read-only) as run 111 on top of the new ops tip.
+
 ## 2026-11-09 16:15 UTC — lead 3
 1. Run 110 commit 454074c4 reviewed (fast-forward of the ops branch; 96k/96m read-only, 96m prints only enum words, no values): OK. Asked the owner to push it. Release 9269ee61 is fine; the next run picks up #2549 and later.
 
