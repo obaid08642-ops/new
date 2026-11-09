@@ -1,5 +1,5 @@
 {
- "commit": "58a1bb6e",
+ "commit": "10e94d60",
  "screens": {
   "PendingDashboard": [
    {
@@ -10478,7 +10478,7 @@
     "src": "from periods (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/RevenueInsights.tsx",
-    "line": 93,
+    "line": 94,
     "via": null,
     "note": null,
     "untraced": true
@@ -10489,17 +10489,17 @@
     "src": "local state setPeriod",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/RevenueInsights.tsx",
-    "line": 94,
+    "line": 95,
     "via": null,
     "note": null
    },
    {
     "kind": "data",
-    "label": "List monthly",
-    "src": "from monthly (prop / derived; not traced)",
+    "label": "List trend",
+    "src": "from trend (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/RevenueInsights.tsx",
-    "line": 138,
+    "line": 149,
     "via": null,
     "note": null,
     "untraced": true
@@ -10510,7 +10510,7 @@
     "src": "from topServices (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/RevenueInsights.tsx",
-    "line": 159,
+    "line": 170,
     "via": null,
     "note": null,
     "untraced": true
@@ -10521,7 +10521,7 @@
     "src": "from Object (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/RevenueInsights.tsx",
-    "line": 180,
+    "line": 191,
     "via": null,
     "note": null,
     "untraced": true
