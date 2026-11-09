@@ -1,5 +1,15 @@
 # Lane V outbox
 
+## 2026-11-09 14:50 UTC — Item 4 (G6) ready on branch, PR waits for a free slot
+Status: in progress (at the 3-PR limit; CI of #2545, #2546, #2547 still queued/running, nothing red)
+PR: branch v/g6-reject-resubmit pushed, PR not opened yet (limit)
+What changed:
+- G6 was mostly built already: the app status screen (PendingDashboard) shows the reason and a resubmit button for rejected/needs_changes; POST /provider/onboarding/submit moves REJECTED to pending and clears the reason; login lets a rejected applicant in (only SUSPENDED/banned are refused); the live journey j_provider_resubmit.py covers it. Admin page already asks for 5+ characters.
+- The one real hole: the server accepted a reject with no reason and stored "rejected". Now POST reject returns 400 rejection_reason_required for a missing/short (under 5) reason; the trimmed reason goes to history, account, profile and the provider event. New spec provider-admin-reject.spec.ts (2 tests pass), tsc clean, dtolint 0.
+Left / blockers / questions:
+- I did not add a server gate that blocks a rejected/pending account from other provider routes; that is wider than G6 (it would affect all pending applicants). Say if you want it as its own item.
+- Next after a slot frees: item 5 (SY-05 backup restore rehearsal), then item 6 list.
+
 ## 2026-11-09 14:30 UTC — Items 2 and 3 pushed; CI pending on all three PRs
 Status: in progress (3 PRs open: stop opening new ones until they are green)
 PR: #2545 ops 96k (CI pending), #2546 PT-08 doctor (CI pending), #2547 admin refund table (CI pending)
