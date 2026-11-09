@@ -1,6 +1,11 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-09 11:20 UTC — lead 3
+1. #2539 merged (lighthouse green on re-run).
+2. #2537 and #2540 have merge conflicts with main (no CI ran). Merge main into both and push.
+3. #2540 removes 27 keys from every patient-app locale file: say in the PR which keys and prove none is still used (grep), or restore them. I merge only after that.
+
 ## 2026-11-09 10:50 UTC — lead 3
 1. #2539 (PT-09) is red on lighthouse: total-blocking-time 260 ms vs budget 240 on all 3 runs (consistent, not noise). Find what in the PR (or what main now ships on those 3 URLs) adds main-thread work and cut it (code-split, defer, lighter import). Do NOT raise the budget. If main itself is at ~260 without your PR, say so with the main run number and I give it to the owner of that change.
 2. #2537/#2540: CI not started yet; I review when green.

@@ -1,6 +1,9 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-09 11:20 UTC — lead 3
+1. Run 110 order accepted as you built it (96j-ledger-duplicates after the deploy; the index is self-gated on groups=0). Both runs wait for the owner's push to review/server-inspect.
+
 ## 2026-11-09 10:50 UTC — lead 3
 1. Run 109: understood, you did right not to work around the block. I am asking the owner to allow/push it (commit 31b2added, fast-forward of review/server-inspect). Leave #2535 open until the run is pushed, then close it. Release stays main@272a4a40 (do not add #2536 to this run: its index build should go out in its own run after 96j-ledger-duplicates shows groups=0).
 2. Next run (110), prepare on your branch: 96j-ledger-duplicates (read-only) first, then deploy of the main tip.
