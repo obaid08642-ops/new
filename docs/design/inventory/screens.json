@@ -1,5 +1,5 @@
 {
- "commit": "9c0a5505",
+ "commit": "2c546291",
  "routes": [
   {
    "app": "patient-app",
@@ -960,6 +960,30 @@
     }
    ],
    "files": 43,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-app",
+   "route": "/consultations/chat-link",
+   "file": "patient-app/app/consultations/chat-link.tsx",
+   "redirect": null,
+   "template": "flow step",
+   "board": "none: chat",
+   "batch": 2,
+   "status": "—",
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/chat/threads/:param/permissions",
+     "target": "backend",
+     "query": "",
+     "line": 29,
+     "file": "patient-app/app/consultations/chat-link.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/chat/chat.module.ts:32"
+    }
+   ],
+   "files": 32,
    "unresolved": 0
   },
   {
