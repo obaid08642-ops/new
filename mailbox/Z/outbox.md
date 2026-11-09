@@ -1,3 +1,10 @@
+## 21:50 UTC — invoices review, second item (small): the year in the number
+Status: PR open, waiting for CI; #2565 CI running, nothing red
+PR: #2566 (z/invoice-number-year); #2565 (one invoice per booking)
+- Bug: INV/RCT/CN numbers and their yearly counters took the year from the server clock (UTC), so a document issued 21:00-24:00 UTC on 31 December (already 1 January in Riyadh) got last year's series. Now the Riyadh year. 2 tests.
+- Reviewed and found fine (no PR): credit-note idempotency (sparse unique `refund_ref`), the share-link flow (token hashed, 404 for every bad reason, rate limits, ownership via `issue`), PDF/document ownership, the email route. Not bugs but notes: `issue()` answers 400 `not your booking` (not 404) for someone else's booking; the invoice of a family on-behalf booking is only readable by the patient, not the booker.
+- Continuing: PDF rendering and the credit-note totals; I will only open a PR for real bugs.
+
 ## 21:15 UTC — invoices review, first real bug: two tax invoices for one payment
 Status: PR open, waiting for CI
 PR: #2565 (z/invoices-review)
