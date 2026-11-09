@@ -7,6 +7,7 @@ import { ConsultScreen, Section } from '../../src/components/consult/ConsultKit'
 import { Block, LAB_TONE, goBackDiag } from '../../src/components/diagnostics/DiagKit';
 import { QuoteFailure, QuoteLoading, TimeTile, WhenCard, useOrderDates } from '../../src/components/ordering/OrderingKit';
 import { Notice } from '../../src/components/pharmacy/OfferKit';
+import { RefundPolicyTick } from '../../src/components/legal/RefundPolicyTick';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
@@ -64,6 +65,8 @@ export default function DiagnosticsWhen() {
   // ---- ASAP ----
   const [asap, setAsap] = useState<Asap | null>(null);
   const [asapBusy, setAsapBusy] = useState(false);
+  // the refund policy is shown before the broadcast starts and agreed here (the backend refuses without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
   const [asapError, setAsapError] = useState('');
   const [left, setLeft] = useState(0);
   const polls = useRef(0);
@@ -109,7 +112,7 @@ export default function DiagnosticsWhen() {
   }, [asap]);
 
   async function beginAsap() {
-    if (!draft || !group || asapBusy || open) return;
+    if (!draft || !group || asapBusy || open || !refundAgreed) return;
     setAsapBusy(true);
     setAsapError('');
     try {
@@ -195,7 +198,8 @@ export default function DiagnosticsWhen() {
           {answer.asapOffered && asapAllowed(draft) && !open && asap?.status !== 'expired' ? (
             <Section title={k('ordering.when.asapTitle')}>
               <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{k('ordering.when.asapSub')}</Text>
-              <Button theme={theme} size="md" variant="outline" label={k('ordering.when.asapBtn')} loading={asapBusy} onPress={() => void beginAsap()} />
+              <RefundPolicyTick checked={refundAgreed} onChange={setRefundAgreed} />
+              <Button theme={theme} size="md" variant="outline" label={k('ordering.when.asapBtn')} disabled={!refundAgreed} loading={asapBusy} onPress={() => void beginAsap()} />
               {asapError ? <Notice tone="danger" text={k(asapError)} /> : null}
               <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('ordering.when.asapNoOpt')}</Text>
             </Section>

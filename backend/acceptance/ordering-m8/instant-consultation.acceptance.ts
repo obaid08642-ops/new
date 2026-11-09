@@ -69,7 +69,7 @@ describe('M8 instant consultation', () => {
   afterAll(async () => { await stack.stop(); });
 
   it('1. nobody online: 409 with the earliest slot and alternatives, nothing created', async () => {
-    const r = await post('/consultations/instant', patient, { specialty: 'cardiology', mode: 'video' });
+    const r = await post('/consultations/instant', patient, { specialty: 'cardiology', mode: 'video', refund_policy_accepted: true });
     expect(r.status).toBe(409);
     expect(JSON.stringify(r.body)).toContain('instant_no_online_doctors');
     expect(r.body).toHaveProperty('earliest_slot');
@@ -87,7 +87,7 @@ describe('M8 instant consultation', () => {
     expect((await online('doc-m8-cardio-2')).status).toBeLessThan(300);
     expect((await online('doc-m8-derm')).status).toBeLessThan(300);
     expect((await online('doc-m8-cardio-2', false)).status).toBeLessThan(300);
-    const r = await post('/consultations/instant', patient, { specialty: 'cardiology', mode: 'video' });
+    const r = await post('/consultations/instant', patient, { specialty: 'cardiology', mode: 'video', refund_policy_accepted: true });
     expect(r.status).toBe(201);
     expect(r.body).toMatchObject({ status: 'broadcasting', doctors_notified: 1, payment_status: 'not_charged' });
     const id = r.body.id;
@@ -95,7 +95,7 @@ describe('M8 instant consultation', () => {
     expect(open((await get('/doctors/instant-requests', doctor['doc-m8-cardio-2'])).body)).toHaveLength(0); // offline
     expect(open((await get('/doctors/instant-requests', doctor['doc-m8-derm'])).body)).toHaveLength(0); // other specialty
     // one open request per patient
-    const dup = await post('/consultations/instant', patient, { specialty: 'cardiology', mode: 'video' });
+    const dup = await post('/consultations/instant', patient, { specialty: 'cardiology', mode: 'video', refund_policy_accepted: true });
     expect(dup.status).toBe(409);
     expect(JSON.stringify(dup.body)).toContain('instant_request_open');
     // an offline doctor and another specialty cannot accept
@@ -106,7 +106,7 @@ describe('M8 instant consultation', () => {
 
   it('4. the first doctor to accept wins; the second is told it is taken; an appointment is created', async () => {
     await online('doc-m8-cardio-2', true);
-    const r = await post('/consultations/instant', patient, { specialty: 'cardiology', mode: 'video' });
+    const r = await post('/consultations/instant', patient, { specialty: 'cardiology', mode: 'video', refund_policy_accepted: true });
     expect(r.status).toBe(201);
     expect(r.body.doctors_notified).toBe(2);
     const id = r.body.id;

@@ -526,3 +526,13 @@ This page reports what happened. It does not replace the alerts: a backup failur
 - Documents are the existing `medicalreports` rows (`certificate_kind: 'sick_leave'` stays as the internal key; **user-visible text must say "medical report"**), extended with a serial `MED-<year>-<6 digits>`, a status (`issued` / `revoked`), an 8-character verify code, the consultation, the licence and facility, `seha_ref` (the Seha number) and the revoke data. The reason and the ID number are encrypted as health data (`common/health-fields.ts`).
 - Rules (`modules/sick-leave/sick-leave-rules.ts`): the rest starts on or after the consultation day (Riyadh days) and at most 30 days after it; 1 to 30 days; the end date is the last day (inclusive). A document needs a consultation of this doctor with this patient that has started. The Seha number is 6 to 30 letters, digits or hyphens, kept in capitals (the real format is not published to us; only its shape is checked).
 - API: see the lane Z outbox entries of 2026-11-09 and `modules/sick-leave/sick-leave.controller.ts`.
+
+## Addendum 2026-11-09: the refund-policy tick ("I agree") and how it is rolled out
+
+**Decision (owner):** the refund policy is shown before payment and the patient ticks "I agree" (KSA e-commerce law). Every patient booking or order create carries `refund_policy_accepted: true`; the server stores `refund_policy_acceptance { accepted, at, version }` on the booking or order (`REFUND_POLICY_VERSION`, now `2026-11-09`).
+
+**Rollout (reviewer, 2026-11-09; safety first, because installed app versions can never send the field):**
+1. **Default = `optional`.** A create without the field is accepted (nothing stored) and counted in the metric `nabd_refund_policy_missing_total`. An explicit `false` (or any non-boolean) is always refused with 400 `refund_policy_acceptance_required`. Admin and system creates are exempt.
+2. **`required` is turned on later, by config only** (`REFUND_POLICY_ACCEPTANCE=required` on the backend), and only after (a) the website's tick is live and (b) the app release with the tick is the minimum supported version (the app min-version gate). Until then old clients keep working.
+3. **How to know it is safe to flip:** `nabd_refund_policy_missing_total` stops growing (no client is sending creates without the tick).
+4. Unit tests that test the refusal set `required` explicitly; every other test sends the tick like an updated client. The live gate runs with the default (no override).

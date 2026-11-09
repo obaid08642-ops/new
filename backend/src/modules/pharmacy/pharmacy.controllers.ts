@@ -20,7 +20,7 @@ import { PharmacyOfferService } from './services/pharmacy-offer.service';
 import { PharmacyInsuranceDecisionService } from './services/pharmacy-insurance-decision.service';
 import { PharmacyExpiryCommandService } from './services/pharmacy-expiry-command.service';
 import { PaymentsService } from '../payments/payments.module';
-import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, OpenChatThreadDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5, SetCodPolicyDto, PaymentRulesDto, PharmacyCodSettingDto, ResolvePriceReviewDto, BroadcastConfigDto } from './pharmacy.controllers.dto';
+import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, OpenChatThreadDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5, SetCodPolicyDto, PaymentRulesDto, PharmacyCodSettingDto, ResolvePriceReviewDto, BroadcastConfigDto, RefillDto } from './pharmacy.controllers.dto';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
 // =========================================================================
@@ -41,7 +41,7 @@ export class PatientPharmacyController {
   // 22.5: the lines a chosen pharmacy could not fill become a new draft order of their own
   @Post('orders/:id/split-remaining') @RequireIdempotency() splitRemaining(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.splitRemaining(u, id); }
   @Post('orders/:id/submit') @RequireIdempotency() submit(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.submit(u, id); }
-  @Post('orders/:id/refill') @RequireIdempotency() refill(@CurrentUser() u: any, @Param('id') id: string) { return this.refills.refill(u, id); }
+  @Post('orders/:id/refill') @RequireIdempotency() refill(@CurrentUser() u: any, @Param('id') id: string, @Body() b: RefillDto) { return this.refills.refill(u, id, new Date(), { refund_policy_accepted: b?.refund_policy_accepted }); }
   @Post('orders/:id/cancel') @RequireIdempotency() cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelDto) { return this.orders.cancel(u, id, b?.reason || ''); }
   @Post('orders/:id/insurance-rejection/cancel') cancelRejectedInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelRejectedInsuranceDto, @Headers('idempotency-key') idemHeader?: string) { return this.insurance.cancelRejectedByPatient(u, id, b?.idempotency_key || idemHeader); }
   // A-2: ?include=closed also returns the expired, withdrawn and earlier offers, each with its offer_state.

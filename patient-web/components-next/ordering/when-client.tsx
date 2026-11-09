@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { RefundPolicyTick } from "@/components-next/refund-policy/refund-policy-tick";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
@@ -163,6 +164,8 @@ function AsapCard({ locale, kind, pay, who, point, group, schedule, update }: { 
   const [asap, setAsap] = useState<Asap | null>(null);
   const [busy, setBusy] = useState(false);
   const [errorKey, setErrorKey] = useState<string | null>(null);
+  // the refund policy is shown before the broadcast starts and agreed here (the backend refuses without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
   const [left, setLeft] = useState(0);
   const busyRef = useRef(false);
   const asapId = schedule.asapId;
@@ -197,7 +200,7 @@ function AsapCard({ locale, kind, pay, who, point, group, schedule, update }: { 
     if (busyRef.current || !point || ids.length === 0) return;
     busyRef.current = true; setBusy(true); setErrorKey(null);
     try {
-      const a = await startAsap({ service_kind: kind, items: ids, lat: point.lat, lng: point.lng, payer: pay, ...(who ? { family_member_id: who } : {}) });
+      const a = await startAsap({ service_kind: kind, items: ids, lat: point.lat, lng: point.lng, payer: pay, refund_policy_accepted: true, ...(who ? { family_member_id: who } : {}) });
       setAsap(a);
       update((s) => ({ ...s, asapId: a.id }));
     } catch (e) {
@@ -228,7 +231,10 @@ function AsapCard({ locale, kind, pay, who, point, group, schedule, update }: { 
         <p className={styles.sub}>{t("whenAsapSub")}</p>
       </div>
       {!asap || asap.status === "cancelled" ? (
-        <button type="button" className={`${styles.linkBtn} ${styles.cta}`} disabled={busy || !point || ids.length === 0} onClick={begin}>{t("whenAsapBtn")}</button>
+        <>
+          <RefundPolicyTick locale={locale} checked={refundAgreed} onChange={setRefundAgreed} />
+          <button type="button" className={`${styles.linkBtn} ${styles.cta}`} disabled={busy || !refundAgreed || !point || ids.length === 0} onClick={begin}>{t("whenAsapBtn")}</button>
+        </>
       ) : null}
       {asap && asapOpen(asap) ? (
         <>

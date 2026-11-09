@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { RefundPolicyTick } from "@/components-next/refund-policy/refund-policy-tick";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { StickyFooter } from "@/components-next/ui-generated/shells";
 import { Button } from "@/components-next/ui-generated/components/Button";
@@ -65,6 +66,8 @@ export function CheckoutScreen({ locale, prescription = null }: { locale: Locale
   const [mode, setMode] = useState<PaymentMode>("cash");
   const [policy, setPolicy] = useState<PolicyState>({ status: "idle" });
   const [sending, setSending] = useState(false);
+  // the refund policy is shown before the request is sent and agreed here (the backend refuses an order without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
   const [failure, setFailure] = useState<Failure | null>(null);
   const attempt = useRef(createBroadcastAttempt());
 
@@ -95,7 +98,7 @@ export function CheckoutScreen({ locale, prescription = null }: { locale: Locale
   const prescriptionOk = !hasRxItems || prescription !== null;
   const payMode: PaymentMode = prescription ? mode : "cash";
   const insuranceOk = payMode === "cash" || policy.status === "ok";
-  const canSend = active && address.status === "ready" && prescriptionOk && insuranceOk && !sending;
+  const canSend = active && address.status === "ready" && prescriptionOk && insuranceOk && refundAgreed && !sending;
 
   async function send() {
     if (!canSend || address.status !== "ready") return;
@@ -226,6 +229,7 @@ export function CheckoutScreen({ locale, prescription = null }: { locale: Locale
           </div>
         ) : null}
 
+        <RefundPolicyTick locale={locale} checked={refundAgreed} onChange={setRefundAgreed} />
         <div className={rx.deskActions}>{sendButton}</div>
       </>
     );

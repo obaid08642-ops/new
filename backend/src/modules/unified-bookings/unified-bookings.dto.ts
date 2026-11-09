@@ -56,6 +56,10 @@ export class CreateDto {
   @MaxLength(128)
   family_member_id?: string;
 
+  /** The patient ticked "I agree" to the refund policy shown before payment (a missing field is let through while the rollout is optional, an explicit false is refused; a missing field is 400 refund_policy_acceptance_required once REFUND_POLICY_ACCEPTANCE=required). */
+  @IsOptional()
+  @IsBoolean()
+  refund_policy_accepted?: boolean;
   /** PT-08: the patient asks for a sick leave with this consultation (a request, not a guarantee). */
   @IsOptional()
   @IsBoolean()
@@ -136,6 +140,11 @@ export class MatchDto {
 }
 
 export class NursingDto {
+  /** The patient ticked "I agree" to the refund policy shown before payment (a missing field is let through while the rollout is optional, an explicit false is refused; a missing field is 400 refund_policy_acceptance_required once REFUND_POLICY_ACCEPTANCE=required). */
+  @IsOptional()
+  @IsBoolean()
+  refund_policy_accepted?: boolean;
+
   @IsDefined()
   @IsArray()
   service_keys: any[];
@@ -170,6 +179,11 @@ export class NursingDto {
 }
 
 export class CheckoutDto {
+  /** The patient ticked "I agree" to the refund policy shown before payment (a missing field is let through while the rollout is optional, an explicit false is refused; a missing field is 400 refund_policy_acceptance_required once REFUND_POLICY_ACCEPTANCE=required). */
+  @IsOptional()
+  @IsBoolean()
+  refund_policy_accepted?: boolean;
+
   @IsOptional()
   @IsString()
   provider_account_id?: string;
@@ -213,6 +227,11 @@ export class DiagnosticLineDto {
 
 /** F74: one parent diagnostics order containing lab + radiology lines. */
 export class CreateDiagnosticOrderDto {
+  /** The patient ticked "I agree" to the refund policy shown before payment (a missing field is let through while the rollout is optional, an explicit false is refused; a missing field is 400 refund_policy_acceptance_required once REFUND_POLICY_ACCEPTANCE=required). */
+  @IsOptional()
+  @IsBoolean()
+  refund_policy_accepted?: boolean;
+
   @IsDefined()
   @IsArray()
   @ValidateNested({ each: true })

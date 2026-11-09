@@ -12,6 +12,17 @@ import mongoose, { Connection } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import Redis from 'ioredis';
 
+/**
+ * Owner decision 2026-11-09: every patient create of a booking or an order carries `refund_policy_accepted: true`. The acceptance clients play an updated client: the field is added
+ * to the create routes unless the test set it itself (a test that wants the refusal sends `refund_policy_accepted: null` or false).
+ */
+const TICK_ROUTES = /^\/api\/v1\/(care\/appointments|unified-bookings|labs\/bookings|radiology\/bookings|home-care\/bookings|nursing\/bookings|consultations\/instant|ordering\/(bookings|asap|photo-order)|patient\/pharmacy\/orders|unified-bookings\/(checkout-cart|diagnostics\/orders|nursing-broadcast))\/?$/;
+function withRefundTick(method: string, p: string, body: unknown): unknown {
+  if (method !== 'POST' || !body || typeof body !== 'object' || Array.isArray(body) || 'refund_policy_accepted' in (body as object)) return body;
+  return TICK_ROUTES.test(p.split('?')[0]) ? { ...(body as object), refund_policy_accepted: true } : body;
+}
+
+
 const BACKEND = path.resolve(__dirname, '../..');
 // Generated per run: a test server secret, never a fixed literal in the repo.
 export const JWT_SECRET = randomBytes(24).toString('hex');
@@ -107,7 +118,7 @@ export class LiveStack {
   async call(i: number, method: string, p: string, token?: string, body?: unknown) {
     const headers: Record<string, string> = { 'content-type': 'application/json', 'idempotency-key': `acc-${Date.now()}-${Math.random().toString(36).slice(2, 12)}` };
     if (token) { headers.authorization = `Bearer ${token}`; headers['x-admin-device'] = ADMIN_DEVICE; }
-    const res = await fetch(`${this.servers[i].url}${p}`, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
+    const res = await fetch(`${this.servers[i].url}${p}`, { method, headers, body: body === undefined ? undefined : JSON.stringify(withRefundTick(method, p, body)) });
     const text = await res.text();
     let json: any = null;
     try { json = JSON.parse(text); } catch { json = text; }

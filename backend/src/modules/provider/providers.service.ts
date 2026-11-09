@@ -127,6 +127,9 @@ export class ProvidersService {
 
   // ============ Admin Review ============
   async reject(id: string, admin: any, reason: string) {
+    // G6: the applicant reads the reason and fixes what it names before resubmitting; the admin path (ProviderAdminService.reject) already requires 5+ characters, this one now does too.
+    if (typeof reason !== 'string' || reason.trim().length < 5) throw new BadRequestException('rejection_reason_required');
+    reason = reason.trim();
     const p = await this.providerModel.findOne({ id });
     if (!p) throw new NotFoundException();
     p.status = ProviderStatus.REJECTED;
