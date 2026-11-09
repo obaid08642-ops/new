@@ -151,13 +151,13 @@ services:
       # tools/ops/mongo_pool_budget.py keeps the sum of every pool (x replicas) + the tools reserve under the limit.
       MONGO_MAX_POOL_SIZE: "80"
       MONGO_MIN_POOL_SIZE: "10"
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      REDIS_URL: ${REDIS_URL:-redis://:${REDIS_PASSWORD}@redis:6379}   # R7: unset = the local redis container (unchanged); set in .env.production to use a Redis on another host
       REDIS_CACHE_URL: ${REDIS_CACHE_URL:-}   # P14.14: empty = the cache shares REDIS_URL (one Redis until scale step 2)
       REDIS_HOST: redis
       REDIS_PORT: "6379"
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       # Search answers from MongoDB while Meilisearch is down or not configured (no hard dependency).
-      MEILI_URL: http://meilisearch:7700
+      MEILI_URL: ${MEILI_URL:-http://meilisearch:7700}   # R7: unset = the local meilisearch container (unchanged); set in .env.production to use one on another host
       MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
       # 16.5: every upload is scanned by ClamAV (the `clamav` service) before it is stored. An infected file is always refused;
       # with `required` (the production default) an upload is also refused while the scanner cannot answer. `defer` (for a server that
@@ -219,12 +219,12 @@ services:
       # tools/ops/mongo_pool_budget.py keeps the sum of every pool (x replicas) + the tools reserve under the limit.
       MONGO_MAX_POOL_SIZE: "40"
       MONGO_MIN_POOL_SIZE: "5"
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      REDIS_URL: ${REDIS_URL:-redis://:${REDIS_PASSWORD}@redis:6379}   # R7: unset = the local redis container (unchanged); set in .env.production to use a Redis on another host
       REDIS_CACHE_URL: ${REDIS_CACHE_URL:-}   # P14.14: empty = the cache shares REDIS_URL (one Redis until scale step 2)
       REDIS_HOST: redis
       REDIS_PORT: "6379"
       REDIS_PASSWORD: ${REDIS_PASSWORD}
-      MEILI_URL: http://meilisearch:7700
+      MEILI_URL: ${MEILI_URL:-http://meilisearch:7700}   # R7: unset = the local meilisearch container (unchanged); set in .env.production to use one on another host
       MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
     depends_on:
       mongodb: { condition: service_healthy }
@@ -279,7 +279,7 @@ services:
     environment:
       MONGO_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
       DB_NAME: ${DB_NAME:-nabd_nestjs}
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      REDIS_URL: ${REDIS_URL:-redis://:${REDIS_PASSWORD}@redis:6379}   # R7: unset = the local redis container (unchanged); set in .env.production to use a Redis on another host
       REDIS_CACHE_URL: ${REDIS_CACHE_URL:-}   # P14.14: empty = the cache shares REDIS_URL (one Redis until scale step 2)
       REDIS_HOST: redis
       REDIS_PORT: "6379"
