@@ -1,5 +1,5 @@
 {
- "commit": "92929afc",
+ "commit": "06c214df",
  "routes": [
   {
    "app": "patient-app",
@@ -6522,7 +6522,7 @@
      "path": "/ai/prescription-ocr",
      "target": "backend",
      "query": "",
-     "line": 69,
+     "line": 96,
      "file": "patient-app/src/components/pharmacy/RxIntake.tsx",
      "status": "OK",
      "backend": "backend/src/modules/ai/ai.controller.ts:118"
@@ -6582,7 +6582,7 @@
      "path": "/prescriptions/upload",
      "target": "backend",
      "query": "",
-     "line": 76,
+     "line": 121,
      "file": "patient-app/src/components/pharmacy/RxIntake.tsx",
      "status": "OK",
      "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:19"
@@ -18785,7 +18785,7 @@
      "path": "/api/patient/ai/prescription-ocr",
      "target": "web-proxy",
      "query": "",
-     "line": 84,
+     "line": 87,
      "file": "patient-web/components-next/pharmacy/rx-upload-screen.tsx",
      "backend": "backend/src/modules/ai/ai.controller.ts:118",
      "status": "OK"
