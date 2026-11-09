@@ -1867,6 +1867,7 @@
     "useMyLocation": "Gamitin ang kasalukuyang lokasyon ko",
     "locating": "Hinahanap ang lokasyon mo…",
     "locationSet": "Naitakda na ang lokasyon ng address.",
+    "locateDenied": "Naka-block ang access sa lokasyon. Payagan ito sa settings ng browser, o ilagay ang address nang mano-mano sa ibaba.",
     "locateFailed": "Hindi makuha ang kasalukuyang lokasyon mo.",
     "building": "Numero ng gusali",
     "floor": "Palapag"

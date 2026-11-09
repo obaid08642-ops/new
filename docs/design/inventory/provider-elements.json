@@ -1,5 +1,5 @@
 {
- "commit": "ecdd1c55",
+ "commit": "92929afc",
  "screens": {
   "PendingDashboard": [
    {
@@ -13736,7 +13736,7 @@
     "src": "value ← `${(totalAmt/1000).toFixed(1)}K`",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/InsuranceClaimsHubScreen.tsx",
-    "line": 74,
+    "line": 90,
     "via": null,
     "note": null
    },
@@ -13746,7 +13746,7 @@
     "src": "value ← `${(pendingAmt/1000).toFixed(1)}K`",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/InsuranceClaimsHubScreen.tsx",
-    "line": 75,
+    "line": 91,
     "via": null,
     "note": null
    },
@@ -13756,7 +13756,7 @@
     "src": "local state setStatusFilter",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/InsuranceClaimsHubScreen.tsx",
-    "line": 86,
+    "line": 102,
     "via": null,
     "note": null
    },
@@ -13766,7 +13766,7 @@
     "src": "from filtered (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/InsuranceClaimsHubScreen.tsx",
-    "line": 98,
+    "line": 114,
     "via": null,
     "note": null,
     "untraced": true
@@ -13777,7 +13777,7 @@
     "src": "local state setExpandedClaim",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/InsuranceClaimsHubScreen.tsx",
-    "line": 124,
+    "line": 140,
     "via": null,
     "note": null
    }

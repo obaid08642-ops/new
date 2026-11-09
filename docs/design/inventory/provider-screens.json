@@ -1,5 +1,5 @@
 {
- "commit": "ecdd1c55",
+ "commit": "92929afc",
  "routes": [
   {
    "app": "provider-app",
@@ -2755,7 +2755,7 @@
      "line": 87,
      "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:93"
+     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:98"
     },
     {
      "method": "POST",
@@ -2765,7 +2765,7 @@
      "line": 118,
      "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:107"
+     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:112"
     },
     {
      "method": "GET",
@@ -2941,7 +2941,7 @@
      "line": 57,
      "file": "provider-app/src/screens/doctor/FacilityInvitationsScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:100"
+     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:105"
     },
     {
      "method": "GET",
@@ -2951,7 +2951,7 @@
      "line": 35,
      "file": "provider-app/src/screens/doctor/FacilityInvitationsScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:93"
+     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:98"
     }
    ],
    "files": 13,
@@ -3611,7 +3611,7 @@
      "line": 83,
      "file": "provider-app/src/screens/facility/facility/BedManagementScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:387"
+     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:396"
     },
     {
      "method": "PUT",
@@ -3621,7 +3621,7 @@
      "line": 111,
      "file": "provider-app/src/screens/facility/facility/BedManagementScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:397"
+     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:406"
     },
     {
      "method": "POST",
@@ -3631,7 +3631,7 @@
      "line": 128,
      "file": "provider-app/src/screens/facility/facility/BedManagementScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:382"
+     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:391"
     },
     {
      "method": "GET",
@@ -3641,7 +3641,7 @@
      "line": 69,
      "file": "provider-app/src/screens/facility/facility/BedManagementScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:377"
+     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:386"
     }
    ],
    "files": 12,
@@ -3746,7 +3746,7 @@
      "line": 25,
      "file": "provider-app/src/screens/facility/DischargeSummaryScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:392"
+     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:401"
     },
     {
      "method": "PUT",
@@ -3756,7 +3756,7 @@
      "line": 45,
      "file": "provider-app/src/screens/facility/DischargeSummaryScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:397"
+     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:406"
     }
    ],
    "files": 12,
@@ -3791,7 +3791,7 @@
      "line": 21,
      "file": "provider-app/src/screens/facility/FacilityAnnouncementsScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:486"
+     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:495"
     },
     {
      "method": "POST",
@@ -3801,7 +3801,7 @@
      "line": 32,
      "file": "provider-app/src/screens/facility/FacilityAnnouncementsScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:493"
+     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:502"
     }
    ],
    "files": 12,
@@ -3871,7 +3871,7 @@
      "line": 59,
      "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:468"
+     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:477"
     },
     {
      "method": "GET",
@@ -3991,7 +3991,7 @@
      "line": 23,
      "file": "provider-app/src/screens/facility/FacilityInvitationScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:80"
+     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:85"
     },
     {
      "method": "POST",
@@ -4001,7 +4001,7 @@
      "line": 74,
      "file": "provider-app/src/screens/facility/FacilityInvitationScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:75"
+     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:80"
     },
     {
      "method": "POST",
@@ -4011,7 +4011,7 @@
      "line": 29,
      "file": "provider-app/src/screens/facility/FacilityInvitationScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:86"
+     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:91"
     }
    ],
    "files": 12,
@@ -4271,7 +4271,7 @@
      "line": 33,
      "file": "provider-app/src/screens/facility/FacilityResourcesScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:510"
+     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:519"
     },
     {
      "method": "POST",
@@ -4281,7 +4281,7 @@
      "line": 47,
      "file": "provider-app/src/screens/facility/FacilityResourcesScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:517"
+     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:526"
     },
     {
      "method": "PUT",
@@ -4291,7 +4291,7 @@
      "line": 60,
      "file": "provider-app/src/screens/facility/FacilityResourcesScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:539"
+     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:548"
     }
    ],
    "files": 12,
@@ -4414,7 +4414,7 @@
    "component": "InsuranceClaimsHubScreen",
    "area": "facility",
    "file": "provider-app/src/screens/facility/facility/InsuranceClaimsHubScreen.tsx",
-   "line": 44,
+   "line": 53,
    "registrations": [
     {
      "role": "facility",
@@ -4433,10 +4433,10 @@
      "path": "/insurance/requests/provider/queue",
      "target": "backend",
      "query": "",
-     "line": 54,
+     "line": 64,
      "file": "provider-app/src/screens/facility/facility/InsuranceClaimsHubScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:891"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:916"
     }
    ],
    "files": 13,
@@ -4516,7 +4516,7 @@
      "line": 55,
      "file": "provider-app/src/screens/facility/facility/ShiftManagementScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:409"
+     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:418"
     },
     {
      "method": "POST",
@@ -4526,7 +4526,7 @@
      "line": 96,
      "file": "provider-app/src/screens/facility/facility/ShiftManagementScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:414"
+     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:423"
     },
     {
      "method": "POST",
@@ -4536,7 +4536,7 @@
      "line": 143,
      "file": "provider-app/src/screens/facility/facility/ShiftManagementScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:419"
+     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:428"
     },
     {
      "method": "GET",
@@ -4591,7 +4591,7 @@
      "line": 53,
      "file": "provider-app/src/screens/facility/facility/StaffAttendanceScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:451"
+     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:460"
     },
     {
      "method": "POST",
@@ -4601,7 +4601,7 @@
      "line": 72,
      "file": "provider-app/src/screens/facility/facility/StaffAttendanceScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:441"
+     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:450"
     },
     {
      "method": "POST",
@@ -4611,7 +4611,7 @@
      "line": 83,
      "file": "provider-app/src/screens/facility/facility/StaffAttendanceScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:446"
+     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:455"
     }
    ],
    "files": 12,
@@ -4656,7 +4656,7 @@
      "line": 94,
      "file": "provider-app/src/screens/facility/facility/SubAccountsScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:44"
+     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:49"
     }
    ],
    "files": 13,
@@ -4691,7 +4691,7 @@
      "line": 90,
      "file": "provider-app/src/screens/facility/facility/SurgeryScheduleScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:463"
+     "backend": "backend/src/modules/facility-ops/facility-ops.module.ts:472"
     }
    ],
    "files": 13,
@@ -8284,7 +8284,7 @@
      "line": 100,
      "file": "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:893"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:918"
     },
     {
      "method": "GET",
@@ -8294,7 +8294,7 @@
      "line": 51,
      "file": "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:891"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:916"
     }
    ],
    "files": 12,
@@ -9284,7 +9284,7 @@
      "line": 51,
      "file": "provider-app/src/screens/shared/shared/ProviderWalletScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/payouts/provider-payouts.controller.ts:128"
+     "backend": "backend/src/modules/payouts/provider-payouts.controller.ts:137"
     },
     {
      "method": "GET",
@@ -9726,7 +9726,7 @@
      "line": 54,
      "file": "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/payouts/provider-payouts.controller.ts:128"
+     "backend": "backend/src/modules/payouts/provider-payouts.controller.ts:137"
     },
     {
      "method": "GET",
@@ -9736,7 +9736,7 @@
      "line": 56,
      "file": "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/payouts/provider-payouts.controller.ts:122"
+     "backend": "backend/src/modules/payouts/provider-payouts.controller.ts:131"
     },
     {
      "method": "POST",
@@ -9746,7 +9746,7 @@
      "line": 102,
      "file": "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/payouts/provider-payouts.controller.ts:54"
+     "backend": "backend/src/modules/payouts/provider-payouts.controller.ts:56"
     }
    ],
    "files": 13,
