@@ -23,6 +23,7 @@ import { randomUUID } from 'crypto';
 import { JwtAuthGuard, CurrentUser, Roles, hasEffectiveRole } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, PutPricingDto, PutTariffsDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto, ToggleInstantDto, SaveDoctorNoteDto } from './provider-ops.dto';
+import { clampMonths, foldRevenue, rangeStart, revenuePipeline } from './revenue-by-month';
 import { ensureEarningUniqueIndex } from '../finance-engine/earning-key';
 import { CommissionResolver, LedgerService } from '../finance-engine/finance-engine.module';
 import { settlementDelayDefault, DEFAULT_VAT_PERCENT } from '../../common/commission-defaults';
@@ -800,6 +801,16 @@ export class ProviderOpsService {
     ).toArray() as unknown as Array<{ amount: number; createdAt: Date }>;
   }
 
+  /** Revenue per month for the last `months` months, refunds netted (revenue-by-month.ts). The earnings are filed under the provider ACCOUNT id, so both ids are read. */
+  async revenueByMonth(providerId: string, monthsRaw?: unknown): Promise<any> {
+    const months = clampMonths(monthsRaw);
+    const account: any = await this.conn.collection('provider_accounts').findOne({ $or: [{ id: providerId }, { user_id: providerId }] }).catch(() => null);
+    const ids = [...new Set([providerId, account?.id, account?.user_id].filter(Boolean).map(String))];
+    const now = new Date();
+    const rows = await this.conn.collection('platformledgerentries').aggregate(revenuePipeline(ids, rangeStart(now, months)) as any[]).toArray();
+    return foldRevenue(rows as any[], now, months);
+  }
+
   async walletLedger(providerId: string, limit = 100): Promise<any> {
     const rows = await this.conn.collection('platformledgerentries').find(
       { provider_account_id: providerId },
@@ -953,6 +964,12 @@ export class ProviderCompatController {
   @Get('stats/period') async statsPeriod(@CurrentUser() u: any, @Query('period') period?: string): Promise<any> {
     const p = period === 'week' || period === 'year' ? period : 'month';
     return this.svc.statsPeriod(u.id, p);
+  }
+
+  /** Revenue per month (default 12 months, at most 24), refunds netted: what the revenue screen draws. */
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
+  @Get('stats/revenue') async statsRevenue(@CurrentUser() u: any, @Query('months') months?: string): Promise<any> {
+    return this.svc.revenueByMonth(u.id, months);
   }
 
   /** Doctor pricing settings (clinic/online/home) — persisted server-side. */
