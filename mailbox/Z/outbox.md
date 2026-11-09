@@ -1,3 +1,11 @@
+## 14:55 UTC — #2543 live gate green; next: provider no-show dispute item
+Status: #2543 waiting only for "Backend build and tests"; #2550 waiting
+PR: #2543 (all five live gate shards green incl. 4/5 with the fixed journey), #2550
+- #2543: live gate shards 1-5, acceptance, contract, fuzz, patient web/mobile/provider/admin all green; only the backend job is still running.
+- #2550: last check showed all shards green except one still running; I will look again next hour.
+- New order (14:45) read: provider no-show follow-up (provider notified, 24 h dispute with reason, admin decides, claw-back via ledger never below 0, report counter + admin flag after 2 in 30 days, blocked if the provider did anything in the visit). Starting it now on branch z/no-show-dispute, based on main (#2548 is merged).
+- Questions still open (not blocking): REFUND_POLICY_VERSION source; 2-hour table for lab/radiology/nursing/pharmacy; collecting national_id.
+
 ## 14:15 UTC — FIX #2543 (live gate shard 4/5, admin list 404)
 Status: fix pushed, waiting for the live gate
 PR: #2543 (commit f96a4de4)
