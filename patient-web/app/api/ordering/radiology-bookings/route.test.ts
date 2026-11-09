@@ -5,7 +5,7 @@ vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.call }));
 vi.mock("next/headers", () => ({ cookies: async () => state.cookies }));
 import { POST } from "./route";
 
-const body = { service_id: "scan-1", provider_id: "prov-1", scheduled_at: "2030-01-02T08:00:00.000Z", location_type: "facility", payment_method: "card" };
+const body = { service_id: "scan-1", provider_id: "prov-1", scheduled_at: "2030-01-02T08:00:00.000Z", location_type: "facility", payment_method: "card", refund_policy_accepted: true };
 const req = (b: unknown = body, headers: HeadersInit = {}) => new Request("https://web.test/api/ordering/radiology-bookings", { method: "POST", headers: { "content-type": "application/json", ...headers }, body: JSON.stringify(b) });
 
 describe("radiology booking BFF (one scan of a radiology basket)", () => {
@@ -39,9 +39,16 @@ describe("radiology booking BFF (one scan of a radiology basket)", () => {
     state.call.mockResolvedValue(new Response(JSON.stringify({ id: "rb-2", state: "NEW_REQUEST", total_price: 90 }), { status: 201 }));
     const forMember = { ...body, family_member_id: "member-abc-123" };
     expect((await POST(req(forMember))).status).toBe(201);
-    expect(state.call).toHaveBeenCalledWith("/radiology/bookings", expect.objectContaining({ body: JSON.stringify(forMember) }), "server-access");
+    expect(state.call).toHaveBeenCalledWith("/radiology/bookings", expect.anything(), "server-access");
+    expect(JSON.parse(state.call.mock.calls[0][1].body)).toEqual(forMember);
     state.call.mockReset();
     expect((await POST(req({ ...body, family_member_id: "../x" }))).status).toBe(400);
+    expect(state.call).not.toHaveBeenCalled();
+  });
+
+  it("refuses a booking without the refund policy agreement, or with false, before anything is sent", async () => {
+    const { refund_policy_accepted: _agreed, ...without } = body;
+    for (const b of [without, { ...body, refund_policy_accepted: false }]) expect((await POST(req(b))).status).toBe(400);
     expect(state.call).not.toHaveBeenCalled();
   });
 });

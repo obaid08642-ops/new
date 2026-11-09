@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { RefundPolicyTick } from "@/components-next/refund-policy/refund-policy-tick";
 import { useEffect, useRef, useState } from "react";
 import { cancelInstant, InstantApiError, readInstant, startInstant } from "@/lib/consult/instant-client";
 import { clockText, instantErrorKey, instantOpen, type Instant, type InstantMode } from "@/lib/consult/instant";
@@ -22,6 +23,8 @@ export function InstantConsultClient({ locale, specialties, bookingId, attachedC
   const [req, setReq] = useState<Instant | null>(null);
   const [left, setLeft] = useState(0);
   const [busy, setBusy] = useState(false);
+  // the refund policy is shown before the request is sent and agreed here (the backend refuses an instant consultation without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const [noDoctorsSlot, setNoDoctorsSlot] = useState<{ startsAt: string } | null>(null);
   const busyRef = useRef(false);
@@ -78,7 +81,8 @@ export function InstantConsultClient({ locale, specialties, bookingId, attachedC
               <div role="group" aria-label={t("mode")} className={styles.stack}>
                 {MODES.map((m) => <button key={m} type="button" className={styles.chip} aria-pressed={mode === m} onClick={() => setMode(m)}>{t(m === "video" ? "modeVideo" : "modeAudio")}</button>)}
               </div>
-              <button type="button" className={`${styles.linkBtn} ${styles.cta}`} disabled={busy || !specialty} onClick={() => run(() => startInstant({ specialty, mode }, bookingId))}>{t("start")}</button>
+              <RefundPolicyTick locale={locale} checked={refundAgreed} onChange={setRefundAgreed} />
+              <button type="button" className={`${styles.linkBtn} ${styles.cta}`} disabled={busy || !specialty || !refundAgreed} onClick={() => run(() => startInstant({ specialty, mode, refund_policy_accepted: true }, bookingId))}>{t("start")}</button>
             </>
           )}
           {req?.status === "cancelled" ? <p className={styles.note} role="status">{t("cancelled")}</p> : null}

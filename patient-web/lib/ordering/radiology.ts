@@ -3,6 +3,7 @@
  * which books labs only. Same quote, same confirm sheet, same result shape: the client splits the submit by kind. The server prices every scan
  * itself; nothing priced is sent. A retry within a few minutes returns the bookings already made (the server's duplicate guard).
  */
+import { withRefundPolicy } from "@/lib/refund-policy";
 import type { OrderingBooking, OrderingBookingResult } from "./bookings";
 import { OrderingApiError } from "./client";
 import type { Schedule } from "./schedule";
@@ -38,10 +39,11 @@ export function buildRadiologyRequests(a: {
 }
 
 /** Books the requests one after another and answers in the shape of an ordering group, so the confirm sheet needs no second path. */
-export async function createRadiologyBookings(requests: RadiologyRequest[], post: (body: RadiologyBookingBody) => Promise<unknown>): Promise<OrderingBookingResult> {
+export async function createRadiologyBookings(requests: RadiologyRequest[], post: (body: RadiologyBookingBody & { refund_policy_accepted: true }) => Promise<unknown>): Promise<OrderingBookingResult> {
   const bookings: OrderingBooking[] = [];
   for (const r of requests) {
-    const made = await post(r.body);
+    // the patient agreed to the refund policy before this ran (the confirm button is off until then)
+    const made = await post(withRefundPolicy(r.body));
     const o = made && typeof made === "object" ? (made as Record<string, unknown>) : {};
     if (typeof o.id !== "string" || typeof o.total !== "number") throw new OrderingApiError("bad_answer", 502);
     bookings.push({ id: o.id, kind: "radiology", mode: r.mode, status: r.body.payment_method === "insurance" ? "awaiting_approval" : "pending", providerId: r.body.provider_id, total: o.total, items: [{ catalogId: r.body.service_id, price: o.total }] });

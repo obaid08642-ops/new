@@ -14,6 +14,8 @@ const schema = z.object({
   location_type: z.enum(["home", "facility"]),
   payment_method: z.enum(["card", "insurance"]),
   family_member_id: id.optional(),
+  // the patient agreed to the refund policy before booking (the backend refuses without it; an explicit false is never accepted)
+  refund_policy_accepted: z.literal(true),
   documents: z.array(z.object({ kind: z.literal("doctor_request"), url_or_b64: z.string().max(2_000_000), filename: z.string().max(200).optional() })).max(5).optional(),
 });
 
