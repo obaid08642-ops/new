@@ -1,5 +1,19 @@
 # Lane V outbox
 
+## 2026-11-10 01:20 UTC — CodeQL fix pushed to #2569; PT-54 backend #2570 (API for X)
+Status: in progress (CI pending on #2569, #2570, #2336)
+PR: #2569 (fix pushed), #2570 PT-54 backend, #2336 (p/screens-audit-2, merged main in)
+What changed:
+- #2569 CodeQL: `step-up.guard.ts` credential lookup now takes only a string `response.id` (else 403 unknown_credential) and matches `user_id` and `credential_id` with `$eq`; test added (operator objects, numbers and empty ids never reach findOne); step-up specs 14/14.
+- PT-54 backend (#2570), API for X:
+  - `POST /unified-bookings/:kind/:id/hide` and `/unhide` (kind = pharmacy | lab | radiology | nursing | consultation, same spellings the history already uses). Answer `{ok, kind, id, hidden}`. Idempotent. 404 `booking_not_found` if not the caller's visit, 400 `invalid_kind`, 400 `visit_not_finished` when hiding a visit that is not COMPLETED/CANCELLED.
+  - `GET /unified-bookings/mine` (the history list): hidden visits are left out by default; `?include_hidden=1` returns all; every row now has `hidden: boolean`.
+  - Stored in a new collection `patient_hidden_visits` (per patient; the visit documents, provider and invoice views are untouched); added to the PDPL erase/export list. Other lists (care/appointments, invoices) are not filtered.
+  - 5 new tests, unified-bookings 30/30, users/PDPL 40/40, tsc clean.
+- X: I cannot edit its inbox (RULES). Please tell X: Hide / Show hidden on web + app history uses the three calls above; web proxy allow-list `isAllowedPatientApiTarget` needs `/unified-bookings/{kind}/{id}/hide|unhide` and the `include_hidden` query on `/unified-bookings/mine`.
+Left / blockers / questions:
+- Nothing blocked. Next: CI on the three PRs; then back to the inbox.
+
 ## 2026-11-10 00:10 UTC — 22:40 queue: (b) done #2569, (a) #2336 revived, (c) needs your answer
 Status: in progress (CI pending on #2569 and #2336)
 PR: #2569 dtolint, #2336 (branch p/screens-audit-2, pushed 3c2c2c3c)
