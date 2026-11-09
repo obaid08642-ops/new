@@ -115,6 +115,11 @@ export class BookingDocumentDto {
 }
 
 export class CreateOrderingBookingDto {
+  /** The patient ticked "I agree" to the refund policy shown before payment (a missing field is let through while the rollout is optional, an explicit false is refused; a missing field is 400 refund_policy_acceptance_required once REFUND_POLICY_ACCEPTANCE=required). */
+  @IsOptional()
+  @IsBoolean()
+  refund_policy_accepted?: boolean;
+
   @IsString()
   @Matches(ID)
   quote_id: string;
@@ -152,6 +157,11 @@ export class CreateOrderingBookingDto {
 // ---------- M4: ASAP and photo-order broadcast ----------
 
 export class AsapDto {
+  /** The patient ticked "I agree" to the refund policy shown before payment (a missing field is let through while the rollout is optional, an explicit false is refused; a missing field is 400 refund_policy_acceptance_required once REFUND_POLICY_ACCEPTANCE=required). */
+  @IsOptional()
+  @IsBoolean()
+  refund_policy_accepted?: boolean;
+
   /** Owner decision 1: the family member this order is for (the caller pays); checked server-side. */
   @IsOptional()
   @IsString()
@@ -178,6 +188,11 @@ export class AsapDto {
 }
 
 export class PhotoOrderDto {
+  /** The patient ticked "I agree" to the refund policy shown before payment (a missing field is let through while the rollout is optional, an explicit false is refused; a missing field is 400 refund_policy_acceptance_required once REFUND_POLICY_ACCEPTANCE=required). */
+  @IsOptional()
+  @IsBoolean()
+  refund_policy_accepted?: boolean;
+
   /** Owner decision 1: the family member this order is for (the caller pays); checked server-side. */
   @IsOptional()
   @IsString()

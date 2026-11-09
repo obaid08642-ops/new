@@ -20,16 +20,19 @@ export interface McpToolDefinition {
 const IDEM = { type: 'string', description: 'Unique key per attempt; a retry with the same key returns the same result and creates nothing twice.' };
 const SCOPE_NOTE = (tool: string) => ` Needs the patient's Nabd sign-in (OAuth scope ${AGENT_TOOL_SCOPES[tool]}).`;
 const CHECKOUT_NOTE = ' Returns checkout_url: give it to the patient, who confirms and pays on Nabd Plus. The assistant never pays and cannot select an offer.';
+/** Owner decision 2026-11-09: a booking or an order is only made after the patient agreed to the refund policy: the assistant shows it, asks, and sends true. The server is in a rollout where a missing value is still accepted (counted); false is always refused, and a missing value becomes refused once the server turns the requirement on. */
+const REFUND_POLICY_ARG = { type: 'boolean', description: 'The patient agreed to the refund policy (ask them first; true only after they said yes). Always ask and send it: false is refused, and a missing value will be refused once the requirement is switched on (refund_policy_acceptance_required).' };
 
 /**
  * AC-3 tools advertised in tools/list so an assistant can discover and call them. Calling one
  * without a token answers HTTP 401 with the RFC 9728 pointer, which starts the sign-in flow.
  */
+
 function agentToolDefinitions(): McpToolDefinition[] {
   const hold = (name: string, description: string, properties: Record<string, unknown>, required: string[]): McpToolDefinition => ({
     name,
     description: description + SCOPE_NOTE(name) + CHECKOUT_NOTE,
-    inputSchema: { type: 'object', properties: { ...properties, idempotency_key: IDEM }, required: [...required, 'idempotency_key'] },
+    inputSchema: { type: 'object', properties: { ...properties, refund_policy_accepted: REFUND_POLICY_ARG, idempotency_key: IDEM }, required: [...required, 'idempotency_key'] },
   });
   return [
     {
@@ -58,6 +61,7 @@ function agentToolDefinitions(): McpToolDefinition[] {
             items: { type: 'object', properties: { medicine_id: { type: 'string' }, qty: { type: 'integer', minimum: 1 } }, required: ['medicine_id'] },
           },
           address_id: { type: 'string', description: "One of the patient's saved addresses (default address when omitted)." },
+          refund_policy_accepted: REFUND_POLICY_ARG,
           idempotency_key: IDEM,
         },
         required: ['items', 'idempotency_key'],

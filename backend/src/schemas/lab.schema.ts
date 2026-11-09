@@ -122,6 +122,8 @@ export class LabBooking extends Document {
   @Prop() notes?: string;
   /** Owner decision 1: the family member this is for; the booker (patient_id) is unchanged. Absent = for the booker. */
   @Prop({ type: String, required: false, index: true }) family_member_id?: string;
+  /** The refund policy the patient agreed to before paying (common/refund-policy-acceptance.ts): the tick, its time and the policy version. */
+  @Prop({ type: Object, required: false }) refund_policy_acceptance?: { accepted: boolean; at: Date; version: string };
   /** P17-17.5: UTM campaign attribution (utm_source/medium/campaign/term/content). */
   @Prop({ type: Object, required: false }) attribution?: Record<string, string>;
   @Prop({ enum: ['cash', 'card', 'insurance'], default: 'cash' }) payment_method: string;

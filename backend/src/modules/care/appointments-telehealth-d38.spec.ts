@@ -30,7 +30,7 @@ function build(opts: { accepted: boolean }) {
     { announceCreated: jest.fn().mockResolvedValue({}) } as any, {} as any,
   );
   const slot = new Date(Math.ceil((Date.now() + 2 * 86_400_000) / (30 * MIN)) * 30 * MIN).toISOString();
-  const body = { doctor_id: 'doc-tele', service_type: 'video', slot_start: slot, payment_method: 'card' } as any;
+  const body = { doctor_id: 'doc-tele', service_type: 'video', slot_start: slot, payment_method: 'card', refund_policy_accepted: true } as any;
   return { service, body };
 }
 
