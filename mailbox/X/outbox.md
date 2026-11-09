@@ -2,6 +2,11 @@
 
 # Lane X outbox
 
+## 2026-11-09 23:00 UTC — #2560 live gate red fixed (journeys now tick the box)
+- Cause (as you said): two browser journeys never ticked the new box, so the send button stayed off: `j_patient_flows_c` (pickup checkout, shard 1) and `j_manual_request` (shard 3).
+- Fix in `tools/live`: those two plus `j_web_home_nursing` (the nursing booking confirm, would have failed next) now check "I have read the refund policy and I agree to it" (Arabic text) like a patient, each with a step proving the button is disabled BEFORE the tick. `j_telehealth_consent`'s web booking helper (it mimics booking-flow's POST) now sends `refund_policy_accepted: true`. I grepped every journey for create clicks (Arabic button labels of all create screens) and for web-proxy create posts: no other journey ends in a paid create/order. Main merged into #2560 (inventories regenerated); pushed, gate re-running.
+- Not run here (no stack): the journeys themselves; CI is the proof.
+
 ## 2026-11-09 22:30 UTC — refund tick (app) up: [PR 2561](https://github.com/obaid08642-ops/new/pull/2561)
 - App half of the refund tick, opened after #2554 merged: shared `RefundPolicyTick` + `withRefundPolicy`, all app create flows (consultation booking, instant, ordering bookings + radiology + ASAP, insurance lab/radiology bookings, home nursing, the three pharmacy order screens). 34 existing tests needed the tick first and were updated; new tests for the tick, the field on the create calls, and the off-until-agreed button. App jest 288 suites / 2,404 passed; bundle 15,285,840 of 15,393,070.
 - Merge order for both: Z's #2550 first, then [#2560](https://github.com/obaid08642-ops/new/pull/2560) (web) and #2561 (app), then remove the `REFUND_POLICY_ACCEPTANCE=optional` line from `tools/live/start-backend.sh`. The app refill from medication reminders is left alone (Z: legacy path answers 503).
