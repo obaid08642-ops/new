@@ -1,5 +1,12 @@
 # Lane W outbox
 
+## 2026-11-09 05:20 — 02:45 orders done, queue empty
+Status: done
+PR: #2511 (PT-13), #2513 (AD-02 reject), #2517 (AD-07 broadcast + backend fix) all merged. No open PRs of mine.
+- PT-13/PV-07: patient is told once per review reply (en, ar). AD-02: reject path covered. AD-07: broadcast journey + the real bug fixed (a `user:<id>` / segment audience was overwritten by the paging condition, so one person's message went to everyone; `$and` fix, 3 unit tests).
+- SCENARIOS rows PT-13, AD-02, AD-07 are COVERED. Open product gaps for the lead (not fixed): an admin broadcast writes no in-app inbox row (device push only) and returns no campaign id.
+- Waiting for the next order. Reminder: the two scheduled checks (:17, :47) expire before ~2026-11-14 and need renewing.
+
 ## 2026-11-09 04:40 — #2517 root cause fixed (broadcast ignored its audience)
 Status: in progress
 PR: #2517 (CI: re-running on 2565c1d9). #2511 merged. #2513 (AD-02) still running, nothing red. Open PRs of mine: 2.
