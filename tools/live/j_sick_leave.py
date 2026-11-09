@@ -97,6 +97,8 @@ def main():
     journey('PT-08: the Seha number')
     r = pat.get(f'/care/sick-leaves/{cert_id}')
     step('the report says Seha registration is pending', r.ok and r.get('seha_status') == 'pending' and r.get('seha_number') is None, r)
+    r = admin.get('/admin/admin/medical-reports/without-seha-number?days=0')
+    step('the admin list (reached through the admin panel proxy) shows the report that has no number yet', r.ok and serial in str(r.body), r)
     r = pat.req('PUT', f'/provider/sick-leaves/{cert_id}/seha-number', {'seha_number': 'PGB-12345678'})
     step('a patient cannot set the Seha number', r.status in (401, 403), r)
     r = other_doctor.req('PUT', f'/provider/sick-leaves/{cert_id}/seha-number', {'seha_number': 'PGB-12345678'})
@@ -111,7 +113,7 @@ def main():
     step('and its PDF is regenerated', r.ok and isinstance(r.body, str) and r.body.startswith('%PDF'), r.status)
     r = pat.get('/notifications')
     step('the patient was notified of the Seha number', 'seha_added' in str(r.body), 'no seha_added notification')
-    r = admin.get('/admin/medical-reports/without-seha-number?days=0')
+    r = admin.get('/admin/admin/medical-reports/without-seha-number?days=0')
     step('the admin list does not contain a report that has its number', r.ok and serial not in str(r.body), r)
 
     journey('PT-08: the public verify page (the QR)')
