@@ -9,6 +9,8 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Lead 3 run 2026-11-09 11:40 UTC
+- No change: #2537/#2538/#2540 rebased, CI running. Runs 109/110 still wait for the owner's push to review/server-inspect.
 ## Lead 3 run 2026-11-09 11:20 UTC
 - Merged #2539. Conflicts: #2537/#2540 (X; #2540 must justify 27 removed locale keys), #2538 (Z, reviewed OK). Runs 109 (31b2added) and 110 (y/ops-run-110, main 15e591f2) wait for the owner's push to review/server-inspect.
 ## Lead 3 run 2026-11-09 10:50 UTC
@@ -76,5 +78,3 @@ TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the t
 - Merged #2508 (refund takeover safety: expected total recorded before gateway call; takeover asks gateway first; refuses 409 if gateway unreadable; tests). Pending: #2510 (Z family_member_id, merge first) then #2509 (X client, green, waits for 2510).
 - LIVE main@50df9f87; run 107 still unprepared (recipe in 00:15/22:45 entries).
 
-## Lead 3 run 2026-11-09 00:45 UTC
-- Open: #2518 (Z, referral UUID) CONFLICTS with main → Z merges main. Orders: Z → fix RefundExecutor double-refund risk on stale takeover (TOP), then family_member_id backend; X → decision 1 client. Owner decision pending: default refund-request table (2h/50%/0%).
