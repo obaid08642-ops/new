@@ -9,6 +9,9 @@ Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest c
 Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
+## Old lead 2026-11-09 ~12:45 UTC
+- Runs 109+110 pushed as ONE run 109 on review/server-inspect (server-ops 42616573387, waiting for owner): main tip 58a1bb6e + 96j-mongo-cache-check, 96i, 96j-ledger-duplicates (after deploy), 91c APPLY=yes, 98q. y/ops-run-110 is superseded. Y: next ops run must set 91c back to APPLY="" (dry run).
+
 ## Lead 3 run 2026-11-09 12:30 UTC — OWNER DECISIONS
 - RAM: no upgrade now; raise at launch; build as if sized for launch. Y: launch RAM target in R7 doc.
 - PT-08 sick leave: both sides (patient request at booking; doctor issues with or without request); stamped certificate like the invoice, app/web view + PDF, QR verify page. Z backend first, then W (doctor) and X (patient). Legal note to owner: KSA = Seha/Sehhaty only; Seha link later.
