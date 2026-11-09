@@ -1,3 +1,11 @@
+## 21:15 UTC — invoices review, first real bug: two tax invoices for one payment
+Status: PR open, waiting for CI
+PR: #2565 (z/invoices-review)
+- Bug: `BillingService.issue()` reads "already issued?" then inserts. The `payment.completed` event and the patient opening the receipt can do that at the same moment; both pass the read, each takes its own invoice number, nothing refuses the second insert (the catch that was meant to return the winner never ran). Two tax invoices (two QRs) for one payment, both listed.
+- Fix: unique partial index `einvoice_booking_unique` (issued `invoice` rows only, credit notes outside), built only when no booking already has two (read-only aggregate first, warning with counts otherwise), ensured once per process; the loser's duplicate-key error reaches the existing catch and returns the winner's invoice. 6 unit tests + 3 real-MongoDB race tests (CI only).
+- Question (small): a lost race burns one invoice number (a gap in the series). If the series must be gapless I add a claim step before the number is taken; say so.
+- #2550 merged (thanks). Other open questions unchanged (REFUND_POLICY_VERSION source, 2-hour table for lab/radiology/nursing/pharmacy, national_id, free reschedule). Continuing the invoices review (credit notes, PDFs, share links next).
+
 ## 20:25 UTC — #2550 green except one live shard; ready for your merge
 Status: waiting only for live gate shard 2/5
 PR: #2550 (head a72921a6; merges cleanly with current main, checked with merge-tree)
