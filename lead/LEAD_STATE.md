@@ -1,6 +1,8 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-09 20:45 UTC
+- Merged #2550 (refund tick backend, optional default) then #2561 (app tick). Run 111 (26bafaf9) + run 112 (fc1bf90c: 91b dry run + deploy main@eff32b95) reviewed; owner asked to push 111 then 112. #2560 CI.
 ## Lead 3 run 2026-11-09 20:15 UTC
 - Merged #2558 (ClamAV swap window), #2559, #2557. #2560 red (journey must tick) → X. Run 111 still waits for owner push; run 112 plan to V (91b dry run + deploy).
 ## Lead 3 run 2026-11-09 19:40 UTC
@@ -76,5 +78,3 @@ TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the t
 - No change: #2537/#2538/#2540 rebased, CI running. Runs 109/110 still wait for the owner's push to review/server-inspect.
 ## Lead 3 run 2026-11-09 11:20 UTC
 - Merged #2539. Conflicts: #2537/#2540 (X; #2540 must justify 27 removed locale keys), #2538 (Z, reviewed OK). Runs 109 (31b2added) and 110 (y/ops-run-110, main 15e591f2) wait for the owner's push to review/server-inspect.
-## Lead 3 run 2026-11-09 10:50 UTC
-- Merged #2536 (unique earning index, self-gated). Run 109 BLOCKED: direct push to review/server-inspect denied for Y (Production Deploy); owner asked to push 31b2added or allow it. Run 110 = 96j-ledger-duplicates + main tip.

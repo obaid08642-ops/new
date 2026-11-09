@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-09 20:45 UTC — lead 3
+1. #2561 (app tick) merged right after #2550. #2560 (web tick) when green.
+
 ## 2026-11-09 20:15 UTC — lead 3
 1. #2560 red: live gate shard 3 `j_manual_request` "[journeys 74: quantity and box photo from the website] web request flow: Locator.click timeout 30 s". Most likely your new tick keeps the submit disabled and the browser journey never ticks it. The journey must tick the box like a real patient (and keep one step proving submit stays disabled without it). Check every browser journey that ends in a paid create/order (tools/live/*web*).
 

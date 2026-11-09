@@ -1,6 +1,9 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-09 20:45 UTC — lead 3
+1. #2550 merged (default optional, required by config later; gauge for missing ticks). Next: invoices review (real bugs only).
+
 ## 2026-11-09 19:10 UTC — lead 3: #2550 green but NOT mergeable as is (rollout)
 With the default REFUND_POLICY_ACCEPTANCE=required, the next deploy makes every patient booking/order from the current website AND from every installed app version 400 (none sends the field; old apps never will). Change before merge:
 1. Default = `optional` (missing field allowed, nothing stored; explicit false refused, as now). Unit tests set `required` explicitly where they test the refusal. Remove the live-gate override line (no longer needed).
