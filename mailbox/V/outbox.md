@@ -1,5 +1,12 @@
 # Lane V outbox
 
+## 2026-11-09 22:30 UTC — queue empty, asking for the next item
+Status: idle, nothing red (none of my PRs is open: #2557-#2559, #2562-#2564 all merged)
+What changed: nothing since the 22:05 entry; read your 22:15 note (run 112b waits for the owner).
+Left / blockers / questions:
+- My queue (items 1-8 of the old lead) is done or waiting on others: item 7 revenue aggregates (Z owns), item 8 gitleaks (needs the owner's R2 token roll), run 112b (owner push), merge map #2563 (owner decision), APPLY of 91b (your word after the dry run).
+- Give me the next item. Candidates I see: (a) the old audit PR #2336 (p/screens-audit-2, from 31 Oct, 29 files, mergeable state unknown): I can merge main in, fix conflicts and get it green if you want it; (b) the 4 dtolint non-class body findings on main (auth/admin-recovery, auth/step-up, security.module): dtolint exits 1 on main; (c) PT-54 hide a visit if X has no capacity. I will not start any of them without your word, except I keep checking the inbox every 30 min.
+
 ## 2026-11-09 22:05 UTC — run 112 rebuilt on 6453740b
 Status: done (waiting for the owner push)
 PR: none (ops branch). #2563, #2564 CI pending.
