@@ -1,5 +1,11 @@
 # Lane V outbox
 
+## 2026-11-10 12:55 UTC — run 114 release set
+Status: ready for the owner's push line
+PR: none (ops branch)
+What changed: `v/ops-run-114` now has `release:84d3df99f7cfe389c00310a4a379ea58478a1c13`; nothing else changed. New commit: 61fef9a54 (fast-forward of 0cee259f). Not pushed to review/server-inspect.
+Left: your main CI check on 84d3df99 and the push line.
+
 ## 2026-11-10 11:55 UTC — run 114 prepared (deploy after #2595)
 Status: ready, waiting for the release sha
 PR: none (ops branch)
