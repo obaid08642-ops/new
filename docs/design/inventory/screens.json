@@ -1,5 +1,5 @@
 {
- "commit": "36c8682f",
+ "commit": "da50498a",
  "routes": [
   {
    "app": "patient-app",
@@ -5946,7 +5946,7 @@
      "line": 167,
      "file": "patient-app/app/(tabs)/pharmacy.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:22"
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:26"
     },
     {
      "method": "GET",
@@ -5956,7 +5956,7 @@
      "line": 134,
      "file": "patient-app/app/(tabs)/pharmacy.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:102"
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:106"
     },
     {
      "method": "POST",
@@ -5976,7 +5976,7 @@
      "line": 92,
      "file": "patient-app/src/components/pharmacy/FilterSheet.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:109"
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:113"
     }
    ],
    "files": 70,
@@ -6370,7 +6370,7 @@
      "line": 75,
      "file": "patient-app/app/pharmacy/medicine-compare.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:115"
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:119"
     }
    ],
    "files": 46,
@@ -6563,7 +6563,7 @@
      "line": 251,
      "file": "patient-app/app/pharmacy/product-detail.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:437"
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:453"
     },
     {
      "method": "GET",
@@ -6573,7 +6573,7 @@
      "line": 243,
      "file": "patient-app/app/pharmacy/product-detail.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:446"
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:462"
     },
     {
      "method": "POST",
@@ -6583,7 +6583,7 @@
      "line": 350,
      "file": "patient-app/app/pharmacy/product-detail.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:240"
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:244"
     },
     {
      "method": "POST",
@@ -6593,7 +6593,7 @@
      "line": 325,
      "file": "patient-app/app/pharmacy/product-detail.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:115"
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:119"
     },
     {
      "method": "POST",
@@ -6613,7 +6613,7 @@
      "line": 52,
      "file": "patient-app/src/utils/prefetch.ts",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:126"
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:130"
     },
     {
      "method": "GET",
@@ -7312,7 +7312,7 @@
      "path": "/pharmacy/returns/:param",
      "target": "backend",
      "query": "",
-     "line": 138,
+     "line": 140,
      "file": "patient-app/src/components/account/ReturnsViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/returns/returns.controller.ts:61"
@@ -7336,7 +7336,7 @@
      "path": "/pharmacy/returns",
      "target": "backend",
      "query": "",
-     "line": 71,
+     "line": 73,
      "file": "patient-app/src/components/account/ReturnsViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/returns/returns.controller.ts:20"
@@ -7380,7 +7380,7 @@
      "path": "/media/upload",
      "target": "backend",
      "query": "",
-     "line": 250,
+     "line": 252,
      "file": "patient-app/src/components/account/ReturnsViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/media/media.controller.ts:31"
@@ -7390,7 +7390,7 @@
      "path": "/pharmacy/returns",
      "target": "backend",
      "query": "",
-     "line": 271,
+     "line": 274,
      "file": "patient-app/src/components/account/ReturnsViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/returns/returns.controller.ts:15"
@@ -7400,7 +7400,7 @@
      "path": "/pharmacy/returns/eligible/:param",
      "target": "backend",
      "query": "",
-     "line": 212,
+     "line": 214,
      "file": "patient-app/src/components/account/ReturnsViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/returns/returns.controller.ts:50"
@@ -7416,7 +7416,7 @@
      "backend": "backend/src/modules/admin/governance/system-config.controller.ts:54"
     }
    ],
-   "files": 44,
+   "files": 45,
    "unresolved": 0
   },
   {
@@ -8951,7 +8951,7 @@
      "line": 271,
      "file": "patient-web/lib/api/public-products-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:109"
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:113"
     },
     {
      "method": "GET",
@@ -16758,7 +16758,7 @@
      "line": 41,
      "file": "patient-web/app/[locale]/medicines/compare/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:115"
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:119"
     }
    ],
    "files": 53,
@@ -18435,7 +18435,7 @@
      "query": "",
      "line": 49,
      "file": "patient-web/components-next/pharmacy/suggest-change.tsx",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:240",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:244",
      "status": "OK"
     },
     {
@@ -20070,7 +20070,7 @@
      "line": 271,
      "file": "patient-web/lib/api/public-products-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:109"
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:113"
     },
     {
      "method": "GET",
@@ -20865,13 +20865,23 @@
      "path": "/api/returns",
      "target": "web-bff",
      "query": "",
-     "line": 29,
+     "line": 62,
      "file": "patient-web/components-next/return-request-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/returns/route.ts"
+    },
+    {
+     "method": "POST",
+     "path": "/api/returns/upload",
+     "target": "web-bff",
+     "query": "",
+     "line": 45,
+     "file": "patient-web/components-next/return-request-form.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/returns/upload/route.ts"
     }
    ],
-   "files": 52,
+   "files": 53,
    "unresolved": 0
   },
   {
