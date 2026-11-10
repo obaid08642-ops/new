@@ -9,7 +9,7 @@ function build(o: Opts) {
     findOne: jest.fn((q: any) => ({ lean: async () => store.find(match(q)) ?? null })),
     find: jest.fn((q: any) => ({ lean: async () => store.filter((d) => Object.entries(q).every(([k, v]: [string, any]) => (v && typeof v === 'object' && '$in' in v ? v.$in.includes(d[k]) : d[k] === v))) })),
     updateOne: jest.fn(async (q: any, u: any) => { const row = store.find((r: any) => r.id === q?.id && (q.invoice_no === undefined || r.invoice_no === q.invoice_no)); if (row && u?.$set) Object.assign(row, u.$set); return { modifiedCount: row ? 1 : 0 }; }),
-    create: jest.fn(async (d: any) => { const row = { id: `i${store.length + 1}`, ...d }; store.push(row); return row; }),
+    create: jest.fn(async (d: any) => { const row = { id: `i${store.length + 1}`, status: 'ISSUED', ...d }; store.push(row); return row; }),
   };
   const collections: Record<string, any> = {
     transactions: { find: jest.fn(() => ({ toArray: async () => o.txns ?? [] })), findOne: jest.fn(async () => o.txn ?? null) },
@@ -137,5 +137,49 @@ describe('credit note on refund', () => {
   it('a credit note never exceeds the invoice', async () => {
     const { svc } = build({ invoices: [paid] });
     expect(((await svc.issueCreditNote({ booking_kind: 'lab', booking_id: 'b1', amount: 999, refund_ref: 'rf_4' })) as any).total).toBe(-115);
+  });
+});
+
+describe('an invoice first issued AFTER a refund does not state money already returned', () => {
+  const booking = { patient_id: 'p1', total: 115, delivery_fee: 23 };
+  const credit = (store: any[]) => store.filter((d) => d.type === 'credit_note');
+  const invoicesOf = (store: any[]) => store.filter((d) => d.type !== 'credit_note');
+
+  it('a full refund before the first invoice: the invoice (for what was paid) comes with one credit note for all of it', async () => {
+    const { svc, store } = build({ booking, txns: [{ amount: 115, refunded_amount: 115 }] });
+    const inv: any = await svc.issue(patient, 'lab', 'b1');
+    expect(inv.total).toBe(115);
+    expect(invoicesOf(store)).toHaveLength(1);
+    const cns = credit(store);
+    expect(cns).toHaveLength(1);
+    expect(cns[0]).toMatchObject({ type: 'credit_note', original_invoice_no: inv.invoice_no, total: -115, refund_ref: `before-invoice:${inv.invoice_no}:115` });
+    expect(cns[0].vat_amount).toBeLessThan(0);                                          // the VAT share is reversed too (same rule as a refund after the invoice)
+  });
+  it('a partial refund before the first invoice: the credit note is for the refunded part only', async () => {
+    const { svc, store } = build({ booking, txns: [{ amount: 115, refunded_amount: 40 }] });
+    const inv: any = await svc.issue(patient, 'lab', 'b1');
+    expect(inv.total).toBe(115);
+    expect(credit(store).map((c) => c.total)).toEqual([-40]);
+  });
+  it('refunds on several card payments of one booking are credited as one note for their sum', async () => {
+    const { svc, store } = build({ booking, txns: [{ amount: 60, refunded_amount: 10 }, { amount: 55, refunded_amount: 5 }] });
+    await svc.issue(patient, 'lab', 'b1');
+    expect(credit(store).map((c) => c.total)).toEqual([-15]);
+  });
+  it('no refund: no credit note; asking again changes nothing (the invoice exists, no second note)', async () => {
+    const { svc, store } = build({ booking, txns: [{ amount: 115 }] });
+    await svc.issue(patient, 'lab', 'b1');
+    await svc.issue(patient, 'lab', 'b1');
+    expect(credit(store)).toHaveLength(0);
+    const again = build({ booking, txns: [{ amount: 115, refunded_amount: 20 }] });
+    await again.svc.issue(patient, 'lab', 'b1');
+    await again.svc.issue(patient, 'lab', 'b1');
+    expect(credit(again.store)).toHaveLength(1);
+  });
+  it('a credit-note failure never fails the invoice', async () => {
+    const { svc } = build({ booking, txns: [{ amount: 115, refunded_amount: 10 }] });
+    jest.spyOn(svc as any, 'issueCreditNote').mockRejectedValue(new Error('db down'));
+    const inv: any = await svc.issue(patient, 'lab', 'b1');
+    expect(inv.total).toBe(115);
   });
 });
