@@ -62,10 +62,10 @@ export async function releaseSeat(col: SeatCollection, bookingId: string): Promi
   await col.deleteMany({ booking_id: bookingId });
 }
 
-let indexReady = false;
-/** The unique index the atomic claim relies on (created once per process; creating it again is a no-op in MongoDB). */
+const indexed = new WeakSet<object>();
+/** The unique index the atomic claim relies on (asked once per collection handle; creating an index that exists is a no-op in MongoDB). */
 export async function ensureSeatIndex(col: SeatCollection): Promise<void> {
-  if (indexReady || !col.createIndex) return;
+  if (indexed.has(col) || !col.createIndex) return;
   await col.createIndex({ provider_account_id: 1, slot_start: 1, seat: 1 }, { unique: true, name: 'lab_slot_seat_unique' });
-  indexReady = true;
+  indexed.add(col);
 }

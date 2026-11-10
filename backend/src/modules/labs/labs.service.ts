@@ -252,6 +252,11 @@ export class LabsService {
    * Each lab's own price per catalog test: its own per-test choice (provider_service_offers), else its capability row (provider_capabilities_lab), else the price it typed
    * at registration (test_prices) - see common/service-offers.ts ownPrices. Map: lab account id -> test id -> price; a test the lab has no price for falls back to the catalogue price.
    */
+  /** The seats of the booking slots (lab-slot-seats.ts). Taken from the provider-profile model's connection: the same database as every other lab collection. */
+  private seatCollection(): any {
+    return (this.providerProfiles as any).db.collection(SEAT_COLLECTION);
+  }
+
   private async labPrices(accountIds: string[], services: any[]): Promise<Map<string, Map<string, number>>> {
     return ownPrices(this.svcModel.db as never, 'lab', accountIds, services);
   }
@@ -374,7 +379,7 @@ export class LabsService {
       const providerId = data.provider_account_id;
       const seatQuery: any = this.providerProfiles.findOne({ account_id: { $eq: providerId } }, { slot_capacity: 1 });
       const seatProfile: any = seatQuery && typeof seatQuery.lean === 'function' ? await seatQuery.lean() : await seatQuery;
-      const seats: any = this.bkgModel.db.collection(SEAT_COLLECTION);
+      const seats: any = this.seatCollection();
       await ensureSeatIndex(seats);
       const seat = await reserveSeat(
         seats,
@@ -412,7 +417,7 @@ export class LabsService {
       attribution: pickAttribution(data) ?? undefined,
     });
     } catch (e) {
-      if (seatTaken) await releaseSeat(this.bkgModel.db.collection(SEAT_COLLECTION) as any, bookingId).catch(() => undefined);
+      if (seatTaken) await releaseSeat(this.seatCollection() as any, bookingId).catch(() => undefined);
       throw e;
     }
     this.events.emit('lab.booking_created', { booking_id: booking.id, patient_id: user.id, tracking_id: booking.tracking_id });

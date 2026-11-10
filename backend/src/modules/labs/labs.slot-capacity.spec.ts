@@ -30,7 +30,7 @@ describe('lab slot capacity: picker and booking', () => {
     seatRows.length = 0; stored = [];
     profile = { account_id: 'lab1', type: 'lab', status: 'active', public_eligibility: true, medical_review_status: 'approved', working_hours: [{ day: DOW, open: '09:00', close: '12:00', closed: false }], slot_capacity: 1 };
     bkgModel = {
-      db: { collection: (n: string) => (n === SEAT_COLLECTION ? seatCol : otherCol) },
+      db: { collection: () => otherCol },
       countDocuments: async (q: any) => stored.filter((b) => b.id === q.id.$eq && !['CANCELLED', 'REPORTED'].includes(b.state)).length,
       find: (q: any) => {
         const rows = stored.filter((b) => (!q.provider_account_id || b.provider_account_id === q.provider_account_id) && !['CANCELLED', 'REPORTED'].includes(b.state));
@@ -39,6 +39,7 @@ describe('lab slot capacity: picker and booking', () => {
       create: async (doc: any) => { await Promise.resolve(); const b = { ...doc, tracking_id: 'T-' + doc.id, state_history: [], save: async () => undefined, toObject() { return { ...this }; } }; stored.push(b); return b; },
     };
     const providerProfiles: any = {
+      db: { collection: (n: string) => { expect(n).toBe(SEAT_COLLECTION); return seatCol; } },
       findOne: () => ({ lean: async () => profile }),
       updateOne: jest.fn(async () => ({ matchedCount: 1 })),
     };

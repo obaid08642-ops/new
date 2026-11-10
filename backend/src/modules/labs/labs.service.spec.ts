@@ -224,7 +224,7 @@ describe('LabsService', () => {
       mockLabBooking.find.mockReturnValue({ lean: jest.fn().mockResolvedValue([]) });
       mockLabBooking.create.mockImplementation(async (doc: any) => ({ ...doc, toObject: () => doc }));
       // the booking takes a seat of its slot (lab-slot-seats.ts): a collection that always has room
-      (mockLabBooking as any).db = { collection: () => ({ insertOne: async () => ({}), createIndex: async () => ({}), deleteMany: async () => ({}), findOne: async () => null, updateOne: async () => ({}) }) };
+      (mockProviderProfile as any).db = { collection: () => ({ insertOne: async () => ({}), createIndex: async () => ({}), deleteMany: async () => ({}), findOne: async () => null, updateOne: async () => ({}) }) };
     }
     function withFees(fees: any) {
       return Test.createTestingModule({
