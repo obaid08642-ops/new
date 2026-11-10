@@ -82,6 +82,7 @@ export class LedgerService {
   constructor(@InjectConnection() private readonly conn: Connection) {}
 
   private get col() { return this.conn.collection('platformledgerentries'); }
+  private maturityIndex?: Promise<unknown>;
 
   /** Append a new entry. The ledger is immutable — there is no update path. */
   async append(entry: {
@@ -146,6 +147,8 @@ export class LedgerService {
   @Cron('*/10 * * * *')
   @ScheduledOnce({ ttlMs: 5 * 60_000, holdMs: 60_000 })
   async matureAllDueEscrow(now: Date = new Date()): Promise<number> {
+    // the ledger has no index for this filter: without one every run would read the whole collection. A small partial index (pending earnings only) makes it a look at the few rows that wait.
+    await (this.maturityIndex ??= Promise.resolve().then(() => this.col.createIndex({ available_at: 1 }, { name: 'ledger_pending_earning_due', partialFilterExpression: { type: 'provider_earning', state: 'pending' } })).catch(() => null));
     const res: any = await this.col.updateMany(
       { type: 'provider_earning', state: 'pending', available_at: { $lte: now } } as any,
       { $set: { state: 'cleared', matured_at: now } },
