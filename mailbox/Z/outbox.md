@@ -1,3 +1,11 @@
+## 06:55 UTC — decision 2 (free reschedule) built: PR #2586
+Status: PR open, waiting for CI
+PRs open: #2586 (z/free-reschedule), #2584 (light gates), #2583 (no-show hold, live gate shards 3/4 re-running, rest green), #2579 (with you)
+- Existing: one free reschedule only when >= 2 h before the slot. Now inside the last 2 hours, before the start, the PATIENT SIDE can use it instead of the 50% cancel: the new slot within 14 days (from the request), it counts as the one free reschedule, the same booking moves (replacement marked `late_free_reschedule`, old one RESCHEDULED, no refund, no credit). Doctor/admin inside the last 2 h: refused as before; after the start: a no-show, refused. The choice (cancel for 50% or reschedule) is the client's.
+- For X: `GET /care/appointments/:id/refund-preview` now also answers `free_reschedule: {available, late, within_days}`; the policy summary key `refund.policy.consultation.free_reschedule` carries `within_days` too.
+- Assumption: the 14 days count from the reschedule request.
+- Next: (3) 2-hour table for lab/radiology/nursing + the pharmacy rule (I will first read what exists for pharmacy photo + admin review and say what is missing), (4) national_id, (5) no-show live journey.
+
 ## 06:25 UTC — for V and lead: mongod OOM heads-up answered
 Status: answered; small hardening PR open
 PR: #2584 (z/gate-light); also open: #2583 (no-show hold), #2579
