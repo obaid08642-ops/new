@@ -10,6 +10,7 @@ import { diagStatus } from "@/components-next/diagnostics/status";
 import { nursingStatus } from "@/components-next/nursing/nursing-parts";
 import { returnStatus, returnTone } from "@/components-next/returns/return-kit";
 import { extractReturns } from "@/lib/api/returns";
+import { canHideStatus, readVisitStates, visitKey, type VisitKind } from "@/lib/history/hidden-visits";
 import { formatMoney } from "@/components-next/pharmacy-offers/format";
 import { statusKey as pharmacyStatusKey } from "@/components-next/pharmacy-offers/status";
 import { SERVICE_ICONS, type FillAnyName, type FillIconName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
@@ -51,6 +52,8 @@ export type CenterRow = {
   amount?: string;
   itemsText?: string;
   action: { href: string; label: string };
+  /** PT-54: set when the patient can hide this finished visit (or show it again); the timeline knows which are finished. */
+  hide?: { kind: VisitKind; id: string; hidden: boolean };
 };
 
 export const KIND_VISUAL: Record<OrderKind, { icon: FillAnyName; glyph?: string; tone: ServiceTone }> = {
@@ -248,4 +251,24 @@ export function returnRows(locale: string, payload: unknown, l: CenterLabels): C
 export function sortCenterRows(rows: CenterRow[]): CenterRow[] {
   const time = (row: CenterRow) => { const at = row.at ? new Date(row.at).getTime() : NaN; return Number.isFinite(at) ? at : -Infinity; };
   return [...rows].sort((a, b) => time(b) - time(a));
+}
+
+
+const HIDE_PREFIX: Array<[string, VisitKind]> = [["pharmacy-", "pharmacy"], ["consultation-", "consultation"], ["labs-", "lab"], ["radiology-", "radiology"], ["nursing-", "nursing"]];
+
+/**
+ * PT-54: marks the rows the patient can hide, from the timeline answer (GET /unified-bookings/mine?include_hidden=1): a row whose visit
+ * is COMPLETED or CANCELLED there gets `hide` with its current state. Rows the timeline does not know (returns, results, old orders)
+ * are left alone, and with no timeline answer nothing is hideable and nothing is hidden.
+ */
+export function withHideState(rows: CenterRow[], timeline: unknown): CenterRow[] {
+  const states = readVisitStates(timeline);
+  if (states.size === 0) return rows;
+  return rows.map((row) => {
+    const match = HIDE_PREFIX.find(([prefix]) => row.key.startsWith(prefix));
+    if (!match) return row;
+    const id = row.key.slice(match[0].length);
+    const state = states.get(visitKey(match[1], id));
+    return state && (state.hidden || canHideStatus(state.status)) ? { ...row, hide: { kind: match[1], id, hidden: state.hidden } } : row;
+  });
 }
