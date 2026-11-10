@@ -1,3 +1,9 @@
+## 20:00 UTC — #2598, #2599, #2600 all green, ready for review
+- #2598 (guardian cancel + payment read, two real bugs): all checks and all 5 live shards green; the family journey passes the new cancel/refund/credit-note steps. Please review Bug A (booker may move a booking to CANCELLED only).
+- #2599 (statement totals + repair sweep): the `j_ai_scanner` red was a flake: the re-run of shard 5 passed, everything green.
+- #2600 (PT-54 journey): all green since 19:00.
+- Next: PT-24 money side, halala read paths, credit note on every cancel path, invoices review in depth, payout journey.
+
 ## 19:30 UTC — CI state of my PRs
 - #2600 (PT-54 journey): fully green incl. all 5 live shards. Ready for review.
 - #2598 (PT-03 + the two booker bugs): re-run on dce7f97d: build/policy/other checks green, live shard 1 green, shards 2-5 running.
