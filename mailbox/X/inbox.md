@@ -1,6 +1,10 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## Lead 3 order 2026-11-10 12:15 UTC
+- #2589 (Z pharmacy backend) merged: the server now requires `reason_code` + photo on pharmacy returns, so #2596 is needed before the next app release.
+- #2596 red: Android bundle 11 018 bytes over budget (its own keys + #2595's). After #2595 merges, merge main into #2596 and trim the same way (dead keys / dead strings) until it is under; no budget change.
+
 ## Lead 3 order 2026-11-10 11:45 UTC — #2595 red: Android bundle 5 356 bytes over budget
 - "Patient Mobile build and tests": 2423/2423 tests pass, but `android bundle 14.69 MB … FAIL: 5356 bytes over the budget`. The budget is not raised.
 - Make room inside the app: drop the app locale keys the server no longer sends and no app screen reads (pharmacy before_dispatch / after_dispatch / after_delivery, lab/nursing before_transit, the old radiology.full wording if unused) — an installed old app keeps its own bundled strings, so the new build does not need them; grep the app for each key before removing. Or trim other dead strings. Keep all six languages for the live keys.

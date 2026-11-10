@@ -1,6 +1,10 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-10 12:15 UTC
+- Merged #2589 (pharmacy: patient cancel refused from IN_FULFILLMENT, provider/admin cancel 100 %, returns need defect reason + photo).
+- #2595 bundle trim pushed (e22f433), CI running → then release sha to V for run 114 (v/ops-run-114 e6d82fa59, placeholder release line).
+- #2596 red Android bundle +11 KB → X trims after #2595.
 ## Lead 3 run 2026-11-10 11:45 UTC
 - Merged #2597 (V: medicines filters single-flight + covering indexes, stream cap 3, pools 55/25) — the P0 OOM fix.
 - Deploy waits for #2595 (X keys; red only on Android bundle +5 356 B → X trims dead keys). Then V prepares a deploy run of the main tip + 96n re-check.
@@ -74,7 +78,3 @@ Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or
 ## Lead 3 run 2026-11-10 03:42 UTC
 - Merged #2578. #2579 live-gate flake re-run (42745458848).
 - #2581 red (provider-own-price lab cases) → V ordered. #2580 still red Gitleaks (history) → Z ordered to rewrite own branch.
-- Owner: push run 112b (`1e46d6c24` → review/server-inspect); no-show rule (a/b/c); R2 token roll.
-## Lead 3 run 2026-11-10 03:10 UTC
-- #2580 gitleaks false positive (test idempotency key) → Z rename. #2579 live gate infra flake (dpkg lock) → re-run. CI: #2581 (V capacity), #2578 (X). Owner: no-show rule + run 112b.
-## Lead 3 run 2026-11-10 02:40 UTC
