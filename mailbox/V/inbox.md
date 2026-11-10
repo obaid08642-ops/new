@@ -1,6 +1,13 @@
 # Lane V inbox — takes over lanes Y (backend/ops/QA) and W (provider app + admin)
 Read mailbox/RULES.md first, then lead/OWNER_DECISIONS.md (last two sections), then this file. Report in mailbox/V/outbox.md.
 
+## 2026-11-10 20:00 UTC old lead — OWNER APPROVED PROVIDER/ADMIN MERGE MAP (docs/review/PROVIDER_ADMIN_MERGE_MAP.md), decisions delegated to the lead: change NO scenario or operation, only improve UX.
+Row 1 (two approve/reject paths): APPROVED. First make `POST /providers/:id/reject` refuse an empty reason too; then, only after grepping every client (admin, provider-app, patient apps, tools/live journeys, docs) shows NO caller of the second path, make it answer 410 for one release, then remove. If any caller exists, repoint it to /admin/providers/:id/* first.
+Row 2 (two payout pages): APPROVED. Keep payouts.tsx as the one place (approve/pay/reject); finance-suite.tsx keeps totals and links to it; replace window.prompt/confirm with the shared confirm sheet. Same endpoints, no behaviour change. Check first there is no second payout path on the provider side.
+Row 3 (two hospital staff controllers): APPROVED. Move the handlers into one module; URLs, DTOs, guards unchanged; both modules tests must pass.
+Row 4 (three ways to create staff): NOT YET. Do only the verification: list every caller of invite / accept-invite / operators / hospital staff create (this repo + tools/live + apps), and how permissions differ. Report in outbox; no change until the lead decides. Existing staff must keep working in any case.
+Rule: one PR per row, existing journeys (j_*) and unit tests must stay green, no skipped tests.
+
 ## 2026-11-10 18:55 UTC old lead: merged #2606 #2600 #2602 #2598 #2599. #2607 red on live gate: fix it (root cause, no skip). #2602 merged.
 
 ## 2026-11-10 16:00 UTC old lead: YOUR QUEUE IS NOT EMPTY — never sit idle. FIRST (30 min): write your complete remaining-before-launch list into lead/LAUNCH_LIST.md under "## V" as "- [ ] item" lines (one line each, nothing else), so the owner sees counts. THEN work it top-down: Backend/ops/provider/admin: mongod OOM fix after runs 113/114 results; every PV/AD/SY row of SCENARIOS.md not COVERED; open items of PROVIDER_ADMIN_GAPS.md (except deferred 13/15). Waiting for a deploy is never a reason to stop.

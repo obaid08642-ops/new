@@ -62,3 +62,10 @@ Until (b) ships, (a) is the only option (already live). Z backend, X patient (we
 
 ## 2026-11-10 09:50 UTC Lead 3 — decision (within owner decision 1)
 - The no-show auto-refund cap (2 per patient per 30 days) counts only automatic video refunds; admin-upheld/released clinic-home refunds and admin review refunds do not count.
+
+## 2026-11-10 20:00 UTC old lead — OWNER APPROVED PROVIDER/ADMIN MERGE MAP (docs/review/PROVIDER_ADMIN_MERGE_MAP.md), decisions delegated to the lead: change NO scenario or operation, only improve UX.
+Row 1 (two approve/reject paths): APPROVED. First make `POST /providers/:id/reject` refuse an empty reason too; then, only after grepping every client (admin, provider-app, patient apps, tools/live journeys, docs) shows NO caller of the second path, make it answer 410 for one release, then remove. If any caller exists, repoint it to /admin/providers/:id/* first.
+Row 2 (two payout pages): APPROVED. Keep payouts.tsx as the one place (approve/pay/reject); finance-suite.tsx keeps totals and links to it; replace window.prompt/confirm with the shared confirm sheet. Same endpoints, no behaviour change. Check first there is no second payout path on the provider side.
+Row 3 (two hospital staff controllers): APPROVED. Move the handlers into one module; URLs, DTOs, guards unchanged; both modules tests must pass.
+Row 4 (three ways to create staff): NOT YET. Do only the verification: list every caller of invite / accept-invite / operators / hospital staff create (this repo + tools/live + apps), and how permissions differ. Report in outbox; no change until the lead decides. Existing staff must keep working in any case.
+Rule: one PR per row, existing journeys (j_*) and unit tests must stay green, no skipped tests.

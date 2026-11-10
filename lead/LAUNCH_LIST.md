@@ -22,6 +22,7 @@ Tick [x] when merged. Counts are the owner progress number.
 - [x] Credit note with invoice (decision 5): every refund goes through RefundExecutor, the payments card refund and one durable event, so one choke point writes it; asserted by j_refund_matrix and j_family_book_for_member (no code change needed)
 
 ## V
+- [ ] Provider/admin merge map rows 1, 2, 3 approved 2026-11-10 (one PR per row) + row 4 verification only
 - [ ] Verify the mongod OOM fix on the server after run 114 deploys: 96p (indexes), 96n (kills stopped), 96j (cache); fix any further slow query found
 - [ ] Admin jobs board: list and moderate (close/hide) jobs posted by facilities (POST recruitment/jobs), not only guest jobs
 - [ ] Radiology slot capacity: same seat rule as labs (asked, no answer; default same rule)
