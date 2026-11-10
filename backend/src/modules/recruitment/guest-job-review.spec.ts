@@ -61,6 +61,18 @@ describe('guest job review', () => {
     expect(chain.sort).toHaveBeenCalledWith({ createdAt: 1 });
   });
 
+  it('the admin list can show facility posts or all posts (read only); an unknown source means guest posts', async () => {
+    const chain: any = { sort: jest.fn().mockReturnThis(), limit: jest.fn().mockReturnThis(), lean: () => Promise.resolve([]) };
+    jobModel.find.mockReturnValue(chain);
+    await svc.listGuestDrafts('published', 'facility');
+    expect(jobModel.find.mock.calls[0][0]).toMatchObject({ status: { $eq: 'published' }, is_deleted: false, $or: [{ guest_device_id: { $exists: false } }, { guest_device_id: null }] });
+    await svc.listGuestDrafts('published', 'all');
+    expect(jobModel.find.mock.calls[1][0]).not.toHaveProperty('guest_device_id');
+    expect(jobModel.find.mock.calls[1][0]).not.toHaveProperty('$or');
+    await svc.listGuestDrafts('draft', 'bogus');
+    expect(jobModel.find.mock.calls[2][0]).toMatchObject({ guest_device_id: { $exists: true, $ne: null } });
+  });
+
   it('DTO rejects an unknown decision', async () => {
     const bad = plainToInstance(GuestJobReviewDto, { decision: 'delete' });
     expect((await validate(bad)).length).toBeGreaterThan(0);
