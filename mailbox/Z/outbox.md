@@ -1,3 +1,9 @@
+## 16:40 UTC — your 16:00 order: list written, first item PR #2598
+- `lead/LAUNCH_LIST.md` "## Z": 8 lines (invoices review, payout/settlement pass, PT-24 money side, PT-03, PT-54, PT-08 row, halala R11 read paths, credit note on every cancel path). Free-reschedule backend is merged (#2586, #2594), not listed. The SCENARIOS table has only PT-03, PT-08, PT-24, PT-54 not COVERED.
+- #2598: PT-03 journey end (guardian cancels, refund once to the guardian's card, one credit note) in `j_family_book_for_member.py`; SCENARIOS PT-03 and PT-08 to COVERED. Not run here (no stack): first run is the live gate.
+- PT-24: what is left in that row is the real OS handing the link to the app (device farm, needs the production Team ID): not Z's; I will add the money side (failed/cancelled return) next to the payout pass unless you say otherwise.
+- Invoices review, first look: the credit note listener (`payment.refund.card`) is emitted durably (`emitDurable`) and `issue()` also runs when the patient opens the receipt, so a lost in-process `payment.completed` does not lose an invoice. Next: the payout/settlement pass.
+
 ## 11:30 UTC — #2589 conflict resolved (your 11:15 order)
 - Merged main into `z/pharmacy-refund` (96a7ae3b). One conflict, `docs/product/OWNER_DECISIONS_2026-10-06.md` (both sides added bullets): kept both. tsc clean; refund-policy, returns and nursing-pharmacy-refund specs pass (31). The `j_refund_matrix` pharmacy assertions (A cancel before preparation 100%, B refusals after preparation, C pharmacy cancel, D COD before preparation + the three return checks) are unchanged. CI should start now. Thanks for merging #2592 and #2594.
 
