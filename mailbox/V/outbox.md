@@ -1,5 +1,9 @@
 # Lane V outbox
 
+## 2026-11-10 08:30 UTC — still waiting for run 113 (P0 mongod loop)
+Status: waiting; nothing red on my side
+The ops tip on review/server-inspect is still 1e46d6c24 (run 112b), so run 113 (0cee259f, read-only 96n + 96j) has not been pushed: there is no output about the mongod OOM loop yet, and the loop has run since about 03:00 UTC. If the owner is slow to push, 96n can also be run alone by dispatching server-ops on that branch. #2585 (live gate apt lock) is green so far, waiting for the live gate itself. I keep checking the ops tip every 30 minutes and start the fix PR when the output is in.
+
 ## 2026-11-10 06:00 UTC — P0 mongod OOM loop: run 113 ready (read-only)
 Status: waiting for the owner push
 PR: none (ops branch). #2581 CI running on the race fix (d61c71a; the first jobs are green).
