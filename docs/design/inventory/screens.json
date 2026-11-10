@@ -1,5 +1,5 @@
 {
- "commit": "93b55011",
+ "commit": "b2ba7aa3",
  "routes": [
   {
    "app": "patient-app",
@@ -69,7 +69,7 @@
      "line": 86,
      "file": "patient-app/app/(tabs)/index.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:23"
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:24"
     },
     {
      "method": "GET",
@@ -693,8 +693,29 @@
    "board": "Appointments",
    "batch": 2,
    "status": "done (batch 2 merged)",
-   "calls": [],
-   "files": 32,
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/unified-bookings/:param/:param/:param",
+     "target": "backend",
+     "query": "",
+     "line": 43,
+     "file": "patient-app/app/consultations/appointments.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/unified-bookings/unified-bookings.module.ts:626"
+    },
+    {
+     "method": "GET",
+     "path": "/unified-bookings/mine",
+     "target": "backend",
+     "query": "?kind=consultation&include_hidden=1",
+     "line": 36,
+     "file": "patient-app/app/consultations/appointments.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/unified-bookings/unified-bookings.module.ts:613"
+    }
+   ],
+   "files": 47,
    "unresolved": 0
   },
   {
@@ -4430,7 +4451,7 @@
      "line": 102,
      "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:23"
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:24"
     },
     {
      "method": "GET",
@@ -4440,7 +4461,7 @@
      "line": 276,
      "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:35"
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:36"
     },
     {
      "method": "POST",
@@ -4450,7 +4471,7 @@
      "line": 283,
      "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:41"
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:42"
     },
     {
      "method": "GET",
@@ -4460,7 +4481,7 @@
      "line": 104,
      "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:17"
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:18"
     },
     {
      "method": "GET",
@@ -4470,7 +4491,7 @@
      "line": 169,
      "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:47"
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:48"
     },
     {
      "method": "POST",
@@ -4480,7 +4501,7 @@
      "line": 181,
      "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:53"
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:54"
     },
     {
      "method": "GET",
@@ -4490,7 +4511,7 @@
      "line": 103,
      "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:29"
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:30"
     },
     {
      "method": "POST",
@@ -5184,7 +5205,7 @@
      "line": 16,
      "file": "patient-app/src/components/nursing/HomeVisitTerms.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/refund-policy/refund-policy.controller.ts:16"
+     "backend": "backend/src/modules/refund-policy/refund-policy.controller.ts:17"
     },
     {
      "method": "GET",
@@ -6825,7 +6846,7 @@
      "line": 45,
      "file": "patient-app/src/components/account/AccountView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:23"
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:24"
     },
     {
      "method": "GET",
@@ -6973,7 +6994,7 @@
      "line": 21,
      "file": "patient-app/app/receipts/index.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:716"
+     "backend": "backend/src/modules/billing/billing.module.ts:758"
     }
    ],
    "files": 40,
@@ -6997,7 +7018,7 @@
      "line": 25,
      "file": "patient-app/app/receipts/[kind]/[bookingId].tsx",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:670"
+     "backend": "backend/src/modules/billing/billing.module.ts:712"
     }
    ],
    "files": 45,
@@ -8293,6 +8314,17 @@
      "handler": "patient-web/app/api/medical-reports/new-count/route.ts"
     },
     {
+     "method": "POST",
+     "path": "/api/patient/unified-bookings/:param/:param/:param",
+     "target": "web-proxy",
+     "query": "",
+     "line": 26,
+     "file": "patient-web/components-next/consult/hide-visit-button.tsx",
+     "backend": "backend/src/modules/unified-bookings/unified-bookings.module.ts:626",
+     "status": "PROXY_BLOCKED?",
+     "note": "blocked for every sample param value (UUID, slug, literals of the file)"
+    },
+    {
      "method": "GET",
      "path": "/api/patient/users/me/wishlist",
      "target": "web-proxy",
@@ -8311,9 +8343,19 @@
      "file": "patient-web/lib/api/appointments-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:22"
+    },
+    {
+     "method": "GET",
+     "path": "/unified-bookings/mine",
+     "target": "backend",
+     "query": "?kind=consultation&include_hidden=1",
+     "line": 51,
+     "file": "patient-web/app/[locale]/appointments/page.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/unified-bookings/unified-bookings.module.ts:613"
     }
    ],
-   "files": 144,
+   "files": 147,
    "unresolved": 0
   },
   {
@@ -10560,7 +10602,7 @@
      "line": 62,
      "file": "patient-web/app/[locale]/dashboard/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:23"
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:24"
     },
     {
      "method": "GET",
@@ -15719,7 +15761,7 @@
      "query": "",
      "line": 79,
      "file": "patient-web/components-next/loyalty/loyalty-actions.tsx",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:41",
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:42",
      "status": "OK"
     },
     {
@@ -15729,7 +15771,7 @@
      "query": "",
      "line": 32,
      "file": "patient-web/components-next/loyalty/loyalty-actions.tsx",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:53",
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:54",
      "status": "OK"
     },
     {
@@ -15760,7 +15802,7 @@
      "line": 52,
      "file": "patient-web/app/[locale]/loyalty/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:23"
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:24"
     },
     {
      "method": "GET",
@@ -15770,7 +15812,7 @@
      "line": 125,
      "file": "patient-web/app/[locale]/loyalty/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:35"
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:36"
     },
     {
      "method": "GET",
@@ -15780,7 +15822,7 @@
      "line": 53,
      "file": "patient-web/app/[locale]/loyalty/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:17"
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:18"
     },
     {
      "method": "GET",
@@ -15790,7 +15832,7 @@
      "line": 77,
      "file": "patient-web/app/[locale]/loyalty/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:47"
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:48"
     },
     {
      "method": "GET",
@@ -15800,7 +15842,7 @@
      "line": 54,
      "file": "patient-web/app/[locale]/loyalty/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:29"
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:30"
     },
     {
      "method": "GET",
@@ -19320,7 +19362,7 @@
      "line": 81,
      "file": "patient-web/app/[locale]/profile/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:23"
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:24"
     },
     {
      "method": "GET",
@@ -19972,7 +20014,7 @@
      "line": 15,
      "file": "patient-web/lib/api/billing-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:744"
+     "backend": "backend/src/modules/billing/billing.module.ts:786"
     }
    ],
    "files": 25,
@@ -20036,7 +20078,7 @@
      "line": 6,
      "file": "patient-web/lib/api/billing-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:716"
+     "backend": "backend/src/modules/billing/billing.module.ts:758"
     }
    ],
    "files": 58,
@@ -20100,7 +20142,7 @@
      "line": 10,
      "file": "patient-web/lib/api/billing-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:670"
+     "backend": "backend/src/modules/billing/billing.module.ts:712"
     }
    ],
    "files": 66,
