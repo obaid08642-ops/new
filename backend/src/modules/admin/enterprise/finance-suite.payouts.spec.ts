@@ -86,3 +86,46 @@ describe('payout state machine', () => {
     await expect(svc.executePayout('wd_1', admin('a1'), 'short')).rejects.toThrow();
   });
 });
+
+describe('an approval races a reject (the state is the claim)', () => {
+  // the payout is read as open, then another admin rejects it before the approval writes: the approval must not bring a rejected payout back
+  const racing = (w: any) => {
+    const t = build(w);
+    const real = (t.svc as any).withdrawals.findOne.bind((t.svc as any).withdrawals);
+    let first = true;
+    (t.svc as any).conn.collection = ((orig: any) => (name: string) => {
+      const c = orig(name);
+      if (name !== 'providerwithdrawals') return c;
+      return { ...c, findOne: async (q: any) => { const row = await c.findOne(q); if (first && row) { first = false; const snap = { ...row }; t.docs.wd_1.state = 'REJECTED'; t.ledger[0].state = 'released'; return snap; } return row; }, updateOne: c.updateOne };
+    })((t.svc as any).conn.collection);
+    void real;
+    return t;
+  };
+  it('a single approval that lost to a reject changes nothing: still REJECTED, balance still released', async () => {
+    const { svc, docs, ledger } = racing(open());
+    await expect(svc.approvePayout('wd_1', admin('a1'), REASON, 'approve')).rejects.toThrow('payout_state_changed');
+    expect(docs.wd_1.state).toBe('REJECTED');
+    expect(ledger[0].state).toBe('released');
+    expect(docs.wd_1.approved_by).toBeUndefined();
+  });
+  it('a stage-one approval that lost to a reject does not bring it back to AWAITING_SECOND_APPROVAL', async () => {
+    const { svc, docs } = racing(open({ amount: 12000 }));
+    await expect(svc.approvePayout('wd_1', admin('a1'), REASON, 'approve')).rejects.toThrow('payout_state_changed');
+    expect(docs.wd_1.state).toBe('REJECTED');
+    expect(docs.wd_1.approved_stage_one_by).toBeUndefined();
+  });
+  it('a final approval that lost to a reject does not bring it back to APPROVED_FOR_PAYOUT', async () => {
+    const { svc, docs } = racing(open({ amount: 12000, state: 'AWAITING_SECOND_APPROVAL', approved_stage_one_by: 'a1' }));
+    await expect(svc.approvePayout('wd_1', admin('a2'), REASON, 'approve')).rejects.toThrow('payout_state_changed');
+    expect(docs.wd_1.state).toBe('REJECTED');
+    expect(docs.wd_1.approved_by).toBeUndefined();
+  });
+  it('two admins finishing the second approval at once: one wins, the other gets a refusal and cannot overwrite the first', async () => {
+    const { svc, docs } = build(open({ amount: 12000, state: 'AWAITING_SECOND_APPROVAL', approved_stage_one_by: 'a1' }));
+    const results = await Promise.allSettled([svc.approvePayout('wd_1', admin('a2'), REASON, 'approve'), svc.approvePayout('wd_1', admin('a3'), REASON, 'approve')]);
+    expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(1);
+    expect(docs.wd_1.state).toBe('APPROVED_FOR_PAYOUT');
+    expect(['a2', 'a3']).toContain(docs.wd_1.approved_by);
+  });
+});
+
