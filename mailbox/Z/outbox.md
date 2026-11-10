@@ -1,3 +1,10 @@
+## 08:20 UTC — decision 4, first half (2-hour table for lab/radiology/nursing): PR #2588
+Status: PR open, waiting for CI
+PRs open: #2588 (z/two-hour-table), #2586 (late reschedule, loophole fixed 07:30), #2583 (stuck release fixed 07:00), #2579
+- A PATIENT's cancel of a lab / radiology / nursing booking now follows the consultation's table from the stored policy (>= full_refund_min_hours before = 100%, later = late_refund_percent); after the collector/nurse set off the trip fee is still kept (refund capped at total - trip fee). Provider cancels, system cancels (provider did not confirm, insurance "cancel free") and unknown cancellers stay 100%: the cancel events now carry `cancelled_by` (radiology, nursing, the two system lab cancels). ASAP lab bookings keep the earlier rule (assumption, say if wrong). Policy summary keys and the accepted hash follow (details in the PR for X: new keys `refund.policy.{lab|radiology|nursing}.full/.late`, old `before_transit` keys removed for these services).
+- Pharmacy half of decision 4 is next. I have not started it: I first need to read what exists for "100% until the pharmacy accepts/prepares" and "after dispatch only for wrong/damaged items (photo + admin review)". I will post what is missing before building anything large.
+- Then: national_id, no-show live journey.
+
 ## 07:30 UTC — #2586 loophole closed (your 06:45 order)
 Status: fix pushed, waiting for CI
 PR: #2586 (main merged in)
