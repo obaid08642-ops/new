@@ -494,7 +494,9 @@ export class AppointmentsService {
     const appt = await this.apptModel.findOne({ id });
     if (!appt) throw new NotFoundException();
     const isInternalSystemTransition = actor?.id === 'system' && actor?.role === 'system';
-    if (!isInternalSystemTransition) await this.assertAppointmentAccess(appt, actor);
+    // The person who booked for a dependant may CANCEL it (cancel() already lets them in and refunds them): without `booker` here the guardian passed that check and was then refused 403 by this one.
+    // Every other move (confirm, start, finish...) stays with the patient, the doctor and the facility.
+    if (!isInternalSystemTransition) await this.assertAppointmentAccess(appt, actor, { booker: to === APPT_STATES.CANCELLED });
     const allowed = APPT_TRANSITIONS[appt.status] || [];
     if (!allowed.includes(to)) {
       throw new BadRequestException(`Invalid transition ${appt.status} → ${to}`);

@@ -726,7 +726,9 @@ export class PaymentsService {
     const booking: any = await this.modelFor(type).findOne({ id }).lean();
     if (!booking) throw new NotFoundException('booking_not_found');
     const staffRoles = ['admin', 'finance'];
-    if (booking.patient_id !== user.id && !staffRoles.includes(user.role)) {
+    // the person who booked and paid for someone else's visit (a guardian) sees the payment they made and its refund
+    const isBooker = !!booking.booked_by_user_id && booking.booked_by_user_id === user.id;
+    if (booking.patient_id !== user.id && !isBooker && !staffRoles.includes(user.role)) {
       throw new BadRequestException('not_authorized');
     }
     return this.txns.find({ booking_kind: kind, booking_id: id }, { webhook_payload: 0, idempotency_key: 0 }).sort({ createdAt: -1 }).lean();

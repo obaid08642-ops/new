@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { PHARMACY_RETURN_REASONS, returnErrorKey, type PharmacyReturnReason } from "@/lib/returns/pharmacy-return";
+import { ScanStatusBadge } from "@/components-next/uploads/scan-status-badge";
+import { scanStateOfUpload, type ScanState } from "@/lib/uploads/scan-status";
 import forms from "@/components-next/consult/consult.module.css";
 
 const TYPES = ["consultation", "diagnostics", "pharmacy", "nursing"] as const;
@@ -30,11 +32,15 @@ export function ReturnRequestForm({ locale }: { locale: string }) {
   const [reasonCode, setReasonCode] = useState<PharmacyReturnReason | "">("");
   const [docs, setDocs] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  // the scan state of the photos: "pending" while a photo is still being checked for safety, "rejected" when the scanner refused it (upload another)
+  const [photoScan, setPhotoScan] = useState<ScanState>("ok");
+  const [pendingDocs, setPendingDocs] = useState<string[]>([]);
   const [orderId, setOrderId] = useState("");
   const [details, setDetails] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const pharmacy = serviceType === "pharmacy";
+  const photoInput = useRef<HTMLInputElement>(null);
 
   async function onPhoto(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -44,9 +50,13 @@ export function ReturnRequestForm({ locale }: { locale: string }) {
     try {
       const res = await fetch("/api/returns/upload", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ data_url: await readAsDataUrl(file), name: file.name || "return-evidence.jpg" }) });
       const answer = (await res.json().catch(() => null)) as { id?: string; data?: { id?: string } } | null;
+      if (!res.ok && scanStateOfUpload(answer) === "rejected") { setPhotoScan("rejected"); return; }
       const id = answer?.id ?? answer?.data?.id;
       if (!res.ok || !id) { setError(t("uploadFailed")); return; }
+      setPhotoScan("ok");
       setDocs((rows) => [...rows, `media:${id}`]);
+      // a photo that is still being checked stays on the request: the pharmacy sees it once it has passed
+      if (scanStateOfUpload(answer) === "pending") setPendingDocs((rows) => [...rows, `media:${id}`]);
     } catch { setError(t("uploadFailed")); } finally { setUploading(false); }
   }
 
@@ -109,11 +119,12 @@ export function ReturnRequestForm({ locale }: { locale: string }) {
             <p className={forms.label}>{t("photoRequired")}</p>
             <label>
               <span className={forms.label}>{uploading ? t("uploading") : t("photoAdd")}</span>
-              <input type="file" accept="image/*" disabled={uploading} onChange={(event) => void onPhoto(event)} data-testid="return-photo" />
+              <input ref={photoInput} type="file" accept="image/*" disabled={uploading} onChange={(event) => void onPhoto(event)} data-testid="return-photo" />
             </label>
             {docs.length > 0 ? (
-              <p role="status">{t("photoAdded")} ({docs.length}) <button type="button" className={forms.choice} onClick={() => setDocs([])}>{t("photoRemove")}</button></p>
+              <p role="status">{t("photoAdded")} ({docs.length}) <button type="button" className={forms.choice} onClick={() => { setDocs([]); setPendingDocs([]); setPhotoScan("ok"); }}>{t("photoRemove")}</button></p>
             ) : null}
+            <ScanStatusBadge state={photoScan === "rejected" ? "rejected" : docs.some((d) => pendingDocs.includes(d)) ? "pending" : "ok"} onReupload={() => photoInput.current?.click()} />
           </div>
         </>
       ) : (
