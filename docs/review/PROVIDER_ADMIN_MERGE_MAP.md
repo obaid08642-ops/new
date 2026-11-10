@@ -15,3 +15,6 @@ Approve, change or reject rows 1 to 4 (traced in the code; the unverified parts 
 
 ## Found while writing this (not a merge)
 `POST /providers/:id/reject` (row 1) accepts an empty reason and does not change the account status. The reason rule added for G6 (#2555) is only on the admin path. Deleting the second path (row 1) closes it; if the owner does not approve the deletion, the safe small fix is to make that route refuse an empty reason too, which I can do as its own PR.
+
+## State 2026-11-10 (lane V, owner approved rows 1-3)
+- Row 1: the empty-reason refusal was already on main (3799d9280). Every client was searched (admin, provider-app, patient-app, patient-web, tools/live, tools/audit, backend journeys, docs): none calls `POST /providers/:id/reject` or `/suspend` (the admin screens and journeys use `/admin/providers/:id/reject` and `/admin/providers/:id/suspend`). Both routes now answer 410 Gone; the routes and `ProvidersService.reject/suspend` are removed one release later. `POST /providers/admin/create`, `GET /providers/admin/all` and `/admin/pending` have no equivalent on the admin path and no caller either; they are left as they are (a later decision, not part of "two approve/reject paths").
