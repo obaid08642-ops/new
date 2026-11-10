@@ -4187,5 +4187,14 @@
   "refund.policy.pharmacy.after_dispatch": "روانگی کے بعد ڈیلیوری فیس رکھی جاتی ہے اور باقی واپس ہوتا ہے۔",
   "refund.policy.pharmacy.after_delivery": "ڈیلیوری کے بعد رقم صرف تب واپس ہوتی ہے جب چیز غلط، خراب، ناقص یا میعاد ختم ہو۔",
   "refund.policy.card_destination": "رقم اصل ادائیگی کے طریقے پر واپس جاتی ہے، والیٹ میں نہیں۔",
-  "consult.cancel.lateOffer": "ملاقات قریب ہے، اس لیے منسوخ کرنے پر رقم کا صرف ایک حصہ واپس ہوگا۔ اس کے بجائے آپ اسے ایک بار مفت {days} دن کے اندر کسی وقت پر منتقل کر سکتے ہیں۔"
+  "consult.cancel.lateOffer": "ملاقات قریب ہے، اس لیے منسوخ کرنے پر رقم کا صرف ایک حصہ واپس ہوگا۔ اس کے بجائے آپ اسے ایک بار مفت {days} دن کے اندر کسی وقت پر منتقل کر سکتے ہیں۔",
+  "consult.nationalId.title": "آپ کا شناختی نمبر",
+  "consult.nationalId.hint": "طبی رپورٹ پر آپ کا قومی شناختی یا اقامہ نمبر درج ہوتا ہے۔ یہ خفیہ شکل میں محفوظ ہوتا ہے اور صرف رپورٹ پر دکھایا جاتا ہے۔",
+  "consult.nationalId.label": "قومی شناختی / اقامہ نمبر (10 ہندسے)",
+  "consult.nationalId.save": "محفوظ کریں",
+  "consult.nationalId.saving": "محفوظ ہو رہا ہے…",
+  "consult.nationalId.invalid": "10 ہندسوں کا درست قومی شناختی یا اقامہ نمبر درج کریں۔",
+  "consult.nationalId.failed": "نمبر محفوظ نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
+  "consult.nationalId.saved": "محفوظ ہو گیا۔",
+  "consult.nationalId.neededForPdf": "اس رپورٹ کو ڈاؤن لوڈ کرنے کے لیے اپنا شناختی نمبر شامل کریں۔"
 }

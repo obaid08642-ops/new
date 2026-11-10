@@ -4187,5 +4187,14 @@
   "refund.policy.pharmacy.after_dispatch": "After dispatch the delivery fee is kept and the rest is returned.",
   "refund.policy.pharmacy.after_delivery": "After delivery you are refunded only if the item is wrong, damaged, defective or expired.",
   "refund.policy.card_destination": "Refunds go back to the original payment method, not to a wallet.",
-  "consult.cancel.lateOffer": "The visit starts soon, so cancelling returns only part of the payment. You can move it once for free instead, to a time within {days} days."
+  "consult.cancel.lateOffer": "The visit starts soon, so cancelling returns only part of the payment. You can move it once for free instead, to a time within {days} days.",
+  "consult.nationalId.title": "Your ID number",
+  "consult.nationalId.hint": "A medical report carries your national ID or iqama number. It is stored encrypted and shown only on the report.",
+  "consult.nationalId.label": "National ID / Iqama number (10 digits)",
+  "consult.nationalId.save": "Save",
+  "consult.nationalId.saving": "Saving…",
+  "consult.nationalId.invalid": "Enter a valid 10-digit national ID or iqama number.",
+  "consult.nationalId.failed": "Could not save the number. Try again.",
+  "consult.nationalId.saved": "Saved.",
+  "consult.nationalId.neededForPdf": "Add your ID number to download this report."
 }

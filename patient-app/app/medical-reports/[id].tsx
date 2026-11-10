@@ -8,6 +8,7 @@ import { Notice } from '../../src/components/pharmacy/OfferKit';
 import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch, downloadProtected } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
+import { NationalIdForm } from '../../src/components/consult/NationalIdForm';
 import { isReportId, readReportDetail, type MedicalReportDetail } from '../../src/utils/medicalReport';
 import { shareFile } from '../../src/utils/shareFile';
 
@@ -94,8 +95,17 @@ export default function MedicalReportScreen() {
             </Section>
             <Notice tone="info" text={report.sehaNumber ? k('medreport.sehaRegistered', { number: report.sehaNumber }) : k('medreport.sehaPending')} />
             <Text style={{ ...scale(t, 'meta', 'regular'), lineHeight: 20, color: c.text.secondary, ...flow }}>{k('medreport.footer')}</Text>
-            {pdfFailed ? <Notice tone="danger" text={k('medreport.pdfError')} /> : null}
-            <Button label={k('medreport.sharePdf')} size="lg" fullWidth loading={busy} onPress={() => void sharePdf()} theme={theme} testID="medical-report-pdf" />
+            {report.needsNationalId ? (
+              <>
+                <Notice tone="info" text={k('consult.nationalId.neededForPdf')} />
+                <NationalIdForm onSaved={load} />
+              </>
+            ) : (
+              <>
+                {pdfFailed ? <Notice tone="danger" text={k('medreport.pdfError')} /> : null}
+                <Button label={k('medreport.sharePdf')} size="lg" fullWidth loading={busy} onPress={() => void sharePdf()} theme={theme} testID="medical-report-pdf" />
+              </>
+            )}
           </View>
         )}
       </View>
