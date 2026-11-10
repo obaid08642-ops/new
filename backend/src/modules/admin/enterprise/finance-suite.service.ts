@@ -387,9 +387,11 @@ export class FinanceSuiteService {
 
     if (needsDual) {
       if (!w.approved_stage_one_by) {
-        await this.withdrawals.updateOne({ id }, {
+        // the state is the claim: a payout that was rejected (or taken by another admin) since it was read is not moved on
+        const claim = await this.withdrawals.updateOne({ id, state: 'PENDING_ADMIN_APPROVAL' }, {
           $set: { approved_stage_one_by: admin.id, approved_stage_one_name: admin.full_name || admin.email || admin.id, approved_stage_one_at: new Date(), state: 'AWAITING_SECOND_APPROVAL' },
         });
+        if (!claim.modifiedCount) throw new BadRequestException('payout_state_changed');
         await this.audit.write({
           action: 'payout_approve_stage_one', actor: admin, target_type: 'providerwithdrawals', target_id: id,
           reason, before: { state: w.state }, after: { state: 'AWAITING_SECOND_APPROVAL' },
@@ -398,12 +400,13 @@ export class FinanceSuiteService {
         return { ok: true, id, state: 'AWAITING_SECOND_APPROVAL', message: 'stage_one_recorded_second_distinct_admin_required' };
       }
       if (w.approved_stage_one_by === admin.id) throw new ForbiddenException('dual_approval_requires_distinct_admins');
-      await this.withdrawals.updateOne({ id }, {
+      const claim = await this.withdrawals.updateOne({ id, state: 'AWAITING_SECOND_APPROVAL' }, {
         $set: {
           state: 'APPROVED_FOR_PAYOUT', approved_by: admin.id, approved_by_name: admin.full_name || admin.email || admin.id, approved_at: new Date(),
           approval_reason: reason, batch_id: `pb_${uuid().slice(0, 12)}`,
         },
       });
+      if (!claim.modifiedCount) throw new BadRequestException('payout_state_changed');
       await this.audit.write({
         action: 'payout_approve_final', actor: admin, target_type: 'providerwithdrawals', target_id: id,
         reason, before: { state: w.state }, after: { state: 'APPROVED_FOR_PAYOUT' },
@@ -413,9 +416,10 @@ export class FinanceSuiteService {
     }
 
     // Below threshold: single approval suffices (still audited, still not self).
-    await this.withdrawals.updateOne({ id }, {
+    const claim = await this.withdrawals.updateOne({ id, state: { $in: ['PENDING_ADMIN_APPROVAL', 'AWAITING_SECOND_APPROVAL'] } }, {
       $set: { state: 'APPROVED_FOR_PAYOUT', approved_by: admin.id, approved_by_name: admin.full_name || admin.email || admin.id, approved_at: new Date(), approval_reason: reason },
     });
+    if (!claim.modifiedCount) throw new BadRequestException('payout_state_changed');
     await this.audit.write({
       action: 'payout_approve_single', actor: admin, target_type: 'providerwithdrawals', target_id: id,
       reason, before: { state: w.state }, after: { state: 'APPROVED_FOR_PAYOUT' },
