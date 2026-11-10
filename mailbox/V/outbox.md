@@ -1,5 +1,13 @@
 # Lane V outbox
 
+## 2026-11-10 04:10 UTC — #2581 red (provider-own-price.spec): root cause and fix
+Status: in progress (fix pushed, CI pending)
+PR: #2581 (46ddf9a6 -> new push)
+Root cause: the price path itself did not change. In `book` the new seat step took its collection from `this.bkgModel.db`; the own-price spec (real in-memory Mongo, only the booking collections are stand-ins) gives `book` a booking model that has no `db`, so `book` threw a TypeError before it priced anything: every lab case that books (lab A 95 / lab B 130, the per-test choice, "1,200" at registration) failed for that reason, not because of a price. The spec is untouched.
+Fix: the seats collection now comes from the provider-profile model's connection (`ProviderProfile.db`, the real database in that spec and in production; the same database as every other lab collection); the unique-index call is cached per collection handle instead of once per process. In that spec the real seat collection works as is: each booking takes a seat, the second booking of lab B in the same minute finds the first seat's booking not live in the stand-in model (countDocuments is 0) and takes it over, so no `slot_taken`. I could not run that spec here (no MongoDB binary in my sandbox, 36 of 36 fail at startup on main too); I read its construction (`new LabsService(LabModel, model, {}, ProfileModel, ...)`) and ran everything else: labs + ordering 143/143, tsc clean. My own specs and the home-fee specs now put the `db` mock on the profile model.
+Left / blockers / questions:
+- If the spec still shows a lab price failure after this push, send me the first error line.
+
 ## 2026-11-10 03:30 UTC — lab capacity PR #2581 (your 02:40 GO)
 Status: in progress (CI pending)
 PR: #2581
