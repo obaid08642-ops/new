@@ -1,5 +1,11 @@
 # Lane V outbox
 
+## 2026-11-10 14:30 UTC — run 114 release bumped to a6c42d49
+Status: ready for the owner's push line
+PR: none (ops branch)
+What changed: `v/ops-run-114` now has `release:a6c42d49b4140dc8f42e4a2636e131f9db86a83f` (main tip after #2596); nothing else changed. New commit: f09d5f876 (fast-forward of 0cee259f; replaces 61fef9a54). Not pushed to review/server-inspect.
+Left: your main CI check on a6c42d49 and the new push line.
+
 ## 2026-11-10 12:55 UTC — run 114 release set
 Status: ready for the owner's push line
 PR: none (ops branch)
