@@ -88,4 +88,20 @@ describe('guest job review', () => {
       expect(await validate(plainToInstance(GuestJobReviewDto, { decision, note: 'abc' }))).toHaveLength(0);
     }
   });
+
+  it('close takes down a published post of any source, with a reason, and refuses one that is not published', async () => {
+    jobModel.findOneAndUpdate.mockReturnValue(lean({ id: 'j9', status: 'closed' }));
+    await svc.reviewGuestJob('adm1', 'j9', 'close', 'spam');
+    const [filter, update] = jobModel.findOneAndUpdate.mock.calls[0];
+    expect(filter).toEqual({ id: 'j9', is_deleted: false, status: 'published' });
+    expect(update.$set).toEqual(expect.objectContaining({ status: 'closed', reviewed_by: 'adm1', review_note: 'spam' }));
+    jobModel.findOneAndUpdate.mockReturnValue(lean(null));
+    jobModel.findOne.mockReturnValue(lean({ id: 'j9', status: 'draft' }));
+    await expect(svc.reviewGuestJob('adm1', 'j9', 'close', 'x')).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('the DTO accepts close', async () => {
+    const dto = plainToInstance(GuestJobReviewDto, { decision: 'close', note: 'spam' });
+    expect(await validate(dto)).toHaveLength(0);
+  });
 });
