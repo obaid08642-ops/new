@@ -421,7 +421,7 @@ def pharmacy(admin):
         r = pharm.post(f"/provider/pharmacy/allocations/{alloc['id']}/cancel", {'reason': 'provider_no_show: الصيدلية لا تستطيع التنفيذ'})
         step('pharmacy: the pharmacy cancels', r.ok, r)
         check_money('pharmacy platform delivery', 'provider cancels = 100%', pat, pharm, 'pharmacy', oid, paid, r2(paid))
-    # D. cash on delivery cancelled after dispatch: no cash was taken, so nothing to refund; the delivery fee is not collectable
+    # D. cash on delivery cancelled before preparation: no cash was taken, so nothing to refund; the delivery fee is not collectable
     pat, addr = patient('refund-pharmacy-d')
     oid, alloc, *_ = order(pat, addr)  # the first order is card (D-25); deliver it so the next one may be COD
     if alloc:
@@ -441,10 +441,11 @@ def pharmacy(admin):
         od2 = o2.body.get('data', o2.body) if isinstance(o2.body, dict) else {}
         step('pharmacy: the second order is cash on delivery', str(od2.get('payment_method')).lower() in ('cod', 'cash', 'cash_on_delivery'), od2.get('payment_method'))
         if alloc2:
-            advance(alloc2['id'], 'out-for-delivery')
-            step('pharmacy: the patient cancels the COD order after dispatch', pat.post(f'/patient/pharmacy/orders/{oid2}/cancel', {'reason': 'patient_requested'}, headers={'Idempotency-Key': str(uuid.uuid4())}).ok)
+            # the patient can only cancel before preparation now (owner decision 2026-11-10); the refusal after dispatch is asserted in case B
+            advance(alloc2['id'], 'confirm')
+            step('pharmacy: the patient cancels the COD order before preparation', pat.post(f'/patient/pharmacy/orders/{oid2}/cancel', {'reason': 'patient_requested'}, headers={'Idempotency-Key': str(uuid.uuid4())}).ok)
             time.sleep(3)
-            check_money('pharmacy platform delivery', 'COD cancelled after dispatch = nothing collected, nothing refunded', pat, pharm, 'pharmacy', oid2, 0, 0.0)
+            check_money('pharmacy platform delivery', 'COD cancelled before preparation = nothing collected, nothing refunded', pat, pharm, 'pharmacy', oid2, 0, 0.0)
 
 
 if __name__ == '__main__':
