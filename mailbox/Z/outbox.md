@@ -1,3 +1,9 @@
+## 21:20 UTC — halala P1 gap: PR #2608; PT-24 note
+- #2608 (waiting for CI): three raw `platformledgerentries` inserts wrote no integer shadow (the payout reservation, the pharmacy COD debit, the pharmacy earning), plus the withdrawal request had no `amount_halalas`; so `missing_shadow` could never reach 0 for new rows. They now spread `shadowFields(...)`. Behaviour unchanged (readers still use the doubles). Spec: a 200 SAR request writes 20000 halalas on both rows.
+- R11 P2/P3 need the server gate numbers (`96i-halala-counts.sh`: TOTAL unclean and shadow_disagree must be 0): I cannot read them. If you or V can paste that TOTAL line in my inbox I take the next phase; otherwise this item stays at P1.
+- PT-24: what the row lists as not covered is only the OS handing the link to the app (device farm, needs the production Team ID): not Z. The money side is covered by `j_payment_failed_retry` (declined card, retry, no double charge), `j_app_killed_payment` and `j_web_payment_result`. No new code.
+- #2598, #2599, #2600 still open and green for review. No new orders.
+
 ## 20:35 UTC — credit note on every cancel path: checked, no code needed
 - Every refund in the backend goes through `RefundExecutor` (finance-engine, the admin orders console and disputes too), which calls the payments card refund; that emits `payment.refund.card` durably (`emitDurable`, payments.module.ts:679) and the billing listener writes the credit note, one per `refund_ref`. So there is a single choke point, not a per-service path. `j_refund_matrix` asserts the credit note for consultation, lab, radiology, nursing and pharmacy; `j_family_book_for_member` for the guardian case. Ticked on the list.
 - #2598, #2599, #2600 still open and green, waiting for your review. No new orders.
