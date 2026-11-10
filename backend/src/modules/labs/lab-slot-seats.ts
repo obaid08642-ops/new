@@ -1,12 +1,17 @@
 // A lab takes `slot_capacity` bookings at the same time slot (default 1, set by the lab; the patient picker and the booking use the same number).
 // "Two parallel bookings for the last seat: one wins" needs an atomic step, not count-then-insert: every booking takes a numbered seat of its slot
 // (unique index provider + slot + seat), so the database refuses a second claim of the same seat. A seat whose booking was cancelled, reported or
-// never stored is taken over by the next booking (no hook on every cancel path).
+// never stored is taken over by the next booking (no hook on every cancel path). A seat whose booking is NOT FOUND is taken over at once only after the booking was
+// stored once (`confirmed`); an unconfirmed seat is a booking still being created, so it is left alone until it is older than SEAT_GRACE_MS (a request that died).
 
 export const SEAT_COLLECTION = 'lab_slot_seats';
 export const MAX_SLOT_CAPACITY = 20;
 /** The booking states that no longer hold a seat. */
 export const SEAT_FREE_STATES = ['CANCELLED', 'REPORTED'];
+/** How long a seat whose booking was never confirmed is left to its request: the create path takes milliseconds, so two minutes means the request died. */
+export const SEAT_GRACE_MS = 2 * 60_000;
+/** What a seat's booking is: live (holds the seat), free (stored as cancelled or reported), missing (not stored). */
+export type SeatBookingStatus = 'live' | 'free' | 'missing';
 
 export interface SeatCollection {
   insertOne(doc: any): Promise<any>;
@@ -31,30 +36,39 @@ export function slotStartOf(at: Date | string | number): Date {
 const isDuplicateKey = (e: any) => e?.code === 11000;
 
 /**
- * Take a seat of the slot for `bookingId`. Returns the seat number, or null when every seat of the slot is held by a live booking.
- * `isLive(id)` says whether a seat's booking still holds it.
+ * Take a seat of the slot for `bookingId`. Returns the seat number, or null when every seat of the slot is held.
+ * `statusOf(id)` says what a seat's booking is. A seat is taken over when its booking is free, or missing and either confirmed once or older than the grace period.
  */
 export async function reserveSeat(
   col: SeatCollection,
   input: { provider_account_id: string; slot_start: Date; capacity: number; booking_id: string },
-  isLive: (bookingId: string) => Promise<boolean>,
+  statusOf: (bookingId: string) => Promise<SeatBookingStatus>,
+  now: number = Date.now(),
 ): Promise<number | null> {
   for (let seat = 1; seat <= input.capacity; seat++) {
     const key = { provider_account_id: input.provider_account_id, slot_start: input.slot_start, seat };
     try {
-      await col.insertOne({ ...key, booking_id: input.booking_id, createdAt: new Date() });
+      await col.insertOne({ ...key, booking_id: input.booking_id, confirmed: false, createdAt: new Date(now) });
       return seat;
     } catch (e: any) {
       if (!isDuplicateKey(e)) throw e;
     }
     const held = await col.findOne(key);
-    if (held && !(await isLive(String(held.booking_id)))) {
-      // the seat's booking is gone: take it over, but only if nobody else did in the meantime
-      const res = await col.updateOne({ ...key, booking_id: held.booking_id }, { $set: { booking_id: input.booking_id, createdAt: new Date() } });
-      if ((res?.modifiedCount ?? 0) === 1) return seat;
-    }
+    if (!held) continue;
+    const status = await statusOf(String(held.booking_id));
+    const old = now - new Date(held.createdAt ?? 0).getTime() >= SEAT_GRACE_MS;
+    const takeable = status === 'free' || (status === 'missing' && (held.confirmed === true || old));
+    if (!takeable) continue;
+    // take it over, but only if nobody else did in the meantime
+    const res = await col.updateOne({ ...key, booking_id: held.booking_id }, { $set: { booking_id: input.booking_id, confirmed: false, createdAt: new Date(now) } });
+    if ((res?.modifiedCount ?? 0) === 1) return seat;
   }
   return null;
+}
+
+/** The booking was stored: from now on a missing booking means it was removed, not that it is still being created. */
+export async function confirmSeat(col: SeatCollection, bookingId: string): Promise<void> {
+  await col.updateOne({ booking_id: bookingId }, { $set: { confirmed: true } });
 }
 
 /** Give the seat back (a booking that failed after taking it). */

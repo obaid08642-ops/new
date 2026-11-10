@@ -43,7 +43,7 @@ import { getEffectiveRoles } from '../../common/auth.guard';
 import { UserRole, isAdminUser } from '../../common/enums';
 import { RedisService } from '../redis/redis.service';
 import { BusinessRulesService } from '../business-rules/business-rules.module';
-import { SEAT_COLLECTION, SEAT_FREE_STATES, ensureSeatIndex, releaseSeat, reserveSeat, slotCapacityOf, slotStartOf, MAX_SLOT_CAPACITY } from './lab-slot-seats';
+import { SEAT_COLLECTION, SEAT_FREE_STATES, confirmSeat, ensureSeatIndex, releaseSeat, reserveSeat, slotCapacityOf, slotStartOf, MAX_SLOT_CAPACITY, type SeatBookingStatus } from './lab-slot-seats';
 import { StorageService } from '../storage/storage.module';
 import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
 import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
@@ -384,7 +384,10 @@ export class LabsService {
       const seat = await reserveSeat(
         seats,
         { provider_account_id: providerId, slot_start: slotStartOf(slotTime), capacity: slotCapacityOf(seatProfile), booking_id: bookingId },
-        async (id) => (await this.bkgModel.countDocuments({ id: { $eq: id }, state: { $nin: SEAT_FREE_STATES } })) > 0,
+        async (id): Promise<SeatBookingStatus> => {
+          if ((await this.bkgModel.countDocuments({ id: { $eq: id }, state: { $nin: SEAT_FREE_STATES } })) > 0) return 'live';
+          return (await this.bkgModel.countDocuments({ id: { $eq: id } })) > 0 ? 'free' : 'missing';
+        },
       );
       if (seat === null) throw new BadRequestException('slot_taken');
       seatTaken = true;
@@ -416,6 +419,8 @@ export class LabsService {
       // P17-17.5: campaign attribution for the campaign report.
       attribution: pickAttribution(data) ?? undefined,
     });
+      // the booking is stored: a missing booking later means it was removed, not that it is still being created
+      if (seatTaken) await confirmSeat(this.seatCollection(), bookingId).catch(() => undefined);
     } catch (e) {
       if (seatTaken) await releaseSeat(this.seatCollection() as any, bookingId).catch(() => undefined);
       throw e;

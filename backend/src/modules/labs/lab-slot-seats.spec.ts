@@ -1,4 +1,4 @@
-import { MAX_SLOT_CAPACITY, releaseSeat, reserveSeat, slotCapacityOf, slotStartOf, type SeatCollection } from './lab-slot-seats';
+import { MAX_SLOT_CAPACITY, SEAT_GRACE_MS, confirmSeat, releaseSeat, reserveSeat, slotCapacityOf, slotStartOf, type SeatBookingStatus, type SeatCollection } from './lab-slot-seats';
 
 // A collection with a unique index on provider + slot + seat, like the real one: the second insert of the same key fails with code 11000.
 function fakeSeats(): SeatCollection & { rows: any[] } {
@@ -15,7 +15,11 @@ function fakeSeats(): SeatCollection & { rows: any[] } {
 }
 
 const slot = slotStartOf('2026-11-12T10:00:00Z');
-const live = (ids: string[]) => async (id: string) => ids.includes(id);
+const T0 = Date.parse('2026-11-10T08:00:00Z');
+/** The status of each booking id; anything not listed is missing (not stored). */
+const statuses = (m: Record<string, SeatBookingStatus>) => async (id: string): Promise<SeatBookingStatus> => m[id] ?? 'missing';
+const seatOf = (col: SeatCollection, id: string, now = T0, capacity = 1, st: Record<string, SeatBookingStatus> = {}) =>
+  reserveSeat(col, { provider_account_id: 'lab1', slot_start: slot, capacity, booking_id: id }, statuses(st), now);
 
 describe('lab slot capacity', () => {
   it('reads the capacity: a whole number from 1 to 20, anything else is 1', () => {
@@ -29,52 +33,72 @@ describe('lab slot capacity', () => {
     expect(slotStartOf('2026-11-12T10:00:30Z').toISOString()).toBe('2026-11-12T10:00:00.000Z');
   });
 
-  it('two parallel bookings for the last seat: one wins', async () => {
+  it('two parallel bookings for the last seat: one wins (neither booking is stored yet)', async () => {
     const col = fakeSeats();
-    const ids = ['b1', 'b2'];
-    const results = await Promise.all(ids.map((id) => reserveSeat(col, { provider_account_id: 'lab1', slot_start: slot, capacity: 1, booking_id: id }, live(ids))));
+    const results = await Promise.all(['b1', 'b2'].map((id) => seatOf(col, id)));
     expect(results.filter((r) => r === 1)).toHaveLength(1);
     expect(results.filter((r) => r === null)).toHaveLength(1);
     expect(col.rows).toHaveLength(1);
   });
 
+  it('a seat just inserted whose booking is not stored yet is NOT taken over: the second booking gets null (slot_taken)', async () => {
+    const col = fakeSeats();
+    expect(await seatOf(col, 'first')).toBe(1);
+    // the first booking has not reached the database yet (status missing), the second request arrives a moment later
+    expect(await seatOf(col, 'second', T0 + 50)).toBeNull();
+    expect(col.rows[0].booking_id).toBe('first');
+  });
+
   it('capacity 2 and eight parallel bookings: exactly two win', async () => {
     const col = fakeSeats();
-    const ids = Array.from({ length: 8 }, (_, i) => `b${i}`);
-    const results = await Promise.all(ids.map((id) => reserveSeat(col, { provider_account_id: 'lab1', slot_start: slot, capacity: 2, booking_id: id }, live(ids))));
+    const results = await Promise.all(Array.from({ length: 8 }, (_, i) => seatOf(col, `b${i}`, T0, 2)));
     expect(results.filter((r) => r !== null).sort()).toEqual([1, 2]);
     expect(col.rows).toHaveLength(2);
   });
 
   it('another slot or another lab is not affected', async () => {
     const col = fakeSeats();
-    await reserveSeat(col, { provider_account_id: 'lab1', slot_start: slot, capacity: 1, booking_id: 'a' }, live(['a']));
-    expect(await reserveSeat(col, { provider_account_id: 'lab1', slot_start: new Date(slot.getTime() + 1_800_000), capacity: 1, booking_id: 'b' }, live(['a', 'b']))).toBe(1);
-    expect(await reserveSeat(col, { provider_account_id: 'lab2', slot_start: slot, capacity: 1, booking_id: 'c' }, live(['a', 'b', 'c']))).toBe(1);
+    await seatOf(col, 'a');
+    expect(await reserveSeat(col, { provider_account_id: 'lab1', slot_start: new Date(slot.getTime() + 1_800_000), capacity: 1, booking_id: 'b' }, statuses({}), T0)).toBe(1);
+    expect(await reserveSeat(col, { provider_account_id: 'lab2', slot_start: slot, capacity: 1, booking_id: 'c' }, statuses({}), T0)).toBe(1);
   });
 
-  it('a seat whose booking was cancelled is taken over once, even when several bookings try at the same time', async () => {
+  it('a seat whose booking is stored as cancelled or reported is taken at once, by only one of several parallel bookings', async () => {
     const col = fakeSeats();
-    await reserveSeat(col, { provider_account_id: 'lab1', slot_start: slot, capacity: 1, booking_id: 'old' }, live(['old']));
-    const ids = ['n1', 'n2', 'n3'];
-    // "old" is no longer live (cancelled)
-    const results = await Promise.all(ids.map((id) => reserveSeat(col, { provider_account_id: 'lab1', slot_start: slot, capacity: 1, booking_id: id }, live(ids))));
+    await seatOf(col, 'old');
+    const results = await Promise.all(['n1', 'n2', 'n3'].map((id) => seatOf(col, id, T0 + 10, 1, { old: 'free', n1: 'live', n2: 'live', n3: 'live' })));
     expect(results.filter((r) => r === 1)).toHaveLength(1);
     expect(col.rows).toHaveLength(1);
-    expect(ids).toContain(col.rows[0].booking_id);
+    expect(['n1', 'n2', 'n3']).toContain(col.rows[0].booking_id);
   });
 
-  it('a seat held by a live booking is not taken over; a released seat is free again', async () => {
+  it('a seat held by a live booking is never taken over', async () => {
     const col = fakeSeats();
-    await reserveSeat(col, { provider_account_id: 'lab1', slot_start: slot, capacity: 1, booking_id: 'a' }, live(['a']));
-    expect(await reserveSeat(col, { provider_account_id: 'lab1', slot_start: slot, capacity: 1, booking_id: 'b' }, live(['a', 'b']))).toBeNull();
+    await seatOf(col, 'a');
+    expect(await seatOf(col, 'b', T0 + 10 * SEAT_GRACE_MS, 1, { a: 'live' })).toBeNull();
+  });
+
+  it('a confirmed seat whose booking was removed is taken at once; an unconfirmed one only after the grace period', async () => {
+    const col = fakeSeats();
+    await seatOf(col, 'a');
+    await confirmSeat(col, 'a');
+    expect(await seatOf(col, 'b', T0 + 10)).toBe(1);
+    const col2 = fakeSeats();
+    await seatOf(col2, 'a');
+    expect(await seatOf(col2, 'b', T0 + SEAT_GRACE_MS - 1)).toBeNull();
+    expect(await seatOf(col2, 'b', T0 + SEAT_GRACE_MS)).toBe(1);
+  });
+
+  it('a released seat is free again', async () => {
+    const col = fakeSeats();
+    await seatOf(col, 'a');
     await releaseSeat(col, 'a');
-    expect(await reserveSeat(col, { provider_account_id: 'lab1', slot_start: slot, capacity: 1, booking_id: 'b' }, live(['b']))).toBe(1);
+    expect(await seatOf(col, 'b', T0 + 10)).toBe(1);
   });
 
   it('an error other than a duplicate key is not swallowed', async () => {
     const col = fakeSeats();
     col.insertOne = async () => { throw new Error('connection lost'); };
-    await expect(reserveSeat(col, { provider_account_id: 'lab1', slot_start: slot, capacity: 1, booking_id: 'a' }, live([]))).rejects.toThrow('connection lost');
+    await expect(seatOf(col, 'a')).rejects.toThrow('connection lost');
   });
 });

@@ -31,7 +31,7 @@ describe('lab slot capacity: picker and booking', () => {
     profile = { account_id: 'lab1', type: 'lab', status: 'active', public_eligibility: true, medical_review_status: 'approved', working_hours: [{ day: DOW, open: '09:00', close: '12:00', closed: false }], slot_capacity: 1 };
     bkgModel = {
       db: { collection: () => otherCol },
-      countDocuments: async (q: any) => stored.filter((b) => b.id === q.id.$eq && !['CANCELLED', 'REPORTED'].includes(b.state)).length,
+      countDocuments: async (q: any) => stored.filter((b) => b.id === q.id.$eq && (!q.state || !['CANCELLED', 'REPORTED'].includes(b.state))).length,
       find: (q: any) => {
         const rows = stored.filter((b) => (!q.provider_account_id || b.provider_account_id === q.provider_account_id) && !['CANCELLED', 'REPORTED'].includes(b.state));
         return { lean: async () => [], select: () => ({ lean: async () => rows }) };
@@ -88,6 +88,14 @@ describe('lab slot capacity: picker and booking', () => {
     const day: any = await service.slotsForProvider('lab1', DAY);
     expect(day.capacity).toBe(3);
     expect(day.slots.find((x: any) => x.start === SLOT.toISOString())).toMatchObject({ available: false, remaining: 0 });
+  });
+
+  it('the booking that is still being stored does not lose its seat to a parallel request (create is slow)', async () => {
+    const realCreate = bkgModel.create;
+    bkgModel.create = async (doc: any) => { await new Promise((r) => setTimeout(r, 40)); return realCreate(doc); };
+    const [a, b] = await Promise.allSettled([service.book(patient(1), order()), (async () => { await new Promise((r) => setTimeout(r, 10)); return service.book(patient(2), order()); })()]);
+    expect([a.status, b.status].sort()).toEqual(['fulfilled', 'rejected']);
+    expect(stored).toHaveLength(1);
   });
 
   it('a cancelled booking gives its seat back to the next patient', async () => {
