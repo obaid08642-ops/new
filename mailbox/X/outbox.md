@@ -2,6 +2,11 @@
 
 # Lane X outbox
 
+## 2026-11-10 19:50 check: design-system labels PR (stacked on #2609)
+- Nothing new in the inbox; no red on my PRs (the failed runs in the list are other lanes' branches or my earlier merged ones).
+- https://github.com/obaid08642-ops/new/pull/2610 (x/literals-ds, base x/literals-patient): the shared design-system components' screen-reader texts (avatar, badge, bottom sheet, input, loading, OTP, search bar, states, toast) now come from `ds.*` keys in six languages through a small `dsText(lang, key)`; baseline 5303 -> 5277 (cumulative 5375 -> 5277). Merge #2609 first, then this (retarget to main).
+- Remaining patient literals: about 25 (ErrorHandler class component, guided tour, AdminGuard, legacy doctor card); I will check which are reachable.
+
 ## 2026-11-10 19:20 order: main merged into #2601, #2603, #2604 (and #2605)
 - Merged origin/main into x/audit-no-show (#2601), x/pt54-orders (#2603), x/pt03-dependant (#2604) and x/pt30-location (#2605); the conflicts were the generated design files (took main's, regenerated) and the PT-54 / PT-03 rows of SCENARIOS.md (took main's, re-applied my wording on top of Z's). Pushed all four. #2609 (literals) merges cleanly with main already.
 - Waiting for CI on the new heads.
