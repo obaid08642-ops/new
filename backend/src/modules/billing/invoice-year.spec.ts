@@ -12,9 +12,9 @@ describe('the year in a document number is the Riyadh year', () => {
   it('the number and its counter use that year: INV-2027-000001 from the first Riyadh minute of 2027, with its own series', async () => {
     const counters = { findOneAndUpdate: jest.fn(async () => ({ seq: 1 })) };
     const svc: any = svcWith(counters);
-    expect(await svc.nextInvoiceNo('tax_invoice', new Date('2026-12-31T21:05:00Z'))).toBe('INV-2027-000001');
+    expect(await svc.allocateNo('invoice', new Date('2026-12-31T21:05:00Z'))).toBe('INV-2027-000001');
     expect(counters.findOneAndUpdate).toHaveBeenLastCalledWith({ _id: 'invoice-2027' }, { $inc: { seq: 1 } }, { upsert: true, returnDocument: 'after' });
-    expect(await svc.nextInvoiceNo('receipt', new Date('2026-12-31T20:00:00Z'))).toBe('RCT-2026-000001');
+    expect(await svc.allocateNo('receipt', new Date('2026-12-31T20:00:00Z'))).toBe('RCT-2026-000001');
     expect(counters.findOneAndUpdate).toHaveBeenLastCalledWith({ _id: 'receipt-2026' }, { $inc: { seq: 1 } }, { upsert: true, returnDocument: 'after' });
   });
 });

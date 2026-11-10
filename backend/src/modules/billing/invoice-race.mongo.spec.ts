@@ -19,6 +19,7 @@ describe('issue() against a real MongoDB: parallel issuing for one booking', () 
     await einvoices().deleteMany({});
     await conn.collection('labbookings').deleteMany({});
     await conn.collection('transactions').deleteMany({});
+    await conn.collection('counters').deleteMany({});
     try { await einvoices().dropIndex(INVOICE_KEY_INDEX); } catch { /* none yet */ }
     await conn.collection('labbookings').insertOne({ id: 'b1', patient_id: 'p1', total: 115 });
     await conn.collection('transactions').insertOne({ booking_kind: 'lab', booking_id: 'b1', status: 'paid', amount: 115 });
@@ -29,6 +30,10 @@ describe('issue() against a real MongoDB: parallel issuing for one booking', () 
     const out: any[] = await Promise.all(Array.from({ length: 8 }, (_, i) => (i % 2 ? svc.issue(null, 'lab', 'b1') : svc.issue({ id: 'p1', role: 'patient' }, 'lab', 'b1'))));
     expect(await einvoices().countDocuments({ booking_kind: 'lab', booking_id: 'b1', type: 'invoice', status: 'ISSUED' })).toBe(1);
     expect(new Set(out.map((o) => o.invoice_no)).size).toBe(1);
+    // gapless: the losers took no number, so the series moved exactly once
+    const counters: any[] = await conn.collection('counters').find({}).toArray();
+    expect(counters.reduce((sum, c) => sum + Number(c.seq || 0), 0)).toBe(1);
+    expect(out[0].invoice_no).toMatch(/-000001$/);
     expect((await einvoices().indexes()).some((i: any) => i.name === INVOICE_KEY_INDEX && i.unique)).toBe(true);
   });
 
