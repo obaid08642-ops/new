@@ -20,16 +20,17 @@ describe('canonicalJson / policyStamp', () => {
   it('the version is the time the stored policy was saved', () => {
     expect(policyStamp(stored(), 'lab').version).toBe('2026-11-10T08:00:00.000Z');
   });
-  it('editing the consultation table changes the consultation hash only; lab, radiology and nursing follow home_visit, pharmacy its own', () => {
+  it('editing the consultation table changes the hash of consultation AND of lab, radiology and nursing (they follow its 2-hour table); pharmacy keeps its own', () => {
     const before = ['consultation', 'lab', 'radiology', 'nursing', 'pharmacy'].map((s) => policyStamp(stored(), s as any).hash);
     const edited = stored({ consultation: { ...DEFAULT_REFUND_POLICY.consultation, late_refund_percent: 30 } });
     const after = ['consultation', 'lab', 'radiology', 'nursing', 'pharmacy'].map((s) => policyStamp(edited, s as any).hash);
-    expect(after[0]).not.toBe(before[0]);
-    expect(after.slice(1)).toEqual(before.slice(1));
+    for (const i of [0, 1, 2, 3]) expect(after[i]).not.toBe(before[i]);
+    expect(after[4]).toBe(before[4]);
+    // the home-visit rules (trip fee) change lab, radiology and nursing, not the consultation or pharmacy
     const trip = stored({ home_visit: { ...DEFAULT_REFUND_POLICY.home_visit, trip_fee_sar: 55 } });
-    expect(policyStamp(trip, 'lab').hash).not.toBe(before[1]);
-    expect(policyStamp(trip, 'nursing').hash).not.toBe(before[3]);
+    for (const [i, svc] of [[1, 'lab'], [2, 'radiology'], [3, 'nursing']] as const) expect(policyStamp(trip, svc).hash).not.toBe(before[i]);
     expect(policyStamp(trip, 'consultation').hash).toBe(before[0]);
+    expect(policyStamp(trip, 'pharmacy').hash).toBe(before[4]);
     expect(POLICY_SECTION).toMatchObject({ lab: 'home_visit', radiology: 'home_visit', nursing: 'home_visit', pharmacy: 'pharmacy', consultation: 'consultation' });
   });
   it('a lab and a nursing hash differ even though they share a section (the service is part of what is hashed)', () => {

@@ -44,7 +44,7 @@ import { DurableEventsService, emitDurable } from '../durable-events/durable-eve
 import { roundSar, toHalalas } from '../../common/money';
 import { clawbackShares } from './refund-clawback';
 import { halalasSum, reportFigures } from './report-totals';
-import { patientAbsentPercent, patientAbsentRefund, pharmacyCancelRefund, refundsDeliveryFeeBeforeDispatch } from './refund-policy-rules';
+import { patientAbsentPercent, patientAbsentRefund, pharmacyCancelRefund, refundsDeliveryFeeBeforeDispatch, visitPatientCancelRefund } from './refund-policy-rules';
 
 export const LEDGER_TYPES = [
   'provider_earning', 'provider_debit', 'payout', 'refund', 'commission',
@@ -1205,7 +1205,10 @@ export class NursingRefundListener {
       const total = Math.round(Number(e?.total || 0) * 100) / 100;
       if (!(total > 0)) return;
       const afterTransit = String(e?.prior_state || '').toUpperCase() === 'IN_TRANSIT';
-      const amount = afterTransit ? Math.max(0, Math.round((total - tripFee) * 100) / 100) : total;
+      // owner decision 2026-11-10: a PATIENT's cancel follows the 2-hour table (and the trip fee is still kept after the nurse set off); an admin's keeps the earlier rule
+      const amount = e?.cancelled_by === 'patient'
+        ? visitPatientCancelRefund(total, e?.scheduled_at, policyDoc?.value, { afterTransit, tripFeeSar: tripFee })
+        : afterTransit ? Math.max(0, Math.round((total - tripFee) * 100) / 100) : total;
       if (!(amount > 0)) return;
       await this.refundExec.execute({
         refund_id: `nursing-cancel-${bookingId}`,
@@ -1682,7 +1685,12 @@ export class LabRadiologyRefundListener {
       const tripFee = Number(policyDoc?.value?.home_visit?.trip_fee_sar ?? 40);
       // refund policy 3.0: after the collector set off the PATIENT bears the trip fee; the provider cancelling or not attending refunds 100%
       const keepsTripFee = kind === 'lab' && String(e?.prior_state || '').toUpperCase() === 'IN_TRANSIT' && e?.cancelled_by !== 'provider';
-      const amount = keepsTripFee ? Math.max(0, Math.round((left - tripFee) * 100) / 100) : left;
+      let amount = keepsTripFee ? Math.max(0, Math.round((left - tripFee) * 100) / 100) : left;
+      // owner decision 2026-11-10: a PATIENT's cancel follows the 2-hour table (provider cancels, system cancels and unknown cancellers keep the full refund)
+      if (e?.cancelled_by === 'patient') {
+        const bk: any = await this.conn.collection(kind === 'lab' ? 'labbookings' : 'radiologybookings').findOne({ id: bookingId } as any, { projection: { _id: 0, scheduled_at: 1, scheduled_asap: 1 } }).catch(() => null);
+        amount = visitPatientCancelRefund(left, bk?.scheduled_at, policyDoc?.value, { afterTransit: kind === 'lab' && String(e?.prior_state || '').toUpperCase() === 'IN_TRANSIT', tripFeeSar: tripFee, asap: bk?.scheduled_asap === true });
+      }
       if (!(amount > 0)) return;
       await this.refundExec.execute({
         refund_id: `${kind}-cancel-${bookingId}`,
