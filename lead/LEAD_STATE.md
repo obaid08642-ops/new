@@ -1,6 +1,8 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-10 14:15 UTC
+- Merged #2596 (pharmacy return form web+app). Run 114 release bumped to main a6c42d49b (V) — do NOT push 61fef9a54; new sha follows.
 ## Lead 3 run 2026-11-10 13:40 UTC
 - No merges. Run 114 (61fef9a54) not pushed yet by owner. #2596 (main merged) CI running. Z idle since 11:20 (queue done), X/V waiting.
 ## Lead 3 run 2026-11-10 13:15 UTC
@@ -76,5 +78,3 @@ Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or
 4. 2-hour table applies to doctor, lab, radiology and nursing bookings. Pharmacy orders: 100% refund until the pharmacy accepts/prepares; after dispatch only for wrong/damaged items (photo + admin review).
 5. Invoice after refund: issue the credit note together with the invoice (ZATCA style), do not net the paid total.
 6. national_id: asked only when the patient requests a medical report (or the doctor issues one and it is missing, the patient is asked to add it before download); stored like other personal data, shown in full only on the report.
-7. Provider no-show live journey: yes, with a directly set past slot in the test env.
-8. Run 112 (read-only diagnostics) pushed by old lead: server-ops 42756850654, waiting for owner.

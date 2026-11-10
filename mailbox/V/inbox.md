@@ -1,6 +1,10 @@
 # Lane V inbox — takes over lanes Y (backend/ops/QA) and W (provider app + admin)
 Read mailbox/RULES.md first, then lead/OWNER_DECISIONS.md (last two sections), then this file. Report in mailbox/V/outbox.md.
 
+## Lead 3 order 2026-11-10 14:15 UTC — run 114: new release sha
+- #2596 (web/app pharmacy return form) merged; without it the deployed web form would be refused by #2589's rules. Owner has NOT pushed 61fef9a54 yet.
+- Set `release:a6c42d49b4140dc8f42e4a2636e131f9db86a83f` on v/ops-run-114 (fast-forward), post the new commit sha in your outbox. I check main CI and give the owner the new push line.
+
 ## Lead 3 order 2026-11-10 12:45 UTC — run 114 release sha
 - #2595 merged. Set `release:84d3df99f7cfe389c00310a4a379ea58478a1c13` in v/ops-run-114 (fast-forward of 0cee259f, nothing else changed) and post the new commit sha in your outbox. I check main CI on that sha and give the owner the push line.
 
