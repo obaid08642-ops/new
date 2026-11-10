@@ -3895,6 +3895,7 @@
   "scanStatus.checking": "جارٍ التحقق من أمان الملف",
   "scanStatus.rejected": "تم رفض هذا الملف لأسباب تتعلق بالسلامة. يرجى رفع ملف آخر.",
   "scanStatus.uploadAnother": "رفع ملف آخر",
+  "scanStatus.openLater": "سيكون جاهزًا بعد دقيقة. حاول مرة أخرى بعد قليل.",
   "common.availableInEnglishOnly": "متاح بالإنجليزية فقط",
   "common.availableInArabicOnly": "متاح بالعربية فقط",
   "set.helpPolicies": "مساعدة وسياسات",

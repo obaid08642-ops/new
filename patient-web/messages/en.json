@@ -5861,7 +5861,8 @@
   "ScanStatus": {
     "checking": "Being checked for safety",
     "rejected": "This file was rejected for safety. Please upload another.",
-    "uploadAnother": "Upload another file"
+    "uploadAnother": "Upload another file",
+    "openLater": "It will be ready in a minute. This page opens it by itself, or try again later."
   },
   "Receipt": {
     "title": "Receipt",

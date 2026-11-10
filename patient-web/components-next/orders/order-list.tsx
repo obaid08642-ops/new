@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
+import { ProtectedFileLink } from "@/components-next/uploads/protected-file-link";
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
 import { Segmented, StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { Chip } from "@/components-next/ui-generated/components/Surfaces";
@@ -81,7 +82,7 @@ export function OrderList({ locale, rows, results, partialNote, initialTab, init
                 </Link>
                 <div className={styles.resultActions}>
                   <ButtonLink href={row.viewHref} label={t("resultView")} variant="outline" size="sm" />
-                  {row.pdfHref ? <ButtonLink href={row.pdfHref} label={t("resultPdf")} variant="outline" size="sm" /> : null}
+                  {row.pdfHref ? <ProtectedFileLink href={row.pdfHref} label={t("resultPdf")} /> : null}
                   <ButtonLink href={`/${locale}/consultations/doctors`} label={t("resultBook")} size="sm" />
                 </div>
               </li>

@@ -3895,6 +3895,7 @@
   "scanStatus.checking": "Being checked for safety",
   "scanStatus.rejected": "This file was rejected for safety. Please upload another.",
   "scanStatus.uploadAnother": "Upload another file",
+  "scanStatus.openLater": "It will be ready in a minute. Try again shortly.",
   "common.availableInEnglishOnly": "Available in English only",
   "common.availableInArabicOnly": "Available in Arabic only",
   "set.helpPolicies": "Help & policies",

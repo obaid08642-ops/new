@@ -11,7 +11,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { NABDAH_ACCESS_TOKEN_SECURITY_SCHEME } from '../../config/openapi.config';
-import { CreateCompanyDto, UpdateCompanyDto, OcrExtractDto, UploadPolicyDto, SubmitClaimDto, CreateInsuranceNetworkDto, CreateCoverageRuleDto } from './insurance.dto';
+import { CreateCompanyDto, UpdateCompanyDto, OcrExtractDto, UploadPolicyDto, SubmitClaimDto, DecideClaimDto, CreateInsuranceNetworkDto, CreateCoverageRuleDto } from './insurance.dto';
 import { InjectModel, InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
 import { Optional } from '@nestjs/common';
@@ -420,7 +420,7 @@ export class AdminInsuranceClaimsController {
   @Get() list(@Query('status') status?: string) { return this.svc.adminClaims(status); }
 
   @RequirePermissions(Permission.INSURANCE_MANAGE)
-  @Post(':id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+  @Post(':id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() body: DecideClaimDto) {
     return this.svc.decideClaim(u, id, body?.approve === true, body?.note);
   }
 }

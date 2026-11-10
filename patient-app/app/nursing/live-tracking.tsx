@@ -11,6 +11,8 @@ import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKi
 import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { scanStateOfError } from '../../src/utils/scanStatus';
 
 type Rec = Record<string, unknown>;
 const str = (v: unknown): string => (typeof v === 'string' || typeof v === 'number' ? String(v) : '');
@@ -96,6 +98,11 @@ export default function NursingLiveTracking() {
       if (!url.startsWith('https://')) throw new Error('no_url');
       await Linking.openURL(url);
     } catch (err) {
+      // UPLOAD_SCAN=defer: a file still being scanned answers 423 `file_pending_scan`: "being checked", not an error
+      if (scanStateOfError(err) === 'pending') {
+        showLocalizedAlert(k('scanStatus.checking'), k('scanStatus.openLater'));
+        return;
+      }
       logError('nursing:open-file', err);
       setFileError(true);
     }

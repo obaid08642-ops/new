@@ -9,6 +9,7 @@
  * (already registered by their owning modules) — no re-registration here.
  */
 import { ensureInvoiceUniqueIndex } from './invoice-key';
+import { riyadhParts } from '../../common/riyadh-clock';
 import { halalaShadowPlugin } from '../../common/halala-shadow';
 import {
   Body, Delete, HttpException, HttpStatus, Req,
@@ -112,6 +113,12 @@ export function decodeTlv(base64: string): Record<number, string> {
   return out;
 }
 
+/** The year of a document number: the calendar year in Riyadh (the platform's calendar), not the server's. At 00:30 on 1 January in Riyadh the server (UTC) is still on 31 December. */
+export function invoiceYear(at: Date): number { return Number(riyadhParts(at).ymd.slice(0, 4)); }
+
+/** The number a document carries between its insert and its numbering (never shown: see `settle`). */
+export const PENDING_NO = 'PENDING-';
+
 // ── Service ────────────────────────────────────────────────────────────────
 @Injectable()
 export class BillingService {
@@ -123,17 +130,58 @@ export class BillingService {
 
   private get invoices() { return this.conn.model('EInvoice'); }
 
-  /** Tax invoices INV-<year>-<n>; receipts have their own series, RCT-<year>-<n>, so a receipt never takes an invoice number. */
-  private async nextInvoiceNo(kind: DocumentKind = 'tax_invoice'): Promise<string> {
-    const year = new Date().getFullYear();
-    const prefix = kind === 'receipt' ? 'RCT' : 'INV';
+  /**
+   * The next number of a series: tax invoices INV-<year>-<n>; receipts RCT; credit notes CN; refund receipts RRC (each with its own counter per Riyadh year, so a receipt never takes an
+   * invoice number). It is called only AFTER the document's insert has won (see `insertNumbered`), so a lost race or a refused duplicate never burns a number: the sequence has no gap.
+   */
+  private async allocateNo(series: 'invoice' | 'receipt' | 'creditnote' | 'refundreceipt', at: Date = new Date()): Promise<string> {
+    const year = invoiceYear(at);
+    const prefix = { invoice: 'INV', receipt: 'RCT', creditnote: 'CN', refundreceipt: 'RRC' }[series];
     const counter = await this.conn.collection('counters').findOneAndUpdate(
-      { _id: `${kind === 'receipt' ? 'receipt' : 'invoice'}-${year}` } as any,
+      { _id: `${series}-${year}` } as any,
       { $inc: { seq: 1 } },
       { upsert: true, returnDocument: 'after' },
     );
     const seq = (counter as any)?.seq ?? (counter as any)?.value?.seq ?? 1;
     return `${prefix}-${year}-${String(seq).padStart(6, '0')}`;
+  }
+
+  /** The series a stored document belongs to (what `allocateNo` takes). */
+  private seriesOf(doc: any): 'invoice' | 'receipt' | 'creditnote' | 'refundreceipt' {
+    const receipt = documentKindOf(doc) === 'receipt';
+    return doc?.type === 'credit_note' ? (receipt ? 'refundreceipt' : 'creditnote') : (receipt ? 'receipt' : 'invoice');
+  }
+
+  /**
+   * Writes a document WITHOUT taking a number first: it is inserted with a placeholder number (`PENDING-<uuid>`, unique), and only the insert that wins (the unique key on the
+   * booking, or on `refund_ref` for a credit note, refuses the others before any counter is touched) allocates the real number and sets it. A crash between the two leaves a
+   * placeholder that the next reader completes (`settle`).
+   */
+  private async insertNumbered(fields: Record<string, unknown>, series: 'invoice' | 'receipt' | 'creditnote' | 'refundreceipt', at: Date): Promise<any> {
+    const placeholder = `${PENDING_NO}${randomUUID()}`;
+    const doc: any = await this.invoices.create({ ...fields, invoice_no: placeholder });
+    return this.numberIt(doc.id, placeholder, series, at);
+  }
+
+  private async numberIt(id: string, placeholder: string, series: 'invoice' | 'receipt' | 'creditnote' | 'refundreceipt', at: Date): Promise<any> {
+    const no = await this.allocateNo(series, at);
+    await this.invoices.updateOne({ id, invoice_no: placeholder }, { $set: { invoice_no: no } });
+    return this.invoices.findOne({ id }, { _id: 0, __v: 0 }).lean();
+  }
+
+  /**
+   * A document found with a placeholder number is being numbered by the writer that inserted it: wait a moment for that; if it is still unnumbered (that writer died between the insert and
+   * the number), number it here. The conditional update means only one writer sets the number.
+   */
+  private async settle(doc: any): Promise<any> {
+    if (!doc || !String(doc.invoice_no || '').startsWith(PENDING_NO)) return doc;
+    let cur = doc;
+    for (let i = 0; i < 5 && String(cur?.invoice_no || '').startsWith(PENDING_NO); i += 1) {
+      await new Promise((r) => setTimeout(r, 100));
+      cur = (await this.invoices.findOne({ id: doc.id }, { _id: 0, __v: 0 }).lean()) ?? cur;
+    }
+    if (!String(cur?.invoice_no || '').startsWith(PENDING_NO)) return cur;
+    return this.numberIt(cur.id, cur.invoice_no, this.seriesOf(cur), cur.issued_at ? new Date(cur.issued_at) : new Date());
   }
 
   private bookingModelName(kind: string): string {
@@ -357,7 +405,7 @@ export class BillingService {
     const existing: any = await this.invoices.findOne({ booking_kind: kind, booking_id: bookingId, status: 'ISSUED', type: { $ne: 'credit_note' } }, { _id: 0, __v: 0 }).lean();
     if (existing) {
       if (user && existing.patient_id !== user.id && user.role !== 'admin') throw new BadRequestException('not your booking');
-      return this.sealIfPossible(existing);
+      return this.sealIfPossible(await this.settle(existing));
     }
 
     const booking: any = await this.findBooking(kind, bookingId);
@@ -393,8 +441,7 @@ export class BillingService {
 
     await (this.invoiceIndex ??= ensureInvoiceUniqueIndex(this.conn, (m) => this.logger.warn(m)));
     try {
-      const doc = await this.invoices.create({
-        invoice_no: await this.nextInvoiceNo(documentKind),
+      return await this.insertNumbered({
         type: 'invoice', document_kind: documentKind,
         booking_kind: kind,
         booking_id: bookingId,
@@ -402,12 +449,11 @@ export class BillingService {
         subtotal, vat_rate: rate, vat_amount: vat, vat_basis: documentKind === 'tax_invoice' ? 'delivery_fee' : undefined, total,
         qr_base64: qr, lines, payment, insured, discount, provider, patient_name: patientName, booking_ref: bookingRef,
         seller_name: seller.name, vat_number: seller.vatNumber, seller_cr_number: seller.crNumber, seller_address: seller.address, seller_complete: documentKind === 'tax_invoice', issued_at: issuedAt,
-      });
-      return await this.invoices.findOne({ id: doc.id }, { _id: 0, __v: 0 }).lean();
+      }, documentKind === 'receipt' ? 'receipt' : 'invoice', issuedAt);
     } catch (e: any) {
       // two writers (the payment event and the patient's request) can race: the one that lost reads the winner's invoice
       const again = await this.invoices.findOne({ booking_kind: kind, booking_id: bookingId, status: 'ISSUED', type: { $ne: 'credit_note' } }, { _id: 0, __v: 0 }).lean();
-      if (again) return again;
+      if (again) return this.settle(again);
       throw e;
     }
   }
@@ -426,7 +472,7 @@ export class BillingService {
     e = { ...e, booking_id: target.id };
     try {
       const done: any = await this.invoices.findOne({ refund_ref: e.refund_ref }, { _id: 0, __v: 0 }).lean();
-      if (done) return done;
+      if (done) return this.settle(done);
       const original: any = await this.invoices.findOne({ booking_kind: kind, booking_id: e.booking_id, status: 'ISSUED', type: { $ne: 'credit_note' } }).lean();
       if (!original) return null;
       const capped = Math.min(amount, Math.round(Number(original.total) * 100) / 100);
@@ -440,11 +486,8 @@ export class BillingService {
       const issuedAt = new Date();
       const cfgSeller = original.seller_name && (docKind === 'receipt' || original.vat_number) ? null : await this.seller();
       const seller = { name: original.seller_name || cfgSeller?.name || null, vatNumber: docKind === 'tax_invoice' ? original.vat_number || cfgSeller?.vatNumber || null : null };
-      const year = issuedAt.getFullYear();
-      const counter: any = await this.conn.collection('counters').findOneAndUpdate({ _id: `${docKind === 'receipt' ? 'refundreceipt' : 'creditnote'}-${year}` } as any, { $inc: { seq: 1 } }, { upsert: true, returnDocument: 'after' });
-      const seq = counter?.seq ?? counter?.value?.seq ?? 1;
-      const doc = await this.invoices.create({
-        invoice_no: `${docKind === 'receipt' ? 'RRC' : 'CN'}-${year}-${String(seq).padStart(6, '0')}`,
+      // inserted first, numbered only when the insert won (the unique refund_ref refuses a repeated refund event before any number is taken)
+      return await this.insertNumbered({
         type: 'credit_note', document_kind: docKind, original_invoice_no: original.invoice_no, refund_ref: e.refund_ref,
         booking_kind: kind, booking_id: e.booking_id, patient_id: original.patient_id,
         subtotal: Math.round((total - vat) * 100) / 100, vat_rate: rate, vat_amount: vat, vat_basis: original.vat_basis ?? undefined, total,
@@ -453,8 +496,7 @@ export class BillingService {
         payment: original.payment ?? null, insured: null,
         provider: original.provider ?? null, booking_ref: original.booking_ref, seller_cr_number: original.seller_cr_number ?? null, seller_address: original.seller_address ?? null,
         seller_name: seller.name, vat_number: seller.vatNumber, seller_complete: docKind === 'tax_invoice', issued_at: issuedAt,
-      });
-      return await this.invoices.findOne({ id: doc.id }, { _id: 0, __v: 0 }).lean();
+      }, docKind === 'receipt' ? 'refundreceipt' : 'creditnote', issuedAt);
     } catch (err: any) {
       this.logger.warn(`credit note not issued for ${kind} ${e.booking_id}: ${err?.message}`);
       return null;

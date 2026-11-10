@@ -101,12 +101,13 @@ export function newIdempotencyKey(): string {
 
 /**
  * Saves a protected file (a lab booking's report) to the cache with the session token and returns its local uri, or
- * null when the server refuses it. The file is never fetched from a raw CDN url found in a payload.
+ * null when the server refuses it (423 while the file is still being scanned: `onPending` is called). The file is never fetched from a raw CDN url found in a payload.
  */
-export async function downloadProtected(endpoint: string, filename: string): Promise<string | null> {
+export async function downloadProtected(endpoint: string, filename: string, onPending?: () => void): Promise<string | null> {
   const token = await getToken();
   const { fileManager } = await import('../services/FileManager');
-  return fileManager.downloadFile(`${BASE_URL}${endpoint}`, filename, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+  // UPLOAD_SCAN=defer: a file still being scanned answers 423, which is not a refusal; `onPending` lets the screen say "being checked"
+  return fileManager.downloadFile(`${BASE_URL}${endpoint}`, filename, { headers: token ? { Authorization: `Bearer ${token}` } : {}, onStatus: (status) => { if (status === 423) onPending?.(); } });
 }
 
 /** `timeoutMs` overrides the default for one call (15 s; 60 s for an upload; 45 s for the AI routes). */

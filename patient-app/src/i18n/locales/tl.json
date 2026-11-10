@@ -3895,6 +3895,7 @@
   "scanStatus.checking": "Sinusuri ang file para sa kaligtasan",
   "scanStatus.rejected": "Tinanggihan ang file na ito para sa kaligtasan. Mag-upload ng iba.",
   "scanStatus.uploadAnother": "Mag-upload ng ibang file",
+  "scanStatus.openLater": "Handa na ito sa loob ng isang minuto. Subukan ulit sa ilang sandali.",
   "common.availableInEnglishOnly": "Makukuha lamang sa Ingles",
   "common.availableInArabicOnly": "Makukuha lamang sa Arabe",
   "set.helpPolicies": "Tulong at mga patakaran",

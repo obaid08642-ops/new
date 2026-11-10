@@ -1,3 +1,4 @@
+import { ProtectedFileLink } from "@/components-next/uploads/protected-file-link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { callPatientApi } from "@/lib/api/upstream";
@@ -126,10 +127,10 @@ export default async function NursingVisitTrackingPage({ params, searchParams }:
               const when = dateText(f.at);
               return (
                 <li key={f.storage_id}>
-                  <a className={styles.fileLink} href={`/api/nursing/files/${encodeURIComponent(f.storage_id)}`} target="_blank" rel="noopener noreferrer" aria-label={t("openFile", { name })}>
+                  <ProtectedFileLink className={styles.fileLink} href={`/api/nursing/files/${encodeURIComponent(f.storage_id)}`} ariaLabel={t("openFile", { name })}>
                     <span className={styles.fileName}>{name}</span>
                     {when ? <span className={styles.meta}>{when}</span> : null}
-                  </a>
+                  </ProtectedFileLink>
                 </li>
               );
             })}

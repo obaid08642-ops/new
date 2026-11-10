@@ -9,7 +9,7 @@ function build(opts: { booking?: any; txns?: any[]; cfg?: any; existing?: any; i
     findOne: jest.fn(() => ({ lean: async () => opts.existing ?? created[0] ?? null })),
     create: jest.fn(async (d: any) => { const row = { id: 'inv-1', ...d }; created.push(row); return row; }),
     find: jest.fn(() => ({ lean: async () => [] })), // no credit notes
-    updateOne: jest.fn(async () => ({})),
+    updateOne: jest.fn(async (q: any, u: any) => { const row = created.find((r: any) => r.id === q?.id && (q.invoice_no === undefined || r.invoice_no === q.invoice_no)); if (row && u?.$set) Object.assign(row, u.$set); return {}; }),
   };
   const collections: Record<string, any> = {
     transactions: { find: jest.fn(() => ({ toArray: async () => opts.txns ?? [] })), findOne: jest.fn(async () => null) },
