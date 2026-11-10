@@ -6032,6 +6032,10 @@
     "policy_lab_late": "إذا ألغيت بعد ذلك يُعاد {percent}% إلى بطاقتك.",
     "policy_nursing_full": "ألغِ قبل الموعد بـ {hours} ساعات على الأقل واسترد 100%.",
     "policy_nursing_late": "إذا ألغيت بعد ذلك يُعاد {percent}% إلى بطاقتك.",
-    "policy_radiology_late": "إذا ألغيت بعد ذلك يُعاد {percent}% إلى بطاقتك."
+    "policy_radiology_late": "إذا ألغيت بعد ذلك يُعاد {percent}% إلى بطاقتك.",
+    "policy_pharmacy_before_preparation": "ألغِ قبل أن تبدأ الصيدلية بتجهيز الطلب لاسترداد كامل المبلغ.",
+    "policy_pharmacy_before_preparation_fee": "ألغِ قبل أن تبدأ الصيدلية بتجهيز الطلب لاسترداد كامل المبلغ شاملًا رسوم التوصيل.",
+    "policy_pharmacy_after_preparation": "بعد بدء التجهيز لا يمكن إلغاء الطلب. يُرد المبلغ عن المنتج الخاطئ أو التالف أو منتهي الصلاحية بعد مراجعة صورتك من الإدارة.",
+    "policy_consultation_late_rescheduled": "إذا ألغيت موعدًا نقلته سابقًا بإعادة الجدولة المجانية يُعاد {percent}%."
   }
 }
