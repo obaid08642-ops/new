@@ -25,6 +25,8 @@ export function policySummary(doc: { value?: any; updatedAt?: Date | string } | 
     lines.push({ key: 'refund.policy.consultation.patient_no_show', params: { percent: num(sec.patient_no_show_percent, d.patient_no_show_percent) } });
     const free = num(sec.free_reschedules, d.free_reschedules);
     if (free > 0) lines.push({ key: 'refund.policy.consultation.free_reschedule', params: { count: free, hours: num(sec.free_reschedule_min_hours, d.free_reschedule_min_hours), within_days: 14 } });
+    // a booking moved by the late free reschedule is refunded at the late rate if the patient cancels it (no way round the late percentage)
+    if (free > 0) lines.push({ key: 'refund.policy.consultation.late_rescheduled', params: { percent: num(sec.late_refund_percent, d.late_refund_percent) } });
     lines.push({ key: 'refund.policy.provider_cancel', params: {} }, { key: 'refund.policy.provider_no_show', params: {} });
   } else if (service === 'lab' || service === 'nursing') {
     lines.push({ key: `refund.policy.${service}.before_transit`, params: {} });
