@@ -44,4 +44,18 @@ describe('LedgerService.matureAllDueEscrow', () => {
     expect(data.find((r) => r.id === 'b')!.state).toBe('cleared');
     expect(data.find((r) => r.id === 'a')!.state).toBe('pending');   // another provider: untouched
   });
+
+  it('the maturity update has a small partial index (pending earnings only), created once per process, so it never reads the whole ledger; a failing index build never stops the job', async () => {
+    const data = rows();
+    const { svc, col } = ledger(data);
+    (col as any).createIndex = jest.fn(async () => 'ok');
+    await svc.matureAllDueEscrow(NOW);
+    await svc.matureAllDueEscrow(NOW);
+    expect((col as any).createIndex).toHaveBeenCalledTimes(1);
+    expect((col as any).createIndex).toHaveBeenCalledWith({ available_at: 1 }, { name: 'ledger_pending_earning_due', partialFilterExpression: { type: 'provider_earning', state: 'pending' } });
+    const broken = ledger(rows());
+    (broken.col as any).createIndex = jest.fn(async () => { throw new Error('not authorized'); });
+    expect(await broken.svc.matureAllDueEscrow(NOW)).toBe(2);
+  });
 });
+

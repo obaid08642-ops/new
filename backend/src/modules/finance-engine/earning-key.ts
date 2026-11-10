@@ -26,11 +26,13 @@ export async function earningIndexPresent(db: Db): Promise<boolean> {
   } catch { return false; }
 }
 
-export type EarningIndexResult = 'created' | 'duplicates' | 'failed';
+export type EarningIndexResult = 'created' | 'present' | 'duplicates' | 'failed';
 
 /** Builds the unique index when there is no duplicate; with duplicates it does nothing (and says so), so a deploy can never break on dirty data. */
 export async function ensureEarningUniqueIndex(db: Db, warn: (msg: string) => void = () => undefined): Promise<EarningIndexResult> {
   try {
+    // the index already exists (every start after the first): nothing to check, and no scan of the ledger
+    if (await earningIndexPresent(db)) return 'present';
     const dup = await countEarningDuplicates(db);
     if (dup.groups > 0) {
       warn(`ledger: ${dup.groups} provider_earning (ref_type, ref_id) pairs have ${dup.extra_rows} extra rows: the unique index ${EARNING_KEY_INDEX} was not built; finance resolves them first`);
