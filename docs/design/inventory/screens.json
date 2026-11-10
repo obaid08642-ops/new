@@ -1,5 +1,5 @@
 {
- "commit": "7a491a59",
+ "commit": "3d068d27",
  "routes": [
   {
    "app": "patient-app",
@@ -803,7 +803,7 @@
      "path": "/care/appointments",
      "target": "backend",
      "query": "",
-     "line": 151,
+     "line": 163,
      "file": "patient-app/src/components/BookingConfirmForm.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:17"
@@ -823,7 +823,7 @@
      "path": "/care/doctors/:param",
      "target": "backend",
      "query": "",
-     "line": 91,
+     "line": 103,
      "file": "patient-app/src/components/BookingConfirmForm.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:88"
@@ -833,7 +833,7 @@
      "path": "/care/sick-leaves/national-id",
      "target": "backend",
      "query": "",
-     "line": 76,
+     "line": 88,
      "file": "patient-app/src/components/BookingConfirmForm.tsx",
      "status": "OK",
      "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:20"
@@ -847,6 +847,16 @@
      "file": "patient-app/src/components/consult/NationalIdForm.tsx",
      "status": "OK",
      "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:21"
+    },
+    {
+     "method": "GET",
+     "path": "/family/dependants",
+     "target": "backend",
+     "query": "",
+     "line": 74,
+     "file": "patient-app/src/components/BookingConfirmForm.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:28"
     },
     {
      "method": "POST",
@@ -873,7 +883,7 @@
      "path": "/payments/consultation/:param/capabilities",
      "target": "backend",
      "query": "",
-     "line": 181,
+     "line": 193,
      "file": "patient-app/src/components/BookingConfirmForm.tsx",
      "status": "OK",
      "backend": "backend/src/modules/payments/payments.module.ts:797"
@@ -883,7 +893,7 @@
      "path": "/payments/intent/consultation/:param",
      "target": "backend",
      "query": "",
-     "line": 184,
+     "line": 196,
      "file": "patient-app/src/components/BookingConfirmForm.tsx",
      "status": "OK",
      "backend": "backend/src/modules/payments/payments.module.ts:775"
@@ -903,7 +913,7 @@
      "path": "/slot-locks/reserve",
      "target": "backend",
      "query": "",
-     "line": 140,
+     "line": 152,
      "file": "patient-app/src/components/BookingConfirmForm.tsx",
      "status": "OK",
      "backend": "backend/src/modules/slot-locks/slot-locks.module.ts:129"
@@ -913,13 +923,13 @@
      "path": "/users/me/profile",
      "target": "backend",
      "query": "",
-     "line": 98,
+     "line": 110,
      "file": "patient-app/src/components/BookingConfirmForm.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:35"
     }
    ],
-   "files": 66,
+   "files": 67,
    "unresolved": 0
   },
   {
@@ -9405,7 +9415,7 @@
      "path": "/api/appointments/book",
      "target": "web-bff",
      "query": "",
-     "line": 182,
+     "line": 195,
      "file": "patient-web/components-next/booking-flow.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/appointments/book/route.ts"
@@ -9435,7 +9445,7 @@
      "path": "/api/consultations/doctors/:param/slots",
      "target": "web-bff",
      "query": "?date=:param&service_type=:param",
-     "line": 132,
+     "line": 145,
      "file": "patient-web/components-next/booking-flow.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/consultations/doctors/[doctorId]/slots/route.ts"
@@ -9445,7 +9455,7 @@
      "path": "/api/family/booking-for",
      "target": "web-bff",
      "query": "",
-     "line": 203,
+     "line": 217,
      "file": "patient-web/components-next/booking-flow.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/family/booking-for/route.ts"
@@ -9485,7 +9495,7 @@
      "path": "/api/patient/care/sick-leaves/national-id",
      "target": "web-proxy",
      "query": "",
-     "line": 90,
+     "line": 103,
      "file": "patient-web/components-next/booking-flow.tsx",
      "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:20",
      "status": "OK"
@@ -9498,6 +9508,16 @@
      "line": 31,
      "file": "patient-web/components-next/medical-reports/national-id-form.tsx",
      "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:21",
+     "status": "OK"
+    },
+    {
+     "method": "GET",
+     "path": "/api/patient/family/dependants",
+     "target": "web-proxy",
+     "query": "",
+     "line": 91,
+     "file": "patient-web/components-next/booking-flow.tsx",
+     "backend": "backend/src/modules/family/family.controller.ts:28",
      "status": "OK"
     },
     {
@@ -9515,7 +9535,7 @@
      "path": "/api/slot-locks/reserve",
      "target": "web-bff",
      "query": "",
-     "line": 169,
+     "line": 182,
      "file": "patient-web/components-next/booking-flow.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/slot-locks/reserve/route.ts"
@@ -9581,7 +9601,7 @@
      "backend": "backend/src/modules/users/users.addresses.controller.ts:42"
     }
    ],
-   "files": 91,
+   "files": 92,
    "unresolved": 0
   },
   {
