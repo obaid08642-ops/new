@@ -30,7 +30,7 @@ export default function GuestJobsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [problem, setProblem] = useState<'' | 'reason' | 'action'>('');
-  const [notice, setNotice] = useState<'' | 'published' | 'rejected'>('');
+  const [notice, setNotice] = useState<'' | 'published' | 'rejected' | 'closed'>('');
   const [selected, setSelected] = useState<GuestJob | null>(null);
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
@@ -53,7 +53,7 @@ export default function GuestJobsPage() {
 
   useEffect(() => { void load(); }, [load]);
 
-  async function decide(decision: 'publish' | 'reject') {
+  async function decide(decision: 'publish' | 'reject' | 'close') {
     if (!selected) return;
     if (note.trim().length < 3) { setProblem('reason'); return; }
     setBusy(true); setProblem('');
@@ -62,7 +62,7 @@ export default function GuestJobsPage() {
         method: 'POST',
         body: JSON.stringify({ decision, note: note.trim() }),
       });
-      setNotice(decision === 'publish' ? 'published' : 'rejected');
+      setNotice(decision === 'publish' ? 'published' : decision === 'close' ? 'closed' : 'rejected');
       setSelected(null); setNote('');
       await load();
     } catch {
@@ -104,7 +104,7 @@ export default function GuestJobsPage() {
           </div>
         </div>
         {errorText ? <p role="alert" className="mb-4 rounded-lg bg-rose-50 p-3 text-rose-700">{errorText}</p> : null}
-        {notice ? <p role="status" className="mb-4 rounded-lg bg-emerald-50 p-3 text-emerald-700">{notice === 'published' ? t.published_ok : t.rejected_ok}</p> : null}
+        {notice ? <p role="status" className="mb-4 rounded-lg bg-emerald-50 p-3 text-emerald-700">{notice === 'published' ? t.published_ok : notice === 'closed' ? t.closed_ok : t.rejected_ok}</p> : null}
         <DataTable
           rows={rows}
           getRowKey={(row) => row.id}
@@ -145,6 +145,13 @@ export default function GuestJobsPage() {
               </div>
             ) : selected.status === 'draft' && !selected.guest_device_id ? (
               <p className="mt-4 rounded-lg bg-slate-50 p-3 text-sm text-slate-700">{t.source_note}</p>
+            ) : selected.status === 'published' && canEdit ? (
+              <div className="mt-5 space-y-3">
+                <label className="block text-sm font-semibold text-slate-700">{t.reason}
+                  <textarea className="mt-1 w-full rounded-lg border p-2 text-sm font-normal" rows={2} maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} />
+                </label>
+                <button disabled={busy} onClick={() => void decide('close')} className="rounded border border-rose-600 px-3 py-2 text-sm font-semibold text-rose-700">{t.take_down}</button>
+              </div>
             ) : selected.status !== 'draft' ? (
               <p className="mt-4 rounded-lg bg-slate-50 p-3 text-sm text-slate-700">{t.decision}: {t[STATUS_KEY[selected.status]]} · {when(selected.reviewed_at)} · {t.reviewer} {selected.reviewed_by ?? '—'} · {t.reason_label}: {selected.review_note ?? '—'}</p>
             ) : null}
