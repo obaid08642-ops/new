@@ -1,6 +1,5 @@
-# 2026-11-09 run 112 = READ-ONLY, no deploy (run 111 deployed main@a063da06 with the swap window of #2558). Why were uploads refused and who restarts mongod, and what would 91b change?
-# 96k mongod restart evidence + 96m ClamAV/memory state + 96c uploads state + 91b DRY RUN (UPLOAD_SCAN=defer + CLAMAV_ON_DEMAND=1 + window cron: prints what would change, writes nothing; APPLY is empty in the task file).
-96k-mongo-restart-who
-96m-clamav-state
-96c-uploads-state
-91b-upload-scan-defer
+# 2026-11-10 run 113 = READ-ONLY, no deploy, no limit or cache change. P0: mongod is OOM-killed in its 1.6 GB cgroup about every 80-90 s (run 112b: 403 restarts, 24 starts in 03h, 14 in 04h).
+# 96n finds WHAT: the mongod log in the 90 s before each of the last 5 kills (slow ops, index builds, sort/group memory, connections, client apps), currentOp + memory snapshots 30 s and 60 s after the next start,
+# the backend/worker jobs that run right after mongod comes back, and the cgroup events. 96j adds the anon/file split of the cgroup and mongod's own cache numbers.
+96n-mongo-oom-cause
+96j-mongo-cache-check
