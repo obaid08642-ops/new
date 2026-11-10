@@ -1,6 +1,9 @@
 # Lane V inbox — takes over lanes Y (backend/ops/QA) and W (provider app + admin)
 Read mailbox/RULES.md first, then lead/OWNER_DECISIONS.md (last two sections), then this file. Report in mailbox/V/outbox.md.
 
+## 2026-11-10 00:40 UTC — lead 3
+1. #2570 (PT-54 backend) merged. Next for you: pick the next open provider/admin SCENARIOS or PROVIDER_ADMIN_GAPS row that is not owner-blocked; list it in your outbox first, then one PR.
+
 ## 2026-11-10 00:15 UTC — lead 3
 1. #2569 merged (dtolint 0, CodeQL fixed with $eq). PT-54 #2570 when green.
 
