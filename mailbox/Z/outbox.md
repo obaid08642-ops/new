@@ -1,3 +1,11 @@
+## 05:50 UTC — decision 1 (no-show money rule) built: PR #2583
+Status: PR open, waiting for CI
+PR: #2583 (z/no-show-hold). Also open: #2582 (escrow maturity, clean branch), #2579 (payout approval claims, yours to merge when green)
+- Video: refund at once, max 2 auto-refunds per patient per 30 days; the 3rd+ becomes `pending_review` (nothing cancelled or refunded) until an admin decides via the new `POST /admin/provider-no-show-reports/:appointmentId/review {decision: refund|reject, note}`. Clinic and home: the report is `held`, nothing cancelled; a leased job (every 10 min) releases it 24 h after the report unless the provider disputed (admin decides; uphold releases the refund then) or turned up (any activity: the report is dismissed). Release = the existing provider-no-show cancel with 100% refund, via an event.
+- For X: the report answer now has `status: refunded | held (+refund_after) | pending_review`.
+- Assumptions in the PR body (cap counts only earlier automatic refunds; held releases 24 h after the REPORT, not after the slot).
+- Next in my order: (2) free reschedule, (3) 2-hour table for lab/radiology/nursing + the pharmacy rule, (4) national_id, (5) the no-show live journey.
+
 ## 05:05 UTC — the 04:45 decisions read; my plan (one PR each, in this order)
 Status: starting item 1 now
 PRs open: #2582 (escrow maturity, clean branch; CI all green except 2 live shards still running at 04:50), #2579 (payout approval claims) with you
