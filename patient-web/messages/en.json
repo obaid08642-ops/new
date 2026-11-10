@@ -3152,7 +3152,8 @@
     "callCamDenied": "The camera is blocked, so they cannot see you. Allow it in your browser settings.",
     "callConnectFailed": "We could not connect the call. Check your connection and try again.",
     "callRetry": "Try again",
-    "callEnableSound": "Tap to turn the sound on"
+    "callEnableSound": "Tap to turn the sound on",
+    "lateRescheduleOffer": "The visit starts soon, so cancelling returns only part of the payment. You can move it once for free instead, to a time within {days} days."
   },
   "ConsultClient": {
     "hideVisit": "Hide from history",

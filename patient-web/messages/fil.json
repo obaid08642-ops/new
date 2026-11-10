@@ -3152,7 +3152,8 @@
     "callCamDenied": "Naka-block ang camera, kaya hindi ka nila makita. Payagan ito sa settings ng browser.",
     "callConnectFailed": "Hindi namin maikonekta ang tawag. Tingnan ang koneksyon mo at subukan muli.",
     "callRetry": "Subukan muli",
-    "callEnableSound": "I-tap para buksan ang tunog"
+    "callEnableSound": "I-tap para buksan ang tunog",
+    "lateRescheduleOffer": "Malapit na ang konsultasyon, kaya bahagi lamang ng bayad ang ibabalik kapag kinansela. Maaari mo itong ilipat nang isang beses nang libre sa oras na hindi lalampas sa {days} araw."
   },
   "ConsultClient": {
     "hideVisit": "Itago sa kasaysayan",
