@@ -108,16 +108,76 @@ describe('the provider does not attend: the patient reports it', () => {
 describe('the provider side of the report (dispute, activity guard)', () => {
   it('a visit with provider activity is not refunded by the report: nothing is cancelled or emitted', async () => {
     const { svc } = make();
-    svc.noShow = { assertNoProviderActivity: jest.fn(async () => { throw new BadRequestException('provider_activity_recorded'); }), record: jest.fn() };
+    svc.noShow = { assertNoProviderActivity: jest.fn(async () => { throw new BadRequestException('provider_activity_recorded'); }), autoRefundsInWindow: jest.fn(async () => 0), record: jest.fn() };
     await expect(svc.reportProviderNoShow('a1', patient)).rejects.toThrow('provider_activity_recorded');
     expect(svc.transition).not.toHaveBeenCalled();
     expect(svc.noShow.record).not.toHaveBeenCalled();
     expect(svc.events.emit).not.toHaveBeenCalled();
   });
   it('a refunded report is recorded for the provider (notice, 24 h dispute, count) after the cancel', async () => {
-    const { svc, appt } = make();
-    svc.noShow = { assertNoProviderActivity: jest.fn(async () => undefined), record: jest.fn(async () => ({ flagged: false, recent_reports: 1 })) };
-    await svc.reportProviderNoShow('a1', patient);
-    expect(svc.noShow.record).toHaveBeenCalledWith(appt, 'pat1');
+    const { svc, appt } = make({ service_type: 'video' });
+    svc.noShow = { assertNoProviderActivity: jest.fn(async () => undefined), autoRefundsInWindow: jest.fn(async () => 0), record: jest.fn(async () => ({ flagged: false, recent_reports: 1, refund_after: null })) };
+    const out = await svc.reportProviderNoShow('a1', patient);
+    expect(svc.noShow.record).toHaveBeenCalledWith(appt, 'pat1', expect.any(Date), 'refunded');
+    expect(out).toMatchObject({ status: 'refunded' });
   });
 });
+
+describe('owner decision 2026-11-10: video at once (max 2 per 30 days), clinic and home held for the dispute window', () => {
+  const noShowMock = (autoRefunds = 0) => ({
+    assertNoProviderActivity: jest.fn(async () => undefined),
+    autoRefundsInWindow: jest.fn(async () => autoRefunds),
+    record: jest.fn(async (_a: any, _u: string, now: Date, outcome: string) => ({ flagged: false, recent_reports: 1, refund_after: outcome === 'held' ? new Date(now.getTime() + 24 * 3600_000) : null })),
+    markRefunded: jest.fn(async () => undefined),
+    markReleaseFailed: jest.fn(async () => undefined),
+  });
+
+  it('video, first and second report in 30 days: cancelled and refunded at once', async () => {
+    for (const before of [0, 1]) {
+      const { svc } = make({ service_type: 'video' });
+      svc.noShow = noShowMock(before);
+      const out = await svc.reportProviderNoShow('a1', patient);
+      expect(out.status).toBe('refunded');
+      expect(svc.transition).toHaveBeenCalledTimes(1);
+      expect(refundEvent(svc)).toMatchObject({ refund_percentage: 100 });
+    }
+  });
+  it('video, the third in 30 days: nothing is cancelled or refunded, the report waits for an admin', async () => {
+    const { svc } = make({ service_type: 'video' });
+    svc.noShow = noShowMock(2);
+    const out = await svc.reportProviderNoShow('a1', patient);
+    expect(out).toMatchObject({ ok: true, status: 'pending_review' });
+    expect(svc.transition).not.toHaveBeenCalled();
+    expect(refundEvent(svc)).toBeUndefined();
+    expect(svc.noShow.record).toHaveBeenCalledWith(expect.anything(), 'pat1', expect.any(Date), 'pending_review');
+  });
+  it('clinic and home: the report is held for 24 h, nothing is cancelled or refunded yet', async () => {
+    for (const service_type of ['clinic', 'home']) {
+      const { svc } = make({ service_type });
+      svc.noShow = noShowMock(0);
+      const out = await svc.reportProviderNoShow('a1', patient);
+      expect(out).toMatchObject({ ok: true, status: 'held', appointment_id: 'a1' });
+      expect(new Date(out.refund_after).getTime()).toBe(NOW.getTime() + 24 * 3600_000);
+      expect(svc.transition).not.toHaveBeenCalled();
+      expect(refundEvent(svc)).toBeUndefined();
+      expect(svc.noShow.record).toHaveBeenCalledWith(expect.anything(), 'pat1', expect.any(Date), 'held');
+    }
+  });
+  it('the release (the window passed, or an admin decided for the patient) cancels the visit as a provider no-show with a 100 % refund, then marks the report refunded', async () => {
+    const { svc } = make({ service_type: 'clinic' });
+    svc.noShow = noShowMock(0);
+    await svc.onProviderNoShowRelease({ appointment_id: 'a1', patient_id: 'pat1' });
+    expect(refundEvent(svc)).toMatchObject({ refund_percentage: 100 });
+    expect(svc.noShow.markRefunded).toHaveBeenCalledWith('a1');
+    expect(svc.noShow.markReleaseFailed).not.toHaveBeenCalled();
+  });
+  it('a release that cannot be paid (the visit was cancelled meanwhile) marks the report release_failed and throws nothing', async () => {
+    const { svc } = make({ service_type: 'clinic' });
+    svc.noShow = noShowMock(0);
+    svc.transition = jest.fn(async () => { throw new BadRequestException('Invalid transition CANCELLED → CANCELLED'); });
+    await expect(svc.onProviderNoShowRelease({ appointment_id: 'a1', patient_id: 'pat1' })).resolves.toBeUndefined();
+    expect(svc.noShow.markReleaseFailed).toHaveBeenCalledWith('a1', expect.stringContaining('Invalid transition'));
+    expect(svc.noShow.markRefunded).not.toHaveBeenCalled();
+  });
+});
+

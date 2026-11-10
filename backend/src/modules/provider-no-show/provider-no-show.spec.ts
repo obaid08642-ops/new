@@ -1,7 +1,7 @@
 import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { registerAuditSink } from '../../common/audit-record';
 import { ProviderNoShowService } from './provider-no-show.service';
-import { clawbackAmount, disputeState, providerActivity } from './provider-no-show-rules';
+import { clawbackAmount, disputeState, outcomeFor, providerActivity } from './provider-no-show-rules';
 
 const NOW = new Date('2026-11-09T12:00:00Z');
 const HOUR = 3600_000;
@@ -56,6 +56,7 @@ function store(seed: Record<string, any[]> = {}) {
       if ('$in' in v) return v.$in.includes(x);
       if ('$eq' in v) return x === v.$eq;
       if ('$gte' in v) return x >= v.$gte;
+      if ('$lte' in v) return x <= v.$lte;
       if ('$ne' in v) return x !== v.$ne;
     }
     return v === null ? x == null : x === v;
@@ -88,8 +89,9 @@ function make(seed: Record<string, any[]> = {}, available = 500) {
     providerBalance: async () => ({ available }),
     append: jest.fn(async (e: any) => { appended.push(e); (st.data.platformledgerentries = st.data.platformledgerentries || []).push(e); }),
   };
-  const svc = new ProviderNoShowService(st.conn, notifications, ledger);
-  return { svc, st, notifications, ledger, appended };
+  const events: any = { emit: jest.fn() };
+  const svc = new ProviderNoShowService(st.conn, notifications, ledger, events);
+  return { svc, st, notifications, ledger, appended, events };
 }
 const appt = { id: 'a1', patient_id: 'pat', doctor_id: 'd1', doctor_user_id: 'doc', total_price: 200, state_history: [] };
 const doctor = { id: 'doc', role: 'doctor' };
@@ -99,16 +101,16 @@ describe('the report row', () => {
   it('stores the report, tells the provider at once, and does not flag a first report', async () => {
     const { svc, st, notifications } = make();
     const out = await svc.record(appt, 'pat', NOW);
-    expect(out).toEqual({ flagged: false, recent_reports: 1 });
+    expect(out).toEqual({ flagged: false, recent_reports: 1, refund_after: null });
     expect(st.data.provider_no_show_reports[0]).toMatchObject({ appointment_id: 'a1', status: 'reported', doctor_user_id: 'doc', flagged_for_admin: false });
     expect(notifications.create).toHaveBeenCalledWith(expect.objectContaining({ user_id: 'doc', title_key: 'notif.provider_no_show.reported.title' }));
   });
   it('flags the patient at the second report within 30 days; an old report does not count', async () => {
     const old = { reported_by: 'pat', reported_at: new Date(NOW.getTime() - 31 * 24 * HOUR) };
     const recent = { reported_by: 'pat', reported_at: new Date(NOW.getTime() - 5 * 24 * HOUR) };
-    expect((await make({ provider_no_show_reports: [old] }).svc.record(appt, 'pat', NOW))).toEqual({ flagged: false, recent_reports: 1 });
+    expect((await make({ provider_no_show_reports: [old] }).svc.record(appt, 'pat', NOW))).toEqual({ flagged: false, recent_reports: 1, refund_after: null });
     const m = make({ provider_no_show_reports: [recent] });
-    expect(await m.svc.record(appt, 'pat', NOW)).toEqual({ flagged: true, recent_reports: 2 });
+    expect(await m.svc.record(appt, 'pat', NOW)).toEqual({ flagged: true, recent_reports: 2, refund_after: null });
     expect(m.st.data.provider_no_show_reports.find((r: any) => r.appointment_id === 'a1').flagged_for_admin).toBe(true);
   });
   it('the same appointment reported twice stores one row', async () => {
@@ -215,3 +217,102 @@ describe('the admin decision and the clawback', () => {
     expect((await m.svc.listForAdmin({ flagged: 'true' })).items.map((r: any) => r.appointment_id)).toEqual(['a2']);
   });
 });
+
+describe('owner decision 2026-11-10: the money of a report', () => {
+  it('outcomeFor: video is refunded at once up to 2 in the window, the 3rd waits for review; clinic and home are held', () => {
+    expect(outcomeFor('video', 0)).toBe('refunded');
+    expect(outcomeFor('video', 1)).toBe('refunded');
+    expect(outcomeFor('video', 2)).toBe('pending_review');
+    expect(outcomeFor('video', 5)).toBe('pending_review');
+    expect(outcomeFor('clinic', 0)).toBe('held');
+    expect(outcomeFor('home', 9)).toBe('held');
+  });
+  it('autoRefundsInWindow counts only refunded reports of this patient in the last 30 days', async () => {
+    const day = 24 * HOUR;
+    const m = make({ provider_no_show_reports: [
+      { reported_by: 'pat', outcome: 'refunded', reported_at: new Date(NOW.getTime() - 5 * day) },
+      { reported_by: 'pat', outcome: 'refunded', reported_at: new Date(NOW.getTime() - 29 * day) },
+      { reported_by: 'pat', outcome: 'refunded', reported_at: new Date(NOW.getTime() - 31 * day) },     // out of the window
+      { reported_by: 'pat', outcome: 'held', reported_at: new Date(NOW.getTime() - 2 * day) },            // not a refund (yet)
+      { reported_by: 'pat', outcome: 'pending_review', reported_at: new Date(NOW.getTime() - 1 * day) }, // not a refund
+      { reported_by: 'other', outcome: 'refunded', reported_at: new Date(NOW.getTime() - 1 * day) },
+    ] });
+    expect(await m.svc.autoRefundsInWindow('pat', NOW)).toBe(2);
+  });
+  it('a held report stores its due time (24 h) and the service type; a pending_review one stores no due time', async () => {
+    const m = make();
+    const held = await m.svc.record({ ...appt, service_type: 'clinic' }, 'pat', NOW, 'held');
+    expect(held.refund_after).toEqual(new Date(NOW.getTime() + 24 * HOUR));
+    expect(m.st.data.provider_no_show_reports[0]).toMatchObject({ status: 'held', outcome: 'held', service_type: 'clinic', refund_due_at: new Date(NOW.getTime() + 24 * HOUR) });
+    const m2 = make();
+    await m2.svc.record({ ...appt, service_type: 'video' }, 'pat', NOW, 'pending_review');
+    expect(m2.st.data.provider_no_show_reports[0]).toMatchObject({ status: 'pending_review', refund_due_at: null });
+  });
+  it('the provider can dispute a HELD report inside the window; a pending_review one is not theirs to dispute', async () => {
+    const r = (over: any) => ({ id: 'r1', appointment_id: 'a1', doctor_user_id: 'doc', reported_at: new Date(NOW.getTime() - HOUR), dispute: null, ...over });
+    const held = make({ provider_no_show_reports: [r({ status: 'held', outcome: 'held' })] });
+    expect(await held.svc.dispute(doctor, 'a1', 'I was in the clinic, the door log shows it', NOW)).toMatchObject({ status: 'disputed' });
+    const pending = make({ provider_no_show_reports: [r({ status: 'pending_review', outcome: 'pending_review' })] });
+    await expect(pending.svc.dispute(doctor, 'a1', 'I was in the clinic, the door log shows it', NOW)).rejects.toThrow('no_show_under_review');
+  });
+
+  describe('releaseDueHeld (the window passed)', () => {
+    const held = (over: any = {}) => ({ id: 'r', appointment_id: 'a1', patient_id: 'pat', doctor_user_id: 'doc', status: 'held', outcome: 'held', refund_due_at: new Date(NOW.getTime() - 60_000), ...over });
+    const appts = [{ id: 'a1', doctor_user_id: 'doc', state_history: [] }, { id: 'a2', doctor_user_id: 'doc', state_history: [] }, { id: 'a3', doctor_user_id: 'doc', state_history: [{ state: 'CHECKED_IN', by_user_id: 'doc', by_role: 'doctor' }] }];
+    it('releases the refund of a due, undisputed report (one claim), and only that', async () => {
+      const m = make({ appointments: appts, provider_no_show_reports: [held(), held({ id: 'r2', appointment_id: 'a2', refund_due_at: new Date(NOW.getTime() + HOUR) }), held({ id: 'r3', appointment_id: 'a3b', status: 'disputed' })] });
+      expect(await m.svc.releaseDueHeld(NOW)).toBe(1);
+      expect(m.events.emit).toHaveBeenCalledTimes(1);
+      expect(m.events.emit).toHaveBeenCalledWith('provider_no_show.release', { appointment_id: 'a1', patient_id: 'pat' });
+      const rows = m.st.data.provider_no_show_reports;
+      expect(rows.find((r: any) => r.appointment_id === 'a1').status).toBe('releasing');
+      expect(rows.find((r: any) => r.appointment_id === 'a2').status).toBe('held');        // not due yet
+      expect(rows.find((r: any) => r.appointment_id === 'a3b').status).toBe('disputed');   // waits for the admin
+      expect(await m.svc.releaseDueHeld(NOW)).toBe(0);                                      // a second run releases nothing again
+      expect(m.events.emit).toHaveBeenCalledTimes(1);
+    });
+    it('a provider who turned up in the meantime: the report is dismissed, no refund', async () => {
+      const m = make({ appointments: appts, provider_no_show_reports: [held({ appointment_id: 'a3' })] });
+      expect(await m.svc.releaseDueHeld(NOW)).toBe(0);
+      expect(m.events.emit).not.toHaveBeenCalled();
+      expect(m.st.data.provider_no_show_reports[0]).toMatchObject({ status: 'dismissed', decision: expect.objectContaining({ decision: 'auto_dismissed_provider_activity', activity: 'checked_in' }) });
+    });
+    it('markRefunded / markReleaseFailed settle a releasing report', async () => {
+      const ok = make({ provider_no_show_reports: [held({ status: 'releasing' })] });
+      await ok.svc.markRefunded('a1');
+      expect(ok.st.data.provider_no_show_reports[0]).toMatchObject({ outcome: 'refunded', refunded_at: expect.any(Date) });
+      const bad = make({ provider_no_show_reports: [held({ status: 'releasing' })] });
+      await bad.svc.markReleaseFailed('a1', 'Invalid transition');
+      expect(bad.st.data.provider_no_show_reports[0]).toMatchObject({ status: 'release_failed', release_error: 'Invalid transition' });
+    });
+  });
+
+  describe('admin decisions on the new states', () => {
+    const disputedHeld = { id: 'r1', appointment_id: 'a1', patient_id: 'pat', doctor_user_id: 'doc', status: 'disputed', outcome: 'held', dispute: { reason: 'x'.repeat(12) }, reported_at: NOW };
+    it('upholding a dispute on a HELD report releases the refund now and claws nothing back (nothing was paid yet)', async () => {
+      const m = make({ provider_no_show_reports: [{ ...disputedHeld }], platformledgerentries: [{ type: 'provider_earning', order_id: 'a1', provider_account_id: 'acc1', amount: 120 }] });
+      const out = await m.svc.decide(admin, 'a1', 'uphold_report', 'the door log shows nobody came');
+      expect(out).toMatchObject({ status: 'upheld', clawback_amount: 0, clawback_note: 'refund_released' });
+      expect(m.events.emit).toHaveBeenCalledWith('provider_no_show.release', { appointment_id: 'a1', patient_id: 'pat' });
+      expect(m.appended).toHaveLength(0);
+    });
+    it('accepting the dispute on a held report: no refund ever', async () => {
+      const m = make({ provider_no_show_reports: [{ ...disputedHeld }] });
+      expect(await m.svc.decide(admin, 'a1', 'accept_dispute', 'the doctor showed the check-in log')).toMatchObject({ status: 'dismissed' });
+      expect(m.events.emit).not.toHaveBeenCalled();
+    });
+    it('reviewPending: refund releases it, reject leaves the visit; once; a note is required', async () => {
+      const row = { id: 'r9', appointment_id: 'a9', patient_id: 'pat', doctor_user_id: 'doc', status: 'pending_review', outcome: 'pending_review', reported_at: NOW };
+      const a = make({ provider_no_show_reports: [{ ...row }] });
+      expect(await a.svc.reviewPending(admin, 'a9', 'refund', 'checked the call log, nobody joined')).toMatchObject({ status: 'review_refunded' });
+      expect(a.events.emit).toHaveBeenCalledWith('provider_no_show.release', { appointment_id: 'a9', patient_id: 'pat' });
+      await expect(a.svc.reviewPending(admin, 'a9', 'refund', 'checked the call log, nobody joined')).rejects.toThrow('no_show_not_pending_review');
+      const b = make({ provider_no_show_reports: [{ ...row }] });
+      expect(await b.svc.reviewPending(admin, 'a9', 'reject', 'the doctor joined the call, see the log')).toMatchObject({ status: 'review_rejected' });
+      expect(b.events.emit).not.toHaveBeenCalled();
+      await expect(b.svc.reviewPending(admin, 'a9', 'maybe', 'a long enough note here')).rejects.toThrow('decision_invalid');
+      await expect(b.svc.reviewPending(admin, 'a9', 'refund', 'short')).rejects.toThrow('decision_note_required');
+    });
+  });
+});
+

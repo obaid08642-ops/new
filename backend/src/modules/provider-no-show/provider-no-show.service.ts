@@ -5,7 +5,10 @@ import { recordAudit } from '../../common/audit-record';
 import { NotificationType } from '../../common/enums';
 import { LedgerService } from '../finance-engine/finance-engine.module';
 import { NotificationsService } from '../notifications/notifications.service';
-import { DISPUTE_REASON_MAX, DISPUTE_REASON_MIN, FLAG_REPORT_COUNT, FLAG_WINDOW_DAYS, clawbackAmount, disputeState, providerActivity } from './provider-no-show-rules';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Cron } from '@nestjs/schedule';
+import { ScheduledOnce } from '../../common/scheduled-once';
+import { AUTO_REFUND_WINDOW_DAYS, DISPUTE_REASON_MAX, DISPUTE_REASON_MIN, DISPUTE_WINDOW_HOURS, FLAG_REPORT_COUNT, FLAG_WINDOW_DAYS, clawbackAmount, disputeState, providerActivity, type ReportOutcome } from './provider-no-show-rules';
 
 const COLLECTION = 'provider_no_show_reports';
 
@@ -20,6 +23,7 @@ export class ProviderNoShowService {
     @InjectConnection() private readonly conn: Connection,
     @Optional() private readonly notifications?: NotificationsService,
     @Optional() private readonly ledger?: LedgerService,
+    @Optional() private readonly events?: EventEmitter2,
   ) {}
 
   private get reports() { return this.conn.collection(COLLECTION); }
@@ -52,7 +56,13 @@ export class ProviderNoShowService {
    * After the report went through: the row (what the dispute and the admin work on), the provider told at once, the patient's count in the last 30 days and the
    * admin flag at the second report. Never throws: the refund already happened.
    */
-  async record(appt: any, patientUserId: string, now: Date = new Date()): Promise<{ flagged: boolean; recent_reports: number }> {
+  /** How many automatic refunds this patient got for reported no-shows in the last 30 days (the cap is in provider-no-show-rules). */
+  async autoRefundsInWindow(patientUserId: string, now: Date = new Date()): Promise<number> {
+    const since = new Date(now.getTime() - AUTO_REFUND_WINDOW_DAYS * 86_400_000);
+    return this.reports.countDocuments({ reported_by: patientUserId, outcome: 'refunded', reported_at: { $gte: since } });
+  }
+
+  async record(appt: any, patientUserId: string, now: Date = new Date(), outcome: ReportOutcome = 'refunded'): Promise<{ flagged: boolean; recent_reports: number; refund_after: Date | null }> {
     const id = String(appt.id);
     try {
       const since = new Date(now.getTime() - FLAG_WINDOW_DAYS * 86_400_000);
@@ -61,15 +71,15 @@ export class ProviderNoShowService {
       const flagged = recent >= FLAG_REPORT_COUNT;
       await this.reports.updateOne(
         { appointment_id: id },
-        { $setOnInsert: { id: `pnr_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`, appointment_id: id, patient_id: appt.patient_id, reported_by: patientUserId, doctor_user_id: appt.doctor_user_id ?? null, doctor_id: appt.doctor_id ?? null, reported_at: now, status: 'reported', dispute: null, decision: null, patient_recent_reports: recent, flagged_for_admin: flagged, refund_amount: Number(appt.total_price || 0) } },
+        { $setOnInsert: { id: `pnr_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`, appointment_id: id, patient_id: appt.patient_id, reported_by: patientUserId, doctor_user_id: appt.doctor_user_id ?? null, doctor_id: appt.doctor_id ?? null, reported_at: now, status: outcome === 'held' ? 'held' : outcome === 'pending_review' ? 'pending_review' : 'reported', outcome, refund_due_at: outcome === 'held' ? new Date(now.getTime() + DISPUTE_WINDOW_HOURS * 3600_000) : null, service_type: appt.service_type ?? null, dispute: null, decision: null, patient_recent_reports: recent, flagged_for_admin: flagged, refund_amount: Number(appt.total_price || 0) } },
         { upsert: true },
       );
       await this.notify(appt.doctor_user_id, 'notif.provider_no_show.reported', { hours: 24 }, `/requests/${id}`);
       await recordAudit(this.conn, { action: 'provider_no_show.reported', user_id: patientUserId, role: 'patient', resource_kind: 'appointment', resource_id: id, details: { recent_reports: recent, flagged } } as any);
-      return { flagged, recent_reports: recent };
+      return { flagged, recent_reports: recent, refund_after: outcome === 'held' ? new Date(now.getTime() + DISPUTE_WINDOW_HOURS * 3600_000) : null };
     } catch (e: any) {
       this.logger.error(`provider no-show report row not stored for ${id}: ${e?.message}`);
-      return { flagged: false, recent_reports: 0 };
+      return { flagged: false, recent_reports: 0, refund_after: null };
     }
   }
 
@@ -79,11 +89,12 @@ export class ProviderNoShowService {
     if (!row || !user?.id || row.doctor_user_id !== String(user.id)) throw new NotFoundException('no_show_report_not_found');
     const reason = typeof reasonRaw === 'string' ? reasonRaw.trim() : '';
     if (reason.length < DISPUTE_REASON_MIN || reason.length > DISPUTE_REASON_MAX) throw new BadRequestException('dispute_reason_invalid');
+    if (row.status === 'pending_review') throw new ConflictException('no_show_under_review');
     const state = disputeState(row, now);
     if (state === 'already_disputed') throw new ConflictException('no_show_already_disputed');
     if (state === 'decided') throw new ConflictException('no_show_already_decided');
     if (state === 'expired') throw new BadRequestException('no_show_dispute_window_closed');
-    const res = await this.reports.updateOne({ appointment_id: row.appointment_id, status: 'reported', dispute: null }, { $set: { status: 'disputed', dispute: { reason, opened_at: now, by_user_id: String(user.id) } } });
+    const res = await this.reports.updateOne({ appointment_id: row.appointment_id, status: { $in: ['reported', 'held'] }, dispute: null }, { $set: { status: 'disputed', dispute: { reason, opened_at: now, by_user_id: String(user.id) } } });
     if (!res.modifiedCount) throw new ConflictException('no_show_already_disputed');
     await recordAudit(this.conn, { action: 'provider_no_show.disputed', user_id: String(user.id), role: 'doctor', resource_kind: 'appointment', resource_id: row.appointment_id, details: { reason: reason.slice(0, 200) } } as any);
     return { ok: true, status: 'disputed' as const, appointment_id: row.appointment_id };
@@ -98,7 +109,7 @@ export class ProviderNoShowService {
   async listForAdmin(query: { status?: string; flagged?: string }): Promise<{ count: number; items: any[] }> {
     const filter: any = {};
     if (query.flagged === 'true') filter.flagged_for_admin = true;
-    else filter.status = ['reported', 'disputed', 'upheld', 'dismissed'].includes(String(query.status)) ? String(query.status) : 'disputed';
+    else filter.status = ['reported', 'held', 'pending_review', 'disputed', 'upheld', 'dismissed', 'review_refunded', 'review_rejected', 'release_failed'].includes(String(query.status)) ? String(query.status) : 'disputed';
     const items = await this.reports.find(filter, { projection: { _id: 0 } }).sort({ reported_at: 1 }).limit(200).toArray();
     return { count: items.length, items };
   }
@@ -125,8 +136,14 @@ export class ProviderNoShowService {
     const status = decision === 'uphold_report' ? 'upheld' : 'dismissed';
     try {
       if (decision === 'uphold_report') {
-        const result = await this.clawBack(row, admin);
-        clawed = result.amount; clawNote = result.note;
+        if (row.outcome === 'held') {
+          // the refund was held (clinic / home): nothing has been paid yet, so there is nothing to claw back; the refund is released now (and the refund path takes its own share back from a credited earning)
+          this.release(row);
+          clawNote = 'refund_released';
+        } else {
+          const result = await this.clawBack(row, admin);
+          clawed = result.amount; clawNote = result.note;
+        }
       }
       await this.reports.updateOne({ appointment_id: row.appointment_id, status: 'deciding' }, { $set: { status, decision: { decision, note, by_user_id: String(admin?.id), at: new Date(), clawback_amount: clawed, clawback_note: clawNote } } });
     } catch (e) {
@@ -137,6 +154,64 @@ export class ProviderNoShowService {
     await recordAudit(this.conn, { action: 'provider_no_show.decided', user_id: String(admin?.id), role: admin?.role, resource_kind: 'appointment', resource_id: row.appointment_id, details: { decision, clawback_amount: clawed, note: note.slice(0, 200) } } as any);
     await this.notify(row.doctor_user_id, 'notif.provider_no_show.decided', { decision }, `/requests/${row.appointment_id}`);
     return { ok: true, status, clawback_amount: clawed, clawback_note: clawNote };
+  }
+
+  /** Asks the appointment side to pay the held refund now (AppointmentsService listens: it cancels the visit as a provider no-show, which refunds 100 %). */
+  private release(row: any): void {
+    this.events?.emit('provider_no_show.release', { appointment_id: row.appointment_id, patient_id: row.patient_id });
+  }
+
+  /** The appointment side paid the held refund: the report is now an ordinary refunded one (the provider can no longer dispute: the money moved). */
+  async markRefunded(appointmentId: string): Promise<void> {
+    await this.reports.updateOne({ appointment_id: String(appointmentId), status: { $in: ['releasing', 'deciding', 'upheld', 'review_refunded'] } }, { $set: { refunded_at: new Date(), outcome: 'refunded' } });
+  }
+
+  /** The held refund could not be paid (the visit was cancelled meanwhile, a payment problem): the report stays visible to the admin, never retried by itself. */
+  async markReleaseFailed(appointmentId: string, why: string): Promise<void> {
+    await this.reports.updateOne({ appointment_id: String(appointmentId), status: { $in: ['releasing', 'deciding', 'upheld', 'review_refunded'] } }, { $set: { status: 'release_failed', release_error: String(why).slice(0, 300), release_failed_at: new Date() } });
+  }
+
+  /**
+   * Clinic and home reports hold their refund until the provider's 24 hours are over. Then, for each one nobody disputed: if the provider turned up in the meantime (any activity on the visit)
+   * the report is dismissed; otherwise the refund is released (one atomic claim per report, so two workers cannot both release). Disputed reports wait for the admin.
+   */
+  @Cron('*/10 * * * *')
+  @ScheduledOnce({ ttlMs: 5 * 60_000, holdMs: 60_000 })
+  async releaseDueHeld(now: Date = new Date()): Promise<number> {
+    const due: any[] = await this.reports.find({ status: 'held', refund_due_at: { $lte: now } }, { projection: { _id: 0 } }).limit(50).toArray();
+    let released = 0;
+    for (const row of due) {
+      const appt: any = await this.conn.collection('appointments').findOne({ id: row.appointment_id }, { projection: { _id: 0, id: 1, doctor_user_id: 1, state_history: 1 } });
+      const activity = appt ? await this.activityOf(appt) : null;
+      if (activity) {
+        await this.reports.updateOne({ appointment_id: row.appointment_id, status: 'held' }, { $set: { status: 'dismissed', decision: { decision: 'auto_dismissed_provider_activity', activity, at: now } } });
+        continue;
+      }
+      const claim = await this.reports.updateOne({ appointment_id: row.appointment_id, status: 'held' }, { $set: { status: 'releasing', releasing_at: now } });
+      if (!claim.modifiedCount) continue;
+      this.release(row);
+      released += 1;
+    }
+    return released;
+  }
+
+  /**
+   * The 3rd (and later) automatic video refund of one patient in 30 days waits for an admin: `refund` releases it, `reject` leaves the visit as it is. One claim per report.
+   */
+  async reviewPending(admin: any, appointmentId: string, decisionRaw: unknown, noteRaw: unknown) {
+    const decision = decisionRaw === 'refund' || decisionRaw === 'reject' ? decisionRaw : null;
+    if (!decision) throw new BadRequestException('decision_invalid');
+    const note = typeof noteRaw === 'string' ? noteRaw.trim().slice(0, DISPUTE_REASON_MAX) : '';
+    if (note.length < DISPUTE_REASON_MIN) throw new BadRequestException('decision_note_required');
+    const row: any = await this.reports.findOne({ appointment_id: { $eq: String(appointmentId) } }, { projection: { _id: 0 } });
+    if (!row) throw new NotFoundException('no_show_report_not_found');
+    if (row.status !== 'pending_review') throw new ConflictException('no_show_not_pending_review');
+    const status = decision === 'refund' ? 'review_refunded' : 'review_rejected';
+    const res = await this.reports.updateOne({ appointment_id: row.appointment_id, status: 'pending_review' }, { $set: { status, decision: { decision, note, by_user_id: String(admin?.id), at: new Date() } } });
+    if (!res.modifiedCount) throw new ConflictException('no_show_not_pending_review');
+    if (decision === 'refund') this.release(row);
+    await recordAudit(this.conn, { action: 'provider_no_show.review', user_id: String(admin?.id), role: admin?.role, resource_kind: 'appointment', resource_id: row.appointment_id, details: { decision, note: note.slice(0, 200) } } as any);
+    return { ok: true, status };
   }
 
   /** The provider's credited earning on the visit, taken back once (ref no-show-clawback-<appointment>) and capped at their available balance. */
