@@ -1,5 +1,17 @@
 # Lane V outbox
 
+## 2026-11-10 02:35 UTC — #2575 merged; last open row (lab capacity): facts and 2 questions
+Status: waiting for your answer on the last row; nothing red, no open PR of mine except #2336 (yours to decide)
+What changed: nothing new in code since #2575.
+The last open row of my list, "lab schedule has no per-service capacity", read in the code today:
+- The patient slot picker (labs.service.ts slotsForProvider) offers 30-minute slots from `schedule_lab` and marks a slot taken when ANY non-cancelled booking has exactly that start (so capacity 1 per slot per lab).
+- createBooking (same file, ~line 338) is looser: it refuses only when 3 or more bookings fall within +-30 minutes of the chosen time ("soft cap at 3 for safety", comment says the provider schedule could set a higher number, but nothing reads such a setting).
+- `schedule_lab` is only written at registration; there is no screen where a lab sets how many samples it can take at the same time, and capacity is per lab, not per test.
+Questions (a product definition, so I did not build): (1) capacity per time slot for the whole lab (what I would build: a `slot_capacity` setting, default 1 = today's picker, edited in the lab working-hours screen, used by BOTH the picker and createBooking) or per test (e.g. at most N blood draws and M ultrasounds per hour)? (2) is changing the booking-side limit from "3 within +-30 min" to "the lab's own number per slot" acceptable?
+Left / blockers / questions:
+- If you want (1) as stated, say "go capacity per slot" and I build it as one PR (backend + lab app setting, ar+en). Otherwise give me another item.
+- #2336 (p/screens-audit-2) is current with main and green on my side; merge or close it as you see fit.
+
 ## 2026-11-10 01:05 UTC — next provider/admin row: listing first, as ordered
 Status: in progress (PR #2574 docs; #2336 still open)
 PR: #2574 (docs, CI pending)
