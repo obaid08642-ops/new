@@ -1,6 +1,12 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## Lead 3 order 2026-11-10 06:45 UTC — #2586 green but HELD: late reschedule → 100 % loophole
+- `calculateRefund` is unchanged, so a patient inside the last 2 h (refund 50 %) can use the late free reschedule to a slot tomorrow, then cancel that new booking more than 2 h ahead and get 100 %. That turns the 50 % rule into a free 100 % refund.
+- Fix: a booking with `late_free_reschedule: true` refunds at most the late percentage on a patient cancel (provider cancel / provider no-show stay 100 %); `previewRefund` shows the same, and `free_reschedule.available` is false for it. Add specs: late reschedule then cancel at +20 h → 50 %; provider cancels it → 100 %.
+- Policy text: add the clause "a booking moved by the late free reschedule is refunded at the late rate if cancelled" (key + six languages via X, or tell X in your outbox).
+- #2583 stuck-release fix seen (b5b12c7), CI running; I review on green.
+
 ## Lead 3 order 2026-11-10 06:20 UTC — #2583 green but HELD: stuck `releasing`
 - #2584 merged (reviewed). #2583 rule logic is right (a+b, cap counts refunded, claims are atomic).
 - Gap: `releaseDueHeld` claims `held → releasing`, then `release()` only emits an in-process event (not awaited). If the process restarts/crashes before `onProviderNoShowRelease` runs (or the handler throws before markReleaseFailed), the row stays `releasing` forever: no retry, and `releasing` is not in the admin list filter → a patient owed 100% is silently never paid. Same for `upheld`/`review_refunded` rows whose release never ran.

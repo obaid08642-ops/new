@@ -1,6 +1,10 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-10 06:45 UTC
+- Merged #2585 (live gate waits for apt/dpkg lock).
+- #2586 HELD: late free reschedule then cancel >2 h ahead = 100 % loophole → Z ordered (cap at late %). #2583 fix pushed, CI running. #2587 (X late reschedule UI) CI running.
+- Owner: run 113 (0cee259f) still not pushed.
 ## Lead 3 run 2026-11-10 06:20 UTC
 - Merged #2584 (index-present skip + partial due-earning index).
 - #2583 HELD: held-refund `releasing` can get stuck with no retry/visibility → Z ordered. #2585 (V live-gate apt) / #2586 (Z free reschedule) CI running.
@@ -74,7 +78,3 @@ Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or
 - Nothing green. #2550 conflict → Z. #2553/#2554 rebased, CI. V silent since 15:57 (clamav order 17:40 pending); tell owner if >3 h.
 ## Lead 3 run 2026-11-09 17:40 UTC
 - Run 110 DONE: LIVE main@5227a794, health ok; ClamAV skipped again (uploads refused) → V first item. Merged #2552. #2553/#2554 conflicts (X). #2550 red 3rd time (nursing specs) → Z.
-## Lead 3 run 2026-11-09 17:15 UTC
-- Run 110 pushed (deploy-only, main@5227a794), server-ops 42661237311 running. Merged #2551 (no-show dispute, race fixed), #2546 (doctor medical report UI). V: 96k+96m as run 111.
-## Lead 3 run 2026-11-09 16:40 UTC
-- No change: 8 PRs in CI, none green. Run 110 (454074c4) still waits for the owner's push.
