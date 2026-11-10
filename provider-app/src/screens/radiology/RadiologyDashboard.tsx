@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { confirmBlocker, confirmBlockerText } from '../../utils/confirmBlocker';
 import { MyContractRow } from '../../components/MyContract';
 import { NotificationsCenterScreen } from '../shared/RealScreens';
 import { BookingChatScreen } from '../shared/BookingChatScreen';
@@ -111,15 +112,17 @@ interface RadiologyInboxOrder {
 function useRadiologyInbox() {
   const [orders, setOrders] = useState<RadiologyInboxOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
   const reload = useCallback(async () => {
     try {
       setLoading(true);
+      setLoadFailed(false);
       const res = await client.get('/radiology/provider/inbox');
       setOrders(Array.isArray(res.data) ? res.data : []);
-    } catch { setOrders([]); } finally { setLoading(false); }
+    } catch { setOrders([]); setLoadFailed(true); } finally { setLoading(false); }
   }, []);
   useEffect(() => { reload(); }, [reload]);
-  return { orders, loading, reload };
+  return { orders, loading, reload, loadFailed };
 }
 
 function SafetyChip({ label, on }: { label: string; on: boolean }) {
@@ -195,15 +198,15 @@ function RadiologyHome({ onNav }: { onNav: (s: string, p?: any) => void }) {
 
 // ══════ ORDERS TAB ══════
 function RadiologyOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) {
-  const { theme } = useTheme(); const { lang } = useLang();
+  const { theme } = useTheme(); const { lang, t } = useLang();
   const AR = lang === 'ar';
   const [tab, setTab] = useState<'new'|'insurance'|'confirmed'|'inScan'>('new');
-  const { orders, loading } = useRadiologyInbox();
+  const { orders, loading, reload, loadFailed } = useRadiologyInbox();
   const filtered = orders.filter(o => {
     if (tab === 'new')       return o.state === 'NEW_REQUEST';
     if (tab === 'insurance') return ['PENDING_INSURANCE', 'WAITING_COPAY'].includes(o.state);
     if (tab === 'confirmed') return o.state === 'CONFIRMED';
-    if (tab === 'inScan')    return ['ARRIVED_CHECKIN', 'IN_SCANNING', 'REPORT_DRAFT', 'UNDER_REVIEW'].includes(o.state);
+    if (tab === 'inScan')    return ['ARRIVED_CHECKIN', 'IN_SCANNING', 'REPORT_DRAFT', 'UNDER_REVIEW', 'SCAN_ABORTED'].includes(o.state);
     return true;
   });
   const subTabs = [{ key: 'new', label: AR ? 'جديد' : 'New' }, { key: 'insurance', label: AR ? 'تأمين' : 'Insurance' }, { key: 'confirmed', label: AR ? 'مجدول' : 'Confirmed' }, { key: 'inScan', label: AR ? 'جاري' : 'In Progress' }];
@@ -214,7 +217,9 @@ function RadiologyOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) 
         {subTabs.map(t => <TouchableOpacity key={t.key} style={{ flex: 1, padding: SP.sm, alignItems: 'center', borderBottomWidth: tab === t.key ? 2 : 0, borderColor: tokens.mintDeep }} onPress={() => setTab(t.key as any)}><Text style={{ fontSize: FS.xs, color: tab === t.key ? tokens.mintDeep : theme.textSub, fontWeight: tab === t.key ? FW.bold : FW.normal }}>{t.label}</Text></TouchableOpacity>)}
       </View>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}>
-        <RadiologyInboxList orders={filtered} loading={loading} emptyTitle={AR ? 'لا توجد طلبات' : 'No orders'} onOpen={(o) => onNav('order_detail', o)} />
+        {loadFailed && orders.length === 0
+          ? <NEmpty title={t('audit2.radiology.loadFailed')} actionLabel={t('audit2.retry')} onAction={reload} icon="document" />
+          : <RadiologyInboxList orders={filtered} loading={loading} emptyTitle={t('audit2.radiology.noOrders')} onOpen={(o) => onNav('order_detail', o)} />}
       </ScrollView>
     </View>
   );
@@ -347,7 +352,9 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
             <NBtn label={AR?' تسجيل قرار تغطية داخلي':' Record Internal Coverage Decision'} variant="outline" onPress={() => setShowApproval(true)} />
           ) : (
             // server accepts only cash at the center or a paid card booking (radiology.service assertConfirmable)
-            <NBtn label={AR?' قبول الحجز':' Accept booking'} loading={loading} onPress={acceptBooking} style={{ backgroundColor:tokens.mintDeep }} />
+            confirmBlocker(currentOrder)
+              ? <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{confirmBlockerText(confirmBlocker(currentOrder)!, AR)}</Text>
+              : <NBtn label={t('audit2.radiology.acceptBooking')} loading={loading} onPress={acceptBooking} style={{ backgroundColor:tokens.mintDeep }} />
           )}
           <NBtn label={AR?' رفض الحجز':' Reject booking'} variant="danger" onPress={() => setShowReject(true)} />
         </>)}

@@ -374,7 +374,7 @@ export function LoginScreen({
     const e: Record<string, string> = {};
     const v = id.trim();
     if (!v) e.id = AR ? 'مطلوب' : 'Required';
-    else if (v.includes('@') && !Validate.email(v)) e.id = AR ? 'بريد غير صحيح' : 'Invalid email';
+    else if (!Validate.email(v)) e.id = AR ? 'بريد غير صحيح' : 'Invalid email';
     if (!pass) e.pass = AR ? 'مطلوب' : 'Required';
     else if (pass.length < LIMITS.MIN_PASS) e.pass = AR ? 'كلمة المرور قصيرة جداً' : 'Password too short';
     setErrs(e);
@@ -453,8 +453,8 @@ export function LoginScreen({
 
  <NCard style={{ marginBottom: SP.xl }}>
  <NInput
- label={AR ? 'البريد / الجوال / رقم الحساب' : 'Email / Mobile / Account ID'}
- placeholder={AR ? 'example@email.com أو 05X...' : 'example@email.com or 05X...'}
+ label={AR ? 'البريد الإلكتروني' : 'Email'}
+ placeholder="example@email.com"
  value={id} onChange={setId} icon=""
  error={errs.id} caps="none" kbType="email-address"
  />
@@ -621,6 +621,20 @@ export function ForgotPasswordScreen({
  }
  };
 
+ // "Resend code" asks the server again (it used to only say "Code resent" and send nothing)
+ const resendCode = async () => {
+ setErr('');
+ try {
+ const headers = await buildHeaders(false);
+ const res = await timedFetch(`${API_BASE}/provider/auth/forgot-password`, { method: 'POST', headers, body: JSON.stringify({ email: target.trim() }) });
+ const data = await res.json().catch(() => ({}));
+ if (!res.ok) throw new Error(data?.message || (AR ? 'فشل إرسال الرمز' : 'Failed to send OTP'));
+ show(AR ? 'تم إرسال رمز جديد إلى بريدك' : 'A new code was sent to your email', 'success');
+ } catch (e: any) {
+ setErr(e?.message || (AR ? 'تعذر إعادة الإرسال' : 'Could not resend the code'));
+ }
+ };
+
  const verifyOtp = async () => {
  if (otp.join('').length < 6) return;
  setErr(''); setLoading(true);
@@ -721,7 +735,8 @@ export function ForgotPasswordScreen({
  <NOTP
  target={target} otp={otp} setOtp={setOtp}
  onVerify={verifyOtp} loading={loading}
- onResend={() => { show(AR ? 'تم إعادة الإرسال' : 'Code resent', 'info'); }}
+ error={err}
+ onResend={resendCode}
  />
  )}
 

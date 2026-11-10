@@ -261,11 +261,14 @@ export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { orde
               <NCard><Text style={{ color: theme.text }}>{AR ? 'اكتملت الزيارة وسُجلت' : 'Visit completed and recorded'}</Text></NCard>
             )}
 
-            {!['COMPLETED', 'CANCELLED', 'NO_SHOW', 'ESCALATED_EMERGENCY'].includes(state) && (
+            {/* the server allows no-show only once the nurse has arrived (home-care.controller triggerNoShow) and an emergency abort only on the road, arrived or in care */}
+            {['IN_TRANSIT', 'ARRIVED', 'CARE_IN_PROGRESS'].includes(state) && (
               <>
                 <NSecHeader title={AR ? 'استثناءات' : 'Exceptions'} />
-                <NBtn label={AR ? 'المريض لم يحضر' : 'Patient no-show'} variant="outline" loading={busy}
-                  onPress={() => void act('no-show', {}, AR ? 'سُجل عدم الحضور' : 'No-show recorded').then((ok) => ok && load())} />
+                {state === 'ARRIVED' ? (
+                  <NBtn label={AR ? 'المريض لم يحضر' : 'Patient no-show'} variant="outline" loading={busy}
+                    onPress={() => void act('no-show', {}, AR ? 'سُجل عدم الحضور' : 'No-show recorded').then((ok) => ok && load())} />
+                ) : null}
                 {!showAbort ? (
                   <NBtn label={AR ? 'إيقاف طارئ' : 'Emergency abort'} variant="outline" onPress={() => setShowAbort(true)} />
                 ) : (

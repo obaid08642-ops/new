@@ -1,5 +1,5 @@
 import { withAlpha } from '../../theme/tokens';
-import { startOnboardingAccount, useStepSaver } from '../registration/kit';
+import { startOnboardingAccount, useStepSaver, documentsStepError } from '../registration/kit';
 import type { StepProps, Uploader } from '../registration/kit';
 import { DocBtn, useDocumentPicker } from '../registration/WizardParts';
 import type { NoticeText } from '../registration/WizardParts';
@@ -377,7 +377,7 @@ function Step2KYC({ data, update, submitRef, uploads }: StepProps<DoctorRegData>
       });
       return true;
     } catch (e: any) {
-      show(AR ? 'فشل رفع المستندات' : 'Failed to upload documents', 'error');
+      show(documentsStepError(e, AR), 'error');
       return false;
     } finally {
       setLoading(false);

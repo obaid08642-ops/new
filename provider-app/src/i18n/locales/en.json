@@ -360,5 +360,22 @@
   "bookingChat.placeholder": "Type a message",
   "bookingChat.send": "Send",
   "bookingChat.openFailed": "Could not open the chat",
-  "bookingChat.sendFailed": "Could not send the message"
+  "bookingChat.sendFailed": "Could not send the message",
+  "audit2.pharmacy.offerSentEdit": "Offer sent — edit",
+  "audit2.pharmacy.continueDraft": "Continue draft",
+  "audit2.pharmacy.createOffer": "Create offer",
+  "audit2.pharmacy.dispatch": "Dispatch",
+  "audit2.pharmacy.handOverPickup": "Hand over (pickup)",
+  "audit2.radiology.loadFailed": "Could not load the orders",
+  "audit2.retry": "Retry",
+  "audit2.radiology.noOrders": "No orders",
+  "audit2.radiology.acceptBooking": "Accept booking",
+  "audit2.hours.sentForReview": "Your working-hours change was sent for review and applies once approved",
+  "audit2.security.currentWrong": "The current password is incorrect",
+  "audit2.security.changeFailed": "Error changing password",
+  "audit2.security.title": "Security & Password",
+  "audit2.notifications.loadFailed": "Could not load notifications",
+  "audit2.withdrawal.bankRejected": "Your bank account was rejected. Correct the details and send them for review again.",
+  "audit2.withdrawal.correctBank": "Correct the bank account",
+  "audit2.withdrawal.setupBank": "Bank Account Setup (first time)"
 }

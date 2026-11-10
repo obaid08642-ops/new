@@ -63,7 +63,7 @@ export function InsuranceConfigScreen({ onBack }: { onBack: () => void }) {
      setInsurances(catalog.map(c => ({
        id: c.id, ar: c.ar, en: c.en, plans: c.plans,
        active: current.includes(c.id),
-       copay: currentCopays[c.id] || '20',
+       copay: currentCopays[c.id] || '',   // nothing invented: an insurer with no saved copay starts empty
        selectedPlans: currentPlans[c.id] || [],
      })));
    })();
@@ -87,6 +87,8 @@ export function InsuranceConfigScreen({ onBack }: { onBack: () => void }) {
 
  const handleSave = async () => {
    if (saving) return;
+   const bad = insurances.find(i => i.active && (i.copay === '' || Number(i.copay) < 0 || Number(i.copay) > 100));
+   if (bad) { show(AR ? `أدخل نسبة تحمل بين 0 و100 لشركة ${bad.ar}` : `Enter a copay between 0 and 100 for ${bad.en}`, 'error'); return; }
    setSaving(true);
    try {
      const active = insurances.filter(i => i.active);
@@ -105,7 +107,7 @@ export function InsuranceConfigScreen({ onBack }: { onBack: () => void }) {
      await client.put('/provider/insurance-matrix', {
        companies: active.map(i => i.id),
        tiers: Object.fromEntries(active.filter(i => i.selectedPlans.length).map(i => [i.id, i.selectedPlans])),
-     }).catch(() => null);
+     });   // a failure here is shown too: the enforcement matrix decides which requests reach this provider
      show(AR ? 'تم إرسال التعديلات — تُطبق بعد اعتماد الإدارة' : 'Changes sent — applied after admin approval', 'success');
      onBack();
    } catch (e: any) {

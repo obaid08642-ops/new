@@ -102,11 +102,18 @@ export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => vo
         price_home: homePrice !== '' ? Number(homePrice) : null,
         active_clinic: clinicActive, active_online: onlineActive, active_home: homeActive,
       };
+      // a price is a positive number; an active service needs one
+      const prices: Array<[boolean, number | null]> = [[clinicActive, pricing.price_clinic], [onlineActive, pricing.price_online], [homeActive, pricing.price_home]];
+      if (prices.some(([active, p]) => (p !== null && (!Number.isFinite(p) || p < 0)) || (active && (p === null || p <= 0)))) {
+        show(AR ? 'أدخل سعراً صحيحاً (أكبر من صفر) لكل خدمة مفعّلة' : 'Enter a valid price (above zero) for every active service', 'error');
+        return;
+      }
       await client.post('/provider/settings/delta', { newData: pricing });
-      await client.put('/provider/settings/pricing', { pricing }).catch(() => {});
+      await client.put('/provider/settings/pricing', { pricing });   // a failure here is shown, not swallowed
       show(AR ? 'بانتظار موافقة الإدارة على التعديلات' : 'Pending Admin Approval for Settings Delta', 'info');
-    } catch (err) {
-      show(AR ? 'فشل إرسال التعديل' : 'Failed to push delta', 'error');
+    } catch (err: any) {
+      const m = err?.response?.data?.message;
+      show((Array.isArray(m) ? m[0] : m) || (AR ? 'فشل إرسال التعديل' : 'Failed to push delta'), 'error');
     }
   };
 

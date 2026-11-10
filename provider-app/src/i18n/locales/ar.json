@@ -360,5 +360,22 @@
   "bookingChat.placeholder": "اكتب رسالة",
   "bookingChat.send": "إرسال",
   "bookingChat.openFailed": "تعذر فتح المحادثة",
-  "bookingChat.sendFailed": "تعذر إرسال الرسالة"
+  "bookingChat.sendFailed": "تعذر إرسال الرسالة",
+  "audit2.pharmacy.offerSentEdit": "عرضك مُرسل — تعديل",
+  "audit2.pharmacy.continueDraft": "متابعة المسودة",
+  "audit2.pharmacy.createOffer": "إنشاء عرض",
+  "audit2.pharmacy.dispatch": "انطلاق التوصيل",
+  "audit2.pharmacy.handOverPickup": "تسليم (استلام ذاتي)",
+  "audit2.radiology.loadFailed": "تعذر تحميل الطلبات",
+  "audit2.retry": "إعادة المحاولة",
+  "audit2.radiology.noOrders": "لا توجد طلبات",
+  "audit2.radiology.acceptBooking": "قبول الحجز",
+  "audit2.hours.sentForReview": "أُرسل تعديل أوقات العمل للمراجعة، ويسري بعد الاعتماد",
+  "audit2.security.currentWrong": "كلمة المرور الحالية غير صحيحة",
+  "audit2.security.changeFailed": "حدث خطأ أثناء تغيير كلمة المرور",
+  "audit2.security.title": "الأمان وكلمة المرور",
+  "audit2.notifications.loadFailed": "تعذر تحميل الإشعارات",
+  "audit2.withdrawal.bankRejected": "رُفض حسابك البنكي. صحّح البيانات وأعد إرسالها للمراجعة.",
+  "audit2.withdrawal.correctBank": "تصحيح الحساب البنكي",
+  "audit2.withdrawal.setupBank": "إعداد الحساب البنكي (أول مرة)"
 }

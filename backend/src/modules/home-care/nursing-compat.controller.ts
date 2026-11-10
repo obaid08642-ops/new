@@ -27,7 +27,9 @@ const now = () => new Date();
 
 const uid = (u: any) => u?.id || u?._id || u?.user_id;
 
-const NURSING_ACTIVE_STATES = ['ASSIGNED', 'ACCEPTED', 'EN_ROUTE', 'ARRIVED', 'IN_PROGRESS', 'assigned', 'accepted', 'en_route', 'arrived', 'in_progress'];
+// The states a nursing visit really has (NursingBookingState) plus the old lowercase names older rows may carry: the provider's
+// Orders tab lists a visit from the moment it is assigned until it ends. It used to list only names the engine never writes.
+const NURSING_ACTIVE_STATES = ['PROVIDER_ASSIGNED', 'CONFIRMED', 'IN_TRANSIT', 'ARRIVED', 'CARE_IN_PROGRESS', 'IN_PROGRESS', 'ASSIGNED', 'ACCEPTED', 'EN_ROUTE', 'assigned', 'accepted', 'en_route', 'arrived', 'in_progress'];
 
 @Controller('nursing')
 @UseInterceptors(StripInternalReviewFieldsInterceptor)
