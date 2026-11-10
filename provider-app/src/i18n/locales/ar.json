@@ -377,5 +377,13 @@
   "audit2.notifications.loadFailed": "تعذر تحميل الإشعارات",
   "audit2.withdrawal.bankRejected": "رُفض حسابك البنكي. صحّح البيانات وأعد إرسالها للمراجعة.",
   "audit2.withdrawal.correctBank": "تصحيح الحساب البنكي",
-  "audit2.withdrawal.setupBank": "إعداد الحساب البنكي (أول مرة)"
+  "audit2.withdrawal.setupBank": "إعداد الحساب البنكي (أول مرة)",
+  "labCapacity.title": "عدد المرضى في الموعد الواحد",
+  "labCapacity.hint": "كم مريضًا يستقبل المعمل في نفس الموعد. تستخدم شاشة اختيار المواعيد والحجوزات الجديدة هذا الرقم فورًا.",
+  "labCapacity.label": "عدد المرضى في الموعد (من 1 إلى 20)",
+  "labCapacity.save": "حفظ",
+  "labCapacity.saved": "تم الحفظ. تستخدم الحجوزات الجديدة هذا الرقم.",
+  "labCapacity.failed": "تعذر حفظ الرقم",
+  "labCapacity.invalid": "اكتب رقمًا صحيحًا من 1 إلى {max}",
+  "labCapacity.retry": "تعذر تحميل الرقم. حاول مرة أخرى"
 }

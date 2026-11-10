@@ -377,5 +377,13 @@
   "audit2.notifications.loadFailed": "Could not load notifications",
   "audit2.withdrawal.bankRejected": "Your bank account was rejected. Correct the details and send them for review again.",
   "audit2.withdrawal.correctBank": "Correct the bank account",
-  "audit2.withdrawal.setupBank": "Bank Account Setup (first time)"
+  "audit2.withdrawal.setupBank": "Bank Account Setup (first time)",
+  "labCapacity.title": "Patients per time slot",
+  "labCapacity.hint": "How many patients the lab takes at the same time slot. The slot picker and new bookings use this number at once.",
+  "labCapacity.label": "Patients per slot (1 to 20)",
+  "labCapacity.save": "Save",
+  "labCapacity.saved": "Saved. New bookings use this number.",
+  "labCapacity.failed": "Could not save the number",
+  "labCapacity.invalid": "Enter a whole number from 1 to {max}",
+  "labCapacity.retry": "Could not load the number. Try again"
 }
