@@ -4163,5 +4163,11 @@
   "nur.book.err.booking_times_need_recurrence": "Pumili ng pag-uulit (araw-araw, linggo-linggo o buwan-buwan) para sa higit sa isang pagbisita.",
   "nur.book.err.booking_times_out_of_range": "Lampas sa limitasyon ng serbisyong ito ang bilang ng beses.",
   "nur.book.err.booking_sessions_not_offered": "Hindi iniaalok sa package na ito ang napiling bilang ng session.",
-  "nur.book.err.service_price_not_set": "Wala pang itinakdang presyo ang serbisyong ito."
+  "nur.book.err.service_price_not_set": "Wala pang itinakdang presyo ang serbisyong ito.",
+  "consult.hidden.hide": "Itago sa kasaysayan",
+  "consult.hidden.show": "Ipakita ulit",
+  "consult.hidden.error": "Hindi mabago ang bisitang ito. Subukan ulit.",
+  "consult.hidden.showLink": "Ipakita ang mga nakatagong bisita ({{n}})",
+  "consult.hidden.back": "Bumalik sa kasaysayan",
+  "consult.hidden.empty": "Walang nakatagong bisita"
 }

@@ -3155,6 +3155,12 @@
     "callEnableSound": "I-tap para buksan ang tunog"
   },
   "ConsultClient": {
+    "hideVisit": "Itago sa kasaysayan",
+    "showVisit": "Ipakita ulit",
+    "hideError": "Hindi mabago ang bisitang ito. Subukan ulit.",
+    "showHiddenLink": "Ipakita ang mga nakatagong bisita ({n})",
+    "backToHistory": "Bumalik sa kasaysayan",
+    "emptyHidden": "Walang nakatagong bisita",
     "noShowTitle": "Hindi dumating ang doktor",
     "noShowButton": "Hindi dumating ang doktor",
     "noShowConfirmBody": "Gamitin lang ito kung hindi pa sumasali o dumarating ang doktor. Kakanselahin ang bisita at buo kang ire-refund agad.",

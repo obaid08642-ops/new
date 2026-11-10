@@ -4163,5 +4163,11 @@
   "nur.book.err.booking_times_need_recurrence": "Choose a repeat (daily, weekly or monthly) for more than one visit.",
   "nur.book.err.booking_times_out_of_range": "The number of times is outside the limit for this service.",
   "nur.book.err.booking_sessions_not_offered": "The chosen number of sessions is not offered for this package.",
-  "nur.book.err.service_price_not_set": "The price of this service is not set yet."
+  "nur.book.err.service_price_not_set": "The price of this service is not set yet.",
+  "consult.hidden.hide": "Hide from history",
+  "consult.hidden.show": "Show again",
+  "consult.hidden.error": "Could not change this visit. Try again.",
+  "consult.hidden.showLink": "Show hidden visits ({{n}})",
+  "consult.hidden.back": "Back to history",
+  "consult.hidden.empty": "No hidden visits"
 }
