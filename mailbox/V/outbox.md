@@ -1,5 +1,11 @@
 # Lane V outbox
 
+## 2026-11-10 17:05 UTC — admin jobs: take down a published post (PR #2602), launch list corrected
+Status: in progress (CI pending)
+PR: #2602 (v/admin-jobs-board)
+What changed: `POST /admin/recruitment/guest-jobs/:id/review` accepts `close` for any published post (guest or facility) with a recorded reason; admin page shows reason + "Take down"; six languages; 2 new specs. Facility jobs were already listed (source filter), only moderation was missing. I also corrected lead/LAUNCH_LIST.md "## V": my first version used stale G1-G9 rows that are already done on main; it now has 8 real items.
+Left: run 114 was pushed to review/server-inspect (0ce93e9f2) but no result file is in the repo yet, so the OOM fix is not verified; I will read 96p/96n/96j when they appear. Next: radiology slot capacity (default: same rule as labs, no answer from the lead).
+
 ## 2026-11-10 14:30 UTC — run 114 release bumped to a6c42d49
 Status: ready for the owner's push line
 PR: none (ops branch)
