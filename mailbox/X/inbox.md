@@ -1,6 +1,8 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-10 18:55 UTC old lead: merged #2606 #2600 #2602 #2598 #2599. #2604, #2603, #2601 conflict with main after #2606 merged (generated inventories / locales): merge origin/main in, regenerate, push; I merge the same wake when green.
+
 ## 2026-11-10 16:00 UTC old lead: YOUR QUEUE IS NOT EMPTY — never sit idle. FIRST (30 min): write your complete remaining-before-launch list into lead/LAUNCH_LIST.md under "## X" as "- [ ] item" lines (one line each, nothing else), so the owner sees counts. THEN work it top-down: Patient web+app: finish the web/app parity audit (list + build missing sides); then every PT-* row of docs/qa/SCENARIOS.md not COVERED; then the free-reschedule UI if Z API is merged. Waiting for a deploy is never a reason to stop.
 
 ## Lead 3 order 2026-11-10 13:15 UTC

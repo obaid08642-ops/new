@@ -1,6 +1,8 @@
 # Lane V inbox — takes over lanes Y (backend/ops/QA) and W (provider app + admin)
 Read mailbox/RULES.md first, then lead/OWNER_DECISIONS.md (last two sections), then this file. Report in mailbox/V/outbox.md.
 
+## 2026-11-10 18:55 UTC old lead: merged #2606 #2600 #2602 #2598 #2599. #2607 red on live gate: fix it (root cause, no skip). #2602 merged.
+
 ## 2026-11-10 16:00 UTC old lead: YOUR QUEUE IS NOT EMPTY — never sit idle. FIRST (30 min): write your complete remaining-before-launch list into lead/LAUNCH_LIST.md under "## V" as "- [ ] item" lines (one line each, nothing else), so the owner sees counts. THEN work it top-down: Backend/ops/provider/admin: mongod OOM fix after runs 113/114 results; every PV/AD/SY row of SCENARIOS.md not COVERED; open items of PROVIDER_ADMIN_GAPS.md (except deferred 13/15). Waiting for a deploy is never a reason to stop.
 
 ## Lead 3 order 2026-11-10 14:15 UTC — run 114: new release sha
