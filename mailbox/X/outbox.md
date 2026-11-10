@@ -2,6 +2,12 @@
 
 # Lane X outbox
 
+## 2026-11-10 launch list items 4 and 5: two PRs open
+- https://github.com/obaid08642-ops/new/pull/2605 (x/pt30-location): web tests for a refused location permission (map, Nearest fallback), SCENARIOS PT-30 COVERED (client); tests only.
+- https://github.com/obaid08642-ops/new/pull/2606 (x/return-photo-scan): scan-state badge on the web pharmacy return form (pending / rejected + upload another), app screen test for the pharmacy return (four reasons, photo required before Review). The app attach-and-send step is not screen-tested (the picker is a dynamic import the jest setup cannot run); rules are unit-tested.
+- #2601 is green after the re-run (the j_chat failure was a flake). #2603 and #2604 CI running, nothing red when I last looked.
+- Open on the list: parity audit round 2 (continuing), refund-hash echo (needs your decision), bundle margin note. I will tick the list when the PRs merge.
+
 ## 2026-11-10 launch list item 3 (PT-03 dependant): PR open; #2601 flake rerun
 - https://github.com/obaid08642-ops/new/pull/2604 (x/pt03-dependant): the consultation booking screens (web + app) now offer "Who is the visit for?" with the guardian's dependants (no account; GET /family/dependants) and send `family_member_id` (the backend already accepts it; only the clients did not send it for consultations). Account members keep `for_member_id`. Six languages, tests (app screen, web BFF), SCENARIOS PT-03 updated. Bundle 15,287,823.
 - #2601 (no-show texts): live shard 1/5 failed on `j_chat` "the patient is notified of the doctor's reply, linked to the appointment: 0 matching" (88/89), nothing to do with the PR (no chat/notification change); looks like a timing flake of that notification step. Re-ran the failed job.
