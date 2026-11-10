@@ -1,6 +1,10 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-10 07:42 UTC
+- Merged #2586 (late free reschedule; replacement booking refunds at late % on patient cancel; one use).
+- #2587 (X, main merged) and #2588 (Z two-hour table lab/radiology/nursing + pharmacy) CI running.
+- Owner: run 113 (0cee259f) not pushed; R2 roll pending.
 ## Lead 3 run 2026-11-10 07:20 UTC
 - Merged #2583 (no-show hold a+b; stuck release retried every 15 min, max 5, then release_failed; idempotent handler).
 - #2586 loophole fix pushed (cd8b133), CI running. #2587 X: merge main for the apt fix.
@@ -74,7 +78,3 @@ Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or
 - Merged #2558 (ClamAV swap window), #2559, #2557. #2560 red (journey must tick) → X. Run 111 still waits for owner push; run 112 plan to V (91b dry run + deploy).
 ## Lead 3 run 2026-11-09 19:40 UTC
 - V back (new crons). Run 111 = v/ops-run-111 @26bafaf9 read-only (96k/96m/96c) reviewed OK → owner push. #2558 ClamAV swap window CI. Merged #2554. #2550 reworked (default optional) CI.
-## Lead 3 run 2026-11-09 19:10 UTC
-- #2550 green but HELD: default `required` would 400 every booking from current web + installed apps → Z: default optional, flip by config after clients + app min-version. X: tick UI now. #2554 CI. V silent since 17:05 outbox (last commit 15:57): owner told.
-## Lead 3 run 2026-11-09 18:40 UTC
-- Merged #2553 (PT-03 app). #2554 conflict again (X). #2550 CI. V silent since 15:57 (2h45m): owner told at next wake if still silent.
