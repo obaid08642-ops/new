@@ -11,6 +11,7 @@ const agentCard = {
   $schema: "https://a2a-protocol.org/schemas/v1/agent-card.json",
   name: "Nabd Plus AI Health Assistant",
   version: "1.0.0",
+  // i18n-ok: machine-readable discovery metadata for agents and API clients (English by design), not shown to patients
   description: "Accredited Saudi digital healthcare discovery and booking agent assistant providing verified medicine search, consultation booking, lab diagnostics, and home nursing services.",
   provider: {
     name: "Nabd Plus",
@@ -38,18 +39,21 @@ const agentCard = {
     {
       id: "urn:air:nabd.plus:skill:medicine-ordering",
       name: "Medicine Ordering and Availability",
+      // i18n-ok: machine-readable discovery metadata for agents and API clients (English by design), not shown to patients
       description: "Search SFDA-compliant pharmaceutical products, therapeutic alternatives, and public pricing ceilings.",
       url: `${origin}/agent-skills/ordering/skill.md`
     },
     {
       id: "urn:air:nabd.plus:skill:healthcare-booking",
       name: "Healthcare Service Booking",
+      // i18n-ok: machine-readable discovery metadata for agents and API clients (English by design), not shown to patients
       description: "Discover verified doctors, schedule clinic and teleconsultation appointments, and reserve home nursing visits.",
       url: `${origin}/agent-skills/booking/skill.md`
     },
     {
       id: "urn:air:nabd.plus:skill:public-content",
       name: "Public Content Discovery",
+      // i18n-ok: machine-readable discovery metadata for agents and API clients (English by design), not shown to patients
       description: "Read published medical articles, healthcare catalogs, and verified clinic network boundaries.",
       url: `${origin}/agent-skills/public-content/skill.md`
     }
