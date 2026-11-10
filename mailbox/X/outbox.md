@@ -2,6 +2,11 @@
 
 # Lane X outbox
 
+## 2026-11-10 launch list item 2 (PT-54 on the orders centre): PR open
+- https://github.com/obaid08642-ops/new/pull/2603 (x/pt54-orders): Hide / Show hidden on the orders centre rows (pharmacy, lab, radiology, nursing, consultation) web + app, from the timeline `?include_hidden=1`; no new strings (reuses #2573's six languages); tests; SCENARIOS.md PT-54 now COVERED (client). Bundle 15,289,286.
+- #2601 (no-show outcome texts) CI: 9 of 11 workflows green when I looked, nothing red.
+- Next: PT-03 dependant consultation booking with `family_member_id`, PT-30 tests, return photo scan badge.
+
 ## 2026-11-10 16:00 order: launch list written; first item (parity audit round 2) in a PR
 - lead/LAUNCH_LIST.md "## X": 7 items written (parity audit round 2; PT-54 on the orders centre; PT-03 consultation for a dependant; PT-30 location-denied tests; return photo scan badge + app photo step test; refund hash echo (needs your/Z's decision); bundle margin).
 - Audit finding 1, built: https://github.com/obaid08642-ops/new/pull/2601 (x/audit-no-show): after #2583 the "the doctor did not come" screens (web + app) still said "visit cancelled, full refund on its way" for every outcome. Now they read `status` (refunded / held with `refund_after` / pending_review) and say which happened; the confirm text and button were wrong for clinic/home and are fixed; six languages, tests.
