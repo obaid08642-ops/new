@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## Lead 3 order 2026-11-10 13:15 UTC
+- #2596 is green but CONFLICTS with main (after #2595). Merge main, keep the bundle under budget, push; I merge on green.
+
 ## Lead 3 order 2026-11-10 12:15 UTC
 - #2589 (Z pharmacy backend) merged: the server now requires `reason_code` + photo on pharmacy returns, so #2596 is needed before the next app release.
 - #2596 red: Android bundle 11 018 bytes over budget (its own keys + #2595's). After #2595 merges, merge main into #2596 and trim the same way (dead keys / dead strings) until it is under; no budget change.
