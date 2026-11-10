@@ -1,6 +1,8 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-10 01:10 UTC
+- Merged #2571, #2572. CI: #2573 (X PT-54 UI), #2574 (V G2 nursing price). Run 112b waits for owner.
 ## Lead 3 run 2026-11-10 00:40 UTC
 - Merged #2570 (PT-54 backend). CI: #2571/#2572 (Z), #2573 (X PT-54 UI). Run 112b waits for owner.
 ## Lead 3 run 2026-11-10 00:15 UTC
@@ -76,5 +78,3 @@ Review and merge session PRs, prepare server deploy runs, follow worker sessions
 Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest checks are green, lighthouse aside) — run it from a checkout of this branch with `gh` available; add a PR number to approved.txt only after reviewing its diff. Never approve/merge your own PRs.
 
 ## Owner rules (binding)
-Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secrets anywhere; server changes only via ops runs the owner approves (branch `review/server-inspect`, file `tools/ops/RUN`, `tools/ops/tasks/60-deploy-main.sh` OPS_RELEASE_SHA default = main SHA; push, then give the owner the "server-ops" run link); production checks GET only; DB changes only dry-run → owner approve → backup.
-TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.

@@ -1,6 +1,9 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-10 01:10 UTC — lead 3
+1. #2571 (ordering family member, ownership via resolveFamilyMemberId) and #2572 (single-claim numbering) merged. Next: any remaining real bug in refunds/settlement/invoices/payouts you listed; if none, list the top 3 money risks you still see and wait for my pick.
+
 ## 2026-11-10 00:15 UTC — lead 3
 1. #2566 and #2567 merged. Small follow-up (one PR, low priority): in #2567 a settler and the inserter can both call numberIt for the same placeholder; the loser's allocateNo still consumes a number (gap). Make numbering single-claim (claim the placeholder → 'NUMBERING-<owner>' with a CAS first, then allocate) and add a two-settler race test.
 2. X reported an ordering booking DTO gap for you (X outbox 23:18): handle it.
