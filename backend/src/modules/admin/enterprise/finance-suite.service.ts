@@ -466,25 +466,31 @@ export class FinanceSuiteService {
     };
     const hasRange = Object.keys(range).length > 0;
 
-    const ledger = await this.conn.collection('platformledgerentries')
-      .find(hasRange ? { provider_account_id: providerId, createdAt: range } : { provider_account_id: providerId })
-      .sort({ createdAt: -1 }).limit(300).project({ _id: 0 }).toArray();
+    const entries = this.conn.collection('platformledgerentries');
+    const match: any = hasRange ? { provider_account_id: providerId, createdAt: range } : { provider_account_id: providerId };
+    const ledger = await entries.find(match).sort({ createdAt: -1 }).limit(300).project({ _id: 0 }).toArray();
     const payouts = await this.withdrawals
       .find(hasRange ? { provider_id: providerId, createdAt: range } : { provider_id: providerId })
       .sort({ createdAt: -1 }).limit(100).project({ _id: 0 }).toArray();
 
-    const summary = ledger.reduce((a: any, e: any) => {
-      if (['provider_earning', 'bonus', 'referral'].includes(e.type) && e.state === 'cleared') a.earned_cleared += Number(e.amount || 0);
-      else if (e.type === 'provider_earning' && e.state === 'pending') a.earned_pending += Number(e.amount || 0);
-      else if (e.type === 'payout' && e.state === 'cleared') a.paid_out += Number(e.amount || 0);
-      else if (['provider_debit', 'penalty', 'chargeback'].includes(e.type)) a.debits += Number(e.amount || 0);
-      return a;
-    }, { earned_cleared: 0, earned_pending: 0, paid_out: 0, debits: 0 });
+    // The totals cover EVERY entry in the range, not only the 300 newest rows shown below (a busy provider has far more, and the balance was wrong).
+    const groups: any[] = await entries.aggregate([{ $match: match }, { $group: { _id: { type: '$type', state: '$state' }, amount: { $sum: '$amount' } } }]).toArray();
+    const summary = { earned_cleared: 0, earned_pending: 0, paid_out: 0, debits: 0, locked: 0 };
+    for (const g of groups) {
+      const { type, state } = g._id || {};
+      const amount = Number(g.amount || 0);
+      if (state === 'locked') summary.locked += amount;
+      else if (['provider_earning', 'bonus', 'referral'].includes(type) && state === 'cleared') summary.earned_cleared += amount;
+      else if (type === 'provider_earning' && state === 'pending') summary.earned_pending += amount;
+      else if (type === 'payout' && state === 'cleared') summary.paid_out += amount;
+      else if (['provider_debit', 'penalty', 'chargeback'].includes(type)) summary.debits += amount;
+    }
 
     return {
       provider_id: providerId,
       summary: Object.fromEntries(Object.entries(summary).map(([k, v]) => [k, Math.round(Number(v) * 100) / 100])),
-      balance_available: Math.round((summary.earned_cleared - summary.paid_out - summary.debits) * 100) / 100,
+      // what the provider can withdraw: money held for an open withdrawal request is not available again
+      balance_available: Math.round((summary.earned_cleared - summary.paid_out - summary.debits - summary.locked) * 100) / 100,
       ledger, payouts,
     };
   }
