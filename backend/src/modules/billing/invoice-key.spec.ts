@@ -80,12 +80,12 @@ describe('issue(): two writers race for the same booking', () => {
 describe('the number is taken only after the insert wins (no gap in the series)', () => {
   function numbered() {
     const rows: any[] = [];
-    const counters = { findOneAndUpdate: jest.fn(async () => ({ seq: rows.filter((r) => !String(r.invoice_no).startsWith('PENDING-')).length + 1 })) };
+    const counters = { findOneAndUpdate: jest.fn(async () => ({ seq: rows.filter((r) => !/^(PENDING|NUMBERING)-/.test(String(r.invoice_no))).length + 1 })) };
     let dupNext = false;
     const invoices = {
       findOne: jest.fn((q: any) => ({ lean: async () => rows.find((r) => (q.id === undefined || r.id === q.id) && (q.booking_id === undefined || r.booking_id === q.booking_id)) ?? null })),
       create: jest.fn(async (d: any) => { if (dupNext) throw dupKey; const row = { id: `i${rows.length + 1}`, ...d }; rows.push(row); return row; }),
-      updateOne: jest.fn(async (q: any, u: any) => { const row = rows.find((r) => r.id === q.id && r.invoice_no === q.invoice_no); if (row) Object.assign(row, u.$set); return {}; }),
+      updateOne: jest.fn(async (q: any, u: any) => { const row = rows.find((r) => r.id === q.id && r.invoice_no === q.invoice_no); if (row) Object.assign(row, u.$set); return { modifiedCount: row ? 1 : 0 }; }),
       find: jest.fn(() => ({ lean: async () => [] })),
     };
     const conn: any = { model: () => invoices, collection: (n: string) => (n === 'counters' ? counters : undefined) };
@@ -131,6 +131,33 @@ describe('the number is taken only after the insert wins (no gap in the series)'
     expect(svc.seriesOf({ type: 'invoice', document_kind: 'receipt' })).toBe('receipt');
     expect(svc.seriesOf({ type: 'credit_note', document_kind: 'tax_invoice' })).toBe('creditnote');
     expect(svc.seriesOf({ type: 'credit_note', document_kind: 'receipt' })).toBe('refundreceipt');
+  });
+
+  it('TWO settlers (and the inserter) on one unnumbered document: exactly ONE takes a number', async () => {
+    const { svc, rows, counters } = numbered();
+    rows.push({ id: 'orph', invoice_no: 'PENDING-zzz', type: 'invoice', document_kind: 'tax_invoice', booking_id: 'b7', issued_at: new Date('2026-06-01T10:00:00Z') });
+    const results = await Promise.all([svc.settle({ ...rows[0] }), svc.settle({ ...rows[0] }), svc.numberIt('orph', 'PENDING-zzz', 'invoice', new Date('2026-06-01T10:00:00Z'))]);
+    expect(counters.findOneAndUpdate).toHaveBeenCalledTimes(1);
+    expect(rows[0].invoice_no).toBe('INV-2026-000001');
+    for (const r of results.slice(0, 2)) expect(r.invoice_no).toBe('INV-2026-000001');
+  });
+  it('a claim whose owner died (older than 30 s) is taken over once; a fresh claim is never returned with its placeholder', async () => {
+    const { svc, rows, counters } = numbered();
+    rows.push({ id: 'stale', invoice_no: 'NUMBERING-old', numbering_claimed_at: new Date(Date.now() - 60_000), type: 'invoice', document_kind: 'receipt', issued_at: new Date('2026-06-01T10:00:00Z') });
+    const done = await svc.settle({ ...rows[0] });
+    expect(done.invoice_no).toBe('RCT-2026-000001');
+    expect(counters.findOneAndUpdate).toHaveBeenCalledTimes(1);
+    rows.push({ id: 'fresh', invoice_no: 'NUMBERING-live', numbering_claimed_at: new Date(), type: 'invoice', document_kind: 'receipt', issued_at: new Date('2026-06-01T10:00:00Z') });
+    await expect(svc.settle({ ...rows[1] })).rejects.toMatchObject({ status: 503 });
+    expect(counters.findOneAndUpdate).toHaveBeenCalledTimes(1);
+  });
+  it('a counter failure after the claim gives the claim back (nothing taken) so it can be numbered again', async () => {
+    const { svc, rows, counters } = numbered();
+    rows.push({ id: 'c1', invoice_no: 'PENDING-c1', type: 'invoice', document_kind: 'receipt', issued_at: new Date('2026-06-01T10:00:00Z') });
+    counters.findOneAndUpdate.mockRejectedValueOnce(new Error('db down'));
+    await expect(svc.numberIt('c1', 'PENDING-c1', 'receipt', new Date())).rejects.toThrow('db down');
+    expect(rows[0].invoice_no).toBe('PENDING-c1');
+    expect((await svc.numberIt('c1', 'PENDING-c1', 'receipt', new Date('2026-06-01T10:00:00Z'))).invoice_no).toBe('RCT-2026-000001');
   });
 });
 

@@ -8,7 +8,7 @@ function build(o: Opts) {
   const invoices = {
     findOne: jest.fn((q: any) => ({ lean: async () => store.find(match(q)) ?? null })),
     find: jest.fn((q: any) => ({ lean: async () => store.filter((d) => Object.entries(q).every(([k, v]: [string, any]) => (v && typeof v === 'object' && '$in' in v ? v.$in.includes(d[k]) : d[k] === v))) })),
-    updateOne: jest.fn(async (q: any, u: any) => { const row = store.find((r: any) => r.id === q?.id && (q.invoice_no === undefined || r.invoice_no === q.invoice_no)); if (row && u?.$set) Object.assign(row, u.$set); return {}; }),
+    updateOne: jest.fn(async (q: any, u: any) => { const row = store.find((r: any) => r.id === q?.id && (q.invoice_no === undefined || r.invoice_no === q.invoice_no)); if (row && u?.$set) Object.assign(row, u.$set); return { modifiedCount: row ? 1 : 0 }; }),
     create: jest.fn(async (d: any) => { const row = { id: `i${store.length + 1}`, ...d }; store.push(row); return row; }),
   };
   const collections: Record<string, any> = {
