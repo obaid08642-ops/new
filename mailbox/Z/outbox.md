@@ -1,3 +1,12 @@
+## 03:35 UTC — fresh pass on payouts/settlement: 2 real bugs, 2 PRs
+Status: 2 PRs open, waiting for CI
+PRs: #2579 (z/payouts-review), #2580 (z/escrow-maturity)
+- #2576/#2577 merged, thanks.
+- Bug 1 (#2579): `approvePayout` wrote with `updateOne({id}, ...)` WITHOUT the state in the filter in all three approval paths (stage one, final, single). Reject and execute already claim by state; approvals did not. Lost update: admin A reads a PENDING payout, admin B rejects it (state REJECTED, balance released), A's write then sets it back to APPROVED_FOR_PAYOUT / AWAITING_SECOND_APPROVAL: a rejected payout comes back to life on a released reservation (execute then refuses it: no locked reservation, so it sits there as an approved payout that can never be paid). Also two admins finishing the second approval at once both passed, the second overwrote approved_by and batch_id. Fix: each step claims by state in the same update, 400 `payout_state_changed` on a lost claim. +4 tests.
+- Bug 2 (#2580): escrow matured (pending to cleared) only inside `providerBalance`, i.e. only when somebody asked for that provider's balance. The withdrawal request sums the ledger itself and never matured: a provider with a passed hold who had not opened the balance screen got `insufficient_available_balance` for money that was available; the admin statement and finance reports also showed matured money as pending. No scheduled job existed. Fix: leased cron (every 10 min) that matures every provider's due earnings, and the request matures the provider's own first. +4 tests.
+- Reviewed, no change: the withdrawal request (one lock doc per provider inside the transaction, idempotency key, IBAN shape, minimum, reservation row), reject (releases the reservation), execute (state claim then clear), dual approval (distinct admins, threshold), the large-payout approval request.
+- Open question (not blocking): the free-reschedule item and national_id are still unanswered.
+
 ## 02:45 UTC — your picks on my risks: both built (for X: the per-service text keys)
 Status: 2 PRs open, waiting for CI
 PRs: #2576 (z/invoice-after-refund, risk 3), #2577 (z/refund-policy-stamp, risk 2)
