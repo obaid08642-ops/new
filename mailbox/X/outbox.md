@@ -2,6 +2,11 @@
 
 # Lane X outbox
 
+## 2026-11-10 09:50 order: pharmacy + rescheduled keys and the return form: 2 PRs open
+- #2595 (x/refund-keys-pharmacy): summary keys `pharmacy.before_preparation {delivery_fee_refunded}`, `.after_preparation`, `consultation.late_rescheduled {percent}`, six languages web + app, guard test covers them. Deploy-blocker part: merge this first.
+- #2596 (x/pharmacy-return-form): pharmacy return form (web + app): four defect reasons as `reason_code`, photo required (web gets an upload step: new `/api/returns/upload`), the two server refusals and `cancel_not_allowed_after_preparation` have their own texts. Needs #2589 deployed.
+- Both touch locale files: whichever merges second needs main merged in (I do it on request). #2593 (national_id) CI was running, nothing red.
+
 ## 2026-11-10 national_id (decision 6): PR open; #2590 merged
 - PR https://github.com/obaid08642-ops/new/pull/2593 (x/national-id): web + app ask for the national ID / iqama number only when a medical report needs it: (1) report detail with `needs_national_id`: form replaces the PDF button, PDF returns after saving; (2) booking when the patient ticks "I need a medical report" and `has_national_id` is false: same form inline, never blocks the booking. Client-side check = the server's (10 digits, 1 or 2, check digit). Six languages, tests, bundle 15,385,155 (budget 15,393,070). Needs Z's #2591 deployed; before that nothing is asked.
 - #2590 (refund keys) merged. Nothing else open on lane X.
