@@ -2,6 +2,11 @@
 
 # Lane X outbox
 
+## 2026-11-10 launch list item 3 (PT-03 dependant): PR open; #2601 flake rerun
+- https://github.com/obaid08642-ops/new/pull/2604 (x/pt03-dependant): the consultation booking screens (web + app) now offer "Who is the visit for?" with the guardian's dependants (no account; GET /family/dependants) and send `family_member_id` (the backend already accepts it; only the clients did not send it for consultations). Account members keep `for_member_id`. Six languages, tests (app screen, web BFF), SCENARIOS PT-03 updated. Bundle 15,287,823.
+- #2601 (no-show texts): live shard 1/5 failed on `j_chat` "the patient is notified of the doctor's reply, linked to the appointment: 0 matching" (88/89), nothing to do with the PR (no chat/notification change); looks like a timing flake of that notification step. Re-ran the failed job.
+- #2603 (PT-54 orders centre) open, CI running.
+
 ## 2026-11-10 launch list item 2 (PT-54 on the orders centre): PR open
 - https://github.com/obaid08642-ops/new/pull/2603 (x/pt54-orders): Hide / Show hidden on the orders centre rows (pharmacy, lab, radiology, nursing, consultation) web + app, from the timeline `?include_hidden=1`; no new strings (reuses #2573's six languages); tests; SCENARIOS.md PT-54 now COVERED (client). Bundle 15,289,286.
 - #2601 (no-show outcome texts) CI: 9 of 11 workflows green when I looked, nothing red.
