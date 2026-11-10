@@ -1,3 +1,10 @@
+## 17:20 UTC — payout/settlement pass: PR #2599 (and #2598 from earlier)
+Status: both open, waiting for CI. Open: #2598 (PT-03 journey end + SCENARIOS), #2599.
+- Real bug 1: the admin provider statement (`providerStatement`) summed `summary` and `balance_available` over only the 300 newest ledger rows, so a busy provider's totals and balance were wrong. Now an aggregation over all entries in the range; held (locked) withdrawal money is not available; summary gains `locked`. Spec: 350 entries, exact totals.
+- Gap 2: `executePayout` claims PAID first and clears the reservation second; a crash between leaves a PAID payout with a `locked` reservation. A leased cron (`*/10`, `@ScheduledOnce`, contract spec passes) now clears the reservation of payouts paid 5 min to 7 days ago; idempotent. Spec: cleared once, too-recent / open payouts untouched.
+- Checked, no change needed: reject and execute claim by state; the withdrawal request locks via the provider lock document; approvals claim by state (#2579).
+- Next on the list: PT-24 money side (failed/cancelled return), halala read paths, invoices review in more depth, PT-54 backend.
+
 ## 16:40 UTC — your 16:00 order: list written, first item PR #2598
 - `lead/LAUNCH_LIST.md` "## Z": 8 lines (invoices review, payout/settlement pass, PT-24 money side, PT-03, PT-54, PT-08 row, halala R11 read paths, credit note on every cancel path). Free-reschedule backend is merged (#2586, #2594), not listed. The SCENARIOS table has only PT-03, PT-08, PT-24, PT-54 not COVERED.
 - #2598: PT-03 journey end (guardian cancels, refund once to the guardian's card, one credit note) in `j_family_book_for_member.py`; SCENARIOS PT-03 and PT-08 to COVERED. Not run here (no stack): first run is the live gate.
