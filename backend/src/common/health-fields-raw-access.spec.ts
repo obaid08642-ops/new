@@ -14,6 +14,7 @@ const REVIEWED: Record<string, Record<string, number>> = {
   'common/health-fields.ts': { prescriptions: 1 },                                   // the doc comment
   'modules/admin/enterprise/admin-search.controller.ts': { appointments: 1 },        // projection id/status/doctor/slot
   'modules/admin/notification-center/admin-notification-center.module.ts': { appointments: 2 }, // reminder flags
+  'modules/provider-no-show/provider-no-show.service.ts': { appointments: 1 },         // the held-refund job reads the visit's state history to see whether the provider turned up: projection id/doctor_user_id/state_history only, no health field
   'modules/care/doctor-referrals.controller.ts': { appointments: 1 },                // resolves the visit by uuid or _id: projection _id/id/patient_id/doctor_id only, no health field
   'modules/care/care-compat.controller.ts': { appointments: 1 },                     // returns status/price/notes (top-level), not the summary
   'modules/care/appointment-outcomes.service.ts': { appointments: 3, medicalreports: 2, prescriptions: 2 }, // the patient's own visit outcomes: prescriptions and reports revealed; appointments: ownership, summary (revealed), seen mark

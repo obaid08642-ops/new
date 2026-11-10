@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/co
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { Permission, RequirePermissions } from '../../common/permissions';
-import { DecideNoShowDto, DisputeNoShowDto } from './provider-no-show.dto';
+import { DecideNoShowDto, DisputeNoShowDto, ReviewNoShowDto } from './provider-no-show.dto';
 import { ProviderNoShowService } from './provider-no-show.service';
 
 /** The doctor's side of a patient's "provider did not come" report: the reports on their visits and the one dispute (24 hours, with a reason). */
@@ -25,6 +25,10 @@ export class AdminProviderNoShowController {
 
   @Get() @RequirePermissions(Permission.APPOINTMENT_READ)
   list(@Query('status') status?: string, @Query('flagged') flagged?: string): Promise<{ count: number; items: any[] }> { return this.svc.listForAdmin({ status, flagged }); }
+
+  /** The 3rd (and later) automatic video refund of a patient in 30 days waits here: refund it or reject it. */
+  @Post(':appointmentId/review') @RequirePermissions(Permission.APPOINTMENT_UPDATE)
+  review(@CurrentUser() admin: any, @Param('appointmentId') id: string, @Body() body: ReviewNoShowDto) { return this.svc.reviewPending(admin, id, body?.decision, body?.note); }
 
   @Post(':appointmentId/decide') @RequirePermissions(Permission.APPOINTMENT_UPDATE)
   decide(@CurrentUser() admin: any, @Param('appointmentId') id: string, @Body() body: DecideNoShowDto) { return this.svc.decide(admin, id, body?.decision, body?.note); }
