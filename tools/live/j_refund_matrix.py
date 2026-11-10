@@ -392,21 +392,27 @@ def pharmacy(admin):
             if action == upto:
                 break
 
-    # A. paid by card, cancelled before the courier leaves: 100% including the delivery fee
+    # A. paid by card, cancelled by the patient before the pharmacy starts preparing (owner decision 2026-11-10): 100% including the delivery fee
     pat, addr = patient('refund-pharmacy-a')
     oid, alloc, total, fee, paid, _ = order(pat, addr)
     step(f'pharmacy: paid {paid} of which delivery fee {fee}', paid > 0 and fee == 15, (paid, fee))
     if alloc:
-        advance(alloc['id'], 'preparing')
-        step('pharmacy: the patient cancels before dispatch', pat.post(f'/patient/pharmacy/orders/{oid}/cancel', {'reason': 'patient_requested'}, headers={'Idempotency-Key': str(uuid.uuid4())}).ok)
-        check_money('pharmacy platform delivery', 'cancel before dispatch = 100% incl. the delivery fee', pat, pharm, 'pharmacy', oid, paid, r2(paid))
-    # B. paid by card, cancelled after the courier left: 100% minus the delivery fee (the platform keeps it)
+        advance(alloc['id'], 'confirm')
+        step('pharmacy: the patient cancels before preparation', pat.post(f'/patient/pharmacy/orders/{oid}/cancel', {'reason': 'patient_requested'}, headers={'Idempotency-Key': str(uuid.uuid4())}).ok)
+        check_money('pharmacy platform delivery', 'patient cancel before preparation = 100% incl. the delivery fee', pat, pharm, 'pharmacy', oid, paid, r2(paid))
+    # B. once the pharmacy is preparing the patient can no longer cancel (400 cancel_not_allowed_after_preparation); nothing moves, at preparing or out for delivery
     pat, addr = patient('refund-pharmacy-b')
     oid, alloc, total, fee, paid, _ = order(pat, addr)
     if alloc:
-        advance(alloc['id'], 'out-for-delivery')
-        step('pharmacy: the patient cancels after dispatch', pat.post(f'/patient/pharmacy/orders/{oid}/cancel', {'reason': 'patient_requested'}, headers={'Idempotency-Key': str(uuid.uuid4())}).ok)
-        check_money('pharmacy platform delivery', f'cancel after dispatch = 100% minus the delivery fee {fee}', pat, pharm, 'pharmacy', oid, paid, r2(paid - fee))
+        advance(alloc['id'], 'preparing')
+        r = pat.post(f'/patient/pharmacy/orders/{oid}/cancel', {'reason': 'patient_requested'}, headers={'Idempotency-Key': str(uuid.uuid4())})
+        step('pharmacy: the patient cannot cancel while it is being prepared (cancel_not_allowed_after_preparation)', r.status == 400 and 'cancel_not_allowed_after_preparation' in str(r.body), r)
+        for action in ('ready', 'out-for-delivery'):
+            body = {'courier_name': 'مندوب', 'courier_phone': '+966500000555'} if action == 'out-for-delivery' else {}
+            step(f'pharmacy: {action}', pharm.post(f'/provider/pharmacy/allocations/{alloc["id"]}/{action}', body).ok)
+        r = pat.post(f'/patient/pharmacy/orders/{oid}/cancel', {'reason': 'patient_requested'}, headers={'Idempotency-Key': str(uuid.uuid4())})
+        step('pharmacy: nor once it is out for delivery', r.status == 400 and 'cancel_not_allowed_after_preparation' in str(r.body), r)
+        check_money('pharmacy platform delivery', 'refused patient cancel after preparation = nothing refunded', pat, pharm, 'pharmacy', oid, paid, 0.0)
     # C. the pharmacy cancels (does not attend): 100%
     pat, addr = patient('refund-pharmacy-c')
     oid, alloc, total, fee, paid, _ = order(pat, addr)
@@ -421,6 +427,15 @@ def pharmacy(admin):
     if alloc:
         advance(alloc['id'], 'out-for-delivery')
         step('pharmacy: the first order is delivered', pharm.post(f"/provider/pharmacy/allocations/{alloc['id']}/delivered", {}).ok)
+        # returns after delivery (owner decision 2026-11-10): only a wrong / damaged / expired item, with a photo, and an admin reviews it
+        import j_returns
+        r = pat.post('/pharmacy/returns', {'serviceType': 'pharmacy', 'reason': 'changed my mind', 'reason_code': 'changed_mind', 'orderId': oid, 'refundMethod': 'original'})
+        step('pharmacy: a change-of-mind return is refused (pharmacy_return_needs_a_defect_reason)', r.status == 400 and 'pharmacy_return_needs_a_defect_reason' in str(r.body), r)
+        r = pat.post('/pharmacy/returns', {'serviceType': 'pharmacy', 'reason': 'damaged', 'reason_code': 'damaged', 'orderId': oid, 'refundMethod': 'original'})
+        step('pharmacy: a damaged-item return without a photo is refused (photo_evidence_required)', r.status == 400 and 'photo_evidence_required' in str(r.body), r)
+        evidence = j_returns.upload_evidence(pat)
+        r = pat.post('/pharmacy/returns', {'serviceType': 'pharmacy', 'reason': 'damaged', 'reason_code': 'damaged', 'orderId': oid, 'refundMethod': 'original', 'attachedDocs': [evidence] if evidence else []})
+        step('pharmacy: a damaged-item return with a photo is filed and waits for the admin review', r.ok and bool(r.get('id')) and str(r.get('status')).lower() == 'processing', {k: r.get(k) for k in ('id', 'status')})
         oid2, alloc2 = j_pharmacy.open_order(pat, pharm, meds, addr)
         o2 = pat.get(f'/patient/pharmacy/orders/{oid2}')
         od2 = o2.body.get('data', o2.body) if isinstance(o2.body, dict) else {}
