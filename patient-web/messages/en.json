@@ -2828,7 +2828,8 @@
       "forbidden": "Your account cannot take this action here. Nothing was changed.",
       "network": "The service could not be reached. Check your connection and try again.",
       "generic": "The action could not be completed. Nothing was changed.",
-      "alreadyPaid": "This order is already paid."
+      "alreadyPaid": "This order is already paid.",
+      "cancelAfterPreparation": "The pharmacy has started preparing this order, so it can no longer be cancelled. If an item is wrong, damaged or expired, report it with a photo after delivery."
     },
     "lastFromYou": "You: {text}",
     "priceNotVerified": "Price not verified against the catalogue price; the admin reviews it.",
@@ -4975,7 +4976,20 @@
     "details": "Details (optional)",
     "submit": "Submit return request",
     "reasonRequired": "State the return reason",
-    "submitFailed": "Could not submit the request"
+    "submitFailed": "Could not submit the request",
+    "pharmacyReasonTitle": "What is wrong with the item?",
+    "pharmacyReason_wrong_item": "Wrong medicine",
+    "pharmacyReason_damaged": "Damaged medicine",
+    "pharmacyReason_expired": "Expired medicine",
+    "pharmacyReason_not_as_described": "Not as described",
+    "photoRequired": "A photo of the item is required for a pharmacy return.",
+    "photoAdd": "Add a photo",
+    "photoAdded": "Photo added",
+    "photoRemove": "Remove photo",
+    "uploading": "Uploading…",
+    "uploadFailed": "The photo could not be uploaded. Try again.",
+    "defectReasonOnly": "A pharmacy return is accepted only for a wrong, damaged or expired item, or one not as described.",
+    "photoRequiredError": "Add a photo of the item to send the return."
   },
   "SupportChatWeb": {
     "title": "Nabd support",

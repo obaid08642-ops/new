@@ -260,6 +260,8 @@ const ERRORS: ReadonlyArray<readonly [RegExp, string]> = [
   [/offer_stock_changed_requote_required/i, 'pharmacy.offers.err.stock'],
   [/prescription_required_for_insurance_orders/i, 'pharmacy.offers.err.rxInsurance'],
   [/invalid_coverage_mode/i, 'pharmacy.offers.err.generic'],
+  // owner decision 4: once the pharmacy is preparing the order the patient can no longer cancel it
+  [/cancel_not_allowed_after_preparation/i, 'pharmacy.offers.err.cancelAfterPreparation'],
   [/cannot_cancel_in_|order_not_actionable/i, 'pharmacy.offers.err.notActionable'],
   [/quote_hash_or_revision_mismatch|selected_quote_required|quote_hash_required|quote_revision_required/i, 'pharmacy.quote.err.changed'],
   [/insurance_orders_follow_insurance_decision_flow/i, 'pharmacy.quote.err.insurance'],
