@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { tokens } from '../../../../packages/design-tokens/dist/ts/tokens';
 import { useApp } from '../../context/AppContext';
+import { dsText } from '../dsText';
 import { BorderRadius, Typography } from '../tokens';
 import { DSBadge } from './Badge';
 
@@ -84,7 +85,7 @@ export function DSAvatar({
   style,
   fallbackColor,
 }: DSAvatarProps) {
-  const { colors } = useApp();
+  const { colors, lang } = useApp();
   const [imgError, setImgError] = useState(false);
 
   const dim = SIZES[size];
@@ -110,7 +111,7 @@ export function DSAvatar({
         }}
         accessible
         accessibilityRole="image"
-        accessibilityLabel={name ?? 'صورة المستخدم'}
+        accessibilityLabel={name ?? dsText(lang, 'ds.avatar.user')}
       >
         {hasImage ? (
           <Image
@@ -148,7 +149,7 @@ export function DSAvatar({
             borderWidth: 2,
             borderColor: colors.surface,
           }}
-          accessibilityLabel={isOnline ? 'متصل' : 'غير متصل'}
+          accessibilityLabel={isOnline ? dsText(lang, 'ds.avatar.online') : dsText(lang, 'ds.avatar.offline')}
         />
       )}
 
