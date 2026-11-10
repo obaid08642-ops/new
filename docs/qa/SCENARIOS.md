@@ -120,6 +120,7 @@ Types: doctor, pharmacy, lab, radiology, nursing (and any other registered type)
 | PV-20 | Nursing visit or programme | COVERED | `j_nursing.py` | P1 | — |
 | PV-21 | Provider cancels after acceptance | COVERED | `j_provider_scenarios.py`: a reason is required, the patient gets 100% back, the doctor carries the penalty, the slot can be booked again | P1 | P2 |
 | PV-22 | No-show marked by the provider | COVERED | `j_provider_scenarios.py`: refused before the grace period, accepted after it, the patient sees NO_SHOW with no refund, a second one is refused | P1 | P2 |
+| PV-23 | Provider did not come (patient reports it) | COVERED | `j_provider_no_show.py` (owner decision 7): clinic visit held, doctor disputes, admin upholds, refund 100%; video refunded at once twice per 30 days, third waits for an admin who refunds it | P1 | P2 |
 
 ## Admin
 
