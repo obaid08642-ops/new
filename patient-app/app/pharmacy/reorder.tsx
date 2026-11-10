@@ -228,7 +228,7 @@ export default function PharmacyReorderScreen() {
             onAction={problemKey === 'pharmacy.checkout.err.signIn' ? () => router.push('/(auth)/login' as Href) : undefined}
           />
         ) : null}
-        <RefundPolicyTick checked={refundAgreed} onChange={setRefundAgreed} />
+        <RefundPolicyTick service="pharmacy" checked={refundAgreed} onChange={setRefundAgreed} />
       </View>
     </Screen>
   );

@@ -211,7 +211,7 @@ export function DiagnosticsCheckoutForm({
       ) : null}
 
       {error ? <p className={consult.error} role="alert">{error}</p> : null}
-      <RefundPolicyTick locale={locale} checked={refundAgreed} onChange={setRefundAgreed} />
+      <RefundPolicyTick locale={locale} service={items.length > 0 && items.every((id) => id.startsWith("rad_")) ? "radiology" : "lab"} checked={refundAgreed} onChange={setRefundAgreed} />
       <Button type="submit" label={saving ? t("checkoutSaving") : t("checkoutConfirm")} size="lg" fullWidth loading={saving} disabled={saving || !refundAgreed} />
     </form>
   );

@@ -139,7 +139,7 @@ export function useManualRequest(): { body: React.ReactNode; footer: React.React
         </Pressable>
       </Card>
 
-      <RefundPolicyTick checked={refundAgreed} onChange={setRefundAgreed} />
+      <RefundPolicyTick service="pharmacy" checked={refundAgreed} onChange={setRefundAgreed} />
 
       {problem === 'location' ? <Notice tone="warning" icon="map-pin" title={k('pharmacy.request.noLocation')} /> : null}
       {problem === 'send' ? <Notice tone="danger" icon="warning" title={k('pharmacy.request.failedTitle')} body={k('pharmacy.request.failedBody')} /> : null}

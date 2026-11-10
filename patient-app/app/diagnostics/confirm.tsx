@@ -325,7 +325,7 @@ export default function DiagnosticsConfirm() {
         </Section>
       ) : null}
 
-      <RefundPolicyTick checked={refundAgreed} onChange={setRefundAgreed} />
+      <RefundPolicyTick service="lab" checked={refundAgreed} onChange={setRefundAgreed} />
 
       {error ? <Notice tone="danger" text={error} /> : null}
     </ConsultScreen>

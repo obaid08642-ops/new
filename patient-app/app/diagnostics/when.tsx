@@ -198,7 +198,7 @@ export default function DiagnosticsWhen() {
           {answer.asapOffered && asapAllowed(draft) && !open && asap?.status !== 'expired' ? (
             <Section title={k('ordering.when.asapTitle')}>
               <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{k('ordering.when.asapSub')}</Text>
-              <RefundPolicyTick checked={refundAgreed} onChange={setRefundAgreed} />
+              <RefundPolicyTick service={draft.kind} checked={refundAgreed} onChange={setRefundAgreed} />
               <Button theme={theme} size="md" variant="outline" label={k('ordering.when.asapBtn')} disabled={!refundAgreed} loading={asapBusy} onPress={() => void beginAsap()} />
               {asapError ? <Notice tone="danger" text={k(asapError)} /> : null}
               <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('ordering.when.asapNoOpt')}</Text>

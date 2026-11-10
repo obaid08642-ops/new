@@ -362,7 +362,7 @@ export default function InsuranceUploadForm() {
               />
             ))}
           </Section>
-          <RefundPolicyTick checked={refundAgreed} onChange={setRefundAgreed} />
+          <RefundPolicyTick service="lab" checked={refundAgreed} onChange={setRefundAgreed} />
         </>
       ) : null}
     </ConsultScreen>

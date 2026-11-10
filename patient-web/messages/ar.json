@@ -5986,6 +5986,23 @@
     "general": "تختلف قواعد الاسترداد حسب الخدمة. اطّلع عليها قبل الدفع.",
     "read": "اقرأ سياسة الاسترداد كاملة",
     "agree": "قرأت سياسة الاسترداد وأوافق عليها",
-    "needAgree": "وافق على سياسة الاسترداد للمتابعة"
+    "needAgree": "وافق على سياسة الاسترداد للمتابعة",
+    "policy_consultation_full": "ألغِ قبل الموعد بـ {hours} ساعات على الأقل واسترد 100%.",
+    "policy_consultation_late": "إذا ألغيت بعد ذلك يُعاد {percent}% إلى بطاقتك.",
+    "policy_consultation_patient_no_show": "إذا لم تحضر الموعد يُعاد {percent}%.",
+    "policy_consultation_free_reschedule": "إعادة جدولة مجانية: {count}، حتى {hours} ساعات قبل الموعد.",
+    "policy_consultation_provider_no_show": "إذا لم يحضر الطبيب تسترد 100% فورًا.",
+    "policy_provider_cancel": "إذا ألغى مقدّم الخدمة تسترد 100% فورًا.",
+    "policy_lab_before_transit": "ألغِ قبل انطلاق المندوب واسترد 100%.",
+    "policy_lab_after_transit": "بعد انطلاق المندوب تُحتسب رسوم المشوار {trip_fee_sar} ر.س ويُعاد الباقي.",
+    "policy_nursing_before_transit": "ألغِ قبل انطلاق الممرض واسترد 100%.",
+    "policy_nursing_after_transit": "بعد انطلاق الممرض تُحتسب رسوم المشوار {trip_fee_sar} ر.س ويُعاد الباقي.",
+    "policy_nursing_patient_absent": "إذا لم تكن موجودًا وقت الزيارة يُعاد {percent}%.",
+    "policy_radiology_full": "تُرد حجوزات الأشعة كاملة.",
+    "policy_pharmacy_before_dispatch": "ألغِ قبل شحن الطلب لاسترداد كامل المبلغ.",
+    "policy_pharmacy_before_dispatch_fee": "ألغِ قبل شحن الطلب لاسترداد كامل المبلغ شاملًا رسوم التوصيل.",
+    "policy_pharmacy_after_dispatch": "بعد شحن الطلب تُحتسب رسوم التوصيل ويُعاد الباقي.",
+    "policy_pharmacy_after_delivery": "بعد التسليم يُرد المبلغ فقط إذا كان المنتج خاطئًا أو تالفًا أو معيبًا أو منتهي الصلاحية.",
+    "policy_card_destination": "يُعاد المبلغ إلى وسيلة الدفع الأصلية وليس إلى محفظة."
   }
 }

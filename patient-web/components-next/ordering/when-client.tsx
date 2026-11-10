@@ -232,7 +232,7 @@ function AsapCard({ locale, kind, pay, who, point, group, schedule, update }: { 
       </div>
       {!asap || asap.status === "cancelled" ? (
         <>
-          <RefundPolicyTick locale={locale} checked={refundAgreed} onChange={setRefundAgreed} />
+          <RefundPolicyTick locale={locale} service={kind === "radiology" ? "radiology" : kind === "nursing" ? "nursing" : "lab"} checked={refundAgreed} onChange={setRefundAgreed} />
           <button type="button" className={`${styles.linkBtn} ${styles.cta}`} disabled={busy || !refundAgreed || !point || ids.length === 0} onClick={begin}>{t("whenAsapBtn")}</button>
         </>
       ) : null}

@@ -191,7 +191,7 @@ export default function DiscussScreen() {
         ) : null}
         {body(k('ordering.res.notChargedFirst'))}
         {problem}
-        <RefundPolicyTick checked={refundAgreed} onChange={setRefundAgreed} />
+        <RefundPolicyTick service="lab" checked={refundAgreed} onChange={setRefundAgreed} />
         <Button theme={theme} size="lg" fullWidth label={k('ordering.res.start')} loading={busy} disabled={!slug || !refundAgreed} onPress={() => void start()} testID="ordering-discuss-start" />
         <Button theme={theme} size="lg" fullWidth variant="outline" label={k('ordering.res.later')} onPress={goBackDiag} testID="ordering-discuss-later" />
       </>

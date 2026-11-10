@@ -143,7 +143,7 @@ export function RequestScreen({ locale, before, initialName = "" }: { locale: Lo
           </div>
         ) : null}
 
-        <RefundPolicyTick locale={locale} checked={refundAgreed} onChange={setRefundAgreed} />
+        <RefundPolicyTick locale={locale} service="pharmacy" checked={refundAgreed} onChange={setRefundAgreed} />
         <div className={rx.deskActions}>{sendButton}</div>
       </form>
     </CoreShell>

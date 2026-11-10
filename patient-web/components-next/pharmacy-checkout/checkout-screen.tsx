@@ -229,7 +229,7 @@ export function CheckoutScreen({ locale, prescription = null }: { locale: Locale
           </div>
         ) : null}
 
-        <RefundPolicyTick locale={locale} checked={refundAgreed} onChange={setRefundAgreed} />
+        <RefundPolicyTick locale={locale} service="pharmacy" checked={refundAgreed} onChange={setRefundAgreed} />
         <div className={rx.deskActions}>{sendButton}</div>
       </>
     );

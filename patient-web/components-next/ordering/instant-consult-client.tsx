@@ -81,7 +81,7 @@ export function InstantConsultClient({ locale, specialties, bookingId, attachedC
               <div role="group" aria-label={t("mode")} className={styles.stack}>
                 {MODES.map((m) => <button key={m} type="button" className={styles.chip} aria-pressed={mode === m} onClick={() => setMode(m)}>{t(m === "video" ? "modeVideo" : "modeAudio")}</button>)}
               </div>
-              <RefundPolicyTick locale={locale} checked={refundAgreed} onChange={setRefundAgreed} />
+              <RefundPolicyTick locale={locale} service="consultation" checked={refundAgreed} onChange={setRefundAgreed} />
               <button type="button" className={`${styles.linkBtn} ${styles.cta}`} disabled={busy || !specialty || !refundAgreed} onClick={() => run(() => startInstant({ specialty, mode, refund_policy_accepted: true }, bookingId))}>{t("start")}</button>
             </>
           )}

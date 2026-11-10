@@ -23,6 +23,23 @@ const bodyOf = (call: unknown[]) => JSON.parse((call[1] as { body: string }).bod
 beforeEach(() => mockApiFetch.mockReset());
 
 describe('the refund policy tick', () => {
+  it('shows the lines the server sends for the service, in the app language, with their numbers', async () => {
+    mockApiFetch.mockResolvedValueOnce({ service: 'lab', lines: [
+      { key: 'refund.policy.lab.before_transit', params: {} },
+      { key: 'refund.policy.lab.after_transit', params: { trip_fee_sar: 30 } },
+      { key: 'refund.policy.card_destination', params: {} },
+    ] });
+    await render(<SafeAreaProvider initialMetrics={metrics}><RefundPolicyTick service="lab" checked={false} onChange={jest.fn()} /></SafeAreaProvider>);
+    expect(await screen.findByText('After the collector has set off, the trip fee of 30 SAR is kept and the rest is returned.')).toBeTruthy();
+    expect(screen.getByText(k('refund.policy.card_destination'))).toBeTruthy();
+    expect(screen.queryByText(k('refund.general'))).toBeNull();
+    expect(mockApiFetch).toHaveBeenCalledWith('/refund-policy/summary?service=lab');
+  });
+  it('keeps the general line when the summary cannot be read', async () => {
+    mockApiFetch.mockRejectedValueOnce(new Error('offline'));
+    await render(<SafeAreaProvider initialMetrics={metrics}><RefundPolicyTick service="pharmacy" checked={false} onChange={jest.fn()} /></SafeAreaProvider>);
+    expect(await screen.findByText(k('refund.general'))).toBeTruthy();
+  });
   it('shows the policy line and the link, says what is needed until ticked, and toggles', async () => {
     const onChange = jest.fn();
     await render(<SafeAreaProvider initialMetrics={metrics}><RefundPolicyTick checked={false} onChange={onChange} /></SafeAreaProvider>);
