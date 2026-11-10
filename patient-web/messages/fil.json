@@ -6008,11 +6008,16 @@
     "policy_nursing_before_transit": "Kanselahin bago umalis ang nars at makukuha mo ang 100% pabalik.",
     "policy_nursing_after_transit": "Kapag umalis na ang nars, mananatili ang bayad sa biyahe na {trip_fee_sar} SAR at ibabalik ang natitira.",
     "policy_nursing_patient_absent": "Kung wala ka sa oras ng pagbisita, {percent}% ang ibabalik.",
-    "policy_radiology_full": "Buong ibinabalik ang bayad sa mga booking ng radiology.",
+    "policy_radiology_full": "Kanselahin nang hindi bababa sa {hours} oras bago ang konsultasyon at makukuha mo ang 100% pabalik.",
     "policy_pharmacy_before_dispatch": "Kanselahin bago maipadala ang order para sa buong refund.",
     "policy_pharmacy_before_dispatch_fee": "Kanselahin bago maipadala ang order para sa buong refund, kasama ang bayad sa paghahatid.",
     "policy_pharmacy_after_dispatch": "Pagkatapos maipadala, mananatili ang bayad sa paghahatid at ibabalik ang natitira.",
     "policy_pharmacy_after_delivery": "Pagkatapos ng paghahatid, may refund lamang kung mali, sira, depektibo o expired ang item.",
-    "policy_card_destination": "Ibinabalik ang bayad sa orihinal na paraan ng pagbabayad, hindi sa wallet."
+    "policy_card_destination": "Ibinabalik ang bayad sa orihinal na paraan ng pagbabayad, hindi sa wallet.",
+    "policy_lab_full": "Kanselahin nang hindi bababa sa {hours} oras bago ang konsultasyon at makukuha mo ang 100% pabalik.",
+    "policy_lab_late": "Kung magkansela ka pagkatapos nito, {percent}% ang ibabalik sa iyong card.",
+    "policy_nursing_full": "Kanselahin nang hindi bababa sa {hours} oras bago ang konsultasyon at makukuha mo ang 100% pabalik.",
+    "policy_nursing_late": "Kung magkansela ka pagkatapos nito, {percent}% ang ibabalik sa iyong card.",
+    "policy_radiology_late": "Kung magkansela ka pagkatapos nito, {percent}% ang ibabalik sa iyong card."
   }
 }

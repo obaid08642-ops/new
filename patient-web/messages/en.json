@@ -6008,11 +6008,16 @@
     "policy_nursing_before_transit": "Cancel before the nurse sets off and get 100% back.",
     "policy_nursing_after_transit": "After the nurse has set off, the trip fee of {trip_fee_sar} SAR is kept and the rest is returned.",
     "policy_nursing_patient_absent": "If you are not there for the visit, {percent}% is returned.",
-    "policy_radiology_full": "Radiology bookings are refunded in full.",
+    "policy_radiology_full": "Cancel at least {hours} hours before the visit and get 100% back.",
     "policy_pharmacy_before_dispatch": "Cancel before the order is dispatched for a full refund.",
     "policy_pharmacy_before_dispatch_fee": "Cancel before the order is dispatched for a full refund, including the delivery fee.",
     "policy_pharmacy_after_dispatch": "After dispatch the delivery fee is kept and the rest is returned.",
     "policy_pharmacy_after_delivery": "After delivery you are refunded only if the item is wrong, damaged, defective or expired.",
-    "policy_card_destination": "Refunds go back to the original payment method, not to a wallet."
+    "policy_card_destination": "Refunds go back to the original payment method, not to a wallet.",
+    "policy_lab_full": "Cancel at least {hours} hours before the visit and get 100% back.",
+    "policy_lab_late": "If you cancel later than that, {percent}% is returned to your card.",
+    "policy_nursing_full": "Cancel at least {hours} hours before the visit and get 100% back.",
+    "policy_nursing_late": "If you cancel later than that, {percent}% is returned to your card.",
+    "policy_radiology_late": "If you cancel later than that, {percent}% is returned to your card."
   }
 }
