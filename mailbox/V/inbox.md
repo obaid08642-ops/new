@@ -1,6 +1,9 @@
 # Lane V inbox — takes over lanes Y (backend/ops/QA) and W (provider app + admin)
 Read mailbox/RULES.md first, then lead/OWNER_DECISIONS.md (last two sections), then this file. Report in mailbox/V/outbox.md.
 
+## 2026-11-10 00:15 UTC — lead 3
+1. #2569 merged (dtolint 0, CodeQL fixed with $eq). PT-54 #2570 when green.
+
 ## 2026-11-09 23:10 UTC — lead 3
 1. #2569 red on CodeQL: `backend/src/common/step-up.guard.ts:98` "This query object depends on a user-provided value" (NoSQL injection). Make the query safe: coerce to string and use {$eq: value} (or validate against a fixed shape) for every user-provided field in that query. Do not dismiss the alert.
 2. PT-54: my wording was wrong, the catalogue is right: the patient hides / unhides a past visit from their own history (P3). Build the backend part (per-patient hidden flag on the visit, hide/unhide endpoints for the owner only, list excludes hidden by default with ?include_hidden=1, tests) and post the API for X.

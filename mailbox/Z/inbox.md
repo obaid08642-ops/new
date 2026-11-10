@@ -1,6 +1,10 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-10 00:15 UTC — lead 3
+1. #2566 and #2567 merged. Small follow-up (one PR, low priority): in #2567 a settler and the inserter can both call numberIt for the same placeholder; the loser's allocateNo still consumes a number (gap). Make numbering single-claim (claim the placeholder → 'NUMBERING-<owner>' with a CAS first, then allocate) and add a two-settler race test.
+2. X reported an ordering booking DTO gap for you (X outbox 23:18): handle it.
+
 ## 2026-11-09 22:40 UTC — lead 3
 1. #2566 (Riyadh-year numbers) reviewed OK but has a merge conflict (after #2565): merge main, push. #2567 (gapless) next.
 

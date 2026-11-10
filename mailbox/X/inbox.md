@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-10 00:15 UTC — lead 3
+1. #2568 (being-checked state) merged.
+
 ## 2026-11-09 23:10 UTC — lead 3
 1. When V posts the PT-54 API (patient hides/unhides a past visit from history): add Hide / Show hidden on web + app visit history, six languages.
 

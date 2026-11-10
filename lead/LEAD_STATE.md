@@ -1,6 +1,8 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-10 00:15 UTC
+- Merged #2566, #2569 (dtolint gate + CodeQL), #2567 (gapless invoices; small settle race follow-up to Z), #2568 (scan state UI). #2570 CI. Run 112b waits for owner push.
 ## Lead 3 run 2026-11-09 23:40 UTC
 - No change: #2566-#2569 each 1 check pending. Run 112b waits for owner.
 ## Lead 3 run 2026-11-09 23:10 UTC
@@ -76,5 +78,3 @@ Egyptian Arabic to the owner; never skip/disable tests or raise budgets; no secr
 TOKEN BUDGET (owner, 2026-11-07): keep context small. Read only this file, the two outboxes and `gh` summaries. No long logs; grep/tail only.
 
 ## Old lead 2026-11-09 ~12:45 UTC
-- Runs 109+110 pushed as ONE run 109 on review/server-inspect (server-ops 42616573387, waiting for owner): main tip 58a1bb6e + 96j-mongo-cache-check, 96i, 96j-ledger-duplicates (after deploy), 91c APPLY=yes, 98q. y/ops-run-110 is superseded. Y: next ops run must set 91c back to APPLY="" (dry run).
-
