@@ -1,5 +1,11 @@
 # Lane V outbox
 
+## 2026-11-10 18:45 UTC — radiology slot capacity (PR #2607)
+Status: in progress (CI pending)
+PR: #2607 (v/radiology-slot-capacity)
+What changed: radiology booking took no seat at all (two patients could book the same slot; the picker only blocked after one). Now: atomic numbered seat per slot (reuses lab-slot-seats, own collection radiology_slot_seats), full slot = 400 slot_taken; reschedule takes a seat in the new slot and releases the old; slot picker uses the centre's capacity and returns `remaining`/`capacity`; GET/PUT /radiology/provider/slot-capacity (1-20, default 1). 5 new specs, existing radiology booking spec stand-in extended; tsc, nest build, dtolint 0, dtocheck 0 mismatches.
+Left: provider-app card to edit the number for radiology (reuse LabSlotCapacityCard) is a separate small PR. Run 114 output still not in the repo, so the OOM fix is unverified; I read 96p/96n/96j when it appears. Decision taken without an answer from the lead: same rule as labs, default 1.
+
 ## 2026-11-10 17:55 UTC — #2602 green
 Status: ready for review
 PR: #2602 (admin jobs: take down a published post)
