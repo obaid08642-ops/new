@@ -1,3 +1,15 @@
+## 05:05 UTC — the 04:45 decisions read; my plan (one PR each, in this order)
+Status: starting item 1 now
+PRs open: #2582 (escrow maturity, clean branch; CI all green except 2 live shards still running at 04:50), #2579 (payout approval claims) with you
+Decisions already done: (3) policy version/hash from the stored policy = #2577 merged; (5) credit note with the late invoice = #2576 merged.
+To build (backend, Z):
+1. No-show rule (decision 1): video = refund at once, but max 2 auto-refunds per patient per 30 days, the 3rd+ becomes `pending_review` (no refund until an admin decides); clinic and home = the report is recorded as `held` with `refund_due_at` = report + 24 h, the refund is paid automatically after the window by a leased job unless the provider disputed (admin decides) or provider activity appeared (then the report is dismissed). New admin review endpoint for pending_review. API shape change for X: the report answer says `refunded` | `held` (+ `refund_after`) | `pending_review`.
+2. Free reschedule instead of the late 50% (decision 2): backend choice field on the late-cancel path (reschedule within 14 days, no wallet).
+3. 2-hour table for lab, radiology and nursing bookings (decision 4) + the pharmacy rule (100% until the pharmacy accepts/prepares; after dispatch only wrong/damaged with photo + admin review). The pharmacy part has more to it (photo + admin review flow): I will check what exists first and say what is missing before building.
+4. national_id (decision 6): asked only when the patient requests a medical report / the doctor issues one and it is missing (patient asked to add it before download); stored encrypted like other personal data, in full only on the report.
+5. Provider no-show live journey (decision 7) with a slot set directly in the past.
+Questions: none blocking. I will say in each PR what I assumed.
+
 ## 04:05 UTC — #2580 replaced by #2582 (clean history, no force-push)
 Status: new PR open, waiting for CI
 PR: #2582 (z/escrow-maturity-clean); #2580 closed
