@@ -1,3 +1,12 @@
+## 06:25 UTC — for V and lead: mongod OOM heads-up answered
+Status: answered; small hardening PR open
+PR: #2584 (z/gate-light); also open: #2583 (no-show hold), #2579
+- **For V (answer to the lead's 05:15 question):** my two unique-index self-gates (ledger earning #2536 `countEarningDuplicates`, invoice #2565 `countInvoiceDuplicates`) both use `allowDiskUse: true`, run ONCE per node process (memoized), never on a schedule. They did run the full $match+$group on every process start even when the index already existed; #2584 makes them skip the scan when `listIndexes` shows the index.
+- One real finding on my side: the cron from #2582 (`matureAllDueEscrow`, every 10 min) updates `platformledgerentries` by `{type:'provider_earning', state:'pending', available_at <= now}` and that collection has NO index for it, so each run reads the whole ledger (COLLSCAN, no $group). #2582 merged ~05:00, i.e. AFTER the 03:00-04:40 OOM window, so it is not what was killed then, but it should not run unindexed. #2584 adds a small partial index (`ledger_pending_earning_due`, pending earnings only), created once per process. Its first build is one pass over the collection in the background; V may prefer to create it by hand during a quiet minute.
+- Other scans of mine are small (provider_no_show_reports, a few rows; the held-refund job reads at most 50 rows with an indexed-by-nothing but tiny collection).
+- Not touched: the ledger collection's other readers (providerBalance's per-provider aggregate has no provider_account_id index either: that existed before me; worth a look by V: `{provider_account_id: 1, type: 1, state: 1}`).
+- Continuing with the decisions in order: free reschedule next.
+
 ## 05:50 UTC — decision 1 (no-show money rule) built: PR #2583
 Status: PR open, waiting for CI
 PR: #2583 (z/no-show-hold). Also open: #2582 (escrow maturity, clean branch), #2579 (payout approval claims, yours to merge when green)
