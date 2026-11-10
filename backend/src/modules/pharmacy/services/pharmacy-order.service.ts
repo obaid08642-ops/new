@@ -945,6 +945,11 @@ export class PharmacyOrderService {
     if ([PharmacyOrderState.DELIVERED, PharmacyOrderState.COMPLETED, PharmacyOrderState.CANCELLED].includes(order.status)) {
       throw new BadRequestException(`cannot_cancel_in_${order.status}`);
     }
+    // Owner decision 2026-11-10: a patient gets everything back until the pharmacy starts preparing the order; from then on (preparing, out for delivery) only a wrong, damaged or expired
+    // item is refunded, through the return request (photo + admin review). So the patient's own cancel is closed from then on; an admin can still cancel (100 %).
+    if (actor.role === 'patient' && [PharmacyOrderState.IN_FULFILLMENT, PharmacyOrderState.OUT_FOR_DELIVERY].includes(order.status)) {
+      throw new BadRequestException('cancel_not_allowed_after_preparation');
+    }
     const id = order.id;
     return await this.engine.transition({
       kind: 'pharmacy', entity_id: order.id, from_domain: order.status, to_domain: PharmacyOrderState.CANCELLED,
