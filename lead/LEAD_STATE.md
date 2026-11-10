@@ -1,6 +1,9 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Old lead 2026-11-10 21:05 UTC
+- X/Z/V account out of credit: lanes PAUSED until the limit renews. Old lead (only lead) keeps merging reviewed green PRs; merge bot hourly :50. Merge classifier denied #2611 once (no reason): merge bot or owner merges it. Real remaining: ~18 launch-list items (X 7, Z 4, V 7), several are open PRs already done.
+
 ## Old lead 2026-11-10 16:00 UTC
 - Run 114 pushed by old lead (fixed: 60-deploy-main default SHA was still a063da06; the workflow does NOT pass the release SHA to the task, so ALWAYS update the SHA line). server-ops 42848093529 waits for owner.
 - Lanes were idle with empty queues: new queues sent; lead/LAUNCH_LIST.md created — keep it current, tick merged items.

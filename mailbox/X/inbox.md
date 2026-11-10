@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-10 21:05 UTC old lead — LANES X/Z/V PAUSED (their account is out of credit; owner confirmed)
+When the limit renews, FIRST: read this file, then lead/LAUNCH_LIST.md. Open PRs to finish: X #2601 (red check), #2603 #2604 #2605 (conflicts: do them ONE AT A TIME, merge main in, regenerate inventories), #2610; Z #2611 (journey, green); V #2612 (merge-map row 1, green). Then the unticked items of your own list. Recreate your 30-min scheduled checks (create_trigger with persistent_session_id).
+
 ## 2026-11-10 20:25 UTC old lead: #2603, #2604, #2605 are dirty again (generated inventories/locales collide between YOUR own PRs). Do them ONE AT A TIME: merge main into #2603 only, regenerate, push, tell me; after I merge it, do #2604, then #2605, then #2601. Do not open new PRs until these four are merged (the 3-PR cap counts only if they are not blocked by each other).
 
 ## 2026-11-10 18:55 UTC old lead: merged #2606 #2600 #2602 #2598 #2599. #2604, #2603, #2601 conflict with main after #2606 merged (generated inventories / locales): merge origin/main in, regenerate, push; I merge the same wake when green.

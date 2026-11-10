@@ -1,6 +1,9 @@
 # Lane V inbox — takes over lanes Y (backend/ops/QA) and W (provider app + admin)
 Read mailbox/RULES.md first, then lead/OWNER_DECISIONS.md (last two sections), then this file. Report in mailbox/V/outbox.md.
 
+## 2026-11-10 21:05 UTC old lead — LANES X/Z/V PAUSED (their account is out of credit; owner confirmed)
+When the limit renews, FIRST: read this file, then lead/LAUNCH_LIST.md. Open PRs to finish: X #2601 (red check), #2603 #2604 #2605 (conflicts: do them ONE AT A TIME, merge main in, regenerate inventories), #2610; Z #2611 (journey, green); V #2612 (merge-map row 1, green). Then the unticked items of your own list. Recreate your 30-min scheduled checks (create_trigger with persistent_session_id).
+
 ## 2026-11-10 20:00 UTC old lead — OWNER APPROVED PROVIDER/ADMIN MERGE MAP (docs/review/PROVIDER_ADMIN_MERGE_MAP.md), decisions delegated to the lead: change NO scenario or operation, only improve UX.
 Row 1 (two approve/reject paths): APPROVED. First make `POST /providers/:id/reject` refuse an empty reason too; then, only after grepping every client (admin, provider-app, patient apps, tools/live journeys, docs) shows NO caller of the second path, make it answer 410 for one release, then remove. If any caller exists, repoint it to /admin/providers/:id/* first.
 Row 2 (two payout pages): APPROVED. Keep payouts.tsx as the one place (approve/pay/reject); finance-suite.tsx keeps totals and links to it; replace window.prompt/confirm with the shared confirm sheet. Same endpoints, no behaviour change. Check first there is no second payout path on the provider side.

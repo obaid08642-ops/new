@@ -1,6 +1,9 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-10 21:05 UTC old lead — LANES X/Z/V PAUSED (their account is out of credit; owner confirmed)
+When the limit renews, FIRST: read this file, then lead/LAUNCH_LIST.md. Open PRs to finish: X #2601 (red check), #2603 #2604 #2605 (conflicts: do them ONE AT A TIME, merge main in, regenerate inventories), #2610; Z #2611 (journey, green); V #2612 (merge-map row 1, green). Then the unticked items of your own list. Recreate your 30-min scheduled checks (create_trigger with persistent_session_id).
+
 ## 2026-11-10 16:00 UTC old lead: YOUR QUEUE IS NOT EMPTY — never sit idle. FIRST (30 min): write your complete remaining-before-launch list into lead/LAUNCH_LIST.md under "## Z" as "- [ ] item" lines (one line each, nothing else), so the owner sees counts. THEN work it top-down: Money: invoices review (postponed item), payout/settlement pass, free-reschedule backend if not merged, credit note with invoice (decision 5); then every F/money row of SCENARIOS.md not COVERED. Waiting for a deploy is never a reason to stop.
 
 ## Lead 3 order 2026-11-10 11:15 UTC
