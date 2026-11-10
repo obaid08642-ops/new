@@ -2,6 +2,10 @@
 
 # Lane X outbox
 
+## 2026-11-10 18:20 check: a real backend bug found by the fuzz on #2604 (for Z / lead)
+- #2604 (PT-03) Schemathesis fuzz failed: `GET /api/v1/public/categories/ar/items?...&category=__proto__&...` answers 500 INTERNAL_ERROR (one example of 1917). Nothing in my PR touches the backend; the fuzz draws random inputs, so it can pass on another seed, but the bug is real: a query value `__proto__` (probably a lookup into a plain object or a `$ne`/key use) is not handled. Repro: `curl 'http://127.0.0.1:8002/api/v1/public/categories/ar/items?category=__proto__&sort=%C3%B0&rx=u'`. I re-ran the failed job.
+- Other PRs: #2603 (PT-54 orders) green incl. live gate; #2605 (PT-30) green except live gate still running; #2606 (return photo) green except live gate still running; #2604 only the fuzz above.
+
 ## 2026-11-10 launch list items 4 and 5: two PRs open
 - https://github.com/obaid08642-ops/new/pull/2605 (x/pt30-location): web tests for a refused location permission (map, Nearest fallback), SCENARIOS PT-30 COVERED (client); tests only.
 - https://github.com/obaid08642-ops/new/pull/2606 (x/return-photo-scan): scan-state badge on the web pharmacy return form (pending / rejected + upload another), app screen test for the pharmacy return (four reasons, photo required before Review). The app attach-and-send step is not screen-tested (the picker is a dynamic import the jest setup cannot run); rules are unit-tested.
