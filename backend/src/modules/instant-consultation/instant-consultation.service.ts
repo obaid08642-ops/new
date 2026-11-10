@@ -1,3 +1,4 @@
+import { stampAcceptance } from '../../common/refund-policy-stamp';
 import { refundPolicyAcceptance } from '../../common/refund-policy-acceptance';
 import { shadowFields } from '../../common/halala-shadow';
 import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
@@ -96,7 +97,7 @@ export class InstantConsultationService implements OnModuleInit {
     const mode = body.mode as Mode;
 
     // owner decision 2026-11-09: the refund policy is agreed before the request goes out
-    const policyAcceptance = refundPolicyAcceptance(user as { role?: string }, body.refund_policy_accepted);
+    const policyAcceptance = await stampAcceptance(this.conn, refundPolicyAcceptance(user as { role?: string }, body.refund_policy_accepted), 'consultation');
     let familyMemberId: string | null = null;
     if (body.family_member_id) {
       const member = await this.conn.collection('family_members').findOne({

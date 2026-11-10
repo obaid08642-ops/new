@@ -1,3 +1,4 @@
+import { stampAcceptance } from '../../common/refund-policy-stamp';
 import { refundPolicyAcceptance } from '../../common/refund-policy-acceptance';
 import { ProviderNoShowService } from '../provider-no-show/provider-no-show.service';
 import { resolveFamilyMemberId } from '../../common/family-member';
@@ -136,7 +137,7 @@ export class AppointmentsService {
     // Issue 955: the admin kill switch for remote consultations refuses new video/voice bookings before anything is held (a switched-off service answers its own code, not the tick's).
     if (isOnlineConsultation({ service_type: body.service_type })) await this.killSwitches?.assertOn('online_consultations');
     // owner decision 2026-11-09: the refund policy is agreed before anything is held or booked
-    const policyAcceptance = refundPolicyAcceptance(user, body.refund_policy_accepted);
+    const policyAcceptance = await stampAcceptance(this.connection, refundPolicyAcceptance(user, body.refund_policy_accepted), 'consultation');
     // On-behalf family booking: patient becomes the member, booker is audited
     let patientId: string = user.id;
     let bookedBy: string | undefined;

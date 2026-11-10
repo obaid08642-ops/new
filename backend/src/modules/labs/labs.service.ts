@@ -1,3 +1,4 @@
+import { stampAcceptance } from '../../common/refund-policy-stamp';
 import { refundPolicyAcceptance, type RefundPolicyAcceptance } from '../../common/refund-policy-acceptance';
 import { resolveFamilyMemberId } from '../../common/family-member';
 import { flattenResultEntries } from './lab-booking-results';
@@ -308,7 +309,7 @@ export class LabsService {
     if (!Array.isArray(data.items) || !data.items.length) throw new BadRequestException('items required');
     if (!data.scheduled_at) throw new BadRequestException('scheduled_at required');
     // owner decision 2026-11-09: the refund policy is agreed before the booking exists
-    const policyAcceptance = refundPolicyAcceptance(user, data.refund_policy_accepted);
+    const policyAcceptance = await stampAcceptance(this.bkgModel.db, refundPolicyAcceptance(user, data.refund_policy_accepted), 'lab');
     // owner decision 1: a booking for a family member (the caller stays the booker; checked to be the caller's own member)
     const familyMemberId = await resolveFamilyMemberId(this.bkgModel.db, user.id, data.family_member_id);
     const services = await this.svcModel.find({ id: { $in: data.items.map((x: any) => x.service_id) } });

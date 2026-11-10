@@ -16,7 +16,8 @@ import { registerGauge } from './metrics.service';
 export const REFUND_POLICY_VERSION = '2026-11-09';
 export const REFUND_POLICY_REQUIRED_CODE = 'refund_policy_acceptance_required';
 
-export interface RefundPolicyAcceptance { accepted: true; at: Date; version: string }
+/** `version` / `hash` / `service` are added by `stampAcceptance` (refund-policy-stamp.ts): the policy in force for the service when the patient agreed. */
+export interface RefundPolicyAcceptance { accepted: true; at: Date; version: string; hash?: string; service?: string }
 
 const EXEMPT_ROLES = ['admin', 'super_admin', 'system'];
 

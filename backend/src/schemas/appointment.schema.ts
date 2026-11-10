@@ -100,7 +100,7 @@ export class Appointment {
   /** P17-17.5: UTM campaign attribution (utm_source/medium/campaign/term/content). */
   @Prop({ type: Object, required: false }) attribution?: Record<string, string>;
   /** The refund policy the patient agreed to before paying (common/refund-policy-acceptance.ts): the tick, its time and the policy version. */
-  @Prop({ type: Object, required: false }) refund_policy_acceptance?: { accepted: boolean; at: Date; version: string };
+  @Prop({ type: Object, required: false }) refund_policy_acceptance?: { accepted: boolean; at: Date; version: string; hash?: string; service?: string };
   /** PT-08: the patient asked for a sick leave when booking (a request; the doctor decides). */
   @Prop({ type: Boolean, required: false }) sick_leave_requested?: boolean;
   /** Set when a family member booked this appointment on behalf of the patient */

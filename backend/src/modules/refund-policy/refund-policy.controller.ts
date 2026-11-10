@@ -1,10 +1,12 @@
-import { Body, Controller, Get, Put, UseGuards, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Get, Put, Query, UseGuards, BadRequestException } from '@nestjs/common';
 import { recordAudit } from '../../common/audit-record';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { DEFAULT_REFUND_POLICY } from './refund-policy.defaults';
+import { POLICY_SERVICES, policySummary } from './refund-policy-summary';
+import type { PolicyService } from '../../common/refund-policy-stamp';
 
 
 import { Permission, RequirePermissions } from '../../common/permissions';
@@ -18,6 +20,18 @@ export class PublicRefundPolicyController {
   async get(): Promise<any> {
     const doc: any = await this.conn.collection('system_configs').findOne({ key: 'refund_policy' }, { projection: { _id: 0, value: 1 } });
     return doc?.value || DEFAULT_REFUND_POLICY;
+  }
+
+  /**
+   * The rule one service follows, as text keys with numbers (the clients show them next to the "I agree" tick), with the version and hash the acceptance will be stored with.
+   * `service` is consultation | lab | radiology | nursing | pharmacy.
+   */
+  @Public()
+  @Get('summary')
+  async summary(@Query('service') service?: string): Promise<any> {
+    if (!(POLICY_SERVICES as readonly string[]).includes(String(service))) throw new BadRequestException('service_invalid');
+    const doc: any = await this.conn.collection('system_configs').findOne({ key: 'refund_policy' }, { projection: { _id: 0, value: 1, updatedAt: 1 } });
+    return policySummary(doc, service as PolicyService);
   }
 }
 
