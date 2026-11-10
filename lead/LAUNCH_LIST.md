@@ -18,7 +18,7 @@ Tick [x] when merged. Counts are the owner progress number.
 - [ ] PT-54 hide a visit from history: check the backend side and cover it (PR #2600, waiting for CI)
 - [ ] PT-08 row of SCENARIOS.md still says NOT COVERED: j_sick_leave covers it, update the row and counts (in PR #2598)
 - [ ] Halala migration (R11): the remaining `*_halalas` read paths and the next phase of R11-money-integrity.md
-- [ ] Credit note with invoice (decision 5): confirm every cancel path of every service writes it (matrix asserts it for the paths it covers)
+- [x] Credit note with invoice (decision 5): every refund goes through RefundExecutor, the payments card refund and one durable event, so one choke point writes it; asserted by j_refund_matrix and j_family_book_for_member (no code change needed)
 
 ## V
 - [ ] Verify the mongod OOM fix on the server after run 114 deploys: 96p (indexes), 96n (kills stopped), 96j (cache); fix any further slow query found

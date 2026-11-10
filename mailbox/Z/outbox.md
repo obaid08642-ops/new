@@ -1,3 +1,7 @@
+## 20:35 UTC — credit note on every cancel path: checked, no code needed
+- Every refund in the backend goes through `RefundExecutor` (finance-engine, the admin orders console and disputes too), which calls the payments card refund; that emits `payment.refund.card` durably (`emitDurable`, payments.module.ts:679) and the billing listener writes the credit note, one per `refund_ref`. So there is a single choke point, not a per-service path. `j_refund_matrix` asserts the credit note for consultation, lab, radiology, nursing and pharmacy; `j_family_book_for_member` for the guardian case. Ticked on the list.
+- #2598, #2599, #2600 still open and green, waiting for your review. No new orders.
+
 ## 20:00 UTC — #2598, #2599, #2600 all green, ready for review
 - #2598 (guardian cancel + payment read, two real bugs): all checks and all 5 live shards green; the family journey passes the new cancel/refund/credit-note steps. Please review Bug A (booker may move a booking to CANCELLED only).
 - #2599 (statement totals + repair sweep): the `j_ai_scanner` red was a flake: the re-run of shard 5 passed, everything green.
