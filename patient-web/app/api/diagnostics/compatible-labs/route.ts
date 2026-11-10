@@ -11,6 +11,7 @@ export async function GET(request: Request) {
     .map((s) => s.trim())
     .filter(Boolean)
     .slice(0, 20);
+  // i18n-ok: an API error code, not shown to patients
   if (!testIds.length) return NextResponse.json({ message: "testIds_required" }, { status: 400 });
   const store = await cookies();
   const accessToken = store.get(authCookieNames.access)?.value;

@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
-import { useScreenUi } from './home/homeKit';
+import { useScreenUi } from './screen/ScreenKit';
 
 /**
  * Global connectivity banner — shows a slim banner when offline and a brief
  * "back online" confirmation on recovery. Mount once in the root layout.
  */
 export default function OfflineBanner() {
-  const { c } = useScreenUi();
+  const { c, k } = useScreenUi();
   const [offline, setOffline] = useState(false);
   const [justBack, setJustBack] = useState(false);
   const anim = useState(() => new Animated.Value(0))[0];
@@ -42,7 +42,7 @@ export default function OfflineBanner() {
       pointerEvents="none"
     >
       <Text style={[styles.text, { color: offline ? c.status.danger.fg : c.status.success.fg }]}>
-        {offline ? 'لا يوجد اتصال بالإنترنت — وضع الأوفلاين' : 'عاد الاتصال — جاري المزامنة...'}
+        {offline ? k('offline.banner.offline') : k('offline.banner.back')}
       </Text>
     </Animated.View>
   );

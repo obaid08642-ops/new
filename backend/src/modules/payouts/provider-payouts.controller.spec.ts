@@ -33,6 +33,9 @@ describe('ProviderPayoutsController reservation integrity', () => {
     const result = await controller.request({ id: 'pharmacy-a', role: 'pharmacy' }, { amount: 200, idempotency_key: 'pharmacy_payout_key_001' });
     expect(result).toEqual(expect.objectContaining({ ok: true, available_balance: 300 }));
     expect(withdrawals.insertOne).toHaveBeenCalledWith(expect.objectContaining({ provider_id: 'pharmacy-a', state: 'PENDING_ADMIN_APPROVAL' }), expect.objectContaining({ session }));
+    // R11 P1: the request and its ledger reservation carry the integer shadow of the amount (200 SAR = 20000 halalas)
+    expect(withdrawals.insertOne).toHaveBeenCalledWith(expect.objectContaining({ amount: 200, amount_halalas: 20000 }), expect.anything());
+    expect(ledgerEntries.insertOne).toHaveBeenCalledWith(expect.objectContaining({ type: 'payout', state: 'locked', amount: 200, amount_halalas: 20000 }), expect.anything());
   });
 
   it('earnings whose hold has passed are matured BEFORE the balance is summed (this route never went through providerBalance)', async () => {

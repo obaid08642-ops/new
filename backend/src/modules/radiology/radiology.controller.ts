@@ -5,7 +5,7 @@ import { BadRequestException, Body, Controller, Get, Post, Param, Query, Patch, 
 import { RadiologyOpsService } from './radiology.service';
 import { Public, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
-import { BookDto, TransitionDto, UpdateInsDto, AssignTechDto, UploadReportDto, ForceStateDto, AbortScanDto, InsuranceApprovalDto, RescheduleDto, SubmitReportForReviewDto, RadiologyDocumentDto, CatalogDeltaRequestDto} from './radiology.dto';
+import { BookDto, TransitionDto, UpdateInsDto, AssignTechDto, UploadReportDto, ForceStateDto, AbortScanDto, InsuranceApprovalDto, RescheduleDto, SubmitReportForReviewDto, RadiologyDocumentDto, CatalogDeltaRequestDto, SlotCapacityDto} from './radiology.dto';
 import { CreateRadiologyCatalogDto, UpdateRadiologyCatalogDto, ApproveCatalogDto, BulkApproveCatalogDto } from './radiology.dto';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
@@ -66,6 +66,19 @@ export class RadiologyController {
 
   @Public() @Get('compatible-providers')
   compatibleProviders(@Query('serviceIds') ids?: string) { return this.svc.compatibleProviders(ids ? ids.split(',') : []); }
+
+  /** The centre's number of simultaneous scans per time slot (default 1); the slot picker and the booking use the same number. */
+  @Roles(UserRole.RADIOLOGY, UserRole.HOSPITAL, UserRole.ADMIN)
+  @Get('provider/slot-capacity')
+  slotCapacity(@CurrentUser() user: any) {
+    return this.svc.getSlotCapacity(user);
+  }
+
+  @Roles(UserRole.RADIOLOGY, UserRole.HOSPITAL, UserRole.ADMIN)
+  @Put('provider/slot-capacity')
+  setSlotCapacity(@Body() body: SlotCapacityDto, @CurrentUser() user: any) {
+    return this.svc.setSlotCapacity(user, body.slot_capacity);
+  }
 
   @PublicCache(20, ['provider-slots'], { cacheControl: 'public, s-maxage=20' })
   @Public() @Get('providers/:providerAccountId/slots')

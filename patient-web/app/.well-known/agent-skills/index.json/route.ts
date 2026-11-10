@@ -9,6 +9,7 @@ const index = {
     {
       name: "nabd-medicine-ordering",
       type: "agent-skill",
+      // i18n-ok: machine-readable discovery metadata for agents and API clients (English by design), not shown to patients
       description: "Search verified pharmaceutical products, therapeutic alternatives, and check SFDA prescription requirements.",
       url: `${origin}/agent-skills/ordering/skill.md`,
       sha256: "c78cf436c545aa55cf662dd96aa13b8d929381a68b6fe8667fa982c17c26efaf"
@@ -16,6 +17,7 @@ const index = {
     {
       name: "nabd-healthcare-booking",
       type: "agent-skill",
+      // i18n-ok: machine-readable discovery metadata for agents and API clients (English by design), not shown to patients
       description: "Discover verified doctors, check clinic and home nursing consultation availability, and prepare booking sessions.",
       url: `${origin}/agent-skills/booking/skill.md`,
       sha256: "30ef9c19b38d7cb24e03c463d9e8732d9402c681503c7f049f1de8badcc33818"
@@ -23,6 +25,7 @@ const index = {
     {
       name: "nabd-public-content",
       type: "agent-skill",
+      // i18n-ok: machine-readable discovery metadata for agents and API clients (English by design), not shown to patients
       description: "Discover public Nabd Plus content without exposing patient data or performing mutations.",
       url: `${origin}/agent-skills/public-content/skill.md`,
       sha256: "ea5ab745cb42f91b5e31d18e2e20ad04517ecba09b03edff06a05242c6f75c7d"
