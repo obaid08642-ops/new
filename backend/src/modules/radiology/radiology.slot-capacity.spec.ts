@@ -25,10 +25,9 @@ const build = (capacity?: number, opts: { createFails?: boolean } = {}) => {
   const svc: any = Object.create(RadiologyOpsService.prototype);
   svc.getById = jest.fn(async () => ({ id: 'scan-1', price: 300, name_ar: 'x', name_en: 'x', modality: 'xr', body_part: 'chest', short_code: 'XR' }));
   svc.compatibleProviders = jest.fn(async () => [{ id: 'acc-1' }]);
-  svc.profileModel = { findOne: () => ({ lean: async () => (capacity ? { slot_capacity: capacity } : {}) }), updateOne: jest.fn(async () => ({ matchedCount: 1 })) };
+  svc.profileModel = { db: { collection: () => seats }, findOne: () => ({ lean: async () => (capacity ? { slot_capacity: capacity } : {}) }), updateOne: jest.fn(async () => ({ matchedCount: 1 })) };
   svc.svcModel = { db: { collection: () => ({ findOne: async () => null }) } };
   svc.bkgModel = {
-    db: { collection: () => seats },
     countDocuments: async (q: any) => stored.filter((b) => b.id === q.id.$eq && (!q.state || !q.state.$nin.includes(b.state))).length,
     findOne: (q: any) => ({ lean: async () => (q?.id && !q?.patient_id ? stored.find((b) => b.id === q.id) ?? null : null) }),
     create: jest.fn(async (doc: any) => { if (opts.createFails) throw new Error('db down'); stored.push(doc); return doc; }),

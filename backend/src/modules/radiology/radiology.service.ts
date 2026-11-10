@@ -970,7 +970,8 @@ export class RadiologyOpsService {
 
 
   private seatCollection(): any {
-    return (this.bkgModel as any).db.collection(RADIOLOGY_SEAT_COLLECTION);
+    // from the profile model's connection (the same database as every radiology collection)
+    return (this.profileModel as any).db.collection(RADIOLOGY_SEAT_COLLECTION);
   }
 
   private async seatBookingStatus(id: string): Promise<SeatBookingStatus> {

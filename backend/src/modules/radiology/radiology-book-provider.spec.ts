@@ -10,7 +10,6 @@ const build = (opts: { profile?: any; equipment?: boolean; orderingItem?: boolea
   const svc: any = Object.create(RadiologyOpsService.prototype);
   svc.getById = jest.fn(async () => ({ id: 'scan-1', price: 300, name_ar: 'x', name_en: 'x', modality: 'xr', body_part: 'chest', short_code: 'XR', home_visit_supported: true }));
   svc.compatibleProviders = jest.fn(async () => (opts.equipment ? [{ id: 'acc-1' }] : []));
-  svc.profileModel = { findOne: () => ({ lean: async () => opts.profile ?? null }) };
   svc.svcModel = { db: { collection: (name: string) => ({ findOne: async () => (name === 'provider_ordering_items' && opts.orderingItem ? { catalog_id: 'scan-1' } : null) }) } };
   // the seat collection of the time slot: a unique key per provider, slot and seat, like the real unique index
   const seatRows = new Map<string, any>();
@@ -22,7 +21,8 @@ const build = (opts: { profile?: any; equipment?: boolean; orderingItem?: boolea
     deleteMany: async () => undefined,
     createIndex: async () => undefined,
   };
-  svc.bkgModel = { db: { collection: () => seats }, countDocuments: async () => 0, findOne: () => ({ lean: async () => null }), create: jest.fn(async (doc: any) => { created.push(doc); return doc; }) };
+  svc.profileModel = { db: { collection: () => seats }, findOne: () => ({ lean: async () => opts.profile ?? null }) };
+  svc.bkgModel = { countDocuments: async () => 0, findOne: () => ({ lean: async () => null }), create: jest.fn(async (doc: any) => { created.push(doc); return doc; }) };
   svc.events = { emit: jest.fn() };
   svc.engine = { announceCreated: jest.fn(async () => undefined) };
   return { svc, created };
