@@ -41,7 +41,7 @@ describe('ProviderPayoutsController reservation integrity', () => {
     const order: string[] = [];
     ledgerMock.matureEscrow.mockImplementation(async () => { order.push('mature'); });
     ledgerEntries.aggregate.mockImplementation(() => { order.push('sum'); return { toArray: jest.fn().mockResolvedValue([{ earned_cleared: 500, paid: 0, debits: 0, locked: 0, earned_pending: 0 }]) }; });
-    await controller.request({ id: 'prov-m', role: 'doctor' }, { amount: 200, idempotency_key: 'mature_before_sum_key_01' });
+    await controller.request({ id: 'prov-m', role: 'doctor' }, { amount: 200, idempotency_key: 'idem-test-payout-1' });
     expect(ledgerMock.matureEscrow).toHaveBeenCalledWith('prov-m');
     expect(order.slice(0, 2)).toEqual(['mature', 'sum']);
   });
