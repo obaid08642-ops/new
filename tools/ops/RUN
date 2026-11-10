@@ -1,5 +1,5 @@
-# 2026-11-10 run 114 = deploy the main tip at the moment #2595 merges (sha from the lead, PLACEHOLDER below), then read-only checks. Brings #2597 (mongod OOM fix: filters via HotCache, covering indexes, catalogue stream cap, smaller driver pools). No 91b APPLY.
-release:PLACEHOLDER-main-tip-sha-from-lead
+# 2026-11-10 run 114 = deploy the main tip at the moment #2595 merges, then read-only checks. Brings #2597 (mongod OOM fix: filters via HotCache, covering indexes, catalogue stream cap, smaller driver pools). No 91b APPLY.
+release:84d3df99f7cfe389c00310a4a379ea58478a1c13
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
