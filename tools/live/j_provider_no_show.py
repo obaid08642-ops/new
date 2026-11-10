@@ -105,6 +105,9 @@ def main():
          {k: r.get(k) for k in ('status', 'refund_percentage', 'cancellation_reason')})
 
     journey('PV-23: video visits are refunded at once, the third in 30 days waits for an admin')
+    # a fresh patient: the clinic refund above already counts as one refunded report of the first patient in the 30 days
+    pat = Client(j_accounts.app_signup(label='noshow-video-pat')['token'], 'patient')
+    j_consultation.accept_telehealth_consent(pat)
     video = []
     for i in range(3):
         v = _book(pat, did, 'video', used)
