@@ -4192,5 +4192,14 @@
   "refund.policy.lab.late": "If you cancel later than that, {percent}% is returned to your card.",
   "refund.policy.nursing.full": "Cancel at least {hours} hours before the visit and get 100% back.",
   "refund.policy.nursing.late": "If you cancel later than that, {percent}% is returned to your card.",
-  "refund.policy.radiology.late": "If you cancel later than that, {percent}% is returned to your card."
+  "refund.policy.radiology.late": "If you cancel later than that, {percent}% is returned to your card.",
+  "consult.nationalId.title": "Your ID number",
+  "consult.nationalId.hint": "A medical report carries your national ID or iqama number. It is stored encrypted and shown only on the report.",
+  "consult.nationalId.label": "National ID / Iqama number (10 digits)",
+  "consult.nationalId.save": "Save",
+  "consult.nationalId.saving": "Saving…",
+  "consult.nationalId.invalid": "Enter a valid 10-digit national ID or iqama number.",
+  "consult.nationalId.failed": "Could not save the number. Try again.",
+  "consult.nationalId.saved": "Saved.",
+  "consult.nationalId.neededForPdf": "Add your ID number to download this report."
 }

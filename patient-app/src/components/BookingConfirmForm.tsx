@@ -7,6 +7,8 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { Button, Card, Chip, Segmented } from '../../../packages/ui-native/src';
 import { RefundPolicyTick } from './legal/RefundPolicyTick';
 import { withRefundPolicy } from '../utils/refundAcceptance';
+import { NationalIdForm } from './consult/NationalIdForm';
+import { readNationalIdStatus } from '../utils/nationalId';
 import { DoctorHead, ModeTiles } from './consult/ConsultBooking';
 import { ConsultScreen, useConsultFormat } from './consult/ConsultKit';
 import { Notice } from './pharmacy/OfferKit';
@@ -63,6 +65,19 @@ export default function BookingConfirmScreen() {
   const [payMethod, setPayMethod] = useState<'card' | 'cash' | 'insurance'>('card');
   // PT-08: "I need a medical report" (a recommended rest period): a request the doctor decides on
   const [reportRequested, setReportRequested] = useState(false);
+  // Owner decision 6: the ID number is asked only when the patient asks for a medical report and has none yet (it never blocks the booking)
+  const [needsNationalId, setNeedsNationalId] = useState(false);
+  useEffect(() => {
+    if (!reportRequested) {
+      setNeedsNationalId(false);
+      return undefined;
+    }
+    let live = true;
+    Promise.resolve(apiFetch<unknown>('/care/sick-leaves/national-id'))
+      .then((answer) => { if (live) setNeedsNationalId(readNationalIdStatus(answer) === false); })
+      .catch(() => { if (live) setNeedsNationalId(false); });
+    return () => { live = false; };
+  }, [reportRequested]);
   // the refund policy is shown before payment and agreed here (the backend refuses a booking without it)
   const [refundAgreed, setRefundAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -234,6 +249,7 @@ export default function BookingConfirmScreen() {
         <Chip label={k('consult.confirm.reportRequest')} selected={reportRequested} onPress={() => setReportRequested((on) => !on)} theme={theme} testID="booking-report-request" />
       </View>
       <Text style={{ ...scale(t, 'meta', 'regular'), lineHeight: 20, color: c.text.secondary, ...flow }}>{k('consult.confirm.reportHint')}</Text>
+      {reportRequested && needsNationalId ? <NationalIdForm onSaved={() => setNeedsNationalId(false)} /> : null}
 
       <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{k('consult.confirm.payTitle')}</Text>
       <Segmented label={k('consult.confirm.payTitle')} value={payMethod} onChange={(v) => setPayMethod(v === 'cash' ? 'cash' : v === 'insurance' ? 'insurance' : 'card')} options={options} theme={theme} testID="booking-pay-method" />

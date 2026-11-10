@@ -1950,7 +1950,16 @@
     "bookingForSelf": "Book for myself instead",
     "insuranceReady": "We will send the request to the facility with your saved policy details.",
     "insuranceNotReady": "There is no active policy to use. Add your insurance details first.",
-    "manageInsurance": "Manage insurance"
+    "manageInsurance": "Manage insurance",
+    "nationalIdTitle": "Your ID number",
+    "nationalIdHint": "A medical report carries your national ID or iqama number. It is stored encrypted and shown only on the report.",
+    "nationalIdLabel": "National ID / Iqama number (10 digits)",
+    "nationalIdSave": "Save",
+    "nationalIdSaving": "Saving…",
+    "nationalIdInvalid": "Enter a valid 10-digit national ID or iqama number.",
+    "nationalIdFailed": "Could not save the number. Try again.",
+    "nationalIdSaved": "Saved.",
+    "nationalIdNeededForPdf": "Add your ID number to download this report."
   },
   "AiHealthReport": {
     "title": "Your AI Health Report",

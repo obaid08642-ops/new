@@ -4192,5 +4192,14 @@
   "refund.policy.lab.late": "इसके बाद रद्द करने पर {percent}% आपके कार्ड में वापस होगा।",
   "refund.policy.nursing.full": "विज़िट से कम से कम {hours} घंटे पहले रद्द करें और 100% वापस पाएँ।",
   "refund.policy.nursing.late": "इसके बाद रद्द करने पर {percent}% आपके कार्ड में वापस होगा।",
-  "refund.policy.radiology.late": "इसके बाद रद्द करने पर {percent}% आपके कार्ड में वापस होगा।"
+  "refund.policy.radiology.late": "इसके बाद रद्द करने पर {percent}% आपके कार्ड में वापस होगा।",
+  "consult.nationalId.title": "आपका पहचान नंबर",
+  "consult.nationalId.hint": "मेडिकल रिपोर्ट पर आपका राष्ट्रीय पहचान या इक़ामा नंबर होता है। यह एन्क्रिप्टेड रखा जाता है और केवल रिपोर्ट पर दिखता है।",
+  "consult.nationalId.label": "राष्ट्रीय पहचान / इक़ामा नंबर (10 अंक)",
+  "consult.nationalId.save": "सेव करें",
+  "consult.nationalId.saving": "सेव हो रहा है…",
+  "consult.nationalId.invalid": "10 अंकों का सही राष्ट्रीय पहचान या इक़ामा नंबर दर्ज करें।",
+  "consult.nationalId.failed": "नंबर सेव नहीं हो सका। फिर से कोशिश करें।",
+  "consult.nationalId.saved": "सेव हो गया।",
+  "consult.nationalId.neededForPdf": "इस रिपोर्ट को डाउनलोड करने के लिए अपना पहचान नंबर जोड़ें।"
 }

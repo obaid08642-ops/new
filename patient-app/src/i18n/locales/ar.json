@@ -4192,5 +4192,14 @@
   "refund.policy.lab.late": "إذا ألغيت بعد ذلك يُعاد {percent}% إلى بطاقتك.",
   "refund.policy.nursing.full": "ألغِ قبل الموعد بـ {hours} ساعات على الأقل واسترد 100%.",
   "refund.policy.nursing.late": "إذا ألغيت بعد ذلك يُعاد {percent}% إلى بطاقتك.",
-  "refund.policy.radiology.late": "إذا ألغيت بعد ذلك يُعاد {percent}% إلى بطاقتك."
+  "refund.policy.radiology.late": "إذا ألغيت بعد ذلك يُعاد {percent}% إلى بطاقتك.",
+  "consult.nationalId.title": "رقم هويتك",
+  "consult.nationalId.hint": "يحمل التقرير الطبي رقم هويتك الوطنية أو الإقامة. يُحفظ مشفّرًا ويظهر في التقرير فقط.",
+  "consult.nationalId.label": "رقم الهوية الوطنية / الإقامة (10 أرقام)",
+  "consult.nationalId.save": "حفظ",
+  "consult.nationalId.saving": "جارٍ الحفظ…",
+  "consult.nationalId.invalid": "أدخل رقم هوية وطنية أو إقامة صحيحًا من 10 أرقام.",
+  "consult.nationalId.failed": "تعذّر حفظ الرقم. حاول مرة أخرى.",
+  "consult.nationalId.saved": "تم الحفظ.",
+  "consult.nationalId.neededForPdf": "أضف رقم هويتك لتنزيل هذا التقرير."
 }

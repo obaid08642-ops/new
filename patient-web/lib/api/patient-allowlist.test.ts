@@ -158,3 +158,13 @@ describe("patient allowlist: refund policy summary", () => {
     expect(isAllowedPatientApiRequest("/refund-policy/summary?service=lab", "POST")).toBe(false);
   });
 });
+
+describe("patient allowlist: national ID for the medical report", () => {
+  it("allows reading the status and saving the number, nothing else on that path", async () => {
+    const { isAllowedPatientApiRequest } = await import("./patient-allowlist");
+    expect(isAllowedPatientApiRequest("/care/sick-leaves/national-id", "GET")).toBe(true);
+    expect(isAllowedPatientApiRequest("/care/sick-leaves/national-id", "PUT")).toBe(true);
+    expect(isAllowedPatientApiRequest("/care/sick-leaves/national-id", "DELETE")).toBe(false);
+    expect(isAllowedPatientApiRequest("/care/sick-leaves/abc12345/national-id", "PUT")).toBe(false);
+  });
+});

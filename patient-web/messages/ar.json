@@ -1950,7 +1950,16 @@
     "bookingForSelf": "احجز لنفسي بدلاً من ذلك",
     "insuranceReady": "سنرسل الطلب إلى المنشأة ببيانات وثيقتك المحفوظة.",
     "insuranceNotReady": "لا توجد وثيقة تأمين فعّالة. أضف بيانات تأمينك أولاً.",
-    "manageInsurance": "إدارة التأمين"
+    "manageInsurance": "إدارة التأمين",
+    "nationalIdTitle": "رقم هويتك",
+    "nationalIdHint": "يحمل التقرير الطبي رقم هويتك الوطنية أو الإقامة. يُحفظ مشفّرًا ويظهر في التقرير فقط.",
+    "nationalIdLabel": "رقم الهوية الوطنية / الإقامة (10 أرقام)",
+    "nationalIdSave": "حفظ",
+    "nationalIdSaving": "جارٍ الحفظ…",
+    "nationalIdInvalid": "أدخل رقم هوية وطنية أو إقامة صحيحًا من 10 أرقام.",
+    "nationalIdFailed": "تعذّر حفظ الرقم. حاول مرة أخرى.",
+    "nationalIdSaved": "تم الحفظ.",
+    "nationalIdNeededForPdf": "أضف رقم هويتك لتنزيل هذا التقرير."
   },
   "AiHealthReport": {
     "title": "تقريرك الصحي الذكي",

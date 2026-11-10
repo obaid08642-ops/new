@@ -1950,7 +1950,16 @@
     "bookingForSelf": "Para sa sarili ko na lang",
     "insuranceReady": "Ipapadala namin ang kahilingan sa pasilidad kasama ang detalye ng naka-save mong polisiya.",
     "insuranceNotReady": "Walang aktibong polisiya na magagamit. Idagdag muna ang detalye ng iyong insurance.",
-    "manageInsurance": "Pamahalaan ang insurance"
+    "manageInsurance": "Pamahalaan ang insurance",
+    "nationalIdTitle": "Ang iyong ID number",
+    "nationalIdHint": "Nakalagay sa medical report ang iyong national ID o iqama number. Naka-encrypt ito at makikita lamang sa report.",
+    "nationalIdLabel": "National ID / Iqama number (10 digit)",
+    "nationalIdSave": "I-save",
+    "nationalIdSaving": "Sine-save…",
+    "nationalIdInvalid": "Maglagay ng wastong 10-digit na national ID o iqama number.",
+    "nationalIdFailed": "Hindi na-save ang numero. Subukan muli.",
+    "nationalIdSaved": "Na-save na.",
+    "nationalIdNeededForPdf": "Idagdag ang iyong ID number para ma-download ang report na ito."
   },
   "AiHealthReport": {
     "title": "Ang Iyong AI Health Report",
