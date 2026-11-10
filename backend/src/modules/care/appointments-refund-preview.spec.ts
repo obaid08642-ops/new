@@ -15,9 +15,14 @@ describe('refund preview (B-11)', () => {
   // D-26 (owner): the full-refund window is 2 h (was 24 h).
   it('patient > 2h: 100% to source; < 2h: 50%, still to the original payment; nothing saved', async () => {
     const far = make({ id: 'a', patient_id: 'p', slot_start: inHours(48), total_price: 200 });
-    await expect(far.svc.previewRefund('a', { id: 'p', role: UserRole.PATIENT })).resolves.toEqual({ refund_percentage: 100, refund_destination: 'source', penalty_amount: 0, estimated_amount: 200 });
+    await expect(far.svc.previewRefund('a', { id: 'p', role: UserRole.PATIENT })).resolves.toEqual({ refund_percentage: 100, refund_destination: 'source', penalty_amount: 0, estimated_amount: 200, free_reschedule: { available: true, late: false, within_days: 14 } });
     const near = make({ id: 'a', patient_id: 'p', slot_start: inHours(1), total_price: 200 });
     await expect(near.svc.previewRefund('a', { id: 'p', role: UserRole.PATIENT })).resolves.toMatchObject({ refund_percentage: 50, refund_destination: 'source', estimated_amount: 100 });
+    expect(near.doc.save).not.toHaveBeenCalled();
+    // inside the last 2 hours the cancel gives the late refund, and the patient can instead use the one free reschedule (within 14 days)
+    await expect(near.svc.previewRefund('a', { id: 'p', role: UserRole.PATIENT })).resolves.toMatchObject({ free_reschedule: { available: true, late: true, within_days: 14 } });
+    // only the patient side is offered it
+    await expect(near.svc.previewRefund('a', { id: 'd', role: UserRole.DOCTOR })).resolves.toMatchObject({ free_reschedule: { available: false, late: true } });
     expect(far.doc.save).not.toHaveBeenCalled();
   });
 

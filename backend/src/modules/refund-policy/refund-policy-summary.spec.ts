@@ -11,6 +11,7 @@ describe('the rule of each service as text keys with numbers', () => {
     expect(s.lines).toContainEqual({ key: 'refund.policy.consultation.late', params: { hours: 2, percent: 50 } });
     expect(s.lines).toContainEqual({ key: 'refund.policy.consultation.patient_no_show', params: { percent: 0 } });
     expect(keys(s)).toEqual(expect.arrayContaining(['refund.policy.provider_cancel', 'refund.policy.provider_no_show', 'refund.policy.card_destination']));
+    expect(s.lines).toContainEqual({ key: 'refund.policy.consultation.free_reschedule', params: { count: 1, hours: 2, within_days: 14 } });   // one free reschedule (within 14 days when it is late)
     expect(keys(policySummary(doc({ consultation: { ...DEFAULT_REFUND_POLICY.consultation, free_reschedules: 0 } }), 'consultation'))).not.toContain('refund.policy.consultation.free_reschedule');
   });
   it('an edit of the stored table shows in the numbers and changes the hash', () => {
