@@ -1,6 +1,8 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-10 13:40 UTC
+- No merges. Run 114 (61fef9a54) not pushed yet by owner. #2596 (main merged) CI running. Z idle since 11:20 (queue done), X/V waiting.
 ## Lead 3 run 2026-11-10 13:15 UTC
 - Run 114 reviewed: v/ops-run-114 61fef9a54 (FF of 0cee259f), release 84d3df99 (main CI green t14), deploy + cf-purge + read-only 96p/96n/96j. Owner push line sent.
 - #2596 conflicts → X merges main.
@@ -76,5 +78,3 @@ Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or
 6. national_id: asked only when the patient requests a medical report (or the doctor issues one and it is missing, the patient is asked to add it before download); stored like other personal data, shown in full only on the report.
 7. Provider no-show live journey: yes, with a directly set past slot in the test env.
 8. Run 112 (read-only diagnostics) pushed by old lead: server-ops 42756850654, waiting for owner.
-
-## Lead 3 run 2026-11-10 04:12 UTC
