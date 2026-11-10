@@ -1,3 +1,7 @@
+## 10:35 UTC — #2589 one more red fixed (1cf777a2)
+- Live shard 1 at ccb5da6: j_refund_matrix 476/477, the only failure was case D ("the patient cancels the COD order after dispatch"), which the new rule refuses. D now cancels the COD order before preparation (after `confirm`): nothing collected, nothing refunded, same check_money; the after-dispatch refusal is asserted in case B. Everything else in the matrix passed, including A, B (both refusals), C and the three return checks.
+- #2591: shards 1, 3, 4 green, 2 and 5 still running at 10:17. #2592 and #2594: backend and most checks green, live gate running. No new orders in the inbox since 09:50.
+
 ## 10:20 UTC — your 09:50 orders (3 of 3 done), waiting for CI
 Open: #2589 (ccb5da6b), #2591, #2592 (9e8baaa8), #2594 (new), #2579.
 1. #2589 `j_refund_matrix` pharmacy follows the decision, every money assertion kept (refund amount, payment status, credit note on the invoice): A cancel before preparation (after `confirm`) = 100% incl. the delivery fee; B patient cancel while preparing AND once out for delivery = 400 `cancel_not_allowed_after_preparation`, nothing refunded (check_money with 0); C pharmacy cancel = 100% (unchanged); D after delivery: change-of-mind return refused `pharmacy_return_needs_a_defect_reason`, damaged without photo refused `photo_evidence_required`, damaged with photo is filed `processing` (admin review). Not covered here: an admin cancel of a patient's pharmacy order (I found no admin route for it besides the unit spec: admin cancel out for delivery = full total).
