@@ -6,6 +6,8 @@ const log = logger.scope('FileManager');
 export interface DownloadOptions {
   headers?: Record<string, string>;
   cache?: boolean;
+  /** Called with the HTTP status of the answer (not for a cache hit or a network failure), so a caller can tell 423 (still being scanned) from a refusal. */
+  onStatus?: (status: number) => void;
 }
 
 export interface UploadOptions {
@@ -54,6 +56,7 @@ class FileManager {
 
     try {
       const result = await FileSystem.downloadAsync(url, dest, { headers: options?.headers });
+      options?.onStatus?.(result.status);
       if (result.status >= 200 && result.status < 300) {
         log.info('File downloaded successfully', { url, dest });
         return result.uri;

@@ -114,12 +114,15 @@ export default function OrderDetails() {
     // it is saved with the session and handed to the system viewer.
     const labReport = kind === 'lab' ? rec(reports.find((r) => rec(r)?.has_file === true)) : null;
     if (labReport && str(labReport.id)) {
-      const uri = await downloadProtected(`/labs/bookings/${encodeURIComponent(id)}/reports/${encodeURIComponent(str(labReport.id))}`, `lab-report-${str(labReport.id)}.pdf`);
+      let pending = false;
+      const uri = await downloadProtected(`/labs/bookings/${encodeURIComponent(id)}/reports/${encodeURIComponent(str(labReport.id))}`, `lab-report-${str(labReport.id)}.pdf`, () => { pending = true; });
       if (uri) {
         await shareFile(uri, str(labReport.mime) || 'application/pdf', k('diag.order.pdf'));
         return;
       }
-      showLocalizedAlert(k('diag.order.noReportTitle'), k('diag.order.noReportBody'));
+      // a report file still being scanned is "being checked", not a missing report
+      if (pending) showLocalizedAlert(k('scanStatus.checking'), k('scanStatus.openLater'));
+      else showLocalizedAlert(k('diag.order.noReportTitle'), k('diag.order.noReportBody'));
       return;
     }
     const reportId = str(order?.report_id) || str(rec(order?.report)?.id) || str(rec(reports[0])?.id);
