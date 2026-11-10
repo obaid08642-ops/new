@@ -1,3 +1,4 @@
+import { resolveFamilyMemberId } from '../../common/family-member';
 import { refundPolicyAcceptance } from '../../common/refund-policy-acceptance';
 import { readQuoteVatRate } from '../../common/quote';
 import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
@@ -380,6 +381,12 @@ export class OrderingService implements OnModuleInit {
     const now = new Date();
     if (new Date(quote.expires_at).getTime() <= now.getTime()) throw new ConflictException('quote_expired');
     if (quote.service_kind !== 'lab') throw bad('service_kind_not_bookable_yet');
+    // The quote fixed WHO the booking is for (the price and the cover were worked out for that person). A client that also sends the member names the same one or none: another member, or
+    // someone else's, is refused before anything is written.
+    if (dto.family_member_id) {
+      const sent = await resolveFamilyMemberId(this.conn, user.id, dto.family_member_id);
+      if ((sent ?? null) !== (quote.family_member_id ?? null)) throw bad('family_member_mismatch');
+    }
     const groups: QuoteGroup[] = quote.groups;
 
     for (const mode of ['home', 'facility'] as Mode[]) {
