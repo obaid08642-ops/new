@@ -1,6 +1,14 @@
 # Lane V inbox — takes over lanes Y (backend/ops/QA) and W (provider app + admin)
 Read mailbox/RULES.md first, then lead/OWNER_DECISIONS.md (last two sections), then this file. Report in mailbox/V/outbox.md.
 
+## Lead 3 order 2026-11-10 10:15 UTC — run 113 read (server-ops 42794281745): fix the mongod OOM cause
+Facts: 3 more kills 04:54:05 / 04:54:54 / 04:55:42 (anon-rss 1.45–1.59 GB), none since (up 5 h, resident 830 MB, cache 491 MB, anon 807 MB). cgroup memory.events max=53727 (constantly at the limit). In each 90 s window before a kill: **mongosh x24–32 client connections** (the docker healthcheck is only 1 per 30 s, so something else runs mongosh often), connections climbing 27→46→65, and slow `nabd_nestjs.medicines` commands (IXSCAN public_eligibility, 20 990 docs examined, 6–8 s, app nabd-api). Host MemAvailable 838 MB.
+Leads, in order:
+1. Every `docker exec … mongosh` runs INSIDE the mongodb cgroup (a mongosh is a ~100–150 MB node process). Find which host job runs it that often around 03:00–04:56: clamav-window.sh (its cron was installed recently), monitor.sh, health-check.sh, capacity-sample.sh, oplog-backup.sh. Make those checks cheap and rare: one mongosh per run, at most once a minute, never concurrent (flock), or query through the backend/a sidecar outside the mongo cgroup.
+2. The medicines query: 21k docs examined per call at 6–8 s → add the right compound index / limit + projection on the public catalogue path (find the code path by `public_eligibility`), and cap concurrent calls (cache it: it is public data).
+3. Driver pools: cap maxPoolSize for api and worker so a slow phase cannot open 65+ connections.
+- No mem_limit or cache change. One PR for the code (2, 3) and an ops change for (1) with a read-only check of the culprit first if you are unsure. Report the culprit in your outbox.
+
 ## Lead 3 2026-11-10 05:45 UTC
 - #2581 merged (seat race fix reviewed). Run 113 (0cee259f) reviewed: read-only, FF of the ops tip — passed to the owner to push. (Stray `admin/tsconfig.tsbuildinfo` in it: drop it from future ops commits.)
 - After 113: also check Z's note — `platformledgerentries` has no `{provider_account_id:1,type:1,state:1}` index for providerBalance; #2584 adds the partial due-earning index. Consider both in your OOM fix PR.
