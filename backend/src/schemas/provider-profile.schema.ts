@@ -300,6 +300,8 @@ export class ProviderProfile {
   @Prop({ type: GeoPointSchema, default: undefined })
   geoPoint?: { type: 'Point'; coordinates: [number, number] };
 
+  /** Lab: how many bookings it takes at the same time slot (1 to 20, default 1); the slot picker and the booking use the same number. */
+  @Prop({ type: Number, default: 1, min: 1, max: 20 }) slot_capacity?: number;
   @Prop({ type: [Object], default: [] }) schedule_lab?: Array<{ day: string; open?: string; close?: string; open_evening?: string; close_evening?: string; closed?: boolean }>;
   @Prop({ type: [Object], default: [] }) schedule_radiology?: Array<{ day: string; open?: string; close?: string; open_evening?: string; close_evening?: string; closed?: boolean }>;
   @Prop({ type: [Object], default: [] }) schedule_nursing?: Array<{ day: string; open?: string; close?: string; open_evening?: string; close_evening?: string; closed?: boolean }>;

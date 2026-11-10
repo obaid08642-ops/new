@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Switch, Alert, ActivityIndicator } from 'react-native';
-import { useTheme, useLang, useToast } from '../../context';
+import { useTheme, useLang, useToast, useAuth } from '../../context';
+import { LabSlotCapacityCard } from './LabSlotCapacityCard';
 import { Validate } from '../../security/Security';
 import { NHeader, NCard, NBtn, NInput, NBadge, NScroll, NEmpty } from '../../components/ui';
 import { SP, FS, FW, R } from '../../constants';
@@ -110,6 +111,7 @@ const DAY_DEFS = [
 export function WorkingHoursEditorScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
   const { lang, t } = useLang();
+  const { user } = useAuth();
   const { show } = useToast();
   const AR = lang === 'ar';
 
@@ -225,6 +227,7 @@ export function WorkingHoursEditorScreen({ onBack }: { onBack: () => void }) {
           ))}
 
           <NBtn label={AR ? 'حفظ جدول العمل' : 'Save Working Hours'} onPress={handleSave} loading={saving} disabled={saving} style={{ marginTop: SP.md }} />
+          {user?.role === 'lab' && <LabSlotCapacityCard />}
         </NScroll>
       )}
     </View>

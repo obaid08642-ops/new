@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { stampAcceptance } from '../../common/refund-policy-stamp';
 import { refundPolicyAcceptance, type RefundPolicyAcceptance } from '../../common/refund-policy-acceptance';
 import { resolveFamilyMemberId } from '../../common/family-member';
@@ -42,6 +43,7 @@ import { getEffectiveRoles } from '../../common/auth.guard';
 import { UserRole, isAdminUser } from '../../common/enums';
 import { RedisService } from '../redis/redis.service';
 import { BusinessRulesService } from '../business-rules/business-rules.module';
+import { SEAT_COLLECTION, SEAT_FREE_STATES, ensureSeatIndex, releaseSeat, reserveSeat, slotCapacityOf, slotStartOf, MAX_SLOT_CAPACITY } from './lab-slot-seats';
 import { StorageService } from '../storage/storage.module';
 import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
 import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
@@ -341,16 +343,6 @@ export class LabsService {
     if (slotTime.getTime() < Date.now() - 5 * 60_000) {
       throw new BadRequestException('slot_expired');
     }
-    if (data.provider_account_id) {
-      const slotWindow = 30 * 60_000; // 30-minute window for collision check
-      const overlapping = await this.bkgModel.countDocuments({
-        provider_account_id: data.provider_account_id,
-        scheduled_at: { $gte: new Date(slotTime.getTime() - slotWindow), $lt: new Date(slotTime.getTime() + slotWindow) },
-        state: { $nin: [LabBookingState.CANCELLED, LabBookingState.REPORTED] },
-      });
-      // Default max-per-slot=1 unless provider schedule says more; soft cap at 3 for safety
-      if (overlapping >= 3) throw new BadRequestException('slot_taken');
-    }
     // #631: the chosen lab's own price per test when it set one (the price the comparison showed), else the catalog price.
     const own = data.provider_account_id ? (await this.labPrices([String(data.provider_account_id)], services as any[])).get(String(data.provider_account_id)) : undefined;
     const items = services.map((s: any) => ({ service_id: s.id, name_ar: s.name_ar, name_en: s.name_en, price: own?.get(s.id) ?? s.price, sample_type: s.sample_type, fasting_required: s.fasting_required }));
@@ -374,7 +366,28 @@ export class LabsService {
     const homeFee = homeCollectionFee(labProfile, await this.platformHomeFee());
     const total = items.reduce((sum, i) => sum + (i.price || 0), 0) + (data.location_type === 'home' ? homeFee : 0);
     const insurance_status = paymentMethod === 'insurance' ? 'pending' : 'none';
-    const booking = await this.bkgModel.create({
+    // The lab's own number of bookings per time slot (`slot_capacity`, default 1: the same number the patient's slot picker uses). The seat is taken atomically
+    // (a unique seat per provider, slot and number), so two parallel bookings for the last seat cannot both win.
+    const bookingId = randomUUID();
+    let seatTaken = false;
+    if (typeof data.provider_account_id === 'string' && data.provider_account_id) {
+      const providerId = data.provider_account_id;
+      const seatQuery: any = this.providerProfiles.findOne({ account_id: { $eq: providerId } }, { slot_capacity: 1 });
+      const seatProfile: any = seatQuery && typeof seatQuery.lean === 'function' ? await seatQuery.lean() : await seatQuery;
+      const seats: any = this.bkgModel.db.collection(SEAT_COLLECTION);
+      await ensureSeatIndex(seats);
+      const seat = await reserveSeat(
+        seats,
+        { provider_account_id: providerId, slot_start: slotStartOf(slotTime), capacity: slotCapacityOf(seatProfile), booking_id: bookingId },
+        async (id) => (await this.bkgModel.countDocuments({ id: { $eq: id }, state: { $nin: SEAT_FREE_STATES } })) > 0,
+      );
+      if (seat === null) throw new BadRequestException('slot_taken');
+      seatTaken = true;
+    }
+    let booking: any;
+    try {
+    booking = await this.bkgModel.create({
+      id: bookingId,
       patient_id: user.id,
       ...(familyMemberId ? { family_member_id: familyMemberId } : {}),
       ...(policyAcceptance ? { refund_policy_acceptance: policyAcceptance } : {}),
@@ -398,6 +411,10 @@ export class LabsService {
       // P17-17.5: campaign attribution for the campaign report.
       attribution: pickAttribution(data) ?? undefined,
     });
+    } catch (e) {
+      if (seatTaken) await releaseSeat(this.bkgModel.db.collection(SEAT_COLLECTION) as any, bookingId).catch(() => undefined);
+      throw e;
+    }
     this.events.emit('lab.booking_created', { booking_id: booking.id, patient_id: user.id, tracking_id: booking.tracking_id });
     this.events.emit('lab.booking_state_changed', { booking_id: booking.id, patient_id: user.id, state: booking.state, tracking_id: booking.tracking_id });
     await this.engine.announceCreated({ kind: 'lab', entity_id: booking.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { tracking_id: booking.tracking_id, items: items.length, total, location_type: booking.location_type, payment_method: paymentMethod } });
@@ -1228,7 +1245,11 @@ export class LabsService {
       medical_review_status: 'approved',
     }).lean();
     if (!profile) throw new NotFoundException('provider_not_found');
-    if (!profile.schedule_lab || !profile.schedule_lab.length) {
+    // The lab's own hours: `schedule_lab` when one was saved, else the working hours it gave at registration (nothing else ever writes schedule_lab, so without this
+    // fallback a registered lab offered no slots at all; the home-care picker does the same).
+    const labSchedule: any[] = Array.isArray((profile as any).schedule_lab) && (profile as any).schedule_lab.length ? (profile as any).schedule_lab
+      : Array.isArray((profile as any).working_hours) ? (profile as any).working_hours : [];
+    if (!labSchedule.length) {
       return { date: dateStr, slots: [], reason: 'no_schedule' };
     }
 
@@ -1244,7 +1265,7 @@ export class LabsService {
       return v === 'all' || v === String(dow) || v === dayKeys[dow] || v === fullDays[dow];
     };
 
-    const windows = (profile.schedule_lab || []).filter((w) => w && !w.closed && dayMatches(w.day)).flatMap((w) => [
+    const windows = labSchedule.filter((w) => w && !w.closed && dayMatches(w.day)).flatMap((w) => [
       ...(w.open && w.close ? [{ open: w.open, close: w.close }] : []),
       ...(w.open_evening && w.close_evening ? [{ open: w.open_evening, close: w.close_evening }] : []),
     ]);
@@ -1252,7 +1273,7 @@ export class LabsService {
     if (!windows.length) return { date: dateStr, slots: [], reason: 'closed' };
 
     const baseDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
-    const slots: { id: string; start: string; end: string; label: string; available: boolean }[] = [];
+    const slots: { id: string; start: string; end: string; label: string; available: boolean; remaining?: number }[] = [];
     const seen = new Set<string>();
     const now = Date.now();
 
@@ -1283,11 +1304,32 @@ export class LabsService {
       scheduled_at: { $gte: startOfDay, $lt: endOfDay },
       state: { $nin: ['CANCELLED', 'REPORTED'] },
     }).select({ scheduled_at: 1 }).lean();
-    const bookedSet = new Set(booked.map((b: any) => new Date(b.scheduled_at).toISOString()));
+    // a slot is free while fewer bookings than the lab's capacity hold it (the same count the booking itself enforces)
+    const capacity = slotCapacityOf(profile as any);
+    const taken = new Map<string, number>();
+    for (const b of booked as any[]) { const k = slotStartOf(b.scheduled_at).toISOString(); taken.set(k, (taken.get(k) ?? 0) + 1); }
     for (const s of slots) {
-      if (bookedSet.has(s.start)) s.available = false;
+      const used = taken.get(s.start) ?? 0;
+      s.remaining = Math.max(0, capacity - used);
+      s.available = used < capacity;
     }
-    return { date: dateStr, slots };
+    return { date: dateStr, slots, capacity };
+  }
+
+  /** The lab's number of simultaneous bookings per time slot (default 1). */
+  async getSlotCapacity(user: any) {
+    const p: any = await this.providerProfiles.findOne({ account_id: { $eq: String(user.id) } }, { slot_capacity: 1 }).lean();
+    if (!p) throw new NotFoundException('provider_not_found');
+    return { slot_capacity: slotCapacityOf(p), max: MAX_SLOT_CAPACITY };
+  }
+
+  /** The lab sets it itself (an operating number, not a profile claim that needs review). It applies to the next booking and to the slot picker at once. */
+  async setSlotCapacity(user: any, value: number) {
+    const n = Number(value);
+    if (!Number.isInteger(n) || n < 1 || n > MAX_SLOT_CAPACITY) throw new BadRequestException('slot_capacity_must_be_1_to_' + MAX_SLOT_CAPACITY);
+    const res: any = await this.providerProfiles.updateOne({ account_id: { $eq: String(user.id) } }, { $set: { slot_capacity: n } });
+    if (!res?.matchedCount) throw new NotFoundException('provider_not_found');
+    return { ok: true, slot_capacity: n };
   }
 
 }
