@@ -1,6 +1,8 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { Cron } from '@nestjs/schedule';
+import { ScheduledOnce } from '../../../common/scheduled-once';
 import { reportAggregate } from '../../../common/reports/report-read';
 import { v4 as uuid } from 'uuid';
 import { validateReason, MIN_FINANCIAL_REASON_LENGTH, ReasonError } from '../../../common/rbac';
@@ -455,6 +457,26 @@ export class FinanceSuiteService {
       reason, before: { state: 'APPROVED_FOR_PAYOUT' }, after: { state: 'PAID' }, meta: { amount: w.amount, provider_id: w.provider_id },
     });
     return { ok: true, id, state: 'PAID' };
+  }
+
+  /**
+   * `executePayout` claims APPROVED_FOR_PAYOUT -> PAID first and clears the locked reservation second. A crash between the two leaves a PAID payout whose reservation stays
+   * `locked`: the provider is still charged once (the lock holds the amount) but the ledger shows no cleared payout. Every 10 minutes the payouts paid in the last 7 days
+   * (more than 5 minutes ago) get their reservation cleared if it is still locked. Idempotent: a cleared reservation no longer matches.
+   */
+  @Cron('*/10 * * * *')
+  @ScheduledOnce({ ttlMs: 5 * 60_000, holdMs: 60_000 })
+  async clearPaidReservations(now: Date = new Date()): Promise<number> {
+    const paid: any[] = await this.withdrawals.find({ state: 'PAID', paid_at: { $gte: new Date(now.getTime() - 7 * 86_400_000), $lte: new Date(now.getTime() - 5 * 60_000) } }).limit(200).toArray();
+    let fixed = 0;
+    for (const w of paid) {
+      const res = await this.conn.collection('platformledgerentries').updateOne(
+        { type: 'payout', state: 'locked', ref_type: 'withdrawal_reservation', ref_id: w.id, provider_account_id: w.provider_id },
+        { $set: { state: 'cleared', cleared_at: now, actor_id: w.paid_by ?? null } },
+      );
+      if (res.modifiedCount) fixed += 1;
+    }
+    return fixed;
   }
 
   /** Detailed provider account statement (orders + payouts + ledger). */

@@ -43,3 +43,37 @@ describe('FinanceSuiteService.providerStatement', () => {
     expect(out.summary.earned_cleared).toBe(0);
   });
 });
+
+describe('FinanceSuiteService.clearPaidReservations', () => {
+  const NOW = new Date('2026-11-10T12:00:00Z');
+  function world(withdrawals: any[], ledger: any[]) {
+    const match = (e: any, q: any) => Object.entries(q).every(([k, v]: [string, any]) => (v && typeof v === 'object' && !(v instanceof Date)
+      ? ('$gte' in v ? e[k] >= v.$gte : true) && ('$lte' in v ? e[k] <= v.$lte : true) : e[k] === v));
+    const conn: any = { collection: (n: string) => (n === 'providerwithdrawals'
+      ? { find: (q: any) => ({ limit: () => ({ toArray: async () => withdrawals.filter((w) => match(w, q)) }) }) }
+      : { updateOne: async (q: any, u: any) => { const e = ledger.find((x) => match(x, q)); if (e) Object.assign(e, u.$set); return { modifiedCount: e ? 1 : 0 }; } }) };
+    return new (FinanceSuiteService as any)(conn, { write: jest.fn() });
+  }
+  const paidAt = (minAgo: number) => new Date(NOW.getTime() - minAgo * 60_000);
+
+  it('clears the reservation of a payout that was marked paid but crashed before the clear; once', async () => {
+    const ledger = [{ id: 'le_1', type: 'payout', state: 'locked', ref_type: 'withdrawal_reservation', ref_id: 'wd_1', provider_account_id: 'p1' }];
+    const svc = world([{ id: 'wd_1', provider_id: 'p1', state: 'PAID', paid_at: paidAt(30), paid_by: 'a1' }], ledger);
+    expect(await svc.clearPaidReservations(NOW)).toBe(1);
+    expect(ledger[0]).toMatchObject({ state: 'cleared', actor_id: 'a1' });
+    expect(await svc.clearPaidReservations(NOW)).toBe(0);
+  });
+
+  it('leaves a payout paid under 5 minutes ago (its own clear may still be running), an open one, and a reservation that is not its own', async () => {
+    const ledger = [
+      { id: 'le_1', type: 'payout', state: 'locked', ref_type: 'withdrawal_reservation', ref_id: 'wd_1', provider_account_id: 'p1' },
+      { id: 'le_2', type: 'payout', state: 'locked', ref_type: 'withdrawal_reservation', ref_id: 'wd_2', provider_account_id: 'p1' },
+    ];
+    const svc = world([
+      { id: 'wd_1', provider_id: 'p1', state: 'PAID', paid_at: paidAt(2) },
+      { id: 'wd_2', provider_id: 'p1', state: 'APPROVED_FOR_PAYOUT', paid_at: undefined },
+    ], ledger);
+    expect(await svc.clearPaidReservations(NOW)).toBe(0);
+    expect(ledger.map((e) => e.state)).toEqual(['locked', 'locked']);
+  });
+});
