@@ -100,6 +100,8 @@ export class Appointment {
   /** P17-17.5: UTM campaign attribution (utm_source/medium/campaign/term/content). */
   @Prop({ type: Object, required: false }) attribution?: Record<string, string>;
   /** The refund policy the patient agreed to before paying (common/refund-policy-acceptance.ts): the tick, its time and the policy version. */
+  /** Owner decision 2026-11-10: this booking is the replacement made by the ONE free reschedule used inside the last 2 hours (instead of a 50 % late cancel). */
+  @Prop({ type: Boolean, required: false }) late_free_reschedule?: boolean;
   @Prop({ type: Object, required: false }) refund_policy_acceptance?: { accepted: boolean; at: Date; version: string; hash?: string; service?: string };
   /** PT-08: the patient asked for a sick leave when booking (a request; the doctor decides). */
   @Prop({ type: Boolean, required: false }) sick_leave_requested?: boolean;

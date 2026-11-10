@@ -646,13 +646,31 @@ export class AppointmentsService {
    * Preview the refund that would be issued if the caller cancelled now (same rules as cancel).
    * Does NOT modify the appointment.
    */
-  async previewRefund(id: string, user: any): Promise<{ refund_percentage: number; refund_destination: string; penalty_amount: number; estimated_amount: number }> {
+  async previewRefund(id: string, user: any): Promise<{ refund_percentage: number; refund_destination: string; penalty_amount: number; estimated_amount: number; free_reschedule: { available: boolean; late: boolean; within_days: number } }> {
     const appt = await this.apptModel.findOne({ id });
     if (!appt) throw new NotFoundException();
     await this.assertAppointmentAccess(appt, user, { booker: true });
     const { refundPercentage, refundDestination, penaltyAmount } = await this.calculateRefund(appt, user);
     const estimatedAmount = Math.round((Number(appt.total_price || 0) * refundPercentage) / 100);
-    return { refund_percentage: refundPercentage, refund_destination: refundDestination, penalty_amount: penaltyAmount, estimated_amount: estimatedAmount };
+    return { refund_percentage: refundPercentage, refund_destination: refundDestination, penalty_amount: penaltyAmount, estimated_amount: estimatedAmount, free_reschedule: await this.freeRescheduleOffer(appt, user) };
+  }
+
+  /**
+   * What the patient can do INSTEAD of a late cancel: `available` = the one free reschedule is still there (the booking can be moved); `late` = the slot is inside the last
+   * `free_reschedule_min_hours`, where the refund is the late percentage and the reschedule must land within `within_days` days. The client shows both choices (cancel for the refund, or reschedule).
+   */
+  private async freeRescheduleOffer(appt: any, user: any): Promise<{ available: boolean; late: boolean; within_days: number }> {
+    const within_days = AppointmentsService.LATE_FREE_RESCHEDULE_DAYS;
+    if ([APPT_STATES.CANCELLED, APPT_STATES.COMPLETED, APPT_STATES.RESCHEDULED, APPT_STATES.IN_PROGRESS].includes(appt.status)) return { available: false, late: false, within_days };
+    const policy = await this.getRefundPolicy();
+    const free = Number(policy?.consultation?.free_reschedules ?? 1);
+    const minHours = Number(policy?.consultation?.free_reschedule_min_hours ?? 2);
+    const hours = (new Date(appt.slot_start).getTime() - Date.now()) / 3_600_000;
+    if (appt.late_free_reschedule === true) return { available: false, late: hours < minHours, within_days };
+    const late = hours < minHours;
+    const patientSide = appt.patient_id === user?.id || (!!appt.booked_by_user_id && appt.booked_by_user_id === user?.id);
+    if (late && !(patientSide && hours >= 0)) return { available: false, late, within_days };
+    return { available: (await this.countPriorReschedules(appt)) < free, late, within_days };
   }
 
   private async getRefundPolicy(): Promise<any> {
@@ -681,7 +699,9 @@ export class AppointmentsService {
     if (isNoShow || reason === 'no_show') {
       refundPercentage = consultationPolicy.patient_no_show_percent ?? 0;
     } else if (user.role === UserRole.PATIENT || user.id === appt.patient_id) {
-      if (hoursUntilAppointment >= (consultationPolicy.full_refund_min_hours ?? 2)) {
+      // The booking made by the late free reschedule keeps the LATE refund for a patient cancel (it would otherwise be a way round the late percentage: reschedule inside the last
+      // 2 hours, then cancel the new slot well ahead for 100 %). Provider cancel / provider no-show stay 100 % (other branches); a patient no-show stays 0.
+      if (hoursUntilAppointment >= (consultationPolicy.full_refund_min_hours ?? 2) && appt.late_free_reschedule !== true) {
         refundPercentage = 100;
         refundDestination = 'source';
       } else {
@@ -893,23 +913,11 @@ export class AppointmentsService {
     return out;
   }
 
-  async reschedule(id: string, user: any, body: { slot_start: string }) {
-    const appt = await this.apptModel.findOne({ id });
-    if (!appt) throw new NotFoundException();
-    if (user.role !== UserRole.ADMIN && appt.patient_id !== user.id && appt.doctor_user_id !== user.id) {
-      throw new ForbiddenException();
-    }
-    if ([APPT_STATES.CANCELLED, APPT_STATES.COMPLETED, APPT_STATES.RESCHEDULED].includes(appt.status)) {
-      throw new BadRequestException('cannot_reschedule');
-    }
-    // D-26: one free reschedule, only while the current slot is far enough out.
-    const policy = await this.getRefundPolicy();
-    const freeReschedules = Number(policy?.consultation?.free_reschedules ?? 1);
-    const minHours = Number(policy?.consultation?.free_reschedule_min_hours ?? 2);
-    const hoursToSlot = (new Date(appt.slot_start).getTime() - Date.now()) / (1000 * 60 * 60);
-    if (!(hoursToSlot >= minHours)) {
-      throw new BadRequestException('reschedule_too_late_for_free_reschedule');
-    }
+  /** The days (from now) a late free reschedule may reach. */
+  static readonly LATE_FREE_RESCHEDULE_DAYS = 14;
+
+  /** How many times this booking was already rescheduled (the chain of `rescheduled_from_id`). */
+  private async countPriorReschedules(appt: any): Promise<number> {
     let priorReschedules = 0;
     try {
       let cursor: any = typeof appt?.toObject === 'function' ? appt.toObject() : appt;
@@ -927,12 +935,41 @@ export class AppointmentsService {
     } catch {
       priorReschedules = 0;
     }
+    return priorReschedules;
+  }
+
+  async reschedule(id: string, user: any, body: { slot_start: string }) {
+    const appt = await this.apptModel.findOne({ id });
+    if (!appt) throw new NotFoundException();
+    if (user.role !== UserRole.ADMIN && appt.patient_id !== user.id && appt.doctor_user_id !== user.id) {
+      throw new ForbiddenException();
+    }
+    if ([APPT_STATES.CANCELLED, APPT_STATES.COMPLETED, APPT_STATES.RESCHEDULED].includes(appt.status)) {
+      throw new BadRequestException('cannot_reschedule');
+    }
+    // D-26: one free reschedule, only while the current slot is far enough out.
+    const policy = await this.getRefundPolicy();
+    const freeReschedules = Number(policy?.consultation?.free_reschedules ?? 1);
+    const minHours = Number(policy?.consultation?.free_reschedule_min_hours ?? 2);
+    const hoursToSlot = (new Date(appt.slot_start).getTime() - Date.now()) / (1000 * 60 * 60);
+    // Owner decision 2026-11-10 (late cancel, option b): inside the last `minHours` before the start the patient may, instead of cancelling for 50 %, use the ONE free reschedule, to a slot
+    // within 14 days. Only the patient side and only before the visit starts (after the start it is a no-show, not a reschedule). No wallet, no credit: the same booking moves.
+    const late = !(hoursToSlot >= minHours);
+    const patientSide = appt.patient_id === user.id || (!!(appt as any).booked_by_user_id && (appt as any).booked_by_user_id === user.id);
+    if (late && !(patientSide && user.role !== UserRole.ADMIN && hoursToSlot >= 0)) {
+      throw new BadRequestException('reschedule_too_late_for_free_reschedule');
+    }
+    const priorReschedules = await this.countPriorReschedules(appt);
+    if (patientSide && user.role !== UserRole.ADMIN && (appt as any).late_free_reschedule === true) throw new BadRequestException('no_free_reschedules_left');   // the one late free reschedule is used
     if (priorReschedules >= freeReschedules) {
       throw new BadRequestException('no_free_reschedules_left');
     }
     const newStart = new Date(body.slot_start);
     if (isNaN(newStart.getTime()) || newStart.getTime() < Date.now() + 5 * 60_000) {
       throw new BadRequestException('slot_start must be in the future');
+    }
+    if (late && newStart.getTime() > Date.now() + AppointmentsService.LATE_FREE_RESCHEDULE_DAYS * 86_400_000) {
+      throw new BadRequestException('late_reschedule_within_14_days');
     }
     if (newStart.getMinutes() % 15 !== 0 || newStart.getSeconds() !== 0 || newStart.getMilliseconds() !== 0) {
       throw new BadRequestException('slot_start must be exactly on a 15-minute boundary');
@@ -965,12 +1002,13 @@ export class AppointmentsService {
       transportation_fee: (appt as any).transportation_fee || 0,
       total_price: (appt as any).total_price || appt.price,
       rescheduled_from_id: appt.id,
+      ...(late ? { late_free_reschedule: true } : {}),
       ...((appt as any).refund_policy_acceptance ? { refund_policy_acceptance: (appt as any).refund_policy_acceptance } : {}),   // the policy agreed at booking continues
       state_history: [{ state: APPT_STATES.CONFIRMED, at: new Date(), by_user_id: user.id, by_role: user.role, note: 'rescheduled-from-' + appt.id }],
     });
     try {
       appt.status = APPT_STATES.RESCHEDULED;
-      appt.state_history.push({ state: APPT_STATES.RESCHEDULED, at: new Date(), by_user_id: user.id, by_role: user.role, note: 'rescheduled' });
+      appt.state_history.push({ state: APPT_STATES.RESCHEDULED, at: new Date(), by_user_id: user.id, by_role: user.role, note: late ? 'rescheduled-late-free' : 'rescheduled' });
       await appt.save();
     } catch (error) {
       await this.apptModel.deleteOne({ id: fresh.id }).catch(() => null);
