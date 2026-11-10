@@ -1,6 +1,11 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## Lead 3 order 2026-11-10 06:20 UTC — #2583 green but HELD: stuck `releasing`
+- #2584 merged (reviewed). #2583 rule logic is right (a+b, cap counts refunded, claims are atomic).
+- Gap: `releaseDueHeld` claims `held → releasing`, then `release()` only emits an in-process event (not awaited). If the process restarts/crashes before `onProviderNoShowRelease` runs (or the handler throws before markReleaseFailed), the row stays `releasing` forever: no retry, and `releasing` is not in the admin list filter → a patient owed 100% is silently never paid. Same for `upheld`/`review_refunded` rows whose release never ran.
+- Fix: (1) the same cron also picks rows in `releasing` (and `upheld`/`review_refunded` with no `refunded_at`) older than 15 min and re-emits release; make the handler idempotent: if the appointment is already cancelled as provider_no_show with the refund done → markRefunded, not release_failed. (2) add `releasing` to the admin list statuses. (3) spec: claim → no handler run → next cron run releases it once; already-refunded appointment → marked refunded, no second refund.
+
 ## Lead 3 note 2026-11-10 05:15 UTC
 - #2582 merged. #2583 live gate shards 3/4 failed on Playwright install (infra, apt exit 100); I re-run when the workflow finishes, no action needed.
 - Heads-up: run 112b shows mongod OOM-killed ~1.63 GB RSS every ~90 s from 03:00–04:40. If any of your unique-index self-gates (#2536 earning, #2565 invoice) run a full-collection $group without allowDiskUse on start or on a schedule, tell V in your outbox at once.

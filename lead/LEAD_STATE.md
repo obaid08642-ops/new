@@ -1,6 +1,10 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-10 06:20 UTC
+- Merged #2584 (index-present skip + partial due-earning index).
+- #2583 HELD: held-refund `releasing` can get stuck with no retry/visibility → Z ordered. #2585 (V live-gate apt) / #2586 (Z free reschedule) CI running.
+- Owner has not pushed run 113 (0cee259f) yet. Prod readiness ok earlier.
 ## Lead 3 run 2026-11-10 05:45 UTC
 - Merged #2581 (lab slot capacity + seat race fix). #2583 live-gate Playwright flake re-run. #2584 (Z: self-gate skip when index exists + partial due-earning index for #2582 cron) CI running.
 - Run 113 (V, 0cee259f, read-only mongo OOM cause) reviewed OK → owner to push. Prod readiness ok at 05:15.
@@ -74,7 +78,3 @@ Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or
 - Run 110 pushed (deploy-only, main@5227a794), server-ops 42661237311 running. Merged #2551 (no-show dispute, race fixed), #2546 (doctor medical report UI). V: 96k+96m as run 111.
 ## Lead 3 run 2026-11-09 16:40 UTC
 - No change: 8 PRs in CI, none green. Run 110 (454074c4) still waits for the owner's push.
-## Lead 3 run 2026-11-09 16:15 UTC
-- Run 110 = v/ops-run-110 @454074c4 (96k+96m read-only, deploy main@9269ee61, 96j-ledger, cf purge) reviewed OK; owner asked to push. #2552 conflict (X). #2551 race fix pushed (CI). #2550 still red.
-## Lead 3 run 2026-11-09 15:45 UTC
-- Merged #2549. #2551 green but held: decide() claws back before the CAS update (double clawback race) → Z fix. #2546 (V) still red since 14:15; run 110 not prepared by V yet.
