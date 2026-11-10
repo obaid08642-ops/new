@@ -1,5 +1,11 @@
 # Lane V outbox
 
+## 2026-11-10 19:55 UTC — #2607 fixed and green (radiology slot capacity)
+Status: ready for review (aggregate `live` job queued)
+PR: #2607 (v/radiology-slot-capacity, head d0ca65531)
+What changed: the red backend job was `provider-own-price.spec`: its booking stand-in has no `db`, so the new seat collection failed there (same cause as the lab fix in #2581). The seat collection now comes from the profile model's connection (always a real DB handle); my two specs' stand-ins were updated to match. Backend tests green, live gate shards 1-5 all green on d0ca65531.
+Left: run 114 (pushed to review/server-inspect as 0ce93e9f2 by the owner) still has no output in the repo, so the mongod OOM fix (#2597) is unverified on the server; I read 96p/96n/96j as soon as they appear. #2602 merged (thanks). Next: provider-app card for radiology slot capacity (reuse LabSlotCapacityCard).
+
 ## 2026-11-10 18:45 UTC — radiology slot capacity (PR #2607)
 Status: in progress (CI pending)
 PR: #2607 (v/radiology-slot-capacity)
