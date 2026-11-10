@@ -12,6 +12,7 @@ import { protectHealthDoc, revealHealthDoc, revealHealthDocs } from '../../commo
 import { TRACK_PREFIX, trackingId } from '../../common/tracking';
 import { CODE_RE, SEHA_ADMIN_LIST_DAYS, SEHA_REMINDER_HOURS, initialsOf, maskNationalId, newVerifyCode, normaliseSehaNumber, planLeave, serialOf } from './sick-leave-rules';
 import { renderSickLeavePdf } from './sick-leave-pdf';
+import { maskId, readPatientNationalId, savePatientNationalId } from '../../common/patient-national-id';
 
 const ISSUABLE_STATES = ['IN_PROGRESS', 'COMPLETED'];
 const REPORTS = 'medicalreports';
@@ -81,10 +82,11 @@ export class SickLeaveService implements OnModuleInit {
     const consultationAt = new Date(appt.slot_start);
     const plan = planLeave(body, isNaN(consultationAt.getTime()) ? now : consultationAt, now);
 
-    const [profile, patient, account]: any[] = await Promise.all([
+    const [profile, patient, account, nationalId]: any[] = await Promise.all([
       this.conn.collection('provider_profiles').findOne({ id: appt.doctor_id }),
-      this.conn.collection('users').findOne({ id: patientId }, { projection: { full_name: 1, national_id: 1 } }),
+      this.conn.collection('users').findOne({ id: patientId }, { projection: { full_name: 1 } }),
       this.conn.collection('provider_accounts').findOne({ $or: [{ user_id: String(doctor?.id) }, { id: String(doctor?.id) }] }),
+      readPatientNationalId(this.conn, patientId),
     ]);
     const spec = SPECIALTY_MASTER.find((s) => s.slug === (profile?.specialty || profile?.specialty_ar));
     const reason = typeof body.reason === 'string' && body.reason.trim() ? body.reason.trim().slice(0, 500) : null;
@@ -97,7 +99,8 @@ export class SickLeaveService implements OnModuleInit {
       status: 'issued',
       patient_id: patientId,
       patient_name: body.patient_name || patient?.full_name || null,
-      patient_national_id: patient?.national_id || null,
+      // null when the patient has not given it yet: the patient is asked to add it before downloading (the PDF reads the live value)
+      patient_national_id: nationalId || null,
       report_type: 'medical_certificate',
       certificate_kind: 'sick_leave',
       // Owner decision 2026-11-09: our document is a MEDICAL REPORT that states a recommended rest period; the words "sick leave" are only for the official Seha document.
@@ -253,7 +256,19 @@ export class SickLeaveService implements OnModuleInit {
   /** The patient's own certificates; the ID number is masked in the list. */
   async listForPatient(patientId: string) {
     const rows = await this.reports.find({ patient_id: { $eq: patientId }, certificate_kind: 'sick_leave' }, { projection: { _id: 0 } }).sort({ createdAt: -1 }).limit(100).toArray();
-    return revealHealthDocs(REPORTS, rows as any[]).map((r: any) => this.shape(r, false));
+    const live = rows.length ? await readPatientNationalId(this.conn, patientId) : null;
+    return revealHealthDocs(REPORTS, rows as any[]).map((r: any) => ({ ...this.shape(r, false), ...(r.patient_national_id ? {} : { national_id: maskId(live) }), needs_national_id: !(r.patient_national_id || live) }));
+  }
+
+  /** Whether the patient has given an ID number (masked), so the app asks only when a medical report needs it. */
+  async nationalIdStatus(patientId: string) {
+    const id = await readPatientNationalId(this.conn, patientId);
+    return { has_national_id: !!id, national_id: maskId(id) };
+  }
+
+  async setNationalId(patientId: string, raw: unknown) {
+    const masked = await savePatientNationalId(this.conn, patientId, raw);
+    return { has_national_id: true, national_id: masked };
   }
 
   /** One of the patient's own certificates in full (someone else's is "not found", not "forbidden"). */
@@ -261,11 +276,17 @@ export class SickLeaveService implements OnModuleInit {
     const key = String(idOrSerial || '');
     const cert = await this.reports.findOne({ patient_id: { $eq: patientId }, certificate_kind: 'sick_leave', $or: [{ id: { $eq: key } }, { serial: { $eq: key } }] }, { projection: { _id: 0 } });
     if (!cert) throw new NotFoundException('sick_leave_not_found');
-    return this.shape(cert, true);
+    const out = this.shape(cert, true);
+    // issued before the patient gave the number: show the number they gave since
+    if (!out.national_id) out.national_id = await readPatientNationalId(this.conn, patientId);
+    out.needs_national_id = !out.national_id;
+    return out;
   }
 
   async pdfForPatient(patientId: string, idOrSerial: string): Promise<Buffer> {
     const cert = await this.oneForPatient(patientId, idOrSerial);
+    // the report carries the patient's ID: without it the patient is asked to add it first
+    if (!cert.national_id) throw new ConflictException('national_id_required');
     const base = String(process.env.NABD_PUBLIC_URL || 'https://nabd.plus').replace(/\/+$/, '');
     const url = `${base}/verify/sick-leave/${cert.verify_code}`;
     let qrPng: Buffer | null = null;

@@ -1,3 +1,4 @@
+import { maskId, savePatientNationalId } from '../../common/patient-national-id';
 import { assertScanned } from '../storage/pending-scan';
 import { insuranceCompanyFilter } from '../../common/insurance-policy';
 import { Injectable, Optional, NotFoundException, ForbiddenException, UnauthorizedException, BadRequestException, Inject } from '@nestjs/common';
@@ -111,7 +112,8 @@ export class UsersService {
     if (!p) p = await this.patientRepository.create({ user_id });
     const o: any = typeof (p as any).toObject === 'function' ? (p as any).toObject() : p;
     // Alias: the app reads/writes `chronic_conditions`; the schema field is `chronic_diseases`.
-    return { ...o, chronic_conditions: o.chronic_diseases || [] };
+    // an ID number left in plain text by an older version is shown masked, never in full
+    return { ...o, chronic_conditions: o.chronic_diseases || [], ...(o.national_id ? { national_id: maskId(o.national_id) } : {}) };
   }
 
   private async userForPatientContract(userId: string): Promise<any> {
@@ -243,6 +245,12 @@ export class UsersService {
       // then apply the editable-field whitelist (mass-assignment fix).
       if (k.startsWith('$') || k.includes('.')) continue;
       if (UsersService.PATIENT_PROFILE_EDITABLE.has(k)) mapped[k] = v;
+    }
+    // The ID number is not kept on the profile any more: it goes to the encrypted identity store (and is validated there).
+    if ('national_id' in mapped) {
+      const nid = mapped.national_id;
+      delete mapped.national_id;
+      if (typeof nid === 'string' && nid.trim()) await savePatientNationalId(this.conn, user_id, nid);
     }
     // D-32: a replaced avatar (`media:<id>`) loses its stored file once the new one is saved.
     const previous: any = 'avatar_url' in mapped ? await this.patientRepository.findOne({ user_id }, { avatar_url: 1 }) : null;
