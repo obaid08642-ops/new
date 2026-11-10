@@ -76,4 +76,12 @@ describe('earning-key helpers', () => {
     expect(await ensureEarningUniqueIndex(db, warn)).toBe('failed');
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('could not be built'));
   });
+
+  it('when the earning index already exists the gate answers "present" and does not run the duplicate scan', async () => {
+    const aggregate = jest.fn(() => ({ toArray: async () => [{ n: 2 }] }));
+    const db: any = { collection: () => ({ listIndexes: () => ({ toArray: async () => [{ name: EARNING_KEY_INDEX }] }), aggregate, createIndex: jest.fn() }) };
+    expect(await ensureEarningUniqueIndex(db)).toBe('present');
+    expect(aggregate).not.toHaveBeenCalled();
+  });
 });
+

@@ -15,6 +15,13 @@ describe('one issued invoice per booking: the unique index', () => {
     expect(einvoices.createIndex).toHaveBeenCalledWith({ booking_kind: 1, booking_id: 1 }, { unique: true, name: INVOICE_KEY_INDEX, partialFilterExpression: INVOICE_KEY_FILTER });
     expect(INVOICE_KEY_FILTER).toMatchObject({ type: 'invoice', status: 'ISSUED' });   // a credit note (type credit_note) is not covered: many per booking are fine
   });
+  it('when the index already exists (every start after the first) it does NOT scan the invoices at all', async () => {
+    const { db, einvoices } = dbWith([{ n: 2 }]);
+    (einvoices as any).listIndexes = () => ({ toArray: async () => [{ name: INVOICE_KEY_INDEX }] });
+    expect(await ensureInvoiceUniqueIndex(db)).toBe('present');
+    expect(einvoices.aggregate).not.toHaveBeenCalled();
+    expect(einvoices.createIndex).not.toHaveBeenCalled();
+  });
   it('is NOT built while a booking has two issued invoices (it says so, nothing breaks)', async () => {
     const { db, einvoices } = dbWith([{ n: 2 }, { n: 3 }]);
     const warn = jest.fn();

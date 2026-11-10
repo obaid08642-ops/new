@@ -20,11 +20,20 @@ export async function countInvoiceDuplicates(db: Db): Promise<{ groups: number; 
   return { groups: rows.length, extra_rows: rows.reduce((s, r) => s + (r.n - 1), 0) };
 }
 
-export type InvoiceIndexResult = 'created' | 'duplicates' | 'failed';
+export async function invoiceIndexPresent(db: Db): Promise<boolean> {
+  try {
+    const idx: Array<{ name?: string }> = await db.collection('einvoices').listIndexes().toArray();
+    return idx.some((i) => i.name === INVOICE_KEY_INDEX);
+  } catch { return false; }
+}
+
+export type InvoiceIndexResult = 'created' | 'present' | 'duplicates' | 'failed';
 
 /** Builds the unique index when there is no duplicate; with duplicates it does nothing (and says so), so a deploy can never break on dirty data. */
 export async function ensureInvoiceUniqueIndex(db: Db, warn: (msg: string) => void = () => undefined): Promise<InvoiceIndexResult> {
   try {
+    // the index already exists (every start after the first): nothing to check, and no scan of the invoices
+    if (await invoiceIndexPresent(db)) return 'present';
     const dup = await countInvoiceDuplicates(db);
     if (dup.groups > 0) {
       warn(`billing: ${dup.groups} bookings have ${dup.extra_rows} extra issued invoices: the unique index ${INVOICE_KEY_INDEX} was not built; finance resolves them first`);
