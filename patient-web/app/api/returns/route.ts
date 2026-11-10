@@ -12,6 +12,9 @@ const schema = z.object({
   details: z.string().max(2000).optional().default(""),
   refundMethod: z.string().max(32).optional().default("original"),
   amount: z.number().min(0).max(1000000).optional(),
+  // pharmacy returns (owner decision 4): one of the four defect reasons and the photos as `media:<id>`
+  reason_code: z.enum(["wrong_item", "damaged", "expired", "not_as_described"]).optional(),
+  attachedDocs: z.array(z.string().regex(/^media:[A-Za-z0-9_-]{1,128}$/)).max(10).optional(),
 });
 
 export async function POST(request: Request) {

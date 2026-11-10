@@ -3101,7 +3101,7 @@
   "returns.new.sentBody": "আমাদের টিম এটি পর্যালোচনা করে ফলাফল জানাবে।",
   "returns.new.mine": "আমার ফেরতের অনুরোধ",
   "returns.new.home": "হোম",
-  "returns.reason.damaged": "নষ্ট বা মেয়াদোত্তীর্ণ ওষুধ",
+  "returns.reason.damaged": "ক্ষতিগ্রস্ত ওষুধ",
   "returns.reason.wrongOrder": "অর্ডারে ভুল",
   "returns.reason.wrongItem": "ভুল ওষুধ",
   "returns.reason.notArrived": "অর্ডার পৌঁছায়নি",
@@ -4192,5 +4192,11 @@
   "refund.policy.lab.late": "এর পরে বাতিল করলে {percent}% আপনার কার্ডে ফেরত যাবে।",
   "refund.policy.nursing.full": "ভিজিটের অন্তত {hours} ঘণ্টা আগে বাতিল করলে ১০০% ফেরত পাবেন।",
   "refund.policy.nursing.late": "এর পরে বাতিল করলে {percent}% আপনার কার্ডে ফেরত যাবে।",
-  "refund.policy.radiology.late": "এর পরে বাতিল করলে {percent}% আপনার কার্ডে ফেরত যাবে।"
+  "refund.policy.radiology.late": "এর পরে বাতিল করলে {percent}% আপনার কার্ডে ফেরত যাবে।",
+  "returns.reason.expired": "মেয়াদোত্তীর্ণ ওষুধ",
+  "returns.reason.notAsDescribed": "বর্ণনার সঙ্গে মেলে না",
+  "returns.new.photoRequired": "ফার্মেসি রিটার্নের জন্য পণ্যের একটি ছবি লাগবে।",
+  "returns.err.defectReason": "ফার্মেসি রিটার্ন শুধু ভুল, ক্ষতিগ্রস্ত, মেয়াদোত্তীর্ণ বা বর্ণনার সঙ্গে না মেলা পণ্যের জন্য গ্রহণ করা হয়।",
+  "returns.err.photoRequired": "রিটার্ন পাঠাতে পণ্যের একটি ছবি যোগ করুন।",
+  "pharmacy.offers.err.cancelAfterPreparation": "ফার্মেসি এই অর্ডার প্রস্তুত করা শুরু করেছে, তাই এখন এটি বাতিল করা যাবে না। পণ্য ভুল, ক্ষতিগ্রস্ত বা মেয়াদোত্তীর্ণ হলে ডেলিভারির পরে ছবিসহ জানান।"
 }

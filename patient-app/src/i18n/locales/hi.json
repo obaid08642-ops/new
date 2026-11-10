@@ -3101,7 +3101,7 @@
   "returns.new.sentBody": "हमारी टीम इसकी समीक्षा करेगी और नतीजे की सूचना देगी।",
   "returns.new.mine": "मेरे वापसी अनुरोध",
   "returns.new.home": "होम",
-  "returns.reason.damaged": "क्षतिग्रस्त या एक्सपायर दवा",
+  "returns.reason.damaged": "क्षतिग्रस्त दवा",
   "returns.reason.wrongOrder": "ऑर्डर में गलती",
   "returns.reason.wrongItem": "गलत दवा",
   "returns.reason.notArrived": "ऑर्डर नहीं पहुंचा",
@@ -4192,5 +4192,11 @@
   "refund.policy.lab.late": "इसके बाद रद्द करने पर {percent}% आपके कार्ड में वापस होगा।",
   "refund.policy.nursing.full": "विज़िट से कम से कम {hours} घंटे पहले रद्द करें और 100% वापस पाएँ।",
   "refund.policy.nursing.late": "इसके बाद रद्द करने पर {percent}% आपके कार्ड में वापस होगा।",
-  "refund.policy.radiology.late": "इसके बाद रद्द करने पर {percent}% आपके कार्ड में वापस होगा।"
+  "refund.policy.radiology.late": "इसके बाद रद्द करने पर {percent}% आपके कार्ड में वापस होगा।",
+  "returns.reason.expired": "एक्सपायर दवा",
+  "returns.reason.notAsDescribed": "विवरण के अनुसार नहीं",
+  "returns.new.photoRequired": "फ़ार्मेसी वापसी के लिए सामान की फ़ोटो ज़रूरी है।",
+  "returns.err.defectReason": "फ़ार्मेसी वापसी केवल गलत, क्षतिग्रस्त, एक्सपायर या विवरण के अनुसार न होने वाले सामान के लिए स्वीकार होती है।",
+  "returns.err.photoRequired": "वापसी भेजने के लिए सामान की फ़ोटो जोड़ें।",
+  "pharmacy.offers.err.cancelAfterPreparation": "फ़ार्मेसी ने इस ऑर्डर की तैयारी शुरू कर दी है, इसलिए इसे अब रद्द नहीं किया जा सकता। यदि सामान गलत, क्षतिग्रस्त या एक्सपायर हो तो डिलीवरी के बाद फ़ोटो के साथ बताएँ।"
 }

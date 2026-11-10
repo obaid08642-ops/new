@@ -3101,7 +3101,7 @@
   "returns.new.sentBody": "ہماری ٹیم اس کا جائزہ لے گی اور نتیجے سے آپ کو آگاہ کرے گی۔",
   "returns.new.mine": "میری واپسی کی درخواستیں",
   "returns.new.home": "ہوم",
-  "returns.reason.damaged": "خراب یا ایکسپائر دوا",
+  "returns.reason.damaged": "خراب دوا",
   "returns.reason.wrongOrder": "آرڈر میں غلطی",
   "returns.reason.wrongItem": "غلط دوا",
   "returns.reason.notArrived": "آرڈر نہیں پہنچا",
@@ -4192,5 +4192,11 @@
   "refund.policy.lab.late": "اس کے بعد منسوخ کرنے پر {percent}% آپ کے کارڈ میں واپس آئے گا۔",
   "refund.policy.nursing.full": "ملاقات سے کم از کم {hours} گھنٹے پہلے منسوخ کریں اور 100% واپس پائیں۔",
   "refund.policy.nursing.late": "اس کے بعد منسوخ کرنے پر {percent}% آپ کے کارڈ میں واپس آئے گا۔",
-  "refund.policy.radiology.late": "اس کے بعد منسوخ کرنے پر {percent}% آپ کے کارڈ میں واپس آئے گا۔"
+  "refund.policy.radiology.late": "اس کے بعد منسوخ کرنے پر {percent}% آپ کے کارڈ میں واپس آئے گا۔",
+  "returns.reason.expired": "میعاد ختم دوا",
+  "returns.reason.notAsDescribed": "بیان کے مطابق نہیں",
+  "returns.new.photoRequired": "فارمیسی کی واپسی کے لیے چیز کی تصویر ضروری ہے۔",
+  "returns.err.defectReason": "فارمیسی کی واپسی صرف غلط، خراب، میعاد ختم یا بیان کے مطابق نہ ہونے والی چیز کے لیے قبول ہوتی ہے۔",
+  "returns.err.photoRequired": "واپسی بھیجنے کے لیے چیز کی تصویر شامل کریں۔",
+  "pharmacy.offers.err.cancelAfterPreparation": "فارمیسی نے اس آرڈر کی تیاری شروع کر دی ہے، اس لیے اب اسے منسوخ نہیں کیا جا سکتا۔ اگر چیز غلط، خراب یا میعاد ختم ہو تو ڈیلیوری کے بعد تصویر کے ساتھ اطلاع دیں۔"
 }

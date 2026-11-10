@@ -2819,7 +2819,8 @@
       "forbidden": "Hindi magagawa ng iyong account ang aksyong ito rito. Walang nagbago.",
       "network": "Hindi maabot ang serbisyo. Suriin ang koneksyon at subukan muli.",
       "generic": "Hindi makumpleto ang aksyon. Walang nagbago.",
-      "alreadyPaid": "Bayad na ang order na ito."
+      "alreadyPaid": "Bayad na ang order na ito.",
+      "cancelAfterPreparation": "Nagsimula nang ihanda ng botika ang order na ito, kaya hindi na ito makakansela. Kung mali, sira o expired ang item, iulat ito kasama ang larawan pagkatapos ng paghahatid."
     },
     "lastFromYou": "Ikaw: {text}",
     "priceNotVerified": "Hindi pa nasuri ang presyo laban sa presyo sa katalogo; sinusuri ito ng admin.",
@@ -4966,7 +4967,20 @@
     "details": "Mga detalye (opsyonal)",
     "submit": "Ipadala ang kahilingan sa pagbabalik",
     "reasonRequired": "Ilagay ang dahilan ng pagbabalik",
-    "submitFailed": "Hindi naipadala ang kahilingan"
+    "submitFailed": "Hindi naipadala ang kahilingan",
+    "pharmacyReasonTitle": "Ano ang problema sa item?",
+    "pharmacyReason_wrong_item": "Maling gamot",
+    "pharmacyReason_damaged": "Sirang gamot",
+    "pharmacyReason_expired": "Expired na gamot",
+    "pharmacyReason_not_as_described": "Hindi tugma sa paglalarawan",
+    "photoRequired": "Kailangan ng larawan ng item para sa pagbabalik sa botika.",
+    "photoAdd": "Magdagdag ng larawan",
+    "photoAdded": "Naidagdag ang larawan",
+    "photoRemove": "Alisin ang larawan",
+    "uploading": "Ina-upload…",
+    "uploadFailed": "Hindi na-upload ang larawan. Subukan muli.",
+    "defectReasonOnly": "Tinatanggap lamang ang pagbabalik sa botika para sa mali, sira, expired o hindi tugma sa paglalarawan na item.",
+    "photoRequiredError": "Magdagdag ng larawan ng item para maipadala ang pagbabalik."
   },
   "SupportChatWeb": {
     "title": "Suporta ng Nabd",

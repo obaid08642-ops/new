@@ -3101,7 +3101,7 @@
   "returns.new.sentBody": "Our team will review it and notify you of the result.",
   "returns.new.mine": "My return requests",
   "returns.new.home": "Home",
-  "returns.reason.damaged": "Damaged or expired medicine",
+  "returns.reason.damaged": "Damaged medicine",
   "returns.reason.wrongOrder": "Mistake in the order",
   "returns.reason.wrongItem": "Wrong medicine",
   "returns.reason.notArrived": "The order did not arrive",
@@ -4192,5 +4192,11 @@
   "refund.policy.lab.late": "If you cancel later than that, {percent}% is returned to your card.",
   "refund.policy.nursing.full": "Cancel at least {hours} hours before the visit and get 100% back.",
   "refund.policy.nursing.late": "If you cancel later than that, {percent}% is returned to your card.",
-  "refund.policy.radiology.late": "If you cancel later than that, {percent}% is returned to your card."
+  "refund.policy.radiology.late": "If you cancel later than that, {percent}% is returned to your card.",
+  "returns.reason.expired": "Expired medicine",
+  "returns.reason.notAsDescribed": "Not as described",
+  "returns.new.photoRequired": "A photo of the item is required for a pharmacy return.",
+  "returns.err.defectReason": "A pharmacy return is accepted only for a wrong, damaged or expired item, or one not as described.",
+  "returns.err.photoRequired": "Add a photo of the item to send the return.",
+  "pharmacy.offers.err.cancelAfterPreparation": "The pharmacy has started preparing this order, so it can no longer be cancelled. If an item is wrong, damaged or expired, report it with a photo after delivery."
 }

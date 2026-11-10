@@ -3101,7 +3101,7 @@
   "returns.new.sentBody": "Susuriin ito ng team namin at aabisuhan ka sa resulta.",
   "returns.new.mine": "Mga kahilingan ko sa pagbabalik",
   "returns.new.home": "Tahanan",
-  "returns.reason.damaged": "Sirang o expired na gamot",
+  "returns.reason.damaged": "Sirang gamot",
   "returns.reason.wrongOrder": "Pagkakamali sa order",
   "returns.reason.wrongItem": "Maling gamot",
   "returns.reason.notArrived": "Hindi dumating ang order",
@@ -4192,5 +4192,11 @@
   "refund.policy.lab.late": "Kung magkansela ka pagkatapos nito, {percent}% ang ibabalik sa iyong card.",
   "refund.policy.nursing.full": "Kanselahin nang hindi bababa sa {hours} oras bago ang konsultasyon at makukuha mo ang 100% pabalik.",
   "refund.policy.nursing.late": "Kung magkansela ka pagkatapos nito, {percent}% ang ibabalik sa iyong card.",
-  "refund.policy.radiology.late": "Kung magkansela ka pagkatapos nito, {percent}% ang ibabalik sa iyong card."
+  "refund.policy.radiology.late": "Kung magkansela ka pagkatapos nito, {percent}% ang ibabalik sa iyong card.",
+  "returns.reason.expired": "Expired na gamot",
+  "returns.reason.notAsDescribed": "Hindi tugma sa paglalarawan",
+  "returns.new.photoRequired": "Kailangan ng larawan ng item para sa pagbabalik sa botika.",
+  "returns.err.defectReason": "Tinatanggap lamang ang pagbabalik sa botika para sa mali, sira, expired o hindi tugma sa paglalarawan na item.",
+  "returns.err.photoRequired": "Magdagdag ng larawan ng item para maipadala ang pagbabalik.",
+  "pharmacy.offers.err.cancelAfterPreparation": "Nagsimula nang ihanda ng botika ang order na ito, kaya hindi na ito makakansela. Kung mali, sira o expired ang item, iulat ito kasama ang larawan pagkatapos ng paghahatid."
 }

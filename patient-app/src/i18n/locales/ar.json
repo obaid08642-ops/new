@@ -3101,7 +3101,7 @@
   "returns.new.sentBody": "سيراجع فريقنا طلبك ويُشعرك بالنتيجة.",
   "returns.new.mine": "طلبات الإرجاع الخاصة بي",
   "returns.new.home": "الرئيسية",
-  "returns.reason.damaged": "دواء تالف أو منتهي الصلاحية",
+  "returns.reason.damaged": "دواء تالف",
   "returns.reason.wrongOrder": "خطأ في الطلب",
   "returns.reason.wrongItem": "دواء خاطئ",
   "returns.reason.notArrived": "لم يصل الطلب",
@@ -4192,5 +4192,11 @@
   "refund.policy.lab.late": "إذا ألغيت بعد ذلك يُعاد {percent}% إلى بطاقتك.",
   "refund.policy.nursing.full": "ألغِ قبل الموعد بـ {hours} ساعات على الأقل واسترد 100%.",
   "refund.policy.nursing.late": "إذا ألغيت بعد ذلك يُعاد {percent}% إلى بطاقتك.",
-  "refund.policy.radiology.late": "إذا ألغيت بعد ذلك يُعاد {percent}% إلى بطاقتك."
+  "refund.policy.radiology.late": "إذا ألغيت بعد ذلك يُعاد {percent}% إلى بطاقتك.",
+  "returns.reason.expired": "دواء منتهي الصلاحية",
+  "returns.reason.notAsDescribed": "لا يطابق الوصف",
+  "returns.new.photoRequired": "تلزم صورة للمنتج لطلب إرجاع من الصيدلية.",
+  "returns.err.defectReason": "يُقبل إرجاع الصيدلية فقط للمنتج الخاطئ أو التالف أو منتهي الصلاحية أو غير المطابق للوصف.",
+  "returns.err.photoRequired": "أضف صورة للمنتج لإرسال طلب الإرجاع.",
+  "pharmacy.offers.err.cancelAfterPreparation": "بدأت الصيدلية بتجهيز هذا الطلب فلا يمكن إلغاؤه الآن. إذا كان المنتج خاطئًا أو تالفًا أو منتهي الصلاحية فأبلغ عنه بصورة بعد التسليم."
 }
