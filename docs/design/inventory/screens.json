@@ -1,5 +1,5 @@
 {
- "commit": "74069450",
+ "commit": "36c8682f",
  "routes": [
   {
    "app": "patient-app",
@@ -836,7 +836,7 @@
      "line": 76,
      "file": "patient-app/src/components/BookingConfirmForm.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:18"
+     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:20"
     },
     {
      "method": "PUT",
@@ -845,9 +845,8 @@
      "query": "",
      "line": 32,
      "file": "patient-app/src/components/consult/NationalIdForm.tsx",
-     "status": "WRONG_METHOD",
-     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:18",
-     "note": "backend has GET"
+     "status": "OK",
+     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:21"
     },
     {
      "method": "POST",
@@ -4887,7 +4886,7 @@
      "line": 35,
      "file": "patient-app/app/medical-reports/[id].tsx",
      "status": "OK",
-     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:18"
+     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:22"
     },
     {
      "method": "PUT",
@@ -4896,9 +4895,8 @@
      "query": "",
      "line": 32,
      "file": "patient-app/src/components/consult/NationalIdForm.tsx",
-     "status": "WRONG_METHOD",
-     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:18",
-     "note": "backend has GET"
+     "status": "OK",
+     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:21"
     }
    ],
    "files": 43,
@@ -9489,7 +9487,7 @@
      "query": "",
      "line": 90,
      "file": "patient-web/components-next/booking-flow.tsx",
-     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:18",
+     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:20",
      "status": "OK"
     },
     {
@@ -9499,8 +9497,8 @@
      "query": "",
      "line": 31,
      "file": "patient-web/components-next/medical-reports/national-id-form.tsx",
-     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:18",
-     "status": "WRONG_METHOD"
+     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:21",
+     "status": "OK"
     },
     {
      "method": "GET",
@@ -16599,8 +16597,8 @@
      "query": "",
      "line": 31,
      "file": "patient-web/components-next/medical-reports/national-id-form.tsx",
-     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:18",
-     "status": "WRONG_METHOD"
+     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:21",
+     "status": "OK"
     },
     {
      "method": "GET",
@@ -16620,7 +16618,7 @@
      "line": 31,
      "file": "patient-web/app/[locale]/medical-reports/[reportId]/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:18"
+     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:22"
     }
    ],
    "files": 61,
@@ -22295,7 +22293,7 @@
      "line": 24,
      "file": "patient-web/app/[locale]/verify/sick-leave/[code]/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:62"
+     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:66"
     }
    ],
    "files": 54,

@@ -42,7 +42,7 @@ describe('the refund policy tick', () => {
   });
   it('shows the lines the server sends for the service, in the app language, with their numbers', async () => {
     mockApiFetch.mockResolvedValueOnce({ service: 'lab', lines: [
-      { key: 'refund.policy.lab.before_transit', params: {} },
+      { key: 'refund.policy.lab.full', params: { hours: 2 } },
       { key: 'refund.policy.lab.after_transit', params: { trip_fee_sar: 30 } },
       { key: 'refund.policy.card_destination', params: {} },
     ] });

@@ -6018,6 +6018,10 @@
     "policy_lab_late": "If you cancel later than that, {percent}% is returned to your card.",
     "policy_nursing_full": "Cancel at least {hours} hours before the visit and get 100% back.",
     "policy_nursing_late": "If you cancel later than that, {percent}% is returned to your card.",
-    "policy_radiology_late": "If you cancel later than that, {percent}% is returned to your card."
+    "policy_radiology_late": "If you cancel later than that, {percent}% is returned to your card.",
+    "policy_pharmacy_before_preparation": "Cancel before the pharmacy starts preparing the order for a full refund.",
+    "policy_pharmacy_before_preparation_fee": "Cancel before the pharmacy starts preparing the order for a full refund, including the delivery fee.",
+    "policy_pharmacy_after_preparation": "Once preparation has started the order cannot be cancelled. A wrong, damaged or expired item is refunded after an admin reviews your photo.",
+    "policy_consultation_late_rescheduled": "If you cancel a visit that you already moved with the free reschedule, {percent}% is returned."
   }
 }

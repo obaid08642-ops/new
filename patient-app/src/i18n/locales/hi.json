@@ -4176,16 +4176,10 @@
   "refund.policy.consultation.free_reschedule": "मुफ़्त रीशेड्यूल: {count}, विज़िट से {hours} घंटे पहले तक।",
   "refund.policy.consultation.provider_no_show": "यदि डॉक्टर नहीं आते, तो आपको तुरंत 100% वापस मिलेगा।",
   "refund.policy.provider_cancel": "यदि सेवा प्रदाता रद्द करता है, तो आपको तुरंत 100% वापस मिलेगा।",
-  "refund.policy.lab.before_transit": "सैंपल लेने वाले के निकलने से पहले रद्द करें और 100% वापस पाएँ।",
   "refund.policy.lab.after_transit": "सैंपल लेने वाले के निकलने के बाद यात्रा शुल्क {trip_fee_sar} रियाल रखा जाता है और बाकी वापस होता है।",
-  "refund.policy.nursing.before_transit": "नर्स के निकलने से पहले रद्द करें और 100% वापस पाएँ।",
   "refund.policy.nursing.after_transit": "नर्स के निकलने के बाद यात्रा शुल्क {trip_fee_sar} रियाल रखा जाता है और बाकी वापस होता है।",
   "refund.policy.nursing.patient_absent": "यदि आप विज़िट के समय मौजूद नहीं हैं, तो {percent}% वापस होगा।",
   "refund.policy.radiology.full": "विज़िट से कम से कम {hours} घंटे पहले रद्द करें और 100% वापस पाएँ।",
-  "refund.policy.pharmacy.before_dispatch": "ऑर्डर भेजे जाने से पहले रद्द करें तो पूरी राशि वापस मिलती है।",
-  "refund.policy.pharmacy.before_dispatch_fee": "ऑर्डर भेजे जाने से पहले रद्द करें तो डिलीवरी शुल्क सहित पूरी राशि वापस मिलती है।",
-  "refund.policy.pharmacy.after_dispatch": "भेजे जाने के बाद डिलीवरी शुल्क रखा जाता है और बाकी वापस होता है।",
-  "refund.policy.pharmacy.after_delivery": "डिलीवरी के बाद राशि तभी वापस होती है जब सामान गलत, क्षतिग्रस्त, दोषपूर्ण या एक्सपायर हो।",
   "refund.policy.card_destination": "राशि मूल भुगतान माध्यम में वापस जाती है, वॉलेट में नहीं।",
   "consult.cancel.lateOffer": "विज़िट जल्द है, इसलिए रद्द करने पर भुगतान का केवल एक हिस्सा वापस होगा। इसके बजाय आप इसे एक बार मुफ़्त में {days} दिनों के भीतर किसी समय पर ले जा सकते हैं।",
   "refund.policy.lab.full": "विज़िट से कम से कम {hours} घंटे पहले रद्द करें और 100% वापस पाएँ।",
@@ -4201,5 +4195,9 @@
   "consult.nationalId.invalid": "10 अंकों का सही राष्ट्रीय पहचान या इक़ामा नंबर दर्ज करें।",
   "consult.nationalId.failed": "नंबर सेव नहीं हो सका। फिर से कोशिश करें।",
   "consult.nationalId.saved": "सेव हो गया।",
-  "consult.nationalId.neededForPdf": "इस रिपोर्ट को डाउनलोड करने के लिए अपना पहचान नंबर जोड़ें।"
+  "consult.nationalId.neededForPdf": "इस रिपोर्ट को डाउनलोड करने के लिए अपना पहचान नंबर जोड़ें।",
+  "refund.policy.pharmacy.before_preparation": "फ़ार्मेसी द्वारा ऑर्डर तैयार करना शुरू करने से पहले रद्द करें तो पूरी राशि वापस मिलती है।",
+  "refund.policy.pharmacy.before_preparation_fee": "फ़ार्मेसी द्वारा ऑर्डर तैयार करना शुरू करने से पहले रद्द करें तो डिलीवरी शुल्क सहित पूरी राशि वापस मिलती है।",
+  "refund.policy.pharmacy.after_preparation": "तैयारी शुरू होने के बाद ऑर्डर रद्द नहीं हो सकता। गलत, क्षतिग्रस्त या एक्सपायर सामान की राशि आपकी फ़ोटो की एडमिन समीक्षा के बाद वापस होती है।",
+  "refund.policy.consultation.late_rescheduled": "यदि आप मुफ़्त रीशेड्यूल की गई विज़िट रद्द करते हैं, तो {percent}% वापस होगा।"
 }

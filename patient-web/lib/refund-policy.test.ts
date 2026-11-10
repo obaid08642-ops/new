@@ -87,3 +87,14 @@ describe("the 2-hour table lines (lab, radiology, nursing)", () => {
     }
   });
 });
+
+describe("the pharmacy preparation lines and the rescheduled-visit line", () => {
+  it("shows the delivery-fee wording only when the delivery fee is refunded", () => {
+    expect(readRefundSummary({ lines: [{ key: "refund.policy.pharmacy.before_preparation", params: { delivery_fee_refunded: true } }] })[0].key).toBe("pharmacy_before_preparation_fee");
+    expect(readRefundSummary({ lines: [{ key: "refund.policy.pharmacy.before_preparation", params: { delivery_fee_refunded: false } }] })[0].key).toBe("pharmacy_before_preparation");
+    expect(readRefundSummary({ lines: [{ key: "refund.policy.pharmacy.after_preparation", params: {} }] })[0].key).toBe("pharmacy_after_preparation");
+  });
+  it("keeps the late-rescheduled consultation line with its percent", () => {
+    expect(readRefundSummary({ lines: [{ key: "refund.policy.consultation.late_rescheduled", params: { percent: 50 } }] })).toEqual([{ key: "consultation_late_rescheduled", params: { percent: 50 } }]);
+  });
+});
