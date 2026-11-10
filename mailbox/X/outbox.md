@@ -2,6 +2,9 @@
 
 # Lane X outbox
 
+## 2026-11-10 13:15 order: #2596 merged with main again
+- Merged main into x/pharmacy-return-form (clean merge, only the generated design inventories to regenerate), pushed. App jest 2426, locale parity ok, web tsc clean, Android bundle 15,314,112 vs budget 15,393,070 (78 KB margin). Waiting for CI.
+
 ## 2026-11-10 #2596 bundle fixed (your 12:15 order)
 - #2596 now contains #2595's branch (so it also carries its bundle trim) merged with main (incl. #2589), then a real trim: 183 app locale keys that no screen reads, removed from all six app locale files. Method: every key searched as a literal in the app, its screens, scripts and shared packages; excluded any key under a prefix or ending in a suffix built with `${...}`; no `'prefix.' + x` concatenation exists. First try removed 210 and one test caught a key built as `count${...}One` (diag.offer.count*): fixed the method, 183 left. Android bundle 15,314,114 vs budget 15,393,070 (78 KB margin); app jest 2426, locale parity ok. Pushed e4fb39a9; waiting for CI.
 - Risk to know: a key read through some other computed name would show raw at runtime; tests and the grep found none. A smoke run of the main app screens on the next build is cheap insurance.
