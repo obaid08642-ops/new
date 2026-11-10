@@ -1,3 +1,5 @@
+import { Cron } from '@nestjs/schedule';
+import { ScheduledOnce } from '../../common/scheduled-once';
 import { normalizeCoupon } from '../../common/coupon-doc';
 import { shadowFields } from '../../common/halala-shadow';
 import { copayRefundable, findCopayTransaction } from '../../common/copay-transaction';
@@ -134,6 +136,21 @@ export class LedgerService {
       { provider_account_id: providerId, type: 'provider_earning', state: 'pending', available_at: { $lte: new Date() } } as any,
       { $set: { state: 'cleared', matured_at: new Date() } },
     );
+  }
+
+  /**
+   * Escrow maturation for EVERY provider, on a schedule. Until now an earning only turned from pending to cleared when somebody called `providerBalance` for that provider, so any
+   * reader that sums the ledger directly (the withdrawal request, the admin statement, the finance reports) saw matured money as still pending until then, and a provider who asked to
+   * withdraw without opening the balance screen first was refused "insufficient_available_balance". Idempotent and cheap (one indexed update).
+   */
+  @Cron('*/10 * * * *')
+  @ScheduledOnce({ ttlMs: 5 * 60_000, holdMs: 60_000 })
+  async matureAllDueEscrow(now: Date = new Date()): Promise<number> {
+    const res: any = await this.col.updateMany(
+      { type: 'provider_earning', state: 'pending', available_at: { $lte: now } } as any,
+      { $set: { state: 'cleared', matured_at: now } },
+    );
+    return Number(res?.modifiedCount ?? 0);
   }
 
   /** Provider balance decomposition — available may go NEGATIVE (S9). */

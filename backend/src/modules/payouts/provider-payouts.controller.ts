@@ -72,6 +72,8 @@ export class ProviderPayoutsController {
     if (!bank) throw new BadRequestException('verified_bank_account_required');
     const iban = this.validateIban(bank.iban);
     const minimum = await this.minimum();
+    // earnings whose hold has passed count as available: this route sums the ledger itself (it never went through providerBalance, which is what matured them)
+    await this.ledger.matureEscrow(user.id);
     await this.locks.createIndex({ provider_id: 1 }, { unique: true });
     await this.locks.updateOne({ provider_id: user.id }, { $setOnInsert: { provider_id: user.id, createdAt: new Date() } }, { upsert: true })
       .catch((e: any) => { if (e?.code !== 11000) throw e; });

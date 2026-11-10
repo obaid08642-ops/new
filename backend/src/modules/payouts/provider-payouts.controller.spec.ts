@@ -9,6 +9,7 @@ describe('ProviderPayoutsController reservation integrity', () => {
   let session: any;
   let locks: any;
   let controller: ProviderPayoutsController;
+  let ledgerMock: any;
 
   beforeEach(() => {
     withdrawals = { createIndex: jest.fn(), findOne: jest.fn(), insertOne: jest.fn() };
@@ -21,7 +22,8 @@ describe('ProviderPayoutsController reservation integrity', () => {
       collection: jest.fn((name: string) => ({ providerwithdrawals: withdrawals, platformledgerentries: ledgerEntries, provider_bank_accounts: bankAccounts, finance_config: financeConfig, provider_withdrawal_locks: locks }[name])),
       startSession: jest.fn().mockResolvedValue(session),
     };
-    controller = new ProviderPayoutsController(conn, { providerBalance: jest.fn() } as any);
+    ledgerMock = { providerBalance: jest.fn(), matureEscrow: jest.fn().mockResolvedValue(undefined) };
+    controller = new ProviderPayoutsController(conn, ledgerMock as any);
   });
 
   it('allows pharmacy payout now that delivery settlement posts to the ledger (same guards as all providers)', async () => {
@@ -31,6 +33,17 @@ describe('ProviderPayoutsController reservation integrity', () => {
     const result = await controller.request({ id: 'pharmacy-a', role: 'pharmacy' }, { amount: 200, idempotency_key: 'pharmacy_payout_key_001' });
     expect(result).toEqual(expect.objectContaining({ ok: true, available_balance: 300 }));
     expect(withdrawals.insertOne).toHaveBeenCalledWith(expect.objectContaining({ provider_id: 'pharmacy-a', state: 'PENDING_ADMIN_APPROVAL' }), expect.objectContaining({ session }));
+  });
+
+  it('earnings whose hold has passed are matured BEFORE the balance is summed (this route never went through providerBalance)', async () => {
+    withdrawals.findOne.mockResolvedValue(null);
+    bankAccounts.findOne.mockResolvedValue({ id: 'bank-1', iban: 'SA1234567890123456789012', bank_name: 'Bank', review_status: 'approved' });
+    const order: string[] = [];
+    ledgerMock.matureEscrow.mockImplementation(async () => { order.push('mature'); });
+    ledgerEntries.aggregate.mockImplementation(() => { order.push('sum'); return { toArray: jest.fn().mockResolvedValue([{ earned_cleared: 500, paid: 0, debits: 0, locked: 0, earned_pending: 0 }]) }; });
+    await controller.request({ id: 'prov-m', role: 'doctor' }, { amount: 200, idempotency_key: 'idem-test-payout-1' });
+    expect(ledgerMock.matureEscrow).toHaveBeenCalledWith('prov-m');
+    expect(order.slice(0, 2)).toEqual(['mature', 'sum']);
   });
 
   it('fails closed without an approved bank account before starting a reservation', async () => {
