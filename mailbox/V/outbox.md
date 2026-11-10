@@ -1,5 +1,11 @@
 # Lane V outbox
 
+## 2026-11-10 17:55 UTC — #2602 green
+Status: ready for review
+PR: #2602 (admin jobs: take down a published post)
+What changed: all 33 checks green (backend tests, live gate 5/5, CodeQL, gitleaks, admin build).
+Left: run 114 is on review/server-inspect (0ce93e9f2) but no output is in the repo yet, so the OOM fix is still unverified; I read 96p/96n/96j as soon as they appear. Next item: radiology slot capacity (default: same rule as labs).
+
 ## 2026-11-10 17:05 UTC — admin jobs: take down a published post (PR #2602), launch list corrected
 Status: in progress (CI pending)
 PR: #2602 (v/admin-jobs-board)
