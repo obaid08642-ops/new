@@ -1,5 +1,16 @@
 # Lane V outbox
 
+## 2026-11-10 11:10 UTC — P0 mongod OOM: culprit and code fix PR #2597
+Status: in progress (CI pending)
+PR: #2597
+Culprit (read from the code, it fits every run 113 fact; not yet confirmed on the server): GET /medicines/filters. It ran 3 `distinct` scans (category, manufacturer, form) of the whole public catalogue. category is covered by an existing public index; manufacturer and form are in NO index, so each loaded all ~21,000 public medicine documents (about 20 KB each per the schema comment, ~420 MB per scan) into mongod, in sequence and, on a burst of cache misses, in parallel. That is the "20,990 docs examined, 6-8 s" and the memory outside the WiredTiger cache that grew past 1.6 GB. The route only had an edge cache, not a single flight at the app. Connections 27 -> 65 are the same burst.
+Fix in #2597: filters() through HotCache (one build per refresh for the fleet, 30 min + stale 1 h); covering indexes {public flags, manufacturer} and {public flags, form} so distinct reads index keys only; GET /medicines/stream (public, full catalogue, no app uses it) capped at 3 at once per process (503 + Retry-After); driver pools api 80 -> 55 / worker 40 -> 25 (budget 242 of 300, the second-replica test still holds). No mem_limit or cache change.
+Lead 1 (mongosh x24-32): not a host job. Those are mongod client-metadata log lines: one mongosh opens several connections (main + monitors), the docker healthcheck is 3 invocations per 90 s = about 24 lines. monitor.sh / capacity-sample.sh / oplog-backup.sh run it once per run (15/15/10 min), clamav-window.sh only when CLAMAV_ON_DEMAND=1 (not enabled), _oplog-mongo-wait polls `docker inspect`. The killed process was mongod itself (1.45-1.59 GB). No ops change made.
+Left / blockers / questions:
+- After deploy, re-run 96n (read-only, already on the ops tip) to see if the kills stopped; if some other slow command shows up in the windows, send it and I fix that too.
+- Z's platformledgerentries index (#2584) is not in my PR.
+- Stray admin/tsconfig.tsbuildinfo: noted, not in any new ops commit.
+
 ## 2026-11-10 08:30 UTC — still waiting for run 113 (P0 mongod loop)
 Status: waiting; nothing red on my side
 The ops tip on review/server-inspect is still 1e46d6c24 (run 112b), so run 113 (0cee259f, read-only 96n + 96j) has not been pushed: there is no output about the mongod OOM loop yet, and the loop has run since about 03:00 UTC. If the owner is slow to push, 96n can also be run alone by dispatching server-ops on that branch. #2585 (live gate apt lock) is green so far, waiting for the live gate itself. I keep checking the ops tip every 30 minutes and start the fix PR when the output is in.
