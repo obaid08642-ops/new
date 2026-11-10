@@ -4192,5 +4192,9 @@
   "refund.policy.lab.late": "If you cancel later than that, {percent}% is returned to your card.",
   "refund.policy.nursing.full": "Cancel at least {hours} hours before the visit and get 100% back.",
   "refund.policy.nursing.late": "If you cancel later than that, {percent}% is returned to your card.",
-  "refund.policy.radiology.late": "If you cancel later than that, {percent}% is returned to your card."
+  "refund.policy.radiology.late": "If you cancel later than that, {percent}% is returned to your card.",
+  "refund.policy.pharmacy.before_preparation": "Cancel before the pharmacy starts preparing the order for a full refund.",
+  "refund.policy.pharmacy.before_preparation_fee": "Cancel before the pharmacy starts preparing the order for a full refund, including the delivery fee.",
+  "refund.policy.pharmacy.after_preparation": "Once preparation has started the order cannot be cancelled. A wrong, damaged or expired item is refunded after an admin reviews your photo.",
+  "refund.policy.consultation.late_rescheduled": "If you cancel a visit that you already moved with the free reschedule, {percent}% is returned."
 }

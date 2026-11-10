@@ -4192,5 +4192,9 @@
   "refund.policy.lab.late": "اس کے بعد منسوخ کرنے پر {percent}% آپ کے کارڈ میں واپس آئے گا۔",
   "refund.policy.nursing.full": "ملاقات سے کم از کم {hours} گھنٹے پہلے منسوخ کریں اور 100% واپس پائیں۔",
   "refund.policy.nursing.late": "اس کے بعد منسوخ کرنے پر {percent}% آپ کے کارڈ میں واپس آئے گا۔",
-  "refund.policy.radiology.late": "اس کے بعد منسوخ کرنے پر {percent}% آپ کے کارڈ میں واپس آئے گا۔"
+  "refund.policy.radiology.late": "اس کے بعد منسوخ کرنے پر {percent}% آپ کے کارڈ میں واپس آئے گا۔",
+  "refund.policy.pharmacy.before_preparation": "فارمیسی کے آرڈر تیار کرنا شروع کرنے سے پہلے منسوخ کریں تو پوری رقم واپس ملتی ہے۔",
+  "refund.policy.pharmacy.before_preparation_fee": "فارمیسی کے آرڈر تیار کرنا شروع کرنے سے پہلے منسوخ کریں تو ڈیلیوری فیس سمیت پوری رقم واپس ملتی ہے۔",
+  "refund.policy.pharmacy.after_preparation": "تیاری شروع ہونے کے بعد آرڈر منسوخ نہیں ہو سکتا۔ غلط، خراب یا میعاد ختم چیز کی رقم آپ کی تصویر کے انتظامیہ کے جائزے کے بعد واپس ہوتی ہے۔",
+  "refund.policy.consultation.late_rescheduled": "اگر آپ مفت دوبارہ شیڈول کی گئی ملاقات منسوخ کریں تو {percent}% واپس ہوگا۔"
 }

@@ -25,7 +25,7 @@ export const refundSummaryPath = (service: RefundService): string => `/refund-po
 export const KNOWN_LINES = new Set([
   'consultation.full', 'consultation.late', 'consultation.patient_no_show', 'consultation.free_reschedule', 'consultation.provider_no_show',
   'lab.before_transit', 'lab.after_transit', 'nursing.before_transit', 'nursing.after_transit', 'nursing.patient_absent',
-  'lab.full', 'lab.late', 'nursing.full', 'nursing.late', 'radiology.full', 'radiology.late', 'pharmacy.before_dispatch', 'pharmacy.before_dispatch_fee', 'pharmacy.after_dispatch', 'pharmacy.after_delivery',
+  'lab.full', 'lab.late', 'nursing.full', 'nursing.late', 'radiology.full', 'radiology.late', 'pharmacy.before_preparation', 'pharmacy.before_preparation_fee', 'pharmacy.after_preparation', 'consultation.late_rescheduled', 'pharmacy.before_dispatch', 'pharmacy.before_dispatch_fee', 'pharmacy.after_dispatch', 'pharmacy.after_delivery',
   'provider_cancel', 'card_destination',
 ]);
 
@@ -48,6 +48,7 @@ export function readRefundSummary(payload: unknown): RefundLine[] {
     }
     let key = raw.slice('refund.policy.'.length);
     if (key === 'pharmacy.before_dispatch' && params.delivery_fee_refunded === '1') key = 'pharmacy.before_dispatch_fee';
+    if (key === 'pharmacy.before_preparation' && params.delivery_fee_refunded === '1') key = 'pharmacy.before_preparation_fee';
     if (KNOWN_LINES.has(key)) out.push({ key: `refund.policy.${key}`, params });
   }
   return out;

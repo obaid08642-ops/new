@@ -4192,5 +4192,9 @@
   "refund.policy.lab.late": "Kung magkansela ka pagkatapos nito, {percent}% ang ibabalik sa iyong card.",
   "refund.policy.nursing.full": "Kanselahin nang hindi bababa sa {hours} oras bago ang konsultasyon at makukuha mo ang 100% pabalik.",
   "refund.policy.nursing.late": "Kung magkansela ka pagkatapos nito, {percent}% ang ibabalik sa iyong card.",
-  "refund.policy.radiology.late": "Kung magkansela ka pagkatapos nito, {percent}% ang ibabalik sa iyong card."
+  "refund.policy.radiology.late": "Kung magkansela ka pagkatapos nito, {percent}% ang ibabalik sa iyong card.",
+  "refund.policy.pharmacy.before_preparation": "Kanselahin bago simulan ng botika ang paghahanda ng order para sa buong refund.",
+  "refund.policy.pharmacy.before_preparation_fee": "Kanselahin bago simulan ng botika ang paghahanda ng order para sa buong refund, kasama ang bayad sa paghahatid.",
+  "refund.policy.pharmacy.after_preparation": "Kapag nagsimula na ang paghahanda, hindi na makakansela ang order. Ibabalik ang bayad sa maling, sira o expired na item pagkatapos suriin ng admin ang iyong larawan.",
+  "refund.policy.consultation.late_rescheduled": "Kung kanselahin mo ang konsultasyong inilipat mo na gamit ang libreng pagpapalit ng iskedyul, {percent}% ang ibabalik."
 }

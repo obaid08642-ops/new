@@ -4192,5 +4192,9 @@
   "refund.policy.lab.late": "इसके बाद रद्द करने पर {percent}% आपके कार्ड में वापस होगा।",
   "refund.policy.nursing.full": "विज़िट से कम से कम {hours} घंटे पहले रद्द करें और 100% वापस पाएँ।",
   "refund.policy.nursing.late": "इसके बाद रद्द करने पर {percent}% आपके कार्ड में वापस होगा।",
-  "refund.policy.radiology.late": "इसके बाद रद्द करने पर {percent}% आपके कार्ड में वापस होगा।"
+  "refund.policy.radiology.late": "इसके बाद रद्द करने पर {percent}% आपके कार्ड में वापस होगा।",
+  "refund.policy.pharmacy.before_preparation": "फ़ार्मेसी द्वारा ऑर्डर तैयार करना शुरू करने से पहले रद्द करें तो पूरी राशि वापस मिलती है।",
+  "refund.policy.pharmacy.before_preparation_fee": "फ़ार्मेसी द्वारा ऑर्डर तैयार करना शुरू करने से पहले रद्द करें तो डिलीवरी शुल्क सहित पूरी राशि वापस मिलती है।",
+  "refund.policy.pharmacy.after_preparation": "तैयारी शुरू होने के बाद ऑर्डर रद्द नहीं हो सकता। गलत, क्षतिग्रस्त या एक्सपायर सामान की राशि आपकी फ़ोटो की एडमिन समीक्षा के बाद वापस होती है।",
+  "refund.policy.consultation.late_rescheduled": "यदि आप मुफ़्त रीशेड्यूल की गई विज़िट रद्द करते हैं, तो {percent}% वापस होगा।"
 }

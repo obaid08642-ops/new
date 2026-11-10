@@ -4192,5 +4192,9 @@
   "refund.policy.lab.late": "إذا ألغيت بعد ذلك يُعاد {percent}% إلى بطاقتك.",
   "refund.policy.nursing.full": "ألغِ قبل الموعد بـ {hours} ساعات على الأقل واسترد 100%.",
   "refund.policy.nursing.late": "إذا ألغيت بعد ذلك يُعاد {percent}% إلى بطاقتك.",
-  "refund.policy.radiology.late": "إذا ألغيت بعد ذلك يُعاد {percent}% إلى بطاقتك."
+  "refund.policy.radiology.late": "إذا ألغيت بعد ذلك يُعاد {percent}% إلى بطاقتك.",
+  "refund.policy.pharmacy.before_preparation": "ألغِ قبل أن تبدأ الصيدلية بتجهيز الطلب لاسترداد كامل المبلغ.",
+  "refund.policy.pharmacy.before_preparation_fee": "ألغِ قبل أن تبدأ الصيدلية بتجهيز الطلب لاسترداد كامل المبلغ شاملًا رسوم التوصيل.",
+  "refund.policy.pharmacy.after_preparation": "بعد بدء التجهيز لا يمكن إلغاء الطلب. يُرد المبلغ عن المنتج الخاطئ أو التالف أو منتهي الصلاحية بعد مراجعة صورتك من الإدارة.",
+  "refund.policy.consultation.late_rescheduled": "إذا ألغيت موعدًا نقلته سابقًا بإعادة الجدولة المجانية يُعاد {percent}%."
 }

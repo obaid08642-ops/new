@@ -6009,6 +6009,10 @@
     "policy_lab_late": "Kung magkansela ka pagkatapos nito, {percent}% ang ibabalik sa iyong card.",
     "policy_nursing_full": "Kanselahin nang hindi bababa sa {hours} oras bago ang konsultasyon at makukuha mo ang 100% pabalik.",
     "policy_nursing_late": "Kung magkansela ka pagkatapos nito, {percent}% ang ibabalik sa iyong card.",
-    "policy_radiology_late": "Kung magkansela ka pagkatapos nito, {percent}% ang ibabalik sa iyong card."
+    "policy_radiology_late": "Kung magkansela ka pagkatapos nito, {percent}% ang ibabalik sa iyong card.",
+    "policy_pharmacy_before_preparation": "Kanselahin bago simulan ng botika ang paghahanda ng order para sa buong refund.",
+    "policy_pharmacy_before_preparation_fee": "Kanselahin bago simulan ng botika ang paghahanda ng order para sa buong refund, kasama ang bayad sa paghahatid.",
+    "policy_pharmacy_after_preparation": "Kapag nagsimula na ang paghahanda, hindi na makakansela ang order. Ibabalik ang bayad sa maling, sira o expired na item pagkatapos suriin ng admin ang iyong larawan.",
+    "policy_consultation_late_rescheduled": "Kung kanselahin mo ang konsultasyong inilipat mo na gamit ang libreng pagpapalit ng iskedyul, {percent}% ang ibabalik."
   }
 }
