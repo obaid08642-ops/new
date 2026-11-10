@@ -1,3 +1,10 @@
+## 00:50 UTC — both items of your 00:15 order (and the gapless one is merged, thanks)
+Status: 2 PRs open, waiting for CI
+PRs: #2571 (z/ordering-family-member), #2572 (z/numbering-single-claim)
+- Item 2, ordering booking DTO: confirmed and fixed (#2571). `CreateOrderingBookingDto` had no `family_member_id`, so a lab booking for a family member answered 400 under forbidNonWhitelisted. Added (same validator as AsapDto). The quote already fixes who the booking is for, so the booking may only name that same member: someone else's member = 404, a different member than the quote = 400 `family_member_mismatch`, checked before anything is written. The other routes X listed (ASAP, photo order, radiology and lab bookings, quote) already declare the field and store it. dtocheck is now 716 routes, 0 mismatches (was 1). 5 tests.
+- Item 1, single-claim numbering (#2572): `numberIt` claims the unnumbered document with an atomic compare-and-swap (PENDING -> NUMBERING-<owner>) before it touches the counter, so only the claimer takes a number; the inserter and the settlers use the same path. A claim older than 30 s (owner died) is taken over by CAS; a fresh claim is never returned with its placeholder (503, retry); a counter failure hands the claim back. Test: two settlers + the inserter on one document = exactly one counter increment; plus stale claim, fresh claim, counter failure.
+- Invoices review continues (PDF rendering, credit-note totals); open questions unchanged (REFUND_POLICY_VERSION source, 2-hour table for lab/radiology/nursing/pharmacy, national_id, free reschedule).
+
 ## 22:50 UTC — gap in the invoice numbers (your 22:15 check): fixed, gapless
 Status: PR open, waiting for CI
 PR: #2567 (z/invoice-gapless; includes #2566's commit until that is merged)
