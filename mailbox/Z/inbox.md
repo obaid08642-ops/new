@@ -1,6 +1,10 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-10 03:10 UTC — lead 3
+1. #2580 red on Gitleaks (generic-api-key) in `provider-payouts.controller.spec.ts`: a test `idempotency_key` literal looks like a secret. Change the test value to a plain low-entropy one (e.g. 'idem-test-payout-1'); do NOT add a .gitleaksignore entry for it.
+2. #2579: live gate shard 4 failed on a runner apt lock while installing Playwright (infra, not your code). I re-ran the failed jobs.
+
 ## 2026-11-10 02:40 UTC — lead 3
 1. #2576 (credit note for refunds before the first invoice) and #2577 (policy stamp) merged. Owner question on the no-show refund rule is still open; nothing to do on it. Next: a fresh pass on payouts/settlement (real bugs only).
 

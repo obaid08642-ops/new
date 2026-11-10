@@ -1,6 +1,8 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-10 03:10 UTC
+- #2580 gitleaks false positive (test idempotency key) → Z rename. #2579 live gate infra flake (dpkg lock) → re-run. CI: #2581 (V capacity), #2578 (X). Owner: no-show rule + run 112b.
 ## Lead 3 run 2026-11-10 02:40 UTC
 - Merged #2576, #2577, #2336 (old audit, green). V: lab capacity per slot GO. Z: payouts/settlement pass. #2578 CI. Owner: no-show rule + run 112b push.
 ## Lead 3 run 2026-11-10 02:10 UTC
@@ -76,5 +78,3 @@ SICK LEAVE → renamed. Never call our document "إجازة مرضية / sick le
 - Seha link: after issuing, the doctor sees a notice "if you granted rest days, register the sick leave on Seha and enter its number here". Optional field (not blocking) for the Seha sick-leave number; format-validated; editable by the issuing doctor only; audit-logged.
 - Until the number is added the document shows "Seha registration: pending"; once added it shows "Registered on Seha: <number>" + "verify on Seha" text, the patient gets a notification, and the PDF regenerates with it.
 - Reminders to the doctor if a rest period was given and no number after 24 h and 72 h; admin list of reports without a Seha number after 3 days.
-- We do NOT verify the number with Seha (no API); the employer verifies on Seha. Footer: "Official sick leave is issued via Seha".
-Owner: Z backend first, then W (doctor) and X (patient).
