@@ -9,3 +9,8 @@ export class DecideNoShowDto {
   @IsIn(['uphold_report', 'accept_dispute']) decision: 'uphold_report' | 'accept_dispute';
   @IsString() @MinLength(DISPUTE_REASON_MIN) @MaxLength(DISPUTE_REASON_MAX) note: string;
 }
+
+export class ReviewNoShowDto {
+  @IsIn(['refund', 'reject']) decision: 'refund' | 'reject';
+  @IsString() @MinLength(DISPUTE_REASON_MIN) @MaxLength(DISPUTE_REASON_MAX) note: string;
+}

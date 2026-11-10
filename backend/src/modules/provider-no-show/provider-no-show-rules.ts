@@ -7,6 +7,15 @@ export const DISPUTE_WINDOW_HOURS = 24;
 export const FLAG_REPORT_COUNT = 2;
 export const FLAG_WINDOW_DAYS = 30;
 export const DISPUTE_REASON_MIN = 10;
+/** Owner decision 2026-11-10: a patient gets at most this many automatic refunds for a reported video no-show in this many days; the next one is reviewed by an admin first. */
+export const MAX_AUTO_REFUNDS = 2;
+export const AUTO_REFUND_WINDOW_DAYS = 30;
+/** What happens to the money of a report: video visits are refunded at once (within the cap), clinic and home visits are HELD until the provider's dispute window has closed. */
+export type ReportOutcome = 'refunded' | 'held' | 'pending_review';
+export function outcomeFor(serviceType: unknown, autoRefundsInWindow: number): ReportOutcome {
+  if (String(serviceType) !== 'video') return 'held';
+  return autoRefundsInWindow >= MAX_AUTO_REFUNDS ? 'pending_review' : 'refunded';
+}
 export const DISPUTE_REASON_MAX = 500;
 
 /** States a provider-side move puts the visit in: a provider who checked in, set off or started the consultation was there. */

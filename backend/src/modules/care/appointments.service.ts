@@ -1,3 +1,4 @@
+import { outcomeFor } from '../provider-no-show/provider-no-show-rules';
 import { stampAcceptance } from '../../common/refund-policy-stamp';
 import { refundPolicyAcceptance } from '../../common/refund-policy-acceptance';
 import { ProviderNoShowService } from '../provider-no-show/provider-no-show.service';
@@ -601,10 +602,44 @@ export class AppointmentsService {
     if (!Number.isFinite(startAt) || Date.now() < startAt + AppointmentsService.PROVIDER_NO_SHOW_GRACE_MS) throw new BadRequestException('provider_no_show_too_early');
     // A provider who took part in the visit (checked in, started it, called, wrote) did not fail to come: no automatic 100 %.
     await this.noShow?.assertNoProviderActivity(appt);
+    const noShowEvent = () => this.events.emit('appointment.provider_no_show', { appointment_id: id, patient_id: appt.patient_id, doctor_id: appt.doctor_id, doctor_user_id: appt.doctor_user_id });
+    if (this.noShow) {
+      // Owner decision 2026-11-10: a video visit is refunded at once, but at most twice per patient per 30 days (the next waits for an admin); a clinic or home visit is HELD until the
+      // provider's 24-hour dispute window is over, then refunded automatically unless the provider disputes it (admin decides) or turned up.
+      const now = new Date();
+      const outcome = outcomeFor(appt.service_type, await this.noShow.autoRefundsInWindow(String(user?.id), now));
+      if (outcome !== 'refunded') {
+        const rec = await this.noShow.record(appt, String(user?.id), now, outcome);
+        noShowEvent();
+        return outcome === 'held'
+          ? { ok: true, status: 'held' as const, refund_after: rec.refund_after, appointment_id: id }
+          : { ok: true, status: 'pending_review' as const, appointment_id: id };
+      }
+      const out = await this.cancel(id, user, 'provider_no_show', false, true);
+      await this.noShow.record(appt, String(user?.id), now, 'refunded');
+      noShowEvent();
+      return { ...out, status: 'refunded' as const };
+    }
     const out = await this.cancel(id, user, 'provider_no_show', false, true);
-    await this.noShow?.record(appt, String(user?.id));
-    this.events.emit('appointment.provider_no_show', { appointment_id: id, patient_id: appt.patient_id, doctor_id: appt.doctor_id, doctor_user_id: appt.doctor_user_id });
+    noShowEvent();
     return out;
+  }
+
+  /** The held refund of a provider no-show is due (the window passed, or an admin decided for the patient): cancel the visit as a provider no-show, which refunds 100 % through the usual path. */
+  @OnEvent('provider_no_show.release')
+  async onProviderNoShowRelease(e: { appointment_id: string; patient_id: string }): Promise<void> {
+    try {
+      // idempotent: a release asked for again (the first one finished but could not say so, or ran twice) never refunds a second time
+      const appt: any = await this.apptModel.findOne({ id: String(e.appointment_id) });
+      if (appt && String(appt.status).toUpperCase() === 'CANCELLED') {
+        if (appt.cancellation_reason === 'provider_no_show') { await this.noShow?.markRefunded(String(e.appointment_id)); return; }
+        throw new Error('cancelled_for_another_reason');
+      }
+      await this.cancel(String(e.appointment_id), { id: String(e.patient_id), role: 'patient' }, 'provider_no_show', false, true);
+      await this.noShow?.markRefunded(String(e.appointment_id));
+    } catch (err: any) {
+      await this.noShow?.markReleaseFailed(String(e.appointment_id), err?.message || 'release_failed');
+    }
   }
 
   /**
