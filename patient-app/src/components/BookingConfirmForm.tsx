@@ -247,7 +247,7 @@ export default function BookingConfirmScreen() {
         </>
       ) : null}
 
-      <RefundPolicyTick checked={refundAgreed} onChange={setRefundAgreed} />
+      <RefundPolicyTick service="consultation" checked={refundAgreed} onChange={setRefundAgreed} />
       <Notice tone="info" text={k('consult.confirm.stepsNote')} />
       <TelehealthConsentSheet
         open={consentOpen}

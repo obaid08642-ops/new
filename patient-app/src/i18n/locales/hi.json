@@ -4163,5 +4163,22 @@
   "nur.book.err.booking_times_need_recurrence": "एक से अधिक विज़िट के लिए दोहराव (दैनिक, साप्ताहिक या मासिक) चुनें।",
   "nur.book.err.booking_times_out_of_range": "बारों की संख्या इस सेवा की सीमा से बाहर है।",
   "nur.book.err.booking_sessions_not_offered": "चुने गए सत्रों की संख्या इस पैकेज में उपलब्ध नहीं है।",
-  "nur.book.err.service_price_not_set": "इस सेवा की कीमत अभी तय नहीं है।"
+  "nur.book.err.service_price_not_set": "इस सेवा की कीमत अभी तय नहीं है।",
+  "refund.policy.consultation.full": "विज़िट से कम से कम {hours} घंटे पहले रद्द करें और 100% वापस पाएँ।",
+  "refund.policy.consultation.late": "इसके बाद रद्द करने पर {percent}% आपके कार्ड में वापस होगा।",
+  "refund.policy.consultation.patient_no_show": "यदि आप विज़िट पर नहीं पहुँचते, तो {percent}% वापस होगा।",
+  "refund.policy.consultation.free_reschedule": "मुफ़्त रीशेड्यूल: {count}, विज़िट से {hours} घंटे पहले तक।",
+  "refund.policy.consultation.provider_no_show": "यदि डॉक्टर नहीं आते, तो आपको तुरंत 100% वापस मिलेगा।",
+  "refund.policy.provider_cancel": "यदि सेवा प्रदाता रद्द करता है, तो आपको तुरंत 100% वापस मिलेगा।",
+  "refund.policy.lab.before_transit": "सैंपल लेने वाले के निकलने से पहले रद्द करें और 100% वापस पाएँ।",
+  "refund.policy.lab.after_transit": "सैंपल लेने वाले के निकलने के बाद यात्रा शुल्क {trip_fee_sar} रियाल रखा जाता है और बाकी वापस होता है।",
+  "refund.policy.nursing.before_transit": "नर्स के निकलने से पहले रद्द करें और 100% वापस पाएँ।",
+  "refund.policy.nursing.after_transit": "नर्स के निकलने के बाद यात्रा शुल्क {trip_fee_sar} रियाल रखा जाता है और बाकी वापस होता है।",
+  "refund.policy.nursing.patient_absent": "यदि आप विज़िट के समय मौजूद नहीं हैं, तो {percent}% वापस होगा।",
+  "refund.policy.radiology.full": "रेडियोलॉजी बुकिंग की पूरी राशि वापस की जाती है।",
+  "refund.policy.pharmacy.before_dispatch": "ऑर्डर भेजे जाने से पहले रद्द करें तो पूरी राशि वापस मिलती है।",
+  "refund.policy.pharmacy.before_dispatch_fee": "ऑर्डर भेजे जाने से पहले रद्द करें तो डिलीवरी शुल्क सहित पूरी राशि वापस मिलती है।",
+  "refund.policy.pharmacy.after_dispatch": "भेजे जाने के बाद डिलीवरी शुल्क रखा जाता है और बाकी वापस होता है।",
+  "refund.policy.pharmacy.after_delivery": "डिलीवरी के बाद राशि तभी वापस होती है जब सामान गलत, क्षतिग्रस्त, दोषपूर्ण या एक्सपायर हो।",
+  "refund.policy.card_destination": "राशि मूल भुगतान माध्यम में वापस जाती है, वॉलेट में नहीं।"
 }

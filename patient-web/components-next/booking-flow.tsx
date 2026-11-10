@@ -304,7 +304,7 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
           <Link className={rx.textLink} href={`/${locale}/refund-policy`}>{legal("refundPolicy")}</Link>
         </PolicyCard>
       ) : null}
-      <RefundPolicyTick locale={locale} checked={refundAgreed} onChange={setRefundAgreed} compact={Boolean(policy)} />
+      <RefundPolicyTick locale={locale} service="consultation" checked={refundAgreed} onChange={setRefundAgreed} compact={Boolean(policy)} />
       {price || durationMinutes !== null ? (
         <section className={`${rx.card} ${styles.priceCard}`} aria-label={t("fee")}>
           {durationMinutes !== null ? <div className={styles.totalRow}><span>{t("duration")}</span><span>{t("durationValue", { n: new Intl.NumberFormat(locale).format(durationMinutes) })}</span></div> : null}

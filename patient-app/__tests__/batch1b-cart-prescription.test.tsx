@@ -13,6 +13,8 @@ import { CartProvider, useCart } from '../src/context/CartContext';
 
 // Boundaries only: the API, the router, the app context, the camera and the picker. Fixtures live in this test.
 const mockApiFetch = jest.fn();
+/** The calls that are not the tick's read of the refund text (GET /refund-policy/summary): what the screen sends. */
+const sent = () => mockApiFetch.mock.calls.filter(([p]) => !String(p).startsWith('/refund-policy/summary'));
 const mockTakePicture = jest.fn();
 const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn(), canGoBack: jest.fn(() => true), setParams: jest.fn() };
 let mockParams: Record<string, string> = {};
@@ -298,14 +300,14 @@ describe('Order with a prescription: type the names (the old manual request)', (
     await fireEvent.changeText(screen.getByTestId('request-name'), 'بن');
     expect(screen.getByText(T('pharmacy.request.nameHint'))).toBeTruthy();
     await fireEvent.press(screen.getByTestId('request-submit'));
-    expect(mockApiFetch).not.toHaveBeenCalled();
+    expect(sent()).toEqual([]);
     await fireEvent.changeText(screen.getByTestId('request-name'), 'بنادول');
     await fireEvent.changeText(screen.getByTestId('request-details'), '500 مغ');
     await fireEvent.press(screen.getByTestId('request-submit'));
     await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith({ pathname: '/pharmacy/broadcast-status', params: { orderId: 'order-1' } }));
-    const calls = mockApiFetch.mock.calls.map(([p, init]) => [p, (init as { headers?: Record<string, string> } | undefined)?.headers?.['Idempotency-Key']]);
+    const calls = sent().map(([p, init]) => [p, (init as { headers?: Record<string, string> } | undefined)?.headers?.['Idempotency-Key']]);
     expect(calls).toEqual([['/patient/pharmacy/orders', 'test-key'], ['/patient/pharmacy/orders/order-1/submit', 'test-key-submit']]);
-    const draft = JSON.parse((mockApiFetch.mock.calls[0][1] as { body: string }).body);
+    const draft = JSON.parse((sent()[0][1] as { body: string }).body);
     expect(draft.items[0].raw_name).toBe('بنادول — 500 مغ');
   });
 
@@ -318,7 +320,7 @@ describe('Order with a prescription: type the names (the old manual request)', (
     await fireEvent.changeText(screen.getByTestId('request-name'), 'بنادول');
     await fireEvent.press(screen.getByTestId('request-submit'));
     await waitFor(() => expect(screen.getByText(T('pharmacy.request.noLocation'))).toBeTruthy());
-    expect(mockApiFetch).not.toHaveBeenCalled();
+    expect(sent()).toEqual([]);
   });
 
   it('a refused request says nothing was created, in the screen, not in a system alert', async () => {

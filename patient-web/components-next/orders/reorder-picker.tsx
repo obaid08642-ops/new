@@ -132,7 +132,7 @@ export function ReorderPicker({ locale, orderId, lines, skipped, needsPrescripti
           {failure === "session" ? <div className={rx.errorActions}><Link className={rx.textLink} href={`/${locale}/login`}>{flow("signIn")}</Link></div> : null}
         </div>
       ) : null}
-      <RefundPolicyTick locale={locale} checked={refundAgreed} onChange={setRefundAgreed} />
+      <RefundPolicyTick locale={locale} service="pharmacy" checked={refundAgreed} onChange={setRefundAgreed} />
       <div className={styles.actions}>
         <Button label={sending ? checkout("sending") : checkout("send")} fullWidth disabled={!canSend} loading={sending} onClick={() => void send()} />
         <Button label={t("addToCart")} variant="outline" fullWidth disabled={chosen.length === 0 || sending} loading={adding} onClick={add} />

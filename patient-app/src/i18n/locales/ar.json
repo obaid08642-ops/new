@@ -4163,5 +4163,22 @@
   "nur.book.err.booking_times_need_recurrence": "اختر التكرار (يومي أو أسبوعي أو شهري) لأكثر من زيارة.",
   "nur.book.err.booking_times_out_of_range": "عدد المرات خارج الحد المسموح لهذه الخدمة.",
   "nur.book.err.booking_sessions_not_offered": "عدد الجلسات المختار غير متاح لهذه الباقة.",
-  "nur.book.err.service_price_not_set": "سعر هذه الخدمة غير محدد بعد."
+  "nur.book.err.service_price_not_set": "سعر هذه الخدمة غير محدد بعد.",
+  "refund.policy.consultation.full": "ألغِ قبل الموعد بـ {hours} ساعات على الأقل واسترد 100%.",
+  "refund.policy.consultation.late": "إذا ألغيت بعد ذلك يُعاد {percent}% إلى بطاقتك.",
+  "refund.policy.consultation.patient_no_show": "إذا لم تحضر الموعد يُعاد {percent}%.",
+  "refund.policy.consultation.free_reschedule": "إعادة جدولة مجانية: {count}، حتى {hours} ساعات قبل الموعد.",
+  "refund.policy.consultation.provider_no_show": "إذا لم يحضر الطبيب تسترد 100% فورًا.",
+  "refund.policy.provider_cancel": "إذا ألغى مقدّم الخدمة تسترد 100% فورًا.",
+  "refund.policy.lab.before_transit": "ألغِ قبل انطلاق المندوب واسترد 100%.",
+  "refund.policy.lab.after_transit": "بعد انطلاق المندوب تُحتسب رسوم المشوار {trip_fee_sar} ر.س ويُعاد الباقي.",
+  "refund.policy.nursing.before_transit": "ألغِ قبل انطلاق الممرض واسترد 100%.",
+  "refund.policy.nursing.after_transit": "بعد انطلاق الممرض تُحتسب رسوم المشوار {trip_fee_sar} ر.س ويُعاد الباقي.",
+  "refund.policy.nursing.patient_absent": "إذا لم تكن موجودًا وقت الزيارة يُعاد {percent}%.",
+  "refund.policy.radiology.full": "تُرد حجوزات الأشعة كاملة.",
+  "refund.policy.pharmacy.before_dispatch": "ألغِ قبل شحن الطلب لاسترداد كامل المبلغ.",
+  "refund.policy.pharmacy.before_dispatch_fee": "ألغِ قبل شحن الطلب لاسترداد كامل المبلغ شاملًا رسوم التوصيل.",
+  "refund.policy.pharmacy.after_dispatch": "بعد شحن الطلب تُحتسب رسوم التوصيل ويُعاد الباقي.",
+  "refund.policy.pharmacy.after_delivery": "بعد التسليم يُرد المبلغ فقط إذا كان المنتج خاطئًا أو تالفًا أو معيبًا أو منتهي الصلاحية.",
+  "refund.policy.card_destination": "يُعاد المبلغ إلى وسيلة الدفع الأصلية وليس إلى محفظة."
 }

@@ -4163,5 +4163,22 @@
   "nur.book.err.booking_times_need_recurrence": "একাধিক ভিজিটের জন্য পুনরাবৃত্তি (প্রতিদিন, প্রতি সপ্তাহে বা প্রতি মাসে) বেছে নিন।",
   "nur.book.err.booking_times_out_of_range": "বারের সংখ্যা এই সেবার সীমার বাইরে।",
   "nur.book.err.booking_sessions_not_offered": "নির্বাচিত সেশন সংখ্যা এই প্যাকেজে পাওয়া যায় না।",
-  "nur.book.err.service_price_not_set": "এই সেবার দাম এখনও নির্ধারিত হয়নি।"
+  "nur.book.err.service_price_not_set": "এই সেবার দাম এখনও নির্ধারিত হয়নি।",
+  "refund.policy.consultation.full": "ভিজিটের অন্তত {hours} ঘণ্টা আগে বাতিল করলে ১০০% ফেরত পাবেন।",
+  "refund.policy.consultation.late": "এর পরে বাতিল করলে {percent}% আপনার কার্ডে ফেরত যাবে।",
+  "refund.policy.consultation.patient_no_show": "আপনি ভিজিটে না এলে {percent}% ফেরত পাবেন।",
+  "refund.policy.consultation.free_reschedule": "বিনামূল্যে পুনর্নির্ধারণ: {count}টি, ভিজিটের {hours} ঘণ্টা আগে পর্যন্ত।",
+  "refund.policy.consultation.provider_no_show": "ডাক্তার না এলে আপনি সঙ্গে সঙ্গে ১০০% ফেরত পাবেন।",
+  "refund.policy.provider_cancel": "সেবাদাতা বাতিল করলে আপনি সঙ্গে সঙ্গে ১০০% ফেরত পাবেন।",
+  "refund.policy.lab.before_transit": "নমুনা সংগ্রহকারী রওনা হওয়ার আগে বাতিল করলে ১০০% ফেরত পাবেন।",
+  "refund.policy.lab.after_transit": "নমুনা সংগ্রহকারী রওনা হওয়ার পরে যাতায়াত ফি {trip_fee_sar} রিয়াল রাখা হয় এবং বাকিটা ফেরত দেওয়া হয়।",
+  "refund.policy.nursing.before_transit": "নার্স রওনা হওয়ার আগে বাতিল করলে ১০০% ফেরত পাবেন।",
+  "refund.policy.nursing.after_transit": "নার্স রওনা হওয়ার পরে যাতায়াত ফি {trip_fee_sar} রিয়াল রাখা হয় এবং বাকিটা ফেরত দেওয়া হয়।",
+  "refund.policy.nursing.patient_absent": "ভিজিটের সময় আপনি না থাকলে {percent}% ফেরত পাবেন।",
+  "refund.policy.radiology.full": "রেডিওলজি বুকিংয়ের পুরো টাকা ফেরত দেওয়া হয়।",
+  "refund.policy.pharmacy.before_dispatch": "অর্ডার পাঠানোর আগে বাতিল করলে পুরো টাকা ফেরত পাবেন।",
+  "refund.policy.pharmacy.before_dispatch_fee": "অর্ডার পাঠানোর আগে বাতিল করলে ডেলিভারি ফিসহ পুরো টাকা ফেরত পাবেন।",
+  "refund.policy.pharmacy.after_dispatch": "পাঠানোর পরে ডেলিভারি ফি রাখা হয় এবং বাকিটা ফেরত দেওয়া হয়।",
+  "refund.policy.pharmacy.after_delivery": "ডেলিভারির পরে শুধু পণ্য ভুল, ক্ষতিগ্রস্ত, ত্রুটিপূর্ণ বা মেয়াদোত্তীর্ণ হলে টাকা ফেরত পাবেন।",
+  "refund.policy.card_destination": "টাকা মূল পেমেন্ট পদ্ধতিতেই ফেরত যায়, ওয়ালেটে নয়।"
 }

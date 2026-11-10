@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { withRefundPolicy } from "./refund-policy";
+import { readRefundSummary, refundSummaryPath, withRefundPolicy } from "./refund-policy";
 import { sendBroadcast } from "./pharmacy/broadcast";
 
 const ADDRESS = { id: "a1", lat: 24.7, lng: 46.7, city: "Riyadh", district: "Test", street: "Test street" } as never;
@@ -22,5 +22,33 @@ describe("the refund policy agreement", () => {
     expect(result).toEqual({ ok: true, orderId: UUID });
     expect(calls[0].url).toBe("/api/patient/patient/pharmacy/orders");
     expect(calls[0].body.refund_policy_accepted).toBe(true);
+  });
+});
+
+describe("the per-service refund text", () => {
+  it("asks for one service", () => {
+    expect(refundSummaryPath("lab")).toBe("/refund-policy/summary?service=lab");
+  });
+  it("turns the server lines into message keys with their numbers and drops unknown keys", () => {
+    const lines = readRefundSummary({ service: "consultation", lines: [
+      { key: "refund.policy.consultation.full", params: { hours: 2 } },
+      { key: "refund.policy.consultation.late", params: { hours: 2, percent: 50 } },
+      { key: "refund.policy.something_new", params: {} },
+      { key: "other.key" },
+      { key: "refund.policy.card_destination" },
+    ] });
+    expect(lines).toEqual([
+      { key: "consultation_full", params: { hours: 2 } },
+      { key: "consultation_late", params: { hours: 2, percent: 50 } },
+      { key: "card_destination", params: {} },
+    ]);
+  });
+  it("picks the delivery-fee wording for the pharmacy line", () => {
+    expect(readRefundSummary({ lines: [{ key: "refund.policy.pharmacy.before_dispatch", params: { delivery_fee_refunded: true } }] })[0].key).toBe("pharmacy_before_dispatch_fee");
+    expect(readRefundSummary({ lines: [{ key: "refund.policy.pharmacy.before_dispatch", params: { delivery_fee_refunded: false } }] })[0].key).toBe("pharmacy_before_dispatch");
+  });
+  it("reads nothing from a broken answer", () => {
+    expect(readRefundSummary(null)).toEqual([]);
+    expect(readRefundSummary({ lines: "x" })).toEqual([]);
   });
 });

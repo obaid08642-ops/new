@@ -4163,5 +4163,22 @@
   "nur.book.err.booking_times_need_recurrence": "ایک سے زیادہ وزٹ کے لیے تکرار (روزانہ، ہفتہ وار یا ماہانہ) منتخب کریں۔",
   "nur.book.err.booking_times_out_of_range": "بار بار کی تعداد اس سروس کی حد سے باہر ہے۔",
   "nur.book.err.booking_sessions_not_offered": "منتخب کردہ سیشنز کی تعداد اس پیکج میں دستیاب نہیں ہے۔",
-  "nur.book.err.service_price_not_set": "اس سروس کی قیمت ابھی مقرر نہیں ہے۔"
+  "nur.book.err.service_price_not_set": "اس سروس کی قیمت ابھی مقرر نہیں ہے۔",
+  "refund.policy.consultation.full": "ملاقات سے کم از کم {hours} گھنٹے پہلے منسوخ کریں اور 100% واپس پائیں۔",
+  "refund.policy.consultation.late": "اس کے بعد منسوخ کرنے پر {percent}% آپ کے کارڈ میں واپس آئے گا۔",
+  "refund.policy.consultation.patient_no_show": "اگر آپ ملاقات پر نہ پہنچیں تو {percent}% واپس ہوگا۔",
+  "refund.policy.consultation.free_reschedule": "مفت دوبارہ شیڈول: {count}، ملاقات سے {hours} گھنٹے پہلے تک۔",
+  "refund.policy.consultation.provider_no_show": "اگر ڈاکٹر نہ آئے تو آپ کو فوراً 100% واپس ملے گا۔",
+  "refund.policy.provider_cancel": "اگر سروس فراہم کنندہ منسوخ کرے تو آپ کو فوراً 100% واپس ملے گا۔",
+  "refund.policy.lab.before_transit": "نمونہ لینے والے کے روانہ ہونے سے پہلے منسوخ کریں اور 100% واپس پائیں۔",
+  "refund.policy.lab.after_transit": "نمونہ لینے والے کے روانہ ہونے کے بعد سفر کی فیس {trip_fee_sar} ر.س رکھی جاتی ہے اور باقی واپس ہوتا ہے۔",
+  "refund.policy.nursing.before_transit": "نرس کے روانہ ہونے سے پہلے منسوخ کریں اور 100% واپس پائیں۔",
+  "refund.policy.nursing.after_transit": "نرس کے روانہ ہونے کے بعد سفر کی فیس {trip_fee_sar} ر.س رکھی جاتی ہے اور باقی واپس ہوتا ہے۔",
+  "refund.policy.nursing.patient_absent": "اگر آپ ملاقات کے وقت موجود نہ ہوں تو {percent}% واپس ہوگا۔",
+  "refund.policy.radiology.full": "ریڈیالوجی بکنگ کی پوری رقم واپس کی جاتی ہے۔",
+  "refund.policy.pharmacy.before_dispatch": "آرڈر روانہ ہونے سے پہلے منسوخ کریں تو پوری رقم واپس ملتی ہے۔",
+  "refund.policy.pharmacy.before_dispatch_fee": "آرڈر روانہ ہونے سے پہلے منسوخ کریں تو ڈیلیوری فیس سمیت پوری رقم واپس ملتی ہے۔",
+  "refund.policy.pharmacy.after_dispatch": "روانگی کے بعد ڈیلیوری فیس رکھی جاتی ہے اور باقی واپس ہوتا ہے۔",
+  "refund.policy.pharmacy.after_delivery": "ڈیلیوری کے بعد رقم صرف تب واپس ہوتی ہے جب چیز غلط، خراب، ناقص یا میعاد ختم ہو۔",
+  "refund.policy.card_destination": "رقم اصل ادائیگی کے طریقے پر واپس جاتی ہے، والیٹ میں نہیں۔"
 }

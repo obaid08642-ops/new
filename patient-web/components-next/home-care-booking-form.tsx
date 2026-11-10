@@ -284,7 +284,7 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
         )}
       </SectionCard>
       {error ? <p role="alert" className={styles.error}>{error}</p> : null}
-      <RefundPolicyTick locale={locale} checked={refundAgreed} onChange={setRefundAgreed} />
+      <RefundPolicyTick locale={locale} service="nursing" checked={refundAgreed} onChange={setRefundAgreed} />
       <Button fullWidth size="lg" loading={saving} disabled={saving || !refundAgreed || !slot || (!addressId && !here) || noPolicy} label={saving ? t("formBooking") : method === "card" && choice && quoteNow?.value ? t("confirmWithAmount", { amount: formatPrice(locale, quoteNow.value.total).text }) : method === "card" && !choice && price !== undefined ? t("confirmWithAmount", { amount: formatPrice(locale, price).text }) : t("formConfirm")} onClick={() => void submit()} />
     </>
   );

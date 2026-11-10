@@ -144,3 +144,12 @@ describe("patient allowlist: providers map (render test finding)", () => {
     expect(isAllowedPatientApiRequest("/providers/map", "POST")).toBe(false);
   });
 });
+
+describe("patient allowlist: refund policy summary", () => {
+  it("allows only the per-service summary read", async () => {
+    const { isAllowedPatientApiRequest } = await import("./patient-allowlist");
+    expect(isAllowedPatientApiRequest("/refund-policy/summary?service=lab", "GET")).toBe(true);
+    expect(isAllowedPatientApiRequest("/refund-policy/summary?service=other", "GET")).toBe(false);
+    expect(isAllowedPatientApiRequest("/refund-policy/summary?service=lab", "POST")).toBe(false);
+  });
+});

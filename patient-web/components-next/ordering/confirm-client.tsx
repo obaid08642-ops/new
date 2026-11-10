@@ -266,7 +266,7 @@ export function ConfirmClient({ locale, kind, place, pay, who, item, orders, pre
         {!insured ? <p className={styles.sub}>{t("paySecure")}</p> : null}
         {phase === "creating" ? <div className={styles.note} role="status"><strong>{t("payProcessing")}</strong><p className={styles.sub}>{t("payProcessingSub")}</p></div> : null}
         {errorKey && phase !== "paying" ? <p className={styles.errorBox} role="alert">{t(errorKey)}</p> : null}
-        <RefundPolicyTick locale={locale} checked={refundAgreed} onChange={setRefundAgreed} />
+        <RefundPolicyTick locale={locale} service={kind === "radiology" ? "radiology" : kind === "nursing" ? "nursing" : "lab"} checked={refundAgreed} onChange={setRefundAgreed} />
         <button type="button" className={`${styles.linkBtn} ${styles.cta}`} disabled={!ready || !refundAgreed || phase !== "idle"} aria-busy={phase !== "idle"} onClick={submit}>{ready ? btn : t("payBtnOff")}</button>
         <p className={styles.sub}>{t("payCancelFree")}</p>
       </section>

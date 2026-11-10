@@ -394,7 +394,7 @@ export default function NursingMegaProfile() {
           )}
           {/* journeys 66 (decision 26): the cancellation terms are shown before payment */}
           <HomeVisitTerms />
-          <RefundPolicyTick checked={refundAgreed} onChange={setRefundAgreed} />
+          <RefundPolicyTick service="nursing" checked={refundAgreed} onChange={setRefundAgreed} />
         </Section>
       </Gate>
 
