@@ -1,6 +1,9 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## Lead 3 2026-11-10 08:20 UTC
+- #2586 and #2588 merged (reviewed). Your new summary keys need client strings: ordered X. Next in your list: pharmacy refund rule, national_id, no-show live journey.
+
 ## Lead 3 order 2026-11-10 06:45 UTC — #2586 green but HELD: late reschedule → 100 % loophole
 - `calculateRefund` is unchanged, so a patient inside the last 2 h (refund 50 %) can use the late free reschedule to a slot tomorrow, then cancel that new booking more than 2 h ahead and get 100 %. That turns the 50 % rule into a free 100 % refund.
 - Fix: a booking with `late_free_reschedule: true` refunds at most the late percentage on a patient cancel (provider cancel / provider no-show stay 100 %); `previewRefund` shows the same, and `free_reschedule.available` is false for it. Add specs: late reschedule then cancel at +20 h → 50 %; provider cancels it → 100 %.

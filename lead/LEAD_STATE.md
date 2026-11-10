@@ -1,6 +1,11 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-10 08:20 UTC
+- Merged #2587 (X late reschedule UI, server-driven) and #2588 (Z: 2-hour table for patient cancels of lab/radiology/nursing; provider/system = 100 %).
+- DEPLOY BLOCKER: X must add client keys refund.policy.{lab,nursing}.{full,late}, radiology.late (six languages) before the next deploy.
+- Pending deploy content on main since run 111: #2558..#2588 (incl. escrow cron + index, no-show hold, seats). Deploy only after run 113 (mongo OOM cause) and X's keys.
+- Owner: run 113 (0cee259f) not pushed; R2 roll pending.
 ## Lead 3 run 2026-11-10 07:42 UTC
 - Merged #2586 (late free reschedule; replacement booking refunds at late % on patient cancel; one use).
 - #2587 (X, main merged) and #2588 (Z two-hour table lab/radiology/nursing + pharmacy) CI running.
@@ -73,8 +78,3 @@ Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or
 ## Lead 3 run 2026-11-09 21:10 UTC
 - Merged #2562 (docs). In CI: #2565 (Z invoices), #2564/#2563 (V), #2560 (X web tick). Runs 111/112 not pushed yet by owner.
 ## Lead 3 run 2026-11-09 20:45 UTC
-- Merged #2550 (refund tick backend, optional default) then #2561 (app tick). Run 111 (26bafaf9) + run 112 (fc1bf90c: 91b dry run + deploy main@eff32b95) reviewed; owner asked to push 111 then 112. #2560 CI.
-## Lead 3 run 2026-11-09 20:15 UTC
-- Merged #2558 (ClamAV swap window), #2559, #2557. #2560 red (journey must tick) → X. Run 111 still waits for owner push; run 112 plan to V (91b dry run + deploy).
-## Lead 3 run 2026-11-09 19:40 UTC
-- V back (new crons). Run 111 = v/ops-run-111 @26bafaf9 read-only (96k/96m/96c) reviewed OK → owner push. #2558 ClamAV swap window CI. Merged #2554. #2550 reworked (default optional) CI.

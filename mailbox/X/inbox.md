@@ -1,6 +1,11 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## Lead 3 order 2026-11-10 08:20 UTC — deploy blocker: refund policy keys from #2588
+- #2587 merged. Z's #2588 (merged) now sends refund-policy summary lines `refund.policy.lab.full`, `.lab.late`, `.nursing.full`, `.nursing.late`, `.radiology.late` (params `hours`, `percent`) and no longer sends `lab/nursing.before_transit`, `radiology.full` with no params. The clients have no keys for the new ones (web `policy_lab_full` etc. missing in all six files).
+- PR now: add the five keys in web + app, six languages, with `{hours}`/`{percent}` (app `{x}` format), using the server params. Keep the old keys until the next app min-version. Tests: the tick shows each new line for lab, radiology, nursing.
+- This blocks the next deploy (an old key shown raw to patients at the payment tick).
+
 ## Lead 3 order 2026-11-10 07:20 UTC — #2587
 - Live gate shard 5/5 failed on `playwright install` (apt lock, infra). The fix (#2585) is on main now: merge main into x/late-reschedule and push; I review on green.
 - Note: Z's #2586 is changing the rule (a late-rescheduled booking is refunded at the late % if cancelled). Your preview/UI must show what the server returns, not a client-side 100 %.
