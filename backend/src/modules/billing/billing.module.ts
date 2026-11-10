@@ -118,6 +118,10 @@ export function invoiceYear(at: Date): number { return Number(riyadhParts(at).ym
 
 /** The number a document carries between its insert and its numbering (never shown: see `settle`). */
 export const PENDING_NO = 'PENDING-';
+/** The number a document carries while ONE writer holds the claim to number it. */
+export const NUMBERING_NO = 'NUMBERING-';
+const NUMBERING_STALE_MS = 30_000;
+type Series = 'invoice' | 'receipt' | 'creditnote' | 'refundreceipt';
 
 // ── Service ────────────────────────────────────────────────────────────────
 @Injectable()
@@ -154,34 +158,62 @@ export class BillingService {
 
   /**
    * Writes a document WITHOUT taking a number first: it is inserted with a placeholder number (`PENDING-<uuid>`, unique), and only the insert that wins (the unique key on the
-   * booking, or on `refund_ref` for a credit note, refuses the others before any counter is touched) allocates the real number and sets it. A crash between the two leaves a
-   * placeholder that the next reader completes (`settle`).
+   * booking, or on `refund_ref` for a credit note, refuses the others before any counter is touched) gets numbered. NUMBERING IS SINGLE-CLAIM: whoever numbers a document (the inserter, or a
+   * reader that finds it unnumbered) first claims it with one atomic conditional update (`PENDING-…` -> `NUMBERING-<owner>`); only the claimer touches the counter, everyone else waits for the
+   * number. So two writers can never both take a number for one document. A claimer that dies leaves a stale claim that the next reader re-claims (`settle`).
    */
-  private async insertNumbered(fields: Record<string, unknown>, series: 'invoice' | 'receipt' | 'creditnote' | 'refundreceipt', at: Date): Promise<any> {
+  private async insertNumbered(fields: Record<string, unknown>, series: Series, at: Date): Promise<any> {
     const placeholder = `${PENDING_NO}${randomUUID()}`;
     const doc: any = await this.invoices.create({ ...fields, invoice_no: placeholder });
-    return this.numberIt(doc.id, placeholder, series, at);
+    return this.settle(await this.numberIt(doc.id, placeholder, series, at));
   }
 
-  private async numberIt(id: string, placeholder: string, series: 'invoice' | 'receipt' | 'creditnote' | 'refundreceipt', at: Date): Promise<any> {
-    const no = await this.allocateNo(series, at);
-    await this.invoices.updateOne({ id, invoice_no: placeholder }, { $set: { invoice_no: no } });
+  private unnumbered(no: unknown): boolean { const n = String(no || ''); return n.startsWith(PENDING_NO) || n.startsWith(NUMBERING_NO); }
+
+  /**
+   * Claim the document (compare-and-swap on its current unnumbered value), take the number, set it. Returns the numbered document when this caller won; when the claim was lost
+   * it returns the document as it is (another writer is numbering it) and takes NOTHING from the counter.
+   */
+  private async numberIt(id: string, current: string, series: Series, at: Date): Promise<any> {
+    const token = `${NUMBERING_NO}${randomUUID()}`;
+    const claim: any = await this.invoices.updateOne({ id, invoice_no: current }, { $set: { invoice_no: token, numbering_claimed_at: new Date() } });
+    if (!((claim?.modifiedCount ?? claim?.nModified ?? 0) > 0)) return this.invoices.findOne({ id }, { _id: 0, __v: 0 }).lean();
+    let no: string;
+    try { no = await this.allocateNo(series, at); } catch (e) {
+      // the counter failed before it gave a number: hand the claim back so the document can be numbered again (nothing was taken)
+      await this.invoices.updateOne({ id, invoice_no: token }, { $set: { invoice_no: current }, $unset: { numbering_claimed_at: '' } }).catch(() => undefined);
+      throw e;
+    }
+    await this.invoices.updateOne({ id, invoice_no: token }, { $set: { invoice_no: no }, $unset: { numbering_claimed_at: '' } });
     return this.invoices.findOne({ id }, { _id: 0, __v: 0 }).lean();
   }
 
-  /**
-   * A document found with a placeholder number is being numbered by the writer that inserted it: wait a moment for that; if it is still unnumbered (that writer died between the insert and
-   * the number), number it here. The conditional update means only one writer sets the number.
-   */
-  private async settle(doc: any): Promise<any> {
-    if (!doc || !String(doc.invoice_no || '').startsWith(PENDING_NO)) return doc;
+  private async waitNumbered(doc: any, tries = 5): Promise<any> {
     let cur = doc;
-    for (let i = 0; i < 5 && String(cur?.invoice_no || '').startsWith(PENDING_NO); i += 1) {
+    for (let i = 0; i < tries && this.unnumbered(cur?.invoice_no); i += 1) {
       await new Promise((r) => setTimeout(r, 100));
       cur = (await this.invoices.findOne({ id: doc.id }, { _id: 0, __v: 0 }).lean()) ?? cur;
     }
-    if (!String(cur?.invoice_no || '').startsWith(PENDING_NO)) return cur;
-    return this.numberIt(cur.id, cur.invoice_no, this.seriesOf(cur), cur.issued_at ? new Date(cur.issued_at) : new Date());
+    return cur;
+  }
+
+  /**
+   * A document found without its number is being numbered by another writer: wait a moment for that. If it is still unnumbered because that writer died (a placeholder nobody claimed, or
+   * a claim older than 30 s) this caller claims it and numbers it. A document that is unnumbered and freshly claimed is never returned with its placeholder: the caller gets a 503 and retries.
+   */
+  private async settle(doc: any): Promise<any> {
+    if (!doc || !this.unnumbered(doc.invoice_no)) return doc;
+    let cur = await this.waitNumbered(doc);
+    if (!this.unnumbered(cur?.invoice_no)) return cur;
+    const claimedAt = cur?.numbering_claimed_at ? new Date(cur.numbering_claimed_at).getTime() : 0;
+    const stale = String(cur.invoice_no).startsWith(PENDING_NO) || (claimedAt > 0 && Date.now() - claimedAt > NUMBERING_STALE_MS);
+    if (stale) {
+      const out = await this.numberIt(cur.id, cur.invoice_no, this.seriesOf(cur), cur.issued_at ? new Date(cur.issued_at) : new Date());
+      if (out && !this.unnumbered(out.invoice_no)) return out;
+    }
+    cur = await this.waitNumbered(cur);
+    if (this.unnumbered(cur?.invoice_no)) throw new HttpException('invoice_numbering_in_progress', HttpStatus.SERVICE_UNAVAILABLE);
+    return cur;
   }
 
   private bookingModelName(kind: string): string {

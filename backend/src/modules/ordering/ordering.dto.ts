@@ -124,6 +124,12 @@ export class CreateOrderingBookingDto {
   @Matches(ID)
   quote_id: string;
 
+  /** The family member the booking is for (the web and the app send it only when another member was chosen). The quote already fixed the person: it must be the same one. */
+  @IsOptional()
+  @IsString()
+  @Matches(ID)
+  family_member_id?: string;
+
   @ValidateNested()
   @Type(() => SelectionsDto)
   selections: SelectionsDto;

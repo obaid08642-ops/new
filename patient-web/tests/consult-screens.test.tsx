@@ -143,6 +143,31 @@ describe("the appointment screens", () => {
     expect(html).not.toContain("virtual-waiting-room");
   });
 
+  it("PT-54: the past tab leaves out the visits the patient hid, offers to show them, and each finished visit has a Hide button; the hidden view lists only the hidden ones with Show again", async () => {
+    const HIDDEN = "11111111-ad36-422a-a184-629693e7c729";
+    // a fresh Response for every read (a body can be read once)
+    server.list.mockImplementation(async () => json([row({ status: "COMPLETED", doctor_name: "Dr. Shown" }), row({ id: HIDDEN, status: "COMPLETED", doctor_name: "Dr. Hidden" })]));
+    server.api.mockImplementation(async () => json([{ kind: "consultation", id: ID, hidden: false }, { kind: "consultation", id: HIDDEN, hidden: true }]));
+    const past = render(await AppointmentsPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ tab: "past" }) }));
+    expect(server.api).toHaveBeenCalledWith("/unified-bookings/mine?kind=consultation&include_hidden=1", expect.anything(), TOKEN);
+    expect(past).toContain("Dr. Shown");
+    expect(past).not.toContain("Dr. Hidden");
+    expect(past).toContain("Show hidden visits (1)");
+    expect(past).toContain("tab=past&amp;hidden=1");
+    const hiddenView = render(await AppointmentsPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ tab: "past", hidden: "1" }) }));
+    expect(hiddenView).toContain("Dr. Hidden");
+    expect(hiddenView).not.toContain("Dr. Shown");
+    expect(hiddenView).toContain("Back to history");
+  });
+
+  it("PT-54: if the hidden set cannot be read, no visit disappears from the past tab", async () => {
+    server.list.mockResolvedValue(json([row({ status: "COMPLETED", doctor_name: "Dr. Shown" })]));
+    server.api.mockRejectedValue(new Error("offline"));
+    const past = render(await AppointmentsPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ tab: "past" }) }));
+    expect(past).toContain("Dr. Shown");
+    expect(past).not.toContain("Show hidden visits");
+  });
+
   it("the detail shows the actions the status allows: open ones link to the one cancel/reschedule page (journeys#42), done ones the summary section", async () => {
     server.one.mockResolvedValueOnce(json(row()));
     const open = render(await AppointmentDetailPage({ params: Promise.resolve({ locale: "en", appointmentId: ID }) }));

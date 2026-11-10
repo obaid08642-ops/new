@@ -31,7 +31,7 @@ function world() {
     findOne: (q: any) => ({ lean: async () => invoices.find((d) => Object.entries(q).every(([k, v]: [string, any]) => (v && typeof v === 'object' && '$eq' in v ? d[k] === v.$eq : v && typeof v === 'object' && '$ne' in v ? d[k] !== v.$ne : d[k] === v))) ?? null }),
     find: () => ({ lean: async () => [] }),
     create: async (d: any) => { const row = { id: `i${invoices.length + 1}`, status: 'ISSUED', createdAt: new Date(), ...d }; invoices.push(row); return row; },
-    updateOne: async (q: any, u: any) => { const row = invoices.find((r: any) => r.id === q?.id && (q.invoice_no === undefined || r.invoice_no === q.invoice_no)); if (row && u?.$set) Object.assign(row, u.$set); return {}; },
+    updateOne: async (q: any, u: any) => { const row = invoices.find((r: any) => r.id === q?.id && (q.invoice_no === undefined || r.invoice_no === q.invoice_no)); if (row && u?.$set) Object.assign(row, u.$set); return { modifiedCount: row ? 1 : 0 }; },
   };
   const links = col(); const views = col();
   const collections: Record<string, any> = {

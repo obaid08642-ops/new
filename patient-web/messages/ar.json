@@ -3155,6 +3155,12 @@
     "callEnableSound": "اضغط لتشغيل الصوت"
   },
   "ConsultClient": {
+    "hideVisit": "إخفاء من السجل",
+    "showVisit": "إظهار مرة أخرى",
+    "hideError": "تعذّر تغيير هذه الزيارة. حاول مرة أخرى.",
+    "showHiddenLink": "إظهار الزيارات المخفية ({n})",
+    "backToHistory": "العودة إلى السجل",
+    "emptyHidden": "لا توجد زيارات مخفية",
     "noShowTitle": "الطبيب لم يحضر",
     "noShowButton": "الطبيب لم يحضر",
     "noShowConfirmBody": "استخدم هذا فقط إذا لم ينضم الطبيب أو يصل. يُلغى الموعد ويُردّ لك المبلغ كاملًا فورًا.",

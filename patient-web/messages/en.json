@@ -3155,6 +3155,12 @@
     "callEnableSound": "Tap to turn the sound on"
   },
   "ConsultClient": {
+    "hideVisit": "Hide from history",
+    "showVisit": "Show again",
+    "hideError": "Could not change this visit. Try again.",
+    "showHiddenLink": "Show hidden visits ({n})",
+    "backToHistory": "Back to history",
+    "emptyHidden": "No hidden visits",
     "noShowTitle": "The doctor did not come",
     "noShowButton": "The doctor did not come",
     "noShowConfirmBody": "Use this only if the doctor has not joined or arrived. The visit is cancelled and you are refunded in full right away.",

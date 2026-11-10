@@ -21,7 +21,7 @@ function world(w: World, store: any[] = []) {
     findOne: (q: any) => ({ lean: async () => store.find(match(q)) ?? null }),
     find: (q: any) => ({ lean: async () => store.filter(match(q)) }),
     create: async (d: any) => { const row = { id: `i${store.length + 1}`, status: 'ISSUED', createdAt: new Date(), ...d }; store.push(row); return row; },
-    updateOne: async (q: any, u: any) => { const row = store.find(match(q)); if (row) Object.assign(row, u.$set); return {}; },
+    updateOne: async (q: any, u: any) => { const row = store.find(match(q)); if (row) Object.assign(row, u.$set); return { modifiedCount: row ? 1 : 0 }; },
   };
   const collections: Record<string, any> = {
     transactions: {

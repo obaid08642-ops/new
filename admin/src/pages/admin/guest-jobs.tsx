@@ -8,9 +8,10 @@ import { readLang, saveLang } from '@/utils/app-logs';
 import { GUEST_JOB_MESSAGES } from '@/utils/guest-jobs-i18n';
 
 type Status = 'draft' | 'published' | 'closed';
+type Source = 'guest' | 'facility' | 'all';
 type GuestJob = {
   id: string; title: string; description: string; scfhs_role: string; location: string; salary_range?: string; company?: string;
-  contact_phone?: string; post_type?: 'offer' | 'request'; status: Status; review_note?: string; reviewed_by?: string; reviewed_at?: string; createdAt?: string;
+  contact_phone?: string; guest_device_id?: string | null; post_type?: 'offer' | 'request'; status: Status; review_note?: string; reviewed_by?: string; reviewed_at?: string; createdAt?: string;
 };
 
 const STATUS_KEY = { draft: 'status_draft', published: 'status_published', closed: 'status_closed' } as const;
@@ -24,6 +25,7 @@ export default function GuestJobsPage() {
   const [lang, setLang] = useState<LogLang>('ar');
   const t = GUEST_JOB_MESSAGES[lang];
   const [status, setStatus] = useState<Status>('draft');
+  const [source, setSource] = useState<Source>('guest');
   const [rows, setRows] = useState<GuestJob[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -41,13 +43,13 @@ export default function GuestJobsPage() {
     setLoading(true);
     setError(false);
     try {
-      setRows(await apiFetch<GuestJob[]>(`/admin/admin/recruitment/guest-jobs?status=${status}`));
+      setRows(await apiFetch<GuestJob[]>(`/admin/admin/recruitment/guest-jobs?status=${status}&source=${source}`));
     } catch {
       setError(true);
     } finally {
       setLoading(false);
     }
-  }, [status]);
+  }, [status, source]);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -88,6 +90,11 @@ export default function GuestJobsPage() {
             <select aria-label={t.language} className="rounded-lg border px-3 py-2 text-sm" value={lang} onChange={(e) => changeLang(e.target.value as LogLang)}>
               {LOG_LANGS.map((l) => <option key={l} value={l}>{LOG_LANG_NAMES[l]}</option>)}
             </select>
+            <select aria-label={t.source} className="rounded-lg border px-3 py-2 text-sm" value={source} onChange={(e) => { setSource(e.target.value as Source); setSelected(null); }}>
+              <option value="guest">{t.source_guest}</option>
+              <option value="facility">{t.source_facility}</option>
+              <option value="all">{t.source_all}</option>
+            </select>
             <select aria-label={t.status} className="rounded-lg border px-3 py-2 text-sm" value={status} onChange={(e) => { setStatus(e.target.value as Status); setSelected(null); }}>
               <option value="draft">{t.status_draft}</option>
               <option value="published">{t.status_published}</option>
@@ -126,7 +133,7 @@ export default function GuestJobsPage() {
               <div><dt className="text-slate-500">{t.contact}</dt><dd className="font-semibold" dir="ltr">{selected.contact_phone || '—'}</dd></div>
               <div><dt className="text-slate-500">{t.state}</dt><dd className="font-semibold">{t[STATUS_KEY[selected.status]]}</dd></div>
             </dl>
-            {selected.status === 'draft' && canEdit ? (
+            {selected.status === 'draft' && canEdit && selected.guest_device_id ? (
               <div className="mt-5 space-y-3">
                 <label className="block text-sm font-semibold text-slate-700">{t.reason}
                   <textarea className="mt-1 w-full rounded-lg border p-2 text-sm font-normal" rows={2} maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} />
@@ -136,6 +143,8 @@ export default function GuestJobsPage() {
                   <button disabled={busy} onClick={() => void decide('reject')} className="rounded border border-rose-600 px-3 py-2 text-sm font-semibold text-rose-700">{t.reject}</button>
                 </div>
               </div>
+            ) : selected.status === 'draft' && !selected.guest_device_id ? (
+              <p className="mt-4 rounded-lg bg-slate-50 p-3 text-sm text-slate-700">{t.source_note}</p>
             ) : selected.status !== 'draft' ? (
               <p className="mt-4 rounded-lg bg-slate-50 p-3 text-sm text-slate-700">{t.decision}: {t[STATUS_KEY[selected.status]]} · {when(selected.reviewed_at)} · {t.reviewer} {selected.reviewed_by ?? '—'} · {t.reason_label}: {selected.review_note ?? '—'}</p>
             ) : null}
