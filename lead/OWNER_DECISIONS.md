@@ -59,3 +59,6 @@ Until (b) ships, (a) is the only option (already live). Z backend, X patient (we
 7. Provider no-show live journey: yes, with a directly set past slot in the test env.
 8. Run 112 (read-only diagnostics) pushed by old lead: server-ops 42756850654, waiting for owner.
 
+
+## 2026-11-10 09:50 UTC Lead 3 — decision (within owner decision 1)
+- The no-show auto-refund cap (2 per patient per 30 days) counts only automatic video refunds; admin-upheld/released clinic-home refunds and admin review refunds do not count.

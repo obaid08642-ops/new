@@ -1,6 +1,10 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-10 09:50 UTC
+- No merges. #2589 red (j_refund_matrix pharmacy expectations old) → Z. Z's #2586 clause commit stranded on merged branch → new PR. Decided: no-show cap counts only automatic video refunds.
+- X: pharmacy + late_rescheduled keys = deploy blockers. #2591/#2592/#2593 CI running.
+- Owner: run 113 not pushed (~4.5 h).
 ## Lead 3 run 2026-11-10 09:15 UTC
 - Merged #2590 (X refund-policy keys, six languages) → deploy blocker cleared.
 - #2591 red (real): j_sick_leave PDF 409 after national_id gate → Z ordered to update journey (assert 409, add id, download). #2589/#2592 CI running.
@@ -74,7 +78,3 @@ Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or
 ## Lead 3 run 2026-11-09 23:40 UTC
 - No change: #2566-#2569 each 1 check pending. Run 112b waits for owner.
 ## Lead 3 run 2026-11-09 23:10 UTC
-- Nothing green. #2569 (V dtolint) red CodeQL NoSQL step-up.guard.ts:98 → V. PT-54 = hide/unhide visit from history (V backend, X UI). Run 112b waits for owner.
-## Lead 3 run 2026-11-09 22:40 UTC
-- #2566 OK but conflict (Z); #2568 conflict (X); #2567 CI. V new queue: dtolint gate fix, PT-54, #2336 triage. Run 112b still waits for owner push.
-## Lead 3 run 2026-11-09 22:15 UTC

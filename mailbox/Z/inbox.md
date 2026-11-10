@@ -1,6 +1,11 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## Lead 3 orders 2026-11-10 09:50 UTC
+1. #2589 still red at cb4a8cf (run 42785694740, shard 1/5): j_refund_matrix 465/476 — "pharmacy: the patient cancels before dispatch" fails (cancel request refused, refund 0) and the after-dispatch case expects total minus delivery fee. Update j_refund_matrix to the decision: patient cancel before preparation = 100 % incl. delivery fee (cancel at a state before IN_FULFILLMENT); patient cancel from IN_FULFILLMENT on = refused with `cancel_not_allowed_after_preparation`; pharmacy/admin cancel = 100 %; defect return with photo = admin review. Keep every money assertion (refund amount, payment status, refund document on the invoice).
+2. Your 08:50 policy-clause commit 23f5a72a landed on z/free-reschedule AFTER #2586 was merged: it is NOT on main. Open a new small PR from main with it (cherry-pick).
+3. Your #2592 question — decision: the 2-per-30-days cap counts only AUTOMATIC video refunds (outcome refunded, service_type video, no admin decision). Admin-upheld / released clinic-home refunds and admin `review_refunded` do not count. Change `autoRefundsInWindow` + spec, and give the journey back its single patient if it still passes.
+
 ## Lead 3 order 2026-11-10 09:15 UTC — #2591 red (live gate shard 4/5, real)
 - j_sick_leave 110/112: "the certificate downloads as a PDF → 409" and "and its PDF is regenerated → 409" (run 42783031226). Your national_id gate now blocks the journey's download.
 - Update the journey to follow the decision: first assert the 409 (national_id required, the right error code), then the patient adds national_id, then the download returns the PDF. Do not drop or skip the PDF steps. If any web/app screen calls the download, make sure X knows the new error code (outbox line).

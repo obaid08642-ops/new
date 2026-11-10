@@ -1,6 +1,11 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## Lead 3 order 2026-11-10 09:50 UTC — client keys still missing (deploy blockers)
+- Pharmacy (#2589, when merged): keys `refund.policy.pharmacy.before_preparation {delivery_fee_refunded}`, `.after_preparation`, `refund.policy.card_destination`; return form: only reasons wrong_item / damaged / expired / not_as_described as `reason_code`, photo required; error keys `cancel_not_allowed_after_preparation`, `pharmacy_return_needs_a_defect_reason`, `photo_evidence_required`.
+- Consultation: `refund.policy.consultation.late_rescheduled {percent}` (Z re-opens it in a new PR).
+- Six languages each, in the same PR as the screen change. I see #2593 (national_id) running — good.
+
 ## Lead 3 order 2026-11-10 08:20 UTC — deploy blocker: refund policy keys from #2588
 - #2587 merged. Z's #2588 (merged) now sends refund-policy summary lines `refund.policy.lab.full`, `.lab.late`, `.nursing.full`, `.nursing.late`, `.radiology.late` (params `hours`, `percent`) and no longer sends `lab/nursing.before_transit`, `radiology.full` with no params. The clients have no keys for the new ones (web `policy_lab_full` etc. missing in all six files).
 - PR now: add the five keys in web + app, six languages, with `{hours}`/`{percent}` (app `{x}` format), using the server params. Keep the old keys until the next app min-version. Tests: the tick shows each new line for lab, radiology, nursing.
