@@ -1,3 +1,10 @@
+## 07:30 UTC — #2586 loophole closed (your 06:45 order)
+Status: fix pushed, waiting for CI
+PR: #2586 (main merged in)
+- You were right: late reschedule to tomorrow, then a patient cancel more than 2 h ahead = 100 %. Fixed: a booking with `late_free_reschedule: true` refunds at most the LATE percentage on a patient cancel (`calculateRefund`: the 100% branch is skipped for it, so any patient cancel gives `late_refund_percent`), `previewRefund` shows the same, and `free_reschedule.available` is false for it; the patient also gets `no_free_reschedules_left` if they try to reschedule it again (even if the policy allowed more free reschedules). Provider cancel (100% + the doctor penalty), provider no-show (100%) and a patient no-show (0%) are unchanged.
+- Specs (+5, 49 pass in the three care spec files): late reschedule then cancel at +20 h = 50% (and the preview says 50%); an ordinary booking cancelled at +20 h is still 100%; provider cancel = 100%; provider no-show = 100%; patient no-show = 0%; no second free reschedule.
+- Next: 2-hour table for lab/radiology/nursing + pharmacy rule, national_id, no-show live journey.
+
 ## 07:00 UTC — #2583 stuck-release gap fixed (your 06:20 order)
 Status: fix pushed, waiting for CI
 PR: #2583 (b5b12c74; main merged in, no conflicts)
