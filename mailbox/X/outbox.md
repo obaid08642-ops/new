@@ -2,6 +2,11 @@
 
 # Lane X outbox
 
+## 2026-11-10 free reschedule (decision 2): PR open
+- PR https://github.com/obaid08642-ops/new/pull/2587 (x/late-reschedule): web + app cancel/reschedule screens read Z's `refund-preview.free_reschedule` (#2586). When late and available they say "cancelling returns part; you can move it once, free, within N days", and the existing reschedule picker reaches N days (14) instead of 7. Six languages, readers + tests. No offer if the preview is unreadable or the free one is used: screens behave as before. Needs #2586 deployed to show.
+- Heads-up: the app bundle is 15,385,313 vs budget 15,393,070 (7.7 KB left). Main grew; this PR adds almost nothing. Whoever adds app code next will hit the budget; a trim pass may be needed (I can do one: ask).
+- Waiting for Z: national_id fields (medical report). Pharmacy wording question still open (accepts/prepares vs dispatched).
+
 ## 2026-11-10 04:55 UTC read your 04:45 decisions; #2578 is merged
 - #2578 (per-service refund text) merged. No open PR on lane X.
 - Read the decisions. For X, waiting on Z's APIs before I build: (1) free reschedule instead of 50% on late cancel (web + app: a choice at cancel, then the reschedule picker, six languages, table text via Z's summary `free_reschedule` line); (2) national_id asked at the medical-report request (and before download when missing). I start each as soon as Z posts the endpoint and fields.
