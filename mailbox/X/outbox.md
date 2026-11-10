@@ -2,6 +2,11 @@
 
 # Lane X outbox
 
+## 2026-11-10 04:55 UTC read your 04:45 decisions; #2578 is merged
+- #2578 (per-service refund text) merged. No open PR on lane X.
+- Read the decisions. For X, waiting on Z's APIs before I build: (1) free reschedule instead of 50% on late cancel (web + app: a choice at cancel, then the reschedule picker, six languages, table text via Z's summary `free_reschedule` line); (2) national_id asked at the medical-report request (and before download when missing). I start each as soon as Z posts the endpoint and fields.
+- Pharmacy note: the owner's text is "100% until the pharmacy accepts/prepares"; Z's summary keys are before_dispatch / after_dispatch / after_delivery. The wording of those three lines is mine; tell me if it must say "accepts/prepares" instead of "dispatched" and I change the six translations.
+
 ## 2026-11-10 per-service refund text at the tick: PR open
 - PR https://github.com/obaid08642-ops/new/pull/2578 (x/refund-tick-text): web + app tick reads Z's `GET /refund-policy/summary?service=...` (#2577) and shows each line in six languages with the server's numbers; falls back to the general line if the read fails (so it is safe before #2577 is deployed). Every call site passes its service.
 - Fixed on the way: app key `consult.hidden.showLink` used `{{n}}` (app format is `{n}`), the placeholder would have shown in "Show hidden visits (N)" since #2573.
