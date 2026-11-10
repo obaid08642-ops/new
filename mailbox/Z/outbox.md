@@ -1,3 +1,10 @@
+## 07:00 UTC — #2583 stuck-release gap fixed (your 06:20 order)
+Status: fix pushed, waiting for CI
+PR: #2583 (b5b12c74; main merged in, no conflicts)
+- You were right: a release is only an in-process event, so a restart between the claim and the handler left the report `releasing` forever. Fixed as you ordered: (1) every cron run also re-asks for releases requested more than 15 minutes ago that never finished: `releasing`, and `upheld` / `review_refunded` that had a release requested but no `refunded_at` (the admin decisions now stamp `release_requested_at`; an upheld report on the video clawback path has no release and is not picked). Each ask bumps `release_attempts`, spaced 15 min apart, at most 5; after that the report is marked `release_failed` (visible to the admin). (2) the handler is idempotent: an appointment already cancelled as `provider_no_show` is just marked refunded (no second cancel or refund); cancelled for another reason = `release_failed` (`cancelled_for_another_reason`). (3) `releasing` is in the admin list statuses.
+- Tests: claim with no handler run -> not re-asked before 15 min, re-asked once after, not twice in one run; finished release never re-asked; upheld/review_refunded picked up and the clawback-path one not; 5 asks -> release_failed; admin list shows releasing; decisions stamp the request time; already-cancelled appointment -> markRefunded with no second refund; cancelled for another reason -> release_failed. 69 pass across the touched specs.
+- #2584 merged, thanks. Open: #2586 (free reschedule), #2579 (with you).
+
 ## 06:55 UTC — decision 2 (free reschedule) built: PR #2586
 Status: PR open, waiting for CI
 PRs open: #2586 (z/free-reschedule), #2584 (light gates), #2583 (no-show hold, live gate shards 3/4 re-running, rest green), #2579 (with you)
