@@ -71,7 +71,7 @@ function store(seed: Record<string, any[]> = {}) {
       insertOne: async (d: any) => { rows().push(d); },
       updateOne: async (f: any, u: any, o: any = {}) => {
         const hit = rows().find((d) => match(d, f));
-        if (hit) { Object.assign(hit, u.$set || {}); return { modifiedCount: u.$set ? 1 : 0 }; }
+        if (hit) { Object.assign(hit, u.$set || {}); for (const [k, v] of Object.entries(u.$inc || {})) hit[k] = (Number(hit[k]) || 0) + Number(v); return { modifiedCount: u.$set || u.$inc ? 1 : 0 }; }
         if (o.upsert) { rows().push({ ...(u.$setOnInsert || {}), ...(u.$set || {}) }); return { modifiedCount: 0, upsertedCount: 1 }; }
         return { modifiedCount: 0 };
       },
@@ -312,6 +312,54 @@ describe('owner decision 2026-11-10: the money of a report', () => {
       expect(b.events.emit).not.toHaveBeenCalled();
       await expect(b.svc.reviewPending(admin, 'a9', 'maybe', 'a long enough note here')).rejects.toThrow('decision_invalid');
       await expect(b.svc.reviewPending(admin, 'a9', 'refund', 'short')).rejects.toThrow('decision_note_required');
+    });
+  });
+
+  describe('a release that never finished (the worker stopped, the handler threw) is asked for again', () => {
+    const MIN = 60_000;
+    const releasing = (over: any = {}) => ({ id: 'r', appointment_id: 'a1', patient_id: 'pat', doctor_user_id: 'doc', status: 'releasing', outcome: 'held', release_requested_at: new Date(NOW.getTime() - 20 * MIN), ...over });
+    it('claim, no handler run: the next run (15+ minutes later) releases it again, once per ask; not before 15 minutes', async () => {
+      const m = make({ appointments: [{ id: 'a1', doctor_user_id: 'doc', state_history: [] }], provider_no_show_reports: [releasing({ release_requested_at: new Date(NOW.getTime() - 5 * MIN) })] });
+      expect(await m.svc.releaseDueHeld(NOW)).toBe(0);                       // asked 5 minutes ago: still waiting for the handler
+      expect(m.events.emit).not.toHaveBeenCalled();
+      const later = new Date(NOW.getTime() + 20 * MIN);
+      expect(await m.svc.releaseDueHeld(later)).toBe(1);
+      expect(m.events.emit).toHaveBeenCalledWith('provider_no_show.release', { appointment_id: 'a1', patient_id: 'pat' });
+      expect(m.st.data.provider_no_show_reports[0]).toMatchObject({ release_attempts: 1, release_requested_at: later });
+      expect(await m.svc.releaseDueHeld(later)).toBe(0);                     // asked just now: not twice in one run
+    });
+    it('a finished release (refunded_at set) is never asked for again', async () => {
+      const m = make({ provider_no_show_reports: [releasing({ refunded_at: new Date(NOW.getTime() - 10 * MIN) })] });
+      expect(await m.svc.retryStuckReleases(NOW)).toBe(0);
+      expect(m.events.emit).not.toHaveBeenCalled();
+    });
+    it('upheld / review_refunded reports whose release was requested but never ran are picked up; a refunded-video upheld report (no release requested) is not', async () => {
+      const m = make({ provider_no_show_reports: [
+        releasing({ id: 'u', appointment_id: 'u', status: 'upheld' }),
+        releasing({ id: 'v', appointment_id: 'v', status: 'review_refunded' }),
+        releasing({ id: 'w', appointment_id: 'w', status: 'upheld', release_requested_at: undefined, outcome: 'refunded' }),   // clawback path: no release at all
+      ] });
+      expect(await m.svc.retryStuckReleases(NOW)).toBe(2);
+      expect(m.events.emit.mock.calls.map((c: any[]) => c[1].appointment_id).sort()).toEqual(['u', 'v']);
+    });
+    it('after 5 asks it is marked release_failed for an admin to see', async () => {
+      const m = make({ provider_no_show_reports: [releasing({ release_attempts: 5 })] });
+      expect(await m.svc.retryStuckReleases(NOW)).toBe(0);
+      expect(m.st.data.provider_no_show_reports[0]).toMatchObject({ status: 'release_failed', release_error: 'release_attempts_exhausted' });
+      expect(m.events.emit).not.toHaveBeenCalled();
+    });
+    it('the admin list shows releasing reports', async () => {
+      const m = make({ provider_no_show_reports: [releasing()] });
+      expect((await m.svc.listForAdmin({ status: 'releasing' })).items).toHaveLength(1);
+    });
+    it('the decisions that release a refund stamp when it was requested', async () => {
+      const dh = { id: 'r1', appointment_id: 'a1', patient_id: 'pat', doctor_user_id: 'doc', status: 'disputed', outcome: 'held', dispute: { reason: 'x'.repeat(12) }, reported_at: NOW };
+      const a = make({ provider_no_show_reports: [{ ...dh }] });
+      await a.svc.decide(admin, 'a1', 'uphold_report', 'the door log shows nobody came');
+      expect(a.st.data.provider_no_show_reports[0].release_requested_at).toBeInstanceOf(Date);
+      const b = make({ provider_no_show_reports: [{ ...dh, status: 'pending_review', outcome: 'pending_review' }] });
+      await b.svc.reviewPending(admin, 'a1', 'refund', 'checked the call log, nobody joined');
+      expect(b.st.data.provider_no_show_reports[0].release_requested_at).toBeInstanceOf(Date);
     });
   });
 });

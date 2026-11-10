@@ -11,6 +11,9 @@ import { ScheduledOnce } from '../../common/scheduled-once';
 import { AUTO_REFUND_WINDOW_DAYS, DISPUTE_REASON_MAX, DISPUTE_REASON_MIN, DISPUTE_WINDOW_HOURS, FLAG_REPORT_COUNT, FLAG_WINDOW_DAYS, clawbackAmount, disputeState, providerActivity, type ReportOutcome } from './provider-no-show-rules';
 
 const COLLECTION = 'provider_no_show_reports';
+/** A requested release that has not finished after this long is asked for again, at most this many times. */
+const RELEASE_RETRY_AFTER_MIN = 15;
+const MAX_RELEASE_ATTEMPTS = 5;
 
 /**
  * The provider side of the patient's "the provider did not come" report: the check that the provider did nothing in the visit, the notice to the provider,
@@ -109,7 +112,7 @@ export class ProviderNoShowService {
   async listForAdmin(query: { status?: string; flagged?: string }): Promise<{ count: number; items: any[] }> {
     const filter: any = {};
     if (query.flagged === 'true') filter.flagged_for_admin = true;
-    else filter.status = ['reported', 'held', 'pending_review', 'disputed', 'upheld', 'dismissed', 'review_refunded', 'review_rejected', 'release_failed'].includes(String(query.status)) ? String(query.status) : 'disputed';
+    else filter.status = ['reported', 'held', 'pending_review', 'disputed', 'upheld', 'dismissed', 'releasing', 'review_refunded', 'review_rejected', 'release_failed'].includes(String(query.status)) ? String(query.status) : 'disputed';
     const items = await this.reports.find(filter, { projection: { _id: 0 } }).sort({ reported_at: 1 }).limit(200).toArray();
     return { count: items.length, items };
   }
@@ -145,7 +148,7 @@ export class ProviderNoShowService {
           clawed = result.amount; clawNote = result.note;
         }
       }
-      await this.reports.updateOne({ appointment_id: row.appointment_id, status: 'deciding' }, { $set: { status, decision: { decision, note, by_user_id: String(admin?.id), at: new Date(), clawback_amount: clawed, clawback_note: clawNote } } });
+      await this.reports.updateOne({ appointment_id: row.appointment_id, status: 'deciding' }, { $set: { status, decision: { decision, note, by_user_id: String(admin?.id), at: new Date(), clawback_amount: clawed, clawback_note: clawNote }, ...(clawNote === 'refund_released' ? { release_requested_at: new Date() } : {}) } });
     } catch (e) {
       // the clawback failed before its ledger row: give the report back so the decision can be taken again (the ledger ref keeps a retry from taking twice)
       await this.reports.updateOne({ appointment_id: row.appointment_id, status: 'deciding' }, { $set: { status: 'disputed' } }).catch(() => undefined);
@@ -187,12 +190,34 @@ export class ProviderNoShowService {
         await this.reports.updateOne({ appointment_id: row.appointment_id, status: 'held' }, { $set: { status: 'dismissed', decision: { decision: 'auto_dismissed_provider_activity', activity, at: now } } });
         continue;
       }
-      const claim = await this.reports.updateOne({ appointment_id: row.appointment_id, status: 'held' }, { $set: { status: 'releasing', releasing_at: now } });
+      const claim = await this.reports.updateOne({ appointment_id: row.appointment_id, status: 'held' }, { $set: { status: 'releasing', releasing_at: now, release_requested_at: now } });
       if (!claim.modifiedCount) continue;
       this.release(row);
       released += 1;
     }
-    return released;
+    return released + (await this.retryStuckReleases(now));
+  }
+
+  /**
+   * A release is only an in-process event: if the worker stopped before the appointment side ran it (or it threw before it could say why), the report would stay `releasing` (or
+   * `upheld` / `review_refunded` with no `refunded_at`) forever and the patient would never be paid. So every run also asks again for the releases that were requested more than 15
+   * minutes ago and never finished (the handler is idempotent). After 5 asks the report is marked `release_failed` for an admin to see.
+   */
+  async retryStuckReleases(now: Date = new Date()): Promise<number> {
+    const stale = new Date(now.getTime() - RELEASE_RETRY_AFTER_MIN * 60_000);
+    const stuck: any[] = await this.reports.find({ status: { $in: ['releasing', 'upheld', 'review_refunded'] }, refunded_at: null, release_requested_at: { $lte: stale } }, { projection: { _id: 0 } }).limit(50).toArray();
+    let again = 0;
+    for (const row of stuck) {
+      if (Number(row.release_attempts || 0) >= MAX_RELEASE_ATTEMPTS) {
+        await this.reports.updateOne({ appointment_id: row.appointment_id, refunded_at: null, status: { $in: ['releasing', 'upheld', 'review_refunded'] } }, { $set: { status: 'release_failed', release_error: 'release_attempts_exhausted', release_failed_at: now } });
+        continue;
+      }
+      const claim = await this.reports.updateOne({ appointment_id: row.appointment_id, refunded_at: null, release_requested_at: row.release_requested_at }, { $set: { release_requested_at: now }, $inc: { release_attempts: 1 } });
+      if (!claim.modifiedCount) continue;
+      this.release(row);
+      again += 1;
+    }
+    return again;
   }
 
   /**
@@ -207,7 +232,7 @@ export class ProviderNoShowService {
     if (!row) throw new NotFoundException('no_show_report_not_found');
     if (row.status !== 'pending_review') throw new ConflictException('no_show_not_pending_review');
     const status = decision === 'refund' ? 'review_refunded' : 'review_rejected';
-    const res = await this.reports.updateOne({ appointment_id: row.appointment_id, status: 'pending_review' }, { $set: { status, decision: { decision, note, by_user_id: String(admin?.id), at: new Date() } } });
+    const res = await this.reports.updateOne({ appointment_id: row.appointment_id, status: 'pending_review' }, { $set: { status, decision: { decision, note, by_user_id: String(admin?.id), at: new Date() }, ...(decision === 'refund' ? { release_requested_at: new Date() } : {}) } });
     if (!res.modifiedCount) throw new ConflictException('no_show_not_pending_review');
     if (decision === 'refund') this.release(row);
     await recordAudit(this.conn, { action: 'provider_no_show.review', user_id: String(admin?.id), role: admin?.role, resource_kind: 'appointment', resource_id: row.appointment_id, details: { decision, note: note.slice(0, 200) } } as any);

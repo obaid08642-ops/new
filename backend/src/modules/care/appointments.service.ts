@@ -629,6 +629,12 @@ export class AppointmentsService {
   @OnEvent('provider_no_show.release')
   async onProviderNoShowRelease(e: { appointment_id: string; patient_id: string }): Promise<void> {
     try {
+      // idempotent: a release asked for again (the first one finished but could not say so, or ran twice) never refunds a second time
+      const appt: any = await this.apptModel.findOne({ id: String(e.appointment_id) });
+      if (appt && String(appt.status).toUpperCase() === 'CANCELLED') {
+        if (appt.cancellation_reason === 'provider_no_show') { await this.noShow?.markRefunded(String(e.appointment_id)); return; }
+        throw new Error('cancelled_for_another_reason');
+      }
       await this.cancel(String(e.appointment_id), { id: String(e.patient_id), role: 'patient' }, 'provider_no_show', false, true);
       await this.noShow?.markRefunded(String(e.appointment_id));
     } catch (err: any) {

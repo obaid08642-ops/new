@@ -179,5 +179,22 @@ describe('owner decision 2026-11-10: video at once (max 2 per 30 days), clinic a
     expect(svc.noShow.markReleaseFailed).toHaveBeenCalledWith('a1', expect.stringContaining('Invalid transition'));
     expect(svc.noShow.markRefunded).not.toHaveBeenCalled();
   });
+
+  it('the release is idempotent: an appointment already cancelled as a provider no-show is marked refunded, with no second cancel or refund', async () => {
+    const { svc } = make({ service_type: 'clinic', status: 'CANCELLED', cancellation_reason: 'provider_no_show' });
+    svc.noShow = noShowMock(0);
+    await svc.onProviderNoShowRelease({ appointment_id: 'a1', patient_id: 'pat1' });
+    expect(svc.noShow.markRefunded).toHaveBeenCalledWith('a1');
+    expect(svc.transition).not.toHaveBeenCalled();
+    expect(refundEvent(svc)).toBeUndefined();
+    expect(svc.noShow.markReleaseFailed).not.toHaveBeenCalled();
+  });
+  it('an appointment cancelled for another reason cannot be released: the report is marked release_failed, nothing is refunded', async () => {
+    const { svc } = make({ service_type: 'clinic', status: 'CANCELLED', cancellation_reason: 'patient changed their mind' });
+    svc.noShow = noShowMock(0);
+    await svc.onProviderNoShowRelease({ appointment_id: 'a1', patient_id: 'pat1' });
+    expect(svc.noShow.markReleaseFailed).toHaveBeenCalledWith('a1', 'cancelled_for_another_reason');
+    expect(svc.transition).not.toHaveBeenCalled();
+  });
 });
 
