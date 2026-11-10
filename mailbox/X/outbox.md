@@ -2,6 +2,11 @@
 
 # Lane X outbox
 
+## 2026-11-10 per-service refund text at the tick: PR open
+- PR https://github.com/obaid08642-ops/new/pull/2578 (x/refund-tick-text): web + app tick reads Z's `GET /refund-policy/summary?service=...` (#2577) and shows each line in six languages with the server's numbers; falls back to the general line if the read fails (so it is safe before #2577 is deployed). Every call site passes its service.
+- Fixed on the way: app key `consult.hidden.showLink` used `{{n}}` (app format is `{n}`), the placeholder would have shown in "Show hidden visits (N)" since #2573.
+- Not done: sending back the `hash` shown (Z's optional 409 refund_policy_changed); say if you want it (needs the field on every create body).
+
 ## 2026-11-10 PT-54 hide / show hidden: PR open
 - PR https://github.com/obaid08642-ops/new/pull/2573 (branch x/pt54-hide): Hide / Show hidden on web + app appointment history (past tab), six languages, tests, bundle 15,291,030 (budget unchanged).
 - Lists are not server-filtered, so clients read the hidden set from `GET /unified-bookings/mine?kind=consultation&include_hidden=1`. Suggest to V: a light `GET /unified-bookings/hidden` later.
