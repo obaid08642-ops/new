@@ -9,6 +9,7 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { Notice, SectionCard } from "@/components-next/consult/consult-parts";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
+import { NationalIdForm } from "@/components-next/medical-reports/national-id-form";
 import styles from "@/components-next/consult/consult.module.css";
 
 type Props = { params: Promise<{ locale: string; reportId: string }> };
@@ -25,6 +26,7 @@ export default async function MedicalReportPage({ params }: Props) {
   if (!isLocale(locale) || !ID.test(reportId)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("MedicalReport");
+  const book = await getTranslations("BookConsultation");
   const token = await requirePatientAccess(locale);
   const response = await callPatientApi(`/care/sick-leaves/${encodeURIComponent(reportId)}`, { cache: "no-store" }, token);
   if (response.status === 401) redirect(`/${locale}/login`);
@@ -69,7 +71,14 @@ export default async function MedicalReportPage({ params }: Props) {
         {report.seha.status === "registered" ? <p className={styles.line}>{t("sehaVerify")}</p> : null}
         <p className={styles.line}>{t("footer")}</p>
       </SectionCard>
-      <ButtonLink href={`/api/patient/care/sick-leaves/${encodeURIComponent(report.id)}/pdf`} label={t("downloadPdf")} variant="primary" fullWidth />
+      {report.needsNationalId ? (
+        <>
+          <Notice>{book("nationalIdNeededForPdf")}</Notice>
+          <NationalIdForm refresh labels={{ title: book("nationalIdTitle"), hint: book("nationalIdHint"), label: book("nationalIdLabel"), save: book("nationalIdSave"), saving: book("nationalIdSaving"), invalid: book("nationalIdInvalid"), failed: book("nationalIdFailed"), saved: book("nationalIdSaved") }} />
+        </>
+      ) : (
+        <ButtonLink href={`/api/patient/care/sick-leaves/${encodeURIComponent(report.id)}/pdf`} label={t("downloadPdf")} variant="primary" fullWidth />
+      )}
       {report.verifyCode ? <ButtonLink href={`/${locale}/verify/sick-leave/${encodeURIComponent(report.verifyCode)}`} label={t("verifyLink")} variant="outline" fullWidth /> : null}
     </ConsultPage>
   );

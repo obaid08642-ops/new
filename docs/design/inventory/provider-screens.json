@@ -1,5 +1,5 @@
 {
- "commit": "9591999f",
+ "commit": "7e403d29",
  "routes": [
   {
    "app": "provider-app",
@@ -3245,7 +3245,7 @@
      "line": 40,
      "file": "provider-app/src/screens/doctor/doctor/MedicalReportsListScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:36"
+     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:40"
     },
     {
      "method": "PUT",
@@ -3255,7 +3255,7 @@
      "line": 34,
      "file": "provider-app/src/screens/doctor/doctor/MedicalReportsListScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:39"
+     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:43"
     }
    ],
    "files": 13,
@@ -3640,7 +3640,7 @@
      "line": 60,
      "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:39"
+     "backend": "backend/src/modules/sick-leave/sick-leave.controller.ts:43"
     }
    ],
    "files": 13,

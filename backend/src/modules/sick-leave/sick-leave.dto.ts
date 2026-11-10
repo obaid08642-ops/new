@@ -15,3 +15,11 @@ export class RevokeSickLeaveDto {
   @MaxLength(500)
   reason: string;
 }
+
+export class NationalIdDto {
+  /** The patient's national ID or iqama number (10 digits, checked); stored encrypted. */
+  @IsDefined()
+  @IsString()
+  @MaxLength(30)
+  national_id: string;
+}

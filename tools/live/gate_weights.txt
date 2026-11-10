@@ -138,5 +138,6 @@ j_provider_edits 70
 j_chat_attachment 25
 j_refund_matrix 900
 j_referral_booking 60
+j_provider_no_show 60
 j_sick_leave 45
 j_family_dependant 80

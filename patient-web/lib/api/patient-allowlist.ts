@@ -147,7 +147,9 @@ const diagnosticsMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp
 
 // The health screens add a night of sleep and add or remove the patient's own emergency contacts (backend health.controller);
 // the article page saves or unsaves one article (backend articles.module: POST /articles/bookmarks/:slug/toggle).
-const healthMutationRoutes: Array<{ method: "POST" | "DELETE"; route: RegExp }> = [
+const healthMutationRoutes: Array<{ method: "POST" | "DELETE" | "PUT"; route: RegExp }> = [
+  // Owner decision 6: the national ID / iqama number, asked only when a medical report needs it (lane Z).
+  { method: "PUT", route: new RegExp("^/care/sick-leaves/national-id$", "i") },
   // PT-54: the patient hides or shows again a finished visit in their own history
   { method: "POST", route: new RegExp(`^/unified-bookings/(pharmacy|lab|radiology|nursing|consultation)/${orderId}/(hide|unhide)$`, "i") },
   // the doctor did not come (provider no-show, full refund): the patient or the booker, 10 minutes after the start

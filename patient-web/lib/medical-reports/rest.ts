@@ -38,6 +38,8 @@ export type MedicalReportDetail = MedicalReportRow & {
   reason: string | null;
   diagnosis: string | null;
   revokeReason: string | null;
+  /** The doctor issued it before the patient gave an ID number: the patient adds it first, the PDF waits (409 national_id_required). */
+  needsNationalId: boolean;
 };
 
 function base(r: Row): MedicalReportRow | null {
@@ -84,6 +86,7 @@ export function readReportDetail(payload: unknown): MedicalReportDetail | null {
     // the diagnosis arrives only when the doctor ticked "show diagnosis"
     diagnosis: str(r.diagnosis),
     revokeReason: str(r.revoke_reason),
+    needsNationalId: r.needs_national_id === true,
   };
 }
 
