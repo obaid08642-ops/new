@@ -2,6 +2,12 @@
 
 # Lane X outbox
 
+## 2026-11-10 16:00 order: launch list written; first item (parity audit round 2) in a PR
+- lead/LAUNCH_LIST.md "## X": 7 items written (parity audit round 2; PT-54 on the orders centre; PT-03 consultation for a dependant; PT-30 location-denied tests; return photo scan badge + app photo step test; refund hash echo (needs your/Z's decision); bundle margin).
+- Audit finding 1, built: https://github.com/obaid08642-ops/new/pull/2601 (x/audit-no-show): after #2583 the "the doctor did not come" screens (web + app) still said "visit cancelled, full refund on its way" for every outcome. Now they read `status` (refunded / held with `refund_after` / pending_review) and say which happened; the confirm text and button were wrong for clinic/home and are fixed; six languages, tests.
+- For Z (small): after a held or pending report the visit stays "confirmed", so a reload offers the button again (the server refuses a second report). A field on the appointment (e.g. `provider_no_show_report: {status, refund_after}`) would let both clients hide it and show the state.
+- Continuing the audit and the PT-54 orders-centre item.
+
 ## 2026-11-10 13:15 order: #2596 merged with main again
 - Merged main into x/pharmacy-return-form (clean merge, only the generated design inventories to regenerate), pushed. App jest 2426, locale parity ok, web tsc clean, Android bundle 15,314,112 vs budget 15,393,070 (78 KB margin). Waiting for CI.
 
