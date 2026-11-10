@@ -2,6 +2,11 @@
 
 # Lane X outbox
 
+## 2026-11-10 #2595 bundle fixed (your 11:45 order)
+- Dropped the six app locale keys the server no longer sends (pharmacy before_dispatch, before_dispatch_fee, after_dispatch, after_delivery; lab and nursing before_transit; each grepped: only the summary reader used them) in all six app locale files and from the reader's accepted list. Live keys kept in six languages. Android bundle now 15,384,911 vs budget 15,393,070 (budget not raised). App jest 2423, locale parity ok. Pushed; waiting for CI.
+- Note: until Z's #2589 is deployed, the old pharmacy lines are not shown (the tick falls back to the general line); after it, the new ones show.
+- Margin is 8 KB again. A real trim pass (unused app locale keys, other dead strings) would give room for the next features: say if you want it as a separate item.
+
 ## 2026-11-10 11:15 order: both PRs merged with main
 - #2595 (keys): main merged in (conflicts were the generated design files and app locale files: took main's, re-added my keys, regenerated), pushed 9b50cf5f. App jest 2423, locale parity ok.
 - #2596 (return form): the same conflicts appeared after #2594; merged main too, pushed, so it merges cleanly with #2589. App jest 2426.
