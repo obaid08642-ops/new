@@ -1290,7 +1290,9 @@ export class PharmacyRefundListener {
       const fee = Math.round(Number(e?.meta?.delivery_fee || 0) * 100) / 100;
       // screens-audit-3 gap 24: `pharmacy.refund_delivery_fee_before_dispatch` is read (default yes: 100 % before dispatch, the fee kept after)
       const policyDoc: any = await this.conn.collection('system_configs').findOne({ key: 'refund_policy' }).catch(() => null);
-      const amount = pharmacyCancelRefund(total, fee, dispatched, refundsDeliveryFeeBeforeDispatch(policyDoc?.value));
+      // a cancel by the pharmacy or an admin (not the patient) is a full refund; the patient's own cancel gets what the policy says (everything before preparation, the fee rule as before)
+      const byProvider = !!e?.actor_role && String(e.actor_role) !== 'patient';
+      const amount = byProvider ? total : pharmacyCancelRefund(total, fee, dispatched, refundsDeliveryFeeBeforeDispatch(policyDoc?.value));
       if (!(amount > 0)) return;
       await this.refundExec.execute({
         refund_id: `pharmacy-cancel-${orderId}`,

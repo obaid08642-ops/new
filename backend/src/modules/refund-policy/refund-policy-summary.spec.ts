@@ -36,7 +36,8 @@ describe('the rule of each service as text keys with numbers', () => {
   it('radiology: the same table, no trip fee; pharmacy: the delivery-fee rule from the policy', () => {
     expect(keys(policySummary(null, 'radiology'))).toEqual(['refund.policy.radiology.full', 'refund.policy.radiology.late', 'refund.policy.provider_cancel', 'refund.policy.card_destination']);
     expect(policySummary(null, 'radiology').lines[0]).toEqual({ key: 'refund.policy.radiology.full', params: { hours: 2 } });
-    expect(policySummary(null, 'pharmacy').lines[0]).toEqual({ key: 'refund.policy.pharmacy.before_dispatch', params: { delivery_fee_refunded: true } });
+    expect(policySummary(null, 'pharmacy').lines[0]).toEqual({ key: 'refund.policy.pharmacy.before_preparation', params: { delivery_fee_refunded: true } });
+    expect(keys(policySummary(null, 'pharmacy'))).toEqual(['refund.policy.pharmacy.before_preparation', 'refund.policy.pharmacy.after_preparation', 'refund.policy.provider_cancel', 'refund.policy.card_destination']);
     expect(policySummary(doc({ pharmacy: { refund_delivery_fee_before_dispatch: false } }), 'pharmacy').lines[0].params).toEqual({ delivery_fee_refunded: false });
   });
   it('every service ends with the card destination (no wallet) and carries its version and hash', () => {

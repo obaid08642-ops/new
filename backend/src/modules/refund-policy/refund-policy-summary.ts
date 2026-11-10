@@ -37,8 +37,9 @@ export function policySummary(doc: { value?: any; updatedAt?: Date | string } | 
     if (service === 'nursing') lines.push({ key: 'refund.policy.nursing.patient_absent', params: { percent: num(sec.patient_absent_percent, d.patient_absent_percent) } });
     lines.push({ key: 'refund.policy.provider_cancel', params: {} });
   } else {
-    lines.push({ key: 'refund.policy.pharmacy.before_dispatch', params: { delivery_fee_refunded: typeof sec.refund_delivery_fee_before_dispatch === 'boolean' ? sec.refund_delivery_fee_before_dispatch : d.refund_delivery_fee_before_dispatch } });
-    lines.push({ key: 'refund.policy.pharmacy.after_dispatch', params: {} }, { key: 'refund.policy.pharmacy.after_delivery', params: {} }, { key: 'refund.policy.provider_cancel', params: {} });
+    // owner decision 2026-11-10: everything back until the pharmacy starts preparing; after that only a wrong, damaged or expired item (photo + admin review)
+    lines.push({ key: 'refund.policy.pharmacy.before_preparation', params: { delivery_fee_refunded: typeof sec.refund_delivery_fee_before_dispatch === 'boolean' ? sec.refund_delivery_fee_before_dispatch : d.refund_delivery_fee_before_dispatch } });
+    lines.push({ key: 'refund.policy.pharmacy.after_preparation', params: {} }, { key: 'refund.policy.provider_cancel', params: {} });
   }
   lines.push({ key: 'refund.policy.card_destination', params: {} });
   return { service, version: stamp.version, hash: stamp.hash, lines };

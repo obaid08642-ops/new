@@ -61,3 +61,17 @@ describe('pharmacy cancel refund', () => {
     expect(execute).toHaveBeenCalledWith(expect.objectContaining({ amount: 125, reason: 'pharmacy_cancel_after_dispatch' }));
   });
 });
+
+describe('owner decision 2026-11-10: pharmacy cancel by the pharmacy or an admin is a full refund', () => {
+  it('an admin cancelling an order that is out for delivery refunds the whole total (the delivery fee too)', async () => {
+    const { pharmacy, execute } = build();
+    await pharmacy.onPharmacyOrderCancelled({ entity_id: 'o9', patient_account_id: 'p1', actor_role: 'admin', meta: { total: 140, delivery_fee: 15, prior_status: 'out_for_delivery' } });
+    expect(execute).toHaveBeenCalledWith(expect.objectContaining({ refund_id: 'pharmacy-cancel-o9', amount: 140 }));
+  });
+  it('the patient\'s own cancel keeps the policy rule (before preparation: everything, fee per policy)', async () => {
+    const { pharmacy, execute } = build();
+    await pharmacy.onPharmacyOrderCancelled({ entity_id: 'o10', patient_account_id: 'p1', actor_role: 'patient', meta: { total: 140, delivery_fee: 15, prior_status: 'confirmed' } });
+    expect(execute).toHaveBeenCalledWith(expect.objectContaining({ amount: 140 }));
+  });
+});
+
