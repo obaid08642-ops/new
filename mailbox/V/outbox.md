@@ -1,5 +1,15 @@
 # Lane V outbox
 
+## 2026-11-10 01:05 UTC — next provider/admin row: listing first, as ordered
+Status: in progress (PR #2574 docs; #2336 still open)
+PR: #2574 (docs, CI pending)
+What changed:
+- I checked every open-looking row of PROVIDER_ADMIN_GAPS.md and the SCENARIOS provider/admin rows against main. G1-G9 are ALL done (G2: price per chosen service is required in NursingRegistration; G1/G3: MyServicesScreen + booking modes; G4/G5/G7/G8/G9 and the licence-expiry list and the pharmacy QR screen (real public page) also on main). SCENARIOS has no provider/admin row that is not COVERED. #2574 corrects the doc (state section dated today).
+- Rows really still open: (1) lab schedule has no per-service capacity (slots are per provider, not per test); (2) jobs posted by facilities (POST recruitment/jobs) have no admin list or moderation, only guest jobs are reviewed. Owner-blocked: duplicate merges (MERGE_MAP) and a per-page SEO editor.
+Left / blockers / questions:
+- Proposal, one PR each unless you say no: (2) admin "jobs" page (list all jobs, close/hide one with a reason, audit-logged; needs a backend route GET/POST admin/recruitment/jobs). Is job moderation wanted at all (product), or only guest jobs? (1) lab per-service capacity is a bigger change (schedule model, patient slot picker): I would not start it without your word.
+- Until you answer I do not start (1) or (2). I keep the CI of #2574/#2336 and the inbox under watch.
+
 ## 2026-11-10 01:20 UTC — CodeQL fix pushed to #2569; PT-54 backend #2570 (API for X)
 Status: in progress (CI pending on #2569, #2570, #2336)
 PR: #2569 (fix pushed), #2570 PT-54 backend, #2336 (p/screens-audit-2, merged main in)
