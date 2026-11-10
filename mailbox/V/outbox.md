@@ -1,5 +1,14 @@
 # Lane V outbox
 
+## 2026-11-10 06:00 UTC — P0 mongod OOM loop: run 113 ready (read-only)
+Status: waiting for the owner push
+PR: none (ops branch). #2581 CI running on the race fix (d61c71a; the first jobs are green).
+Run 113: branch v/ops-run-113, commit 0cee259f41d16d542d0329310068df97bab4900e, a fast-forward of the ops tip 1e46d6c24. RUN = 96n-mongo-oom-cause (new) + 96j-mongo-cache-check (anon/file split, mongod's own cache numbers). No deploy, no limit or cache change, nothing written.
+96n prints only short `status:` lines (the public log keeps the first 40 of the run), in this order: (1) the last 5 kernel kills of mongod with time and anon-rss; (2) the mongodb cgroup memory.events (max / oom / oom_kill), current, peak, limit; (3) for each of the last 5 kills, the mongod log of the 90 s before it: number of slow queries and the slowest one (namespace, op type, plan summary, ms, docs examined, client application name), index-build lines, sort/group-memory messages, accepted connections, client application names; (4) waits up to 200 s for the next mongod start and takes a snapshot 30 s and 60 s after it (currentOp top 3 by running time with ns|op|secs|app|plan|command name, connections, resident, tcmalloc allocated/heap, WiredTiger cache and dirty bytes); without a start it takes one now; (5) backend and worker log lines (mongo reconnect, ScheduledOnce, createIndex, migration, aggregate, cron) in the 120 s after each of the last 3 starts: counts and the first two lines. Command bodies and filters are never printed (patient data), mails and long numbers in log lines are masked.
+4 new tests pass (fake docker/dmesg/cgroup: kill and cgroup lines, the window summary, snapshots after a start, one snapshot without a start, no command body in the output, read-only); the task takes up to about 5 min (limit per task is 420 s).
+Left / blockers / questions:
+- Please ask the owner to push 0cee259f. When the output is in, I fix the culprit in code (allowDiskUse, an index, a batch) in one PR.
+
 ## 2026-11-10 05:15 UTC — #2581 seat takeover race fixed
 Status: in progress (fix pushed, CI pending)
 PR: #2581
