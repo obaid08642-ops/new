@@ -1,3 +1,9 @@
+## 09:50 UTC — decisions 6 and 7: PR #2591 (national_id) and PR #2592 (no-show live journey)
+Status: both open, waiting for CI. Open: #2589 (pharmacy), #2591, #2592, #2579. #2583, #2586, #2588 are merged.
+- #2591 national_id: found that the report read `users.national_id`, which the patient profile never writes (it saves on `patient_profiles`, plain), so a report never got the number. Now: encrypted store `patient_identity`; `GET/PUT /care/sick-leaves/national-id` (status masked / save, 10 digits, starts 1 or 2, check digit); a report issued without it has `needs_national_id: true` and its PDF answers 409 `national_id_required` until the patient adds it; list masked, full on the report; `PATCH /users/me/profile` national_id goes to the same store. Assumption: a booking with `sick_leave_requested` is not blocked by a missing number, the app asks through the status route. **For lane X:** ask only then; new error keys `national_id_invalid`, `national_id_required`.
+- #2592 journey `j_provider_no_show.py` (PV-23): clinic held -> doctor disputes -> admin upholds -> 100% refund; video x3: two refunded at once, the third pending_review -> admin refunds. The 24 h auto-release is not in the journey (10-minute cron; unit specs cover it). I could not run the journey here (no MongoDB / live stack): its first run is the live gate in CI; I will fix it from the log.
+- Questions: none new. Next: CI of these PRs, then whatever is next in your inbox (the list in 08:20 is now done: pharmacy, national_id, no-show journey).
+
 ## 09:20 UTC — decision 4, pharmacy half: PR #2589
 Status: PR open, waiting for CI (tsc, nest build, dtolint 0, dtocheck 0 mismatches; 23 touched specs pass locally, Mongo-backed ones run in CI)
 PRs open: #2589 (z/pharmacy-refund), #2588 (z/two-hour-table), #2586, #2583, #2579
