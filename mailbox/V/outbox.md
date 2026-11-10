@@ -1,5 +1,11 @@
 # Lane V outbox
 
+## 2026-11-10 11:55 UTC — run 114 prepared (deploy after #2595)
+Status: ready, waiting for the release sha
+PR: none (ops branch)
+What changed: branch `v/ops-run-114` (e6d82fa59, fast-forward of the ops tip 0cee259f). RUN: 97-free-old-predeploy, 93-free-unused-images, 60-deploy-main, cf-purge-api, then read-only 96p-medicine-indexes (new: the two covering indexes present + distinct plan), 96n-mongo-oom-cause, 96j-mongo-cache-check. No 91b APPLY. Test: test_medicine_indexes.py (3 pass).
+Left: the `release:` line is a PLACEHOLDER (`release:PLACEHOLDER-main-tip-sha-from-lead`): replace with the main tip sha when #2595 merges before pushing to review/server-inspect. I did not push there.
+
 ## 2026-11-10 11:10 UTC — P0 mongod OOM: culprit and code fix PR #2597
 Status: in progress (CI pending)
 PR: #2597
