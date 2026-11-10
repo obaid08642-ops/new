@@ -29,7 +29,7 @@ describe('radiology booking: the provider of a quote', () => {
   it('the refund policy the patient agreed to is stored on the booking with the time and the policy version (owner decision 2026-11-09)', async () => {
     const { svc, created } = build({ profile: { account_id: 'acc-1' }, orderingItem: true });
     await svc.book(PATIENT, body({ provider_id: 'profile-1' }));
-    expect(created[0].refund_policy_acceptance).toEqual({ accepted: true, at: expect.any(Date), version: '2026-11-09' });
+    expect(created[0].refund_policy_acceptance).toEqual({ accepted: true, at: expect.any(Date), version: '2026-11-09', service: 'radiology', hash: expect.stringMatching(/^[0-9a-f]{64}$/) });   // the version/hash of the policy in force (here the default table) and the service
   });
 
   it('by default (optional) a patient booking without the field is accepted and stores no acceptance (old clients keep working)', async () => {

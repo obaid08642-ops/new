@@ -1,3 +1,4 @@
+import { stampAcceptance } from '../../common/refund-policy-stamp';
 import { resolveFamilyMemberId } from '../../common/family-member';
 import { refundPolicyAcceptance } from '../../common/refund-policy-acceptance';
 import { readQuoteVatRate } from '../../common/quote';
@@ -375,7 +376,7 @@ export class OrderingService implements OnModuleInit {
 
   async book(user: any, dto: CreateOrderingBookingDto) {
     // owner decision 2026-11-09: the refund policy is agreed before any booking is made from the quote
-    const policyAcceptance = refundPolicyAcceptance(user, dto.refund_policy_accepted);
+    const policyAcceptance = await stampAcceptance(this.conn, refundPolicyAcceptance(user, dto.refund_policy_accepted), 'lab');
     const quote: any = await this.conn.collection(QUOTES).findOne({ id: dto.quote_id, patient_id: user.id });
     if (!quote) throw new NotFoundException('quote_not_found');
     const now = new Date();

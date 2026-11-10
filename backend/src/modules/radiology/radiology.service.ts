@@ -1,3 +1,4 @@
+import { stampAcceptance } from '../../common/refund-policy-stamp';
 import { refundPolicyAcceptance, type RefundPolicyAcceptance } from '../../common/refund-policy-acceptance';
 import { resolveFamilyMemberId } from '../../common/family-member';
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Optional, ServiceUnavailableException } from '@nestjs/common';
@@ -663,7 +664,7 @@ export class RadiologyOpsService {
     const serviceId = typeof body?.service_id === 'string' ? body.service_id : '';
     if (!serviceId || serviceId.length > 128) throw new BadRequestException('service_id_required');
     // owner decision 2026-11-09: the refund policy is agreed before the booking exists
-    const policyAcceptance = refundPolicyAcceptance(user, body?.refund_policy_accepted);
+    const policyAcceptance = await stampAcceptance(this.svcModel.db, refundPolicyAcceptance(user, body?.refund_policy_accepted), 'radiology');
     // owner decision 1: a booking for a family member (the caller stays the booker; checked to be the caller's own member)
     const familyMemberId = await resolveFamilyMemberId(this.svcModel.db, user.id, body?.family_member_id);
     const svc: any = await this.getById(serviceId).catch(() => null);
