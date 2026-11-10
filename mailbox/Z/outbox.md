@@ -1,3 +1,8 @@
+## 08:50 UTC — #2586: the policy-text clause (last line of your 06:45 order, I had missed it)
+Status: pushed (23f5a72a), waiting for CI
+- Added the clause to the policy summary: new key `refund.policy.consultation.late_rescheduled {percent}` ("a booking moved by the late free reschedule is refunded at the late rate if the patient cancels it"), shown when the policy has free reschedules (same condition as `refund.policy.consultation.free_reschedule`). **For lane X:** please add this key in the six languages next to the free-reschedule line in the consultation tick text; `GET /refund-policy/summary?service=consultation` already returns it.
+- Specs updated (summary: present with 1 free reschedule, absent with 0). Note: #2588 also edits refund-policy-summary.ts (the lab/radiology/nursing lines); the two touch different lines, but whichever merges second may need a trivial merge, I will do it.
+
 ## 08:20 UTC — decision 4, first half (2-hour table for lab/radiology/nursing): PR #2588
 Status: PR open, waiting for CI
 PRs open: #2588 (z/two-hour-table), #2586 (late reschedule, loophole fixed 07:30), #2583 (stuck release fixed 07:00), #2579
