@@ -4,7 +4,7 @@ import { CurrentUser, JwtAuthGuard, NoGuestsGuard, Public, Roles, SelfService } 
 import { UserRole } from '../../common/enums';
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { UserRateLimit, UserRateLimitGuard } from '../../common/user-rate-limit';
-import { RevokeSickLeaveDto, SehaNumberDto } from './sick-leave.dto';
+import { NationalIdDto, RevokeSickLeaveDto, SehaNumberDto } from './sick-leave.dto';
 import { SickLeaveService } from './sick-leave.service';
 
 /** The patient's own certificates: the list (ID number masked), one in full, and its PDF. Someone else's certificate is a 404. */
@@ -15,6 +15,10 @@ export class PatientSickLeaveController {
   constructor(private readonly svc: SickLeaveService) {}
 
   @Get() list(@CurrentUser() user: any) { return this.svc.listForPatient(String(user.id)); }
+
+  /** Asked for only when a medical report is requested or issued: whether the number exists (masked). Declared before `:id`. */
+  @Get('national-id') nationalId(@CurrentUser() user: any) { return this.svc.nationalIdStatus(String(user.id)); }
+  @Put('national-id') setNationalId(@CurrentUser() user: any, @Body() body: NationalIdDto) { return this.svc.setNationalId(String(user.id), body?.national_id); }
   @Get(':id') one(@CurrentUser() user: any, @Param('id') id: string) { return this.svc.oneForPatient(String(user.id), id); }
 
   @Get(':id/pdf')

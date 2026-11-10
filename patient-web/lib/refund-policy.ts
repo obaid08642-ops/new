@@ -21,10 +21,11 @@ export type RefundLine = { key: string; params: Record<string, string | number> 
 
 export const refundSummaryPath = (service: RefundService): string => `/refund-policy/summary?service=${service}`;
 
-const KNOWN_LINES = new Set([
+/** Every line key the server may send; each has a message in all six languages (tested). */
+export const KNOWN_LINES = new Set([
   "consultation.full", "consultation.late", "consultation.patient_no_show", "consultation.free_reschedule", "consultation.provider_no_show",
   "lab.before_transit", "lab.after_transit", "nursing.before_transit", "nursing.after_transit", "nursing.patient_absent",
-  "radiology.full", "pharmacy.before_dispatch", "pharmacy.before_dispatch_fee", "pharmacy.after_dispatch", "pharmacy.after_delivery",
+  "lab.full", "lab.late", "nursing.full", "nursing.late", "radiology.full", "radiology.late", "pharmacy.before_dispatch", "pharmacy.before_dispatch_fee", "pharmacy.after_dispatch", "pharmacy.after_delivery",
   "provider_cancel", "card_destination",
 ]);
 

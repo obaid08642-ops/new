@@ -62,7 +62,8 @@ export class ProviderNoShowService {
   /** How many automatic refunds this patient got for reported no-shows in the last 30 days (the cap is in provider-no-show-rules). */
   async autoRefundsInWindow(patientUserId: string, now: Date = new Date()): Promise<number> {
     const since = new Date(now.getTime() - AUTO_REFUND_WINDOW_DAYS * 86_400_000);
-    return this.reports.countDocuments({ reported_by: patientUserId, outcome: 'refunded', reported_at: { $gte: since } });
+    // Owner decision 2026-11-10: the cap counts only AUTOMATIC video refunds (refunded at once, no admin decision). A clinic/home refund released after the 24 hours, an admin-upheld one and an admin `review_refunded` one do not count.
+    return this.reports.countDocuments({ reported_by: patientUserId, outcome: 'refunded', service_type: 'video', decision: null, reported_at: { $gte: since } });
   }
 
   async record(appt: any, patientUserId: string, now: Date = new Date(), outcome: ReportOutcome = 'refunded'): Promise<{ flagged: boolean; recent_reports: number; refund_after: Date | null }> {

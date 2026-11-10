@@ -67,6 +67,14 @@ describe("PT-08 medical reports on the web", () => {
     expect(html.replace("Official sick leave is issued via Seha.", "")).not.toMatch(WORDING);
   });
 
+  it("a report issued before the patient gave an ID number asks for it and holds the PDF back (owner decision 6)", async () => {
+    server.api.mockResolvedValue(json({ id: ID, serial: "MED-2026-000002", status: "issued", issued_at: "2026-11-09T10:00:00Z", from: "2026-11-10", to: "2026-11-12", days: 3, doctor_name: "Dr Test", national_id: null, needs_national_id: true, verify_code: "ABCD2345" }));
+    const html = render(await ReportPage({ params: Promise.resolve({ locale: "en", reportId: ID }) }));
+    expect(html).toContain("Add your ID number to download this report.");
+    expect(html).toContain('data-testid="national-id-form"');
+    expect(html).not.toContain(`/api/patient/care/sick-leaves/${ID}/pdf`);
+  });
+
   it("a registered report shows the Seha number; a revoked one says so with the reason", async () => {
     server.api.mockResolvedValue(json({ id: ID, serial: "MED-2026-000003", status: "revoked", revoke_reason: "Issued by mistake", seha_status: "registered", seha_number: "SEHA-77", diagnosis: "Flu" }));
     const html = render(await ReportPage({ params: Promise.resolve({ locale: "en", reportId: ID }) }));

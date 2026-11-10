@@ -11,6 +11,8 @@ import type { Locale } from "@/lib/i18n";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { Input, Select } from "@/components-next/ui-generated/components/Inputs";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
+import { NationalIdForm } from "@/components-next/medical-reports/national-id-form";
+import { readNationalIdStatus } from "@/lib/medical-reports/national-id";
 import { Segmented } from "@/components-next/ui-generated/components/Controls";
 import { StickyFooter } from "@/components-next/ui-generated/shells/StickyFooter";
 import { ConsultPage } from "@/components-next/consult/consult-page";
@@ -80,6 +82,17 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
   const [notes, setNotes] = useState("");
   // PT-08: "I need a medical report" (a recommended rest period): a request the doctor decides on
   const [reportRequested, setReportRequested] = useState(false);
+  // Owner decision 6: the ID number is asked only when the patient asks for a medical report and has none yet (it never blocks the booking)
+  const [needsNationalId, setNeedsNationalId] = useState(false);
+  useEffect(() => {
+    if (!reportRequested) { setNeedsNationalId(false); return undefined; }
+    let live = true;
+    fetch("/api/patient/care/sick-leaves/national-id", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((answer) => { if (live) setNeedsNationalId(readNationalIdStatus(answer) === false); })
+      .catch(() => { if (live) setNeedsNationalId(false); });
+    return () => { live = false; };
+  }, [reportRequested]);
   // the refund policy is shown before payment and agreed here (the backend refuses a booking without it)
   const [refundAgreed, setRefundAgreed] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "card" | "insurance">("card");
@@ -283,6 +296,7 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
           <span><input type="checkbox" checked={reportRequested} onChange={(event) => setReportRequested(event.target.checked)} /> {t("reportRequest")}</span>
         </label>
         <p className={rx.note}>{t("reportHint")}</p>
+        {reportRequested && needsNationalId ? <NationalIdForm onSaved={() => setNeedsNationalId(false)} labels={{ title: t("nationalIdTitle"), hint: t("nationalIdHint"), label: t("nationalIdLabel"), save: t("nationalIdSave"), saving: t("nationalIdSaving"), invalid: t("nationalIdInvalid"), failed: t("nationalIdFailed"), saved: t("nationalIdSaved") }} /> : null}
       </SectionCard>
       <SectionCard id="book-payment" title={t("payment")}>
         <Segmented

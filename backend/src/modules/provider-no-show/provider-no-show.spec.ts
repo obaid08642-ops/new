@@ -227,15 +227,18 @@ describe('owner decision 2026-11-10: the money of a report', () => {
     expect(outcomeFor('clinic', 0)).toBe('held');
     expect(outcomeFor('home', 9)).toBe('held');
   });
-  it('autoRefundsInWindow counts only refunded reports of this patient in the last 30 days', async () => {
+  it('autoRefundsInWindow counts only AUTOMATIC video refunds of this patient in the last 30 days', async () => {
     const day = 24 * HOUR;
     const m = make({ provider_no_show_reports: [
-      { reported_by: 'pat', outcome: 'refunded', reported_at: new Date(NOW.getTime() - 5 * day) },
-      { reported_by: 'pat', outcome: 'refunded', reported_at: new Date(NOW.getTime() - 29 * day) },
-      { reported_by: 'pat', outcome: 'refunded', reported_at: new Date(NOW.getTime() - 31 * day) },     // out of the window
-      { reported_by: 'pat', outcome: 'held', reported_at: new Date(NOW.getTime() - 2 * day) },            // not a refund (yet)
-      { reported_by: 'pat', outcome: 'pending_review', reported_at: new Date(NOW.getTime() - 1 * day) }, // not a refund
-      { reported_by: 'other', outcome: 'refunded', reported_at: new Date(NOW.getTime() - 1 * day) },
+      { reported_by: 'pat', outcome: 'refunded', service_type: 'video', decision: null, reported_at: new Date(NOW.getTime() - 5 * day) },
+      { reported_by: 'pat', outcome: 'refunded', service_type: 'video', decision: null, reported_at: new Date(NOW.getTime() - 29 * day) },
+      { reported_by: 'pat', outcome: 'refunded', service_type: 'video', decision: null, reported_at: new Date(NOW.getTime() - 31 * day) },   // out of the window
+      { reported_by: 'pat', outcome: 'refunded', service_type: 'clinic', decision: { decision: 'uphold_report' }, reported_at: new Date(NOW.getTime() - 2 * day) }, // admin-upheld clinic refund
+      { reported_by: 'pat', outcome: 'refunded', service_type: 'clinic', decision: null, reported_at: new Date(NOW.getTime() - 2 * day) },   // clinic released after the window
+      { reported_by: 'pat', outcome: 'refunded', service_type: 'video', decision: { decision: 'refund' }, reported_at: new Date(NOW.getTime() - 2 * day) }, // admin review_refunded
+      { reported_by: 'pat', outcome: 'held', service_type: 'clinic', decision: null, reported_at: new Date(NOW.getTime() - 2 * day) },        // not a refund (yet)
+      { reported_by: 'pat', outcome: 'pending_review', service_type: 'video', decision: null, reported_at: new Date(NOW.getTime() - 1 * day) }, // not a refund
+      { reported_by: 'other', outcome: 'refunded', service_type: 'video', decision: null, reported_at: new Date(NOW.getTime() - 1 * day) },
     ] });
     expect(await m.svc.autoRefundsInWindow('pat', NOW)).toBe(2);
   });
