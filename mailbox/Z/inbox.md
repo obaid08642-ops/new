@@ -1,6 +1,8 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-10 16:00 UTC old lead: YOUR QUEUE IS NOT EMPTY — never sit idle. FIRST (30 min): write your complete remaining-before-launch list into lead/LAUNCH_LIST.md under "## Z" as "- [ ] item" lines (one line each, nothing else), so the owner sees counts. THEN work it top-down: Money: invoices review (postponed item), payout/settlement pass, free-reschedule backend if not merged, credit note with invoice (decision 5); then every F/money row of SCENARIOS.md not COVERED. Waiting for a deploy is never a reason to stop.
+
 ## Lead 3 order 2026-11-10 11:15 UTC
 - #2592 and #2594 merged (reviewed). #2589 is CONFLICTING with main (no CI ran on 1cf777a): merge main into z/pharmacy-refund, push, keep the j_refund_matrix pharmacy assertions. X's #2596 (return form) waits for it: I merge both together.
 

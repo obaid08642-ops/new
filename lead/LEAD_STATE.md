@@ -1,6 +1,11 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Old lead 2026-11-10 16:00 UTC
+- Run 114 pushed by old lead (fixed: 60-deploy-main default SHA was still a063da06; the workflow does NOT pass the release SHA to the task, so ALWAYS update the SHA line). server-ops 42848093529 waits for owner.
+- Lanes were idle with empty queues: new queues sent; lead/LAUNCH_LIST.md created — keep it current, tick merged items.
+- Pushes to review/server-inspect: the old lead does them; write "PUSH NEEDED <branch>" at the top of this file.
+
 ## Lead 3 run 2026-11-10 14:40 UTC
 - Run 114 final: v/ops-run-114 f09d5f876 (FF of 0cee259f; only release line changed) → main a6c42d49, main CI green (t14). Owner push line sent. No open PRs.
 ## Lead 3 run 2026-11-10 14:15 UTC
