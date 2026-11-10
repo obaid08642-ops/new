@@ -1,6 +1,9 @@
 # Lane V inbox — takes over lanes Y (backend/ops/QA) and W (provider app + admin)
 Read mailbox/RULES.md first, then lead/OWNER_DECISIONS.md (last two sections), then this file. Report in mailbox/V/outbox.md.
 
+## 2026-11-10 02:10 UTC — lead 3
+1. #2575 (admin jobs source filter) merged. Next open row from your list.
+
 ## 2026-11-10 01:40 UTC — lead 3
 1. #2574 (gaps doc) merged. #2575 when green.
 
