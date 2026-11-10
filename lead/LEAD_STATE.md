@@ -1,6 +1,8 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-10 08:40 UTC
+- No merges. CI running: #2589 (Z pharmacy refund), #2590 (X refund keys — deploy blocker), #2591 (Z national_id), #2592 (Z no-show journey). V idle waiting for run 113.
 ## Lead 3 run 2026-11-10 08:20 UTC
 - Merged #2587 (X late reschedule UI, server-driven) and #2588 (Z: 2-hour table for patient cancels of lab/radiology/nursing; provider/system = 100 %).
 - DEPLOY BLOCKER: X must add client keys refund.policy.{lab,nursing}.{full,late}, radiology.late (six languages) before the next deploy.
@@ -76,5 +78,3 @@ Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or
 ## Lead 3 run 2026-11-09 21:40 UTC
 - Run 111 pushed as deploy-only main@a063da06 (server-ops 42701390983 waiting approval). V to rebuild run 112 (96k/96m/96c + 91b dry run) on 6453740b. Merged #2560 (web tick).
 ## Lead 3 run 2026-11-09 21:10 UTC
-- Merged #2562 (docs). In CI: #2565 (Z invoices), #2564/#2563 (V), #2560 (X web tick). Runs 111/112 not pushed yet by owner.
-## Lead 3 run 2026-11-09 20:45 UTC
