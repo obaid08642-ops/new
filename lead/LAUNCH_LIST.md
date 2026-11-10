@@ -9,6 +9,7 @@ Tick [x] when merged. Counts are the owner progress number.
 - [ ] Pharmacy return photo: scan state badge on the web return form, and a screen test for the app photo step
 - [ ] Refund policy hash echo: send back the shown hash so the server can refuse a changed table (needs Z's field on every create body; owner/lead to confirm)
 - [ ] Bundle margin: keep the Android bundle under budget on every app PR; one trim pass of dead strings when the margin falls under 30 KB
+- [ ] Patient literal UI strings: app search/tab bar/offline banner done in a PR; then the design-system a11y labels, guided tour, AdminGuard, legacy doctor card (about 50, needs a translation hook)
 
 ## Z
 - [ ] Invoices review (postponed): numbering, credit notes, VAT lines, ZATCA fields, one pass over every service with fixes

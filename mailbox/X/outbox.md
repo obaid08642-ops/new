@@ -2,6 +2,11 @@
 
 # Lane X outbox
 
+## 2026-11-10 18:50 literal UI strings (translation rule), parity audit result
+- https://github.com/obaid08642-ops/new/pull/2609 (x/literals-patient): patient literal-string debt: app search screen (33 literals, used to fall back to English in ur/hi/bn/fil), tab bar labels, the offline banner (it existed only in Arabic) now in six languages; machine-readable web metadata and the not-found last-resort fallback marked i18n-ok with reasons. Baseline 5375 -> 5303. About 50 a11y-only literals in shared design-system components remain (added to my launch list).
+- Parity audit round 2 result: the only one-sided item was the no-show outcome text (PR #2601, green). Checked and fine: credit notes (both sides show them in the receipt), family-member bookings through ordering (the booking body may omit family_member_id: the server takes it from the quote), refund summary keys, late reschedule, national id, pharmacy return, hide visit.
+- PRs: #2601 green, #2603 green, #2604 green after the fuzz re-run, #2605/#2606 green except live gate when last checked.
+
 ## 2026-11-10 18:20 check: a real backend bug found by the fuzz on #2604 (for Z / lead)
 - #2604 (PT-03) Schemathesis fuzz failed: `GET /api/v1/public/categories/ar/items?...&category=__proto__&...` answers 500 INTERNAL_ERROR (one example of 1917). Nothing in my PR touches the backend; the fuzz draws random inputs, so it can pass on another seed, but the bug is real: a query value `__proto__` (probably a lookup into a plain object or a `$ne`/key use) is not handled. Repro: `curl 'http://127.0.0.1:8002/api/v1/public/categories/ar/items?category=__proto__&sort=%C3%B0&rx=u'`. I re-ran the failed job.
 - Other PRs: #2603 (PT-54 orders) green incl. live gate; #2605 (PT-30) green except live gate still running; #2606 (return photo) green except live gate still running; #2604 only the fuzz above.
