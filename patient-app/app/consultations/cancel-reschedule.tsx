@@ -14,6 +14,7 @@ import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { readCancellationPolicy, type CancellationPolicy } from '../../src/utils/refundPolicy';
 import { consultationMutationHeaders } from '../../src/utils/consultation-payment';
+import { readLateReschedule } from '../../src/utils/lateReschedule';
 
 /**
  * Cancel or reschedule — board Consult's form language. The appointment is GET /care/appointments/:id; cancelling is
@@ -70,6 +71,8 @@ export default function CancelRescheduleScreen() {
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [policy, setPolicy] = useState<CancellationPolicy | null>(null);
+  // Owner decision 2026-11-10: inside the last hours the visit can be moved once, free, within `days` days, instead of cancelled for the late refund.
+  const [lateOffer, setLateOffer] = useState<{ days: number } | null>(null);
 
   const loadAppointment = useCallback(async () => {
     if (!appointmentId) {
@@ -92,6 +95,11 @@ export default function CancelRescheduleScreen() {
   }, [loadAppointment]);
 
   useEffect(() => {
+    if (!appointmentId) return;
+    apiFetch<unknown>(`/care/appointments/${appointmentId}/refund-preview`).then((preview) => setLateOffer(readLateReschedule(preview))).catch(() => setLateOffer(null));
+  }, [appointmentId]);
+
+  useEffect(() => {
     apiFetch<unknown>('/system-config/public').then((config) => setPolicy(readCancellationPolicy(config))).catch(() => setPolicy(null));
   }, []);
 
@@ -104,7 +112,7 @@ export default function CancelRescheduleScreen() {
       const kind = appointment.service_type || appointment.consultation_type;
       const serviceType = kind === 'home' ? 'home' : kind === 'video' || kind === 'online' ? 'video' : 'clinic';
       const days: string[] = [];
-      for (let i = 1; i <= 7; i++) days.push(new Date(Date.now() + i * DAY_MS).toISOString().slice(0, 10));
+      for (let i = 1; i <= (lateOffer?.days ?? 7); i++) days.push(new Date(Date.now() + i * DAY_MS).toISOString().slice(0, 10));
       const results = await Promise.all(
         days.map(async (d): Promise<[string, Slot[]]> => {
           try {
@@ -123,7 +131,7 @@ export default function CancelRescheduleScreen() {
       setSlotsLoading(false);
     };
     void loadSlots();
-  }, [mode, appointment?.doctor_id, appointment?.service_type, appointment?.consultation_type]);
+  }, [mode, appointment?.doctor_id, appointment?.service_type, appointment?.consultation_type, lateOffer?.days]);
 
   const price = Number(appointment?.price ?? appointment?.amount_total ?? 0);
   const scheduledAt = appointment?.scheduled_at ? new Date(appointment.scheduled_at) : null;
@@ -215,6 +223,7 @@ export default function CancelRescheduleScreen() {
                 </View>
               </View>
             </Card>
+            {lateOffer ? <Notice tone="info" text={k('consult.cancel.lateOffer', { days: num(lateOffer.days) })} /> : null}
             <Section title={k('consult.cancel.policy')}>
               <Card theme={theme}>
                 {policyLines.map((line, i) => (

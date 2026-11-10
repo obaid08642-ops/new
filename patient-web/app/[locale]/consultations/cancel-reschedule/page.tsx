@@ -11,6 +11,7 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { Hero } from "@/components-next/consult/consult-parts";
 import { PolicyCard, policyLines } from "@/components-next/consult/policy-lines";
 import { getCancellationPolicy } from "@/lib/consult/cancellation-policy";
+import { readLateReschedule } from "@/lib/consult/late-reschedule";
 import { LocalTimeLine } from "@/components-next/consult/local-time-line";
 import styles from "@/components-next/consult/consult.module.css";
 
@@ -40,6 +41,12 @@ export default async function ConsultationCancelReschedulePage({ params, searchP
   // for cancelling now is the figure the server computed on the appointment itself; the screen applies no rule of its own.
   const policy = await getCancellationPolicy(token);
   const refundPct = appointment.refundNowPercent ?? null;
+  // The late-cancel choice (owner decision 2026-11-10): inside the last hours the visit can be moved once for free, within `days` days, instead of cancelled for the late refund.
+  let lateOffer: { days: number } | null = null;
+  try {
+    const preview = await callPatientApi(`/care/appointments/${encodeURIComponent(appointmentId)}/refund-preview`, { cache: "no-store" }, token);
+    if (preview?.ok) lateOffer = readLateReschedule(await preview.json().catch(() => null));
+  } catch { /* no offer if the preview cannot be read: the normal reschedule and cancel stay */ }
   const mode = modeOf(appointment.serviceType);
   const visual = mode ? MODE_VISUAL[mode] : undefined;
 
@@ -49,12 +56,14 @@ export default async function ConsultationCancelReschedulePage({ params, searchP
         {Number.isFinite(slotMs) && appointment.slotStart ? <LocalTimeLine iso={appointment.slotStart} locale={locale} className={styles.heroSub} /> : null}
       </Hero>
       {refundPct !== null ? <p className={styles.ok} role="status">{c("expectedRefund", { percent: refundPct })}</p> : null}
+      {lateOffer ? <p className={styles.ok} role="status" data-testid="late-reschedule-offer">{c("lateRescheduleOffer", { days: lateOffer.days })}</p> : null}
       <PolicyCard title={c("policyTitle")} lines={policyLines(c, policy)} />
       {appointment.doctorId && mode ? (
         <AppointmentRescheduleForm
           appointmentId={appointmentId}
           doctorId={appointment.doctorId}
           serviceType={mode}
+          daysAhead={lateOffer?.days}
           locale={locale}
           labels={{ title: a("rescheduleTitle"), date: b("selectDay"), slots: b("slotsLabel"), reason: a("rescheduleReason"), submit: a("rescheduleSubmit"), cancel: a("rescheduleCancel"), conflict: a("rescheduleConflict"), failed: a("rescheduleFailed"), unavailable: a("rescheduleUnavailable"), invalid: a("rescheduleInvalid"), today: b("today"), loading: b("loadingSlots"), noSlots: b("noSlots"), slotsUnavailable: b("slotsUnavailable") }}
         />

@@ -4186,5 +4186,6 @@
   "refund.policy.pharmacy.before_dispatch_fee": "Kanselahin bago maipadala ang order para sa buong refund, kasama ang bayad sa paghahatid.",
   "refund.policy.pharmacy.after_dispatch": "Pagkatapos maipadala, mananatili ang bayad sa paghahatid at ibabalik ang natitira.",
   "refund.policy.pharmacy.after_delivery": "Pagkatapos ng paghahatid, may refund lamang kung mali, sira, depektibo o expired ang item.",
-  "refund.policy.card_destination": "Ibinabalik ang bayad sa orihinal na paraan ng pagbabayad, hindi sa wallet."
+  "refund.policy.card_destination": "Ibinabalik ang bayad sa orihinal na paraan ng pagbabayad, hindi sa wallet.",
+  "consult.cancel.lateOffer": "Malapit na ang konsultasyon, kaya bahagi lamang ng bayad ang ibabalik kapag kinansela. Maaari mo itong ilipat nang isang beses nang libre sa oras na hindi lalampas sa {days} araw."
 }
