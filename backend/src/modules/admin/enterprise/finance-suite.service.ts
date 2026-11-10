@@ -1,6 +1,8 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { Cron } from '@nestjs/schedule';
+import { ScheduledOnce } from '../../../common/scheduled-once';
 import { reportAggregate } from '../../../common/reports/report-read';
 import { v4 as uuid } from 'uuid';
 import { validateReason, MIN_FINANCIAL_REASON_LENGTH, ReasonError } from '../../../common/rbac';
@@ -457,6 +459,26 @@ export class FinanceSuiteService {
     return { ok: true, id, state: 'PAID' };
   }
 
+  /**
+   * `executePayout` claims APPROVED_FOR_PAYOUT -> PAID first and clears the locked reservation second. A crash between the two leaves a PAID payout whose reservation stays
+   * `locked`: the provider is still charged once (the lock holds the amount) but the ledger shows no cleared payout. Every 10 minutes the payouts paid in the last 7 days
+   * (more than 5 minutes ago) get their reservation cleared if it is still locked. Idempotent: a cleared reservation no longer matches.
+   */
+  @Cron('*/10 * * * *')
+  @ScheduledOnce({ ttlMs: 5 * 60_000, holdMs: 60_000 })
+  async clearPaidReservations(now: Date = new Date()): Promise<number> {
+    const paid: any[] = await this.withdrawals.find({ state: 'PAID', paid_at: { $gte: new Date(now.getTime() - 7 * 86_400_000), $lte: new Date(now.getTime() - 5 * 60_000) } }).limit(200).toArray();
+    let fixed = 0;
+    for (const w of paid) {
+      const res = await this.conn.collection('platformledgerentries').updateOne(
+        { type: 'payout', state: 'locked', ref_type: 'withdrawal_reservation', ref_id: w.id, provider_account_id: w.provider_id },
+        { $set: { state: 'cleared', cleared_at: now, actor_id: w.paid_by ?? null } },
+      );
+      if (res.modifiedCount) fixed += 1;
+    }
+    return fixed;
+  }
+
   /** Detailed provider account statement (orders + payouts + ledger). */
   async providerStatement(providerId: string, from?: string, to?: string) {
     if (!providerId) throw new BadRequestException('provider_id_required');
@@ -466,25 +488,31 @@ export class FinanceSuiteService {
     };
     const hasRange = Object.keys(range).length > 0;
 
-    const ledger = await this.conn.collection('platformledgerentries')
-      .find(hasRange ? { provider_account_id: providerId, createdAt: range } : { provider_account_id: providerId })
-      .sort({ createdAt: -1 }).limit(300).project({ _id: 0 }).toArray();
+    const entries = this.conn.collection('platformledgerentries');
+    const match: any = hasRange ? { provider_account_id: providerId, createdAt: range } : { provider_account_id: providerId };
+    const ledger = await entries.find(match).sort({ createdAt: -1 }).limit(300).project({ _id: 0 }).toArray();
     const payouts = await this.withdrawals
       .find(hasRange ? { provider_id: providerId, createdAt: range } : { provider_id: providerId })
       .sort({ createdAt: -1 }).limit(100).project({ _id: 0 }).toArray();
 
-    const summary = ledger.reduce((a: any, e: any) => {
-      if (['provider_earning', 'bonus', 'referral'].includes(e.type) && e.state === 'cleared') a.earned_cleared += Number(e.amount || 0);
-      else if (e.type === 'provider_earning' && e.state === 'pending') a.earned_pending += Number(e.amount || 0);
-      else if (e.type === 'payout' && e.state === 'cleared') a.paid_out += Number(e.amount || 0);
-      else if (['provider_debit', 'penalty', 'chargeback'].includes(e.type)) a.debits += Number(e.amount || 0);
-      return a;
-    }, { earned_cleared: 0, earned_pending: 0, paid_out: 0, debits: 0 });
+    // The totals cover EVERY entry in the range, not only the 300 newest rows shown below (a busy provider has far more, and the balance was wrong).
+    const groups: any[] = await entries.aggregate([{ $match: match }, { $group: { _id: { type: '$type', state: '$state' }, amount: { $sum: '$amount' } } }]).toArray();
+    const summary = { earned_cleared: 0, earned_pending: 0, paid_out: 0, debits: 0, locked: 0 };
+    for (const g of groups) {
+      const { type, state } = g._id || {};
+      const amount = Number(g.amount || 0);
+      if (state === 'locked') summary.locked += amount;
+      else if (['provider_earning', 'bonus', 'referral'].includes(type) && state === 'cleared') summary.earned_cleared += amount;
+      else if (type === 'provider_earning' && state === 'pending') summary.earned_pending += amount;
+      else if (type === 'payout' && state === 'cleared') summary.paid_out += amount;
+      else if (['provider_debit', 'penalty', 'chargeback'].includes(type)) summary.debits += amount;
+    }
 
     return {
       provider_id: providerId,
       summary: Object.fromEntries(Object.entries(summary).map(([k, v]) => [k, Math.round(Number(v) * 100) / 100])),
-      balance_available: Math.round((summary.earned_cleared - summary.paid_out - summary.debits) * 100) / 100,
+      // what the provider can withdraw: money held for an open withdrawal request is not available again
+      balance_available: Math.round((summary.earned_cleared - summary.paid_out - summary.debits - summary.locked) * 100) / 100,
       ledger, payouts,
     };
   }

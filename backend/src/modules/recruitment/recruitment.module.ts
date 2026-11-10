@@ -171,17 +171,21 @@ export class RecruitmentService {
   }
 
   /** Publish or reject a guest draft. Claim-then-act: only a still-draft guest post can be decided, so two admins cannot both win. */
-  async reviewGuestJob(adminId: string, jobId: string, decision: 'publish' | 'reject', note?: string): Promise<any> {
+  async reviewGuestJob(adminId: string, jobId: string, decision: 'publish' | 'reject' | 'close', note?: string): Promise<any> {
     const next = decision === 'publish' ? 'published' : 'closed';
+    // publish and reject act on a pending guest post; close takes down any published post, guest or facility
+    const filter = decision === 'close'
+      ? { id: jobId, is_deleted: false, status: 'published' }
+      : { id: jobId, is_deleted: false, status: 'draft', guest_device_id: { $exists: true, $ne: null } };
     const job = await this.jobModel.findOneAndUpdate(
-      { id: jobId, is_deleted: false, status: 'draft', guest_device_id: { $exists: true, $ne: null } },
+      filter,
       { $set: { status: next, reviewed_by: adminId, reviewed_at: new Date(), review_note: note } },
       { new: true },
     ).lean();
     if (!job) {
       const exists = await this.jobModel.findOne({ id: jobId, is_deleted: false }).lean();
       if (!exists) throw new NotFoundException('Job posting not found');
-      throw new BadRequestException('Only a pending guest post can be reviewed');
+      throw new BadRequestException(decision === 'close' ? 'Only a published post can be closed' : 'Only a pending guest post can be reviewed');
     }
     return job;
   }

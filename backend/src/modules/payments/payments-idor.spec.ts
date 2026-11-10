@@ -37,6 +37,12 @@ describe('PaymentsService ownership guards (E5-F2)', () => {
     expect(res).toEqual([{ id: 'tx1' }]);
   });
 
+  it('listForBooking allows the person who booked for someone else (a guardian), and still refuses a stranger', async () => {
+    orders.findOne = jest.fn(() => ({ lean: async () => ({ id: 'b1', patient_id: 'member-1', booked_by_user_id: 'guardian-1' }) }));
+    expect(await svc.listForBooking({ id: 'guardian-1', role: 'patient' }, 'order', 'b1')).toEqual([{ id: 'tx1' }]);
+    await expect(svc.listForBooking({ id: 'attacker', role: 'patient' }, 'order', 'b1')).rejects.toThrow('not_authorized');
+  });
+
   it('listForBooking allows staff roles', async () => {
     const res = await svc.listForBooking({ id: 'admin-1', role: 'admin' }, 'order', 'b1');
     expect(res).toEqual([{ id: 'tx1' }]);
