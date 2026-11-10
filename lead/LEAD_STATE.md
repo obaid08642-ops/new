@@ -1,6 +1,10 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-10 04:45 UTC
+- Merged #2582 (escrow maturity cron + mature before withdraw; same filter as matureEscrow).
+- #2581 green but HELD: seat takeover race (seat before booking create) → V ordered (grace period for missing booking).
+- Run 112b pushed (1e46d6c), server-ops 42756850654 waiting for owner approval. Old lead took decisions (no-show a+b, free reschedule GO, etc.) — see OWNER_DECISIONS.
 ## 2026-11-10 04:45 UTC old lead — DECISIONS (owner delegated "take the decisions")
 1. Provider no-show reported by patient: video = refund at once, but max 2 auto-refunds per patient per 30 days (3rd+ goes to admin review first). Clinic/home visits = refund held until the 24 h dispute window closes, then paid automatically unless the provider disputes (admin decides). (= options a + b.)
 2. Free reschedule (late-cancel option b): GO, build it (Z backend, X web+app).
@@ -74,17 +78,3 @@ Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or
 ## Lead 3 run 2026-11-09 14:15 UTC
 - Nothing green; 9 PRs in CI. #2546 (V) red on tokens + provider tests → V fix order. Live main@58a1bb6e.
 ## Lead 3 run 2026-11-09 13:45 UTC
-- Nothing green. #2543 red: admin medical-reports list 404 on live gate → Z fix order. Owner (via old lead): no wallet; late cancel = 50% or one free reschedule.
-## 2026-11-09 old lead — OWNER DECISION: NO WALLET (replaces "100% wallet credit")
-The wallet stays removed; do not build a credit/balance system. Late cancellation (< 2 h before) gives the patient a choice:
-(a) 50% refund to the original card, or
-(b) ONE free reschedule of the same booking (same provider, same service, no new payment) within 14 days. Rescheduled visit then cancelled < 2 h or no-show = 0%. If the provider has no free slot in those 14 days or cancels the rescheduled visit = 100% refund to the card.
-Unchanged: >= 2 h before = 100% card refund; patient no-show = 0%; provider cancels/no-show = 100% card refund at once; policy shown before payment with "I agree". Six languages.
-Until (b) ships, (a) is the only option (already live). Z backend, X patient (web+app), V admin refund-policy page shows this table.
-
-## Lead 3 run 2026-11-09 13:25 UTC
-- Run 109 DONE main@58a1bb6e health ok; 91c applied (monitor/watchdog installed), 98q ok, halala clean except 8 wallets + 20 orders missing shadows (clean). ClamAV SKIPPED_LOW_MEMORY → uploads refused: told V. Mongo 32 starts/48 h, V on it (#2545).
-- Merged #2542. #2537 conflict (X). Z answered: refund table + agree tick GO; wallet credit waits for owner. Lead 3 follows lead/OWNER_DECISIONS.md (Medical report, not sick leave). Lanes now X, Z, V (old lead runs V's queue).
-## Old lead 2026-11-09 13:30 UTC — LANES CHANGED
-- Lanes Y and W STOPPED (account B out of credit). New lane V (account A) takes over both: mailbox/V/inbox.md has the full queue. Send Y/W orders to V from now on. W #2541 merged by old lead. #2535 superseded (V closes it).
-

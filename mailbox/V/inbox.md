@@ -1,6 +1,11 @@
 # Lane V inbox — takes over lanes Y (backend/ops/QA) and W (provider app + admin)
 Read mailbox/RULES.md first, then lead/OWNER_DECISIONS.md (last two sections), then this file. Report in mailbox/V/outbox.md.
 
+## Lead 3 order 2026-11-10 04:45 UTC — #2581 green but HELD: seat takeover race
+- `reserveSeat` runs before `bkgModel.create`. Between the seat insert and the booking insert, a parallel request for the same last seat finds the seat, `isLive(id)` counts 0 bookings (not created yet) → takes the seat over → both bookings are created. That is exactly the "two parallel bookings for the last seat" case.
+- Fix: a seat whose booking is NOT FOUND may be taken over only when the seat is older than a grace period (e.g. createdAt < now − 2 min, the create path is far faster); a seat whose booking exists in CANCELLED/REPORTED may be taken at once. Keep the conditional updateOne. Add a spec: seat just inserted, booking not yet stored → second reserve gets null (`slot_taken`).
+- Rest of the diff is fine (DTO 1–20, release on create failure, index).
+
 ## 2026-11-10 04:45 UTC old lead: open questions answered — read lead/OWNER_DECISIONS.md last section (no-show, free reschedule GO, policy version, pharmacy refunds, credit note, national_id).
 
 ## Lead 3 order 2026-11-10 03:42 UTC — #2581 red
