@@ -1,5 +1,5 @@
 {
- "commit": "4ebca784",
+ "commit": "86f32ede",
  "routes": [
   {
    "app": "patient-app",
@@ -876,7 +876,7 @@
      "line": 181,
      "file": "patient-app/src/components/BookingConfirmForm.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/payments/payments.module.ts:797"
+     "backend": "backend/src/modules/payments/payments.module.ts:799"
     },
     {
      "method": "POST",
@@ -886,7 +886,7 @@
      "line": 184,
      "file": "patient-app/src/components/BookingConfirmForm.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/payments/payments.module.ts:775"
+     "backend": "backend/src/modules/payments/payments.module.ts:777"
     },
     {
      "method": "GET",
@@ -1814,7 +1814,7 @@
      "line": 228,
      "file": "patient-app/app/diagnostics/booking-status.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/payments/payments.module.ts:775"
+     "backend": "backend/src/modules/payments/payments.module.ts:777"
     }
    ],
    "files": 48,
@@ -1895,7 +1895,7 @@
      "line": 157,
      "file": "patient-app/app/diagnostics/confirm.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/payments/payments.module.ts:775"
+     "backend": "backend/src/modules/payments/payments.module.ts:777"
     },
     {
      "method": "POST",
@@ -2093,7 +2093,7 @@
      "line": 120,
      "file": "patient-app/app/diagnostics/insurance-approval.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/payments/payments.module.ts:775"
+     "backend": "backend/src/modules/payments/payments.module.ts:777"
     },
     {
      "method": "GET",
@@ -4240,7 +4240,7 @@
      "line": 57,
      "file": "patient-app/app/insurance/copay.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/payments/payments.module.ts:775"
+     "backend": "backend/src/modules/payments/payments.module.ts:777"
     }
    ],
    "files": 42,
@@ -4400,7 +4400,7 @@
      "line": 107,
      "file": "patient-app/src/components/insurance/InsuranceRequestView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/payments/payments.module.ts:775"
+     "backend": "backend/src/modules/payments/payments.module.ts:777"
     },
     {
      "method": "GET",
@@ -5284,7 +5284,7 @@
      "line": 179,
      "file": "patient-app/app/nursing/nurse-profile.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/payments/payments.module.ts:775"
+     "backend": "backend/src/modules/payments/payments.module.ts:777"
     },
     {
      "method": "GET",
@@ -5879,7 +5879,7 @@
      "line": 61,
      "file": "patient-app/app/payments/result.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/payments/payments.module.ts:798"
+     "backend": "backend/src/modules/payments/payments.module.ts:800"
     },
     {
      "method": "POST",
@@ -5889,7 +5889,7 @@
      "line": 60,
      "file": "patient-app/app/payments/result.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/payments/payments.module.ts:785"
+     "backend": "backend/src/modules/payments/payments.module.ts:787"
     }
    ],
    "files": 38,
@@ -6475,7 +6475,7 @@
      "line": 101,
      "file": "patient-app/app/pharmacy/payment.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/payments/payments.module.ts:775"
+     "backend": "backend/src/modules/payments/payments.module.ts:777"
     },
     {
      "method": "GET",
@@ -6485,7 +6485,7 @@
      "line": 54,
      "file": "patient-app/app/pharmacy/payment.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/payments/payments.module.ts:796"
+     "backend": "backend/src/modules/payments/payments.module.ts:798"
     }
    ],
    "files": 39,
@@ -7536,7 +7536,7 @@
      "path": "/search",
      "target": "backend",
      "query": "?q=:param&locale=:param&limit=10",
-     "line": 345,
+     "line": 342,
      "file": "patient-app/app/search/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/search/search.controller.ts:46"
@@ -7552,7 +7552,7 @@
      "backend": "backend/src/modules/admin/governance/system-config.controller.ts:54"
     }
    ],
-   "files": 67,
+   "files": 66,
    "unresolved": 0
   },
   {
@@ -19092,7 +19092,7 @@
      "line": 20,
      "file": "patient-web/components-next/pharmacy-checkout/read-order.ts",
      "status": "OK",
-     "backend": "backend/src/modules/payments/payments.module.ts:796"
+     "backend": "backend/src/modules/payments/payments.module.ts:798"
     }
    ],
    "files": 64,
@@ -19230,7 +19230,7 @@
      "line": 20,
      "file": "patient-web/components-next/pharmacy-checkout/read-order.ts",
      "status": "OK",
-     "backend": "backend/src/modules/payments/payments.module.ts:796"
+     "backend": "backend/src/modules/payments/payments.module.ts:798"
     }
    ],
    "files": 66,
