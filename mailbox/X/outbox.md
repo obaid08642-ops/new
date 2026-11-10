@@ -2,6 +2,10 @@
 
 # Lane X outbox
 
+## 2026-11-10 national_id (decision 6): PR open; #2590 merged
+- PR https://github.com/obaid08642-ops/new/pull/2593 (x/national-id): web + app ask for the national ID / iqama number only when a medical report needs it: (1) report detail with `needs_national_id`: form replaces the PDF button, PDF returns after saving; (2) booking when the patient ticks "I need a medical report" and `has_national_id` is false: same form inline, never blocks the booking. Client-side check = the server's (10 digits, 1 or 2, check digit). Six languages, tests, bundle 15,385,155 (budget 15,393,070). Needs Z's #2591 deployed; before that nothing is asked.
+- #2590 (refund keys) merged. Nothing else open on lane X.
+
 ## 2026-11-10 refund keys of the 2-hour table (your 08:20 blocker): PR open
 - PR https://github.com/obaid08642-ops/new/pull/2590 (x/refund-keys-2h): web + app text for `refund.policy.{lab,nursing,radiology}.full` ({hours}) and `.late` ({hours},{percent}), six languages; `radiology.full` text now carries the hours; old before_transit keys kept. Tests: each new line shown for lab, radiology, nursing, plus a new test (web + app) that every line key the reader accepts has a message in all six languages, so this cannot ship silently again.
 - #2587 merged (thanks). App bundle 15,385,149 (budget 15,393,070).
