@@ -631,6 +631,7 @@ export class AppointmentsService {
     const free = Number(policy?.consultation?.free_reschedules ?? 1);
     const minHours = Number(policy?.consultation?.free_reschedule_min_hours ?? 2);
     const hours = (new Date(appt.slot_start).getTime() - Date.now()) / 3_600_000;
+    if (appt.late_free_reschedule === true) return { available: false, late: hours < minHours, within_days };
     const late = hours < minHours;
     const patientSide = appt.patient_id === user?.id || (!!appt.booked_by_user_id && appt.booked_by_user_id === user?.id);
     if (late && !(patientSide && hours >= 0)) return { available: false, late, within_days };
@@ -663,7 +664,9 @@ export class AppointmentsService {
     if (isNoShow || reason === 'no_show') {
       refundPercentage = consultationPolicy.patient_no_show_percent ?? 0;
     } else if (user.role === UserRole.PATIENT || user.id === appt.patient_id) {
-      if (hoursUntilAppointment >= (consultationPolicy.full_refund_min_hours ?? 2)) {
+      // The booking made by the late free reschedule keeps the LATE refund for a patient cancel (it would otherwise be a way round the late percentage: reschedule inside the last
+      // 2 hours, then cancel the new slot well ahead for 100 %). Provider cancel / provider no-show stay 100 % (other branches); a patient no-show stays 0.
+      if (hoursUntilAppointment >= (consultationPolicy.full_refund_min_hours ?? 2) && appt.late_free_reschedule !== true) {
         refundPercentage = 100;
         refundDestination = 'source';
       } else {
@@ -922,6 +925,7 @@ export class AppointmentsService {
       throw new BadRequestException('reschedule_too_late_for_free_reschedule');
     }
     const priorReschedules = await this.countPriorReschedules(appt);
+    if (patientSide && user.role !== UserRole.ADMIN && (appt as any).late_free_reschedule === true) throw new BadRequestException('no_free_reschedules_left');   // the one late free reschedule is used
     if (priorReschedules >= freeReschedules) {
       throw new BadRequestException('no_free_reschedules_left');
     }

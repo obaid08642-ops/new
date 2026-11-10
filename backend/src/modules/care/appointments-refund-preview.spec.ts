@@ -36,4 +36,46 @@ describe('refund preview (B-11)', () => {
     await byDoctor.svc.cancel('a', { id: 'd', role: UserRole.DOCTOR }, 'sick');
     expect([byDoctor.doc.refund_percentage, byDoctor.doc.doctor_penalty]).toEqual([100, 50]);
   });
+
+  // The booking made by the late free reschedule must not become a way round the late percentage.
+  describe('a booking made by the late free reschedule', () => {
+    const lateBooking = (extra: any = {}) => ({ id: 'b', patient_id: 'p', doctor_user_id: 'd', total_price: 200, late_free_reschedule: true, rescheduled_from_id: 'a', ...extra });
+
+    it('a patient cancelling it 20 hours ahead gets the LATE percentage (50 %), not 100 %; the preview shows the same', async () => {
+      const m = make(lateBooking({ slot_start: inHours(20) }));
+      m.svc.transition = jest.fn(async () => ({}));
+      await expect(m.svc.previewRefund('b', { id: 'p', role: UserRole.PATIENT })).resolves.toMatchObject({ refund_percentage: 50, estimated_amount: 100, free_reschedule: { available: false } });
+      await m.svc.cancel('b', { id: 'p', role: UserRole.PATIENT }, 'changed my mind');
+      expect(m.doc.refund_percentage).toBe(50);
+      expect(m.doc.refund_destination).toBe('source');
+    });
+    it('an ordinary booking cancelled 20 hours ahead is still 100 % (the cap is only for the rescheduled-late one)', async () => {
+      const m = make(lateBooking({ late_free_reschedule: undefined, slot_start: inHours(20) }));
+      m.svc.transition = jest.fn(async () => ({}));
+      await m.svc.cancel('b', { id: 'p', role: UserRole.PATIENT }, 'changed my mind');
+      expect(m.doc.refund_percentage).toBe(100);
+    });
+    it('the provider cancelling it stays 100 % (with the doctor penalty), and the provider no-show stays 100 %', async () => {
+      const m = make(lateBooking({ slot_start: inHours(20) }));
+      m.svc.transition = jest.fn(async () => ({}));
+      await m.svc.cancel('b', { id: 'd', role: UserRole.DOCTOR }, 'emergency at the clinic');
+      expect([m.doc.refund_percentage, m.doc.doctor_penalty]).toEqual([100, 50]);
+      const ns = make(lateBooking({ slot_start: inHours(-1) }));
+      ns.svc.transition = jest.fn(async () => ({}));
+      await ns.svc.cancel('b', { id: 'p', role: UserRole.PATIENT }, 'provider_no_show', false, true);
+      expect(ns.doc.refund_percentage).toBe(100);
+    });
+    it('a patient no-show on it stays 0 %', async () => {
+      const m = make(lateBooking({ slot_start: inHours(20) }));
+      m.svc.transition = jest.fn(async () => ({}));
+      await m.svc.cancel('b', { id: 'p', role: UserRole.PATIENT }, 'no_show');
+      expect(m.doc.refund_percentage).toBe(0);
+    });
+    it('it has no second free reschedule: the patient is refused', async () => {
+      const m = make(lateBooking({ slot_start: inHours(30), status: 'CONFIRMED' }));
+      m.svc.getRefundPolicy = async () => ({ consultation: { free_reschedules: 3, free_reschedule_min_hours: 2, full_refund_min_hours: 2, late_refund_percent: 50 } });
+      await expect(m.svc.reschedule('b', { id: 'p', role: UserRole.PATIENT }, { slot_start: inHours(50) })).rejects.toThrow('no_free_reschedules_left');
+    });
+  });
 });
+
