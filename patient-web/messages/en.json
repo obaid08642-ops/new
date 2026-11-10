@@ -1959,7 +1959,10 @@
     "nationalIdInvalid": "Enter a valid 10-digit national ID or iqama number.",
     "nationalIdFailed": "Could not save the number. Try again.",
     "nationalIdSaved": "Saved.",
-    "nationalIdNeededForPdf": "Add your ID number to download this report."
+    "nationalIdNeededForPdf": "Add your ID number to download this report.",
+    "forTitle": "Who is the visit for?",
+    "forMe": "Me",
+    "forHint": "You book and pay. The visit is recorded for the person you choose."
   },
   "AiHealthReport": {
     "title": "Your AI Health Report",

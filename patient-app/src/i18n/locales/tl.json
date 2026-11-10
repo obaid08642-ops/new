@@ -4022,5 +4022,8 @@
   "returns.new.photoRequired": "Kailangan ng larawan ng item para sa pagbabalik sa botika.",
   "returns.err.defectReason": "Tinatanggap lamang ang pagbabalik sa botika para sa mali, sira, expired o hindi tugma sa paglalarawan na item.",
   "returns.err.photoRequired": "Magdagdag ng larawan ng item para maipadala ang pagbabalik.",
-  "pharmacy.offers.err.cancelAfterPreparation": "Nagsimula nang ihanda ng botika ang order na ito, kaya hindi na ito makakansela. Kung mali, sira o expired ang item, iulat ito kasama ang larawan pagkatapos ng paghahatid."
+  "pharmacy.offers.err.cancelAfterPreparation": "Nagsimula nang ihanda ng botika ang order na ito, kaya hindi na ito makakansela. Kung mali, sira o expired ang item, iulat ito kasama ang larawan pagkatapos ng paghahatid.",
+  "consult.confirm.forTitle": "Para kanino ang bisita?",
+  "consult.confirm.forMe": "Para sa akin",
+  "consult.confirm.forHint": "Ikaw ang nagbu-book at nagbabayad. Itatala ang bisita para sa taong pipiliin mo."
 }

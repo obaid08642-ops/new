@@ -1959,7 +1959,10 @@
     "nationalIdInvalid": "Maglagay ng wastong 10-digit na national ID o iqama number.",
     "nationalIdFailed": "Hindi na-save ang numero. Subukan muli.",
     "nationalIdSaved": "Na-save na.",
-    "nationalIdNeededForPdf": "Idagdag ang iyong ID number para ma-download ang report na ito."
+    "nationalIdNeededForPdf": "Idagdag ang iyong ID number para ma-download ang report na ito.",
+    "forTitle": "Para kanino ang bisita?",
+    "forMe": "Para sa akin",
+    "forHint": "Ikaw ang nagbu-book at nagbabayad. Itatala ang bisita para sa taong pipiliin mo."
   },
   "AiHealthReport": {
     "title": "Ang Iyong AI Health Report",

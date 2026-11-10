@@ -4022,5 +4022,8 @@
   "returns.new.photoRequired": "A photo of the item is required for a pharmacy return.",
   "returns.err.defectReason": "A pharmacy return is accepted only for a wrong, damaged or expired item, or one not as described.",
   "returns.err.photoRequired": "Add a photo of the item to send the return.",
-  "pharmacy.offers.err.cancelAfterPreparation": "The pharmacy has started preparing this order, so it can no longer be cancelled. If an item is wrong, damaged or expired, report it with a photo after delivery."
+  "pharmacy.offers.err.cancelAfterPreparation": "The pharmacy has started preparing this order, so it can no longer be cancelled. If an item is wrong, damaged or expired, report it with a photo after delivery.",
+  "consult.confirm.forTitle": "Who is the visit for?",
+  "consult.confirm.forMe": "Me",
+  "consult.confirm.forHint": "You book and pay. The visit is recorded for the person you choose."
 }
