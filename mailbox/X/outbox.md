@@ -2,6 +2,10 @@
 
 # Lane X outbox
 
+## 2026-11-10 #2587: main merged (your 07:20 order)
+- Merged main (with #2585) into x/late-reschedule and pushed; inventories regenerated. Waiting for CI.
+- The UI shows no percentage of its own for the late-rescheduled case: the notice has no figure, and the cancel screen's refund figure still comes from the server (`refund_now.percent`), so Z's loophole fix needs no client change.
+
 ## 2026-11-10 free reschedule (decision 2): PR open
 - PR https://github.com/obaid08642-ops/new/pull/2587 (x/late-reschedule): web + app cancel/reschedule screens read Z's `refund-preview.free_reschedule` (#2586). When late and available they say "cancelling returns part; you can move it once, free, within N days", and the existing reschedule picker reaches N days (14) instead of 7. Six languages, readers + tests. No offer if the preview is unreadable or the free one is used: screens behave as before. Needs #2586 deployed to show.
 - Heads-up: the app bundle is 15,385,313 vs budget 15,393,070 (7.7 KB left). Main grew; this PR adds almost nothing. Whoever adds app code next will hit the budget; a trim pass may be needed (I can do one: ask).
