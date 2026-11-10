@@ -1,3 +1,8 @@
+## 18:10 UTC — PR #2600 (PT-54 live journey); CI state
+- #2598 and #2599: backend, build, policy and the other checks green, live shard 1 green on both, shards 2-5 still running at 16:19. No red.
+- #2600: new `j_hide_visit.py` (open visit refused, another patient refused, hide idempotent, timeline leaves it out, include_hidden brings it back as hidden, the visit untouched, unhide) + SCENARIOS PT-54 COVERED. First run is the live gate.
+- Launch list lines updated with PR numbers. Left: PT-24 money side, halala read paths, invoices review in depth, credit note on every cancel path, payout journey.
+
 ## 17:20 UTC — payout/settlement pass: PR #2599 (and #2598 from earlier)
 Status: both open, waiting for CI. Open: #2598 (PT-03 journey end + SCENARIOS), #2599.
 - Real bug 1: the admin provider statement (`providerStatement`) summed `summary` and `balance_available` over only the 300 newest ledger rows, so a busy provider's totals and balance were wrong. Now an aggregation over all entries in the range; held (locked) withdrawal money is not available; summary gains `locked`. Spec: 350 entries, exact totals.

@@ -5,11 +5,11 @@ Tick [x] when merged. Counts are the owner progress number.
 
 ## Z
 - [ ] Invoices review (postponed): numbering, credit notes, VAT lines, ZATCA fields, one pass over every service with fixes
-- [ ] Payout and settlement pass: approval, execute, bank file, ledger totals against payouts, with a journey
+- [ ] Payout and settlement pass: approval, execute, bank file, ledger totals against payouts, with a journey (PR #2599 has two fixes; journey still to do)
 - [ ] PT-24 payment return from the gateway: journey for paid, failed and cancelled returns (link wiring is tested, the money side is not)
-- [ ] PT-03 guardian books for a dependant: backend journey (booking subject, payment, refund to the payer)
-- [ ] PT-54 hide a visit from history: check the backend side and cover it
-- [ ] PT-08 row of SCENARIOS.md still says NOT COVERED: j_sick_leave covers it, update the row and counts
+- [ ] PT-03 guardian books for a dependant: backend journey (booking subject, payment, refund to the payer) (PR #2598, waiting for CI)
+- [ ] PT-54 hide a visit from history: check the backend side and cover it (PR #2600, waiting for CI)
+- [ ] PT-08 row of SCENARIOS.md still says NOT COVERED: j_sick_leave covers it, update the row and counts (in PR #2598)
 - [ ] Halala migration (R11): the remaining `*_halalas` read paths and the next phase of R11-money-integrity.md
 - [ ] Credit note with invoice (decision 5): confirm every cancel path of every service writes it (matrix asserts it for the paths it covers)
 
