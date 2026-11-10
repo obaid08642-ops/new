@@ -4162,5 +4162,11 @@
   "nur.book.err.booking_times_need_recurrence": "ایک سے زیادہ وزٹ کے لیے تکرار (روزانہ، ہفتہ وار یا ماہانہ) منتخب کریں۔",
   "nur.book.err.booking_times_out_of_range": "بار بار کی تعداد اس سروس کی حد سے باہر ہے۔",
   "nur.book.err.booking_sessions_not_offered": "منتخب کردہ سیشنز کی تعداد اس پیکج میں دستیاب نہیں ہے۔",
-  "nur.book.err.service_price_not_set": "اس سروس کی قیمت ابھی مقرر نہیں ہے۔"
+  "nur.book.err.service_price_not_set": "اس سروس کی قیمت ابھی مقرر نہیں ہے۔",
+  "consult.hidden.hide": "تاریخ سے چھپائیں",
+  "consult.hidden.show": "دوبارہ دکھائیں",
+  "consult.hidden.error": "اس وزٹ میں تبدیلی نہیں ہو سکی۔ دوبارہ کوشش کریں۔",
+  "consult.hidden.showLink": "چھپی ہوئی وزٹس دکھائیں ({{n}})",
+  "consult.hidden.back": "تاریخ پر واپس",
+  "consult.hidden.empty": "کوئی چھپی ہوئی وزٹ نہیں"
 }

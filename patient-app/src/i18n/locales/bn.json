@@ -4162,5 +4162,11 @@
   "nur.book.err.booking_times_need_recurrence": "একাধিক ভিজিটের জন্য পুনরাবৃত্তি (প্রতিদিন, প্রতি সপ্তাহে বা প্রতি মাসে) বেছে নিন।",
   "nur.book.err.booking_times_out_of_range": "বারের সংখ্যা এই সেবার সীমার বাইরে।",
   "nur.book.err.booking_sessions_not_offered": "নির্বাচিত সেশন সংখ্যা এই প্যাকেজে পাওয়া যায় না।",
-  "nur.book.err.service_price_not_set": "এই সেবার দাম এখনও নির্ধারিত হয়নি।"
+  "nur.book.err.service_price_not_set": "এই সেবার দাম এখনও নির্ধারিত হয়নি।",
+  "consult.hidden.hide": "ইতিহাস থেকে লুকান",
+  "consult.hidden.show": "আবার দেখান",
+  "consult.hidden.error": "এই ভিজিট পরিবর্তন করা যায়নি। আবার চেষ্টা করুন।",
+  "consult.hidden.showLink": "লুকানো ভিজিট দেখান ({{n}})",
+  "consult.hidden.back": "ইতিহাসে ফিরে যান",
+  "consult.hidden.empty": "কোনো লুকানো ভিজিট নেই"
 }

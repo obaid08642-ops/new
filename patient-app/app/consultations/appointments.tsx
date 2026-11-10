@@ -1,11 +1,16 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { router, type Href } from 'expo-router';
+import { View } from 'react-native';
 
-import { Segmented } from '../../../packages/ui-native/src';
+import { Button, Segmented } from '../../../packages/ui-native/src';
 import { ApptCard, ConsultList, appointmentStatus, useConsultFormat, visitMode, type VisitMode } from '../../src/components/consult/ConsultKit';
 import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
 import { useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useConsultations } from '../../src/context/ConsultationsContext';
+import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { canHideStatus, hideVisitPath, readHiddenIds } from '../../src/utils/hiddenVisits';
 import { statusCode } from '../../src/utils/statusCase';
 import { tabOf, type AppointmentTab } from '../../src/utils/appointmentTabs';
 import { BOOK_NOW_HREF } from '../../src/utils/consultNearby';
@@ -24,10 +29,31 @@ export default function AppointmentsScreen() {
   const { appointments, isLoading, error, fetchAppointments } = useConsultations();
   const [refreshing, setRefreshing] = useState(false);
 
-  const rows = appointments.filter((a) => tabOf(a.status) === tab);
+  // PT-54: the past tab leaves out the visits the patient hid (listed under "Show hidden visits"); if the timeline cannot be read nothing is hidden
+  const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
+  const [showHidden, setShowHidden] = useState(false);
+  const loadHidden = useCallback(() => {
+    apiFetch<unknown>('/unified-bookings/mine?kind=consultation&include_hidden=1')
+      .then((answer) => setHiddenIds(readHiddenIds(answer, 'consultation')))
+      .catch((e) => logError('consultations:hidden-visits', e));
+  }, []);
+  useEffect(() => { loadHidden(); }, [loadHidden]);
+  const toggleHidden = async (id: string, hide: boolean) => {
+    try {
+      await apiFetch(hideVisitPath('consultation', id, hide), { method: 'POST', body: JSON.stringify({}) });
+      loadHidden();
+    } catch (e) {
+      logError('consultations:hide-visit', e);
+      showLocalizedAlert(k('consult.hidden.error'), '');
+    }
+  };
+  const tabRows = appointments.filter((a) => tabOf(a.status) === tab);
+  const hiddenCount = tab === 'past' ? tabRows.filter((a) => hiddenIds.has(String(a.id))).length : 0;
+  const rows = tab === 'past' ? tabRows.filter((a) => hiddenIds.has(String(a.id)) === showHidden) : tabRows;
 
   const refresh = async () => {
     setRefreshing(true);
+    loadHidden();
     await fetchAppointments(true);
     setRefreshing(false);
   };
@@ -47,10 +73,11 @@ export default function AppointmentsScreen() {
       title={k('consult.appt.title')}
       actions={[{ key: 'book', label: k('consult.appt.bookNew'), icon: <Glyph name="plus" size={20} color={c.text.secondary} />, onPress: () => router.push(BOOK_NOW_HREF as Href) }]}
       top={
+        <View style={{ gap: 8 }}>
         <Segmented
           label={k('consult.appt.title')}
           value={tab}
-          onChange={(v) => setTab(v === 'past' ? 'past' : v === 'current' ? 'current' : 'upcoming')}
+          onChange={(v) => { setTab(v === 'past' ? 'past' : v === 'current' ? 'current' : 'upcoming'); setShowHidden(false); }}
           options={[
             { value: 'upcoming', label: k('consult.appt.upcoming') },
             { value: 'current', label: k('consult.appt.current') },
@@ -59,6 +86,10 @@ export default function AppointmentsScreen() {
           theme={theme}
           testID="appointments-tabs"
         />
+        {tab === 'past' && (hiddenCount > 0 || showHidden) ? (
+          <Button label={showHidden ? k('consult.hidden.back') : k('consult.hidden.showLink', { n: hiddenCount })} variant="ghost" size="sm" onPress={() => setShowHidden((on) => !on)} theme={theme} testID="appointments-hidden-toggle" />
+        ) : null}
+        </View>
       }
       data={rows}
       status={isLoading ? 'loading' : error ? 'error' : 'ready'}
@@ -67,7 +98,7 @@ export default function AppointmentsScreen() {
       refreshing={refreshing}
       empty={{
         icon: 'calendar-dots',
-        title: k(tab === 'upcoming' ? 'consult.appt.emptyUpcoming' : tab === 'current' ? 'consult.appt.emptyCurrent' : 'consult.appt.emptyPast'),
+        title: k(showHidden && tab === 'past' ? 'consult.hidden.empty' : tab === 'upcoming' ? 'consult.appt.emptyUpcoming' : tab === 'current' ? 'consult.appt.emptyCurrent' : 'consult.appt.emptyPast'),
         body: k('consult.appt.emptyBody'),
         actionLabel: tab === 'upcoming' ? k('consult.appt.bookNow') : undefined,
         onAction: () => router.push(BOOK_NOW_HREF as Href),
@@ -84,6 +115,9 @@ export default function AppointmentsScreen() {
           actions.push({ label: k('consult.appt.editCancel'), onPress: () => open(String(a.id), '/consultations/cancel-reschedule'), tone: 'outline' as const });
         } else if (status === 'completed' && a.docId) {
           actions.push({ label: k('consult.appt.bookAgain'), onPress: () => router.push({ pathname: '/consultations/book/[id]', params: { id: a.docId } } as unknown as Href), tone: 'outline' as const, flex: true });
+        }
+        if (tab === 'past' && canHideStatus(a.status)) {
+          actions.push({ label: showHidden ? k('consult.hidden.show') : k('consult.hidden.hide'), onPress: () => void toggleHidden(String(a.id), !showHidden), tone: 'outline' as const });
         }
         const price = Number(a.price) > 0 ? `${money(Number(a.price))} ${k('consult.currency')}` : '';
         // the specialty in the reader's language (Arabic name for Arabic, else the English one when sent)

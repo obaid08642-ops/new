@@ -4162,5 +4162,11 @@
   "nur.book.err.booking_times_need_recurrence": "اختر التكرار (يومي أو أسبوعي أو شهري) لأكثر من زيارة.",
   "nur.book.err.booking_times_out_of_range": "عدد المرات خارج الحد المسموح لهذه الخدمة.",
   "nur.book.err.booking_sessions_not_offered": "عدد الجلسات المختار غير متاح لهذه الباقة.",
-  "nur.book.err.service_price_not_set": "سعر هذه الخدمة غير محدد بعد."
+  "nur.book.err.service_price_not_set": "سعر هذه الخدمة غير محدد بعد.",
+  "consult.hidden.hide": "إخفاء من السجل",
+  "consult.hidden.show": "إظهار مرة أخرى",
+  "consult.hidden.error": "تعذّر تغيير هذه الزيارة. حاول مرة أخرى.",
+  "consult.hidden.showLink": "إظهار الزيارات المخفية ({{n}})",
+  "consult.hidden.back": "العودة إلى السجل",
+  "consult.hidden.empty": "لا توجد زيارات مخفية"
 }

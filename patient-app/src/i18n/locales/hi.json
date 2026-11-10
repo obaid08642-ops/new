@@ -4162,5 +4162,11 @@
   "nur.book.err.booking_times_need_recurrence": "एक से अधिक विज़िट के लिए दोहराव (दैनिक, साप्ताहिक या मासिक) चुनें।",
   "nur.book.err.booking_times_out_of_range": "बारों की संख्या इस सेवा की सीमा से बाहर है।",
   "nur.book.err.booking_sessions_not_offered": "चुने गए सत्रों की संख्या इस पैकेज में उपलब्ध नहीं है।",
-  "nur.book.err.service_price_not_set": "इस सेवा की कीमत अभी तय नहीं है।"
+  "nur.book.err.service_price_not_set": "इस सेवा की कीमत अभी तय नहीं है।",
+  "consult.hidden.hide": "इतिहास से छिपाएँ",
+  "consult.hidden.show": "फिर से दिखाएँ",
+  "consult.hidden.error": "इस विज़िट में बदलाव नहीं हो सका। फिर कोशिश करें।",
+  "consult.hidden.showLink": "छिपी हुई विज़िट दिखाएँ ({{n}})",
+  "consult.hidden.back": "इतिहास पर वापस",
+  "consult.hidden.empty": "कोई छिपी हुई विज़िट नहीं"
 }

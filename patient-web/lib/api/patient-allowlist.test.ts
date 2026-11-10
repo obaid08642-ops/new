@@ -62,6 +62,11 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiRequest("/care/sick-leaves/MED-2026-000001/pdf", "GET")).toBe(true);
     expect(isAllowedPatientApiRequest("/care/sick-leaves/5b1f3a2c-1d4e-4c7a-9a55-0e2f6d7c8b90", "DELETE")).toBe(false);
     expect(isAllowedPatientApiRequest("/provider/sick-leaves", "GET")).toBe(false);
+    // PT-54: hide / show again a finished visit
+    expect(isAllowedPatientApiRequest("/unified-bookings/consultation/5b1f3a2c-1d4e-4c7a-9a55-0e2f6d7c8b90/hide", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/unified-bookings/lab/5b1f3a2c-1d4e-4c7a-9a55-0e2f6d7c8b90/unhide", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/unified-bookings/consultation/5b1f3a2c-1d4e-4c7a-9a55-0e2f6d7c8b90/hide", "GET")).toBe(false);
+    expect(isAllowedPatientApiRequest("/unified-bookings/other/5b1f3a2c-1d4e-4c7a-9a55-0e2f6d7c8b90/hide", "POST")).toBe(false);
     // PT-03: a guardian lists, adds and removes a dependant
     expect(isAllowedPatientApiRequest("/family/dependants", "GET")).toBe(true);
     expect(isAllowedPatientApiRequest("/family/dependants", "POST")).toBe(true);
