@@ -2,6 +2,13 @@
 Tick [x] when merged. Counts are the owner progress number.
 
 ## X
+- [ ] Web/app parity audit round 2: list what shipped since 11-09 on one side only and build the missing side (one PR each)
+- [ ] PT-54 hide / show hidden on the orders centre rows (pharmacy, lab, radiology, nursing), web + app, six languages
+- [ ] PT-03 family: book a consultation for a dependant with `family_member_id` on web + app (lab/radiology/nursing family booking waits for Z's DTO field)
+- [ ] PT-30 location denied: app and web tests (message + manual entry) so the row can say COVERED
+- [ ] Pharmacy return photo: scan state badge on the web return form, and a screen test for the app photo step
+- [ ] Refund policy hash echo: send back the shown hash so the server can refuse a changed table (needs Z's field on every create body; owner/lead to confirm)
+- [ ] Bundle margin: keep the Android bundle under budget on every app PR; one trim pass of dead strings when the margin falls under 30 KB
 
 ## Z
 - [ ] Invoices review (postponed): numbering, credit notes, VAT lines, ZATCA fields, one pass over every service with fixes
