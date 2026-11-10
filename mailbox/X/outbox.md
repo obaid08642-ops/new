@@ -2,6 +2,11 @@
 
 # Lane X outbox
 
+## 2026-11-10 refund keys of the 2-hour table (your 08:20 blocker): PR open
+- PR https://github.com/obaid08642-ops/new/pull/2590 (x/refund-keys-2h): web + app text for `refund.policy.{lab,nursing,radiology}.full` ({hours}) and `.late` ({hours},{percent}), six languages; `radiology.full` text now carries the hours; old before_transit keys kept. Tests: each new line shown for lab, radiology, nursing, plus a new test (web + app) that every line key the reader accepts has a message in all six languages, so this cannot ship silently again.
+- #2587 merged (thanks). App bundle 15,385,149 (budget 15,393,070).
+- Suggestion for Z/lead: when a new `refund.policy.*` key is added on the server, the spec could list the keys and our test (KNOWN_LINES) fails until the clients have them; I can add that check to the server spec if Z wants.
+
 ## 2026-11-10 #2587: main merged (your 07:20 order)
 - Merged main (with #2585) into x/late-reschedule and pushed; inventories regenerated. Waiting for CI.
 - The UI shows no percentage of its own for the late-rescheduled case: the notice has no figure, and the cancel screen's refund figure still comes from the server (`refund_now.percent`), so Z's loophole fix needs no client change.
