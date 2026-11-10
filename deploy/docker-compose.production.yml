@@ -149,8 +149,9 @@ services:
       DB_NAME: ${DB_NAME:-nabd_nestjs}
       # R7: connection budget. mongod accepts 300 connections (mongod.conf) and each costs about 1 MB; the driver default was 200 per process, so api + worker could ask for 400.
       # tools/ops/mongo_pool_budget.py keeps the sum of every pool (x replicas) + the tools reserve under the limit.
-      MONGO_MAX_POOL_SIZE: "80"
-      MONGO_MIN_POOL_SIZE: "10"
+      # run 113 (2026-11-10): connections climbed 27 -> 65 in the 90 s before each mongod kill while slow catalogue reads piled up (the pool was 80). 55 is far above what the API runs at once on this host; a slow phase now waits in the driver queue instead of opening more.
+      MONGO_MAX_POOL_SIZE: "55"
+      MONGO_MIN_POOL_SIZE: "5"
       REDIS_URL: ${REDIS_URL:-redis://:${REDIS_PASSWORD}@redis:6379}   # R7: unset = the local redis container (unchanged); set in .env.production to use a Redis on another host
       REDIS_CACHE_URL: ${REDIS_CACHE_URL:-}   # P14.14: empty = the cache shares REDIS_URL (one Redis until scale step 2)
       REDIS_HOST: redis
@@ -217,8 +218,8 @@ services:
       DB_NAME: ${DB_NAME:-nabd_nestjs}
       # R7: connection budget. mongod accepts 300 connections (mongod.conf) and each costs about 1 MB; the driver default was 200 per process, so api + worker could ask for 400.
       # tools/ops/mongo_pool_budget.py keeps the sum of every pool (x replicas) + the tools reserve under the limit.
-      MONGO_MAX_POOL_SIZE: "40"
-      MONGO_MIN_POOL_SIZE: "5"
+      MONGO_MAX_POOL_SIZE: "25"
+      MONGO_MIN_POOL_SIZE: "3"
       REDIS_URL: ${REDIS_URL:-redis://:${REDIS_PASSWORD}@redis:6379}   # R7: unset = the local redis container (unchanged); set in .env.production to use a Redis on another host
       REDIS_CACHE_URL: ${REDIS_CACHE_URL:-}   # P14.14: empty = the cache shares REDIS_URL (one Redis until scale step 2)
       REDIS_HOST: redis

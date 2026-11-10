@@ -27,8 +27,10 @@ def main():
         return step('a delivered pharmacy order to return', False, 'no order')
 
     journey('decision 31: the patient files a return for the delivered order')
-    r = pat.post('/pharmacy/returns', {'serviceType': 'pharmacy', 'reason': 'منتج تالف في العبوة', 'orderId': oid,
-                                       'details': 'العبوة مكسورة', 'refundMethod': 'original'})
+    import j_returns
+    evidence = j_returns.upload_evidence(pat)   # a pharmacy return needs a photo (owner decision 2026-11-10)
+    r = pat.post('/pharmacy/returns', {'serviceType': 'pharmacy', 'reason': 'منتج تالف في العبوة', 'reason_code': 'damaged', 'orderId': oid,
+                                       'details': 'العبوة مكسورة', 'refundMethod': 'original', 'attachedDocs': [evidence] if evidence else []})
     rid = r.get('id')
     step('the return is filed', r.ok and bool(rid), r)
     if not rid:

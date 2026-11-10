@@ -45,7 +45,7 @@ def run(pat, pharm, admin, oid, admin_api=None):
     step('eligibility for the delivered order', r.ok and r.get('eligible'), r)
     evidence = upload_evidence(pat)
     step('photo evidence uploads to /media/upload', bool(evidence), (evidence or '')[:80])
-    r = pat.post('/pharmacy/returns', {'serviceType': 'pharmacy', 'reason': 'منتج تالف', 'orderId': oid, 'details': 'العبوة مكسورة',
+    r = pat.post('/pharmacy/returns', {'serviceType': 'pharmacy', 'reason': 'منتج تالف', 'reason_code': 'damaged', 'orderId': oid, 'details': 'العبوة مكسورة',
                                        'refundMethod': 'original', 'amount': 80,
                                        'attachedDocs': [evidence] if evidence else []})
     rid = r.get('id')

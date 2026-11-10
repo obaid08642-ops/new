@@ -10,6 +10,10 @@ import { UserRole } from '../../common/enums';
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { SuggestChangeDto, SuggestNewItemDto, AdminUpdateCatalogDto, AdminCreateDto, LookupBarcodeDto, CompareDto, ReportShortageDto, RejectShortageDto, SetAvailabilityDto, SuggestImageDto, RejectImageDto, RejectChangeDto, AdminDeleteDto, ImportJsonDto, ImportCsvDto, ManualEntryDto, ApproveChangeDto, AdminApproveCatalogDto, AdminBulkApproveCatalogDto} from './medicines.dto';
 
+/** GET /medicines/stream: calls being served by this process, and the most it serves at once. */
+let activeCatalogueStreams = 0;
+export const MAX_CATALOGUE_STREAMS = 3;
+
 @Controller('medicines')
 @Roles(UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
@@ -379,6 +383,15 @@ export class MedicinesController {
     @Res() res?: any,
   ): Promise<void> {
     const raw = res?.raw || res;
+    // Public and unauthenticated, and one call reads every public document (about 20 KB each): a few at a time per process, the rest are told to come back (run 113: mongod ran out of memory
+    // under parallel full catalogue reads).
+    if (activeCatalogueStreams >= MAX_CATALOGUE_STREAMS) {
+      raw.writeHead?.(503, { 'Content-Type': 'application/json', 'Retry-After': '5' });
+      raw.end(JSON.stringify({ error: 'catalogue_stream_busy' }));
+      return;
+    }
+    activeCatalogueStreams++;
+    try {
     // Public endpoint: the same public catalogue gate as the search (approved and public only).
     const filter = this.svc.publicStreamFilter(search, category && category !== 'all' ? category : undefined);
     const svcAny: any = this.svc as any;
@@ -414,6 +427,9 @@ export class MedicinesController {
       if (!raw.headersSent) raw.writeHead?.(500, { 'Content-Type': 'application/json' });
       try { raw.write(JSON.stringify({ error: (e as Error).message })); } catch {}
       raw.end();
+    }
+    } finally {
+      activeCatalogueStreams--;
     }
   }
 
