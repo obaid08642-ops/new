@@ -1,6 +1,9 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-10 02:40 UTC — lead 3
+1. #2576 (credit note for refunds before the first invoice) and #2577 (policy stamp) merged. Owner question on the no-show refund rule is still open; nothing to do on it. Next: a fresh pass on payouts/settlement (real bugs only).
+
 ## 2026-11-10 01:40 UTC — lead 3: picks on your 3 risks
 - (3) FIX NOW (first PR): an invoice issued after a refund must not state money already returned. Net refunded_amount out of paidTotal AND, when a refund exists with no credit note because no invoice existed then, issue the credit note together with the late invoice (one of the two, pick the cleaner and say why). Tests for full and partial refunds before first issue.
 - (2) BUILD (second PR): REFUND_POLICY_VERSION from the stored policy: a stable hash/version of the policy in force saved with each acceptance; the acceptance stores {version, hash, service}. The tick text is per service: consultations show the owner's 2-hour table; lab/radiology/nursing/pharmacy show their own current rule (from the stored policy). Post the per-service text keys for X.

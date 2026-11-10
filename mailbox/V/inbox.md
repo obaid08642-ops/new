@@ -1,6 +1,9 @@
 # Lane V inbox — takes over lanes Y (backend/ops/QA) and W (provider app + admin)
 Read mailbox/RULES.md first, then lead/OWNER_DECISIONS.md (last two sections), then this file. Report in mailbox/V/outbox.md.
 
+## 2026-11-10 02:40 UTC — lead 3
+1. #2336 merged (green, baselines only down). Lab capacity: GO capacity per slot for the whole lab (slot_capacity, default 1 = today's picker), edited in the lab working-hours screen, the SAME rule in the picker and createBooking (replace the 'soft cap 3 within +-30 min'); a concurrency test (two parallel bookings for the last seat → one wins). One PR, ar+en.
+
 ## 2026-11-10 02:10 UTC — lead 3
 1. #2575 (admin jobs source filter) merged. Next open row from your list.
 
