@@ -1,6 +1,10 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-10 03:42 UTC
+- Merged #2578. #2579 live-gate flake re-run (42745458848).
+- #2581 red (provider-own-price lab cases) → V ordered. #2580 still red Gitleaks (history) → Z ordered to rewrite own branch.
+- Owner: push run 112b (`1e46d6c24` → review/server-inspect); no-show rule (a/b/c); R2 token roll.
 ## Lead 3 run 2026-11-10 03:10 UTC
 - #2580 gitleaks false positive (test idempotency key) → Z rename. #2579 live gate infra flake (dpkg lock) → re-run. CI: #2581 (V capacity), #2578 (X). Owner: no-show rule + run 112b.
 ## Lead 3 run 2026-11-10 02:40 UTC
@@ -74,7 +78,3 @@ Until (b) ships, (a) is the only option (already live). Z backend, X patient (we
 REFUND (owner approved; old lead's additions approved): cancel >= 2 h before = 100%; < 2 h = 50% money OR 100% wallet credit (patient chooses); patient no-show = 0%; provider cancels or no-show = 100% immediately. The policy text is shown before payment and the patient ticks "I agree" (KSA e-commerce law: terms stated before contract). Six languages.
 SICK LEAVE → renamed. Never call our document "إجازة مرضية / sick leave" (KSA: official sick leave only via Seha; unofficial issuing is an offence). Our document = "تقرير طبي / Medical report" stating the recommended rest period (from/to, days).
 - Patient can request it at booking (tick/reason); doctor can issue with or without a request, sets the period, diagnosis text optional (patient privacy).
-- Document like the invoice: platform name + logo, doctor name, specialty, licence number (SCFHS), facility, date, period, QR to our verify page, unique doc number; app/web view + PDF.
-- Seha link: after issuing, the doctor sees a notice "if you granted rest days, register the sick leave on Seha and enter its number here". Optional field (not blocking) for the Seha sick-leave number; format-validated; editable by the issuing doctor only; audit-logged.
-- Until the number is added the document shows "Seha registration: pending"; once added it shows "Registered on Seha: <number>" + "verify on Seha" text, the patient gets a notification, and the PDF regenerates with it.
-- Reminders to the doctor if a rest period was given and no number after 24 h and 72 h; admin list of reports without a Seha number after 3 days.

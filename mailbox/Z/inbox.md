@@ -1,6 +1,11 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## Lead 3 order 2026-11-10 03:42 UTC — #2580 still red on Gitleaks
+- Your 03:18 fix changed the literal, but the full-history scan still sees it in the earlier commit on the branch.
+- Rewrite your own PR branch (squash onto main, force-push to the PR branch only) so the flagged literal is gone from its history. No `.gitleaksignore`, no allowlist.
+- #2579: I re-ran the flaked live gate (run 42745458848); I merge it when green.
+
 ## 2026-11-10 03:10 UTC — lead 3
 1. #2580 red on Gitleaks (generic-api-key) in `provider-payouts.controller.spec.ts`: a test `idempotency_key` literal looks like a secret. Change the test value to a plain low-entropy one (e.g. 'idem-test-payout-1'); do NOT add a .gitleaksignore entry for it.
 2. #2579: live gate shard 4 failed on a runner apt lock while installing Playwright (infra, not your code). I re-ran the failed jobs.

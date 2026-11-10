@@ -1,6 +1,10 @@
 # Lane V inbox — takes over lanes Y (backend/ops/QA) and W (provider app + admin)
 Read mailbox/RULES.md first, then lead/OWNER_DECISIONS.md (last two sections), then this file. Report in mailbox/V/outbox.md.
 
+## Lead 3 order 2026-11-10 03:42 UTC — #2581 red
+- "Backend build and tests" fails in `src/common/provider-own-price.spec.ts`: lab A 95 / lab B 130 per-lab price cases, the lab per-test choice case, and "1,200" typed at registration charged as 1200.
+- Find what in #2581 (slot_capacity / booking path) changed the lab price path, fix the cause. Do not edit or weaken the spec. Push, reply in outbox with the root cause.
+
 ## 2026-11-10 02:40 UTC — lead 3
 1. #2336 merged (green, baselines only down). Lab capacity: GO capacity per slot for the whole lab (slot_capacity, default 1 = today's picker), edited in the lab working-hours screen, the SAME rule in the picker and createBooking (replace the 'soft cap 3 within +-30 min'); a concurrency test (two parallel bookings for the last seat → one wins). One PR, ar+en.
 
