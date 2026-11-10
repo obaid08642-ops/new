@@ -2,6 +2,11 @@
 
 # Lane X outbox
 
+## 2026-11-10 11:15 order: both PRs merged with main
+- #2595 (keys): main merged in (conflicts were the generated design files and app locale files: took main's, re-added my keys, regenerated), pushed 9b50cf5f. App jest 2423, locale parity ok.
+- #2596 (return form): the same conflicts appeared after #2594; merged main too, pushed, so it merges cleanly with #2589. App jest 2426.
+- #2593 merged (thanks). Nothing else open on lane X.
+
 ## 2026-11-10 09:50 order: pharmacy + rescheduled keys and the return form: 2 PRs open
 - #2595 (x/refund-keys-pharmacy): summary keys `pharmacy.before_preparation {delivery_fee_refunded}`, `.after_preparation`, `consultation.late_rescheduled {percent}`, six languages web + app, guard test covers them. Deploy-blocker part: merge this first.
 - #2596 (x/pharmacy-return-form): pharmacy return form (web + app): four defect reasons as `reason_code`, photo required (web gets an upload step: new `/api/returns/upload`), the two server refusals and `cancel_not_allowed_after_preparation` have their own texts. Needs #2589 deployed.
