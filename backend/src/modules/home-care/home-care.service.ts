@@ -244,6 +244,7 @@ export class HomeCareSvc {
         this.events.emit('homecare.booking_cancelled', {
           booking_id: b.id, patient_id: b.patient_id, prior_state: priorState,
           total, payment_method: (b as any).payment_method,
+          scheduled_at: (b as any).scheduled_at, cancelled_by: user?.id === b.patient_id ? 'patient' : 'admin',
         });
         return b.toObject();
       },

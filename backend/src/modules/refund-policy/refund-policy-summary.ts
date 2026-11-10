@@ -26,13 +26,16 @@ export function policySummary(doc: { value?: any; updatedAt?: Date | string } | 
     const free = num(sec.free_reschedules, d.free_reschedules);
     if (free > 0) lines.push({ key: 'refund.policy.consultation.free_reschedule', params: { count: free, hours: num(sec.free_reschedule_min_hours, d.free_reschedule_min_hours), within_days: 14 } });
     lines.push({ key: 'refund.policy.provider_cancel', params: {} }, { key: 'refund.policy.provider_no_show', params: {} });
-  } else if (service === 'lab' || service === 'nursing') {
-    lines.push({ key: `refund.policy.${service}.before_transit`, params: {} });
-    lines.push({ key: `refund.policy.${service}.after_transit`, params: { trip_fee_sar: num(sec.trip_fee_sar, d.trip_fee_sar) } });
+  } else if (service === 'lab' || service === 'nursing' || service === 'radiology') {
+    // owner decision 2026-11-10: the consultation's 2-hour table applies to a patient's cancel; lab and nursing also keep the trip fee once the collector / nurse has set off
+    const c: any = value.consultation ?? DEFAULT_REFUND_POLICY.consultation;
+    const dc: any = DEFAULT_REFUND_POLICY.consultation;
+    const hours = num(c.full_refund_min_hours, dc.full_refund_min_hours);
+    lines.push({ key: `refund.policy.${service}.full`, params: { hours } });
+    lines.push({ key: `refund.policy.${service}.late`, params: { hours, percent: num(c.late_refund_percent, dc.late_refund_percent) } });
+    if (service !== 'radiology') lines.push({ key: `refund.policy.${service}.after_transit`, params: { trip_fee_sar: num(sec.trip_fee_sar, d.trip_fee_sar) } });
     if (service === 'nursing') lines.push({ key: 'refund.policy.nursing.patient_absent', params: { percent: num(sec.patient_absent_percent, d.patient_absent_percent) } });
     lines.push({ key: 'refund.policy.provider_cancel', params: {} });
-  } else if (service === 'radiology') {
-    lines.push({ key: 'refund.policy.radiology.full', params: {} }, { key: 'refund.policy.provider_cancel', params: {} });
   } else {
     lines.push({ key: 'refund.policy.pharmacy.before_dispatch', params: { delivery_fee_refunded: typeof sec.refund_delivery_fee_before_dispatch === 'boolean' ? sec.refund_delivery_fee_before_dispatch : d.refund_delivery_fee_before_dispatch } });
     lines.push({ key: 'refund.policy.pharmacy.after_dispatch', params: {} }, { key: 'refund.policy.pharmacy.after_delivery', params: {} }, { key: 'refund.policy.provider_cancel', params: {} });

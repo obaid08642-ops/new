@@ -29,7 +29,9 @@ export interface PolicyStamp { version: string; hash: string; service: PolicySer
 /** The stamp of a policy for one service: `doc` is the `system_configs` row (value + updatedAt) or null for the default table. Pure. */
 export function policyStamp(doc: { value?: any; updatedAt?: Date | string } | null | undefined, service: PolicyService): PolicyStamp {
   const value = doc?.value && typeof doc.value === 'object' ? doc.value : DEFAULT_REFUND_POLICY;
-  const section = (value as any)[POLICY_SECTION[service]] ?? (DEFAULT_REFUND_POLICY as any)[POLICY_SECTION[service]];
+  const pick = (k: 'consultation' | 'home_visit' | 'pharmacy') => (value as any)[k] ?? (DEFAULT_REFUND_POLICY as any)[k];
+  // lab, radiology and nursing follow the 2-hour table of the consultation (owner decision 2026-11-10) AND the home-visit rules (trip fee, patient absent): both are what the patient accepts
+  const section = service === 'lab' || service === 'radiology' || service === 'nursing' ? { consultation: pick('consultation'), home_visit: pick('home_visit') } : pick(POLICY_SECTION[service]);
   const hash = createHash('sha256').update(canonicalJson({ service, section })).digest('hex');
   const saved = doc?.updatedAt ? new Date(doc.updatedAt) : null;
   const version = saved && Number.isFinite(saved.getTime()) ? saved.toISOString() : REFUND_POLICY_VERSION;

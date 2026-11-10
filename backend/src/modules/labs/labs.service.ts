@@ -533,7 +533,7 @@ export class LabsService {
       if (b.state !== LabBookingState.CANCELLED && !(LAB_BOOKING_TRANSITIONS[b.state as LabBookingState] || []).includes(LabBookingState.CANCELLED)) throw new BadRequestException(`invalid transition ${b.state} → ${LabBookingState.CANCELLED}`);
       b.status = 'cancelled';
       await this.moveOrdering(b, LabBookingState.CANCELLED, 'insurance_choice_cancel_free', 'patient', user);
-      this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id });
+      this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id, cancelled_by: 'system' });   // the insurance choice 'cancel free': everything back
       return b.toObject();
     }
     if (c.choice === 'covered_only' && c.drop?.length) {
@@ -561,7 +561,7 @@ export class LabsService {
     if (![LabBookingState.NEW_REQUEST, LabBookingState.PENDING_INSURANCE].includes(b.state)) return false;
     b.status = 'cancelled_unconfirmed';
     await this.moveOrdering(b, LabBookingState.CANCELLED, 'confirm_deadline_passed', 'system');
-    this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id });
+    this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id, cancelled_by: 'system' });   // the provider did not confirm in time: everything back
     return true;
   }
 
