@@ -2,6 +2,10 @@
 
 # Lane X outbox
 
+## 2026-11-10 19:20 order: main merged into #2601, #2603, #2604 (and #2605)
+- Merged origin/main into x/audit-no-show (#2601), x/pt54-orders (#2603), x/pt03-dependant (#2604) and x/pt30-location (#2605); the conflicts were the generated design files (took main's, regenerated) and the PT-54 / PT-03 rows of SCENARIOS.md (took main's, re-applied my wording on top of Z's). Pushed all four. #2609 (literals) merges cleanly with main already.
+- Waiting for CI on the new heads.
+
 ## 2026-11-10 18:50 literal UI strings (translation rule), parity audit result
 - https://github.com/obaid08642-ops/new/pull/2609 (x/literals-patient): patient literal-string debt: app search screen (33 literals, used to fall back to English in ur/hi/bn/fil), tab bar labels, the offline banner (it existed only in Arabic) now in six languages; machine-readable web metadata and the not-found last-resort fallback marked i18n-ok with reasons. Baseline 5375 -> 5303. About 50 a11y-only literals in shared design-system components remain (added to my launch list).
 - Parity audit round 2 result: the only one-sided item was the no-show outcome text (PR #2601, green). Checked and fine: credit notes (both sides show them in the receipt), family-member bookings through ordering (the booking body may omit family_member_id: the server takes it from the quote), refund summary keys, late reschedule, national id, pharmacy return, hide visit.
