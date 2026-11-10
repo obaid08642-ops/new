@@ -155,6 +155,11 @@ MedicineSchema.index({ ...PUBLIC_LIVE, category: 1, sub_category: 1, ...POPULAR_
 // database load every document it matched (translations in six languages, ~20 KB each) before the sort. These two carry it right after the gate, so the same page is answered from the index.
 MedicineSchema.index({ ...PUBLIC_LIVE, verified: 1, ...POPULAR_FIELDS }, { name: 'public_verified_popular_covering_v1' });
 MedicineSchema.index({ ...PUBLIC_LIVE, verified: 1, category: 1, sub_category: 1, ...POPULAR_FIELDS }, { name: 'public_verified_category_covering_v1' });
+// Run 113 (2026-11-10): the public filter lists (`GET /medicines/filters`) asked for the distinct manufacturers and forms of the whole public catalogue. No index held those fields, so each
+// `distinct` loaded all ~21,000 documents (about 20 KB each, 6 to 8 s, several in parallel on a cache miss) into mongod, whose memory grew past its container limit. With the field in the
+// index (after the same public flags) the answer comes from the index keys alone and no document is read.
+MedicineSchema.index({ ...PUBLIC_LIVE, manufacturer: 1 }, { name: 'public_manufacturer_covering_v1' });
+MedicineSchema.index({ ...PUBLIC_LIVE, form: 1 }, { name: 'public_form_covering_v1' });
 MedicineSchema.index({ ...PUBLIC_LIVE, 'translations.en.main_category': 1, 'translations.en.sub_category': 1, ...POPULAR_FIELDS }, { name: 'public_category_en_covering_v2' });
 // The product id (a uuid string, not _id) is how the product page's related reads, the cart and orders find a product.
 MedicineSchema.index({ id: 1 }, { name: 'id_1' });

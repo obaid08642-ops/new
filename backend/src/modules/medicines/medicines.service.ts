@@ -1199,6 +1199,14 @@ export class MedicinesService {
   }
 
   async filters() {
+    // Run 113 (2026-11-10): this was three `distinct` scans of the whole public catalogue (about 21,000 documents each, 6 to 8 s per call) on every cache miss, and a burst of
+    // misses ran them in parallel inside mongod, whose memory grew past its container limit until the OOM killer stopped it, again and again. The answer is public data that changes
+    // only when the catalogue is published: HotCache builds it once per refresh for the whole fleet (single flight, a stale copy is served while it refreshes), like `categories`.
+    if (this.hotCache) return this.hotCache.get('med:filters-governed-v1', { ttl: 1800, swr: 3600 }, () => this.buildFilters());
+    return this.buildFilters();
+  }
+
+  private async buildFilters() {
     const categories = await this.model.distinct('category', this.publicCatalogFilter());
     const brands = await this.model.distinct('manufacturer', { ...this.publicCatalogFilter(), manufacturer: { $ne: null } });
     const forms = await this.model.distinct('form', { ...this.publicCatalogFilter(), form: { $ne: null } });
