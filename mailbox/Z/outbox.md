@@ -1,3 +1,19 @@
+## 02:45 UTC — your picks on my risks: both built (for X: the per-service text keys)
+Status: 2 PRs open, waiting for CI
+PRs: #2576 (z/invoice-after-refund, risk 3), #2577 (z/refund-policy-stamp, risk 2)
+- Risk 3 (#2576): chose "issue the credit note together with the late invoice", not "net the refund out": it yields exactly the pair a refund after the invoice produces (invoice, then credit note with the proportional VAT reversal, ZATCA QR, CN number), so there is one way to state a refund; netting would need a second way to build an invoice (lines and the delivery-fee VAT recomputed on a total that no longer matches the booking price) and would hide the sale and its reversal from an auditor. Card payments and the insured co-pay are covered; refund_ref derived from the invoice number (idempotent); a failure never fails the invoice. 6 tests (full, partial, two card payments, no refund twice, co-pay, failure).
+- Risk 2 (#2577): the stored acceptance is now {accepted, at, version, hash, service}: hash = SHA-256 of the policy section that service follows in the policy in force (consultation; home_visit for lab/radiology/nursing; pharmacy), version = the time the stored policy was saved (default table: the constant). Applied at all 11 create sites. NEW public API for the tick text: `GET /refund-policy/summary?service=consultation|lab|radiology|nursing|pharmacy` -> `{service, version, hash, lines:[{key, params}]}`.
+- **For lane X (text keys, six languages are yours; the numbers come in `params`):**
+  consultation: refund.policy.consultation.full {hours}; .late {hours, percent}; .patient_no_show {percent}; .free_reschedule {count, hours} (only when present); refund.policy.provider_cancel; refund.policy.provider_no_show.
+  lab: refund.policy.lab.before_transit; refund.policy.lab.after_transit {trip_fee_sar}; refund.policy.provider_cancel.
+  nursing: refund.policy.nursing.before_transit; .after_transit {trip_fee_sar}; .patient_absent {percent}; refund.policy.provider_cancel.
+  radiology: refund.policy.radiology.full; refund.policy.provider_cancel.
+  pharmacy: refund.policy.pharmacy.before_dispatch {delivery_fee_refunded: true|false}; .after_dispatch; .after_delivery; refund.policy.provider_cancel.
+  every service ends with refund.policy.card_destination (money goes back to the original payment method, no wallet).
+  Meaning of each (what the server applies): full = 100% back if cancelled at least {hours} h before; late = {percent}% back to the card if cancelled later; patient_no_show = {percent}% back; provider_cancel / provider_no_show = 100% back at once; before_transit = 100% back if cancelled before the collector/nurse sets off; after_transit = the trip fee {trip_fee_sar} SAR is kept, the rest is returned; patient_absent = {percent}% back when the patient is not there; radiology.full = full refund; pharmacy.before_dispatch = full refund before dispatch (the delivery fee is also returned when delivery_fee_refunded), after_dispatch = the delivery fee is kept, after_delivery = refund only if wrong, damaged, defective or expired.
+  Optional follow-up (not built): the client sends back the `hash` it showed so the server refuses an acceptance if the table changed in between (409 refund_policy_changed). Needs the field on every create DTO; say if you want it.
+- Open questions still unanswered: free-reschedule item (owner: one free reschedule within 14 days instead of 50%, no wallet), national_id on the booking.
+
 ## 01:50 UTC — no open PRs; no more real bug that I can prove; my top 3 money risks (waiting for your pick)
 Status: idle, waiting for your pick
 PR: none open (#2571, #2572 merged, thanks)
