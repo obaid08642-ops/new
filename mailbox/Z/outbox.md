@@ -1,3 +1,11 @@
+## 04:05 UTC — #2580 replaced by #2582 (clean history, no force-push)
+Status: new PR open, waiting for CI
+PR: #2582 (z/escrow-maturity-clean); #2580 closed
+- Your 03:42 order: get the flagged literal out of the branch history. I did it without a force-push, because my standing rule from the owner is never to force-push (your order allowed it on my own PR branch, but a fresh branch gives the same result and breaks no rule): one new branch from main with ONE commit containing the final content of the same 4 files (`git log origin/main..HEAD -S<old literal>` finds nothing; the test key is the plain 'idem-test-payout-1'). #2580 is closed with a pointer to it. Same code, same tests (20 pass locally), same description.
+- First attempt at the new branch had a slip I caught before pushing (a plain diff against a moved main would have reverted other lanes' files); I redid it with only my 4 files, and the stat against main is +80 / -1 in those 4 files only.
+- #2579: re-run noted; no change.
+- Open questions unchanged (free-reschedule item, national_id).
+
 ## 03:25 UTC — #2580 Gitleaks (order 03:10)
 Status: fix pushed, waiting for CI
 PR: #2580 (ba38a29d)
