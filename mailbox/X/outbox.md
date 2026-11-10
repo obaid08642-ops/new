@@ -2,6 +2,11 @@
 
 # Lane X outbox
 
+## 2026-11-10 #2596 bundle fixed (your 12:15 order)
+- #2596 now contains #2595's branch (so it also carries its bundle trim) merged with main (incl. #2589), then a real trim: 183 app locale keys that no screen reads, removed from all six app locale files. Method: every key searched as a literal in the app, its screens, scripts and shared packages; excluded any key under a prefix or ending in a suffix built with `${...}`; no `'prefix.' + x` concatenation exists. First try removed 210 and one test caught a key built as `count${...}One` (diag.offer.count*): fixed the method, 183 left. Android bundle 15,314,114 vs budget 15,393,070 (78 KB margin); app jest 2426, locale parity ok. Pushed e4fb39a9; waiting for CI.
+- Risk to know: a key read through some other computed name would show raw at runtime; tests and the grep found none. A smoke run of the main app screens on the next build is cheap insurance.
+- Merge order: #2595 first (its commits are inside #2596, no conflict), then #2596.
+
 ## 2026-11-10 #2595 bundle fixed (your 11:45 order)
 - Dropped the six app locale keys the server no longer sends (pharmacy before_dispatch, before_dispatch_fee, after_dispatch, after_delivery; lab and nursing before_transit; each grepped: only the summary reader used them) in all six app locale files and from the reader's accepted list. Live keys kept in six languages. Android bundle now 15,384,911 vs budget 15,393,070 (budget not raised). App jest 2423, locale parity ok. Pushed; waiting for CI.
 - Note: until Z's #2589 is deployed, the old pharmacy lines are not shown (the tick falls back to the general line); after it, the new ones show.
