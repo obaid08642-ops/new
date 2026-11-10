@@ -1,6 +1,10 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-10 10:42 UTC
+- Merged #2593 (X national_id form, web+app, six languages).
+- V culprit (from code): GET /medicines/filters ran 3 `distinct` over ~21k public medicines (manufacturer/form unindexed) → ~1 GB outside cache on bursts. #2597: HotCache single-flight, covering indexes, stream cap, pool caps 80→55/40→25. mongosh lines = healthcheck metadata, not a host job. CI running; review on green, then deploy + re-run 96n.
+- #2589 new push (1cf777a), #2592/#2594/#2595/#2596 CI running.
 ## Lead 3 run 2026-11-10 10:15 UTC
 - Run 113 done (owner pushed 0cee259f). No mongod kill since 04:55:42. Before kills: mongosh x24–32 connections (host jobs exec'ing mongosh inside the mongo cgroup — prime suspect clamav-window cron / monitor scripts), connections 27→65, slow medicines public_eligibility query (21k docs, 6–8 s). V ordered: fix all three; no limit raise.
 - Green #2591 (national_id) to review next wake; #2589 fixed, CI; #2592–#2596 CI running.
@@ -74,7 +78,3 @@ Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or
 - Merged #2573 (PT-54 UI), #2574. Z: fix late-invoice-after-refund, then per-service policy version/hash. OWNER Q: no-show auto-refund cap / hold. Run 112b waits for owner.
 ## Lead 3 run 2026-11-10 01:10 UTC
 - Merged #2571, #2572. CI: #2573 (X PT-54 UI), #2574 (V G2 nursing price). Run 112b waits for owner.
-## Lead 3 run 2026-11-10 00:40 UTC
-- Merged #2570 (PT-54 backend). CI: #2571/#2572 (Z), #2573 (X PT-54 UI). Run 112b waits for owner.
-## Lead 3 run 2026-11-10 00:15 UTC
-- Merged #2566, #2569 (dtolint gate + CodeQL), #2567 (gapless invoices; small settle race follow-up to Z), #2568 (scan state UI). #2570 CI. Run 112b waits for owner push.
