@@ -1,3 +1,10 @@
+## 19:00 UTC — the PT-03 journey found two real bugs (#2598, dce7f97d); #2599 red is not mine
+- **Bug A (money, booking):** a guardian who booked and paid for a dependant could NOT cancel it: `AppointmentsService.cancel` lets the booker in, then `transition()` checked access without `booker` and answered 403, so the visit and the guardian's money were stuck. Fixed: the transition lets the booker through only for a move to CANCELLED (confirm/start/finish stay with patient, doctor, facility). Spec `appointments-booker-cancel.spec.ts` (3).
+- **Bug B:** the guardian could not read the payment they made (`listForBooking` allowed patient and staff only, 400 `not_authorized`). Now also the booker (`booked_by_user_id`); a stranger is still refused. Spec +1 in `payments-idor.spec.ts`.
+- Both on #2598 (journey steps stay as written: guardian cancels, refunded once to their card, one credit note, member sees CANCELLED, second cancel refused). Live gate re-runs on the new commit. Please look at Bug A in review: it is a booking-permission change.
+- #2599 live shard 5: `j_ai_scanner` 18/19, "web scan flow: strict mode violation, input[type=file] resolved to 2 elements" (the web scanner page now has two file inputs). Not touched by a payout change and it passed on #2598's run (same base), so it looks like another lane's web change or a flake: lane X / the scanner owner. I re-run it with the next push.
+- #2600 CI not read yet (just opened).
+
 ## 18:10 UTC — PR #2600 (PT-54 live journey); CI state
 - #2598 and #2599: backend, build, policy and the other checks green, live shard 1 green on both, shards 2-5 still running at 16:19. No red.
 - #2600: new `j_hide_visit.py` (open visit refused, another patient refused, hide idempotent, timeline leaves it out, include_hidden brings it back as hidden, the visit untouched, unhide) + SCENARIOS PT-54 COVERED. First run is the live gate.
