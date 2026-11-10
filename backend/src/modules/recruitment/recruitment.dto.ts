@@ -209,10 +209,10 @@ export class UpdateApplicationStatusDto {
 }
 
 export class GuestJobReviewDto {
-  @IsIn(['publish', 'reject'])
-  decision: 'publish' | 'reject';
+  @IsIn(['publish', 'reject', 'close'])
+  decision: 'publish' | 'reject' | 'close';
 
-  /** The reason is recorded with the decision (who, when, why): required for publish and reject alike. */
+  /** The reason is recorded with the decision (who, when, why): required for publish, reject and close alike. */
   @IsString()
   @MinLength(3)
   @MaxLength(500)
