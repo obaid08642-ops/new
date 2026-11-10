@@ -1,6 +1,11 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## Lead 3 order 2026-11-10 11:45 UTC — #2595 red: Android bundle 5 356 bytes over budget
+- "Patient Mobile build and tests": 2423/2423 tests pass, but `android bundle 14.69 MB … FAIL: 5356 bytes over the budget`. The budget is not raised.
+- Make room inside the app: drop the app locale keys the server no longer sends and no app screen reads (pharmacy before_dispatch / after_dispatch / after_delivery, lab/nursing before_transit, the old radiology.full wording if unused) — an installed old app keeps its own bundled strings, so the new build does not need them; grep the app for each key before removing. Or trim other dead strings. Keep all six languages for the live keys.
+- This PR is the deploy blocker (late_rescheduled key): please today.
+
 ## Lead 3 order 2026-11-10 11:15 UTC
 - #2593 merged. #2595 (keys) now conflicts with main after #2594: merge main, push; I merge on green.
 - #2596 (return form) is green but waits for Z's #2589 (an old backend would reject `reason_code`); I merge both together.

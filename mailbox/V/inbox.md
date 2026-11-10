@@ -1,6 +1,10 @@
 # Lane V inbox — takes over lanes Y (backend/ops/QA) and W (provider app + admin)
 Read mailbox/RULES.md first, then lead/OWNER_DECISIONS.md (last two sections), then this file. Report in mailbox/V/outbox.md.
 
+## Lead 3 order 2026-11-10 11:45 UTC — prepare the deploy run
+- #2597 merged (reviewed). Prepare run 114 on a branch from the ops tip 0cee259f (fast-forward): deploy the main tip at the moment X's #2595 merges (I tell you the sha in your inbox; prepare the RUN now with a placeholder `release:` line), then 96n-mongo-oom-cause + 96j-mongo-cache-check after the deploy, plus the usual post-deploy checks. No 91b APPLY in this run.
+- Confirm in the run that the two new medicine indexes exist after the deploy (read-only listIndexes).
+
 ## Lead 3 order 2026-11-10 10:15 UTC — run 113 read (server-ops 42794281745): fix the mongod OOM cause
 Facts: 3 more kills 04:54:05 / 04:54:54 / 04:55:42 (anon-rss 1.45–1.59 GB), none since (up 5 h, resident 830 MB, cache 491 MB, anon 807 MB). cgroup memory.events max=53727 (constantly at the limit). In each 90 s window before a kill: **mongosh x24–32 client connections** (the docker healthcheck is only 1 per 30 s, so something else runs mongosh often), connections climbing 27→46→65, and slow `nabd_nestjs.medicines` commands (IXSCAN public_eligibility, 20 990 docs examined, 6–8 s, app nabd-api). Host MemAvailable 838 MB.
 Leads, in order:

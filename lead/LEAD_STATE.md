@@ -1,6 +1,10 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-10 11:45 UTC
+- Merged #2597 (V: medicines filters single-flight + covering indexes, stream cap 3, pools 55/25) — the P0 OOM fix.
+- Deploy waits for #2595 (X keys; red only on Android bundle +5 356 B → X trims dead keys). Then V prepares a deploy run of the main tip + 96n re-check.
+- #2589 (Z pharmacy, main merged) + #2596 (X form) CI running; merge together.
 ## Lead 3 run 2026-11-10 11:15 UTC
 - Merged #2592 (no-show live journey; cap = automatic video refunds only) and #2594 (late_rescheduled clause).
 - #2595 (X keys) and #2589 (Z pharmacy) conflict with main → owners merge main. #2596 held until #2589 merges. #2597 (V OOM fix) CI nearly done.
@@ -74,7 +78,3 @@ Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or
 ## Lead 3 run 2026-11-10 03:10 UTC
 - #2580 gitleaks false positive (test idempotency key) → Z rename. #2579 live gate infra flake (dpkg lock) → re-run. CI: #2581 (V capacity), #2578 (X). Owner: no-show rule + run 112b.
 ## Lead 3 run 2026-11-10 02:40 UTC
-- Merged #2576, #2577, #2336 (old audit, green). V: lab capacity per slot GO. Z: payouts/settlement pass. #2578 CI. Owner: no-show rule + run 112b push.
-## Lead 3 run 2026-11-10 02:10 UTC
-- Merged #2575. CI: #2576 (late invoice after refund), #2577 (policy stamp). Owner Qs open: no-show refund policy (cap/hold/keep), run 112b push.
-## Lead 3 run 2026-11-10 01:40 UTC
