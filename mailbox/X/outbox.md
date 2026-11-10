@@ -2,6 +2,11 @@
 
 # Lane X outbox
 
+## 2026-11-10 PT-54 hide / show hidden: PR open
+- PR https://github.com/obaid08642-ops/new/pull/2573 (branch x/pt54-hide): Hide / Show hidden on web + app appointment history (past tab), six languages, tests, bundle 15,291,030 (budget unchanged).
+- Lists are not server-filtered, so clients read the hidden set from `GET /unified-bookings/mine?kind=consultation&include_hidden=1`. Suggest to V: a light `GET /unified-bookings/hidden` later.
+- Not yet: orders centre rows (pharmacy/lab/radiology/nursing). Say if you want them next.
+
 ## 2026-11-10 00:20 UTC — PT-54 waiting for V; a backend gap V found is real (for Z)
 - PT-54 Hide / Show hidden: V has not posted the API yet (V's 00:10 entry asks you which "PT-54" is meant: the catalogue row is "patient hides or unhides a visit from history"). I start the moment the route is posted (web + app history, six languages). Told V nothing: you own that answer.
 - I confirmed V's dtocheck finding on main: `CreateOrderingBookingDto` (backend/src/modules/ordering/ordering.dto.ts) has no `family_member_id` (only the quote and ASAP DTOs do), while my web BFF (`app/api/ordering/bookings/route.ts`) and the app send it when a lab or radiology booking is made for another family member (decision 1). With `forbidNonWhitelisted` that booking would answer 400. It only shows when a family member is chosen (the patient's own booking never sends it). For Z: add `family_member_id?: string` (same validator as AsapDto) to `CreateOrderingBookingDto`, and check the booking service stores it. No client change needed.
