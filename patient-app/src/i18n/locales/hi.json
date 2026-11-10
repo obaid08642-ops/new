@@ -4181,11 +4181,16 @@
   "refund.policy.nursing.before_transit": "नर्स के निकलने से पहले रद्द करें और 100% वापस पाएँ।",
   "refund.policy.nursing.after_transit": "नर्स के निकलने के बाद यात्रा शुल्क {trip_fee_sar} रियाल रखा जाता है और बाकी वापस होता है।",
   "refund.policy.nursing.patient_absent": "यदि आप विज़िट के समय मौजूद नहीं हैं, तो {percent}% वापस होगा।",
-  "refund.policy.radiology.full": "रेडियोलॉजी बुकिंग की पूरी राशि वापस की जाती है।",
+  "refund.policy.radiology.full": "विज़िट से कम से कम {hours} घंटे पहले रद्द करें और 100% वापस पाएँ।",
   "refund.policy.pharmacy.before_dispatch": "ऑर्डर भेजे जाने से पहले रद्द करें तो पूरी राशि वापस मिलती है।",
   "refund.policy.pharmacy.before_dispatch_fee": "ऑर्डर भेजे जाने से पहले रद्द करें तो डिलीवरी शुल्क सहित पूरी राशि वापस मिलती है।",
   "refund.policy.pharmacy.after_dispatch": "भेजे जाने के बाद डिलीवरी शुल्क रखा जाता है और बाकी वापस होता है।",
   "refund.policy.pharmacy.after_delivery": "डिलीवरी के बाद राशि तभी वापस होती है जब सामान गलत, क्षतिग्रस्त, दोषपूर्ण या एक्सपायर हो।",
   "refund.policy.card_destination": "राशि मूल भुगतान माध्यम में वापस जाती है, वॉलेट में नहीं।",
-  "consult.cancel.lateOffer": "विज़िट जल्द है, इसलिए रद्द करने पर भुगतान का केवल एक हिस्सा वापस होगा। इसके बजाय आप इसे एक बार मुफ़्त में {days} दिनों के भीतर किसी समय पर ले जा सकते हैं।"
+  "consult.cancel.lateOffer": "विज़िट जल्द है, इसलिए रद्द करने पर भुगतान का केवल एक हिस्सा वापस होगा। इसके बजाय आप इसे एक बार मुफ़्त में {days} दिनों के भीतर किसी समय पर ले जा सकते हैं।",
+  "refund.policy.lab.full": "विज़िट से कम से कम {hours} घंटे पहले रद्द करें और 100% वापस पाएँ।",
+  "refund.policy.lab.late": "इसके बाद रद्द करने पर {percent}% आपके कार्ड में वापस होगा।",
+  "refund.policy.nursing.full": "विज़िट से कम से कम {hours} घंटे पहले रद्द करें और 100% वापस पाएँ।",
+  "refund.policy.nursing.late": "इसके बाद रद्द करने पर {percent}% आपके कार्ड में वापस होगा।",
+  "refund.policy.radiology.late": "इसके बाद रद्द करने पर {percent}% आपके कार्ड में वापस होगा।"
 }

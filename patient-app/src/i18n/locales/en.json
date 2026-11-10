@@ -4181,11 +4181,16 @@
   "refund.policy.nursing.before_transit": "Cancel before the nurse sets off and get 100% back.",
   "refund.policy.nursing.after_transit": "After the nurse has set off, the trip fee of {trip_fee_sar} SAR is kept and the rest is returned.",
   "refund.policy.nursing.patient_absent": "If you are not there for the visit, {percent}% is returned.",
-  "refund.policy.radiology.full": "Radiology bookings are refunded in full.",
+  "refund.policy.radiology.full": "Cancel at least {hours} hours before the visit and get 100% back.",
   "refund.policy.pharmacy.before_dispatch": "Cancel before the order is dispatched for a full refund.",
   "refund.policy.pharmacy.before_dispatch_fee": "Cancel before the order is dispatched for a full refund, including the delivery fee.",
   "refund.policy.pharmacy.after_dispatch": "After dispatch the delivery fee is kept and the rest is returned.",
   "refund.policy.pharmacy.after_delivery": "After delivery you are refunded only if the item is wrong, damaged, defective or expired.",
   "refund.policy.card_destination": "Refunds go back to the original payment method, not to a wallet.",
-  "consult.cancel.lateOffer": "The visit starts soon, so cancelling returns only part of the payment. You can move it once for free instead, to a time within {days} days."
+  "consult.cancel.lateOffer": "The visit starts soon, so cancelling returns only part of the payment. You can move it once for free instead, to a time within {days} days.",
+  "refund.policy.lab.full": "Cancel at least {hours} hours before the visit and get 100% back.",
+  "refund.policy.lab.late": "If you cancel later than that, {percent}% is returned to your card.",
+  "refund.policy.nursing.full": "Cancel at least {hours} hours before the visit and get 100% back.",
+  "refund.policy.nursing.late": "If you cancel later than that, {percent}% is returned to your card.",
+  "refund.policy.radiology.late": "If you cancel later than that, {percent}% is returned to your card."
 }
