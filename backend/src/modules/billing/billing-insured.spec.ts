@@ -60,4 +60,14 @@ describe('invoice of an insured booking', () => {
     await expect(svc.issueOnPayment({ booking_kind: 'insurance', booking_id: 'req-1' })).resolves.toBeUndefined();
     expect(store).toHaveLength(0);
   });
+
+  it('a co-pay refunded BEFORE the first invoice: the invoice is for the co-pay paid, with one credit note for what was refunded', async () => {
+    const { svc, store } = build({ booking, copay: { ...copay, status: 'refunded', refunded_amount: 80 }, request: { booking_id: 'a1', booking_kind: 'consultation' } });
+    const inv: any = await svc.issue(patient, 'consultation', 'a1');
+    expect(inv.total).toBe(80);
+    const cns = store.filter((d: any) => d.type === 'credit_note');
+    expect(cns).toHaveLength(1);
+    expect(cns[0]).toMatchObject({ total: -80, original_invoice_no: inv.invoice_no });
+  });
 });
+

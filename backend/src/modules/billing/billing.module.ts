@@ -473,7 +473,7 @@ export class BillingService {
 
     await (this.invoiceIndex ??= ensureInvoiceUniqueIndex(this.conn, (m) => this.logger.warn(m)));
     try {
-      return await this.insertNumbered({
+      const issued = await this.insertNumbered({
         type: 'invoice', document_kind: documentKind,
         booking_kind: kind,
         booking_id: bookingId,
@@ -482,11 +482,35 @@ export class BillingService {
         qr_base64: qr, lines, payment, insured, discount, provider, patient_name: patientName, booking_ref: bookingRef,
         seller_name: seller.name, vat_number: seller.vatNumber, seller_cr_number: seller.crNumber, seller_address: seller.address, seller_complete: documentKind === 'tax_invoice', issued_at: issuedAt,
       }, documentKind === 'receipt' ? 'receipt' : 'invoice', issuedAt);
+      await this.creditRefundsBeforeInvoice(kind, booking, bookingId, issued);
+      return issued;
     } catch (e: any) {
       // two writers (the payment event and the patient's request) can race: the one that lost reads the winner's invoice
       const again = await this.invoices.findOne({ booking_kind: kind, booking_id: bookingId, status: 'ISSUED', type: { $ne: 'credit_note' } }, { _id: 0, __v: 0 }).lean();
       if (again) return this.settle(again);
       throw e;
+    }
+  }
+
+  /**
+   * A refund that was paid BEFORE the invoice existed (the invoice is normally issued on `payment.completed`, but that event can fail, or the receipt is first opened after a cancellation)
+   * had no invoice to reverse, so its credit note was never issued, and the invoice (for what the patient paid) would state money that was already returned. So the invoice is issued for what
+   * was paid and, in the same step, ONE credit note for what had been refunded so far: exactly the pair a refund after the invoice produces (the VAT share and the QR follow the normal rules),
+   * rather than a second way of stating a net amount. Idempotent (`refund_ref` is derived from the invoice number); a later refund still gets its own credit note from the event. Never fails the invoice.
+   */
+  private async creditRefundsBeforeInvoice(kind: string, booking: any, bookingId: string, invoice: any): Promise<void> {
+    try {
+      const rows: any[] = await this.conn.collection('transactions').find(
+        { booking_kind: this.transactionKind(kind), booking_id: bookingId, status: { $in: ['paid', 'partially_refunded', 'refunded'] } },
+        { projection: { amount: 1, refunded_amount: 1, _id: 0 } },
+      ).toArray();
+      let refunded = rows.reduce((sum, r) => sum + Number(r.refunded_amount || 0), 0);
+      if (!rows.some((r) => Number(r.amount || 0) > 0)) refunded = Number((await findCopayTransaction(this.conn as never, booking, bookingId))?.refunded_amount || 0);
+      refunded = Math.round(refunded * 100) / 100;
+      if (!(refunded > 0) || !invoice?.invoice_no) return;
+      await this.issueCreditNote({ booking_kind: kind, booking_id: bookingId, amount: refunded, refund_ref: `before-invoice:${invoice.invoice_no}:${refunded}` });
+    } catch (e: any) {
+      this.logger.warn(`credit note for refunds before the invoice not issued for ${kind} ${bookingId}: ${e?.message}`);
     }
   }
 
