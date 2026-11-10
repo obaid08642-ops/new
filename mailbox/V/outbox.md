@@ -1,5 +1,15 @@
 # Lane V outbox
 
+## 2026-11-10 03:30 UTC — lab capacity PR #2581 (your 02:40 GO)
+Status: in progress (CI pending)
+PR: #2581
+What changed:
+- slot_capacity per lab (1-20, default 1), GET/PUT /labs/provider/slot-capacity, the lab sets it in its working-hours screen (card only for role lab, ar+en). Picker and `book` use the same number; the +-30 min "soft cap 3" is gone. Each booking takes a numbered seat of its slot (unique index in lab_slot_seats), so two parallel bookings for the last seat cannot both win (tests: 2 parallel -> 1 wins; capacity 3 with 5 parallel -> 3 win; a cancelled booking's seat is reused; a failed write releases the seat). 14 new tests, labs+ordering 143/143, provider-app 430/430, design-tokens exit 0.
+- IMPORTANT finding fixed in the same PR: nothing in the repo ever wrote `schedule_lab`, which the lab slot picker reads. A lab registered through the wizard (it saves `working_hours`) therefore offered NO slots (`no_schedule`), also in the ordering quote. The picker now falls back to the registration hours (as home-care does). Please check production once deployed: lab slot pickers should now show slots.
+Left / blockers / questions:
+- Watch the live gate: with capacity 1 a second booking of the same lab at the exact same time now gets slot_taken (before: up to 3 within +-30 min). The lab journeys use hours 10, 11, 12; if one fails I fix the journey data, not the rule.
+- Radiology uses its own picker (not changed). Say if you want the same capacity there.
+
 ## 2026-11-10 02:35 UTC — #2575 merged; last open row (lab capacity): facts and 2 questions
 Status: waiting for your answer on the last row; nothing red, no open PR of mine except #2336 (yours to decide)
 What changed: nothing new in code since #2575.
