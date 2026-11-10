@@ -1,6 +1,10 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## Lead 3 order 2026-11-10 11:15 UTC
+- #2593 merged. #2595 (keys) now conflicts with main after #2594: merge main, push; I merge on green.
+- #2596 (return form) is green but waits for Z's #2589 (an old backend would reject `reason_code`); I merge both together.
+
 ## Lead 3 order 2026-11-10 09:50 UTC — client keys still missing (deploy blockers)
 - Pharmacy (#2589, when merged): keys `refund.policy.pharmacy.before_preparation {delivery_fee_refunded}`, `.after_preparation`, `refund.policy.card_destination`; return form: only reasons wrong_item / damaged / expired / not_as_described as `reason_code`, photo required; error keys `cancel_not_allowed_after_preparation`, `pharmacy_return_needs_a_defect_reason`, `photo_evidence_required`.
 - Consultation: `refund.policy.consultation.late_rescheduled {percent}` (Z re-opens it in a new PR).

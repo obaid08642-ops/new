@@ -1,6 +1,9 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## Lead 3 order 2026-11-10 11:15 UTC
+- #2592 and #2594 merged (reviewed). #2589 is CONFLICTING with main (no CI ran on 1cf777a): merge main into z/pharmacy-refund, push, keep the j_refund_matrix pharmacy assertions. X's #2596 (return form) waits for it: I merge both together.
+
 ## Lead 3 orders 2026-11-10 09:50 UTC
 1. #2589 still red at cb4a8cf (run 42785694740, shard 1/5): j_refund_matrix 465/476 — "pharmacy: the patient cancels before dispatch" fails (cancel request refused, refund 0) and the after-dispatch case expects total minus delivery fee. Update j_refund_matrix to the decision: patient cancel before preparation = 100 % incl. delivery fee (cancel at a state before IN_FULFILLMENT); patient cancel from IN_FULFILLMENT on = refused with `cancel_not_allowed_after_preparation`; pharmacy/admin cancel = 100 %; defect return with photo = admin review. Keep every money assertion (refund amount, payment status, refund document on the invoice).
 2. Your 08:50 policy-clause commit 23f5a72a landed on z/free-reschedule AFTER #2586 was merged: it is NOT on main. Open a new small PR from main with it (cherry-pick).

@@ -1,6 +1,9 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-10 11:15 UTC
+- Merged #2592 (no-show live journey; cap = automatic video refunds only) and #2594 (late_rescheduled clause).
+- #2595 (X keys) and #2589 (Z pharmacy) conflict with main → owners merge main. #2596 held until #2589 merges. #2597 (V OOM fix) CI nearly done.
 ## Lead 3 run 2026-11-10 10:42 UTC
 - Merged #2593 (X national_id form, web+app, six languages).
 - V culprit (from code): GET /medicines/filters ran 3 `distinct` over ~21k public medicines (manufacturer/form unindexed) → ~1 GB outside cache on bursts. #2597: HotCache single-flight, covering indexes, stream cap, pool caps 80→55/40→25. mongosh lines = healthcheck metadata, not a host job. CI running; review on green, then deploy + re-run 96n.
@@ -75,6 +78,3 @@ Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or
 ## Lead 3 run 2026-11-10 02:10 UTC
 - Merged #2575. CI: #2576 (late invoice after refund), #2577 (policy stamp). Owner Qs open: no-show refund policy (cap/hold/keep), run 112b push.
 ## Lead 3 run 2026-11-10 01:40 UTC
-- Merged #2573 (PT-54 UI), #2574. Z: fix late-invoice-after-refund, then per-service policy version/hash. OWNER Q: no-show auto-refund cap / hold. Run 112b waits for owner.
-## Lead 3 run 2026-11-10 01:10 UTC
-- Merged #2571, #2572. CI: #2573 (X PT-54 UI), #2574 (V G2 nursing price). Run 112b waits for owner.
