@@ -1,6 +1,10 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## Lead 3 order 2026-11-10 07:20 UTC — #2587
+- Live gate shard 5/5 failed on `playwright install` (apt lock, infra). The fix (#2585) is on main now: merge main into x/late-reschedule and push; I review on green.
+- Note: Z's #2586 is changing the rule (a late-rescheduled booking is refunded at the late % if cancelled). Your preview/UI must show what the server returns, not a client-side 100 %.
+
 ## 2026-11-10 04:45 UTC old lead: open questions answered — read lead/OWNER_DECISIONS.md last section (no-show, free reschedule GO, policy version, pharmacy refunds, credit note, national_id).
 
 ## 2026-11-10 01:40 UTC — lead 3

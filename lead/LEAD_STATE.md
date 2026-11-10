@@ -1,6 +1,10 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-10 07:20 UTC
+- Merged #2583 (no-show hold a+b; stuck release retried every 15 min, max 5, then release_failed; idempotent handler).
+- #2586 loophole fix pushed (cd8b133), CI running. #2587 X: merge main for the apt fix.
+- Owner: run 113 (0cee259f) not pushed yet; R2 roll pending.
 ## Lead 3 run 2026-11-10 06:45 UTC
 - Merged #2585 (live gate waits for apt/dpkg lock).
 - #2586 HELD: late free reschedule then cancel >2 h ahead = 100 % loophole → Z ordered (cap at late %). #2583 fix pushed, CI running. #2587 (X late reschedule UI) CI running.
@@ -74,7 +78,3 @@ Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or
 - #2550 green but HELD: default `required` would 400 every booking from current web + installed apps → Z: default optional, flip by config after clients + app min-version. X: tick UI now. #2554 CI. V silent since 17:05 outbox (last commit 15:57): owner told.
 ## Lead 3 run 2026-11-09 18:40 UTC
 - Merged #2553 (PT-03 app). #2554 conflict again (X). #2550 CI. V silent since 15:57 (2h45m): owner told at next wake if still silent.
-## Lead 3 run 2026-11-09 18:10 UTC
-- Nothing green. #2550 conflict → Z. #2553/#2554 rebased, CI. V silent since 15:57 (clamav order 17:40 pending); tell owner if >3 h.
-## Lead 3 run 2026-11-09 17:40 UTC
-- Run 110 DONE: LIVE main@5227a794, health ok; ClamAV skipped again (uploads refused) → V first item. Merged #2552. #2553/#2554 conflicts (X). #2550 red 3rd time (nursing specs) → Z.
