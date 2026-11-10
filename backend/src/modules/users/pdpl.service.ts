@@ -88,6 +88,7 @@ export class PdplService {
     { collection: 'moyasar_payments', fields: ['patient_id', 'patient_account_id', 'user_id'] },
     { collection: 'wallet_transactions', fields: ['owner_id', 'patient_id', 'user_id'] },
     { collection: 'returnrequests', fields: ['patient_id', 'patient_account_id', 'user_id'] },
+    { collection: 'patient_hidden_visits', fields: ['patient_id'] },   // PT-54: the visits this patient hid from their own history
   ];
 
   /** Never leaves the server, even in an export. */
