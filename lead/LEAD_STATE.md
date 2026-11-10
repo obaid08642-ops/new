@@ -1,6 +1,8 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-10 14:40 UTC
+- Run 114 final: v/ops-run-114 f09d5f876 (FF of 0cee259f; only release line changed) → main a6c42d49, main CI green (t14). Owner push line sent. No open PRs.
 ## Lead 3 run 2026-11-10 14:15 UTC
 - Merged #2596 (pharmacy return form web+app). Run 114 release bumped to main a6c42d49b (V) — do NOT push 61fef9a54; new sha follows.
 ## Lead 3 run 2026-11-10 13:40 UTC
@@ -76,5 +78,3 @@ Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or
 2. Free reschedule (late-cancel option b): GO, build it (Z backend, X web+app).
 3. REFUND_POLICY_VERSION: follows the stored admin policy (hash/version saved with each acceptance), not a code constant.
 4. 2-hour table applies to doctor, lab, radiology and nursing bookings. Pharmacy orders: 100% refund until the pharmacy accepts/prepares; after dispatch only for wrong/damaged items (photo + admin review).
-5. Invoice after refund: issue the credit note together with the invoice (ZATCA style), do not net the paid total.
-6. national_id: asked only when the patient requests a medical report (or the doctor issues one and it is missing, the patient is asked to add it before download); stored like other personal data, shown in full only on the report.
