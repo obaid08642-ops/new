@@ -13,7 +13,7 @@ Tick [x] when merged. Counts are the owner progress number.
 
 ## Z
 - [ ] Invoices review (postponed): numbering, credit notes, VAT lines, ZATCA fields, one pass over every service with fixes
-- [ ] Payout and settlement pass: approval, execute, bank file, ledger totals against payouts, with a journey (PR #2599 has two fixes; journey still to do)
+- [ ] Payout and settlement pass: approval, execute, bank file, ledger totals against payouts, with a journey (PR #2599 has two fixes, PR #2611 the journey, both waiting for review)
 - [ ] PT-24 payment return from the gateway: journey for paid, failed and cancelled returns (link wiring is tested, the money side is not)
 - [ ] PT-03 guardian books for a dependant: backend journey (booking subject, payment, refund to the payer) (PR #2598, waiting for CI)
 - [ ] PT-54 hide a visit from history: check the backend side and cover it (PR #2600, waiting for CI)

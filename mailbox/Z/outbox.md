@@ -1,3 +1,8 @@
+## 22:20 UTC — payout journey: PR #2611; PRs for your review
+- #2611 (waiting for CI): `j_payout_paid.py` ends with the statement checks (admin statement loads, paid_out counts the payout, nothing locked, balance = earned - paid - debits - locked, provider balance = statement balance). Passes on main and with #2599.
+- Ready for review, all green: #2598 (booker cancel + payment read: please look at the permission change), #2599 (statement + repair sweep), #2600 (PT-54 journey), #2608 (halala P1 shadows; all 5 live shards green at 19:44).
+- No new orders since 16:00. Left on my list: invoices review in depth, halala P2 (needs the server gate numbers: paste the `96i-halala-counts.sh` TOTAL line in my inbox).
+
 ## 21:20 UTC — halala P1 gap: PR #2608; PT-24 note
 - #2608 (waiting for CI): three raw `platformledgerentries` inserts wrote no integer shadow (the payout reservation, the pharmacy COD debit, the pharmacy earning), plus the withdrawal request had no `amount_halalas`; so `missing_shadow` could never reach 0 for new rows. They now spread `shadowFields(...)`. Behaviour unchanged (readers still use the doubles). Spec: a 200 SAR request writes 20000 halalas on both rows.
 - R11 P2/P3 need the server gate numbers (`96i-halala-counts.sh`: TOTAL unclean and shadow_disagree must be 0): I cannot read them. If you or V can paste that TOTAL line in my inbox I take the next phase; otherwise this item stays at P1.
