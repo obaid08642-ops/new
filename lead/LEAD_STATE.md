@@ -1,6 +1,10 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-10 05:15 UTC
+- Run 112b done (server-ops 42756850654). P0: mongod cgroup OOM loop (403 restarts; 38 in 03–04h; 1.63 GB RSS vs 0.6 GB cache, limit 1600m). Prod readiness ok 05:13–05:15 (GET). V ordered: run 113 read-only diagnostics → find culprit job/query. Z asked about self-gate aggregations.
+- ClamAV: container absent; UPLOAD_SCAN=defer + ON_DEMAND already set, window cron installed, window never started (MemAvailable 1217 < 1700). 91b dry run clean. APPLY after mongo P0.
+- #2583 live gate infra flake (Playwright apt) → re-run when the run finishes. #2581 seat race fix pushed, CI running.
 ## Lead 3 run 2026-11-10 04:45 UTC
 - Merged #2582 (escrow maturity cron + mature before withdraw; same filter as matureEscrow).
 - #2581 green but HELD: seat takeover race (seat before booking create) → V ordered (grace period for missing booking).
@@ -74,7 +78,3 @@ Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or
 ## Lead 3 run 2026-11-09 15:15 UTC
 - Merged #2544 (app bundle -7.1 MB, budget lowered), #2543 (medical report backend), #2547 (admin refund card). #2550 red: old specs need refund_policy_accepted → Z. Waiting V run 110 sha.
 ## Lead 3 run 2026-11-09 14:45 UTC
-- Merged #2545 (96k read-only), #2548 (refund table + provider no-show), #2537. V to prepare run 110 (96k before deploy + clamd status + deploy main tip); owner pushes. Z follow-up: no-show dispute/abuse guard.
-## Lead 3 run 2026-11-09 14:15 UTC
-- Nothing green; 9 PRs in CI. #2546 (V) red on tokens + provider tests → V fix order. Live main@58a1bb6e.
-## Lead 3 run 2026-11-09 13:45 UTC

@@ -1,6 +1,16 @@
 # Lane V inbox — takes over lanes Y (backend/ops/QA) and W (provider app + admin)
 Read mailbox/RULES.md first, then lead/OWNER_DECISIONS.md (last two sections), then this file. Report in mailbox/V/outbox.md.
 
+## Lead 3 order 2026-11-10 05:15 UTC — P0: mongod OOM-kill loop (run 112b, server-ops 42756850654)
+- 96k: mongod restarts=403; 24 starts in 03h UTC, 14 in 04h (last kill 04:40:02). Kernel: "Memory cgroup out of memory: Killed process (mongod) anon-rss 1.63 GB" every ~80–90 s, each ~80 s after a start. Cache is 0.6 GB, limit 1600m → ~1 GB outside the cache. No fatal assertions, oom_killed=false shown by docker (cgroup kill). Backend uptime says the API process was not restarted (since ~21:55). 05:13–05:15 readiness ok (GET only), so it may be intermittent.
+- Prepare run 113 (read-only, priority over everything else) on a branch from the ops tip `1e46d6c24`:
+  1. mongod log lines (all components) in the 90 s BEFORE each of the last 5 kills: slow ops with ns / command / planSummary / durationMillis / "Index build" / sort or $group memory / connection counts.
+  2. A `db.currentOp({active:true})` + `serverStatus().connections/tcmalloc/wiredTiger.cache bytes` snapshot taken 30 s and 60 s after a mongod start (wait for the next start up to 10 min; if none, take it once now).
+  3. Backend + worker log lines matching mongo reconnect / ScheduledOnce / createIndex / migration / aggregate in the same windows: which job runs right after mongo comes back.
+  4. memory.events for the mongodb cgroup (max / oom / oom_kill counts).
+- Do NOT raise mem_limit or change the cache in this run (no budget raise; owner said build as if RAM is sized for launch, but find the cause first). Report the culprit query/job in your outbox; then fix it in code (allowDiskUse, index, batch) in a PR.
+- #2581: seen your seat race fix (d61c71a), CI running; I'll review on green.
+
 ## Lead 3 order 2026-11-10 04:45 UTC — #2581 green but HELD: seat takeover race
 - `reserveSeat` runs before `bkgModel.create`. Between the seat insert and the booking insert, a parallel request for the same last seat finds the seat, `isLive(id)` counts 0 bookings (not created yet) → takes the seat over → both bookings are created. That is exactly the "two parallel bookings for the last seat" case.
 - Fix: a seat whose booking is NOT FOUND may be taken over only when the seat is older than a grace period (e.g. createdAt < now − 2 min, the create path is far faster); a seat whose booking exists in CANCELLED/REPORTED may be taken at once. Keep the conditional updateOne. Add a spec: seat just inserted, booking not yet stored → second reserve gets null (`slot_taken`).

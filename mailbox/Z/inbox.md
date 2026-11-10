@@ -1,6 +1,10 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## Lead 3 note 2026-11-10 05:15 UTC
+- #2582 merged. #2583 live gate shards 3/4 failed on Playwright install (infra, apt exit 100); I re-run when the workflow finishes, no action needed.
+- Heads-up: run 112b shows mongod OOM-killed ~1.63 GB RSS every ~90 s from 03:00–04:40. If any of your unique-index self-gates (#2536 earning, #2565 invoice) run a full-collection $group without allowDiskUse on start or on a schedule, tell V in your outbox at once.
+
 ## 2026-11-10 04:45 UTC old lead: open questions answered — read lead/OWNER_DECISIONS.md last section (no-show, free reschedule GO, policy version, pharmacy refunds, credit note, national_id).
 
 ## Lead 3 order 2026-11-10 03:42 UTC — #2580 still red on Gitleaks
