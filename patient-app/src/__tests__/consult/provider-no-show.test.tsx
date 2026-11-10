@@ -4,7 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { ProviderNoShow } from '../../components/consult/ProviderNoShow';
 import { message } from '../../components/screen/ScreenKit';
-import { canReportNoShow, noShowOpensAt } from '../../utils/providerNoShow';
+import { canReportNoShow, noShowOpensAt, readNoShowOutcome } from '../../utils/providerNoShow';
 
 /** "The doctor did not come": offered 10 minutes after the start, only for a visit that never started; a confirm step; the server's refusal is an error. TEST values only. */
 const mockApiFetch = jest.fn();
@@ -68,5 +68,30 @@ describe('the doctor did not come: the button', () => {
     await screen.findByText(k('consult.noShow.error'));
     expect(onDone).not.toHaveBeenCalled();
     expect(screen.queryByText(k('consult.noShow.done'))).toBeNull();
+  });
+});
+
+describe('the doctor did not come: what the report did (owner decision 2026-11-10)', () => {
+  it('reads refunded, held with its date, and pending review; an answer without a status is the old refunded one', () => {
+    expect(readNoShowOutcome({ ok: true, status: 'refunded' })).toEqual({ status: 'refunded', refundAfter: null });
+    expect(readNoShowOutcome({ ok: true })).toEqual({ status: 'refunded', refundAfter: null });
+    expect(readNoShowOutcome({ status: 'held', refund_after: '2026-11-11T10:00:00.000Z' })).toEqual({ status: 'held', refundAfter: '2026-11-11T10:00:00.000Z' });
+    expect(readNoShowOutcome({ status: 'pending_review' })).toEqual({ status: 'pending_review', refundAfter: null });
+    expect(readNoShowOutcome(null)).toEqual({ status: 'refunded', refundAfter: null });
+  });
+  it('says the provider has 24 hours (not "refunded") for a held report', async () => {
+    mockApiFetch.mockResolvedValue({ ok: true, status: 'held', refund_after: '2026-11-11T10:00:00.000Z' });
+    await render(wrap(<ProviderNoShow appointmentId="appt-1" status="confirmed" slotStart={ago(15)} onDone={jest.fn()} />));
+    await tap(await screen.findByTestId('detail-no-show'));
+    await tap(screen.getByTestId('detail-no-show-confirm'));
+    await waitFor(() => expect(screen.getByText(/The provider has 24 hours to respond/)).toBeTruthy());
+    expect(screen.queryByText(k('consult.noShow.done'))).toBeNull();
+  });
+  it('says our team is reviewing it for a pending-review report', async () => {
+    mockApiFetch.mockResolvedValue({ ok: true, status: 'pending_review' });
+    await render(wrap(<ProviderNoShow appointmentId="appt-1" status="confirmed" slotStart={ago(15)} onDone={jest.fn()} />));
+    await tap(await screen.findByTestId('detail-no-show'));
+    await tap(screen.getByTestId('detail-no-show-confirm'));
+    await waitFor(() => expect(screen.getByText(k('consult.noShow.review'))).toBeTruthy());
   });
 });

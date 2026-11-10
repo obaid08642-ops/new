@@ -3174,8 +3174,8 @@
     "emptyHidden": "Walang nakatagong bisita",
     "noShowTitle": "Hindi dumating ang doktor",
     "noShowButton": "Hindi dumating ang doktor",
-    "noShowConfirmBody": "Gamitin lang ito kung hindi pa sumasali o dumarating ang doktor. Kakanselahin ang bisita at buo kang ire-refund agad.",
-    "noShowConfirm": "Kanselahin ang bisita at i-refund ako",
+    "noShowConfirmBody": "Gamitin lang ito kung hindi pa sumasali o dumarating ang doktor. Ang video na bisita ay kakanselahin at buo ang refund agad; kung madalas kang mag-ulat, susuriin muna ito ng aming team. Sa bisita sa klinika o bahay, may 24 oras ang provider para sumagot, pagkatapos ay buo ang refund mo.",
+    "noShowConfirm": "Iulat na hindi dumating ang doktor",
     "noShowKeep": "Huwag muna",
     "noShowDone": "Nakansela ang bisita. Paparating na ang buo mong refund.",
     "noShowError": "Hindi makansela ang bisita. Suriin ang koneksyon at subukan ulit.",
@@ -3202,7 +3202,9 @@
     "rxInReminders": "Nasa mga paalala",
     "rxAddReminder": "Magdagdag ng paalala",
     "rxOrder": "I-order ang mga gamot na ito",
-    "rxDays": "{n} araw"
+    "rxDays": "{n} araw",
+    "noShowHeld": "Natanggap ang iyong ulat. May 24 oras ang provider para sumagot; kung hindi sila tututol, buo ang refund mo sa {date}.",
+    "noShowReview": "Natanggap ang iyong ulat at sinusuri ito ng aming team. Aabisuhan ka sa desisyon."
   },
   "FamilyWeb": {
     "title": "Pamilya",
