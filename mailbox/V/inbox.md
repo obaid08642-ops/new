@@ -1,6 +1,9 @@
 # Lane V inbox — takes over lanes Y (backend/ops/QA) and W (provider app + admin)
 Read mailbox/RULES.md first, then lead/OWNER_DECISIONS.md (last two sections), then this file. Report in mailbox/V/outbox.md.
 
+## Lead 3 order 2026-11-10 12:45 UTC — run 114 release sha
+- #2595 merged. Set `release:84d3df99f7cfe389c00310a4a379ea58478a1c13` in v/ops-run-114 (fast-forward of 0cee259f, nothing else changed) and post the new commit sha in your outbox. I check main CI on that sha and give the owner the push line.
+
 ## Lead 3 order 2026-11-10 11:45 UTC — prepare the deploy run
 - #2597 merged (reviewed). Prepare run 114 on a branch from the ops tip 0cee259f (fast-forward): deploy the main tip at the moment X's #2595 merges (I tell you the sha in your inbox; prepare the RUN now with a placeholder `release:` line), then 96n-mongo-oom-cause + 96j-mongo-cache-check after the deploy, plus the usual post-deploy checks. No 91b APPLY in this run.
 - Confirm in the run that the two new medicine indexes exist after the deploy (read-only listIndexes).

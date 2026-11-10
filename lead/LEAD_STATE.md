@@ -1,6 +1,9 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-10 12:45 UTC
+- Merged #2595 (pharmacy + late_rescheduled keys, bundle trimmed; removed keys verified unused). Deploy blockers cleared.
+- Main tip 84d3df99 → V sets run 114 release; owner pushes after main CI is green. #2596 bundle fix pushed, CI running.
 ## Lead 3 run 2026-11-10 12:15 UTC
 - Merged #2589 (pharmacy: patient cancel refused from IN_FULFILLMENT, provider/admin cancel 100 %, returns need defect reason + photo).
 - #2595 bundle trim pushed (e22f433), CI running → then release sha to V for run 114 (v/ops-run-114 e6d82fa59, placeholder release line).
@@ -75,6 +78,3 @@ Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or
 - Merged #2579 (payout approvals claim on state; reviewed).
 - #2580 closed → #2582 (clean single commit), CI running. #2581 V fix pushed (seat collection from profile model db), CI running.
 - Owner still: push run 112b (`1e46d6c24`), no-show rule, R2 roll.
-## Lead 3 run 2026-11-10 03:42 UTC
-- Merged #2578. #2579 live-gate flake re-run (42745458848).
-- #2581 red (provider-own-price lab cases) → V ordered. #2580 still red Gitleaks (history) → Z ordered to rewrite own branch.
