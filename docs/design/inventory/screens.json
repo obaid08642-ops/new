@@ -1,5 +1,5 @@
 {
- "commit": "7a491a59",
+ "commit": "d447296c",
  "routes": [
   {
    "app": "patient-app",
@@ -2340,9 +2340,29 @@
      "file": "patient-app/src/components/orders/ResultsPanel.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:118"
+    },
+    {
+     "method": "POST",
+     "path": "/unified-bookings/:param/:param/:param",
+     "target": "backend",
+     "query": "",
+     "line": 126,
+     "file": "patient-app/src/components/orders/OrderList.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/unified-bookings/unified-bookings.module.ts:670"
+    },
+    {
+     "method": "GET",
+     "path": "/unified-bookings/mine",
+     "target": "backend",
+     "query": "?include_hidden=1",
+     "line": 84,
+     "file": "patient-app/src/components/orders/OrderList.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/unified-bookings/unified-bookings.module.ts:668"
     }
    ],
-   "files": 60,
+   "files": 61,
    "unresolved": 1
   },
   {
@@ -5780,9 +5800,29 @@
      "file": "patient-app/src/components/orders/ResultsPanel.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:118"
+    },
+    {
+     "method": "POST",
+     "path": "/unified-bookings/:param/:param/:param",
+     "target": "backend",
+     "query": "",
+     "line": 126,
+     "file": "patient-app/src/components/orders/OrderList.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/unified-bookings/unified-bookings.module.ts:670"
+    },
+    {
+     "method": "GET",
+     "path": "/unified-bookings/mine",
+     "target": "backend",
+     "query": "?include_hidden=1",
+     "line": 84,
+     "file": "patient-app/src/components/orders/OrderList.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/unified-bookings/unified-bookings.module.ts:668"
     }
    ],
-   "files": 60,
+   "files": 61,
    "unresolved": 1
   },
   {
@@ -17871,6 +17911,17 @@
      "handler": "patient-web/app/api/medical-reports/new-count/route.ts"
     },
     {
+     "method": "POST",
+     "path": "/api/patient/unified-bookings/:param/:param/:param",
+     "target": "web-proxy",
+     "query": "",
+     "line": 26,
+     "file": "patient-web/components-next/consult/hide-visit-button.tsx",
+     "backend": "backend/src/modules/unified-bookings/unified-bookings.module.ts:670",
+     "status": "PROXY_BLOCKED?",
+     "note": "blocked for every sample param value (UUID, slug, literals of the file)"
+    },
+    {
      "method": "GET",
      "path": "/api/patient/users/me/wishlist",
      "target": "web-proxy",
@@ -17905,7 +17956,7 @@
      "path": "/orders/mine",
      "target": "backend",
      "query": "",
-     "line": 55,
+     "line": 57,
      "file": "patient-web/components-next/orders/orders-screen.tsx",
      "status": "OK",
      "backend": "backend/src/modules/orders/orders.controller.ts:24"
@@ -17915,7 +17966,7 @@
      "path": "/patient/pharmacy/orders",
      "target": "backend",
      "query": "",
-     "line": 54,
+     "line": 56,
      "file": "patient-web/components-next/orders/orders-screen.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:38"
@@ -17925,13 +17976,23 @@
      "path": "/pharmacy/returns",
      "target": "backend",
      "query": "",
-     "line": 60,
+     "line": 62,
      "file": "patient-web/components-next/orders/orders-screen.tsx",
      "status": "OK",
      "backend": "backend/src/modules/returns/returns.controller.ts:20"
+    },
+    {
+     "method": "GET",
+     "path": "/unified-bookings/mine",
+     "target": "backend",
+     "query": "?include_hidden=1",
+     "line": 67,
+     "file": "patient-web/components-next/orders/orders-screen.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/unified-bookings/unified-bookings.module.ts:668"
     }
    ],
-   "files": 86,
+   "files": 89,
    "unresolved": 1
   },
   {
