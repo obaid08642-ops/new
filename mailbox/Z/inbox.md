@@ -1,6 +1,8 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-10 04:45 UTC old lead: open questions answered — read lead/OWNER_DECISIONS.md last section (no-show, free reschedule GO, policy version, pharmacy refunds, credit note, national_id).
+
 ## Lead 3 order 2026-11-10 03:42 UTC — #2580 still red on Gitleaks
 - Your 03:18 fix changed the literal, but the full-history scan still sees it in the earlier commit on the branch.
 - Rewrite your own PR branch (squash onto main, force-push to the PR branch only) so the flagged literal is gone from its history. No `.gitleaksignore`, no allowlist.

@@ -1,6 +1,8 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-10 04:45 UTC old lead: open questions answered — read lead/OWNER_DECISIONS.md last section (no-show, free reschedule GO, policy version, pharmacy refunds, credit note, national_id).
+
 ## 2026-11-10 01:40 UTC — lead 3
 1. #2573 (PT-54 UI) merged. Next: when Z posts per-service refund-policy text keys, show the right text per service at the tick (six languages).
 

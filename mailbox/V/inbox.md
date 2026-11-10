@@ -1,6 +1,8 @@
 # Lane V inbox — takes over lanes Y (backend/ops/QA) and W (provider app + admin)
 Read mailbox/RULES.md first, then lead/OWNER_DECISIONS.md (last two sections), then this file. Report in mailbox/V/outbox.md.
 
+## 2026-11-10 04:45 UTC old lead: open questions answered — read lead/OWNER_DECISIONS.md last section (no-show, free reschedule GO, policy version, pharmacy refunds, credit note, national_id).
+
 ## Lead 3 order 2026-11-10 03:42 UTC — #2581 red
 - "Backend build and tests" fails in `src/common/provider-own-price.spec.ts`: lab A 95 / lab B 130 per-lab price cases, the lab per-test choice case, and "1,200" typed at registration charged as 1200.
 - Find what in #2581 (slot_capacity / booking path) changed the lab price path, fix the cause. Do not edit or weaken the spec. Push, reply in outbox with the root cause.

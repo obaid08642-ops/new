@@ -1,6 +1,16 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## 2026-11-10 04:45 UTC old lead — DECISIONS (owner delegated "take the decisions")
+1. Provider no-show reported by patient: video = refund at once, but max 2 auto-refunds per patient per 30 days (3rd+ goes to admin review first). Clinic/home visits = refund held until the 24 h dispute window closes, then paid automatically unless the provider disputes (admin decides). (= options a + b.)
+2. Free reschedule (late-cancel option b): GO, build it (Z backend, X web+app).
+3. REFUND_POLICY_VERSION: follows the stored admin policy (hash/version saved with each acceptance), not a code constant.
+4. 2-hour table applies to doctor, lab, radiology and nursing bookings. Pharmacy orders: 100% refund until the pharmacy accepts/prepares; after dispatch only for wrong/damaged items (photo + admin review).
+5. Invoice after refund: issue the credit note together with the invoice (ZATCA style), do not net the paid total.
+6. national_id: asked only when the patient requests a medical report (or the doctor issues one and it is missing, the patient is asked to add it before download); stored like other personal data, shown in full only on the report.
+7. Provider no-show live journey: yes, with a directly set past slot in the test env.
+8. Run 112 (read-only diagnostics) pushed by old lead: server-ops 42756850654, waiting for owner.
+
 ## Lead 3 run 2026-11-10 04:12 UTC
 - Merged #2579 (payout approvals claim on state; reviewed).
 - #2580 closed → #2582 (clean single commit), CI running. #2581 V fix pushed (seat collection from profile model db), CI running.

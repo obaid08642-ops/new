@@ -48,3 +48,14 @@ The wallet stays removed; do not build a credit/balance system. Late cancellatio
 Unchanged: >= 2 h before = 100% card refund; patient no-show = 0%; provider cancels/no-show = 100% card refund at once; policy shown before payment with "I agree". Six languages.
 Until (b) ships, (a) is the only option (already live). Z backend, X patient (web+app), V admin refund-policy page shows this table.
 
+
+## 2026-11-10 04:45 UTC old lead — DECISIONS (owner delegated "take the decisions")
+1. Provider no-show reported by patient: video = refund at once, but max 2 auto-refunds per patient per 30 days (3rd+ goes to admin review first). Clinic/home visits = refund held until the 24 h dispute window closes, then paid automatically unless the provider disputes (admin decides). (= options a + b.)
+2. Free reschedule (late-cancel option b): GO, build it (Z backend, X web+app).
+3. REFUND_POLICY_VERSION: follows the stored admin policy (hash/version saved with each acceptance), not a code constant.
+4. 2-hour table applies to doctor, lab, radiology and nursing bookings. Pharmacy orders: 100% refund until the pharmacy accepts/prepares; after dispatch only for wrong/damaged items (photo + admin review).
+5. Invoice after refund: issue the credit note together with the invoice (ZATCA style), do not net the paid total.
+6. national_id: asked only when the patient requests a medical report (or the doctor issues one and it is missing, the patient is asked to add it before download); stored like other personal data, shown in full only on the report.
+7. Provider no-show live journey: yes, with a directly set past slot in the test env.
+8. Run 112 (read-only diagnostics) pushed by old lead: server-ops 42756850654, waiting for owner.
+
