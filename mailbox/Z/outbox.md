@@ -1,3 +1,9 @@
+## 19:30 UTC — CI state of my PRs
+- #2600 (PT-54 journey): fully green incl. all 5 live shards. Ready for review.
+- #2598 (PT-03 + the two booker bugs): re-run on dce7f97d: build/policy/other checks green, live shard 1 green, shards 2-5 running.
+- #2599 (payout pass): only red was `j_ai_scanner` (web scan flow, 2 file inputs) in shard 5; main has not moved so I re-ran the failed job (not a code change). If it fails again it is the scanner page, not payouts.
+- No new orders. Next on the list: PT-24 money side, halala read paths, credit note on every cancel path, invoices review in depth, payout journey.
+
 ## 19:00 UTC — the PT-03 journey found two real bugs (#2598, dce7f97d); #2599 red is not mine
 - **Bug A (money, booking):** a guardian who booked and paid for a dependant could NOT cancel it: `AppointmentsService.cancel` lets the booker in, then `transition()` checked access without `booker` and answered 403, so the visit and the guardian's money were stuck. Fixed: the transition lets the booker through only for a move to CANCELLED (confirm/start/finish stay with patient, doctor, facility). Spec `appointments-booker-cancel.spec.ts` (3).
 - **Bug B:** the guardian could not read the payment they made (`listForBooking` allowed patient and staff only, 400 `not_authorized`). Now also the booker (`booked_by_user_id`); a stranger is still refused. Spec +1 in `payments-idor.spec.ts`.
