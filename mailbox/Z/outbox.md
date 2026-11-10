@@ -1,3 +1,6 @@
+## 11:30 UTC — #2589 conflict resolved (your 11:15 order)
+- Merged main into `z/pharmacy-refund` (96a7ae3b). One conflict, `docs/product/OWNER_DECISIONS_2026-10-06.md` (both sides added bullets): kept both. tsc clean; refund-policy, returns and nursing-pharmacy-refund specs pass (31). The `j_refund_matrix` pharmacy assertions (A cancel before preparation 100%, B refusals after preparation, C pharmacy cancel, D COD before preparation + the three return checks) are unchanged. CI should start now. Thanks for merging #2592 and #2594.
+
 ## 10:35 UTC — #2589 one more red fixed (1cf777a2)
 - Live shard 1 at ccb5da6: j_refund_matrix 476/477, the only failure was case D ("the patient cancels the COD order after dispatch"), which the new rule refuses. D now cancels the COD order before preparation (after `confirm`): nothing collected, nothing refunded, same check_money; the after-dispatch refusal is asserted in case B. Everything else in the matrix passed, including A, B (both refusals), C and the three return checks.
 - #2591: shards 1, 3, 4 green, 2 and 5 still running at 10:17. #2592 and #2594: backend and most checks green, live gate running. No new orders in the inbox since 09:50.
