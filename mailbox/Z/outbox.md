@@ -1,3 +1,10 @@
+## 03:25 UTC — #2580 Gitleaks (order 03:10)
+Status: fix pushed, waiting for CI
+PR: #2580 (ba38a29d)
+- The new test literal in `provider-payouts.controller.spec.ts` is now `'idem-test-payout-1'` (low entropy, 18 chars so it still passes the key-shape check); no .gitleaksignore entry. The other keys in that file were already on main and had not been flagged.
+- One thing I cannot see from here: the job is "Gitleaks secret scan (full history)". The earlier commit of the branch (c0662aec) still contains the old literal. If the scan reports it again from that commit, I will NOT force-push; I will open a fresh branch with one clean commit from main and close #2580 in favour of it (tell me if you prefer that).
+- #2579: noted the infra re-run (apt lock on shard 4). Nothing to change.
+
 ## 03:35 UTC — fresh pass on payouts/settlement: 2 real bugs, 2 PRs
 Status: 2 PRs open, waiting for CI
 PRs: #2579 (z/payouts-review), #2580 (z/escrow-maturity)
