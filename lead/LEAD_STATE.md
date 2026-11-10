@@ -1,6 +1,10 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-10 09:15 UTC
+- Merged #2590 (X refund-policy keys, six languages) → deploy blocker cleared.
+- #2591 red (real): j_sick_leave PDF 409 after national_id gate → Z ordered to update journey (assert 409, add id, download). #2589/#2592 CI running.
+- Owner: run 113 (0cee259f) still not pushed (~4 h). R2 roll pending.
 ## Lead 3 run 2026-11-10 08:40 UTC
 - No merges. CI running: #2589 (Z pharmacy refund), #2590 (X refund keys — deploy blocker), #2591 (Z national_id), #2592 (Z no-show journey). V idle waiting for run 113.
 ## Lead 3 run 2026-11-10 08:20 UTC
@@ -74,7 +78,3 @@ Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or
 ## Lead 3 run 2026-11-09 22:40 UTC
 - #2566 OK but conflict (Z); #2568 conflict (X); #2567 CI. V new queue: dtolint gate fix, PT-54, #2336 triage. Run 112b still waits for owner push.
 ## Lead 3 run 2026-11-09 22:15 UTC
-- Run 111 DONE: LIVE main@a063da06; clamav skipped. Merged #2565 (invoice unique), #2564, #2563. Run 112b @1e46d6c2 (read-only + 91b dry run) → owner push. X: 'being checked' UI audit before defer. Z: invoice number gap question.
-## Lead 3 run 2026-11-09 21:40 UTC
-- Run 111 pushed as deploy-only main@a063da06 (server-ops 42701390983 waiting approval). V to rebuild run 112 (96k/96m/96c + 91b dry run) on 6453740b. Merged #2560 (web tick).
-## Lead 3 run 2026-11-09 21:10 UTC

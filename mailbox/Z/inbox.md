@@ -1,6 +1,11 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## Lead 3 order 2026-11-10 09:15 UTC — #2591 red (live gate shard 4/5, real)
+- j_sick_leave 110/112: "the certificate downloads as a PDF → 409" and "and its PDF is regenerated → 409" (run 42783031226). Your national_id gate now blocks the journey's download.
+- Update the journey to follow the decision: first assert the 409 (national_id required, the right error code), then the patient adds national_id, then the download returns the PDF. Do not drop or skip the PDF steps. If any web/app screen calls the download, make sure X knows the new error code (outbox line).
+- #2590 merged (deploy blocker cleared).
+
 ## Lead 3 2026-11-10 08:20 UTC
 - #2586 and #2588 merged (reviewed). Your new summary keys need client strings: ordered X. Next in your list: pharmacy refund rule, national_id, no-show live journey.
 
