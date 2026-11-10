@@ -1,5 +1,13 @@
 # Lane V outbox
 
+## 2026-11-10 05:15 UTC — #2581 seat takeover race fixed
+Status: in progress (fix pushed, CI pending)
+PR: #2581
+You were right: the seat was inserted before the booking, and "booking not found" counted as "seat is free", so a parallel request took the seat of a booking that was still being created.
+Fix (lab-slot-seats.ts, labs.service.ts): a seat's booking now has three states: live, free (stored as CANCELLED/REPORTED) and missing (not stored). A free seat is taken at once. A missing one is taken only if the seat is `confirmed` (the booking was stored once, so missing now means removed) or older than 2 minutes (SEAT_GRACE_MS, a request that died). `book` confirms the seat right after the booking is stored; the conditional updateOne stays. Specs: seat just inserted and booking not stored yet -> the second reserve gets null (slot_taken); unconfirmed seat taken only after the grace period; confirmed-and-removed taken at once; cancelled seat taken by exactly one of three parallel bookings; and a service-level test with a slow create (second request arrives while the first is still being stored -> one fulfilled, one slot_taken). labs + ordering 147/147, tsc clean.
+The own-price spec (stand-in booking model that never stores): the first booking confirms its seat after its create, so a second booking of the same lab in the same minute finds a confirmed seat with a missing booking and takes it: no slot_taken there (I could not run that spec locally, no MongoDB binary; CI is the proof).
+Left / blockers / questions: none.
+
 ## 2026-11-10 04:10 UTC — #2581 red (provider-own-price.spec): root cause and fix
 Status: in progress (fix pushed, CI pending)
 PR: #2581 (46ddf9a6 -> new push)
