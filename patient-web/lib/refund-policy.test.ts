@@ -1,5 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
-import { readRefundSummary, refundSummaryPath, withRefundPolicy } from "./refund-policy";
+import { KNOWN_LINES, readRefundSummary, refundSummaryPath, withRefundPolicy } from "./refund-policy";
+import ar from "../messages/ar.json";
+import bn from "../messages/bn.json";
+import en from "../messages/en.json";
+import fil from "../messages/fil.json";
+import hi from "../messages/hi.json";
+import ur from "../messages/ur.json";
 import { sendBroadcast } from "./pharmacy/broadcast";
 
 const ADDRESS = { id: "a1", lat: 24.7, lng: 46.7, city: "Riyadh", district: "Test", street: "Test street" } as never;
@@ -50,5 +56,34 @@ describe("the per-service refund text", () => {
   it("reads nothing from a broken answer", () => {
     expect(readRefundSummary(null)).toEqual([]);
     expect(readRefundSummary({ lines: "x" })).toEqual([]);
+  });
+});
+
+describe("the 2-hour table lines (lab, radiology, nursing)", () => {
+  const SERVICES = ["lab", "radiology", "nursing"] as const;
+  it("keeps each line the server sends for the three services, with its numbers", () => {
+    for (const service of SERVICES) {
+      const lines = readRefundSummary({ service, lines: [
+        { key: `refund.policy.${service}.full`, params: { hours: 2 } },
+        { key: `refund.policy.${service}.late`, params: { hours: 2, percent: 50 } },
+      ] });
+      expect(lines).toEqual([
+        { key: `${service}_full`, params: { hours: 2 } },
+        { key: `${service}_late`, params: { hours: 2, percent: 50 } },
+      ]);
+    }
+  });
+  it("has a message for every line key the reader accepts, in all six languages, with the server's numbers in it", () => {
+    const files = { ar, bn, en, fil, hi, ur } as Record<string, { RefundPolicy: Record<string, string> }>;
+    for (const [lang, file] of Object.entries(files)) {
+      for (const key of KNOWN_LINES) {
+        const text = file.RefundPolicy[`policy_${key.replace(/\./g, "_")}`];
+        expect(text, `${lang} ${key}`).toBeTruthy();
+      }
+      for (const service of SERVICES) {
+        expect(file.RefundPolicy[`policy_${service}_full`], `${lang} ${service}.full`).toContain("{hours}");
+        expect(file.RefundPolicy[`policy_${service}_late`], `${lang} ${service}.late`).toContain("{percent}");
+      }
+    }
   });
 });

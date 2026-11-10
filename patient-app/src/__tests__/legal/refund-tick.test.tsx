@@ -4,7 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { RefundPolicyTick } from '../../components/legal/RefundPolicyTick';
 import { message } from '../../components/screen/ScreenKit';
-import { withRefundPolicy } from '../../utils/refundAcceptance';
+import { KNOWN_LINES, withRefundPolicy } from '../../utils/refundAcceptance';
 import { startAsap } from '../../utils/orderingBooking';
 import { startInstant } from '../../utils/orderingDiscuss';
 import { createPharmacyOrderSender } from '../../utils/pharmacyOrderSend';
@@ -23,6 +23,23 @@ const bodyOf = (call: unknown[]) => JSON.parse((call[1] as { body: string }).bod
 beforeEach(() => mockApiFetch.mockReset());
 
 describe('the refund policy tick', () => {
+  it.each(['lab', 'radiology', 'nursing'] as const)('shows the 2-hour table lines the server sends for %s, with hours and percent', async (service) => {
+    mockApiFetch.mockResolvedValueOnce({ service, lines: [
+      { key: `refund.policy.${service}.full`, params: { hours: 2 } },
+      { key: `refund.policy.${service}.late`, params: { hours: 2, percent: 50 } },
+    ] });
+    await render(<SafeAreaProvider initialMetrics={metrics}><RefundPolicyTick service={service} checked={false} onChange={jest.fn()} /></SafeAreaProvider>);
+    expect(await screen.findByText('Cancel at least 2 hours before the visit and get 100% back.')).toBeTruthy();
+    expect(screen.getByText('If you cancel later than that, 50% is returned to your card.')).toBeTruthy();
+    expect(screen.queryByText(k('refund.general'))).toBeNull();
+  });
+  it('has a message in every language for every line key the reader accepts', () => {
+    for (const lang of ['ar', 'en', 'ur', 'hi', 'bn', 'fil']) {
+      for (const key of KNOWN_LINES) {
+        expect(message(lang, `refund.policy.${key}`)).not.toBe(`refund.policy.${key}`);
+      }
+    }
+  });
   it('shows the lines the server sends for the service, in the app language, with their numbers', async () => {
     mockApiFetch.mockResolvedValueOnce({ service: 'lab', lines: [
       { key: 'refund.policy.lab.before_transit', params: {} },

@@ -4181,11 +4181,16 @@
   "refund.policy.nursing.before_transit": "নার্স রওনা হওয়ার আগে বাতিল করলে ১০০% ফেরত পাবেন।",
   "refund.policy.nursing.after_transit": "নার্স রওনা হওয়ার পরে যাতায়াত ফি {trip_fee_sar} রিয়াল রাখা হয় এবং বাকিটা ফেরত দেওয়া হয়।",
   "refund.policy.nursing.patient_absent": "ভিজিটের সময় আপনি না থাকলে {percent}% ফেরত পাবেন।",
-  "refund.policy.radiology.full": "রেডিওলজি বুকিংয়ের পুরো টাকা ফেরত দেওয়া হয়।",
+  "refund.policy.radiology.full": "ভিজিটের অন্তত {hours} ঘণ্টা আগে বাতিল করলে ১০০% ফেরত পাবেন।",
   "refund.policy.pharmacy.before_dispatch": "অর্ডার পাঠানোর আগে বাতিল করলে পুরো টাকা ফেরত পাবেন।",
   "refund.policy.pharmacy.before_dispatch_fee": "অর্ডার পাঠানোর আগে বাতিল করলে ডেলিভারি ফিসহ পুরো টাকা ফেরত পাবেন।",
   "refund.policy.pharmacy.after_dispatch": "পাঠানোর পরে ডেলিভারি ফি রাখা হয় এবং বাকিটা ফেরত দেওয়া হয়।",
   "refund.policy.pharmacy.after_delivery": "ডেলিভারির পরে শুধু পণ্য ভুল, ক্ষতিগ্রস্ত, ত্রুটিপূর্ণ বা মেয়াদোত্তীর্ণ হলে টাকা ফেরত পাবেন।",
   "refund.policy.card_destination": "টাকা মূল পেমেন্ট পদ্ধতিতেই ফেরত যায়, ওয়ালেটে নয়।",
-  "consult.cancel.lateOffer": "ভিজিট খুব কাছে, তাই বাতিল করলে পেমেন্টের শুধু একটি অংশ ফেরত পাবেন। এর বদলে আপনি একবার বিনামূল্যে {days} দিনের মধ্যে অন্য সময়ে সরাতে পারেন।"
+  "consult.cancel.lateOffer": "ভিজিট খুব কাছে, তাই বাতিল করলে পেমেন্টের শুধু একটি অংশ ফেরত পাবেন। এর বদলে আপনি একবার বিনামূল্যে {days} দিনের মধ্যে অন্য সময়ে সরাতে পারেন।",
+  "refund.policy.lab.full": "ভিজিটের অন্তত {hours} ঘণ্টা আগে বাতিল করলে ১০০% ফেরত পাবেন।",
+  "refund.policy.lab.late": "এর পরে বাতিল করলে {percent}% আপনার কার্ডে ফেরত যাবে।",
+  "refund.policy.nursing.full": "ভিজিটের অন্তত {hours} ঘণ্টা আগে বাতিল করলে ১০০% ফেরত পাবেন।",
+  "refund.policy.nursing.late": "এর পরে বাতিল করলে {percent}% আপনার কার্ডে ফেরত যাবে।",
+  "refund.policy.radiology.late": "এর পরে বাতিল করলে {percent}% আপনার কার্ডে ফেরত যাবে।"
 }

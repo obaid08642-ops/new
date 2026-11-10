@@ -5999,11 +5999,16 @@
     "policy_nursing_before_transit": "ألغِ قبل انطلاق الممرض واسترد 100%.",
     "policy_nursing_after_transit": "بعد انطلاق الممرض تُحتسب رسوم المشوار {trip_fee_sar} ر.س ويُعاد الباقي.",
     "policy_nursing_patient_absent": "إذا لم تكن موجودًا وقت الزيارة يُعاد {percent}%.",
-    "policy_radiology_full": "تُرد حجوزات الأشعة كاملة.",
+    "policy_radiology_full": "ألغِ قبل الموعد بـ {hours} ساعات على الأقل واسترد 100%.",
     "policy_pharmacy_before_dispatch": "ألغِ قبل شحن الطلب لاسترداد كامل المبلغ.",
     "policy_pharmacy_before_dispatch_fee": "ألغِ قبل شحن الطلب لاسترداد كامل المبلغ شاملًا رسوم التوصيل.",
     "policy_pharmacy_after_dispatch": "بعد شحن الطلب تُحتسب رسوم التوصيل ويُعاد الباقي.",
     "policy_pharmacy_after_delivery": "بعد التسليم يُرد المبلغ فقط إذا كان المنتج خاطئًا أو تالفًا أو معيبًا أو منتهي الصلاحية.",
-    "policy_card_destination": "يُعاد المبلغ إلى وسيلة الدفع الأصلية وليس إلى محفظة."
+    "policy_card_destination": "يُعاد المبلغ إلى وسيلة الدفع الأصلية وليس إلى محفظة.",
+    "policy_lab_full": "ألغِ قبل الموعد بـ {hours} ساعات على الأقل واسترد 100%.",
+    "policy_lab_late": "إذا ألغيت بعد ذلك يُعاد {percent}% إلى بطاقتك.",
+    "policy_nursing_full": "ألغِ قبل الموعد بـ {hours} ساعات على الأقل واسترد 100%.",
+    "policy_nursing_late": "إذا ألغيت بعد ذلك يُعاد {percent}% إلى بطاقتك.",
+    "policy_radiology_late": "إذا ألغيت بعد ذلك يُعاد {percent}% إلى بطاقتك."
   }
 }
