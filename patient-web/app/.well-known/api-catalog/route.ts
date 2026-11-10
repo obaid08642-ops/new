@@ -11,6 +11,7 @@ const catalog = {
         {
           href: `${apiOrigin}/nursing/catalog`,
           rel: ["item"],
+          // i18n-ok: machine-readable discovery metadata for agents and API clients (English by design), not shown to patients
           title: "Published nursing catalog",
           type: "application/json",
           "service-desc": [{ href: `${origin}/.well-known/openapi.json`, type: "application/vnd.oai.openapi+json" }],
@@ -20,6 +21,7 @@ const catalog = {
         {
           href: `${apiOrigin}/radiology/services`,
           rel: ["item"],
+          // i18n-ok: machine-readable discovery metadata for agents and API clients (English by design), not shown to patients
           title: "Published radiology services",
           type: "application/json",
           "service-desc": [{ href: `${origin}/.well-known/openapi.json`, type: "application/vnd.oai.openapi+json" }],
