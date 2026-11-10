@@ -80,6 +80,23 @@ def main():
     r = pat.get(f'/care/sick-leaves/{cert_id}')
     step('the certificate in full: the reason, the consultation, the booking reference; no diagnosis (the doctor did not show it)',
          r.ok and r.get('reason') == 'مرض حاد يحتاج راحة' and r.get('booking_ref') and r.get('consultation_at') and r.get('diagnosis') is None and r.get('days') == 3, r)
+    # owner decision 6 (2026-11-10): the national ID is asked for only now, when the report needs it
+    r = pat.get('/care/sick-leaves/national-id')
+    step('the patient has not given an ID number yet (status, nothing shown)', r.ok and r.get('has_national_id') is False and r.get('national_id') is None, r)
+    r = pat.get(f'/care/sick-leaves/{cert_id}')
+    step('the report says the ID number is needed', r.ok and r.get('needs_national_id') is True, r)
+    r = pat.get(f'/care/sick-leaves/{cert_id}/pdf')
+    step('the download is refused until the number is added (409 national_id_required)', r.status == 409 and 'national_id_required' in str(r.body), r)
+    r = pat.req('PUT', '/care/sick-leaves/national-id', {'national_id': '1234567890'})
+    step('an invalid number is refused (400 national_id_invalid)', r.status == 400 and 'national_id_invalid' in str(r.body), r)
+    r = pat.req('PUT', '/care/sick-leaves/national-id', {'national_id': '1098765439'})
+    step('the patient adds a valid number: it comes back masked', r.ok and r.get('has_national_id') is True and r.get('national_id') == '*******439', r)
+    raw_id = health_db.find_raw('patient_identity', {'user_id': raw.get('patient_id')}) if raw.get('patient_id') else None
+    step('the number is ciphertext in the database', bool(raw_id) and health_db.is_cipher(raw_id.get('national_id')), (raw_id or {}).get('national_id'))
+    r = pat.get(f'/care/sick-leaves/{cert_id}')
+    step('the report now shows the number in full', r.ok and r.get('national_id') == '1098765439' and r.get('needs_national_id') is False, r)
+    r = pat.get('/care/sick-leaves')
+    step('the list shows it masked', r.ok and all(x.get('national_id') in (None, '*******439') for x in r.items()), r)
     r = pat.get(f'/care/sick-leaves/{cert_id}/pdf')
     ctype = next((v for k, v in r.headers.items() if k.lower() == 'content-type'), '')
     step('the certificate downloads as a PDF', r.ok and 'application/pdf' in ctype and isinstance(r.body, str) and r.body.startswith('%PDF'), f'{r.status} {ctype} {str(r.body)[:12]!r}')
