@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsInt, IsNumber, IsObject, IsOptional, IsString, Max, MaxLength, Min, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { LabBookingState } from '../../schemas/lab.schema';
 import { AttributionDto } from '../../common/attribution';
@@ -351,4 +351,13 @@ export class BulkApproveCatalogDto {
   @IsOptional()
   @IsBoolean()
   approve?: boolean;
+}
+
+/** PUT labs/provider/slot-capacity: how many bookings the lab takes at the same time slot. */
+export class SlotCapacityDto {
+  @IsDefined()
+  @IsInt()
+  @Min(1)
+  @Max(20)
+  slot_capacity: number;
 }
