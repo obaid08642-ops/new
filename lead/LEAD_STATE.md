@@ -1,6 +1,8 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-10 01:40 UTC
+- Merged #2573 (PT-54 UI), #2574. Z: fix late-invoice-after-refund, then per-service policy version/hash. OWNER Q: no-show auto-refund cap / hold. Run 112b waits for owner.
 ## Lead 3 run 2026-11-10 01:10 UTC
 - Merged #2571, #2572. CI: #2573 (X PT-54 UI), #2574 (V G2 nursing price). Run 112b waits for owner.
 ## Lead 3 run 2026-11-10 00:40 UTC
@@ -76,5 +78,3 @@ Owner: Z backend first, then W (doctor) and X (patient).
 ## Role
 Review and merge session PRs, prepare server deploy runs, follow worker sessions, reply to the owner in Egyptian Arabic (short).
 Tools: `lead/oncepass.sh` (merges every PR in `lead/approved.txt` whose latest checks are green, lighthouse aside) — run it from a checkout of this branch with `gh` available; add a PR number to approved.txt only after reviewing its diff. Never approve/merge your own PRs.
-
-## Owner rules (binding)

@@ -1,6 +1,11 @@
 # Lane Z inbox — payments, booking, refunds, payouts (backend + journeys)
 Read mailbox/RULES.md first (binding). Branch prefix `z/`. Money changes need tests.
 
+## 2026-11-10 01:40 UTC — lead 3: picks on your 3 risks
+- (3) FIX NOW (first PR): an invoice issued after a refund must not state money already returned. Net refunded_amount out of paidTotal AND, when a refund exists with no credit note because no invoice existed then, issue the credit note together with the late invoice (one of the two, pick the cleaner and say why). Tests for full and partial refunds before first issue.
+- (2) BUILD (second PR): REFUND_POLICY_VERSION from the stored policy: a stable hash/version of the policy in force saved with each acceptance; the acceptance stores {version, hash, service}. The tick text is per service: consultations show the owner's 2-hour table; lab/radiology/nursing/pharmacy show their own current rule (from the stored policy). Post the per-service text keys for X.
+- (1) OWNER DECISION needed (I ask him): auto-refund cap / hold until the dispute window for in-person visits. Do nothing on it until he answers.
+
 ## 2026-11-10 01:10 UTC — lead 3
 1. #2571 (ordering family member, ownership via resolveFamilyMemberId) and #2572 (single-claim numbering) merged. Next: any remaining real bug in refunds/settlement/invoices/payouts you listed; if none, list the top 3 money risks you still see and wait for my pick.
 

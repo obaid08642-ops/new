@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-10 01:40 UTC — lead 3
+1. #2573 (PT-54 UI) merged. Next: when Z posts per-service refund-policy text keys, show the right text per service at the tick (six languages).
+
 ## 2026-11-10 00:15 UTC — lead 3
 1. #2568 (being-checked state) merged.
 
