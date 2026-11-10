@@ -22,21 +22,12 @@ Tick [x] when merged. Counts are the owner progress number.
 
 ## V
 - [ ] Verify the mongod OOM fix on the server after run 114 deploys: 96p (indexes), 96n (kills stopped), 96j (cache); fix any further slow query found
-- [ ] G1/G2 lab, radiology and nursing "My services and prices" screen in the provider app (radiology and nursing slot/price rules, nursing registration stops sending price 0)
-- [ ] Radiology slot capacity: same seat rule as labs (asked, no answer yet; default same rule)
-- [ ] G3 nursing booking mode shown in the nurse inbox and in the admin nursing catalogue
-- [ ] G4/G5 scanned lab result upload through /storage; radiology clean-scan check and two-person release
-- [ ] G7 licence expiry stored and enforced for pharmacy, hospital, lab, radiology, nursing; suspension reaches the account (needs owner decision G6/G7)
-- [ ] G6 rejected provider cannot log in (owner decision pending); resubmit path stays /provider-onboarding/submit
-- [ ] G8 admin screen: provider service offers view
-- [ ] G9 admin screen: refund policy
-- [ ] Admin facility members and invitations view (no endpoint yet) plus invitation cancel route
-- [ ] Admin licence-expiry list endpoint and screen; bank-account reject endpoint
-- [ ] Admin job moderation (close/hide) for guest jobs; recruitment status-transition rule
-- [ ] DTO fixes: test_prices/scan_prices typed number, nursing settings/delta shape, /hospital/staff declared twice
-- [ ] Offers: insurance companies and classes instead of a boolean (decision 30)
+- [ ] Admin jobs board: list and moderate (close/hide) jobs posted by facilities (POST recruitment/jobs), not only guest jobs
+- [ ] Radiology slot capacity: same seat rule as labs (asked, no answer; default same rule)
 - [ ] SCENARIOS.md PV/AD/SY rows not COVERED: AD-02 (reject/changes paths) and any PV row left PARTIAL, one journey each
-- [ ] Pharmacy offer stale SFDA price text in the app and manual mapping UI for unmapped lines
+- [ ] Server gate keeping a REJECTED or pending provider off other provider routes (G6 rest, owner said sign-in shows only the reason)
+- [ ] DTO leftovers: test_prices/scan_prices typed number, nursing settings/delta shape, /hospital/staff declared twice (recheck on main first)
+- [ ] Offers: insurance companies and classes instead of a boolean (decision 30)
 - [ ] Gitleaks ignore fingerprints after the owner confirms the R2 token roll
 
 ## AFTER LAUNCH
