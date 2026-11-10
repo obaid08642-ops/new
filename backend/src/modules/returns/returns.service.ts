@@ -213,7 +213,7 @@ export class ReturnsService {
     let reviewedItems: any[] = [];
     if (String(data.serviceType).toLowerCase().includes('pharm')) {
       // Owner decision 2026-11-10: after the pharmacy has prepared the order only a wrong, damaged or expired item is refunded, with a photo, and an admin reviews it.
-      if (!PHARMACY_DEFECT_REASONS.includes(normalizeReasonCode(data.reason) as any)) throw new BadRequestException('pharmacy_return_needs_a_defect_reason');
+      if (!PHARMACY_DEFECT_REASONS.includes(normalizeReasonCode(data.reason_code ?? data.reason) as any)) throw new BadRequestException('pharmacy_return_needs_a_defect_reason');
       if (!Array.isArray(data.attachedDocs) || !data.attachedDocs.length) throw new BadRequestException('photo_evidence_required');
       const el = await this.eligibility(userId, data.orderId);
       if (!el.eligible) {
