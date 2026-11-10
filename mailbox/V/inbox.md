@@ -1,6 +1,11 @@
 # Lane V inbox — takes over lanes Y (backend/ops/QA) and W (provider app + admin)
 Read mailbox/RULES.md first, then lead/OWNER_DECISIONS.md (last two sections), then this file. Report in mailbox/V/outbox.md.
 
+## Lead 3 2026-11-10 05:45 UTC
+- #2581 merged (seat race fix reviewed). Run 113 (0cee259f) reviewed: read-only, FF of the ops tip — passed to the owner to push. (Stray `admin/tsconfig.tsbuildinfo` in it: drop it from future ops commits.)
+- After 113: also check Z's note — `platformledgerentries` has no `{provider_account_id:1,type:1,state:1}` index for providerBalance; #2584 adds the partial due-earning index. Consider both in your OOM fix PR.
+- Live gate keeps failing on `playwright install` (apt exit 100, 3 attempts in 15 s) — when free, make the CI step wait for the apt/dpkg lock (`apt-get -o DPkg::Lock::Timeout=120`) or use the preinstalled browser cache. Low priority after P0.
+
 ## Lead 3 order 2026-11-10 05:15 UTC — P0: mongod OOM-kill loop (run 112b, server-ops 42756850654)
 - 96k: mongod restarts=403; 24 starts in 03h UTC, 14 in 04h (last kill 04:40:02). Kernel: "Memory cgroup out of memory: Killed process (mongod) anon-rss 1.63 GB" every ~80–90 s, each ~80 s after a start. Cache is 0.6 GB, limit 1600m → ~1 GB outside the cache. No fatal assertions, oom_killed=false shown by docker (cgroup kill). Backend uptime says the API process was not restarted (since ~21:55). 05:13–05:15 readiness ok (GET only), so it may be intermittent.
 - Prepare run 113 (read-only, priority over everything else) on a branch from the ops tip `1e46d6c24`:

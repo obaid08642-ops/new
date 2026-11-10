@@ -1,6 +1,9 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Lead 3 run 2026-11-10 05:45 UTC
+- Merged #2581 (lab slot capacity + seat race fix). #2583 live-gate Playwright flake re-run. #2584 (Z: self-gate skip when index exists + partial due-earning index for #2582 cron) CI running.
+- Run 113 (V, 0cee259f, read-only mongo OOM cause) reviewed OK → owner to push. Prod readiness ok at 05:15.
 ## Lead 3 run 2026-11-10 05:15 UTC
 - Run 112b done (server-ops 42756850654). P0: mongod cgroup OOM loop (403 restarts; 38 in 03–04h; 1.63 GB RSS vs 0.6 GB cache, limit 1600m). Prod readiness ok 05:13–05:15 (GET). V ordered: run 113 read-only diagnostics → find culprit job/query. Z asked about self-gate aggregations.
 - ClamAV: container absent; UPLOAD_SCAN=defer + ON_DEMAND already set, window cron installed, window never started (MemAvailable 1217 < 1700). 91b dry run clean. APPLY after mongo P0.
@@ -75,6 +78,3 @@ Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or
 - Run 110 = v/ops-run-110 @454074c4 (96k+96m read-only, deploy main@9269ee61, 96j-ledger, cf purge) reviewed OK; owner asked to push. #2552 conflict (X). #2551 race fix pushed (CI). #2550 still red.
 ## Lead 3 run 2026-11-09 15:45 UTC
 - Merged #2549. #2551 green but held: decide() claws back before the CAS update (double clawback race) → Z fix. #2546 (V) still red since 14:15; run 110 not prepared by V yet.
-## Lead 3 run 2026-11-09 15:15 UTC
-- Merged #2544 (app bundle -7.1 MB, budget lowered), #2543 (medical report backend), #2547 (admin refund card). #2550 red: old specs need refund_policy_accepted → Z. Waiting V run 110 sha.
-## Lead 3 run 2026-11-09 14:45 UTC
