@@ -1,3 +1,5 @@
+import { normaliseNationalId } from '../../common/patient-national-id';
+import { resetFieldCrypto } from '../../common/pdpl-compliance.module';
 import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { initialsOf, maskNationalId, newVerifyCode, planLeave, riyadhDay, serialOf, CODE_RE } from './sick-leave-rules';
 import { SickLeaveService } from './sick-leave.service';
@@ -63,7 +65,7 @@ describe('codes, serials, masks', () => {
 
 // ── the service, against an in-memory store ──────────────────────────────────────────────────────────────────────────────────────────────
 function store() {
-  const data: Record<string, any[]> = { medicalreports: [], appointments: [], provider_profiles: [], users: [], provider_accounts: [], sick_leave_counters: [] };
+  const data: Record<string, any[]> = { medicalreports: [], appointments: [], provider_profiles: [], users: [], provider_accounts: [], sick_leave_counters: [], patient_identity: [], patient_profiles: [] };
   const eq = (a: any, b: any) => (b === null ? a == null : a === b);
   const match = (row: any, f: any): boolean => Object.entries(f).every(([k, v]: [string, any]) => {
     if (k === '$or') return (v as any[]).some((c) => match(row, c));
@@ -83,8 +85,10 @@ function store() {
       if (name === 'medicalreports' && d.verify_code && data[name].some((r) => r.verify_code === d.verify_code)) throw Object.assign(new Error('dup'), { code: 11000 });
       data[name].push(d);
     },
-    updateOne: async (f: any, u: any) => {
-      const r = data[name].find((x) => match(x, f));
+    createIndex: async () => 'ok',
+    updateOne: async (f: any, u: any, o?: any) => {
+      let r = data[name].find((x) => match(x, f));
+      if (!r && o?.upsert) { r = { ...(u.$setOnInsert || {}) }; data[name].push(r); }
       if (!r) return { matchedCount: 0 };
       if (u.$set) Object.assign(r, u.$set);
       if (u.$push) for (const [k, v] of Object.entries(u.$push)) (r[k] ??= []).push(v);
@@ -431,5 +435,49 @@ describe('audit log', () => {
     expect(rows[2].details).toEqual({ previous: 'PGB-12345678', current: 'PGB-87654321' });
     expect(rows[3].details).toEqual({ reason: 'mistake' });
     expect(rows.every((r) => r.user_id === 'doc-1' && r.resource_id === a.serial)).toBe(true);
+  });
+});
+
+
+describe('national ID (owner decision 6): asked only for a medical report, stored encrypted', () => {
+  const saved = process.env.FIELD_ENCRYPTION_KEY;
+  beforeAll(() => { process.env.FIELD_ENCRYPTION_KEY = Buffer.alloc(32, 9).toString('base64'); resetFieldCrypto(); });
+  afterAll(() => { if (saved === undefined) delete process.env.FIELD_ENCRYPTION_KEY; else process.env.FIELD_ENCRYPTION_KEY = saved; resetFieldCrypto(); });
+  const VALID = '1098765439'; // passes the check digit
+  it('validates length, first digit and the check digit; Arabic digits are accepted', () => {
+    expect(normaliseNationalId(VALID)).toBe(VALID);
+    expect(normaliseNationalId('١٠٩٨٧٦٥٤٣٩')).toBe(VALID);
+    for (const bad of ['', '123', '3098765431', '1098765432', 'abcdefghij', undefined, 12345678901]) expect(() => normaliseNationalId(bad)).toThrow('national_id_invalid');
+  });
+  it('saving stores ciphertext, status shows it masked, an invalid number is refused', async () => {
+    const w = world();
+    w.data.users[0].national_id = undefined;
+    expect(await w.svc.nationalIdStatus('pat-1')).toEqual({ has_national_id: false, national_id: null });
+    await expect(w.svc.setNationalId('pat-1', '1234567890')).rejects.toThrow('national_id_invalid');
+    expect(await w.svc.setNationalId('pat-1', VALID)).toEqual({ has_national_id: true, national_id: '*******439' });
+    expect(w.data.patient_identity).toHaveLength(1);
+    expect(JSON.stringify(w.data.patient_identity[0])).not.toContain(VALID);
+    expect(await w.svc.nationalIdStatus('pat-1')).toEqual({ has_national_id: true, national_id: '*******439' });
+  });
+  it('a report issued without the number asks for it before the PDF; after it is added the report shows it', async () => {
+    const w = world();
+    w.data.users[0].national_id = undefined;
+    await w.svc.issue(DOCTOR, 'appt-1', ISSUE);
+    const id = w.data.medicalreports[0].id;
+    expect(w.data.medicalreports[0].patient_national_id ?? null).toBeNull();
+    expect(await w.svc.oneForPatient('pat-1', id)).toMatchObject({ national_id: null, needs_national_id: true });
+    expect((await w.svc.listForPatient('pat-1'))[0]).toMatchObject({ needs_national_id: true });
+    await expect(w.svc.pdfForPatient('pat-1', id)).rejects.toThrow('national_id_required');
+    await w.svc.setNationalId('pat-1', VALID);
+    expect(await w.svc.oneForPatient('pat-1', id)).toMatchObject({ national_id: VALID, needs_national_id: false });
+    expect((await w.svc.listForPatient('pat-1'))[0]).toMatchObject({ national_id: '*******439', needs_national_id: false });
+  });
+  it('a report issued when the number is already stored carries it (encrypted on the row)', async () => {
+    const w = world();
+    w.data.users[0].national_id = undefined;
+    await w.svc.setNationalId('pat-1', VALID);
+    await w.svc.issue(DOCTOR, 'appt-1', ISSUE);
+    expect(JSON.stringify(w.data.medicalreports[0])).not.toContain(VALID);
+    expect(await w.svc.oneForPatient('pat-1', w.data.medicalreports[0].id)).toMatchObject({ national_id: VALID });
   });
 });
