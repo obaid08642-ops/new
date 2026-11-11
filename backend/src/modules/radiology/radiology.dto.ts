@@ -1,4 +1,4 @@
-import { MaxLength, IsArray, IsBoolean, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Max, Min, IsInt, MaxLength, IsArray, IsBoolean, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { RadiologyBookingState } from '../../schemas/radiology.schema';
 import { AttributionDto } from '../../common/attribution';
@@ -263,4 +263,13 @@ export class BulkApproveCatalogDto {
   @IsOptional()
   @IsBoolean()
   approve?: boolean;
+}
+
+/** PUT radiology/provider/slot-capacity: how many scans the centre takes at the same time slot. */
+export class SlotCapacityDto {
+  @IsDefined()
+  @IsInt()
+  @Min(1)
+  @Max(20)
+  slot_capacity: number;
 }

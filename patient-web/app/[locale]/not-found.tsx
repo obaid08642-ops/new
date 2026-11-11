@@ -29,10 +29,13 @@ export default async function LocaleNotFound(props: Props) {
   const t = await getTranslations({ locale, namespace: "NotFound" }).catch(async () => {
     return (key: string) => {
       const fallback: Record<string, string> = {
+        // i18n-ok: last-resort fallback when the translation catalogue itself cannot load; the six-language NotFound texts are the normal path
         title: locale === "ar" ? "الصفحة غير متاحة" : "Page unavailable",
         body:
           locale === "ar"
+            // i18n-ok: last-resort fallback when the translation catalogue itself cannot load; the six-language NotFound texts are the normal path
             ? "لا يمكن فتح هذه الصفحة أو أنك لا تملك صلاحية الوصول إليها."
+            // i18n-ok: last-resort fallback when the translation catalogue itself cannot load; the six-language NotFound texts are the normal path
             : "This page can't be opened, or you don't have access to it.",
         returnHome: locale === "ar" ? "العودة إلى البداية" : "Return home",
       };

@@ -1,5 +1,5 @@
 {
- "commit": "176f2c9b4",
+ "commit": "e4c48b97",
  "routes": [
   {
    "app": "patient-app",
@@ -1905,7 +1905,7 @@
      "line": 296,
      "file": "patient-app/src/utils/orderingBooking.ts",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:93"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:106"
     },
     {
      "method": "GET",
@@ -2113,7 +2113,7 @@
      "line": 206,
      "file": "patient-app/src/components/diagnostics/InsuranceUploadForm.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:93"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:106"
     },
     {
      "method": "GET",
@@ -2295,7 +2295,7 @@
      "line": 64,
      "file": "patient-app/app/diagnostics/order/[id].tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:99"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:112"
     },
     {
      "method": "POST",
@@ -2305,7 +2305,7 @@
      "line": 96,
      "file": "patient-app/app/diagnostics/order/[id].tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:103"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:116"
     }
    ],
    "files": 47,
@@ -2339,7 +2339,7 @@
      "line": 41,
      "file": "patient-app/src/components/orders/ResultsPanel.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:118"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:131"
     },
     {
      "method": "POST",
@@ -2639,7 +2639,7 @@
      "line": 41,
      "file": "patient-app/app/diagnostics/test-detail.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:89"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:102"
     }
    ],
    "files": 69,
@@ -5799,7 +5799,7 @@
      "line": 41,
      "file": "patient-app/src/components/orders/ResultsPanel.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:118"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:131"
     },
     {
      "method": "POST",
@@ -7576,7 +7576,7 @@
      "path": "/search",
      "target": "backend",
      "query": "?q=:param&locale=:param&limit=10",
-     "line": 345,
+     "line": 342,
      "file": "patient-app/app/search/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/search/search.controller.ts:46"
@@ -7592,7 +7592,7 @@
      "backend": "backend/src/modules/admin/governance/system-config.controller.ts:54"
     }
    ],
-   "files": 67,
+   "files": 66,
    "unresolved": 0
   },
   {
@@ -11115,7 +11115,7 @@
      "line": 15,
      "file": "patient-web/lib/api/diagnostics-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:201"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:214"
     },
     {
      "method": "POST",
@@ -11898,7 +11898,7 @@
      "line": 8,
      "file": "patient-web/lib/api/radiology-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:85"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:98"
     },
     {
      "method": "GET",
@@ -11982,7 +11982,7 @@
      "line": 12,
      "file": "patient-web/lib/api/radiology-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:89"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:102"
     }
    ],
    "files": 75,
@@ -15222,7 +15222,7 @@
      "line": 12,
      "file": "patient-web/lib/api/radiology-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:89"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:102"
     },
     {
      "method": "GET",
@@ -15420,7 +15420,7 @@
      "line": 12,
      "file": "patient-web/lib/api/radiology-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:89"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:102"
     },
     {
      "method": "GET",
@@ -15638,7 +15638,7 @@
      "line": 12,
      "file": "patient-web/lib/api/radiology-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:89"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:102"
     },
     {
      "method": "GET",
@@ -16520,7 +16520,7 @@
      "line": 12,
      "file": "patient-web/lib/api/radiology-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:89"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:102"
     }
    ],
    "files": 75,

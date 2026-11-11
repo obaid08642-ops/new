@@ -9,6 +9,7 @@ import { LedgerService } from '../finance-engine/finance-engine.module';
 import { UserRole } from '../../common/enums';
 import { RequestDto } from './provider-payouts.dto';
 import { payoutMinimumDefault } from '../../common/commission-defaults';
+import { shadowFields } from '../../common/halala-shadow';
 
 /** A request in any of these states holds locked funds, so a second one is refused until it is paid or rejected. */
 export const OPEN_WITHDRAWAL_STATES = ['PENDING_ADMIN_APPROVAL', 'AWAITING_SECOND_APPROVAL', 'APPROVED_FOR_PAYOUT'];
@@ -106,11 +107,14 @@ export class ProviderPayoutsController {
           idempotency_key: idempotencyKey, balance_at_request: balance.available,
           escrow_pending_at_request: balance.pending, reservation_state: 'locked', createdAt: now, updatedAt: now,
         };
+        // R11 P1: the integer shadow next to the double (the payout request and its ledger reservation)
+        Object.assign(request, shadowFields(request, ['amount']));
         await this.withdrawals.insertOne(request as any, { session });
         await this.ledgerEntries.insertOne({
           id: `le_${id}`, provider_account_id: user.id, type: 'payout', state: 'locked', amount,
           ref_type: 'withdrawal_reservation', ref_id: id, description: `Withdrawal reserved ${request.reference}`,
           actor_id: user.id, meta: { withdrawal_id: id, bank_account_id: request.bank_account_id }, createdAt: now,
+          ...shadowFields({ amount }, ['amount']),
         } as any, { session });
         response = {
           ok: true, request, reference: request.reference,
