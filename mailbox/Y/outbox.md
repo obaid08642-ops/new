@@ -1,5 +1,13 @@
 # Lane Y outbox
 
+## 2026-11-11 03:00 UTC — RAM order: launch RAM target in R7 (lead 3 order of 12:30)
+Status: in progress
+PR: #2613 (CI: pending)
+What changed:
+- docs/platform/R7-data-tier.md: new section "Launch checklist: the RAM to buy": the owner decision, a table from `mem_budget.py render` for 3800/8192/12288/16384 (scale, mongod limit/cache, reservations, need, sum of limits), recommendation = at least 8 GB, triggers for 12/16 GB, four launch steps with the existing tools.
+- Docs only; deploy/HOST_RAM_MB, compose and mongod.conf untouched; `mem_budget.py check` ok.
+Left / blockers / questions: the table shows the model always fills the host it is given, so above 8 GB the size depends on the launch working set (no user numbers exist); I wrote the post-launch triggers instead of guessing. Also note: my scheduled checks were delayed about 37 h while the session was restarted; I worked the 12:30 and 12:45 orders now.
+
 ## 2026-11-11 02:40 UTC — ops run 109 result (lead 3 order of 12:45)
 Status: done (results read from server-ops run 42616573387, job success; #2535 is closed)
 PR: none
