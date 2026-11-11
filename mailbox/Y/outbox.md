@@ -1,5 +1,17 @@
 # Lane Y outbox
 
+## 2026-11-11 04:30 UTC — queue item 1: merge map rows 2 (check), 3 (done), 4 (verification)
+Status: in progress (CI pending)
+PR: #2615 (CI: pending); also open #2613 (docs), #2614 (mongoose audit)
+What changed:
+- Row 3: the four /hospital/staff handlers of HospitalController (POST, GET, PUT :id/credentials, DELETE :id) moved into HospitalStaffController. Same URLs/DTOs/guards/service calls. New routes spec pins the 7 routes + guard + roles; duplicate-routes and staff service specs pass; tsc clean.
+- Row 2 backend check: one payout path per side (provider POST /provider/payouts/request; old /provider/withdraw answers 400; admin /admin/finance/payouts*). Nothing to remove on the backend. The admin screen merge (payouts.tsx / finance-suite.tsx / confirm sheet) is admin-app work, not done.
+- Row 4 verification (written in docs/review/PROVIDER_ADMIN_MERGE_MAP.md, nothing changed): (a) hospital/staff has the provider-app screens + j_facility as callers; (b) provider/operators invite/accept has only tools/live j_provider_scenarios as caller, no screen; (c) providers/enterprise/provision-sub-provider has NO caller anywhere.
+Left / blockers / questions:
+- SECURITY (lead decision): provision-sub-provider takes hospitalId from the body and never checks it against the caller's facility, so any hospital account can attach any user id to any hospital and set that user's parent_provider_account_id; branch-staff/:hospitalId/:branchId has the same gap; branch-financials trusts a body field requestorId. No caller exists, so 410-then-remove breaks nothing. I did not change it (row 4 is verification only). Say "go" and I make it 410 in its own PR.
+- Also: ShiftManagementScreen calls GET /provider/facility/subaccounts which no controller serves (error swallowed).
+- Next in my queue: (2) run 114 output (96p/96n/96j) once I find it, then (3) provider gate.
+
 ## 2026-11-11 03:35 UTC — back on the new queue; red "Dependency audit (backend)" root-caused
 Status: in progress
 PR: #2614 (CI: pending); #2613 docs PR was red only from this audit (CI pending re-run after #2614 merges)
