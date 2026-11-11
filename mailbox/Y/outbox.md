@@ -1,5 +1,18 @@
 # Lane Y outbox
 
+## 2026-11-11 05:10 UTC — queue item 2: run 114 output (96p, 96n, 96j) read
+Status: in progress (one fix prepared, needs your push; verification needs a later run)
+PR: none (ops-task fix is on my branch y/ops-96p-dbname, commit bc7ddeb46, a fast-forward of review/server-inspect; I cannot push there)
+What I read (server-ops 42848093529, deploy `DONE main@a6c42d49 live`, health ok, dump ok 371 MB):
+- 96p "MISSING / indexes on medicines: 0 / collection-scan" is a FALSE ALARM of the task: it queried database `nabd` (default OPS_MONGO_DB) but the backend's database is `nabd_nestjs` (DB_NAME in .env.production; 96n itself shows `nabd_nestjs.$cmd`). Fixed on y/ops-96p-dbname: database read from .env.production DB_NAME (default nabd_nestjs, like 58/60/62/63/64), prints `database: <name>`, and the explain uses the real public filter (`is_deleted:{$ne:true}`, `manufacturer:{$ne:null}`). 6 unit tests pass. So I still do NOT know whether public_manufacturer_covering_v1 / public_form_covering_v1 exist on the server: please include 96p (fixed) in the next run.
+- 96j: cacheSizeGB 0.6 applied; cache 486 MB, resident 855 MB, cgroup 1156 MB (anon 826 + file 320), peak 1600 = limit; cgroup `max` events 58716 for the current instance (about 6 h), oom 0, oom_kill 0; kernel kills 48 h: 0; mongod log 48 h: starts=53, signals=0, shutdowns=0 (53 of 53 starts with no signal before them; it was 32 two days earlier).
+- 96n: three mongod starts within 24 s (10:03:55, 10:04:06, 10:04:19 UTC on 11-10): a crash loop burst, not a single restart; no matching lines in backend/worker logs after those starts. mongod then ran 6.1 h (up=21961 s) with no restart until the run, i.e. before this deploy.
+- The long `getMore ... COLLSCAN` from the worker in the 96n snapshot is most likely the search service change stream (search.service.ts:260, `conn.watch`), which always reads the oplog; I do not treat it as a slow query.
+Left / blockers / questions:
+- I cannot say the OOM fix works yet: no medicine-index proof (wrong DB) and only about 6 h of calm before the deploy. Next read: run fixed 96p + 96j again in about 24 h and compare starts (53 per 48 h is the number to beat).
+- Still unexplained: mongod dies with no signal, no shutdown line, no kernel or cgroup OOM kill. Proposed read-only step (not built yet): `docker inspect` State (ExitCode, Error, OOMKilled, FinishedAt) + last 30 stderr lines of the container before the latest start + `docker events --since 48h` for die events with exit code. Say "go" and I build it as 96q-mongo-exit-history.
+- Max 3 open PRs: #2613, #2614, #2615 are open; I wait for one to merge before item 3.
+
 ## 2026-11-11 04:30 UTC — queue item 1: merge map rows 2 (check), 3 (done), 4 (verification)
 Status: in progress (CI pending)
 PR: #2615 (CI: pending); also open #2613 (docs), #2614 (mongoose audit)
