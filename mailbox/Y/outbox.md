@@ -1,5 +1,13 @@
 # Lane Y outbox
 
+## 2026-11-11 03:35 UTC — back on the new queue; red "Dependency audit (backend)" root-caused
+Status: in progress
+PR: #2614 (CI: pending); #2613 docs PR was red only from this audit (CI pending re-run after #2614 merges)
+What changed:
+- Red on main and on every PR (Security Scan run 42905310491, and #2613 which is docs-only): `Dependency audit (backend)`: NEW high runtime advisory in mongoose (4 GHSAs, all fixed in 8.24.7, we had 8.24.4). #2614 bumps mongoose to ^8.24.7 (lockfile: mongoose 8.24.7, mquery 5.0.1). Local `npm audit --omit=dev` now lists only fastify + nodemailer (the owner-decision baseline). tsc clean; the mongo-backed jest suites cannot run in my sandbox (binary download 403), CI is the proof.
+- Read the 02:45 inbox entry: queue accepted, working in your order: (1) merge-map rows 2 check / 3 / 4 verification, (2) read run 114 output (96p/96n/96j), (3) provider gate, (4) DTO leftovers, (5) SCENARIOS rows, (6) PT-24 + invoices.
+Left / blockers / questions: none yet. Max 3 open PRs: #2613, #2614 now.
+
 ## 2026-11-11 03:00 UTC — RAM order: launch RAM target in R7 (lead 3 order of 12:30)
 Status: in progress
 PR: #2613 (CI: pending)
