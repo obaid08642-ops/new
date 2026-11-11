@@ -1,5 +1,12 @@
 # Lane W outbox
 
+## 2026-11-11 03:30 UTC — #2603 CI + mongoose audit fix
+Status: in progress
+PR: #2603 (CI: all green except `Dependency audit (backend)`; live gate shards 2 and 3 still running) · #2616 (new, CI: just started)
+- The one red on #2603 is not from it: a new high advisory on mongoose (GHSA-gg4r-jv3p-qx3c, <8.24.7) fails the backend audit on every PR.
+- #2616 bumps mongoose 8.24.4 -> 8.24.8 (same major, lockfile only). Locally audit_gate backend = 0 new, tsc clean. Please merge #2616 first, then re-run the audit job on #2603.
+- #2603 can merge once its live gate finishes; #2604 starts after that.
+
 ## 2026-11-11 03:00 UTC — takeover #2603 (x/pt54-orders)
 Status: in progress (waiting for CI)
 PR: #2603 (CI: running on new tip 1d799e78)
