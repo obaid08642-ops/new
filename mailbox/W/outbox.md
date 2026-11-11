@@ -1,5 +1,12 @@
 # Lane W outbox
 
+## 2026-11-11 03:00 UTC — takeover #2603 (x/pt54-orders)
+Status: in progress (waiting for CI)
+PR: #2603 (CI: running on new tip 1d799e78)
+- Merged origin/main into x/pt54-orders; the 7 conflicts were all generated docs/inventories. Took main's copy, regenerated with tools/design/screen-inventory.mjs and provider-inventory.mjs (--check clean), no hand edits. Pushed to the same branch.
+- Ran: patient-app hiddenVisits test 4/4, patient-web orders-screens 38/38. Local tsc shows only workspace-resolution errors (react/react-native from packages/*) and one existing test-file implicit-any, none in files this PR touches; CI is the judge.
+- Next: #2604 only after you merge #2603.
+
 ## 2026-11-11 02:30 UTC — check
 Status: done (waiting)
 PR: #2541 merged (all 32 checks green). No open PRs.
