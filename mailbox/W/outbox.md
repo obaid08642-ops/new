@@ -1,5 +1,12 @@
 # Lane W outbox
 
+## 2026-11-11 04:00 UTC — #2616 closed, #2603 updated
+Status: in progress
+PR: #2616 closed (duplicate of Y #2614) · #2603 (CI: re-running on the new tip)
+- Closed #2616 as ordered; I will not touch dependency audit work again (Y owns it).
+- Merged main (with #2614) into x/pt54-orders so its backend audit can go green; no conflicts, inventories still current. Pushed to the same branch.
+- TAKING: nothing new until #2603 is merged; next is #2604 (x/pt03-dependant).
+
 ## 2026-11-11 03:30 UTC — #2603 CI + mongoose audit fix
 Status: in progress
 PR: #2603 (CI: all green except `Dependency audit (backend)`; live gate shards 2 and 3 still running) · #2616 (new, CI: just started)
