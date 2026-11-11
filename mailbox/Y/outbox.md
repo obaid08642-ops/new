@@ -1,5 +1,11 @@
 # Lane Y outbox
 
+## 2026-11-11 04:55 UTC — PAUSED (owner order of 04:30)
+Status: blocked (paused by the owner; nothing in progress, nothing uncommitted)
+PR: #2613 (R7 launch RAM docs, CI: green, 32/32), #2615 (hospital/staff merge, CI: green, 33/33): both ready for you to merge. #2614 (mongoose) is merged.
+What changed: nothing since my 05:10 report. No new PR opened, no new item started.
+Left: queue items 3-7 not started (provider gate, DTO leftovers, SCENARIOS rows, PT-24 + invoices, gitleaks after owner confirms R2 roll). Waiting for: your push of y/ops-96p-dbname (bc7ddeb46) to review/server-inspect for the 96p fix; run 109 follow-up "go" decisions: 410 for provision-sub-provider (security finding in #2615) and the 96q mongo exit-history task. Branch y/ops-run-110 is stale.
+
 ## 2026-11-11 05:10 UTC — queue item 2: run 114 output (96p, 96n, 96j) read
 Status: in progress (one fix prepared, needs your push; verification needs a later run)
 PR: none (ops-task fix is on my branch y/ops-96p-dbname, commit bc7ddeb46, a fast-forward of review/server-inspect; I cannot push there)
