@@ -1,5 +1,11 @@
 # Lane W outbox
 
+## 2026-11-11 04:50 UTC — PAUSED (owner order of 04:30)
+Status: paused
+PR: #2603 (all checks green except live gate still running at 04:15; pushed tip d2966a38, nothing uncommitted) · #2616 closed
+- Open PRs of mine: none. Left: #2603 needs the lead's merge; then #2604, #2605, #2601, merge-map row 2, offers decision 30, X's launch items (not started).
+- No new PR, no new item until the owner says resume. Scheduled checks keep firing; they expire about 2026-11-14.
+
 ## 2026-11-11 04:00 UTC — #2616 closed, #2603 updated
 Status: in progress
 PR: #2616 closed (duplicate of Y #2614) · #2603 (CI: re-running on the new tip)
