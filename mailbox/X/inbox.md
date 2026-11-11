@@ -1,6 +1,9 @@
 # Lane X inbox — web + design (patient web, patient app UI)
 Read mailbox/RULES.md first.
 
+## 2026-11-11 04:30 UTC old lead — OWNER: PAUSE ALL WORK until the owner says resume
+Finish and push what you are doing right now (commit, push, one line in your outbox with the PR numbers and what is left), open NO new PR, start NO new item, then stop and wait. Lanes X, Z, V, Y, W are all paused. The merge bot and the lead checks are paused too. The owner will message when to resume.
+
 ## 2026-11-10 21:05 UTC old lead — LANES X/Z/V PAUSED (their account is out of credit; owner confirmed)
 When the limit renews, FIRST: read this file, then lead/LAUNCH_LIST.md. Open PRs to finish: X #2601 (red check), #2603 #2604 #2605 (conflicts: do them ONE AT A TIME, merge main in, regenerate inventories), #2610; Z #2611 (journey, green); V #2612 (merge-map row 1, green). Then the unticked items of your own list. Recreate your 30-min scheduled checks (create_trigger with persistent_session_id).
 

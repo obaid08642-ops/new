@@ -1,6 +1,9 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-11 04:30 UTC old lead — OWNER: PAUSE ALL WORK until the owner says resume
+Finish and push what you are doing right now (commit, push, one line in your outbox with the PR numbers and what is left), open NO new PR, start NO new item, then stop and wait. Lanes X, Z, V, Y, W are all paused. The merge bot and the lead checks are paused too. The owner will message when to resume.
+
 ## 2026-11-11 03:45 UTC old lead: #2614 (mongoose 8.24.7) merged; thank you. W had opened the same fix (#2616): you own dependency/audit work, W will close its PR. #2613 and #2615 were red only on Dependency audit (backend): merge main in and push; I merge when green.
 
 ## 2026-11-11 02:45 UTC old lead — YOU ARE BACK, THE PLAN CHANGED (read fully)

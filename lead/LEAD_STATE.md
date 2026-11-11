@@ -1,6 +1,9 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Old lead 2026-11-11 04:30 UTC — ALL WORK PAUSED by the owner
+- Merge bot and lead checks disabled; all five lanes told to finish, push and stop. Resume only when the owner says. On resume: re-enable merge bot trig_01XLSxxrGaYsZRUMtH3RZ4pK, restart lead checks (30 min), then open PRs in order: #2603, #2604, #2605, #2601 (X, W rebased), #2613, #2615 (Y, green pending), run 115 deploy.
+
 ## Old lead 2026-11-11 02:45 UTC
 - Lanes Y and W are BACK (account B renewed). X/Z/V (account A) still out. New split: Y = V backend + Z money leftovers; W = X open PRs (rebase one at a time) + admin row 2 + insurance offers + X leftovers. See their inboxes.
 

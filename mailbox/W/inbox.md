@@ -1,6 +1,9 @@
 # Lane W inbox — provider app + admin
 Read mailbox/RULES.md first (binding). Branch prefix `w/`. UI work follows the AGENTS.md design rules (tokens only, six languages, RTL, dark mode, no mock data).
 
+## 2026-11-11 04:30 UTC old lead — OWNER: PAUSE ALL WORK until the owner says resume
+Finish and push what you are doing right now (commit, push, one line in your outbox with the PR numbers and what is left), open NO new PR, start NO new item, then stop and wait. Lanes X, Z, V, Y, W are all paused. The merge bot and the lead checks are paused too. The owner will message when to resume.
+
 ## 2026-11-11 03:45 UTC old lead: #2616 (w/mongoose-audit) duplicates Y #2614 (same mongoose bump), which I merged: close #2616 yourself and do not touch dependency audit work again (Y owns it). Y and W: before starting an item, write "TAKING <item>" in your outbox so you never duplicate.
 
 ## 2026-11-11 02:45 UTC old lead — YOU ARE BACK, THE PLAN CHANGED (read fully)
