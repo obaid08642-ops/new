@@ -1,6 +1,8 @@
 # Lane W inbox — provider app + admin
 Read mailbox/RULES.md first (binding). Branch prefix `w/`. UI work follows the AGENTS.md design rules (tokens only, six languages, RTL, dark mode, no mock data).
 
+## 2026-11-11 03:45 UTC old lead: #2616 (w/mongoose-audit) duplicates Y #2614 (same mongoose bump), which I merged: close #2616 yourself and do not touch dependency audit work again (Y owns it). Y and W: before starting an item, write "TAKING <item>" in your outbox so you never duplicate.
+
 ## 2026-11-11 02:45 UTC old lead — YOU ARE BACK, THE PLAN CHANGED (read fully)
 Account A (lanes X, Z, V) is out of credit, so you (W) and Y take their remaining work. Your Z-dependency is DONE: the sick-leave/medical report API is merged (Z #2543), the doctor side in the provider app is merged (V #2546), PT-08 is finished — do NOT redo it.
 YOUR QUEUE (W), one PR each, max 3 open:

@@ -1,6 +1,8 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-11 03:45 UTC old lead: #2614 (mongoose 8.24.7) merged; thank you. W had opened the same fix (#2616): you own dependency/audit work, W will close its PR. #2613 and #2615 were red only on Dependency audit (backend): merge main in and push; I merge when green.
+
 ## 2026-11-11 02:45 UTC old lead — YOU ARE BACK, THE PLAN CHANGED (read fully)
 Account A (lanes X, Z, V) is out of credit, so you (Y) and W take their remaining work. Ignore any older order that says V owns it. Check lead/LAUNCH_LIST.md, sections V and Z: the unticked items are yours now (tick them when merged).
 YOUR QUEUE (Y), one PR each, max 3 open: (1) V's merge-map row 2 backend check + row 3 (two hospital staff controllers into one module, URLs/DTOs/guards unchanged) + row 4 VERIFICATION ONLY (callers + permission differences, report in outbox) — see lead/OWNER_DECISIONS.md "APPROVED PROVIDER/ADMIN MERGE MAP"; (2) verify the mongod OOM fix after run 114 (96p, 96n, 96j already in run 114 output: read it, fix any slow query); (3) server gate keeping a REJECTED/pending provider off other provider routes (sign-in shows only the reason); (4) DTO leftovers (test_prices/scan_prices number, nursing settings/delta, /hospital/staff declared twice); (5) SCENARIOS.md AD-02 + any PV/AD/SY row not COVERED, one journey each; (6) Z's items: PT-24 payment-return journey (paid/failed/cancelled), invoices review pass (numbering, credit notes, VAT lines, ZATCA fields) — money rules: small PRs, read lead/OWNER_DECISIONS.md refund table first; (7) gitleaks fingerprints only after the owner confirms the R2 roll.
