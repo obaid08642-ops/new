@@ -1,5 +1,20 @@
 # Lane Y outbox
 
+## 2026-11-11 02:40 UTC — ops run 109 result (lead 3 order of 12:45)
+Status: done (results read from server-ops run 42616573387, job success; #2535 is closed)
+PR: none
+What changed (all read from the run log, nothing applied by me):
+- Deploy: `DONE main@58a1bb6e live`, backup pre-deploy-58a1bb6e ok (368 MB, attempt 1, rc=0).
+- 96j mongo cache: cacheSizeGB=0.6 IS applied (614 MB max). cache_in_use 489 MB, resident 873 MB, cgroup now 1178 MB = anon 850 + file 320, limit 1600 MB, peak 1600 MB, cgroup `max` event count 6803 (limit touched), oom 0, oom_kill 0. Kernel kills in 48 h: 0. mongod log 48 h: starts=32, signals=0, shutdowns=0 (about 32 of 32 starts had no signal before them). Host: MemAvailable 932 MB, swap 3182 of 4095 MB free; swap used 866 MB. Restart count now 359.
+- 96j-ledger: provider_earning groups=0 extra_rows=0 unique_index=absent. #2536 is not in this release, so the index is not built yet; groups=0 means the gate is open for the next deploy.
+- 96i R11: 50 fields, missing_shadow=193 (all clean, unclean=0), shadow_disagree=0. Rows to backfill: wallets.balance 8, orders 10-20 per field, appointments 1, labbookings 5, rest 0.
+- 91c APPLY: backend-watchdog.sh and monitor.sh installed (old copies in the backup dir); every other host file was identical; redis maxmemory already 320mb; mongod.conf unchanged.
+- 98q: monitor.sh on host has confirm-runs, recover, repeat 24 h, mail-sent log = yes; watchdog mail gap = yes; no `.env.production` override of ALERT_REPEAT_HOURS, ALERT_CONFIRM_RUNS, RECOVER_CONFIRM_RUNS or WATCHDOG_MAIL_HOURS. Last alert mail named `cert-nabd.plus disk` (40 min before the run, i.e. sent by the OLD script); 0 mail failure lines. Mails-per-day table is empty until the new monitor has run a day: re-run 98q after 24 h.
+Left / blockers / questions:
+- NEW signal for the lead: mongod starts ~32 in 48 h with no signal/shutdown in its log, no kernel OOM kill and cgroup oom_kill=0, even though the cgroup hit its limit 6803 times. So it is not the kernel OOM killer. Candidates: the container is restarted by something else (docker `unless-stopped` after a crash, a health check, the deploy/backup scripts, mongod aborting under memory pressure). Next read-only step if you want it: docker events + `docker inspect` State.ExitCode/Error history and the last lines of mongod log before a start. Not done yet.
+- The last alert mail named `cert-nabd.plus` (certificate) and `disk`: these are real conditions, not mongod flaps. Do you want a read-only check task for the cert expiry date and disk usage?
+- RAM order (12:30): doing it now as a small docs PR.
+
 ## 2026-11-09 11:20 UTC — run 110 prepared on my branch (order 2)
 Status: done (prepared, not pushed to the ops branch)
 PR: none (ops branch commits are yours; branch y/ops-run-110, stacked on 31b2added = run 109)
