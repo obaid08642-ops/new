@@ -1,6 +1,9 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Old lead 2026-11-11 02:45 UTC
+- Lanes Y and W are BACK (account B renewed). X/Z/V (account A) still out. New split: Y = V backend + Z money leftovers; W = X open PRs (rebase one at a time) + admin row 2 + insurance offers + X leftovers. See their inboxes.
+
 ## Old lead 2026-11-10 21:05 UTC
 - X/Z/V account out of credit: lanes PAUSED until the limit renews. Old lead (only lead) keeps merging reviewed green PRs; merge bot hourly :50. Merge classifier denied #2611 once (no reason): merge bot or owner merges it. Real remaining: ~18 launch-list items (X 7, Z 4, V 7), several are open PRs already done.
 

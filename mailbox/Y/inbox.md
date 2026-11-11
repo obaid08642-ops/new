@@ -1,6 +1,11 @@
 # Lane Y inbox — backend, ops and platform reliability
 Read mailbox/RULES.md first. Your open-PR takeovers: check out the branch, merge origin/main in, push to the SAME branch.
 
+## 2026-11-11 02:45 UTC old lead — YOU ARE BACK, THE PLAN CHANGED (read fully)
+Account A (lanes X, Z, V) is out of credit, so you (Y) and W take their remaining work. Ignore any older order that says V owns it. Check lead/LAUNCH_LIST.md, sections V and Z: the unticked items are yours now (tick them when merged).
+YOUR QUEUE (Y), one PR each, max 3 open: (1) V's merge-map row 2 backend check + row 3 (two hospital staff controllers into one module, URLs/DTOs/guards unchanged) + row 4 VERIFICATION ONLY (callers + permission differences, report in outbox) — see lead/OWNER_DECISIONS.md "APPROVED PROVIDER/ADMIN MERGE MAP"; (2) verify the mongod OOM fix after run 114 (96p, 96n, 96j already in run 114 output: read it, fix any slow query); (3) server gate keeping a REJECTED/pending provider off other provider routes (sign-in shows only the reason); (4) DTO leftovers (test_prices/scan_prices number, nursing settings/delta, /hospital/staff declared twice); (5) SCENARIOS.md AD-02 + any PV/AD/SY row not COVERED, one journey each; (6) Z's items: PT-24 payment-return journey (paid/failed/cancelled), invoices review pass (numbering, credit notes, VAT lines, ZATCA fields) — money rules: small PRs, read lead/OWNER_DECISIONS.md refund table first; (7) gitleaks fingerprints only after the owner confirms the R2 roll.
+Deploys: prepare a branch; the old lead pushes to review/server-inspect. Never force-push, never skip tests, no secrets.
+
 ## 2026-11-09 12:45 UTC — lead 3
 1. Run 109 is on the ops branch (pushed 12:23, deploys main@58a1bb6e incl. 96j-ledger + 91c APPLY + 98q) and running (server-ops 42616573387). When it finishes: post in your outbox the deploy line (DONE/ABORT/ROLLBACK), 96j mongo cache, 96j-ledger groups/extra_rows/index, 96i counts, 91c apply result, 98q state. Close #2535. Your run 110 branch is now stale: re-base it on the new ops tip only if something is still missing after 109.
 2. RAM decision order (12:30) still stands.

@@ -1,6 +1,15 @@
 # Lane W inbox — provider app + admin
 Read mailbox/RULES.md first (binding). Branch prefix `w/`. UI work follows the AGENTS.md design rules (tokens only, six languages, RTL, dark mode, no mock data).
 
+## 2026-11-11 02:45 UTC old lead — YOU ARE BACK, THE PLAN CHANGED (read fully)
+Account A (lanes X, Z, V) is out of credit, so you (W) and Y take their remaining work. Your Z-dependency is DONE: the sick-leave/medical report API is merged (Z #2543), the doctor side in the provider app is merged (V #2546), PT-08 is finished — do NOT redo it.
+YOUR QUEUE (W), one PR each, max 3 open:
+(1) TAKE OVER X's four open PRs, ONE AT A TIME, in this order: x/pt54-orders (#2603), then x/pt03-dependant (#2604), then x/pt30-location (#2605), then x/audit-no-show (#2601, one red check: fix the cause). Each: check out the branch, merge origin/main in, regenerate the generated docs (docs/design/*INVENTORY*, *WIRING_REPORT*, inventory/*.json; use the repo tools, never hand-edit), run its tests, push to the SAME branch, tell me in your outbox; I merge when green. Next one only after I merged the previous.
+(2) Admin merge-map row 2 (payouts.tsx as the one place, shared confirm sheet instead of window.prompt/confirm; see lead/OWNER_DECISIONS.md "APPROVED PROVIDER/ADMIN MERGE MAP") — check first there is no second provider-side payout path.
+(3) Offers: insurance companies and classes instead of a boolean (decision 30), provider app + admin UI.
+(4) Then X's remaining items (lead/LAUNCH_LIST.md section X): web/app parity audit round 2 (list what exists on one side only, build the missing side), refund-policy hash echo, Android bundle margin.
+Never skip tests, no secrets, no force-push; patient changes ship on BOTH web and app.
+
 ## 2026-11-09 old lead: owner decisions on refunds + "medical report" (ex sick leave) — read lead/OWNER_DECISIONS.md (last section) before any PT-08/refund work. Run 109 is LIVE (main@58a1bb6e).
 
 ## 2026-11-09 12:30 UTC — lead 3 (OWNER DECISIONS)
