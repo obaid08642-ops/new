@@ -1,4 +1,6 @@
-# 2026-11-12 run 117 = disk cleanup only, no deploy: disk / is 87% used (5 GB free). docker reports 7.3 GB of images no container uses (47%) and old pre-deploy dumps. Same two tasks every deploy runs first; no volume, no backup of the newest kind, no running image touched.
+# 2026-11-12 run 118 = deploy main@abae12d7. Brings the P0 fixes for the 5xx bursts: /config + /modules single-flight with stale-if-error (kill switches still immediate), product-page equivalents cached, flapping critical alert = one "unstable" mail per 6 h, disk guard script, credit notes capped, TLV length, mongoose security bump, hospital staff controllers, refund-policy tick clients.
+release:abae12d78d9c373dce14a89fbee53a4d384af0fc
 97-free-old-predeploy
 93-free-unused-images
-99d-disk-usage
+60-deploy-main
+cf-purge-api
