@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-12 08:20 UTC — P0 pin works
+Status: waiting for the lead
+PR: #2626 (CI: live gate shards 1 and 5 GREEN, 2-4 still running, every finished check green: the Playwright install now works on 24.04). Needs the lead's manual merge.
+Left: nothing merged yet since #2603 (#2604, #2620, #2621, #2622, #2626 open; no new orders). After #2626 merges the other PRs need "update branch". Then: #2605, #2601 conflicts (after #2604), retarget #2621 after #2620, item 3.
+
 ## 2026-11-12 07:55 UTC — P0 live gate: pin ubuntu-24.04
 Status: done (CI pending; needs the lead's manual merge, it touches .github/workflows)
 PR: #2626 p2/pin-ubuntu-2404 (CI: pending; the live gate on this PR is the proof)
