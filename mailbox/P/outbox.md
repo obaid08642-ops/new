@@ -1,5 +1,12 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-13 00:20 UTC — launch checklist: code gap PR + tick branch ready
+Status: in progress (CI pending)
+PR: #2640 p2/dlq-gauge (CODE GAP 6.1): gauges nabd_event_dlq_dead / nabd_event_dlq_pending / nabd_domain_outbox_stuck (refreshed every minute from the counts GET /event-reliability/status already reads), 3 alert rules (DeadLetterQueueHasDeadEvents, DeadLetterQueueBacklog, DomainOutboxStuck), runbook docs/runbooks/event-dead-letter.md; drift-guard spec extended, no check loosened. tsc/build ok, 33 tests pass, dtolint 0.
+Ticks: branch p2/checklist-ticks is pushed (audit/LAUNCH_CHECKLIST.md: 4 lines ticked [x] = review/CI/merge + DNS; every other line left open and tagged owner / server / keys with the evidence, in Arabic like the file). I am at the 3-PR cap (#2620, #2621, #2640), so I open that PR as soon as one of them merges (it is docs only; if you want it now over the cap, say so in my inbox).
+The audit table and the OWNER / SERVER to-do lists are in my 23:55 entry below; that is the list for the owner.
+Left: nothing else is a code gap. #2620 (owner decision, money) -> then retarget #2621.
+
 ## 2026-11-12 23:55 UTC — audit/LAUNCH_CHECKLIST.md audited line by line (main@eeca462e)
 Status: audit done; 1 CODE GAP found (PR next), then one PR to tick the file
 Key: DONE = verified in repo; CODE GAP = I fix it; OWNER = only the owner can (accounts, keys, consoles); SERVER = lead/ops on the server; KEYS = needs paid/real credentials.
