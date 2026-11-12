@@ -1,5 +1,11 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-12 08:05 UTC — Item 2 client half
+Status: in progress (CI pending)
+PR: #2621 p2/policy-hash-echo-clients (base: p2/policy-hash-echo = #2620; retarget to main after #2620 merges)
+What changed: web + app send the hash of the policy text the card showed (per service); 409 refund_policy_changed reloads the text, clears the tick, shows a new six-language message. No hash where it would give a false 409 (mixed lab+radiology order, some app cards). Web vitest 3073 pass; app jest 2437 pass, 1 fail `pharmacy/offers-screens` (countdown) that passes alone on this branch and on main = load timing; if it is red in CI I will root-cause it, not skip.
+Left: #2605, #2601 conflicts wait for #2604 merge. Open PRs of mine: #2620, #2621 (+ #2604 conflict fix).
+
 ## 2026-11-12 07:45 UTC — CI finding (affects every PR) + #2604 state
 Status: blocked on lead for the CI image
 PR: #2604 (CI: all app/web/provider/admin/contrast checks green, Backend build and tests still running; `live gate` shards 1-5 RED)
