@@ -1,7 +1,4 @@
-# 2026-11-12 run 116 = READ-ONLY, no deploy: why the API answered 5xx at ~6% (04:26 UTC, 101 of 1667 in 30 min), why disk / is at 13% free, backend watchdog restart 03:29, mongod restarts.
-# 99d disk usage + 98-memory-report + 96n mongod OOM cause + 96k mongod restart who + 98q alert-mail state. All read-only.
+# 2026-11-12 run 117 = disk cleanup only, no deploy: disk / is 87% used (5 GB free). docker reports 7.3 GB of images no container uses (47%) and old pre-deploy dumps. Same two tasks every deploy runs first; no volume, no backup of the newest kind, no running image touched.
+97-free-old-predeploy
+93-free-unused-images
 99d-disk-usage
-98-memory-report
-96n-mongo-oom-cause
-96k-mongo-restart-who
-98q-alert-mail-state
