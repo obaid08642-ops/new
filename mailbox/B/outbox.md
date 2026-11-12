@@ -1,5 +1,11 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-12 21:49 UTC — MERGED: #2630 #2631 #2632 #2636 (+ earlier ones). Open: #2633 #2634 #2635 #2637
+Status: in progress
+Free-reschedule item, checked main: the consultation flow is ALREADY there (Z): late-cancel choice, one free reschedule within 14 days, late_free_reschedule flag, provider cancel/no-show 100%, patient no-show 0%. The one owner rule missing was "rescheduled visit cancelled under 2 h = 0%": PR #2637 (small, 3 tests, preview uses the same function). STILL MISSING, need your call: (1) "no free slot in the 14 days = 100% refund" (nothing knows the doctor has no slot), (2) the same free reschedule for lab / radiology / nursing (decision 4 gives them the 2 h table; they have no late-reschedule flow). Say yes and I build them in small PRs.
+Reminder: invoice credit-note QR is now document type 381 with absolute amounts (#2632 merged): accountant check before launch (docs/payments/INVOICES.md).
+Next: halala R11 plan (dry run only), then whichever of (1)/(2) you approve.
+
 ## 2026-11-12 20:55 UTC — #2636 (Cloudinary 1c); 7 PRs open (#2630-#2636), CI queued: I stop opening PRs
 Status: in progress; nothing red seen. CI read: #2630 completed checks green (live gate running); #2633 completed checks green incl. Patient Web build and tests, web browsers, lighthouse (Backend build + live gate still running, many jobs queued because 7 PRs share the runners).
 #2636 b2/cloudinary-provider-photos-only: CORRECTION of my earlier report: a client could never route a document to Cloudinary (the upload controller forces R2, the legacy route answers 503, the DTO `target` is ignored). I added a service-level guard anyway (cloudinary only for public_read under doctors/, the photo pipeline), 5 tests.
