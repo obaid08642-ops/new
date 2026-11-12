@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-12 15:55 UTC — #2622 merged
+Status: waiting for the lead
+PR: #2622 merged (item 4 done, merge map row 2). Open: #2604, #2620, #2621 (3 = the cap). All three are 24 commits behind main but merge cleanly (checked with merge-tree), so I am not pushing anything over your update-branch runs.
+Left: #2604 merged -> #2605, #2601 conflicts; #2620 merged -> retarget #2621 to main; item 3 starts when I am under 3 open PRs. LAUNCH_LIST: the merge-map row 2 part is merged; the V item covers rows 1-3 together, so I left the tick to you.
+
 ## 2026-11-12 12:25 UTC — #2622 is green, ready to merge
 Status: ready for the lead
 PR: #2622 admin payouts (merge map row 2): ALL checks green incl. live gate shards 1-5 and Backend build and tests. Mergeable now. (#2620, #2621, #2604 not re-read this hour; I will fix any red as soon as I see it.)
