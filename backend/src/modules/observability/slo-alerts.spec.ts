@@ -260,3 +260,36 @@ describe('warnings: hysteresis, no mail of their own, at most one record per 6 h
     expect(mail.send).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('a flapping critical alert: ONE unstable mail per 6 hours instead of one per fire and per resolve', () => {
+  const st = (svc: SloAlertsService) => ({ rule: 'api_availability_fast', key: 'api_availability_fast', consecutiveOn: 2, consecutiveOff: 0, firing: true, since: T0, lastSentAt: T0, value: 5.9, threshold: 1.44, unit: '%', detail: '45 of 759 requests answered 5xx' }) as any;
+  const subjects = (mail: any) => mail.send.mock.calls.map((c: any[]) => c[1] as string);
+
+  it('the first two fires and their resolves are mailed as before; from the 3rd fire in 6 h they are held back and one digest goes out', async () => {
+    const { mail, svc } = setup();
+    const s = st(svc);
+    const fire = (i: number) => (svc as any).dispatch(s, 'firing', false);
+    const resolve = () => (svc as any).dispatch(s, 'resolved', false);
+    await fire(0); await resolve(); await fire(1); await resolve();
+    expect(mail.send).toHaveBeenCalledTimes(4);
+    await fire(2); await resolve(); await fire(3); await resolve();
+    expect(mail.send).toHaveBeenCalledTimes(4); // held back: still 4
+    expect(await svc.flushUnstable(Date.now())).toBe(1);
+    expect(subjects(mail).at(-1)).toContain('UNSTABLE');
+    expect((mail.send.mock.calls.at(-1) as any[])[3]).toContain('fired 2x, resolved 2x');
+    // more flapping inside the same 6 hours: still no new mail
+    await fire(4); await resolve();
+    expect(await svc.flushUnstable(Date.now() + 60 * MIN)).toBe(0);
+    expect(mail.send).toHaveBeenCalledTimes(5);
+    // 6 hours later: the next digest
+    expect(await svc.flushUnstable(Date.now() + 6 * 60 * MIN + 1)).toBe(1);
+    expect(mail.send).toHaveBeenCalledTimes(6);
+  });
+
+  it('a drill and a warning never take this path', async () => {
+    const { mail, svc } = setup();
+    const s = st(svc);
+    for (let i = 0; i < 5; i += 1) await (svc as any).dispatch(s, 'firing', true);
+    expect(mail.send).toHaveBeenCalledTimes(5);
+  });
+});
