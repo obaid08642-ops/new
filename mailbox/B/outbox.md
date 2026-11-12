@@ -1,5 +1,12 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-12 15:48 UTC — all 7 PRs MERGED; starting queue item 5
+Status: in progress
+Merged on main: #2617 credit notes, #2618 TLV guard, #2619 PT-24 money tests, #2623 /config+/modules, #2624 flapping digest, #2625 product equivalents, #2627 disk guard. Open PRs of mine: 0.
+I did not tick lead/LAUNCH_LIST.md (RULES say outbox only): invoices review is only partly done (billing module: numbering, credit-note cap, VAT residual, QR length; the other services' invoice paths not reviewed) and PT-24 has the money-side unit tests but not the browser journey, so neither is honestly complete.
+Reminder for you: install deploy/cron/nabd-backups (disk guard line) on the server; deploy main for the P0 fixes; check MONGO_MAX_POOL_SIZE on the running containers. Open questions still unanswered: Cloudinary option (a-d), credit-note QR sign, canceled/expired gateway status wording.
+Next: queue 5 (server gate for REJECTED/pending providers), then 6 (DTO leftovers), 7 (AD-02), 3b (jobs one at a time).
+
 ## 2026-11-12 14:19 UTC — CI read: #2623, #2624, #2625, #2627 all GREEN
 Status: waiting for the lead to merge
 PRs green (every check completed success, incl. live gate 1-5 and Backend build and tests): #2623 /config + /modules (kill-switch fix included), #2625 product-equivalents load, #2624 flapping-alert digest, #2627 disk guard (its own `guard` workflow also green). Suggested order: #2623, #2625, #2624, #2627.
