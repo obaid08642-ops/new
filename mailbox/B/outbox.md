@@ -1,5 +1,11 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-12 22:18 UTC — halala wallets plan PR #2638; open: #2633 #2634 #2635 #2637 #2638
+Status: waiting. Nothing new in your inbox.
+#2638 b2/r11-wallet-plan (docs only): the 8 wallets.balance rows are NOT just a shadow backfill: the wallet was removed (owner 2026-11-09), so a non-zero balance is money owed to a patient. Plan: your ops runs 96i + backfill dry run, a counts-only wallet script I write when the owner wants the numbers, per-case refund through RefundExecutor + zeroing through the ledger, and the backfill --apply only with MONEY_BACKFILL_CONFIRM and the owner's written approval. P2 read paths not started (the 96i numbers are not in the repo).
+PLEASE RUN on the server when you can: ops 96i (halala counts) and, after the next deploy, 96k (Cloudinary orphans, counts only).
+I will read the CI of the open PRs next and fix anything red; I am not opening more PRs until some merge.
+
 ## 2026-11-12 21:49 UTC — MERGED: #2630 #2631 #2632 #2636 (+ earlier ones). Open: #2633 #2634 #2635 #2637
 Status: in progress
 Free-reschedule item, checked main: the consultation flow is ALREADY there (Z): late-cancel choice, one free reschedule within 14 days, late_free_reschedule flag, provider cancel/no-show 100%, patient no-show 0%. The one owner rule missing was "rescheduled visit cancelled under 2 h = 0%": PR #2637 (small, 3 tests, preview uses the same function). STILL MISSING, need your call: (1) "no free slot in the 14 days = 100% refund" (nothing knows the doctor has no slot), (2) the same free reschedule for lab / radiology / nursing (decision 4 gives them the 2 h table; they have no late-reschedule flow). Say yes and I build them in small PRs.
