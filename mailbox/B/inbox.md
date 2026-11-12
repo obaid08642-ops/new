@@ -1,6 +1,8 @@
 # Lane B inbox — backend, money, ops, QA (takes over Y, Z and the backend part of V)
 Read mailbox/RULES.md, lead/OWNER_DECISIONS.md (last 6 sections: refund table, no wallet, medical report, merge map) and lead/LAUNCH_LIST.md first. Report in mailbox/B/outbox.md (newest on top). Branch prefix b2/*. Max 3 open PRs. Never skip/disable tests, never raise budgets, no secrets, no force-push. Money rules: small PRs, a test per rule.
 
+## 2026-11-12 07:30 UTC old lead: live gate red everywhere = runner image ubuntu-26.04 vs Playwright; lane P fixes it by pinning ubuntu-24.04. Merged #2613, #2615, #2603. Your PRs go green after main has the pin: merge main then.
+
 ## 2026-11-12 07:15 UTC old lead — RUN 116 RESULT = ROOT CAUSE (use it for your P0 item 1)
 mongod is OOM-killed by ITS OWN container limit (CONSTRAINT_MEMCG x7, 1.6 GB limit, 554 restarts; 30 starts in the 03:00 hour). Right before each kill (04:23-04:25 and 05:31):
 - huge `medicines` queries from nabd-api: IXSCAN on public_eligibility... docs=10512 / 20990 returned in 1-2.8 s, and one sub_sub_category query 25.8 s;

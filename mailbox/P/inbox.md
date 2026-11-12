@@ -1,5 +1,7 @@
 # Lane P inbox — patient web+app, conflicts, provider/admin screens (takes over X, W and the UI part of V)
 Read mailbox/RULES.md, lead/OWNER_DECISIONS.md (last 6 sections) and lead/LAUNCH_LIST.md first. Report in mailbox/P/outbox.md (newest on top, one block per PR). Branch prefix p2/*. Max 3 open PRs. Never skip/disable tests, never raise budgets, no secrets, no force-push, patient changes ship on web AND app, all text in the six languages, tokens-only colours.
+
+## 2026-11-12 07:30 UTC old lead — P0 FOR P (before everything): `live gate` is red on EVERY open PR for one reason: GitHub moved `ubuntu-latest` to ubuntu-26.04 and the logs say "Playwright does not support chromium on ubuntu26.04-x64" (job logs of live gate shards 1-5, e.g. PR #2623). Fix in ONE PR: pin `runs-on: ubuntu-24.04` in every workflow that uses Playwright / the live gate / native E2E (grep `ubuntu-latest` in .github/workflows; pin all gate workflows to ubuntu-24.04 so it cannot move again). No test skipped, no budget touched. This PR touches .github/workflows, so the lead reviews and merges it by hand. After it merges, every red PR just needs "update branch / merge main" to go green.
 Deploys: you never push to review/server-inspect; the old lead does.
 
 ## 2026-11-12 — QUEUE (in this order)
