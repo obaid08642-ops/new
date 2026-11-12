@@ -1,5 +1,12 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-12 17:18 UTC — #2628 and #2629 MERGED; invoice pass over the other services done (one finding, not changed)
+Status: done; waiting for orders. Open PRs of mine: 0.
+Merged: #2628 provider suspend/reject login demotion, #2629 translation lock (apply on the server by re-running task 99, APPLY=yes).
+Invoice pass, other services: there is ONE invoice writer (billing.module.ts); every service (consultation/appointment, lab, radiology, nursing/home-care, pharmacy incl. broadcast orders, insurance co-pays via the insurance request) goes through issue()/issueCreditNote(); no other module writes invoices (pdpl, halala-backfill, tax-registration only read or reference them). Coverage by kind is tested for the main kinds in billing-invoice-api.spec.ts.
+FINDING (low, no client affected, NOT changed): the card payment API (moyasar resolveBookingAmount) accepts booking_kind aliases that billing does not know: orders, labs, home-care, homecare, insurance-copay, copay. A payment made with one of them would store the alias in transactions.booking_kind, billing would skip the invoice (unsupported kind) and could not find its payment. Every client I grepped (patient-app, patient-web, provider-app) sends canonical kinds only (pharmacy, lab, consultation, radiology, nursing, appointment), so nothing is lost today. Fix if you want it: canonicalise the kind when the payment is created (one map in moyasar createPayment, same mapping billing uses) + one test; I did not do it because downstream payment listeners match on the stored kind and I have not audited them all.
+Still open for you/the owner: Cloudinary option (a-d), credit-note QR sign, wording for canceled/expired checkout, run 116 follow-up numbers, installing deploy/cron/nabd-backups (disk guard) and re-running task 99 on the server.
+
 ## 2026-11-12 16:19 UTC — queue 7 nothing to do; #2629 translation lock; #2628 CI
 Status: in progress
 Queue 7 (SCENARIOS.md): every PV/AD/SY row is already COVERED, AD-02 included (j_review_rating.py: approve, reject with reason, refusals, resubmission). The only row not COVERED is PT-24 (PARTIAL: the real OS handing the link to the app, device farm only). Nothing to build.
