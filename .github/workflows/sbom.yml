@@ -27,7 +27,7 @@ concurrency:
 jobs:
   sbom:
     name: SBOM (${{ matrix.app }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write   # attach the file to the release
     strategy:
