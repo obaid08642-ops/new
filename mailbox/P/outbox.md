@@ -1,5 +1,37 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-12 23:55 UTC — audit/LAUNCH_CHECKLIST.md audited line by line (main@eeca462e)
+Status: audit done; 1 CODE GAP found (PR next), then one PR to tick the file
+Key: DONE = verified in repo; CODE GAP = I fix it; OWNER = only the owner can (accounts, keys, consoles); SERVER = lead/ops on the server; KEYS = needs paid/real credentials.
+| # | item | state | evidence / note |
+|---|---|---|---|
+| 1.1 | review PR nabdah-plus/full-completion -> main | DONE | branch no longer exists on origin; main has run 97-117 deploys, 600+ PRs merged since |
+| 1.2 | CI green (backend, contracts, web, guards) | DONE | merge gate = lead merges only fully green; runner fixed by #2626 (ubuntu-24.04) |
+| 1.3 | merge to main | DONE | same |
+| 1.4 | pre-production release tag | OWNER (lead) | `git tag` has only 5 data tags (catalog-v13 ...); no release tag. Tag main at the launch commit |
+| 2.1 | MONGO_URL, DB_NAME, JWT_SECRET 32+, REDIS_URL, ALLOWED_ORIGINS, NODE_ENV | SERVER | enforced at boot (backend/src/config/env.validation.ts:5-8, JWT < 32 chars refused); the list is deploy/.env.production.example (96 vars); server is up so it is set; verify only |
+| 2.2 | MOYASAR_* (+ other gateways) | KEYS / OWNER | deploy/.env.production.example, docs/payments/MOYASAR_GO_LIVE.md; placeholder `pending_real_key` is detected (backend/src/config/env.placeholders.spec.ts) = owner to-do "Moyasar keys" |
+| 2.3 | FCM/Firebase, WhatsApp (Infobip), SMTP/Resend | KEYS / OWNER | all in deploy/.env.production.example; uptime-alert mail needs GitHub secrets OPS_ALERT_EMAIL, MAIL_FROM, RESEND_API_KEY (.github/workflows/uptime-alert.yml:42-45) |
+| 2.4 | LiveKit key/secret + COTURN | SERVER | self-hosted by decision (deploy/coturn, tools/live/start-livekit.sh); vars in the example; keys generated on the server |
+| 2.5 | S3/R2 + GEMINI_API_KEY + SENTRY_DSN | KEYS / OWNER | in the example (10 S3 vars, GEMINI, SENTRY); R2 token roll pending (LAUNCH_LIST V "gitleaks fingerprints") |
+| 2.6 | web: NABD_API_BASE_URL, NEXT_PUBLIC_SITE_ORIGIN, Google OAuth | OWNER (Google client) / SERVER | patient-web/.env.production.example; Google client id/secret = owner (Google console) |
+| 2.7 | device integrity Play Integrity + APNS/App Attest | DONE (code) + KEYS | backend/src/modules/device-trust/device-trust.module.ts degrades honestly without keys; APNs key = owner to-do |
+| 2.8 | revoke the exposed temporary GitHub token | OWNER | cannot be verified from the repo; owner revokes + rotates (GitHub settings) |
+| 3.1 | DNS api./nabd.plus/mcp. | DONE / SERVER | deploy/DNS-RECORDS.md, deploy/nginx/conf.d/mcp.conf, deploy/health-check.sh hits api.nabd.plus; site live since 11-03; mcp host: verify record exists |
+| 3.2 | .well-known assetlinks + AASA verified with Apple/Google tools | OWNER | routes exist (patient-web/app/.well-known/*) but AASA answers an error until APPLE_TEAM_ID is set (route.ts:10-11) and assetlinks needs the Play signing SHA-256 (route.ts:3); owner supplies both, then checks with the tools |
+| 3.3 | E2E web -> app direct link | OWNER | unit-covered (PT-38 COVERED, native-intent.test.ts); the real OS hand-off is device-farm only (SCENARIOS PT-24 row) |
+| 4.1 | Apple Team ID + Bundle ID + signing; Google package + SHA-256 | OWNER | bundle ids set (patient-app/app.json:18 and :5501 = com.patient.nabd); Team ID/signing/SHA = owner accounts |
+| 4.2 | store metadata in six languages + privacy policy + Apple health answers | DONE (docs) + OWNER | docs/aso/listings.md (ar,en,ur,hi,bn,fil), docs/compliance/STORE_DECLARATIONS.md, patient-web/app/[locale]/privacy/page.tsx; owner pastes into the store consoles |
+| 4.3 | EAS production build + TestFlight/Internal first | OWNER | patient-app/eas.json has `production` build + submit profiles; needs the owner's accounts |
+| 5.1 | real payment/booking/pharmacy E2E (cash, card sandbox, insurance) | DONE (CI, fakes) + KEYS | 171 live journeys in tools/live (j_payment_webhook, j_pharmacy*, j_insurance*) run in the live gate against fake Moyasar; a real sandbox card run needs Moyasar test keys (owner) |
+| 5.2 | push + real LiveKit call + Moyasar webhook | DONE (CI, fakes) + OWNER | j_lab_result_push, j_web_call, j_payment_webhook; real devices/keys = owner/server |
+| 5.3 | Sentry + alerts + DB backup | DONE (code) + OWNER | backend/src/instrument.ts, ops/prometheus/nabd-alerts.yml, uptime-alert.yml, dr-drill.yml, backup restore SY-05 COVERED; Sentry DSN + alert mail secrets = owner |
+| 6.1 | watch p95, failure rate, outbox/DLQ first two weeks | p95/failure: DONE; outbox/DLQ: CODE GAP | alerts ClassP95High, SlowRoutes, PaymentErrorRatio (nabd-alerts.yml:27,47,59); NO gauge/alert for the dead-letter queue or stuck outbox (counts exist only behind the admin endpoint event-reliability.module.ts:82-97) -> I build gauge + alert now |
+| 6.2 | P2/P3 backlog | n/a | tracked in lead/LAUNCH_LIST.md AFTER LAUNCH |
+OWNER to-do list (short): 1) revoke + rotate the exposed GitHub token; 2) Moyasar live + sandbox keys; 3) FCM/Firebase + Infobip + Resend keys, GitHub secrets OPS_ALERT_EMAIL/MAIL_FROM/RESEND_API_KEY; 4) Google OAuth client, Gemini, Sentry DSN, R2 token roll; 5) Apple Team ID + APNs/App Attest key, Play signing SHA-256, store accounts; 6) paste store listings/privacy/health answers, EAS production build + TestFlight/Internal; 7) check .well-known with Apple/Google tools; 8) real-device checks: link hand-off, push, a call; 9) create the release tag (lead).
+SERVER to-do list (short): verify the 96 vars of deploy/.env.production.example are set (no `__...__`/`pending_` left; the boot check refuses a short JWT secret only); LiveKit/COTURN keys; APPLE_TEAM_ID + Android SHA-256 envs once the owner has them; confirm the mcp. DNS record + cert; staging run of the journeys with real keys.
+Left: building the DLQ/outbox gauge + alert (PR 1), then one PR ticking the file (PR 2). Open of mine: #2620, #2621.
+
 ## 2026-11-12 20:45 UTC — new queue checked: EMPTY, proposals
 Status: queue empty (nothing to build); waiting on the lead for #2620
 (1) Bundle margin: done earlier (95,075 bytes margin on main, no trim needed).
