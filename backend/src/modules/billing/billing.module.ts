@@ -89,6 +89,8 @@ export function documentTitle(kind: DocumentKind, refund = false): { ar: string;
 export function tlvQr(sellerName: string, vatNumber: string, isoDate: string, total: number, vat: number): string {
   const tlv = (tag: number, value: string) => {
     const buf = Buffer.from(value, 'utf8');
+    // one length byte: a value over 255 bytes would wrap and corrupt every tag after it
+    if (buf.length > 255) throw new RangeError(`ZATCA TLV tag ${tag} is ${buf.length} bytes (max 255)`);
     return Buffer.concat([Buffer.from([tag, buf.length]), buf]);
   };
   const payload = Buffer.concat([
@@ -531,13 +533,22 @@ export class BillingService {
       if (done) return this.settle(done);
       const original: any = await this.invoices.findOne({ booking_kind: kind, booking_id: e.booking_id, status: 'ISSUED', type: { $ne: 'credit_note' } }).lean();
       if (!original) return null;
-      const capped = Math.min(amount, Math.round(Number(original.total) * 100) / 100);
+      // credit notes already issued against this invoice: together they can never reverse more than the invoice states
+      const prior: any[] = await this.invoices.find({ type: 'credit_note', original_invoice_no: original.invoice_no }).lean();
+      const credited = Math.round(prior.reduce((s, n) => s - Number(n.total || 0), 0) * 100) / 100;
+      const creditedVat = Math.round(prior.reduce((s, n) => s - Number(n.vat_amount || 0), 0) * 100) / 100;
+      const remaining = Math.round((Number(original.total) - credited) * 100) / 100;
+      if (!(remaining > 0)) { this.logger.warn(`credit note not issued for ${kind} ${e.booking_id}: invoice ${original.invoice_no} is already fully credited`); return null; }
+      const capped = Math.min(amount, remaining);
       // a refund document has the kind of the document it reverses: a tax invoice gets a credit note (negative VAT, QR), a receipt a refund receipt
       const docKind = documentKindOf(original);
       const rate = docKind === 'tax_invoice' ? Number(original.vat_rate) || VAT_RATE : 0;
       // the VAT of a refund is its share of the VAT on the invoice it reverses (Model A: the VAT in the delivery fee; older invoices: of the whole total)
       const originalTotal = Math.round(Number(original.total) * 100) / 100;
-      const vat = docKind === 'tax_invoice' && originalTotal > 0 ? -Math.round(Number(original.vat_amount || 0) * (capped / originalTotal) * 100) / 100 : 0;
+      // the note that completes the reversal takes the VAT that is left, so the credit-note VATs add up to the invoice VAT to the halala (shares are rounded one by one)
+      const vat = docKind !== 'tax_invoice' || !(originalTotal > 0) ? 0
+        : capped === remaining ? -Math.round((Number(original.vat_amount || 0) - creditedVat) * 100) / 100
+        : -Math.round(Number(original.vat_amount || 0) * (capped / originalTotal) * 100) / 100;
       const total = -capped;
       const issuedAt = new Date();
       const cfgSeller = original.seller_name && (docKind === 'receipt' || original.vat_number) ? null : await this.seller();

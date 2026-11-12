@@ -45,3 +45,45 @@ describe('CHI inquiry link in /config', () => {
     expect((await svc.getClientConfig()).features.site_notice_enabled).toBe(false);
   });
 });
+
+describe('/config under a slow or failing database', () => {
+  const clamav = { uploadsAvailable: async () => true, uploadsPendingScan: async () => false };
+
+  it('concurrent requests share one read of the flag rows', async () => {
+    const toArray = jest.fn(async () => { await new Promise((r) => setTimeout(r, 20)); return [{ key: 'x', enabled: true }]; });
+    const conn = { collection: () => ({ find: () => ({ project: () => ({ toArray }) }), findOne: async () => null }) };
+    const svc = new ConfigService(conn as never, clamav as never);
+    const all = await Promise.all([svc.getClientConfig(), svc.getClientConfig(), svc.getClientConfig()]);
+    expect(toArray).toHaveBeenCalledTimes(1);
+    expect(all.every((c) => c.features.x === true)).toBe(true);
+  });
+
+  it('when the database fails after a good read, the last good flags are still served', async () => {
+    let down = false;
+    const toArray = jest.fn(async () => { if (down) throw new Error('db down'); return [{ key: 'x', enabled: true }]; });
+    const conn = { collection: () => ({ find: () => ({ project: () => ({ toArray }) }), findOne: async () => null }) };
+    const svc = new ConfigService(conn as never, clamav as never);
+    expect((await svc.getClientConfig()).features.x).toBe(true);
+    down = true;
+    expect((await svc.getClientConfig()).features.x).toBe(true);
+  });
+});
+
+describe('/config never hides a kill switch or the maintenance banner', () => {
+  const clamav = { uploadsAvailable: async () => true, uploadsPendingScan: async () => false };
+
+  it('a flag written between two requests is in the next response (default settings)', async () => {
+    delete process.env.CONFIG_CACHE_MS;
+    const rows: any[] = [{ key: 'telehealth', enabled: true }];
+    const sys: any = { value: { patient_app: { maintenance: false } } };
+    const conn = { collection: (n: string) => (n === 'feature_flags'
+      ? { find: () => ({ project: () => ({ toArray: async () => rows.map((r) => ({ ...r })) }) }) }
+      : { findOne: async () => sys }) };
+    const svc = new ConfigService(conn as never, clamav as never);
+    expect((await svc.getClientConfig()).features.telehealth).toBe(true);
+    rows[0].enabled = false;                      // the admin switches it OFF
+    expect((await svc.getClientConfig()).features.telehealth).toBe(false);
+    sys.value = { patient_app: { maintenance: true } };   // the admin raises the maintenance banner
+    expect((await svc.getClientConfig()).app_versions).toEqual({ patient_app: { maintenance: true } });
+  });
+});

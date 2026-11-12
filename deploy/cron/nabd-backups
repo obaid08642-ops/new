@@ -11,3 +11,5 @@
 */15 *  *   *   *   root /opt/nabdah/deploy/scripts/capacity-sample.sh >> /var/log/nabd-backups.log 2>&1
 # UPLOAD_SCAN=defer on a small server: start ClamAV when uploads wait for a scan and the memory is there, stop it when the queue is empty (off unless CLAMAV_ON_DEMAND=1)
 */2  *  *   *   *   root /opt/nabdah/deploy/scripts/clamav-window.sh >> /var/log/nabd-backups.log 2>&1
+# Disk guard (2026-11-12, after the disk fell to 13 % free): below 25 % free it prunes build cache, unused images older than 7 days, old release dirs and the journal. Never backups or data.
+20 5  *   *   *   root /opt/nabdah/deploy/scripts/disk-guard.sh >> /var/log/nabd-backups.log 2>&1

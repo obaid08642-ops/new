@@ -4,6 +4,7 @@ import os
 import re
 import stat
 import subprocess
+import time
 import tempfile
 import unittest
 
@@ -39,7 +40,7 @@ class ResumeCron(unittest.TestCase):
         script = os.path.join(self.t, "task.sh")
         write_exec(script, src)
         env = dict(os.environ, PATH=self.b + os.pathsep + os.environ["PATH"], OPS_TRANSLATE_DIR=self.w, OPS_CRON_DIR=self.cron,
-                   OPS_RESUME_HELPER=self.helper, OPS_RESUME_LOG=os.path.join(self.t, "r.log"))
+                   OPS_RESUME_HELPER=self.helper, OPS_RESUME_LOCK=os.path.join(self.t, "resume.lock"), OPS_RESUME_LOG=os.path.join(self.t, "r.log"))
         return subprocess.run(["bash", script], env=env, capture_output=True, text=True, timeout=30)
 
     def test_dry_run_installs_nothing(self):
@@ -72,6 +73,20 @@ class ResumeCron(unittest.TestCase):
             f.write(b'{"id":"c"}\n')
         h = subprocess.run(["bash", self.helper], env=dict(os.environ, PATH=self.b + os.pathsep + os.environ["PATH"]), capture_output=True, text=True, timeout=30)
         self.assertIn("nothing sent", h.stdout)
+        self.assertNotIn("run --requests=", open(self.log).read() if os.path.exists(self.log) else "")
+
+    def test_a_second_run_while_one_is_going_skips_and_sends_nothing(self):
+        self.run_task(APPLY="yes", REQUESTS_SHA=SHA)
+        lock = os.path.join(self.t, "resume.lock")
+        holder = subprocess.Popen(["flock", "-x", lock, "sleep", "20"])
+        self.addCleanup(holder.kill)
+        for _ in range(50):                      # wait until the holder really has the lock
+            if os.path.exists(lock):
+                break
+            time.sleep(0.05)
+        time.sleep(0.3)
+        h = subprocess.run(["bash", self.helper], env=dict(os.environ, PATH=self.b + os.pathsep + os.environ["PATH"]), capture_output=True, text=True, timeout=30)
+        self.assertIn("the previous run is still going", h.stdout)
         self.assertNotIn("run --requests=", open(self.log).read() if os.path.exists(self.log) else "")
 
     def test_rollback_removes_cron_and_helper(self):

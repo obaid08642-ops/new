@@ -1,0 +1,22 @@
+name: disk-guard
+# The daily disk guard (deploy/scripts/disk-guard.sh): acts only below the trigger, only on rebuildable things, never on backups.
+on:
+  pull_request:
+    paths:
+      - 'deploy/scripts/disk-guard.sh'
+      - 'deploy/cron/nabd-backups'
+      - 'tools/ops/tests/test_disk_guard.py'
+      - '.github/workflows/disk-guard.yml'
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  guard:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - run: bash -n deploy/scripts/disk-guard.sh
+      - name: Tests
+        run: python3 -W error -m unittest tools.ops.tests.test_disk_guard
