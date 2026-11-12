@@ -1,5 +1,11 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-12 20:53 UTC — #2634 (app wording) and #2635 (Cloudinary orphans) opened; open: #2630-#2635
+Status: in progress. CI read so far: #2630 all completed checks green, live gate still running; the rest not read yet.
+#2634 b2/app-payment-cancelled-expired: app half of answer 3 (phases cancelled/sessionExpired, canceled spelling of the gateway record, six-language texts, locale-parity ok). jest 75 suites/512 tests pass; tsc shows only sandbox module-resolution errors in packages/ui-native and a design-system test, none in my files.
+#2635 b2/cloudinary-orphans: answer 1d. Counts-only dry run (script + ops task 96k + 9 tests), delete only with --apply + CLOUDINARY_ORPHAN_CONFIRM=<cloud name> + 24 h minimum age, never run by the task. YOU run 96k after the next deploy and send the numbers to the owner. (1b measurement of the 200/400 versions needs the real Cloudinary usage page, I cannot measure it from here; (1c) KYC/private documents: storage.dto allows target=cloudinary on any upload: I will check that next and close it to R2-only for private documents.)
+Next: 1c (KYC never to Cloudinary), then free-reschedule backend rules, then halala R11 plan.
+
 ## 2026-11-12 20:30 UTC — answer 3 done: PR #2633; open PRs #2630-#2633
 Status: in progress (all four waiting for CI; I have not read their results yet)
 #2633 b2/payment-cancelled-expired: backend (expired invoice = failed with stable reason payment_session_expired; Moyasar return sync stores canceled/expired instead of initiated) + web result page (two new phases, texts in six languages, locale-parity ok, none new). Backend payments+moyasar 89 tests, full web suite 3078 tests pass, tsc clean. NOT done: the patient APP result screen still shows cancelled/expired as failed (own PR next, unless X owns it: tell me).
