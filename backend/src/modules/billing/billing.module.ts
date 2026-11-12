@@ -8,6 +8,7 @@
  * NOTE: booking models are fetched from the shared mongoose connection
  * (already registered by their owning modules) — no re-registration here.
  */
+import { billingKindOf, transactionKinds } from '../../common/booking-kind';
 import { ensureInvoiceUniqueIndex } from './invoice-key';
 import { riyadhParts } from '../../common/riyadh-clock';
 import { halalaShadowPlugin } from '../../common/halala-shadow';
@@ -251,7 +252,7 @@ export class BillingService {
   /** What the patient actually paid: the settled card payments of the booking, else the cash the provider recorded as collected. 0 = nothing paid. */
   async paidTotal(kind: string, booking: any, bookingId: string): Promise<number> {
     const rows: any[] = await this.conn.collection('transactions').find(
-      { booking_kind: this.transactionKind(kind), booking_id: bookingId, status: { $in: ['paid', 'partially_refunded', 'refunded'] } },
+      { booking_kind: { $in: transactionKinds(kind) }, booking_id: bookingId, status: { $in: ['paid', 'partially_refunded', 'refunded'] } },
       { projection: { amount: 1, _id: 0 } },
     ).toArray();
     let card = rows.reduce((sum, r) => sum + Number(r.amount || 0), 0);
@@ -311,7 +312,7 @@ export class BillingService {
   /** How it was paid: the method and the last 4 digits of the card (the gateway gives a masked number; nothing longer is kept). */
   async paymentInfo(kind: string, booking: any, bookingId: string): Promise<{ method: string; last4: string | null }> {
     const t: any = (await this.conn.collection('transactions').findOne(
-      { booking_kind: this.transactionKind(kind), booking_id: bookingId, status: { $in: ['paid', 'partially_refunded', 'refunded'] } },
+      { booking_kind: { $in: transactionKinds(kind) }, booking_id: bookingId, status: { $in: ['paid', 'partially_refunded', 'refunded'] } },
       { projection: { method: 1, webhook_payload: 1, _id: 0 } },
     )) || (await findCopayTransaction(this.conn as never, booking, bookingId));
     const raw = t?.webhook_payload || {};
@@ -436,6 +437,7 @@ export class BillingService {
    * `user` null = the system, on `payment.completed`.
    */
   async issue(user: any | null, kind: string, bookingId: string) {
+    kind = billingKindOf(kind);
     const existing: any = await this.invoices.findOne({ booking_kind: kind, booking_id: bookingId, status: 'ISSUED', type: { $ne: 'credit_note' } }, { _id: 0, __v: 0 }).lean();
     if (existing) {
       if (user && existing.patient_id !== user.id && user.role !== 'admin') throw new BadRequestException('not your booking');
@@ -503,7 +505,7 @@ export class BillingService {
   private async creditRefundsBeforeInvoice(kind: string, booking: any, bookingId: string, invoice: any): Promise<void> {
     try {
       const rows: any[] = await this.conn.collection('transactions').find(
-        { booking_kind: this.transactionKind(kind), booking_id: bookingId, status: { $in: ['paid', 'partially_refunded', 'refunded'] } },
+        { booking_kind: { $in: transactionKinds(kind) }, booking_id: bookingId, status: { $in: ['paid', 'partially_refunded', 'refunded'] } },
         { projection: { amount: 1, refunded_amount: 1, _id: 0 } },
       ).toArray();
       let refunded = rows.reduce((sum, r) => sum + Number(r.refunded_amount || 0), 0);
@@ -573,13 +575,13 @@ export class BillingService {
   /** A paid booking gets its invoice at once, so it is there when the patient opens the receipt. Never fails the payment. */
   /** A co-pay is paid on the insurance request: the invoice and the credit note belong to the booking that request is for. */
   private async resolveBooking(kindRaw: unknown, idRaw: unknown): Promise<{ kind: string; id: string } | null> {
-    const kind = String(kindRaw || '');
+    const kind = billingKindOf(kindRaw);
     const id = String(idRaw || '');
     if (!kind || !id) return null;
     if (kind !== 'insurance') return { kind, id };
     try {
       const req: any = await this.conn.collection('insuranceservicerequests').findOne({ id: { $eq: id } } as any, { projection: { booking_id: 1, booking_kind: 1, _id: 0 } });
-      return req?.booking_id && req?.booking_kind ? { kind: String(req.booking_kind), id: String(req.booking_id) } : null;
+      return req?.booking_id && req?.booking_kind ? { kind: billingKindOf(req.booking_kind), id: String(req.booking_id) } : null;
     } catch { return null; }
   }
 

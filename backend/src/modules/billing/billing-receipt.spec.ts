@@ -188,3 +188,13 @@ describe('an invoice first issued AFTER a refund does not state money already re
     expect(inv.total).toBe(115);
   });
 });
+
+describe('a payment made under a kind alias of the payment API is invoiced like any other', () => {
+  const aliasBooking = { patient_id: 'p1', total: 115, delivery_fee: 23 };
+  it.each([['labs', 'lab'], ['home-care', 'home_care'], ['homecare', 'home_care'], ['orders', 'order']])('%s: the invoice is issued under %s and the payment is searched under every spelling', async (alias, kind) => {
+    const { svc, store } = build({ booking: aliasBooking, txns: [{ amount: 115 }] });
+    const inv: any = await svc.issueOnPayment({ booking_kind: alias, booking_id: 'b1' });
+    expect(inv ?? store[0]).toBeTruthy();
+    expect(store[0]).toMatchObject({ booking_kind: kind, booking_id: 'b1', total: 115 });
+  });
+});
