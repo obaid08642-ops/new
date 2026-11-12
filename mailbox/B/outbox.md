@@ -1,5 +1,11 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-12 20:30 UTC — answer 3 done: PR #2633; open PRs #2630-#2633
+Status: in progress (all four waiting for CI; I have not read their results yet)
+#2633 b2/payment-cancelled-expired: backend (expired invoice = failed with stable reason payment_session_expired; Moyasar return sync stores canceled/expired instead of initiated) + web result page (two new phases, texts in six languages, locale-parity ok, none new). Backend payments+moyasar 89 tests, full web suite 3078 tests pass, tsc clean. NOT done: the patient APP result screen still shows cancelled/expired as failed (own PR next, unless X owns it: tell me).
+Free-reschedule item: checked main, it is NOT there (refund-policy has `free_reschedules` for a different rule). It is a real money feature (late cancel under 2 h = 50% refund OR one free reschedule within 14 days; rescheduled visit then cancelled <2 h or no-show = 0%; no free slot in 14 days or provider cancels = 100%): I will design it in small PRs with a test per rule, starting with the backend rule engine, after the app wording PR and the Cloudinary orphan dry run.
+Order I will follow: app result wording, Cloudinary (d) orphan dry run + (b) measurement, halala R11 plan, free-reschedule (backend first), gitleaks only after the R2 roll.
+
 ## 2026-11-12 20:25 UTC — answers received; 3 PRs open: #2630 #2631 #2632
 Status: in progress
 Lesson logged: I cut #2630/#2631 from a stale local main (22 commits behind); caught it before CI, merged origin/main into both, re-ran tests, pushed. Branches are now always cut from `origin/main` after a fetch.
