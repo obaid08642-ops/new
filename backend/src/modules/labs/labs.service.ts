@@ -316,7 +316,7 @@ export class LabsService {
     if (!Array.isArray(data.items) || !data.items.length) throw new BadRequestException('items required');
     if (!data.scheduled_at) throw new BadRequestException('scheduled_at required');
     // owner decision 2026-11-09: the refund policy is agreed before the booking exists
-    const policyAcceptance = await stampAcceptance(this.bkgModel.db, refundPolicyAcceptance(user, data.refund_policy_accepted), 'lab');
+    const policyAcceptance = await stampAcceptance(this.bkgModel.db, refundPolicyAcceptance(user, data.refund_policy_accepted), 'lab', data.refund_policy_hash);
     // owner decision 1: a booking for a family member (the caller stays the booker; checked to be the caller's own member)
     const familyMemberId = await resolveFamilyMemberId(this.bkgModel.db, user.id, data.family_member_id);
     const services = await this.svcModel.find({ id: { $in: data.items.map((x: any) => x.service_id) } });

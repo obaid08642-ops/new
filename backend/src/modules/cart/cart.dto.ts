@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsIn, IsNumber, IsObject, IsOptional, IsString, Matches } from 'class-validator';
 
 export class AddContractItemDto {
   @IsOptional()
@@ -101,6 +101,12 @@ export class CheckoutDto {
   @IsOptional()
   @IsBoolean()
   refund_policy_accepted?: boolean;
+
+  /** The hash of the refund policy the patient's screen showed (GET /refund-policy/summary); a table changed since then is refused with 409 refund_policy_changed. Optional: old clients do not send it. */
+  @IsOptional()
+  @IsString()
+  @Matches(/^[a-f0-9]{64}$/)
+  refund_policy_hash?: string;
 
   @IsOptional()
   @IsString()

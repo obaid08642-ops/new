@@ -185,7 +185,7 @@ export class CartService {
    * until a server-side payment-method resolver is available: an arbitrary
    * payment_method_id must never be converted to a paid order locally.
    */
-  async checkoutContract(user: any, body: { refund_policy_accepted?: boolean; address_id?: string; payment_method_id?: string; cash?: boolean; coupon_code?: string; prescription_media_ids?: string[] }) {
+  async checkoutContract(user: any, body: { refund_policy_accepted?: boolean; refund_policy_hash?: string; address_id?: string; payment_method_id?: string; cash?: boolean; coupon_code?: string; prescription_media_ids?: string[] }) {
     const addressId = String(body?.address_id || '').trim();
     if (!addressId) throw new BadRequestException('address_id_required');
     const requestedPayment = String(body?.payment_method_id || 'cash');
@@ -218,7 +218,7 @@ export class CartService {
       delivery_address: { lat: Number(address.lat), lng: Number(address.lng), address: address.street || '', district: '', city: address.city || '' },
       payment_method: 'cash',
       coupon_code: body?.coupon_code,
-      refund_policy_accepted: body?.refund_policy_accepted,
+      refund_policy_accepted: body?.refund_policy_accepted, refund_policy_hash: body?.refund_policy_hash,
     });
 
     cart.lines = [];

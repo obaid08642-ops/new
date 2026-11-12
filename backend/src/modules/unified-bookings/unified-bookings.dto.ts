@@ -1,4 +1,4 @@
-import { MaxLength, IsArray, IsBoolean, IsDateString, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { MaxLength, IsArray, IsBoolean, IsDateString, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateNested, Matches } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateDto {
@@ -60,6 +60,12 @@ export class CreateDto {
   @IsOptional()
   @IsBoolean()
   refund_policy_accepted?: boolean;
+
+  /** The hash of the refund policy the patient's screen showed (GET /refund-policy/summary); a table changed since then is refused with 409 refund_policy_changed. Optional: old clients do not send it. */
+  @IsOptional()
+  @IsString()
+  @Matches(/^[a-f0-9]{64}$/)
+  refund_policy_hash?: string;
   /** PT-08: the patient asks for a sick leave with this consultation (a request, not a guarantee). */
   @IsOptional()
   @IsBoolean()
@@ -145,6 +151,12 @@ export class NursingDto {
   @IsBoolean()
   refund_policy_accepted?: boolean;
 
+  /** The hash of the refund policy the patient's screen showed (GET /refund-policy/summary); a table changed since then is refused with 409 refund_policy_changed. Optional: old clients do not send it. */
+  @IsOptional()
+  @IsString()
+  @Matches(/^[a-f0-9]{64}$/)
+  refund_policy_hash?: string;
+
   @IsDefined()
   @IsArray()
   service_keys: any[];
@@ -183,6 +195,12 @@ export class CheckoutDto {
   @IsOptional()
   @IsBoolean()
   refund_policy_accepted?: boolean;
+
+  /** The hash of the refund policy the patient's screen showed (GET /refund-policy/summary); a table changed since then is refused with 409 refund_policy_changed. Optional: old clients do not send it. */
+  @IsOptional()
+  @IsString()
+  @Matches(/^[a-f0-9]{64}$/)
+  refund_policy_hash?: string;
 
   @IsOptional()
   @IsString()
@@ -231,6 +249,12 @@ export class CreateDiagnosticOrderDto {
   @IsOptional()
   @IsBoolean()
   refund_policy_accepted?: boolean;
+
+  /** The hash of the refund policy the patient's screen showed (GET /refund-policy/summary); a table changed since then is refused with 409 refund_policy_changed. Optional: old clients do not send it. */
+  @IsOptional()
+  @IsString()
+  @Matches(/^[a-f0-9]{64}$/)
+  refund_policy_hash?: string;
 
   @IsDefined()
   @IsArray()

@@ -120,6 +120,12 @@ export class CreateOrderingBookingDto {
   @IsBoolean()
   refund_policy_accepted?: boolean;
 
+  /** The hash of the refund policy the patient's screen showed (GET /refund-policy/summary); a table changed since then is refused with 409 refund_policy_changed. Optional: old clients do not send it. */
+  @IsOptional()
+  @IsString()
+  @Matches(/^[a-f0-9]{64}$/)
+  refund_policy_hash?: string;
+
   @IsString()
   @Matches(ID)
   quote_id: string;
@@ -168,6 +174,12 @@ export class AsapDto {
   @IsBoolean()
   refund_policy_accepted?: boolean;
 
+  /** The hash of the refund policy the patient's screen showed (GET /refund-policy/summary); a table changed since then is refused with 409 refund_policy_changed. Optional: old clients do not send it. */
+  @IsOptional()
+  @IsString()
+  @Matches(/^[a-f0-9]{64}$/)
+  refund_policy_hash?: string;
+
   /** Owner decision 1: the family member this order is for (the caller pays); checked server-side. */
   @IsOptional()
   @IsString()
@@ -198,6 +210,12 @@ export class PhotoOrderDto {
   @IsOptional()
   @IsBoolean()
   refund_policy_accepted?: boolean;
+
+  /** The hash of the refund policy the patient's screen showed (GET /refund-policy/summary); a table changed since then is refused with 409 refund_policy_changed. Optional: old clients do not send it. */
+  @IsOptional()
+  @IsString()
+  @Matches(/^[a-f0-9]{64}$/)
+  refund_policy_hash?: string;
 
   /** Owner decision 1: the family member this order is for (the caller pays); checked server-side. */
   @IsOptional()

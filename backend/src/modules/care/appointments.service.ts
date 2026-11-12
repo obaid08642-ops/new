@@ -127,6 +127,7 @@ export class AppointmentsService {
     insurance_member_id?: string;
     for_member_id?: string; // family booking on behalf of a member
     refund_policy_accepted?: boolean; // the patient ticked "I agree" to the refund policy shown before payment
+    refund_policy_hash?: string; // the hash of the refund policy the screen showed (409 refund_policy_changed when the table changed since)
     sick_leave_requested?: boolean; // PT-08: a request for a sick leave with this consultation
     family_member_id?: string; // owner decision 1: the family member this visit is FOR (the caller stays the patient who books and pays)
     slot_lock_id?: string; // optional 10-min hold from POST /slot-locks/reserve (consumed on success, released on failure)
@@ -138,7 +139,7 @@ export class AppointmentsService {
     // Issue 955: the admin kill switch for remote consultations refuses new video/voice bookings before anything is held (a switched-off service answers its own code, not the tick's).
     if (isOnlineConsultation({ service_type: body.service_type })) await this.killSwitches?.assertOn('online_consultations');
     // owner decision 2026-11-09: the refund policy is agreed before anything is held or booked
-    const policyAcceptance = await stampAcceptance(this.connection, refundPolicyAcceptance(user, body.refund_policy_accepted), 'consultation');
+    const policyAcceptance = await stampAcceptance(this.connection, refundPolicyAcceptance(user, body.refund_policy_accepted), 'consultation', body.refund_policy_hash);
     // On-behalf family booking: patient becomes the member, booker is audited
     let patientId: string = user.id;
     let bookedBy: string | undefined;
