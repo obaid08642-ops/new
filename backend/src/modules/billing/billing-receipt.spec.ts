@@ -30,6 +30,11 @@ beforeEach(() => { process.env.ZATCA_SELLER_NAME = 'Test Seller'; process.env.ZA
 afterEach(() => { process.env = { ...env }; });
 
 describe('ZATCA phase-1 QR payload', () => {
+  it('tlvQr refuses a value that does not fit the one-byte length instead of writing a corrupt payload', () => {
+    expect(() => tlvQr('x'.repeat(256), '300000000000003', '2026-01-01T00:00:00.000Z', 115, 15)).toThrow(RangeError);
+    expect(decodeTlv(tlvQr('x'.repeat(255), '300000000000003', '2026-01-01T00:00:00.000Z', 115, 15))[1]).toHaveLength(255);
+  });
+
   it('tlvQr decodes back to the five tags', () => {
     const qr = tlvQr('منصة نبض', '300000000000003', '2026-10-31T13:00:00.000Z', 115, 15);
     expect(decodeTlv(qr)).toEqual({ 1: 'منصة نبض', 2: '300000000000003', 3: '2026-10-31T13:00:00.000Z', 4: '115.00', 5: '15.00' });
