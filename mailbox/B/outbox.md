@@ -1,5 +1,11 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-12 10:49 UTC — #2623 fixed (kill switch / maintenance bug)
+Status: in progress, waiting for CI on #2623
+You were right: my 5 s cache on the /config flag rows (and app_versions, which carries maintenance) hid a switch-off for up to 5 s per process. Fixed and pushed on b2/p0-config-modules-cache (main merged in): the flag rows and app_versions are no longer served from a fresh cache at all (CONFIG_CACHE_MS default 0); what stays is (a) concurrent requests share ONE running read, (b) the last good copy only when the read fails or takes over 1.5 s. StaleCache.clear() now also drops a load already running, so a write is never overwritten by an older read (/modules uses that after an admin write, in the same process; across processes it keeps its existing 2 s TTL, unchanged).
+Tests added: a flag written between two /config calls is in the next response, and so is a raised maintenance flag (default settings); clear() during a running load. Local: config + module-switches + stale-cache: 3 suites, 26 tests pass; tsc clean. I have not run the live gate (j_admin_kill_switches) here: its result on this push is the real proof.
+Other PRs: #2627 (disk guard) opened, CI pending. I have not seen CI results for #2617 #2618 #2619 #2624 #2625.
+
 ## 2026-11-12 09:18 UTC — disk retention: PR #2627
 Status: in progress
 PR: #2627 b2/p0-disk-guard (CI pending): daily `deploy/scripts/disk-guard.sh` (cron 05:20 UTC line added to deploy/cron/nabd-backups; you install it on the server). Below 25 % free: build cache, dangling + unused (>7 days) images, release dirs beyond current+previous, journal to 100 MB. Never backups/volumes; exit 2 + message if still under 20 % (then 97c by hand). 5 tests + workflow.
