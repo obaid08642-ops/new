@@ -920,6 +920,7 @@
   "refund.read": "Basahin ang buong patakaran sa refund",
   "refund.agree": "Nabasa ko ang patakaran sa refund at sumasang-ayon ako rito",
   "refund.needAgree": "Sumang-ayon sa patakaran sa refund para magpatuloy",
+  "refund.changed": "Na-update ang patakaran sa refund habang nasa pahinang ito ka. Basahin itong muli at sumang-ayon para magpatuloy.",
   "consult.confirm.reportTitle": "Ulat medikal",
   "consult.confirm.reportRequest": "Kailangan ko ng ulat medikal na may inirerekomendang panahon ng pahinga",
   "consult.confirm.reportHint": "Hiling ito sa doktor na siyang magpapasya, hindi garantiya. Ang opisyal na leave sa sakit ay inilalabas sa pamamagitan ng Seha.",

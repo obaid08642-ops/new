@@ -39,11 +39,11 @@ export function buildRadiologyRequests(a: {
 }
 
 /** Books the requests one after another and answers in the shape of an ordering group, so the confirm sheet needs no second path. */
-export async function createRadiologyBookings(requests: RadiologyRequest[], post: (body: RadiologyBookingBody & { refund_policy_accepted: true }) => Promise<unknown>): Promise<OrderingBookingResult> {
+export async function createRadiologyBookings(requests: RadiologyRequest[], post: (body: RadiologyBookingBody & { refund_policy_accepted: true; refund_policy_hash?: string }) => Promise<unknown>): Promise<OrderingBookingResult> {
   const bookings: OrderingBooking[] = [];
   for (const r of requests) {
     // the patient agreed to the refund policy before this ran (the confirm button is off until then)
-    const made = await post(withRefundPolicy(r.body));
+    const made = await post(withRefundPolicy(r.body, "radiology"));
     const o = made && typeof made === "object" ? (made as Record<string, unknown>) : {};
     if (typeof o.id !== "string" || typeof o.total !== "number") throw new OrderingApiError("bad_answer", 502);
     bookings.push({ id: o.id, kind: "radiology", mode: r.mode, status: r.body.payment_method === "insurance" ? "awaiting_approval" : "pending", providerId: r.body.provider_id, total: o.total, items: [{ catalogId: r.body.service_id, price: o.total }] });

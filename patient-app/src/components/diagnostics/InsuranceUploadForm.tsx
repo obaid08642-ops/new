@@ -10,7 +10,7 @@ import { Block, INSURANCE_TONE, LabCard, LinkCard, Mark, goBackDiag, useDiagText
 import { showLocalizedAlert } from '../LocalizedAlert';
 import { Notice } from '../pharmacy/OfferKit';
 import { RefundPolicyTick } from '../legal/RefundPolicyTick';
-import { withRefundPolicy } from '../../utils/refundAcceptance';
+import { noteRefundPolicyChangedError, withRefundPolicy } from '../../utils/refundAcceptance';
 import { PickButton } from '../pharmacy/PharmacyKit';
 import { ResultHero } from '../consult/ConsultKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
@@ -198,7 +198,7 @@ export default function InsuranceUploadForm() {
             location_type: locationType,
             payment_method: 'insurance',
             provider_account_id: String(selLab),
-          })),
+          }, 'lab')),
         });
         bookingId = created?.id || created?.booking_id || created?.data?.id || null;
       }
@@ -230,6 +230,7 @@ export default function InsuranceUploadForm() {
       await clearCart().catch(() => null);
       router.replace({ pathname: '/diagnostics/insurance-approval', params: { labName: paramLabName || selectedLabData?.name, visitType, orderId: bookingId } } as unknown as Href);
     } catch (e: unknown) {
+      if (noteRefundPolicyChangedError('lab', e)) return; // the policy card shows the new text and asks for the tick again
       logError('diagnostics:insurance-approval:upload', e);
       showLocalizedAlert(k('diag.upload.error'), e instanceof Error && e.message ? e.message : k('diag.upload.errorBody'));
     } finally {

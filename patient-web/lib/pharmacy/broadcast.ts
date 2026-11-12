@@ -1,7 +1,7 @@
 "use client";
 // Browser-only: every importer is a client screen (its fetches go to the patient proxy with the session cookie).
 
-import { withRefundPolicy } from "@/lib/refund-policy";
+import { noteRefundPolicyChanged, withRefundPolicy } from "@/lib/refund-policy";
 import { parseDeliveryAddresses, toBroadcastAddress, type DeliveryAddress } from "./delivery-address";
 // no zod here: this module is in the client bundle of every sending screen, and zod probes for `eval`, which the page's CSP reports as a violation
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -121,9 +121,13 @@ export async function sendBroadcast(
 ): Promise<BroadcastResult> {
   try {
     // every send is behind the refund policy tick of its screen (the backend refuses an order without the agreement)
-    const created = await post(doFetch, "/api/patient/patient/pharmacy/orders", key, withRefundPolicy(buildBroadcastBody(request, address)));
+    const created = await post(doFetch, "/api/patient/patient/pharmacy/orders", key, withRefundPolicy(buildBroadcastBody(request, address), "pharmacy"));
     if (created.status === 401) return { ok: false, reason: "unauthenticated", status: 401 };
-    if (!created.ok) return { ok: false, reason: "create_failed", status: created.status };
+    if (!created.ok) {
+      // 409 refund_policy_changed: the policy card shows the new text and asks for the tick again (any other 409 is left as it was)
+      if (created.status === 409) noteRefundPolicyChanged("pharmacy", 409, await created.clone().json().catch(() => null));
+      return { ok: false, reason: "create_failed", status: created.status };
+    }
     const orderId = extractPatientPharmacyOrderId(await created.json().catch(() => null));
     if (!orderId) return { ok: false, reason: "no_order_id" };
     const submitted = await post(doFetch, `/api/patient/patient/pharmacy/orders/${encodeURIComponent(orderId)}/submit`, `${key}-submit`, {});

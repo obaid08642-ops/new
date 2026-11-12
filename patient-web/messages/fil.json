@@ -6011,6 +6011,7 @@
     "read": "Basahin ang buong patakaran sa refund",
     "agree": "Nabasa ko ang patakaran sa refund at sumasang-ayon ako rito",
     "needAgree": "Sumang-ayon sa patakaran sa refund para magpatuloy",
+    "changed": "Na-update ang patakaran sa refund habang nasa pahinang ito ka. Basahin itong muli at sumang-ayon para magpatuloy.",
     "policy_consultation_full": "Kanselahin nang hindi bababa sa {hours} oras bago ang konsultasyon at makukuha mo ang 100% pabalik.",
     "policy_consultation_late": "Kung magkansela ka pagkatapos nito, {percent}% ang ibabalik sa iyong card.",
     "policy_consultation_patient_no_show": "Kung hindi ka sumipot sa konsultasyon, {percent}% ang ibabalik.",

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { noteRefundPolicyChanged, policyHashField } from "@/lib/refund-policy";
 import { RefundPolicyTick } from "@/components-next/refund-policy/refund-policy-tick";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { Segmented } from "@/components-next/ui-generated/components/Controls";
@@ -55,7 +56,7 @@ export function createHomeCareBookingAttempt(send: typeof fetch = (...a) => fetc
     const res = await send("/api/nursing/bookings", {
       method: "POST",
       headers: { "content-type": "application/json", "idempotency-key": key },
-      body: JSON.stringify({ provider_id: input.nurseId, service_id: input.serviceId, scheduled_at: input.slot, ...(input.location ? { location: input.location } : { address_id: input.addressId }), notes: input.notes.trim() || undefined, payment_method: input.method, refund_policy_accepted: true, ...(input.choice ? choiceFields(input.choice) : {}) }),
+      body: JSON.stringify({ provider_id: input.nurseId, service_id: input.serviceId, scheduled_at: input.slot, ...(input.location ? { location: input.location } : { address_id: input.addressId }), notes: input.notes.trim() || undefined, payment_method: input.method, refund_policy_accepted: true, ...policyHashField("nursing"), ...(input.choice ? choiceFields(input.choice) : {}) }),
     });
     pending = null;
     const data = (await res.json().catch(() => null)) as { id?: unknown; message?: unknown } | null;
@@ -171,6 +172,7 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
     try {
       const result = await attempt.current({ nurseId, serviceId, slot, addressId, ...(here ? { location: here } : {}), notes, method, ...(choice ? { choice } : {}) });
       if (!result.ok) {
+        if (noteRefundPolicyChanged("nursing", result.status, result.code)) return; // the policy card shows the new text and asks for the tick again
         const optionsKey = bookingErrorKey(result.code);
         setError(optionsKey ? t(optionsKey) : result.code === "address_location_required" ? t("addressNeedsLocation") : /slot|conflict|taken/i.test(result.code) || result.status === 409 ? t("slotTaken") : t("formFailed"));
         return;

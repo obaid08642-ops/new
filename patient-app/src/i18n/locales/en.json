@@ -920,6 +920,7 @@
   "refund.read": "Read the full refund policy",
   "refund.agree": "I have read the refund policy and I agree to it",
   "refund.needAgree": "Agree to the refund policy to continue",
+  "refund.changed": "The refund policy was updated while you were on this page. Please read it again and agree to continue.",
   "consult.confirm.reportTitle": "Medical report",
   "consult.confirm.reportRequest": "I need a medical report with a recommended rest period",
   "consult.confirm.reportHint": "A request to the doctor, who decides. It is not a guarantee. Official sick leave is issued through Seha.",

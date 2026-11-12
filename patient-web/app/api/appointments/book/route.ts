@@ -21,6 +21,8 @@ const bodySchema = z.object({
   for_member_id: z.string().regex(/^[A-Za-z0-9_-]{1,128}$/).optional(),
   // the patient agreed to the refund policy before paying (the backend refuses a booking without it; an explicit false is never accepted)
   refund_policy_accepted: z.literal(true),
+  // the hash of the policy text the screen showed: the server refuses a table that changed since (409 refund_policy_changed)
+  refund_policy_hash: z.string().regex(/^[a-f0-9]{64}$/).optional(),
   // PT-08: "I need a medical report" at booking: a request to the doctor, not a guarantee (stored on the appointment by the backend)
   sick_leave_requested: z.boolean().optional(),
   // issue 1819: the insurer id of the saved policy (my-policy `insurer_id`), as the app sends it
