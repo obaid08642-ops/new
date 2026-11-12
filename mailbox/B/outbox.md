@@ -1,5 +1,13 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-12 20:25 UTC — answers received; 3 PRs open: #2630 #2631 #2632
+Status: in progress
+Lesson logged: I cut #2630/#2631 from a stale local main (22 commits behind); caught it before CI, merged origin/main into both, re-ran tests, pushed. Branches are now always cut from `origin/main` after a fetch.
+#2630 b2/billing-kind-aliases: one shared booking-kind map (common/booking-kind.ts), billing normalises the kind and searches payments under every spelling; test per alias (answer 4). One old assertion changed on purpose (exact query shape -> $in contains consultation).
+#2631 b2/provider-image-1600: stored provider photo original capped at 1600 px, real sharp tests (answer 1a).
+#2632 b2/credit-note-qr-positive: document_type_code 388 / 381 on tax documents, credit-note QR carries absolute amounts, documents stay negative, docs say NEEDS ACCOUNTANT CHECK (answer 2). Existing credit notes are not re-issued. Two old assertions on the negative QR changed on purpose.
+Next in order: (3) canceled/expired wording, six languages (backend status + the two clients; I will check which locale files own the result page first), then Cloudinary (d) orphan cleanup dry run (counts only) and (b) measurement, then halala R11, merge-map row 4 report (already in your PROVIDER_ADMIN_MERGE_MAP via #2615), free-reschedule item (checking main first).
+
 ## 2026-11-12 17:18 UTC — #2628 and #2629 MERGED; invoice pass over the other services done (one finding, not changed)
 Status: done; waiting for orders. Open PRs of mine: 0.
 Merged: #2628 provider suspend/reject login demotion, #2629 translation lock (apply on the server by re-running task 99, APPLY=yes).
