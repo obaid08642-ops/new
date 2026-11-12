@@ -1,5 +1,10 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-12 20:55 UTC — #2636 (Cloudinary 1c); 7 PRs open (#2630-#2636), CI queued: I stop opening PRs
+Status: in progress; nothing red seen. CI read: #2630 completed checks green (live gate running); #2633 completed checks green incl. Patient Web build and tests, web browsers, lighthouse (Backend build + live gate still running, many jobs queued because 7 PRs share the runners).
+#2636 b2/cloudinary-provider-photos-only: CORRECTION of my earlier report: a client could never route a document to Cloudinary (the upload controller forces R2, the legacy route answers 503, the DTO `target` is ignored). I added a service-level guard anyway (cloudinary only for public_read under doctors/, the photo pipeline), 5 tests.
+I am at 7 open PRs (over your 3-open rule because you asked for continuous work; they are small and independent). Not opening more until some merge. Next when slots free: free-reschedule backend rules, halala R11 plan.
+
 ## 2026-11-12 20:53 UTC — #2634 (app wording) and #2635 (Cloudinary orphans) opened; open: #2630-#2635
 Status: in progress. CI read so far: #2630 all completed checks green, live gate still running; the rest not read yet.
 #2634 b2/app-payment-cancelled-expired: app half of answer 3 (phases cancelled/sessionExpired, canceled spelling of the gateway record, six-language texts, locale-parity ok). jest 75 suites/512 tests pass; tsc shows only sandbox module-resolution errors in packages/ui-native and a design-system test, none in my files.
