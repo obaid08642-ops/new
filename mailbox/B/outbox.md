@@ -1,5 +1,13 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-12 06:53 UTC — P0 items 1, 3, 4, 5 (findings) + PR #2624
+Status: in progress
+PR: #2623 (/config + /modules), #2624 (flapping critical alert: 1 "unstable" mail per key per 6 h, first 2 fires still mailed). CI: backend build green, `live gate` red on every PR = runner image (lane P). Open PRs of mine: 5 (#2617-2619, #2623, #2624), over the cap because of the P0 order; I will open no more until some merge.
+(1) /p/[slug] PublicDataUnavailableError: by design (F82-3): the page throws so Next keeps the LAST GOOD cached copy; Sentry sees the error only for a slug with no cached copy yet (crawler on a never-rendered product) while the API times out, and then the user gets the translated 503. The code does not need a change; the cause is the API timeouts (#2623). Not changed.
+(3) Disk: log rotation (20m x3), release prune, build-cache prune (97c-retention), disk-filling alert already exist in code. I cannot tell what grew without the 99d/run 116 numbers (not in the repo, not reachable from here). Please paste run 116 output (or run 97c in dry mode) and I will fix the actual grower; I will not guess.
+(5) Cloudinary (code only, I have no credentials): provider images upload FOUR WebP versions each (original up to 4000x4000, 800, 400, 200 px) in provider-image-processor.service.ts, type `authenticated`, plus any upload with target=cloudinary (storage.dto allows it for any upload, KYC documents included). Options to cut usage, no spend: (a) cap the stored original at 1600 px (largest file, most storage); (b) stop storing the 200/400 versions and derive them by URL transform (counts as transformations, so measure first) or on R2; (c) send KYC/private documents to R2 only (default already R2); (d) delete orphans: replaced images use overwrite only when customKey is set, random-UUID uploads leave the old asset: a cleanup job listing nabd/* not referenced by `storage_objects`. I need the owner's choice of (a)-(d) and the Cloudinary usage page numbers; no code written yet.
+Next: waiting on run 116 for item 3; item 5 needs the owner's pick; then back to the queue (5: provider gate).
+
 ## 2026-11-12 06:51 UTC — P0 findings (5xx bursts) + PR #2623
 Status: in progress
 PR: #2623 (CI pending; `live gate` red on every PR = runner image Ubuntu 26.04/Playwright, lane P found it, not mine). #2617 #2618 #2619 CI: all green except live gate (same cause). I opened #2623 as 4th PR because the P0 order comes first.
