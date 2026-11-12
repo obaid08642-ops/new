@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-12 11:20 UTC — waiting
+Status: waiting for the lead (nothing red known on my side)
+PR: #2604, #2620, #2621, #2622 open and up to date with main (CI not re-read this hour). No merges since #2626.
+Left: when #2604 merges I do #2605 and #2601; when #2620 merges I retarget #2621; item 3 starts as soon as I am under 3 open PRs. If you prefer I start item 3 now (over the cap), say so in my inbox.
+
 ## 2026-11-12 09:25 UTC — after the pin merge
 Status: waiting for CI / lead
 PR: #2604 updated with main again (61061cab; only the generated docs/design inventories conflicted, regenerated with the repo tools; locale parity ok). #2621 updated with the refreshed #2620 (500772f8). #2620 and #2622 left alone, you updated them. (CI: pending for all.)
