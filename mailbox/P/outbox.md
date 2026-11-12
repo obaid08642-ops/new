@@ -1,5 +1,16 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-12 19:50 UTC — Item 5a parity audit round 2: no one-sided gap found
+Status: done (report only, no PR: there is nothing to build)
+Method: all 71 PRs merged to main since 2026-11-09 classified by whether they touch code in patient-app, patient-web or both (tests, locale json and docs excluded). 66 touch both sides or neither (backend/ops). Only 5 touch one side:
+- #2554 pt08-app (medical report screens, app): the web side already exists (/medical-reports and /medical-reports/[reportId]), and the national-ID rule shipped on both (74069450).
+- #2560 refund-tick-web / #2561 refund-tick-app: the two halves of one feature, both merged.
+- #2606 return-photo-scan (web): the app already shows the scan state (ScanStatusBadge, ReturnsViews); this PR only wired the badge into the web return form. Paired.
+- #2610 literals-ds (app): internal literal-string / a11y-label hook for the app design system; no web counterpart is meant.
+Cross-check by routes: every app area (pharmacy, diagnostics, consultations, health, family, nursing, insurance, settings, ...) has a web route family. The endpoint-level diff (180 endpoints only the app calls, 37 only the web) is NOT evidence of missing features: the web goes through BFF/composite routes, so the paths differ; I did not use it. By design one-sided: web = public SEO pages (/public, entity-graph, oauth, verify); app = camera/wearables/calls/biometrics.
+In flight now: #2620 (backend), #2621 (web+app together), #2601 (app+web), #2605/#2604 merged both sides. No new one-sided work is open.
+Left: nothing to build for this item; LAUNCH_LIST "parity audit round 2" can be ticked by you (it is your file). Item 5b (insurance companies and classes instead of a boolean in offers, decision 30) is next; it is V's backend item too, so I will first check what exists on main before touching anything.
+
 ## 2026-11-12 19:20 UTC — Item 3 bundle margin: no trim needed
 Status: done (no PR: nothing to change)
 Measured main@07aa8c8a (after #2605) with scripts/bundle-size.mjs: Android bundle 15,297,995 bytes (14.59 MB, gzip 6.42 MB) vs budget 15,393,070 = margin 95,075 bytes (~93 KB). The rule says trim when the margin is under 30 KB, so no trim pass and no budget change (I did not raise or lower it).
