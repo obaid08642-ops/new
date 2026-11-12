@@ -196,6 +196,34 @@ describe("/orders", () => {
     expect(html).toContain("SAR 20.00");
   });
 
+  it("PT-54: a finished order can be hidden from the list, a hidden one is left out and listed under 'Show hidden', and with no timeline answer nothing changes", async () => {
+    const OTHER = "11111111-2222-4333-8444-555555555555";
+    const TIMELINE = "/unified-bookings/mine?include_hidden=1";
+    const orders = json([
+      { id: ORDER, status: "delivered", items: [{}], pricing_snapshot: { totals: { total: 51.5, currency: "SAR" } } },
+      { id: OTHER, status: "delivered", items: [{}], pricing_snapshot: { totals: { total: 20, currency: "SAR" } } },
+    ]);
+    const timeline = json([{ kind: "pharmacy", id: ORDER, status: "COMPLETED", hidden: false }, { kind: "pharmacy", id: OTHER, status: "COMPLETED", hidden: true }]);
+    centerApi({ [PHARMACY]: orders, [TIMELINE]: timeline });
+    const normal = render(await OrdersScreen({ locale: "en", query: { tab: "previous" } }));
+    expect(server.api).toHaveBeenCalledWith(TIMELINE, { cache: "no-store" }, TOKEN);
+    expect(normal).toContain("SAR 51.50");
+    expect(normal).not.toContain("SAR 20.00");
+    expect(normal).toContain("Hide from history");
+    expect(normal).toContain("Show hidden visits (1)");
+    centerApi({ [PHARMACY]: orders, [TIMELINE]: timeline });
+    const hidden = render(await OrdersScreen({ locale: "en", query: { tab: "previous", hidden: "1" } }));
+    expect(hidden).toContain("SAR 20.00");
+    expect(hidden).not.toContain("SAR 51.50");
+    expect(hidden).toContain("Show again");
+    expect(hidden).toContain("Back to history");
+    centerApi({ [PHARMACY]: orders, [TIMELINE]: json({ message: "x" }, 500) });
+    const none = render(await OrdersScreen({ locale: "en", query: { tab: "previous" } }));
+    expect(none).toContain("SAR 51.50");
+    expect(none).toContain("SAR 20.00");
+    expect(none).not.toContain("Hide from history");
+  });
+
   it("says so when there is no order, and shows the error state with a retry when the backend fails", async () => {
     centerApi({});
     expect(render(await OrdersScreen({ locale: "en" }))).toContain("No orders yet");

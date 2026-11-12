@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { OrdersScreen } from "@/components-next/orders/orders-screen";
 import { isLocale } from "@/lib/i18n";
 
-type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ tab?: string | string[]; kind?: string | string[] }> };
+type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ tab?: string | string[]; kind?: string | string[]; hidden?: string | string[] }> };
 
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
