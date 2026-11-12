@@ -9,6 +9,7 @@ import {
   type TextInputInstance,
 } from 'react-native';
 import { useApp } from '../../context/AppContext';
+import { dsText } from '../dsText';
 import { Spacing, BorderRadius } from '../tokens';
 import { DSText } from './Text';
 import { Icon, IconName } from '../Icon';
@@ -59,7 +60,7 @@ export const DSInput = forwardRef<TextInputInstance, DSInputProps>(function DSIn
   },
   ref,
 ) {
-  const { colors, isRTL } = useApp();
+  const { colors, isRTL, lang } = useApp();
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -156,7 +157,7 @@ export const DSInput = forwardRef<TextInputInstance, DSInputProps>(function DSIn
             onPress={handleRightIconPress}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             accessibilityRole="button"
-            accessibilityLabel={isPassword ? (showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور') : undefined}
+            accessibilityLabel={isPassword ? (showPassword ? dsText(lang, 'ds.input.hidePassword') : dsText(lang, 'ds.input.showPassword')) : undefined}
             style={styles.iconWrapper}
           >
             <Icon

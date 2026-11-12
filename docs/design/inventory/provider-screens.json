@@ -1,5 +1,5 @@
 {
- "commit": "ad03cc81d",
+ "commit": "4f099be78",
  "routes": [
   {
    "app": "provider-app",
@@ -2775,7 +2775,7 @@
      "line": 87,
      "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:98"
+     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:78"
     },
     {
      "method": "POST",
@@ -2785,7 +2785,7 @@
      "line": 125,
      "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:112"
+     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:92"
     },
     {
      "method": "GET",
@@ -2961,7 +2961,7 @@
      "line": 57,
      "file": "provider-app/src/screens/doctor/FacilityInvitationsScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:105"
+     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:85"
     },
     {
      "method": "GET",
@@ -2971,7 +2971,7 @@
      "line": 35,
      "file": "provider-app/src/screens/doctor/FacilityInvitationsScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:98"
+     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:78"
     }
    ],
    "files": 13,
@@ -3775,7 +3775,7 @@
      "line": 51,
      "file": "provider-app/src/screens/facility/facility/CredentialingScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:39"
+     "backend": "backend/src/modules/hospital-staff/hospital-staff.module.ts:148"
     }
    ],
    "files": 12,
@@ -3810,7 +3810,7 @@
      "line": 54,
      "file": "provider-app/src/screens/facility/facility/DepartmentManagementScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:39"
+     "backend": "backend/src/modules/hospital-staff/hospital-staff.module.ts:148"
     }
    ],
    "files": 13,
@@ -3980,7 +3980,7 @@
      "line": 73,
      "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:39"
+     "backend": "backend/src/modules/hospital-staff/hospital-staff.module.ts:148"
     },
     {
      "method": "GET",
@@ -4090,7 +4090,7 @@
      "line": 23,
      "file": "provider-app/src/screens/facility/FacilityInvitationScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:85"
+     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:65"
     },
     {
      "method": "POST",
@@ -4100,7 +4100,7 @@
      "line": 74,
      "file": "provider-app/src/screens/facility/FacilityInvitationScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:80"
+     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:60"
     },
     {
      "method": "POST",
@@ -4110,7 +4110,7 @@
      "line": 29,
      "file": "provider-app/src/screens/facility/FacilityInvitationScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:91"
+     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:71"
     }
    ],
    "files": 12,
@@ -4645,7 +4645,7 @@
      "line": 83,
      "file": "provider-app/src/screens/facility/facility/ShiftManagementScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:39"
+     "backend": "backend/src/modules/hospital-staff/hospital-staff.module.ts:148"
     },
     {
      "method": "GET",
@@ -4745,7 +4745,7 @@
      "line": 70,
      "file": "provider-app/src/screens/facility/facility/SubAccountsScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:39"
+     "backend": "backend/src/modules/hospital-staff/hospital-staff.module.ts:148"
     },
     {
      "method": "DELETE",
@@ -4755,7 +4755,7 @@
      "line": 94,
      "file": "provider-app/src/screens/facility/facility/SubAccountsScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/hospital/controllers/hospital.controller.ts:49"
+     "backend": "backend/src/modules/hospital-staff/hospital-staff.module.ts:150"
     }
    ],
    "files": 13,
@@ -7638,7 +7638,7 @@
      "line": 599,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:208"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:221"
     }
    ],
    "files": 12,
@@ -7693,7 +7693,7 @@
      "line": 552,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:208"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:221"
     }
    ],
    "files": 14,
@@ -7728,7 +7728,7 @@
      "line": 242,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:99"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:112"
     },
     {
      "method": "POST",
@@ -7738,7 +7738,7 @@
      "line": 245,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:103"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:116"
     },
     {
      "method": "POST",
@@ -7748,7 +7748,7 @@
      "line": 283,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:168"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:181"
     },
     {
      "method": "POST",
@@ -7768,7 +7768,7 @@
      "line": 299,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:195"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:208"
     },
     {
      "method": "PATCH",
@@ -7778,7 +7778,7 @@
      "line": 270,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:107"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:120"
     }
    ],
    "files": 14,
@@ -7813,7 +7813,7 @@
      "line": 120,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:134"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:147"
     }
    ],
    "files": 13,
@@ -7848,7 +7848,7 @@
      "line": 120,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:134"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:147"
     }
    ],
    "files": 13,
@@ -7998,7 +7998,7 @@
      "line": 470,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:181"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:194"
     },
     {
      "method": "POST",
@@ -8008,7 +8008,7 @@
      "line": 464,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:175"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:188"
     },
     {
      "method": "POST",
@@ -8018,7 +8018,7 @@
      "line": 451,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:146"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:159"
     },
     {
      "method": "POST",
@@ -9464,7 +9464,7 @@
      "line": 51,
      "file": "provider-app/src/screens/shared/shared/ProviderWalletScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/payouts/provider-payouts.controller.ts:139"
+     "backend": "backend/src/modules/payouts/provider-payouts.controller.ts:143"
     },
     {
      "method": "GET",
@@ -9906,7 +9906,7 @@
      "line": 54,
      "file": "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/payouts/provider-payouts.controller.ts:139"
+     "backend": "backend/src/modules/payouts/provider-payouts.controller.ts:143"
     },
     {
      "method": "GET",
@@ -9916,7 +9916,7 @@
      "line": 56,
      "file": "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/payouts/provider-payouts.controller.ts:133"
+     "backend": "backend/src/modules/payouts/provider-payouts.controller.ts:137"
     },
     {
      "method": "POST",
@@ -9926,7 +9926,7 @@
      "line": 104,
      "file": "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/payouts/provider-payouts.controller.ts:56"
+     "backend": "backend/src/modules/payouts/provider-payouts.controller.ts:57"
     }
    ],
    "files": 13,

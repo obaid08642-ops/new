@@ -18,13 +18,13 @@ import { useModules } from '../../context/ModulesContext';
 
 export type MainTabId = 'home' | 'pharmacy' | 'consult' | 'labs' | 'nursing';
 
-/** The board's items (packages/ui/components/fixtures.ts MAIN_TABS), with Arabic source labels that go through the catalogue. */
+/** The board's items (packages/ui/components/fixtures.ts MAIN_TABS), with translation keys (nav.tab.*) as labels. */
 export const MAIN_TAB_ITEMS: (BottomTabItem & { id: MainTabId; route: string })[] = [
-  { id: 'home', art: 'home', label: 'الرئيسية', icon: 'house', route: '/(tabs)' },
-  { id: 'pharmacy', art: 'pharmacy', label: 'الصيدلية', icon: 'pill', route: '/(tabs)/pharmacy' },
-  { id: 'consult', art: 'consult', label: 'الاستشارات', icon: 'stethoscope', route: '/(tabs)/consultations', raised: true },
-  { id: 'labs', art: 'labs', label: 'التحاليل', icon: 'test-tube', route: '/(tabs)/diagnostics' },
-  { id: 'nursing', art: 'nursing', label: 'التمريض', icon: 'first-aid-kit', route: '/(tabs)/nursing' },
+  { id: 'home', art: 'home', label: 'nav.tab.home', icon: 'house', route: '/(tabs)' },
+  { id: 'pharmacy', art: 'pharmacy', label: 'nav.tab.pharmacy', icon: 'pill', route: '/(tabs)/pharmacy' },
+  { id: 'consult', art: 'consult', label: 'nav.tab.consult', icon: 'stethoscope', route: '/(tabs)/consultations', raised: true },
+  { id: 'labs', art: 'labs', label: 'nav.tab.labs', icon: 'test-tube', route: '/(tabs)/diagnostics' },
+  { id: 'nursing', art: 'nursing', label: 'nav.tab.nursing', icon: 'first-aid-kit', route: '/(tabs)/nursing' },
 ];
 
 /** Which tab a path belongs to; null for pages that are in the tabs group but have no tab (Services, Health). */
@@ -59,7 +59,7 @@ export default function MainTabBar() {
       <View pointerEvents="box-none" style={{ width: '100%', maxWidth: BAR_COLUMN, height: '100%' }}>
         <BottomTabBar
           theme={isDark ? 'dark' : 'light'}
-          label={tr('التنقل الرئيسي')}
+          label={tr('nav.main')}
           testID="main-tab-bar"
           value={active ?? ''}
           items={tabs.map(({ id, label, icon, art, raised }) => ({ id, label: tr(label), icon, art, raised }))}

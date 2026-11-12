@@ -4,7 +4,7 @@
  * - Each staff member is created as a full User with role from `staff_role`
  * - Sub-user is linked back to owner via `parent_provider_account_id`
  */
-import { Module, Controller, Get, Post, Patch, Delete, Param, Body, UseGuards, ForbiddenException, BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Module, Controller, Get, Post, Put, Patch, Delete, Param, Body, UseGuards, ForbiddenException, BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection, InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
@@ -14,6 +14,9 @@ import { UserRole } from '../../common/enums';
 import * as bcrypt from '../../common/password-hash';
 import { v4 as uuid } from 'uuid';
 import { CreateDto, UpdateDto, SuspendStaffDto, ResetStaffPasswordDto } from './hospital-staff.dto';
+import { HospitalModule } from '../hospital/hospital.module';
+import { HospitalService } from '../hospital/services/hospital.service';
+import { AddStaffDto, UpdateStaffCredentialsDto } from '../hospital/controllers/hospital.dto';
 import { enforcePasswordPolicy } from '../../common/password-security.service';
 import { recordAudit } from '../../common/audit-record';
 
@@ -138,9 +141,13 @@ export class HospitalStaffService {
 @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class HospitalStaffController {
-  constructor(private svc: HospitalStaffService) {}
-  // GET / and POST / and DELETE /:id are served by HospitalController ('hospital/staff', registered first, so these three were never reached and are removed):
-  // one handler per route. This controller keeps only what HospitalController does not have.
+  constructor(private svc: HospitalStaffService, private readonly hospitalService: HospitalService) {}
+  // One module owns /hospital/staff. GET /, POST /, PUT /:id/credentials and DELETE /:id used to live in HospitalController (same URLs, DTOs, role guard
+  // and service calls; moved here unchanged, merge map row 3). The three handlers that were declared twice in the past (gap 9) stay removed.
+  @Post() addStaff(@CurrentUser() u: any, @Body() b: AddStaffDto) { return this.hospitalService.addStaff(u.id, b, u); }
+  @Get() getStaff(@CurrentUser() u: any) { return this.hospitalService.getStaff(u.id, u); }
+  @Put(':id/credentials') updateStaffCredentials(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateStaffCredentialsDto) { return this.hospitalService.updateStaffCredentials(u.id, id, b, u); }
+  @Delete(':id') removeStaff(@CurrentUser() u: any, @Param('id') id: string) { return this.hospitalService.removeStaff(u.id, id, u); }
   @Patch(':id') update(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateDto) { return this.svc.update(u, id, b); }
   @Post(':id/suspend') suspend(@CurrentUser() u: any, @Param('id') id: string, @Body() b: SuspendStaffDto) { return this.svc.suspend(u, id, b?.suspended !== false); }
   @Post(':id/reset-password') reset(@CurrentUser() u: any, @Param('id') id: string, @Body() b: ResetStaffPasswordDto) { return this.svc.resetPassword(u, id, b?.password); }
@@ -148,6 +155,7 @@ export class HospitalStaffController {
 
 @Module({
   imports: [
+    HospitalModule,
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: ProviderAccount.name, schema: ProviderAccountSchema },

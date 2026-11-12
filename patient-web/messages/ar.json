@@ -1959,7 +1959,10 @@
     "nationalIdInvalid": "أدخل رقم هوية وطنية أو إقامة صحيحًا من 10 أرقام.",
     "nationalIdFailed": "تعذّر حفظ الرقم. حاول مرة أخرى.",
     "nationalIdSaved": "تم الحفظ.",
-    "nationalIdNeededForPdf": "أضف رقم هويتك لتنزيل هذا التقرير."
+    "nationalIdNeededForPdf": "أضف رقم هويتك لتنزيل هذا التقرير.",
+    "forTitle": "لمن الزيارة؟",
+    "forMe": "لي",
+    "forHint": "أنت تحجز وتدفع. تُسجَّل الزيارة باسم الشخص الذي تختاره."
   },
   "AiHealthReport": {
     "title": "تقريرك الصحي الذكي",

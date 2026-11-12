@@ -11,7 +11,6 @@ import PharmacyProductSearchView from '../../src/components/views/PharmacyProduc
 import DoctorSearchView from '../../src/components/views/DoctorSearchView';
 import { ServiceCartButton } from '../../src/components/cart/ServiceCartButton';
 import { WishlistButton } from '../../src/components/pharmacy/PharmacyKit';
-import { LocalizedText } from '../../src/components/LocalizedText';
 import { COLUMN, FONT, tint, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
 import { useModules } from '../../src/context/ModulesContext';
@@ -46,15 +45,15 @@ const RECENT_MAX = 8;
 const DEBOUNCE_MS = 500;
 
 /** The board's "browse by section" grid: the service-map icon of each section and where it opens. */
-const BROWSE: { label: string; service: ServiceName; route: string }[] = [
-  { label: 'الصيدلية', service: 'pharmacy', route: '/(tabs)/pharmacy' },
-  { label: 'استشارة', service: 'consult', route: '/(tabs)/consultations' },
-  { label: 'تحاليل', service: 'lab', route: '/(tabs)/diagnostics' },
-  { label: 'أشعة', service: 'radiology', route: '/(tabs)/diagnostics' },
-  { label: 'تمريض', service: 'nursing', route: '/(tabs)/nursing' },
-  { label: 'صحة نفسية', service: 'mind', route: '/mental-health' },
-  { label: 'تغذية', service: 'nutrition', route: '/nutrition/hub' },
-  { label: 'العائلة', service: 'family', route: '/family' },
+const BROWSE: { labelKey: string; service: ServiceName; route: string }[] = [
+  { labelKey: 'search.screen.browse.pharmacy', service: 'pharmacy', route: '/(tabs)/pharmacy' },
+  { labelKey: 'search.screen.browse.consult', service: 'consult', route: '/(tabs)/consultations' },
+  { labelKey: 'search.screen.browse.lab', service: 'lab', route: '/(tabs)/diagnostics' },
+  { labelKey: 'search.screen.browse.radiology', service: 'radiology', route: '/(tabs)/diagnostics' },
+  { labelKey: 'search.screen.browse.nursing', service: 'nursing', route: '/(tabs)/nursing' },
+  { labelKey: 'search.screen.browse.mind', service: 'mind', route: '/mental-health' },
+  { labelKey: 'search.screen.browse.nutrition', service: 'nutrition', route: '/nutrition/hub' },
+  { labelKey: 'search.screen.browse.family', service: 'family', route: '/family' },
 ];
 
 /** The text of a result in the screen's language: Arabic in Arabic, the English field otherwise. */
@@ -89,13 +88,13 @@ function ResultRow({ r, term, last, size, onOpen }: { r: SearchResult; term: str
   const note = rowNote(r, { rx: k('pharmacy.needsRx'), online: k('pharmacy.product.exclusive') });
   const priceLine = price ? (
     <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.primary }}>
-      {price} <Text style={{ ...scale(t, 'tag', 'regular') }}>{tr('ر.س')}</Text>
+      {price} <Text style={{ ...scale(t, 'tag', 'regular') }}>{k('consult.currency')}</Text>
     </Text>
   ) : null;
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={[name, sub, note, price ? `${price} ${tr('ر.س')}` : ''].filter(Boolean).join('. ')}
+      accessibilityLabel={[name, sub, note, price ? `${price} ${k('consult.currency')}` : ''].filter(Boolean).join('. ')}
       onPress={() => onOpen(r)}
       style={({ pressed }) => ({
         flexDirection: 'row',
@@ -133,7 +132,7 @@ function ResultRow({ r, term, last, size, onOpen }: { r: SearchResult; term: str
 
 /** A doctor of the board's horizontal row: the filled stethoscope on its tone (the search gives no photo), name, specialty. */
 function DoctorCard({ r, term, onOpen }: { r: SearchResult; term: string; onOpen: (r: SearchResult) => void }) {
-  const { theme, t, c, lang, flow, tr } = useScreenUi();
+  const { theme, t, c, lang, flow, tr, k } = useScreenUi();
   const { icon, tone } = iconFor(r.type);
   const name = pick(lang, r.name, r.nameEn);
   const sub = pick(lang, r.sub, r.subEn);
@@ -141,7 +140,7 @@ function DoctorCard({ r, term, onOpen }: { r: SearchResult; term: string; onOpen
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={[name, sub, price ? `${price} ${tr('ر.س')}` : ''].filter(Boolean).join('. ')}
+      accessibilityLabel={[name, sub, price ? `${price} ${k('consult.currency')}` : ''].filter(Boolean).join('. ')}
       onPress={() => onOpen(r)}
       style={({ pressed }) => ({ width: 252, opacity: pressed ? 0.7 : 1 })}
     >
@@ -151,7 +150,7 @@ function DoctorCard({ r, term, onOpen }: { r: SearchResult; term: string; onOpen
           <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
             <Highlight text={name} term={term} style={{ ...scale(t, 'segment', 'bold'), color: c.text.primary, ...flow, ...markTextProps(markByScript(lang, name)).style }} />
             {sub ? <Text numberOfLines={2} style={{ ...scale(t, 'label', 'regular'), color: c.text.secondary, ...flow }}>{sub}</Text> : null}
-            {price ? <Text style={{ ...scale(t, 'label', 'medium'), color: c.text.primary }}>{`${price} ${tr('ر.س')}`}</Text> : null}
+            {price ? <Text style={{ ...scale(t, 'label', 'medium'), color: c.text.primary }}>{`${price} ${k('consult.currency')}`}</Text> : null}
           </View>
         </View>
       </Card>
@@ -160,7 +159,7 @@ function DoctorCard({ r, term, onOpen }: { r: SearchResult; term: string; onOpen
 }
 
 function Block({ block, term, filter, count, onOpen, onSeeAll }: { block: ResultBlock; term: string; filter: string; count: number; onOpen: (r: SearchResult) => void; onSeeAll: (key: string) => void }) {
-  const { theme, tr } = useScreenUi();
+  const { theme, tr, k } = useScreenUi();
   const { section, rows } = block;
   const all = filter === 'all';
   const shown = all ? rows.slice(0, section.preview) : rows;
@@ -170,7 +169,7 @@ function Block({ block, term, filter, count, onOpen, onSeeAll }: { block: Result
     <View style={{ gap: 10 }}>
       <SectionHeader
         title={tr(section.title)}
-        actionLabel={seeAll ? tr('الكل') : undefined}
+        actionLabel={seeAll ? k('orders.filter.all') : undefined}
         onActionPress={seeAll ? () => onSeeAll(seeAll.key) : undefined}
         theme={theme}
       />
@@ -206,7 +205,7 @@ function Block({ block, term, filter, count, onOpen, onSeeAll }: { block: Result
 
 /** "Didn't find what you wanted? Upload the prescription": the board's dashed card, opening the real upload. */
 function UploadCard() {
-  const { theme, t, c, flow } = useScreenUi();
+  const { theme, t, c, flow, k } = useScreenUi();
   const { isHidden } = useModules();
   if (isHidden('/pharmacy')) return null;
   return (
@@ -216,18 +215,16 @@ function UploadCard() {
       style={{ flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 44, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 22, borderWidth: 1, borderStyle: 'dashed', borderColor: c.border.strong }}
     >
       <FIcon icon="prescription" tone={SERVICE_ICONS.pharmacy.tone} chip="none" size={24} theme={theme} />
-      <LocalizedText style={{ flex: 1, ...scale(t, 'small', 'regular'), color: c.text.primary, ...flow }}>
-        لم تجد ما تبحث عنه؟ ارفع الوصفة وتبحث الصيدليات عنه لك
-      </LocalizedText>
-      <LocalizedText style={{ ...scale(t, 'small', 'bold'), color: c.text.link }}>رفع الوصفة</LocalizedText>
+      <Text style={{ flex: 1, ...scale(t, 'small', 'regular'), color: c.text.primary, ...flow }}>{k('search.screen.uploadPrompt')}</Text>
+      <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.link }}>{k('search.screen.uploadCta')}</Text>
     </Pressable>
   );
 }
 
 function ResultsSkeleton() {
-  const { theme, c, tr } = useScreenUi();
+  const { theme, c, tr, k } = useScreenUi();
   return (
-    <View accessibilityLabel={tr('جاري التحميل...')} accessibilityState={{ busy: true }} style={{ gap: 10 }}>
+    <View accessibilityLabel={k('pharmacy.loading')} accessibilityState={{ busy: true }} style={{ gap: 10 }}>
       <Skeleton variant="title" width="half" theme={theme} />
       <View style={{ borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }}>
         {[0, 1, 2].map((i) => (
@@ -245,7 +242,7 @@ function ResultsSkeleton() {
 
 /** With no query: recent searches, then the browse grid. */
 function Discover({ recent, onPick, onClear }: { recent: string[]; onPick: (q: string) => void; onClear: () => void }) {
-  const { theme, t, c, flow, tr } = useScreenUi();
+  const { theme, t, c, flow, tr, k } = useScreenUi();
   const { disabled } = useModules();
   const browse = visibleItems(BROWSE, (item) => item.route, disabled);
   const rows: (typeof BROWSE)[] = [];
@@ -254,7 +251,7 @@ function Discover({ recent, onPick, onClear }: { recent: string[]; onPick: (q: s
     <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 40, gap: 24 }}>
       {recent.length ? (
         <View style={{ gap: 6 }}>
-          <SectionHeader title={tr('عمليات البحث الأخيرة')} actionLabel={tr('مسح')} onActionPress={onClear} theme={theme} />
+          <SectionHeader title={k('search.screen.recent')} actionLabel={k('search.screen.clear')} onActionPress={onClear} theme={theme} />
           {recent.map((q) => (
             <Pressable
               key={q}
@@ -270,18 +267,18 @@ function Discover({ recent, onPick, onClear }: { recent: string[]; onPick: (q: s
         </View>
       ) : null}
       <View style={{ gap: 12 }}>
-        <SectionHeader title={tr('تصفّح حسب القسم')} theme={theme} />
+        <SectionHeader title={k('search.screen.browseTitle')} theme={theme} />
         <View style={{ gap: 14 }}>
           {rows.map((row, ri) => (
             <View key={ri} style={{ flexDirection: 'row', gap: 10 }}>
               {row.map((b) => {
                 const { icon, tone } = SERVICE_ICONS[b.service];
                 return (
-                  <Pressable key={b.label} accessibilityRole="button" accessibilityLabel={tr(b.label)} onPress={() => router.push(b.route as Href)} style={{ flex: 1, minWidth: 0, alignItems: 'center', gap: 8 }}>
+                  <Pressable key={b.labelKey} accessibilityRole="button" accessibilityLabel={k(b.labelKey)} onPress={() => router.push(b.route as Href)} style={{ flex: 1, minWidth: 0, alignItems: 'center', gap: 8 }}>
                     <View style={{ width: 72, height: 72, borderRadius: 22, backgroundColor: c.bg.surface, boxShadow: t.shadow.tile, alignItems: 'center', justifyContent: 'center' }}>
                       <FIcon icon={icon} tone={tone} chip="none" size={46} theme={theme} />
                     </View>
-                    <LocalizedText numberOfLines={2} style={{ ...scale(t, 'label', 'medium'), color: c.text.primary, textAlign: 'center' }}>{b.label}</LocalizedText>
+                    <Text numberOfLines={2} style={{ ...scale(t, 'label', 'medium'), color: c.text.primary, textAlign: 'center' }}>{k(b.labelKey)}</Text>
                   </Pressable>
                 );
               })}
@@ -294,7 +291,7 @@ function Discover({ recent, onPick, onClear }: { recent: string[]; onPick: (q: s
 }
 
 function SearchScreen({ initialQuery }: { initialQuery: string }) {
-  const { theme, t, c, dir, tr, lang } = useScreenUi();
+  const { theme, t, c, dir, tr, lang, k } = useScreenUi();
   const modules = useModules();
   const insets = useSafeAreaInsets();
   const [query, setQuery] = useState(initialQuery);
@@ -388,20 +385,20 @@ function SearchScreen({ initialQuery }: { initialQuery: string }) {
             variant="page"
             value={query}
             onChange={setQuery}
-            placeholder={tr('ابحث عن دواء، طبيب، تحليل…')}
-            label={tr('بحث')}
+            placeholder={k('search.screen.placeholder')}
+            label={k('search.screen.label')}
             onClear={() => setQuery('')}
-            clearLabel={tr('مسح')}
+            clearLabel={k('search.screen.clear')}
             onScanPress={modules.isHidden('/pharmacy') ? undefined : () => router.push('/pharmacy/barcode-scanner' as Href)}
-            scanLabel={tr('ماسح الأدوية')}
+            scanLabel={k('search.screen.scan')}
             testID="search-field"
             theme={theme}
           />
         </View>
         <WishlistButton testID="search-wishlist-button" />
         <ServiceCartButton testID="search-cart-button" />
-        <Pressable accessibilityRole="button" accessibilityLabel={tr('إلغاء')} onPress={leave} hitSlop={8} style={{ minHeight: 44, minWidth: 44, alignItems: 'center', justifyContent: 'center' }}>
-          <LocalizedText style={{ ...scale(t, 'body', 'regular'), color: c.text.primary }}>إلغاء</LocalizedText>
+        <Pressable accessibilityRole="button" accessibilityLabel={k('search.screen.cancel')} onPress={leave} hitSlop={8} style={{ minHeight: 44, minWidth: 44, alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ ...scale(t, 'body', 'regular'), color: c.text.primary }}>{k('search.screen.cancel')}</Text>
         </Pressable>
       </View>
       {term && answered === term && rows.length && !failed ? (
@@ -423,13 +420,13 @@ function SearchScreen({ initialQuery }: { initialQuery: string }) {
   } else if (failed === 'offline') {
     body = (
       <ScrollView contentContainerStyle={centred}>
-        <OfflineState title={tr('لا يوجد اتصال بالإنترنت')} body={tr('اتصل بالشبكة ثم حاول مرة أخرى.')} retryLabel={tr('إعادة المحاولة')} onRetry={() => setNonce((n) => n + 1)} theme={theme} />
+        <OfflineState title={k('pharmacy.offline.title')} body={k('pharmacy.offline.body')} retryLabel={k('pharmacy.retry')} onRetry={() => setNonce((n) => n + 1)} theme={theme} />
       </ScrollView>
     );
   } else if (failed === 'error') {
     body = (
       <ScrollView contentContainerStyle={centred}>
-        <ErrorState title={tr('تعذر تنفيذ البحث')} body={tr('تحقق من اتصالك ثم حاول مرة أخرى.')} retryLabel={tr('إعادة المحاولة')} onRetry={() => setNonce((n) => n + 1)} theme={theme} />
+        <ErrorState title={k('search.screen.errTitle')} body={k('search.screen.errBody')} retryLabel={k('pharmacy.retry')} onRetry={() => setNonce((n) => n + 1)} theme={theme} />
       </ScrollView>
     );
   } else if (answered !== term) {
@@ -441,7 +438,7 @@ function SearchScreen({ initialQuery }: { initialQuery: string }) {
   } else if (!rows.length) {
     body = (
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 40, gap: 22 }}>
-        <EmptyState icon="magnifying-glass" tone="blue" title={tr('لا توجد نتائج')} body={tr('جرّب كلمة أخرى أو تحقق من الإملاء.')} theme={theme} />
+        <EmptyState icon="magnifying-glass" tone="blue" title={k('search.screen.emptyTitle')} body={k('search.screen.emptyBody')} theme={theme} />
         <UploadCard />
       </ScrollView>
     );
