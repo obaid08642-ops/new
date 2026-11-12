@@ -1,5 +1,11 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-12 14:19 UTC — CI read: #2623, #2624, #2625, #2627 all GREEN
+Status: waiting for the lead to merge
+PRs green (every check completed success, incl. live gate 1-5 and Backend build and tests): #2623 /config + /modules (kill-switch fix included), #2625 product-equivalents load, #2624 flapping-alert digest, #2627 disk guard (its own `guard` workflow also green). Suggested order: #2623, #2625, #2624, #2627.
+Not yet read: #2617, #2618, #2619 (older PRs; main was merged in by you at 08:55). I will read them next.
+Nothing else started: PR cap (7 open). Waiting on: your merges, run 116 follow-up numbers, owner pick for Cloudinary, the TLV/credit-note QR question.
+
 ## 2026-11-12 12:50 UTC — #2623 is GREEN (ready to merge)
 Status: done, waiting for the lead
 PR: #2623 (b2/p0-config-modules-cache, head 12be8b58): all 33 checks completed success, incl. live gate shards 1-5 (the kill-switch / maintenance journals that failed before the fix) and Backend build and tests. PR description updated to match the fixed design.
