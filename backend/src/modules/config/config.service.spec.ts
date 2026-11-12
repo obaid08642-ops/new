@@ -1,3 +1,4 @@
+process.env.CONFIG_CACHE_MS = "0"; // the specs change the rows between calls
 import { CHI_INQUIRY_URL, chiInquiryUrl, ConfigService } from './config.service';
 import { ClamavService } from '../storage/clamav.service';
 
@@ -43,5 +44,28 @@ describe('CHI inquiry link in /config', () => {
     expect((await svc.getClientConfig()).features.site_notice_enabled).toBe(true);
     rows.push({ key: 'site_notice_enabled', enabled: false, rollout_percentage: 100 });
     expect((await svc.getClientConfig()).features.site_notice_enabled).toBe(false);
+  });
+});
+
+describe('/config under a slow or failing database', () => {
+  const clamav = { uploadsAvailable: async () => true, uploadsPendingScan: async () => false };
+
+  it('concurrent requests share one read of the flag rows', async () => {
+    const toArray = jest.fn(async () => { await new Promise((r) => setTimeout(r, 20)); return [{ key: 'x', enabled: true }]; });
+    const conn = { collection: () => ({ find: () => ({ project: () => ({ toArray }) }), findOne: async () => null }) };
+    const svc = new ConfigService(conn as never, clamav as never);
+    const all = await Promise.all([svc.getClientConfig(), svc.getClientConfig(), svc.getClientConfig()]);
+    expect(toArray).toHaveBeenCalledTimes(1);
+    expect(all.every((c) => c.features.x === true)).toBe(true);
+  });
+
+  it('when the database fails after a good read, the last good flags are still served', async () => {
+    let down = false;
+    const toArray = jest.fn(async () => { if (down) throw new Error('db down'); return [{ key: 'x', enabled: true }]; });
+    const conn = { collection: () => ({ find: () => ({ project: () => ({ toArray }) }), findOne: async () => null }) };
+    const svc = new ConfigService(conn as never, clamav as never);
+    expect((await svc.getClientConfig()).features.x).toBe(true);
+    down = true;
+    expect((await svc.getClientConfig()).features.x).toBe(true);
   });
 });
