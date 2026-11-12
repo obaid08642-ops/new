@@ -3,7 +3,7 @@ import { HospitalService } from '../services/hospital.service';
 import { JwtAuthGuard, CurrentUser, Roles } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
 import { Permission, RequirePermissions } from '../../../common/permissions';
-import { AddStaffDto, UpdateStaffCredentialsDto, OnboardDoctorDto, UpdateAppointmentStatusDto, CreateInvitationDto, RespondInvitationDto, CreateBranchDto, CreateDepartmentDto, AdminFacilityQueryDto } from './hospital.dto';
+import { OnboardDoctorDto, UpdateAppointmentStatusDto, CreateInvitationDto, RespondInvitationDto, CreateBranchDto, CreateDepartmentDto, AdminFacilityQueryDto } from './hospital.dto';
 
 @Controller('hospital')
 @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
@@ -29,26 +29,6 @@ export class HospitalController {
   @Get('departments')
   async getDepartments(@CurrentUser() user: any) {
     return this.hospitalService.getDepartments(user.id, user);
-  }
-
-  @Post('staff')
-  async addStaff(@CurrentUser() user: any, @Body() body: AddStaffDto) {
-    return this.hospitalService.addStaff(user.id, body, user);
-  }
-
-  @Get('staff')
-  async getStaff(@CurrentUser() user: any) {
-    return this.hospitalService.getStaff(user.id, user);
-  }
-
-  @Put('staff/:id/credentials')
-  async updateStaffCredentials(@CurrentUser() user: any, @Param('id') id: string, @Body() body: UpdateStaffCredentialsDto) {
-    return this.hospitalService.updateStaffCredentials(user.id, id, body, user);
-  }
-
-  @Delete('staff/:id')
-  async removeStaff(@CurrentUser() user: any, @Param('id') id: string) {
-    return this.hospitalService.removeStaff(user.id, id, user);
   }
 
   @Post('doctors/onboard')
