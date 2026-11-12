@@ -13,6 +13,7 @@ import { Chip } from "@/components-next/ui-generated/components/Surfaces";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
 import { FIconGlyph } from "@/components-next/icons/ficon-glyph";
 import type { CenterRow, OrderKind, ResultRow } from "./center-rows";
+import { HideVisitButton } from "@/components-next/consult/hide-visit-button";
 import { KIND_ORDER, ordersQuery, type OrdersTab as Tab } from "./orders-query";
 import { FieldText } from "@/components-next/ui/localized-field";
 import { LocalDate } from "./local-date";
@@ -121,6 +122,7 @@ export function OrderList({ locale, rows, results, partialNote, initialTab, init
                 {row.amount ? <span className={styles.amount}>{row.amount}</span> : row.itemsText ? <span className={styles.itemsOnly}>{row.itemsText}</span> : <span />}
                 <ButtonLink href={row.action.href} label={row.action.label} variant="outline" size="sm" />
               </div>
+              {row.hide ? <HideVisitButton kind={row.hide.kind} id={row.hide.id} hidden={row.hide.hidden} /> : null}
             </li>
           ))}
         </ul>

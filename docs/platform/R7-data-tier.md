@@ -57,3 +57,23 @@ No standby, no Atlas, no member added, no host changes, no Redis/Meilisearch mov
 - the file and the running value differ -> restart mongod in the next deploy window so the file takes effect.
 
 **The owner's decision:** more RAM is the durable fix. `echo <MB> > deploy/HOST_RAM_MB && python3 tools/ops/mem_budget.py render --write` rewrites every limit and the cache for the new size (8192 MB gives mongod a 4688m limit; plan in R1). Providers and prices: `docs/ops/SERVER_MOVE.md`. Until then the restarts are the cost of running a 7.7 GB limit plan on a 3.8 GB host.
+
+## Launch checklist: the RAM to buy (owner decision 2026-11-09)
+**Decision:** no RAM upgrade now (no users yet, no paying for idle capacity). The RAM is raised **at launch**. Everything is built as if the host were sized for launch: the design is **not** bent to the 3.8 GB host. The safety measures already merged stay (mongo-wait before the pre-deploy dump, dump retry, alert hysteresis, the watchdog mail gap). The OOM-style restarts on the current host are known and accepted until launch; the alert rules (#2530: a mail only for a confirmed change, at most one repeat per 24 h) keep them from flooding the owner's inbox.
+
+**How the size is decided (`tools/ops/mem_budget.py`):** steady use (sum of `mem_reservation` of the always-on containers, clamav excluded) + the largest one-off container (700 MB) + the host reserve (10 % of the host, at least 512 MB) must fit in `deploy/HOST_RAM_MB`. The tool then scales mongod, redis, meilisearch, backend, worker and patient-web by one factor so the plan fills the host. Output of `mem_budget.py render --host-ram-mb N` (limits in MB, no files written):
+
+| host RAM | scale | mongod limit / cache | sum of always-on reservations | + one-off 700 + reserve | sum of ALL limits |
+|---|---|---|---|---|---|
+| 3800 (today) | 1.0 | 1600 / 0.6 GB | 2560 | 3772 | 7680 |
+| **8192 (launch floor)** | 2.94 | 4688 / 1.75 GB | 6594 | 8113 | 16944 |
+| 12288 | 4.69 | 7488 / 2.8 GB | 10290 | 12218 | 25344 |
+| 16384 | 6.44 | 10288 / 3.85 GB | 13986 | 16324 | 33744 |
+
+**Size to buy: at least 8 GB (8192 MB).** It is the first common size at which the budget rule holds with the services scaled to roughly 3x today (mongod gets a 4.7 GB limit and a 1.75 GB cache instead of 1.6 GB and 0.6 GB). Today's measured use with almost no traffic (ops run 109, `96j`/memory report): mongod 871 MB, backend 325 MB, worker 281 MB, redis 255 MB, patient-web 136 MB, nginx 66 MB, admin-web 57 MB, livekit 24 MB, meilisearch 12 MB: about 2.1 GB, so the 3.8 GB host is the ceiling only because the plan is sized for launch. The model fills whatever host it is given, so the right size above 8 GB depends on the launch working set, not on this document: take the next row (12 or 16 GB) when, after launch, any of these holds for a week: swap in use stays over 256 MB (`memory` task WARN), mongod's `memory.events max` keeps rising on the new instance, or `MemAvailable` stays under 15 % of the host.
+
+**Launch steps (all existing tooling, nothing new):**
+1. Move the services to the new host or resize it (providers, prices, move plan: `docs/ops/SERVER_MOVE.md`; data residency rules for the provider: `docs/platform/R19-data-residency.md`).
+2. `echo 8192 > deploy/HOST_RAM_MB && python3 tools/ops/mem_budget.py render --write` rewrites every limit, reservation, node heap and `cacheSizeGB`; commit the result in its own PR (the CI check `mem_budget.py check` and `check-compose-limits.py` must pass).
+3. Deploy in a normal window. mongod reads the new `mongod.conf` at its next recreate, which the deploy does; confirm with `96j-mongo-cache-check` (running `cacheSizeGB` equals the file) and `98-memory-report` (no WARN).
+4. Re-run `98q-alert-mail-state` a day later: the mails-per-day table must show no mail for a state that did not change.

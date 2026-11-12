@@ -86,7 +86,7 @@ This PR (PT-25 delivery tracking) moved one PARTIAL row to COVERED. The 'This PR
 | PT-51 | Pregnancy weeks content | COVERED | `j_pregnancy_weeks.py` | P3 | — |
 | PT-52 | Health logging | COVERED | `j_web_health_logging.py` | P3 | — |
 | PT-53 | Web call join window and in-call controls | COVERED | `j_web_call.py` (71/71) | P0 | — |
-| PT-54 | Patient hides or unhides a visit from history | COVERED (backend live + unit; web + app: consultation history, other lists follow) | `j_hide_visit.py` (an open visit cannot be hidden, another patient cannot hide it, hide is idempotent, the timeline leaves it out, include_hidden=1 shows it as hidden, the visit itself is untouched, unhide), patient-web/tests/consult-screens.test.tsx, patient-app/src/utils/__tests__/hiddenVisits.test.ts | P3 | H |
+| PT-54 | Patient hides or unhides a visit from history | COVERED (backend live + unit; web + app: consultation history and the orders centre) | `j_hide_visit.py` (an open visit cannot be hidden, another patient cannot hide it, hide is idempotent, the timeline leaves it out, include_hidden=1 shows it as hidden, the visit itself is untouched, unhide), patient-web/tests/consult-screens.test.tsx, patient-web/tests/orders-screens.test.tsx, patient-app/src/utils/__tests__/hiddenVisits.test.ts | P3 | H |
 | PT-55 | Medicine ranking and substitute choice | COVERED | `j_medicine_ranking.py`, `j_rx_substitute.py` | P2 | — |
 | PT-56 | Guest checkout (no account) | COVERED | `j_guest_lifecycle.py`, `j_guest_matrix.py` | P1 | — |
 | PT-57 | Insurance-first pharmacy order | COVERED | `j_pharmacy_insurance_first.py` | P1 | — |
