@@ -76,7 +76,7 @@ export const ROUTE_GROUP_NAMESPACES: Record<string, readonly string[]> = {
   nutrition: ["LogForms", "NutritionWeb"],
   offers: ["OffersWeb"],
   medicines: ["PharmacyBrowse"],
-  orders: ["OrderTracking", "Orders", "PharmacyOffers", "HealthWeb"],
+  orders: ["ConsultClient", "OrderTracking", "Orders", "PharmacyOffers", "HealthWeb"],
   otp: ["Otp"],
   p: ["PharmacyBrowse", "PublicProduct"],
   "password-reset": ["PasswordReset"],
