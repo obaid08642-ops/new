@@ -1,5 +1,11 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-12 15:54 UTC — queue 5 PR #2628, queue 6 verified clean
+Status: in progress (waiting for CI on #2628)
+PR: #2628 b2/provider-suspend-login (CI pending). Queue 5: the central gate (403 provider_approval_required for every non-approved provider-scope token except the 6 onboarding paths; reason via /provider-onboarding/progress) was already right for pending/rejected/needs_changes/suspended. THE HOLE: approve flips the users row of the login to the provider role, and the gate only checks scope 'provider' tokens, so a SUSPENDED provider kept working through the patient login (user-scope token, role doctor/pharmacy...) and suspend never revoked that login's sessions. Fix: suspend and reject (suspended -> rejected) demote that users row (only if it really holds the provider role) to guest + bump token_version; reactivate restores the role. Provider-scope sign-in, reason and resubmit path unchanged. 4 tests; jest src/modules/provider 66 suites / 427 tests pass.
+Queue 6 (DTO leftovers), rechecked on main: test_prices/scan_prices are already `@IsPriceMap` (Record<string, number>), /hospital/staff is in one controller since #2615, dtolint 0/0, dtocheck from the repo root: 718 DTO routes, 0 mismatches (2 'verify by hand' lines in patient-app pharmacyOrderSend.ts, not mismatches). I found no open nursing settings/delta DTO gap; if you have the exact route, tell me.
+Next: queue 7 (AD-02 reject/changes journey), 3b (jobs one at a time), invoices pass over the other services.
+
 ## 2026-11-12 15:48 UTC — all 7 PRs MERGED; starting queue item 5
 Status: in progress
 Merged on main: #2617 credit notes, #2618 TLV guard, #2619 PT-24 money tests, #2623 /config+/modules, #2624 flapping digest, #2625 product equivalents, #2627 disk guard. Open PRs of mine: 0.
