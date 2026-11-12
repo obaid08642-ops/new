@@ -1,5 +1,11 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-12 09:18 UTC — disk retention: PR #2627
+Status: in progress
+PR: #2627 b2/p0-disk-guard (CI pending): daily `deploy/scripts/disk-guard.sh` (cron 05:20 UTC line added to deploy/cron/nabd-backups; you install it on the server). Below 25 % free: build cache, dangling + unused (>7 days) images, release dirs beyond current+previous, journal to 100 MB. Never backups/volumes; exit 2 + message if still under 20 % (then 97c by hand). 5 tests + workflow.
+Other PRs: main was merged into #2617 #2618 #2619 #2623 #2624 #2625 by you; I did not push over them. Their CI is re-running; I have not seen the results yet. P0 order for merge as you said: #2623, #2625, #2624.
+Not started: P0 item 3b (catalogue/translation jobs one at a time, off-peak); queue 5.
+
 ## 2026-11-12 07:19 UTC — run 116 root cause applied: PR #2625
 Status: in progress
 PR: #2625 (CI pending). Open: #2617 #2618 #2619 #2623 #2624 #2625 (over cap, P0). #2613/#2615/#2603 merged. Main does not have the ubuntu-24.04 pin yet; I will merge main into my PRs when it does.
