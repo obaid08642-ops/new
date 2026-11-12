@@ -1,4 +1,3 @@
-process.env.CONFIG_CACHE_MS = "0"; // the specs change the rows between calls
 import { CHI_INQUIRY_URL, chiInquiryUrl, ConfigService } from './config.service';
 import { ClamavService } from '../storage/clamav.service';
 
@@ -67,5 +66,24 @@ describe('/config under a slow or failing database', () => {
     expect((await svc.getClientConfig()).features.x).toBe(true);
     down = true;
     expect((await svc.getClientConfig()).features.x).toBe(true);
+  });
+});
+
+describe('/config never hides a kill switch or the maintenance banner', () => {
+  const clamav = { uploadsAvailable: async () => true, uploadsPendingScan: async () => false };
+
+  it('a flag written between two requests is in the next response (default settings)', async () => {
+    delete process.env.CONFIG_CACHE_MS;
+    const rows: any[] = [{ key: 'telehealth', enabled: true }];
+    const sys: any = { value: { patient_app: { maintenance: false } } };
+    const conn = { collection: (n: string) => (n === 'feature_flags'
+      ? { find: () => ({ project: () => ({ toArray: async () => rows.map((r) => ({ ...r })) }) }) }
+      : { findOne: async () => sys }) };
+    const svc = new ConfigService(conn as never, clamav as never);
+    expect((await svc.getClientConfig()).features.telehealth).toBe(true);
+    rows[0].enabled = false;                      // the admin switches it OFF
+    expect((await svc.getClientConfig()).features.telehealth).toBe(false);
+    sys.value = { patient_app: { maintenance: true } };   // the admin raises the maintenance banner
+    expect((await svc.getClientConfig()).app_versions).toEqual({ patient_app: { maintenance: true } });
   });
 });

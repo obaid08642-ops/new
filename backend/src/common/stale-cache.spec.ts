@@ -38,4 +38,15 @@ describe('StaleCache', () => {
     await c.get(); c.clear(); await c.get();
     expect(load).toHaveBeenCalledTimes(2);
   });
+
+  it('a load that was already running when clear() was called does not store its older result', async () => {
+    let v = 'old';
+    const c = new StaleCache(async () => { const x = v; await new Promise((r) => setTimeout(r, 20)); return x; }, () => 1000);
+    const first = c.get();
+    v = 'new'; c.clear();
+    const second = c.get();                   // asked while the old load is still running: must start a new one, not join it
+    expect(await first).toBe('old');          // the caller that was already waiting gets what it asked for
+    expect(await second).toBe('new');
+    expect(await c.get()).toBe('new');
+  });
 });

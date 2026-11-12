@@ -7,6 +7,7 @@
 export class StaleCache<T> {
   private value?: { at: number; v: T };
   private inflight?: Promise<T>;
+  private generation = 0;
 
   constructor(private readonly load: () => Promise<T>, private readonly ttlMs: () => number, private readonly loadTimeoutMs = 1500) {}
 
@@ -14,22 +15,24 @@ export class StaleCache<T> {
     const now = Date.now();
     if (this.value && now - this.value.at < this.ttlMs()) return this.value.v;
     if (!this.inflight) {
-      this.inflight = this.refresh().finally(() => { this.inflight = undefined; });
+      const p: Promise<T> = this.refresh().finally(() => { if (this.inflight === p) this.inflight = undefined; });
+      this.inflight = p;
     }
     return this.inflight;
   }
 
-  /** Forget the stored value (a write just changed it). */
-  clear(): void { this.value = undefined; }
+  /** Forget the stored value (a write just changed it). A load already running when this is called does not store its (older) result. */
+  clear(): void { this.value = undefined; this.inflight = undefined; this.generation += 1; }
 
   private async refresh(): Promise<T> {
     let timer: NodeJS.Timeout | undefined;
+    const gen = this.generation;
     try {
       const v = await Promise.race([
         this.load(),
         new Promise<never>((_r, rej) => { timer = setTimeout(() => rej(new Error('load_timeout')), this.loadTimeoutMs); }),
       ]);
-      this.value = { at: Date.now(), v };
+      if (gen === this.generation) this.value = { at: Date.now(), v };
       return v;
     } catch (e) {
       if (this.value) return this.value.v;

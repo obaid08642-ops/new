@@ -25,13 +25,14 @@ export function chiInquiryUrl(env: Record<string, string | undefined> = process.
 
 @Injectable()
 export class ConfigService {
-  // The two database reads of /config (admin flag rows, app versions) are shared by every client: one load per TTL (single-flight),
-  // and the last good copy while the database is slow or down. CONFIG_CACHE_MS=0 turns the TTL off (tests).
+  // The two database reads of /config (admin flag rows, app versions + maintenance) are NEVER served from a fresh-TTL cache: a kill switch or a
+  // maintenance banner must reach every client at once. What is shared is the load itself (concurrent requests wait for ONE read instead of
+  // piling up on a slow database) and, only when the read FAILS or exceeds 1.5 s, the last good copy. CONFIG_CACHE_MS (default 0) exists for tests.
   private readonly dbPart = new StaleCache<{ rows: any[]; appVersions: Record<string, unknown> }>(async () => {
     const rows = await this.conn.collection('feature_flags').find({}, { maxTimeMS: 1500 }).project({ _id: 0, key: 1, enabled: 1, rollout_percentage: 1 }).toArray();
     const doc: any = await this.conn.collection('system_configs').findOne({ key: 'app_versions' }, { maxTimeMS: 1500 });
     return { rows: rows as any[], appVersions: doc?.value && typeof doc.value === 'object' ? doc.value : {} };
-  }, () => { const n = Number(process.env.CONFIG_CACHE_MS); return Number.isFinite(n) && n >= 0 ? n : 5000; });
+  }, () => { const n = Number(process.env.CONFIG_CACHE_MS); return Number.isFinite(n) && n >= 0 ? n : 0; });
 
   constructor(
     @InjectConnection() private readonly conn: Connection,
