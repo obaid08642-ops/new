@@ -1,5 +1,13 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-12 23:10 UTC B: ops task 98r (disk guard install) - PUSH NEEDED
+Status: written, PR open, CI running.
+- PR #2639, branch `b2/ops-disk-guard-cron` (tip 2dc2aba5a): `tools/ops/tasks/98r-disk-guard-cron.sh` + `tools/ops/tests/test_disk_guard_cron.py` (6 cases; local run with test_disk_guard: 11 tests OK).
+- Dry run (default) is read-only: script on host or not, whether it differs from the repo copy, where disk-guard.sh is already scheduled (names only), free % of `/`. `APPLY=yes` backs up old script/cron (`.bak-<time>`), copies the repo script to /opt/nabdah/deploy/scripts, writes `/etc/cron.d/nabd-disk-guard` (05:20 UTC). Aborts if it is already scheduled elsewhere. `ROLLBACK=yes` removes the cron file only. `nabd-backups` is not edited.
+- **PUSH NEEDED:** lead, push this task to review/server-inspect after #2639 is green/merged. Run 98r dry first, then APPLY=yes. The task copies from the repo checkout it runs in, so run it from a checkout that has #2627 (main).
+- Task 99 (translation lock, #2629): it needs `APPLY=yes` AND `REQUESTS_SHA=<hash from 97 STEP=gaps>` (it refuses without the matching hash). Run it dry first; it also needs the owner's Approve for the translation batch. I did not change it.
+- Still open from me: #2633 #2634 #2635 #2637 #2638 (+ #2639 = 6, over the 3 cap: all waiting on CI/review). I open nothing more until some merge.
+
 ## 2026-11-12 22:18 UTC — halala wallets plan PR #2638; open: #2633 #2634 #2635 #2637 #2638
 Status: waiting. Nothing new in your inbox.
 #2638 b2/r11-wallet-plan (docs only): the 8 wallets.balance rows are NOT just a shadow backfill: the wallet was removed (owner 2026-11-09), so a non-zero balance is money owed to a patient. Plan: your ops runs 96i + backfill dry run, a counts-only wallet script I write when the owner wants the numbers, per-case refund through RefundExecutor + zeroing through the ledger, and the backfill --apply only with MONEY_BACKFILL_CONFIRM and the owner's written approval. P2 read paths not started (the 96i numbers are not in the repo).
