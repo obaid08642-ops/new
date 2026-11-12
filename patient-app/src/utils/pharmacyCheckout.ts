@@ -346,14 +346,16 @@ export function readIntent(response: unknown): Intent {
 /* The result of a payment                                                                                             */
 /* ------------------------------------------------------------------------------------------------------------------ */
 
-export type PaymentPhase = 'paid' | 'pending' | 'failed' | 'cancelled' | 'refunded' | 'unknown';
+/** `sessionExpired`: the checkout session ran out and no money was taken (the backend stores it as failed with the reason `payment_session_expired`). */
+export type PaymentPhase = 'paid' | 'pending' | 'failed' | 'cancelled' | 'sessionExpired' | 'refunded' | 'unknown';
 
 /** The server's transaction status (payments `Transaction.status`, or the Moyasar record's) as one of the screen's phases. */
-export function paymentPhase(status: unknown): PaymentPhase {
+export function paymentPhase(status: unknown, failureReason?: unknown): PaymentPhase {
   const s = typeof status === 'string' ? status.toLowerCase() : '';
   if (s === 'paid') return 'paid';
+  if (s === 'expired' || (s === 'failed' && failureReason === 'payment_session_expired')) return 'sessionExpired';
   if (s === 'failed') return 'failed';
-  if (s === 'cancelled') return 'cancelled';
+  if (s === 'cancelled' || s === 'canceled') return 'cancelled';
   if (s === 'refunded' || s === 'partially_refunded') return 'refunded';
   if (['pending', 'initiating', 'authorized', 'initiated'].includes(s)) return 'pending';
   return 'unknown';
@@ -372,7 +374,7 @@ export interface PaymentResult {
 export function readPaymentResult(response: unknown): PaymentResult | null {
   const o = unwrap(response);
   if (!o) return null;
-  const phase = paymentPhase(o.status);
+  const phase = paymentPhase(o.status, o.failure_reason);
   const at = typeof o.paid_at === 'string' || typeof o.paid_at === 'number' ? new Date(o.paid_at).getTime() : NaN;
   const ref = text(o.id) ?? text(o.moyasar_id);
   return { phase, amount: num(o.amount), currency: text(o.currency), paidAt: Number.isFinite(at) ? at : null, reference: ref ? ref.slice(-8).toUpperCase() : null };
