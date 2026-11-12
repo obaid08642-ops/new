@@ -18,6 +18,7 @@ W=${OPS_TRANSLATE_DIR:-$IN/translate-work}
 CRON_DIR=${OPS_CRON_DIR:-/etc/cron.d}
 CRON_FILE=$CRON_DIR/nabd-translate-resume
 HELPER=${OPS_RESUME_HELPER:-/opt/nabdah/translate-resume.sh}
+LOCK=${OPS_RESUME_LOCK:-/var/lock/nabd-translate-resume.lock}   # one run at a time: a run still going (or a second cron) makes the next one skip
 LOG=${OPS_RESUME_LOG:-/var/log/nabd-translate-resume.log}
 CT=${CATALOGUE_CONTAINER:-nabdah-worker}   # the translation run is background work: it runs in the worker container, so its memory is the worker's and never the API's (2026-10-30 OOM)
 DK="sudo -n docker"
@@ -50,9 +51,11 @@ sudo -n tee "$HELPER" >/dev/null <<HELP || { say "ABORT cannot write $HELPER"; e
 #!/bin/bash
 # written by tools/ops/tasks/99-translate-resume-cron.sh: counts-only daily resume of the translation batch (pinned hash)
 set -u
-W="$W"; CT="$CT"; PIN="$REQUESTS_SHA"; MAX="$MAX_REQUESTS"; CW=/tmp/translate-work-cron
+W="$W"; CT="$CT"; PIN="$REQUESTS_SHA"; MAX="$MAX_REQUESTS"; CW=/tmp/translate-work-cron; LOCK="$LOCK"
 DK="sudo -n docker"
 log() { echo "\$(date -u +%FT%TZ) translate-resume: \$*"; }
+exec 9>"\$LOCK" || { log "skipped: cannot open the lock file"; exit 0; }
+flock -n 9 || { log "skipped: the previous run is still going"; exit 0; }
 [ "\$(\$DK inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "\$CT" 2>/dev/null)" = healthy ] || { log "skipped: backend not healthy"; exit 0; }
 SHA=\$(sha256sum "\$W/requests.jsonl" 2>/dev/null | cut -d' ' -f1)
 case "\$SHA" in "\$PIN"*) ;; *) log "skipped: the requests file changed, nothing sent"; exit 0;; esac
