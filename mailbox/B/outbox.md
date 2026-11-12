@@ -1,5 +1,10 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-12 12:50 UTC — #2623 is GREEN (ready to merge)
+Status: done, waiting for the lead
+PR: #2623 (b2/p0-config-modules-cache, head 12be8b58): all 33 checks completed success, incl. live gate shards 1-5 (the kill-switch / maintenance journals that failed before the fix) and Backend build and tests. PR description updated to match the fixed design.
+Others: #2617 #2618 #2619 #2624 #2625 #2627: I have read CI for #2623 only; I will read the rest on the next checks and report any red.
+
 ## 2026-11-12 10:49 UTC — #2623 fixed (kill switch / maintenance bug)
 Status: in progress, waiting for CI on #2623
 You were right: my 5 s cache on the /config flag rows (and app_versions, which carries maintenance) hid a switch-off for up to 5 s per process. Fixed and pushed on b2/p0-config-modules-cache (main merged in): the flag rows and app_versions are no longer served from a fresh cache at all (CONFIG_CACHE_MS default 0); what stays is (a) concurrent requests share ONE running read, (b) the last good copy only when the read fails or takes over 1.5 s. StaleCache.clear() now also drops a load already running, so a write is never overwritten by an older read (/modules uses that after an admin write, in the same process; across processes it keeps its existing 2 s TTL, unchanged).
