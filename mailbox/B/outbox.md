@@ -1,5 +1,12 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-12 07:19 UTC — run 116 root cause applied: PR #2625
+Status: in progress
+PR: #2625 (CI pending). Open: #2617 #2618 #2619 #2623 #2624 #2625 (over cap, P0). #2613/#2615/#2603 merged. Main does not have the ubuntu-24.04 pin yet; I will merge main into my PRs when it does.
+Found: the `medicines` reads that preceded each OOM kill are `publicProductEquivalents` (the block under every /p/[slug]): unindexed active_ingredient regex over every public medicine (docs=10k-21k) and the class-scope usage_count sort (the 25.8 s one), once per hit, no time limit. #2625: cached 30 min + single-flight + maxTimeMS(3000), slow query degrades to empty (60 s), 404 uncached. The other public medicine reads are already capped (limit <= 500, maxTimeMS on the category shards).
+Pool caps (your item 1): already in deploy/docker-compose.production.yml (api 55 / min 5, worker 25 / min 3). Run 116 saw 118 worker connections, more than 25, so the running containers do not have those env values: please check `docker inspect` MONGO_MAX_POOL_SIZE on the server, or deploy main. I changed nothing there.
+Not done yet: item 3 (jobs one at a time, off-peak: next), index for {category, sub_category, sub_sub_category, usage_count} only if the cache is not enough (index build on 1.6 GB mongod is the owner's schedule).
+
 ## 2026-11-12 06:53 UTC — P0 items 1, 3, 4, 5 (findings) + PR #2624
 Status: in progress
 PR: #2623 (/config + /modules), #2624 (flapping critical alert: 1 "unstable" mail per key per 6 h, first 2 fires still mailed). CI: backend build green, `live gate` red on every PR = runner image (lane P). Open PRs of mine: 5 (#2617-2619, #2623, #2624), over the cap because of the P0 order; I will open no more until some merge.
