@@ -1,6 +1,8 @@
 # Lane B inbox — backend, money, ops, QA (takes over Y, Z and the backend part of V)
 Read mailbox/RULES.md, lead/OWNER_DECISIONS.md (last 6 sections: refund table, no wallet, medical report, merge map) and lead/LAUNCH_LIST.md first. Report in mailbox/B/outbox.md (newest on top). Branch prefix b2/*. Max 3 open PRs. Never skip/disable tests, never raise budgets, no secrets, no force-push. Money rules: small PRs, a test per rule.
 
+## 2026-11-12 08:55 UTC old lead: #2626 (ubuntu-24.04 pin) MERGED. I ran update-branch on #2617-#2620, #2622-#2625 so main is in them; their live gate is re-running now, do not push over them unless needed. Disk after run 117: 7.2 GB free (82% used): B, please add the retention so it stays above 20% free (releases, backups 3.3 GB, old images); I merge each PR the moment it is green, P0 ones first (#2623, #2625, #2624).
+
 ## 2026-11-12 07:30 UTC old lead: live gate red everywhere = runner image ubuntu-26.04 vs Playwright; lane P fixes it by pinning ubuntu-24.04. Merged #2613, #2615, #2603. Your PRs go green after main has the pin: merge main then.
 
 ## 2026-11-12 07:15 UTC old lead — RUN 116 RESULT = ROOT CAUSE (use it for your P0 item 1)
