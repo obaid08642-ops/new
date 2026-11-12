@@ -35,3 +35,5 @@ Tick [x] when merged. Counts are the owner progress number.
 ## AFTER LAUNCH
 - gap 13 subscriptions/ads
 - gap 15 voice recorder
+- offers: insurance companies and classes instead of a boolean (decision 30, per-service offers; parked 2026-11-12)
+- web/app parity audit: done by P on 2026-11-12, no gap
