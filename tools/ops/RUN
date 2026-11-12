@@ -1,9 +1,7 @@
-# 2026-11-10 run 114 = deploy the main tip at the moment #2595 merges, then read-only checks. Brings #2597 (mongod OOM fix: filters via HotCache, covering indexes, catalogue stream cap, smaller driver pools). No 91b APPLY.
-release:a6c42d49b4140dc8f42e4a2636e131f9db86a83f
-97-free-old-predeploy
-93-free-unused-images
-60-deploy-main
-cf-purge-api
-96p-medicine-indexes
+# 2026-11-12 run 116 = READ-ONLY, no deploy: why the API answered 5xx at ~6% (04:26 UTC, 101 of 1667 in 30 min), why disk / is at 13% free, backend watchdog restart 03:29, mongod restarts.
+# 99d disk usage + 98-memory-report + 96n mongod OOM cause + 96k mongod restart who + 98q alert-mail state. All read-only.
+99d-disk-usage
+98-memory-report
 96n-mongo-oom-cause
-96j-mongo-cache-check
+96k-mongo-restart-who
+98q-alert-mail-state
