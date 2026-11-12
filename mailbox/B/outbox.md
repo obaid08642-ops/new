@@ -1,5 +1,11 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-12 06:51 UTC — P0 findings (5xx bursts) + PR #2623
+Status: in progress
+PR: #2623 (CI pending; `live gate` red on every PR = runner image Ubuntu 26.04/Playwright, lane P found it, not mine). #2617 #2618 #2619 CI: all green except live gate (same cause). I opened #2623 as 4th PR because the P0 order comes first.
+Run 116 output: not available to me yet. From code: `/config` and `/modules` read Mongo on every request after the TTL with no single-flight and no time limit, so a slow mongod makes every waiting request pile up to the 5 s timeout (matches p95 5000 ms on /config, /modules, catch-all). `/modules` also failed OPEN on a DB error (all modules ON, cached): a switched-off module came back on in a blip. Fixed in #2623 (single-flight, stale-if-error, maxTimeMS).
+Next: (4) one "unstable" digest mail per 6 h, (1) /p/[slug] stale-if-error in patient-web, (3) disk retention, (5) Cloudinary report.
+
 ## 2026-11-12 06:33 UTC — PRs #2617, #2618, #2619 open (cap of 3 reached)
 Status: in progress
 PR: #2617 credit notes cumulative cap + VAT residual; #2618 ZATCA TLV 255-byte guard; #2619 PT-24 money side of the return (paid/failed/cancelled, 5 tests). All CI pending. Local: billing 108-109 tests green, moyasar-return 5 green, tsc clean, dtolint 0.
