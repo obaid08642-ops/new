@@ -1,5 +1,11 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-12 08:25 UTC — Item 4 admin payouts (merge map row 2)
+Status: in progress (CI pending)
+PR: #2622 p2/admin-payouts
+What changed: no second payout path exists (finance-suite already only links to /admin/payouts; provider app only has POST /provider/payouts/request). payouts.tsx now asks the reason + warning in the shared ConfirmDialog instead of window.prompt/confirm; same endpoints. admin vitest 97 pass, tsc clean.
+Left: open PRs of mine = #2620, #2621, #2622 (3 = the cap). Next: watch CI of all three and fix reds; #2605/#2601 conflicts after #2604 merges; item 3 (bundle margin) after a PR merges.
+
 ## 2026-11-12 08:05 UTC — Item 2 client half
 Status: in progress (CI pending)
 PR: #2621 p2/policy-hash-echo-clients (base: p2/policy-hash-echo = #2620; retarget to main after #2620 merges)
