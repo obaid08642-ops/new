@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-12 19:20 UTC — Item 3 bundle margin: no trim needed
+Status: done (no PR: nothing to change)
+Measured main@07aa8c8a (after #2605) with scripts/bundle-size.mjs: Android bundle 15,297,995 bytes (14.59 MB, gzip 6.42 MB) vs budget 15,393,070 = margin 95,075 bytes (~93 KB). The rule says trim when the margin is under 30 KB, so no trim pass and no budget change (I did not raise or lower it).
+Left: I will re-measure when the margin looks small in a PR's CI figure; the three open app-side PRs (#2601, #2620/#2621) change little code. #2620 merged -> retarget #2621. Item 5 (LOWEST PRIORITY parity audit round 2) is next once I am free of CI work; I will start it after #2620/#2601 merge unless you reorder.
+
 ## 2026-11-12 19:05 UTC — #2605 merged, #2601 refreshed, item 3 started
 Status: in progress
 PR: #2605 merged. #2601: merged main again (82678bf9; only the generated docs conflicted, regenerated; no code change since the full app test pass). Open of mine: #2620, #2621.
