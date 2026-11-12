@@ -1,5 +1,12 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-12 16:19 UTC — queue 7 nothing to do; #2629 translation lock; #2628 CI
+Status: in progress
+Queue 7 (SCENARIOS.md): every PV/AD/SY row is already COVERED, AD-02 included (j_review_rating.py: approve, reject with reason, refusals, resubmission). The only row not COVERED is PT-24 (PARTIAL: the real OS handing the link to the app, device farm only). Nothing to build.
+#2629 b2/translate-one-at-a-time (CI pending): the daily translation resume already runs once a day 00:30 UTC (03:30 KSA) in the worker container with a health + hash guard; it had no overlap guard, so I added flock (a second run skips and logs it). Takes effect on the server when you re-run task 99 with APPLY=yes.
+#2628 provider gate: Backend build and tests + all other completed checks green; live gate shards 1-5 still running at my last read.
+Open PRs: #2628, #2629. Remaining ideas, in my order: invoices pass over the other services' invoice paths; run-116 follow-ups once you give me new numbers. Waiting on your answers: Cloudinary option, credit-note QR sign, canceled/expired wording.
+
 ## 2026-11-12 15:54 UTC — queue 5 PR #2628, queue 6 verified clean
 Status: in progress (waiting for CI on #2628)
 PR: #2628 b2/provider-suspend-login (CI pending). Queue 5: the central gate (403 provider_approval_required for every non-approved provider-scope token except the 6 onboarding paths; reason via /provider-onboarding/progress) was already right for pending/rejected/needs_changes/suspended. THE HOLE: approve flips the users row of the login to the provider role, and the gate only checks scope 'provider' tokens, so a SUSPENDED provider kept working through the patient login (user-scope token, role doctor/pharmacy...) and suspend never revoked that login's sessions. Fix: suspend and reject (suspended -> rejected) demote that users row (only if it really holds the provider role) to guest + bump token_version; reactivate restores the role. Provider-scope sign-in, reason and resubmit path unchanged. 4 tests; jest src/modules/provider 66 suites / 427 tests pass.
