@@ -1,5 +1,5 @@
 {
- "commit": "4edb69077",
+ "commit": "4f099be78",
  "routes": [
   {
    "app": "patient-app",
@@ -6673,7 +6673,7 @@
      "line": 284,
      "file": "patient-app/app/pharmacy/product-detail.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1349"
+     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1386"
     },
     {
      "method": "GET",
@@ -7173,7 +7173,7 @@
      "line": 21,
      "file": "patient-app/app/receipts/index.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:814"
+     "backend": "backend/src/modules/billing/billing.module.ts:825"
     }
    ],
    "files": 40,
@@ -7197,7 +7197,7 @@
      "line": 25,
      "file": "patient-app/app/receipts/[kind]/[bookingId].tsx",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:768"
+     "backend": "backend/src/modules/billing/billing.module.ts:779"
     }
    ],
    "files": 45,
@@ -9011,7 +9011,7 @@
      "line": 219,
      "file": "patient-web/lib/api/public-products-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1368"
+     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1405"
     },
     {
      "method": "GET",
@@ -9021,7 +9021,7 @@
      "line": 294,
      "file": "patient-web/lib/api/public-products-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1379"
+     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1416"
     }
    ],
    "files": 72,
@@ -16754,7 +16754,7 @@
      "line": 14,
      "file": "patient-web/app/[locale]/medicines/[medicineId]/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1341"
+     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1378"
     }
    ],
    "files": 6,
@@ -18547,7 +18547,7 @@
      "line": 334,
      "file": "patient-web/lib/api/public-products-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1333"
+     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1370"
     },
     {
      "method": "GET",
@@ -18557,7 +18557,7 @@
      "line": 323,
      "file": "patient-web/lib/api/public-products-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1349"
+     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1386"
     },
     {
      "method": "GET",
@@ -18567,7 +18567,7 @@
      "line": 204,
      "file": "patient-web/lib/api/public-products-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1311"
+     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1348"
     }
    ],
    "files": 88,
@@ -20161,7 +20161,7 @@
      "line": 219,
      "file": "patient-web/lib/api/public-products-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1368"
+     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1405"
     },
     {
      "method": "GET",
@@ -20171,7 +20171,7 @@
      "line": 294,
      "file": "patient-web/lib/api/public-products-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1379"
+     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1416"
     }
    ],
    "files": 72,
@@ -20353,7 +20353,7 @@
      "line": 15,
      "file": "patient-web/lib/api/billing-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:842"
+     "backend": "backend/src/modules/billing/billing.module.ts:853"
     }
    ],
    "files": 25,
@@ -20417,7 +20417,7 @@
      "line": 6,
      "file": "patient-web/lib/api/billing-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:814"
+     "backend": "backend/src/modules/billing/billing.module.ts:825"
     }
    ],
    "files": 58,
@@ -20481,7 +20481,7 @@
      "line": 10,
      "file": "patient-web/lib/api/billing-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:768"
+     "backend": "backend/src/modules/billing/billing.module.ts:779"
     }
    ],
    "files": 66,
