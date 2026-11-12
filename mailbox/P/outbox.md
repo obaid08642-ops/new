@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-12 09:25 UTC — after the pin merge
+Status: waiting for CI / lead
+PR: #2604 updated with main again (61061cab; only the generated docs/design inventories conflicted, regenerated with the repo tools; locale parity ok). #2621 updated with the refreshed #2620 (500772f8). #2620 and #2622 left alone, you updated them. (CI: pending for all.)
+Left: #2604 first, then (after it merges) #2605 and #2601 conflicts. After #2620 merges I retarget #2621 to main. Item 3 starts when I am under 3 open PRs of my own.
+
 ## 2026-11-12 08:20 UTC — P0 pin works
 Status: waiting for the lead
 PR: #2626 (CI: live gate shards 1 and 5 GREEN, 2-4 still running, every finished check green: the Playwright install now works on 24.04). Needs the lead's manual merge.
