@@ -63,6 +63,19 @@ def run():
     step('the doctor sees the payout as PAID', row is not None and row.get('state') == 'PAID', row)
     r = admin.post(f'/admin/admin/finance/payouts/{pid}/execute', {'reason': REASON})
     step('a second execution is refused (not_executable_in_state_PAID)', not r.ok and 'PAID' in str(r.body), r)
+
+    journey('payout to PAID: the admin statement and the provider balance agree (R11 payout pass)')
+    uid = doctor.get('/auth/me').get('id') or doctor.get('/provider/me').get('account', 'id')
+    st = admin.get(f'/admin/admin/finance/providers/{uid}/statement')
+    sm = (st.get('summary') or {}) if st.ok else {}
+    step('the admin statement of the provider loads', st.ok and bool(sm), st.status)
+    paid = float(next((x for x in rows if x.get('id') == pid), {}).get('amount') or 0)
+    step('the statement counts the payout as paid out', float(sm.get('paid_out') or 0) >= paid > 0, {'paid_out': sm.get('paid_out'), 'payout': paid})
+    step('nothing stays locked for the paid payout (its reservation was cleared)', float(sm.get('locked') or 0) == 0, sm.get('locked'))
+    want = round(float(sm.get('earned_cleared') or 0) - float(sm.get('paid_out') or 0) - float(sm.get('debits') or 0) - float(sm.get('locked') or 0), 2)
+    step('the statement balance is earned - paid out - debits - locked', abs(float(st.get('balance_available') or 0) - want) < 0.011, {'balance': st.get('balance_available'), 'want': want})
+    b2 = doctor.get('/provider/payouts/balance')
+    step('the provider\'s own balance equals the statement balance', b2.ok and abs(float(b2.get('available') or 0) - float(st.get('balance_available') or 0)) < 0.011, {'provider': b2.get('available'), 'statement': st.get('balance_available')})
     summary()
 
 

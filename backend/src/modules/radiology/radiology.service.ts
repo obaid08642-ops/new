@@ -1,3 +1,4 @@
+import { MAX_SLOT_CAPACITY, confirmSeat, ensureSeatIndex, releaseSeat, reserveSeat, slotCapacityOf, slotStartOf, type SeatBookingStatus } from '../labs/lab-slot-seats';
 import { stampAcceptance } from '../../common/refund-policy-stamp';
 import { refundPolicyAcceptance, type RefundPolicyAcceptance } from '../../common/refund-policy-acceptance';
 import { resolveFamilyMemberId } from '../../common/family-member';
@@ -83,6 +84,10 @@ export interface RadiologySchedule {
   working_days?: unknown; morning_shift?: { from?: unknown; to?: unknown } | null; evening_shift?: { from?: unknown; to?: unknown } | null; emergency_available?: unknown;
 }
 const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+/** Radiology seats live in their own collection (same atomic claim as the labs); a scan that is done, aborted or cancelled no longer holds one. */
+export const RADIOLOGY_SEAT_COLLECTION = 'radiology_slot_seats';
+export const RADIOLOGY_SEAT_FREE_STATES = ['CANCELLED', 'SCAN_ABORTED', 'REPORT_READY', 'REPORT_PUBLISHED'];
 
 /**
  * The opening windows of one weekday (0 = Sunday) from the schedule the centre saved on its availability screen
@@ -404,6 +409,17 @@ export class RadiologyOpsService {
     const when = new Date(body?.new_date);
     if (Number.isNaN(when.getTime()) || when.getTime() < Date.now()) throw new BadRequestException('slot_expired');
     const oldDate = b.scheduled_at;
+    // moving to another time slot takes a seat there first (the same capacity rule as a new booking) and gives the old one back
+    const newSlot = slotStartOf(when);
+    if (b.provider_account_id && newSlot.getTime() !== slotStartOf(oldDate).getTime()) {
+      const seatProfile: any = await this.profileModel.findOne({ account_id: { $eq: b.provider_account_id } }, { slot_capacity: 1 }).lean();
+      const seats: any = this.seatCollection();
+      await ensureSeatIndex(seats);
+      const seat = await reserveSeat(seats, { provider_account_id: b.provider_account_id, slot_start: newSlot, capacity: slotCapacityOf(seatProfile), booking_id: b.id }, (id) => this.seatBookingStatus(id));
+      if (seat === null) throw new BadRequestException('slot_taken');
+      await seats.deleteMany({ booking_id: b.id, slot_start: { $ne: newSlot } });
+      await confirmSeat(seats, b.id).catch(() => undefined);
+    }
     b.scheduled_at = when;
     b.reschedule_reason = body.reason;
     (b.state_history = b.state_history || []).push({ from: b.state, to: b.state, by_user_id: user.id, by_role: user.role, at: new Date(), note: `Rescheduled from ${oldDate} to ${b.scheduled_at}. Reason: ${body.reason}` });
@@ -708,8 +724,26 @@ export class RadiologyOpsService {
     const ownPrice = providerId ? (await ownPrices(this.svcModel.db as never, 'radiology', [providerId], [svc])).get(providerId)?.get(svc.id) : undefined;
     const total = ownPrice ?? (Number(svc.price) || 0);
     if (!(total > 0)) throw new BadRequestException('service_price_not_set');
-    const booking = await this.bkgModel.create({
-      id: require('uuid').v4(),
+    // The centre's own number of scans per time slot (`slot_capacity`, default 1: the number the patient's slot picker uses). The seat is taken atomically, so two
+    // parallel bookings for the last seat cannot both win (same rule as the labs).
+    const bookingId: string = require('uuid').v4();
+    let seatTaken = false;
+    if (providerId) {
+      const seatProfile: any = await this.profileModel.findOne({ account_id: { $eq: providerId } }, { slot_capacity: 1 }).lean();
+      const seats: any = this.seatCollection();
+      await ensureSeatIndex(seats);
+      const seat = await reserveSeat(
+        seats,
+        { provider_account_id: providerId, slot_start: slotStartOf(when), capacity: slotCapacityOf(seatProfile), booking_id: bookingId },
+        (id) => this.seatBookingStatus(id),
+      );
+      if (seat === null) throw new BadRequestException('slot_taken');
+      seatTaken = true;
+    }
+    let booking: any;
+    try {
+    booking = await this.bkgModel.create({
+      id: bookingId,
       patient_id: user.id, ...(familyMemberId ? { family_member_id: familyMemberId } : {}), ...(policyAcceptance ? { refund_policy_acceptance: policyAcceptance } : {}), patient_name: user.full_name, patient_phone: user.phone,
       items: [{ service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, modality: svc.modality, body_part: svc.body_part, price: total }],
       total, total_price: total,
@@ -725,6 +759,12 @@ export class RadiologyOpsService {
       // P17-17.5: campaign attribution for the campaign report.
       attribution: pickAttribution(body) ?? undefined,
     });
+      // stored: a missing booking later means it was removed, not that it is still being created
+      if (seatTaken) await confirmSeat(this.seatCollection(), bookingId).catch(() => undefined);
+    } catch (e) {
+      if (seatTaken) await releaseSeat(this.seatCollection(), bookingId).catch(() => undefined);
+      throw e;
+    }
     this.events.emit('radiology.new_booking', { bookingId: booking.id, patientId: user.id });
     // The provider hears about it too (bell row + push), as for labs and appointments; radiology.new_booking only notifies the patient.
     await this.engine.announceCreated({ kind: 'radiology', entity_id: booking.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { payment_method: pm } }).catch(() => undefined);
@@ -929,6 +969,32 @@ export class RadiologyOpsService {
 
 
 
+  private seatCollection(): any {
+    // from the profile model's connection (the same database as every radiology collection)
+    return (this.profileModel as any).db.collection(RADIOLOGY_SEAT_COLLECTION);
+  }
+
+  private async seatBookingStatus(id: string): Promise<SeatBookingStatus> {
+    if ((await this.bkgModel.countDocuments({ id: { $eq: id }, state: { $nin: RADIOLOGY_SEAT_FREE_STATES } })) > 0) return 'live';
+    return (await this.bkgModel.countDocuments({ id: { $eq: id } })) > 0 ? 'free' : 'missing';
+  }
+
+  /** The centre's number of simultaneous scans per time slot (default 1). */
+  async getSlotCapacity(user: any) {
+    const p: any = await this.profileModel.findOne({ account_id: { $eq: String(user.id) } }, { slot_capacity: 1 }).lean();
+    if (!p) throw new NotFoundException('provider_not_found');
+    return { slot_capacity: slotCapacityOf(p), max: MAX_SLOT_CAPACITY };
+  }
+
+  /** The centre sets it itself (an operating number, not a profile claim that needs review); it applies to the next booking and to the slot picker at once. */
+  async setSlotCapacity(user: any, value: number) {
+    const n = Number(value);
+    if (!Number.isInteger(n) || n < 1 || n > MAX_SLOT_CAPACITY) throw new BadRequestException('slot_capacity_must_be_1_to_' + MAX_SLOT_CAPACITY);
+    const res: any = await this.profileModel.updateOne({ account_id: { $eq: String(user.id) } }, { $set: { slot_capacity: n } });
+    if (!res?.matchedCount) throw new NotFoundException('provider_not_found');
+    return { ok: true, slot_capacity: n };
+  }
+
   async slotsForProvider(providerAccountId: string, dateStr: string, duration_minutes = 30) {
     // Validate duration: must be integer between 10 and 120
     const duration = parseInt(String(duration_minutes), 10);
@@ -996,19 +1062,23 @@ export class RadiologyOpsService {
     slots.sort((x, y) => x.start.localeCompare(y.start));
     if (slots.length === 0) return { date: dateStr, slots: [], reason: 'no_slots' };
 
-    // Mark booked slots as unavailable
+    // Mark full slots as unavailable: a slot is full when its bookings reach the centre's capacity
+    const capacity = slotCapacityOf(profile as any);
     const startOfDay = new Date(baseDate.getTime());
     const endOfDay = new Date(baseDate.getTime() + 24 * 3600_000);
     const booked = await this.bkgModel.find({
       provider_account_id: providerAccountId,
       scheduled_at: { $gte: startOfDay, $lt: endOfDay },
-      state: { $nin: ['CANCELLED', 'REPORT_READY'] },
+      state: { $nin: RADIOLOGY_SEAT_FREE_STATES },
     }).select({ scheduled_at: 1 }).lean();
-    const bookedSet = new Set(booked.map((b: any) => new Date(b.scheduled_at).toISOString()));
+    const taken = new Map<string, number>();
+    for (const b of booked) { const k = new Date((b as any).scheduled_at).toISOString(); taken.set(k, (taken.get(k) ?? 0) + 1); }
     for (const s of slots) {
-      if (bookedSet.has(s.start)) s.available = false;
+      const used = taken.get(s.start) ?? 0;
+      (s as any).remaining = Math.max(0, capacity - used);
+      s.available = used < capacity;
     }
-    return { date: dateStr, slots };
+    return { date: dateStr, slots, capacity };
   }
 
 }

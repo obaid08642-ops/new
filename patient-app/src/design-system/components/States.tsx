@@ -5,6 +5,7 @@
 import React from 'react';
 import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { useApp } from '../../context/AppContext';
+import { dsText } from '../dsText';
 import { Spacing, BorderRadius } from '../tokens';
 import { tokens } from '../../../../packages/design-tokens/dist/ts/tokens';
 import { DSText } from './Text';
@@ -142,7 +143,7 @@ export function DSErrorState({
   onBack,
   style,
 }: DSErrorStateProps) {
-  const { colors, isDark } = useApp();
+  const { colors, isDark, lang } = useApp();
   const config = ERROR_CONFIG[type];
 
   return (
@@ -181,7 +182,7 @@ export function DSErrorState({
       <View style={styles.actions}>
         {onRetry && (
           <DSButton
-            label="أعد المحاولة"
+            label={dsText(lang, 'pharmacy.retry')}
             onPress={onRetry}
             variant="primary"
             icon="refresh"
@@ -191,7 +192,7 @@ export function DSErrorState({
         )}
         {onBack && (
           <DSButton
-            label="العودة"
+            label={dsText(lang, 'ds.back')}
             onPress={onBack}
             variant="ghost"
             fullWidth
