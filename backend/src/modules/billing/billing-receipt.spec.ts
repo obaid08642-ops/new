@@ -116,13 +116,14 @@ describe('PDF', () => {
 describe('credit note on refund', () => {
   const paid = { invoice_no: 'INV-2026-000001', type: 'invoice', status: 'ISSUED', booking_kind: 'lab', booking_id: 'b1', patient_id: 'p1', total: 115, subtotal: 100, vat_amount: 15, vat_rate: 0.15, seller_name: 'S', vat_number: '300000000000003', payment: { method: 'card', last4: '4242' } };
 
-  it('is a negative invoice that names the original and carries its own QR', async () => {
+  it('is a negative document (type 381) that names the original and carries its own QR with the absolute amounts', async () => {
     const { svc } = build({ invoices: [paid] });
     const cn: any = await svc.issueCreditNote({ booking_kind: 'lab', booking_id: 'b1', amount: 115, refund_ref: 'rf_1' });
     expect(cn).toMatchObject({ type: 'credit_note', original_invoice_no: 'INV-2026-000001', total: -115, vat_amount: -15, subtotal: -100, refund_ref: 'rf_1' });
     expect(cn.invoice_no).toMatch(/^CN-\d{4}-000007$/);
     const tags = decodeTlv(cn.qr_base64);
-    expect([tags[4], tags[5]]).toEqual(['-115.00', '-15.00']);
+    expect([tags[4], tags[5]]).toEqual(['115.00', '15.00']);   // credit note = type 381: the QR carries absolute amounts (the document itself stays negative)
+    expect(cn.document_type_code).toBe('381');
   });
 
   it('a partial refund is a partial credit note; a repeat of the same refund issues nothing new', async () => {

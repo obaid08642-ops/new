@@ -124,7 +124,7 @@ describe('a refunded invoice', () => {
     expect((await svc.present(await svc.issue(patient, 'lab', 'b1'))).state).toBe('paid');
   });
 
-  it('a full refund: state refunded, the credit note referenced, its QR negative and consistent', async () => {
+  it('a full refund: state refunded, the credit note (type 381) referenced, its QR carries the absolute amounts', async () => {
     const { svc, store } = world({ booking, txns });
     const issued = await svc.issue(patient, 'lab', 'b1');
     const note: any = await svc.issueCreditNote({ booking_kind: 'lab', booking_id: 'b1', amount: 115, refund_ref: 'rf_1' });
@@ -133,8 +133,10 @@ describe('a refunded invoice', () => {
     expect(inv.credit_notes).toEqual([expect.objectContaining({ invoice_no: note.invoice_no, total: -115, vat_amount: -1.96 })]);
     const cn = await svc.present(store.find((d) => d.invoice_no === note.invoice_no));
     expect(cn).toMatchObject({ state: 'credit_note', type: 'credit_note', original_invoice_no: inv.invoice_no, total: -115 });
-    expect(qrOf(cn)[4]).toBe('-115.00');
-    expect(qrOf(cn)[5]).toBe('-1.96');
+    expect(qrOf(cn)[4]).toBe('115.00');
+    expect(qrOf(cn)[5]).toBe('1.96');
+    expect(cn.document_type_code).toBe('381');          // credit note
+    expect(issued.document_type_code).toBe('388');      // tax invoice
   });
 
   it('a partial refund takes its share of the VAT of the invoice it reverses', async () => {

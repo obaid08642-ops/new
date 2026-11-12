@@ -46,6 +46,8 @@ export class EInvoice {
   @Prop({ default: 0 }) total: number;
   @Prop({ default: 'SAR' }) currency: string;
   @Prop() qr_base64: string; // ZATCA TLV QR payload
+  /** UBL document type code of a tax document: 388 = tax invoice, 381 = credit note (it references `original_invoice_no`). Absent on a receipt and on documents issued before the field existed. */
+  @Prop() document_type_code?: string;
   @Prop({ default: 'ISSUED', index: true }) status: string; // ISSUED|CANCELLED
   @Prop({ default: 'invoice', index: true }) type: string; // invoice | credit_note (a negative invoice that references the original)
   @Prop() original_invoice_no: string; // credit note: the invoice it reverses
@@ -411,6 +413,7 @@ export class BillingService {
     return {
       ...doc,
       document_kind: kind,
+      document_type_code: receipt ? null : doc.document_type_code ?? (doc.type === 'credit_note' ? '381' : '388'),
       vat_basis: receipt ? null : doc.vat_basis ?? 'total',
       title: documentTitle(kind, doc.type === 'credit_note'),
       vat_rate: receipt ? null : doc.vat_rate,
@@ -476,7 +479,7 @@ export class BillingService {
     await (this.invoiceIndex ??= ensureInvoiceUniqueIndex(this.conn, (m) => this.logger.warn(m)));
     try {
       const issued = await this.insertNumbered({
-        type: 'invoice', document_kind: documentKind,
+        type: 'invoice', document_kind: documentKind, document_type_code: documentKind === 'tax_invoice' ? '388' : undefined,
         booking_kind: kind,
         booking_id: bookingId,
         patient_id: owner,
@@ -555,10 +558,10 @@ export class BillingService {
       const seller = { name: original.seller_name || cfgSeller?.name || null, vatNumber: docKind === 'tax_invoice' ? original.vat_number || cfgSeller?.vatNumber || null : null };
       // inserted first, numbered only when the insert won (the unique refund_ref refuses a repeated refund event before any number is taken)
       return await this.insertNumbered({
-        type: 'credit_note', document_kind: docKind, original_invoice_no: original.invoice_no, refund_ref: e.refund_ref,
+        type: 'credit_note', document_kind: docKind, document_type_code: docKind === 'tax_invoice' ? '381' : undefined, original_invoice_no: original.invoice_no, refund_ref: e.refund_ref,
         booking_kind: kind, booking_id: e.booking_id, patient_id: original.patient_id,
         subtotal: Math.round((total - vat) * 100) / 100, vat_rate: rate, vat_amount: vat, vat_basis: original.vat_basis ?? undefined, total,
-        qr_base64: docKind === 'tax_invoice' && seller.name && seller.vatNumber ? tlvQr(seller.name, seller.vatNumber, issuedAt.toISOString(), total, vat) : null,
+        qr_base64: docKind === 'tax_invoice' && seller.name && seller.vatNumber ? tlvQr(seller.name, seller.vatNumber, issuedAt.toISOString(), Math.abs(total), Math.abs(vat)) : null,   // a credit note is document type 381: its QR carries the absolute amounts (needs accountant check, docs/payments/INVOICES.md)
         lines: [{ key: 'refund', name_ar: null, name_en: null, qty: 1, unit_price: total, amount: total }],
         payment: original.payment ?? null, insured: null,
         provider: original.provider ?? null, booking_ref: original.booking_ref, seller_cr_number: original.seller_cr_number ?? null, seller_address: original.seller_address ?? null,
