@@ -44,9 +44,17 @@ describe('payment return from the gateway: paid, failed, cancelled', () => {
   it('cancelled by the patient (no payment attempt on the invoice): never shown as paid, stays unpaid, nothing charged or emitted', async () => {
     const { ctrl, payment, emit, res } = world({ id: 'inv_1', status: 'canceled', payments: [] });
     await ctrl.callback('inv_1', 'canceled', res);
-    expect(payment.status).toBe('initiated');
+    expect(payment.status).toBe('canceled');   // no longer left as "initiated" (it looked like a payment still pending)
     expect(payment.paid_at).toBeUndefined();
-    expect(target(res).searchParams.get('status')).not.toBe('paid');
+    expect(target(res).searchParams.get('status')).toBe('canceled');
+    expect(emit).not.toHaveBeenCalled();
+  });
+
+  it('an expired checkout session is stored and reported as expired, never as paid or pending', async () => {
+    const { ctrl, payment, emit, res } = world({ id: 'inv_1', status: 'expired', payments: [] });
+    await ctrl.callback('inv_1', 'initiated', res);
+    expect(payment.status).toBe('expired');
+    expect(target(res).searchParams.get('status')).toBe('expired');
     expect(emit).not.toHaveBeenCalled();
   });
 

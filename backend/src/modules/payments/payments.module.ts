@@ -179,6 +179,8 @@ export class MoyasarAdapter implements PaymentGateway {
       // decides. The patient is told it failed (and can retry) instead of waiting on a payment that will never settle; a later
       // paid attempt on the same invoice still settles it (verify reads the paid payment first).
       const last = payments[payments.length - 1];
+      // An expired checkout session is a failure with its own stable reason (the patient is told "the session expired, no money was taken", not "payment failed").
+      if (j.status === 'expired' && !paid) return { status: 'failed' as VerifyResult['status'], raw: { ...j, last_payment_error: { message: 'payment_session_expired' } } };
       if (!map[j.status] && last?.status === 'failed') return { status: 'failed' as VerifyResult['status'], raw: { ...j, last_payment_error: { message: String(last?.source?.message || 'card_declined') } } };
       return { status: (map[j.status] || 'pending') as VerifyResult['status'], raw: j };
     };

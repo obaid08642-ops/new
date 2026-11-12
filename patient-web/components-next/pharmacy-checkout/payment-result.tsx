@@ -26,6 +26,10 @@ type Phase =
   /** We asked MAX_CHECKS times and it is still open: say so, do not guess. */
   | { kind: "stalled" }
   | { kind: "failed" }
+  /** The patient cancelled the checkout (nothing was charged). */
+  | { kind: "cancelled" }
+  /** The checkout session ran out and no money was taken. */
+  | { kind: "sessionExpired" }
   | { kind: "refunded" }
   /** The order was cancelled or expired and nothing was paid. */
   | { kind: "expired" }
@@ -120,6 +124,8 @@ export async function checkPayment(ids: Ids, doFetch: typeof fetch = fetch, refr
           const outcome: PaymentOutcome = verified.outcome;
           if (outcome === "paid") return { phase: { kind: "paid" }, ids: { orderId, transactionId, gatewayRef, booking } };
           if (outcome === "failed") return { phase: { kind: "failed" }, ids: { orderId, transactionId, gatewayRef, booking } };
+          if (outcome === "cancelled") return { phase: { kind: "cancelled" }, ids: { orderId, transactionId, gatewayRef, booking } };
+          if (outcome === "sessionExpired") return { phase: { kind: "sessionExpired" }, ids: { orderId, transactionId, gatewayRef, booking } };
           if (outcome === "refunded") return { phase: { kind: "refunded" }, ids: { orderId, transactionId, gatewayRef, booking } };
         }
       }
@@ -139,6 +145,8 @@ const SHOWN: Record<Exclude<Phase["kind"], "checking">, Shown> = {
   pending: { icon: "clock-counter-clockwise", tone: OFFER_TONES.info, key: "processing" },
   stalled: { icon: "clock-counter-clockwise", tone: OFFER_TONES.warn, key: "stalled" },
   failed: { icon: "warning", tone: OFFER_TONES.warn, key: "failed" },
+  cancelled: { icon: "info", tone: OFFER_TONES.info, key: "cancelled" },
+  sessionExpired: { icon: "clock-counter-clockwise", tone: OFFER_TONES.info, key: "sessionExpired" },
   refunded: { icon: "info", tone: OFFER_TONES.info, key: "refunded" },
   expired: { icon: "warning", tone: OFFER_TONES.warn, key: "expired" },
   unknown: { icon: "info", tone: OFFER_TONES.info, key: "unknown" },
@@ -188,7 +196,7 @@ export function PaymentResult({ locale, reference, transactionId, gatewayRef, or
       ids.current = result.ids;
       const settled = result.phase.kind !== "pending" && result.phase.kind !== "error";
       if (settled) {
-        if (["paid", "failed", "refunded"].includes(result.phase.kind)) forgetPayment();
+        if (["paid", "failed", "cancelled", "sessionExpired", "refunded"].includes(result.phase.kind)) forgetPayment();
         setPhase(result.phase);
         return;
       }
@@ -223,8 +231,8 @@ export function PaymentResult({ locale, reference, transactionId, gatewayRef, or
       phase.kind === "paid" && known ? { label: t("trackOrder"), run: () => router.push(`/${locale}/orders/${encodeURIComponent(known)}/tracking`) }
       : phase.kind === "paid" && bookingPage ? { label: t("openBooking"), run: () => router.push(bookingPage) }
       : phase.kind === "pending" || phase.kind === "stalled" || phase.kind === "error" ? { label: t("checkAgain"), run: recheck }
-      : phase.kind === "failed" && known ? { label: t("retry"), run: () => router.push(`/${locale}/pharmacy/payment?orderId=${encodeURIComponent(known)}`) }
-      : phase.kind === "failed" && bookingPage ? { label: t("retry"), run: () => router.push(bookingPage) }
+      : (phase.kind === "failed" || phase.kind === "cancelled" || phase.kind === "sessionExpired") && known ? { label: t("retry"), run: () => router.push(`/${locale}/pharmacy/payment?orderId=${encodeURIComponent(known)}`) }
+      : (phase.kind === "failed" || phase.kind === "cancelled" || phase.kind === "sessionExpired") && bookingPage ? { label: t("retry"), run: () => router.push(bookingPage) }
       : goOrders;
     const secondary = primary === goOrders ? undefined : goOrders;
     content = (
