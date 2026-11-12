@@ -49,6 +49,26 @@ describe('refund preview (B-11)', () => {
       expect(m.doc.refund_percentage).toBe(50);
       expect(m.doc.refund_destination).toBe('source');
     });
+    it('a patient cancelling it INSIDE the last 2 hours gets 0 % (owner: a rescheduled visit cancelled under 2 h refunds nothing); the preview shows the same', async () => {
+      const m = make(lateBooking({ slot_start: inHours(1) }));
+      m.svc.transition = jest.fn(async () => ({}));
+      await expect(m.svc.previewRefund('b', { id: 'p', role: UserRole.PATIENT })).resolves.toMatchObject({ refund_percentage: 0, estimated_amount: 0 });
+      await m.svc.cancel('b', { id: 'p', role: UserRole.PATIENT }, 'changed my mind');
+      expect(m.doc.refund_percentage).toBe(0);
+      expect(m.doc.refund_destination).toBe('source');
+    });
+    it('exactly at the 2-hour line it is still the late 50 % (the 0 % starts inside the last 2 hours)', async () => {
+      const m = make(lateBooking({ slot_start: inHours(2.01) }));
+      m.svc.transition = jest.fn(async () => ({}));
+      await m.svc.cancel('b', { id: 'p', role: UserRole.PATIENT }, 'changed my mind');
+      expect(m.doc.refund_percentage).toBe(50);
+    });
+    it('the provider cancelling it inside the last 2 hours still refunds 100 %', async () => {
+      const m = make(lateBooking({ slot_start: inHours(1) }));
+      m.svc.transition = jest.fn(async () => ({}));
+      await m.svc.cancel('b', { id: 'd', role: UserRole.DOCTOR }, 'emergency at the clinic');
+      expect(m.doc.refund_percentage).toBe(100);
+    });
     it('an ordinary booking cancelled 20 hours ahead is still 100 % (the cap is only for the rescheduled-late one)', async () => {
       const m = make(lateBooking({ late_free_reschedule: undefined, slot_start: inHours(20) }));
       m.svc.transition = jest.fn(async () => ({}));

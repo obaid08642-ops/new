@@ -703,7 +703,13 @@ export class AppointmentsService {
     } else if (user.role === UserRole.PATIENT || user.id === appt.patient_id) {
       // The booking made by the late free reschedule keeps the LATE refund for a patient cancel (it would otherwise be a way round the late percentage: reschedule inside the last
       // 2 hours, then cancel the new slot well ahead for 100 %). Provider cancel / provider no-show stay 100 % (other branches); a patient no-show stays 0.
-      if (hoursUntilAppointment >= (consultationPolicy.full_refund_min_hours ?? 2) && appt.late_free_reschedule !== true) {
+      const fullMin = consultationPolicy.full_refund_min_hours ?? 2;
+      if (appt.late_free_reschedule === true && hoursUntilAppointment < fullMin) {
+        // Owner decision 2026-11-10: the visit the free reschedule made, cancelled inside the last `full_refund_min_hours` (or never attended, handled above), refunds
+        // nothing (the patient no-show share): the free reschedule is one second chance, not a second late cancel at 50 %.
+        refundPercentage = consultationPolicy.patient_no_show_percent ?? 0;
+        refundDestination = 'source';
+      } else if (hoursUntilAppointment >= fullMin && appt.late_free_reschedule !== true) {
         refundPercentage = 100;
         refundDestination = 'source';
       } else {
