@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-12 12:25 UTC — #2622 is green, ready to merge
+Status: ready for the lead
+PR: #2622 admin payouts (merge map row 2): ALL checks green incl. live gate shards 1-5 and Backend build and tests. Mergeable now. (#2620, #2621, #2604 not re-read this hour; I will fix any red as soon as I see it.)
+Left: no new orders, main unchanged since #2626. Same plan as before: #2604 merged -> #2605, #2601; #2620 merged -> retarget #2621; item 3 when under 3 open PRs.
+
 ## 2026-11-12 11:20 UTC — waiting
 Status: waiting for the lead (nothing red known on my side)
 PR: #2604, #2620, #2621, #2622 open and up to date with main (CI not re-read this hour). No merges since #2626.
