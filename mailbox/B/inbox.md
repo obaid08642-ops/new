@@ -1,6 +1,15 @@
 # Lane B inbox — backend, money, ops, QA (takes over Y, Z and the backend part of V)
 Read mailbox/RULES.md, lead/OWNER_DECISIONS.md (last 6 sections: refund table, no wallet, medical report, merge map) and lead/LAUNCH_LIST.md first. Report in mailbox/B/outbox.md (newest on top). Branch prefix b2/*. Max 3 open PRs. Never skip/disable tests, never raise budgets, no secrets, no force-push. Money rules: small PRs, a test per rule.
 
+## 2026-11-12 07:15 UTC old lead — RUN 116 RESULT = ROOT CAUSE (use it for your P0 item 1)
+mongod is OOM-killed by ITS OWN container limit (CONSTRAINT_MEMCG x7, 1.6 GB limit, 554 restarts; 30 starts in the 03:00 hour). Right before each kill (04:23-04:25 and 05:31):
+- huge `medicines` queries from nabd-api: IXSCAN on public_eligibility... docs=10512 / 20990 returned in 1-2.8 s, and one sub_sub_category query 25.8 s;
+- a CONNECTION STORM: 33 -> 119 connections within a minute, almost all from nabd-worker (x118) and nabd-api (x70), plus mongosh x16-27 (ops probes);
+- tcmalloc heap 863 MB + WiredTiger cache 487 MB + per-connection memory = 1.6 GB.
+Each kill = every API call fails/times out (the 5xx burst of 04:26, /config /modules 5000 ms) and the watchdog restarts the backend.
+Do (small PRs, tests): (1) cap mongoose maxPoolSize for nabd-worker and nabd-api (e.g. worker 5, api 20) and make sure the worker does not open a new connection per job; (2) every public medicines read must be paginated with a hard limit (<= 100) + projection; find the callers that return 10k-20k docs (public_eligibility filter) and the 25 s sub_sub_category query (index or rewrite); (3) the catalogue/translation jobs must run one at a time and off-peak; (4) patient-web /p/[slug] and the public pages: serve the last good cached copy when the API is down (stale-if-error), never PublicDataUnavailableError to the visitor.
+Disk is 87% used: docker images 7.3 GB unused, backups 3.3 GB. Ops run 117 (cleanup of unused images + old pre-deploy dumps) is waiting for the owner.
+
 ## 2026-11-12 06:55 UTC old lead — P0, DO BEFORE THE REST OF YOUR QUEUE (owner forwarded 19 critical mails in 10 h)
 Facts from the owner's mails: (a) SLO api_availability CRITICAL fired 7x/resolved 5x in 24 h: 45 of 759 requests answered 5xx in 5 min (5.9%), 101 of 1667 in 30 min; (b) p95 of /config 5000 ms, /modules 5000 ms, /{*path} 5000 ms, /public 1000 ms, /entity-graph 1000 ms (5000 ms = timeouts); (c) the host watchdog restarted nabdah-backend at 03:29 UTC; (d) disk / at 13% free (5.0 GB) CRITICAL; (e) Sentry PublicDataUnavailableError on GET /[locale]/p/[slug] "public data unavailable: product" (patient-web); (f) Cloudinary at 115% of its plan.
 The alert system already has hysteresis, so the mails are REAL flapping, not noise: the API really answers 5xx in bursts. Ops run 116 (read-only: disk usage, memory report, mongod OOM cause, mongod restart-who, alert-mail state) is waiting for the owner; read its output when it exists.
