@@ -156,6 +156,27 @@ describe('a refunded invoice', () => {
     expect(inv.credit_notes).toHaveLength(2);
   });
 
+  it('credit notes together never reverse more than the invoice: a later note is cut to what is left, a fully credited invoice gets none', async () => {
+    const { svc, store } = world({ booking, txns });
+    await svc.issue(patient, 'lab', 'b1');
+    await svc.issueCreditNote({ booking_kind: 'lab', booking_id: 'b1', amount: 92, refund_ref: 'rf_c1' });
+    const second: any = await svc.issueCreditNote({ booking_kind: 'lab', booking_id: 'b1', amount: 999, refund_ref: 'rf_c2' });
+    expect(second.total).toBe(-23);
+    expect(await svc.issueCreditNote({ booking_kind: 'lab', booking_id: 'b1', amount: 10, refund_ref: 'rf_c3' })).toBeNull();
+    const notes = store.filter((d) => d.type === 'credit_note');
+    expect(notes).toHaveLength(2);
+    expect(notes.reduce((t, n) => t + n.total, 0)).toBe(-115);
+  });
+
+  it('the credit-note VATs add up to the invoice VAT to the halala: the note that completes the reversal takes the rest', async () => {
+    const { svc, store } = world({ booking, txns });
+    const issued: any = await svc.issue(patient, 'lab', 'b1');
+    for (let i = 1; i <= 5; i++) await svc.issueCreditNote({ booking_kind: 'lab', booking_id: 'b1', amount: 23, refund_ref: `rf_v${i}` });
+    const vats = store.filter((d) => d.type === 'credit_note').map((n) => n.vat_amount);
+    expect(vats).toEqual([-0.39, -0.39, -0.39, -0.39, -0.4]); // 5 x 1.96 x 23 / 115 = 0.392 each, rounded one by one would lose a halala
+    expect(Math.round(vats.reduce((t, v) => t + v, 0) * 100) / 100).toBe(-issued.vat_amount);
+  });
+
   it('a list carries the state of each invoice with one credit-note query', async () => {
     const { svc } = world({ booking, txns });
     const issued = await svc.issue(patient, 'lab', 'b1');
