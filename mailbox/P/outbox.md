@@ -1,5 +1,11 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-12 07:55 UTC — P0 live gate: pin ubuntu-24.04
+Status: done (CI pending; needs the lead's manual merge, it touches .github/workflows)
+PR: #2626 p2/pin-ubuntu-2404 (CI: pending; the live gate on this PR is the proof)
+What changed: every `runs-on: ubuntu-latest` in .github/workflows (43 files, 74 lines) is now `ubuntu-24.04`. macos-latest (native-e2e) and the one ubuntu-22.04 job untouched. Diff is only the runner label; all 44 workflow files still parse as YAML. No test skipped, no budget touched. (I had found the same root cause earlier, see my 07:45 entry.)
+Left: this is a 4th open PR of mine (cap 3) because the P0 goes before everything; #2620, #2621, #2622 wait for it (after it merges they need "update branch"). Saw #2603 merged; #2604 not merged yet, so #2605 and #2601 still wait.
+
 ## 2026-11-12 07:20 UTC — CI check
 Status: waiting for the lead
 PR: #2620 (CI: green except `live gate` 1-5 + `live`, the runner-image/Playwright problem, same as on every PR), #2621 (CI: all green; base is #2620 so the live gate does not run; the offers-screens test that failed locally under load passed in CI), #2622 (not checked yet)
