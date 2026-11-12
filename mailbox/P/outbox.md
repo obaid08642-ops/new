@@ -1,5 +1,11 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-12 18:35 UTC — #2601 conflict fixed (early, while #2605 CI runs)
+Status: waiting for CI
+PR: #2601 x/audit-no-show: merged origin/main, pushed 44c6a241. 13 conflicts: six patient-app locale files (both sides appended keys at the end: unioned, valid JSON, 0 duplicate keys) + generated docs/design inventories (regenerated with the repo tools, --check passes). Locally: app jest 295 suites / 2437 tests ALL pass; web provider-no-show + appointments-outcomes 11/11 pass; locale parity ok.
+Red check "Patient Mobile build and tests": I could not reproduce a failure in the tests (all green after merging main). If it is red again in CI I will read the job log and root-cause it (no skip); I did not pre-read the old log.
+Left: #2605 and #2601 both wait for CI/merge. #2620 merged -> retarget #2621. Item 3 after that.
+
 ## 2026-11-12 17:25 UTC — #2604 merged, #2605 conflict fixed
 Status: waiting for CI / lead
 PR: #2604 merged. #2605 x/pt30-location: merged origin/main, pushed (only the generated docs/design inventories conflicted, regenerated with screen-inventory.mjs and provider-inventory.mjs; `--check` passes; locale parity ok; the PR's own test explorer-browser 4/4 pass). CI pending.
