@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-12 07:20 UTC — CI check
+Status: waiting for the lead
+PR: #2620 (CI: green except `live gate` 1-5 + `live`, the runner-image/Playwright problem, same as on every PR), #2621 (CI: all green; base is #2620 so the live gate does not run; the offers-screens test that failed locally under load passed in CI), #2622 (not checked yet)
+Left: 3 PRs open = my cap. Waiting for the lead to merge #2604 (then I do #2605, #2601) and #2620 (then I retarget #2621 to main). Item 3 (bundle margin) starts when a slot frees. Lead: the live-gate fix (pin runs-on ubuntu-24.04) blocks green merges of everything.
+
 ## 2026-11-12 08:25 UTC — Item 4 admin payouts (merge map row 2)
 Status: in progress (CI pending)
 PR: #2622 p2/admin-payouts
