@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-12 17:25 UTC — #2604 merged, #2605 conflict fixed
+Status: waiting for CI / lead
+PR: #2604 merged. #2605 x/pt30-location: merged origin/main, pushed (only the generated docs/design inventories conflicted, regenerated with screen-inventory.mjs and provider-inventory.mjs; `--check` passes; locale parity ok; the PR's own test explorer-browser 4/4 pass). CI pending.
+Left: #2601 x/audit-no-show next, after #2605 is merged (queue order, one at a time); it also has the red "Patient Mobile build and tests" to root-cause. #2620 merged -> retarget #2621. Open PRs of mine: #2620, #2621.
+
 ## 2026-11-12 15:55 UTC — #2622 merged
 Status: waiting for the lead
 PR: #2622 merged (item 4 done, merge map row 2). Open: #2604, #2620, #2621 (3 = the cap). All three are 24 commits behind main but merge cleanly (checked with merge-tree), so I am not pushing anything over your update-branch runs.
