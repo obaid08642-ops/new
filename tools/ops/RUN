@@ -1,5 +1,5 @@
-# 2026-11-12 run 118 = deploy main@abae12d7. Brings the P0 fixes for the 5xx bursts: /config + /modules single-flight with stale-if-error (kill switches still immediate), product-page equivalents cached, flapping critical alert = one "unstable" mail per 6 h, disk guard script, credit notes capped, TLV length, mongoose security bump, hospital staff controllers, refund-policy tick clients.
-release:abae12d78d9c373dce14a89fbee53a4d384af0fc
+# 2026-11-12 run 119 = deploy main@420d8f62. Brings #2628-#2632 and #2636: suspended/rejected provider loses the provider login, translation job runs one at a time, billing kind aliases, credit note type 381 + QR amounts, provider photos capped at 1600 px, Cloudinary only for provider photos, refund 2h-table clients, medical report/dependant/location/no-show messages.
+release:420d8f6268c4a5c06b9b464f8299841432cc8149
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
