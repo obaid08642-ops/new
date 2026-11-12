@@ -1,5 +1,17 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-12 20:45 UTC — new queue checked: EMPTY, proposals
+Status: queue empty (nothing to build); waiting on the lead for #2620
+(1) Bundle margin: done earlier (95,075 bytes margin on main, no trim needed).
+(2) SCENARIOS.md: 100 rows COVERED, 1 PARTIAL (PT-24). PT-24's only remaining gap is "the real OS handing the link to the app", which needs the device farm and the production Team ID + fingerprint (the row says so); I cannot cover it from here. PT-05, PV-15, AD-02 are COVERED now (the older text in the table notes is stale). No journey/test to add.
+(3) DTO leftovers, rechecked on main: test_prices/scan_prices already `@Transform(toPriceMap) @IsPriceMap` (typed number map); /hospital/staff is declared once (hospital-staff.module, since #2615); nursing delta: POST /provider/settings/delta takes SubmitDeltaDto {changes|newData objects}, every client (provider-app x6, tools/live) already sends exactly that, and assertNursingDelta guards the shape for nurse roles. dtolint 0, dtocheck 0 mismatches (earlier run). Nothing left. (Only cosmetic: submitDelta's "flat body" branch can never be reached over HTTP, because forbidNonWhitelisted refuses a flat body first; harmless dead code, I left it.)
+(4) #2620 waits for the owner (money PR); I rebase/retarget #2621 as soon as it merges. #2601 and #2605 merged.
+Open PRs of mine: #2620, #2621.
+What else I see (propose, I start nothing until you pick):
+ a) Refund-policy hash echo gap in my own work: the WEB consultation booking page shows the page's own policy figures (compact card), so it sends NO hash (the app and every other service do). Proper fix is backend: return the policy hash together with the consultation figures the page already loads, then the web echoes it. Small backend + web PR; needs #2620 merged first (same files).
+ b) A second look at the hourly CI of #2620/#2621 after you update branches (I will fix any red).
+ c) Anything from B's or Y's backlog you want to hand me; tell me the list.
+
 ## 2026-11-12 20:10 UTC — Item 5b offers insurance (decision 30): scope check, need your call before I build
 Status: blocked on a product/scope decision (I changed nothing)
 What exists on main: decision 30 (docs/product/OWNER_DECISIONS_2026-10-06.md) is already built for the patient side and pharmacy: one policy shape (company_id/code, class, copay; backend/src/common/insurance-policy.ts), provider contracts are `{ company_id, classes[], active }` (insurance_contracts), `hasInsuranceContract(contracts, companyKeys, class)` filters the pharmacy broadcast, ordering requires `insurance_class`. What is still a boolean: the PROVIDER'S PER-SERVICE OFFER in provider_service_offers / service-offers.ts (`ServiceOffer.insurance: boolean`, summary `insurance_accepted`, the `?insurance` list filter = "any offer accepts insurance"), and the provider-registration flag `accepts_insurance` shown in admin ProviderFullDetail.
