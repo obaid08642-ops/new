@@ -1,5 +1,11 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-12 19:05 UTC — #2605 merged, #2601 refreshed, item 3 started
+Status: in progress
+PR: #2605 merged. #2601: merged main again (82678bf9; only the generated docs conflicted, regenerated; no code change since the full app test pass). Open of mine: #2620, #2621.
+Item 3 (bundle margin): the budget is perf/bundle-budget.json 15,393,070 bytes (checked by scripts/bundle-size.mjs). I am measuring current main (expo export android) to see the margin; if it is under 30 KB I do one trim pass of dead strings, otherwise I report the margin and stop (no change needed).
+Left: #2620 merged -> retarget #2621.
+
 ## 2026-11-12 18:35 UTC — #2601 conflict fixed (early, while #2605 CI runs)
 Status: waiting for CI
 PR: #2601 x/audit-no-show: merged origin/main, pushed 44c6a241. 13 conflicts: six patient-app locale files (both sides appended keys at the end: unioned, valid JSON, 0 duplicate keys) + generated docs/design inventories (regenerated with the repo tools, --check passes). Locally: app jest 295 suites / 2437 tests ALL pass; web provider-no-show + appointments-outcomes 11/11 pass; locale parity ok.
