@@ -1,5 +1,12 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-12 20:10 UTC — Item 5b offers insurance (decision 30): scope check, need your call before I build
+Status: blocked on a product/scope decision (I changed nothing)
+What exists on main: decision 30 (docs/product/OWNER_DECISIONS_2026-10-06.md) is already built for the patient side and pharmacy: one policy shape (company_id/code, class, copay; backend/src/common/insurance-policy.ts), provider contracts are `{ company_id, classes[], active }` (insurance_contracts), `hasInsuranceContract(contracts, companyKeys, class)` filters the pharmacy broadcast, ordering requires `insurance_class`. What is still a boolean: the PROVIDER'S PER-SERVICE OFFER in provider_service_offers / service-offers.ts (`ServiceOffer.insurance: boolean`, summary `insurance_accepted`, the `?insurance` list filter = "any offer accepts insurance"), and the provider-registration flag `accepts_insurance` shown in admin ProviderFullDetail.
+So "companies and classes instead of a boolean in offers" means: replace the offer boolean with which companies/classes that provider accepts for that service, and make the lab/radiology/nursing lists match the patient's company + class (like pharmacy already does). That touches backend offers model + a data migration of existing `insurance: true` rows + provider-app offer editor + admin view + patient lists on web AND app.
+Safe proposal (small steps, each its own PR, backward compatible): (1) backend: offers keep `insurance: boolean` but derive it from the provider's contracts when the request carries the patient's company + class (new optional query params; no params = today's behaviour), tests; (2) patient web+app pass the saved policy company/class to the offers lists; (3) provider-app/admin: show/edit accepted companies+classes (provider app is not redesigned: reuse the existing contracts editor if one exists). I need your answer: build 1-3 now in that order, or park all of it after launch (inbox says the owner may move it)? Until you answer I start nothing.
+Left: open PRs of mine #2620, #2621 (+ conflict branch #2601 refreshed). Nothing else in my queue.
+
 ## 2026-11-12 19:50 UTC — Item 5a parity audit round 2: no one-sided gap found
 Status: done (report only, no PR: there is nothing to build)
 Method: all 71 PRs merged to main since 2026-11-09 classified by whether they touch code in patient-app, patient-web or both (tests, locale json and docs excluded). 66 touch both sides or neither (backend/ops). Only 5 touch one side:
