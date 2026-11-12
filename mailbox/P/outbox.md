@@ -1,5 +1,11 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-12 07:45 UTC — CI finding (affects every PR) + #2604 state
+Status: blocked on lead for the CI image
+PR: #2604 (CI: all app/web/provider/admin/contrast checks green, Backend build and tests still running; `live gate` shards 1-5 RED)
+What I found: the five `live gate` shards fail in the step "pip install playwright; playwright install --with-deps chromium": the runner image is now Ubuntu 26.04 and Playwright 1.60 answers "does not support chromium on ubuntu26.04-x64" (3 attempts, exit 1). It is the runner image, not the PR; every PR will hit it. I did not touch the workflow (not my scope, and no skipping). Suggested fix for the lead: pin the live-gate job to `runs-on: ubuntu-24.04` (or a Playwright version that supports 26.04).
+Left: #2605 and #2601 conflicts wait for #2604 to be merged (queue order). Item 2 client half is built locally, PR next.
+
 ## 2026-11-12 07:15 UTC — Item 2 refund-policy hash echo, backend half
 Status: in progress
 PR: #2620 p2/policy-hash-echo (CI: pending)
