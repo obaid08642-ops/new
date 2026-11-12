@@ -89,6 +89,8 @@ export function documentTitle(kind: DocumentKind, refund = false): { ar: string;
 export function tlvQr(sellerName: string, vatNumber: string, isoDate: string, total: number, vat: number): string {
   const tlv = (tag: number, value: string) => {
     const buf = Buffer.from(value, 'utf8');
+    // one length byte: a value over 255 bytes would wrap and corrupt every tag after it
+    if (buf.length > 255) throw new RangeError(`ZATCA TLV tag ${tag} is ${buf.length} bytes (max 255)`);
     return Buffer.concat([Buffer.from([tag, buf.length]), buf]);
   };
   const payload = Buffer.concat([
