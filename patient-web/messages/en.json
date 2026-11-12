@@ -3177,8 +3177,8 @@
     "emptyHidden": "No hidden visits",
     "noShowTitle": "The doctor did not come",
     "noShowButton": "The doctor did not come",
-    "noShowConfirmBody": "Use this only if the doctor has not joined or arrived. The visit is cancelled and you are refunded in full right away.",
-    "noShowConfirm": "Cancel the visit and refund me",
+    "noShowConfirmBody": "Use this only if the doctor has not joined or arrived. A video visit is cancelled and refunded in full at once; if you report often, our team reviews it first. For a clinic or home visit the provider has 24 hours to respond, then you are refunded in full.",
+    "noShowConfirm": "Report that the doctor did not come",
     "noShowKeep": "Not now",
     "noShowDone": "The visit was cancelled. Your full refund is on its way.",
     "noShowError": "Could not cancel the visit. Check your connection and try again.",
@@ -3205,7 +3205,9 @@
     "rxInReminders": "In reminders",
     "rxAddReminder": "Add reminder",
     "rxOrder": "Order these medicines",
-    "rxDays": "{n} days"
+    "rxDays": "{n} days",
+    "noShowHeld": "Your report was received. The provider has 24 hours to respond; if they do not dispute it you are refunded in full on {date}.",
+    "noShowReview": "Your report was received and our team is reviewing it. You will be notified of the decision."
   },
   "FamilyWeb": {
     "title": "Family",
