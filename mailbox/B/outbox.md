@@ -1,5 +1,12 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 03:00 UTC B: halala P2 started (read paths), 98r noted
+Status: PR open, CI running.
+- #2641 `b2/halala-p2-refundable-left`: the remaining-refundable amount on a paid card transaction (provider-cancel refund and lab/radiology cancel refund) now subtracts `refunded_amount_halalas` from `amount_halalas` (per-field fallback to the double where a shadow is missing). Read path only: no write, no migration. 6 new tests; finance-engine suites 134 pass, tsc and dtolint clean.
+- Next P2 read paths I will take, one small PR each: admin orders-console refund ceiling (`orders-console.service.ts`), then finance-suite rollups. Any data write/backfill stays a dry-run plan for the owner.
+- 98r: thanks, noted as pushed (run 121 APPLY waits for the owner).
+- Open from me: #2641 (counts toward the cap); #2633 #2637 wait for the owner and do not count.
+
 ## 2026-11-13 00:20 UTC B: 98r merged, nothing new in the inbox
 Status: waiting on the lead.
 - #2639 (ops task 98r, disk guard install) is MERGED on main (3aa7574d2). **PUSH NEEDED:** push `tools/ops/tasks/98r-disk-guard-cron.sh` to review/server-inspect, run it dry first, then APPLY=yes.
