@@ -4,71 +4,6 @@
  "app": "admin",
  "screens": [
   {
-   "route": "/admin/catalog-governance",
-   "elements": [
-    [
-     "button: الكتالوج والنواقص",
-     "local state",
-     "ok"
-    ],
-    [
-     "button: تدقيق تجاوز الأسعار ( )",
-     "local state",
-     "ok"
-    ],
-    [
-     "input: الاسم أو المادة الفعالة",
-     "state search used by logic/request",
-     "ok"
-    ],
-    [
-     "input: file",
-     "POST /medicines/admin/import-csv; GET /medicines/admin/catalog; GET /medicines/admin/shortage-reports; GET /api/admin/ad",
-     "ok"
-    ],
-    [
-     "button: السعر والتاريخ",
-     "GET /medicines/admin/catalog/:param/price-history",
-     "ok"
-    ],
-    [
-     "button: اعتماد",
-     "POST /medicines/admin/shortage-reports/:param/:param; GET /medicines/admin/catalog; GET /medicines/admin/shortage-report",
-     "ok"
-    ],
-    [
-     "button: رفض",
-     "POST /medicines/admin/shortage-reports/:param/:param; GET /medicines/admin/catalog; GET /medicines/admin/shortage-report",
-     "ok"
-    ],
-    [
-     "input: number",
-     "state price used by logic/request",
-     "ok"
-    ],
-    [
-     "input: textarea",
-     "state reason used by logic/request",
-     "ok"
-    ],
-    [
-     "button: حفظ وتوثيق السعر",
-     "PATCH /medicines/admin/catalog/:param; GET /medicines/admin/catalog; GET /medicines/admin/shortage-reports; GET /api/adm",
-     "ok"
-    ],
-    [
-     "action: <tr> onClick (in DataTable)",
-     "",
-     "ok"
-    ],
-    [
-     "API: GET /api/admin/admin/pharmacy/price-overrides",
-     "GET /api/admin/admin/pharmacy/price-overrides (OK, backend/src/modules/pharmacy/pharmacy.controllers.ts:155)",
-     "ok"
-    ]
-   ]
-  },
-  {
    "route": "/admin/catalog-manager",
    "elements": [
     [
@@ -108,12 +43,12 @@
     ],
     [
      "button: اعتماد المحدد",
-     "POST \u0001crudBase\u0001/bulk-approve; GET \u0001adminBase\u0001",
+     "POST \u0001crudBase\u0001/bulk-approve; GET \u0001adminBase\u0001; confirm()",
      "ok"
     ],
     [
      "button: رفض المحدد",
-     "POST \u0001crudBase\u0001/bulk-approve; GET \u0001adminBase\u0001",
+     "POST \u0001crudBase\u0001/bulk-approve; GET \u0001adminBase\u0001; confirm()",
      "ok"
     ],
     [
@@ -128,12 +63,12 @@
     ],
     [
      "button: اعتماد",
-     "POST \u0001crudBase\u0001/:param/approve; GET \u0001adminBase\u0001",
+     "POST \u0001crudBase\u0001/:param/approve; GET \u0001adminBase\u0001; confirm()",
      "ok"
     ],
     [
      "button: رفض",
-     "POST \u0001crudBase\u0001/:param/approve; GET \u0001adminBase\u0001",
+     "POST \u0001crudBase\u0001/:param/approve; GET \u0001adminBase\u0001; confirm()",
      "ok"
     ],
     [
@@ -147,12 +82,12 @@
      "ok"
     ],
     [
-     "action: تعديل الصنف إضافة صنف جديد — المراجعة الطبية والنشر إلغاء جا",
+     "action: تعديل الصنف إضافة صنف جديد — المراجعة الطبية والنشر نمط الحج",
      "local state",
      "ok"
     ],
     [
-     "action: تعديل الصنف إضافة صنف جديد — المراجعة الطبية والنشر إلغاء جا",
+     "action: تعديل الصنف إضافة صنف جديد — المراجعة الطبية والنشر نمط الحج",
      "",
      "ok"
     ],
@@ -163,7 +98,7 @@
     ],
     [
      "input: textarea",
-     "state editing used by logic/request",
+     "value Array",
      "ok"
     ],
     [
@@ -177,108 +112,13 @@
      "ok"
     ],
     [
-     "button: إلغاء",
+     "button: <button> onClick",
      "local state",
-     "ok"
-    ],
-    [
-     "button: جارٍ الحفظ… حفظ",
-     "save; POST \u0001crudBase\u0001; PUT \u0001crudBase\u0001/:param; GET \u0001adminBase\u0001",
-     "ok"
-    ],
-    [
-     "input: بحث…",
-     "state q used by logic/request",
-     "ok"
-    ],
-    [
-     "button: + دواء جديد",
-     "local state",
-     "ok"
-    ],
-    [
-     "input: file",
-     "POST /api/admin/bulk-upload; GET \u0001adminBase\u0001",
-     "ok"
-    ],
-    [
-     "button: تعديل",
-     "local state",
-     "ok"
-    ],
-    [
-     "button: اعتماد",
-     "POST \u0001crudBase\u0001/:param/approve; GET \u0001adminBase\u0001",
-     "ok"
-    ],
-    [
-     "button: استرجاع تعطيل",
-     "POST /medicines/admin/catalog/:param/delete; GET \u0001adminBase\u0001",
-     "ok"
-    ],
-    [
-     "button: السجل السعري",
-     "GET /medicines/admin/catalog/:param/price-history",
-     "ok"
-    ],
-    [
-     "action: تعديل دواء دواء جديد يتطلب وصفة دواء خاضع للرقابة (لا يُطلب",
-     "local state",
-     "ok"
-    ],
-    [
-     "action: تعديل دواء دواء جديد يتطلب وصفة دواء خاضع للرقابة (لا يُطلب",
-     "",
-     "ok"
-    ],
-    [
-     "input: الاسم (عربي)",
-     "state form used by logic/request",
-     "ok"
-    ],
-    [
-     "input: Name (en)",
-     "state form used by logic/request",
-     "ok"
-    ],
-    [
-     "input: المادة الفعالة",
-     "state form used by logic/request",
-     "ok"
-    ],
-    [
-     "input: الفئة",
-     "state form used by logic/request",
-     "ok"
-    ],
-    [
-     "input: السعر",
-     "state form used by logic/request",
-     "ok"
-    ],
-    [
-     "input: سبب الإنشاء/التغيير",
-     "state form used by logic/request",
      "ok"
     ],
     [
      "input: checkbox",
-     "value",
-     "ok"
-    ],
-    [
-     "input: checkbox",
-     "value",
-     "ok"
-    ],
-    [
-     "input: checkbox",
-     "value",
-     "ok"
-    ],
-    [
-     "input: file",
-     "POST /storage/upload; GET /storage/:param/signed-url",
+     "state editing used by logic/request",
      "ok"
     ],
     [
@@ -313,7 +153,7 @@
     ],
     [
      "button: تفعيل تعطيل",
-     "POST /medicines/admin/catalog/:param/delete; GET \u0001adminBase\u0001",
+     "PATCH /insurance/companies/:param; GET \u0001adminBase\u0001",
      "ok"
     ],
     [
@@ -397,108 +237,153 @@
      "ok"
     ],
     [
+     "link: العودة لمركز القيادة (in AdminGuard)",
+     "link /admin/command-center",
+     "ok"
+    ],
+    [
+     "button: فتح القائمة (in AdminGuard)",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: إغلاق القائمة (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: ميلادي هجري (in AdminGuard)",
+     "navigation; local state",
+     "ok"
+    ],
+    [
+     "button: تسجيل الخروج (in AdminGuard)",
+     "logout; POST /auth/logout; navigation",
+     "ok"
+    ],
+    [
+     "link: ar-SA-u-ca-gregory (in AdminGuard)",
+     "link /admin/alerts",
+     "ok"
+    ],
+    [
      "API: GET /labs/admin/catalog",
-     "GET /labs/admin/catalog (OK, backend/src/modules/labs/labs.controller.ts:170)",
+     "GET /labs/admin/catalog (OK, backend/src/modules/labs/labs.controller.ts:216)",
      "ok"
     ],
     [
      "API: GET /radiology/admin/catalog",
-     "GET /radiology/admin/catalog (OK, backend/src/modules/radiology/radiology.controller.ts:189)",
+     "GET /radiology/admin/catalog (OK, backend/src/modules/radiology/radiology.controller.ts:250)",
      "ok"
     ],
     [
      "API: GET /nursing/admin/catalog",
-     "GET /nursing/admin/catalog (OK, backend/src/modules/home-care/home-care.controller.ts:108)",
+     "GET /nursing/admin/catalog (OK, backend/src/modules/home-care/home-care.controller.ts:115)",
      "ok"
     ],
     [
      "API: POST /labs/admin/catalog",
-     "POST /labs/admin/catalog (OK, backend/src/modules/labs/labs.controller.ts:173)",
+     "POST /labs/admin/catalog (OK, backend/src/modules/labs/labs.controller.ts:220)",
      "ok"
     ],
     [
      "API: POST /radiology/admin/catalog",
-     "POST /radiology/admin/catalog (OK, backend/src/modules/radiology/radiology.controller.ts:193)",
+     "POST /radiology/admin/catalog (OK, backend/src/modules/radiology/radiology.controller.ts:255)",
      "ok"
     ],
     [
      "API: POST /nursing/admin/catalog",
-     "POST /nursing/admin/catalog (OK, backend/src/modules/home-care/home-care.controller.ts:113)",
+     "POST /nursing/admin/catalog (OK, backend/src/modules/home-care/home-care.controller.ts:121)",
      "ok"
     ],
     [
      "API: PUT /labs/admin/catalog/:param",
-     "PUT /labs/admin/catalog/:param (OK, backend/src/modules/labs/labs.controller.ts:181)",
+     "PUT /labs/admin/catalog/:param (OK, backend/src/modules/labs/labs.controller.ts:229)",
      "ok"
     ],
     [
      "API: PUT /radiology/admin/catalog/:param",
-     "PUT /radiology/admin/catalog/:param (OK, backend/src/modules/radiology/radiology.controller.ts:200)",
+     "PUT /radiology/admin/catalog/:param (OK, backend/src/modules/radiology/radiology.controller.ts:263)",
      "ok"
     ],
     [
      "API: PUT /nursing/admin/catalog/:param",
-     "PUT /nursing/admin/catalog/:param (OK, backend/src/modules/home-care/home-care.controller.ts:120)",
+     "PUT /nursing/admin/catalog/:param (OK, backend/src/modules/home-care/home-care.controller.ts:129)",
      "ok"
     ],
     [
      "API: DELETE /labs/admin/catalog/:param",
-     "DELETE /labs/admin/catalog/:param (OK, backend/src/modules/labs/labs.controller.ts:189)",
+     "DELETE /labs/admin/catalog/:param (OK, backend/src/modules/labs/labs.controller.ts:238)",
      "ok"
     ],
     [
      "API: DELETE /radiology/admin/catalog/:param",
-     "DELETE /radiology/admin/catalog/:param (OK, backend/src/modules/radiology/radiology.controller.ts:207)",
+     "DELETE /radiology/admin/catalog/:param (OK, backend/src/modules/radiology/radiology.controller.ts:271)",
      "ok"
     ],
     [
      "API: DELETE /nursing/admin/catalog/:param",
-     "DELETE /nursing/admin/catalog/:param (OK, backend/src/modules/home-care/home-care.controller.ts:127)",
+     "DELETE /nursing/admin/catalog/:param (OK, backend/src/modules/home-care/home-care.controller.ts:137)",
      "ok"
     ],
     [
      "API: POST /labs/admin/catalog/:param/approve",
-     "POST /labs/admin/catalog/:param/approve (OK, backend/src/modules/labs/labs.controller.ts:198)",
+     "POST /labs/admin/catalog/:param/approve (OK, backend/src/modules/labs/labs.controller.ts:248)",
      "ok"
     ],
     [
      "API: POST /radiology/admin/catalog/:param/approve",
-     "POST /radiology/admin/catalog/:param/approve (OK, backend/src/modules/radiology/radiology.controller.ts:215)",
+     "POST /radiology/admin/catalog/:param/approve (OK, backend/src/modules/radiology/radiology.controller.ts:280)",
      "ok"
     ],
     [
      "API: POST /nursing/admin/catalog/:param/approve",
-     "POST /nursing/admin/catalog/:param/approve (OK, backend/src/modules/home-care/home-care.controller.ts:135)",
+     "POST /nursing/admin/catalog/:param/approve (OK, backend/src/modules/home-care/home-care.controller.ts:146)",
      "ok"
     ],
     [
      "API: POST /labs/admin/catalog/bulk-approve",
-     "POST /labs/admin/catalog/bulk-approve (OK, backend/src/modules/labs/labs.controller.ts:206)",
+     "POST /labs/admin/catalog/bulk-approve (OK, backend/src/modules/labs/labs.controller.ts:257)",
      "ok"
     ],
     [
      "API: POST /radiology/admin/catalog/bulk-approve",
-     "POST /radiology/admin/catalog/bulk-approve (OK, backend/src/modules/radiology/radiology.controller.ts:222)",
+     "POST /radiology/admin/catalog/bulk-approve (OK, backend/src/modules/radiology/radiology.controller.ts:288)",
      "ok"
     ],
     [
      "API: POST /nursing/admin/catalog/bulk-approve",
-     "POST /nursing/admin/catalog/bulk-approve (OK, backend/src/modules/home-care/home-care.controller.ts:142)",
-     "ok"
-    ],
-    [
-     "API: POST /medicines/admin/catalog/:param/approve",
-     "POST /medicines/admin/catalog/:param/approve (OK, backend/src/modules/medicines/medicines.controller.ts:277)",
+     "POST /nursing/admin/catalog/bulk-approve (OK, backend/src/modules/home-care/home-care.controller.ts:154)",
      "ok"
     ],
     [
      "API: GET /insurance/companies/all",
-     "GET /insurance/companies/all (OK, backend/src/modules/insurance/insurance.module.ts:556)",
+     "GET /insurance/companies/all (OK, backend/src/modules/insurance/insurance.module.ts:509)",
+     "ok"
+    ],
+    [
+     "API: POST /auth/heartbeat",
+     "POST /auth/heartbeat (OK, backend/src/modules/auth/auth.controller.ts:269)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/session",
+     "GET /api/admin/admin/session (OK, backend/src/modules/admin/enterprise/admin-security.controller.ts:80)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/urgent-alerts/unread-count",
+     "GET /api/admin/admin/urgent-alerts/unread-count (OK, backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25)",
      "ok"
     ]
    ],
    "notes": [
-    "3 handler(s) are passed as props (parent callbacks) and are not traced."
+    "1 handler(s) are passed as props (parent callbacks) and are not traced."
    ]
   },
   {
@@ -530,13 +415,53 @@
      "ok"
     ],
     [
-     "button: جاري التحميل… تحميل العقد PDF (in ProviderFullDetail)",
-     "downloadContract; GET /api/admin/provider-onboarding/admin/contracts/:param",
+     "button: قبول (in ProviderFullDetail)",
+     "POST /api/admin/admin/providers/:param/documents/:param/:param; prompt()",
      "ok"
     ],
     [
-     "input: checkbox (in ProviderFullDetail)",
-     "onChange sends POST /api/admin/provider-onboarding/admin/contracts/:param/visibility",
+     "button: رفض (in ProviderFullDetail)",
+     "POST /api/admin/admin/providers/:param/documents/:param/:param; prompt()",
+     "ok"
+    ],
+    [
+     "button: تحميل PDF عربي تحميل PDF إنجليزي (in ProviderFullDetail)",
+     "GET /api/admin/provider-onboarding/admin/contracts/:param; navigation",
+     "ok"
+    ],
+    [
+     "button: عرض العربي عرض الإنجليزي (in ProviderFullDetail)",
+     "GET /api/admin/provider-onboarding/admin/contracts/:param; navigation",
+     "ok"
+    ],
+    [
+     "link: العودة لمركز القيادة (in AdminGuard)",
+     "link /admin/command-center",
+     "ok"
+    ],
+    [
+     "button: فتح القائمة (in AdminGuard)",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: إغلاق القائمة (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: ميلادي هجري (in AdminGuard)",
+     "navigation; local state",
+     "ok"
+    ],
+    [
+     "button: تسجيل الخروج (in AdminGuard)",
+     "logout; POST /auth/logout; navigation",
      "ok"
     ],
     [
@@ -545,13 +470,78 @@
      "ok"
     ],
     [
+     "input: checkbox (in ProviderFullDetail)",
+     "state od used by logic/request",
+     "ok"
+    ],
+    [
+     "input: radio (in ProviderFullDetail)",
+     "state od used by logic/request",
+     "ok"
+    ],
+    [
+     "input: input (in ProviderFullDetail)",
+     "state od used by logic/request",
+     "ok"
+    ],
+    [
+     "button: <button> onClick (in ProviderFullDetail)",
+     "local state",
+     "ok"
+    ],
+    [
+     "input: input (in ProviderFullDetail)",
+     "state od used by logic/request",
+     "ok"
+    ],
+    [
+     "input: input (in ProviderFullDetail)",
+     "state od used by logic/request",
+     "ok"
+    ],
+    [
+     "button: حفظ (in ProviderFullDetail)",
+     "save; PUT :param/:param",
+     "ok"
+    ],
+    [
+     "link: ar-SA-u-ca-gregory (in AdminGuard)",
+     "link /admin/alerts",
+     "ok"
+    ],
+    [
      "API: GET /api/admin/storage/:param/signed-url",
-     "GET /api/admin/storage/:param/signed-url (OK, backend/src/modules/storage/storage.module.ts:386)",
+     "GET /api/admin/storage/:param/signed-url (OK, backend/src/modules/storage/storage.module.ts:572)",
      "ok"
     ],
     [
      "API: GET /api/admin/storage/:param",
-     "GET /api/admin/storage/:param (OK, backend/src/modules/storage/storage.module.ts:376)",
+     "GET /api/admin/storage/:param (OK, backend/src/modules/storage/storage.module.ts:562)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/provider-onboarding/admin/contracts/:param/meta",
+     "GET /api/admin/provider-onboarding/admin/contracts/:param/meta (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:648)",
+     "ok"
+    ],
+    [
+     "API: POST /auth/heartbeat",
+     "POST /auth/heartbeat (OK, backend/src/modules/auth/auth.controller.ts:269)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/session",
+     "GET /api/admin/admin/session (OK, backend/src/modules/admin/enterprise/admin-security.controller.ts:80)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/locations/districts",
+     "GET /api/admin/locations/districts (OK, backend/src/modules/location/location.controller.ts:27)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/urgent-alerts/unread-count",
+     "GET /api/admin/admin/urgent-alerts/unread-count (OK, backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25)",
      "ok"
     ]
    ]
@@ -570,7 +560,7 @@
      "ok"
     ],
     [
-     "button: الكتالوج طلبات التغيير التقارير",
+     "button: الكتالوج أصناف للمراجعة طلبات التغيير التقارير",
      "local state",
      "ok"
     ],
@@ -595,6 +585,11 @@
      "ok"
     ],
     [
+     "input: file",
+     "POST /medicines/admin/import-csv; GET /medicines/admin/catalog",
+     "ok"
+    ],
+    [
      "button: + إضافة صنف جديد",
      "openCreate; local state",
      "ok"
@@ -602,6 +597,16 @@
     [
      "input: checkbox",
      "value",
+     "ok"
+    ],
+    [
+     "input: checkbox",
+     "value",
+     "ok"
+    ],
+    [
+     "input: checkbox",
+     "value on",
      "ok"
     ],
     [
@@ -645,13 +650,28 @@
      "ok"
     ],
     [
+     "button: تعديل بانتظار الاعتماد",
+     "",
+     "ok"
+    ],
+    [
+     "button: نشر التعديل",
+     "POST /medicines/admin/catalog/:param/approve; GET /medicines/admin/catalog; confirm()",
+     "ok"
+    ],
+    [
+     "button: رفض التعديل",
+     "POST /medicines/admin/catalog/:param/approve; GET /medicines/admin/catalog; confirm()",
+     "ok"
+    ],
+    [
      "button: رفض",
-     "POST /medicines/admin/catalog/:param/approve; GET /medicines/admin/catalog",
+     "POST /medicines/admin/catalog/:param/approve; GET /medicines/admin/catalog; confirm()",
      "ok"
     ],
     [
      "button: اعتماد",
-     "POST /medicines/admin/catalog/:param/approve; GET /medicines/admin/catalog",
+     "POST /medicines/admin/catalog/:param/approve; GET /medicines/admin/catalog; confirm()",
      "ok"
     ],
     [
@@ -687,6 +707,41 @@
     [
      "input: input",
      "value ov",
+     "ok"
+    ],
+    [
+     "input: — اختر المادة —",
+     "value row",
+     "ok"
+    ],
+    [
+     "input: التركيز",
+     "value row",
+     "ok"
+    ],
+    [
+     "input: — الوحدة —",
+     "value row",
+     "ok"
+    ],
+    [
+     "button: حذف",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: + إضافة مكوّن",
+     "local state",
+     "ok"
+    ],
+    [
+     "input: —",
+     "value ingDraftOf",
+     "ok"
+    ],
+    [
+     "input: —",
+     "value ingDraftOf",
      "ok"
     ],
     [
@@ -765,7 +820,37 @@
      "ok"
     ],
     [
-     "action: تعديل سريع السعر (ر.س) سبب تغيير السعر (يُسجَّل في سجل الأسع (in MedicineQuickEdit)",
+     "link: العودة لمركز القيادة (in AdminGuard)",
+     "link /admin/command-center",
+     "ok"
+    ],
+    [
+     "button: فتح القائمة (in AdminGuard)",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: إغلاق القائمة (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: ميلادي هجري (in AdminGuard)",
+     "navigation; local state",
+     "ok"
+    ],
+    [
+     "button: تسجيل الخروج (in AdminGuard)",
+     "logout; POST /auth/logout; navigation",
+     "ok"
+    ],
+    [
+     "action: تعديل سريع السعر (ر.س) يتطلب وصفة طبية (Rx) صنف مراقب (لا يُ (in MedicineQuickEdit)",
      "onClick -> parent/prop callback onClose",
      "ok"
     ],
@@ -785,18 +870,23 @@
      "ok"
     ],
     [
-     "input: input (in MedicineQuickEdit)",
-     "state reason used by logic/request",
-     "ok"
-    ],
-    [
      "input: checkbox (in MedicineQuickEdit)",
      "state rx used by logic/request",
      "ok"
     ],
     [
+     "input: checkbox (in MedicineQuickEdit)",
+     "state controlled used by logic/request",
+     "ok"
+    ],
+    [
      "input: select (in MedicineQuickEdit)",
      "state availability used by logic/request",
+     "ok"
+    ],
+    [
+     "input: input (in MedicineQuickEdit)",
+     "state reason used by logic/request",
      "ok"
     ],
     [
@@ -820,18 +910,68 @@
      "ok"
     ],
     [
+     "input: حالة المراجعة (in PriceReviewQueue)",
+     "state status used by logic/request",
+     "ok"
+    ],
+    [
+     "input: السبب (in PriceReviewQueue)",
+     "state reason used by logic/request",
+     "ok"
+    ],
+    [
+     "button: تمت المراجعة (in PriceReviewQueue)",
+     "POST :param/:param/resolve; GET :param; confirm()",
+     "ok"
+    ],
+    [
+     "button: إنشاء صنف في الكتالوج من هذا السطر (in PriceReviewQueue)",
+     "",
+     "ok"
+    ],
+    [
+     "link: ar-SA-u-ca-gregory (in AdminGuard)",
+     "link /admin/alerts",
+     "ok"
+    ],
+    [
+     "API: GET /medicines/admin/ingredients/vocab",
+     "GET /medicines/admin/ingredients/vocab (OK, backend/src/modules/medicines/medicines.controller.ts:257)",
+     "ok"
+    ],
+    [
      "API: GET /medicines/admin/reports",
-     "GET /medicines/admin/reports (OK, backend/src/modules/medicines/medicines.controller.ts:313)",
+     "GET /medicines/admin/reports (OK, backend/src/modules/medicines/medicines.controller.ts:366)",
      "ok"
     ],
     [
      "API: POST /medicines/lookup-barcode",
-     "POST /medicines/lookup-barcode (OK, backend/src/modules/medicines/medicines.controller.ts:56)",
+     "POST /medicines/lookup-barcode (OK, backend/src/modules/medicines/medicines.controller.ts:88)",
+     "ok"
+    ],
+    [
+     "API: GET /insurance/companies/all",
+     "GET /insurance/companies/all (OK, backend/src/modules/insurance/insurance.module.ts:509)",
+     "ok"
+    ],
+    [
+     "API: POST /auth/heartbeat",
+     "POST /auth/heartbeat (OK, backend/src/modules/auth/auth.controller.ts:269)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/session",
+     "GET /api/admin/admin/session (OK, backend/src/modules/admin/enterprise/admin-security.controller.ts:80)",
      "ok"
     ],
     [
      "API: GET /medicines/admin/catalog/:param/price-history",
-     "GET /medicines/admin/catalog/:param/price-history (OK, backend/src/modules/medicines/medicines.controller.ts:305)",
+     "GET /medicines/admin/catalog/:param/price-history (OK, backend/src/modules/medicines/medicines.controller.ts:358)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/urgent-alerts/unread-count",
+     "GET /api/admin/admin/urgent-alerts/unread-count (OK, backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25)",
      "ok"
     ],
     [
@@ -851,20 +991,20 @@
     ]
    ],
    "notes": [
-    "10 handler(s) are passed as props (parent callbacks) and are not traced."
+    "17 handler(s) are passed as props (parent callbacks) and are not traced."
    ]
   },
   {
    "route": "/admin/price-override-audit",
    "elements": [
     [
-     "input: بحث بالدواء أو الصيدلية…",
+     "input: بحث برمز الدواء (SKU)…",
      "state search used by logic/request",
      "ok"
     ],
     [
      "button: تحديث",
-     "GET /api/admin/admin/governance-controls/medicine-price-history",
+     "GET /api/admin/admin/pharmacy/price-overrides",
      "ok"
     ],
     [
@@ -921,135 +1061,128 @@
      "action: <tr> onClick (in DataTable)",
      "",
      "ok"
+    ],
+    [
+     "link: العودة لمركز القيادة (in AdminGuard)",
+     "link /admin/command-center",
+     "ok"
+    ],
+    [
+     "button: فتح القائمة (in AdminGuard)",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: إغلاق القائمة (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: ميلادي هجري (in AdminGuard)",
+     "navigation; local state",
+     "ok"
+    ],
+    [
+     "button: تسجيل الخروج (in AdminGuard)",
+     "logout; POST /auth/logout; navigation",
+     "ok"
+    ],
+    [
+     "link: ar-SA-u-ca-gregory (in AdminGuard)",
+     "link /admin/alerts",
+     "ok"
+    ],
+    [
+     "API: POST /auth/heartbeat",
+     "POST /auth/heartbeat (OK, backend/src/modules/auth/auth.controller.ts:269)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/session",
+     "GET /api/admin/admin/session (OK, backend/src/modules/admin/enterprise/admin-security.controller.ts:80)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/urgent-alerts/unread-count",
+     "GET /api/admin/admin/urgent-alerts/unread-count (OK, backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25)",
+     "ok"
     ]
    ]
   }
  ],
  "needsReview": [
   {
-   "route": "/admin/catalog-governance",
-   "element": "Guard G-PERM-MISMATCH (3)",
+   "route": "/admin/catalog-manager",
+   "element": "Guard G-PERM-MISMATCH (5)",
    "kind": "backend",
-   "note": "3 call(s): Page requires \"catalog.read\" but PATCH /medicines/admin/catalog/:param requires catalog.update + catalog.price.write; an admin role with the page permission onl",
-   "file": "admin/src/pages/admin/catalog-governance.tsx",
-   "line": 79,
-   "backend": "backend/src/modules/medicines/medicines.controller.ts:235"
-  },
-  {
-   "route": "/admin/catalog-manager",
-   "element": "اعتماد المحدد",
-   "kind": "client",
-   "note": "Sensitive action (POST \u0001crudBase\u0001/bulk-approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "note": "5 call(s): Page requires \"catalog.read\" but PATCH /insurance/companies/:param requires insurance.manage; an admin role with the page permission only gets a 403 on this cal",
    "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 271
+   "line": 430,
+   "backend": "backend/src/modules/insurance/insurance.module.ts:526"
   },
   {
    "route": "/admin/catalog-manager",
-   "element": "رفض المحدد",
-   "kind": "client",
-   "note": "Sensitive action (POST \u0001crudBase\u0001/bulk-approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-   "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 272
-  },
-  {
-   "route": "/admin/catalog-manager",
-   "element": "اعتماد",
-   "kind": "client",
-   "note": "Sensitive action (POST \u0001crudBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-   "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 289
-  },
-  {
-   "route": "/admin/catalog-manager",
-   "element": "رفض",
-   "kind": "client",
-   "note": "Sensitive action (POST \u0001crudBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-   "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 290
-  },
-  {
-   "route": "/admin/catalog-manager",
-   "element": "اعتماد",
-   "kind": "client",
-   "note": "Sensitive action (POST \u0001crudBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-   "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 482
-  },
-  {
-   "route": "/admin/catalog-manager",
-   "element": "استرجاع تعطيل",
-   "kind": "client",
-   "note": "Sensitive action (POST /medicines/admin/catalog/:param/delete) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-   "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 483
-  },
-  {
-   "route": "/admin/catalog-manager",
-   "element": "تفعيل تعطيل",
-   "kind": "client",
-   "note": "Sensitive action (POST /medicines/admin/catalog/:param/delete) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-   "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 609
-  },
-  {
-   "route": "/admin/catalog-manager",
-   "element": "Guard G-OPEN (3)",
+   "element": "Guard G-OPEN (1)",
    "kind": "backend",
-   "note": "3 call(s) hit backend routes with no role/permission guard (GET /insurance/companies; POST /storage/upload; GET /storage/:param/signed-url): any signed-in user passes JwtAuthGuard.",
-   "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 87,
-   "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:695"
+   "note": "1 call(s) hit backend routes with no role/permission guard (POST /auth/heartbeat): any signed-in user passes JwtAuthGuard.",
+   "file": "admin/src/components/AdminGuard.tsx",
+   "line": 254,
+   "backend": "backend/src/modules/auth/auth.controller.ts:269"
   },
   {
-   "route": "/admin/catalog-manager",
-   "element": "Guard G-ROLE-ONLY-WRITE (6)",
+   "route": "/admin/image-suggestions",
+   "element": "API GET :param/:param",
    "kind": "backend",
-   "note": "6 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /labs/admin/catalog/:param/approve; POST /radiology/admin/catalog/:param/approve; POST /nursing/admin/catalog/:param/approve; …): every admin role, including a custom restricted one, can run them.",
-   "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 153,
-   "backend": "backend/src/modules/labs/labs.controller.ts:198"
+   "note": "Endpoint is NO_ROUTE (path does not go through /api/admin (the BFF), so it hits Next, not the backend): the call fails or hits nothing.",
+   "file": "admin/src/components/PharmacyOwnDeliveryAdmin.tsx",
+   "line": 22
   },
   {
-   "route": "/admin/catalog-manager",
-   "element": "Guard G-PERM-MISMATCH (4)",
+   "route": "/admin/image-suggestions",
+   "element": "API PUT :param/:param",
    "kind": "backend",
-   "note": "4 call(s): Page requires \"catalog.read\" but PATCH /medicines/admin/catalog/:param requires catalog.update + catalog.price.write; an admin role with the page permission onl",
-   "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 405,
-   "backend": "backend/src/modules/medicines/medicines.controller.ts:235"
+   "note": "Endpoint is NO_ROUTE (path does not go through /api/admin (the BFF), so it hits Next, not the backend): the call fails or hits nothing.",
+   "file": "admin/src/components/PharmacyOwnDeliveryAdmin.tsx",
+   "line": 44
   },
   {
    "route": "/admin/image-suggestions",
    "element": "Guard G-OPEN (3)",
    "kind": "backend",
-   "note": "3 call(s) hit backend routes with no role/permission guard (GET /api/admin/storage/:param/signed-url; GET /api/admin/storage/:param; GET /api/admin/provider-onboarding/admin/contracts/:param): any signed-in user passes JwtAuthGuard.",
+   "note": "3 call(s) hit backend routes with no role/permission guard (GET /api/admin/storage/:param/signed-url; GET /api/admin/storage/:param; POST /auth/heartbeat): any signed-in user passes JwtAuthGuard.",
    "file": "admin/src/components/ProviderFullDetail.tsx",
-   "line": 19,
-   "backend": "backend/src/modules/storage/storage.module.ts:386"
+   "line": 21,
+   "backend": "backend/src/modules/storage/storage.module.ts:572"
   },
   {
    "route": "/admin/image-suggestions",
-   "element": "No nav link",
-   "kind": "client",
-   "note": "Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
-   "file": "admin/src/pages/admin/image-suggestions.tsx",
-   "line": 1
+   "element": "Guard G-PERM-MISMATCH (1)",
+   "kind": "backend",
+   "note": "1 call(s): Page requires \"catalog.read\" but GET /admin/urgent-alerts/unread-count requires command.center.view; an admin role with the page permission only gets a 403 on t",
+   "file": "admin/src/components/AlertsBell.tsx",
+   "line": 19,
+   "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25"
   },
   {
    "route": "/admin/medicines-catalog",
-   "element": "رفض",
-   "kind": "client",
-   "note": "Sensitive action (POST /medicines/admin/catalog/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-   "file": "admin/src/pages/admin/medicines-catalog.tsx",
-   "line": 442
+   "element": "API GET :param",
+   "kind": "backend",
+   "note": "Endpoint is NO_ROUTE (path does not go through /api/admin (the BFF), so it hits Next, not the backend): the call fails or hits nothing.",
+   "file": "admin/src/components/PriceReviewQueue.tsx",
+   "line": 59
   },
   {
    "route": "/admin/medicines-catalog",
-   "element": "اعتماد",
-   "kind": "client",
-   "note": "Sensitive action (POST /medicines/admin/catalog/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-   "file": "admin/src/pages/admin/medicines-catalog.tsx",
-   "line": 444
+   "element": "API POST :param/:param/resolve",
+   "kind": "backend",
+   "note": "Endpoint is NO_ROUTE (path does not go through /api/admin (the BFF), so it hits Next, not the backend): the call fails or hits nothing.",
+   "file": "admin/src/components/PriceReviewQueue.tsx",
+   "line": 73
   },
   {
    "route": "/admin/medicines-catalog",
@@ -1057,26 +1190,26 @@
    "kind": "backend",
    "note": "POST /medicines/lookup-barcode is @Public (no auth at all) but the admin page uses it for a write.",
    "file": "admin/src/pages/admin/medicines-catalog.tsx",
-   "line": 143,
-   "backend": "backend/src/modules/medicines/medicines.controller.ts:56"
+   "line": 173,
+   "backend": "backend/src/modules/medicines/medicines.controller.ts:88"
   },
   {
    "route": "/admin/medicines-catalog",
-   "element": "Guard G-OPEN (2)",
+   "element": "Guard G-OPEN (3)",
    "kind": "backend",
-   "note": "2 call(s) hit backend routes with no role/permission guard (POST /storage/upload; GET /storage/:param/signed-url): any signed-in user passes JwtAuthGuard.",
+   "note": "3 call(s) hit backend routes with no role/permission guard (POST /storage/upload; GET /storage/:param/signed-url; POST /auth/heartbeat): any signed-in user passes JwtAuthGuard.",
    "file": "admin/src/pages/admin/medicines-catalog.tsx",
-   "line": 50,
-   "backend": "backend/src/modules/storage/storage.module.ts:362"
+   "line": 55,
+   "backend": "backend/src/modules/storage/storage.module.ts:545"
   },
   {
    "route": "/admin/medicines-catalog",
-   "element": "Guard G-PERM-MISMATCH (5)",
+   "element": "Guard G-PERM-MISMATCH (1)",
    "kind": "backend",
-   "note": "5 call(s): Page requires \"catalog.read\" but POST /medicines/admin/catalog requires catalog.create; an admin role with the page permission only gets a 403 on this call. | P",
-   "file": "admin/src/pages/admin/medicines-catalog.tsx",
-   "line": 192,
-   "backend": "backend/src/modules/medicines/medicines.controller.ts:261"
+   "note": "1 call(s): Page requires \"catalog.read\" but GET /admin/urgent-alerts/unread-count requires command.center.view; an admin role with the page permission only gets a 403 on t",
+   "file": "admin/src/components/AlertsBell.tsx",
+   "line": 19,
+   "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25"
   },
   {
    "route": "/admin/medicines-catalog",
@@ -1107,20 +1240,21 @@
   },
   {
    "route": "/admin/shortage-reports",
-   "element": "Guard G-PERM-MISMATCH (2)",
+   "element": "Guard G-OPEN (1)",
    "kind": "backend",
-   "note": "2 call(s): Page requires \"catalog.read\" but POST /medicines/admin/shortage-reports/:param/:param requires catalog.shortage.decide; an admin role with the page permission o",
-   "file": "admin/src/pages/admin/shortage-reports.tsx",
-   "line": 42,
-   "backend": "backend/src/modules/medicines/medicines.controller.ts:139"
+   "note": "1 call(s) hit backend routes with no role/permission guard (POST /auth/heartbeat): any signed-in user passes JwtAuthGuard.",
+   "file": "admin/src/components/AdminGuard.tsx",
+   "line": 254,
+   "backend": "backend/src/modules/auth/auth.controller.ts:269"
   },
   {
    "route": "/admin/shortage-reports",
-   "element": "No nav link",
-   "kind": "client",
-   "note": "Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
-   "file": "admin/src/pages/admin/shortage-reports.tsx",
-   "line": 1
+   "element": "Guard G-PERM-MISMATCH (1)",
+   "kind": "backend",
+   "note": "1 call(s): Page requires \"catalog.read\" but GET /admin/urgent-alerts/unread-count requires command.center.view; an admin role with the page permission only gets a 403 on t",
+   "file": "admin/src/components/AlertsBell.tsx",
+   "line": 19,
+   "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25"
   }
  ]
 }
