@@ -7,6 +7,7 @@ import { validateReason, MIN_FINANCIAL_REASON_LENGTH, ReasonError } from '../../
 import { AdminAuditService } from './audit.service';
 import { RefundExecutor } from '../../finance-engine/finance-engine.module';
 import { STUCK_STATES, stuckMinutes } from '../../ops/stuck-orders';
+import { orderRefundFigures } from './order-refund-figures';
 
 /**
  * Unified order-kind registry. Every lifecycle surface (list/detail/actions)
@@ -368,23 +369,18 @@ export class OrdersConsoleService {
     const { spec, doc } = await this.findOrder(kind, id);
 
     const payments = await this.paymentsFor(id, true);
-    const paid = (payments as any[]).reduce((a: number, p: any) => a + Number(p.amount || 0), 0);
-    if (paid <= 0) throw new BadRequestException('no_confirmed_payment_to_refund');
+    // R11 P2: paid, refunded and the ceilings are computed on whole halalas (the integer shadows, the double only where a shadow is missing)
     const priorRefunds = await this.conn.collection('platformledgerentries')
       .find({ type: 'refund', order_id: id }).toArray();
-    const refunded = priorRefunds.reduce((a: number, r: any) => a + Number(r.amount || 0), 0);
-    const maxRefundable = Math.round((paid - refunded) * 100) / 100;
-    if (maxRefundable <= 0) throw new BadRequestException('fully_refunded_already');
-
+    const override = typeof body?.override_reason === 'string' && body.override_reason.trim().length >= 10 ? body.override_reason.trim().slice(0, 300) : null;
     // A cancelled order carries the share the cancellation computed (a late patient cancel keeps a penalty: 50 % by default). "Full" means that share, and nothing above it
     // is refunded unless the admin gives an explicit override reason, which is audited with the policy percentage (REF-PEN-1).
     const policyPct = this.cancellationRefundPercent(spec, doc);
-    const override = typeof body?.override_reason === 'string' && body.override_reason.trim().length >= 10 ? body.override_reason.trim().slice(0, 300) : null;
-    let ceiling = maxRefundable;
-    if (policyPct !== null && !override) {
-      ceiling = Math.max(0, Math.min(maxRefundable, Math.round((Math.round(paid * policyPct) / 100 - refunded) * 100) / 100));
-      if (ceiling <= 0) throw new BadRequestException('cancellation_refund_already_paid');
-    }
+    const figures = orderRefundFigures(payments as any[], priorRefunds as any[], policyPct, !!override);
+    const { paid, refunded, maxRefundable, ceiling } = figures;
+    if (figures.paidHalalas <= 0) throw new BadRequestException('no_confirmed_payment_to_refund');
+    if (maxRefundable <= 0) throw new BadRequestException('fully_refunded_already');
+    if (policyPct !== null && !override && ceiling <= 0) throw new BadRequestException('cancellation_refund_already_paid');
     let amount: number;
     if ((body?.mode || 'full') === 'full') amount = ceiling;
     else {
