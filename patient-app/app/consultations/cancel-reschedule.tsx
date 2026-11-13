@@ -96,7 +96,7 @@ export default function CancelRescheduleScreen() {
 
   useEffect(() => {
     if (!appointmentId) return;
-    apiFetch<unknown>(`/care/appointments/${appointmentId}/refund-preview`).then((preview) => setLateOffer(readLateReschedule(preview))).catch(() => setLateOffer(null));
+    apiFetch<unknown>(`/care/appointments/${appointmentId}/refund/preview`).then((preview) => setLateOffer(readLateReschedule(preview))).catch(() => setLateOffer(null));
   }, [appointmentId]);
 
   useEffect(() => {

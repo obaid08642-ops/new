@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { readLateReschedule } from "./late-reschedule";
 
@@ -12,5 +14,15 @@ describe("the late free reschedule offer", () => {
     expect(readLateReschedule(null)).toBeNull();
     expect(readLateReschedule({})).toBeNull();
     expect(readLateReschedule({ free_reschedule: { available: true, late: true, within_days: "x" } })).toBeNull();
+  });
+});
+
+describe("the preview path matches the backend route (path contract)", () => {
+  const read = (p: string) => readFileSync(join(__dirname, p), "utf8");
+  it("backend serves GET :id/refund/preview and the web page calls exactly that", () => {
+    expect(read("../../../backend/src/modules/care/appointments.controller.ts")).toMatch(/@Get\(':id\/refund\/preview'\)/);
+    const page = read("../../app/[locale]/consultations/cancel-reschedule/page.tsx");
+    expect(page).toContain("/refund/preview");
+    expect(page).not.toContain("refund-preview");
   });
 });
