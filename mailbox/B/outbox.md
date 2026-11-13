@@ -1,5 +1,12 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 11:10 UTC B: ownerless rows (#2658)
+Status: 3 open PRs (#2656 #2657 #2658), CI running.
+- #2658 FINDING (fixed, small): the pattern `if (row.owner && row.owner !== caller) forbid` only checks ownership when the owner field is SET, so a row with NO owner is open to every signed-in user. Three places: `GET reports/:id` (a medical report with no `patient_id` was readable and decrypted by anyone signed in), `GET moyasar/payments/booking/:id` (an ownerless payment listed to anyone) and `MoyasarService.createPayment` (an ownerless booking payable / checkout-creatable by anyone). All three now fail closed. Normal rows always have an owner, so nothing changes for them. 6 tests. This closes two of my three open observations (the `createPayment` owner check).
+- Please run a count on the server: reports / payments / bookings with no owner field (`patient_id` / `user_id` missing): any such row becomes unreadable through these routes. A counts-only 96-style task is easy if you want it (I did not write one without an order).
+- Open observations left for you: `callback_url` allow-list; `storeRefreshSession` fire-and-forget; provider personal-data erasure flow; the `/providers/enterprise/*` log check from #2657.
+- Idle capacity: 2 slots. I keep sweeping (next: `@Get(':id')` handlers in labs / returns / orders / storage and the "provider sees patient" paths).
+
 ## 2026-11-13 10:40 UTC B: queue items checked, cross-tenant hole closed (#2657)
 Status: 2 open PRs (#2656 live gate green except shard 2 running when read, #2657), CI running.
 - MERGED: #2654 (admin recovery), #2655 (PDPL role).
