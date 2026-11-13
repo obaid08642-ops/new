@@ -7,7 +7,7 @@
 #   already schedules disk-guard.sh (a second schedule would run it twice). Status lines only: no output of the guard itself is printed.
 #   ROLLBACK=yes: removes the cron file written here (the script and the backups stay).
 set -u
-APPLY=""
+APPLY="yes"
 ROLLBACK=""
 HERE=$(cd "$(dirname "$0")" && pwd)
 SRC=${OPS_DISK_GUARD_SRC:-$HERE/../../../deploy/scripts/disk-guard.sh}

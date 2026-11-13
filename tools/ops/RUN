@@ -1,2 +1,2 @@
-# 2026-11-13 run 120 = DRY RUN of the disk guard install (read-only): is the script on the host, is it scheduled anywhere, free space now. APPLY is empty. If the owner approves the dry run output, the next run sets APPLY=yes.
+# 2026-11-13 run 121 = INSTALL the disk guard (run 120 dry run: script not on the host, scheduled NOWHERE, / at 24% free). APPLY=yes: copies deploy/scripts/disk-guard.sh to /opt/nabdah/deploy/scripts/, writes /etc/cron.d/nabd-disk-guard (05:20 UTC daily; acts only below 25% free; never backups, volumes or uploads). Rollback: ROLLBACK=yes removes the cron file.
 98r-disk-guard-cron
