@@ -1,4 +1,4 @@
-import { halalasSum, reportFigures } from './report-totals';
+import { halalasSum, halalasSumFirstOf, reportFigures } from './report-totals';
 
 describe('reportFigures (R11 P2: the finance summary adds whole halalas)', () => {
   const payments = [
@@ -67,5 +67,18 @@ describe('halalasSum (the $group accumulator)', () => {
       $sum: { $ifNull: ['$amount_halalas', { $toLong: { $round: [{ $multiply: ['$amount', 100] }, 0] } }] },
     });
     expect(JSON.stringify(halalasSum('refund_amount'))).toContain('$refund_amount_halalas');
+  });
+});
+
+describe('halalasSumFirstOf (first present field, R11 P2)', () => {
+  it('a single field is the same as halalasSum', () => {
+    expect(halalasSumFirstOf(['total'])).toEqual(halalasSum('total'));
+  });
+  it('chooses on the double field, then adds that field shadow with the double only as the fallback', () => {
+    const e = JSON.stringify(halalasSumFirstOf(['total_price', 'total']));
+    expect(e).toContain('"$gt":["$total_price",null]');
+    expect(e).toContain('$total_price_halalas');
+    expect(e).toContain('$total_halalas');
+    expect(e.indexOf('$total_price_halalas')).toBeLessThan(e.indexOf('$total_halalas'));
   });
 });
