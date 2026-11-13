@@ -1,6 +1,6 @@
 /**
  * Owner decision 2026-11-10 (late cancel, option b): inside the last hours before a visit, instead of cancelling for the late refund the
- * patient may move the booking once, free, to a slot within `within_days` days. Lane Z's `GET /care/appointments/:id/refund-preview`
+ * patient may move the booking once, free, to a slot within `within_days` days. Lane Z's `GET /care/appointments/:id/refund/preview`
  * answers `free_reschedule: { available, late, within_days }`; the screens offer the choice only when `late` and `available`.
  * Same reader as the app (patient-app/src/utils/lateReschedule.ts).
  */
