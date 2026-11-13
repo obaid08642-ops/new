@@ -1,7 +1,2 @@
-# 2026-11-13 run 122 (supersedes the waiting run 121) = deploy main@421d3279 + install the disk guard (98r, APPLY=yes; run 120 dry run: not on host, scheduled nowhere). Brings #2640-#2645, #2648: halala read paths, late free reschedule rule, dead-letter queue gauges, a payment-return link cannot forge "paid".
-release:421d3279038fa73efb462419446d9c90b00315a8
-97-free-old-predeploy
-93-free-unused-images
-60-deploy-main
+# 2026-11-13 run 123 = install the disk guard (run 122 deployed main@421d3279 but the install aborted: the task looked for the script next to itself; now it reads it from the newest deployed release dir /opt/nabdah/releases/<sha8>/deploy/scripts/disk-guard.sh). APPLY=yes: backs up any old copy, installs the script + /etc/cron.d/nabd-disk-guard (05:20 UTC; acts only below 25% free; never backups/volumes/uploads). No deploy.
 98r-disk-guard-cron
-cf-purge-api

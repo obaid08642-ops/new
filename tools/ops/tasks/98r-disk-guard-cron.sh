@@ -10,7 +10,10 @@ set -u
 APPLY="yes"
 ROLLBACK=""
 HERE=$(cd "$(dirname "$0")" && pwd)
-SRC=${OPS_DISK_GUARD_SRC:-$HERE/../../../deploy/scripts/disk-guard.sh}
+REL_ROOT=${OPS_RELEASE_DIR:-/opt/nabdah/releases}
+# the task runs from a plain directory on the host (no repo checkout): the script comes from the NEWEST deployed release (deploy/ of the release = what 91c-host-files copies)
+NEWEST=$(ls -1dt "$REL_ROOT"/*/ 2>/dev/null | head -1)
+SRC=${OPS_DISK_GUARD_SRC:-${NEWEST%/}/deploy/scripts/disk-guard.sh}
 CRON_DIR=${OPS_CRON_DIR:-/etc/cron.d}
 CRON_FILE=$CRON_DIR/nabd-disk-guard
 SCRIPT=${OPS_DISK_GUARD_SCRIPT:-/opt/nabdah/deploy/scripts/disk-guard.sh}
