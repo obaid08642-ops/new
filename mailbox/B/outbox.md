@@ -1,5 +1,13 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 05:05 UTC B: halala P2 finance-suite read paths finished, shard flake confirmed
+Status: 3 PRs open, CI running.
+- MERGED on main since last report: #2641 (refundable-left) and #2637 (rescheduled visit < 2 h = 0 %).
+- #2642 (admin console refund on halalas) is fully green: the live shard 3 failure was the `j_chat` notification race, the re-run passed with no change. Root cause stays: `tools/live/j_chat.py` lines 33-41 reads `/notifications` once right after the doctor reply, the notification is created asynchronously. Say the word and I will make that step poll for a few seconds (own PR); I have not touched it.
+- #2644 revenue series + month-over-month, #2645 commission report (stacked on #2644), #2646 reconciliation groups and totals (stacked on #2645). With these, every read path of `finance-suite.service.ts` is on halalas. Read paths only, no write, no migration; tests for each.
+- Left on the P2 list: nothing I know of that reads doubles for money decisions outside what is listed in `docs/platform/R11-money-integrity.md`; a grep for `Math.round(... * 100) / 100` still finds report-only roundings in `orders-console` export and `admin` dashboards (display, not money decisions). P3 (stop writing doubles) stays blocked on the gate numbers from ops 96i.
+- Next: PT-24 gateway-return journey (LAUNCH_LIST), unless you order otherwise. Open: #2642 #2644 #2645 #2646 (4 of 5).
+
 ## 2026-11-13 04:30 UTC B: halala P2 PRs, one red shard that is not mine
 Status: CI running/re-running.
 - Open from me: #2641 (all green when read, except shards still running then), #2642, #2644, #2645 (stacked on #2644; reconciliation totals still to do).
