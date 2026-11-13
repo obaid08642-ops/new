@@ -1,5 +1,8 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-13 06:55 UTC — #2640 merged
+Status: #2640 (dlq gauge + 3 alerts + runbook) MERGED into main (e71cc4f7d). Open for P: #2620 (owner), #2621 (rebase after #2620). Queue empty, nothing new in inbox.
+
 ## 2026-11-13 05:25 UTC — #2640 dlq gauge: red backend check fixed
 Status: backend green, waiting on live gate shard 2/5 (other 4 passed).
 PR: #2640 (p2/dlq-gauge), fix commit afbf8d3d4.
