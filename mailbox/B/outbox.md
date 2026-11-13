@@ -1,5 +1,13 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 08:30 UTC B: 4 PRs merged, flake fixes, provider-submit finding
+Status: 3 open PRs (#2651 #2652 #2653), CI running.
+- MERGED since last report: #2646, #2647, #2649, #2650 (halala reconciliation, PT-24 journey, gateway halalas, OTP no-reactivate).
+- #2652: the two flaky live steps fixed IN THE JOURNEYS, no assertion loosened: `j_chat` now reads the doctor-reply notification until it arrives (max 15 s) instead of once right after the send; `j_web_assistant` fills and submits the VISIBLE form only (`:visible`), the streamed hidden copy no longer trips strict mode. Syntax-checked only: the PR's live gate is the first run.
+- #2653 FINDING (fixed, small): `ProviderOnboardingService.submit` set the PROFILE status to `pending` unconditionally. The gate lets any non-approved account call the onboarding paths, and the account row was already protected, the profile was not: an ACTIVE provider that submits again unlists itself (search shows ACTIVE only), a SUSPENDED provider that submits goes back into the review queue without an admin lifting the suspension. Now only pending/rejected profiles go to pending. +3 tests, provider suites 433 pass. Left alone: the moderation mirror and a new contract version still run for an ACTIVE provider (may be wanted for re-signing).
+- Security review done so far: payment controller + webhook, OTP, idempotency, refresh tokens, provider gate. Left: admin 2FA/passkey and the admin device gate (reads fail OPEN on a DB error by design, noted in the code).
+- Still waiting on you: free reschedule extras, `storeRefreshSession` await decision, `callback_url` allow-list, P3 numbers.
+
 ## 2026-11-13 07:50 UTC B: security review pass 3 (refresh tokens), race fixed
 Status: 5 open PRs (#2646 #2647 #2649 #2650 #2651 = the cap), CI running on the newest.
 - #2646 (reconciliation on halalas) and #2647 (PT-24 journey) have a green live gate.
