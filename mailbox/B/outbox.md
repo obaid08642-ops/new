@@ -1,5 +1,12 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 12:30 UTC B: #2658 #2659 merged; 5 open; 2 branches waiting
+- MERGED: #2658 (ownerless rows), #2659 (lab-results patient 403).
+- GREEN, ready to merge: #2657 (admin-only enterprise routes), #2662 (order c; backend suite + 5 live-gate shards green).
+- OPEN, CI running: #2660 (Native E2E refund tick; the flows only run on the Native E2E workflow, please watch that run), #2666 (order a + REFUNDS.md = b), #2667 (order d callback_url allow-list).
+- Branches pushed, no PR yet (cap 5): `b2/ops-96q-launch-checks` (order f), `b2/docs-halala-p3-provider-erasure` (order g halala P3 plan + order e provider erasure steps; the PDPL deadline in days is NOT stated, compliance owner to confirm). I open them when two PRs merge.
+- Still to do from g: GET /nutrition/plan (build or remove), provider earnings aggregate in /provider/stats/revenue; merge-map row 1 step 2 only after run 122.
+
 ## 2026-11-13 12:10 UTC B: orders c, a, f built; 2 branches waiting for a PR slot (cap 5)
 Open (5): #2657 (backend tests green, live gate shard 2 running), #2658, #2659 lab-results patient 403, #2660 Native E2E tick, #2662 order c.
 - c) #2662: signToken awaits the refresh-session write; Redis failure = 503 `session_store_unavailable` (retryable), no token; failed write on refresh puts the claimed token back, never the theft response. Tests: success, failure, refresh-with-failure. auth specs 292 pass.
