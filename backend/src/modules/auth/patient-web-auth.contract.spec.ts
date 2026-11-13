@@ -23,6 +23,8 @@ describe('patient web auth contract', () => {
           return 'OK';
         }),
         del: jest.fn(async (key: string) => { data.delete(key); }),
+        sadd: jest.fn(async () => 1),
+        expire: jest.fn(async () => 1),
       })),
     };
     const jwt = { sign: jest.fn().mockReturnValueOnce('access-token').mockReturnValueOnce('refresh-token') };
@@ -50,10 +52,10 @@ describe('patient web auth contract', () => {
     return { data, userModel, patientModel, redis, jwt, service };
   };
 
-  it('issues a 14-day refresh token and keeps Redis session TTL aligned', () => {
+  it('issues a 14-day refresh token and keeps Redis session TTL aligned', async () => {
     const { service, jwt, redis } = build();
 
-    service.signToken({ id: 'patient-1', role: 'patient' });
+    await service.signToken({ id: 'patient-1', role: 'patient' });
 
     expect(jwt.sign).toHaveBeenNthCalledWith(
       1,
