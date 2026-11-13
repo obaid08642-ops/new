@@ -1,6 +1,2 @@
-# 2026-11-12 run 119 = deploy main@420d8f62. Brings #2628-#2632 and #2636: suspended/rejected provider loses the provider login, translation job runs one at a time, billing kind aliases, credit note type 381 + QR amounts, provider photos capped at 1600 px, Cloudinary only for provider photos, refund 2h-table clients, medical report/dependant/location/no-show messages.
-release:420d8f6268c4a5c06b9b464f8299841432cc8149
-97-free-old-predeploy
-93-free-unused-images
-60-deploy-main
-cf-purge-api
+# 2026-11-13 run 120 = DRY RUN of the disk guard install (read-only): is the script on the host, is it scheduled anywhere, free space now. APPLY is empty. If the owner approves the dry run output, the next run sets APPLY=yes.
+98r-disk-guard-cron
