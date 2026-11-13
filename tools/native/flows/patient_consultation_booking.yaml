@@ -140,6 +140,19 @@ appId: com.patient.nabd
 # clinic visits can be paid at the clinic: no card checkout (it opens the browser) is needed
 - tapOn:
     id: "booking-pay-method-cash"
+# the refund policy tick (ccb781229) keeps the confirm button off until it is ticked; without this the submit tap did nothing (main red since 11-09)
+- scrollUntilVisible:
+    element:
+      id: "refund-policy-agree"
+    centerElement: true
+    timeout: 30000
+- tapOn:
+    id: "refund-policy-agree"
+- scrollUntilVisible:
+    element:
+      id: "booking-confirm-submit"
+      enabled: true
+    timeout: 30000
 - tapOn:
     id: "booking-confirm-submit"
 # POST /care/appointments answered: the booking-placed screen, then the appointment's own status screen
