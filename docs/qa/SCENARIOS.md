@@ -13,12 +13,14 @@ Complete list of user scenarios, from the owner's request ("make sure there are 
 
 ## Counts
 
-| Measure | First catalogue | Re-scored on main `c17aa3461` (#2292) | Re-scored on main `365b2d580` (#2335) | Batch 2 (#2351) | PT-25 (#2435) | Batch 5 (this PR) |
-|---|---|---|---|---|---|---|
-| Scenarios listed | 100 | 100 | 100 | 100 | 100 | 100 |
-| COVERED | 52 | 55 | 62 | 65 | 73 | 79 |
-| PARTIAL | 16 | 16 | 16 | 13 | 8 | 9 |
-| NOT COVERED | 32 | 29 | 22 | 22 | 18 | 12 |
+| Measure | First catalogue | Re-scored on main `c17aa3461` (#2292) | Re-scored on main `365b2d580` (#2335) | Batch 2 (#2351) | PT-25 (#2435) | Batch 5 | Recount 2026-11-13 |
+|---|---|---|---|---|---|---|---|
+| Scenario rows | 100 | 100 | 100 | 100 | 100 | 100 | 101 |
+| COVERED | 52 | 55 | 62 | 65 | 73 | 79 | 100 |
+| PARTIAL | 16 | 16 | 16 | 13 | 8 | 9 | 1 (PT-24) |
+| NOT COVERED | 32 | 29 | 22 | 22 | 18 | 12 | 0 |
+
+Recount 2026-11-13: counted from the status cell of every scenario row below (101 rows: 100 COVERED, 1 PARTIAL, 0 NOT COVERED). The notes under this table describe earlier recounts.
 
 Lane V (2026-11-09): SY-05 (backups restore, P0), SY-02 and SY-01 moved to COVERED with the evidence in their rows. The table above is the older count; a recount of the 94 rows whose status cell parses now gives 91 COVERED, 1 PARTIAL, 2 NOT COVERED.
 
