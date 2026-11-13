@@ -23,7 +23,7 @@ import { randomUUID } from 'crypto';
 import { JwtAuthGuard, CurrentUser, Roles, hasEffectiveRole } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, PutPricingDto, PutTariffsDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto, ToggleInstantDto, SaveDoctorNoteDto } from './provider-ops.dto';
-import { clampMonths, foldRevenue, rangeStart, revenuePipeline } from './revenue-by-month';
+import { clampMonths, earningsByRefTypePipeline, foldRevenue, foldSlices, foldWalletTotals, movementsByTypePipeline, rangeStart, revenuePipeline, walletTotalsPipeline } from './revenue-by-month';
 import { ensureEarningUniqueIndex } from '../finance-engine/earning-key';
 import { CommissionResolver, LedgerService } from '../finance-engine/finance-engine.module';
 import { settlementDelayDefault, DEFAULT_VAT_PERCENT } from '../../common/commission-defaults';
@@ -807,8 +807,21 @@ export class ProviderOpsService {
     const account: any = await this.conn.collection('provider_accounts').findOne({ $or: [{ id: providerId }, { user_id: providerId }] }).catch(() => null);
     const ids = [...new Set([providerId, account?.id, account?.user_id].filter(Boolean).map(String))];
     const now = new Date();
-    const rows = await this.conn.collection('platformledgerentries').aggregate(revenuePipeline(ids, rangeStart(now, months)) as any[]).toArray();
-    return foldRevenue(rows as any[], now, months);
+    const from = rangeStart(now, months);
+    const led = this.conn.collection('platformledgerentries');
+    // The widgets of the revenue screen are aggregated here too, over the whole range, instead of on the phone from its newest rows.
+    const [rows, byService, byType, wallet] = await Promise.all([
+      led.aggregate(revenuePipeline(ids, from) as any[]).toArray(),
+      led.aggregate(earningsByRefTypePipeline(ids, from) as any[]).toArray(),
+      led.aggregate(movementsByTypePipeline(ids, from) as any[]).toArray(),
+      led.aggregate(walletTotalsPipeline(ids) as any[]).toArray(),
+    ]);
+    return {
+      ...foldRevenue(rows as any[], now, months),
+      by_service: foldSlices(byService as any[]),
+      by_type: foldSlices(byType as any[]),
+      wallet: foldWalletTotals(wallet as any[]),
+    };
   }
 
   async walletLedger(providerId: string, limit = 100): Promise<any> {

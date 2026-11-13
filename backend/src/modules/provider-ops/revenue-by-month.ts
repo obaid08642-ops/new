@@ -62,3 +62,61 @@ export function foldRevenue(rows: Array<{ _id?: { m?: string; t?: string }; tota
   const sum = [...acc.values()].reduce((s, v) => ({ earned: s.earned + v.earned, refunded: s.refunded + v.refunded }), { earned: 0, refunded: 0 });
   return { currency: 'SAR', months: list, total: { earned: fromHalalas(sum.earned), refunded: fromHalalas(sum.refunded), net: fromHalalas(sum.earned - sum.refunded) } };
 }
+
+/**
+ * The widgets next to the trend used to be added up on the phone from the newest 200 ledger rows of any type (provider-app
+ * RevenueInsights: "computed on the phone from its newest rows"), so a provider with more movement than that saw a part of the
+ * truth, and the service breakdown grouped on `service_type` / `reference_type`, which a ledger row does not carry (every row fell
+ * into "other"). These aggregates answer the same questions on the server, over the whole range, grouping earnings by `ref_type`.
+ */
+
+/** Earnings of the range grouped by what was earned on (`ref_type` of the provider_earning row). */
+export function earningsByRefTypePipeline(accountIds: string[], from: Date): object[] {
+  return [
+    { $match: { provider_account_id: { $in: accountIds }, createdAt: { $gte: from }, type: 'provider_earning' } },
+    { $group: { _id: { $ifNull: ['$ref_type', 'other'] }, total: halalasSum('amount') } },
+    { $sort: { total: -1 } },
+  ];
+}
+
+/** Every movement of the range grouped by ledger type (earning, payout, commission, ...). */
+export function movementsByTypePipeline(accountIds: string[], from: Date): object[] {
+  return [
+    { $match: { provider_account_id: { $in: accountIds }, createdAt: { $gte: from } } },
+    { $group: { _id: '$type', total: halalasSum('amount') } },
+    { $sort: { total: -1 } },
+  ];
+}
+
+/** All-time wallet figures: what was earned, what was paid out, and what is still pending (no row limit). */
+export function walletTotalsPipeline(accountIds: string[]): object[] {
+  return [
+    { $match: { provider_account_id: { $in: accountIds } } },
+    { $group: { _id: { t: '$type', pending: { $eq: ['$state', 'pending'] } }, total: halalasSum('amount') } },
+  ];
+}
+
+export interface RevenueSlice { key: string; amount: number }
+
+/** Grouped halala totals to a list in SAR, largest first (a negative or absent total is dropped). */
+export function foldSlices(rows: Array<{ _id?: unknown; total?: number }>): RevenueSlice[] {
+  return rows
+    .map((r) => ({ key: String(r?._id ?? 'other'), halalas: Number(r?.total) || 0 }))
+    .filter((r) => r.halalas > 0)
+    .sort((a, b) => b.halalas - a.halalas)
+    .map((r) => ({ key: r.key, amount: fromHalalas(r.halalas) }));
+}
+
+export interface WalletTotals { earned: number; paid: number; pending: number; balance: number }
+
+/** All-time earned / paid / pending and the balance (never below zero), from the grouped halala totals. */
+export function foldWalletTotals(rows: Array<{ _id?: { t?: string; pending?: boolean }; total?: number }>): WalletTotals {
+  let earned = 0, paid = 0, pending = 0;
+  for (const r of rows) {
+    const halalas = Number(r?.total) || 0;
+    if (r?._id?.t === 'provider_earning') earned += halalas;
+    else if (r?._id?.t === 'payout') paid += halalas;
+    if (r?._id?.pending === true) pending += halalas;
+  }
+  return { earned: fromHalalas(earned), paid: fromHalalas(paid), pending: fromHalalas(pending), balance: fromHalalas(Math.max(0, earned - paid)) };
+}
