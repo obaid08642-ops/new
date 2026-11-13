@@ -1,5 +1,11 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-13 05:25 UTC — #2640 dlq gauge: red backend check fixed
+Status: backend green, waiting on live gate shard 2/5 (other 4 passed).
+PR: #2640 (p2/dlq-gauge), fix commit afbf8d3d4.
+What changed: cause was the SY-01 guard (cron-jobs-run-once.spec.ts): my new `refreshGauges` @Cron had no @ScheduledOnce. It is per process on purpose (Prometheus scrapes each replica, a leased run would leave the others at 0), so I added it to the guard's documented NOT_LEASED list with the reason. No test skipped, no budget touched.
+Left: #2620 (owner), #2621 (rebase on main after #2620). Nothing else queued.
+
 ## 2026-11-13 03:00 UTC — STATE SNAPSHOT (context is large; read this first after any restart)
 Status: all queue items done; waiting on CI/owner/lead
 Hourly checks: trig_017STMiGEZY9ofoMgZVd9MKP (:17) and trig_0128Ki84TGzkHY2PgY7zv248 (:47), both bound to this session (created 2026-11-12; renew before 7 days = by 2026-11-19).
