@@ -103,6 +103,21 @@ describe('AuthService sessions (21.7)', () => {
     await expect(service.refreshToken(a.refreshToken, 'dev-iphone-0000000001')).rejects.toBeInstanceOf(UnauthorizedException);
   });
 
+  it('two refreshes of the same token at the same moment: exactly one wins, the other is the lost race (no second token family)', async () => {
+    const a = await signIn(IPHONE, '10.1.2.3', 'dev-iphone-0000000001');
+    const results = await Promise.allSettled([
+      service.refreshToken(a.refreshToken, 'dev-iphone-0000000001'),
+      service.refreshToken(a.refreshToken, 'dev-iphone-0000000001'),
+    ]);
+    await new Promise((r) => setImmediate(r));
+    const won = results.filter((r) => r.status === 'fulfilled');
+    const lost = results.filter((r) => r.status === 'rejected') as PromiseRejectedResult[];
+    expect(won).toHaveLength(1);
+    expect(lost).toHaveLength(1);
+    expect(String(lost[0].reason?.message)).toBe('refresh_token_rotated');
+    expect(await service.listSessions(user.id)).toHaveLength(1);   // one live sign-in, nobody was signed out by the race
+  });
+
   it('a reuse a moment after the rotation fails alone; a reuse later is theft and ends every sign-in', async () => {
     const a = await signIn(IPHONE, '10.1.2.3', 'dev-iphone-0000000001');
     const b = await signIn(CHROME, '192.168.5.9');
