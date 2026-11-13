@@ -1,2 +1,8 @@
-# 2026-11-13 run 124 = install the disk guard (run 123 aborted again: the release holds deploy.tgz, not an unpacked deploy/; the task now extracts scripts/disk-guard.sh from the newest release deploy.tgz). APPLY=yes, backups kept, no deploy. If the tarball has no such file the task aborts with nothing written.
+# 2026-11-13 run 125 = deploy main@e62a6b79 + disk guard install (98r from deploy.tgz, APPLY=yes) + read-only launch server checks (96q). Supersedes the waiting run 124. Brings the audit fixes: late free reschedule offer path fixed (clients called /refund-preview, backend serves /refund/preview), refund 100% when the doctor has no free slot in 14 days, callback_url allow-list, fail-closed refresh session, admin-only providers/enterprise, ownerless rows closed, patient reads own lab results, Seha-missing admin page, radiology slot capacity screen, provider revenue widgets aggregate.
+release:e62a6b791496bcc6dc4f9abb16d15be9bba5f49b
+97-free-old-predeploy
+93-free-unused-images
+60-deploy-main
 98r-disk-guard-cron
+96q-launch-checks
+cf-purge-api
