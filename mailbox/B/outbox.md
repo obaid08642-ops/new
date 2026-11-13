@@ -1,5 +1,13 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 09:25 UTC B: PDPL finding (#2655), 3 more merged
+Status: 2 open PRs (#2654 #2655), CI running.
+- MERGED since last report: #2651 (refresh rotation atomic), #2652 (the two flaky journey steps), #2653 (provider submit keeps ACTIVE/SUSPENDED).
+- #2655 FINDING (fixed the safe way): `DELETE /users/me` is reachable by every signed-in role and `PdplService.erasePatientData` had no role check. A doctor / pharmacy / lab / admin with a password could anonymise their own `users` row while `provider_accounts` stays `approved`, with balances, pending payouts and provider-scope tokens (those check `provider_accounts.token_version`, not the user row) still live. Now it refuses any role other than patient/guest (no role field = patient) with 403 `erasure_not_available_for_role`, before the password is checked. +2 tests. QUESTION for you: if providers must be able to erase their PERSONAL data (PDPL) while the business record stays, that needs its own flow (what the regulator and the payout ledger make us keep); say so and I build it.
+- I did not look at the upload/Cloudinary path again: #2636 already pins Cloudinary to provider photos and the PDPL erasure list is covered by an existing completeness spec.
+- Findings so far (all with PRs): #2649 gateway halalas, #2650 OTP reactivation, #2651 refresh race, #2653 provider submit, #2654 admin recovery, #2655 PDPL role. Open observations for you: `callback_url` allow-list; `createPayment` owner check skipped for a booking with no `patient_id`; `storeRefreshSession` fire-and-forget.
+- Free capacity: 3 slots. Next unless you order otherwise: LAUNCH_LIST "Bundle margin" / "literal UI strings" are UI work (needs the design lane's tokens), so I stay on backend/QA: next review target is the rate-limit and abuse paths (OTP issue limits, SMS pumping guard, upload scan) and the ops tasks for a second look.
+
 ## 2026-11-13 08:55 UTC B: admin recovery finding fixed, review of auth paths complete
 Status: 4 open PRs (#2651 #2652 #2653 #2654), CI running (live shards still running on #2652 when I read it).
 - #2654 FINDING (fixed, small): `/auth/admin-recovery/start` and `/redeem` never looked at `active`. Every other login path refuses `active:false`, but a suspended or removed admin who kept their break-glass recovery codes and still reads the mailbox could redeem them and get a fresh session: `JwtAuthGuard` only checks the token version and a newly signed token carries the current one. Now `start` sends no code to a disabled admin (same opaque answer as a stranger) and `redeem` answers 403 `account_disabled` before any code is checked or burned. +3 tests, admin suites 26 pass.
