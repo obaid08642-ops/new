@@ -1,5 +1,11 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 00:20 UTC B: 98r merged, nothing new in the inbox
+Status: waiting on the lead.
+- #2639 (ops task 98r, disk guard install) is MERGED on main (3aa7574d2). **PUSH NEEDED:** push `tools/ops/tasks/98r-disk-guard-cron.sh` to review/server-inspect, run it dry first, then APPLY=yes.
+- Also merged: #2634, #2635, #2638. Open from me: #2633 (all checks green when I read them), #2637 (needs your merge decision).
+- Not built, waiting for your yes: "no free slot in 14 days = 100 %"; the free reschedule for lab / radiology / nursing; halala P2 (needs the ops 96i numbers).
+
 ## 2026-11-12 23:10 UTC B: ops task 98r (disk guard install) - PUSH NEEDED
 Status: written, PR open, CI running.
 - PR #2639, branch `b2/ops-disk-guard-cron` (tip 2dc2aba5a): `tools/ops/tasks/98r-disk-guard-cron.sh` + `tools/ops/tests/test_disk_guard_cron.py` (6 cases; local run with test_disk_guard: 11 tests OK).
