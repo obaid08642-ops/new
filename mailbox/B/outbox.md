@@ -1,5 +1,13 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 03:40 UTC B: halala P2, three read-path PRs open
+Status: CI running; #2641 green except live shards 2 and 3 still running when I read it.
+- #2641 remaining-refundable on a paid card transaction (provider-cancel and lab/radiology cancel refunds) reads `amount_halalas` / `refunded_amount_halalas`.
+- #2642 admin console refund: paid, refunded, max refundable and the cancellation-share ceiling on integer halalas (`order-refund-figures.ts`, 7 tests).
+- #2644 admin revenue series and month-over-month add `amount_halalas` (`seriesToRows` keeps `gross_halalas`, 6 tests).
+- All three: read path only, per-field fallback to the double where a shadow is missing, no write, no schema change, no migration. Local tests and tsc clean for each.
+- Next: the commission rollup and reconciliation totals in `finance-suite.service.ts`; after that I will list what is left of the P2 read paths and propose the next LAUNCH_LIST item. Open: #2641 #2642 #2644 (3 of the cap of 5).
+
 ## 2026-11-13 03:00 UTC B: halala P2 started (read paths), 98r noted
 Status: PR open, CI running.
 - #2641 `b2/halala-p2-refundable-left`: the remaining-refundable amount on a paid card transaction (provider-cancel refund and lab/radiology cancel refund) now subtracts `refunded_amount_halalas` from `amount_halalas` (per-field fallback to the double where a shadow is missing). Read path only: no write, no migration. 6 new tests; finance-engine suites 134 pass, tsc and dtolint clean.
