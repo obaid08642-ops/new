@@ -1,6 +1,7 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { fromHalalas, toHalalas } from '../../../common/money';
 import { Cron } from '@nestjs/schedule';
 import { ScheduledOnce } from '../../../common/scheduled-once';
 import { reportAggregate } from '../../../common/reports/report-read';
@@ -42,9 +43,18 @@ export function bucketKey(d: Date, g: Granularity): string {
   return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, '0')}`;
 }
 
-export interface RevenueRow { bucket: string; vertical: string; gross: number; count: number }
+/** `gross` is SAR for display; `gross_halalas` is the exact integer the figures are added in (R11 P2 read path). */
+export interface RevenueRow { bucket: string; vertical: string; gross: number; count: number; gross_halalas: number }
 
-export function seriesToRows(payments: Array<{ paid_at?: Date; createdAt?: Date; amount?: number; booking_kind?: string }>, g: Granularity): RevenueRow[] {
+/** A payment's halalas: the integer shadow when present, else its legacy double converted exactly. */
+const paymentHalalas = (p: { amount?: unknown; amount_halalas?: unknown }): number => {
+  if (typeof p.amount_halalas === 'number' && Number.isSafeInteger(p.amount_halalas)) return p.amount_halalas;
+  const n = Number(p.amount || 0);
+  return Number.isFinite(n) ? toHalalas(n) : 0;
+};
+const rowHalalas = (r: RevenueRow): number => (Number.isSafeInteger(r.gross_halalas) ? r.gross_halalas : toHalalas(r.gross));
+
+export function seriesToRows(payments: Array<{ paid_at?: Date; createdAt?: Date; amount?: number; amount_halalas?: number; booking_kind?: string }>, g: Granularity): RevenueRow[] {
   const map = new Map<string, RevenueRow>();
   for (const p of payments) {
     const when = p.paid_at || p.createdAt;
@@ -52,8 +62,9 @@ export function seriesToRows(payments: Array<{ paid_at?: Date; createdAt?: Date;
     const bucket = bucketKey(new Date(when), g);
     const vertical = verticalOf(p.booking_kind);
     const key = `${bucket}|${vertical}`;
-    const row = map.get(key) || { bucket, vertical, gross: 0, count: 0 };
-    row.gross += Number(p.amount || 0);
+    const row = map.get(key) || { bucket, vertical, gross: 0, count: 0, gross_halalas: 0 };
+    row.gross_halalas += paymentHalalas(p);
+    row.gross = fromHalalas(row.gross_halalas);
     row.count += 1;
     map.set(key, row);
   }
@@ -63,10 +74,10 @@ export function seriesToRows(payments: Array<{ paid_at?: Date; createdAt?: Date;
 /** Pure MoM delta — current vs previous equal-length window per vertical. */
 export function momComparison(rows: RevenueRow[], from: Date, to: Date, prevRows: RevenueRow[]) {
   const sumByVertical = (list: RevenueRow[]) => {
-    const m: Record<string, { gross: number; count: number }> = {};
+    const m: Record<string, { gross: number; count: number }> = {};   // gross in whole halalas
     for (const r of list) {
       m[r.vertical] = m[r.vertical] || { gross: 0, count: 0 };
-      m[r.vertical].gross += r.gross;
+      m[r.vertical].gross += rowHalalas(r);
       m[r.vertical].count += r.count;
     }
     return m;
@@ -76,7 +87,7 @@ export function momComparison(rows: RevenueRow[], from: Date, to: Date, prevRows
   const out: Array<{ vertical: string; current: number; previous: number; delta_pct: number | null }> = [];
   for (const [vertical, c] of Object.entries(cur)) {
     const prev = prevMap[vertical]?.gross || 0;
-    out.push({ vertical, current: Math.round(c.gross * 100) / 100, previous: Math.round(prev * 100) / 100, delta_pct: prev > 0 ? Math.round(((c.gross - prev) / prev) * 1000) / 10 : null });
+    out.push({ vertical, current: fromHalalas(c.gross), previous: fromHalalas(prev), delta_pct: prev > 0 ? Math.round(((c.gross - prev) / prev) * 1000) / 10 : null });
   }
   return out.sort((a, b) => b.current - a.current);
 }
@@ -112,21 +123,21 @@ export class FinanceSuiteService {
 
     const [curPayments, prevPayments] = await Promise.all([
       this.conn.collection('moyasar_payments').find(matchPaid(from, to))
-        .project({ paid_at: 1, createdAt: 1, amount: 1, booking_kind: 1 }).toArray(),
+        .project({ paid_at: 1, createdAt: 1, amount: 1, amount_halalas: 1, booking_kind: 1 }).toArray(),
       this.conn.collection('moyasar_payments').find(matchPaid(new Date(from.getTime() - spanMs - 1), new Date(from.getTime() - 1)))
-        .project({ paid_at: 1, createdAt: 1, amount: 1, booking_kind: 1 }).toArray(),
+        .project({ paid_at: 1, createdAt: 1, amount: 1, amount_halalas: 1, booking_kind: 1 }).toArray(),
     ]);
 
     const rows = seriesToRows(curPayments as any[], opts.granularity);
     const buckets = [...new Set(rows.map((r) => r.bucket))].sort();
     const series = buckets.map((b) => {
       const entry: any = { bucket: b };
-      let total = 0;
+      let total = 0;   // whole halalas
       for (const r of rows.filter((x) => x.bucket === b)) {
-        entry[r.vertical] = Math.round(r.gross * 100) / 100;
-        total += r.gross;
+        entry[r.vertical] = fromHalalas(r.gross_halalas);
+        total += r.gross_halalas;
       }
-      entry.total = Math.round(total * 100) / 100;
+      entry.total = fromHalalas(total);
       return entry;
     });
 
