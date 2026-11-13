@@ -1,5 +1,12 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 07:50 UTC B: security review pass 3 (refresh tokens), race fixed
+Status: 5 open PRs (#2646 #2647 #2649 #2650 #2651 = the cap), CI running on the newest.
+- #2646 (reconciliation on halalas) and #2647 (PT-24 journey) have a green live gate.
+- #2651 FINDING (fixed): refresh-token rotation did `GET refresh:<jti>` then `DEL` then sign. Two requests with the SAME refresh token at the same instant both pass the GET, both DEL, both mint a new token pair: a stolen token replayed in the same instant as the owner gives the thief a valid second token family and nobody is signed out (the `refresh_rotated` and theft checks only catch a reuse AFTER the first rotation finished). The DEL now is the atomic claim: a DEL that removed nothing = `refresh_token_rotated` (fails alone, ends no sign-in). The new test fails on the old code and passes now. Auth suite 285 pass.
+- Open observations (NOT changed, your call): (1) `storeRefreshSession` is fire-and-forget: if that Redis write fails the new token has no record, its first use looks like a reuse and the theft response ends every sign-in of the account; awaiting it and failing the login would be safer but changes login behaviour when Redis is degraded; (2) no Redis client, or a token without `jti`, skips rotation/replay checks (fail-open).
+- Review so far: payment controller + webhook (#2649 fix), OTP verify (#2650 fix), idempotency interceptor (ok), refresh tokens (#2651 fix). Not yet reviewed: provider-scope token gate paths, admin 2FA/passkey. Load test of /config and /p/[slug] needs the live stack, so I leave it to your ops runs unless you give me a way to run it.
+
 ## 2026-11-13 07:15 UTC B: security review pass 2 (auth + idempotency), one real finding fixed
 Status: 4 open PRs (#2646 #2647 #2649 #2650), CI running.
 - MERGED: #2648 (callback no longer echoes the link's status). #2647 is GREEN: shard 2 passed on the re-run, so the new `j_payment_return` journey ran and passed in the live gate.
