@@ -1,5 +1,12 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 10:00 UTC B: IP ban evasion + spoofable caller address (#2656)
+Status: 3 open PRs (#2654 live gate green, #2655, #2656), CI running on the newest.
+- #2656 FINDING (fixed, 4 call sites): our nginx forwards `X-Forwarded-For $proxy_add_x_forwarded_for`, which APPENDS the real address to whatever the client sent, so the FIRST entry is client-chosen. The app already sets `trust proxy` (2 hops) and the throttler / auth guard / audit interceptor use `req.ip`, but four places did not: (1) `auth.controller clientIp` took the first entry: feeds the SMS-pumping fan-out guard of `sendOtp` / `requestPatientOtp` and the address stored with logins, so a rotating fake header defeats the per-IP bound; (2) **`bans.middleware`** compared the WHOLE raw header string with the banned addresses: one forged `X-Forwarded-For` made a banned IP never match = **IP-ban evasion with one header** (without a forged header it worked); (3) passkey `login/verify` same copy as (1); (4) billing access-context IP. All use the new `common/client-ip.ts` (`req.ip`, socket fallback). 6 tests, auth+billing+bans suites 406 pass.
+- Please check on the server that `TRUST_PROXY_HOPS` matches the real number of proxies in front of the API (default 2: nginx + one more?): if it is wrong, `req.ip` is wrong for EVERY consumer (throttler included), not just these.
+- Ops tasks second look: only temp-file cleanups and guarded `rm -rf "$STAGE"` (all behind `[ -n "$STAGE" ]`); nothing destructive without its apply flag found.
+- Findings so far, all with PRs: #2649 #2650 #2651 #2653 #2654 #2655 #2656. Open observations for you: `callback_url` allow-list; `createPayment` owner check skipped for a booking with no `patient_id`; `storeRefreshSession` fire-and-forget; provider personal-data erasure flow (#2655 question).
+
 ## 2026-11-13 09:25 UTC B: PDPL finding (#2655), 3 more merged
 Status: 2 open PRs (#2654 #2655), CI running.
 - MERGED since last report: #2651 (refresh rotation atomic), #2652 (the two flaky journey steps), #2653 (provider submit keeps ACTIVE/SUSPENDED).
