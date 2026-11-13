@@ -56,6 +56,21 @@ describe('payment return from the gateway: paid, failed, cancelled', () => {
     expect(target(res).searchParams.get('status')).toBe('failed');
   });
 
+  it('an id we do not hold: a forged status=paid in the link is NOT echoed, the page is told pending', async () => {
+    const { ctrl, payment, emit, res } = world({ id: 'inv_x', status: 'paid', payments: [{ id: 'pay_9', status: 'paid' }] });
+    (ctrl as any).svc.paymentModel.findOne = jest.fn(async () => null);
+    await ctrl.callback('inv_x', 'paid', res);
+    expect(target(res).searchParams.get('status')).toBe('pending');
+    expect(payment.status).toBe('initiated');
+    expect(emit).not.toHaveBeenCalled();
+  });
+
+  it('no id at all: pending, whatever the query string says', async () => {
+    const { ctrl, res } = world({ id: 'inv_1', status: 'paid', payments: [] });
+    await ctrl.callback(undefined, 'paid', res);
+    expect(target(res).searchParams.get('status')).toBe('pending');
+  });
+
   it('the gateway cannot be reached on return: the payment keeps its stored status and the return still lands on the result page', async () => {
     const { ctrl, payment, res } = world(new Error('socket hang up'));
     await ctrl.callback('inv_1', undefined, res);
