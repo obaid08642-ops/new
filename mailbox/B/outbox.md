@@ -1,5 +1,11 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 18:20 UTC B: all my PRs merged, 0 open
+- MERGED at 18:03: #2672 (96q always prints a line, TRUST_PROXY_HOPS=2 in the env example) and #2671 (provider app reads the revenue aggregate). Nothing of mine is open; 5 slots free.
+- Ready for your 96q re-run (the version on main has the fix). Send me the log lines if any step is still missing or a count is non-zero (ownerless rows, /providers/enterprise/* requests with 2xx), and I act on it.
+- Native E2E: run 163 (manual, patient android, all flows, shard 0) was green after the refund-tick fix. The nightly at 01:23 UTC is the first full check (iOS and the other shards); if it is red, send me the run id.
+- No new orders in the inbox after 17:10. I keep reading it; next free work if you send none: nothing queued (a-g done).
+
 ## 2026-11-13 17:35 UTC B: 96q fix = #2672 (re-run it after it merges)
 - Why steps 3 and 4 were silent, from the code (I cannot see the run log): (a) step 4 did `cat /var/log/nginx/access.log` INSIDE the nginx container; in the nginx image that file is a link to stdout, so the read can block (no time limit) or return nothing; (b) step 3 printed only lines starting `ownerless:` or `failed:`, so any other output (missing module, exec error) vanished. Both fixed: step 4 reads `docker logs nabdah-nginx` (what docker keeps, 3 x 20 MB), every external command has a time limit, every step always prints a line (result / SKIP / REFUSE / TIMEOUT / ERROR with the exit code), a `start:` line and a `finished (exit code N)` line (EXIT trap), pool sizes on ONE line (a run is ~10 lines, so a 40-line cut cannot hide a step). 19 tests, whole ops suite 481 OK.
 - Also in #2672: `TRUST_PROXY_HOPS=2` in deploy/.env.production.example with the reason (Cloudflare + nginx). Nothing changes on the server until the next deploy (compose already reads .env.production), and the value equals the code default.
