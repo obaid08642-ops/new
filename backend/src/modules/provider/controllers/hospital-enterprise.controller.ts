@@ -7,6 +7,7 @@ import { Appointment } from '../../../schemas/appointment.schema';
 import { ProviderProfile } from '../../../schemas/provider-profile.schema';
 import { UserRole } from '../../../common/enums';
 import { Roles } from '../../../common/auth.guard';
+import { Permission, RequirePermissions } from '../../../common/permissions';
 import { GetBranchFinancialsDto, ProvisionSubProviderDto } from './hospital-enterprise.dto';
 
 // ADMIN only. These three routes take hospitalId / branchId / staffUserId / requestorId from the URL or the body and never compare them with the
@@ -29,6 +30,7 @@ export class HospitalEnterpriseController {
     return new Types.ObjectId(value);
   }
 
+  @RequirePermissions(Permission.USER_EDIT)   // owner decision 29: an admin write route names a permission (it writes the staff user's parent link)
   @Post('provision-sub-provider')
   async provisionSubProvider(@Body() payload: ProvisionSubProviderDto) {
     const { hospitalId, branchId, staffUserId, entityType, permissions } = payload;
@@ -87,6 +89,7 @@ export class HospitalEnterpriseController {
     };
   }
 
+  @RequirePermissions(Permission.FINANCE_READ)   // a POST that only reads branch financials
   @Post('branch-financials/:hospitalId/:branchId')
   async getBranchFinancials(
     @Param('hospitalId') hospitalId: string,
