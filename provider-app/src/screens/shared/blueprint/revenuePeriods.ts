@@ -1,7 +1,17 @@
 // Revenue screen maths on the server's monthly aggregate (GET /provider/stats/revenue, backend revenue-by-month.ts):
 // the phone no longer adds up ledger rows. Months arrive oldest first, refunds already netted per month.
 export interface RevenueMonth { month: string; earned: number; refunded: number; net: number }
-export interface RevenueReply { currency?: string; months?: RevenueMonth[]; total?: { earned: number; refunded: number; net: number } }
+export interface RevenueSlice { key: string; amount: number }
+export interface RevenueWallet { earned: number; paid: number; pending: number; balance: number }
+/** GET /provider/stats/revenue: the monthly trend plus, over the requested range, the earnings by service, the movements by ledger type and the all-time wallet figures. */
+export interface RevenueReply {
+  currency?: string;
+  months?: RevenueMonth[];
+  total?: { earned: number; refunded: number; net: number };
+  by_service?: RevenueSlice[];
+  by_type?: RevenueSlice[];
+  wallet?: RevenueWallet;
+}
 export type RevenuePeriod = 1 | 3 | 12;
 
 /** Server amounts are SAR rounded to the halala; sums are rounded back so 0.1 + 0.2 shows as 0.3. */
