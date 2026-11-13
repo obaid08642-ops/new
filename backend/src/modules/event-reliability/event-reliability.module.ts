@@ -14,6 +14,8 @@ import { SystemEvent, SystemEventSchema } from '../events/system-event.schema';
 import { OnEvent, EventEmitter2 } from '@nestjs/event-emitter';
 import { Injectable as Inj } from '@nestjs/common';
 import { ReconciliationService } from './reconciliation.service';
+import { Cron } from '@nestjs/schedule';
+import { setEventQueueGauges } from '../../common/event-queue-gauges';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
 @Schema({ collection: 'event_dlq', timestamps: true })
@@ -73,6 +75,19 @@ export class EventReliabilityService {
       last_error: error,
       status: 'pending',
     });
+  }
+
+  /** Once a minute, in every API process: the dead-letter and stuck-outbox counts for the scrape (nabd_event_dlq_*, nabd_domain_outbox_stuck). A read problem keeps the last value and never throws. */
+  @Cron('* * * * *')
+  async refreshGauges(): Promise<void> {
+    const stuckSince = new Date(Date.now() - 30 * 60_000);
+    const count = (read: () => Promise<number>) => read().catch(() => -1);
+    const [dead, pending, stuck] = await Promise.all([
+      count(() => this.dlq.countDocuments({ status: 'dead' })),
+      count(() => this.dlq.countDocuments({ status: 'pending' })),
+      count(() => this.events.db.collection('domain_outbox').countDocuments({ state: 'pending', created_at: { $lt: stuckSince } })),
+    ]);
+    setEventQueueGauges({ dead, pending, stuck });
   }
 
   /** Status overview. */

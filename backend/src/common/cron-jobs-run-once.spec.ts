@@ -42,6 +42,7 @@ function jobs(): Job[] {
  */
 const NOT_LEASED: Record<string, string> = {
   'beat@common/worker-heartbeat.service.ts': 'per process on purpose: each worker reports its own liveness',
+  'refreshGauges@modules/event-reliability/event-reliability.module.ts': 'per process on purpose: Prometheus scrapes each replica, so each one must fill its own gauges (a leased run would leave the others at 0)',
   'scheduledKeepAlive@modules/mail/mail.module.ts': 'keeps this process\'s own SMTP connection warm',
   'sweep@modules/seo-search/seo-indexing.service.ts': 'has its own Mongo lease (indexnow_state)',
   'sweep@modules/durable-events/durable-events.processor.ts': 'R2: an atomic Mongo claim per event, safe with N workers',
