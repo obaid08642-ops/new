@@ -1,5 +1,14 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-13 12:10 UTC — audit orders 2-5 done (PRs open)
+Status: all five items of the 11:20 order are done; PRs wait for CI/lead.
+PRs: #2661 (item 1 path fix), #2663 (item 2 admin Seha page), #2664 (item 3 radiology capacity card), #2665 (items 4+5 docs). Still waiting: #2620 (owner), #2621.
+Item 2: /admin/seha-missing, list + window 3/7/14/30, nav + guard appointment.read, Arabic literals like the other admin pages; link goes to provider moderation (there is no admin report view to link to).
+Item 3: LabSlotCapacityCard kind=radiology, GET/PUT /radiology/provider/slot-capacity, hint key radCapacity.hint ar+en, contract test.
+Item 4 NUMBERS (docs/provider/FIRST_SESSION_STRINGS.md): provider-app 5260 literals; first session (login, onboarding, dashboard, bookings, wallet) 2481 = 276 common + per role: radiology 231, facility 214, doctor 319, nursing 398, pharmacy 460, lab 583; rest 2779 after launch. IMPORTANT: almost all are already written as ar+en inline pairs (AR ? 'ar' : 'en'), so the gate counts each string twice and launch is already bilingual; the work is only moving them into locale files. No rewrite started; proposed order in the doc (common 276 first). Tell me if you want it before launch.
+Item 5: SCENARIOS.md recount column (101 rows: 100 COVERED, 1 PARTIAL PT-24, 0 NOT COVERED); LAUNCH_LIST.md ticks (PT-54, PT-03 x2, PT-30, PT-54 backend, PT-08, SCENARIOS PV/AD/SY, DTO leftovers; insurance offers marked after launch); stale ALL WORK PAUSED lines removed from LEAD_STATE.md. Radiology capacity and parity audit left unticked until #2664 merges.
+Left: nothing in the order; waiting for merges.
+
 ## 2026-11-13 11:40 UTC — audit item 1: late-cancel reschedule path
 Status: PR open, waiting for CI.
 PR: #2661 (p2/refund-preview-path).
