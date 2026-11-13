@@ -1,8 +1,2 @@
-# 2026-11-13 run 125 = deploy main@e62a6b79 + disk guard install (98r from deploy.tgz, APPLY=yes) + read-only launch server checks (96q). Supersedes the waiting run 124. Brings the audit fixes: late free reschedule offer path fixed (clients called /refund-preview, backend serves /refund/preview), refund 100% when the doctor has no free slot in 14 days, callback_url allow-list, fail-closed refresh session, admin-only providers/enterprise, ownerless rows closed, patient reads own lab results, Seha-missing admin page, radiology slot capacity screen, provider revenue widgets aggregate.
-release:e62a6b791496bcc6dc4f9abb16d15be9bba5f49b
-97-free-old-predeploy
-93-free-unused-images
-60-deploy-main
-98r-disk-guard-cron
+# 2026-11-13 run 126 = READ-ONLY re-run of the launch server checks (96q, fixed so every step prints a line): ownerless-rows counts and /providers/enterprise/* request counts were missing in run 125. No deploy, nothing written.
 96q-launch-server-checks
-cf-purge-api
