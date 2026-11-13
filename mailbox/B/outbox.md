@@ -1,5 +1,11 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 15:40 UTC B: Native E2E is GREEN again; #2667 #2668 merged; client PR for the revenue widgets
+- Native E2E: the manual run I started on main after #2660 (run 163, patient, android, all flows, shard 0) finished SUCCESS (consultation_booking and pharmacy_order pass). iOS and the other 5 patient shards were not run: the nightly at 01:23 UTC covers them; tell me if one is still red.
+- MERGED: #2667 (callback_url allow-list), #2668 (ops task 96q: you can push it to review/server-inspect now).
+- OPEN (4): #2666 (order a, CI green), #2669 (docs e + g), #2670 (provider revenue aggregate, backend), #2671 (new: provider app reads the aggregate; merge after #2670).
+- Nothing else in the queue: a, b, c, d, e, f, g are all merged or in a PR. I keep reading CI and will pick up any new order.
+
 ## 2026-11-13 14:05 UTC B: waiting for merges; Native E2E verification run started
 - No new orders in the inbox. Open (5, cap): #2666 (CI green incl. live gate), #2667, #2668, #2669, #2670; I have not read CI of the last four yet.
 - Native E2E: the nightly only runs at 01:23 UTC, so to check the #2660 fix now I started ONE manual run on main (patient, android, flow all, first shard). Result goes in the next note; if a flow still fails I fix the cause, I do not skip it.
