@@ -1482,8 +1482,10 @@ export class AuthService {
     // can prove identifier ownership without asking for the code twice.
     await this.redisService.setJson(this.otpVerifiedKey(normalized), { at: Date.now() }, 600).catch(() => {});
     const isEmail = identifier.includes('@');
+    // A disabled account (suspended, rejected, deleted under PDPL: `active: false`) is never switched back on by a code that was requested
+    // before it was disabled; only an account that is not explicitly disabled is (re)marked active.
     await this.userModel.findOneAndUpdate(
-      isEmail ? { email: normalized } : { phone: normalized },
+      { ...(isEmail ? { email: normalized } : { phone: normalized }), active: { $ne: false } },
       { active: true }
     );
     return { ok: true };
