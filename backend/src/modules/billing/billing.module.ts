@@ -8,6 +8,7 @@
  * NOTE: booking models are fetched from the shared mongoose connection
  * (already registered by their owning modules) — no re-registration here.
  */
+import { clientIp } from '../../common/client-ip';
 import { billingKindOf, transactionKinds } from '../../common/booking-kind';
 import { ensureInvoiceUniqueIndex } from './invoice-key';
 import { riyadhParts } from '../../common/riyadh-clock';
@@ -850,7 +851,7 @@ export class BillingSharedController {
     res.set({ 'Cache-Control': 'private, no-store', 'X-Robots-Tag': 'noindex, nofollow', 'Referrer-Policy': 'no-referrer' });
   }
   private static ctx(req: any) {
-    return { ip: String(req?.headers?.['x-forwarded-for'] || req?.ip || '').split(',')[0].trim(), userAgent: String(req?.headers?.['user-agent'] || '') };
+    return { ip: clientIp(req) || '', userAgent: String(req?.headers?.['user-agent'] || '') };
   }
 
   @Public()
