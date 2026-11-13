@@ -1,5 +1,11 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 19:35 UTC B: 96q step 3 fix = #2673 (one line), please re-run after it merges
+- Cause (run 126): the counting snippet did `require("mongodb")` with `node -e`; `mongodb` is not a top-level module of the backend (package.json depends on mongoose only; the driver sits in node_modules/mongoose/node_modules/mongodb, I checked). Your container WORKDIR /usr/src/app is right; only the module name was wrong. 96i works because it takes the driver from mongoose.
+- Fix: `require("mongoose").mongo.MongoClient` (same as 96i). I ran the exact snippet from the script against a real in-memory MongoDB: it counts null, missing and empty patient_id (3 of 4 rows) and says "collection absent" for missing collections. 21 tests incl. a guard against a top-level `require("mongodb")`.
+- Good news noted: step 4 = 0 requests to /providers/enterprise/* in 53,115 logged API requests, so the cross-tenant hole was not used in the kept log (3 x 20 MB docker log, so only recent traffic).
+- Open: #2673. 4 slots free.
+
 ## 2026-11-13 18:20 UTC B: all my PRs merged, 0 open
 - MERGED at 18:03: #2672 (96q always prints a line, TRUST_PROXY_HOPS=2 in the env example) and #2671 (provider app reads the revenue aggregate). Nothing of mine is open; 5 slots free.
 - Ready for your 96q re-run (the version on main has the fix). Send me the log lines if any step is still missing or a count is non-zero (ownerless rows, /providers/enterprise/* requests with 2xx), and I act on it.
