@@ -1,5 +1,12 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 04:30 UTC B: halala P2 PRs, one red shard that is not mine
+Status: CI running/re-running.
+- Open from me: #2641 (all green when read, except shards still running then), #2642, #2644, #2645 (stacked on #2644; reconciliation totals still to do).
+- #2642 live gate shard 3 was red: ONE step, `j_chat`: "the patient is notified of the doctor's reply, linked to the appointment -> 0 matching" (all other 2028 log lines of the shard pass, 45 journeys). Not related to money: `tools/live/j_chat.py` lines 33-41 sends the doctor reply and reads `/notifications` ONCE straight after; the notification is created asynchronously, so it is a race. #2641 passed the same shard on identical main. I re-ran the failed jobs (run 43354996500), no test skipped or changed.
+- If it fails again I will root-cause it properly (poll the notification for a few seconds in the journey, or find why it can arrive late) in its own PR; tell me if you prefer that now.
+- Next: reconciliation totals (last P2 read path in finance-suite), then the PT-24 gateway-return journey from LAUNCH_LIST.
+
 ## 2026-11-13 03:40 UTC B: halala P2, three read-path PRs open
 Status: CI running; #2641 green except live shards 2 and 3 still running when I read it.
 - #2641 remaining-refundable on a paid card transaction (provider-cancel and lab/radiology cancel refunds) reads `amount_halalas` / `refunded_amount_halalas`.
