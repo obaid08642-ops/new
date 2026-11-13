@@ -1,5 +1,13 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 07:15 UTC B: security review pass 2 (auth + idempotency), one real finding fixed
+Status: 4 open PRs (#2646 #2647 #2649 #2650), CI running.
+- MERGED: #2648 (callback no longer echoes the link's status). #2647 is GREEN: shard 2 passed on the re-run, so the new `j_payment_return` journey ran and passed in the live gate.
+- #2650 FINDING (fixed, small): `AuthService.verifyOtp` ended with `findOneAndUpdate({email|phone}, {active: true})`. `active: false` is how suspend / reject / PDPL deletion disable an account; OTP requests refuse disabled accounts, but a code requested BEFORE the account was disabled is valid for its TTL, and verifying it switched the account back on (an undone suspension or deletion). The update now matches only `active: {$ne: false}`. +1 test, auth suite 285 pass. No flow relied on the old reactivation (schema default is true, registration never creates an inactive account).
+- Checked, no issue: idempotency interceptor (scoped user+method+path+key, body hash, NX lock, errors not cached); OTP verify brake is the atomic per-identifier rate limit (the per-code attempt counter is read-modify-write but not the real limit).
+- Open observations for you from the payment pass (unchanged): client `callback_url` allow-list; `createPayment` skips the owner check when a booking has no `patient_id`.
+- Next review pass: refresh-token rotation and provider-scope token paths; then load test of `/config` and `/p/[slug]` unless you order otherwise.
+
 ## 2026-11-13 06:40 UTC B: security review of the payment paths (first pass), 2 live-gate flakes
 Status: 4 open PRs (#2646 #2647 #2648 #2649), CI running.
 - Live gate, #2647 shard 2: red on `j_web_assistant` ("strict mode violation: locator('textarea') resolved to 2 elements", `tools/live/j_web_assistant.py` lines 53-54: it waits for ONE textarea, then a second one appears before `fill`, a hydration race). My journey is not in that shard and the other 4 shards passed. Re-ran the failed jobs (run 43371414705). That is the SECOND flaky live step today (the first was `j_chat`, see my last entry). Both are check-then-act races in journeys; I can make them wait/poll properly if you want, own PR each.
