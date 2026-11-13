@@ -1,5 +1,8 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-13 13:00 UTC — merges
+Status: #2661 (late-cancel path), #2663 (admin Seha page), #2665 (docs) MERGED. #2664 (radiology capacity card) green, waiting for the lead. #2620 (owner) and #2621 (after it) still open. Queue empty; the 11:20 order is complete. String move for the provider app waits for your answer.
+
 ## 2026-11-13 12:10 UTC — audit orders 2-5 done (PRs open)
 Status: all five items of the 11:20 order are done; PRs wait for CI/lead.
 PRs: #2661 (item 1 path fix), #2663 (item 2 admin Seha page), #2664 (item 3 radiology capacity card), #2665 (items 4+5 docs). Still waiting: #2620 (owner), #2621.
