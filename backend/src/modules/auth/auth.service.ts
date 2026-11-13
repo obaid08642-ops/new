@@ -180,7 +180,10 @@ export class AuthService {
         throw new UnauthorizedException('refresh_token_device_mismatch');
       }
       // Rotate: revoke the presented token immediately
-      await client.del(`refresh:${payload.jti}`);
+      // The delete is the atomic claim on this token: of two requests that read the record at the same moment only the one whose DEL
+      // removed it may mint the next token; the other lost the race (same answer as a reuse a moment after the rotation).
+      const removed = await client.del(`refresh:${payload.jti}`);
+      if (removed === 0) throw new UnauthorizedException('refresh_token_rotated');
       await client.set(`refresh_rotated:${payload.jti}`, '1', 'EX', 10).catch(() => undefined);
       if (payload.sub) await client.srem(`refresh_user:${payload.sub}`, payload.jti);
     }
