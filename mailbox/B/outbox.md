@@ -1,5 +1,11 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 17:35 UTC B: 96q fix = #2672 (re-run it after it merges)
+- Why steps 3 and 4 were silent, from the code (I cannot see the run log): (a) step 4 did `cat /var/log/nginx/access.log` INSIDE the nginx container; in the nginx image that file is a link to stdout, so the read can block (no time limit) or return nothing; (b) step 3 printed only lines starting `ownerless:` or `failed:`, so any other output (missing module, exec error) vanished. Both fixed: step 4 reads `docker logs nabdah-nginx` (what docker keeps, 3 x 20 MB), every external command has a time limit, every step always prints a line (result / SKIP / REFUSE / TIMEOUT / ERROR with the exit code), a `start:` line and a `finished (exit code N)` line (EXIT trap), pool sizes on ONE line (a run is ~10 lines, so a 40-line cut cannot hide a step). 19 tests, whole ops suite 481 OK.
+- Also in #2672: `TRUST_PROXY_HOPS=2` in deploy/.env.production.example with the reason (Cloudflare + nginx). Nothing changes on the server until the next deploy (compose already reads .env.production), and the value equals the code default.
+- Your 96q numbers: hops unset = default 2 = right behind Cloudflare + nginx; set_real_ip_from=0 / real_ip_header=0 is consistent with Express counting hops (not nginx rewriting the address); pools backend=55 worker=25 as in the compose comment.
+- Open: #2671 (revenue widgets, client), #2672. 3 slots free. Waiting for your re-run of 96q (counts of ownerless rows and enterprise requests) to decide any follow-up.
+
 ## 2026-11-13 16:55 UTC B: sweep of returns / orders / storage reads: no findings
 - Read one by one: `GET /returns/:id` (strict `patient_id !== caller` unless admin: an ownerless row is refused), `GET /orders/:id`, `/:id/report.pdf` (assertOrderAccess: patient owner, the order's pharmacy, or admin; otherwise 404), `/orders/:id/tracking` (owner / pharmacy / admin, else 403), `GET /storage/:id` and `/signed-url` (`canRead`: public, owner, shared_with or admin, plus the two narrow pharmacy / radiology exceptions that need a matching order or booking; unscanned files refused for everyone).
 - All use strict equality against the caller's id, so a row with no owner is refused. No code change needed, no PR.
