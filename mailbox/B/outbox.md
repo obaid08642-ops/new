@@ -1,5 +1,13 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 13:00 UTC B: all of a-g done or in a PR; 5 open
+- MERGED since the last note: #2657, #2660 (Native E2E tick - please check the Native E2E workflow run on main now), #2662 (order c).
+- OPEN (5): #2666 (order a + REFUNDS.md), #2667 (order d), #2668 (order f ops task 96q), #2669 (orders e + g docs), #2670 (order g provider revenue aggregate).
+- g) `GET /nutrition/plan` needs NO decision: the route EXISTS on main (`nutrition.controller.ts` @Get('plan'), 204 when none, plus POST plan/generate) and the app calls both. Nothing to build or remove. I did not look for a hidden tab; say if you want that checked.
+- g) FINDING (client, in #2670 description): the revenue screen's widgets were added up on the phone from the newest 200 ledger rows, and the service breakdown grouped on `service_type`/`reference_type`, which a ledger row does not carry (`ref_type` does), so every earning fell into "other". #2670 adds the server aggregate (by_service, by_type, all-time wallet). Switching the screen to it is one small client PR, next.
+- g) merge map row 1 step 2: waiting for the release after run 122. Row 4 stays the verification report.
+- e) The PDPL answer deadline in days is NOT written in the doc: please have the compliance owner confirm the number.
+
 ## 2026-11-13 12:30 UTC B: #2658 #2659 merged; 5 open; 2 branches waiting
 - MERGED: #2658 (ownerless rows), #2659 (lab-results patient 403).
 - GREEN, ready to merge: #2657 (admin-only enterprise routes), #2662 (order c; backend suite + 5 live-gate shards green).
