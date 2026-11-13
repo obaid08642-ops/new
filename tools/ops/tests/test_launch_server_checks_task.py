@@ -169,5 +169,22 @@ class EveryStepAlwaysPrints(unittest.TestCase):
         self.assert_all_steps(run(FAKE_PCT="95%")[0])
 
 
+class CountingScriptModule(unittest.TestCase):
+    """Run 126: the counting script died with MODULE_NOT_FOUND. `mongodb` is not a top-level module of the backend image (only mongoose/node_modules/mongodb exists),
+    so the driver must come from mongoose, as the compiled 96i script does. Verified once against a real in-memory MongoDB (3 ownerless payments counted)."""
+
+    def js(self):
+        with open(TASK) as f:
+            return re.search(r"js='(.*)'\n", f.read()).group(1)
+
+    def test_the_driver_comes_from_mongoose_not_from_a_top_level_mongodb_module(self):
+        js = self.js()
+        self.assertIn('require("mongoose").mongo', js)
+        self.assertNotIn('require("mongodb")', js)
+
+    def test_it_requires_nothing_else_that_the_image_may_not_have(self):
+        self.assertEqual(sorted(set(re.findall(r'require\("([^"]+)"\)', self.js()))), ["mongoose"])
+
+
 if __name__ == "__main__":
     unittest.main()
