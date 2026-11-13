@@ -11,6 +11,21 @@ export const halalasSum = (field: string) => ({
   $sum: { $ifNull: [`$${field}_halalas`, { $toLong: { $round: [{ $multiply: [`$${field}`, 100] }, 0] } }] },
 });
 
+/**
+ * `$group` accumulator for a figure that is "the first of these fields that is present" (a booking's `total_price`, else its `total`): adds the
+ * integer shadow of the field that was chosen, and only for a row whose chosen field has no shadow yet its double times 100 rounded to a halala.
+ * The choice is made on the double fields (as the old `$ifNull: ['$total_price', '$total']` did), never on whether a shadow happens to be set.
+ */
+export const halalasSumFirstOf = (fields: string[]) => {
+  const pick = (rest: string[]): any => {
+    const [f, ...tail] = rest;
+    const mine = { $ifNull: [`$${f}_halalas`, { $toLong: { $round: [{ $multiply: [`$${f}`, 100] }, 0] } }] };
+    if (!tail.length) return mine;
+    return { $cond: [{ $gt: [`$${f}`, null] }, mine, pick(tail)] };
+  };
+  return { $sum: pick(fields) };
+};
+
 export interface GroupRow { _id?: any; total?: number; count?: number }
 export interface EarningTotals { commission?: number; vat?: number; gross?: number; net?: number }
 

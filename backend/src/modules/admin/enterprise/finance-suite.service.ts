@@ -2,6 +2,7 @@ import { BadRequestException, ForbiddenException, Injectable, NotFoundException 
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { fromHalalas, percentOf as percentOfHalalas, toHalalas } from '../../../common/money';
+import { halalasSum, halalasSumFirstOf } from '../../finance-engine/report-totals';
 import { Cron } from '@nestjs/schedule';
 import { ScheduledOnce } from '../../../common/scheduled-once';
 import { reportAggregate } from '../../../common/reports/report-read';
@@ -266,7 +267,7 @@ export class FinanceSuiteService {
 
     const gateway = await reportAggregate(this.conn, 'moyasar_payments', [
       { $match: { status: { $in: PAID_STATUSES }, $or: [{ paid_at: { $gte: start, $lt: end } }, { paid_at: null, createdAt: { $gte: start, $lt: end } }] } },
-      { $group: { _id: '$booking_kind', total: { $sum: '$amount' }, n: { $sum: 1 }, ids: { $push: '$booking_id' } } },
+      { $group: { _id: '$booking_kind', total: halalasSum('amount'), n: { $sum: 1 }, ids: { $push: '$booking_id' } } },   // whole halalas (R11 P2)
     ]).toArray().catch(() => []);
 
     // Platform side: bookings whose payment_status marks them paid on that day.
@@ -281,18 +282,20 @@ export class FinanceSuiteService {
     for (const k of kinds) {
       const agg = await reportAggregate(this.conn, k.collection, [
         { $match: { payment_status: { $in: ['paid', 'confirmed'] }, paid_at: { $gte: start, $lt: end } } },
-        { $group: { _id: null, total: { $sum: { $ifNull: ['$total_price', '$total'] } }, n: { $sum: 1 }, ids: { $push: '$id' } } },
+        { $group: { _id: null, total: halalasSumFirstOf(['total_price', 'total']), n: { $sum: 1 }, ids: { $push: '$id' } } },   // whole halalas (R11 P2)
       ]).toArray().catch(() => []);
-      if (agg.length) platformRows.push({ vertical: k.label, total: Math.round((agg[0].total || 0) * 100) / 100, n: agg[0].n });
+      if (agg.length) platformRows.push({ vertical: k.label, total: fromHalalas(Number(agg[0].total) || 0), n: agg[0].n });
     }
-    const gatewayTotal = Math.round((gateway as any[]).reduce((a: number, g: any) => a + Number(g.total || 0), 0) * 100) / 100;
-    const platformTotal = Math.round(platformRows.reduce((a: number, r: any) => a + Number(r.total || 0), 0) * 100) / 100;
+    const gatewayHalalas = (gateway as any[]).reduce((a: number, g: any) => a + (Number(g.total) || 0), 0);
+    const platformHalalas = platformRows.reduce((a: number, r: any) => a + toHalalas(Number(r.total) || 0), 0);
+    const gatewayTotal = fromHalalas(gatewayHalalas);
+    const platformTotal = fromHalalas(platformHalalas);
 
     const diffs: Array<{ type: string; detail: string }> = [];
     for (const g of gateway as any[]) {
       const mapped = platformRows.find((p) => VERTICALS[p.vertical]?.some(() => true));
       void mapped;
-      diffs.push({ type: 'gateway_row', detail: `${g._id}: ${Math.round(g.total * 100) / 100} SAR across ${g.n} payments` });
+      diffs.push({ type: 'gateway_row', detail: `${g._id}: ${fromHalalas(Number(g.total) || 0)} SAR across ${g.n} payments` });
     }
     for (const p of platformRows) diffs.push({ type: 'platform_row', detail: `${p.vertical}: ${p.total} SAR across ${p.n} bookings` });
 
@@ -300,8 +303,8 @@ export class FinanceSuiteService {
       date: dateStr,
       gateway_total_sar: gatewayTotal,
       platform_total_sar: platformTotal,
-      variance_sar: Math.round((gatewayTotal - platformTotal) * 100) / 100,
-      gateway_rows: (gateway as any[]).map((g) => ({ kind: g._id, total: g.total, count: g.n })),
+      variance_sar: fromHalalas(gatewayHalalas - platformHalalas),
+      gateway_rows: (gateway as any[]).map((g) => ({ kind: g._id, total: fromHalalas(Number(g.total) || 0), count: g.n })),
       platform_rows: platformRows,
       note: 'variance ≠ 0 ⇒ investigate refunded-but-marked-paid or COD/wallet flows missing gateway records',
     };
