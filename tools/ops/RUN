@@ -1,2 +1,2 @@
-# 2026-11-13 run 123 = install the disk guard (run 122 deployed main@421d3279 but the install aborted: the task looked for the script next to itself; now it reads it from the newest deployed release dir /opt/nabdah/releases/<sha8>/deploy/scripts/disk-guard.sh). APPLY=yes: backs up any old copy, installs the script + /etc/cron.d/nabd-disk-guard (05:20 UTC; acts only below 25% free; never backups/volumes/uploads). No deploy.
+# 2026-11-13 run 124 = install the disk guard (run 123 aborted again: the release holds deploy.tgz, not an unpacked deploy/; the task now extracts scripts/disk-guard.sh from the newest release deploy.tgz). APPLY=yes, backups kept, no deploy. If the tarball has no such file the task aborts with nothing written.
 98r-disk-guard-cron

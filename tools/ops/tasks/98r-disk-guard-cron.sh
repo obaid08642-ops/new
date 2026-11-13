@@ -14,6 +14,12 @@ REL_ROOT=${OPS_RELEASE_DIR:-/opt/nabdah/releases}
 # the task runs from a plain directory on the host (no repo checkout): the script comes from the NEWEST deployed release (deploy/ of the release = what 91c-host-files copies)
 NEWEST=$(ls -1dt "$REL_ROOT"/*/ 2>/dev/null | head -1)
 SRC=${OPS_DISK_GUARD_SRC:-${NEWEST%/}/deploy/scripts/disk-guard.sh}
+# the release carries the deploy files as deploy.tgz (not unpacked): take the script out of the tarball when it is not already a plain file
+if [ ! -f "$SRC" ] && [ -f "${NEWEST%/}/deploy.tgz" ]; then
+  TMPSRC=$(mktemp); for m in deploy/scripts/disk-guard.sh scripts/disk-guard.sh ./scripts/disk-guard.sh ./deploy/scripts/disk-guard.sh; do
+    if tar -xzOf "${NEWEST%/}/deploy.tgz" "$m" > "$TMPSRC" 2>/dev/null && [ -s "$TMPSRC" ]; then SRC=$TMPSRC; break; fi
+  done
+fi
 CRON_DIR=${OPS_CRON_DIR:-/etc/cron.d}
 CRON_FILE=$CRON_DIR/nabd-disk-guard
 SCRIPT=${OPS_DISK_GUARD_SCRIPT:-/opt/nabdah/deploy/scripts/disk-guard.sh}
