@@ -1,6 +1,7 @@
-# 2026-11-13 run 122 = deploy main@421d3279. Brings #2640-#2645, #2648: halala read paths (refundable left, admin refund ceiling, revenue series, commission report), late free reschedule rule, dead-letter queue gauges, a payment-return link can no longer forge a "paid" status.
+# 2026-11-13 run 122 (supersedes the waiting run 121) = deploy main@421d3279 + install the disk guard (98r, APPLY=yes; run 120 dry run: not on host, scheduled nowhere). Brings #2640-#2645, #2648: halala read paths, late free reschedule rule, dead-letter queue gauges, a payment-return link cannot forge "paid".
 release:421d3279038fa73efb462419446d9c90b00315a8
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
+98r-disk-guard-cron
 cf-purge-api
