@@ -2,7 +2,7 @@ import { ProviderOnboardingService } from './provider-onboarding.module';
 
 /** G6: a rejected applicant resubmits; the account goes back to the moderation queue and the reviewer's old reason is cleared. */
 describe('ProviderOnboardingService.submit after a rejection', () => {
-  function setup(accountStatus: string) {
+  function setup(accountStatus: string, profileStatus = 'rejected') {
     const account: any = { id: 'u1', email: 'a@b.test', status: accountStatus, rejection_reason: 'blurry licence' };
     const updates: any[] = [];
     const accounts = {
@@ -11,7 +11,7 @@ describe('ProviderOnboardingService.submit after a rejection', () => {
     };
     const contractsCol = { insertOne: jest.fn().mockResolvedValue({}), countDocuments: jest.fn().mockResolvedValue(0), findOne: jest.fn() };
     const profile: any = {
-      id: 'p1', user_id: 'u1', type: 'lab', onboarding_step: 3, status: 'rejected', name_ar: 'مختبر',
+      id: 'p1', user_id: 'u1', type: 'lab', onboarding_step: 3, status: profileStatus, name_ar: 'مختبر',
       save: jest.fn().mockResolvedValue(undefined), toObject() { return { ...this }; },
     };
     const providerModel: any = {
@@ -46,5 +46,25 @@ describe('ProviderOnboardingService.submit after a rejection', () => {
     await service.submit({ id: 'u1' }, {});
     expect(updates).toHaveLength(1);
     expect(updates[0].$set.status).toBeUndefined();
+  });
+
+  it('an ACTIVE profile that submits again stays ACTIVE (it must not unlist itself from the search)', async () => {
+    const { service, profile } = setup('approved', 'active');
+    await service.submit({ id: 'u1' }, {});
+    expect(profile.status).toBe('active');
+  });
+
+  it('a SUSPENDED profile that submits stays SUSPENDED (submitting is not a way out of a suspension)', async () => {
+    const { service, profile } = setup('suspended', 'suspended');
+    await service.submit({ id: 'u1' }, {});
+    expect(profile.status).toBe('suspended');
+  });
+
+  it('a PENDING or REJECTED profile still goes to pending', async () => {
+    for (const from of ['pending', 'rejected']) {
+      const { service, profile } = setup(from === 'pending' ? 'pending_admin_approval' : 'rejected', from);
+      await service.submit({ id: 'u1' }, {});
+      expect(profile.status).toBe('pending');
+    }
   });
 });
