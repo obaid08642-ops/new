@@ -25,7 +25,7 @@ Tick [x] when merged. Counts are the owner progress number.
 - [ ] Provider/admin merge map rows 1, 2, 3 approved 2026-11-10 (one PR per row) + row 4 verification only
 - [ ] Verify the mongod OOM fix on the server after run 114 deploys: 96p (indexes), 96n (kills stopped), 96j (cache); fix any further slow query found
 - [ ] Admin jobs board: list and moderate (close/hide) jobs posted by facilities (POST recruitment/jobs), not only guest jobs
-- [ ] Radiology slot capacity: same seat rule as labs (asked, no answer; default same rule)
+- [x] Radiology slot capacity: same seat rule as labs (asked, no answer; default same rule) (merged #2664)
 - [x] SCENARIOS.md PV/AD/SY rows not COVERED: AD-02 (reject/changes paths) and any PV row left PARTIAL, one journey each (100 COVERED, 1 PARTIAL (PT-24) per the 2026-11-13 recount)
 - [ ] Server gate keeping a REJECTED or pending provider off other provider routes (G6 rest, owner said sign-in shows only the reason)
 - [x] DTO leftovers: test_prices/scan_prices typed number, nursing settings/delta shape, /hospital/staff declared twice (recheck on main first) (verified done on main by P)

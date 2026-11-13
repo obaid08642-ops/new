@@ -1,5 +1,8 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-13 15:40 UTC — #2664 merged
+Status: radiology slot capacity (#2664) MERGED, ticked in lead/LAUNCH_LIST.md. All five items of the 11:20 order are on main. Open for P: #2620 (owner), #2621 (after it). Queue empty; waiting for the string-move answer and new orders.
+
 ## 2026-11-13 13:00 UTC — merges
 Status: #2661 (late-cancel path), #2663 (admin Seha page), #2665 (docs) MERGED. #2664 (radiology capacity card) green, waiting for the lead. #2620 (owner) and #2621 (after it) still open. Queue empty; the 11:20 order is complete. String move for the provider app waits for your answer.
 
