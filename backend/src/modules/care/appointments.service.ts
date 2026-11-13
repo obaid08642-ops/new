@@ -1,3 +1,4 @@
+import { SlotService } from './slot.service';
 import { outcomeFor } from '../provider-no-show/provider-no-show-rules';
 import { stampAcceptance } from '../../common/refund-policy-stamp';
 import { refundPolicyAcceptance } from '../../common/refund-policy-acceptance';
@@ -50,6 +51,7 @@ export class AppointmentsService {
     @Optional() private readonly killSwitches?: KillSwitchesService,
     @Optional() private readonly accessLog?: MedicalAccessLogService,
     @Optional() private readonly noShow?: ProviderNoShowService,
+    @Optional() private readonly slotService?: SlotService,
   ) {}
 
   /**
@@ -675,6 +677,30 @@ export class AppointmentsService {
     return { available: (await this.countPriorReschedules(appt)) < free, late, within_days };
   }
 
+  /**
+   * True only when the doctor's real schedule shows NO bookable slot from now to LATE_FREE_RESCHEDULE_DAYS ahead. Any doubt (no slot service,
+   * doctor not found, lookup error) is false: the normal late percentage applies, never a full refund by accident.
+   */
+  private async noFreeSlotWithinRescheduleWindow(appt: any): Promise<boolean> {
+    try {
+      if (!this.slotService || !appt?.doctor_id) return false;
+      const q: any = this.providerModel.findOne({ id: appt.doctor_id });
+      const doc: any = q && typeof q.lean === 'function' ? await q.lean() : await q;
+      if (!doc) return false;
+      const type = appt.service_type === 'video' || appt.service_type === 'home' ? appt.service_type : 'clinic';
+      const earliest = Date.now() + 5 * 60_000;
+      const latest = Date.now() + AppointmentsService.LATE_FREE_RESCHEDULE_DAYS * 86_400_000;
+      for (let d = 0; d <= AppointmentsService.LATE_FREE_RESCHEDULE_DAYS; d++) {
+        const day = new Date(Date.now() + d * 86_400_000).toISOString().slice(0, 10);
+        const r: any = await this.slotService.slotsForDate(doc, day, type, appt.duration_minutes || 30);
+        if ((r?.slots || []).some((x: any) => x.available === true && new Date(x.start).getTime() >= earliest && new Date(x.start).getTime() <= latest)) return false;
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   private async getRefundPolicy(): Promise<any> {
     if (!this.connection || typeof (this.connection as any).collection !== 'function') {
       return DEFAULT_REFUND_POLICY;
@@ -710,6 +736,11 @@ export class AppointmentsService {
         refundPercentage = consultationPolicy.patient_no_show_percent ?? 0;
         refundDestination = 'source';
       } else if (hoursUntilAppointment >= fullMin && appt.late_free_reschedule !== true) {
+        refundPercentage = 100;
+        refundDestination = 'source';
+      } else if (appt.late_free_reschedule !== true && (await this.noFreeSlotWithinRescheduleWindow(appt))) {
+        // Owner decision 2026-11-13: a late cancel when the doctor has no free slot in the next 14 days (so the free reschedule the patient is
+        // offered instead cannot land anywhere) is refunded in full to the card: the patient is not charged for the clinic's missing availability.
         refundPercentage = 100;
         refundDestination = 'source';
       } else {
