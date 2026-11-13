@@ -74,6 +74,6 @@ export class AdminRecoveryController {
     await this.recovery.consume(u.id, recCode);
     u.last_login_at = new Date();
     await u.save();
-    return { user: (this.auth as any).publicUser(u), token: (this.auth as any).signToken(u) };
+    return { user: (this.auth as any).publicUser(u), token: await (this.auth as any).signToken(u) };
   }
 }
