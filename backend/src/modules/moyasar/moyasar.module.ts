@@ -555,7 +555,10 @@ export class MoyasarController {
     // Reconcile with the gateway: a hosted page can be abandoned, so trust the
     // provider's view of the payment, not the query string the browser sent.
     const synced = moyasarId ? await this.svc.syncPaymentStatus(moyasarId).catch(() => null) : null;
-    const settled = String(synced?.status || status || 'pending');
+    // An id we do not hold (or no id) gets "pending", never the status the browser sent: a forged link must not draw "paid" on the result page.
+    // The result screens verify with the server by id, so a genuine return still lands on its real state.
+    void status;
+    const settled = String(synced?.status || 'pending');
     // The patient lands back in the app: hand them a real result page, not JSON.
     const target = process.env.PAYMENT_RESULT_URL || 'https://nabd.plus/payments/result';
     const back = `${target}?status=${encodeURIComponent(settled)}${moyasarId ? `&id=${encodeURIComponent(moyasarId)}` : ''}`;
