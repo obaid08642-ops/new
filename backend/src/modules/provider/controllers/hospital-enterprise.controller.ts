@@ -9,8 +9,13 @@ import { UserRole } from '../../../common/enums';
 import { Roles } from '../../../common/auth.guard';
 import { GetBranchFinancialsDto, ProvisionSubProviderDto } from './hospital-enterprise.dto';
 
+// ADMIN only. These three routes take hospitalId / branchId / staffUserId / requestorId from the URL or the body and never compare them with the
+// caller's own facility: with the hospital roles any hospital account could read another hospital's staff (names, phones, emails) and branch
+// financials, attach any user to any hospital (and mark a BRANCH_DOCTOR verified), or pass any user id as `requestorId`. Nothing in the apps,
+// tools/live or tools/audit calls them (docs/review/PROVIDER_ADMIN_MERGE_MAP.md row 4), so the facility roles lose nothing; staff are created
+// through `POST hospital/staff` and the operators invite, both of which scope to the caller's own account.
 @Controller('providers/enterprise')
-@Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
+@Roles(UserRole.ADMIN)
 export class HospitalEnterpriseController {
   constructor(
     @InjectModel(HospitalSubEntity.name) private subEntityModel: Model<HospitalSubEntity>,
