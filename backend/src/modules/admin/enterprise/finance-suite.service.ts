@@ -1,7 +1,7 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { fromHalalas, toHalalas } from '../../../common/money';
+import { fromHalalas, percentOf as percentOfHalalas, toHalalas } from '../../../common/money';
 import { Cron } from '@nestjs/schedule';
 import { ScheduledOnce } from '../../../common/scheduled-once';
 import { reportAggregate } from '../../../common/reports/report-read';
@@ -178,27 +178,30 @@ export class FinanceSuiteService {
     // field before, which no payment read, so the screen and the money could disagree.
     const percentOf = (t: string): number => Number(cfg?.service_types?.[t]?.percent ?? DEFAULT_COMMISSION_PERCENT);
     const percents: Record<string, number> = Object.fromEntries(COMMISSION_SERVICE_TYPES.map((t) => [t, percentOf(t)]));
-    const vatRate = Number(cfg?.tax?.vat_percent ?? DEFAULT_VAT_PERCENT) / 100;
+    const vatPercent = Number(cfg?.tax?.vat_percent ?? DEFAULT_VAT_PERCENT);
+    const vatRate = vatPercent / 100;
     const rateOf = async (vertical: string): Promise<number> => percentOf(SERVICE_OF_VERTICAL[vertical] || vertical) / 100;
     const payments = await this.conn.collection('moyasar_payments').find({
       status: { $in: PAID_STATUSES },
       $or: [{ paid_at: { $gte: from, $lte: to } }, { paid_at: null, createdAt: { $gte: from, $lte: to } }],
-    }).project({ amount: 1, booking_kind: 1 }).toArray();
+    }).project({ amount: 1, amount_halalas: 1, booking_kind: 1 }).toArray();
 
     const rates: Record<string, number> = {};
-    const byVertical: Record<string, { gross: number; commission: number; vat: number; net_to_provider: number; count: number }> = {};
+    // R11 P2: every figure is whole halalas (the `amount_halalas` shadow, the double only where it is missing); converted to SAR once, at the end
+    type Row = { gross: number; commission: number; vat: number; net_to_provider: number; count: number };
+    const byVertical: Record<string, Row> = {};
     for (const p of payments as any[]) {
       const v = verticalOf(p.booking_kind);
-      const gross = Number(p.amount || 0);
+      const gross = paymentHalalas(p);
       const rate = rates[v] ?? (rates[v] = await rateOf(v));
-      const commission = Math.round(gross * rate * 100) / 100;
-      const vat = Math.round(commission * vatRate * 100) / 100;
+      const commission = percentOfHalalas(gross, rate * 100);
+      const vat = percentOfHalalas(commission, vatPercent);
       const row = byVertical[v] || { gross: 0, commission: 0, vat: 0, net_to_provider: 0, count: 0 };
       row.gross += gross; row.commission += commission; row.vat += vat; row.net_to_provider += gross - commission; row.count += 1;
       byVertical[v] = row;
     }
-    const round = (o: any) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, Math.round(Number(v) * 100) / 100]));
-    const totals = Object.values(byVertical).reduce((a: any, r: any) => ({
+    const round = (o: Row) => ({ gross: fromHalalas(o.gross), commission: fromHalalas(o.commission), vat: fromHalalas(o.vat), net_to_provider: fromHalalas(o.net_to_provider), count: o.count });
+    const totals = Object.values(byVertical).reduce((a: Row, r: Row) => ({
       gross: a.gross + r.gross, commission: a.commission + r.commission, vat: a.vat + r.vat, net_to_provider: a.net_to_provider + r.net_to_provider, count: a.count + r.count,
     }), { gross: 0, commission: 0, vat: 0, net_to_provider: 0, count: 0 });
     for (const v of Object.keys(SERVICE_OF_VERTICAL)) if (rates[v] === undefined) rates[v] = await rateOf(v);
