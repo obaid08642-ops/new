@@ -1,5 +1,13 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 06:00 UTC B: callback fix, PT-24 journey passing so far
+Status: 3 open PRs (#2646 #2647 #2648), CI running.
+- MERGED since last report: #2642, #2644, #2645 (halala P2 read paths). #2646 (reconciliation) is the last of that stack, CI not read yet.
+- #2647 `j_payment_return.py`: live gate shards 1, 3, 4, 5 green, shard 2 still running when I read it, everything else green. If shard 2 ends green the new journey ran and passed.
+- #2648: the finding from #2647 fixed the safe way without waiting: `/moyasar/callback` no longer echoes the `status` from the link; an id we do not hold gets `pending`. +2 tests, moyasar suites 13 pass. Say if you want the echo back for some client (I found none).
+- Still waiting on you: free reschedule extras (14-day no-slot = 100 %, lab/radiology/nursing), j_chat poll fix (flake), P3 numbers from ops 96i.
+- Next unless you order otherwise: security review of the payment/auth paths (your suggestion), read-only, findings as a list in the outbox, one PR per fix.
+
 ## 2026-11-13 05:40 UTC B: PT-24 journey opened, #2642 and #2644 green
 Status: 5 PRs open (#2642 #2644 #2645 #2646 #2647), CI running on the newest.
 - #2642 and #2644: all 33 checks green. #2645 and #2646 (stacked on #2644) not read yet.
