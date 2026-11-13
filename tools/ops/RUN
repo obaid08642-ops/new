@@ -4,5 +4,5 @@ release:e62a6b791496bcc6dc4f9abb16d15be9bba5f49b
 93-free-unused-images
 60-deploy-main
 98r-disk-guard-cron
-96q-launch-checks
+96q-launch-server-checks
 cf-purge-api
