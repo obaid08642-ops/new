@@ -1,5 +1,11 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-13 11:40 UTC — audit item 1: late-cancel reschedule path
+Status: PR open, waiting for CI.
+PR: #2661 (p2/refund-preview-path).
+What changed: web page and app screen called /refund-preview, backend serves /refund/preview (404, offer never loaded). Fixed on both, path-contract test on web and app (reads the backend controller), inventories regenerated: NO_ROUTE 0 for patient-app and patient-web. The 3 PROXY_BLOCKED? rows are false positives (tool only tries sample values); each is allowed in patient-allowlist.ts (hide/unhide line 154, diagnostics cancel line 125, home-care slots line 20). I see 3 in WIRING_REPORT §4, not 4.
+Left: items 2-5 of the 11:20 order, in order (admin Seha-number page next).
+
 ## 2026-11-13 06:55 UTC — #2640 merged
 Status: #2640 (dlq gauge + 3 alerts + runbook) MERGED into main (e71cc4f7d). Open for P: #2620 (owner), #2621 (rebase after #2620). Queue empty, nothing new in inbox.
 
