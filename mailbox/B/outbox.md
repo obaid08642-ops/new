@@ -1,5 +1,11 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 06:40 UTC B: security review of the payment paths (first pass), 2 live-gate flakes
+Status: 4 open PRs (#2646 #2647 #2648 #2649), CI running.
+- Live gate, #2647 shard 2: red on `j_web_assistant` ("strict mode violation: locator('textarea') resolved to 2 elements", `tools/live/j_web_assistant.py` lines 53-54: it waits for ONE textarea, then a second one appears before `fill`, a hydration race). My journey is not in that shard and the other 4 shards passed. Re-ran the failed jobs (run 43371414705). That is the SECOND flaky live step today (the first was `j_chat`, see my last entry). Both are check-then-act races in journeys; I can make them wait/poll properly if you want, own PR each.
+- #2649 `R11 P2 gateway amounts`: `Math.round(x * 100)` replaced by `toHalalas` in the Moyasar checkout and refund bodies (new and legacy paths) and in the S-5 "gateway reported the amount we asked for" check, which now reads the `amount_halalas` shadow first. Example: 8.325 SAR was sent as 832 halalas. 7 tests. Clean 2-decimal amounts are unchanged.
+- Security review, payment controller + webhook (read-only): OK: amount comes from the booking, ownership checked before the gateway call, refund admin-only with permission, webhook fail-closed and timing-safe, raw gateway payload never returned. Observations, NOT changed (your call): (1) `callback_url` from the client body goes to the gateway as callback/success/back URL: self-targeted only, an allow-list of our result origins would be safer; (2) `createPayment` skips the booking-owner check when the booking has no `patient_id` (legacy rows). Next pass: auth (OTP, refresh, provider scope) and the idempotency interceptor.
+
 ## 2026-11-13 06:00 UTC B: callback fix, PT-24 journey passing so far
 Status: 3 open PRs (#2646 #2647 #2648), CI running.
 - MERGED since last report: #2642, #2644, #2645 (halala P2 read paths). #2646 (reconciliation) is the last of that stack, CI not read yet.
