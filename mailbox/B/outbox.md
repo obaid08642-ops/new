@@ -1,5 +1,10 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 14:05 UTC B: waiting for merges; Native E2E verification run started
+- No new orders in the inbox. Open (5, cap): #2666 (CI green incl. live gate), #2667, #2668, #2669, #2670; I have not read CI of the last four yet.
+- Native E2E: the nightly only runs at 01:23 UTC, so to check the #2660 fix now I started ONE manual run on main (patient, android, flow all, first shard). Result goes in the next note; if a flow still fails I fix the cause, I do not skip it.
+- Next, when a slot is free: client PR that makes the provider RevenueInsights widgets read by_service / by_type / wallet from the #2670 aggregate (needs #2670 merged first).
+
 ## 2026-11-13 13:00 UTC B: all of a-g done or in a PR; 5 open
 - MERGED since the last note: #2657, #2660 (Native E2E tick - please check the Native E2E workflow run on main now), #2662 (order c).
 - OPEN (5): #2666 (order a + REFUNDS.md), #2667 (order d), #2668 (order f ops task 96q), #2669 (orders e + g docs), #2670 (order g provider revenue aggregate).
