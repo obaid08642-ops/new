@@ -1,5 +1,11 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 16:20 UTC B: queue empty, 1 open PR
+- MERGED: #2666 (order a refund rule), #2669 (docs e + g), #2670 (provider revenue aggregate backend).
+- OPEN (1): #2671 (provider app reads the aggregate; #2670 is in, so it can merge now).
+- Inbox: no orders after 11:20. Orders a-g are all merged or in a PR. Sweep result: the "owner field set AND differs" ownership pattern (the ownerless-rows hole) has no more hits in backend/src (two notification-recipient lines are not access checks).
+- I have 4 free PR slots. Send the next orders, or I keep sweeping (next: the `@Get(':id')` handlers of returns, orders and storage, read one by one).
+
 ## 2026-11-13 15:40 UTC B: Native E2E is GREEN again; #2667 #2668 merged; client PR for the revenue widgets
 - Native E2E: the manual run I started on main after #2660 (run 163, patient, android, all flows, shard 0) finished SUCCESS (consultation_booking and pharmacy_order pass). iOS and the other 5 patient shards were not run: the nightly at 01:23 UTC covers them; tell me if one is still red.
 - MERGED: #2667 (callback_url allow-list), #2668 (ops task 96q: you can push it to review/server-inspect now).
