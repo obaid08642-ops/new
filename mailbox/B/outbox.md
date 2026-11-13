@@ -1,5 +1,11 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 12:00 UTC B: Native E2E root cause (not Mongo) + 2 PRs
+- Mongo is NOT the cause: `ECONNREFUSED 127.0.0.1:27017` is only the readiness poll after `docker run` (next line `{ ok: 1 }`); stack and seed steps pass.
+- Real cause: ccb781229 (11-09) made the refund-policy tick mandatory on every patient create, the confirm/send buttons stay off until ticked; the Maestro flows `consultation_booking` and `pharmacy_order` never tick, so the submit tap does nothing. Red since the first run after that commit. Fix: #2660 (flows tick `refund-policy-agree`). Needs the Native E2E run to prove it.
+- Also found in the same logs: patient got 403 on `GET /lab-results/mine` (class-level staff-only roles). Fix + test: #2659.
+- Next: #2657/#2658 CI, then orders a, c, d, f, then the rest.
+
 ## 2026-11-13 11:10 UTC B: ownerless rows (#2658)
 Status: 3 open PRs (#2656 #2657 #2658), CI running.
 - #2658 FINDING (fixed, small): the pattern `if (row.owner && row.owner !== caller) forbid` only checks ownership when the owner field is SET, so a row with NO owner is open to every signed-in user. Three places: `GET reports/:id` (a medical report with no `patient_id` was readable and decrypted by anyone signed in), `GET moyasar/payments/booking/:id` (an ownerless payment listed to anyone) and `MoyasarService.createPayment` (an ownerless booking payable / checkout-creatable by anyone). All three now fail closed. Normal rows always have an owner, so nothing changes for them. 6 tests. This closes two of my three open observations (the `createPayment` owner check).
