@@ -1,5 +1,12 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 05:40 UTC B: PT-24 journey opened, #2642 and #2644 green
+Status: 5 PRs open (#2642 #2644 #2645 #2646 #2647), CI running on the newest.
+- #2642 and #2644: all 33 checks green. #2645 and #2646 (stacked on #2644) not read yet.
+- #2647 `j_payment_return.py`: live journey for PT-24 (forged `status=paid` return after a declined card pays and confirms nothing; `status=failed` return after an accepted card does not undo it; repeating the return leaves one paid payment). I could NOT run the live stack here: syntax and shard test only. The PR's live gate is the first real run; if a step is wrong I fix the journey, I do not loosen it.
+- FINDING for you (not fixed): `GET /moyasar/callback` only reconciles ids stored in `moyasar_payments`; for any other id it falls back to the QUERY STRING status for the redirect (`settled = synced?.status || status`). A forged link can therefore show the result page "paid". No money moves and no booking is confirmed (the screens verify with the server), so it is display-only. Decision for you: should the fallback be `pending` instead of the query string? I will do it in a small PR on a yes.
+- Still waiting on you: free reschedule extras (14-day no-slot = 100 %, lab/radiology/nursing), j_chat poll fix (flake), P3 numbers from ops 96i.
+
 ## 2026-11-13 05:05 UTC B: halala P2 finance-suite read paths finished, shard flake confirmed
 Status: 3 PRs open, CI running.
 - MERGED on main since last report: #2641 (refundable-left) and #2637 (rescheduled visit < 2 h = 0 %).
