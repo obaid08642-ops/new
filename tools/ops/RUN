@@ -1,2 +1,6 @@
-# 2026-11-13 run 121 = INSTALL the disk guard (run 120 dry run: script not on the host, scheduled NOWHERE, / at 24% free). APPLY=yes: copies deploy/scripts/disk-guard.sh to /opt/nabdah/deploy/scripts/, writes /etc/cron.d/nabd-disk-guard (05:20 UTC daily; acts only below 25% free; never backups, volumes or uploads). Rollback: ROLLBACK=yes removes the cron file.
-98r-disk-guard-cron
+# 2026-11-13 run 122 = deploy main@421d3279. Brings #2640-#2645, #2648: halala read paths (refundable left, admin refund ceiling, revenue series, commission report), late free reschedule rule, dead-letter queue gauges, a payment-return link can no longer forge a "paid" status.
+release:421d3279038fa73efb462419446d9c90b00315a8
+97-free-old-predeploy
+93-free-unused-images
+60-deploy-main
+cf-purge-api
