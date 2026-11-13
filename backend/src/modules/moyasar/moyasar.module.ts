@@ -160,7 +160,7 @@ export class MoyasarService {
     // E1-F2: amount comes from the booking document, not the request body.
     if (!params.skipBookingValidation) {
       const resolved = await this.resolveBookingAmount(params.bookingKind, params.bookingId);
-      if (resolved.patient_id && resolved.patient_id !== params.patientId) {
+      if (!resolved.patient_id || resolved.patient_id !== params.patientId) {   // a booking with no owner is not payable by just any signed-in user
         throw new ForbiddenException('not_your_booking');
       }
       params.amount = resolved.amount;
@@ -487,7 +487,7 @@ export class MoyasarController {
   @UseGuards(JwtAuthGuard)
   async getByBooking(@CurrentUser() user: any, @Param('bookingId') bookingId: string) {
     const payments = await this.svc.getPaymentsByBooking(bookingId);
-    if (user.role !== 'admin' && payments.some((p: any) => p.patient_id && p.patient_id !== user.id)) {
+    if (user.role !== 'admin' && payments.some((p: any) => !p.patient_id || p.patient_id !== user.id)) {   // a payment with no owner is not anybody's to read
       throw new ForbiddenException('not_your_booking');
     }
     return payments;
