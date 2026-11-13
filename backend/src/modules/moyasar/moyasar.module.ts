@@ -1,3 +1,4 @@
+import { isAllowedCallbackUrl } from '../../common/callback-url';
 import { halalaShadowPlugin } from '../../common/halala-shadow';
 import { toHalalas } from '../../common/money';
 import { GatewayTimeoutException, ServiceUnavailableException } from '@nestjs/common';
@@ -157,6 +158,10 @@ export class MoyasarService {
     /** Internal flows with user-chosen amounts (wallet top-up) set this explicitly. */
     skipBookingValidation?: boolean;
   }): Promise<MoyasarPaymentDocument> {
+    // Order d (2026-11-13): a caller-supplied return address must be one of our own origins; the default below is built from PUBLIC_APP_URL.
+    if (params.callbackUrl !== undefined && params.callbackUrl !== null && params.callbackUrl !== '' && !isAllowedCallbackUrl(params.callbackUrl)) {
+      throw new BadRequestException('callback_url_not_allowed');
+    }
     // E1-F2: amount comes from the booking document, not the request body.
     if (!params.skipBookingValidation) {
       const resolved = await this.resolveBookingAmount(params.bookingKind, params.bookingId);
