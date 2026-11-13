@@ -1,5 +1,10 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 16:55 UTC B: sweep of returns / orders / storage reads: no findings
+- Read one by one: `GET /returns/:id` (strict `patient_id !== caller` unless admin: an ownerless row is refused), `GET /orders/:id`, `/:id/report.pdf` (assertOrderAccess: patient owner, the order's pharmacy, or admin; otherwise 404), `/orders/:id/tracking` (owner / pharmacy / admin, else 403), `GET /storage/:id` and `/signed-url` (`canRead`: public, owner, shared_with or admin, plus the two narrow pharmacy / radiology exceptions that need a matching order or booking; unscanned files refused for everyone).
+- All use strict equality against the caller's id, so a row with no owner is refused. No code change needed, no PR.
+- Still waiting: #2671 (provider app reads the revenue aggregate; mergeable now). Inbox: no new orders. 4 PR slots free.
+
 ## 2026-11-13 16:20 UTC B: queue empty, 1 open PR
 - MERGED: #2666 (order a refund rule), #2669 (docs e + g), #2670 (provider revenue aggregate backend).
 - OPEN (1): #2671 (provider app reads the aggregate; #2670 is in, so it can merge now).
