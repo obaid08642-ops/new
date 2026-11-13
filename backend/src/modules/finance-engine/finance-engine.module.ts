@@ -42,6 +42,7 @@ import { settlementDelayDefault, DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT
 import { PROMO_COLLECTION, promoState, type CommissionPromo } from '../../common/commission-promo';
 import { DurableEventsService, emitDurable } from '../durable-events/durable-events.service';
 import { roundSar, toHalalas } from '../../common/money';
+import { refundableLeftSar } from './refundable-left';
 import { clawbackShares } from './refund-clawback';
 import { halalasSum, reportFigures } from './report-totals';
 import { patientAbsentPercent, patientAbsentRefund, pharmacyCancelRefund, refundsDeliveryFeeBeforeDispatch, visitPatientCancelRefund } from './refund-policy-rules';
@@ -1342,7 +1343,7 @@ export class ProviderCancelRefundListener {
     try {
       const paid: any = await this.conn.collection('transactions').findOne({ booking_kind: spec.kind, booking_id: bookingId, status: 'paid' } as any);
       if (!paid) return; // cash, insurance or never paid by card: nothing to send back
-      const left = Math.max(0, Math.round((Number(paid.amount || 0) - Number(paid.refunded_amount || 0)) * 100) / 100);
+      const left = refundableLeftSar(paid);   // R11 P2: whole halalas from the shadows, doubles only where a shadow is missing
       if (!(left > 0)) return;
       await this.refundExec.execute({
         refund_id: spec.id(bookingId), booking_kind: spec.kind, booking_id: bookingId, patient_id: String(e.patient_account_id),
@@ -1682,7 +1683,7 @@ export class LabRadiologyRefundListener {
       const paid: any = await this.conn.collection('transactions').findOne({ booking_kind: kind, booking_id: bookingId, status: 'paid' } as any)
         || await findCopayTransaction(this.conn as never, await this.conn.collection(kind === 'lab' ? 'labbookings' : 'radiologybookings').findOne({ id: bookingId } as any), bookingId);
       if (!paid || paid.status !== 'paid') return;
-      const left = Math.max(0, Math.round((Number(paid.amount || 0) - Number(paid.refunded_amount || 0)) * 100) / 100);
+      const left = refundableLeftSar(paid);   // R11 P2: whole halalas from the shadows, doubles only where a shadow is missing
       const policyDoc: any = await this.conn.collection('system_configs').findOne({ key: 'refund_policy' }).catch(() => null);
       const tripFee = Number(policyDoc?.value?.home_visit?.trip_fee_sar ?? 40);
       // refund policy 3.0: after the collector set off the PATIENT bears the trip fee; the provider cancelling or not attending refunds 100%
