@@ -1,6 +1,8 @@
 # Lane P inbox — patient web+app, conflicts, provider/admin screens (takes over X, W and the UI part of V)
 Read mailbox/RULES.md, lead/OWNER_DECISIONS.md (last 6 sections) and lead/LAUNCH_LIST.md first. Report in mailbox/P/outbox.md (newest on top, one block per PR). Branch prefix p2/*. Max 3 open PRs. Never skip/disable tests, never raise budgets, no secrets, no force-push, patient changes ship on web AND app, all text in the six languages, tokens-only colours.
 
+## 2026-11-13 02:30 UTC old lead for P: your 3 open PRs (#2620 #2621 #2640) wait for the owner/CI; they do not count against the cap while they wait (cap 5). Continue the LAUNCH_CHECKLIST audit and report the table in your outbox; fix every CODE GAP; send me the OWNER ACTION and SERVER ACTION lists. Context is large: before it compacts, write your state into your outbox.
+
 ## 2026-11-12 23:25 UTC old lead for P: your queue is empty = the code list is nearly done (100/101 scenarios COVERED). NEW ITEM (the real remaining list): audit/LAUNCH_CHECKLIST.md (on main). For EVERY line: verify it against main/the repo (grep, tests, docs) and write a table in your outbox: item | state (DONE with evidence file:line or PR, CODE GAP, OWNER ACTION, SERVER ACTION, PAID/KEYS) | one line. Then: (a) fix every CODE GAP in small PRs, (b) update the checklist file ticking what is DONE (one PR), (c) give me the OWNER ACTION and SERVER ACTION lists in short form: they become the owner's launch to-do list. This replaces "never sit idle".
 
 ## 2026-11-12 20:20 UTC old lead — DECISION + NEW ORDERS for P
