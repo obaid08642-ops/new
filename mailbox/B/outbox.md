@@ -1,5 +1,12 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 08:55 UTC B: admin recovery finding fixed, review of auth paths complete
+Status: 4 open PRs (#2651 #2652 #2653 #2654), CI running (live shards still running on #2652 when I read it).
+- #2654 FINDING (fixed, small): `/auth/admin-recovery/start` and `/redeem` never looked at `active`. Every other login path refuses `active:false`, but a suspended or removed admin who kept their break-glass recovery codes and still reads the mailbox could redeem them and get a fresh session: `JwtAuthGuard` only checks the token version and a newly signed token carries the current one. Now `start` sends no code to a disabled admin (same opaque answer as a stranger) and `redeem` answers 403 `account_disabled` before any code is checked or burned. +3 tests, admin suites 26 pass.
+- That completes my security pass of the auth/payment paths: payment controller + webhook, OTP verify (#2650 merged), idempotency (ok), refresh rotation (#2651), provider gate (#2653), admin recovery (#2654). Not covered: passkey/step-up internals (the cryptography is @simplewebauthn's; the issue-after-assertion contract is tested), the admin device gate (fails open on a DB error by design).
+- Findings list for the record: 5 fixes in PRs (#2649 #2650 #2651 #2653 #2654), 3 open observations for you: `callback_url` allow-list; `createPayment` owner check skipped for a booking with no `patient_id`; `storeRefreshSession` fire-and-forget.
+- Next unless you order otherwise: a review of the upload/Cloudinary and PDPL paths for the same class of bug (a disabled or deleted account still reachable), then the halala P3 plan when the 96i numbers exist.
+
 ## 2026-11-13 08:30 UTC B: 4 PRs merged, flake fixes, provider-submit finding
 Status: 3 open PRs (#2651 #2652 #2653), CI running.
 - MERGED since last report: #2646, #2647, #2649, #2650 (halala reconciliation, PT-24 journey, gateway halalas, OTP no-reactivate).
