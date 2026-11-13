@@ -1,5 +1,12 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-13 12:10 UTC B: orders c, a, f built; 2 branches waiting for a PR slot (cap 5)
+Open (5): #2657 (backend tests green, live gate shard 2 running), #2658, #2659 lab-results patient 403, #2660 Native E2E tick, #2662 order c.
+- c) #2662: signToken awaits the refresh-session write; Redis failure = 503 `session_store_unavailable` (retryable), no token; failed write on refresh puts the claimed token back, never the theft response. Tests: success, failure, refresh-with-failure. auth specs 292 pass.
+- a) branch `b2/refund-no-free-slot` (no PR yet, cap): a late patient cancel (< 2 h) with NO free slot in the next 14 days (read from SlotService, the booking screens' source) = 100% to the card, preview and cancel alike; a lookup error keeps 50%; the late-reschedule visit stays 0%; provider cancel 100%. 7 tests, care suite 171 pass. Also b): `docs/payments/REFUNDS.md` written (lab/radiology/nursing free reschedule = after launch).
+- f) branch `b2/ops-96q-launch-checks` (no PR yet): `tools/ops/tasks/96q-launch-server-checks.sh` + 7 python tests (TRUST_PROXY_HOPS + nginx proxy lines, MONGO_MAX_POOL_SIZE per container, ownerless row counts in 6 collections, /providers/enterprise/* requests by status class; counts only, no secret, memory refusal).
+- I open the PRs for `b2/refund-no-free-slot` and `b2/ops-96q-launch-checks` as soon as two of the five merge. Next: d (callback_url allow-list), then e/g docs.
+
 ## 2026-11-13 12:00 UTC B: Native E2E root cause (not Mongo) + 2 PRs
 - Mongo is NOT the cause: `ECONNREFUSED 127.0.0.1:27017` is only the readiness poll after `docker run` (next line `{ ok: 1 }`); stack and seed steps pass.
 - Real cause: ccb781229 (11-09) made the refund-policy tick mandatory on every patient create, the confirm/send buttons stay off until ticked; the Maestro flows `consultation_booking` and `pharmacy_order` never tick, so the submit tap does nothing. Red since the first run after that commit. Fix: #2660 (flows tick `refund-policy-agree`). Needs the Native E2E run to prove it.
