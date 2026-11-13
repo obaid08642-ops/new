@@ -11,7 +11,7 @@ An admin whose role has both `user.edit` and `gdpr.manage`, with step-up authent
 3. **Provider with an account:** admin dashboard, Users, the user, Delete (`DELETE /admin/users/:userId`). The service (`ProviderErasureService`, Issue 1541) first removes everything the provider owns, matched against all of the provider's ids (login user, provider-app account, public profile): profile, account, capabilities, slots, pending revisions, files and stored images / documents, the search documents, and the public page / sitemap entry (cache tags are purged). Then the user's own records are purged. Admin accounts cannot be deleted this way.
 4. **Orphan profile (no live account):** `DELETE /admin/provider-profiles/:profileId`. It refuses (`provider_profile_has_account`) when the profile still has a live account: delete the account instead, never half.
 5. **Check:** the provider's public page returns 404, the provider no longer appears in search or the sitemap, and the response of the delete lists the counts removed per collection. Attach the counts (no personal data) to the ticket.
-6. **Answer the requester** within the PDPL period (30 days) with what was erased and what was kept and why.
+6. **Answer the requester** within the period the PDPL regulations set (the compliance owner confirms the number of days; not stated here) with what was erased and what was kept and why.
 
 ## Not covered at launch
 - A facility asking to erase one of its staff members' data: the facility writes to support and an admin follows the steps above.
