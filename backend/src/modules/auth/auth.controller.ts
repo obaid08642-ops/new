@@ -1,3 +1,4 @@
+import { clientIp } from '../../common/client-ip';
 import { Body, Controller, Delete, Get, Header, Headers, Logger, Optional, Param, Post, Put, UseGuards, Req, Res, BadRequestException } from '@nestjs/common';
 import { AuthLoginDto, AuthVerify2faDto, RefreshDto, LogoutDto, RecordConsentDto, SendOtpDto, VerifyOtpDto, ResetPasswordDto, SocialLoginDto, HeartbeatDto, LinkAccountDto, ConfirmAccountLinkDto, CheckoutContactDto, GuestCleanupDto, GuestCapabilitiesDto } from './auth.dto';
 import { PresenceService } from '../presence/presence.service';
@@ -26,10 +27,6 @@ const DEVICE_COOKIE_OPTS = (req: Request) => ({
   maxAge: 90 * 24 * 60 * 60 * 1000, // 90 days
 });
 
-function clientIp(req: Request): string | undefined {
-  const xff = (req.headers['x-forwarded-for'] as string) || '';
-  return (xff.split(',')[0] || req.ip || '').trim() || undefined;
-}
 
 /**
  * 21.2 — PROOF that the caller is the guest whose data it wants merged.
