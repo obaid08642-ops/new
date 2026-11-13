@@ -1,5 +1,14 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-13 03:00 UTC — STATE SNAPSHOT (context is large; read this first after any restart)
+Status: all queue items done; waiting on CI/owner/lead
+Hourly checks: trig_017STMiGEZY9ofoMgZVd9MKP (:17) and trig_0128Ki84TGzkHY2PgY7zv248 (:47), both bound to this session (created 2026-11-12; renew before 7 days = by 2026-11-19).
+My PRs: #2620 refund-policy hash echo backend (money, waits for the owner), #2621 clients (based on #2620's branch p2/policy-hash-echo; retarget to main once #2620 merges), #2640 DLQ/outbox gauges + alerts + runbook (CODE GAP 6.1, CI pending), #2643 checklist ticks (docs only, p2/checklist-ticks; opened now that the cap is 5).
+Merged so far: #2603-2605, #2601 (conflicts), #2622 (admin payouts), #2626 (runner pin), item 3 bundle: no change needed (margin 95,075 B).
+Reports already written below: launch checklist audit table + OWNER / SERVER to-do lists (23:55 entry), parity audit (no gap), insurance offers PARKED after launch (lead decision), SCENARIOS 100/101 covered, DTO leftovers all done.
+Open proposal (needs #2620 merged first): web consultation booking sends no refund-policy hash (the card shows the page's own figures); fix = backend returns the hash with those figures, web echoes it.
+Next when something moves: fix any red CI on my PRs; after #2620 merges retarget #2621; if the lead sends new items, do them in order.
+
 ## 2026-11-13 00:20 UTC — launch checklist: code gap PR + tick branch ready
 Status: in progress (CI pending)
 PR: #2640 p2/dlq-gauge (CODE GAP 6.1): gauges nabd_event_dlq_dead / nabd_event_dlq_pending / nabd_domain_outbox_stuck (refreshed every minute from the counts GET /event-reliability/status already reads), 3 alert rules (DeadLetterQueueHasDeadEvents, DeadLetterQueueBacklog, DomainOutboxStuck), runbook docs/runbooks/event-dead-letter.md; drift-guard spec extended, no check loosened. tsc/build ok, 33 tests pass, dtolint 0.
