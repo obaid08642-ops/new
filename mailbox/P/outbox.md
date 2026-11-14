@@ -1,5 +1,19 @@
 # Lane P outbox (newest on top)
 
+## FINAL 2026-11-14 06:00 UTC — Lane P stops here (owner order 05:55)
+Open PRs of mine:
+- #2677 (refund policy hash echo, clients, base main): green except 1 pending check at last look; ready for you to merge. Money-adjacent (refund acceptance): ask the owner if you want. #2621 is dead (it merged into the old #2620 branch, not main); #2677 replaces it.
+Merged this week (all on main): #2640, #2626, #2622, #2620 (backend hash echo), #2643, #2661, #2663, #2664, #2665.
+Dependabot / old PRs (I merged main into #2505, #1692, #1690, #1689; nothing merged by me):
+- #1690 + #1689 (download/upload-artifact 8.0.2 / 7.0.2): no failures, 5 and 9 checks pending at last look; merge together by hand (they touch workflows) once green.
+- #1692 (google-github-actions/auth 3.0.0): red only on live gate shard 5/5 via j_ai_scanner (two input[type=file] on the scan page), a main issue not the bump; merge after that is fixed (workflow change: by hand).
+- #2505 (80 updates, 7 dirs): many red checks (backend build and tests, patient mobile, contract, icon set, live gate, browsers, lighthouse, Trivy); recommend close and let Dependabot reopen per directory.
+- #2470, #2468, #1636, #1634 (NestJS 12 majors one package at a time, core/platform stay 11.2.1): cannot work; recommend close with "needs one coordinated Nest 12 upgrade after launch".
+- #2217, #2216 were already closed. #1891 and #1967 CLOSED by me as superseded by #2015 (comment on each). #2015 (72 files not on main: 57 live journeys, 20 findings docs), #1897 (AGREED.md) and #1924 (Maestro flows) are untouched: need your port-or-close decision.
+Issues: #1835 answered with CI numbers (TBT 83-91 ms vs 200, TTI ~4.0 s vs 5.5 s on /ar/c): suggest closing. #1831 (city/district names in ur/hi/bn/tl) NOT started: needs seeds plus a reviewed migration and owner approval before production. #1556 NOT done: needs the catalogue enrichment/normalisation batch (I did not guess values). Public pages /p/[slug] and /c/*: nothing to review yet, B owns the fix.
+NOT finished / needs a decision: provider-app string move (2481 first-session literals, almost all already ar+en pairs: doc in docs/provider/FIRST_SESSION_STRINGS.md); web consultation compact card sends no refund hash (backend returns the hash with the consultation figures plus web echo: money, owner); insurance offers (decision 30) parked after launch; #2015 journeys; Nest 12 upgrade; the live-gate j_ai_scanner failure.
+My two hourly checks (trig_017STMiGEZY9ofoMgZVd9MKP, trig_0128Ki84TGzkHY2PgY7zv248) are being disabled now.
+
 ## 2026-11-14 06:10 UTC — #1835 /ar/c Lighthouse numbers (from CI, no budget change)
 Status: measured; the issue's two problems are not reproduced on current main.
 I could not run Lighthouse in this container (needs the seeded backend), so I took the 3 runs per URL from the CI `lighthouse` job of #2677 (main 2149a3dcf + my client PR; assertions passed; artifact lighthouse-results, same devtools throttling as the issue):
