@@ -283,6 +283,10 @@ export class MoyasarService {
           authorized: 'authorized',
           initiated: 'initiated',
           refunded: 'refunded',
+          // a checkout the patient cancelled, or that ran out: never left as "initiated" (the return page must not read them as still pending)
+          canceled: 'canceled',
+          cancelled: 'canceled',
+          expired: 'expired',
         };
 
         payment.status = statusMap[data?.status] ?? payment.status;
