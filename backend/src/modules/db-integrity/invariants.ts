@@ -10,7 +10,7 @@ import { APPT_STATES } from '../../schemas/appointment.schema';
 export interface InvariantResult { id: string; severity: 'error' | 'review'; description: string; count: number; sample: unknown[] }
 interface Invariant { id: string; severity: 'error' | 'review'; description: string; run: (c: Connection, now: Date) => Promise<{ count: number; sample: unknown[] }> }
 
-const LIMIT = { maxTimeMS: 30_000 };
+const LIMIT = { maxTimeMS: 30_000, allowDiskUse: true };
 const ACTIVE_APPT = ['PENDING', 'CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS'];
 
 async function filtered(c: Connection, collection: string, filter: Record<string, unknown>, idField = 'id') {

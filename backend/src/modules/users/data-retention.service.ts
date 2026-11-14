@@ -18,7 +18,7 @@ export class DataRetentionService {
    * We hard-delete soft-deleted users and their associated PII after 30 days.
    */
   @Cron(CronExpression.EVERY_DAY_AT_3AM)
-  @ScheduledOnce()
+  @ScheduledOnce({ serial: 'nightly-heavy' })
   async enforceDataRetention() {
     this.logger.log('Starting PDPL Data Retention cleanup...');
     

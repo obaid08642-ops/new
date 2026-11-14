@@ -79,7 +79,11 @@ export async function verifyAdminAuditChain(conn: Connection, maxFindings = 50):
   const add = (f: ChainFinding) => { if (findings.length < maxFindings) findings.push(f); };
   const head: any = await conn.collection(ADMIN_HEAD).findOne({ _id: 'head' } as any);
   let prevHash = GENESIS; let expectSeq = 1; let checked = 0;
-  const cursor = conn.collection(ADMIN_LOG).find({ seq: { $exists: true } } as any).sort({ seq: 1 });
+  // 2026-11-14: the log has no index on `seq`, so this walk was a blocking in-memory sort of the WHOLE collection (every row, whole documents) on a host where mongod is killed at its
+  // memory limit. A partial index on seq lets it read in order without sorting; rows are fetched 200 at a time.
+  let hint: Record<string, 1> | undefined;
+  try { await conn.collection(ADMIN_LOG).createIndex({ seq: 1 }, { name: 'seq_1', partialFilterExpression: { seq: { $exists: true } } }); hint = { seq: 1 }; } catch { /* no index: the walk still works (sorted on disk) */ }
+  const cursor = conn.collection(ADMIN_LOG).find({ seq: { $exists: true } } as any, { batchSize: 200, ...(hint ? { hint } : {}) }).sort({ seq: 1 });
   for await (const row of cursor as any) {
     checked++;
     if (row.seq !== expectSeq) { add({ code: 'seq_gap', seq: row.seq, detail: `expected ${expectSeq}` }); expectSeq = row.seq; }
