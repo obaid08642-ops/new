@@ -21,6 +21,7 @@ export type ErrorKind =
   | "notActionable"
   | "alreadyRecorded"
   | "alreadyPaid"
+  | "cancelAfterPreparation"
   | "threadClosed"
   | "contentBlocked"
   | "signedOut"
@@ -50,6 +51,8 @@ const CODES: Record<string, ErrorKind> = {
   cod_orders_do_not_require_online_payment: "notActionable",
   rejected_insurance_decision_required: "notActionable",
   rejected_order_cancellation_not_allowed_after_fulfillment: "notActionable",
+  // owner decision 4: once the pharmacy is preparing the order the patient can no longer cancel it
+  cancel_not_allowed_after_preparation: "cancelAfterPreparation",
   booking_already_paid: "alreadyPaid",
   insurance_acceptance_already_recorded: "alreadyRecorded",
   insurance_acceptance_conflict: "alreadyRecorded",

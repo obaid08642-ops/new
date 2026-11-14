@@ -41,7 +41,7 @@
     "line": 118,
     "found": "[client] Not built: the item page does not read the patient's medical order items for this test; the board's order block (ordering.item.ord.*) is not drawn.",
     "suspect": "Wire GET /medical-orders items (group labs, status open/later) in the PR that carries the doctor-order flow.",
-    "review_status": "open"
+    "review_status": "fixed x/orders-prechecked (owner decision 2026-11-08: the doctor's items arrive pre-checked in the basket and can be unticked: components-next/ordering/doctor-order-prefill.tsx)"
   },
   {
     "batch": "m6-ord02-05",

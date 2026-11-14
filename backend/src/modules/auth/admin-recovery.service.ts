@@ -2,7 +2,7 @@ import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/com
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { createHash, randomBytes } from 'crypto';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from '../../common/password-hash';
 
 /**
  * C6: break-glass recovery for admin accounts. 10 single-use printed codes,

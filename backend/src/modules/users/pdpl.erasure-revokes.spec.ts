@@ -25,4 +25,29 @@ describe('PDPL erasure revokes the access tokens already issued', () => {
     expect(update.$set.active).toBe(false);
     expect(update.$inc).toEqual({ token_version: 1 });
   });
+
+  // `DELETE /users/me` is reachable by every signed-in role; only patients (and guests) can erase themselves here.
+  it.each(['doctor', 'pharmacy', 'lab', 'admin', 'super_admin', 'hospital_admin'])('refuses %s before any password check and changes nothing', async (role) => {
+    const user = { id: 'u-staff-1', role, password_hash: await bcrypt.hash('pw', 4), active: true };
+    const findOneAndUpdate = jest.fn();
+    const userModel: any = { findOne: jest.fn().mockReturnValue({ lean: () => Promise.resolve(user) }), findOneAndUpdate };
+    const conn: any = { db: { listCollections: () => ({ toArray: () => Promise.resolve([]) }) }, collection: jest.fn() };
+    const svc = new PdplService(conn, userModel);
+
+    await expect(svc.erasePatientData('u-staff-1', { password: 'pw', reason: 'test' })).rejects.toMatchObject({ response: { code: 'erasure_not_available_for_role' } });
+
+    expect(findOneAndUpdate).not.toHaveBeenCalled();
+    expect(conn.collection).not.toHaveBeenCalled();
+  });
+
+  it('a patient and a guest (and an account with no role field, which defaults to patient) can still erase', async () => {
+    for (const role of ['patient', 'guest', undefined]) {
+      const user: any = { id: 'u-ok', password_hash: await bcrypt.hash('pw', 4), active: true, ...(role ? { role } : {}) };
+      const findOneAndUpdate = jest.fn().mockResolvedValue({ ...user, active: false });
+      const userModel: any = { findOne: jest.fn().mockReturnValue({ lean: () => Promise.resolve(user) }), findOneAndUpdate };
+      const conn: any = { db: { listCollections: () => ({ toArray: () => Promise.resolve([]) }) }, collection: jest.fn() };
+      await new PdplService(conn, userModel).erasePatientData('u-ok', { password: 'pw', reason: 'test' });
+      expect(findOneAndUpdate).toHaveBeenCalledTimes(1);
+    }
+  });
 });

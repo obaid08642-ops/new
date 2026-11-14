@@ -52,6 +52,31 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiRequest("/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/submit", "POST")).toBe(false);
     expect(isAllowedPatientApiRequest("/labs/bookings/91047ef2-ad36-422a-a184-629693e7c729/items/svc_cbc-1/opt-in-cash", "PATCH")).toBe(true);
     expect(isAllowedPatientApiRequest("/labs/bookings/91047ef2-ad36-422a-a184-629693e7c729/cancel", "POST")).toBe(true);
+    // the doctor did not come
+    expect(isAllowedPatientApiRequest("/care/appointments/5b1f3a2c-1d4e-4c7a-9a55-0e2f6d7c8b90/provider-no-show", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/care/appointments/5b1f3a2c-1d4e-4c7a-9a55-0e2f6d7c8b90/provider-no-show", "GET")).toBe(false);
+    expect(isAllowedPatientApiRequest("/care/appointments/not-an-id/provider-no-show", "POST")).toBe(false);
+    // PT-08: the patient's medical reports (list, one, PDF), read only; the doctor's routes are not reachable from here
+    expect(isAllowedPatientApiRequest("/care/sick-leaves", "GET")).toBe(true);
+    expect(isAllowedPatientApiRequest("/care/sick-leaves/5b1f3a2c-1d4e-4c7a-9a55-0e2f6d7c8b90", "GET")).toBe(true);
+    expect(isAllowedPatientApiRequest("/care/sick-leaves/MED-2026-000001/pdf", "GET")).toBe(true);
+    expect(isAllowedPatientApiRequest("/care/sick-leaves/5b1f3a2c-1d4e-4c7a-9a55-0e2f6d7c8b90", "DELETE")).toBe(false);
+    expect(isAllowedPatientApiRequest("/provider/sick-leaves", "GET")).toBe(false);
+    // PT-54: hide / show again a finished visit
+    expect(isAllowedPatientApiRequest("/unified-bookings/consultation/5b1f3a2c-1d4e-4c7a-9a55-0e2f6d7c8b90/hide", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/unified-bookings/lab/5b1f3a2c-1d4e-4c7a-9a55-0e2f6d7c8b90/unhide", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/unified-bookings/consultation/5b1f3a2c-1d4e-4c7a-9a55-0e2f6d7c8b90/hide", "GET")).toBe(false);
+    expect(isAllowedPatientApiRequest("/unified-bookings/other/5b1f3a2c-1d4e-4c7a-9a55-0e2f6d7c8b90/hide", "POST")).toBe(false);
+    // PT-03: a guardian lists, adds and removes a dependant
+    expect(isAllowedPatientApiRequest("/family/dependants", "GET")).toBe(true);
+    expect(isAllowedPatientApiRequest("/family/dependants", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/family/dependants/5b1f3a2c-1d4e-4c7a-9a55-0e2f6d7c8b90", "DELETE")).toBe(true);
+    expect(isAllowedPatientApiRequest("/family/dependants/5b1f3a2c-1d4e-4c7a-9a55-0e2f6d7c8b90", "PATCH")).toBe(false);
+    expect(isAllowedPatientApiRequest("/family/dependants/../my-group", "DELETE")).toBe(false);
+    // PT-09: the lab report file of a booking is read through the BFF (the results tab's PDF link), and only read
+    expect(isAllowedPatientApiRequest("/labs/bookings/91047ef2-ad36-422a-a184-629693e7c729/reports/5b1f3a2c-1d4e-4c7a-9a55-0e2f6d7c8b90", "GET")).toBe(true);
+    expect(isAllowedPatientApiRequest("/labs/bookings/91047ef2-ad36-422a-a184-629693e7c729/reports/5b1f3a2c-1d4e-4c7a-9a55-0e2f6d7c8b90", "DELETE")).toBe(false);
+    expect(isAllowedPatientApiRequest("/labs/bookings/91047ef2-ad36-422a-a184-629693e7c729/reports/../cancel", "GET")).toBe(false);
     expect(isAllowedPatientApiRequest("/radiology/bookings/91047ef2-ad36-422a-a184-629693e7c729/cancel", "POST")).toBe(true);
     expect(isAllowedPatientApiRequest("/radiology/bookings/91047ef2-ad36-422a-a184-629693e7c729/state", "POST")).toBe(false);
     expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/offers/91047ef2-ad36-422a-a184-629693e7c729/select", "POST")).toBe(true);
@@ -122,5 +147,24 @@ describe("patient allowlist: providers map (render test finding)", () => {
     const { isAllowedPatientApiRequest } = await import("./patient-allowlist");
     expect(isAllowedPatientApiRequest("/providers/map", "GET")).toBe(true);
     expect(isAllowedPatientApiRequest("/providers/map", "POST")).toBe(false);
+  });
+});
+
+describe("patient allowlist: refund policy summary", () => {
+  it("allows only the per-service summary read", async () => {
+    const { isAllowedPatientApiRequest } = await import("./patient-allowlist");
+    expect(isAllowedPatientApiRequest("/refund-policy/summary?service=lab", "GET")).toBe(true);
+    expect(isAllowedPatientApiRequest("/refund-policy/summary?service=other", "GET")).toBe(false);
+    expect(isAllowedPatientApiRequest("/refund-policy/summary?service=lab", "POST")).toBe(false);
+  });
+});
+
+describe("patient allowlist: national ID for the medical report", () => {
+  it("allows reading the status and saving the number, nothing else on that path", async () => {
+    const { isAllowedPatientApiRequest } = await import("./patient-allowlist");
+    expect(isAllowedPatientApiRequest("/care/sick-leaves/national-id", "GET")).toBe(true);
+    expect(isAllowedPatientApiRequest("/care/sick-leaves/national-id", "PUT")).toBe(true);
+    expect(isAllowedPatientApiRequest("/care/sick-leaves/national-id", "DELETE")).toBe(false);
+    expect(isAllowedPatientApiRequest("/care/sick-leaves/abc12345/national-id", "PUT")).toBe(false);
   });
 });

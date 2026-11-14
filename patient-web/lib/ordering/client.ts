@@ -41,22 +41,27 @@ export type BookingRequest = {
   payment_method: "cash" | "card" | "insurance";
   gender_preference?: "female" | "male";
   medical_order_id?: string;
+  /** another family member (the patient is the default and is not sent) */
+  family_member_id?: string;
   documents?: Array<{ kind: "doctor_request" | "preauth"; url_or_b64: string; filename?: string }>;
   notes?: string;
 };
 
-export async function createBooking(body: BookingRequest): Promise<OrderingBookingResult> {
+/** What the booking route takes: the request plus the patient's agreement to the refund policy (the backend refuses a booking without it). */
+export type BookingPayload = BookingRequest & { refund_policy_accepted: true };
+
+export async function createBooking(body: BookingPayload): Promise<OrderingBookingResult> {
   const r = parseBookingResult(await call("/api/ordering/bookings", { method: "POST", body: JSON.stringify(body) }));
   if (!r) throw new OrderingApiError("bad_answer", 502);
   return r;
 }
 
 /** POST /radiology/bookings through our route: one scan of a radiology basket. Answers the booking's id and total. */
-export async function postRadiologyBooking(body: import("./radiology").RadiologyBookingBody): Promise<unknown> {
+export async function postRadiologyBooking(body: import("./radiology").RadiologyBookingBody & { refund_policy_accepted: true }): Promise<unknown> {
   return call("/api/ordering/radiology-bookings", { method: "POST", body: JSON.stringify(body) });
 }
 
-export type AsapRequest = { service_kind: "lab" | "radiology" | "nursing"; items: string[]; lat: number; lng: number; payer: "cash" | "insurance" };
+export type AsapRequest = { service_kind: "lab" | "radiology" | "nursing"; items: string[]; lat: number; lng: number; payer: "cash" | "insurance"; family_member_id?: string; /** the patient agreed to the refund policy before the broadcast (the backend refuses without it) */ refund_policy_accepted: true };
 
 async function asapCall(url: string, init?: RequestInit): Promise<Asap> {
   const a = parseAsap(await call(url, init));

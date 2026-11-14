@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Search } from "@/components-next/ui-generated/components/Inputs";
@@ -33,7 +33,9 @@ export function CatalogSearchLive({
   const [value, setValue] = useState(initial);
   const { state, controller } = useSearchSuggest(locale, SUGGEST_SCOPES.pharmacy);
   const host = useRef<HTMLDivElement>(null);
-  useEffect(() => {
+  // A layout effect, not a passive one: this field REPLACES a plain one the moment its code arrives. A passive effect runs after the paint, and a key pressed in that gap goes to <body>
+  // (the old input is gone, the new one is not focused yet) and is lost: live gate #2480 shard 4, the request was `q=ر` for "بر". A layout effect runs in the same task as the commit.
+  useLayoutEffect(() => {
     if (!focusOnMount) return;
     const input = host.current?.querySelector<HTMLInputElement>('input[type="search"]');
     if (!input) return;

@@ -11,9 +11,9 @@ type Slot = { start: string; available?: boolean };
 type Labels = { title: string; date: string; slots: string; reason: string; submit: string; cancel: string; conflict: string; failed: string; unavailable: string; invalid: string; today: string; loading: string; noSlots: string; slotsUnavailable: string };
 
 /** Reschedule: the new time is one of the doctor's own open slots on one of the next 7 days (as the app), never a free time. */
-export function AppointmentRescheduleForm({ appointmentId, doctorId, serviceType, locale, labels }: { appointmentId: string; doctorId: string; serviceType: "video" | "clinic" | "home"; locale: string; labels: Labels }) {
+export function AppointmentRescheduleForm({ appointmentId, doctorId, serviceType, locale, labels, daysAhead = 7 }: { appointmentId: string; doctorId: string; serviceType: "video" | "clinic" | "home"; /** 7 normally; 14 for the late free reschedule (the server's `within_days`). */ daysAhead?: number; locale: string; labels: Labels }) {
   const router = useRouter();
-  const days = useMemo(() => dayStrip(7), []);
+  const days = useMemo(() => dayStrip(daysAhead), [daysAhead]);
   const [open, setOpen] = useState(false);
   const [dayIndex, setDayIndex] = useState(0);
   const [slots, setSlots] = useState<Slot[]>([]);

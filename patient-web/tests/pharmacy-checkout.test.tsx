@@ -156,10 +156,11 @@ describe("the payment result is whatever the backend says, never the address", (
     }
   });
 
-  it("failed, cancelled and refunded come from the transaction's status", async () => {
-    const run = async (status: string) => (await checkPayment({ orderId: ORDER, transactionId: TXN }, route({ order: () => json(200, {}), verify: () => json(200, { status }) }))).phase.kind;
+  it("failed, cancelled, expired session and refunded come from the transaction's status", async () => {
+    const run = async (status: string, failure_reason?: string) => (await checkPayment({ orderId: ORDER, transactionId: TXN }, route({ order: () => json(200, {}), verify: () => json(200, { status, failure_reason }) }))).phase.kind;
     expect(await run("failed")).toBe("failed");
-    expect(await run("cancelled")).toBe("failed");
+    expect(await run("failed", "payment_session_expired")).toBe("sessionExpired");   // "the payment session expired, no money was taken"
+    expect(await run("cancelled")).toBe("cancelled");                                // "the payment was cancelled" (no longer shown as a failure)
     expect(await run("refunded")).toBe("refunded");
     expect(await run("partially_refunded")).toBe("refunded");
   });
@@ -405,7 +406,9 @@ describe("the checkout screen", () => {
     expect(html).toContain("Shown with each offer");
     // the cart holds no price, so nothing here can be added up or drawn as money
     expect(html).not.toMatch(/55\.00|12\.50|30\.00|SAR/);
-    expect(html).not.toMatch(/<input/);
+    // the only field is the refund policy tick (the backend refuses an order without the agreement); no text, card or identity field
+    expect(html).toContain("I have read the refund policy and I agree to it");
+    expect(html.replace(/<input[^>]*type="checkbox"[^>]*>/g, "")).not.toMatch(/<input/);
     expect(html).not.toMatch(/national|iqama|policy number|card number|cvv/i);
     expect(html).not.toContain("style=");
     // nothing can be sent before the address and the prescription have been read

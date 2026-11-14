@@ -89,3 +89,7 @@ html[dir="rtl"] .rangeSvg { transform: scaleX(-1); }
 .trend { display: flex; flex-direction: column; gap: 4px; color: var(--nabd-color-text-secondary); }
 .trendSvg { inline-size: 100%; block-size: 40px; color: var(--nabd-color-action-primary-bg); }
 html[dir="rtl"] .trendSvg { transform: scaleX(-1); }
+
+/* ---- the doctor's order in the basket: pre-checked, the patient can untick (owner decision 2026-11-08) ---- */
+.prefillRow { display: flex; align-items: center; gap: 12px; min-block-size: 44px; cursor: pointer; }
+.prefillBox { flex: none; inline-size: 22px; block-size: 22px; accent-color: var(--nabd-color-action-primary-bg); }

@@ -16,7 +16,7 @@ const build = (insurance: any) => {
 };
 
 const data = (payment_method: string) => ({
-  service_id: 'svc1', provider_id: 'nurse-1', payment_method,
+  service_id: 'svc1', provider_id: 'nurse-1', payment_method, refund_policy_accepted: true,
   scheduled_at: new Date(Date.now() + 86_400_000).toISOString(), address: { city: 'Riyadh' },
 });
 const patient = { id: 'pat-1', role: 'patient', full_name: 'Patient' };

@@ -78,6 +78,7 @@ it('shows the consent on the refusal, records it with the device, then books', a
   });
   await render(wrap(<BookingConfirmScreen />));
   await screen.findByText('Test Doctor', {}, { timeout: 5000 });
+  await tap(screen.getByTestId('refund-policy-agree'));
   await tap(screen.getByTestId('booking-confirm-submit'));
 
   await screen.findByText('TEST clause one', {}, { timeout: 5000 });

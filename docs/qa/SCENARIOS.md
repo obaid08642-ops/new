@@ -13,12 +13,16 @@ Complete list of user scenarios, from the owner's request ("make sure there are 
 
 ## Counts
 
-| Measure | First catalogue | Re-scored on main `c17aa3461` (#2292) | Re-scored on main `365b2d580` (#2335) | Batch 2 (#2351) | PT-25 (#2435) | Batch 5 (this PR) |
-|---|---|---|---|---|---|---|
-| Scenarios listed | 100 | 100 | 100 | 100 | 100 | 100 |
-| COVERED | 52 | 55 | 62 | 65 | 73 | 79 |
-| PARTIAL | 16 | 16 | 16 | 13 | 8 | 9 |
-| NOT COVERED | 32 | 29 | 22 | 22 | 18 | 12 |
+| Measure | First catalogue | Re-scored on main `c17aa3461` (#2292) | Re-scored on main `365b2d580` (#2335) | Batch 2 (#2351) | PT-25 (#2435) | Batch 5 | Recount 2026-11-13 |
+|---|---|---|---|---|---|---|---|
+| Scenario rows | 100 | 100 | 100 | 100 | 100 | 100 | 101 |
+| COVERED | 52 | 55 | 62 | 65 | 73 | 79 | 100 |
+| PARTIAL | 16 | 16 | 16 | 13 | 8 | 9 | 1 (PT-24) |
+| NOT COVERED | 32 | 29 | 22 | 22 | 18 | 12 | 0 |
+
+Recount 2026-11-13: counted from the status cell of every scenario row below (101 rows: 100 COVERED, 1 PARTIAL, 0 NOT COVERED). The notes under this table describe earlier recounts.
+
+Lane V (2026-11-09): SY-05 (backups restore, P0), SY-02 and SY-01 moved to COVERED with the evidence in their rows. The table above is the older count; a recount of the 94 rows whose status cell parses now gives 91 COVERED, 1 PARTIAL, 2 NOT COVERED.
 
 This PR: seven scenarios moved to COVERED. Four are covered by journeys another session added to main (`j_dispute.py`, `j_payment_failed_retry.py`, `j_web_dark_a11y.py`), which were run here and pass. Three are new journeys in this PR (`j_notification_settings.py`, `j_doctor_leave.py`) and pass locally on main `365b2d580`.
 
@@ -33,17 +37,17 @@ This PR (PT-25 delivery tracking) moved one PARTIAL row to COVERED. The 'This PR
 |---|---|---|---|---|---|
 | PT-01 | Book a consultation for self (online/clinic/home) | COVERED | `j_consultation.py` (124/124) | P1 | — |
 | PT-02 | Book for a family member | COVERED | `j_family_book_for_member.py` | P1 | — |
-| PT-03 | Guardian books for a dependant (minor) | NOT COVERED | none; `j_family_book_for_member.py` covers a family member, not guardianship | P1 | H |
+| PT-03 | Guardian books for a dependant (minor) | COVERED | app: `patient-app/src/__tests__/family/member-book.test.tsx` (the member becomes the booking subject), `consult/booking-screens.test.tsx` (the confirm step sends `for_member_id`, then the guardian's payment intent opens); web: `patient-web/tests/booking-for-route.test.ts` (`for_member_id` forwarded), `tests/consult-screens.test.tsx` (the screen says who the visit is for and offers to switch back); the booking screens (web and app) also offer "Who is the visit for?" with the guardian's dependants (no account) and send `family_member_id` (app: `consult/booking-screens.test.tsx`; web: `tests/booking-for-route.test.ts`); backend: the booker accepts the telehealth consent for the visit (`appointments.service.ts`). live: `j_family_book_for_member.py` (a child joins the family; the guardian books, pays by card, the member sees it paid, a stranger cannot book, pay, read or cancel; the guardian cancels well ahead: the guardian's card payment is refunded in full once, one credit note on the invoice, a second cancel refunds nothing more) | P1 | H |
 | PT-04 | Family member's medicines and history | COVERED | `j_family_meds.py` | P2 | — |
-| PT-05 | Referral from a visit to a booking | NOT COVERED | blocked: the referral issue route rejects the apps' UUID ids and no client calls it (`docs/qa/findings/batch5-2026-11-07.md`) | P1 | S |
+| PT-05 | Referral from a visit to a booking | COVERED | `tools/live/j_referral_booking.py` (doctor issues with UUID ids, patient sees the outcome and books); the provider app issues it from the finished visit (`IssueReferralScreen`, body built and unit-tested in `issueReferral.test.ts`) | P1 | S |
 | PT-06 | Prescription → pharmacy order | COVERED | `j_pharmacy.py`, `j_pharmacy_insurance_first.py` | P1 | — |
 | PT-07 | Pharmacy broadcast receives competing offers and the patient picks one | COVERED | `j_web_offers_waiting.py` (web) | P1 | — |
-| PT-08 | Sick leave request and report | NOT COVERED | no journey | P2 | H |
-| PT-09 | Reports (lab, radiology) viewed and downloaded | PARTIAL | `j_lab_result_push.py` checks push, not download | P2 | H |
+| PT-08 | Sick leave request and report | COVERED | `j_sick_leave.py`: the patient asks for it with the booking, the doctor issues it (serial, verify code, no back-dating, 1-30 days), the patient reads it, the PDF is refused (409 `national_id_required`) until the patient adds the national ID, then downloads; the public verify page shows only valid/revoked, initials and dates; revoke and Seha number; other patients get 404 | P2 | H |
+| PT-09 | Reports (lab, radiology) viewed and downloaded | COVERED (client) | app: `patient-app/src/__tests__/orders/report-download.test.tsx` (9 tests: PDF only for a lab booking's report file, download then share, refused download, radiology opens its report), `utils/shareFile.test.ts` (`docs/qa/h-scenarios-status-b-pt09.md`); web: `tests/orders-results-tab.test.ts` (PDF link only when the booking holds a file), `lib/api/patient-allowlist.test.ts` (the report file is read through the BFF, read only). Not covered: a live download and the device share sheet; `j_lab_result_push.py` checks push, not download | P2 | — |
 | PT-10 | Follow-up chat window opens and closes after a visit | COVERED | `j_chat_followup_window.py` (62/62): closed before the visit ends, opens on finish, the doctor closes it and the patient can still read, one extension reopens it, a second is refused | P1 | — |
 | PT-11 | Chat delivered and seen receipts | COVERED | `j_chat_receipts.py` (63/63, PR #2259) | P1 | — |
 | PT-12 | Reviews and rating of a provider | COVERED | `j_review_rating.py` (73/73): only a patient who used the visit can rate, stars publish at once, text waits for admin approval, public after approval; the author's read omits `status` (`docs/qa/findings/batch5-2026-11-07.md`) | P2 | — |
-| PT-13 | Reply to a review (provider side, see PV-07) | NOT COVERED | no journey | P3 | S |
+| PT-13 | Reply to a review (provider side, see PV-07) | COVERED | `j_provider_scenarios.py` (the doctor answers a published review, the public page shows the reply, the patient gets one notification per reply in en and ar; a low-star review cannot be answered until a moderator approves it) | P3 | — |
 | PT-14 | Complaint raised | COVERED | `j_complaint.py` (18/18): feedback filed as a complaint, the patient and the admin queue both show the complaint category, an empty complaint is refused | P2 | — |
 | PT-15 | Dispute on a charge or visit | COVERED | `j_dispute.py` (56/56 on main 365b2d580): the patient's payment dispute, the admin refunds part once, a second refund refused | P1 | F |
 | PT-16 | Support ticket create and reply | COVERED | `j_support.py` | P2 | — |
@@ -54,13 +58,13 @@ This PR (PT-25 delivery tracking) moved one PARTIAL row to COVERED. The 'This PR
 | PT-21 | Cash vs card vs insurance selection | COVERED | `j_consultation.py` matrix (124/124 in the live run): cash (line 211), insurance (lines 193, 223) and card bookings each recorded with their method | P1 | F |
 | PT-22 | Card payment success | COVERED | `j_consultation.py` (payment verified) | P0 | — |
 | PT-23 | Card payment failure and retry | COVERED | `j_payment_failed_retry.py` (43/43 on main 365b2d580): declined card reported as failed, retry makes a new checkout, paid booking cannot be charged again | P0 | F |
-| PT-24 | Payment return (deep link back from gateway) | PARTIAL | web return: `j_web_payment_result.py` (real browser, `/payments/result?id=` resolves the gateway payment id to the paid appointment); app killed after paying: `j_app_killed_payment.py` (reopen reads the server state, no duplicate charge). Not covered: the native deep link into the app (device farm only) | P0 | H |
+| PT-24 | Payment return (deep link back from gateway) | PARTIAL (link wiring now tested) | web return: `j_web_payment_result.py` (real browser, `/payments/result?id=` resolves the gateway payment id to the paid appointment); app killed after paying: `j_app_killed_payment.py` (reopen reads the server state, no duplicate charge). App: `/payments/result` is an app link (AASA list, Android intent filters, link map), tested in `patient-app/src/__tests__/native-intent.test.ts` (the return address opens the result screen with the payment id). Money side of the return (paid, failed, cancelled; the gateway wins over the query string; the return emits no money event): `backend/src/modules/moyasar/moyasar-return.spec.ts`. Live: `tools/live/j_payment_return.py` (a forged `status=paid` return after a declined card pays and confirms nothing, a `status=failed` return after an accepted card does not undo it, repeating the return leaves one paid payment). Not covered: the real OS handing the link to the app (device farm only; needs the production Team ID and fingerprint) | P0 | H |
 | PT-25 | Delivery tracking | COVERED | `j_pharmacy_tracking.py` (62/62 on main): the owner reads GET /orders/:id/tracking (state broadcasting), another patient gets 403, an unknown order id gets 404 | P1 | H |
 | PT-26 | Prescription photo upload | COVERED | `j_upload_security.py`, `j_ai_scanner.py` | P1 | — |
-| PT-27 | Prescription OCR result shown and corrected | PARTIAL | `j_ai_scanner.py` | P1 | H |
+| PT-27 | Prescription OCR result shown and corrected | COVERED (client) | `j_ai_scanner.py` (live); `patient-app/src/__tests__/pharmacy/rx-ocr.test.tsx` (review, edit, remove, add, confirm sends corrected lines); `patient-web/tests/pharmacy-rx.test.tsx` `cleanItems` | P1 | H |
 | PT-28 | Notification preferences saved | COVERED | `j_notification_settings.py` (13/13 on main 365b2d580): change offers off and on, value holds on a new sign-in, a bad value refused (400) | P2 | H |
-| PT-29 | Push permission denied (app) | NOT COVERED | none | P2 | H |
-| PT-30 | Location permission denied (app and web) | PARTIAL | `j_web_call.py` (camera/mic); no location denial journey | P2 | H |
+| PT-29 | Push permission denied (app) | COVERED | `patient-app/src/__tests__/qa/push-permission.test.tsx` (app start, "Turn on" refused, failing request, denied prompt with the phone settings link, no re-asking; 2026-11-09 re-run) | P2 | H |
+| PT-30 | Location permission denied (app and web) | COVERED (client) | app: `patient-app/src/__tests__/qa/location-denied.test.tsx` (nearest helper, providers map, address picker), `emergency/urgent-help.test.tsx`; web: `patient-web/lib/map/explorer-browser.test.ts` (map permission and position, the doctors list's Nearest falls back to the saved city); `j_web_call.py` (camera/mic). The web address, home care and emergency buttons show a message and keep manual entry (their handlers are client-only; no DOM test) | P2 | H |
 | PT-31 | Language switch (ar, en, ur, hi, bn, fil) | COVERED | `j_web_translated_pages.py`, `j_server_texts_langs.py` | P2 | — |
 | PT-32 | RTL and LTR layout | COVERED | `j_web_translated_pages.py` | P2 | — |
 | PT-33 | Dark mode | COVERED | `j_web_dark_a11y.py` (75/75 on main 365b2d580): dark mode from the OS, stored choice wins and survives reload | P3 | D |
@@ -68,7 +72,7 @@ This PR (PT-25 delivery tracking) moved one PARTIAL row to COVERED. The 'This PR
 | PT-35 | Multi-device sign-in and sign-out | COVERED | `j_patient_sessions.py` | P1 | — |
 | PT-36 | Account deletion (PDPL) | COVERED | `j_pdpl_export_erase.py` (12/12 on main c17aa3461): wrong password refused, right password erases, old token and sign-in refused | P0 | — |
 | PT-37 | Data export (PDPL) | COVERED | `j_pdpl_export_erase.py`: export answers with the patient's own id and no password hash | P0 | — |
-| PT-38 | Deep links into a booking or chat | NOT COVERED | none | P1 | H |
+| PT-38 | Deep links into a booking or chat | COVERED (unit) | app: `qa/deep-links-push.test.tsx`, `native-intent.test.ts`, `usePushNotifications.routes.test.ts`, `qa/chat-link.test.tsx` (a shared web chat link asks the server for the thread's booking and opens that conversation; unknown thread: error, retry, appointments); web: `patient-web/tests/deep-link-return.test.ts`. Not covered: a live signed-in landing journey and the real OS link hand-over (`docs/qa/findings/pt38-2026-11-09.md`) | P1 | — |
 | PT-39 | Offline and flaky network | COVERED | `j_throttled_network.py`, `j_web_offline.py` | P1 | — |
 | PT-40 | Accessibility basics (labels, focus, contrast) | COVERED | `j_web_dark_a11y.py` (75/75 on main 365b2d580): page language and direction, one main and one h1, alt text, accessible names, skip link and focus ring | P2 | D, H |
 | PT-41 | Sign-in with a code (phone and e-mail) | COVERED | `j_qa_phone_otp.py`, `j_web_qa_signup.py` | P0 | — |
@@ -84,7 +88,7 @@ This PR (PT-25 delivery tracking) moved one PARTIAL row to COVERED. The 'This PR
 | PT-51 | Pregnancy weeks content | COVERED | `j_pregnancy_weeks.py` | P3 | — |
 | PT-52 | Health logging | COVERED | `j_web_health_logging.py` | P3 | — |
 | PT-53 | Web call join window and in-call controls | COVERED | `j_web_call.py` (71/71) | P0 | — |
-| PT-54 | Patient hides or unhides a visit from history | NOT COVERED | none | P3 | H |
+| PT-54 | Patient hides or unhides a visit from history | COVERED (backend live + unit; web + app: consultation history and the orders centre) | `j_hide_visit.py` (an open visit cannot be hidden, another patient cannot hide it, hide is idempotent, the timeline leaves it out, include_hidden=1 shows it as hidden, the visit itself is untouched, unhide), patient-web/tests/consult-screens.test.tsx, patient-web/tests/orders-screens.test.tsx, patient-app/src/utils/__tests__/hiddenVisits.test.ts | P3 | H |
 | PT-55 | Medicine ranking and substitute choice | COVERED | `j_medicine_ranking.py`, `j_rx_substitute.py` | P2 | — |
 | PT-56 | Guest checkout (no account) | COVERED | `j_guest_lifecycle.py`, `j_guest_matrix.py` | P1 | — |
 | PT-57 | Insurance-first pharmacy order | COVERED | `j_pharmacy_insurance_first.py` | P1 | — |
@@ -118,18 +122,19 @@ Types: doctor, pharmacy, lab, radiology, nursing (and any other registered type)
 | PV-20 | Nursing visit or programme | COVERED | `j_nursing.py` | P1 | — |
 | PV-21 | Provider cancels after acceptance | COVERED | `j_provider_scenarios.py`: a reason is required, the patient gets 100% back, the doctor carries the penalty, the slot can be booked again | P1 | P2 |
 | PV-22 | No-show marked by the provider | COVERED | `j_provider_scenarios.py`: refused before the grace period, accepted after it, the patient sees NO_SHOW with no refund, a second one is refused | P1 | P2 |
+| PV-23 | Provider did not come (patient reports it) | COVERED | `j_provider_no_show.py` (owner decision 7): clinic visit held, doctor disputes, admin upholds, refund 100%; video refunded at once twice per 30 days, third waits for an admin who refunds it | P1 | P2 |
 
 ## Admin
 
 | ID | Scenario | Status | Evidence | Priority | Route |
 |---|---|---|---|---|---|
 | AD-01 | Approvals (providers) | COVERED | `j_admin_ops.py`, `j_provider_review.py` | P0 | — |
-| AD-02 | Moderation of reviews | PARTIAL | `j_review_rating.py` (approve path: the pending queue lists the review, approve publishes it); reject is not covered | P2 | A |
+| AD-02 | Moderation of reviews | COVERED | `j_review_rating.py` (approve publishes; reject with a reason removes it from the queue, keeps it off the public list, is refused for a patient / an over-long reason / a second decision, and an unchanged resubmission stays rejected) | P2 | — |
 | AD-03 | Disputes handled by admin | COVERED | `j_dispute.py` (56/56 on main 365b2d580): the admin's refund on a dispute, once | P1 | A, F |
 | AD-04 | Refunds | COVERED | `j_qa_refund_consultation.py` | P0 | — |
 | AD-05 | Payouts (approve, execute, PAID) | COVERED | `j_payouts.py`, `j_payout_paid.py` | P0 | — |
 | AD-06 | Catalogue edits | COVERED | `j_admin_catalogue_fields.py`, `j_admin_super_catalog.py` | P2 | — |
-| AD-07 | Notifications broadcast | PARTIAL | `j_admin_urgent_alerts.py` | P2 | A |
+| AD-07 | Notifications broadcast | COVERED | `j_admin_urgent_alerts.py` (the urgent alert) and `j_admin_broadcast.py` (the broadcast: audience rules, one user receives it and nobody else, a `patients` segment reaches every patient with a device and not a nurse, a sent campaign cannot be sent twice; delivery is read from the push log, the phone itself is outside the stack) | P2 | — |
 | AD-08 | Audit log | COVERED | `j_audit_events.py`, `j_audit_collection.py` | P1 | — |
 | AD-09 | Roles and permissions | COVERED | `j_admin_roles_restrictive.py` | P1 | — |
 | AD-10 | Kill switches | COVERED | `j_admin_kill_switches.py`, `j_killswitches.py` | P1 | — |
@@ -138,12 +143,12 @@ Types: doctor, pharmacy, lab, radiology, nursing (and any other registered type)
 
 | ID | Scenario | Status | Evidence | Priority | Route |
 |---|---|---|---|---|---|
-| SY-01 | Nightly jobs run once and report | PARTIAL | `j_jobs.py` | P1 | S |
-| SY-02 | Retries after a transient failure | PARTIAL | `j_chaos.py` | P1 | S |
+| SY-01 | Nightly jobs run once and report | COVERED | `backend/src/common/cron-jobs-run-once.spec.ts` (source contract: every `@Cron`/`@Interval` is leased or has a documented own guard; the 5 nightly jobs are scheduled, run once and have a report surface) + `scheduled-once.spec.ts` (real Redis, 2 and 8 workers on one tick -> 1 run); accepted as COVERED by the lead's queue order of 2026-11-09 (no live journey: the five jobs fire at 01:40-04:17 UTC and no route reaches their leased entry points, see `docs/qa/findings/batch6-2026-11-09.md`; a test-only trigger and a second worker process stay a product decision) | P1 | S |
+| SY-02 | Retries after a transient failure | COVERED | `j_chaos.py` (redis down, Mongo primary step-down, slow API, payment gateway 500 retried on the healthy gateway: exactly one intent and one paid charge, canary record intact) + `j_payment_failed_retry.py` + `j_dead_letter.py` (a failed job is listed and retried with a reason) + the oplog backup retry in `dr-rehearsal/run.sh` (transient failure retried once, no failure report, chain unbroken) | P1 | S |
 | SY-03 | Dead-letter queue inspection | COVERED | `j_dead_letter.py` (20/20): queue counts, failed-job list, unknown state refused, retry of an unknown job 404, bulk retry needs a reason and reports counts, patient refused | P1 | — |
 | SY-04 | Rate limits (per IP, per account) | COVERED | `j_otp_abuse.py`, `j_password_lockout.py`, `j_concurrency.py` | P1 | — |
-| SY-05 | Backups restore | NOT COVERED | none | P0 | S |
-| SY-06 | Monitoring alerts fire | PARTIAL | `j_admin_urgent_alerts.py` | P1 | S |
+| SY-05 | Backups restore | COVERED | `tools/ops/dr-rehearsal/run.sh` in `.github/workflows/dr-drill.yml` (real MongoDB 7 replica set + private bucket, test data only): nightly dump + oplog slices encrypted off-site, restore from the off-site copies alone to the newest state (post-dump inserts, updates, deletes and a transaction come back; restored counts equal the live database), RPO and RTO measured, a wrong key or a gap in the chain FAILS the drill. Production: `deploy/scripts/restore-drill.sh` restores the latest dump into a throwaway database every month and reports `restore_test` to the admin page. Last green run of the drill: 2026-11-08 (run 50). Now also scheduled weekly | P0 | S |
+| SY-06 | Monitoring alerts fire | COVERED | `j_admin_urgent_alerts.py` (failed payments), `j_admin_stuck_alerts.py` (stuck order), `j_admin_sla_fraud_alerts.py` (SLA breach, high fraud) | P1 | S |
 | SY-07 | Security headers | COVERED | `j_security_headers.py` | P1 | — |
 | SY-08 | Upload security (malware scan) | COVERED | `j_upload_security.py` | P1 | — |
 | SY-09 | Log scan for secrets | COVERED | `j_log_scan.py` | P1 | — |

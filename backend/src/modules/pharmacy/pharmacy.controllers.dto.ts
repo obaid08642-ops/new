@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsInt, IsNumber, IsObject, IsOptional, IsString, Max, MaxLength, Min, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsInt, IsNumber, IsObject, IsOptional, IsString, Max, MaxLength, Min, ValidateNested, Matches } from 'class-validator';
 import { AllocationItemAction } from './schemas/pharmacy.schema';
 import { Type } from 'class-transformer';
 import { AttributionDto } from '../../common/attribution';
@@ -46,6 +46,23 @@ export class ManualRequestDto {
 }
 
 export class CreateDto {
+  /** The patient ticked "I agree" to the refund policy shown before payment (a missing field is let through while the rollout is optional, an explicit false is refused; a missing field is 400 refund_policy_acceptance_required once REFUND_POLICY_ACCEPTANCE=required). */
+  @IsOptional()
+  @IsBoolean()
+  refund_policy_accepted?: boolean;
+
+  /** The hash of the refund policy the patient's screen showed (GET /refund-policy/summary); a table changed since then is refused with 409 refund_policy_changed. Optional: old clients do not send it. */
+  @IsOptional()
+  @IsString()
+  @Matches(/^[a-f0-9]{64}$/)
+  refund_policy_hash?: string;
+
+  /** Owner decision 1: the family member this is FOR (the caller stays the booker and payer); checked server-side, see common/family-member.ts. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(128)
+  family_member_id?: string;
+
   @IsOptional()
   @IsArray()
   items: any[];
@@ -602,4 +619,17 @@ export class BroadcastConfigDto {
   @Min(0)
   @Max(100)
   stop_after_offers: number;
+}
+
+/** Repeat an earlier order. The refund-policy tick is only needed when the earlier order is from before the tick existed (otherwise the first agreement stands). */
+export class RefillDto {
+  @IsOptional()
+  @IsBoolean()
+  refund_policy_accepted?: boolean;
+
+  /** The hash of the refund policy the patient's screen showed (GET /refund-policy/summary); a table changed since then is refused with 409 refund_policy_changed. Optional: old clients do not send it. */
+  @IsOptional()
+  @IsString()
+  @Matches(/^[a-f0-9]{64}$/)
+  refund_policy_hash?: string;
 }

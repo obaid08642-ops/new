@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { authCookieNames } from "@/lib/auth/cookies";
 import { callPatientApi } from "@/lib/api/upstream";
+import { prefillTarget } from "@/lib/ordering/prefill";
 
 /**
  * M6 Ord20/21: the Order button (action "order": the backend returns the prefill and the patient goes on to the group's
@@ -35,6 +36,8 @@ export async function POST(request: Request, context: Context) {
     return NextResponse.redirect(failed, 303);
   }
   if (action === "defer") return NextResponse.redirect(back, 303);
-  // Order: the prefill is handed to the group's flow by the redirect target; the flow does not read it yet (needs-review).
-  return NextResponse.redirect(back, 303);
+  // Order: the backend's prefill (the items of the group) goes to the basket in the address, where the doctor's items arrive pre-checked
+  // (owner decision 2026-11-08); any other target is left as it is.
+  const payload = await upstream.json().catch(() => null);
+  return NextResponse.redirect(prefillTarget(back, orderId, payload), 303);
 }

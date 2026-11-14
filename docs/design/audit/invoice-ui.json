@@ -1,0 +1,33 @@
+{
+  "slice": "invoice-ui", "batch": 2, "app": "patient-web",
+  "screens": [
+    { "route": "/receipts/[kind]/[bookingId]",
+      "elements": [
+        ["Company block: legal name, VAT no., CR no., address; 'Not configured yet' when null", "GET /billing/invoice/:kind/:id seller{legal_name,vat_number,cr_number,address,configured}", "ok"],
+        ["Invoice no., booking / order no., date, status", "invoice_no, booking_ref, issued_at, state", "ok"],
+        ["Service provider block: name (page language), type, licence", "provider{name_ar,name_en,facility_name,type,license_number}", "ok"],
+        ["Refund state, credit notes, refunded amount", "state, refunded_total, credit_notes[]", "ok"],
+        ["Download PDF", "GET /billing/invoice/:kind/:id/pdf", "ok"],
+        ["Save as image", "client only: web canvas capture, app react-native-view-shot + expo-media-library", "ok"],
+        ["Share (system sheet)", "client only: web navigator.share, app Share", "ok"],
+        ["Share link: create, copy, share, expiry, views, revoke", "POST .../share-link, GET .../share-links, DELETE .../share-links/:id", "ok"]
+      ], "notes": [] },
+    { "route": "/receipt/shared/[token]",
+      "elements": [
+        ["Read-only card, no account data, noindex, no-store, no referrer", "GET /billing/shared/:token", "ok"],
+        ["Download PDF", "GET /billing/shared/:token/pdf via /api/receipt-shared/[token]/pdf", "ok"],
+        ["Expired, revoked or unknown link: one 'not available' page", "404 from the backend", "ok"]
+      ], "notes": [] },
+    { "route": "/receipts",
+      "elements": [
+        ["List extended (not duplicated): refund chip, credit-note rows", "GET /billing/my state, type", "ok"]
+      ], "notes": [] }
+  ],
+  "needsReview": [
+    { "route": "/receipts/[kind]/[bookingId]", "element": "Save as image on the web: Readex Pro is not embedded", "kind": "client", "note": "[client] the PNG is drawn from an SVG image, which cannot load web fonts, so the text uses the system font; the layout and numbers are the same", "file": "patient-web/lib/receipt/capture.ts", "line": 30 },
+    { "route": "/receipts", "element": "A credit-note row opens the ORIGINAL receipt", "kind": "backend", "note": "[backend] GET /billing/invoice/:kind/:id returns the invoice, not its credit note, so the credit note's own PDF (GET /billing/documents/:invoiceNo/pdf) has no client path; the original card lists it with its amount", "file": "patient-web/app/[locale]/receipts/page.tsx", "line": 47 },
+    { "route": "/receipts/[kind]/[bookingId]", "element": "Share link address is built from the production site", "kind": "owner", "note": "[owner] the link opens https://nabd.plus/<lang>/receipt/shared/<token> (the backend's page_url is the API JSON, not a page); a staging build would link to production until the owner sets a per-environment web base", "file": "patient-app/src/utils/receipt.ts", "line": 175 },
+    { "route": "/receipts/[kind]/[bookingId]", "element": "Save as image in the app needs a new native build", "kind": "owner", "note": "[owner] react-native-view-shot is a new native module: the next dev-client/EAS build must include it before the button works on a device (expo-media-library and expo-clipboard are already installed)", "file": "patient-app/app/receipts/[kind]/[bookingId].tsx", "line": 49 },
+    { "route": "/receipts/[kind]/[bookingId]", "element": "App Share sends text, not the receipt file", "kind": "client", "note": "[client] kept as built in #2332 (a message with the number and total); the PDF goes to the system sheet from Download PDF", "file": "patient-app/app/receipts/[kind]/[bookingId].tsx", "line": 58 }
+  ]
+}

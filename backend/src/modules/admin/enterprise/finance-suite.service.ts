@@ -1,6 +1,10 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { fromHalalas, percentOf as percentOfHalalas, toHalalas } from '../../../common/money';
+import { halalasSum, halalasSumFirstOf } from '../../finance-engine/report-totals';
+import { Cron } from '@nestjs/schedule';
+import { ScheduledOnce } from '../../../common/scheduled-once';
 import { reportAggregate } from '../../../common/reports/report-read';
 import { v4 as uuid } from 'uuid';
 import { validateReason, MIN_FINANCIAL_REASON_LENGTH, ReasonError } from '../../../common/rbac';
@@ -40,9 +44,18 @@ export function bucketKey(d: Date, g: Granularity): string {
   return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, '0')}`;
 }
 
-export interface RevenueRow { bucket: string; vertical: string; gross: number; count: number }
+/** `gross` is SAR for display; `gross_halalas` is the exact integer the figures are added in (R11 P2 read path). */
+export interface RevenueRow { bucket: string; vertical: string; gross: number; count: number; gross_halalas: number }
 
-export function seriesToRows(payments: Array<{ paid_at?: Date; createdAt?: Date; amount?: number; booking_kind?: string }>, g: Granularity): RevenueRow[] {
+/** A payment's halalas: the integer shadow when present, else its legacy double converted exactly. */
+const paymentHalalas = (p: { amount?: unknown; amount_halalas?: unknown }): number => {
+  if (typeof p.amount_halalas === 'number' && Number.isSafeInteger(p.amount_halalas)) return p.amount_halalas;
+  const n = Number(p.amount || 0);
+  return Number.isFinite(n) ? toHalalas(n) : 0;
+};
+const rowHalalas = (r: RevenueRow): number => (Number.isSafeInteger(r.gross_halalas) ? r.gross_halalas : toHalalas(r.gross));
+
+export function seriesToRows(payments: Array<{ paid_at?: Date; createdAt?: Date; amount?: number; amount_halalas?: number; booking_kind?: string }>, g: Granularity): RevenueRow[] {
   const map = new Map<string, RevenueRow>();
   for (const p of payments) {
     const when = p.paid_at || p.createdAt;
@@ -50,8 +63,9 @@ export function seriesToRows(payments: Array<{ paid_at?: Date; createdAt?: Date;
     const bucket = bucketKey(new Date(when), g);
     const vertical = verticalOf(p.booking_kind);
     const key = `${bucket}|${vertical}`;
-    const row = map.get(key) || { bucket, vertical, gross: 0, count: 0 };
-    row.gross += Number(p.amount || 0);
+    const row = map.get(key) || { bucket, vertical, gross: 0, count: 0, gross_halalas: 0 };
+    row.gross_halalas += paymentHalalas(p);
+    row.gross = fromHalalas(row.gross_halalas);
     row.count += 1;
     map.set(key, row);
   }
@@ -61,10 +75,10 @@ export function seriesToRows(payments: Array<{ paid_at?: Date; createdAt?: Date;
 /** Pure MoM delta — current vs previous equal-length window per vertical. */
 export function momComparison(rows: RevenueRow[], from: Date, to: Date, prevRows: RevenueRow[]) {
   const sumByVertical = (list: RevenueRow[]) => {
-    const m: Record<string, { gross: number; count: number }> = {};
+    const m: Record<string, { gross: number; count: number }> = {};   // gross in whole halalas
     for (const r of list) {
       m[r.vertical] = m[r.vertical] || { gross: 0, count: 0 };
-      m[r.vertical].gross += r.gross;
+      m[r.vertical].gross += rowHalalas(r);
       m[r.vertical].count += r.count;
     }
     return m;
@@ -74,7 +88,7 @@ export function momComparison(rows: RevenueRow[], from: Date, to: Date, prevRows
   const out: Array<{ vertical: string; current: number; previous: number; delta_pct: number | null }> = [];
   for (const [vertical, c] of Object.entries(cur)) {
     const prev = prevMap[vertical]?.gross || 0;
-    out.push({ vertical, current: Math.round(c.gross * 100) / 100, previous: Math.round(prev * 100) / 100, delta_pct: prev > 0 ? Math.round(((c.gross - prev) / prev) * 1000) / 10 : null });
+    out.push({ vertical, current: fromHalalas(c.gross), previous: fromHalalas(prev), delta_pct: prev > 0 ? Math.round(((c.gross - prev) / prev) * 1000) / 10 : null });
   }
   return out.sort((a, b) => b.current - a.current);
 }
@@ -110,21 +124,21 @@ export class FinanceSuiteService {
 
     const [curPayments, prevPayments] = await Promise.all([
       this.conn.collection('moyasar_payments').find(matchPaid(from, to))
-        .project({ paid_at: 1, createdAt: 1, amount: 1, booking_kind: 1 }).toArray(),
+        .project({ paid_at: 1, createdAt: 1, amount: 1, amount_halalas: 1, booking_kind: 1 }).toArray(),
       this.conn.collection('moyasar_payments').find(matchPaid(new Date(from.getTime() - spanMs - 1), new Date(from.getTime() - 1)))
-        .project({ paid_at: 1, createdAt: 1, amount: 1, booking_kind: 1 }).toArray(),
+        .project({ paid_at: 1, createdAt: 1, amount: 1, amount_halalas: 1, booking_kind: 1 }).toArray(),
     ]);
 
     const rows = seriesToRows(curPayments as any[], opts.granularity);
     const buckets = [...new Set(rows.map((r) => r.bucket))].sort();
     const series = buckets.map((b) => {
       const entry: any = { bucket: b };
-      let total = 0;
+      let total = 0;   // whole halalas
       for (const r of rows.filter((x) => x.bucket === b)) {
-        entry[r.vertical] = Math.round(r.gross * 100) / 100;
-        total += r.gross;
+        entry[r.vertical] = fromHalalas(r.gross_halalas);
+        total += r.gross_halalas;
       }
-      entry.total = Math.round(total * 100) / 100;
+      entry.total = fromHalalas(total);
       return entry;
     });
 
@@ -165,27 +179,30 @@ export class FinanceSuiteService {
     // field before, which no payment read, so the screen and the money could disagree.
     const percentOf = (t: string): number => Number(cfg?.service_types?.[t]?.percent ?? DEFAULT_COMMISSION_PERCENT);
     const percents: Record<string, number> = Object.fromEntries(COMMISSION_SERVICE_TYPES.map((t) => [t, percentOf(t)]));
-    const vatRate = Number(cfg?.tax?.vat_percent ?? DEFAULT_VAT_PERCENT) / 100;
+    const vatPercent = Number(cfg?.tax?.vat_percent ?? DEFAULT_VAT_PERCENT);
+    const vatRate = vatPercent / 100;
     const rateOf = async (vertical: string): Promise<number> => percentOf(SERVICE_OF_VERTICAL[vertical] || vertical) / 100;
     const payments = await this.conn.collection('moyasar_payments').find({
       status: { $in: PAID_STATUSES },
       $or: [{ paid_at: { $gte: from, $lte: to } }, { paid_at: null, createdAt: { $gte: from, $lte: to } }],
-    }).project({ amount: 1, booking_kind: 1 }).toArray();
+    }).project({ amount: 1, amount_halalas: 1, booking_kind: 1 }).toArray();
 
     const rates: Record<string, number> = {};
-    const byVertical: Record<string, { gross: number; commission: number; vat: number; net_to_provider: number; count: number }> = {};
+    // R11 P2: every figure is whole halalas (the `amount_halalas` shadow, the double only where it is missing); converted to SAR once, at the end
+    type Row = { gross: number; commission: number; vat: number; net_to_provider: number; count: number };
+    const byVertical: Record<string, Row> = {};
     for (const p of payments as any[]) {
       const v = verticalOf(p.booking_kind);
-      const gross = Number(p.amount || 0);
+      const gross = paymentHalalas(p);
       const rate = rates[v] ?? (rates[v] = await rateOf(v));
-      const commission = Math.round(gross * rate * 100) / 100;
-      const vat = Math.round(commission * vatRate * 100) / 100;
+      const commission = percentOfHalalas(gross, rate * 100);
+      const vat = percentOfHalalas(commission, vatPercent);
       const row = byVertical[v] || { gross: 0, commission: 0, vat: 0, net_to_provider: 0, count: 0 };
       row.gross += gross; row.commission += commission; row.vat += vat; row.net_to_provider += gross - commission; row.count += 1;
       byVertical[v] = row;
     }
-    const round = (o: any) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, Math.round(Number(v) * 100) / 100]));
-    const totals = Object.values(byVertical).reduce((a: any, r: any) => ({
+    const round = (o: Row) => ({ gross: fromHalalas(o.gross), commission: fromHalalas(o.commission), vat: fromHalalas(o.vat), net_to_provider: fromHalalas(o.net_to_provider), count: o.count });
+    const totals = Object.values(byVertical).reduce((a: Row, r: Row) => ({
       gross: a.gross + r.gross, commission: a.commission + r.commission, vat: a.vat + r.vat, net_to_provider: a.net_to_provider + r.net_to_provider, count: a.count + r.count,
     }), { gross: 0, commission: 0, vat: 0, net_to_provider: 0, count: 0 });
     for (const v of Object.keys(SERVICE_OF_VERTICAL)) if (rates[v] === undefined) rates[v] = await rateOf(v);
@@ -250,7 +267,7 @@ export class FinanceSuiteService {
 
     const gateway = await reportAggregate(this.conn, 'moyasar_payments', [
       { $match: { status: { $in: PAID_STATUSES }, $or: [{ paid_at: { $gte: start, $lt: end } }, { paid_at: null, createdAt: { $gte: start, $lt: end } }] } },
-      { $group: { _id: '$booking_kind', total: { $sum: '$amount' }, n: { $sum: 1 }, ids: { $push: '$booking_id' } } },
+      { $group: { _id: '$booking_kind', total: halalasSum('amount'), n: { $sum: 1 }, ids: { $push: '$booking_id' } } },   // whole halalas (R11 P2)
     ]).toArray().catch(() => []);
 
     // Platform side: bookings whose payment_status marks them paid on that day.
@@ -265,18 +282,20 @@ export class FinanceSuiteService {
     for (const k of kinds) {
       const agg = await reportAggregate(this.conn, k.collection, [
         { $match: { payment_status: { $in: ['paid', 'confirmed'] }, paid_at: { $gte: start, $lt: end } } },
-        { $group: { _id: null, total: { $sum: { $ifNull: ['$total_price', '$total'] } }, n: { $sum: 1 }, ids: { $push: '$id' } } },
+        { $group: { _id: null, total: halalasSumFirstOf(['total_price', 'total']), n: { $sum: 1 }, ids: { $push: '$id' } } },   // whole halalas (R11 P2)
       ]).toArray().catch(() => []);
-      if (agg.length) platformRows.push({ vertical: k.label, total: Math.round((agg[0].total || 0) * 100) / 100, n: agg[0].n });
+      if (agg.length) platformRows.push({ vertical: k.label, total: fromHalalas(Number(agg[0].total) || 0), n: agg[0].n });
     }
-    const gatewayTotal = Math.round((gateway as any[]).reduce((a: number, g: any) => a + Number(g.total || 0), 0) * 100) / 100;
-    const platformTotal = Math.round(platformRows.reduce((a: number, r: any) => a + Number(r.total || 0), 0) * 100) / 100;
+    const gatewayHalalas = (gateway as any[]).reduce((a: number, g: any) => a + (Number(g.total) || 0), 0);
+    const platformHalalas = platformRows.reduce((a: number, r: any) => a + toHalalas(Number(r.total) || 0), 0);
+    const gatewayTotal = fromHalalas(gatewayHalalas);
+    const platformTotal = fromHalalas(platformHalalas);
 
     const diffs: Array<{ type: string; detail: string }> = [];
     for (const g of gateway as any[]) {
       const mapped = platformRows.find((p) => VERTICALS[p.vertical]?.some(() => true));
       void mapped;
-      diffs.push({ type: 'gateway_row', detail: `${g._id}: ${Math.round(g.total * 100) / 100} SAR across ${g.n} payments` });
+      diffs.push({ type: 'gateway_row', detail: `${g._id}: ${fromHalalas(Number(g.total) || 0)} SAR across ${g.n} payments` });
     }
     for (const p of platformRows) diffs.push({ type: 'platform_row', detail: `${p.vertical}: ${p.total} SAR across ${p.n} bookings` });
 
@@ -284,8 +303,8 @@ export class FinanceSuiteService {
       date: dateStr,
       gateway_total_sar: gatewayTotal,
       platform_total_sar: platformTotal,
-      variance_sar: Math.round((gatewayTotal - platformTotal) * 100) / 100,
-      gateway_rows: (gateway as any[]).map((g) => ({ kind: g._id, total: g.total, count: g.n })),
+      variance_sar: fromHalalas(gatewayHalalas - platformHalalas),
+      gateway_rows: (gateway as any[]).map((g) => ({ kind: g._id, total: fromHalalas(Number(g.total) || 0), count: g.n })),
       platform_rows: platformRows,
       note: 'variance ≠ 0 ⇒ investigate refunded-but-marked-paid or COD/wallet flows missing gateway records',
     };
@@ -387,9 +406,11 @@ export class FinanceSuiteService {
 
     if (needsDual) {
       if (!w.approved_stage_one_by) {
-        await this.withdrawals.updateOne({ id }, {
+        // the state is the claim: a payout that was rejected (or taken by another admin) since it was read is not moved on
+        const claim = await this.withdrawals.updateOne({ id, state: 'PENDING_ADMIN_APPROVAL' }, {
           $set: { approved_stage_one_by: admin.id, approved_stage_one_name: admin.full_name || admin.email || admin.id, approved_stage_one_at: new Date(), state: 'AWAITING_SECOND_APPROVAL' },
         });
+        if (!claim.modifiedCount) throw new BadRequestException('payout_state_changed');
         await this.audit.write({
           action: 'payout_approve_stage_one', actor: admin, target_type: 'providerwithdrawals', target_id: id,
           reason, before: { state: w.state }, after: { state: 'AWAITING_SECOND_APPROVAL' },
@@ -398,12 +419,13 @@ export class FinanceSuiteService {
         return { ok: true, id, state: 'AWAITING_SECOND_APPROVAL', message: 'stage_one_recorded_second_distinct_admin_required' };
       }
       if (w.approved_stage_one_by === admin.id) throw new ForbiddenException('dual_approval_requires_distinct_admins');
-      await this.withdrawals.updateOne({ id }, {
+      const claim = await this.withdrawals.updateOne({ id, state: 'AWAITING_SECOND_APPROVAL' }, {
         $set: {
           state: 'APPROVED_FOR_PAYOUT', approved_by: admin.id, approved_by_name: admin.full_name || admin.email || admin.id, approved_at: new Date(),
           approval_reason: reason, batch_id: `pb_${uuid().slice(0, 12)}`,
         },
       });
+      if (!claim.modifiedCount) throw new BadRequestException('payout_state_changed');
       await this.audit.write({
         action: 'payout_approve_final', actor: admin, target_type: 'providerwithdrawals', target_id: id,
         reason, before: { state: w.state }, after: { state: 'APPROVED_FOR_PAYOUT' },
@@ -413,9 +435,10 @@ export class FinanceSuiteService {
     }
 
     // Below threshold: single approval suffices (still audited, still not self).
-    await this.withdrawals.updateOne({ id }, {
+    const claim = await this.withdrawals.updateOne({ id, state: { $in: ['PENDING_ADMIN_APPROVAL', 'AWAITING_SECOND_APPROVAL'] } }, {
       $set: { state: 'APPROVED_FOR_PAYOUT', approved_by: admin.id, approved_by_name: admin.full_name || admin.email || admin.id, approved_at: new Date(), approval_reason: reason },
     });
+    if (!claim.modifiedCount) throw new BadRequestException('payout_state_changed');
     await this.audit.write({
       action: 'payout_approve_single', actor: admin, target_type: 'providerwithdrawals', target_id: id,
       reason, before: { state: w.state }, after: { state: 'APPROVED_FOR_PAYOUT' },
@@ -453,6 +476,26 @@ export class FinanceSuiteService {
     return { ok: true, id, state: 'PAID' };
   }
 
+  /**
+   * `executePayout` claims APPROVED_FOR_PAYOUT -> PAID first and clears the locked reservation second. A crash between the two leaves a PAID payout whose reservation stays
+   * `locked`: the provider is still charged once (the lock holds the amount) but the ledger shows no cleared payout. Every 10 minutes the payouts paid in the last 7 days
+   * (more than 5 minutes ago) get their reservation cleared if it is still locked. Idempotent: a cleared reservation no longer matches.
+   */
+  @Cron('*/10 * * * *')
+  @ScheduledOnce({ ttlMs: 5 * 60_000, holdMs: 60_000 })
+  async clearPaidReservations(now: Date = new Date()): Promise<number> {
+    const paid: any[] = await this.withdrawals.find({ state: 'PAID', paid_at: { $gte: new Date(now.getTime() - 7 * 86_400_000), $lte: new Date(now.getTime() - 5 * 60_000) } }).limit(200).toArray();
+    let fixed = 0;
+    for (const w of paid) {
+      const res = await this.conn.collection('platformledgerentries').updateOne(
+        { type: 'payout', state: 'locked', ref_type: 'withdrawal_reservation', ref_id: w.id, provider_account_id: w.provider_id },
+        { $set: { state: 'cleared', cleared_at: now, actor_id: w.paid_by ?? null } },
+      );
+      if (res.modifiedCount) fixed += 1;
+    }
+    return fixed;
+  }
+
   /** Detailed provider account statement (orders + payouts + ledger). */
   async providerStatement(providerId: string, from?: string, to?: string) {
     if (!providerId) throw new BadRequestException('provider_id_required');
@@ -462,25 +505,31 @@ export class FinanceSuiteService {
     };
     const hasRange = Object.keys(range).length > 0;
 
-    const ledger = await this.conn.collection('platformledgerentries')
-      .find(hasRange ? { provider_account_id: providerId, createdAt: range } : { provider_account_id: providerId })
-      .sort({ createdAt: -1 }).limit(300).project({ _id: 0 }).toArray();
+    const entries = this.conn.collection('platformledgerentries');
+    const match: any = hasRange ? { provider_account_id: providerId, createdAt: range } : { provider_account_id: providerId };
+    const ledger = await entries.find(match).sort({ createdAt: -1 }).limit(300).project({ _id: 0 }).toArray();
     const payouts = await this.withdrawals
       .find(hasRange ? { provider_id: providerId, createdAt: range } : { provider_id: providerId })
       .sort({ createdAt: -1 }).limit(100).project({ _id: 0 }).toArray();
 
-    const summary = ledger.reduce((a: any, e: any) => {
-      if (['provider_earning', 'bonus', 'referral'].includes(e.type) && e.state === 'cleared') a.earned_cleared += Number(e.amount || 0);
-      else if (e.type === 'provider_earning' && e.state === 'pending') a.earned_pending += Number(e.amount || 0);
-      else if (e.type === 'payout' && e.state === 'cleared') a.paid_out += Number(e.amount || 0);
-      else if (['provider_debit', 'penalty', 'chargeback'].includes(e.type)) a.debits += Number(e.amount || 0);
-      return a;
-    }, { earned_cleared: 0, earned_pending: 0, paid_out: 0, debits: 0 });
+    // The totals cover EVERY entry in the range, not only the 300 newest rows shown below (a busy provider has far more, and the balance was wrong).
+    const groups: any[] = await entries.aggregate([{ $match: match }, { $group: { _id: { type: '$type', state: '$state' }, amount: { $sum: '$amount' } } }]).toArray();
+    const summary = { earned_cleared: 0, earned_pending: 0, paid_out: 0, debits: 0, locked: 0 };
+    for (const g of groups) {
+      const { type, state } = g._id || {};
+      const amount = Number(g.amount || 0);
+      if (state === 'locked') summary.locked += amount;
+      else if (['provider_earning', 'bonus', 'referral'].includes(type) && state === 'cleared') summary.earned_cleared += amount;
+      else if (type === 'provider_earning' && state === 'pending') summary.earned_pending += amount;
+      else if (type === 'payout' && state === 'cleared') summary.paid_out += amount;
+      else if (['provider_debit', 'penalty', 'chargeback'].includes(type)) summary.debits += amount;
+    }
 
     return {
       provider_id: providerId,
       summary: Object.fromEntries(Object.entries(summary).map(([k, v]) => [k, Math.round(Number(v) * 100) / 100])),
-      balance_available: Math.round((summary.earned_cleared - summary.paid_out - summary.debits) * 100) / 100,
+      // what the provider can withdraw: money held for an open withdrawal request is not available again
+      balance_available: Math.round((summary.earned_cleared - summary.paid_out - summary.debits - summary.locked) * 100) / 100,
       ledger, payouts,
     };
   }

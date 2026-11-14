@@ -4,14 +4,14 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { pickTab } from "@/lib/health/view";
 import { ConsultPage } from "@/components-next/consult/consult-page";
-import { InviteTab, JoinTab, ScanTab } from "@/components-next/family/add-family";
+import { ChildTab, InviteTab, JoinTab, ScanTab } from "@/components-next/family/add-family";
 import { HealthTabs } from "@/components-next/health/health-kit";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string | string[]; code?: string | string[] }> };
-const TABS = ["invite", "join", "scan"] as const;
+const TABS = ["invite", "join", "scan", "child"] as const;
 
 /**
- * Add or join (merge map F): one screen with the tabs Invite | Join with code | Scan QR in `?tab=`. It replaces the invite,
+ * Add or join (merge map F): one screen with the tabs Invite | Join with code | Scan QR | Add a child (a dependant with no account, PT-03) in `?tab=`. It replaces the invite,
  * join and scan screens (their old routes and `/health/add-family-member` redirect here, keeping `code`).
  */
 export default async function FamilyAddPage({ params, searchParams }: Props) {
@@ -31,8 +31,9 @@ export default async function FamilyAddPage({ params, searchParams }: Props) {
         { value: "invite", label: t("tabInvite") },
         { value: "join", label: t("tabJoin") },
         { value: "scan", label: t("tabScan") },
+        { value: "child", label: t("tabChild") },
       ]} />
-      {tab === "invite" ? <InviteTab /> : tab === "join" ? <JoinTab locale={locale} initialCode={code ?? ""} relationValues={relationValues} /> : <ScanTab locale={locale} />}
+      {tab === "invite" ? <InviteTab /> : tab === "join" ? <JoinTab locale={locale} initialCode={code ?? ""} relationValues={relationValues} /> : tab === "scan" ? <ScanTab locale={locale} /> : <ChildTab />}
     </ConsultPage>
   );
 }

@@ -10,6 +10,11 @@ type Raw = Record<string, unknown>;
 
 export const placeOf = (v: unknown): OrderMode => (v === "facility" ? "facility" : "home");
 export const payOf = (v: unknown): Payer => (v === "insurance" ? "insurance" : "cash");
+/**
+ * Who the order is for (owner decision 2026-11-08: the patient or a family member, default the patient): the id of the family member in the
+ * `for` query, or undefined for the patient. Only a plain id is read; the server checks that the member is the patient's own.
+ */
+export const whoOf = (v: unknown): string | undefined => (typeof v === "string" && /^[A-Za-z0-9_-]{8,64}$/.test(v) ? v : undefined);
 
 /** The default address's coordinates (is_default, else the first saved one that has them), or null. */
 export function pointFromAddresses(payload: unknown): Point | null {
@@ -30,11 +35,12 @@ export function pointFromAddresses(payload: unknown): Point | null {
 }
 
 /** The query string that carries the context from page to page. */
-export function contextQuery(c: { kind?: string; place: OrderMode; pay: Payer; item?: string }): string {
+export function contextQuery(c: { kind?: string; place: OrderMode; pay: Payer; item?: string; who?: string }): string {
   const p = new URLSearchParams();
   if (c.kind && c.kind !== "lab") p.set("kind", c.kind);
   if (c.place !== "home") p.set("place", c.place);
   if (c.pay !== "cash") p.set("pay", "insurance");
+  if (c.who) p.set("for", c.who); // another family member: the patient is the default and is not written
   if (c.item) p.set("item", c.item); // a one-item order (Order now): the steps work on this item, not on the basket
   const s = p.toString();
   return s ? `?${s}` : "";

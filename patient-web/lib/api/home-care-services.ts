@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { offersOf, type WithOffers } from "@/lib/api/offers";
+import { parseBookingOptions, type BookingOptions } from "@/lib/nursing/booking-options";
 import { namesOf, textsOf, translatedColumns, type Texts } from "@/lib/i18n/localized";
 
 const serviceIdSchema = z.string().regex(/^[A-Za-z0-9_-]{1,128}$/);
@@ -22,6 +23,8 @@ const serviceSchema = z.object({
   requires_patient_medication: z.boolean().optional(),
   image_url: z.string().url().max(2048).optional(),
   icon: z.string().max(120).optional(),
+  booking_mode: z.string().max(40).optional(),
+  booking_options: z.unknown().optional(),
 }).strip();
 
 export type HomeCareService = {
@@ -44,6 +47,8 @@ export type HomeCareService = {
   requiresPrescription?: boolean;
   imageUrl?: string;
   icon?: string;
+  /** How the service is booked and what the server accepts (docs/product/NURSING_BOOKING_OPTIONS.md); unset when the record sends no usable lists. */
+  bookingOptions?: BookingOptions;
 } & WithOffers;
 
 function rowsFrom(payload: unknown): unknown[] {
@@ -71,7 +76,7 @@ function parseService(value: unknown): HomeCareService | null {
   const row = value as Record<string, unknown>;
   const names = { ...(item.name ? { ar: item.name, en: item.name } : {}), ...namesOf(row) };
   const descriptions = { ...(item.description ? { ar: item.description, en: item.description } : {}), ...textsOf(row, "description") };
-  return { names, descriptions, id: item.id, slug: item.slug, nameAr, nameEn, descriptionAr: item.description_ar ?? item.description, descriptionEn: item.description_en ?? item.description, price: item.price, durationValue: item.duration_value, duration: item.duration, insuranceAvailable: item.insurance_availability, preparationAr: lines(item.preparation_ar), preparationEn: lines(item.preparation_en), requiresPrescription: item.requires_patient_medication, imageUrl: item.image_url, icon: item.icon, ...offersOf(value) };
+  return { names, descriptions, id: item.id, slug: item.slug, nameAr, nameEn, descriptionAr: item.description_ar ?? item.description, descriptionEn: item.description_en ?? item.description, price: item.price, durationValue: item.duration_value, duration: item.duration, insuranceAvailable: item.insurance_availability, preparationAr: lines(item.preparation_ar), preparationEn: lines(item.preparation_en), requiresPrescription: item.requires_patient_medication, imageUrl: item.image_url, icon: item.icon, bookingOptions: parseBookingOptions(item.booking_mode, item.booking_options) ?? undefined, ...offersOf(value) };
 }
 
 export function parseHomeCareServiceId(value: string) { return serviceIdSchema.safeParse(value); }

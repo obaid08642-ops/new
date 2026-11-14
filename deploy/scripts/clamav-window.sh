@@ -5,6 +5,7 @@
 # this script gives the scanner a window to work: it starts the ClamAV container when files are waiting and the memory is there, and stops it
 # again once the queue has been empty for CLAMAV_IDLE_STOP_MIN minutes, so the memory comes back. The backend's scan worker (60 s) does the scanning.
 # Off unless CLAMAV_ON_DEMAND=1 (set it in deploy/.env.production together with UPLOAD_SCAN=defer). A file is never released by this script.
+# CLAMAV_SWAP_HEADROOM_MB (700; 0 = off) / CLAMAV_SWAP_KEEP_MB (1024): count free swap as room for the scanner, see swap_room_mb below.
 # Schedule: every 2 minutes (deploy/cron/nabd-backups). Settings: CLAMAV_CONTAINER (nabdah-clamav), CLAMAV_MIN_FREE_MB (1700), CLAMAV_PAUSE (space-separated container names the app
 # tolerates being down for the minutes of a scan, stopped when the memory is short to make room and started again when the scanner stops; EMPTY by default: nothing is paused
 # until the owner/reviewer has read the numbers of tools/ops/tasks/96c-uploads-state.sh and chosen which containers may go; docs/ops/UPLOAD_SCAN_3_8GB.md), CLAMAV_SETTLE (5 s), CLAMAV_IDLE_STOP_MIN (10), CLAMAV_STATE_DIR. Test hooks: CLAMAV_PENDING_COUNT (replaces the database query), CLAMAV_MEMINFO, CLAMAV_NOW_EPOCH.
@@ -36,7 +37,17 @@ pending_count() {
     "const d=db.getSiblingDB('$DB_NAME'); const q={scan_status:{\$in:['pending_scan','scanning']}}; print(d.storage_objects.countDocuments(q)+d.media_assets.countDocuments(q))" 2>/dev/null \
     | tail -1 | grep -E '^[0-9]+$' || true
 }
-free_mb() { awk '/MemAvailable/ {print int($2/1024)}' "$MEMINFO" 2>/dev/null || echo 0; }
+# Room for the scanner = MemAvailable (page cache already counted) + the part of the free swap the window may use. CLAMAV_SWAP_HEADROOM_MB (default 700; 0 = no swap counted) is the most it adds,
+# and CLAMAV_SWAP_KEEP_MB (default 1024) of swap always stays free for everything else. On the 3.8 GB host MemAvailable is about 1,000 MB and clamd needs about 1,500 MB while it loads;
+# the other containers' idle pages (redis, patient-web, worker) go to swap for the minutes of a scan. mongodb cannot swap (memswap_limit = mem_limit) and the scanner has oom_score_adj 900,
+# so if memory runs out the kernel kills the scanner first, never the database; the files then simply wait in quarantine for the next window.
+SWAP_HEADROOM_MB=${CLAMAV_SWAP_HEADROOM_MB:-700}
+SWAP_KEEP_MB=${CLAMAV_SWAP_KEEP_MB:-1024}
+swap_room_mb() {
+  [ "$SWAP_HEADROOM_MB" -gt 0 ] 2>/dev/null || { echo 0; return; }
+  awk -v head="$SWAP_HEADROOM_MB" -v keep="$SWAP_KEEP_MB" '/^SwapFree:/ { f = int($2/1024) - keep; if (f < 0) f = 0; print (f < head ? f : head); found = 1 } END { if (!found) print 0 }' "$MEMINFO" 2>/dev/null || echo 0
+}
+free_mb() { local a s; a=$(awk '/MemAvailable/ {print int($2/1024)}' "$MEMINFO" 2>/dev/null || echo 0); s=$(swap_room_mb); echo $(( ${a:-0} + ${s:-0} )); }
 running() { [ "$(docker inspect -f '{{.State.Running}}' "$CTR" 2>/dev/null)" = true ]; }
 cont_running() { [ "$(docker inspect -f '{{.State.Running}}' "$1" 2>/dev/null)" = true ]; }
 # what this script stopped to make room is started again as soon as the scanner is not running, whatever happened to the scanner
@@ -75,7 +86,7 @@ if [ "$PENDING" -gt 0 ]; then
     log "$PENDING file(s) waiting but only ${FREE} MB free (need $MIN_FREE_MB); ClamAV not started, the files stay in quarantine"
     exit 0
   fi
-  log "$PENDING file(s) waiting and ${FREE} MB free: starting $CTR"
+  log "$PENDING file(s) waiting and ${FREE} MB of room (MemAvailable plus $(swap_room_mb) MB of swap the window may use): starting $CTR"
   if docker inspect "$CTR" >/dev/null 2>&1; then
     docker start "$CTR" >/dev/null || log "docker start $CTR failed"
   else

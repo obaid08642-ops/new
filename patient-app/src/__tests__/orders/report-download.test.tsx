@@ -74,7 +74,7 @@ describe('results panel PDF', () => {
     downloadProtected.mockResolvedValue('file:///cache/lab-report-lr1.pdf');
     await open();
     await tap(screen.getByTestId('rp-lab-lr1-pdf'));
-    expect(downloadProtected).toHaveBeenCalledWith('/labs/bookings/lb1/reports/lr1', 'lab-report-lr1.pdf');
+    expect(downloadProtected).toHaveBeenCalledWith('/labs/bookings/lb1/reports/lr1', 'lab-report-lr1.pdf', expect.any(Function));
     await waitFor(() => expect(mockShare).toHaveBeenCalledWith('file:///cache/lab-report-lr1.pdf', 'application/pdf', k('diag.order.pdf')));
   });
 
@@ -84,6 +84,17 @@ describe('results panel PDF', () => {
     await tap(screen.getByTestId('rp-lab-lr1-pdf'));
     await waitFor(() => expect(alertSpy).toHaveBeenCalled());
     expect(alertSpy.mock.calls[0][0]).toBe(k('diag.order.noReportTitle'));
+    expect(mockShare).not.toHaveBeenCalled();
+  });
+
+  it('a report file still being scanned says it is being checked, not that there is no report, and shares nothing (UPLOAD_SCAN=defer)', async () => {
+    // downloadProtected tells the screen about a 423 through its third argument, then returns null
+    downloadProtected.mockImplementation(async (_path: string, _name: string, onPending?: () => void) => { onPending?.(); return null; });
+    await open();
+    await tap(screen.getByTestId('rp-lab-lr1-pdf'));
+    await waitFor(() => expect(alertSpy).toHaveBeenCalled());
+    expect(alertSpy.mock.calls[0][0]).toBe(k('scanStatus.checking'));
+    expect(alertSpy.mock.calls[0][1]).toBe(k('scanStatus.openLater'));
     expect(mockShare).not.toHaveBeenCalled();
   });
 
@@ -102,7 +113,7 @@ describe('booking screen report action', () => {
     answer({ '/radiology/bookings/lb1': new Error('not radiology'), '/labs/bookings/lb1': labBooking() });
     await render(wrap(<OrderDetails />));
     await tap(await screen.findByLabelText(k('diag.order.pdf')));
-    expect(downloadProtected).toHaveBeenCalledWith('/labs/bookings/lb1/reports/rep1', 'lab-report-rep1.pdf');
+    expect(downloadProtected).toHaveBeenCalledWith('/labs/bookings/lb1/reports/rep1', 'lab-report-rep1.pdf', expect.any(Function));
     await waitFor(() => expect(mockShare).toHaveBeenCalledWith('file:///cache/lab-report-rep1.pdf', 'application/pdf', k('diag.order.pdf')));
   });
 

@@ -1,4 +1,6 @@
-# Provider sign-in on the real Android build. EMAIL / PASSWORD of the provider type under test (tools/native/seed.py).
+# Provider sign-in on the real Android and iOS builds. Maestro matches the whole accessibility text: on iOS a text field's is its label and
+# placeholder joined ("Email / Mobile / Account ID, example@email.com or 05X...", run 41434981021), so the field patterns start with .*
+# EMAIL / PASSWORD of the provider type under test (tools/native/seed.py).
 # provider-app has no testIDs on its welcome and sign-in screens (src/screens/auth/AuthScreens.tsx), so this flow finds them by their
 # Arabic or English text; checked against those screens on 2026-10-25.
 appId: com.nabd.provider
@@ -26,11 +28,11 @@ appId: com.nabd.provider
     commands:
       - tapOn: "تسجيل الدخول \\(Sign In\\)|Sign In"
 - extendedWaitUntil:
-    visible: "example@email\\.com.*"
+    visible: ".*example@email\\.com.*"
     timeout: 20000
-- tapOn: "example@email\\.com.*"
+- tapOn: ".*example@email\\.com.*"
 - inputText: ${EMAIL}
-- tapOn: "••••••••"
+- tapOn: ".*••••••••.*"
 - inputText: ${PASSWORD}
 # Maestro cannot dismiss the iOS keyboard ("Couldn't hide the keyboard"); the submit button sits in a footer that rides above the
 # keyboard there, so it can be tapped without hiding it. Android hides it.
@@ -48,6 +50,6 @@ appId: com.nabd.provider
     commands:
       - tapOn: "ليس الآن|Maybe Later"
 - extendedWaitUntil:
-    notVisible: "example@email\\.com.*"
+    notVisible: ".*example@email\\.com.*"
     timeout: 40000
 - takeScreenshot: provider_after_login

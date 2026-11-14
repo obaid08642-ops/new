@@ -87,7 +87,8 @@ const FILES = [
   ...['Button', 'Spinner', 'Inputs', 'Controls', 'Surfaces', 'Cards', 'Feedback'].map((name) => ({
     from: `packages/ui/components/${name}.tsx`,
     to: `patient-web/components-next/ui-generated/components/${name}.tsx`,
-    useClient: true,
+    // Cards has no hook and no state: a server page draws a DoctorCard or a Timeline with no script (the handlers of its buttons are props)
+    useClient: name !== 'Cards',
     // the outlines are in the icon sprite, not in the bundle of the client component that draws them
     transform: name === 'Button' ? (body) => mirrorButton(body) : ['Inputs', 'Surfaces', 'Cards'].includes(name) ? (body) => spriteFill(body, name) : undefined,
   })),
@@ -208,6 +209,8 @@ function mirrorContract(body) {
     'export type FIconRef = { icon: FillIconName; glyph?: string } | { icon: FillExtraName; glyph: string };\n' +
     'export type FIconProps = FIconBase & FIconRef;\n';
   out = out.slice(0, start) + block + union + out.slice(end);
+  // the doctor card's next free time may be a node (a client island that writes it in the reader's time zone) as well as a string
+  out = must(out, '  nextSlot?: string;', '  nextSlot?: ReactNode;', 'DoctorCardProps nextSlot');
   return out;
 }
 /** FIcon: draws `glyph` (an outline from icons/glyphs/<name>) when given, else the core glyph from the icon sprite (a <use>, no outline in any bundle). */

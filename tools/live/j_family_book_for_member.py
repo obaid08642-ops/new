@@ -76,6 +76,27 @@ def main():
     r = owner.get(f'/care/appointments/{aid}/summary')
     step('the booker does not read the member\'s medical summary', r.status in (403, 404) and 'not available' not in str(r.body), r)
 
+    # PT-03: the refund of a visit booked and paid by a guardian goes back to the guardian's card, once, with a credit note on the invoice
+    journey('PT-03: the guardian cancels the member\'s visit, the refund goes to the guardian')
+    import j_refund_matrix as rm
+    paid = float(rm.payment_of(owner, 'consultation', aid).get('amount') or 0)
+    step('the guardian\'s payment is recorded (amount)', paid > 0, paid)
+    r = stranger.post(f'/unified-bookings/consultation/{aid}/cancel', {'reason': 'x'}, headers={'Idempotency-Key': str(uuid.uuid4())})
+    step('a stranger cannot cancel it', r.status in (400, 403, 404), r)
+    r = owner.post(f'/unified-bookings/consultation/{aid}/cancel', {'reason': 'qa: the guardian cancels well ahead'}, headers={'Idempotency-Key': str(uuid.uuid4())})
+    step('the guardian cancels the member\'s visit', r.ok, r)
+    pay = rm.payment_of(owner, 'consultation', aid, paid)
+    step(f'the guardian\'s card payment is refunded in full ({paid}) and says refunded', rm.r2(pay.get('refunded_amount') or 0) == rm.r2(paid) and pay.get('status') == 'refunded', pay)
+    inv = rm.refund_docs(member, 'consultation', aid, paid)   # the invoice is the member's (patient_id), the card payment the guardian's
+    notes = (inv.get('credit_notes') or []) if inv.ok else []
+    step('the invoice carries one credit note for the refund', inv.ok and len(notes) == 1 and rm.r2(sum(abs(float(n.get('total') or 0)) for n in notes)) == rm.r2(paid), inv)
+    r = member.get(f'/care/appointments/{aid}')
+    step('the member sees the visit cancelled', r.ok and str(r.get('status')).upper() == 'CANCELLED', r.get('status'))
+    r = owner.post(f'/unified-bookings/consultation/{aid}/cancel', {'reason': 'twice'}, headers={'Idempotency-Key': str(uuid.uuid4())})
+    step('a second cancel is refused and refunds nothing more', not r.ok, r)
+    pay = rm.payment_of(owner, 'consultation', aid)
+    step('the refund is still the same single amount', rm.r2(pay.get('refunded_amount') or 0) == rm.r2(paid), pay)
+
 
 if __name__ == '__main__':
     from lib import summary

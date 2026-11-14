@@ -1,4 +1,4 @@
-import { BillingService, decodeTlv, tlvQr } from './billing.module';
+import { BillingService, decodeTlv, invoiceYear, tlvQr } from './billing.module';
 
 type Opts = { booking?: any; txns?: any[]; txn?: any; cfg?: Record<string, any>; invoices?: any[] };
 
@@ -8,8 +8,8 @@ function build(o: Opts) {
   const invoices = {
     findOne: jest.fn((q: any) => ({ lean: async () => store.find(match(q)) ?? null })),
     find: jest.fn((q: any) => ({ lean: async () => store.filter((d) => Object.entries(q).every(([k, v]: [string, any]) => (v && typeof v === 'object' && '$in' in v ? v.$in.includes(d[k]) : d[k] === v))) })),
-    updateOne: jest.fn(async () => ({})),
-    create: jest.fn(async (d: any) => { const row = { id: `i${store.length + 1}`, ...d }; store.push(row); return row; }),
+    updateOne: jest.fn(async (q: any, u: any) => { const row = store.find((r: any) => r.id === q?.id && (q.invoice_no === undefined || r.invoice_no === q.invoice_no)); if (row && u?.$set) Object.assign(row, u.$set); return { modifiedCount: row ? 1 : 0 }; }),
+    create: jest.fn(async (d: any) => { const row = { id: `i${store.length + 1}`, status: 'ISSUED', ...d }; store.push(row); return row; }),
   };
   const collections: Record<string, any> = {
     transactions: { find: jest.fn(() => ({ toArray: async () => o.txns ?? [] })), findOne: jest.fn(async () => o.txn ?? null) },
@@ -30,6 +30,11 @@ beforeEach(() => { process.env.ZATCA_SELLER_NAME = 'Test Seller'; process.env.ZA
 afterEach(() => { process.env = { ...env }; });
 
 describe('ZATCA phase-1 QR payload', () => {
+  it('tlvQr refuses a value that does not fit the one-byte length instead of writing a corrupt payload', () => {
+    expect(() => tlvQr('x'.repeat(256), '300000000000003', '2026-01-01T00:00:00.000Z', 115, 15)).toThrow(RangeError);
+    expect(decodeTlv(tlvQr('x'.repeat(255), '300000000000003', '2026-01-01T00:00:00.000Z', 115, 15))[1]).toHaveLength(255);
+  });
+
   it('tlvQr decodes back to the five tags', () => {
     const qr = tlvQr('منصة نبض', '300000000000003', '2026-10-31T13:00:00.000Z', 115, 15);
     expect(decodeTlv(qr)).toEqual({ 1: 'منصة نبض', 2: '300000000000003', 3: '2026-10-31T13:00:00.000Z', 4: '115.00', 5: '15.00' });
@@ -74,7 +79,7 @@ describe('receipt content', () => {
     const txn = { method: 'card', webhook_payload: { source: { number: 'XXXX-XXXX-XXXX-4242' } } };
     const { svc } = build({ booking, txns: [{ amount: 60 }], txn });
     const inv: any = await svc.issue(patient, 'lab', 'b1');
-    expect(inv.invoice_no).toBe('INV-2026-000007'.replace('2026', String(new Date().getFullYear())));
+    expect(inv.invoice_no).toBe('INV-2026-000007'.replace('2026', String(invoiceYear(new Date()))));
     expect(inv.lines.map((l: any) => [l.name_en, l.amount])).toEqual([['Glucose', 150], ['CBC', 250]]);
     expect(inv.payment).toEqual({ method: 'card', last4: '4242' });
     expect(inv.insured).toEqual({ insurer: 'Bupa', price: 400, covered: 340, copay: 60 });
@@ -111,13 +116,14 @@ describe('PDF', () => {
 describe('credit note on refund', () => {
   const paid = { invoice_no: 'INV-2026-000001', type: 'invoice', status: 'ISSUED', booking_kind: 'lab', booking_id: 'b1', patient_id: 'p1', total: 115, subtotal: 100, vat_amount: 15, vat_rate: 0.15, seller_name: 'S', vat_number: '300000000000003', payment: { method: 'card', last4: '4242' } };
 
-  it('is a negative invoice that names the original and carries its own QR', async () => {
+  it('is a negative document (type 381) that names the original and carries its own QR with the absolute amounts', async () => {
     const { svc } = build({ invoices: [paid] });
     const cn: any = await svc.issueCreditNote({ booking_kind: 'lab', booking_id: 'b1', amount: 115, refund_ref: 'rf_1' });
     expect(cn).toMatchObject({ type: 'credit_note', original_invoice_no: 'INV-2026-000001', total: -115, vat_amount: -15, subtotal: -100, refund_ref: 'rf_1' });
     expect(cn.invoice_no).toMatch(/^CN-\d{4}-000007$/);
     const tags = decodeTlv(cn.qr_base64);
-    expect([tags[4], tags[5]]).toEqual(['-115.00', '-15.00']);
+    expect([tags[4], tags[5]]).toEqual(['115.00', '15.00']);   // credit note = type 381: the QR carries absolute amounts (the document itself stays negative)
+    expect(cn.document_type_code).toBe('381');
   });
 
   it('a partial refund is a partial credit note; a repeat of the same refund issues nothing new', async () => {
@@ -137,5 +143,59 @@ describe('credit note on refund', () => {
   it('a credit note never exceeds the invoice', async () => {
     const { svc } = build({ invoices: [paid] });
     expect(((await svc.issueCreditNote({ booking_kind: 'lab', booking_id: 'b1', amount: 999, refund_ref: 'rf_4' })) as any).total).toBe(-115);
+  });
+});
+
+describe('an invoice first issued AFTER a refund does not state money already returned', () => {
+  const booking = { patient_id: 'p1', total: 115, delivery_fee: 23 };
+  const credit = (store: any[]) => store.filter((d) => d.type === 'credit_note');
+  const invoicesOf = (store: any[]) => store.filter((d) => d.type !== 'credit_note');
+
+  it('a full refund before the first invoice: the invoice (for what was paid) comes with one credit note for all of it', async () => {
+    const { svc, store } = build({ booking, txns: [{ amount: 115, refunded_amount: 115 }] });
+    const inv: any = await svc.issue(patient, 'lab', 'b1');
+    expect(inv.total).toBe(115);
+    expect(invoicesOf(store)).toHaveLength(1);
+    const cns = credit(store);
+    expect(cns).toHaveLength(1);
+    expect(cns[0]).toMatchObject({ type: 'credit_note', original_invoice_no: inv.invoice_no, total: -115, refund_ref: `before-invoice:${inv.invoice_no}:115` });
+    expect(cns[0].vat_amount).toBeLessThan(0);                                          // the VAT share is reversed too (same rule as a refund after the invoice)
+  });
+  it('a partial refund before the first invoice: the credit note is for the refunded part only', async () => {
+    const { svc, store } = build({ booking, txns: [{ amount: 115, refunded_amount: 40 }] });
+    const inv: any = await svc.issue(patient, 'lab', 'b1');
+    expect(inv.total).toBe(115);
+    expect(credit(store).map((c) => c.total)).toEqual([-40]);
+  });
+  it('refunds on several card payments of one booking are credited as one note for their sum', async () => {
+    const { svc, store } = build({ booking, txns: [{ amount: 60, refunded_amount: 10 }, { amount: 55, refunded_amount: 5 }] });
+    await svc.issue(patient, 'lab', 'b1');
+    expect(credit(store).map((c) => c.total)).toEqual([-15]);
+  });
+  it('no refund: no credit note; asking again changes nothing (the invoice exists, no second note)', async () => {
+    const { svc, store } = build({ booking, txns: [{ amount: 115 }] });
+    await svc.issue(patient, 'lab', 'b1');
+    await svc.issue(patient, 'lab', 'b1');
+    expect(credit(store)).toHaveLength(0);
+    const again = build({ booking, txns: [{ amount: 115, refunded_amount: 20 }] });
+    await again.svc.issue(patient, 'lab', 'b1');
+    await again.svc.issue(patient, 'lab', 'b1');
+    expect(credit(again.store)).toHaveLength(1);
+  });
+  it('a credit-note failure never fails the invoice', async () => {
+    const { svc } = build({ booking, txns: [{ amount: 115, refunded_amount: 10 }] });
+    jest.spyOn(svc as any, 'issueCreditNote').mockRejectedValue(new Error('db down'));
+    const inv: any = await svc.issue(patient, 'lab', 'b1');
+    expect(inv.total).toBe(115);
+  });
+});
+
+describe('a payment made under a kind alias of the payment API is invoiced like any other', () => {
+  const aliasBooking = { patient_id: 'p1', total: 115, delivery_fee: 23 };
+  it.each([['labs', 'lab'], ['home-care', 'home_care'], ['homecare', 'home_care'], ['orders', 'order']])('%s: the invoice is issued under %s and the payment is searched under every spelling', async (alias, kind) => {
+    const { svc, store } = build({ booking: aliasBooking, txns: [{ amount: 115 }] });
+    const inv: any = await svc.issueOnPayment({ booking_kind: alias, booking_id: 'b1' });
+    expect(inv ?? store[0]).toBeTruthy();
+    expect(store[0]).toMatchObject({ booking_kind: kind, booking_id: 'b1', total: 115 });
   });
 });

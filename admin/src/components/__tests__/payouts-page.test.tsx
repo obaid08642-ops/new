@@ -27,12 +27,22 @@ let host: HTMLDivElement; let root: Root;
 beforeEach(() => {
   gets.length = 0; posts.length = 0; perms = new Set(['finance.read', 'finance.payout.approve']); rows = [row('PENDING_ADMIN_APPROVAL')];
   host = document.createElement('div'); document.body.appendChild(host); root = createRoot(host);
-  vi.spyOn(window, 'prompt').mockReturnValue('bank record verified'); vi.spyOn(window, 'confirm').mockReturnValue(true);
+  // the decision goes through the shared confirm sheet: the browser's own prompt / confirm must never be used
+  vi.spyOn(window, 'prompt'); vi.spyOn(window, 'confirm');
 });
 afterEach(() => { act(() => root.unmount()); host.remove(); vi.restoreAllMocks(); });
 const flush = () => act(async () => { await new Promise((r) => setTimeout(r, 0)); });
 const text = () => host.textContent ?? '';
 const button = (label: string) => Array.from(host.querySelectorAll('button')).find((b) => b.textContent?.trim() === label) as HTMLButtonElement | undefined;
+const dialog = () => host.querySelector('[role=dialog]') as HTMLElement | null;
+const dialogButton = (label: string) => Array.from(dialog()?.querySelectorAll('button') ?? []).find((b) => b.textContent?.trim() === label) as HTMLButtonElement | undefined;
+/** Opens the sheet from a row button, types the reason and presses the sheet's confirm button. */
+const decide = async (rowLabel: string, confirmLabel: string, reason: string) => {
+  await act(async () => { button(rowLabel)!.click(); }); await flush();
+  const box = dialog()!.querySelector('textarea') as HTMLTextAreaElement;
+  await act(async () => { Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')!.set!.call(box, reason); box.dispatchEvent(new Event('input', { bubbles: true })); });
+  await act(async () => { dialogButton(confirmLabel)!.click(); }); await flush();
+};
 const open = async () => { await act(async () => { root.render(<PayoutsPage />); }); await flush(); };
 
 describe('admin payouts page: one flow from request to transfer', () => {
@@ -46,12 +56,12 @@ describe('admin payouts page: one flow from request to transfer', () => {
 
   it('a pending request is approved (with a reason), then an approved one is recorded as transferred (PAID)', async () => {
     await open();
-    await act(async () => { button('اعتماد')!.click(); }); await flush();
+    await decide('اعتماد', 'الاعتماد', 'bank record verified');
     expect(posts[0]).toEqual({ path: '/api/admin/admin/finance/payouts/wd_1/approve', body: { reason: 'bank record verified' } });
     rows = [row('APPROVED_FOR_PAYOUT')];
     await act(async () => { (Array.from(host.querySelectorAll('[role=tab]')).find((t) => t.textContent?.includes('جاهزة للتحويل')) as HTMLElement).click(); }); await flush();
     expect(button('اعتماد')).toBeUndefined();
-    await act(async () => { button('تم التحويل')!.click(); }); await flush();
+    await decide('تم التحويل', 'تأكيد التحويل', 'bank record verified');
     expect(posts[1]).toEqual({ path: '/api/admin/admin/finance/payouts/wd_1/execute', body: { reason: 'bank record verified' } });
   });
 
@@ -59,7 +69,7 @@ describe('admin payouts page: one flow from request to transfer', () => {
     rows = [row('AWAITING_SECOND_APPROVAL')];
     await open();
     expect(button('اعتماد ثانٍ')).toBeTruthy();
-    await act(async () => { button('رفض')!.click(); }); await flush();
+    await decide('رفض', 'الرفض', 'not a valid bank account');
     expect(posts[0].path).toBe('/api/admin/admin/finance/payouts/wd_1/reject');
   });
 
@@ -80,9 +90,13 @@ describe('admin payouts page: one flow from request to transfer', () => {
   });
 
   it('asks for a reason of ten characters first, and sends nothing without it', async () => {
-    (window.prompt as unknown as ReturnType<typeof vi.fn>).mockReturnValue('short');
     await open();
-    await act(async () => { button('اعتماد')!.click(); }); await flush();
+    await decide('اعتماد', 'الاعتماد', 'short');
     expect(posts).toHaveLength(0);
+    expect(dialog()?.textContent).toContain('10 أحرف على الأقل'); // the sheet stays open and says why
+    await act(async () => { dialogButton('تراجع')!.click(); }); await flush();
+    expect(dialog()).toBeNull();
+    expect(posts).toHaveLength(0);
+    expect(window.prompt).not.toHaveBeenCalled(); expect(window.confirm).not.toHaveBeenCalled();
   });
 });

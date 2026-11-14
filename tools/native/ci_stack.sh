@@ -34,6 +34,10 @@ nohup python3 tools/live/fake_moyasar.py > /tmp/moyasar.log 2>&1 &
 nohup python3 tools/live/fake_spl.py > /tmp/spl.log 2>&1 &       # Saudi Post address lookups (as live-gate.yml)
 nohup python3 tools/live/fake_clamd.py > /tmp/clamd.log 2>&1 &   # upload scanning is required by the backend (as live-gate.yml)
 for i in $(seq 1 30); do curl -s -o /dev/null http://127.0.0.1:9000 && break; sleep 1; done
+# the backend sends the admin 2FA code and every OTP to the SMTP sink on :2525; if it is not listening the first admin login fails with
+# 503 otp_no_channel (iOS job of run 41427339719), so wait for it here and show why it is down instead
+for i in $(seq 1 30); do (exec 3<>/dev/tcp/127.0.0.1/2525) 2>/dev/null && break; sleep 1; done
+(exec 3<>/dev/tcp/127.0.0.1/2525) 2>/dev/null || { echo "SMTP sink is not listening on 127.0.0.1:2525"; cat /tmp/smtp.log; exit 1; }
 python3 -c "import boto3; boto3.client('s3', endpoint_url='http://127.0.0.1:9000', aws_access_key_id='live', aws_secret_access_key='live-secret', region_name='us-east-1').create_bucket(Bucket='nabd-live')"
 
 (cd backend && npm ci --no-audit --no-fund && npm run build && node ../tools/live/seed_admin.js && bash ../tools/live/start-backend.sh)

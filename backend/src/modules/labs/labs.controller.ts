@@ -6,7 +6,7 @@ import { LabsService } from './labs.service';
 import { Public, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { BookDto, TransitionDto, UploadDocDto, UpdateInsDto, OptInCashDto, AssignTechDto, UploadReportDto, RescheduleDto, UpdateGpsDto, DeclareEmergencyDto, RegisterSampleDto, ForceStateDto, UpdateStageDto} from './labs.dto';
-import { CreateLabCatalogDto, UpdateLabCatalogDto, ApproveCatalogDto, BulkApproveCatalogDto } from './labs.dto';
+import { CreateLabCatalogDto, UpdateLabCatalogDto, ApproveCatalogDto, BulkApproveCatalogDto, SlotCapacityDto } from './labs.dto';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { PublicCache } from '../../common/public-cache.decorator';
@@ -107,6 +107,19 @@ export class LabsController {
   @Patch('bookings/:id/items/:serviceId/opt-in-cash')
   optInCash(@Param('id') id: string, @Param('serviceId') serviceId: string, @Body() body: OptInCashDto, @CurrentUser() user: any) {
     return this.svc.optInCash(id, serviceId, body, user);
+  }
+
+  /** The lab's number of simultaneous bookings per time slot (default 1); the slot picker and the booking use the same number. */
+  @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
+  @Get('provider/slot-capacity')
+  slotCapacity(@CurrentUser() user: any) {
+    return this.svc.getSlotCapacity(user);
+  }
+
+  @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
+  @Put('provider/slot-capacity')
+  setSlotCapacity(@Body() body: SlotCapacityDto, @CurrentUser() user: any) {
+    return this.svc.setSlotCapacity(user, body.slot_capacity);
   }
 
   @Get('provider/inbox')

@@ -40,6 +40,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: '/admin/provider-moderation', label: 'تدقيق واعتماد المزودين' },
       { href: '/admin/license-expiry', label: 'تراخيص قاربت على الانتهاء' },
+      { href: '/admin/seha-missing', label: 'تقارير طبية بلا رقم صحة' },
       { href: '/admin/facility-members', label: 'دعوات المنشآت وأعضاؤها' },
       { href: '/admin/service-offers', label: 'خدمات المزودين وأسعارها' },
       { href: '/admin/provider-audits', label: 'سجلات تدقيق المزودين' },
@@ -162,6 +163,7 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/disputes': 'disputes.resolve',
   '/admin/provider-moderation': 'facility.edit',
   '/admin/license-expiry': 'facility.edit',
+  '/admin/seha-missing': 'appointment.read', // GET admin/medical-reports/without-seha-number needs APPOINTMENT_READ
   '/admin/facility-members': 'facility.edit',
   '/admin/service-offers': 'facility.edit',
   // The page lists and decides provider profile edits (provider-deltas), which need facility.edit.

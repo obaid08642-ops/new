@@ -9,6 +9,7 @@ import {
   Clipboard, Platform,
 } from 'react-native';
 import { useApp } from '../../context/AppContext';
+import { dsText } from '../dsText';
 import { BorderRadius, Spacing, Animation } from '../tokens';
 import { DSText } from './Text';
 
@@ -39,7 +40,7 @@ export function DSOTPInput({
   autoFocus = true,
   style,
 }: DSOTPInputProps) {
-  const { colors } = useApp();
+  const { colors, lang } = useApp();
   const refs = useRef<Array<TextInputInstance | null>>(Array(length).fill(null));
   const [focusedIndex, setFocusedIndex] = useState<number | null>(autoFocus ? 0 : null);
 
@@ -131,7 +132,7 @@ export function DSOTPInput({
               selectTextOnFocus
               editable={!disabled}
               accessible
-              accessibilityLabel={`رقم OTP ${index + 1} من ${length}`}
+              accessibilityLabel={dsText(lang, 'ds.otp.digit', { n: index + 1, total: length })}
               style={[
                 styles.cell,
                 {

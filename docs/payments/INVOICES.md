@@ -69,6 +69,11 @@ Arabic is shaped by fontkit from the embedded Noto Naskh Arabic font; lines that
 ### Not changed
 The VAT position (G7 of `docs/qa/money-flows.md`): whether VAT is due on the whole price or only on the commission (exempt healthcare) still needs the accountant. Prices stay VAT-inclusive and the invoice shows the VAT inside the total, as before.
 
+## Design: where the client draws it (2026-11-01)
+The receipt card (web `components-next/receipt/receipt-paper.tsx`, app `src/components/receipt/ReceiptPaper.tsx`) draws, top to bottom: our company (`seller`; a null field says "Not configured yet"), invoice number, booking / order number (`booking_ref`), date, state, the **service provider** (`provider`: name in the page language, type, licence), the amounts, the credit notes and the refunded amount, the QR. Actions: Download PDF, **Save as image** (web: canvas capture, app: `react-native-view-shot` into the photos), **Share** (system sheet), **Share link** (create with 1, 7 or 30 days, copy or share, expiry and views of every link, revoke).
+
+The link a person opens is the web page `/<lang>/receipt/shared/<token>` (not the API's `page_url`, which is the JSON): it reads `GET /billing/shared/:token`, shows the same card without any account data, is `noindex`, `no-store` and sends no referrer; its PDF button goes through `/api/receipt-shared/<token>/pdf` (public, same headers). One "not available" page answers an unknown, expired or revoked link, as the backend does.
+
 ## Tax invoice or payment receipt (owner decision, 2026-11-01)
 
 The seller is "منصة نبض الطبية". Its CR number, VAT number and address are not issued yet, and a platform that is not VAT-registered must not call a document a tax invoice or show VAT it does not collect. **One switch, derived from config** (`common/tax-registration.ts`): a legal seller name **and** a VAT number in `finance_config` `{ key: 'invoice' }` (or `ZATCA_SELLER_NAME` / `ZATCA_VAT_NUMBER`) = tax invoice; otherwise = payment receipt.
@@ -81,7 +86,7 @@ The seller is "منصة نبض الطبية". Its CR number, VAT number and addr
 | ZATCA QR | yes | none |
 | Total | amount paid, incl. VAT | `Total paid / المبلغ المدفوع` = the amount paid |
 | VAT number, CR, address on the PDF | shown (or "not configured") | VAT number never printed; CR and address only when issued |
-| Refund | credit note `CN-<year>-<n>`, negative VAT and QR | refund receipt `RRC-<year>-<n>` (إيصال استرداد / Refund receipt), no VAT, no QR |
+| Refund | credit note `CN-<year>-<n>` (`document_type_code` 381), negative amounts on the document, the QR carries the absolute amounts | refund receipt `RRC-<year>-<n>` (إيصال استرداد / Refund receipt), no VAT, no QR |
 | E-mail | "الضريبة (15%)" line | amount paid only |
 | Quote (`/bookings/quote`, lab/radiology rows) | `vat_rate`, `vat`, `subtotal`, `tax_registered: true` | `vat_rate` and `vat` `null`, `subtotal = total`, `tax_registered: false` |
 
@@ -122,3 +127,7 @@ The **provider is the supplier of the service**. The platform issues the patient
 
 **Left for the owner (kept at no VAT meanwhile):** `platform_fee` (consultation service fee), `home_visit_fee` and `transport_fee` are platform-charged lines but neither commission nor delivery fee.
 - A tax invoice for the service itself (the supplier's invoice) needs the provider's VAT number; this document only carries the platform's VAT on its delivery fee (provider agreement §5.4, S is reviewing it).
+
+
+## Credit note QR and document type (owner/lead decision 2026-11-12) — NEEDS ACCOUNTANT CHECK
+The repo's documents do not state the ZATCA rule for the QR of a credit note, so this follows the lead's instruction: a credit note is document type **381** (UBL `InvoiceTypeCode`; a tax invoice is **388**) and references the invoice it reverses (`original_invoice_no`). Both are stored as `document_type_code` and returned by the API (`null` on a receipt and refund receipt). The document itself keeps its negative total and VAT (that is how the receipt screens and the credit-note sum work); the **QR (phase-1 TLV, tags 4 and 5) carries the absolute values**, because a QR scanner reads the amount of a document whose type says it is a credit note. Credit notes issued before this change keep the QR they were issued with (negative amounts); nothing is re-issued. An accountant must confirm this reading (and whether the phase-2 XML needs more than the type code) before launch.

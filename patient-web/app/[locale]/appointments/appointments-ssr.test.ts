@@ -14,6 +14,8 @@ vi.mock("next-intl/server", () => ({
   setRequestLocale: vi.fn(),
 }));
 vi.mock("@/lib/i18n", () => ({ isLocale: () => true }));
+// the "doctor did not come" button is a client island with its own messages and timer (tested in lib/consult/provider-no-show.test.ts); this test is about the server boundary
+vi.mock("@/components-next/consult/provider-no-show", () => ({ ProviderNoShow: () => null }));
 vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: state.requirePatientAccess }));
 vi.mock("@/lib/api/appointments-server", () => ({
   getPatientAppointments: state.getPatientAppointments,

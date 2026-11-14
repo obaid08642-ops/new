@@ -109,7 +109,7 @@ export function clock(locale: string, seconds: number): string {
 export type Evidence = { medicalOrderId?: string; documents?: Array<{ kind: "doctor_request" | "preauth"; url_or_b64: string; filename?: string }> };
 
 /** The POST /ordering/bookings body: the quote, one selection per mode and how the patient pays. `insured` -> payment_method insurance, else card. */
-export function buildBookingRequest(a: { schedule: Schedule; home?: string; facility?: string; insured: boolean; gender?: StaffGender; evidence?: Evidence; notes?: string }): BookingRequest | null {
+export function buildBookingRequest(a: { schedule: Schedule; home?: string; facility?: string; insured: boolean; gender?: StaffGender; evidence?: Evidence; notes?: string; familyMemberId?: string }): BookingRequest | null {
   const selections: BookingRequest["selections"] = {};
   if (a.home) {
     if (!a.schedule.home) return null;
@@ -124,6 +124,7 @@ export function buildBookingRequest(a: { schedule: Schedule; home?: string; faci
   return {
     quote_id: a.schedule.quoteId, selections, payment_method: a.insured ? "insurance" : "card",
     ...(a.gender ? { gender_preference: a.gender } : {}),
+    ...(a.familyMemberId ? { family_member_id: a.familyMemberId } : {}),
     ...(a.evidence?.medicalOrderId ? { medical_order_id: a.evidence.medicalOrderId } : {}),
     ...(a.evidence?.documents?.length ? { documents: a.evidence.documents } : {}),
     ...(a.notes ? { notes: a.notes } : {}),

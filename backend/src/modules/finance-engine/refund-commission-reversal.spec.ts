@@ -81,8 +81,8 @@ describe('the finance report', () => {
       platformledgerentries: {
         aggregate: (pipe: any[]) => ({
           toArray: async () => (pipe.some((p) => p.$match?.type === 'provider_earning')
-            ? [{ _id: null, commission: 30, vat: 4.5, gross: 200, net: 165.5 }]
-            : [{ _id: { type: 'commission_reversal', state: 'cleared' }, total: 30, count: 1 }, { _id: { type: 'vat_reversal', state: 'cleared' }, total: 4.5, count: 1 }]),
+            ? [{ _id: null, commission: 3000, vat: 450, gross: 20000, net: 16550 }]   // the pipeline adds whole halalas (report-totals.ts)
+            : [{ _id: { type: 'commission_reversal', state: 'cleared' }, total: 3000, count: 1 }, { _id: { type: 'vat_reversal', state: 'cleared' }, total: 450, count: 1 }]),
         }),
       },
     };

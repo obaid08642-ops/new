@@ -41,6 +41,15 @@ import { NotificationsCenterScreen, TechnicalSupportTicketsScreen, SecurityManag
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens } from '../../../theme/tokens';
 
+/** Engine states to the three groups the screen shows. */
+function claimGroup(state: string): 'pending' | 'approved' | 'rejected' {
+  switch (String(state || '').toUpperCase()) {
+    case 'APPROVED_FULL': case 'APPROVED_PARTIAL': case 'COPAY_PAID': return 'approved';
+    case 'REJECTED': return 'rejected';
+    default: return 'pending'; // PENDING_PROVIDER_REVIEW, COPAY_PENDING (waiting for the patient), APPEAL_PENDING
+  }
+}
+
 export function InsuranceClaimsHubScreen({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme();
  const { lang } = useLang();
@@ -51,14 +60,21 @@ export function InsuranceClaimsHubScreen({ onBack }: { onBack: () => void }) {
 
  const [CLAIMS, setClaims] = useState<any[]>([]);
  useEffect(() => {
-   client.get('/insurance/requests/provider/queue')
-     .then((res: any) => setClaims((res.data || []).map((r: any) => ({
-       id: r.id, patient: r.patient_name || r.patient_id || '—',
-       company: r.company_name || r.company_id || '—', plan: r.plan || '—',
-       amount: r.amount || r.total || 0, deductible: r.copay || r.deductible || 0,
-       status: (r.state || r.status || 'pending').toLowerCase().replace('pending_provider_review', 'pending'),
-       date: (r.createdAt || '').slice(0, 10), diagCode: r.diagnosis_code || '—',
-     }))))
+   // scope=all: open AND decided claims (the default queue only lists the open ones, so Approved/Rejected were always empty).
+   client.get('/insurance/requests/provider/queue', { params: { scope: 'all' } })
+     .then((res: any) => setClaims((Array.isArray(res.data) ? res.data : []).map((r: any) => {
+       const amount = Number(r.price) || 0;
+       const insurerShare = typeof r.insurer_share === 'number' ? r.insurer_share : null;
+       return {
+         id: r.id, patient: r.patient_name || '—',
+         company: r.company_name || '—', plan: r.plan || '—',
+         amount,
+         // what the patient pays; the list shows amount - deductible, the insurer's share
+         deductible: insurerShare !== null ? Math.max(0, amount - insurerShare) : (Number(r.copay_amount) || 0),
+         status: claimGroup(r.state),
+         date: String(r.createdAt || '').slice(0, 10), diagCode: '—',
+       };
+     })))
      .catch(() => setClaims([]));
  }, []);
 

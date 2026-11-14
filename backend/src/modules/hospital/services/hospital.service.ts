@@ -3,7 +3,7 @@ import { Optional, Injectable, BadRequestException, UnauthorizedException, NotFo
 import { isEmail } from 'class-validator';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from '../../../common/password-hash';
 import { randomUUID } from 'crypto';
 import { HospitalBranch } from '../schemas/hospital-branch.schema';
 import { HospitalDepartment } from '../schemas/hospital-department.schema';
@@ -303,9 +303,27 @@ export class HospitalService {
         id: String(r._id), user_id: u.id || String(r.user_id), account_id: r.account_id || null,
         full_name: u.full_name || '', email: u.email || null, phone: u.phone || null,
         role: ROLE_KEY[r.role] || r.role, department: r.department || null, scfhs: r.scfhs || null,
+        license_expiry: r.license_expiry || null, malpractice_insurance: !!r.malpractice_insurance, malpractice_expiry: r.malpractice_expiry || null,
         suspended: u.active === false || !!u.suspended, createdAt: r.createdAt,
       };
     });
+  }
+
+  /** Licence number, licence expiry and malpractice cover of one staff member (what the credentialing screen tracks). */
+  async updateStaffCredentials(hospitalId: string, staffId: string, data: { scfhs?: string; license_expiry?: string; malpractice_insurance?: boolean; malpractice_expiry?: string }, actor?: any) {
+    this.assertFacilityActor(actor, true);
+    const set: Record<string, unknown> = {};
+    if (data.scfhs !== undefined) set.scfhs = String(data.scfhs);
+    if (data.license_expiry !== undefined) set.license_expiry = new Date(data.license_expiry);
+    if (data.malpractice_insurance !== undefined) set.malpractice_insurance = data.malpractice_insurance === true;
+    if (data.malpractice_expiry !== undefined) set.malpractice_expiry = new Date(data.malpractice_expiry);
+    const staff: any = await this.staffModel.findOneAndUpdate(
+      { _id: this.objectId(staffId, 'staff_id'), hospital_id: await this.objectIdForUser(hospitalId), is_active: true },
+      { $set: set }, { new: true },
+    ).lean();
+    if (!staff) throw new NotFoundException('staff_not_found');
+    await recordAudit(this.staffModel.db, { action: 'facility_staff.credentials_updated', user_id: String(actor?.id ?? hospitalId), role: String(actor?.role ?? 'facility'), resource_kind: 'facility_staff', resource_id: String(staff._id), details: { facility_id: hospitalId, fields: Object.keys(set) } });
+    return { id: String(staff._id), scfhs: staff.scfhs || null, license_expiry: staff.license_expiry || null, malpractice_insurance: !!staff.malpractice_insurance, malpractice_expiry: staff.malpractice_expiry || null };
   }
 
   /** Remove a staff member from the facility: the record is deactivated and their login is switched off. */

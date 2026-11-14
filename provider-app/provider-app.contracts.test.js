@@ -58,7 +58,9 @@ describe('Provider App release contracts', () => {
     expect(dashboard).not.toContain("'guest_patient'");
     expect(dashboard).not.toContain("patient_id: apt?.patient_id || 'test'");
     expect(dashboard).not.toContain("Sick leave issued successfully', 'success');\n     setIssued(true);");
-    expect(dashboard).toContain('server verifies appointment relation, doctor licence, legal signature');
+    // PT-08: the server (SickLeaveService) now verifies the consultation, the licence and the no-back-dating rule; the app only posts to it and shows its answers.
+    expect(dashboard).toContain("/provider/requests/${encodeURIComponent(appointmentId)}/sick-leave");
+    expect(dashboard).toContain('issueErrorKey(');
   });
 
   it('uses server-backed pharmacy broadcasts and a native barcode scanner', () => {
@@ -298,7 +300,7 @@ describe('Provider App release contracts', () => {
       const pending = read('screens/auth/PendingDashboard.tsx');
       expect(pending).toContain("client.get('/provider-onboarding/my-profile')");
       expect(pending).toContain("client.get('/provider-onboarding/progress')");
-      expect(pending).toContain("client.post('/provider/onboarding/submit'");
+      expect(pending).toContain("client.post('/provider-onboarding/submit'");   // the wizard's own submit also resubmits a reviewed account (it re-queues it for moderation); the older /provider/onboarding/submit needs document and bank rows the wizard never creates
     });
 
     it('decision 14 the ambulance provider type, SOS dispatch and GPS router are gone from the app', () => {

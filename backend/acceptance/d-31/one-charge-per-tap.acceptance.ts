@@ -147,7 +147,7 @@ describe('D-31: one charge, one booking, one order per tap', () => {
 
   it('Book: the same booking twice with one key creates one appointment; a second key for the slot is refused', async () => {
     const slot = new Date(Math.ceil((Date.now() + 2 * 86_400_000) / (30 * MIN)) * 30 * MIN).toISOString();
-    const body = { doctor_id: 'doc-1', service_type: 'clinic', slot_start: slot, payment_method: 'card' };
+    const body = { doctor_id: 'doc-1', service_type: 'clinic', slot_start: slot, payment_method: 'card', refund_policy_accepted: true };
     const key = `book-${randomBytes(8).toString('hex')}`;
     const [a, b] = await Promise.all([0, 1].map((i) => send(i, 'POST', '/api/v1/care/appointments', key, body)));
     const ok = [a, b].filter((r) => r.status >= 200 && r.status < 300);
@@ -162,7 +162,7 @@ describe('D-31: one charge, one booking, one order per tap', () => {
 
   it('Send: the same pharmacy order twice with one key creates one order', async () => {
     const before = await stack.db.collection('pharmacy_orders').countDocuments({ patient_account_id: 'pat-1' });
-    const body = { delivery_address: { label: 'home', city: 'Riyadh', lat: 24.7, lng: 46.7 }, fulfillment: 'delivery', payment_mode: 'cash', items: [{ raw_name: 'Panadol', qty: 1, intake_source: 'cart' }] };
+    const body = { refund_policy_accepted: true, delivery_address: { label: 'home', city: 'Riyadh', lat: 24.7, lng: 46.7 }, fulfillment: 'delivery', payment_mode: 'cash', items: [{ raw_name: 'Panadol', qty: 1, intake_source: 'cart' }] };
     const key = `send-${randomBytes(8).toString('hex')}`;
     const [a, b] = await Promise.all([0, 1].map((i) => send(i, 'POST', '/api/v1/patient/pharmacy/orders', key, body)));
     const ok = [a, b].filter((r) => r.status >= 200 && r.status < 300);

@@ -9,6 +9,7 @@ import { LedgerService } from '../finance-engine/finance-engine.module';
 import { UserRole } from '../../common/enums';
 import { RequestDto } from './provider-payouts.dto';
 import { payoutMinimumDefault } from '../../common/commission-defaults';
+import { shadowFields } from '../../common/halala-shadow';
 
 /** A request in any of these states holds locked funds, so a second one is refused until it is paid or rejected. */
 export const OPEN_WITHDRAWAL_STATES = ['PENDING_ADMIN_APPROVAL', 'AWAITING_SECOND_APPROVAL', 'APPROVED_FOR_PAYOUT'];
@@ -25,6 +26,8 @@ export class ProviderPayoutsController {
 
   private get withdrawals() { return this.conn.collection('providerwithdrawals'); }
   private get ledgerEntries() { return this.conn.collection('platformledgerentries'); }
+  /** One document per provider. Every withdrawal request writes it inside its transaction, so two requests of the same provider cannot run side by side. */
+  private get locks() { return this.conn.collection('provider_withdrawal_locks'); }
 
   private validateIban(iban: string | null | undefined): string {
     if (!iban) throw new BadRequestException('verified_bank_account_required');
@@ -70,10 +73,19 @@ export class ProviderPayoutsController {
     if (!bank) throw new BadRequestException('verified_bank_account_required');
     const iban = this.validateIban(bank.iban);
     const minimum = await this.minimum();
+    // earnings whose hold has passed count as available: this route sums the ledger itself (it never went through providerBalance, which is what matured them)
+    await this.ledger.matureEscrow(user.id);
+    await this.locks.createIndex({ provider_id: 1 }, { unique: true });
+    await this.locks.updateOne({ provider_id: user.id }, { $setOnInsert: { provider_id: user.id, createdAt: new Date() } }, { upsert: true })
+      .catch((e: any) => { if (e?.code !== 11000) throw e; });
     const session = await this.conn.startSession();
     try {
       let response: any;
       await session.withTransaction(async () => {
+        // Two requests of one provider with different idempotency keys (two devices, a double tap) used to read the same balance and the same
+        // "no open withdrawal", and both inserted a reservation. Writing the provider's lock document first makes the second transaction fail with a
+        // transient write conflict; withTransaction runs it again, and it then sees the first one's open request and is refused.
+        await this.locks.updateOne({ provider_id: user.id }, { $inc: { n: 1 }, $set: { updatedAt: new Date() } }, { session });
         const existing: any = await this.withdrawals.findOne({ provider_id: user.id, idempotency_key: idempotencyKey }, { session });
         if (existing) {
           response = { ok: true, idempotent: true, request: existing, reference: existing.reference };
@@ -95,11 +107,14 @@ export class ProviderPayoutsController {
           idempotency_key: idempotencyKey, balance_at_request: balance.available,
           escrow_pending_at_request: balance.pending, reservation_state: 'locked', createdAt: now, updatedAt: now,
         };
+        // R11 P1: the integer shadow next to the double (the payout request and its ledger reservation)
+        Object.assign(request, shadowFields(request, ['amount']));
         await this.withdrawals.insertOne(request as any, { session });
         await this.ledgerEntries.insertOne({
           id: `le_${id}`, provider_account_id: user.id, type: 'payout', state: 'locked', amount,
           ref_type: 'withdrawal_reservation', ref_id: id, description: `Withdrawal reserved ${request.reference}`,
           actor_id: user.id, meta: { withdrawal_id: id, bank_account_id: request.bank_account_id }, createdAt: now,
+          ...shadowFields({ amount }, ['amount']),
         } as any, { session });
         response = {
           ok: true, request, reference: request.reference,

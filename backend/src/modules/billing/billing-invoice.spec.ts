@@ -9,7 +9,7 @@ function build(opts: { booking?: any; txns?: any[]; cfg?: any; existing?: any; i
     findOne: jest.fn(() => ({ lean: async () => opts.existing ?? created[0] ?? null })),
     create: jest.fn(async (d: any) => { const row = { id: 'inv-1', ...d }; created.push(row); return row; }),
     find: jest.fn(() => ({ lean: async () => [] })), // no credit notes
-    updateOne: jest.fn(async () => ({})),
+    updateOne: jest.fn(async (q: any, u: any) => { const row = created.find((r: any) => r.id === q?.id && (q.invoice_no === undefined || r.invoice_no === q.invoice_no)); if (row && u?.$set) Object.assign(row, u.$set); return { modifiedCount: row ? 1 : 0 }; }),
   };
   const collections: Record<string, any> = {
     transactions: { find: jest.fn(() => ({ toArray: async () => opts.txns ?? [] })), findOne: jest.fn(async () => null) },
@@ -50,7 +50,7 @@ describe('e-invoice of a paid booking', () => {
     const { svc } = build({ booking: { patient_id: 'p1' }, txns: [{ amount: 50 }] });
     await svc.issue(patient, 'appointment', 'b1');
     const find = (svc as any).conn.collection('transactions').find;
-    expect(find.mock.calls[0][0]).toMatchObject({ booking_kind: 'consultation', booking_id: 'b1' });
+    expect(find.mock.calls[0][0]).toMatchObject({ booking_kind: { $in: expect.arrayContaining(['consultation', 'appointment']) }, booking_id: 'b1' });   // the payments name is searched, with every spelling of the group
   });
 
   it('a cash booking is invoiced at the cash the provider recorded as collected', async () => {

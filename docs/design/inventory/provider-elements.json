@@ -1,5 +1,5 @@
 {
- "commit": "697233b3",
+ "commit": "97f09139f",
  "screens": {
   "PendingDashboard": [
    {
@@ -35,7 +35,7 @@
    {
     "kind": "button",
     "label": "{t('status.resubmit')}",
-    "src": "POST /provider/onboarding/submit",
+    "src": "POST /provider-onboarding/submit",
     "status": "ok",
     "file": "provider-app/src/screens/auth/PendingDashboard.tsx",
     "line": 203,
@@ -1078,7 +1078,7 @@
    },
    {
     "kind": "input",
-    "label": "Email / Mobile / Account ID",
+    "label": "Email",
     "src": "user input → id (local)",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
@@ -1224,7 +1224,7 @@
     "src": "parent callback onBack",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 691,
+    "line": 705,
     "via": null,
     "note": null
    },
@@ -1234,7 +1234,7 @@
     "src": "user input → target → request body",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 709,
+    "line": 723,
     "via": null,
     "note": null
    },
@@ -1244,7 +1244,7 @@
     "src": "POST /provider/auth/forgot-password",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 716,
+    "line": 730,
     "via": null,
     "note": null
    },
@@ -1254,7 +1254,7 @@
     "src": "user input → newPass → request body",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 733,
+    "line": 748,
     "via": null,
     "note": null
    },
@@ -1264,7 +1264,7 @@
     "src": "user input → confPass (local)",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 741,
+    "line": 756,
     "via": null,
     "note": null
    },
@@ -1274,7 +1274,7 @@
     "src": "POST /provider/auth/reset-password, POST /provider/auth/login",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 755,
+    "line": 770,
     "via": null,
     "note": null
    }
@@ -2333,7 +2333,7 @@
     "src": "POST /provider-onboarding/step2, POST /provider-onboarding/submit → acceptedVersion",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 62,
+    "line": 63,
     "via": "ReviewStep",
     "note": null
    },
@@ -2343,7 +2343,7 @@
     "src": "from rows (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 126,
+    "line": 129,
     "via": "ReviewStep",
     "note": null,
     "untraced": true
@@ -2351,20 +2351,20 @@
    {
     "kind": "input",
     "label": "Account Holder Name",
-    "src": "user input → parent callback update",
+    "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 142,
+    "line": 145,
     "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
     "label": "Bank IBAN",
-    "src": "user input → parent callback update",
+    "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 144,
+    "line": 147,
     "via": "ReviewStep",
     "note": null
    },
@@ -2374,27 +2374,27 @@
     "src": "local state setShowContract",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 151,
+    "line": 154,
     "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
     "label": "Full Name",
-    "src": "user input → parent callback update",
+    "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 161,
+    "line": 164,
     "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
     "label": "{label(config.signatoryRoleHint}",
-    "src": "user input → parent callback update",
+    "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 163,
+    "line": 166,
     "via": "ReviewStep",
     "note": null
    },
@@ -2404,7 +2404,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 176,
+    "line": 179,
     "via": "ReviewStep",
     "note": null
    },
@@ -2414,7 +2414,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 181,
+    "line": 184,
     "via": "ReviewStep",
     "note": null
    },
@@ -2424,7 +2424,7 @@
     "src": "user input → agreed (local)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 191,
+    "line": 194,
     "via": "ReviewStep",
     "note": null
    },
@@ -2434,7 +2434,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 195,
+    "line": 198,
     "via": "ReviewStep",
     "note": null
    },
@@ -3601,7 +3601,7 @@
     "src": "POST /provider-onboarding/step2, POST /provider-onboarding/submit → acceptedVersion",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 62,
+    "line": 63,
     "via": "ReviewStep",
     "note": null
    },
@@ -3611,7 +3611,7 @@
     "src": "from rows (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 126,
+    "line": 129,
     "via": "ReviewStep",
     "note": null,
     "untraced": true
@@ -3619,20 +3619,20 @@
    {
     "kind": "input",
     "label": "Account Holder Name",
-    "src": "user input → parent callback update",
+    "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 142,
+    "line": 145,
     "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
     "label": "Bank IBAN",
-    "src": "user input → parent callback update",
+    "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 144,
+    "line": 147,
     "via": "ReviewStep",
     "note": null
    },
@@ -3642,27 +3642,27 @@
     "src": "local state setShowContract",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 151,
+    "line": 154,
     "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
     "label": "Full Name",
-    "src": "user input → parent callback update",
+    "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 161,
+    "line": 164,
     "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
     "label": "{label(config.signatoryRoleHint}",
-    "src": "user input → parent callback update",
+    "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 163,
+    "line": 166,
     "via": "ReviewStep",
     "note": null
    },
@@ -3672,7 +3672,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 176,
+    "line": 179,
     "via": "ReviewStep",
     "note": null
    },
@@ -3682,7 +3682,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 181,
+    "line": 184,
     "via": "ReviewStep",
     "note": null
    },
@@ -3692,7 +3692,7 @@
     "src": "user input → agreed (local)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 191,
+    "line": 194,
     "via": "ReviewStep",
     "note": null
    },
@@ -3702,7 +3702,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 195,
+    "line": 198,
     "via": "ReviewStep",
     "note": null
    },
@@ -4744,7 +4744,7 @@
     "src": "POST /provider-onboarding/step2, POST /provider-onboarding/submit → acceptedVersion",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 62,
+    "line": 63,
     "via": "ReviewStep",
     "note": null
    },
@@ -4754,7 +4754,7 @@
     "src": "from rows (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 126,
+    "line": 129,
     "via": "ReviewStep",
     "note": null,
     "untraced": true
@@ -4762,20 +4762,20 @@
    {
     "kind": "input",
     "label": "Account Holder Name",
-    "src": "user input → parent callback update",
+    "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 142,
+    "line": 145,
     "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
     "label": "Bank IBAN",
-    "src": "user input → parent callback update",
+    "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 144,
+    "line": 147,
     "via": "ReviewStep",
     "note": null
    },
@@ -4785,27 +4785,27 @@
     "src": "local state setShowContract",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 151,
+    "line": 154,
     "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
     "label": "Full Name",
-    "src": "user input → parent callback update",
+    "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 161,
+    "line": 164,
     "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
     "label": "{label(config.signatoryRoleHint}",
-    "src": "user input → parent callback update",
+    "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 163,
+    "line": 166,
     "via": "ReviewStep",
     "note": null
    },
@@ -4815,7 +4815,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 176,
+    "line": 179,
     "via": "ReviewStep",
     "note": null
    },
@@ -4825,7 +4825,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 181,
+    "line": 184,
     "via": "ReviewStep",
     "note": null
    },
@@ -4835,7 +4835,7 @@
     "src": "user input → agreed (local)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 191,
+    "line": 194,
     "via": "ReviewStep",
     "note": null
    },
@@ -4845,7 +4845,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 195,
+    "line": 198,
     "via": "ReviewStep",
     "note": null
    },
@@ -5908,7 +5908,7 @@
     "src": "POST /provider-onboarding/step2, POST /provider-onboarding/submit → acceptedVersion",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 62,
+    "line": 63,
     "via": "ReviewStep",
     "note": null
    },
@@ -5918,7 +5918,7 @@
     "src": "from rows (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 126,
+    "line": 129,
     "via": "ReviewStep",
     "note": null,
     "untraced": true
@@ -5926,20 +5926,20 @@
    {
     "kind": "input",
     "label": "Account Holder Name",
-    "src": "user input → parent callback update",
+    "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 142,
+    "line": 145,
     "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
     "label": "Bank IBAN",
-    "src": "user input → parent callback update",
+    "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 144,
+    "line": 147,
     "via": "ReviewStep",
     "note": null
    },
@@ -5949,27 +5949,27 @@
     "src": "local state setShowContract",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 151,
+    "line": 154,
     "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
     "label": "Full Name",
-    "src": "user input → parent callback update",
+    "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 161,
+    "line": 164,
     "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
     "label": "{label(config.signatoryRoleHint}",
-    "src": "user input → parent callback update",
+    "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 163,
+    "line": 166,
     "via": "ReviewStep",
     "note": null
    },
@@ -5979,7 +5979,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 176,
+    "line": 179,
     "via": "ReviewStep",
     "note": null
    },
@@ -5989,7 +5989,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 181,
+    "line": 184,
     "via": "ReviewStep",
     "note": null
    },
@@ -5999,7 +5999,7 @@
     "src": "user input → agreed (local)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 191,
+    "line": 194,
     "via": "ReviewStep",
     "note": null
    },
@@ -6009,7 +6009,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 195,
+    "line": 198,
     "via": "ReviewStep",
     "note": null
    },
@@ -7072,7 +7072,7 @@
     "src": "POST /provider-onboarding/step2, POST /provider-onboarding/submit → acceptedVersion",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 62,
+    "line": 63,
     "via": "ReviewStep",
     "note": null
    },
@@ -7082,7 +7082,7 @@
     "src": "from rows (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 126,
+    "line": 129,
     "via": "ReviewStep",
     "note": null,
     "untraced": true
@@ -7090,20 +7090,20 @@
    {
     "kind": "input",
     "label": "Account Holder Name",
-    "src": "user input → parent callback update",
+    "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 142,
+    "line": 145,
     "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
     "label": "Bank IBAN",
-    "src": "user input → parent callback update",
+    "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 144,
+    "line": 147,
     "via": "ReviewStep",
     "note": null
    },
@@ -7113,27 +7113,27 @@
     "src": "local state setShowContract",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 151,
+    "line": 154,
     "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
     "label": "Full Name",
-    "src": "user input → parent callback update",
+    "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 161,
+    "line": 164,
     "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
     "label": "{label(config.signatoryRoleHint}",
-    "src": "user input → parent callback update",
+    "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 163,
+    "line": 166,
     "via": "ReviewStep",
     "note": null
    },
@@ -7143,7 +7143,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 176,
+    "line": 179,
     "via": "ReviewStep",
     "note": null
    },
@@ -7153,7 +7153,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 181,
+    "line": 184,
     "via": "ReviewStep",
     "note": null
    },
@@ -7163,7 +7163,7 @@
     "src": "user input → agreed (local)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 191,
+    "line": 194,
     "via": "ReviewStep",
     "note": null
    },
@@ -7173,7 +7173,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 195,
+    "line": 198,
     "via": "ReviewStep",
     "note": null
    },
@@ -8096,7 +8096,7 @@
     "src": "POST /provider-onboarding/step2, POST /provider-onboarding/submit → acceptedVersion",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 62,
+    "line": 63,
     "via": "ReviewStep",
     "note": null
    },
@@ -8106,7 +8106,7 @@
     "src": "from rows (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 126,
+    "line": 129,
     "via": "ReviewStep",
     "note": null,
     "untraced": true
@@ -8114,20 +8114,20 @@
    {
     "kind": "input",
     "label": "Account Holder Name",
-    "src": "user input → parent callback update",
+    "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 142,
+    "line": 145,
     "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
     "label": "Bank IBAN",
-    "src": "user input → parent callback update",
+    "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 144,
+    "line": 147,
     "via": "ReviewStep",
     "note": null
    },
@@ -8137,27 +8137,27 @@
     "src": "local state setShowContract",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 151,
+    "line": 154,
     "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
     "label": "Full Name",
-    "src": "user input → parent callback update",
+    "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 161,
+    "line": 164,
     "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
     "label": "{label(config.signatoryRoleHint}",
-    "src": "user input → parent callback update",
+    "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 163,
+    "line": 166,
     "via": "ReviewStep",
     "note": null
    },
@@ -8167,7 +8167,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 176,
+    "line": 179,
     "via": "ReviewStep",
     "note": null
    },
@@ -8177,7 +8177,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 181,
+    "line": 184,
     "via": "ReviewStep",
     "note": null
    },
@@ -8187,7 +8187,7 @@
     "src": "user input → agreed (local)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 191,
+    "line": 194,
     "via": "ReviewStep",
     "note": null
    },
@@ -8197,7 +8197,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 195,
+    "line": 198,
     "via": "ReviewStep",
     "note": null
    },
@@ -8341,7 +8341,7 @@
     "src": "parent callback onTriggerAlarm",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-    "line": 204,
+    "line": 206,
     "via": null,
     "note": null
    },
@@ -8351,7 +8351,7 @@
     "src": "user input → POST /provider/ops/availability/toggle-instant",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-    "line": 207,
+    "line": 209,
     "via": null,
     "note": null
    },
@@ -8361,7 +8361,7 @@
     "src": "value ← String(stats.todayCount)",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-    "line": 215,
+    "line": 217,
     "via": null,
     "note": null
    },
@@ -8371,7 +8371,7 @@
     "src": "value ← String(stats.pendingCount)",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-    "line": 216,
+    "line": 218,
     "via": null,
     "note": null
    },
@@ -8381,7 +8381,7 @@
     "src": "GET /provider/jobs/queue, GET /provider/stats/today",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-    "line": 222,
+    "line": 224,
     "via": null,
     "note": null
    },
@@ -8391,7 +8391,7 @@
     "src": "GET /provider/jobs/queue, GET /provider/stats/today, POST /provider/jobs/:param/:param/accept +1 → requests",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-    "line": 233,
+    "line": 235,
     "via": null,
     "note": null
    },
@@ -8401,7 +8401,7 @@
     "src": "POST /provider/jobs/:param/:param/reject, GET /provider/jobs/queue, GET /provider/stats/today",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-    "line": 257,
+    "line": 259,
     "via": null,
     "note": null
    },
@@ -8411,7 +8411,7 @@
     "src": "POST /provider/jobs/:param/:param/accept, GET /provider/jobs/queue, GET /provider/stats/today",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-    "line": 260,
+    "line": 262,
     "via": null,
     "note": null
    },
@@ -8421,7 +8421,7 @@
     "src": "local state setInsuranceModalReq",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-    "line": 262,
+    "line": 264,
     "via": null,
     "note": null
    },
@@ -8431,7 +8431,7 @@
     "src": "POST /provider/jobs/:param/:param/accept, GET /provider/jobs/queue, GET /provider/stats/today",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-    "line": 264,
+    "line": 266,
     "via": null,
     "note": null
    },
@@ -8441,7 +8441,7 @@
     "src": "GET /provider/jobs/queue, GET /provider/stats/today → todayApts",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-    "line": 279,
+    "line": 281,
     "via": null,
     "note": null
    },
@@ -8451,7 +8451,7 @@
     "src": "navigate → consultation",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-    "line": 280,
+    "line": 282,
     "via": null,
     "note": null
    },
@@ -8461,7 +8461,7 @@
     "src": "navigate → medical_jobs",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-    "line": 290,
+    "line": 292,
     "via": null,
     "note": null
    },
@@ -8471,7 +8471,7 @@
     "src": "navigate → drug_index",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-    "line": 298,
+    "line": 300,
     "via": null,
     "note": null
    },
@@ -8481,7 +8481,7 @@
     "src": "navigate → inbound_reports",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-    "line": 306,
+    "line": 308,
     "via": null,
     "note": null
    },
@@ -8491,7 +8491,7 @@
     "src": "local state setApprovalStatus",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-    "line": 352,
+    "line": 354,
     "via": null,
     "note": null
    },
@@ -8501,7 +8501,7 @@
     "src": "user input → patientCopay → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-    "line": 357,
+    "line": 359,
     "via": null,
     "note": null
    },
@@ -8511,7 +8511,7 @@
     "src": "user input → insuranceCoverage → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-    "line": 358,
+    "line": 360,
     "via": null,
     "note": null
    },
@@ -8521,7 +8521,7 @@
     "src": "user input → approvalCode → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-    "line": 359,
+    "line": 361,
     "via": null,
     "note": null
    },
@@ -8531,7 +8531,7 @@
     "src": "POST /provider/jobs/consultation/:param/insurance, GET /provider/jobs/queue, GET /provider/stats/today",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-    "line": 360,
+    "line": 362,
     "via": null,
     "note": null
    }
@@ -8932,7 +8932,7 @@
     "src": "POST /hospital/leave-facility",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
-    "line": 150,
+    "line": 157,
     "via": null,
     "note": null
    },
@@ -8942,7 +8942,7 @@
     "src": "navigate → facility_invitations",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
-    "line": 157,
+    "line": 164,
     "via": null,
     "note": null
    },
@@ -8952,7 +8952,7 @@
     "src": "user input → parent callback toggleTheme",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
-    "line": 170,
+    "line": 177,
     "via": null,
     "note": null
    },
@@ -8962,7 +8962,7 @@
     "src": "parent callback toggleLang",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
-    "line": 180,
+    "line": 187,
     "via": null,
     "note": null
    },
@@ -8972,7 +8972,7 @@
     "src": "user input → clinicActive (local)",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
-    "line": 202,
+    "line": 209,
     "via": null,
     "note": null
    },
@@ -8982,7 +8982,7 @@
     "src": "user input → clinicPrice (local)",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
-    "line": 205,
+    "line": 212,
     "via": null,
     "note": null
    },
@@ -8992,7 +8992,7 @@
     "src": "user input → onlineActive (local)",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
-    "line": 209,
+    "line": 216,
     "via": null,
     "note": null
    },
@@ -9002,7 +9002,7 @@
     "src": "user input → onlinePrice (local)",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
-    "line": 212,
+    "line": 219,
     "via": null,
     "note": null
    },
@@ -9012,7 +9012,7 @@
     "src": "user input → homeActive (local)",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
-    "line": 216,
+    "line": 223,
     "via": null,
     "note": null
    },
@@ -9022,7 +9022,7 @@
     "src": "user input → homePrice (local)",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
-    "line": 219,
+    "line": 226,
     "via": null,
     "note": null
    },
@@ -9032,7 +9032,7 @@
     "src": "POST /provider/settings/delta, PUT /provider/settings/pricing",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
-    "line": 223,
+    "line": 230,
     "via": null,
     "note": null
    },
@@ -9042,7 +9042,7 @@
     "src": "navigate → profile_edit",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
-    "line": 228,
+    "line": 235,
     "via": null,
     "note": null
    },
@@ -9052,7 +9052,7 @@
     "src": "navigate → location_config",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
-    "line": 229,
+    "line": 236,
     "via": null,
     "note": null
    },
@@ -9062,7 +9062,7 @@
     "src": "navigate → doctor_leaves",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
-    "line": 230,
+    "line": 237,
     "via": null,
     "note": null
    },
@@ -9072,7 +9072,7 @@
     "src": "navigate → rx_templates",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
-    "line": 231,
+    "line": 238,
     "via": null,
     "note": null
    },
@@ -9082,7 +9082,7 @@
     "src": "navigate → saved_diagnoses",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
-    "line": 232,
+    "line": 239,
     "via": null,
     "note": null
    },
@@ -9092,7 +9092,7 @@
     "src": "navigate → doctor_blacklist",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
-    "line": 233,
+    "line": 240,
     "via": null,
     "note": null
    },
@@ -9102,7 +9102,7 @@
     "src": "navigate → availability_engine",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
-    "line": 234,
+    "line": 241,
     "via": null,
     "note": null
    },
@@ -9112,7 +9112,7 @@
     "src": "navigate → insurance_config",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
-    "line": 235,
+    "line": 242,
     "via": null,
     "note": null
    },
@@ -9122,7 +9122,17 @@
     "src": "navigate → insurance_requests",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
-    "line": 236,
+    "line": 243,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{t('disputes.title')}",
+    "src": "navigate → provider_disputes",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
+    "line": 244,
     "via": null,
     "note": null
    },
@@ -9132,7 +9142,7 @@
     "src": "parent callback onLogout",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
-    "line": 239,
+    "line": 247,
     "via": null,
     "note": null
    },
@@ -9171,20 +9181,30 @@
    {
     "kind": "data",
     "label": "Data unreadCount",
-    "src": "GET /provider/notifications → unreadCount",
+    "src": "GET /provider/notifications, POST /provider/notifications/:param/read → unreadCount",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 282,
+    "line": 294,
     "via": null,
     "note": null
    },
    {
     "kind": "data",
     "label": "List notifs",
-    "src": "GET /provider/notifications → notifs",
+    "src": "GET /provider/notifications, POST /provider/notifications/:param/read → notifs",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 324,
+    "line": 347,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{n.title} {n.time}",
+    "src": "POST /provider/notifications/:param/read, GET /provider/notifications",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/RealScreens.tsx",
+    "line": 348,
     "via": null,
     "note": null
    }
@@ -9226,7 +9246,7 @@
     "src": "navigate → consultation",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
-    "line": 127,
+    "line": 129,
     "via": null,
     "note": null
    },
@@ -9236,7 +9256,7 @@
     "src": "navigate → medical_order_composer",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
-    "line": 128,
+    "line": 130,
     "via": null,
     "note": null
    },
@@ -9246,7 +9266,7 @@
     "src": "PATCH /care/appointments/:param/:param",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
-    "line": 131,
+    "line": 133,
     "via": null,
     "note": null
    },
@@ -9256,7 +9276,7 @@
     "src": "local state setShowCancel",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
-    "line": 132,
+    "line": 134,
     "via": null,
     "note": null
    },
@@ -9266,7 +9286,7 @@
     "src": "local state setShowResched",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
-    "line": 133,
+    "line": 135,
     "via": null,
     "note": null
    },
@@ -9276,7 +9296,7 @@
     "src": "user input → cancelReason (local)",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
-    "line": 137,
+    "line": 139,
     "via": null,
     "note": null
    },
@@ -9286,7 +9306,7 @@
     "src": "PATCH /care/appointments/:param/:param",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
-    "line": 138,
+    "line": 140,
     "via": null,
     "note": null
    },
@@ -9296,7 +9316,7 @@
     "src": "local state setPicker",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
-    "line": 143,
+    "line": 145,
     "via": null,
     "note": null
    },
@@ -9306,7 +9326,7 @@
     "src": "local state setPicker",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
-    "line": 147,
+    "line": 149,
     "via": null,
     "note": null
    },
@@ -9316,7 +9336,7 @@
     "src": "PATCH /care/appointments/:param/:param",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
-    "line": 165,
+    "line": 167,
     "via": null,
     "note": null
    },
@@ -9326,7 +9346,7 @@
     "src": "PATCH /care/appointments/:param/:param, POST /care/appointments/:param/position → state",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
-    "line": 179,
+    "line": 181,
     "via": null,
     "note": null
    },
@@ -9336,7 +9356,7 @@
     "src": "PATCH /care/appointments/:param/:param, POST /care/appointments/:param/position",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
-    "line": 212,
+    "line": 214,
     "via": null,
     "note": null
    },
@@ -9346,7 +9366,7 @@
     "src": "PATCH /care/appointments/:param/:param, POST /care/appointments/:param/position",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
-    "line": 213,
+    "line": 215,
     "via": null,
     "note": null
    }
@@ -9454,7 +9474,7 @@
    },
    {
     "kind": "button",
-    "label": "Sick leave",
+    "label": "{t('medicalReport.open')}",
     "src": "navigate → sick_leave",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
@@ -9464,11 +9484,21 @@
    },
    {
     "kind": "button",
+    "label": "{t('medicalReport.openList')}",
+    "src": "navigate → medical_reports_list",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
+    "line": 157,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
     "label": "Medical report",
     "src": "navigate → medical_report",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-    "line": 157,
+    "line": 158,
     "via": null,
     "note": null
    },
@@ -9478,7 +9508,17 @@
     "src": "navigate → referral",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-    "line": 158,
+    "line": 159,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{t('consultation.issueReferral'}",
+    "src": "navigate → issue_referral",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
+    "line": 160,
     "via": null,
     "note": null
    },
@@ -9488,7 +9528,7 @@
     "src": "navigate → request_test",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
-    "line": 159,
+    "line": 161,
     "via": null,
     "note": null
    }
@@ -9708,52 +9748,205 @@
   ],
   "SickLeaveScreen": [
    {
+    "kind": "data",
+    "label": "Data issued",
+    "src": "POST /provider/requests/:param/sick-leave → issued",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 31,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "data",
+    "label": "Data sehaSaved",
+    "src": "PUT /provider/sick-leaves/:param/seha-number → sehaSaved",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 33,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{t('medicalReport.seha.label')}",
+    "src": "user input → seha (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 83,
+    "via": null,
+    "note": null
+   },
+   {
     "kind": "button",
-    "label": "Back",
+    "label": "{t('medicalReport.seha.save')}",
+    "src": "PUT /provider/sick-leaves/:param/seha-number",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 84,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{t('medicalReport.back')}",
     "src": "parent callback onBack",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 87,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{t('medicalReport.from')}",
+    "src": "user input → from (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 103,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{t('medicalReport.to')}",
+    "src": "user input → to (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 104,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "data",
+    "label": "List DAY_CHOICES",
+    "src": "from DAY_CHOICES (prop / derived; not traced)",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 107,
+    "via": null,
+    "note": null,
+    "untraced": true
+   },
+   {
+    "kind": "button",
+    "label": "{t('medicalReport.daysCount', {}",
+    "src": "parent callback ISO_DAY.test",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 111,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{t('medicalReport.reason')}",
+    "src": "user input → reason (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 119,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{t('medicalReport.showDiagnosis}",
+    "src": "user input → showDiag (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 120,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{t('medicalReport.diagnosis')}",
+    "src": "user input → diag (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 121,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{t('medicalReport.issue')}",
+    "src": "POST /provider/requests/:param/sick-leave",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
+    "line": 126,
+    "via": null,
+    "note": null
+   }
+  ],
+  "MedicalReportsListScreen": [
+   {
+    "kind": "data",
+    "label": "Data rows",
+    "src": "rows: set from user input / local logic",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/MedicalReportsListScreen.tsx",
+    "line": 15,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{t('medicalReport.list.retry')}",
+    "src": "local state setFailed, setRows",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/MedicalReportsListScreen.tsx",
+    "line": 47,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{t('medicalReport.list.close')}",
+    "src": "local state setOpen, setSeha",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/MedicalReportsListScreen.tsx",
+    "line": 61,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{t('medicalReport.seha.label')}",
+    "src": "user input → seha (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/MedicalReportsListScreen.tsx",
     "line": 65,
     "via": null,
     "note": null
    },
    {
-    "kind": "input",
-    "label": "Diagnosis",
-    "src": "user input → diag → request body",
+    "kind": "button",
+    "label": "{t('medicalReport.seha.save')}",
+    "src": "PUT /provider/sick-leaves/:param/seha-number",
     "status": "ok",
-    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
-    "line": 82,
+    "file": "provider-app/src/screens/doctor/doctor/MedicalReportsListScreen.tsx",
+    "line": 66,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Start Date",
-    "src": "user input → from → request body",
+    "label": "{t('medicalReport.revoke.reason}",
+    "src": "user input → why → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
-    "line": 85,
+    "file": "provider-app/src/screens/doctor/doctor/MedicalReportsListScreen.tsx",
+    "line": 67,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "{d} day",
-    "src": "local state setDays",
+    "label": "{t('medicalReport.revoke.action}",
+    "src": "POST /provider/sick-leaves/:param/revoke",
     "status": "ok",
-    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
-    "line": 95,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Issue & Send Sick Leave",
-    "src": "POST /provider/requests/:param/sick-leave",
-    "status": "ok",
-    "file": "provider-app/src/screens/doctor/doctor/SickLeaveScreen.tsx",
-    "line": 118,
+    "file": "provider-app/src/screens/doctor/doctor/MedicalReportsListScreen.tsx",
+    "line": 68,
     "via": null,
     "note": null
    }
@@ -10163,6 +10356,59 @@
     "note": null
    }
   ],
+  "IssueReferralScreen": [
+   {
+    "kind": "button",
+    "label": "{t(KIND_LABEL[k])}",
+    "src": "local state setKind",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/IssueReferralScreen.tsx",
+    "line": 72,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "data",
+    "label": "List items",
+    "src": "from items (prop / derived; not traced)",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/IssueReferralScreen.tsx",
+    "line": 82,
+    "via": null,
+    "note": null,
+    "untraced": true
+   },
+   {
+    "kind": "button",
+    "label": "{item.ar}",
+    "src": "parent callback selected.includes, selected.filter",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/IssueReferralScreen.tsx",
+    "line": 85,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{t('issueReferral.notes')}",
+    "src": "user input → notes (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/IssueReferralScreen.tsx",
+    "line": 96,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{t('issueReferral.send')}",
+    "src": "parent callback t, onBack",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/IssueReferralScreen.tsx",
+    "line": 97,
+    "via": null,
+    "note": null
+   }
+  ],
   "PatientFileScreen": [
    {
     "kind": "data",
@@ -10323,7 +10569,7 @@
     "src": "parent callback onBack",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx",
-    "line": 179,
+    "line": 181,
     "via": null,
     "note": null
    },
@@ -10333,7 +10579,7 @@
     "src": "GET /provider/payouts/balance, GET /provider/bank-account, GET /provider/payouts/mine +1 → banks",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx",
-    "line": 249,
+    "line": 260,
     "via": null,
     "note": null
    },
@@ -10343,7 +10589,7 @@
     "src": "local state setBankCode",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx",
-    "line": 253,
+    "line": 264,
     "via": null,
     "note": null
    },
@@ -10353,7 +10599,7 @@
     "src": "user input → holderName → request body",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx",
-    "line": 264,
+    "line": 275,
     "via": null,
     "note": null
    },
@@ -10363,7 +10609,7 @@
     "src": "user input → iban → request body",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx",
-    "line": 270,
+    "line": 281,
     "via": null,
     "note": null
    },
@@ -10373,7 +10619,7 @@
     "src": "user input → amount → request body",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx",
-    "line": 283,
+    "line": 294,
     "via": null,
     "note": null
    },
@@ -10383,7 +10629,7 @@
     "src": "POST /provider/bank-account, GET /provider/payouts/balance, GET /provider/bank-account +3",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx",
-    "line": 299,
+    "line": 310,
     "via": null,
     "note": null
    },
@@ -10393,7 +10639,7 @@
     "src": "GET /provider/payouts/balance, GET /provider/bank-account, GET /provider/payouts/mine +1 → history",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx",
-    "line": 305,
+    "line": 316,
     "via": null,
     "note": null
    }
@@ -10405,7 +10651,7 @@
     "src": "from periods (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/RevenueInsights.tsx",
-    "line": 93,
+    "line": 94,
     "via": null,
     "note": null,
     "untraced": true
@@ -10416,17 +10662,17 @@
     "src": "local state setPeriod",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/RevenueInsights.tsx",
-    "line": 94,
+    "line": 95,
     "via": null,
     "note": null
    },
    {
     "kind": "data",
-    "label": "List monthly",
-    "src": "from monthly (prop / derived; not traced)",
+    "label": "List trend",
+    "src": "from trend (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/RevenueInsights.tsx",
-    "line": 138,
+    "line": 149,
     "via": null,
     "note": null,
     "untraced": true
@@ -10437,7 +10683,7 @@
     "src": "from topServices (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/RevenueInsights.tsx",
-    "line": 159,
+    "line": 170,
     "via": null,
     "note": null,
     "untraced": true
@@ -10448,7 +10694,7 @@
     "src": "from Object (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/RevenueInsights.tsx",
-    "line": 180,
+    "line": 191,
     "via": null,
     "note": null,
     "untraced": true
@@ -10539,10 +10785,10 @@
    {
     "kind": "input",
     "label": "<Switch>",
-    "src": "user input → vacationMode → request body",
+    "src": "user input → PATCH /provider/profile/availability",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx",
-    "line": 234,
+    "line": 269,
     "via": null,
     "note": null
    },
@@ -10552,7 +10798,7 @@
     "src": "navigate → insurance_config",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx",
-    "line": 240,
+    "line": 275,
     "via": null,
     "note": null
    },
@@ -10562,7 +10808,7 @@
     "src": "GET /provider/profile/availability, GET /insurance/companies → weeklySchedule",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx",
-    "line": 244,
+    "line": 279,
     "via": null,
     "note": null
    },
@@ -10570,46 +10816,6 @@
     "kind": "input",
     "label": "<Switch>",
     "src": "user input → parent callback prev.map",
-    "status": "ok",
-    "file": "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx",
-    "line": 248,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "<Switch>",
-    "src": "user input → parent callback prev.map",
-    "status": "ok",
-    "file": "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx",
-    "line": 256,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "--:--",
-    "src": "local state setPickerTarget, setShowPicker",
-    "status": "ok",
-    "file": "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx",
-    "line": 268,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "--:--",
-    "src": "local state setPickerTarget, setShowPicker",
-    "status": "ok",
-    "file": "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx",
-    "line": 272,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "--:--",
-    "src": "local state setPickerTarget, setShowPicker",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx",
     "line": 283,
@@ -10617,12 +10823,52 @@
     "note": null
    },
    {
+    "kind": "input",
+    "label": "<Switch>",
+    "src": "user input → parent callback prev.map",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx",
+    "line": 291,
+    "via": null,
+    "note": null
+   },
+   {
     "kind": "button",
     "label": "--:--",
     "src": "local state setPickerTarget, setShowPicker",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx",
-    "line": 287,
+    "line": 303,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "--:--",
+    "src": "local state setPickerTarget, setShowPicker",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx",
+    "line": 307,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "--:--",
+    "src": "local state setPickerTarget, setShowPicker",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx",
+    "line": 318,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "--:--",
+    "src": "local state setPickerTarget, setShowPicker",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx",
+    "line": 322,
     "via": null,
     "note": null
    },
@@ -10632,7 +10878,7 @@
     "src": "local state setShowPicker",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx",
-    "line": 302,
+    "line": 337,
     "via": null,
     "note": null
    },
@@ -10642,7 +10888,7 @@
     "src": "PATCH /provider/profile/availability",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx",
-    "line": 327,
+    "line": 362,
     "via": null,
     "note": null
    },
@@ -10652,7 +10898,7 @@
     "src": "GET /provider/profile/availability, GET /insurance/companies → insurances",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx",
-    "line": 339,
+    "line": 374,
     "via": null,
     "note": null
    },
@@ -10662,7 +10908,7 @@
     "src": "user input → parent callback prev.map",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx",
-    "line": 345,
+    "line": 380,
     "via": null,
     "note": null
    },
@@ -10672,7 +10918,7 @@
     "src": "user input → parent callback prev.map",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx",
-    "line": 351,
+    "line": 386,
     "via": null,
     "note": null
    },
@@ -10682,7 +10928,7 @@
     "src": "user input → parent callback prev.map",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx",
-    "line": 354,
+    "line": 389,
     "via": null,
     "note": null
    },
@@ -10692,7 +10938,7 @@
     "src": "parent callback prev.map",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx",
-    "line": 359,
+    "line": 394,
     "via": null,
     "note": null
    },
@@ -10702,7 +10948,7 @@
     "src": "PATCH /provider/profile/availability",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx",
-    "line": 371,
+    "line": 406,
     "via": null,
     "note": null
    },
@@ -10796,7 +11042,7 @@
     "src": "POST /provider/capabilities/doctor-sessions, GET /provider/capabilities/doctor-sessions → newPrice",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
-    "line": 51,
+    "line": 54,
     "via": null,
     "note": null
    },
@@ -10806,7 +11052,7 @@
     "src": "local state setShowAddSheet",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
-    "line": 209,
+    "line": 212,
     "via": null,
     "note": null
    },
@@ -10816,7 +11062,7 @@
     "src": "GET /provider/capabilities/doctor-sessions → services",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
-    "line": 214,
+    "line": 217,
     "via": null,
     "note": null
    },
@@ -10826,7 +11072,7 @@
     "src": "user input → POST /provider/capabilities/doctor-sessions, GET /provider/capabilities/doctor-sessions",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
-    "line": 220,
+    "line": 223,
     "via": null,
     "note": null
    },
@@ -10836,7 +11082,7 @@
     "src": "POST /provider/capabilities/doctor-sessions, GET /provider/capabilities/doctor-sessions",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
-    "line": 223,
+    "line": 226,
     "via": null,
     "note": null
    },
@@ -10846,7 +11092,7 @@
     "src": "local state setEditingService, setEditPrice",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
-    "line": 243,
+    "line": 246,
     "via": null,
     "note": null
    },
@@ -10856,7 +11102,7 @@
     "src": "DELETE /provider/capabilities/doctor-sessions/:param, GET /provider/capabilities/doctor-sessions",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
-    "line": 246,
+    "line": 249,
     "via": null,
     "note": null
    },
@@ -10866,7 +11112,7 @@
     "src": "user input → editPrice (local)",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
-    "line": 259,
+    "line": 262,
     "via": null,
     "note": null
    },
@@ -10876,7 +11122,7 @@
     "src": "user input → editDuration (local)",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
-    "line": 260,
+    "line": 263,
     "via": null,
     "note": null
    },
@@ -10886,7 +11132,7 @@
     "src": "POST /provider/capabilities/doctor-sessions, GET /provider/capabilities/doctor-sessions",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
-    "line": 261,
+    "line": 264,
     "via": null,
     "note": null
    },
@@ -10896,7 +11142,7 @@
     "src": "from Object (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
-    "line": 270,
+    "line": 273,
     "via": null,
     "note": null,
     "untraced": true
@@ -10907,7 +11153,7 @@
     "src": "local state setNewType",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
-    "line": 271,
+    "line": 274,
     "via": null,
     "note": null
    },
@@ -10917,7 +11163,7 @@
     "src": "user input → newPrice (local)",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
-    "line": 278,
+    "line": 281,
     "via": null,
     "note": null
    },
@@ -10927,7 +11173,7 @@
     "src": "user input → newDuration (local)",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
-    "line": 279,
+    "line": 282,
     "via": null,
     "note": null
    },
@@ -10937,7 +11183,7 @@
     "src": "POST /provider/capabilities/doctor-sessions, GET /provider/capabilities/doctor-sessions",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
-    "line": 280,
+    "line": 283,
     "via": null,
     "note": null
    }
@@ -11720,7 +11966,7 @@
     "src": "GET /provider-onboarding/my-profile, GET /provider/insurance-matrix → insurances",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/InsuranceConfigScreen.tsx",
-    "line": 126,
+    "line": 128,
     "via": null,
     "note": null
    },
@@ -11730,7 +11976,7 @@
     "src": "user input → parent callback prev.map",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/InsuranceConfigScreen.tsx",
-    "line": 135,
+    "line": 137,
     "via": null,
     "note": null
    },
@@ -11740,7 +11986,7 @@
     "src": "user input → parent callback prev.map",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/InsuranceConfigScreen.tsx",
-    "line": 141,
+    "line": 143,
     "via": null,
     "note": null
    },
@@ -11750,7 +11996,7 @@
     "src": "from item (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/InsuranceConfigScreen.tsx",
-    "line": 153,
+    "line": 155,
     "via": null,
     "note": null,
     "untraced": true
@@ -11761,7 +12007,7 @@
     "src": "parent callback prev.map",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/InsuranceConfigScreen.tsx",
-    "line": 156,
+    "line": 158,
     "via": null,
     "note": null
    },
@@ -11771,7 +12017,7 @@
     "src": "POST /provider/settings/delta, PUT /provider/insurance-matrix",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/InsuranceConfigScreen.tsx",
-    "line": 169,
+    "line": 171,
     "via": null,
     "note": null
    }
@@ -11864,6 +12110,18 @@
     "status": "ok",
     "file": "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx",
     "line": 303,
+    "via": null,
+    "note": null
+   }
+  ],
+  "ProviderDisputesScreen": [
+   {
+    "kind": "data",
+    "label": "List items",
+    "src": "GET /support/provider/disputes → items",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/ProviderDisputesScreen.tsx",
+    "line": 81,
     "via": null,
     "note": null
    }
@@ -12447,7 +12705,7 @@
     "src": "GET /provider/jobs/queue, GET /hospital/staff, GET /provider/stats/today +1 → todayStats",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
-    "line": 53,
+    "line": 69,
     "via": null,
     "note": null
    },
@@ -12457,7 +12715,7 @@
     "src": "GET /provider/jobs/queue, GET /hospital/staff, GET /provider/stats/today +1 → surgeriesLive",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
-    "line": 54,
+    "line": 70,
     "via": null,
     "note": null
    },
@@ -12467,7 +12725,7 @@
     "src": "navigate → qr_checkin",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
-    "line": 100,
+    "line": 116,
     "via": null,
     "note": null
    },
@@ -12477,7 +12735,7 @@
     "src": "navigate → notifications",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
-    "line": 103,
+    "line": 119,
     "via": null,
     "note": null
    },
@@ -12487,7 +12745,7 @@
     "src": "from branches (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
-    "line": 114,
+    "line": 130,
     "via": null,
     "note": null,
     "untraced": true
@@ -12498,7 +12756,7 @@
     "src": "parent callback onSelectBranch",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
-    "line": 115,
+    "line": 131,
     "via": null,
     "note": null
    },
@@ -12508,7 +12766,7 @@
     "src": "value ← String(aptsToday)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
-    "line": 148,
+    "line": 164,
     "via": null,
     "note": null
    },
@@ -12518,7 +12776,7 @@
     "src": "value ← totalBeds > 0 ? `${occupied}/${totalBeds}` : '—'",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
-    "line": 149,
+    "line": 165,
     "via": null,
     "note": null
    },
@@ -12528,7 +12786,7 @@
     "src": "value ← typeof revenue === 'number' ? revenue.toLocaleSt",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
-    "line": 150,
+    "line": 166,
     "via": null,
     "note": null
    },
@@ -12538,7 +12796,7 @@
     "src": "value ← String(activeStaff)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
-    "line": 151,
+    "line": 167,
     "via": null,
     "note": null
    },
@@ -12548,7 +12806,7 @@
     "src": "navigate (back / dynamic target)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
-    "line": 221,
+    "line": 237,
     "via": null,
     "note": null
    },
@@ -12558,7 +12816,7 @@
     "src": "from wards (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
-    "line": 240,
+    "line": 256,
     "via": null,
     "note": null,
     "untraced": true
@@ -12569,7 +12827,7 @@
     "src": "GET /provider/jobs/queue, GET /hospital/staff, GET /provider/stats/today +1 → todayApts",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
-    "line": 271,
+    "line": 287,
     "via": null,
     "note": null
    },
@@ -12579,7 +12837,7 @@
     "src": "GET /provider/jobs/queue, GET /hospital/staff, GET /provider/stats/today +1 → subaccounts",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
-    "line": 305,
+    "line": 321,
     "via": null,
     "note": null
    }
@@ -13714,7 +13972,7 @@
     "src": "value ← `${(totalAmt/1000).toFixed(1)}K`",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/InsuranceClaimsHubScreen.tsx",
-    "line": 74,
+    "line": 90,
     "via": null,
     "note": null
    },
@@ -13724,7 +13982,7 @@
     "src": "value ← `${(pendingAmt/1000).toFixed(1)}K`",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/InsuranceClaimsHubScreen.tsx",
-    "line": 75,
+    "line": 91,
     "via": null,
     "note": null
    },
@@ -13734,7 +13992,7 @@
     "src": "local state setStatusFilter",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/InsuranceClaimsHubScreen.tsx",
-    "line": 86,
+    "line": 102,
     "via": null,
     "note": null
    },
@@ -13744,7 +14002,7 @@
     "src": "from filtered (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/InsuranceClaimsHubScreen.tsx",
-    "line": 98,
+    "line": 114,
     "via": null,
     "note": null,
     "untraced": true
@@ -13755,7 +14013,7 @@
     "src": "local state setExpandedClaim",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/InsuranceClaimsHubScreen.tsx",
-    "line": 124,
+    "line": 140,
     "via": null,
     "note": null
    }
@@ -13863,27 +14121,27 @@
     "src": "GET /provider/facility/patients/active → patients",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityPatientTrackerScreen.tsx",
-    "line": 33,
+    "line": 35,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Discharge Summary",
+    "label": "{t('tracker.discharge')}",
     "src": "navigate → discharge_summary",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityPatientTrackerScreen.tsx",
-    "line": 66,
+    "line": 61,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Prescription",
+    "label": "{t('tracker.prescription')}",
     "src": "navigate → prescription",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityPatientTrackerScreen.tsx",
-    "line": 69,
+    "line": 65,
     "via": null,
     "note": null
    }
@@ -14250,7 +14508,7 @@
     "src": "user input → subject → request body",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 376,
+    "line": 399,
     "via": null,
     "note": null
    },
@@ -14260,7 +14518,7 @@
     "src": "user input → message → request body",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 378,
+    "line": 401,
     "via": null,
     "note": null
    },
@@ -14270,7 +14528,7 @@
     "src": "POST /support/tickets",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 379,
+    "line": 402,
     "via": null,
     "note": null
    }
@@ -14282,7 +14540,7 @@
     "src": "user input → oldPassword → request body",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 263,
+    "line": 275,
     "via": null,
     "note": null
    },
@@ -14292,7 +14550,7 @@
     "src": "user input → newPassword → request body",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 265,
+    "line": 277,
     "via": null,
     "note": null
    },
@@ -14302,7 +14560,7 @@
     "src": "POST /provider/auth/change-password",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 266,
+    "line": 278,
     "via": null,
     "note": null
    }
@@ -14336,7 +14594,7 @@
     "src": "GET /labs/provider/inbox, GET /labs/samples → samples",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 274,
+    "line": 281,
     "via": null,
     "note": null
    },
@@ -14346,7 +14604,7 @@
     "src": "GET /labs/provider/inbox, GET /labs/samples → stats",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 275,
+    "line": 282,
     "via": null,
     "note": null
    },
@@ -14356,7 +14614,7 @@
     "src": "user input → POST /provider/ops/availability/toggle-instant",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 323,
+    "line": 330,
     "via": null,
     "note": null
    },
@@ -14366,7 +14624,7 @@
     "src": "navigate → notifications",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 325,
+    "line": 332,
     "via": null,
     "note": null
    },
@@ -14376,7 +14634,7 @@
     "src": "value ← String(stats.todayCount)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 333,
+    "line": 340,
     "via": null,
     "note": null
    },
@@ -14386,7 +14644,7 @@
     "src": "value ← String(stats.analyzingCount)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 334,
+    "line": 341,
     "via": null,
     "note": null
    },
@@ -14396,7 +14654,7 @@
     "src": "value ← String(stats.revenue)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 335,
+    "line": 342,
     "via": null,
     "note": null
    },
@@ -14406,7 +14664,7 @@
     "src": "value ← String(stats.readyCount)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 336,
+    "line": 343,
     "via": null,
     "note": null
    },
@@ -14416,7 +14674,7 @@
     "src": "navigate (back / dynamic target)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 354,
+    "line": 361,
     "via": null,
     "note": null
    },
@@ -14426,7 +14684,7 @@
     "src": "from SAMPLE_STAGES (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 368,
+    "line": 375,
     "via": null,
     "note": null,
     "untraced": true
@@ -14439,7 +14697,7 @@
     "src": "local state setSubTab",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 131,
+    "line": 136,
     "via": null,
     "note": null
    },
@@ -14449,7 +14707,7 @@
     "src": "local state setSubTab",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 134,
+    "line": 139,
     "via": null,
     "note": null
    },
@@ -14459,7 +14717,7 @@
     "src": "local state setSubTab",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 137,
+    "line": 142,
     "via": null,
     "note": null
    },
@@ -14469,7 +14727,7 @@
     "src": "local state setSubTab",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 140,
+    "line": 145,
     "via": null,
     "note": null
    },
@@ -14479,7 +14737,7 @@
     "src": "from filtered (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 148,
+    "line": 154,
     "via": null,
     "note": null,
     "untraced": true
@@ -14490,7 +14748,7 @@
     "src": "navigate → order_detail",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 151,
+    "line": 157,
     "via": null,
     "note": null
    }
@@ -14562,7 +14820,7 @@
     "src": "navigate → test_menu",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1433,
+    "line": 1470,
     "via": null,
     "note": null
    },
@@ -14572,7 +14830,7 @@
     "src": "navigate → bundles",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1434,
+    "line": 1471,
     "via": null,
     "note": null
    },
@@ -14582,7 +14840,7 @@
     "src": "navigate → home_service",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1435,
+    "line": 1472,
     "via": null,
     "note": null
    },
@@ -14592,7 +14850,7 @@
     "src": "navigate → working_hours",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1436,
+    "line": 1473,
     "via": null,
     "note": null
    },
@@ -14602,7 +14860,7 @@
     "src": "navigate → insurance_config",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1437,
+    "line": 1474,
     "via": null,
     "note": null
    },
@@ -14612,7 +14870,7 @@
     "src": "navigate → insurance_requests",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1438,
+    "line": 1475,
     "via": null,
     "note": null
    },
@@ -14622,7 +14880,7 @@
     "src": "navigate (back / dynamic target)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1439,
+    "line": 1476,
     "via": null,
     "note": null
    },
@@ -14632,7 +14890,7 @@
     "src": "navigate → certificates_config",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1440,
+    "line": 1477,
     "via": null,
     "note": null
    },
@@ -14642,7 +14900,7 @@
     "src": "navigate → media_config",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1441,
+    "line": 1478,
     "via": null,
     "note": null
    },
@@ -14652,7 +14910,7 @@
     "src": "parent callback row.action",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1454,
+    "line": 1491,
     "via": null,
     "note": null
    },
@@ -14662,7 +14920,7 @@
     "src": "navigate → medical_jobs",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1460,
+    "line": 1497,
     "via": null,
     "note": null
    },
@@ -14672,7 +14930,7 @@
     "src": "navigate → drug_index",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1461,
+    "line": 1498,
     "via": null,
     "note": null
    },
@@ -14682,7 +14940,7 @@
     "src": "parent callback r.action",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1470,
+    "line": 1507,
     "via": null,
     "note": null
    },
@@ -14692,7 +14950,7 @@
     "src": "local state setShowLO",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1473,
+    "line": 1510,
     "via": null,
     "note": null
    },
@@ -14732,12 +14990,21 @@
     "kind": "text",
     "label": "mock-name: openSampleForResults = async () => {",
     "src": "mock-scan mock-name",
+    "status": "mock",
+    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+    "line": 532,
+    "via": null,
+    "note": "mock-name (mock-scan): openSampleForResults = async () => {"
+   },
+   {
+    "kind": "button",
+    "label": "{t('bookingChat.open')}",
+    "src": "navigate → booking_chat",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 517,
+    "line": 589,
     "via": null,
-    "note": null,
-    "reviewed": "'sample' is the lab specimen in the function name openSampleForResults, not sample data."
+    "note": null
    },
    {
     "kind": "button",
@@ -14745,7 +15012,7 @@
     "src": "local state setShowApproval",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 575,
+    "line": 591,
     "via": null,
     "note": null
    },
@@ -14755,7 +15022,7 @@
     "src": "PATCH /labs/bookings/:param/state",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 577,
+    "line": 595,
     "via": null,
     "note": null
    },
@@ -14765,7 +15032,7 @@
     "src": "local state setShowReject",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 579,
+    "line": 597,
     "via": null,
     "note": null
    },
@@ -14775,7 +15042,7 @@
     "src": "local state setShowAssign",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 592,
+    "line": 610,
     "via": null,
     "note": null
    },
@@ -14785,7 +15052,7 @@
     "src": "local state setShowRegister",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 594,
+    "line": 612,
     "via": null,
     "note": null
    },
@@ -14795,7 +15062,7 @@
     "src": "POST /labs/bookings/:param/emergency",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 596,
+    "line": 614,
     "via": null,
     "note": null
    },
@@ -14805,7 +15072,7 @@
     "src": "local state setShowReschedule",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 605,
+    "line": 623,
     "via": null,
     "note": null
    },
@@ -14815,7 +15082,17 @@
     "src": "navigate → home_collection",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 611,
+    "line": 629,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "Register Sample",
+    "src": "local state setShowRegister",
+    "status": "ok",
+    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+    "line": 635,
     "via": null,
     "note": null
    },
@@ -14825,7 +15102,7 @@
     "src": "local state setShowRegister",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 617,
+    "line": 641,
     "via": null,
     "note": null
    },
@@ -14835,7 +15112,7 @@
     "src": "GET /labs/samples, PATCH /labs/samples/:param/stage",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 623,
+    "line": 647,
     "via": null,
     "note": null
    },
@@ -14845,7 +15122,7 @@
     "src": "user input → rescheduleDate → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 639,
+    "line": 663,
     "via": null,
     "note": null
    },
@@ -14855,7 +15132,7 @@
     "src": "PATCH /labs/bookings/:param/reschedule",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 640,
+    "line": 664,
     "via": null,
     "note": null
    },
@@ -14865,7 +15142,7 @@
     "src": "user input → rejectReason → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 647,
+    "line": 671,
     "via": null,
     "note": null
    },
@@ -14875,7 +15152,7 @@
     "src": "PATCH /labs/bookings/:param/state",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 648,
+    "line": 672,
     "via": null,
     "note": null
    },
@@ -14885,7 +15162,7 @@
     "src": "user input → decisionRef → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 655,
+    "line": 679,
     "via": null,
     "note": null
    },
@@ -14895,7 +15172,7 @@
     "src": "user input → copay (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 656,
+    "line": 680,
     "via": null,
     "note": null
    },
@@ -14905,17 +15182,27 @@
     "src": "POST /labs/bookings/:param/coverage-decision",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 657,
+    "line": 681,
     "via": null,
     "note": null
    },
    {
-    "kind": "input",
-    "label": "Search Technician",
-    "src": "user input → techName → request body",
+    "kind": "data",
+    "label": "List techs",
+    "src": "GET /labs/team/technicians → techs",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 664,
+    "line": 690,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{tc.id}",
+    "src": "local state setTechId, setTechName",
+    "status": "ok",
+    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+    "line": 691,
     "via": null,
     "note": null
    },
@@ -14925,7 +15212,7 @@
     "src": "POST /labs/bookings/:param/assign-technician",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 665,
+    "line": 696,
     "via": null,
     "note": null
    },
@@ -14935,7 +15222,7 @@
     "src": "user input → barcode → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 672,
+    "line": 703,
     "via": null,
     "note": null
    },
@@ -14945,7 +15232,7 @@
     "src": "parent callback requestCamPerm",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 673,
+    "line": 704,
     "via": null,
     "note": null
    },
@@ -14955,7 +15242,7 @@
     "src": "user input → notes → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 674,
+    "line": 705,
     "via": null,
     "note": null
    },
@@ -14965,7 +15252,7 @@
     "src": "POST /labs/samples/register",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 675,
+    "line": 706,
     "via": null,
     "note": null
    },
@@ -14975,7 +15262,7 @@
     "src": "local state setShowCam",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 688,
+    "line": 719,
     "via": null,
     "note": null
    },
@@ -15110,6 +15397,38 @@
     "note": null
    }
   ],
+  "BookingChatScreen": [
+   {
+    "kind": "data",
+    "label": "List msgs",
+    "src": "GET /chats/threads/:param/messages, POST /chats/threads/:param/messages → msgs",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/BookingChatScreen.tsx",
+    "line": 67,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{t('bookingChat.placeholder')}",
+    "src": "user input → msg (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/BookingChatScreen.tsx",
+    "line": 77,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{t('bookingChat.send')}",
+    "src": "POST /chats/threads/:param/messages, GET /chats/threads/:param/messages",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/BookingChatScreen.tsx",
+    "line": 79,
+    "via": null,
+    "note": null
+   }
+  ],
   "SampleTracking": [
    {
     "kind": "data",
@@ -15117,7 +15436,7 @@
     "src": "GET /labs/samples → samples",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 705,
+    "line": 736,
     "via": null,
     "note": null
    },
@@ -15127,7 +15446,7 @@
     "src": "parent callback onBack",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 739,
+    "line": 770,
     "via": null,
     "note": null
    },
@@ -15137,7 +15456,7 @@
     "src": "local state setFilter",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 745,
+    "line": 776,
     "via": null,
     "note": null
    },
@@ -15147,7 +15466,7 @@
     "src": "from SAMPLE_STAGES (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 748,
+    "line": 779,
     "via": null,
     "note": null,
     "untraced": true
@@ -15158,7 +15477,7 @@
     "src": "local state setFilter",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 750,
+    "line": 781,
     "via": null,
     "note": null
    },
@@ -15168,7 +15487,7 @@
     "src": "from filtered (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 755,
+    "line": 786,
     "via": null,
     "note": null,
     "untraced": true
@@ -15179,7 +15498,7 @@
     "src": "from SAMPLE_STAGES (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 774,
+    "line": 805,
     "via": null,
     "note": null,
     "untraced": true
@@ -15190,7 +15509,7 @@
     "src": "PATCH /labs/samples/:param/stage, GET /labs/samples",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 788,
+    "line": 819,
     "via": null,
     "note": null
    },
@@ -15200,7 +15519,7 @@
     "src": "navigate → result_review",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 789,
+    "line": 820,
     "via": null,
     "note": null
    },
@@ -15210,7 +15529,7 @@
     "src": "navigate → result_review",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 790,
+    "line": 821,
     "via": null,
     "note": null
    },
@@ -15220,7 +15539,7 @@
     "src": "navigate → qr_label",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 791,
+    "line": 822,
     "via": null,
     "note": null
    }
@@ -15232,7 +15551,7 @@
     "src": "reportFile: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 813,
+    "line": 844,
     "via": null,
     "note": null
    },
@@ -15242,7 +15561,7 @@
     "src": "user input → analyte (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 858,
+    "line": 889,
     "via": null,
     "note": null
    },
@@ -15252,7 +15571,7 @@
     "src": "user input → value (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 859,
+    "line": 890,
     "via": null,
     "note": null
    },
@@ -15262,7 +15581,7 @@
     "src": "user input → unit (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 860,
+    "line": 891,
     "via": null,
     "note": null
    },
@@ -15272,7 +15591,7 @@
     "src": "user input → range (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 861,
+    "line": 892,
     "via": null,
     "note": null
    },
@@ -15282,7 +15601,7 @@
     "src": "user input → isCritical (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 862,
+    "line": 893,
     "via": null,
     "note": null
    },
@@ -15292,7 +15611,7 @@
     "src": "parent callback analyte.trim, value.trim",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 863,
+    "line": 894,
     "via": null,
     "note": null
    },
@@ -15302,7 +15621,7 @@
     "src": "resultRows: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 872,
+    "line": 903,
     "via": null,
     "note": null
    },
@@ -15312,7 +15631,7 @@
     "src": "local state setSendTo",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 885,
+    "line": 916,
     "via": null,
     "note": null
    },
@@ -15322,7 +15641,7 @@
     "src": "native action",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 895,
+    "line": 926,
     "via": null,
     "note": null
    },
@@ -15332,7 +15651,7 @@
     "src": "PATCH /labs/samples/:param/stage, POST /storage/upload, POST /labs/bookings/:param/upload-report",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 896,
+    "line": 927,
     "via": null,
     "note": null
    }
@@ -15356,7 +15675,7 @@
     "src": "user input → nameAr → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 958,
+    "line": 989,
     "via": null,
     "note": null
    },
@@ -15366,7 +15685,7 @@
     "src": "user input → nameEn → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 959,
+    "line": 990,
     "via": null,
     "note": null
    },
@@ -15376,7 +15695,7 @@
     "src": "user input → price → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 961,
+    "line": 992,
     "via": null,
     "note": null
    },
@@ -15386,7 +15705,7 @@
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 962,
+    "line": 993,
     "via": null,
     "note": null
    },
@@ -15396,7 +15715,7 @@
     "src": "user input → refLow → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 965,
+    "line": 996,
     "via": null,
     "note": null
    },
@@ -15406,7 +15725,7 @@
     "src": "user input → refHigh → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 966,
+    "line": 997,
     "via": null,
     "note": null
    },
@@ -15416,7 +15735,7 @@
     "src": "user input → unit → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 967,
+    "line": 998,
     "via": null,
     "note": null
    },
@@ -15426,7 +15745,7 @@
     "src": "user input → fasting → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 969,
+    "line": 1000,
     "via": null,
     "note": null
    },
@@ -15436,7 +15755,7 @@
     "src": "POST /approval-workflow/requests",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 971,
+    "line": 1002,
     "via": null,
     "note": null
    }
@@ -15448,7 +15767,7 @@
     "src": "POST /labs/bookings/:param/gps → eta",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1022,
+    "line": 1053,
     "via": null,
     "note": null
    },
@@ -15458,7 +15777,7 @@
     "src": "POST /labs/bookings/:param/gps → distance",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1023,
+    "line": 1054,
     "via": null,
     "note": null
    },
@@ -15468,7 +15787,7 @@
     "src": "PATCH /labs/bookings/:param/state",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1101,
+    "line": 1132,
     "via": null,
     "note": null
    },
@@ -15478,27 +15797,17 @@
     "src": "PATCH /labs/bookings/:param/state",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1111,
+    "line": 1142,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Patient Absent",
+    "label": "{label}",
     "src": "POST /labs/bookings/:param/emergency",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1123,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Wrong Location",
-    "src": "POST /labs/bookings/:param/emergency",
-    "status": "ok",
-    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1128,
+    "line": 1155,
     "via": null,
     "note": null
    },
@@ -15508,7 +15817,7 @@
     "src": "POST /labs/bookings/:param/reassign",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1133,
+    "line": 1165,
     "via": null,
     "note": null
    },
@@ -15518,7 +15827,7 @@
     "src": "GET /labs/team/technicians → collectors",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1157,
+    "line": 1194,
     "via": null,
     "note": null
    },
@@ -15528,7 +15837,7 @@
     "src": "POST /labs/bookings/:param/assign-technician",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1166,
+    "line": 1203,
     "via": null,
     "note": null
    }
@@ -15541,7 +15850,7 @@
     "src": "value ← `${pct}%`",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1238,
+    "line": 1275,
     "via": null,
     "note": null
    },
@@ -15551,7 +15860,7 @@
     "src": "GET /labs/samples → samples",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1244,
+    "line": 1281,
     "via": null,
     "note": null
    }
@@ -15563,7 +15872,7 @@
     "src": "user input → String (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1349,
+    "line": 1386,
     "via": null,
     "note": null
    },
@@ -15573,7 +15882,7 @@
     "src": "PATCH /labs/bookings/:param/insurance, GET /labs/provider/inbox → selectedOrder",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1353,
+    "line": 1390,
     "via": null,
     "note": null
    },
@@ -15583,7 +15892,7 @@
     "src": "user input → item (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1357,
+    "line": 1394,
     "via": null,
     "note": null
    },
@@ -15593,7 +15902,7 @@
     "src": "user input → item (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1361,
+    "line": 1398,
     "via": null,
     "note": null
    },
@@ -15603,7 +15912,7 @@
     "src": "user input → String (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1362,
+    "line": 1399,
     "via": null,
     "note": null
    },
@@ -15613,7 +15922,7 @@
     "src": "user input → approvalRef → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1369,
+    "line": 1406,
     "via": null,
     "note": null
    },
@@ -15623,7 +15932,7 @@
     "src": "user input → rejectNote → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1370,
+    "line": 1407,
     "via": null,
     "note": null
    },
@@ -15633,7 +15942,7 @@
     "src": "PATCH /labs/bookings/:param/insurance, GET /labs/provider/inbox",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1373,
+    "line": 1410,
     "via": null,
     "note": null
    },
@@ -15643,7 +15952,7 @@
     "src": "PATCH /labs/bookings/:param/insurance, GET /labs/provider/inbox",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1374,
+    "line": 1411,
     "via": null,
     "note": null
    },
@@ -15653,7 +15962,7 @@
     "src": "value ← String(orders.filter(c=>c.insurance_status==='pe",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1386,
+    "line": 1423,
     "via": null,
     "note": null
    },
@@ -15663,7 +15972,7 @@
     "src": "value ← String(orders.filter(c=>c.insurance_status!=='pe",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1387,
+    "line": 1424,
     "via": null,
     "note": null
    },
@@ -15673,7 +15982,7 @@
     "src": "GET /labs/provider/inbox → orders",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1389,
+    "line": 1426,
     "via": null,
     "note": null
    },
@@ -15683,7 +15992,7 @@
     "src": "local state setSelectedOrder",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1390,
+    "line": 1427,
     "via": null,
     "note": null
    }
@@ -15738,7 +16047,7 @@
     "src": "POST /approval-workflow/requests → newPrice",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1554,
+    "line": 1591,
     "via": null,
     "note": null
    },
@@ -15748,7 +16057,7 @@
     "src": "local state setShowAddSheet",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1577,
+    "line": 1614,
     "via": null,
     "note": null
    },
@@ -15758,7 +16067,7 @@
     "src": "user input → newTitleEn → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1579,
+    "line": 1616,
     "via": null,
     "note": null
    },
@@ -15768,7 +16077,7 @@
     "src": "mock-scan dummy-value",
     "status": "mock",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1579,
+    "line": 1616,
     "via": null,
     "note": "dummy-value (mock-scan): Test Name (English)"
    },
@@ -15778,7 +16087,7 @@
     "src": "user input → newTitleAr → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1580,
+    "line": 1617,
     "via": null,
     "note": null
    },
@@ -15788,7 +16097,7 @@
     "src": "mock-scan dummy-value",
     "status": "mock",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1580,
+    "line": 1617,
     "via": null,
     "note": "dummy-value (mock-scan): Test Name (Arabic)"
    },
@@ -15798,7 +16107,7 @@
     "src": "user input → newPrice → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1581,
+    "line": 1618,
     "via": null,
     "note": null
    },
@@ -15808,7 +16117,7 @@
     "src": "POST /approval-workflow/requests",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1582,
+    "line": 1619,
     "via": null,
     "note": null
    }
@@ -15827,12 +16136,42 @@
   ],
   "WorkingHoursEditorScreen": [
    {
+    "kind": "button",
+    "label": "{t('labCapacity.retry')}",
+    "src": "local state setFailed, setValue",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/LabSlotCapacityCard.tsx",
+    "line": 38,
+    "via": "LabSlotCapacityCard",
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{t('labCapacity.label')}",
+    "src": "user input → parent callback v.replace",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/LabSlotCapacityCard.tsx",
+    "line": 41,
+    "via": "LabSlotCapacityCard",
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{t('labCapacity.save')}",
+    "src": "parent callback t",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/LabSlotCapacityCard.tsx",
+    "line": 42,
+    "via": "LabSlotCapacityCard",
+    "note": null
+   },
+   {
     "kind": "data",
     "label": "List hours",
     "src": "GET /provider/working-hours → hours",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 200,
+    "line": 205,
     "via": null,
     "note": null
    },
@@ -15842,7 +16181,7 @@
     "src": "user input → state (local)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 209,
+    "line": 214,
     "via": null,
     "note": null
    },
@@ -15852,7 +16191,7 @@
     "src": "user input → item (local)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 214,
+    "line": 219,
     "via": null,
     "note": null
    },
@@ -15862,7 +16201,7 @@
     "src": "user input → item (local)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 217,
+    "line": 222,
     "via": null,
     "note": null
    },
@@ -15872,7 +16211,7 @@
     "src": "PUT /provider/working-hours",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 224,
+    "line": 229,
     "via": null,
     "note": null
    }
@@ -15884,7 +16223,7 @@
     "src": "user input → POST /provider/ops/availability/toggle-instant, POST /home-care/provider/availability",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 261,
+    "line": 266,
     "via": null,
     "note": null
    },
@@ -15894,7 +16233,7 @@
     "src": "navigate → notifications",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 263,
+    "line": 268,
     "via": null,
     "note": null
    },
@@ -15904,7 +16243,7 @@
     "src": "value ← String(pending)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 272,
+    "line": 277,
     "via": null,
     "note": null
    },
@@ -15914,7 +16253,7 @@
     "src": "value ← String(active)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 273,
+    "line": 278,
     "via": null,
     "note": null
    },
@@ -15924,7 +16263,7 @@
     "src": "value ← String(completed)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 274,
+    "line": 279,
     "via": null,
     "note": null
    },
@@ -15934,7 +16273,7 @@
     "src": "value ← String(totalRev)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 275,
+    "line": 280,
     "via": null,
     "note": null
    },
@@ -15944,7 +16283,7 @@
     "src": "navigate (back / dynamic target)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 290,
+    "line": 295,
     "via": null,
     "note": null
    },
@@ -15954,7 +16293,7 @@
     "src": "from jobs (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 304,
+    "line": 309,
     "via": null,
     "note": null,
     "untraced": true
@@ -15965,7 +16304,7 @@
     "src": "navigate → order_detail",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 306,
+    "line": 311,
     "via": null,
     "note": null
    },
@@ -15975,7 +16314,7 @@
     "src": "from order (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 324,
+    "line": 329,
     "via": null,
     "note": null,
     "untraced": true
@@ -15986,7 +16325,7 @@
     "src": "from jobs (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 337,
+    "line": 342,
     "via": null,
     "note": null,
     "untraced": true
@@ -15997,7 +16336,7 @@
     "src": "navigate → order_detail",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 339,
+    "line": 344,
     "via": null,
     "note": null
    },
@@ -16007,7 +16346,7 @@
     "src": "navigate → order_detail",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 353,
+    "line": 358,
     "via": null,
     "note": null
    },
@@ -16017,7 +16356,7 @@
     "src": "navigate → checklist",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 354,
+    "line": 359,
     "via": null,
     "note": null
    }
@@ -16029,7 +16368,7 @@
     "src": "local state setTab",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 391,
+    "line": 399,
     "via": null,
     "note": null
    },
@@ -16039,7 +16378,7 @@
     "src": "local state setTab",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 394,
+    "line": 402,
     "via": null,
     "note": null
    },
@@ -16049,7 +16388,7 @@
     "src": "GET /nursing/jobs/active",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 402,
+    "line": 410,
     "via": null,
     "note": null
    },
@@ -16059,7 +16398,7 @@
     "src": "from pending (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 409,
+    "line": 417,
     "via": null,
     "note": null,
     "untraced": true
@@ -16070,7 +16409,7 @@
     "src": "navigate → order_detail",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 410,
+    "line": 418,
     "via": null,
     "note": null
    },
@@ -16080,7 +16419,7 @@
     "src": "from active (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 424,
+    "line": 432,
     "via": null,
     "note": null,
     "untraced": true
@@ -16091,7 +16430,7 @@
     "src": "navigate → order_detail",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 425,
+    "line": 433,
     "via": null,
     "note": null
    }
@@ -16163,7 +16502,7 @@
     "src": "GET /provider/me → caps",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 743,
+    "line": 766,
     "via": null,
     "note": null
    },
@@ -16173,7 +16512,7 @@
     "src": "navigate → profile_edit",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 782,
+    "line": 805,
     "via": null,
     "note": null
    },
@@ -16183,7 +16522,7 @@
     "src": "navigate → nursing_services",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 783,
+    "line": 806,
     "via": null,
     "note": null
    },
@@ -16193,7 +16532,7 @@
     "src": "navigate → nursing_coverage",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 784,
+    "line": 807,
     "via": null,
     "note": null
    },
@@ -16203,7 +16542,7 @@
     "src": "navigate → working_hours",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 785,
+    "line": 808,
     "via": null,
     "note": null
    },
@@ -16213,7 +16552,7 @@
     "src": "navigate → insurance_config",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 786,
+    "line": 809,
     "via": null,
     "note": null
    },
@@ -16223,7 +16562,7 @@
     "src": "navigate → insurance_requests",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 787,
+    "line": 810,
     "via": null,
     "note": null
    },
@@ -16233,7 +16572,7 @@
     "src": "navigate (back / dynamic target)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 788,
+    "line": 811,
     "via": null,
     "note": null
    },
@@ -16243,7 +16582,7 @@
     "src": "navigate → certificates_config",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 789,
+    "line": 812,
     "via": null,
     "note": null
    },
@@ -16253,7 +16592,7 @@
     "src": "navigate → media_config",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 790,
+    "line": 813,
     "via": null,
     "note": null
    },
@@ -16263,7 +16602,7 @@
     "src": "parent callback row.action",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 809,
+    "line": 832,
     "via": null,
     "note": null
    },
@@ -16273,7 +16612,7 @@
     "src": "navigate → notifications",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 815,
+    "line": 838,
     "via": null,
     "note": null
    },
@@ -16283,7 +16622,7 @@
     "src": "navigate → medical_jobs",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 816,
+    "line": 839,
     "via": null,
     "note": null
    },
@@ -16293,7 +16632,7 @@
     "src": "navigate → drug_index",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 817,
+    "line": 840,
     "via": null,
     "note": null
    },
@@ -16303,7 +16642,7 @@
     "src": "parent callback r.action",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 826,
+    "line": 849,
     "via": null,
     "note": null
    },
@@ -16313,7 +16652,7 @@
     "src": "local state setShowLO",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 829,
+    "line": 852,
     "via": null,
     "note": null
    },
@@ -16575,7 +16914,7 @@
     "src": "POST /nursing/visits/:param/:param, GET /nursing/visits/:param",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingFieldOps.tsx",
-    "line": 268,
+    "line": 270,
     "via": null,
     "note": null
    },
@@ -16585,7 +16924,7 @@
     "src": "local state setShowAbort",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingFieldOps.tsx",
-    "line": 270,
+    "line": 273,
     "via": null,
     "note": null
    },
@@ -16595,7 +16934,7 @@
     "src": "user input → abortReason (local)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingFieldOps.tsx",
-    "line": 273,
+    "line": 276,
     "via": null,
     "note": null
    },
@@ -16605,7 +16944,7 @@
     "src": "POST /nursing/visits/:param/:param, GET /nursing/visits/:param",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingFieldOps.tsx",
-    "line": 275,
+    "line": 278,
     "via": null,
     "note": null
    }
@@ -16617,7 +16956,7 @@
     "src": "GET /provider/nursing/checklist, POST /provider/ops/nursing/bookings/:param/checklist/before → items",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 482,
+    "line": 490,
     "via": null,
     "note": null
    },
@@ -16627,7 +16966,7 @@
     "src": "POST /provider/ops/nursing/bookings/:param/checklist/before",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 483,
+    "line": 491,
     "via": null,
     "note": null
    },
@@ -16637,7 +16976,7 @@
     "src": "navigate → order_detail",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 495,
+    "line": 503,
     "via": null,
     "note": null
    }
@@ -16649,7 +16988,7 @@
     "src": "GET /home-care/care-plans/:param → plans",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 553,
+    "line": 561,
     "via": null,
     "note": null
    },
@@ -16659,7 +16998,7 @@
     "src": "user input → title → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 570,
+    "line": 578,
     "via": null,
     "note": null
    },
@@ -16669,7 +17008,7 @@
     "src": "user input → taskText → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 571,
+    "line": 579,
     "via": null,
     "note": null
    },
@@ -16679,7 +17018,7 @@
     "src": "POST /home-care/care-plans/:param, GET /home-care/care-plans/:param",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 572,
+    "line": 580,
     "via": null,
     "note": null
    }
@@ -16691,7 +17030,7 @@
     "src": "POST /nursing/notes, GET /nursing/notes/:param → vitals",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 584,
+    "line": 592,
     "via": null,
     "note": null
    },
@@ -16701,7 +17040,7 @@
     "src": "user input → vitals → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 613,
+    "line": 621,
     "via": null,
     "note": null
    },
@@ -16711,7 +17050,7 @@
     "src": "user input → vitals → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 614,
+    "line": 622,
     "via": null,
     "note": null
    },
@@ -16721,7 +17060,7 @@
     "src": "user input → vitals → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 615,
+    "line": 623,
     "via": null,
     "note": null
    },
@@ -16731,7 +17070,7 @@
     "src": "user input → vitals → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 618,
+    "line": 626,
     "via": null,
     "note": null
    },
@@ -16741,7 +17080,7 @@
     "src": "user input → vitals → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 619,
+    "line": 627,
     "via": null,
     "note": null
    },
@@ -16751,7 +17090,7 @@
     "src": "user input → note → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 621,
+    "line": 629,
     "via": null,
     "note": null
    },
@@ -16761,7 +17100,7 @@
     "src": "POST /nursing/notes, GET /nursing/notes/:param",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 623,
+    "line": 631,
     "via": null,
     "note": null
    },
@@ -16771,19 +17110,29 @@
     "src": "GET /nursing/notes/:param → pastNotes",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 644,
+    "line": 652,
     "via": null,
     "note": null
    }
   ],
   "MedicalSupplies": [
    {
+    "kind": "data",
+    "label": "Data visitId",
+    "src": "GET /nursing/jobs/active → visitId",
+    "status": "ok",
+    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
+    "line": 673,
+    "via": null,
+    "note": null
+   },
+   {
     "kind": "number",
     "label": "Stat: Delivered",
     "src": "value ← String(supplies.filter(s=>s.status==='delivered'",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 706,
+    "line": 718,
     "via": null,
     "note": null
    },
@@ -16793,7 +17142,7 @@
     "src": "value ← String(supplies.filter(s=>s.status==='ordered').",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 707,
+    "line": 719,
     "via": null,
     "note": null
    },
@@ -16803,17 +17152,37 @@
     "src": "value ← String(supplies.filter(s=>s.status==='pending').",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 708,
+    "line": 720,
     "via": null,
     "note": null
    },
    {
     "kind": "data",
     "label": "List supplies",
-    "src": "GET /provider/nursing/supplies, POST /home-care/inventory/request → supplies",
+    "src": "GET /provider/nursing/supplies → supplies",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 712,
+    "line": 724,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "data",
+    "label": "List visits",
+    "src": "GET /nursing/jobs/active → visits",
+    "status": "ok",
+    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
+    "line": 744,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{String(v.id)}",
+    "src": "local state setVisitId",
+    "status": "ok",
+    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
+    "line": 745,
     "via": null,
     "note": null
    },
@@ -16823,7 +17192,7 @@
     "src": "user input → newItem → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 727,
+    "line": 750,
     "via": null,
     "note": null
    },
@@ -16833,7 +17202,7 @@
     "src": "user input → newQty → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 728,
+    "line": 751,
     "via": null,
     "note": null
    },
@@ -16843,7 +17212,7 @@
     "src": "POST /home-care/inventory/request",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 730,
+    "line": 753,
     "via": null,
     "note": null
    }
@@ -16984,12 +17353,22 @@
   ],
   "NursingCoverageSettings": [
    {
+    "kind": "data",
+    "label": "Data gpsResult",
+    "src": "POST /nursing/coverage/verify-gps → gpsResult",
+    "status": "ok",
+    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
+    "line": 869,
+    "via": null,
+    "note": null
+   },
+   {
     "kind": "button",
     "label": "Verify Current GPS Location",
     "src": "POST /nursing/coverage/verify-gps",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 891,
+    "line": 913,
     "via": null,
     "note": null
    },
@@ -16999,20 +17378,9 @@
     "src": "local state setRadius",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 903,
+    "line": 925,
     "via": null,
     "note": null
-   },
-   {
-    "kind": "data",
-    "label": "List getCoveredNeighborhoods()",
-    "src": "from getCoveredNeighborhoods (prop / derived; not traced)",
-    "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 916,
-    "via": null,
-    "note": null,
-    "untraced": true
    },
    {
     "kind": "button",
@@ -17020,7 +17388,7 @@
     "src": "POST /provider/settings/delta",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 924,
+    "line": 945,
     "via": null,
     "note": null
    }
@@ -17086,7 +17454,7 @@
     "src": "GET /chats/threads/:param/messages, POST /chats/threads/:param/messages → msgs",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1011,
+    "line": 1032,
     "via": null,
     "note": null
    },
@@ -17096,7 +17464,7 @@
     "src": "user input → msg (local)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1023,
+    "line": 1044,
     "via": null,
     "note": null
    },
@@ -17106,7 +17474,7 @@
     "src": "POST /chats/threads/:param/messages, GET /chats/threads/:param/messages",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1024,
+    "line": 1045,
     "via": null,
     "note": null
    }
@@ -17115,10 +17483,10 @@
    {
     "kind": "data",
     "label": "Data shifts",
-    "src": "shifts: set from user input / local logic",
+    "src": "GET /provider/schedule/settings → shifts",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1035,
+    "line": 1056,
     "via": null,
     "note": null
    },
@@ -17128,7 +17496,7 @@
     "src": "user input → shifts → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1058,
+    "line": 1093,
     "via": null,
     "note": null
    },
@@ -17138,7 +17506,7 @@
     "src": "user input → shifts → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1062,
+    "line": 1097,
     "via": null,
     "note": null
    },
@@ -17148,7 +17516,7 @@
     "src": "user input → shifts → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1066,
+    "line": 1101,
     "via": null,
     "note": null
    },
@@ -17158,7 +17526,7 @@
     "src": "user input → maxVisits → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1072,
+    "line": 1107,
     "via": null,
     "note": null
    },
@@ -17168,7 +17536,7 @@
     "src": "user input → emergencyReady → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1078,
+    "line": 1113,
     "via": null,
     "note": null
    },
@@ -17178,7 +17546,7 @@
     "src": "POST /provider/schedule/settings",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1082,
+    "line": 1117,
     "via": null,
     "note": null
    }
@@ -17998,7 +18366,7 @@
     "src": "mock-scan placeholder-text",
     "status": "placeholder",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 295,
+    "line": 296,
     "via": null,
     "note": "placeholder-text (mock-scan): الصيدلية ستغلق قريباً"
    },
@@ -18008,7 +18376,7 @@
     "src": "user input → POST /provider/ops/availability/toggle-instant",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 326,
+    "line": 327,
     "via": null,
     "note": null
    },
@@ -18018,7 +18386,7 @@
     "src": "GET /provider/pharmacy/broadcasts, POST /provider/pharmacy/broadcasts/:param/reject → broadcasts",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 338,
+    "line": 339,
     "via": null,
     "note": null
    },
@@ -18028,7 +18396,7 @@
     "src": "from b (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 380,
+    "line": 381,
     "via": null,
     "note": null,
     "untraced": true
@@ -18039,7 +18407,7 @@
     "src": "native action",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 381,
+    "line": 382,
     "via": null,
     "note": null
    },
@@ -18049,7 +18417,7 @@
     "src": "from b (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 392,
+    "line": 393,
     "via": null,
     "note": null,
     "untraced": true
@@ -18060,17 +18428,17 @@
     "src": "local state setRejectOrderId, setShowRejectModal",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 397,
+    "line": 398,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Create offer",
+    "label": "{t('audit2.pharmacy.offerSentEd}",
     "src": "navigate → pharmacy_broadcast",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 398,
+    "line": 399,
     "via": null,
     "note": null
    },
@@ -18080,7 +18448,7 @@
     "src": "from REJECT_REASONS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 409,
+    "line": 410,
     "via": null,
     "note": null,
     "untraced": true
@@ -18091,7 +18459,7 @@
     "src": "POST /provider/pharmacy/broadcasts/:param/reject",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 410,
+    "line": 411,
     "via": null,
     "note": null
    },
@@ -18153,7 +18521,7 @@
     "src": "POST /pharmacy/procurement/analyze-file, POST /pharmacy/procurement/submit-request, GET /pharmacy/procurement/my-requests → cart",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 446,
+    "line": 447,
     "via": null,
     "note": null
    },
@@ -18163,7 +18531,7 @@
     "src": "local state setMode",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 523,
+    "line": 524,
     "via": null,
     "note": null
    },
@@ -18173,7 +18541,7 @@
     "src": "local state setMode",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 524,
+    "line": 525,
     "via": null,
     "note": null
    },
@@ -18183,7 +18551,7 @@
     "src": "local state setB2bTab",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 539,
+    "line": 540,
     "via": null,
     "note": null
    },
@@ -18193,7 +18561,7 @@
     "src": "local state setB2bTab",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 542,
+    "line": 543,
     "via": null,
     "note": null
    },
@@ -18203,7 +18571,7 @@
     "src": "local state setB2bTab",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 545,
+    "line": 546,
     "via": null,
     "note": null
    },
@@ -18213,7 +18581,7 @@
     "src": "user input → b2bText (local)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 552,
+    "line": 553,
     "via": null,
     "note": null
    },
@@ -18223,7 +18591,7 @@
     "src": "POST /pharmacy/procurement/analyze-file",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 553,
+    "line": 554,
     "via": null,
     "note": null
    },
@@ -18233,7 +18601,7 @@
     "src": "POST /pharmacy/procurement/analyze-file",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 576,
+    "line": 577,
     "via": null,
     "note": null
    },
@@ -18243,7 +18611,7 @@
     "src": "from items (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 602,
+    "line": 603,
     "via": null,
     "note": null,
     "untraced": true
@@ -18254,7 +18622,7 @@
     "src": "parent callback c.map",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 609,
+    "line": 610,
     "via": null,
     "note": null
    },
@@ -18264,7 +18632,7 @@
     "src": "parent callback c.map",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 611,
+    "line": 612,
     "via": null,
     "note": null
    },
@@ -18274,7 +18642,7 @@
     "src": "parent callback c.filter",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 612,
+    "line": 613,
     "via": null,
     "note": null
    },
@@ -18284,7 +18652,7 @@
     "src": "POST /pharmacy/procurement/submit-request, GET /pharmacy/procurement/my-requests",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 619,
+    "line": 620,
     "via": null,
     "note": null
    },
@@ -18294,7 +18662,7 @@
     "src": "GET /pharmacy/procurement/my-requests → myRequests",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 627,
+    "line": 628,
     "via": null,
     "note": null
    },
@@ -18304,7 +18672,7 @@
     "src": "GET /pharmacy/returns/provider/list → returnsList",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 653,
+    "line": 654,
     "via": null,
     "note": null
    }
@@ -18316,7 +18684,7 @@
     "src": "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations → actionId",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 764,
+    "line": 765,
     "via": null,
     "note": null
    },
@@ -18326,7 +18694,7 @@
     "src": "GET /provider/pharmacy/allocations/:param → details",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 765,
+    "line": 766,
     "via": null,
     "note": null
    },
@@ -18336,7 +18704,7 @@
     "src": "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations, GET /provider/pharmacy/allocations/:param → courierFor",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 768,
+    "line": 769,
     "via": null,
     "note": null
    },
@@ -18346,7 +18714,7 @@
     "src": "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations, GET /provider/pharmacy/allocations/:param → collectFor",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 773,
+    "line": 774,
     "via": null,
     "note": null
    },
@@ -18356,7 +18724,7 @@
     "src": "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations, GET /provider/pharmacy/allocations/:param → collectAmount",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 775,
+    "line": 776,
     "via": null,
     "note": null
    },
@@ -18366,7 +18734,7 @@
     "src": "native action",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 875,
+    "line": 884,
     "via": null,
     "note": null
    },
@@ -18376,7 +18744,7 @@
     "src": "user input → courierName (local)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 885,
+    "line": 894,
     "via": null,
     "note": null
    },
@@ -18386,7 +18754,7 @@
     "src": "user input → courierPhone (local)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 886,
+    "line": 895,
     "via": null,
     "note": null
    },
@@ -18396,7 +18764,7 @@
     "src": "local state setCourierFor",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 888,
+    "line": 897,
     "via": null,
     "note": null
    },
@@ -18406,7 +18774,7 @@
     "src": "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 890,
+    "line": 899,
     "via": null,
     "note": null
    },
@@ -18416,7 +18784,7 @@
     "src": "local state setCollectMethod",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 901,
+    "line": 910,
     "via": null,
     "note": null
    },
@@ -18426,7 +18794,7 @@
     "src": "user input → collectAmount (local)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 909,
+    "line": 918,
     "via": null,
     "note": null
    },
@@ -18436,7 +18804,7 @@
     "src": "local state setCollectFor",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 911,
+    "line": 920,
     "via": null,
     "note": null
    },
@@ -18446,7 +18814,7 @@
     "src": "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 913,
+    "line": 922,
     "via": null,
     "note": null
    },
@@ -18456,7 +18824,7 @@
     "src": "navigate → insurance_decision_order",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 920,
+    "line": 929,
     "via": null,
     "note": null
    },
@@ -18466,7 +18834,7 @@
     "src": "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 923,
+    "line": 932,
     "via": null,
     "note": null
    },
@@ -18476,7 +18844,7 @@
     "src": "navigate → pharmacy_chat",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 925,
+    "line": 934,
     "via": null,
     "note": null
    },
@@ -18486,7 +18854,7 @@
     "src": "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 927,
+    "line": 936,
     "via": null,
     "note": null
    },
@@ -18496,43 +18864,13 @@
     "src": "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 930,
+    "line": 939,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Dispatch",
-    "src": "GET /provider/pharmacy/allocations/:param",
-    "status": "ok",
-    "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 934,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Hand over (pickup)",
-    "src": "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations",
-    "status": "ok",
-    "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 936,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Mark delivered",
-    "src": "GET /provider/pharmacy/allocations/:param, POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations",
-    "status": "ok",
-    "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 941,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Details",
+    "label": "{t('audit2.pharmacy.dispatch')}",
     "src": "GET /provider/pharmacy/allocations/:param",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -18542,11 +18880,41 @@
    },
    {
     "kind": "button",
+    "label": "{t('audit2.pharmacy.handOverPic}",
+    "src": "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations",
+    "status": "ok",
+    "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
+    "line": 947,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "Mark delivered",
+    "src": "GET /provider/pharmacy/allocations/:param, POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations",
+    "status": "ok",
+    "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
+    "line": 953,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "Details",
+    "src": "GET /provider/pharmacy/allocations/:param",
+    "status": "ok",
+    "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
+    "line": 956,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
     "label": "[shield]",
     "src": "navigate → insurance_decisions",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 954,
+    "line": 966,
     "via": null,
     "note": null
    },
@@ -18556,7 +18924,7 @@
     "src": "from sectionTabs (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 956,
+    "line": 968,
     "via": null,
     "note": null,
     "untraced": true
@@ -18567,7 +18935,7 @@
     "src": "local state setSection",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 960,
+    "line": 972,
     "via": null,
     "note": null
    }
@@ -18705,7 +19073,7 @@
     "src": "GET /provider/inventory/search → barcode",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 992,
+    "line": 1004,
     "via": null,
     "note": null
    },
@@ -18715,7 +19083,7 @@
     "src": "GET /provider/inventory/search → product",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 993,
+    "line": 1005,
     "via": null,
     "note": null
    },
@@ -18725,7 +19093,7 @@
     "src": "parent callback requestPermission",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1023,
+    "line": 1035,
     "via": null,
     "note": null
    },
@@ -18735,7 +19103,7 @@
     "src": "local state setScanned, setBarcode",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1042,
+    "line": 1054,
     "via": null,
     "note": null
    }
@@ -18877,7 +19245,7 @@
     "src": "GET /provider/profile, GET /provider/pharmacy/delivery-settings → ownDelivery",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1509,
+    "line": 1521,
     "via": null,
     "note": null
    },
@@ -18887,7 +19255,7 @@
     "src": "GET /provider/profile, GET /provider/pharmacy/delivery-settings → cityCode",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1510,
+    "line": 1522,
     "via": null,
     "note": null
    },
@@ -18897,7 +19265,7 @@
     "src": "navigate → insurance_decisions",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1556,
+    "line": 1568,
     "via": null,
     "note": null
    },
@@ -18907,7 +19275,7 @@
     "src": "user input → PUT /provider/pharmacy/inventory-tracking",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1558,
+    "line": 1570,
     "via": null,
     "note": null
    },
@@ -18917,7 +19285,7 @@
     "src": "PUT /provider/pharmacy/delivery-settings",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1573,
+    "line": 1585,
     "via": null,
     "note": null
    },
@@ -19095,7 +19463,7 @@
     "src": "GET /pharmacy/returns/provider/list → returns",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 710,
+    "line": 711,
     "via": null,
     "note": null
    },
@@ -19105,7 +19473,7 @@
     "src": "local state setOpenId",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 713,
+    "line": 714,
     "via": null,
     "note": null
    },
@@ -19177,7 +19545,7 @@
     "src": "GET /pharmacy/chat/threads → threads",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1331,
+    "line": 1343,
     "via": null,
     "note": null
    },
@@ -19187,7 +19555,7 @@
     "src": "GET /pharmacy/chat/threads/:param/messages → thread",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1332,
+    "line": 1344,
     "via": null,
     "note": null
    },
@@ -19197,7 +19565,7 @@
     "src": "GET /provider/inventory/search, POST /pharmacy/chat/threads/:param/messages, GET /pharmacy/chat/threads/:param/messages → results",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1338,
+    "line": 1350,
     "via": null,
     "note": null
    },
@@ -19207,7 +19575,7 @@
     "src": "POST /pharmacy/chat/threads/:param/messages, GET /pharmacy/chat/threads/:param/messages → picked",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1339,
+    "line": 1351,
     "via": null,
     "note": null
    },
@@ -19217,7 +19585,7 @@
     "src": "GET /pharmacy/chat/threads/:param/messages → messages",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1425,
+    "line": 1437,
     "via": null,
     "note": null
    },
@@ -19227,7 +19595,7 @@
     "src": "local state setPicked",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1450,
+    "line": 1462,
     "via": null,
     "note": null
    },
@@ -19237,7 +19605,7 @@
     "src": "GET /provider/inventory/search, POST /pharmacy/chat/threads/:param/messages, GET /pharmacy/chat/threads/:param/messages → results",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1455,
+    "line": 1467,
     "via": null,
     "note": null
    },
@@ -19247,7 +19615,7 @@
     "src": "local state setPicked, setResults",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1456,
+    "line": 1468,
     "via": null,
     "note": null
    },
@@ -19257,7 +19625,7 @@
     "src": "local state setResults",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1460,
+    "line": 1472,
     "via": null,
     "note": null
    },
@@ -19267,7 +19635,7 @@
     "src": "user input → term (local)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1464,
+    "line": 1476,
     "via": null,
     "note": null
    },
@@ -19277,7 +19645,7 @@
     "src": "GET /provider/inventory/search",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1465,
+    "line": 1477,
     "via": null,
     "note": null
    },
@@ -19287,7 +19655,7 @@
     "src": "user input → msg (local)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1469,
+    "line": 1481,
     "via": null,
     "note": null
    },
@@ -19297,7 +19665,7 @@
     "src": "POST /pharmacy/chat/threads/:param/messages, GET /pharmacy/chat/threads/:param/messages",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1470,
+    "line": 1482,
     "via": null,
     "note": null
    },
@@ -19307,7 +19675,7 @@
     "src": "from items (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1489,
+    "line": 1501,
     "via": null,
     "note": null,
     "untraced": true
@@ -19318,7 +19686,7 @@
     "src": "GET /pharmacy/chat/threads/:param/messages, POST /pharmacy/chat/threads, GET /pharmacy/chat/threads",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1496,
+    "line": 1508,
     "via": null,
     "note": null
    }
@@ -19362,7 +19730,7 @@
     "src": "GET /provider/reviews, POST /provider/reviews/:param/reply → reviews",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 55,
+    "line": 57,
     "via": null,
     "note": null
    },
@@ -19372,7 +19740,7 @@
     "src": "user input → replyText → request body",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 74,
+    "line": 76,
     "via": null,
     "note": null
    },
@@ -19382,7 +19750,7 @@
     "src": "POST /provider/reviews/:param/reply",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 80,
+    "line": 82,
     "via": null,
     "note": null
    },
@@ -19392,7 +19760,7 @@
     "src": "local state setSelectedId",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 81,
+    "line": 83,
     "via": null,
     "note": null
    },
@@ -19402,7 +19770,7 @@
     "src": "local state setSelectedId, setReplyText",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 85,
+    "line": 87,
     "via": null,
     "note": null
    }
@@ -19850,7 +20218,7 @@
     "src": "POST /provider/inventory/:param/restock, GET /provider/inventory/low-stock-alerts, GET /provider/capabilities/pharmacy +1 → restockQty",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1080,
+    "line": 1092,
     "via": null,
     "note": null
    },
@@ -19860,7 +20228,7 @@
     "src": "POST /provider/capabilities/pharmacy, GET /provider/capabilities/pharmacy → picked",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1160,
+    "line": 1172,
     "via": null,
     "note": null
    },
@@ -19870,7 +20238,7 @@
     "src": "POST /provider/capabilities/pharmacy, GET /provider/capabilities/pharmacy → newPrice",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1161,
+    "line": 1173,
     "via": null,
     "note": null
    },
@@ -19880,7 +20248,7 @@
     "src": "navigate → scanner",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1198,
+    "line": 1210,
     "via": null,
     "note": null
    },
@@ -19890,7 +20258,7 @@
     "src": "GET /provider/inventory/low-stock-alerts → alerts",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1205,
+    "line": 1217,
     "via": null,
     "note": null
    },
@@ -19900,7 +20268,7 @@
     "src": "user input → restockQty (local)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1212,
+    "line": 1224,
     "via": null,
     "note": null
    },
@@ -19910,7 +20278,7 @@
     "src": "POST /provider/inventory/:param/restock, GET /provider/inventory/low-stock-alerts, GET /provider/capabilities/pharmacy",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1214,
+    "line": 1226,
     "via": null,
     "note": null
    },
@@ -19920,7 +20288,7 @@
     "src": "POST /provider/inventory/low-stock-alerts/:param/ack, GET /provider/inventory/low-stock-alerts",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1215,
+    "line": 1227,
     "via": null,
     "note": null
    },
@@ -19930,7 +20298,7 @@
     "src": "user input → search (local)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1221,
+    "line": 1233,
     "via": null,
     "note": null
    },
@@ -19940,7 +20308,7 @@
     "src": "user input → catalogQuery → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1228,
+    "line": 1240,
     "via": null,
     "note": null
    },
@@ -19950,7 +20318,7 @@
     "src": "GET /medicines",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1229,
+    "line": 1241,
     "via": null,
     "note": null
    },
@@ -19960,7 +20328,7 @@
     "src": "GET /medicines, POST /provider/capabilities/pharmacy, GET /provider/capabilities/pharmacy → catalogResults",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1230,
+    "line": 1242,
     "via": null,
     "note": null
    },
@@ -19970,7 +20338,7 @@
     "src": "local state setPicked",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1231,
+    "line": 1243,
     "via": null,
     "note": null
    },
@@ -19980,7 +20348,7 @@
     "src": "user input → newPrice (local)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1239,
+    "line": 1251,
     "via": null,
     "note": null
    },
@@ -19990,7 +20358,7 @@
     "src": "user input → newStock (local)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1240,
+    "line": 1252,
     "via": null,
     "note": null
    },
@@ -20000,7 +20368,7 @@
     "src": "POST /provider/capabilities/pharmacy, GET /provider/capabilities/pharmacy",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1242,
+    "line": 1254,
     "via": null,
     "note": null
    },
@@ -20010,7 +20378,7 @@
     "src": "local state setPicked",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1243,
+    "line": 1255,
     "via": null,
     "note": null
    },
@@ -20020,7 +20388,7 @@
     "src": "from filtered (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1258,
+    "line": 1270,
     "via": null,
     "note": null,
     "untraced": true
@@ -20031,7 +20399,7 @@
     "src": "user input → POST /provider/capabilities/pharmacy, GET /provider/capabilities/pharmacy",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1278,
+    "line": 1290,
     "via": null,
     "note": null
    },
@@ -20041,7 +20409,7 @@
     "src": "POST /provider/capabilities/pharmacy, GET /provider/capabilities/pharmacy",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1279,
+    "line": 1291,
     "via": null,
     "note": null
    },
@@ -20051,7 +20419,7 @@
     "src": "POST /provider/capabilities/pharmacy, GET /provider/capabilities/pharmacy",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1291,
+    "line": 1303,
     "via": null,
     "note": null
    },
@@ -20061,7 +20429,7 @@
     "src": "POST /provider/capabilities/pharmacy, GET /provider/capabilities/pharmacy",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 1295,
+    "line": 1307,
     "via": null,
     "note": null
    }
@@ -20073,7 +20441,7 @@
     "src": "GET /radiology/provider/inbox → orders",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 139,
+    "line": 144,
     "via": null,
     "note": null
    },
@@ -20083,7 +20451,7 @@
     "src": "parent callback onOpen",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 143,
+    "line": 148,
     "via": null,
     "note": null
    },
@@ -20093,7 +20461,7 @@
     "src": "navigate → wallet",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 181,
+    "line": 186,
     "via": null,
     "note": null
    },
@@ -20103,7 +20471,7 @@
     "src": "value ← String(stats.todayCount)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 183,
+    "line": 188,
     "via": null,
     "note": null
    },
@@ -20113,7 +20481,7 @@
     "src": "value ← String(stats.inScanCount)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 184,
+    "line": 189,
     "via": null,
     "note": null
    },
@@ -20123,7 +20491,7 @@
     "src": "value ← String(stats.completedCount)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 185,
+    "line": 190,
     "via": null,
     "note": null
    },
@@ -20133,7 +20501,7 @@
     "src": "value ← String(stats.revenue)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 186,
+    "line": 191,
     "via": null,
     "note": null
    }
@@ -20145,7 +20513,7 @@
     "src": "GET /radiology/provider/inbox → orders",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 139,
+    "line": 144,
     "via": null,
     "note": null
    },
@@ -20155,7 +20523,7 @@
     "src": "parent callback onOpen",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 143,
+    "line": 148,
     "via": null,
     "note": null
    },
@@ -20165,7 +20533,7 @@
     "src": "local state setTab",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 212,
+    "line": 217,
     "via": null,
     "note": null
    },
@@ -20175,7 +20543,7 @@
     "src": "from subTabs (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 212,
+    "line": 217,
     "via": null,
     "note": null,
     "untraced": true
@@ -20188,7 +20556,7 @@
     "src": "prepItems: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 526,
+    "line": 536,
     "via": null,
     "note": null
    },
@@ -20198,7 +20566,7 @@
     "src": "local state setShowAdd",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 551,
+    "line": 561,
     "via": null,
     "note": null
    },
@@ -20208,7 +20576,7 @@
     "src": "local state setModality",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 556,
+    "line": 566,
     "via": null,
     "note": null
    },
@@ -20218,7 +20586,7 @@
     "src": "from MODALITIES (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 556,
+    "line": 566,
     "via": null,
     "note": null,
     "untraced": true
@@ -20229,7 +20597,7 @@
     "src": "user input → nameAr → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 558,
+    "line": 568,
     "via": null,
     "note": null
    },
@@ -20239,7 +20607,7 @@
     "src": "user input → nameEn → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 559,
+    "line": 569,
     "via": null,
     "note": null
    },
@@ -20249,7 +20617,7 @@
     "src": "user input → price → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 560,
+    "line": 570,
     "via": null,
     "note": null
    },
@@ -20259,7 +20627,7 @@
     "src": "user input → duration → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 561,
+    "line": 571,
     "via": null,
     "note": null
    },
@@ -20269,7 +20637,7 @@
     "src": "user input → parent callback item.set",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 563,
+    "line": 573,
     "via": null,
     "note": null
    },
@@ -20279,7 +20647,7 @@
     "src": "user input → portableUS → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 564,
+    "line": 574,
     "via": null,
     "note": null
    },
@@ -20289,7 +20657,7 @@
     "src": "parent callback prev.includes, prev.filter",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 566,
+    "line": 576,
     "via": null,
     "note": null
    },
@@ -20299,7 +20667,7 @@
     "src": "from PREP_OPTIONS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 566,
+    "line": 576,
     "via": null,
     "note": null,
     "untraced": true
@@ -20310,7 +20678,7 @@
     "src": "POST /radiology/catalog/delta-request",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 567,
+    "line": 577,
     "via": null,
     "note": null
    }
@@ -20322,7 +20690,7 @@
     "src": "workingDays: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 579,
+    "line": 589,
     "via": null,
     "note": null
    },
@@ -20332,7 +20700,7 @@
     "src": "local state setWorkingDays",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 598,
+    "line": 608,
     "via": null,
     "note": null
    },
@@ -20342,7 +20710,7 @@
     "src": "from DAYS_AR (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 598,
+    "line": 608,
     "via": null,
     "note": null,
     "untraced": true
@@ -20353,7 +20721,7 @@
     "src": "user input → morningFrom → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 602,
+    "line": 612,
     "via": null,
     "note": null
    },
@@ -20363,7 +20731,7 @@
     "src": "user input → morningTo → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 603,
+    "line": 613,
     "via": null,
     "note": null
    },
@@ -20373,7 +20741,7 @@
     "src": "user input → eveningFrom → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 607,
+    "line": 617,
     "via": null,
     "note": null
    },
@@ -20383,7 +20751,7 @@
     "src": "user input → eveningTo → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 608,
+    "line": 618,
     "via": null,
     "note": null
    },
@@ -20393,7 +20761,7 @@
     "src": "user input → emergencyAvailable → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 613,
+    "line": 623,
     "via": null,
     "note": null
    },
@@ -20403,7 +20771,7 @@
     "src": "POST /radiology/catalog/delta-request",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 616,
+    "line": 626,
     "via": null,
     "note": null
    }
@@ -20475,7 +20843,7 @@
     "src": "navigate → insurance_requests",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 631,
+    "line": 641,
     "via": null,
     "note": null
    },
@@ -20485,7 +20853,7 @@
     "src": "navigate (back / dynamic target)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 635,
+    "line": 645,
     "via": null,
     "note": null
    },
@@ -20495,7 +20863,7 @@
     "src": "navigate → drug_index",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 639,
+    "line": 649,
     "via": null,
     "note": null
    },
@@ -20505,7 +20873,7 @@
     "src": "navigate → medical_jobs",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 640,
+    "line": 650,
     "via": null,
     "note": null
    },
@@ -20515,7 +20883,7 @@
     "src": "parent callback onLogout",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 643,
+    "line": 653,
     "via": null,
     "note": null
    }
@@ -20527,7 +20895,17 @@
     "src": "PATCH /radiology/bookings/:param/reschedule, GET /radiology/bookings/:param → rescheduleDays",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 233,
+    "line": 240,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{t('bookingChat.open')}",
+    "src": "navigate → booking_chat",
+    "status": "ok",
+    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
+    "line": 349,
     "via": null,
     "note": null
    },
@@ -20537,17 +20915,17 @@
     "src": "local state setShowApproval",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 344,
+    "line": 352,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Accept booking",
+    "label": "{t('audit2.radiology.acceptBook}",
     "src": "local state setState",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 347,
+    "line": 357,
     "via": null,
     "note": null
    },
@@ -20557,7 +20935,7 @@
     "src": "local state setShowReject",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 349,
+    "line": 359,
     "via": null,
     "note": null
    },
@@ -20567,7 +20945,7 @@
     "src": "local state setShowApproval",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 351,
+    "line": 361,
     "via": null,
     "note": null
    },
@@ -20577,7 +20955,7 @@
     "src": "POST /radiology/bookings/:param/:param, GET /radiology/bookings/:param",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 352,
+    "line": 362,
     "via": null,
     "note": null
    },
@@ -20587,7 +20965,7 @@
     "src": "POST /radiology/bookings/:param/:param, GET /radiology/bookings/:param",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 354,
+    "line": 364,
     "via": null,
     "note": null
    },
@@ -20597,7 +20975,7 @@
     "src": "local state setShowAbort",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 355,
+    "line": 365,
     "via": null,
     "note": null
    },
@@ -20607,7 +20985,7 @@
     "src": "navigate → reporting",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 358,
+    "line": 368,
     "via": null,
     "note": null
    },
@@ -20617,7 +20995,7 @@
     "src": "local state setShowAbort",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 359,
+    "line": 369,
     "via": null,
     "note": null
    },
@@ -20627,7 +21005,7 @@
     "src": "POST /radiology/bookings/:param/:param, GET /radiology/bookings/:param",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 361,
+    "line": 371,
     "via": null,
     "note": null
    },
@@ -20637,7 +21015,7 @@
     "src": "POST /radiology/bookings/:param/:param, GET /radiology/bookings/:param",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 362,
+    "line": 372,
     "via": null,
     "note": null
    },
@@ -20647,7 +21025,7 @@
     "src": "local state setShowReschedule",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 364,
+    "line": 374,
     "via": null,
     "note": null
    },
@@ -20657,7 +21035,7 @@
     "src": "user input → decisionRef → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 370,
+    "line": 380,
     "via": null,
     "note": null
    },
@@ -20667,7 +21045,7 @@
     "src": "user input → copay (local)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 371,
+    "line": 381,
     "via": null,
     "note": null
    },
@@ -20677,7 +21055,7 @@
     "src": "POST /radiology/bookings/:param/coverage-decision, GET /radiology/bookings/:param",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 373,
+    "line": 383,
     "via": null,
     "note": null
    },
@@ -20687,7 +21065,7 @@
     "src": "user input → rejectReason (local)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 378,
+    "line": 388,
     "via": null,
     "note": null
    },
@@ -20697,7 +21075,7 @@
     "src": "parent callback rejectReason.trim",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 379,
+    "line": 389,
     "via": null,
     "note": null
    },
@@ -20707,7 +21085,7 @@
     "src": "from ABORT_REASONS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 383,
+    "line": 393,
     "via": null,
     "note": null,
     "untraced": true
@@ -20718,7 +21096,7 @@
     "src": "local state setAbortReason",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 384,
+    "line": 394,
     "via": null,
     "note": null
    },
@@ -20728,7 +21106,7 @@
     "src": "POST /radiology/bookings/:param/abort, GET /radiology/bookings/:param",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 389,
+    "line": 399,
     "via": null,
     "note": null
    },
@@ -20738,7 +21116,7 @@
     "src": "from RESCHEDULE_OPTIONS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 395,
+    "line": 405,
     "via": null,
     "note": null,
     "untraced": true
@@ -20749,7 +21127,7 @@
     "src": "local state setRescheduleDays",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 396,
+    "line": 406,
     "via": null,
     "note": null
    },
@@ -20759,7 +21137,7 @@
     "src": "PATCH /radiology/bookings/:param/reschedule, GET /radiology/bookings/:param",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 401,
+    "line": 411,
     "via": null,
     "note": null
    }
@@ -20771,7 +21149,7 @@
     "src": "reportFile: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 413,
+    "line": 423,
     "via": null,
     "note": null
    },
@@ -20781,7 +21159,7 @@
     "src": "dicomFile: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 414,
+    "line": 424,
     "via": null,
     "note": null
    },
@@ -20791,7 +21169,7 @@
     "src": "from STEPS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 476,
+    "line": 486,
     "via": null,
     "note": null,
     "untraced": true
@@ -20802,7 +21180,7 @@
     "src": "native action",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 484,
+    "line": 494,
     "via": null,
     "note": null
    },
@@ -20812,7 +21190,7 @@
     "src": "user input → findings → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 486,
+    "line": 496,
     "via": null,
     "note": null
    },
@@ -20822,7 +21200,7 @@
     "src": "POST /storage/upload, POST /radiology/bookings/:param/upload-report",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 488,
+    "line": 498,
     "via": null,
     "note": null
    },
@@ -20832,7 +21210,7 @@
     "src": "native action",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 497,
+    "line": 507,
     "via": null,
     "note": null
    },
@@ -20842,7 +21220,7 @@
     "src": "POST /radiology/bookings/:param/submit-report-for-review",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 504,
+    "line": 514,
     "via": null,
     "note": null
    },
@@ -20852,7 +21230,7 @@
     "src": "POST /radiology/bookings/:param/approve-report",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 505,
+    "line": 515,
     "via": null,
     "note": null
    }

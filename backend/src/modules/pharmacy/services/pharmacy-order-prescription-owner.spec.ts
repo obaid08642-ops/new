@@ -18,7 +18,7 @@ describe('PharmacyOrderService prescription references', () => {
     return { service, created };
   };
   const patient = { id: 'patient-1', role: 'patient' };
-  const item = { items: [{ raw_name: 'Amoxicillin', qty: 1 }] };
+  const item = { items: [{ raw_name: 'Amoxicillin', qty: 1 }], refund_policy_accepted: true };
 
   it('refuses another patient\'s prescription id', async () => {
     const { service, created } = make({ rx: [] });

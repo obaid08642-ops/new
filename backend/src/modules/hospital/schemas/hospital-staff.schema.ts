@@ -26,6 +26,10 @@ export class HospitalStaff {
   // Shown on the facility staff/credentials screens (clinical staff also carry them on their provider profile)
   @Prop() department?: string;
   @Prop() scfhs?: string;
+  // Credentialing: licence and malpractice cover, kept by the facility for its clinical staff
+  @Prop() license_expiry?: Date;
+  @Prop() malpractice_insurance?: boolean;
+  @Prop() malpractice_expiry?: Date;
   // Provider account created for clinical staff (their own dashboard login)
   @Prop() account_id?: string;
 }

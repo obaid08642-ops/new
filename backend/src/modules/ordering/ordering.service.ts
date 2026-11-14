@@ -1,3 +1,6 @@
+import { stampAcceptance } from '../../common/refund-policy-stamp';
+import { resolveFamilyMemberId } from '../../common/family-member';
+import { refundPolicyAcceptance } from '../../common/refund-policy-acceptance';
 import { readQuoteVatRate } from '../../common/quote';
 import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { homeCollectionFee } from '../../common/provider-home-fees';
@@ -200,7 +203,7 @@ export class OrderingService implements OnModuleInit {
   }
 
   private async ownMember(userId: string, id: string) {
-    const m = await this.conn.collection('family_members').findOne({ id, $or: [{ owner_id: userId }, { user_id: userId }, { patient_id: userId }] });
+    const m = await this.conn.collection('family_members').findOne({ id, is_deleted: { $ne: true }, $or: [{ owner_id: userId }, { user_id: userId }, { patient_id: userId }] });
     if (!m) throw new NotFoundException('family_member_not_found');
     return m;
   }
@@ -372,11 +375,19 @@ export class OrderingService implements OnModuleInit {
   // ---------- booking ----------
 
   async book(user: any, dto: CreateOrderingBookingDto) {
+    // owner decision 2026-11-09: the refund policy is agreed before any booking is made from the quote
+    const policyAcceptance = await stampAcceptance(this.conn, refundPolicyAcceptance(user, dto.refund_policy_accepted), 'lab', dto.refund_policy_hash);
     const quote: any = await this.conn.collection(QUOTES).findOne({ id: dto.quote_id, patient_id: user.id });
     if (!quote) throw new NotFoundException('quote_not_found');
     const now = new Date();
     if (new Date(quote.expires_at).getTime() <= now.getTime()) throw new ConflictException('quote_expired');
     if (quote.service_kind !== 'lab') throw bad('service_kind_not_bookable_yet');
+    // The quote fixed WHO the booking is for (the price and the cover were worked out for that person). A client that also sends the member names the same one or none: another member, or
+    // someone else's, is refused before anything is written.
+    if (dto.family_member_id) {
+      const sent = await resolveFamilyMemberId(this.conn, user.id, dto.family_member_id);
+      if ((sent ?? null) !== (quote.family_member_id ?? null)) throw bad('family_member_mismatch');
+    }
     const groups: QuoteGroup[] = quote.groups;
 
     for (const mode of ['home', 'facility'] as Mode[]) {
@@ -440,7 +451,7 @@ export class OrderingService implements OnModuleInit {
           home_fee: snap.home_fee, scheduled_at: scheduled[i].at, asap: scheduled[i].asap, payment_method: dto.payment_method, awaiting_approval: awaiting,
           address: g.mode === 'home' ? { lat: quote.context.lat, lng: quote.context.lng } : undefined,
           order_group_id: groupId, quote_id: quote.id, medical_order_id: order?.id, gender_preference: dto.gender_preference,
-          documents: dto.documents, notes: dto.notes,
+          documents: dto.documents, notes: dto.notes, family_member_id: quote.family_member_id ?? undefined, refund_policy_acceptance: policyAcceptance,
         });
         created.push({
           id: b.id, mode: g.mode, status: awaiting ? 'awaiting_approval' : 'pending', provider_id: sel.provider_id,

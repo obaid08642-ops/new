@@ -10,7 +10,7 @@
  * unusual, only the ones that are known-compromised.
  */
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from './password-hash';
 import { createHash } from 'crypto';
 
 export interface PasswordCheck {

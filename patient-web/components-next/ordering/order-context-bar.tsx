@@ -21,6 +21,7 @@ export function OrderContextBar({
   addressHref,
   insuranceHref,
   copy,
+  who,
 }: {
   label: string;
   place: string;
@@ -35,6 +36,8 @@ export function OrderContextBar({
   addressHref: string;
   insuranceHref: string;
   copy: { hint: string; addAddress: string; addInsurance: string; insuranceSub: string; insuranceName: string };
+  /** Who the order is for (owner decision 2026-11-08): the patient first and by default, then the family members; absent when there are none. */
+  who?: { label: string; current: string; options: Option[] };
 }) {
   const chosen = (opts: Option[] | undefined, value: string | undefined) => opts?.find((o) => o.value === value)?.label ?? "";
   const placeValue = [chosen(placeOptions, place), address || null].filter(Boolean).join(" · ");
@@ -52,6 +55,15 @@ export function OrderContextBar({
             <p className={ctx.note}>{address ? address : <Link href={addressHref} className={ctx.add}>{copy.addAddress}</Link>}</p>
           ) : null}
         </Chip>
+        {who && who.options.length > 1 ? (
+          <Chip label={who.label} value={chosen(who.options, who.current)}>
+            <ul className={ctx.list}>
+              {who.options.map((o) => (
+                <li key={o.value}><Link href={o.href} className={ctx.opt} aria-current={o.value === who.current ? "page" : undefined} scroll={false}>{o.label}</Link></li>
+              ))}
+            </ul>
+          </Chip>
+        ) : null}
         {payOptions && pay ? (
           <Chip label={payLabel} value={payValue}>
             <ul className={ctx.list}>

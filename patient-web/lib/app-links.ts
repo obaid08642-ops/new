@@ -56,6 +56,7 @@ export const PUBLIC_APP_LINK_PATHS: readonly AppLinkPath[] = [
   { path: "/orders", comment: "Order list" },
   { path: "/orders/*", comment: "Order tracking" },
   { path: "/chat/*", comment: "Chat thread" },
+  { path: "/payments/result", comment: "Payment return from the gateway: the app reads ?ref (our transaction id) or ?id and asks the server for the result (PT-24)" },
 ];
 
 /** Every link pattern of one entry: the bare path (unless locale-only) and the path under each locale. */

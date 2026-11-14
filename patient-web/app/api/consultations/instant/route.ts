@@ -5,7 +5,8 @@ import { authCookieNames } from "@/lib/auth/cookies";
 import { assertSameOrigin } from "@/lib/api/csrf";
 import { callPatientApi } from "@/lib/api/upstream";
 
-const schema = z.object({ specialty: z.string().min(1).max(120), mode: z.enum(["video", "audio"]) });
+// the patient agreed to the refund policy before the request is sent (the backend refuses without it; an explicit false is never accepted)
+const schema = z.object({ specialty: z.string().min(1).max(120), mode: z.enum(["video", "audio"]), refund_policy_accepted: z.literal(true) });
 
 /** POST /consultations/instant: broadcasts the request to the online doctors of the specialty. The 409 no-doctor answer keeps its earliest_slot. */
 export async function POST(request: Request) {

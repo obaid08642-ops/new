@@ -61,6 +61,18 @@ describe('guest job review', () => {
     expect(chain.sort).toHaveBeenCalledWith({ createdAt: 1 });
   });
 
+  it('the admin list can show facility posts or all posts (read only); an unknown source means guest posts', async () => {
+    const chain: any = { sort: jest.fn().mockReturnThis(), limit: jest.fn().mockReturnThis(), lean: () => Promise.resolve([]) };
+    jobModel.find.mockReturnValue(chain);
+    await svc.listGuestDrafts('published', 'facility');
+    expect(jobModel.find.mock.calls[0][0]).toMatchObject({ status: { $eq: 'published' }, is_deleted: false, $or: [{ guest_device_id: { $exists: false } }, { guest_device_id: null }] });
+    await svc.listGuestDrafts('published', 'all');
+    expect(jobModel.find.mock.calls[1][0]).not.toHaveProperty('guest_device_id');
+    expect(jobModel.find.mock.calls[1][0]).not.toHaveProperty('$or');
+    await svc.listGuestDrafts('draft', 'bogus');
+    expect(jobModel.find.mock.calls[2][0]).toMatchObject({ guest_device_id: { $exists: true, $ne: null } });
+  });
+
   it('DTO rejects an unknown decision', async () => {
     const bad = plainToInstance(GuestJobReviewDto, { decision: 'delete' });
     expect((await validate(bad)).length).toBeGreaterThan(0);
@@ -75,5 +87,21 @@ describe('guest job review', () => {
       expect((await validate(plainToInstance(GuestJobReviewDto, { decision, note: 'x'.repeat(501) }))).length).toBeGreaterThan(0);
       expect(await validate(plainToInstance(GuestJobReviewDto, { decision, note: 'abc' }))).toHaveLength(0);
     }
+  });
+
+  it('close takes down a published post of any source, with a reason, and refuses one that is not published', async () => {
+    jobModel.findOneAndUpdate.mockReturnValue(lean({ id: 'j9', status: 'closed' }));
+    await svc.reviewGuestJob('adm1', 'j9', 'close', 'spam');
+    const [filter, update] = jobModel.findOneAndUpdate.mock.calls[0];
+    expect(filter).toEqual({ id: 'j9', is_deleted: false, status: 'published' });
+    expect(update.$set).toEqual(expect.objectContaining({ status: 'closed', reviewed_by: 'adm1', review_note: 'spam' }));
+    jobModel.findOneAndUpdate.mockReturnValue(lean(null));
+    jobModel.findOne.mockReturnValue(lean({ id: 'j9', status: 'draft' }));
+    await expect(svc.reviewGuestJob('adm1', 'j9', 'close', 'x')).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('the DTO accepts close', async () => {
+    const dto = plainToInstance(GuestJobReviewDto, { decision: 'close', note: 'spam' });
+    expect(await validate(dto)).toHaveLength(0);
   });
 });

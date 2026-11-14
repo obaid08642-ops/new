@@ -55,9 +55,12 @@ export function ResultsPanel({ onSeen, testID }: { onSeen?: () => void; testID: 
 
   const pdf = async (item: ResultItem) => {
     if (!item.pdfPath) return;
-    const uri = await downloadProtected(`/labs/bookings/${encodeURIComponent(item.pdfPath.bookingId)}/reports/${encodeURIComponent(item.pdfPath.reportId)}`, `lab-report-${item.pdfPath.reportId}.pdf`);
+    let pending = false;
+    const uri = await downloadProtected(`/labs/bookings/${encodeURIComponent(item.pdfPath.bookingId)}/reports/${encodeURIComponent(item.pdfPath.reportId)}`, `lab-report-${item.pdfPath.reportId}.pdf`, () => { pending = true; });
     if (!uri) {
-      showLocalizedAlert(k('diag.order.noReportTitle'), k('diag.order.noReportBody'));
+      // a report file still being scanned is "being checked", not a missing report
+      if (pending) showLocalizedAlert(k('scanStatus.checking'), k('scanStatus.openLater'));
+      else showLocalizedAlert(k('diag.order.noReportTitle'), k('diag.order.noReportBody'));
       return;
     }
     await shareFile(uri, 'application/pdf', k('diag.order.pdf'));

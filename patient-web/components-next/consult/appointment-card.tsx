@@ -29,6 +29,7 @@ export function AppointmentCard({
   primaryInk = false,
   secondary,
   priceText,
+  extra,
 }: {
   locale: string;
   href: string;
@@ -47,6 +48,8 @@ export function AppointmentCard({
   secondary?: CardAction;
   /** The visit's price, already formatted, when the server states one. */
   priceText?: string;
+  /** Something after the actions (the Hide button of a finished visit). */
+  extra?: React.ReactNode;
 }) {
   const visual = mode ? MODE_VISUAL[mode] : null;
   return (
@@ -68,6 +71,7 @@ export function AppointmentCard({
           {secondary ? <ButtonLink href={secondary.href} label={secondary.label} variant="outline" size="md" /> : null}
         </div>
       ) : null}
+      {extra ? <div className={styles.apptActions}>{extra}</div> : null}
     </li>
   );
 }

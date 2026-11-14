@@ -4,6 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Nabd Plus",
     short_name: "Nabd Plus",
+    // i18n-ok: the web app manifest description (English by design)
     description: "Nabd Plus patient portal",
     start_url: "/",
     display: "standalone",

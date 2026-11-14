@@ -8,6 +8,7 @@ import {
   StyleSheet, StyleProp, ViewStyle,
 } from 'react-native';
 import { useApp } from '../../context/AppContext';
+import { dsText } from '../dsText';
 import { useScreenUi } from '../../components/home/homeKit';
 import { BorderRadius, Spacing } from '../tokens';
 import { Icon } from '../Icon';
@@ -159,8 +160,8 @@ export function DSSearchBar({
           textAlign={isRTL ? 'right' : 'left'}
           allowFontScaling
           accessible
-          accessibilityLabel="حقل البحث"
-          accessibilityHint="اكتب للبحث"
+          accessibilityLabel={dsText(lang, 'ds.search.field')}
+          accessibilityHint={dsText(lang, 'ds.search.hint')}
           style={[
             styles.input,
             { color: colors.textPrimary, flex: 1 },
@@ -173,7 +174,7 @@ export function DSSearchBar({
             onPress={handleClear}
             hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
             accessibilityRole="button"
-            accessibilityLabel="مسح"
+            accessibilityLabel={dsText(lang, 'search.screen.clear')}
           >
             <Icon name="close" size={18} color={colors.textTertiary} />
           </TouchableOpacity>
@@ -185,7 +186,7 @@ export function DSSearchBar({
             onPress={onVoicePress}
             hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
             accessibilityRole="button"
-            accessibilityLabel="البحث الصوتي"
+            accessibilityLabel={dsText(lang, 'ds.search.voice')}
           >
             <Icon name="mic" size={20} color={colors.textTertiary} />
           </TouchableOpacity>
@@ -203,7 +204,7 @@ export function DSSearchBar({
             },
           ]}
           accessibilityRole="button"
-          accessibilityLabel={filterActive ? 'فلاتر نشطة' : 'فتح الفلاتر'}
+          accessibilityLabel={filterActive ? dsText(lang, 'ds.search.filtersActive') : dsText(lang, 'ds.search.filters')}
           accessibilityState={{ selected: filterActive }}
         >
           <Icon
@@ -220,11 +221,11 @@ export function DSSearchBar({
           <TouchableOpacity
             onPress={handleCancel}
             accessibilityRole="button"
-            accessibilityLabel="إلغاء"
+            accessibilityLabel={dsText(lang, 'search.screen.cancel')}
             style={styles.cancelBtn}
           >
             <DSText variant="labelMD" color={colors.primary} noScale>
-              {lang === 'ar' ? 'إلغاء' : lang === 'ur' ? 'منسوخ' : 'Cancel'}
+              {dsText(lang, 'search.screen.cancel')}
             </DSText>
           </TouchableOpacity>
         </Animated.View>

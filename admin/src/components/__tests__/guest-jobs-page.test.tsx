@@ -6,11 +6,12 @@ import { createRoot, type Root } from 'react-dom/client';
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
 const calls: Array<{ path: string; init?: RequestInit }> = [];
-const job = { id: 'j1', title: 'صيدلي مطلوب', description: 'دوام كامل', scfhs_role: 'pharmacist', location: 'الرياض', post_type: 'offer', status: 'draft', createdAt: '2026-10-25T08:00:00.000Z' };
+const job = { id: 'j1', title: 'صيدلي مطلوب', description: 'دوام كامل', scfhs_role: 'pharmacist', location: 'الرياض', post_type: 'offer', status: 'draft', guest_device_id: 'dev-1', createdAt: '2026-10-25T08:00:00.000Z' };
 vi.mock('@/utils/api', () => ({
   apiFetch: vi.fn(async (path: string, init?: RequestInit) => {
     calls.push({ path, init });
     if (init?.method === 'POST') return { ...job, status: 'published' };
+    if (path.includes('source=facility')) return [{ ...job, id: 'f1', title: 'ممرض مطلوب', guest_device_id: undefined }];
     return [job];
   }),
 }));
@@ -34,7 +35,7 @@ const open = async () => { await act(async () => { root.render(<GuestJobsPage />
 describe('admin guest jobs page', () => {
   it('lists pending guest drafts', async () => {
     await act(async () => { root.render(<GuestJobsPage />); }); await flush();
-    expect(calls[0].path).toContain('/admin/admin/recruitment/guest-jobs?status=draft');
+    expect(calls[0].path).toContain('/admin/admin/recruitment/guest-jobs?status=draft&source=guest');
     expect(host.textContent).toContain('صيدلي مطلوب');
     expect(host.textContent).toContain('صيدلي');
   });
@@ -56,5 +57,18 @@ describe('admin guest jobs page', () => {
     await act(async () => { button('رفض').click(); }); await flush();
     expect(host.querySelector('[role="alert"]')?.textContent).toContain('السبب');
     expect(calls.some((c) => c.init?.method === 'POST')).toBe(false);
+  });
+
+  it('facility posts are listed on request and are view only (no publish or reject)', async () => {
+    await act(async () => { root.render(<GuestJobsPage />); }); await flush();
+    const select = host.querySelector('select[aria-label="المصدر"]') as HTMLSelectElement;
+    const setter = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value')!.set!;
+    await act(async () => { setter.call(select, 'facility'); select.dispatchEvent(new Event('change', { bubbles: true })); }); await flush();
+    expect(calls.some((c) => c.path.includes('status=draft&source=facility'))).toBe(true);
+    expect(host.textContent).toContain('ممرض مطلوب');
+    await act(async () => { button('التفاصيل').click(); }); await flush();
+    expect(button('نشر')).toBeUndefined();
+    expect(button('رفض')).toBeUndefined();
+    expect(host.textContent).toContain('للعرض فقط');
   });
 });

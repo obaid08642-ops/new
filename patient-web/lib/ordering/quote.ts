@@ -233,14 +233,19 @@ export function filterCompare(rows: ProviderRow[], f: CompareFilters): ProviderR
 }
 
 /**
- * The lab choice step's price list: EVERY provider of the group with ITS OWN total for the chosen items (the server's per-provider `total`,
- * home fee included when the group is a home visit), the best match first and then the rest in the server's order. A provider that lacks
- * some of the items still appears (with `coversAll` false) so the patient sees why it cannot be chosen. Nothing is computed here.
+ * The lab choice step's price list (owner decision 2026-11-08: every offer's price, sorted, the best one highlighted): EVERY provider of the
+ * group with ITS OWN total for the chosen items (the server's per-provider `total`, home fee included when the group is a home visit), in the
+ * order of the chosen sort, the best match flagged where it falls (not pinned first). For "cheapest" (the default) the list is ordered by total,
+ * the providers that cover every item before those that lack one (those are shown with why they cannot be chosen, never dropped); for another
+ * sort the server's order is kept. The best match is added at the top only when the compare list does not hold it (filtered out or absent).
+ * Nothing is computed here but the order.
  */
 export type PriceRow = { row: ProviderRow; best: boolean };
-export function providerPriceList(g: Pick<QuoteGroup, "bestMatch" | "compare">, f: CompareFilters = { inNetworkOnly: false }): PriceRow[] {
-  const bestId = g.bestMatch?.providerId;
+export function providerPriceList(g: Pick<QuoteGroup, "bestMatch" | "compare">, f: CompareFilters = { inNetworkOnly: false }, sort: SortKey = "cheapest"): PriceRow[] {
   const rows = filterCompare(g.compare, f);
-  const best = bestId ? rows.find((r) => r.providerId === bestId) ?? (g.bestMatch && (!f.inNetworkOnly || g.bestMatch.inNetwork) ? g.bestMatch : undefined) : undefined;
-  return [...(best ? [{ row: best as ProviderRow, best: true }] : []), ...rows.filter((r) => r.providerId !== best?.providerId).map((row) => ({ row, best: false }))];
+  const bestId = g.bestMatch?.providerId;
+  const missingBest = g.bestMatch && (!f.inNetworkOnly || g.bestMatch.inNetwork) && !rows.some((r) => r.providerId === bestId) ? [g.bestMatch as ProviderRow] : [];
+  const all = [...missingBest, ...rows];
+  const ordered = sort === "cheapest" ? [...all].sort((x, y) => Number(!x.coversAll) - Number(!y.coversAll) || x.total - y.total) : all;
+  return ordered.map((row) => ({ row, best: row.providerId === bestId }));
 }

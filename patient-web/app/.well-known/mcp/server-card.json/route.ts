@@ -15,6 +15,7 @@ export function GET() {
       schema: "https://modelcontextprotocol.io/server-card/v0",
       name: "Nabd Plus Healthcare MCP Server",
       description:
+        // i18n-ok: machine-readable discovery metadata for agents and API clients (English by design), not shown to patients
         "Unified Model Context Protocol (MCP) server for Saudi healthcare discovery, consultation booking, and pharmacy services.",
       version: "1.0.0",
       protocol: {

@@ -43,7 +43,23 @@ for FLOW in tools/native/flows/${TARGET}_*.yaml; do
   EMAIL_LOCAL="${EMAIL%%@*}"; EMAIL_DOMAIN="${EMAIL#*@}"
   echo "sign-in identifier for $TAG: local part ${EMAIL_LOCAL} / domain ${EMAIL_DOMAIN} (test account)"
   if [ -z "$EMAIL" ]; then echo "no seeded account for $TARGET $ARG" > "$OUT/flow_${TAG}__${NAME}.txt"; continue; fi
-  run_flow() { "$HOME/.maestro/bin/maestro" --device "$DEVICE" test -e EMAIL="$EMAIL" -e EMAIL_LOCAL="$EMAIL_LOCAL" -e EMAIL_DOMAIN="$EMAIL_DOMAIN" -e PASSWORD="$PASS" --test-output-dir "$OUT/maestro_${TAG}__${NAME}" "$FLOW" > "$OUT/maestro_${TAG}__${NAME}.log" 2>&1; }
+  # A flow may have a setup step, tools/native/setup/<app>_<name>.py (it acts through the real APIs before the flow, e.g. the doctor writes a
+  # chat message); it prints a JSON object whose entries reach the flow as -e variables. DOCTOR_MSG / APP_MSG are the texts of the chat flow.
+  EXTRA=(-e "DOCTOR_MSG=doctor-e2e-$(date +%s)" -e "APP_MSG=patient-e2e-$(date +%s)")
+  SETUP="tools/native/setup/${TARGET}_${NAME}.py"
+  if [ -f "$SETUP" ]; then
+    DOCTOR_MSG="doctor-e2e-$(date +%s)"; EXTRA=(-e "DOCTOR_MSG=$DOCTOR_MSG" -e "APP_MSG=patient-e2e-$(date +%s)")
+    if SETUP_OUT=$(python3 "$SETUP" "$ACC" "$DOCTOR_MSG" 2> "$OUT/setup_${TAG}__${NAME}.log"); then
+      while IFS= read -r KV; do EXTRA+=(-e "$KV"); done < <(printf '%s' "$SETUP_OUT" | python3 -c "import json,sys;[print(k+'='+str(v)) for k,v in json.loads(sys.stdin.read().strip().splitlines()[-1]).items()]")
+    else
+      echo "setup failed: $(tail -n 3 "$OUT/setup_${TAG}__${NAME}.log" | tr '\n' ' ')" > "$OUT/flow_${TAG}__${NAME}.txt"; cat "$OUT/setup_${TAG}__${NAME}.log"; continue
+    fi
+  fi
+  # The iOS keychain survives launchApp clearState (expo-secure-store keeps the sign-in tokens there), so a flow that follows another one
+  # started already signed in and never saw the first-launch screen (run 41576141752: "onboarding-language is visible" failed in three flows,
+  # the screenshot is Home). Empty the simulator's keychain before every flow.
+  xcrun simctl keychain "$DEVICE" reset >/dev/null 2>&1 || echo "keychain reset not available"
+  run_flow() { "$HOME/.maestro/bin/maestro" --device "$DEVICE" test -e EMAIL="$EMAIL" -e EMAIL_LOCAL="$EMAIL_LOCAL" -e EMAIL_DOMAIN="$EMAIL_DOMAIN" -e PASSWORD="$PASS" -e PASS_1="${PASS:0:7}" -e PASS_2="${PASS:7:7}" -e PASS_3="${PASS:14:7}" -e PASS_4="${PASS:21}" ${EXTRA[@]+"${EXTRA[@]}"} --test-output-dir "$OUT/maestro_${TAG}__${NAME}" "$FLOW" > "$OUT/maestro_${TAG}__${NAME}.log" 2>&1; }
   # one retry, and only when Maestro's driver itself did not start (before any step ran); a failed step is never retried
   if run_flow || { grep -q "iOS driver not ready in time" "$OUT/maestro_${TAG}__${NAME}.log" && { echo "maestro driver did not start, retrying once"; run_flow; }; }; then
     echo ok > "$OUT/flow_${TAG}__${NAME}.txt"

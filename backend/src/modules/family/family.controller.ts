@@ -1,5 +1,5 @@
 import { JwtAuthGuard, NoGuestsGuard, SelfService } from '../../common/auth.guard';
-import { AddEventDto, CreateDto, InviteDto, JoinDto, SetRelationDto, SetContractPermissionsDto, SetPermissionsDto, RequestPermissionsDto, RespondPermissionDto} from './family.dto';
+import { AddEventDto, CreateDependantDto, CreateDto, InviteDto, JoinDto, SetRelationDto, SetContractPermissionsDto, SetPermissionsDto, RequestPermissionsDto, RespondPermissionDto} from './family.dto';
 import {
   Body, Controller, Delete, Get, Param, Patch, Post, Put, Req, UnauthorizedException, UseGuards,
 } from '@nestjs/common';
@@ -17,6 +17,22 @@ export class FamilyController {
       throw new UnauthorizedException('authenticated_user_required');
     }
     return userId;
+  }
+
+  // ── Dependants (PT-03): a minor with no account, managed by the guardian who adds them ─────────────
+  @Post('dependants')
+  addDependant(@Req() req: any, @Body() body: CreateDependantDto) {
+    return this.familyService.addDependant(this.authenticatedUserId(req), body);
+  }
+
+  @Get('dependants')
+  listDependants(@Req() req: any) {
+    return this.familyService.listDependants(this.authenticatedUserId(req));
+  }
+
+  @Delete('dependants/:id')
+  removeDependant(@Req() req: any, @Param('id') id: string) {
+    return this.familyService.removeDependant(this.authenticatedUserId(req), id);
   }
 
   // ── Group Management ───────────────────────────────────────────────────────

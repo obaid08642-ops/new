@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from '../../../common/password-hash';
 import * as crypto from 'crypto';
 import { ProviderOperator, ProviderAccount, OperatorStatus, ProviderAuditLog } from '../schemas';
 import { OperatorRole, OperatorPermission, DEFAULT_PERMISSIONS_BY_ROLE } from '../provider.enums';

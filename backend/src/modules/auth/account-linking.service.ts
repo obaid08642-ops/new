@@ -19,7 +19,7 @@ import { recordAudit } from '../../common/audit-record';
 import { BadRequestException, ConflictException, ForbiddenException, HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from '../../common/password-hash';
 import { createHash, randomInt, randomUUID, timingSafeEqual } from 'crypto';
 import { MailService } from '../mail/mail.module';
 

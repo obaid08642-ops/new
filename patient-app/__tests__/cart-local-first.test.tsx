@@ -199,6 +199,7 @@ describe('sending the request (the only step that needs the backend)', () => {
     await AsyncStorage.setItem(DEVICE_CART_KEY, JSON.stringify(lines));
     await render(tree(makeStore(), <Checkout />));
     const submit = await screen.findByLabelText(AR['pharmacy.checkout.submit']);
+    await tap(await screen.findByTestId('refund-policy-agree'));
     await waitFor(() => expect(submit.props.accessibilityState.disabled).toBe(false));
     return submit;
   }

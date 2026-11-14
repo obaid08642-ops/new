@@ -23,6 +23,7 @@ import { UserRepository } from "./repositories/user.repository";
 import { SlotLocksModule } from "../slot-locks/slot-locks.module";
 import { ConsultationsCompatController } from './care-compat.controller';
 import { StorageModule } from '../storage/storage.module';
+import { ProviderNoShowModule } from '../provider-no-show/provider-no-show.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { StorageModule } from '../storage/storage.module';
     InsuranceEngineModule,
     SlotLocksModule,
     StorageModule,
+    ProviderNoShowModule,
     MongooseModule.forFeature([
       { name: ProviderProfile.name, schema: ProviderProfileSchema },
       { name: User.name, schema: UserSchema },

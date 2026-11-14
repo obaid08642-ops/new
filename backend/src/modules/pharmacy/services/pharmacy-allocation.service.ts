@@ -1,3 +1,4 @@
+import { shadowFields } from '../../../common/halala-shadow';
 import { Injectable, ForbiddenException, NotFoundException, BadRequestException, ConflictException, ServiceUnavailableException, Inject, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -579,6 +580,8 @@ export class PharmacyAllocationService {
         gross, commission_percent: pct, commission, vat, platform_delivery_fee: platformDeliveryFee, delivery_mode,
         description: 'COD commission + VAT + platform delivery fee owed to platform (cash collected by pharmacy)',
         actor_id: 'system', createdAt: now,
+        // R11 P1: integer shadows next to the doubles
+        ...shadowFields({ amount: Math.round((commission + vat + platformDeliveryFee) * 100) / 100, gross, commission, vat }, ['amount', 'gross', 'commission', 'vat']),
       });
       return;
     }
@@ -592,6 +595,8 @@ export class PharmacyAllocationService {
       ref_type: refType, ref_id: refId, order_id: a.order_id,
       description: 'Pharmacy order earning (escrow until settlement delay)',
       actor_id: 'system', createdAt: now,
+      // R11 P1: integer shadows next to the doubles
+      ...shadowFields({ amount: net, gross, commission, vat }, ['amount', 'gross', 'commission', 'vat']),
     });
   }
 

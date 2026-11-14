@@ -20,7 +20,7 @@ function errorText(err: unknown, fallback: string): string {
 /**
  * Screen for every account that is not approved yet. `status` says which one:
  *   pending        under review (refresh button + "sign in again" hint once approved, GET /provider-onboarding/my-profile)
- *   needs_changes  the reviewer asked for changes (reason + documents, resubmit: POST /provider/onboarding/submit)
+ *   needs_changes  the reviewer asked for changes (reason + documents, resubmit: POST /provider-onboarding/submit)
  *   rejected       rejected (reason from GET /provider-onboarding/progress, resubmit path as above)
  *   suspended      suspended (reason if the server exposes one; no resubmit, the server has no such transition)
  */
@@ -122,7 +122,7 @@ export function PendingDashboard({ onExplore, onLogout, providerType, status = '
   const resubmit = async () => {
     setResubmitting(true);
     try {
-      await client.post('/provider/onboarding/submit', {});
+      await client.post('/provider-onboarding/submit', {});
       show(t('status.toast.resubmitted'), 'success');
       await refreshSession();
     } catch (e) {

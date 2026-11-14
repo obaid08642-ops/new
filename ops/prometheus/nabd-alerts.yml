@@ -89,3 +89,28 @@ groups:
         annotations:
           summary: "Overload level 2: browsing, search and reports are answered with 503 server_busy so payments, bookings and sign-in keep working"
           runbook_url: "docs/runbooks/overload.md"
+
+      # Launch checklist 6.1: the dead-letter queue and the domain outbox, watched in the first weeks (gauges: common/event-queue-gauges.ts)
+      - alert: DeadLetterQueueHasDeadEvents
+        expr: max(nabd_event_dlq_dead) > 0
+        for: 15m
+        labels: { severity: warning, slo: event_delivery }
+        annotations:
+          summary: "Events failed 5 times and sit dead in the dead-letter queue: somebody has to look at them (admin > event reliability)"
+          runbook_url: "docs/runbooks/event-dead-letter.md"
+
+      - alert: DeadLetterQueueBacklog
+        expr: max(nabd_event_dlq_pending) > 50
+        for: 15m
+        labels: { severity: warning, slo: event_delivery }
+        annotations:
+          summary: "More than 50 events wait in the dead-letter queue for a retry for over 15 minutes"
+          runbook_url: "docs/runbooks/event-dead-letter.md"
+
+      - alert: DomainOutboxStuck
+        expr: max(nabd_domain_outbox_stuck) > 0
+        for: 15m
+        labels: { severity: warning, slo: event_delivery }
+        annotations:
+          summary: "Domain outbox entries have been pending for over 30 minutes (a state change was not propagated)"
+          runbook_url: "docs/runbooks/event-dead-letter.md"

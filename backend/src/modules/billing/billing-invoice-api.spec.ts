@@ -21,7 +21,7 @@ function world(w: World, store: any[] = []) {
     findOne: (q: any) => ({ lean: async () => store.find(match(q)) ?? null }),
     find: (q: any) => ({ lean: async () => store.filter(match(q)) }),
     create: async (d: any) => { const row = { id: `i${store.length + 1}`, status: 'ISSUED', createdAt: new Date(), ...d }; store.push(row); return row; },
-    updateOne: async (q: any, u: any) => { const row = store.find(match(q)); if (row) Object.assign(row, u.$set); return {}; },
+    updateOne: async (q: any, u: any) => { const row = store.find(match(q)); if (row) Object.assign(row, u.$set); return { modifiedCount: row ? 1 : 0 }; },
   };
   const collections: Record<string, any> = {
     transactions: {
@@ -124,7 +124,7 @@ describe('a refunded invoice', () => {
     expect((await svc.present(await svc.issue(patient, 'lab', 'b1'))).state).toBe('paid');
   });
 
-  it('a full refund: state refunded, the credit note referenced, its QR negative and consistent', async () => {
+  it('a full refund: state refunded, the credit note (type 381) referenced, its QR carries the absolute amounts', async () => {
     const { svc, store } = world({ booking, txns });
     const issued = await svc.issue(patient, 'lab', 'b1');
     const note: any = await svc.issueCreditNote({ booking_kind: 'lab', booking_id: 'b1', amount: 115, refund_ref: 'rf_1' });
@@ -133,8 +133,10 @@ describe('a refunded invoice', () => {
     expect(inv.credit_notes).toEqual([expect.objectContaining({ invoice_no: note.invoice_no, total: -115, vat_amount: -1.96 })]);
     const cn = await svc.present(store.find((d) => d.invoice_no === note.invoice_no));
     expect(cn).toMatchObject({ state: 'credit_note', type: 'credit_note', original_invoice_no: inv.invoice_no, total: -115 });
-    expect(qrOf(cn)[4]).toBe('-115.00');
-    expect(qrOf(cn)[5]).toBe('-1.96');
+    expect(qrOf(cn)[4]).toBe('115.00');
+    expect(qrOf(cn)[5]).toBe('1.96');
+    expect(cn.document_type_code).toBe('381');          // credit note
+    expect(issued.document_type_code).toBe('388');      // tax invoice
   });
 
   it('a partial refund takes its share of the VAT of the invoice it reverses', async () => {
@@ -154,6 +156,27 @@ describe('a refunded invoice', () => {
     const inv = await svc.present(issued);
     expect(inv).toMatchObject({ state: 'refunded', refunded_total: 115 });
     expect(inv.credit_notes).toHaveLength(2);
+  });
+
+  it('credit notes together never reverse more than the invoice: a later note is cut to what is left, a fully credited invoice gets none', async () => {
+    const { svc, store } = world({ booking, txns });
+    await svc.issue(patient, 'lab', 'b1');
+    await svc.issueCreditNote({ booking_kind: 'lab', booking_id: 'b1', amount: 92, refund_ref: 'rf_c1' });
+    const second: any = await svc.issueCreditNote({ booking_kind: 'lab', booking_id: 'b1', amount: 999, refund_ref: 'rf_c2' });
+    expect(second.total).toBe(-23);
+    expect(await svc.issueCreditNote({ booking_kind: 'lab', booking_id: 'b1', amount: 10, refund_ref: 'rf_c3' })).toBeNull();
+    const notes = store.filter((d) => d.type === 'credit_note');
+    expect(notes).toHaveLength(2);
+    expect(notes.reduce((t, n) => t + n.total, 0)).toBe(-115);
+  });
+
+  it('the credit-note VATs add up to the invoice VAT to the halala: the note that completes the reversal takes the rest', async () => {
+    const { svc, store } = world({ booking, txns });
+    const issued: any = await svc.issue(patient, 'lab', 'b1');
+    for (let i = 1; i <= 5; i++) await svc.issueCreditNote({ booking_kind: 'lab', booking_id: 'b1', amount: 23, refund_ref: `rf_v${i}` });
+    const vats = store.filter((d) => d.type === 'credit_note').map((n) => n.vat_amount);
+    expect(vats).toEqual([-0.39, -0.39, -0.39, -0.39, -0.4]); // 5 x 1.96 x 23 / 115 = 0.392 each, rounded one by one would lose a halala
+    expect(Math.round(vats.reduce((t, v) => t + v, 0) * 100) / 100).toBe(-issued.vat_amount);
   });
 
   it('a list carries the state of each invoice with one credit-note query', async () => {

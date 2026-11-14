@@ -7,7 +7,7 @@ vi.mock("next/headers", () => ({ cookies: async () => state.cookieStore }));
 import { POST } from "./route";
 
 function request(body: unknown, headers: HeadersInit = {}) { return new Request("https://web.test/api/appointments/book", { method: "POST", headers: { "content-type": "application/json", "idempotency-key": "idempotency-test-123456", ...headers }, body: JSON.stringify(body) }); }
-const valid = { doctor_id: "11111111-1111-4111-8111-111111111111", service_type: "video", slot_start: "2026-08-28T10:00:00.000Z", payment_method: "card" };
+const valid = { doctor_id: "11111111-1111-4111-8111-111111111111", service_type: "video", slot_start: "2026-08-28T10:00:00.000Z", payment_method: "card", refund_policy_accepted: true };
 
 describe("governed appointment booking BFF", () => {
   beforeEach(() => { state.callPatientApi.mockReset(); state.cookieStore.get.mockImplementation((name: string) => name === "nabd_access" ? { value: "server-access" } : name === "nabd_device" ? { value: "device-1" } : undefined); });
@@ -43,5 +43,13 @@ describe("governed appointment booking BFF", () => {
     expect(response.status).toBe(201);
     const sent = JSON.parse(state.callPatientApi.mock.calls[0][1].body);
     expect(sent).toEqual({ ...valid, patient_notes: "الاسم: مريض اختبار — الجوال: 0551234567\nصداع" });
+  });
+
+  it("refuses a booking without the refund policy agreement, and an explicit false, before anything is sent", async () => {
+    const { refund_policy_accepted: _agreed, ...without } = valid;
+    for (const body of [without, { ...valid, refund_policy_accepted: false }, { ...valid, refund_policy_accepted: "true" }]) {
+      expect((await POST(request(body, { "idempotency-key": "k".repeat(20) }))).status).toBe(400);
+    }
+    expect(state.callPatientApi).not.toHaveBeenCalled();
   });
 });

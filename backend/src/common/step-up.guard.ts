@@ -95,7 +95,10 @@ export class StepUpService {
    * public key, which is the same proof a login requires.
    */
   async issueFromAssertion(userId: string, action: string, response: any): Promise<string> {
-    const cred: any = await this.passkeyModel.findOne({ user_id: userId, credential_id: response?.id }).lean();
+    // `response` is user-provided: only a plain string may reach the query, and both fields are matched with $eq so an object such as {$ne: ''} is never read as an operator.
+    const credentialId = typeof response?.id === 'string' ? response.id : '';
+    if (!credentialId) throw new ForbiddenException('unknown_credential');
+    const cred: any = await this.passkeyModel.findOne({ user_id: { $eq: String(userId) }, credential_id: { $eq: credentialId } }).lean();
     if (!cred) throw new ForbiddenException('unknown_credential');
     const challenge = await this.takeChallenge(`webauthn_stepup:${userId}`);
     if (!challenge) throw new ForbiddenException('challenge_expired');

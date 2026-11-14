@@ -263,6 +263,11 @@ export class StorageService {
    *  medicine catalogue is never affected. */
   async upload(input: { owner_account_id: string; owner_kind?: string; mime: string; data_base64: string; original_name?: string; visibility?: 'private' | 'public_read'; customKey?: string; target?: 'r2' | 'cloudinary'; purpose?: Purpose; defer_ok?: boolean }) {
     if (!ALLOWED_MIME.has(input.mime)) throw new BadRequestException('unsupported mime: ' + input.mime);
+    // Cloudinary is over its plan (owner, 2026-11-12) and KYC / private documents never go there (R2 only): the only caller allowed is the provider photo pipeline (public_read,
+    // under `doctors/`). The upload controller already forces R2; this keeps a future caller from sending anything else.
+    if (input.target === 'cloudinary' && !(input.visibility === 'public_read' && typeof input.customKey === 'string' && input.customKey.startsWith('doctors/'))) {
+      throw new BadRequestException('cloudinary_only_for_provider_photos');
+    }
     // 16.5: the type comes from the bytes, the name is random and EXIF/GPS never survives.
     const inspected = await this.uploadSecurity.inspect({
       purpose: input.purpose || 'lab_report',

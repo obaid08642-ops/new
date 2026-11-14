@@ -11,10 +11,15 @@ import type { Locale } from "@/lib/i18n";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { Input, Select } from "@/components-next/ui-generated/components/Inputs";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
+import { NationalIdForm } from "@/components-next/medical-reports/national-id-form";
+import { readNationalIdStatus } from "@/lib/medical-reports/national-id";
+import { readDependants, type DependantRow } from "@/lib/family/dependants";
 import { Segmented } from "@/components-next/ui-generated/components/Controls";
 import { StickyFooter } from "@/components-next/ui-generated/shells/StickyFooter";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { PolicyCard } from "@/components-next/consult/policy-lines";
+import { RefundPolicyTick } from "@/components-next/refund-policy/refund-policy-tick";
+import { withRefundPolicy } from "@/lib/refund-policy";
 import { TelehealthConsentCard, needsTelehealthConsent } from "@/components-next/consult/telehealth-consent-card";
 import type { TelehealthConsentText } from "@/lib/legal/telehealth-consent";
 import { Hero, SectionCard } from "@/components-next/consult/consult-parts";
@@ -76,6 +81,33 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
   const [loading, setLoading] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
+  // PT-08: "I need a medical report" (a recommended rest period): a request the doctor decides on
+  // PT-03: the guardian's dependants (people with no account) the visit can be for; the guardian stays the booker and payer
+  const [dependants, setDependants] = useState<DependantRow[]>([]);
+  const [forDependant, setForDependant] = useState("");
+  useEffect(() => {
+    if (bookingFor) return undefined;
+    let live = true;
+    fetch("/api/patient/family/dependants", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((answer) => { if (live) setDependants(readDependants(answer)); })
+      .catch(() => { if (live) setDependants([]); });
+    return () => { live = false; };
+  }, [bookingFor]);
+  const [reportRequested, setReportRequested] = useState(false);
+  // Owner decision 6: the ID number is asked only when the patient asks for a medical report and has none yet (it never blocks the booking)
+  const [needsNationalId, setNeedsNationalId] = useState(false);
+  useEffect(() => {
+    if (!reportRequested) { setNeedsNationalId(false); return undefined; }
+    let live = true;
+    fetch("/api/patient/care/sick-leaves/national-id", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((answer) => { if (live) setNeedsNationalId(readNationalIdStatus(answer) === false); })
+      .catch(() => { if (live) setNeedsNationalId(false); });
+    return () => { live = false; };
+  }, [reportRequested]);
+  // the refund policy is shown before payment and agreed here (the backend refuses a booking without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "card" | "insurance">("card");
   const [homeAddressId, setHomeAddressId] = useState(homeAddresses[0]?.id ?? "");
   const [error, setError] = useState<string | null>(null);
@@ -163,19 +195,21 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
       const res = await fetch("/api/appointments/book", {
         method: "POST",
         headers: { "content-type": "application/json", "idempotency-key": newIdempotencyKey() },
-        body: JSON.stringify({
+        body: JSON.stringify(withRefundPolicy({
           doctor_id: doctorId,
           service_type: visitType,
           slot_start: selectedSlot,
           duration_minutes: durationMinutes ?? undefined,
           payment_method: paymentMethod,
           patient_notes: notes.trim() || undefined,
+          sick_leave_requested: reportRequested || undefined,
           visit_location: visitLocation,
           slot_lock_id: slotLockId,
           for_member_id: bookingFor?.id,
+          family_member_id: !bookingFor && forDependant ? forDependant : undefined,
           insurance_provider: paymentMethod === "insurance" ? insurance.providerId : undefined,
           insurance_member_id: paymentMethod === "insurance" ? insurance.memberId : undefined,
-        }),
+        })),
       });
       if (res.ok) {
         const data = await res.json().catch(() => null);
@@ -208,7 +242,7 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
   const fee = doctor ? priceForVisit(doctor, visitType) : undefined;
   const price = fee != null ? formatPrice(locale, fee) : null;
   const submitButton = (
-    <Button fullWidth size="lg" label={submitting ? t("submitting") : t("submit")} loading={submitting} disabled={!selectedSlot || (paymentMethod === "insurance" && !insurance.ready)} onClick={() => void submit()} />
+    <Button fullWidth size="lg" label={submitting ? t("submitting") : t("submit")} loading={submitting} disabled={!selectedSlot || !refundAgreed || (paymentMethod === "insurance" && !insurance.ready)} onClick={() => void submit()} />
   );
 
   return (
@@ -223,6 +257,12 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
       {bookingFor ? (
         <SectionCard id="book-for" title={t("bookingFor", { name: bookingFor.name })}>
           <Button label={t("bookingForSelf")} variant="outline" onClick={() => void fetch("/api/family/booking-for", { method: "DELETE" }).then(() => router.refresh())} />
+        </SectionCard>
+      ) : null}
+      {!bookingFor && dependants.length > 0 ? (
+        <SectionCard id="book-dependant" title={t("forTitle")}>
+          <Segmented label={t("forTitle")} value={forDependant} onChange={setForDependant} options={[{ value: "", label: t("forMe") }, ...dependants.map((d) => ({ value: d.id, label: d.name }))]} />
+          <p className={rx.note}>{t("forHint")}</p>
         </SectionCard>
       ) : null}
       <Hero title={(doctor ? doctorDisplayName(doctor, locale) : undefined) || t("doctorUnavailable")} sub={[specialty, doctor ? doctorPlace(doctor, locale) : undefined].filter(Boolean).join(" · ") || undefined} />
@@ -271,6 +311,13 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
       <SectionCard id="book-notes" title={t("notes")}>
         <Input value={notes} onChange={(value) => setNotes(value.slice(0, 2000))} multiline rows={3} placeholder={t("notesPlaceholder")} />
       </SectionCard>
+      <SectionCard id="book-report" title={t("reportTitle")}>
+        <label className={styles.field}>
+          <span><input type="checkbox" checked={reportRequested} onChange={(event) => setReportRequested(event.target.checked)} /> {t("reportRequest")}</span>
+        </label>
+        <p className={rx.note}>{t("reportHint")}</p>
+        {reportRequested && needsNationalId ? <NationalIdForm onSaved={() => setNeedsNationalId(false)} labels={{ title: t("nationalIdTitle"), hint: t("nationalIdHint"), label: t("nationalIdLabel"), save: t("nationalIdSave"), saving: t("nationalIdSaving"), invalid: t("nationalIdInvalid"), failed: t("nationalIdFailed"), saved: t("nationalIdSaved") }} /> : null}
+      </SectionCard>
       <SectionCard id="book-payment" title={t("payment")}>
         <Segmented
           label={t("payment")}
@@ -291,6 +338,7 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
           <Link className={rx.textLink} href={`/${locale}/refund-policy`}>{legal("refundPolicy")}</Link>
         </PolicyCard>
       ) : null}
+      <RefundPolicyTick locale={locale} service="consultation" checked={refundAgreed} onChange={setRefundAgreed} compact={Boolean(policy)} />
       {price || durationMinutes !== null ? (
         <section className={`${rx.card} ${styles.priceCard}`} aria-label={t("fee")}>
           {durationMinutes !== null ? <div className={styles.totalRow}><span>{t("duration")}</span><span>{t("durationValue", { n: new Intl.NumberFormat(locale).format(durationMinutes) })}</span></div> : null}

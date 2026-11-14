@@ -108,6 +108,22 @@ export function apiMessage(e: unknown, fallback = 'Error'): string {
   return err?.message || fallback;
 }
 
+/**
+ * What to tell the applicant when saving the documents step failed. The call does the uploads and the step2 save together, so the
+ * server's reason is shown when it is one the applicant can fix, instead of one fixed "failed to upload" for every cause.
+ */
+export function documentsStepError(e: unknown, AR: boolean): string {
+  const raw = apiMessage(e, '');
+  const known: Array<[RegExp, string, string]> = [
+    [/invalid_iban/i, 'رقم الآيبان غير صحيح. يبدأ بـ SA ويتكون من 24 خانة.', 'The IBAN is not valid. It starts with SA and has 24 characters.'],
+    [/invalid_license_expiry_date|license_expired/i, 'تاريخ انتهاء الترخيص غير صالح أو منتهٍ.', 'The licence expiry date is invalid or has passed.'],
+    [/unsupported mime|mime/i, 'نوع الملف غير مدعوم. استخدم JPG أو PNG أو PDF.', 'This file type is not supported. Use JPG, PNG or PDF.'],
+    [/too large|file_too_large|payload/i, 'حجم الملف كبير. اختر ملفاً أصغر.', 'The file is too large. Choose a smaller one.'],
+  ];
+  for (const [re, ar, en] of known) if (re.test(raw)) return AR ? ar : en;
+  return AR ? 'فشل رفع المستندات' : 'Failed to upload documents';
+}
+
 // ─── Payload fragments shared by several types (same shape the wizards sent) ─────
 
 export interface InsuranceChoice { companyId: string; plans: string[] }

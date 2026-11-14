@@ -67,8 +67,8 @@ describe('photo way in', () => {
     expect(posts()).toHaveLength(0);
   });
 
-  it('saves the lines the reading found, then opens the saved prescription', async () => {
-    const items = [{ name: 'Test medicine A', dose: '500 mg' }, { name: 'Test medicine B' }];
+  it('shows the lines the reading found for correction, saves only after confirm, and sends the corrected lines (PT-27)', async () => {
+    const items = [{ raw_name_string: 'Test medicine A', requested_quantity: 2 }, { raw_name_string: 'Test medicine B' }, { raw_name_string: 'Wrong line' }];
     mockApi.mockImplementation(async (path: string) => {
       if (path === '/ai/prescription-ocr') return { items };
       if (path === '/prescriptions/upload') return { id: 'rx-1' };
@@ -76,11 +76,32 @@ describe('photo way in', () => {
     });
     await takePhoto();
     await tap(screen.getByTestId('scan-save'));
+    await screen.findByTestId('scan-confirm');
+    // read only: nothing was saved yet
+    expect(posts().filter((c) => c[0] === '/prescriptions/upload')).toHaveLength(0);
+    expect(screen.getByTestId('scan-line-name-0').props.value).toBe('Test medicine A');
+    expect(screen.getByTestId('scan-line-qty-0').props.value).toBe('2');
+    await act(async () => { fireEvent.changeText(screen.getByTestId('scan-line-name-1'), 'Test medicine B 500'); });
+    await act(async () => { fireEvent.changeText(screen.getByTestId('scan-line-qty-1'), '3'); });
+    await tap(screen.getByTestId('scan-line-remove-2'));
+    await tap(screen.getByTestId('scan-line-add'));
+    await act(async () => { fireEvent.changeText(screen.getByTestId('scan-line-name-2'), 'Test medicine C'); });
+    await tap(screen.getByTestId('scan-confirm'));
     await waitFor(() => expect(mockReplace).toHaveBeenCalledWith({ pathname: '/pharmacy/rx-order', params: { prescriptionId: 'rx-1' } }));
     const upload = posts().find((c) => c[0] === '/prescriptions/upload');
     const body = JSON.parse((upload?.[1] as { body: string }).body);
-    expect(body.items).toEqual(items);
+    expect(body.items).toEqual([{ name: 'Test medicine A', quantity: 2 }, { name: 'Test medicine B 500', quantity: 3 }, { name: 'Test medicine C', quantity: 1 }]);
     expect(body.upload_image).toBe('data:image/jpeg;base64,QUJD');
+  });
+
+  it('with every line removed the confirm button is off and nothing is saved', async () => {
+    mockApi.mockImplementation(async (path: string) => (path === '/ai/prescription-ocr' ? { items: [{ raw_name_string: 'Test medicine A' }] } : []));
+    await takePhoto();
+    await tap(screen.getByTestId('scan-save'));
+    await tap(await screen.findByTestId('scan-line-remove-0'));
+    expect(screen.getByTestId('scan-confirm').props.accessibilityState?.disabled).toBe(true);
+    expect(screen.getByText(k('pharmacy.scan.linesEmpty'))).toBeTruthy();
+    expect(posts().filter((c) => c[0] === '/prescriptions/upload')).toHaveLength(0);
   });
 
   it('a reading with no lines saves nothing and says the photo was not readable', async () => {

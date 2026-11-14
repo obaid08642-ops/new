@@ -94,6 +94,11 @@ def review_reply(pat, doctor, other_doctor):
     page = pat.get(f'/care/doctors/{prof_id}')
     shown = next((x for x in (page.get('reviews_data') or []) if x.get('id') == rid), {})
     step('the doctor\'s public page shows the reply under the review', page.ok and shown.get('reply') == reply, shown or page.status)
+    # PT-13 (the patient's side): the patient is told once per reply, in the language they read (notif.review_reply.*).
+    for lang, title in (('en', 'A reply to your review'), ('ar', 'ردّ على تقييمك')):
+        r = pat.get(f'/notifications?lang={lang}')
+        told = [n for n in (r.body if isinstance(r.body, list) else r.items()) if isinstance(n, dict) and n.get('title') == title]
+        step(f'PT-13: the patient is notified of the doctor\'s reply once ({lang})', r.ok and len(told) == 1, f'{len(told)} matching of {r.status}')
 
 
 def low_star_moderation(pat, doctor, admin):

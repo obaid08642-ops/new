@@ -22,10 +22,33 @@ import { UploadsUnavailable } from '../UploadsUnavailable';
  */
 
 type Chosen = { uri: string; base64: string };
+type Line = { name: string; quantity: string };
 type Problem = 'read' | 'pick' | 'save' | 'unreadable' | null;
 
 // the tag staff read next to the patient's own note (not shown to the patient)
 const OCR_TAG = 'OCR extraction; requires pharmacy review'; // i18n-ok: stored with the prescription for pharmacy staff, not UI text
+
+/** The OCR answers `{ raw_name_string, requested_quantity }` lines (needs-review #497); the review edits name and quantity. */
+function ocrLines(items: unknown): Line[] {
+  if (!Array.isArray(items)) return [];
+  return items.slice(0, 50).flatMap((entry) => {
+    const it = (entry && typeof entry === 'object' ? entry : {}) as Record<string, unknown>;
+    const name = [it.raw_name_string, it.name, it.medicine_name, it.name_ar, it.name_en].find((v): v is string => typeof v === 'string' && v.trim().length > 0);
+    if (!name) return [];
+    const qty = Math.floor(Number(it.requested_quantity ?? it.quantity));
+    return [{ name: name.trim().slice(0, 240), quantity: String(Number.isFinite(qty) && qty >= 1 ? Math.min(qty, 100) : 1) }];
+  });
+}
+
+/** What is sent: trimmed, nameless lines dropped, quantity a whole number from 1 to 100 (the web does the same). */
+export function cleanLines(lines: Line[]): Array<{ name: string; quantity: number }> {
+  return lines.slice(0, 50).flatMap((line) => {
+    const name = line.name.trim().slice(0, 240);
+    if (!name) return [];
+    const qty = Math.floor(Number(line.quantity));
+    return [{ name, quantity: Number.isFinite(qty) && qty >= 1 ? Math.min(qty, 100) : 1 }];
+  });
+}
 
 export function useRxPhotoIntake(via: 'photo' | 'upload'): { body: React.ReactNode; footer: React.ReactNode } {
   const { theme, t, c, dir, flow, k } = useScreenUi();
@@ -33,6 +56,8 @@ export function useRxPhotoIntake(via: 'photo' | 'upload'): { body: React.ReactNo
   const [chosen, setChosen] = useState<Chosen | null>(null);
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
+  // PT-27: the lines the OCR read, shown for correction; nothing is saved until the patient confirms them
+  const [review, setReview] = useState<Line[] | null>(null);
   const [problem, setProblem] = useState<Problem>(null);
   const [denied, setDenied] = useState<'camera' | 'library' | null>(null);
 
@@ -53,6 +78,7 @@ export function useRxPhotoIntake(via: 'photo' | 'upload'): { body: React.ReactNo
         setProblem('read');
         return;
       }
+      setReview(null);
       setChosen({ uri: asset.uri, base64: asset.base64 });
     } catch (e) {
       logError('pharmacy:rx-intake:pick', e);
@@ -60,22 +86,41 @@ export function useRxPhotoIntake(via: 'photo' | 'upload'): { body: React.ReactNo
     }
   };
 
-  const save = async () => {
+  /** Step 1: read the photo. The lines go to the review below; nothing is saved yet (#1027: no lines, nothing to review). */
+  const read = async () => {
     if (!chosen || saving) return;
     setSaving(true);
     setProblem(null);
     try {
       const image = `data:image/jpeg;base64,${chosen.base64}`;
       const ocr = await apiFetch<{ items?: unknown[] }>('/ai/prescription-ocr', { method: 'POST', body: JSON.stringify({ image_base64: image }) });
-      // #1027: like the web, nothing is saved when the photo gave no medicine lines (an empty prescription helps no pharmacy)
-      if (!Array.isArray(ocr?.items) || ocr.items.length === 0) {
+      const lines = ocrLines(ocr?.items);
+      if (lines.length === 0) {
         setProblem('unreadable');
         return;
       }
+      setReview(lines);
+    } catch (e) {
+      logError('pharmacy:rx-intake:read', e);
+      setProblem('save');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  /** Step 2: the corrected lines are what is saved for the pharmacist and the order. */
+  const save = async () => {
+    if (!chosen || !review || saving) return;
+    const items = cleanLines(review);
+    if (items.length === 0) return;
+    setSaving(true);
+    setProblem(null);
+    try {
+      const image = `data:image/jpeg;base64,${chosen.base64}`;
       const typed = note.trim();
       const saved = await apiFetch<{ id?: string; data?: { id?: string } }>('/prescriptions/upload', {
         method: 'POST',
-        body: JSON.stringify({ upload_image: image, items: ocr.items, notes: typed ? `${OCR_TAG}\n${typed}` : OCR_TAG }),
+        body: JSON.stringify({ upload_image: image, items, notes: typed ? `${OCR_TAG}\n${typed}` : OCR_TAG }),
       });
       const id = saved?.data?.id || saved?.id;
       if (!id) throw new Error('prescription_id_missing');
@@ -92,7 +137,11 @@ export function useRxPhotoIntake(via: 'photo' | 'upload'): { body: React.ReactNo
     <StickyFooter theme={theme} direction={dir}>
       <View style={{ ...COLUMN, gap: 8 }}>
         {saving ? <Text accessibilityLiveRegion="polite" style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('pharmacy.scan.saving')}</Text> : null}
-        <Button label={k('pharmacy.scan.save')} size="lg" fullWidth disabled={!chosen} loading={saving} onPress={() => void save()} testID="scan-save" theme={theme} />
+        {review ? (
+          <Button label={k('pharmacy.scan.confirm')} size="lg" fullWidth disabled={cleanLines(review).length === 0} loading={saving} onPress={() => void save()} testID="scan-confirm" theme={theme} />
+        ) : (
+          <Button label={k('pharmacy.scan.save')} size="lg" fullWidth disabled={!chosen} loading={saving} onPress={() => void read()} testID="scan-save" theme={theme} />
+        )}
       </View>
     </StickyFooter>
   );
@@ -140,7 +189,7 @@ export function useRxPhotoIntake(via: 'photo' | 'upload'): { body: React.ReactNo
                 accessibilityRole="button"
                 accessibilityLabel={k('pharmacy.scan.remove')}
                 disabled={saving}
-                onPress={() => setChosen(null)}
+                onPress={() => { setChosen(null); setReview(null); }}
                 hitSlop={8}
                 style={{ position: 'absolute', top: 6, end: 6, width: 28, height: 28, borderRadius: 14, backgroundColor: c.bg.surface, alignItems: 'center', justifyContent: 'center' }}
               >
@@ -148,6 +197,22 @@ export function useRxPhotoIntake(via: 'photo' | 'upload'): { body: React.ReactNo
               </Pressable>
             </View>
           </View>
+        </View>
+      ) : null}
+
+      {review ? (
+        <View style={{ gap: 10 }}>
+          <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{k('pharmacy.scan.linesTitle')}</Text>
+          <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('pharmacy.scan.linesHint')}</Text>
+          {review.map((line, index) => (
+            <View key={index} style={{ gap: 8, padding: 12, borderRadius: 18, backgroundColor: c.bg.surface }}>
+              <Input label={k('pharmacy.scan.lineName')} value={line.name} onChange={(value) => setReview(review.map((l, i) => (i === index ? { ...l, name: value.slice(0, 240) } : l)))} disabled={saving} testID={`scan-line-name-${index}`} theme={theme} />
+              <Input label={k('pharmacy.scan.lineQuantity')} value={line.quantity} keyboardType="number" onChange={(value) => setReview(review.map((l, i) => (i === index ? { ...l, quantity: value.replace(/\D/g, '').slice(0, 3) } : l)))} disabled={saving} testID={`scan-line-qty-${index}`} theme={theme} />
+              <Button label={k('pharmacy.scan.lineRemove')} size="sm" disabled={saving} onPress={() => setReview(review.filter((_, i) => i !== index))} testID={`scan-line-remove-${index}`} theme={theme} />
+            </View>
+          ))}
+          {review.length < 50 ? <Button label={k('pharmacy.scan.lineAdd')} size="md" disabled={saving} onPress={() => setReview([...review, { name: '', quantity: '1' }])} testID="scan-line-add" theme={theme} /> : null}
+          {cleanLines(review).length === 0 ? <Notice tone="danger" icon="warning" title={k('pharmacy.scan.linesEmpty')} /> : null}
         </View>
       ) : null}
 

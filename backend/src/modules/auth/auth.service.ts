@@ -2,7 +2,7 @@ import { NotFoundException, Injectable, BadRequestException, UnauthorizedExcepti
 import { currentRequestMeta, describeClient, maskIp } from '../../common/request-meta';
 import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from '../../common/password-hash';
 import { createHash, createHmac, createPublicKey, KeyObject, randomBytes } from 'crypto';
 import * as nodemailer from 'nodemailer';
 import { Optional } from '@nestjs/common';
@@ -103,7 +103,12 @@ export class AuthService {
     }
   }
 
-  signToken(user: any, deviceIdIn?: string, session?: { sid?: string; created?: number }) {
+  /**
+   * Mints the access + refresh pair and WAITS for the refresh session to be written. If the Redis write fails the sign-in is
+   * refused with a retryable 503 (fail closed): a refresh token that cannot be refreshed later, or an unrecorded session, is never
+   * handed out. A failed write is never read as theft by the refresh path.
+   */
+  async signToken(user: any, deviceIdIn?: string, session?: { sid?: string; created?: number }) {
     // 21.7: a sign-in path that was not handed a device id (password login, register, social) uses the one on the request
     const deviceId = deviceIdIn ?? currentRequestMeta().deviceId;
     // The access token carries its own id: the guest merge burns that jti so a
@@ -124,7 +129,7 @@ export class AuthService {
       { sub: user.id, type: 'refresh', jti, sid },
       { expiresIn: '14d' }
     );
-    this.storeRefreshSession(user.id, jti, deviceId, { sid, created: session?.created }).catch(() => {});
+    await this.storeRefreshSession(user.id, jti, deviceId, { sid, created: session?.created });
     return { accessToken, refreshToken };
   }
 
@@ -140,7 +145,10 @@ export class AuthService {
       await client.set(`refresh:${jti}`, JSON.stringify(record), 'EX', 14 * 24 * 3600);
       await client.sadd(`refresh_user:${userId}`, jti);
       await client.expire(`refresh_user:${userId}`, 30 * 24 * 3600);
-    } catch { /* session store failure must not break login */ }
+    } catch (e: any) {
+      this.logger.error(`refresh session store failed: ${e?.message}`);
+      throw new ServiceUnavailableException({ message: 'session_store_unavailable', code: 'session_store_unavailable', retryable: true, statusCode: HttpStatus.SERVICE_UNAVAILABLE });
+    }
   }
 
   async refreshToken(token: string, deviceId?: string) {
@@ -155,6 +163,7 @@ export class AuthService {
     // Replay/rotation enforcement: the jti must still be an active session
     const client = (this.redisService as any).getClient?.();
     let boundDevice: string | null = null;
+    let claimedRaw: string | null = null;
     let sessionMeta: { sid?: string; created?: number } = { sid: payload.sid };
     if (client && payload.jti) {
       const raw = await client.get(`refresh:${payload.jti}`);
@@ -180,7 +189,11 @@ export class AuthService {
         throw new UnauthorizedException('refresh_token_device_mismatch');
       }
       // Rotate: revoke the presented token immediately
-      await client.del(`refresh:${payload.jti}`);
+      // The delete is the atomic claim on this token: of two requests that read the record at the same moment only the one whose DEL
+      // removed it may mint the next token; the other lost the race (same answer as a reuse a moment after the rotation).
+      const removed = await client.del(`refresh:${payload.jti}`);
+      if (removed === 0) throw new UnauthorizedException('refresh_token_rotated');
+      claimedRaw = raw;
       await client.set(`refresh_rotated:${payload.jti}`, '1', 'EX', 10).catch(() => undefined);
       if (payload.sub) await client.srem(`refresh_user:${payload.sub}`, payload.jti);
     }
@@ -189,7 +202,18 @@ export class AuthService {
     if (!u || u.active === false) throw new UnauthorizedException('User not found or disabled');
     // 21.8: a guest who keeps using the app is not inactive; written at most once a day
     if (u.is_guest === true) await this.touchGuestActivity(u);
-    return this.signToken(u, boundDevice || deviceId, sessionMeta);
+    try {
+      return await this.signToken(u, boundDevice || deviceId, sessionMeta);
+    } catch (e) {
+      // The new session could not be written (503). The presented token was already claimed; put it back (best effort) so the
+      // client's retry is a normal refresh and not a reuse, which would be answered as theft.
+      if (client && claimedRaw && payload.jti) {
+        await client.set(`refresh:${payload.jti}`, claimedRaw, 'EX', 14 * 24 * 3600).catch(() => undefined);
+        await client.del(`refresh_rotated:${payload.jti}`).catch(() => undefined);
+        if (payload.sub) await client.sadd(`refresh_user:${payload.sub}`, payload.jti).catch(() => undefined);
+      }
+      throw e;
+    }
   }
 
   /** Theft response: every sign-in of the account ends now, access tokens included. */
@@ -236,17 +260,8 @@ export class AuthService {
     await this.revokeAfterCredentialChange(userId, { bumpUser: false });
     const u = await this.userModel.findOne({ id: userId });
     if (!u) throw new UnauthorizedException('User not found or disabled');
-    const tokens = this.signToken(u, deviceId);
-    await this.storeRefreshSessionFromToken(tokens.refreshToken, u.id, deviceId);
+    const tokens = await this.signToken(u, deviceId);
     return tokens;
-  }
-
-  /** signToken stores its refresh session fire-and-forget; await it when the caller must be able to refresh right away. */
-  private async storeRefreshSessionFromToken(refreshToken: string, userId: string, deviceId?: string) {
-    try {
-      const decoded = this.jwt.decode(refreshToken) as any;
-      if (decoded?.jti) await this.storeRefreshSession(userId, decoded.jti, deviceId, { sid: decoded.sid });
-    } catch { /* same contract as signToken: store failure never breaks the response */ }
   }
 
   /**
@@ -624,7 +639,7 @@ export class AuthService {
     if (!user || user.active === false) {
       throw new UnauthorizedException({ message: 'exchange_token_invalid', code: 'exchange_token_invalid', statusCode: HttpStatus.UNAUTHORIZED });
     }
-    const tokens = this.signToken(user, entry.device_id || undefined);
+    const tokens = await this.signToken(user, entry.device_id || undefined);
     // 21.2: signing in with an email code merges the guest data too.
     await this.mergeGuestFromRequest(guestToken, user.id);
     return { access_token: tokens.accessToken, refresh_token: tokens.refreshToken };
@@ -916,7 +931,7 @@ export class AuthService {
     this.events.emit(EVENTS.USER_REGISTERED, { user_id: u.id, role: u.role });
     // 21.2: registering from a guest device keeps the cart and the orders.
     await this.mergeGuestFromRequest(guestToken, u.id);
-    return { user: this.publicUser(u), token: this.signToken(u) };
+    return { user: this.publicUser(u), token: await this.signToken(u) };
   }
 
   /** 23.2: a failed sign-in is an audit event (the identifier is only ever stored hashed, by the audit handler). */
@@ -967,7 +982,7 @@ export class AuthService {
           await this.adminLoginAlert(u, true, { ...ctx, deviceName: trusted.name }); // C5
           return {
             user: this.publicUser(u),
-            token: this.signToken(u),
+            token: await this.signToken(u),
             trusted_device: true,
             device_name: trusted.name,
           };
@@ -1014,7 +1029,7 @@ export class AuthService {
     this.events.emit(EVENTS.USER_LOGGED_IN, { user_id: u.id, role: u.role });
     // 21.2: password sign-in merges the guest data too.
     await this.mergeGuestFromRequest(guestToken, u.id);
-    return { user: this.publicUser(u), token: this.signToken(u) };
+    return { user: this.publicUser(u), token: await this.signToken(u) };
   }
 
   async verify2fa(identifier: string, code: string, ctx?: { ua?: string; ip?: string; trust?: boolean }) {
@@ -1041,7 +1056,7 @@ export class AuthService {
     await u.save();
     this.events.emit(EVENTS.USER_LOGGED_IN, { user_id: u.id, role: u.role });
 
-    const result: any = { user: this.publicUser(u), token: this.signToken(u) };
+    const result: any = { user: this.publicUser(u), token: await this.signToken(u) };
 
     // Admin accounts: trust this device (default on — the owner asked for his
     // iPhone + Mac to be approved) and alert by email about the new device.
@@ -1085,7 +1100,7 @@ export class AuthService {
     this.events.emit(EVENTS.USER_LOGGED_IN, { user_id: u.id, role: u.role, method: 'passkey' });
     await this.adminSession?.touch(u.id); // C5: idle window starts at login
     await this.adminLoginAlert(u, true, ctx); // C5
-    const result: any = { user: this.publicUser(u), token: this.signToken(u) };
+    const result: any = { user: this.publicUser(u), token: await this.signToken(u) };
     // C2: auto-enroll the presenting device into the admin allow-list on
     // successful passkey login (the passkey assertion proves possession). The
     // device is bound to the credential that was just verified, so removing that
@@ -1239,7 +1254,7 @@ export class AuthService {
       const existing = await this.userModel.findOne({ id: bound.guest_id });
       if (existing && existing.is_guest === true) {
         await bindings.updateOne({ device_hash: deviceHash }, { $set: { last_seen_at: new Date() } });
-        return { user: this.publicUser(existing), token: this.signToken(existing, device) };
+        return { user: this.publicUser(existing), token: await this.signToken(existing, device) };
       }
     }
 
@@ -1271,10 +1286,10 @@ export class AuthService {
       await this.patientModel.deleteOne({ user_id: u.id }).catch(() => undefined);
       await this.userModel.deleteOne({ id: u.id }).catch(() => undefined);
       const winner = await this.userModel.findOne({ id: winnerId });
-      if (winner?.is_guest === true) return { user: this.publicUser(winner), token: this.signToken(winner, device) };
+      if (winner?.is_guest === true) return { user: this.publicUser(winner), token: await this.signToken(winner, device) };
       throw new ConflictException('guest_device_busy');       // the winner was converted in this instant: the caller retries
     }
-    return { user: this.publicUser(u), token: this.signToken(u, device) };
+    return { user: this.publicUser(u), token: await this.signToken(u, device) };
   }
 
   /** Re-point a guest's data to another account (used by the merge path). */
@@ -1347,7 +1362,7 @@ export class AuthService {
       this.events.emit(EVENTS.USER_GUEST_CONVERTED, { user_id: existingUser.id });
     }
     
-    return { user: this.publicUser(existingUser), token: this.signToken(existingUser) };
+    return { user: this.publicUser(existingUser), token: await this.signToken(existingUser) };
   }
 
   async me(userId: string) {
@@ -1482,8 +1497,10 @@ export class AuthService {
     // can prove identifier ownership without asking for the code twice.
     await this.redisService.setJson(this.otpVerifiedKey(normalized), { at: Date.now() }, 600).catch(() => {});
     const isEmail = identifier.includes('@');
+    // A disabled account (suspended, rejected, deleted under PDPL: `active: false`) is never switched back on by a code that was requested
+    // before it was disabled; only an account that is not explicitly disabled is (re)marked active.
     await this.userModel.findOneAndUpdate(
-      isEmail ? { email: normalized } : { phone: normalized },
+      { ...(isEmail ? { email: normalized } : { phone: normalized }), active: { $ne: false } },
       { active: true }
     );
     return { ok: true };
@@ -1575,7 +1592,7 @@ export class AuthService {
     // 21.2: a guest who signs in with Google keeps the cart and the orders.
     await this.mergeGuestFromRequest(guestToken, u.id);
 
-    return { user: this.publicUser(u), token: this.signToken(u) };
+    return { user: this.publicUser(u), token: await this.signToken(u) };
   }
 
   /**
@@ -1612,7 +1629,7 @@ export class AuthService {
     await u.save();
     this.events.emit(EVENTS.USER_LOGGED_IN, { user_id: u.id, role: u.role });
     await this.mergeGuestFromRequest(guestToken, u.id);
-    return { user: this.publicUser(u), token: this.signToken(u) };
+    return { user: this.publicUser(u), token: await this.signToken(u) };
   }
 
   /**

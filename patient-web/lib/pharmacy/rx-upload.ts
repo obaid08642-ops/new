@@ -75,6 +75,16 @@ export function ocrItems(payload: unknown): RxItem[] {
   });
 }
 
+/** PT-27: the lines after the patient has corrected them: trimmed, nameless lines dropped, quantity a whole number from 1 to 100, at most 50 lines. */
+export function cleanItems(items: Array<{ name: string; quantity: number | string }>): RxItem[] {
+  return items.slice(0, 50).flatMap((item) => {
+    const name = item.name.trim().slice(0, 240);
+    if (!name) return [];
+    const quantity = Math.floor(Number(item.quantity));
+    return [{ name, quantity: Number.isFinite(quantity) && quantity >= 1 ? Math.min(quantity, 100) : 1 }];
+  });
+}
+
 export function uploadedPrescriptionId(payload: unknown): string | null {
   const root = row(payload);
   const source = row(root?.data) ?? root;

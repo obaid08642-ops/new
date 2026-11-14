@@ -46,10 +46,11 @@
       "./plugins/with-callkeep-android-service",
       "./plugins/with-firebase-messaging-manifest-merge",
       ["expo-splash-screen", { "image": "./assets/splash.png", "resizeMode": "contain", "backgroundColor": "#F5F5F7" }],
-      ["expo-build-properties", { "android": { "usesCleartextTraffic": false } }],
+      ["expo-build-properties", { "android": { "usesCleartextTraffic": false }, "ios": { "extraPods": [{ "name": "GoogleUtilities", "modular_headers": true }] } }],
       "expo-font",
       "expo-secure-store",
       "expo-camera",
+      "./plugins/with-firebase-messaging-manifest",
       ["expo-notifications", { "sounds": ["./assets/sounds/new_order.wav"], "defaultChannel": "default", "color": "#D42A38" }],
       "expo-location",
       "expo-local-authentication",
@@ -62,7 +63,8 @@
           "project": "provider-app"
         }
       ],
-      "@maplibre/maplibre-react-native"
+      "@maplibre/maplibre-react-native",
+      "./plugins/with-ios-modular-headers"
     ],
     "extra": {
       "apiBaseUrl": "https://api.nabd.plus/api/v1"

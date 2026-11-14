@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, ConflictException, ForbiddenException, NotFoundException, UnauthorizedException, Logger, Inject, Optional } from '@nestjs/common';
 import { Model } from 'mongoose';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from '../../../common/password-hash';
 import { isEmail } from 'class-validator';
 import { JwtService } from '@nestjs/jwt';
 import { ProviderAccount, ProviderProfile, ProviderAuditLog } from '../schemas';

@@ -186,8 +186,8 @@ export default function PaymentResultRoute() {
       ) : null,
     );
   }
-  if (phaseNow === 'failed' || phaseNow === 'cancelled') {
-    return state(<ErrorState icon="x-circle" tone="peach" title={phaseNow === 'cancelled' ? k('payments.result.cancelledTitle') : k('payments.result.failedTitle')} body={k('payments.result.failedBody')} retryLabel={k('payments.result.tryAgain')} onRetry={retryPay} actionLabel={pharmacy ? k('pharmacy.quote.orderStatus') : k('payments.result.toHome')} onAction={pharmacy ? toOrder : home} theme={theme} />);
+  if (phaseNow === 'failed' || phaseNow === 'cancelled' || phaseNow === 'sessionExpired') {
+    return state(<ErrorState icon="x-circle" tone="peach" title={phaseNow === 'cancelled' ? k('payments.result.cancelledTitle') : phaseNow === 'sessionExpired' ? k('payments.result.sessionExpiredTitle') : k('payments.result.failedTitle')} body={phaseNow === 'cancelled' ? k('payments.result.cancelledBody') : phaseNow === 'sessionExpired' ? k('payments.result.sessionExpiredBody') : k('payments.result.failedBody')} retryLabel={k('payments.result.tryAgain')} onRetry={retryPay} actionLabel={pharmacy ? k('pharmacy.quote.orderStatus') : k('payments.result.toHome')} onAction={pharmacy ? toOrder : home} theme={theme} />);
   }
   if (phaseNow === 'refunded') {
     return state(<EmptyState icon="receipt" tone="blue" title={k('payments.result.refundedTitle')} body={k('payments.result.refundedBody')} actionLabel={pharmacy ? k('pharmacy.quote.orderStatus') : k('payments.result.toHome')} onAction={pharmacy ? toOrder : home} theme={theme} />);

@@ -3,8 +3,9 @@ import { RefreshControl, ScrollView, View } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
 
-import { AppHeader, Chip, EmptyState, ErrorState, OfflineState, Screen, Segmented } from '../../../../packages/ui-native/src';
+import { AppHeader, Button, Chip, EmptyState, ErrorState, OfflineState, Screen, Segmented } from '../../../../packages/ui-native/src';
 import { OrderCard } from './OrderKit';
+import { hideStateOf, hideVisitPath, readVisitStates, type VisitState } from '../../utils/hiddenVisits';
 import { ResultsPanel } from './ResultsPanel';
 import { useNewResultsCount } from '../../hooks/useNewResultsCount';
 import { parseOrdersTab, type OrdersTab } from '../../utils/ordersResults';
@@ -15,6 +16,7 @@ import { COLUMN, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { isOffline } from '../../utils/isOffline';
 import { logError } from '../../utils/logger';
+import { showLocalizedAlert } from '../LocalizedAlert';
 import { pickBookingName } from '../../utils/bookingName';
 import { ORDERS_TONE, buildRows, inBucket, kindsPresent, ofKind, type Bucket, type OrderKind, type OrderRow, type OrderSources } from '../../utils/orderCenter';
 
@@ -70,12 +72,16 @@ export function OrderList({ endpoints, titleKey, testID, withResults = false }: 
   const [offline, setOffline] = useState(false);
   const [bucket, setBucket] = useState<Bucket>('current');
   const [kind, setKind] = useState<OrderKind | null>(null);
+  // PT-54: which finished visits the patient hid (from the timeline; unreadable = nothing hidden)
+  const [visits, setVisits] = useState<Map<string, VisitState>>(new Map());
+  const [showHidden, setShowHidden] = useState(false);
   const seq = useRef(0);
   const onBack = useMemo(() => backFor(endpoints), [endpoints]);
 
   const load = useCallback(async (mode: 'first' | 'manual') => {
     const mine = ++seq.current;
     if (mode === 'first') setLoading(true);
+    const timeline = apiFetch<unknown>('/unified-bookings/mine?include_hidden=1').catch(() => null);
     const answers = await Promise.all(
       endpoints.map(async ([key, path]) => {
         try {
@@ -93,6 +99,7 @@ export function OrderList({ endpoints, titleKey, testID, withResults = false }: 
       if (answer) sources[answer[0]] = answer[1];
       else misses += 1;
     }
+    setVisits(readVisitStates(await timeline));
     setRows(buildRows(sources, pick));
     setFailed(misses);
     setOffline(misses === endpoints.length ? await isOffline() : false);
@@ -109,7 +116,20 @@ export function OrderList({ endpoints, titleKey, testID, withResults = false }: 
   const kinds = useMemo(() => kindsPresent(rows), [rows]);
   // a filter whose service has no rows after a reload falls back to All
   const activeKind = kind !== null && kinds.includes(kind) ? kind : null;
-  const shown = useMemo(() => ofKind(inBucket(rows, bucket), activeKind), [rows, bucket, activeKind]);
+  const hideOf = useCallback((row: OrderRow) => hideStateOf(visits, row.kind, row.id), [visits]);
+  const hiddenCount = useMemo(() => rows.filter((row) => hideOf(row)?.hidden).length, [rows, hideOf]);
+  const shown = useMemo(() => ofKind(inBucket(rows, bucket), activeKind).filter((row) => (hideOf(row)?.hidden === true) === showHidden), [rows, bucket, activeKind, hideOf, showHidden]);
+  const toggleHide = async (row: OrderRow, hide: boolean) => {
+    const state = hideOf(row);
+    if (!state) return;
+    try {
+      await apiFetch(hideVisitPath(state.kind, row.id, hide), { method: 'POST', body: JSON.stringify({}) });
+      void load('manual');
+    } catch (e) {
+      logError('orders:hide-visit', e);
+      showLocalizedAlert(k('consult.hidden.error'), '');
+    }
+  };
 
   const header = (
     <View style={COLUMN}>
@@ -193,6 +213,7 @@ export function OrderList({ endpoints, titleKey, testID, withResults = false }: 
           ))}
         </ScrollView>
       ) : null}
+      {hiddenCount > 0 || showHidden ? <Button label={showHidden ? k('consult.hidden.back') : k('consult.hidden.showLink', { n: hiddenCount })} variant="ghost" size="sm" onPress={() => setShowHidden((on) => !on)} theme={theme} testID={`${testID}-hidden-toggle`} /> : null}
       {failed > 0 ? <Notice tone="warning" text={k('orders.partial', { n: num(failed) })} actionLabel={k('pharmacy.retry')} onAction={() => void load('first')} /> : null}
     </View>
   );
@@ -205,10 +226,18 @@ export function OrderList({ endpoints, titleKey, testID, withResults = false }: 
         keyExtractor={(row) => row.key}
         ListHeaderComponent={top}
         ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
-        ListEmptyComponent={<EmptyState icon="receipt" tone={ORDERS_TONE} title={activeKind ? k(bucket === 'current' ? 'orders.emptyKindCurrent' : 'orders.emptyKindPrevious', { service: k(`orders.filterKind.${activeKind}`) }) : k(bucket === 'current' ? 'orders.emptyCurrent' : 'orders.emptyPrevious')} body={k(activeKind ? 'orders.emptyKindBody' : 'orders.emptyBody')} theme={theme} />}
+        ListEmptyComponent={<EmptyState icon="receipt" tone={ORDERS_TONE} title={showHidden ? k('consult.hidden.empty') : activeKind ? k(bucket === 'current' ? 'orders.emptyKindCurrent' : 'orders.emptyKindPrevious', { service: k(`orders.filterKind.${activeKind}`) }) : k(bucket === 'current' ? 'orders.emptyCurrent' : 'orders.emptyPrevious')} body={k(activeKind ? 'orders.emptyKindBody' : 'orders.emptyBody')} theme={theme} />}
         contentContainerStyle={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 40 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); void load('manual'); }} tintColor={c.text.primary} />}
-        renderItem={({ item }) => <OrderCard row={item} onPress={item.route ? () => router.push(item.route as unknown as Href) : undefined} />}
+        renderItem={({ item }) => {
+          const hide = bucket === 'previous' ? hideOf(item) : null;
+          return (
+            <View style={{ gap: 8 }}>
+              <OrderCard row={item} onPress={item.route ? () => router.push(item.route as unknown as Href) : undefined} />
+              {hide ? <Button label={hide.hidden ? k('consult.hidden.show') : k('consult.hidden.hide')} variant="outline" size="sm" onPress={() => void toggleHide(item, !hide.hidden)} theme={theme} testID={`${testID}-hide-${item.key}`} /> : null}
+            </View>
+          );
+        }}
         testID={`${testID}-list`}
       />
     </Screen>

@@ -1,4 +1,5 @@
-import { IsArray, IsDateString, IsDefined, IsIn, IsOptional, IsString, MaxLength, ValidateIf } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsIn, IsNotEmpty, IsOptional, IsString, MaxLength, ValidateIf } from 'class-validator';
+import { DEPENDANT_RELATIONS } from './dependants';
 
 export class AddEventDto {
   @IsOptional()
@@ -118,4 +119,26 @@ export class RespondPermissionDto {
   @IsOptional()
   @IsArray()
   permissions?: string[];
+}
+
+/** PT-03: a person with no account (a minor) that the signed-in guardian adds and manages. */
+export class CreateDependantDto {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(80)
+  name: string;
+
+  @IsDateString()
+  birth_date: string;
+
+  @IsIn([...DEPENDANT_RELATIONS])
+  relation_code: string;
+
+  @IsOptional()
+  @IsIn(['male', 'female'])
+  gender?: string;
+
+  /** The guardian confirms they are the guardian and may manage this person's health data; stored with the time. The service answers 400 unless it is true. */
+  @IsBoolean()
+  guardian_consent: boolean;
 }

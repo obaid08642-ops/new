@@ -1,5 +1,6 @@
 """Journey: patient <-> doctor chat (patient-app consultations/chat-with-doctor.tsx, provider-app PreVisitChatScreen and
 shared chats inbox), then notifications on both sides (patient-app notifications, provider-app bell)."""
+import time
 import uuid
 from lib import Client, journey, step
 
@@ -35,9 +36,15 @@ def run(pat, doctor, other_doctor, aid, profile_id=None):
     r = pat.get(f'/chat/threads/{tid}/messages')
     step('the patient sees the reply', r.ok and 'أحضر تحاليلك' in str(r.body), r)
     # The patient is told the doctor wrote (notifications.service onChatMessageTargeted; the "chat" switch).
-    r = pat.get('/notifications?lang=en')
-    told = [n for n in rows(r) if isinstance(n, dict) and n.get('title') == 'New message from your doctor'
-            and ((n.get('action') or {}).get('route') if isinstance(n.get('action'), dict) else None) == f'/consultations/appointments/{aid}']
+    # the notification is created by an event listener after the reply returns: read it until it arrives (up to 15 s) instead of once, straight after
+    told = []
+    for _ in range(15):
+        r = pat.get('/notifications?lang=en')
+        told = [n for n in rows(r) if isinstance(n, dict) and n.get('title') == 'New message from your doctor'
+                and ((n.get('action') or {}).get('route') if isinstance(n.get('action'), dict) else None) == f'/consultations/appointments/{aid}']
+        if told or not r.ok:
+            break
+        time.sleep(1)
     step('the patient is notified of the doctor\'s reply, linked to the appointment', r.ok and len(told) >= 1, f'{len(told)} matching')
     r = doctor.get('/chats/threads')
     step('the conversation is in the doctor chats inbox', r.ok and tid in str(r.body), r)

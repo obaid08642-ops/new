@@ -13,6 +13,8 @@ import { CartProvider, useCart } from '../src/context/CartContext';
 
 // Boundaries only: the API, the router, the app context, the camera and the picker. Fixtures live in this test.
 const mockApiFetch = jest.fn();
+/** The calls that are not the tick's read of the refund text (GET /refund-policy/summary): what the screen sends. */
+const sent = () => mockApiFetch.mock.calls.filter(([p]) => !String(p).startsWith('/refund-policy/summary'));
 const mockTakePicture = jest.fn();
 const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn(), canGoBack: jest.fn(() => true), setParams: jest.fn() };
 let mockParams: Record<string, string> = {};
@@ -247,7 +249,7 @@ describe('Order with a prescription: the photo and upload ways in (board RxUploa
     expect(mockApiFetch.mock.calls.filter(([p]) => p !== '/prescriptions/active')).toEqual([]);
   });
 
-  it('nothing is sent until the photo is chosen and the button is pressed; then it reads, saves and opens the prescription', async () => {
+  it('nothing is sent until the photo is chosen and the button is pressed; then it reads, shows the lines, and saves the confirmed ones', async () => {
     mockPickerPermission.mockResolvedValue({ granted: true });
     mockLaunchLibrary.mockResolvedValue({ canceled: false, assets: [{ uri: 'file://rx.jpg', base64: 'QUJD' }] });
     mockApiFetch.mockImplementation(async (p: string) => (p === '/ai/prescription-ocr' ? { items: [{ name: 'دواء' }] } : p === '/prescriptions/upload' ? { id: 'rx-new' } : p === '/prescriptions/active' ? [] : {}));
@@ -258,11 +260,15 @@ describe('Order with a prescription: the photo and upload ways in (board RxUploa
     expect(mockApiFetch.mock.calls.filter(([p]) => p !== '/prescriptions/active')).toEqual([]);
     await fireEvent.changeText(screen.getByTestId('scan-note'), 'بديل أرخص');
     await fireEvent.press(screen.getByTestId('scan-save'));
+    // PT-27: the reading is shown for correction first; nothing is saved until the patient confirms
+    await waitFor(() => expect(screen.getByTestId('scan-confirm')).toBeTruthy());
+    expect(mockApiFetch.mock.calls.find(([p]) => p === '/prescriptions/upload')).toBeUndefined();
+    await fireEvent.press(screen.getByTestId('scan-confirm'));
     await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith({ pathname: '/pharmacy/rx-order', params: { prescriptionId: 'rx-new' } }));
     const upload = mockApiFetch.mock.calls.find(([p]) => p === '/prescriptions/upload');
     const body = JSON.parse((upload?.[1] as { body: string }).body);
     expect(body.upload_image).toBe('data:image/jpeg;base64,QUJD');
-    expect(body.items).toEqual([{ name: 'دواء' }]);
+    expect(body.items).toEqual([{ name: 'دواء', quantity: 1 }]);
     expect(body.notes).toContain('بديل أرخص');
   });
 
@@ -290,17 +296,18 @@ describe('Order with a prescription: type the names (the old manual request)', (
     mockParams = { via: 'type' };
     await render(wrap(<RxOrder />));
     await waitFor(() => expect(screen.getByText('المنزل')).toBeTruthy());
+    await fireEvent.press(screen.getByTestId('refund-policy-agree'));
     await fireEvent.changeText(screen.getByTestId('request-name'), 'بن');
     expect(screen.getByText(T('pharmacy.request.nameHint'))).toBeTruthy();
     await fireEvent.press(screen.getByTestId('request-submit'));
-    expect(mockApiFetch).not.toHaveBeenCalled();
+    expect(sent()).toEqual([]);
     await fireEvent.changeText(screen.getByTestId('request-name'), 'بنادول');
     await fireEvent.changeText(screen.getByTestId('request-details'), '500 مغ');
     await fireEvent.press(screen.getByTestId('request-submit'));
     await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith({ pathname: '/pharmacy/broadcast-status', params: { orderId: 'order-1' } }));
-    const calls = mockApiFetch.mock.calls.map(([p, init]) => [p, (init as { headers?: Record<string, string> } | undefined)?.headers?.['Idempotency-Key']]);
+    const calls = sent().map(([p, init]) => [p, (init as { headers?: Record<string, string> } | undefined)?.headers?.['Idempotency-Key']]);
     expect(calls).toEqual([['/patient/pharmacy/orders', 'test-key'], ['/patient/pharmacy/orders/order-1/submit', 'test-key-submit']]);
-    const draft = JSON.parse((mockApiFetch.mock.calls[0][1] as { body: string }).body);
+    const draft = JSON.parse((sent()[0][1] as { body: string }).body);
     expect(draft.items[0].raw_name).toBe('بنادول — 500 مغ');
   });
 
@@ -309,10 +316,11 @@ describe('Order with a prescription: type the names (the old manual request)', (
     mockParams = { via: 'type' };
     await render(wrap(<RxOrder />));
     await waitFor(() => expect(screen.getByText('بلا موقع')).toBeTruthy());
+    await fireEvent.press(screen.getByTestId('refund-policy-agree'));
     await fireEvent.changeText(screen.getByTestId('request-name'), 'بنادول');
     await fireEvent.press(screen.getByTestId('request-submit'));
     await waitFor(() => expect(screen.getByText(T('pharmacy.request.noLocation'))).toBeTruthy());
-    expect(mockApiFetch).not.toHaveBeenCalled();
+    expect(sent()).toEqual([]);
   });
 
   it('a refused request says nothing was created, in the screen, not in a system alert', async () => {
@@ -321,6 +329,7 @@ describe('Order with a prescription: type the names (the old manual request)', (
     mockParams = { via: 'type' };
     await render(wrap(<RxOrder />));
     await waitFor(() => expect(screen.getByText('المنزل')).toBeTruthy());
+    await fireEvent.press(screen.getByTestId('refund-policy-agree'));
     await fireEvent.changeText(screen.getByTestId('request-name'), 'بنادول');
     await fireEvent.press(screen.getByTestId('request-submit'));
     await waitFor(() => expect(screen.getByText(T('pharmacy.request.failedTitle'))).toBeTruthy());

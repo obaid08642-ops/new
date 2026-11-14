@@ -5350,6 +5350,42 @@
     "currency": "SAR",
     "qr_base64": "ARlURVNUIE5hYmQgSGVhbHRoIFBsYXRmb3JtAg8zMDAwMDAwMDAwMDAwMDMDGDIwMjYtMTAtMzFUMTA6MDA6MDAuMDAwWgQGMTE1LjAwBQUxNS4wMA==",
     "status": "ISSUED",
-    "createdAt": "2026-10-31T10:00:01.000Z"
-  }
+    "createdAt": "2026-10-31T10:00:01.000Z",
+    "type": "invoice",
+    "booking_ref": "TEST0001",
+    "state": "partially_refunded",
+    "refunded_total": 20,
+    "seller": {
+      "legal_name": "TEST Nabd Health Platform",
+      "vat_number": "300000000000003",
+      "cr_number": null,
+      "address": null,
+      "configured": true
+    },
+    "provider": {
+      "name_ar": "TEST مختبر",
+      "name_en": "TEST Laboratory",
+      "facility_name": null,
+      "type": "lab",
+      "license_number": "TEST-LIC-1"
+    },
+    "credit_notes": [
+      {
+        "invoice_no": "CN-TEST-000001",
+        "total": -20,
+        "vat_amount": -2.61,
+        "issued_at": "2026-11-01T09:00:00.000Z"
+      }
+    ]
+  },
+  "/billing/invoice/lab/test-lab-order/share-links": [
+    {
+      "id": "test-link-1",
+      "status": "active",
+      "created_at": "2026-11-01T10:00:00.000Z",
+      "expires_at": "2026-11-08T10:00:00.000Z",
+      "revoked_at": null,
+      "view_count": 2
+    }
+  ]
 }

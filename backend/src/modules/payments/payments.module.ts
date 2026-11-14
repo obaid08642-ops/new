@@ -155,7 +155,7 @@ export class MoyasarAdapter implements PaymentGateway {
       const base = returned.base;
       // #550: the return address names our transaction (`?ref=`); the provider appends its own id and status after it.
       const callback = req.return_ref ? `${base}${base.includes('?') ? '&' : '?'}ref=${encodeURIComponent(req.return_ref)}` : base;
-      const body = JSON.stringify({ amount: Math.round(req.amount * 100), currency: req.currency || 'SAR', description: req.description, callback_url: callback, success_url: callback, back_url: callback });
+      const body = JSON.stringify({ amount: toHalalas(req.amount), currency: req.currency || 'SAR', description: req.description, callback_url: callback, success_url: callback, back_url: callback });
       const r = await externalFetch(`${this.base}/invoices`, { method: 'POST', headers: this.headers(), body });
       const j: any = await r.json();
       if (!r.ok) throw new BadGatewayException(j.message || 'moyasar_intent_failed');
@@ -179,6 +179,8 @@ export class MoyasarAdapter implements PaymentGateway {
       // decides. The patient is told it failed (and can retry) instead of waiting on a payment that will never settle; a later
       // paid attempt on the same invoice still settles it (verify reads the paid payment first).
       const last = payments[payments.length - 1];
+      // An expired checkout session is a failure with its own stable reason (the patient is told "the session expired, no money was taken", not "payment failed").
+      if (j.status === 'expired' && !paid) return { status: 'failed' as VerifyResult['status'], raw: { ...j, last_payment_error: { message: 'payment_session_expired' } } };
       if (!map[j.status] && last?.status === 'failed') return { status: 'failed' as VerifyResult['status'], raw: { ...j, last_payment_error: { message: String(last?.source?.message || 'card_declined') } } };
       return { status: (map[j.status] || 'pending') as VerifyResult['status'], raw: j };
     };
@@ -187,7 +189,7 @@ export class MoyasarAdapter implements PaymentGateway {
   async refund(id: string, amount?: number) {
     // Moyasar's documented route is singular: POST /payments/:id/refund.
     const run = async (paymentId: string, amt?: number) => {
-      const body = JSON.stringify(amt ? { amount: Math.round(amt * 100) } : {});
+      const body = JSON.stringify(amt ? { amount: toHalalas(amt) } : {});
       const r = await externalFetch(`${this.base}/payments/${paymentId}/refund`, { method: 'POST', headers: this.headers(), body });
       const j: any = await r.json();
       return { refunded: r.ok, raw: j };
@@ -268,7 +270,9 @@ export class PaymentsService {
    * payment — it is recorded as failed so it can never confirm the booking.
    */
   private gatewayAmountMatches(t: any, raw: any): boolean {
-    const expectedHalalas = Math.round(Number(t.amount || 0) * 100);
+    // R11 P2: the integer shadow when the transaction has one, else the double converted exactly (never `round(x * 100)`)
+    const amountSar = Number(t.amount || 0);
+    const expectedHalalas = Number.isSafeInteger(t.amount_halalas) ? t.amount_halalas : (Number.isFinite(amountSar) ? toHalalas(amountSar) : NaN);
     const expectedCurrency = String(t.currency || 'SAR').toUpperCase();
     if (!Number.isFinite(expectedHalalas) || expectedHalalas <= 0) return false;
     if (String(raw?.currency || '').toUpperCase() !== expectedCurrency) return false;
@@ -656,14 +660,15 @@ export class PaymentsService {
    * the admin endpoint above, and RefundExecutor (approved refund requests, cancellation policy),
    * which before this only wrote a ledger row for card payments kept in `transactions`.
    */
-  async refundTransactionAsSystem(transactionId: string, amount?: number, reason?: string): Promise<{ txn: any; gateway_refund_id?: string }> {
+  async refundTransactionAsSystem(transactionId: string, amount?: number, reason?: string, opts: { skipGateway?: boolean } = {}): Promise<{ txn: any; gateway_refund_id?: string }> {
     const t = await this.txns.findOne({ id: transactionId });
     if (!t) throw new NotFoundException();
     if (t.status !== 'paid' && t.status !== 'partially_refunded') throw new BadRequestException('cannot_refund');
     const refundable = Math.max(0, Number(t.amount || 0) - Number(t.refunded_amount || 0));
     const value = amount === undefined ? refundable : Math.round(Number(amount) * 100) / 100;
     if (!(value > 0) || value > refundable + 0.001) throw new BadRequestException('refund_exceeds_paid');
-    const r = await this.adapter.refund(t.gateway_charge_id || t.gateway_intent_id, value);
+    // skipGateway: the gateway already made this refund (a crashed finance execution is being completed): only our own records are brought up to date
+    const r: any = opts.skipGateway ? { refunded: true, raw: {} } : await this.adapter.refund(t.gateway_charge_id || t.gateway_intent_id, value);
     if (!r.refunded) throw new BadRequestException('refund_failed');
     t.refunded_amount = Math.round((Number(t.refunded_amount || 0) + value) * 100) / 100;
     t.status = t.refunded_amount >= Number(t.amount || 0) - 0.001 ? 'refunded' : 'partially_refunded';
@@ -725,7 +730,9 @@ export class PaymentsService {
     const booking: any = await this.modelFor(type).findOne({ id }).lean();
     if (!booking) throw new NotFoundException('booking_not_found');
     const staffRoles = ['admin', 'finance'];
-    if (booking.patient_id !== user.id && !staffRoles.includes(user.role)) {
+    // the person who booked and paid for someone else's visit (a guardian) sees the payment they made and its refund
+    const isBooker = !!booking.booked_by_user_id && booking.booked_by_user_id === user.id;
+    if (booking.patient_id !== user.id && !isBooker && !staffRoles.includes(user.role)) {
       throw new BadRequestException('not_authorized');
     }
     return this.txns.find({ booking_kind: kind, booking_id: id }, { webhook_payload: 0, idempotency_key: 0 }).sort({ createdAt: -1 }).lean();

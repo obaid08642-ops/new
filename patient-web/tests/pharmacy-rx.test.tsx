@@ -32,7 +32,7 @@ import { parseScanAnswer } from "@/lib/pharmacy/ai-scan";
 import { buildBroadcastBody, loadDeliveryAddresses, sendBroadcast } from "@/lib/pharmacy/broadcast";
 import { isBlockedMessage, parseThreadMessages, parseThreads } from "@/lib/pharmacy/chat";
 import { formatAddressLine, parseDeliveryAddresses, pickDeliveryAddress, toBroadcastAddress } from "@/lib/pharmacy/delivery-address";
-import { checkRxFile, fitWithin, ocrItems, uploadedPrescriptionId } from "@/lib/pharmacy/rx-upload";
+import { checkRxFile, cleanItems, fitWithin, ocrItems, uploadedPrescriptionId } from "@/lib/pharmacy/rx-upload";
 import { formatDate } from "@/lib/format-date";
 
 const read = (file: string) => readFileSync(resolve(process.cwd(), file), "utf8");
@@ -302,6 +302,13 @@ describe("the prescription photo", () => {
     expect(items).toEqual([{ name: "Panadol 500", quantity: 2 }, { name: "Augmentin", quantity: 1 }, { name: "Lots", quantity: 100 }]);
     expect(ocrItems({})).toEqual([]);
     expect(ocrItems(null)).toEqual([]);
+  });
+
+  it("PT-27: the corrected lines are what is sent: trimmed, nameless lines dropped, quantity 1 to 100", () => {
+    expect(cleanItems([{ name: "  Panadol ", quantity: "3" }, { name: "   ", quantity: 2 }, { name: "Augmentin", quantity: "" }, { name: "Lots", quantity: "900" }, { name: "Zero", quantity: 0 }])).toEqual([
+      { name: "Panadol", quantity: 3 }, { name: "Augmentin", quantity: 1 }, { name: "Lots", quantity: 100 }, { name: "Zero", quantity: 1 },
+    ]);
+    expect(cleanItems([{ name: "", quantity: 1 }])).toEqual([]);
   });
 
   it("links the catalogue product the server matched, for the assistant only (#881)", async () => {

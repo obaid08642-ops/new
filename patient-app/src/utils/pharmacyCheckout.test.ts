@@ -123,9 +123,17 @@ describe('payment result', () => {
     expect(paymentPhase('authorized')).toBe('pending');
     expect(paymentPhase('failed')).toBe('failed');
     expect(paymentPhase('cancelled')).toBe('cancelled');
+    expect(paymentPhase('canceled')).toBe('cancelled');     // the gateway record's own spelling
+    expect(paymentPhase('expired')).toBe('sessionExpired'); // the gateway record of an expired checkout
+    expect(paymentPhase('failed', 'payment_session_expired')).toBe('sessionExpired'); // how the transaction stores it
+    expect(paymentPhase('failed', 'DECLINED')).toBe('failed');
     expect(paymentPhase('partially_refunded')).toBe('refunded');
     expect(paymentPhase(undefined)).toBe('unknown');
     expect(paymentPhase('success')).toBe('unknown');
+  });
+  it('the reason of a failed transaction reaches the phase', () => {
+    expect(readPaymentResult({ id: 'a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d', status: 'failed', failure_reason: 'payment_session_expired' })?.phase).toBe('sessionExpired');
+    expect(readPaymentResult({ id: 'a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d', status: 'failed' })?.phase).toBe('failed');
   });
   it('reads amount, date and a short reference, nothing else', () => {
     expect(readPaymentResult({ id: 'a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d', status: 'paid', amount: 80, currency: 'SAR', paid_at: '2026-10-06T09:30:00.000Z' })).toEqual({ phase: 'paid', amount: 80, currency: 'SAR', paidAt: Date.parse('2026-10-06T09:30:00.000Z'), reference: '2A3B4C5D' });

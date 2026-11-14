@@ -11,16 +11,19 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { LinkSegmented } from "@/components-next/consult/link-segmented";
 import { LocalTimeLine } from "@/components-next/consult/local-time-line";
+import { HideVisitButton } from "@/components-next/consult/hide-visit-button";
+import { callPatientApi } from "@/lib/api/upstream";
+import { canHideStatus, readHiddenVisits, visitKey } from "@/lib/history/hidden-visits";
 import { ActionLinks } from "@/components-next/consult/consult-parts";
 import styles from "@/components-next/consult/consult.module.css";
 
-type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ tab?: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ tab?: string; hidden?: string }> };
 type Tab = "upcoming" | "current" | "past";
 
 /** My appointments (canvas/Appointments): the upcoming, current and past tabs, one card per appointment. */
 export default async function AppointmentsPage({ params, searchParams }: Props) {
   const { locale } = await params;
-  const { tab: requestedTab } = (await searchParams) ?? {};
+  const { tab: requestedTab, hidden: showHiddenParam } = (await searchParams) ?? {};
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("Appointments");
@@ -39,7 +42,23 @@ export default async function AppointmentsPage({ params, searchParams }: Props) 
   }
   const appointments = extractAppointmentRows(await response.json().catch(() => null));
   const activeTab: Tab = requestedTab === "past" ? "past" : requestedTab === "current" ? "current" : "upcoming";
-  const shown = appointments.filter((appointment) => (activeTab === "upcoming" ? isBooked(appointment.status) : activeTab === "current" ? isCurrent(appointment.status) : isPast(appointment.status)));
+  const tabRows = appointments.filter((appointment) => (activeTab === "upcoming" ? isBooked(appointment.status) : activeTab === "current" ? isCurrent(appointment.status) : isPast(appointment.status)));
+  // PT-54: the past tab leaves out the visits the patient hid (they are listed under "Show hidden visits"). The server's timeline says which
+  // are hidden; if it cannot be read, nothing is hidden (the list never loses a visit because of a failed side read).
+  let hiddenIds = new Set<string>();
+  if (activeTab === "past") {
+    try {
+      const timeline = await callPatientApi("/unified-bookings/mine?kind=consultation&include_hidden=1", { cache: "no-store" }, token);
+      if (timeline?.ok) hiddenIds = readHiddenVisits(await timeline.json().catch(() => null));
+    } catch {
+      // the hidden set could not be read: nothing is hidden
+    }
+  }
+  const isHidden = (id: string) => hiddenIds.has(visitKey("consultation", id));
+  const showHidden = activeTab === "past" && showHiddenParam === "1";
+  const hiddenCount = tabRows.filter((appointment) => isHidden(appointment.id)).length;
+  const shown = activeTab === "past" ? tabRows.filter((appointment) => isHidden(appointment.id) === showHidden) : tabRows;
+  const hc = await getTranslations("ConsultClient");
   const base = `/${locale}/appointments`;
   const serviceLabel = (serviceType?: string) => { const mode = modeOf(serviceType); return mode ? t(`services.${mode}`) : t("serviceUnavailable"); };
 
@@ -54,8 +73,11 @@ export default async function AppointmentsPage({ params, searchParams }: Props) 
           { value: "past", label: c("tabPast"), href: `${base}?tab=past` },
         ]}
       />
+      {activeTab === "past" && (hiddenCount > 0 || showHidden) ? (
+        <ActionLinks actions={[showHidden ? { href: `${base}?tab=past`, label: hc("backToHistory"), variant: "outline" } : { href: `${base}?tab=past&hidden=1`, label: hc("showHiddenLink", { n: hiddenCount }), variant: "outline" }]} />
+      ) : null}
       {shown.length === 0 ? (
-        <ConsultState kind="empty" title={activeTab === "upcoming" ? t("emptyUpcoming") : activeTab === "current" ? t("emptyCurrent") : t("emptyPast")} body={t("empty")} actionLabel={activeTab === "upcoming" ? c("actionBookConsultation") : undefined} actionHref={activeTab === "upcoming" ? `/${locale}/consultations/doctors?sort=available_today` : undefined} />
+        <ConsultState kind="empty" title={showHidden ? hc("emptyHidden") : activeTab === "upcoming" ? t("emptyUpcoming") : activeTab === "current" ? t("emptyCurrent") : t("emptyPast")} body={t("empty")} actionLabel={activeTab === "upcoming" ? c("actionBookConsultation") : undefined} actionHref={activeTab === "upcoming" ? `/${locale}/consultations/doctors?sort=available_today` : undefined} />
       ) : (
         <>
           <ul className={styles.list} aria-label={activeTab === "upcoming" ? c("tabUpcoming") : activeTab === "current" ? c("tabCurrent") : c("tabPast")}>
@@ -91,6 +113,7 @@ export default async function AppointmentsPage({ params, searchParams }: Props) 
                   primaryInk={activeTab !== "past" && isJoinable(appointment.status) && (mode === "clinic" || mode === "home")}
                   secondary={secondary}
                   priceText={appointment.price !== undefined ? formatPrice(locale, appointment.price).text : undefined}
+                  extra={activeTab === "past" && canHideStatus(appointment.status) ? <HideVisitButton kind="consultation" id={appointment.id} hidden={showHidden} /> : undefined}
                 />
               );
             })}

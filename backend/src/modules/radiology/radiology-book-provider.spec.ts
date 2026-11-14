@@ -10,20 +10,54 @@ const build = (opts: { profile?: any; equipment?: boolean; orderingItem?: boolea
   const svc: any = Object.create(RadiologyOpsService.prototype);
   svc.getById = jest.fn(async () => ({ id: 'scan-1', price: 300, name_ar: 'x', name_en: 'x', modality: 'xr', body_part: 'chest', short_code: 'XR', home_visit_supported: true }));
   svc.compatibleProviders = jest.fn(async () => (opts.equipment ? [{ id: 'acc-1' }] : []));
-  svc.profileModel = { findOne: () => ({ lean: async () => opts.profile ?? null }) };
   svc.svcModel = { db: { collection: (name: string) => ({ findOne: async () => (name === 'provider_ordering_items' && opts.orderingItem ? { catalog_id: 'scan-1' } : null) }) } };
-  svc.bkgModel = { findOne: () => ({ lean: async () => null }), create: jest.fn(async (doc: any) => { created.push(doc); return doc; }) };
+  // the seat collection of the time slot: a unique key per provider, slot and seat, like the real unique index
+  const seatRows = new Map<string, any>();
+  const seatKey = (f: any) => `${f.provider_account_id}|${new Date(f.slot_start).toISOString()}|${f.seat}`;
+  const seats = {
+    insertOne: async (d: any) => { if (seatRows.has(seatKey(d))) throw Object.assign(new Error('dup'), { code: 11000 }); seatRows.set(seatKey(d), d); },
+    findOne: async (f: any) => seatRows.get(seatKey(f)) ?? null,
+    updateOne: async (f: any, u: any) => { const r = seatRows.get(seatKey(f)); if (!r || (f.booking_id && r.booking_id !== f.booking_id)) return { modifiedCount: 0 }; Object.assign(r, u.$set); return { modifiedCount: 1 }; },
+    deleteMany: async () => undefined,
+    createIndex: async () => undefined,
+  };
+  svc.profileModel = { db: { collection: () => seats }, findOne: () => ({ lean: async () => opts.profile ?? null }) };
+  svc.bkgModel = { countDocuments: async () => 0, findOne: () => ({ lean: async () => null }), create: jest.fn(async (doc: any) => { created.push(doc); return doc; }) };
   svc.events = { emit: jest.fn() };
   svc.engine = { announceCreated: jest.fn(async () => undefined) };
   return { svc, created };
 };
-const body = (over: any = {}) => ({ service_id: 'scan-1', scheduled_at: when(), location_type: 'facility', payment_method: 'card', ...over });
+const body = (over: any = {}) => ({ service_id: 'scan-1', scheduled_at: when(), location_type: 'facility', payment_method: 'card', refund_policy_accepted: true, ...over });
 
 describe('radiology booking: the provider of a quote', () => {
   it('a profile id (as the quote names it) resolves to the centre\'s account, which the booking belongs to', async () => {
     const { svc, created } = build({ profile: { account_id: 'acc-1' }, orderingItem: true });
     await svc.book(PATIENT, body({ provider_id: 'profile-1' }));
     expect(created[0]).toMatchObject({ provider_account_id: 'acc-1', total: 300 });
+  });
+
+  it('the refund policy the patient agreed to is stored on the booking with the time and the policy version (owner decision 2026-11-09)', async () => {
+    const { svc, created } = build({ profile: { account_id: 'acc-1' }, orderingItem: true });
+    await svc.book(PATIENT, body({ provider_id: 'profile-1' }));
+    expect(created[0].refund_policy_acceptance).toEqual({ accepted: true, at: expect.any(Date), version: '2026-11-09', service: 'radiology', hash: expect.stringMatching(/^[0-9a-f]{64}$/) });   // the version/hash of the policy in force (here the default table) and the service
+  });
+
+  it('by default (optional) a patient booking without the field is accepted and stores no acceptance (old clients keep working)', async () => {
+    const { svc, created } = build({ profile: { account_id: 'acc-1' }, orderingItem: true });
+    await svc.book(PATIENT, body({ provider_id: 'profile-1', refund_policy_accepted: undefined }));
+    expect(created).toHaveLength(1);
+    expect(created[0]).not.toHaveProperty('refund_policy_acceptance');
+  });
+
+  it('with REFUND_POLICY_ACCEPTANCE=required a patient who did not tick it gets 400 and nothing is created; an admin creating a booking stores no acceptance', async () => {
+    process.env.REFUND_POLICY_ACCEPTANCE = 'required';
+    const { svc, created } = build({ profile: { account_id: 'acc-1' }, orderingItem: true });
+    try {
+      await expect(svc.book(PATIENT, body({ provider_id: 'profile-1', refund_policy_accepted: undefined }))).rejects.toThrow('refund_policy_acceptance_required');
+    } finally { delete process.env.REFUND_POLICY_ACCEPTANCE; }
+    expect(created).toHaveLength(0);
+    await svc.book({ id: 'adm', role: 'admin' }, body({ provider_id: 'profile-1', refund_policy_accepted: undefined }));
+    expect(created[0]).not.toHaveProperty('refund_policy_acceptance');
   });
 
   it('the centre is told about the new booking (bell + push), not only the patient', async () => {

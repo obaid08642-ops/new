@@ -157,27 +157,35 @@ export class RecruitmentService {
 
   // --- Guest submissions (no account): device-bound drafts, admin publishes ---
   /** Admin queue: guest drafts waiting for a decision, oldest first. */
-  async listGuestDrafts(status: string = 'draft'): Promise<any[]> {
+  /** Admin list of job posts by status. `source`: guest (no account, the default and what the review queue shows), facility (posted by a facility account), all. Read only. */
+  async listGuestDrafts(status: string = 'draft', source: string = 'guest'): Promise<any[]> {
     const st = ['draft', 'published', 'closed'].includes(status) ? status : 'draft';
+    const from = source === 'facility'
+      ? { $or: [{ guest_device_id: { $exists: false } }, { guest_device_id: null }] }
+      : source === 'all' ? {} : { guest_device_id: { $exists: true, $ne: null } };
     return this.jobModel
-      .find({ is_deleted: false, guest_device_id: { $exists: true, $ne: null }, status: { $eq: st } })
+      .find({ is_deleted: false, ...from, status: { $eq: st } })
       .sort({ createdAt: 1 })
       .limit(200)
       .lean();
   }
 
   /** Publish or reject a guest draft. Claim-then-act: only a still-draft guest post can be decided, so two admins cannot both win. */
-  async reviewGuestJob(adminId: string, jobId: string, decision: 'publish' | 'reject', note?: string): Promise<any> {
+  async reviewGuestJob(adminId: string, jobId: string, decision: 'publish' | 'reject' | 'close', note?: string): Promise<any> {
     const next = decision === 'publish' ? 'published' : 'closed';
+    // publish and reject act on a pending guest post; close takes down any published post, guest or facility
+    const filter = decision === 'close'
+      ? { id: jobId, is_deleted: false, status: 'published' }
+      : { id: jobId, is_deleted: false, status: 'draft', guest_device_id: { $exists: true, $ne: null } };
     const job = await this.jobModel.findOneAndUpdate(
-      { id: jobId, is_deleted: false, status: 'draft', guest_device_id: { $exists: true, $ne: null } },
+      filter,
       { $set: { status: next, reviewed_by: adminId, reviewed_at: new Date(), review_note: note } },
       { new: true },
     ).lean();
     if (!job) {
       const exists = await this.jobModel.findOne({ id: jobId, is_deleted: false }).lean();
       if (!exists) throw new NotFoundException('Job posting not found');
-      throw new BadRequestException('Only a pending guest post can be reviewed');
+      throw new BadRequestException(decision === 'close' ? 'Only a published post can be closed' : 'Only a pending guest post can be reviewed');
     }
     return job;
   }
@@ -459,8 +467,8 @@ export class AdminRecruitmentController {
 
   @RequirePermissions(Permission.FACILITY_EDIT)
   @Get()
-  list(@Query('status') status?: string) {
-    return this.svc.listGuestDrafts(status);
+  list(@Query('status') status?: string, @Query('source') source?: string) {
+    return this.svc.listGuestDrafts(status, source);
   }
 
   @RequirePermissions(Permission.FACILITY_EDIT)

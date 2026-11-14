@@ -16,6 +16,8 @@ const bodySchema = z.object({
   scheduled_at: z.string().datetime().optional(),
   location_type: z.enum(["home", "facility"]).optional(),
   payment_method: z.enum(["cash", "card", "insurance"]).optional(),
+  // the patient agreed to the refund policy before the order (the backend refuses without it; an explicit false is never accepted)
+  refund_policy_accepted: z.literal(true),
 }).strict();
 
 export async function POST(request: Request) {

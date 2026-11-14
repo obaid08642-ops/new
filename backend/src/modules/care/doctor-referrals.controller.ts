@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Patch, Param, Get, BadRequestException, UseGuards, Req, ForbiddenException } from '@nestjs/common';
+import { Controller, Post, Body, Patch, Param, Get, BadRequestException, NotFoundException, UseGuards, Req, ForbiddenException } from '@nestjs/common';
 import { JwtAuthGuard, NoGuestsGuard, Roles } from '../../common/auth.guard';
 import { InjectModel } from '@nestjs/mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -6,7 +6,7 @@ import { Model, Types, Connection } from 'mongoose';
 import { EncounterReferral } from './schemas/encounter-referrals.schema';
 import { DoctorProfileExtended } from './schemas/doctor-profile-extended.schema';
 import { UserRole } from '../../common/enums';
-import { DiagnosticCallbackDto, IssueReferralsDto } from './doctor-referrals.dto';
+import { DiagnosticCallbackDto, IssueReferralsDto, REFERRAL_ID } from './doctor-referrals.dto';
 
 @UseGuards(JwtAuthGuard, NoGuestsGuard)
 @Controller('provider/doctor-referrals')
@@ -28,15 +28,39 @@ export class DoctorReferralsController {
     throw new ForbiddenException('Cannot access another doctor\'s referrals');
   }
 
+  /** A user by the id the apps use (uuid `id`) or by Mongo _id (older rows); null when there is none. */
+  private async userByAnyId(id: string): Promise<any | null> {
+    const filter = Types.ObjectId.isValid(id) && /^[0-9a-fA-F]{24}$/.test(id) ? { _id: new Types.ObjectId(id) } : { id };
+    return this.conn.db.collection('users').findOne(filter as any, { projection: { _id: 1, id: 1 } } as any);
+  }
+
+  /** An appointment by the apps' uuid `id` or by Mongo _id; null when there is none. */
+  private async appointmentByAnyId(id: string): Promise<any | null> {
+    const filter = /^[0-9a-fA-F]{24}$/.test(id) ? { _id: new Types.ObjectId(id) } : { id };
+    return this.conn.db.collection('appointments').findOne(filter as any, { projection: { _id: 1, id: 1, patient_id: 1, doctor_id: 1 } } as any);
+  }
+
+  /** The visit must be the signed-in doctor's own (admins excepted): the appointment names the doctor's provider profile. */
+  private async assertOwnVisit(req: any, appt: any) {
+    const role = req.user?.role;
+    if (role === 'admin' || role === 'super_admin') return;
+    const profile: any = await this.conn.db.collection('provider_profiles').findOne({ id: appt.doctor_id }, { projection: { id: 1, user_id: 1, account_id: 1 } } as any);
+    const mine = [req.user?.id, req.user?.account_id, req.user?.provider_id, req.user?.provider_profile_id].filter(Boolean).map(String);
+    const doctorIds = [profile?.id, profile?.user_id, profile?.account_id].filter(Boolean).map(String);
+    if (!mine.some((x) => doctorIds.includes(x))) throw new ForbiddenException('Cannot issue a referral for another doctor\'s visit');
+  }
+
   /** Doctor's issued referrals + returned diagnostic results (inbound reports inbox) */
   @Get('my-referrals/:doctorId')
   async myReferrals(@Req() req: any, @Param('doctorId') doctorId: string) {
     // doctorId is validated as a Mongo ObjectId on the next line; referral rows
     // key doctors by Mongo _id (see assertDoctorOwnership above).
-    if (!Types.ObjectId.isValid(doctorId)) throw new BadRequestException('invalid doctor id');
+    if (!REFERRAL_ID.test(doctorId)) throw new BadRequestException('invalid doctor id');
     await this.assertDoctorOwnership(req, doctorId);
+    const doctorUser = await this.userByAnyId(doctorId);
+    if (!doctorUser) return [];
     const rows = await this.referralModel
-      .find({ doctor_id: new Types.ObjectId(doctorId) })
+      .find({ doctor_id: doctorUser._id })
       .sort({ createdAt: -1 })
       .limit(100)
       .lean();
@@ -73,17 +97,26 @@ export class DoctorReferralsController {
     const { appointmentId, patientId, doctorId, labTests, radScans, homeCareNotes, medications } = payload;
     await this.assertDoctorOwnership(req, doctorId);
 
-    // Ids are always Mongo ObjectIds (enforced by @IsMongoId() on
-    // IssueReferralsDto); referral/appointment rows key by Mongo _id.
+    // The ids arrive as the apps' uuids (or Mongo ObjectIds from older callers); referral rows key by Mongo _id, so they are resolved here,
+    // and the visit must be this doctor's own and for this patient.
+    const appt = await this.appointmentByAnyId(appointmentId);
+    if (!appt) throw new NotFoundException('appointment_not_found');
+    const patientUser = await this.userByAnyId(patientId);
+    const doctorUser = await this.userByAnyId(doctorId);
+    if (!patientUser || !doctorUser) throw new NotFoundException('user_not_found');
+    if (String(appt.patient_id) !== String(patientUser.id) && String(appt.patient_id) !== String(patientUser._id)) {
+      throw new BadRequestException('patient_does_not_match_appointment');
+    }
+    await this.assertOwnVisit(req, appt);
     // Fix 3: Automatic Internal Hospital Pharmacy Routing
-    const doctorProfile = await this.doctorProfileModel.findOne({ doctor_id: new Types.ObjectId(doctorId) });
+    const doctorProfile = await this.doctorProfileModel.findOne({ doctor_id: doctorUser._id });
     const isInstitutional = doctorProfile && doctorProfile.parent_provider_account_id;
     const prescriptionStatus = isInstitutional ? 'hospital_internal_dispatch' : 'public_radius_broadcast';
 
     const referral = await this.referralModel.create({
-      appointment_id: new Types.ObjectId(appointmentId),
-      patient_id: new Types.ObjectId(patientId),
-      doctor_id: new Types.ObjectId(doctorId),
+      appointment_id: appt._id,
+      patient_id: patientUser._id,
+      doctor_id: doctorUser._id,
       requested_lab_tests: labTests || [],
       requested_radiology_scans: radScans || [],
       home_care_recommendation_notes: homeCareNotes || null,
@@ -102,10 +135,12 @@ export class DoctorReferralsController {
   async diagnosticCallback(@Param('appointmentId') appointmentId: string, @Body() body: DiagnosticCallbackDto) {
     // appointment_id is a Mongo ObjectId — reject uuids with 400 instead of
     // letting the cast fail downstream.
-    if (!Types.ObjectId.isValid(appointmentId)) throw new BadRequestException('invalid appointment id');
+    if (!REFERRAL_ID.test(appointmentId)) throw new BadRequestException('invalid appointment id');
+    const appt = await this.appointmentByAnyId(appointmentId);
+    if (!appt) throw new BadRequestException('No active medical referral found linking to this appointment ID.');
     // Intercepted from Lab/Radiology Upload webhook to alert the parent Doctor automatically
     const referral = await this.referralModel.findOneAndUpdate(
-      { appointment_id: new Types.ObjectId(appointmentId) },
+      { appointment_id: appt._id },
       {
         $set: {
           diagnostic_results_returned: true,

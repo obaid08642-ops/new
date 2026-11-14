@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../context/AppContext';
+import { dsText } from '../dsText';
 import { BorderRadius, Spacing, Shadows, Animation } from '../tokens';
 import { DSText } from './Text';
 import { Icon, IconName } from '../Icon';
@@ -197,7 +198,7 @@ function ToastItem({
   toast: ToastState;
   onDismiss: (id: string) => void;
 }) {
-  const { colors, isRTL } = useApp();
+  const { colors, isRTL, lang } = useApp();
   const icon = TOAST_ICONS[toast.type ?? 'info'];
   const toastColors = getToastColors(toast.type ?? 'info', colors);
 
@@ -251,7 +252,7 @@ function ToastItem({
         onPress={() => onDismiss(toast.id)}
         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         accessibilityRole="button"
-        accessibilityLabel="إغلاق"
+        accessibilityLabel={dsText(lang, 'ds.toast.close')}
       >
         <Icon name="close" size={16} color={colors.textTertiary} />
       </TouchableOpacity>

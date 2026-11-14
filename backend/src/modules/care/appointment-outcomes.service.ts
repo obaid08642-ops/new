@@ -64,7 +64,7 @@ export class AppointmentOutcomesService {
     const reports = revealHealthDocs('medicalreports', reportRows as any[]).map((r: any) => ({
       id: r.id, tracking_id: r.tracking_id ?? null, report_type: r.report_type, certificate_kind: r.certificate_kind ?? null,
       title_ar: r.title_ar ?? null, title_en: r.title_en ?? null, summary: r.summary ?? null, diagnosis: r.diagnosis ?? null, recommendations: r.recommendations ?? null,
-      sick_leave: r.sick_leave ?? null, doctor_name: r.doctor_name ?? null, issued_at: r.issued_at ?? r.createdAt ?? null, viewed_by_patient: !!r.viewed_by_patient,
+      sick_leave: r.sick_leave ?? null, serial: r.serial ?? null, status: r.certificate_kind === 'sick_leave' ? (r.status ?? 'issued') : null, doctor_name: r.doctor_name ?? null, issued_at: r.issued_at ?? r.createdAt ?? null, viewed_by_patient: !!r.viewed_by_patient,
       is_new: !r.viewed_by_patient && isNewOutcome(r.createdAt ?? r.issued_at, seenAt),
     }));
     const certificates = reports.filter((r) => r.report_type === 'medical_certificate');

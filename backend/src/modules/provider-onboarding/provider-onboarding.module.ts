@@ -17,7 +17,7 @@ import { EventBusService } from '../events/event-bus.service';
 import { ContractPdfService, ContractAgreement, ContractLang, ContractSignature } from './contract-pdf.service';
 import { MailModule, MailService } from '../mail/mail.module';
 import { ScfhsLicenseModule, ScfhsLicenseService } from '../provider/services/scfhs-license.service';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from '../../common/password-hash';
 import { v4 as uuidv4 } from 'uuid';
 import { escapeRegex } from '../../common/slug.util';
 import { StartDto, SubmitDto } from './provider-onboarding.dto';
@@ -293,7 +293,9 @@ export class ProviderOnboardingService {
     // Both are checked before anything is saved, so a refusal leaves the profile as it was and the provider can simply try again.
     const prepared = await this.prepareContract(user, body?.signature_url || (profile as any).signature_url);
     profile.onboarding_completed = true;
-    profile.status = ProviderStatus.PENDING;
+    // Submitting asks for review: a pending or rejected profile (re)enters the queue. An ACTIVE profile must not unlist itself (search shows ACTIVE only)
+    // and a SUSPENDED one must not leave its suspension by submitting; the account row already keeps `approved` / `suspended` the same way.
+    if (profile.status !== ProviderStatus.ACTIVE && profile.status !== ProviderStatus.SUSPENDED) profile.status = ProviderStatus.PENDING;
     if (body) {
       if (body.signer_name) profile.signer_name = body.signer_name;
       if (body.signer_role) profile.signer_role = body.signer_role;

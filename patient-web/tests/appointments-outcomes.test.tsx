@@ -14,7 +14,7 @@ const state = vi.hoisted(() => ({
 vi.mock("next/navigation", () => ({ notFound: vi.fn(), redirect: vi.fn(), useRouter: () => ({ refresh: vi.fn() }), usePathname: () => "/en/consultations/doctors" }));
 vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => (state.cookieToken ? { value: state.cookieToken } : undefined) }) }));
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string, values?: Record<string, unknown>) => (values ? `${key}:${JSON.stringify(values)}` : key), setRequestLocale: vi.fn() }));
-vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key, useLocale: () => "en" }));
 vi.mock("@/lib/i18n", () => ({ isLocale: () => true, getDirection: () => "ltr" }));
 vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: state.requirePatientAccess }));
 vi.mock("@/lib/api/appointments-server", () => ({ getPatientAppointments: state.getPatientAppointments, getPatientAppointment: state.getPatientAppointment }));
@@ -87,7 +87,8 @@ describe("appointments page", () => {
     state.getVisitOutcomes.mockResolvedValue(new Response(JSON.stringify(outcomesBody()), { status: 200 }));
     const html = renderToStaticMarkup(await AppointmentDetailPage({ params: Promise.resolve({ locale: "en", appointmentId: ID }) }));
     expect(html).toContain("Test sick leave");
-    expect(html).toContain('href="/en/reports/r1"');
+    // PT-08: a medical report (the sick-leave row) opens its own page; the other rows still open the generic report view
+    expect(html).toContain('href="/en/medical-reports/r1"');
     expect(html).toContain("outcomeNew");
     expect(html).toContain("Test report");
     expect(html).not.toContain("appointment-certificates");

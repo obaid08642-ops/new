@@ -112,6 +112,9 @@ def main():
         step('tomorrow shows the nurse\'s free times', sec('time').locator('button').count() > 0, sec('time').inner_text().replace('\n', ' | ')[:200] + ' || days=' + str(_days)[:300] + ' || slots=' + str(_slots_seen)[-600:] + ' || in flight=' + str(list(_in_flight.values()))[:700])
         sec('time').locator('button').first.click()
         step('the saved located address is offered', 'الملك فهد' in sec('address').inner_text(), sec('address').inner_text()[:200])
+        # the refund policy is shown before the booking: the button stays off until the patient agrees (owner decision 2026-11-09)
+        step('without the refund policy tick the booking button stays disabled', page.locator('button', has_text='تأكيد الحجز').first.is_disabled(), '')
+        page.get_by_role('checkbox', name='قرأت سياسة الاسترداد وأوافق عليها').check(timeout=30000)
         with page.expect_request(lambda req: 'fake-moyasar' in req.url, timeout=30000) as went:
             page.locator('button', has_text='تأكيد الحجز').click()
         step('a card visit opens the Moyasar card page', 'fake-moyasar' in went.value.url, went.value.url)

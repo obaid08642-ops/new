@@ -362,6 +362,8 @@ export class NursingController {
     b.state_history.push({ from: NursingBookingState.ARRIVED, to: b.state, at: new Date() });
     await b.save();
     this.notifyPatientState(b);
+    // screens-audit-3 gap 24: finance refunds `home_visit.patient_absent_percent` of what was paid (default 0: nothing)
+    this.events.emit('homecare.booking_no_show', { booking_id: b.id, patient_id: b.patient_id, total: Number(b.total ?? b.total_price ?? 0) });
 
     return { success: true, state: b.state };
   }

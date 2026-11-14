@@ -19,7 +19,10 @@ const schema = z.object({
   payment_method: z.enum(["cash", "card", "insurance"]),
   gender_preference: z.enum(["female", "male"]).optional(),
   medical_order_id: id.optional(),
+  family_member_id: id.optional(),
   notes: z.string().max(500).optional(),
+  // the patient agreed to the refund policy before booking (the backend refuses without it; an explicit false is never accepted)
+  refund_policy_accepted: z.literal(true),
 });
 
 /** POST /ordering/bookings: one group of bookings from a quote. The documents upload belongs to the confirm-and-pay step. */

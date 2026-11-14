@@ -45,8 +45,9 @@ export default async function ReceiptsPage({ params }: Props) {
           {receipts.map((r) => (
             <li key={r.invoiceNo}>
               <Link className={styles.row} href={`/${locale}/receipts/${r.kind}/${encodeURIComponent(r.bookingId)}`}>
-                <span className={styles.rowTitle}>{t(KIND_KEY[r.kind] ?? "kindPharmacy")}</span>
+                <span className={styles.rowTitle}>{r.type === "credit_note" ? t("creditNoteTitle") : t(KIND_KEY[r.kind] ?? "kindPharmacy")}</span>
                 <span className={styles.rowTotal}><bdi>{formatPrice(locale, r.total).text}</bdi></span>
+                {r.state === "partially_refunded" || r.state === "refunded" ? <span className={styles.rowChip}><span className={styles.chip}>{t(r.state === "refunded" ? "stateRefunded" : "statePartial")}</span></span> : null}
                 <span className={styles.rowSub}><bdi>{r.invoiceNo}</bdi> · <bdi>{formatDate(locale, r.issuedAt) ?? ""}</bdi></span>
               </Link>
             </li>

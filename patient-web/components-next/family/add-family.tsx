@@ -14,6 +14,8 @@ import styles from "./family.module.css";
 
 const FAMILY = SERVICE_ICONS.family;
 import { copyText } from "@/lib/copy-text";
+import { DEPENDANT_RELATIONS, dependantBody, readDependants, type DependantRelation, type DependantRow } from "@/lib/family/dependants";
+import { newIdempotencyKey } from "@/lib/pharmacy/broadcast";
 import { CameraScanner, QR_FORMATS } from "@/components-next/scan/camera-scanner";
 
 /**
@@ -219,5 +221,113 @@ export function ScanTab({ locale }: { locale: string }) {
       {error ? <p className={forms.error} role="alert">{error}</p> : null}
       <Button type="submit" label={t("scanContinue")} size="lg" fullWidth />
     </form>
+  );
+}
+
+/**
+ * Add a child (PT-03): a dependant with no account of their own, managed by the guardian who adds them (POST /family/dependants,
+ * the guardian's consent is part of the request). The guardian's dependants are listed with a way to remove each one; they then
+ * appear as people an order or a booking can be made for.
+ */
+export function ChildTab() {
+  const t = useTranslations("FamilyWeb");
+  const [name, setName] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [relation, setRelation] = useState<DependantRelation | "">("");
+  const [consent, setConsent] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+  const [rows, setRows] = useState<DependantRow[]>([]);
+
+  const load = useCallback(async () => {
+    try {
+      const res = await fetch("/api/patient/family/dependants", { cache: "no-store" });
+      if (res.ok) setRows(readDependants(await res.json().catch(() => null)));
+    } catch {
+      // the list stays as it was; adding still works
+    }
+  }, []);
+  useEffect(() => { void load(); }, [load]);
+
+  const body = dependantBody({ name, birthDate, relation, consent });
+
+  async function onSubmit(event: FormEvent) {
+    event.preventDefault();
+    if (!body || saving) return;
+    setSaving(true);
+    setError(null);
+    setSaved(false);
+    try {
+      const res = await fetch("/api/patient/family/dependants", { method: "POST", headers: { "content-type": "application/json", "idempotency-key": newIdempotencyKey() }, body: JSON.stringify(body) });
+      const data = (await res.json().catch(() => null)) as { message?: unknown } | null;
+      if (!res.ok) {
+        setError(String(data?.message ?? "").includes("dependants_limit_reached") ? t("childLimit") : t("childError"));
+        return;
+      }
+      setSaved(true);
+      setName("");
+      setBirthDate("");
+      setRelation("");
+      setConsent(false);
+      await load();
+    } catch {
+      setError(t("childError"));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function remove(id: string) {
+    try {
+      const res = await fetch(`/api/patient/family/dependants/${encodeURIComponent(id)}`, { method: "DELETE" });
+      if (res.ok) setRows((current) => current.filter((row) => row.id !== id));
+      else setError(t("childError"));
+    } catch {
+      setError(t("childError"));
+    }
+  }
+
+  return (
+    <>
+      <form onSubmit={onSubmit} className={`${rx.card} ${forms.stack}`} noValidate aria-label={t("tabChild")}>
+        <p className={rx.note}>{t("childHint")}</p>
+        <label className={forms.field}>
+          <span className={forms.label}>{t("childName")}</span>
+          <input className={forms.control} value={name} onChange={(event) => setName(event.target.value.slice(0, 80))} required maxLength={80} autoComplete="off" />
+        </label>
+        <label className={forms.field}>
+          <span className={forms.label}>{t("childBirth")}</span>
+          <input className={forms.control} type="date" value={birthDate} max={new Date().toISOString().slice(0, 10)} onChange={(event) => setBirthDate(event.target.value)} required dir="ltr" />
+        </label>
+        <div className={forms.field} role="group" aria-label={t("childRelation")}>
+          <span className={forms.label}>{t("childRelation")}</span>
+          <div className={forms.choices}>
+            {DEPENDANT_RELATIONS.map((key) => (
+              <button key={key} type="button" className={forms.choice} aria-pressed={relation === key} onClick={() => setRelation(relation === key ? "" : key)}>{t(`relation.${key}`)}</button>
+            ))}
+          </div>
+        </div>
+        <label className={forms.field}>
+          <span><input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} /> {t("childConsent")}</span>
+        </label>
+        {error ? <p className={forms.error} role="alert">{error}</p> : null}
+        {saved ? <p className={rx.note} role="status">{t("childSaved")}</p> : null}
+        <Button type="submit" label={t("childSave")} size="lg" fullWidth loading={saving} disabled={!body} />
+      </form>
+      {rows.length > 0 ? (
+        <section className={`${rx.card} ${forms.stack}`} aria-label={t("childListTitle")}>
+          <h2 className={rx.h2}>{t("childListTitle")}</h2>
+          <ul className={styles.rows}>
+            {rows.map((row) => (
+              <li key={row.id} className={styles.childRow}>
+                <span>{row.name}</span>
+                <Button label={t("childRemove")} variant="outline" size="sm" onClick={() => void remove(row.id)} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+    </>
   );
 }

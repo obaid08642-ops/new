@@ -17,7 +17,7 @@ import { FieldEncryptionService, fieldCrypto } from './pdpl-compliance.module';
 export const HEALTH_FIELDS: Record<string, string[]> = {
   prescriptions: ['diagnosis', 'notes', 'items.*.instructions'],
   // the report text; the title stays readable (lists, search)
-  medicalreports: ['patient_name', 'summary', 'body', 'diagnosis', 'recommendations'],
+  medicalreports: ['patient_name', 'summary', 'body', 'diagnosis', 'recommendations', 'reason', 'patient_national_id'],
   // the doctor's consultation summary (SOAP); the patient's own booking note
   // written by the provider-ops completion handler, never read back by the API
   consultationnotes: ['notes', 'diagnosis'],

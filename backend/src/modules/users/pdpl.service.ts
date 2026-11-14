@@ -1,4 +1,4 @@
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { recordAudit } from '../../common/audit-record';
 import { exportAuditEvents } from '../security/user-history.service';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -88,6 +88,7 @@ export class PdplService {
     { collection: 'moyasar_payments', fields: ['patient_id', 'patient_account_id', 'user_id'] },
     { collection: 'wallet_transactions', fields: ['owner_id', 'patient_id', 'user_id'] },
     { collection: 'returnrequests', fields: ['patient_id', 'patient_account_id', 'user_id'] },
+    { collection: 'patient_hidden_visits', fields: ['patient_id'] },   // PT-54: the visits this patient hid from their own history
   ];
 
   /** Never leaves the server, even in an export. */
@@ -170,6 +171,14 @@ export class PdplService {
     const user: any = await this.userModel.findOne({ id: { $eq: String(userId) } }).lean();
     if (!user) throw new BadRequestException('user_not_found');
 
+    // This erases PATIENT data. `DELETE /users/me` is open to every signed-in role, and a provider or admin who anonymised their own user row would
+    // leave the business account (approved, balances, payouts, provider-scope tokens keyed on provider_accounts) running under an erased identity.
+    // Staff accounts are closed through their own process (admin / support), never self-service here.
+    const erasableRole = String(user.role || 'patient').toLowerCase();
+    if (erasableRole !== 'patient' && erasableRole !== 'guest') {
+      throw new ForbiddenException({ message: 'erasure_not_available_for_role', code: 'erasure_not_available_for_role' });
+    }
+
     // Erasure is irreversible and removes medical records, so it must not be
     // reachable with a stolen token alone. The password is re-entered by the
     // patient to prove the request is theirs.
@@ -198,7 +207,7 @@ export class PdplService {
       // bcrypt is neither declared nor installed, so the moment a patient supplied
       // a password the check threw "Cannot find module 'bcrypt'" and erasure 500'd
       // instead of verifying. The old test missed it by never passing a password.
-      const bcrypt = require('bcryptjs');
+      const bcrypt = require('../../common/password-hash');
       const ok = await bcrypt.compare(opts.password, user.password_hash);
       if (!ok) throw new BadRequestException('invalid_password');
     }

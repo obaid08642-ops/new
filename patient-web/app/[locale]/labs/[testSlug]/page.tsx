@@ -23,13 +23,13 @@ import { extractLabServices, includedTestNames } from "@/lib/api/labs";
 import { getPublicLabServices } from "@/lib/api/labs-server";
 import { pickName, perLocaleOf } from "@/lib/i18n/localized";
 import { loadItem } from "@/lib/ordering/load-item";
-import { contextQuery, payOf, placeOf } from "@/lib/ordering/context";
+import { contextQuery, payOf, placeOf, whoOf } from "@/lib/ordering/context";
 import { parseQuote, type Quote } from "@/lib/ordering/quote";
 import { kindOf, optionalToken, patientPoint } from "@/lib/ordering/server";
 import { CatalogueViewBeacon } from "@/components-next/diagnostics/catalogue-view-beacon";
 import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
-type Props = { params: Promise<{ locale: string; testSlug: string }>; searchParams?: Promise<{ kind?: string; place?: string; pay?: string }> };
+type Props = { params: Promise<{ locale: string; testSlug: string }>; searchParams?: Promise<{ kind?: string; place?: string; pay?: string; for?: string }> };
 
 export async function generateMetadata({ params }: Pick<Props, "params">): Promise<Metadata> {
   const { locale } = await params;
@@ -48,6 +48,7 @@ export default async function OrderingItemPage({ params, searchParams }: Props) 
   const kind = kindOf(query.kind);
   const place = placeOf(query.place);
   const pay = payOf(query.pay);
+  const who = whoOf(query.for); // another family member (the patient by default)
   const t = await getTranslations("OrderingFlow");
   const w = await getTranslations("DiagWeb");
 
@@ -72,7 +73,7 @@ export default async function OrderingItemPage({ params, searchParams }: Props) 
     const point = await patientPoint(token);
     if (!point) quoteNote = "address";
     else {
-      const res = await callPatientApi("/ordering/quote", { method: "POST", body: JSON.stringify({ service_kind: kind, items: [item.id], context: { mode: place, lat: point.lat, lng: point.lng, payer: pay } }) }, token).catch(() => null);
+      const res = await callPatientApi("/ordering/quote", { method: "POST", body: JSON.stringify({ service_kind: kind, items: [item.id], context: { mode: place, lat: point.lat, lng: point.lng, payer: pay, ...(who ? { family_member_id: who } : {}) } }) }, token).catch(() => null);
       quote = res?.ok ? parseQuote(await res.json().catch(() => null)) : null;
       if (!quote) quoteNote = "failed";
     }
@@ -147,9 +148,9 @@ export default async function OrderingItemPage({ params, searchParams }: Props) 
 
       {/* a service nobody offers yet keeps its buttons, switched off: the section above says why and offers "Notify me" */}
       <div className={styles.itemActions}>
-        <ItemActions kind={kind} line={{ id: item.id, nameAr: item.nameAr, nameEn: item.nameEn }} orderHref={`/${locale}/labs/basket${contextQuery({ kind, place, pay })}`} disabled={unoffered} />
+        <ItemActions kind={kind} line={{ id: item.id, nameAr: item.nameAr, nameEn: item.nameEn }} orderHref={`/${locale}/labs/basket${contextQuery({ kind, place, pay, who })}`} disabled={unoffered} />
       </div>
-      <BasketBar locale={locale} kind={kind} place={place} pay={pay} />
+      <BasketBar locale={locale} kind={kind} place={place} pay={pay} who={who} />
     </ConsultPage>
   );
 }

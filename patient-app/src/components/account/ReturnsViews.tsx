@@ -16,6 +16,7 @@ import { useUploadsEnabled } from '../../hooks/useUploadsEnabled';
 import { UploadsUnavailable } from '../UploadsUnavailable';
 import { ScanStatusBadge } from '../ScanStatusBadge';
 import { scanStateOfError, scanStateOfUpload } from '../../utils/scanStatus';
+import { PHARMACY_RETURN_REASONS, pharmacyReasonCode, returnErrorKey, type PharmacyReturnReason } from '../../utils/pharmacyReturn';
 
 /**
  * Returns (board Orders, restyle only): the list with the status filter, one request, and the three-step form
@@ -35,7 +36,8 @@ const TYPE_LOOK: Record<ServiceType, { icon: FillIconName; tone: ServiceTone }> 
   insurance: { icon: 'shield-check', tone: 'blue' },
 };
 const REASONS: Record<ServiceType, readonly string[]> = {
-  pharmacy: ['damaged', 'wrongOrder', 'wrongItem', 'notArrived', 'missing', 'other'],
+  // owner decision 4 (2026-11-10): after preparation only a defect is refunded (wrong, damaged, expired, not as described)
+  pharmacy: PHARMACY_RETURN_REASONS,
   consultation: ['cancelled', 'noShow', 'quality', 'technical', 'other'],
   diagnostics: ['duplicate', 'cancelled', 'wrongResult', 'noSample', 'other'],
   nursing: ['noShow', 'late', 'quality', 'cancelled', 'other'],
@@ -268,11 +270,12 @@ export function ReturnRequestView() {
     setSubmitting(true);
     setMessage(null);
     try {
-      await apiFetch('/pharmacy/returns', { method: 'POST', body: JSON.stringify({ serviceType, reason, orderId: booking.id, details, refundMethod: 'original', attachedDocs: docs }) });
+      const defect = serviceType === 'pharmacy' ? PHARMACY_RETURN_REASONS.find((code) => k(`returns.reason.${code}`) === reason) : undefined;
+      await apiFetch('/pharmacy/returns', { method: 'POST', body: JSON.stringify({ serviceType, reason, orderId: booking.id, details, refundMethod: 'original', attachedDocs: docs, ...(defect ? { reason_code: pharmacyReasonCode(defect as PharmacyReturnReason) } : {}) }) });
       setStep('success');
     } catch (e) {
       logError('returns:submit', e);
-      setMessage(k('returns.new.submitFailed'));
+      setMessage(k(returnErrorKey(e) ?? 'returns.new.submitFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -294,7 +297,7 @@ export function ReturnRequestView() {
     step === 'type' ? (
       <Button label={k('returns.new.next')} size="lg" fullWidth disabled={!serviceType} onPress={() => setStep('details')} theme={theme} testID="return-next" />
     ) : step === 'details' ? (
-      <Button label={k('returns.new.review')} size="lg" fullWidth disabled={!reason || !booking} onPress={() => setStep('confirm')} theme={theme} testID="return-review" />
+      <Button label={k('returns.new.review')} size="lg" fullWidth disabled={!reason || !booking || (serviceType === 'pharmacy' && docs.length === 0)} onPress={() => setStep('confirm')} theme={theme} testID="return-review" />
     ) : (
       <Button label={k('returns.new.send')} size="lg" fullWidth loading={submitting} onPress={() => void submit()} theme={theme} testID="return-send" />
     );
@@ -370,6 +373,7 @@ export function ReturnRequestView() {
               </View>
             </View>
             ) : <UploadsUnavailable />}
+            {serviceType === 'pharmacy' && docs.length === 0 ? <Notice tone="info" text={k('returns.new.photoRequired')} /> : null}
             {uploading ? <Notice tone="info" text={k('returns.new.uploading')} /> : null}
             <ScanStatusBadge state={rejectedPhoto ? 'rejected' : docs.some((d) => pendingDocs.includes(d)) ? 'pending' : 'ok'} onReupload={() => void attach(false)} testID="return-scan" />
             {docs.length > 0 ? (

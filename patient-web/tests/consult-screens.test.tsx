@@ -37,13 +37,8 @@ vi.mock("@/lib/api/doctors-server", () => ({ getPublicDoctors: server.doctors, g
 
 import AppointmentsPage from "@/app/[locale]/appointments/page";
 import AppointmentDetailPage from "@/app/[locale]/appointments/[appointmentId]/page";
-import AppointmentSummaryRedirect from "@/app/[locale]/appointments/[appointmentId]/summary/page";
-import FollowUpRedirect from "@/app/[locale]/consultations/follow-up/page";
-import PrescriptionRedirect from "@/app/[locale]/consultations/prescription/page";
-import ClinicLocationRedirect from "@/app/[locale]/consultations/clinic-location/page";
 import BookingStatusPage from "@/app/[locale]/consultations/booking-status/page";
 import CancelReschedulePage from "@/app/[locale]/consultations/cancel-reschedule/page";
-import ClinicConfirmRedirect from "@/app/[locale]/consultations/clinic-confirm/page";
 import DoctorsPage from "@/app/[locale]/consultations/doctors/page";
 import HomeVisitTrackingPage from "@/app/[locale]/consultations/home-visit-tracking/page";
 import WaitingRoomPage from "@/app/[locale]/consultations/virtual-waiting-room/page";
@@ -148,6 +143,31 @@ describe("the appointment screens", () => {
     expect(html).not.toContain("virtual-waiting-room");
   });
 
+  it("PT-54: the past tab leaves out the visits the patient hid, offers to show them, and each finished visit has a Hide button; the hidden view lists only the hidden ones with Show again", async () => {
+    const HIDDEN = "11111111-ad36-422a-a184-629693e7c729";
+    // a fresh Response for every read (a body can be read once)
+    server.list.mockImplementation(async () => json([row({ status: "COMPLETED", doctor_name: "Dr. Shown" }), row({ id: HIDDEN, status: "COMPLETED", doctor_name: "Dr. Hidden" })]));
+    server.api.mockImplementation(async () => json([{ kind: "consultation", id: ID, hidden: false }, { kind: "consultation", id: HIDDEN, hidden: true }]));
+    const past = render(await AppointmentsPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ tab: "past" }) }));
+    expect(server.api).toHaveBeenCalledWith("/unified-bookings/mine?kind=consultation&include_hidden=1", expect.anything(), TOKEN);
+    expect(past).toContain("Dr. Shown");
+    expect(past).not.toContain("Dr. Hidden");
+    expect(past).toContain("Show hidden visits (1)");
+    expect(past).toContain("tab=past&amp;hidden=1");
+    const hiddenView = render(await AppointmentsPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ tab: "past", hidden: "1" }) }));
+    expect(hiddenView).toContain("Dr. Hidden");
+    expect(hiddenView).not.toContain("Dr. Shown");
+    expect(hiddenView).toContain("Back to history");
+  });
+
+  it("PT-54: if the hidden set cannot be read, no visit disappears from the past tab", async () => {
+    server.list.mockResolvedValue(json([row({ status: "COMPLETED", doctor_name: "Dr. Shown" })]));
+    server.api.mockRejectedValue(new Error("offline"));
+    const past = render(await AppointmentsPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ tab: "past" }) }));
+    expect(past).toContain("Dr. Shown");
+    expect(past).not.toContain("Show hidden visits");
+  });
+
   it("the detail shows the actions the status allows: open ones link to the one cancel/reschedule page (journeys#42), done ones the summary section", async () => {
     server.one.mockResolvedValueOnce(json(row()));
     const open = render(await AppointmentDetailPage({ params: Promise.resolve({ locale: "en", appointmentId: ID }) }));
@@ -169,16 +189,6 @@ describe("the appointment screens", () => {
     const html = render(await AppointmentDetailPage({ params: Promise.resolve({ locale: "en", appointmentId: ID }) }));
     expect(html).toContain("Summary not ready yet");
     expect(html).not.toContain("Follow-up recommended");
-  });
-
-  it("the merged pages redirect and keep the query", async () => {
-    const go = async (fn: Promise<unknown>) => { try { await fn; } catch (error) { return (error as Error).message; } return "none"; };
-    expect(await go(AppointmentSummaryRedirect({ params: Promise.resolve({ locale: "en", appointmentId: ID }) }))).toBe(`redirect:/en/appointments/${ID}`);
-    expect(await go(FollowUpRedirect({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ id: ID }) }))).toBe(`redirect:/en/appointments/${ID}`);
-    expect(await go(PrescriptionRedirect({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID }) }))).toBe(`redirect:/en/appointments/${ID}`);
-    expect(await go(PrescriptionRedirect({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({}) }))).toBe("redirect:/en/appointments");
-    expect(await go(ClinicConfirmRedirect({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID, view: "location" }) }))).toBe(`redirect:/en/consultations/booking-status?appointmentId=${ID}&view=location`);
-    expect(await go(ClinicLocationRedirect({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID }) }))).toBe(`redirect:/en/consultations/booking-status?view=location&appointmentId=${ID}`);
   });
 
   it("booking status, cancel and reschedule, clinic confirm and the waiting room read the one appointment and gate on its status", async () => {
@@ -256,6 +266,23 @@ describe("the booking screen", () => {
     expect(html).toContain("Cash");
     expect(html).toContain("Home visit");
     expect(html).not.toContain("booking_failed");
+  });
+
+  it("PT-08: the booking offers a medical report request, worded as a request and never as sick leave", () => {
+    const html = render(<BookingFlow doctorId="doc-1" locale="en" doctor={{ id: "doc-1", name: "Doctor One", specialty: "Cardiology", price: 150, online: true, clinic: true, home: false, acceptsInsurance: false }} />);
+    expect(html).toContain("I need a medical report with a recommended rest period");
+    expect(html).toContain("A request to the doctor, who decides. It is not a guarantee.");
+    expect(html.replace("Official sick leave is issued through Seha.", "")).not.toMatch(/sick leave/i);
+  });
+
+  it("PT-03: a guardian booking for a family member sees who the visit is for and can switch back to themselves; without a member there is neither", () => {
+    const doctor = { id: "doc-1", name: "Doctor One", specialty: "Cardiology", price: 150, online: true, clinic: true, home: false, acceptsInsurance: false };
+    const forMember = render(<BookingFlow doctorId="doc-1" locale="en" doctor={doctor} bookingFor={{ id: "member-1", name: "Test Child" }} />);
+    expect(forMember).toContain("Booking for Test Child");
+    expect(forMember).toContain("Book for myself instead");
+    const forSelf = render(<BookingFlow doctorId="doc-1" locale="en" doctor={doctor} />);
+    expect(forSelf).not.toContain("Booking for");
+    expect(forSelf).not.toContain("Book for myself instead");
   });
 
   it("shows the cancellation and refund terms before the payment card when the page passes them (decision 26)", () => {

@@ -7,7 +7,7 @@ function build(opts: { booking: any; copay?: any; request?: any }) {
   const invoices = {
     findOne: jest.fn((q: any) => ({ lean: async () => store.find(match(q)) ?? null })),
     find: jest.fn((q: any) => ({ lean: async () => store.filter((d) => Object.entries(q).every(([k, v]: [string, any]) => (v && typeof v === 'object' && '$in' in v ? v.$in.includes(d[k]) : d[k] === v))) })),
-    updateOne: jest.fn(async () => ({})),
+    updateOne: jest.fn(async (q: any, u: any) => { const row = store.find((r: any) => r.id === q?.id && (q.invoice_no === undefined || r.invoice_no === q.invoice_no)); if (row && u?.$set) Object.assign(row, u.$set); return { modifiedCount: row ? 1 : 0 }; }),
     create: jest.fn(async (d: any) => { const row = { id: `i${store.length + 1}`, status: 'ISSUED', ...d }; store.push(row); return row; }),
   };
   const collections: Record<string, any> = {
@@ -60,4 +60,14 @@ describe('invoice of an insured booking', () => {
     await expect(svc.issueOnPayment({ booking_kind: 'insurance', booking_id: 'req-1' })).resolves.toBeUndefined();
     expect(store).toHaveLength(0);
   });
+
+  it('a co-pay refunded BEFORE the first invoice: the invoice is for the co-pay paid, with one credit note for what was refunded', async () => {
+    const { svc, store } = build({ booking, copay: { ...copay, status: 'refunded', refunded_amount: 80 }, request: { booking_id: 'a1', booking_kind: 'consultation' } });
+    const inv: any = await svc.issue(patient, 'consultation', 'a1');
+    expect(inv.total).toBe(80);
+    const cns = store.filter((d: any) => d.type === 'credit_note');
+    expect(cns).toHaveLength(1);
+    expect(cns[0]).toMatchObject({ total: -80, original_invoice_no: inv.invoice_no });
+  });
 });
+

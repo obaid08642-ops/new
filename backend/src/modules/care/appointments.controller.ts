@@ -64,6 +64,12 @@ export class AppointmentsController {
     return this.svc.cancel(id, user, body?.reason);
   }
 
+  /** The doctor did not come: the patient says so once the visit is 10 minutes late and never started; the full price goes back to the card at once (owner decision 2026-11-09). */
+  @Post(':id/provider-no-show')
+  providerNoShow(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.reportProviderNoShow(id, user);
+  }
+
   @Get(':id/refund/preview')
   refundPreview(@Param('id') id: string, @CurrentUser() user: any) {
     return this.svc.previewRefund(id, user);

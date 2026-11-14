@@ -14,6 +14,8 @@ const REVIEWED: Record<string, Record<string, number>> = {
   'common/health-fields.ts': { prescriptions: 1 },                                   // the doc comment
   'modules/admin/enterprise/admin-search.controller.ts': { appointments: 1 },        // projection id/status/doctor/slot
   'modules/admin/notification-center/admin-notification-center.module.ts': { appointments: 2 }, // reminder flags
+  'modules/provider-no-show/provider-no-show.service.ts': { appointments: 1 },         // the held-refund job reads the visit's state history to see whether the provider turned up: projection id/doctor_user_id/state_history only, no health field
+  'modules/care/doctor-referrals.controller.ts': { appointments: 1 },                // resolves the visit by uuid or _id: projection _id/id/patient_id/doctor_id only, no health field
   'modules/care/care-compat.controller.ts': { appointments: 1 },                     // returns status/price/notes (top-level), not the summary
   'modules/care/appointment-outcomes.service.ts': { appointments: 3, medicalreports: 2, prescriptions: 2 }, // the patient's own visit outcomes: prescriptions and reports revealed; appointments: ownership, summary (revealed), seen mark
   'modules/care/care.service.ts': { appointments: 1 },                               // projection doctor/slot
@@ -34,7 +36,8 @@ const REVIEWED: Record<string, Record<string, number>> = {
   'modules/provider-production/provider-production.module.ts': { appointments: 1 },  // ownership check
   'modules/provider/appointment-link.ts': { appointments: 2 },                       // projection ids only: which of the ids is this doctor's visit of this patient; ownedVisit projects id/patient_id/patient_name (no health field)
   'modules/provider/provider-facility.controller.ts': { appointments: 2 },           // schedule list, distinct patient ids
-  'modules/provider/provider.controllers.ts': { medicalreports: 2, appointments: 1 }, // report inserts protected; sick-leave reason encrypted
+  'modules/provider/provider.controllers.ts': { medicalreports: 1 },                 // the report insert is protected (the sick-leave one moved to modules/sick-leave)
+  'modules/sick-leave/sick-leave.service.ts': { medicalreports: 1, appointments: 2 }, // PT-08: the certificate row is written through protectHealthDoc and read through revealHealthDoc; appointments: one ownership read (ids, status, slot, booking ref) and one $push of the encrypted short record
   'modules/referral/referral.service.ts': { appointments: 1 },                       // count
   'modules/timeline/timeline-compat.controller.ts': { medicalreports: 2 },           // list has no health field; byId revealed
   'modules/users/users.service.ts': { medicalreports: 1 },                           // attachment size aggregate

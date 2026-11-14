@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
@@ -17,13 +17,13 @@ import { useOrderLines } from "./use-order-lines";
 import { useQuote } from "./use-quote";
 import styles from "./ordering.module.css";
 
-type Props = { locale: string; kind: ServiceKind; place: OrderMode; pay: Payer; item?: string; point: Point | null };
+type Props = { locale: string; kind: ServiceKind; place: OrderMode; pay: Payer; who?: string; item?: string; point: Point | null };
 const SORTS: Array<{ key: SortKey; labelKey: "sCheap" | "sNear" | "sFast" | "sRating" }> = [
   { key: "cheapest", labelKey: "sCheap" }, { key: "nearest", labelKey: "sNear" }, { key: "fastest", labelKey: "sFast" }, { key: "rating", labelKey: "sRating" },
 ];
 
 /** Ord05: best match per group, the compare list (sort and filters) and, when no single provider covers a group, the suggested split. */
-export function ProvidersClient({ locale, kind, place, pay, item, point }: Props) {
+export function ProvidersClient({ locale, kind, place, pay, who, item, point }: Props) {
   const t = useTranslations("OrderingFlow");
   const router = useRouter();
   const { lines } = useOrderLines(kind, item);
@@ -33,11 +33,11 @@ export function ProvidersClient({ locale, kind, place, pay, item, point }: Props
   const [chosen, setChosen] = useState<{ home?: string; facility?: string }>({});
 
   const request = useMemo(
-    () => (point && lines.length ? { service_kind: kind, items: lines.map((l) => l.id), sort, context: { mode: place, lat: point.lat, lng: point.lng, payer: pay, ...(gender ? { staff_gender: gender } : {}) } } : null),
-    [point, lines, kind, place, pay, sort, gender],
+    () => (point && lines.length ? { service_kind: kind, items: lines.map((l) => l.id), sort, context: { mode: place, lat: point.lat, lng: point.lng, payer: pay, ...(who ? { family_member_id: who } : {}), ...(gender ? { staff_gender: gender } : {}) } } : null),
+    [point, lines, kind, place, pay, who, sort, gender],
   );
   const { state, reload } = useQuote(request);
-  const basketHref = `/${locale}/labs/basket${contextQuery({ kind, place, pay, item })}`;
+  const basketHref = `/${locale}/labs/basket${contextQuery({ kind, place, pay, item, who })}`;
 
   if (lines.length === 0) return <EmptyState icon={SERVICE_ICONS.lab.icon} tone={SERVICE_ICONS.lab.tone} title={t("basketEmptyTitle")} body={t("basketEmptySub")} actionLabel={t("basket")} onAction={() => router.push(basketHref)} />;
   if (!point) return <div className={styles.card}><p className={styles.title}>{t("needAddressTitle")}</p><p className={styles.sub}>{t("needAddressBody")}</p><Link href={`/${locale}/profile/addresses`} className={styles.linkBtn}>{t("addAddress")}</Link></div>;
@@ -80,34 +80,11 @@ export function ProvidersClient({ locale, kind, place, pay, item, point }: Props
     const multi = quote.groups.length > 1;
     const section = (g: QuoteGroup) => {
       const rows = filterCompare(g.compare, { inNetworkOnly });
-      const rest = providerPriceList(g, { inNetworkOnly }).filter((x) => !x.best).map((x) => x.row); // every lab with its own price for the chosen items
+      const list = providerPriceList(g, { inNetworkOnly }, sort); // every lab with its own price for the chosen items, sorted, the best one flagged in place
       const nameById = (id: string) => nameOfRow(g.compare.find((r) => r.providerId === id) ?? ({ nameAr: null, nameEn: null } as ProviderRow));
       return (
         <section key={g.mode} className={styles.stack} aria-label={g.mode === "home" ? t("gHome", { n: g.items.length }) : t("gCentre", { n: g.items.length })}>
           {multi ? <h2 className={styles.title}>{g.mode === "home" ? t("gHome", { n: g.items.length }) : t("gCentre", { n: g.items.length })}</h2> : null}
-          {g.bestMatch ? (
-            <>
-              {renderRow({ r: g.bestMatch, mode: g.mode, best: true })}
-              {g.bestMatch.lines.some((l) => l.coverage) ? (
-                <ul className={styles.items} aria-label={t("secCov")}>
-                  {g.bestMatch.lines.map((l) => (
-                    <li key={l.catalogId}>
-                      <span className={styles.itemText}>
-                        <span className={styles.itemName}>{pickName(locale, lines.find((x) => x.id === l.catalogId)?.nameAr, lines.find((x) => x.id === l.catalogId)?.nameEn) ?? t("unnamedItem")}</span>
-                        {l.coverage ? <span className={styles.chips}><CoverageChip coverage={l.coverage} /></span> : null}
-                      </span>
-                      <span className={styles.price}><bdi>{moneyText(locale, l.price)}</bdi></span>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-              {(() => {
-                const share = insuredShareLine(g.bestMatch, pay);
-                if (!share) return null;
-                return <p className={styles.sub}>{share.kind === "estimate" ? t("shareEstimate", { p: moneyText(locale, share.amount) }) : t("shareAccepted")}</p>;
-              })()}
-            </>
-          ) : null}
           {g.split ? (
             <div className={styles.card}>
               <h3 className={styles.title}>{t("splitTitle")}</h3>
@@ -124,10 +101,36 @@ export function ProvidersClient({ locale, kind, place, pay, item, point }: Props
             </div>
           ) : null}
           {g.empty ? <p className={styles.note} role="status">{g.mode === "home" ? t("altTitle") : t("altTitleCentre")} <Link href={basketHref}>{t("backToBasket")}</Link></p> : null}
-          {rest.length > 0 ? (
+          {list.length > 0 ? (
             <>
               <h3 className={styles.title}>{t("compare")}</h3>
-              {rest.map((r) => renderRow({ r, mode: g.mode }))}
+              {list.map(({ row: r, best }) => (
+                <Fragment key={r.providerId}>
+                  {renderRow({ r, mode: g.mode, best })}
+                  {best && g.bestMatch ? (
+                    <>
+                      {g.bestMatch.lines.some((l) => l.coverage) ? (
+                        <ul className={styles.items} aria-label={t("secCov")}>
+                          {g.bestMatch.lines.map((l) => (
+                            <li key={l.catalogId}>
+                              <span className={styles.itemText}>
+                                <span className={styles.itemName}>{pickName(locale, lines.find((x) => x.id === l.catalogId)?.nameAr, lines.find((x) => x.id === l.catalogId)?.nameEn) ?? t("unnamedItem")}</span>
+                                {l.coverage ? <span className={styles.chips}><CoverageChip coverage={l.coverage} /></span> : null}
+                              </span>
+                              <span className={styles.price}><bdi>{moneyText(locale, l.price)}</bdi></span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                      {(() => {
+                        const share = insuredShareLine(g.bestMatch, pay);
+                        if (!share) return null;
+                        return <p className={styles.sub}>{share.kind === "estimate" ? t("shareEstimate", { p: moneyText(locale, share.amount) }) : t("shareAccepted")}</p>;
+                      })()}
+                    </>
+                  ) : null}
+                </Fragment>
+              ))}
             </>
           ) : null}
           {rows.length === 0 && g.compare.length > 0 ? (
@@ -141,7 +144,7 @@ export function ProvidersClient({ locale, kind, place, pay, item, point }: Props
       try {
         window.sessionStorage.setItem(SELECTION_KEY, JSON.stringify({ quoteId: quote.quoteId, home: chosen.home, facility: chosen.facility, groups: Object.fromEntries(quote.groups.flatMap((g) => { const c = chosen[g.mode] ? chosenGroup(g, chosen[g.mode] as string) : undefined; return c ? [[g.mode, c]] : []; })) }));
       } catch { /* the next step also reads the choice from the address when storage is blocked */ }
-      router.push(`/${locale}/labs/when${contextQuery({ kind, place, pay, item })}`);
+      router.push(`/${locale}/labs/when${contextQuery({ kind, place, pay, item, who })}`);
     };
     return (
       <>

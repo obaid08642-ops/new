@@ -213,7 +213,9 @@ export class AdminNotificationCenterService {
     if (!c) throw new NotFoundException('Campaign not found');
     if (c.status === 'sent' || c.status === 'sending') return { ok: false, reason: `already_${c.status}` };
     const filter = await this.segmentFilter(c.segment);
-    const targeted = await this.users.countDocuments({ ...filter, id: { $exists: true } });
+    // $and, not a spread: a `user:<id>` audience is { id }, and `{ ...filter, id: {...} }` replaced it with the paging condition,
+    // so a message meant for one person was counted for, and sent to, every user
+    const targeted = await this.users.countDocuments({ $and: [filter, { id: { $exists: true } }] });
     if (targeted === 0) {
       await this.campaigns.updateOne({ id }, { $set: { status: 'failed', last_error: 'campaign audience is empty', updatedAt: new Date() } });
       throw new BadRequestException('campaign audience is empty');
@@ -280,7 +282,7 @@ export class AdminNotificationCenterService {
     let cursor: string | null = c.fanout?.cursor ?? null;
     for (;;) {
       const page = await this.users.find(
-        { ...filter, id: cursor === null ? { $exists: true } : { $gt: cursor } },
+        { $and: [filter, { id: cursor === null ? { $exists: true } : { $gt: cursor } }] },
         { projection: { id: 1, _id: 0 } },
       ).sort({ id: 1 }).limit(AdminNotificationCenterService.FANOUT_PAGE).toArray();
       const ids = page.map((u: any) => String(u.id)).filter(Boolean);

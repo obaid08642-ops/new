@@ -28,3 +28,15 @@ export function invalidFields(p: RefundPolicy): string[] {
   if (typeof p.pharmacy?.refund_delivery_fee_before_dispatch !== 'boolean') bad.push('pharmacy.refund_delivery_fee_before_dispatch');
   return bad;
 }
+
+export interface TableRow { when: string; refund: string }
+
+/** The patient-cancellation table as it applies right now, built from the saved values (owner decision 2026-11-09: 100 % from 2 h before, 50 % later, 0 % for a no-show). */
+export function consultationTableRows(p: Pick<RefundPolicy, 'consultation'>): TableRow[] {
+  const c = p.consultation;
+  return [
+    { when: `إلغاء المريض قبل الموعد بـ ${c.full_refund_min_hours} ساعة أو أكثر`, refund: '100%' },
+    { when: `إلغاء المريض قبل الموعد بأقل من ${c.full_refund_min_hours} ساعة`, refund: `${c.late_refund_percent}%` },
+    { when: 'غياب المريض عن الموعد', refund: `${c.patient_no_show_percent}%` },
+  ];
+}

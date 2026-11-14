@@ -101,7 +101,7 @@ export function BedManagementScreen({ onBack, wards, onRefresh }: { onBack: () =
  };
 
  const handleDischargePatient = async (bed: any) => {
- const admissionId = await Vault.get(`admission_${bed.id}`) || bed.active_admission_id || bed.admission_id;
+ const admissionId = bed.admission_id || await Vault.get(`admission_${bed.id}`);
  if (!admissionId) {
  show(AR ? 'لا يوجد سجل تنويم مرتبط بهذا السرير — حدّث قائمة التنويم وحاول مجدداً' : 'No admission record linked to this bed — refresh admissions and retry', 'error');
  return;

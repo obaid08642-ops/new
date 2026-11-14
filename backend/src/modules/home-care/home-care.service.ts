@@ -1,3 +1,6 @@
+import { stampAcceptance } from '../../common/refund-policy-stamp';
+import { refundPolicyAcceptance, type RefundPolicyAcceptance } from '../../common/refund-policy-acceptance';
+import { resolveFamilyMemberId } from '../../common/family-member';
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Inject, Optional } from '@nestjs/common';
 import { assertPaymentMethod, PAYMENT_METHODS_BY_CONTEXT } from '../../common/payment-policy';
 import { buildQuote, readQuoteVatRate } from '../../common/quote';
@@ -126,6 +129,10 @@ export class HomeCareSvc {
     await this.killSwitches?.assertOn('nursing_broadcast');
     if (!data.service_id) throw new BadRequestException('service_id required');
     if (!data.scheduled_at) throw new BadRequestException('scheduled_at required');
+    // owner decision 2026-11-09: the refund policy is agreed before the booking exists
+    const policyAcceptance = await stampAcceptance(this.svcModel.db, refundPolicyAcceptance(user, data.refund_policy_accepted), 'nursing', data.refund_policy_hash);
+    // owner decision 1: a booking for a family member (the caller stays the booker; checked to be the caller's own member)
+    const familyMemberId = await resolveFamilyMemberId(this.svcModel.db, user.id, data.family_member_id);
     const svc = await this.svcModel.findOne({ id: data.service_id, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' });
     if (!svc) throw new NotFoundException('service');
     // The patient picks the nurse (nursing/service-details -> nurse-profile): it must be an approved home-care
@@ -157,6 +164,8 @@ export class HomeCareSvc {
     const { choice, sessions, unitPrice, total } = await this.nursingPricing(svc, providerId, data);
     const booking = await this.bkgModel.create({
       patient_id: user.id,
+      ...(familyMemberId ? { family_member_id: familyMemberId } : {}),
+      ...(policyAcceptance ? { refund_policy_acceptance: policyAcceptance } : {}),
       patient_name: data.contact?.name || user.full_name,
       patient_phone: data.contact?.phone || user.phone,
       service_id: svc.id,
@@ -235,6 +244,7 @@ export class HomeCareSvc {
         this.events.emit('homecare.booking_cancelled', {
           booking_id: b.id, patient_id: b.patient_id, prior_state: priorState,
           total, payment_method: (b as any).payment_method,
+          scheduled_at: (b as any).scheduled_at, cancelled_by: user?.id === b.patient_id ? 'patient' : 'admin',
         });
         return b.toObject();
       },
