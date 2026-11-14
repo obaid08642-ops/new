@@ -4,7 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { RefundPolicyTick } from '../../components/legal/RefundPolicyTick';
 import { message } from '../../components/screen/ScreenKit';
-import { KNOWN_LINES, withRefundPolicy } from '../../utils/refundAcceptance';
+import { KNOWN_LINES, noteRefundPolicyChanged, noteRefundPolicyChangedError, policyHashField, readRefundSummaryHash, rememberShownPolicy, shownPolicyHash, withRefundPolicy } from '../../utils/refundAcceptance';
 import { startAsap } from '../../utils/orderingBooking';
 import { startInstant } from '../../utils/orderingDiscuss';
 import { createPharmacyOrderSender } from '../../utils/pharmacyOrderSend';
@@ -101,5 +101,57 @@ describe('refund_policy_accepted on the create calls', () => {
     expect(bodyOf(create as unknown[])).toMatchObject({ refund_policy_accepted: true, fulfillment: 'delivery' });
     const submit = mockApiFetch.mock.calls.find((c) => String(c[0]).endsWith('/submit'));
     expect(bodyOf(submit as unknown[])).toEqual({});
+  });
+});
+
+describe('the refund policy hash echo', () => {
+  const HASH = 'b'.repeat(64);
+  it('the card remembers the hash of the text it showed, and sends it back only for that service', async () => {
+    mockApiFetch.mockResolvedValueOnce({ service: 'lab', hash: HASH, lines: [{ key: 'refund.policy.lab.full', params: { hours: 2 } }] });
+    await render(<SafeAreaProvider initialMetrics={metrics}><RefundPolicyTick service="lab" checked={false} onChange={jest.fn()} /></SafeAreaProvider>);
+    await screen.findByText('Cancel at least 2 hours before the visit and get 100% back.');
+    expect(shownPolicyHash('lab')).toBe(HASH);
+    expect(withRefundPolicy({ x: 1 }, 'lab')).toEqual({ x: 1, refund_policy_accepted: true, refund_policy_hash: HASH });
+    expect(withRefundPolicy({ x: 1 }, 'radiology')).toEqual({ x: 1, refund_policy_accepted: true });
+    expect(policyHashField('lab')).toEqual({ refund_policy_hash: HASH });
+  });
+  it('a card that could not load forgets the hash: nothing stale is sent', async () => {
+    rememberShownPolicy('pharmacy', HASH);
+    mockApiFetch.mockRejectedValueOnce(new Error('offline'));
+    await render(<SafeAreaProvider initialMetrics={metrics}><RefundPolicyTick service="pharmacy" checked={false} onChange={jest.fn()} /></SafeAreaProvider>);
+    expect(await screen.findByText(k('refund.general'))).toBeTruthy();
+    expect(shownPolicyHash('pharmacy')).toBeUndefined();
+  });
+  it('reads only a 64-hex hash', () => {
+    expect(readRefundSummaryHash({ hash: HASH })).toBe(HASH);
+    expect(readRefundSummaryHash({ hash: 'abc' })).toBeUndefined();
+    expect(readRefundSummaryHash(null)).toBeUndefined();
+  });
+  it('409 refund_policy_changed unticks, reloads the text and says so; any other error does nothing', async () => {
+    const onChange = jest.fn();
+    mockApiFetch.mockResolvedValueOnce({ service: 'lab', hash: HASH, lines: [{ key: 'refund.policy.lab.full', params: { hours: 2 } }] });
+    await render(<SafeAreaProvider initialMetrics={metrics}><RefundPolicyTick service="lab" checked onChange={onChange} /></SafeAreaProvider>);
+    await screen.findByText('Cancel at least 2 hours before the visit and get 100% back.');
+    expect(noteRefundPolicyChanged('lab', 409, { message: 'slot_taken' })).toBe(false);
+    expect(noteRefundPolicyChangedError('lab', new Error('x'))).toBe(false);
+    expect(shownPolicyHash('lab')).toBe(HASH);
+    const NEW = 'c'.repeat(64);
+    mockApiFetch.mockResolvedValueOnce({ service: 'lab', hash: NEW, lines: [{ key: 'refund.policy.lab.full', params: { hours: 4 } }] });
+    await act(async () => { expect(noteRefundPolicyChangedError('lab', new Error('refund_policy_changed'))).toBe(true); });
+    expect(onChange).toHaveBeenCalledWith(false);
+    expect(await screen.findByText(k('refund.changed'))).toBeTruthy();
+    expect(await screen.findByText('Cancel at least 4 hours before the visit and get 100% back.')).toBeTruthy();
+    expect(shownPolicyHash('lab')).toBe(NEW);
+  });
+  it('the pharmacy sender sends the shown hash', async () => {
+    rememberShownPolicy('pharmacy', HASH);
+    mockApiFetch.mockResolvedValue({ id: 'ord-1' });
+    const sender = createPharmacyOrderSender('pharmacy-reorder');
+    await sender.send({ items: [{ raw_name: 'Test medicine', qty: 1 }], fulfillment: 'delivery' });
+    const create = mockApiFetch.mock.calls.find((c) => c[0] === '/patient/pharmacy/orders');
+    expect(bodyOf(create as unknown[])).toMatchObject({ refund_policy_accepted: true, refund_policy_hash: HASH });
+  });
+  it('the message exists in all six languages', () => {
+    for (const lang of ['ar', 'en', 'ur', 'hi', 'bn', 'fil']) expect(message(lang, 'refund.changed')).not.toBe('refund.changed');
   });
 });

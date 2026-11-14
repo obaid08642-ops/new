@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { RefundPolicyTick } from "@/components-next/refund-policy/refund-policy-tick";
-import { withRefundPolicy } from "@/lib/refund-policy";
+import { noteRefundPolicyChangedError, withRefundPolicy } from "@/lib/refund-policy";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
@@ -106,6 +106,7 @@ export function ConfirmClient({ locale, kind, place, pay, who, item, orders, pre
     }
   };
 
+  const policyService = kind === "radiology" ? "radiology" : kind === "nursing" ? "nursing" : "lab";
   const submit = async () => {
     if (busy.current || !ready || result) return;
     const body = kind === "radiology"
@@ -115,7 +116,7 @@ export function ConfirmClient({ locale, kind, place, pay, who, item, orders, pre
     busy.current = true; setPhase("creating"); setErrorKey(null);
     try {
       // labs on the ordering route, radiology on the radiology booking route (one booking per scan), the same sheet either way
-      const made = Array.isArray(body) ? await createRadiologyBookings(body, postRadiologyBooking) : await createBooking(withRefundPolicy(body));
+      const made = Array.isArray(body) ? await createRadiologyBookings(body, postRadiologyBooking) : await createBooking(withRefundPolicy(body, policyService));
       setResult(made);
       for (const id of allIds) remove(kind, id);
       try { window.sessionStorage.removeItem(SELECTION_KEY); window.sessionStorage.removeItem(SCHEDULE_KEY); } catch { /* nothing to clear */ }
@@ -123,7 +124,9 @@ export function ConfirmClient({ locale, kind, place, pay, who, item, orders, pre
       busy.current = false; setPhase("idle");
       if (!insured && payable.length === 1) await startPayment(payable[0].id);
     } catch (e) {
-      setErrorKey(keyOf(e)); setPhase("idle"); busy.current = false;
+      busy.current = false; setPhase("idle");
+      if (noteRefundPolicyChangedError(policyService, e)) return; // the policy card shows the new text and asks for the tick again
+      setErrorKey(keyOf(e));
     }
   };
 

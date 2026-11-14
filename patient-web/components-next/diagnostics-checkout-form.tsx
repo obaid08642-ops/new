@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { RefundPolicyTick } from "@/components-next/refund-policy/refund-policy-tick";
-import { withRefundPolicy } from "@/lib/refund-policy";
+import { noteRefundPolicyChanged, withRefundPolicy } from "@/lib/refund-policy";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import consult from "@/components-next/consult/consult.module.css";
 import rx from "@/components-next/pharmacy/rx.module.css";
@@ -89,6 +89,8 @@ export function DiagnosticsCheckoutForm({
       return;
     }
     setSaving(true);
+    // a mixed lab + radiology order has no single policy hash (each service has its own): the hash is only echoed when the order is of one service
+    const policyService = items.every((id) => id.startsWith("rad_")) ? "radiology" : items.some((id) => id.startsWith("rad_")) ? undefined : "lab";
     try {
       // F74: create ONE parent diagnostics order containing lab+radiology lines.
       const res = await fetch("/api/diagnostics/orders", {
@@ -106,10 +108,11 @@ export function DiagnosticsCheckoutForm({
           scheduled_at: scheduled.toISOString(),
           location_type: initialLocation,
           payment_method: method,
-        })),
+        }, policyService)),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
+        if (policyService && noteRefundPolicyChanged(policyService, res.status, data)) return; // the policy card shows the new text and asks for the tick again
         setError((data as { message?: string })?.message || t("errOrder"));
         return;
       }

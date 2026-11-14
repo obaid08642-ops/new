@@ -30,6 +30,8 @@ const schema = z.object({
   days: z.number().int().min(1).max(30).optional(),
   // the patient agreed to the refund policy before booking (the backend refuses without it; an explicit false is never accepted)
   refund_policy_accepted: z.literal(true),
+  // the hash of the policy text the screen showed: the server refuses a table that changed since (409 refund_policy_changed)
+  refund_policy_hash: z.string().regex(/^[a-f0-9]{64}$/).optional(),
 }).strict().superRefine((value, ctx) => {
   const trio = [value.hours, value.shift, value.period].filter((v) => v !== undefined).length;
   if (trio !== 0 && trio !== 3) ctx.addIssue({ code: "custom", message: "booking_options_required" });
@@ -70,6 +72,7 @@ export async function POST(request: Request) {
       ...(parsed.data.notes?.trim() ? { notes: parsed.data.notes.trim() } : {}),
       payment_method: parsed.data.payment_method,
       refund_policy_accepted: true,
+      ...(parsed.data.refund_policy_hash ? { refund_policy_hash: parsed.data.refund_policy_hash } : {}),
       ...(parsed.data.recurrence !== undefined ? { recurrence: parsed.data.recurrence } : {}),
       ...(parsed.data.sessions_count !== undefined ? { sessions_count: parsed.data.sessions_count } : {}),
       ...(parsed.data.hours !== undefined ? { hours: parsed.data.hours, shift: parsed.data.shift, period: parsed.data.period } : {}),

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { noteRefundPolicyChangedError, policyHashField } from "@/lib/refund-policy";
 import { RefundPolicyTick } from "@/components-next/refund-policy/refund-policy-tick";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
@@ -195,16 +196,17 @@ function AsapCard({ locale, kind, pay, who, point, group, schedule, update }: { 
     return () => window.clearInterval(timer);
   }, [asap]);
 
+  const policyService = kind === "radiology" ? "radiology" : kind === "nursing" ? "nursing" : "lab";
   const ids = group?.itemIds ?? [];
   const begin = async () => {
     if (busyRef.current || !point || ids.length === 0) return;
     busyRef.current = true; setBusy(true); setErrorKey(null);
     try {
-      const a = await startAsap({ service_kind: kind, items: ids, lat: point.lat, lng: point.lng, payer: pay, refund_policy_accepted: true, ...(who ? { family_member_id: who } : {}) });
+      const a = await startAsap({ service_kind: kind, items: ids, lat: point.lat, lng: point.lng, payer: pay, refund_policy_accepted: true, ...policyHashField(policyService), ...(who ? { family_member_id: who } : {}) });
       setAsap(a);
       update((s) => ({ ...s, asapId: a.id }));
     } catch (e) {
-      setErrorKey(keyOf(e));
+      if (!noteRefundPolicyChangedError(policyService, e)) setErrorKey(keyOf(e)); // 409: the policy card shows the new text and asks for the tick again
     } finally { busyRef.current = false; setBusy(false); }
   };
   const cancel = async () => {

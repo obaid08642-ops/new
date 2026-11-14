@@ -9,7 +9,7 @@ import { DayStrip, DoctorHead, SlotGrid, slotsEmptyKey, useDays } from '../../sr
 import { AmountLine, Block, PlaceRow } from '../../src/components/diagnostics/DiagKit';
 import { Notice } from '../../src/components/pharmacy/OfferKit';
 import { RefundPolicyTick } from '../../src/components/legal/RefundPolicyTick';
-import { withRefundPolicy } from '../../src/utils/refundAcceptance';
+import { noteRefundPolicyChangedError, withRefundPolicy } from '../../src/utils/refundAcceptance';
 import { HomeVisitTerms } from '../../src/components/nursing/HomeVisitTerms';
 import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
@@ -256,7 +256,7 @@ export default function NursingMegaProfile() {
         payment_method: flow === 'insurance' ? 'insurance' : 'card',
       };
       // POST /nursing/bookings is the patient booking contract (P6-D): the legacy /home-care/bookings path never existed server-side.
-      const res = await apiFetch<Rec>('/nursing/bookings', { method: 'POST', body: JSON.stringify(withRefundPolicy(payload)) });
+      const res = await apiFetch<Rec>('/nursing/bookings', { method: 'POST', body: JSON.stringify(withRefundPolicy(payload, 'nursing')) });
       const bookingId = res?.id || res?.booking_id;
       if (flow === 'insurance') {
         setInsuranceSent(bookingId ? String(bookingId) : true);
@@ -266,6 +266,7 @@ export default function NursingMegaProfile() {
         showLocalizedAlert(k('nur.book.sentTitle'), k('nur.book.sentBody'), [{ text: k('nur.ok'), onPress: () => router.back() }]);
       }
     } catch (err) {
+      if (noteRefundPolicyChangedError('nursing', err)) return; // the policy card shows the new text and asks for the tick again
       const message = (err as { message?: string } | null)?.message;
       const codeKey = optionErrorKey(message);
       showLocalizedAlert(k('nur.book.failTitle'), codeKey ? k(codeKey) : message || k('nur.book.failBody'));
