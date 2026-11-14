@@ -1,6 +1,8 @@
 # Lead reviewer state (read this instead of any long history)
 Updated 2026-11-07 ~20:15 UTC. Public repo: never write secrets, server names or emails here.
 
+## Old lead 2026-11-14 05:55 UTC — OWNER: lanes finish in-flight items then STOP; lead stops. Full inventory (A-F) delivered to the owner; decision session next. Merge bot stays on (safe PRs only).
+
 ## Old lead 2026-11-11 02:45 UTC
 - Lanes Y and W are BACK (account B renewed). X/Z/V (account A) still out. New split: Y = V backend + Z money leftovers; W = X open PRs (rebase one at a time) + admin row 2 + insurance offers + X leftovers. See their inboxes.
 
