@@ -175,7 +175,7 @@ export class PharmacyOrderService {
     if (!items.length && !body.prescription_id) throw new BadRequestException('items_required');
     await this.assertOwnPrescriptionRefs(user, body);
     // owner decision 2026-11-09: the refund policy is agreed before the order exists
-    const policyAcceptance = await stampAcceptance(this.conn, refundPolicyAcceptance(user, body.refund_policy_accepted), 'pharmacy');
+    const policyAcceptance = await stampAcceptance(this.conn, refundPolicyAcceptance(user, body.refund_policy_accepted), 'pharmacy', body.refund_policy_hash);
     // owner decision 1: an order for a family member (the caller stays the patient account that orders and pays)
     const familyMemberId = await resolveFamilyMemberId(this.conn as never, user.id, body.family_member_id);
     const attachments = await this.resolvePrescriptionAttachments(user, body.prescription_attachments);

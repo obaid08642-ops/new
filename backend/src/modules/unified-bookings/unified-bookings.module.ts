@@ -171,7 +171,7 @@ export class UnifiedBookingsService {
    * any failure rolls back already-created children and fails the parent.
    * The parent carries the single total paid once via the payments flow.
    */
-  async createDiagnosticOrder(user: any, dto: { lines: Array<{ kind: string; service_id: string; provider_account_id?: string }>; scheduled_at?: string; location_type?: string; payment_method?: string; refund_policy_accepted?: boolean }) {
+  async createDiagnosticOrder(user: any, dto: { lines: Array<{ kind: string; service_id: string; provider_account_id?: string }>; scheduled_at?: string; location_type?: string; payment_method?: string; refund_policy_accepted?: boolean; refund_policy_hash?: string }) {
     const lines = Array.isArray(dto?.lines) ? dto.lines : [];
     if (!lines.length || lines.length > 20) throw new BadRequestException('lines_required');
     for (const l of lines) {
@@ -204,7 +204,7 @@ export class UnifiedBookingsService {
           scheduled_at: scheduled_at.toISOString(),
           location_type,
           payment_method,
-          refund_policy_accepted: dto.refund_policy_accepted,
+          refund_policy_accepted: dto.refund_policy_accepted, refund_policy_hash: dto.refund_policy_hash,
         });
         created.push({ kind: 'lab', id: child.id });
         parent.lines.filter((l: any) => l.kind === 'lab').forEach((l: any) => { l.booking_id = child.id; l.price = child.total; l.status = child.state; });
@@ -216,7 +216,7 @@ export class UnifiedBookingsService {
           scheduled_at: scheduled_at.toISOString(),
           location_type,
           payment_method,
-          refund_policy_accepted: dto.refund_policy_accepted,
+          refund_policy_accepted: dto.refund_policy_accepted, refund_policy_hash: dto.refund_policy_hash,
         });
         created.push({ kind: 'radiology', id: child.id });
         const pl: any = parent.lines.find((x: any) => x.kind === 'radiology' && x.service_id === l.service_id && !x.booking_id);
@@ -356,7 +356,7 @@ export class UnifiedBookingsService {
     insurance_member_id?: string;
     for_member_id?: string;
     family_member_id?: string;
-    refund_policy_accepted?: boolean;
+    refund_policy_accepted?: boolean; refund_policy_hash?: string;
     sick_leave_requested?: boolean;
   }) {
     const paymentMethod = body?.payment_method_id || 'cash';
@@ -380,7 +380,7 @@ export class UnifiedBookingsService {
       insurance_member_id: body?.insurance_member_id,
       for_member_id: body?.for_member_id,
       family_member_id: body?.family_member_id,
-      refund_policy_accepted: body?.refund_policy_accepted,
+      refund_policy_accepted: body?.refund_policy_accepted, refund_policy_hash: body?.refund_policy_hash,
       sick_leave_requested: body?.sick_leave_requested,
     });
     return {
@@ -448,7 +448,7 @@ export class UnifiedBookingsService {
    * HomeCareBooking via the home-care service so the engine's lifecycle takes
    * over immediately (REQUESTED → MATCHING → ASSIGNED on top match).
    */
-  async nursingRadiusBroadcast(user: any, body: { service_keys: string[]; service_id?: string; scheduled_at?: string; address?: any; city?: string; insurance?: string; location?: { lat: number; lng: number }; auto_book?: boolean; refund_policy_accepted?: boolean }) {
+  async nursingRadiusBroadcast(user: any, body: { service_keys: string[]; service_id?: string; scheduled_at?: string; address?: any; city?: string; insurance?: string; location?: { lat: number; lng: number }; auto_book?: boolean; refund_policy_accepted?: boolean; refund_policy_hash?: string }) {
     let chosen: any = null;
     let radiusUsed = 10;
     for (const radius of [3, 5, 10]) {
@@ -466,7 +466,7 @@ export class UnifiedBookingsService {
     // Auto-book on the top-ranked provider; engine drives REQUESTED→ASSIGNED.
     const booking: any = await this.homeSvc.book(user, {
       service_id: body.service_id,
-      refund_policy_accepted: body.refund_policy_accepted,
+      refund_policy_accepted: body.refund_policy_accepted, refund_policy_hash: body.refund_policy_hash,
       scheduled_at: body.scheduled_at,
       address: body.address,
       contact: { name: user.full_name, phone: user.phone },
@@ -495,7 +495,7 @@ export class UnifiedBookingsService {
    * Cart-driven checkout. Dispatches each cart group to its domain. Pharmacy,
    * lab, radiology, home_care, and doctor all supported now.
    */
-  async checkoutFromCart(user: any, body: { provider_account_id?: string; address?: any; scheduled_at?: string; insurance?: any; location_type?: 'home' | 'facility'; delivery_address?: any; refund_policy_accepted?: boolean }) {
+  async checkoutFromCart(user: any, body: { provider_account_id?: string; address?: any; scheduled_at?: string; insurance?: any; location_type?: 'home' | 'facility'; delivery_address?: any; refund_policy_accepted?: boolean; refund_policy_hash?: string }) {
     const cart = await this.cart.get(user);
     if (!cart?.groups?.length) throw new BadRequestException('cart_empty');
 
@@ -516,7 +516,7 @@ export class UnifiedBookingsService {
             location_type: body.location_type || 'facility', address: body.address,
             payment_method: g.items[0]?.payment_method || 'cash',
             insurance_provider: g.items[0]?.insurance_provider,
-            refund_policy_accepted: body.refund_policy_accepted,
+            refund_policy_accepted: body.refund_policy_accepted, refund_policy_hash: body.refund_policy_hash,
           });
           results.push({ kind: 'lab', ok: true, id: (r as any).id, tracking_id: (r as any).tracking_id });
         } else if (g.kind === 'radiology') {
@@ -526,7 +526,7 @@ export class UnifiedBookingsService {
             location_type: body.location_type || 'facility', address: body.address,
             payment_method: g.items[0]?.payment_method || 'cash',
             insurance_provider: g.items[0]?.insurance_provider,
-            refund_policy_accepted: body.refund_policy_accepted,
+            refund_policy_accepted: body.refund_policy_accepted, refund_policy_hash: body.refund_policy_hash,
           });
           results.push({ kind: 'radiology', ok: true, id: (r as any).id });
         } else if (g.kind === 'home_care') {
@@ -537,7 +537,7 @@ export class UnifiedBookingsService {
               address: body.address, contact: { name: user.full_name, phone: user.phone },
               payment_method: l.payment_method || 'cash',
               sessions_count: l.qty || 1,
-              refund_policy_accepted: body.refund_policy_accepted,
+              refund_policy_accepted: body.refund_policy_accepted, refund_policy_hash: body.refund_policy_hash,
             });
             results.push({ kind: 'home_care', ok: true, id: (r as any).id });
           }
@@ -557,7 +557,7 @@ export class UnifiedBookingsService {
               patient_notes: l.notes,
               symptoms: meta.symptoms,
               visit_location: meta.visit_location,
-              refund_policy_accepted: body.refund_policy_accepted,
+              refund_policy_accepted: body.refund_policy_accepted, refund_policy_hash: body.refund_policy_hash,
             });
             results.push({ kind: 'doctor', ok: true, id: (r as any).id });
           }
@@ -568,7 +568,7 @@ export class UnifiedBookingsService {
             results.push({ kind: 'pharmacy', ok: false, error: 'delivery_address_with_lat_lng_required' });
           } else {
             const items = g.items.map((l: any) => ({ medicine_id: l.service_id, qty: l.qty || 1, name_ar: l.name_ar, price: l.price }));
-            const r = await this.ordersSvc.create(user, { items, delivery_address: addr, refund_policy_accepted: body.refund_policy_accepted });
+            const r = await this.ordersSvc.create(user, { items, delivery_address: addr, refund_policy_accepted: body.refund_policy_accepted, refund_policy_hash: body.refund_policy_hash });
             results.push({ kind: 'pharmacy', ok: true, id: (r as any).id });
           }
         } else {

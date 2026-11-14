@@ -58,4 +58,35 @@ describe('stampAcceptance', () => {
     // no database to read: the default table is the policy in force, so it is stamped with that
     expect(await stampAcceptance(undefined, base(), 'lab')).toMatchObject({ accepted: true, version: REFUND_POLICY_VERSION, service: 'lab', hash: policyStamp(null, 'lab').hash });
   });
+  describe('hash echo (refund_policy_hash)', () => {
+    it('the same hash the screen showed: stamped as usual', async () => {
+      const shown = policyStamp(stored(), 'lab').hash;
+      expect(await stampAcceptance(dbWith(stored()), base(), 'lab', shown)).toMatchObject({ hash: shown, service: 'lab' });
+    });
+    it('no hash sent (old client): allowed', async () => {
+      expect(await stampAcceptance(dbWith(stored()), base(), 'lab', undefined)).toMatchObject({ service: 'lab' });
+      expect(await stampAcceptance(dbWith(stored()), base(), 'lab', null)).toMatchObject({ service: 'lab' });
+    });
+    it('the table changed since the screen: 409 refund_policy_changed with the hash now in force', async () => {
+      const shown = policyStamp(null, 'lab').hash; // the default table was on the screen
+      const edited = stored({ home_visit: { ...(DEFAULT_REFUND_POLICY as any).home_visit, edited: 1 } });
+      const err: any = await stampAcceptance(dbWith(edited), base(), 'lab', shown).catch((e) => e);
+      expect(err.getStatus()).toBe(409);
+      expect(err.getResponse()).toMatchObject({ code: 'refund_policy_changed', service: 'lab', hash: policyStamp(edited, 'lab').hash });
+    });
+    it('a hash of another service is a change too', async () => {
+      await expect(stampAcceptance(dbWith(null), base(), 'nursing', policyStamp(null, 'lab').hash)).rejects.toMatchObject({ status: 409 });
+    });
+    it('a malformed hash is 400, never stored', async () => {
+      await expect(stampAcceptance(dbWith(null), base(), 'lab', 'abc')).rejects.toMatchObject({ status: 400 });
+      await expect(stampAcceptance(dbWith(null), base(), 'lab', 42)).rejects.toMatchObject({ status: 400 });
+    });
+    it('a read problem never becomes a 409', async () => {
+      const broken: any = { collection: () => { throw new Error('down'); } };
+      expect(await stampAcceptance(broken, base(), 'lab', 'a'.repeat(64))).toEqual(base());
+    });
+    it('nothing to stamp (exempt actor / missing tick): the hash is not checked', async () => {
+      expect(await stampAcceptance(dbWith(stored()), undefined, 'lab', 'a'.repeat(64))).toBeUndefined();
+    });
+  });
 });

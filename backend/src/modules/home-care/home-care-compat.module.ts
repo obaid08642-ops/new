@@ -167,7 +167,7 @@ export class HomeCareCompatController {
     if (!body?.service_id) throw new BadRequestException('service_id is required');
     if (!body?.scheduled_at) throw new BadRequestException('scheduled_at is required');
     // owner decision 2026-11-09: the refund policy is agreed before the booking exists
-    const policyAcceptance = await stampAcceptance(this.conn, refundPolicyAcceptance(u, body.refund_policy_accepted), 'nursing');
+    const policyAcceptance = await stampAcceptance(this.conn, refundPolicyAcceptance(u, body.refund_policy_accepted), 'nursing', body.refund_policy_hash);
     // D-25: a home visit is paid by card or insurance, never cash (same rule as POST /nursing/bookings).
     if (String(body.payment_method || '').trim().toLowerCase() === 'cash') assertPaymentMethod('cash', 'home_visit');
     const svc: any = await this.services.findOne({ id: { $eq: body.service_id }, active: true }).lean();
