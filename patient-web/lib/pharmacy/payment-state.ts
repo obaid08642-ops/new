@@ -150,13 +150,17 @@ export function capabilitiesFrom(status: number, body: unknown, orderId: string)
 /* ---------------------------------------------------------------- the result screen */
 
 /** What a payment transaction's status means for the patient. */
-export type PaymentOutcome = "paid" | "pending" | "failed" | "refunded";
+/** `cancelled`: the patient cancelled the checkout. `sessionExpired`: the checkout session ran out and no money was taken. Both are failures the patient can retry. */
+export type PaymentOutcome = "paid" | "pending" | "failed" | "refunded" | "cancelled" | "sessionExpired";
 
 /** The backend's transaction statuses: paid, failed, cancelled, refunded, partially_refunded, and the open ones. Unknown reads as still pending, never as paid. */
-export function outcomeOfTransactionStatus(status: unknown): PaymentOutcome {
+export function outcomeOfTransactionStatus(status: unknown, failureReason?: unknown): PaymentOutcome {
   const value = typeof status === "string" ? status.trim().toLowerCase() : "";
   if (value === "paid") return "paid";
-  if (value === "failed" || value === "cancelled" || value === "canceled") return "failed";
+  if (value === "cancelled" || value === "canceled") return "cancelled";
+  // the backend stores an expired checkout as failed with this stable reason
+  if (value === "failed" && failureReason === "payment_session_expired") return "sessionExpired";
+  if (value === "failed") return "failed";
   if (value === "refunded" || value === "partially_refunded") return "refunded";
   return "pending";
 }
@@ -166,5 +170,5 @@ export function parseVerification(payload: unknown): { outcome: PaymentOutcome }
   const root = record(payload);
   const source = record(root?.data) ?? root;
   const status = text(source?.status);
-  return status ? { outcome: outcomeOfTransactionStatus(status) } : null;
+  return status ? { outcome: outcomeOfTransactionStatus(status, source?.failure_reason ?? source?.failureReason) } : null;
 }

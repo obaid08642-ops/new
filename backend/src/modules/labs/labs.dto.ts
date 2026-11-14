@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsInt, IsNumber, IsObject, IsOptional, IsString, Max, MaxLength, Min, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsInt, IsNumber, IsObject, IsOptional, IsString, Max, MaxLength, Min, ValidateNested, Matches } from 'class-validator';
 import { Type } from 'class-transformer';
 import { LabBookingState } from '../../schemas/lab.schema';
 import { AttributionDto } from '../../common/attribution';
@@ -8,6 +8,12 @@ export class BookDto {
   @IsOptional()
   @IsBoolean()
   refund_policy_accepted?: boolean;
+
+  /** The hash of the refund policy the patient's screen showed (GET /refund-policy/summary); a table changed since then is refused with 409 refund_policy_changed. Optional: old clients do not send it. */
+  @IsOptional()
+  @IsString()
+  @Matches(/^[a-f0-9]{64}$/)
+  refund_policy_hash?: string;
 
   /** Owner decision 1: the family member this is FOR (the caller stays the booker and payer); checked server-side, see common/family-member.ts. */
   @IsOptional()

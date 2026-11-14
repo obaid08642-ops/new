@@ -1,4 +1,4 @@
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsOptional, IsString, Matches } from 'class-validator';
 
 // Shape checks only. Specialty and mode rules are answered by InstantConsultationService with the stable codes
 // (instant_specialty_required, instant_mode_invalid).
@@ -8,6 +8,12 @@ export class InstantRequestDto {
   @IsOptional()
   @IsBoolean()
   refund_policy_accepted?: boolean;
+
+  /** The hash of the refund policy the patient's screen showed (GET /refund-policy/summary); a table changed since then is refused with 409 refund_policy_changed. Optional: old clients do not send it. */
+  @IsOptional()
+  @IsString()
+  @Matches(/^[a-f0-9]{64}$/)
+  refund_policy_hash?: string;
 
   @IsOptional()
   @IsString()

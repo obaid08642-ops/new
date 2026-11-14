@@ -31,8 +31,20 @@ describe('Moyasar verify after a declined card', () => {
     expect((await new MoyasarAdapter().verify('inv1')).status).toBe('pending');
   });
 
-  it('an invoice the gateway calls failed or expired is failed as before', async () => {
-    invoice('expired', []);
+  it('an invoice the gateway calls failed is failed as before', async () => {
+    invoice('failed', []);
     expect((await new MoyasarAdapter().verify('inv1')).status).toBe('failed');
+  });
+
+  it('an expired checkout session is failed with its own stable reason (the page says "the session expired, no money was taken")', async () => {
+    invoice('expired', []);
+    const r = await new MoyasarAdapter().verify('inv1');
+    expect(r.status).toBe('failed');
+    expect((r.raw as any).last_payment_error.message).toBe('payment_session_expired');
+  });
+
+  it('a cancelled invoice is cancelled', async () => {
+    invoice('canceled', []);
+    expect((await new MoyasarAdapter().verify('inv1')).status).toBe('cancelled');
   });
 });

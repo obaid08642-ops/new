@@ -97,7 +97,7 @@ export class InstantConsultationService implements OnModuleInit {
     const mode = body.mode as Mode;
 
     // owner decision 2026-11-09: the refund policy is agreed before the request goes out
-    const policyAcceptance = await stampAcceptance(this.conn, refundPolicyAcceptance(user as { role?: string }, body.refund_policy_accepted), 'consultation');
+    const policyAcceptance = await stampAcceptance(this.conn, refundPolicyAcceptance(user as { role?: string }, body.refund_policy_accepted), 'consultation', body.refund_policy_hash);
     let familyMemberId: string | null = null;
     if (body.family_member_id) {
       const member = await this.conn.collection('family_members').findOne({
