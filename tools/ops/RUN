@@ -1,2 +1,7 @@
-# 2026-11-13 run 127 = READ-ONLY re-run of 96q: step 3 (ownerless rows counts) failed in run 126 (the mongodb package is not a direct module in the backend image; the task now uses mongoose.mongo). No deploy, nothing written.
-96q-launch-server-checks
+# 2026-11-14 run 128 = READ-ONLY diagnosis of the night of 11-13/14 (owner got 38 "API availability CRITICAL" mails): disk, memory, kernel OOM kills of mongod, mongod restart history, alert-mail state, mongo cache. Nothing is changed.
+99d-disk-usage
+98-memory-report
+96n-mongo-oom-cause
+96k-mongo-restart-who
+98q-alert-mail-state
+96j-mongo-cache-check
