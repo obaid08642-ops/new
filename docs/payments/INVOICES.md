@@ -86,7 +86,7 @@ The seller is "منصة نبض الطبية". Its CR number, VAT number and addr
 | ZATCA QR | yes | none |
 | Total | amount paid, incl. VAT | `Total paid / المبلغ المدفوع` = the amount paid |
 | VAT number, CR, address on the PDF | shown (or "not configured") | VAT number never printed; CR and address only when issued |
-| Refund | credit note `CN-<year>-<n>`, negative VAT and QR | refund receipt `RRC-<year>-<n>` (إيصال استرداد / Refund receipt), no VAT, no QR |
+| Refund | credit note `CN-<year>-<n>` (`document_type_code` 381), negative amounts on the document, the QR carries the absolute amounts | refund receipt `RRC-<year>-<n>` (إيصال استرداد / Refund receipt), no VAT, no QR |
 | E-mail | "الضريبة (15%)" line | amount paid only |
 | Quote (`/bookings/quote`, lab/radiology rows) | `vat_rate`, `vat`, `subtotal`, `tax_registered: true` | `vat_rate` and `vat` `null`, `subtotal = total`, `tax_registered: false` |
 
@@ -127,3 +127,7 @@ The **provider is the supplier of the service**. The platform issues the patient
 
 **Left for the owner (kept at no VAT meanwhile):** `platform_fee` (consultation service fee), `home_visit_fee` and `transport_fee` are platform-charged lines but neither commission nor delivery fee.
 - A tax invoice for the service itself (the supplier's invoice) needs the provider's VAT number; this document only carries the platform's VAT on its delivery fee (provider agreement §5.4, S is reviewing it).
+
+
+## Credit note QR and document type (owner/lead decision 2026-11-12) — NEEDS ACCOUNTANT CHECK
+The repo's documents do not state the ZATCA rule for the QR of a credit note, so this follows the lead's instruction: a credit note is document type **381** (UBL `InvoiceTypeCode`; a tax invoice is **388**) and references the invoice it reverses (`original_invoice_no`). Both are stored as `document_type_code` and returned by the API (`null` on a receipt and refund receipt). The document itself keeps its negative total and VAT (that is how the receipt screens and the credit-note sum work); the **QR (phase-1 TLV, tags 4 and 5) carries the absolute values**, because a QR scanner reads the amount of a document whose type says it is a credit note. Credit notes issued before this change keep the QR they were issued with (negative amounts); nothing is re-issued. An accountant must confirm this reading (and whether the phase-2 XML needs more than the type code) before launch.

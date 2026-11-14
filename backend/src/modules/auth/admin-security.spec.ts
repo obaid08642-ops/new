@@ -130,6 +130,53 @@ describe('C6 — recovery start', () => {
     expect(res).toEqual({ ok: true, channel: 'email' });
   });
 
+  it('sends no code to a DISABLED admin and answers exactly like a stranger', async () => {
+    const { AdminRecoveryController } = await import('./admin-recovery.controller');
+    const auth: any = {
+      userModel: { findOne: jest.fn().mockResolvedValue({ ...ADMIN, active: false }) },
+      sendOtp: jest.fn(),
+    };
+    const ctl: any = new AdminRecoveryController(auth, {} as any);
+
+    const res = await ctl.start({ email: 'admin@nabd.test' });
+
+    expect(auth.sendOtp).not.toHaveBeenCalled();
+    expect(res).toEqual({ ok: true, channel: 'email' });
+  });
+
+  it('redeem refuses a DISABLED admin before any code is checked or consumed, and mints no token', async () => {
+    const { AdminRecoveryController } = await import('./admin-recovery.controller');
+    const auth: any = {
+      userModel: { findOne: jest.fn().mockResolvedValue({ ...ADMIN, active: false, save: jest.fn() }) },
+      verifyOtp: jest.fn(), otpContact: jest.fn(), signToken: jest.fn(), publicUser: jest.fn(),
+    };
+    const recovery: any = { consume: jest.fn() };
+    const ctl: any = new AdminRecoveryController(auth, recovery);
+
+    await expect(ctl.redeem({ email: 'admin@nabd.test', email_code: '123456', recovery_code: 'AAAA-BBBB' })).rejects.toThrow('account_disabled');
+
+    expect(auth.verifyOtp).not.toHaveBeenCalled();
+    expect(recovery.consume).not.toHaveBeenCalled();
+    expect(auth.signToken).not.toHaveBeenCalled();
+  });
+
+  it('redeem still works for an active admin (an account with no `active` field counts as active)', async () => {
+    const { AdminRecoveryController } = await import('./admin-recovery.controller');
+    const user = { ...ADMIN, save: jest.fn() };
+    const auth: any = {
+      userModel: { findOne: jest.fn().mockResolvedValue(user) },
+      verifyOtp: jest.fn().mockResolvedValue({ ok: true }), otpContact: jest.fn().mockReturnValue('admin@nabd.test'),
+      signToken: jest.fn().mockReturnValue({ accessToken: 'a', refreshToken: 'r' }), publicUser: jest.fn().mockReturnValue({ id: 'admin-1' }),
+    };
+    const recovery: any = { consume: jest.fn().mockResolvedValue(undefined) };
+    const ctl: any = new AdminRecoveryController(auth, recovery);
+
+    const res = await ctl.redeem({ email: 'admin@nabd.test', email_code: '123456', recovery_code: 'AAAA-BBBB' });
+
+    expect(recovery.consume).toHaveBeenCalledWith('admin-1', 'AAAA-BBBB');
+    expect(res.token).toEqual({ accessToken: 'a', refreshToken: 'r' });
+  });
+
   it('does not reveal whether an email is an admin account', async () => {
     const { AdminRecoveryController } = await import('./admin-recovery.controller');
     const auth: any = {

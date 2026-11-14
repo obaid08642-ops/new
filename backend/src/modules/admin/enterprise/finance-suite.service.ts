@@ -1,6 +1,8 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { fromHalalas, percentOf as percentOfHalalas, toHalalas } from '../../../common/money';
+import { halalasSum, halalasSumFirstOf } from '../../finance-engine/report-totals';
 import { Cron } from '@nestjs/schedule';
 import { ScheduledOnce } from '../../../common/scheduled-once';
 import { reportAggregate } from '../../../common/reports/report-read';
@@ -42,9 +44,18 @@ export function bucketKey(d: Date, g: Granularity): string {
   return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, '0')}`;
 }
 
-export interface RevenueRow { bucket: string; vertical: string; gross: number; count: number }
+/** `gross` is SAR for display; `gross_halalas` is the exact integer the figures are added in (R11 P2 read path). */
+export interface RevenueRow { bucket: string; vertical: string; gross: number; count: number; gross_halalas: number }
 
-export function seriesToRows(payments: Array<{ paid_at?: Date; createdAt?: Date; amount?: number; booking_kind?: string }>, g: Granularity): RevenueRow[] {
+/** A payment's halalas: the integer shadow when present, else its legacy double converted exactly. */
+const paymentHalalas = (p: { amount?: unknown; amount_halalas?: unknown }): number => {
+  if (typeof p.amount_halalas === 'number' && Number.isSafeInteger(p.amount_halalas)) return p.amount_halalas;
+  const n = Number(p.amount || 0);
+  return Number.isFinite(n) ? toHalalas(n) : 0;
+};
+const rowHalalas = (r: RevenueRow): number => (Number.isSafeInteger(r.gross_halalas) ? r.gross_halalas : toHalalas(r.gross));
+
+export function seriesToRows(payments: Array<{ paid_at?: Date; createdAt?: Date; amount?: number; amount_halalas?: number; booking_kind?: string }>, g: Granularity): RevenueRow[] {
   const map = new Map<string, RevenueRow>();
   for (const p of payments) {
     const when = p.paid_at || p.createdAt;
@@ -52,8 +63,9 @@ export function seriesToRows(payments: Array<{ paid_at?: Date; createdAt?: Date;
     const bucket = bucketKey(new Date(when), g);
     const vertical = verticalOf(p.booking_kind);
     const key = `${bucket}|${vertical}`;
-    const row = map.get(key) || { bucket, vertical, gross: 0, count: 0 };
-    row.gross += Number(p.amount || 0);
+    const row = map.get(key) || { bucket, vertical, gross: 0, count: 0, gross_halalas: 0 };
+    row.gross_halalas += paymentHalalas(p);
+    row.gross = fromHalalas(row.gross_halalas);
     row.count += 1;
     map.set(key, row);
   }
@@ -63,10 +75,10 @@ export function seriesToRows(payments: Array<{ paid_at?: Date; createdAt?: Date;
 /** Pure MoM delta — current vs previous equal-length window per vertical. */
 export function momComparison(rows: RevenueRow[], from: Date, to: Date, prevRows: RevenueRow[]) {
   const sumByVertical = (list: RevenueRow[]) => {
-    const m: Record<string, { gross: number; count: number }> = {};
+    const m: Record<string, { gross: number; count: number }> = {};   // gross in whole halalas
     for (const r of list) {
       m[r.vertical] = m[r.vertical] || { gross: 0, count: 0 };
-      m[r.vertical].gross += r.gross;
+      m[r.vertical].gross += rowHalalas(r);
       m[r.vertical].count += r.count;
     }
     return m;
@@ -76,7 +88,7 @@ export function momComparison(rows: RevenueRow[], from: Date, to: Date, prevRows
   const out: Array<{ vertical: string; current: number; previous: number; delta_pct: number | null }> = [];
   for (const [vertical, c] of Object.entries(cur)) {
     const prev = prevMap[vertical]?.gross || 0;
-    out.push({ vertical, current: Math.round(c.gross * 100) / 100, previous: Math.round(prev * 100) / 100, delta_pct: prev > 0 ? Math.round(((c.gross - prev) / prev) * 1000) / 10 : null });
+    out.push({ vertical, current: fromHalalas(c.gross), previous: fromHalalas(prev), delta_pct: prev > 0 ? Math.round(((c.gross - prev) / prev) * 1000) / 10 : null });
   }
   return out.sort((a, b) => b.current - a.current);
 }
@@ -112,21 +124,21 @@ export class FinanceSuiteService {
 
     const [curPayments, prevPayments] = await Promise.all([
       this.conn.collection('moyasar_payments').find(matchPaid(from, to))
-        .project({ paid_at: 1, createdAt: 1, amount: 1, booking_kind: 1 }).toArray(),
+        .project({ paid_at: 1, createdAt: 1, amount: 1, amount_halalas: 1, booking_kind: 1 }).toArray(),
       this.conn.collection('moyasar_payments').find(matchPaid(new Date(from.getTime() - spanMs - 1), new Date(from.getTime() - 1)))
-        .project({ paid_at: 1, createdAt: 1, amount: 1, booking_kind: 1 }).toArray(),
+        .project({ paid_at: 1, createdAt: 1, amount: 1, amount_halalas: 1, booking_kind: 1 }).toArray(),
     ]);
 
     const rows = seriesToRows(curPayments as any[], opts.granularity);
     const buckets = [...new Set(rows.map((r) => r.bucket))].sort();
     const series = buckets.map((b) => {
       const entry: any = { bucket: b };
-      let total = 0;
+      let total = 0;   // whole halalas
       for (const r of rows.filter((x) => x.bucket === b)) {
-        entry[r.vertical] = Math.round(r.gross * 100) / 100;
-        total += r.gross;
+        entry[r.vertical] = fromHalalas(r.gross_halalas);
+        total += r.gross_halalas;
       }
-      entry.total = Math.round(total * 100) / 100;
+      entry.total = fromHalalas(total);
       return entry;
     });
 
@@ -167,27 +179,30 @@ export class FinanceSuiteService {
     // field before, which no payment read, so the screen and the money could disagree.
     const percentOf = (t: string): number => Number(cfg?.service_types?.[t]?.percent ?? DEFAULT_COMMISSION_PERCENT);
     const percents: Record<string, number> = Object.fromEntries(COMMISSION_SERVICE_TYPES.map((t) => [t, percentOf(t)]));
-    const vatRate = Number(cfg?.tax?.vat_percent ?? DEFAULT_VAT_PERCENT) / 100;
+    const vatPercent = Number(cfg?.tax?.vat_percent ?? DEFAULT_VAT_PERCENT);
+    const vatRate = vatPercent / 100;
     const rateOf = async (vertical: string): Promise<number> => percentOf(SERVICE_OF_VERTICAL[vertical] || vertical) / 100;
     const payments = await this.conn.collection('moyasar_payments').find({
       status: { $in: PAID_STATUSES },
       $or: [{ paid_at: { $gte: from, $lte: to } }, { paid_at: null, createdAt: { $gte: from, $lte: to } }],
-    }).project({ amount: 1, booking_kind: 1 }).toArray();
+    }).project({ amount: 1, amount_halalas: 1, booking_kind: 1 }).toArray();
 
     const rates: Record<string, number> = {};
-    const byVertical: Record<string, { gross: number; commission: number; vat: number; net_to_provider: number; count: number }> = {};
+    // R11 P2: every figure is whole halalas (the `amount_halalas` shadow, the double only where it is missing); converted to SAR once, at the end
+    type Row = { gross: number; commission: number; vat: number; net_to_provider: number; count: number };
+    const byVertical: Record<string, Row> = {};
     for (const p of payments as any[]) {
       const v = verticalOf(p.booking_kind);
-      const gross = Number(p.amount || 0);
+      const gross = paymentHalalas(p);
       const rate = rates[v] ?? (rates[v] = await rateOf(v));
-      const commission = Math.round(gross * rate * 100) / 100;
-      const vat = Math.round(commission * vatRate * 100) / 100;
+      const commission = percentOfHalalas(gross, rate * 100);
+      const vat = percentOfHalalas(commission, vatPercent);
       const row = byVertical[v] || { gross: 0, commission: 0, vat: 0, net_to_provider: 0, count: 0 };
       row.gross += gross; row.commission += commission; row.vat += vat; row.net_to_provider += gross - commission; row.count += 1;
       byVertical[v] = row;
     }
-    const round = (o: any) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, Math.round(Number(v) * 100) / 100]));
-    const totals = Object.values(byVertical).reduce((a: any, r: any) => ({
+    const round = (o: Row) => ({ gross: fromHalalas(o.gross), commission: fromHalalas(o.commission), vat: fromHalalas(o.vat), net_to_provider: fromHalalas(o.net_to_provider), count: o.count });
+    const totals = Object.values(byVertical).reduce((a: Row, r: Row) => ({
       gross: a.gross + r.gross, commission: a.commission + r.commission, vat: a.vat + r.vat, net_to_provider: a.net_to_provider + r.net_to_provider, count: a.count + r.count,
     }), { gross: 0, commission: 0, vat: 0, net_to_provider: 0, count: 0 });
     for (const v of Object.keys(SERVICE_OF_VERTICAL)) if (rates[v] === undefined) rates[v] = await rateOf(v);
@@ -252,7 +267,7 @@ export class FinanceSuiteService {
 
     const gateway = await reportAggregate(this.conn, 'moyasar_payments', [
       { $match: { status: { $in: PAID_STATUSES }, $or: [{ paid_at: { $gte: start, $lt: end } }, { paid_at: null, createdAt: { $gte: start, $lt: end } }] } },
-      { $group: { _id: '$booking_kind', total: { $sum: '$amount' }, n: { $sum: 1 }, ids: { $push: '$booking_id' } } },
+      { $group: { _id: '$booking_kind', total: halalasSum('amount'), n: { $sum: 1 }, ids: { $push: '$booking_id' } } },   // whole halalas (R11 P2)
     ]).toArray().catch(() => []);
 
     // Platform side: bookings whose payment_status marks them paid on that day.
@@ -267,18 +282,20 @@ export class FinanceSuiteService {
     for (const k of kinds) {
       const agg = await reportAggregate(this.conn, k.collection, [
         { $match: { payment_status: { $in: ['paid', 'confirmed'] }, paid_at: { $gte: start, $lt: end } } },
-        { $group: { _id: null, total: { $sum: { $ifNull: ['$total_price', '$total'] } }, n: { $sum: 1 }, ids: { $push: '$id' } } },
+        { $group: { _id: null, total: halalasSumFirstOf(['total_price', 'total']), n: { $sum: 1 }, ids: { $push: '$id' } } },   // whole halalas (R11 P2)
       ]).toArray().catch(() => []);
-      if (agg.length) platformRows.push({ vertical: k.label, total: Math.round((agg[0].total || 0) * 100) / 100, n: agg[0].n });
+      if (agg.length) platformRows.push({ vertical: k.label, total: fromHalalas(Number(agg[0].total) || 0), n: agg[0].n });
     }
-    const gatewayTotal = Math.round((gateway as any[]).reduce((a: number, g: any) => a + Number(g.total || 0), 0) * 100) / 100;
-    const platformTotal = Math.round(platformRows.reduce((a: number, r: any) => a + Number(r.total || 0), 0) * 100) / 100;
+    const gatewayHalalas = (gateway as any[]).reduce((a: number, g: any) => a + (Number(g.total) || 0), 0);
+    const platformHalalas = platformRows.reduce((a: number, r: any) => a + toHalalas(Number(r.total) || 0), 0);
+    const gatewayTotal = fromHalalas(gatewayHalalas);
+    const platformTotal = fromHalalas(platformHalalas);
 
     const diffs: Array<{ type: string; detail: string }> = [];
     for (const g of gateway as any[]) {
       const mapped = platformRows.find((p) => VERTICALS[p.vertical]?.some(() => true));
       void mapped;
-      diffs.push({ type: 'gateway_row', detail: `${g._id}: ${Math.round(g.total * 100) / 100} SAR across ${g.n} payments` });
+      diffs.push({ type: 'gateway_row', detail: `${g._id}: ${fromHalalas(Number(g.total) || 0)} SAR across ${g.n} payments` });
     }
     for (const p of platformRows) diffs.push({ type: 'platform_row', detail: `${p.vertical}: ${p.total} SAR across ${p.n} bookings` });
 
@@ -286,8 +303,8 @@ export class FinanceSuiteService {
       date: dateStr,
       gateway_total_sar: gatewayTotal,
       platform_total_sar: platformTotal,
-      variance_sar: Math.round((gatewayTotal - platformTotal) * 100) / 100,
-      gateway_rows: (gateway as any[]).map((g) => ({ kind: g._id, total: g.total, count: g.n })),
+      variance_sar: fromHalalas(gatewayHalalas - platformHalalas),
+      gateway_rows: (gateway as any[]).map((g) => ({ kind: g._id, total: fromHalalas(Number(g.total) || 0), count: g.n })),
       platform_rows: platformRows,
       note: 'variance ≠ 0 ⇒ investigate refunded-but-marked-paid or COD/wallet flows missing gateway records',
     };

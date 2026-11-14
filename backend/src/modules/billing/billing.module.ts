@@ -8,6 +8,8 @@
  * NOTE: booking models are fetched from the shared mongoose connection
  * (already registered by their owning modules) — no re-registration here.
  */
+import { clientIp } from '../../common/client-ip';
+import { billingKindOf, transactionKinds } from '../../common/booking-kind';
 import { ensureInvoiceUniqueIndex } from './invoice-key';
 import { riyadhParts } from '../../common/riyadh-clock';
 import { halalaShadowPlugin } from '../../common/halala-shadow';
@@ -46,6 +48,8 @@ export class EInvoice {
   @Prop({ default: 0 }) total: number;
   @Prop({ default: 'SAR' }) currency: string;
   @Prop() qr_base64: string; // ZATCA TLV QR payload
+  /** UBL document type code of a tax document: 388 = tax invoice, 381 = credit note (it references `original_invoice_no`). Absent on a receipt and on documents issued before the field existed. */
+  @Prop() document_type_code?: string;
   @Prop({ default: 'ISSUED', index: true }) status: string; // ISSUED|CANCELLED
   @Prop({ default: 'invoice', index: true }) type: string; // invoice | credit_note (a negative invoice that references the original)
   @Prop() original_invoice_no: string; // credit note: the invoice it reverses
@@ -89,6 +93,8 @@ export function documentTitle(kind: DocumentKind, refund = false): { ar: string;
 export function tlvQr(sellerName: string, vatNumber: string, isoDate: string, total: number, vat: number): string {
   const tlv = (tag: number, value: string) => {
     const buf = Buffer.from(value, 'utf8');
+    // one length byte: a value over 255 bytes would wrap and corrupt every tag after it
+    if (buf.length > 255) throw new RangeError(`ZATCA TLV tag ${tag} is ${buf.length} bytes (max 255)`);
     return Buffer.concat([Buffer.from([tag, buf.length]), buf]);
   };
   const payload = Buffer.concat([
@@ -249,7 +255,7 @@ export class BillingService {
   /** What the patient actually paid: the settled card payments of the booking, else the cash the provider recorded as collected. 0 = nothing paid. */
   async paidTotal(kind: string, booking: any, bookingId: string): Promise<number> {
     const rows: any[] = await this.conn.collection('transactions').find(
-      { booking_kind: this.transactionKind(kind), booking_id: bookingId, status: { $in: ['paid', 'partially_refunded', 'refunded'] } },
+      { booking_kind: { $in: transactionKinds(kind) }, booking_id: bookingId, status: { $in: ['paid', 'partially_refunded', 'refunded'] } },
       { projection: { amount: 1, _id: 0 } },
     ).toArray();
     let card = rows.reduce((sum, r) => sum + Number(r.amount || 0), 0);
@@ -309,7 +315,7 @@ export class BillingService {
   /** How it was paid: the method and the last 4 digits of the card (the gateway gives a masked number; nothing longer is kept). */
   async paymentInfo(kind: string, booking: any, bookingId: string): Promise<{ method: string; last4: string | null }> {
     const t: any = (await this.conn.collection('transactions').findOne(
-      { booking_kind: this.transactionKind(kind), booking_id: bookingId, status: { $in: ['paid', 'partially_refunded', 'refunded'] } },
+      { booking_kind: { $in: transactionKinds(kind) }, booking_id: bookingId, status: { $in: ['paid', 'partially_refunded', 'refunded'] } },
       { projection: { method: 1, webhook_payload: 1, _id: 0 } },
     )) || (await findCopayTransaction(this.conn as never, booking, bookingId));
     const raw = t?.webhook_payload || {};
@@ -409,6 +415,7 @@ export class BillingService {
     return {
       ...doc,
       document_kind: kind,
+      document_type_code: receipt ? null : doc.document_type_code ?? (doc.type === 'credit_note' ? '381' : '388'),
       vat_basis: receipt ? null : doc.vat_basis ?? 'total',
       title: documentTitle(kind, doc.type === 'credit_note'),
       vat_rate: receipt ? null : doc.vat_rate,
@@ -434,6 +441,7 @@ export class BillingService {
    * `user` null = the system, on `payment.completed`.
    */
   async issue(user: any | null, kind: string, bookingId: string) {
+    kind = billingKindOf(kind);
     const existing: any = await this.invoices.findOne({ booking_kind: kind, booking_id: bookingId, status: 'ISSUED', type: { $ne: 'credit_note' } }, { _id: 0, __v: 0 }).lean();
     if (existing) {
       if (user && existing.patient_id !== user.id && user.role !== 'admin') throw new BadRequestException('not your booking');
@@ -474,7 +482,7 @@ export class BillingService {
     await (this.invoiceIndex ??= ensureInvoiceUniqueIndex(this.conn, (m) => this.logger.warn(m)));
     try {
       const issued = await this.insertNumbered({
-        type: 'invoice', document_kind: documentKind,
+        type: 'invoice', document_kind: documentKind, document_type_code: documentKind === 'tax_invoice' ? '388' : undefined,
         booking_kind: kind,
         booking_id: bookingId,
         patient_id: owner,
@@ -501,7 +509,7 @@ export class BillingService {
   private async creditRefundsBeforeInvoice(kind: string, booking: any, bookingId: string, invoice: any): Promise<void> {
     try {
       const rows: any[] = await this.conn.collection('transactions').find(
-        { booking_kind: this.transactionKind(kind), booking_id: bookingId, status: { $in: ['paid', 'partially_refunded', 'refunded'] } },
+        { booking_kind: { $in: transactionKinds(kind) }, booking_id: bookingId, status: { $in: ['paid', 'partially_refunded', 'refunded'] } },
         { projection: { amount: 1, refunded_amount: 1, _id: 0 } },
       ).toArray();
       let refunded = rows.reduce((sum, r) => sum + Number(r.refunded_amount || 0), 0);
@@ -531,23 +539,32 @@ export class BillingService {
       if (done) return this.settle(done);
       const original: any = await this.invoices.findOne({ booking_kind: kind, booking_id: e.booking_id, status: 'ISSUED', type: { $ne: 'credit_note' } }).lean();
       if (!original) return null;
-      const capped = Math.min(amount, Math.round(Number(original.total) * 100) / 100);
+      // credit notes already issued against this invoice: together they can never reverse more than the invoice states
+      const prior: any[] = await this.invoices.find({ type: 'credit_note', original_invoice_no: original.invoice_no }).lean();
+      const credited = Math.round(prior.reduce((s, n) => s - Number(n.total || 0), 0) * 100) / 100;
+      const creditedVat = Math.round(prior.reduce((s, n) => s - Number(n.vat_amount || 0), 0) * 100) / 100;
+      const remaining = Math.round((Number(original.total) - credited) * 100) / 100;
+      if (!(remaining > 0)) { this.logger.warn(`credit note not issued for ${kind} ${e.booking_id}: invoice ${original.invoice_no} is already fully credited`); return null; }
+      const capped = Math.min(amount, remaining);
       // a refund document has the kind of the document it reverses: a tax invoice gets a credit note (negative VAT, QR), a receipt a refund receipt
       const docKind = documentKindOf(original);
       const rate = docKind === 'tax_invoice' ? Number(original.vat_rate) || VAT_RATE : 0;
       // the VAT of a refund is its share of the VAT on the invoice it reverses (Model A: the VAT in the delivery fee; older invoices: of the whole total)
       const originalTotal = Math.round(Number(original.total) * 100) / 100;
-      const vat = docKind === 'tax_invoice' && originalTotal > 0 ? -Math.round(Number(original.vat_amount || 0) * (capped / originalTotal) * 100) / 100 : 0;
+      // the note that completes the reversal takes the VAT that is left, so the credit-note VATs add up to the invoice VAT to the halala (shares are rounded one by one)
+      const vat = docKind !== 'tax_invoice' || !(originalTotal > 0) ? 0
+        : capped === remaining ? -Math.round((Number(original.vat_amount || 0) - creditedVat) * 100) / 100
+        : -Math.round(Number(original.vat_amount || 0) * (capped / originalTotal) * 100) / 100;
       const total = -capped;
       const issuedAt = new Date();
       const cfgSeller = original.seller_name && (docKind === 'receipt' || original.vat_number) ? null : await this.seller();
       const seller = { name: original.seller_name || cfgSeller?.name || null, vatNumber: docKind === 'tax_invoice' ? original.vat_number || cfgSeller?.vatNumber || null : null };
       // inserted first, numbered only when the insert won (the unique refund_ref refuses a repeated refund event before any number is taken)
       return await this.insertNumbered({
-        type: 'credit_note', document_kind: docKind, original_invoice_no: original.invoice_no, refund_ref: e.refund_ref,
+        type: 'credit_note', document_kind: docKind, document_type_code: docKind === 'tax_invoice' ? '381' : undefined, original_invoice_no: original.invoice_no, refund_ref: e.refund_ref,
         booking_kind: kind, booking_id: e.booking_id, patient_id: original.patient_id,
         subtotal: Math.round((total - vat) * 100) / 100, vat_rate: rate, vat_amount: vat, vat_basis: original.vat_basis ?? undefined, total,
-        qr_base64: docKind === 'tax_invoice' && seller.name && seller.vatNumber ? tlvQr(seller.name, seller.vatNumber, issuedAt.toISOString(), total, vat) : null,
+        qr_base64: docKind === 'tax_invoice' && seller.name && seller.vatNumber ? tlvQr(seller.name, seller.vatNumber, issuedAt.toISOString(), Math.abs(total), Math.abs(vat)) : null,   // a credit note is document type 381: its QR carries the absolute amounts (needs accountant check, docs/payments/INVOICES.md)
         lines: [{ key: 'refund', name_ar: null, name_en: null, qty: 1, unit_price: total, amount: total }],
         payment: original.payment ?? null, insured: null,
         provider: original.provider ?? null, booking_ref: original.booking_ref, seller_cr_number: original.seller_cr_number ?? null, seller_address: original.seller_address ?? null,
@@ -562,13 +579,13 @@ export class BillingService {
   /** A paid booking gets its invoice at once, so it is there when the patient opens the receipt. Never fails the payment. */
   /** A co-pay is paid on the insurance request: the invoice and the credit note belong to the booking that request is for. */
   private async resolveBooking(kindRaw: unknown, idRaw: unknown): Promise<{ kind: string; id: string } | null> {
-    const kind = String(kindRaw || '');
+    const kind = billingKindOf(kindRaw);
     const id = String(idRaw || '');
     if (!kind || !id) return null;
     if (kind !== 'insurance') return { kind, id };
     try {
       const req: any = await this.conn.collection('insuranceservicerequests').findOne({ id: { $eq: id } } as any, { projection: { booking_id: 1, booking_kind: 1, _id: 0 } });
-      return req?.booking_id && req?.booking_kind ? { kind: String(req.booking_kind), id: String(req.booking_id) } : null;
+      return req?.booking_id && req?.booking_kind ? { kind: billingKindOf(req.booking_kind), id: String(req.booking_id) } : null;
     } catch { return null; }
   }
 
@@ -834,7 +851,7 @@ export class BillingSharedController {
     res.set({ 'Cache-Control': 'private, no-store', 'X-Robots-Tag': 'noindex, nofollow', 'Referrer-Policy': 'no-referrer' });
   }
   private static ctx(req: any) {
-    return { ip: String(req?.headers?.['x-forwarded-for'] || req?.ip || '').split(',')[0].trim(), userAgent: String(req?.headers?.['user-agent'] || '') };
+    return { ip: clientIp(req) || '', userAgent: String(req?.headers?.['user-agent'] || '') };
   }
 
   @Public()

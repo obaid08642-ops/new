@@ -34,7 +34,8 @@ export class ReportsTimelineController {
     const u = uid(user);
     const r: any = await this.conn.collection('medicalreports').findOne(byStringOrObjectId(id) as any);
     if (!r) throw new NotFoundException('التقرير غير موجود');
-    if (r.patient_id && String(r.patient_id) !== String(u)) {
+    // A medical record is readable by its owner only: a row with NO patient_id is refused too (it used to be open to every signed-in user).
+    if (!r.patient_id || String(r.patient_id) !== String(u)) {
       throw new ForbiddenException('لا تملك صلاحية عرض هذا التقرير');
     }
     // 16.9: a raw read, so the report text is decrypted here; and it is a read of a medical record

@@ -43,3 +43,23 @@ describe('StorageService private-media contract', () => {
     await expect(service.read('res-1', { id: 'patient-2', role: 'patient' })).rejects.toBeInstanceOf(ForbiddenException);
   });
 });
+
+describe('Cloudinary is for provider photos only (R2 for everything else, KYC and private documents included)', () => {
+  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64').toString('base64');
+  const svc = () => new StorageService({ create: jest.fn() } as any, new UploadSecurityService());
+  const call = (extra: Record<string, unknown>) => svc().upload({ owner_account_id: 'o1', mime: 'image/png', data_base64: png, target: 'cloudinary', ...extra } as any);
+
+  it.each([
+    ['a private document (the default visibility)', {}],
+    ['a private KYC document with a provider-looking key', { customKey: 'doctors/original/o1.webp' }],
+    ['a public photo outside the photo folders', { visibility: 'public_read', customKey: 'kyc/o1.webp' }],
+    ['a public upload with no key', { visibility: 'public_read' }],
+  ])('refuses %s', async (_label, extra) => {
+    await expect(call(extra as any)).rejects.toThrow('cloudinary_only_for_provider_photos');
+  });
+
+  it('lets the provider photo pipeline through to the Cloudinary check (public_read under doctors/)', async () => {
+    // not configured in tests: the next gate answers, which proves the guard let it pass
+    await expect(call({ visibility: 'public_read', customKey: 'doctors/original/o1.webp' })).rejects.toThrow('CLOUDINARY_NOT_CONFIGURED');
+  });
+});

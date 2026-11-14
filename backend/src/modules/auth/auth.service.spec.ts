@@ -246,5 +246,18 @@ describe('AuthService', () => {
       expect(redisService.del).toHaveBeenCalledWith('auth:otp:login-2fa:admin@nabd.plus');
       expect(redisService.del).toHaveBeenCalledWith('ratelimit:auth:otp:verify:admin@nabd.plus');
     });
+
+    it('never re-activates a disabled account: the update only matches an account that is not explicitly disabled', async () => {
+      const codeHash = await bcrypt.hash('123456', 4);
+      redisService.getJson.mockResolvedValueOnce({ code_hash: codeHash, user_id: 'u9', attempts: 0 });
+      userModel.findOneAndUpdate = jest.fn().mockResolvedValue(null);
+
+      await expect(service.verifyOtp('+966500000321', '123456')).resolves.toEqual({ ok: true });
+
+      expect(userModel.findOneAndUpdate).toHaveBeenCalledTimes(1);
+      const [filter, update] = (userModel.findOneAndUpdate as jest.Mock).mock.calls[0];
+      expect(filter).toEqual({ phone: '+966500000321', active: { $ne: false } });
+      expect(update).toEqual({ active: true });
+    });
   });
 });

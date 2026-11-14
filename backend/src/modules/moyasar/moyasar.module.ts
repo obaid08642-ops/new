@@ -1,4 +1,6 @@
+import { isAllowedCallbackUrl } from '../../common/callback-url';
 import { halalaShadowPlugin } from '../../common/halala-shadow';
+import { toHalalas } from '../../common/money';
 import { GatewayTimeoutException, ServiceUnavailableException } from '@nestjs/common';
 import {
   Module,
@@ -156,16 +158,20 @@ export class MoyasarService {
     /** Internal flows with user-chosen amounts (wallet top-up) set this explicitly. */
     skipBookingValidation?: boolean;
   }): Promise<MoyasarPaymentDocument> {
+    // Order d (2026-11-13): a caller-supplied return address must be one of our own origins; the default below is built from PUBLIC_APP_URL.
+    if (params.callbackUrl !== undefined && params.callbackUrl !== null && params.callbackUrl !== '' && !isAllowedCallbackUrl(params.callbackUrl)) {
+      throw new BadRequestException('callback_url_not_allowed');
+    }
     // E1-F2: amount comes from the booking document, not the request body.
     if (!params.skipBookingValidation) {
       const resolved = await this.resolveBookingAmount(params.bookingKind, params.bookingId);
-      if (resolved.patient_id && resolved.patient_id !== params.patientId) {
+      if (!resolved.patient_id || resolved.patient_id !== params.patientId) {   // a booking with no owner is not payable by just any signed-in user
         throw new ForbiddenException('not_your_booking');
       }
       params.amount = resolved.amount;
     }
-    if (!(Number(params.amount) > 0)) throw new BadRequestException('invalid_amount');
-    const amountHalalas = Math.round(params.amount * 100);
+    if (!(Number(params.amount) > 0) || !Number.isFinite(Number(params.amount))) throw new BadRequestException('invalid_amount');
+    const amountHalalas = toHalalas(params.amount);   // R11 P2: exact, not round(x * 100)
     const callbackUrl =
       params.callbackUrl ||
       (process.env.PUBLIC_APP_URL || '') + '/api/v1/moyasar/callback';
@@ -277,6 +283,10 @@ export class MoyasarService {
           authorized: 'authorized',
           initiated: 'initiated',
           refunded: 'refunded',
+          // a checkout the patient cancelled, or that ran out: never left as "initiated" (the return page must not read them as still pending)
+          canceled: 'canceled',
+          cancelled: 'canceled',
+          expired: 'expired',
         };
 
         payment.status = statusMap[data?.status] ?? payment.status;
@@ -326,7 +336,7 @@ export class MoyasarService {
     if (!payment) throw new BadRequestException('payment_not_found');
 
     try {
-      const amountHalalas = amount ? Math.round(amount * 100) : undefined;
+      const amountHalalas = amount ? toHalalas(amount) : undefined;
       // moyasar_id is the invoice; the refund goes to the payment that settled it (recorded by syncPaymentStatus).
       const raw: any = payment.raw_response;
       const settledPaymentId: string = raw?.invoice_id && typeof raw?.id === 'string' ? raw.id : moyasarId;
@@ -486,7 +496,7 @@ export class MoyasarController {
   @UseGuards(JwtAuthGuard)
   async getByBooking(@CurrentUser() user: any, @Param('bookingId') bookingId: string) {
     const payments = await this.svc.getPaymentsByBooking(bookingId);
-    if (user.role !== 'admin' && payments.some((p: any) => p.patient_id && p.patient_id !== user.id)) {
+    if (user.role !== 'admin' && payments.some((p: any) => !p.patient_id || p.patient_id !== user.id)) {   // a payment with no owner is not anybody's to read
       throw new ForbiddenException('not_your_booking');
     }
     return payments;
@@ -555,7 +565,10 @@ export class MoyasarController {
     // Reconcile with the gateway: a hosted page can be abandoned, so trust the
     // provider's view of the payment, not the query string the browser sent.
     const synced = moyasarId ? await this.svc.syncPaymentStatus(moyasarId).catch(() => null) : null;
-    const settled = String(synced?.status || status || 'pending');
+    // An id we do not hold (or no id) gets "pending", never the status the browser sent: a forged link must not draw "paid" on the result page.
+    // The result screens verify with the server by id, so a genuine return still lands on its real state.
+    void status;
+    const settled = String(synced?.status || 'pending');
     // The patient lands back in the app: hand them a real result page, not JSON.
     const target = process.env.PAYMENT_RESULT_URL || 'https://nabd.plus/payments/result';
     const back = `${target}?status=${encodeURIComponent(settled)}${moyasarId ? `&id=${encodeURIComponent(moyasarId)}` : ''}`;

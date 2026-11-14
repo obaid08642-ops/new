@@ -228,6 +228,7 @@ export function WorkingHoursEditorScreen({ onBack }: { onBack: () => void }) {
 
           <NBtn label={AR ? 'حفظ جدول العمل' : 'Save Working Hours'} onPress={handleSave} loading={saving} disabled={saving} style={{ marginTop: SP.md }} />
           {user?.role === 'lab' && <LabSlotCapacityCard />}
+          {user?.role === 'radiology' && <LabSlotCapacityCard kind="radiology" />}
         </NScroll>
       )}
     </View>

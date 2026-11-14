@@ -385,5 +385,6 @@
   "labCapacity.saved": "Saved. New bookings use this number.",
   "labCapacity.failed": "Could not save the number",
   "labCapacity.invalid": "Enter a whole number from 1 to {max}",
-  "labCapacity.retry": "Could not load the number. Try again"
+  "labCapacity.retry": "Could not load the number. Try again",
+  "radCapacity.hint": "How many patients the centre scans at the same time slot. The slot picker and new bookings use this number at once."
 }

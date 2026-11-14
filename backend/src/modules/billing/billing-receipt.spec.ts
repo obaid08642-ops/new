@@ -30,6 +30,11 @@ beforeEach(() => { process.env.ZATCA_SELLER_NAME = 'Test Seller'; process.env.ZA
 afterEach(() => { process.env = { ...env }; });
 
 describe('ZATCA phase-1 QR payload', () => {
+  it('tlvQr refuses a value that does not fit the one-byte length instead of writing a corrupt payload', () => {
+    expect(() => tlvQr('x'.repeat(256), '300000000000003', '2026-01-01T00:00:00.000Z', 115, 15)).toThrow(RangeError);
+    expect(decodeTlv(tlvQr('x'.repeat(255), '300000000000003', '2026-01-01T00:00:00.000Z', 115, 15))[1]).toHaveLength(255);
+  });
+
   it('tlvQr decodes back to the five tags', () => {
     const qr = tlvQr('منصة نبض', '300000000000003', '2026-10-31T13:00:00.000Z', 115, 15);
     expect(decodeTlv(qr)).toEqual({ 1: 'منصة نبض', 2: '300000000000003', 3: '2026-10-31T13:00:00.000Z', 4: '115.00', 5: '15.00' });
@@ -111,13 +116,14 @@ describe('PDF', () => {
 describe('credit note on refund', () => {
   const paid = { invoice_no: 'INV-2026-000001', type: 'invoice', status: 'ISSUED', booking_kind: 'lab', booking_id: 'b1', patient_id: 'p1', total: 115, subtotal: 100, vat_amount: 15, vat_rate: 0.15, seller_name: 'S', vat_number: '300000000000003', payment: { method: 'card', last4: '4242' } };
 
-  it('is a negative invoice that names the original and carries its own QR', async () => {
+  it('is a negative document (type 381) that names the original and carries its own QR with the absolute amounts', async () => {
     const { svc } = build({ invoices: [paid] });
     const cn: any = await svc.issueCreditNote({ booking_kind: 'lab', booking_id: 'b1', amount: 115, refund_ref: 'rf_1' });
     expect(cn).toMatchObject({ type: 'credit_note', original_invoice_no: 'INV-2026-000001', total: -115, vat_amount: -15, subtotal: -100, refund_ref: 'rf_1' });
     expect(cn.invoice_no).toMatch(/^CN-\d{4}-000007$/);
     const tags = decodeTlv(cn.qr_base64);
-    expect([tags[4], tags[5]]).toEqual(['-115.00', '-15.00']);
+    expect([tags[4], tags[5]]).toEqual(['115.00', '15.00']);   // credit note = type 381: the QR carries absolute amounts (the document itself stays negative)
+    expect(cn.document_type_code).toBe('381');
   });
 
   it('a partial refund is a partial credit note; a repeat of the same refund issues nothing new', async () => {
@@ -181,5 +187,15 @@ describe('an invoice first issued AFTER a refund does not state money already re
     jest.spyOn(svc as any, 'issueCreditNote').mockRejectedValue(new Error('db down'));
     const inv: any = await svc.issue(patient, 'lab', 'b1');
     expect(inv.total).toBe(115);
+  });
+});
+
+describe('a payment made under a kind alias of the payment API is invoiced like any other', () => {
+  const aliasBooking = { patient_id: 'p1', total: 115, delivery_fee: 23 };
+  it.each([['labs', 'lab'], ['home-care', 'home_care'], ['homecare', 'home_care'], ['orders', 'order']])('%s: the invoice is issued under %s and the payment is searched under every spelling', async (alias, kind) => {
+    const { svc, store } = build({ booking: aliasBooking, txns: [{ amount: 115 }] });
+    const inv: any = await svc.issueOnPayment({ booking_kind: alias, booking_id: 'b1' });
+    expect(inv ?? store[0]).toBeTruthy();
+    expect(store[0]).toMatchObject({ booking_kind: kind, booking_id: 'b1', total: 115 });
   });
 });

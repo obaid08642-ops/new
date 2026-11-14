@@ -239,6 +239,11 @@ export class SeoSearchService {
   // backfill/indexing, so a 6h in-process cache is safe. Zero new deps by design.
   private readonly sitemapCache = new Map<string, { exp: number; stale?: number; val: any }>();
   private static readonly SITEMAP_TTL_MS = 6 * 60 * 60 * 1000;
+  private readonly equivalentsCache = new Map<string, { exp: number; val: any }>();
+  private readonly equivalentsRunning = new Map<string, Promise<any>>();
+  private static readonly EQUIVALENTS_TTL_MS = 30 * 60 * 1000;
+  private static readonly EQUIVALENTS_FAIL_TTL_MS = 60 * 1000;
+  static readonly EQUIVALENTS_MAX_TIME_MS = 3000;
 
   /** F23: live medicine count for llms.txt (cached 1h). */
   private catalogCountCache = { exp: 0, val: 0 };
@@ -561,6 +566,38 @@ export class SeoSearchService {
    * Unknown or unpublished product: 404. Prices and the Rx rule come from the public DTO (no old price on Rx).
    */
   async publicProductEquivalents(locale: string, id: string, limit = 8) {
+    // Run 116 (2026-11-12): this page read is what piled up before each mongod kill: an unindexed regex over every public medicine and a
+    // class-scope sort that took 25.8 s, once per crawler hit. Now: one computation per (locale, id, limit) per 30 min (single-flight, in
+    // process), every query bounded by maxTimeMS, and a query that is too slow degrades to "nothing to show" for 60 s instead of 5xx.
+    const key = `${locale}:${id}:${limit}`;
+    const hit = this.equivalentsCache.get(key);
+    if (hit && hit.exp > Date.now()) return hit.val;
+    const running = this.equivalentsRunning.get(key);
+    if (running) return running;
+    const work = (async () => {
+      try {
+        const val = await this.computeProductEquivalents(locale, id, limit);
+        this.equivalentsPut(key, val, SeoSearchService.EQUIVALENTS_TTL_MS);
+        return val;
+      } catch (e: any) {
+        if (e instanceof NotFoundException) throw e;
+        const empty = { locale, id, equivalents: [], similar: [] };
+        this.equivalentsPut(key, empty, SeoSearchService.EQUIVALENTS_FAIL_TTL_MS);
+        return empty;
+      } finally {
+        this.equivalentsRunning.delete(key);
+      }
+    })();
+    this.equivalentsRunning.set(key, work);
+    return work;
+  }
+
+  private equivalentsPut(key: string, val: any, ttl: number) {
+    if (this.equivalentsCache.size >= 2000) this.equivalentsCache.delete(this.equivalentsCache.keys().next().value as string);
+    this.equivalentsCache.set(key, { exp: Date.now() + ttl, val });
+  }
+
+  private async computeProductEquivalents(locale: string, id: string, limit: number) {
     const col = this.conn.collection(CATALOG_COLLECTIONS.medicines);
     const med: any = await col.findOne(
       { ...this.publicProductFilter(), id },
@@ -583,7 +620,7 @@ export class SeoSearchService {
       const candidates: EquivalentRow[] = await col.find(
         { ...this.publicProductFilter(), ...NOT_PROMOTABLE_FILTER, id: { $ne: id }, active_ingredient: { $regex: pattern, $options: 'i' }, price: { $gt: 0 } } as any,
         { projection: { _id: 0, id: 1, active_ingredient: 1, strength: 1, form: 1, usage_count: 1, price: 1 } } as any,
-      ).limit(500).toArray() as any;
+      ).limit(500).maxTimeMS(SeoSearchService.EQUIVALENTS_MAX_TIME_MS).toArray() as any;
       equivalentIds = rankEquivalents(med, candidates, max).map((r) => r.id);
     }
     const equivalents = await cards(equivalentIds);
@@ -600,7 +637,7 @@ export class SeoSearchService {
       const rows: any[] = await col.find(
         { ...this.publicProductFilter(), ...NOT_PROMOTABLE_FILTER, ...scope, id: { $nin: [id, ...similarIds] }, price: { $gt: 0 } } as any,
         { projection: { _id: 0, id: 1 } } as any,
-      ).sort({ usage_count: -1, id: 1 }).limit(max - similarIds.length).toArray();
+      ).sort({ usage_count: -1, id: 1 }).limit(max - similarIds.length).maxTimeMS(SeoSearchService.EQUIVALENTS_MAX_TIME_MS).toArray();
       similarIds.push(...rows.map((r) => r.id));
     }
     return { locale, id, equivalents: [], similar: await cards(similarIds) };
