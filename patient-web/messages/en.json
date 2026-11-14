@@ -6011,6 +6011,7 @@
     "read": "Read the full refund policy",
     "agree": "I have read the refund policy and I agree to it",
     "needAgree": "Agree to the refund policy to continue",
+    "changed": "The refund policy was updated while you were on this page. Please read it again and agree to continue.",
     "policy_consultation_full": "Cancel at least {hours} hours before the visit and get 100% back.",
     "policy_consultation_late": "If you cancel later than that, {percent}% is returned to your card.",
     "policy_consultation_patient_no_show": "If you miss the visit, {percent}% is returned.",

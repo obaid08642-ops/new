@@ -5,7 +5,12 @@
  * and book(), ordering-broadcast.service.ts shape(). Nothing is invented: a field the server did not send is absent and shown as nothing.
  * Amounts are the server's; this file never prices anything.
  */
-import { withRefundPolicy } from './refundAcceptance';
+import { noteRefundPolicyChangedError, withRefundPolicy } from './refundAcceptance';
+
+/** A create that failed with 409 refund_policy_changed tells the policy card (new text, tick asked again); the error is thrown on as before. */
+const policyAware = async <T>(service: string, run: () => Promise<T>): Promise<T> => {
+  try { return await run(); } catch (e) { noteRefundPolicyChangedError(service, e); throw e; }
+};
 import { apiFetch } from './api';
 import type { OrderingKind, OrderingMode, OrderingPayer, ProviderRow, Quote, QuoteGroup } from './ordering';
 import type { MedicalOrder } from './medicalOrders';
@@ -184,7 +189,7 @@ async function asapCall(path: string, init?: RequestInit): Promise<Asap> {
   return a;
 }
 export const startAsap = (body: { service_kind: OrderingKind; items: string[]; lat: number; lng: number; payer: OrderingPayer }) =>
-  asapCall('/ordering/asap', { method: 'POST', body: JSON.stringify(withRefundPolicy(body)) });
+  policyAware(body.service_kind, () => asapCall('/ordering/asap', { method: 'POST', body: JSON.stringify(withRefundPolicy(body, body.service_kind)) }));
 export const getAsap = (id: string) => asapCall(`/ordering/asap/${encodeURIComponent(id)}`);
 export const cancelAsap = (id: string) => asapCall(`/ordering/asap/${encodeURIComponent(id)}/cancel`, { method: 'POST' });
 
@@ -274,7 +279,7 @@ export function parseCreated(payload: unknown): CreatedGroup | null {
 }
 
 export async function createBookings(d: OrderingDraft, c: ConfirmChoices): Promise<CreatedGroup> {
-  const created = parseCreated(await apiFetch<unknown>('/ordering/bookings', { method: 'POST', body: JSON.stringify(withRefundPolicy(buildBookingBody(d, c))) }));
+  const created = parseCreated(await policyAware('lab', () => apiFetch<unknown>('/ordering/bookings', { method: 'POST', body: JSON.stringify(withRefundPolicy(buildBookingBody(d, c), 'lab')) })));
   if (!created) throw new Error('invalid_booking');
   return created;
 }
@@ -293,7 +298,7 @@ export async function createRadiologyBookings(d: OrderingDraft, c: ConfirmChoice
     if (!pick || !time) throw new Error('selection_required');
     const scheduledAt = time.type === 'walk_in' ? new Date().toISOString() : time.start;
     for (const it of g.items) {
-      const made = obj(await apiFetch<unknown>('/radiology/bookings', {
+      const made = obj(await policyAware('radiology', () => apiFetch<unknown>('/radiology/bookings', {
         method: 'POST',
         body: JSON.stringify(withRefundPolicy({
           service_id: it.catalog_id,
@@ -302,8 +307,8 @@ export async function createRadiologyBookings(d: OrderingDraft, c: ConfirmChoice
           location_type: g.mode === 'home' ? 'home' : 'facility',
           payment_method: c.paymentMethod,
           ...(c.documents.length ? { documents: c.documents } : {}),
-        })),
-      }));
+        }, 'radiology')),
+      })));
       const id = made && typeof made.id === 'string' ? made.id : null;
       const total = made ? (num(made.total_price) ?? num(made.total)) : null;
       if (!id || total === null) throw new Error('invalid_booking');

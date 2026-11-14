@@ -6,7 +6,7 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { Button, Card, Chip, Segmented } from '../../../packages/ui-native/src';
 import { RefundPolicyTick } from './legal/RefundPolicyTick';
-import { withRefundPolicy } from '../utils/refundAcceptance';
+import { noteRefundPolicyChangedError, withRefundPolicy } from '../utils/refundAcceptance';
 import { NationalIdForm } from './consult/NationalIdForm';
 import { readNationalIdStatus } from '../utils/nationalId';
 import { DoctorHead, ModeTiles } from './consult/ConsultBooking';
@@ -165,7 +165,7 @@ export default function BookingConfirmScreen() {
           slot_lock_id: slotLockId,
           ...(bookingFor ? { for_member_id: bookingFor.id } : {}),
           ...(reportRequested ? { sick_leave_requested: true } : {}),
-        })),
+        }, 'consultation')),
       });
       if (!appointment?.id) throw new Error(k('consult.confirm.createFailed'));
       // the appointment exists: the next booking is for the person signed in again
@@ -193,6 +193,7 @@ export default function BookingConfirmScreen() {
       // Opening checkout never marks an appointment paid or confirmed in the client.
       router.replace({ pathname: '/consultations/booking-status', params: { appointmentId: appointment.id, visitType, payment_pending: payMethod === 'card' ? 'true' : 'false' } } as unknown as Href);
     } catch (error) {
+      if (noteRefundPolicyChangedError('consultation', error)) return; // the policy card shows the new text and asks for the tick again
       if (isTelehealthConsentRefusal(error)) {
         setConsentOpen(true);
         return;

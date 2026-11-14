@@ -18,6 +18,8 @@ const bodySchema = z.object({
   payment_method: z.enum(["cash", "card", "insurance"]).optional(),
   // the patient agreed to the refund policy before the order (the backend refuses without it; an explicit false is never accepted)
   refund_policy_accepted: z.literal(true),
+  // the hash of the policy text the screen showed: the server refuses a table that changed since (409 refund_policy_changed)
+  refund_policy_hash: z.string().regex(/^[a-f0-9]{64}$/).optional(),
 }).strict();
 
 export async function POST(request: Request) {

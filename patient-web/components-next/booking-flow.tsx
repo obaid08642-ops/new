@@ -18,7 +18,7 @@ import { StickyFooter } from "@/components-next/ui-generated/shells/StickyFooter
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { PolicyCard } from "@/components-next/consult/policy-lines";
 import { RefundPolicyTick } from "@/components-next/refund-policy/refund-policy-tick";
-import { withRefundPolicy } from "@/lib/refund-policy";
+import { noteRefundPolicyChanged, withRefundPolicy } from "@/lib/refund-policy";
 import { TelehealthConsentCard, needsTelehealthConsent } from "@/components-next/consult/telehealth-consent-card";
 import type { TelehealthConsentText } from "@/lib/legal/telehealth-consent";
 import { Hero, SectionCard } from "@/components-next/consult/consult-parts";
@@ -195,7 +195,7 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
           for_member_id: bookingFor?.id,
           insurance_provider: paymentMethod === "insurance" ? insurance.providerId : undefined,
           insurance_member_id: paymentMethod === "insurance" ? insurance.memberId : undefined,
-        })),
+        }, "consultation")),
       });
       if (res.ok) {
         const data = await res.json().catch(() => null);
@@ -211,6 +211,7 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
         return;
       }
       const data = await res.json().catch(() => null);
+      if (noteRefundPolicyChanged("consultation", res.status, data)) return; // the policy card shows the new text and asks for the tick again
       if (needsTelehealthConsent(data)) {
         setConsentAsked(true);
         return;
