@@ -1,5 +1,14 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-14 05:40 UTC — order 04:50: #2620 merged, client half retargeted, housekeeping triage
+Status: partly done; items below say what is left.
+PRs: #2620 MERGED (main 2149a3dcf). #2621 had been merged into the old #2620 branch, NOT into main, so I merged main into p2/policy-hash-echo-clients and opened #2677 (same work, base main; locale-parity ok, literal baseline 5277 -> 5277). Needs your merge.
+1. Dependabot: #2217 and #2216 (node 26) are already CLOSED. #2470, #2468, #1636, #1634 are NestJS 12 majors bumped one package at a time while @nestjs/core and platform-express stay 11.2.1 (backend/package.json:25-35), so they cannot work (their Backend build and tests are red for that reason): do not merge; they need one coordinated Nest 12 upgrade after launch, I propose you close the four with that reason. #2505 (80 updates, 7 dirs), #1692, #1690, #1689 (actions): I ran update-branch (merged main in) just now, CI is re-running; I will report green/red for each and then tell you which to merge (#1692/#1690/#1689 touch .github/workflows: you merge by hand; the two artifact actions must go together).
+   Old drafts: #2015 is a SUPERSET of #1891 (all 81 files + 4 newer) and of #1967 (all 5 journeys): I closed #1891 and #1967 with a comment saying so. #1897 (docs/qa/AGREED.md, 1 file, not on main) and #1924 (Maestro flows: 51 flows, 28 of its 96 files already on main) are left for you: say port or close. #2015 itself holds 72 files not on main (57 tools/live journeys j_qa_*, j_web_qa_*, 20 findings docs): I do NOT port 57 journeys without a live run, because a red journey would turn the live gate red; say if you want them ported in small batches.
+2. #1831 (city/district names in 4 more languages): needs name_ur/hi/bn/tl for 150 cities plus districts in backend seeds and a reviewed migration (owner approval before production); not started. #1556 (active ingredient filled for 12.5%): this is the enrichment/normalisation batch you asked me to flag, not guessing. #1835 (/ar/c TBT/TTI): Lighthouse measurement not started yet.
+3. Public pages /p/[slug] and /c/*: waiting for B's stale-if-error PR to review the UI side.
+Left: #1831, #1835 measurement, CI result of the 4 updated Dependabot PRs.
+
 ## 2026-11-13 15:40 UTC — #2664 merged
 Status: radiology slot capacity (#2664) MERGED, ticked in lead/LAUNCH_LIST.md. All five items of the 11:20 order are on main. Open for P: #2620 (owner), #2621 (after it). Queue empty; waiting for the string-move answer and new orders.
 
