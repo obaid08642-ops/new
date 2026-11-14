@@ -11,6 +11,7 @@ import { currentTraceId, traced } from './trace';
 import { buildLogRecord } from './structured-logger';
 import './overload';   // registers nabd_overload_level
 import './admission';  // registers nabd_admission_*
+import './event-queue-gauges'; // registers nabd_event_dlq_dead, nabd_event_dlq_pending, nabd_domain_outbox_stuck
 
 const OPS = path.resolve(__dirname, '..', '..', '..', 'ops');
 

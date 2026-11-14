@@ -11,8 +11,13 @@ import { CreateDto } from './lab-results.dto';
 export class LabResultsController {
   constructor(private readonly svc: LabResultsService) {}
   @Post() create(@CurrentUser() u: any, @Body() b: CreateDto) { return this.svc.create(u, b); }
-  @Get('mine') mine(@CurrentUser() u: any) { return this.svc.mineFor(u); }
-  @Get('by-booking/:bid') byBkg(@CurrentUser() u: any, @Param('bid') bid: string) { return this.svc.byBooking(u, bid); }
+  // The patient reads their own results (the service filters by patient_id); only create stays staff-only.
+  @Get('mine')
+  @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN, UserRole.PATIENT)
+  mine(@CurrentUser() u: any) { return this.svc.mineFor(u); }
+  @Get('by-booking/:bid')
+  @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN, UserRole.PATIENT)
+  byBkg(@CurrentUser() u: any, @Param('bid') bid: string) { return this.svc.byBooking(u, bid); }
   @Get(':id')
   @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN, UserRole.PATIENT)
   one(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.one(u, id); }

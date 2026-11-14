@@ -14,7 +14,7 @@ const state = vi.hoisted(() => ({
 vi.mock("next/navigation", () => ({ notFound: vi.fn(), redirect: vi.fn(), useRouter: () => ({ refresh: vi.fn() }), usePathname: () => "/en/consultations/doctors" }));
 vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => (state.cookieToken ? { value: state.cookieToken } : undefined) }) }));
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string, values?: Record<string, unknown>) => (values ? `${key}:${JSON.stringify(values)}` : key), setRequestLocale: vi.fn() }));
-vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key, useLocale: () => "en" }));
 vi.mock("@/lib/i18n", () => ({ isLocale: () => true, getDirection: () => "ltr" }));
 vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: state.requirePatientAccess }));
 vi.mock("@/lib/api/appointments-server", () => ({ getPatientAppointments: state.getPatientAppointments, getPatientAppointment: state.getPatientAppointment }));

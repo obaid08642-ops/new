@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canReportNoShow, noShowOpensAt } from "./provider-no-show";
+import { canReportNoShow, noShowOpensAt, readNoShowOutcome } from "./provider-no-show";
 
 const START = "2026-11-09T10:00:00Z";
 const at = (minutes: number) => Date.parse(START) + minutes * 60_000;
@@ -20,5 +20,16 @@ describe("the doctor did not come", () => {
     expect(noShowOpensAt("confirmed", "x")).toBeNull();
     expect(noShowOpensAt("in_progress", START)).toBeNull();
     expect(noShowOpensAt("confirmed", START)).toBe(at(10));
+  });
+});
+
+describe("what the report did (owner decision 2026-11-10)", () => {
+  it("reads refunded, held with its date, pending review, and the old answer without a status as refunded", () => {
+    expect(readNoShowOutcome({ ok: true, status: "refunded" })).toEqual({ status: "refunded", refundAfter: null });
+    expect(readNoShowOutcome({ ok: true })).toEqual({ status: "refunded", refundAfter: null });
+    expect(readNoShowOutcome({ status: "held", refund_after: "2026-11-11T10:00:00.000Z" })).toEqual({ status: "held", refundAfter: "2026-11-11T10:00:00.000Z" });
+    expect(readNoShowOutcome({ status: "held", refund_after: "not a date" })).toEqual({ status: "held", refundAfter: null });
+    expect(readNoShowOutcome({ status: "pending_review" })).toEqual({ status: "pending_review", refundAfter: null });
+    expect(readNoShowOutcome(null)).toEqual({ status: "refunded", refundAfter: null });
   });
 });

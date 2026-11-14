@@ -1,3 +1,4 @@
+import { ConflictException, BadRequestException } from '@nestjs/common';
 import { createHash } from 'crypto';
 import { DEFAULT_REFUND_POLICY } from '../modules/refund-policy/refund-policy.defaults';
 import { REFUND_POLICY_VERSION, type RefundPolicyAcceptance } from './refund-policy-acceptance';
@@ -40,13 +41,26 @@ export function policyStamp(doc: { value?: any; updatedAt?: Date | string } | nu
 
 type Db = { collection(name: string): { findOne(filter: any, options?: any): Promise<any> } };
 
-/** The acceptance with the policy stamp of its service added (undefined stays undefined: an exempt actor or a missing tick stores nothing). A read problem keeps the plain acceptance: it never stops a booking. */
-export async function stampAcceptance(db: Db | undefined | null, acceptance: RefundPolicyAcceptance | undefined, service: PolicyService): Promise<RefundPolicyAcceptance | undefined> {
+export const REFUND_POLICY_CHANGED_CODE = 'refund_policy_changed';
+
+/**
+ * The acceptance with the policy stamp of its service added (undefined stays undefined: an exempt actor or a missing tick stores nothing). A read problem keeps the plain acceptance: it never stops a booking.
+ * `shownHash` is the hash the patient's screen showed (GET /refund-policy/summary, echoed back as `refund_policy_hash`). When it is sent and differs from the policy in force now, the create is refused with
+ * 409 `refund_policy_changed` (the admin edited the table while the patient was on the screen: the client reloads the text and asks for the tick again). A missing hash is allowed (old clients).
+ * It is only checked when the policy could be read: a read problem never turns into a 409.
+ */
+export async function stampAcceptance(db: Db | undefined | null, acceptance: RefundPolicyAcceptance | undefined, service: PolicyService, shownHash?: unknown): Promise<RefundPolicyAcceptance | undefined> {
   if (!acceptance) return acceptance;
+  if (shownHash !== undefined && shownHash !== null && (typeof shownHash !== 'string' || !/^[a-f0-9]{64}$/.test(shownHash))) throw new BadRequestException('refund_policy_hash_invalid');
+  let stamped: RefundPolicyAcceptance;
   try {
     const doc = db ? await db.collection('system_configs').findOne({ key: 'refund_policy' }, { projection: { _id: 0, value: 1, updatedAt: 1 } }) : null;
-    return { ...acceptance, ...policyStamp(doc, service) };
+    stamped = { ...acceptance, ...policyStamp(doc, service) };
   } catch {
     return acceptance;
   }
+  if (typeof shownHash === 'string' && stamped.hash && shownHash !== stamped.hash) {
+    throw new ConflictException({ code: REFUND_POLICY_CHANGED_CODE, message: REFUND_POLICY_CHANGED_CODE, service, hash: stamped.hash, version: stamped.version });
+  }
+  return stamped;
 }

@@ -44,7 +44,7 @@ export default async function ConsultationCancelReschedulePage({ params, searchP
   // The late-cancel choice (owner decision 2026-11-10): inside the last hours the visit can be moved once for free, within `days` days, instead of cancelled for the late refund.
   let lateOffer: { days: number } | null = null;
   try {
-    const preview = await callPatientApi(`/care/appointments/${encodeURIComponent(appointmentId)}/refund-preview`, { cache: "no-store" }, token);
+    const preview = await callPatientApi(`/care/appointments/${encodeURIComponent(appointmentId)}/refund/preview`, { cache: "no-store" }, token);
     if (preview?.ok) lateOffer = readLateReschedule(await preview.json().catch(() => null));
   } catch { /* no offer if the preview cannot be read: the normal reschedule and cancel stay */ }
   const mode = modeOf(appointment.serviceType);

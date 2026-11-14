@@ -116,6 +116,31 @@ export class ProviderAdminService {
     account.status = to;
   }
 
+  /** The users row that holds this account's login (shared by approve, reactivate, suspend and reject). */
+  private async loginIdOf(a: any): Promise<string | undefined> {
+    const usersCol = this.accounts.model.db.collection('users');
+    return a.user_id || (await usersCol.findOne({ email: String(a.email || '').toLowerCase().trim() }).catch(() => null))?.id;
+  }
+
+  /** The role the login identity carries while the account is approved (the provider type), as approve sets it. */
+  private providerLoginRole(a: any): string | undefined {
+    const candidate = ({ laboratory: UserRole.LAB } as Record<string, string>)[a.provider_type] || a.provider_type;
+    return Object.values(UserRole).includes(candidate) ? candidate : undefined;
+  }
+
+  /**
+   * A provider who is no longer approved must not keep a working provider session through the PATIENT login: approve turns the users row into the provider
+   * role, and the central gate only checks provider-scope tokens. So suspend / reject turn the login back into the restricted onboarding identity (role guest,
+   * the state before approval) and revoke its sessions at once; reactivate gives the provider role back. The provider-scope sign-in still works and shows the reason.
+   */
+  private async restrictLogin(a: any): Promise<void> {
+    const loginId = await this.loginIdOf(a);
+    if (!loginId) return;
+    const role = this.providerLoginRole(a);
+    // only a row that really holds the provider role is demoted (never an admin, patient or other row that happens to be linked)
+    await this.accounts.model.db.collection('users').updateOne({ id: loginId, ...(role ? { role } : { _id: null }) }, { $set: { role: UserRole.GUEST }, $inc: { token_version: 1 } });
+  }
+
   /**
    * 19.3: a doctor, pharmacist or individual nurse is approved (or brought back) only on a confirmed SCFHS licence, or
    * the admin's own manual check while the SCFHS service cannot answer. Runs before anything changes.
@@ -226,6 +251,7 @@ export class ProviderAdminService {
     await this.transition(a, ProviderAccountStatus.REJECTED, user, reason);
     a.rejection_reason = reason;
     await a.save();
+    await this.restrictLogin(a);   // a suspended provider that is then rejected had the provider role until now
     await this.accounts.model.db.collection('provider_profiles').updateMany(
       { account_id: id, user_id: { $exists: true } },
       { $set: { status: 'rejected', rejected_reason: a.rejection_reason, public_eligibility: false, indexing_eligibility: false } },
@@ -375,6 +401,7 @@ export class ProviderAdminService {
     // F09: instant session revocation for the suspended provider account.
     (a as any).token_version = Number((a as any).token_version || 0) + 1;
     await a.save();
+    await this.restrictLogin(a);
     await this.accounts.model.db.collection('provider_profiles').updateMany(
       { account_id: id, user_id: { $exists: true } },
       { $set: { status: 'suspended', public_eligibility: false, indexing_eligibility: false } },
@@ -415,7 +442,8 @@ export class ProviderAdminService {
     const loginId = (a as any).user_id
       || (await usersCol.findOne({ email: String((a as any).email || '').toLowerCase().trim() }).catch(() => null))?.id;
     if (loginId) {
-      await usersCol.updateOne({ id: loginId }, { $set: { active: true, suspended: false }, $inc: { token_version: 1 } });
+      const role = this.providerLoginRole(a);   // suspend gave the login back its restricted role: reactivate restores the provider role
+      await usersCol.updateOne({ id: loginId }, { $set: { active: true, suspended: false, ...(role ? { role } : {}) }, $inc: { token_version: 1 } });
     }
     await this.accounts.model.db.collection('provider_profiles').updateMany(
       { account_id: id, user_id: { $exists: true } },

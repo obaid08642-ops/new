@@ -19,6 +19,8 @@ const bodySchema = z.object({
   patient_phone: z.string().trim().max(32).optional(),
   // the family member the visit is for (the server checks the family group and the booking permission)
   for_member_id: z.string().regex(/^[A-Za-z0-9_-]{1,128}$/).optional(),
+  // PT-03 (owner decision 1): a dependant of the guardian (a person with no account): the guardian stays the booker and payer, the visit is recorded for them
+  family_member_id: z.string().regex(/^[A-Za-z0-9_-]{1,128}$/).optional(),
   // the patient agreed to the refund policy before paying (the backend refuses a booking without it; an explicit false is never accepted)
   refund_policy_accepted: z.literal(true),
   // PT-08: "I need a medical report" at booking: a request to the doctor, not a guarantee (stored on the appointment by the backend)

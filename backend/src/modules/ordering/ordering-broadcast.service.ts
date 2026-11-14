@@ -103,7 +103,7 @@ export class OrderingBroadcastService implements OnModuleInit {
   async startAsap(user: { id: string }, dto: AsapDto) {
     const items = [...new Set(dto.items)];
     if (!items.length) throw bad('asap_items_required');
-    const policyAcceptance = await stampAcceptance(this.conn, refundPolicyAcceptance(user as { role?: string }, dto.refund_policy_accepted), dto.service_kind);
+    const policyAcceptance = await stampAcceptance(this.conn, refundPolicyAcceptance(user as { role?: string }, dto.refund_policy_accepted), dto.service_kind, dto.refund_policy_hash);
     await this.assertHomeItems(dto.service_kind, items);
     const familyMemberId = await resolveFamilyMemberId(this.conn, user.id, dto.family_member_id);
     const policy = await this.ordering.policyOf(user.id, dto.payer, familyMemberId);
@@ -298,7 +298,7 @@ export class OrderingBroadcastService implements OnModuleInit {
     const own = await this.conn.collection('storage_objects').findOne({ id: dto.upload_id, owner_account_id: user.id }, { projection: { id: 1 } })
       ?? await this.conn.collection('uploads').findOne({ id: dto.upload_id, owner_id: user.id }, { projection: { id: 1 } });
     if (!own) throw new NotFoundException('upload_not_found');
-    const policyAcceptance = await stampAcceptance(this.conn, refundPolicyAcceptance(user as { role?: string }, dto.refund_policy_accepted), dto.service_kind);
+    const policyAcceptance = await stampAcceptance(this.conn, refundPolicyAcceptance(user as { role?: string }, dto.refund_policy_accepted), dto.service_kind, dto.refund_policy_hash);
     const familyMemberId = await resolveFamilyMemberId(this.conn, user.id, dto.family_member_id);
     const policy = await this.ordering.policyOf(user.id, dto.payer, familyMemberId);
     const stages = await this.stagesConfig();

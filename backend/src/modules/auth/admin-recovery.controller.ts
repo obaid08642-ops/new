@@ -42,9 +42,9 @@ export class AdminRecoveryController {
     const email = String(body?.email || '').trim().toLowerCase();
     if (!email) throw new BadRequestException('email_required');
     const u: any = await (this.auth as any).userModel.findOne({ email });
-    if (!u || (u.role !== UserRole.ADMIN && u.role !== UserRole.SUPER_ADMIN)) {
+    if (!u || (u.role !== UserRole.ADMIN && u.role !== UserRole.SUPER_ADMIN) || u.active === false) {
       // Same answer as a sent code: this endpoint must not reveal which emails
-      // are registered admin accounts.
+      // are registered admin accounts, nor which ones are disabled (a disabled admin gets no code).
       return { ok: true, channel: 'email' };
     }
     const res = await this.auth.sendOtp(email, 'admin_recovery');
@@ -66,11 +66,14 @@ export class AdminRecoveryController {
     if (!u || (u.role !== UserRole.ADMIN && u.role !== UserRole.SUPER_ADMIN)) {
       throw new UnauthorizedException('Invalid credentials');
     }
+    // A disabled admin (an ex-admin who kept recovery codes) must not be handed a fresh session: every login path refuses `active: false`
+    // and a new token carries the current token version, so nothing else would stop it. Refused before any code is checked or consumed.
+    if (u.active === false) throw new ForbiddenException('account_disabled');
     await this.auth.verifyOtp((this.auth as any).otpContact(u, email), emailCode);
     // 2) Recovery code — single-use. Unknown or used → 403.
     await this.recovery.consume(u.id, recCode);
     u.last_login_at = new Date();
     await u.save();
-    return { user: (this.auth as any).publicUser(u), token: (this.auth as any).signToken(u) };
+    return { user: (this.auth as any).publicUser(u), token: await (this.auth as any).signToken(u) };
   }
 }

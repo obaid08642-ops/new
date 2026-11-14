@@ -13,12 +13,14 @@ Complete list of user scenarios, from the owner's request ("make sure there are 
 
 ## Counts
 
-| Measure | First catalogue | Re-scored on main `c17aa3461` (#2292) | Re-scored on main `365b2d580` (#2335) | Batch 2 (#2351) | PT-25 (#2435) | Batch 5 (this PR) |
-|---|---|---|---|---|---|---|
-| Scenarios listed | 100 | 100 | 100 | 100 | 100 | 100 |
-| COVERED | 52 | 55 | 62 | 65 | 73 | 79 |
-| PARTIAL | 16 | 16 | 16 | 13 | 8 | 9 |
-| NOT COVERED | 32 | 29 | 22 | 22 | 18 | 12 |
+| Measure | First catalogue | Re-scored on main `c17aa3461` (#2292) | Re-scored on main `365b2d580` (#2335) | Batch 2 (#2351) | PT-25 (#2435) | Batch 5 | Recount 2026-11-13 |
+|---|---|---|---|---|---|---|---|
+| Scenario rows | 100 | 100 | 100 | 100 | 100 | 100 | 101 |
+| COVERED | 52 | 55 | 62 | 65 | 73 | 79 | 100 |
+| PARTIAL | 16 | 16 | 16 | 13 | 8 | 9 | 1 (PT-24) |
+| NOT COVERED | 32 | 29 | 22 | 22 | 18 | 12 | 0 |
+
+Recount 2026-11-13: counted from the status cell of every scenario row below (101 rows: 100 COVERED, 1 PARTIAL, 0 NOT COVERED). The notes under this table describe earlier recounts.
 
 Lane V (2026-11-09): SY-05 (backups restore, P0), SY-02 and SY-01 moved to COVERED with the evidence in their rows. The table above is the older count; a recount of the 94 rows whose status cell parses now gives 91 COVERED, 1 PARTIAL, 2 NOT COVERED.
 
@@ -35,7 +37,7 @@ This PR (PT-25 delivery tracking) moved one PARTIAL row to COVERED. The 'This PR
 |---|---|---|---|---|---|
 | PT-01 | Book a consultation for self (online/clinic/home) | COVERED | `j_consultation.py` (124/124) | P1 | — |
 | PT-02 | Book for a family member | COVERED | `j_family_book_for_member.py` | P1 | — |
-| PT-03 | Guardian books for a dependant (minor) | COVERED | app: `patient-app/src/__tests__/family/member-book.test.tsx` (the member becomes the booking subject), `consult/booking-screens.test.tsx` (the confirm step sends `for_member_id`, then the guardian's payment intent opens); web: `patient-web/tests/booking-for-route.test.ts` (`for_member_id` forwarded), `tests/consult-screens.test.tsx` (the screen says who the visit is for and offers to switch back); backend: the booker accepts the telehealth consent for the visit (`appointments.service.ts`). live: `j_family_book_for_member.py` (a child joins the family; the guardian books, pays by card, the member sees it paid, a stranger cannot book, pay, read or cancel; the guardian cancels well ahead: the guardian's card payment is refunded in full once, one credit note on the invoice, a second cancel refunds nothing more) | P1 | H |
+| PT-03 | Guardian books for a dependant (minor) | COVERED | app: `patient-app/src/__tests__/family/member-book.test.tsx` (the member becomes the booking subject), `consult/booking-screens.test.tsx` (the confirm step sends `for_member_id`, then the guardian's payment intent opens); web: `patient-web/tests/booking-for-route.test.ts` (`for_member_id` forwarded), `tests/consult-screens.test.tsx` (the screen says who the visit is for and offers to switch back); the booking screens (web and app) also offer "Who is the visit for?" with the guardian's dependants (no account) and send `family_member_id` (app: `consult/booking-screens.test.tsx`; web: `tests/booking-for-route.test.ts`); backend: the booker accepts the telehealth consent for the visit (`appointments.service.ts`). live: `j_family_book_for_member.py` (a child joins the family; the guardian books, pays by card, the member sees it paid, a stranger cannot book, pay, read or cancel; the guardian cancels well ahead: the guardian's card payment is refunded in full once, one credit note on the invoice, a second cancel refunds nothing more) | P1 | H |
 | PT-04 | Family member's medicines and history | COVERED | `j_family_meds.py` | P2 | — |
 | PT-05 | Referral from a visit to a booking | COVERED | `tools/live/j_referral_booking.py` (doctor issues with UUID ids, patient sees the outcome and books); the provider app issues it from the finished visit (`IssueReferralScreen`, body built and unit-tested in `issueReferral.test.ts`) | P1 | S |
 | PT-06 | Prescription → pharmacy order | COVERED | `j_pharmacy.py`, `j_pharmacy_insurance_first.py` | P1 | — |
@@ -56,13 +58,13 @@ This PR (PT-25 delivery tracking) moved one PARTIAL row to COVERED. The 'This PR
 | PT-21 | Cash vs card vs insurance selection | COVERED | `j_consultation.py` matrix (124/124 in the live run): cash (line 211), insurance (lines 193, 223) and card bookings each recorded with their method | P1 | F |
 | PT-22 | Card payment success | COVERED | `j_consultation.py` (payment verified) | P0 | — |
 | PT-23 | Card payment failure and retry | COVERED | `j_payment_failed_retry.py` (43/43 on main 365b2d580): declined card reported as failed, retry makes a new checkout, paid booking cannot be charged again | P0 | F |
-| PT-24 | Payment return (deep link back from gateway) | PARTIAL (link wiring now tested) | web return: `j_web_payment_result.py` (real browser, `/payments/result?id=` resolves the gateway payment id to the paid appointment); app killed after paying: `j_app_killed_payment.py` (reopen reads the server state, no duplicate charge). App: `/payments/result` is an app link (AASA list, Android intent filters, link map), tested in `patient-app/src/__tests__/native-intent.test.ts` (the return address opens the result screen with the payment id). Not covered: the real OS handing the link to the app (device farm only; needs the production Team ID and fingerprint) | P0 | H |
+| PT-24 | Payment return (deep link back from gateway) | PARTIAL (link wiring now tested) | web return: `j_web_payment_result.py` (real browser, `/payments/result?id=` resolves the gateway payment id to the paid appointment); app killed after paying: `j_app_killed_payment.py` (reopen reads the server state, no duplicate charge). App: `/payments/result` is an app link (AASA list, Android intent filters, link map), tested in `patient-app/src/__tests__/native-intent.test.ts` (the return address opens the result screen with the payment id). Money side of the return (paid, failed, cancelled; the gateway wins over the query string; the return emits no money event): `backend/src/modules/moyasar/moyasar-return.spec.ts`. Live: `tools/live/j_payment_return.py` (a forged `status=paid` return after a declined card pays and confirms nothing, a `status=failed` return after an accepted card does not undo it, repeating the return leaves one paid payment). Not covered: the real OS handing the link to the app (device farm only; needs the production Team ID and fingerprint) | P0 | H |
 | PT-25 | Delivery tracking | COVERED | `j_pharmacy_tracking.py` (62/62 on main): the owner reads GET /orders/:id/tracking (state broadcasting), another patient gets 403, an unknown order id gets 404 | P1 | H |
 | PT-26 | Prescription photo upload | COVERED | `j_upload_security.py`, `j_ai_scanner.py` | P1 | — |
 | PT-27 | Prescription OCR result shown and corrected | COVERED (client) | `j_ai_scanner.py` (live); `patient-app/src/__tests__/pharmacy/rx-ocr.test.tsx` (review, edit, remove, add, confirm sends corrected lines); `patient-web/tests/pharmacy-rx.test.tsx` `cleanItems` | P1 | H |
 | PT-28 | Notification preferences saved | COVERED | `j_notification_settings.py` (13/13 on main 365b2d580): change offers off and on, value holds on a new sign-in, a bad value refused (400) | P2 | H |
 | PT-29 | Push permission denied (app) | COVERED | `patient-app/src/__tests__/qa/push-permission.test.tsx` (app start, "Turn on" refused, failing request, denied prompt with the phone settings link, no re-asking; 2026-11-09 re-run) | P2 | H |
-| PT-30 | Location permission denied (app and web) | COVERED (web: map, address, home care, emergency each show a message and keep manual entry) | `j_web_call.py` (camera/mic); no location denial journey | P2 | H |
+| PT-30 | Location permission denied (app and web) | COVERED (client) | app: `patient-app/src/__tests__/qa/location-denied.test.tsx` (nearest helper, providers map, address picker), `emergency/urgent-help.test.tsx`; web: `patient-web/lib/map/explorer-browser.test.ts` (map permission and position, the doctors list's Nearest falls back to the saved city); `j_web_call.py` (camera/mic). The web address, home care and emergency buttons show a message and keep manual entry (their handlers are client-only; no DOM test) | P2 | H |
 | PT-31 | Language switch (ar, en, ur, hi, bn, fil) | COVERED | `j_web_translated_pages.py`, `j_server_texts_langs.py` | P2 | — |
 | PT-32 | RTL and LTR layout | COVERED | `j_web_translated_pages.py` | P2 | — |
 | PT-33 | Dark mode | COVERED | `j_web_dark_a11y.py` (75/75 on main 365b2d580): dark mode from the OS, stored choice wins and survives reload | P3 | D |

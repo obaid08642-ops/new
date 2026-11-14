@@ -36,4 +36,12 @@ describe("booking for a family member", () => {
     expect(res.status).toBeLessThan(300);
     expect(JSON.parse(mocks.api.mock.calls[mocks.api.mock.calls.length - 1][1].body)).toMatchObject({ sick_leave_requested: true });
   });
+  it("PT-03: sends family_member_id (a dependant with no account) on to the booking, and refuses a malformed one", async () => {
+    mocks.api.mockResolvedValue(new Response(JSON.stringify({ id: "11111111-1111-4111-8111-111111111111", status: "pending" })));
+    const base = { doctor_id: "22222222-2222-4222-8222-222222222222", service_type: "video", slot_start: "2026-11-01T10:00:00+03:00", payment_method: "card", refund_policy_accepted: true };
+    const send = (extra: Record<string, unknown>) => book(new Request("http://x", { method: "POST", headers: { "idempotency-key": "k".repeat(20) }, body: JSON.stringify({ ...base, ...extra }) }));
+    expect((await send({ family_member_id: "dep-0001" })).status).toBeLessThan(300);
+    expect(JSON.parse(mocks.api.mock.calls[mocks.api.mock.calls.length - 1][1].body)).toMatchObject({ family_member_id: "dep-0001" });
+    expect((await send({ family_member_id: "bad id!" })).status).toBe(400);
+  });
 });

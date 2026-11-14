@@ -57,8 +57,7 @@ describe('AuthService sessions (21.7)', () => {
 
   /** Sign in from one client: the request meta is what the middleware records. */
   const signIn = async (ua: string, ip: string, deviceId?: string) => {
-    const tokens = runWithRequestMeta({ userAgent: ua, ip, deviceId }, () => service.signToken(user, deviceId));
-    await new Promise((r) => setImmediate(r)); // signToken stores the session without awaiting
+    const tokens = await runWithRequestMeta({ userAgent: ua, ip, deviceId }, () => service.signToken(user, deviceId));
     return { ...tokens, sid: (jwt.decode(tokens.accessToken) as any).sid as string };
   };
 
@@ -69,8 +68,7 @@ describe('AuthService sessions (21.7)', () => {
   });
 
   it('a sign-in path that is not handed a device id takes the one on the request (password login)', async () => {
-    const tokens = runWithRequestMeta({ userAgent: CHROME, ip: '10.9.9.9', deviceId: 'dev-from-header-000001' }, () => service.signToken(user));
-    await new Promise((r) => setImmediate(r));
+    const tokens = await runWithRequestMeta({ userAgent: CHROME, ip: '10.9.9.9', deviceId: 'dev-from-header-000001' }, () => service.signToken(user));
     expect((jwt.decode(tokens.accessToken) as any).dev).toBe('dev-from-header-000001');
     const list = await service.listSessions(user.id, { deviceId: 'dev-from-header-000001' });
     expect(list[0]).toMatchObject({ device_id: 'dev-from-header-000001', current: true });
@@ -101,6 +99,21 @@ describe('AuthService sessions (21.7)', () => {
     expect(after[0].session_id).toBe(a.sid);
     expect(after[0].created_at).toBe(before.created_at);
     await expect(service.refreshToken(a.refreshToken, 'dev-iphone-0000000001')).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
+  it('two refreshes of the same token at the same moment: exactly one wins, the other is the lost race (no second token family)', async () => {
+    const a = await signIn(IPHONE, '10.1.2.3', 'dev-iphone-0000000001');
+    const results = await Promise.allSettled([
+      service.refreshToken(a.refreshToken, 'dev-iphone-0000000001'),
+      service.refreshToken(a.refreshToken, 'dev-iphone-0000000001'),
+    ]);
+    await new Promise((r) => setImmediate(r));
+    const won = results.filter((r) => r.status === 'fulfilled');
+    const lost = results.filter((r) => r.status === 'rejected') as PromiseRejectedResult[];
+    expect(won).toHaveLength(1);
+    expect(lost).toHaveLength(1);
+    expect(String(lost[0].reason?.message)).toBe('refresh_token_rotated');
+    expect(await service.listSessions(user.id)).toHaveLength(1);   // one live sign-in, nobody was signed out by the race
   });
 
   it('a reuse a moment after the rotation fails alone; a reuse later is theft and ends every sign-in', async () => {
@@ -188,6 +201,42 @@ describe('AuthService sessions (21.7)', () => {
     expect(await service.listSessions(user.id)).toHaveLength(0);
     expect(revoked.map((x) => x.sid).sort()).toEqual([a.sid, b.sid].sort());
   });
+
+  // Order c (lead, 2026-11-13): the session write is awaited; a failed write refuses the sign-in (retryable 503), never fails open.
+  describe('refresh session write fails closed', () => {
+    it('stores the session before the tokens are returned', async () => {
+      const tokens = await service.signToken(user, 'dev-ok-0000000000001');
+      const jti = (jwt.decode(tokens.refreshToken) as any).jti;
+      expect(redis.kv.has(`refresh:${jti}`)).toBe(true);
+    });
+
+    it('refuses the sign-in with a retryable 503 when the Redis write fails, and hands out no token', async () => {
+      redis.set = async () => { throw new Error('redis down'); };
+      await expect(service.signToken(user, 'dev-down-000000000001')).rejects.toMatchObject({
+        status: 503,
+        response: { code: 'session_store_unavailable', retryable: true },
+      });
+    });
+
+    it('a failed write during refresh is a 503, not the theft response, and the presented token still works afterwards', async () => {
+      const first = await service.signToken(user, 'dev-rot-0000000000001');
+      const jti = (jwt.decode(first.refreshToken) as any).jti;
+      const realSet = redis.set.bind(redis);
+      let failNext = true;
+      redis.set = async (k: string, v: string, ...rest: any[]) => {
+        if (failNext && k.startsWith('refresh:') && k !== `refresh:${jti}`) throw new Error('redis blip');
+        return realSet(k, v);
+      };
+      const endAll = jest.spyOn(service as any, 'endAllSessions');
+      await expect(service.refreshToken(first.refreshToken, 'dev-rot-0000000000001')).rejects.toMatchObject({ status: 503 });
+      expect(endAll).not.toHaveBeenCalled();
+      failNext = false;
+      const again = await service.refreshToken(first.refreshToken, 'dev-rot-0000000000001');
+      expect(again.accessToken).toBeTruthy();
+      expect(endAll).not.toHaveBeenCalled();
+    });
+  });
+
 });
 
 describe('request meta helpers (21.7)', () => {

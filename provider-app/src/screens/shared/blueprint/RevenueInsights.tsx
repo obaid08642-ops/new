@@ -28,14 +28,18 @@ type Ledger = { transactions?: LedgerTxn[]; summary?: { pending: number; balance
 
 // One revenue screen for every provider role (doctor, lab, nursing, pharmacy, radiology, facility). Same calls for all.
 // Revenue, refunds and the 12-month trend come from the server's monthly aggregate (GET /provider/stats/revenue, refunds netted,
-// Riyadh months); the phone adds nothing up for them. The wallet ledger (GET /provider/ops/wallet/ledger) still feeds the pending
-// and balance figures and the two breakdowns below, which are computed on the phone from its newest rows (see Needs review).
+// Riyadh months); the phone adds nothing up for them. The earnings-by-service and by-movement-type breakdowns and the pending / balance
+// figures come from the same endpoint (by_service, by_type, wallet), over the whole period and not just the newest ledger rows. The
+// ledger (GET /provider/ops/wallet/ledger) now only decides whether there are any movements at all, and feeds the pending / balance
+// figures of a server that does not send `wallet` yet.
 export function RevenueInsights({ onBack, role = 'provider' }: { onBack: () => void; role?: RevenueRole }) {
  const { theme } = useTheme();
  const { lang, t } = useLang();
  const AR = lang === 'ar';
  const [period, setPeriod] = useState<RevenuePeriod>(1);
  const [revenue, setRevenue] = useState<RevenueReply | null>(null);
+ // the breakdowns of the SELECTED period (the trend above always asks for 24 months)
+ const [periodRevenue, setPeriodRevenue] = useState<RevenueReply | null>(null);
  const [revenueFailed, setRevenueFailed] = useState(false);
  const [ledger, setLedger] = useState<Ledger>(null);
  const [loading, setLoading] = useState(true);
@@ -51,13 +55,19 @@ export function RevenueInsights({ onBack, role = 'provider' }: { onBack: () => v
      .finally(() => setLoading(false));
  }, []);
 
+ useEffect(() => {
+   let live = true;
+   setPeriodRevenue(null);
+   client.get('/provider/stats/revenue', { params: { months: period } })
+     .then(r => { if (live) setPeriodRevenue(r.data || null); })
+     .catch(() => { if (live) setPeriodRevenue(null); });
+   return () => { live = false; };
+ }, [period]);
+
  const txns: LedgerTxn[] = Array.isArray(ledger?.transactions) ? (ledger?.transactions as LedgerTxn[]) : [];
- const earningsAll = txns.filter(t => t.type === 'provider_earning');
- const periodDays = period === 1 ? 30 : period === 3 ? 90 : 365;
- const cutoff = Date.now() - periodDays * 86400000;
- const periodEarnings = earningsAll.filter(t => new Date(t.createdAt || 0).getTime() >= cutoff);
- const summary = ledger?.summary || null;
- const hasData = txns.length > 0;
+ // all-time pending / balance: the server's figures (no row limit); the ledger's own summary only for a server that does not send them yet
+ const summary = revenue?.wallet ? { pending: revenue.wallet.pending, balance: revenue.wallet.balance } : (ledger?.summary || null);
+ const hasData = txns.length > 0 || (revenue?.by_type?.length ?? 0) > 0;
 
  // Revenue of the selected period and the 12-month trend: the server's monthly aggregate, refunds netted.
  const months = revenue?.months || [];
@@ -66,16 +76,11 @@ export function RevenueInsights({ onBack, role = 'provider' }: { onBack: () => v
  const trend = trendMonths(months);
  const maxB = Math.max(...trend.map(m => m.net), 1);
 
- // Earnings of the selected period grouped by service/reference type.
- const byRef: Record<string, number> = {};
- periodEarnings.forEach(t => { const k = t.service_type || t.reference_type || 'other'; byRef[k] = (byRef[k] || 0) + (t.amount || 0); });
- const topServices = Object.entries(byRef).sort((a, b) => b[1] - a[1]).slice(0, 5);
+ // Earnings of the selected period by what they were earned on, and every movement of the period by ledger type: aggregated on the server.
+ const topServices: Array<[string, number]> = (periodRevenue?.by_service || []).slice(0, 5).map(x => [x.key, x.amount]);
  const totalAll = topServices.reduce((a, [, v]) => a + v, 0) || 1;
-
- // Breakdown by ledger movement type (earning, payout, commission, ...).
- const sums: Record<string, number> = {};
- txns.forEach(t => { const k = t.type || 'other'; sums[k] = (sums[k] || 0) + Math.abs(t.amount || 0); });
- const sumsTotal = Object.values(sums).reduce((a, b) => a + b, 0) || 1;
+ const sumsList: Array<[string, number]> = (periodRevenue?.by_type || []).map(x => [x.key, x.amount]);
+ const sumsTotal = sumsList.reduce((a, [, v]) => a + v, 0) || 1;
  const barColors = [theme.info, theme.primary, theme.warn, theme.danger, theme.success, theme.textSub];
 
  const title = role === 'facility'
@@ -188,7 +193,7 @@ export function RevenueInsights({ onBack, role = 'provider' }: { onBack: () => v
  <>
  <NSecHeader title={AR ? 'التوزيع حسب نوع الحركة' : 'Breakdown by Transaction Type'} />
  <NCard>
- {Object.entries(sums).sort((a, b) => b[1] - a[1]).map(([type, amt], i) => {
+ {sumsList.map(([type, amt], i) => {
  const pct = Math.round((amt / sumsTotal) * 100);
  const color = barColors[i % barColors.length];
  return (

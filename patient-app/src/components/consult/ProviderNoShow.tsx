@@ -6,19 +6,22 @@ import { Notice } from '../pharmacy/OfferKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
-import { canReportNoShow, noShowOpensAt } from '../../utils/providerNoShow';
+import { canReportNoShow, noShowOpensAt, readNoShowOutcome, type NoShowOutcome } from '../../utils/providerNoShow';
+import { useConsultFormat } from './ConsultKit';
 
 /**
  * "The doctor did not come" (POST /care/appointments/:id/provider-no-show): appears 10 minutes after the start and only for a visit that
- * never started; a second step says what it does (the visit is cancelled, a full refund at once) before anything is sent. The server
+ * never started; a second step says what it does before anything is sent: a video visit is cancelled and refunded at once, a clinic or home visit waits 24 hours
+ * for the provider, a patient who reports often goes to our team first. The answer says which one happened and the screen says the same. The server
  * decides again: its refusal is an error, never a success. `onDone` reloads the appointment (it is now cancelled).
  */
 export function ProviderNoShow({ appointmentId, status, slotStart, onDone }: { appointmentId: string; status?: string; slotStart?: string; onDone: () => void }) {
   const { theme, t, c, flow, k } = useScreenUi();
+  const { date, clock } = useConsultFormat();
   const [now, setNow] = useState(() => Date.now());
   const [asking, setAsking] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState(false);
+  const [done, setDone] = useState<NoShowOutcome | null>(null);
   const [error, setError] = useState(false);
 
   // wake the screen when the button should appear (the screen was opened before the 10 minutes were up)
@@ -36,8 +39,8 @@ export function ProviderNoShow({ appointmentId, status, slotStart, onDone }: { a
     setBusy(true);
     setError(false);
     try {
-      await apiFetch(`/care/appointments/${encodeURIComponent(appointmentId)}/provider-no-show`, { method: 'POST', body: JSON.stringify({}) });
-      setDone(true);
+      const answer = await apiFetch<unknown>(`/care/appointments/${encodeURIComponent(appointmentId)}/provider-no-show`, { method: 'POST', body: JSON.stringify({}) });
+      setDone(readNoShowOutcome(answer));
       setAsking(false);
       onDone();
     } catch (e) {
@@ -48,7 +51,7 @@ export function ProviderNoShow({ appointmentId, status, slotStart, onDone }: { a
     }
   };
 
-  if (done) return <Notice tone="info" text={k('consult.noShow.done')} />;
+  if (done) return <Notice tone="info" text={done.status === 'held' && done.refundAfter ? k('consult.noShow.held', { date: `${date(done.refundAfter)} ${clock(done.refundAfter)}` }) : done.status === 'pending_review' ? k('consult.noShow.review') : k('consult.noShow.done')} />;
   if (!canReportNoShow(status, slotStart, now)) return null;
   if (!asking) return <Button label={k('consult.noShow.button')} variant="outline" size="md" fullWidth onPress={() => setAsking(true)} theme={theme} testID="detail-no-show" />;
   return (

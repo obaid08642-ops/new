@@ -130,7 +130,7 @@ export class HomeCareSvc {
     if (!data.service_id) throw new BadRequestException('service_id required');
     if (!data.scheduled_at) throw new BadRequestException('scheduled_at required');
     // owner decision 2026-11-09: the refund policy is agreed before the booking exists
-    const policyAcceptance = await stampAcceptance(this.svcModel.db, refundPolicyAcceptance(user, data.refund_policy_accepted), 'nursing');
+    const policyAcceptance = await stampAcceptance(this.svcModel.db, refundPolicyAcceptance(user, data.refund_policy_accepted), 'nursing', data.refund_policy_hash);
     // owner decision 1: a booking for a family member (the caller stays the booker; checked to be the caller's own member)
     const familyMemberId = await resolveFamilyMemberId(this.svcModel.db, user.id, data.family_member_id);
     const svc = await this.svcModel.findOne({ id: data.service_id, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' });

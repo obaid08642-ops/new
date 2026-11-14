@@ -33,22 +33,22 @@
     ],
     [
      "API: GET /api/admin/admin/analytics-suite/provider-league",
-     "GET /api/admin/admin/analytics-suite/provider-league (OK, backend/src/modules/admin/enterprise/admin-analytics.controller.ts:94)",
+     "GET /api/admin/admin/analytics-suite/provider-league (OK, backend/src/modules/admin/enterprise/admin-analytics.controller.ts:101)",
      "ok"
     ],
     [
      "API: GET /api/admin/admin/analytics-suite/search",
-     "GET /api/admin/admin/analytics-suite/search (OK, backend/src/modules/admin/enterprise/admin-analytics.controller.ts:100)",
+     "GET /api/admin/admin/analytics-suite/search (OK, backend/src/modules/admin/enterprise/admin-analytics.controller.ts:107)",
      "ok"
     ],
     [
      "API: GET /api/admin/admin/analytics-suite/nps",
-     "GET /api/admin/admin/analytics-suite/nps (OK, backend/src/modules/admin/enterprise/admin-analytics.controller.ts:106)",
+     "GET /api/admin/admin/analytics-suite/nps (OK, backend/src/modules/admin/enterprise/admin-analytics.controller.ts:113)",
      "ok"
     ],
     [
      "API: GET /api/admin/admin/analytics-suite/anomalies",
-     "GET /api/admin/admin/analytics-suite/anomalies (OK, backend/src/modules/admin/enterprise/admin-analytics.controller.ts:112)",
+     "GET /api/admin/admin/analytics-suite/anomalies (OK, backend/src/modules/admin/enterprise/admin-analytics.controller.ts:119)",
      "ok"
     ]
    ]
@@ -68,32 +68,12 @@
     ],
     [
      "API: GET /api/admin/admin/analytics/overview",
-     "GET /api/admin/admin/analytics/overview (OK, backend/src/modules/analytics/analytics.module.ts:126)",
+     "GET /api/admin/admin/analytics/overview (OK, backend/src/modules/analytics/analytics.module.ts:244)",
      "ok"
     ],
     [
      "API: GET /api/admin/admin/analytics/:param",
-     "GET /api/admin/admin/analytics/:param (OK, backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:231)",
-     "ok"
-    ]
-   ]
-  },
-  {
-   "route": "/admin/community-moderation",
-   "elements": [
-    [
-     "button: تحديث",
-     "GET /community/admin/pending",
-     "ok"
-    ],
-    [
-     "button: نشر",
-     "PUT /community/admin/:param/moderate; GET /community/admin/pending; confirm()",
-     "ok"
-    ],
-    [
-     "button: حذف",
-     "PUT /community/admin/:param/moderate; GET /community/admin/pending; confirm()",
+     "GET /api/admin/admin/analytics/:param (OK, backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:183)",
      "ok"
     ]
    ]
@@ -117,7 +97,7 @@
      "ok"
     ],
     [
-     "form: إنشاء ونشر/جدولة مقال تاريخ النشر (اختياري للتشغيل الفوري) ح",
+     "form: إنشاء ونشر/جدولة مقال أسبوع الحمل (اختياري، 1-42: يظهر المقا",
      "saveArticle; POST /api/admin/admin/cms/articles; POST /api/admin/admin/cms/:param/schedule; POST /api/admin/admin/cms/:p",
      "ok"
     ],
@@ -138,6 +118,11 @@
     ],
     [
      "input: وسوم مفصولة بفاصلة",
+     "state article used by logic/request",
+     "ok"
+    ],
+    [
+     "input: number",
      "state article used by logic/request",
      "ok"
     ],
@@ -208,6 +193,11 @@
     ],
     [
      "input: حد الاستخدام الكلي",
+     "state coupon used by logic/request",
+     "ok"
+    ],
+    [
+     "input: حد الاستخدام لكل مستخدم (الافتراضي 1)",
      "state coupon used by logic/request",
      "ok"
     ],
@@ -327,8 +317,58 @@
      "ok"
     ],
     [
+     "link: العودة لمركز القيادة (in AdminGuard)",
+     "link /admin/command-center",
+     "ok"
+    ],
+    [
+     "button: فتح القائمة (in AdminGuard)",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: إغلاق القائمة (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: ميلادي هجري (in AdminGuard)",
+     "navigation; local state",
+     "ok"
+    ],
+    [
+     "button: تسجيل الخروج (in AdminGuard)",
+     "logout; POST /auth/logout; navigation",
+     "ok"
+    ],
+    [
+     "link: ar-SA-u-ca-gregory (in AdminGuard)",
+     "link /admin/alerts",
+     "ok"
+    ],
+    [
      "API: GET /api/admin/admin/notification-center/segments",
-     "GET /api/admin/admin/notification-center/segments (OK, backend/src/modules/admin/notification-center/admin-notification-center.module.ts:408)",
+     "GET /api/admin/admin/notification-center/segments (OK, backend/src/modules/admin/notification-center/admin-notification-center.module.ts:484)",
+     "ok"
+    ],
+    [
+     "API: POST /auth/heartbeat",
+     "POST /auth/heartbeat (OK, backend/src/modules/auth/auth.controller.ts:269)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/session",
+     "GET /api/admin/admin/session (OK, backend/src/modules/admin/enterprise/admin-security.controller.ts:80)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/urgent-alerts/unread-count",
+     "GET /api/admin/admin/urgent-alerts/unread-count (OK, backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25)",
      "ok"
     ]
    ]
@@ -364,6 +404,56 @@
     [
      "button: تسجيل انتحال للدعم",
      "POST /api/admin/admin/impersonation/start; confirm()",
+     "ok"
+    ],
+    [
+     "link: العودة لمركز القيادة (in AdminGuard)",
+     "link /admin/command-center",
+     "ok"
+    ],
+    [
+     "button: فتح القائمة (in AdminGuard)",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: إغلاق القائمة (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: ميلادي هجري (in AdminGuard)",
+     "navigation; local state",
+     "ok"
+    ],
+    [
+     "button: تسجيل الخروج (in AdminGuard)",
+     "logout; POST /auth/logout; navigation",
+     "ok"
+    ],
+    [
+     "link: ar-SA-u-ca-gregory (in AdminGuard)",
+     "link /admin/alerts",
+     "ok"
+    ],
+    [
+     "API: POST /auth/heartbeat",
+     "POST /auth/heartbeat (OK, backend/src/modules/auth/auth.controller.ts:269)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/session",
+     "GET /api/admin/admin/session (OK, backend/src/modules/admin/enterprise/admin-security.controller.ts:80)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/urgent-alerts/unread-count",
+     "GET /api/admin/admin/urgent-alerts/unread-count (OK, backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25)",
      "ok"
     ]
    ]
@@ -546,17 +636,17 @@
     ],
     [
      "button: إنشاء جلسة 15 دقيقة",
-     "POST /api/admin/admin/impersonation/start; GET /support-session/context; GET /api/admin/admin/impersonation; confirm()",
+     "POST /api/admin/impersonation/start; GET /api/admin/impersonation/context; GET /api/admin/admin/impersonation; confirm()",
      "ok"
     ],
     [
      "button: إبطال",
-     "POST /api/admin/admin/impersonation/:param/revoke; GET /api/admin/admin/impersonation; prompt()",
+     "POST /api/admin/impersonation/revoke; GET /api/admin/admin/impersonation; prompt()",
      "ok"
     ],
     [
      "API: GET /api/admin/admin/users",
-     "GET /api/admin/admin/users (OK, backend/src/modules/admin/admin.controller.ts:250)",
+     "GET /api/admin/admin/users (OK, backend/src/modules/admin/admin.controller.ts:253)",
      "ok"
     ]
    ]
@@ -656,7 +746,7 @@
     ],
     [
      "button: حفظ الإعدادات",
-     "saveConfig; PUT /admin/admin/loyalty/config; GET /loyalty/config; GET /admin/loyalty/rewards; GET /admin/loyalty/challen",
+     "saveConfig; PUT /admin/admin/loyalty/config; GET /admin/admin/loyalty/config; GET /admin/admin/loyalty/rewards; GET /adm",
      "ok"
     ],
     [
@@ -681,12 +771,12 @@
     ],
     [
      "button: إضافة",
-     "createReward; POST /admin/admin/loyalty/rewards; GET /loyalty/config; GET /admin/loyalty/rewards; GET /admin/loyalty/cha",
+     "createReward; POST /admin/admin/loyalty/rewards; GET /admin/admin/loyalty/config; GET /admin/admin/loyalty/rewards; GET ",
      "ok"
     ],
     [
      "button: مفعّلة معطّلة",
-     "PATCH /admin/admin/loyalty/rewards/:param; GET /loyalty/config; GET /admin/loyalty/rewards; GET /admin/loyalty/challenge",
+     "PATCH /admin/admin/loyalty/rewards/:param; GET /admin/admin/loyalty/config; GET /admin/admin/loyalty/rewards; GET /admin",
      "ok"
     ],
     [
@@ -726,12 +816,12 @@
     ],
     [
      "button: إضافة تحدٍ",
-     "createChallenge; POST /admin/admin/loyalty/challenges; GET /loyalty/config; GET /admin/loyalty/rewards; GET /admin/loyal",
+     "createChallenge; POST /admin/admin/loyalty/challenges; GET /admin/admin/loyalty/config; GET /admin/admin/loyalty/rewards",
      "ok"
     ],
     [
      "button: مفعّل معطّل",
-     "PATCH /admin/admin/loyalty/challenges/:param; GET /loyalty/config; GET /admin/loyalty/rewards; GET /admin/loyalty/challe",
+     "PATCH /admin/admin/loyalty/challenges/:param; GET /admin/admin/loyalty/config; GET /admin/admin/loyalty/rewards; GET /ad",
      "ok"
     ]
    ]
@@ -781,7 +871,7 @@
     ],
     [
      "button: تشغيل إعادة الاستهداف يدوياً",
-     "runRetarget; POST /api/admin/admin/notification-center/retarget/run",
+     "runRetarget; POST /api/admin/admin/notification-center/retarget/run; confirm()",
      "ok"
     ],
     [
@@ -850,13 +940,63 @@
      "ok"
     ],
     [
+     "link: العودة لمركز القيادة (in AdminGuard)",
+     "link /admin/command-center",
+     "ok"
+    ],
+    [
+     "button: فتح القائمة (in AdminGuard)",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: إغلاق القائمة (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: ميلادي هجري (in AdminGuard)",
+     "navigation; local state",
+     "ok"
+    ],
+    [
+     "button: تسجيل الخروج (in AdminGuard)",
+     "logout; POST /auth/logout; navigation",
+     "ok"
+    ],
+    [
+     "link: ar-SA-u-ca-gregory (in AdminGuard)",
+     "link /admin/alerts",
+     "ok"
+    ],
+    [
      "API: GET /api/admin/admin/notification-center/segments",
-     "GET /api/admin/admin/notification-center/segments (OK, backend/src/modules/admin/notification-center/admin-notification-center.module.ts:408)",
+     "GET /api/admin/admin/notification-center/segments (OK, backend/src/modules/admin/notification-center/admin-notification-center.module.ts:484)",
      "ok"
     ],
     [
      "API: GET /api/admin/admin/analytics-suite/email-usage",
-     "GET /api/admin/admin/analytics-suite/email-usage (OK, backend/src/modules/admin/enterprise/admin-analytics.controller.ts:49)",
+     "GET /api/admin/admin/analytics-suite/email-usage (OK, backend/src/modules/admin/enterprise/admin-analytics.controller.ts:55)",
+     "ok"
+    ],
+    [
+     "API: POST /auth/heartbeat",
+     "POST /auth/heartbeat (OK, backend/src/modules/auth/auth.controller.ts:269)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/session",
+     "GET /api/admin/admin/session (OK, backend/src/modules/admin/enterprise/admin-security.controller.ts:80)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/urgent-alerts/unread-count",
+     "GET /api/admin/admin/urgent-alerts/unread-count (OK, backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25)",
      "ok"
     ]
    ]
@@ -975,11 +1115,6 @@
      "ok"
     ],
     [
-     "input: operator",
-     "value rule",
-     "ok"
-    ],
-    [
      "input: القيمة",
      "value rule",
      "ok"
@@ -1008,10 +1143,60 @@
      "button: حفظ وتدقيق",
      "submits the enclosing form",
      "ok"
+    ],
+    [
+     "link: العودة لمركز القيادة (in AdminGuard)",
+     "link /admin/command-center",
+     "ok"
+    ],
+    [
+     "button: فتح القائمة (in AdminGuard)",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: إغلاق القائمة (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: ميلادي هجري (in AdminGuard)",
+     "navigation; local state",
+     "ok"
+    ],
+    [
+     "button: تسجيل الخروج (in AdminGuard)",
+     "logout; POST /auth/logout; navigation",
+     "ok"
+    ],
+    [
+     "link: ar-SA-u-ca-gregory (in AdminGuard)",
+     "link /admin/alerts",
+     "ok"
+    ],
+    [
+     "API: POST /auth/heartbeat",
+     "POST /auth/heartbeat (OK, backend/src/modules/auth/auth.controller.ts:269)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/session",
+     "GET /api/admin/admin/session (OK, backend/src/modules/admin/enterprise/admin-security.controller.ts:80)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/urgent-alerts/unread-count",
+     "GET /api/admin/admin/urgent-alerts/unread-count (OK, backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25)",
+     "ok"
     ]
    ],
    "notes": [
-    "3 handler(s) are passed as props (parent callbacks) and are not traced."
+    "2 handler(s) are passed as props (parent callbacks) and are not traced."
    ]
   },
   {
@@ -1098,6 +1283,11 @@
      "ok"
     ],
     [
+     "button: حذف نهائي",
+     "DELETE /api/admin/admin/provider-profiles/:param; GET /api/admin/admin/provider-profiles/orphans; confirm()",
+     "ok"
+    ],
+    [
      "button: ← عودة لإدارة المستخدمين",
      "local state",
      "ok"
@@ -1133,13 +1323,23 @@
      "ok"
     ],
     [
-     "button: جاري التحميل… تحميل العقد PDF (in ProviderFullDetail)",
-     "downloadContract; GET /api/admin/provider-onboarding/admin/contracts/:param",
+     "button: قبول (in ProviderFullDetail)",
+     "POST /api/admin/admin/providers/:param/documents/:param/:param; prompt()",
      "ok"
     ],
     [
-     "input: checkbox (in ProviderFullDetail)",
-     "onChange sends POST /api/admin/provider-onboarding/admin/contracts/:param/visibility",
+     "button: رفض (in ProviderFullDetail)",
+     "POST /api/admin/admin/providers/:param/documents/:param/:param; prompt()",
+     "ok"
+    ],
+    [
+     "button: تحميل PDF عربي تحميل PDF إنجليزي (in ProviderFullDetail)",
+     "GET /api/admin/provider-onboarding/admin/contracts/:param; navigation",
+     "ok"
+    ],
+    [
+     "button: عرض العربي عرض الإنجليزي (in ProviderFullDetail)",
+     "GET /api/admin/provider-onboarding/admin/contracts/:param; navigation",
      "ok"
     ],
     [
@@ -1163,33 +1363,128 @@
      "ok"
     ],
     [
+     "link: العودة لمركز القيادة (in AdminGuard)",
+     "link /admin/command-center",
+     "ok"
+    ],
+    [
+     "button: فتح القائمة (in AdminGuard)",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: إغلاق القائمة (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: ميلادي هجري (in AdminGuard)",
+     "navigation; local state",
+     "ok"
+    ],
+    [
+     "button: تسجيل الخروج (in AdminGuard)",
+     "logout; POST /auth/logout; navigation",
+     "ok"
+    ],
+    [
+     "input: checkbox (in ProviderFullDetail)",
+     "state od used by logic/request",
+     "ok"
+    ],
+    [
+     "input: radio (in ProviderFullDetail)",
+     "state od used by logic/request",
+     "ok"
+    ],
+    [
+     "input: input (in ProviderFullDetail)",
+     "state od used by logic/request",
+     "ok"
+    ],
+    [
+     "button: <button> onClick (in ProviderFullDetail)",
+     "local state",
+     "ok"
+    ],
+    [
+     "input: input (in ProviderFullDetail)",
+     "state od used by logic/request",
+     "ok"
+    ],
+    [
+     "input: input (in ProviderFullDetail)",
+     "state od used by logic/request",
+     "ok"
+    ],
+    [
+     "button: حفظ (in ProviderFullDetail)",
+     "save; PUT :param/:param",
+     "ok"
+    ],
+    [
+     "link: ar-SA-u-ca-gregory (in AdminGuard)",
+     "link /admin/alerts",
+     "ok"
+    ],
+    [
      "API: POST /api/admin/admin/providers/:param/reactivate",
-     "POST /api/admin/admin/providers/:param/reactivate (OK, backend/src/modules/provider/provider.controllers.ts:182)",
+     "POST /api/admin/admin/providers/:param/reactivate (OK, backend/src/modules/provider/provider.controllers.ts:219)",
      "ok"
     ],
     [
      "API: GET /api/admin/storage/:param/signed-url",
-     "GET /api/admin/storage/:param/signed-url (OK, backend/src/modules/storage/storage.module.ts:386)",
+     "GET /api/admin/storage/:param/signed-url (OK, backend/src/modules/storage/storage.module.ts:572)",
      "ok"
     ],
     [
      "API: GET /api/admin/storage/:param",
-     "GET /api/admin/storage/:param (OK, backend/src/modules/storage/storage.module.ts:376)",
+     "GET /api/admin/storage/:param (OK, backend/src/modules/storage/storage.module.ts:562)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/provider-onboarding/admin/contracts/:param/meta",
+     "GET /api/admin/provider-onboarding/admin/contracts/:param/meta (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:648)",
      "ok"
     ],
     [
      "API: GET /locations/regions",
-     "GET /locations/regions (OK, backend/src/modules/location/location.controller.ts:11)",
+     "GET /locations/regions (OK, backend/src/modules/location/location.controller.ts:13)",
      "ok"
     ],
     [
      "API: GET /locations/cities",
-     "GET /locations/cities (OK, backend/src/modules/location/location.controller.ts:17)",
+     "GET /locations/cities (OK, backend/src/modules/location/location.controller.ts:20)",
      "ok"
     ],
     [
      "API: GET /locations/districts",
-     "GET /locations/districts (OK, backend/src/modules/location/location.controller.ts:23)",
+     "GET /locations/districts (OK, backend/src/modules/location/location.controller.ts:27)",
+     "ok"
+    ],
+    [
+     "API: POST /auth/heartbeat",
+     "POST /auth/heartbeat (OK, backend/src/modules/auth/auth.controller.ts:269)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/session",
+     "GET /api/admin/admin/session (OK, backend/src/modules/admin/enterprise/admin-security.controller.ts:80)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/locations/districts",
+     "GET /api/admin/locations/districts (OK, backend/src/modules/location/location.controller.ts:27)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/urgent-alerts/unread-count",
+     "GET /api/admin/admin/urgent-alerts/unread-count (OK, backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25)",
      "ok"
     ]
    ]
@@ -1197,90 +1492,75 @@
  ],
  "needsReview": [
   {
-   "route": "/admin/analytics",
-   "element": "No nav link",
-   "kind": "client",
-   "note": "Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
-   "file": "admin/src/pages/admin/analytics.tsx",
-   "line": 1
-  },
-  {
-   "route": "/admin/community-moderation",
-   "element": "Removed feature",
-   "kind": "owner",
-   "note": "Owner decision item 1 (2026-10-06) removes community user posts completely; this moderation page goes with them.",
-   "file": "admin/src/pages/admin/community-moderation.tsx",
-   "line": 1
-  },
-  {
    "route": "/admin/content-growth",
-   "element": "إنشاء ونشر/جدولة مقال تاريخ النشر (اختياري للتشغيل الفوري) ح",
+   "element": "إنشاء ونشر/جدولة مقال أسبوع الحمل (اختياري، 1-42: يظهر المقا",
    "kind": "client",
    "note": "Sensitive action (POST /api/admin/admin/cms/:param/publish) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
    "file": "admin/src/pages/admin/content-growth.tsx",
-   "line": 50
+   "line": 53
   },
   {
    "route": "/admin/content-growth",
-   "element": "Guard G-PERM-MISMATCH (1)",
+   "element": "Guard G-PERM-MISMATCH (3)",
    "kind": "backend",
-   "note": "1 call(s): Page requires \"cms.edit\" but GET /admin/coupons requires coupons.manage; an admin role with the page permission only gets a 403 on this call.",
+   "note": "3 call(s): Page requires \"cms.edit\" but POST /admin/notification-center/campaigns requires notifications.send; an admin role with the page permission only gets a 403 on th",
    "file": "admin/src/pages/admin/content-growth.tsx",
-   "line": 32,
-   "backend": "backend/src/modules/admin/enterprise/admin-coupons.controller.ts:86"
+   "line": 51,
+   "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:498"
   },
   {
    "route": "/admin/content-growth",
-   "element": "Guard G-ROLE-ONLY-WRITE (2)",
+   "element": "Guard G-OPEN (1)",
    "kind": "backend",
-   "note": "2 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/cms/:param/publish; PATCH /api/admin/admin/cms/:param/unpublish): every admin role, including a custom restricted one, can run them.",
-   "file": "admin/src/pages/admin/content-growth.tsx",
-   "line": 34,
-   "backend": "backend/src/modules/admin/enterprise/admin-cms.controller.ts:88"
+   "note": "1 call(s) hit backend routes with no role/permission guard (POST /auth/heartbeat): any signed-in user passes JwtAuthGuard.",
+   "file": "admin/src/components/AdminGuard.tsx",
+   "line": 254,
+   "backend": "backend/src/modules/auth/auth.controller.ts:269"
+  },
+  {
+   "route": "/admin/crm",
+   "element": "Guard G-OPEN (1)",
+   "kind": "backend",
+   "note": "1 call(s) hit backend routes with no role/permission guard (POST /auth/heartbeat): any signed-in user passes JwtAuthGuard.",
+   "file": "admin/src/components/AdminGuard.tsx",
+   "line": 254,
+   "backend": "backend/src/modules/auth/auth.controller.ts:269"
   },
   {
    "route": "/admin/crm",
    "element": "Guard G-PERM-MISMATCH (1)",
    "kind": "backend",
-   "note": "1 call(s): Page requires \"crm.read\" but POST /admin/impersonation/start requires user.impersonate; an admin role with the page permission only gets a 403 on this call.",
-   "file": "admin/src/pages/admin/crm.tsx",
-   "line": 14,
-   "backend": "backend/src/modules/admin/enterprise/admin-impersonation.controller.ts:23"
+   "note": "1 call(s): Page requires \"crm.read\" but GET /admin/urgent-alerts/unread-count requires command.center.view; an admin role with the page permission only gets a 403 on this ",
+   "file": "admin/src/components/AlertsBell.tsx",
+   "line": 19,
+   "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25"
   },
   {
-   "route": "/admin/impersonation",
+   "route": "/admin/locations",
+   "element": "Guard G-PAGE-NOPERM (2)",
+   "kind": "client",
+   "note": "Page has no client permission (AdminGuard ROUTE_PERMISSIONS) but 2 call(s) need permissions the backend checks (POST /api/admin/admin/locations; DELETE /api/admin/admin/locations/:param); any admin sees the page and gets 403s inside it.",
+   "file": "admin/src/pages/admin/locations.tsx",
+   "line": 43,
+   "backend": "backend/src/modules/location/admin-location.controller.ts:35"
+  },
+  {
+   "route": "/admin/notification-center",
    "element": "Guard G-OPEN (1)",
    "kind": "backend",
-   "note": "1 call(s) hit backend routes with no role/permission guard (GET /support-session/context): any signed-in user passes JwtAuthGuard.",
-   "file": "admin/src/pages/admin/impersonation.tsx",
-   "line": 16,
-   "backend": "backend/src/common/support-session-context.controller.ts:12"
-  },
-  {
-   "route": "/admin/loyalty-config",
-   "element": "Guard G-OPEN (3)",
-   "kind": "backend",
-   "note": "3 call(s) hit backend routes with no role/permission guard (GET /loyalty/config; GET /admin/loyalty/rewards; GET /admin/loyalty/challenges): any signed-in user passes JwtAuthGuard.",
-   "file": "admin/src/pages/admin/loyalty-config.tsx",
-   "line": 22,
-   "backend": "backend/src/modules/loyalty/loyalty.controller.ts:16"
+   "note": "1 call(s) hit backend routes with no role/permission guard (POST /auth/heartbeat): any signed-in user passes JwtAuthGuard.",
+   "file": "admin/src/components/AdminGuard.tsx",
+   "line": 254,
+   "backend": "backend/src/modules/auth/auth.controller.ts:269"
   },
   {
    "route": "/admin/notification-center",
    "element": "Guard G-PERM-MISMATCH (1)",
    "kind": "backend",
-   "note": "1 call(s): Page requires \"ops.queues.manage\" but GET /admin/analytics-suite/email-usage requires analytics.read; an admin role with the page permission only gets a 403 on ",
-   "file": "admin/src/pages/admin/notification-center.tsx",
-   "line": 95,
-   "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:49"
-  },
-  {
-   "route": "/admin/notification-center",
-   "element": "No nav link",
-   "kind": "client",
-   "note": "Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
-   "file": "admin/src/pages/admin/notification-center.tsx",
-   "line": 1
+   "note": "1 call(s): Page requires \"notifications.send\" but GET /admin/urgent-alerts/unread-count requires command.center.view; an admin role with the page permission only gets a 40",
+   "file": "admin/src/components/AlertsBell.tsx",
+   "line": 19,
+   "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25"
   },
   {
    "route": "/admin/search-intelligence",
@@ -1292,30 +1572,65 @@
    "backend": "backend/src/modules/search-intent/search-intent.controller.ts:12"
   },
   {
-   "route": "/admin/users-management",
-   "element": "إعادة تفعيل",
-   "kind": "client",
-   "note": "Sensitive action (POST /api/admin/admin/users/:param/unban) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-   "file": "admin/src/pages/admin/users-management.tsx",
-   "line": 296
+   "route": "/admin/segments",
+   "element": "Guard G-OPEN (1)",
+   "kind": "backend",
+   "note": "1 call(s) hit backend routes with no role/permission guard (POST /auth/heartbeat): any signed-in user passes JwtAuthGuard.",
+   "file": "admin/src/components/AdminGuard.tsx",
+   "line": 254,
+   "backend": "backend/src/modules/auth/auth.controller.ts:269"
+  },
+  {
+   "route": "/admin/segments",
+   "element": "Guard G-PERM-MISMATCH (1)",
+   "kind": "backend",
+   "note": "1 call(s): Page requires \"crm.read\" but GET /admin/urgent-alerts/unread-count requires command.center.view; an admin role with the page permission only gets a 403 on this ",
+   "file": "admin/src/components/AlertsBell.tsx",
+   "line": 19,
+   "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25"
+  },
+  {
+   "route": "/admin/support-tickets",
+   "element": "Guard G-PERM-MISMATCH (3)",
+   "kind": "backend",
+   "note": "3 call(s): Page requires \"crm.read\" but GET /support/admin/requests requires support.manage; an admin role with the page permission only gets a 403 on this call. | Page re",
+   "file": "admin/src/pages/admin/support-tickets.tsx",
+   "line": 31,
+   "backend": "backend/src/modules/support/support.controller.ts:23"
   },
   {
    "route": "/admin/users-management",
-   "element": "Guard G-ROLE-ONLY-WRITE (3)",
+   "element": "API GET :param/:param",
    "kind": "backend",
-   "note": "3 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/users/:param/ban; POST /api/admin/admin/users/:param/unban; POST /api/admin/admin/providers/:param/reactivate): every admin role, including a custom restricted one, can run them.",
-   "file": "admin/src/pages/admin/users-management.tsx",
-   "line": 115,
-   "backend": "backend/src/modules/admin/admin.controller.ts:460"
+   "note": "Endpoint is NO_ROUTE (path does not go through /api/admin (the BFF), so it hits Next, not the backend): the call fails or hits nothing.",
+   "file": "admin/src/components/PharmacyOwnDeliveryAdmin.tsx",
+   "line": 22
+  },
+  {
+   "route": "/admin/users-management",
+   "element": "API PUT :param/:param",
+   "kind": "backend",
+   "note": "Endpoint is NO_ROUTE (path does not go through /api/admin (the BFF), so it hits Next, not the backend): the call fails or hits nothing.",
+   "file": "admin/src/components/PharmacyOwnDeliveryAdmin.tsx",
+   "line": 44
   },
   {
    "route": "/admin/users-management",
    "element": "Guard G-OPEN (3)",
    "kind": "backend",
-   "note": "3 call(s) hit backend routes with no role/permission guard (GET /api/admin/storage/:param/signed-url; GET /api/admin/storage/:param; GET /api/admin/provider-onboarding/admin/contracts/:param): any signed-in user passes JwtAuthGuard.",
+   "note": "3 call(s) hit backend routes with no role/permission guard (GET /api/admin/storage/:param/signed-url; GET /api/admin/storage/:param; POST /auth/heartbeat): any signed-in user passes JwtAuthGuard.",
    "file": "admin/src/components/ProviderFullDetail.tsx",
+   "line": 21,
+   "backend": "backend/src/modules/storage/storage.module.ts:572"
+  },
+  {
+   "route": "/admin/users-management",
+   "element": "Guard G-PERM-MISMATCH (1)",
+   "kind": "backend",
+   "note": "1 call(s): Page requires \"user.read\" but GET /admin/urgent-alerts/unread-count requires command.center.view; an admin role with the page permission only gets a 403 on this",
+   "file": "admin/src/components/AlertsBell.tsx",
    "line": 19,
-   "backend": "backend/src/modules/storage/storage.module.ts:386"
+   "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25"
   }
  ]
 }

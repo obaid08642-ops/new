@@ -66,6 +66,29 @@ describe('RevenueInsights is one screen with a role header (M4)', () => {
     await waitFor(() => expect(screen.getByText(/250\.25/)).toBeTruthy());
   });
 
+  // Order g: the breakdowns and the pending / balance figures are aggregated by the server over the whole period, not on the phone from its newest ledger rows.
+  it('draws the service breakdown, the movement breakdown and the wallet figures from the server aggregate', async () => {
+    const base = get.getMockImplementation() as (url: string, cfg?: any) => Promise<any>;
+    get.mockImplementation((url: string, cfg?: any) => {
+      if (url === '/provider/stats/revenue') {
+        const reply = { currency: 'SAR', months: [{ month: '2026-11', earned: 300, refunded: 0, net: 300 }], total: { earned: 300, refunded: 0, net: 300 },
+          by_service: [{ key: 'lab_booking', amount: 210 }, { key: 'appointment', amount: 90 }],
+          by_type: [{ key: 'provider_earning', amount: 300 }, { key: 'commission', amount: 100 }],
+          wallet: { earned: 5000, paid: 1000, pending: 77, balance: 4000 } };
+        return Promise.resolve({ data: reply });
+      }
+      return base(url, cfg);
+    });
+    await render(<RevenueInsights onBack={() => {}} />);
+    await waitFor(() => expect(screen.getByText('Lab')).toBeTruthy());            // lab_booking, labelled (no ledger rows at all: the ledger mock is empty)
+    expect(screen.getByText('Appointments')).toBeTruthy();
+    expect(screen.getByText('Service earnings')).toBeTruthy();                     // by_type provider_earning
+    expect(screen.getByText('Platform commission')).toBeTruthy();
+    expect(screen.getByText('77')).toBeTruthy();                                   // wallet.pending, the ledger summary says 0
+    expect(screen.getByText('4,000')).toBeTruthy();                                // wallet.balance
+    expect(get).toHaveBeenCalledWith('/provider/stats/revenue', { params: { months: 1 } });   // the breakdowns ask for the selected period
+  });
+
   it('only the header differs for a facility', async () => {
     await render(<RevenueInsights role="facility" onBack={() => {}} />);
     await waitFor(() => expect(screen.getByText('Unified Financial Reports')).toBeTruthy());

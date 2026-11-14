@@ -143,7 +143,7 @@ export class PatientHomeCareController {
       scheduled_at: body.scheduled_at,
       notes: body.notes,
       payment_method: body.payment_method,
-      refund_policy_accepted: body.refund_policy_accepted,
+      refund_policy_accepted: body.refund_policy_accepted, refund_policy_hash: body.refund_policy_hash,
       provider_id: body.provider_id,
       contact: body.contact,
       sessions_count: body.sessions_count,

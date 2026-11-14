@@ -155,7 +155,7 @@ export class MoyasarAdapter implements PaymentGateway {
       const base = returned.base;
       // #550: the return address names our transaction (`?ref=`); the provider appends its own id and status after it.
       const callback = req.return_ref ? `${base}${base.includes('?') ? '&' : '?'}ref=${encodeURIComponent(req.return_ref)}` : base;
-      const body = JSON.stringify({ amount: Math.round(req.amount * 100), currency: req.currency || 'SAR', description: req.description, callback_url: callback, success_url: callback, back_url: callback });
+      const body = JSON.stringify({ amount: toHalalas(req.amount), currency: req.currency || 'SAR', description: req.description, callback_url: callback, success_url: callback, back_url: callback });
       const r = await externalFetch(`${this.base}/invoices`, { method: 'POST', headers: this.headers(), body });
       const j: any = await r.json();
       if (!r.ok) throw new BadGatewayException(j.message || 'moyasar_intent_failed');
@@ -179,6 +179,8 @@ export class MoyasarAdapter implements PaymentGateway {
       // decides. The patient is told it failed (and can retry) instead of waiting on a payment that will never settle; a later
       // paid attempt on the same invoice still settles it (verify reads the paid payment first).
       const last = payments[payments.length - 1];
+      // An expired checkout session is a failure with its own stable reason (the patient is told "the session expired, no money was taken", not "payment failed").
+      if (j.status === 'expired' && !paid) return { status: 'failed' as VerifyResult['status'], raw: { ...j, last_payment_error: { message: 'payment_session_expired' } } };
       if (!map[j.status] && last?.status === 'failed') return { status: 'failed' as VerifyResult['status'], raw: { ...j, last_payment_error: { message: String(last?.source?.message || 'card_declined') } } };
       return { status: (map[j.status] || 'pending') as VerifyResult['status'], raw: j };
     };
@@ -187,7 +189,7 @@ export class MoyasarAdapter implements PaymentGateway {
   async refund(id: string, amount?: number) {
     // Moyasar's documented route is singular: POST /payments/:id/refund.
     const run = async (paymentId: string, amt?: number) => {
-      const body = JSON.stringify(amt ? { amount: Math.round(amt * 100) } : {});
+      const body = JSON.stringify(amt ? { amount: toHalalas(amt) } : {});
       const r = await externalFetch(`${this.base}/payments/${paymentId}/refund`, { method: 'POST', headers: this.headers(), body });
       const j: any = await r.json();
       return { refunded: r.ok, raw: j };
@@ -268,7 +270,9 @@ export class PaymentsService {
    * payment — it is recorded as failed so it can never confirm the booking.
    */
   private gatewayAmountMatches(t: any, raw: any): boolean {
-    const expectedHalalas = Math.round(Number(t.amount || 0) * 100);
+    // R11 P2: the integer shadow when the transaction has one, else the double converted exactly (never `round(x * 100)`)
+    const amountSar = Number(t.amount || 0);
+    const expectedHalalas = Number.isSafeInteger(t.amount_halalas) ? t.amount_halalas : (Number.isFinite(amountSar) ? toHalalas(amountSar) : NaN);
     const expectedCurrency = String(t.currency || 'SAR').toUpperCase();
     if (!Number.isFinite(expectedHalalas) || expectedHalalas <= 0) return false;
     if (String(raw?.currency || '').toUpperCase() !== expectedCurrency) return false;

@@ -1,5 +1,5 @@
 import { ProviderOpsService } from './provider-ops.module';
-import { clampMonths, foldRevenue, monthKey, monthKeys, rangeStart, revenuePipeline } from './revenue-by-month';
+import { clampMonths, foldRevenue, foldSlices, foldWalletTotals, monthKey, monthKeys, rangeStart, revenuePipeline } from './revenue-by-month';
 
 const NOW = new Date('2026-11-09T10:00:00Z');                      // 13:00 on 9 November in Riyadh
 
@@ -70,5 +70,36 @@ describe('the pipeline and the service', () => {
     expect(out.months).toHaveLength(12);
     expect(out.months[11].earned).toBe(123.45);
     expect((await new ProviderOpsService(conn).revenueByMonth('user-1', '3')).months).toHaveLength(3);
+  });
+});
+
+describe('the widgets the server now aggregates', () => {
+  it('foldSlices converts halalas to SAR, orders by size and drops empty slices', () => {
+    expect(foldSlices([
+      { _id: 'lab_booking', total: 4000 },
+      { _id: 'consultation', total: 10010 },
+      { _id: 'penalty', total: 0 },
+      { _id: null, total: 500 },
+    ])).toEqual([
+      { key: 'consultation', amount: 100.1 },
+      { key: 'lab_booking', amount: 40 },
+      { key: 'other', amount: 5 },
+    ]);
+    expect(foldSlices([])).toEqual([]);
+  });
+
+  it('foldWalletTotals: earned, paid, pending and a balance that never goes below zero', () => {
+    expect(foldWalletTotals([
+      { _id: { t: 'provider_earning', pending: false }, total: 10010 },
+      { _id: { t: 'provider_earning', pending: true }, total: 2500 },
+      { _id: { t: 'payout', pending: false }, total: 6000 },
+      { _id: { t: 'commission', pending: false }, total: 700 },
+    ])).toEqual({ earned: 125.1, paid: 60, pending: 25, balance: 65.1 });
+    // more paid out than earned (a correction) leaves a zero balance, not a negative one
+    expect(foldWalletTotals([
+      { _id: { t: 'provider_earning', pending: false }, total: 1000 },
+      { _id: { t: 'payout', pending: false }, total: 2500 },
+    ])).toMatchObject({ balance: 0 });
+    expect(foldWalletTotals([])).toEqual({ earned: 0, paid: 0, pending: 0, balance: 0 });
   });
 });

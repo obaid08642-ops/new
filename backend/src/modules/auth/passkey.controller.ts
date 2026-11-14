@@ -1,3 +1,4 @@
+import { clientIp } from '../../common/client-ip';
 import { Body, Controller, Delete, Get, Param, Post, Req, Res, UseGuards, BadRequestException } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
@@ -53,10 +54,9 @@ export class PasskeyController {
   @Post('login/verify')
   async loginVerify(@Body() body: PasskeyLoginVerifyDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
     if (!body?.identifier || !body?.response) throw new BadRequestException('identifier_and_response_required');
-    const xff = (req.headers['x-forwarded-for'] as string) || '';
     const result = await this.auth.completePasskeyLogin(body.identifier, body.response, {
       ua: req.headers['user-agent'],
-      ip: (xff.split(',')[0] || req.ip || '').trim() || undefined,
+      ip: clientIp(req),
       deviceId: body.device_id,
       deviceName: body.device_name,
     });

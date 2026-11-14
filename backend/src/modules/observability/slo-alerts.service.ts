@@ -53,6 +53,9 @@ export const WARNING_CLEAR_CHECKS = 30;
 export const CRITICAL_CLEAR_CHECKS = 5;
 /** A warning that stays open is recorded again at most this often. */
 export const WARNING_REPEAT_MS = 6 * 3_600_000;
+/** A CRITICAL alert that fires this many times inside UNSTABLE_WINDOW_MS is flapping: its mails stop and ONE "unstable" digest goes out per window (owner, 2026-11-12: 19 mails in 10 h). */
+export const UNSTABLE_FIRES = 3;
+export const UNSTABLE_WINDOW_MS = 6 * 3_600_000;
 /** The daily digest of the warnings goes out at the first check after this hour (UTC); 05:00 UTC is 08:00 in Riyadh. */
 const DIGEST_HOUR_UTC = () => Math.min(23, Math.max(0, Number(process.env.SLO_DIGEST_HOUR_UTC ?? 5) || 0));
 const RULES: Record<AlertRuleId, RuleDef> = {
@@ -175,6 +178,7 @@ export class SloAlertsService implements OnModuleInit, OnModuleDestroy {
   private lag: number[] = [];
   private queueSamples: QueueSample[] = [];
   private states = new Map<string, AlertState>();
+  private flaps = new Map<string, { fires: number[]; fired: number; resolved: number; lastDigestAt: number; detail: string; title: string }>();
   private timer?: NodeJS.Timeout;
   readonly sent: AlertEvent[] = [];     // the last events of this process (also stored in slo_alert_events)
 
@@ -238,6 +242,7 @@ export class SloAlertsService implements OnModuleInit, OnModuleDestroy {
       st.consecutiveOn = 0; st.consecutiveOff += 1;
       if (st.firing && st.consecutiveOff >= clearChecksOf(st.rule)) { st.firing = false; events.push(await this.dispatch(st, 'resolved', false)); }
     }
+    await this.flushUnstable(now);
     await this.maybeDigest(now);
     return events;
   }
@@ -365,7 +370,10 @@ export class SloAlertsService implements OnModuleInit, OnModuleDestroy {
     const channels: Record<string, boolean> = {};
     const ch = this.channels();
     // A WARNING (not a drill) is recorded for the admin page and the daily digest; it never goes out on its own.
-    if (def.severity === 'critical' || def.immediate || drill) {
+    const flapping = !drill && !def.immediate && def.severity === 'critical' && this.noteFlap(st, state, at.getTime());
+    if (flapping) {
+      // flapping critical: no mail/Telegram/push for this event; the digest (flushUnstable) reports it
+    } else if (def.severity === 'critical' || def.immediate || drill) {
       if (ch.email) channels.email = await this.sendEmail(subject, lines);
       if (ch.telegram) channels.telegram = await this.sendTelegram(`${subject}\n${text.split('\n').slice(1).join('\n')}`);
       if (ch.push) channels.push = await this.sendPush(subject, st.detail);
@@ -375,6 +383,40 @@ export class SloAlertsService implements OnModuleInit, OnModuleDestroy {
     try { await this.conn?.collection('slo_alert_events').insertOne({ ...event }); } catch { /* the notification already went out */ }
     logEvent(def.severity === 'critical' && state !== 'resolved' ? 'error' : 'warn', 'slo_alert', { module: 'observability', rule: st.rule, state, drill, channels: Object.keys(channels).filter((c) => channels[c]) });
     return event;
+  }
+
+  /** Records a critical event for its key; true when the key is flapping, so this event is held back for the "unstable" digest. */
+  private noteFlap(st: AlertState, state: AlertEvent['state'], now: number): boolean {
+    const f = this.flaps.get(st.key) ?? { fires: [], fired: 0, resolved: 0, lastDigestAt: 0, detail: st.detail, title: RULES[st.rule].title };
+    f.fires = f.fires.filter((t) => now - t < UNSTABLE_WINDOW_MS);
+    if (state === 'firing') f.fires.push(now);
+    f.detail = st.detail;
+    this.flaps.set(st.key, f);
+    if (f.fires.length < UNSTABLE_FIRES) return false;
+    if (state === 'firing') f.fired += 1;
+    if (state === 'resolved') f.resolved += 1;
+    return true;
+  }
+
+  /** One "unstable" mail per key per window with what fired and resolved since the last one. Called from every tick. */
+  async flushUnstable(now = Date.now()): Promise<number> {
+    let sent = 0;
+    for (const [key, f] of this.flaps) {
+      if (f.fired + f.resolved === 0 || now - f.lastDigestAt < UNSTABLE_WINDOW_MS) continue;
+      const st = this.states.get(key);
+      const subject = `[Nabd+ UNSTABLE] ${f.title}`;
+      const lines = [
+        `${f.title}: unstable, it keeps firing and clearing. Individual mails are paused; this is the only one for the next 6 hours.`,
+        `Since the last report: fired ${f.fired}x, resolved ${f.resolved}x. Now: ${st?.firing ? 'FIRING' : 'clear'}.`,
+        f.detail,
+        `Runbook: ${st ? this.runbookOf(st.rule) : ''}`,
+      ];
+      f.fired = 0; f.resolved = 0; f.lastDigestAt = now;
+      if (this.channels().email) await this.sendEmail(subject, lines);
+      logEvent('error', 'slo_alert_unstable', { module: 'observability', key });
+      sent += 1;
+    }
+    return sent;
   }
 
   private async sendEmail(subject: string, lines: string[]): Promise<boolean> {

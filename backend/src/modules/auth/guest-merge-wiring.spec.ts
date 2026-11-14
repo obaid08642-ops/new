@@ -37,7 +37,7 @@ function userModelStub() {
 }
 
 function redisStub() {
-  const client = { set: jest.fn(async () => 'OK'), del: jest.fn(async () => 1) };
+  const client = { set: jest.fn(async () => 'OK'), del: jest.fn(async () => 1), sadd: jest.fn(async () => 1), expire: jest.fn(async () => 1) };
   return {
     getClient: () => client,
     set: jest.fn(async () => 'OK'),

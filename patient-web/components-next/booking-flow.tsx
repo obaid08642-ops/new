@@ -13,6 +13,7 @@ import { Input, Select } from "@/components-next/ui-generated/components/Inputs"
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { NationalIdForm } from "@/components-next/medical-reports/national-id-form";
 import { readNationalIdStatus } from "@/lib/medical-reports/national-id";
+import { readDependants, type DependantRow } from "@/lib/family/dependants";
 import { Segmented } from "@/components-next/ui-generated/components/Controls";
 import { StickyFooter } from "@/components-next/ui-generated/shells/StickyFooter";
 import { ConsultPage } from "@/components-next/consult/consult-page";
@@ -81,6 +82,18 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
   // PT-08: "I need a medical report" (a recommended rest period): a request the doctor decides on
+  // PT-03: the guardian's dependants (people with no account) the visit can be for; the guardian stays the booker and payer
+  const [dependants, setDependants] = useState<DependantRow[]>([]);
+  const [forDependant, setForDependant] = useState("");
+  useEffect(() => {
+    if (bookingFor) return undefined;
+    let live = true;
+    fetch("/api/patient/family/dependants", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((answer) => { if (live) setDependants(readDependants(answer)); })
+      .catch(() => { if (live) setDependants([]); });
+    return () => { live = false; };
+  }, [bookingFor]);
   const [reportRequested, setReportRequested] = useState(false);
   // Owner decision 6: the ID number is asked only when the patient asks for a medical report and has none yet (it never blocks the booking)
   const [needsNationalId, setNeedsNationalId] = useState(false);
@@ -193,6 +206,7 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
           visit_location: visitLocation,
           slot_lock_id: slotLockId,
           for_member_id: bookingFor?.id,
+          family_member_id: !bookingFor && forDependant ? forDependant : undefined,
           insurance_provider: paymentMethod === "insurance" ? insurance.providerId : undefined,
           insurance_member_id: paymentMethod === "insurance" ? insurance.memberId : undefined,
         })),
@@ -243,6 +257,12 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
       {bookingFor ? (
         <SectionCard id="book-for" title={t("bookingFor", { name: bookingFor.name })}>
           <Button label={t("bookingForSelf")} variant="outline" onClick={() => void fetch("/api/family/booking-for", { method: "DELETE" }).then(() => router.refresh())} />
+        </SectionCard>
+      ) : null}
+      {!bookingFor && dependants.length > 0 ? (
+        <SectionCard id="book-dependant" title={t("forTitle")}>
+          <Segmented label={t("forTitle")} value={forDependant} onChange={setForDependant} options={[{ value: "", label: t("forMe") }, ...dependants.map((d) => ({ value: d.id, label: d.name }))]} />
+          <p className={rx.note}>{t("forHint")}</p>
         </SectionCard>
       ) : null}
       <Hero title={(doctor ? doctorDisplayName(doctor, locale) : undefined) || t("doctorUnavailable")} sub={[specialty, doctor ? doctorPlace(doctor, locale) : undefined].filter(Boolean).join(" · ") || undefined} />

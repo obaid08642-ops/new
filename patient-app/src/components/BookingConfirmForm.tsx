@@ -9,6 +9,7 @@ import { RefundPolicyTick } from './legal/RefundPolicyTick';
 import { withRefundPolicy } from '../utils/refundAcceptance';
 import { NationalIdForm } from './consult/NationalIdForm';
 import { readNationalIdStatus } from '../utils/nationalId';
+import { readDependants, type DependantRow } from '../utils/dependants';
 import { DoctorHead, ModeTiles } from './consult/ConsultBooking';
 import { ConsultScreen, useConsultFormat } from './consult/ConsultKit';
 import { Notice } from './pharmacy/OfferKit';
@@ -64,6 +65,17 @@ export default function BookingConfirmScreen() {
   const [visitType, setVisitType] = useState((params.visitType as string) || 'clinic');
   const [payMethod, setPayMethod] = useState<'card' | 'cash' | 'insurance'>('card');
   // PT-08: "I need a medical report" (a recommended rest period): a request the doctor decides on
+  // PT-03: the guardian's dependants (people with no account) the visit can be for; the guardian stays the booker and payer
+  const [dependants, setDependants] = useState<DependantRow[]>([]);
+  const [forDependant, setForDependant] = useState('');
+  useEffect(() => {
+    if (bookingFor) return undefined;
+    let live = true;
+    Promise.resolve(apiFetch<unknown>('/family/dependants'))
+      .then((answer) => { if (live) setDependants(readDependants(answer)); })
+      .catch(() => { if (live) setDependants([]); });
+    return () => { live = false; };
+  }, [bookingFor]);
   const [reportRequested, setReportRequested] = useState(false);
   // Owner decision 6: the ID number is asked only when the patient asks for a medical report and has none yet (it never blocks the booking)
   const [needsNationalId, setNeedsNationalId] = useState(false);
@@ -163,7 +175,7 @@ export default function BookingConfirmScreen() {
             ? { lat: Number(params.visit_lat), lng: Number(params.visit_lng), address: String(params.visit_address || '') }
             : undefined,
           slot_lock_id: slotLockId,
-          ...(bookingFor ? { for_member_id: bookingFor.id } : {}),
+          ...(bookingFor ? { for_member_id: bookingFor.id } : forDependant ? { family_member_id: forDependant } : {}),
           ...(reportRequested ? { sick_leave_requested: true } : {}),
         })),
       });
@@ -224,6 +236,18 @@ export default function BookingConfirmScreen() {
         count={doctor?.rating_count}
       />
       {bookingFor ? <Notice tone="info" text={k('consult.confirm.bookingFor', { name: bookingFor.name })} actionLabel={k('consult.confirm.bookingForMe')} onAction={() => setBookingFor(null)} /> : null}
+      {!bookingFor && dependants.length > 0 ? (
+        <>
+          <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{k('consult.confirm.forTitle')}</Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            <Chip label={k('consult.confirm.forMe')} selected={forDependant === ''} onPress={() => setForDependant('')} theme={theme} testID="booking-for-me" />
+            {dependants.map((d) => (
+              <Chip key={d.id} label={d.name} selected={forDependant === d.id} onPress={() => setForDependant(d.id)} theme={theme} testID={`booking-for-${d.id}`} />
+            ))}
+          </View>
+          <Text style={{ ...scale(t, 'meta', 'regular'), lineHeight: 20, color: c.text.secondary, ...flow }}>{k('consult.confirm.forHint')}</Text>
+        </>
+      ) : null}
 
       <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{k('consult.book.visitType')}</Text>
       <ModeTiles tiles={VISIT_TYPES.map((v) => ({ id: v, mode: MODE_OF[v], price: null }))} value={visitType} onChange={setVisitType} label={k('consult.book.visitType')} />

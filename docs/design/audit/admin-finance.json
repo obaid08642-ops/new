@@ -8,7 +8,7 @@
    "elements": [
     [
      "button: تحديث",
-     "load; GET /api/admin/admin/finance/ledger/summary; GET /api/admin/admin/finance/commissions",
+     "load; GET /api/admin/admin/finance/ledger/summary; GET /api/admin/admin/finance/commissions/records",
      "ok"
     ],
     [
@@ -52,8 +52,123 @@
      "ok"
     ],
     [
+     "link: العودة لمركز القيادة (in AdminGuard)",
+     "link /admin/command-center",
+     "ok"
+    ],
+    [
+     "button: فتح القائمة (in AdminGuard)",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: إغلاق القائمة (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: ميلادي هجري (in AdminGuard)",
+     "navigation; local state",
+     "ok"
+    ],
+    [
+     "button: تسجيل الخروج (in AdminGuard)",
+     "logout; POST /auth/logout; navigation",
+     "ok"
+    ],
+    [
+     "input: account id (in ProviderCommissionPanel)",
+     "state id used by logic/request",
+     "ok"
+    ],
+    [
+     "button: عرض (in ProviderCommissionPanel)",
+     "GET (unresolved)",
+     "ok"
+    ],
+    [
+     "input: input (in ProviderCommissionPanel)",
+     "state reason used by logic/request",
+     "ok"
+    ],
+    [
+     "input: number (in ProviderCommissionPanel)",
+     "state own used by logic/request",
+     "ok"
+    ],
+    [
+     "input: number (in ProviderCommissionPanel)",
+     "state own used by logic/request",
+     "ok"
+    ],
+    [
+     "button: حفظ عمولة المزود (in ProviderCommissionPanel)",
+     "saveOwn; GET (unresolved)",
+     "ok"
+    ],
+    [
+     "button: إزالة (in ProviderCommissionPanel)",
+     "GET (unresolved)",
+     "ok"
+    ],
+    [
+     "input: number (in ProviderCommissionPanel)",
+     "state promo used by logic/request",
+     "ok"
+    ],
+    [
+     "input: date (in ProviderCommissionPanel)",
+     "state promo used by logic/request",
+     "ok"
+    ],
+    [
+     "input: date (in ProviderCommissionPanel)",
+     "state promo used by logic/request",
+     "ok"
+    ],
+    [
+     "input: number (in ProviderCommissionPanel)",
+     "state promo used by logic/request",
+     "ok"
+    ],
+    [
+     "button: حفظ العرض (in ProviderCommissionPanel)",
+     "savePromo; GET (unresolved)",
+     "ok"
+    ],
+    [
+     "button: إلغاء (in ProviderCommissionPanel)",
+     "GET (unresolved)",
+     "ok"
+    ],
+    [
+     "link: ar-SA-u-ca-gregory (in AdminGuard)",
+     "link /admin/alerts",
+     "ok"
+    ],
+    [
      "API: GET /api/admin/admin/finance-engine/commission-rules/history",
-     "GET /api/admin/admin/finance-engine/commission-rules/history (OK, backend/src/modules/finance-engine/finance-engine.module.ts:1045)",
+     "GET /api/admin/admin/finance-engine/commission-rules/history (OK, backend/src/modules/finance-engine/finance-engine.module.ts:1560)",
+     "ok"
+    ],
+    [
+     "API: POST /auth/heartbeat",
+     "POST /auth/heartbeat (OK, backend/src/modules/auth/auth.controller.ts:269)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/session",
+     "GET /api/admin/admin/session (OK, backend/src/modules/admin/enterprise/admin-security.controller.ts:80)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/urgent-alerts/unread-count",
+     "GET /api/admin/admin/urgent-alerts/unread-count (OK, backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25)",
      "ok"
     ]
    ]
@@ -87,13 +202,23 @@
      "ok"
     ],
     [
-     "input: رفض الاعتراض إغلاق بلا إجراء مالي استرداد كامل إلى المحفظة ا",
+     "input: رفض الاعتراض إغلاق بلا إجراء مالي استرداد حتى سقف النزاع إلى",
      "state decision used by logic/request",
      "ok"
     ],
     [
      "input: number",
      "state amount used by logic/request",
+     "ok"
+    ],
+    [
+     "input: consultation / lab / …",
+     "state bookingKind used by logic/request",
+     "ok"
+    ],
+    [
+     "input: input",
+     "state bookingId used by logic/request",
      "ok"
     ],
     [
@@ -114,6 +239,56 @@
     [
      "action: <tr> onClick (in DataTable)",
      "",
+     "ok"
+    ],
+    [
+     "link: العودة لمركز القيادة (in AdminGuard)",
+     "link /admin/command-center",
+     "ok"
+    ],
+    [
+     "button: فتح القائمة (in AdminGuard)",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: إغلاق القائمة (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: ميلادي هجري (in AdminGuard)",
+     "navigation; local state",
+     "ok"
+    ],
+    [
+     "button: تسجيل الخروج (in AdminGuard)",
+     "logout; POST /auth/logout; navigation",
+     "ok"
+    ],
+    [
+     "link: ar-SA-u-ca-gregory (in AdminGuard)",
+     "link /admin/alerts",
+     "ok"
+    ],
+    [
+     "API: POST /auth/heartbeat",
+     "POST /auth/heartbeat (OK, backend/src/modules/auth/auth.controller.ts:269)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/session",
+     "GET /api/admin/admin/session (OK, backend/src/modules/admin/enterprise/admin-security.controller.ts:80)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/urgent-alerts/unread-count",
+     "GET /api/admin/admin/urgent-alerts/unread-count (OK, backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25)",
      "ok"
     ]
    ]
@@ -142,18 +317,28 @@
      "ok"
     ],
     [
-     "form: نسب العمولات (JSON) نسبة VAT سبب التغيير حفظ وتدقيق الإعدادا",
+     "form: نسبة العمولة المطبقة على كل خدمة (%) نسبة VAT على العمولة (%",
      "saveConfig; POST /api/admin/admin/finance/commissions/config; GET /api/admin/admin/finance/revenue; GET /api/admin/admin",
      "ok"
     ],
     [
-     "input: textarea",
-     "state ratesText used by logic/request",
+     "input: number",
+     "state percents used by logic/request",
      "ok"
     ],
     [
      "input: number",
-     "state vatRate used by logic/request",
+     "state vatPercent used by logic/request",
+     "ok"
+    ],
+    [
+     "input: number",
+     "state minPayout used by logic/request",
+     "ok"
+    ],
+    [
+     "input: number",
+     "state escrowDays used by logic/request",
      "ok"
     ],
     [
@@ -167,13 +352,8 @@
      "ok"
     ],
     [
-     "button: اعتماد",
-     "POST /api/admin/admin/finance/payouts/:param/:param; GET /api/admin/admin/finance/revenue; GET /api/admin/admin/finance/",
-     "ok"
-    ],
-    [
-     "button: رفض",
-     "POST /api/admin/admin/finance/payouts/:param/:param; GET /api/admin/admin/finance/revenue; GET /api/admin/admin/finance/",
+     "link: فتح دفعات المزودين",
+     "link /admin/payouts",
      "ok"
     ],
     [
@@ -197,8 +377,63 @@
      "ok"
     ],
     [
+     "link: العودة لمركز القيادة (in AdminGuard)",
+     "link /admin/command-center",
+     "ok"
+    ],
+    [
+     "button: فتح القائمة (in AdminGuard)",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: إغلاق القائمة (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: ميلادي هجري (in AdminGuard)",
+     "navigation; local state",
+     "ok"
+    ],
+    [
+     "button: تسجيل الخروج (in AdminGuard)",
+     "logout; POST /auth/logout; navigation",
+     "ok"
+    ],
+    [
+     "link: ar-SA-u-ca-gregory (in AdminGuard)",
+     "link /admin/alerts",
+     "ok"
+    ],
+    [
      "API: GET /api/admin/admin/finance/reconciliation",
      "GET /api/admin/admin/finance/reconciliation (OK, backend/src/modules/admin/enterprise/admin-finance.controller.ts:41)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/finance/payouts",
+     "GET /api/admin/admin/finance/payouts (OK, backend/src/modules/admin/enterprise/admin-finance.controller.ts:47)",
+     "ok"
+    ],
+    [
+     "API: POST /auth/heartbeat",
+     "POST /auth/heartbeat (OK, backend/src/modules/auth/auth.controller.ts:269)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/session",
+     "GET /api/admin/admin/session (OK, backend/src/modules/admin/enterprise/admin-security.controller.ts:80)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/urgent-alerts/unread-count",
+     "GET /api/admin/admin/urgent-alerts/unread-count (OK, backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25)",
      "ok"
     ]
    ]
@@ -217,8 +452,8 @@
      "ok"
     ],
     [
-     "button: Execute Payout",
-     "POST /api/admin/admin/finance/withdrawals/:param/execute",
+     "link: فتح دفعات المزودين",
+     "link /admin/payouts",
      "ok"
     ],
     [
@@ -237,23 +472,73 @@
      "ok"
     ],
     [
+     "link: العودة لمركز القيادة (in AdminGuard)",
+     "link /admin/command-center",
+     "ok"
+    ],
+    [
+     "button: فتح القائمة (in AdminGuard)",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: إغلاق القائمة (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: ميلادي هجري (in AdminGuard)",
+     "navigation; local state",
+     "ok"
+    ],
+    [
+     "button: تسجيل الخروج (in AdminGuard)",
+     "logout; POST /auth/logout; navigation",
+     "ok"
+    ],
+    [
+     "link: ar-SA-u-ca-gregory (in AdminGuard)",
+     "link /admin/alerts",
+     "ok"
+    ],
+    [
      "API: GET /api/admin/admin/finance-engine/reports/summary",
-     "GET /api/admin/admin/finance-engine/reports/summary (OK, backend/src/modules/finance-engine/finance-engine.module.ts:1033)",
+     "GET /api/admin/admin/finance-engine/reports/summary (OK, backend/src/modules/finance-engine/finance-engine.module.ts:1547)",
      "ok"
     ],
     [
-     "API: GET /api/admin/admin/finance/commissions",
-     "GET /api/admin/admin/finance/commissions (OK, backend/src/modules/admin/enterprise/admin-finance.controller.ts:29)",
+     "API: GET /api/admin/admin/finance/commissions/records",
+     "GET /api/admin/admin/finance/commissions/records (OK, backend/src/modules/admin/web-core/controllers/finance.controller.ts:18)",
      "ok"
     ],
     [
-     "API: GET /api/admin/admin/finance/withdrawals/pending",
-     "GET /api/admin/admin/finance/withdrawals/pending (OK, backend/src/modules/admin/web-core/controllers/finance.controller.ts:41)",
+     "API: GET /api/admin/admin/finance/payouts",
+     "GET /api/admin/admin/finance/payouts (OK, backend/src/modules/admin/enterprise/admin-finance.controller.ts:47)",
      "ok"
     ],
     [
      "API: GET /api/admin/admin/extended-operations/procurement/pending",
-     "GET /api/admin/admin/extended-operations/procurement/pending (OK, backend/src/modules/admin/web-core/controllers/admin-extended-operations.controller.ts:16)",
+     "GET /api/admin/admin/extended-operations/procurement/pending (OK, backend/src/modules/admin/web-core/controllers/admin-extended-operations.controller.ts:17)",
+     "ok"
+    ],
+    [
+     "API: POST /auth/heartbeat",
+     "POST /auth/heartbeat (OK, backend/src/modules/auth/auth.controller.ts:269)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/session",
+     "GET /api/admin/admin/session (OK, backend/src/modules/admin/enterprise/admin-security.controller.ts:80)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/urgent-alerts/unread-count",
+     "GET /api/admin/admin/urgent-alerts/unread-count (OK, backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25)",
      "ok"
     ]
    ],
@@ -265,18 +550,23 @@
    "route": "/admin/payouts",
    "elements": [
     [
-     "button: تحديث الطلبات",
-     "fetchPayouts; GET /api/admin/admin/finance/withdrawals/pending",
+     "button: تحديث",
+     "GET /api/admin/admin/finance/payouts",
      "ok"
     ],
     [
-     "button: إعادة المحاولة",
-     "fetchPayouts; GET /api/admin/admin/finance/withdrawals/pending",
+     "button: <button> onClick",
+     "local state",
      "ok"
     ],
     [
-     "button: تنفيذ التحويل",
-     "POST /api/admin/admin/finance/withdrawals/:param/execute; GET /api/admin/admin/finance/withdrawals/pending; confirm()",
+     "button: تم التحويل",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: AWAITING_SECOND_APPROVAL اعتماد ثانٍ اعتماد",
+     "local state",
      "ok"
     ],
     [
@@ -285,25 +575,98 @@
      "ok"
     ],
     [
-     "input: سبب الرفض (يظهر للمزود)",
-     "state rejectReason used by logic/request",
+     "action: هذا قرار مالي مسجل في التدقيق. متابعة؟ السبب (10 أحرف على ال",
+     "POST /api/admin/admin/finance/payouts/:param/:param; GET /api/admin/admin/finance/payouts",
      "ok"
     ],
     [
-     "button: تأكيد الرفض",
-     "POST /api/admin/admin/finance/withdrawals/:param/reject; GET /api/admin/admin/finance/withdrawals/pending",
+     "action: هذا قرار مالي مسجل في التدقيق. متابعة؟ السبب (10 أحرف على ال",
+     "cancel; local state",
      "ok"
     ],
     [
-     "button: تراجع",
-     "local state",
+     "input: textarea",
+     "state reason used by logic/request",
      "ok"
     ],
     [
      "action: <tr> onClick (in DataTable)",
      "",
      "ok"
+    ],
+    [
+     "link: العودة لمركز القيادة (in AdminGuard)",
+     "link /admin/command-center",
+     "ok"
+    ],
+    [
+     "button: فتح القائمة (in AdminGuard)",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: إغلاق القائمة (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: ميلادي هجري (in AdminGuard)",
+     "navigation; local state",
+     "ok"
+    ],
+    [
+     "button: تسجيل الخروج (in AdminGuard)",
+     "logout; POST /auth/logout; navigation",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in ConfirmDialog)",
+     "onClick -> parent/prop callback onCancel",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in ConfirmDialog)",
+     "",
+     "ok"
+    ],
+    [
+     "button: <button> onClick (in ConfirmDialog)",
+     "onClick -> parent/prop callback onConfirm",
+     "ok"
+    ],
+    [
+     "button: <button> onClick (in ConfirmDialog)",
+     "onClick -> parent/prop callback onCancel",
+     "ok"
+    ],
+    [
+     "link: ar-SA-u-ca-gregory (in AdminGuard)",
+     "link /admin/alerts",
+     "ok"
+    ],
+    [
+     "API: POST /auth/heartbeat",
+     "POST /auth/heartbeat (OK, backend/src/modules/auth/auth.controller.ts:269)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/session",
+     "GET /api/admin/admin/session (OK, backend/src/modules/admin/enterprise/admin-security.controller.ts:80)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/urgent-alerts/unread-count",
+     "GET /api/admin/admin/urgent-alerts/unread-count (OK, backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25)",
+     "ok"
     ]
+   ],
+   "notes": [
+    "3 handler(s) are passed as props (parent callbacks) and are not traced."
    ]
   },
   {
@@ -323,6 +686,56 @@
      "button: رفض الطلب",
      "POST /api/admin/admin/returns/:param/decide; GET /api/admin/admin/returns; prompt()",
      "ok"
+    ],
+    [
+     "link: العودة لمركز القيادة (in AdminGuard)",
+     "link /admin/command-center",
+     "ok"
+    ],
+    [
+     "button: فتح القائمة (in AdminGuard)",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: إغلاق القائمة (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: ميلادي هجري (in AdminGuard)",
+     "navigation; local state",
+     "ok"
+    ],
+    [
+     "button: تسجيل الخروج (in AdminGuard)",
+     "logout; POST /auth/logout; navigation",
+     "ok"
+    ],
+    [
+     "link: ar-SA-u-ca-gregory (in AdminGuard)",
+     "link /admin/alerts",
+     "ok"
+    ],
+    [
+     "API: POST /auth/heartbeat",
+     "POST /auth/heartbeat (OK, backend/src/modules/auth/auth.controller.ts:269)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/session",
+     "GET /api/admin/admin/session (OK, backend/src/modules/admin/enterprise/admin-security.controller.ts:80)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/urgent-alerts/unread-count",
+     "GET /api/admin/admin/urgent-alerts/unread-count (OK, backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25)",
+     "ok"
     ]
    ]
   }
@@ -330,54 +743,127 @@
  "needsReview": [
   {
    "route": "/admin/commissions",
-   "element": "No nav link",
+   "element": "API GET (unresolved)",
    "kind": "client",
-   "note": "Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
-   "file": "admin/src/pages/admin/commissions.tsx",
-   "line": 1
+   "note": "Endpoint is UNRESOLVED (path is not a literal the tool can resolve): the call fails or hits nothing.",
+   "file": "admin/src/components/ProviderCommissionPanel.tsx",
+   "line": 37
+  },
+  {
+   "route": "/admin/commissions",
+   "element": "Guard G-OPEN (1)",
+   "kind": "backend",
+   "note": "1 call(s) hit backend routes with no role/permission guard (POST /auth/heartbeat): any signed-in user passes JwtAuthGuard.",
+   "file": "admin/src/components/AdminGuard.tsx",
+   "line": 254,
+   "backend": "backend/src/modules/auth/auth.controller.ts:269"
+  },
+  {
+   "route": "/admin/commissions",
+   "element": "Guard G-PERM-MISMATCH (1)",
+   "kind": "backend",
+   "note": "1 call(s): Page requires \"finance.read\" but GET /admin/urgent-alerts/unread-count requires command.center.view; an admin role with the page permission only gets a 403 on t",
+   "file": "admin/src/components/AlertsBell.tsx",
+   "line": 19,
+   "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25"
+  },
+  {
+   "route": "/admin/disputes",
+   "element": "Guard G-OPEN (1)",
+   "kind": "backend",
+   "note": "1 call(s) hit backend routes with no role/permission guard (POST /auth/heartbeat): any signed-in user passes JwtAuthGuard.",
+   "file": "admin/src/components/AdminGuard.tsx",
+   "line": 254,
+   "backend": "backend/src/modules/auth/auth.controller.ts:269"
+  },
+  {
+   "route": "/admin/disputes",
+   "element": "Guard G-PERM-MISMATCH (1)",
+   "kind": "backend",
+   "note": "1 call(s): Page requires \"disputes.resolve\" but GET /admin/urgent-alerts/unread-count requires command.center.view; an admin role with the page permission only gets a 403 ",
+   "file": "admin/src/components/AlertsBell.tsx",
+   "line": 19,
+   "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25"
   },
   {
    "route": "/admin/finance-suite",
-   "element": "Guard G-PERM-MISMATCH (2)",
+   "element": "Guard G-OPEN (1)",
    "kind": "backend",
-   "note": "2 call(s): Page requires \"finance.read\" but POST /admin/finance/commissions/config requires finance.config.edit; an admin role with the page permission only gets a 403 on ",
-   "file": "admin/src/pages/admin/finance-suite.tsx",
-   "line": 27,
-   "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:35"
+   "note": "1 call(s) hit backend routes with no role/permission guard (POST /auth/heartbeat): any signed-in user passes JwtAuthGuard.",
+   "file": "admin/src/components/AdminGuard.tsx",
+   "line": 254,
+   "backend": "backend/src/modules/auth/auth.controller.ts:269"
+  },
+  {
+   "route": "/admin/finance-suite",
+   "element": "Guard G-PERM-MISMATCH (1)",
+   "kind": "backend",
+   "note": "1 call(s): Page requires \"finance.read\" but GET /admin/urgent-alerts/unread-count requires command.center.view; an admin role with the page permission only gets a 403 on t",
+   "file": "admin/src/components/AlertsBell.tsx",
+   "line": 19,
+   "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25"
   },
   {
    "route": "/admin/financial-ledger",
-   "element": "Execute Payout",
-   "kind": "client",
-   "note": "Sensitive action (POST /api/admin/admin/finance/withdrawals/:param/execute) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-   "file": "admin/src/pages/admin/financial-ledger.tsx",
-   "line": 242
+   "element": "Guard G-OPEN (1)",
+   "kind": "backend",
+   "note": "1 call(s) hit backend routes with no role/permission guard (POST /auth/heartbeat): any signed-in user passes JwtAuthGuard.",
+   "file": "admin/src/components/AdminGuard.tsx",
+   "line": 254,
+   "backend": "backend/src/modules/auth/auth.controller.ts:269"
   },
   {
    "route": "/admin/financial-ledger",
-   "element": "Guard G-ROLE-ONLY-WRITE (1)",
+   "element": "Guard G-PERM-MISMATCH (1)",
    "kind": "backend",
-   "note": "1 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/finance/withdrawals/:param/execute): every admin role, including a custom restricted one, can run them.",
-   "file": "admin/src/pages/admin/financial-ledger.tsx",
-   "line": 112,
-   "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:74"
+   "note": "1 call(s): Page requires \"finance.read\" but GET /admin/urgent-alerts/unread-count requires command.center.view; an admin role with the page permission only gets a 403 on t",
+   "file": "admin/src/components/AlertsBell.tsx",
+   "line": 19,
+   "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25"
   },
   {
    "route": "/admin/payouts",
-   "element": "تأكيد الرفض",
+   "element": "هذا قرار مالي مسجل في التدقيق. متابعة؟ السبب (10 أحرف على ال",
    "kind": "client",
-   "note": "Sensitive action (POST /api/admin/admin/finance/withdrawals/:param/reject) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "note": "Sensitive action (POST /api/admin/admin/finance/payouts/:param/:param) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
    "file": "admin/src/pages/admin/payouts.tsx",
-   "line": 144
+   "line": 118
   },
   {
    "route": "/admin/payouts",
-   "element": "Guard G-ROLE-ONLY-WRITE (2)",
+   "element": "Guard G-OPEN (1)",
    "kind": "backend",
-   "note": "2 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/finance/withdrawals/:param/execute; POST /api/admin/admin/finance/withdrawals/:param/reject): every admin role, including a custom restricted one, can run them.",
-   "file": "admin/src/pages/admin/payouts.tsx",
-   "line": 50,
-   "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:74"
+   "note": "1 call(s) hit backend routes with no role/permission guard (POST /auth/heartbeat): any signed-in user passes JwtAuthGuard.",
+   "file": "admin/src/components/AdminGuard.tsx",
+   "line": 254,
+   "backend": "backend/src/modules/auth/auth.controller.ts:269"
+  },
+  {
+   "route": "/admin/payouts",
+   "element": "Guard G-PERM-MISMATCH (1)",
+   "kind": "backend",
+   "note": "1 call(s): Page requires \"finance.read\" but GET /admin/urgent-alerts/unread-count requires command.center.view; an admin role with the page permission only gets a 403 on t",
+   "file": "admin/src/components/AlertsBell.tsx",
+   "line": 19,
+   "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25"
+  },
+  {
+   "route": "/admin/returns",
+   "element": "Guard G-OPEN (1)",
+   "kind": "backend",
+   "note": "1 call(s) hit backend routes with no role/permission guard (POST /auth/heartbeat): any signed-in user passes JwtAuthGuard.",
+   "file": "admin/src/components/AdminGuard.tsx",
+   "line": 254,
+   "backend": "backend/src/modules/auth/auth.controller.ts:269"
+  },
+  {
+   "route": "/admin/returns",
+   "element": "Guard G-PERM-MISMATCH (1)",
+   "kind": "backend",
+   "note": "1 call(s): Page requires \"finance.payout.approve\" but GET /admin/urgent-alerts/unread-count requires command.center.view; an admin role with the page permission only gets ",
+   "file": "admin/src/components/AlertsBell.tsx",
+   "line": 19,
+   "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25"
   }
  ]
 }

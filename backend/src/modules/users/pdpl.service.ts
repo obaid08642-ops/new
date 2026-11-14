@@ -1,4 +1,4 @@
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { recordAudit } from '../../common/audit-record';
 import { exportAuditEvents } from '../security/user-history.service';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -170,6 +170,14 @@ export class PdplService {
     if (!userId) throw new BadRequestException('user_id_required');
     const user: any = await this.userModel.findOne({ id: { $eq: String(userId) } }).lean();
     if (!user) throw new BadRequestException('user_not_found');
+
+    // This erases PATIENT data. `DELETE /users/me` is open to every signed-in role, and a provider or admin who anonymised their own user row would
+    // leave the business account (approved, balances, payouts, provider-scope tokens keyed on provider_accounts) running under an erased identity.
+    // Staff accounts are closed through their own process (admin / support), never self-service here.
+    const erasableRole = String(user.role || 'patient').toLowerCase();
+    if (erasableRole !== 'patient' && erasableRole !== 'guest') {
+      throw new ForbiddenException({ message: 'erasure_not_available_for_role', code: 'erasure_not_available_for_role' });
+    }
 
     // Erasure is irreversible and removes medical records, so it must not be
     // reachable with a stolen token alone. The password is re-entered by the

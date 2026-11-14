@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { adminFetch, adminMutation, apiErrorMessage } from '@/lib/admin-client';
 import { DataTable } from '@/components/DataTable';
 import { useCan } from '@/components/AdminGuard';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import EmptyIcon from '../../components/EmptyIcon';
 import { dateLocale } from '../../utils/dates';
 
@@ -44,19 +45,24 @@ export default function PayoutsPage() {
 
   const count = (state: string) => queue?.by_state.find((s) => s.state === state)?.count ?? 0;
 
-  async function act(item: Payout, action: 'approve' | 'execute' | 'reject') {
-    const verb = { approve: 'الاعتماد', execute: 'تأكيد التحويل', reject: 'الرفض' }[action];
-    const reason = window.prompt(`سبب ${verb} (10 أحرف على الأقل):`);
-    if (reason === null) return; // cancelled
+  const VERBS = { approve: 'الاعتماد', execute: 'تأكيد التحويل', reject: 'الرفض' } as const;
+  // the decision is asked for in the shared confirm sheet (reason + the warning), not in the browser's prompt / confirm boxes
+  const [pending, setPending] = useState<{ item: Payout; action: 'approve' | 'execute' | 'reject' } | null>(null);
+  const [reason, setReason] = useState('');
+  const [reasonError, setReasonError] = useState('');
+  function act(item: Payout, action: 'approve' | 'execute' | 'reject') { setReason(''); setReasonError(''); setError(''); setPending({ item, action }); }
+  function cancel() { if (!saving) setPending(null); }
+  async function submit() {
+    if (!pending) return;
+    const { item, action } = pending;
     // the server refuses a reason under 10 characters (reason_too_short_min_10): say so instead of doing nothing
-    if (reason.trim().length < 10) { setError('سبب القرار 10 أحرف على الأقل.'); return; }
-    const warning = action === 'execute' ? `تأكيد أن ${item.amount} ر.س حُوّلت إلى حساب ${providerLabel(item)}؟ لا يمكن التراجع.` : 'هذا قرار مالي مسجل في التدقيق. متابعة؟';
-    if (!window.confirm(warning)) return;
+    if (reason.trim().length < 10) { setReasonError('سبب القرار 10 أحرف على الأقل.'); return; }
     setSaving(true); setError('');
     try {
       await adminMutation(`/api/admin/admin/finance/payouts/${encodeURIComponent(item.id)}/${action}`, 'POST', { reason: reason.trim() });
+      setPending(null);
       await load();
-    } catch (cause) { setError(apiErrorMessage(cause, 'تعذر تنفيذ القرار.')); } finally { setSaving(false); }
+    } catch (cause) { setPending(null); setError(apiErrorMessage(cause, 'تعذر تنفيذ القرار.')); } finally { setSaving(false); }
   }
 
   const current = STAGES.find((s) => s.state === stage) ?? STAGES[0];
@@ -109,6 +115,23 @@ export default function PayoutsPage() {
           </div>
         )}
 
+        <ConfirmDialog
+          open={pending !== null}
+          title={pending ? `سبب ${VERBS[pending.action]}` : ''}
+          confirmLabel={pending ? VERBS[pending.action] : 'تأكيد'}
+          busy={saving}
+          onConfirm={() => void submit()}
+          onCancel={cancel}
+        >
+          {pending ? (
+            <>
+              <p>{pending.action === 'execute' ? `تأكيد أن ${pending.item.amount} ر.س حُوّلت إلى حساب ${providerLabel(pending.item)}؟ لا يمكن التراجع.` : 'هذا قرار مالي مسجل في التدقيق. متابعة؟'}</p>
+              <label className="block text-xs font-bold text-slate-600" htmlFor="payout-reason">السبب (10 أحرف على الأقل)</label>
+              <textarea id="payout-reason" value={reason} onChange={(event) => { setReason(event.target.value); setReasonError(''); }} rows={3} className="w-full rounded-lg border border-slate-300 p-2 text-sm" aria-invalid={reasonError ? true : undefined} aria-describedby={reasonError ? 'payout-reason-error' : undefined} />
+              {reasonError ? <p id="payout-reason-error" role="alert" className="text-xs font-bold text-red-700">{reasonError}</p> : null}
+            </>
+          ) : null}
+        </ConfirmDialog>
       </section>
     </>
   );

@@ -1,3 +1,4 @@
+import { SlotService } from './slot.service';
 import { outcomeFor } from '../provider-no-show/provider-no-show-rules';
 import { stampAcceptance } from '../../common/refund-policy-stamp';
 import { refundPolicyAcceptance } from '../../common/refund-policy-acceptance';
@@ -50,6 +51,7 @@ export class AppointmentsService {
     @Optional() private readonly killSwitches?: KillSwitchesService,
     @Optional() private readonly accessLog?: MedicalAccessLogService,
     @Optional() private readonly noShow?: ProviderNoShowService,
+    @Optional() private readonly slotService?: SlotService,
   ) {}
 
   /**
@@ -127,6 +129,7 @@ export class AppointmentsService {
     insurance_member_id?: string;
     for_member_id?: string; // family booking on behalf of a member
     refund_policy_accepted?: boolean; // the patient ticked "I agree" to the refund policy shown before payment
+    refund_policy_hash?: string; // the hash of the refund policy the screen showed (409 refund_policy_changed when the table changed since)
     sick_leave_requested?: boolean; // PT-08: a request for a sick leave with this consultation
     family_member_id?: string; // owner decision 1: the family member this visit is FOR (the caller stays the patient who books and pays)
     slot_lock_id?: string; // optional 10-min hold from POST /slot-locks/reserve (consumed on success, released on failure)
@@ -138,7 +141,7 @@ export class AppointmentsService {
     // Issue 955: the admin kill switch for remote consultations refuses new video/voice bookings before anything is held (a switched-off service answers its own code, not the tick's).
     if (isOnlineConsultation({ service_type: body.service_type })) await this.killSwitches?.assertOn('online_consultations');
     // owner decision 2026-11-09: the refund policy is agreed before anything is held or booked
-    const policyAcceptance = await stampAcceptance(this.connection, refundPolicyAcceptance(user, body.refund_policy_accepted), 'consultation');
+    const policyAcceptance = await stampAcceptance(this.connection, refundPolicyAcceptance(user, body.refund_policy_accepted), 'consultation', body.refund_policy_hash);
     // On-behalf family booking: patient becomes the member, booker is audited
     let patientId: string = user.id;
     let bookedBy: string | undefined;
@@ -675,6 +678,30 @@ export class AppointmentsService {
     return { available: (await this.countPriorReschedules(appt)) < free, late, within_days };
   }
 
+  /**
+   * True only when the doctor's real schedule shows NO bookable slot from now to LATE_FREE_RESCHEDULE_DAYS ahead. Any doubt (no slot service,
+   * doctor not found, lookup error) is false: the normal late percentage applies, never a full refund by accident.
+   */
+  private async noFreeSlotWithinRescheduleWindow(appt: any): Promise<boolean> {
+    try {
+      if (!this.slotService || !appt?.doctor_id) return false;
+      const q: any = this.providerModel.findOne({ id: appt.doctor_id });
+      const doc: any = q && typeof q.lean === 'function' ? await q.lean() : await q;
+      if (!doc) return false;
+      const type = appt.service_type === 'video' || appt.service_type === 'home' ? appt.service_type : 'clinic';
+      const earliest = Date.now() + 5 * 60_000;
+      const latest = Date.now() + AppointmentsService.LATE_FREE_RESCHEDULE_DAYS * 86_400_000;
+      for (let d = 0; d <= AppointmentsService.LATE_FREE_RESCHEDULE_DAYS; d++) {
+        const day = new Date(Date.now() + d * 86_400_000).toISOString().slice(0, 10);
+        const r: any = await this.slotService.slotsForDate(doc, day, type, appt.duration_minutes || 30);
+        if ((r?.slots || []).some((x: any) => x.available === true && new Date(x.start).getTime() >= earliest && new Date(x.start).getTime() <= latest)) return false;
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   private async getRefundPolicy(): Promise<any> {
     if (!this.connection || typeof (this.connection as any).collection !== 'function') {
       return DEFAULT_REFUND_POLICY;
@@ -703,7 +730,18 @@ export class AppointmentsService {
     } else if (user.role === UserRole.PATIENT || user.id === appt.patient_id) {
       // The booking made by the late free reschedule keeps the LATE refund for a patient cancel (it would otherwise be a way round the late percentage: reschedule inside the last
       // 2 hours, then cancel the new slot well ahead for 100 %). Provider cancel / provider no-show stay 100 % (other branches); a patient no-show stays 0.
-      if (hoursUntilAppointment >= (consultationPolicy.full_refund_min_hours ?? 2) && appt.late_free_reschedule !== true) {
+      const fullMin = consultationPolicy.full_refund_min_hours ?? 2;
+      if (appt.late_free_reschedule === true && hoursUntilAppointment < fullMin) {
+        // Owner decision 2026-11-10: the visit the free reschedule made, cancelled inside the last `full_refund_min_hours` (or never attended, handled above), refunds
+        // nothing (the patient no-show share): the free reschedule is one second chance, not a second late cancel at 50 %.
+        refundPercentage = consultationPolicy.patient_no_show_percent ?? 0;
+        refundDestination = 'source';
+      } else if (hoursUntilAppointment >= fullMin && appt.late_free_reschedule !== true) {
+        refundPercentage = 100;
+        refundDestination = 'source';
+      } else if (appt.late_free_reschedule !== true && (await this.noFreeSlotWithinRescheduleWindow(appt))) {
+        // Owner decision 2026-11-13: a late cancel when the doctor has no free slot in the next 14 days (so the free reschedule the patient is
+        // offered instead cannot land anywhere) is refunded in full to the card: the patient is not charged for the clinic's missing availability.
         refundPercentage = 100;
         refundDestination = 'source';
       } else {
