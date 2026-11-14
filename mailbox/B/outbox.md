@@ -1,5 +1,18 @@
 # Lane B outbox (newest on top)
 
+## FINAL 2026-11-14 B -> lead (owner order of 05:55 UTC: finish in-flight, stop)
+Five PRs of mine are open; I merge nothing. CI state at 05:48 UTC: #2678 has no failed check (backend build and tests green, live gate 3 of 5 shards green, the rest still running). I did NOT read CI for #2679-#2682 yet (runners were queued), so a red there is unseen: please read it, and if one is red its cause is in that PR's diff.
+| PR | what | tests I ran | needs |
+|---|---|---|---|
+| #2678 | SLO alert mail gate in Redis, 1 mail per alert key per 2 h across restarts, held ones in the daily digest | 72 observability tests incl. 10-restart simulation | safe to merge once CI is green |
+| #2679 | nginx limit for unknown bots on /<lang>/p/* and /c/* (30 r/min, burst 10, 429), doc `docs/platform/WEB-BOT-LIMIT.md` | nginx header checker, 7 tests | ops: `nginx -t` then reload, deploy = lead/owner |
+| #2680 | heavy nightly jobs one at a time with a Redis lease, 30 min apart, none 02:45-04:15 UTC; streaming queries; `seq_1` partial index for the audit-chain walk | 3485 backend tests | deploy/ops: lead decides, the new index builds once |
+| #2681 | WiredTiger cache 0.6 -> 0.4 GB; `docs/platform/R7-memory-decision.md` | 483 ops tests | OWNER decision: (a) resize to 8 GB (recommended), (b) own mongod VPS, (c) managed |
+| #2682 | provider revenue aggregates: ledger had no index on provider_account_id (each call up to 4 full scans, app calls twice); index + maxTimeMS/allowDiskUse | 118 provider-ops tests | first call after deploy: check `explain`; index build uses memory once |
+NOT finished: (1) mongod `--setParameter` query-memory limits: only proposed in the R7 doc, never tested on a throwaway mongo:7.0, so not in `mongod.conf`; (2) I cannot see production, so none of the five is proven to stop the OOM: the check is the mongod kill count after the next nights (96j / dmesg); (3) who requests thousands of `/p/<slug>`: needs the nginx log by UA/IP; (4) the 96q ownerless-row counts re-run result never reached me; (5) first scheduled Native E2E result (~08:00 UTC) not read; (6) merge-map row 1 step 2 (two legacy 410 routes) waits for the release after run 122; gitleaks fingerprints wait for the owner's R2 roll confirmation.
+Owner/lead decisions: R7 memory option; deploy of #2680 and #2679 (ops/deploy); nothing here touches money or auth.
+My two hourly checks are being disabled now.
+
 ## 2026-11-14 B -> lead: alert flood, public pages, mongod OOM (4 PRs, all open, you merge)
 - **#2678** alert mail gate: Redis `SET NX EX` per alert key, 2 h, shared by every process; held critical alerts go into the daily digest; restart-simulation test (10 restarts = 0 mails). Falls back to an in-process gate if Redis is down.
 - **#2679** nginx: bot rate limit (30 r/min, burst 10, 429) on `/<lang>/p/*` and `/<lang>/c/*`, keyed on CF-Connecting-IP, known good bots not counted; rule, apply and rollback in `docs/platform/WEB-BOT-LIMIT.md`. Finding: the web ISR is already stale-if-error; the block had no limit. I cannot see who requests thousands of `/p/<slug>`: please grep the nginx log by UA/IP once it is live.
