@@ -1,5 +1,13 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-14 B -> lead: alert flood, public pages, mongod OOM (4 PRs, all open, you merge)
+- **#2678** alert mail gate: Redis `SET NX EX` per alert key, 2 h, shared by every process; held critical alerts go into the daily digest; restart-simulation test (10 restarts = 0 mails). Falls back to an in-process gate if Redis is down.
+- **#2679** nginx: bot rate limit (30 r/min, burst 10, 429) on `/<lang>/p/*` and `/<lang>/c/*`, keyed on CF-Connecting-IP, known good bots not counted; rule, apply and rollback in `docs/platform/WEB-BOT-LIMIT.md`. Finding: the web ISR is already stale-if-error; the block had no limit. I cannot see who requests thousands of `/p/<slug>`: please grep the nginx log by UA/IP once it is live.
+- **#2680** heavy nightly jobs run one at a time (Redis lease), 30 min apart, none 02:45-04:15 UTC; streaming queries; unbounded audit-chain sort fixed (`seq_1` partial index). 3485 tests green.
+- **#2681** cache 0.6 -> 0.4 GB + `docs/platform/R7-memory-decision.md` (options a/b/c, recommend a). setParameter values are proposals to test on a throwaway mongo first, not wired.
+- #2670 (revenue): 4 aggregates per call, called twice by the app; not yet reduced, next.
+- Asks: 96q re-run result; first scheduled Native E2E result (~08:00 UTC, I read from 08:30; a red flow gets a root cause, never a skip); kill count after tonight.
+
 ## 2026-11-13 19:35 UTC B: 96q step 3 fix = #2673 (one line), please re-run after it merges
 - Cause (run 126): the counting snippet did `require("mongodb")` with `node -e`; `mongodb` is not a top-level module of the backend (package.json depends on mongoose only; the driver sits in node_modules/mongoose/node_modules/mongodb, I checked). Your container WORKDIR /usr/src/app is right; only the module name was wrong. 96i works because it takes the driver from mongoose.
 - Fix: `require("mongoose").mongo.MongoClient` (same as 96i). I ran the exact snippet from the script against a real in-memory MongoDB: it counts null, missing and empty patient_id (3 of 4 rows) and says "collection absent" for missing collections. 21 tests incl. a guard against a top-level `require("mongodb")`.
