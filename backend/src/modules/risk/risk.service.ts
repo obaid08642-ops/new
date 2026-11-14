@@ -278,8 +278,8 @@ export class RiskService {
    * Every night: the people with activity in the last two days, and everyone already flagged (medium/high), so a flagged
    * person who went quiet sees their score fall when the windows move. One replica runs it (a lock row per day).
    */
-  @Cron(CronExpression.EVERY_DAY_AT_3AM)
-  @ScheduledOnce()
+  @Cron('0 5 * * *')   // 2026-11-14: away from the 03:00 dump (serial group 'nightly-heavy'); up to 5000 users are rescored, each with several reads
+  @ScheduledOnce({ serial: 'nightly-heavy' })
   async rescoreRecent(): Promise<number> {
     await this.ensureIndexes();
     try {

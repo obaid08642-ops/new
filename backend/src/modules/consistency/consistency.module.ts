@@ -39,8 +39,8 @@ export class ConsistencyService {
   private reconcileRunning = false;
 
   /** R72: nightly scheduled settlement — birth-event backfill for the last 30d window. */
-  @Cron('17 3 * * *')
-  @ScheduledOnce()
+  @Cron('40 2 * * *')   // 2026-11-14: spread out (serial group 'nightly-heavy'), before the 03:00 dump
+  @ScheduledOnce({ serial: 'nightly-heavy' })
   async scheduledReconcile() {
     if (this.reconcileRunning || process.env.CONSISTENCY_CRON_DISABLED === '1') return;
     this.reconcileRunning = true;
@@ -60,17 +60,17 @@ export class ConsistencyService {
     // 1) Duplicate-ish bookings: same patient + same provider + same kind + same day
     const dupPipeline = (model: Model<any>, providerField: string, stateField = 'state') => [
       { $match: { createdAt: { $gte: since }, [stateField]: { $nin: ['CANCELLED'] } } },
-      { $group: { _id: { patient_id: '$patient_id', provider: `$${providerField}`, day: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } } }, ids: { $push: '$id' }, count: { $sum: 1 } } },
+      { $group: { _id: { patient_id: '$patient_id', provider: `$${providerField}`, day: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } } }, ids: { $firstN: { n: 5, input: '$id' } }, count: { $sum: 1 } } },
       { $match: { count: { $gt: 1 } } },
       { $limit: 30 },
     ];
-    const [dupOrders, dupLabs, dupRads, dupHome, dupAppts] = await Promise.all([
-      this.orders.aggregate(dupPipeline(this.orders, 'pharmacy_id')),
-      this.labs.aggregate(dupPipeline(this.labs, 'provider_account_id')),
-      this.rads.aggregate(dupPipeline(this.rads, 'provider_account_id')),
-      this.home.aggregate(dupPipeline(this.home, 'provider_account_id')),
-      this.appts.aggregate(dupPipeline(this.appts, 'doctor_user_id', 'status')),
-    ]);
+    // one at a time, each bounded (2026-11-14: five $group over a month of bookings in parallel, with an unbounded $push of ids, ran inside mongod's memory limit)
+    const bounded = (agg: any) => agg.allowDiskUse(true).option({ maxTimeMS: 60_000 });
+    const dupOrders = await bounded(this.orders.aggregate(dupPipeline(this.orders, 'pharmacy_id')));
+    const dupLabs = await bounded(this.labs.aggregate(dupPipeline(this.labs, 'provider_account_id')));
+    const dupRads = await bounded(this.rads.aggregate(dupPipeline(this.rads, 'provider_account_id')));
+    const dupHome = await bounded(this.home.aggregate(dupPipeline(this.home, 'provider_account_id')));
+    const dupAppts = await bounded(this.appts.aggregate(dupPipeline(this.appts, 'doctor_user_id', 'status')));
     audit.issues.duplicates = [
       ...dupOrders.map(d => ({ kind: 'pharmacy', ...d })),
       ...dupLabs.map(d => ({ kind: 'lab', ...d })),

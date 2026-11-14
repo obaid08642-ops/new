@@ -22,7 +22,7 @@ export async function auditUniqueIndexes(conn: Connection): Promise<IndexFinding
         const match: Record<string, unknown> = { ...(opts.partialFilterExpression ?? {}) };
         for (const k of Object.keys(key)) if (!(k in match)) match[k] = { $exists: true, $ne: null };
         try {
-          const groups: any[] = await conn.collection(name).aggregate([{ $match: match }, { $group: { _id: Object.fromEntries(Object.keys(key).map((k) => [k.replace(/\./g, '_'), `$${k}`])), n: { $sum: 1 } } }, { $match: { n: { $gt: 1 } } }, { $limit: 50 }], { maxTimeMS: 30_000 } as any).toArray();
+          const groups: any[] = await conn.collection(name).aggregate([{ $match: match }, { $group: { _id: Object.fromEntries(Object.keys(key).map((k) => [k.replace(/\./g, '_'), `$${k}`])), n: { $sum: 1 } } }, { $match: { n: { $gt: 1 } } }, { $limit: 50 }], { maxTimeMS: 30_000, allowDiskUse: true } as any).toArray();
           f.duplicate_groups = groups.length; f.sample = groups.slice(0, 3).map((g) => g._id);
         } catch { /* a filter the aggregation cannot use: the missing index is still reported */ }
         out.push(f);

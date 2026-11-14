@@ -37,6 +37,22 @@ describe('the chain', () => {
     expect(await verifyAdminAuditChain(conn)).toMatchObject({ ok: true, checked: 5, head_seq: 5, findings: [] });
   });
 
+  it('the verifier walks in seq order through a partial index on seq (no blocking sort of the whole log), and the answer is the same', async () => {
+    await seed(5);
+    await conn.collection(ADMIN_LOG).dropIndex('seq_1').catch(() => undefined);
+    const r = await verifyAdminAuditChain(conn);
+    expect(r).toMatchObject({ ok: true, checked: 5, head_seq: 5 });
+    const idx = await conn.collection(ADMIN_LOG).indexes();
+    const seq = idx.find((i: any) => i.name === 'seq_1');
+    expect(seq?.key).toEqual({ seq: 1 });
+    expect((seq as any)?.partialFilterExpression).toEqual({ seq: { $exists: true } });
+    const plan: any = await conn.collection(ADMIN_LOG).find({ seq: { $exists: true } } as any, { hint: { seq: 1 } } as any).sort({ seq: 1 }).explain('queryPlanner');
+    expect(JSON.stringify(plan.queryPlanner.winningPlan)).not.toContain('"SORT"');
+    // a broken row is still found through the index walk
+    await conn.collection(ADMIN_LOG).updateOne({ seq: 3 }, { $set: { reason: 'tampered' } });
+    expect((await verifyAdminAuditChain(conn)).findings.map((f) => f.code)).toContain('hash_mismatch');
+  });
+
   it('30 admins writing at the same moment: no gap, no duplicate, chain intact', async () => {
     await Promise.all(Array.from({ length: 30 }, (_, i) => appendAdminAudit(conn, row(i + 1))));
     expect((await rows()).map((x) => x.seq)).toEqual(Array.from({ length: 30 }, (_, i) => i + 1));
