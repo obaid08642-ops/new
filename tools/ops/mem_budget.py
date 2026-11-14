@@ -47,7 +47,7 @@ BASE = {
     "clamav":      dict(limit=1536, res=600,  swap=0,   heap=None, scale=False),   # not steady: remote scanner / window only
 }
 NOT_STEADY = {"clamav"}
-MONGO_CACHE_GB_BASE = 0.6
+MONGO_CACHE_GB_BASE = 0.4
 OVERCOMMIT_CEILING = 2.4    # ratchet: sum of always-on limits / sum of always-on reservations; today 2.40 (6144/2560). Only goes down (docs/platform/R1-memory-budget.md: why limits cannot all sit under the host on 3.8 GB)
 
 
