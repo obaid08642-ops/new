@@ -63,12 +63,14 @@ describe('the rules fire once, with their runbook, and resolve', () => {
     // it keeps burning: no second message
     const more = await minute(svc, metrics, 7, () => hits(metrics, '/api/v1/orders/:id', 100, 20));
     expect(more.filter((e) => e.rule === 'api_availability_fast')).toEqual([]);
-    // recovery: three clear checks and one RESOLVED
+    // recovery: one RESOLVED event, recorded but not mailed: the mail gate allows one mail per alert per 2 hours (the FIRING mail went out a few minutes ago)
+    const mailsBefore = mail.send.mock.calls.length;
     const out: any[] = [];
     for (let i = 8; i < 20; i += 1) out.push(...await minute(svc, metrics, i, () => hits(metrics, '/api/v1/orders/:id', 100, 0)));
     const resolved = out.filter((e) => e.rule === 'api_availability_fast' && e.state === 'resolved');
     expect(resolved).toHaveLength(1);
-    expect((mail.send.mock.calls.at(-1) as any[])[1]).toContain('RESOLVED');
+    expect(resolved[0].held).toBe(true);
+    expect(mail.send.mock.calls.length).toBe(mailsBefore);
   });
 
   it('checkout success: more than 1% of checkout calls failing over 15 min', async () => {
@@ -265,25 +267,25 @@ describe('a flapping critical alert: ONE unstable mail per 6 hours instead of on
   const st = (svc: SloAlertsService) => ({ rule: 'api_availability_fast', key: 'api_availability_fast', consecutiveOn: 2, consecutiveOff: 0, firing: true, since: T0, lastSentAt: T0, value: 5.9, threshold: 1.44, unit: '%', detail: '45 of 759 requests answered 5xx' }) as any;
   const subjects = (mail: any) => mail.send.mock.calls.map((c: any[]) => c[1] as string);
 
-  it('the first two fires and their resolves are mailed as before; from the 3rd fire in 6 h they are held back and one digest goes out', async () => {
+  it('the first fire is mailed, every later event inside the gate window is held back, and from the 3rd fire in 6 h one UNSTABLE digest goes out', async () => {
     const { mail, svc } = setup();
     const s = st(svc);
     const fire = (i: number) => (svc as any).dispatch(s, 'firing', false);
     const resolve = () => (svc as any).dispatch(s, 'resolved', false);
     await fire(0); await resolve(); await fire(1); await resolve();
-    expect(mail.send).toHaveBeenCalledTimes(4);
+    expect(mail.send).toHaveBeenCalledTimes(1);   // the mail gate: ONE mail per alert key per 2 hours (the other three are recorded as held)
     await fire(2); await resolve(); await fire(3); await resolve();
-    expect(mail.send).toHaveBeenCalledTimes(4); // held back: still 4
+    expect(mail.send).toHaveBeenCalledTimes(1); // held back: still 1
     expect(await svc.flushUnstable(Date.now())).toBe(1);
     expect(subjects(mail).at(-1)).toContain('UNSTABLE');
     expect((mail.send.mock.calls.at(-1) as any[])[3]).toContain('fired 2x, resolved 2x');
     // more flapping inside the same 6 hours: still no new mail
     await fire(4); await resolve();
     expect(await svc.flushUnstable(Date.now() + 60 * MIN)).toBe(0);
-    expect(mail.send).toHaveBeenCalledTimes(5);
+    expect(mail.send).toHaveBeenCalledTimes(2);
     // 6 hours later: the next digest
     expect(await svc.flushUnstable(Date.now() + 6 * 60 * MIN + 1)).toBe(1);
-    expect(mail.send).toHaveBeenCalledTimes(6);
+    expect(mail.send).toHaveBeenCalledTimes(3);
   });
 
   it('a drill and a warning never take this path', async () => {
