@@ -1,5 +1,13 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-14 06:10 UTC — #1835 /ar/c Lighthouse numbers (from CI, no budget change)
+Status: measured; the issue's two problems are not reproduced on current main.
+I could not run Lighthouse in this container (needs the seeded backend), so I took the 3 runs per URL from the CI `lighthouse` job of #2677 (main 2149a3dcf + my client PR; assertions passed; artifact lighthouse-results, same devtools throttling as the issue):
+- /ar/c: TBT 83, 91, 91 ms (budget 200); TTI 4025, 4048, 4061 ms (budget 5500); LCP ~1.9 s; score 98 on all 3. The issue measured TBT 278-329 ms and unstable TTI.
+- /ar: TBT 46, 47, 85; TTI 3.9-4.4 s. /ar/consultations/doctors: TBT 49-53; TTI 3.9-4.1 s.
+So /ar/c is now about 3x below the TBT budget and TTI is stable (spread 36 ms over 3 runs). Whatever fixed it landed after the issue (loading.tsx and hydration work). Suggest closing #1835 with these numbers, or keep it open for one more CI run next week; the numbers will keep appearing in every lighthouse job. No budget raised.
+Left: #1831 seeds (not started, needs owner approval for the migration), CI of the Dependabot PRs.
+
 ## 2026-11-14 05:30 UTC — Dependabot CI after update-branch
 Status: results so far (CI still running on some).
 - #1690 (download-artifact 8.0.2): green so far, 18 checks pending. #1689 (upload-artifact 7.0.2): green so far, 24 pending. They must go together; both touch workflows: you merge by hand once all green.
