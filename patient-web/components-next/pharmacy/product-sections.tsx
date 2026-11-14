@@ -1,10 +1,12 @@
 "use client";
 
 import { useId, useState, useSyncExternalStore } from "react";
+import { formatNumber } from "@/lib/format-price";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import styles from "./product-detail.module.css";
 
-export type DetailSection = { id: string; title: string; items: string[] };
+/** `lang` / `dir` / `note` are set when the text is not in the page's language (it says which one, in the reader's language). */
+export type DetailSection = { id: string; title: string; items: string[]; lang?: string; dir?: "rtl" | "ltr"; note?: string };
 export type DetailGroup = { id: string; title: string; sections: DetailSection[] };
 
 const WIDE = "(min-width: 768px)";
@@ -22,7 +24,7 @@ function useWide() {
  * The medicine details. Every section's text is in the page's HTML whichever way it is drawn (the page is indexed);
  * only the groups with something to say are here, and on a phone the first section starts open (spec A, "Accordion").
  */
-export function ProductSections({ groups, label }: { groups: DetailGroup[]; label: string }) {
+export function ProductSections({ groups, label, locale }: { groups: DetailGroup[]; label: string; locale: string }) {
   const base = useId();
   const wide = useWide();
   const [tab, setTab] = useState(groups[0]?.id);
@@ -66,9 +68,12 @@ export function ProductSections({ groups, label }: { groups: DetailGroup[]; labe
           {group.sections.map((section) => {
             const isOpen = open.has(section.id);
             const body = (
-              <ul className={styles.bullets}>
-                {section.items.map((item, i) => <li key={i}>{item}</li>)}
-              </ul>
+              <>
+                {section.note ? <p className={styles.langNote} data-testid={`lang-note-${section.id}`}>{section.note}</p> : null}
+                <ul className={styles.bullets} lang={section.lang} dir={section.dir}>
+                  {section.items.map((item, i) => <li key={i}>{item}</li>)}
+                </ul>
+              </>
             );
             return (
               <section key={section.id} data-open={wide ? "true" : String(isOpen)} className={styles.section}>
@@ -84,12 +89,12 @@ export function ProductSections({ groups, label }: { groups: DetailGroup[]; labe
                       onClick={() => toggle(section.id)}
                     >
                       <span className={styles.sectionName}>{section.title}</span>
-                      {section.items.length > 1 ? <span className={styles.sectionCount}>{section.items.length}</span> : null}
+                      {section.items.length > 1 ? <span className={styles.sectionCount}>{formatNumber(locale, section.items.length)}</span> : null}
                       <Icon name={isOpen ? "caret-up" : "caret-down"} size={18} tone="secondary" />
                     </button>
                   </h3>
                 )}
-                <div id={`${base}-body-${section.id}`} className={styles.sectionBody}>{body}</div>
+                <div id={`${base}-body-${section.id}`} className={styles.sectionBody}><div className={styles.sectionBodyInner}>{body}</div></div>
               </section>
             );
           })}

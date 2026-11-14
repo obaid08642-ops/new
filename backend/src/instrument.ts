@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/nestjs';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
+import { scrubDeep } from './common/secret-scrub';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -16,6 +17,8 @@ Sentry.init({
   tracesSampleRate: isProd ? 0.1 : 1.0,
   profileSessionSampleRate: isProd ? 0.1 : 1.0,
   profileLifecycle: 'trace',
+  // Anything that looks like a key or token is masked in the event before it leaves the process.
+  beforeSend: (event) => scrubDeep(event),
   // 4xx (validation/auth) never reach Sentry: SentryExceptionFilter
   // captures 500+ only. No SentryGlobalFilter on purpose.
 });

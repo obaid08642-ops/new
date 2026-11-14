@@ -1,4 +1,5 @@
 import { patientApiUrl } from "./upstream";
+import { publicReadSignal } from "@/lib/api/public-timeout";
 
 export type MedicalReportSummary = {
   id: string;
@@ -11,7 +12,7 @@ export type MedicalReportSummary = {
 
 export async function getMyMedicalReports(token: string): Promise<Response> {
   try {
-    return await fetch(patientApiUrl("/medical-reports/mine?limit=100"), {
+    return await fetch(patientApiUrl("/medical-reports/mine?limit=100"), { signal: publicReadSignal(),
       headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
       cache: "no-store",
     });

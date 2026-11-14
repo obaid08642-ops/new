@@ -1,7 +1,8 @@
 import { IsArray, IsBoolean, IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
+import { AI_PROVIDER_NAMES, AiProviderName } from './ai-provider-catalog';
 
 export class UpdateAiConfigDto {
-  @IsOptional() @IsIn(['gemini', 'openai', 'groq', 'cerebras', 'openrouter', 'deepseek', 'qwen', 'replicate']) provider?: string;
+  @IsOptional() @IsIn([...AI_PROVIDER_NAMES]) provider?: string;
   @IsOptional() @IsString() model?: string;
   @IsOptional() @IsBoolean() enabled?: boolean;
   @IsOptional() @IsNumber() daily_quota?: number;
@@ -77,8 +78,8 @@ export class SetModeDto {
   mode: string;
 
   @IsOptional()
-  @IsIn(['gemini', 'openai', 'groq', 'cerebras', 'openrouter', 'deepseek', 'qwen', 'replicate'])
-  pinned?: 'gemini' | 'openai' | 'groq' | 'cerebras' | 'openrouter' | 'deepseek' | 'qwen' | 'replicate';
+  @IsIn([...AI_PROVIDER_NAMES])
+  pinned?: AiProviderName;
 }
 export class SetPurposeDto {
   @IsOptional()

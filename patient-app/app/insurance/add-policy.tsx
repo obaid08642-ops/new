@@ -2,15 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { router, type Href } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
+import * as WebBrowser from 'expo-web-browser';
 
-import { Button, Chip, Input } from '../../../packages/ui-native/src';
+import { Button, Chip, Input, Search } from '../../../packages/ui-native/src';
 import { Section } from '../../src/components/consult/ConsultKit';
 import { Notice, rowsOf } from '../../src/components/health/HealthKit';
+import { CopayFields } from '../../src/components/insurance/CopayFields';
 import { InsuranceScreen, INSURANCE_HUB } from '../../src/components/insurance/InsuranceKit';
 import { useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
+import { parseCopay } from '../../src/utils/differentiators';
 import { logError } from '../../src/utils/logger';
 import { pickLocalized } from '../../src/utils/localize';
+import { chiInquiryUrl, figuresForClass, filterInsurers, parseInsurerClasses, type InsurerClass } from '../../src/utils/insuranceAdd';
 
 interface Company { id: string; code?: string; name_ar?: string; name_en?: string }
 
@@ -26,10 +30,17 @@ export default function AddPolicyScreen() {
   const [memberId, setMemberId] = useState('');
   const [memberName, setMemberName] = useState('');
   const [expiry, setExpiry] = useState('');
+  const [copayPercent, setCopayPercent] = useState('');
+  const [copayCap, setCopayCap] = useState('');
+  const [showCopayErrors, setShowCopayErrors] = useState(false);
   const [ocrUsed, setOcrUsed] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [companies, setCompanies] = useState<Company[]>([]);
+  const [search, setSearch] = useState('');
+  const [classes, setClasses] = useState<InsurerClass[]>([]);
+  const [klass, setKlass] = useState('');
+  const [chiUrl, setChiUrl] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ tone: 'danger' | 'success'; text: string } | null>(null);
 
   useEffect(() => {
@@ -37,6 +48,45 @@ export default function AddPolicyScreen() {
       .then((res) => setCompanies(rowsOf<Company>(res)))
       .catch((e) => { logError('insurance:add-policy:companies', e); setCompanies([]); });
   }, []);
+
+  // the official CHI inquiry page comes from the backend's /config; without it no link is drawn
+  useEffect(() => {
+    apiFetch('/config').then((cfg) => setChiUrl(chiInquiryUrl(cfg))).catch(() => setChiUrl(null));
+  }, []);
+
+  // the chosen insurer's classes (GET /insurance/companies/:id/networks); a failed read just leaves the chips out
+  useEffect(() => {
+    setKlass('');
+    const chosen = companies.find((c) => c.id === company);
+    if (!chosen) { setClasses([]); return; }
+    let live = true;
+    apiFetch(`/insurance/companies/${encodeURIComponent(chosen.id)}/networks`)
+      .then((res) => { if (live) setClasses(parseInsurerClasses(rowsOf(res))); })
+      .catch((e) => { logError('insurance:add-policy:classes', e); if (live) setClasses([]); });
+    return () => { live = false; };
+  }, [company, companies]);
+
+  /** Choosing a class fills the card's copay figures from the catalogue (when it has them); both stay editable. */
+  const chooseClass = (item: InsurerClass) => {
+    const next = klass === item.code ? '' : item.code;
+    setKlass(next);
+    if (!next) return;
+    const figures = figuresForClass(item, { percent: copayPercent, cap: copayCap });
+    setCopayPercent(figures.percent);
+    setCopayCap(figures.cap);
+    setShowCopayErrors(false);
+  };
+
+  const openChi = () => {
+    if (chiUrl) void WebBrowser.openBrowserAsync(chiUrl).catch((e) => logError('insurance:add-policy:chi', e));
+  };
+
+  // the chosen insurer stays in view even when the typed text no longer matches it
+  const shownCompanies = (() => {
+    const matches = filterInsurers(companies, search);
+    const chosen = companies.find((c) => c.id === company);
+    return chosen && !matches.includes(chosen) ? [chosen, ...matches] : matches;
+  })();
 
   const handleScanCard = async () => {
     setNotice(null);
@@ -80,6 +130,11 @@ export default function AddPolicyScreen() {
 
   const handleSave = async () => {
     if (!company || !policyNum || isSaving) return;
+    const copay = parseCopay(copayPercent, copayCap);
+    if (!copay.ok) {
+      setShowCopayErrors(true);
+      return;
+    }
     setIsSaving(true);
     setNotice(null);
     try {
@@ -95,6 +150,8 @@ export default function AddPolicyScreen() {
           national_id: memberId || undefined,
           verified: false,
           ocr_extracted: ocrUsed,
+          ...(klass ? { network: klass, class: klass } : {}),
+          ...copay.body,
         }),
       });
       router.replace(INSURANCE_HUB as Href);
@@ -114,20 +171,33 @@ export default function AddPolicyScreen() {
     >
       <Button label={k('insurance.add.scan')} variant="outline" fullWidth loading={isScanning} onPress={() => void handleScanCard()} theme={theme} testID="add-scan" />
       {notice ? <Notice tone={notice.tone} text={notice.text} testID="add-notice" /> : null}
+      {chiUrl ? <Button label={k('insurance.add.chiLink')} variant="outline" fullWidth onPress={openChi} theme={theme} testID="add-chi-link" /> : null}
       <Section title={k('insurance.add.company')}>
         {companies.length === 0 ? <Notice tone="info" text={k('insurance.add.noCompanies')} /> : null}
+        {companies.length > 0 ? <Search value={search} onChange={setSearch} onClear={() => setSearch('')} placeholder={k('insurance.add.companySearch')} theme={theme} testID="add-company-search" /> : null}
+        {companies.length > 0 && shownCompanies.length === 0 ? <Notice tone="info" text={k('insurance.add.companyNone')} /> : null}
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-          {companies.map((c) => (
-            <Chip key={c.id} label={pickLocalized(c.name_ar, c.name_en) || c.code || ''} selected={company === c.id} onPress={() => setCompany(c.id)} theme={theme} testID={`add-company-${c.id}`} />
+          {shownCompanies.map((c) => (
+            <Chip key={c.id} label={pickLocalized(c.name_ar, c.name_en) || c.code || ''} selected={company === c.id} onPress={() => setCompany(company === c.id ? '' : c.id)} theme={theme} testID={`add-company-${c.id}`} />
           ))}
         </View>
       </Section>
+      {classes.length > 0 ? (
+        <Section title={k('insurance.add.class')}>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            {classes.map((item) => (
+              <Chip key={item.code} label={pickLocalized(item.name_ar, item.name_en) || item.code} selected={klass === item.code} onPress={() => chooseClass(item)} theme={theme} testID={`add-class-${item.code}`} />
+            ))}
+          </View>
+        </Section>
+      ) : null}
       <Section title={k('insurance.add.details')}>
         <Input label={k('insurance.add.policyNumber')} placeholder={k('insurance.add.policyNumberHint')} value={policyNum} onChange={setPolicyNum} theme={theme} testID="add-policy-number" />
         <Input label={k('insurance.add.memberId')} placeholder={k('insurance.add.memberIdHint')} value={memberId} onChange={setMemberId} theme={theme} testID="add-member-id" />
         <Input label={k('insurance.add.memberName')} placeholder={k('insurance.add.memberNameHint')} value={memberName} onChange={setMemberName} theme={theme} testID="add-member-name" />
         <Input label={k('insurance.add.expiry')} placeholder={k('insurance.add.expiryHint')} value={expiry} onChange={setExpiry} theme={theme} testID="add-expiry" />
       </Section>
+      <CopayFields percent={copayPercent} cap={copayCap} onPercent={setCopayPercent} onCap={setCopayCap} showErrors={showCopayErrors} idPrefix="add" />
     </InsuranceScreen>
   );
 }

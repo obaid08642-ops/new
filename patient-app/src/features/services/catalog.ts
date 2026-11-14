@@ -36,7 +36,7 @@ export const MAIN_SERVICES: MainService[] = [
 export const MORE_SERVICES: ServiceRow[] = [
   { icon: 'ambulance', tone: tone('emergency'), title: 'emergency.title', desc: 'emergency.serviceDesc', route: '/emergency' },
   { icon: 'eye', tone: 'blue', title: 'services.cat.visionTest', desc: 'services.cat.bookEyeExamWith', route: '/search?view=doctors&specialty=ophthalmology' },
-  { icon: 'tooth', tone: 'mint', title: 'services.cat.dentistry', desc: 'services.cat.cleaningFillingOrthoImplants', route: '/search?view=doctors&specialty=dentistry' },
+  { icon: 'tooth', tone: 'blue', title: 'services.cat.dentistry', desc: 'services.cat.cleaningFillingOrthoImplants', route: '/search?view=doctors&specialty=dentistry' },
   { icon: 'brain', tone: tone('mind'), title: 'services.cat.mentalHealth', desc: 'services.cat.psychologicalConsultationsTherapySessions', route: '/mental-health/hub' },
   { icon: 'bowl-food', tone: tone('nutrition'), title: 'services.cat.nutritionDiet', desc: 'services.cat.dietPlansCalorieTracking', route: '/nutrition/hub' },
   { icon: 'house', tone: tone('nursing'), title: 'services.cat.homeCare', desc: 'services.cat.elderlyChronicCare', route: '/(tabs)/nursing' },

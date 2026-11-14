@@ -1,6 +1,7 @@
-import { IsArray, IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength, ValidateNested, IsBoolean, IsIn } from 'class-validator';
+import { IsArray, IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength, ValidateNested, IsBoolean, IsIn, Matches } from 'class-validator';
 import { Type } from 'class-transformer';
 import { AttributionDto } from '../../common/attribution';
+import { NursingBookingChoiceFields, NursingCatalogBookingFields } from './booking-mode';
 
 export class NursingVitalsDto {
   @IsOptional() @IsString() @MaxLength(20) bp?: string;
@@ -32,7 +33,18 @@ export class CreateNoteDto {
 
 }
 
-export class CreateBookingDto {
+export class CreateBookingDto extends NursingBookingChoiceFields {
+  /** The patient ticked "I agree" to the refund policy shown before payment (a missing field is let through while the rollout is optional, an explicit false is refused; a missing field is 400 refund_policy_acceptance_required once REFUND_POLICY_ACCEPTANCE=required). */
+  @IsOptional()
+  @IsBoolean()
+  refund_policy_accepted?: boolean;
+
+  /** The hash of the refund policy the patient's screen showed (GET /refund-policy/summary); a table changed since then is refused with 409 refund_policy_changed. Optional: old clients do not send it. */
+  @IsOptional()
+  @IsString()
+  @Matches(/^[a-f0-9]{64}$/)
+  refund_policy_hash?: string;
+
   @IsOptional()
   @IsString()
   service_id?: string;
@@ -108,7 +120,7 @@ export class CompleteVisitDto {
 }
 
 // Admin catalog editor (admin/src/pages/admin/catalog-manager.tsx). medical_review_status publishes/unpublishes.
-export class CreateHomeCareCatalogDto {
+export class CreateHomeCareCatalogDto extends NursingCatalogBookingFields {
   @IsDefined() @IsString() name_ar: string;
   @IsDefined() @IsString() name_en: string;
   @IsOptional() @IsString() description_ar?: string;
@@ -128,7 +140,7 @@ export class CreateHomeCareCatalogDto {
   @IsOptional() @IsIn(['pending', 'approved', 'rejected', 'suspended']) medical_review_status?: string;
 }
 
-export class UpdateHomeCareCatalogDto {
+export class UpdateHomeCareCatalogDto extends NursingCatalogBookingFields {
   @IsOptional() @IsString() name_ar?: string;
   @IsOptional() @IsString() name_en?: string;
   @IsOptional() @IsString() description_ar?: string;

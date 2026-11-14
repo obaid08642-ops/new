@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsIn, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class SavePolicyDto {
   @IsOptional()
@@ -52,6 +52,19 @@ export class SavePolicyDto {
   @IsOptional()
   @IsBoolean()
   ocr_extracted?: boolean;
+
+  /** As printed on the card: the patient's copay share (0..100 percent) and the cap per item in SAR. Both optional. */
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  copay_percent?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(1000000)
+  copay_cap_sar?: number;
 }
 
 export class CreateRequestDto {

@@ -16,8 +16,9 @@ import {
 } from './search-documents';
 import { MeiliClient } from './meili.client';
 import { runsBackgroundWork } from '../../common/process-role';
-import { connectionFlagSource, isKilled } from '../../common/killswitches/killswitches.helper';
+import { connectionFlagSource, shouldDegrade } from '../../common/killswitches/killswitches.helper';
 import { PurgeBus } from '../../common/purge-bus';
+import { SearchRefine, hasRefine, refineItems } from './search-refine';
 import { JudgedSuggestion, SuggestRow, TextRange, compareSuggestions, judgeSuggestion } from './suggest-rank';
 
 export const SEARCH_INDEX = 'search_index';
@@ -37,6 +38,17 @@ const SUGGEST_PROJECTION = { _id: 0, key: 1, id: 1, type: 1, section: 1, names: 
 /** Arabic-script text (Arabic, Urdu) is suggested from its first letter; other scripts from two letters. */
 export function suggestMinLength(query: string): number {
   return /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/.test(query) ? 1 : 2;
+}
+
+/** A service screen's own suggestions: one section (its types), and optionally only some of its types (labs without scans). Nothing = home (everything). */
+export interface SuggestScope { section?: SearchSection; types?: SearchType[] }
+
+/** The types a scoped suggestion may return (null = every type, the home search). `types` narrows `section`; with no section it stands alone. */
+export function suggestTypes(scope: SuggestScope): SearchType[] | null {
+  const inSection = scope.section ? SECTION_TYPES[scope.section] : null;
+  const wanted = scope.types && scope.types.length ? scope.types.filter((t) => SEARCH_TYPES.includes(t)) : null;
+  if (inSection && wanted) return wanted.filter((t) => inSection.includes(t));
+  return inSection ?? wanted;
 }
 
 export interface SuggestItem {
@@ -62,6 +74,8 @@ export interface SearchItem {
   highlight?: string;
   slug?: string | null;
   price?: number | null;
+  old_price?: number | null;
+  discount_percent?: number;
   specialty?: string | null;
   code?: string | null;
   requires_prescription: boolean;
@@ -133,9 +147,9 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
       for await (const raw of cursor) {
         const doc = toSearchDocument(source, raw);
         if (doc) batch.push(doc);
-        if (batch.length >= BATCH) { indexed += await this.write(batch); batch = []; }
+        if (batch.length >= BATCH) { indexed += await this.write(batch, true); batch = []; }
       }
-      if (batch.length) indexed += await this.write(batch);
+      if (batch.length) indexed += await this.write(batch, true);
     }
     // Anything not rewritten by this run is no longer searchable.
     const stale = await this.index.find({ indexed_at: { $lt: started } }, { projection: { key: 1 } }).toArray();
@@ -163,21 +177,52 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
     this.purgeTimer.unref?.();
   }
 
-  private async write(docs: SearchDocument[]): Promise<number> {
+  /** `paced`: a bulk write (the rebuild) waits for the engine to apply each batch; a single change is sent and forgotten. */
+  private async write(docs: SearchDocument[], paced = false): Promise<number> {
     const now = new Date();
     await this.index.bulkWrite(docs.map((d) => ({ replaceOne: { filter: { key: d.key }, replacement: { ...d, indexed_at: now }, upsert: true } })), { ordered: false });
-    await this.meiliCall((m) => m.upsert(docs));
+    await this.meiliCall((m) => (paced ? m.upsertAndWait(docs) : m.upsert(docs)));
     return docs.length;
   }
 
+  private syncingMeili = false;
+
+  /**
+   * Boot sync of the engine from the MongoDB index. It used to push the WHOLE index on every worker start, whatever the engine held and however
+   * busy it was; a worker that restarts often (or an engine that is killed while it works) then piled one full re-index on top of another in the
+   * engine's persisted task queue. Now: nothing is sent while the engine still has work queued, nothing when it already holds every document, and
+   * otherwise the batches go one at a time, each waited for.
+   */
   private async syncMeiliFromIndex() {
-    const cursor = this.index.find({}, { projection: { _id: 0, indexed_at: 0 } });
-    let batch: SearchDocument[] = [];
-    for await (const d of cursor) {
-      batch.push(d as unknown as SearchDocument);
-      if (batch.length >= BATCH) { await this.meiliCall((m) => m.upsert(batch)); batch = []; }
+    if (!this.meili || this.syncingMeili) return;
+    this.syncingMeili = true;
+    try {
+      const wanted = await this.index.countDocuments({});
+      let state: { documents: number | null; backlog: number };
+      try {
+        state = await this.meili.state();
+      } catch (e) {
+        this.log.warn(`meilisearch boot sync skipped, state unreadable: ${(e as Error).message}`);
+        return;
+      }
+      if (state.backlog > 0) { this.log.warn(`meilisearch has ${state.backlog} task(s) waiting or running: no full sync added on top`); return; }
+      if (state.documents === wanted) { this.log.log(`meilisearch already holds all ${wanted} documents: boot sync skipped`); return; }
+      this.log.log(`meilisearch holds ${state.documents ?? 'no index'} of ${wanted} documents: syncing, one batch at a time`);
+      const cursor = this.index.find({}, { projection: { _id: 0, indexed_at: 0 } });
+      let batch: SearchDocument[] = [];
+      let sent = 0;
+      for await (const d of cursor) {
+        batch.push(d as unknown as SearchDocument);
+        if (batch.length >= BATCH) {
+          if (!(await this.meiliCall((m) => m.upsertAndWait(batch)))) { this.log.warn(`meilisearch sync stopped after ${sent} documents (the engine did not take a batch)`); return; }
+          sent += batch.length; batch = [];
+        }
+      }
+      if (batch.length && (await this.meiliCall((m) => m.upsertAndWait(batch)))) sent += batch.length;
+      this.log.log(`meilisearch sync done: ${sent} documents sent`);
+    } finally {
+      this.syncingMeili = false;
     }
-    if (batch.length) await this.meiliCall((m) => m.upsert(batch));
   }
 
   /** Meilisearch is a mirror: a failure is logged and the MongoDB index stays correct. */
@@ -221,6 +266,13 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
         this.applyChange(source, _id, ev.operationType === 'delete' ? null : ev.fullDocument ?? null)
           .catch((e) => this.log.warn(`search sync ${source}: ${(e as Error).message}`));
       });
+      // a stream that is closed by the server (a mongod restart) without an error event is not reopened by the error handler below
+      stream.on('close', () => {
+        if (this.stopped || this.stream !== stream || this.retry) return;
+        this.stream = null;
+        this.retry = setTimeout(() => { this.retry = null; this.watch(); }, 5000);
+        this.retry.unref?.();
+      });
       stream.on('error', (e: Error) => {
         void stream.close().catch(() => null);
         this.stream = null;
@@ -255,35 +307,65 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
 
   // ── Queries ─────────────────────────────────────────────────────────────────────────────────
 
-  async search(q: string, opts: { section?: SearchSection; locale?: SearchLocale; limit?: number }) {
+  async search(q: string, opts: { section?: SearchSection; locale?: SearchLocale; limit?: number; refine?: SearchRefine }) {
     const locale = opts.locale || 'ar';
     const query = normalizeSearchText(q || '').slice(0, 120);
     const types = opts.section ? SECTION_TYPES[opts.section] : SEARCH_TYPES;
     const limit = Math.min(Math.max(opts.limit || (opts.section ? 20 : 5), 1), 50);
+    // A sort or a price/sale filter works on a window larger than the page, so the page is the best of the whole window.
+    const fetchLimit = hasRefine(opts.refine) ? 50 : limit;
     if (!query) return opts.section ? { query, section: opts.section, engine: 'none', items: [] } : { query, engine: 'none', groups: [] };
 
     let engine: 'meilisearch' | 'mongo' = 'mongo';
     let byType: Record<string, SearchItem[]> | null = null;
     if (this.meili) {
       try {
-        const hits = await this.meili.search(query, types, limit, [`names.${locale}`]);
+        const hits = await this.meili.search(query, types, fetchLimit, [`names.${locale}`]);
         byType = Object.fromEntries(Object.entries(hits).map(([t, list]) => [t, list.map((h) => this.toItem(h, locale, (h._formatted as any)?.names?.[locale]))]));
         engine = 'meilisearch';
       } catch (e) {
         this.log.warn(`meilisearch query failed, answering from MongoDB: ${(e as Error).message}`);
       }
     }
-    if (!byType) byType = await this.mongoSearch(query, types, limit, locale);
+    if (!byType) byType = await this.mongoSearch(query, types, fetchLimit, locale);
+    byType = Object.fromEntries(Object.entries(byType).map(([t, list]) => [t, opts.section ? list : refineItems(list, opts.refine).slice(0, limit)]));
 
     if (opts.section) {
       // One section: its types merged, in relevance order within each type and type order across them.
-      const items = types.flatMap((t) => byType![t] || []).slice(0, limit);
+      const items = refineItems(types.flatMap((t) => byType![t] || []), opts.refine).slice(0, limit);
       return { query, section: opts.section, engine, items };
     }
     const groups = types
       .map((t) => ({ type: t, section: (byType![t]?.[0]?.section) ?? null, items: byType![t] || [] }))
       .filter((g) => g.items.length > 0);
     return { query, engine, groups };
+  }
+
+  /**
+   * The ids a catalogue list's search box matches (labs, scans, nursing services), best match first, from the SAME engine as the home search: Meilisearch with typo tolerance and the
+   * Arabic / English synonyms (سكر تراكمي = HbA1c, صورة دم = CBC, سونار = ultrasound, رنين = MRI), or the search index in MongoDB when Meilisearch is off or fails.
+   * `null` = the engine could not answer or found nothing: the caller keeps its own text match, so a list never gets worse than it was.
+   */
+  async matchIds(q: string, types: SearchType[], limit = 60): Promise<string[] | null> {
+    const query = normalizeSearchText(q || '').slice(0, 120);
+    if (!query || !types.length) return null;
+    try {
+      let byType: Record<string, SearchItem[]> | null = null;
+      if (this.meili) {
+        try {
+          const hits = await this.meili.search(query, types, limit, []);
+          byType = Object.fromEntries(Object.entries(hits).map(([t, list]) => [t, list.map((h) => this.toItem(h, 'ar'))]));
+        } catch (e) {
+          this.log.warn(`meilisearch query failed, answering from MongoDB: ${(e as Error).message}`);
+        }
+      }
+      if (!byType) byType = await this.mongoSearch(query, types, limit, 'ar');
+      const ids = types.flatMap((t) => (byType![t] || []).map((i) => i.id));
+      return ids.length ? [...new Set(ids)] : null;
+    } catch (e) {
+      this.log.warn(`catalogue search failed, the list keeps its own match: ${(e as Error).message}`);
+      return null;
+    }
   }
 
   /**
@@ -297,12 +379,14 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
    * Arabic script starts from the first letter, other scripts from two.
    * The "search suggestions" kill switch answers `{ suggestions: [], disabled: true }`: the clients draw no dropdown.
    */
-  async suggest(q: string, locale: SearchLocale = 'ar'): Promise<{ suggestions: SuggestItem[]; disabled?: true }> {
-    if (await isKilled('searchSuggestions', connectionFlagSource(this.conn))) return { suggestions: [], disabled: true };
+  async suggest(q: string, locale: SearchLocale = 'ar', scope: SuggestScope = {}): Promise<{ suggestions: SuggestItem[]; disabled?: true }> {
+    if (await shouldDegrade('searchSuggestions', connectionFlagSource(this.conn))) return { suggestions: [], disabled: true };
     const query = normalizeSearchText(q || '').slice(0, 60);
     if (query.length < suggestMinLength(query)) return { suggestions: [] };
 
-    const { rows: pool, fromMeili } = await this.suggestPool(query);
+    const allowed = suggestTypes(scope);
+    if (allowed && !allowed.length) return { suggestions: [] };   // a scope no type fits (a type outside the section): nothing, not everything
+    const { rows: pool, fromMeili } = await this.suggestPool(query, allowed);
     const seen = new Set<string>();
     const candidates: Array<{ row: SuggestRow; judged: JudgedSuggestion }> = [];
     const collect = (rows: SuggestRow[], meili: boolean) => {
@@ -317,7 +401,7 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
     collect(pool, fromMeili);
     // The inside-a-word tier: a second, bounded query, only when the first tiers cannot fill the list.
     if (candidates.filter((c) => c.judged.tier <= 4).length < SUGGEST_LIMIT) {
-      collect(await this.suggestInfix(query, [...seen]), false);
+      collect(await this.suggestInfix(query, [...seen], allowed), false);
     }
 
     const ranked = candidates
@@ -340,25 +424,25 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
   }
 
   /** The candidates of the first tiers: Meilisearch's prefix and typo-tolerant pool, or the MongoDB word-start pool. */
-  private async suggestPool(query: string): Promise<{ rows: SuggestRow[]; fromMeili: boolean }> {
+  private async suggestPool(query: string, allowed: SearchType[] | null): Promise<{ rows: SuggestRow[]; fromMeili: boolean }> {
     if (this.meili) {
       try {
-        return { rows: await this.meili.suggest(query, SUGGEST_POOL), fromMeili: true };
+        return { rows: await this.meili.suggest(query, SUGGEST_POOL, allowed), fromMeili: true };
       } catch (e) {
         this.log.warn(`meilisearch suggest failed, answering from MongoDB: ${(e as Error).message}`);
       }
     }
     // The projection (SUGGEST_PROJECTION) is the SuggestRow shape; the driver types the rows loosely.
     const rows = (await this.index
-      .find({ text: new RegExp(`(^| )${escapeRegex(query)}`) }, { projection: SUGGEST_PROJECTION })
+      .find({ text: new RegExp(`(^| )${escapeRegex(query)}`), ...(allowed ? { type: { $in: allowed } } : {}) }, { projection: SUGGEST_PROJECTION })
       .sort({ boost: -1 }).limit(SUGGEST_POOL).maxTimeMS(3000).toArray()) as unknown as SuggestRow[];
     return { rows, fromMeili: false };
   }
 
   /** The inside-a-word tier: names holding the text anywhere, popular first, bounded and time-limited. */
-  private async suggestInfix(query: string, exclude: string[]): Promise<SuggestRow[]> {
+  private async suggestInfix(query: string, exclude: string[], allowed: SearchType[] | null): Promise<SuggestRow[]> {
     return (await this.index
-      .find({ key: { $nin: exclude }, text: new RegExp(escapeRegex(query)) }, { projection: SUGGEST_PROJECTION })
+      .find({ key: { $nin: exclude }, text: new RegExp(escapeRegex(query)), ...(allowed ? { type: { $in: allowed } } : {}) }, { projection: SUGGEST_PROJECTION })
       .sort({ boost: -1 }).limit(SUGGEST_INFIX_POOL).maxTimeMS(1500).toArray()) as unknown as SuggestRow[];
   }
 
@@ -371,10 +455,12 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
       if (!rows.length && query.replace(/\s+/g, '').length >= 4) {
         rows = await this.index.find({ type, text: { $regex: tolerantPattern(query) } }, { projection: { _id: 0 } }).limit(100).maxTimeMS(5000).toArray();
       }
-      rows.sort((a, b) => (textScore(b, terms) + b.boost) - (textScore(a, terms) + a.boost)
-        || Number(a.requires_prescription) - Number(b.requires_prescription)
-        || String(a.id).localeCompare(String(b.id)));
-      out[type] = rows.slice(0, limit).map((r) => this.toItem(r, locale));
+      // the score of a row is worked out once (it splits and scans the row's text), not on every comparison of the sort
+      const scored = rows.map((r) => ({ r, score: textScore(r, terms) + r.boost }));
+      scored.sort((a, b) => b.score - a.score
+        || Number(a.r.requires_prescription) - Number(b.r.requires_prescription)
+        || String(a.r.id).localeCompare(String(b.r.id)));
+      out[type] = scored.slice(0, limit).map(({ r }) => this.toItem(r, locale));
     }));
     return out;
   }
@@ -388,6 +474,8 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
       ...(typeof highlight === 'string' && highlight.includes('<mark>') ? { highlight } : {}),
       slug: doc.slug ?? null,
       price: doc.price ?? null,
+      old_price: doc.old_price ?? null,
+      discount_percent: doc.old_price && doc.price && doc.old_price > doc.price ? Math.round((1 - doc.price / doc.old_price) * 100) : 0,
       specialty: doc.specialty ?? null,
       code: doc.code ?? null,
       requires_prescription: doc.requires_prescription === true,

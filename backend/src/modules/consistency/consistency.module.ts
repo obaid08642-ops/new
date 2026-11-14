@@ -20,6 +20,7 @@ import { User, UserSchema, UserDocument } from '../../schemas/user.schema';
 import { toUniversal, WorkflowEngineService, WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { ScheduledOnce } from '../../common/scheduled-once';
 @Injectable()
 export class ConsistencyService {
   constructor(
@@ -39,6 +40,7 @@ export class ConsistencyService {
 
   /** R72: nightly scheduled settlement — birth-event backfill for the last 30d window. */
   @Cron('17 3 * * *')
+  @ScheduledOnce()
   async scheduledReconcile() {
     if (this.reconcileRunning || process.env.CONSISTENCY_CRON_DISABLED === '1') return;
     this.reconcileRunning = true;

@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { RefundPolicyTick } from "@/components-next/refund-policy/refund-policy-tick";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { StickyFooter } from "@/components-next/ui-generated/shells";
 import { Button } from "@/components-next/ui-generated/components/Button";
@@ -12,9 +13,12 @@ import type { ReactNode } from "react";
 import type { Locale } from "@/lib/i18n";
 import { newIdempotencyKey, sendBroadcast } from "@/lib/pharmacy/broadcast";
 import { checkRxFile, prepareRxImage } from "@/lib/pharmacy/rx-upload";
+import { ScanStatusBadge } from "@/components-next/uploads/scan-status-badge";
+import { scanStateOfUpload, type ScanState } from "@/lib/uploads/scan-status";
 import { AddressCard } from "./address-card";
 import { useDeliveryAddress } from "./use-delivery-address";
 import rx from "./rx.module.css";
+import { UploadsUnavailable, useUploadsEnabled } from "@/components-next/uploads/uploads-provider";
 
 const NAME_MIN = 3;
 const NAME_MAX = 200;
@@ -26,6 +30,7 @@ const DETAILS_MAX = 500;
  * reaches the pharmacies; before this rebuild the web only created a draft that nobody was ever asked about.
  */
 export function RequestScreen({ locale, before, initialName = "" }: { locale: Locale; before?: ReactNode; initialName?: string }) {
+  const uploadsEnabled = useUploadsEnabled();
   const t = useTranslations("PharmacyRequest");
   const rxT = useTranslations("RxUpload");
   const flow = useTranslations("PharmacyFlow");
@@ -37,8 +42,11 @@ export function RequestScreen({ locale, before, initialName = "" }: { locale: Lo
   const [qty, setQty] = useState("1");
   const [photo, setPhoto] = useState<{ id: string; preview: string } | null>(null);
   const [photoState, setPhotoState] = useState<"idle" | "uploading" | "failed" | "type">("idle");
+  const [photoScan, setPhotoScan] = useState<ScanState>("ok");
   const photoInput = useRef<HTMLInputElement | null>(null);
   const [sending, setSending] = useState(false);
+  // the refund policy is shown before the request is sent and agreed here (the backend refuses an order without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
   const [failure, setFailure] = useState<"session" | "send" | null>(null);
   const attempt = useRef<{ signature: string; key: string } | null>(null);
 
@@ -50,18 +58,22 @@ export function RequestScreen({ locale, before, initialName = "" }: { locale: Lo
     if (!file) return;
     if (checkRxFile(file) !== "ok") { setPhotoState("type"); return; }
     setPhotoState("uploading");
+    setPhotoScan("ok");
     try {
       const dataUrl = await prepareRxImage(file);
       const response = await fetch("/api/pharmacy/box-photo", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ data_url: dataUrl }), credentials: "same-origin" });
-      const body = await response.json().catch(() => null) as { id?: string } | null;
+      const body = await response.json().catch(() => null) as { id?: string; scan_status?: string; message?: string } | null;
+      if (!response.ok && scanStateOfUpload(body) === "rejected") { setPhoto(null); setPhotoScan("rejected"); setPhotoState("idle"); return; }
       if (!response.ok || !body?.id) { setPhotoState("failed"); return; }
+      // a photo that is still being checked can stay on the order: the pharmacies see it once it has passed
+      setPhotoScan(scanStateOfUpload(body));
       setPhoto({ id: body.id, preview: dataUrl });
       setPhotoState("idle");
     } catch {
       setPhotoState("failed");
     }
   }
-  const canSend = valid && address.status === "ready";
+  const canSend = valid && address.status === "ready" && refundAgreed;
 
   async function send() {
     if (!canSend || sending || address.status !== "ready") return;
@@ -114,7 +126,10 @@ export function RequestScreen({ locale, before, initialName = "" }: { locale: Lo
           <span className={rx.cardLabel}>{`${t("photo")} ${t("optional")}`}</span>
           <input ref={photoInput} type="file" accept="image/jpeg,image/png,image/webp" hidden aria-label={t("photo")} onChange={(event) => void pickPhoto(event.target.files?.[0])} />
           {photo ? <div className={rx.thumb}><img src={photo.preview} alt={t("photoAlt")} className={rx.thumbImage} /></div> : null}
-          <Button type="button" variant="outline" size="md" label={photoState === "uploading" ? t("photoUploading") : photo ? t("photoChange") : t("photoAdd")} loading={photoState === "uploading"} disabled={sending} onClick={() => photoInput.current?.click()} />
+          <ScanStatusBadge state={photoScan} onReupload={() => photoInput.current?.click()} />
+          {uploadsEnabled ? (
+            <Button type="button" variant="outline" size="md" label={photoState === "uploading" ? t("photoUploading") : photo ? t("photoChange") : t("photoAdd")} loading={photoState === "uploading"} disabled={sending} onClick={() => photoInput.current?.click()} />
+          ) : <UploadsUnavailable className={rx.note} />}
           {photoState === "failed" || photoState === "type" ? <p className={rx.note} role="alert">{photoState === "type" ? t("photoType") : t("photoFailed")}</p> : null}
         </div>
 
@@ -128,6 +143,7 @@ export function RequestScreen({ locale, before, initialName = "" }: { locale: Lo
           </div>
         ) : null}
 
+        <RefundPolicyTick locale={locale} service="pharmacy" checked={refundAgreed} onChange={setRefundAgreed} />
         <div className={rx.deskActions}>{sendButton}</div>
       </form>
     </CoreShell>

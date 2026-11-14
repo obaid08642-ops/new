@@ -1,4 +1,6 @@
 import { Controller, Get, Post, Body, Param, ForbiddenException, NotFoundException, BadRequestException, UseGuards } from '@nestjs/common';
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { CurrentUser, Roles } from '../../common/auth.guard';
@@ -25,9 +27,12 @@ const now = () => new Date();
 
 const uid = (u: any) => u?.id || u?._id || u?.user_id;
 
-const NURSING_ACTIVE_STATES = ['ASSIGNED', 'ACCEPTED', 'EN_ROUTE', 'ARRIVED', 'IN_PROGRESS', 'assigned', 'accepted', 'en_route', 'arrived', 'in_progress'];
+// The states a nursing visit really has (NursingBookingState) plus the old lowercase names older rows may carry: the provider's
+// Orders tab lists a visit from the moment it is assigned until it ends. It used to list only names the engine never writes.
+const NURSING_ACTIVE_STATES = ['PROVIDER_ASSIGNED', 'CONFIRMED', 'IN_TRANSIT', 'ARRIVED', 'CARE_IN_PROGRESS', 'IN_PROGRESS', 'ASSIGNED', 'ACCEPTED', 'EN_ROUTE', 'assigned', 'accepted', 'en_route', 'arrived', 'in_progress'];
 
 @Controller('nursing')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
 export class NursingCompatController {
   constructor(@InjectConnection() private conn: Connection) {}

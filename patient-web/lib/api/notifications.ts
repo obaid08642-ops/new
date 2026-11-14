@@ -55,6 +55,8 @@ const WEB_ROUTES: Array<{ app: RegExp; web: (match: RegExpMatchArray, locale: st
   { app: new RegExp(`^/reports/(${ROUTE_ID})$`), web: (m, l) => `/${l}/reports/${m[1]}` },
   // decision 19 (issue 338): "result ready" opens that lab result
   { app: new RegExp(`^/health/results/(${ROUTE_ID})$`), web: (m, l) => `/${l}/diagnostics/results/${m[1]}` },
+  // the results list is the "results and reports" tab of My orders and results
+  { app: /^\/diagnostics\/results-history$/, web: (_m, l) => `/${l}/orders?tab=results` },
   { app: new RegExp(`^/appointments/(${ROUTE_ID})$`), web: (m, l) => `/${l}/appointments/${m[1]}` },
   { app: /^\/consultations\/appointments$/, web: (_m, l) => `/${l}/appointments` },
 ];

@@ -117,7 +117,7 @@ describe('14.7 the interceptor fails closed', () => {
     await lastValueFrom(await new Interceptor(new Reflector()).intercept(ctx, { handle: () => of({}) }));
     expect(ctx.setHeader).toHaveBeenCalledWith(
       'Cache-Control',
-      'public, s-maxage=300, stale-while-revalidate=60, stale-if-error=86400',
+      'public, s-maxage=300, stale-while-revalidate=60, stale-if-error=2592000',
     );
     expect(ctx.setHeader).toHaveBeenCalledWith('Cache-Tag', 'medicines, catalog');
   });

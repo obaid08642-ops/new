@@ -1,0 +1,176 @@
+import React from 'react';
+import { act, fireEvent, render } from '@testing-library/react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Provider } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
+
+import { CartProvider, useCart } from '../../context/CartContext';
+import { CartButton } from '../../components/pharmacy/PharmacyKit';
+import { ServiceCartButton } from '../../components/cart/ServiceCartButton';
+import { HomeTopRow } from '../../components/home/HomeTopRow';
+import { message } from '../../components/screen/ScreenKit';
+
+/** The cart button sits in the pharmacy, labs and scans headers and item screens (and, with items in any cart, a "Your carts" chooser on Home, search and consultations; never on the offers flow) and reads the same cart context the add buttons write to. */
+
+jest.mock('expo-router', () => ({
+  router: { push: jest.fn(), replace: jest.fn(), back: jest.fn(), canGoBack: jest.fn(() => true) },
+  useLocalSearchParams: () => ({}),
+}));
+jest.mock('react-native-localize', () => ({ getLocales: () => [], findBestLanguageTag: () => undefined }));
+jest.mock('../../context/AppContext', () => ({
+  useApp: () => ({ isDark: false, lang: 'en', isRTL: false, toggleTheme: jest.fn(), setLang: jest.fn() }),
+  LANGUAGES: [],
+}));
+// the diagnostics cart (labs and scans) is its own cart: a test sets its lines here
+let mockDiagItems: Array<{ id: string; name?: string; provider?: string; kind: 'lab' | 'radiology'; qty: number }> = [];
+jest.mock('../../context/DiagnosticsCartContext', () => ({ useDiagnosticsCart: () => ({ items: mockDiagItems }) }));
+jest.mock('../../store/middleware/listenerMiddleware', () => ({ startAppListening: () => () => undefined }));
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const mockRouter = (require('expo-router') as { router: { push: jest.Mock } }).router;
+const metrics = { frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 0, bottom: 0, left: 0, right: 0 } };
+const store = configureStore({ reducer: { auth: (s: object = {}) => s, notifications: (s: object = {}) => s } });
+const k = (key: string, vars?: Record<string, string | number>) => message('en', key, vars);
+
+let cart: ReturnType<typeof useCart>;
+function Probe() {
+  cart = useCart();
+  return null;
+}
+const wrap = (ui: React.ReactElement) => (
+  <SafeAreaProvider initialMetrics={metrics}>
+    <Provider store={store}>
+      <CartProvider>
+        <Probe />
+        {ui}
+      </CartProvider>
+    </Provider>
+  </SafeAreaProvider>
+);
+
+describe('cart button', () => {
+  it('has a favourites button next to the cart that opens the wishlist screen', async () => {
+    const view = await render(wrap(<HomeTopRow name="Test" />));
+    const button = await view.findByTestId('home-wishlist-button');
+    expect(button.props.accessibilityLabel).toBe(k('pharmacy.favorites'));
+    fireEvent.press(button);
+    expect(mockRouter.push).toHaveBeenCalledWith('/pharmacy/wishlist');
+  });
+
+  it('shows the count and its accessible name right after an add, and drops it after the remove', async () => {
+    const view = await render(wrap(<CartButton />));
+    const button = await view.findByTestId('cart-button');
+    expect(button.props.accessibilityLabel).toBe(k('pharmacy.cart'));
+    await act(async () => {
+      await cart.addItem({ id: 'm1', name: 'Test medicine', rx: false, qty: 2 });
+    });
+    expect(view.getByTestId('cart-button').props.accessibilityLabel).toBe(k('pharmacy.cartCount', { count: 2 }));
+    expect(k('pharmacy.cartCount', { count: 2 })).toContain('2');
+    await act(async () => {
+      await cart.removeItem('m1');
+    });
+    expect(view.getByTestId('cart-button').props.accessibilityLabel).toBe(k('pharmacy.cart'));
+  });
+
+  it('one cart per service: a pharmacy screen counts only the pharmacy cart', async () => {
+    mockDiagItems = [{ id: 't1', kind: 'lab', qty: 3 }];
+    const view = await render(wrap(<ServiceCartButton service="pharmacy" testID="svc-cart" />));
+    await act(async () => {
+      await cart.addItem({ id: 'm1', name: 'Test medicine', rx: false, qty: 2 });
+    });
+    expect(view.getByTestId('svc-cart').props.accessibilityLabel).toBe(k('pharmacy.cartCount', { count: 2 }));
+    fireEvent.press(view.getByTestId('svc-cart'));
+    expect(mockRouter.push).toHaveBeenLastCalledWith('/pharmacy/cart');
+    // leave the device cart as it was found (not inside act: an act scope left open by the press made the next test render nothing)
+    await cart.removeItem('m1');
+    mockDiagItems = [];
+  });
+
+  it('a radiology screen counts only the scans and opens the diagnostics cart', async () => {
+    mockDiagItems = [{ id: 't1', kind: 'lab', qty: 3 }, { id: 'r1', kind: 'radiology', qty: 1 }];
+    const view = await render(wrap(<ServiceCartButton service="radiology" testID="svc-cart" />));
+    expect((await view.findByTestId('svc-cart')).props.accessibilityLabel).toBe(k('pharmacy.cartCount', { count: 1 }));
+    fireEvent.press(view.getByTestId('svc-cart'));
+    expect(mockRouter.push).toHaveBeenLastCalledWith('/diagnostics/cart');
+    mockDiagItems = [];
+  });
+
+  it('Home and every screen of no service draw no cart button while all carts are empty', async () => {
+    const view = await render(wrap(<ServiceCartButton testID="svc-cart" />));
+    expect(view.queryByTestId('svc-cart')).toBeNull();
+    const home = await render(wrap(<HomeTopRow name="Test" />));
+    expect(home.queryByTestId('home-cart-button')).toBeNull();
+  });
+
+  it('on Home with items in any cart the button shows the total and the sheet lists only the non-empty carts, each opening its own cart', async () => {
+    mockDiagItems = [{ id: 't1', kind: 'lab', qty: 3 }];
+    const view = await render(wrap(<HomeTopRow name="Test" />));
+    await act(async () => {
+      await cart.addItem({ id: 'm1', name: 'Test medicine', rx: false, qty: 2 });
+    });
+    const button = await view.findByTestId('home-cart-button');
+    expect(button.props.accessibilityLabel).toBe(k('pharmacy.cartCount', { count: 5 }));
+    mockRouter.push.mockClear();
+    fireEvent.press(button);
+    expect(mockRouter.push).not.toHaveBeenCalled();
+    expect(await view.findByTestId('cart-chooser')).toBeTruthy();
+    expect(view.getByText(k('cart.chooser.title'))).toBeTruthy();
+    expect(view.getByTestId('cart-chooser-pharmacy').props.accessibilityLabel).toContain(k('cart.name.pharmacy'));
+    expect(view.getByTestId('cart-chooser-lab')).toBeTruthy();
+    expect(view.queryByTestId('cart-chooser-radiology')).toBeNull();
+    fireEvent.press(view.getByTestId('cart-chooser-lab-complete'));
+    expect(mockRouter.push).toHaveBeenLastCalledWith({ pathname: '/diagnostics/lab-comparison', params: { kind: 'lab' } });
+    // leave the device cart as it was found (not inside act: an act scope left open by the press made the next test render nothing)
+    await cart.removeItem('m1');
+    mockDiagItems = [];
+  });
+
+  it('with one non-empty cart the sheet still opens (one entry) and that entry opens the cart', async () => {
+    mockDiagItems = [{ id: 'r1', kind: 'radiology', qty: 1 }];
+    const view = await render(wrap(<ServiceCartButton testID="svc-cart" />));
+    fireEvent.press(await view.findByTestId('svc-cart'));
+    expect(await view.findByTestId('cart-chooser')).toBeTruthy();
+    expect(view.queryByTestId('cart-chooser-pharmacy')).toBeNull();
+    fireEvent.press(view.getByTestId('cart-chooser-radiology-complete'));
+    expect(mockRouter.push).toHaveBeenLastCalledWith({ pathname: '/diagnostics/lab-comparison', params: { kind: 'radiology' } });
+    mockDiagItems = [];
+  });
+
+  it('the labs and radiology button counts lab tests and scans together; one sheet shows both groups with their provider, each completing its own flow', async () => {
+    mockDiagItems = [
+      { id: 't1', name: 'CBC', provider: 'Al Noor Lab', kind: 'lab', qty: 2 },
+      { id: 'r1', name: 'Chest X-ray', provider: 'City Scan', kind: 'radiology', qty: 1 },
+    ];
+    const view = await render(wrap(<ServiceCartButton service="diagnostics" testID="svc-cart" />));
+    const button = await view.findByTestId('svc-cart');
+    expect(button.props.accessibilityLabel).toBe(k('pharmacy.cartCount', { count: 3 }));
+    mockRouter.push.mockClear();
+    fireEvent.press(button);
+    expect(mockRouter.push).not.toHaveBeenCalled();
+    expect(await view.findByTestId('cart-chooser-lab')).toBeTruthy();
+    expect(view.getByTestId('cart-chooser-radiology')).toBeTruthy();
+    expect(view.getByText(k('medorders.group.labs'))).toBeTruthy();
+    expect(view.getByText(k('medorders.group.radiology'))).toBeTruthy();
+    expect(view.getByTestId('cart-chooser-lab-provider').props.children).toBe('Al Noor Lab');
+    expect(view.getByTestId('cart-chooser-radiology-provider').props.children).toBe('City Scan');
+    expect(view.queryByTestId('cart-chooser-pharmacy')).toBeNull();
+    fireEvent.press(view.getByTestId('cart-chooser-radiology-complete'));
+    expect(mockRouter.push).toHaveBeenLastCalledWith({ pathname: '/diagnostics/lab-comparison', params: { kind: 'radiology' } });
+    mockDiagItems = [];
+  });
+
+  it('the labs and radiology sheet hides an empty group', async () => {
+    mockDiagItems = [{ id: 'r1', name: 'Chest X-ray', kind: 'radiology', qty: 1 }];
+    const view = await render(wrap(<ServiceCartButton service="diagnostics" testID="svc-cart" />));
+    fireEvent.press(await view.findByTestId('svc-cart'));
+    expect(await view.findByTestId('cart-chooser-radiology')).toBeTruthy();
+    expect(view.queryByTestId('cart-chooser-lab')).toBeNull();
+    mockDiagItems = [];
+  });
+
+  it('the labs and radiology button with both carts empty opens the cart screen and its empty state', async () => {
+    const view = await render(wrap(<ServiceCartButton service="diagnostics" testID="svc-cart" />));
+    fireEvent.press(await view.findByTestId('svc-cart'));
+    expect(mockRouter.push).toHaveBeenLastCalledWith('/diagnostics/cart');
+  });
+});

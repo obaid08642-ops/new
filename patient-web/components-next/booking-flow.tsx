@@ -1,23 +1,29 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { specialtyLabel } from "@/lib/specialties";
 import type { ReactNode } from "react";
-import { doctorDisplayName, type DoctorRow } from "@/lib/api/doctors";
+import { doctorDisplayName, doctorPlace, priceForVisit, type DoctorRow } from "@/lib/api/doctors";
 import type { Locale } from "@/lib/i18n";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { Input, Select } from "@/components-next/ui-generated/components/Inputs";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
+import { NationalIdForm } from "@/components-next/medical-reports/national-id-form";
+import { readNationalIdStatus } from "@/lib/medical-reports/national-id";
+import { readDependants, type DependantRow } from "@/lib/family/dependants";
 import { Segmented } from "@/components-next/ui-generated/components/Controls";
 import { StickyFooter } from "@/components-next/ui-generated/shells/StickyFooter";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { PolicyCard } from "@/components-next/consult/policy-lines";
+import { RefundPolicyTick } from "@/components-next/refund-policy/refund-policy-tick";
+import { withRefundPolicy } from "@/lib/refund-policy";
 import { TelehealthConsentCard, needsTelehealthConsent } from "@/components-next/consult/telehealth-consent-card";
 import type { TelehealthConsentText } from "@/lib/legal/telehealth-consent";
 import { Hero, SectionCard } from "@/components-next/consult/consult-parts";
+import { carriedDayIndex, preselectedSlot } from "@/lib/consult/booking-params";
 import { formatPrice } from "@/lib/format-price";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/consult/consult.module.css";
@@ -53,26 +59,55 @@ function newIdempotencyKey(): string {
 /** A saved address with a map location, for a home visit (journeys#29). */
 export type HomeAddress = { id: string; label: string; line: string; lat: number; lng: number };
 
-export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddresses = [], consent = null }: { doctorId: string; locale: string; doctor: DoctorRow | null; top?: ReactNode; policy?: { title: string; lines: string[] }; homeAddresses?: HomeAddress[]; consent?: TelehealthConsentText | null }) {
+export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddresses = [], consent = null, initialType, initialSlotStart, bookingFor = null, insurance = { ready: true } }: { doctorId: string; locale: string; doctor: DoctorRow | null; top?: ReactNode; policy?: { title: string; lines: string[] }; homeAddresses?: HomeAddress[]; consent?: TelehealthConsentText | null; /** The visit type the doctor page was on, when the doctor offers it. */ initialType?: string; /** The slot the doctor page carried (validated, future); preselected when still available. */ initialSlotStart?: string; /** The family member the visit is for (from the member page). */ bookingFor?: { id: string; name: string } | null; /** Whether the saved policy can back an insurance request. */ insurance?: { ready: boolean; memberId?: string; providerId?: string } }) {
   const t = useTranslations("BookConsultation");
   const names = useTranslations("SpecialtyNames");
   const legal = useTranslations("LegalLinks");
   const specialty = specialtyLabel(names, doctor?.specialty);
   const router = useRouter();
-  const days = useMemo(() => nextDays(7, locale), [locale]);
+  const days = useMemo(() => nextDays(30, locale), [locale]);
   // Only the visit types this doctor offers (consultation_modes → clinic / online / home) (needs-review issue 1037).
   const offered = useMemo<VisitType[]>(() => {
     if (!doctor) return [...VISIT_TYPES];
     const modes = VISIT_TYPES.filter((type) => (type === "clinic" ? doctor.clinic : type === "video" ? doctor.online : doctor.home));
     return modes.length ? modes : [...VISIT_TYPES];
   }, [doctor]);
-  const [visitType, setVisitType] = useState<VisitType>(offered[0]);
-  const [dayIndex, setDayIndex] = useState(0);
+  const [visitType, setVisitType] = useState<VisitType>(offered.find((type) => type === initialType) ?? offered[0]);
+  const [dayIndex, setDayIndex] = useState(() => Math.max(0, initialSlotStart ? carriedDayIndex(days.map((d) => d.iso), initialSlotStart) : 0));
+  // the carried slot is applied once, to the first load of its day; any later choice of day or type drops it
+  const carriedRef = useRef<string | undefined>(initialSlotStart);
   const [slots, setSlots] = useState<Array<{ start: string; end: string; label: string; available: boolean }>>([]);
   const [slotsReason, setSlotsReason] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
+  // PT-08: "I need a medical report" (a recommended rest period): a request the doctor decides on
+  // PT-03: the guardian's dependants (people with no account) the visit can be for; the guardian stays the booker and payer
+  const [dependants, setDependants] = useState<DependantRow[]>([]);
+  const [forDependant, setForDependant] = useState("");
+  useEffect(() => {
+    if (bookingFor) return undefined;
+    let live = true;
+    fetch("/api/patient/family/dependants", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((answer) => { if (live) setDependants(readDependants(answer)); })
+      .catch(() => { if (live) setDependants([]); });
+    return () => { live = false; };
+  }, [bookingFor]);
+  const [reportRequested, setReportRequested] = useState(false);
+  // Owner decision 6: the ID number is asked only when the patient asks for a medical report and has none yet (it never blocks the booking)
+  const [needsNationalId, setNeedsNationalId] = useState(false);
+  useEffect(() => {
+    if (!reportRequested) { setNeedsNationalId(false); return undefined; }
+    let live = true;
+    fetch("/api/patient/care/sick-leaves/national-id", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((answer) => { if (live) setNeedsNationalId(readNationalIdStatus(answer) === false); })
+      .catch(() => { if (live) setNeedsNationalId(false); });
+    return () => { live = false; };
+  }, [reportRequested]);
+  // the refund policy is shown before payment and agreed here (the backend refuses a booking without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "card" | "insurance">("card");
   const [homeAddressId, setHomeAddressId] = useState(homeAddresses[0]?.id ?? "");
   const [error, setError] = useState<string | null>(null);
@@ -96,6 +131,7 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
     // Server policy (mirrors mobile): cash is clinic-only. Never offer a
     // combination the backend rejects with payment_method_not_allowed.
     if (v !== "clinic" && paymentMethod === "cash") setPaymentMethod("card");
+    carriedRef.current = undefined;
     setSelectedSlot(null);
   }
 
@@ -109,7 +145,9 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
     fetch(`/api/consultations/doctors/${encodeURIComponent(doctorId)}/slots?date=${date}&service_type=${visitType}`, { signal: controller.signal })
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error("slots_unavailable"))))
       .then((data) => {
-        setSlots(Array.isArray(data.slots) ? data.slots.filter((s: { available?: boolean }) => s.available !== false) : []);
+        const list = Array.isArray(data.slots) ? data.slots.filter((s: { available?: boolean }) => s.available !== false) : [];
+        setSlots(list);
+        setSelectedSlot(preselectedSlot(list, carriedRef.current));
         setSlotsReason(typeof data.reason === "string" ? data.reason : null);
       })
       .catch((err) => { if (!controller.signal.aborted) { setSlots([]); setSlotsReason("load_failed"); } })
@@ -119,6 +157,10 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
 
   async function submit() {
     if (!selectedSlot) return;
+    if (paymentMethod === "insurance" && !insurance.ready) {
+      setError(t("insuranceNotReady"));
+      return;
+    }
     setSubmitting(true);
     setError(null);
     try {
@@ -153,19 +195,26 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
       const res = await fetch("/api/appointments/book", {
         method: "POST",
         headers: { "content-type": "application/json", "idempotency-key": newIdempotencyKey() },
-        body: JSON.stringify({
+        body: JSON.stringify(withRefundPolicy({
           doctor_id: doctorId,
           service_type: visitType,
           slot_start: selectedSlot,
           duration_minutes: durationMinutes ?? undefined,
           payment_method: paymentMethod,
           patient_notes: notes.trim() || undefined,
+          sick_leave_requested: reportRequested || undefined,
           visit_location: visitLocation,
           slot_lock_id: slotLockId,
-        }),
+          for_member_id: bookingFor?.id,
+          family_member_id: !bookingFor && forDependant ? forDependant : undefined,
+          insurance_provider: paymentMethod === "insurance" ? insurance.providerId : undefined,
+          insurance_member_id: paymentMethod === "insurance" ? insurance.memberId : undefined,
+        })),
       });
       if (res.ok) {
         const data = await res.json().catch(() => null);
+        // the booking for a member is made: the next one is for the person signed in again
+        if (bookingFor) await fetch("/api/family/booking-for", { method: "DELETE" }).catch(() => null);
         // Insurance continues to the insurance request page with the server-issued
         // request id (mirrors mobile); card/cash land on the appointment page.
         if (paymentMethod === "insurance" && data?.insurance_request_id) {
@@ -189,9 +238,11 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
     }
   }
 
-  const price = doctor?.price != null ? formatPrice(locale, doctor.price) : null;
+  // The fee of the visit type chosen, not one price whatever the visit type.
+  const fee = doctor ? priceForVisit(doctor, visitType) : undefined;
+  const price = fee != null ? formatPrice(locale, fee) : null;
   const submitButton = (
-    <Button fullWidth size="lg" label={submitting ? t("submitting") : t("submit")} loading={submitting} disabled={!selectedSlot} onClick={() => void submit()} />
+    <Button fullWidth size="lg" label={submitting ? t("submitting") : t("submit")} loading={submitting} disabled={!selectedSlot || !refundAgreed || (paymentMethod === "insurance" && !insurance.ready)} onClick={() => void submit()} />
   );
 
   return (
@@ -203,7 +254,18 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
       footer={<StickyFooter label={t("title")}><div className={styles.bookBar}>{submitButton}</div></StickyFooter>}
     >
       {top}
-      <Hero title={(doctor ? doctorDisplayName(doctor, locale) : undefined) || t("doctorUnavailable")} sub={[specialty, doctor?.facility].filter(Boolean).join(" · ") || undefined} />
+      {bookingFor ? (
+        <SectionCard id="book-for" title={t("bookingFor", { name: bookingFor.name })}>
+          <Button label={t("bookingForSelf")} variant="outline" onClick={() => void fetch("/api/family/booking-for", { method: "DELETE" }).then(() => router.refresh())} />
+        </SectionCard>
+      ) : null}
+      {!bookingFor && dependants.length > 0 ? (
+        <SectionCard id="book-dependant" title={t("forTitle")}>
+          <Segmented label={t("forTitle")} value={forDependant} onChange={setForDependant} options={[{ value: "", label: t("forMe") }, ...dependants.map((d) => ({ value: d.id, label: d.name }))]} />
+          <p className={rx.note}>{t("forHint")}</p>
+        </SectionCard>
+      ) : null}
+      <Hero title={(doctor ? doctorDisplayName(doctor, locale) : undefined) || t("doctorUnavailable")} sub={[specialty, doctor ? doctorPlace(doctor, locale) : undefined].filter(Boolean).join(" · ") || undefined} />
       <SectionCard id="book-visit-type" title={t("visitType")}>
         <Segmented
           label={t("visitType")}
@@ -215,7 +277,7 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
       <SectionCard id="book-day" title={t("selectDay")}>
         <div className={styles.days} role="group" aria-label={t("selectDay")}>
           {days.map((day, index) => (
-            <button key={day.iso} type="button" className={`${styles.choice} ${styles.day}`} aria-pressed={index === dayIndex} onClick={() => setDayIndex(index)}>
+            <button key={day.iso} type="button" className={`${styles.choice} ${styles.day}`} aria-pressed={index === dayIndex} onClick={() => { carriedRef.current = undefined; setDayIndex(index); }}>
               <span className={styles.dayMeta}>{index === 0 ? t("today") : day.label}</span>
               <span className={styles.dayNum}>{day.dateNum}</span>
               <span className={styles.dayMeta}>{day.month}</span>
@@ -249,6 +311,13 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
       <SectionCard id="book-notes" title={t("notes")}>
         <Input value={notes} onChange={(value) => setNotes(value.slice(0, 2000))} multiline rows={3} placeholder={t("notesPlaceholder")} />
       </SectionCard>
+      <SectionCard id="book-report" title={t("reportTitle")}>
+        <label className={styles.field}>
+          <span><input type="checkbox" checked={reportRequested} onChange={(event) => setReportRequested(event.target.checked)} /> {t("reportRequest")}</span>
+        </label>
+        <p className={rx.note}>{t("reportHint")}</p>
+        {reportRequested && needsNationalId ? <NationalIdForm onSaved={() => setNeedsNationalId(false)} labels={{ title: t("nationalIdTitle"), hint: t("nationalIdHint"), label: t("nationalIdLabel"), save: t("nationalIdSave"), saving: t("nationalIdSaving"), invalid: t("nationalIdInvalid"), failed: t("nationalIdFailed"), saved: t("nationalIdSaved") }} /> : null}
+      </SectionCard>
       <SectionCard id="book-payment" title={t("payment")}>
         <Segmented
           label={t("payment")}
@@ -257,12 +326,19 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
           options={allowedMethods.map((method) => ({ value: method, label: t(`pay.${method}`) }))}
         />
         {visitType !== "clinic" ? <p className={`${styles.body} ${styles.muted}`}>{t("cashClinicOnly")}</p> : null}
+        {paymentMethod === "insurance" ? (
+          <>
+            <p className={`${styles.body} ${insurance.ready ? styles.muted : styles.error}`} role={insurance.ready ? undefined : "alert"}>{insurance.ready ? t("insuranceReady") : t("insuranceNotReady")}</p>
+            <ButtonLink href={`/${locale}/insurance?tab=policy`} label={t("manageInsurance")} variant="outline" size="md" />
+          </>
+        ) : null}
       </SectionCard>
       {policy ? (
         <PolicyCard title={policy.title} lines={policy.lines}>
           <Link className={rx.textLink} href={`/${locale}/refund-policy`}>{legal("refundPolicy")}</Link>
         </PolicyCard>
       ) : null}
+      <RefundPolicyTick locale={locale} service="consultation" checked={refundAgreed} onChange={setRefundAgreed} compact={Boolean(policy)} />
       {price || durationMinutes !== null ? (
         <section className={`${rx.card} ${styles.priceCard}`} aria-label={t("fee")}>
           {durationMinutes !== null ? <div className={styles.totalRow}><span>{t("duration")}</span><span>{t("durationValue", { n: new Intl.NumberFormat(locale).format(durationMinutes) })}</span></div> : null}

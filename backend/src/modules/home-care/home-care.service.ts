@@ -1,13 +1,23 @@
+import { stampAcceptance } from '../../common/refund-policy-stamp';
+import { refundPolicyAcceptance, type RefundPolicyAcceptance } from '../../common/refund-policy-acceptance';
+import { resolveFamilyMemberId } from '../../common/family-member';
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Inject, Optional } from '@nestjs/common';
+import { assertPaymentMethod, PAYMENT_METHODS_BY_CONTEXT } from '../../common/payment-policy';
+import { buildQuote, readQuoteVatRate } from '../../common/quote';
+import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
+import { ownPrices } from '../../common/service-offers';
+import { SearchService } from '../search/search.service';
+import { NURSING_TYPES, byRelevance, matchedIds } from '../search/catalogue-search';
 import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { Model } from 'mongoose';
 import { HomeCareService, HomeCareBooking, NursingBookingState, HomeCareBookingState, NursingVisitReport, CarePlan, MedicalSupplyRequest } from '../../schemas/home-care.schema';
 import { pick } from '../../common/sanitize';
+import { NAME_PROJECTION, withServiceNames } from '../../common/booking-names';
 import { pickAttribution } from '../../common/attribution';
 
 /** P3.3 (F15): writable catalog fields — id/_id/active/governance flags excluded. */
 export const HOMECARE_CATALOG_FIELDS = [
-  'name_ar', 'name_en', 'description_ar', 'description_en', 'category', 'icon', 'price', 'duration', 'duration_value', 'requires_patient_medication', 'requires_companion', 'cash_availability', 'insurance_availability', 'image_url', 'active', 'popularity',
+  'name_ar', 'name_en', 'description_ar', 'description_en', 'category', 'icon', 'price', 'duration', 'duration_value', 'requires_patient_medication', 'requires_companion', 'cash_availability', 'insurance_availability', 'image_url', 'active', 'popularity', 'booking_mode', 'booking_options',
 ] as const;
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { EventBusService } from '../events/event-bus.service';
@@ -19,9 +29,21 @@ import { CarePlanRepository } from "./repositories/careplan.repository";
 import { MedicalSupplyRequestRepository } from "./repositories/medicalsupplyrequest.repository";
 import { RedisService } from '../redis/redis.service';
 import { hasEffectiveRole } from '../../common/auth.guard';
+import { billableUnits, effectiveBookingOptions, resolveBookingChoice } from './booking-mode';
 import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
 import { isAdminUser } from '../../common/enums';
 import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
+
+/**
+ * The catalogue rows as the apps see them: `booking_options` is what the service really offers (booking-mode.ts: the admin's own lists, else the current defaults), so the booking
+ * screen shows exactly the durations and recurrences the server will accept.
+ */
+function withEffectiveOptions<T>(rows: T[]): T[] {
+  return (rows ?? []).map((r: any) => {
+    const o = r && typeof r.toObject === 'function' ? r.toObject() : r;
+    return o ? { ...o, booking_options: effectiveBookingOptions(o) } : o;
+  });
+}
 
 @Injectable()
 export class HomeCareSvc {
@@ -37,19 +59,25 @@ export class HomeCareSvc {
     @Optional() private readonly redis?: RedisService,
     @Optional() private readonly killSwitches?: KillSwitchesService,
     @Optional() private readonly insurance?: InsuranceFlowService,
+    @Optional() private readonly searchEngine?: SearchService,
   ) {}
 
-  async list(opts: { category?: string; search?: string; duration?: string }) {
+  async list(opts: { category?: string; search?: string; duration?: string; sort?: string }) {
     const q: any = { active: true };
     if (opts.category && opts.category !== 'all') q.category = opts.category;
     if (opts.duration && opts.duration !== 'all') q.duration = opts.duration;
+    // the search box uses the home search's engine (typo tolerance, ar/en synonyms); its own text match is the fallback
+    const matched = opts.search ? await matchedIds(this.searchEngine, opts.search, NURSING_TYPES) : null;
     if (opts.search) {
-      const re = new RegExp(opts.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
-      q.$or = [{ name_ar: re }, { name_en: re }, { tags: re }];
+      if (matched) q.id = { $in: matched };
+      else {
+        const re = new RegExp(opts.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+        q.$or = [{ name_ar: re }, { name_en: re }, { tags: re }];
+      }
     }
-    if (!this.redis?.getWithSWR) return this.svcModel.find(q, { _id: 0, __v: 0 }).sort({ popularity: -1, name_ar: 1 }).limit(120);
+    if (!this.redis?.getWithSWR) return withEffectiveOptions(await this.svcModel.find(q, { _id: 0, __v: 0 }).sort(catalogueSortSpec(opts.sort)).limit(120));
     const cacheKey = `cache:home-care-services:public:v1:${JSON.stringify(opts)}`;
-    return this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q, { _id: 0, __v: 0 }).sort({ popularity: -1, name_ar: 1 }).limit(120));
+    return withEffectiveOptions(await this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q, { _id: 0, __v: 0 }).sort(catalogueSortSpec(opts.sort)).limit(120)));
   }
 
   async categoryCounts() {
@@ -64,7 +92,36 @@ export class HomeCareSvc {
   async getById(id: string) {
     const s = await this.svcModel.findOne({ id }, { _id: 0, __v: 0 });
     if (!s) throw new NotFoundException();
-    return s;
+    return withEffectiveOptions([s])[0];
+  }
+
+  /**
+   * What a nursing booking costs: the chosen nurse's own price for the service (else the catalogue price) times the sessions of the
+   * booking choice. The booking and the quote both call this, so the price shown is the price charged. A row with no price anywhere
+   * (its providers set their own) cannot be priced: a clear refusal, not a NaN total.
+   */
+  private async nursingPricing(svc: any, providerId: string, data: any) {
+    const choice = resolveBookingChoice(svc as any, data);
+    const sessions = billableUnits(choice, svc as any);
+    const ownPrice = providerId ? (await ownPrices(this.svcModel.db as never, 'nursing', [providerId], [svc as any])).get(providerId)?.get(svc.id) : undefined;
+    const unitPrice = ownPrice ?? svc.price;
+    if (!(typeof unitPrice === 'number' && unitPrice > 0)) throw new BadRequestException('service_price_not_set');
+    return { choice, sessions, unitPrice, total: Math.round(unitPrice * sessions * 100) / 100 };
+  }
+
+  /** The breakdown of a nursing booking (service, nurse, booking choice): every line, VAT and the total, from the price the booking charges. */
+  async quote(data: any) {
+    if (typeof data?.service_id !== 'string' || !data.service_id) throw new BadRequestException('service_id required');
+    const svc = await this.svcModel.findOne({ id: { $eq: data.service_id }, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' });
+    if (!svc) throw new NotFoundException('service');
+    const providerId = typeof data.provider_id === 'string' ? data.provider_id : '';
+    const { choice, sessions, unitPrice } = await this.nursingPricing(svc, providerId, data);
+    return {
+      ...buildQuote({ kind: 'nursing', lines: [{ key: 'visits', amount: unitPrice * sessions, qty: sessions, unit_price: unitPrice }], vat_rate: await readQuoteVatRate(this.svcModel.db), allowed_methods: PAYMENT_METHODS_BY_CONTEXT.home_visit }),
+      service_id: svc.id, provider_id: providerId || null, sessions_count: choice.sessions_count,
+      // the booking choice as the server understood it and the units it bills (unit price x units = the nursing line above)
+      booking: { ...choice, billable_units: sessions, unit_price: unitPrice },
+    };
   }
 
   async book(user: any, data: any) {
@@ -72,6 +129,10 @@ export class HomeCareSvc {
     await this.killSwitches?.assertOn('nursing_broadcast');
     if (!data.service_id) throw new BadRequestException('service_id required');
     if (!data.scheduled_at) throw new BadRequestException('scheduled_at required');
+    // owner decision 2026-11-09: the refund policy is agreed before the booking exists
+    const policyAcceptance = await stampAcceptance(this.svcModel.db, refundPolicyAcceptance(user, data.refund_policy_accepted), 'nursing', data.refund_policy_hash);
+    // owner decision 1: a booking for a family member (the caller stays the booker; checked to be the caller's own member)
+    const familyMemberId = await resolveFamilyMemberId(this.svcModel.db, user.id, data.family_member_id);
     const svc = await this.svcModel.findOne({ id: data.service_id, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' });
     if (!svc) throw new NotFoundException('service');
     // The patient picks the nurse (nursing/service-details -> nurse-profile): it must be an approved home-care
@@ -90,7 +151,7 @@ export class HomeCareSvc {
     if (isNaN(when.getTime()) || when.getTime() < Date.now() - 5 * 60_000) throw new BadRequestException('slot_expired');
     // Home visits are paid by card or insurance (same policy as lab/radiology home visits).
     const paymentMethod = String(data.payment_method || 'card');
-    if (!['card', 'insurance'].includes(paymentMethod)) throw new BadRequestException(`payment_method_${paymentMethod}_not_allowed_for_home_visit`);
+    assertPaymentMethod(paymentMethod, 'home_visit');
     // S4 duplicate-booking prevention: idempotent replay for double-tap/retry within 3 minutes
     const dupe = await this.bkgModel.findOne({
       patient_id: user.id,
@@ -99,10 +160,12 @@ export class HomeCareSvc {
       state: { $nin: ['CANCELLED', NursingBookingState.COMPLETED] },
     }).lean();
     if (dupe) return dupe;
-    const sessions = Math.max(1, parseInt(data.sessions_count || 1, 10));
-    const total = svc.price * sessions;
+    // booking mode (visit | continuous | programme): the service decides, the choice must be one it offers (booking-mode.ts)
+    const { choice, sessions, unitPrice, total } = await this.nursingPricing(svc, providerId, data);
     const booking = await this.bkgModel.create({
       patient_id: user.id,
+      ...(familyMemberId ? { family_member_id: familyMemberId } : {}),
+      ...(policyAcceptance ? { refund_policy_acceptance: policyAcceptance } : {}),
       patient_name: data.contact?.name || user.full_name,
       patient_phone: data.contact?.phone || user.phone,
       service_id: svc.id,
@@ -117,7 +180,12 @@ export class HomeCareSvc {
       state_history: [{ from: '', to: providerId ? NursingBookingState.PROVIDER_ASSIGNED : NursingBookingState.NEW_REQUEST, by_user_id: user.id, at: new Date() }],
       notes: data.notes,
       payment_method: paymentMethod,
-      sessions_count: sessions,
+      sessions_count: choice.sessions_count,
+      booking_mode: choice.booking_mode,
+      ...(choice.recurrence ? { recurrence: choice.recurrence } : {}),
+      ...(choice.hours !== undefined ? { hours: choice.hours, shift: choice.shift, period: choice.period } : {}),
+      ...(choice.days !== undefined ? { days: choice.days } : {}),
+      billable_units: sessions,
       // P17-17.5: campaign attribution for the campaign report.
       attribution: pickAttribution(data) ?? undefined,
     });
@@ -142,14 +210,21 @@ export class HomeCareSvc {
   }
 
   async mineFor(user: any) {
-    return this.bkgModel.find({ patient_id: user.id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(80);
+    const rows = await this.bkgModel.find({ patient_id: user.id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(80).lean();
+    return this.withServiceNames(rows as any[]);
+  }
+
+  /** Issue 1832: `service_names` in the six languages, resolved from the catalogue by `service_id` in one query; `service_name_ar/en` stay as stored. */
+  withServiceNames(bookings: any[]) {
+    return withServiceNames(bookings, (ids) => this.svcModel.find({ id: { $in: ids } }, NAME_PROJECTION).lean());
   }
 
   async getBooking(id: string, user: any) {
-    const b = await this.bkgModel.findOne({ id }, { _id: 0, __v: 0 });
+    const b = await this.bkgModel.findOne({ id }, { _id: 0, __v: 0 }).lean();
     if (!b) throw new NotFoundException();
     if (b.patient_id !== user.id && user.role !== 'admin') throw new NotFoundException();
-    return b;
+    const [named] = await this.withServiceNames([b]);
+    return named;
   }
 
   async cancel(id: string, user: any) {
@@ -169,6 +244,7 @@ export class HomeCareSvc {
         this.events.emit('homecare.booking_cancelled', {
           booking_id: b.id, patient_id: b.patient_id, prior_state: priorState,
           total, payment_method: (b as any).payment_method,
+          scheduled_at: (b as any).scheduled_at, cancelled_by: user?.id === b.patient_id ? 'patient' : 'admin',
         });
         return b.toObject();
       },

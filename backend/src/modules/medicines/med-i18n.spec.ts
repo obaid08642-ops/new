@@ -79,11 +79,11 @@ describe('strict per-locale public DTO', () => {
     expect(dto.slug).toBe('ایبلیفائی-15');
   });
 
-  it('falls back to English per-field when a locale gap exists (never mixing with Arabic first)', () => {
+  it('a leaflet section the locale does not have is absent, not shown in English (owner 2026-10-27); names and short facts still fall back', () => {
     const dto = resolveMedicinePublicDto(v14, 'hi');
     expect(dto.name).toBe('एबिलिफाई');
-    expect(dto.description).toBe('English description');
-    expect(dto.indications).toEqual(['Used to treat schizophrenia']);
+    expect(dto.description).toBeNull();
+    expect(dto.indications).toEqual([]);
     expect(dto.category).toBe('Medicine & Treatment');
   });
 

@@ -1,0 +1,3 @@
+[
+  {"batch":"owner-review-g5","app":"patient-app","screen":"Nursing tab","element":"cart summary bar (count / view cart) absent on the nursing tab and on service-home for kind nursing","file":"patient-app/app/(tabs)/nursing.tsx","line":39,"found":"[client] the nursing tab has no cart bar in the app (service-home passes footer undefined for nursing, line 114); only the web nursing catalog has the bar. Adding one is a feature, not a position fix.","suspect":"owner to confirm whether nursing should have a cart bar in the app","review_status":"open"}
+]

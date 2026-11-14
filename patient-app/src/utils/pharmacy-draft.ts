@@ -1,7 +1,7 @@
 export type CartDraftLine = { id?: string; sku?: string; name?: string; name_ar?: string; qty?: number; quantity?: number; [key: string]: unknown };
 /** A line of a request, as the cart and the prescription mapper give it. */
 export type DraftLine = { id: string; sku?: string; name: string; qty: number; intake_source: string };
-export type DeliveryAddress = { label?: string; street?: string; city?: string; lat?: number; lng?: number };
+export type DeliveryAddress = { label?: string; street?: string; city?: string; lat?: number; lng?: number; short_address?: string };
 
 export function buildPatientPharmacyDraft(items: CartDraftLine[], deliveryAddress: DeliveryAddress, prescriptionAttachment?: string, opts?: { fulfillment?: 'delivery' | 'pickup'; payment_mode?: 'cash' | 'insurance'; prescription_id?: string }) {
   return {
@@ -14,6 +14,7 @@ export function buildPatientPharmacyDraft(items: CartDraftLine[], deliveryAddres
     delivery_address: {
       label: deliveryAddress.label || 'المنزل', street: deliveryAddress.street || '', city: deliveryAddress.city || '',
       lat: Number(deliveryAddress.lat), lng: Number(deliveryAddress.lng),
+      ...(deliveryAddress.short_address ? { short_address: deliveryAddress.short_address } : {}),
     },
     prescription_attachments: prescriptionAttachment ? [prescriptionAttachment] : [],
     // F73: draft fulfillment + payment mode travel end-to-end. Decision 30: insurance or self-pay is chosen before the

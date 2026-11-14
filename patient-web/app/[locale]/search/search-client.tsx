@@ -2,23 +2,47 @@
 
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { markByScript, type FieldMark } from "@/lib/i18n/localized-field";
 import { useTranslations } from "next-intl";
 import { useDisabledModules } from "@/components-next/modules/modules-provider";
 import { visibleItems } from "@/lib/modules";
 import { Chip, SectionHeader, ServiceTile } from "@/components-next/ui-generated/components/Surfaces";
-import { EmptyState, ErrorState } from "@/components-next/ui-generated/components/Feedback";
+import { EmptyState, ErrorState, Skeleton } from "@/components-next/ui-generated/components/Feedback";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { SearchSuggest, useSearchSuggest } from "@/components-next/search/search-suggest";
 import { SuggestSearchField } from "@/components-next/search/search-suggest-field";
-import { SERVICE_ICONS, type FillIconName, type ServiceName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
+import { SERVICE_ICONS, type FillAnyName, type ServiceName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { extractGroupedResults, intentRedirect, truncateQuery, type SearchResult } from "@/lib/api/search";
 import { specialtyLabel, type SpecialtySlug } from "@/lib/specialties";
 import { isLocale, type Locale } from "@/lib/i18n";
+import { readRecentSearches, rememberSearch, writeRecentSearches } from "@/lib/search/recent-searches";
 import styles from "./search.module.css";
+import { FIconGlyph } from "@/components-next/icons/ficon-glyph";
+import { FILL_FILE_TEXT } from "@/components-next/ui-generated/icons/glyphs/file-text";
 
 type Tab = "all" | "medicines" | "doctors" | "labs" | "radiology" | "other";
+
+/** 17.3: adds a search the patient opened a result of to this device's list, reading the stored list first (another tab may have written it). */
+function persistRecent(term: string): string[] {
+  const next = rememberSearch(readRecentSearches(), term);
+  writeRecentSearches(next);
+  return next;
+}
+
+/** 17.3: the trending searches of the last week, as the server answers them (a missing or failed answer hides the row). */
+async function loadTrending(signal: AbortSignal): Promise<string[]> {
+  try {
+    const response = await fetch("/api/search/trending?limit=8", { cache: "no-store", signal });
+    if (!response.ok) return [];
+    const data: unknown = await response.json().catch(() => null);
+    if (!Array.isArray(data)) return [];
+    return data.flatMap((row) => (row && typeof row === "object" && typeof (row as { term?: unknown }).term === "string" ? [(row as { term: string }).term] : []));
+  } catch {
+    return [];
+  }
+}
 
 /**
  * What a result is, from the search API's type (D-29, mapped to a kind by `extractGroupedResults`): its group
@@ -27,17 +51,17 @@ type Tab = "all" | "medicines" | "doctors" | "labs" | "radiology" | "other";
  */
 const toneOf = (service: ServiceName): ServiceTone => SERVICE_ICONS[service].tone;
 type KindLabel = "kindMedicine" | "kindDoctor" | "kindSpecialty" | "kindLab" | "kindLabPackage" | "kindRadiology" | "kindNursing" | "kindArticle";
-const KINDS: Record<string, { group: Exclude<Tab, "all">; icon: FillIconName; tone: ServiceTone; label: KindLabel; href?: (id: string, locale: string) => string }> = {
+const KINDS: Record<string, { group: Exclude<Tab, "all">; icon: FillAnyName; glyph?: string; tone: ServiceTone; label: KindLabel; href?: (id: string, locale: string) => string }> = {
   Medicine: { group: "medicines", icon: "pill", tone: toneOf("pharmacy"), label: "kindMedicine", href: (id, l) => `/${l}/medicines/${encodeURIComponent(id)}` }, // i18n-ok: label is a Search message key
   Doctor: { group: "doctors", icon: "stethoscope", tone: toneOf("consult"), label: "kindDoctor", href: (id, l) => `/${l}/consultations/doctors/${encodeURIComponent(id)}` }, // i18n-ok: label is a Search message key
   Specialty: { group: "doctors", icon: "stethoscope", tone: toneOf("consult"), label: "kindSpecialty", href: (code, l) => `/${l}/consultations/doctors?specialty=${encodeURIComponent(code)}` }, // i18n-ok: label is a Search message key
-  Lab: { group: "labs", icon: "test-tube", tone: toneOf("lab"), label: "kindLab" }, // i18n-ok: label is a Search message key
+  Lab: { group: "labs", icon: "test-tube", tone: toneOf("lab"), label: "kindLab", href: (id, l) => `/${l}/diagnostics/test-detail?testId=${encodeURIComponent(id)}` }, // i18n-ok: label is a Search message key
   LabPackage: { group: "labs", icon: "test-tube", tone: toneOf("lab"), label: "kindLabPackage" }, // i18n-ok: label is a Search message key
   Radiology: { group: "radiology", icon: "scan", tone: toneOf("radiology"), label: "kindRadiology", href: (id, l) => `/${l}/diagnostics/radiology/${encodeURIComponent(id)}` }, // i18n-ok: label is a Search message key
   Nursing: { group: "other", icon: SERVICE_ICONS.nursing.icon, tone: toneOf("nursing"), label: "kindNursing", href: (id, l) => `/${l}/home-care/services/${encodeURIComponent(id)}` }, // i18n-ok: label is a Search message key
-  Article: { group: "other", icon: "file-text", tone: toneOf("nutrition"), label: "kindArticle", href: (slug, l) => `/${l}/articles/${encodeURIComponent(slug)}` }, // i18n-ok: label is a Search message key
+  Article: { group: "other", icon: "file-text", glyph: FILL_FILE_TEXT, tone: toneOf("nutrition"), label: "kindArticle", href: (slug, l) => `/${l}/articles/${encodeURIComponent(slug)}` }, // i18n-ok: label is a Search message key
 };
-const FALLBACK = { group: "other" as const, icon: "magnifying-glass" as FillIconName, tone: toneOf("consult") };
+const FALLBACK = { group: "other" as const, icon: "magnifying-glass" as FillAnyName, tone: toneOf("consult") };
 
 const BROWSE: Array<{ name: ServiceName; label: "catPharmacy" | "catConsult" | "catLab" | "catRadiology" | "catNursing" | "catMind" | "catNutrition" | "catFamily"; path: string }> = [
   { name: "pharmacy", label: "catPharmacy", path: "/pharmacy" }, // i18n-ok: label is a Search message key
@@ -51,6 +75,8 @@ const BROWSE: Array<{ name: ServiceName; label: "catPharmacy" | "catConsult" | "
 ];
 
 const kindOf = (r: SearchResult) => KINDS[r.typeEn || ""] || FALLBACK;
+/** lang/dir for a name whose script is not the page's (an English product name on an Arabic page is lang="en" dir="ltr"). */
+const langAttrs = (mark: FieldMark | undefined) => (mark ? { lang: mark.lang, dir: mark.dir } : {});
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /** The query inside the name, marked (the board's highlight), when it really occurs there. */
@@ -61,7 +87,7 @@ function Highlighted({ text, query }: { text: string; query: string }) {
   return <>{parts.map((part, i) => (i % 2 === 1 ? <mark key={i} className={styles.mark}>{part}</mark> : <Fragment key={i}>{part}</Fragment>))}</>;
 }
 
-export function ResultItem({ result, locale, query }: { result: SearchResult; locale: string; query: string }) {
+export function ResultItem({ result, locale, query, onOpen }: { result: SearchResult; locale: string; query: string; onOpen?: () => void }) {
   const t = useTranslations("Search");
   const product = useTranslations("PublicProduct");
   const kind = kindOf(result);
@@ -77,22 +103,41 @@ export function ResultItem({ result, locale, query }: { result: SearchResult; lo
   const price = result.price && Number(result.price) > 0 ? result.price : undefined;
   const rate = result.rate && Number(result.rate) > 0 ? result.rate : undefined;
   const body = <>
-    <span className={styles.media}><FIcon icon={kind.icon} tone={kind.tone} chip="none" size={40} /></span>
+    <span className={styles.media}><FIconGlyph icon={kind.icon} glyph={kind.glyph} tone={kind.tone} chip="none" size={40} /></span>
     <span className={styles.main}>
-      <span className={styles.name}><Highlighted text={result.name} query={query} /></span>
+      <span className={styles.name} {...langAttrs(markByScript(locale, result.name))}><Highlighted text={result.name} query={query} /></span>
       {sub ? <span className={styles.sub}>{sub}</span> : null}
       <span className={styles.meta}>
         {price ? <span className={styles.price}>{t("price", { value: price })}</span> : null}
         {rate ? <span className={styles.rate}>{t("rating", { value: rate })}</span> : null}
         {"label" in kind ? <StatusChip label={t(kind.label)} tone={kind.tone} /> : null}
         {result.requiresPrescription === true ? <StatusChip label={product("rxRequired")} tone="amber" /> : null}
-        {result.onlineOnly === true ? <StatusChip label={product("onlineOnly")} tone="mint" /> : null}
+        {result.onlineOnly === true ? <StatusChip label={product("onlineOnly")} tone="ink" /> : null}
       </span>
     </span>
   </>;
   return href
-    ? <Link href={href} className={styles.item}>{body}</Link>
+    ? <Link href={href} className={styles.item} onClick={onOpen}>{body}</Link>
     : <div className={styles.item}>{body}</div>;
+}
+
+/** A row of search terms the patient can tap to search again (recent, trending, or suggested after an empty result). */
+function TermRow({ title, terms, onPick, action }: { title: string; terms: string[]; onPick: (term: string) => void; action?: { label: string; onClick: () => void } }) {
+  return (
+    <section className={styles.terms} aria-label={title}>
+      <div className={styles.termsHead}>
+        <h2 className={styles.termsTitle}>{title}</h2>
+        {action ? <button type="button" className={styles.termsAction} onClick={action.onClick}>{action.label}</button> : null}
+      </div>
+      <ul className={styles.termList}>
+        {terms.map((term) => (
+          <li key={term}>
+            <button type="button" className={styles.termChip} onClick={() => onPick(term)}>{term}</button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
 }
 
 export function SearchClient({ locale, initialQuery = "" }: { locale: string; initialQuery?: string }) {
@@ -108,9 +153,25 @@ export function SearchClient({ locale, initialQuery = "" }: { locale: string; in
   const [state, setState] = useState<"idle" | "loading" | "error">(initialQuery.trim().length >= 2 ? "loading" : "idle");
   const [tab, setTab] = useState<Tab>("all");
   const [attempt, setAttempt] = useState(0);
+  // 17.3: this device's recent searches (kept in its storage only) and the server's trending terms.
+  const [recent, setRecent] = useState<string[]>([]);
+  const [trending, setTrending] = useState<string[]>([]);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const q = query.trim();
   const searching = q.length >= 2;
+
+  useEffect(() => {
+    setRecent(readRecentSearches());
+    const controller = new AbortController();
+    void loadTrending(controller.signal).then(setTrending);
+    return () => controller.abort();
+  }, []);
+
+  function search(term: string) {
+    const next = truncateQuery(term);
+    setQuery(next);
+    suggest.controller.input(next);
+  }
 
   useEffect(() => {
     if (timer.current) clearTimeout(timer.current);
@@ -169,38 +230,49 @@ export function SearchClient({ locale, initialQuery = "" }: { locale: string; in
 
   let content: React.ReactNode;
   if (!searching) {
-    content = <section className={styles.browse} aria-label={t("browseTitle")}>
+    content = <>
+      {recent.length > 0 ? <TermRow title={t("recentTitle")} terms={recent} onPick={search} action={{ label: t("recentClear"), onClick: () => { setRecent([]); writeRecentSearches([]); } }} /> : null}
+      {trending.length > 0 ? <TermRow title={t("trendingTitle")} terms={trending} onPick={search} /> : null}
+    <section className={styles.browse} aria-label={t("browseTitle")}>
       <SectionHeader title={t("browseTitle")} />
       <ul className={styles.tiles}>
         {visibleItems(BROWSE, (b) => b.path, disabled).map((b) => (
           <li key={b.name}><Link href={`/${locale}${b.path}`} className={styles.tileLink}><ServiceTile name={b.name} label={t(b.label)} /></Link></li>
         ))}
       </ul>
-    </section>;
+    </section>
+    </>;
   } else if (state === "loading") {
-    content = <p role="status" className={styles.status}>{t("searching")}</p>;
+    content = <>
+      <p role="status" className={styles.status}>{t("searching")}</p>
+      <Skeleton variant="block" />
+      <Skeleton variant="block" />
+      <Skeleton variant="block" />
+    </>;
   } else if (state === "error") {
     content = <ErrorState title={t("error")} retryLabel={routeState("retry")} onRetry={() => setAttempt((n) => n + 1)} />;
   } else if (results.length === 0) {
-    content = <EmptyState icon="magnifying-glass" tone={toneOf("consult")} title={t("empty")} body={t("emptyHint")} />;
+    content = <>
+      <EmptyState icon="magnifying-glass" tone={toneOf("consult")} title={t("empty")} body={t("emptyHint")} />
+      {trending.length > 0 ? <TermRow title={t("tryTitle")} terms={trending} onPick={search} /> : null}
+    </>;
   } else {
     content = <>
       <div className={styles.summary}>
         <h1 className={styles.heading}>{t("resultsFor", { query: q })}</h1>
-        <p className={styles.count}>{t("resultsCount", { count: results.length })}</p>
       </div>
       <div className={styles.chips} role="group" aria-label={t("title")}>
         {tabs.filter((x) => x.id === "all" || counts[x.id] > 0).map((x) => (
-          <Chip key={x.id} label={x.label} count={counts[x.id]} selected={tab === x.id} onClick={() => setTab(x.id)} />
+          <Chip key={x.id} label={x.label} selected={tab === x.id} onClick={() => setTab(x.id)} />
         ))}
       </div>
       {sections.map((section) => {
         const items = shown(section.groups);
         if (items.length === 0) return null;
         return <section key={section.id} className={styles.group} data-single={tab === "all" ? undefined : "true"} aria-label={section.title}>
-          <div className={styles.groupHead}><SectionHeader title={section.title} /></div>
+          <div className={styles.groupHead}><SectionHeader title={section.title} action={tab === "all" ? <button type="button" className={styles.rxAction} onClick={() => setTab(section.groups[0])}>{t("seeAll", { count: items.length })}</button> : undefined} /></div>
           <div className={styles.items}>
-            {items.map((r) => <ResultItem key={`${r.typeEn}-${r.id}`} result={r} locale={locale} query={q} />)}
+            {items.map((r) => <ResultItem key={`${r.typeEn}-${r.id}`} result={r} locale={locale} query={q} onOpen={() => setRecent(persistRecent(q))} />)}
           </div>
         </section>;
       })}

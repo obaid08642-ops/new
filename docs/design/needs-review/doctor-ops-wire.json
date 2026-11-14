@@ -1,0 +1,13 @@
+[
+ {
+  "batch": "doctor-ops-wire",
+  "app": "provider-app",
+  "screen": "DoctorBlacklistScreen",
+  "element": "patient name on each blocked row",
+  "file": "provider-app/src/screens/doctor/DoctorOpsScreens.tsx",
+  "line": 329,
+  "found": "[backend] GET /provider/ops/doctor/blacklist (provider-ops.module.ts myBlacklist) returns only patient_id, reason, createdAt: no patient_name, so the row shows the raw patient id",
+  "suspect": "the endpoint should join the patient display name",
+  "review_status": "open"
+ }
+]

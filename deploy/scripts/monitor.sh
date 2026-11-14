@@ -2,7 +2,10 @@
 # ═══ Nabdah Plus — production monitoring & alerting (every 15min via cron) ═══
 # Alerts are written to /var/log/nabdah-alerts.log and, when OPS_ALERT_EMAIL is set in .env.production, e-mailed
 # through Resend (RESEND_API_KEY, MAIL_FROM). A mail goes out when the set of alerts changes, again every
-# ALERT_REPEAT_HOURS while it lasts, and once when everything is back to OK. Before 2026-10-15 alerts were only
+# ALERT_REPEAT_HOURS while it lasts, and once when everything is back to OK. Owner, 2026-11-09 (the same alert mail every 10-15 minutes while mongod was
+# restarted by the OOM killer: alert, "all OK again", alert, ...): MAIL ONLY ON A REAL STATE CHANGE. A critical alert is mailed only after it has been seen in
+# ALERT_CONFIRM_RUNS (2) consecutive runs, "all OK again" only after RECOVER_CONFIRM_RUNS (2) consecutive clean runs, a flap that never lasts two runs sends nothing, the same
+# state is never mailed again before ALERT_REPEAT_HOURS (24), and numbers (ram, load, free MB) never trigger a mail (they are not critical: log and daily summary only). Before 2026-10-15 alerts were only
 # logged: the disk reached 2 GB free and nobody was told.
 # 2026-10-16 (#1603, after the disk-full outage): two disk levels (warn < 20 % free, critical < 10 % or < 5 GB free), an alert
 # when the disk is FILLING (hours left at the recent rate), an alert for any container whose own writable layer passed
@@ -25,7 +28,9 @@ DISK_FILL_MIN_MB=${DISK_FILL_MIN_MB:-300}     # ...and the disk lost at least th
 LAYER_MAX_MB=${LAYER_MAX_MB:-1024}            # a container's own writable layer (what it wrote, not its image)
 LOG_MAX_MB=${LOG_MAX_MB:-100}                 # one container's json log (the compose cap is 3 x 20 MB)
 SUMMARY_HOUR=${MONITOR_SUMMARY_HOUR:-6}       # daily summary mail, first run at or after this UTC hour
-ALERT_REPEAT_HOURS=${ALERT_REPEAT_HOURS:-6}
+ALERT_REPEAT_HOURS=${ALERT_REPEAT_HOURS:-24}
+ALERT_CONFIRM_RUNS=${ALERT_CONFIRM_RUNS:-2}       # consecutive runs a critical alert must be seen before it is mailed (a cron run is 15 minutes)
+RECOVER_CONFIRM_RUNS=${RECOVER_CONFIRM_RUNS:-2}   # consecutive clean runs before "all checks OK again" is mailed
 NOW=${MONITOR_NOW_EPOCH:-$(date +%s)}
 ALERTS=(); KEYS=()
 # alert <stable key> <message>: the key decides whether the alert is new; the message carries the numbers
@@ -159,29 +164,57 @@ mail_via() { # provider subject body -> 0 sent, 1 failed, 2 not configured
   case "$code" in 20?) return 0 ;; *) echo "[$TS] alert mail failed via $p (HTTP ${code:-none})" >> "$LOG_DIR/nabdah-alerts.log"; return 1 ;; esac
 }
 send_mail() { # subject body
-  if [ -n "${MONITOR_MAIL_CMD:-}" ]; then printf 'SUBJECT: %s\n%s\n' "$1" "$2" | $MONITOR_MAIL_CMD; return; fi
+  if [ -n "${MONITOR_MAIL_CMD:-}" ]; then printf 'SUBJECT: %s\n%s\n' "$1" "$2" | $MONITOR_MAIL_CMD; echo "[$TS] mail sent: ${1:0:100}" >> "$LOG_DIR/nabdah-monitor.log"; return; fi
   if [ -z "${MAIL_FROM:-}" ]; then echo "[$TS] alert mail not sent: MAIL_FROM unset" >> "$LOG_DIR/nabdah-alerts.log"; return 1; fi
   local p r any=0
   for p in resend brevo mailjet; do
     mail_via "$p" "$1" "$2"; r=$?
-    [ $r = 0 ] && return 0
+    [ $r = 0 ] && { echo "[$TS] mail sent via $p: ${1:0:100}" >> "$LOG_DIR/nabdah-monitor.log"; return 0; }
     [ $r = 1 ] && any=1
   done
   [ $any = 0 ] && echo "[$TS] alert mail not sent: no provider key set (RESEND_API_KEY, BREVO_API_KEY, MAILJET_API_KEY/MAILJET_SECRET_KEY)" >> "$LOG_DIR/nabdah-alerts.log"
   return 1
 }
+# MONITOR_TEST_MAIL=1 (ops task 98m): send ONE test mail through the real provider path and print only "sent" or "failed"; no alert logic, no state change
+if [ "${MONITOR_TEST_MAIL:-0}" = 1 ]; then
+  if [ -z "${OPS_ALERT_EMAIL:-}" ]; then echo "status: monitor-testmail: failed (OPS_ALERT_EMAIL is not set)"; exit 1; fi
+  if send_mail "[nabd.plus] test mail from monitor.sh" "Sent by ops task 98m at $TS UTC. If you read this, the alert mail path works."; then echo "status: monitor-testmail: sent"; exit 0; fi
+  echo "status: monitor-testmail: failed (see the last lines of $LOG_DIR/nabdah-alerts.log for the provider and HTTP code)"; exit 1
+fi
+# Owner, 2026-11-02: the on-host alerts sent dozens of mails a day while the one that mattered (the site down) never arrived. Only what can
+# take the site down or lose data is mailed at once (containers, mongodb, redis, the backend, the CRITICAL disk level, backups); every other
+# alert (warn-level disk, disk filling, container layers and logs, ram, load, certificates) is logged and goes into the daily summary mail only.
+CRIT_ALERTS=(); CRIT_KEYS=()
+for i in "${!KEYS[@]}"; do
+  case "${KEYS[$i]}" in container-*|mongodb|redis|backend|disk-crit|backup) CRIT_KEYS+=("${KEYS[$i]}"); CRIT_ALERTS+=("${ALERTS[$i]}") ;; esac
+done
 if [ -n "${OPS_ALERT_EMAIL:-}" ]; then
   mkdir -p "$STATE_DIR" 2>/dev/null
-  SIG=$(printf '%s\n' "${KEYS[@]}" | sort -u | tr '\n' ' ' | sed 's/ *$//')
+  # Streaks, so a flap is not a state change: for every critical key the number of consecutive runs it has been seen (a key missing from a run starts again at 0), and the number of
+  # consecutive runs with NO critical alert at all. A key is CONFIRMED once its streak reaches ALERT_CONFIRM_RUNS; only confirmed keys are mailed.
+  STREAKS="$STATE_DIR/crit-streaks"; NEW_STREAKS=""; CONF_KEYS=(); CONF_ALERTS=()
+  for i in "${!CRIT_KEYS[@]}"; do
+    k=${CRIT_KEYS[$i]}; prev=$(awk -v k="$k" '$1==k {print $2}' "$STREAKS" 2>/dev/null | head -1); cnt=$(( ${prev:-0} + 1 ))
+    NEW_STREAKS+="$k $cnt"$'\n'
+    if [ "$cnt" -ge "$ALERT_CONFIRM_RUNS" ]; then CONF_KEYS+=("$k"); CONF_ALERTS+=("${CRIT_ALERTS[$i]}"); fi
+  done
+  printf '%s' "$NEW_STREAKS" > "$STREAKS"
+  if [ ${#CRIT_ALERTS[@]} -gt 0 ]; then echo 0 > "$STATE_DIR/clean-streak"; else echo $(( $(cat "$STATE_DIR/clean-streak" 2>/dev/null || echo 0) + 1 )) > "$STATE_DIR/clean-streak"; fi
+  SIG=$(printf '%s\n' "${CONF_KEYS[@]}" | sort -u | tr '\n' ' ' | sed 's/ *$//')
   LAST_SIG=$(cat "$STATE_DIR/last-signature" 2>/dev/null)
   LAST_SENT=$(cat "$STATE_DIR/last-sent" 2>/dev/null || echo 0)
-  if [ ${#ALERTS[@]} -gt 0 ]; then
-    if [ "$SIG" != "$LAST_SIG" ] || [ $(( NOW - LAST_SENT )) -ge $(( ALERT_REPEAT_HOURS * 3600 )) ]; then
-      BODY="$(hostname) at $TS UTC:"$'\n'"$(printf -- '- %s\n' "${ALERTS[@]}")"
-      send_mail "[nabd.plus] ${#ALERTS[@]} alert(s): ${ALERTS[0]:0:80}" "$BODY" \
+  if [ ${#CONF_ALERTS[@]} -gt 0 ]; then
+    # mail when a key is CONFIRMED that the last mail did not name, or again after ALERT_REPEAT_HOURS while it lasts; a key that went away (a smaller set) changes nothing
+    NEWKEY=0; for k in "${CONF_KEYS[@]}"; do case " $LAST_SIG " in *" $k "*) ;; *) NEWKEY=1 ;; esac; done
+    if [ "$NEWKEY" = 1 ] || [ $(( NOW - LAST_SENT )) -ge $(( ALERT_REPEAT_HOURS * 3600 )) ]; then
+      BODY="$(hostname) at $TS UTC:"$'\n'"$(printf -- '- %s\n' "${CONF_ALERTS[@]}")"
+      [ ${#ALERTS[@]} -gt ${#CONF_ALERTS[@]} ] && BODY+=$'\n'"$(( ${#ALERTS[@]} - ${#CONF_ALERTS[@]} )) other alert(s) are in the daily summary mail."
+      send_mail "[nabd.plus] ${#CONF_ALERTS[@]} alert(s): ${CONF_ALERTS[0]:0:80}" "$BODY" \
         && { printf '%s' "$SIG" > "$STATE_DIR/last-signature"; echo "$NOW" > "$STATE_DIR/last-sent"; }
+    else
+      printf '%s' "$SIG" > "$STATE_DIR/last-signature"   # the set may have shrunk: remember it, say nothing
     fi
-  elif [ -n "$LAST_SIG" ]; then
+  elif [ -n "$LAST_SIG" ] && [ ${#CRIT_ALERTS[@]} -eq 0 ] && [ "$(cat "$STATE_DIR/clean-streak" 2>/dev/null || echo 0)" -ge "$RECOVER_CONFIRM_RUNS" ]; then
     send_mail "[nabd.plus] all checks OK again" "$(hostname) at $TS UTC: all checks passed (disk ${FREE_PCT}% free)." \
       && { : > "$STATE_DIR/last-signature"; echo "$NOW" > "$STATE_DIR/last-sent"; }
   fi

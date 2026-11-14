@@ -4,6 +4,18 @@ const coords = { kind: 'coords', lat: 24.7136, lng: 46.6753 } as const;
 const city = { kind: 'city', city: 'Test city' } as const;
 const base = { mode: 'clinic', nearest: false, availableNow: false, place: null } as const;
 
+describe('degree filter (web parity)', () => {
+  const base = { mode: 'clinic' as const, nearest: false, availableNow: false, place: null };
+  it('asks the server for one academic grade and ignores an unknown one', () => {
+    expect(buildDoctorsPath({ ...base, degree: 'professor' })).toBe('/care/doctors?type=clinic&degree=professor');
+    expect(buildDoctorsPath({ ...base, degree: 'wizard' as never })).toBe(DOCTORS_PATH);
+    expect(buildDoctorsPath({ ...base, degree: null })).toBe(DOCTORS_PATH);
+  });
+  it('keeps the grade beside available-now', () => {
+    expect(buildDoctorsPath({ ...base, availableNow: true, degree: 'resident' })).toContain('degree=resident');
+  });
+});
+
 describe('consult hub quick filters: the request', () => {
   it('nothing chosen: the plain call', () => {
     expect(buildDoctorsPath({ ...base, place: coords })).toBe(DOCTORS_PATH);

@@ -62,6 +62,8 @@ export default function ReportsPage() {
   const [tab, setTab] = useState<TabKey>('revenue');
   const [from, setFrom] = useState(monthAgo);
   const [to, setTo] = useState(today);
+  // the server reads `to` as a moment: a bare date is 00:00 and would drop the whole last day (today included)
+  const toEnd = `${to}T23:59:59.999Z`;
   const [groupBy, setGroupBy] = useState('day');
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,22 +74,22 @@ export default function ReportsPage() {
     try {
       // On a tab switch groupBy still holds the previous tab's value for one render; never send it.
       const g = GROUPS[tab].includes(groupBy) ? groupBy : GROUPS[tab][0];
-      const r: any = await adminFetch(`/api/admin/admin/reports/${tab}${toQuery({ from, to, group_by: g })}`);
+      const r: any = await adminFetch(`/api/admin/admin/reports/${tab}${toQuery({ from, to: toEnd, group_by: g })}`);
       setRows(Array.isArray(r?.rows) ? r.rows : []);
     } catch (cause) {
       setError(apiErrorMessage(cause, 'تعذر تحميل التقرير.'));
     } finally {
       setLoading(false);
     }
-  }, [tab, from, to, groupBy]);
+  }, [tab, from, to, toEnd, groupBy]);
 
   useEffect(() => { setGroupBy(GROUPS[tab][0]); }, [tab]);
   useEffect(() => { void load(); }, [load]);
 
   type Row = { bucket?: string; kind?: string; type?: string; count?: number; gross?: number; refunded?: number; net?: number; total?: number; copay?: number };
   const valueOf = (r: Row) => r.net ?? r.total ?? r.copay ?? r.gross ?? r.count ?? 0;
-  const csvHref = `/api/admin/admin/reports/${tab}${toQuery({ from, to, group_by: groupBy, format: 'csv' })}`;
-  const xlsxHref = `/api/admin/admin/reports/${tab}${toQuery({ from, to, group_by: groupBy, format: 'xlsx' })}`;
+  const csvHref = `/api/admin/admin/reports/${tab}${toQuery({ from, to: toEnd, group_by: groupBy, format: 'csv' })}`;
+  const xlsxHref = `/api/admin/admin/reports/${tab}${toQuery({ from, to: toEnd, group_by: groupBy, format: 'xlsx' })}`;
 
   return (
     <>

@@ -20,6 +20,7 @@ import { ProcurementService } from './services/procurement.service';
 import { ProcurementController } from './controllers/procurement.controller';
 import { AdminProcurementController } from './controllers/admin-procurement.controller';
 import { PharmacyOrderService } from './services/pharmacy-order.service';
+import { PharmacyRefillService } from './services/pharmacy-refill.service';
 import { PharmacyAllocationService } from './services/pharmacy-allocation.service';
 import { SmartSplitService } from './services/smart-split.service';
 import { PharmacyInventoryExtService } from './services/pharmacy-inventory-ext.service';
@@ -39,6 +40,7 @@ import { PharmacyOfferService } from './services/pharmacy-offer.service';
 import { PharmacyInsuranceDecisionService } from './services/pharmacy-insurance-decision.service';
 import { PharmacyExpiryCommandService } from './services/pharmacy-expiry-command.service';
 import { PharmacyExpiryScheduler } from './services/pharmacy-expiry.scheduler';
+import { PharmacyBroadcastDispatchService } from './services/pharmacy-broadcast-dispatch.service';
 import { PharmacyPaymentEvidenceService } from './services/pharmacy-payment-evidence.service';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { GeoEngineService } from '../provider/services/geo-engine.service';
@@ -61,6 +63,8 @@ import { ProviderAccountRepository } from "./services/repositories/provideraccou
 import { ProviderAccountProfileRepository } from "./services/repositories/provideraccountprofile.repository";
 // P5.3: merged from PharmacyOpsModule (pharmacy_ops/ → pharmacy/)
 import { PharmacyOpsController, ProviderPharmacyAliasController } from './pharmacy_ops.controller';
+import { PharmacyPriceReviewService } from './price-review.service';
+import { AdminPriceReviewController } from './price-review.controller';
 import { PharmacyOpsService } from './pharmacy_ops.service';
 import { OrdersModule } from '../orders/orders.module';
 import { ProviderAvailabilityRepository } from "./services/repositories/provideravailability.repository";
@@ -71,6 +75,7 @@ import { OffersDetailController } from './offers-detail.controller';
 import { PromotionsOffersController } from './promotions-offers.controller';
 import { PharmacyCompatController } from './pharmacy-compat.controller';
 import { B2BVoiceController } from './pharmacy-b2b-voice.controller';
+import { PharmacyDeliveryService, ProviderPharmacyDeliveryController, AdminPharmacyDeliveryController } from './pharmacy-delivery';
 
 @Module({
   imports: [
@@ -109,7 +114,10 @@ import { B2BVoiceController } from './pharmacy-b2b-voice.controller';
     ]),
   ],
   providers: [
+    PharmacyDeliveryService,
+    PharmacyPriceReviewService,
     PharmacyOrderService,
+    PharmacyRefillService,
     // P5.3: merged from PharmacyOpsModule (pharmacy_ops/ → pharmacy/)
     PharmacyOpsService,
     PharmacyAllocationService,
@@ -125,6 +133,7 @@ import { B2BVoiceController } from './pharmacy-b2b-voice.controller';
     PharmacyInsuranceDecisionService,
     PharmacyExpiryCommandService,
     PharmacyExpiryScheduler,
+    PharmacyBroadcastDispatchService,
     PharmacyPaymentEvidenceService,
     ProcurementService,
     GeoEngineService,
@@ -147,11 +156,14 @@ import { B2BVoiceController } from './pharmacy-b2b-voice.controller';
     { provide: "SystemConfigRepository", useClass: SystemConfigRepository }
   ],
   controllers: [
+    ProviderPharmacyDeliveryController,
+    AdminPharmacyDeliveryController,
     PaymentRulesController,
     PatientPharmacyController,
     ProviderPharmacyController,
     ProviderInventoryExtController,
     AdminPharmacyController,
+    AdminPriceReviewController,
     // F17: demo seeders exist ONLY in explicit test mode (404 elsewhere).
     ...(process.env.NODE_ENV === 'test' && process.env.ALLOW_TEST_SEED === 'true' ? [AdminPharmacySeedController] : []),
       ProviderBroadcastController, AdminBroadcastController, AdminFulfillmentPolicyController, AdminPharmacyInsuranceController,

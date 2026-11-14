@@ -42,6 +42,10 @@ export class CatalogsSeedService implements OnModuleInit {
       const read = (f: string): any[] => {
         try { return JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')); } catch { return []; }
       };
+      // Translated columns (ur, hi, bn, tl) the seed rows carry beyond ar/en; copied as they are.
+      const tr = (x: any, fields: string[]) => Object.fromEntries(
+        fields.flatMap((f) => ['ur', 'hi', 'bn', 'tl'].map((l) => [`${f}_${l}`, x[`${f}_${l}`]] as const)).filter(([, v]) => typeof v === 'string' && v),
+      );
       for (const x of read('labs.json')) {
         const code = x.short_code || slug(x.name_en);
         try {
@@ -81,7 +85,7 @@ export class CatalogsSeedService implements OnModuleInit {
           if (!co) {
             companyId = require('uuid').v4();
             await this.conn.collection(CATALOG_COLLECTIONS.insurance_companies).updateOne({ code: x.code },
-              { $setOnInsert: { id: companyId, code: x.code, name_ar: x.name_ar, name_en: x.name_en, logo_url: x.image_url, is_active: x.is_active !== false, catalog_status: 'pending_review', provenance: 'seed-data' } },
+              { $setOnInsert: { id: companyId, code: x.code, name_ar: x.name_ar, name_en: x.name_en, ...tr(x, ['name', 'description']), logo_url: x.image_url, is_active: x.is_active !== false, catalog_status: 'pending_review', provenance: 'seed-data' } },
               { upsert: true });
             ok++;
           }
@@ -89,7 +93,7 @@ export class CatalogsSeedService implements OnModuleInit {
             try {
               const r: any = await this.conn.collection('insurance_networks').updateOne(
                 { company_id: companyId, code: `tier-${t.tier_level}` },
-                { $setOnInsert: { id: require('uuid').v4(), company_id: companyId, code: `tier-${t.tier_level}`, name_ar: t.name_ar, name_en: t.name_en, tier_level: t.tier_level, catalog_status: 'pending_review', provenance: 'seed-data' } },
+                { $setOnInsert: { id: require('uuid').v4(), company_id: companyId, code: `tier-${t.tier_level}`, name_ar: t.name_ar, name_en: t.name_en, ...tr(t, ['name']), tier_level: t.tier_level, catalog_status: 'pending_review', provenance: 'seed-data' } },
                 { upsert: true });
               if (r.upsertedCount || r.upsertedId) ok++;
             } catch { /* already live */ }

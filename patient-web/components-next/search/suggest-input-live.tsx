@@ -1,0 +1,62 @@
+"use client";
+
+import { useLayoutEffect, useRef, type ReactNode } from "react";
+import { SearchSuggest, useSearchSuggest } from "@/components-next/search/search-suggest";
+import { SuggestField } from "@/components-next/search/suggest-field";
+import { SUGGEST_SCOPES, type SuggestScope } from "@/lib/search/suggest";
+
+/**
+ * A plain GET-form search input (server-rendered page) with the live suggestions of one service under it.
+ * The page passes the icon as children and its own class names; Enter still submits the form.
+ */
+export function SuggestInputLive({
+  locale, scope = SUGGEST_SCOPES.consultations, id, name, defaultValue, placeholder, label, fieldClassName, inputClassName, wrapClassName, submitLabel, submitClassName, children, focusOnMount,
+}: {
+  locale: string;
+  scope?: SuggestScope;
+  id: string;
+  name: string;
+  defaultValue?: string;
+  placeholder: string;
+  label: string;
+  fieldClassName: string;
+  inputClassName: string;
+  wrapClassName?: string;
+  submitLabel?: string;
+  submitClassName?: string;
+  children?: ReactNode;
+  /** The plain field was focused before this code loaded: put the caret back in the same place. */
+  focusOnMount?: boolean;
+}) {
+  const { state, controller } = useSearchSuggest(locale, scope);
+  const input = useRef<HTMLInputElement>(null);
+  // A layout effect, not a passive one: this field REPLACES a plain one the moment its code arrives. A passive effect runs after the paint, and a key pressed in that gap goes to <body>
+  // (the old input is gone, the new one is not focused yet) and is lost: live gate #2480 shard 4, the request was `q=ر` for "بر". A layout effect runs in the same task as the commit.
+  useLayoutEffect(() => {
+    if (focusOnMount && input.current) { input.current.focus(); const n = input.current.value.length; input.current.setSelectionRange(n, n); if (n) controller.input(input.current.value); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on mount
+  }, []);
+  return (
+    <SearchSuggest
+      state={state}
+      controller={controller}
+      className={wrapClassName}
+      renderField={(combobox) => (
+        <SuggestField id={id} className={fieldClassName} label={label} submitLabel={submitLabel} submitClassName={submitClassName} icon={children}>
+          <input
+            ref={input}
+            id={id}
+            name={name}
+            type="search"
+            defaultValue={defaultValue}
+            placeholder={placeholder}
+            className={inputClassName}
+            onChange={(event) => controller.input(event.target.value)}
+            enterKeyHint="search"
+            {...combobox}
+          />
+        </SuggestField>
+      )}
+    />
+  );
+}

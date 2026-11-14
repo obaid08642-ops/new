@@ -4,14 +4,16 @@ import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-ro
 
 import { AppHeader, Button, Card, EmptyState, ErrorState, FIcon, OfflineState, Screen, Stepper, StickyFooter } from '../../../packages/ui-native/src';
 import { Notice } from '../../src/components/pharmacy/OfferKit';
+import { RefundPolicyTick } from '../../src/components/legal/RefundPolicyTick';
 import { Glyph, PHARMACY_TONE, goBack } from '../../src/components/pharmacy/PharmacyKit';
 import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch, newIdempotencyKey } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { buildPatientPharmacyDraft, extractPatientPharmacyOrderId } from '../../src/utils/pharmacy-draft';
-import { checkoutErrorKey, noAnswerYet } from '../../src/utils/pharmacyCheckout';
-import { idemKey, orderIdParam } from '../../src/utils/pharmacyOffers';
+import { checkoutErrorKey } from '../../src/utils/pharmacyCheckout';
+import { createPharmacyOrderSender } from '../../src/utils/pharmacyOrderSend';
+import { orderIdParam } from '../../src/utils/pharmacyOffers';
 import { ORDERS_TONE } from '../../src/utils/orderCenter';
 import { readReorderLines, readReorderMeta, reorderBody, type ReorderLine, type ReorderMeta } from '../../src/utils/reorder';
 import { resolveEffectiveAddress, type SelectedAddress } from '../../src/utils/selectedAddress';
@@ -35,12 +37,13 @@ export default function PharmacyReorderScreen() {
   const [address, setAddress] = useState<SelectedAddress | null>(null);
   const [loadingAddress, setLoadingAddress] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  // the refund policy is shown before the order is sent and agreed here (the backend refuses an order without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
   const [problemKey, setProblemKey] = useState<string | null>(null);
   const [needsLocation, setNeedsLocation] = useState(false);
 
   const busy = useRef(false);
-  const keys = useRef(new Map<string, { create: string; submit: string }>());
-  const created = useRef<{ body: string; orderId: string } | null>(null);
+  const sender = useRef(createPharmacyOrderSender('pharmacy-reorder'));
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -87,7 +90,7 @@ export default function PharmacyReorderScreen() {
   const patch = (key: string, change: Partial<ReorderLine>) => setLines((all) => all.map((l) => (l.key === key ? { ...l, ...change } : l)));
 
   const send = async () => {
-    if (busy.current || submitting || !chosen.length || loadingAddress) return;
+    if (busy.current || submitting || !chosen.length || loadingAddress || !refundAgreed) return;
     if (!address || !hasPoint) {
       setNeedsLocation(true);
       return;
@@ -97,28 +100,12 @@ export default function PharmacyReorderScreen() {
     setProblemKey(null);
     setNeedsLocation(false);
     try {
-      const body = JSON.stringify(reorderBody(chosen, address, buildPatientPharmacyDraft, meta));
-      let pair = keys.current.get(body);
-      if (!pair) {
-        const nonce = newIdempotencyKey();
-        pair = { create: idemKey('pharmacy-reorder', [], nonce), submit: idemKey('pharmacy-reorder-submit', [], nonce) };
-        keys.current.set(body, pair);
-      }
-      let orderId = created.current?.body === body ? created.current.orderId : null;
-      if (!orderId) {
-        const response = await apiFetch('/patient/pharmacy/orders', { method: 'POST', headers: { 'Idempotency-Key': pair.create }, body });
-        orderId = extractPatientPharmacyOrderId(response);
-        if (!orderId) throw new Error('governed_pharmacy_order_id_missing');
-        created.current = { body, orderId };
-      }
-      await apiFetch(`/patient/pharmacy/orders/${orderId}/submit`, { method: 'POST', headers: { 'Idempotency-Key': pair.submit }, body: JSON.stringify({}) });
-      keys.current.delete(body);
-      created.current = null;
+      const orderId = await sender.current.send(reorderBody(chosen, address, buildPatientPharmacyDraft, meta) as Record<string, unknown>);
       router.replace({ pathname: '/pharmacy/broadcast-status', params: { orderId } });
     } catch (error) {
       logError('pharmacy:reorder:send', error);
       // a server answer ends the attempt (the next one takes new keys); after no answer the same keys go out again
-      if (!noAnswerYet(error)) keys.current.clear();
+      sender.current.failed(error);
       setProblemKey(checkoutErrorKey(error));
     } finally {
       busy.current = false;
@@ -164,7 +151,7 @@ export default function PharmacyReorderScreen() {
   const footer = (
     <StickyFooter theme={theme} direction={dir}>
       <View style={COLUMN}>
-        <Button label={k('orders.reorder.submit')} size="lg" fullWidth disabled={!chosen.length || loadingAddress || submitting} loading={submitting} onPress={() => void send()} testID="reorder-submit" theme={theme} />
+        <Button label={k('orders.reorder.submit')} size="lg" fullWidth disabled={!chosen.length || !refundAgreed || loadingAddress || submitting} loading={submitting} onPress={() => void send()} testID="reorder-submit" theme={theme} />
       </View>
     </StickyFooter>
   );
@@ -241,6 +228,7 @@ export default function PharmacyReorderScreen() {
             onAction={problemKey === 'pharmacy.checkout.err.signIn' ? () => router.push('/(auth)/login' as Href) : undefined}
           />
         ) : null}
+        <RefundPolicyTick service="pharmacy" checked={refundAgreed} onChange={setRefundAgreed} />
       </View>
     </Screen>
   );

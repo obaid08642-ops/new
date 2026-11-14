@@ -9,9 +9,14 @@ on:
 permissions:
   contents: read
 
+# A newer push to the same PR replaces the older run (it would be thrown away anyway); pushes to main and scheduled runs are never cancelled.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   lighthouse:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
@@ -19,23 +24,28 @@ jobs:
           version: 10.4.1
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
           cache-dependency-path: patient-web/pnpm-lock.yaml
       - name: Install
         working-directory: patient-web
         run: corepack enable && pnpm install --frozen-lockfile
+      # production is never a CI dependency: the pages are built and audited against the live gate's local backend
+      - id: api
+        uses: ./.github/actions/local-api
       - name: Build
         working-directory: patient-web
         run: pnpm run build
         env:
           NEXT_TELEMETRY_DISABLED: 1
-          NABD_API_BASE_URL: https://api.nabd.plus/api/v1
+          NABD_API_BASE_URL: ${{ steps.api.outputs.api-base-url }}
+          INTERNAL_API_BASE_URL: ${{ steps.api.outputs.api-base-url }}
           NEXT_PUBLIC_SITE_ORIGIN: http://localhost:3000
       - name: Start production server (standalone) and wait until ready
         working-directory: patient-web
         env:
-          NABD_API_BASE_URL: https://api.nabd.plus/api/v1
+          NABD_API_BASE_URL: ${{ steps.api.outputs.api-base-url }}
+          INTERNAL_API_BASE_URL: ${{ steps.api.outputs.api-base-url }}
           NEXT_PUBLIC_SITE_ORIGIN: http://localhost:3000
           PORT: 3000
           HOSTNAME: 127.0.0.1

@@ -1,4 +1,7 @@
-import { Module, Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Injectable, BadRequestException, NotFoundException, ServiceUnavailableException, Logger, Req } from '@nestjs/common';
+import { buildPatientPolicy, insuranceCompanyFilter, policyClass, policyCompanyKeys } from '../../common/insurance-policy';
+import { copayRefundable, findCopayTransaction } from '../../common/copay-transaction';
+import { nextClaimStatus, OPEN_CLAIM_STATUSES } from '../../common/claim-state';
+import { Module, Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Injectable, BadRequestException, ConflictException, NotFoundException, ServiceUnavailableException, Logger, Req } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiForbiddenResponse,
@@ -8,7 +11,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { NABDAH_ACCESS_TOKEN_SECURITY_SCHEME } from '../../config/openapi.config';
-import { CreateCompanyDto, UpdateCompanyDto, OcrExtractDto, UploadPolicyDto, NphiesEligibilityDto, SavePolicyDto, SubmitClaimDto, CreateInsuranceNetworkDto, CreateCoverageRuleDto } from './insurance.dto';
+import { CreateCompanyDto, UpdateCompanyDto, OcrExtractDto, UploadPolicyDto, SubmitClaimDto, DecideClaimDto, CreateInsuranceNetworkDto, CreateCoverageRuleDto } from './insurance.dto';
 import { InjectModel, InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
 import { Optional } from '@nestjs/common';
@@ -30,6 +33,7 @@ import { AiModule } from '../ai/ai.module';
 import { AiGatewayService } from '../ai/ai-gateway.service';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { PublicCache } from '../../common/public-cache.decorator';
 @Injectable()
 export class InsuranceService {
   private readonly logger = new Logger(InsuranceService.name);
@@ -72,7 +76,7 @@ export class InsuranceService {
       // Legacy network records remain in the database for audit/reactivation.
       // Only explicitly retired networks are excluded from the public catalog;
       // legacy records without catalog_status keep their current visible behavior.
-      this.networkModel.find({ catalog_status: { $ne: 'retired' } }, { _id: 0, company_id: 1, id: 1, code: 1, name_ar: 1, name_en: 1, tier_level: 1 } as any).lean(),
+      this.networkModel.find({ catalog_status: { $ne: 'retired' } }, { _id: 0, company_id: 1, id: 1, code: 1, name_ar: 1, name_en: 1, tier_level: 1, copay_percent: 1, copay_cap_sar: 1 } as any).lean(),
     ]);
     const byCompany = new Map<string, any[]>();
     for (const n of networks as any[]) {
@@ -181,7 +185,7 @@ export class InsuranceService {
     const patientIns = patient.insurance; // { provider: 'bupa', network: 'gold', policy_number: '...', class: 'A' }
     
     // LOCAL eligibility check — provider enters approval result manually in their system
-    // No direct NPHIES integration. Insurance data collected from patient and sent with booking request.
+    // Insurance data is collected from the patient and sent with the booking request; nothing asks an insurer.
     // Provider performs approval on their clinic/hospital system and enters result in provider app.
 
     // Find provider or facility contracts for copay details
@@ -204,9 +208,10 @@ export class InsuranceService {
 
     // Match patient insurance company & network code
     const matchingContract = contracts.find(c => 
-      c.company_id.toLowerCase() === patientIns.provider.toLowerCase() &&
+      // the policy names its insurer by id, code and display name (one shape): the contract's company matches any of them
+      policyCompanyKeys(patientIns).some((k) => k.toLowerCase() === c.company_id.toLowerCase()) &&
       c.network_id.toLowerCase() === patientIns.network.toLowerCase() &&
-      (c.covered_classes.length === 0 || c.covered_classes.includes(patientIns.class))
+      (c.covered_classes.length === 0 || c.covered_classes.includes(policyClass(patientIns)))
     );
 
     if (!matchingContract) {
@@ -247,7 +252,7 @@ export class InsuranceService {
       company_name_ar: matchingContract.company_name_ar,
       network_id: matchingContract.network_id,
       network_name_ar: matchingContract.network_name_ar,
-      class: patientIns.class,
+      class: policyClass(patientIns),
       copay_percent: copayPercent,
       copay_flat: copayFlat,
       requires_preauth: requiresPreauth,
@@ -290,19 +295,10 @@ Use null for any field not clearly visible. Do not guess.`;
     if (!policyNumber || !provider) {
       throw new BadRequestException('provider and policy_number are required');
     }
-    const doc: any = {
-      provider,
-      company_id: fileData.company_id || provider,
-      policy_number: policyNumber,
-      network: fileData.network || null,
-      class: fileData.class || null,
-      expiry_date: fileData.expiry_date || null,
-      member_name: fileData.member_name || null,
-      national_id: fileData.national_id || null,
-      verified: false,
-      pdf_url: fileData.pdf_url || null,
-      ocr_extracted: !!fileData.ocr_extracted,
-    };
+    // One writer, one shape (common/insurance-policy.ts): merged over what is saved, so the card figures survive; `verified` is always false.
+    const company: any = await this.companyModel.findOne(insuranceCompanyFilter(String(fileData.company_id || provider))).lean();
+    const current: any = patientId ? await this.patientModel.findOne({ user_id: patientId }, { _id: 0, insurance: 1 }).lean() : null;
+    const doc: any = buildPatientPolicy(current?.insurance, { ...fileData, provider, policy_number: policyNumber }, company);
     if (patientId) {
       await this.patientModel.findOneAndUpdate(
         { user_id: patientId },
@@ -311,66 +307,6 @@ Use null for any field not clearly visible. Do not guess.`;
       );
     }
     return { success: true, policy: doc };
-  }
-
-  /**
-   * Eligibility check against the patient's stored, verified policy.
-   * NOTE: the live NPHIES exchange is NOT integrated yet — this answers from
-   * locally stored policy data only and says so explicitly (nphies_live: false).
-   */
-  async nphiesEligibility(nationalId: string, companyCode: string, memberId?: string) {
-    if (!nationalId || !companyCode) {
-      throw new BadRequestException('national_id and insurance_company_code are required');
-    }
-    const patient: any = await this.patientModel.findOne({ 'insurance.national_id': { $eq: nationalId } }).lean();
-    const ins = patient?.insurance;
-    const code = String(companyCode).toLowerCase();
-    const matches = ins && (
-      String(ins.provider || '').toLowerCase().includes(code) ||
-      String(ins.company_id || '').toLowerCase().includes(code)
-    );
-    if (!matches) {
-      return { eligible: false, reason: 'no_matching_policy_on_file', manual_approval_required: true };
-    }
-    
-    // LOCAL eligibility check — provider enters approval result manually
-    // No direct NPHIES integration. Returns stored policy info for provider to verify.
-    return {
-      eligible: true,
-      source: 'stored_policy',
-      verified: !!ins.verified,
-      network: ins.network || null,
-      network_class: ins.class || null,
-      expiry_date: ins.expiry_date || null,
-      manual_approval_required: true,
-      policy_details: {
-        provider: ins.provider,
-        policy_number: ins.policy_number,
-        national_id: ins.national_id,
-      },
-    };
-  }
-
-  async savePolicy(patientId: string, policyData: any) {
-    let patient = await this.patientModel.findOne({ user_id: { $eq: patientId } });
-    if (!patient) {
-      patient = await this.patientModel.create({ user_id: patientId });
-    }
-    patient.insurance = {
-      company_id: policyData.company_id || policyData.provider,
-      provider: policyData.provider,
-      policy_number: policyData.policy_number,
-      network: policyData.network,
-      class: policyData.class,
-      expiry_date: policyData.expiry_date,
-      member_name: policyData.member_name,
-      national_id: policyData.national_id,
-      verified: policyData.verified ?? false,
-      pdf_url: policyData.pdf_url,
-      ocr_extracted: policyData.ocr_extracted ?? false,
-    };
-    await patient.save();
-    return { success: true, insurance: patient.insurance };
   }
 
   /** LJ-02: a claim is filed against a real paid booking; the server sets the
@@ -391,9 +327,27 @@ Use null for any field not clearly visible. Do not guess.`;
     const owner = booking ? String(booking.patient_id ?? booking.patient_account_id ?? '') : '';
     if (!booking || owner !== String(patientId)) throw new NotFoundException('owned_booking_not_found');
 
-    const amount = Number(claimData?.amount) || Number(booking.totals?.total || booking.total || booking.total_price || booking.price || 0);
-    if (!amount || amount <= 0) throw new BadRequestException('a valid amount is required (booking price not ready)');
+    // one claim per booking: an open one (pending, facility-approved or reimbursed) blocks a second. Checked before the paid amount: a booking whose
+    // reimbursement refunded everything has nothing left "paid", and the patient must be told the claim exists, not that it was never paid.
+    const open = await this.claimModel.findOne({ booking_kind: bookingKind, booking_id: bookingId, status: { $in: [...OPEN_CLAIM_STATUSES] } });
+    if (open) throw new ConflictException('claim_already_filed');
 
+    // A reimbursement is for what the patient paid, never for an amount the client types: the settled card payments of the
+    // booking (less what was already refunded), else the cash the provider recorded as collected. A claim above that is cut to it.
+    const kindKey = bookingKind === 'order' ? 'pharmacy' : bookingKind === 'appointment' ? 'consultation' : bookingKind;
+    const paidRows: any[] = await this.conn.collection('transactions').find(
+      { booking_kind: kindKey, booking_id: { $eq: bookingId }, status: { $in: ['paid', 'partially_refunded'] } } as any,
+      { projection: { amount: 1, refunded_amount: 1, _id: 0 } },
+    ).toArray();
+    let card = paidRows.reduce((sum, r) => sum + Number(r.amount || 0) - Number(r.refunded_amount || 0), 0);
+    // an insured booking's co-pay is paid on its insurance request, not on the booking
+    if (!(card > 0)) card = copayRefundable(await findCopayTransaction(this.conn as never, booking, bookingId));
+    const paid = Math.round((card > 0 ? card : Number(booking.collection_proof?.amount_collected || 0)) * 100) / 100;
+    if (!(paid > 0)) throw new BadRequestException('booking_not_paid');
+    const asked = Number(claimData?.amount);
+    const amount = asked > 0 ? Math.min(Math.round(asked * 100) / 100, paid) : paid;
+
+    // the unique index (claim_one_open_per_booking) settles two submits in the same instant: the loser gets the same answer as the check above
     const claim = await this.claimModel.create({
       patient_id: patientId,
       service: String(claimData?.service || claimData?.claim_type || bookingKind).trim(),
@@ -407,7 +361,7 @@ Use null for any field not clearly visible. Do not guess.`;
       attachment_url: claimData?.attachment_url,
       note: claimData?.note,
       date: new Date().toISOString(),
-    });
+    }).catch((e: any) => { if (e?.code === 11000) throw new ConflictException('claim_already_filed'); throw e; });
     return {
       success: true,
       claim_id: claim.id,
@@ -425,7 +379,8 @@ Use null for any field not clearly visible. Do not guess.`;
   async decideClaim(adminUser: any, id: string, approve: boolean, note?: string) {
     const claim: any = await this.claimModel.findOne({ id: { $eq: id } });
     if (!claim) throw new NotFoundException('claim not found');
-    if (claim.status !== 'pending') throw new BadRequestException(`claim already ${claim.status}`);
+    // the one claim state machine (common/claim-state.ts): a claim the facility approved can be reimbursed; a decided one cannot be decided again
+    nextClaimStatus(approve ? 'reimburse' : 'admin_reject', claim.status);
     if (approve) {
       if (!this.refundExec) throw new ServiceUnavailableException('refund_executor_unavailable');
       await this.refundExec.execute({
@@ -465,7 +420,7 @@ export class AdminInsuranceClaimsController {
   @Get() list(@Query('status') status?: string) { return this.svc.adminClaims(status); }
 
   @RequirePermissions(Permission.INSURANCE_MANAGE)
-  @Post(':id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+  @Post(':id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() body: DecideClaimDto) {
     return this.svc.decideClaim(u, id, body?.approve === true, body?.note);
   }
 }
@@ -505,6 +460,7 @@ export class InsuranceController {
   }
 
   @Public()
+  @PublicCache(300, ['insurance'])
   @Get('companies')
   @ApiBearerAuth(NABDAH_ACCESS_TOKEN_SECURITY_SCHEME)
   @ApiOperation({
@@ -655,12 +611,6 @@ export class InsuranceController {
   @Post('upload-policy')
   uploadPolicy(@CurrentUser() u: any, @Body() body: UploadPolicyDto) {
     return this.svc.uploadPolicy(body, u?.id);
-  }
-
-  @SelfService()
-  @Post('save-policy')
-  savePolicy(@CurrentUser() u: any, @Body() body: SavePolicyDto) {
-    return this.svc.savePolicy(u.id, body);
   }
 
   @SelfService()

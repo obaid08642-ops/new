@@ -1,8 +1,9 @@
-import { Module, Controller, Get, Post, Patch, Delete, Body, Query, Param, UseGuards, Injectable, BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
+import { Optional, Module, Controller, Get, Post, Patch, Delete, Body, Query, Param, UseGuards, Injectable, BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
+import { assertPaymentMethod } from '../../common/payment-policy';
 import { CreateDto, CancelRootDto, RescheduleRootDto, CancelDto, ReschedDto, MatchDto, NursingDto, CheckoutDto, CreateDiagnosticOrderDto } from './unified-bookings.dto';
 import { DiagnosticOrder, DiagnosticOrderSchema } from '../../schemas/diagnostic-order.schema';
-import { InjectModel, MongooseModule } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectConnection, InjectModel, MongooseModule } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, SelfService } from '../../common/auth.guard';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { Order, OrderDocument, OrderSchema } from '../../schemas/order.schema';
@@ -58,6 +59,7 @@ export class UnifiedBookingsService {
     private cart: CartService,
     private engine: WorkflowEngineService,
     private livekit: LiveKitService,
+    @Optional() @InjectConnection() private conn?: Connection,
   ) {}
 
   private kindMap: Record<string, ServiceDomain> = {
@@ -67,7 +69,7 @@ export class UnifiedBookingsService {
   };
 
   /** Unified timeline across pharmacy + lab + radiology + nursing + consultation. */
-  async myTimeline(user: any, filter: { state?: string; kind?: string } = {}) {
+  async myTimeline(user: any, filter: { state?: string; kind?: string; include_hidden?: boolean } = {}) {
     const [orders, pharmOrders, labs, rads, home, appts] = await Promise.all([
       this.orders.find({ patient_id: user.id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean(),
       this.pharmacyOrders.find({ patient_account_id: user.id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean(),
@@ -106,7 +108,61 @@ export class UnifiedBookingsService {
       ...appts.map(a => unify('consultation', a.status, a)),
     ].filter(x => (!filter.state || x.universal_state === filter.state) && (!filter.kind || x.kind === filter.kind))
      .sort((a, b) => new Date(b.createdAt as any).getTime() - new Date(a.createdAt as any).getTime());
-    return merged;
+    // PT-54: visits this patient hid from their own history are left out unless ?include_hidden=1 (then every row says whether it is hidden)
+    const hidden = await this.hiddenVisitKeys(user.id);
+    const marked = merged.map((x) => ({ ...x, hidden: hidden.has(`${x.kind}:${x.id}`) }));
+    return filter.include_hidden ? marked : marked.filter((x) => !x.hidden);
+  }
+
+  private hiddenCol() { return this.conn?.collection('patient_hidden_visits'); }
+
+  /** `kind:id` of every visit the patient hid. */
+  private async hiddenVisitKeys(patientId: string): Promise<Set<string>> {
+    const col = this.hiddenCol();
+    if (!col) return new Set();
+    const rows = await col.find({ patient_id: { $eq: String(patientId) } }, { projection: { _id: 0, kind: 1, booking_id: 1 } }).toArray();
+    return new Set(rows.map((r: any) => `${r.kind}:${r.booking_id}`));
+  }
+
+  /** The visit when it is this patient's own (404 otherwise), with the unified kind and state. Pharmacy orders live in two collections. */
+  private async ownedVisit(user: any, kind: string, id: string): Promise<{ kind: ServiceDomain; id: string; universal_state: ServiceState }> {
+    const k = this.kindMap[String(kind)];
+    if (!k) throw new BadRequestException('invalid_kind');
+    const bookingId = String(id);
+    let row: any; let state: string | undefined;
+    if (k === 'pharmacy') {
+      row = await this.orders.findOne({ id: { $eq: bookingId }, patient_id: { $eq: String(user.id) } }, { _id: 0, state: 1 }).lean();
+      state = row?.state;
+      if (!row) { row = await this.pharmacyOrders.findOne({ id: { $eq: bookingId }, patient_account_id: { $eq: String(user.id) } }, { _id: 0, status: 1 }).lean(); state = row?.status; }
+    } else {
+      const model: any = k === 'lab' ? this.labs : k === 'radiology' ? this.rads : k === 'nursing' ? this.home : this.appts;
+      const field = k === 'consultation' ? 'status' : 'state';
+      row = await model.findOne({ id: { $eq: bookingId }, patient_id: { $eq: String(user.id) } }, { _id: 0, state: 1, status: 1 }).lean();
+      state = row?.[field] ?? row?.state ?? row?.status;
+    }
+    if (!row) throw new NotFoundException('booking_not_found');
+    // a state the engine does not know is treated as not finished (the timeline itself refuses such a row)
+    let universal: ServiceState = ServiceState.REQUESTED;
+    try { universal = toUniversal(k, String(state)) as ServiceState; } catch { /* stays not finished */ }
+    return { kind: k, id: bookingId, universal_state: universal };
+  }
+
+  /**
+   * PT-54: the patient hides (or shows again) a finished visit in their own history. Only the owner can do it, only a COMPLETED or CANCELLED visit can be hidden
+   * (an open one is still being worked on), and nothing about the visit itself changes: the provider, the invoice and the medical record keep it. Idempotent.
+   */
+  async setVisitHidden(user: any, kind: string, id: string, hide: boolean) {
+    const v = await this.ownedVisit(user, kind, id);
+    const col = this.hiddenCol();
+    if (!col) throw new ConflictException('hidden_visits_unavailable');
+    const key = { patient_id: String(user.id), kind: v.kind, booking_id: v.id };
+    if (hide) {
+      if (v.universal_state !== ServiceState.COMPLETED && v.universal_state !== ServiceState.CANCELLED) throw new BadRequestException('visit_not_finished');
+      await col.updateOne(key, { $setOnInsert: { ...key, hidden_at: new Date() } }, { upsert: true });
+    } else {
+      await col.deleteMany(key);
+    }
+    return { ok: true, kind: v.kind, id: v.id, hidden: hide };
   }
 
   /**
@@ -115,7 +171,7 @@ export class UnifiedBookingsService {
    * any failure rolls back already-created children and fails the parent.
    * The parent carries the single total paid once via the payments flow.
    */
-  async createDiagnosticOrder(user: any, dto: { lines: Array<{ kind: string; service_id: string; provider_account_id?: string }>; scheduled_at?: string; location_type?: string; payment_method?: string }) {
+  async createDiagnosticOrder(user: any, dto: { lines: Array<{ kind: string; service_id: string; provider_account_id?: string }>; scheduled_at?: string; location_type?: string; payment_method?: string; refund_policy_accepted?: boolean; refund_policy_hash?: string }) {
     const lines = Array.isArray(dto?.lines) ? dto.lines : [];
     if (!lines.length || lines.length > 20) throw new BadRequestException('lines_required');
     for (const l of lines) {
@@ -148,6 +204,7 @@ export class UnifiedBookingsService {
           scheduled_at: scheduled_at.toISOString(),
           location_type,
           payment_method,
+          refund_policy_accepted: dto.refund_policy_accepted, refund_policy_hash: dto.refund_policy_hash,
         });
         created.push({ kind: 'lab', id: child.id });
         parent.lines.filter((l: any) => l.kind === 'lab').forEach((l: any) => { l.booking_id = child.id; l.price = child.total; l.status = child.state; });
@@ -159,6 +216,7 @@ export class UnifiedBookingsService {
           scheduled_at: scheduled_at.toISOString(),
           location_type,
           payment_method,
+          refund_policy_accepted: dto.refund_policy_accepted, refund_policy_hash: dto.refund_policy_hash,
         });
         created.push({ kind: 'radiology', id: child.id });
         const pl: any = parent.lines.find((x: any) => x.kind === 'radiology' && x.service_id === l.service_id && !x.booking_id);
@@ -232,7 +290,7 @@ export class UnifiedBookingsService {
       if (!b) throw new NotFoundException();
       if (![LabBookingState.NEW_REQUEST, LabBookingState.CONFIRMED].includes(b.state)) throw new BadRequestException('cannot_reschedule');
       b.scheduled_at = nt; await b.save();
-      this.bus.emit({ type: 'service.confirmed', entity_type: 'lab_booking', entity_id: id, actor_account_id: user.id, actor_role: 'patient', meta: { rescheduled_to: nt, reason, kind: 'lab' } } as any).catch(() => null);
+      this.bus.emit({ type: 'booking.rescheduled', entity_type: 'lab_booking', entity_id: id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { new_date: nt, reason, kind: 'lab' } } as any).catch(() => null);
       return b.toObject();
     }
     if (k === 'radiology') {
@@ -240,7 +298,7 @@ export class UnifiedBookingsService {
       if (!b) throw new NotFoundException();
       if (![RadiologyBookingState.PENDING, RadiologyBookingState.CONFIRMED, RadiologyBookingState.CONFIRMED].includes(b.state)) throw new BadRequestException('cannot_reschedule');
       b.scheduled_at = nt; await b.save();
-      this.bus.emit({ type: 'service.confirmed', entity_type: 'radiology_booking', entity_id: id, actor_account_id: user.id, actor_role: 'patient', meta: { rescheduled_to: nt, reason, kind: 'radiology' } } as any).catch(() => null);
+      this.bus.emit({ type: 'booking.rescheduled', entity_type: 'radiology_booking', entity_id: id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { new_date: nt, reason, kind: 'radiology' } } as any).catch(() => null);
       return b.toObject();
     }
     if (k === 'nursing') {
@@ -248,7 +306,7 @@ export class UnifiedBookingsService {
       if (!b) throw new NotFoundException();
       if ([HomeCareBookingState.COMPLETED, HomeCareBookingState.CANCELLED].includes(b.state)) throw new BadRequestException('cannot_reschedule');
       b.scheduled_at = nt; await b.save();
-      this.bus.emit({ type: 'service.confirmed', entity_type: 'nursing_booking', entity_id: id, actor_account_id: user.id, actor_role: 'patient', meta: { rescheduled_to: nt, reason, kind: 'nursing' } } as any).catch(() => null);
+      this.bus.emit({ type: 'booking.rescheduled', entity_type: 'nursing_booking', entity_id: id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { new_date: nt, reason, kind: 'nursing' } } as any).catch(() => null);
       return b.toObject();
     }
     if (k === 'consultation') {
@@ -297,6 +355,9 @@ export class UnifiedBookingsService {
     insurance_provider?: string;
     insurance_member_id?: string;
     for_member_id?: string;
+    family_member_id?: string;
+    refund_policy_accepted?: boolean; refund_policy_hash?: string;
+    sick_leave_requested?: boolean;
   }) {
     const paymentMethod = body?.payment_method_id || 'cash';
     if (!['cash', 'card', 'insurance'].includes(paymentMethod)) {
@@ -304,8 +365,8 @@ export class UnifiedBookingsService {
     }
     // D-25 (owner decision 25): no cash for online or home visits. Checked before the slot, so the
     // answer is always about the payment method (AppointmentsService.create enforces the same rule).
-    if (paymentMethod === 'cash' && body?.type === 'video') throw new BadRequestException('payment_method_cash_not_allowed_for_online_consultation');
-    if (paymentMethod === 'cash' && body?.type === 'home') throw new BadRequestException('payment_method_cash_not_allowed_for_home_visit');
+    if (paymentMethod === 'cash' && body?.type === 'video') assertPaymentMethod(paymentMethod, 'online_consultation');
+    if (paymentMethod === 'cash' && body?.type === 'home') assertPaymentMethod(paymentMethod, 'home_visit');
     const slotStart = await this.resolveConsultationSlot(body?.doctor_id || '', body?.type as any, body?.slot_id || '');
     const booking: any = await this.apptSvc.create(user, {
       doctor_id: body!.doctor_id!,
@@ -318,6 +379,9 @@ export class UnifiedBookingsService {
       insurance_provider: body?.insurance_provider,
       insurance_member_id: body?.insurance_member_id,
       for_member_id: body?.for_member_id,
+      family_member_id: body?.family_member_id,
+      refund_policy_accepted: body?.refund_policy_accepted, refund_policy_hash: body?.refund_policy_hash,
+      sick_leave_requested: body?.sick_leave_requested,
     });
     return {
       booking_id: booking.id,
@@ -331,7 +395,14 @@ export class UnifiedBookingsService {
   async cancelConsultationContract(user: any, id: string, reason?: string) {
     await this.getOne(user, 'consultation', id);
     const booking: any = await this.apptSvc.cancel(id, user, reason);
-    return { booking_id: booking.id, status: String(booking.status || '').toLowerCase() };
+    // The refund the cancellation computed, so the patient sees it right away (the web BFF reads exactly these three).
+    return {
+      booking_id: booking.id,
+      status: String(booking.status || '').toLowerCase(),
+      refund_percentage: booking.refund_percentage,
+      total_price: booking.total_price,
+      payment_status: booking.payment_status,
+    };
   }
 
   /** Owner-scoped root reschedule with the same server-side slot resolution. */
@@ -377,7 +448,7 @@ export class UnifiedBookingsService {
    * HomeCareBooking via the home-care service so the engine's lifecycle takes
    * over immediately (REQUESTED → MATCHING → ASSIGNED on top match).
    */
-  async nursingRadiusBroadcast(user: any, body: { service_keys: string[]; service_id?: string; scheduled_at?: string; address?: any; city?: string; insurance?: string; location?: { lat: number; lng: number }; auto_book?: boolean }) {
+  async nursingRadiusBroadcast(user: any, body: { service_keys: string[]; service_id?: string; scheduled_at?: string; address?: any; city?: string; insurance?: string; location?: { lat: number; lng: number }; auto_book?: boolean; refund_policy_accepted?: boolean; refund_policy_hash?: string }) {
     let chosen: any = null;
     let radiusUsed = 10;
     for (const radius of [3, 5, 10]) {
@@ -395,6 +466,7 @@ export class UnifiedBookingsService {
     // Auto-book on the top-ranked provider; engine drives REQUESTED→ASSIGNED.
     const booking: any = await this.homeSvc.book(user, {
       service_id: body.service_id,
+      refund_policy_accepted: body.refund_policy_accepted, refund_policy_hash: body.refund_policy_hash,
       scheduled_at: body.scheduled_at,
       address: body.address,
       contact: { name: user.full_name, phone: user.phone },
@@ -423,7 +495,7 @@ export class UnifiedBookingsService {
    * Cart-driven checkout. Dispatches each cart group to its domain. Pharmacy,
    * lab, radiology, home_care, and doctor all supported now.
    */
-  async checkoutFromCart(user: any, body: { provider_account_id?: string; address?: any; scheduled_at?: string; insurance?: any; location_type?: 'home' | 'facility'; delivery_address?: any }) {
+  async checkoutFromCart(user: any, body: { provider_account_id?: string; address?: any; scheduled_at?: string; insurance?: any; location_type?: 'home' | 'facility'; delivery_address?: any; refund_policy_accepted?: boolean; refund_policy_hash?: string }) {
     const cart = await this.cart.get(user);
     if (!cart?.groups?.length) throw new BadRequestException('cart_empty');
 
@@ -444,6 +516,7 @@ export class UnifiedBookingsService {
             location_type: body.location_type || 'facility', address: body.address,
             payment_method: g.items[0]?.payment_method || 'cash',
             insurance_provider: g.items[0]?.insurance_provider,
+            refund_policy_accepted: body.refund_policy_accepted, refund_policy_hash: body.refund_policy_hash,
           });
           results.push({ kind: 'lab', ok: true, id: (r as any).id, tracking_id: (r as any).tracking_id });
         } else if (g.kind === 'radiology') {
@@ -453,6 +526,7 @@ export class UnifiedBookingsService {
             location_type: body.location_type || 'facility', address: body.address,
             payment_method: g.items[0]?.payment_method || 'cash',
             insurance_provider: g.items[0]?.insurance_provider,
+            refund_policy_accepted: body.refund_policy_accepted, refund_policy_hash: body.refund_policy_hash,
           });
           results.push({ kind: 'radiology', ok: true, id: (r as any).id });
         } else if (g.kind === 'home_care') {
@@ -463,6 +537,7 @@ export class UnifiedBookingsService {
               address: body.address, contact: { name: user.full_name, phone: user.phone },
               payment_method: l.payment_method || 'cash',
               sessions_count: l.qty || 1,
+              refund_policy_accepted: body.refund_policy_accepted, refund_policy_hash: body.refund_policy_hash,
             });
             results.push({ kind: 'home_care', ok: true, id: (r as any).id });
           }
@@ -482,6 +557,7 @@ export class UnifiedBookingsService {
               patient_notes: l.notes,
               symptoms: meta.symptoms,
               visit_location: meta.visit_location,
+              refund_policy_accepted: body.refund_policy_accepted, refund_policy_hash: body.refund_policy_hash,
             });
             results.push({ kind: 'doctor', ok: true, id: (r as any).id });
           }
@@ -492,7 +568,7 @@ export class UnifiedBookingsService {
             results.push({ kind: 'pharmacy', ok: false, error: 'delivery_address_with_lat_lng_required' });
           } else {
             const items = g.items.map((l: any) => ({ medicine_id: l.service_id, qty: l.qty || 1, name_ar: l.name_ar, price: l.price }));
-            const r = await this.ordersSvc.create(user, { items, delivery_address: addr });
+            const r = await this.ordersSvc.create(user, { items, delivery_address: addr, refund_policy_accepted: body.refund_policy_accepted, refund_policy_hash: body.refund_policy_hash });
             results.push({ kind: 'pharmacy', ok: true, id: (r as any).id });
           }
         } else {
@@ -589,7 +665,10 @@ export class UnifiedBookingsService {
 export class UnifiedBookingsController {
   constructor(private svc: UnifiedBookingsService) {}
 
-  @Get('mine') mine(@CurrentUser() u: any, @Query() q: any) { return this.svc.myTimeline(u, { state: q.state, kind: q.kind }); }
+  @Get('mine') mine(@CurrentUser() u: any, @Query() q: any) { return this.svc.myTimeline(u, { state: q.state, kind: q.kind, include_hidden: q.include_hidden === '1' || q.include_hidden === 'true' }); }
+  // PT-54: the patient hides or shows a finished visit in their own history (owner only; the visit itself is not changed)
+  @Post(':kind/:id/hide') hide(@CurrentUser() u: any, @Param('kind') k: string, @Param('id') id: string) { return this.svc.setVisitHidden(u, k, id, true); }
+  @Post(':kind/:id/unhide') unhide(@CurrentUser() u: any, @Param('kind') k: string, @Param('id') id: string) { return this.svc.setVisitHidden(u, k, id, false); }
   @Post()
   @RequireIdempotency()
   create(@CurrentUser() u: any, @Body() b: CreateDto) { return this.svc.createConsultationContract(u, b); }

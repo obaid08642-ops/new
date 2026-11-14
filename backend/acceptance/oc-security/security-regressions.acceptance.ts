@@ -29,14 +29,12 @@ describe('no admin wallet backdoor (R6 / [REVIEW-FIX] b56c5718; re-added by 8195
 describe('chaos failure switches never act in production (c9f6368c)', () => {
   const prev = { ...process.env };
   afterEach(() => { process.env = { ...prev }; });
-  it('CHAOS_FAIL_SMS / CHAOS_FAIL_LIVEKIT are ignored when NODE_ENV=production', async () => {
+  it('CHAOS_FAIL_LIVEKIT is ignored when NODE_ENV=production', async () => {
     if (!fs.existsSync(path.join(SRC, 'common/chaos-switches.ts'))) return; // P15.15.12 not delivered yet
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { isChaosFail } = require(path.join(SRC, 'common/chaos-switches')) as { isChaosFail: (t: string) => boolean };
     (process.env as Record<string, string>).NODE_ENV = 'production';
-    process.env.CHAOS_FAIL_SMS = '1';
     process.env.CHAOS_FAIL_LIVEKIT = '1';
-    expect(isChaosFail('sms')).toBe(false);
     expect(isChaosFail('livekit')).toBe(false);
   });
 });

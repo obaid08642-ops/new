@@ -10,7 +10,6 @@ import { NotificationRepository } from "./repositories/notification.repository";
 import { NotificationDeliveryProcessor } from './notification-delivery.processor';
 import { backgroundProviders } from '../../common/process-role';
 
-import { SmsModule } from '../sms/sms.module';
 import { PushModule } from '../push/push.module';
 
 @Module({
@@ -18,7 +17,6 @@ import { PushModule } from '../push/push.module';
     MongooseModule.forFeature([{ name: Notification.name, schema: NotificationSchema }, { name: NotificationTemplate.name, schema: NotificationTemplateSchema }]),
     // M6/ER-8: delivery queue — retry (x4, exponential) + scheduled delivery
     BullModule.registerQueue({ name: 'notifications-delivery' }),
-    SmsModule,
     PushModule,
   ],
   controllers: [NotificationsController, NotificationSseController],

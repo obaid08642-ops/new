@@ -1,0 +1,29 @@
+/* The address map (owner item 4): tokens only, logical properties only, no inline styles (the CSP refuses them).
+   The pin is the "map-pin" icon of the boards, fixed over the middle of the map. */
+
+.wrap { display: flex; flex-direction: column; gap: 8px; }
+.frame {
+  position: relative; inline-size: 100%; block-size: min(56vh, 360px); min-block-size: 240px; overflow: hidden;
+  border-radius: var(--nabd-radius-3xl); border: 1px solid var(--nabd-color-border-hairline);
+  background: var(--nabd-color-bg-sunken); box-shadow: var(--nabd-shadow-card);
+}
+.map { position: absolute; inset: 0; }
+.map:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: -3px; }
+/* the tile style is light only: in dark mode the map is inverted and dimmed, and the page's own surface shows through the dim */
+:global([data-theme="dark"]) .map :global(canvas) { filter: invert(1) hue-rotate(180deg) brightness(.8) contrast(.9); }
+:global([data-theme="dark"]) .frame { background: var(--nabd-color-bg-canvas); }
+.pin { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; line-height: 0; }
+.pin > * { filter: drop-shadow(0 2px 3px var(--nabd-color-border-strong)); }
+.hint { margin: 0; font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); line-height: 1.6; overflow-wrap: anywhere; }
+
+/* the "no map available" box takes the map's place, with the same fields below it */
+.noMap {
+  display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; box-sizing: border-box; border-radius: var(--nabd-radius-3xl);
+  background: var(--nabd-color-bg-sunken); border: 1px solid var(--nabd-color-border-hairline);
+}
+.noMapTitle { margin: 0; font-size: var(--nabd-font-size-row); font-weight: 700; color: var(--nabd-color-text-primary); }
+.stack { display: flex; flex-direction: column; gap: 10px; }
+.coords { margin: 0; font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); unicode-bidi: plaintext; }
+.status { margin: 0; padding: 10px 14px; border-radius: var(--nabd-radius-xl); font-size: var(--nabd-font-size-control); overflow-wrap: anywhere; background: var(--nabd-color-status-info-bg); color: var(--nabd-color-status-info-fg); }
+.statusError { composes: status; background: var(--nabd-color-status-danger-bg); color: var(--nabd-color-status-danger-fg); }
+.statusOk { composes: status; background: var(--nabd-color-status-success-bg); color: var(--nabd-color-status-success-fg); }

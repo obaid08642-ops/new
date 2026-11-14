@@ -23,8 +23,8 @@ export async function readPublic(path: string): Promise<PublicRead> {
 export const readPublicOffers = () => readPublic("/home/offers");
 /** GET /insurance/companies: the active insurers and their plan tiers. */
 export const readPublicInsurers = () => readPublic("/insurance/companies");
-/** GET /nursing/catalog: the published home care services and their prices. */
-export const readPublicHomeCareServices = () => readPublic("/nursing/catalog");
+/** GET /home-care/services: the published home care services, each with what nurses offer for it (providers_count, from_price, where, insurance). */
+export const readPublicHomeCareServices = () => readPublic("/home-care/services");
 /** GET /providers?type=home_care: the published home care providers (public discovery filter on the backend). */
 export const readPublicHomeCareProviders = () => readPublic("/providers?type=home_care");
 /** GET /care/doctors?specialty=…: the published doctors of one specialty, with their consultation price. */

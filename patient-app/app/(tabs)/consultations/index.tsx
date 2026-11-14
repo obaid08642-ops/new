@@ -1,16 +1,27 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { ScopedSuggest } from '../../../src/components/search/ScopedSuggest';
+import { SUGGEST_SCOPES } from '../../../src/utils/searchSuggest';
 import { Pressable, ScrollView, Text, View } from 'react-native';
-import { router, type Href } from 'expo-router';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
 
-import { AppHeader, Chip, DoctorCard, EmptyState, ErrorState, FIcon, OfferCard, Screen, Search, useTabBarHeight } from '../../../../packages/ui-native/src';
+import { AppHeader, Chip, DoctorCard, EmptyState, ErrorState, FIcon, Icon, OfferCard, Screen, Search, Skeleton, useTabBarHeight } from '../../../../packages/ui-native/src';
 import { COLUMN, step as scale, useScreenUi } from '../../../src/components/screen/ScreenKit';
-import { MODE_LOOK, Section, Sheet, goBack, visitMode, specialtyLook, type VisitMode } from '../../../src/components/consult/ConsultKit';
-import { Glyph } from '../../../src/components/pharmacy/PharmacyKit';
+import { CONSULT_TONE, MODE_LOOK, Section, Sheet, goBack, visitMode, specialtyLook, type VisitMode } from '../../../src/components/consult/ConsultKit';
+import { CountBadge, GlyphRound, WishlistButton } from '../../../src/components/pharmacy/PharmacyKit';
+import { useNewOutcomesCount } from '../../../src/hooks/useNewOutcomesCount';
+import { HeaderMenuButton } from '../../../src/components/nav/HeaderMenuButton';
+import { ActiveFilters, type ActiveFilter } from '../../../src/components/pharmacy/ActiveFilters';
 import { apiFetch } from '../../../src/utils/api';
+import { fetchPublicList } from '../../../src/utils/publicCache';
 import { logError } from '../../../src/utils/logger';
-import { buildDoctorsPath, doctorRows, keepsServerOrder, nearestApplies, resolveNearbyPlace, type NearbyPlace } from '../../../src/utils/consultNearby';
+import { DOCTOR_DEGREES, buildDoctorsPath, doctorRows, type DoctorDegree, keepsServerOrder, nearestApplies, resolveNearbyPlace, type NearbyPlace } from '../../../src/utils/consultNearby';
 import { deviceNearbyDeps } from '../../../src/utils/consultNearbyDevice';
 import { pickLocalized } from '../../../src/utils/localize';
+import { dateLocaleFor } from '../../../src/utils/dates';
+import { sortFromParam } from '../../../src/utils/doctorSearch';
+import { SpecialtyRow } from '../../../src/components/consult/SpecialtyTiles';
+import { specialtyNameKey, specialtyTileModels } from '../../../src/utils/consultSpecialties';
+import { GuaranteeLine, useLateGuarantee } from '../../../src/components/consult/Differentiators';
 
 /**
  * Consultations hub — board Consult (canvas/Consult.dc.html): the header with the appointments button, the search with
@@ -22,6 +33,10 @@ import { pickLocalized } from '../../../src/utils/localize';
 
 interface Doc {
   id?: string;
+  /** the average wait in minutes, under the names the doctor payload may carry it in (the web reads the same three) */
+  avg_wait_minutes?: number | null;
+  average_wait?: number | null;
+  wait_time?: number | null;
   n: string;
   sp: string;
   specialty?: string;
@@ -52,6 +67,8 @@ interface Doc {
   name_ar?: string;
   rating?: number;
   consultation_fee?: number;
+  /** Only GET /care/doctors sends it (the plain GET /providers list does not). */
+  next_available_at?: string;
 }
 /** A provider profile as GET /providers returns it: the fields the cards and the filters read. */
 type ProviderRow = Partial<Doc> & {
@@ -91,19 +108,31 @@ interface Named {
   name?: string;
 }
 
-type Sort = 'rating' | 'price';
-type TitleF = 'all' | 'specialist' | 'consultant';
+type Sort = 'rating' | 'price' | 'wait' | 'available_today' | 'nearest' | 'available_now';
+type TitleF = 'all' | DoctorDegree;
 type GenderF = 'all' | 'male' | 'female';
-type PriceF = 'all' | 'low' | 'mid' | 'high';
-const TITLE_WORDS: Record<Exclude<TitleF, 'all'>, string[]> = { specialist: ['أخصائي', 'specialist'], consultant: ['استشاري', 'consultant'] };
+type PayF = 'all' | 'cash' | 'insurance';
+/** The visit-type cards: order, tone and the subtitle key (owner layout decision 13). Home is peach on the cards. */
+const VISIT_CARDS: Array<{ mode: VisitMode; tone: 'blue' | 'violet' | 'peach'; sub: string }> = [
+  { mode: 'clinic', tone: 'blue', sub: 'consult.hub.visitSubClinic' },
+  { mode: 'online', tone: 'violet', sub: 'consult.hub.visitSubVideo' },
+  { mode: 'home', tone: 'peach', sub: 'consult.hub.visitSubHome' },
+];
+/** The average wait in minutes, from the same fields the web reads; a doctor with no figure sorts last. */
+const waitOf = (d: Doc): number => {
+  const n = Number(d.avg_wait_minutes ?? d.average_wait ?? d.wait_time);
+  return Number.isFinite(n) && n > 0 ? n : Number.POSITIVE_INFINITY;
+};
 const priceOf = (d: Doc): number => d.consultation_fee || Number(String(d.p ?? '0').replace(/\D/g, '')) || 0;
 
 export default function Consultations() {
   const { theme, t, c, flow, dir, lang, k, num, money } = useScreenUi();
+  const newOutcomes = useNewOutcomesCount();
   const barHeight = useTabBarHeight();
-  const [activePay, setActivePay] = useState<'all' | 'cash' | 'insurance'>('all');
+  const [activePay, setActivePay] = useState<PayF>('all');
   const [activeVt, setActiveVt] = useState<VisitMode>('clinic');
   const [activeSpec, setActiveSpec] = useState('');
+  // a specialty with no doctor yet that was tapped: the "Coming soon" note shows, no filter is applied
   // The rows as the server sent them; the card shape (with the localised name) is derived below so a language change re-derives it.
   const [providerRows, setProviderRows] = useState<ProviderRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -115,8 +144,15 @@ export default function Consultations() {
   const [showFilter, setShowFilter] = useState(false);
   const [filterTitle, setFilterTitle] = useState<TitleF>('all');
   const [filterGender, setFilterGender] = useState<GenderF>('all');
-  const [filterPrice, setFilterPrice] = useState<PriceF>('all');
-  const [filterSort, setFilterSort] = useState<Sort>('rating');
+  // the sheet edits a draft; Apply commits it (owner layout decision 15)
+  const [draft, setDraft] = useState<{ sort: Sort; title: TitleF; gender: GenderF; pay: PayF }>({ sort: 'rating', title: 'all', gender: 'all', pay: 'all' });
+  // "Book now" entries open this tab with ?sort=available_today, which preselects the availability order (owner decision 2026-10-24).
+  const entrySort = sortFromParam(useLocalSearchParams<{ sort?: string }>().sort);
+  const [filterSort, setFilterSort] = useState<Sort>(entrySort === 'available_today' ? 'available_today' : 'rating');
+  useEffect(() => {
+    if (entrySort === 'available_today') setFilterSort('available_today');
+  }, [entrySort]);
+  const guarantee = useLateGuarantee();
   const [showInsModal, setShowInsModal] = useState(false);
   const [insCompany, setInsCompany] = useState('');
   const [insClass, setInsClass] = useState('');
@@ -124,26 +160,49 @@ export default function Consultations() {
   const [insuranceCompanies, setInsuranceCompanies] = useState<Named[]>([]);
   const [insuranceNetworks, setInsuranceNetworks] = useState<Named[]>([]);
   const [insuranceCatalogUnavailable, setInsuranceCatalogUnavailable] = useState(false);
-  // The two quick filters: what the patient asked for, and where "Nearest" measures from.
-  const [nearest, setNearest] = useState(false);
-  const [availableNow, setAvailableNow] = useState(false);
+  // "Nearest" and "Available now" are two of the sort choices; "Nearest" needs a place to measure from.
+  const nearest = filterSort === 'nearest';
+  const availableNow = filterSort === 'available_now';
   const [place, setPlace] = useState<NearbyPlace | null>(null);
   const [locating, setLocating] = useState(false);
   const [noPlace, setNoPlace] = useState(false);
-  const doctorsPath = buildDoctorsPath({ mode: activeVt, nearest, availableNow, place });
+  const doctorsPath = buildDoctorsPath({ mode: activeVt, nearest, availableNow, place, availableToday: filterSort === 'available_today', degree: filterTitle === 'all' ? null : filterTitle });
 
-  const toggleNearest = async () => {
-    if (nearest) {
-      setNearest(false);
-      return;
-    }
+  /** Picks "Nearest": it needs a place (device position, else the saved city); without one the sort stays as it was. */
+  const resolveNearest = async (): Promise<boolean> => {
     setNoPlace(false);
     setLocating(true);
     const found = await resolveNearbyPlace(deviceNearbyDeps);
     setLocating(false);
     setPlace(found);
-    if (found) setNearest(true);
-    else setNoPlace(true);
+    if (!found) setNoPlace(true);
+    return found !== null;
+  };
+
+  const openFilters = () => {
+    setDraft({ sort: filterSort, title: filterTitle, gender: filterGender, pay: activePay });
+    setShowFilter(true);
+  };
+  const commit = async (d: typeof draft) => {
+    setShowFilter(false);
+    setFilterTitle(d.title);
+    setFilterGender(d.gender);
+    setActivePay(d.pay);
+    if (d.sort === 'nearest' && !(await resolveNearest())) setFilterSort('rating');
+    else setFilterSort(d.sort);
+    if (d.pay === 'insurance' && d.pay !== activePay) {
+      setStepIns(1);
+      setShowInsModal(true);
+    }
+  };
+  const clearAll = () => {
+    setNoPlace(false);
+    setFilterSort('rating');
+    setFilterTitle('all');
+    setFilterGender('all');
+    setActivePay('all');
+    setInsCompany('');
+    setInsClass('');
   };
 
   useEffect(() => {
@@ -171,9 +230,17 @@ export default function Consultations() {
     };
   }, [doctorsPath, reload]);
 
+  const arabicNames = useMemo(() => Object.fromEntries(specialties.flatMap((row) => (row.slug ? [[row.slug, row.name_ar]] : []))) as Record<string, string | undefined>, [specialties]);
+  const specialtyTiles = useMemo(
+    () => specialtyTileModels(specialties, (slug, nameAr, nameEn) => { const key = specialtyNameKey(slug); return key ? k(key) : pickLocalized(nameAr, nameEn) || ''; }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [specialties, lang],
+  );
+  const activeSlug = activeSpec ? specialtyTiles.find((tile) => arabicNames[tile.slug] === activeSpec)?.slug ?? '' : '';
+
   useEffect(() => {
     // Real specialties (names + live doctor counts) and real active offers
-    apiFetch<Spec[] | { data?: Spec[] }>('/care/specialties')
+    fetchPublicList<Spec[] | { data?: Spec[] }>('/care/specialties')
       .then((res) => {
         const list = Array.isArray(res) ? res : res?.data;
         setSpecialties(Array.isArray(list) ? list : []);
@@ -264,24 +331,36 @@ export default function Consultations() {
 
         // Modal filters — real fields only (no name-based gender guessing)
         const matchesGender = filterGender === 'all' || !d.gender || (filterGender === 'male' ? d.gender === 'male' : d.gender === 'female');
-        const matchesTitle = filterTitle === 'all' || TITLE_WORDS[filterTitle].some((w) => (d.sp || d.badge || d.biography || '').toLowerCase().includes(w));
-        const price = priceOf(d);
-        const matchesPrice = filterPrice === 'all' || (filterPrice === 'low' ? price < 100 : filterPrice === 'mid' ? price >= 100 && price <= 200 : price > 200);
 
-        return matchesSearch && matchesVt && matchesPay && matchesSpec && matchesGender && matchesTitle && matchesPrice;
+        return matchesSearch && matchesVt && matchesPay && matchesSpec && matchesGender;
       })
       .sort((a, b) => {
         // "Nearest": the server's distance order is kept (the sort is stable)
-        if (keepsServerOrder(doctorsPath) && filterSort === 'rating') return 0;
+        if (keepsServerOrder(doctorsPath) && filterSort !== 'price' && filterSort !== 'wait') return 0;
         if (filterSort === 'price') return priceOf(a) - priceOf(b);
+        // "Shortest wait" (as the web's sort): the average wait of a doctor, the ones with no figure last
+        if (filterSort === 'wait') { const wa = waitOf(a); const wb = waitOf(b); return wa === wb ? 0 : wa - wb; }
         return (b.rating || Number(b.r || 0)) - (a.rating || Number(a.r || 0));
       });
-  }, [doctors, searchQuery, activeVt, activePay, activeSpec, insCompany, insClass, filterGender, filterTitle, filterPrice, filterSort, doctorsPath]);
+  }, [doctors, searchQuery, activeVt, activePay, activeSpec, insCompany, insClass, filterGender, filterTitle, filterSort, doctorsPath]);
 
   const openDoctor = (d: Doc) => router.push((d.id ? `/consultations/doctor/${d.id}` : '/consultations/doctor-search') as Href);
-  const filtersOn = filterSort !== 'rating' || filterTitle !== 'all' || filterGender !== 'all' || filterPrice !== 'all';
   const nameOf = (n: Named) => pickLocalized(n.name_ar, n.name_en || n.name) || n.code || '';
   const listed = filteredDocs.slice(0, 10);
+  const sortKey: Record<Sort, string> = { rating: 'consult.hub.sortRating', price: 'consult.hub.sortPrice', wait: 'consult.hub.sortWait', available_today: 'consult.hub.sortAvailable', nearest: 'consult.hub.nearest', available_now: 'consult.hub.availableNow' };
+  const insuranceName = insCompany ? nameOf(insuranceCompanies.find((x) => String(x.id || x._id || x.code || '') === insCompany) ?? {}) : '';
+  const activeItems: ActiveFilter[] = [
+    ...(filterGender !== 'all' ? [{ key: 'gender', label: k(filterGender === 'male' ? 'consult.hub.male' : 'consult.hub.female'), onRemove: () => setFilterGender('all') }] : []),
+    ...(filterTitle !== 'all' ? [{ key: 'title', label: k(`consult.hub.degree.${filterTitle}`), onRemove: () => setFilterTitle('all') }] : []),
+    ...(activePay !== 'all' ? [{ key: 'pay', label: activePay === 'cash' ? k('consult.hub.payCash') : [k('consult.hub.payInsurance'), insuranceName].filter(Boolean).join(' · '), onRemove: () => { setActivePay('all'); setInsCompany(''); setInsClass(''); } }] : []),
+    ...(filterSort !== 'rating' ? [{ key: 'sort', label: k(sortKey[filterSort]), onRemove: () => setFilterSort('rating') }] : []),
+  ];
+  const filterCount = activeItems.length;
+  const slotLabel = (iso?: string): string | undefined => {
+    if (!iso) return undefined;
+    const when = new Date(iso);
+    return Number.isNaN(when.getTime()) ? undefined : when.toLocaleString(dateLocaleFor(lang), { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+  };
 
   const choice = <T extends string>(label: string, value: T, set: (v: T) => void, options: Array<[T, string]>) => (
     <View style={{ gap: 8 }}>
@@ -300,94 +379,96 @@ export default function Consultations() {
         title={k('consult.hub.title')}
         onBack={() => goBack('/(tabs)' as Href)}
         backLabel={k('consult.back')}
-        actions={[{ key: 'appointments', label: k('consult.appt.title'), icon: <Glyph name="calendar-dots" size={20} color={c.icon.primary} />, onPress: () => router.push('/consultations/appointments' as Href) }]}
+        trailing={
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <GlyphRound
+              name="calendar-dots"
+              label={newOutcomes.count > 0 ? k('consult.appt.titleNew', { n: num(newOutcomes.count) }) : k('consult.appt.title')}
+              onPress={() => router.push('/consultations/appointments' as Href)}
+              testID="consult-appointments-entry"
+            >
+              <CountBadge count={newOutcomes.count} />
+            </GlyphRound>
+            <WishlistButton />
+            <HeaderMenuButton testID="consult-menu-button" />
+          </View>
+        }
         theme={theme}
         direction={dir}
       />
+      {/* pinned under the header while the page scrolls (owner layout addition b): the search with the one Filters button, then the filters that are on (addition a) */}
+      <View style={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 10, gap: 10, backgroundColor: c.bg.canvas }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Search value={searchQuery} onChange={setSearchQuery} placeholder={k('consult.hub.search')} label={k('consult.hub.search')} onClear={() => setSearchQuery('')} clearLabel={k('consult.hub.clear')} theme={theme} testID="hub-search" />
+          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={filterCount > 0 ? k('consult.hub.filtersWithCount', { n: num(filterCount) }) : k('consult.hub.filters')}
+            onPress={openFilters}
+            testID="hub-filters"
+            style={{ minHeight: 52, minWidth: 52, paddingHorizontal: 14, borderRadius: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: c.action.primary.bg }}
+          >
+            <Icon name="sliders" size={20} theme={theme} color={c.action.primary.fg} />
+            <Text style={{ ...scale(t, 'small', 'bold'), color: c.action.primary.fg }}>{k('consult.hub.filters')}</Text>
+            {filterCount > 0 ? (
+              <View testID="hub-filters-count" style={{ minWidth: 22, height: 22, borderRadius: 11, paddingHorizontal: 5, alignItems: 'center', justifyContent: 'center', backgroundColor: c.action.primary.fg }}>
+                <Text style={{ ...scale(t, 'tag', 'bold'), color: c.action.primary.bg }}>{num(filterCount)}</Text>
+              </View>
+            ) : null}
+          </Pressable>
+        </View>
+        <ScopedSuggest query={searchQuery} scope={SUGGEST_SCOPES.consultations} />
+        <ActiveFilters items={activeItems} onClearAll={clearAll} tone={CONSULT_TONE} testIdPrefix="consult" />
+      </View>
     </View>
   );
 
   return (
-    <Screen theme={theme} direction={dir} header={header} scroll edges={['top', 'start', 'end']} testID="consultations-hub">
+    <Screen theme={theme} direction={dir} header={header} scroll edges={['start', 'end']} testID="consultations-hub">
       <View style={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: barHeight + 40, gap: 16 }}>
-        <Search value={searchQuery} onChange={setSearchQuery} placeholder={k('consult.hub.search')} label={k('consult.hub.search')} onFilterPress={() => setShowFilter(true)} filterLabel={k('consult.hub.filter')} onClear={() => setSearchQuery('')} clearLabel={k('consult.hub.clear')} theme={theme} testID="hub-search" />
-        {filtersOn ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.filtersOn')}</Text> : null}
-
         <View accessibilityRole="radiogroup" accessibilityLabel={k('consult.hub.visitType')} style={{ flexDirection: 'row', gap: 8 }}>
-          {(['clinic', 'home', 'online'] as VisitMode[]).map((m) => {
-            const on = activeVt === m;
-            return (
-              <Pressable key={m} accessibilityRole="radio" accessibilityState={{ selected: on }} accessibilityLabel={k(`consult.mode.${m}`)} onPress={() => setActiveVt(m)} style={{ flex: 1, minWidth: 0, minHeight: 48, borderRadius: 16, paddingHorizontal: 6, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: on ? c.action.selected.bg : c.bg.surface, borderWidth: on ? 0 : 1, borderColor: c.border.hairline }}>
-                <Glyph name={MODE_LOOK[m].icon} size={18} color={on ? c.action.selected.fg : c.icon.primary} />
-                <Text style={{ ...scale(t, 'small', 'bold'), color: on ? c.action.selected.fg : c.text.primary, flexShrink: 1 }}>{k(`consult.mode.${m}`)}</Text>
-              </Pressable>
-            );
-          })}
-        </View>
-
-        <View accessibilityRole="radiogroup" accessibilityLabel={k('consult.hub.payment')} style={{ alignSelf: 'flex-start', flexDirection: 'row', padding: 4, borderRadius: 16, backgroundColor: c.bg.sunken }}>
-          {([['all', 'consult.hub.payAll'], ['cash', 'consult.hub.payCash'], ['insurance', 'consult.hub.payInsurance']] as const).map(([id, key]) => {
-            const on = activePay === id;
+          {VISIT_CARDS.map(({ mode, tone, sub }) => {
+            const on = activeVt === mode;
             return (
               <Pressable
-                key={id}
+                key={mode}
                 accessibilityRole="radio"
                 accessibilityState={{ selected: on }}
-                accessibilityLabel={k(key)}
-                onPress={() => {
-                  setActivePay(id);
-                  if (id === 'insurance') {
-                    setStepIns(1);
-                    setShowInsModal(true);
-                  }
-                }}
-                style={{ minHeight: 44, minWidth: 64, paddingHorizontal: 16, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? c.bg.surface : 'transparent' }}
+                accessibilityLabel={`${k(`consult.mode.${mode}`)}. ${k(sub)}`}
+                testID={`hub-visit-${mode}`}
+                onPress={() => setActiveVt(mode)}
+                style={{ flex: 1, minWidth: 0, minHeight: 132, borderRadius: 20, padding: 10, gap: 8, alignItems: 'center', backgroundColor: on ? c.service.coral.bg : c.bg.surface, borderWidth: 2, borderColor: on ? c.service.coral.fg : c.border.hairline }}
               >
-                <Text style={{ ...scale(t, 'small', on ? 'bold' : 'medium'), color: c.text.primary }}>{k(key)}</Text>
+                <FIcon icon={MODE_LOOK[mode].icon} tone={tone} size={44} theme={theme} />
+                <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, textAlign: 'center' }}>{k(`consult.mode.${mode}`)}</Text>
+                <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k(sub)}</Text>
               </Pressable>
             );
           })}
         </View>
+        {!nearestApplies(activeVt) && nearest ? (
+          <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.nearestOnline')}</Text>
+        ) : locating ? (
+          <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.locating')}</Text>
+        ) : noPlace && !nearest ? (
+          <Text accessibilityRole="alert" style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.nearestNoPlace')}</Text>
+        ) : nearest && place?.kind === 'city' && nearestApplies(activeVt) ? (
+          <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.nearestCity', { city: place.city })}</Text>
+        ) : null}
 
-        {/* decision 20: "Nearest" and "Available now" are always on (no build flag) */}
-        <View style={{ gap: 8 }}>
-          <View accessibilityLabel={k('consult.hub.quick')} style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-            <Chip label={k('consult.hub.nearest')} selected={nearest && nearestApplies(activeVt)} loading={locating} disabled={!nearestApplies(activeVt)} onPress={() => void toggleNearest()} theme={theme} testID="hub-nearest" />
-            <Chip label={k('consult.hub.availableNow')} selected={availableNow} onPress={() => setAvailableNow((v) => !v)} theme={theme} testID="hub-available-now" />
-          </View>
-          {!nearestApplies(activeVt) ? (
-            <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.nearestOnline')}</Text>
-          ) : locating ? (
-            <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.locating')}</Text>
-          ) : noPlace && !nearest ? (
-            <Text accessibilityRole="alert" style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.nearestNoPlace')}</Text>
-          ) : nearest && place?.kind === 'city' ? (
-            <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.nearestCity', { city: place.city })}</Text>
-          ) : null}
-        </View>
-
-        {/* Specialties — the real list from /care/specialties with live doctor counts */}
+        {/* Specialties — the real list from /care/specialties: All first, with doctors (most doctors first), the others, then All specialties */}
         {specialties.length > 0 ? (
-          <Section title={k('consult.hub.specialties')} actionLabel={k('consult.hub.viewAll')} onAction={() => router.push('/consultations/specialty-select' as Href)}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
-              {specialties
-                .filter((s) => (s.count || 0) > 0)
-                .slice(0, 10)
-                .map((s, i) => {
-                  const name = pickLocalized(s.name_ar, s.name_en || s.specialty) || '';
-                  const on = activeSpec === s.name_ar;
-                  const look = specialtyLook(s.name_ar || name);
-                  return (
-                    <Pressable key={s.slug || i} accessibilityRole="button" accessibilityState={{ selected: on }} accessibilityLabel={name} onPress={() => setActiveSpec(on ? '' : s.name_ar || '')} style={{ width: 72, minHeight: 44, alignItems: 'center', gap: 6 }}>
-                      <View style={{ borderRadius: 22, borderWidth: on ? 2 : 0, borderColor: c.action.selected.bg, padding: on ? 2 : 0 }}>
-                        <FIcon icon={look.icon} tone={look.tone} size={58} theme={theme} />
-                      </View>
-                      <Text style={{ ...scale(t, 'meta', on ? 'bold' : 'medium'), color: c.text.primary, textAlign: 'center' }}>{name}</Text>
-                      {typeof s.count === 'number' ? <Text style={{ ...scale(t, 'micro', 'regular'), color: c.text.tertiary }}>{k('consult.spec.count', { n: num(s.count) })}</Text> : null}
-                    </Pressable>
-                  );
-                })}
-            </ScrollView>
+          <Section title={k('consult.hub.specialties')}>
+            <SpecialtyRow
+              tiles={specialtyTiles}
+              allLabel={k('consult.hub.specAll')}
+              moreLabel={k('consult.hub.specMore')}
+              activeSlug={activeSlug}
+              onAll={() => setActiveSpec('')}
+              onSelect={(tile) => setActiveSpec(activeSlug === tile.slug ? '' : arabicNames[tile.slug] || '')}
+              onMore={() => router.push('/consultations/specialty-select' as Href)}
+            />
           </Section>
         ) : null}
 
@@ -408,7 +489,13 @@ export default function Consultations() {
           {loading ? (
             <View accessibilityLabel={k('consult.loading')} accessibilityState={{ busy: true }} style={{ gap: 12 }}>
               {[0, 1].map((i) => (
-                <View key={i} style={{ height: 200, borderRadius: 28, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }} />
+                <View key={i} style={{ minHeight: 200, borderRadius: 28, padding: 16, gap: 14, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                    <Skeleton variant="circle" theme={theme} />
+                    <View style={{ flex: 1 }}><Skeleton lines={2} theme={theme} /></View>
+                  </View>
+                  <Skeleton lines={3} theme={theme} />
+                </View>
               ))}
             </View>
           ) : loadFailed ? (
@@ -417,8 +504,8 @@ export default function Consultations() {
             <EmptyState icon="stethoscope" tone="blue" title={k('consult.hub.empty')} body={k('consult.hub.emptyBody')} theme={theme} />
           ) : (
             listed.map((d, i) => (
+              <View key={d.id || i} style={{ gap: 6 }}>
               <DoctorCard
-                key={d.id || i}
                 name={d.n}
                 photoSrc={d.img || d.photo_url}
                 tone={specialtyLook(d.specialty_ar || d.sp).tone}
@@ -431,6 +518,8 @@ export default function Consultations() {
                   return mode ? [{ mode, label: k(`consult.mode.${mode}`) }] : [];
                 })}
                 rating={d.r != null && d.r > 0 ? { value: d.r, count: d.rev } : undefined}
+                formatCount={num}
+                nextSlot={slotLabel(d.next_available_at)}
                 price={d.p != null ? money(Number(d.p)) : undefined}
                 currency={d.p != null ? k('consult.currency') : undefined}
                 bookLabel={k('consult.hub.book')}
@@ -439,24 +528,26 @@ export default function Consultations() {
                 theme={theme}
                 testID={`hub-doctor-${i}`}
               />
+              <GuaranteeLine guarantee={guarantee} testID={`hub-doctor-${i}-guarantee`} />
+              </View>
             ))
           )}
           {filteredDocs.length > 10 ? (
-            <Pressable accessibilityRole="button" accessibilityLabel={k('consult.hub.seeAll', { n: num(filteredDocs.length) })} onPress={() => router.push('/consultations/doctor-search' as Href)} style={{ minHeight: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }}>
-              <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.link }}>{k('consult.hub.seeAll', { n: num(filteredDocs.length) })}</Text>
+            <Pressable accessibilityRole="button" accessibilityLabel={k('consult.hub.seeAll')} onPress={() => router.push('/consultations/doctor-search' as Href)} style={{ minHeight: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }}>
+              <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.link }}>{k('consult.hub.seeAll')}</Text>
             </Pressable>
           ) : null}
         </Section>
       </View>
 
-      <Sheet open={showFilter} title={k('consult.hub.advanced')} onClose={() => setShowFilter(false)} closeLabel={k('consult.close')}>
-        {choice<Sort>(k('consult.hub.sort'), filterSort, setFilterSort, [['rating', k('consult.hub.sortRating')], ['price', k('consult.hub.sortPrice')]])}
-        {choice<TitleF>(k('consult.hub.grade'), filterTitle, setFilterTitle, [['all', k('consult.hub.all')], ['specialist', k('consult.hub.specialist')], ['consultant', k('consult.hub.consultant')]])}
-        {choice<GenderF>(k('consult.hub.gender'), filterGender, setFilterGender, [['all', k('consult.hub.all')], ['male', k('consult.hub.male')], ['female', k('consult.hub.female')]])}
-        {choice<PriceF>(k('consult.hub.price'), filterPrice, setFilterPrice, [['all', k('consult.hub.all')], ['low', k('consult.hub.priceLow', { n: num(100) })], ['mid', k('consult.hub.priceMid', { a: num(100), b: num(200) })], ['high', k('consult.hub.priceHigh', { n: num(200) })]])}
+      <Sheet open={showFilter} title={k('consult.hub.filtersTitle')} onClose={() => setShowFilter(false)} closeLabel={k('consult.hub.filtersClose')}>
+        {choice<GenderF>(k('consult.hub.gender'), draft.gender, (v) => setDraft((d) => ({ ...d, gender: v })), [['all', k('consult.hub.all')], ['male', k('consult.hub.male')], ['female', k('consult.hub.female')]])}
+        {choice<TitleF>(k('consult.hub.grade'), draft.title, (v) => setDraft((d) => ({ ...d, title: v })), [['all', k('consult.hub.all')], ...DOCTOR_DEGREES.map((g): [TitleF, string] => [g, k(`consult.hub.degree.${g}`)])])}
+        {choice<PayF>(k('consult.hub.payment'), draft.pay, (v) => setDraft((d) => ({ ...d, pay: v })), [['all', k('consult.hub.payAll')], ['insurance', k('consult.hub.payInsurance')], ['cash', k('consult.hub.payCash')]])}
+        {choice<Sort>(k('consult.hub.sort'), draft.sort, (v) => setDraft((d) => ({ ...d, sort: v })), [['rating', k('consult.hub.sortRating')], ['price', k('consult.hub.sortPrice')], ['wait', k('consult.hub.sortWait')], ...(nearestApplies(activeVt) ? [['nearest', k('consult.hub.nearest')] as [Sort, string]] : []), ['available_now', k('consult.hub.availableNow')], ['available_today', k('consult.hub.sortAvailable')]])}
         <View style={{ flexDirection: 'row', gap: 10 }}>
-          <Chip label={k('consult.hub.reset')} onPress={() => { setFilterSort('rating'); setFilterTitle('all'); setFilterGender('all'); setFilterPrice('all'); }} theme={theme} />
-          <Chip label={k('consult.hub.apply')} selected onPress={() => setShowFilter(false)} theme={theme} />
+          <Chip label={k('consult.hub.filtersClearAll')} onPress={() => { clearAll(); setShowFilter(false); }} theme={theme} testID="hub-filters-clear" />
+          <Chip label={k('consult.hub.apply')} selected onPress={() => void commit(draft)} theme={theme} testID="hub-filters-apply" />
         </View>
       </Sheet>
 

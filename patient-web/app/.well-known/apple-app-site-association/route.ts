@@ -1,8 +1,16 @@
 import { NextResponse } from "next/server";
-import { PUBLIC_APP_LINK_PATHS, allAppLinkPatterns, appLinkPatterns } from "@/lib/app-links";
+import { APP_LINK_LOCALES, PUBLIC_APP_LINK_PATHS, allAppLinkPatterns, appLinkPatterns } from "@/lib/app-links";
+
+/** An Apple Team ID is 10 upper-case letters or digits. */
+const TEAM_ID = /^[A-Z0-9]{10}$/;
 
 export async function GET() {
-  const teamId = process.env.APPLE_TEAM_ID || "6AT2W85DBC";
+  // Only the owner's real Team ID from the environment. With none (or a malformed one) the file is not served at all: an association
+  // file naming a wrong app id would make iOS cache a failed verification and open every link in the browser.
+  const teamId = (process.env.APPLE_TEAM_ID || "").trim();
+  if (!TEAM_ID.test(teamId)) {
+    return NextResponse.json({ error: "apple_app_site_association_not_configured" }, { status: 503, headers: { "Cache-Control": "no-store" } });
+  }
   const bundleId = process.env.APPLE_BUNDLE_ID || "com.patient.nabd";
   const providerBundleId = process.env.APPLE_PROVIDER_BUNDLE_ID || "com.nabd.provider";
 
@@ -25,7 +33,18 @@ export async function GET() {
       apps: [],
       details: [
         { appID: `${teamId}.${bundleId}`, ...applinksDetail },
-        { appID: `${teamId}.${providerBundleId}`, ...applinksDetail },
+        // The provider app takes only its own links: it does not open the patient pages, and two apps claiming one URL is ambiguous.
+        {
+          appID: `${teamId}.${providerBundleId}`,
+          paths: ["NOT /api/*", "NOT /.well-known/*", "NOT /admin/*", "/provider/*", ...APP_LINK_LOCALES.map((l) => `/${l}/provider/*`)],
+          components: [
+            { "/": "/api/*", exclude: true },
+            { "/": "/.well-known/*", exclude: true },
+            { "/": "/admin/*", exclude: true },
+            { "/": "/provider/*", comment: "Provider app deep links" },
+            ...APP_LINK_LOCALES.map((l) => ({ "/": `/${l}/provider/*` })),
+          ],
+        },
       ],
     },
     webcredentials: {

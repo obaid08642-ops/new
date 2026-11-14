@@ -14,10 +14,8 @@ import ClinicConfirmation from '../../src/components/consult/ClinicConfirmation'
 import ClinicLocationView from '../../src/components/views/ClinicLocationView';
 import { ConsultScreen, InfoRow, ModePill, ResultHero, StatusTag, appointmentStatus, useConsultFormat, visitMode } from '../../src/components/consult/ConsultKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
-import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 import { apiFetch } from '../../src/utils/api';
 import { priceSummary } from '../../src/utils/bookingPrice';
-import { consultationMutationHeaders } from '../../src/utils/consultation-payment';
 import { statusIs } from '../../src/utils/statusCase';
 
 type Mode = 'confirm' | 'success' | 'pending';
@@ -108,7 +106,6 @@ export default function BookingStatusScreen() {
   const [appointment, setAppointment] = useState<Appointment | null>(null);
   const [error, setError] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-  const [cancelling, setCancelling] = useState(false);
 
   // `k` is a new function on every render; the refresh must not depend on it, or the effect below asks again after every answer.
   const kRef = useRef(k);
@@ -143,31 +140,10 @@ export default function BookingStatusScreen() {
     if (next) router.push(next);
   }, [mode, confirmed]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const cancel = () =>
-    showLocalizedAlert(k('consult.status.cancelTitle'), k('consult.status.cancelBody'), [
-      { text: k('consult.back'), style: 'cancel' },
-      {
-        text: k('consult.status.cancelTitle'),
-        style: 'destructive',
-        onPress: async () => {
-          if (!appointmentId) return;
-          setCancelling(true);
-          try {
-            const updated = await apiFetch<Appointment>(`/care/appointments/${encodeURIComponent(appointmentId)}/cancel`, {
-              method: 'PATCH',
-              headers: consultationMutationHeaders('cancel', appointmentId),
-              body: JSON.stringify({ reason: 'patient_cancelled' }),
-            });
-            setAppointment(updated || { ...appointment, status: 'CANCELLED' });
-          } catch {
-            // Never the server's raw message (English/codes) (needs-review issue 1054).
-            showLocalizedAlert(k('consult.status.cancelFailed'), k('consult.confirm.tryLater'));
-          } finally {
-            setCancelling(false);
-          }
-        },
-      },
-    ]);
+  // one cancel screen: the reason, the refund the server computes for cancelling now, and the confirmation
+  const cancel = () => {
+    if (appointmentId) router.push({ pathname: '/consultations/cancel-reschedule', params: { appointmentId } } as unknown as Href);
+  };
 
   /* ── 1: confirm and pay (the original logic, as it was) ── */
   if (mode === 'confirm') return <BookingConfirmForm />;
@@ -208,7 +184,7 @@ export default function BookingStatusScreen() {
       footer={
         <>
           <Button label={refreshing ? k('consult.status.refreshing') : k('consult.status.refresh')} size="lg" fullWidth disabled={refreshing} onPress={() => void refresh()} theme={theme} testID="booking-refresh" />
-          {!cancelled && !confirmed ? <Button label={cancelling ? k('consult.status.cancelling') : k('consult.status.cancelTitle')} variant="danger" size="md" fullWidth disabled={cancelling} onPress={cancel} theme={theme} testID="booking-cancel" /> : null}
+          {!cancelled && !confirmed ? <Button label={k('consult.status.cancelTitle')} variant="danger" size="md" fullWidth onPress={cancel} theme={theme} testID="booking-cancel" /> : null}
         </>
       }
     >

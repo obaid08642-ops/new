@@ -12,8 +12,63 @@
      "ok"
     ],
     [
+     "button: إعادة المحاولة",
+     "GET /api/admin/admin/appointments",
+     "ok"
+    ],
+    [
      "button: إلغاء",
-     "POST /api/admin/admin/appointments/:param/cancel; GET /api/admin/admin/appointments; confirm()",
+     "POST /api/admin/admin/appointments/:param/cancel; GET /api/admin/admin/appointments; prompt()",
+     "ok"
+    ],
+    [
+     "link: العودة لمركز القيادة (in AdminGuard)",
+     "link /admin/command-center",
+     "ok"
+    ],
+    [
+     "button: فتح القائمة (in AdminGuard)",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: إغلاق القائمة (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: ميلادي هجري (in AdminGuard)",
+     "navigation; local state",
+     "ok"
+    ],
+    [
+     "button: تسجيل الخروج (in AdminGuard)",
+     "logout; POST /auth/logout; navigation",
+     "ok"
+    ],
+    [
+     "link: ar-SA-u-ca-gregory (in AdminGuard)",
+     "link /admin/alerts",
+     "ok"
+    ],
+    [
+     "API: POST /auth/heartbeat",
+     "POST /auth/heartbeat (OK, backend/src/modules/auth/auth.controller.ts:269)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/session",
+     "GET /api/admin/admin/session (OK, backend/src/modules/admin/enterprise/admin-security.controller.ts:80)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/urgent-alerts/unread-count",
+     "GET /api/admin/admin/urgent-alerts/unread-count (OK, backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25)",
      "ok"
     ]
    ]
@@ -32,49 +87,109 @@
      "ok"
     ],
     [
+     "link: العودة لمركز القيادة (in AdminGuard)",
+     "link /admin/command-center",
+     "ok"
+    ],
+    [
+     "button: فتح القائمة (in AdminGuard)",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: إغلاق القائمة (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: ميلادي هجري (in AdminGuard)",
+     "navigation; local state",
+     "ok"
+    ],
+    [
+     "button: تسجيل الخروج (in AdminGuard)",
+     "logout; POST /auth/logout; navigation",
+     "ok"
+    ],
+    [
+     "link: ar-SA-u-ca-gregory (in AdminGuard)",
+     "link /admin/alerts",
+     "ok"
+    ],
+    [
      "API: GET /api/admin/admin/providers",
-     "GET /api/admin/admin/providers (OK, backend/src/modules/provider/provider.controllers.ts:149)",
+     "GET /api/admin/admin/providers (OK, backend/src/modules/provider/provider.controllers.ts:166)",
      "ok"
     ],
     [
      "API: GET /api/admin/admin/providers/provider-deltas",
-     "GET /api/admin/admin/providers/provider-deltas (OK, backend/src/modules/provider/provider.controllers.ts:153)",
+     "GET /api/admin/admin/providers/provider-deltas (OK, backend/src/modules/provider/provider.controllers.ts:171)",
      "ok"
     ],
     [
-     "API: GET /api/admin/admin/finance/withdrawals/pending",
-     "GET /api/admin/admin/finance/withdrawals/pending (OK, backend/src/modules/admin/web-core/controllers/finance.controller.ts:41)",
-     "ok"
-    ],
-    [
-     "API: GET /api/admin/admin/finance/refunds/queue",
-     "GET /api/admin/admin/finance/refunds/queue (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:885)",
+     "API: GET /api/admin/admin/finance/payouts",
+     "GET /api/admin/admin/finance/payouts (OK, backend/src/modules/admin/enterprise/admin-finance.controller.ts:47)",
      "ok"
     ],
     [
      "API: GET /api/admin/admin/returns",
-     "GET /api/admin/admin/returns (OK, backend/src/modules/returns/returns.controller.ts:64)",
+     "GET /api/admin/admin/returns (OK, backend/src/modules/returns/returns.controller.ts:85)",
      "ok"
     ],
     [
      "API: GET /medicines/admin/change-requests",
-     "GET /medicines/admin/change-requests (OK, backend/src/modules/medicines/medicines.controller.ts:214)",
+     "GET /medicines/admin/change-requests (OK, backend/src/modules/medicines/medicines.controller.ts:264)",
      "ok"
     ],
     [
      "API: GET /medicines/admin/shortage-reports",
-     "GET /medicines/admin/shortage-reports (OK, backend/src/modules/medicines/medicines.controller.ts:131)",
+     "GET /medicines/admin/shortage-reports (OK, backend/src/modules/medicines/medicines.controller.ts:172)",
      "ok"
     ],
     [
      "API: GET /medicines/admin/image-suggestions",
-     "GET /medicines/admin/image-suggestions (OK, backend/src/modules/medicines/medicines.controller.ts:179)",
+     "GET /medicines/admin/image-suggestions (OK, backend/src/modules/medicines/medicines.controller.ts:220)",
      "ok"
     ],
     [
-     "API: GET (unresolved)",
-     "GET (unresolved) (UNRESOLVED)",
-     "broken"
+     "API: GET /approval-workflow/requests/pending",
+     "GET /approval-workflow/requests/pending (OK, backend/src/modules/approval-workflow/approval-workflow.module.ts:368)",
+     "ok"
+    ],
+    [
+     "API: GET /labs/admin/catalog",
+     "GET /labs/admin/catalog (OK, backend/src/modules/labs/labs.controller.ts:216)",
+     "ok"
+    ],
+    [
+     "API: GET /radiology/admin/catalog",
+     "GET /radiology/admin/catalog (OK, backend/src/modules/radiology/radiology.controller.ts:250)",
+     "ok"
+    ],
+    [
+     "API: GET /nursing/admin/catalog",
+     "GET /nursing/admin/catalog (OK, backend/src/modules/home-care/home-care.controller.ts:115)",
+     "ok"
+    ],
+    [
+     "API: POST /auth/heartbeat",
+     "POST /auth/heartbeat (OK, backend/src/modules/auth/auth.controller.ts:269)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/session",
+     "GET /api/admin/admin/session (OK, backend/src/modules/admin/enterprise/admin-security.controller.ts:80)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/urgent-alerts/unread-count",
+     "GET /api/admin/admin/urgent-alerts/unread-count (OK, backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25)",
+     "ok"
     ],
     [
      "One approvals endpoint with counts",
@@ -137,18 +252,68 @@
      "ok"
     ],
     [
+     "link: العودة لمركز القيادة (in AdminGuard)",
+     "link /admin/command-center",
+     "ok"
+    ],
+    [
+     "button: فتح القائمة (in AdminGuard)",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: إغلاق القائمة (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: ميلادي هجري (in AdminGuard)",
+     "navigation; local state",
+     "ok"
+    ],
+    [
+     "button: تسجيل الخروج (in AdminGuard)",
+     "logout; POST /auth/logout; navigation",
+     "ok"
+    ],
+    [
+     "link: ar-SA-u-ca-gregory (in AdminGuard)",
+     "link /admin/alerts",
+     "ok"
+    ],
+    [
      "API: GET /api/admin/admin/ops/domain-metrics",
-     "GET /api/admin/admin/ops/domain-metrics (OK, backend/src/modules/ops/ops.controller.ts:206)",
+     "GET /api/admin/admin/ops/domain-metrics (OK, backend/src/modules/ops/ops.controller.ts:190)",
      "ok"
     ],
     [
      "API: GET /api/admin/admin/ops/live-map",
-     "GET /api/admin/admin/ops/live-map (OK, backend/src/modules/ops/ops.controller.ts:264)",
+     "GET /api/admin/admin/ops/live-map (OK, backend/src/modules/ops/ops.controller.ts:248)",
      "ok"
     ],
     [
      "API: GET /api/admin/admin/ops/alerts",
-     "GET /api/admin/admin/ops/alerts (OK, backend/src/modules/ops/ops.controller.ts:40)",
+     "GET /api/admin/admin/ops/alerts (OK, backend/src/modules/ops/ops.controller.ts:42)",
+     "ok"
+    ],
+    [
+     "API: POST /auth/heartbeat",
+     "POST /auth/heartbeat (OK, backend/src/modules/auth/auth.controller.ts:269)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/session",
+     "GET /api/admin/admin/session (OK, backend/src/modules/admin/enterprise/admin-security.controller.ts:80)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/urgent-alerts/unread-count",
+     "GET /api/admin/admin/urgent-alerts/unread-count (OK, backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25)",
      "ok"
     ]
    ]
@@ -168,7 +333,7 @@
     ],
     [
      "link: تفاصيل",
-     "link /admin/order-detail",
+     "link /admin/orders/:param/:param",
      "ok"
     ],
     [
@@ -203,17 +368,17 @@
     ],
     [
      "API: GET /api/admin/system-health/liveness",
-     "GET /api/admin/system-health/liveness (OK, backend/src/modules/admin/web-core/controllers/system-health.controller.ts:6)",
+     "GET /api/admin/system-health/liveness (OK, backend/src/modules/system-health/system-health.controller.ts:20)",
      "ok"
     ],
     [
      "API: GET /api/admin/system-health/readiness",
-     "GET /api/admin/system-health/readiness (OK, backend/src/modules/admin/web-core/controllers/system-health.controller.ts:19)",
+     "GET /api/admin/system-health/readiness (OK, backend/src/modules/system-health/system-health.controller.ts:36)",
      "ok"
     ],
     [
      "API: GET /api/admin/nabd-extensions/admin/analytics/heatmaps",
-     "GET /api/admin/nabd-extensions/admin/analytics/heatmaps (OK, backend/src/modules/admin/web-core/controllers/analytics.controller.ts:39)",
+     "GET /api/admin/nabd-extensions/admin/analytics/heatmaps (OK, backend/src/modules/admin/web-core/controllers/analytics.controller.ts:38)",
      "ok"
     ],
     [
@@ -253,12 +418,12 @@
     ],
     [
      "API: GET /api/admin/admin/governance/fraud-alerts",
-     "GET /api/admin/admin/governance/fraud-alerts (OK, backend/src/modules/admin/web-core/controllers/admin-governance.controller.ts:34)",
+     "GET /api/admin/admin/governance/fraud-alerts (OK, backend/src/modules/admin/web-core/controllers/admin-governance.controller.ts:49)",
      "ok"
     ],
     [
      "API: GET /api/admin/admin/governance/audit-logs",
-     "GET /api/admin/admin/governance/audit-logs (OK, backend/src/modules/admin/web-core/controllers/admin-governance.controller.ts:82)",
+     "GET /api/admin/admin/governance/audit-logs (OK, backend/src/modules/admin/web-core/controllers/admin-governance.controller.ts:103)",
      "ok"
     ]
    ]
@@ -273,7 +438,7 @@
     ],
     [
      "API: GET /api/admin/admin/health-dashboard",
-     "GET /api/admin/admin/health-dashboard (OK, backend/src/modules/health/health-dashboard.controller.ts:32)",
+     "GET /api/admin/admin/health-dashboard (OK, backend/src/modules/health/health-dashboard.controller.ts:50)",
      "ok"
     ]
    ]
@@ -283,29 +448,17 @@
    "elements": [
     [
      "API: GET /chat/admin/threads",
-     "GET /chat/admin/threads (OK, backend/src/modules/chat/chat.module.ts:147)",
+     "GET /chat/admin/threads (OK, backend/src/modules/chat/chat.module.ts:92)",
      "ok"
     ]
    ]
   },
   {
    "route": "/admin/order-detail",
-   "elements": [
-    [
-     "button: → عودة لمركز القيادة",
-     "navigation",
-     "ok"
-    ],
-    [
-     "action: <tr> onClick (in DataTable)",
-     "",
-     "ok"
-    ],
-    [
-     "API: GET /api/admin/admin/command-center/order/:param/:param",
-     "GET /api/admin/admin/command-center/order/:param/:param (OK, backend/src/modules/admin/command-center/admin-command-center.module.ts:178)",
-     "ok"
-    ]
+   "elements": [],
+   "notes": [
+    "No API call in the page or its local components (static, or all data comes from props).",
+    "No tracked elements."
    ]
   },
   {
@@ -329,6 +482,11 @@
     [
      "input: number",
      "state amount used by logic/request",
+     "ok"
+    ],
+    [
+     "input: input",
+     "state override used by logic/request",
      "ok"
     ],
     [
@@ -365,6 +523,56 @@
      "action: <tr> onClick (in DataTable)",
      "",
      "ok"
+    ],
+    [
+     "link: العودة لمركز القيادة (in AdminGuard)",
+     "link /admin/command-center",
+     "ok"
+    ],
+    [
+     "button: فتح القائمة (in AdminGuard)",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: إغلاق القائمة (in AdminGuard)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: ميلادي هجري (in AdminGuard)",
+     "navigation; local state",
+     "ok"
+    ],
+    [
+     "button: تسجيل الخروج (in AdminGuard)",
+     "logout; POST /auth/logout; navigation",
+     "ok"
+    ],
+    [
+     "link: ar-SA-u-ca-gregory (in AdminGuard)",
+     "link /admin/alerts",
+     "ok"
+    ],
+    [
+     "API: POST /auth/heartbeat",
+     "POST /auth/heartbeat (OK, backend/src/modules/auth/auth.controller.ts:269)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/session",
+     "GET /api/admin/admin/session (OK, backend/src/modules/admin/enterprise/admin-security.controller.ts:80)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/urgent-alerts/unread-count",
+     "GET /api/admin/admin/urgent-alerts/unread-count (OK, backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25)",
+     "ok"
     ]
    ]
   },
@@ -388,6 +596,11 @@
     ],
     [
      "input: date",
+     "state filters used by logic/request",
+     "ok"
+    ],
+    [
+     "input: مشكلة",
      "state filters used by logic/request",
      "ok"
     ],
@@ -452,8 +665,23 @@
      "ok"
     ],
     [
+     "link: صندوق التنبيهات والقواعد",
+     "link /admin/alerts",
+     "ok"
+    ],
+    [
+     "link: عرض الكل",
+     "link /admin/orders",
+     "ok"
+    ],
+    [
      "link: فتح",
      "link /admin/orders/:param/:param",
+     "ok"
+    ],
+    [
+     "link: عرض الكل",
+     "link /admin/orders",
      "ok"
     ],
     [
@@ -463,7 +691,7 @@
     ],
     [
      "API: GET /api/admin/admin/ops/domain-metrics",
-     "GET /api/admin/admin/ops/domain-metrics (OK, backend/src/modules/ops/ops.controller.ts:206)",
+     "GET /api/admin/admin/ops/domain-metrics (OK, backend/src/modules/ops/ops.controller.ts:190)",
      "ok"
     ],
     [
@@ -482,37 +710,39 @@
  "needsReview": [
   {
    "route": "/admin/appointments-oversight",
-   "element": "Guard G-ROLE-ONLY-WRITE (1)",
+   "element": "Guard G-OPEN (1)",
    "kind": "backend",
-   "note": "1 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/appointments/:param/cancel): every admin role, including a custom restricted one, can run them.",
-   "file": "admin/src/pages/admin/appointments-oversight.tsx",
-   "line": 16,
-   "backend": "backend/src/modules/care/appointments.controller.ts:98"
+   "note": "1 call(s) hit backend routes with no role/permission guard (POST /auth/heartbeat): any signed-in user passes JwtAuthGuard.",
+   "file": "admin/src/components/AdminGuard.tsx",
+   "line": 254,
+   "backend": "backend/src/modules/auth/auth.controller.ts:269"
+  },
+  {
+   "route": "/admin/appointments-oversight",
+   "element": "Guard G-PERM-MISMATCH (1)",
+   "kind": "backend",
+   "note": "1 call(s): Page requires \"appointment.read\" but GET /admin/urgent-alerts/unread-count requires command.center.view; an admin role with the page permission only gets a 403 ",
+   "file": "admin/src/components/AlertsBell.tsx",
+   "line": 19,
+   "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25"
   },
   {
    "route": "/admin/approvals",
-   "element": "API GET (unresolved)",
+   "element": "Guard G-PAGE-NOPERM (2)",
    "kind": "client",
-   "note": "Endpoint is UNRESOLVED (path is not a literal the tool can resolve): the call fails or hits nothing.",
+   "note": "Page has no client permission (AdminGuard ROUTE_PERMISSIONS) but 2 call(s) need permissions the backend checks (GET /api/admin/admin/finance/payouts; GET /api/admin/admin/urgent-alerts/unread-count); any admin sees the page and gets 403s inside it.",
    "file": "admin/src/pages/admin/approvals.tsx",
-   "line": 37
+   "line": 26,
+   "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:47"
   },
   {
    "route": "/admin/approvals",
-   "element": "Guard G-PAGE-NOPERM (1)",
-   "kind": "client",
-   "note": "Page has no client permission (AdminGuard ROUTE_PERMISSIONS) but 1 call(s) need permissions the backend checks (GET /medicines/admin/shortage-reports); any admin sees the page and gets 403s inside it.",
-   "file": "admin/src/pages/admin/approvals.tsx",
-   "line": 32,
-   "backend": "backend/src/modules/medicines/medicines.controller.ts:131"
-  },
-  {
-   "route": "/admin/approvals",
-   "element": "No nav link",
-   "kind": "client",
-   "note": "Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
-   "file": "admin/src/pages/admin/approvals.tsx",
-   "line": 1
+   "element": "Guard G-OPEN (1)",
+   "kind": "backend",
+   "note": "1 call(s) hit backend routes with no role/permission guard (POST /auth/heartbeat): any signed-in user passes JwtAuthGuard.",
+   "file": "admin/src/components/AdminGuard.tsx",
+   "line": 254,
+   "backend": "backend/src/modules/auth/auth.controller.ts:269"
   },
   {
    "route": "/admin/approvals",
@@ -525,37 +755,12 @@
   },
   {
    "route": "/admin/command-center",
-   "element": "Guard G-PERM-MISMATCH (1)",
+   "element": "Guard G-OPEN (1)",
    "kind": "backend",
-   "note": "1 call(s): Page requires \"command.center.view\" but GET /admin/analytics-suite/online requires analytics.read; an admin role with the page permission only gets a 403 on thi",
-   "file": "admin/src/pages/admin/command-center.tsx",
-   "line": 31,
-   "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:28"
-  },
-  {
-   "route": "/admin/dashboard",
-   "element": "Guard G-OPEN (2)",
-   "kind": "backend",
-   "note": "2 call(s) hit backend routes with no role/permission guard (GET /api/admin/system-health/liveness; GET /api/admin/system-health/readiness): any signed-in user passes JwtAuthGuard.",
-   "file": "admin/src/pages/admin/dashboard.tsx",
-   "line": 37,
-   "backend": "backend/src/modules/admin/web-core/controllers/system-health.controller.ts:6"
-  },
-  {
-   "route": "/admin/dashboard",
-   "element": "No nav link",
-   "kind": "client",
-   "note": "Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
-   "file": "admin/src/pages/admin/dashboard.tsx",
-   "line": 1
-  },
-  {
-   "route": "/admin/health-dashboard",
-   "element": "No nav link",
-   "kind": "client",
-   "note": "Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
-   "file": "admin/src/pages/admin/health-dashboard.tsx",
-   "line": 1
+   "note": "1 call(s) hit backend routes with no role/permission guard (POST /auth/heartbeat): any signed-in user passes JwtAuthGuard.",
+   "file": "admin/src/components/AdminGuard.tsx",
+   "line": 254,
+   "backend": "backend/src/modules/auth/auth.controller.ts:269"
   },
   {
    "route": "/admin/order-detail",
@@ -567,37 +772,21 @@
   },
   {
    "route": "/admin/orders/[kind]/[id]",
+   "element": "Guard G-OPEN (1)",
+   "kind": "backend",
+   "note": "1 call(s) hit backend routes with no role/permission guard (POST /auth/heartbeat): any signed-in user passes JwtAuthGuard.",
+   "file": "admin/src/components/AdminGuard.tsx",
+   "line": 254,
+   "backend": "backend/src/modules/auth/auth.controller.ts:269"
+  },
+  {
+   "route": "/admin/orders/[kind]/[id]",
    "element": "Guard G-PERM-MISMATCH (1)",
    "kind": "backend",
-   "note": "1 call(s): Page requires \"order.read\" but POST /admin/orders/:param/:param/:param requires order.cancel; an admin role with the page permission only gets a 403 on this cal",
-   "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
-   "line": 51,
-   "backend": "backend/src/modules/admin/enterprise/admin-orders.controller.ts:62"
-  },
-  {
-   "route": "/admin/search",
-   "element": "Permission G-VOCAB-FE",
-   "kind": "client",
-   "note": "client permission \"users.view\" is not in backend Permission enum: the page/nav link is hidden or locked for every role.",
-   "file": "admin/src/components/AdminGuard.tsx",
-   "line": 21
-  },
-  {
-   "route": "/admin/today",
-   "element": "Guard G-PAGE-NOPERM (1)",
-   "kind": "client",
-   "note": "Page has no client permission (AdminGuard ROUTE_PERMISSIONS) but 1 call(s) need permissions the backend checks (GET /api/admin/admin/command-center-v2); any admin sees the page and gets 403s inside it.",
-   "file": "admin/src/pages/admin/today.tsx",
-   "line": 49,
-   "backend": "backend/src/modules/admin/enterprise/command-center-v2.controller.ts:70"
-  },
-  {
-   "route": "/admin/today",
-   "element": "No nav link",
-   "kind": "client",
-   "note": "Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
-   "file": "admin/src/pages/admin/today.tsx",
-   "line": 1
+   "note": "1 call(s): Page requires \"order.read\" but GET /admin/urgent-alerts/unread-count requires command.center.view; an admin role with the page permission only gets a 403 on thi",
+   "file": "admin/src/components/AlertsBell.tsx",
+   "line": 19,
+   "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25"
   },
   {
    "route": "/admin/today",

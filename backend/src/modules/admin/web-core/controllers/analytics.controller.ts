@@ -10,7 +10,7 @@ const GRID = 0.05; // ~5 km grid cells
 /**
  * Live demand heatmap — computed from REAL platform data, never fixtures:
  * clusters of home-visit appointments, aggregated into ~5 km grid cells
- * (decision 14: the SOS/ambulance requests are removed). Intensity = number of real requests in the cell.
+ * (decision 14: emergency dispatch is gone, so only home-visit demand is counted). Intensity = number of real requests in the cell.
  */
 @Controller('nabd-extensions/admin/analytics')
 export class AnalyticsController {

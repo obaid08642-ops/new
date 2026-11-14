@@ -163,6 +163,7 @@ export class PutTariffsDto {
 export class ReplyReviewDto {
   @IsOptional()
   @IsString()
+  @MaxLength(1000)
   reply?: string;
 
 }
@@ -235,4 +236,20 @@ export class ToggleInstantDto {
   // The state the provider asked for. Without it the server flips whatever it holds, which turned an "online" tap into
   // "offline" whenever the app and the server disagreed (the app always started from "offline").
   @IsOptional() @IsBoolean() available?: boolean;
+}
+
+/** A doctor's note on a visit of their own (EMR / AI copilot screen). */
+export class SaveDoctorNoteDto {
+  @IsDefined()
+  @IsString()
+  patient_id: string;
+
+  @IsDefined()
+  @IsString()
+  appointment_id: string;
+
+  @IsDefined()
+  @IsString()
+  @MaxLength(4000)
+  note: string;
 }

@@ -1,0 +1,17 @@
+--- a/tools/ops/tasks/60-deploy-main.sh
++++ b/tools/ops/tasks/60-deploy-main.sh
+@@ -271,7 +271,13 @@
+ # 16.5: the backend refuses every upload while ClamAV cannot answer (UPLOAD_SCAN=required), so the scanner is up and
+ # healthy before the new backend starts. Its first start downloads the signatures (a few minutes) and it needs ~1.2 GB
+ # of memory: with less available it is not started, and a scanner that fails to start never fails the deploy (uploads stay refused).
+-if [ "$(health nabdah-clamav)" != healthy ]; then
++# UPLOAD_SCAN=defer with CLAMAV_ON_DEMAND=1: uploads are accepted into quarantine and the window script (clamav-window.sh) runs the scanner when files wait and the memory is there; the deploy does not
++# start it and must not say uploads are refused (docs/ops/UPLOAD_SCAN_3_8GB.md). Values are read here only to compare with the words defer and 1, never printed.
++UPSCAN=$(sudo -n grep -m1 '^UPLOAD_SCAN=' $ENVF 2>/dev/null | cut -d= -f2- | tr -d '"'"'")
++ONDEMAND=$(sudo -n grep -m1 '^CLAMAV_ON_DEMAND=' $ENVF 2>/dev/null | cut -d= -f2- | tr -d '"'"'")
++if [ "$UPSCAN" = defer ] && [ "$ONDEMAND" = 1 ]; then
++  echo "status: deploy clamav=ON_DEMAND not_started_by_the_deploy uploads=accepted_into_quarantine_never_served_until_scanned"
++elif [ "$(health nabdah-clamav)" != healthy ]; then
+   MEMAV=$(awk '/^MemAvailable:/{print int($2/1024)}' /proc/meminfo)
+   echo "status: deploy clamav=starting mem_available_mb=$MEMAV"
+   if [ "${MEMAV:-0}" -ge 1500 ]; then

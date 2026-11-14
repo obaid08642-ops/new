@@ -12,6 +12,7 @@ const schema = z.object({
   diastolic: z.number().min(0).max(500).optional(),
   unit: z.string().max(16).optional(),
   context: z.string().max(64).optional(),
+  source: z.enum(["manual"]).optional(),
   measured_at: z.string().max(64).optional(),
 }).refine(
   (v) => (v.type === "bp" ? v.systolic !== undefined && v.diastolic !== undefined : v.value !== undefined),

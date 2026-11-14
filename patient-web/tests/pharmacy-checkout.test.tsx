@@ -156,10 +156,11 @@ describe("the payment result is whatever the backend says, never the address", (
     }
   });
 
-  it("failed, cancelled and refunded come from the transaction's status", async () => {
-    const run = async (status: string) => (await checkPayment({ orderId: ORDER, transactionId: TXN }, route({ order: () => json(200, {}), verify: () => json(200, { status }) }))).phase.kind;
+  it("failed, cancelled, expired session and refunded come from the transaction's status", async () => {
+    const run = async (status: string, failure_reason?: string) => (await checkPayment({ orderId: ORDER, transactionId: TXN }, route({ order: () => json(200, {}), verify: () => json(200, { status, failure_reason }) }))).phase.kind;
     expect(await run("failed")).toBe("failed");
-    expect(await run("cancelled")).toBe("failed");
+    expect(await run("failed", "payment_session_expired")).toBe("sessionExpired");   // "the payment session expired, no money was taken"
+    expect(await run("cancelled")).toBe("cancelled");                                // "the payment was cancelled" (no longer shown as a failure)
     expect(await run("refunded")).toBe("refunded");
     expect(await run("partially_refunded")).toBe("refunded");
   });
@@ -405,7 +406,9 @@ describe("the checkout screen", () => {
     expect(html).toContain("Shown with each offer");
     // the cart holds no price, so nothing here can be added up or drawn as money
     expect(html).not.toMatch(/55\.00|12\.50|30\.00|SAR/);
-    expect(html).not.toMatch(/<input/);
+    // the only field is the refund policy tick (the backend refuses an order without the agreement); no text, card or identity field
+    expect(html).toContain("I have read the refund policy and I agree to it");
+    expect(html.replace(/<input[^>]*type="checkbox"[^>]*>/g, "")).not.toMatch(/<input/);
     expect(html).not.toMatch(/national|iqama|policy number|card number|cvv/i);
     expect(html).not.toContain("style=");
     // nothing can be sent before the address and the prescription have been read
@@ -544,7 +547,7 @@ describe("the insurance decision", () => {
   it("a partial approval offers the share or the full price, and needs no payment method to accept", async () => {
     const html = await draw({ decision: "APPROVED_PARTIAL", co_pay_amount: 10, insurer_share: 30 });
     expect(html).toContain("Accept and pay my share");
-    expect(html).toContain("Pay the full price myself");
+    expect(html).toContain("Pay the full price without insurance");
     expect(html).not.toContain("Choose a payment method");
     expect(html).not.toContain("Cancel the order");
     expect(html).toContain("SAR 10.00");
@@ -554,7 +557,7 @@ describe("the insurance decision", () => {
   it("a rejection offers the full price or cancelling, and no share to accept", async () => {
     const html = await draw({ decision: "REJECTED", co_pay_amount: 40, insurer_share: 0 });
     expect(html).not.toContain("Accept and pay my share");
-    expect(html).toContain("Pay the full price myself");
+    expect(html).toContain("Pay the full price without insurance");
     expect(html).toContain("Cancel the order");
   });
 

@@ -1,4 +1,5 @@
 import { buildHeaders } from '../../../security/Security';
+import { toReviews } from '../../../utils/reviews';
 import { API_BASE } from '../../../constants';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
@@ -26,7 +27,7 @@ export function ReputationHub({ onBack }) {
  const [reviews, setReviews] = useState<any[]>([]);
  const [loading, setLoading] = useState(true);
  useEffect(() => {
-   client.get('/provider/reviews').then(r => setReviews(Array.isArray(r.data) ? r.data : [])).catch(() => {
+   client.get('/provider/reviews').then(r => setReviews(toReviews(r.data))).catch(() => {
      show(AR ? 'تعذر تحميل التقييمات' : 'Could not load reviews', 'error');
    }).finally(() => setLoading(false));
  }, []);

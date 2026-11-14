@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CareController, PublicSpecialtiesController } from './care.controller';
 import { AppointmentsController, AdminAppointmentsController } from './appointments.controller';
 import { CareService } from './care.service';
+import { AppointmentOutcomesService } from './appointment-outcomes.service';
 import { AppointmentsService } from './appointments.service';
 import { DoctorReferralsController } from './doctor-referrals.controller';
 import { EncounterReferral, EncounterReferralSchema } from './schemas/encounter-referrals.schema';
@@ -22,6 +23,7 @@ import { UserRepository } from "./repositories/user.repository";
 import { SlotLocksModule } from "../slot-locks/slot-locks.module";
 import { ConsultationsCompatController } from './care-compat.controller';
 import { StorageModule } from '../storage/storage.module';
+import { ProviderNoShowModule } from '../provider-no-show/provider-no-show.module';
 
 @Module({
   imports: [
@@ -29,6 +31,7 @@ import { StorageModule } from '../storage/storage.module';
     InsuranceEngineModule,
     SlotLocksModule,
     StorageModule,
+    ProviderNoShowModule,
     MongooseModule.forFeature([
       { name: ProviderProfile.name, schema: ProviderProfileSchema },
       { name: User.name, schema: UserSchema },
@@ -40,7 +43,7 @@ import { StorageModule } from '../storage/storage.module';
     ]),
   ],
   controllers: [CareController, PublicSpecialtiesController, AppointmentsController, AdminAppointmentsController, DoctorReferralsController, ConsultationsCompatController],
-  providers: [CareService, AppointmentsService, SlotService, { provide: 'AppointmentRepository', useClass: AppointmentRepository }, { provide: 'FacilityRepository', useClass: FacilityRepository }, { provide: 'ProviderProfileRepository', useClass: ProviderProfileRepository }, { provide: 'UserRepository', useClass: UserRepository }],
+  providers: [CareService, AppointmentsService, AppointmentOutcomesService, SlotService, { provide: 'AppointmentRepository', useClass: AppointmentRepository }, { provide: 'FacilityRepository', useClass: FacilityRepository }, { provide: 'ProviderProfileRepository', useClass: ProviderProfileRepository }, { provide: 'UserRepository', useClass: UserRepository }],
   exports: [CareService, AppointmentsService, SlotService],
 })
 export class CareModule {}

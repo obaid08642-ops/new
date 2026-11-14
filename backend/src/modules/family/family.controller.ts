@@ -1,5 +1,5 @@
 import { JwtAuthGuard, NoGuestsGuard, SelfService } from '../../common/auth.guard';
-import { AddEventDto, CreateDto, InviteDto, JoinDto, SetRelationDto, SetContractPermissionsDto, SetPermissionsDto, RequestPermissionsDto, RespondPermissionDto} from './family.dto';
+import { AddEventDto, CreateDependantDto, CreateDto, InviteDto, JoinDto, SetRelationDto, SetContractPermissionsDto, SetPermissionsDto, RequestPermissionsDto, RespondPermissionDto} from './family.dto';
 import {
   Body, Controller, Delete, Get, Param, Patch, Post, Put, Req, UnauthorizedException, UseGuards,
 } from '@nestjs/common';
@@ -19,6 +19,22 @@ export class FamilyController {
     return userId;
   }
 
+  // ── Dependants (PT-03): a minor with no account, managed by the guardian who adds them ─────────────
+  @Post('dependants')
+  addDependant(@Req() req: any, @Body() body: CreateDependantDto) {
+    return this.familyService.addDependant(this.authenticatedUserId(req), body);
+  }
+
+  @Get('dependants')
+  listDependants(@Req() req: any) {
+    return this.familyService.listDependants(this.authenticatedUserId(req));
+  }
+
+  @Delete('dependants/:id')
+  removeDependant(@Req() req: any, @Param('id') id: string) {
+    return this.familyService.removeDependant(this.authenticatedUserId(req), id);
+  }
+
   // ── Group Management ───────────────────────────────────────────────────────
   @Post('create')
   create(@Req() req: any, @Body() body: CreateDto) {
@@ -31,7 +47,7 @@ export class FamilyController {
   }
 
   /**
-   * With a channel (sms/email) the invite is sent there and the code is not in the answer. Without one (issue 694: the apps'
+   * With a channel (email) the invite is sent there and the code is not in the answer. Without one (issue 694: the apps'
    * "invite code" tab and its QR), the group owner gets the group's own code, valid 24 hours (generateInvite: owner only).
    */
   @Post('invite')

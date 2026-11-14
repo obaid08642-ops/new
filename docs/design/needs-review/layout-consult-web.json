@@ -1,0 +1,13 @@
+[
+  {
+    "batch": "layout",
+    "app": "patient-web",
+    "screen": "/diagnostics/labs",
+    "element": "Payment filter option \"Self-pay\"",
+    "file": "patient-web/app/[locale]/diagnostics/page.tsx",
+    "line": 225,
+    "found": "[client] The labs payment option still reads \"Self-pay\" (DiagWeb.paySelf); decision 14 names consultations only, so the labs wording was left for the owner to confirm.",
+    "suspect": "Owner to confirm whether labs should read \"Without insurance (cash)\" too.",
+    "review_status": "open"
+  }
+]

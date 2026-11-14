@@ -9,11 +9,11 @@ export function extractNotificationSettings(payload: unknown): NotificationSetti
 
 /**
  * The shape GET /users/me/notification-settings really returns (and PATCH accepts):
- * `{ channels: { push, email, sms }, categories: { appointments, orders, health, chat, account, marketing } }`.
+ * `{ channels: { push, email }, categories: { appointments, orders, health, chat, account, marketing } }`.
  * Only known booleans are kept.
  */
 export const NOTIFICATION_CATEGORIES = ["appointments", "orders", "health", "chat", "account", "marketing"] as const;
-export const NOTIFICATION_CHANNELS = ["push", "email", "sms"] as const;
+export const NOTIFICATION_CHANNELS = ["push", "email"] as const;
 export type NotificationCategory = (typeof NOTIFICATION_CATEGORIES)[number];
 export type NotificationChannel = (typeof NOTIFICATION_CHANNELS)[number];
 export type NotificationPreferences = {

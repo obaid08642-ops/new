@@ -1,9 +1,26 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsInt, IsNumber, IsObject, IsOptional, IsString, Max, MaxLength, Min, ValidateNested, Matches } from 'class-validator';
 import { Type } from 'class-transformer';
 import { LabBookingState } from '../../schemas/lab.schema';
 import { AttributionDto } from '../../common/attribution';
 
 export class BookDto {
+  /** The patient ticked "I agree" to the refund policy shown before payment (a missing field is let through while the rollout is optional, an explicit false is refused; a missing field is 400 refund_policy_acceptance_required once REFUND_POLICY_ACCEPTANCE=required). */
+  @IsOptional()
+  @IsBoolean()
+  refund_policy_accepted?: boolean;
+
+  /** The hash of the refund policy the patient's screen showed (GET /refund-policy/summary); a table changed since then is refused with 409 refund_policy_changed. Optional: old clients do not send it. */
+  @IsOptional()
+  @IsString()
+  @Matches(/^[a-f0-9]{64}$/)
+  refund_policy_hash?: string;
+
+  /** Owner decision 1: the family member this is FOR (the caller stays the booker and payer); checked server-side, see common/family-member.ts. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(128)
+  family_member_id?: string;
+
   @IsDefined()
   @IsArray()
   items: unknown[];
@@ -104,6 +121,11 @@ export class UpdateInsDto {
   @IsString()
   approval_ref?: string;
 
+  // The insurer's rejection reason (sent by the provider app on reject).
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  reason?: string;
 
   @IsOptional()
   @IsNumber()
@@ -158,6 +180,12 @@ export class UploadReportDto {
   @IsOptional()
   @IsString()
   url?: string;
+
+  /** The report file the lab uploaded through POST /storage/upload (private, owned, scanned). */
+  @IsOptional()
+  @IsString()
+  @MaxLength(128)
+  report_storage_object_id?: string;
 
   @IsOptional()
   @IsString()
@@ -329,4 +357,13 @@ export class BulkApproveCatalogDto {
   @IsOptional()
   @IsBoolean()
   approve?: boolean;
+}
+
+/** PUT labs/provider/slot-capacity: how many bookings the lab takes at the same time slot. */
+export class SlotCapacityDto {
+  @IsDefined()
+  @IsInt()
+  @Min(1)
+  @Max(20)
+  slot_capacity: number;
 }

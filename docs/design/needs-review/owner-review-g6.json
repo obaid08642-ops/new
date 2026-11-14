@@ -1,0 +1,90 @@
+[
+  {
+    "batch": "owner-review-g6",
+    "app": "backend",
+    "screen": "GET /radiology/services",
+    "element": "lowest_price / highest_rated params",
+    "file": "backend/src/modules/radiology/radiology.service.ts",
+    "line": 446,
+    "found": "[backend] RESOLVED by #2041: GET /radiology/services now sorts by lowest_price (a scan without a real price is not the cheapest) and by highest_rated (the mean rating of the centres that perform the scan), and every row carries rating / rating_count / category. The web radiology page and hub and the app send both flags instead of sorting on the client.",
+    "suspect": "None.",
+    "review_status": "fixed #2041"
+  },
+  {
+    "batch": "owner-review-g6",
+    "app": "backend",
+    "screen": "GET /labs/services",
+    "element": "highest_rated",
+    "file": "backend/src/modules/labs/labs.service.ts",
+    "line": 111,
+    "found": "[backend] RESOLVED by #2041: highest_rated now ranks a test by the labs that run it (provider rating_avg weighted by rating_count) and returns rating / rating_count (null while unrated). The hub sends highest_rated=true for the tests list, so the tests are ordered too, not only the labs strip.",
+    "suspect": "None.",
+    "review_status": "fixed #2041"
+  },
+  {
+    "batch": "owner-review-g6",
+    "app": "backend",
+    "screen": "GET /home-care/providers",
+    "element": "nationality match",
+    "file": "backend/src/modules/home-care/home-care-compat.module.ts",
+    "line": 80,
+    "found": "[backend] RESOLVED by #2042: nationality (and gender) are matched ignoring case. The clients keep sending the readable spelling (Saudi, Filipino, Egyptian; male, female); no client-side case handling is needed.",
+    "suspect": "None.",
+    "review_status": "fixed #2042"
+  },
+  {
+    "batch": "owner-review-g6",
+    "app": "backend",
+    "screen": "GET /home-care/providers",
+    "element": "gender and available params",
+    "file": "backend/src/modules/home-care/home-care-compat.module.ts",
+    "line": 79,
+    "found": "[backend] RESOLVED by #2042: gender is matched ignoring case, and the clients read/send available=true (the endpoint's own param).",
+    "suspect": "None.",
+    "review_status": "fixed #2042"
+  },
+  {
+    "batch": "owner-review-g6",
+    "app": "patient-web",
+    "screen": "/diagnostics (labs view)",
+    "element": "Highest rated sort",
+    "file": "patient-web/app/[locale]/diagnostics/page.tsx",
+    "line": 230,
+    "found": "[client] RESOLVED: Highest rated is offered on labs and radiology and sends highest_rated=true to the catalogue endpoint, which now orders the tests / scans by the labs' / centres' rating (the approved-labs strip is ordered by it too). A rating line (Rating 4.5 (12)) shows on a card only when the server sent a rating above 0.",
+    "suspect": "None.",
+    "review_status": "fixed #2041"
+  },
+  {
+    "batch": "owner-review-g6",
+    "app": "patient-app",
+    "screen": "/diagnostics (labs tab)",
+    "element": "Highest rated filter",
+    "file": "patient-app/app/(tabs)/diagnostics.tsx",
+    "line": 150,
+    "found": "[client] RESOLVED: the option is offered on both tabs and sends highest_rated=true; the tests and scans come back in rating order (useDiagCatalog). The rating line shows on a card only when the server sent a rating above 0.",
+    "suspect": "None.",
+    "review_status": "fixed #2041"
+  },
+  {
+    "batch": "owner-review-g6",
+    "app": "patient-web",
+    "screen": "/diagnostics/radiology",
+    "element": "Search is not a counted filter",
+    "file": "patient-web/app/[locale]/diagnostics/radiology/page.tsx",
+    "line": 72,
+    "found": "[owner] The applied count counts scan type, body part, home visit and lowest price, not the search text; Reset also clears the search.",
+    "suspect": "Confirm that is the wanted rule.",
+    "review_status": "open"
+  },
+  {
+    "batch": "owner-review-g6",
+    "app": "patient-app",
+    "screen": "/diagnostics, /nursing",
+    "element": "Filter badge on web search field",
+    "file": "packages/ui/components/contract.ts",
+    "line": 248,
+    "found": "[client] The new filterCount badge is drawn by the native Search only; the web renderer of the shared Search contract ignores it (web screens show the count in the sheet summary/chip row instead).",
+    "suspect": "Add the same badge to packages/ui/components/Inputs.tsx if the owner wants it on web.",
+    "review_status": "open"
+  }
+]

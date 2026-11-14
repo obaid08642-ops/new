@@ -23,6 +23,8 @@ describe('patient web auth contract', () => {
           return 'OK';
         }),
         del: jest.fn(async (key: string) => { data.delete(key); }),
+        sadd: jest.fn(async () => 1),
+        expire: jest.fn(async () => 1),
       })),
     };
     const jwt = { sign: jest.fn().mockReturnValueOnce('access-token').mockReturnValueOnce('refresh-token') };
@@ -32,7 +34,7 @@ describe('patient web auth contract', () => {
     // deviceTrust, adminDevices, adminSession, push). Passing it one or two slots
     // early lands it on adminSession/push, this.mail stays undefined, and the
     // per-channel catch in deliverOtp turns the missing mailer into an opaque
-    // `otp_channel_unavailable` instead of an obvious wiring mistake.
+    // `otp_no_channel` instead of an obvious wiring mistake.
     const mail = { sendOtp: jest.fn(async () => ({ ok: true, provider: 'resend', fallback_used: false })) };
     const service = new AuthService(
       userModel as any,
@@ -50,10 +52,10 @@ describe('patient web auth contract', () => {
     return { data, userModel, patientModel, redis, jwt, service };
   };
 
-  it('issues a 14-day refresh token and keeps Redis session TTL aligned', () => {
+  it('issues a 14-day refresh token and keeps Redis session TTL aligned', async () => {
     const { service, jwt, redis } = build();
 
-    service.signToken({ id: 'patient-1', role: 'patient' });
+    await service.signToken({ id: 'patient-1', role: 'patient' });
 
     expect(jwt.sign).toHaveBeenNthCalledWith(
       1,

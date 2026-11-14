@@ -44,7 +44,7 @@ const DEFAULT_OVERLOAD = {
 /** Window after which the event-loop histogram starts over, so the mean tracks current load. */
 const LOOP_WINDOW_MS = 5_000;
 
-function realLoadSignal(): LoadSignal {
+export function realLoadSignal(): LoadSignal {
   let histogram: ReturnType<typeof monitorEventLoopDelay> | undefined;
   let windowStart = Date.now();
   let lastMeanMs = 0;
@@ -76,13 +76,17 @@ function realLoadSignal(): LoadSignal {
   };
 }
 
+/** R16: one process-wide signal (one event-loop histogram) shared by the guard, the overload governor and the admission middleware. */
+let shared: LoadSignal | undefined;
+export function sharedLoadSignal(): LoadSignal { return (shared ??= realLoadSignal()); }
+
 @Injectable()
 export class LoadSheddingGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     // Optional so Nest DI can instantiate the guard globally: unprovided params
     // arrive as undefined and the defaults below apply. Tests inject mocks directly.
-    @Optional() private readonly signal: LoadSignal = realLoadSignal(),
+    @Optional() private readonly signal: LoadSignal = sharedLoadSignal(),
     @Optional() private readonly limits: typeof DEFAULT_OVERLOAD = DEFAULT_OVERLOAD,
   ) {}
 

@@ -1,5 +1,5 @@
 import { lookupInn, normalizeText } from './inn-normalization';
-import { INGREDIENTS_SCOPE_FILTER, inIngredientsScope, ingredientsKey, isLeaflet, parseCatalogueRow, parseNumber, sameIngredientsFilter, splitLeaflet } from './ingredients';
+import { INGREDIENTS_SCOPE_FILTER, checkReviewedIngredients, inIngredientsScope, ingredientsKey, isLeaflet, parseCatalogueRow, parseNumber, sameIngredientsFilter, splitLeaflet } from './ingredients';
 
 // Every input below is a value found in the production catalogue (public API sample, 2026-10-16; issue 1556).
 describe('issue 1556: INN normalization table', () => {
@@ -126,5 +126,40 @@ describe('issue 1556 H: the ingredient review queue covers the medicine categori
 
   it('the database query carries the same scope', () => {
     expect(INGREDIENTS_SCOPE_FILTER).toEqual({ category: { $in: ['الأدوية والعلاج', 'أدوية ومكملات غذائية'] } });
+  });
+});
+
+describe('issue 1556 PR 2: INN table from the test catalogue', () => {
+  it.each([
+    ['ازيثرومايسين', 'azithromycin'], ['azithromycin', 'azithromycin'], ['ترامادول', 'tramadol'],
+    ['clavulanate', 'clavulanic acid'], ['clavulanic acid', 'clavulanic acid'],
+  ])('%s -> %s', (spelling, inn) => expect(lookupInn(spelling)).toBe(inn));
+});
+
+describe('issue 1556 PR 2: the admin values for a queued row are checked, never guessed', () => {
+  it('accepts a complete review', () => {
+    const r = checkReviewedIngredients({
+      ingredients: [{ inn: 'paracetamol', strength_value: 500, strength_unit: 'mg' }, { inn: 'caffeine', strength_value: null, strength_unit: null }],
+      dosage_form: 'tablet', route: 'oral',
+    });
+    expect(r).toEqual({ ok: true, patch: { ingredients: [{ inn: 'paracetamol', strength_value: 500, strength_unit: 'mg' }, { inn: 'caffeine', strength_value: null, strength_unit: null }], dosage_form: 'tablet', route: 'oral' } });
+  });
+
+  it('accepts a partial review (only the dosage form)', () => {
+    expect(checkReviewedIngredients({ dosage_form: 'syrup' })).toEqual({ ok: true, patch: { dosage_form: 'syrup' } });
+  });
+
+  it.each([
+    [null, 'the reviewed values are required'],
+    [{}, 'nothing to apply'],
+    [{ ingredients: [] }, 'ingredients must be a non-empty list'],
+    [{ ingredients: [{ inn: 'not-an-inn', strength_value: null, strength_unit: null }] }, 'unknown INN: not-an-inn'],
+    [{ ingredients: [{ inn: 'paracetamol', strength_value: 500, strength_unit: 'stone' }] }, 'unknown strength unit for paracetamol'],
+    [{ ingredients: [{ inn: 'paracetamol', strength_value: 500, strength_unit: null }] }, 'strength value and unit for paracetamol must both be set or both null'],
+    [{ ingredients: [{ inn: 'paracetamol', strength_value: -1, strength_unit: 'mg' }] }, 'strength value for paracetamol must be a positive number or null'],
+    [{ dosage_form: 'potion' }, 'unknown dosage form'],
+    [{ route: 'telepathic' }, 'unknown route'],
+  ])('rejects %j', (input, error) => {
+    expect(checkReviewedIngredients(input)).toEqual({ ok: false, error });
   });
 });

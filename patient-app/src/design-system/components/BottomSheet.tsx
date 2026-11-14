@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../context/AppContext';
+import { dsText } from '../dsText';
 import { Spacing, BorderRadius, Shadows } from '../tokens';
 import { DSText } from './Text';
 
@@ -50,7 +51,7 @@ export function DSBottomSheet({
   style,
   contentStyle,
 }: DSBottomSheetProps) {
-  const { colors } = useApp();
+  const { colors, lang } = useApp();
   const insets = useSafeAreaInsets();
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   const backdropOpacity = useRef(new Animated.Value(0)).current;
@@ -176,8 +177,8 @@ export function DSBottomSheet({
             style={styles.handleArea}
             accessible
             accessibilityRole="button"
-            accessibilityLabel="اسحب لأسفل للإغلاق"
-            accessibilityHint="اسحب للأسفل لإغلاق هذه الورقة"
+            accessibilityLabel={dsText(lang, 'ds.sheet.drag')}
+            accessibilityHint={dsText(lang, 'ds.sheet.dragHint')}
           >
             <View
               style={[styles.handle, { backgroundColor: colors.border }]}

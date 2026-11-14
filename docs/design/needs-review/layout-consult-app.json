@@ -1,0 +1,46 @@
+[
+  {
+    "batch": "layout",
+    "app": "patient-app",
+    "screen": "/(tabs)/consultations",
+    "element": "Next available slot on the doctor card",
+    "file": "patient-app/app/(tabs)/consultations/index.tsx",
+    "line": 491,
+    "found": "[backend] The hub's default list (GET /providers?type=doctor, consultNearby.ts DOCTORS_PATH) does not carry next_available_at; only GET /care/doctors does. The card draws the slot only when the row has it (after a filter that switches the request to /care/doctors). Nothing is faked. (backend: backend/src/modules/care/care.service.ts toPublicDoctor)",
+    "suspect": "Backend/owner: serve the hub from /care/doctors, or add next_available_at to /providers, so every card can show 'Available today 5:30 pm'.",
+    "review_status": "open"
+  },
+  {
+    "batch": "layout",
+    "app": "patient-app",
+    "screen": "/(tabs)/consultations",
+    "element": "Sort option 'Shortest wait'",
+    "file": "patient-app/app/(tabs)/consultations/index.tsx",
+    "line": 516,
+    "found": "[backend] Owner decision 15 lists Shortest wait in the sort section; GET /care/doctors has no waiting-time sort or value (patient-app/src/utils/doctorSearch.ts header), so the option is not offered. The sheet offers Top rated, Lowest price, Nearest (clinic and home only), Available now and Available today.",
+    "suspect": "Backend: add a wait-time sort, then add the option.",
+    "review_status": "open"
+  },
+  {
+    "batch": "layout",
+    "app": "patient-app",
+    "screen": "/consultations/doctor-search",
+    "element": "Sort and gender chip rows on the 'View all doctors' search screen",
+    "file": "patient-app/src/components/views/DoctorSearchView.tsx",
+    "line": 122,
+    "found": "[client] Not converted in this PR (scope: the consultations hub). The full doctor search still shows its own sort and gender chip rows instead of the one Filters button.",
+    "suspect": "Owner: confirm whether the search screen follows decision 15 too; if so a follow-up reuses the hub's sheet.",
+    "review_status": "open"
+  },
+  {
+    "batch": "layout",
+    "app": "patient-app",
+    "screen": "/(tabs)/consultations",
+    "element": "Price band filter removed",
+    "file": "patient-app/app/(tabs)/consultations/index.tsx",
+    "line": 516,
+    "found": "[owner] The old advanced filter had a price band (under 100 / 100-200 / over 200); decision 15 lists only gender, title, payment and sort, so it is gone. Lowest price stays as a sort.",
+    "suspect": "Owner: confirm.",
+    "review_status": "open"
+  }
+]

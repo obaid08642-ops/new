@@ -40,7 +40,7 @@ export default async function Page({ params }: Props) {
   const token = await requirePatientAccess(locale);
   const res = await callPatientApi("/support/requests/mine", {}, token);
   if (res.status === 401) redirect(`/${locale}/login`);
-  const back = `/${locale}/settings/help?tab=requests`;
+  const back = `/${locale}/settings/help`;
   if (!res.ok) {
     return (
       <ConsultPage locale={locale} title={t("title")} backHref={back}>
@@ -53,14 +53,15 @@ export default async function Page({ params }: Props) {
   return (
     <ConsultPage locale={locale} title={t("title")} backHref={back}>
       {list.length === 0 ? (
-        <ConsultState kind="empty" icon="headset" tone="mint" title={t("empty")} />
+        <ConsultState kind="empty" icon="headset" tone="ink" title={t("empty")} actionLabel={t("newRequest")} actionHref={`/${locale}/support/chat`} />
       ) : (
         <ul className={forms.list} aria-label={t("title")}>
           {list.map((item) => (
             <li key={item.id}>
               <RowCard
+                href={`/${locale}/support/chat`}
                 icon="headset"
-                tone="mint"
+                tone="ink"
                 title={item.title}
                 extra={
                   <>

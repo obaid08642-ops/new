@@ -52,6 +52,106 @@ const SAME_SERVICE: Record<string, string> = {
   oxygentherapysetup: 'homeoxygentherapy',
 };
 
+
+// ---- semantic identity (owner 2026-10-30: "سكر تراكمي HbA1c" and "السكر التراكمي HbA1c" are one test) ----
+
+const AR_STOP = new Set(['من', 'في', 'مع', 'على', 'عن', 'الى', 'او', 'و', 'ل', 'ب', 'فحص', 'تحليل', 'اختبار']);
+const EN_FILLER = new Set(['test', 'tests', 'level', 'levels', 'assay', 'serum', 'the', 'of', 'for', 'and']);
+
+/** Arabic folded as normalizeName does, kept as words: the definite article is dropped from every word, filler words (فحص, تحليل, ...) are ignored. */
+export function arabicTokens(value: unknown): string[] {
+  const folded = String(value ?? '')
+    .normalize('NFKC')
+    .replace(/[ً-ٰٟـ]/g, '')
+    .replace(/[أإآٱ]/g, 'ا')
+    .replace(/ة/g, 'ه')
+    .replace(/ى/g, 'ي');
+  const out = new Set<string>();
+  for (const raw of folded.split(/[^ء-ي0-9a-zA-Z]+/)) {
+    if (!raw || /[a-zA-Z]/.test(raw)) continue;      // a word with Latin letters (HbA1c) is a Latin token, see latinTokens
+    const w = raw.length > 3 && raw.startsWith('ال') ? raw.slice(2) : raw;
+    if (w && !AR_STOP.has(w) && !AR_STOP.has(raw)) out.add(w);
+  }
+  return [...out].sort();
+}
+
+/** Latin words of any name (Arabic names often carry the abbreviation: "سكر تراكمي HbA1c"), lowercased, filler removed, digits and letters only. */
+export function latinTokens(value: unknown): string[] {
+  const out = new Set<string>();
+  for (const raw of String(value ?? '').normalize('NFKC').toLowerCase().split(/[^a-z0-9]+/)) if (raw && !EN_FILLER.has(raw)) out.add(raw);
+  return [...out].sort();
+}
+
+/** Same test under its abbreviation or its long name. Each list is one test; phrases are compared as sorted word sets, so word order and "25-OH" spelling do not matter. */
+const EN_ALIASES: Record<string, string[]> = {
+  cbc: ['cbc', 'complete blood count', 'full blood count', 'complete blood picture'],
+  hba1c: ['hba1c', 'a1c', 'hemoglobin a1c', 'haemoglobin a1c', 'glycated hemoglobin', 'glycosylated hemoglobin', 'glycohemoglobin'],
+  tsh: ['tsh', 'thyroid stimulating hormone', 'thyrotropin'],
+  vitd: ['vitamin d', 'vit d', '25 oh vitamin d', '25 hydroxy vitamin d', '25 hydroxyvitamin d', 'vitamin d 25 oh', 'vitamin d total', '25 oh vitamin d3', 'vitamin d3 25 oh'],
+  vitb12: ['vitamin b12', 'vit b12', 'cobalamin', 'b12'],
+  esr: ['esr', 'erythrocyte sedimentation rate', 'sed rate'],
+  crp: ['crp', 'c reactive protein'],
+  fbs: ['fbs', 'fbg', 'fasting blood sugar', 'fasting blood glucose', 'fasting glucose'],
+  rbs: ['rbs', 'random blood sugar', 'random blood glucose', 'random glucose'],
+  ldl: ['ldl', 'ldl cholesterol', 'low density lipoprotein'],
+  hdl: ['hdl', 'hdl cholesterol', 'high density lipoprotein'],
+  alt: ['alt', 'sgpt', 'alanine aminotransferase', 'alanine transaminase'],
+  ast: ['ast', 'sgot', 'aspartate aminotransferase', 'aspartate transaminase'],
+  psa: ['psa', 'psa total', 'prostate specific antigen'],
+  inr: ['inr', 'pt inr', 'international normalized ratio'],
+  lft: ['lft', 'liver function', 'liver function panel'],
+  kft: ['kft', 'rft', 'kidney function', 'renal function'],
+  tft: ['tft', 'thyroid function', 'thyroid profile'],
+  urinalysis: ['urinalysis', 'urine analysis', 'general urine examination'],
+  lipid: ['lipid profile', 'lipid panel'],
+};
+const AR_ALIASES: Record<string, string[]> = {
+  cbc: ['صورة دم', 'صورة دم كاملة'],
+  hba1c: ['سكر تراكمي', 'هيموجلوبين سكري', 'هيموغلوبين سكري'],
+  vitd: ['فيتامين د', 'فيتامين د 25'],
+  vitb12: ['فيتامين ب12', 'فيتامين ب 12'],
+  fbs: ['سكر صائم', 'سكر الدم صائم'],
+  rbs: ['سكر عشوائي'],
+  lipid: ['دهون الدم', 'تحليل الدهون'],
+  lft: ['وظائف الكبد'],
+  kft: ['وظائف الكلى'],
+  tft: ['وظائف الغدة الدرقية'],
+};
+const wordSet = (tokens: string[]): string => [...new Set(tokens)].sort().join('|');
+const EN_ALIAS_INDEX = new Map<string, string>(Object.entries(EN_ALIASES).flatMap(([canon, phrases]) => phrases.map((p) => [wordSet(latinTokens(p)), canon] as [string, string])));
+const AR_ALIAS_INDEX = new Map<string, string>(Object.entries(AR_ALIASES).flatMap(([canon, phrases]) => phrases.map((p) => [wordSet(arabicTokens(p).concat(latinTokens(p))), canon] as [string, string])));
+const EN_ALIAS_TOKENS = new Map<string, Set<string>>(Object.entries(EN_ALIASES).map(([canon, phrases]) => [canon, new Set(phrases.flatMap((p) => latinTokens(p)))]));
+
+/**
+ * Keys that say two rows are the same test even when the names are spelled differently: the Arabic words without the article and in any order,
+ * the English words in any order, a known abbreviation / long name pair (CBC = Complete Blood Count, HbA1c, TSH, Vit D = 25-OH Vitamin D ...),
+ * also when the abbreviation sits inside the Arabic name.
+ */
+export function semanticKeys(doc: CatalogDoc): string[] {
+  const keys: string[] = [];
+  const ar = arabicTokens(nameAr(doc));
+  const arLatin = latinTokens(nameAr(doc));
+  const en = latinTokens(nameEn(doc));
+  // the Latin words of an Arabic name count: "هرمون DHEA-S" and "هرمون ACTH" are two tests
+  if (ar.length || arLatin.length) keys.push(`ar2:${wordSet(ar.concat(arLatin))}`);
+  if (en.length) keys.push(`en2:${wordSet(en)}`);
+  const canon = new Set<string>();
+  for (const set of [en, ar.length ? [] : arLatin]) { const c = set.length ? EN_ALIAS_INDEX.get(wordSet(set)) : undefined; if (c) canon.add(c); }   // Latin words alone only when the Arabic name is nothing but the abbreviation ("PSA الحر" is Free PSA)
+  // an Arabic alias ("سكر تراكمي") counts when the Latin words next to it are that test's own abbreviations ("HbA1c"); "وظائف كبد (ALT + AST)" is not "وظائف الكبد"
+  const arCanon = AR_ALIAS_INDEX.get(wordSet(ar));
+  if (arCanon && arLatin.every((t) => EN_ALIAS_TOKENS.get(arCanon)?.has(t))) canon.add(arCanon);
+  for (const c of canon) keys.push(`alias:${c}`);
+  return keys;
+}
+
+/** A radiology scan is the same scan as another with the same modality, body part and contrast. Weaker than a name: reported for the owner, not merged (lumbar vs whole spine share a body part in some seeds). */
+export function weakRadiologyKey(doc: CatalogDoc): string | null {
+  const m = text(doc.modality).trim().toLowerCase();
+  const b = text(doc.body_part).trim().toLowerCase();
+  if (!m || !b) return null;
+  return `rad:${m}|${b}|${doc.contrast_required === true ? 'c' : 'n'}`;
+}
+
 /** Keys that identify the same service; any shared key joins two rows. */
 export function identityKeys(doc: CatalogDoc, opts: { byPackage?: boolean } = {}): string[] {
   const scope = opts.byPackage ? (doc.is_package === true ? 'pkg:' : 'one:') : '';
@@ -65,6 +165,7 @@ export function identityKeys(doc: CatalogDoc, opts: { byPackage?: boolean } = {}
     const v = text(doc[k]).trim();
     if (v) keys.push(`${scope}code:${v.toLowerCase()}`);
   }
+  for (const k of semanticKeys(doc)) keys.push(`${scope}${k}`);
   return keys;
 }
 

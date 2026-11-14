@@ -1,14 +1,14 @@
-import { Injectable, BadRequestException, UnauthorizedException, ConflictException, GoneException, ForbiddenException, Inject, HttpException, HttpStatus, ServiceUnavailableException } from '@nestjs/common';
+import { NotFoundException, Injectable, BadRequestException, UnauthorizedException, ConflictException, GoneException, ForbiddenException, Inject, HttpException, HttpStatus, ServiceUnavailableException, GatewayTimeoutException } from '@nestjs/common';
+import { currentRequestMeta, describeClient, maskIp } from '../../common/request-meta';
 import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcryptjs';
-import { createHmac, createPublicKey, KeyObject, randomBytes } from 'crypto';
+import * as bcrypt from '../../common/password-hash';
+import { createHash, createHmac, createPublicKey, KeyObject, randomBytes } from 'crypto';
 import * as nodemailer from 'nodemailer';
 import { Optional } from '@nestjs/common';
 import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { PushService } from '../push/push.module';
 import { escapeHtml, MailService } from '../mail/mail.module';
-import { SmsService } from '../sms/sms.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { User, UserDocument } from '../../schemas/user.schema';
 import { PatientProfile, PatientProfileDocument } from '../../schemas/patient-profile.schema';
@@ -23,10 +23,15 @@ import { normalizeDigits } from './checkout-contact.service';
 import { AdminSessionService } from './admin-session.service';
 import { revokeAllCredentialSessions, revokeRedisRefreshSessions, RevocationResult } from '../../common/credential-revocation';
 import { Logger } from '@nestjs/common';
+import { timedFetch } from '../../common/external-call';
+
+/** Google / Apple lookups: 5 s per attempt, a read, so up to 2 repeats; a timeout is a 504 `social_login_timeout`. */
+const SOCIAL_FETCH = { timeoutMs: 5000, retries: 2, label: 'social-login', timeoutCode: 'social_login_timeout' } as const;
 import { randomUUID } from 'crypto';
 import { GuestService } from './guest.service';
 import { AccountLinkingService } from './account-linking.service';
-import { PasswordSecurityService } from '../../common/password-security.service';
+import { PasswordSecurityService, dummyPasswordHash, MIN_PASSWORD_LENGTH } from '../../common/password-security.service';
+import { LoginLockService } from '../../common/login-lock.service';
 import { OtpAbuseGuard } from '../../common/otp-abuse.service';
 import { I18nService, resolveLang } from '../i18n/i18n.service';
 import { logEvent } from '../../common/structured-logger';
@@ -70,7 +75,6 @@ export class AuthService {
     @Optional() private adminSession?: AdminSessionService,
     @Optional() private push?: PushService,
     @Optional() private mail?: MailService,
-    @Optional() private sms?: SmsService,
     @Optional() private guests?: GuestService,
     @Optional() private linking?: AccountLinkingService,
     // 16.2: length + breached-password policy, applied before anything is stored.
@@ -79,6 +83,8 @@ export class AuthService {
     @Optional() private otpAbuse?: OtpAbuseGuard,
     // Issue 955: the admin "new registrations" kill switch.
     @Optional() private killSwitches?: KillSwitchesService,
+    // 16.2: progressive lockout of password sign-in.
+    @Optional() private loginLock?: LoginLockService,
   ) {}
 
   /**
@@ -97,35 +103,52 @@ export class AuthService {
     }
   }
 
-  signToken(user: any, deviceId?: string) {
+  /**
+   * Mints the access + refresh pair and WAITS for the refresh session to be written. If the Redis write fails the sign-in is
+   * refused with a retryable 503 (fail closed): a refresh token that cannot be refreshed later, or an unrecorded session, is never
+   * handed out. A failed write is never read as theft by the refresh path.
+   */
+  async signToken(user: any, deviceIdIn?: string, session?: { sid?: string; created?: number }) {
+    // 21.7: a sign-in path that was not handed a device id (password login, register, social) uses the one on the request
+    const deviceId = deviceIdIn ?? currentRequestMeta().deviceId;
     // The access token carries its own id: the guest merge burns that jti so a
     // captured guest token cannot be replayed (21.2). Without it, single-use
     // could not be enforced.
     const accessJti = randomUUID();
+    // 21.7: `sid` names the sign-in (one per device); it survives every refresh, so the session list, "sign out other
+    // devices" and the push token of this device can all point at it.
+    const sid = session?.sid || randomUUID();
     const accessToken = this.jwt.sign(
-      { sub: user.id, id: user.id, role: user.role, phone: user.phone, is_guest: !!user.is_guest, tv: Number(user.token_version ?? 0), jti: accessJti, ...(deviceId ? { dev: deviceId.slice(0, 32) } : {}) },
+      { sub: user.id, id: user.id, role: user.role, phone: user.phone, is_guest: !!user.is_guest, tv: Number(user.token_version ?? 0), jti: accessJti, sid, ...(deviceId ? { dev: deviceId.slice(0, 32) } : {}) },
       { expiresIn: '1h' } // Short-lived access token
     );
     // Refresh token carries a unique session id (jti) — tracked in Redis so
     // rotation can revoke the previous token and detect replay attacks.
     const jti = randomUUID();
     const refreshToken = this.jwt.sign(
-      { sub: user.id, type: 'refresh', jti },
+      { sub: user.id, type: 'refresh', jti, sid },
       { expiresIn: '14d' }
     );
-    this.storeRefreshSession(user.id, jti, deviceId).catch(() => {});
+    await this.storeRefreshSession(user.id, jti, deviceId, { sid, created: session?.created });
     return { accessToken, refreshToken };
   }
 
   /** Persist the refresh session (14d TTL matches token life), device-bound. */
-  private async storeRefreshSession(userId: string, jti: string, deviceId?: string) {
+  private async storeRefreshSession(userId: string, jti: string, deviceId?: string, session?: { sid?: string; created?: number }) {
     try {
       const client = (this.redisService as any).getClient?.();
       if (!client) return;
-      await client.set(`refresh:${jti}`, JSON.stringify({ u: userId, d: deviceId || null }), 'EX', 14 * 24 * 3600);
+      const meta = currentRequestMeta();
+      const now = Date.now();
+      // s: the sign-in id, c: when this sign-in started, l: last use, ua/ip: the client of the latest use
+      const record = { u: userId, d: deviceId || null, s: session?.sid || jti, c: session?.created ?? now, l: now, ua: meta.userAgent ?? null, ip: meta.ip ?? null };
+      await client.set(`refresh:${jti}`, JSON.stringify(record), 'EX', 14 * 24 * 3600);
       await client.sadd(`refresh_user:${userId}`, jti);
       await client.expire(`refresh_user:${userId}`, 30 * 24 * 3600);
-    } catch { /* session store failure must not break login */ }
+    } catch (e: any) {
+      this.logger.error(`refresh session store failed: ${e?.message}`);
+      throw new ServiceUnavailableException({ message: 'session_store_unavailable', code: 'session_store_unavailable', retryable: true, statusCode: HttpStatus.SERVICE_UNAVAILABLE });
+    }
   }
 
   async refreshToken(token: string, deviceId?: string) {
@@ -140,27 +163,70 @@ export class AuthService {
     // Replay/rotation enforcement: the jti must still be an active session
     const client = (this.redisService as any).getClient?.();
     let boundDevice: string | null = null;
+    let claimedRaw: string | null = null;
+    let sessionMeta: { sid?: string; created?: number } = { sid: payload.sid };
     if (client && payload.jti) {
       const raw = await client.get(`refresh:${payload.jti}`);
       if (!raw) {
+        // Two requests of one client can present the same token a moment apart (two tabs, a retry): within seconds of
+        // the rotation that is a lost race, not theft, so only this call fails.
+        if (await client.get(`refresh_rotated:${payload.jti}`).catch(() => null)) throw new UnauthorizedException('refresh_token_rotated');
+        // A sign-in the person ended on purpose ("sign out other devices", sign-out): its token is dead, but presenting it
+        // again is not theft, and must not end the sign-ins they kept.
+        if (await client.get(`refresh_revoked:${payload.jti}`).catch(() => null)) throw new UnauthorizedException('refresh_token_revoked');
         // Reuse of a rotated/unknown token — possible theft: kill the whole family
-        if (payload.sub) await this.revokeAllUserSessions(payload.sub).catch(() => {});
+        if (payload.sub) await this.endAllSessions(payload.sub);
         throw new UnauthorizedException('refresh_token_reused_or_revoked');
       }
-      try { boundDevice = JSON.parse(raw).d || null; } catch { boundDevice = null; }
+      try {
+        const stored = JSON.parse(raw);
+        boundDevice = stored.d || null;
+        sessionMeta = { sid: payload.sid || stored.s || payload.jti, created: stored.c };
+      } catch { boundDevice = null; }
       // Device binding: a token minted for device A must not refresh on device B
       if (boundDevice && deviceId && boundDevice !== deviceId) {
-        if (payload.sub) await this.revokeAllUserSessions(payload.sub).catch(() => {});
+        if (payload.sub) await this.endAllSessions(payload.sub);
         throw new UnauthorizedException('refresh_token_device_mismatch');
       }
       // Rotate: revoke the presented token immediately
-      await client.del(`refresh:${payload.jti}`);
+      // The delete is the atomic claim on this token: of two requests that read the record at the same moment only the one whose DEL
+      // removed it may mint the next token; the other lost the race (same answer as a reuse a moment after the rotation).
+      const removed = await client.del(`refresh:${payload.jti}`);
+      if (removed === 0) throw new UnauthorizedException('refresh_token_rotated');
+      claimedRaw = raw;
+      await client.set(`refresh_rotated:${payload.jti}`, '1', 'EX', 10).catch(() => undefined);
       if (payload.sub) await client.srem(`refresh_user:${payload.sub}`, payload.jti);
     }
 
     const u = await this.userModel.findOne({ id: payload.sub });
     if (!u || u.active === false) throw new UnauthorizedException('User not found or disabled');
-    return this.signToken(u, boundDevice || deviceId);
+    // 21.8: a guest who keeps using the app is not inactive; written at most once a day
+    if (u.is_guest === true) await this.touchGuestActivity(u);
+    try {
+      return await this.signToken(u, boundDevice || deviceId, sessionMeta);
+    } catch (e) {
+      // The new session could not be written (503). The presented token was already claimed; put it back (best effort) so the
+      // client's retry is a normal refresh and not a reuse, which would be answered as theft.
+      if (client && claimedRaw && payload.jti) {
+        await client.set(`refresh:${payload.jti}`, claimedRaw, 'EX', 14 * 24 * 3600).catch(() => undefined);
+        await client.del(`refresh_rotated:${payload.jti}`).catch(() => undefined);
+        if (payload.sub) await client.sadd(`refresh_user:${payload.sub}`, payload.jti).catch(() => undefined);
+      }
+      throw e;
+    }
+  }
+
+  /** Theft response: every sign-in of the account ends now, access tokens included. */
+  private async endAllSessions(userId: string): Promise<void> {
+    await this.endSessions(userId, () => true).catch(() => undefined);
+    await this.revokeAllUserSessions(userId).catch(() => undefined);
+  }
+
+  /** 21.8: the guest was active now (at most one write a day). Failure never blocks the refresh. */
+  private async touchGuestActivity(u: any): Promise<void> {
+    const last = u.last_active_at ? new Date(u.last_active_at).getTime() : 0;
+    if (Date.now() - last < 24 * 3600 * 1000) return;
+    try { await this.userModel.updateOne({ id: u.id }, { $set: { last_active_at: new Date() } }); } catch { /* best effort */ }
   }
 
   /** Revoke every refresh session of a user (logout-all / theft response). */
@@ -194,20 +260,14 @@ export class AuthService {
     await this.revokeAfterCredentialChange(userId, { bumpUser: false });
     const u = await this.userModel.findOne({ id: userId });
     if (!u) throw new UnauthorizedException('User not found or disabled');
-    const tokens = this.signToken(u, deviceId);
-    await this.storeRefreshSessionFromToken(tokens.refreshToken, u.id, deviceId);
+    const tokens = await this.signToken(u, deviceId);
     return tokens;
   }
 
-  /** signToken stores its refresh session fire-and-forget; await it when the caller must be able to refresh right away. */
-  private async storeRefreshSessionFromToken(refreshToken: string, userId: string, deviceId?: string) {
-    try {
-      const jti = (this.jwt.decode(refreshToken) as any)?.jti;
-      if (jti) await this.storeRefreshSession(userId, jti, deviceId);
-    } catch { /* same contract as signToken: store failure never breaks the response */ }
-  }
-
-  /** Issue 440: revoke the one refresh session a signed-out token belongs to. A token that does not verify revokes nothing. */
+  /**
+   * Issue 440 / 21.7: sign out with the refresh token of the session. The session ends, its access tokens stop working
+   * at once and the push tokens of this device are removed. A token that does not verify revokes nothing.
+   */
   async revokeRefreshSession(refreshToken: string): Promise<boolean> {
     let payload: any;
     try {
@@ -215,69 +275,129 @@ export class AuthService {
     } catch {
       return false;
     }
-    if (payload?.type !== 'refresh' || !payload.jti) return false;
-    const client = (this.redisService as any).getClient?.();
-    if (!client) return false;
-    const removed = await client.del(`refresh:${payload.jti}`).catch(() => 0);
-    if (payload.sub) await client.srem(`refresh_user:${payload.sub}`, payload.jti).catch(() => 0);
-    return removed > 0;
+    if (payload?.type !== 'refresh' || !payload.jti || !payload.sub) return false;
+    const ended = await this.endSessions(payload.sub, (m) => m.jti === payload.jti);
+    if (ended.revoked > 0) this.events.emit('auth.session_ended', { user_id: payload.sub, scope: 'this_device', sessions: ended.revoked });
+    return ended.revoked > 0;
   }
 
   async logoutAllDevices(userId: string) {
-    // Real revocation: kill every refresh session for this user
-    await this.revokeAllUserSessions(userId).catch(() => {});
+    // Real revocation: every sign-in ends, its access tokens stop at once and its push tokens go
+    await this.endAllSessions(userId);
     this.events.emit('USER_LOGGED_OUT_ALL', { user_id: userId });
+    this.events.emit('auth.session_ended', { user_id: userId, scope: 'all_devices' });
     return { ok: true, message: 'Logged out from all devices' };
   }
 
   /**
-   * 21.7 — sign out of one device. The refresh sessions bound to that device
-   * are revoked and its push token is removed, so a shared phone stops
-   * receiving this account's notifications.
+   * The one place sessions end. Every refresh session of `userId` that `match` accepts is deleted, its sign-in id is
+   * marked revoked (the guard refuses its access tokens until they would have expired anyway) and the push tokens of
+   * that sign-in (or, for tokens registered before sessions were tracked, of its device) are removed.
    */
-  async logoutDevice(userId: string, deviceId?: string) {
+  private async endSessions(
+    userId: string,
+    match: (m: { jti: string; sid: string; device: string | null }) => boolean,
+  ): Promise<{ revoked: number; sids: string[]; push_removed: number }> {
     const client = (this.redisService as any).getClient?.();
+    if (!client) return { revoked: 0, sids: [], push_removed: 0 };
+    const jtis: string[] = await client.smembers(`refresh_user:${userId}`).catch(() => [] as string[]);
+    const sids = new Set<string>();
+    const devices = new Set<string>();
     let revoked = 0;
-    if (client) {
-      const jtis: string[] = await client.smembers(`refresh_user:${userId}`).catch(() => [] as string[]);
-      for (const jti of jtis) {
-        if (deviceId) {
-          const raw = await client.get(`refresh:${jti}`).catch(() => null);
-          let bound: string | null = null;
-          try { bound = raw ? JSON.parse(raw).d ?? null : null; } catch { bound = null; }
-          if (bound && bound !== deviceId) continue;
-        }
-        await client.del(`refresh:${jti}`);
-        await client.srem(`refresh_user:${userId}`, jti);
-        revoked += 1;
-      }
+    for (const jti of jtis) {
+      const raw = await client.get(`refresh:${jti}`).catch(() => null);
+      if (!raw) { await client.srem(`refresh_user:${userId}`, jti).catch(() => 0); continue; }
+      let rec: any = {};
+      try { rec = JSON.parse(raw); } catch { rec = {}; }
+      const entry = { jti, sid: String(rec.s || jti), device: (rec.d as string | null) ?? null };
+      if (!match(entry)) continue;
+      await client.del(`refresh:${jti}`);
+      await client.set(`refresh_revoked:${jti}`, '1', 'EX', 14 * 24 * 3600).catch(() => undefined);
+      await client.srem(`refresh_user:${userId}`, jti);
+      revoked += 1;
+      sids.add(entry.sid);
+      if (entry.device) devices.add(entry.device);
     }
+    if (!sids.size) return { revoked, sids: [], push_removed: 0 };
     const db = (this.userModel as any).model?.db ?? (this.userModel as any).db;
-    let push_removed = 0;
     if (db) {
-      const filter: Record<string, unknown> = { user_id: userId };
-      if (deviceId) filter.device_id = deviceId;
-      const res = await db.collection('push_tokens').deleteMany(filter).catch(() => null);
-      push_removed = res?.deletedCount ?? 0;
+      const col = db.collection('revoked_sessions');
+      // the marks only matter while an access token of the session could still be alive (1 h) — keep them 2 h
+      await col.createIndex({ at: 1 }, { expireAfterSeconds: 2 * 3600 }).catch(() => undefined);
+      const at = new Date();
+      await Promise.all([...sids].map((sid) => col.updateOne({ sid }, { $set: { sid, user_id: userId, at } }, { upsert: true }).catch(() => undefined)));
     }
-    this.events.emit('USER_LOGGED_OUT', { user_id: userId, device_id: deviceId ?? null });
-    return { ok: true, sessions_revoked: revoked, push_tokens_removed: push_removed };
+    const push_removed = (await this.push?.removeForSessions?.(userId, [...sids], [...devices]).catch(() => 0)) ?? 0;
+    this.events.emit('USER_SESSIONS_ENDED', { user_id: userId, session_ids: [...sids] });
+    return { revoked, sids: [...sids], push_removed };
   }
 
-  /** 21.7 — the signed-in devices of an account. */
-  async listSessions(userId: string) {
+  /**
+   * 21.7 — sign out of this device. The sign-in of the caller (its `sid`, or for older tokens its device id) ends; the
+   * other devices stay signed in. Nothing matches without one of the two, so an anonymous call never signs everyone out.
+   */
+  async logoutDevice(userId: string, current: { sid?: string; deviceId?: string }) {
+    if (!current.sid && !current.deviceId) throw new BadRequestException('current_session_unknown');
+    const r = await this.endSessions(userId, (m) => (current.sid ? m.sid === current.sid : m.device === current.deviceId));
+    this.events.emit('USER_LOGGED_OUT', { user_id: userId, device_id: current.deviceId ?? null });
+    this.events.emit('auth.session_ended', { user_id: userId, scope: 'this_device', sessions: r.revoked });
+    return { ok: true, sessions_revoked: r.revoked, push_tokens_removed: r.push_removed };
+  }
+
+  /** 21.7 — "sign out other devices": every sign-in except the caller's. */
+  async revokeOtherSessions(userId: string, current: { sid?: string; deviceId?: string }) {
+    if (!current.sid && !current.deviceId) throw new BadRequestException('current_session_unknown');
+    const r = await this.endSessions(userId, (m) => (current.sid ? m.sid !== current.sid : m.device !== current.deviceId));
+    if (r.revoked > 0) this.events.emit('auth.session_ended', { user_id: userId, scope: 'other_devices', sessions: r.revoked });
+    return { ok: true, sessions_revoked: r.revoked, push_tokens_removed: r.push_removed };
+  }
+
+  /**
+   * 21.7 — sign out the sign-in that holds this refresh session id (what `GET /users/me/sessions` lists and the apps send to
+   * `DELETE /users/me/sessions/:jti`). Same effect as ending it by its sign-in id: the access token stops at once and its
+   * push tokens go.
+   */
+  async revokeSessionByJti(userId: string, jti: string) {
+    const r = await this.endSessions(userId, (m) => m.jti === jti);
+    if (!r.revoked) throw new NotFoundException('session_not_found');
+    return { ok: true, sessions_revoked: r.revoked, push_tokens_removed: r.push_removed };
+  }
+
+  /** 21.7 — sign out one listed device by its session id. Only the account's own sessions are ever in the set. */
+  async revokeSession(userId: string, sessionId: string) {
+    const r = await this.endSessions(userId, (m) => m.sid === sessionId);
+    if (!r.revoked) throw new NotFoundException('session_not_found');
+    return { ok: true, sessions_revoked: r.revoked, push_tokens_removed: r.push_removed };
+  }
+
+  /** 21.7 — the signed-in devices of an account, newest use first; the caller's own is marked `current`. */
+  async listSessions(userId: string, current: { sid?: string; deviceId?: string } = {}) {
     const client = (this.redisService as any).getClient?.();
     if (!client) return [];
     const jtis: string[] = await client.smembers(`refresh_user:${userId}`).catch(() => [] as string[]);
-    const out: Array<{ session_id: string; device_id: string | null }> = [];
+    const out: Array<{
+      session_id: string; device_id: string | null; platform: string; label: string;
+      created_at: string | null; last_seen_at: string | null; ip: string | null; current: boolean;
+    }> = [];
     for (const jti of jtis) {
       const raw = await client.get(`refresh:${jti}`).catch(() => null);
       if (!raw) continue;
-      let device: string | null = null;
-      try { device = JSON.parse(raw).d ?? null; } catch { device = null; }
-      out.push({ session_id: jti, device_id: device });
+      let rec: any = {};
+      try { rec = JSON.parse(raw); } catch { rec = {}; }
+      const sid = String(rec.s || jti);
+      const who = describeClient(rec.ua);
+      out.push({
+        session_id: sid,
+        device_id: rec.d ?? null,
+        platform: who.platform,
+        label: who.label,
+        created_at: rec.c ? new Date(rec.c).toISOString() : null,
+        last_seen_at: rec.l ? new Date(rec.l).toISOString() : null,
+        ip: maskIp(rec.ip),
+        current: current.sid ? sid === current.sid : !!current.deviceId && rec.d === current.deviceId,
+      });
     }
-    return out;
+    return out.sort((a, b) => String(b.last_seen_at).localeCompare(String(a.last_seen_at)));
   }
 
   async recordComplianceConsent(userId: string, documentType: string, version: string) {
@@ -336,29 +456,14 @@ export class AuthService {
   }
 
   /**
-   * F34 channel policy. Delivers the OTP on every working channel, most
-   * direct first: SMS for phone identifiers (Taqnyat via SmsService, only
-   * when SMS_ENABLED), then push (best-effort), then email (the identifier
-   * itself, or the account email for phone identifiers). Returns the list of
-   * channels that accepted the message. Never throws — callers decide.
+   * Owner decision 2026-10-25: no SMS anywhere. A one-time code goes by push
+   * (every registered device of the account) AND by email (the identifier
+   * itself, or the account email for a phone identifier). Returns the list of
+   * channels that accepted the message. Never throws — callers answer
+   * `otp_no_channel` when the list is empty.
    */
   private async deliverOtp(user: any, identifier: string, code: string, isEmailIdentifier: boolean): Promise<string[]> {
     const delivered: string[] = [];
-    if (!isEmailIdentifier && user?.phone) {
-      try {
-        if (await this.sms?.sendOtp(user.phone, code)) {
-          delivered.push('sms');
-          // 16.3: the daily budget is spent only now, when a message really
-          // left. check() only reads it, so a refused or undelivered OTP costs
-          // nothing. If the budget is already gone, stop before sending.
-          const spent = await this.otpAbuse?.recordSmsSent();
-          if (spent === false) {
-            this.logger.warn('otp not sent: the daily SMS budget is spent');
-            return delivered;
-          }
-        }
-      } catch { /* fall through to push/email */ }
-    }
     if (user?.id) try {
       const r: any = await this.push?.sendTemplated(
         user.id,
@@ -446,6 +551,7 @@ export class AuthService {
     const user = await this.userModel.findOne(normalized.includes('@') ? { email: normalized } : { phone: normalized });
     if (!user || user.active === false) return this.opaqueOtpResponse(normalized);
 
+    this.events.emit('auth.otp_requested', { user_id: user.id, purpose: 'login', channel: normalized.includes('@') ? 'email' : 'phone' });
     const code = require('crypto').randomInt(100000, 1000000).toString();
     await this.redisService.setJson(
       this.patientOtpKey(normalized),
@@ -453,12 +559,11 @@ export class AuthService {
       this.PATIENT_OTP_TTL_SECONDS,
     );
 
-    // F34: SMS first for phone identifiers (when enabled), then push, then
-    // email. A phone-only user with SMS disabled and no email is no longer
-    // told "sent" for a code that went nowhere.
+    // Push + email together; an account with neither gets otp_no_channel
+    // instead of a "sent" for a code that went nowhere.
     const delivered = await this.deliverOtp(user, normalized, code, normalized.includes('@'));
     if (!delivered.length) {
-      throw new ServiceUnavailableException({ message: 'otp_channel_unavailable', code: 'otp_channel_unavailable' });
+      throw new ServiceUnavailableException({ message: 'otp_no_channel', code: 'otp_no_channel' });
     }
     return this.opaqueOtpResponse(normalized);
   }
@@ -534,7 +639,7 @@ export class AuthService {
     if (!user || user.active === false) {
       throw new UnauthorizedException({ message: 'exchange_token_invalid', code: 'exchange_token_invalid', statusCode: HttpStatus.UNAUTHORIZED });
     }
-    const tokens = this.signToken(user, entry.device_id || undefined);
+    const tokens = await this.signToken(user, entry.device_id || undefined);
     // 21.2: signing in with an email code merges the guest data too.
     await this.mergeGuestFromRequest(guestToken, user.id);
     return { access_token: tokens.accessToken, refresh_token: tokens.refreshToken };
@@ -558,8 +663,8 @@ export class AuthService {
 
   /**
    * 435: the reset reaches the person as a link to the website's reset page (the page reads the token from the link), valid
-   * for 30 minutes, in their language. Email when there is one; a phone-only account gets it by SMS (when SMS is on) and on
-   * its signed-in devices by push. Every channel is best effort and the answer stays the same opaque `requested`.
+   * for 30 minutes, in their language. Email when there is one, and on the account's
+   * signed-in devices by push (no SMS: owner decision 2026-10-25). Every channel is best effort and the answer stays the same opaque `requested`.
    */
   private async deliverPasswordReset(user: any, email: string | undefined, resetToken: string) {
     const webLocales = ['ar', 'en', 'ur', 'hi', 'bn', 'fil'];
@@ -577,9 +682,6 @@ export class AuthService {
       } catch { /* do not disclose account state */ }
       return;
     }
-    if (user?.phone) {
-      try { await this.sms?.sendText(user.phone, `${body} ${link}`); } catch { /* best effort */ }
-    }
     if (user?.id) {
       try { await this.push?.sendTemplated(user.id, 'auth.passwordReset.subject', 'auth.passwordReset.body', { kind: 'password_reset', url: link }, { minutes }); } catch { /* best effort */ }
     }
@@ -588,7 +690,7 @@ export class AuthService {
   async resetPatientPassword(resetToken: string, newPassword: string) {
     AuthService.assertString(resetToken, 'reset_token');
     AuthService.assertString(newPassword, 'new_password');
-    if (newPassword.length < 8) throw new BadRequestException({ message: 'password_too_short', code: 'password_too_short', statusCode: HttpStatus.BAD_REQUEST });
+    if (newPassword.length < MIN_PASSWORD_LENGTH) throw new BadRequestException({ message: 'password_too_short', code: 'password_too_short', statusCode: HttpStatus.BAD_REQUEST });
     const key = this.passwordResetKey(resetToken);
     const redis = this.redisService.getClient();
     const claimed = await redis.set(`${key}:claim`, '1', 'EX', this.PATIENT_EXCHANGE_TTL_SECONDS, 'NX');
@@ -610,6 +712,7 @@ export class AuthService {
     await user.save();
     // P3.0a: reset ends every session (access + refresh, patient + provider).
     await this.revokeAfterCredentialChange(user.id);
+    this.events.emit('auth.password_changed', { user_id: user.id, role: user.role, how: 'reset_link' });
     return { reset: true };
   }
 
@@ -671,6 +774,7 @@ export class AuthService {
     const now = new Date();
     for (const c of consents) {
       await col.insertOne({ user_id: userId, policy_key: c.policy_id, version: c.version, timestamp: now });
+      this.events.emit('legal.accepted', { user_id: userId, role: 'patient', policy_key: c.policy_id, version: c.version });
     }
   }
 
@@ -827,7 +931,12 @@ export class AuthService {
     this.events.emit(EVENTS.USER_REGISTERED, { user_id: u.id, role: u.role });
     // 21.2: registering from a guest device keeps the cart and the orders.
     await this.mergeGuestFromRequest(guestToken, u.id);
-    return { user: this.publicUser(u), token: this.signToken(u) };
+    return { user: this.publicUser(u), token: await this.signToken(u) };
+  }
+
+  /** 23.2: a failed sign-in is an audit event (the identifier is only ever stored hashed, by the audit handler). */
+  private auditLoginFailed(identifier: string, userId: string | undefined, reason: string, ctx?: { ua?: string; ip?: string }) {
+    this.events.emit('auth.login_failed', { phone: identifier, user_id: userId, reason, ip: ctx?.ip, user_agent: ctx?.ua });
   }
 
   async login(identifier: string, password: string, ctx?: { deviceToken?: string; ua?: string; ip?: string }, guestToken?: string) {
@@ -835,17 +944,29 @@ export class AuthService {
     AuthService.assertString(password, 'password');
     const isEmail = identifier.includes('@');
     const query = isEmail ? { email: identifier.trim().toLowerCase() } : { phone: identifier };
+    // 16.2: a locked identifier is refused before anything about the account is looked at.
+    await this.loginLock?.assertNotLocked(identifier, ctx?.ip);
     const u = await this.userModel.findOne(query);
     if (!u || !u.password_hash) {
+      // The same bcrypt work as a real check, so the answer does not come back faster for an unknown account.
+      await bcrypt.compare(password, await dummyPasswordHash());
       if (u) await this.adminLoginAlert(u, false, ctx); // C5: known account, bad secret
+      this.auditLoginFailed(identifier, u?.id, u ? 'no_password' : 'unknown_account', ctx);
+      await this.loginLock?.recordFailure(identifier, ctx?.ip);
       throw new UnauthorizedException('Invalid credentials');
     }
     const ok = await bcrypt.compare(password, u.password_hash);
     if (!ok) {
       await this.adminLoginAlert(u, false, ctx); // C5: failed admin login attempt
+      this.auditLoginFailed(identifier, u.id, 'wrong_password', ctx);
+      await this.loginLock?.recordFailure(identifier, ctx?.ip);
       throw new UnauthorizedException('Invalid credentials');
     }
-    if (u.active === false) throw new UnauthorizedException('Account disabled');
+    await this.loginLock?.recordSuccess(identifier, ctx?.ip);
+    if (u.active === false) {
+      this.auditLoginFailed(identifier, u.id, 'account_disabled', ctx);
+      throw new UnauthorizedException('Account disabled');
+    }
 
     // Check 2FA requirement
     if (u.role === UserRole.SUPER_ADMIN || u.role === UserRole.ADMIN) {
@@ -861,7 +982,7 @@ export class AuthService {
           await this.adminLoginAlert(u, true, { ...ctx, deviceName: trusted.name }); // C5
           return {
             user: this.publicUser(u),
-            token: this.signToken(u),
+            token: await this.signToken(u),
             trusted_device: true,
             device_name: trusted.name,
           };
@@ -908,7 +1029,7 @@ export class AuthService {
     this.events.emit(EVENTS.USER_LOGGED_IN, { user_id: u.id, role: u.role });
     // 21.2: password sign-in merges the guest data too.
     await this.mergeGuestFromRequest(guestToken, u.id);
-    return { user: this.publicUser(u), token: this.signToken(u) };
+    return { user: this.publicUser(u), token: await this.signToken(u) };
   }
 
   async verify2fa(identifier: string, code: string, ctx?: { ua?: string; ip?: string; trust?: boolean }) {
@@ -935,7 +1056,7 @@ export class AuthService {
     await u.save();
     this.events.emit(EVENTS.USER_LOGGED_IN, { user_id: u.id, role: u.role });
 
-    const result: any = { user: this.publicUser(u), token: this.signToken(u) };
+    const result: any = { user: this.publicUser(u), token: await this.signToken(u) };
 
     // Admin accounts: trust this device (default on — the owner asked for his
     // iPhone + Mac to be approved) and alert by email about the new device.
@@ -979,7 +1100,7 @@ export class AuthService {
     this.events.emit(EVENTS.USER_LOGGED_IN, { user_id: u.id, role: u.role, method: 'passkey' });
     await this.adminSession?.touch(u.id); // C5: idle window starts at login
     await this.adminLoginAlert(u, true, ctx); // C5
-    const result: any = { user: this.publicUser(u), token: this.signToken(u) };
+    const result: any = { user: this.publicUser(u), token: await this.signToken(u) };
     // C2: auto-enroll the presenting device into the admin allow-list on
     // successful passkey login (the passkey assertion proves possession). The
     // device is bound to the credential that was just verified, so removing that
@@ -1079,7 +1200,9 @@ export class AuthService {
 
   async revokeTrustedDevice(userId: string, deviceId: string) {
     if (!this.deviceTrust) throw new BadRequestException('device_trust_unavailable');
-    return this.deviceTrust.revoke(userId, deviceId);
+    const revoked = await this.deviceTrust.revoke(userId, deviceId);
+    this.events.emit('auth.device_changed', { user_id: userId, change: 'revoked' });
+    return revoked;
   }
 
   async deviceHeartbeat(userId: string, deviceToken: string | undefined, ua?: string, ip?: string) {
@@ -1131,7 +1254,7 @@ export class AuthService {
       const existing = await this.userModel.findOne({ id: bound.guest_id });
       if (existing && existing.is_guest === true) {
         await bindings.updateOne({ device_hash: deviceHash }, { $set: { last_seen_at: new Date() } });
-        return { user: this.publicUser(existing), token: this.signToken(existing, device) };
+        return { user: this.publicUser(existing), token: await this.signToken(existing, device) };
       }
     }
 
@@ -1163,10 +1286,10 @@ export class AuthService {
       await this.patientModel.deleteOne({ user_id: u.id }).catch(() => undefined);
       await this.userModel.deleteOne({ id: u.id }).catch(() => undefined);
       const winner = await this.userModel.findOne({ id: winnerId });
-      if (winner?.is_guest === true) return { user: this.publicUser(winner), token: this.signToken(winner, device) };
+      if (winner?.is_guest === true) return { user: this.publicUser(winner), token: await this.signToken(winner, device) };
       throw new ConflictException('guest_device_busy');       // the winner was converted in this instant: the caller retries
     }
-    return { user: this.publicUser(u), token: this.signToken(u, device) };
+    return { user: this.publicUser(u), token: await this.signToken(u, device) };
   }
 
   /** Re-point a guest's data to another account (used by the merge path). */
@@ -1227,6 +1350,8 @@ export class AuthService {
     }
 
     if (existingUser.id === guestUserId) {
+      const policy = await this.passwordSecurity?.check(data.password);
+      if (policy && !policy.ok) throw new BadRequestException({ message: policy.code, code: policy.code, statusCode: HttpStatus.BAD_REQUEST });
       const hash = await bcrypt.hash(data.password, 12);
       existingUser.full_name = data.full_name;
       existingUser.phone = data.phone;
@@ -1237,7 +1362,7 @@ export class AuthService {
       this.events.emit(EVENTS.USER_GUEST_CONVERTED, { user_id: existingUser.id });
     }
     
-    return { user: this.publicUser(existingUser), token: this.signToken(existingUser) };
+    return { user: this.publicUser(existingUser), token: await this.signToken(existingUser) };
   }
 
   async me(userId: string) {
@@ -1296,12 +1421,13 @@ export class AuthService {
     if (!existing && purpose !== 'register') {
       // No account: same answer as a sent code, so this endpoint cannot be used to
       // test which emails/phones are registered. Nothing is stored or sent.
-      return { ok: true, channel: isEmail ? 'email' : 'sms' };
+      return { ok: true, channel: 'email' };
     }
     // F63 registration: a new identifier must be able to receive the code that
     // /auth/register requires (the code goes to the identifier itself).
     const u: any = existing || { id: null, email: isEmail ? normalized : undefined, phone: isEmail ? undefined : normalized };
 
+    this.events.emit('auth.otp_requested', { user_id: u.id ?? undefined, purpose: purpose || 'login', channel: isEmail ? 'email' : 'phone' });
     const code = require('crypto').randomInt(100000, 1000000).toString();
     // Store only a bcrypt hash. The plaintext code must never persist in Redis or logs.
     await this.redisService.setJson(
@@ -1311,8 +1437,7 @@ export class AuthService {
     );
 
     try {
-      // F34 channel policy: SMS (phone identifiers, when enabled) → push →
-      // email. Every channel is isolated; at least one must accept.
+      // Push + email, each isolated; at least one must accept.
       const delivered = await this.deliverOtp(u, normalized, code, isEmail);
       if (
         process.env.NODE_ENV !== 'production' &&
@@ -1322,7 +1447,7 @@ export class AuthService {
         logEvent('warn', 'otp_no_delivery_channel', {}, 'auth');
       }
       if (!delivered.length) {
-        throw new ServiceUnavailableException({ message: 'otp_channel_unavailable', code: 'otp_channel_unavailable' });
+        throw new ServiceUnavailableException({ message: 'otp_no_channel', code: 'otp_no_channel' });
       }
       return { ok: true, channel: delivered[0] };
     } catch (err: any) {
@@ -1372,8 +1497,10 @@ export class AuthService {
     // can prove identifier ownership without asking for the code twice.
     await this.redisService.setJson(this.otpVerifiedKey(normalized), { at: Date.now() }, 600).catch(() => {});
     const isEmail = identifier.includes('@');
+    // A disabled account (suspended, rejected, deleted under PDPL: `active: false`) is never switched back on by a code that was requested
+    // before it was disabled; only an account that is not explicitly disabled is (re)marked active.
     await this.userModel.findOneAndUpdate(
-      isEmail ? { email: normalized } : { phone: normalized },
+      { ...(isEmail ? { email: normalized } : { phone: normalized }), active: { $ne: false } },
       { active: true }
     );
     return { ok: true };
@@ -1392,8 +1519,12 @@ export class AuthService {
     // Latin-stored account, exactly like the OTP identifier paths).
     const normalizedIdentifier = this.normalizeOtpIdentifier(identifier);
     const isEmail = normalizedIdentifier.includes('@');
+    // 16.2: the new password follows the same rule as a registration, checked before the code is spent.
+    const policy = await this.passwordSecurity?.check(newPassword);
+    if (policy && !policy.ok) throw new BadRequestException({ message: policy.code, code: policy.code, statusCode: HttpStatus.BAD_REQUEST });
     const u = await this.userModel.findOne(isEmail ? { email: normalizedIdentifier } : { phone: normalizedIdentifier });
-    if (!u) throw new UnauthorizedException('User not found');
+    // An unknown account answers exactly like a wrong code, so this endpoint cannot be used to find out who is registered.
+    if (!u) throw new BadRequestException('Invalid OTP code');
     // Verify the OTP against the contact that actually received it.
     await this.verifyOtp(this.otpContact(u, identifier), code); // throws if invalid
     const hash = await bcrypt.hash(newPassword, 12);
@@ -1401,6 +1532,7 @@ export class AuthService {
     await u.save();
     // P3.0a: a reset must not leave stolen access/refresh tokens alive.
     await this.revokeAfterCredentialChange(u.id);
+    this.events.emit('auth.password_changed', { user_id: u.id, role: u.role, how: 'reset_code' });
     return { ok: true };
   }
 
@@ -1410,11 +1542,13 @@ export class AuthService {
     return u?.phone || u?.email || identifier;
   }
 
-  async socialLogin(dto: { provider: 'google' | 'apple' | 'x' | 'snapchat'; token: string; email?: string; name?: string }, guestToken?: string) {
+  async socialLogin(dto: { provider: 'google' | 'apple' | 'x' | 'snapchat'; token?: string; code?: string; code_verifier?: string; redirect_uri?: string; email?: string; name?: string }, guestToken?: string) {
     // Q107: the email comes only from a provider token whose signature and
     // audience were verified, never from the body. X and Snapchat had no
     // verification at all (unsigned JWT decode, or a made-up address).
+    if (dto.provider === 'x' || dto.provider === 'snapchat') return this.subjectSocialLogin(dto.provider, dto, guestToken);
     let verified: { email: string; full_name: string } | null;
+    if (!dto.token) throw new BadRequestException('social_token_required');
     if (dto.provider === 'google') verified = await this.verifyGoogleToken(dto.token);
     else if (dto.provider === 'apple') verified = await this.verifyAppleToken(dto.token);
     else throw new BadRequestException('social_provider_not_supported');
@@ -1458,7 +1592,112 @@ export class AuthService {
     // 21.2: a guest who signs in with Google keeps the cart and the orders.
     await this.mergeGuestFromRequest(guestToken, u.id);
 
-    return { user: this.publicUser(u), token: this.signToken(u) };
+    return { user: this.publicUser(u), token: await this.signToken(u) };
+  }
+
+  /**
+   * X and Snapchat: the access token is verified by asking the provider's own API who it belongs to. The identity is the
+   * provider's stable account id (no email is taken from them), so a token can only ever open the account of the person
+   * it was issued to and never an account that merely shares an address. Staff and provider accounts never get here.
+   */
+  private async subjectSocialLogin(provider: 'x' | 'snapchat', dto: { token?: string; code?: string; code_verifier?: string; redirect_uri?: string; name?: string }, guestToken?: string) {
+    // A raw access token cannot be audience-checked (it names no client), so it is never accepted: the backend exchanges
+    // the authorization code itself with OUR client id and secret, which makes the token ours by construction.
+    if (dto.token) throw new BadRequestException('social_code_required');
+    if (!dto.code || !dto.code_verifier || !dto.redirect_uri) throw new BadRequestException('social_code_required');
+    const accessToken = await this.exchangeSocialCode(provider, dto.code, dto.code_verifier, dto.redirect_uri);
+    const verified = provider === 'x' ? await this.verifyXToken(accessToken) : await this.verifySnapchatToken(accessToken);
+    if (!verified) throw new UnauthorizedException('invalid_social_token');
+    const nameIn = dto.name;
+    const field = provider === 'x' ? 'social_x_id' : 'social_snapchat_id';
+    let u = await this.userModel.findOne({ [field]: verified.subject });
+    if (u && u.role !== UserRole.PATIENT) throw new ForbiddenException('password_login_required');
+    if (u && u.active === false) throw new ForbiddenException('account_disabled');
+    if (!u) {
+      await this.killSwitches?.assertOn('new_registrations');
+      u = await this.userModel.create({
+        full_name: verified.full_name || nameIn || 'Social User',
+        [field]: verified.subject,
+        password_hash: '',
+        role: UserRole.PATIENT,
+        active: true,
+      });
+      await this.patientModel.create({ user_id: u.id });
+      this.events.emit(EVENTS.USER_REGISTERED, { user_id: u.id, role: u.role });
+    }
+    u.last_login_at = new Date();
+    await u.save();
+    this.events.emit(EVENTS.USER_LOGGED_IN, { user_id: u.id, role: u.role });
+    await this.mergeGuestFromRequest(guestToken, u.id);
+    return { user: this.publicUser(u), token: await this.signToken(u) };
+  }
+
+  /**
+   * Authorization-code exchange at the provider's token endpoint with our own client credentials
+   * (X_CLIENT_ID/X_CLIENT_SECRET, SNAPCHAT_CLIENT_ID/SNAPCHAT_CLIENT_SECRET). The redirect URI must be on the
+   * SOCIAL_REDIRECT_URIS allow-list, and a code is accepted once (the provider also refuses a replay).
+   */
+  private async exchangeSocialCode(provider: 'x' | 'snapchat', code: string, verifier: string, redirectUri: string): Promise<string> {
+    const prefix = provider === 'x' ? 'X' : 'SNAPCHAT';
+    const clientId = process.env[`${prefix}_CLIENT_ID`];
+    const secret = process.env[`${prefix}_CLIENT_SECRET`];
+    const allowed = String(process.env.SOCIAL_REDIRECT_URIS || '').split(',').map((v) => v.trim()).filter(Boolean);
+    if (!clientId || !secret || !allowed.length) throw new ServiceUnavailableException('social_login_not_configured');
+    if (!allowed.includes(redirectUri)) throw new BadRequestException('redirect_uri_not_allowed');
+    const codeKey = `social_code:${provider}:${createHash('sha256').update(code).digest('hex')}`;
+    const redis = (this.redisService as any)?.getClient?.();
+    if (redis) {
+      const first = await redis.set(codeKey, '1', 'EX', 600, 'NX').catch(() => 'OK');
+      if (first !== 'OK') throw new UnauthorizedException('invalid_social_token');
+    }
+    const url = provider === 'x' ? 'https://api.x.com/2/oauth2/token' : 'https://accounts.snapchat.com/login/oauth2/access_token';
+    const body = new URLSearchParams({ grant_type: 'authorization_code', code, redirect_uri: redirectUri, code_verifier: verifier, client_id: clientId });
+    try {
+      const r = await timedFetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: `Basic ${Buffer.from(`${clientId}:${secret}`).toString('base64')}` },
+        body: body.toString(),
+      }, SOCIAL_FETCH);
+      if (!r.ok) throw new UnauthorizedException('invalid_social_token');
+      const out: any = await r.json();
+      if (typeof out?.access_token !== 'string' || !out.access_token) throw new UnauthorizedException('invalid_social_token');
+      return out.access_token;
+    } catch (e) {
+      if (e instanceof GatewayTimeoutException || e instanceof UnauthorizedException) throw e;
+      throw new UnauthorizedException('invalid_social_token');
+    }
+  }
+
+  /** X OAuth 2.0 user access token: GET /2/users/me answers with the account it belongs to. */
+  private async verifyXToken(token: string): Promise<{ subject: string; full_name: string } | null> {
+    try {
+      const r = await timedFetch('https://api.x.com/2/users/me?user.fields=name', { headers: { Authorization: `Bearer ${token}` } }, SOCIAL_FETCH);
+      if (!r.ok) return null;
+      const body: any = await r.json();
+      const id = body?.data?.id;
+      if (typeof id !== 'string' || !/^\d{1,25}$/.test(id)) return null;
+      return { subject: id, full_name: typeof body.data.name === 'string' ? body.data.name.slice(0, 120) : '' };
+    } catch (e) {
+      if (e instanceof GatewayTimeoutException) throw e;
+      return null;
+    }
+  }
+
+  /** Snapchat Login Kit access token: the Snap Kit /me query answers with the account's external id and display name. */
+  private async verifySnapchatToken(token: string): Promise<{ subject: string; full_name: string } | null> {
+    try {
+      const q = encodeURIComponent('{me{externalId displayName}}');
+      const r = await timedFetch(`https://kit.snapchat.com/v1/me?query=${q}`, { headers: { Authorization: `Bearer ${token}` } }, SOCIAL_FETCH);
+      if (!r.ok) return null;
+      const body: any = await r.json();
+      const me = body?.data?.me;
+      const id = me?.externalId;
+      if (typeof id !== 'string' || !id || id.length > 200) return null;
+      return { subject: id, full_name: typeof me.displayName === 'string' ? me.displayName.slice(0, 120) : '' };
+    } catch (e) {
+      if (e instanceof GatewayTimeoutException) throw e;
+      return null;
+    }
   }
 
   /** Q107: allowed OAuth client ids for a provider; none configured means the provider is off. */
@@ -1476,20 +1715,22 @@ export class AuthService {
   private async verifyGoogleToken(token: string): Promise<{ email: string; full_name: string } | null> {
     const allowed = AuthService.clientIds('GOOGLE_OAUTH_CLIENT_IDS');
     try {
-      const info = await fetch(`https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(token)}`);
+      const info = await timedFetch(`https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(token)}`, undefined, SOCIAL_FETCH);
       if (!info.ok) return null;
       const p: any = await info.json();
       if (!allowed.includes(String(p.aud || '')) && !allowed.includes(String(p.azp || ''))) return null;
       if (!AuthService.emailVerified(p.email_verified) || typeof p.email !== 'string' || !p.email) return null;
       if (p.expires_in !== undefined && !(Number(p.expires_in) > 0)) return null;
       let fullName = '';
-      const profile = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers: { Authorization: `Bearer ${token}` } }).catch(() => null);
+      const profile = await timedFetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers: { Authorization: `Bearer ${token}` } }, SOCIAL_FETCH).catch(() => null);
       if (profile?.ok) {
         const u: any = await profile.json().catch(() => ({}));
         fullName = u.name || `${u.given_name || ''} ${u.family_name || ''}`.trim();
       }
       return { email: p.email.toLowerCase(), full_name: fullName };
-    } catch {
+    } catch (e) {
+      // A slow Google is not a wrong token: answer 504 so the app can offer a retry instead of "invalid token".
+      if (e instanceof GatewayTimeoutException) throw e;
       return null;
     }
   }
@@ -1500,7 +1741,7 @@ export class AuthService {
   private static async appleKey(kid: string): Promise<KeyObject | null> {
     const fresh = AuthService.appleKeys && Date.now() - AuthService.appleKeys.at < 3600_000;
     if (!fresh || !AuthService.appleKeys!.keys.has(kid)) {
-      const r = await fetch('https://appleid.apple.com/auth/keys');
+      const r = await timedFetch('https://appleid.apple.com/auth/keys', undefined, SOCIAL_FETCH);
       if (!r.ok) return null;
       const body: any = await r.json();
       const keys = new Map<string, KeyObject>();
@@ -1528,7 +1769,8 @@ export class AuthService {
       });
       if (!AuthService.emailVerified(p.email_verified) || typeof p.email !== 'string' || !p.email) return null;
       return { email: p.email.toLowerCase(), full_name: '' };
-    } catch {
+    } catch (e) {
+      if (e instanceof GatewayTimeoutException) throw e;
       return null;
     }
   }

@@ -124,7 +124,7 @@ export class PharmacyOrder extends Document {
   @Prop() cod_idempotency_key?: string;
   @Prop({ type: Object }) insurance_decision?: Record<string, any>;
   @Prop() insurance_rejection_cancellation_key?: string;
-  @Prop({ type: Object }) delivery?: { method?: string; courier_name?: string; courier_phone?: string; courier_eta?: Date; dispatched_at?: Date; delivered_at?: Date };
+  @Prop({ type: Object }) delivery?: { method?: string; courier_name?: string; courier_phone?: string; courier_vehicle?: string; courier_eta?: Date; dispatched_at?: Date; delivered_at?: Date };
   @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
   @Prop({ required: true, index: true }) patient_account_id: string;
   @Prop({ required: true, default: PharmacyOrderState.DRAFT, enum: Object.values(PharmacyOrderState), index: true }) status: PharmacyOrderState;
@@ -155,16 +155,24 @@ export class PharmacyOrder extends Document {
   }>;
 
   @Prop({ type: Object }) delivery_address?: {
-    city?: string; district?: string; street?: string;
+    city?: string; district?: string; street?: string; short_address?: string;
     geo?: { lat: number; lng: number }; notes?: string;
   };
   @Prop() patient_notes?: string;
   @Prop() prescription_id?: string;
+  /** Owner decision 1: the family member this is for; the booker (patient_id) is unchanged. Absent = for the booker. */
+  @Prop({ type: String, required: false, index: true }) family_member_id?: string;
+  /** The refund policy the patient agreed to before paying (common/refund-policy-acceptance.ts): the tick, its time and the policy version. */
+  @Prop({ type: Object, required: false }) refund_policy_acceptance?: { accepted: boolean; at: Date; version: string; hash?: string; service?: string };
   /** P17-17.5: UTM campaign attribution (utm_source/medium/campaign/term/content). */
   @Prop({ type: Object, required: false }) attribution?: Record<string, string>;
   @Prop({ type: Object }) manual_request?: { name?: string; details?: string | null; qty?: number; photo_uri?: string };
   /** F73: draft fulfillment + payment mode. */
   @Prop({ type: String, enum: ['delivery', 'pickup'], default: 'delivery' }) fulfillment?: 'delivery' | 'pickup';
+  /** The delivery fee source of the chosen offer (delivery_mode is declared below, F's). */
+  @Prop({ type: String, default: null }) delivery_fee_source?: string | null;
+  /** The earlier order a patient's "refill" repeats (set on the new draft by PharmacyRefillService). */
+  @Prop({ type: String }) refill_of?: string;
   @Prop({ type: String, enum: ['cash', 'insurance'], default: 'cash' }) payment_mode?: 'cash' | 'insurance';
   @Prop() insurance_policy_id?: string;
   @Prop() delivery_address_id?: string;
@@ -201,6 +209,8 @@ export class PharmacyOrder extends Document {
   @Prop() selected_offer_version?: number;
   @Prop() selected_allocation_id?: string;
   @Prop() offer_selection_idempotency_key?: string;
+  /** who delivers and whose the delivery fee is: 'platform' | 'pharmacy_own', copied from the chosen offer at checkout (common/tax-registration.ts) */
+  @Prop({ enum: ['platform', 'pharmacy_own'] }) delivery_mode?: string;
   @Prop({ type: Object }) pricing_snapshot?: { offer_id: string; offer_version: number; totals: { subtotal: number; delivery_fee: number; total: number; currency: string }; captured_at: Date };
 
   // EXPLAINABILITY: full snapshot of the split decision
@@ -232,6 +242,14 @@ export class PharmacyOrder extends Document {
 
   @Prop({ type: [Object], default: [] }) timeline: Array<{ ts: Date; event: string; by?: string; meta?: any }>;
   @Prop() cancellation_reason?: string;
+  /** 22.5 — counts edits after the order was sent to pharmacies (1 = never edited); offers quoted for an older version must be requoted. */
+  @Prop({ default: 1 }) edit_revision?: number;
+  /** 22.5 — an order split off this one when the chosen pharmacy could not fill everything (and the other way round). */
+  @Prop() split_child_order_id?: string;
+  /** 22.5 — set by whoever is creating the split order, so only one request does. */
+  @Prop() split_claim?: Date;
+  @Prop() parent_order_id?: string;
+  @Prop() split_from_offer_id?: string;
 }
 export const PharmacyOrderSchema = SchemaFactory.createForClass(PharmacyOrder);
 PharmacyOrderSchema.index({ patient_account_id: 1, status: 1, createdAt: -1 });
@@ -290,6 +308,7 @@ export class PharmacyAllocation extends Document {
     method?: 'pharmacy_delivery' | 'pickup';
     courier_name?: string;
     courier_phone?: string;
+    courier_vehicle?: string;
     eta?: Date;
     delivered_at?: Date;
   };
@@ -369,6 +388,8 @@ export class PharmacyBroadcast extends Document {
   @Prop({ default: 8 }) max_radius_km: number;
   @Prop({ type: [Number], default: [3, 5, 8] }) round_radii_km: number[];
   @Prop({ default: false }) extended_stage?: boolean;
+  /** Set by the expiry command when enough live offers exist (`pharmacy_broadcast_stop_after_offers`): the broadcast no longer widens while they last. */
+  @Prop() widening_stopped_at?: Date;
   // Atomic full-acceptance lock: first pharmacy to claim sets this.
   @Prop({ default: 'open', enum: ['open', 'locked', 'fallback_split', 'closed'], index: true }) lock_state: string;
   @Prop() locked_to_pharmacy_account_id?: string;
@@ -423,6 +444,8 @@ export class PharmacyOffer extends Document {
   @Prop({ maxlength: 500 }) provider_note?: string;
   @Prop({ required: true, index: true }) quote_expires_at: Date;
   @Prop() expired_at?: Date;
+  /** 22.5 — the patient edited the order after this quote was made: it is a draft again and must be requoted before it can be chosen. */
+  @Prop() requote_required?: boolean;
   /** Short fencing lease used by a durable command when a quote becomes due. */
   @Prop({ type: Object }) expiry_claim?: { token: string; claimed_at: Date; lease_expires_at: Date };
   @Prop() estimated_preparation_minutes?: number;
@@ -432,6 +455,9 @@ export class PharmacyOffer extends Document {
     delivery_option?: 'delivery' | 'pickup' | null;
     eta_minutes?: number | null;
     delivery_fee_source?: string;
+    /** Who delivers: the pharmacy's own couriers or the platform (null for pickup). The fee is the one the patient pays. */
+    delivery_mode?: 'pharmacy_own' | 'platform' | null;
+    delivery_fee?: number;
   };
   @Prop({ default: 'provider_capabilities_pharmacy' }) pricing_source: string;
   @Prop() created_by?: string;

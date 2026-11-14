@@ -11,6 +11,10 @@ updates:
     labels: [dependencies, security]
     commit-message:
       prefix: chore
+    # R20: one PR per app for all minor and patch updates (the weekly window, docs/ops/SUPPLY_CHAIN_R20.md); majors arrive as single PRs and follow docs/ops/UPGRADE_PLAN_MAJORS.md
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
   - package-ecosystem: github-actions
     directory: /
     schedule:

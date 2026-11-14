@@ -15,7 +15,7 @@ export class OrderInsuranceDto {
 
   @IsOptional()
   @IsString()
-  nphies_approval_code?: string;
+  approval_reference?: string;
 
   @IsOptional()
   @IsString()
@@ -152,8 +152,13 @@ export class CreateReferralDto {
   patient_id: string;
 
   @IsDefined()
-  @IsIn(['lab', 'radiology', 'nursing'])
+  @IsIn(['lab', 'radiology', 'nursing', 'specialty'])
   target_type: string;
+
+  /** With target_type "specialty": the code of the specialty (catalogue `specialties`) the patient is referred to. */
+  @IsOptional()
+  @IsString()
+  target_specialty?: string;
 
   @IsDefined()
   @IsString()
@@ -216,32 +221,6 @@ export class CreatePromotionDto {
   @IsOptional()
   @IsObject()
   target_parameters?: Record<string, unknown>;
-
-}
-
-export class CreateTechDto {
-  @IsOptional()
-  @IsString()
-  full_name: string;
-
-  @IsDefined()
-  @IsString()
-  phone: string;
-
-  @IsDefined()
-  @IsString()
-  department: string;
-
-  @IsDefined()
-  @IsString()
-  specialty: string;
-
-}
-
-export class UpdateTechDto {
-  @IsOptional()
-  @IsBoolean()
-  suspended?: boolean;
 
 }
 

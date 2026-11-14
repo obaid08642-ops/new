@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { endPatientSession } from '../../auth/session';
 import { Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 import Constants from 'expo-constants';
@@ -10,6 +11,7 @@ import { AuthField } from '../auth/AuthKit';
 import { Notice, Panel, Row, SheetForm, rowsOf, useRemote } from '../health/HealthKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { LANGUAGES, useApp, type ThemeMode } from '../../context/AppContext';
+import { isValidNewPassword } from '../../utils/authSession';
 import { logout } from '../../store/slices/authSlice';
 import { getCalendarPref, onCalendarPrefChange, setCalendarPref, type CalendarPref } from '../../utils/dates';
 import { apiFetch } from '../../utils/api';
@@ -34,8 +36,10 @@ export function SettingsHubView() {
   const version = Constants.expoConfig?.version ?? '';
   const go = (route: string) => () => router.push(route as Href);
   const signOut = () => {
-    dispatch(logout());
-    router.replace('/(auth)/welcome' as Href);
+    void endPatientSession().finally(() => {
+      dispatch(logout());
+      router.replace('/(auth)/welcome' as Href);
+    });
   };
   return (
     <AccountScreen title={k('set.title')} fallback={'/profile' as Href} testID="settings-screen">
@@ -50,12 +54,12 @@ export function SettingsHubView() {
         </View>
       </Card>
       <Panel testID="settings-sections">
+        <Row icon="receipt" tone="mint" title={k('set.receipts')} subtitle={k('set.receiptsHint')} onPress={go('/receipts')} testID="settings-receipts" />
         <Row icon="bell" tone={RX_TONE} title={k('set.notifications')} subtitle={k('set.notificationsHint')} onPress={go('/settings/notifications')} testID="settings-notifications" />
         <Row icon="lock" tone="violet" title={k('set.privacy')} subtitle={k('set.privacyHint')} onPress={go('/settings/privacy')} testID="settings-privacy" />
         <Row icon="shield-check" tone={CARE_TONE} title={k('set.security')} subtitle={k('set.securityHint')} onPress={go('/settings/security')} testID="settings-security" />
         <Row icon="globe" tone="blue" title={k('set.language')} subtitle={k('set.languageHint')} onPress={go('/settings/language')} testID="settings-language" />
-        <Row icon="headset" tone="mint" title={k('set.help')} subtitle={k('set.helpHint')} onPress={go('/settings/help')} testID="settings-help" />
-        <Row icon="info" tone="ink" title={k('set.about')} subtitle={k('set.aboutHint')} onPress={go('/settings/about')} last testID="settings-about" />
+        <Row icon="headset" tone="ink" title={k('set.helpPolicies')} subtitle={k('set.helpPoliciesHint')} onPress={go('/settings/help')} last testID="settings-help" />
       </Panel>
       <Button label={k('set.signOut')} variant="outline" size="lg" fullWidth startIcon="sign-out" onPress={signOut} theme={theme} testID="settings-sign-out" />
       {version ? <Text style={{ ...scale(t, 'tag', 'regular'), color: c.text.tertiary, textAlign: 'center' }}>{k('set.version', { version })}</Text> : null}
@@ -164,6 +168,10 @@ export function SecuritySettingsView() {
       setError(k('set.security.passwordRequired'));
       return;
     }
+    if (!isValidNewPassword(next)) {
+      setError(k('auth.err.passwordShort'));
+      return;
+    }
     if (next !== again) {
       setError(k('set.security.passwordMismatch'));
       return;
@@ -218,7 +226,7 @@ export function SecuritySettingsView() {
                 <Row
                   key={row.id}
                   icon="user-circle"
-                  tone={row.current ? 'mint' : 'ink'}
+                  tone={row.current ? 'mint' : 'blue'}
                   title={row.device || k('set.security.thisDevice')}
                   subtitle={[row.location, row.time].filter(Boolean).join(' · ')}
                   caption={row.current ? k('set.security.current') : undefined}

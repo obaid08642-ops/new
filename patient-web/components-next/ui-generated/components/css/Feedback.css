@@ -64,7 +64,7 @@
   font-family: inherit;
   font-size: var(--nabd-font-size-body);
   font-weight: 600;
-  color: var(--nabd-color-text-primary);
+  color: var(--nabd-color-action-primary-bg);
   cursor: pointer;
 }
 

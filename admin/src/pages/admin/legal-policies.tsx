@@ -22,26 +22,36 @@ export default function LegalPoliciesPage() {
 
   const openEdit = async (key: string) => {
     // Owner decision 2026-10-12: legal texts exist in Arabic and English; both are edited here.
-    const [ar, en] = await Promise.all([
-      apiFetch(`/legal/policy/${key}?lang=ar`).catch(() => null),
-      apiFetch(`/legal/policy/${key}?lang=en`).catch(() => null),
-    ]);
-    setEditing(key);
-    setEditContent(ar?.content || '');
-    setEditContentEn(en?.content || '');
-    setNote('');
-    setMajor(false);
+    // A failed read must NOT open an empty editor: saving it would overwrite the real policy with nothing.
+    try {
+      const [ar, en] = await Promise.all([
+        apiFetch(`/legal/policy/${key}?lang=ar`),
+        apiFetch(`/legal/policy/${key}?lang=en`),
+      ]);
+      setEditing(key);
+      setEditContent(ar?.content || '');
+      setEditContentEn(en?.content || '');
+      setNote('');
+      setMajor(false);
+    } catch (e: any) {
+      alert(`تعذر تحميل نص السياسة، لم يُفتح المحرر: ${e?.message || ''}`);
+    }
   };
 
   const save = async () => {
     setSaving(true);
-    await apiFetch(`/api/admin/admin/legal/policy/${editing}`, {
-      method: 'PUT',
-      body: JSON.stringify({ content_ar: editContent, content_en: editContentEn, change_note: note.trim() || 'admin edit from dashboard', major }),
-    }).catch(() => alert('فشل الحفظ'));
-    setSaving(false);
-    setEditing(null);
-    load();
+    try {
+      await apiFetch(`/api/admin/admin/legal/policy/${editing}`, {
+        method: 'PUT',
+        body: JSON.stringify({ content_ar: editContent, content_en: editContentEn, change_note: note.trim() || 'admin edit from dashboard', major }),
+      });
+      setEditing(null);   // closes only on success: on a failure the edited text stays in the editor
+      load();
+    } catch (e: any) {
+      alert(`فشل الحفظ: ${e?.message || ''}`);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (

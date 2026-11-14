@@ -91,8 +91,6 @@ export const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
             >
               <Marker
                 coordinate={{ latitude: selected.lat, longitude: selected.lng }}
-                draggable
-                onDragEnd={(e) => setSelected({ lat: e.nativeEvent.coordinate.latitude, lng: e.nativeEvent.coordinate.longitude })}
               />
             </MapView>
             <TouchableOpacity
@@ -109,7 +107,7 @@ export const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
             <Text style={{ color: tokens.error, fontSize: FS.sm, marginBottom: SP.sm, textAlign: 'center' }}>{locError}</Text>
           )}
           <Text style={{ color: theme.textSub, fontSize: FS.xs, marginBottom: SP.sm, textAlign: 'center' }}>
-            {AR ? 'اضغط على الخريطة أو اسحب الدبوس لتحديد الموقع بدقة' : 'Tap the map or drag the pin to fine-tune the location'}
+            {AR ? 'اضغط على الخريطة لتحديد الموقع بدقة' : 'Tap the map to fine-tune the location'}
           </Text>
 
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between' }}>

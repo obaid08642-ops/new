@@ -38,6 +38,10 @@ export interface OfferView {
   distanceKm: number | null;
   /** The server's estimate of preparation time. */
   prepMinutes: number | null;
+  /** The pharmacy's own delivery ETA (approx_delivery.eta_minutes), its average rating and the count behind it: null when absent (hidden). */
+  etaMinutes: number | null;
+  rating: number | null;
+  ratingCount: number | null;
   /** `quote_expires_at` as epoch milliseconds; null when the server sent none or an unreadable one. */
   expiresAt: number | null;
   totals: OfferTotals;
@@ -100,6 +104,9 @@ export function parseOffer(raw: unknown): OfferView | null {
     nameEn: text(o.pharmacy_name_en) ?? null,
     distanceKm: num(o.approx_distance_km),
     prepMinutes: num(o.preparation_minutes),
+    etaMinutes: num((o.approx_delivery as { eta_minutes?: unknown } | null | undefined)?.eta_minutes),
+    rating: num(o.pharmacy_rating),
+    ratingCount: num(o.pharmacy_rating_count),
     expiresAt: Number.isFinite(localExpires) ? localExpires : null,
     totals: readTotals(o.totals),
     lines,
@@ -241,8 +248,11 @@ export function defaultCoverage(order: OrderState | null): Coverage {
 /** The order id of the route: the current param is `orderId`; `requestId` is what older links and the old redirect carried. */
 export function orderIdParam(params: { orderId?: string | string[]; requestId?: string | string[] }): string | undefined {
   const first = (v?: string | string[]) => (Array.isArray(v) ? v[0] : v);
-  return first(params.orderId) || first(params.requestId) || undefined;
+  const id = first(params.orderId) || first(params.requestId) || undefined;
+  // the id goes into request paths (/patient/pharmacy/orders/:id/...): a link or notification can carry anything, so only id-shaped text passes (no slash, query or dots-only name)
+  return id && SAFE_ORDER_ID.test(id) ? id : undefined;
 }
+const SAFE_ORDER_ID = /^(?!\.+$)[A-Za-z0-9_.:-]{1,128}$/;
 
 const ERRORS: ReadonlyArray<readonly [RegExp, string]> = [
   [/offline_error|request_aborted|network error/i, 'errors.offline'],
@@ -250,6 +260,8 @@ const ERRORS: ReadonlyArray<readonly [RegExp, string]> = [
   [/offer_stock_changed_requote_required/i, 'pharmacy.offers.err.stock'],
   [/prescription_required_for_insurance_orders/i, 'pharmacy.offers.err.rxInsurance'],
   [/invalid_coverage_mode/i, 'pharmacy.offers.err.generic'],
+  // owner decision 4: once the pharmacy is preparing the order the patient can no longer cancel it
+  [/cancel_not_allowed_after_preparation/i, 'pharmacy.offers.err.cancelAfterPreparation'],
   [/cannot_cancel_in_|order_not_actionable/i, 'pharmacy.offers.err.notActionable'],
   [/quote_hash_or_revision_mismatch|selected_quote_required|quote_hash_required|quote_revision_required/i, 'pharmacy.quote.err.changed'],
   [/insurance_orders_follow_insurance_decision_flow/i, 'pharmacy.quote.err.insurance'],
@@ -278,7 +290,7 @@ export function errorMeansStale(error: unknown): boolean {
 /** A request that may have reached the server (no answer came back): its idempotency key must be sent again on retry. */
 export function mayHaveReachedServer(error: unknown): boolean {
   const raw = error instanceof Error ? error.message : String(error ?? '');
-  return /offline_error|request_aborted/i.test(raw);
+  return /offline_error|request_aborted|request_timeout/i.test(raw);
 }
 
 /**

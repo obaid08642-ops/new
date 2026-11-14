@@ -4,10 +4,7 @@
  * All backed by /provider/ops/doctor/* (live-verified APIs).
  */
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-  View, Text, TouchableOpacity, StyleSheet,
-  ActivityIndicator, RefreshControl, ScrollView, Alert,
-} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useTheme, useLang, useToast } from '../../context';
 import { I } from '../../components/icons';
 import { NBtn, NCard, NBadge, NHeader, NScroll, NInput, NSecHeader, NEmpty } from '../../components/ui';
@@ -23,6 +20,7 @@ export function DoctorLeavesScreen({ onBack }: { onBack: () => void }) {
 
   const [leaves, setLeaves] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');
   const [type, setType] = useState('vacation');
@@ -38,9 +36,10 @@ export function DoctorLeavesScreen({ onBack }: { onBack: () => void }) {
 
   const load = useCallback(async () => {
     try {
+      setFailed(false);
       const res = await client.get('/provider/ops/doctor/leave');
       setLeaves(res.data || []);
-    } catch { setLeaves([]); } finally { setLoading(false); }
+    } catch { setLeaves([]); setFailed(true); } finally { setLoading(false); }
   }, []);
   useEffect(() => { load(); }, [load]);
 
@@ -48,8 +47,11 @@ export function DoctorLeavesScreen({ onBack }: { onBack: () => void }) {
     if (!start || !end) { show(AR ? 'حدد تاريخ البداية والنهاية' : 'Set start and end dates', 'error'); return; }
     setSaving(true);
     try {
-      await client.post('/provider/ops/doctor/leave', { start_date: start, end_date: end, type, note: note || undefined });
-      show(AR ? 'أُضيفت الإجازة — لن يستطيع المرضى الحجز فيها' : 'Leave added — patients cannot book during it', 'success');
+      const res: any = await client.post('/provider/ops/doctor/leave', { start_date: start, end_date: end, type, note: note || undefined });
+      // a doctor linked to a facility waits for the facility: patients can book those days until it approves
+      show(res?.data?.leave?.status === 'pending_facility'
+        ? (AR ? 'أُرسل طلب الإجازة إلى المنشأة، ولن تُحجب الأيام قبل موافقتها' : 'Leave sent to your facility; the days are blocked once it approves')
+        : (AR ? 'أُضيفت الإجازة — لن يستطيع المرضى الحجز فيها' : 'Leave added — patients cannot book during it'), 'success');
       setStart(''); setEnd(''); setNote('');
       load();
     } catch (e: any) {
@@ -80,7 +82,7 @@ export function DoctorLeavesScreen({ onBack }: { onBack: () => void }) {
           {TYPES.map((t) => (
             <TouchableOpacity key={t.k} onPress={() => setType(t.k)}
               style={[s.chip, { backgroundColor: type === t.k ? theme.primary : theme.surface2, borderColor: type === t.k ? theme.primary : theme.border }]}>
-              <Text style={{ color: type === t.k ? '#FFF' : theme.text, fontWeight: FW.semi }}>{AR ? t.ar : t.en}</Text>
+              <Text style={{ color: type === t.k ? theme.textInv : theme.text, fontWeight: FW.semi }}>{AR ? t.ar : t.en}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -93,7 +95,8 @@ export function DoctorLeavesScreen({ onBack }: { onBack: () => void }) {
 
         <NSecHeader title={AR ? `إجازاتي (${leaves.length})` : `My Leaves (${leaves.length})`} />
         {loading && <ActivityIndicator color={theme.primary} />}
-        {!loading && leaves.length === 0 && <NEmpty title={AR ? 'لا إجازات مسجلة' : 'No leaves'} subtitle={AR ? 'إجازاتك القادمة تظهر هنا' : 'Your upcoming leaves appear here'} />}
+        {!loading && failed && <NEmpty icon="alert" title={AR ? 'تعذر التحميل' : 'Could not load'} subtitle={AR ? 'تحقق من الاتصال وأعد المحاولة' : 'Check your connection and try again'} actionLabel={AR ? 'إعادة المحاولة' : 'Retry'} onAction={() => load()} />}
+        {!loading && !failed && leaves.length === 0 && <NEmpty title={AR ? 'لا إجازات مسجلة' : 'No leaves'} subtitle={AR ? 'إجازاتك القادمة تظهر هنا' : 'Your upcoming leaves appear here'} />}
         {leaves.map((l: any) => (
           <NCard key={l.id} style={{ marginBottom: SP.sm }}>
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -130,15 +133,17 @@ export function PrescriptionTemplatesScreen({ onBack }: { onBack: () => void }) 
 
   const [templates, setTemplates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
   const [name, setName] = useState('');
   const [items, setItems] = useState('');
   const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
     try {
+      setFailed(false);
       const res = await client.get('/provider/ops/doctor/templates');
       setTemplates(res.data || []);
-    } catch { setTemplates([]); } finally { setLoading(false); }
+    } catch { setTemplates([]); setFailed(true); } finally { setLoading(false); }
   }, []);
   useEffect(() => { load(); }, [load]);
 
@@ -148,7 +153,7 @@ export function PrescriptionTemplatesScreen({ onBack }: { onBack: () => void }) 
     try {
       const parsed = items.split('\n').filter(Boolean).map((line) => {
         const [med, dose] = line.split(' - ');
-        return { med: (med || '').trim(), dose: (dose || '').trim() };
+        return { name: (med || '').trim(), dose: (dose || '').trim() };   // the same shape the e-prescription screen saves and reads
       });
       await client.post('/provider/ops/doctor/templates', { name: name.trim(), items: parsed });
       show(AR ? 'حُفظ القالب' : 'Template saved', 'success');
@@ -181,14 +186,15 @@ export function PrescriptionTemplatesScreen({ onBack }: { onBack: () => void }) 
 
         <NSecHeader title={AR ? `قوالبي (${templates.length})` : `My Templates (${templates.length})`} />
         {loading && <ActivityIndicator color={theme.primary} />}
-        {!loading && templates.length === 0 && <NEmpty title={AR ? 'لا قوالب بعد' : 'No templates yet'} subtitle={AR ? 'وفّر وقتك بقوالب جاهزة للحالات المتكررة' : 'Save time with reusable templates'} />}
+        {!loading && failed && <NEmpty icon="alert" title={AR ? 'تعذر التحميل' : 'Could not load'} subtitle={AR ? 'تحقق من الاتصال وأعد المحاولة' : 'Check your connection and try again'} actionLabel={AR ? 'إعادة المحاولة' : 'Retry'} onAction={() => load()} />}
+        {!loading && !failed && templates.length === 0 && <NEmpty title={AR ? 'لا قوالب بعد' : 'No templates yet'} subtitle={AR ? 'وفّر وقتك بقوالب جاهزة للحالات المتكررة' : 'Save time with reusable templates'} />}
         {templates.map((t: any) => (
           <NCard key={t.id} style={{ marginBottom: SP.sm }}>
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{t.name}</Text>
                 <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
-                  {(t.items || []).map((i: any) => `${i.med}${i.dose ? ` (${i.dose})` : ''}`).join(' + ')}
+                  {(t.items || []).map((i: any) => `${i.name || i.med || ''}${i.dose ? ` (${i.dose})` : ''}`).join(' + ')}
                 </Text>
                 {t.usage_count > 0 && <NBadge label={`${AR ? 'استُخدم' : 'used'} ×${t.usage_count}`} variant="info" size="xs" />}
               </View>
@@ -212,6 +218,7 @@ export function SavedDiagnosesScreen({ onBack }: { onBack: () => void }) {
 
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
   const [search, setSearch] = useState('');
   const [nameAr, setNameAr] = useState('');
   const [nameEn, setNameEn] = useState('');
@@ -220,9 +227,10 @@ export function SavedDiagnosesScreen({ onBack }: { onBack: () => void }) {
 
   const load = useCallback(async (q?: string) => {
     try {
+      setFailed(false);
       const res = await client.get('/provider/ops/doctor/diagnoses', { params: q ? { search: q } : {} });
       setRows(res.data || []);
-    } catch { setRows([]); } finally { setLoading(false); }
+    } catch { setRows([]); setFailed(true); } finally { setLoading(false); }
   }, []);
   useEffect(() => { load(); }, [load]);
 
@@ -253,7 +261,8 @@ export function SavedDiagnosesScreen({ onBack }: { onBack: () => void }) {
 
         <NInput label={AR ? 'بحث' : 'Search'} value={search} onChange={(v: string) => { setSearch(v); load(v); }} placeholder={AR ? 'ابحث في تشخيصاتك…' : 'Search your diagnoses…'} />
         {loading && <ActivityIndicator color={theme.primary} style={{ marginTop: SP.md }} />}
-        {!loading && rows.length === 0 && <NEmpty title={AR ? 'لا تشخيصات محفوظة' : 'No saved diagnoses'} />}
+        {!loading && failed && <NEmpty icon="alert" title={AR ? 'تعذر التحميل' : 'Could not load'} subtitle={AR ? 'تحقق من الاتصال وأعد المحاولة' : 'Check your connection and try again'} actionLabel={AR ? 'إعادة المحاولة' : 'Retry'} onAction={() => load()} />}
+        {!loading && !failed && rows.length === 0 && <NEmpty title={AR ? 'لا تشخيصات محفوظة' : 'No saved diagnoses'} />}
         {rows.map((d: any) => (
           <NCard key={d.id} style={{ marginBottom: SP.sm, marginTop: SP.xs }}>
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm }}>
@@ -280,12 +289,14 @@ export function DoctorBlacklistScreen({ onBack }: { onBack: () => void }) {
 
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
 
   const load = useCallback(async () => {
     try {
+      setFailed(false);
       const res = await client.get('/provider/ops/doctor/blacklist');
       setRows(res.data || []);
-    } catch { setRows([]); } finally { setLoading(false); }
+    } catch { setRows([]); setFailed(true); } finally { setLoading(false); }
   }, []);
   useEffect(() => { load(); }, [load]);
 
@@ -309,7 +320,8 @@ export function DoctorBlacklistScreen({ onBack }: { onBack: () => void }) {
           </Text>
         </NCard>
         {loading && <ActivityIndicator color={theme.primary} />}
-        {!loading && rows.length === 0 && (
+        {!loading && failed && <NEmpty icon="alert" title={AR ? 'تعذر التحميل' : 'Could not load'} subtitle={AR ? 'تحقق من الاتصال وأعد المحاولة' : 'Check your connection and try again'} actionLabel={AR ? 'إعادة المحاولة' : 'Retry'} onAction={() => load()} />}
+        {!loading && !failed && rows.length === 0 && (
           <NEmpty title={AR ? 'لا محظورون' : 'No blocked patients'} subtitle={AR ? 'قائمتك نظيفة — تظهر هنا أي حالات حظر مستقبلية' : 'Your list is clear'} />
         )}
         {rows.map((b: any) => (

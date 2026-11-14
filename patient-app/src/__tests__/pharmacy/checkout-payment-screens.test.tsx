@@ -101,6 +101,7 @@ describe('checkout', () => {
     const creating = new Promise((r) => { release = r; });
     answer({ '/prescriptions/rx1': { id: 'rx1', items: [{ name: 'Panadol' }, { name: 'Amoxicillin' }] } }, (path) => (path.endsWith('/submit') ? {} : creating));
     await render(wrap(<CheckoutScreen />));
+    await tap(await screen.findByTestId('refund-policy-agree'));
     await screen.findByText('Amoxicillin');
     // the cart's Panadol is the prescription's Panadol: listed once; the cart's other line is kept
     expect(screen.getAllByText('Panadol')).toHaveLength(1);
@@ -125,6 +126,7 @@ describe('checkout', () => {
     mockParams.current = { prescriptionId: 'rx1' };
     answer({ '/prescriptions/rx1': { id: 'rx1', items: [{ name: 'Amoxicillin' }] }, '/users/me/insurance': { provider: 'Test insurer', policy_number: 'POL-1', class: 'A' } }, (path) => (path.endsWith('/submit') ? {} : { id: 'order-ins-1' }));
     await render(wrap(<CheckoutScreen />));
+    await tap(await screen.findByTestId('refund-policy-agree'));
     await screen.findByText('Amoxicillin');
     expect(screen.getByText(k('pharmacy.checkout.payFirst'))).toBeTruthy();
     await tap(screen.getByLabelText(k('pharmacy.offers.coverage.insurance')));
@@ -141,6 +143,7 @@ describe('checkout', () => {
     mockParams.current = { prescriptionId: 'rx1' };
     answer({ '/prescriptions/rx1': { id: 'rx1', items: [{ name: 'Amoxicillin' }] }, '/users/me/insurance': null });
     await render(wrap(<CheckoutScreen />));
+    await tap(await screen.findByTestId('refund-policy-agree'));
     await screen.findByText('Amoxicillin');
     await tap(screen.getByLabelText(k('pharmacy.offers.coverage.insurance')));
     await screen.findByText(k('pharmacy.checkout.insuranceNone'));
@@ -154,6 +157,7 @@ describe('checkout', () => {
     mockCart.items = [{ id: 'c1', name: 'Vitamin C', qty: 1, rx: false }];
     answer({}, (path) => (path.endsWith('/submit') ? {} : { id: 'order-cash-1' }));
     await render(wrap(<CheckoutScreen />));
+    await tap(await screen.findByTestId('refund-policy-agree'));
     await screen.findByText('Vitamin C');
     expect(screen.getByText(k('pharmacy.checkout.insuranceNeedsRx'))).toBeTruthy();
     await tap(screen.getByLabelText(k('pharmacy.offers.coverage.insurance')));
@@ -178,6 +182,7 @@ describe('checkout', () => {
       return { id: 'order-new-1' };
     });
     await render(wrap(<CheckoutScreen />));
+    await tap(await screen.findByTestId('refund-policy-agree'));
     const submit = await screen.findByLabelText(k('pharmacy.checkout.submit'));
     await waitFor(() => expect(submit.props.accessibilityState.disabled).toBe(false));
     await tap(submit); // no answer
@@ -199,6 +204,7 @@ describe('checkout', () => {
     mockAddress.current = { id: 'a1', label: 'No point' };
     answer({});
     await render(wrap(<CheckoutScreen />));
+    await tap(await screen.findByTestId('refund-policy-agree'));
     const submit = await screen.findByLabelText(k('pharmacy.checkout.submit'));
     await waitFor(() => expect(submit.props.accessibilityState.disabled).toBe(false));
     await tap(submit);
@@ -210,6 +216,7 @@ describe('checkout', () => {
     mockCart.items = [{ id: 'c1', name: 'Vitamin C', qty: 1, rx: false }];
     answer({}, () => new Error('AUTH_ERROR_403: Insufficient role'));
     await render(wrap(<CheckoutScreen />));
+    await tap(await screen.findByTestId('refund-policy-agree'));
     const submit = await screen.findByLabelText(k('pharmacy.checkout.submit'));
     await waitFor(() => expect(submit.props.accessibilityState.disabled).toBe(false));
     await tap(submit);
@@ -233,7 +240,7 @@ describe('checkout', () => {
 
 describe('payment', () => {
   it('draws the server amount and the server rows, and pays once through the hosted page, then asks the server for the result', async () => {
-    const open = jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
+    const open = jest.spyOn(Linking, 'openURL').mockResolvedValue();
     let release: (v: unknown) => void = () => undefined;
     const pending = new Promise((r) => { release = r; });
     answer({ '/patient/pharmacy/orders/ord': accepted, '/payments/pharmacy/ord/capabilities': caps(80) }, () => pending);
@@ -254,15 +261,15 @@ describe('payment', () => {
     expect(JSON.parse(init.body as string)).toEqual({ method: 'apple-pay' }); // the chosen method only: no amount, no card data goes out
     expect((init.headers as Record<string, string>)['Idempotency-Key']).toMatch(/^[A-Za-z0-9._:-]{16,128}$/);
     await waitFor(() => expect(screen.getByLabelText(k('pharmacy.pay.pay', { amount: `80.00 ${k('pharmacy.currency')}` })).props.accessibilityState.disabled).toBe(true));
-    await act(async () => release({ id: 'txn-1', status: 'pending', checkout_url: 'https://pay.example.test/hosted' }));
-    await waitFor(() => expect(open).toHaveBeenCalledWith('https://pay.example.test/hosted'));
+    await act(async () => release({ id: 'txn-1', status: 'pending', checkout_url: 'https://checkout.tap.company/hosted' }));
+    await waitFor(() => expect(open).toHaveBeenCalledWith('https://checkout.tap.company/hosted'));
     expect(mockRouter.replace).toHaveBeenCalledWith({ pathname: '/payments/result', params: { transactionId: 'txn-1', bookingKind: 'pharmacy', bookingId: 'ord' } });
     expect(posts()).toHaveLength(1);
     open.mockRestore();
   });
 
   it('never opens a payment page that is not https; the transaction can still be checked', async () => {
-    const open = jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
+    const open = jest.spyOn(Linking, 'openURL').mockResolvedValue();
     answer({ '/patient/pharmacy/orders/ord': accepted, '/payments/pharmacy/ord/capabilities': caps() }, () => ({ id: 'txn-1', status: 'pending', checkout_url: 'http://insecure.example.test' }));
     await render(wrap(<PaymentScreen />));
     await tap(await screen.findByLabelText(k('pharmacy.pay.pay', { amount: `80.00 ${k('pharmacy.currency')}` })));
@@ -476,16 +483,20 @@ describe('payment result', () => {
   });
 
   it('opens the hosted page a service hands over (https only), once, and then asks the server', async () => {
-    const open = jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
-    mockParams.current = { moyasarId: 'txn-9', paymentUrl: 'https://pay.example.test/hosted', bookingKind: 'diagnostics', bookingId: 'd1' };
+    const open = jest.spyOn(Linking, 'openURL').mockResolvedValue();
+    mockParams.current = { moyasarId: 'txn-9', paymentUrl: 'https://checkout.tap.company/hosted', bookingKind: 'diagnostics', bookingId: 'd1' };
     apiFetch.mockResolvedValue({ id: 'x', status: 'pending' });
     await render(wrap(<PaymentResultScreen />));
     await screen.findByText(k('payments.result.checkingTitle'));
     expect(open).toHaveBeenCalledTimes(1);
-    expect(open).toHaveBeenCalledWith('https://pay.example.test/hosted');
+    expect(open).toHaveBeenCalledWith('https://checkout.tap.company/hosted');
     expect(apiFetch).toHaveBeenCalledWith('/payments/verify/txn-9', { method: 'POST' });
     open.mockClear();
     mockParams.current = { moyasarId: 'txn-9', paymentUrl: 'http://insecure.example.test', bookingKind: 'diagnostics' };
+    await render(wrap(<PaymentResultScreen />));
+    expect(open).not.toHaveBeenCalled();
+    // PT-24: a deep link naming any other https host does not open it either; the screen still asks the server about the payment
+    mockParams.current = { moyasarId: 'txn-9', paymentUrl: 'https://phish.example.test/pay', bookingKind: 'diagnostics' };
     await render(wrap(<PaymentResultScreen />));
     expect(open).not.toHaveBeenCalled();
     open.mockRestore();

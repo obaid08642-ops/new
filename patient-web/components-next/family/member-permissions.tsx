@@ -9,6 +9,7 @@ import rx from "@/components-next/pharmacy/rx.module.css";
 import forms from "@/components-next/consult/consult.module.css";
 import { PERMISSION_LABEL } from "./permission-labels";
 import styles from "./family.module.css";
+import { ConfirmDialog } from "@/components-next/confirm/confirm-dialog";
 
 /**
  * One member's permissions (merge map B: the per-member part of the old permissions screen): the grants as a checklist, Save,
@@ -35,7 +36,12 @@ export function MemberPermissions({ memberId, granted, backHref }: { memberId: s
     setSaving(true);
     try {
       const res = await fetch(url, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ permissions: grants }) });
-      if (!res.ok) { setMessage({ kind: "error", text: t("permsFailed") }); return; }
+      if (!res.ok) {
+        // Not the owner: the change is a request the owner answers (as in the app).
+        const asked = await fetch("/api/family/permissions/request", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ target_member_id: memberId, permissions: grants }) });
+        setMessage(asked.ok ? { kind: "ok", text: t("permsRequested") } : { kind: "error", text: t("permsFailed") });
+        return;
+      }
       setMessage({ kind: "ok", text: t("permsSaved") });
       router.refresh();
     } catch {
@@ -77,14 +83,18 @@ export function MemberPermissions({ memberId, granted, backHref }: { memberId: s
       {message ? <p className={message.kind === "ok" ? forms.ok : forms.error} role={message.kind === "ok" ? "status" : "alert"}>{message.text}</p> : null}
       <div className={styles.actionsRow}>
         <Button label={t("permsSave")} size="md" loading={saving} disabled={removing} onClick={() => void save()} />
-        {confirming ? (
-          <>
-            <Button label={t("removeConfirm")} size="md" variant="outline" loading={removing} disabled={saving} onClick={() => void remove()} />
-            <Button label={t("cancel")} size="md" variant="ghost" disabled={removing} onClick={() => setConfirming(false)} />
-          </>
-        ) : (
-          <Button label={t("removeMember")} size="md" variant="outline" disabled={saving} onClick={() => setConfirming(true)} />
-        )}
+        <Button label={t("removeMember")} size="md" variant="outline" disabled={saving} onClick={() => setConfirming(true)} />
+        <ConfirmDialog
+          open={confirming}
+          title={t("removeConfirmTitle")}
+          body={t("removeConfirmBody")}
+          confirmLabel={t("removeConfirm")}
+          cancelLabel={t("cancel")}
+          destructive
+          busy={removing}
+          onConfirm={() => void remove()}
+          onCancel={() => setConfirming(false)}
+        />
       </div>
     </section>
   );

@@ -1,10 +1,8 @@
 import React from 'react';
 
-import { LegalDocument } from '../../src/components/legal/LegalKit';
-import { useScreenUi } from '../../src/components/screen/ScreenKit';
+import { RedirectKeepingParams } from '../../src/components/health/RedirectKeepingParams';
 
-/** D-38: the telehealth consent; the text is the legal service's `telehealth_consent` (/legal/policy, with lang). */
-export default function TelehealthConsentScreen() {
-  const { k } = useScreenUi();
-  return <LegalDocument policyKey="telehealth_consent" title={k('legal.telehealth.title')} testID="legal-telehealth-consent" />;
+/** Old telehealth consent screen: the consent section of the legal tab of Help and policies. */
+export default function Redirect() {
+  return <RedirectKeepingParams to="/settings/help" params={{ tab: 'legal', doc: 'telehealth_consent' }} />;
 }

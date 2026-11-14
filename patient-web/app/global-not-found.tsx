@@ -1,8 +1,9 @@
 import "./globals.css";
 import { headers } from "next/headers";
-import { getGlobalNotFoundCopy } from "@/lib/i18n/global-notfound";
+import { getGlobalNotFoundCopy, getGlobalNotFoundHelp } from "@/lib/i18n/global-notfound";
+import { NotFoundHelp } from "@/components-next/core/not-found-help";
 
 export default async function GlobalNotFound() {
   const { locale, copy, dir } = getGlobalNotFoundCopy((await headers()).get("x-next-intl-locale"));
-  return <html lang={locale} dir={dir}><body><main className="main auth-wrap"><section className="auth-card"><div className="eyebrow">404</div><h1>{copy.title}</h1><p>{copy.body}</p><a className="button button-primary" href={`/${locale}`}>{copy.returnHome}</a></section></main></body></html>;
+  return <html lang={locale} dir={dir}><body><main className="main auth-wrap"><section className="auth-card"><div className="eyebrow">404</div><h1>{copy.title}</h1><p>{copy.body}</p><a className="button button-primary" href={`/${locale}`}>{copy.returnHome}</a><NotFoundHelp locale={locale} labels={getGlobalNotFoundHelp(locale)} /></section></main></body></html>;
 }

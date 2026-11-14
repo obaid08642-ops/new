@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { AuthLayout } from "@/components-next/auth/auth-layout";
 import { RegisterForm } from "@/components-next/register-form";
+import { getSocialButtons } from "@/lib/api/public-config-server";
 import { isLocale } from "@/lib/i18n";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -21,7 +22,7 @@ export default async function RegisterPage({ params }: Props) {
   setRequestLocale(locale);
   return (
     <AuthLayout locale={locale} backHref={`/${locale}/login`}>
-      <RegisterForm locale={locale} />
+      <RegisterForm locale={locale} social={await getSocialButtons()} />
     </AuthLayout>
   );
 }

@@ -102,7 +102,7 @@ describe('D-38: each user accepts the texts that apply to them, recorded with ve
 
   it('the first video consultation needs telehealth_consent, then records it with version, time and device', async () => {
     const slot = new Date(Math.ceil((Date.now() + 2 * 86_400_000) / (30 * MIN)) * 30 * MIN).toISOString();
-    const body = { doctor_id: 'doc-tele', service_type: 'video', slot_start: slot, payment_method: 'card' };
+    const body = { doctor_id: 'doc-tele', service_type: 'video', slot_start: slot, payment_method: 'card', refund_policy_accepted: true };
     const before = await stack.call(0, 'POST', '/api/v1/care/appointments', patient, body);
     expect([before.status, JSON.stringify(before.body)]).toEqual([expect.any(Number), expect.stringContaining('telehealth_consent_required')]);
     expect(before.status).toBeGreaterThanOrEqual(400);

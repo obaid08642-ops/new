@@ -62,7 +62,11 @@ def main():
         page.locator('input[type="file"]').first.set_input_files(path)
         page.get_by_role('img', name='صورة علبة الدواء').wait_for(timeout=30000)
         step('the photo is uploaded and shown', True, '')
-        page.get_by_role('button', name='أرسل للصيدليات القريبة').last.click(timeout=30000)
+        # the refund policy is shown before the request is sent: the button stays off until the patient agrees (owner decision 2026-11-09)
+        send = page.get_by_role('button', name='أرسل للصيدليات القريبة').last
+        step('without the refund policy tick the send button stays disabled', send.is_disabled(), '')
+        page.get_by_role('checkbox', name='قرأت سياسة الاسترداد وأوافق عليها').check(timeout=30000)
+        send.click(timeout=30000)
         page.wait_for_url('**/broadcast-status**', timeout=60000)
         oid = page.url.split('orderId=')[1].split('&')[0] if 'orderId=' in page.url else None
         step('the request is sent', oid, page.url)
@@ -110,19 +114,31 @@ def main():
     step('the patient\'s offer line says the price is not verified', any(l.get('price_status') == 'not_verified' for l in lines), lines)
     try:
         page.goto(f'{WEB}/ar/pharmacy/broadcast-status?orderId={oid}', wait_until='load', timeout=60000)
-        note = page.get_by_text('السعر غير متحقق منه', exact=False).first
         try:
             # the offer's lines are in its details: open them as the patient does, once the page is interactive
             page.locator('details summary').first.wait_for(timeout=30000)
             page.wait_for_function("() => { const d = document.querySelector('details'); return !!d && Object.keys(d).some((k) => k.startsWith('__react')); }", timeout=30000)
-            for summary in page.locator('details summary').all():
-                summary.click()
-            note.wait_for(timeout=30000)
+            # open each offer once: a second click on an open <details> closes it again (it then reads "إخفاء الأصناف والأسعار"),
+            # and a streamed hidden copy of the list must not count
+            for d in page.locator('details').all():
+                if d.is_visible() and not d.evaluate('(el) => el.open'):
+                    d.locator('summary').first.click()
+            page.wait_for_function(
+                "(t) => [...document.querySelectorAll('details[open]')].some((d) => d.offsetParent !== null && d.innerText.includes(t))",
+                arg='السعر غير متحقق منه', timeout=30000)
             shown = True
         except Exception:
             shown = False
-        details = ' | '.join(d.inner_text()[:200] for d in page.locator('details').all())
-        step('the offers page says the price is not verified', shown, details or page.locator('main').first.inner_text()[:300])
+        # what the page held when the note did not show. Read with short timeouts and never raise: inner_text() on a hidden
+        # <details> waited 30 s and failed the whole step as "web offers" (runs of #2302 shard 1 and #2345 shard 3) without saying what was on the page.
+        def _text(loc):
+            try:
+                return loc.evaluate("(el) => (el.open ? '[open] ' : '[closed] ') + (el.textContent || '').replace(/\\s+/g, ' ').slice(0, 240)", timeout=3000)
+            except Exception as err:  # noqa: BLE001
+                return f'[unreadable: {str(err)[:60]}]'
+        count = page.locator('details').count()
+        details = f'{count} details: ' + ' | '.join(_text(page.locator('details').nth(i)) for i in range(min(count, 4)))
+        step('the offers page says the price is not verified', shown, details if count else page.locator('main').first.text_content(timeout=3000)[:300])
     except Exception as e:
         step('web offers', False, str(e)[:300])
 

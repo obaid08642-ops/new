@@ -17,8 +17,11 @@ import { allowedImageUrl } from "@/lib/image-hosts";
 import { specialtyLabel, type SpecialtySlug } from "@/lib/specialties";
 import type { HomeSection } from "@/lib/api/public-config-server";
 import type { Locale } from "@/lib/i18n";
+import type { RecordRow, ReminderCard as ReminderCardData } from "@/lib/api/dashboard-extras";
 import { NONE_DISABLED, isPathHidden, visibleItems, type DisabledModules } from "@/lib/modules";
 import styles from "./home.module.css";
+import { FILL_SPARKLE } from "@/components-next/ui-generated/icons/glyphs/sparkle";
+import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
 type T = Awaited<ReturnType<typeof getTranslations>>;
 
@@ -46,13 +49,13 @@ function PulseLine() {
 export function HeroCard({ locale, t, eyebrow, title, headingId }: { locale: Locale; t: T; eyebrow?: string; title: string; headingId: string }) {
   return (
     <section className={`${styles.hero} ${styles.riseInPlace}`} aria-labelledby={headingId}>
-      <span className={styles.heroMark}><NabdMark size={34} variant="text" /></span>
+      <span className={styles.heroMark}><NabdMark size={34} /></span>
       <div className={styles.heroText}>
         {eyebrow ? <p className={styles.eyebrow}>{eyebrow}</p> : null}
         <h1 id={headingId} className={styles.title}>{title}</h1>
       </div>
       <PulseLine />
-      <HeroSearch locale={locale} placeholder={t("searchPlaceholder")} label={t("searchLabel")} button={t("searchButton")} />
+      <HeroSearch locale={locale} placeholder={t("searchPlaceholderShort")} label={t("searchLabel")} button={t("searchButton")} />
     </section>
   );
 }
@@ -131,12 +134,12 @@ export function AiCard({ locale, t, disabled = NONE_DISABLED }: { locale: Locale
   const tools: Array<{ icon: FillIconName; tone: ServiceTone; label: string; href: string }> = [
     { icon: "heartbeat", tone: TONE.care, label: t("aiSymptoms"), href: `${base}?mode=symptoms` },
     { icon: "translate", tone: "violet", label: t("aiTranslator"), href: `${base}?mode=prescription` },
-    { icon: "chart-line-up", tone: "mint", label: t("aiReport"), href: `${base}/monthly-report` },
+    { icon: "chart-line-up", tone: TONE.rx, label: t("aiReport"), href: `${base}/monthly-report` },
   ];
   return (
     <section className={styles.ai} aria-labelledby="home-ai-title">
       <div className={styles.aiHead}>
-        <FIcon icon="sparkle" tone="violet" chip="solid" size={56} />
+        <FIcon icon="sparkle" glyph={FILL_SPARKLE} tone="violet" chip="solid" size={56} />
         <div className={styles.aiText}>
           <h2 id="home-ai-title" className={styles.aiTitle}>{t("aiTitle")}</h2>
           <span className={styles.aiSub}>{t("aiSub")}</span>
@@ -147,7 +150,7 @@ export function AiCard({ locale, t, disabled = NONE_DISABLED }: { locale: Locale
         {tools.map((tool) => (
           <li key={tool.href}>
             <Link href={tool.href} className={styles.aiTool}>
-              <FIcon icon={tool.icon} tone={tool.tone} chip="none" size={22} />
+              <FIconByName icon={tool.icon} tone={tool.tone} chip="none" size={22} />
               <span>{tool.label}</span>
             </Link>
           </li>
@@ -168,14 +171,14 @@ const MORE: Array<{ key: string; href: string; icon: FillIconName; tone: Service
   { key: "notifications", href: "notifications", icon: "bell", tone: "amber" },
   { key: "search", href: "search", icon: "magnifying-glass", tone: "blue" },
   { key: "offers", href: "offers", icon: "gift", tone: "pink" },
-  { key: "programs", href: "programs", icon: "heart", tone: "mint" },
+  { key: "programs", href: "programs", icon: "heart", tone: TONE.rx },
   { key: "returns", href: "returns", icon: "arrows-left-right", tone: "amber" },
   { key: "reports", href: "reports", icon: "file-text", tone: "blue" },
   { key: "loyalty", href: "loyalty", icon: "star", tone: "amber" },
-  { key: "support", href: "support", icon: "headset", tone: TONE.care },
+  { key: "support", href: "support", icon: "headset", tone: "ink" },
   { key: "profile", href: "profile", icon: "user", tone: "blue" },
-  { key: "settings", href: "settings", icon: "gear", tone: "ink" },
-  { key: "articles", href: "articles", icon: "clipboard-text", tone: "mint" },
+  { key: "settings", href: "settings", icon: "gear", tone: TONE.care },
+  { key: "articles", href: "articles", icon: "clipboard-text", tone: "ink" },
 ];
 
 /** Every other patient page (the ones the service grid and the assistant card above do not already show), as the board's ListItem rows (the signed-in home; `labels` is the Dashboard namespace). */
@@ -265,6 +268,7 @@ export function DoctorsSection({ doctors, locale, t, specialties }: { doctors: D
               specialty={specialtyLabel(specialties, d.specialty) ?? undefined}
               place={d.facility}
               rating={d.rating && d.reviews ? { value: d.rating, count: d.reviews } : undefined}
+              locale={locale}
               nextSlot={formatNextSlot(d.nextSlot, locale) ?? undefined}
               price={d.price ? number.format(d.price) : undefined}
               currency={d.price ? t("currency") : undefined}
@@ -273,6 +277,65 @@ export function DoctorsSection({ doctors, locale, t, specialties }: { doctors: D
           </li>
         ))}
       </SoftLinks>
+    </section>
+  );
+}
+
+/** The board's points card: the balance from GET /loyalty/account, opening the loyalty hub (`points` is formatted by the page; `label` and `value` come from the locale files). */
+export function PointsCard({ locale, label, value }: { locale: Locale; label: string; value: string }) {
+  return (
+    <section className={styles.section} aria-label={label}>
+      <Link href={`/${locale}/loyalty`} className={styles.rowLink}>
+        <ListItem title={label} subtitle={value} leading={{ icon: "star", tone: "amber" }} />
+      </Link>
+    </section>
+  );
+}
+
+/** The health reminder card (the app's ReminderCard): the next dose, or that today's doses are done; opens the reminders. */
+export function ReminderCard({ locale, t, card }: { locale: Locale; t: T; card: ReminderCardData }) {
+  const nf = new Intl.NumberFormat(locale);
+  const title = card.kind === "next" ? (card.name ?? t("recordsMedications")) : t("reminderAllDone");
+  const subtitle = card.kind === "next" ? card.detail : card.total > 0 ? t("reminderProgress", { taken: nf.format(card.taken), scheduled: nf.format(card.total) }) : undefined;
+  return (
+    <section className={styles.section} aria-label={t("healthReminder")}>
+      <Link href={`/${locale}/health/medications?tab=all`} className={styles.rowLink}>
+        <ListItem title={title} subtitle={subtitle} leading={{ icon: "clock-counter-clockwise", tone: "violet" }} />
+      </Link>
+    </section>
+  );
+}
+
+/** "Your health records" (the app's DayRecords): rows drawn only from what the API returned today. */
+export function RecordsCard({ locale, t, rows, disabled = NONE_DISABLED }: { locale: Locale; t: T; rows: RecordRow[]; disabled?: DisabledModules }) {
+  const nf = new Intl.NumberFormat(locale);
+  type Item = { key: string; href: string; icon: FillIconName; tone: ServiceTone; title: string; subtitle: string };
+  const items = rows.flatMap((row): Item[] => {
+    switch (row.key) {
+      case "nutrition":
+        return [{ key: row.key, href: "nutrition/daily-tracker", icon: "bowl-food", tone: TONE.food, title: t("recordsNutrition"), subtitle: [row.meals > 0 ? t("recordsMeals", { count: nf.format(row.meals) }) : "", row.waterMl > 0 ? t("recordsWater", { count: nf.format(row.waterMl) }) : ""].filter(Boolean).join(" · ") }];
+      case "vitals":
+        return [{ key: row.key, href: "health/vitals", icon: "heartbeat", tone: SERVICE_ICONS.health.tone, title: t("recordsVitals"), subtitle: t("recordsUpdated") }];
+      case "mood":
+        return [{ key: row.key, href: "mental-health/mood", icon: "brain", tone: "violet", title: t("recordsMood"), subtitle: row.loggedToday ? t("recordsMoodLogged") : t("recordsMoodNotLogged") }];
+      case "maternity":
+        return [{ key: row.key, href: "maternity", icon: "baby", tone: "pink", title: t("recordsMaternity"), subtitle: row.pregnant ? t("recordsPregnancy") : t("recordsCycle") }];
+    }
+  });
+  const shown = visibleItems(items, (item) => `/${locale}/${item.href}`, disabled);
+  if (shown.length === 0) return null;
+  return (
+    <section className={styles.section} aria-label={t("recordsTitle")}>
+      <SectionHeader title={t("recordsTitle")} />
+      <ul className={styles.rows}>
+        {shown.map((item) => (
+          <li key={item.key}>
+            <Link href={`/${locale}/${item.href}`} className={styles.rowLink}>
+              <ListItem title={item.title} subtitle={item.subtitle} leading={{ icon: item.icon, tone: item.tone }} />
+            </Link>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

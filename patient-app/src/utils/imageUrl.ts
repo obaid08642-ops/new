@@ -9,7 +9,7 @@ import { BASE_URL } from './api';
  */
 const CDN_BASE =
   process.env.EXPO_PUBLIC_CDN_URL ||
-  BASE_URL.replace('/api/v1', '');
+  (BASE_URL ?? '').replace('/api/v1', '');
 
 export function resolveImageUri(input?: string | null): string | null {
   if (!input || typeof input !== 'string') return null;

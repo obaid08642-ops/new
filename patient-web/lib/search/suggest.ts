@@ -133,8 +133,30 @@ export interface SuggestState {
   open: boolean;
 }
 
+/** A service screen's own suggestions (owner request 2026-10-26): the section of GET /search, and optionally only some of its types. None = the home search. */
+export interface SuggestScope { section?: "pharmacy" | "consultations" | "labs" | "nursing"; types?: readonly SuggestType[] }
+
+/** The scope of each service screen: pharmacy = medicines only, labs = lab tests and packages only, radiology = scans only, nursing = nursing services, consultations = doctors and specialties. */
+export const SUGGEST_SCOPES = {
+  pharmacy: { section: "pharmacy" },
+  labs: { section: "labs", types: ["lab_test", "lab_package"] },
+  radiology: { section: "labs", types: ["radiology"] },
+  nursing: { section: "nursing" },
+  consultations: { section: "consultations" },
+} as const satisfies Record<string, SuggestScope>;
+
+/** The URL of the suggestions route for the typed text (the scope is part of it, so every screen has its own cached answers). */
+export function suggestUrl(q: string, locale: string, scope?: SuggestScope): string {
+  const params = [`q=${encodeURIComponent(q)}`, `locale=${encodeURIComponent(locale)}`];
+  if (scope?.section) params.push(`section=${encodeURIComponent(scope.section)}`);
+  if (scope?.types?.length) params.push(`types=${encodeURIComponent(scope.types.join(","))}`);
+  return `/api/search/suggest?${params.join("&")}`;
+}
+
 export interface SuggestDeps {
   locale: string;
+  /** The service screen's scope; none on Home. */
+  scope?: SuggestScope;
   fetcher: (url: string, init: { signal: AbortSignal }) => Promise<Response>;
   onChange: (state: SuggestState) => void;
   setTimer?: (fn: () => void, ms: number) => unknown;
@@ -196,7 +218,7 @@ export class SuggestController {
     const request = new AbortController();
     this.request = request;
     try {
-      const response = await this.deps.fetcher(`/api/search/suggest?q=${encodeURIComponent(q)}&locale=${encodeURIComponent(this.deps.locale)}`, { signal: request.signal });
+      const response = await this.deps.fetcher(suggestUrl(q, this.deps.locale, this.deps.scope), { signal: request.signal });
       if (!response.ok) throw new Error("suggest_unavailable");
       const { items, disabled } = parseSuggestions(await response.json(), this.deps.locale);
       if (request.signal.aborted) return;

@@ -16,6 +16,7 @@ const FEEDS: Record<string, unknown> = {
   "/public/sitemaps/doctor-cities/ar": { urls: [{ specialty: "cardiology", city: "Riyadh" }] },
   "/locations/cities": [{ code: "sa-riyadh" }, { code: "sa-jeddah" }],
   "/labs/services?limit=100": { items: [{ id: "l1", short_code: "CBC", name_en: "Complete blood count" }] },
+  "/labs/services?page=1&limit=100": { data: [{ id: "l1", short_code: "CBC", name_en: "Complete blood count", updatedAt: "2026-10-01T00:00:00.000Z" }], total: 1, total_pages: 1 },
   "/radiology/services?limit=100": { items: [{ id: "r1", short_code: "MRI Brain", name_en: "MRI brain" }] },
   "/public/ai-catalog/services": { items: [{ id: "svc-1" }] },
   "/home-care/services": [{ id: "h1", name_en: "Wound care" }],
@@ -45,7 +46,6 @@ const SITEMAPS: Array<[string, RegExp]> = [
   ["conditions.xml", /\/condition\/headache$/],
   ["articles.xml", /\/articles\/vitamin-d-a1$/],
   ["locations.xml", /\/doctors\/cardiology\/Riyadh$/],
-  ["labs.xml", /\/labs\/CBC\/riyadh$/],
   ["radiology.xml", /\/diagnostics\/radiology\/r1$/],
   ["services.xml", /\/home-nursing\/riyadh$/],
 ];
@@ -130,7 +130,7 @@ describe("llms.txt names every public type and all six languages", () => {
     const { GET } = await import("@/app/llms.txt/route");
     const text = await GET().text();
     for (const l of LOCALES) expect(text).toContain(`](/${l})`);
-    for (const p of ["/{lang}/p/{slug}", "/{lang}/doctor/{slug}", "/{lang}/facility/{slug}", "/{lang}/pharmacy/{slug}", "/{lang}/labs/{test}/{city}", "/{lang}/diagnostics/radiology/{id}", "/{lang}/home-nursing/{city}", "/{lang}/articles/{slug}", "/{lang}/condition/{code}"]) {
+    for (const p of ["/{lang}/p/{slug}", "/{lang}/doctor/{slug}", "/{lang}/facility/{slug}", "/{lang}/pharmacy/{slug}", "/{lang}/labs/{test}/{city}", "/{lang}/diagnostics/radiology/{id}", "/{lang}/home-nursing/{city}", "/{lang}/home-nursing/{city}/{service}", "/{lang}/articles/{slug}", "/{lang}/condition/{code}"]) {
       expect(text).toContain(p);
     }
     expect(text).toContain("Moyasar");

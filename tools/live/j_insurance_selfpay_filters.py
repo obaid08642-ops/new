@@ -1,11 +1,13 @@
+# owner decision 2026-10-28 (R6): the user-visible wording "self-pay" / "دفع ذاتي" became "Without insurance" / "بدون تأمين"
+# (and "With insurance" / "بتأمين"); API values and enum keys are unchanged.
 """Journey (owner decisions 2026-10-14, questions 5 and 28, with decision 30 "insurance chosen first"):
 needs-review 2-web 12, 3-app 0, 3-web 3.
 
   - /consultations/doctors: the old "Cash only" (accepts_insurance=false, i.e. only doctors who refuse insurance) is gone.
-    "Self-pay" lists every doctor; "Insurance" lists, for a signed-in patient with a saved policy, the doctors contracted
+    "Without insurance" lists every doctor; "Insurance" lists, for a signed-in patient with a saved policy, the doctors contracted
     for that company and class (GET /care/doctors?insurance=<company id>&insurance_class=<class>, the D-30 contract); an
-    old shared link with payment=cash reads as self-pay.
-  - /diagnostics: "Self-pay" (the default) lists the tests the patient may pay for (cash_availability not false),
+    old shared link with payment=cash reads as without insurance.
+  - /diagnostics: "Without insurance" (the default) lists the tests the patient may pay for (cash_availability not false),
     "Insurance" only the tests that take insurance (insurance_availability true).
   Stack: backend :8002, patient-web :3100 (signed in through the website's own /api/auth/login).
 """
@@ -87,8 +89,8 @@ def main():
     base = ids_on(base_r.body)
     r = web.get('/ar/consultations/doctors?payment=self_pay&sort=rating', headers=HTML)
     shown = ids_on(r.body)
-    step('Self-pay: every doctor is listed (the same list as with no payment filter)', base_r.ok and r.ok and bool(base) and shown == base, (len(base), len(shown), sorted(base ^ shown)[:6]))
-    step('Self-pay is drawn as the chosen payment', r.ok and 'دفع ذاتي' in str(r.body), r.status)
+    step('Without insurance: every doctor is listed (the same list as with no payment filter)', base_r.ok and r.ok and bool(base) and shown == base, (len(base), len(shown), sorted(base ^ shown)[:6]))
+    step('Without insurance is drawn as the chosen payment', r.ok and 'بدون تأمين' in str(r.body), r.status)
     step('the old "Cash only" choice is gone', r.ok and 'كاش فقط' not in str(r.body), r.status)
 
     r = web.get('/ar/consultations/doctors?payment=cash&sort=rating', headers=HTML)
@@ -115,13 +117,13 @@ def main():
          r.ok and any(x.get('name_ar') == made['self'] and x.get('insurance_availability') is False and x.get('cash_availability') is True for x in rows), r.status)
     r = web.get('/ar/diagnostics', headers=HTML)
     page = str(r.body)
-    step('Self-pay (the default) lists the self-pay test', r.ok and made['self'] in page, r.status)
-    step('Self-pay does not list the insurance-only test', r.ok and made['ins'] not in page, r.status)
-    step('Self-pay is drawn as the chosen payment', r.ok and 'دفع ذاتي' in page, r.status)
+    step('Without insurance (the default) lists the without-insurance test', r.ok and made['self'] in page, r.status)
+    step('Without insurance does not list the insurance-only test', r.ok and made['ins'] not in page, r.status)
+    step('Without insurance is drawn as the chosen payment', r.ok and 'بدون تأمين' in page, r.status)
     r = web.get('/ar/diagnostics?pay=insurance', headers=HTML)
     page = str(r.body)
     step('Insurance lists the insurance test', r.ok and made['ins'] in page, r.status)
-    step('Insurance does not list the self-pay-only test', r.ok and made['self'] not in page, r.status)
+    step('Insurance does not list the without-insurance-only test', r.ok and made['self'] not in page, r.status)
 
 if __name__ == '__main__':
     from lib import summary

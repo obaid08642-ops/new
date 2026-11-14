@@ -11,6 +11,7 @@ import { formatPrice } from "@/lib/format-price";
 import consult from "@/components-next/consult/consult.module.css";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/diagnostics/diag.module.css";
+import { pickText } from "@/components-next/diagnostics/diag-parts";
 
 export type DiagCartItem = { id: string; name: string; price?: number };
 
@@ -69,7 +70,7 @@ export function DiagnosticsCartClient({ locale }: { locale: string }) {
           const r = l as Record<string, unknown>;
           const id = String(r.id ?? r._id ?? "");
           if (!id) return null;
-          return { id, name: String(r.name_ar ?? r.name_en ?? r.name ?? id) };
+          return { id, name: String(pickText(locale, typeof r.name_ar === "string" ? r.name_ar : undefined, typeof r.name_en === "string" ? r.name_en : undefined) ?? r.name ?? id) };
         }).filter((l): l is { id: string; name: string } => l !== null);
         setLabs(mapped);
         if (mapped.length === 1) setLabId(mapped[0].id);

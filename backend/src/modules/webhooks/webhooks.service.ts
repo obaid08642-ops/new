@@ -120,18 +120,6 @@ export class WebhooksService {
     return { status: 'success', event };
   }
 
-  async handleSmsWebhook(body: any, token?: string) {
-    const expectedToken = process.env.SMS_WEBHOOK_TOKEN;
-    if (!expectedToken) {
-      if (isProd()) throw new BadRequestException('SMS webhook not configured');
-    } else if (!token || !timingSafeEq(token, expectedToken)) {
-      throw new BadRequestException('Invalid token');
-    }
-
-    await this.eventEmitter.emitAsync('sms.status_updated', body);
-    return { status: 'success' };
-  }
-
   async handleLiveKitWebhook(rawBody: string, authHeader: string) {
     const apiKey = process.env.LIVEKIT_API_KEY;
     const apiSecret = process.env.LIVEKIT_API_SECRET;

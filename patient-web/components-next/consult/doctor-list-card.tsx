@@ -1,9 +1,8 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import { DoctorCard } from "@/components-next/ui-generated/components/Cards";
 import type { ConsultMode } from "@/components-next/ui-generated/components/contract";
 import { formatPrice } from "@/lib/format-price";
+import { DoctorFacts } from "./doctor-sections";
+import { LocalTimeLine } from "./local-time-line";
 import { optimizedImageSrc } from "@/lib/media/optimized-image";
 
 export type DoctorListCardProps = {
@@ -24,21 +23,25 @@ export type DoctorListCardProps = {
   verifiedLabel?: string;
   /** The doctor's own photo (2-web#3); the card draws its initials frame without one. */
   photoSrc?: string;
+  /** The accessible name of the "available now" dot; given only when the server says the doctor is online (`is_online`). */
+  availableLabel?: string;
+  /** Short facts the server sent (years, gender, insurance, average wait), drawn under the card; none are invented. */
+  facts?: string[];
+  factsLabel?: string;
 };
 
 /**
- * One doctor as canvas/Consult draws it (the shared DoctorCard): the whole card is the link to the doctor's page. The
- * next free time is written in the reader's own time zone once the page is on screen, as the order dates are.
+ * One doctor as canvas/Consult draws it (the shared DoctorCard): the whole card is the link to the doctor's page. A SERVER
+ * component: the card is plain markup, so no card code, no image runtime and no class map reach the browser (the doctors page
+ * is at its Lighthouse script budget). The next free time is the one client island: it is written in the reader's own time
+ * zone once the page is on screen, as the order dates are.
  */
-export function DoctorListCard({ locale, href, name, grade, specialty, place, modes, rating, nextSlotIso, price, bookLabel, verifiedLabel, photoSrc }: DoctorListCardProps) {
-  const [nextSlot, setNextSlot] = useState<string | undefined>(undefined);
-  useEffect(() => {
-    if (!nextSlotIso) { setNextSlot(undefined); return; }
-    const date = new Date(nextSlotIso);
-    setNextSlot(Number.isNaN(date.getTime()) ? undefined : new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(date));
-  }, [nextSlotIso, locale]);
+export function DoctorListCard({ locale, href, name, grade, specialty, place, modes, rating, nextSlotIso, price, bookLabel, verifiedLabel, photoSrc, availableLabel, facts = [], factsLabel = "" }: DoctorListCardProps) {
+  // the next free time is written in the reader's own time zone after the page is on screen: a small client island, not the whole card
+  const nextSlot = nextSlotIso && !Number.isNaN(new Date(nextSlotIso).getTime()) ? <LocalTimeLine iso={nextSlotIso} locale={locale} /> : undefined;
   const money = price !== undefined ? formatPrice(locale, price) : undefined;
   return (
+    <>
     <DoctorCard
       href={href}
       name={name}
@@ -47,12 +50,16 @@ export function DoctorListCard({ locale, href, name, grade, specialty, place, mo
       place={place}
       modes={modes}
       rating={rating}
+      locale={locale}
       nextSlot={nextSlot}
       price={money?.amount}
       currency={money?.currency}
       bookLabel={bookLabel}
       verifiedLabel={verifiedLabel}
       photoSrc={optimizedImageSrc(photoSrc, 128)}
+      availableLabel={availableLabel}
     />
+    <DoctorFacts label={factsLabel} items={facts} />
+    </>
   );
 }

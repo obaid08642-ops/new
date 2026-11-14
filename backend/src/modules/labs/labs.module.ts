@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { SearchModule } from '../search/search.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LabsController } from './labs.controller';
 import { LabResultsController } from './lab-results.controller';
@@ -16,13 +17,16 @@ import { LabBookingRepository } from "./repositories/labbooking.repository";
 import { LabResultRepository } from "./repositories/labresult.repository";
 import { LabSampleRepository } from "./repositories/labsample.repository";
 import { LabServiceRepository } from "./repositories/labservice.repository";
+import { StorageModule } from '../storage/storage.module';
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 
 @Module({
   imports: [
     WorkflowEngineModule,
+    SearchModule,
     BusinessRulesModule,
     InsuranceEngineModule,
+    StorageModule,
     MongooseModule.forFeature([
       { name: 'LabService', schema: LabServiceSchema },
       { name: 'LabBooking', schema: LabBookingSchema },

@@ -6,7 +6,7 @@ import { KILLSWITCH_FEATURES } from '../../common/killswitches/killswitches.help
  * changed nothing, because no backend module and no client reads it. Whole services are switched on the module
  * switches page, and single actions on the kill-switch page.
  *
- * Each entry names the code that reads it (absent row = ON, except sms_enabled whose default is the SMS_ENABLED env).
+ * Each entry names the code that reads it (absent row = ON).
  */
 export interface EffectiveFlag { key: string; name: string; effect: string }
 
@@ -23,8 +23,6 @@ export const EFFECTIVE_FLAGS: readonly EffectiveFlag[] = [
   { key: KILLSWITCH_FEATURES.analyticsIngestion, name: 'تسجيل تحليلات البحث', effect: 'عند التعطيل لا تُسجل عمليات البحث في التحليلات؛ البحث نفسه يعمل.' },
   // medicines.service.ts didYouMean(): no suggestion; search.service.ts suggest(): no suggestions while typing (issue 1544).
   { key: KILLSWITCH_FEATURES.searchSuggestions, name: 'اقتراحات البحث', effect: 'عند التعطيل لا تظهر قائمة الاقتراحات أثناء الكتابة في خانة البحث، ولا يظهر «هل تقصد؟» عند بحث بلا نتائج. البحث نفسه يعمل.' },
-  // sms.service.ts isEnabled(): the SMS channel.
-  { key: 'sms_enabled', name: 'الرسائل النصية SMS', effect: 'عند التعطيل لا يرسل الخادم أي رسالة نصية. بلا قيمة محفوظة يتبع إعداد الخادم SMS_ENABLED.' },
 ];
 
 export const EFFECTIVE_FLAG_KEYS: readonly string[] = EFFECTIVE_FLAGS.map((f) => f.key);

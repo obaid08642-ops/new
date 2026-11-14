@@ -4,7 +4,7 @@ Plan 20.7: "Synthetic journeys in production, every 5-15 minutes: open home, sea
 patient. Verify: an alert fires when a journey fails twice."
 
 ## What runs
-`deploy/cloudflare/status-worker/journeys.mjs`, called by the status worker's second cron (`*/10 * * * *`), from Cloudflare's edge, in this order:
+`deploy/cloudflare/status-worker/journeys.mjs`, called by the status worker's second cron (`2-59/5 * * * *`, every 5 minutes, offset by 2 from the probes), from Cloudflare's edge, in this order:
 
 | Journey | Does | Fails when |
 |---|---|---|
@@ -20,7 +20,7 @@ A failing journey is retried once at once (a single dropped request is not a fai
 Without the test patient's secrets, `login` and `cart` are **skipped**, not failed.
 
 ## Alerts ("fires when a journey fails twice")
-A journey that fails on two runs in a row (20 minutes) sends **one** message to the owner by Telegram and e-mail, from the worker itself, so it works while the API is down;
+A journey that fails on two runs in a row (10 minutes) sends **one** message to the owner by Telegram and e-mail, from the worker itself, so it works while the API is down;
 "RECOVERED" follows once when it passes again. The failing journey also shows as down on the status page (`status.nabd.plus`) and opens an incident there.
 Telegram: `TELEGRAM_BOT_TOKEN` + `TELEGRAM_ALERT_CHAT_ID` (worker secrets). E-mail: `RESEND_API_KEY` secret + `OPS_ALERT_EMAIL` and `MAIL_FROM` vars. Each is optional.
 
@@ -32,10 +32,10 @@ lists when those exist. Rotate the password the way any worker secret is rotated
 
 ## If a journey fails
 `home`/`product` page: patient-web or the edge worker (`x-nabd-edge`), see `docs/ops/edge-html.md`. `search`: Mongo `search_index` / the kill switch `search_suggestions_enabled`.
-`login`: the auth rate limit (10 a minute per IP; one login per 10 minutes is far below it), or the account was disabled. `cart`: the cart API or idempotency store (Redis). `doctors`: care API and the doctors collection.
+`login`: the auth rate limit (10 a minute per IP; one login per 5 minutes is far below it), or the account was disabled. `cart`: the cart API or idempotency store (Redis). `doctors`: care API and the doctors collection.
 Use `/admin/logs` (20.3) with the failing time, and `docs/runbooks/api-availability.md`.
 
 ## Limits
 - It runs from one edge location, not from a phone: it proves the server side of each step, not the app's screens. The app's own crash and error reports are Sentry (20.4).
 - It needs the catalogue to contain the test term; if the medicine is renamed, set `SYNTH_SEARCH_TERM`.
-- Cost: Workers Free (cron, subrequests: at most 12 per run), KV writes 144 a day for this vantage. No GitHub Actions minutes are used (a 10-minute GitHub schedule would use about 4,000 a month).
+- Cost: Workers Free (cron, subrequests: at most 12 per run), KV writes 288 a day for this vantage. No GitHub Actions minutes are used (a 5-minute GitHub schedule would use about 8,000 a month).

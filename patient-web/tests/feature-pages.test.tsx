@@ -25,7 +25,7 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/components-next/core/core-shell", () => ({ CoreShell: ({ children }: { children: unknown }) => children }));
 
 import FeaturePage, { generateMetadata, generateStaticParams } from "../app/[locale]/features/[feature]/page";
-import robots from "../app/robots";
+import robots from "@/lib/seo/robots-policy";
 import { GET as staticSitemap } from "../app/sitemaps/static.xml/route";
 import { GET as llms } from "../app/llms.txt/route";
 import { FEATURE_PAGES } from "@/lib/seo/feature-pages";

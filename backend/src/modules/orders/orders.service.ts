@@ -1,10 +1,13 @@
+import { postWalletEntry } from '../../common/wallet-ledger';
 import axios from 'axios';
+import { withRefunds } from './order-refund';
 import { escapeRegex } from '../../common/slug.util';
 // Use the CommonJS runtime export directly; namespace imports can be non-constructable in production bundles.
 const PDFDocument = require('pdfkit');
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, Inject, ServiceUnavailableException, Optional } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
+import { countDeliveredOrder } from './ordered-count';
 import { Connection } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Order, OrderDocument, PharmacyBid } from '../../schemas/order.schema';
@@ -20,8 +23,10 @@ import { DeliveryRepository } from "./repositories/delivery.repository";
 import { PharmacyBidRepository } from "./repositories/pharmacybid.repository";
 import { CouponService, LoyaltyRedeemService, RefundExecutor, CancellationPolicy } from '../finance-engine/finance-engine.module';
 import { ProductRankingEventService } from '../product-ranking/product-ranking-event.service';
+import { DurableEventsService, emitDurable } from '../durable-events/durable-events.service';
+import { roundSar } from '../../common/money';
 
-const round2 = (n: number) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
+const round2 = (n: number) => roundSar(Number(n));
 
 @Injectable()
 export class OrdersService {
@@ -39,6 +44,7 @@ export class OrdersService {
     private readonly refundExec: RefundExecutor,
     private readonly cancelPolicy: CancellationPolicy,
     @Optional() private readonly rankingEvents?: ProductRankingEventService,
+    @Optional() private readonly durable?: DurableEventsService,
   ) {}
 
   /** Legacy /orders mutations must never operate on a pharmacy order. */
@@ -193,7 +199,7 @@ export class OrdersService {
       throw e;
     }
 
-    this.events.emit(EVENTS.ORDER_CREATED, { order_id: order.id, patient_id: patient.id });
+    await emitDurable(this.durable, this.events, EVENTS.ORDER_CREATED, { order_id: order.id, patient_id: patient.id }, `${EVENTS.ORDER_CREATED}:${order.id}`);
     await this.engine.announceCreated({ kind: 'pharmacy', entity_id: order.id, actor_account_id: patient.id, actor_role: 'patient', patient_account_id: patient.id, meta: { pharmacy_id: result.selected_pharmacy_id, items: items.length, total: order.total } });
 
     // 4. If no dispatch possible -> escalate
@@ -248,7 +254,7 @@ export class OrdersService {
         { id: order.id },
         { $set: { sub_order_ids: [sub.id], is_split: true } },
       );
-      this.events.emit(EVENTS.ORDER_CREATED, { order_id: sub.id, patient_id: patient.id, split_from: order.id });
+      await emitDurable(this.durable, this.events, EVENTS.ORDER_CREATED, { order_id: sub.id, patient_id: patient.id, split_from: order.id }, `${EVENTS.ORDER_CREATED}:${sub.id}`);
     }
 
     return this.getById(order.id);
@@ -295,6 +301,9 @@ export class OrdersService {
             { patient_id: order.patient_id, refill_pending_order_id: order.id },
             { $set: { order_id: order.id, refill_fulfilled_at: new Date() }, $unset: { refill_pending_order_id: 1 } },
           );
+
+          // "Most ordered": +1 on each distinct product of a delivered order (DELIVERED is reached once per order).
+          await countDeliveredOrder(this.conn, order.items);
 
           // Continuous Dynamic Re-Ranking: Ingest completed purchases
           if (Array.isArray(order.items) && this.rankingEvents) {
@@ -347,15 +356,32 @@ export class OrdersService {
       const subs = typeof (qSubs as any)?.lean === 'function' ? await (qSubs as any).lean() : await qSubs;
       (o as any).sub_orders = subs;
     }
+    // the patient who owns the order sees its refund status; staff reads are unchanged
+    const owner = String((o as any).patient_id || '');
+    if (user?.id && owner && owner === String(user.id)) {
+      try { return (await withRefunds(this.conn as never, owner, [o as any]))[0]; } catch { return o; }   // an unreadable refund record never hides the order
+    }
     return o;
   }
-  async listMine(patient_id: string, type?: string) {
+  /**
+   * The patient's own orders, each with its `refund` (null, or { state, amount, partial, method, reason, requested_at, refunded_at }: PD-819, the refund tab of the app).
+   * `refundsOnly` keeps only the orders that have a refund of any state.
+   */
+  async listMine(patient_id: string, type?: string, refundsOnly = false) {
     const q: any = { patient_id, parent_order_id: { $exists: false } };
     if (type) {
       q.type = type;
     }
     const query = this.orderModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(100);
-    return typeof (query as any)?.lean === 'function' ? (query as any).lean() : query;
+    const rows: any[] = typeof (query as any)?.lean === 'function' ? await (query as any).lean() : await query;
+    try {
+      const withRefund = await withRefunds(this.conn as never, patient_id, rows);
+      return refundsOnly ? withRefund.filter((o) => o.refund !== null) : withRefund;
+    } catch (e) {
+      // the orders list never fails because the refund records could not be read; the refund tab itself has nothing to show without them
+      if (refundsOnly) throw e;
+      return rows;
+    }
   }
   async listForPharmacy(pharmacy_id: string, state?: OrderState) {
     const q: any = { pharmacy_id };
@@ -423,7 +449,7 @@ export class OrdersService {
         });
       } catch (e: any) {
         // Never block the operational transition; flag for admin follow-up
-        this.events.emit('refund.execution_failed', { order_id: orderId, amount: diff, error: e?.message });
+        await emitDurable(this.durable, this.events, 'refund.execution_failed', { order_id: orderId, amount: diff, error: e?.message }, `refund.execution_failed:${orderId}:${diff}`);
       }
     }
     return result;
@@ -476,19 +502,12 @@ export class OrdersService {
         walletApplied = round2(debits.reduce((s: number, t: any) => s + Number(t.amount || 0), 0));
       }
       if (walletApplied > 0) {
-        const already: any = await this.conn.collection('wallet_transactions').findOne({ referenceId: `cancel_${orderId}` } as any);
-        if (!already) {
-          const wallet: any = await this.conn.collection('wallets').findOne({ ownerId: order.patient_id, ownerType: 'patient' } as any);
-          if (wallet) {
-            await this.conn.collection('wallets').updateOne({ _id: wallet._id } as any, { $inc: { balance: walletApplied }, $set: { updatedAt: new Date() } });
-            await this.conn.collection('wallet_transactions').insertOne({
-              id: require('uuid').v4(), walletId: wallet.id, amount: walletApplied, type: 'credit',
-              referenceType: 'refund', referenceId: `cancel_${orderId}`,
-              description: `استرداد محفظة لإلغاء الطلب #${orderId.slice(0, 8)}`,
-              createdAt: new Date(), updatedAt: new Date(),
-            } as any);
-          }
-        }
+        // through the wallet ledger, once per cancelled order (idempotency key), never by changing the balance in place
+        await postWalletEntry(this.conn, {
+          ownerId: order.patient_id, ownerType: 'patient', amount: walletApplied, type: 'credit',
+          referenceType: 'refund', referenceId: `cancel_${orderId}`,
+          description: `استرداد محفظة لإلغاء الطلب #${orderId.slice(0, 8)}`,
+        });
       }
       const upd: any = { refund_status: 'REFUNDED', payment_status: 'refunded', refunded_at: new Date() };
       if (policy.fee_sar > 0) {
@@ -794,6 +813,7 @@ export class OrdersService {
         driver_id: null,
         courier_name: d.courier_name ?? null,
         courier_phone: d.courier_phone ?? null,
+        courier_vehicle: d.courier_vehicle ?? null,
         courier_eta: d.courier_eta ?? null,
         dispatched_at: d.dispatched_at ?? null,
         delivered_at: d.delivered_at ?? null,

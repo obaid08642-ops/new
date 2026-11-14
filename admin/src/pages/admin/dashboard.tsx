@@ -177,7 +177,7 @@ export default function MasterDashboard() {
               })}
               getRowKey={({ o, i }) => `${o.kind}-${o.id || i}`}
               rowClassName={({ isDelayed }) => `hover:bg-teal-50 ${isDelayed ? 'bg-red-50/40' : ''}`}
-              onRowClick={({ o }) => { if (o.kind && o.id) window.location.href = `/admin/order-detail?kind=${encodeURIComponent(o.kind)}&id=${encodeURIComponent(o.id)}`; }}
+              onRowClick={({ o }) => { if (o.kind && o.id) window.location.href = `/admin/orders/${encodeURIComponent(o.kind)}/${encodeURIComponent(o.id)}`; }}
               columns={[
                 { key: 'track', header: 'رقم التتبع', className: 'font-mono text-teal-700', render: ({ o }) => o.tracking_id || o.id },
                 { key: 'who', header: 'المريض / المزود', className: 'text-xs', render: ({ o }) => <><div className="font-bold text-slate-800 truncate max-w-[140px]">{o.patient_name || o.patient_id?.slice(0,8) || '—'}</div><div className="text-slate-400 truncate max-w-[140px]">{o.provider_name || o.provider_id?.slice(0,8) || '—'}</div></> },
@@ -191,7 +191,7 @@ export default function MasterDashboard() {
                 { key: 'total', header: 'القيمة', className: 'font-bold', render: ({ o }) => `${Math.round(Number(o.total) || 0)} ر.س` },
                 { key: 'actions', header: 'تواصل', actions: true, render: ({ o }) => (
                   <div onClick={e => e.stopPropagation()}>
-                    {o.provider_phone ? <a href={`tel:${o.provider_phone}`} className="text-xs bg-teal-600 text-white px-2 py-1 rounded-lg">اتصال</a> : <a href={o.kind && o.id ? `/admin/order-detail?kind=${encodeURIComponent(o.kind)}&id=${encodeURIComponent(o.id)}` : '#'} className="text-xs bg-slate-100 border px-2 py-1 rounded-lg">تفاصيل</a>}
+                    {o.provider_phone ? <a href={`tel:${o.provider_phone}`} className="text-xs bg-teal-600 text-white px-2 py-1 rounded-lg">اتصال</a> : (o.kind && o.id ? <a href={`/admin/orders/${encodeURIComponent(o.kind)}/${encodeURIComponent(o.id)}`} className="text-xs bg-slate-100 border px-2 py-1 rounded-lg">تفاصيل</a> : null)}
                   </div>
                 ) },
               ]}

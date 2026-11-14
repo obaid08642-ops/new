@@ -13,14 +13,21 @@ vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
 // the shell is a client component with its own tests (core-screens); the page's own markup is what is under test here
 vi.mock("@/components-next/core/core-shell", () => ({ CoreShell: ({ children }: { children: ReactNode }) => <div data-shell>{children}</div> }));
 
-import PrescriptionsPage from "./page";
+// the order button is a client component with its own test (rx-order-these.test.tsx); here only what the page hands it
+vi.mock("@/components-next/pharmacy/rx-order-these", () => ({ RxOrderThese: (props: { prescriptionId: string; lines: unknown[] }) => <div data-order-these={props.prescriptionId} data-lines={JSON.stringify(props.lines)} /> }));
+vi.mock("@/components-next/consult/consult-page", () => ({ ConsultPage: ({ children }: { children: ReactNode }) => <div data-shell>{children}</div> }));
+vi.mock("@/components-next/consult/link-segmented", () => ({ LinkSegmented: () => <nav /> }));
+
+import RecordsPage from "../health/records/page";
 import PrescriptionDetailPage from "./[prescriptionId]/page";
 
 const prescriptionId = "91047ef2-ad36-422a-a184-629693e7c729";
 const serverToken = "server-only-prescription-token-never-in-html";
 const fileUrl = "https://example.test/private-prescription.pdf";
 
-describe("prescriptions list SSR boundary", () => {
+const records = async () => renderToStaticMarkup(await RecordsPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ tab: "prescriptions" }) }));
+
+describe("prescriptions list SSR boundary (the records tab)", () => {
   beforeEach(() => {
     state.getPatientPrescriptions.mockReset();
     state.requirePatientAccess.mockReset().mockResolvedValue(serverToken);
@@ -29,7 +36,7 @@ describe("prescriptions list SSR boundary", () => {
   it("renders bounded patient prescription metadata without diagnosis, instructions, file, or token", async () => {
     state.getPatientPrescriptions.mockResolvedValue(new Response(JSON.stringify({ prescriptions: [{ id: prescriptionId, state: "CREATED_BY_DOCTOR", createdAt: "2026-08-20T10:00:00.000Z", items: [{ medicine_name_ar: "visible-medicine", dose: "private-dose", instructions: "private-instructions" }], patient_id: "private-patient", diagnosis: "private-diagnosis", notes: "private-notes", upload_image: fileUrl }] }), { status: 200 }));
 
-    const html = renderToStaticMarkup(await PrescriptionsPage({ params: Promise.resolve({ locale: "en" }) }));
+    const html = await records();
 
     expect(state.getPatientPrescriptions).toHaveBeenCalledWith(serverToken);
     // F32: the raw state enum must never reach the user: only its translation key.
@@ -45,14 +52,14 @@ describe("prescriptions list SSR boundary", () => {
 
   it("says there are none, with the way to upload one, instead of drawing an empty list", async () => {
     state.getPatientPrescriptions.mockResolvedValue(new Response(JSON.stringify([]), { status: 200 }));
-    const html = renderToStaticMarkup(await PrescriptionsPage({ params: Promise.resolve({ locale: "en" }) }));
+    const html = await records();
     expect(html).toContain("emptyTitle");
     expect(html).not.toContain("<ul");
   });
 
   it("shows the retry state when the list cannot be read", async () => {
     state.getPatientPrescriptions.mockResolvedValue(new Response(null, { status: 503 }));
-    const html = renderToStaticMarkup(await PrescriptionsPage({ params: Promise.resolve({ locale: "en" }) }));
+    const html = await records();
     expect(html).toContain('role="alert"');
     expect(html).toContain("unavailableTitle");
   });
@@ -66,7 +73,7 @@ describe("prescription detail", () => {
   });
 
   it("reads the patient's own bounded view (GET /prescriptions/:id) and draws each medicine's dose, frequency and duration", async () => {
-    state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ id: prescriptionId, status: "APPROVED", items: [{ name: "Metformin", dose: "500 mg", frequency: { every_hours: 8 }, duration: 30 }, { name: "Vitamin D", dose: null, frequency: { times_per_day: 1 }, duration: null }], issued_at: "2026-08-20T10:00:00.000Z", doctor: { display_name: "Dr Sara", specialty: "Endocrinology" }, diagnosis: "private-diagnosis", upload_image: fileUrl }), { status: 200 }));
+    state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ id: prescriptionId, status: "APPROVED", items: [{ name: "Metformin", dose: "500 mg", frequency: { every_hours: 8 }, duration: 30, quantity: 2, medicine_id: "med-1" }, { name: "Vitamin D", dose: null, frequency: { times_per_day: 1 }, duration: null }], issued_at: "2026-08-20T10:00:00.000Z", doctor: { display_name: "Dr Sara", specialty: "Endocrinology" }, diagnosis: "private-diagnosis", upload_image: fileUrl }), { status: 200 }));
 
     const html = renderToStaticMarkup(await PrescriptionDetailPage({ params: Promise.resolve({ locale: "en", prescriptionId }) }));
 
@@ -78,7 +85,9 @@ describe("prescription detail", () => {
     expect(html).toContain('timesPerDay:{&quot;count&quot;:1}');
     expect(html).toContain("Dr Sara · Endocrinology");
     expect(html).toContain("stateApproved");
-    expect(html).toContain(`prescriptionId=${prescriptionId}`); // the way to order from it
+    expect(html).toContain(`data-order-these="${prescriptionId}"`); // the way to order from it: the medicines go into the cart
+    expect(html).toContain("&quot;medicineId&quot;:&quot;med-1&quot;");
+    expect(html).toContain("&quot;quantity&quot;:2");
     for (const secret of [serverToken, "private-diagnosis", fileUrl]) expect(html).not.toContain(secret);
   });
 
@@ -86,7 +95,7 @@ describe("prescription detail", () => {
     state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ id: prescriptionId, status: "DISPENSED", items: [{ name: "Metformin" }] }), { status: 200 }));
     const html = renderToStaticMarkup(await PrescriptionDetailPage({ params: Promise.resolve({ locale: "en", prescriptionId }) }));
     expect(html).toContain("notOrderable");
-    expect(html).not.toContain("orderCta");
+    expect(html).not.toContain("data-order-these");
   });
 
   it("answers not found for a prescription that is not the patient's (the API says 404) and for an id that is not an id", async () => {

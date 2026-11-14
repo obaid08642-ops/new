@@ -30,7 +30,7 @@ live with the apps that use them (`patient-web/components-next/nabd-mark.tsx`,
 | Path | What it is |
 |---|---|
 | `src/logo-mark.svg` | **the master** — coral, on transparency |
-| `src/logo-mark-ink.svg` | the dark lockup: off-white bowl, coral dot |
+| `src/logo-mark-ink.svg` | the dark lockup: coral bowl, coral dot (2026-10-26) |
 | `src/logo-mark-onbrand.svg` | the white mark, for a coral fill |
 | `src/favicon.svg` | the bare mark, for the browser tab |
 | `src/icon-ios.svg` | coral tile, white mark at 65% — square, **no radius** |

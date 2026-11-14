@@ -22,7 +22,7 @@
   display: flex; align-items: center; gap: 12px; min-block-size: 56px; padding: 8px 14px; box-sizing: border-box; cursor: pointer;
   background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-2xl);
 }
-.pick:has(input:checked) { border-color: var(--nabd-color-action-selected-bg); }
+.pick:has(input:checked) { border-color: var(--nabd-color-action-primary-bg); }
 .pickBox { flex: none; inline-size: 24px; block-size: 24px; margin: 0; accent-color: var(--nabd-color-action-primary-bg); }
 .pickBody { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 2px; }
 .pickTitle { font-size: var(--nabd-font-size-row); font-weight: 600; overflow-wrap: anywhere; }

@@ -1,10 +1,9 @@
-/** F34/F63: OTP channel selection + registration OTP gate (unit). */
+/** F34/F63 (owner decision 2026-10-25, no SMS): OTP goes by push AND email; registration OTP gate + registration OTP gate (unit). */
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { RedisService } from '../redis/redis.service';
-import { SmsService } from '../sms/sms.service';
 import { MailService } from '../mail/mail.module';
 import { PushService } from '../push/push.module';
 import * as bcrypt from 'bcryptjs';
@@ -15,7 +14,6 @@ describe('AuthService OTP channels + register gate (F34/F63)', () => {
   let redisService: any;
   let mail: any;
   let push: any;
-  let sms: any;
 
   const user = (over: any = {}) => ({
     id: 'u1', phone: '+966500000001', email: undefined, active: true, role: 'patient', ...over,
@@ -31,8 +29,7 @@ describe('AuthService OTP channels + register gate (F34/F63)', () => {
       checkRateLimit: jest.fn().mockResolvedValue({ allowed: true, remaining: 1 }),
     };
     mail = { sendOtp: jest.fn(async () => ({ ok: true, provider: 'resend', fallback_used: false })) };
-    push = { sendToUser: jest.fn(async () => ({ sent: 0, failed: 0 })) };
-    sms = { sendOtp: jest.fn(async () => true) };
+    push = { sendTemplated: jest.fn(async () => ({ sent: 1, failed: 0 })), sendToUser: jest.fn(async () => ({ sent: 0, failed: 0 })) };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -42,7 +39,6 @@ describe('AuthService OTP channels + register gate (F34/F63)', () => {
         { provide: JwtService, useValue: { sign: jest.fn().mockReturnValue('tok') } },
         { provide: EventEmitter2, useValue: { emit: jest.fn() } },
         { provide: RedisService, useValue: redisService },
-        { provide: SmsService, useValue: sms },
         { provide: MailService, useValue: mail },
         { provide: PushService, useValue: push },
       ],
@@ -50,33 +46,42 @@ describe('AuthService OTP channels + register gate (F34/F63)', () => {
     service = module.get<AuthService>(AuthService);
   });
 
-  it('phone identifier with working SMS → sms channel (Taqnyat path)', async () => {
-    userModel.findOne.mockResolvedValue(user());
-    const res: any = await service.sendOtp('+966500000001');
-    expect(res.ok).toBe(true);
-    expect(sms.sendOtp).toHaveBeenCalledWith('+966500000001', expect.any(String));
-    expect(mail.sendOtp).not.toHaveBeenCalled();
-  });
-
-  it('phone identifier, SMS disabled, account email present → email fallback', async () => {
-    sms.sendOtp.mockResolvedValue(false);
+  it('phone identifier, account with push device and email → code goes by push AND email, never SMS', async () => {
     userModel.findOne.mockResolvedValue(user({ email: 'u@example.com' }));
     const res: any = await service.sendOtp('+966500000001');
     expect(res.ok).toBe(true);
+    expect(push.sendTemplated).toHaveBeenCalledWith('u1', 'push.otp.title', 'push.otp.body', { kind: 'otp' }, { code: expect.any(String) });
     expect(mail.sendOtp).toHaveBeenCalledWith('u@example.com', expect.any(String));
   });
 
-  it('phone-only user, SMS disabled, no email, push unsent → 503 otp_channel_unavailable', async () => {
-    sms.sendOtp.mockResolvedValue(false);
-    userModel.findOne.mockResolvedValue(user());
-    await expect(service.sendOtp('+966500000001')).rejects.toMatchObject({ status: 503 });
+  it('phone identifier, no device but account email → email only', async () => {
+    push.sendTemplated.mockResolvedValue({ sent: 0, failed: 0 });
+    userModel.findOne.mockResolvedValue(user({ email: 'u@example.com' }));
+    const res: any = await service.sendOtp('+966500000001');
+    expect(res).toMatchObject({ ok: true, channel: 'email' });
+    expect(mail.sendOtp).toHaveBeenCalledWith('u@example.com', expect.any(String));
   });
 
-  it('email identifier → email only (never SMS)', async () => {
+  it('phone identifier, device but no email → push only', async () => {
+    userModel.findOne.mockResolvedValue(user());
+    const res: any = await service.sendOtp('+966500000001');
+    expect(res).toMatchObject({ ok: true, channel: 'push' });
+    expect(mail.sendOtp).not.toHaveBeenCalled();
+  });
+
+  it('phone-only user, no device, no email → 503 otp_no_channel', async () => {
+    push.sendTemplated.mockResolvedValue({ sent: 0, failed: 0 });
+    userModel.findOne.mockResolvedValue(user());
+    await expect(service.sendOtp('+966500000001')).rejects.toMatchObject({
+      status: 503,
+      response: expect.objectContaining({ code: 'otp_no_channel' }),
+    });
+  });
+
+  it('email identifier → email', async () => {
     userModel.findOne.mockResolvedValue(user({ email: 'u@example.com' }));
     const res: any = await service.sendOtp('u@example.com');
     expect(res.ok).toBe(true);
-    expect(sms.sendOtp).not.toHaveBeenCalled();
     expect(mail.sendOtp).toHaveBeenCalledWith('u@example.com', expect.any(String));
   });
 
@@ -118,10 +123,13 @@ describe('AuthService OTP channels + register gate (F34/F63)', () => {
     expect(redisService.setJson).toHaveBeenCalledWith(expect.stringContaining('new@example.com'), expect.objectContaining({ user_id: null }), expect.any(Number));
   });
 
-  it('register purpose + unknown phone -> code is sent by SMS to that phone', async () => {
+  it('register purpose + unknown phone -> nobody to deliver to (no SMS): 503 otp_no_channel', async () => {
     userModel.findOne.mockResolvedValue(null);
-    await service.sendOtp('+966500000009', 'register');
-    expect(sms.sendOtp).toHaveBeenCalledWith('+966500000009', expect.any(String));
+    await expect(service.sendOtp('+966500000009', 'register')).rejects.toMatchObject({
+      status: 503,
+      response: expect.objectContaining({ code: 'otp_no_channel' }),
+    });
+    expect(mail.sendOtp).not.toHaveBeenCalled();
   });
 
   it('unknown account without register purpose -> same answer as success, nothing stored or sent (no enumeration)', async () => {

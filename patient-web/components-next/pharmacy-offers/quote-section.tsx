@@ -28,6 +28,26 @@ function QuoteTotals({ locale, quote, t }: { locale: string; quote: PatientPharm
   );
 }
 
+/** The lines of the chosen pharmacy's allocation: name, quantity and price per line, above the totals (the app's QuoteLines). */
+function QuoteLinesList({ locale, lines, currency, t }: { locale: string; lines: NonNullable<PatientPharmacyOrderProgress["quoteLines"]>; currency?: string; t: Translate }) {
+  return (
+    <ul className={styles.lines} aria-label={t("quoteLinesLabel")} data-testid="quote-lines">
+      {lines.map((line) => (
+        <li key={line.id} className={styles.line}>
+          <span className={styles.lineName}>
+            {line.name ?? t("lineUnnamed")}
+            {line.quantity !== undefined && line.quantity > 0 ? ` ${t("lineQty", { qty: line.quantity })}` : ""}
+          </span>
+          <span className={`${styles.lineAmount} ${line.action === "unavailable" ? styles.lineOut : ""}`}>
+            {line.action === "unavailable" ? t("lineUnavailable") : line.unitPrice !== undefined ? formatMoney(locale, line.unitPrice, currency) : ""}
+          </span>
+          {line.action === "substitute" ? <span className={styles.lineSub}>{t("quoteSubstitute")}</span> : null}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 type Props = {
   locale: string;
   orderId: string;
@@ -74,6 +94,7 @@ export async function QuoteSection({ locale, orderId, progress, screen }: Props)
         <h2 className={styles.panelTitle} id="quote-title">{t("quoteTitle")}</h2>
         {pharmacyName ? <p className={styles.pharmacy} data-testid="quote-pharmacy">{pharmacyName}</p> : null}
         {canAccept ? <p className={styles.note}>{t("quoteLead")}</p> : null}
+        {progress.quoteLines?.length ? <QuoteLinesList locale={locale} lines={progress.quoteLines} currency={quote?.currency} t={t} /> : null}
         {quote ? <QuoteTotals locale={locale} quote={quote} t={t} /> : null}
         {canAccept ? <QuoteActions orderId={orderId} quoteHash={quote?.hash} quoteRevision={quote?.revision} canAccept canRegisterCod={false} afterCod="refresh" /> : null}
       </section>

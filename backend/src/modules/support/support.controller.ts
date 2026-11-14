@@ -1,5 +1,5 @@
 import { JwtAuthGuard, Roles, SelfService, CurrentUser } from '../../common/auth.guard';
-import { UserRole } from '../../common/enums';
+import { UserRole, PROVIDER_ROLES } from '../../common/enums';
 import { Controller, Delete, Get, Post, Patch, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { SupportService } from './support.service';
 import { CreateDto, CreateTicketDto, ReplyDto, AdminUpdateDto, SupportSettingsDto, FaqUpsertDto, FeedbackDto } from './support.dto';
@@ -13,6 +13,8 @@ export class SupportController {
   @Post('requests') create(@CurrentUser() u: any, @Body() b: CreateDto) { return this.svc.create(u, b); }
   // M2 alias: apps submit support tickets at /support/tickets
   @Post('tickets') createTicket(@CurrentUser() u: any, @Body() b: CreateTicketDto) { return this.svc.create(u, b); }
+  // PV-15: a provider sees the disputes about their own bookings (limited fields, read-only).
+  @Get('provider/disputes') @Roles(...PROVIDER_ROLES, 'provider') providerDisputes(@CurrentUser() u: any) { return this.svc.providerDisputes(u); }
   @Get('requests/mine') mine(@CurrentUser() u: any) { return this.svc.mine(u); }
   @Get('requests/:id') one(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.getOne(u, id); }
   @Post('requests/:id/reply') reply(@CurrentUser() u: any, @Param('id') id: string, @Body() b: ReplyDto) { return this.svc.reply(u, id, b.message); }

@@ -1,0 +1,1778 @@
+[
+ {
+  "method": "POST",
+  "url": "/auth/login",
+  "keys": [],
+  "spread": false,
+  "unresolved": "loginCredentials(phone, password)",
+  "at": "patient-app/app/(auth)/login.tsx:70",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/medicines/events",
+  "keys": [
+   "event_type",
+   "drug_id"
+  ],
+  "spread": false,
+  "at": "patient-app/app/(tabs)/pharmacy.tsx:197",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/unified-bookings/consultation/:x/cancel",
+  "keys": [
+   "reason"
+  ],
+  "spread": false,
+  "at": "patient-app/app/consultations/cancel-reschedule.tsx:168",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/care/appointments/:x/reschedule",
+  "keys": [
+   "slot_start"
+  ],
+  "spread": false,
+  "at": "patient-app/app/consultations/cancel-reschedule.tsx:180",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/chat/threads/booking",
+  "keys": [
+   "booking_kind",
+   "booking_id"
+  ],
+  "spread": false,
+  "at": "patient-app/app/consultations/chat-with-doctor.tsx:119",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/calls/:x/reject",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/app/consultations/incoming-call.tsx:98",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/patient-ux/review",
+  "keys": [
+   "booking_kind",
+   "booking_id",
+   "rating",
+   "comment",
+   "aspects"
+  ],
+  "spread": false,
+  "at": "patient-app/app/consultations/post-call-rating.tsx:50",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/medical-reports/:x/share",
+  "keys": [
+   "doctor_profile_id",
+   "doctor_name"
+  ],
+  "spread": false,
+  "at": "patient-app/app/consultations/share-report.tsx:145",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "DELETE",
+  "url": "/medical-reports/:x/share/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/app/consultations/share-report.tsx:158",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/calls/initiate",
+  "keys": [
+   "appointmentId",
+   "call_type"
+  ],
+  "spread": false,
+  "at": "patient-app/app/consultations/video-call.tsx:108",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/calls/:x/join",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/app/consultations/video-call.tsx:117",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/calls/:x/end",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/app/consultations/video-call.tsx:276",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/payments/intent/lab/:x",
+  "keys": [],
+  "spread": false,
+  "at": "patient-app/app/diagnostics/booking-status.tsx:228",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/payments/intent/:x/:x",
+  "keys": [],
+  "spread": false,
+  "at": "patient-app/app/diagnostics/confirm.tsx:154",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/payments/intent/lab/:x",
+  "keys": [
+   "method"
+  ],
+  "spread": false,
+  "at": "patient-app/app/diagnostics/insurance-approval.tsx:120",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/labs/bookings/:x/items/:x/opt-in-cash",
+  "keys": [
+   "optInCash"
+  ],
+  "spread": false,
+  "at": "patient-app/app/diagnostics/insurance-approval.tsx:138",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/bookings/:x/cancel",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/app/diagnostics/order/[id].tsx:96",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/wearables/devices",
+  "keys": [
+   "kind",
+   "name"
+  ],
+  "spread": false,
+  "at": "patient-app/app/health/wearables.tsx:59",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/insurance/ocr-extract",
+  "keys": [
+   "image_base64",
+   "mime_type"
+  ],
+  "spread": false,
+  "at": "patient-app/app/insurance/add-policy.tsx:102",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/insurance/save-policy",
+  "keys": [
+   "provider",
+   "company_id",
+   "policy_number",
+   "national_id",
+   "verified",
+   "ocr_extracted"
+  ],
+  "spread": true,
+  "at": "patient-app/app/insurance/add-policy.tsx:142",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/payments/intent/insurance/:x",
+  "keys": [
+   "method"
+  ],
+  "spread": false,
+  "at": "patient-app/app/insurance/copay.tsx:57",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/medical-orders/:x/items/:x/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "action === 'order' ? { group_all: groupAll } : {}",
+  "at": "patient-app/app/medical-orders/[id].tsx:38",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/notifications/read-all",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/app/notifications/index.tsx:157",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/notifications/:x/read",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/app/notifications/index.tsx:167",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/payments/intent/nursing/:x",
+  "keys": [],
+  "spread": false,
+  "at": "patient-app/app/nursing/nurse-profile.tsx:144",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/nursing/bookings",
+  "keys": [
+   "provider_id",
+   "service_id",
+   "service_name_ar",
+   "scheduled_at",
+   "sessions_count",
+   "address",
+   "payment_method"
+  ],
+  "spread": false,
+  "at": "patient-app/app/nursing/nurse-profile.tsx:223",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/payments/verify/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/app/payments/result.tsx:60",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/ai/drug-interactions",
+  "keys": [
+   "drugs"
+  ],
+  "spread": false,
+  "at": "patient-app/app/pharmacy/barcode-scanner.tsx:64",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/ai/scan",
+  "keys": [
+   "image_base64",
+   "mime_type"
+  ],
+  "spread": false,
+  "at": "patient-app/app/pharmacy/barcode-scanner.tsx:89",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/patient/pharmacy/orders/:x/offers/:x/select",
+  "keys": [
+   "coverage_mode"
+  ],
+  "spread": false,
+  "at": "patient-app/app/pharmacy/broadcast-status.tsx:173",
+  "callee": "apiFetch",
+  "idem": true
+ },
+ {
+  "method": "POST",
+  "url": "/patient/pharmacy/orders/:x/cancel",
+  "keys": [
+   "reason"
+  ],
+  "spread": false,
+  "at": "patient-app/app/pharmacy/broadcast-status.tsx:201",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/patient/pharmacy/orders/:x/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/app/pharmacy/final-quote.tsx:93",
+  "callee": "apiFetch",
+  "idem": true
+ },
+ {
+  "method": "POST",
+  "url": "/patient/pharmacy/orders/:x/insurance-rejection/cancel",
+  "keys": [
+   "idempotency_key"
+  ],
+  "spread": false,
+  "at": "patient-app/app/pharmacy/insurance-decision.tsx:102",
+  "callee": "apiFetch",
+  "idem": true
+ },
+ {
+  "method": "POST",
+  "url": "/patient/pharmacy/orders/:x/insurance/:x/accept",
+  "keys": [],
+  "spread": false,
+  "at": "patient-app/app/pharmacy/insurance-decision.tsx:106",
+  "callee": "apiFetch",
+  "idem": true
+ },
+ {
+  "method": "POST",
+  "url": "/ai/drug-interactions",
+  "keys": [
+   "drugs"
+  ],
+  "spread": false,
+  "at": "patient-app/app/pharmacy/interactions.tsx:39",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/medicines/compare",
+  "keys": [
+   "ids"
+  ],
+  "spread": false,
+  "at": "patient-app/app/pharmacy/medicine-compare.tsx:75",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/payments/intent/pharmacy/:x",
+  "keys": [
+   "method"
+  ],
+  "spread": false,
+  "at": "patient-app/app/pharmacy/payment.tsx:101",
+  "callee": "apiFetch",
+  "idem": true
+ },
+ {
+  "method": "POST",
+  "url": "/pharmacy/chat/threads/:x:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:body",
+  "at": "patient-app/app/pharmacy/pharmacist-chat.tsx:93",
+  "callee": "apiFetch",
+  "idem": true
+ },
+ {
+  "method": "POST",
+  "url": "/users/me/wishlist/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/app/pharmacy/product-detail.tsx:223",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/medicines/events",
+  "keys": [
+   "event_type",
+   "drug_id"
+  ],
+  "spread": false,
+  "at": "patient-app/app/pharmacy/product-detail.tsx:248",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/medicines/compare",
+  "keys": [
+   "ids"
+  ],
+  "spread": false,
+  "at": "patient-app/app/pharmacy/product-detail.tsx:325",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/medicines/:x/suggest-change",
+  "keys": [
+   "type",
+   "changes",
+   "note"
+  ],
+  "spread": false,
+  "at": "patient-app/app/pharmacy/product-detail.tsx:350",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/users/me/wishlist/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/app/pharmacy/wishlist.tsx:97",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/calls/:x/join",
+  "keys": [],
+  "spread": false,
+  "unresolved": "'{}'",
+  "at": "patient-app/app/room/[id].tsx:137",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/auth/refresh",
+  "keys": [
+   "refresh_token"
+  ],
+  "spread": false,
+  "at": "patient-app/src/auth/session.ts:53",
+  "callee": "fetchImpl",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/auth/logout",
+  "keys": [
+   "refresh_token"
+  ],
+  "spread": false,
+  "at": "patient-app/src/auth/session.ts:84",
+  "callee": "fetchImpl",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/notifications/register-token",
+  "keys": [
+   "token",
+   "provider",
+   "platform",
+   "device_name",
+   "call_ring"
+  ],
+  "spread": false,
+  "at": "patient-app/src/calls/voipPush.ts:39",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/delivered",
+  "keys": [],
+  "spread": false,
+  "unresolved": "'{}'",
+  "at": "patient-app/src/chat/receipts.ts:10",
+  "callee": "api",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/read",
+  "keys": [
+   "up_to_message_id"
+  ],
+  "spread": false,
+  "at": "patient-app/src/chat/receipts.ts:11",
+  "callee": "api",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/media/upload",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:form",
+  "at": "patient-app/src/chat/send.ts:15",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/chat/threads/:x/messages",
+  "keys": [
+   "client_message_id"
+  ],
+  "spread": true,
+  "at": "patient-app/src/chat/send.ts:27",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/slot-locks/reserve",
+  "keys": [
+   "provider_id",
+   "booking_kind",
+   "slot_start"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/BookingConfirmForm.tsx:118",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/care/appointments",
+  "keys": [
+   "doctor_id",
+   "service_type",
+   "slot_start",
+   "payment_method",
+   "insurance_provider",
+   "insurance_member_id",
+   "patient_notes",
+   "visit_location",
+   "slot_lock_id"
+  ],
+  "spread": true,
+  "at": "patient-app/src/components/BookingConfirmForm.tsx:129",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/payments/intent/consultation/:x",
+  "keys": [
+   "method"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/BookingConfirmForm.tsx:161",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/push/events",
+  "keys": [
+   "event",
+   "notification_id",
+   "campaign_id",
+   "data"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/NotificationHandler.tsx:18",
+  "callee": "HttpClient.post",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/users/me/addresses/:x",
+  "keys": [
+   "is_default"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/account/AddressBookView.tsx:64",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/users/me/addresses/:x",
+  "keys": [
+   "label",
+   "street",
+   "building",
+   "floor",
+   "notes"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/account/AddressBookView.tsx:104",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "DELETE",
+  "url": "/users/me/addresses/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/src/components/account/AddressBookView.tsx:123",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/support/feedback",
+  "keys": [
+   "message"
+  ],
+  "spread": true,
+  "at": "patient-app/src/components/account/HelpView.tsx:119",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/users/me/addresses",
+  "keys": [
+   "label",
+   "street",
+   "building",
+   "floor",
+   "notes",
+   "lat",
+   "lng",
+   "is_default"
+  ],
+  "spread": true,
+  "at": "patient-app/src/components/account/LocationPickerView.tsx:158",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "DELETE",
+  "url": "/users/me",
+  "keys": [
+   "password"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/account/PrivacyView.tsx:157",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/media/upload",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:form",
+  "at": "patient-app/src/components/account/ReturnsViews.tsx:250",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/pharmacy/returns",
+  "keys": [
+   "serviceType",
+   "reason",
+   "orderId",
+   "details",
+   "refundMethod",
+   "attachedDocs"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/account/ReturnsViews.tsx:271",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/patient-ux/review",
+  "keys": [
+   "booking_kind",
+   "booking_id",
+   "rating",
+   "comment",
+   "aspects",
+   "anonymous"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/account/ReviewView.tsx:51",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/users/me/change-password",
+  "keys": [
+   "current_password",
+   "new_password"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/account/SettingsViews.tsx:182",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "DELETE",
+  "url": "/users/me/sessions/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/src/components/account/SettingsViews.tsx:197",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/support/chat",
+  "keys": [
+   "message"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/account/SupportViews.tsx:55",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/media/upload",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:form",
+  "at": "patient-app/src/components/account/SupportViews.tsx:87",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/ai/assistant",
+  "keys": [
+   "message",
+   "locale"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/ai/AssistantView.tsx:104",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/ai/ocr-translate",
+  "keys": [
+   "image_base64",
+   "target_lang"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/ai/AssistantView.tsx:175",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/articles/bookmarks/:x/toggle",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/src/components/articles/ArticlesViews.tsx:202",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/maternity/profile",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:body",
+  "at": "patient-app/src/components/care/MaternityViews.tsx:204",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/mental-health/mood",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:payload",
+  "at": "patient-app/src/components/care/MentalHealthViews.tsx:90",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/nutrition/plan/generate",
+  "keys": [],
+  "spread": false,
+  "unresolved": "'{}'",
+  "at": "patient-app/src/components/care/NutritionViews.tsx:86",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/nutrition/water",
+  "keys": [
+   "amount_ml"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/care/NutritionViews.tsx:148",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/nutrition/profile",
+  "keys": [
+   "goal",
+   "activity_level",
+   "height_cm",
+   "weight_kg",
+   "target_weight_kg",
+   "daily_calorie_target",
+   "daily_water_target_ml",
+   "dietary_restrictions",
+   "allergies"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/care/NutritionViews.tsx:258",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/nutrition/meals",
+  "keys": [
+   "name",
+   "calories",
+   "meal_type"
+  ],
+  "spread": true,
+  "at": "patient-app/src/components/care/NutritionViews.tsx:321",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/medical/programs/complete-session",
+  "keys": [
+   "programType",
+   "sessionId"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/care/ProgramsView.tsx:71",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/health/reminders",
+  "keys": [],
+  "spread": false,
+  "unresolved": "reminderPayload(med, prescription?.id)",
+  "at": "patient-app/src/components/consult/AppointmentSections.tsx:185",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/medical-orders/:x/items/:x/order",
+  "keys": [
+   "group_all"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/consult/Differentiators.tsx:89",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/catalogue-interest",
+  "keys": [
+   "service_type",
+   "service_id"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/diagnostics/CatalogueKit.tsx:107",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/ai/ocr-translate",
+  "keys": [
+   "image_base64",
+   "target_lang"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/diagnostics/InsuranceUploadForm.tsx:142",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/labs/bookings",
+  "keys": [
+   "items",
+   "scheduled_at",
+   "location_type",
+   "payment_method",
+   "provider_account_id"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/diagnostics/InsuranceUploadForm.tsx:189",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/radiology/bookings",
+  "keys": [
+   "service_id",
+   "scheduled_at",
+   "location_type",
+   "payment_method",
+   "provider_account_id"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/diagnostics/InsuranceUploadForm.tsx:202",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/labs/bookings/:x/documents",
+  "keys": [
+   "kind",
+   "url_or_b64"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/diagnostics/InsuranceUploadForm.tsx:218",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/emergency/share-location",
+  "keys": [
+   "lat",
+   "lng"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/emergency/UrgentHelpView.tsx:52",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/family/invite",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/src/components/family/FamilyAddView.tsx:65",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/family/join",
+  "keys": [
+   "invite_code",
+   "display_name"
+  ],
+  "spread": true,
+  "at": "patient-app/src/components/family/FamilyAddView.tsx:153",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/family/calendar/event",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:payload",
+  "at": "patient-app/src/components/family/FamilyCalendarView.tsx:77",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "DELETE",
+  "url": "/family/calendar/event/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/src/components/family/FamilyCalendarView.tsx:96",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/family/chat/messages",
+  "keys": [
+   "text"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/family/FamilyChatView.tsx:77",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/family/create",
+  "keys": [
+   "name"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/family/FamilyHubView.tsx:65",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "PUT",
+  "url": "/family/permissions/respond/:x",
+  "keys": [
+   "decision",
+   "note",
+   "permissions"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/family/FamilyHubView.tsx:87",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/family/member/:x/permissions",
+  "keys": [
+   "permissions"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/family/FamilyMemberView.tsx:131",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/family/permissions/request",
+  "keys": [
+   "target_member_id",
+   "permissions"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/family/FamilyMemberView.tsx:135",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "DELETE",
+  "url": "/family/remove-member/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/src/components/family/FamilyMemberView.tsx:155",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/health/reminders/:x/log",
+  "keys": [
+   "status",
+   "time_key",
+   "occurred_at"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/health/MedicationsView.tsx:73",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/health/reminders/:x",
+  "keys": [
+   "active"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/health/MedicationsView.tsx:85",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/health/reminders/:x/refill",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/src/components/health/MedicationsView.tsx:263",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/health/reminders/:x:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "kind === 'snooze' ? JSON.stringify({ days: 3 }) : undefined",
+  "at": "patient-app/src/components/health/MedicationsView.tsx:348",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/health/reminders/:x",
+  "keys": [
+   "medicine_name_ar",
+   "dose",
+   "dosage_count",
+   "times",
+   "time_zone",
+   "frequency",
+   "duration_days",
+   "chronic",
+   "pills_remaining",
+   "refill_date",
+   "instructions_ar"
+  ],
+  "spread": false,
+  "kinds": null,
+  "at": "patient-app/src/components/health/MedicationsView.tsx:458",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/health/reminders",
+  "keys": [
+   "medicine_name_ar",
+   "dose",
+   "dosage_count",
+   "times",
+   "time_zone",
+   "frequency",
+   "duration_days",
+   "chronic",
+   "pills_remaining",
+   "refill_date",
+   "instructions_ar"
+  ],
+  "spread": false,
+  "kinds": null,
+  "at": "patient-app/src/components/health/MedicationsView.tsx:458",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/medical-profile",
+  "keys": [
+   "height_cm",
+   "weight_kg"
+  ],
+  "spread": true,
+  "at": "patient-app/src/components/health/ProfileView.tsx:86",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/media/upload",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:formData",
+  "at": "patient-app/src/components/health/ProfileView.tsx:106",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/users/me/profile",
+  "keys": [
+   "avatar_url"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/health/ProfileView.tsx:109",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/medical-profile/:x",
+  "keys": [
+   "name"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/health/ProfileView.tsx:187",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "DELETE",
+  "url": "/medical-profile/:x/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/src/components/health/ProfileView.tsx:196",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/health/emergency-contacts",
+  "keys": [
+   "name",
+   "phone",
+   "relation",
+   "isPrimary"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/health/ProfileView.tsx:280",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "DELETE",
+  "url": "/health/emergency-contacts/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/src/components/health/ProfileView.tsx:294",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/health/sleep",
+  "keys": [
+   "duration_hours",
+   "sleep_score",
+   "source"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/health/SleepView.tsx:145",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/health/vitals",
+  "keys": [
+   "type",
+   "context",
+   "source"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/health/VitalsView.tsx:209",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "DELETE",
+  "url": "/users/me/insurance",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/src/components/insurance/InsuranceHubView.tsx:99",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/users/me/insurance",
+  "keys": [
+   "provider",
+   "provider_name",
+   "policy_number",
+   "member_id",
+   "network",
+   "class"
+  ],
+  "spread": true,
+  "at": "patient-app/src/components/insurance/InsuranceHubView.tsx:262",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/payments/intent/insurance/:x",
+  "keys": [
+   "method"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/insurance/InsuranceRequestView.tsx:107",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/insurance/requests/:x/accept-self-pay",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/src/components/insurance/InsuranceRequestView.tsx:137",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/legal/accept/telehealth_consent",
+  "keys": [],
+  "spread": false,
+  "unresolved": "'{}'",
+  "at": "patient-app/src/components/legal/TelehealthConsent.tsx:31",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/loyalty/rewards/:x/claim",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/src/components/loyalty/LoyaltyHub.tsx:181",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/loyalty/challenges/:x/join",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/src/components/loyalty/LoyaltyHub.tsx:283",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/referrals/apply",
+  "keys": [
+   "code"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/loyalty/LoyaltyHub.tsx:376",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/patient/pharmacy/orders",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:draft",
+  "at": "patient-app/src/components/pharmacy/ManualRequest.tsx:71",
+  "callee": "apiFetch",
+  "idem": true
+ },
+ {
+  "method": "POST",
+  "url": "/patient/pharmacy/orders/:x/submit",
+  "keys": [],
+  "spread": false,
+  "at": "patient-app/src/components/pharmacy/ManualRequest.tsx:74",
+  "callee": "apiFetch",
+  "idem": true
+ },
+ {
+  "method": "POST",
+  "url": "/ai/prescription-ocr",
+  "keys": [
+   "image_base64"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/pharmacy/RxIntake.tsx:69",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/prescriptions/upload",
+  "keys": [
+   "upload_image",
+   "items",
+   "notes"
+  ],
+  "spread": false,
+  "at": "patient-app/src/components/pharmacy/RxIntake.tsx:76",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/chats/threads/:x/messages",
+  "keys": [
+   "body",
+   "type",
+   "client_message_id"
+  ],
+  "spread": false,
+  "at": "patient-app/src/context/SocketContext.tsx:57",
+  "callee": "apiFetch",
+  "idem": true
+ },
+ {
+  "method": "PATCH",
+  "url": "/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:dto",
+  "at": "patient-app/src/core/data/HttpRemoteDataSource.ts:89",
+  "callee": "http.patch",
+  "idem": false
+ },
+ {
+  "method": "DELETE",
+  "url": "/:x",
+  "keys": [
+   "baseURL"
+  ],
+  "spread": false,
+  "at": "patient-app/src/core/data/HttpRemoteDataSource.ts:98",
+  "callee": "http.delete",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/auth/refresh",
+  "keys": [
+   "refresh_token"
+  ],
+  "spread": false,
+  "at": "patient-app/src/core/platform/auth/SessionManager.ts:77",
+  "callee": "fetch",
+  "idem": false
+ },
+ {
+  "method": "PUT",
+  "url": "/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:entity",
+  "at": "patient-app/src/data/repositories/sources/RemoteDataSource.ts:52",
+  "callee": "http.put",
+  "idem": false
+ },
+ {
+  "method": "DELETE",
+  "url": "/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "none",
+  "at": "patient-app/src/data/repositories/sources/RemoteDataSource.ts:58",
+  "callee": "http.delete",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/care/appointments/:x/outcomes/seen",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/src/hooks/useNewOutcomesCount.ts:16",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/push/events",
+  "keys": [
+   "event",
+   "notification_id",
+   "campaign_id",
+   "data"
+  ],
+  "spread": false,
+  "at": "patient-app/src/hooks/usePushNotifications.ts:222",
+  "callee": "HttpClient.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/notifications/register-token",
+  "keys": [
+   "token",
+   "provider",
+   "platform"
+  ],
+  "spread": false,
+  "at": "patient-app/src/hooks/usePushNotifications.ts:273",
+  "callee": "HttpClient.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/notifications/register-token",
+  "keys": [
+   "token",
+   "provider",
+   "platform"
+  ],
+  "spread": false,
+  "at": "patient-app/src/hooks/usePushNotifications.ts:288",
+  "callee": "HttpClient.post",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/auth/social-login",
+  "keys": [
+   "provider"
+  ],
+  "spread": true,
+  "at": "patient-app/src/hooks/useSocialLogin.ts:74",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/auth/logout",
+  "keys": [
+   "refresh_token"
+  ],
+  "spread": false,
+  "at": "patient-app/src/store/index.ts:112",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/calls/:x/reject",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/src/utils/callkeep.ts:96",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/calls/:x/reject",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/src/utils/callkeep.ts:110",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/auth/guest",
+  "keys": [],
+  "spread": false,
+  "at": "patient-app/src/utils/guestSession.ts:21",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/health/reminders/:x/log",
+  "keys": [
+   "status",
+   "time_key",
+   "occurred_at"
+  ],
+  "spread": false,
+  "at": "patient-app/src/utils/medication-notifications.ts:267",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/notifications/register-token",
+  "keys": [
+   "token",
+   "provider",
+   "platform",
+   "device_name",
+   "call_ring"
+  ],
+  "spread": false,
+  "at": "patient-app/src/utils/notifications.ts:72",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/ordering/quote",
+  "keys": [
+   "service_kind",
+   "items",
+   "context"
+  ],
+  "spread": false,
+  "at": "patient-app/src/utils/ordering.ts:148",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/ordering/asap",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:body",
+  "at": "patient-app/src/utils/orderingBooking.ts:186",
+  "callee": "asapCall",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/ordering/asap/:x/cancel",
+  "keys": [],
+  "spread": false,
+  "unresolved": "no-body",
+  "at": "patient-app/src/utils/orderingBooking.ts:188",
+  "callee": "asapCall",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/ordering/bookings",
+  "keys": [],
+  "spread": false,
+  "unresolved": "buildBookingBody(d, c)",
+  "at": "patient-app/src/utils/orderingBooking.ts:276",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/radiology/bookings",
+  "keys": [
+   "service_id",
+   "provider_id",
+   "scheduled_at",
+   "location_type",
+   "payment_method"
+  ],
+  "spread": true,
+  "at": "patient-app/src/utils/orderingBooking.ts:295",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/ordering/bookings/:x/results/discuss",
+  "keys": [],
+  "spread": false,
+  "at": "patient-app/src/utils/orderingDiscuss.ts:69",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/consultations/instant",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:body",
+  "at": "patient-app/src/utils/orderingDiscuss.ts:75",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/consultations/instant/:x/cancel",
+  "keys": [],
+  "spread": false,
+  "at": "patient-app/src/utils/orderingDiscuss.ts:87",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/ordering/bookings/:x/partial-choice",
+  "keys": [
+   "choice"
+  ],
+  "spread": false,
+  "at": "patient-app/src/utils/orderingStatus.ts:160",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "POST",
+  "url": "/ordering/bookings/:x/emergency",
+  "keys": [],
+  "spread": false,
+  "at": "patient-app/src/utils/orderingStatus.ts:224",
+  "callee": "apiFetch",
+  "idem": false
+ },
+ {
+  "method": "PATCH",
+  "url": "/patient/pharmacy/orders/:x",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:patch",
+  "at": "patient-app/src/utils/pharmacyOrderSend.ts:39",
+  "callee": "apiFetch",
+  "idem": true
+ },
+ {
+  "method": "POST",
+  "url": "/patient/pharmacy/orders",
+  "keys": [],
+  "spread": false,
+  "unresolved": "var:body",
+  "at": "patient-app/src/utils/pharmacyOrderSend.ts:44",
+  "callee": "apiFetch",
+  "idem": true
+ },
+ {
+  "method": "POST",
+  "url": "/patient/pharmacy/orders/:x/submit",
+  "keys": [],
+  "spread": false,
+  "at": "patient-app/src/utils/pharmacyOrderSend.ts:49",
+  "callee": "apiFetch",
+  "idem": true
+ },
+ {
+  "method": "POST",
+  "url": "/catalogue/ranking/events",
+  "keys": [
+   "vertical",
+   "service_id",
+   "event"
+  ],
+  "spread": false,
+  "at": "patient-app/src/utils/rankingEvents.ts:17",
+  "callee": "apiFetch",
+  "idem": false
+ }
+]

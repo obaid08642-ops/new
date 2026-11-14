@@ -39,8 +39,9 @@ def main():
         for loc, heart in (('ar', 'القلب'), ('en', 'Heart')):
             journey(f'web lab labels ({loc}): package categories')
             page.goto(f'{WEB}/{loc}/diagnostics/packages', wait_until='load', timeout=60000)
-            page.locator('select[name="category"]').wait_for(timeout=30000)
-            options = [o.strip() for o in page.locator('select[name="category"] option').all_inner_texts()]
+            # the categories are radio chips (the app's chips) in a radiogroup now, no longer a select: read the chips' labels
+            page.locator('[role="radiogroup"] label').first.wait_for(timeout=30000)
+            options = [o.strip() for o in page.locator('[role="radiogroup"] label').all_inner_texts()]
             step(f'/{loc}/diagnostics/packages shows no category code', not (set(options) & CODES), options)
             step(f'/{loc}/diagnostics/packages names the heart category "{heart}"', heart in options, options)
 

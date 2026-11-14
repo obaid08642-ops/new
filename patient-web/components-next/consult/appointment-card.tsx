@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { MODE_VISUAL, type Mode } from "@/lib/consult/appointment-view";
 import { SERVICE_ICONS, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { LocalTile } from "./local-tile";
 import styles from "./consult.module.css";
+import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
 export type CardAction = { href: string; label: string };
 
@@ -28,6 +28,8 @@ export function AppointmentCard({
   primary,
   primaryInk = false,
   secondary,
+  priceText,
+  extra,
 }: {
   locale: string;
   href: string;
@@ -44,15 +46,19 @@ export function AppointmentCard({
   /** The primary action in the ink fill (the board draws the video visit in the action colour and the clinic and home visits in ink). */
   primaryInk?: boolean;
   secondary?: CardAction;
+  /** The visit's price, already formatted, when the server states one. */
+  priceText?: string;
+  /** Something after the actions (the Hide button of a finished visit). */
+  extra?: React.ReactNode;
 }) {
   const visual = mode ? MODE_VISUAL[mode] : null;
   return (
     <li className={styles.appt}>
       <Link href={href} className={styles.apptLink}>
-        {slotStart ? <LocalTile iso={slotStart} locale={locale} tone={SERVICE_ICONS.health.tone} /> : visual ? <FIcon icon={visual.icon} tone={visual.tone} size={52} /> : null}
+        {slotStart ? <LocalTile iso={slotStart} locale={locale} tone={SERVICE_ICONS.health.tone} /> : visual ? <FIconByName icon={visual.icon} tone={visual.tone} size={52} /> : null}
         <span className={styles.apptText}>
           <span className={styles.apptTitle}>{title}</span>
-          {specialty || timeLine ? <span className={styles.apptMeta}>{specialty}{specialty && timeLine ? " · " : ""}{timeLine}</span> : null}
+          {specialty || timeLine || priceText ? <span className={styles.apptMeta}>{[specialty, timeLine, priceText].reduce<React.ReactNode[]>((parts, part, index) => (part ? [...parts, ...(parts.length ? [" · "] : []), <span key={index}>{part}</span>] : parts), [])}</span> : null}
           <span className={styles.chips}>
             {mode && modeLabel && visual ? <StatusChip label={modeLabel} tone={visual.tone} /> : null}
             <StatusChip label={statusLabel} tone={statusTone} />
@@ -65,6 +71,7 @@ export function AppointmentCard({
           {secondary ? <ButtonLink href={secondary.href} label={secondary.label} variant="outline" size="md" /> : null}
         </div>
       ) : null}
+      {extra ? <div className={styles.apptActions}>{extra}</div> : null}
     </li>
   );
 }

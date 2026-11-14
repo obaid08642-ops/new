@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, Modal, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, type TextInputInstance } from 'react-native';
 import { useTheme, useLang } from '../context';
 import { FS, FW, R, SP } from '../constants';
 import { NBtn } from './ui';
@@ -25,7 +25,7 @@ export const OtpModal = ({ visible, onClose, onVerify, target, type = 'email', o
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const inputs = useRef<Array<TextInput | null>>([]);
+  const inputs = useRef<Array<TextInputInstance | null>>([]);
 
   // Reset + autofocus the FIRST (leftmost, logical index 0) box whenever the modal opens.
   useEffect(() => {
@@ -53,7 +53,7 @@ export const OtpModal = ({ visible, onClose, onVerify, target, type = 'email', o
   };
 
   const handleChange = (val: string, index: number) => {
-    // Autofill / paste of the full code (keyboard suggestion or SMS autofill)
+    // Autofill / paste of the full code (keyboard suggestion or paste)
     if (val.length > 1) {
       distribute(val, index === 0 ? 0 : index);
       return;
@@ -141,7 +141,7 @@ export const OtpModal = ({ visible, onClose, onVerify, target, type = 'email', o
                 }}
                 keyboardType="number-pad"
                 maxLength={index === 0 ? OTP_LEN : 1}
-                autoComplete={index === 0 ? (Platform.OS === 'android' ? 'sms-otp' : 'one-time-code') : 'off'}
+                autoComplete={index === 0 ? 'one-time-code' : 'off'}
                 textContentType={index === 0 ? 'oneTimeCode' : 'none'}
                 importantForAutofill={index === 0 ? 'yes' : 'no'}
                 style={{

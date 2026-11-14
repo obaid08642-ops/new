@@ -80,11 +80,11 @@ export interface HealthTabItem<T extends string = string> {
 
 /** Link tabs: a row of chips that scrolls when the labels are long. The selected one is the ink chip of the boards. */
 export function HealthTabs<T extends string>({ tabs, value, onChange, testID }: { tabs: HealthTabItem<T>[]; value: T; onChange: (tab: T) => void; testID?: string }) {
-  const { theme } = useScreenUi();
+  const { theme, num } = useScreenUi();
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} accessibilityRole="tablist" testID={testID} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>
       {tabs.map((tab) => (
-        <Chip key={tab.key} label={tab.label} count={tab.count} selected={tab.key === value} onPress={() => onChange(tab.key)} theme={theme} testID={testID ? `${testID}-${tab.key}` : undefined} />
+        <Chip key={tab.key} label={tab.label} count={tab.count === undefined ? undefined : num(tab.count)} selected={tab.key === value} onPress={() => onChange(tab.key)} theme={theme} testID={testID ? `${testID}-${tab.key}` : undefined} />
       ))}
     </ScrollView>
   );

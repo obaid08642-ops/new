@@ -1,3 +1,4 @@
+import { LATE_REASON } from './differentiators';
 import { SERVICE_ICONS, type FillIconName, type ServiceTone } from '../../../packages/ui/icons/fill';
 
 /**
@@ -46,6 +47,13 @@ const TYPE_META: Record<string, { group: NotifGroup; icon: FillIconName; tone: S
   order: { group: 'system', icon: 'moped', tone: SERVICE_ICONS.pharmacy.tone },
   alert: { group: 'system', icon: 'warning', tone: 'amber' },
   info: { group: 'system', icon: 'info', tone: 'blue' },
+  // the guaranteed-appointment credit: Nabdat points added because the doctor was late (owner decision 2026-10-24)
+  [LATE_REASON]: { group: 'system', icon: 'clock-counter-clockwise', tone: 'amber' },
+};
+
+/** Words for a type whose row arrives without a title or body (the server normally writes them in the app's language). */
+const TYPE_TEXT: Record<string, { title: string; body: string }> = {
+  [LATE_REASON]: { title: 'notifications.late.title', body: 'notifications.late.body' },
 };
 
 /** The filter chips after "All": the group and its Arabic label. */
@@ -55,12 +63,13 @@ export const GROUPS: { key: NotifGroup; label: string }[] = [
   { key: 'promotion', label: 'notifications.groupPromo' },
 ];
 
-export function mapNotification(n: RawNotification): Notif {
+export function mapNotification(n: RawNotification, text?: (key: string) => string): Notif {
   const meta = TYPE_META[n.type ?? ''] ?? TYPE_META.info;
+  const words = text ? TYPE_TEXT[n.type ?? ''] : undefined;
   return {
     id: n.id,
-    title: n.title || '',
-    body: n.body || '',
+    title: n.title || (words && text ? text(words.title) : ''),
+    body: n.body || (words && text ? text(words.body) : ''),
     createdAt: n.createdAt,
     group: meta.group,
     read: !!n.read,

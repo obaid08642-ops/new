@@ -28,3 +28,11 @@ describe("appointment response guards", () => {
     expect(extractAppointmentDetail({ id: appointmentId, insurance_request_id: "not-a-request" })?.insuranceRequestId).toBeUndefined();
   });
 });
+
+describe("refund for cancelling now", () => {
+  it("reads the percent the server computed on the appointment, and nothing else", () => {
+    expect(extractAppointmentDetail({ id: appointmentId, cancellation: { refund_now: { percent: 50, amount: 58 } } })?.refundNowPercent).toBe(50);
+    expect(extractAppointmentDetail({ id: appointmentId })?.refundNowPercent).toBeUndefined();
+    expect(extractAppointmentDetail({ id: appointmentId, cancellation: { refund_now: { percent: 250 } } })?.refundNowPercent).toBeUndefined();
+  });
+});

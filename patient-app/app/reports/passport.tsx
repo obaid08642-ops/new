@@ -104,8 +104,8 @@ export default function HealthPassportScreen() {
                   title={m.name ?? ''}
                   subtitle={m.phone}
                   trailing={m.phone ? (
-                    <Pressable accessibilityRole="button" accessibilityLabel={k('health.emergency.call', { name: m.name ?? '' })} onPress={() => Linking.openURL(`tel:${m.phone}`).catch(() => undefined)} style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: c.status.success.bg }}>
-                      <Glyph name="headset" size={20} color={c.status.success.fg} />
+                    <Pressable accessibilityRole="button" accessibilityLabel={k('health.emergency.call', { name: m.name ?? '' })} onPress={() => Linking.openURL(`tel:${m.phone}`).catch(() => undefined)} style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: c.service.emergency.bg }}>
+                      <Glyph name="headset" size={20} color={c.service.emergency.glyph} />
                     </Pressable>
                   ) : undefined}
                   last={i === all.length - 1}

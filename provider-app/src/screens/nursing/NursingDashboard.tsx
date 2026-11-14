@@ -11,6 +11,7 @@
  * 10. Wallet via shared ProviderWalletScreen (governed withdrawals)
  * 11. NursingSettings — profile + schedule + services
  */
+import { runOnce, serverMessage } from '../../utils/singleFlight';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { AppointmentStatus } from '../../types/contracts';
 import {
@@ -20,8 +21,10 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useLang, useAuth, useToast } from '../../context';
+import { localeTag } from '../../i18n';
 import client from '../../api/client';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
+import { orderingStackScreens, ORDERING_ENTRY } from '../ordering';
 import { SignatureCanvasModal } from '../../components/SignatureCanvasModal';
 import {
  NBtn, NCard, NInput, NStatCard, NAvatar, NBadge,
@@ -42,6 +45,8 @@ import {
 } from '../shared/BlueprintScreens';
 import { MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderProfileEditor, WithdrawalWorkflow, ProviderHomeStats, GlobalSystemSettings } from '../shared/SharedScreens';
 import { NotificationsCenterScreen, SecurityManagementScreen } from '../shared/RealScreens';
+import { MyServicesScreen } from '../shared/MyServicesScreen';
+import { bookingChoiceLine } from './bookingChoice';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 const Stack = createNativeStackNavigator();
@@ -136,13 +141,16 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
                <Text style={{ fontSize: FS.md, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
                {AR ? 'موقع المريض:' : 'Patient Location:'} {addressLine(incomingRequest.address) || '—'}
                </Text>
+               {bookingChoiceLine(incomingRequest, AR) ? (
+               <Text style={{ fontSize: FS.sm, color: theme.text, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>{bookingChoiceLine(incomingRequest, AR)}</Text>
+               ) : null}
                {incomingRequest.scheduled_at ? (
                <Text style={{ fontSize: FS.sm, color: theme.primary, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>
                 {AR ? 'الموعد: ' : 'Scheduled: '}{new Date(incomingRequest.scheduled_at).toLocaleString(AR ? 'ar-SA-u-ca-gregory' : 'en-GB')}
                </Text>
                ) : null}
                <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.md }}>
-               <NBtn label={AR ? 'قبول' : 'Accept'} style={{ flex: 1 }} onPress={async () => {
+               <NBtn label={AR ? 'قبول' : 'Accept'} style={{ flex: 1 }} onPress={() => runOnce(`accept:${incomingRequest.id}`, async () => {
                try {
                // governed accept (workflow engine; a card visit must be paid first)
                await client.post(`/provider/jobs/nursing/${incomingRequest.id}/accept`, {});
@@ -150,9 +158,10 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
                setIncomingRequest(null);
                fetchJobs();
                } catch (e: any) {
-               show(e.message || 'Error', 'error');
+               show(serverMessage(e, 'Error'), 'error');
+               fetchJobs();
                }
-               }} />
+               })} />
                <NBtn label={AR ? 'رفض' : 'Reject'} variant="danger" style={{ flex: 1 }} onPress={async () => {
                try {
                await client.post(`/provider/jobs/nursing/${incomingRequest.id}/reject`, { reason: 'provider_declined' });
@@ -183,8 +192,7 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
       <Stack.Screen name="care_plan">{({ navigation, route }: any) => <CarePlan patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="progress">{({ navigation, route }: any) => <ProgressNotes patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="supplies">{({ navigation }: any) => <MedicalSupplies onBack={() => navigation.goBack()} />}</Stack.Screen>
-      <Stack.Screen name="nursing_services">{({ navigation }: any) => <NursingServicesSettings onBack={() => navigation.goBack()} />}</Stack.Screen>
-      <Stack.Screen name="nursing_pricing">{({ navigation }: any) => <NursingPricingSettings onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="nursing_services">{({ navigation }: any) => <MyServicesScreen vertical="nursing" onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="nursing_coverage">{({ navigation }: any) => <NursingCoverageSettings onBack={() => navigation.goBack()} />}</Stack.Screen>
 
       <Stack.Screen name="promotions">{({ navigation }: any) => <PromotionsDashboard onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
@@ -207,6 +215,7 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
       <Stack.Screen name="withdrawal_workflow">{({ navigation }: any) => <WithdrawalWorkflow onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="chat">{({ navigation, route }: any) => <NursingChatScreen order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+      {orderingStackScreens(Stack, 'nursing')}
       <Stack.Screen name="working_hours">{({ navigation }: any) => <NursingScheduleScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
 
       <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -224,14 +233,18 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
  const insets = useSafeAreaInsets();
  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang==='ar';
  const nursingSvcs = useServicesCatalog('nursing');
- const { user, toggleOnline } = useAuth();
+ const { user, toggleOnline } = useAuth(); const { show } = useToast();
 
  const handleToggleOnline = async () => {
  const nextVal = !user?.isOnline;
  toggleOnline();
  try {
  await client.post('/home-care/provider/availability', { available: nextVal });
- } catch (e) {}
+ } catch (e: any) {
+ // the server refused: put the switch back and say why (it used to stay flipped)
+ toggleOnline();
+ show(e?.response?.data?.message || (AR ? 'تعذر تغيير حالة التوفر' : 'Could not change availability'), 'error');
+ }
  };
 
  const pending = jobs.filter(o=>o.status==='pending').length;
@@ -334,6 +347,7 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
  <View style={{flex:1}}>
  <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left'}}>{order.patient_name || order.patient || '—'}</Text>
  <Text style={{fontSize:FS.xs,color:theme.textSub}}>{addressShort(order.address)} | {order.date || new Date(order.scheduled_at).toLocaleTimeString()}</Text>
+ {bookingChoiceLine(order, AR) ? <Text style={{fontSize:FS.xs,color:theme.text,fontWeight:FW.bold}}>{bookingChoiceLine(order, AR)}</Text> : null}
  </View>
  <View style={{alignItems:'flex-end',gap:SP.xs}}>
  <NBadge label={AR?'نشط':'Active'} variant="primary" size="xs" />
@@ -369,8 +383,11 @@ function NursingOrdersTab({ onNavigate }: any) {
 
   useEffect(load, []);
 
-  const pending = jobs.filter(j => j.status === 'PENDING' || !j.status);
-  const active = jobs.filter(j => j.status !== 'PENDING' && j.status);
+  // the server returns `state`: a visit just assigned waits for the nurse to accept; the others are already confirmed or under way
+  const stateOf = (j: any) => String(j.state ?? j.status ?? '').toUpperCase();
+  const isNew = (j: any) => ['PROVIDER_ASSIGNED', 'ASSIGNED', 'NEW_REQUEST', 'PENDING', ''].includes(stateOf(j));
+  const pending = jobs.filter(isNew);
+  const active = jobs.filter(j => !isNew(j));
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
@@ -651,7 +668,14 @@ function ProgressNotes({ patient, onBack }:{ patient:any; onBack:()=>void }) {
 // MEDICAL SUPPLIES
 // ══════════════════════════════════════════════════════════════════
 function MedicalSupplies({ onBack }:{ onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const [visits, setVisits] = useState<any[]>([]);
+ const [visitId, setVisitId] = useState<string | null>(null);
+ useEffect(() => { client.get('/nursing/jobs/active').then(r => {
+   const list: any[] = Array.isArray(r.data) ? r.data : [];
+   // The API returns only this nurse's active visits (the ones that can take a supply request).
+   setVisits(list); setVisitId(list[0]?.id ?? null);
+ }).catch(() => {}); }, []);
  const [newItem, setNewItem] = useState('');
  const [newQty, setNewQty] = useState('');
  const [supplies, setSupplies] = useState<any[]>([]);
@@ -666,17 +690,14 @@ function MedicalSupplies({ onBack }:{ onBack:()=>void }) {
  setLoading(true);
  try {
  await client.post('/home-care/inventory/request', {
+ booking_id: visitId,
  items: [{ name: newItem, qty: parseInt(newQty, 10), unit: 'pcs' }],
  });
- setSupplies(prev => [
- ...prev,
- { id: `ms_${Date.now()}`, name: newItem, nameEn: newItem, qty: parseInt(newQty, 10), unit: 'pcs', status: 'pending' }
- ]);
- show(AR ? 'تم طلب المستلزم من مخزن المستشفى بنجاح' : 'Supply requested from hospital inventory', 'success');
+ show(t('supplies.requested'), 'success');
  setNewItem('');
  setNewQty('');
  } catch (e: any) {
- show(e.message || 'Error requesting supply', 'error');
+ show(e?.message || t('supplies.failed'), 'error');
  } finally {
  setLoading(false);
  }
@@ -715,9 +736,20 @@ function MedicalSupplies({ onBack }:{ onBack:()=>void }) {
 
  <NDivider style={{marginVertical:SP.xl}} />
  <NSecHeader title={AR?'طلب مستلزم جديد':'Request New Supply'} />
+ <NSecHeader title={t('supplies.forVisit')} />
+ {visits.length === 0 ? (
+ <NCard style={{marginBottom:SP.md}}><Text style={{fontSize:FS.sm,color:theme.textSub,textAlign:AR?'right':'left'}}>{t('supplies.noVisit')}</Text></NCard>
+ ) : (
+ <View style={{flexDirection:AR?'row-reverse':'row',flexWrap:'wrap',gap:SP.sm,marginBottom:SP.md}}>
+ {visits.map(v => (
+ <NBtn key={v.id} size="sm" full={false} variant={visitId===v.id?'primary':'outline'} onPress={() => setVisitId(v.id)}
+ label={[v.service, v.scheduled_at ? new Date(v.scheduled_at).toLocaleDateString(localeTag(lang)) : null].filter(Boolean).join(' · ') || String(v.id)} />
+ ))}
+ </View>
+ )}
  <NInput label={AR?'اسم المستلزم':'Supply Name'} placeholder={AR?'قفازات طبية L':'Medical Gloves L'} value={newItem} onChange={setNewItem} />
  <NInput label={AR?'الكمية':'Quantity'} placeholder="1" value={newQty} onChange={v=>setNewQty(v.replace(/\D/g,''))} kbType="numeric" />
- <NBtn label={AR?'إرسال الطلب':'Submit Request'} disabled={!newItem.trim()||!newQty} loading={loading}
+ <NBtn label={AR?'إرسال الطلب':'Submit Request'} disabled={!visitId||!newItem.trim()||!newQty} loading={loading}
  onPress={handleRequest} />
  </NScroll>
  );
@@ -771,12 +803,12 @@ return (
 <NSecHeader title={AR?'الملف الشخصي':'Profile'} />
  <NCard style={{marginBottom:SP.xl}}>
  <NSettingsRow icon="user" label={AR?'معلومات الحساب':'Account Info'} onPress={()=>onNav('profile_edit')} />
- <NSettingsRow icon="stethoscope" label={AR?'الخدمات المقدمة':'Services Offered'} onPress={()=>onNav('nursing_services')} />
- <NSettingsRow icon="wallet" label={AR?'نموذج التسعير':'Pricing Model'} onPress={()=>onNav('nursing_pricing')} />
+ <NSettingsRow icon="stethoscope" label={AR?'الخدمات والأسعار':'Services & Prices'} onPress={()=>onNav('nursing_services')} />
  <NSettingsRow icon="scan" label={AR?'نطاق التغطية':'Coverage Area'} onPress={()=>onNav('nursing_coverage')} />
  <NSettingsRow icon="calendar" label={AR?'مواعيد العمل':'Working Hours'} onPress={()=>onNav('working_hours')} />
  <NSettingsRow icon="shield" label={AR?'التأمين الصحي':'Health Insurance'} onPress={()=>onNav('insurance_config')} />
 <NSettingsRow icon="shield" label={AR?'طلبات التأمين الواردة':'Insurance Requests'} onPress={()=>onNav('insurance_requests')} />
+<NSettingsRow icon="document" label={AR?'إعلان الطلبات':'Ordering declaration'} onPress={()=>onNav(ORDERING_ENTRY)} />
  <NSettingsRow icon="document" label={AR?'الشهادات والمؤهلات':'Qualifications'} onPress={()=>onNav('certificates_config')} />
  <NSettingsRow icon="camera" label={AR?'الصور والوسائط':'Photos & Media'} onPress={()=>onNav('media_config')} />
  </NCard>
@@ -826,217 +858,29 @@ return (
 }
 
 // ══════════════════════════════════════════════════════════════════
-// NURSING SERVICES SETTINGS
-// ══════════════════════════════════════════════════════════════════
-function NursingServicesSettings({ onBack }:{ onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
- const [services, setServices] = useState<Record<string,boolean>>({
- wound: true, vitals: true, inject: true, cath: false, elderly: false, postpart: false
- });
- const [includeKit, setIncludeKit] = useState(true);
- const [kitPrice, setKitPrice] = useState('25');
- const [covered, setCovered] = useState<Record<string,boolean>>({});
- const [loading, setLoading] = useState(false);
-
- const handleSave = async () => {
- setLoading(true);
- try {
-   await client.post('/provider/settings/delta', { newData: { services, includeKit, kitPrice, insurance_covered_services: covered } });
-   show(AR ? 'بانتظار موافقة الإدارة على التعديلات' : 'Pending admin approval for changes', 'success');
-   onBack();
- } catch(e) {
-   show(AR ? 'فشل إرسال التعديلات' : 'Failed to submit changes', 'error');
- }
- setLoading(false);
- };
-
- return (
- <NScroll>
- <NHeader title={AR ? 'الخدمات المقدمة والمستلزمات' : 'Services Offered & Supplies'} onBack={onBack} />
- 
- <NCard style={{ backgroundColor: theme.warnBg, borderColor: theme.warn, borderWidth: 1, marginBottom: SP.xl }}>
- <Text style={{ fontSize: FS.sm, color: theme.warn, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left', marginBottom: 4 }}>
- {AR ? 'تنبيه المستلزمات الطبية الهام:' : 'Important Clinical Supplies Kit Notice:'}
- </Text>
- <Text style={{ fontSize: FS.xs, color: theme.text, lineHeight: 18, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'يجب أن يحمل الممرض حقيبة المستلزمات الطبية المعتمدة للزيارة (القفازات، الشاش، والمطهرات). يمكنك تضمينها في السعر الأساسي أو فرض رسوم إضافية للحقيبة.'
- : 'The nurse must bring a certified medical supplies kit (gloves, gauze, sanitizers) to the visit. You can include it in the base price or add a surcharge.'}
- </Text>
- </NCard>
-
- <NSecHeader title={AR ? 'اختر الخدمات التي تقدمها:' : 'Select services you offer:'} />
- <NCard style={{ marginBottom: SP.xl, gap: SP.md }}>
- {[
- { id: 'wound', ar: 'تغيير الجروح والتضميد', en: 'Wound Dressing' },
- { id: 'vitals', ar: 'قياس العلامات الحيوية', en: 'Vital Signs Monitoring' },
- { id: 'inject', ar: 'إعطاء حقن طبية', en: 'Injection Administration' },
- { id: 'cath', ar: 'تركيب قسطرة بولية', en: 'Catheterization' },
- { id: 'elderly', ar: 'رعاية كبار السن', en: 'Elderly Care' },
- { id: 'postpart', ar: 'رعاية ما بعد الولادة', en: 'Postpartum Care' },
- ].map(svc => (
- <View key={svc.id} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: SP.xs }}>
- <TouchableOpacity style={{ flex: 1 }} onPress={() => setServices(s => ({ ...s, [svc.id]: !s[svc.id] }))}>
- <Text style={{ color: theme.text, fontSize: FS.md }}>{AR ? svc.ar : svc.en}</Text>
- </TouchableOpacity>
- <TouchableOpacity onPress={() => setCovered(c => ({ ...c, [svc.id]: !c[svc.id] }))} style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginHorizontal: SP.sm }}>
- <View style={{ width: 16, height: 16, borderRadius: 4, borderWidth: 2, borderColor: covered[svc.id] ? theme.success : theme.border, backgroundColor: covered[svc.id] ? theme.success : 'transparent' }} />
- <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'تأمين' : 'Ins.'}</Text>
- </TouchableOpacity>
- <NCheckbox value={services[svc.id]} onChange={() => setServices(s => ({ ...s, [svc.id]: !s[svc.id] }))} />
- </View>
- ))}
- </NCard>
-
- <NSecHeader title={AR ? 'تسعير حقيبة المستلزمات الطبية' : 'Clinical Supplies Pricing'} />
- <NCard style={{ marginBottom: SP.xl }}>
- <NToggle 
- label={AR ? 'تضمين حقيبة المستلزمات في السعر الأساسي' : 'Include supplies kit in base fee'} 
- value={includeKit} 
- onChange={setIncludeKit} 
- />
- {!includeKit && (
- <View style={{ marginTop: SP.md }}>
- <NPriceInput 
- label={AR ? 'تكلفة حقيبة المستلزمات الإضافية' : 'Extra Supplies Kit Fee'} 
- value={kitPrice} 
- onChange={setKitPrice} 
- />
- </View>
- )}
- </NCard>
-
- <NBtn label={AR ? 'حفظ الخدمات والتغييرات' : 'Save Services & Options'} loading={loading} onPress={handleSave} />
- </NScroll>
- );
-}
-
-// ══════════════════════════════════════════════════════════════════
-// NURSING PRICING SETTINGS
-// ══════════════════════════════════════════════════════════════════
-function NursingPricingSettings({ onBack }:{ onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
- 
- const [hourlyEnabled, setHourlyEnabled] = useState(true);
- const [hourlyPrice, setHourlyPrice] = useState('45');
- 
- const [dailyEnabled, setDailyEnabled] = useState(true);
- const [dailyPrice, setDailyPrice] = useState('350');
- 
- const [weeklyEnabled, setWeeklyEnabled] = useState(false);
- const [weeklyPrice, setWeeklyPrice] = useState('2000');
- 
- const [monthlyEnabled, setMonthlyEnabled] = useState(false);
- const [monthlyPrice, setMonthlyPrice] = useState('7500');
-
- const [loading, setLoading] = useState(false);
-
- const handleSave = async () => {
- if (!hourlyEnabled && !dailyEnabled && !weeklyEnabled && !monthlyEnabled) {
- show(AR ? 'يجب تفعيل نموذج تسعير واحد على الأقل' : 'Must enable at least one pricing model', 'error');
- return;
- }
- 
- setLoading(true);
- try {
-   await client.post('/provider/settings/delta', { 
-     newData: { 
-       hourlyEnabled, hourlyPrice, dailyEnabled, dailyPrice, 
-       weeklyEnabled, weeklyPrice, monthlyEnabled, monthlyPrice 
-     } 
-   });
-   show(AR ? 'بانتظار موافقة الإدارة على التعديلات' : 'Pending admin approval for changes', 'success');
-   onBack();
- } catch(e) {
-   show(AR ? 'فشل إرسال التعديلات' : 'Failed to submit changes', 'error');
- }
- setLoading(false);
- };
-
- return (
- <NScroll>
- <NHeader title={AR ? 'إعدادات نموذج التسعير للتمريض' : 'Nursing Pricing Models'} onBack={onBack} />
- 
- <NCard style={{ backgroundColor: theme.infoBg, marginBottom: SP.xl }}>
- <Text style={{ fontSize: FS.xs, color: theme.info, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'حدد باقات ونماذج التسعير المتاحة للتمريض المنزلي. يمكنك تفعيل خدمات الساعة، اليوم، أو الباقات الطويلة.'
- : 'Configure pricing packages for home nursing. You can activate hourly, daily, weekly, or monthly setups.'}
- </Text>
- </NCard>
-
- {/* Hourly Pricing */}
- <NCard style={{ marginBottom: SP.md }}>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: hourlyEnabled ? SP.md : 0 }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{AR ? ' خدمة بالساعة' : ' Hourly Service'}</Text>
- <Switch value={hourlyEnabled} onValueChange={setHourlyEnabled} trackColor={{ true: theme.primary }} />
- </View>
- {hourlyEnabled && (
- <NPriceInput label={AR ? 'سعر الساعة (ريال)' : 'Hourly Fee (SAR)'} value={hourlyPrice} onChange={setHourlyPrice} />
- )}
- </NCard>
-
- {/* Daily Pricing */}
- <NCard style={{ marginBottom: SP.md }}>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: dailyEnabled ? SP.md : 0 }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{AR ? ' خدمة باليوم (إقامة)' : ' Daily Service (Stay)'}</Text>
- <Switch value={dailyEnabled} onValueChange={setDailyEnabled} trackColor={{ true: theme.primary }} />
- </View>
- {dailyEnabled && (
- <NPriceInput label={AR ? 'سعر اليوم (ريال)' : 'Daily Fee (SAR)'} value={dailyPrice} onChange={setDailyPrice} />
- )}
- </NCard>
-
- {/* Weekly Pricing */}
- <NCard style={{ marginBottom: SP.md }}>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: weeklyEnabled ? SP.md : 0 }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{AR?' باقة أسبوعية':' Weekly Package'}</Text>
- <Switch value={weeklyEnabled} onValueChange={setWeeklyEnabled} trackColor={{ true: theme.primary }} />
- </View>
- {weeklyEnabled && (
- <NPriceInput label={AR ? 'سعر الأسبوع (ريال)' : 'Weekly Price (SAR)'} value={weeklyPrice} onChange={setWeeklyPrice} />
- )}
- </NCard>
-
- {/* Monthly Pricing */}
- <NCard style={{ marginBottom: SP.xl }}>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: monthlyEnabled ? SP.md : 0 }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{AR ? ' باقة شهرية متكاملة' : ' Monthly Package'}</Text>
- <Switch value={monthlyEnabled} onValueChange={setMonthlyEnabled} trackColor={{ true: theme.primary }} />
- </View>
- {monthlyEnabled && (
- <NPriceInput label={AR ? 'سعر الشهر (ريال)' : 'Monthly Price (SAR)'} value={monthlyPrice} onChange={setMonthlyPrice} />
- )}
- </NCard>
-
- <NBtn label={AR ? 'حفظ خطط الأسعار' : 'Save Pricing Models'} loading={loading} onPress={handleSave} />
- </NScroll>
- );
-}
-
-// ══════════════════════════════════════════════════════════════════
 // NURSING COVERAGE SETTINGS
 // ══════════════════════════════════════════════════════════════════
 function NursingCoverageSettings({ onBack }:{ onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
  
  const [radius, setRadius] = useState(15);
  const [gpsChecked, setGpsChecked] = useState(false);
  const [gpsLoading, setGpsLoading] = useState(false);
-
- const getCoveredNeighborhoods = () => {
- if (radius <= 5) return AR ? ['حي النرجس'] : ['Al-Narjis'];
- if (radius <= 15) return AR ? ['حي النرجس', 'حي الياسمين', 'حي الملقا'] : ['Al-Narjis', 'Al-Yasmine', 'Al-Malqa'];
- if (radius <= 30) return AR ? ['حي النرجس', 'حي الياسمين', 'حي الملقا', 'حي العقيق', 'حي الصحافة', 'حي العليا'] : ['Al-Narjis', 'Al-Yasmine', 'Al-Malqa', 'Al-Aqeeq', 'Al-Sahafa', 'Al-Olaya'];
- return AR ? ['جميع أحياء مدينة الرياض وضواحيها'] : ['All Riyadh neighborhoods and suburbs'];
- };
+ const [gpsResult, setGpsResult] = useState<{ covered: boolean; distance_km?: number; radius_km?: number; reason?: string } | null>(null);
 
  const handleGpsVerification = async () => {
  setGpsLoading(true);
  try {
-   await client.post('/nursing/coverage/verify-gps', { radius });
+   const { requestForegroundPermissionsAsync, getCurrentPositionAsync } = await import('expo-location');
+   const perm = await requestForegroundPermissionsAsync();
+   if (perm.status !== 'granted') { show(t('coverage.permission'), 'error'); return; }
+   const pos = await getCurrentPositionAsync({});
+   const r: any = await client.post('/nursing/coverage/verify-gps', { lat: pos.coords.latitude, lng: pos.coords.longitude });
+   const data = r?.data?.data ?? r?.data ?? r;
+   setGpsResult({ covered: !!data?.covered, distance_km: data?.distance_km, radius_km: data?.radius_km, reason: data?.reason });
    setGpsChecked(true);
-   show(AR ? ' تم تحديد موقع الـ GPS بنجاح والتحقق من التغطية الإقليمية!' : ' GPS location and regional coverage verified successfully!', 'success');
  } catch (e: any) {
-   show(e.message, 'error');
+   show(e?.message || t('coverage.failed'), 'error');
  } finally {
    setGpsLoading(false);
  }
@@ -1089,15 +933,14 @@ function NursingCoverageSettings({ onBack }:{ onBack:()=>void }) {
  </View>
  </NCard>
 
- <NSecHeader title={AR ? 'الأحياء السعودية المغطاة حالياً:' : 'Covered Saudi Neighborhoods:'} />
+ {gpsResult ? (
  <NCard style={{ marginBottom: SP.xl, gap: SP.xs }}>
- {getCoveredNeighborhoods().map((n, idx) => (
- <View key={idx} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm, paddingVertical: SP.sm, borderBottomWidth: idx < getCoveredNeighborhoods().length - 1 ? 0.5 : 0, borderBottomColor: theme.border }}>
- <I name="pin" size={16} color={theme.primary} />
- <Text style={{ fontSize: FS.md, color: theme.text }}>{n}</Text>
- </View>
- ))}
+ <NBadge label={gpsResult.reason === 'no_geofence' ? t('coverage.noGeofence') : gpsResult.covered ? t('coverage.inside') : t('coverage.outside')} variant={gpsResult.covered ? 'success' : 'warning'} />
+ {gpsResult.distance_km != null && gpsResult.radius_km != null ? (
+ <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{t('coverage.distance', { distance: gpsResult.distance_km, radius: gpsResult.radius_km })}</Text>
+ ) : null}
  </NCard>
+ ) : null}
 
  <NBtn label={AR ? 'حفظ إعدادات التغطية الجغرافية' : 'Save Coverage Settings'} disabled={!gpsChecked} onPress={async () => {
     try {
@@ -1214,13 +1057,27 @@ function NursingScheduleScreen({ onBack }: { onBack: () => void }) {
   const [maxVisits, setMaxVisits] = useState('8');
   const [emergencyReady, setEmergencyReady] = useState(false);
 
+  // start from what the server holds (the last approved settings), not from invented defaults
+  useEffect(() => {
+    client.get('/provider/schedule/settings').then((res: any) => {
+      const d = res?.data;
+      if (!d || typeof d !== 'object') return;
+      if (d.shifts && typeof d.shifts === 'object') setShifts({ morning: !!d.shifts.morning, evening: !!d.shifts.evening, night: !!d.shifts.night });
+      if (Number.isFinite(Number(d.maxVisits))) setMaxVisits(String(d.maxVisits));
+      if (typeof d.emergencyReady === 'boolean') setEmergencyReady(d.emergencyReady);
+    }).catch(() => undefined);
+  }, []);
+
   const handleSave = async () => {
+    const visits = parseInt(maxVisits, 10);
+    if (!Number.isInteger(visits) || visits < 1 || visits > 50) { show(AR ? 'الحد الأقصى للزيارات رقم بين 1 و50' : 'Max daily visits must be a number from 1 to 50', 'error'); return; }
     try {
-      await client.post('/provider/schedule/settings', { shifts, maxVisits: parseInt(maxVisits), emergencyReady });
-      show(AR ? 'تم حفظ إعدادات الجدول' : 'Schedule saved', 'success');
+      await client.post('/provider/schedule/settings', { shifts, maxVisits: visits, emergencyReady });
+      // the server files the change for the review team
+      show(AR ? 'أُرسل تعديل الجدول للمراجعة، ويسري بعد الاعتماد' : 'Your schedule change was sent for review and applies once approved', 'success');
       onBack();
-    } catch (e) {
-      show(AR ? 'حدث خطأ' : 'Error', 'error');
+    } catch (e: any) {
+      show(e?.response?.data?.message || (AR ? 'تعذر حفظ الجدول' : 'Could not save the schedule'), 'error');
     }
   };
 

@@ -109,11 +109,13 @@ export function WebMcpProvider({ locale }: WebMcpProviderProps) {
         properties: {
           query: {
             type: "string",
+            // i18n-ok: machine-readable tool description for AI agents (English by design), not shown to patients
             description: "The medicine trade name, active ingredient, or medical symptom.",
           },
           lang: {
             type: "string",
             enum: ["ar", "en", "ur", "bn", "hi", "fil"],
+            // i18n-ok: machine-readable tool description for AI agents (English by design), not shown to patients
             description: "Optional language override for returned results.",
           },
         },
@@ -142,6 +144,7 @@ export function WebMcpProvider({ locale }: WebMcpProviderProps) {
           lang: {
             type: "string",
             enum: ["ar", "en", "ur", "bn", "hi", "fil"],
+            // i18n-ok: machine-readable tool description for AI agents (English by design), not shown to patients
             description: "Optional language code.",
           },
         },
@@ -168,11 +171,13 @@ export function WebMcpProvider({ locale }: WebMcpProviderProps) {
         properties: {
           specialty: {
             type: "string",
+            // i18n-ok: machine-readable tool description for AI agents (English by design), not shown to patients
             description: "Medical specialty (e.g. cardiology, pediatrics, dermatology, family_medicine).",
           },
           type: {
             type: "string",
             enum: ["video", "clinic", "home"],
+            // i18n-ok: machine-readable tool description for AI agents (English by design), not shown to patients
             description: "Consultation modality: video (telehealth), clinic visit, or doctor home visit.",
           },
           lang: {
@@ -206,10 +211,12 @@ export function WebMcpProvider({ locale }: WebMcpProviderProps) {
         properties: {
           category: {
             type: "string",
+            // i18n-ok: machine-readable tool description for AI agents (English by design), not shown to patients
             description: "Filter tests by category (e.g. general, diabetes, thyroid, cardiac, vitamins, radiology).",
           },
           homeCollectionOnly: {
             type: "boolean",
+            // i18n-ok: machine-readable tool description for AI agents (English by design), not shown to patients
             description: "If true, returns only tests with home sample collection support.",
           },
           lang: {

@@ -5,12 +5,15 @@ import { localizedUrl } from "@/lib/seo";
 import { isLocale, locales } from "@/lib/i18n";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { extractLabService } from "@/lib/api/labs";
-import { getPublicLabPackage } from "@/lib/api/labs-server";
+import { extractLabService, extractLabServices, includedTestNames } from "@/lib/api/labs";
+import { getPublicLabPackage, getPublicLabServices } from "@/lib/api/labs-server";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ActionLinks, BulletList, Facts, Hero, Notice, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
-import { LAB, TagRow, hoursText, money, pickText, type Tag } from "@/components-next/diagnostics/diag-parts";
+import { LAB, TagRow, hoursText, money, type Tag } from "@/components-next/diagnostics/diag-parts";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
+import { pickName, pickTexts, perLocaleOf } from "@/lib/i18n/localized";
+import { LocalizedField, LocalizedList } from "@/components-next/ui/localized-field";
+import { preparationField } from "@/lib/ordering/item";
 
 type Props = { params: Promise<{ locale: string; packageId: string }> };
 
@@ -53,9 +56,12 @@ export default async function LabPackageDetailPage({ params }: Props) {
   if (response?.status === 404) notFound();
   if (!pkg) notFound();
 
-  const name = pickText(locale, pkg.nameAr, pkg.nameEn);
-  const description = pickText(locale, pkg.descriptionAr, pkg.descriptionEn);
-  const preparation = (locale === "ar" || locale === "ur" ? pkg.preparationAr ?? pkg.preparationEn : pkg.preparationEn ?? pkg.preparationAr) ?? [];
+  const name = pickName(locale, pkg.names);
+  const description = pickTexts(locale, pkg.descriptions);
+  const preparation = preparationField(locale, pkg);
+  // the package stores its tests as Arabic names or codes: shown in the page's language where the lab list knows them
+  const catalogue = pkg.includedServices?.length ? await Promise.resolve().then(() => getPublicLabServices()).catch(() => null) : null;
+  const included = pkg.includedServices?.length ? includedTestNames(locale, pkg.includedServices, catalogue && catalogue.ok ? extractLabServices(await catalogue.json().catch(() => null)) : []) : [];
   const tags: Tag[] = [
     ...(pkg.homeVisitSupported ? [{ label: w("tagHome"), tone: LAB.tone } as Tag] : []),
     ...(pkg.fastingRequired ? [{ label: w("tagFasting"), tone: DIAG_TONES.warn } as Tag] : []),
@@ -67,19 +73,19 @@ export default async function LabPackageDetailPage({ params }: Props) {
     ...(pkg.turnaroundHours !== undefined ? [{ label: t("turnaround"), value: hoursText(locale, pkg.turnaroundHours), icon: "file-text", tone: DIAG_TONES.info } as FactRow] : []),
     ...(pkg.fastingRequired ? [{ label: t("preparation"), value: pkg.fastingHours ? t("fastingHours", { value: pkg.fastingHours }) : t("fasting"), icon: "clock-counter-clockwise", tone: DIAG_TONES.warn } as FactRow] : []),
   ];
-  const addHref = `/${locale}/diagnostics/cart?add=${encodeURIComponent(packageId)}&name=${encodeURIComponent(name ?? "")}${pkg.price !== undefined ? `&price=${pkg.price}` : ""}`;
+  const addHref = `/${locale}/labs/${encodeURIComponent(packageId)}?kind=lab`;
 
   return (
     <ConsultPage locale={locale} title={name ?? t("title")} backHref={`/${locale}/diagnostics/packages`}>
       <JsonLd data={[medicalWebPage({ title: name ?? t("title"), description: description ?? null, locale, path: `/diagnostics/packages/${packageId}` }), breadcrumbList([{ name: t("title"), locale, path: "/diagnostics/packages" }, { name: name ?? t("title"), locale, path: `/diagnostics/packages/${packageId}` }])]} />
-      <Hero icon={LAB.icon} tone={LAB.tone} title={name ?? t("title")} sub={description}>
+      <Hero icon={LAB.icon} tone={LAB.tone} title={name ? <LocalizedField locale={locale} ar={pkg.names.ar} en={pkg.names.en} /> : t("title")} sub={description ? <LocalizedField locale={locale} ar={pkg.descriptions.ar} en={pkg.descriptions.en} perLocale={perLocaleOf(pkg.descriptions)} /> : undefined}>
         <TagRow tags={tags} />
       </Hero>
       {rows.length > 0 ? <SectionCard id="pkg-facts" title={t("facts")}><Facts rows={rows} label={t("facts")} /></SectionCard> : null}
-      {pkg.includedServices?.length ? <SectionCard id="pkg-included" title={t("includedTitle")}><BulletList items={pkg.includedServices} /></SectionCard> : null}
-      {preparation.length > 0 ? <SectionCard id="pkg-prep" title={t("preparationTitle")}><BulletList items={preparation} /></SectionCard> : null}
+      {pkg.includedServices?.length ? <SectionCard id="pkg-included" title={t("includedTitle")}><BulletList items={included} /></SectionCard> : null}
+      {preparation.items.length > 0 ? <SectionCard id="pkg-prep" title={t("preparationTitle")}><LocalizedList locale={locale} field={preparation}>{(items) => <BulletList items={items} />}</LocalizedList></SectionCard> : null}
       <Notice>{pkg.homeVisitSupported ? t("homeAvailable") : t("homeUnavailable")}</Notice>
-      {/* journeys#50: one booking path, the cart (the lab is chosen there), as the app. */}
+      {/* Parity: the order item page (add to the basket, book now, providers), as the app. */}
       <ActionLinks actions={[{ href: addHref, label: w("addToOrderCta") }]} />
     </ConsultPage>
   );

@@ -33,6 +33,6 @@ export async function ReorderScreen({ locale, orderId }: { locale: Locale; order
   }
   const { addable, skipped } = reorderLines(order.detail);
   return frame(
-    <ReorderPicker locale={locale} orderId={orderId} lines={addable} skipped={skipped} needsPrescription={Boolean(order.detail.prescriptionId)} />,
+    <ReorderPicker locale={locale} orderId={orderId} lines={addable} skipped={skipped} needsPrescription={Boolean(order.detail.prescriptionId)} prescriptionId={order.detail.prescriptionId} fulfillment={order.detail.fulfillment} />,
   );
 }

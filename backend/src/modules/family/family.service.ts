@@ -14,6 +14,7 @@ import { Model, Connection } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectConnection } from '@nestjs/mongoose';
+import { buildDependant, MAX_DEPENDANTS, shapeDependant } from './dependants';
 import { FamilyGroupRepository } from "./repositories/familygroup.repository";
 import { SharedCalendarEventRepository } from "./repositories/sharedcalendarevent.repository";
 import { FamilyPermissionRequestRepository } from "./repositories/familypermissionrequest.repository";
@@ -129,7 +130,7 @@ export class FamilyService {
 
   async generateInvite(userId: string) {
     const group = await this.groupM.findOne({ owner_id: userId, is_deleted: { $ne: true } }).lean();
-    if (!group) throw new NotFoundException('You must be the group owner');
+    if (!group) throw new ForbiddenException('You must be the group owner');
     const code = this.generateInviteCode();
     const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
     await this.groupM.updateOne({ id: (group as any).id }, { invite_code: code, invite_expires_at: expires });
@@ -138,7 +139,7 @@ export class FamilyService {
 
   /** Contract DTO never reveals a join code. Delivery must be available or fail closed. */
   async sendInvite(userId: string, channel: string, target: string) {
-    if (!['sms', 'email'].includes(channel)) throw new BadRequestException('invalid_invite_channel');
+    if (channel !== 'email') throw new BadRequestException('invalid_invite_channel');
     const destination = String(target || '').trim();
     if (!destination || destination.length > 254) throw new BadRequestException('invalid_invite_target');
     const generated = await this.generateInvite(userId);
@@ -316,6 +317,28 @@ export class FamilyService {
       .then((r) => { out.profile = r || null; }).catch(() => { out.profile = null; }));
     await Promise.all(jobs);
     return out;
+  }
+
+  // ── Dependants (PT-03): people with no account, managed by their guardian ─────────────────────────────
+  private dependants() { return this.connection.collection('family_members'); }
+
+  async addDependant(guardianId: string, body: any) {
+    const doc = buildDependant(guardianId, body);
+    const count = await this.dependants().countDocuments({ owner_id: guardianId, is_deleted: { $ne: true } });
+    if (count >= MAX_DEPENDANTS) throw new BadRequestException('dependants_limit_reached');
+    await this.dependants().insertOne(doc as any);
+    return shapeDependant(doc);
+  }
+
+  async listDependants(guardianId: string) {
+    const rows = await this.dependants().find({ owner_id: guardianId, is_deleted: { $ne: true } }, { projection: { _id: 0 } }).sort({ createdAt: 1 }).toArray();
+    return rows.map((r: any) => shapeDependant(r));
+  }
+
+  async removeDependant(guardianId: string, id: string) {
+    const r = await this.dependants().updateOne({ id: { $eq: String(id) }, owner_id: guardianId, is_deleted: { $ne: true } }, { $set: { is_deleted: true, deleted_at: new Date() } });
+    if (!r.matchedCount) throw new NotFoundException('dependant_not_found');
+    return { success: true };
   }
 
   /** Owner sets a member's relationship label (parent/spouse/child/caregiver/…) */

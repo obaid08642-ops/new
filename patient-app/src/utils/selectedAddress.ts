@@ -13,6 +13,9 @@ export interface SelectedAddress {
   lat?: number;
   lng?: number;
   is_default?: boolean;
+  /** 19.7: the Saudi National Address short code (RRRD2929) and whether Saudi Post confirmed it. */
+  short_address?: string;
+  national_address_verified?: boolean;
 }
 
 /** Persist the address the user picked (the address book in pick mode or shared/location-picker). */

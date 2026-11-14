@@ -1,10 +1,12 @@
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { getPatientInsuranceRequest } from "@/lib/api/insurance-server";
+import { getPatientInsurancePolicy, getPatientInsuranceRequest } from "@/lib/api/insurance-server";
+import { parseInsuranceSummary } from "@/lib/api/insurance";
 import { parseInsuranceRequest } from "@/lib/api/insurance-request";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { parseRequestExtras, UUID } from "@/lib/insurance/view";
+import { localizedText } from "@/lib/i18n/localized-field";
+import { insuranceBookingHref, parseRequestExtras, UUID } from "@/lib/insurance/view";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { InsuranceRequestView } from "@/components-next/insurance/insurance-request-view";
@@ -33,7 +35,14 @@ export default async function InsuranceRequestPage({ params }: Props) {
     );
   }
   if (response.status === 401) redirect(`/${locale}/login`);
-  if (response.status === 403 || response.status === 404) notFound();
+  // No such request, or not the patient's: an in-page state with the way back to the hub (the app's "missing" state), not a 404 page.
+  if (response.status === 403 || response.status === 404) {
+    return (
+      <ConsultPage locale={locale} title={t("request.pageTitle")} backHref={backHref}>
+        <ConsultState kind="empty" title={t("request.missingTitle")} body={t("request.missingBody")} actionLabel={t("request.back")} actionHref={backHref} />
+      </ConsultPage>
+    );
+  }
 
   const payload = response.ok ? await response.json().catch(() => null) : null;
   const request = parseInsuranceRequest(payload);
@@ -44,12 +53,20 @@ export default async function InsuranceRequestPage({ params }: Props) {
       </ConsultPage>
     );
   }
-  const { price, bookingId } = parseRequestExtras(payload);
-  const bookingStatusHref = bookingId ? `/${locale}/consultations/booking-status?appointmentId=${encodeURIComponent(bookingId)}` : null;
+  const { price, bookingId, bookingKind } = parseRequestExtras(payload);
+  const bookingStatusHref = bookingId ? insuranceBookingHref(locale, bookingKind, bookingId) : null;
+
+  // The insurer and policy number under the amounts, from the saved policy (the app reads the same GET); left out when it cannot load.
+  let policy: { company?: string; number?: string } | undefined;
+  try {
+    const policyRes = await getPatientInsurancePolicy(token);
+    const summary = policyRes.ok ? parseInsuranceSummary(await policyRes.json().catch(() => null)) : null;
+    if (summary?.hasPolicy) policy = { company: localizedText({ locale, ar: summary.companyName, en: summary.companyNameEn }), number: summary.policyNumber };
+  } catch { /* the panel is optional */ }
 
   return (
     <ConsultPage locale={locale} title={t("request.pageTitle")} backHref={backHref}>
-      <InsuranceRequestView request={request} price={price} bookingStatusHref={bookingStatusHref} />
+      <InsuranceRequestView request={request} price={price} bookingStatusHref={bookingStatusHref} policy={policy} />
     </ConsultPage>
   );
 }

@@ -92,6 +92,18 @@ describe('InsuranceRequestView', () => {
     expect(mockApiFetch.mock.calls.some((call) => String(call[0]).startsWith('/payments/intent'))).toBe(false);
   });
 
+  it('shows the translated failure line, not the server message, when the payment call fails', async () => {
+    serve(request({ state: 'COPAY_PENDING' }), {
+      '/insurance/requests/req-1/capabilities': { methods: [{ id: 'card' }] },
+      '/payments/intent/insurance/req-1': new Error('ERR_RAW_SERVER_CODE'),
+    });
+    await render(wrap(<InsuranceRequestView />));
+    fireEvent.press(await screen.findByTestId('request-pay'));
+    await screen.findByTestId('request-error');
+    expect(screen.queryByText(/ERR_RAW_SERVER_CODE/)).toBeNull();
+    expect(screen.getByText(k('insurance.request.failed'))).toBeTruthy();
+  });
+
   it('offers self-pay after a rejection, posts the acceptance once with an idempotency key, and has no cash option', async () => {
     serve(request({ state: 'REJECTED', self_pay_amount: 200 }), {});
     await render(wrap(<InsuranceRequestView />));

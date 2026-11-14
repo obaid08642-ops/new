@@ -6,7 +6,9 @@ import React, { useState } from 'react';
 import {
   View, Image, StyleSheet, StyleProp, ViewStyle, Text,
 } from 'react-native';
+import { tokens } from '../../../../packages/design-tokens/dist/ts/tokens';
 import { useApp } from '../../context/AppContext';
+import { dsText } from '../dsText';
 import { BorderRadius, Typography } from '../tokens';
 import { DSBadge } from './Badge';
 
@@ -58,10 +60,10 @@ function getInitials(name?: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-const FALLBACK_COLORS = [
-  '#23B5CE', '#7C3AED', '#059669', '#D97706', '#DC2626',
-  '#2563EB', '#DB2777', '#0891B2', '#65A30D', '#9333EA',
-];
+// the 10 service tones' solid colours (white initials stay readable on every one)
+const FALLBACK_COLORS: string[] = (['coral', 'blue', 'violet', 'amber', 'pink', 'peach', 'teal', 'ink'] as const).map(
+  (tone) => tokens('light').color.service[tone].solid.from,
+);
 
 function getColorForName(name?: string): string {
   if (!name) return FALLBACK_COLORS[0];
@@ -83,7 +85,7 @@ export function DSAvatar({
   style,
   fallbackColor,
 }: DSAvatarProps) {
-  const { colors } = useApp();
+  const { colors, lang } = useApp();
   const [imgError, setImgError] = useState(false);
 
   const dim = SIZES[size];
@@ -109,7 +111,7 @@ export function DSAvatar({
         }}
         accessible
         accessibilityRole="image"
-        accessibilityLabel={name ?? 'صورة المستخدم'}
+        accessibilityLabel={name ?? dsText(lang, 'ds.avatar.user')}
       >
         {hasImage ? (
           <Image
@@ -123,7 +125,7 @@ export function DSAvatar({
             style={{
               fontSize,
               fontWeight: '700',
-              color: '#fff',
+              color: colors.textInverse,
               includeFontPadding: false,
             }}
             allowFontScaling={false}
@@ -147,7 +149,7 @@ export function DSAvatar({
             borderWidth: 2,
             borderColor: colors.surface,
           }}
-          accessibilityLabel={isOnline ? 'متصل' : 'غير متصل'}
+          accessibilityLabel={isOnline ? dsText(lang, 'ds.avatar.online') : dsText(lang, 'ds.avatar.offline')}
         />
       )}
 

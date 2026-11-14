@@ -13,6 +13,8 @@ export enum ProviderDocumentType {
   TAX_NUMBER = 'tax_number', ZAKAT_CERTIFICATE = 'zakat_certificate',
   IBAN_LETTER = 'iban_letter', FACILITY_LICENSE = 'facility_license',
   PROFESSIONAL_CV = 'professional_cv', PROFILE_PHOTO = 'profile_photo', OTHER = 'other',
+  // Doctor extras (2026-10-24), none required: education proof shown as verified on the profile, and the optional malpractice policy.
+  ACADEMIC_CERTIFICATE = 'academic_certificate', BOARD_CERTIFICATE = 'board_certificate', MALPRACTICE_INSURANCE = 'malpractice_insurance',
 }
 
 export const REQUIRED_DOCS_BY_PROVIDER_TYPE: Record<ProviderType, ProviderDocumentType[]> = {

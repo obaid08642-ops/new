@@ -1,10 +1,13 @@
+import { applyCredentialTypes } from '../credential-changes';
 import { v4 as uuidv4 } from 'uuid';
-import { Injectable, BadRequestException, NotFoundException, ForbiddenException, Inject, Optional } from '@nestjs/common';
+import { Injectable, BadRequestException, ConflictException, NotFoundException, ForbiddenException, Inject, Optional } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Model } from 'mongoose';
 import { ProviderAccount, ProviderProfile, ProviderDocument, ProviderBankAccount, ProviderAuditLog, DocumentReviewStatus, BankReviewStatus } from '../schemas';
 import { ProviderAccountStatus, PROVIDER_STATUS_TRANSITIONS } from '../provider.enums';
 import { UserRole } from '../../../common/enums';
+import { ManualLicenseCheck, requiresScfhs } from '../../../common/scfhs-license';
+import { ScfhsLicenseService } from './scfhs-license.service';
 import { ProviderAccountRepository } from "./repositories/provideraccount.repository";
 import { ProviderAccountProfileRepository } from "./repositories/provideraccountprofile.repository";
 import { ProviderDocumentRepository } from "./repositories/providerdocument.repository";
@@ -12,6 +15,7 @@ import { ProviderBankAccountRepository } from "./repositories/providerbankaccoun
 import { ProviderAuditLogRepository } from "./repositories/providerauditlog.repository";
 import { AutoEntitySeoPipelineService } from '../../events/auto-entity-seo-pipeline.service';
 import { CatalogPublicationService } from '../../events/catalog-publication.service';
+import { doctorSessionPriceProjection } from './doctor-session-price';
 
 @Injectable()
 export class ProviderAdminService {
@@ -23,6 +27,7 @@ export class ProviderAdminService {
     @Inject('ProviderAuditLogRepository') private audit: ProviderAuditLogRepository,
     private seoPipeline: AutoEntitySeoPipelineService,
     private events: EventEmitter2,
+    private scfhs: ScfhsLicenseService,
     @Optional() private publication?: CatalogPublicationService,
   ) {}
 
@@ -111,9 +116,59 @@ export class ProviderAdminService {
     account.status = to;
   }
 
+  /** The users row that holds this account's login (shared by approve, reactivate, suspend and reject). */
+  private async loginIdOf(a: any): Promise<string | undefined> {
+    const usersCol = this.accounts.model.db.collection('users');
+    return a.user_id || (await usersCol.findOne({ email: String(a.email || '').toLowerCase().trim() }).catch(() => null))?.id;
+  }
+
+  /** The role the login identity carries while the account is approved (the provider type), as approve sets it. */
+  private providerLoginRole(a: any): string | undefined {
+    const candidate = ({ laboratory: UserRole.LAB } as Record<string, string>)[a.provider_type] || a.provider_type;
+    return Object.values(UserRole).includes(candidate) ? candidate : undefined;
+  }
+
+  /**
+   * A provider who is no longer approved must not keep a working provider session through the PATIENT login: approve turns the users row into the provider
+   * role, and the central gate only checks provider-scope tokens. So suspend / reject turn the login back into the restricted onboarding identity (role guest,
+   * the state before approval) and revoke its sessions at once; reactivate gives the provider role back. The provider-scope sign-in still works and shows the reason.
+   */
+  private async restrictLogin(a: any): Promise<void> {
+    const loginId = await this.loginIdOf(a);
+    if (!loginId) return;
+    const role = this.providerLoginRole(a);
+    // only a row that really holds the provider role is demoted (never an admin, patient or other row that happens to be linked)
+    await this.accounts.model.db.collection('users').updateOne({ id: loginId, ...(role ? { role } : { _id: null }) }, { $set: { role: UserRole.GUEST }, $inc: { token_version: 1 } });
+  }
+
+  /**
+   * 19.3: a doctor, pharmacist or individual nurse is approved (or brought back) only on a confirmed SCFHS licence, or
+   * the admin's own manual check while the SCFHS service cannot answer. Runs before anything changes.
+   */
+  private async licenseGate(accountId: string, manual?: ManualLicenseCheck) {
+    const profile: any = await this.accounts.model.db.collection('provider_profiles').findOne({ account_id: accountId, user_id: { $exists: true } });
+    const check = profile && requiresScfhs(profile) ? await this.scfhs.decideFor(profile, manual) : null;
+    if (check && !check.decision.verified) throw new ConflictException(check.decision.reason || 'scfhs_license_not_verified');
+    return check;
+  }
+
+  /** The renewed licence expiry from the admin (a future date), or null when the stored one is still in the future or absent; a stored expiry that has passed with no new date is refused. */
+  private async renewedLicenseExpiry(accountId: string, given?: string): Promise<Date | null> {
+    const profile: any = await this.accounts.model.db.collection('provider_profiles').findOne({ account_id: accountId, user_id: { $exists: true } });
+    if (given !== undefined && given !== null && given !== '') {
+      const d = new Date(given);
+      if (Number.isNaN(d.getTime()) || d.getTime() <= Date.now()) throw new BadRequestException('license_expiry_date_must_be_in_the_future');
+      return d;
+    }
+    const stored = profile?.license_expiry_date ? new Date(profile.license_expiry_date).getTime() : null;
+    if (stored !== null && !Number.isNaN(stored) && stored <= Date.now()) throw new ConflictException('license_expired_renew_first');
+    return null;
+  }
+
   async approve(user: any, id: string, body: any) {
     this.assertAdmin(user);
     const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
+    const licenseCheck = await this.licenseGate(id, body?.manual_license_check);
     await this.transition(a, ProviderAccountStatus.APPROVED, user, body?.note || body?.reason);
     a.approved_at = new Date(); a.approved_by = user.id;
     // P2.2 role flip: the login identity becomes the provider type, and every
@@ -140,7 +195,8 @@ export class ProviderAdminService {
       await this.profiles.updateOne({ account_id: id }, { $set: set });
     }
     await this.docs.updateMany({ account_id: id, review_status: { $in: [DocumentReviewStatus.PENDING, DocumentReviewStatus.UNDER_REVIEW] } }, { $set: { review_status: DocumentReviewStatus.APPROVED, reviewer_id: user.id, reviewed_at: new Date() } });
-    await this.banks.updateMany({ account_id: id, review_status: { $in: [BankReviewStatus.PENDING, BankReviewStatus.UNDER_REVIEW] } }, { $set: { review_status: BankReviewStatus.APPROVED, reviewer_id: user.id } });
+    // The payout bank account is NOT approved here: approving the provider says nothing about whose IBAN it is. It is reviewed on its own
+    // (approve-bank / reject-bank), and a withdrawal needs an approved bank (provider-payouts.controller).
     await this.accounts.model.db.collection('provider_profiles').updateMany(
       { account_id: id, user_id: { $exists: true } },
       {
@@ -156,6 +212,9 @@ export class ProviderAdminService {
         },
       },
     );
+    if (licenseCheck) {
+      await this.scfhs.store({ account_id: id, user_id: { $exists: true } }, licenseCheck.decision, licenseCheck.result, user.id, body?.manual_license_check);
+    }
     // Wizard-registered profiles carry type/location; operational readers query provider_type/geo.
     await this.accounts.model.db.collection('provider_profiles').updateMany(
       { account_id: id, user_id: { $exists: true } },
@@ -185,10 +244,14 @@ export class ProviderAdminService {
 
   async reject(user: any, id: string, body: any) {
     this.assertAdmin(user);
+    // G6: the applicant reads this reason on the status screen and fixes what it names before resubmitting, so a rejection always carries one (the admin page asks for 5 characters).
+    const reason = typeof body?.reason === 'string' ? body.reason.trim() : '';
+    if (reason.length < 5) throw new BadRequestException('rejection_reason_required');
     const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
-    await this.transition(a, ProviderAccountStatus.REJECTED, user, body?.reason);
-    a.rejection_reason = body?.reason || 'rejected';
+    await this.transition(a, ProviderAccountStatus.REJECTED, user, reason);
+    a.rejection_reason = reason;
     await a.save();
+    await this.restrictLogin(a);   // a suspended provider that is then rejected had the provider role until now
     await this.accounts.model.db.collection('provider_profiles').updateMany(
       { account_id: id, user_id: { $exists: true } },
       { $set: { status: 'rejected', rejected_reason: a.rejection_reason, public_eligibility: false, indexing_eligibility: false } },
@@ -224,6 +287,37 @@ export class ProviderAdminService {
     await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_bank_approved', after: { approved } });
     if (!approved) throw new NotFoundException('no_pending_bank_account');
     return { ok: true, account_id: id, approved };
+  }
+
+  /** Refuse the provider's payout bank account with a reason (the provider sends a corrected one through POST /provider/bank-account). Only an account still waiting for review can be refused. */
+  async rejectBank(user: any, id: string, body: { reason: string }) {
+    this.assertAdmin(user);
+    const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
+    const reason = String(body?.reason || '').trim();
+    if (!reason) throw new BadRequestException('reason_required');
+    const res: any = await this.banks.updateMany(
+      { account_id: id, review_status: { $in: [BankReviewStatus.PENDING, BankReviewStatus.UNDER_REVIEW] } },
+      { $set: { review_status: BankReviewStatus.REJECTED, reviewer_id: user.id, reviewer_note: reason, reviewed_at: new Date() } },
+    );
+    const rejected = Number(res?.modifiedCount ?? res?.nModified ?? 0);
+    await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_bank_rejected', after: { rejected, reason } });
+    if (!rejected) throw new NotFoundException('no_pending_bank_account');
+    return { ok: true, account_id: id, rejected };
+  }
+
+  /** Providers whose licence has expired or expires within `within_days` (default 60), soonest first: the list the admin works from before the daily monitor suspends them. */
+  async licenseExpiryList(user: any, q: { within_days?: number; type?: string }) {
+    this.assertAdmin(user);
+    const days = Math.min(Math.max(Number(q?.within_days) || 60, 1), 730);
+    const limit = new Date(Date.now() + days * 24 * 3600 * 1000);
+    const filter: Record<string, unknown> = { license_expiry_date: { $ne: null, $lte: limit }, status: { $ne: 'rejected' } };
+    if (q?.type) filter.type = { $eq: String(q.type) };
+    const rows: any[] = await this.accounts.model.db.collection('provider_profiles').find(filter, { projection: { _id: 0, id: 1, account_id: 1, user_id: 1, type: 1, display_name_ar: 1, display_name_en: 1, status: 1, license_status: 1, license_expiry_date: 1, suspended_reason: 1 } }).sort({ license_expiry_date: 1 }).limit(500).toArray();
+    const now = Date.now();
+    return rows.map((r) => {
+      const expiry = new Date(r.license_expiry_date);
+      return { ...r, days_left: Math.ceil((expiry.getTime() - now) / (24 * 3600 * 1000)), expired: expiry.getTime() <= now };
+    });
   }
 
   /**
@@ -307,6 +401,7 @@ export class ProviderAdminService {
     // F09: instant session revocation for the suspended provider account.
     (a as any).token_version = Number((a as any).token_version || 0) + 1;
     await a.save();
+    await this.restrictLogin(a);
     await this.accounts.model.db.collection('provider_profiles').updateMany(
       { account_id: id, user_id: { $exists: true } },
       { $set: { status: 'suspended', public_eligibility: false, indexing_eligibility: false } },
@@ -337,6 +432,9 @@ export class ProviderAdminService {
   async reactivate(user: any, id: string, body: any) {
     this.assertAdmin(user);
     const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
+    const licenseCheck = await this.licenseGate(id, body?.manual_license_check);
+    // An expired licence is brought back only with the renewed expiry date (otherwise the daily monitor suspends the provider again the next morning).
+    const renewed = await this.renewedLicenseExpiry(id, body?.license_expiry_date);
     await this.transition(a, ProviderAccountStatus.APPROVED, user, body?.reason || 'reactivated');
     (a as any).token_version = Number((a as any).token_version || 0) + 1;
     await a.save();
@@ -344,12 +442,14 @@ export class ProviderAdminService {
     const loginId = (a as any).user_id
       || (await usersCol.findOne({ email: String((a as any).email || '').toLowerCase().trim() }).catch(() => null))?.id;
     if (loginId) {
-      await usersCol.updateOne({ id: loginId }, { $set: { active: true, suspended: false }, $inc: { token_version: 1 } });
+      const role = this.providerLoginRole(a);   // suspend gave the login back its restricted role: reactivate restores the provider role
+      await usersCol.updateOne({ id: loginId }, { $set: { active: true, suspended: false, ...(role ? { role } : {}) }, $inc: { token_version: 1 } });
     }
     await this.accounts.model.db.collection('provider_profiles').updateMany(
       { account_id: id, user_id: { $exists: true } },
-      { $set: { status: 'active', public_eligibility: true, indexing_eligibility: true, medical_review_status: 'approved' } },
+      { $set: { status: 'active', public_eligibility: true, indexing_eligibility: true, medical_review_status: 'approved', ...(renewed ? { license_expiry_date: renewed, license_status: 'active', license_verified: true } : {}) }, ...(renewed ? { $unset: { suspended_reason: '', suspended_at: '' } } : {}) },
     );
+    if (licenseCheck) await this.scfhs.store({ account_id: id, user_id: { $exists: true } }, licenseCheck.decision, licenseCheck.result, user.id, body?.manual_license_check);
     await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_reactivated', after: { reason: body?.reason } });
     // P13-R6: restore discovery the same way suspend removes it — SEO
     // reactivate plus the shared projection refresh (was missing entirely).
@@ -376,6 +476,8 @@ export class ProviderAdminService {
     const accountId = delta.account_id || delta.provider_account_id || delta.user_id || delta.provider_id;
     let applied = 0;
     const target = (delta as any).target || 'profile';
+    // a reviewed credential change: the day string becomes the profile's Date; the audit keeps the old values
+    if (target === 'credentials') changes = applyCredentialTypes(changes);
     const db = this.accounts.model.db.collection.bind(this.accounts.model.db);
     if (target === 'settings' && (changes as any).settings_key) {
       const res = await db('provider_settings').updateOne(
@@ -406,6 +508,14 @@ export class ProviderAdminService {
           ...(op === 'create' ? { $setOnInsert: { id: uuidv4(), created_at: new Date() } } : {}),
         }, { upsert: op === 'create' });
         applied = (res.modifiedCount || 0) + ((res.upsertedCount || 0) as number);
+        // the booking and the listings read the profile's prices, so the approved session price goes there too
+        const projection = String((changes as any).catalog) === 'doctor_sessions' ? doctorSessionPriceProjection((changes as any).payload) : null;
+        if (projection && accountId) {
+          await db('provider_profiles').updateOne(
+            { $or: [{ account_id: accountId }, { user_id: accountId }, { id: accountId }] } as any,
+            { $set: { [projection.field]: projection.price, updated_at: new Date() } },
+          );
+        }
       }
     } else if (target === 'insurance_matrix') {
       await db('provider_insurance').updateOne(
@@ -471,6 +581,7 @@ export class ProviderAdminService {
       actor_id: user.id,
       actor_role: 'admin',
       action: 'admin.provider_delta_approved',
+      before: target === 'credentials' ? (delta.old_values ?? null) : undefined,
       after: { delta_id: id, changes }
     });
 

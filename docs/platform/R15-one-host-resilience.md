@@ -1,0 +1,26 @@
+# R15 - One-host resilience (2026-11-03)
+
+Owner topology: launch on ONE bigger VPS. A single host fails by hanging (2026-11-02), by a bad disk, or by a mistake. Three layers, cheapest first.
+
+## (c) Auto-reboot from outside - built in this PR, OFF by default
+`tools/uptime/auto-reboot.sh`, run in the existing `uptime-alert` workflow right after the external check (GitHub Actions, outside the server). It hard-reboots the host through the provider API only when ALL hold: the repository variable `AUTO_REBOOT=1`; at least 3 failed checks in a row (15 min); a fresh probe of page AND API answers like a hung host (no answer, or Cloudflare 522/523/524), NOT like a crashed app (500/502/503/404 mean nginx and Docker still run: the on-host backend watchdog handles those and a reboot only makes it worse); fewer than 2 reboots in 24 h and none in the last 6 h (a host that keeps hanging needs a person). It mails the owner after acting. Without the variable it is a dry run that only logs what it would do.
+- **Hetzner**: `POST /v1/servers/<id>/actions/reset` (hard reset), secrets `HETZNER_API_TOKEN`, `HETZNER_SERVER_ID`.
+- **OVH** (today's provider per `setup-server.sh`): `POST <api>/vps/<service>/reboot` signed with `X-Ovh-Signature = "$1$" + sha1(secret+"+"+consumerKey+"+"+METHOD+"+"+URL+"+"+BODY+"+"+timestamp)` (formula confirmed from OVH's published scheme, asserted byte for byte in the test). **The reboot endpoint path is from memory of OVH's API listing and not verified**; before setting `AUTO_REBOOT=1`, call it once by hand with the consumer key in the OVH API console, and create the consumer key restricted to `POST /vps/<service>/reboot` only (a key that can do more than that is a risk if the repository secret leaks). Secrets `OVH_APP_KEY`, `OVH_APP_SECRET`, `OVH_CONSUMER_KEY`, `OVH_SERVICE_NAME`; variable `REBOOT_PROVIDER=ovh|hetzner`.
+- The mail helpers moved to `tools/uptime/_mail.sh` (shared, behaviour unchanged, `external-uptime` tests still pass).
+- Limits: GitHub may delay a scheduled run by minutes and disables schedules after 60 days without repository activity; the check cannot tell a hung host from a provider network incident (a reboot then does no harm but no good either); a hard reset can corrupt a database mid-write (MongoDB with journaling recovers; the nightly dump + oplog slices exist for the rest).
+
+## (b) Rebuild from the repo and the last backup in 30 minutes - runbook + timer, NOT yet measured
+`docs/runbooks/rebuild-from-repo.md`, `deploy/scripts/rebuild-timer.sh` (times each phase against `rebuild-budget.tsv`, verdict against the 30-minute target, JSON report), tested with a fake clock. The budget sums to 29 minutes and is an estimate: nobody has timed a real rebuild yet. The honest critical path is the images phase (the compose file builds on the host) and the one thing no script can recover: `.env.production` and the backup passphrase must be in the owner's secret store, not only on the server.
+
+## (a) A tiny standby VPS - options and prices (indicative, verify before buying)
+What it is for, in the order it pays off: (1) off-site copy of Mongo with seconds of lag (R7 option B: hidden secondary + arbiter), (2) a place to run Prometheus/Grafana (R5) and the external monitors, (3) the machine that takes over (promote the secondary, start the app there from the rebuild runbook, switch DNS) in minutes instead of a rebuild.
+| Option | Size | Indicative price | Notes |
+|---|---|---|---|
+| Hetzner Cloud CX23/CAX11 class | 2 vCPU, 4 GB | about EUR 4-5 per month after the 2026 price rises ([agentdeals](https://agentdeals.dev/hetzner-pricing-2026), [bitdoze](https://www.bitdoze.com/md/hetzner-cloud-cost-optimized-plans.md)) | EU (Germany/Finland); the cheap lines were repeatedly not orderable in autumn 2026; sources disagree on the exact price |
+| OVHcloud VPS-1 | 2 vCores, 4 GB | about USD 4.5-5.4 per month depending on the term ([vpsbenchmarks](https://www.vpsbenchmarks.com/hosters/ovhcloud/plans/vps-1), [getdeploying](https://getdeploying.com/hostinger-vs-ovh)); one forum post reports a rise to about USD 7.6, unconfirmed | same provider as production: a different host in a different datacentre is the point, so order it in another location |
+| OVHcloud VPS-2 | 4 vCores, 8 GB | about USD 8.5 per month ([vpsbenchmarks](https://www.vpsbenchmarks.com/hosters/ovhcloud/plans/vps-2)) | enough to hold a real Mongo secondary of a growing database |
+**Residency (R19) decides the location before price does**: the standby holds a full copy of health data. If the law requires KSA hosting, an EU standby may hold only encrypted backups. Until R19 is decided, the safe form of (1) is the encrypted off-site backups that already exist plus (c) and (b) above; the live secondary waits for the location decision.
+**Recommendation**: do (c) now (dry run first, then the owner enables it after checking the OVH call by hand), time (b) on a throwaway VPS this month, and order the standby only after R19 names an allowed location; a 4 GB VPS is enough to start the secondary, 8 GB once the dataset outgrows it.
+
+## Not done
+No real rebuild timed, no OVH reboot call verified against the live API, no standby ordered, no golden-image snapshot, no restore of the secondary promotion drill (belongs with the standby).

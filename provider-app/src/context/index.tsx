@@ -11,10 +11,12 @@ import {
  Appearance, AppState, AppStateStatus, Platform
 } from 'react-native';
 import * as LocalAuth from 'expo-local-authentication';
-import { getTheme, TR, type ThemeMode, type Theme, type Lang, type TKey, API_BASE } from '../constants';
+import { getTheme, type ThemeMode, type Theme, API_BASE } from '../constants';
+import { isRtlLang, langFromCode, translate, type Lang, type TKey } from '../i18n';
 import { Vault, Tokens, SessionMgr, RateLimiter, Audit, SK, Validate, Biometric, buildHeaders, DeviceId } from '../security/Security';
 import { mapAccountStatus } from '../utils/accountStatus';
 import { apiReachable, refreshOutcome } from '../utils/session';
+import { timedFetch } from '../api/timedFetch';
 
 // ═══════════════════════════════════════
 // THEME
@@ -68,41 +70,41 @@ export const useTheme = (): ThemeCtxType => {
 // ═══════════════════════════════════════
 // LANGUAGE
 // ═══════════════════════════════════════
-interface LangCtxType { lang: Lang; isRTL: boolean; toggle: () => void; set: (l: Lang) => void; t: (k: TKey) => string; }
+interface LangCtxType { lang: Lang; isRTL: boolean; toggle: () => void; set: (l: Lang) => void; t: (k: TKey, params?: Record<string, string | number>) => string; }
 const LangCtx = createContext<LangCtxType | null>(null);
 
 export function LangProvider({ children }: { children: ReactNode }) {
  const deviceCode = (() => {
    try { return String(Intl.DateTimeFormat().resolvedOptions().locale || '').split('-')[0].toLowerCase(); } catch { return ''; }
  })();
- const deviceLang: Lang = deviceCode === 'ar' ? 'ar' : 'en';
+ // the device language if the app has it (Arabic or English), else English
+ const deviceLang: Lang = langFromCode(deviceCode) ?? 'en';
  const [lang, setLangState] = useState<Lang>(deviceLang);
 
   useEffect(() => {
     Vault.get('APP_LANG').then(saved => {
-      if (saved === 'ar' || saved === 'en') {
-        setLangState(saved);
-        I18nManager.forceRTL(saved === 'ar');
+      const stored = langFromCode(saved);
+      if (stored) {
+        setLangState(stored);
+        I18nManager.forceRTL(isRtlLang(stored));
       } else {
-        I18nManager.forceRTL(deviceLang === 'ar');
+        I18nManager.forceRTL(isRtlLang(deviceLang));
       }
     });
   }, [deviceLang]);
 
   const set = useCallback((l: Lang) => {
     setLangState(l);
-    I18nManager.forceRTL(l === 'ar');
+    I18nManager.forceRTL(isRtlLang(l));
     Vault.set('APP_LANG', l);
   }, []);
 
  const toggle = useCallback(() => set(lang === 'ar' ? 'en' : 'ar'), [lang, set]);
 
- const t = useCallback((k: TKey): string => {
- return (TR[lang] as Record<string, string>)[k] ?? (TR.en as Record<string, string>)[k] ?? String(k);
- }, [lang]);
+ const t = useCallback((k: TKey, params?: Record<string, string | number>): string => translate(lang, k, params), [lang]);
 
  return (
- <LangCtx.Provider value={{ lang, isRTL: lang === 'ar', toggle, set, t }}>
+ <LangCtx.Provider value={{ lang, isRTL: isRtlLang(lang), toggle, set, t }}>
  {children}
  </LangCtx.Provider>
  );
@@ -279,7 +281,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const headers = await buildHeaders(false);
       const customIp = await Vault.get(SK.CUSTOM_API_IP);
       const baseUrl = customIp ? `http://${customIp}:8002/api/v1` : API_BASE;
-      res = await fetch(`${baseUrl}/provider/auth/refresh`, {
+      res = await timedFetch(`${baseUrl}/provider/auth/refresh`, {
         method: 'POST',
         headers,
         body: JSON.stringify({ refresh_token: refresh, session_id: sessionId, device_identifier: deviceId })
@@ -307,7 +309,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const syncOnline = async () => {
     try {
       const headers = await buildHeaders(true);
-      const res = await fetch(`${API_BASE}/provider/ops/availability/instant`, { method: 'GET', headers });
+      const res = await timedFetch(`${API_BASE}/provider/ops/availability/instant`, { method: 'GET', headers });
       if (!res.ok) return;
       const data = await res.json();
       updateUser({ isOnline: data?.instant_available === true });
@@ -325,7 +327,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const headers = await buildHeaders(false);
       const customIp = await Vault.get(SK.CUSTOM_API_IP);
       const baseUrl = customIp ? `http://${customIp}:8002/api/v1` : API_BASE;
-      const res = await fetch(`${baseUrl}/provider/auth/login`, {
+      const res = await timedFetch(`${baseUrl}/provider/auth/login`, {
         method: 'POST',
         headers,
         body: JSON.stringify({ email: identifier, password, meta: { device_identifier: deviceId } })
@@ -386,7 +388,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const sessionId = await Tokens.getSessionId();
       if (sessionId) {
         const headers = await buildHeaders(false);
-        await fetch(`${API_BASE}/provider/auth/logout`, { method: 'POST', headers, body: JSON.stringify({ session_id: sessionId }) });
+        await timedFetch(`${API_BASE}/provider/auth/logout`, { method: 'POST', headers, body: JSON.stringify({ session_id: sessionId }) });
       }
     } catch (e) {}
     Audit.log('logout', true);
@@ -411,7 +413,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   Audit.log('toggle_online', next);
   try {
   const headers = await buildHeaders(true);
-  const res = await fetch(`${API_BASE}/provider/ops/availability/toggle-instant`, {
+  const res = await timedFetch(`${API_BASE}/provider/ops/availability/toggle-instant`, {
  method: 'POST',
  headers,
  body: JSON.stringify({ available: next }),

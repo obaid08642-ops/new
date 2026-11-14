@@ -1,4 +1,8 @@
 import type { Metadata } from "next";
+import { CatalogueViewBeacon } from "@/components-next/diagnostics/catalogue-view-beacon";
+import { pickName, pickTexts, perLocaleOf } from "@/lib/i18n/localized";
+import { LocalizedField, LocalizedList } from "@/components-next/ui/localized-field";
+import { preparationField } from "@/lib/ordering/item";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components-next/json-ld";
 import { DirectAnswer } from "@/components-next/seo/direct-answer";
@@ -6,19 +10,21 @@ import { breadcrumbList, medicalWebPage, nursingService } from "@/lib/seo/struct
 import { localizedUrl } from "@/lib/seo";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractHomeCareService, findHomeCareServiceInCatalog, parseHomeCareServiceId } from "@/lib/api/home-care-services";
-import { getPublicNursingCatalog } from "@/lib/api/nursing-catalog-server";
+import { getPublicNursingCatalog, getPublicNursingService } from "@/lib/api/nursing-catalog-server";
 import { getPatientHomeCareService } from "@/lib/api/home-care-services-server";
 import { getOptionalPatientAccessToken } from "@/lib/auth/session";
 import { isLocale, locales } from "@/lib/i18n";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
-import { Facts, Hero, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
+import { BulletList, Facts, Hero, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
+import { OffersSection } from "@/components-next/diagnostics/offers-section";
 import { NURSING, ServiceChips, serviceIcon } from "@/components-next/nursing/nursing-parts";
 import { money, pickText } from "@/components-next/diagnostics/diag-parts";
 import consult from "@/components-next/consult/consult.module.css";
+import { servicePayFlow } from "@/lib/nursing/pay-flow";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 
-type Props = { params: Promise<{ locale: string; serviceId: string }> };
+type Props = { params: Promise<{ locale: string; serviceId: string }>; searchParams?: Promise<{ pay?: string }> };
 
 /** The public catalogue entry for this service (what crawlers and signed-out patients read). */
 async function publicService(serviceId: string) {
@@ -35,8 +41,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!service) return { robots: { index: false, follow: false } };
   const t = await getTranslations({ locale, namespace: "NursingWeb" });
   const seo = await getTranslations({ locale, namespace: "SeoAnswer" });
-  const name = pickText(locale, service.nameAr, service.nameEn) ?? t("serviceTitle");
-  const description = (pickText(locale, service.descriptionAr, service.descriptionEn) ?? seo("homeCareWho", { name })).replace(/\s+/g, " ").slice(0, 160);
+  const name = pickName(locale, service.names) ?? t("serviceTitle");
+  const description = (pickTexts(locale, service.descriptions) ?? seo("homeCareWho", { name })).replace(/\s+/g, " ").slice(0, 160);
   const path = `/home-care/services/${encodeURIComponent(serviceId)}`;
   const canonical = localizedUrl(locale, path);
   return {
@@ -49,12 +55,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 /** One home care service (canvas/ServiceHub detail): its name, what it is, the price and duration, and whether insurance covers it. */
-export default async function HomeCareServicePage({ params }: Props) {
+export default async function HomeCareServicePage({ params, searchParams }: Props) {
   const { locale, serviceId } = await params;
+  const pay = servicePayFlow(((await searchParams) ?? {}).pay);
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("NursingWeb");
   const seo = await getTranslations("SeoAnswer");
+  const w = await getTranslations("DiagWeb");
   // issue 650: the service page is public. A signed-in patient reads the service endpoint; everyone else (and a patient whose
   // session has ended) reads the service out of the public catalog. Signing in is asked for at booking, not here.
   if (!parseHomeCareServiceId(serviceId).success) notFound();
@@ -69,6 +77,11 @@ export default async function HomeCareServicePage({ params }: Props) {
     else if (response.status !== 401) reachable = false;
   }
   if (!service && reachable) {
+    // the service with what nurses offer for it (GET /home-care/services/:id, public); the older catalogue list is the fallback
+    const one = await getPublicNursingService(serviceId);
+    if (one && one.ok) service = extractHomeCareService(await one.json().catch(() => null));
+  }
+  if (!service && reachable) {
     const catalog = await getPublicNursingCatalog();
     if (!catalog || !catalog.ok) reachable = false;
     else service = findHomeCareServiceInCatalog(await catalog.json().catch(() => null), serviceId);
@@ -81,8 +94,9 @@ export default async function HomeCareServicePage({ params }: Props) {
     );
   }
   if (!service) notFound();
-  const name = pickText(locale, service.nameAr, service.nameEn) ?? "";
-  const description = pickText(locale, service.descriptionAr, service.descriptionEn);
+  const name = pickName(locale, service.names) ?? "";
+  const description = pickTexts(locale, service.descriptions);
+  const preparation = preparationField(locale, service);
   const duration = [service.durationValue, service.duration].filter(Boolean).join(" ");
   const rows: FactRow[] = [
     ...(service.price !== undefined ? [{ label: t("priceLabel"), value: money(locale, service.price), icon: "tag" as const, tone: NURSING.tone }] : []),
@@ -90,18 +104,24 @@ export default async function HomeCareServicePage({ params }: Props) {
   ];
   return (
     <ConsultPage locale={locale} title={name || t("serviceTitle")} backHref={back}>
+      <CatalogueViewBeacon vertical="nursing" serviceId={service.id} />
       <JsonLd data={[
         medicalWebPage({ title: name || t("serviceTitle"), locale, path: `/home-care/services/${serviceId}`, description: description ?? null, speakable: true }),
         nursingService({ name: name || t("serviceTitle"), locale, path: `/home-care/services/${serviceId}`, description: description ?? null }),
         breadcrumbList([{ name: t("serviceTitle"), locale, path: "/nursing/catalog" }, { name: name || t("serviceTitle"), locale, path: `/home-care/services/${serviceId}` }]),
       ]} />
-      <Hero icon={serviceIcon(service.nameAr, service.nameEn)} tone={NURSING.tone} title={name} sub={t("eyebrow")}>
+      <Hero icon={serviceIcon(service.nameAr, service.nameEn)} tone={NURSING.tone} title={<LocalizedField locale={locale} ar={service.names.ar} en={service.names.en} />} sub={t("eyebrow")}>
         <ServiceChips insurance={service.insuranceAvailable ? t("insurance") : undefined} />
       </Hero>
       <DirectAnswer sentences={[seo("homeCareWho", { name: name || t("serviceTitle") })]} />
       {description ? (
         <SectionCard id="service-about" title={t("aboutTitle")}>
-          <p className={consult.body}>{description}</p>
+          <LocalizedField as="p" className={consult.body} locale={locale} ar={service.descriptions.ar} en={service.descriptions.en} perLocale={perLocaleOf(service.descriptions)} />
+        </SectionCard>
+      ) : null}
+      {preparation.items.length > 0 ? (
+        <SectionCard id="service-prep" title={t("prepTitle")}>
+          <LocalizedList locale={locale} field={preparation}>{(items) => <BulletList items={items} />}</LocalizedList>
         </SectionCard>
       ) : null}
       {rows.length > 0 ? (
@@ -109,8 +129,9 @@ export default async function HomeCareServicePage({ params }: Props) {
           <Facts rows={rows} label={t("serviceTitle")} />
         </SectionCard>
       ) : null}
+      <OffersSection locale={locale} t={w} kind="nursing" serviceId={service.id} offer={service.offer} offers={service.offers} price={service.price} bookLabel={t("bookCta")} />
       {/* journeys#60 (issue 1069): the service is booked on the website too (the book page asks for sign-in) */}
-      <ButtonLink href={`/${locale}/home-care/services/${encodeURIComponent(serviceId)}/book`} label={t("bookCta")} fullWidth />
+      {service.offer?.providersCount === 0 ? null : <ButtonLink href={`/${locale}/home-care/services/${encodeURIComponent(serviceId)}/book${pay === "insurance" ? "?pay=insurance" : ""}`} label={t("bookCta")} fullWidth />}
     </ConsultPage>
   );
 }

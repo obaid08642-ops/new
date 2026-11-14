@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { otpIdentifierCookie } from "@/lib/auth/cookies";
+import { setOtpIdentifier } from "@/lib/auth/cookies";
 import { callPatientApi } from "@/lib/api/upstream";
 import { guestMergeHeaders } from "@/lib/auth/guest-merge";
+import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "@/lib/auth/password-rule";
 
 const schema = z.object({
   name: z.string().trim().min(2).max(120),
   identifier: z.string().trim().min(3).max(320),
-  password: z.string().min(8).max(128),
+  password: z.string().min(MIN_PASSWORD_LENGTH).max(MAX_PASSWORD_LENGTH),
   locale: z.string().trim().min(2).max(12),
   consents: z.array(z.object({ policy_id: z.string().trim().min(1).max(120), version: z.string().trim().min(1).max(80) }).strict()).min(1).max(8),
 }).superRefine((value, context) => {
@@ -51,6 +52,6 @@ export async function POST(request: Request) {
   const response = NextResponse.json(parsed.data, { status: upstream.status, headers: { "cache-control": "no-store" } });
   // The /otp page names where the code went. It reads this short-lived server-set cookie, so the e-mail address or phone
   // number never travels in a URL (history, server logs, Referer).
-  response.cookies.set(otpIdentifierCookie, body.identifier, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 15 * 60 });
+  setOtpIdentifier(response, body.identifier);
   return response;
 }

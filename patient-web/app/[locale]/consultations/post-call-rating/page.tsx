@@ -23,7 +23,7 @@ export default async function PostCallRatingPage({ params, searchParams }: Props
       <PostCallRatingForm
         locale={locale}
         appointmentId={appointmentId}
-        labels={{ rating: c("ratingGroup"), star: c("ratingStar"), comment: t("comment"), commentPh: t("commentPh"), submit: t("submit"), submitting: t("submitting"), thanks: t("thanks"), error: t("error") }}
+        labels={{ rating: c("ratingGroup"), star: c("ratingStar"), comment: t("comment"), commentPh: t("commentPh"), submit: t("submit"), submitting: t("submitting"), thanks: t("thanks"), error: t("error"), tagsTitle: t("tagsTitle"), tags: { excellent: t("tags.excellent"), fast: t("tags.fast"), professional: t("tags.professional"), clean: t("tags.clean"), helpful: t("tags.helpful"), recommend: t("tags.recommend") } }}
       />
     </ConsultPage>
   );

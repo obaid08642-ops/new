@@ -1,0 +1,1 @@
+{"slice":"i03-app","batch":2,"app":"patient-app","screens":[{"route":"/insurance","elements":[["Delete card button","DELETE /users/me/insurance","ok"],["Confirm dialog texts","i18n keys (six languages)","ok"],["Success and error states","DELETE response","ok"]]}],"needsReview":[]}

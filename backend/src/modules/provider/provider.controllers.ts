@@ -1,10 +1,14 @@
+import { SickLeaveService } from '../sick-leave/sick-leave.service';
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
+import { ownAppointmentId, ownedVisit } from './appointment-link';
 import { protectHealthDoc } from '../../common/health-fields';
 import { PROVIDER_ROLES } from '../../common/enums';
 import { isProviderRole } from '../../common/enums';
-import { Controller, Post, Get, Patch, Delete, Body, Param, Query, Req, Inject } from '@nestjs/common';
-import { ServiceUnavailableException } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Put, Delete, Body, Param, Query, Req, Inject } from '@nestjs/common';
+import { ServiceUnavailableException, Optional } from '@nestjs/common';
 import { DisableDto, EndConsultationDto, IssueSickLeaveDto, IssueMedicalReportDto, SetAvailDto, PreviewAdHocDto, DispatchDto, WithdrawAliasDto, UploadProfileImageDto, ReplaceImageDto, AssignStaffDto } from './provider.controllers.dto';
-import { RegisterDto, LoginDto, RefreshDto, LogoutDto, SendOtpDto, VerifyEmailDto, ForgotDto, VerifyResetCodeDto, ResetDto, AddPhoneDto, UploadDocDto, UploadDocDto2, UpsertBankDto, SubmitDeltaDto, SubmitDeltaDto2, InviteDto, AcceptDto, UpdateDto2, RejectDeltaDto, RejectDeltaDto2, ApproveDto, RejectDto, NeedsChangesDto, SuspendDto, ReactivateDto, ReviewDocumentDto, AcceptDto2, RejectDto2, StartDto, CompleteDto, CancelDto, UpsertPharmaDto, UpsertLabDto, UpsertLabDto2, UpsertRadDto, UpsertRadDto2, UpsertDocDto, UpsertDocDto2, UpsertHcDto, UpsertHcDto2, UpsertDto, UpsertDto2 } from './provider.controllers.generated.dto';
+import { RegisterDto, LoginDto, RefreshDto, LogoutDto, SendOtpDto, VerifyEmailDto, ForgotDto, VerifyResetCodeDto, ResetDto, AddPhoneDto, UploadDocDto, UploadDocDto2, UpsertBankDto, SubmitDeltaDto, SubmitDeltaDto2, InviteDto, AcceptDto, UpdateDto2, RejectDeltaDto, RejectDeltaDto2, RejectBankDto, LicenseExpiryQueryDto, ApproveDto, RejectDto, NeedsChangesDto, SuspendDto, ReactivateDto, ReviewDocumentDto, AcceptDto2, RejectDto2, StartDto, CompleteDto, CancelDto, UpsertPharmaDto, UpsertLabDto, UpsertLabDto2, UpsertRadDto, UpsertRadDto2, UpsertDocDto, UpsertDocDto2, UpsertHcDto, UpsertHcDto2, UpsertDto, UpsertDto2 } from './provider.controllers.generated.dto';
 import { LedgerService } from '../finance-engine/finance-engine.module';
 import { ChangePasswordDto, UpdateProfileDto, InsuranceCopayDto, SeedUnassignedDto } from './provider.patch.dto';
 import { ProviderAuthService } from './services/provider-auth.service';
@@ -17,6 +21,8 @@ import { ProviderScheduleService } from './services/provider-schedule.service';
 import { ProviderDashboardService } from './services/provider-dashboard.service';
 import { ProviderSeedService } from './services/provider-seed.service';
 import { ServiceCapabilityService } from './services/service-capability.service';
+import { ProviderServiceOffersService } from './services/provider-service-offers.service';
+import { ProviderServiceOfferDto } from './provider-service-offers.dto';
 import { SchedulingEngineService } from './services/scheduling-engine.service';
 import { ProviderScoringService } from './services/provider-scoring.service';
 import { ProviderMatchingService } from './services/provider-matching.service';
@@ -73,6 +79,13 @@ export class ProviderAuthController {
   }
   @Get('me')
   me(@CurrentUser() user: any) { return this.svc.me(user); }
+  /** 23.6 — the provider's own signed-in devices and sign-in history. */
+  @SelfService()
+  @Get('sessions')
+  sessions(@CurrentUser() user: any, @Query('session_id') sessionId?: string) { return this.svc.listSessions(user, sessionId).then((devices) => ({ devices })); }
+  @SelfService()
+  @Get('history')
+  history(@CurrentUser() user: any, @Query('page') page?: string, @Query('limit') limit?: string) { return this.svc.history(user, Number(page) || 1, Number(limit) || 30); }
 }
 
 @Controller('provider')
@@ -154,6 +167,7 @@ export class ProviderAdminController {
   // Full provider file by USER id (users-management "عرض الملف" — the admin clicks
   // any provider user and must see every registration detail, same as moderation).
   @Get('by-user/:userId') byUser(@CurrentUser() u: any, @Param('userId') userId: string) { return this.svc.detailByUser(u, userId); }
+  @Get('license-expiry') licenseExpiry(@CurrentUser() u: any, @Query() q: LicenseExpiryQueryDto) { return this.svc.licenseExpiryList(u, q); }
   @Get('provider-deltas') getDeltas(@CurrentUser() u: any) { return this.svc.listDeltas(u); }
   @RequirePermissions(Permission.FACILITY_EDIT)
   @Post('provider-deltas/:id/approve') approveDelta(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.approveDelta(u, id); }
@@ -166,6 +180,8 @@ export class ProviderAdminController {
   @Post(':id/reject') reject(@CurrentUser() u: any, @Param('id') id: string, @Body() body: RejectDto) { return this.svc.reject(u, id, body); }
   @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/approve-bank') approveBank(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.approveBank(u, id); }
+  @RequirePermissions(Permission.FACILITY_EDIT)
+  @Post(':id/reject-bank') rejectBank(@CurrentUser() u: any, @Param('id') id: string, @Body() body: RejectBankDto) { return this.svc.rejectBank(u, id, body); }
   // B-4 (#940): licence review per document — each licence file is decided
   // on its own instead of bulk-approving everything with the account.
   @RequirePermissions(Permission.FACILITY_EDIT)
@@ -221,7 +237,8 @@ export class ProviderRequestsController {
     private readonly svc: ProviderRequestEngineService,
     @Inject('ProviderRequestRepository') private readonly reqRepo: any,
     private readonly events: EventEmitter2,
-    @InjectConnection() private readonly conn: Connection
+    @InjectConnection() private readonly conn: Connection,
+    @Optional() private readonly sickLeave?: SickLeaveService,
   ) {}
   @Get() list(@CurrentUser() u: any, @Query() q: any) { return this.svc.list(u, q); }
   @Get(':id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.detail(u, id); }
@@ -352,62 +369,22 @@ export class ProviderRequestsController {
     return { ok: true, request_id: requestId, state, copay_amount: patientShare };
   }
 
+  /** Issue a sick-leave certificate on a consultation of this doctor (owner decision PT-08): the rules, the serial and the verify code are in SickLeaveService. */
   @Post(':id/sick-leave')
   async issueSickLeave(@CurrentUser() u: any, @Param('id') id: string, @Body() body: IssueSickLeaveDto) {
-    if (!body?.patient_id) throw new BadRequestException('patient_id required');
-    if (!body?.diagnosis?.trim()) throw new BadRequestException('diagnosis required');
-    const days = Math.max(1, Math.min(30, parseInt(String(body?.duration_days)) || 1));
-    const start = body?.start_date ? new Date(body.start_date) : new Date();
-    if (isNaN(start.getTime())) throw new BadRequestException('invalid start_date');
-    const end = new Date(start.getTime() + days * 24 * 60 * 60 * 1000);
-
-    const provider: any = await this.conn.collection('provider_accounts').findOne({ $or: [{ user_id: String(u?.id) }, { _id: u?.id as any }] } as any);
-    const doc = {
-      id: uuid(),
-      tracking_id: trackingId(TRACK_PREFIX.medical_report),
-      patient_id: String(body.patient_id),
-      patient_name: body.patient_name || null,
-      report_type: 'medical_certificate',
-      certificate_kind: 'sick_leave',
-      title_ar: `إجازة مرضية لمدة ${days} ${days === 1 ? 'يوم' : 'أيام'}`,
-      title_en: `${days}-day sick leave certificate`,
-      summary: body.diagnosis.trim(),
-      diagnosis: body.diagnosis.trim(),
-      recommendations: body.recommendations || null,
-      sick_leave: { start_date: start, end_date: end, duration_days: days },
-      doctor_id: String(u?.id),
-      doctor_name: u?.full_name || provider?.display_name || null,
-      facility_id: provider?._id ? String(provider._id) : null,
-      facility_name: provider?.display_name || null,
-      appointment_id: id !== 'new' ? id : (body.appointment_id || null),
-      attachments: [],
-      issued_at: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    // 16.9: the certificate text is health data; the raw write encrypts it (the appointment keeps its own encrypted copy of the reason)
-    const reasonCipher = protectHealthDoc('appointments', { sickLeaves: [{ reason: doc.diagnosis }] }).sickLeaves[0].reason;
-    await this.conn.collection('medicalreports').insertOne(protectHealthDoc('medicalreports', { ...doc }) as any);
-
-    // Record on the appointment for the patient's timeline
-    if (id && id !== 'new') {
-      await this.conn.collection('appointments').updateOne(
-        { $or: [{ id }, { _id: id as any }] } as any,
-        { $push: { sickLeaves: { days, reason: reasonCipher, tracking_id: doc.tracking_id, at: new Date() } } } as any,
-      );
-    }
-
-    // Notify the patient (push + in-app) through the standard pipeline
-    this.events.emit('medical_report.created', { id: doc.id, patient_id: doc.patient_id, critical: false, tracking_id: doc.tracking_id });
-    this.events.emit('sick_leave.issued', { patient_id: doc.patient_id, doctor_id: doc.doctor_id, tracking_id: doc.tracking_id, days });
-
-    return { ok: true, message: 'sick_leave_issued', tracking_id: doc.tracking_id, verify_url: `/api/v1/medical-reports/track/${doc.tracking_id}`, days, start_date: start, end_date: end };
+    if (!this.sickLeave) throw new ServiceUnavailableException('sick_leave_unavailable');
+    return this.sickLeave.issue(u, id, body);
   }
 
   @Post(':id/medical-report')
   async issueMedicalReport(@CurrentUser() u: any, @Param('id') id: string, @Body() body: IssueMedicalReportDto) {
     if (!body?.findings?.trim() && !body?.summary?.trim()) throw new BadRequestException('findings required');
-    const request: any = await this.svc.detail(u, id);
+    // The id is a provider request, or a normal appointment of this doctor (appointments never create a request).
+    let request: any = null;
+    try { request = await this.svc.detail(u, id); } catch (e) { if (!(e instanceof NotFoundException)) throw e; }
+    const visit = request ? null : await ownedVisit(this.conn, String(u?.id), id);
+    if (!request && !visit) throw new NotFoundException('request not found');
+    if (visit) request = { patient: { id: visit.patient_id, name: visit.patient_name } };
     const patientId = request.patient?.id || request.patient_id || request.patient_user_id || request.user_id;
     if (!patientId) throw new BadRequestException('linked patient required');
     if (body?.patient_id && String(body.patient_id) !== String(patientId)) {
@@ -431,7 +408,7 @@ export class ProviderRequestsController {
       doctor_name: u?.full_name || provider?.display_name || null,
       facility_id: provider?._id ? String(provider._id) : null,
       facility_name: provider?.display_name || null,
-      appointment_id: id,
+      appointment_id: await ownAppointmentId(this.conn, String(u?.id), String(patientId), [body.appointment_id, id]),
       attachments: Array.isArray(body.attachments) ? body.attachments : [],
       issued_at: new Date(),
       createdAt: new Date(),
@@ -535,6 +512,33 @@ export class ProviderCapabilitiesController {
   @Get('home-care') listHc(@CurrentUser() u: any) { return this.svc.listHomeCare(u); }
   @Post('home-care') upsertHc(@CurrentUser() u: any, @Body() body: UpsertHcDto) { return this.svc.upsertHomeCare(u, body); }
   @Delete('home-care/:id') delHc(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.deleteHomeCare(u, id); }
+}
+
+/**
+ * The full approved catalogue of a vertical (lab | radiology | nursing) with this provider's own options per service, and the one write that changes them:
+ * offered or not, where (premises / home / both), insurance accepted, price. What the patient lists, filters and detail pages read.
+ */
+@Controller('provider/services')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
+@Roles(UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL)
+export class ProviderServiceOffersController {
+  constructor(private readonly svc: ProviderServiceOffersService) {}
+  @Get(':vertical') list(@CurrentUser() u: any, @Param('vertical') vertical: string, @Query('offered') offered?: string, @Query('search') search?: string) {
+    return this.svc.list(u, vertical, { offered: offered === undefined ? undefined : offered === 'true' || offered === '1', search });
+  }
+  @Put(':vertical/:serviceId') set(@CurrentUser() u: any, @Param('vertical') vertical: string, @Param('serviceId') serviceId: string, @Body() body: ProviderServiceOfferDto) {
+    return this.svc.set(u, vertical, serviceId, body);
+  }
+}
+
+/** Admin view: who offers a service and how (ids and options only), or one provider's choices. */
+@Controller('admin/service-offers')
+@Roles(UserRole.ADMIN)
+export class AdminServiceOffersController {
+  constructor(private readonly svc: ProviderServiceOffersService) {}
+  @Get(':vertical') view(@Param('vertical') vertical: string, @Query('service_id') serviceId?: string, @Query('provider_account_id') providerAccountId?: string) {
+    return this.svc.adminView(vertical, { service_id: serviceId, provider_account_id: providerAccountId });
+  }
 }
 
 @Controller('provider/zones')

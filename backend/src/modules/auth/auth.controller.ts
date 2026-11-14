@@ -1,8 +1,11 @@
+import { clientIp } from '../../common/client-ip';
 import { Body, Controller, Delete, Get, Header, Headers, Logger, Optional, Param, Post, Put, UseGuards, Req, Res, BadRequestException } from '@nestjs/common';
 import { AuthLoginDto, AuthVerify2faDto, RefreshDto, LogoutDto, RecordConsentDto, SendOtpDto, VerifyOtpDto, ResetPasswordDto, SocialLoginDto, HeartbeatDto, LinkAccountDto, ConfirmAccountLinkDto, CheckoutContactDto, GuestCleanupDto, GuestCapabilitiesDto } from './auth.dto';
 import { PresenceService } from '../presence/presence.service';
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
+import { PublicCache } from '../../common/public-cache.decorator';
+import { buildSocialConfig } from './social-config';
 
 const DEVICE_COOKIE = 'nabd_admin_device';
 const PATIENT_ACCESS_COOKIE = 'nabd_patient_access';
@@ -24,10 +27,6 @@ const DEVICE_COOKIE_OPTS = (req: Request) => ({
   maxAge: 90 * 24 * 60 * 60 * 1000, // 90 days
 });
 
-function clientIp(req: Request): string | undefined {
-  const xff = (req.headers['x-forwarded-for'] as string) || '';
-  return (xff.split(',')[0] || req.ip || '').trim() || undefined;
-}
 
 /**
  * 21.2 — PROOF that the caller is the guest whose data it wants merged.
@@ -54,11 +53,11 @@ import { IsString, IsOptional, MinLength } from 'class-validator';
 import { UserRole } from '../../common/enums';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
-class RegisterDto {
+export class RegisterDto {
   // Legacy registration payload.
   @IsOptional() @IsString() full_name?: string;
   @IsOptional() @IsString() phone?: string;
-  @IsString() @MinLength(6) password: string;
+  @IsString() @MinLength(8) password: string;
   @IsOptional() @IsString() email?: string;
   @IsOptional() @IsString() role?: UserRole;
   /** F63: OTP code proving ownership of the phone/email (else a prior verified marker is required). */
@@ -92,14 +91,14 @@ class PatientSessionExchangeDto {
 class PatientForgotPasswordDto {
   @IsString() identifier: string;
 }
-class PatientResetPasswordDto {
+export class PatientResetPasswordDto {
   @IsString() reset_token: string;
   @IsString() @MinLength(8) new_password: string;
 }
-class ConvertGuestDto {
+export class ConvertGuestDto {
   @IsString() full_name: string;
   @IsString() phone: string;
-  @IsString() @MinLength(6) password: string;
+  @IsString() @MinLength(8) password: string;
   @IsOptional() @IsString() email?: string;
 }
 
@@ -123,7 +122,7 @@ export class AuthController {
   @Post('otp/request')
   patientOtpRequest(@Body() dto: PatientOtpRequestDto, @Req() req: Request) {
     // 16.3: the caller's address bounds how many distinct numbers one caller
-    // may target, which is what stops SMS-pumping fan-out.
+    // may target, which is what stops fan-out over many numbers.
     return this.auth.requestPatientOtp(dto.identifier, clientIp(req));
   }
 
@@ -143,6 +142,14 @@ export class AuthController {
     res.cookie(PATIENT_ACCESS_COOKIE, tokens.access_token, PATIENT_SESSION_COOKIE_OPTS(req, PATIENT_ACCESS_COOKIE_MAX_AGE));
     res.cookie(PATIENT_REFRESH_COOKIE, tokens.refresh_token, PATIENT_SESSION_COOKIE_OPTS(req, PATIENT_REFRESH_COOKIE_MAX_AGE));
     return { authenticated: true };
+  }
+
+  /** Native clients cannot hold the web cookies: same single-use exchange token, the pair returned as JSON. */
+  @Public()
+  @Post('session/exchange-native')
+  async patientSessionExchangeNative(@Body() dto: PatientSessionExchangeDto, @Req() req: Request) {
+    const tokens = await this.auth.exchangePatientSession(dto.exchange_token, guestMergeToken(req));
+    return { access_token: tokens.access_token, refresh_token: tokens.refresh_token };
   }
 
   @Public()
@@ -296,21 +303,34 @@ export class AuthController {
   }
 
   /**
-   * 21.7 — sign out of this device: the refresh sessions bound to it are revoked
-   * and its push token is removed, so a shared phone stops receiving this
-   * account's notifications.
+   * 21.7 — sign out of this device: its sign-in ends (the access token stops working at once) and its push tokens are
+   * removed, so a shared phone stops receiving this account's notifications. Other devices stay signed in.
    */
   @Post('logout-device')
   @UseGuards(JwtAuthGuard)
   async logoutDevice(@CurrentUser() user: any, @Headers('x-device-id') deviceId?: string) {
-    return this.auth.logoutDevice(user.id, deviceId);
+    return this.auth.logoutDevice(user.id, { sid: user.sid, deviceId: deviceId || user.dev });
   }
 
-  /** 21.7 — the signed-in devices the user can revoke. */
+  /** 21.7 — the signed-in devices of the account; the caller's own is marked `current`. */
   @Get('sessions')
   @UseGuards(JwtAuthGuard)
-  async sessions(@CurrentUser() user: any) {
-    return { devices: await this.auth.listSessions(user.id) };
+  async sessions(@CurrentUser() user: any, @Headers('x-device-id') deviceId?: string) {
+    return { devices: await this.auth.listSessions(user.id, { sid: user.sid, deviceId: deviceId || user.dev }) };
+  }
+
+  /** 21.7 — "sign out other devices": every sign-in except this one. */
+  @Post('sessions/revoke-others')
+  @UseGuards(JwtAuthGuard)
+  async revokeOtherSessions(@CurrentUser() user: any, @Headers('x-device-id') deviceId?: string) {
+    return this.auth.revokeOtherSessions(user.id, { sid: user.sid, deviceId: deviceId || user.dev });
+  }
+
+  /** 21.7 — sign out one listed device. */
+  @Delete('sessions/:id')
+  @UseGuards(JwtAuthGuard)
+  async revokeSession(@CurrentUser('id') userId: string, @Param('id') sessionId: string) {
+    return this.auth.revokeSession(userId, sessionId);
   }
 
   @Post('consent')
@@ -344,7 +364,7 @@ export class AuthController {
   // kept with deprecation headers. Canonical: otp/request, otp/verify, password/reset.
   @Public()
   @Header('Deprecation', 'true')
-  @Throttle({ default: { limit: 5, ttl: 60000 } }) // E5-F4 SMS-bombing guard
+  @Throttle({ default: { limit: 5, ttl: 60000 } }) // E5-F4 OTP-flooding guard
   @Post('send-otp')
   sendOtp(@Body() body: SendOtpDto, @Req() req: Request) {
     this.log.warn('deprecated auth alias called: send-otp (canonical: otp/request)');
@@ -371,6 +391,14 @@ export class AuthController {
     const id = body.identifier || body.email || body.phone || '';
     if (!body?.code) throw new BadRequestException('code_required');
     return this.auth.resetPassword(id, body.password, body.code);
+  }
+
+  /** Which social providers this backend can finish, and their PUBLIC client ids / redirect URIs (never a secret). The clients read it at run time. */
+  @Public()
+  @PublicCache(300, ['auth-social-config'])
+  @Get('social/config')
+  socialConfig() {
+    return buildSocialConfig();
   }
 
   @Public()
@@ -426,6 +454,7 @@ export class AuthController {
   }
 
   /** 21.3 — what a guest may do, as the server sees it right now. */
+  @Public()
   @Get('guest/capabilities')
   async guestCapabilities() {
     return { capabilities: await this.guestMatrix.matrix() };
@@ -447,6 +476,6 @@ export class AuthController {
   @RequirePermissions(Permission.OPS_CRONS_RUN)
   @Post('guest/cleanup')
   async cleanupGuests(@Body() dto: GuestCleanupDto) {
-    return this.guestLifecycle.purgeInactiveGuests();
+    return this.guestLifecycle.purgeInactiveGuests({ retentionDays: dto.retention_days });
   }
 }

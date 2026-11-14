@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { SERVICE_ICONS, type FillIconName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "./consult.module.css";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 
 /** The consultation service's own icon and tone, from the handoff service map (never written as a colour name). */
 export const CONSULT = SERVICE_ICONS.consult;
@@ -44,10 +44,10 @@ export function BulletList({ items, label }: { items: string[]; label?: string }
 }
 
 /** The tile, a title and a line at the top of a detail page. */
-export function Hero({ icon = CONSULT.icon, tone = CONSULT.tone, title, sub, children }: { icon?: FillIconName; tone?: ServiceTone; title: string; sub?: string; children?: ReactNode }) {
+export function Hero({ icon = CONSULT.icon, tone = CONSULT.tone, title, sub, children, picture }: { icon?: FillIconName; tone?: ServiceTone; title: ReactNode; sub?: ReactNode; children?: ReactNode; /** Replaces the service icon (a test or scan shows its category illustration). */ picture?: ReactNode }) {
   return (
     <section className={`${rx.card} ${styles.hero}`}>
-      <FIcon icon={icon} tone={tone} size={52} />
+      {picture ?? <FIcon icon={icon} tone={tone} size={52} />}
       <div className={styles.heroText}>
         <h2 className={styles.heroTitle}>{title}</h2>
         {sub ? <span className={styles.heroSub}>{sub}</span> : null}
@@ -83,10 +83,10 @@ export function ActionLinks({ actions }: { actions: LinkAction[] }) {
 }
 
 /** A row on a white card that goes to a page: a tile, a title, a line and a caret that mirrors in right-to-left. */
-export function RowCard({ href, icon = CONSULT.icon, tone = CONSULT.tone, title, sub, extra, caret }: { href?: string; icon?: FillIconName; tone?: ServiceTone; title: string; sub?: string; extra?: ReactNode; caret?: ReactNode }) {
+export function RowCard({ href, icon = CONSULT.icon, tone = CONSULT.tone, art, title, sub, extra, caret }: { href?: string; icon?: FillIconName; tone?: ServiceTone; /** Replaces the service glyph (a test or scan shows its category illustration). */ art?: ReactNode; title: ReactNode; sub?: ReactNode; extra?: ReactNode; caret?: ReactNode }) {
   const body = (
     <>
-      <FIcon icon={icon} tone={tone} size={44} />
+      {art ?? <FIcon icon={icon} tone={tone} size={44} />}
       <span className={styles.rowBody}>
         <span className={styles.rowTitle}>{title}</span>
         {sub ? <span className={styles.rowSub}>{sub}</span> : null}

@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
+import { AppointmentOutcomesService } from './appointment-outcomes.service';
 import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';import { ApptState } from '../../schemas/appointment.schema';
 import { CreateAppointmentDto, CancelAppointmentDto, RescheduleAppointmentDto, JoinWaitlistDto, DoctorPositionDto } from './appointments.dto';
@@ -10,7 +11,7 @@ import { Permission, RequirePermissions } from '../../common/permissions';
 @SelfService()
 @UseGuards(JwtAuthGuard)
 export class AppointmentsController {
-  constructor(private svc: AppointmentsService) {}
+  constructor(private svc: AppointmentsService, private outcomes: AppointmentOutcomesService) {}
 
   // Patient creates appointment
   @Post()
@@ -28,6 +29,24 @@ export class AppointmentsController {
     return this.svc.callsFor(user);
   }
 
+  /** The hub badge: new outcomes (prescription, unread report or certificate, referral) across the patient's completed visits. */
+  @Get('outcomes/badge')
+  outcomesBadge(@CurrentUser() user: any) {
+    return this.outcomes.badge(user);
+  }
+
+  /** What the visit left the patient. Patient-owned only: anyone else gets 404. */
+  @Get(':id/outcomes')
+  appointmentOutcomes(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.outcomes.outcomes(user, id);
+  }
+
+  /** The patient has seen the visit's outcomes (clears its badge). */
+  @Patch(':id/outcomes/seen')
+  markOutcomesSeen(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.outcomes.markSeen(user, id);
+  }
+
   @Get(':id')
   one(@Param('id') id: string, @CurrentUser() user: any) {
     return this.svc.one(user, id);
@@ -38,9 +57,17 @@ export class AppointmentsController {
     return this.svc.joinWaitlist(user, body);
   }
 
+  /** @deprecated The one patient cancel route is POST /unified-bookings/consultation/:id/cancel (idempotent; the web and the app use it).
+   *  Kept only for app versions already installed; remove once they are out of support. */
   @Patch(':id/cancel')
   cancel(@Param('id') id: string, @CurrentUser() user: any, @Body() body: CancelAppointmentDto) {
     return this.svc.cancel(id, user, body?.reason);
+  }
+
+  /** The doctor did not come: the patient says so once the visit is 10 minutes late and never started; the full price goes back to the card at once (owner decision 2026-11-09). */
+  @Post(':id/provider-no-show')
+  providerNoShow(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.reportProviderNoShow(id, user);
   }
 
   @Get(':id/refund/preview')

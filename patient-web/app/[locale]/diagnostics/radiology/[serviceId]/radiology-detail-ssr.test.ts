@@ -22,7 +22,7 @@ describe("Radiology detail SSR", () => {
     const html = renderToStaticMarkup((await RadiologyServiceDetailPage({ params: Promise.resolve({ locale: "en", serviceId: "6a7600a27b25eeca204de283" }) })) as never);
     expect(html).toContain("Chest X-Ray");
     expect(html).toContain("Bring prior reports");
-    expect(html).toContain("add=rad_6a7600a27b25eeca204de283");
+    expect(html).toContain("/en/labs/6a7600a27b25eeca204de283?kind=radiology");
     expect(html).not.toContain("style=");
     expect(state.detail).toHaveBeenCalledWith("6a7600a27b25eeca204de283");
   });

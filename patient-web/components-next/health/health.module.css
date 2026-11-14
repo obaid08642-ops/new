@@ -81,3 +81,56 @@ a.tile:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nab
 @media (min-width: 768px) {
   .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+
+/* ---- the score ring and the status pill of the hub's score card ---- */
+.ring { position: relative; flex: none; inline-size: 88px; block-size: 88px; }
+.ringSvg { display: block; }
+.ringTrack { stroke: var(--nabd-color-bg-sunken); }
+.ringArc { stroke: var(--nabd-color-status-info-fg); }
+.ring_success { stroke: var(--nabd-color-status-success-fg); }
+.ring_info { stroke: var(--nabd-color-status-info-fg); }
+.ring_warning { stroke: var(--nabd-color-status-warning-fg); }
+.ring_danger { stroke: var(--nabd-color-status-danger-fg); }
+.ringText { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.ringValue { font-size: var(--nabd-font-size-h3); font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.ringCaption { font-size: var(--nabd-font-size-micro); color: var(--nabd-color-text-secondary); }
+.pill {
+  display: inline-flex; align-items: center; align-self: flex-start; min-block-size: 24px; padding-inline: 10px; border-radius: var(--nabd-radius-pill);
+  background: var(--nabd-color-bg-sunken); font-size: var(--nabd-font-size-micro); font-weight: 600; white-space: nowrap;
+}
+.pill_success { color: var(--nabd-color-status-success-fg); }
+.pill_info { color: var(--nabd-color-status-info-fg); }
+.pill_warning { color: var(--nabd-color-status-warning-fg); }
+.scoreLink { display: flex; flex-direction: column; gap: 12px; color: inherit; text-decoration: none; }
+.scoreLink:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; border-radius: var(--nabd-radius-xl); }
+
+/* ---- the flags on a report row and the actions under a prescription row ---- */
+.pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.rowActions { display: flex; flex-wrap: wrap; gap: 8px; padding-block-end: 12px; padding-inline-start: 52px; }
+
+/* ---- sleep: the last seven nights as bars (violet service tone, tokens only) ---- */
+.pill_danger { color: var(--nabd-color-status-danger-fg); }
+.weekBars { list-style: none; margin: 0; padding: 0; display: flex; align-items: stretch; gap: 8px; block-size: 120px; }
+.weekCol { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; }
+.weekBar { inline-size: 70%; border-radius: var(--nabd-radius-sm); background: var(--nabd-color-service-violet-fg); min-block-size: 6px; }
+.weekValue, .weekDay { font-size: var(--nabd-font-size-micro); color: var(--nabd-color-text-secondary); }
+.weekValue { font-weight: 700; }
+
+/* ---- the profile: a switch row and the photo block ---- */
+.toggleRow { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-block-size: 44px; }
+.photo { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+
+/* ---- vitals trends: the line chart takes the vital's service tone ---- */
+.trendChart { display: block; inline-size: 100%; block-size: 120px; overflow: visible; }
+.trendChart polyline { stroke: currentColor; }
+.trendChart circle { fill: currentColor; }
+.trend_amber { color: var(--nabd-color-service-amber-fg); }
+.trend_blue { color: var(--nabd-color-service-blue-fg); }
+.trend_coral { color: var(--nabd-color-service-coral-fg); }
+.trend_ink { color: var(--nabd-color-service-ink-fg); }
+.trend_lime { color: var(--nabd-color-service-lime-fg); }
+.trend_mint { color: var(--nabd-color-service-mint-fg); }
+.trend_peach { color: var(--nabd-color-service-peach-fg); }
+.trend_pink { color: var(--nabd-color-service-pink-fg); }
+.trend_teal { color: var(--nabd-color-service-teal-fg); }
+.trend_violet { color: var(--nabd-color-service-violet-fg); }

@@ -49,6 +49,11 @@
 .rowTitle { margin: 0; font-size: var(--nabd-font-size-row); line-height: 1.4; font-weight: 600; overflow-wrap: anywhere; }
 .rowSub { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
 .clamp2 { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+/* ---- the medicines of a prescription to order: pre-checked, the patient can untick (owner decision 2026-11-08) ---- */
+.pick { border: 0; margin: 0; padding: 0; min-inline-size: 0; display: flex; flex-direction: column; gap: 2px; }
+.pickLegend { padding: 0; margin-block-end: 4px; font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); }
+.pickRow { display: flex; align-items: center; gap: 12px; min-block-size: 44px; font-size: var(--nabd-font-size-row); line-height: 1.4; cursor: pointer; overflow-wrap: anywhere; }
+.pickBox { flex: none; inline-size: 22px; block-size: 22px; accent-color: var(--nabd-color-action-primary-bg); }
 .rowEnd { flex: none; color: var(--nabd-color-icon-secondary); display: inline-flex; }
 
 /* ---- the banner of canvas/Cart: "an item needs a prescription" ---- */
@@ -96,8 +101,8 @@
 .progress { display: flex; flex-direction: column; gap: 6px; }
 .progressBar { inline-size: 100%; block-size: 8px; border: 0; border-radius: var(--nabd-radius-pill); overflow: hidden; background: var(--nabd-color-track-rest); }
 .progressBar::-webkit-progress-bar { background: var(--nabd-color-track-rest); }
-.progressBar::-webkit-progress-value { background: var(--nabd-color-track-filled); border-radius: var(--nabd-radius-pill); }
-.progressBar::-moz-progress-bar { background: var(--nabd-color-track-filled); border-radius: var(--nabd-radius-pill); }
+.progressBar::-webkit-progress-value { background: var(--nabd-color-action-primary-bg); border-radius: var(--nabd-radius-pill); }
+.progressBar::-moz-progress-bar { background: var(--nabd-color-action-primary-bg); border-radius: var(--nabd-radius-pill); }
 .status { margin: 0; font-size: var(--nabd-font-size-control); color: var(--nabd-color-text-secondary); }
 .error {
   margin: 0; padding: 12px 14px; border-radius: var(--nabd-radius-xl); font-size: var(--nabd-font-size-control); overflow-wrap: anywhere;
@@ -134,7 +139,7 @@
 .messageMine { align-self: flex-end; align-items: flex-end; }
 .messageTheirs { align-self: flex-start; align-items: flex-start; }
 .bubble { margin: 0; padding: 10px 14px; border-radius: var(--nabd-radius-2xl); font-size: var(--nabd-font-size-body); line-height: 1.6; overflow-wrap: anywhere; white-space: pre-line; }
-.bubbleMine { background: var(--nabd-color-action-selected-bg); color: var(--nabd-color-action-selected-fg); }
+.bubbleMine { background: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg); }
 .bubbleTheirs { background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); color: var(--nabd-color-text-primary); }
 .messageMeta { font-size: var(--nabd-font-size-micro); color: var(--nabd-color-text-secondary); }
 .offer { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: var(--nabd-radius-2xl); background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-subtle); }
@@ -157,3 +162,6 @@
 /* journeys#23: the delivery / pickup choice on "order this prescription" */
 .fulfil { display: flex; flex-direction: column; gap: var(--nabd-space-sm); min-inline-size: 0; }
 .fulfilTitle { margin: 0; color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-h4); font-weight: 700; }
+
+.lines { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.line { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; padding: 12px; border-radius: var(--nabd-radius-lg); background: var(--nabd-color-bg-surface); min-inline-size: 0; }

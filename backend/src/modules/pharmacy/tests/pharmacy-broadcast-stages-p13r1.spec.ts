@@ -48,4 +48,12 @@ describe('P13-R1 staged geo-broadcast', () => {
     await expect(broadcastServiceWithConfig({ value: [{ stage: 2, radius_km: 3, timeout_seconds: 60 }] }).getBroadcastStages())
       .rejects.toThrow(/validated_pharmacy_broadcast_policy_required/);
   });
+
+  it('reads pharmacy_broadcast_stop_after_offers: default 3, 0 = never stop, a malformed value means the default', async () => {
+    const read = (value: any) => broadcastServiceWithConfig(value === undefined ? null : { key: 'pharmacy_broadcast_stop_after_offers', value }).getStopAfterOffers();
+    expect(await read(undefined)).toBe(3);
+    expect(await read(5)).toBe(5);
+    expect(await read(0)).toBe(0);
+    for (const bad of [-1, 1.5, '3', null, 101, {}]) expect(await read(bad)).toBe(3);
+  });
 });

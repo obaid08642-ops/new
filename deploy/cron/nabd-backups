@@ -4,5 +4,12 @@
 0  3  *   *   *   root /opt/nabdah/deploy/scripts/backup.sh >> /var/log/nabd-backups.log 2>&1
 40 3  *   *   0   root /opt/nabdah/deploy/scripts/catalogue-export.sh >> /var/log/nabd-backups.log 2>&1
 10 4  2   *   *   root /opt/nabdah/deploy/scripts/restore-drill.sh >> /var/log/nabd-backups.log 2>&1
+# 20.8 point-in-time recovery: oplog slice every 10 min (RPO <= 15 min), disaster recovery drill from the off-server copies monthly
+*/10 *  *   *   *   root /opt/nabdah/deploy/scripts/oplog-backup.sh >> /var/log/nabd-backups.log 2>&1
+30 4  3   *   *   root /opt/nabdah/deploy/scripts/dr-drill.sh >> /var/log/nabd-backups.log 2>&1
 # 20.10 capacity sampler: one line of capacity signals every 15 min (deploy/scripts/capacity-sample.sh; review: docs/perf/CAPACITY_REVIEW.md)
 */15 *  *   *   *   root /opt/nabdah/deploy/scripts/capacity-sample.sh >> /var/log/nabd-backups.log 2>&1
+# UPLOAD_SCAN=defer on a small server: start ClamAV when uploads wait for a scan and the memory is there, stop it when the queue is empty (off unless CLAMAV_ON_DEMAND=1)
+*/2  *  *   *   *   root /opt/nabdah/deploy/scripts/clamav-window.sh >> /var/log/nabd-backups.log 2>&1
+# Disk guard (2026-11-12, after the disk fell to 13 % free): below 25 % free it prunes build cache, unused images older than 7 days, old release dirs and the journal. Never backups or data.
+20 5  *   *   *   root /opt/nabdah/deploy/scripts/disk-guard.sh >> /var/log/nabd-backups.log 2>&1

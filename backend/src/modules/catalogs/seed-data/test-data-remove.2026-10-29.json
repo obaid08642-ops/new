@@ -1,0 +1,4 @@
+{
+  "note": "Owner-approved removal of the test providers found by 77-test-data-find (2026-10-29). Each entry is the first 8 characters of a provider profile id; the plan resolves it to the one exact id (several or none: the plan stops or reports it). Medicines and lab tests whose names only matched the word test are real products and are not in scope.",
+  "profile_ids": ["c142700b", "f3dee443", "7210a983", "ef370e52", "c6c5fc49", "b5a68ef0", "2789f626", "b74edab0"]
+}

@@ -1,4 +1,5 @@
 
+import { popularPage } from '../product-ranking/product-ranking.service';
 import { BackfillSlugsDto } from './seo-search.dto';
 import { safeDecode } from '../../common/slug.util';
 import { buildMedicineReport, medicineReportMarkdown } from './medicine-publication-report';
@@ -140,7 +141,7 @@ export function expandMultilingualSearchTerms(input: string): string[] {
  * Auto metadata per entity (slug/canonical/OG/Twitter/JSON-LD/breadcrumbs),
  * sitemap.xml + robots.txt, universal home search, recommendation engine.
  */
-import { Module, Injectable, Controller, Get, Post, Body, NotFoundException, Param, Query, Res, Optional } from '@nestjs/common';
+import { Module, Injectable, Controller, Get, Post, Body, NotFoundException, Param, Query, Res, Optional, UseInterceptors } from '@nestjs/common';
 import { InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { Response } from 'express';
@@ -150,8 +151,19 @@ import { UserRole } from '../../common/enums';
 import { AutoEntitySeoPipelineService, PipelineEntityType } from '../events/auto-entity-seo-pipeline.service';
 import { PUBLIC_MEDICINE, PUBLIC_TYPED_PROVIDER } from '../entity-graph/entity-graph.service';
 import { resolveMedicinePublicDto, productLocaleToDb, PUBLIC_CATALOG_LOCALES } from '../medicines/med-i18n';
+import { catalogueFilterClauses, CatalogueFilterInput } from './catalogue-filters';
+import { toPublicMedicine, toPublicProductCard } from '../medicines/public-medicine';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { EquivalentRow, ingredientCandidatePattern, ingredientParts, rankEquivalents } from './product-equivalents';
+import { comparePower } from '../medicines/variant-grouping';
+
+/** What a variant row of the picker needs (decision D): names and slugs per locale, price, availability, pictures. */
+const VARIANT_PROJECTION: Record<string, 0 | 1> = {
+  _id: 0, id: 1, sku: 1, slug: 1, name_ar: 1, name_en: 1, price: 1, old_price: 1, requires_prescription: 1, is_rx: 1,
+  online_exclusive: 1, availability_status: 1, images: 1, image: 1, image_1: 1, image_2: 1, image_3: 1, image_4: 1, image_5: 1,
+  variant: 1, variant_group: 1,
+  ...Object.fromEntries(['ar', 'en', 'ur', 'hi', 'bn', 'tl'].flatMap((l) => [[`translations.${l}.name`, 1], [`translations.${l}.slug`, 1]])),
+};
 // P5.3: merged from SeoModule (seo/ → seo-search/)
 import { MedicineSchema } from '../../schemas/medicine.schema';
 import { LabServiceSchema } from '../../schemas/lab.schema';
@@ -166,6 +178,7 @@ import { SeoIndexingListener } from './seo-indexing.listener';
 import { SeoIndexingService } from './seo-indexing.service';
 import { publicIndexableFilter, siteOrigin } from './seo-public-urls';
 import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
+import { Throttle } from '@nestjs/throttler';
 import { FacilityRepository } from './seo-repositories/facility.repository';
 import { HomeCareServiceRepository } from './seo-repositories/homecareservice.repository';
 import { LabServiceRepository } from './seo-repositories/labservice.repository';
@@ -174,8 +187,10 @@ import { ProviderProfileRepository } from './seo-repositories/providerprofile.re
 import { ArticleRepository } from './seo-repositories/article.repository';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { timedFetch } from '../../common/external-call';
+import { NOT_PROMOTABLE_FILTER } from '../medicines/promotion-rules';
 /** Orders of the public catalogue (#816); anything else is the default popularity order. */
-export const CATALOGUE_SORTS = ['popular', 'price_asc', 'price_desc', 'newest'] as const;
+export const CATALOGUE_SORTS = ['popular', 'most_ordered', 'price_asc', 'price_desc', 'newest'] as const;
 export type CatalogueSort = (typeof CATALOGUE_SORTS)[number];
 
 const SITE = process.env.API_PUBLIC_URL?.replace('/api/v1', '') || 'https://api.nabd.plus';
@@ -222,8 +237,13 @@ export class SeoSearchService {
   }
   // R49: sitemap pages are 5000-doc reads (~10-12s live). Slugs change only via
   // backfill/indexing, so a 6h in-process cache is safe. Zero new deps by design.
-  private readonly sitemapCache = new Map<string, { exp: number; val: any }>();
+  private readonly sitemapCache = new Map<string, { exp: number; stale?: number; val: any }>();
   private static readonly SITEMAP_TTL_MS = 6 * 60 * 60 * 1000;
+  private readonly equivalentsCache = new Map<string, { exp: number; val: any }>();
+  private readonly equivalentsRunning = new Map<string, Promise<any>>();
+  private static readonly EQUIVALENTS_TTL_MS = 30 * 60 * 1000;
+  private static readonly EQUIVALENTS_FAIL_TTL_MS = 60 * 1000;
+  static readonly EQUIVALENTS_MAX_TIME_MS = 3000;
 
   /** F23: live medicine count for llms.txt (cached 1h). */
   private catalogCountCache = { exp: 0, val: 0 };
@@ -241,16 +261,28 @@ export class SeoSearchService {
    * Kept 60 s in the process; concurrent misses share one count. A publish shows in the total within a minute; the
    * items themselves are always read live.
    */
-  private publicCountCache: { exp: number; val: number; pending: Promise<number> | null } = { exp: 0, val: 0, pending: null };
+  private readonly publicCountCache = new Map<string, { exp: number; staleUntil: number; val?: number; pending: Promise<number> | null }>();
+  private static readonly COUNT_FRESH_MS = 5 * 60_000;
+  private static readonly COUNT_STALE_MS = 60 * 60_000;
   private publicListingCount(filter: any): Promise<number> {
-    const c = this.publicCountCache;
-    if (Date.now() < c.exp) return Promise.resolve(c.val);
-    if (!c.pending) {
-      c.pending = this.conn.collection(CATALOG_COLLECTIONS.medicines).countDocuments(filter)
-        .then((n) => { this.publicCountCache = { exp: Date.now() + 60_000, val: n, pending: null }; return n; })
-        .catch((e) => { c.pending = null; throw e; });
+    // One entry per distinct filter (category, sub-category or search term), so a category page reuses its own total.
+    const key = JSON.stringify(filter, (_k, v) => (v instanceof RegExp ? String(v) : v));
+    const now = Date.now();
+    const c = this.publicCountCache.get(key);
+    // Stale-while-revalidate (2026-10-27): a total a few minutes old is shown at once and refreshed behind the response, so only the
+    // very first ask of a filter waits for the count (and that count is answered from an index, see medicine.schema.ts).
+    if (c?.val !== undefined && now < c.exp) return Promise.resolve(c.val);
+    if (c?.pending) return c.val !== undefined && now < c.staleUntil ? Promise.resolve(c.val) : c.pending;
+    if (this.publicCountCache.size >= 500) {
+      for (const [k, v] of this.publicCountCache) if (!v.pending && v.staleUntil <= now) this.publicCountCache.delete(k);
+      if (this.publicCountCache.size >= 500) this.publicCountCache.clear();
     }
-    return c.pending;
+    const pending: Promise<number> = this.conn.collection(CATALOG_COLLECTIONS.medicines).countDocuments(filter)
+      .then((n) => { const t = Date.now(); this.publicCountCache.set(key, { exp: t + SeoSearchService.COUNT_FRESH_MS, staleUntil: t + SeoSearchService.COUNT_STALE_MS, val: n, pending: null }); return n; })
+      .catch((e) => { if (c?.val !== undefined) this.publicCountCache.set(key, { ...c, pending: null }); else this.publicCountCache.delete(key); throw e; });
+    this.publicCountCache.set(key, { exp: c?.exp ?? 0, staleUntil: c?.staleUntil ?? 0, val: c?.val, pending });
+    if (c?.val !== undefined && now < c.staleUntil) { pending.catch(() => undefined); return Promise.resolve(c.val); }
+    return pending;
   }
 
   /**
@@ -412,6 +444,10 @@ export class SeoSearchService {
     ) || await this.conn.collection(CATALOG_COLLECTIONS.medicines).findOne(
       { ...this.publicProductFilter(), slug: decoded },
       { projection: { _id: 0 } },
+    // A product with no slug at all is linked by its id (`slugs[locale]` falls back to it), so the id must resolve too.
+    ) || await this.conn.collection(CATALOG_COLLECTIONS.medicines).findOne(
+      { ...this.publicProductFilter(), id: decoded },
+      { projection: { _id: 0 } },
     );
     if (!med) throw new NotFoundException('product_not_found');
     return resolveMedicinePublicDto(med, locale);
@@ -425,6 +461,36 @@ export class SeoSearchService {
     );
     if (!med) throw new NotFoundException('product_not_found');
     return resolveMedicinePublicDto(med, locale);
+  }
+
+  /**
+   * Decision D (issue 1556): the variants of a product (one product in several powers, colours or shades), each its
+   * own published record with its own SKU, price and picture. Same visibility as the product page (publicProductFilter)
+   * and the same per-locale projection (resolveMedicinePublicDto). Sorted for the picker: colour or shade, then power
+   * (plano, minus from −0.25 down, then plus), then the stored order.
+   */
+  async publicProductVariants(locale: string, id: string) {
+    const col = this.conn.collection(CATALOG_COLLECTIONS.medicines);
+    const med: any = await col.findOne({ ...this.publicProductFilter(), id }, { projection: { _id: 0, id: 1, variant_group: 1 } });
+    if (!med) throw new NotFoundException('product_not_found');
+    if (!med.variant_group) return { id, variant_group: null, kind: null, variants: [] };
+    const rows: any[] = await col
+      .find({ ...this.publicProductFilter(), variant_group: med.variant_group }, { projection: VARIANT_PROJECTION } as any)
+      .limit(1000)
+      .toArray();
+    const variants = rows.map((m) => {
+      const dto = resolveMedicinePublicDto(m, locale);
+      return {
+        id: dto.id, sku: dto.sku, slug: dto.slug, name: dto.name, price: dto.price, old_price: dto.old_price, currency: dto.currency,
+        is_rx: dto.is_rx, online_exclusive: dto.online_exclusive, available: dto.available, availability_status: dto.availability_status,
+        image: dto.image, variant: dto.variant,
+      };
+    }).filter((v) => v.variant);
+    variants.sort((a, b) => String(a.variant!.colour || a.variant!.shade || '').localeCompare(String(b.variant!.colour || b.variant!.shade || ''))
+      || comparePower(a.variant!.power ?? undefined, b.variant!.power ?? undefined)
+      || a.variant!.position - b.variant!.position);
+    const kinds = new Set(variants.map((v) => v.variant!.kind));
+    return { id, variant_group: med.variant_group, kind: kinds.size === 1 ? [...kinds][0] : 'colour_power', variants };
   }
 
   /** Strict per-locale public product DTO by canonical SKU (AI-commerce lookup). */
@@ -488,16 +554,8 @@ export class SeoSearchService {
 
   /** One localized, buy-ready product card (the search results and the product page's equivalents share it). */
   private publicProductCard(m: any, locale: string) {
-    const dto = resolveMedicinePublicDto(m, locale);
-    return {
-      sku: dto.sku, id: dto.id, slug: dto.slug, name: dto.name, official_name: dto.official_name,
-      description: dto.description, category: dto.category, sub_category: dto.sub_category,
-      form: dto.form, strength: dto.strength, package_size: dto.package_size,
-      active_ingredient: dto.active_ingredient, manufacturer: dto.manufacturer,
-      price: dto.price, old_price: dto.old_price, currency: dto.currency,
-      is_rx: dto.is_rx, online_exclusive: dto.online_exclusive, available: dto.available, image: dto.image,
-      url: `${process.env.WEB_PUBLIC_URL || 'https://nabd.plus'}/${locale}/p/${encodeURIComponent(String(dto.slug))}`,
-    };
+    // Issue 1555: one card builder, shared with GET /medicines/:id/alternatives (public-medicine.ts).
+    return toPublicProductCard(m, locale);
   }
 
   /**
@@ -508,6 +566,38 @@ export class SeoSearchService {
    * Unknown or unpublished product: 404. Prices and the Rx rule come from the public DTO (no old price on Rx).
    */
   async publicProductEquivalents(locale: string, id: string, limit = 8) {
+    // Run 116 (2026-11-12): this page read is what piled up before each mongod kill: an unindexed regex over every public medicine and a
+    // class-scope sort that took 25.8 s, once per crawler hit. Now: one computation per (locale, id, limit) per 30 min (single-flight, in
+    // process), every query bounded by maxTimeMS, and a query that is too slow degrades to "nothing to show" for 60 s instead of 5xx.
+    const key = `${locale}:${id}:${limit}`;
+    const hit = this.equivalentsCache.get(key);
+    if (hit && hit.exp > Date.now()) return hit.val;
+    const running = this.equivalentsRunning.get(key);
+    if (running) return running;
+    const work = (async () => {
+      try {
+        const val = await this.computeProductEquivalents(locale, id, limit);
+        this.equivalentsPut(key, val, SeoSearchService.EQUIVALENTS_TTL_MS);
+        return val;
+      } catch (e: any) {
+        if (e instanceof NotFoundException) throw e;
+        const empty = { locale, id, equivalents: [], similar: [] };
+        this.equivalentsPut(key, empty, SeoSearchService.EQUIVALENTS_FAIL_TTL_MS);
+        return empty;
+      } finally {
+        this.equivalentsRunning.delete(key);
+      }
+    })();
+    this.equivalentsRunning.set(key, work);
+    return work;
+  }
+
+  private equivalentsPut(key: string, val: any, ttl: number) {
+    if (this.equivalentsCache.size >= 2000) this.equivalentsCache.delete(this.equivalentsCache.keys().next().value as string);
+    this.equivalentsCache.set(key, { exp: Date.now() + ttl, val });
+  }
+
+  private async computeProductEquivalents(locale: string, id: string, limit: number) {
     const col = this.conn.collection(CATALOG_COLLECTIONS.medicines);
     const med: any = await col.findOne(
       { ...this.publicProductFilter(), id },
@@ -528,9 +618,9 @@ export class SeoSearchService {
     let equivalentIds: string[] = [];
     if (pattern) {
       const candidates: EquivalentRow[] = await col.find(
-        { ...this.publicProductFilter(), id: { $ne: id }, active_ingredient: { $regex: pattern, $options: 'i' }, price: { $gt: 0 } } as any,
+        { ...this.publicProductFilter(), ...NOT_PROMOTABLE_FILTER, id: { $ne: id }, active_ingredient: { $regex: pattern, $options: 'i' }, price: { $gt: 0 } } as any,
         { projection: { _id: 0, id: 1, active_ingredient: 1, strength: 1, form: 1, usage_count: 1, price: 1 } } as any,
-      ).limit(500).toArray() as any;
+      ).limit(500).maxTimeMS(SeoSearchService.EQUIVALENTS_MAX_TIME_MS).toArray() as any;
       equivalentIds = rankEquivalents(med, candidates, max).map((r) => r.id);
     }
     const equivalents = await cards(equivalentIds);
@@ -545,9 +635,9 @@ export class SeoSearchService {
     for (const scope of scopes) {
       if (similarIds.length >= max) break;
       const rows: any[] = await col.find(
-        { ...this.publicProductFilter(), ...scope, id: { $nin: [id, ...similarIds] }, price: { $gt: 0 } } as any,
+        { ...this.publicProductFilter(), ...NOT_PROMOTABLE_FILTER, ...scope, id: { $nin: [id, ...similarIds] }, price: { $gt: 0 } } as any,
         { projection: { _id: 0, id: 1 } } as any,
-      ).sort({ usage_count: -1, id: 1 }).limit(max - similarIds.length).toArray();
+      ).sort({ usage_count: -1, id: 1 }).limit(max - similarIds.length).maxTimeMS(SeoSearchService.EQUIVALENTS_MAX_TIME_MS).toArray();
       similarIds.push(...rows.map((r) => r.id));
     }
     return { locale, id, equivalents: [], similar: await cards(similarIds) };
@@ -568,6 +658,8 @@ export class SeoSearchService {
       .sort({ id: 1 })
       .skip((page - 1) * perPage)
       .limit(perPage)
+      // One round trip for the page (the driver default of 101 docs made ~50 getMore calls: Sentry NABD-BACKEND-1V).
+      .batchSize(perPage)
       .toArray();
     const val = rows.map((m: any) => {
       const alternates: Record<string, string> = {};
@@ -583,6 +675,53 @@ export class SeoSearchService {
     }).filter((r: any) => r.slug);
     this.sitemapCache.set(key, { exp: Date.now() + SeoSearchService.SITEMAP_TTL_MS, val });
     // Bound memory: 6 locales × 5 pages max; evict expired entries on write.
+    if (this.sitemapCache.size > 40) {
+      const now = Date.now();
+      for (const [k, v] of this.sitemapCache) if (v.exp <= now) this.sitemapCache.delete(k);
+    }
+    return val;
+  }
+
+  /**
+   * Google Merchant Center / Microsoft Merchant feed rows for one locale (patient-web renders the XML).
+   * Only indexable, over-the-counter, non-controlled products with a price: a prescription medicine is never advertised
+   * (Merchant policy and the owner's rule). `gtin` is sent only when the barcode is a valid GTIN-8/12/13/14.
+   */
+  async publicMerchantFeedPage(locale: string, page: number, perPage = 1000) {
+    const key = `merchant:${locale}:${page}:${perPage}`;
+    const hit = this.sitemapCache.get(key);
+    if (hit && hit.exp > Date.now()) return hit.val;
+    const filter = {
+      ...this.indexableProductFilter(),
+      requires_prescription: { $ne: true },
+      is_rx: { $ne: true },
+      controlled: { $ne: true },
+      price: { $gt: 0 },
+    } as any;
+    const col = this.conn.collection(CATALOG_COLLECTIONS.medicines);
+    const [rows, total] = await Promise.all([
+      col.find(filter, { projection: { _id: 0, interactions: 0, change_requests: 0 } } as any)
+        .sort({ id: 1 }).skip((page - 1) * perPage).limit(perPage).batchSize(perPage).toArray(),
+      col.countDocuments(filter),
+    ]);
+    const items = rows.map((m: any) => resolveMedicinePublicDto(m, locale)).filter((d: any) => !d.is_rx && d.slug && d.name).map((d: any) => {
+      const digits = String(d.barcode ?? '').replace(/\D/g, '');
+      return {
+        id: d.sku != null ? String(d.sku) : String(d.id),
+        slug: d.slug,
+        title: d.name,
+        description: d.description || null,
+        price: d.price,
+        currency: d.currency || 'SAR',
+        available: d.available === true && d.available_online !== false,
+        image: d.image || (Array.isArray(d.images) ? d.images[0] : null) || null,
+        brand: d.manufacturer || null,
+        gtin: [8, 12, 13, 14].includes(digits.length) ? digits : null,
+        category: [d.category, d.sub_category, d.sub_sub_category].filter(Boolean).join(' > ') || null,
+      };
+    });
+    const val = { locale, page, per_page: perPage, total, pages: Math.max(Math.ceil(total / perPage), 1), items };
+    this.sitemapCache.set(key, { exp: Date.now() + SeoSearchService.SITEMAP_TTL_MS, val });
     if (this.sitemapCache.size > 40) {
       const now = Date.now();
       for (const [k, v] of this.sitemapCache) if (v.exp <= now) this.sitemapCache.delete(k);
@@ -719,6 +858,28 @@ export class SeoSearchService {
 
   /** Category cluster tree with live counts per locale. */
   async publicCategories(locale: string) {
+    // The tree is a group over the whole public catalogue; counts change slowly, so it is kept 5 minutes and, once older, served stale
+    // for up to an hour while ONE refresh runs behind the response (2026-10-27: no visitor waits for the group after the first one).
+    const cacheKey = `cattree:${locale}`;
+    const hit = this.sitemapCache.get(cacheKey);
+    const now = Date.now();
+    if (hit && hit.exp > now) return hit.val;
+    if (hit && hit.stale > now) {
+      if (!this.treeRefresh.has(cacheKey)) {
+        const refresh = this.buildCategoryTree(locale).then((val) => this.sitemapCache.set(cacheKey, { exp: Date.now() + 5 * 60_000, stale: Date.now() + 60 * 60_000, val })).catch(() => undefined).finally(() => this.treeRefresh.delete(cacheKey));
+        this.treeRefresh.set(cacheKey, refresh);
+      }
+      return hit.val;
+    }
+    const pending = this.treeRefresh.get(cacheKey);
+    if (pending) { await pending; const again = this.sitemapCache.get(cacheKey); if (again) return again.val; }
+    const val = await this.buildCategoryTree(locale);
+    this.sitemapCache.set(cacheKey, { exp: Date.now() + 5 * 60_000, stale: Date.now() + 60 * 60_000, val });
+    return val;
+  }
+  private readonly treeRefresh = new Map<string, Promise<unknown>>();
+
+  private async buildCategoryTree(locale: string) {
     const db = productLocaleToDb(locale);
     const key = (f: string) => db === 'ar' ? f : `translations.${db}.${f === 'category' ? 'main_category' : f}`;
     const rows = await this.conn.collection(CATALOG_COLLECTIONS.medicines).aggregate([
@@ -736,8 +897,25 @@ export class SeoSearchService {
     return { locale, categories: Object.values(tree) };
   }
 
+  /** Equality clauses for a category name that matches exactly one tree entry in both the locale and Arabic trees, else null. */
+  private async exactCategoryClauses(locale: string, name: string, escaped: string, field: string) {
+    const rx = new RegExp(escaped, 'i');
+    const only = (tree: { categories: { name: string }[] }) => {
+      const hits = tree.categories.filter((c) => rx.test(c.name));
+      return hits.length === 1 && hits[0].name === name;
+    };
+    try {
+      if (!only(await this.publicCategories(locale))) return null;
+      if (field === 'category') return [{ category: name }];
+      if (!only(await this.publicCategories('ar'))) return null;
+      return [{ [field]: name }, { category: name }];
+    } catch {
+      return null;
+    }
+  }
+
   /** Paginated products inside a localized category cluster. */
-  async publicCategoryProducts(locale: string, category: string, sub?: string, page = 1, limit = 24, q?: string, sort: CatalogueSort = 'popular') {
+  async publicCategoryProducts(locale: string, category: string, sub?: string, page = 1, limit = 24, q?: string, sort: CatalogueSort = 'popular', extra: CatalogueFilterInput = {}) {
     const db = productLocaleToDb(locale);
     const key = (f: string) => db === 'ar' ? f : `translations.${db}.${f === 'category' ? 'main_category' : f}`;
     const filter: any = { ...this.publicProductFilter() };
@@ -790,7 +968,10 @@ export class SeoSearchService {
     if (resolvedCat && resolvedCat !== 'all' && resolvedCat !== 'الكل') {
       const cleanTerm = resolvedCat.replace(/^ال/, '').replace(/[\u064B-\u065F\u0670\u0640]/g, '').trim();
       const escaped = cleanTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      filter.$or = [
+      // Fast path: when the name is a real category and no other category name contains the term, the regex
+      // branches add nothing, and plain equality lets the category-led covering index answer the query.
+      const exact = await this.exactCategoryClauses(locale, resolvedCat, escaped, key('category'));
+      filter.$or = exact ?? [
         { [key('category')]: resolvedCat },
         { [key('category')]: { $regex: escaped, $options: 'i' } },
         { category: resolvedCat },
@@ -826,6 +1007,10 @@ export class SeoSearchService {
       }
     }
 
+    // Design parity (#1819): form / brand / rx / price range, validated in catalogue-filters.ts.
+    const extras = catalogueFilterClauses(extra, db);
+    if (extras.and.length) filter.$and = [...(filter.$and || []), ...extras.and];
+
     const perPage = Math.min(Math.max(limit, 1), 48);
     // Popularity-first ordering (views → rating → stable id). Deliberately NOT
     // image-first: imageless medicines were buried under cosmetics on "All".
@@ -833,127 +1018,34 @@ export class SeoSearchService {
     const sortClause: any = sort === 'price_asc' ? { price: 1, _id: 1 }
       : sort === 'price_desc' ? { price: -1, _id: 1 }
       : sort === 'newest' ? { createdAt: -1, _id: 1 }
+      : sort === 'most_ordered' ? { orders_count: -1, _id: 1 }
       : { usage_count: -1, rating: -1, _id: 1 };
     // An explicit price order skips items without a real price (a 0 is "no price", never the cheapest).
     if (sort === 'price_asc' || sort === 'price_desc') filter.price = { $gt: 0 };
+    if (extras.price) filter.price = { ...(filter.price || {}), ...extras.price, ...(extras.price.$gte === undefined && extras.price.$lte !== undefined ? { $gt: 0 } : {}) };
 
-    const cursor = this.conn.collection(CATALOG_COLLECTIONS.medicines)
-      .find(filter, { projection: { _id: 0, id: 1, sku: 1, slug: 1, name_ar: 1, name_en: 1, price: 1, old_price: 1, image_1: 1, image: 1, images: 1, form: 1, strength: 1, package_size: 1, category: 1, sub_category: 1, active_ingredient: 1, requires_prescription: 1, online_exclusive: 1, availability_status: 1, usage_count: 1, translations: 1 } } as any)
-      .sort(sortClause)
-      .skip((Math.max(page, 1) - 1) * perPage)
-      .limit(perPage);
-    const [rows, total] = await Promise.all([cursor.toArray(), this.conn.collection(CATALOG_COLLECTIONS.medicines).countDocuments(filter)]);
-    let items = rows.map((m: any) => {
+    const projection = { _id: 0, id: 1, sku: 1, slug: 1, name_ar: 1, name_en: 1, price: 1, old_price: 1, image_1: 1, image: 1, images: 1, form: 1, strength: 1, package_size: 1, category: 1, sub_category: 1, active_ingredient: 1, requires_prescription: 1, online_exclusive: 1, availability_status: 1, usage_count: 1, translations: 1 };
+    const skip = (Math.max(page, 1) - 1) * perPage;
+    const medicines = this.conn.collection(CATALOG_COLLECTIONS.medicines);
+    // The default order is the ranking's composite score (in stock and with an image first among equals), not the old usage counter.
+    const [rows, total] = await Promise.all([
+      sort === 'popular'
+        ? popularPage(medicines as any, filter, skip, perPage, projection, decodedCat === 'all' && !q)
+        : medicines.find(filter, { projection } as any).sort(sortClause).skip(skip).limit(perPage).toArray(),
+      this.publicListingCount(filter),
+    ]);
+    const items = rows.map((m: any) => {
       const dto = resolveMedicinePublicDto(m, locale);
       return {
         sku: dto.sku, id: dto.id, slug: dto.slug, name: dto.name, form: dto.form, strength: dto.strength,
         package_size: dto.package_size, price: dto.price, old_price: dto.old_price, currency: dto.currency,
         is_rx: dto.is_rx, online_exclusive: dto.online_exclusive, available: dto.available, image: dto.image,
+        // a card with more than one picture turns through them (at most five, the first is `image`)
+        ...(Array.isArray(dto.images) && dto.images.length > 1 ? { images: dto.images.slice(0, 5) } : {}),
       };
     });
-    // Page-1 popularity boost, SCOPED to the requested category by construction:
-    // top composite_score drugs (views + cart adds + purchases) are intersected
-    // with the SAME page filter, so a specific category only ever pins its own
-    // items; 'all' pins the global top. Ranked items move to front in rank
-    // order (not only when absent). Later pages keep pure usage order.
-    // ALL-page diversity: after pins, round-robin across canonical categories
-    // so ALL shows medicines + beauty + hair + baby + vitamins instead of
-    // 24× paracetamol. Max 2 per active ingredient. 60s in-process cache.
-    // Known trade-off: a promoted item whose natural rank is beyond page 1 may
-    // reappear on its natural page (stateless endpoint). Harmless; page-1 wins.
-    if (Math.max(page, 1) === 1 && !q?.trim() && sort === 'popular') {
-      try {
-        const toDto = (m: any) => {
-          const dto = resolveMedicinePublicDto(m, locale);
-          return { sku: dto.sku, id: dto.id, slug: dto.slug, name: dto.name, form: dto.form, strength: dto.strength, package_size: dto.package_size, price: dto.price, old_price: dto.old_price, currency: dto.currency, is_rx: dto.is_rx, online_exclusive: dto.online_exclusive, available: dto.available, image: dto.image };
-        };
-        const isAll = !resolvedCat || resolvedCat === 'all' || resolvedCat === 'الكل';
-        if (isAll) {
-          const cacheKey = `alldiv:${locale}:${perPage}`;
-          const cached = this.sitemapCache.get(cacheKey);
-          if (cached && cached.exp > Date.now()) {
-            items = cached.val;
-          } else {
-            const top: any[] = await this.conn.collection('product_ranking_metrics')
-              .find({ pharmacy_id: 'global' }).sort({ composite_score: -1 }).limit(20)
-              .project({ _id: 0, drug_id: 1 }).toArray().catch(() => []);
-            const ranked = top.map((t: any) => t.drug_id).filter(Boolean);
-            const rankPos = new Map(ranked.map((id: string, i: number) => [id, i]));
-            // A prescription-only item is never promoted (owner decisions 10 and 29): it keeps its natural place.
-            const pins = items.filter((i: any) => rankPos.has(i.id) && !i.is_rx)
-              .sort((a: any, b: any) => rankPos.get(a.id)! - rankPos.get(b.id)!).slice(0, 8);
-            const pinIds = new Set(pins.map((i: any) => i.id));
-            const ingCount = new Map<string, number>();
-            const canonicals = [...new Set(Object.values(CANONICAL_CATEGORY_MAP))];
-            const perCat: any[][] = await Promise.all(canonicals.map((cat) =>
-              this.conn.collection(CATALOG_COLLECTIONS.medicines).find(
-                { ...this.publicProductFilter(), $or: [{ category: cat }, { [key('category')]: cat }] },
-                { projection: { _id: 0 } },
-              ).sort({ usage_count: -1, rating: -1 }).limit(6).toArray().catch(() => []),
-            ));
-            // Seed dedupe + ingredient budget from the usage-ordered base page
-            // (DTOs carry no ingredient, so resolve via the per-category raws).
-            // onPage = every base id (fill must be genuinely new); pins stay a
-            // subset that keeps front position via `rest` below.
-            const onPage = new Set(items.map((i: any) => i.id));
-            const ingOf = new Map<string, string>();
-            for (const docs of perCat) for (const m of docs) {
-              const ing = String(m?.active_ingredient || '').trim();
-              if (m?.id && ing && !ingOf.has(m.id)) ingOf.set(m.id, ing);
-            }
-            const fill: any[] = [];
-            for (let round = 0; round < 6; round++) {
-              for (const docs of perCat) {
-                const m = (docs[round] || null) as any;
-                if (!m?.id || onPage.has(m.id) || fill.some((f: any) => f.id === m.id)) continue;
-                fill.push(toDto(m)); onPage.add(m.id);
-              }
-            }
-            // Final walk in priority order (pins → diverse pool → rest),
-            // enforcing max 2 per active ingredient across the whole page so
-            // one ingredient (e.g. paracetamol) cannot flood ALL page-1.
-            const keep = (dto: any): boolean => {
-              const ing = ingOf.get(dto.id);
-              if (!ing) return true;
-              if ((ingCount.get(ing) || 0) >= 2) return false;
-              ingCount.set(ing, (ingCount.get(ing) || 0) + 1);
-              return true;
-            };
-            // Reset budget: base seeding above only measured; rebuild strictly.
-            ingCount.clear();
-            const rest = items.filter((i: any) => !pinIds.has(i.id));
-            const rebuilt: any[] = [];
-            for (const dto of [...pins, ...fill, ...rest]) {
-              if (rebuilt.length >= perPage) break;
-              if (keep(dto)) rebuilt.push(dto);
-            }
-            if (rebuilt.length) {
-              items = rebuilt;
-              this.sitemapCache.set(cacheKey, { exp: Date.now() + 60 * 1000, val: items });
-            }
-          }
-        } else {
-          const top: any[] = await this.conn.collection('product_ranking_metrics')
-            .find({ pharmacy_id: 'global' }).sort({ composite_score: -1 }).limit(20)
-            .project({ _id: 0, drug_id: 1 }).toArray().catch(() => []);
-          const ranked = top.map((t: any) => t.drug_id).filter(Boolean);
-          const have = new Set(items.map((i: any) => i.id));
-          const missing = ranked.filter((id: string) => !have.has(id));
-          if (missing.length) {
-            const extra: any[] = await this.conn.collection(CATALOG_COLLECTIONS.medicines)
-              .find({ ...filter, id: { $in: missing } }, { projection: { _id: 0 } }).toArray().catch(() => []);
-            for (const m of extra) {
-              if (m?.id && !have.has(m.id)) { items.push(toDto(m)); have.add(m.id); }
-            }
-          }
-          const rankPos = new Map(ranked.map((id: string, i: number) => [id, i]));
-          items = [
-            ...items.filter((i: any) => rankPos.has(i.id) && !i.is_rx).sort((a: any, b: any) => rankPos.get(a.id)! - rankPos.get(b.id)!).slice(0, 8),
-            ...items.filter((i: any) => !rankPos.has(i.id) || i.is_rx),
-          ].slice(0, perPage);
-        }
-      } catch { /* boost is best-effort; base order stands */ }
-    }
+    // No page-1 pins and no round-robin fill any more: the aggregate above already orders the whole list by the composite
+    // score (see POPULAR_ORDER_STAGES), so a product nobody viewed, searched, carted or ordered can no longer jump ahead of one that was.
     return {
       locale, category: decodedCat, sub_category: sub ? safeDecode(sub) : null,
       page: Math.max(page, 1), limit: perPage, total,
@@ -1058,25 +1150,25 @@ export class SeoSearchService {
     const queries: Array<Promise<any>> = [];
     // 1) Same active ingredient (strongest)
     if (med.active_ingredient) {
-      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ active_ingredient: med.active_ingredient, ...PUBLIC_MEDICINE } as any, { projection: card } as any).limit(20).toArray()
+      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ active_ingredient: med.active_ingredient, ...PUBLIC_MEDICINE, ...NOT_PROMOTABLE_FILTER } as any, { projection: card } as any).limit(20).toArray()
         .then(rows => rows.forEach(r => add(r, 50, 'نفس المادة الفعالة'))));
     }
     // 2) Same strength/dosage (within ingredient match)
     if (med.active_ingredient && med.strength) {
-      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ active_ingredient: med.active_ingredient, strength: med.strength, ...PUBLIC_MEDICINE } as any, { projection: card } as any).limit(10).toArray()
+      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ active_ingredient: med.active_ingredient, strength: med.strength, ...PUBLIC_MEDICINE, ...NOT_PROMOTABLE_FILTER } as any, { projection: card } as any).limit(10).toArray()
         .then(rows => rows.forEach(r => add(r, 15, 'نفس التركيز'))));
     }
     // 3) Same category + sub_category (usage similarity)
-    queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ category: med.category, sub_category: med.sub_category, ...PUBLIC_MEDICINE } as any, { projection: card } as any).limit(20).toArray()
+    queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ category: med.category, sub_category: med.sub_category, ...PUBLIC_MEDICINE, ...NOT_PROMOTABLE_FILTER } as any, { projection: card } as any).limit(20).toArray()
       .then(rows => rows.forEach(r => add(r, med.active_ingredient ? 10 : 30, 'نفس الفئة والاستخدام'))));
     // 4) Same brand/manufacturer
     const brand = med.brand || med.manufacturer;
     if (brand) {
-      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ $or: [{ brand }, { manufacturer: brand }], ...PUBLIC_MEDICINE } as any, { projection: card } as any).limit(15).toArray()
+      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ $or: [{ brand }, { manufacturer: brand }], ...PUBLIC_MEDICINE, ...NOT_PROMOTABLE_FILTER } as any, { projection: card } as any).limit(15).toArray()
         .then(rows => rows.forEach(r => add(r, 8, 'نفس البراند'))));
     }
     // 5) Popularity boost (usage_count percentile)
-    queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ category: med.category, ...PUBLIC_MEDICINE } as any, { projection: card } as any).sort({ usage_count: -1 }).limit(10).toArray()
+    queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ category: med.category, ...PUBLIC_MEDICINE, ...NOT_PROMOTABLE_FILTER } as any, { projection: card } as any).sort({ usage_count: -1 }).limit(10).toArray()
       .then(rows => rows.forEach(r => add(r, Math.min(12, (r.usage_count || 0) / 10), 'الأكثر رواجاً'))));
     await Promise.all(queries);
 
@@ -1238,8 +1330,9 @@ export class SeoSearchController {
 
   @Public()
   @Get('medicines/:id/recommendations')
-  medicineRecommendations(@Param('id') id: string, @Query('limit') limit?: string) {
-    return this.svc.medicineRecommendations(id, parseInt(limit || '12'));
+  async medicineRecommendations(@Param('id') id: string, @Query('limit') limit?: string) {
+    // Issue 1555: public fields only (no popularity counter, no old price on a prescription item).
+    return toPublicMedicine(await this.svc.medicineRecommendations(id, parseInt(limit || '12')));
   }
 
   @Public()
@@ -1258,8 +1351,9 @@ export class SeoSearchController {
     return this.svc.publicProductBySlug(locale, slug);
   }
 
-  /** AI-commerce: localized product search. */
+  /** AI-commerce: localized product search. Anonymous answers are shared for 2 minutes (purged by the catalogue tags on every write). */
   @Public()
+  @PublicCache(120, ['medicines', 'public-catalogue'])
   @Get('public/products/search')
   publicProductsSearch(
     @Query('q') q?: string,
@@ -1287,6 +1381,14 @@ export class SeoSearchController {
     return this.svc.publicProductById(locale, id);
   }
 
+  /** Decision D (issue 1556): the variants (powers, colours, shades) of a published product, for the picker. */
+  @Public()
+  @Get('public/product-variants/:locale/:id')
+  publicProductVariants(@Param('locale') locale: string, @Param('id') id: string) {
+    if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new NotFoundException('locale_not_supported');
+    return this.svc.publicProductVariants(locale, String(id || '').slice(0, 120));
+  }
+
   /** AI-commerce: canonical SKU lookup. */
   @Public()
   @Get('public/products/by-sku/:sku')
@@ -1297,6 +1399,9 @@ export class SeoSearchController {
 
   /** Category cluster tree (per locale, live counts). */
   @Public()
+  @UseInterceptors(RedisCacheInterceptor)
+  @PublicCache(300, ['medicines', 'public-catalogue'], { cacheControl: 'public, s-maxage=300, stale-while-revalidate=600' })
+  @Throttle({ default: { limit: 1200, ttl: 60_000 } })
   @Get('public/categories/:locale')
   publicCategories(@Param('locale') locale: string) {
     if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new NotFoundException('locale_not_supported');
@@ -1305,6 +1410,9 @@ export class SeoSearchController {
 
   /** Category cluster products. */
   @Public()
+  @UseInterceptors(RedisCacheInterceptor)
+  @PublicCache(300, ['medicines', 'public-catalogue'], { cacheControl: 'public, s-maxage=300, stale-while-revalidate=600' })
+  @Throttle({ default: { limit: 1200, ttl: 60_000 } })
   @Get('public/categories/:locale/items')
   publicCategoryProducts(
     @Param('locale') locale: string,
@@ -1314,6 +1422,11 @@ export class SeoSearchController {
     @Query('limit') limit?: string,
     @Query('q') q?: string,
     @Query('sort') sort?: string,
+    @Query('form') form?: string,
+    @Query('brand') brand?: string,
+    @Query('rx') rx?: string,
+    @Query('price_min') priceMin?: string,
+    @Query('price_max') priceMax?: string,
   ) {
     if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new NotFoundException('locale_not_supported');
     const cat = category || 'all';
@@ -1324,7 +1437,7 @@ export class SeoSearchController {
       const n = Number.parseInt(raw ?? '', 10);
       return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
     };
-    return this.svc.publicCategoryProducts(locale, cat, sub, bounded(page, 1, 10_000), bounded(limit, 24, 100), q, order);
+    return this.svc.publicCategoryProducts(locale, cat, sub, bounded(page, 1, 10_000), bounded(limit, 24, 100), q, order, { form, brand, rx, price_min: priceMin, price_max: priceMax });
   }
 
   /** Product sitemap page as JSON (the web app renders same-host XML). */
@@ -1335,6 +1448,14 @@ export class SeoSearchController {
     const p = Math.max(parseInt(page || '1'), 1);
     const [urls, total] = await Promise.all([this.svc.publicProductSitemapPage(locale, p), this.svc.publicProductCount()]);
     return { locale, page: p, per_page: 5000, total, pages: Math.max(Math.ceil(total / 5000), 1), urls };
+  }
+
+  /** Merchant Center product feed rows (JSON); the web app renders the XML at /feeds/google-merchant/{locale}.xml. */
+  @Public()
+  @Get('public/feeds/merchant/:locale/:page')
+  async publicMerchantFeed(@Param('locale') locale: string, @Param('page') page: string) {
+    if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new NotFoundException('locale_not_supported');
+    return this.svc.publicMerchantFeedPage(locale, Math.min(Math.max(parseInt(page || '1', 10) || 1, 1), 1000));
   }
 
   /** Lightweight page-count for the sitemap index (countDocuments only — no 5MB bodies). */
@@ -1461,7 +1582,7 @@ export class SeoAdminController {
     for (const p of paths) {
       const t0 = Date.now();
       try {
-        const r = await fetch(base + p, { headers: { 'User-Agent': 'NabdPlus-CacheWarmer/1.0' } });
+        const r = await timedFetch(base + p, { headers: { 'User-Agent': 'NabdPlus-CacheWarmer/1.0' } }, { timeoutMs: 5000, label: 'cache-warmer' }); // best effort: a slow page is recorded as status 0
         out.push({ path: p, status: r.status, ms: Date.now() - t0 });
         await r.arrayBuffer().catch(() => null);
       } catch {

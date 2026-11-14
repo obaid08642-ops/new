@@ -9,12 +9,25 @@ const bodySchema = z.object({
   doctor_id: z.string().uuid(),
   service_type: z.enum(["clinic", "video", "home"]),
   slot_start: z.string().datetime({ offset: true }),
+  // the chosen slot's length, bounded like the backend DTO (10-120 minutes); the booking form sends it (PS-P0-2)
+  duration_minutes: z.number().int().min(10).max(120).optional(),
   payment_method: z.enum(["cash", "card", "insurance"]),
   patient_notes: z.string().trim().max(2000).optional(),
   // The booking form collects who the visit is for; the backend has no fields for them yet (R66), so they are
   // passed to the doctor inside the visit notes instead of failing the whole booking (.strict() rejected them).
   patient_name: z.string().trim().max(120).optional(),
   patient_phone: z.string().trim().max(32).optional(),
+  // the family member the visit is for (the server checks the family group and the booking permission)
+  for_member_id: z.string().regex(/^[A-Za-z0-9_-]{1,128}$/).optional(),
+  // PT-03 (owner decision 1): a dependant of the guardian (a person with no account): the guardian stays the booker and payer, the visit is recorded for them
+  family_member_id: z.string().regex(/^[A-Za-z0-9_-]{1,128}$/).optional(),
+  // the patient agreed to the refund policy before paying (the backend refuses a booking without it; an explicit false is never accepted)
+  refund_policy_accepted: z.literal(true),
+  // PT-08: "I need a medical report" at booking: a request to the doctor, not a guarantee (stored on the appointment by the backend)
+  sick_leave_requested: z.boolean().optional(),
+  // issue 1819: the insurer id of the saved policy (my-policy `insurer_id`), as the app sends it
+  insurance_provider: z.string().trim().min(1).max(128).optional(),
+  insurance_member_id: z.string().trim().min(1).max(80).optional(),
   slot_lock_id: z.string().uuid().optional(),
   visit_location: z.object({
     lat: z.number().min(-90).max(90),

@@ -85,7 +85,7 @@ export const TEAL_TONE: ServiceTone = SERVICE_TONES[8];
 /** The permissions of the API (`permissions` of /family/my-group and the body of /family/member/:id/permissions), each with its glyph. */
 export const PERMISSIONS: { key: string; icon: FillIconName; tone: ServiceTone }[] = [
   { key: 'vitals', icon: 'heartbeat', tone: 'peach' },
-  { key: 'meds', icon: 'pill', tone: 'mint' },
+  { key: 'meds', icon: 'pill', tone: CORAL_TONE },
   { key: 'reports', icon: 'file-text', tone: 'blue' },
   { key: 'appointments', icon: 'calendar-dots', tone: CORAL_TONE },
   { key: 'booking', icon: 'stethoscope', tone: TEAL_TONE },

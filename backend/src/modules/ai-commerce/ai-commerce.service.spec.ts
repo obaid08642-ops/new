@@ -55,8 +55,11 @@ describe('AiCommerceService', () => {
   // The filters the feed sends to provider_profiles and facilities (13-web#6).
   const feedFilters: Record<string, any> = {};
 
+  // finance_config documents by key: `invoice` with a VAT number = the platform is VAT-registered
+  let financeConfig: Record<string, any> = {};
   const mockConnection = {
     collection: jest.fn().mockImplementation((name: string) => {
+      if (name === 'finance_config') return { findOne: jest.fn().mockImplementation(async (q: any) => financeConfig[q?.key] ?? null) };
       if (name === 'medicines') {
         return {
           countDocuments: jest.fn().mockResolvedValue(mockMedicines.length),
@@ -157,7 +160,7 @@ describe('AiCommerceService', () => {
       );
     });
 
-    it('creates an OTC checkout session with 15% VAT and checkout URLs', async () => {
+    it('creates an OTC checkout session; the price carries no platform VAT (model A) and checkout URLs', async () => {
       const session = await service.createCheckoutSession({
         items: [{ type: 'medicine', id: 'panadol-advance', quantity: 2 }],
         locale: 'ar',
@@ -166,11 +169,20 @@ describe('AiCommerceService', () => {
       expect(session.session_id).toMatch(/^ai_chk_/);
       expect(session.requires_prescription).toBe(false);
       expect(session.pricing.subtotal).toBe(37.0);
-      expect(session.pricing.vat_amount).toBe(5.55);
-      expect(session.pricing.total_sar).toBe(42.55);
+      expect(session.pricing.vat_amount).toBe(0);
+      expect(session.pricing.total_sar).toBe(37.0); // the total is the price: VAT is never added on top
+      expect(session.pricing.tax_registered).toBe(false);
       expect(session.checkout_url).toContain('https://nabd.plus/ar/checkout/session/');
       expect(session.deep_link).toContain('nabdplus://checkout/session/');
       expect(session.governance.human_approval_required).toBe(true);
+    });
+
+    it('with a VAT number on file the price still carries no platform VAT: items are no delivery fee; the rate is reported', async () => {
+      financeConfig = { invoice: { seller_name: 'منصة نبض الطبية', vat_number: '300000000000003' }, commissions: { tax: { vat_percent: 15 } } };
+      try {
+        const session = await service.createCheckoutSession({ items: [{ type: 'medicine', id: 'panadol-advance', quantity: 2 }], locale: 'ar' });
+        expect(session.pricing).toMatchObject({ subtotal: 37, vat_amount: 0, vat_rate: 0.15, tax_registered: true, total_sar: 37 });
+      } finally { financeConfig = {}; }
     });
 
     it('flags prescription requirement when an Rx item is included', async () => {

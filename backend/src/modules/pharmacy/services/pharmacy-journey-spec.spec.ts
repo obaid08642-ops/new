@@ -88,4 +88,25 @@ describe('Pharmacy journey — master spec', () => {
     const out = await s.findEligiblePharmaciesWithin({ lat: 0, lng: 0 }, 15, { extended: true });
     expect(out.map((p: any) => p.account_id)).toEqual(['in14']);
   });
+
+  it('an insurance order reaches only pharmacies contracted for the patient company AND class; a self-pay order reaches all', async () => {
+    const contract = (company_id: string, classes: string[], active = true) => ({ company_id, classes, active });
+    const s = svc([
+      { account_id: 'ok', geo: { lat: 1, lng: 0 }, insurance_class_contracts: [contract('bupa', ['A', 'B'])] },
+      { account_id: 'wrong-class', geo: { lat: 1, lng: 0 }, insurance_class_contracts: [contract('bupa', ['C'])] },
+      { account_id: 'wrong-company', geo: { lat: 1, lng: 0 }, insurance_class_contracts: [contract('tawuniya', ['A'])] },
+      { account_id: 'inactive', geo: { lat: 1, lng: 0 }, insurance_class_contracts: [contract('bupa', ['A'], false)] },
+      { account_id: 'legacy-ids', geo: { lat: 1, lng: 0 }, accepted_insurance: ['bupa'] },
+      { account_id: 'none', geo: { lat: 1, lng: 0 } },
+    ]);
+    const ins = await s.findEligiblePharmaciesWithin({ lat: 0, lng: 0 }, 8, { insurance: { companyKeys: ['bupa'], cls: 'A' } });
+    expect(ins.map((p: any) => p.account_id)).toEqual(['ok']);
+    const self = await s.findEligiblePharmaciesWithin({ lat: 0, lng: 0 }, 8, {});
+    expect(self).toHaveLength(6);
+  });
+
+  it('an insurance order whose policy has no class reaches no pharmacy (fails closed)', async () => {
+    const s = svc([{ account_id: 'ok', geo: { lat: 1, lng: 0 }, insurance_class_contracts: [{ company_id: 'bupa', classes: ['A'], active: true }] }]);
+    expect(await s.findEligiblePharmaciesWithin({ lat: 0, lng: 0 }, 8, { insurance: { companyKeys: ['bupa'], cls: '' } })).toEqual([]);
+  });
 });

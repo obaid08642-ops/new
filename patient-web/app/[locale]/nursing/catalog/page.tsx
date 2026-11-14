@@ -1,16 +1,23 @@
+import { SUGGEST_SCOPES } from "@/lib/search/suggest";
 import { notFound } from "next/navigation";
 import { StaleWhileRevalidate } from "@/components-next/nav/stale-while-revalidate";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractNursingCatalog } from "@/lib/api/nursing-catalog";
-import { getPublicNursingCatalog } from "@/lib/api/nursing-catalog-server";
+import { getPublicNursingCatalog, getPublicNursingServices } from "@/lib/api/nursing-catalog-server";
 import { getDirection, isLocale, locales } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { RowCard } from "@/components-next/consult/consult-parts";
 import { Caret, NURSING, RowList, ServiceChips, serviceIcon } from "@/components-next/nursing/nursing-parts";
-import { SearchForm, money, pickText } from "@/components-next/diagnostics/diag-parts";
+import { nursingOfferLine } from "@/components-next/nursing/nursing-offers";
+import { SearchForm } from "@/components-next/diagnostics/diag-parts";
+import { pickName, pickTexts, perLocaleOf, textsInclude } from "@/lib/i18n/localized";
+import { LocalizedField } from "@/components-next/ui/localized-field";
 import type { Metadata } from "next";
+import { AddToBasketIcon } from "@/components-next/ordering/add-to-basket";
+import { BasketBar } from "@/components-next/ordering/basket-bar";
+import styles from "@/components-next/ordering/ordering.module.css";
 
 /**
  * The service length in the page's language (needs-review issue 1071): the server sends a value and an English unit
@@ -55,9 +62,11 @@ export default async function NursingCatalogPage({ params, searchParams }: Props
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("NursingWeb");
+  const w = await getTranslations("DiagWeb");
   let items: ReturnType<typeof extractNursingCatalog> = [];
   try {
-    const response = await getPublicNursingCatalog();
+    // the same list as the home care hub (GET /home-care/services): every catalogue service with what nurses offer for it
+    const response = await getPublicNursingServices().then((r) => (r && r.ok ? r : getPublicNursingCatalog()));
     if (response && response.ok) {
       items = extractNursingCatalog(await response.json().catch(() => null));
     }
@@ -66,13 +75,13 @@ export default async function NursingCatalogPage({ params, searchParams }: Props
   // journeys#63: the one services list (the home care hub's "browse services" lands here too), with its search.
   const query = q.trim().toLocaleLowerCase(locale);
   const shown = query
-    ? items.filter((item) => [item.nameAr, item.nameEn, item.descriptionAr, item.descriptionEn].filter(Boolean).some((v) => v!.toLocaleLowerCase(locale).includes(query)))
+    ? items.filter((item) => textsInclude(item.names, query, locale) || textsInclude(item.descriptions, query, locale))
     : items;
 
   return (
     <ConsultPage locale={locale} title={t("catalogTitle")} backHref={`/${locale}/home-care`}>
       <StaleWhileRevalidate />
-      {items.length > 0 ? <SearchForm defaultValue={q} placeholder={t("searchPlaceholder")} label={t("searchLabel")} submitLabel={t("searchSubmit")} /> : null}
+      {items.length > 0 ? <SearchForm suggest={{ locale, scope: SUGGEST_SCOPES.nursing }} defaultValue={q} placeholder={t("searchPlaceholder")} label={t("searchLabel")} submitLabel={t("searchSubmit")} /> : null}
       {items.length === 0 ? (
         <ConsultState kind="empty" icon={NURSING.icon} tone={NURSING.tone} title={t("catalogEmptyTitle")} body={t("catalogEmptyBody")} />
       ) : shown.length === 0 ? (
@@ -80,25 +89,28 @@ export default async function NursingCatalogPage({ params, searchParams }: Props
       ) : (
         <RowList label={t("catalogTitle")}>
           {shown.map((item) => {
-            const name = pickText(locale, item.nameAr, item.nameEn) ?? "";
-            const description = pickText(locale, item.descriptionAr, item.descriptionEn);
+            const name = pickName(locale, item.names) ?? "";
+            const description = pickTexts(locale, item.descriptions);
             const duration = localDuration(locale, item.durationValue, item.duration);
+            const offer = nursingOfferLine({ locale, tr: (key, values) => w(key, values), offer: item.offer, price: item.price });
             return (
-              <li key={item.id}>
+              <li key={item.id} className={styles.rowWithAdd}>
                 <RowCard
                   href={`/${locale}/home-care/services/${encodeURIComponent(item.id)}`}
                   icon={serviceIcon(item.id, item.category, item.nameAr, item.nameEn)}
                   tone={NURSING.tone}
-                  title={name}
-                  sub={[description, item.price !== undefined ? money(locale, item.price) : ""].filter(Boolean).join(" · ") || undefined}
-                  extra={<ServiceChips duration={duration || undefined} insurance={item.insuranceAvailable ? t("insurance") : undefined} />}
+                  title={<LocalizedField locale={locale} ar={item.names.ar} en={item.names.en} />}
+                  sub={description || offer.line ? <>{description ? <LocalizedField locale={locale} ar={item.descriptions.ar} en={item.descriptions.en} perLocale={perLocaleOf(item.descriptions)} /> : null}{description && offer.line ? " · " : null}{offer.line}</> : undefined}
+                  extra={<ServiceChips duration={duration || undefined} insurance={item.insuranceAvailable ? t("insurance") : undefined} extras={offer.chips} />}
                   caret={caret}
                 />
+                <AddToBasketIcon kind="nursing" line={{ id: item.id, nameAr: item.nameAr, nameEn: item.nameEn }} name={name} disabled={offer.none} />
               </li>
             );
           })}
         </RowList>
       )}
+      <BasketBar locale={locale} kind="nursing" place="home" pay="cash" />
     </ConsultPage>
   );
 }

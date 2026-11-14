@@ -1,3 +1,4 @@
+import { webauthnOrigins, webauthnRpId } from '../../common/webauthn-config';
 import { Injectable, UnauthorizedException, BadRequestException, ForbiddenException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -41,13 +42,13 @@ export class PasskeyService {
   ) {}
 
   private get rpID() {
-    return process.env.WEBAUTHN_RP_ID || 'nabd.plus';
+    return webauthnRpId();
   }
   private get rpName() {
     return process.env.WEBAUTHN_RP_NAME || 'Nabd Admin';
   }
   private get origin() {
-    return (process.env.WEBAUTHN_ORIGIN || 'https://admin.nabd.plus').split(',').map((s) => s.trim());
+    return webauthnOrigins();
   }
   /** The single admin email subject to mandatory Passkey 2FA. */
   get designatedEmail() {
@@ -273,7 +274,7 @@ export class PasskeyService {
       });
     } catch (e: any) {
       // Never log credential ids or user ids on a failed assertion.
-      this.logger?.warn?.(`passkey_login_rejected rp=${this.rpID} reason=${e?.message}`);
+      this.logger?.warn?.(`passkey_login_rejected rp=${this.rpID} origins=${this.origin.join(',')} reason=${e?.message}`);
       throw new UnauthorizedException('passkey_verification_failed');
     }
     if (!verification.verified) throw new UnauthorizedException('passkey_verification_failed');

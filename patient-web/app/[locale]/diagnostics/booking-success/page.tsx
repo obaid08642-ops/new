@@ -29,7 +29,7 @@ export default async function DiagnosticsBookingSuccessPage({ params, searchPara
   const visual = domain === "labs" ? LAB : RADIOLOGY;
 
   return (
-    <ConsultPage locale={locale} title={t("successTitle")} backHref={`/${locale}/diagnostics/bookings`}>
+    <ConsultPage locale={locale} title={t("successTitle")} backHref={`/${locale}/orders`}>
       <section className={`${rx.card} ${consult.hero}`} role="status">
         <FIcon icon="check-circle" tone={visual.tone} size={72} />
         <div className={consult.heroText}>
@@ -46,7 +46,7 @@ export default async function DiagnosticsBookingSuccessPage({ params, searchPara
       <ActionLinks
         actions={[
           { href: diagnosticBookingHref(locale, domain, bookingId), label: t("bookingDetailsCta") },
-          { href: `/${locale}/diagnostics/bookings`, label: t("myRequests"), variant: "outline" },
+          { href: `/${locale}/orders`, label: t("myRequests"), variant: "outline" },
           { href: `/${locale}/diagnostics`, label: t("backToHub"), variant: "ghost" },
         ]}
       />

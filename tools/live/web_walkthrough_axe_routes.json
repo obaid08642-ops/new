@@ -1,0 +1,115 @@
+{
+ "pharmacy": [
+  "/cart",
+  "/orders",
+  "/prescriptions",
+  "/wishlist",
+  "/returns",
+  "/pharmacy/request",
+  "/pharmacy/rx-order",
+  "/pharmacy/scan-prescription",
+  "/drug-scanner"
+ ],
+ "doctors": [
+  "/doctors",
+  "/consultations",
+  "/consultations/specialties",
+  "/consultations/doctors",
+  "/appointments",
+  "/medical-orders",
+  "/consultations/instant",
+  "/consultations/call-history"
+ ],
+ "labs": [
+  "/diagnostics",
+  "/diagnostics/labs",
+  "/diagnostics/packages",
+  "/diagnostics/search",
+  "/diagnostics/cart",
+  "/diagnostics/bookings",
+  "/diagnostics/results",
+  "/labs/basket",
+  "/diagnostics/lab-comparison"
+ ],
+ "radiology": [
+  "/radiology",
+  "/diagnostics/radiology"
+ ],
+ "nursing": [
+  "/nursing",
+  "/home-care",
+  "/home-care/services",
+  "/home-nursing",
+  "/nursing/visits",
+  "/nursing/catalog",
+  "/home-care/providers"
+ ],
+ "insurance": [
+  "/insurance",
+  "/insurance/add-policy",
+  "/insurance/claims",
+  "/insurance/benefits",
+  "/insurance/coverage-check",
+  "/insurance/network-providers",
+  "/insurance/copay"
+ ],
+ "offers_articles": [
+  "/offers",
+  "/articles",
+  "/search",
+  "/services",
+  "/community",
+  "/programs"
+ ],
+ "maternity": [
+  "/maternity",
+  "/maternity/tracker",
+  "/maternity/maternity-setup",
+  "/maternity/baby-growth"
+ ],
+ "mental_health": [
+  "/mental-health",
+  "/mental-health/mood",
+  "/mental-health/self-assessment",
+  "/mental-health/breathing",
+  "/mental-health/crisis-contacts"
+ ],
+ "nutrition": [
+  "/nutrition",
+  "/nutrition/plan",
+  "/nutrition/daily-tracker",
+  "/nutrition/water-tracker",
+  "/nutrition/log-meal"
+ ],
+ "family": [
+  "/family",
+  "/family/add",
+  "/family/calendar"
+ ],
+ "account": [
+  "/profile",
+  "/profile/edit",
+  "/profile/addresses",
+  "/settings",
+  "/settings/language",
+  "/settings/notifications",
+  "/notifications",
+  "/loyalty",
+  "/support",
+  "/dashboard",
+  "/health",
+  "/health/records"
+ ],
+ "ai": [
+  "/ai",
+  "/ai/symptom-checker",
+  "/ai/chat-doctor",
+  "/ai/report"
+ ],
+ "misc": [
+  "/emergency",
+  "/map",
+  "/offline",
+  "/provider-info"
+ ]
+}

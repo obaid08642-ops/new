@@ -3,6 +3,7 @@ import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { trackingId, TRACK_PREFIX } from '../common/tracking';
 import { InsuranceDetails, InsuranceDetailsSchema } from './insurance.schema';
+import { halalaShadowPlugin } from '../common/halala-shadow';
 
 @Schema({ timestamps: true, collection: 'lab_services' })
 export class LabService extends Document {
@@ -12,12 +13,8 @@ export class LabService extends Document {
   @Prop() short_code?: string; // e.g., CBC, FBS, TSH
   @Prop() description_ar?: string;
   @Prop() description_en?: string;
-  // #1556 F: names, descriptions and preparation in the six app languages, and the published content
+  // #1556 F: descriptions and preparation in the six app languages (the NAME stays Arabic and English only, owner 2026-10-25), and the published content
   // (purpose, turnaround) from catalogs/content/services-content.v1.json.
-  @Prop() name_ur?: string;
-  @Prop() name_hi?: string;
-  @Prop() name_bn?: string;
-  @Prop() name_tl?: string;
   @Prop() description_ur?: string;
   @Prop() description_hi?: string;
   @Prop() description_bn?: string;
@@ -123,6 +120,10 @@ export class LabBooking extends Document {
   @Prop({ default: [] }) reports: any[]; // [{name, url_base64, uploaded_at}]
   @Prop() technician_id?: string;
   @Prop() notes?: string;
+  /** Owner decision 1: the family member this is for; the booker (patient_id) is unchanged. Absent = for the booker. */
+  @Prop({ type: String, required: false, index: true }) family_member_id?: string;
+  /** The refund policy the patient agreed to before paying (common/refund-policy-acceptance.ts): the tick, its time and the policy version. */
+  @Prop({ type: Object, required: false }) refund_policy_acceptance?: { accepted: boolean; at: Date; version: string; hash?: string; service?: string };
   /** P17-17.5: UTM campaign attribution (utm_source/medium/campaign/term/content). */
   @Prop({ type: Object, required: false }) attribution?: Record<string, string>;
   @Prop({ enum: ['cash', 'card', 'insurance'], default: 'cash' }) payment_method: string;
@@ -154,8 +155,22 @@ export class LabBooking extends Document {
   @Prop() transaction_id?: string;
   @Prop() paid_at?: Date;
   @Prop() refund_status?: string;
+
+  // M3 ordering engine: the group the booking belongs to, and the price that was shown and locked at booking.
+  @Prop({ index: true }) order_group_id?: string;
+  @Prop() price_locked_at?: Date;
+  @Prop({ type: Object }) price_lock?: { quote_id: string; items: Array<{ catalog_id: string; price: number }>; home_fee: number };
+  @Prop() medical_order_id?: string;
+  @Prop() gender_preference?: string;
+  @Prop() scheduled_asap?: boolean;
+  @Prop() scheduled_start?: Date; // visit start the approval's validity is compared with (equals scheduled_at when booked)
+  // M3/M5 presentation status of an ordering booking: pending | awaiting_approval | awaiting_patient_choice | cancelled
+  @Prop({ index: true }) status?: string;
 }
 export const LabBookingSchema = SchemaFactory.createForClass(LabBooking);
+// R11 P1: the booking's own SAR doubles get an integer `<field>_halalas` next to them (halalaShadowPlugin); the backfill uses the same list.
+export const LAB_BOOKING_HALALA_FIELDS = ['total', 'service_fee', 'home_visit_fee', 'transportation_fee', 'total_price', 'insurance_copay'];
+halalaShadowPlugin(LabBookingSchema, LAB_BOOKING_HALALA_FIELDS);
 LabBookingSchema.index({ patient_id: 1, createdAt: -1 });
 LabBookingSchema.index({ state: 1, scheduled_at: 1 });
 

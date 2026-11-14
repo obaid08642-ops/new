@@ -2,14 +2,16 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { cdnImage, getPublicEquivalents, readPublicProduct, type PublicProduct, type PublicProductCard } from "@/lib/api/public-products-server";
+import { FieldText } from "@/components-next/ui/localized-field";
+import { markByScript, type FieldMark } from "@/lib/i18n/localized-field";
+import { fallbackMark, fallbackNoteKey, type FallbackMark } from "@/lib/content-language";
+import { cdnImage, getPublicEquivalents, getPublicVariants, readPublicProduct, type PublicProduct, type PublicProductCard } from "@/lib/api/public-products-server";
 import { PublicDataUnavailableError } from "@/lib/api/public-unavailable";
 import { JsonLd } from "@/components-next/json-ld";
 import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl, siteOrigin } from "@/lib/seo";
 import { howToJsonLd } from "@/lib/seo/json-ld";
 import { DirectAnswer, speakableSpec } from "@/components-next/seo/direct-answer";
-import { CiteThis } from "@/components-next/cite-this";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { StickyFooter } from "@/components-next/ui-generated/shells/StickyFooter";
 import { Card } from "@/components-next/ui-generated/components/Surfaces";
@@ -17,8 +19,12 @@ import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { CatalogSearch } from "@/components-next/pharmacy/catalog-search";
 import { ChipLink } from "@/components-next/pharmacy/chip-link";
-import { BuyActions, BuyBar, BuyProvider } from "@/components-next/pharmacy/product-buy";
+import { BuyActions, BuyBar, BuyPrice, BuyProvider, type BuyVariant } from "@/components-next/pharmacy/product-buy";
+import { VariantGallery, VariantPicker } from "@/components-next/pharmacy/variant-picker";
 import { ProductGallery } from "@/components-next/pharmacy/product-gallery";
+import { ProductShare } from "@/components-next/pharmacy/product-share";
+import { SuggestChange } from "@/components-next/pharmacy/suggest-change";
+import { ProductViewBeacon } from "@/components-next/pharmacy/product-view-beacon";
 import { ProductGrid, type GridProduct } from "@/components-next/pharmacy/product-grid";
 import { productCardImageSrc } from "@/components-next/pharmacy/catalog-image";
 import { promoOldPrice, promoPercent } from "@/lib/discount";
@@ -27,6 +33,7 @@ import { ProductSections, type DetailGroup, type DetailSection } from "@/compone
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
 import { englishNameUnder } from "@/lib/english-name-under";
 import styles from "@/components-next/pharmacy/product-detail.module.css";
+import { FILL_PRESCRIPTION } from "@/components-next/ui-generated/icons/glyphs/prescription";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -202,6 +209,13 @@ export default async function PublicProductPage({ params }: Props) {
   const crossedPrice = promoOldPrice(product, product.price, product.old_price);
   const money = formatPrice(locale, product.price);
 
+  // Decision D (issue 1556): the product's variants (powers, colours, shades), each its own record with its own SKU and price.
+  const variants: BuyVariant[] = (await getPublicVariants(locale, product)).map((v) => ({
+    id: v.id, sku: v.sku, slug: v.slug, name: v.name || name, price: v.price, image: cdnImage(v.image) || null,
+    available: v.available && v.price > 0, power: v.variant.power, colour: v.variant.colour, shade: v.variant.shade, kind: v.variant.kind,
+  }));
+  const hasVariants = variants.length > 1;
+
   // Issue 1547: equivalents by the normalized active ingredient (same strength first), or, when there is none, similar
   // products of the same therapeutic class / category. Both empty: no section and no heading.
   const related = await getPublicEquivalents(locale, product.id);
@@ -224,37 +238,47 @@ export default async function PublicProductPage({ params }: Props) {
   const alternatives = related.equivalents.map(toGrid);
   const similar = related.similar.map(toGrid);
 
-  const section = (id: string, title: string, items: string[]): DetailSection | null => (items.length ? { id, title, items } : null);
+  // A section the API had to take from another language says so: lang/dir on its text and a note in the reader's language.
+  const section = (id: string, title: string, items: string[], field?: string): DetailSection | null => {
+    if (!items.length) return null;
+    const mark = field ? fallbackMark(product.fallback_langs, field, locale) : null;
+    const noteKey = mark ? fallbackNoteKey(mark.lang) : null;
+    return mark && noteKey ? { id, title, items, lang: mark.lang, dir: mark.dir, note: t(noteKey) } : { id, title, items };
+  };
   const group = (id: string, title: string, parts: Array<DetailSection | null>): DetailGroup | null => {
     const sections = parts.filter((p): p is DetailSection => p !== null);
     return sections.length ? { id, title, sections } : null;
   };
   const groups = [
     group("usage", b("groupUsage"), [
-      section("description", t("description"), lines(product.description)),
-      section("indications", t("indications"), product.indications || []),
-      section("dosage", t("dosage"), lines(product.dosage_instructions)),
-      section("howToUse", t("howToUse"), product.how_to_use || []),
+      section("description", t("description"), lines(product.description), "description"),
+      section("indications", t("indications"), product.indications || [], "indications"),
+      section("dosage", t("dosage"), lines(product.dosage_instructions), "dosage_instructions"),
+      section("howToUse", t("howToUse"), product.how_to_use || [], "how_to_use"),
     ]),
-    group("warnings", t("warnings"), [section("warnings", t("warnings"), product.warnings || [])]),
-    group("sideEffects", t("sideEffects"), [section("sideEffects", t("sideEffects"), product.side_effects || [])]),
+    // issue 1819: the active ingredients recorded as interacting with this product (leaflet information, as stored)
+    group("warnings", t("warnings"), [section("warnings", t("warnings"), product.warnings || [], "warnings"), section("interactions", t("interactions"), product.interactions || [])]),
+    group("sideEffects", t("sideEffects"), [section("sideEffects", t("sideEffects"), product.side_effects || [], "side_effects")]),
     group("more", b("groupMore"), [
-      section("storage", t("storage"), lines(product.storage_conditions)),
-      section("packageContent", t("packageContent"), lines(product.package_content_details)),
-      section("brandBenefits", t("brandBenefits"), lines(product.brand_benefits)),
+      section("storage", t("storage"), lines(product.storage_conditions), "storage_conditions"),
+      section("packageContent", t("packageContent"), lines(product.package_content_details), "package_content_details"),
+      section("brandBenefits", t("brandBenefits"), lines(product.brand_benefits), "brand_benefits"),
     ]),
   ].filter((g): g is DetailGroup => g !== null);
 
-  const facts: Array<[string, string]> = ([
-    [t("form"), product.form],
-    [t("strength"), product.strength],
-    [t("packageSize"), product.package_size || product.package_content_details],
-    [t("manufacturer"), product.manufacturer],
-    [t("origin"), product.country_of_origin],
-    [medicines("prescription"), product.is_rx ? medicines("yes") : medicines("no")],
-  ] as Array<[string, string | null | undefined]>).filter((row): row is [string, string] => Boolean(row[1]));
+  const facts: Array<[string, string, FallbackMark | null]> = ([
+    [t("form"), product.form, fallbackMark(product.fallback_langs, "form", locale)],
+    [t("strength"), product.strength, fallbackMark(product.fallback_langs, "strength", locale)],
+    [t("packageSize"), product.package_size || product.package_content_details, fallbackMark(product.fallback_langs, "package_size", locale)],
+    [t("manufacturer"), product.manufacturer, null],
+    [t("origin"), product.country_of_origin, null],
+    [medicines("prescription"), product.is_rx ? medicines("yes") : medicines("no"), null],
+  ] as Array<[string, string | null | undefined, FallbackMark | null]>).filter((row): row is [string, string, FallbackMark | null] => Boolean(row[1]));
 
   // Decision E (issue 1556): ur, hi and bn show the English name under the localized one, so patient and pharmacist read the same product.
+  // The name is one string the API localized: its own lang/dir when the script is not the page's, and the note when the API says it fell back.
+  const nameFallback = fallbackMark(product.fallback_langs, "name", locale);
+  const nameMark: FieldMark | undefined = nameFallback ? { lang: nameFallback.lang, dir: nameFallback.dir, fallbackFrom: nameFallback.lang === "ar" ? "ar" : nameFallback.lang === "en" ? "en" : null } : markByScript(locale, name);
   const englishName = englishNameUnder(locale, name, product.english_name);
   const names = lines(product.official_name !== name && product.official_name !== englishName ? product.official_name : null);
   const ingredient = product.active_ingredient ? b("activeIngredientLine", { value: product.active_ingredient }) : null;
@@ -263,6 +287,7 @@ export default async function PublicProductPage({ params }: Props) {
   return (
     <BuyProvider
       locale={locale}
+      variants={hasVariants ? variants : undefined}
       product={{
         id: product.id,
         name,
@@ -308,13 +333,19 @@ export default async function PublicProductPage({ params }: Props) {
           </nav>
 
           <section className={styles.hero}>
-            <ProductGallery name={name} images={images} itemId={product.id} locale={locale} badge={percent > 0 ? t("discount", { percent: formatNumber(locale, percent) }) : undefined} />
+            {hasVariants ? (
+              <VariantGallery name={name} images={images} pageProductId={product.id} locale={locale} badge={percent > 0 ? t("discount", { percent: formatNumber(locale, percent) }) : undefined} />
+            ) : (
+              <ProductGallery name={name} images={images} itemId={product.id} locale={locale} badge={percent > 0 ? t("discount", { percent: formatNumber(locale, percent) }) : undefined} />
+            )}
 
             <div className={styles.info}>
               <div className={styles.chipsRow}>
-                <StatusChip label={product.is_rx ? t("rxRequired") : t("otc")} tone={product.is_rx ? "amber" : "mint"} />
+                <StatusChip label={product.is_rx ? t("rxRequired") : t("otc")} tone={product.is_rx ? "amber" : "ink"} />
                 <StatusChip label={product.available ? t("available") : discontinued ? t("unavailable") : t("limited")} tone={product.available ? "mint" : "amber"} />
-                {product.online_exclusive === true ? <StatusChip label={t("onlineOnly")} tone="mint" /> : null}
+                {product.online_exclusive === true ? <StatusChip label={t("onlineOnly")} tone="ink" /> : null}
+                {product.cold_chain === true ? <StatusChip label={t("coldChain")} tone="blue" /> : null}
+                <ProductShare name={name} url={canonical} />
               </div>
               {product.category && categoryPath ? (
                 <div className={styles.catChips}>
@@ -323,7 +354,7 @@ export default async function PublicProductPage({ params }: Props) {
               ) : null}
 
               <div className={styles.names}>
-                <h1 className={styles.title}>{name}</h1>
+                <h1 className={styles.title}><FieldText text={name} mark={nameMark} /></h1>
                 {englishName ? <p className={styles.englishName} lang="en" dir="ltr" data-testid="english-name">{englishName}</p> : null}
                 <DirectAnswer sentences={[
                   product.active_ingredient ? seo("productIngredient", { name, ingredient: product.active_ingredient }) : null,
@@ -338,7 +369,14 @@ export default async function PublicProductPage({ params }: Props) {
               </div>
 
               <Card elevation="card" padding="lg">
-                {hasPrice ? (
+                {hasVariants ? <VariantPicker locale={locale} /> : null}
+                {hasPrice && hasVariants ? (
+                  <div className={styles.priceBlock}>
+                    {/* each variant has its own price: drawn for the chosen one (no crossed-out price across variants) */}
+                    <BuyPrice locale={locale} className={styles.priceRow} amountClassName={styles.price} currencyClassName={styles.currency} />
+                    <div className={styles.priceNote}>{b("taxIncluded")}</div>
+                  </div>
+                ) : hasPrice ? (
                   <div className={styles.priceBlock}>
                     <div className={styles.priceRow}>
                       <strong className={styles.price}>{money.amount}</strong>
@@ -362,7 +400,7 @@ export default async function PublicProductPage({ params }: Props) {
 
                 {product.is_rx ? (
                   <div className={styles.rxCard}>
-                    <FIcon icon="prescription" tone={PHARMACY_TONE} size={44} />
+                    <FIcon icon="prescription" glyph={FILL_PRESCRIPTION} tone={PHARMACY_TONE} size={44} />
                     <div className={styles.rxBody}>
                       <p className={styles.rxTitle}>{b("rxCardTitle")}</p>
                       <p className={styles.rxText}>{b("rxCardBody")}</p>
@@ -382,10 +420,10 @@ export default async function PublicProductPage({ params }: Props) {
                 <section className={styles.factsBlock} aria-label={t("facts")}>
                   <h2 className={styles.blockTitle}>{t("facts")}</h2>
                   <dl className={styles.factsList}>
-                    {facts.map(([label, value]) => (
+                    {facts.map(([label, value, mark]) => (
                       <div className={styles.fact} key={label}>
                         <dt className={styles.factLabel}>{label}</dt>
-                        <dd className={styles.factValue}>{value}</dd>
+                        <dd className={styles.factValue} lang={mark?.lang} dir={mark?.dir}>{value}</dd>
                       </div>
                     ))}
                   </dl>
@@ -420,7 +458,7 @@ export default async function PublicProductPage({ params }: Props) {
                 <>
                   <h2 className={styles.blockTitle}>{b("detailsTitle")}</h2>
                   <div className={styles.detailsCard}>
-                    <ProductSections groups={groups} label={b("detailsTitle")} />
+                    <ProductSections groups={groups} label={b("detailsTitle")} locale={locale} />
                     <div className={styles.legal}>
                       <p>{t("disclaimer")}</p>
                       <div className={styles.ids}>
@@ -442,14 +480,8 @@ export default async function PublicProductPage({ params }: Props) {
             </section>
           </div>
 
-          <CiteThis
-            title={name}
-            uri={canonical}
-            author={null}
-            authorTitle={null}
-            publishedAt={null}
-            locale={locale}
-          />
+          <SuggestChange medicineId={product.id} locale={locale} />
+          <ProductViewBeacon medicineId={product.id} />
         </div>
       </CoreShell>
     </BuyProvider>

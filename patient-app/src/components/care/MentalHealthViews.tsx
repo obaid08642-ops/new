@@ -77,8 +77,16 @@ export function MoodJournalView() {
     setSaving(true);
     setError(null);
     setSaved(false);
+    let payload: ReturnType<typeof buildMoodJournalPayload>;
     try {
-      const payload = buildMoodJournalPayload({ mood, energy, stress, sleep, note, tags });
+      payload = buildMoodJournalPayload({ mood, energy, stress, sleep, note, tags });
+    } catch {
+      // the only typed field the builder can refuse is the sleep hours: say so instead of "could not save"
+      setError(k('health.sleep.badHours'));
+      setSaving(false);
+      return;
+    }
+    try {
       await apiFetch('/mental-health/mood', { method: 'POST', body: JSON.stringify(payload) });
       setMood(null);
       setTags([]);

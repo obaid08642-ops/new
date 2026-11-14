@@ -4,6 +4,7 @@ import { ProviderType, ProviderStatus } from '../common/enums';
 import { v4 as uuid } from 'uuid';
 import { InsuranceNetworkContract, InsuranceNetworkContractSchema } from './insurance.schema';
 import { buildSlug } from '../common/slug.util';
+import { DEFAULT_COMMISSION_PERCENT } from '../common/commission-defaults';
 
 /**
  * Q-12: GeoJSON point as its own sub-schema. Declared inline, Mongoose reads the inner `type` key as a type
@@ -78,12 +79,23 @@ export class ProviderProfile {
   // written by patients never became visible on provider profiles.
   @Prop({ default: 0 }) rating_avg: number;
   @Prop({ default: 0 }) rating_count: number;
+  @Prop({ type: Object }) sub_ratings_avg?: { doctor: number | null; clinic: number | null; waiting: number | null };
   @Prop() iban?: string;
   @Prop() bank_account_name?: string;
   // Doctor-specific
   @Prop() specialty?: string;
   @Prop({ default: [] }) sub_specialties: string[];
   @Prop() title?: string; // Dr., Prof., etc
+  // Owner-approved doctor profile fields (2026-10-24); all optional, expand-only.
+  @Prop({ type: [{ university: String, graduation_year: Number, fellowship_board: String, _id: false }], default: [] })
+  education: Array<{ university: string; graduation_year?: number | null; fellowship_board?: string | null }>;
+  @Prop() follow_up_price?: number;
+  @Prop() follow_up_window_days?: number; // a follow-up within this many days is charged follow_up_price
+  @Prop({ type: [{ name_ar: String, name_en: String, price: Number, _id: false }], default: [] })
+  procedures: Array<{ name_ar: string; name_en?: string | null; price: number }>;
+  /** The clinic only, never the doctor's personal address. */
+  @Prop() clinic_address?: string;
+  @Prop({ type: { lat: Number, lng: Number }, _id: false }) clinic_location?: { lat: number; lng: number };
   @Prop() years_experience?: number;
   @Prop({ default: [] }) consultation_modes: string[]; // clinic|online|home
   @Prop() price_clinic?: number;
@@ -119,6 +131,8 @@ export class ProviderProfile {
   @Prop() estimated_delivery_time?: string;
   @Prop() delivery_fee?: number;
   @Prop() free_delivery_above?: number;
+  /** Pharmacy with its own couriers: zone, fee and free threshold (modules/pharmacy/pharmacy-delivery.ts). */
+  @Prop({ type: Object }) own_delivery?: { enabled: boolean; zone_type: 'radius' | 'districts'; radius_km: number | null; district_codes: string[]; fee_sar: number; free_over_sar: number | null };
   @Prop() min_order_sar?: number;
   @Prop({ default: false }) express_delivery: boolean;
   @Prop() express_fee?: number;
@@ -218,7 +232,7 @@ export class ProviderProfile {
     default: [],
   })
   working_hours: { day: string; open: string; close: string; open_evening?: string; close_evening?: string; closed?: boolean }[];
-  @Prop({ default: 10 }) commission_rate?: number;
+  @Prop({ default: DEFAULT_COMMISSION_PERCENT }) commission_rate?: number;
   // Per-payment-method commission (set by admin at approval; falls back to commission_rate)
   @Prop() commission_cash_pct?: number;
   @Prop() commission_insurance_pct?: number;
@@ -286,6 +300,8 @@ export class ProviderProfile {
   @Prop({ type: GeoPointSchema, default: undefined })
   geoPoint?: { type: 'Point'; coordinates: [number, number] };
 
+  /** Lab: how many bookings it takes at the same time slot (1 to 20, default 1); the slot picker and the booking use the same number. */
+  @Prop({ type: Number, default: 1, min: 1, max: 20 }) slot_capacity?: number;
   @Prop({ type: [Object], default: [] }) schedule_lab?: Array<{ day: string; open?: string; close?: string; open_evening?: string; close_evening?: string; closed?: boolean }>;
   @Prop({ type: [Object], default: [] }) schedule_radiology?: Array<{ day: string; open?: string; close?: string; open_evening?: string; close_evening?: string; closed?: boolean }>;
   @Prop({ type: [Object], default: [] }) schedule_nursing?: Array<{ day: string; open?: string; close?: string; open_evening?: string; close_evening?: string; closed?: boolean }>;

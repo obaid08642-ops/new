@@ -41,6 +41,45 @@ describe("diagnostics SSR boundary", () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(json([])));
   });
 
+  it("the filter button next to the search shows how many filters are on, and the old filter / sort row and its Reset link are gone", async () => {
+    state.getDiagnosticBookings.mockResolvedValue(json([]));
+    const html = await hub({ sort: "price", nofast: "1", place: "facility", more: "3" });
+    expect(html).toContain('aria-label="Filter (3 on)"');
+    expect(html).toContain('aria-haspopup="dialog"');
+    expect(html).not.toContain("Filter and sort");
+    expect(html).not.toContain("Reset filters");
+    expect(await hub({})).toContain('aria-label="Filter"');
+  });
+
+  it("two big tabs sit above the search row, with the prescription icon button and without the insurance / browse-labs rows", async () => {
+    state.getDiagnosticBookings.mockResolvedValue(json([]));
+    const html = await hub({});
+    expect(html.indexOf("Lab tests")).toBeGreaterThan(-1);
+    expect(html.indexOf("Radiology and imaging")).toBeLessThan(html.indexOf('role="search"'));
+    expect(html).toMatch(/href="\/en\/medical-orders"[^>]*aria-label|aria-label="[^"]*"[^>]*href="\/en\/medical-orders"/);
+    expect(html).not.toContain("Use your insurance");
+    expect(html).not.toContain("Browse labs");
+  });
+
+  it("the Packages chip lists the packages as the same cards, with fasting and result time only when the package carries them", async () => {
+    state.getDiagnosticBookings.mockResolvedValue(json([]));
+    state.labs.mockResolvedValue(json([]));
+    vi.stubGlobal("fetch", vi.fn(async (url: string) => json(String(url).includes("/labs/packages") ? [{ id: "p1", name_en: "Full checkup", name_ar: "فحص شامل", price: 300, is_package: true, fasting_required: false, turnaround_hours: 24 }] : [])));
+    const html = await hub({ show: "packages" });
+    expect(html).toContain(">Packages</a>");
+    expect(html).toContain("Full checkup");
+    expect(html).toContain("No fasting · Result within");
+    expect(html).toContain("Add to basket");
+  });
+
+  it("G6: on radiology the rating sort is counted and sent to the server; the packages chip is not offered", async () => {
+    state.getDiagnosticBookings.mockResolvedValue(json([]));
+    const html = await hub({ kind: "radiology", sort: "rating", show: "tests" });
+    expect(html).toContain('aria-label="Filter (1 on)"');
+    expect(state.radiology).toHaveBeenCalledWith(expect.objectContaining({ page: 1, limit: 20, highestRated: "true" }));
+    expect(html).not.toContain(">Packages</a>");
+  });
+
   // The timeout is explicit and generous because this is a RENDERING assertion, not a performance one: it checks that
   // the server boundary does not serialise the token or private fields (a 5 s default measured how busy the machine was).
   it("renders list data through both server boundaries without embedding the token or sensitive fields", { timeout: 30_000 }, async () => {
@@ -62,16 +101,18 @@ describe("diagnostics SSR boundary", () => {
   it("draws the catalogue the server sent: packages, tests with their price and an add link, and never a made-up price", async () => {
     state.requirePatientAccess.mockRejectedValue(new Error("no session"));
     state.labs.mockResolvedValue(json([{ id: "cbc", name_en: "CBC", price: 20, fasting_required: true, home_visit_supported: true, turnaround_hours: 24 }, { id: "tsh", name_en: "TSH" }]));
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(json([{ id: "pkg-1", name_en: "Wellness panel", price: 120, included_services: ["cbc", "tsh"] }])));
+    // the approved labs strip reads /providers?type=lab: no labs there, so the strip stays out and the catalogue is what is checked
+    vi.stubGlobal("fetch", vi.fn().mockImplementation(async (url: unknown) => (String(url).includes("/providers") ? json([]) : json([{ id: "pkg-1", name_en: "Wellness panel", price: 120, included_services: ["cbc", "tsh"] }]))));
 
     const html = await hub();
 
     expect(html).toContain("CBC");
     expect(html).toContain("Wellness panel");
-    expect(html).toContain("/en/diagnostics/packages/pkg-1");
-    expect(html).toContain("/en/diagnostics/cart?add=cbc&amp;name=CBC&amp;price=20");
-    expect(html).toContain("/en/diagnostics/cart?add=tsh&amp;name=TSH");
-    expect(html).not.toContain("add=tsh&amp;name=TSH&amp;price");
+    // Ord02/Ord03: packages and tests open the ordering item page, and the "+" adds to the local basket (a button, no cart link)
+    expect(html).toContain("/en/labs/pkg-1");
+    expect(html).toContain("/en/labs/cbc");
+    expect(html).toContain("/en/labs/tsh");
+    expect(html).not.toContain("/diagnostics/cart?add=");
     expect(html).toContain("Result within 24 hours");
     expect(state.getDiagnosticBookings).not.toHaveBeenCalled();
   });
@@ -83,9 +124,51 @@ describe("diagnostics SSR boundary", () => {
     const html = await hub({ kind: "radiology", place: "facility" });
 
     expect(html).toContain("Chest X-Ray");
-    expect(html).toContain("/en/diagnostics/radiology/6a7600a27b25eeca204de283");
+    expect(html).toContain("/en/labs/6a7600a27b25eeca204de283?kind=radiology&amp;place=facility");
     expect(html).toContain("From");
     expect(html).toContain("/en/diagnostics?kind=radiology&amp;place=facility");
+  });
+
+  it("draws the radiology stages, result rows and the cancel button of a booking that has not started", async () => {
+    state.getDiagnosticBooking.mockResolvedValue(json({ id: bookingId, state: "NEW_REQUEST", total: 320, results: [{ name: "Glucose", result: 130, reference: "70-100", isAbnormal: true }] }));
+    const radiology = renderToStaticMarkup(await DiagnosticDetailPage({ params: Promise.resolve({ locale: "en", domain: "radiology", bookingId }) }));
+    expect(radiology).toContain("Scan stages");
+    expect(radiology).toContain("Glucose");
+    expect(radiology).toContain("Normal range");
+    expect(radiology).toContain("Cancel the booking");
+    state.getDiagnosticBooking.mockResolvedValue(json({ id: bookingId, state: "IN_SCANNING" }));
+    expect(renderToStaticMarkup(await DiagnosticDetailPage({ params: Promise.resolve({ locale: "en", domain: "radiology", bookingId }) }))).not.toContain("Cancel the booking");
+  });
+
+  it("shows the collector of a home lab booking and filters the hub list in place by the search and the sheet", async () => {
+    state.getDiagnosticBooking.mockResolvedValue(json({ id: bookingId, state: "CONFIRMED", location_type: "HOME_COLLECTION" }));
+    state.getDiagnosticTracking.mockResolvedValue(json({ techName: "Sara Collector", techPhone: "+966500000000", timeline: [] }));
+    const detail = renderToStaticMarkup(await DiagnosticDetailPage({ params: Promise.resolve({ locale: "en", domain: "labs", bookingId }) }));
+    expect(detail).toContain("Sara Collector");
+    expect(detail).toContain('href="tel:+966500000000"');
+    state.requirePatientAccess.mockRejectedValue(new Error("no session"));
+    // the SERVER searches and orders (search, lowest_price) and pages ({ data, total, page, limit, total_pages })
+    state.radiology.mockResolvedValue(json({ data: [{ id: "r2", name_en: "Knee MRI", price: 400, category: "mri" }], total: 1, page: 1, limit: 20, total_pages: 1 }));
+    const filtered = await hub({ kind: "radiology", q: "knee", sort: "price" });
+    expect(state.radiology).toHaveBeenLastCalledWith(expect.objectContaining({ page: 1, limit: 20, search: "knee", lowestPrice: "true" }));
+    expect(filtered).toContain("Knee MRI");
+    expect(filtered).toContain('data-art="mri"');
+    expect(filtered).not.toContain("Show more");
+    expect(filtered).toContain('aria-label="Filter (1 on)"');
+  });
+
+  it("opens `more` server pages and keeps the no-script Show more link while the server has more", async () => {
+    state.requirePatientAccess.mockRejectedValue(new Error("no session"));
+    const page = (n: number) => json({ data: [{ id: `r${n}`, name_en: `Scan ${n}`, price: 10 * n }], total: 3, page: n, limit: 20, total_pages: 3 });
+    state.radiology.mockImplementation(async (q: { page?: number; limit?: number }) => (q.limit === 6 ? page(1) : page(q.page ?? 1)));
+    const html = await hub({ kind: "radiology", more: "2" });
+    const pages = state.radiology.mock.calls.map((c) => c[0] as { page: number; limit: number }).filter((q) => q.limit === 20).map((q) => q.page).sort();
+    expect(pages).toEqual([1, 2]);
+    expect(html).toContain("Scan 2");
+    expect(html).toContain("/en/diagnostics?kind=radiology&amp;more=3");
+    expect(html).toContain("Show more");
+    // "Most requested" is the first six in the server's own order: its own small request
+    expect(state.radiology).toHaveBeenCalledWith(expect.objectContaining({ page: 1, limit: 6 }));
   });
 
   it("shows the error state with a retry when the whole catalogue fails", async () => {
@@ -108,9 +191,9 @@ describe("diagnostics SSR boundary", () => {
     expect(state.getDiagnosticBooking).toHaveBeenCalledWith(serverToken, "labs", bookingId);
     expect(html).not.toContain(serverToken);
     expect(html).not.toContain("private");
-    expect(html).not.toContain("500");
+    expect(html).toContain("500");
     expect(html).not.toContain(reportUrl);
-    expect(html).toContain('data-back="/en/diagnostics/bookings"');
+    expect(html).toContain('data-back="/en/orders"');
     expect(html).toContain("Confirmed");
     expect(html).not.toMatch(/href="[^"]*(report|pdf)/i);
     expect(html).not.toContain("CONFIRMED");

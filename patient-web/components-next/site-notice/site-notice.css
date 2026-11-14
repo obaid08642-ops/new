@@ -1,0 +1,13 @@
+/* The "under construction" notice above the header (owner request 2026-11-03). Informational only: it takes no pointer
+   event of its own and gates nothing. Colours are the action tokens (red in light, coral in dark, with their own on-colour). */
+.site-notice {
+  margin: 0;
+  padding: 0.35rem max(1rem, calc((100vw - 1180px) / 2));
+  background: var(--nabd-color-action-primary-bg);
+  color: var(--nabd-color-action-primary-fg);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.5;
+  text-align: center;
+  overflow-wrap: anywhere;
+}

@@ -1,8 +1,8 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, GoneException, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { ProvidersService } from './providers.service';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { ProviderType, ProviderStatus, UserRole } from '../../common/enums';
-import { ApplyDto, AdminCreateDto, RejectDto, SuspendDto} from './providers.dto';
+import { AdminCreateDto } from './providers.dto';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
 @Controller('providers')
@@ -10,13 +10,6 @@ import { Permission, RequirePermissions } from '../../common/permissions';
 @UseGuards(JwtAuthGuard)
 export class ProvidersController {
   constructor(private svc: ProvidersService) {}
-
-  /** Public self-registration */
-  @Public()
-  @Post('apply')
-  apply(@Body() body: ApplyDto) {
-    return this.svc.apply(body);
-  }
 
   /** Public listing for patient app */
   @Public()
@@ -77,25 +70,21 @@ export class ProvidersController {
     return this.svc.listPending();
   }
 
-  @RequirePermissions(Permission.FACILITY_EDIT)
-  @Post(':id/approve')
-  @Roles(UserRole.ADMIN)
-  approve(@Param('id') id: string, @CurrentUser() admin: any) {
-    return this.svc.approve(id, admin);
-  }
-
+  // Row 1 of PROVIDER_ADMIN_MERGE_MAP (approved by the owner 2026-11-10): the second reject / suspend path is retired. Every client (admin, provider app, patient apps,
+  // tools/live, docs) was searched and none calls it; the admin screens use /admin/providers/:id/reject and /admin/providers/:id/suspend. It answers 410 for one release,
+  // then the two routes and ProvidersService.reject/suspend are removed.
   @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/reject')
   @Roles(UserRole.ADMIN)
-  reject(@Param('id') id: string, @CurrentUser() admin: any, @Body() body: RejectDto) {
-    return this.svc.reject(id, admin, body?.reason || '');
+  reject(@Param('id') _id: string): never {
+    throw new GoneException({ error: 'moved', message: 'POST /admin/providers/:id/reject replaces this route' });
   }
 
   @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/suspend')
   @Roles(UserRole.ADMIN)
-  suspend(@Param('id') id: string, @CurrentUser() admin: any, @Body() body: SuspendDto) {
-    return this.svc.suspend(id, admin, body?.reason || '');
+  suspend(@Param('id') _id: string): never {
+    throw new GoneException({ error: 'moved', message: 'POST /admin/providers/:id/suspend replaces this route' });
   }
 }
 

@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { recordAudit } from '../../common/audit-record';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, Types } from 'mongoose';
 import { createHash, randomBytes } from 'crypto';
@@ -93,13 +94,13 @@ export class AdminDeviceService {
   /** D-35 audit trail: every enrolment and revoke is logged, never the raw device id. */
   async auditDevice(userId: string, action: 'admin_device.enrolled' | 'admin_device.revoked', actorRole?: string, name?: string) {
     try {
-      await (this.conn as any)?.collection?.('audit_logs')?.insertOne?.({
-        id: randomBytes(8).toString('hex'),
-        user_id: userId,
+      await recordAudit(this.conn, {
         action,
-        actor_role: actorRole ?? null,
-        device_name: name ?? null,
-        created_at: new Date(),
+        user_id: userId,
+        role: actorRole,
+        resource_kind: 'admin_device',
+        severity: 'warn',
+        details: { device_name: name ?? null },
       });
     } catch {
       // Auditing must never break the device action.

@@ -153,7 +153,7 @@ if __name__ == '__main__':
     j_onboarding.provider_after_approval(h)
     admin_publishes_nursing(admin)
     catalog = Client(None, 'anon').get('/nursing/catalog')
-    services = [{'key': x['id'], 'name_ar': x.get('name_ar'), 'price': 0} for x in rows(catalog)]
+    services = [{'key': x['id'], 'name_ar': x.get('name_ar'), 'price': x.get('price') or 50} for x in rows(catalog)]
     n = j_onboarding.register_type('home_care', {'nursing_services': services})
     j_onboarding.admin_review(admin, n)
     j_onboarding.provider_after_approval(n)

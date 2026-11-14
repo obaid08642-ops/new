@@ -65,7 +65,7 @@ describe("which pages are static", () => {
   it("no private page opts in: every page the proxy treats as private has no generateStaticParams", async () => {
     // The same classification as above, the other way round: pages that are not in STATIC_PAGES are dynamic by construction.
     const privatePages = pageFiles(LOCALE_DIR).filter((file) => !optsIn(file));
-    expect(privatePages.length).toBeGreaterThan(200);
+    expect(privatePages.length).toBeGreaterThan(150); // 83 redirect-only pages became config redirects (next.config.ts), so the scan sees fewer files
     for (const file of privatePages) expect(read(file), relative(ROOT, file)).not.toMatch(/generateStaticParams/);
   });
 });

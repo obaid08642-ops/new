@@ -56,7 +56,7 @@ export class ProviderOtpService {
     if (send.status === 'failed') {
       // Do not answer "sent" when nothing was sent: the app would wait for a code that never comes.
       await this.otpModel.updateOne({ _id: (doc as any)._id }, { $set: { status: OtpStatus.INVALIDATED } });
-      throw new ServiceUnavailableException({ message: 'otp_channel_unavailable', code: 'otp_channel_unavailable' });
+      throw new ServiceUnavailableException({ message: 'otp_no_channel', code: 'otp_channel_unavailable' });
     }
     await this.audit.create({ provider_account_id: meta.account_id, actor_id: meta.account_id || 'system', actor_role: 'system', action: 'otp.issued', target: { collection: 'provider_otp_codes', id: doc.id }, after: { purpose, send_status: send.status }, ip: meta.ip, user_agent: meta.ua });
     if (send.status === 'logged') this.logger.warn(`(LOG_ONLY) OTP for ${email} purpose=${purpose} → ${code}`);

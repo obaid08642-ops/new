@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
 vi.mock("next-intl", () => ({
+  useLocale: () => "en",
   useTranslations: () => (key: string, values?: Record<string, unknown>) => (values ? `${key}:${Object.values(values).join(",")}` : key),
 }));
 
@@ -77,7 +78,7 @@ describe("pharmacy browse building blocks", () => {
 
   it("the details keep every section's text in the HTML and open the first one", () => {
     const html = renderToStaticMarkup(
-      <ProductSections
+      <ProductSections locale="en"
         label="details"
         groups={[
           { id: "usage", title: "Usage", sections: [{ id: "dose", title: "Dose", items: ["Adults: one", "Children: half"] }] },

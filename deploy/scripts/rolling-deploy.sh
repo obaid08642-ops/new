@@ -19,6 +19,7 @@
 # Websocket (Socket.IO) connections of the retired backend drop and the clients reconnect on their own; every HTTP
 # request is served by a healthy container at every moment (proved under load in .github/workflows/zero-downtime.yml).
 set -uo pipefail
+source "$(dirname "$0")/_deploy-lock.sh"
 D=${DEPLOY_DIR:-/opt/nabdah/deploy}
 ENVF=${ENV_FILE:-$D/.env.production}
 DK=${DOCKER:-docker}

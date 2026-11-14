@@ -147,42 +147,12 @@
      "ok"
     ],
     [
-     "button: <button> onClick",
-     "local state",
-     "ok"
-    ],
-    [
      "button: تحديث",
-     "load; GET /api/admin/admin/insurance/stats; GET /api/admin/admin/insurance/requests; GET /api/admin/admin/finance/refund",
+     "load; GET /api/admin/admin/insurance/stats; GET /api/admin/admin/insurance/requests",
      "ok"
     ],
     [
      "action: <DataTable> onRowClick",
-     "local state",
-     "ok"
-    ],
-    [
-     "input: ملاحظة (اختياري)",
-     "state decideNote used by logic/request",
-     "ok"
-    ],
-    [
-     "button: اعتماد الاسترداد",
-     "POST /api/admin/admin/finance/refunds/:param/decide; GET /api/admin/admin/insurance/stats; GET /api/admin/admin/insuranc",
-     "ok"
-    ],
-    [
-     "button: رفض",
-     "POST /api/admin/admin/finance/refunds/:param/decide; GET /api/admin/admin/insurance/stats; GET /api/admin/admin/insuranc",
-     "ok"
-    ],
-    [
-     "button: تراجع",
-     "local state",
-     "ok"
-    ],
-    [
-     "button: اتخاذ القرار",
      "local state",
      "ok"
     ],
@@ -209,11 +179,6 @@
     [
      "action: <tr> onClick (in DataTable)",
      "",
-     "ok"
-    ],
-    [
-     "API: GET /api/admin/admin/finance/refunds/queue",
-     "GET /api/admin/admin/finance/refunds/queue (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:885)",
      "ok"
     ]
    ]
@@ -283,7 +248,7 @@
    "elements": [
     [
      "button: اعتماد التعديل وتطبيقه",
-     "POST /api/admin/admin/providers/provider-deltas/:param/approve",
+     "POST /api/admin/admin/providers/provider-deltas/:param/approve; confirm()",
      "ok"
     ],
     [
@@ -307,6 +272,11 @@
      "ok"
     ],
     [
+     "button: إعادة المحاولة",
+     "local state",
+     "ok"
+    ],
+    [
      "action: <div> onClick",
      "local state",
      "ok"
@@ -318,7 +288,7 @@
     ],
     [
      "button: Approve Provider (اعتماد)",
-     "POST /api/admin/admin/providers/:param/approve; prompt()",
+     "local state",
      "ok"
     ],
     [
@@ -337,8 +307,23 @@
      "ok"
     ],
     [
-     "button: Suspend Provider (إيقاف)",
+     "button: Approve bank account (اعتماد الحساب البنكي)",
+     "POST /api/admin/admin/providers/:param/approve-bank",
+     "ok"
+    ],
+    [
+     "button: Reject bank account (رفض الحساب البنكي)",
      "local state",
+     "ok"
+    ],
+    [
+     "input: سبب الرفض (يظهر لمقدم الخدمة)",
+     "state bankReason used by logic/request",
+     "ok"
+    ],
+    [
+     "button: تأكيد الرفض",
+     "POST /api/admin/admin/providers/:param/reject-bank",
      "ok"
     ],
     [
@@ -352,28 +337,78 @@
      "ok"
     ],
     [
-     "input: الرجاء إدخال سبب الإيقاف أو أكواد الرفض (Reason Codes)...",
-     "state suspendReason used by logic/request",
+     "action: المزود النوع البريد عند الاعتماد يصبح الحساب فعالاً ويظهر في",
+     "submitApprove; POST /api/admin/admin/providers/:param/approve",
      "ok"
     ],
     [
-     "button: تأكيد الإيقاف الحرج",
-     "handleSuspend; POST /api/admin/admin/providers/:param/suspend",
-     "ok"
-    ],
-    [
-     "button: تراجع",
+     "action: المزود النوع البريد عند الاعتماد يصبح الحساب فعالاً ويظهر في",
      "local state",
      "ok"
     ],
     [
-     "button: جاري التحميل… تحميل العقد PDF (in ProviderFullDetail)",
-     "downloadContract; GET /api/admin/provider-onboarding/admin/contracts/:param",
+     "input: textarea",
+     "state approveReason used by logic/request",
      "ok"
     ],
     [
-     "input: checkbox (in ProviderFullDetail)",
-     "onChange sends POST /api/admin/provider-onboarding/admin/contracts/:param/visibility",
+     "input: number",
+     "state approveCash used by logic/request",
+     "ok"
+    ],
+    [
+     "input: number",
+     "state approveIns used by logic/request",
+     "ok"
+    ],
+    [
+     "input: input",
+     "state licenseRef used by logic/request",
+     "ok"
+    ],
+    [
+     "input: date",
+     "state licenseExpiry used by logic/request",
+     "ok"
+    ],
+    [
+     "button: قبول (in ProviderFullDetail)",
+     "POST /api/admin/admin/providers/:param/documents/:param/:param; prompt()",
+     "ok"
+    ],
+    [
+     "button: رفض (in ProviderFullDetail)",
+     "POST /api/admin/admin/providers/:param/documents/:param/:param; prompt()",
+     "ok"
+    ],
+    [
+     "button: تحميل PDF عربي تحميل PDF إنجليزي (in ProviderFullDetail)",
+     "GET /api/admin/provider-onboarding/admin/contracts/:param; navigation",
+     "ok"
+    ],
+    [
+     "button: عرض العربي عرض الإنجليزي (in ProviderFullDetail)",
+     "GET /api/admin/provider-onboarding/admin/contracts/:param; navigation",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in ConfirmDialog)",
+     "onClick -> parent/prop callback onCancel",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in ConfirmDialog)",
+     "",
+     "ok"
+    ],
+    [
+     "button: <button> onClick (in ConfirmDialog)",
+     "onClick -> parent/prop callback onConfirm",
+     "ok"
+    ],
+    [
+     "button: <button> onClick (in ConfirmDialog)",
+     "onClick -> parent/prop callback onCancel",
      "ok"
     ],
     [
@@ -397,101 +432,197 @@
      "ok"
     ],
     [
+     "link: العودة لمركز القيادة (in ProviderFullDetail)",
+     "link /admin/command-center",
+     "ok"
+    ],
+    [
+     "button: فتح القائمة (in ProviderFullDetail)",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in ProviderFullDetail)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: إغلاق القائمة (in ProviderFullDetail)",
+     "closeNav; local state",
+     "ok"
+    ],
+    [
+     "button: ميلادي هجري (in ProviderFullDetail)",
+     "navigation; local state",
+     "ok"
+    ],
+    [
+     "button: تسجيل الخروج (in ProviderFullDetail)",
+     "logout; POST /auth/logout; navigation",
+     "ok"
+    ],
+    [
+     "input: checkbox (in ProviderFullDetail)",
+     "state od used by logic/request",
+     "ok"
+    ],
+    [
+     "input: radio (in ProviderFullDetail)",
+     "state od used by logic/request",
+     "ok"
+    ],
+    [
+     "input: input (in ProviderFullDetail)",
+     "state od used by logic/request",
+     "ok"
+    ],
+    [
+     "button: <button> onClick (in ProviderFullDetail)",
+     "local state",
+     "ok"
+    ],
+    [
+     "input: input (in ProviderFullDetail)",
+     "state od used by logic/request",
+     "ok"
+    ],
+    [
+     "input: input (in ProviderFullDetail)",
+     "state od used by logic/request",
+     "ok"
+    ],
+    [
+     "button: حفظ (in ProviderFullDetail)",
+     "save; PUT :param/:param",
+     "ok"
+    ],
+    [
      "API: GET /api/admin/storage/:param/signed-url",
-     "GET /api/admin/storage/:param/signed-url (OK, backend/src/modules/storage/storage.module.ts:386)",
+     "GET /api/admin/storage/:param/signed-url (OK, backend/src/modules/storage/storage.module.ts:572)",
      "ok"
     ],
     [
      "API: GET /api/admin/storage/:param",
-     "GET /api/admin/storage/:param (OK, backend/src/modules/storage/storage.module.ts:376)",
+     "GET /api/admin/storage/:param (OK, backend/src/modules/storage/storage.module.ts:562)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/provider-onboarding/admin/contracts/:param/meta",
+     "GET /api/admin/provider-onboarding/admin/contracts/:param/meta (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:648)",
      "ok"
     ],
     [
      "API: GET /locations/regions",
-     "GET /locations/regions (OK, backend/src/modules/location/location.controller.ts:11)",
+     "GET /locations/regions (OK, backend/src/modules/location/location.controller.ts:13)",
      "ok"
     ],
     [
      "API: GET /locations/cities",
-     "GET /locations/cities (OK, backend/src/modules/location/location.controller.ts:17)",
+     "GET /locations/cities (OK, backend/src/modules/location/location.controller.ts:20)",
      "ok"
     ],
     [
      "API: GET /locations/districts",
-     "GET /locations/districts (OK, backend/src/modules/location/location.controller.ts:23)",
+     "GET /locations/districts (OK, backend/src/modules/location/location.controller.ts:27)",
+     "ok"
+    ],
+    [
+     "API: POST /auth/heartbeat",
+     "POST /auth/heartbeat (OK, backend/src/modules/auth/auth.controller.ts:269)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/session",
+     "GET /api/admin/admin/session (OK, backend/src/modules/admin/enterprise/admin-security.controller.ts:80)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/locations/districts",
+     "GET /api/admin/locations/districts (OK, backend/src/modules/location/location.controller.ts:27)",
      "ok"
     ]
+   ],
+   "notes": [
+    "3 handler(s) are passed as props (parent callbacks) and are not traced."
    ]
   }
  ],
  "needsReview": [
   {
-   "route": "/admin/insurance-queue",
-   "element": "اعتماد الاسترداد",
-   "kind": "client",
-   "note": "Sensitive action (POST /api/admin/admin/finance/refunds/:param/decide) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-   "file": "admin/src/pages/admin/insurance-queue.tsx",
-   "line": 166
-  },
-  {
-   "route": "/admin/insurance-queue",
-   "element": "رفض",
-   "kind": "client",
-   "note": "Sensitive action (POST /api/admin/admin/finance/refunds/:param/decide) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-   "file": "admin/src/pages/admin/insurance-queue.tsx",
-   "line": 167
-  },
-  {
-   "route": "/admin/insurance-queue",
-   "element": "Guard G-ROLE-ONLY-WRITE (1)",
+   "route": "/admin/insurance-companies",
+   "element": "Guard G-PERM-MISMATCH (5)",
    "kind": "backend",
-   "note": "1 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/finance/refunds/:param/decide): every admin role, including a custom restricted one, can run them.",
-   "file": "admin/src/pages/admin/insurance-queue.tsx",
-   "line": 56,
-   "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:887"
+   "note": "5 call(s): Page requires \"order.read\" but PATCH /insurance/companies/:param requires insurance.manage; an admin role with the page permission only gets a 403 on this call.",
+   "file": "admin/src/pages/admin/insurance-companies.tsx",
+   "line": 64,
+   "backend": "backend/src/modules/insurance/insurance.module.ts:526"
   },
   {
-   "route": "/admin/provider-audits",
-   "element": "اعتماد التعديل وتطبيقه",
-   "kind": "client",
-   "note": "Sensitive action (POST /api/admin/admin/providers/provider-deltas/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-   "file": "admin/src/pages/admin/provider-audits.tsx",
-   "line": 115
-  },
-  {
-   "route": "/admin/provider-audits",
-   "element": "Guard G-ROLE-ONLY-WRITE (2)",
+   "route": "/admin/nursing-portal",
+   "element": "Guard G-PERM-MISMATCH (1)",
    "kind": "backend",
-   "note": "2 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/providers/provider-deltas/:param/approve; POST /api/admin/admin/providers/provider-deltas/:param/reject): every admin role, including a custom restricted one, can run them.",
-   "file": "admin/src/pages/admin/provider-audits.tsx",
-   "line": 30,
-   "backend": "backend/src/modules/provider/provider.controllers.ts:154"
+   "note": "1 call(s): Page requires \"appointment.read\" but POST /admin/nursing/requests/:param/:param requires order.reassign; an admin role with the page permission only gets a 403 ",
+   "file": "admin/src/pages/admin/nursing-portal.tsx",
+   "line": 54,
+   "backend": "backend/src/modules/compat/admin-spa.module.ts:1373"
+  },
+  {
+   "route": "/admin/pharmacy-procurement",
+   "element": "Guard G-PERM-MISMATCH (1)",
+   "kind": "backend",
+   "note": "1 call(s): Page requires \"pharmacy.inventory.read\" but PATCH /admin/extended-operations/issue-quote/:param requires pharmacy.inventory.edit; an admin role with the page pe",
+   "file": "admin/src/pages/admin/pharmacy-procurement.tsx",
+   "line": 78,
+   "backend": "backend/src/modules/admin/web-core/controllers/admin-extended-operations.controller.ts:28"
   },
   {
    "route": "/admin/provider-moderation",
-   "element": "تأكيد الإيقاف الحرج",
+   "element": "Approve bank account (اعتماد الحساب البنكي)",
    "kind": "client",
-   "note": "Sensitive action (POST /api/admin/admin/providers/:param/suspend) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "note": "Sensitive action (POST /api/admin/admin/providers/:param/approve-bank) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
    "file": "admin/src/pages/admin/provider-moderation.tsx",
-   "line": 392
+   "line": 408
   },
   {
    "route": "/admin/provider-moderation",
-   "element": "Guard G-ROLE-ONLY-WRITE (5)",
-   "kind": "backend",
-   "note": "5 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/providers/:param/approve; POST /api/admin/admin/providers/:param/reactivate; POST /api/admin/admin/providers/:param/suspend; …): every admin role, including a custom restricted one, can run them.",
+   "element": "تأكيد الرفض",
+   "kind": "client",
+   "note": "Sensitive action (POST /api/admin/admin/providers/:param/reject-bank) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
    "file": "admin/src/pages/admin/provider-moderation.tsx",
-   "line": 117,
-   "backend": "backend/src/modules/provider/provider.controllers.ts:157"
+   "line": 420
+  },
+  {
+   "route": "/admin/provider-moderation",
+   "element": "المزود النوع البريد عند الاعتماد يصبح الحساب فعالاً ويظهر في",
+   "kind": "client",
+   "note": "Sensitive action (POST /api/admin/admin/providers/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "file": "admin/src/pages/admin/provider-moderation.tsx",
+   "line": 489
+  },
+  {
+   "route": "/admin/provider-moderation",
+   "element": "API GET :param/:param",
+   "kind": "backend",
+   "note": "Endpoint is NO_ROUTE (path does not go through /api/admin (the BFF), so it hits Next, not the backend): the call fails or hits nothing.",
+   "file": "admin/src/components/PharmacyOwnDeliveryAdmin.tsx",
+   "line": 22
+  },
+  {
+   "route": "/admin/provider-moderation",
+   "element": "API PUT :param/:param",
+   "kind": "backend",
+   "note": "Endpoint is NO_ROUTE (path does not go through /api/admin (the BFF), so it hits Next, not the backend): the call fails or hits nothing.",
+   "file": "admin/src/components/PharmacyOwnDeliveryAdmin.tsx",
+   "line": 44
   },
   {
    "route": "/admin/provider-moderation",
    "element": "Guard G-OPEN (3)",
    "kind": "backend",
-   "note": "3 call(s) hit backend routes with no role/permission guard (GET /api/admin/storage/:param/signed-url; GET /api/admin/storage/:param; GET /api/admin/provider-onboarding/admin/contracts/:param): any signed-in user passes JwtAuthGuard.",
+   "note": "3 call(s) hit backend routes with no role/permission guard (GET /api/admin/storage/:param/signed-url; GET /api/admin/storage/:param; POST /auth/heartbeat): any signed-in user passes JwtAuthGuard.",
    "file": "admin/src/components/ProviderFullDetail.tsx",
-   "line": 19,
-   "backend": "backend/src/modules/storage/storage.module.ts:386"
+   "line": 21,
+   "backend": "backend/src/modules/storage/storage.module.ts:572"
   }
  ]
 }

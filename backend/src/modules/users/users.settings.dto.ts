@@ -97,9 +97,6 @@ export class NotificationChannelsDto {
   @IsBoolean()
   email?: boolean;
 
-  @IsOptional()
-  @IsBoolean()
-  sms?: boolean;
 }
 
 export class NotificationCategoriesDto {
@@ -143,6 +140,15 @@ export class UpdateNotificationSettingsDto {
   @IsOptional()
   @IsBoolean()
   general?: boolean;
+
+  // appointments / orders are the categories of the same name (stored there).
+  @IsOptional()
+  @IsBoolean()
+  appointments?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  orders?: boolean;
 
   @IsOptional()
   @IsBoolean()

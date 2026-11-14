@@ -89,3 +89,32 @@ describe('ClamavService (16.5)', () => {
     await erroring.close();
   });
 });
+
+describe('uploadsAvailable (the /config uploads_enabled signal)', () => {
+  const env = { ...process.env };
+  afterEach(() => { process.env = { ...env }; });
+
+  it('is true when the scan is optional, without touching the scanner', async () => {
+    process.env.UPLOAD_SCAN = 'optional';
+    delete process.env.CLAMD_HOST; delete process.env.CLAMD_SOCKET;
+    await expect(new ClamavService().uploadsAvailable()).resolves.toBe(true);
+  });
+
+  it('is false when the scan is required and clamd is not configured', async () => {
+    process.env.UPLOAD_SCAN = 'required';
+    delete process.env.CLAMD_HOST; delete process.env.CLAMD_SOCKET;
+    await expect(new ClamavService().uploadsAvailable()).resolves.toBe(false);
+  });
+
+  it('is false when clamd refuses the connection, true when it answers PONG', async () => {
+    const net = require('net');
+    process.env.UPLOAD_SCAN = 'required';
+    process.env.CLAMD_HOST = '127.0.0.1';
+    const server = net.createServer((c: any) => c.on('data', () => c.end('PONG\0')));
+    await new Promise<void>((r) => server.listen(0, '127.0.0.1', r));
+    process.env.CLAMD_PORT = String(server.address().port);
+    await expect(new ClamavService().uploadsAvailable()).resolves.toBe(true);
+    await new Promise<void>((r) => server.close(() => r()));
+    await expect(new ClamavService().uploadsAvailable()).resolves.toBe(false);
+  });
+});

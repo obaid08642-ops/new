@@ -117,12 +117,78 @@ describe('confirm the booking', () => {
     );
     await render(wrap(<BookingConfirmScreen />));
     await screen.findByText('Test Doctor');
+    await tap(screen.getByTestId('refund-policy-agree'));
     await tap(screen.getByTestId('booking-confirm-submit'));
     await waitFor(() => expect(Linking.openURL).toHaveBeenCalledWith('https://pay.example.test/c/1'));
     expect(posts().map(([p]) => p)).toEqual(['/slot-locks/reserve', '/care/appointments', '/payments/intent/consultation/appt-1']);
     const body = JSON.parse(posts()[1][1].body);
     expect(body).toMatchObject({ doctor_id: 'doc-1', service_type: 'clinic', payment_method: 'card', slot_lock_id: 'lock-1' });
     expect(mockRouter.replace).toHaveBeenCalledWith({ pathname: '/consultations/booking-status', params: expect.objectContaining({ appointmentId: 'appt-1', payment_pending: 'true' }) });
+  });
+
+  it('G3: the slot carried from the doctor screen is the one held and the one sent in the booking request', async () => {
+    answer(
+      { '/care/doctors/doc-1': doctor, '/payments/consultation/appt-1/capabilities': { methods: [{ id: 'card' }] } },
+      (path) => {
+        if (path === '/slot-locks/reserve') return { id: 'lock-1' };
+        if (path === '/care/appointments') return { id: 'appt-1' };
+        if (path.startsWith('/payments/intent/consultation/')) return { checkout_url: 'https://pay.example.test/c/1' };
+        return {};
+      },
+    );
+    await render(wrap(<BookingConfirmScreen />));
+    await screen.findByText('Test Doctor');
+    await tap(screen.getByTestId('refund-policy-agree'));
+    await tap(screen.getByTestId('booking-confirm-submit'));
+    await waitFor(() => expect(posts().length).toBeGreaterThanOrEqual(2));
+    expect(JSON.parse(posts()[0][1].body).slot_start).toBe(slot);
+    expect(JSON.parse(posts()[1][1].body).slot_start).toBe(slot);
+  });
+
+  it('the refund policy is shown before payment: the confirm button is off until it is agreed, and the booking carries the agreement', async () => {
+    answer(
+      { '/care/doctors/doc-1': doctor, '/payments/consultation/appt-1/capabilities': { methods: [{ id: 'card' }] } },
+      (path) => {
+        if (path === '/slot-locks/reserve') return { id: 'lock-1' };
+        if (path === '/care/appointments') return { id: 'appt-1' };
+        if (path.startsWith('/payments/intent/consultation/')) return { checkout_url: 'https://pay.example.test/c/1' };
+        return {};
+      },
+    );
+    await render(wrap(<BookingConfirmScreen />));
+    await screen.findByText('Test Doctor');
+    expect(screen.getByText(k('refund.title'))).toBeTruthy();
+    expect(screen.getByTestId('booking-confirm-submit').props.accessibilityState).toMatchObject({ disabled: true });
+    await tap(screen.getByTestId('booking-confirm-submit'));
+    expect(posts()).toHaveLength(0);
+    await tap(screen.getByTestId('refund-policy-agree'));
+    expect(screen.getByTestId('booking-confirm-submit').props.accessibilityState?.disabled).toBeFalsy();
+    await tap(screen.getByTestId('booking-confirm-submit'));
+    await waitFor(() => expect(posts().length).toBeGreaterThanOrEqual(2));
+    expect(JSON.parse(posts()[1][1].body)).toMatchObject({ refund_policy_accepted: true });
+  });
+
+  it('PT-08: the medical report request is sent only when ticked, and the booking says it is a request', async () => {
+    const run = async (tick: boolean) => {
+      answer(
+        { '/care/doctors/doc-1': doctor, '/payments/consultation/appt-1/capabilities': { methods: [{ id: 'card' }] } },
+        (path) => {
+          if (path === '/slot-locks/reserve') return { id: 'lock-1' };
+          if (path === '/care/appointments') return { id: 'appt-1' };
+          if (path.startsWith('/payments/intent/consultation/')) return { checkout_url: 'https://pay.example.test/c/1' };
+          return {};
+        },
+      );
+      await render(wrap(<BookingConfirmScreen />));
+      await screen.findByText('Test Doctor');
+      expect(screen.getByText(k('consult.confirm.reportHint'))).toBeTruthy();
+      if (tick) await tap(screen.getByTestId('booking-report-request'));
+      await tap(screen.getByTestId('refund-policy-agree'));
+      await tap(screen.getByTestId('booking-confirm-submit'));
+      await waitFor(() => expect(posts().length).toBeGreaterThanOrEqual(2));
+      return JSON.parse(posts()[1][1].body);
+    };
+    expect(await run(true)).toMatchObject({ sick_leave_requested: true });
   });
 
   it('issue 684: a booking started from a family member is sent for that member, said on screen, and cleared after', async () => {
@@ -139,16 +205,39 @@ describe('confirm the booking', () => {
     await render(wrap(<BookingConfirmScreen />));
     await screen.findByText('Test Doctor');
     expect(screen.getByText(k('consult.confirm.bookingFor', { name: 'Test Member' }))).toBeTruthy();
+    await tap(screen.getByTestId('refund-policy-agree'));
     await tap(screen.getByTestId('booking-confirm-submit'));
     await waitFor(() => expect(Linking.openURL).toHaveBeenCalled());
     expect(JSON.parse(posts()[1][1].body)).toMatchObject({ for_member_id: 'member-1' });
     expect(getBookingFor()).toBeNull();
   });
 
+  it('PT-03: a guardian with a dependant can book the visit for them: family_member_id is sent, nothing else about the booker changes', async () => {
+    answer(
+      { '/care/doctors/doc-1': doctor, '/payments/consultation/appt-1/capabilities': { methods: [{ id: 'card' }] }, '/family/dependants': [{ id: 'dep-1', name: 'Test Child' }] },
+      (path) => {
+        if (path === '/slot-locks/reserve') return { id: 'lock-1' };
+        if (path === '/care/appointments') return { id: 'appt-1' };
+        if (path.startsWith('/payments/intent/consultation/')) return { checkout_url: 'https://pay.example.test/c/1' };
+        return {};
+      },
+    );
+    await render(wrap(<BookingConfirmScreen />));
+    await screen.findByText('Test Doctor');
+    await tap(await screen.findByTestId('booking-for-dep-1'));
+    await tap(screen.getByTestId('refund-policy-agree'));
+    await tap(screen.getByTestId('booking-confirm-submit'));
+    await waitFor(() => expect(Linking.openURL).toHaveBeenCalled());
+    const body = JSON.parse(posts()[1][1].body);
+    expect(body).toMatchObject({ family_member_id: 'dep-1' });
+    expect(body.for_member_id).toBeUndefined();
+  });
+
   it('says so, and creates nothing, when the slot was taken', async () => {
     answer({ '/care/doctors/doc-1': doctor }, (path) => (path === '/slot-locks/reserve' ? new Error('slot_taken') : {}));
     await render(wrap(<BookingConfirmScreen />));
     await screen.findByText('Test Doctor');
+    await tap(screen.getByTestId('refund-policy-agree'));
     await tap(screen.getByTestId('booking-confirm-submit'));
     await waitFor(() => expect(showLocalizedAlert).toHaveBeenCalledWith(k('consult.confirm.failedTitle'), k('consult.confirm.slotTaken')));
     expect(posts().map(([p]) => p)).toEqual(['/slot-locks/reserve']);

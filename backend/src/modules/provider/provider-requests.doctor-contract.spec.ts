@@ -49,4 +49,34 @@ describe('ProviderRequestsController doctor record contracts', () => {
     const { controller } = make();
     await expect(controller.requestInsuranceCopay(user, 'request-1', { approvalStatus: 'approved', patientCopay: 0, approvalCode: 'approval-1' })).rejects.toBeInstanceOf(BadRequestException);
   });
+
+  describe('a medical report on a normal appointment (no provider request exists)', () => {
+    const { NotFoundException } = require('@nestjs/common');
+    const build = (appointment: any) => {
+      const inserted: any[] = [];
+      const svc: any = { detail: jest.fn().mockRejectedValue(new NotFoundException('request not found')) };
+      const events: any = { emit: jest.fn() };
+      const conn: any = { collection: jest.fn((name: string) => {
+        if (name === 'appointments') return { findOne: jest.fn().mockResolvedValue(appointment), find: () => ({ toArray: async () => (appointment ? [{ id: appointment.id }] : []) }) };
+        if (name === 'medicalreports') return { insertOne: jest.fn(async (d: any) => { inserted.push(d); }) };
+        return { findOne: jest.fn().mockResolvedValue({ display_name: 'Provider' }), insertOne: jest.fn() };
+      }) };
+      return { controller: new ProviderRequestsController(svc, {} as any, events, conn), inserted, svc, events };
+    };
+    it('is issued for the patient of the doctor\'s own appointment', async () => {
+      const { controller, inserted, events } = build({ id: 'appt-1', patient_id: 'patient-9', patient_name: 'Huda' });
+      await expect(controller.issueMedicalReport(user, 'appt-1', { findings: 'clear' } as any)).resolves.toMatchObject({ ok: true });
+      expect(inserted[0]).toMatchObject({ patient_id: 'patient-9', patient_name: 'Huda' });
+      expect(events.emit).toHaveBeenCalledWith('medical_report.created', expect.objectContaining({ patient_id: 'patient-9' }));
+    });
+    it('is a 404 when the id is neither the doctor\'s request nor the doctor\'s appointment', async () => {
+      const { controller, inserted } = build(null);
+      await expect(controller.issueMedicalReport(user, 'appt-x', { findings: 'clear' } as any)).rejects.toBeInstanceOf(NotFoundException);
+      expect(inserted).toHaveLength(0);
+    });
+    it('a patient id that is not the appointment\'s patient is refused', async () => {
+      const { controller } = build({ id: 'appt-1', patient_id: 'patient-9' });
+      await expect(controller.issueMedicalReport(user, 'appt-1', { findings: 'clear', patient_id: 'someone-else' } as any)).rejects.toBeInstanceOf(ForbiddenException);
+    });
+  });
 });

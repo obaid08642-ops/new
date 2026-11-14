@@ -50,4 +50,25 @@ describe('OC C-10 privacy and sessions', () => {
     const rows: any[] = await svc.getSessions('pat-1');
     expect(rows[0]?.is_current).toBe(false);
   });
+
+  // 21.7: the apps list and end sessions through these routes; they carry what a person recognises a device by and end
+  // the sign-in through the one place sessions end.
+  it('21.7 lists a readable label and a masked address, never the raw user agent or the full address', async () => {
+    const svc: any = serviceFor({ sessions: [{ jti: 'j1', device: 'd1', ttl: 99 }] });
+    const client = svc.redisService.getClient();
+    client.get = jest.fn(async () => JSON.stringify({ u: 'pat-1', d: 'd1', s: 'sid-1', c: 1_800_000_000_000, l: 1_800_000_100_000, ip: '203.0.113.9', ua: 'Mozilla/5.0 (Windows NT 10.0) Chrome/120.0 Safari/537.36' }));
+    svc.redisService.getClient = jest.fn(() => client);
+    const rows: any[] = await svc.getSessions('pat-1');
+    expect(rows[0]).toMatchObject({ id: 'j1', session_id: 'sid-1', label: 'Chrome · Windows', platform: 'web', ip: '203.0.*.*' });
+    expect(JSON.stringify(rows)).not.toMatch(/Mozilla|203\.0\.113\.9/);
+  });
+
+  it('21.7 ending a session goes through the auth service when it is there', async () => {
+    const svc: any = serviceFor({});
+    svc.auth = { revokeSessionByJti: jest.fn(async () => ({ ok: true })) };
+    svc.redisService.getClient = jest.fn(() => ({ sismember: jest.fn(async () => 1), del: jest.fn(), srem: jest.fn() }));
+    await expect(svc.revokeSession('pat-1', 'j1')).resolves.toEqual({ ok: true });
+    expect(svc.auth.revokeSessionByJti).toHaveBeenCalledWith('pat-1', 'j1');
+  });
 });
+

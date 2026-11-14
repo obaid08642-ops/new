@@ -1,16 +1,19 @@
+import { LocalizedField } from "@/components-next/ui/localized-field";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { isLabCategory } from "@/lib/lab-categories";
 import { extractLabServices } from "@/lib/api/labs";
-import { getPublicLabServices } from "@/lib/api/labs-server";
+import { patientApiUrl } from "@/lib/api/upstream";
+import { publicReadSignal } from "@/lib/api/public-timeout";
 import { isLocale } from "@/lib/i18n";
 import { hubMetadata } from "@/lib/seo";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
-import consult from "@/components-next/consult/consult.module.css";
-import { LAB, PackageCard, SearchForm, money, pickText } from "@/components-next/diagnostics/diag-parts";
+import { diagArtKey } from "@/components-next/ui-generated/icons/diag-art";
+import { LAB, PackageCard, SearchForm, money } from "@/components-next/diagnostics/diag-parts";
 import styles from "@/components-next/diagnostics/diag.module.css";
+import { pickName, pickTexts , perLocaleOf } from "@/lib/i18n/localized";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string; category?: string }> };
 
@@ -31,7 +34,8 @@ export default async function LabsPackagesPage({ params, searchParams }: Props) 
   const w = await getTranslations("DiagWeb");
   const search = (query.q ?? "").trim();
   const category = (query.category ?? "").trim();
-  const response = await getPublicLabServices({ search, category });
+  // The packages endpoint (as the app and the hub read it), narrowed here by the name and the category in the URL.
+  const response = await fetch(patientApiUrl("/labs/packages"), { signal: publicReadSignal(), headers: { Accept: "application/json" }, cache: "no-store" }).catch(() => null);
   const backHref = `/${locale}/diagnostics`;
   if (!response || !response.ok) {
     return (
@@ -40,24 +44,34 @@ export default async function LabsPackagesPage({ params, searchParams }: Props) 
       </ConsultPage>
     );
   }
-  const packages = extractLabServices(await response.json().catch(() => null)).filter((item) => item.isPackage !== false);
+  const all = extractLabServices(await response.json().catch(() => null)).filter((item) => !item.unavailable);
   // The codes are shown by their label in the page's language (issue 1550 walkthrough: the list showed "cardiac", "package").
-  const categories = [...new Set(packages.map((item) => item.category?.trim().toLowerCase()).filter(isLabCategory))];
+  const categories = [...new Set(all.map((item) => item.category?.trim().toLowerCase()).filter(isLabCategory))];
+  const needle = search.toLocaleLowerCase(locale);
+  const packages = all.filter((item) =>
+    (!category || item.category?.trim().toLowerCase() === category.toLowerCase()) &&
+    (!needle || [item.nameAr, item.nameEn, item.descriptionAr, item.descriptionEn].some((v) => v?.toLocaleLowerCase(locale).includes(needle))));
 
   return (
     <ConsultPage locale={locale} title={t("title")} backHref={backHref}>
       <p className={styles.flowNote}>{t("subtitle")}</p>
       <SearchForm
+        suggest={{ locale, scope: { section: "labs", types: ["lab_package"] } }}
         defaultValue={search}
         placeholder={t("searchPlaceholder")}
         label={t("searchLabel")}
         submitLabel={t("apply")}
+        live
         below={
           categories.length > 0 ? (
-            <select className={consult.control} name="category" defaultValue={category} aria-label={t("category")}>
-              <option value="">{t("allCategories")}</option>
-              {categories.map((item) => <option key={item} value={item}>{t(`categoryName.${item}`)}</option>)}
-            </select>
+            <div className={styles.catChips} role="radiogroup" aria-label={t("category")}>
+              {[["", t("allCategories")], ...categories.map((item) => [item, t(`categoryName.${item}`)])].map(([value, label]) => (
+                <label key={value || "all"} className={styles.catChip}>
+                  <input type="radio" name="category" value={value} defaultChecked={category.toLowerCase() === value} />
+                  <span>{label}</span>
+                </label>
+              ))}
+            </div>
           ) : undefined
         }
       />
@@ -69,9 +83,10 @@ export default async function LabsPackagesPage({ params, searchParams }: Props) 
             <li key={item.id}>
               <PackageCard
                 fluid
+                art={diagArtKey({ kind: "lab", names: Object.values(item.names) })}
                 href={`/${locale}/diagnostics/packages/${encodeURIComponent(item.id)}`}
-                title={pickText(locale, item.nameAr, item.nameEn) ?? ""}
-                sub={pickText(locale, item.descriptionAr, item.descriptionEn)}
+                title={<LocalizedField locale={locale} ar={item.names.ar} en={item.names.en} />}
+                sub={pickTexts(locale, item.descriptions) ? <LocalizedField locale={locale} ar={item.descriptions.ar} en={item.descriptions.en} perLocale={perLocaleOf(item.descriptions)} /> : undefined}
                 count={item.includedServices?.length ? t("tests", { count: item.includedServices.length }) : undefined}
                 price={item.price !== undefined ? money(locale, item.price) : undefined}
                 was={item.oldPrice !== undefined && item.price !== undefined && item.oldPrice > item.price ? money(locale, item.oldPrice) : undefined}

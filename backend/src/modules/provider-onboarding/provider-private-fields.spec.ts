@@ -27,7 +27,7 @@ function fakeModel() {
 
 describe('provider listings never expose private provider fields (Q93)', () => {
   it('unifiedSearch (GET /search/providers) drops bank, identity and commission fields', async () => {
-    const svc = new ProviderOnboardingService({} as any, fakeModel() as any, {} as any, {} as any);
+    const svc = new ProviderOnboardingService({} as any, fakeModel() as any, {} as any, {} as any, {} as any);
     const [row]: any[] = await svc.unifiedSearch({ type: 'doctor' as any });
     expect(row.id).toBe('prov-1');
     for (const f of PROVIDER_PRIVATE_FIELDS) expect(row).not.toHaveProperty(f);

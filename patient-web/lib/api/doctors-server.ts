@@ -1,5 +1,5 @@
 import { patientApiUrl } from "@/lib/api/upstream";
-import { doctorQuery, doctorSlotsQuery } from "./doctors";
+import { doctorQuery, doctorSlotsQuery, type DoctorSort } from "./doctors";
 import { filterApiParams, type DoctorFilters } from "@/lib/consult/doctor-filters";
 import { publicReadSignal } from "@/lib/api/public-timeout";
 
@@ -11,7 +11,7 @@ export const PROVIDER_PAGES_TAG = "providers";
  * first view of /consultations/doctors) goes through the Next data cache for a minute. A search
  * or specialty text is free-form and would fill the cache with one entry per query, so it is never cached.
  */
-export async function getPublicDoctors(input: { search?: string; specialty?: string; sort?: "rating" | "price" | "wait"; filters?: DoctorFilters } = {}): Promise<Response | null> {
+export async function getPublicDoctors(input: { search?: string; specialty?: string; sort?: DoctorSort; filters?: DoctorFilters } = {}): Promise<Response | null> {
   // a position or a window of minutes is free-form too: a filtered list is never cached
   const cacheable = !(input.search ?? input.specialty ?? "").trim() && !(input.filters && filterApiParams(input.filters).length > 0);
   try { return await fetch(patientApiUrl(doctorQuery(input)), { headers: { Accept: "application/json" }, signal: publicReadSignal(), ...(cacheable ? { next: { revalidate: 60, tags: [PROVIDER_PAGES_TAG] } } : { cache: "no-store" as const }) }); } catch { return null; }
@@ -34,4 +34,11 @@ export async function getPublicDoctorEntity(slug: string): Promise<Response | nu
 export async function getPublicDoctorSlots(input: { id: string; date: string; serviceType: "clinic" | "video" | "home" }): Promise<Response | null> {
   if (!/^[A-Za-z0-9_-]{1,128}$/.test(input.id) || !/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(input.date)) throw new Error("invalid_slots_query");
   try { return await fetch(patientApiUrl(doctorSlotsQuery(input)), { headers: { Accept: "application/json" }, signal: publicReadSignal(), cache: "no-store" }); } catch { return null; }
+}
+
+/** The public written reviews of a doctor (GET /ratings/provider/:id): score, comment, date and the reviewer's first name. */
+export async function getPublicDoctorRatings(doctorId: string, page = 1): Promise<Response | null> {
+  if (!/^[A-Za-z0-9_-]{1,128}$/.test(doctorId)) throw new Error("invalid_doctor_id");
+  const n = Number.isInteger(page) && page > 0 && page <= 1000 ? page : 1;
+  try { return await fetch(patientApiUrl(`/ratings/provider/${doctorId}?page=${n}&limit=20`), { headers: { Accept: "application/json" }, signal: publicReadSignal(), cache: "no-store" }); } catch { return null; }
 }

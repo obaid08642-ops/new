@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
-import { createStamper, createThemeStamper, hashedPage, policyWithHashes, policyWithNonce, sha256Source, stampTags, stampTheme, themeFromCookie, THEME_COOKIE, CSP_NONCE_PLACEHOLDER as SERVER_PLACEHOLDER, CSP_INJECT_HEADER as SERVER_HEADER } from "../server/nonce-transform.mjs";
+import { LOADER_BODY, createStamper, createThemeStamper, hashedPage, policyWithHashes, policyWithNonce, sha256Source, stampTags, stampTheme, themeFromCookie, THEME_COOKIE, CSP_NONCE_PLACEHOLDER as SERVER_PLACEHOLDER, CSP_INJECT_HEADER as SERVER_HEADER } from "../server/nonce-transform.mjs";
 import { CSP_INJECT_HEADER, CSP_NONCE_PLACEHOLDER, contentSecurityPolicy, hasSessionCookie } from "../lib/security/csp";
 
 describe("F68 nonce stamping", () => {
@@ -94,13 +94,58 @@ describe("F68: raw HTML stays limited to reviewed places", () => {
   });
 });
 
+const decode = (v: string) => v.replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+
 describe("owner decision 2026-10-16: the hashed copy a shared cache keeps", () => {
-  it("a src that tries to close the loader's tag stays inside the JSON (escaped), and the loader is hashed", () => {
+  it("a src that tries to close the loader's tag stays inside an escaped attribute, and the loader is hashed", () => {
     const { html, scriptHashes } = hashedPage('<body><script src="/x.js?a=&lt;/script&gt;&lt;script&gt;alert(1)//" async=""></script></body>');
     expect(html).not.toMatch(/<\/script[^>]*>\s*<script\b[^>]*>alert/i);
     expect(html.match(/<script\b[^>]*>/gi)?.length).toBe(1);
     const loader = /<script\b[^>]*>([\s\S]*)<\/script[^>]*>/i.exec(html)?.[1] || "";
+    expect(loader).toBe(LOADER_BODY);
     expect(scriptHashes).toEqual([sha256Source(loader)]);
+  });
+
+  // Next 16.4's bootstrap needs the inline `TURBOPACK.push(...)` to run before the runtime chunk is loaded (or, if after,
+  // with a src script as document.currentScript). One early loader for every script started the runtime chunk first and the
+  // page never became interactive (`Invalid URL`); each script now sits where Next put it.
+  it("each external script is replaced where it stood, so inline scripts keep their place between them", () => {
+    const page = [
+      '<head><script src="/_next/static/chunks/a.js" async=""></script></head><body>',
+      '<script src="/_next/static/chunks/turbopack-x.js" async=""></script>',
+      '<script>(globalThis["TURBOPACK"] || (globalThis["TURBOPACK"] = [])).push({"otherChunks":["static/b.js"]})</script>',
+      '<script src="/_next/static/chunks/b.js" async=""></script></body>',
+    ].join("");
+    const { html } = hashedPage(page);
+    const tags = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script[^>]*>/gi)].map((m) => ({ attrs: m[1], body: m[2] }));
+    expect(tags.map((t) => (t.body === LOADER_BODY ? "loader" : "inline"))).toEqual(["loader", "loader", "inline", "loader"]);
+    expect(tags[2].body).toContain("TURBOPACK");
+    // the script each loader rebuilds, in order
+    const rebuilt = tags.filter((t) => t.body === LOADER_BODY).map((t) => JSON.parse(decode(/data-nabd-script="([^"]*)"/.exec(t.attrs)![1])).src);
+    expect(rebuilt).toEqual(["/_next/static/chunks/a.js", "/_next/static/chunks/turbopack-x.js", "/_next/static/chunks/b.js"]);
+  });
+
+  it("all loaders have the same text, so the policy carries one hash for them (plus one per distinct inline script)", () => {
+    const { scriptHashes } = hashedPage('<script src="/1.js"></script><script src="/2.js" async=""></script><script src="/3.js" crossorigin="" integrity="sha384-x"></script><script>a()</script>');
+    expect(scriptHashes).toEqual([sha256Source(LOADER_BODY), sha256Source("a()")]);
+  });
+
+  it("running a loader inserts a script with the same attributes before itself; async stays off unless the original had it", () => {
+    const run = (attrs: Record<string, string>) => {
+      const created: Array<{ attrs: Record<string, string>; async?: boolean }> = [];
+      const inserted: unknown[] = [];
+      const self = { getAttribute: (n: string) => (n === "data-nabd-script" ? JSON.stringify(attrs) : null), parentNode: { insertBefore: (e: unknown, ref: unknown) => inserted.push([e, ref]) } };
+      const document = { currentScript: self, createElement: () => { const e: { attrs: Record<string, string>; async?: boolean; setAttribute: (k: string, v: string) => void } = { attrs: {}, setAttribute(k, v) { e.attrs[k] = v; } }; created.push(e); return e; } };
+      new Function("document", LOADER_BODY)(document);
+      return { created, inserted, self };
+    };
+    const ordered = run({ src: "/a.js" });
+    expect(ordered.created[0].attrs).toEqual({ src: "/a.js" });
+    expect(ordered.created[0].async).toBe(false);
+    expect(ordered.inserted).toEqual([[ordered.created[0], ordered.self]]);
+    const asyncOne = run({ src: "/b.js", async: "" });
+    expect(asyncOne.created[0].attrs).toEqual({ src: "/b.js", async: "" });
+    expect(asyncOne.created[0].async).toBeUndefined();
   });
 
   it("removes every nonce (attributes and the placeholder in Next's payload) and keeps inline styles allowed by hash", () => {

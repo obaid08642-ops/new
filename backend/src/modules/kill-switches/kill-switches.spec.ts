@@ -162,7 +162,7 @@ describe('every listed switch is enforced where its action starts (nothing else 
     const k = off('chat_enabled');
     await expectOff(new ChatService(untouched(), untouched(), untouched(), untouched(), k).sendMessage('t1', 'u1', 'patient', { body: 'hi' }), 'chat_enabled');
     const gw = new ChatGateway(untouched(), k);
-    await expect(gw.handleSendMessage({ id: 's1', to: () => { throw new Error('relayed'); } } as any, { threadId: 't1', content: 'hi', state: 'OPEN' })).resolves.toEqual({ error: 'kill_switch_off:chat_enabled' });
+    await expect(gw.handleSendMessage({ id: 's1', to: () => { throw new Error('relayed'); } } as any, { threadId: 't1', content: 'hi' })).resolves.toEqual({ error: 'kill_switch_off:chat_enabled' });
     await expectOff(new FamilyChatController(untouched(), k).send({ id: 'u1' }, { text: 'hi' } as any), 'chat_enabled');
     await expectOff(new DoctorsService(untouched(), untouched(), untouched(), untouched(), untouched(), untouched(), k).postMessage({ id: 'u1' }, 'a1', 'hi'), 'chat_enabled');
   });
@@ -173,8 +173,6 @@ describe('every listed switch is enforced where its action starts (nothing else 
     await expectOff(appts.create({ id: 'p1', role: 'patient' }, { doctor_id: 'd1', service_type: 'video', slot_start: '2030-01-01T10:00:00Z' }), 'online_consultations');
     const clinic = await appts.create({ id: 'p1', role: 'patient' }, { doctor_id: 'd1', service_type: 'clinic', slot_start: '2030-01-01T10:00:00Z' }).then(() => null, (e) => e);
     expect(isOff('online_consultations')(clinic)).toBe(false);
-    const doctors = new DoctorsService(untouched(), untouched(), untouched(), untouched(), untouched(), untouched(), k);
-    await expectOff(doctors.book({ id: 'p1' }, { doctor_id: 'd1', scheduled_at: '2030-01-01T10:00:00Z', type: 'video' }), 'online_consultations');
   });
 
   it('provider_withdrawals: refused before any balance is read or locked', async () => {
@@ -193,7 +191,7 @@ describe('every listed switch is enforced where its action starts (nothing else 
 
   it('new_registrations: both register contracts refused before the OTP or users are touched', async () => {
     const u = untouched;
-    const auth = new AuthService(u(), u(), u(), u(), u(), undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, off('new_registrations'));
+    const auth = new AuthService(u(), u(), u(), u(), u(), undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, off('new_registrations'));
     await expectOff(auth.register({ full_name: 'x', email: 'a@b.test', password: 'Str0ng!Pass1' }), 'new_registrations');
     await expectOff(auth.registerPatientContract({ name: 'x', identifier: 'a@b.test', password: 'Str0ng!Pass1', locale: 'ar', consents: [] }), 'new_registrations');
   });

@@ -73,6 +73,7 @@ export default function LabProfile() {
                       <TestRow
                         key={test.id}
                         name={test.name}
+                        nameMark={test.nameMark}
                         icon={diagLook(test.category)}
                         price={test.price}
                         last={i === tests.length - 1}

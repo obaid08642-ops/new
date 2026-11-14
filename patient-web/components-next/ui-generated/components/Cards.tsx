@@ -1,5 +1,3 @@
-"use client";
-
 // GENERATED FILE — DO NOT EDIT.
 //
 // Mirrored from packages/ui/components/Cards.tsx by tools/design/sync-ui-components.mjs.
@@ -19,7 +17,8 @@ import clsx from 'clsx';
 import type { ConsultMode, DoctorCardProps, OfferCardProps, ProductCardProps, ProgressRingProps, TimelineProps } from './contract';
 import { FIcon } from './FIcon';
 import { Rating } from './Surfaces';
-import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, type FillIconName } from '../icons/fill';
+import { FILL_ICON_VIEWBOX, type FillIconName } from '../icons/fill';
+import { fillHref } from '../icons/sprite';
 import { CLOCK_PATH, MARK_VIEWBOX_24, PLUS_SQUARE_PATH, SEAL_CHECK_PATH, SEAL_PATH } from '../icons/marks';
 
 /**
@@ -36,7 +35,7 @@ import { CLOCK_PATH, MARK_VIEWBOX_24, PLUS_SQUARE_PATH, SEAL_CHECK_PATH, SEAL_PA
 function Glyph({ name, size, color }: { name: FillIconName; size: number; color: string }) {
   return (
     <svg width={size} height={size} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true" className="nabd-cards-glyph">
-      <path d={FILL_ICON_PATHS[name]} fill={color} />
+      <use href={fillHref(name)} fill={color} />
     </svg>
   );
 }
@@ -54,6 +53,8 @@ export interface WebDoctorCardProps extends DoctorCardProps {
   href?: string;
   /** Without `href`, the book button is a real button calling this. */
   onBook?: () => void;
+  /** The reader's locale, for the digits of the rating. */
+  locale?: string;
 }
 
 export function DoctorCard({
@@ -73,6 +74,7 @@ export function DoctorCard({
   bookLabel,
   href,
   onBook,
+  locale,
   testID,
 }: WebDoctorCardProps) {
   const Root = href ? 'a' : 'article';
@@ -121,7 +123,7 @@ export function DoctorCard({
         </div>
       </div>
       <div className="nabd-doctor-card__footer">
-        {rating ? <Rating value={rating.value} count={rating.count} surface="onBrand" /> : null}
+        {rating ? <Rating value={rating.value} count={rating.count} surface="onBrand" locale={locale} /> : null}
         {nextSlot ? (
           <span className="nabd-doctor-card__slot">
             <svg width={15} height={15} viewBox={MARK_VIEWBOX_24} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden="true">
@@ -186,7 +188,7 @@ export function ProductCard({
   const inert = disabled || loading;
   const body = (
     <>
-      <div className="nabd-product-card__media">
+      <div className={`nabd-product-card__media${imageSrc ? " nabd-product-card__media--photo" : ""}`}>
         {imageSrc ? (
           <img
             src={imageSrc}
@@ -238,7 +240,7 @@ export function ProductCard({
           })}
         >
           <svg width={18} height={18} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true">
-            <path d={PLUS_SQUARE_PATH} fill="var(--nabd-color-action-selected-fg)" />
+            <path d={PLUS_SQUARE_PATH} fill="var(--nabd-color-action-primary-fg)" />
           </svg>
           {/* 40 to look at, 44 to hit */}
           <span aria-hidden className="nabd-product-card__hit" />

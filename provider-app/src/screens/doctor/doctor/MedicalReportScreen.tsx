@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { serverMessage } from '../../../utils/singleFlight';
 import { io } from 'socket.io-client';
 import { AppointmentStatus } from '../../../types/contracts';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet,
@@ -47,11 +48,12 @@ export function MedicalReportScreen({ apt, onBack }: { apt: any; onBack: () => v
  const [recs, setRecs] = useState('');
 
  const REPORT_TYPES = [
- { ar: 'تقرير طبي عام', en: 'General Medical Report' },
- { ar: 'تقرير للعمل/الدراسة', en: 'Work / Study Report' },
- { ar: 'تقرير لتأمين السفر', en: 'Travel Insurance Report' },
- { ar: 'تقرير متابعة مزمن', en: 'Chronic Follow-up' },
- { ar: 'تقرير عيادي مفصّل', en: 'Detailed Clinical Report' },
+ // `id` is the report type the server stores (consultation_note, clinic_note, other, ...); the label is the title on the report
+ { id: 'consultation_note', ar: 'تقرير طبي عام', en: 'General Medical Report' },
+ { id: 'other', ar: 'تقرير للعمل/الدراسة', en: 'Work / Study Report' },
+ { id: 'other', ar: 'تقرير لتأمين السفر', en: 'Travel Insurance Report' },
+ { id: 'consultation_note', ar: 'تقرير متابعة مزمن', en: 'Chronic Follow-up' },
+ { id: 'clinic_note', ar: 'تقرير عيادي مفصّل', en: 'Detailed Clinical Report' },
  ];
 
  return (
@@ -122,12 +124,14 @@ export function MedicalReportScreen({ apt, onBack }: { apt: any; onBack: () => v
      }
      await client.post(`/provider/requests/${apt.id}/medical-report`, {
        patient_id: apt.patient_id,
-       type, findings, conclusion, recommendations: recs
+       type: (REPORT_TYPES.find((t) => t.ar === type || t.en === type) || REPORT_TYPES[0]).id,
+       ...(() => { const t = REPORT_TYPES.find((x) => x.ar === type || x.en === type); return t ? { title_ar: t.ar, title_en: t.en } : {}; })(),
+       findings, conclusion, recommendations: recs
      });
      show(AR ? 'تم إصدار التقرير الطبي ' : 'Report issued ', 'success');
      onBack();
    } catch (err) {
-     show(AR ? 'حدث خطأ' : 'Failed to issue report', 'error');
+     show(serverMessage(err, AR ? 'حدث خطأ' : 'Failed to issue report'), 'error');
    }
  }}
  />

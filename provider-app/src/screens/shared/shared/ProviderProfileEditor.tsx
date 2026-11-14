@@ -5,6 +5,11 @@ import { useTheme, useLang, useAuth, useToast } from '../../../context';
 import { NBtn, NCard, NInput, NHeader, NAvatar, NToggle, NSecHeader, NProfileImageUploader } from '../../../components/ui';
 import { I, IBg } from '../../../components/icons';
 import { SP, R, FS, FW, publicPageUrl } from '../../../constants';
+import { useUploadsEnabled } from '../../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../../../components/UploadsUnavailable';
+import { announceScan } from '../../../components/ScanStatusBadge';
+import { scanStateOfRequestError, scanOfStored } from '../../../utils/scanRegistry';
+import { scanStateOfUpload } from '../../../utils/scanStatus';
 
 // One profile editor for every provider role. Same record, same calls for all:
 //   GET /provider/profile, PATCH /provider/profile (and the image calls inside NProfileImageUploader).
@@ -33,6 +38,8 @@ interface ProfileResponse {
   profile_image_id?: string; clinic_images?: unknown[];
   geo?: { lat?: number | string; lng?: number | string }; max_delivery_radius_km?: number | string | null; delivery_fee?: number | string | null;
   public_eligibility?: boolean; social?: { website?: string; url?: string }; slug?: string;
+  /** credential changes waiting for admin review (specialty, degree, licence): shown as "pending review" */
+  pending_credentials?: { fields?: Record<string, string> } | null;
 }
 
 const EMPTY: ProfileForm = {
@@ -88,8 +95,10 @@ export function buildProfilePatch(base: ProfileForm, cur: ProfileForm, role: Pro
 }
 
 export function ProviderProfileEditor({ role, onBack, initialSection }: { role: ProfileEditorRole; onBack: () => void; initialSection?: ProfileSection }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const { user } = useAuth();
+  const uploadsOn = useUploadsEnabled();
+  const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const { user } = useAuth();
   const AR = lang === 'ar';
+  const [pendingCred, setPendingCred] = useState<Record<string, string>>({});
   const sections = SECTIONS_BY_ROLE[role];
   const [section, setSection] = useState<ProfileSection>(initialSection && sections.includes(initialSection) ? initialSection : sections[0]);
   const [base, setBase] = useState<ProfileForm>(EMPTY);
@@ -107,7 +116,7 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
       if (!alive) return;
       const p: ProfileResponse = res?.data?.data || res?.data || {};
       const f = toForm(p);
-      setBase(f); setForm(f); setSlug(p.slug || null);
+      setBase(f); setForm(f); setSlug(p.slug || null); setPendingCred(p.pending_credentials?.fields ?? {});
     }).catch(() => {
       if (alive) show(AR ? 'فشل تحميل الملف الشخصي' : 'Failed to load profile', 'error');
     }).finally(() => { if (alive) setLoading(false); });
@@ -124,8 +133,9 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
     if (Object.keys(patch).length === 0) { show(AR ? 'لا توجد تعديلات للحفظ' : 'No changes to save', 'info'); return; }
     setSaving(true);
     try {
-      await client.patch('/provider/profile', patch);
-      show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
+      const res: any = await client.patch('/provider/profile', patch);
+      const credSent = Array.isArray(res?.data?.credentials_pending) && res.data.credentials_pending.length > 0;
+      show(credSent ? t('profile.credential.sent') : (AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval'), 'success');
       onBack();
     } catch (err) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
@@ -155,10 +165,11 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
       setUploadingClinic(true);
       const { ProviderApi } = await import('../../../api/provider');
       const id = await ProviderApi.uploadFile(asset.uri, asset.mimeType || 'image/jpeg', asset.name || 'clinic.jpg');
-      if (typeof id === 'string' && id) set('clinicImages', [...form.clinicImages, id]);
+      if (typeof id === 'string' && id) { set('clinicImages', [...form.clinicImages, id]); announceScan(show, lang, scanOfStored(id)); }
       else show(AR ? 'تعذر رفع الصورة' : 'Could not upload image', 'error');
-    } catch {
-      show(AR ? 'تعذر رفع الصورة' : 'Could not upload image', 'error');
+    } catch (e) {
+      if (scanStateOfRequestError(e) === 'rejected') announceScan(show, lang, 'rejected');
+      else show(AR ? 'تعذر رفع الصورة' : 'Could not upload image', 'error');
     } finally { setUploadingClinic(false); }
   }
 
@@ -191,14 +202,18 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
       {role === 'doctor' && (
         <>
           <NInput label={AR ? 'التخصص الطبي' : 'Specialty'} value={form.specialty} onChange={(v: string) => set('specialty', v)} />
+          {pendingCred.specialty ? <Text style={{ fontSize: FS.xs, color: theme.warn }}>{t('profile.credential.pending', { value: pendingCred.specialty })}</Text> : null}
           <NInput label={AR ? 'الدرجة العلمية' : 'Degree / Title'} value={form.degree} onChange={(v: string) => set('degree', v)} />
+          {pendingCred.degree ? <Text style={{ fontSize: FS.xs, color: theme.warn }}>{t('profile.credential.pending', { value: pendingCred.degree })}</Text> : null}
           <NSecHeader title={AR ? 'صور العيادة' : 'Clinic Images'} />
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <View style={{ flexDirection: row, gap: SP.md }}>
-              <TouchableOpacity onPress={addClinicImage} style={{ width: 100, height: 100, borderRadius: R.md, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border, borderStyle: 'dashed' }}>
+              {uploadsOn ? (
+<TouchableOpacity onPress={addClinicImage} style={{ width: 100, height: 100, borderRadius: R.md, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border, borderStyle: 'dashed' }}>
                 <I name="plus" size={24} color={theme.primary} />
                 <Text style={{ fontSize: FS.xs, color: theme.primary, marginTop: SP.xs }}>{uploadingClinic ? (AR ? 'جارٍ الرفع…' : 'Uploading…') : (AR ? 'إضافة صورة' : 'Add Image')}</Text>
               </TouchableOpacity>
+) : <UploadsUnavailable />}
               {form.clinicImages.map((id) => (
                 <View key={id} style={{ width: 100, height: 100, borderRadius: R.md, backgroundColor: theme.surface2, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
                   <TouchableOpacity onPress={() => set('clinicImages', form.clinicImages.filter((x) => x !== id))} style={{ position: 'absolute', top: 4, right: 4, zIndex: 10, width: 24, height: 24, borderRadius: 12, backgroundColor: theme.danger, alignItems: 'center', justifyContent: 'center' }}>
@@ -215,8 +230,8 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
   );
 
   const locationSection = (() => {
-    // react-native-maps is only needed here, so it is loaded when this section is opened.
-    const Maps = require('react-native-maps');
+    // the map is only needed here, so it is loaded when this section is opened.
+    const Maps = require('../../../components/PlatformMap');
     const MapView = Maps.default; const Marker = Maps.Marker;
     return (
       <View style={{ gap: SP.md }}>
@@ -227,7 +242,7 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
             initialRegion={{ latitude: form.pin?.lat || 24.7136, longitude: form.pin?.lng || 46.6753, latitudeDelta: 0.02, longitudeDelta: 0.02 }}
             onPress={(e: { nativeEvent: { coordinate: { latitude: number; longitude: number } } }) => set('pin', { lat: e.nativeEvent.coordinate.latitude, lng: e.nativeEvent.coordinate.longitude })}
           >
-            {form.pin && <Marker coordinate={{ latitude: form.pin.lat, longitude: form.pin.lng }} draggable onDragEnd={(e: { nativeEvent: { coordinate: { latitude: number; longitude: number } } }) => set('pin', { lat: e.nativeEvent.coordinate.latitude, lng: e.nativeEvent.coordinate.longitude })} />}
+            {form.pin && <Marker coordinate={{ latitude: form.pin.lat, longitude: form.pin.lng }} />}
           </MapView>
         </View>
         <NBtn label={locating ? (AR ? 'جارٍ التحديد…' : 'Locating…') : (AR ? 'استخدم موقعي الحالي' : 'Use my current location')} variant="outline" onPress={useMyLocation} />

@@ -1,8 +1,11 @@
+import { splitCredentialPatch, changedCredentials, PROOF_DOC_TYPES } from '../credential-changes';
+import type { CredentialField } from '../credential-changes';
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, Inject } from '@nestjs/common';
 import { Model, Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { v4 as uuidv4 } from 'uuid';
+import { assertNursingDelta } from '../../../common/nursing-price';
 import { ProviderAccount, ProviderProfile, ProviderDocument, ProviderBankAccount, ProviderAuditLog, DocumentReviewStatus, BankReviewStatus, SAUDI_BANKS } from '../schemas';
 import { ProviderAccountStatus, ProviderDocumentType, PROVIDER_STATUS_TRANSITIONS, REQUIRED_DOCS_BY_PROVIDER_TYPE, HOSPITAL_SUB_MODULES, ProviderType } from '../provider.enums';
 import { StorageService } from '../../storage/storage.module';
@@ -36,11 +39,21 @@ export class ProviderProfileService {
   async getProfile(user: any) {
     const p = await this.profiles.findOne({ account_id: user.id }, { _id: 0, __v: 0 });
     if (!p) throw new NotFoundException();
-    return p;
+    // credential changes waiting for review, so the app can mark those fields "pending review"
+    const pending: any = await this.connection.collection('provider_deltas').findOne(
+      { provider_id: { $eq: user.id }, target: 'credentials', status: 'pending' },
+      { sort: { createdAt: -1 }, projection: { _id: 0, id: 1, requested_changes: 1, createdAt: 1 } },
+    );
+    const obj = typeof (p as any).toObject === 'function' ? (p as any).toObject() : p;
+    return { ...obj, pending_credentials: pending ? { delta_id: pending.id, fields: pending.requested_changes ?? {}, requested_at: pending.createdAt } : null };
   }
 
-  async updateProfile(user: any, patch: any) {
-    const allowed = ['display_name_ar', 'display_name_en', 'legal_name', 'description_ar', 'description_en', 'commercial_registration_number', 'tax_number', 'medical_license_number', 'facility_license_number', 'established_year', 'years_of_experience', 'website', 'social', 'address', 'geo', 'has_own_delivery', 'use_platform_delivery', 'delivery_fee', 'estimated_delivery_minutes', 'profile_image_id', 'cover_image_id', 'clinic_images', 'public_eligibility', 'enabled_modules', 'delivery_mode', 'max_delivery_radius_km', 'estimated_delivery_time', 'sub_specialties'];
+  async updateProfile(user: any, patchIn: any) {
+    let patch = patchIn;
+    const allowed = ['display_name_ar', 'display_name_en', 'legal_name', 'description_ar', 'description_en', 'commercial_registration_number', 'tax_number', 'established_year', 'years_of_experience', 'website', 'social', 'address', 'geo', 'has_own_delivery', 'use_platform_delivery', 'delivery_fee', 'estimated_delivery_minutes', 'profile_image_id', 'cover_image_id', 'clinic_images', 'public_eligibility', 'enabled_modules', 'delivery_mode', 'max_delivery_radius_km', 'estimated_delivery_time', 'sub_specialties'];
+    // Credential fields never take the direct path: they become a pending, reviewed change (credential-changes.ts).
+    const { credentials, rest } = splitCredentialPatch(patch ?? {});
+    patch = rest;
     const set: any = {};
     for (const k of allowed) if (patch[k] !== undefined) set[k] = patch[k];
     if (set.enabled_modules) {
@@ -48,9 +61,51 @@ export class ProviderProfileService {
       if (p && p.provider_type !== ProviderType.HOSPITAL && p.provider_type !== ProviderType.CLINIC) throw new BadRequestException('enabled_modules only allowed for hospitals/clinics');
       set.enabled_modules = (set.enabled_modules as string[]).filter((m) => (HOSPITAL_SUB_MODULES as readonly string[]).includes(m));
     }
-    if (!Object.keys(set).length) throw new BadRequestException('no profile changes provided');
+    const credentialDelta = Object.keys(credentials).length ? await this.requestCredentialChange(user, credentials) : null;
+    if (!Object.keys(set).length) {
+      if (credentialDelta) return credentialDelta;
+      throw new BadRequestException('no profile changes provided');
+    }
     // Governance: profile changes stay draft until admin approves; live values untouched.
-    return this.requestChange(user, 'profile', set);
+    const res = await this.requestChange(user, 'profile', set);
+    return credentialDelta ? { ...res, credentials_pending: credentialDelta.credentials_pending, credentials_delta_id: credentialDelta.data.id } : res;
+  }
+
+  /**
+   * A credential change (specialty, degree, licence number, licence expiry): a pending delta with the old and new values and the
+   * proof the provider uploaded. Only fields that differ from the live profile are sent; a newer request replaces an older pending one.
+   */
+  async requestCredentialChange(user: any, input: Partial<Record<CredentialField, unknown>>) {
+    const live: any = await this.connection.collection('provider_profiles').findOne({ account_id: { $eq: user.id } });
+    const { next, previous } = changedCredentials(input, live);
+    const fields = Object.keys(next);
+    if (!fields.length) throw new BadRequestException('no_credential_change');
+    const proof: any[] = [];
+    const seen = new Set<string>();
+    for (const f of fields as CredentialField[]) {
+      for (const docType of PROOF_DOC_TYPES[f]) {
+        if (seen.has(docType)) break;
+        const d: any = await this.connection.collection('provider_documents').findOne(
+          { account_id: { $eq: user.id }, doc_type: { $eq: docType }, review_status: { $ne: 'rejected' } },
+          { sort: { createdAt: -1 }, projection: { _id: 0, id: 1, doc_type: 1, storage_object_id: 1, review_status: 1 } },
+        );
+        if (d) { seen.add(docType); proof.push({ document_id: d.id, doc_type: d.doc_type, storage_object_id: d.storage_object_id ?? null, review_status: d.review_status ?? null }); break; }
+      }
+    }
+    const now = new Date();
+    await this.connection.collection('provider_deltas').updateMany(
+      { provider_id: { $eq: user.id }, target: 'credentials', status: 'pending' },
+      { $set: { status: 'superseded', updatedAt: now } },
+    );
+    const delta = {
+      id: uuidv4(), provider_id: user.id, target: 'credentials', kind: 'credentials',
+      summary: `credentials: ${fields.join(', ')}`,
+      requested_changes: next, old_values: previous, proof,
+      status: 'pending', createdAt: now, updatedAt: now,
+    };
+    await this.connection.collection('provider_deltas').insertOne(delta);
+    await this.audit.create({ provider_account_id: user.id, actor_id: user.id, actor_role: 'provider', action: 'delta.submitted', after: { target: 'credentials', fields } });
+    return { ok: true, message: 'credentials_pending_review', pending_review: true, credentials_pending: fields, data: { id: delta.id, status: 'pending', target: 'credentials' } };
   }
 
   private computeCompleteness(p: ProviderProfile): number {
@@ -92,7 +147,7 @@ export class ProviderProfileService {
     if (!body?.file?.data_base64 || !body?.file?.mime) throw new BadRequestException('file required');
     // KYC artifacts are retained only in the private object store selected by
     // server policy; neither client nor this business route chooses a CDN target.
-    const sto = await this.storage.upload({ owner_account_id: user.id, owner_kind: 'provider_account', mime: body.file.mime, data_base64: body.file.data_base64, original_name: body.file.original_name || body.doc_type, target: 'r2' });
+    const sto = await this.storage.upload({ owner_account_id: user.id, owner_kind: 'provider_account', mime: body.file.mime, data_base64: body.file.data_base64, original_name: body.file.original_name || body.doc_type, target: 'r2', defer_ok: true });
     // delete previous PENDING/NEEDS_REPLACEMENT of same type? keep history but mark prior as superseded by leaving them.
     const existing = await this.docs.findOne({ account_id: user.id, doc_type: body.doc_type, review_status: { $in: [DocumentReviewStatus.PENDING, DocumentReviewStatus.NEEDS_REPLACEMENT, DocumentReviewStatus.UNDER_REVIEW] } });
     if (existing) {
@@ -208,6 +263,7 @@ export class ProviderProfileService {
       : (body && typeof body === 'object' && body.newData && typeof body.newData === 'object' && Object.keys(body).length <= 2)
         ? body.newData
         : body;
+    if (['nurse', 'nursing', 'home_care'].includes(String(user?.role || '').toLowerCase())) assertNursingDelta(requested);   // a shape that maps to nursing_services[] (what the patient reads), prices above 0
     const delta = {
       id: uuidv4(),
       provider_id: user.id,

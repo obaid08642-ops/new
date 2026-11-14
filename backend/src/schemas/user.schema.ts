@@ -11,12 +11,16 @@ export class User {
   @Prop() full_name: string;
   @Prop({ unique: true, sparse: true }) phone: string;
   @Prop({ unique: true, sparse: true }) email?: string;
+  // Sign-in with X / Snapchat: the provider's stable account id (neither gives a verified email we can trust as identity).
+  @Prop({ unique: true, sparse: true }) social_x_id?: string;
+  @Prop({ unique: true, sparse: true }) social_snapchat_id?: string;
   @Prop() password_hash?: string;
   @Prop({ type: String, enum: [...Object.values(UserRole), ...RETIRED_USER_ROLES], default: UserRole.PATIENT }) role: UserRole;
   @Prop({ default: true }) active: boolean;
   /** Restricted identity allowed to complete onboarding but not provider operations. */
   @Prop({ default: false, index: true }) onboarding_only?: boolean;
   @Prop({ default: false }) is_guest: boolean;
+  @Prop() last_active_at?: Date; // 21.8: a guest's latest use (refresh), so inactivity is measured from use, not from creation
   @Prop() deleted_at?: Date;
   /** PDPL erasure audit: why and when the account was anonymised (10.1). */
   @Prop() deletion_reason?: string;
@@ -55,6 +59,8 @@ export class User {
   @Prop({ type: [String], default: [] }) permissions?: string[];
   @Prop({ type: Object }) schedule?: any;
   @Prop({ default: false }) suspended?: boolean;
+  /** Set when a facility ends the membership (soft removal): the user, their history and the audit trail stay. */
+  @Prop() removed_from_facility_at?: Date;
   @Prop({ default: false }) verified?: boolean;
   /**
    * Session version for instant revocation (F09). The JWT carries `tv`; the

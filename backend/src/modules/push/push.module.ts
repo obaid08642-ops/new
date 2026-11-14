@@ -8,6 +8,7 @@
  * - Multi-device support
  * - Retry logic
  */
+import { pushChannel } from '../../common/push-channel';
 import {
   Module, Injectable, Controller, Post, Get, Delete, Body, Param, UseGuards, Logger, OnModuleInit,
 } from '@nestjs/common';
@@ -28,15 +29,24 @@ import { runsBackgroundWork } from '../../common/process-role';
 
 
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { timedFetch } from '../../common/external-call';
+import { ScheduledOnce } from '../../common/scheduled-once';
+
+/** FCM / Expo / Google oauth: 8 s per attempt, sent once (a repeat could notify twice). The callers already treat a failure as `failed`, never as a failed request. */
+const pushFetch = (url: string, init?: RequestInit) => timedFetch(url, init, { timeoutMs: 8000, label: 'push', timeoutCode: 'push_gateway_timeout' });
 // ── Schema ────────────────────────────────────────────────────────────
 
 @Schema({ timestamps: true })
 export class PushToken {
   @Prop({ required: true, unique: true }) token: string;
   @Prop({ required: true, index: true }) user_id: string;
-  @Prop({ default: 'expo', enum: ['expo', 'fcm', 'apns', 'webpush'] }) provider: string;
+  @Prop({ default: 'expo', enum: ['expo', 'fcm', 'apns', 'apns_voip', 'webpush'] }) provider: string;
+  /** The app rings an incoming call from a data-only push (set by the app at registration); older apps keep the visible notification. */
+  @Prop({ default: false }) call_ring?: boolean;
   @Prop({ enum: ['ios', 'android', 'web'] }) platform: string;
   @Prop() device_id?: string;
+  /** 21.7: the sign-in (JWT `sid`) this token was registered from, so signing it out removes the token. */
+  @Prop({ index: true }) session_id?: string;
   @Prop() device_name?: string;
   @Prop({ default: true }) active: boolean;
   @Prop() last_seen_at?: Date;
@@ -149,7 +159,7 @@ export class PushService implements OnModuleInit {
 
       const assertion = `${signatureInput}.${signature}`;
 
-      const resp = await fetch('https://oauth2.googleapis.com/token', {
+      const resp = await pushFetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${assertion}`,
@@ -160,8 +170,7 @@ export class PushService implements OnModuleInit {
         this.fcmTokenCache[projectId] = { token: data.access_token, expiry: Date.now() + (data.expires_in - 60) * 1000 };
         return data.access_token;
       } else {
-        const errorText = await resp.text();
-        this.logger.error(`FCM token fetch failed: ${resp.status} - ${errorText}`);
+        this.logger.error(`FCM token fetch failed: ${resp.status}`);
         return null;
       }
     } catch (e: any) {
@@ -367,7 +376,7 @@ export class PushService implements OnModuleInit {
     }
   }
 
-  async register(user: any, body: { token: string; provider?: string; platform?: string; device_id?: string; device_name?: string }) {
+  async register(user: any, body: { token: string; provider?: string; platform?: string; device_id?: string; device_name?: string; call_ring?: boolean }) {
     if (!body?.token) return { ok: false, reason: 'missing_token' };
     await this.tokens.findOneAndUpdate(
       { token: { $eq: body.token } },
@@ -377,8 +386,11 @@ export class PushService implements OnModuleInit {
           token: body.token,
           provider: body.provider || 'expo',
           platform: body.platform,
-          device_id: body.device_id,
+          device_id: body.device_id ?? user.dev,
+          // 21.7: the sign-in this token was registered from, so signing that device out removes it
+          ...(user.sid ? { session_id: user.sid } : {}),
           device_name: body.device_name,
+          call_ring: body.call_ring === true,
           active: true,
           last_seen_at: new Date(),
           failure_count: 0,
@@ -387,6 +399,19 @@ export class PushService implements OnModuleInit {
       { upsert: true, new: true },
     );
     return { ok: true };
+  }
+
+  /**
+   * 21.7 — sign-out removes the push tokens of the signed-out device: those registered from the ended sign-ins, and
+   * (tokens registered before sign-ins were tracked) those of the same device id. Returns how many were removed.
+   */
+  async removeForSessions(userId: string, sessionIds: string[], deviceIds: string[] = []): Promise<number> {
+    const or: Record<string, unknown>[] = [];
+    if (sessionIds.length) or.push({ session_id: { $in: sessionIds } });
+    if (deviceIds.length) or.push({ device_id: { $in: deviceIds }, session_id: { $exists: false } });
+    if (!or.length) return 0;
+    const res = await this.tokens.deleteMany({ user_id: { $eq: userId }, $or: or });
+    return res.deletedCount ?? 0;
   }
 
   async unregister(userId: string, token: string) {
@@ -401,6 +426,7 @@ export class PushService implements OnModuleInit {
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_2AM)
+  @ScheduledOnce()
   async cleanupStaleTokens() {
     this.logger.log('Starting stale push tokens cleanup cron job...');
     const result = await this.tokens.deleteMany({
@@ -495,6 +521,72 @@ export class PushService implements OnModuleInit {
     return this.sendToUser(userId, title, body, data);
   }
 
+  /** FCM v1 message; a ringing call to a device that rings itself is data-only, high priority and short-lived. */
+  private fcmMessage(token: string, title: string, body: string, data: any, ring: boolean) {
+    const flat = Object.keys(data).reduce((acc, k) => {
+      acc[k] = typeof data[k] === 'object' ? JSON.stringify(data[k]) : String(data[k]);
+      return acc;
+    }, {} as Record<string, string>);
+    if (ring) {
+      return {
+        message: {
+          token,
+          data: { ...flat, title, body },
+          android: { priority: 'HIGH', ttl: '30s' },
+          apns: { headers: { 'apns-priority': '10', 'apns-expiration': '0' }, payload: { aps: { 'content-available': 1 } } },
+        },
+      };
+    }
+    return {
+      message: {
+        token,
+        notification: { title, body },
+        data: flat,
+        android: { priority: 'high', notification: { sound: 'default', channel_id: pushChannel(data?.type, data?.channel) } },
+        apns: { payload: { aps: { sound: 'default', badge: 1 } } },
+      },
+    };
+  }
+
+  /** PushKit VoIP push: wakes the app so CallKit can show the incoming call (needs the APNs key; topic is `<bundle>.voip`). */
+  private sendApnsVoip(token: string, title: string, body: string, data: any): Promise<{ ok: boolean; status?: number; reason?: string }> {
+    return new Promise((resolve) => {
+      const jwt = this.getApnsJwt();
+      if (!jwt) return resolve({ ok: false, reason: 'apns_not_configured' });
+      const host = process.env.APNS_HOST || 'https://api.push.apple.com';
+      let client: http2.ClientHttp2Session;
+      try {
+        client = http2.connect(host);
+      } catch (e: any) {
+        return resolve({ ok: false, reason: `apns_connect_${e.message}` });
+      }
+      client.on('error', () => { client.close(); resolve({ ok: false, reason: 'apns_session_error' }); });
+      const req = client.request({
+        ':method': 'POST',
+        ':path': `/3/device/${token}`,
+        authorization: `bearer ${jwt}`,
+        'apns-topic': `${process.env.APNS_TOPIC || process.env.APNS_BUNDLE_ID}.voip`,
+        'apns-push-type': 'voip',
+        'apns-priority': '10',
+        'apns-expiration': String(Math.floor(Date.now() / 1000) + 30),
+        'content-type': 'application/json',
+      });
+      let status = 0;
+      let respBody = '';
+      req.on('response', (headers) => { status = headers[':status'] || 0; });
+      req.on('data', (chunk) => { respBody += chunk; });
+      req.on('end', () => {
+        client.close();
+        if (status === 200) return resolve({ ok: true, status });
+        let reason = `apns_${status}`;
+        try { reason = JSON.parse(respBody)?.reason || reason; } catch {}
+        resolve({ ok: false, status, reason });
+      });
+      req.on('error', () => { client.close(); resolve({ ok: false, reason: 'apns_request_error' }); });
+      req.end(JSON.stringify({ ...data, title, body }));
+    });
+  }
+
   private async deliverPush(payload: { userId: string; title: string; body: string; data?: any; priority?: string }) {
     const { userId, title, body, data = {}, priority = 'high' } = payload;
     const tokenDocs = await this.tokens.find({ user_id: userId, active: true, failure_count: { $lt: 10 } }).lean();
@@ -507,7 +599,27 @@ export class PushService implements OnModuleInit {
     const expoTokens = tokenDocs.filter(t => t.provider === 'expo').map(t => t.token);
     const fcmTokens = tokenDocs.filter(t => t.provider === 'fcm').map(t => t.token);
     const apnsTokens = tokenDocs.filter(t => t.provider === 'apns').map(t => t.token);
+    const voipTokens = tokenDocs.filter(t => t.provider === 'apns_voip').map(t => t.token);
+    const isCall = data?.type === 'call';
+    // a cancel reaches a ringing killed app the same way the ring did (data-only, high priority); it never goes to PushKit,
+    // because Apple requires a CallKit call for every VoIP push
+    const isRing = isCall || data?.type === 'call_cancelled';
+    const ringTokens = new Set(tokenDocs.filter(t => t.call_ring === true).map(t => t.token));
     const results = { sent: 0, failed: 0, errors: [] as string[] };
+
+    // ── PushKit VoIP (CallKit rings from this, even when the app is killed) ──
+    if (isCall) {
+      for (const token of voipTokens) {
+        const r = await this.sendApnsVoip(token, title, body, data);
+        if (r.ok) results.sent++;
+        else {
+          results.failed++;
+          results.errors.push(r.reason || 'apns_voip_failed');
+          if (r.reason === 'BadDeviceToken' || r.reason === 'Unregistered') await this.tokens.updateOne({ token }, { $set: { active: false } });
+          else await this.tokens.updateOne({ token }, { $inc: { failure_count: 1 } });
+        }
+      }
+    }
 
     // ── APNs direct (native iOS tokens) ──────────────────────
     for (const token of apnsTokens) {
@@ -533,18 +645,20 @@ export class PushService implements OnModuleInit {
       const chunks = this.chunkArray(expoTokens, 100);
       for (const chunk of chunks) {
         try {
-          const messages = chunk.map(to => ({
-            to,
-            title,
-            body,
-            data,
-            sound: 'default',
-            priority,
-            channelId: data?.type === 'call' ? 'calls' : 'default',
-            categoryId: data?.type === 'call' ? 'call_actions' : data?.type === 'chat' ? 'chat_actions' : 'default',
-            badge: 1,
-          }));
-          const resp = await fetch(this.EXPO_URL, {
+          const messages = chunk.map(to => isRing && ringTokens.has(to)
+            ? { to, data: { ...data, title, body }, priority: 'high', ttl: 30, channelId: 'calls', _contentAvailable: true }
+            : {
+              to,
+              title,
+              body,
+              data,
+              sound: 'default',
+              priority,
+              channelId: pushChannel(data?.type, data?.channel),
+              categoryId: data?.type === 'call' ? 'call_actions' : data?.type === 'chat' ? 'chat_actions' : 'default',
+              badge: 1,
+            });
+          const resp = await pushFetch(this.EXPO_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'Accept-Encoding': 'gzip, deflate' },
             body: JSON.stringify(messages),
@@ -586,56 +700,21 @@ export class PushService implements OnModuleInit {
           let resp: Response;
           if (accessToken && projectId) {
             // Send via FCM v1 HTTP API
-            resp = await fetch(`https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`, {
+            resp = await pushFetch(`https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`, {
               method: 'POST',
               headers: {
                 Authorization: `Bearer ${accessToken}`,
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify({
-                message: {
-                  token,
-                  notification: { title, body },
-                  data: Object.keys(data).reduce((acc, k) => {
-                    acc[k] = typeof data[k] === 'object' ? JSON.stringify(data[k]) : String(data[k]);
-                    return acc;
-                  }, {} as Record<string, string>),
-                  android: {
-                    priority: 'high',
-                    notification: {
-                      sound: 'default',
-                      channel_id: data?.type === 'call' ? 'calls' : 'default',
-                    },
-                  },
-                  apns: {
-                    payload: {
-                      aps: {
-                        sound: 'default',
-                        badge: 1,
-                      },
-                    },
-                  },
-                },
-              }),
+              body: JSON.stringify(this.fcmMessage(token, title, body, data, isRing && ringTokens.has(token))),
             });
             // Token belongs to the OTHER Firebase project (e.g. patient-iOS app) — retry with secondary credentials
             if (resp.status === 404 && this.fcmProjects().length > 1) {
               const altToken = await this.getFcmAccessToken(1);
               const altProject = this.fcmProjects()[1].projectId;
               if (altToken) {
-                const payloadStr = JSON.stringify({
-                  message: {
-                    token,
-                    notification: { title, body },
-                    data: Object.keys(data).reduce((acc, k) => {
-                      acc[k] = typeof data[k] === 'object' ? JSON.stringify(data[k]) : String(data[k]);
-                      return acc;
-                    }, {} as Record<string, string>),
-                    android: { priority: 'high', notification: { sound: 'default', channel_id: data?.type === 'call' ? 'calls' : 'default' } },
-                    apns: { payload: { aps: { sound: 'default', badge: 1 } } },
-                  },
-                });
-                resp = await fetch(`https://fcm.googleapis.com/v1/projects/${altProject}/messages:send`, {
+                const payloadStr = JSON.stringify(this.fcmMessage(token, title, body, data, isRing && ringTokens.has(token)));
+                resp = await pushFetch(`https://fcm.googleapis.com/v1/projects/${altProject}/messages:send`, {
                   method: 'POST',
                   headers: { Authorization: `Bearer ${altToken}`, 'Content-Type': 'application/json' },
                   body: payloadStr,
@@ -644,7 +723,7 @@ export class PushService implements OnModuleInit {
             }
           } else if (process.env.FCM_SERVER_KEY) {
             // Fallback: Send via Legacy FCM HTTP API
-            resp = await fetch('https://fcm.googleapis.com/fcm/send', {
+            resp = await pushFetch('https://fcm.googleapis.com/fcm/send', {
               method: 'POST',
               headers: {
                 Authorization: `key=${process.env.FCM_SERVER_KEY}`,
@@ -654,7 +733,7 @@ export class PushService implements OnModuleInit {
                 to: token,
                 notification: { title, body },
                 data: { ...data, click_action: 'FLUTTER_NOTIFICATION_CLICK' },
-                android: { priority: 'high', notification: { sound: 'default', channel_id: data?.type === 'call' ? 'calls' : 'default' } },
+                android: { priority: 'high', notification: { sound: 'default', channel_id: pushChannel(data?.type, data?.channel) } },
                 apns: { payload: { aps: { sound: 'default', badge: 1 } } },
               }),
             });
@@ -723,10 +802,12 @@ export class PushService implements OnModuleInit {
   @OnEvent('chat.message_sent')
   async onChatMessage(evt: any) {
     if (!evt?.meta?.participant_ids) return;
-    const recipients = (evt.meta.participant_ids as string[]).filter(id => id !== evt.actor_account_id);
+    // Recipients with a live connection already got the message over the socket; push only the rest.
+    const offline: string[] | undefined = Array.isArray(evt.meta.offline_ids) ? evt.meta.offline_ids : undefined;
+    const recipients = (evt.meta.participant_ids as string[]).filter(id => id !== evt.actor_account_id && (!offline || offline.includes(id)));
     const senderName = evt.meta.sender_name || 'رسالة جديدة';
     for (const uid of recipients) {
-      await this.queueNotification(uid, senderName, evt.meta.body || 'أرسل لك رسالة', { type: 'chat', thread_id: evt.meta.thread_id });
+      await this.queueNotification(uid, senderName, String(evt.meta.body || '').slice(0, 120) || 'أرسل لك رسالة', { type: 'chat', thread_id: evt.meta.thread_id });
     }
   }
 
@@ -742,14 +823,16 @@ export class PushService implements OnModuleInit {
     );
   }
 
-  @OnEvent('emergency.assigned')
-  async onEmergencyAssigned(evt: any) {
-    if (!evt?.provider_account_id) return; // hospital assignment carries no crew
+
+  /** The caller hung up before the callee answered: stop the ringing on the callee's devices. */
+  @OnEvent('call.cancelled')
+  async onCallCancelled(evt: any) {
+    if (!evt?.callee_id || !evt?.session_id) return;
     await this.queueNotification(
-      evt.provider_account_id,
-      'مهمة إسعاف جديدة',
-      'تم إسناد بلاغ طوارئ إلى سيارتك — افتح التطبيق للتوجه',
-      { type: 'emergency', emergency_id: evt.emergency_id, vehicle_id: evt.vehicle_id },
+      evt.callee_id,
+      'تم إلغاء المكالمة',
+      'أنهى المتصل المكالمة قبل الرد',
+      { type: 'call_cancelled', session_id: evt.session_id },
       'high',
     );
   }

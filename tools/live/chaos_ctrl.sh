@@ -14,15 +14,11 @@
 #   slowapi No latency switch exists in the backend (DEFERRED-OUT-OF-SCOPE for a
 #           server-side flag); the drill routes the journey's own client through
 #           tools/live/slow_proxy.py, which adds the +2 s delay hop-by-hop.
-#   sms     The backend ships a TEST-ONLY switch (p15-backend
-#           backend/src/common/chaos-switches.ts): CHAOS_FAIL_SMS=1 makes
-#           SmsService.sendOtp() return false before any provider call, so the
-#           OTP email+push fallback is forced. It is process env on the backend,
-#           so it is set by RESTARTING the backend with the variable set
-#           (`backend-chaos CHAOS_FAIL_SMS`) and removed again afterwards
-#           (`backend-nochaos`). start-backend.sh passes the variable straight
-#           through to `node dist/main.js` (it only defaults its own variables).
-#   livekit Same mechanism: CHAOS_FAIL_LIVEKIT=1 makes
+#   livekit The backend ships a TEST-ONLY switch (p15-backend
+#           backend/src/common/chaos-switches.ts), set by RESTARTING the backend
+#           with the variable (`backend-chaos CHAOS_FAIL_LIVEKIT`) and removed
+#           again afterwards (`backend-nochaos`). start-backend.sh passes the
+#           variable straight through to `node dist/main.js`. CHAOS_FAIL_LIVEKIT=1 makes
 #           LiveKitService.roomService() return null, i.e. every server-side room
 #           call answers exactly as if LiveKit were unconfigured.
 #
@@ -32,7 +28,7 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 # The only variables this script will ever export into the backend. Anything else
 # is refused: this is a fault-injection control, not a generic env editor.
-CHAOS_VARS=(CHAOS_FAIL_SMS CHAOS_FAIL_LIVEKIT)
+CHAOS_VARS=(CHAOS_FAIL_LIVEKIT)
 
 chaos_var_allowed() {
   local v
@@ -155,7 +151,7 @@ case "${1:-status}" in
     curl -s -X POST http://127.0.0.1:9100/__mode -H 'content-type: application/json' -d '{"payments_fail":false}' && echo && echo "fake_moyasar: 500 failure mode OFF"
     ;;
   backend-chaos|backend-nochaos)
-    [[ -n "${2:-}" ]] || { echo "usage: $0 $1 <CHAOS_FAIL_SMS|CHAOS_FAIL_LIVEKIT>" >&2; exit 2; }
+    [[ -n "${2:-}" ]] || { echo "usage: $0 $1 <CHAOS_FAIL_LIVEKIT>" >&2; exit 2; }
     if [[ "$1" == "backend-chaos" ]]; then backend_switch on "$2"; else backend_switch off "$2"; fi
     ;;
   status)

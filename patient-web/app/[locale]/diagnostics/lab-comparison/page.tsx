@@ -5,7 +5,7 @@ import { callPatientApi } from "@/lib/api/upstream";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { ActionLinks } from "@/components-next/consult/consult-parts";
-import { LAB, LabCard } from "@/components-next/diagnostics/diag-parts";
+import { LAB, LabCard, pickText } from "@/components-next/diagnostics/diag-parts";
 import styles from "@/components-next/diagnostics/diag.module.css";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ testIds?: string }> };
@@ -30,7 +30,7 @@ export default async function LabComparisonPage({ params, searchParams }: Props)
       const r = l as Record<string, unknown>;
       const id = String(r.id ?? r._id ?? "");
       if (!id) return null;
-      return { id, name: String(r.name_ar ?? r.name_en ?? r.name ?? id) };
+      return { id, name: String(pickText(locale, typeof r.name_ar === "string" ? r.name_ar : undefined, typeof r.name_en === "string" ? r.name_en : undefined) ?? r.name ?? id) };
     }).filter((l): l is { id: string; name: string } => l !== null);
   }
   const cart = `/${locale}/diagnostics/cart`;

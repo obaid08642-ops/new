@@ -9,6 +9,10 @@ const schema = z.object({
   height_cm: z.number().min(30).max(300).optional(),
   weight_kg: z.number().min(2).max(1000).optional(),
   blood_type: z.string().max(8).optional(),
+  gender: z.enum(["unspecified", "female", "male"]).optional(),
+  is_pregnant: z.boolean().optional(),
+  is_breastfeeding: z.boolean().optional(),
+  is_smoker: z.boolean().optional(),
 }).passthrough();
 
 export async function PATCH(request: Request) {

@@ -1,3 +1,5 @@
+import { delayCreditText } from '../loyalty/guaranteed-appointment';
+import { pushChannel, NEW_ORDER_SOUND } from '../../common/push-channel';
 import { BadGatewayException, BadRequestException, Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { I18nService } from '../i18n/i18n.service';
 import { Model } from 'mongoose';
@@ -12,7 +14,6 @@ import { resolveNotificationTarget } from './notification-target';
 import { NotificationRepository } from "./repositories/notification.repository";
 import { initializeApp, getApps, cert } from 'firebase-admin';
 import { getMessaging } from 'firebase-admin/messaging';
-import { SmsService } from '../sms/sms.service';
 import { MailService } from '../mail/mail.module';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
@@ -24,6 +25,9 @@ const NOTIFICATION_CATEGORY: Record<string, string> = {
   order: 'orders', appointment: 'appointments', prescription: 'health', labs: 'health', medication: 'health', promo: 'marketing',
 };
 
+/** Which provider notices ring. */
+export const PROVIDER_PUSH_PRIORITY: Record<string, 'HIGH' | 'NORMAL'> = { new_request: 'HIGH', request_cancelled: 'HIGH', payout: 'NORMAL' };
+
 @Injectable()
 export class NotificationsService {
   private logger = new Logger('Notifications');
@@ -31,7 +35,6 @@ export class NotificationsService {
     @Inject('NotificationRepository') private model: NotificationRepository,
     @InjectModel(NotificationTemplate.name) private templateModel: Model<NotificationTemplateDocument>,
     private events: EventEmitter2,
-    private smsService: SmsService,
     private mail: MailService,
     @InjectQueue('notifications-delivery') private queue: Queue,
     private readonly i18n: I18nService,
@@ -54,6 +57,11 @@ export class NotificationsService {
     if (!settings) return all;
     const category = String(n.title_key || '').startsWith('notif.chat_') ? 'chat' : NOTIFICATION_CATEGORY[String(n.type)] ?? null;
     if (category && settings.categories?.[category] === false) return { push: false, email: false };
+    // Design parity (#1819): the master switch, and the medication / doctor-message switches of the flat settings.
+    const prefs = settings.preferences || {};
+    if (prefs.general === false) return { push: false, email: false };
+    if (n.type === NotificationType.MEDICATION && prefs.medications === false) return { push: false, email: false };
+    if (category === 'chat' && prefs.doctorMessages === false) return { push: false, email: false };
     return { push: settings.channels?.push !== false, email: settings.channels?.email !== false };
   }
 
@@ -190,7 +198,7 @@ export class NotificationsService {
       try {
         const user = (await this.model.db.model('User').findOne({ id: n.user_id }).lean()) as any;
         if (user?.phone) {
-          // SMS retired: phone users are served by email (if on file) + push + WhatsApp.
+          // Phone users are served by email (if on file) + push + WhatsApp.
           if (user?.email && !emailSent) {
             try {
               await this.sendEmail(n, user.email);
@@ -280,13 +288,12 @@ export class NotificationsService {
     // 1. Broadcast Push Notification
     await this.sendPush(n);
 
-    // 2. Broadcast to user specific channels (SMS, Email, WhatsApp) if user_id is set
+    // 2. Broadcast to user specific channels (Email, WhatsApp) if user_id is set
     if (n.user_id) {
       try {
         const user = (await this.model.db.model('User').findOne({ id: n.user_id }).lean()) as any;
         if (user) {
           if (user.phone) {
-            // SMS retired (see dispatch above).
             await this.sendWhatsApp(n, user.phone);
           }
           if (user.email) {
@@ -311,6 +318,9 @@ export class NotificationsService {
       type: String(n.type || 'info'),
       action: JSON.stringify(n.action || {}),
     };
+    // the channel the phone shows it on (loud for a new order) and what the tap should open
+    dataPayload.channel = pushChannel(n.type, n.channel);
+    for (const [k, v] of Object.entries(n.data || {})) if (v != null && dataPayload[k] === undefined) dataPayload[k] = String(v);
     if (n.action?.route) dataPayload.screen = String(n.action.route);
     if (n.action?.payload) dataPayload.params = JSON.stringify(n.action.payload);
 
@@ -359,9 +369,14 @@ export class NotificationsService {
         }),
       });
     }
+    // High priority wakes a dozing phone (normal priority is held back until the next maintenance window), and the channel
+    // decides how loud it is: without them every provider notice arrived quietly and late.
+    const loud = dataPayload.channel === 'new_order';
     const payload = {
       notification: { title: n.title || n.title_key, body: n.body || n.body_key },
       data: dataPayload,
+      android: { priority: 'high' as const, notification: { channelId: String(dataPayload.channel || 'default'), ...(loud ? { sound: NEW_ORDER_SOUND } : { sound: 'default' }) } },
+      apns: { headers: { 'apns-priority': '10' }, payload: { aps: { sound: loud ? NEW_ORDER_SOUND : 'default' } } },
     };
     if (tokens && tokens.length > 0) {
       const res = await getMessaging().sendEachForMulticast({ tokens, ...payload });
@@ -381,10 +396,13 @@ export class NotificationsService {
         title: n.title || n.title_key,
         body: n.body || n.body_key,
         data: dataPayload,
-        sound: n.priority === 'HIGH' || n.priority === 'CRITICAL' ? 'default' : undefined,
+        sound: dataPayload.channel === 'new_order' ? NEW_ORDER_SOUND : n.priority === 'HIGH' || n.priority === 'CRITICAL' ? 'default' : undefined,
+        priority: 'high',
+        channelId: String(dataPayload.channel || 'default'),
       }));
       const res = await axios.post('https://exp.host/--/api/v2/push/send', messages, {
         headers: { 'Content-Type': 'application/json' },
+        timeout: 8000,
       });
       const receipts = Array.isArray(res.data?.data) ? res.data.data : [];
       return receipts.some((r: any) => r.status === 'ok');
@@ -392,12 +410,6 @@ export class NotificationsService {
       this.logger.error('Expo push failed', e.message);
       return false;
     }
-  }
-
-  /** SMS retired: kept as a logged no-op so historic delivery records keep their shape. */
-  async sendSms(_n: any, _phone: string) {
-    this.logger.warn('SMS channel retired — use email instead.');
-    return false;
   }
 
   async sendEmail(n: any, email: string) {
@@ -428,7 +440,7 @@ export class NotificationsService {
           to: phone,
           content: { templateName: n.title_key, templateData: { body: { placeholders: [n.body_key] } }, language: 'ar' }
         }]
-      }, { headers: { Authorization: `App ${process.env.INFOBIP_API_KEY}` } });
+      }, { headers: { Authorization: `App ${process.env.INFOBIP_API_KEY}` }, timeout: 8000 });
     } catch(e) {
       this.logger.error('Failed to send WhatsApp', e.message);
     }
@@ -466,6 +478,17 @@ export class NotificationsService {
         web_path: target?.web_path ?? null,
       };
     });
+  }
+
+  /** The bell's number: notifications this user can see and has not read (the list's scope), not capped by the list window. */
+  async unreadCount(user: any): Promise<{ unread: number }> {
+    const unread = await this.model.countDocuments({
+      $and: [
+        { $or: [{ user_id: user.id }, { role: user.role }, { role: 'all' }] },
+        { read_by: { $ne: user.id } },
+      ],
+    });
+    return { unread: Number(unread) || 0 };
   }
 
   async markRead(id: string, user: any) {
@@ -533,6 +556,72 @@ export class NotificationsService {
       title_ar: 'طلب تأمين جديد للمراجعة', title_en: 'New insurance request to review',
       body_ar: `طلب تأمين ${String(p.request_id).slice(0, 8)} بانتظار قرارك`, body_en: `Insurance request ${String(p.request_id).slice(0, 8)} awaits your decision`,
       related_id: String(p.request_id), related_type: 'insurance_request',
+    });
+  }
+
+  /** 19.3: the provider is told why it disappeared from the app, and what to do. */
+  @OnEvent('provider.license_lapsed')
+  async onProviderLicenseLapsed(p: any) {
+    if (!p?.provider_id) return;
+    const expired = p.outcome === 'expired';
+    await this.notifyProviderAccount(String(p.provider_id), {
+      type: 'booking_update',
+      title_ar: expired ? 'انتهت صلاحية ترخيص هيئة التخصصات الصحية' : 'تعذّر التحقق من ترخيص هيئة التخصصات الصحية',
+      title_en: expired ? 'Your SCFHS licence has expired' : 'Your SCFHS licence could not be verified',
+      body_ar: 'أُخفي حسابك من التطبيق إلى أن يُجدَّد الترخيص ويراجعه فريق نبض بلس.',
+      body_en: 'Your account is hidden from the app until the licence is renewed and the Nabd Plus team reviews it.',
+      related_id: p.profile_id ? String(p.profile_id) : undefined, related_type: 'provider_license',
+    });
+  }
+
+  /** PV-12: a facility invited a clinician: the invitee finds out in the app and answers from the invitations screen. */
+  @OnEvent('hospital.invitation_created')
+  async onFacilityInvitation(p: any) {
+    if (!p?.invitee_id) return;
+    await this.notifyProviderAccount(String(p.invitee_id), {
+      type: 'admin_message',
+      title_ar: 'دعوة للانضمام إلى منشأة', title_en: 'You are invited to join a facility',
+      body_ar: 'وصلتك دعوة للعمل ضمن منشأة. افتح الدعوات لقبولها أو رفضها.', body_en: 'A facility invited you to work with it. Open invitations to accept or decline.',
+      related_id: String(p.invitation_id), related_type: 'facility_invitation',
+    });
+  }
+
+  /** PV-12: the invitee answered: the facility is told. */
+  @OnEvent('hospital.invitation_answered')
+  async onFacilityInvitationAnswered(p: any) {
+    if (!p?.facility_id) return;
+    await this.notifyProviderAccount(String(p.facility_id), {
+      type: 'admin_message',
+      title_ar: p.accepted ? 'قُبلت دعوتك' : 'رُفضت دعوتك', title_en: p.accepted ? 'Your invitation was accepted' : 'Your invitation was declined',
+      body_ar: p.accepted ? 'انضم مقدّم الخدمة إلى منشأتك.' : 'اعتذر مقدّم الخدمة عن الانضمام.',
+      body_en: p.accepted ? 'The provider joined your facility.' : 'The provider declined to join.',
+      related_id: String(p.invitation_id), related_type: 'facility_invitation_answered',
+    });
+  }
+
+  /** PV-08: the licence ends soon (30/14/7/3/1 days): the provider is told in the app, with a push, before bookings stop. */
+  @OnEvent('provider.license_expiring')
+  async onProviderLicenseExpiring(p: any) {
+    if (!p?.account_id) return;
+    await this.notifyProviderAccount(String(p.account_id), {
+      type: 'kyc_update',
+      title_ar: `ترخيصك ينتهي خلال ${p.days_left} يوم`, title_en: `Your licence ends in ${p.days_left} days`,
+      body_ar: `ينتهي ترخيصك المهني في ${p.expiry}. جدّده وارفعه من الملف الشخصي قبل ذلك التاريخ، وإلا أُوقف حسابك تلقائياً.`,
+      body_en: `Your professional licence ends on ${p.expiry}. Renew it and upload it from your profile before then, or your account is suspended automatically.`,
+      related_id: `${p.profile_id}:${p.bucket}:${p.expiry}`, related_type: 'provider_license_expiring',
+    });
+  }
+
+  /** PV-09: the licence has ended and the account was suspended: the provider is told why and what to do. */
+  @OnEvent('provider.license_suspended')
+  async onProviderLicenseSuspended(p: any) {
+    if (!p?.account_id) return;
+    await this.notifyProviderAccount(String(p.account_id), {
+      type: 'kyc_update',
+      title_ar: 'أُوقف حسابك لانتهاء الترخيص', title_en: 'Your account is suspended: the licence has ended',
+      body_ar: 'جدّد ترخيصك المهني وارفعه ليراجعه فريق نبض بلس ويعيد تفعيل حسابك.',
+      body_en: 'Renew your professional licence and upload it; the Nabd Plus team reviews it and reactivates your account.',
+      related_id: String(p.profile_id), related_type: 'provider_license_suspended',
     });
   }
 
@@ -624,7 +713,12 @@ export class NotificationsService {
       await this.sendPush({
         user_id: providerAccountId, type: 'info',
         title: input.title_ar || input.title_en, body: input.body_ar || input.body_en || '',
+        channel: input.type === 'new_request' || input.type === 'request_cancelled' ? 'new_order' : 'default',
+        data: { related_type: input.related_type, related_id: input.related_id },
         action: input.action || (input.related_id ? { route: `/provider/job/${input.related_id}` } : {}),
+        // A new request or a cancellation is time-critical work: HIGH makes the Expo push play its sound on iOS too (sendExpoPush sets
+        // `sound` only for HIGH and CRITICAL; without it a provider's phone was silent for every new order).
+        priority: PROVIDER_PUSH_PRIORITY[input.type] ?? 'NORMAL',
       });
     } catch (e: any) {
       this.logger.debug(`provider push best-effort failed for ${providerAccountId}: ${e?.message}`);
@@ -642,7 +736,7 @@ export class NotificationsService {
   }
 
   /** LJ-07: notify the provider named on a service booking (assigned/requested/confirmed). */
-  async notifyBookingProvider(p: any, type: 'new_request' | 'booking_update'): Promise<any> {
+  async notifyBookingProvider(p: any, type: 'new_request' | 'booking_update' | 'request_cancelled', relatedSuffix = ''): Promise<any> {
     const entityType = String(p?.entity_type || '');
     const entityId = String(p?.entity_id || '');
     if (!entityType || !entityId) return null;
@@ -657,16 +751,25 @@ export class NotificationsService {
     if (!lookup) return null;
     const booking: any = await this.model.db.collection(lookup.collection).findOne({ id: entityId });
     if (!booking) return null;
-    const rawId = lookup.fields.map((f) => booking[f]).find(Boolean);
-    const accountId = await this.resolveProviderAccount(rawId);
+    // R8: the first field that names a real provider account wins. A lab booking can carry a facility id that is no account
+    // (a branch or a catalogue id) next to the account id, and taking the first non-empty field told nobody.
+    let accountId: string | null = null;
+    for (const f of lookup.fields) {
+      if (!booking[f]) continue;
+      accountId = await this.resolveProviderAccount(booking[f]);
+      if (accountId) break;
+    }
     if (!accountId) return null;
     const titles = type === 'new_request'
       ? { title_ar: 'حجز جديد بانتظارك', title_en: 'New booking assigned to you' }
-      : { title_ar: 'تحديث على حجزك', title_en: 'Update on your booking' };
+      : type === 'request_cancelled'
+        ? { title_ar: 'ألغى المريض الحجز', title_en: 'The patient cancelled the booking' }
+        : { title_ar: 'تحديث على حجزك', title_en: 'Update on your booking' };
     return this.notifyProviderAccount(accountId, {
       type, ...titles,
       body_ar: `رقم الحجز ${entityId.slice(0, 8)}`, body_en: `Booking ${entityId.slice(0, 8)}`,
-      related_id: entityId, related_type: entityType,
+      // the bell de-duplicates on (provider, related_type, related_id); a cancel or a new time is a new notice, so it carries its own suffix
+      related_id: entityId, related_type: entityType + relatedSuffix,
       action: { route: `/tracking/${this.routeKind(p)}/${entityId}` },
     });
   }
@@ -685,6 +788,22 @@ export class NotificationsService {
   @OnEvent('service.cancelled')
   async onServiceCancelled(p: any) {
     if (p.patient_account_id) await this.create({ user_id: p.patient_account_id, title_key: 'notif.service.cancelled.title', body_key: 'notif.service.cancelled.body', type: NotificationType.ORDER });
+    // The provider is told too when the patient is the one who cancelled (they had it in their list, maybe accepted, and may be on the way).
+    if (p.actor_role === 'patient') await this.notifyBookingProvider(p, 'request_cancelled', '_cancelled').catch(() => null);
+  }
+
+  /**
+   * A booking's time changed. Whoever did not change it is told: the patient when the provider moved it, the provider when the patient did.
+   * Emitted by the lab, radiology and unified-booking reschedules with { entity_type, entity_id, actor_role, patient_account_id, meta.new_date }.
+   */
+  @OnEvent('booking.rescheduled')
+  async onBookingRescheduled(p: any) {
+    const when = p?.meta?.new_date ? new Date(p.meta.new_date).toISOString() : '';
+    if (p?.actor_role === 'patient') {
+      await this.notifyBookingProvider({ ...p }, 'booking_update', `_rescheduled_${when}`).catch(() => null);
+    } else if (p?.patient_account_id) {
+      await this.create({ user_id: p.patient_account_id, title_key: 'notif.booking_rescheduled.title', body_key: 'notif.booking_rescheduled.body', params: { date: when.slice(0, 16).replace('T', ' ') }, type: NotificationType.ORDER });
+    }
   }
   @OnEvent('service.rollback')
   async onServiceRollback(p: any) {
@@ -799,10 +918,6 @@ export class NotificationsService {
     await this.create({ user_id: p.provider_id, title_key: `notif.${key}.title`, body_key: `notif.${key}.body`, params: { doc_type: p.doc_type || '' }, type: NotificationType.INFO, priority: NotificationPriority.HIGH });
     await this.providerDecisionBell(p.provider_id, key);
   }
-  @OnEvent('emergency.resolved')
-  async onEmergencyResolved(p: any) {
-    if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.emergency_resolved.title', body_key: 'notif.emergency_resolved.body', type: NotificationType.INFO });
-  }
   // ============ APPOINTMENT Lifecycle (EventBus payload shape: patient_account_id) ============
   @OnEvent('doctor_appointment.created')
   async onApptCreated(p: any) {
@@ -813,6 +928,11 @@ export class NotificationsService {
     if (p.meta?.doctor_id) {
       await this.create({ user_id: p.meta.doctor_id, title_key: 'notif.appt_new_for_doctor.title', body_key: 'notif.appt_new_for_doctor.body', type: NotificationType.APPOINTMENT, priority: NotificationPriority.HIGH });
     }
+  }
+  @OnEvent('rating.replied')
+  async onRatingReplied(p: any) {
+    if (!p?.user_id) return;
+    await this.create({ user_id: p.user_id, title_key: 'notif.review_reply.title', body_key: 'notif.review_reply.body', type: NotificationType.INFO, priority: NotificationPriority.NORMAL });
   }
   @OnEvent('doctor_appointment.confirmed')
   async onApptConfirmed(p: any) {
@@ -825,6 +945,12 @@ export class NotificationsService {
     const uid = p.patient_account_id || p.patient_id;
     if (!uid) return;
     await this.create({ user_id: uid, title_key: 'notif.appt_cancelled.title', body_key: 'notif.appt_cancelled.body', type: NotificationType.APPOINTMENT, priority: NotificationPriority.HIGH });
+  }
+  @OnEvent('doctor_appointment.no_show')
+  async onApptNoShow(p: any) {
+    const uid = p.patient_account_id || p.patient_id;
+    if (!uid) return;
+    await this.create({ user_id: uid, title_key: 'notif.appt_no_show.title', body_key: 'notif.appt_no_show.body', type: NotificationType.APPOINTMENT, priority: NotificationPriority.HIGH, action: { route: `/consultations/appointments` } });
   }
   @OnEvent('doctor_appointment.completed')
   async onApptCompleted(p: any) {
@@ -912,10 +1038,6 @@ export class NotificationsService {
     });
   }
 
-  @OnEvent('emergency.triggered')
-  async onEmergency(p: any) {
-    await this.create({ role: 'admin', title_key: 'notif.emergency.title', body_key: 'notif.emergency.body', type: NotificationType.EMERGENCY, priority: NotificationPriority.CRITICAL });
-  }
   @OnEvent('prescription.created')
   async onRx(p: any) {
     if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.prescription_new.title', body_key: 'notif.prescription_new.body', type: NotificationType.PRESCRIPTION });
@@ -1192,6 +1314,19 @@ export class NotificationsService {
     }
     // Routine per-action points are intentionally silent — the user sees them
     // in the loyalty hub; push-spamming every +10 would be terrible UX.
+  }
+
+  /** "Guaranteed appointment" credit: tell the patient in their own language. The text is stored as written (no key to translate). */
+  @OnEvent('loyalty.appointment_delay_credit')
+  async onAppointmentDelayCredit(p: { user_id?: string; points?: number; appointment_id?: string }) {
+    if (!p?.user_id || !p.points) return;
+    let locale: string | undefined;
+    try {
+      const u: any = await this.model.db.collection('users').findOne({ id: { $eq: String(p.user_id) } }, { projection: { _id: 0, locale: 1, language: 1 } });
+      locale = u?.locale || u?.language;
+    } catch { /* English */ }
+    const text = delayCreditText(locale, p.points);
+    await this.create({ user_id: p.user_id, title: text.title, body: text.body, type: NotificationType.PROMO, action: { route: '/loyalty/hub' }, params: { appointment_id: p.appointment_id, points: p.points } });
   }
 
   // ============ EPIC4/S20: AI scenarios ============

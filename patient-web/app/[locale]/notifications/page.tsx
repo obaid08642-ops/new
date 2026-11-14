@@ -6,22 +6,24 @@ import { getPatientNotifications } from "@/lib/api/notifications-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
-import { SERVICE_ICONS, type FillIconName, type ServiceName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
+import { SERVICE_ICONS, type FillAnyName, type ServiceName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { CoreShell } from "@/components-next/core/core-shell";
 import core from "@/components-next/core/core.module.css";
 import { RetryErrorState } from "@/components-next/core/core-states";
 import { NotificationsList, type NotificationGroup } from "./notifications-list";
 import styles from "./notifications.module.css";
+import { fillGlyph } from "@/components-next/ui-generated/icons/fill-all";
 
 type Props = { params: Promise<{ locale: string }> };
 
 /** The board's icon per kind of notification (canvas/Notifications); the tone follows the service the kind belongs to (handoff §1 service map). */
 const toneOf = (service: ServiceName): ServiceTone => SERVICE_ICONS[service].tone;
-const KIND: Record<string, { icon: FillIconName; tone: ServiceTone }> = {
+const KIND: Record<string, { icon: FillAnyName; tone: ServiceTone }> = {
   order: { icon: "moped", tone: toneOf("pharmacy") },
   appointment: { icon: "video-camera", tone: toneOf("radiology") },
   medication: { icon: "bell", tone: toneOf("nursing") },
   prescription: { icon: "file-text", tone: toneOf("lab") },
+  late_compensation: { icon: "clock-counter-clockwise", tone: toneOf("points") },
   emergency: { icon: "ambulance", tone: toneOf("emergency") },
   promo: { icon: "tag", tone: toneOf("points") },
   alert: { icon: "warning", tone: toneOf("points") },
@@ -34,6 +36,13 @@ function iconFor(n: PatientNotification) {
   const kind = KIND[n.type?.toLowerCase() || ""];
   if (kind) return kind;
   return URGENT.includes(n.priority?.toLowerCase() || "") ? KIND.alert : KIND.info;
+}
+
+/** The app's filter group per backend type (patient-app/src/utils/notificationsFeed.ts); unknown kinds are system. */
+const MEDICAL_TYPES = ["appointment", "prescription", "medication", "emergency", "labs"];
+function categoryOf(n: PatientNotification): "system" | "medical" | "promotion" {
+  const type = n.type?.toLowerCase() || "";
+  return MEDICAL_TYPES.includes(type) ? "medical" : type === "promo" ? "promotion" : "system";
 }
 
 /** "5 minutes ago" for the last day, the date after that; the language's own digits and words. */
@@ -84,13 +93,16 @@ export default async function NotificationsPage({ params }: Props) {
       const kind = iconFor(n);
       return {
         id: n.id,
-        title: n.title ?? null,
-        body: n.body ?? null,
+        // the late-appointment credit is written in the page language from the messages (the server text is one language)
+        title: n.type?.toLowerCase() === "late_compensation" ? t("lateCompensationTitle") : n.title ?? null,
+        body: n.type?.toLowerCase() === "late_compensation" ? t("lateCompensationBody") : n.body ?? null,
         when: n.createdAt ? whenLabel(n.createdAt, locale, now) : null,
         icon: kind.icon,
+        glyph: fillGlyph(kind.icon),
         tone: kind.tone,
         unread: n.read === false,
         href: webRouteForNotification(n.route, locale),
+        category: categoryOf(n),
       };
     }),
   }));

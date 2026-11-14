@@ -2,7 +2,7 @@ import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { AmountLine, CartBar, LabCard, PackageCard, TestRow, Timeline, diagLook, diagStatus } from '../../components/diagnostics/DiagKit';
+import { AmountLine, CART_BAR_LIFT, CartBar, cartBarBottom, LabCard, PackageCard, TestRow, Timeline, diagLook, diagStatus } from '../../components/diagnostics/DiagKit';
 import { message } from '../../components/screen/ScreenKit';
 import { normalizeLabService, normalizeProvider, rowsOf } from '../../utils/labMappers';
 
@@ -69,6 +69,15 @@ describe('cards', () => {
 });
 
 describe('CartBar and AmountLine', () => {
+  it('floats above the tab bar: its bottom offset is the tab bar height (row + safe-area inset) plus the lift', async () => {
+    const tabBarHeight = 68 + 34; // BAR_HEIGHT + a 34 pt home-indicator inset, what useTabBarHeight() returns
+    expect(cartBarBottom(tabBarHeight)).toBe(tabBarHeight + CART_BAR_LIFT);
+    expect(cartBarBottom(tabBarHeight)).toBeGreaterThan(tabBarHeight);
+    await render(wrap(<CartBar count={1} total={10} bottom={cartBarBottom(tabBarHeight)} actionLabel="Continue" countLabel="1 in the cart" totalLabel="Total" onPress={jest.fn()} />));
+    const bar = screen.getByLabelText('1 in the cart').parent?.parent;
+    expect(JSON.stringify(bar?.props.style)).toContain(`"bottom":${tabBarHeight + CART_BAR_LIFT}`);
+  });
+
   it('shows the count and the total and fires its action', async () => {
     const onPress = jest.fn();
     await render(wrap(<CartBar count={2} total={340} bottom={0} actionLabel="Continue" countLabel="2 in the cart" totalLabel="Total" onPress={onPress} />));

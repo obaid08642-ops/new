@@ -90,7 +90,7 @@ describe('P17-17.5 newsletter double opt-in and UTM attribution', () => {
     const svc = new PharmacyOrderService(orders as any, {} as any, {} as any, {} as any, {} as any, {} as any, engine as any, conn);
     await svc.create(
       { id: 'pat-1', role: 'patient' } as any,
-      { items: [{ raw_name: 'Panadol', qty: 2 }], utm_source: 'chat.openai.com', utm_campaign: 'ramadan' } as any,
+      { items: [{ raw_name: 'Panadol', qty: 2 }], utm_source: 'chat.openai.com', utm_campaign: 'ramadan', refund_policy_accepted: true } as any,
     );
     expect(created[0].attribution).toEqual({ utm_source: 'chat.openai.com', utm_campaign: 'ramadan' });
   });

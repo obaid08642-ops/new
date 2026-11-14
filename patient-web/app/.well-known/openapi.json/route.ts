@@ -3,8 +3,10 @@ import { NextResponse } from "next/server";
 const specification = {
   openapi: "3.1.0",
   info: {
+    // i18n-ok: machine-readable discovery metadata for agents and API clients (English by design), not shown to patients
     title: "Nabd Plus public catalog subset",
     version: "1.0.0",
+    // i18n-ok: machine-readable discovery metadata for agents and API clients (English by design), not shown to patients
     description: "A limited public discovery document. It is not the private patient API specification and contains no authenticated patient operations."
   },
   servers: [{ url: "https://api.nabd.plus/api/v1" }],
@@ -13,6 +15,7 @@ const specification = {
       get: {
         operationId: "getPublicNursingCatalog",
         summary: "Read the published nursing catalog",
+        // i18n-ok: machine-readable discovery metadata for agents and API clients (English by design), not shown to patients
         responses: { "200": { description: "Published catalog response" }, "401": { description: "The deployment may require a patient session" } }
       }
     },
@@ -20,6 +23,7 @@ const specification = {
       get: {
         operationId: "getPublishedRadiologyServices",
         summary: "Read published radiology services",
+        // i18n-ok: machine-readable discovery metadata for agents and API clients (English by design), not shown to patients
         responses: { "200": { description: "Published services response" }, "401": { description: "The deployment may require a patient session" } }
       }
     },
@@ -27,6 +31,7 @@ const specification = {
       get: {
         operationId: "getApiLiveness",
         summary: "Read API liveness",
+        // i18n-ok: machine-readable discovery metadata for agents and API clients (English by design), not shown to patients
         responses: { "200": { description: "API is live" }, "500": { description: "API is not live" } }
       }
     }

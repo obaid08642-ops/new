@@ -1,4 +1,6 @@
-import { Injectable, NotFoundException, Inject, BadRequestException, Logger, Optional } from '@nestjs/common';
+import { assertScanned } from '../storage/pending-scan';
+import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
+import { Injectable, NotFoundException, Inject, BadRequestException, Logger, Optional, HttpException, HttpStatus } from '@nestjs/common';
 import { Permission } from '../../common/permissions';
 import { hasEffectivePermission } from '../../common/effective-permissions';
 import { Cron } from '@nestjs/schedule';
@@ -10,22 +12,39 @@ import { Medicine, MedicineDocument } from '../../schemas/medicine.schema';
 import { EVENTS } from '../../common/events';
 import { clampPageInt } from '../../common/safe-query';
 import { PurgeBus } from '../../common/purge-bus';
-import { connectionFlagSource, isKilled } from '../../common/killswitches/killswitches.helper';
+import { connectionFlagSource, shouldDegrade } from '../../common/killswitches/killswitches.helper';
 import { MedicineRepository } from "./repositories/medicine.repository";
 import { RedisService } from '../redis/redis.service';
 import { HotCache } from '../redis/hot-cache.service';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
 import { AutoEntitySeoPipelineService } from '../events/auto-entity-seo-pipeline.service';
+import { NOT_PROMOTABLE_FILTER } from './promotion-rules';
+import { checkReviewedIngredients } from './ingredients';
+import { InteractionHit, pairInteractions } from '../ai/interaction-rules';
 import { publicMedicineFilter } from './public-medicine-filter';
 import { localizeMedicineStructured, DbLang, missingPublicMedicineTranslations, PUBLIC_CATALOG_LOCALES } from './med-i18n';
-import { normalizeRankingSort, ProductRankingService } from '../product-ranking/product-ranking.service';
+import { normalizeRankingSort, popularPage, ProductRankingService } from '../product-ranking/product-ranking.service';
 import { ManualBoostsService } from '../product-ranking/manual-boosts.service';
 import { escapeRegex } from '../../common/slug.util';
+import { ScheduledOnce } from '../../common/scheduled-once';
+
+/** A trending term needs at least this many searches in the week before it is shown to everyone. */
+export const TRENDING_MIN_SEARCHES = Number(process.env.TRENDING_MIN_SEARCHES) || 5;
+
+/** A term that may be published as trending: 2 to 40 characters, no e-mail address and no run of 5+ digits (a phone or id). */
+export function isPublishableTrendingTerm(term: unknown): boolean {
+  if (typeof term !== 'string') return false;
+  const t = term.trim();
+  if (t.length < 2 || t.length > 40) return false;
+  if (t.includes('@')) return false;
+  return !/[0-9٠-٩۰-۹]{5,}/.test(t);
+}
 
 @Injectable()
 export class MedicinesService {
   /** Search/list cache TTL — medicine catalog changes are rare, reads are hot. */
   private static readonly LIST_CACHE_TTL = 300; // 5 minutes
+  private static readonly LIST_SWR_SECONDS = 900; // a stale page may be served this long while it is rebuilt
   private static readonly AUTOCOMPLETE_CACHE_TTL = 60; // 1 minute
   private readonly logger = new Logger('MedicinesService');
 
@@ -387,7 +406,7 @@ export class MedicinesService {
   /** False only when analytics ingestion is explicitly killed (fail-open). */
   private async analyticsIngestAllowed(): Promise<boolean> {
     try {
-      return !(await isKilled('analyticsIngestion', connectionFlagSource(this.conn)));
+      return !(await shouldDegrade('analyticsIngestion', connectionFlagSource(this.conn)));
     } catch {
       return true;
     }
@@ -402,7 +421,7 @@ export class MedicinesService {
     if (t.length < 3) return { suggestion: null };
     // Kill switch (search suggestions): direct matches only, no suggestion
     // expansion and no suggester (pool) reads.
-    if (await isKilled('searchSuggestions', connectionFlagSource(this.conn))) {
+    if (await shouldDegrade('searchSuggestions', connectionFlagSource(this.conn))) {
       return { suggestion: null, alternatives: [], query: term };
     }
 
@@ -470,21 +489,29 @@ export class MedicinesService {
     return pool;
   }
 
-  /** Trending searches (last 7 days) — powers the "trending now" row in apps. */
+  /**
+   * Trending searches (last 7 days) — powers the "trending now" row in apps and on the web (public).
+   * The list is everyone's searches, so a term is only shown once enough searches made it common: a term typed by one or two
+   * people (a name, a rare condition) is never published, nor anything that looks like contact data. The cache key carries
+   * the size, so one caller's size is not served to the others.
+   */
   async trendingSearches(limit = 10) {
-    const cacheKey = 'med:trending';
+    const size = Math.min(Math.max(Math.trunc(limit) || 10, 1), 20);
+    const cacheKey = `med:trending:v2:${size}`;
     const cached = await this.redis.getJson<any[]>(cacheKey);
     if (cached) return cached;
     const since = new Date(Date.now() - 7 * 24 * 3600 * 1000);
     const rows = await this.conn.collection('search_queries').aggregate([
-      { $match: { createdAt: { $gte: since } } },
+      { $match: { createdAt: { $gte: since }, term_lc: { $type: 'string' } } },
       { $group: { _id: '$term_lc', searches: { $sum: 1 } } },
+      { $match: { searches: { $gte: TRENDING_MIN_SEARCHES } } },
       { $sort: { searches: -1 } },
-      { $limit: limit },
+      { $limit: size * 3 },
       { $project: { _id: 0, term: '$_id', searches: 1 } },
     ]).toArray();
-    await this.redis.setJson(cacheKey, rows, 900); // 15min
-    return rows;
+    const shown = rows.filter((r: any) => isPublishableTrendingTerm(r.term)).slice(0, size);
+    await this.redis.setJson(cacheKey, shown, 900); // 15min
+    return shown;
   }
 
   /** Recently viewed products for the user ("أكمل من حيث توقفت"). */
@@ -520,6 +547,17 @@ export class MedicinesService {
    * For large catalogs use paginate() via ?page=&limit= instead.
    */
   /**
+   * Long translated text blocks never sent on cards, for every language (ar and en included: they were 26 KB of a 27 KB card).
+   * Names, slugs and official names stay for localized lists.
+   */
+  private static cardTranslationExclusions(): Record<string, 0> {
+    const heavy = ['more_information', 'indications_uses', 'dosage_instructions', 'side_effects', 'warnings_precautions', 'storage_conditions', 'how_to_use', 'package_content_details', 'description', 'search_aliases'];
+    const out: Record<string, 0> = {};
+    for (const lang of ['ar', 'en', 'ur', 'hi', 'bn', 'tl']) for (const k of heavy) out[`translations.${lang}.${k}`] = 0;
+    return out;
+  }
+
+  /**
    * Card-level projection for LIST responses — the full document (with the
    * 6-language translations map) weighs ~24KB; cards need ~2KB. Details()
    * still returns everything. This is what keeps the catalog fast at 21k docs.
@@ -529,10 +567,7 @@ export class MedicinesService {
     // Keep ONLY the translated display names per language on cards (needed so
     // ur/hi/bn/tl users see localized names in lists); exclude the heavy
     // translated long-text blocks. details() still returns everything.
-    'translations.ur.more_information': 0, 'translations.ur.indications_uses': 0, 'translations.ur.dosage_instructions': 0, 'translations.ur.side_effects': 0, 'translations.ur.warnings_precautions': 0, 'translations.ur.storage_conditions': 0, 'translations.ur.how_to_use': 0, 'translations.ur.package_content_details': 0,
-    'translations.hi.more_information': 0, 'translations.hi.indications_uses': 0, 'translations.hi.dosage_instructions': 0, 'translations.hi.side_effects': 0, 'translations.hi.warnings_precautions': 0, 'translations.hi.storage_conditions': 0, 'translations.hi.how_to_use': 0, 'translations.hi.package_content_details': 0,
-    'translations.bn.more_information': 0, 'translations.bn.indications_uses': 0, 'translations.bn.dosage_instructions': 0, 'translations.bn.side_effects': 0, 'translations.bn.warnings_precautions': 0, 'translations.bn.storage_conditions': 0, 'translations.bn.how_to_use': 0, 'translations.bn.package_content_details': 0,
-    'translations.tl.more_information': 0, 'translations.tl.indications_uses': 0, 'translations.tl.dosage_instructions': 0, 'translations.tl.side_effects': 0, 'translations.tl.warnings_precautions': 0, 'translations.tl.storage_conditions': 0, 'translations.tl.how_to_use': 0, 'translations.tl.package_content_details': 0,
+    ...MedicinesService.cardTranslationExclusions(),
     more_info_ar: 0, more_info_en: 0, description_ar: 0, description_en: 0,
     indications_ar: 0, indications_en: 0, warnings_ar: 0, warnings_en: 0,
     precautions_ar: 0, precautions_en: 0, side_effects_ar: 0, side_effects_en: 0,
@@ -593,7 +628,7 @@ export class MedicinesService {
     let rows: any[] = [];
 
     // Continuous Dynamic Ranking Fast-Path when viewing storefront without search query
-    if (!search && this.rankingService) {
+    if (!search && this.rankingService && normalizeRankingSort(sort) !== 'smart_ranking') {
       const { drugIds } = await this.rankingService.getRankedDrugIds({
         pharmacyId,
         category: (category && category !== 'all') ? category : undefined,
@@ -625,9 +660,11 @@ export class MedicinesService {
     }
 
     // Regex path: substring/normalized/synonym matching (used when FTS misses)
-    if (rows.length < 3) {
-      rows = await this.model.find(this.buildQuery(search, (category && category !== 'all') ? category : undefined, includeUnverified), MedicinesService.CARD_PROJECTION)
-        .sort({ verified: -1, usage_count: -1, name_ar: 1 }).limit(cap);
+    if (rows.length < 3 || (!search && normalizeRankingSort(sort) === 'smart_ranking')) {
+      const filter = this.buildQuery(search, (category && category !== 'all') ? category : undefined, includeUnverified);
+      rows = (!search && normalizeRankingSort(sort) === 'smart_ranking')
+        ? await this.rankedCards(filter, 0, cap, !(category && category !== 'all'))
+        : await this.model.find(filter, MedicinesService.CARD_PROJECTION).sort({ verified: -1, usage_count: -1, name_ar: 1 }).limit(cap);
     }
 
     // Typo-tolerant fallback: zero hits → retry with letter-gap regex (normalization first)
@@ -684,11 +721,39 @@ export class MedicinesService {
     const safePage = clampPageInt(page, 1);
     if (typeof category === 'string') category = category.replace(/[\u0000-\u001F\u007F-\u009F]/g, '').trim().slice(0, 100) || undefined;
     const cacheKey = `med:page:governed-v2:${search || ''}:${category || ''}:${includeUnverified}:${safePage}:${safeLimit}:${sort}:${pharmacyId || 'global'}`;
+    const build = () => this.paginateUncached(search, category, safePage, safeLimit, includeUnverified, sort, pharmacyId);
+    // HotCache: fresh for LIST_CACHE_TTL, then the old page is still served (up to LIST_SWR_SECONDS) while ONE caller rebuilds it, so no reader waits for the database
+    if (this.hotCache) return this.hotCache.get(cacheKey, { ttl: MedicinesService.LIST_CACHE_TTL, swr: MedicinesService.LIST_SWR_SECONDS }, build);
     const cached = await this.redis.getJson<any>(cacheKey);
     if (cached) return cached;
+    const result = await build();
+    await this.redis.setJson(cacheKey, result, MedicinesService.LIST_CACHE_TTL);
+    return result;
+  }
 
+  /**
+   * One page of the popular order, read the cheap way (popularPage: the sort sees only the six fields it reads, answered from the covering index, and the full cards are fetched by
+   * id for the page alone). The old aggregate carried every matching document (translations in six languages, ~20 KB each) through its $addFields and $sort, then threw all but one
+   * page away: that was the ~300 ms of GET /medicines above the floor (SPEED_SWEEP.md).
+   */
+  private rankedCards(filter: Record<string, unknown>, skip: number, limit: number, mix: boolean): Promise<any[]> {
+    return popularPage((this.model as any).db.collection('medicines'), filter, skip, limit, MedicinesService.CARD_PROJECTION, mix);
+  }
+
+  private async paginateUncached(
+    search?: string,
+    category?: string,
+    page = 1,
+    limit = 30,
+    includeUnverified = true,
+    sort = 'smart_ranking',
+    pharmacyId?: string,
+  ) {
+    const safeLimit = clampPageInt(limit, 30, 100);
+    const safePage = clampPageInt(page, 1);
+    if (typeof category === 'string') category = category.replace(/[\u0000-\u001F\u007F-\u009F]/g, '').trim().slice(0, 100) || undefined;
     // Continuous Dynamic Ranking Fast-Path when not searching text
-    if (!search && this.rankingService) {
+    if (!search && this.rankingService && normalizeRankingSort(sort) !== 'smart_ranking') {
       const offset = (safePage - 1) * safeLimit;
       const { drugIds, total } = await this.rankingService.getRankedDrugIds({
         pharmacyId,
@@ -715,23 +780,25 @@ export class MedicinesService {
           limit: safeLimit,
           total_pages: Math.ceil(total / safeLimit),
         };
-        await this.redis.setJson(cacheKey, result, MedicinesService.LIST_CACHE_TTL);
         return result;
       }
     }
 
     const q = this.buildQuery(search, (category && category !== 'all') ? category : undefined, includeUnverified);
+    const byRank = !search && normalizeRankingSort(sort) === 'smart_ranking';
+    const skipN = (safePage - 1) * safeLimit;
     const [data, total] = await Promise.all([
-      this.model.find(q, MedicinesService.CARD_PROJECTION)
-        .sort({ verified: -1, usage_count: -1, name_ar: 1 })
-        .skip((safePage - 1) * safeLimit).limit(safeLimit),
+      byRank
+        ? this.rankedCards(q, skipN, safeLimit, !(category && category !== 'all'))
+        : this.model.find(q, MedicinesService.CARD_PROJECTION)
+          .sort({ verified: -1, usage_count: -1, name_ar: 1 })
+          .skip(skipN).limit(safeLimit),
       (this.model as any).countDocuments ? (this.model as any).countDocuments(q) : Promise.resolve(0),
     ]);
     const result = {
       data: await this.applySponsored((data as any[]).map((m: any) => this.withBadges(m?.toObject ? m.toObject() : m))),
       total, page: safePage, limit: safeLimit, total_pages: Math.ceil(total / safeLimit),
     };
-    await this.redis.setJson(cacheKey, result, MedicinesService.LIST_CACHE_TTL);
     return result;
   }
 
@@ -761,13 +828,17 @@ export class MedicinesService {
       q.price = { $gt: 0 }; // a missing price is not the cheapest
     }
     if (and.length) q.$and = and;
+    const byRank = sort !== 'price_asc' && sort !== 'price_desc' && sort !== 'newest' && sort !== 'most_ordered' && !search;
     const order: any = sort === 'price_asc' ? { price: 1, id: 1 }
       : sort === 'price_desc' ? { price: -1, id: 1 }
       : sort === 'newest' ? { createdAt: -1, id: 1 }
+      : sort === 'most_ordered' ? { orders_count: -1, id: 1 }
       : { verified: -1, usage_count: -1, name_ar: 1 };
     const safeLimit = clampPageInt(limit, 30, 100);
     const safePage = page === undefined ? 1 : clampPageInt(page, 1);
-    const find = this.model.find(q, MedicinesService.CARD_PROJECTION).sort(order).skip((safePage - 1) * safeLimit).limit(safeLimit);
+    const find = byRank
+      ? this.rankedCards(q, (safePage - 1) * safeLimit, safeLimit, !(category && category !== 'all'))
+      : this.model.find(q, MedicinesService.CARD_PROJECTION).sort(order).skip((safePage - 1) * safeLimit).limit(safeLimit);
     const rows = (await find as any[]).map((m: any) => this.withBadges(m?.toObject ? m.toObject() : m));
     if (page === undefined) return rows;
     const total = await (this.model as any).countDocuments(q);
@@ -991,6 +1062,7 @@ export class MedicinesService {
   // ── Pre-computed Aggregations Cron Jobs (Task 2.5) ─────────────────
   // Every 5 min: warm homepage catalog (200 items sorted by usage_count)
   @Cron('*/5 * * * *')
+  @ScheduledOnce()
   async warmHomepageCatalog(): Promise<void> {
     try {
       const data = await this.model
@@ -1008,6 +1080,7 @@ export class MedicinesService {
 
   // Every 10 min: warm trending (20 items)
   @Cron('*/10 * * * *')
+  @ScheduledOnce()
   async warmTrendingCatalog(): Promise<void> {
     try {
       const data = await this.model
@@ -1126,6 +1199,14 @@ export class MedicinesService {
   }
 
   async filters() {
+    // Run 113 (2026-11-10): this was three `distinct` scans of the whole public catalogue (about 21,000 documents each, 6 to 8 s per call) on every cache miss, and a burst of
+    // misses ran them in parallel inside mongod, whose memory grew past its container limit until the OOM killer stopped it, again and again. The answer is public data that changes
+    // only when the catalogue is published: HotCache builds it once per refresh for the whole fleet (single flight, a stale copy is served while it refreshes), like `categories`.
+    if (this.hotCache) return this.hotCache.get('med:filters-governed-v1', { ttl: 1800, swr: 3600 }, () => this.buildFilters());
+    return this.buildFilters();
+  }
+
+  private async buildFilters() {
     const categories = await this.model.distinct('category', this.publicCatalogFilter());
     const brands = await this.model.distinct('manufacturer', { ...this.publicCatalogFilter(), manufacturer: { $ne: null } });
     const forms = await this.model.distinct('form', { ...this.publicCatalogFilter(), form: { $ne: null } });
@@ -1136,7 +1217,7 @@ export class MedicinesService {
       // Needs-review #449: only forms that exist in the public catalogue (no invented fallback list).
       forms: forms.filter(Boolean),
       // #450: the ids GET /medicines accepts as `sort` (the screens translate them); no display text from the server.
-      sortOptions: ['relevant', 'price_asc', 'price_desc', 'newest'],
+      sortOptions: ['relevant', 'most_ordered', 'price_asc', 'price_desc', 'newest'],
     };
   }
 
@@ -1174,7 +1255,7 @@ export class MedicinesService {
     const [alts, stock] = await Promise.all([
       med.active_ingredient
         ? this.model.find(
-            { active_ingredient: med.active_ingredient, id: { $ne: id }, ...this.publicCatalogFilter() },
+            { active_ingredient: med.active_ingredient, id: { $ne: id }, ...this.publicCatalogFilter(), ...NOT_PROMOTABLE_FILTER },
             // Needs-review issue 460: the alternative cards also need a picture, the pack and the name in every language.
             {
               _id: 0, id: 1, name_ar: 1, name_en: 1, price: 1, manufacturer: 1, requires_prescription: 1, online_exclusive: 1,
@@ -1248,9 +1329,53 @@ export class MedicinesService {
     const med = await this.getPublicById(id);
     if (!med.active_ingredient) return [];
     return this.model.find(
-      { active_ingredient: med.active_ingredient, id: { $ne: id }, ...this.publicCatalogFilter() },
+      { active_ingredient: med.active_ingredient, id: { $ne: id }, ...this.publicCatalogFilter(), ...NOT_PROMOTABLE_FILTER },
       { _id: 0, __v: 0 },
     ).limit(20);
+  }
+
+  /**
+   * 22.3: items that patients bought with this one, counted from delivered or completed orders (counts only, no
+   * patient data). Never a prescription or controlled item, and a prescription item itself suggests nothing.
+   * Each suggestion carries the known interaction warnings against this item.
+   */
+  async frequentlyBoughtTogether(id: string, limit = 6): Promise<{ med: any; warnings: InteractionHit[] }[]> {
+    const source: any = await this.getPublicById(id);
+    if (source.requires_prescription === true || source.controlled === true || source.is_rx === true) return [];
+    // public and unauthenticated: the scan of the orders runs at most once an hour per item, not once per visitor
+    const cacheKey = `med:fbt:v1:${id}:${limit}`;
+    const cachedIds = this.redis ? await this.redis.getJson<{ id: string; orders: number }[]>(cacheKey).catch(() => null) : null;
+    const pairs: { _id: string; orders: number }[] = cachedIds ? cachedIds.map((p) => ({ _id: p.id, orders: Number(p.orders) })) : await this.coPurchasePairs(id);
+    if (!cachedIds && this.redis) await this.redis.setJson(cacheKey, pairs.map((p) => ({ id: String(p._id), orders: p.orders })), 3600).catch(() => undefined);
+    if (!pairs.length) return [];
+    const counts = new Map<string, number>(pairs.map((p) => [String(p._id), p.orders]));
+    const rows: any[] = await this.model.find(
+      {
+        id: { $in: [...counts.keys()] }, ...this.publicCatalogFilter(), ...NOT_PROMOTABLE_FILTER,
+        active: { $ne: false }, availability_status: { $ne: 'discontinued' },
+      },
+      { _id: 0, __v: 0 },
+    ).limit(50);
+    const sourceNames = medicineNames(source);
+    return rows
+      .sort((a, b) => (counts.get(String(b.id)) ?? 0) - (counts.get(String(a.id)) ?? 0))
+      .slice(0, limit)
+      .map((med) => ({ med, warnings: pairInteractions(sourceNames, medicineNames(med)) }));
+  }
+
+  /** 22.3: medicine ids bought in the same delivered or completed orders as `id`, with how many orders (counts only). */
+  private async coPurchasePairs(id: string): Promise<{ _id: string; orders: number }[]> {
+    return (await this.conn.collection('pharmacy_orders').aggregate([
+      { $match: { 'items.medicine_id': id, status: { $in: ['delivered', 'completed'] } } },
+      { $unwind: '$items' },
+      { $match: { 'items.medicine_id': { $type: 'string', $ne: id } } },
+      { $group: { _id: '$items.medicine_id', orders: { $addToSet: '$_id' } } },
+      { $project: { orders: { $size: '$orders' } } },
+      // a pairing seen in fewer than MIN_CO_PURCHASE_ORDERS orders is not shown: one order must not be identifiable
+      { $match: { orders: { $gte: MIN_CO_PURCHASE_ORDERS } } },
+      { $sort: { orders: -1 } },
+      { $limit: 50 },
+    ]).toArray()) as unknown as { _id: string; orders: number }[];
   }
 
   // RULE: Manual entries from patient/doctor/pharmacy are operational immediately.
@@ -1525,6 +1650,7 @@ export class MedicinesService {
     if (body.storage_id) {
       const obj: any = await this.storageObjects.findOne({ id: body.storage_id, deleted: { $ne: true } });
       if (!obj) throw new NotFoundException('Uploaded image not found');
+      assertScanned(obj);
       resolvedUrl = obj.external_url || `/api/v1/storage/${obj.id}`;
     }
 
@@ -1731,7 +1857,7 @@ export class MedicinesService {
     'requires_prescription', 'controlled', 'online_exclusive', 'barcode', 'price', 'sfda_price', 'images', 'image',
     'indications_ar', 'indications_en', 'contraindications_ar', 'contraindications_en',
     'warnings_ar', 'warnings_en', 'side_effects_ar', 'side_effects_en',
-    'precautions_ar', 'precautions_en', 'interactions', 'package_size', 'storage_conditions',
+    'precautions_ar', 'precautions_en', 'interactions', 'package_size', 'storage_conditions', 'storage_conditions_ar', 'storage_conditions_en',
   ];
 
   /** Decision 10 / needs-review admin-catalogue#20: the prescription and controlled flags are as sensitive as the
@@ -1744,6 +1870,27 @@ export class MedicinesService {
   }
 
   static readonly CHANGE_TYPES = ['field_edit', 'image_remove', 'shortage_badge', 'duplicate_remove', 'new_item', 'other'];
+
+  /** Fields only an admin edit may set: they are commercial claims, never accepted from a pharmacy's suggestion (#456, #1601). */
+  static readonly ADMIN_ONLY_FIELDS = ['covered_by_insurance'] as const;
+
+  /** The editable fields plus the admin-only ones; `covered_by_insurance` is normalised and validated by `normaliseInsurers`. */
+  private pickAdminEditable(obj: any): any {
+    const out = this.pickEditable(obj);
+    for (const f of MedicinesService.ADMIN_ONLY_FIELDS) if (obj && obj[f] !== undefined) out[f] = obj[f];
+    return out;
+  }
+
+  /** Company ids that cover the medicine: unique, each an active company of the catalogue; anything else is refused. */
+  private async normaliseInsurers(obj: any): Promise<void> {
+    if (!obj || obj.covered_by_insurance === undefined) return;
+    const ids = [...new Set((Array.isArray(obj.covered_by_insurance) ? obj.covered_by_insurance : []).map((x: unknown) => String(x).trim()).filter(Boolean))] as string[];
+    if (ids.length) {
+      const found = await this.conn.collection(CATALOG_COLLECTIONS.insurance_companies).find({ id: { $in: ids }, $and: [{ active: { $ne: false } }, { is_active: { $ne: false } }] }, { projection: { id: 1 } }).toArray();
+      if (found.length !== ids.length) throw new BadRequestException('insurance_company_not_found');
+    }
+    obj.covered_by_insurance = ids;
+  }
 
   private pickEditable(obj: any): any {
     const out: any = {};
@@ -1762,6 +1909,8 @@ export class MedicinesService {
   }
 
   /** User proposes a change to an existing catalog item. */
+  static readonly GUEST_PENDING_PER_ITEM = 10;
+
   async suggestChange(medicineId: string, reporter: { id: string; role: string }, body: { type?: string; changes?: any; note?: string }) {
     const med: any = await this.getById(medicineId);
     if (!med) throw new NotFoundException('الصنف غير موجود');
@@ -1780,6 +1929,10 @@ export class MedicinesService {
     if (reporter.id !== 'guest') {
       const dup = await this.changeRequests.findOne({ medicine_id: medicineId, reporter_id: reporter.id, type, status: 'pending' });
       if (dup) return { ok: true, request_id: dup.id, note: 'already_pending' };
+    } else {
+      // guests share one id, so the per-account duplicate guard cannot apply: cap what an anonymous visitor can leave waiting for one item, or the admin inbox floods
+      const waiting = await this.changeRequests.countDocuments({ medicine_id: medicineId, reporter_id: 'guest', status: 'pending' });
+      if (waiting >= MedicinesService.GUEST_PENDING_PER_ITEM) throw new HttpException('too_many_pending_suggestions', HttpStatus.TOO_MANY_REQUESTS);
     }
 
     const id = `ccr_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
@@ -1865,6 +2018,16 @@ export class MedicinesService {
       const data = { ...this.pickEditable(r.changes), ...overrides };
       const created = await this.createCatalog({ ...data, verified: true }, adminId);
       applied = { new_medicine_id: created.id };
+    } else if (r.type === 'ingredients_review') {
+      // Issue 1556 PR 2: the admin's own values for a row the parser could not read with confidence. Only the values the
+      // admin sends are written, each checked against the closed lists; the parser's guess is never written.
+      const checked = checkReviewedIngredients(opts?.overrides);
+      if (checked.ok === false) throw new BadRequestException(checked.error);
+      await this.model.updateOne(
+        { id: r.medicine_id },
+        { $set: { ...checked.patch, ingredients_status: 'reviewed', ingredients_reviewed_by: adminId, updatedAt: new Date() } },
+      );
+      applied = checked.patch;
     }
     // 'other' → informational; approval just acknowledges it.
 
@@ -1927,7 +2090,8 @@ export class MedicinesService {
 
   /** Admin: create a brand-new catalog item (all editable fields accepted). */
   async adminCreateCatalog(body: any, adminId: string) {
-    const clean = this.pickEditable(body);
+    await this.normaliseInsurers(body);
+    const clean = this.pickAdminEditable(body);
     if (!clean.name_ar && !clean.name_en) throw new BadRequestException('name_ar أو name_en مطلوب');
     const id = require('crypto').randomUUID();
     const doc = {
@@ -2057,7 +2221,8 @@ export class MedicinesService {
     const published = med.public_eligibility === true || med.indexing_eligibility === true || med.medical_review_status === 'approved';
     if (!published || await this.canApproveCatalog(adminId)) return this.applyCatalogEdit(medicineId, patch, adminId);
 
-    const clean = this.pickEditable(patch);
+    await this.normaliseInsurers(patch);
+    const clean = this.pickAdminEditable(patch);
     const changes: Record<string, unknown> = { ...clean };
     if (patch?.availability_status !== undefined) changes.availability_status = patch.availability_status;
     if (patch?.image !== undefined) changes.image = patch.image;
@@ -2090,7 +2255,9 @@ export class MedicinesService {
     // refresh below then ran with an undefined id -> 404 to the admin after the edit was already saved.
     const found: any = await this.getById(medicineId);
     const med: any = typeof found?.toObject === 'function' ? found.toObject() : found;
-    if (!med) throw new NotFoundException('الصنف غير موجود');    const clean = this.pickEditable(patch);
+    if (!med) throw new NotFoundException('الصنف غير موجود');
+    await this.normaliseInsurers(patch);
+    const clean = this.pickAdminEditable(patch);
     const extra: any = {};
     if (clean.price !== undefined && Number(clean.price) !== Number(med.price || 0)) {
       const priceReason = String(patch?.reason || '').trim();
@@ -2177,4 +2344,11 @@ export class MedicinesService {
     await this.invalidateCache();
     return { ok: true, updated: Object.keys({ ...clean, ...extra }), requires_reapproval: requiresReapproval };
   }
+}
+
+/** A pairing shown to anyone must come from at least this many orders. */
+const MIN_CO_PURCHASE_ORDERS = 3;
+
+function medicineNames(m: any): string[] {
+  return [m.active_ingredient, m.generic_name, m.name_en, m.name_ar].filter((n) => typeof n === 'string' && n.length > 0);
 }

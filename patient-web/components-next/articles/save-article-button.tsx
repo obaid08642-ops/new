@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { getSessionIdentity } from "@/lib/auth/session-identity";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import forms from "@/components-next/consult/consult.module.css";
@@ -25,6 +26,10 @@ export function SaveArticleButton({ slug, locale }: { slug: string; locale: stri
     let live = true;
     (async () => {
       try {
+        // a visitor is never asked: the status call could only answer 401
+        const who = await getSessionIdentity();
+        if (!live) return;
+        if (who.status === "anonymous") { setState("guest"); return; }
         const res = await fetch(`${base}/status`, { cache: "no-store", credentials: "same-origin" });
         if (!live) return;
         if (res.status === 401) { setState("guest"); return; }

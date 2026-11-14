@@ -19,9 +19,13 @@ x-logging: &logopts
 services:
   # ── MongoDB ──────────────────────────────────────────────────────
   mongodb:
-    image: mongo:7.0
+    image: mongo:7.0@sha256:8bb4442761a63a8dda452744082cdac9644b429807eb977b42324a63cef59ca4
     container_name: nabdah-mongodb
     restart: unless-stopped
+    mem_limit: 1600m   # run 58: with 1200m mongod sat at the limit (memory.events max=6159) and was restarted 32 times in 6 hours; 1600m leaves room above the 0.5 GB cache
+    mem_reservation: 1000m
+    memswap_limit: 1600m   # no swap: a swapped-out mongodb is slower than a restart; the others absorb the swap
+    oom_score_adj: -900
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
@@ -34,17 +38,21 @@ services:
     networks: [internal]
     healthcheck:
       test: ["CMD", "mongosh", "--quiet", "-u", "${MONGO_ROOT_USER}", "-p", "${MONGO_ROOT_PASSWORD}", "--authenticationDatabase", "admin", "--eval", "db.adminCommand('ping').ok"]
-      interval: 15s
-      timeout: 5s
-      retries: 10
-      start_period: 20s
+      interval: 30s
+      timeout: 10s    # a ping that needs more than 10 s means mongod is in trouble; docker only marks it unhealthy, it never restarts on its own
+      retries: 5
+      start_period: 60s
     logging: *logopts
 
   # ── Redis ────────────────────────────────────────────────────────
   redis:
-    image: redis:7-alpine
+    image: redis:7-alpine@sha256:c5d34a98396a4775e223c74e929162c35c5a2182901ba26b50ade939941ce14b
     container_name: nabdah-redis
     restart: unless-stopped
+    mem_limit: 512m
+    mem_reservation: 160m
+    memswap_limit: 512m   # no swap: a swapped-out redis is slower than a restart; the others absorb the swap
+    oom_score_adj: -800
     command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--requirepass", "${REDIS_PASSWORD}"]
     volumes:
       - redis_data:/data
@@ -65,14 +73,17 @@ services:
   # never touches the app's data. Nothing is saved (no RDB, no AOF), nothing is on a volume, the root filesystem is read-only:
   # this container cannot write to the disk at all. A restart empties it; pages are rendered again on demand.
   redis-cache:
-    image: redis:7-alpine
+    image: redis:7-alpine@sha256:c5d34a98396a4775e223c74e929162c35c5a2182901ba26b50ade939941ce14b
     container_name: nabdah-redis-cache
     restart: unless-stopped
     command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}", "--maxmemory", "${REDIS_CACHE_MAXMEMORY:-256mb}",
               "--maxmemory-policy", "allkeys-lru", "--save", "", "--appendonly", "no", "--dir", "/tmp"]
     read_only: true
     tmpfs: ["/tmp:size=16m"]
-    mem_limit: 384m
+    mem_limit: 192m   # owner 2026-10-31: uses 26 MB, so the room goes to meilisearch
+    mem_reservation: 130m
+    memswap_limit: 192m   # no swap: equal to mem_limit
+    oom_score_adj: 300   # rebuildable copies only
     networks: [cache]
     healthcheck:
       test: ["CMD-SHELL", "REDISCLI_AUTH=\"${REDIS_PASSWORD}\" redis-cli ping | grep -q PONG"]
@@ -84,14 +95,19 @@ services:
 
   # ── Meilisearch (D-29 search engine; ~300 MB RAM; mirror of the MongoDB search_index) ──
   meilisearch:
-    image: getmeili/meilisearch:v1.10
+    image: getmeili/meilisearch:v1.10@sha256:9d1b9b02fe6c68f60b54ce40092d8078f051b9341c400c90f907607636b7c9c1
     container_name: nabdah-meilisearch
     restart: unless-stopped
+    mem_limit: 1024m   # run 70: killed 491 times in 3 h at its OWN 640m limit (anon_rss ~643 MB each time, restarts=782): it needs more than 640m while it indexes
+    mem_reservation: 100m
+    memswap_limit: 1536m   # 1024m + 512m swap: the only container allowed a larger swap share (the index is rebuildable)
+    oom_score_adj: 200
     environment:
       MEILI_ENV: production
       MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
       MEILI_NO_ANALYTICS: "true"
-      MEILI_MAX_INDEXING_MEMORY: 256Mb
+      MEILI_MAX_INDEXING_MEMORY: 128Mb
+      MEILI_MAX_INDEXING_THREADS: "1"   # one indexing thread: the peak of a batch is one sorter, not one per core
     volumes:
       - meili_data:/meili_data
     networks: [internal]
@@ -112,8 +128,13 @@ services:
     container_name: nabdah-backend
     stop_grace_period: 40s   # 20.9: SIGTERM drain before SIGKILL (rolling deploys stop the old container with docker stop -t)
     restart: unless-stopped
+    mem_limit: 576m   # uses 330 MB (run 70/71); 768m was oversized
+    mem_reservation: 400m
+    memswap_limit: 768m   # 576m + 192m swap
+    oom_score_adj: 0
     env_file: .env.production
     environment:
+      NODE_OPTIONS: --max-old-space-size=416   # of the 576m container limit
       NODE_ENV: production
       CLUSTER_MODE: "false"   # ops 2026-10-04: cluster mode crashed the deployed build; one process also saves RAM
       PORT: "8002"
@@ -126,19 +147,28 @@ services:
       HTTP_COMPRESSION: edge   # P14.25: nginx gzips (gzip_proxied any); the API does not compress twice
       MONGO_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
       DB_NAME: ${DB_NAME:-nabd_nestjs}
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      # R7: connection budget. mongod accepts 300 connections (mongod.conf) and each costs about 1 MB; the driver default was 200 per process, so api + worker could ask for 400.
+      # tools/ops/mongo_pool_budget.py keeps the sum of every pool (x replicas) + the tools reserve under the limit.
+      # run 113 (2026-11-10): connections climbed 27 -> 65 in the 90 s before each mongod kill while slow catalogue reads piled up (the pool was 80). 55 is far above what the API runs at once on this host; a slow phase now waits in the driver queue instead of opening more.
+      MONGO_MAX_POOL_SIZE: "55"
+      MONGO_MIN_POOL_SIZE: "5"
+      REDIS_URL: ${REDIS_URL:-redis://:${REDIS_PASSWORD}@redis:6379}   # R7: unset = the local redis container (unchanged); set in .env.production to use a Redis on another host
       REDIS_CACHE_URL: ${REDIS_CACHE_URL:-}   # P14.14: empty = the cache shares REDIS_URL (one Redis until scale step 2)
       REDIS_HOST: redis
       REDIS_PORT: "6379"
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       # Search answers from MongoDB while Meilisearch is down or not configured (no hard dependency).
-      MEILI_URL: http://meilisearch:7700
+      MEILI_URL: ${MEILI_URL:-http://meilisearch:7700}   # R7: unset = the local meilisearch container (unchanged); set in .env.production to use one on another host
       MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
       # 16.5: every upload is scanned by ClamAV (the `clamav` service) before it is stored. An infected file is always refused;
-      # with `required` (the production default) an upload is also refused while the scanner cannot answer.
-      CLAMD_HOST: clamav
-      CLAMD_PORT: "3310"
-      UPLOAD_SCAN: required
+      # with `required` (the production default) an upload is also refused while the scanner cannot answer. `defer` (for a server that
+      # cannot keep ClamAV running all day, with CLAMAV_ON_DEMAND=1 for deploy/scripts/clamav-window.sh) accepts an account's upload into
+      # quarantine instead: nobody can open it until it has been scanned, and an infected file is deleted.
+      # The scanner is ONE switch in .env.production (docs/ops/REMOTE_CLAMD.md): CLAMD_HOST + CLAMD_PORT + UPLOAD_SCAN=required point the API and the worker
+      # at a clamd on another server. Unset, nothing changes: the local `clamav` container below, port 3310.
+      CLAMD_HOST: ${CLAMD_HOST:-clamav}
+      CLAMD_PORT: ${CLAMD_PORT:-3310}
+      UPLOAD_SCAN: ${UPLOAD_SCAN:-required}
     depends_on:
       mongodb: { condition: service_healthy }
       redis: { condition: service_healthy }
@@ -168,21 +198,34 @@ services:
     container_name: nabdah-worker
     stop_grace_period: 60s   # 20.9: SIGTERM drain before SIGKILL (rolling deploys stop the old container with docker stop -t)
     restart: unless-stopped
+    mem_limit: 640m
+    mem_reservation: 200m
+    memswap_limit: 896m   # 640m + 256m swap
+    oom_score_adj: 300
     env_file: .env.production
     environment:
+      NODE_OPTIONS: --max-old-space-size=448   # of the 640m container limit
       NODE_ENV: production
       CLUSTER_MODE: "false"
       PROCESS_ROLE: worker
       LOG_LEVEL: ${LOG_LEVEL:-info}   # 20.3, see the backend service
+      # the worker runs the same pending-scan loop as the API: it must reach the same scanner (see CLAMD_HOST in the backend service)
+      CLAMD_HOST: ${CLAMD_HOST:-clamav}
+      CLAMD_PORT: ${CLAMD_PORT:-3310}
+      UPLOAD_SCAN: ${UPLOAD_SCAN:-required}
       PORT: "8002"
       MONGO_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
       DB_NAME: ${DB_NAME:-nabd_nestjs}
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      # R7: connection budget. mongod accepts 300 connections (mongod.conf) and each costs about 1 MB; the driver default was 200 per process, so api + worker could ask for 400.
+      # tools/ops/mongo_pool_budget.py keeps the sum of every pool (x replicas) + the tools reserve under the limit.
+      MONGO_MAX_POOL_SIZE: "25"
+      MONGO_MIN_POOL_SIZE: "3"
+      REDIS_URL: ${REDIS_URL:-redis://:${REDIS_PASSWORD}@redis:6379}   # R7: unset = the local redis container (unchanged); set in .env.production to use a Redis on another host
       REDIS_CACHE_URL: ${REDIS_CACHE_URL:-}   # P14.14: empty = the cache shares REDIS_URL (one Redis until scale step 2)
       REDIS_HOST: redis
       REDIS_PORT: "6379"
       REDIS_PASSWORD: ${REDIS_PASSWORD}
-      MEILI_URL: http://meilisearch:7700
+      MEILI_URL: ${MEILI_URL:-http://meilisearch:7700}   # R7: unset = the local meilisearch container (unchanged); set in .env.production to use one on another host
       MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
     depends_on:
       mongodb: { condition: service_healthy }
@@ -204,9 +247,13 @@ services:
   # signature database lives on a volume so a restart does not download it again; the first start takes a few minutes
   # (freshclam), during which uploads are refused rather than waved through (UPLOAD_SCAN=required on the backend).
   clamav:
-    image: clamav/clamav:1.4
+    image: clamav/clamav:1.4@sha256:8ad6197396974726c35d017e50aaaaf4b91745726a04faec8480c203edd98052
     container_name: nabdah-clamav
     restart: unless-stopped
+    mem_limit: 1536m
+    mem_reservation: 600m
+    memswap_limit: 1536m   # no swap: equal to mem_limit
+    oom_score_adj: 900
     volumes:
       - clamav_db:/var/lib/clamav
     networks: [internal]
@@ -225,11 +272,15 @@ services:
       dockerfile: ../../../deploy/docker/Dockerfile.fastapi
     container_name: nabdah-fastapi
     restart: unless-stopped
+    mem_limit: 384m
+    mem_reservation: 80m
+    memswap_limit: 512m   # 384m + 128m swap
+    oom_score_adj: 300
     env_file: .env.production
     environment:
       MONGO_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
       DB_NAME: ${DB_NAME:-nabd_nestjs}
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      REDIS_URL: ${REDIS_URL:-redis://:${REDIS_PASSWORD}@redis:6379}   # R7: unset = the local redis container (unchanged); set in .env.production to use a Redis on another host
       REDIS_CACHE_URL: ${REDIS_CACHE_URL:-}   # P14.14: empty = the cache shares REDIS_URL (one Redis until scale step 2)
       REDIS_HOST: redis
       REDIS_PORT: "6379"
@@ -254,7 +305,12 @@ services:
     container_name: nabdah-admin-web
     stop_grace_period: 30s   # 20.9: SIGTERM drain before SIGKILL (rolling deploys stop the old container with docker stop -t)
     restart: unless-stopped
+    mem_limit: 256m   # uses 28 MB
+    mem_reservation: 100m
+    memswap_limit: 384m   # 256m + 128m swap
+    oom_score_adj: 300
     environment:
+      NODE_OPTIONS: --max-old-space-size=192   # of the 256m container limit
       NEXT_PUBLIC_API_URL: https://api.nabd.plus
       NEXT_PUBLIC_WS_URL: https://api.nabd.plus
       NEXT_PUBLIC_SITE_URL: https://admin.nabd.plus
@@ -272,17 +328,20 @@ services:
 
   # ── LiveKit (self-hosted SFU) ─────────────────────────────────────
   livekit:
-    image: livekit/livekit-server:v1.8.3
+    image: livekit/livekit-server:v1.8.3@sha256:05342e1f630e95d82f85effe856507b75d70e6526b82f483ffcbfe7baae2ead9
     container_name: nabdah-livekit
     restart: unless-stopped
+    mem_limit: 256m
+    mem_reservation: 80m
+    memswap_limit: 256m   # no swap: equal to mem_limit
+    oom_score_adj: -100
     command: ["--config", "/etc/livekit.yaml"]
     volumes:
       - ./livekit/livekit.yaml:/etc/livekit.yaml:ro
     ports:
       - "127.0.0.1:7880:7880"  # websocket — localhost only; public access via nginx wss://live.nabd.plus
       - "7881:7881"            # RTC over TCP
-      - "7882:7882/udp"        # RTC over UDP
-      - "50000-50100:50000-50100/udp"  # RTC UDP port range
+      - "7882:7882/udp"        # RTC over UDP: the one mux port (livekit.yaml rtc.udp_port), no range
     networks: [web]
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:7880/"]
@@ -294,9 +353,13 @@ services:
 
   # ── Coturn (STUN/TURN, self-hosted) ───────────────────────────────
   coturn:
-    image: coturn/coturn:4.6.2
+    image: coturn/coturn:4.6.2@sha256:4873c54f213ec81f6b4c4c4938b69c922f50b2293ded427f5191472b9a127227
     container_name: nabdah-coturn
     restart: unless-stopped
+    mem_limit: 128m
+    mem_reservation: 30m
+    memswap_limit: 128m   # no swap: equal to mem_limit
+    oom_score_adj: -100
     command: ["-c", "/etc/coturn/turnserver.conf"]
     volumes:
       # The committed turnserver.conf is a template; the real static-auth-secret is
@@ -321,9 +384,13 @@ services:
 
   # ── Nginx reverse proxy (TLS termination + routing + caching) ─────
   nginx:
-    image: nginx:1.28.0-alpine   # pinned: upstream `resolve` (deploy/nginx/nginx.conf) needs >= 1.27.3
+    image: nginx:1.28.0-alpine@sha256:30f1c0d78e0ad60901648be663a710bdadf19e4c10ac6782c235200619158284   # pinned: upstream `resolve` (deploy/nginx/nginx.conf) needs >= 1.27.3
     container_name: nabdah-nginx
     restart: unless-stopped
+    mem_limit: 128m
+    mem_reservation: 30m
+    memswap_limit: 128m   # no swap: equal to mem_limit
+    oom_score_adj: -500
     ports:
       - "80:80"
       - "443:443"
@@ -352,11 +419,19 @@ services:
     container_name: nabdah-patient-web
     stop_grace_period: 30s   # 20.9: SIGTERM drain before SIGKILL (rolling deploys stop the old container with docker stop -t)
     restart: unless-stopped
+    mem_limit: 448m   # uses 274 MB
+    mem_reservation: 250m
+    memswap_limit: 672m   # 448m + 224m swap
+    oom_score_adj: 300
     environment:
+      NODE_OPTIONS: --max-old-space-size=320   # of the 448m container limit
       NABD_API_BASE_URL: http://backend:8002/api/v1
       NEXT_PUBLIC_SITE_ORIGIN: https://nabd.plus
       # P14.9: shared secret of the edge worker (deploy/cloudflare/edge-html-worker); empty = edge mode off
       NABD_EDGE_STAMP_TOKEN: ${NABD_EDGE_STAMP_TOKEN:-}
+      # App links (/.well-known/apple-app-site-association, /.well-known/assetlinks.json): the owner's real values; empty = that file is not served
+      APPLE_TEAM_ID: ${APPLE_TEAM_ID:-}
+      ANDROID_SHA256_FINGERPRINT: ${ANDROID_SHA256_FINGERPRINT:-}
       RUN_SANDBOX_TESTS: "false"
       RUN_SANDBOX_CREDENTIAL_TEST: "false"
       NODE_ENV: production
@@ -376,7 +451,7 @@ services:
     logging: *logopts
 
   certbot:
-    image: certbot/certbot:v2.11.0
+    image: certbot/certbot:v2.11.0@sha256:ddf9e5d226a56e886986838fa0ebedc0237511c78664352e8d0f4346ee022cd8
     container_name: nabdah-certbot
     volumes:
       - ./certs/live:/etc/letsencrypt

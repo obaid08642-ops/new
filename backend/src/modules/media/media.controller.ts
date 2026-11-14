@@ -1,3 +1,4 @@
+import { UserRateLimit, UserRateLimitGuard } from '../../common/user-rate-limit';
 import { Controller, Get, GoneException, HttpCode, Post, Delete, Body, Param, UseGuards, UseInterceptors, UploadedFile, BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
@@ -8,8 +9,11 @@ import { MediaService } from './media.service';
 import { UploadMediaDto } from './media.dto';
 import { MediaAsset, MediaAssetDocument, MEDIA_PURPOSES, MediaPurpose } from './media.schema';
 import { CONSULTATION_FOLLOWUP_HOURS_DEFAULT } from '../chat/followup-window';
+import { consultationState } from '../chat/consultation-window';
+import { isConsultationThread } from '../chat/chat.service';
 import { MediaCleanupService } from './media-cleanup.service';
 import { MEDIA_PURPOSE_TO_UPLOAD, UploadSecurityService } from '../storage/upload-security.service';
+import { FilePendingScanException, PENDING_PREFIX, isPendingKey, isUnscanned } from '../storage/pending-scan';
 
 @Controller('media')
 @SelfService()
@@ -23,7 +27,10 @@ export class MediaController {
     private readonly uploadSecurity: UploadSecurityService,
   ) {}
 
+  // 16.12: an account may upload 60 files an hour (USER_RATE_LIMIT_UPLOAD=<limit>/<seconds> tunes it)
   @Post('upload')
+  @UseGuards(UserRateLimitGuard)
+  @UserRateLimit('upload', 60, 3600)
   @UseInterceptors(
     FileInterceptor('file', {
       limits: { fileSize: 15 * 1024 * 1024 }, // 15MB limit
@@ -47,14 +54,18 @@ export class MediaController {
     await this.assertUploadAllowed(user, purpose, threadId);
     // 16.5: what the file IS (magic bytes), the antivirus, no EXIF/GPS on a photo, no active PDF; the stored name and extension
     // are ours, the caller's file name is kept only as a label.
-    const checked = await this.uploadSecurity.inspectMedia({ purpose: MEDIA_PURPOSE_TO_UPLOAD[purpose], declared_mime: file.mimetype, bytes: file.buffer });
-    const uploaded = await this.mediaService.uploadBuffer(checked.bytes, `file.${checked.ext}`, checked.mime, `${purpose}/${user.id}`);
+    // UPLOAD_SCAN=defer: when the scanner cannot answer yet the file is written under `pending/`, which no link or read ever
+    // touches, and the scan worker moves it to its real key once it has passed.
+    const checked = await this.uploadSecurity.inspectMedia({ purpose: MEDIA_PURPOSE_TO_UPLOAD[purpose], declared_mime: file.mimetype, bytes: file.buffer, allow_defer: true });
+    const deferred = checked.scan === 'deferred';
+    const uploaded = await this.mediaService.uploadBuffer(checked.bytes, `file.${checked.ext}`, checked.mime, `${deferred ? PENDING_PREFIX : ''}${purpose}/${user.id}`);
     try {
       const asset: any = await this.assets.create({
         key: uploaded.key, owner_id: user.id, purpose, thread_id: threadId,
         original_name: file.originalname, mime_type: checked.mime, size_bytes: checked.size_bytes,
+        ...(deferred ? { scan_status: 'pending_scan' } : {}),
       });
-      return { id: asset.id, purpose: asset.purpose, thread_id: asset.thread_id || null };
+      return { id: asset.id, purpose: asset.purpose, thread_id: asset.thread_id || null, ...(deferred ? { scan_status: 'pending_scan' } : {}) };
     } catch (error) {
       await this.mediaService.deleteFile(uploaded.key).catch(() => null);
       throw error;
@@ -76,6 +87,7 @@ export class MediaController {
     const asset: any = await this.assets.findOne({ id: { $eq: id } }).lean();
     if (!asset) throw new NotFoundException('media_not_found');
     if (!await this.canReadAsset(asset, user)) throw new NotFoundException('media_not_found');
+    if (isUnscanned(asset.scan_status) || isPendingKey(asset.key)) throw new FilePendingScanException();
     return { url: await this.mediaService.generatePresignedDownloadUrl(asset.key, 15 * 60), expires_in: 900 };
   }
 
@@ -118,7 +130,7 @@ export class MediaController {
         if (count > 0) return;
       }
 
-      if (thread.type === 'booking' && thread.booking_kind === 'consultation') {
+      if (isConsultationThread(thread)) {
         if (!thread.booking_id) {
           throw new ForbiddenException('معرف الحجز غير موجود.');
         }
@@ -127,26 +139,16 @@ export class MediaController {
         if (!appt) {
           throw new ForbiddenException('لم يتم العثور على الاستشارة المرتبطة.');
         }
-
-        if (appt.status === 'PENDING') {
-          throw new ForbiddenException('لم تبدأ الاستشارة بعد. لا يمكنك رفع ملفات.');
-        }
-
-        if (appt.status === 'CANCELLED' || appt.status === 'NO_SHOW') {
-          throw new ForbiddenException('الاستشارة مغلقة ولا يمكن رفع ملفات.');
-        }
-
-        if (appt.status === 'COMPLETED') {
-          const SystemConfigModel = this.connection.model('SystemConfig');
-          const sysConfig = await SystemConfigModel.findOne({ key: 'system_config' });
-          const followupHours = sysConfig?.value?.consultation_followup_hours ?? CONSULTATION_FOLLOWUP_HOURS_DEFAULT;
-
-          const endedAt = appt.completed_at || appt.updatedAt || new Date();
-          const elapsedHours = (Date.now() - new Date(endedAt).getTime()) / (1000 * 60 * 60);
-
-          if (elapsedHours > followupHours) {
-            throw new ForbiddenException('انتهت فترة المتابعة الخاصة بالاستشارة ولا يمكنك رفع ملفات جديدة.');
-          }
+        // the same Decision 24 state the messages use: closed_at, extended_until and the completion time decide, so an upload and a message agree
+        const SystemConfigModel = this.connection.model('SystemConfig');
+        const sysConfig = await SystemConfigModel.findOne({ key: 'system_config' });
+        const followupHours = sysConfig?.value?.consultation_followup_hours ?? CONSULTATION_FOLLOWUP_HOURS_DEFAULT;
+        const state = consultationState(appt, thread, followupHours);
+        if (!state.can_upload) {
+          if (state.phase === 'upcoming') throw new ForbiddenException('لم تبدأ الاستشارة بعد. لا يمكنك رفع ملفات.');
+          if (state.phase === 'closed') throw new ForbiddenException('أغلق الطبيب هذه المحادثة.');
+          if (state.phase === 'cancelled' || state.phase === 'missing') throw new ForbiddenException('الاستشارة مغلقة ولا يمكن رفع ملفات.');
+          throw new ForbiddenException('انتهت فترة المتابعة الخاصة بالاستشارة ولا يمكنك رفع ملفات جديدة.');
         }
       }
     } catch (err) {

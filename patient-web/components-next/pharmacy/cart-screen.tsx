@@ -11,9 +11,10 @@ import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { EmptyState, Skeleton } from "@/components-next/ui-generated/components/Feedback";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { Stepper } from "@/components-next/ui-generated/components/Inputs";
-import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX } from "@/components-next/ui-generated/icons/fill";
+import { FILL_ICON_VIEWBOX } from "@/components-next/ui-generated/icons/fill";
 import { useCart, type CartItem } from "@/lib/context/CartContext";
 import { formatNumber } from "@/lib/format-price";
+import { CountUp } from "@/components-next/motion/count-up";
 import { allowedImageUrl } from "@/lib/image-hosts";
 import type { Locale } from "@/lib/i18n";
 import { AddressCard } from "./address-card";
@@ -24,6 +25,8 @@ import { RxConsultLink } from "./rx-consult-link";
 import { useDeliveryAddress } from "./use-delivery-address";
 import cs from "./cart-screen.module.css";
 import rx from "./rx.module.css";
+import { FILL_PRESCRIPTION } from "@/components-next/ui-generated/icons/glyphs/prescription";
+import { FILL_TRASH } from "@/components-next/ui-generated/icons/glyphs/trash";
 
 const MAX_QTY = 99;
 
@@ -67,7 +70,7 @@ export function CartScreen({ locale, signedIn }: { locale: Locale; signedIn: boo
       <div className={rx.bar}>
         <div className={rx.barTotal}>
           <span className={rx.barLabel}>{t("itemsTotal")}</span>
-          <span className={rx.barAmount}>{formatNumber(locale, itemCount)}</span>
+          <span className={rx.barAmount}><CountUp value={itemCount} locale={locale} /></span>
         </div>
         {requestButton}
       </div>
@@ -107,7 +110,7 @@ export function CartScreen({ locale, signedIn }: { locale: Locale; signedIn: boo
             <p className={cs.headNote}>{t("deviceNote")}</p>
             {/* the board's cart header button: the filled trash glyph in the design system's 44 px outlined circle */}
             <button type="button" className="nabd-icon-button nabd-icon-button--md nabd-icon-button--outlined nabd-icon-button--circle nabd-icon-button--tone-neutral" aria-label={t("emptyCart")} onClick={() => setConfirming(true)}>
-              <svg width={20} height={20} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true"><path d={FILL_ICON_PATHS["trash"]} fill="currentColor" /></svg>
+              <svg width={20} height={20} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true"><path d={FILL_TRASH} fill="currentColor" /></svg>
             </button>
           </div>
 
@@ -154,9 +157,12 @@ export function CartScreen({ locale, signedIn }: { locale: Locale; signedIn: boo
                       )}
                       {pack ? <span className={cs.sub}>{pack}</span> : null}
                       {item.rx ? <StatusChip label={t("needsRx")} tone="amber" /> : null}
-                      {item.onlineOnly ? <StatusChip label={t("onlineOnly")} tone="mint" /> : null}
+                      {item.onlineOnly ? <StatusChip label={t("onlineOnly")} tone="ink" /> : null}
                     </div>
                     <div className={cs.end}>
+                      <button type="button" className={cs.removeLine} aria-label={t("remove", { name: item.name })} onClick={() => changeQty(item, 0)}>
+                        <FIcon icon="trash" glyph={FILL_TRASH} tone={PHARMACY_TONE} size={32} chip="none" />
+                      </button>
                       <Stepper
                         value={item.qty}
                         onChange={(next) => changeQty(item, next)}
@@ -182,7 +188,7 @@ export function CartScreen({ locale, signedIn }: { locale: Locale; signedIn: boo
 
           {hasRxItems ? (
             <div className={rx.banner}>
-              <FIcon icon="prescription" tone="amber" size={40} />
+              <FIcon icon="prescription" glyph={FILL_PRESCRIPTION} tone="amber" size={40} />
               <div className={rx.bannerBody}>
                 <span className={rx.bannerTitle}>{t("rxBannerTitle")}</span>
                 <span className={rx.bannerText}>{t("rxBannerBody")}</span>
@@ -197,7 +203,7 @@ export function CartScreen({ locale, signedIn }: { locale: Locale; signedIn: boo
 
         <div className={cs.side}>
           <section className={`${rx.card} ${cs.summary}`} aria-label={t("summaryLabel")}>
-            <div className={cs.line}><span>{t("itemsTotal")}</span><span className={cs.lineValue}>{formatNumber(locale, itemCount)}</span></div>
+            <div className={cs.line}><span>{t("itemsTotal")}</span><span className={cs.lineValue}><CountUp value={itemCount} locale={locale} /></span></div>
             <div className={cs.line}><span>{t("delivery")}</span><span className={cs.lineValue}>{t("deliveryFromOffer")}</span></div>
             <div className={`${cs.line} ${cs.totalLine}`}><span>{t("finalPrice")}</span><span className={cs.lineValue}>{t("finalPriceFromOffer")}</span></div>
             <div className={rx.deskActions}>{requestButton}</div>

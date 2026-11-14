@@ -11,7 +11,7 @@ import { apiFetch } from '../../utils/api';
 import { setBookingFor, type BookingFor } from '../../utils/bookingFor';
 import { logError } from '../../utils/logger';
 import { pickLocalized } from '../../utils/localize';
-import { FAMILY_HUB, FamilyScreen, PermissionList, loadFamily } from './FamilyKit';
+import { CORAL_TONE, FAMILY_HUB, FamilyScreen, PermissionList, loadFamily } from './FamilyKit';
 
 /**
  * One member (merge map row B, `/family/member-health?id=&name=&relation=&tab=`): the tabs Health and Permissions.
@@ -85,7 +85,7 @@ function HealthTab({ status, data, reload, member }: { status: React.ComponentPr
         ) : (
           <Panel>
             {meds.map((m, i) => (
-              <Row key={i} icon="pill" tone="mint" title={pickLocalized(m.medicine_name_ar, m.medicine_name_en) ?? ''} subtitle={[m.dose, m.frequency].filter(Boolean).join(' · ')} last={i === meds.length - 1} />
+              <Row key={i} icon="pill" tone={CORAL_TONE} title={pickLocalized(m.medicine_name_ar, m.medicine_name_en) ?? ''} subtitle={[m.dose, m.frequency].filter(Boolean).join(' · ')} last={i === meds.length - 1} />
             ))}
           </Panel>
         )}

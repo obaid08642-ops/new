@@ -7,7 +7,7 @@ import { CARE_TONE, CONSULT_TONE, RX_TONE, CardAction, Gate, InfoRow, Section, u
 import { MetricGrid, MetricTile, Panel, Pill, Row, useRemote } from '../health/HealthKit';
 import { useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
-import { dateLocaleFor } from '../../utils/dates';
+import { dateLocaleFor, numberingFor } from '../../utils/dates';
 import { pickLocalized } from '../../utils/localize';
 import { appointmentStart, parseReportCollection } from '../../utils/monthly-health-report-contract';
 import { AiScreen } from './AssistantKit';
@@ -39,7 +39,7 @@ export function MonthlyReportView() {
   }, [], 'ai:monthly-report');
 
   const now = useMemo(() => new Date(), []);
-  const monthLabel = new Intl.DateTimeFormat(dateLocaleFor(lang), { month: 'long', year: 'numeric', numberingSystem: 'latn' }).format(now);
+  const monthLabel = new Intl.DateTimeFormat(dateLocaleFor(lang), { month: 'long', year: 'numeric', numberingSystem: numberingFor(lang) }).format(now);
   const inMonth = (data?.appointments ?? []).filter((a) => {
     const d = appointmentStart(a);
     return d && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();

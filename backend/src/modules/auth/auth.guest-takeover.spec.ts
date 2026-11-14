@@ -41,7 +41,7 @@ describe('AuthService guest flows cannot take over a registered account (Q91)', 
     userModel = { findOne: jest.fn(), create: jest.fn(), deleteOne: jest.fn(), db: { model: jest.fn(), collection: () => guestDevices } };
     patientModel = { create: jest.fn(), deleteOne: jest.fn(), findOneAndUpdate: jest.fn() };
     jwtService = { sign: jest.fn((payload: any) => `jwt-for-${payload.id || payload.sub}`) };
-    redisClient = { get: jest.fn(), set: jest.fn() };
+    redisClient = { get: jest.fn(), set: jest.fn(), sadd: jest.fn(), expire: jest.fn() };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,

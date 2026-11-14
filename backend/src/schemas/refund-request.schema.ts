@@ -1,3 +1,4 @@
+import { halalaShadowPlugin } from '../common/halala-shadow';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -13,5 +14,8 @@ export class RefundRequest {
   @Prop() resolved_by?: string;
   @Prop() resolved_at?: Date;
   @Prop() admin_note?: string;
+  /** R11 P1: integer halalas next to the double (halalaShadowPlugin). */
+  @Prop() amount_halalas?: number;
 }
 export const RefundRequestSchema = SchemaFactory.createForClass(RefundRequest);
+halalaShadowPlugin(RefundRequestSchema, ['amount']);

@@ -3,7 +3,7 @@ import { Controller, Post, Get, Param, Body, Query, Req, UseGuards } from '@nest
 import { Roles, SelfService, Public, JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { LiveKitService } from './livekit.service';
-import { PingPatientDto, MarkNoShowDto, InitiateCallDto, SaveMetricsDto, MuteParticipantDto } from './livekit.dto';
+import { PingPatientDto, MarkNoShowDto, InitiateCallDto, SaveMetricsDto, MuteParticipantDto, FallbackDto, MediaPathDto, JoinCallDto } from './livekit.dto';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
 @Controller('calls')
@@ -14,8 +14,8 @@ export class LiveKitController {
 
   @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('provider/waiting-room')
-  getWaitingRoom(@CurrentUser() u: any) {
-    return this.svc.getProviderWaitingRoom(u.id);
+  getWaitingRoom(@CurrentUser() u: any, @Query('service_type') serviceType?: string) {
+    return this.svc.getProviderWaitingRoom(u.id, serviceType);
   }
 
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
@@ -36,7 +36,7 @@ export class LiveKitController {
   @Public()
   @Post('webhook')
   async webhook(@Body() body: Record<string, unknown>, @Req() req: any) {
-    return this.svc.handleWebhook(body, req?.headers?.authorization);
+    return this.svc.handleWebhook(body, req?.headers?.authorization, req?.rawBody);
   }
 
   @SelfService()
@@ -46,13 +46,13 @@ export class LiveKitController {
     @Body() body: InitiateCallDto,
   ) {
     const bookingId = body.booking_id || body.appointmentId;
-    return this.svc.initiateCall(u.id, u.name || u.id, body.callee_id || '', body.call_type || 'video', bookingId);
+    return this.svc.initiateCall(u.id, u.name || u.id, body.callee_id || '', body.call_type || 'video', bookingId, body.supports_p2p === true);
   }
 
   @SelfService()
   @Post(':sessionId/join')
-  joinCall(@CurrentUser() u: any, @Param('sessionId') sessionId: string) {
-    return this.svc.joinCall(sessionId, u.id, u.name || u.id);
+  joinCall(@CurrentUser() u: any, @Param('sessionId') sessionId: string, @Body() body: JoinCallDto) {
+    return this.svc.joinCall(sessionId, u.id, u.name || u.id, body?.supports_p2p === true);
   }
 
   @SelfService()
@@ -65,6 +65,18 @@ export class LiveKitController {
   @Post(':sessionId/reject')
   rejectCall(@CurrentUser() u: any, @Param('sessionId') sessionId: string) {
     return this.svc.rejectCall(sessionId, u.id);
+  }
+
+  @SelfService()
+  @Post(':sessionId/fallback')
+  fallback(@CurrentUser() u: any, @Param('sessionId') sessionId: string, @Body() body: FallbackDto) {
+    return this.svc.fallbackToLiveKit(sessionId, u.id, body.reason);
+  }
+
+  @SelfService()
+  @Post(':sessionId/path')
+  path(@CurrentUser() u: any, @Param('sessionId') sessionId: string, @Body() body: MediaPathDto) {
+    return this.svc.reportPath(sessionId, u.id, body.path, body.relayed_bytes);
   }
 
   @SelfService()

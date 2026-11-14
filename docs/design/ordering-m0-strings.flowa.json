@@ -1,0 +1,1746 @@
+{
+ "ordering.common.sar": {
+  "ar": "ر.س",
+  "en": "SAR",
+  "ur": "SAR",
+  "hi": "SAR",
+  "bn": "SAR",
+  "tl": "SAR"
+ },
+ "ordering.common.brand": {
+  "ar": "نبض",
+  "en": "Nabd",
+  "ur": "نبض",
+  "hi": "नब्ज़",
+  "bn": "নাবদ",
+  "tl": "Nabd"
+ },
+ "ordering.common.back": {
+  "ar": "رجوع",
+  "en": "Back",
+  "ur": "واپس",
+  "hi": "वापस",
+  "bn": "ফিরে যান",
+  "tl": "Bumalik"
+ },
+ "ordering.common.retry": {
+  "ar": "أعد المحاولة",
+  "en": "Try again",
+  "ur": "دوبارہ کوشش کریں",
+  "hi": "फिर कोशिश करें",
+  "bn": "আবার চেষ্টা করুন",
+  "tl": "Subukan muli",
+  "_layout": "button grows with text; min height 44"
+ },
+ "ordering.common.basket": {
+  "ar": "السلة",
+  "en": "Basket",
+  "ur": "ٹوکری",
+  "hi": "टोकरी",
+  "bn": "ঝুড়ি",
+  "tl": "Basket"
+ },
+ "ordering.common.account": {
+  "ar": "الحساب",
+  "en": "Account",
+  "ur": "اکاؤنٹ",
+  "hi": "खाता",
+  "bn": "অ্যাকাউন্ট",
+  "tl": "Account"
+ },
+ "ordering.common.apply": {
+  "ar": "تطبيق",
+  "en": "Apply",
+  "ur": "لاگو کریں",
+  "hi": "लागू करें",
+  "bn": "প্রয়োগ করুন",
+  "tl": "Ilapat"
+ },
+ "ordering.common.skip": {
+  "ar": "تخطّي",
+  "en": "Skip",
+  "ur": "چھوڑیں",
+  "hi": "छोड़ें",
+  "bn": "এড়িয়ে যান",
+  "tl": "Laktawan"
+ },
+ "ordering.common.continue": {
+  "ar": "متابعة",
+  "en": "Continue",
+  "ur": "جاری رکھیں",
+  "hi": "जारी रखें",
+  "bn": "চালিয়ে যান",
+  "tl": "Magpatuloy"
+ },
+ "ordering.common.add": {
+  "ar": "أضف",
+  "en": "Add",
+  "ur": "شامل کریں",
+  "hi": "जोड़ें",
+  "bn": "যোগ করুন",
+  "tl": "Idagdag"
+ },
+ "ordering.common.remove": {
+  "ar": "حذف",
+  "en": "Remove",
+  "ur": "ہٹائیں",
+  "hi": "हटाएँ",
+  "bn": "সরান",
+  "tl": "Alisin"
+ },
+ "ordering.common.close": {
+  "ar": "إغلاق",
+  "en": "Close",
+  "ur": "بند کریں",
+  "hi": "बंद करें",
+  "bn": "বন্ধ করুন",
+  "tl": "Isara"
+ },
+ "ordering.common.estimated": {
+  "ar": "تقديري",
+  "en": "Estimated",
+  "ur": "تخمینی",
+  "hi": "अनुमानित",
+  "bn": "আনুমানিক",
+  "tl": "Tinatayang"
+ },
+ "ordering.common.from": {
+  "ar": "من {p}",
+  "en": "From {p}",
+  "ur": "{p} سے",
+  "hi": "{p} से",
+  "bn": "{p} থেকে",
+  "tl": "Mula {p}",
+  "_layout": "price token {p} keeps its own unit"
+ },
+ "ordering.nav.pharmacy": {
+  "ar": "الصيدلية",
+  "en": "Pharmacy",
+  "ur": "فارمیسی",
+  "hi": "फ़ार्मेसी",
+  "bn": "ফার্মেসি",
+  "tl": "Parmasya",
+  "_layout": "web nav: wraps to a menu below 1100px"
+ },
+ "ordering.nav.doctors": {
+  "ar": "الأطباء",
+  "en": "Doctors",
+  "ur": "ڈاکٹرز",
+  "hi": "डॉक्टर",
+  "bn": "ডাক্তার",
+  "tl": "Mga doktor"
+ },
+ "ordering.nav.lab": {
+  "ar": "المختبر",
+  "en": "Lab",
+  "ur": "لیب",
+  "hi": "लैब",
+  "bn": "ল্যাব",
+  "tl": "Laboratoryo"
+ },
+ "ordering.nav.radiology": {
+  "ar": "الأشعة",
+  "en": "Radiology",
+  "ur": "ریڈیالوجی",
+  "hi": "रेडियोलॉजी",
+  "bn": "রেডিওলজি",
+  "tl": "Radiolohiya"
+ },
+ "ordering.nav.nursing": {
+  "ar": "التمريض",
+  "en": "Nursing",
+  "ur": "نرسنگ",
+  "hi": "नर्सिंग",
+  "bn": "নার্সিং",
+  "tl": "Nursing"
+ },
+ "ordering.nav.search": {
+  "ar": "ابحث عن دواء، طبيب، تحليل…",
+  "en": "Search medicine, doctor, test…",
+  "ur": "دوا، ڈاکٹر، ٹیسٹ تلاش کریں…",
+  "hi": "दवा, डॉक्टर, जाँच खोजें…",
+  "bn": "ওষুধ, ডাক্তার, পরীক্ষা খুঁজুন…",
+  "tl": "Maghanap ng gamot, doktor, test…"
+ },
+ "ordering.ctx.aria": {
+  "ar": "سياق الطلب: المكان والدفع ولمن",
+  "en": "Order context: place, payment, for whom",
+  "ur": "آرڈر کا سیاق: جگہ، ادائیگی، کس کے لیے",
+  "hi": "ऑर्डर संदर्भ: जगह, भुगतान, किसके लिए",
+  "bn": "অর্ডারের প্রেক্ষাপট: স্থান, পেমেন্ট, কার জন্য",
+  "tl": "Konteksto ng order: lugar, bayad, para kanino"
+ },
+ "ordering.ctx.lblWhere": {
+  "ar": "المكان",
+  "en": "Where",
+  "ur": "جگہ",
+  "hi": "जगह",
+  "bn": "স্থান",
+  "tl": "Saan"
+ },
+ "ordering.ctx.lblPay": {
+  "ar": "الدفع",
+  "en": "Payment",
+  "ur": "ادائیگی",
+  "hi": "भुगतान",
+  "bn": "পেমেন্ট",
+  "tl": "Bayad"
+ },
+ "ordering.ctx.lblWho": {
+  "ar": "لمن",
+  "en": "For",
+  "ur": "کس کے لیے",
+  "hi": "किसके लिए",
+  "bn": "কার জন্য",
+  "tl": "Para kanino"
+ },
+ "ordering.ctx.valHome": {
+  "ar": "البيت · النرجس",
+  "en": "Home · Al Narjis",
+  "ur": "گھر · النرجس",
+  "hi": "घर · अल नरजिस",
+  "bn": "বাসা · আল নারজিস",
+  "tl": "Bahay · Al Narjis",
+  "_layout": "cell truncates with an ellipsis; the whole bar opens the sheet"
+ },
+ "ordering.ctx.valGo": {
+  "ar": "سأذهب بنفسي",
+  "en": "I will go",
+  "ur": "میں خود جاؤں گا",
+  "hi": "मैं खुद जाऊँगा",
+  "bn": "আমি নিজে যাব",
+  "tl": "Pupunta ako"
+ },
+ "ordering.ctx.valIns": {
+  "ar": "بوبا · ذهبي",
+  "en": "Bupa · Gold",
+  "ur": "بوپا · گولڈ",
+  "hi": "बुपा · गोल्ड",
+  "bn": "বুপা · গোল্ড",
+  "tl": "Bupa · Gold"
+ },
+ "ordering.ctx.valCash": {
+  "ar": "نقدًا",
+  "en": "Cash",
+  "ur": "نقد",
+  "hi": "नकद",
+  "bn": "নগদ",
+  "tl": "Cash"
+ },
+ "ordering.ctx.valMe": {
+  "ar": "أنا",
+  "en": "Me",
+  "ur": "میں",
+  "hi": "मैं",
+  "bn": "আমি",
+  "tl": "Ako"
+ },
+ "ordering.ctx.setWhere": {
+  "ar": "حدّد المكان",
+  "en": "Set place",
+  "ur": "جگہ منتخب کریں",
+  "hi": "जगह चुनें",
+  "bn": "স্থান বেছে নিন",
+  "tl": "Piliin ang lugar"
+ },
+ "ordering.ctx.setPay": {
+  "ar": "حدّد الدفع",
+  "en": "Set payment",
+  "ur": "ادائیگی منتخب کریں",
+  "hi": "भुगतान चुनें",
+  "bn": "পেমেন্ট বেছে নিন",
+  "tl": "Piliin ang bayad"
+ },
+ "ordering.ctx.error": {
+  "ar": "تعذّر تحميل ملفك",
+  "en": "Could not load your profile",
+  "ur": "آپ کی پروفائل لوڈ نہیں ہو سکی",
+  "hi": "आपकी प्रोफ़ाइल लोड नहीं हो सकी",
+  "bn": "আপনার প্রোফাইল লোড করা যায়নি",
+  "tl": "Hindi ma-load ang profile mo",
+  "_layout": "wraps to two lines; retry button grows"
+ },
+ "ordering.ctx.toast": {
+  "ar": "حدّثنا الأسعار والتغطية",
+  "en": "Prices and coverage updated",
+  "ur": "قیمتیں اور کوریج اپ ڈیٹ ہو گئیں",
+  "hi": "कीमतें और कवरेज अपडेट हो गए",
+  "bn": "দাম ও কভারেজ হালনাগাদ হয়েছে",
+  "tl": "Na-update ang presyo at coverage"
+ },
+ "ordering.ctx.hint": {
+  "ar": "تتحدّث الأسعار والتغطية فور أي تغيير",
+  "en": "Prices and coverage update at once when you change anything",
+  "ur": "کچھ بھی بدلنے پر قیمتیں اور کوریج فوراً اپ ڈیٹ ہوتی ہیں",
+  "hi": "कुछ भी बदलते ही कीमतें और कवरेज तुरंत अपडेट होते हैं",
+  "bn": "কিছু বদলালেই দাম ও কভারেজ সঙ্গে সঙ্গে হালনাগাদ হয়",
+  "tl": "Agad na nag-a-update ang presyo at coverage kapag may binago"
+ },
+ "ordering.ctx.sheetTitle": {
+  "ar": "سياق طلبك",
+  "en": "Your order context",
+  "ur": "آپ کے آرڈر کا سیاق",
+  "hi": "आपके ऑर्डर का संदर्भ",
+  "bn": "আপনার অর্ডারের প্রেক্ষাপট",
+  "tl": "Konteksto ng order mo"
+ },
+ "ordering.ctx.secWhere": {
+  "ar": "أين تريد الخدمة؟",
+  "en": "Where do you want the service?",
+  "ur": "سروس کہاں چاہیے؟",
+  "hi": "सेवा कहाँ चाहिए?",
+  "bn": "সেবা কোথায় চান?",
+  "tl": "Saan mo gusto ang serbisyo?"
+ },
+ "ordering.ctx.optHome": {
+  "ar": "في البيت",
+  "en": "At home",
+  "ur": "گھر پر",
+  "hi": "घर पर",
+  "bn": "বাসায়",
+  "tl": "Sa bahay"
+ },
+ "ordering.ctx.optGo": {
+  "ar": "سأذهب بنفسي",
+  "en": "I will go there",
+  "ur": "میں خود جاؤں گا",
+  "hi": "मैं खुद जाऊँगा",
+  "bn": "আমি নিজে যাব",
+  "tl": "Ako ang pupunta"
+ },
+ "ordering.ctx.addrDefault": {
+  "ar": "العنوان الافتراضي · حي النرجس، الرياض",
+  "en": "Default address · Al Narjis, Riyadh",
+  "ur": "ڈیفالٹ پتہ · النرجس، ریاض",
+  "hi": "डिफ़ॉल्ट पता · अल नरजिस, रियाद",
+  "bn": "ডিফল্ট ঠিকানা · আল নারজিস, রিয়াদ",
+  "tl": "Default na address · Al Narjis, Riyadh"
+ },
+ "ordering.ctx.addrAdd": {
+  "ar": "أضف عنوانًا جديدًا",
+  "en": "Add a new address",
+  "ur": "نیا پتہ شامل کریں",
+  "hi": "नया पता जोड़ें",
+  "bn": "নতুন ঠিকানা যোগ করুন",
+  "tl": "Magdagdag ng bagong address"
+ },
+ "ordering.ctx.secPay": {
+  "ar": "من يدفع؟",
+  "en": "Who pays?",
+  "ur": "ادائیگی کون کرے گا؟",
+  "hi": "भुगतान कौन करेगा?",
+  "bn": "কে পরিশোধ করবে?",
+  "tl": "Sino ang magbabayad?"
+ },
+ "ordering.ctx.payIns": {
+  "ar": "بوبا · الفئة الذهبية",
+  "en": "Bupa · Gold class",
+  "ur": "بوپا · گولڈ کلاس",
+  "hi": "बुपा · गोल्ड क्लास",
+  "bn": "বুপা · গোল্ড শ্রেণি",
+  "tl": "Bupa · Gold class"
+ },
+ "ordering.ctx.payInsSub": {
+  "ar": "من ملفك المحفوظ. التغطية تقديرية حتى الموافقة",
+  "en": "From your saved profile. Coverage is an estimate until approval",
+  "ur": "آپ کی محفوظ پروفائل سے۔ منظوری تک کوریج تخمینی ہے",
+  "hi": "आपकी सहेजी प्रोफ़ाइल से। मंज़ूरी तक कवरेज अनुमानित है",
+  "bn": "আপনার সংরক্ষিত প্রোফাইল থেকে। অনুমোদন পর্যন্ত কভারেজ আনুমানিক",
+  "tl": "Mula sa naka-save mong profile. Tinatayang coverage hanggang maaprubahan"
+ },
+ "ordering.ctx.payCash": {
+  "ar": "أدفع بنفسي (نقدًا)",
+  "en": "I pay myself (cash)",
+  "ur": "میں خود ادا کروں گا (نقد)",
+  "hi": "मैं खुद भुगतान करूँगा (नकद)",
+  "bn": "আমি নিজে দেব (নগদ)",
+  "tl": "Ako ang magbabayad (cash)"
+ },
+ "ordering.ctx.payAdd": {
+  "ar": "أضف تأمينًا آخر",
+  "en": "Add another insurance",
+  "ur": "دوسرا بیمہ شامل کریں",
+  "hi": "दूसरा बीमा जोड़ें",
+  "bn": "আরেকটি বিমা যোগ করুন",
+  "tl": "Magdagdag ng ibang insurance"
+ },
+ "ordering.ctx.secWho": {
+  "ar": "لمن الطلب؟",
+  "en": "Who is it for?",
+  "ur": "آرڈر کس کے لیے ہے؟",
+  "hi": "ऑर्डर किसके लिए है?",
+  "bn": "অর্ডার কার জন্য?",
+  "tl": "Para kanino ang order?"
+ },
+ "ordering.ctx.whoDaughter": {
+  "ar": "سارة (ابنتي)",
+  "en": "Sara (my daughter)",
+  "ur": "سارہ (میری بیٹی)",
+  "hi": "सारा (मेरी बेटी)",
+  "bn": "সারা (আমার মেয়ে)",
+  "tl": "Sara (anak kong babae)"
+ },
+ "ordering.ctx.whoFather": {
+  "ar": "محمد (والدي)",
+  "en": "Mohammed (my father)",
+  "ur": "محمد (میرے والد)",
+  "hi": "मोहम्मद (मेरे पिता)",
+  "bn": "মোহাম্মদ (আমার বাবা)",
+  "tl": "Mohammed (tatay ko)"
+ },
+ "ordering.ctx.whoAdd": {
+  "ar": "أضف فردًا من العائلة",
+  "en": "Add a family member",
+  "ur": "خاندان کا فرد شامل کریں",
+  "hi": "परिवार का सदस्य जोड़ें",
+  "bn": "পরিবারের সদস্য যোগ করুন",
+  "tl": "Magdagdag ng kapamilya"
+ },
+ "ordering.ctx.newTitle": {
+  "ar": "لنضبط طلبك بسرعة",
+  "en": "Let us set up your order quickly",
+  "ur": "آئیں آپ کا آرڈر جلدی سیٹ کریں",
+  "hi": "आइए आपका ऑर्डर जल्दी सेट करें",
+  "bn": "চলুন দ্রুত আপনার অর্ডার ঠিক করি",
+  "tl": "Ayusin natin agad ang order mo"
+ },
+ "ordering.ctx.newSub": {
+  "ar": "ثلاثة أسئلة قصيرة. يمكنك التخطّي وتغييرها لاحقًا من الشريط العلوي",
+  "en": "Three short questions. You can skip and change them later from the top bar",
+  "ur": "تین مختصر سوال۔ آپ چھوڑ سکتے ہیں اور بعد میں اوپر کی پٹی سے بدل سکتے ہیں",
+  "hi": "तीन छोटे सवाल। आप छोड़ सकते हैं और बाद में ऊपर की पट्टी से बदल सकते हैं",
+  "bn": "তিনটি ছোট প্রশ্ন। আপনি এড়িয়ে যেতে পারেন এবং পরে উপরের বার থেকে বদলাতে পারেন",
+  "tl": "Tatlong maikling tanong. Maaari mong laktawan at baguhin sa top bar mamaya"
+ },
+ "ordering.ctx.newAddr": {
+  "ar": "أضف عنوانك",
+  "en": "Add your address",
+  "ur": "اپنا پتہ شامل کریں",
+  "hi": "अपना पता जोड़ें",
+  "bn": "আপনার ঠিকানা যোগ করুন",
+  "tl": "Idagdag ang address mo"
+ },
+ "ordering.ctx.newPay": {
+  "ar": "أضف تأمينك أو ادفع نقدًا",
+  "en": "Add your insurance or pay cash",
+  "ur": "اپنا بیمہ شامل کریں یا نقد ادا کریں",
+  "hi": "अपना बीमा जोड़ें या नकद भुगतान करें",
+  "bn": "আপনার বিমা যোগ করুন বা নগদে দিন",
+  "tl": "Idagdag ang insurance o magbayad ng cash"
+ },
+ "ordering.ctx.newWho": {
+  "ar": "لنفسك أم لشخص من عائلتك؟",
+  "en": "For yourself or a family member?",
+  "ur": "اپنے لیے یا خاندان کے کسی فرد کے لیے؟",
+  "hi": "अपने लिए या परिवार के किसी सदस्य के लिए?",
+  "bn": "নিজের জন্য নাকি পরিবারের কারও জন্য?",
+  "tl": "Para sa sarili o sa kapamilya?"
+ },
+ "ordering.ctx.demoTitle": {
+  "ar": "فحص الدم الشامل",
+  "en": "Complete blood check",
+  "ur": "مکمل خون کا معائنہ",
+  "hi": "पूर्ण रक्त जाँच",
+  "bn": "সম্পূর্ণ রক্ত পরীক্ষা",
+  "tl": "Kumpletong pagsusuri ng dugo"
+ },
+ "ordering.ctx.demoSub": {
+  "ar": "{m} مختبرًا يناسب سياقك",
+  "en": "{m} labs fit your context",
+  "ur": "{m} لیبز آپ کے سیاق کے مطابق",
+  "hi": "{m} लैब आपके संदर्भ के अनुसार",
+  "bn": "{m}টি ল্যাব আপনার প্রেক্ষাপটের সঙ্গে মানানসই",
+  "tl": "{m} lab ang akma sa konteksto mo"
+ },
+ "ordering.ctx.pageTitle": {
+  "ar": "المختبر",
+  "en": "Lab",
+  "ur": "لیب",
+  "hi": "लैब",
+  "bn": "ল্যাব",
+  "tl": "Laboratoryo"
+ },
+ "ordering.ctx.webH1": {
+  "ar": "المختبر في بيتك أو في أقرب مركز",
+  "en": "Lab tests at home or at the nearest centre",
+  "ur": "لیب ٹیسٹ گھر پر یا قریب ترین مرکز میں",
+  "hi": "लैब जाँच घर पर या नज़दीकी केंद्र में",
+  "bn": "ল্যাব পরীক্ষা বাসায় বা কাছের কেন্দ্রে",
+  "tl": "Lab test sa bahay o sa pinakamalapit na sentro"
+ },
+ "ordering.home.search.lab": {
+  "ar": "ابحث عن تحليل أو باقة",
+  "en": "Search a test or package",
+  "ur": "ٹیسٹ یا پیکیج تلاش کریں",
+  "hi": "जाँच या पैकेज खोजें",
+  "bn": "পরীক্ষা বা প্যাকেজ খুঁজুন",
+  "tl": "Maghanap ng test o package"
+ },
+ "ordering.home.search.rad": {
+  "ar": "ابحث عن أشعة",
+  "en": "Search a scan",
+  "ur": "اسکین تلاش کریں",
+  "hi": "स्कैन खोजें",
+  "bn": "স্ক্যান খুঁজুন",
+  "tl": "Maghanap ng scan"
+ },
+ "ordering.home.search.nur": {
+  "ar": "ابحث عن خدمة تمريض",
+  "en": "Search a nursing service",
+  "ur": "نرسنگ سروس تلاش کریں",
+  "hi": "नर्सिंग सेवा खोजें",
+  "bn": "নার্সিং সেবা খুঁজুন",
+  "tl": "Maghanap ng serbisyo ng nursing"
+ },
+ "ordering.home.browse.lab": {
+  "ar": "تصفّح المختبرات",
+  "en": "Browse labs",
+  "ur": "لیبز دیکھیں",
+  "hi": "लैब देखें",
+  "bn": "ল্যাব ব্রাউজ করুন",
+  "tl": "Mag-browse ng mga laboratoryo"
+ },
+ "ordering.home.browse.labSub": {
+  "ar": "{n} مختبرًا قريبًا منك",
+  "en": "{n} labs near you",
+  "ur": "آپ کے قریب {n} لیبز",
+  "hi": "आपके पास {n} लैब",
+  "bn": "আপনার কাছে {n}টি ল্যাব",
+  "tl": "{n} laboratoryo malapit sa iyo"
+ },
+ "ordering.home.browse.rad": {
+  "ar": "تصفّح مراكز الأشعة",
+  "en": "Browse imaging centres",
+  "ur": "ریڈیالوجی مراکز دیکھیں",
+  "hi": "इमेजिंग केंद्र देखें",
+  "bn": "ইমেজিং কেন্দ্র ব্রাউজ করুন",
+  "tl": "Mag-browse ng mga imaging center"
+ },
+ "ordering.home.browse.radSub": {
+  "ar": "{n} مركزًا قريبًا منك",
+  "en": "{n} centres near you",
+  "ur": "آپ کے قریب {n} مراکز",
+  "hi": "आपके पास {n} केंद्र",
+  "bn": "আপনার কাছে {n}টি কেন্দ্র",
+  "tl": "{n} sentro malapit sa iyo"
+ },
+ "ordering.home.orderTitle": {
+  "ar": "عندك أمر طبي؟",
+  "en": "Have a doctor's order?",
+  "ur": "کیا آپ کے پاس ڈاکٹر کا آرڈر ہے؟",
+  "hi": "क्या आपके पास डॉक्टर का ऑर्डर है?",
+  "bn": "আপনার কাছে ডাক্তারের অর্ডার আছে?",
+  "tl": "May order ka ba mula sa doktor?"
+ },
+ "ordering.home.orderSub": {
+  "ar": "اختره من أوامرك الطبية أو صوّر الورقة",
+  "en": "Pick it from your medical orders or photograph the paper",
+  "ur": "اسے اپنے طبی آرڈرز سے چنیں یا کاغذ کی تصویر لیں",
+  "hi": "इसे अपने मेडिकल ऑर्डर से चुनें या कागज़ की फ़ोटो लें",
+  "bn": "আপনার মেডিকেল অর্ডার থেকে বেছে নিন বা কাগজের ছবি তুলুন",
+  "tl": "Piliin sa mga medical order mo o kunan ng litrato ang papel"
+ },
+ "ordering.home.orderMine": {
+  "ar": "أوامري الطبية",
+  "en": "My medical orders",
+  "ur": "میرے طبی آرڈرز",
+  "hi": "मेरे मेडिकल ऑर्डर",
+  "bn": "আমার মেডিকেল অর্ডার",
+  "tl": "Aking mga medical order",
+  "_layout": "two buttons stack vertically in long languages"
+ },
+ "ordering.home.orderPhoto": {
+  "ar": "صوّر الورقة",
+  "en": "Photograph the paper",
+  "ur": "کاغذ کی تصویر لیں",
+  "hi": "कागज़ की फ़ोटो लें",
+  "bn": "কাগজের ছবি তুলুন",
+  "tl": "Kunan ng litrato ang papel"
+ },
+ "ordering.home.secPkg": {
+  "ar": "الباقات",
+  "en": "Packages",
+  "ur": "پیکیجز",
+  "hi": "पैकेज",
+  "bn": "প্যাকেজ",
+  "tl": "Mga package"
+ },
+ "ordering.home.secPopular": {
+  "ar": "الأكثر طلبًا",
+  "en": "Most requested",
+  "ur": "سب سے زیادہ مانگے گئے",
+  "hi": "सबसे ज़्यादा माँगे गए",
+  "bn": "সবচেয়ে বেশি চাওয়া",
+  "tl": "Pinakamadalas hilingin"
+ },
+ "ordering.home.seriesHint": {
+  "ar": "جلسات متكررة؟ ننشئ سلسلة من أمر الطبيب",
+  "en": "Repeat sessions? We build a series from the doctor's order",
+  "ur": "بار بار سیشنز؟ ہم ڈاکٹر کے آرڈر سے سیریز بناتے ہیں",
+  "hi": "बार-बार सत्र? हम डॉक्टर के ऑर्डर से श्रृंखला बनाते हैं",
+  "bn": "বারবার সেশন? আমরা ডাক্তারের অর্ডার থেকে সিরিজ বানাই",
+  "tl": "Paulit-ulit na session? Gagawa kami ng serye mula sa order ng doktor"
+ },
+ "ordering.home.pkg1": {
+  "ar": "الفحص الدوري",
+  "en": "Routine checkup",
+  "ur": "معمول کا معائنہ",
+  "hi": "नियमित जाँच",
+  "bn": "নিয়মিত চেকআপ",
+  "tl": "Regular na checkup"
+ },
+ "ordering.home.pkg2": {
+  "ar": "الفحص الشامل",
+  "en": "Full checkup",
+  "ur": "مکمل معائنہ",
+  "hi": "पूर्ण जाँच",
+  "bn": "পূর্ণ চেকআপ",
+  "tl": "Kumpletong checkup"
+ },
+ "ordering.home.pkg3": {
+  "ar": "فحص السكري",
+  "en": "Diabetes panel",
+  "ur": "ذیابیطس پینل",
+  "hi": "मधुमेह पैनल",
+  "bn": "ডায়াবেটিস প্যানেল",
+  "tl": "Panel para sa diabetes"
+ },
+ "ordering.home.pkgCount": {
+  "ar": "{n} فحصًا",
+  "en": "{n} tests",
+  "ur": "{n} ٹیسٹ",
+  "hi": "{n} जाँचें",
+  "bn": "{n}টি পরীক্ষা",
+  "tl": "{n} test"
+ },
+ "ordering.home.fromLine": {
+  "ar": "من {p} · {m} مزوّدين",
+  "en": "From {p} · {m} providers",
+  "ur": "{p} سے · {m} فراہم کنندگان",
+  "hi": "{p} से · {m} प्रदाता",
+  "bn": "{p} থেকে · {m} প্রদানকারী",
+  "tl": "Mula {p} · {m} provider"
+ },
+ "ordering.home.t.cbc": {
+  "ar": "صورة دم كاملة (CBC)",
+  "en": "Complete blood count (CBC)",
+  "ur": "مکمل خون کی گنتی (CBC)",
+  "hi": "पूर्ण रक्त गणना (CBC)",
+  "bn": "সম্পূর্ণ রক্ত গণনা (CBC)",
+  "tl": "Complete blood count (CBC)"
+ },
+ "ordering.home.t.vitd": {
+  "ar": "فيتامين د",
+  "en": "Vitamin D",
+  "ur": "وٹامن ڈی",
+  "hi": "विटामिन डी",
+  "bn": "ভিটামিন ডি",
+  "tl": "Bitamina D"
+ },
+ "ordering.home.t.hba1c": {
+  "ar": "السكر التراكمي",
+  "en": "HbA1c",
+  "ur": "HbA1c (تین ماہ کی شوگر)",
+  "hi": "HbA1c (तीन माह की शुगर)",
+  "bn": "HbA1c (তিন মাসের সুগার)",
+  "tl": "HbA1c"
+ },
+ "ordering.home.t.liver": {
+  "ar": "وظائف الكبد",
+  "en": "Liver function",
+  "ur": "جگر کے ٹیسٹ",
+  "hi": "लिवर फ़ंक्शन",
+  "bn": "লিভার ফাংশন",
+  "tl": "Liver function"
+ },
+ "ordering.home.prep.none": {
+  "ar": "لا يلزم صيام",
+  "en": "No fasting",
+  "ur": "روزہ ضروری نہیں",
+  "hi": "उपवास ज़रूरी नहीं",
+  "bn": "উপবাস লাগবে না",
+  "tl": "Hindi kailangan mag-fasting"
+ },
+ "ordering.home.prep.f8": {
+  "ar": "صيام 8 ساعات",
+  "en": "Fast 8 hours",
+  "ur": "8 گھنٹے روزہ",
+  "hi": "8 घंटे उपवास",
+  "bn": "৮ ঘণ্টা উপবাস",
+  "tl": "Mag-fasting ng 8 oras"
+ },
+ "ordering.home.ta.24": {
+  "ar": "النتيجة خلال 24 ساعة",
+  "en": "Result within 24 hours",
+  "ur": "نتیجہ 24 گھنٹوں میں",
+  "hi": "नतीजा 24 घंटे में",
+  "bn": "ফল ২৪ ঘণ্টার মধ্যে",
+  "tl": "Resulta sa loob ng 24 oras"
+ },
+ "ordering.home.ta.48": {
+  "ar": "النتيجة خلال 48 ساعة",
+  "en": "Result within 48 hours",
+  "ur": "نتیجہ 48 گھنٹوں میں",
+  "hi": "नतीजा 48 घंटे में",
+  "bn": "ফল ৪৮ ঘণ্টার মধ্যে",
+  "tl": "Resulta sa loob ng 48 oras"
+ },
+ "ordering.home.ta.1": {
+  "ar": "النتيجة خلال ساعة",
+  "en": "Result within 1 hour",
+  "ur": "نتیجہ ایک گھنٹے میں",
+  "hi": "नतीजा 1 घंटे में",
+  "bn": "ফল ১ ঘণ্টার মধ্যে",
+  "tl": "Resulta sa loob ng 1 oras"
+ },
+ "ordering.home.r.xray": {
+  "ar": "أشعة سينية للصدر",
+  "en": "Chest X-ray",
+  "ur": "سینے کا ایکس رے",
+  "hi": "छाती का एक्स-रे",
+  "bn": "বুকের এক্স-রে",
+  "tl": "X-ray ng dibdib"
+ },
+ "ordering.home.r.mri": {
+  "ar": "رنين مغناطيسي للركبة",
+  "en": "Knee MRI",
+  "ur": "گھٹنے کا ایم آر آئی",
+  "hi": "घुटने का एमआरआई",
+  "bn": "হাঁটুর এমআরআই",
+  "tl": "MRI ng tuhod"
+ },
+ "ordering.home.r.ct": {
+  "ar": "أشعة مقطعية للبطن",
+  "en": "Abdominal CT",
+  "ur": "پیٹ کا سی ٹی",
+  "hi": "पेट का सीटी",
+  "bn": "পেটের সিটি",
+  "tl": "CT ng tiyan"
+ },
+ "ordering.home.r.us": {
+  "ar": "موجات صوتية للبطن",
+  "en": "Abdominal ultrasound",
+  "ur": "پیٹ کا الٹراساؤنڈ",
+  "hi": "पेट का अल्ट्रासाउंड",
+  "bn": "পেটের আল্ট্রাসাউন্ড",
+  "tl": "Ultrasound ng tiyan"
+ },
+ "ordering.home.tag.portable": {
+  "ar": "متنقلة للبيت",
+  "en": "Portable, at home",
+  "ur": "گھر پر دستیاب",
+  "hi": "घर पर उपलब्ध",
+  "bn": "বাসায় সম্ভব",
+  "tl": "Portable, sa bahay"
+ },
+ "ordering.home.tag.centre": {
+  "ar": "في المركز فقط",
+  "en": "At the centre only",
+  "ur": "صرف مرکز میں",
+  "hi": "केवल केंद्र में",
+  "bn": "শুধু কেন্দ্রে",
+  "tl": "Sa sentro lang"
+ },
+ "ordering.home.prep.nope": {
+  "ar": "لا يلزم تحضير",
+  "en": "No preparation",
+  "ur": "تیاری ضروری نہیں",
+  "hi": "तैयारी ज़रूरी नहीं",
+  "bn": "প্রস্তুতি লাগবে না",
+  "tl": "Walang kailangang paghahanda"
+ },
+ "ordering.home.prep.metal": {
+  "ar": "إزالة المعادن والحلي",
+  "en": "Remove metal and jewellery",
+  "ur": "دھات اور زیورات اتار دیں",
+  "hi": "धातु और गहने उतारें",
+  "bn": "ধাতু ও গয়না খুলুন",
+  "tl": "Alisin ang metal at alahas"
+ },
+ "ordering.home.prep.f6": {
+  "ar": "صيام 6 ساعات",
+  "en": "Fast 6 hours",
+  "ur": "6 گھنٹے روزہ",
+  "hi": "6 घंटे उपवास",
+  "bn": "৬ ঘণ্টা উপবাস",
+  "tl": "Mag-fasting ng 6 oras"
+ },
+ "ordering.home.n.dress": {
+  "ar": "تغيير جروح",
+  "en": "Wound dressing",
+  "ur": "زخم کی ڈریسنگ",
+  "hi": "घाव की ड्रेसिंग",
+  "bn": "ক্ষত ড্রেসিং",
+  "tl": "Pagpapalit ng benda sa sugat"
+ },
+ "ordering.home.n.inj": {
+  "ar": "حقن عضلي",
+  "en": "Intramuscular injection",
+  "ur": "عضلاتی انجیکشن",
+  "hi": "मांसपेशी में इंजेक्शन",
+  "bn": "পেশিতে ইনজেকশন",
+  "tl": "Intramuscular na iniksyon"
+ },
+ "ordering.home.n.iv": {
+  "ar": "محاليل وريدية",
+  "en": "IV fluids",
+  "ur": "نس کے ذریعے ڈرپ",
+  "hi": "IV ड्रिप",
+  "bn": "শিরায় স্যালাইন",
+  "tl": "IV fluids"
+ },
+ "ordering.home.n.vitals": {
+  "ar": "قياس العلامات الحيوية",
+  "en": "Vital signs check",
+  "ur": "علامات حیات کی پیمائش",
+  "hi": "जीवन संकेतों की जाँच",
+  "bn": "গুরুত্বপূর্ণ লক্ষণ পরিমাপ",
+  "tl": "Pagsukat ng vital signs"
+ },
+ "ordering.home.n.elder": {
+  "ar": "رعاية مسنّين بالساعة",
+  "en": "Elder care by the hour",
+  "ur": "بزرگوں کی نگہداشت گھنٹوں کے حساب سے",
+  "hi": "बुज़ुर्गों की देखभाल घंटों में",
+  "bn": "ঘণ্টায় বয়স্ক যত্ন",
+  "tl": "Pangangalaga sa matatanda kada oras"
+ },
+ "ordering.home.n.dur": {
+  "ar": "{n} دقيقة",
+  "en": "{n} min",
+  "ur": "{n} منٹ",
+  "hi": "{n} मिनट",
+  "bn": "{n} মিনিট",
+  "tl": "{n} min"
+ },
+ "ordering.home.n.durH": {
+  "ar": "من 4 ساعات",
+  "en": "from 4 hours",
+  "ur": "کم از کم 4 گھنٹے",
+  "hi": "कम से कम 4 घंटे",
+  "bn": "কমপক্ষে ৪ ঘণ্টা",
+  "tl": "mula 4 na oras"
+ },
+ "ordering.home.n.needOrder": {
+  "ar": "يلزم أمر طبي",
+  "en": "Doctor's order needed",
+  "ur": "ڈاکٹر کا آرڈر ضروری",
+  "hi": "डॉक्टर का ऑर्डर ज़रूरी",
+  "bn": "ডাক্তারের অর্ডার লাগবে",
+  "tl": "Kailangan ng order ng doktor"
+ },
+ "ordering.home.n.noOrder": {
+  "ar": "لا يلزم أمر طبي",
+  "en": "No order needed",
+  "ur": "آرڈر ضروری نہیں",
+  "hi": "ऑर्डर ज़रूरी नहीं",
+  "bn": "অর্ডার লাগবে না",
+  "tl": "Hindi kailangan ng order"
+ },
+ "ordering.home.n.gender": {
+  "ar": "جنس الممرّض",
+  "en": "Nurse gender",
+  "ur": "نرس کی جنس",
+  "hi": "नर्स का लिंग",
+  "bn": "নার্সের লিঙ্গ",
+  "tl": "Kasarian ng nurse"
+ },
+ "ordering.home.g.any": {
+  "ar": "أي",
+  "en": "Any",
+  "ur": "کوئی بھی",
+  "hi": "कोई भी",
+  "bn": "যেকোনো",
+  "tl": "Kahit sino"
+ },
+ "ordering.home.g.f": {
+  "ar": "أنثى",
+  "en": "Female",
+  "ur": "خاتون",
+  "hi": "महिला",
+  "bn": "নারী",
+  "tl": "Babae"
+ },
+ "ordering.home.g.m": {
+  "ar": "ذكر",
+  "en": "Male",
+  "ur": "مرد",
+  "hi": "पुरुष",
+  "bn": "পুরুষ",
+  "tl": "Lalaki"
+ },
+ "ordering.home.addAria": {
+  "ar": "أضف إلى السلة",
+  "en": "Add to basket",
+  "ur": "ٹوکری میں شامل کریں",
+  "hi": "टोकरी में जोड़ें",
+  "bn": "ঝুড়িতে যোগ করুন",
+  "tl": "Idagdag sa basket"
+ },
+ "ordering.home.basketBar": {
+  "ar": "السلة · {n} بنود",
+  "en": "Basket · {n} items",
+  "ur": "ٹوکری · {n} آئٹمز",
+  "hi": "टोकरी · {n} आइटम",
+  "bn": "ঝুড়ি · {n}টি আইটেম",
+  "tl": "Basket · {n} item"
+ },
+ "ordering.home.viewBasket": {
+  "ar": "عرض السلة",
+  "en": "View basket",
+  "ur": "ٹوکری دیکھیں",
+  "hi": "टोकरी देखें",
+  "bn": "ঝুড়ি দেখুন",
+  "tl": "Tingnan ang basket"
+ },
+ "ordering.home.emptyTitle": {
+  "ar": "لا نتائج لـ «{q}»",
+  "en": "No results for \"{q}\"",
+  "ur": "\"{q}\" کے لیے کوئی نتیجہ نہیں",
+  "hi": "\"{q}\" के लिए कोई नतीजा नहीं",
+  "bn": "\"{q}\" এর জন্য কোনো ফল নেই",
+  "tl": "Walang resulta para sa \"{q}\""
+ },
+ "ordering.home.emptySub": {
+  "ar": "جرّب اسمًا آخر، أو اطلب عروض أسعار من المختبرات القريبة",
+  "en": "Try another name, or ask nearby labs for price offers",
+  "ur": "کوئی اور نام آزمائیں، یا قریبی لیبز سے قیمتوں کی پیشکش مانگیں",
+  "hi": "कोई और नाम आज़माएँ, या पास की लैब से कीमत के ऑफ़र माँगें",
+  "bn": "অন্য নাম চেষ্টা করুন, বা কাছের ল্যাব থেকে দামের অফার চান",
+  "tl": "Subukan ang ibang pangalan, o humingi ng alok sa mga kalapit na lab"
+ },
+ "ordering.home.emptyReq": {
+  "ar": "اطلب عروضًا",
+  "en": "Request offers",
+  "ur": "پیشکشیں مانگیں",
+  "hi": "ऑफ़र माँगें",
+  "bn": "অফার চান",
+  "tl": "Humiling ng alok"
+ },
+ "ordering.home.emptyNotify": {
+  "ar": "نبّهني عند التوفّر",
+  "en": "Notify me when available",
+  "ur": "دستیاب ہونے پر اطلاع دیں",
+  "hi": "उपलब्ध होने पर सूचित करें",
+  "bn": "পাওয়া গেলে জানান",
+  "tl": "Ipaalam sa akin kapag available"
+ },
+ "ordering.home.loading": {
+  "ar": "جارٍ التحميل",
+  "en": "Loading",
+  "ur": "لوڈ ہو رہا ہے",
+  "hi": "लोड हो रहा है",
+  "bn": "লোড হচ্ছে",
+  "tl": "Naglo-load"
+ },
+ "ordering.home.webH1.lab": {
+  "ar": "فحوصك المخبرية، في بيتك أو في المركز",
+  "en": "Your lab tests, at home or at the centre",
+  "ur": "آپ کے لیب ٹیسٹ، گھر پر یا مرکز میں",
+  "hi": "आपकी लैब जाँचें, घर पर या केंद्र में",
+  "bn": "আপনার ল্যাব পরীক্ষা, বাসায় বা কেন্দ্রে",
+  "tl": "Mga lab test mo, sa bahay o sa sentro"
+ },
+ "ordering.home.webH1.rad": {
+  "ar": "أشعتك، في أقرب مركز أو في البيت عند الإمكان",
+  "en": "Your scans, at the nearest centre or at home when possible",
+  "ur": "آپ کے اسکین، قریب ترین مرکز میں یا ممکن ہو تو گھر پر",
+  "hi": "आपके स्कैन, नज़दीकी केंद्र में या संभव हो तो घर पर",
+  "bn": "আপনার স্ক্যান, কাছের কেন্দ্রে বা সম্ভব হলে বাসায়",
+  "tl": "Mga scan mo, sa pinakamalapit na sentro o sa bahay kung posible"
+ },
+ "ordering.home.webH1.nur": {
+  "ar": "رعاية تمريضية في بيتك",
+  "en": "Nursing care at home",
+  "ur": "گھر پر نرسنگ کی دیکھ بھال",
+  "hi": "घर पर नर्सिंग देखभाल",
+  "bn": "বাসায় নার্সিং সেবা",
+  "tl": "Nursing care sa bahay"
+ },
+ "ordering.home.webSub": {
+  "ar": "اختر ما تحتاجه ونعرض لك أفضل مزوّد وسعرًا واضحًا",
+  "en": "Choose what you need and we show the best provider and a clear price",
+  "ur": "جو چاہیے چنیں، ہم بہترین فراہم کنندہ اور واضح قیمت دکھاتے ہیں",
+  "hi": "जो चाहिए चुनें, हम सबसे अच्छा प्रदाता और साफ़ कीमत दिखाते हैं",
+  "bn": "যা দরকার বেছে নিন, আমরা সেরা প্রদানকারী ও স্পষ্ট দাম দেখাই",
+  "tl": "Piliin ang kailangan mo at ipapakita namin ang pinakamahusay na provider at malinaw na presyo"
+ },
+ "ordering.home.railTitle": {
+  "ar": "سلتك",
+  "en": "Your basket",
+  "ur": "آپ کی ٹوکری",
+  "hi": "आपकी टोकरी",
+  "bn": "আপনার ঝুড়ি",
+  "tl": "Basket mo"
+ },
+ "ordering.home.railNext": {
+  "ar": "اختر المزوّد",
+  "en": "Choose a provider",
+  "ur": "فراہم کنندہ چنیں",
+  "hi": "प्रदाता चुनें",
+  "bn": "প্রদানকারী বেছে নিন",
+  "tl": "Pumili ng provider"
+ },
+ "ordering.item.desc": {
+  "ar": "يقيس مكوّنات الدم الأساسية: الكريات الحمراء والبيضاء والصفائح",
+  "en": "Measures the main blood components: red cells, white cells and platelets",
+  "ur": "خون کے بنیادی اجزا ناپتا ہے: سرخ، سفید خلیے اور پلیٹلیٹس",
+  "hi": "रक्त के मुख्य घटक मापता है: लाल, सफ़ेद कोशिकाएँ और प्लेटलेट्स",
+  "bn": "রক্তের প্রধান উপাদান মাপে: লোহিত, শ্বেত কণিকা ও প্লেটলেট",
+  "tl": "Sinusukat ang pangunahing bahagi ng dugo: pulang selula, puting selula at platelets"
+ },
+ "ordering.item.secPrep": {
+  "ar": "التحضير",
+  "en": "Preparation",
+  "ur": "تیاری",
+  "hi": "तैयारी",
+  "bn": "প্রস্তুতি",
+  "tl": "Paghahanda"
+ },
+ "ordering.item.prepLine": {
+  "ar": "لا يلزم صيام. اشرب الماء كالمعتاد",
+  "en": "No fasting needed. Drink water as usual",
+  "ur": "روزہ ضروری نہیں۔ معمول کے مطابق پانی پئیں",
+  "hi": "उपवास ज़रूरी नहीं। रोज़ की तरह पानी पिएँ",
+  "bn": "উপবাস লাগবে না। যথারীতি পানি পান করুন",
+  "tl": "Hindi kailangan mag-fasting. Uminom ng tubig gaya ng dati"
+ },
+ "ordering.item.secTurn": {
+  "ar": "مدة النتيجة",
+  "en": "Result time",
+  "ur": "نتیجے کا وقت",
+  "hi": "नतीजे का समय",
+  "bn": "ফলের সময়",
+  "tl": "Oras ng resulta"
+ },
+ "ordering.item.turnLine": {
+  "ar": "خلال 24 ساعة من أخذ العينة",
+  "en": "Within 24 hours of the sample",
+  "ur": "نمونہ لینے کے 24 گھنٹوں میں",
+  "hi": "नमूना लेने के 24 घंटे में",
+  "bn": "নমুনা নেওয়ার ২৪ ঘণ্টার মধ্যে",
+  "tl": "Sa loob ng 24 oras mula sa sample"
+ },
+ "ordering.item.secSample": {
+  "ar": "العينة",
+  "en": "Sample",
+  "ur": "نمونہ",
+  "hi": "नमूना",
+  "bn": "নমুনা",
+  "tl": "Sample"
+ },
+ "ordering.item.sampleLine": {
+  "ar": "دم وريدي",
+  "en": "Venous blood",
+  "ur": "وریدی خون",
+  "hi": "शिरा का रक्त",
+  "bn": "শিরার রক্ত",
+  "tl": "Dugo mula sa ugat"
+ },
+ "ordering.item.providers": {
+  "ar": "{m} مزوّدين يناسبون سياقك",
+  "en": "{m} providers fit your context",
+  "ur": "{m} فراہم کنندگان آپ کے سیاق کے مطابق",
+  "hi": "{m} प्रदाता आपके संदर्भ के अनुसार",
+  "bn": "{m} প্রদানকারী আপনার প্রেক্ষাপটে মানানসই",
+  "tl": "{m} provider ang akma sa konteksto mo"
+ },
+ "ordering.item.homeFeeNote": {
+  "ar": "السعر شامل رسوم الزيارة لأنك اخترت «في البيت»",
+  "en": "The price includes the visit fee because you chose \"At home\"",
+  "ur": "قیمت میں وزٹ فیس شامل ہے کیونکہ آپ نے \"گھر پر\" چنا",
+  "hi": "कीमत में विज़िट शुल्क शामिल है क्योंकि आपने \"घर पर\" चुना",
+  "bn": "দামে ভিজিট ফি অন্তর্ভুক্ত কারণ আপনি \"বাসায়\" বেছেছেন",
+  "tl": "Kasama sa presyo ang bayad sa pagbisita dahil pinili mo ang \"Sa bahay\""
+ },
+ "ordering.item.secCov": {
+  "ar": "التغطية التأمينية",
+  "en": "Insurance coverage",
+  "ur": "بیمہ کوریج",
+  "hi": "बीमा कवरेज",
+  "bn": "বিমা কভারেজ",
+  "tl": "Saklaw ng insurance"
+ },
+ "ordering.item.covNote": {
+  "ar": "التغطية والحصة تقديريتان. الحصة النهائية تصلك مع الموافقة",
+  "en": "Coverage and share are estimates. The final share comes with the approval",
+  "ur": "کوریج اور حصہ تخمینی ہیں۔ حتمی حصہ منظوری کے ساتھ ملتا ہے",
+  "hi": "कवरेज और हिस्सा अनुमानित हैं। अंतिम हिस्सा मंज़ूरी के साथ मिलता है",
+  "bn": "কভারেজ ও অংশ আনুমানিক। চূড়ান্ত অংশ অনুমোদনের সঙ্গে জানানো হয়",
+  "tl": "Tinatayang coverage at bahagi. Ang pinal na bahagi ay kasama ng approval"
+ },
+ "ordering.item.cov.yes": {
+  "ar": "مغطّى",
+  "en": "Covered",
+  "ur": "کور شدہ",
+  "hi": "कवर्ड",
+  "bn": "কভারড",
+  "tl": "Sakop"
+ },
+ "ordering.item.cov.likely": {
+  "ar": "مغطّى غالبًا، يحتاج موافقة",
+  "en": "Likely covered, needs approval",
+  "ur": "غالباً کور، منظوری درکار",
+  "hi": "संभवतः कवर्ड, मंज़ूरी चाहिए",
+  "bn": "সম্ভবত কভারড, অনুমোদন লাগবে",
+  "tl": "Malamang sakop, kailangan ng approval",
+  "_layout": "chip wraps to 2 lines in long languages"
+ },
+ "ordering.item.cov.no": {
+  "ar": "غير مغطّى",
+  "en": "Not covered",
+  "ur": "کور نہیں",
+  "hi": "कवर्ड नहीं",
+  "bn": "কভারড নয়",
+  "tl": "Hindi sakop"
+ },
+ "ordering.item.cov.share": {
+  "ar": "حصتك التقديرية {p}",
+  "en": "Your estimated share {p}",
+  "ur": "آپ کا تخمینی حصہ {p}",
+  "hi": "आपका अनुमानित हिस्सा {p}",
+  "bn": "আপনার আনুমানিক অংশ {p}",
+  "tl": "Tinatayang bahagi mo {p}"
+ },
+ "ordering.item.cov.cash": {
+  "ar": "السعر نقدًا {p}",
+  "en": "Cash price {p}",
+  "ur": "نقد قیمت {p}",
+  "hi": "नकद कीमत {p}",
+  "bn": "নগদ দাম {p}",
+  "tl": "Presyo sa cash {p}"
+ },
+ "ordering.item.ord.title": {
+  "ar": "من أمر د. خالد الحربي",
+  "en": "From Dr. Khalid Al-Harbi's order",
+  "ur": "ڈاکٹر خالد الحربی کے آرڈر سے",
+  "hi": "डॉ. खालिद अल-हरबी के ऑर्डर से",
+  "bn": "ডা. খালিদ আল-হারবির অর্ডার থেকে",
+  "tl": "Mula sa order ni Dr. Khalid Al-Harbi"
+ },
+ "ordering.item.ord.valid": {
+  "ar": "صادر 12 أكتوبر · صالح حتى 11 نوفمبر",
+  "en": "Issued 12 Oct · valid until 11 Nov",
+  "ur": "جاری 12 اکتوبر · 11 نومبر تک درست",
+  "hi": "जारी 12 अक्टूबर · 11 नवंबर तक मान्य",
+  "bn": "ইস্যু ১২ অক্টোবর · ১১ নভেম্বর পর্যন্ত বৈধ",
+  "tl": "Inilabas 12 Okt · valid hanggang 11 Nob"
+ },
+ "ordering.item.ord.hint": {
+  "ar": "البنود محدّدة مسبقًا. ألغِ التحديد لتأجيل بند",
+  "en": "Items are pre-ticked. Untick one to do it later",
+  "ur": "آئٹمز پہلے سے منتخب ہیں۔ بعد کے لیے غیر منتخب کریں",
+  "hi": "आइटम पहले से चुने हैं। बाद के लिए अनचुना करें",
+  "bn": "আইটেম আগে থেকেই বাছাই করা। পরে করতে টিক সরান",
+  "tl": "Naka-tick na ang mga item. I-untick para sa mamaya"
+ },
+ "ordering.item.ord.later": {
+  "ar": "لاحقًا",
+  "en": "Later",
+  "ur": "بعد میں",
+  "hi": "बाद में",
+  "bn": "পরে",
+  "tl": "Mamaya"
+ },
+ "ordering.item.cta": {
+  "ar": "أضف المحدّد إلى السلة · {p}",
+  "en": "Add selected to basket · {p}",
+  "ur": "منتخب کو ٹوکری میں شامل کریں · {p}",
+  "hi": "चुने हुए को टोकरी में जोड़ें · {p}",
+  "bn": "নির্বাচিতগুলো ঝুড়িতে যোগ করুন · {p}",
+  "tl": "Idagdag ang napili sa basket · {p}",
+  "_layout": "button grows to two lines"
+ },
+ "ordering.item.ctaOne": {
+  "ar": "أضف إلى السلة",
+  "en": "Add to basket",
+  "ur": "ٹوکری میں شامل کریں",
+  "hi": "टोकरी में जोड़ें",
+  "bn": "ঝুড়িতে যোগ করুন",
+  "tl": "Idagdag sa basket"
+ },
+ "ordering.item.pkg.count": {
+  "ar": "يشمل {n} فحصًا",
+  "en": "Includes {n} tests",
+  "ur": "{n} ٹیسٹ شامل",
+  "hi": "{n} जाँचें शामिल",
+  "bn": "{n}টি পরীক্ষা অন্তর্ভুক্ত",
+  "tl": "Kasama ang {n} test"
+ },
+ "ordering.item.pkg.kidney": {
+  "ar": "وظائف الكلى",
+  "en": "Kidney function",
+  "ur": "گردے کے ٹیسٹ",
+  "hi": "किडनी फ़ंक्शन",
+  "bn": "কিডনি ফাংশন",
+  "tl": "Kidney function"
+ },
+ "ordering.item.pkg.lipids": {
+  "ar": "الدهون",
+  "en": "Lipid profile",
+  "ur": "چکنائی پروفائل",
+  "hi": "लिपिड प्रोफ़ाइल",
+  "bn": "লিপিড প্রোফাইল",
+  "tl": "Lipid profile"
+ },
+ "ordering.item.pkg.all": {
+  "ar": "عرض كل الفحوصات",
+  "en": "Show all tests",
+  "ur": "تمام ٹیسٹ دکھائیں",
+  "hi": "सभी जाँचें दिखाएँ",
+  "bn": "সব পরীক্ষা দেখুন",
+  "tl": "Ipakita ang lahat ng test"
+ },
+ "ordering.item.pkg.cashNote": {
+  "ar": "الباقات تُدفع نقدًا ما لم توافق شركة التأمين",
+  "en": "Packages are paid in cash unless the insurer approves",
+  "ur": "پیکیجز نقد ادا ہوتے ہیں جب تک بیمہ کمپنی منظور نہ کرے",
+  "hi": "पैकेज नकद में चुकाए जाते हैं जब तक बीमा कंपनी मंज़ूर न करे",
+  "bn": "বিমা কোম্পানি অনুমোদন না করলে প্যাকেজ নগদে দিতে হয়",
+  "tl": "Cash ang bayad sa package maliban kung aprubahan ng insurer"
+ },
+ "ordering.item.err": {
+  "ar": "تعذّر تحميل تفاصيل الفحص",
+  "en": "Could not load the test details",
+  "ur": "ٹیسٹ کی تفصیلات لوڈ نہیں ہو سکیں",
+  "hi": "जाँच का विवरण लोड नहीं हो सका",
+  "bn": "পরীক্ষার বিবরণ লোড করা যায়নি",
+  "tl": "Hindi ma-load ang detalye ng test"
+ },
+ "ordering.item.errSub": {
+  "ar": "تحقّق من الاتصال ثم أعد المحاولة",
+  "en": "Check your connection and try again",
+  "ur": "اپنا کنکشن چیک کریں اور دوبارہ کوشش کریں",
+  "hi": "अपना कनेक्शन जाँचें और फिर कोशिश करें",
+  "bn": "সংযোগ দেখুন এবং আবার চেষ্টা করুন",
+  "tl": "Suriin ang koneksyon at subukan muli"
+ },
+ "ordering.item.fromWhere": {
+  "ar": "أقل سعر بين المزوّدين المناسبين",
+  "en": "Lowest price among fitting providers",
+  "ur": "مناسب فراہم کنندگان میں کم ترین قیمت",
+  "hi": "उपयुक्त प्रदाताओं में सबसे कम कीमत",
+  "bn": "উপযুক্ত প্রদানকারীদের মধ্যে সর্বনিম্ন দাম",
+  "tl": "Pinakamababang presyo sa mga akmang provider"
+ },
+ "ordering.item.insSilver": {
+  "ar": "بوبا · فضي",
+  "en": "Bupa · Silver",
+  "ur": "بوپا · سلور",
+  "hi": "बुपा · सिल्वर",
+  "bn": "বুপা · সিলভার",
+  "tl": "Bupa · Silver"
+ },
+ "ordering.item.docOrder": {
+  "ar": "أمر الطبيب",
+  "en": "Doctor's order",
+  "ur": "ڈاکٹر کا آرڈر",
+  "hi": "डॉक्टर का ऑर्डर",
+  "bn": "ডাক্তারের অর্ডার",
+  "tl": "Order ng doktor"
+ },
+ "ordering.basket.title": {
+  "ar": "السلة",
+  "en": "Basket",
+  "ur": "ٹوکری",
+  "hi": "टोकरी",
+  "bn": "ঝুড়ি",
+  "tl": "Basket"
+ },
+ "ordering.basket.split": {
+  "ar": "قسّمنا طلبك تلقائيًا: حجزان، دفعة واحدة، وحالة منفصلة لكل حجز",
+  "en": "We split your order automatically: two bookings, one payment, and a separate status for each booking",
+  "ur": "ہم نے آپ کا آرڈر خودکار طور پر تقسیم کیا: دو بکنگ، ایک ادائیگی، اور ہر بکنگ کی الگ حالت",
+  "hi": "हमने आपका ऑर्डर अपने आप बाँटा: दो बुकिंग, एक भुगतान, और हर बुकिंग की अलग स्थिति",
+  "bn": "আমরা আপনার অর্ডার স্বয়ংক্রিয়ভাবে ভাগ করেছি: দুটি বুকিং, একটি পেমেন্ট এবং প্রতিটি বুকিংয়ের আলাদা অবস্থা",
+  "tl": "Awtomatiko naming hinati ang order mo: dalawang booking, isang bayad, at hiwalay na status ng bawat booking"
+ },
+ "ordering.basket.gHome": {
+  "ar": "في البيت · {n} بنود",
+  "en": "At home · {n} items",
+  "ur": "گھر پر · {n} آئٹمز",
+  "hi": "घर पर · {n} आइटम",
+  "bn": "বাসায় · {n}টি আইটেম",
+  "tl": "Sa bahay · {n} item"
+ },
+ "ordering.basket.gHomeSub": {
+  "ar": "فنّي يزورك في موعد تختاره",
+  "en": "A technician visits you at a time you choose",
+  "ur": "ٹیکنیشن آپ کے منتخب وقت پر آئے گا",
+  "hi": "तकनीशियन आपके चुने समय पर आएगा",
+  "bn": "টেকনিশিয়ান আপনার বেছে নেওয়া সময়ে আসবেন",
+  "tl": "Bibisita ang technician sa oras na pipiliin mo"
+ },
+ "ordering.basket.gCentre": {
+  "ar": "في المركز · بند واحد",
+  "en": "At the centre · 1 item",
+  "ur": "مرکز میں · 1 آئٹم",
+  "hi": "केंद्र में · 1 आइटम",
+  "bn": "কেন্দ্রে · ১টি আইটেম",
+  "tl": "Sa sentro · 1 item"
+ },
+ "ordering.basket.gCentreSub": {
+  "ar": "تذهب إلى المزوّد بموعد أو بدون موعد برمز QR",
+  "en": "You go to the provider with a slot or walk in with a QR code",
+  "ur": "آپ وقت لے کر یا QR کوڈ کے ساتھ فراہم کنندہ کے پاس جاتے ہیں",
+  "hi": "आप समय लेकर या QR कोड के साथ प्रदाता के पास जाते हैं",
+  "bn": "আপনি স্লট নিয়ে বা QR কোড নিয়ে প্রদানকারীর কাছে যান",
+  "tl": "Pupunta ka sa provider na may slot o walk-in gamit ang QR code"
+ },
+ "ordering.basket.centreWhy": {
+  "ar": "هذا الفحص يحتاج جهازًا في المركز، حتى لو اخترت «في البيت»",
+  "en": "This scan needs a machine at the centre, even when you chose \"At home\"",
+  "ur": "اس اسکین کے لیے مرکز کی مشین چاہیے، چاہے آپ نے \"گھر پر\" چنا ہو",
+  "hi": "इस स्कैन के लिए केंद्र की मशीन चाहिए, भले ही आपने \"घर पर\" चुना हो",
+  "bn": "এই স্ক্যানের জন্য কেন্দ্রের মেশিন লাগে, আপনি \"বাসায়\" বেছে থাকলেও",
+  "tl": "Kailangan ng makina sa sentro ang scan na ito, kahit pinili mo ang \"Sa bahay\""
+ },
+ "ordering.basket.removeAria": {
+  "ar": "احذف من السلة",
+  "en": "Remove from basket",
+  "ur": "ٹوکری سے ہٹائیں",
+  "hi": "टोकरी से हटाएँ",
+  "bn": "ঝুড়ি থেকে সরান",
+  "tl": "Alisin sa basket"
+ },
+ "ordering.basket.sumItems": {
+  "ar": "الفحوصات ({n})",
+  "en": "Tests ({n})",
+  "ur": "ٹیسٹ ({n})",
+  "hi": "जाँचें ({n})",
+  "bn": "পরীক্ষা ({n})",
+  "tl": "Mga test ({n})"
+ },
+ "ordering.basket.sumFee": {
+  "ar": "رسوم الزيارة المنزلية",
+  "en": "Home-visit fee",
+  "ur": "گھر پر وزٹ فیس",
+  "hi": "होम विज़िट शुल्क",
+  "bn": "হোম ভিজিট ফি",
+  "tl": "Bayad sa home visit"
+ },
+ "ordering.basket.feeLater": {
+  "ar": "بعد اختيار المزوّد",
+  "en": "After you choose a provider",
+  "ur": "فراہم کنندہ چننے کے بعد",
+  "hi": "प्रदाता चुनने के बाद",
+  "bn": "প্রদানকারী বাছাইয়ের পর",
+  "tl": "Pagkatapos pumili ng provider"
+ },
+ "ordering.basket.sumIns": {
+  "ar": "حصة التأمين (تقديرية)",
+  "en": "Insurance share (estimated)",
+  "ur": "بیمہ کا حصہ (تخمینی)",
+  "hi": "बीमा का हिस्सा (अनुमानित)",
+  "bn": "বিমার অংশ (আনুমানিক)",
+  "tl": "Bahagi ng insurance (tinatayang)"
+ },
+ "ordering.basket.sumTotal": {
+  "ar": "الإجمالي التقديري",
+  "en": "Estimated total",
+  "ur": "تخمینی کل",
+  "hi": "अनुमानित कुल",
+  "bn": "আনুমানিক মোট",
+  "tl": "Tinatayang kabuuan"
+ },
+ "ordering.basket.cashNote": {
+  "ar": "الباقات ورسوم الزيارة نقدًا ما لم توافق شركة التأمين",
+  "en": "Packages and the visit fee are cash unless the insurer approves",
+  "ur": "پیکیجز اور وزٹ فیس نقد ہیں جب تک بیمہ کمپنی منظور نہ کرے",
+  "hi": "पैकेज और विज़िट शुल्क नकद हैं जब तक बीमा कंपनी मंज़ूर न करे",
+  "bn": "বিমা কোম্পানি অনুমোদন না করলে প্যাকেজ ও ভিজিট ফি নগদে",
+  "tl": "Cash ang package at bayad sa pagbisita maliban kung aprubahan ng insurer"
+ },
+ "ordering.basket.cta": {
+  "ar": "اختر المزوّد",
+  "en": "Choose a provider",
+  "ur": "فراہم کنندہ چنیں",
+  "hi": "प्रदाता चुनें",
+  "bn": "প্রদানকারী বেছে নিন",
+  "tl": "Pumili ng provider"
+ },
+ "ordering.basket.altTitle": {
+  "ar": "لا توجد خدمة منزلية لهذا الفحص في منطقتك",
+  "en": "No home service for this test in your area",
+  "ur": "آپ کے علاقے میں اس ٹیسٹ کی گھریلو سروس نہیں",
+  "hi": "आपके इलाके में इस जाँच की होम सेवा नहीं है",
+  "bn": "আপনার এলাকায় এই পরীক্ষার হোম সেবা নেই",
+  "tl": "Walang home service para sa test na ito sa lugar mo"
+ },
+ "ordering.basket.altCentre": {
+  "ar": "3 مختبرات خلال 5 كم تجريه في المركز",
+  "en": "3 labs within 5 km do it at the lab",
+  "ur": "5 کلومیٹر کے اندر 3 لیبز اسے لیب میں کرتی ہیں",
+  "hi": "5 किमी के भीतर 3 लैब इसे लैब में करती हैं",
+  "bn": "৫ কিমির মধ্যে ৩টি ল্যাব এটি ল্যাবে করে",
+  "tl": "3 lab sa loob ng 5 km ang gumagawa nito sa lab"
+ },
+ "ordering.basket.altCentreBtn": {
+  "ar": "انقل هذا البند إلى المركز",
+  "en": "Move this item to the centre",
+  "ur": "اس آئٹم کو مرکز میں منتقل کریں",
+  "hi": "इस आइटम को केंद्र में ले जाएँ",
+  "bn": "এই আইটেম কেন্দ্রে সরান",
+  "tl": "Ilipat ang item na ito sa sentro"
+ },
+ "ordering.basket.altOffers": {
+  "ar": "اطلب عروضًا من المختبرات",
+  "en": "Request offers from labs",
+  "ur": "لیبز سے پیشکشیں مانگیں",
+  "hi": "लैब से ऑफ़र माँगें",
+  "bn": "ল্যাব থেকে অফার চান",
+  "tl": "Humiling ng alok mula sa mga lab"
+ },
+ "ordering.basket.emptyTitle": {
+  "ar": "سلتك فارغة",
+  "en": "Your basket is empty",
+  "ur": "آپ کی ٹوکری خالی ہے",
+  "hi": "आपकी टोकरी खाली है",
+  "bn": "আপনার ঝুড়ি খালি",
+  "tl": "Walang laman ang basket mo"
+ },
+ "ordering.basket.emptySub": {
+  "ar": "أضف فحوصًا من المختبر أو الأشعة، أو صوّر أمرًا طبيًا",
+  "en": "Add tests or scans, or photograph a medical order",
+  "ur": "ٹیسٹ یا اسکین شامل کریں، یا طبی آرڈر کی تصویر لیں",
+  "hi": "जाँच या स्कैन जोड़ें, या मेडिकल ऑर्डर की फ़ोटो लें",
+  "bn": "পরীক্ষা বা স্ক্যান যোগ করুন, বা মেডিকেল অর্ডারের ছবি তুলুন",
+  "tl": "Magdagdag ng test o scan, o kunan ng litrato ang medical order"
+ },
+ "ordering.basket.updating": {
+  "ar": "نحدّث الأسعار والتغطية…",
+  "en": "Updating prices and coverage…",
+  "ur": "قیمتیں اور کوریج اپ ڈیٹ ہو رہی ہیں…",
+  "hi": "कीमतें और कवरेज अपडेट हो रहे हैं…",
+  "bn": "দাম ও কভারেজ হালনাগাদ হচ্ছে…",
+  "tl": "Ina-update ang presyo at coverage…"
+ },
+ "ordering.match.title": {
+  "ar": "اختر المزوّد",
+  "en": "Choose a provider",
+  "ur": "فراہم کنندہ چنیں",
+  "hi": "प्रदाता चुनें",
+  "bn": "প্রদানকারী বেছে নিন",
+  "tl": "Pumili ng provider"
+ },
+ "ordering.match.basket": {
+  "ar": "سلتك: {n} بنود",
+  "en": "Your basket: {n} items",
+  "ur": "آپ کی ٹوکری: {n} آئٹمز",
+  "hi": "आपकी टोकरी: {n} आइटम",
+  "bn": "আপনার ঝুড়ি: {n}টি আইটেম",
+  "tl": "Basket mo: {n} item"
+ },
+ "ordering.match.best": {
+  "ar": "الأنسب لك",
+  "en": "Best match for you",
+  "ur": "آپ کے لیے بہترین",
+  "hi": "आपके लिए सबसे उपयुक्त",
+  "bn": "আপনার জন্য সেরা",
+  "tl": "Pinakaangkop para sa iyo"
+ },
+ "ordering.match.why": {
+  "ar": "يغطّي كل البنود، ضمن شبكتك، وقريب منك",
+  "en": "Covers every item, in your network and close to you",
+  "ur": "تمام آئٹمز کور کرتا ہے، آپ کے نیٹ ورک میں اور قریب",
+  "hi": "सभी आइटम कवर करता है, आपके नेटवर्क में और पास में",
+  "bn": "সব আইটেম কভার করে, আপনার নেটওয়ার্কে ও কাছে",
+  "tl": "Sakop ang lahat ng item, nasa network mo at malapit"
+ },
+ "ordering.match.pA": {
+  "ar": "مختبر البرج الطبي",
+  "en": "Al Burj Medical Lab",
+  "ur": "البرج میڈیکل لیب",
+  "hi": "अल बुर्ज मेडिकल लैब",
+  "bn": "আল বুর্জ মেডিকেল ল্যাব",
+  "tl": "Al Burj Medical Lab"
+ },
+ "ordering.match.pB": {
+  "ar": "مختبرات الصفوة",
+  "en": "Al Safwa Labs",
+  "ur": "الصفوہ لیبز",
+  "hi": "अल सफ़वा लैब्स",
+  "bn": "আল সাফওয়া ল্যাবস",
+  "tl": "Al Safwa Labs"
+ },
+ "ordering.match.pC": {
+  "ar": "مركز الأمل للتشخيص",
+  "en": "Al Amal Diagnostic Centre",
+  "ur": "الامل ڈائیگناسٹک سینٹر",
+  "hi": "अल अमल डायग्नोस्टिक सेंटर",
+  "bn": "আল আমাল ডায়াগনস্টিক সেন্টার",
+  "tl": "Al Amal Diagnostic Centre"
+ },
+ "ordering.match.pD": {
+  "ar": "مختبر النخبة",
+  "en": "Al Nokhba Lab",
+  "ur": "النخبہ لیب",
+  "hi": "अल नुख़बा लैब",
+  "bn": "আল নোখবা ল্যাব",
+  "tl": "Al Nokhba Lab"
+ },
+ "ordering.match.rating": {
+  "ar": "{r} ({n} تقييمًا)",
+  "en": "{r} ({n} reviews)",
+  "ur": "{r} ({n} جائزے)",
+  "hi": "{r} ({n} समीक्षाएँ)",
+  "bn": "{r} ({n}টি রিভিউ)",
+  "tl": "{r} ({n} review)"
+ },
+ "ordering.match.reliab": {
+  "ar": "يؤكد الحجز خلال 5 دقائق",
+  "en": "Confirms bookings within 5 minutes",
+  "ur": "بکنگ 5 منٹ میں تصدیق کرتا ہے",
+  "hi": "बुकिंग 5 मिनट में पक्की करता है",
+  "bn": "৫ মিনিটে বুকিং নিশ্চিত করে",
+  "tl": "Kinukumpirma ang booking sa loob ng 5 minuto"
+ },
+ "ordering.match.dist": {
+  "ar": "{d} كم",
+  "en": "{d} km",
+  "ur": "{d} کلومیٹر",
+  "hi": "{d} किमी",
+  "bn": "{d} কিমি",
+  "tl": "{d} km"
+ },
+ "ordering.match.earliest": {
+  "ar": "أقرب موعد: {w}",
+  "en": "Earliest: {w}",
+  "ur": "قریب ترین وقت: {w}",
+  "hi": "सबसे जल्दी: {w}",
+  "bn": "সবচেয়ে আগে: {w}",
+  "tl": "Pinakamaaga: {w}"
+ },
+ "ordering.match.today4": {
+  "ar": "اليوم 4:00 م",
+  "en": "today 4:00 PM",
+  "ur": "آج شام 4:00",
+  "hi": "आज शाम 4:00",
+  "bn": "আজ বিকাল ৪:০০",
+  "tl": "ngayong 4:00 PM"
+ },
+ "ordering.match.tomorrow9": {
+  "ar": "غدًا 9:00 ص",
+  "en": "tomorrow 9:00 AM",
+  "ur": "کل صبح 9:00",
+  "hi": "कल सुबह 9:00",
+  "bn": "আগামীকাল সকাল ৯:০০",
+  "tl": "bukas 9:00 AM"
+ },
+ "ordering.match.inNet": {
+  "ar": "ضمن شبكة بوبا",
+  "en": "In the Bupa network",
+  "ur": "بوپا نیٹ ورک میں",
+  "hi": "बुपा नेटवर्क में",
+  "bn": "বুপা নেটওয়ার্কে",
+  "tl": "Nasa Bupa network"
+ },
+ "ordering.match.outNet": {
+  "ar": "خارج الشبكة",
+  "en": "Out of network",
+  "ur": "نیٹ ورک سے باہر",
+  "hi": "नेटवर्क से बाहर",
+  "bn": "নেটওয়ার্কের বাইরে",
+  "tl": "Wala sa network"
+ },
+ "ordering.match.homeVisit": {
+  "ar": "يزور المنزل",
+  "en": "Visits your home",
+  "ur": "گھر آتا ہے",
+  "hi": "घर आता है",
+  "bn": "বাসায় আসে",
+  "tl": "Bumibisita sa bahay"
+ },
+ "ordering.match.atCentre": {
+  "ar": "في المركز",
+  "en": "At the centre",
+  "ur": "مرکز میں",
+  "hi": "केंद्र में",
+  "bn": "কেন্দ্রে",
+  "tl": "Sa sentro"
+ },
+ "ordering.match.total": {
+  "ar": "الإجمالي",
+  "en": "Total",
+  "ur": "کل",
+  "hi": "कुल",
+  "bn": "মোট",
+  "tl": "Kabuuan"
+ },
+ "ordering.match.choose": {
+  "ar": "اختر هذا المزوّد",
+  "en": "Choose this provider",
+  "ur": "اس فراہم کنندہ کو چنیں",
+  "hi": "इस प्रदाता को चुनें",
+  "bn": "এই প্রদানকারী বেছে নিন",
+  "tl": "Piliin ang provider na ito"
+ },
+ "ordering.match.compare": {
+  "ar": "قارن بنفسك",
+  "en": "Compare yourself",
+  "ur": "خود موازنہ کریں",
+  "hi": "खुद तुलना करें",
+  "bn": "নিজে তুলনা করুন",
+  "tl": "Ikumpara mo mismo"
+ },
+ "ordering.match.count": {
+  "ar": "{n} مزوّدين",
+  "en": "{n} providers",
+  "ur": "{n} فراہم کنندگان",
+  "hi": "{n} प्रदाता",
+  "bn": "{n} প্রদানকারী",
+  "tl": "{n} provider"
+ },
+ "ordering.match.sort": {
+  "ar": "ترتيب حسب",
+  "en": "Sort by",
+  "ur": "ترتیب",
+  "hi": "क्रमबद्ध करें",
+  "bn": "সাজান",
+  "tl": "Ayusin ayon sa"
+ },
+ "ordering.match.sCheap": {
+  "ar": "الأرخص",
+  "en": "Cheapest",
+  "ur": "سب سے سستا",
+  "hi": "सबसे सस्ता",
+  "bn": "সবচেয়ে সস্তা",
+  "tl": "Pinakamura"
+ },
+ "ordering.match.sNear": {
+  "ar": "الأقرب",
+  "en": "Nearest",
+  "ur": "قریب ترین",
+  "hi": "सबसे नज़दीक",
+  "bn": "সবচেয়ে কাছে",
+  "tl": "Pinakamalapit"
+ },
+ "ordering.match.sFast": {
+  "ar": "الأسرع نتيجة",
+  "en": "Fastest result",
+  "ur": "تیز ترین نتیجہ",
+  "hi": "सबसे तेज़ नतीजा",
+  "bn": "সবচেয়ে দ্রুত ফল",
+  "tl": "Pinakamabilis na resulta"
+ },
+ "ordering.match.sRating": {
+  "ar": "الأعلى تقييمًا",
+  "en": "Top rated",
+  "ur": "بلند ترین ریٹنگ",
+  "hi": "सबसे ऊँची रेटिंग",
+  "bn": "সর্বোচ্চ রেটিং",
+  "tl": "Pinakamataas ang rating"
+ },
+ "ordering.match.fNet": {
+  "ar": "ضمن شبكتي",
+  "en": "In my network",
+  "ur": "میرے نیٹ ورک میں",
+  "hi": "मेरे नेटवर्क में",
+  "bn": "আমার নেটওয়ার্কে",
+  "tl": "Sa network ko"
+ },
+ "ordering.match.fHome": {
+  "ar": "زيارة منزلية",
+  "en": "Home visit",
+  "ur": "گھر پر وزٹ",
+  "hi": "होम विज़िट",
+  "bn": "হোম ভিজিট",
+  "tl": "Home visit"
+ },
+ "ordering.match.fOpen": {
+  "ar": "مفتوح الآن",
+  "en": "Open now",
+  "ur": "ابھی کھلا ہے",
+  "hi": "अभी खुला है",
+  "bn": "এখন খোলা",
+  "tl": "Bukas ngayon"
+ },
+ "ordering.match.fGender": {
+  "ar": "طاقم نسائي",
+  "en": "Female staff",
+  "ur": "خواتین عملہ",
+  "hi": "महिला स्टाफ़",
+  "bn": "নারী কর্মী",
+  "tl": "Babaeng staff"
+ },
+ "ordering.match.covers": {
+  "ar": "يغطّي {a} من {b} بنود",
+  "en": "Covers {a} of {b} items",
+  "ur": "{b} میں سے {a} آئٹمز کور کرتا ہے",
+  "hi": "{b} में से {a} आइटम कवर करता है",
+  "bn": "{b}টির মধ্যে {a}টি আইটেম কভার করে",
+  "tl": "Sakop ang {a} sa {b} item"
+ },
+ "ordering.match.splitTitle": {
+  "ar": "لا يوجد مزوّد واحد يغطّي كل البنود",
+  "en": "No single provider covers every item",
+  "ur": "کوئی ایک فراہم کنندہ تمام آئٹمز کور نہیں کرتا",
+  "hi": "कोई एक प्रदाता सभी आइटम कवर नहीं करता",
+  "bn": "একজন প্রদানকারী সব আইটেম কভার করে না",
+  "tl": "Walang iisang provider na sumasakop sa lahat ng item"
+ },
+ "ordering.match.splitSub": {
+  "ar": "اقتراح التقسيم بين مزوّدين",
+  "en": "Suggested split between two providers",
+  "ur": "دو فراہم کنندگان میں تقسیم کی تجویز",
+  "hi": "दो प्रदाताओं के बीच बँटवारे का सुझाव",
+  "bn": "দুই প্রদানকারীর মধ্যে ভাগের পরামর্শ",
+  "tl": "Mungkahing paghahati sa dalawang provider"
+ },
+ "ordering.match.splitLine4": {
+  "ar": "{x}: 3 بنود",
+  "en": "{x}: 3 items",
+  "ur": "{x}: 3 آئٹمز",
+  "hi": "{x}: 3 आइटम",
+  "bn": "{x}: ৩টি আইটেম",
+  "tl": "{x}: 3 item"
+ },
+ "ordering.match.splitLine1": {
+  "ar": "{x}: بند واحد",
+  "en": "{x}: 1 item",
+  "ur": "{x}: 1 آئٹم",
+  "hi": "{x}: 1 आइटम",
+  "bn": "{x}: ১টি আইটেম",
+  "tl": "{x}: 1 item"
+ },
+ "ordering.match.splitBtn": {
+  "ar": "اعتمد التقسيم",
+  "en": "Use this split",
+  "ur": "یہ تقسیم اپنائیں",
+  "hi": "यह बँटवारा अपनाएँ",
+  "bn": "এই ভাগ গ্রহণ করুন",
+  "tl": "Gamitin ang paghahating ito"
+ },
+ "ordering.match.emptyTitle": {
+  "ar": "لا نتائج بهذه التصفية",
+  "en": "No results with these filters",
+  "ur": "ان فلٹرز کے ساتھ کوئی نتیجہ نہیں",
+  "hi": "इन फ़िल्टर के साथ कोई नतीजा नहीं",
+  "bn": "এই ফিল্টারে কোনো ফল নেই",
+  "tl": "Walang resulta sa mga filter na ito"
+ },
+ "ordering.match.emptyRelax": {
+  "ar": "أزل «طاقم نسائي» لترى 5 مزوّدين",
+  "en": "Remove \"Female staff\" to see 5 providers",
+  "ur": "\"خواتین عملہ\" ہٹائیں تاکہ 5 فراہم کنندگان نظر آئیں",
+  "hi": "5 प्रदाता देखने के लिए \"महिला स्टाफ़\" हटाएँ",
+  "bn": "৫ প্রদানকারী দেখতে \"নারী কর্মী\" সরান",
+  "tl": "Alisin ang \"Babaeng staff\" para makita ang 5 provider"
+ },
+ "ordering.match.loading": {
+  "ar": "نبحث عن الأنسب لك…",
+  "en": "Finding the best match for you…",
+  "ur": "آپ کے لیے بہترین تلاش کر رہے ہیں…",
+  "hi": "आपके लिए सबसे उपयुक्त खोज रहे हैं…",
+  "bn": "আপনার জন্য সেরাটি খুঁজছি…",
+  "tl": "Hinahanap ang pinakaangkop para sa iyo…"
+ },
+ "ordering.match.filters": {
+  "ar": "التصفية",
+  "en": "Filters",
+  "ur": "فلٹرز",
+  "hi": "फ़िल्टर",
+  "bn": "ফিল্টার",
+  "tl": "Mga filter"
+ }
+}

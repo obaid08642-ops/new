@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { bookingChoiceLine } from './bookingChoice';
 import { View, Text, ActivityIndicator } from 'react-native';
 import client from '../../api/client';
 import { NHeader, NCard, NBtn, NScroll, NInput, NBadge, NSecHeader } from '../../components/ui';
@@ -6,6 +7,8 @@ import { SignatureCanvasModal } from '../../components/SignatureCanvasModal';
 import { useTheme, useLang, useToast } from '../../context';
 import { FS, FW, SP } from '../../constants';
 import { MAX_VISIT_FILES, PickedVisitFile, buildVisitReportBody, pickVisitFile, uploadVisitFiles } from './visitFiles';
+import { useUploadsEnabled } from '../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../../components/UploadsUnavailable';
 
 /**
  * THE single home-visit flow of the nursing app. Every entry point (home cards, quick actions, orders tab, checklist)
@@ -16,10 +19,12 @@ import { MAX_VISIT_FILES, PickedVisitFile, buildVisitReportBody, pickVisitFile, 
  */
 interface NursingVisitSummary {
   id?: string; state?: string; status?: string; scheduled_at?: string;
+  booking_mode?: string; recurrence?: string; hours?: number; shift?: string; period?: string; sessions_count?: number;
   patient_name?: string; patient?: string; address?: string | { address?: string };
 }
 
 export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { order: NursingVisitSummary | null | undefined, onBack: () => void, onRefresh: () => void, onNavigate?: (s: string, p?: unknown) => void }) {
+  const uploadsOn = useUploadsEnabled();
   const { theme } = useTheme();
   const { lang } = useLang();
   const { show } = useToast();
@@ -187,6 +192,7 @@ export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { orde
                 </Text>
                 <NBadge label={state} />
               </View>
+              {bookingChoiceLine(visit, AR) ? <Text style={{ color: theme.text, fontWeight: FW.bold }}>{bookingChoiceLine(visit, AR)}</Text> : null}
               {visit?.scheduled_at ? (
                 <Text style={{ color: theme.textSub }}>{new Date(visit.scheduled_at).toLocaleString(AR ? 'ar-SA' : 'en-US')}</Text>
               ) : null}
@@ -232,13 +238,13 @@ export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { orde
                   </View>
                 ))}
                 {files.length < MAX_VISIT_FILES ? (
-                  <NBtn label={AR ? 'إرفاق ملف (PDF أو صورة)' : 'Attach a file (PDF or image)'} variant="outline" disabled={busy}
+                  (uploadsOn ? <NBtn label={AR ? 'إرفاق ملف (PDF أو صورة)' : 'Attach a file (PDF or image)'} variant="outline" disabled={busy}
                     onPress={async () => {
                       try {
                         const f = await pickVisitFile();
                         if (f) setFiles((cur) => [...cur, f].slice(0, MAX_VISIT_FILES));
                       } catch { show(AR ? 'تعذر اختيار الملف' : 'Could not pick the file', 'error'); }
-                    }} />
+                    }} /> : <UploadsUnavailable />)
                 ) : (
                   <Text style={{ color: theme.textSub, fontSize: FS.xs }}>{AR ? 'الحد الأقصى 10 ملفات' : 'Maximum 10 files'}</Text>
                 )}
@@ -255,11 +261,14 @@ export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { orde
               <NCard><Text style={{ color: theme.text }}>{AR ? 'اكتملت الزيارة وسُجلت' : 'Visit completed and recorded'}</Text></NCard>
             )}
 
-            {!['COMPLETED', 'CANCELLED', 'NO_SHOW', 'ESCALATED_EMERGENCY'].includes(state) && (
+            {/* the server allows no-show only once the nurse has arrived (home-care.controller triggerNoShow) and an emergency abort only on the road, arrived or in care */}
+            {['IN_TRANSIT', 'ARRIVED', 'CARE_IN_PROGRESS'].includes(state) && (
               <>
                 <NSecHeader title={AR ? 'استثناءات' : 'Exceptions'} />
-                <NBtn label={AR ? 'المريض لم يحضر' : 'Patient no-show'} variant="outline" loading={busy}
-                  onPress={() => void act('no-show', {}, AR ? 'سُجل عدم الحضور' : 'No-show recorded').then((ok) => ok && load())} />
+                {state === 'ARRIVED' ? (
+                  <NBtn label={AR ? 'المريض لم يحضر' : 'Patient no-show'} variant="outline" loading={busy}
+                    onPress={() => void act('no-show', {}, AR ? 'سُجل عدم الحضور' : 'No-show recorded').then((ok) => ok && load())} />
+                ) : null}
                 {!showAbort ? (
                   <NBtn label={AR ? 'إيقاف طارئ' : 'Emergency abort'} variant="outline" onPress={() => setShowAbort(true)} />
                 ) : (

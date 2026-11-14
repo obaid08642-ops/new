@@ -6,6 +6,7 @@ import { Button } from "@/components-next/ui-generated/components/Button";
 import { ChoiceGroup } from "@/components-next/care/care-fields";
 import { CareHero, RecordRow } from "@/components-next/care/care-kit";
 import { Notice, RowCard } from "@/components-next/consult/consult-parts";
+import { ConfirmDialog } from "@/components-next/confirm/confirm-dialog";
 import { RowsCard, SectionHead } from "@/components-next/health/health-kit";
 import { formatDate } from "@/lib/format-date";
 import { isolate } from "@/lib/bidi";
@@ -41,6 +42,8 @@ export function ProgramsActiveClient({ initial, locale }: { initial: Program[]; 
   const [busy, setBusy] = useState<string | number | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [asking, setAsking] = useState<string | number | null>(null);
+  const shared = useTranslations("Shared");
   const selected = programs.find((p) => p.id === activeTab) ?? programs[0];
   if (!selected) return <p role="status" className={forms.body}>{t("empty")}</p>;
   const ratio = selected.totalSessions > 0 ? selected.completedSessions / selected.totalSessions : 0;
@@ -49,7 +52,6 @@ export function ProgramsActiveClient({ initial, locale }: { initial: Program[]; 
   const nextDate = selected.nextDate ? formatDate(locale, selected.nextDate) ?? selected.nextDate : null;
 
   async function complete(sessionId: string | number) {
-    if (!window.confirm(t("confirmComplete"))) return;
     setBusy(sessionId);
     setMessage(null);
     setError(null);
@@ -103,12 +105,22 @@ export function ProgramsActiveClient({ initial, locale }: { initial: Program[]; 
       setError(t("connectionFailed"));
     } finally {
       setBusy(null);
+      setAsking(null);
     }
   }
 
   return (
     <div className={forms.stack}>
       {message ? <p role="status" className={forms.notice}>{message}</p> : null}
+      <ConfirmDialog
+        open={asking !== null}
+        title={t("confirmComplete")}
+        confirmLabel={shared("dialogConfirm")}
+        cancelLabel={shared("dialogCancel")}
+        busy={asking !== null && busy === asking}
+        onConfirm={() => { if (asking !== null) void complete(asking); }}
+        onCancel={() => setAsking(null)}
+      />
       {error ? <p role="alert" className={forms.error}>{error}</p> : null}
       {programs.length > 1 ? <ChoiceGroup label={t("programs")} value={selected.id} onChange={setActiveTab} options={programs.map((p) => ({ value: p.id, label: p.title }))} /> : null}
       <CareHero
@@ -140,7 +152,7 @@ export function ProgramsActiveClient({ initial, locale }: { initial: Program[]; 
                 tone={s.completed ? "mint" : "blue"}
                 muted={s.completed}
                 title={<><bdi>#{String(s.id)}</bdi> {s.title}</>}
-                end={s.completed ? undefined : <Button label={t("markDone")} size="sm" variant="outline" loading={busy === s.id} disabled={busy !== null} onClick={() => complete(s.id)} />}
+                end={s.completed ? undefined : <Button label={t("markDone")} size="sm" variant="outline" loading={busy === s.id} disabled={busy !== null} onClick={() => setAsking(s.id)} />}
               />
             </li>
           ))}

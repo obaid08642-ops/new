@@ -5,6 +5,7 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { formatDate } from "@/lib/format-date";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
+import { trendFor, type TrendPoint } from "@/lib/diagnostics/result-trend";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { Facts, Hero, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
@@ -29,7 +30,7 @@ const FLAGS = ["normal", "high", "low", "critical"] as const;
 /**
  * Decision 19 (issue 338): one lab result, opened from its "result ready" notification (route /health/results/:id).
  * GET /lab-results/:id answers the patient's own result: each value with its unit, the reference range and the server's
- * flag, and what the lab wrote. "Discuss the result with a doctor" opens the doctors list. A report file the lab uploaded
+ * flag, and what the lab wrote. "Discuss the result with a doctor" opens the instant consultation (M8) with the booking's result attached. A report file the lab uploaded
  * on the booking (the older path) is opened from the booking page.
  */
 export default async function LabResultPage({ params }: Props) {
@@ -38,8 +39,12 @@ export default async function LabResultPage({ params }: Props) {
   setRequestLocale(locale);
   const token = await requirePatientAccess(locale);
   const t = await getTranslations("LabResult");
-  const back = `/${locale}/diagnostics/results`;
-  const response = await callPatientApi(`/lab-results/${encodeURIComponent(resultId)}`, { cache: "no-store" }, token).catch(() => null);
+  const back = `/${locale}/orders?tab=results`;
+  // Ord11: the same test's earlier values come from the patient's own list (GET /lab-results/mine); a failed read only hides the trend.
+  const [response, history] = await Promise.all([
+    callPatientApi(`/lab-results/${encodeURIComponent(resultId)}`, { cache: "no-store" }, token).catch(() => null),
+    callPatientApi("/lab-results/mine", { cache: "no-store" }, token).then((r) => (r.ok ? r.json().catch(() => null) : null)).catch(() => null),
+  ]);
   if (response?.status === 401) redirect(`/${locale}/login`);
   if (response?.status === 404 || response?.status === 403) notFound();
   const raw = response?.ok ? await response.json().catch(() => null) : null;
@@ -71,6 +76,28 @@ export default async function LabResultPage({ params }: Props) {
       ),
     };
   });
+  const trends = new Map<string, TrendPoint[]>();
+  for (const e of entries) {
+    const name = text(e.name);
+    if (!name || trends.has(name)) continue;
+    const points = trendFor(history, name).filter((point) => point.id !== text(row.id));
+    const current = typeof e.value === "number" || (typeof e.value === "string" && e.value.trim() !== "") ? Number(e.value) : NaN;
+    if (points.length > 0 && Number.isFinite(current)) {
+      trends.set(name, [...points, { id: text(row.id) ?? resultId, at: text(row.reported_at) ?? "", value: current, unit: text(e.unit), flag: typeof e.flag === "string" ? e.flag : undefined }]);
+    }
+  }
+  const trendSections = [...trends].map(([name, points]) => (
+    <SectionCard key={`trend-${name}`} id={`lab-result-trend-${name}`} title={`${t("trendTitle")} · ${name}`}>
+      <p className={styles.muted}>{t("trendNote")}</p>
+      <ol className={styles.body}>
+        {points.map((point) => (
+          <li key={point.id}>
+            {`${formatDate(locale, point.at, { dateStyle: "medium" }) ?? point.at} · ${new Intl.NumberFormat(locale).format(point.value)}${point.unit ? ` ${point.unit}` : ""}`}
+          </li>
+        ))}
+      </ol>
+    </SectionCard>
+  ));
   const sections = (["findings", "impression", "recommendations", "notes"] as const).flatMap((key) => {
     const value = text(row[key]);
     return value ? [(
@@ -91,13 +118,14 @@ export default async function LabResultPage({ params }: Props) {
           <Facts rows={rows} label={t("values")} />
         </SectionCard>
       ) : null}
+      {trendSections}
       {sections}
       {row.source === "lab_booking" && bookingId ? (
         <ButtonLink href={`/${locale}/diagnostics/bookings/labs/${encodeURIComponent(bookingId)}`} label={t("openBooking")} variant="outline" fullWidth />
       ) : rows.length === 0 && sections.length === 0 ? (
         <p className={`${styles.body} ${styles.muted}`}>{t("empty")}</p>
       ) : null}
-      <ButtonLink href={`/${locale}/consultations/doctors`} label={t("discuss")} fullWidth />
+      <ButtonLink href={`/${locale}/consultations/instant${row.source === "lab_booking" && bookingId ? `?booking=${encodeURIComponent(bookingId)}` : ""}`} label={t("discuss")} fullWidth />
     </ConsultPage>
   );
 }

@@ -37,8 +37,9 @@ describe('Phase 23 audit chain (23.1 + 23.3)', () => {
     await server?.stop();
   });
 
+    // 16.6: the model refuses updates and deletes, so the test tampers (and clears) through the driver, as an attacker with database access would
   beforeEach(async () => {
-    await Logs.deleteMany({});
+    await Logs.collection.deleteMany({});
     // The sequence counter is a separate collection, so it has to be reset too;
     // otherwise sequences keep climbing across tests and the assertions that
     // name a broken row would be asserting the wrong number.
@@ -99,7 +100,7 @@ describe('Phase 23 audit chain (23.1 + 23.3)', () => {
 
   it('EDITING an event breaks the chain and names the row', async () => {
     for (const a of ['a', 'b', 'c']) await service.write({ action: a });
-    await Logs.updateOne({ action: 'b' }, { $set: { details: { amount: 999_999 } } });
+    await Logs.collection.updateOne({ action: 'b' }, { $set: { details: { amount: 999_999 } } });
     const v = await service.verifyChain();
     expect(v.ok).toBe(false);
     expect(v.reason).toBe('hash_mismatch');
@@ -110,7 +111,7 @@ describe('Phase 23 audit chain (23.1 + 23.3)', () => {
 
   it('editing an amount on a financial action is detected', async () => {
     await service.write({ action: 'payment_completed', resource_id: 'tx-1', details: { amount: 100 } });
-    await Logs.updateOne({ action: 'payment_completed' }, { $set: { 'details.amount': 1 } });
+    await Logs.collection.updateOne({ action: 'payment_completed' }, { $set: { 'details.amount': 1 } });
     const v = await service.verifyChain();
     expect(v.ok).toBe(false);
     expect(v.reason).toBe('hash_mismatch');
@@ -118,7 +119,7 @@ describe('Phase 23 audit chain (23.1 + 23.3)', () => {
 
   it('DELETING a middle event breaks the chain', async () => {
     for (const a of ['a', 'b', 'c']) await service.write({ action: a });
-    await Logs.deleteOne({ action: 'b' });
+    await Logs.collection.deleteOne({ action: 'b' });
     const v = await service.verifyChain();
     expect(v.ok).toBe(false);
     // 'c' now claims a predecessor that is gone
@@ -133,7 +134,7 @@ describe('Phase 23 audit chain (23.1 + 23.3)', () => {
     const before = await service.verifyChain();
     expect(before.ok).toBe(true);
     const rows: any[] = await Logs.find({}).sort({ sequence: 1 }).lean<any[]>();
-    await Logs.deleteOne({ sequence: rows[2].sequence });
+    await Logs.collection.deleteOne({ sequence: rows[2].sequence });
     const after = await service.verifyChain();
     expect(after.checked).toBe(2);
     expect(after.checked).toBeLessThan(before.checked);
@@ -183,13 +184,13 @@ describe('Phase 23 audit chain (23.1 + 23.3)', () => {
     for (const a of ['a', 'b', 'c', 'd']) await service.write({ action: a });
     const victim: any = await Logs.findOne({ sequence: 2 }).lean();
     await conn.collection('audit_tombstones').insertOne({ sequence: 2, hash: victim.hash, prev_hash: victim.prev_hash });
-    await Logs.deleteOne({ sequence: 2 });
+    await Logs.collection.deleteOne({ sequence: 2 });
     expect(await service.verifyChain()).toMatchObject({ ok: true, checked: 4 });
   });
 
   it('deleting the newest event is caught too (the stored head no longer matches)', async () => {
     for (const a of ['a', 'b', 'c']) await service.write({ action: a });
-    await Logs.deleteOne({ sequence: 3 });
+    await Logs.collection.deleteOne({ sequence: 3 });
     expect(await service.verifyChain()).toMatchObject({ ok: false, reason: 'tail_missing' });
   });
 });

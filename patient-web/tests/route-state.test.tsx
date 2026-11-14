@@ -11,7 +11,9 @@ describe("RouteState", () => {
   it("error card is the design system's ErrorState, markup for markup", () => {
     const ours = renderToStaticMarkup(createElement(RouteState, { kind: "error", locale: "ar", title: "T", body: "B", primaryLabel: "Retry", returnHomeLabel: "Home" }));
     const theirs = renderToStaticMarkup(createElement(ErrorState, { title: "T", body: "B", retryLabel: "Retry" }));
-    const strip = (h: string) => h.replace(/ role="alert"| data-kind="error"|class="nabd-state"/g, "").replace(/\s+/g, " ");
+    // the card draws its glyph inline (it must show when the sprite cannot load: this is the crash and offline card); the design system
+    // draws the same glyph from the icon sprite, so the glyph element itself is compared in glyph-boundary tests, not here
+    const strip = (h: string) => h.replace(/<(path|use) class="nabd-ficon__glyph"[^>]*>(<\/(path|use)>)?/g, "<glyph/>").replace(/ role="alert"| data-kind="error"|class="nabd-state"/g, "").replace(/\s+/g, " ");
     const inner = (h: string) => strip(h.slice(h.indexOf(">") + 1, h.lastIndexOf("</div>")));
     const ourCard = ours.slice(ours.indexOf('<div data-kind="error"'), ours.indexOf('</div></div>') + '</div></div>'.length);
     expect(inner(ourCard)).toBe(inner(theirs));
@@ -22,7 +24,8 @@ describe("RouteState", () => {
   it("not-found card is the design system's EmptyState glyph, title and body, with the home link as the primary button", () => {
     const ours = renderToStaticMarkup(createElement(RouteState, { kind: "not-found", locale: "en", title: "T", body: "B", primaryLabel: "Go", returnHomeLabel: "Home" }));
     const theirs = renderToStaticMarkup(createElement(EmptyState, { icon: "map-trifold", tone: "amber", title: "T", body: "B" }));
-    const glyph = (h: string) => h.match(/<span data-icon[\s\S]*?<\/span>/)?.[0] ?? "";
+    const glyph = (h: string) => (h.match(/<span data-icon[\s\S]*?<\/span>/)?.[0] ?? "").replace(/<(path|use) class="nabd-ficon__glyph"[^>]*>(<\/(path|use)>)?/g, "<glyph/>");
+    expect(ours).toMatch(/<path class="nabd-ficon__glyph" d="M[^"]+"><\/path>/); // inline outline, not the sprite
     expect(glyph(ours)).toBe(glyph(theirs));
     expect(ours).toContain('<h2 class="nabd-state__title">T</h2><p class="nabd-state__body">B</p>');
     expect(ours).toContain('<a class="nabd-button nabd-button--primary nabd-button--lg nabd-button--full" href="/en">');

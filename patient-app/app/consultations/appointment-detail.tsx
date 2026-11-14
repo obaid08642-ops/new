@@ -5,13 +5,17 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { Button, Card, FIcon } from '../../../packages/ui-native/src';
 import { ConsultScreen, Dialog, Gate, InfoRow, ModePill, Section, StatusTag, appointmentStatus, useConsultFormat, visitMode, type GateStatus } from '../../src/components/consult/ConsultKit';
 import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
-import { HistorySection, PrescriptionSection, SummarySection, openFollowUp, type HistoryRow, type Summary } from '../../src/components/consult/AppointmentSections';
+import { FollowUpActions } from '../../src/components/consult/Differentiators';
+import { readFollowUpActions } from '../../src/utils/differentiators';
+import { HistorySection, OutcomeReportsSection, PrescriptionSection, ReferralsSection, SummarySection, openFollowUp, useVisitOutcomes, type HistoryRow, type Summary } from '../../src/components/consult/AppointmentSections';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { statusIs } from '../../src/utils/statusCase';
+import { ProviderNoShow } from '../../src/components/consult/ProviderNoShow';
+import { ReceiptButton } from '../../src/components/billing/ReceiptButton';
 
 /**
  * Appointment details — board Consult's card language. One page for the whole booking (merge map 2, section 1): status,
@@ -32,6 +36,7 @@ interface Appointment {
   patient_notes?: string;
   state_history?: HistoryRow[];
   payment_method?: string;
+  payment_status?: string;
   doctor_id?: string;
   doctor_name?: string;
   specialty?: string;
@@ -89,6 +94,7 @@ export default function AppointmentDetailScreen() {
   const pay = a?.payment_method === 'insurance' ? 'consult.pay.insurance' : a?.payment_method === 'cash' ? 'consult.pay.cash' : a?.payment_method ? 'consult.pay.card' : '';
   const at = a?.scheduled_at;
   const id = String(a?.id || '');
+  const outcomes = useVisitOutcomes(id, done);
 
   const go = (pathname: string, extra?: Record<string, unknown>) => router.push({ pathname, params: { appointmentId: id, ...extra } } as unknown as Href);
 
@@ -114,6 +120,7 @@ export default function AppointmentDetailScreen() {
   const footer = a ? (
     <>
       {primary ? <Button label={primary.label} size="lg" fullWidth onPress={primary.onPress} theme={theme} testID="detail-primary" /> : null}
+      {a.id ? <ProviderNoShow appointmentId={String(a.id)} status={a.status} slotStart={(a as { slot_start?: string }).slot_start} onDone={() => void load()} /> : null}
       <Button label={k('consult.appt.editCancel')} variant="outline" size="md" fullWidth onPress={() => go('/consultations/cancel-reschedule')} theme={theme} testID="detail-cancel" />
     </>
   ) : undefined;
@@ -156,6 +163,7 @@ export default function AppointmentDetailScreen() {
                 <InfoRow label={k('consult.detail.number')} value={id.substring(0, 8).toUpperCase()} last={amount === null} />
                 {amount !== null ? <InfoRow label={k('consult.detail.amount')} value={`${money(Number(amount))} ${k('consult.currency')}`} strong last /> : null}
               </Card>
+              {String(a?.payment_status ?? '').toLowerCase() === 'paid' && id ? <ReceiptButton bookingKind="appointment" bookingId={id} testID="appointment-receipt" /> : null}
             </Section>
 
             {done ? (
@@ -180,6 +188,9 @@ export default function AppointmentDetailScreen() {
 
             {done ? <SummarySection appointmentId={id} doctorId={a.doctor_id || ''} onSummary={setSummary} /> : null}
             {done ? <PrescriptionSection appointmentId={id} fallback={summary?.prescription} /> : null}
+            {done ? <ReferralsSection outcomes={outcomes} /> : null}
+            {done ? <OutcomeReportsSection outcomes={outcomes} /> : null}
+            {done ? <FollowUpActions actions={readFollowUpActions(a)} testID="detail-follow-up-actions" /> : null}
             <HistorySection notes={a.patient_notes} history={a.state_history} />
             {done && a.doctor_id ? <Button label={k('consult.rx.followUp')} variant="outline" size="md" fullWidth startIcon="calendar-dots" onPress={() => openFollowUp(a.doctor_id || '', id)} theme={theme} testID="detail-follow-up" /> : null}
 

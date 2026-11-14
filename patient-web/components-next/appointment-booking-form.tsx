@@ -101,8 +101,8 @@ export function AppointmentBookingForm({
 
   if (confirmedBooking) {
     return (
-      <section className={`${rx.card} ${styles.profile}`} role="status">
-        <FIcon icon="check-circle" tone="mint" size={64} />
+      <section className={`${rx.card} ${styles.profile} nabd-enter`} role="status">
+        <span className="nabd-pop-in"><FIcon icon="check-circle" tone="mint" size={64} /></span>
         <h3 className={styles.heroTitle}>{t("confirmedTitle")}</h3>
         <p className={`${styles.body} ${styles.muted}`}>{t("confirmedBody", { slot: formatWhen(locale, confirmedBooking.slot) ?? "" })}</p>
         <Button
@@ -131,6 +131,7 @@ export function AppointmentBookingForm({
             type="button"
             key={slot.start}
             className={styles.choice}
+            data-slot-chip
             aria-pressed={slot.start === selected}
             onClick={() => choose(slot.start)}
             disabled={submitting}

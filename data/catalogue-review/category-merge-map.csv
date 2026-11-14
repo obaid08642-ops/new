@@ -1,0 +1,77 @@
+from_main,from_sub,from_sub_sub,records,to_main,to_sub,to_sub_sub,action,confidence,reason
+أدوية ومكملات غذائية,"Baby Products | Bio Biloba, Ginko Biloba Food Supplement   60 Tablets | Electrorush | Mum and Baby | Promotions | Vitamins & Healthy Nutrition",,121,,,,delete_category,high,owner decision B: delete the 5 empty main categories and their brand-name subs
+الصحة والعافية المتخصصة,العناية المتخصصة,,2,,,,delete_category,high,owner decision B: delete the 5 empty main categories and their brand-name subs
+العناية بالجسم والاستحمام,الاستحمام والعناية بالجسم | العطور,,78,,,,delete_category,high,owner decision B: delete the 5 empty main categories and their brand-name subs
+النظافة الشخصية والحماية,احتياجات السفر,,234,,,,delete_category,high,owner decision B: delete the 5 empty main categories and their brand-name subs
+تجميل وعناية,Aqaufresh | Glow & Lovely | Natural Factors | Nivea | Offers | Personal Hygiene | Skin Care,,31,,,,delete_category,high,owner decision B: delete the 5 empty main categories and their brand-name subs
+أدوية ومكملات غذائية,Baby Products,الرضاعات والحلمات,1,الأم والطفل,تغذية ورضاعة الأطفال,الرضاعات والحلمات,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,"Bio Biloba, Ginko Biloba Food Supplement   60 Tablets",الجينسنغ,1,الفيتامينات والتغذية الصحية,الأعشاب والمستخلصات الطبيعية,الجينسنغ,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,"Bio Biloba, Ginko Biloba Food Supplement   60 Tablets",الكركم,3,الفيتامينات والتغذية الصحية,الأعشاب والمستخلصات الطبيعية,الكركم,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,"Bio Biloba, Ginko Biloba Food Supplement   60 Tablets",زهرة الربيع المسائية,6,الفيتامينات والتغذية الصحية,الأعشاب والمستخلصات الطبيعية,زهرة الربيع المسائية,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Electrorush,المعدة والقولون,2,الأدوية والعلاج,أدوية بدون وصفة,المعدة والقولون,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Electrorush,مسكنات الألم,1,الأدوية والعلاج,أدوية بدون وصفة,مسكنات الألم,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Mum and Baby,حفاضات البشرة الحساسة,6,الأم والطفل,حفاضات ومناديل الأطفال,حفاضات البشرة الحساسة,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Mum and Baby,حفاضات البشرة العادية,4,الأم والطفل,حفاضات ومناديل الأطفال,حفاضات البشرة العادية,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Mum and Baby,حفاضات حديثي الولادة,3,الأم والطفل,خطوات العناية الأولى,حفاضات حديثي الولادة,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Mum and Baby,كلوت الأطفال,3,الأم والطفل,حفاضات ومناديل الأطفال,كلوت الأطفال,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Mum and Baby,كلوت السباحة,2,الأم والطفل,حفاضات ومناديل الأطفال,كلوت السباحة,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Promotions,داعم الحركة,1,الرعاية الصحية المنزلية والأجهزة الطبية,رعاية كبار السن,داعم الحركة,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Promotions,مستلزمات طبية منزلية,1,الرعاية الصحية المنزلية والأجهزة الطبية,الأجهزة والمستلزمات الطبية,مستلزمات طبية منزلية,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,ال كارنتين & ال ارجنين,3,الفيتامينات والتغذية الصحية,المكملات الغذائية,ال كارنتين & ال ارجنين,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,الحديد,3,الفيتامينات والتغذية الصحية,المعادن والأملاح الصحية,الحديد,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,الذاكرة وصحة الدماغ,3,الفيتامينات والتغذية الصحية,مكملات حسب الحالة الصحية,الذاكرة وصحة الدماغ,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,الزنك,2,الفيتامينات والتغذية الصحية,المعادن والأملاح الصحية,الزنك,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,الشعر والجلد والأظافر,2,الفيتامينات والتغذية الصحية,فيتامينات ومكملات المرأة,الشعر والجلد والأظافر,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,الفيتامينات المتعددة للطفل,2,الفيتامينات والتغذية الصحية,فيتامينات الأطفال,الفيتامينات المتعددة للطفل,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,القلب والدورة الدموية,2,الفيتامينات والتغذية الصحية,مكملات حسب الحالة الصحية,القلب والدورة الدموية,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,الكالسيوم,3,الفيتامينات والتغذية الصحية,المعادن والأملاح الصحية,الكالسيوم,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,الكولاجين,1,الفيتامينات والتغذية الصحية,المكملات الغذائية,الكولاجين,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,المسالك البولية,1,الفيتامينات والتغذية الصحية,مكملات حسب الحالة الصحية,المسالك البولية,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,المغنسيوم,3,الفيتامينات والتغذية الصحية,المعادن والأملاح الصحية,المغنسيوم,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,الميلاتونين,1,الفيتامينات والتغذية الصحية,المكملات الغذائية,الميلاتونين,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,حلوى المضغ,2,الفيتامينات والتغذية الصحية,فيتامينات الأطفال,حلوى المضغ,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,خصوبة المرأة,1,الفيتامينات والتغذية الصحية,فيتامينات ومكملات المرأة,خصوبة المرأة,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,زيت السمك والأوميجا,5,الفيتامينات والتغذية الصحية,المكملات الغذائية,زيت السمك والأوميجا,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,سناكس صحية,1,الفيتامينات والتغذية الصحية,الأغذية الصحية والمشروبات,سناكس صحية,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,صحة العظام والأسنان,2,الفيتامينات والتغذية الصحية,فيتامينات الأطفال,صحة العظام والأسنان,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,صحة الكبد والجهاز الهضمي,2,الفيتامينات والتغذية الصحية,مكملات حسب الحالة الصحية,صحة الكبد والجهاز الهضمي,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,فيتامين ب,3,الفيتامينات والتغذية الصحية,الفيتامينات المتعددة,فيتامين ب,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,فيتامين د,4,الفيتامينات والتغذية الصحية,الفيتامينات المتعددة,فيتامين د,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,فيتامينات متعددة,11,الفيتامينات والتغذية الصحية,الفيتامينات المتعددة,فيتامينات متعددة,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,كو إنزيم كيو10,3,الفيتامينات والتغذية الصحية,المكملات الغذائية,كو إنزيم كيو10,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,مساعد الاسترخاء والنوم,4,الفيتامينات والتغذية الصحية,مكملات حسب الحالة الصحية,مساعد الاسترخاء والنوم,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,مساعدات التخسيس,1,الفيتامينات والتغذية الصحية,مكملات حسب الحالة الصحية,مساعدات التخسيس,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,مضادات الأكسدة,4,الفيتامينات والتغذية الصحية,مكملات حسب الحالة الصحية,مضادات الأكسدة,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,معززات الطاقة,1,الفيتامينات والتغذية الصحية,مكملات حسب الحالة الصحية,معززات الطاقة,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,مكملات الحمل والرضاعة,2,الفيتامينات والتغذية الصحية,فيتامينات ومكملات المرأة,مكملات الحمل والرضاعة,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,مكملات بعد التمرين,2,الفيتامينات والتغذية الصحية,التغذية الرياضية وبناء الأجسام,مكملات بعد التمرين,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,مكملات قبل التمرين,2,الفيتامينات والتغذية الصحية,التغذية الرياضية وبناء الأجسام,مكملات قبل التمرين,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,واي بروتين,1,الفيتامينات والتغذية الصحية,التغذية الرياضية وبناء الأجسام,واي بروتين,move,high,the sub-sub label exists only once in the main tree
+العناية بالجسم والاستحمام,الاستحمام والعناية بالجسم,زيوت الجسم والمساج,40,العناية الشخصية,العناية بالجسم,زيوت ترطيب,move,medium,body and massage oils: the in-tree label زيوت ترطيب (Body Oil) under العناية بالجسم is the same product class; needs the owner confirmation
+تجميل وعناية,Aqaufresh,فرش الأسنان,1,العناية الشخصية,العناية بالفم والأسنان,فرش الأسنان,move,high,the sub-sub label exists only once in the main tree
+تجميل وعناية,Glow & Lovely,كريم العين,1,العناية بالبشرة,مرطبات البشرة,كريم العين,move,high,the sub-sub label exists only once in the main tree
+تجميل وعناية,Glow & Lovely,كريم ولوشن,1,العناية بالبشرة,مرطبات البشرة,كريم ولوشن,move,high,the sub-sub label exists only once in the main tree
+تجميل وعناية,Nivea,بعد الشمس,1,العناية بالبشرة,الحماية من الشمس والتسمير,بعد الشمس,move,high,the sub-sub label exists only once in the main tree
+تجميل وعناية,Nivea,واقي الشمس,2,العناية بالبشرة,الحماية من الشمس والتسمير,واقي الشمس,move,high,the sub-sub label exists only once in the main tree
+تجميل وعناية,Personal Hygiene,الفوط اليومية النسائية,1,العناية الشخصية,العناية النسائية,الفوط اليومية النسائية,move,high,the sub-sub label exists only once in the main tree
+تجميل وعناية,Personal Hygiene,غسول المنطقة الحميمية,1,العناية الشخصية,العناية النسائية,غسول المنطقة الحميمية,move,high,the sub-sub label exists only once in the main tree
+تجميل وعناية,Skin Care,التفتيح والبقع الداكنة,2,العناية بالبشرة,مشاكل وعلاجات البشرة,التفتيح والبقع الداكنة,move,high,the sub-sub label exists only once in the main tree
+تجميل وعناية,Skin Care,غسول الجسم,1,العناية بالبشرة,غسول ومنظفات البشرة,غسول الجسم,move,high,the sub-sub label exists only once in the main tree
+تجميل وعناية,Skin Care,غسول الوجه,2,العناية بالبشرة,غسول ومنظفات البشرة,غسول الوجه,move,high,the sub-sub label exists only once in the main tree
+تجميل وعناية,Skin Care,مقشر وسنفرة,1,العناية بالبشرة,غسول ومنظفات البشرة,مقشر وسنفرة,move,high,the sub-sub label exists only once in the main tree
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,الصحة الجنسية,2,(needs_review),(needs_review),,move_needs_review,low,the sub-sub label exists under 2 mains in the main tree: الأدوية والعلاج > أدوية بدون وصفة > الصحة الجنسية ; الفيتامينات والتغذية الصحية > فيتامينات ومكملات الرجال > الصحة الجنسية
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,العظام والمفاصل,2,(needs_review),(needs_review),,move_needs_review,low,the sub-sub label exists under 2 mains in the main tree: الأدوية والعلاج > أدوية بوصفة طبية > العظام والمفاصل ; الفيتامينات والتغذية الصحية > مكملات حسب الحالة الصحية > العظام والمفاصل
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,صحة البروستاتا,3,(needs_review),(needs_review),,move_needs_review,low,the sub-sub label exists under 2 mains in the main tree: الأدوية والعلاج > الأدوية المزمنة > صحة البروستاتا ; الفيتامينات والتغذية الصحية > فيتامينات ومكملات الرجال > صحة البروستاتا
+أدوية ومكملات غذائية,Vitamins & Healthy Nutrition,معززات المناعة,3,(needs_review),(needs_review),,move_needs_review,low,the sub-sub label exists under 1 mains in the main tree: الفيتامينات والتغذية الصحية > فيتامينات الأطفال > معززات المناعة ; الفيتامينات والتغذية الصحية > مكملات حسب الحالة الصحية > معززات المناعة
+الأم والطفل,عروض الأم والطفل,,7,,,,move_needs_review,low,offers label inside the main tree; per-record placement in the chunk PR
+الصحة والعافية المتخصصة,العناية المتخصصة,محاليل ومنتجات صحية,2,الرعاية الصحية المنزلية والأجهزة الطبية,الأجهزة والمستلزمات الطبية,,move_needs_review,low,"label is vague (""health solutions and products""); needs the per-product placement in the chunk PR"
+العناية الشخصية,العبوات الترويجية,,1,,,,move_needs_review,low,promo pack label inside the main tree; per-record placement in the chunk PR
+العناية الشخصية,عروض العناية الشخصية,,13,,,,move_needs_review,low,offers label inside the main tree; per-record placement in the chunk PR
+العناية بالبشرة,عروض العناية بالبشرة,,51,,,,move_needs_review,low,offers label inside the main tree; per-record placement in the chunk PR
+العناية بالجسم والاستحمام,العطور,,38,المكياج والإكسسوارات,العطور وبخاخات الجسم,,move_needs_review,low,no sub_sub in the record; the in-tree home for perfumes is العطور وبخاخات الجسم; per-record placement goes in the chunk PR
+تجميل وعناية,Offers,,9,,,,move_needs_review,low,offers tag with no sub_sub; every record needs its own placement in the chunk PR
+النظافة الشخصية والحماية,احتياجات السفر,,234,العناية الشخصية,النظافة الشخصية والحماية,,move_needs_sub_sub,high,owner decision B: personal hygiene goes to العناية الشخصية; the in-tree sub of the same name exists
+تجميل وعناية,Natural Factors,,8,الفيتامينات والتغذية الصحية,,,move_needs_sub_sub,medium,"owner decision B example: Natural Factors vitamins go to الفيتامينات والتغذية الصحية; no sub_sub in the record, the per-record placement goes in the chunk PR"
+الرعاية الصحية المنزلية والأجهزة الطبية,hospital-at-home,العناية التنفسية,2,الرعاية الصحية المنزلية والأجهزة الطبية,الرعاية الصحية في المنزل,العناية التنفسية,relabel,high,"the sub-category held the English text ""hospital-at-home"" in the Arabic slot"
+الرعاية الصحية المنزلية والأجهزة الطبية,مستلزمات الحيوانات الأليفة​,,30,الرعاية الصحية المنزلية والأجهزة الطبية,مستلزمات الحيوانات الأليفة,,relabel,high,stored value ends with U+200B ZERO WIDTH SPACE
+المكياج والإكسسوارات,eye-wear,نظارات قراءة,13,المكياج والإكسسوارات,النظارات,نظارات قراءة,relabel,high,"the sub-category held the English text ""eye-wear"" in the Arabic slot"

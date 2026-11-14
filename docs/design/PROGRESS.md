@@ -3,7 +3,7 @@
 > **Session start (owner, 2026-10-06): read only this file's "Next", then grep `SCREEN_INVENTORY.md` and `WIRING_REPORT.md` for the routes of the current batch. Do not read those two files in full.** History: `PROGRESS_ARCHIVE.md` (do not read at session start). Rules: `/AGENTS.md`, `QUALITY_STANDARDS.md`, `README.md`.
 > After every PR: update this file (keep it under 8 KB). Context low: commit, push, update this file, stop.
 
-_Updated 2026-10-10._
+_Updated 2026-11-08._
 
 ## State
 
@@ -12,6 +12,7 @@ _Updated 2026-10-10._
 | Patient app + web, Batches 0-14 (incl. merge maps 1-2, insurance relay-only D35, AI, loyalty, settings, public pages) | **Merged** on main (reviewer batches #1254 and earlier) |
 | Provider app (layout, pharmacy, merges, M9 wizard, ambulance removed, D1, My offers, returns, N1) | **Merged** (#1205, #1242, #1249, #1228) |
 | Admin (mobile layout, DataTable, today/approvals/catalogue essentials, provider approval screen) | **Merged** (#732, #1204, #1248) |
+| Owner colour + layout decisions 2026-10-25/26 (social brand buttons, logo never black, no ink on interactive elements, header favourites, pharmacy/labs/consultations layout) | **Open PRs**, see Next 0 |
 | Audits (patient journeys, provider, admin wiring + journeys) | Merged; open lines live in `needs-review/*.json` |
 | UI issues list (OpenCode plan 2026-10-09 s.10, 169 issues) | Walked; the client fixes are merged; the rest wait on owner decisions or OC-A/B/C |
 | F82-3 static/ISR [#308](https://github.com/obaid08642-ops/new/pull/308) | Open; batch-13 static opt-ins wait on it (`design/batch-13-f82-optins`) |
@@ -19,12 +20,19 @@ _Updated 2026-10-10._
 
 ## Next
 
-Merged on main (batch 1010b, #1287): claims removal, owner UI items, Urdu Nastaliq font (ur only), legal texts from the backend, admin module switches (`modules.manage`, super admin only), single emergency screen (`UrgentHelpView`, number from `GET /mental-health/urgent-help`), `HospitalDispatchScreen` gone from provider-app, nearby filters, Rx rules C10-C11.
-
-1. **On hold:** D-12 price notice and C12 (price ceiling in the offer composer) wait for OpenCode D-12. Design work is otherwise done; admin community moderation is replaced by `/admin/article-review` (doctor articles: list, open, approve, reject; old path redirects).
-2. **Reviewer:** close the 50 stale Needs-review lines (files deleted by the SOS removal, cart/orders merges, admin directory removal), then regenerate the needs-review and provider/admin audit files once (regenerating shifts `nr-key`). Real-device checks: Urdu font, voice notes, first launch.
-3. **Open for the design session:** `pharmacy_name_ar/en` fields and the 13 "Refs" screens of #1255/#1256 once the backend fields merge; web `/onboarding/permissions` (#436) after the owner decision.
-4. Final pass done on e768aa5c: `FINAL_PASS_2026-10-10.md` (one table per app, baselines unchanged).
+00. **Invoice UI (2026-11-01, one PR `design/invoice-ui`, web + app, on #2362's fields):** company block with "not configured", booking number, provider block, refund state and credit notes, Save as image, Share, share links (create, copy, expiry, revoke), public `/[locale]/receipt/shared/[token]` (noindex, no-store, no referrer), the existing Receipts list extended. new keys in 6 languages (web 'Receipt', app 'receipt.'). Open lines: `needs-review/invoice-ui.json` (5; owner: new native module `react-native-view-shot` needs a new app build; share address uses nabd.plus). Parity: web lists >= 28 PRs done in `PARITY.md`; before 2026-10-28 still to list.
+0. **Owner colour + layout stack (2026-10-25/26): all merged** (colour #1961, #1968, #1971, #1974, #1975, #1980; layout #1981-#1990). Most of it was **not seen at runtime** (no backend or render tool in the sandbox).
+   - **Open owner/reviewer questions:** pharmacy category art is picked by keywords in the localized name, needs a backend `categoryKey`; the app has no hamburger menu (what would it open?) and no favourites count badge; consultations app: price-band filter removed, "Shortest wait" not offered (no backend value), `DoctorSearchView` still has its own chips; web grade filter shows six degrees (brief said three); labs still say "Self-pay" (`needs-review/layout-consult-web.json`); next-slot only on `/care/doctors` rows (`needs-review/layout-consult-app.json`).
+   - Colour audit tables: `docs/design/COLOUR_AUDIT.md` (index), `COLOUR_AUDIT_web-slice1.md`, `_web-public.md`, `_app.md` (these land with #1965/#1971/#1975/#1974). Signed-in screens were never seen at runtime (no backend in the sandbox).
+1. **Ordering M6 (M1 and M2 backend on main, #1759):**
+   - This batch (one PR): "My medical orders" Ord20 and Ord21, web and app. Order button per group (prefill request, then the group's flow), "later" per item, expired orders disabled. Six languages (`MedicalOrders`, `medorders.*`).
+   - **Built in #1775 (`design/m6-ord22-ord30`):** Ord22 doctor's composer (`POST /doctors/appointments/:id/medical-order`) and Ord30–33 provider declaration (`/provider/ordering/*`), provider-app ar/en. Open rows: `needs-review/m6-ord22.json` (5), `m6-ord30.json` (13).
+   - **State 2026-11-08:** backend M3-M8 is on main (`ordering-engine`, `ordering-broadcast`, `ordering-approval`, `ordering-lifecycle`, `modules/instant-consultation`; journeys `tools/live/j_ordering_*.py`). The web UI Ord02-Ord11 was built in #1784, #1785 and the later M6 PRs; the `[backend]` rows of `m6-blocked.json` say fixed there. Slice #2482 (lane X): the confirm step shows the preparation of lab, radiology and nursing items. Still open and `[client]`: "For whom" (family member: the member must go through the quote, basket and booking steps), the doctor's-order items pre-ticked on the item page, price lines for a provider that is not the best match. Everything else open in `needs-review/m6-*-web.json` is `[backend]` or `[owner]`.
+   - Every open row: `docs/design/needs-review/m6-blocked.json`; this batch's gaps (no item names, prefill not read by the flows, no renew action) are in the same file.
+2. **Refs (#1255/#1256):** triaged in `docs/design/NR_REPORTS_TRIAGE.md`: 10 fixed on main, 1 owner decision (#953), the rest backend or reviewer.
+3. **Reviewer:** close the 50 stale Needs-review lines, regenerate the audit files once. Real-device checks: Urdu font, voice notes, first launch.
+4. **Web = app parity: done.** Every screen row that the web can fix without a backend change is built (#1806–#1811 round 1, #1814/#1815/#1817/#1818 round 2, owner decisions #1854, richer doctor card/page #1866/#1867, differentiators #1877 web and #1878 app). What is left is only owner or backend items, all listed with client file:line in issue [#1819](https://github.com/obaid08642-ops/new/issues/1819) "Design parity: backend fields needed" (backend fields: doctor `education`/`wait_time`, late-guarantee setting and `late_compensation` codes, lab results, radiology report, notification flags, register/OTP flow and others; owner: map picker, QR, provider-app links, wearables F20 and others). Per-service status: `docs/design/parity/*.md`; open rows: `needs-review/parity-*.json`, `doctor-card-*.json`, `differentiators-*.json`. Facility accounts stay on hold.
+5. **On hold:** D-12 price notice and C12 (waits for OpenCode D-12); web `/onboarding/permissions` (#436) after the owner decision.
 
 ## Process
 - Lean v2 (rules in `/AGENTS.md`): design only, templates first, audit via `audit-table.mjs`, Needs-review with file:line (never delete lines by hand: it shifts the `nr-key` the issues reference), no committed screenshots. Binding: identity, tokens-only colours, six languages (provider-app and admin: ar/en and ar), real data only.

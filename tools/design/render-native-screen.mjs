@@ -33,6 +33,10 @@
  * `offline` makes every request fail, `fixture` answers with clearly marked TEST values from
  * tools/design/render-native-screen.fixtures.json so data-bound layouts can be checked.
  *
+ * Ordering boards (Ord01-Ord21) are flat pages of labelled frames, not components: a BOARD entry with `file` and `frame` ('app light · 1' ...
+ * the label prefix of the frame, per theme) is compared by screenshotting the frame that follows that label.
+ * --app <dir> (default patient-app) renders another app's screens (provider-app) through the same renderer.
+ *
  * Needs Playwright (Chromium) and patient-app's node_modules; esbuild from packages/ui.
  */
 import { createServer } from 'node:http';
@@ -72,6 +76,9 @@ const DIAG_CART = arg('--diag-cart', 'empty');
 // --params 'a=b,c=d' overrides the route params of every screen of the run (e.g. prescriptionId=test-rx)
 // --params takes JSON ('{"orderId":"x"}') or a comma list ('a=1,b=2')
 const PARAMS_OVERRIDE = arg('--params') ? (arg('--params').trim().startsWith('{') ? JSON.parse(arg('--params')) : Object.fromEntries(arg('--params').split(',').map((kv) => kv.split('=')))) : null;
+// --draft quote|picked|timed seeds the ordering draft (compare, picker and confirm screens) from the TEST quote of the fixtures
+const DRAFT = arg('--draft', '');
+const DRAFT_PAYER = arg('--draft-payer', 'insurance');
 const WAIT = Number(arg('--wait', 2600));
 // --lang en renders the left-to-right layout (the same AsyncStorage key the app reads); the default is Arabic
 const LANG = arg('--lang', 'ar');
@@ -80,6 +87,8 @@ const TABBAR = arg('--tabbar') ? resolve(REPO, arg('--tabbar')) : null;
 const HEADER = arg('--header') ? resolve(REPO, arg('--header')) : null;
 const PATHNAME = arg('--path', '/');
 const CROP_BOTTOM = Number(arg('--crop-bottom', 0));
+// --click '[data-testid="cart-button"],[data-testid="cart-chooser"]': CSS selectors clicked in order (comma-free list separated by ';') before the screenshot
+const CLICKS = arg('--click') ? arg('--click').split(';').filter(Boolean) : [];
 /** The board each screen is drawn on, and the route params the screen is opened with in the flow. */
 // `board` is the Auth.dc.html screen (Welcome/Login/Register/Otp/…Dark.dc.html are that component
 // with screen/theme set; Register and Otp have no Dark file, so the dark board is Auth itself with
@@ -223,6 +232,12 @@ const BOARD = {
   // of render-native-screen.fixtures.json (`test-lab-pkg`, `test-lab-test`, `test-lab`, `test-lab-order`). The list, detail and result screens
   // draw on the ServiceHub board (cards, rows, chips); the cart and checkout on Cart and CheckoutV2, tracking on OrderTracking.
   'd-hub': { component: 'ServiceHub', size: [390, 1640], params: {} },
+  // (owner decision 4) two segmented tabs on top, search + filter button + order icon, category chips (labs: with "Packages"), the filter sheet; the sheet and the chip are local state, so they show in the app and the jest tests, not in this still
+  // the labs / radiology tabs: `diagnostics:d-hub` and `diagnostics:d-hub-rad` (the `?tab=radiology` side), server pages from the fixtures' `?page=1&limit=20`
+  // The receipt (no board of its own; it follows the web receipt, patient-web/components-next/receipt): `--dir patient-app/app/receipts --screens index:rc-list,"[kind]/[bookingId]:rc-one"`. The ids select the TEST invoice of render-native-screen.fixtures.json (`test-lab-order`).
+  'rc-list': { component: 'Orders', size: [390, 700], params: {} },
+  'rc-one': { component: 'Orders', size: [390, 900], params: { kind: 'lab', bookingId: 'test-lab-order' } },
+  'd-hub-rad': { component: 'ServiceHub', size: [390, 1640], params: { tab: 'radiology' } },
   'd-packages': { component: 'ServiceHub', size: [390, 1640], params: {} },
   'd-search': { component: 'Search', size: [390, 844], params: {} },
   'd-my-results': { component: 'Orders', size: [390, 900], params: {} },
@@ -231,6 +246,10 @@ const BOARD = {
   'd-lab': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-lab' } },
   'd-package-detail': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-lab-pkg' } },
   'd-test-detail': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-lab-test' } },
+  // #2067 catalogue offers: the detail of a scan with its offers, a test and a scan nobody offers yet ("Notify me when available"), the nursing service nobody offers
+  'd-test-detail-rad': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-rad', isRadiology: 'true' } },
+  'd-test-detail-none': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-lab-test-2' } },
+  'd-test-detail-rad-none': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-rad-2', isRadiology: 'true' } },
   'd-order': { component: 'OrderTracking', size: [390, 1120], params: { id: 'test-lab-order' } },
   'd-order-done': { component: 'OrderTracking', size: [390, 1120], params: { id: 'test-lab-done' } },
   'd-sample-tracking': { component: 'OrderTracking', size: [390, 1120], params: { bookingId: 'test-lab-order' } },
@@ -244,6 +263,7 @@ const BOARD = {
   // The ids select the TEST records of render-native-screen.fixtures.json (`svc-iv`, `test-nurse`, `test-visit`, `test-nur-ins`). Hub, lists and details draw on the ServiceHub board, visits on Orders, tracking on OrderTracking, the booking page on DoctorFull.
   'n-hub': { component: 'ServiceHub', size: [390, 1640], params: {} },
   'n-visits': { component: 'Orders', size: [390, 900], params: {} },
+  'n-service-info-none': { component: 'ServiceHub', size: [390, 1640], params: { serviceId: 'test-svc', flow: 'cash' } },
   'n-service-info': { component: 'ServiceHub', size: [390, 1640], params: { serviceId: 'svc-iv', flow: 'cash' } },
   'n-service-details': { component: 'ServiceHub', size: [390, 1640], params: { serviceId: 'svc-iv', title: 'خدمة تمريض تجريبية ١', flow: 'cash' } },
   'n-insurance-status': { component: 'ServiceHub', size: [390, 1640], params: { bookingId: 'test-nur-ins' } },
@@ -302,6 +322,26 @@ const BOARD = {
   'b12-support-chat': { params: {} },
   'b12-map': { params: {} },
   'b12-picker': { params: {} },
+  // M6 visual check (ordering, boards Ord01-Ord21; app slice m6-visual-app). The Ord boards are flat pages of labelled frames, so each entry names
+  // the board `file` and the `frame` label prefix per theme. Run per folder: `--dir patient-app/app/diagnostics --screens service-home:ord02-lab,...`
+  // and `--dir patient-app/app/medical-orders --screens index:ord20,[id]:ord21` with `--api fixture` (the TEST records of the fixtures file:
+  // ordering quote/windows/bookings, `test-ord-*` ids).
+  'ord02-lab': { file: 'Ord02-ServiceHome.dc.html', frame: { light: 'app light · 1', dark: 'app dark · 1' }, params: { kind: 'lab' } },
+  'ord02-radiology': { file: 'Ord02-ServiceHome.dc.html', frame: { light: 'app light · 2', dark: 'app dark · 2' }, params: { kind: 'radiology' } },
+  'ord02-nursing': { file: 'Ord02-ServiceHome.dc.html', frame: { light: 'app light · 3', dark: 'app dark · 3' }, params: { kind: 'nursing' } },
+  'ord03-test': { file: 'Ord03-ItemPage.dc.html', frame: { light: 'app light · 1', dark: 'app dark · 1' }, params: { id: 'test-ord-item' } },
+  'ord03-package': { file: 'Ord03-ItemPage.dc.html', frame: { light: 'app light · 2', dark: 'app dark · 2' }, params: { id: 'test-ord-item', kind: 'package' } },
+  'ord04-cart': { file: 'Ord04-Basket.dc.html', frame: { light: 'app light · 1', dark: 'app dark · 1' }, params: {} },
+  'ord05-compare': { file: 'Ord05-BestMatchCompare.dc.html', frame: { light: 'app light · 1', dark: 'app dark · 1' }, params: {} },
+  'ord06-when': { file: 'Ord06-WhenPicker.dc.html', frame: { light: 'app light · 1', dark: 'app dark · 1' }, params: {} },
+  'ord07-confirm': { file: 'Ord07-ConfirmPay.dc.html', frame: { light: 'app light · 1', dark: 'app dark · 1' }, params: {} },
+  'ord08-status': { file: 'Ord08-WaitingStates.dc.html', frame: { light: 'app light · 1', dark: 'app dark · 1' }, params: { id: 'test-ord-wait' } },
+  'ord09-status': { file: 'Ord09-PartialApproval.dc.html', frame: { light: 'app light · 1', dark: 'app dark · 1' }, params: { id: 'test-ord-partial' } },
+  'ord10-status': { file: 'Ord10-BookingTracking.dc.html', frame: { light: 'app light · 1', dark: 'app dark · 1' }, params: { id: 'test-ord-visit' } },
+  'ord11-result': { file: 'Ord11-Results.dc.html', frame: { light: 'app light · 1', dark: 'app dark · 1' }, params: { id: 'test-ord-result' } },
+  'ord11-discuss': { file: 'Ord11-Results.dc.html', frame: { light: 'app light · 3', dark: 'app dark · 3' }, params: { bookingId: 'test-ord-result' } },
+  ord20: { file: 'Ord20-MyMedicalOrders.dc.html', frame: { light: 'App · light', dark: 'App · dark' }, params: {} },
+  ord21: { file: 'Ord21-OrderDetail.dc.html', frame: { light: 'App · light', dark: 'App · dark' }, params: { id: 'test-mo-1' } },
   welcome: { board: 'welcome', params: {} },
   login: { board: 'login', params: {} },
   register: { board: 'register', params: {} },
@@ -381,7 +421,11 @@ const MOCKS = {
       return key in EMPTY ? EMPTY[key] : {};
     }
     export const newIdempotencyKey = () => 'app-render-test-key';
+    // a render with fixtures is a signed-in patient (the "Notify me when available" button shows); the other modes are signed out
+    export async function hasSession() { return ((window.__SCREEN && window.__SCREEN.api) || 'empty') === 'fixture'; }
     export async function storeAuthSession() {}
+    // a render downloads nothing: the receipt's Download PDF is a press, not a layout
+    export async function downloadProtected() { return null; }
     // the constants other modules read from the client (image URLs resolve against them); no real host in a render
     export const BASE_URL = 'https://api.example.test/api/v1';
     export const FASTAPI_BASE_URL = 'https://ai.example.test';
@@ -399,6 +443,13 @@ const MOCKS = {
       return s === 'undetermined' ? [null, async () => {}] : [{ granted: s === 'granted', canAskAgain: s !== 'blocked', status: s }, async () => {}];
     };
     export const CameraView = React.forwardRef(({ style }, ref) => <div ref={ref} style={{ ...(Array.isArray(style) ? Object.assign({}, ...style.flat()) : style), background: 'transparent' }} />);`,
+  // the receipt's native boundaries: nothing is captured, saved or copied in a render
+  'receipt-native': `
+    export const captureRef = async () => '';
+    export const requestPermissionsAsync = async () => ({ granted: false });
+    export const saveToLibraryAsync = async () => undefined;
+    export const setStringAsync = async () => true;
+  `,
   'expo-image-picker': `
     export const requestCameraPermissionsAsync = async () => ({ granted: false });
     export const requestMediaLibraryPermissionsAsync = async () => ({ granted: false });
@@ -447,6 +498,7 @@ const mockPlugin = {
     build.onResolve({ filter: /context\/SocketContext$/ }, (a) => (a.importer.startsWith(APP + sep) ? virtual('socket-context') : undefined));
     build.onResolve({ filter: /^@livekit\/react-native(-webrtc)?$/ }, () => virtual('livekit-native'));
     build.onResolve({ filter: /^react-native-webview$/ }, () => virtual('react-native-webview'));
+    build.onResolve({ filter: /^(react-native-view-shot|expo-media-library|expo-clipboard)$/ }, () => virtual('receipt-native'));
     build.onResolve({ filter: /^expo-camera$/ }, () => virtual('expo-camera'));
     build.onResolve({ filter: /^expo-image-picker$/ }, () => virtual('expo-image-picker'));
     build.onResolve({ filter: /^expo-apple-authentication$/ }, () => virtual('expo-apple-authentication'));
@@ -533,14 +585,21 @@ for (const s of SCREENS) {
     const page = await browser.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 2, colorScheme: theme });
     const errors = [];
     page.on('pageerror', (e) => errors.push(String(e)));
+    page.on('console', (m) => { if (m.type() === 'error' && process.env.RENDER_DEBUG) console.warn('console:', m.text().slice(0, 300)); });
     // no backend in a design render: every request that is not this server fails like an offline phone
-    await page.route('**/*', (r) => (r.request().url().startsWith(BASE) ? r.continue() : r.abort()));
+    // the TEST picture host of the fixtures (R2_PUBLIC_URL in a render) answers a plain marked SVG; anything else fails
+    await page.route('**/*', (r) => {
+      const u = r.request().url();
+      if (u.startsWith(BASE)) return r.continue();
+      if (u.startsWith('https://cdn.example.test/')) return r.fulfill({ contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="#8a9bb0"/><text x="100" y="105" font-size="22" text-anchor="middle" fill="#fff">TEST image</text></svg>' });
+      return r.abort();
+    });
     await page.goto(`${BASE}/__blank`);
     await page.evaluate(([th, lg]) => {
       localStorage.setItem('@nabdah_theme_mode', th);
       localStorage.setItem('@nabdah_language', lg);
     }, [theme, LANG]);
-    const cfg = { width: W, height: H, insets: INSETS, params: paramsOf(s), cart: CART, diagCart: DIAG_CART, camera: CAMERA, platform: PLATFORM, dir: DIR, lang: LANG, pathname: PATHNAME, api: API_MODE, auth: AUTH, tabbar: Boolean(TABBAR), header: Boolean(HEADER) };
+    const cfg = { width: W, height: H, insets: INSETS, params: paramsOf(s), cart: CART, diagCart: DIAG_CART, draft: DRAFT, draftPayer: DRAFT_PAYER, camera: CAMERA, platform: PLATFORM, dir: DIR, lang: LANG, pathname: PATHNAME, api: API_MODE, auth: AUTH, tabbar: Boolean(TABBAR), header: Boolean(HEADER) };
     await page.setContent(
       `<!doctype html><html dir="${DIR}" lang="${LANG}"><meta charset="utf-8"><style>${appFaces}html,body{margin:0}*{animation:none!important;transition:none!important}</style>` +
         `<div id="root"></div><script>window.__SCREEN=${JSON.stringify(cfg)}</script><script src="${BASE}/__app-${s}.js"></script></html>`,
@@ -551,9 +610,12 @@ for (const s of SCREENS) {
     });
     await page.evaluate(() => document.fonts.ready);
     await page.waitForTimeout(WAIT); // AppProvider hydrates theme/language from storage; entrance animations settle (the home ECG line draws for 1.7 s)
+    if (process.env.RENDER_DEBUG) console.warn('text:', (await page.evaluate(() => document.body.innerText)).slice(0, 600));
+    for (const sel of CLICKS) { await page.locator(sel).first().click(); await page.waitForTimeout(500); }
     const frameBox = await page.locator('#frame').boundingBox();
     const cropClip = CROP_BOTTOM ? { x: frameBox.x, y: frameBox.y + H - CROP_BOTTOM, width: W, height: CROP_BOTTOM } : null;
-    const shoot = (path) => (cropClip ? page.screenshot({ clip: cropClip, path }) : page.locator('#frame').screenshot({ path }));
+    // after a click the picture is the whole viewport: a modal (the carts chooser) is drawn outside #frame
+    const shoot = (path) => (cropClip ? page.screenshot({ clip: cropClip, path }) : CLICKS.length ? page.screenshot({ path }) : page.locator('#frame').screenshot({ path }));
     const shot = await shoot();
     if (errors.length) console.warn(`${s}/${theme}: page errors: ${errors.join('; ')}`);
     const measured = await page.evaluate(() => {
@@ -565,12 +627,30 @@ for (const s of SCREENS) {
     await shoot(file);
     written.push(file);
 
-    const boardScreen = BOARD[s].board ?? (BOARD[s].component ? s : null);
-    const boardName = boardScreen ? (BOARD[s].component ? `${BOARD[s].component} theme=${theme}` : `Auth screen=${boardScreen} theme=${theme} platform=${PLATFORM === 'ios' ? 'ios' : 'android'}`) : null;
+    const boardFile = BOARD[s].file ?? null;
+    const boardScreen = boardFile ? s : BOARD[s].board ?? (BOARD[s].component ? s : null);
+    const boardName = boardScreen ? (BOARD[s].component ? `${BOARD[s].component} theme=${theme}` : `Board ${boardScreen} theme=${theme} platform=${PLATFORM === 'ios' ? 'ios' : 'android'}`) : null;
     // the board is drawn at its own size, so a comparison needs the same width (and, for the auth boards, height)
-    if (CMP && W === BW && (BOARD[s].component ? true : H === BH)) {
+    if (CMP && W === BW && (BOARD[s].component || boardFile ? true : H === BH)) {
       let boardPng = null;
-      if (boardScreen) {
+      if (boardFile) {
+        // a flat Ord board: screenshot the frame that follows the label of this theme
+        await page.unrouteAll();
+        await page.route('**/fonts.googleapis.com/**', (r) => r.fulfill({ contentType: 'text/css', body: boardFaces }));
+        await page.setViewportSize({ width: 2600, height: 1200 });
+        await page.goto(`${BASE}/${boardFile}`);
+        await page.addStyleTag({ content: '*{animation:none!important;transition:none!important}' });
+        await page.waitForTimeout(800);
+        await page.evaluate(() => document.fonts.ready);
+        const prefix = BOARD[s].frame[theme];
+        const handle = await page.evaluateHandle((pre) => {
+          const label = [...document.querySelectorAll('div')].find((d) => d.children.length === 0 && d.textContent.trim().startsWith(pre));
+          return label ? label.nextElementSibling : null;
+        }, prefix);
+        const el = handle.asElement();
+        if (el) boardPng = (await el.screenshot()).toString('base64');
+        else console.warn(`${s}/${theme}: board frame "${prefix}" not found in ${boardFile}`);
+      } else if (boardScreen) {
         await page.unrouteAll();
         await page.route('**/fonts.googleapis.com/**', (r) => r.fulfill({ contentType: 'text/css', body: boardFaces }));
         await page.goto(`${BASE}/__board-${boardScreen}-${theme}.html`);

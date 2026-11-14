@@ -12,6 +12,7 @@ import { DeviceTrustModule } from './modules/device-trust/device-trust.module';
 import { SeoSearchModule } from './modules/seo-search/seo-search.module';
 import { DeferredLinksModule } from './modules/deferred-links/deferred-links.module';
 import { LocationModule } from './modules/location/location.module';
+import { GeoModule } from './modules/geo/geo.module';
 import { SearchIntentModule } from './modules/search-intent/search-intent.module';
 import { SearchModule } from './modules/search/search.controller';
 import { EntityGraphModule } from './modules/entity-graph/entity-graph.module';
@@ -39,9 +40,12 @@ import { RedisThrottlerStorage } from './modules/redis/throttler-redis.storage';
 import { backgroundImports, backgroundProviders } from './common/process-role';
 import { WorkerHeartbeatService } from './common/worker-heartbeat.service';
 import { BullModule } from '@nestjs/bullmq';
+import { ProviderAgreementGuard } from './modules/legal/provider-agreement';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { GracefulDrain } from './common/graceful-drain';
 import { LoadSheddingGuard } from './common/load-shedding.guard';
+import { AdmissionMiddleware } from './common/admission';
+import { RouteTimeoutInterceptor } from './common/route-timeout.interceptor';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { OrdersModule } from './modules/orders/orders.module';
@@ -53,10 +57,16 @@ import { I18nCoreModule } from './modules/i18n/i18n.module';
 import { AiModule } from './modules/ai/ai.module';
 import { ScannerModule } from './modules/scanner/scanner.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { PriceAlertsModule } from './modules/price-alerts/price-alerts.module';
+import { CatalogueInterestModule } from './modules/catalogue-interest/catalogue-interest.module';
 import { EventsModule } from './modules/events/events.module';
+import { DbIntegrityModule } from './modules/db-integrity/db-integrity.module';
+import { DurableEventsModule } from './modules/durable-events/durable-events.module';
+import { FinanceIntegrityModule } from './modules/finance-integrity/finance-integrity.module';
 import { SeedModule } from './modules/seed/seed.module';
 import { CareModule } from './modules/care/care.module';
 import { LabsModule } from './modules/labs/labs.module';
+import { OrderingModule } from './modules/ordering/ordering.module';
 import { HomeCareModule } from './modules/home-care/home-care.module';
 import { RefundPolicyModule } from './modules/refund-policy/refund-policy.module';
 import { HealthModule } from './modules/health/health.module';
@@ -67,7 +77,10 @@ import { MedicalProfileModule } from './modules/medical-profile/medical-profile.
 import { TimelineModule } from './modules/timeline/timeline.module';
 import { RadiologyModule } from './modules/radiology/radiology.module';
 import { MedicalReportsModule } from './modules/medical-reports/medical-reports.module';
+import { SickLeaveModule } from './modules/sick-leave/sick-leave.module';
 import { ProviderModule } from './modules/provider/provider.module';
+import { MedicalOrdersModule } from './modules/medical-orders/medical-orders.module';
+import { InstantConsultationModule } from './modules/instant-consultation/instant-consultation.module';
 import { PharmacyModule } from './modules/pharmacy/pharmacy.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { ServiceCatalogModule } from './modules/service-catalog/service-catalog.module';
@@ -96,6 +109,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { SlotLocksModule } from './modules/slot-locks/slot-locks.module';
 import { PushModule } from './modules/push/push.module';
 import { SecurityModule } from './modules/security/security.module';
+import { RiskModule } from './modules/risk/risk.module';
 import { RealtimeSseModule } from './modules/realtime/realtime.sse';
 import { ProviderOpsModule } from './modules/provider-ops/provider-ops.module';
 import { PatientUxModule } from './modules/patient-ux/patient-ux.module';
@@ -108,13 +122,13 @@ import { InsuranceModule } from './modules/insurance/insurance.module';
 import { ApprovalWorkflowModule } from './modules/approval-workflow/approval-workflow.module';
 import { RecruitmentModule } from './modules/recruitment/recruitment.module';
 import { FamilyModule } from './modules/family/family.module';
-import { CommunityModule } from './modules/community/community.module';
 import { LoyaltyModule } from './modules/loyalty/loyalty.module';
 import { ReferralModule } from './modules/referral/referral.module';
 import { FacilityOpsModule } from './modules/facility-ops/facility-ops.module';
 import { ProviderProductionModule } from './modules/provider-production/provider-production.module';
 import { ImpersonationSessionService } from './common/impersonation-session.service';
 import { CommonModule } from './common/common.module';
+import { GuestChatListInterceptor, GuestPolicyGuard } from './modules/auth/guest-policy';
 import { PdplComplianceModule } from './common/pdpl-compliance.module';
 import { HealthController } from './health.controller';
 import { HealthDashboardController } from './modules/health/health-dashboard.controller';
@@ -137,10 +151,13 @@ import { CompatModule } from './modules/compat/compat.module';
 import { AdminSpaModule } from './modules/compat/admin-spa.module';
 import { CatalogsModule } from './modules/catalogs/catalogs.module';
 import { InsuranceEngineModule } from './modules/insurance-engine/insurance-engine.module';
+import { QuotesModule } from './modules/quotes/quotes.module';
 import { BillingModule } from './modules/billing/billing.module';
 import { ArticlesModule } from './modules/articles/articles.module';
 
 import { CorrelationMiddleware } from './common/correlation.middleware';
+import { AppVersionMiddleware } from './common/app-version.middleware';
+import { RequestMetaMiddleware } from './common/request-meta';
 import { ObservabilityModule } from './modules/observability/observability.module';
 import { LogsModule } from './modules/logs/logs.module';
 import { RumModule } from './modules/rum/rum.module';
@@ -149,11 +166,16 @@ import { WriteGuard } from './common/write-guard';
 import { AdminGateGuard } from './common/admin-gate.guard';
 import { StepUpGuard, StepUpService } from './common/step-up.guard';
 import { ProductRankingModule } from './modules/product-ranking/product-ranking.module';
+import { CatalogueRankingModule } from './modules/catalogue-ranking/catalogue-ranking.module';
 import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
 import { mongoDirectConnection } from './common/database/mongo-uri';
+import { mongoConnectionOptions } from './common/database/mongo-options';
+import { MongoSelfHealService } from './common/database/mongo-selfheal.service';
 
 @Module({
   imports: [
+    // M8: registered before DoctorsModule so /doctors/instant-requests is not read as /doctors/:id
+    InstantConsultationModule,
     CommonModule,
     // 16.9: field-level encryption for health data + the medical access log.
     PdplComplianceModule,
@@ -171,6 +193,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     SeoSearchModule,
     DeferredLinksModule,
     LocationModule,
+    GeoModule,
     SearchIntentModule,
     SearchModule,
     EntityGraphModule,
@@ -188,17 +211,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     ConfigModule.forRoot({ isGlobal: true, validate: validateEnvironment }),
     MongooseModule.forRootAsync({
       useFactory: () => ({
-        uri: process.env.MONGO_URL || 'mongodb://localhost:27017',
-        dbName: process.env.DB_NAME || 'nabd_nestjs',
-        directConnection: mongoDirectConnection(process.env.MONGO_URL),
-        // ── High-concurrency connection pool (default Mongoose pool = 5, insufficient) ──
-        maxPoolSize: parseInt(process.env.MONGO_MAX_POOL_SIZE || '200', 10),
-        minPoolSize: parseInt(process.env.MONGO_MIN_POOL_SIZE || '20', 10),
-        maxIdleTimeMS: 60_000,
-        serverSelectionTimeoutMS: 5_000,
-        socketTimeoutMS: 45_000,
-        heartbeatFrequencyMS: 10_000,
-        connectTimeoutMS: 10_000,
+        ...mongoConnectionOptions(),
         connectionFactory: (connection) => {
           connection.plugin(require('./common/database/audit.plugin').AuditPlugin);
           return connection;
@@ -236,12 +249,18 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     AiModule,
     ScannerModule,
     NotificationsModule,
+    PriceAlertsModule,
+    CatalogueInterestModule,
     EventsModule,
+    DbIntegrityModule,
+    DurableEventsModule,
+    FinanceIntegrityModule,
     RealtimeModule,
     SeedModule,
     CareModule,
     DoctorsModule,
     LabsModule,
+    OrderingModule,
     HealthModule,
     MedicalProgramsModule,
     SystemHealthModule,
@@ -251,12 +270,15 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     TimelineModule,
     RadiologyModule,
     MedicalReportsModule,
+    SickLeaveModule,
     StorageModule,
     ProviderModule,
+    MedicalOrdersModule,
     PharmacyModule,
     ServiceCatalogModule,
     CartModule,
     ProductRankingModule,
+    CatalogueRankingModule,
     ProviderOnboardingModule,
     UnifiedBookingsModule,
     WorkflowEngineModule,
@@ -270,6 +292,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     FinanceEngineModule,
     SlotLocksModule,
     PushModule,
+    RiskModule,
     SecurityModule,
     RealtimeSseModule,
     ProviderOpsModule,
@@ -283,7 +306,6 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     ApprovalWorkflowModule,
     RecruitmentModule,
     FamilyModule,
-    CommunityModule,
     LoyaltyModule,
     ReferralModule,
     FacilityOpsModule,
@@ -299,6 +321,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     BillingModule,
     ArticlesModule,
     InsuranceEngineModule,
+    QuotesModule,
     AdminModule,
     CompatModule, // gap-fill endpoints from the screen↔API wiring audit — registered last
     AdminSpaModule, // admin console SPA REST surface (top-level paths, admin-role guarded)
@@ -308,15 +331,20 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
   controllers: [HealthController, HealthDashboardController, ProviderPayoutsController],
   providers: [
     GracefulDrain,
+    MongoSelfHealService,   // 2026-11-01: exits when the Mongo connection stays unusable while mongod answers (restart policy brings the process back)
     ImpersonationSessionService,
     ...backgroundProviders([WorkerHeartbeatService]),
     { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: GuestPolicyGuard },          // 21.3: the guest permission matrix, after the caller is known
     { provide: APP_GUARD, useClass: WriteGuard },
+    { provide: APP_GUARD, useClass: ProviderAgreementGuard },    // a provider whose accepted contract has an older major version is refused until they accept the new one
     { provide: APP_GUARD, useClass: RateLimitAuditGuard },
     { provide: APP_GUARD, useClass: AdminGateGuard },
     { provide: APP_GUARD, useClass: LoadSheddingGuard },
+    { provide: APP_INTERCEPTOR, useClass: RouteTimeoutInterceptor },
     { provide: APP_GUARD, useClass: StepUpGuard },
     StepUpService,
+    { provide: APP_INTERCEPTOR, useClass: GuestChatListInterceptor },
     { provide: APP_INTERCEPTOR, useClass: AuditLogInterceptor },
     { provide: APP_INTERCEPTOR, useClass: IdempotencyInterceptor },
     { provide: APP_INTERCEPTOR, useClass: AdaptiveConcurrencyInterceptor },
@@ -325,6 +353,6 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(BansMiddleware, CorrelationMiddleware).forRoutes('*');
+    consumer.apply(BansMiddleware, CorrelationMiddleware, RequestMetaMiddleware, AppVersionMiddleware, AdmissionMiddleware).forRoutes('*');
   }
 }

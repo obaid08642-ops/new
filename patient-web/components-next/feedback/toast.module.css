@@ -1,0 +1,16 @@
+.toast {
+  position: fixed;
+  inset-inline: 16px;
+  bottom: 88px;
+  z-index: 55;
+  width: fit-content;
+  max-width: min(480px, calc(100% - 32px));
+  margin-inline: auto;
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: var(--ink);
+  color: var(--canvas);
+  font-weight: 600;
+  box-shadow: var(--nabd-shadow-raised);
+  text-align: center;
+}

@@ -50,6 +50,7 @@
   background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-2xl);
 }
 .tile:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.tileValue { font-size: var(--nabd-font-size-label); font-weight: 700; color: var(--nabd-color-text-secondary); }
 .tileLabel { font-size: var(--nabd-font-size-label); font-weight: 600; overflow-wrap: anywhere; }
 
 /* ---- switch rows (canvas/Settings) ---- */
@@ -85,3 +86,10 @@
 .stars { display: inline-flex; gap: 2px; }
 .actionsRow { display: flex; flex-wrap: wrap; gap: 8px; }
 .actionsRow > * { flex: 1 1 8rem; min-inline-size: 0; }
+
+.askBlock { display: flex; flex-direction: column; align-items: flex-start; gap: var(--nabd-space-sm); }
+.barRow { display: flex; flex-direction: column; gap: 8px; padding-block: 12px; padding-inline: 16px; min-inline-size: 0; }
+.barRow, .itemRow + .barRow { border-block-start: 1px solid var(--nabd-color-border-subtle); }
+.barHead { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; min-inline-size: 0; }
+.barTrack { display: block; block-size: 8px; border-radius: var(--nabd-radius-pill); background: var(--nabd-color-border-hairline); overflow: hidden; }
+.barFill { display: block; block-size: 100%; border-radius: var(--nabd-radius-pill); background: var(--nabd-color-action-primary-bg); }

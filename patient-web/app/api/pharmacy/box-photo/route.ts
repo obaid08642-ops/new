@@ -20,8 +20,8 @@ export async function POST(request: Request) {
   const accessToken = (await cookies()).get(authCookieNames.access)?.value;
   if (!accessToken) return NextResponse.json({ message: "authentication_required" }, { status: 401 });
   const upstream = await callPatientApi("/storage/upload", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ mime: match[1], data_base64: match[2], original_name: "box-photo" }) }, accessToken);
-  const data = await upstream.json().catch(() => null) as { id?: unknown } | null;
+  const data = await upstream.json().catch(() => null) as { id?: unknown; scan_status?: unknown } | null;
   if (!upstream.ok) return boundedUpstreamError(data, "photo_upload_failed", upstream.status);
   if (typeof data?.id !== "string" || !data.id) return NextResponse.json({ message: "photo_upload_failed" }, { status: 502 });
-  return NextResponse.json({ id: data.id }, { headers: { "cache-control": "no-store" } });
+  return NextResponse.json(typeof data.scan_status === "string" ? { id: data.id, scan_status: data.scan_status } : { id: data.id }, { headers: { "cache-control": "no-store" } });
 }

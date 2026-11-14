@@ -1,3 +1,5 @@
+import { FieldText } from "@/components-next/ui/localized-field";
+import type { FieldMark } from "@/lib/i18n/localized-field";
 import { DIRECT_ANSWER_CLASS } from "@/components-next/seo/direct-answer";
 import type { ReactNode } from "react";
 import { ConsultPage } from "@/components-next/consult/consult-page";
@@ -6,11 +8,12 @@ import { LinkEmptyState } from "@/components-next/pharmacy/link-empty-state";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import { Caret } from "@/components-next/nursing/nursing-parts";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import type { FillIconName, ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { getDirection, type Locale } from "@/lib/i18n";
 import styles from "./landing.module.css";
+import type { Crumb } from "@/components-next/navigation/breadcrumbs";
+import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
 /**
  * The frame of the public directory and detail pages (Batch 13: doctors by specialty and city, facilities, conditions, home
@@ -21,9 +24,9 @@ import styles from "./landing.module.css";
 
 /** The page: the shell with its top bar, the page title (the phone header and, from 768, the h1) and a one-line intro.
  *  `introIsAnswer`: the intro is the entity's own answer text (AEO), marked for the JSON-LD speakable selector. */
-export function LandingPage({ locale, title, intro, introIsAnswer = false, backHref, children }: { locale: Locale; title: string; intro?: string; introIsAnswer?: boolean; backHref?: string; children: ReactNode }) {
+export function LandingPage({ locale, title, intro, introIsAnswer = false, backHref, crumbs, crumbsLabel, children }: { locale: Locale; title: string; intro?: string; introIsAnswer?: boolean; backHref?: string; crumbs?: Crumb[]; crumbsLabel?: string; children: ReactNode }) {
   return (
-    <ConsultPage locale={locale} title={title} backHref={backHref} width="wide">
+    <ConsultPage locale={locale} title={title} backHref={backHref} width="wide" crumbs={crumbs} crumbsLabel={crumbsLabel}>
       {intro ? <p className={introIsAnswer ? `${DIRECT_ANSWER_CLASS} ${rx.lead}` : rx.lead}>{intro}</p> : null}
       {children}
     </ConsultPage>
@@ -51,13 +54,13 @@ export function EntityRow({ locale, href, icon, tone, title, sub }: { locale: Lo
 }
 
 /** A listed service, test or pharmacy: its tile, name and line, short facts as chips, and one action as a page link. */
-export function ServiceCard({ icon, tone, title, sub, chips = [], chipTone, actionHref, actionLabel }: { icon: FillIconName; tone: ServiceTone; title: string; sub?: string; chips?: string[]; chipTone?: ServiceTone; actionHref: string; actionLabel: string }) {
+export function ServiceCard({ icon, tone, title, titleMark, sub, chips = [], chipTone, actionHref, actionLabel }: { icon: FillIconName; tone: ServiceTone; title: string; /** Set when the title is not in the page language (its lang/dir and the note). */ titleMark?: FieldMark; sub?: string; chips?: string[]; chipTone?: ServiceTone; actionHref: string; actionLabel: string }) {
   return (
     <article className={`${rx.card} ${styles.card}`}>
       <div className={styles.cardHead}>
-        <FIcon icon={icon} tone={tone} size={44} />
+        <FIconByName icon={icon} tone={tone} size={44} />
         <div className={styles.cardText}>
-          <h3 className={styles.cardTitle}>{title}</h3>
+          <h3 className={styles.cardTitle}><FieldText text={title} mark={titleMark} /></h3>
           {sub ? <p className={styles.cardSub}>{sub}</p> : null}
         </div>
       </div>

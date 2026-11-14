@@ -1,0 +1,63 @@
+/* 17.1 navigation: the skip link, the back-to-top button and the article reading bar. Colours come from the tokens. */
+.skip-link {
+  position: absolute;
+  inset-inline-start: 1rem;
+  top: -4rem;
+  z-index: 100;
+  padding: 0.6rem 1rem;
+  border: 2px solid var(--brand);
+  border-radius: 0.6rem;
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 700;
+}
+.skip-link:focus-visible {
+  top: 1rem;
+  outline: 3px solid color-mix(in srgb, var(--nabd-color-text-primary) 35%, transparent);
+}
+#main-content:focus {
+  outline: none;
+}
+.back-to-top {
+  position: fixed;
+  inset-inline-end: 1rem;
+  bottom: calc(1rem + env(safe-area-inset-bottom));
+  z-index: 25;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--nabd-shadow-raised);
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+.back-to-top:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--nabd-color-text-primary) 35%, transparent);
+}
+.reading-progress {
+  position: fixed;
+  top: 0;
+  inset-inline: 0;
+  z-index: 30;
+  height: 3px;
+  pointer-events: none;
+}
+.reading-progress > span {
+  display: block;
+  height: 100%;
+  background: var(--brand);
+  transform-origin: left;
+}
+[dir="rtl"] .reading-progress > span {
+  transform-origin: right;
+}
+/* On phones the bottom tab bar is sticky at the bottom edge; lift the button above it so it never covers a tab. */
+@media (max-width: 720px) {
+  .back-to-top {
+    bottom: calc(5.5rem + env(safe-area-inset-bottom));
+  }
+}

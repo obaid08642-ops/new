@@ -38,7 +38,8 @@ export const deepLinkingConfig = {
         screens: {
           login: 'login',
           register: 'register',
-          'forgot-password': 'reset-password',
+          'forgot-password': 'forgot-password',
+          'reset-password': 'password-reset',
         },
       },
       // Public discovery and share pages: the backend emits /s/:type/:slug.

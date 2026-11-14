@@ -15,6 +15,12 @@ export type AppointmentRow = {
   paymentMethod?: string;
   insuranceRequestId?: string;
   insuranceReviewState?: string;
+  /** The doctor's id (to book again) and the visit's price and co-pay, as the server states them. */
+  doctorId?: string;
+  price?: number;
+  copayAmount?: number;
+  /** What cancelling right now gives back, as the server computed it (`cancellation.refund_now.percent`); absent when it sent none. */
+  refundNowPercent?: number;
 };
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -36,9 +42,21 @@ function firstText(record: Record<string, unknown>, keys: string[]) {
   }
   return undefined;
 }
+function firstNumber(record: Record<string, unknown>, keys: string[]) {
+  for (const key of keys) {
+    const value = record[key];
+    if (typeof value === "number" && Number.isFinite(value) && value >= 0) return value;
+  }
+  return undefined;
+}
 function firstUuid(record: Record<string, unknown>, keys: string[]) {
   const value = firstText(record, keys); const parsed = appointmentIdSchema.safeParse(value);
   return parsed.success ? parsed.data : undefined;
+}
+
+function refundNow(record: Record<string, unknown>) {
+  const percent = asRecord(asRecord(record.cancellation)?.refund_now)?.percent;
+  return typeof percent === "number" && Number.isFinite(percent) && percent >= 0 && percent <= 100 ? percent : undefined;
 }
 
 function appointmentFrom(value: unknown): AppointmentRow | null {
@@ -56,6 +74,10 @@ function appointmentFrom(value: unknown): AppointmentRow | null {
     paymentMethod: firstText(record as Record<string, unknown>, ["payment_method", "paymentMethod"]),
     insuranceRequestId: firstUuid(record as Record<string, unknown>, ["insurance_request_id", "insuranceRequestId"]),
     insuranceReviewState: firstText(record as Record<string, unknown>, ["insurance_review_state", "insuranceReviewState"]),
+    doctorId: firstText(record as Record<string, unknown>, ["doctor_id", "doctorId"]),
+    price: firstNumber(record as Record<string, unknown>, ["price", "amount"]),
+    copayAmount: firstNumber(record as Record<string, unknown>, ["copay_amount"]),
+    refundNowPercent: refundNow(record as Record<string, unknown>),
   };
 }
 

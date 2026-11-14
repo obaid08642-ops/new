@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# Start the real test stack on a GitHub runner for the native E2E jobs (same stack as live-gate.yml):
+# MongoDB replica set, test doubles (S3 moto, SMTP sink, fake Moyasar), the built backend on :8002 and
+# the admin panel BFF on :3001 (admin login + provider approval go through it). Redis comes from the job's
+# `services:` block (Linux) or Homebrew (macOS). The Android emulator reaches this backend as http://10.0.2.2:8002,
+# the iOS simulator (it shares the host network) as http://127.0.0.1:8002.
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$ROOT"
+
+if command -v docker >/dev/null 2>&1; then
+  docker run -d --name mongo -p 27017:27017 mongo:7 --replSet rs0 --bind_ip_all
+  MONGOSH() { docker exec mongo mongosh --quiet --eval "$1"; }
+else
+  # macOS runner (iOS simulator job): no Docker, so MongoDB and Redis come from Homebrew
+  brew tap mongodb/brew >/dev/null
+  # newer Homebrew refuses formulae from a tap it has not been told to trust ("Refusing to load formula ... from untrusted tap")
+  brew trust mongodb/brew >/dev/null 2>&1 || true
+  brew install mongodb-community@7.0 mongosh redis >/dev/null
+  mkdir -p /tmp/mongo-data
+  nohup "$(brew --prefix mongodb-community@7.0)/bin/mongod" --dbpath /tmp/mongo-data --replSet rs0 --bind_ip 127.0.0.1 > /tmp/mongod.log 2>&1 &
+  nohup redis-server --port 6379 > /tmp/redis.log 2>&1 &
+  # mongosh is its own formula (not in the mongodb-community keg): it is on PATH from Homebrew's bin
+  MONGOSH() { mongosh --quiet --eval "$1"; }
+fi
+for i in $(seq 1 30); do MONGOSH 'db.runCommand({ping:1})' && break; sleep 2; done
+MONGOSH 'rs.initiate({_id:"rs0",members:[{_id:0,host:"127.0.0.1:27017"}]})'
+for i in $(seq 1 30); do MONGOSH 'rs.status().ok' | grep -q 1 && break; sleep 2; done
+
+pip install -q 'moto[server]==5.*' boto3 aiosmtpd
+nohup moto_server -p 9000 > /tmp/moto.log 2>&1 &
+nohup python3 tools/live/smtp_sink.py > /tmp/smtp.log 2>&1 &
+nohup python3 tools/live/fake_moyasar.py > /tmp/moyasar.log 2>&1 &
+nohup python3 tools/live/fake_spl.py > /tmp/spl.log 2>&1 &       # Saudi Post address lookups (as live-gate.yml)
+nohup python3 tools/live/fake_clamd.py > /tmp/clamd.log 2>&1 &   # upload scanning is required by the backend (as live-gate.yml)
+for i in $(seq 1 30); do curl -s -o /dev/null http://127.0.0.1:9000 && break; sleep 1; done
+# the backend sends the admin 2FA code and every OTP to the SMTP sink on :2525; if it is not listening the first admin login fails with
+# 503 otp_no_channel (iOS job of run 41427339719), so wait for it here and show why it is down instead
+for i in $(seq 1 30); do (exec 3<>/dev/tcp/127.0.0.1/2525) 2>/dev/null && break; sleep 1; done
+(exec 3<>/dev/tcp/127.0.0.1/2525) 2>/dev/null || { echo "SMTP sink is not listening on 127.0.0.1:2525"; cat /tmp/smtp.log; exit 1; }
+python3 -c "import boto3; boto3.client('s3', endpoint_url='http://127.0.0.1:9000', aws_access_key_id='live', aws_secret_access_key='live-secret', region_name='us-east-1').create_bucket(Bucket='nabd-live')"
+
+(cd backend && npm ci --no-audit --no-fund && npm run build && node ../tools/live/seed_admin.js && bash ../tools/live/start-backend.sh)
+
+(cd admin && npm ci --no-audit --no-fund && npx next build)
+(cd admin && ADMIN_GATE_TOKEN=live-gate-token ADMIN_BACKEND_URL=http://127.0.0.1:8002 NODE_ENV=production \
+  nohup npx next start -p 3001 -H 127.0.0.1 > /tmp/admin.log 2>&1 &)
+for i in $(seq 1 60); do curl -s -o /dev/null http://127.0.0.1:3001/ && break; sleep 2; done
+curl -sf -o /dev/null http://127.0.0.1:8002/api/v1/care/specialties && echo "stack up"

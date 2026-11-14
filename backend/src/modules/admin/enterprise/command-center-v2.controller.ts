@@ -32,7 +32,7 @@ export class AdminCommandCenterV2Controller {
         count('pharmacy_orders', { status: { $nin: ['draft', 'cancelled', 'delivered', 'completed'] } }),
       ]).then(([legacy, current]) => legacy + current),
       count('labbookings', { state: { $nin: ['CANCELLED', 'REPORTED', 'SAMPLE_REJECTED'] } }),
-      count('radiologybookings', { state: { $nin: ['CANCELLED', 'REPORT_PUBLISHED'] } }),
+      count('radiologybookings', { state: { $nin: ['CANCELLED', 'REPORT_READY', 'REPORT_PUBLISHED'] } }),
       count('homecarebookings', { state: { $nin: ['CANCELLED', 'COMPLETED', 'DONE', 'REJECTED'] } }),
       count('appointments', { slot_start: { $gte: new Date(new Date().setHours(0, 0, 0, 0)), $lt: new Date(new Date().setHours(24, 0, 0, 0)) }, status: { $nin: ['CANCELLED'] } }),
       count('supportrequests', { status: { $in: ['OPEN', 'IN_PROGRESS'] } }),

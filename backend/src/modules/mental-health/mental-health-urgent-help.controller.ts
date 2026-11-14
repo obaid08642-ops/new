@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
+import { recordAudit } from '../../common/audit-record';
 import { InjectConnection } from '@nestjs/mongoose';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Connection } from 'mongoose';
@@ -44,15 +45,14 @@ export class MentalHealthUrgentHelpController {
       { $set: { key: URGENT_HELP_KEY, value: { phone }, updated_at: now, updated_by: admin?.id ?? null }, $setOnInsert: { created_at: now } },
       { upsert: true },
     );
-    await this.conn.collection('audit_logs').insertOne({
-      id: `urgent_help_${now.getTime()}`,
+    await recordAudit(this.conn, {
       action: 'mental_health_urgent_help_update',
       resource_kind: 'system_config',
       resource_id: `system_config:${URGENT_HELP_KEY}`,
-      actor_account_id: admin?.id,
-      actor_role: admin?.role,
-      metadata: { before: before.phone, after: phone },
-      created_at: now,
+      user_id: admin?.id,
+      role: admin?.role,
+      changes: { before: { phone: before.phone }, after: { phone } },
+      severity: 'warn',
     });
     return this.read();
   }

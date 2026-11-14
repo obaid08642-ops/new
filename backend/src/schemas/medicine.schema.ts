@@ -44,6 +44,9 @@ export class Medicine {
   @Prop() approved_at?: Date;
   @Prop() rejected_reason?: string;
   @Prop({ default: 0 }) usage_count: number; // how many times referenced
+  @Prop() category_pos?: number; // place inside its top-level category (1 = best), set by the ranking job: the "All" list round-robins on it
+  @Prop({ default: 0 }) orders_count: number; // delivered orders that contain this product ("Most ordered"); +1 per order, never per unit
+  @Prop({ default: 0, index: true }) rank_score: number; // the ranking's composite score, copied here by ProductRankingService so every list can sort by it
   @Prop({ index: true }) barcode?: string; // EAN13 / UPC / GTIN
   // ============ MEDICAL INFO (production-ready medicine details) ============
   @Prop() dosage_ar?: string;
@@ -110,6 +113,11 @@ export class Medicine {
   @Prop() country_of_origin?: string;
   @Prop({ default: false }) translation_conflict: boolean; // source flagged a translation inconsistency
   @Prop() review_reason?: string;
+  // ============ VARIANTS (owner decision D, issue 1556) ============
+  // One product with a picker: records that differ only by lens power, colour or shade share a variant_group, set by
+  // scripts/migrations/2026-10-catalogue-variant-groups.ts from the English name (variant-grouping.ts). Never deleted.
+  @Prop({ index: true, sparse: true }) variant_group?: string;
+  @Prop({ type: Object, default: undefined }) variant?: { kind: string; power?: number; colour?: string; shade?: string; position: number; source: string };
 }
 export type MedicineDocument = Medicine & Document;
 export const MedicineSchema = SchemaFactory.createForClass(Medicine);
@@ -129,6 +137,30 @@ MedicineSchema.index({ ...PUBLIC_KEYS, usage_count: -1, rating: -1, _id: 1 }, { 
 MedicineSchema.index({ ...PUBLIC_KEYS, price: 1, _id: 1 }, { name: 'public_price_asc' });
 MedicineSchema.index({ ...PUBLIC_KEYS, price: -1, _id: 1 }, { name: 'public_price_desc' });
 MedicineSchema.index({ ...PUBLIC_KEYS, createdAt: -1, _id: 1 }, { name: 'public_newest' });
+// "Most ordered": delivered-order count first (orders.service adds 1 per delivered order), the id breaks ties. Expand-only.
+MedicineSchema.index({ ...PUBLIC_KEYS, orders_count: -1, _id: 1 }, { name: 'public_most_ordered' });
+// 2026-10-27, `GET /public/categories/:locale/items` took 1.1-1.8 s for ONE row. The public filter is `publicMedicineFilter()`: public_eligibility,
+// medical_review_status AND `is_deleted: { $ne: true }`. The covering indexes below did not hold `is_deleted`, so Mongo fetched every one of the ~21k
+// documents (about 20 KB each) to test it: explain (21k documents) examined 21000 documents with the old index and 0 with `is_deleted` in it, for the
+// page and for the count. `is_deleted` therefore sits right after the two flags in every index that serves the public filter.
+const PUBLIC_LIVE = { ...PUBLIC_KEYS, is_deleted: 1 } as const;
+const POPULAR_FIELDS = { rank_score: -1, requires_prescription: 1, availability_status: 1, image_1: 1, image: 1, usage_count: -1, category_pos: 1, _id: 1 } as const;
+// "All": the sort reads only these fields (popularPage in product-ranking.service.ts), the plain and the round-robin order alike (category_pos), so the
+// database answers from the index and never loads a document to sort or to count.
+MedicineSchema.index({ ...PUBLIC_LIVE, ...POPULAR_FIELDS }, { name: 'public_popular_covering_v2' });
+// A category page, the category tree and the counts: the category (and sub-category) lead, in Arabic (the root) and in English. Other languages
+// read the same shape from their translations and are served from the response cache (see seo-search.module.ts).
+MedicineSchema.index({ ...PUBLIC_LIVE, category: 1, sub_category: 1, ...POPULAR_FIELDS }, { name: 'public_category_covering_v2' });
+// The private list (GET /medicines, the app's) adds `verified: true` to the public gate (MedicinesService.buildQuery). The two indexes above do not hold `verified`, so that filter made the
+// database load every document it matched (translations in six languages, ~20 KB each) before the sort. These two carry it right after the gate, so the same page is answered from the index.
+MedicineSchema.index({ ...PUBLIC_LIVE, verified: 1, ...POPULAR_FIELDS }, { name: 'public_verified_popular_covering_v1' });
+MedicineSchema.index({ ...PUBLIC_LIVE, verified: 1, category: 1, sub_category: 1, ...POPULAR_FIELDS }, { name: 'public_verified_category_covering_v1' });
+// Run 113 (2026-11-10): the public filter lists (`GET /medicines/filters`) asked for the distinct manufacturers and forms of the whole public catalogue. No index held those fields, so each
+// `distinct` loaded all ~21,000 documents (about 20 KB each, 6 to 8 s, several in parallel on a cache miss) into mongod, whose memory grew past its container limit. With the field in the
+// index (after the same public flags) the answer comes from the index keys alone and no document is read.
+MedicineSchema.index({ ...PUBLIC_LIVE, manufacturer: 1 }, { name: 'public_manufacturer_covering_v1' });
+MedicineSchema.index({ ...PUBLIC_LIVE, form: 1 }, { name: 'public_form_covering_v1' });
+MedicineSchema.index({ ...PUBLIC_LIVE, 'translations.en.main_category': 1, 'translations.en.sub_category': 1, ...POPULAR_FIELDS }, { name: 'public_category_en_covering_v2' });
 // The product id (a uuid string, not _id) is how the product page's related reads, the cart and orders find a product.
 MedicineSchema.index({ id: 1 }, { name: 'id_1' });
 

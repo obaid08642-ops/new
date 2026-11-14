@@ -235,7 +235,7 @@ describe('notification feed rules', () => {
   });
 
   it('groups into Today then Earlier with first/last markers per card', () => {
-    const feed = buildFeed(FEED.map(mapNotification));
+    const feed = buildFeed(FEED.map((n) => mapNotification(n)));
     expect(feed.map((i) => (i.kind === 'title' ? i.section : i.n.id))).toEqual(['today', 'n1', 'n2', 'n3', 'earlier', 'n4', 'n5']);
     const rows = feed.filter((i) => i.kind === 'row');
     expect(rows.map((r) => (r.kind === 'row' ? [r.first, r.last] : null))).toEqual([[true, false], [false, false], [false, true], [true, false], [false, true]]);

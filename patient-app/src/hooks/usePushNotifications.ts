@@ -71,6 +71,14 @@ export function translateBackendRoute(route: string): { pathname: string; params
   // Community is removed (owner decision 1): an old community notification opens the articles
   if (clean === '/community' || clean.startsWith('/community/')) return { pathname: '/articles' };
 
+  // Removed features (owner decisions 4 and 14): old links open the assistant / the urgent-help screen
+  if (clean === '/ai/skin-analysis') return { pathname: '/ai' };
+  if (clean === '/emergency/sos' || clean === '/emergency/sos-active' || clean === '/emergency/tracking') return { pathname: '/emergency' };
+
+  // The backend's appointment target (notification-target.ts): /consultations/appointments/:id opens that appointment
+  m = clean.match(/^\/consultations\/appointments\/([^/]+)$/);
+  if (m) return { pathname: '/consultations/appointment-detail', params: { appointmentId: m[1] } };
+
   // Routes that already exist verbatim in the app
   if (clean === '/consultations/appointments') return { pathname: clean };
   if (clean === '/diagnostics/results-history') return { pathname: clean };
@@ -151,7 +159,7 @@ export function routeFromNotificationData(data: any): void {
       case 'lab':
       case 'lab_booking':
       case 'radiology':
-        router.push('/diagnostics/my-results' as any);
+        router.push({ pathname: '/orders', params: { tab: 'results' } } as any);
         break;
       case 'nursing_transit':
       case 'nursing_arrived':
@@ -184,8 +192,6 @@ export function routeFromNotificationData(data: any): void {
       case 'offer':
         router.push('/loyalty/hub' as any);
         break;
-      case 'sos':
-      case 'ambulance':
       case 'emergency':
         router.push('/emergency' as any);
         break;

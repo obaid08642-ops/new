@@ -1,0 +1,46 @@
+[
+  {
+    "batch": 0,
+    "app": "patient-app",
+    "screen": "/reset-password",
+    "element": "Token arrives",
+    "file": "patient-app/app/(auth)/reset-password.tsx",
+    "line": 17,
+    "found": "[owner] The reset e-mail links to the web page (/{locale}/password-reset?token=) and the app has no intent filter or web-link mapping for it, so the app screen is reachable with a token only through a custom-scheme link; decide whether the link should open the app or stay web-only. (backend: backend/src/modules/auth/auth.service.ts:659)",
+    "suspect": "Owner decision.",
+    "review_status": "owner-decision"
+  },
+  {
+    "batch": 0,
+    "app": "patient-app",
+    "screen": "/reset-password",
+    "element": "Expired reset link message",
+    "file": "patient-app/app/(auth)/reset-password.tsx",
+    "line": 36,
+    "found": "[client] reset_token_invalid (401) is not in serverMessage, so an expired link reads as the generic save-failed text; needs a new translated key (six languages) from the owner's copy. (backend: backend/src/modules/auth/auth.service.ts:682)",
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
+  },
+  {
+    "batch": 0,
+    "app": "patient-app",
+    "screen": "/welcome",
+    "element": "Guest display name fallback",
+    "file": "patient-app/src/utils/guestSession.ts",
+    "line": 33,
+    "found": "[client] guestSession falls back to the Arabic literal name 'زائر' when the backend omits the user; shown in every language and not from the locale files.",
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
+  },
+  {
+    "batch": 0,
+    "app": "patient-app",
+    "screen": "/login",
+    "element": "Example e-mail placeholder",
+    "file": "patient-app/app/(auth)/login.tsx",
+    "line": 168,
+    "found": "[client] The identifier fields (login, register, forgot) show the Latin example name@example.com in every language; it is an example address, not translated text, so left as is pending the owner's view.",
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
+  }
+]

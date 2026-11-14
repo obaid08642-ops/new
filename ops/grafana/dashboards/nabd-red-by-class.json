@@ -1,0 +1,182 @@
+{
+  "uid": "nabd-red-by-class",
+  "title": "Nabd+ RED by route class",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "tags": [
+    "nabd",
+    "red",
+    "r5"
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "class",
+        "type": "query",
+        "datasource": "Prometheus",
+        "query": "label_values(nabd_http_class_requests_total, class)",
+        "includeAll": true,
+        "multi": true,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Rate (req/s)",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "sum by (class) (rate(nabd_http_class_requests_total{class=~\"$class\"}[5m]))",
+          "legendFormat": "{{class}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        }
+      },
+      "id": 1
+    },
+    {
+      "type": "timeseries",
+      "title": "Errors (5xx ratio)",
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "sum by (class) (rate(nabd_http_class_errors_total{class=~\"$class\"}[5m])) / clamp_min(sum by (class) (rate(nabd_http_class_requests_total{class=~\"$class\"}[5m])), 0.001)",
+          "legendFormat": "{{class}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        }
+      },
+      "id": 2
+    },
+    {
+      "type": "timeseries",
+      "title": "Duration p95 (ms)",
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "nabd_http_class_p95_ms{class=~\"$class\"}",
+          "legendFormat": "{{class}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        }
+      },
+      "id": 3
+    },
+    {
+      "type": "timeseries",
+      "title": "Duration p95 from the histogram (ms)",
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (class, le) (rate(nabd_http_class_duration_ms_bucket{class=~\"$class\"}[5m])))",
+          "legendFormat": "{{class}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        }
+      },
+      "id": 4
+    },
+    {
+      "type": "timeseries",
+      "title": "Cron leases: skipped / lost / Redis unavailable",
+      "gridPos": {
+        "x": 0,
+        "y": 16,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "rate(nabd_cron_lease_skipped_total[15m])",
+          "legendFormat": "skipped",
+          "refId": "A"
+        },
+        {
+          "expr": "increase(nabd_cron_lease_lost_total[15m])",
+          "legendFormat": "lost",
+          "refId": "B"
+        },
+        {
+          "expr": "rate(nabd_cron_lease_unavailable_total[15m])",
+          "legendFormat": "redis unavailable",
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        }
+      },
+      "id": 5
+    },
+    {
+      "type": "timeseries",
+      "title": "Event-loop delay (ms)",
+      "gridPos": {
+        "x": 12,
+        "y": 16,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "nabd_event_loop_lag_ms",
+          "legendFormat": "{{instance}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        }
+      },
+      "id": 6
+    }
+  ]
+}

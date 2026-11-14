@@ -64,7 +64,6 @@ export default async function SettingsPrivacyPage({ params, searchParams }: Prop
 
   const response = await getPatientPrivacySettings(token);
   if (response.status === 401) redirect(`/${locale}/login`);
-  if (response.status === 403 || response.status === 404) notFound();
   if (!response.ok) return failed;
   const initial = extract(await response.json().catch(() => null));
   const rows: SwitchRow[] = PRIVACY_KEYS.map((key) => ({ id: key, key, label: t(`pv.${key}`), sub: t(`pv.${key}Sub`), value: initial[key] }));
@@ -79,7 +78,6 @@ export default async function SettingsPrivacyPage({ params, searchParams }: Prop
 async function dataTab(locale: Locale, token: string, failed: React.ReactNode, t: Awaited<ReturnType<typeof getTranslations>>) {
   const response = await getPatientStorage(token);
   if (response.status === 401) redirect(`/${locale}/login`);
-  if (response.status === 403 || response.status === 404) notFound();
   if (!response.ok) return failed;
   const storage = parseStorageSummary(await response.json().catch(() => null));
   return (
@@ -94,9 +92,21 @@ async function dataTab(locale: Locale, token: string, failed: React.ReactNode, t
             </span>
           </div>
           {storage.items.map((item) => (
-            <div className={styles.itemRow} key={item.label}>
-              <span className={styles.itemText}><span className={styles.itemTitle} dir="auto">{item.label}</span></span>
-              <span className={styles.itemEnd}><bdi>{item.value} · {item.percent}%</bdi></span>
+            <div className={styles.barRow} key={item.key}>
+              <span className={styles.barHead}>
+                <span className={styles.itemTitle}>{t(`storageItem.${item.key}`)}</span>
+                <span className={styles.itemSub}><bdi>{item.value}</bdi></span>
+              </span>
+              <span
+                className={styles.barTrack}
+                role="progressbar"
+                aria-label={t(`storageItem.${item.key}`)}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.max(0, Math.min(100, Number(item.percent) || 0))}
+              >
+                <span className={styles.barFill} style={{ inlineSize: `${Math.max(0, Math.min(100, Number(item.percent) || 0))}%` }} />
+              </span>
             </div>
           ))}
           {storage.items.length === 0 ? <div className={styles.itemRow}><span className={styles.itemSub}>{t("storageEmpty")}</span></div> : null}

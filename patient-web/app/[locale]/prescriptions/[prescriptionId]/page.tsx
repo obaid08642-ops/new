@@ -9,11 +9,14 @@ import { CoreShell } from "@/components-next/core/core-shell";
 import { RetryErrorState } from "@/components-next/core/core-states";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import { ShareButton } from "@/components-next/health/share-button";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
+import { RxOrderThese } from "@/components-next/pharmacy/rx-order-these";
 import { RxMedicineList } from "@/components-next/pharmacy/rx-medicines";
 import { prescriptionStateTone } from "@/components-next/pharmacy/rx-state";
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
 import rx from "@/components-next/pharmacy/rx.module.css";
+import { FILL_PRESCRIPTION } from "@/components-next/ui-generated/icons/glyphs/prescription";
 
 type Props = { params: Promise<{ locale: string; prescriptionId: string }> };
 
@@ -35,11 +38,12 @@ export default async function PrescriptionDetailPage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("Prescriptions");
   const flow = await getTranslations("PharmacyFlow");
+  const hw = await getTranslations("HealthWeb");
   const token = await requirePatientAccess(locale);
   const response = await callPatientApi(`/prescriptions/${encodeURIComponent(prescriptionId)}`, {}, token);
   if (response.status === 401) redirect(`/${locale}/login`);
   if (response.status === 403 || response.status === 404) notFound();
-  const back = `/${locale}/prescriptions`;
+  const back = `/${locale}/health/records?tab=prescriptions`;
   const detail = response.ok ? extractPrescriptionDetail(await response.json().catch(() => null)) : null;
 
   if (!detail) {
@@ -61,7 +65,7 @@ export default async function PrescriptionDetailPage({ params }: Props) {
 
         <section className={rx.card} aria-label={t("detailTitle")}>
           <div className={rx.cardRow}>
-            <FIcon icon="prescription" tone={PHARMACY_TONE} size={40} />
+            <FIcon icon="prescription" glyph={FILL_PRESCRIPTION} tone={PHARMACY_TONE} size={40} />
             <div className={rx.cardBody}>
               <span className={rx.cardValue}>{t(prescriptionStateKey(detail.state))}</span>
               {issued ? <span className={rx.cardLabel}>{t("issuedOn", { date: issued })}</span> : null}
@@ -93,11 +97,18 @@ export default async function PrescriptionDetailPage({ params }: Props) {
           <p className={rx.note}>{t("noMedicines")}</p>
         )}
 
-        {/* Owner decision 39 (issue 1043): like the app, the checkout opens on this prescription. */}
+        {/* Decision 18 (OD-18), as in the app: the medicines go into the pharmacy cart with their quantities, prescription attached. */}
         {orderable && detail.items.length > 0 ? (
-          <ButtonLink href={`/${locale}/cart/checkout?prescriptionId=${encodeURIComponent(detail.id)}`} label={t("orderCta")} fullWidth />
+          <RxOrderThese locale={locale} prescriptionId={detail.id} lines={detail.items.map((item) => ({ medicineId: item.medicineId, name: item.name, quantity: item.quantity }))} />
         ) : null}
         {!orderable ? <p className={rx.note} role="status">{t("notOrderable")}</p> : null}
+        <ShareButton
+          label={hw("rxShare")}
+          copiedLabel={hw("shareCopied")}
+          variant="outline"
+          size="md"
+          text={[hw("rxShareTitle", { doctor: detail.doctorName ?? "" }), issued ?? "", "", `${hw("rxMedicines")}:`, ...(detail.items.length ? detail.items.map((item) => `- ${[item.name, item.dose].filter(Boolean).join(" · ")}`) : ["—"])].join("\n")}
+        />
         <ButtonLink href={back} label={t("back")} variant="ghost" size="md" />
       </div>
     </CoreShell>

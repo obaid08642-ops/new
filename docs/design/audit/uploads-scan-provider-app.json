@@ -1,0 +1,42 @@
+{
+  "slice": "uploads-scan-provider-app",
+  "batch": "uploads-scan",
+  "app": "provider-app",
+  "screens": [],
+  "needsReview": [
+    {
+      "route": "CertificatesConfigScreen",
+      "element": "KYC document upload",
+      "kind": "backend",
+      "note": "Backend gap: POST /provider/kyc/documents stores with defer_ok but returns the document row without scan_status, so a pending KYC file shows nothing; the client already reads scan_status and file_infected when the backend adds them.",
+      "file": "provider-app/src/screens/shared/shared/CertificatesConfigScreen.tsx",
+      "line": 87,
+      "backend": "backend/src/modules/provider/services/provider-profile.service.ts:90"
+    },
+    {
+      "route": "RadiologyOrdersTab",
+      "element": "Report file upload",
+      "kind": "client",
+      "note": "Client-side: the upload is recorded in the scan registry but no pending or rejected state is drawn.",
+      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
+      "line": 432
+    },
+    {
+      "route": "NurseVisitConsole",
+      "element": "Visit file upload",
+      "kind": "client",
+      "note": "Client-side: no pending or rejected state is drawn for visit files.",
+      "file": "provider-app/src/screens/nursing/visitFiles.ts",
+      "line": 30
+    },
+    {
+      "route": "ProviderProfileEditor",
+      "element": "Profile image upload",
+      "kind": "backend",
+      "note": "Backend gap: /provider/profile/image/upload goes through the image processor, not the documented upload answer; its scan state is unknown to the client and nothing is drawn.",
+      "file": "provider-app/src/components/ui.tsx",
+      "line": 975,
+      "backend": "backend/src/modules/provider/services/provider-image-processor.service.ts:208"
+    }
+  ]
+}

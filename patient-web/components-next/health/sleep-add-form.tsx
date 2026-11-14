@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
+import { useSheetClose } from "./form-sheet";
 import forms from "@/components-next/consult/consult.module.css";
 
 /** Arabic-Indic and Persian digits typed on a phone keyboard become 0-9 before the number is read. */
@@ -16,6 +17,7 @@ const latin = (value: string) => value.trim().replace(/[٠-٩]/g, (d) => String(
 export function SleepAddForm() {
   const t = useTranslations("HealthWeb");
   const router = useRouter();
+  const closeSheet = useSheetClose();
   const [hours, setHours] = useState("");
   const [score, setScore] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -40,6 +42,7 @@ export function SleepAddForm() {
       setHours("");
       setScore("");
       router.refresh();
+      closeSheet();
     } catch {
       setError(t("sleepSaveError"));
     } finally {

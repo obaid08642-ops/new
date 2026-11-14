@@ -55,7 +55,6 @@
           },
           "home_collector_count": 3,
           "home_collector_gender": "female",
-          "vacation_date": "2026-12-24",
           "equipment_list": [
             "xray",
             "mri"
@@ -99,7 +98,8 @@
               "close_evening": null,
               "closed": false
             }
-          ]
+          ],
+          "vacation_date": "2026-12-24"
         }
       ]
     },
@@ -131,6 +131,7 @@
           },
           "cr_number": "1010404040",
           "moh_license_number": "MOH-C-9",
+          "license_expiry_date": "2099-12-31",
           "tax_number": "300999888700003",
           "license_documents": [
             "https://cdn.test/cr.jpg",
@@ -179,6 +180,7 @@
             "techOfficerScfhs": "778899",
             "crNumber": "1010404040",
             "mohLicense": "MOH-C-9",
+            "licenseExpiry": "2099-12-31",
             "iban": "SA0380000000608010167519",
             "accountHolderName": "Nabd Center Co",
             "taxNumber": "300999888700003",

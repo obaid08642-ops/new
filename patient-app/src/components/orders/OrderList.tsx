@@ -1,10 +1,14 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
-import { router, useFocusEffect, type Href } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
 
-import { AppHeader, Chip, EmptyState, ErrorState, OfflineState, Screen, Segmented } from '../../../../packages/ui-native/src';
+import { AppHeader, Button, Chip, EmptyState, ErrorState, OfflineState, Screen, Segmented } from '../../../../packages/ui-native/src';
 import { OrderCard } from './OrderKit';
+import { hideStateOf, hideVisitPath, readVisitStates, type VisitState } from '../../utils/hiddenVisits';
+import { ResultsPanel } from './ResultsPanel';
+import { useNewResultsCount } from '../../hooks/useNewResultsCount';
+import { parseOrdersTab, type OrdersTab } from '../../utils/ordersResults';
 import { Notice } from '../pharmacy/OfferKit';
 import { goBackDiag } from '../diagnostics/DiagKit';
 import { goBack as goBackPharmacy } from '../pharmacy/PharmacyKit';
@@ -12,7 +16,8 @@ import { COLUMN, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { isOffline } from '../../utils/isOffline';
 import { logError } from '../../utils/logger';
-import { pickLocalized } from '../../utils/localize';
+import { showLocalizedAlert } from '../LocalizedAlert';
+import { pickBookingName } from '../../utils/bookingName';
 import { ORDERS_TONE, buildRows, inBucket, kindsPresent, ofKind, type Bucket, type OrderKind, type OrderRow, type OrderSources } from '../../utils/orderCenter';
 
 /**
@@ -21,8 +26,10 @@ import { ORDERS_TONE, buildRows, inBucket, kindsPresent, ofKind, type Bucket, ty
  * retry. Statuses, dates, numbers and amounts are what the endpoints return.
  */
 
-const pick = (ar: unknown, en: unknown): string | null => {
-  const value = pickLocalized(ar as string | undefined, en as string | undefined);
+export { pickBookingName };
+
+const pick = (ar: unknown, en: unknown, names?: unknown): string | null => {
+  const value = pickBookingName(names, ar, en);
   return typeof value === 'string' && value.trim() !== '' ? value : null;
 };
 
@@ -53,8 +60,11 @@ export function backFor(endpoints: OrderEndpoints): () => void {
   };
 }
 
-export function OrderList({ endpoints, titleKey, testID }: { endpoints: OrderEndpoints; titleKey: string; testID: string }) {
+export function OrderList({ endpoints, titleKey, testID, withResults = false }: { endpoints: OrderEndpoints; titleKey: string; testID: string; withResults?: boolean }) {
   const { theme, dir, k, num, c } = useScreenUi();
+  const params = useLocalSearchParams<{ tab?: string }>();
+  const newResults = useNewResultsCount();
+  const [tab, setTab] = useState<OrdersTab>(() => (withResults ? parseOrdersTab(params.tab) : 'current'));
   const [rows, setRows] = useState<OrderRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -62,12 +72,16 @@ export function OrderList({ endpoints, titleKey, testID }: { endpoints: OrderEnd
   const [offline, setOffline] = useState(false);
   const [bucket, setBucket] = useState<Bucket>('current');
   const [kind, setKind] = useState<OrderKind | null>(null);
+  // PT-54: which finished visits the patient hid (from the timeline; unreadable = nothing hidden)
+  const [visits, setVisits] = useState<Map<string, VisitState>>(new Map());
+  const [showHidden, setShowHidden] = useState(false);
   const seq = useRef(0);
   const onBack = useMemo(() => backFor(endpoints), [endpoints]);
 
   const load = useCallback(async (mode: 'first' | 'manual') => {
     const mine = ++seq.current;
     if (mode === 'first') setLoading(true);
+    const timeline = apiFetch<unknown>('/unified-bookings/mine?include_hidden=1').catch(() => null);
     const answers = await Promise.all(
       endpoints.map(async ([key, path]) => {
         try {
@@ -85,6 +99,7 @@ export function OrderList({ endpoints, titleKey, testID }: { endpoints: OrderEnd
       if (answer) sources[answer[0]] = answer[1];
       else misses += 1;
     }
+    setVisits(readVisitStates(await timeline));
     setRows(buildRows(sources, pick));
     setFailed(misses);
     setOffline(misses === endpoints.length ? await isOffline() : false);
@@ -101,23 +116,67 @@ export function OrderList({ endpoints, titleKey, testID }: { endpoints: OrderEnd
   const kinds = useMemo(() => kindsPresent(rows), [rows]);
   // a filter whose service has no rows after a reload falls back to All
   const activeKind = kind !== null && kinds.includes(kind) ? kind : null;
-  const shown = useMemo(() => ofKind(inBucket(rows, bucket), activeKind), [rows, bucket, activeKind]);
+  const hideOf = useCallback((row: OrderRow) => hideStateOf(visits, row.kind, row.id), [visits]);
+  const hiddenCount = useMemo(() => rows.filter((row) => hideOf(row)?.hidden).length, [rows, hideOf]);
+  const shown = useMemo(() => ofKind(inBucket(rows, bucket), activeKind).filter((row) => (hideOf(row)?.hidden === true) === showHidden), [rows, bucket, activeKind, hideOf, showHidden]);
+  const toggleHide = async (row: OrderRow, hide: boolean) => {
+    const state = hideOf(row);
+    if (!state) return;
+    try {
+      await apiFetch(hideVisitPath(state.kind, row.id, hide), { method: 'POST', body: JSON.stringify({}) });
+      void load('manual');
+    } catch (e) {
+      logError('orders:hide-visit', e);
+      showLocalizedAlert(k('consult.hidden.error'), '');
+    }
+  };
 
   const header = (
     <View style={COLUMN}>
       <AppHeader title={k(titleKey)} onBack={onBack} backLabel={k('pharmacy.back')} theme={theme} direction={dir} />
     </View>
   );
+  const tabs = withResults ? (
+    <Segmented
+      label={k(titleKey)}
+      value={tab}
+      onChange={(v) => {
+        const next = parseOrdersTab(v);
+        setTab(next);
+        if (next !== 'results') setBucket(next);
+        else newResults.refresh();
+      }}
+      options={[
+        { value: 'current', label: k('orders.tab.current') },
+        { value: 'results', label: newResults.count > 0 ? k('orders.tab.resultsNew', { n: num(newResults.count) }) : k('orders.tab.results') },
+        { value: 'previous', label: k('orders.tab.previous') },
+      ]}
+      theme={theme}
+      testID={`${testID}-tabs`}
+    />
+  ) : null;
   const state = (node: React.ReactNode) => (
     <Screen theme={theme} direction={dir} header={header} scroll testID={testID}>
-      <View style={{ ...COLUMN, paddingHorizontal: 16, paddingBottom: 32, flexGrow: 1, justifyContent: 'center' }}>{node}</View>
+      <View style={{ ...COLUMN, paddingHorizontal: 16, paddingBottom: 32, flexGrow: 1, justifyContent: 'center' }}>{tabs ? <View style={{ paddingBottom: 16 }}>{tabs}</View> : null}{node}</View>
     </Screen>
   );
 
+  // the results tab has its own endpoints: it does not wait for, or fail with, the orders
+  if (withResults && tab === 'results') {
+    return (
+      <Screen theme={theme} direction={dir} header={header} scroll testID={testID}>
+        <View style={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 40, gap: 16 }}>
+          {tabs}
+          <ResultsPanel onSeen={newResults.refresh} testID={`${testID}-results`} />
+        </View>
+      </Screen>
+    );
+  }
   if (loading) {
     return (
       <Screen theme={theme} direction={dir} header={header} scroll testID={testID}>
         <View accessibilityLabel={k('pharmacy.loading')} accessibilityState={{ busy: true }} style={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, gap: 12 }}>
+          {tabs}
           {[0, 1, 2].map((i) => (
             <View key={i} style={{ height: 120, borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }} />
           ))}
@@ -133,17 +192,19 @@ export function OrderList({ endpoints, titleKey, testID }: { endpoints: OrderEnd
 
   const top = (
     <View style={{ gap: 16, paddingBottom: 16 }}>
-      <Segmented
-        label={k(titleKey)}
-        value={bucket}
-        onChange={(v) => setBucket(v === 'previous' ? 'previous' : 'current')}
-        options={[
-          { value: 'current', label: k('orders.tab.current') },
-          { value: 'previous', label: k('orders.tab.previous') },
-        ]}
-        theme={theme}
-        testID={`${testID}-tabs`}
-      />
+      {tabs ?? (
+        <Segmented
+          label={k(titleKey)}
+          value={bucket}
+          onChange={(v) => setBucket(v === 'previous' ? 'previous' : 'current')}
+          options={[
+            { value: 'current', label: k('orders.tab.current') },
+            { value: 'previous', label: k('orders.tab.previous') },
+          ]}
+          theme={theme}
+          testID={`${testID}-tabs`}
+        />
+      )}
       {kinds.length > 1 ? (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} accessibilityLabel={k('orders.filter.label')} contentContainerStyle={{ gap: 8 }} testID={`${testID}-filter`}>
           <Chip label={k('orders.filter.all')} selected={activeKind === null} onPress={() => setKind(null)} theme={theme} testID={`${testID}-filter-all`} />
@@ -152,6 +213,7 @@ export function OrderList({ endpoints, titleKey, testID }: { endpoints: OrderEnd
           ))}
         </ScrollView>
       ) : null}
+      {hiddenCount > 0 || showHidden ? <Button label={showHidden ? k('consult.hidden.back') : k('consult.hidden.showLink', { n: hiddenCount })} variant="ghost" size="sm" onPress={() => setShowHidden((on) => !on)} theme={theme} testID={`${testID}-hidden-toggle`} /> : null}
       {failed > 0 ? <Notice tone="warning" text={k('orders.partial', { n: num(failed) })} actionLabel={k('pharmacy.retry')} onAction={() => void load('first')} /> : null}
     </View>
   );
@@ -164,10 +226,18 @@ export function OrderList({ endpoints, titleKey, testID }: { endpoints: OrderEnd
         keyExtractor={(row) => row.key}
         ListHeaderComponent={top}
         ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
-        ListEmptyComponent={<EmptyState icon="receipt" tone={ORDERS_TONE} title={k(bucket === 'current' ? 'orders.emptyCurrent' : 'orders.emptyPrevious')} body={k('orders.emptyBody')} theme={theme} />}
+        ListEmptyComponent={<EmptyState icon="receipt" tone={ORDERS_TONE} title={showHidden ? k('consult.hidden.empty') : activeKind ? k(bucket === 'current' ? 'orders.emptyKindCurrent' : 'orders.emptyKindPrevious', { service: k(`orders.filterKind.${activeKind}`) }) : k(bucket === 'current' ? 'orders.emptyCurrent' : 'orders.emptyPrevious')} body={k(activeKind ? 'orders.emptyKindBody' : 'orders.emptyBody')} theme={theme} />}
         contentContainerStyle={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 40 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); void load('manual'); }} tintColor={c.text.primary} />}
-        renderItem={({ item }) => <OrderCard row={item} onPress={item.route ? () => router.push(item.route as unknown as Href) : undefined} />}
+        renderItem={({ item }) => {
+          const hide = bucket === 'previous' ? hideOf(item) : null;
+          return (
+            <View style={{ gap: 8 }}>
+              <OrderCard row={item} onPress={item.route ? () => router.push(item.route as unknown as Href) : undefined} />
+              {hide ? <Button label={hide.hidden ? k('consult.hidden.show') : k('consult.hidden.hide')} variant="outline" size="sm" onPress={() => void toggleHide(item, !hide.hidden)} theme={theme} testID={`${testID}-hide-${item.key}`} /> : null}
+            </View>
+          );
+        }}
         testID={`${testID}-list`}
       />
     </Screen>

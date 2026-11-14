@@ -1,5 +1,5 @@
 """Journey: lab test, patient-app diagnostics -> lab (provider-app LabDashboard) -> results -> admin console.
-Payloads copied from patient-app app/(tabs)/diagnostics.tsx, diagnostics/cart.tsx, diagnostics/checkout.tsx and
+Payloads copied from patient-app app/(tabs)/diagnostics.tsx, diagnostics/cart.tsx, diagnostics/checkout.tsx (removed: the payloads are now the confirm screen's) and
 provider-app screens/lab/LabDashboard.tsx (LabOrderDetail, SampleTracking, ResultReview)."""
 import datetime, uuid
 from lib import Client, journey, step
@@ -46,6 +46,10 @@ def patient_books(pat, lab_id, location='facility', method='cash', documents=Non
     r = pat.get('/labs/services')
     services = r.items()
     step('patient sees the lab test catalog', r.ok and len(services) > 0, f'{r.status} {len(services)}')
+    # the catalogue's other orders used to answer 500 (the lab read for "highest rated" and "nearest" passed the projection in the driver's form)
+    for label, qs in (('highest rated', 'highest_rated=true'), ('nearest', 'nearest=true&lat=24.7136&lng=46.6753'), ('lowest price', 'lowest_price=true')):
+        rr = pat.get(f'/labs/services?{qs}')
+        step(f'the catalogue sorted by {label} answers (not 500) and keeps the same tests', rr.ok and len(rr.items()) > 0, f'{rr.status} {len(rr.items())}')
     eligible = [s for s in services if location != 'home' or s.get('home_visit_supported')]
     picks = (eligible[offset:] + eligible[:offset])[:2]
     ids = ','.join(s['id'] for s in picks)
@@ -158,6 +162,9 @@ def run(pat, lab, other_lab=None, admin=None):
         step('console lists the lab booking with status and amount', r.ok and row and row.get('status') == 'REPORTED' and row.get('amount', 0) > 0, row or r.status)
         d = admin.get(f'/admin/admin/orders/lab/{bid}')
         step('console detail opens with its timeline', d.ok and len(d.get('timeline') or []) >= 4, d)
+        # 23.2: the booking's story in the tamper-evident audit trail, in order
+        import j_audit_events
+        j_audit_events.check_chain(admin, 'lab booking', ['service.requested', 'service.confirmed', 'lab_report_uploaded'], resource_id=bid)
     matrix_payment_location(pat, lab, admin, other_lab)
     return bid
 
@@ -187,7 +194,7 @@ def matrix_payment_location(pat, lab, admin=None, other_lab=None):
         import j_insurance
         from j_insurance import insured_lab
         journey('lab matrix: home x insurance')
-        j_insurance.add_policy(pat, j_insurance.admin_adds_company(admin))
+        j_insurance.add_policy(pat, j_insurance.admin_adds_company(admin), providers=[lab])
         if other_lab is not None:
             insured_lab(pat, lab, other_lab, location='home')
         else:

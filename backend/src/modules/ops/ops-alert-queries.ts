@@ -17,7 +17,7 @@ export const STUCK_SOURCES: ReadonlyArray<{ kind: OrderKind; col: string; field:
 export const SLA_SOURCES: ReadonlyArray<{ kind: OrderKind; col: string; closed: string[] }> = [
   { kind: 'pharmacy', col: 'orders', closed: ['CANCELLED', 'DELIVERED'] },
   { kind: 'lab', col: 'labbookings', closed: ['CANCELLED', 'REPORTED'] },
-  { kind: 'radiology', col: 'radiologybookings', closed: ['CANCELLED', 'REPORT_PUBLISHED'] },
+  { kind: 'radiology', col: 'radiologybookings', closed: ['CANCELLED', 'REPORT_READY', 'REPORT_PUBLISHED'] },
   { kind: 'nursing', col: 'homecarebookings', closed: ['CANCELLED', 'COMPLETED'] },
 ];
 

@@ -13,7 +13,8 @@ import { guestListLabels } from "@/components-next/guest/guest-labels";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import { isLocale, type Locale } from "@/lib/i18n";
 import { formatDate } from "@/lib/format-date";
-import { parseBenefits, parseProviders, parseRequestRows, isRequestState, requestTone, tabOf, type InsuranceTab } from "@/lib/insurance/view";
+import { formatPrice } from "@/lib/format-price";
+import { parseBenefits, parseBenefitsUsage, parseProviders, parseRequestRows, isRequestState, requestKindOf, requestTone, tabOf, type InsuranceTab } from "@/lib/insurance/view";
 
 /** GET /providers sends the provider type as a code (ProviderType); the page translates it, never shows it raw. */
 const PROVIDER_TYPES = ["doctor", "pharmacy", "hospital", "clinic", "lab", "radiology", "home_care", "nursing"] as const;
@@ -23,9 +24,12 @@ import { ConsultState } from "@/components-next/consult/consult-state";
 import { Notice } from "@/components-next/consult/consult-parts";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { InsuranceRow, InsuranceTabs, PolicyCard, RowsList, ShortcutGrid, StatusBadge } from "@/components-next/insurance/insurance-kit";
+import { DeletePolicyAction } from "@/components-next/insurance/delete-policy-action";
+import { NetworkList } from "@/components-next/insurance/network-list";
 import forms from "@/components-next/consult/consult.module.css";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/insurance/insurance.module.css";
+import { localizedText } from "@/lib/i18n/localized-field";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string; q?: string; type?: string; company?: string }> };
 
@@ -90,39 +94,56 @@ export default async function InsurancePage({ params, searchParams }: Props) {
                 key={row.id}
                 locale={locale}
                 href={`${base}/requests/${row.id}`}
-                title={t("requestTitle")}
-                sub={formatDate(locale, row.createdAt) ?? undefined}
+                title={t(`kind.${requestKindOf(row.bookingKind)}`)}
+                sub={[row.price !== undefined ? formatPrice(locale, row.price).text : null, formatDate(locale, row.createdAt)].filter(Boolean).join(" · ") || undefined}
                 badge={row.state ? <StatusBadge tone={requestTone(row.state)}>{isRequestState(row.state) ? t(`requestState.${row.state}`) : t("requestState.unknown")}</StatusBadge> : undefined}
               />
             ))}
           </RowsList>
         )}
-        <p className={styles.note}>{t("disclaimer")}</p>
       </>
     );
   } else if (tab === "benefits") {
     const res = await read(() => getPatientInsuranceBenefits(token));
-    const benefits = res && res.status >= 200 && res.status < 300 ? parseBenefits(res.body) : null;
-    content = benefits === null ? unavailable : benefits.length === 0 ? empty(t("benefitsEmpty")) : (
-      <RowsList label={t("tabBenefits")}>
-        {benefits.map((row) => <InsuranceRow key={row.key} locale={locale} title={t("benefitTitle")} sub={row.noteCode ? t(`noteCode.${row.noteCode}`) : undefined} />)}
-      </RowsList>
+    const ok = res !== null && res.status >= 200 && res.status < 300;
+    const benefits = ok ? parseBenefits(res.body) : null;
+    const usage = ok ? parseBenefitsUsage(res.body) : null;
+    const money = (value?: number) => (value === undefined ? "—" : formatPrice(locale, value).text);
+    const expiry = usage?.expiryDate ? formatDate(locale, usage.expiryDate) : null;
+    content = benefits === null ? unavailable : benefits.length === 0 && !usage?.usage ? empty(t("benefitsEmpty")) : (
+      <>
+        {usage?.usage ? (
+          <section className={rx.card} aria-label={t("tabBenefits")}>
+            <p className={styles.policyName}>{t("usageRequests", { count: usage.usage.requests })}</p>
+            <ul className={styles.amounts}>
+              <li><span className={styles.amountLabel}>{t("usageCovered")}</span><span className={styles.amountValue}><bdi>{money(usage.usage.insurerCovered)}</bdi></span></li>
+              <li><span className={styles.amountLabel}>{t("usagePaid")}</span><span className={styles.amountValue}><bdi>{money(usage.usage.patientShare)}</bdi></span></li>
+            </ul>
+            {expiry ? <p className={styles.note}>{t("expiryLine", { date: expiry })}</p> : null}
+          </section>
+        ) : null}
+        {benefits.length > 0 ? (
+          <RowsList label={t("tabBenefits")}>
+            {benefits.map((row) => <InsuranceRow key={row.key} locale={locale} title={t("benefitTitle")} sub={row.noteCode ? t(`noteCode.${row.noteCode}`) : undefined} />)}
+          </RowsList>
+        ) : null}
+      </>
     );
   } else {
     // Network: the providers of the insurer on the profile (as the old page did); without a saved policy there is nothing to list.
     const profile = await read(() => callPatientApi("/users/me/profile", {}, token));
     if (profile?.status === 401) redirect(`/${locale}/login`);
-    const insurance = (profile?.body as { insurance?: { company_id?: string } } | null)?.insurance;
+    const insurance = (profile?.body as { insurance?: { company_id?: string; network?: string; class?: string } } | null)?.insurance;
     const companyId = insurance?.company_id || "";
-    const q = (sp.q || "").trim();
     let providers: ReturnType<typeof parseProviders> | null = [];
     if (companyId) {
       const qs = new URLSearchParams({ insurance_company: companyId });
-      if (sp.type && sp.type !== "all") qs.set("type", sp.type);
-      if (q) qs.set("q", q);
+      // The patient's network and class narrow the list the same way the app's network tab does.
+      if (insurance?.network) qs.set("insurance_network", insurance.network);
+      if (insurance?.class) qs.set("insurance_class", insurance.class);
       const res = await read(() => callPatientApi(`/providers?${qs.toString()}`, {}, token));
       if (res?.status === 401) redirect(`/${locale}/login`);
-      providers = res && res.status >= 200 && res.status < 300 ? parseProviders(res.body) : null;
+      providers = res && res.status >= 200 && res.status < 300 ? parseProviders(res.body, locale) : null;
     }
     content = !companyId ? (
       <>
@@ -130,45 +151,38 @@ export default async function InsurancePage({ params, searchParams }: Props) {
         <ButtonLink href={`${base}/add-policy`} label={t("addPolicy")} />
       </>
     ) : (
-      <>
-        <form method="get" action={base} className={styles.search} role="search" aria-label={t("tabNetwork")}>
-          <input type="hidden" name="tab" value="network" />
-          <label className={`${forms.field} ${styles.searchField}`}>
-            <span className={forms.label}>{t("networkSearch")}</span>
-            <input className={forms.control} name="q" defaultValue={q} maxLength={80} />
-          </label>
-          <button type="submit" className="nabd-button nabd-button--primary nabd-button--lg"><span className="nabd-button__label">{t("search")}</span></button>
-        </form>
-        {providers === null ? unavailable : providers.length === 0 ? empty(t("networkEmpty")) : (
-          <RowsList label={t("tabNetwork")}>
-            {providers.map((provider) => <InsuranceRow key={provider.id} locale={locale} title={provider.name} sub={isProviderType(provider.type) ? t(`providerType.${provider.type}`) : undefined} />)}
-          </RowsList>
-        )}
-      </>
+      providers === null ? unavailable : providers.length === 0 ? empty(t("networkEmpty")) : <NetworkList providers={providers} locale={locale} />
     );
   }
 
   return (
     <ConsultPage locale={locale} title={t("title")}>
       <PolicyCard
-        title={summary.companyName ?? t("noPolicyTitle")}
+        title={localizedText({ locale, ar: summary.companyName, en: summary.companyNameEn }) ?? t("noPolicyTitle")}
         sub={summary.planClass ? t("planLine", { plan: summary.planClass }) : undefined}
-        badge={summary.hasPolicy ? t("active") : t("none")}
-        tone={summary.hasPolicy ? "good" : "plain"}
+        badge={!summary.hasPolicy ? t("none") : summary.verified ? t("policyVerified") : t("policyInReview")}
+        tone={!summary.hasPolicy ? "plain" : summary.verified ? "good" : "wait"}
         logoUrl={summary.logoUrl}
         lines={[
           summary.memberId ? t("memberLine", { id: summary.memberId }) : null,
           summary.expiryDate && formatDate(locale, summary.expiryDate) ? t("expiryLine", { date: formatDate(locale, summary.expiryDate) as string }) : null,
         ].filter((line): line is string => !!line)}
+        details={[
+          { label: t("policyNumber"), value: summary.policyNumber },
+          { label: t("memberName"), value: summary.memberName },
+          { label: t("nationalId"), value: summary.nationalId ?? summary.memberId },
+          { label: t("policyNetwork"), value: summary.network },
+        ].filter((row): row is { label: string; value: string } => !!row.value)}
       />
       <ShortcutGrid
         label={t("shortcuts")}
         items={[
           { href: `${base}/add-policy`, label: t("addPolicy"), icon: "plus", tone: "blue" },
-          { href: `${base}?tab=network`, label: t("tabNetwork"), icon: "hospital", tone: "coral" },
-          { href: `${base}/coverage-check`, label: t("coverageCheck"), icon: "shield-check", tone: "mint" },
+          { href: `${base}?tab=network`, label: t("tabNetwork"), icon: "hospital", tone: "teal" },
+          { href: `${base}/coverage-check`, label: t("coverageCheck"), icon: "shield-check", tone: SERVICE_ICONS.insurance.tone },
         ]}
       />
+      {summary.hasPolicy ? <DeletePolicyAction /> : null}
       <InsuranceTabs
         label={t("tabs")}
         base={base}
@@ -180,6 +194,7 @@ export default async function InsurancePage({ params, searchParams }: Props) {
         ]}
       />
       {content}
+      <p className={styles.note}>{t("disclaimer")}</p>
     </ConsultPage>
   );
 }

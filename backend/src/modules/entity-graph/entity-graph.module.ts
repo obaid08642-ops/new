@@ -5,6 +5,7 @@ import { EntityRelation, EntityRelationSchema } from './schemas/entity-relation.
 import { EntityGraphService } from './entity-graph.service';
 import { EntityGraphController } from './entity-graph.controller';
 import { LocationModule } from '../location/location.module';
+import { RatingsModule } from '../ratings/ratings.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { LocationModule } from '../location/location.module';
       { name: EntityRelation.name, schema: EntityRelationSchema },
     ]),
     LocationModule,
+    RatingsModule,
   ],
   controllers: [EntityGraphController],
   providers: [EntityGraphService],

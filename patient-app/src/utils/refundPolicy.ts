@@ -1,6 +1,7 @@
 /**
  * The cancellation policy of GET /system-config/public (`cancellation_policy`), the same one the doctor page's FAQ reads:
- * the full amount back from `full_hours` before the visit, `half_refund_percent` from `half_hours`, nothing after.
+ * the full amount back from `full_hours` before the visit and `half_refund_percent` after it. What cancelling now refunds is the
+ * server's own figure on the appointment (`cancellation.refund_now`), never computed from these numbers on the device.
  */
 export interface CancellationPolicy {
   full_hours: number;
@@ -15,12 +16,4 @@ export function readCancellationPolicy(config: unknown): CancellationPolicy | nu
   const { full_hours, half_hours, half_refund_percent } = raw;
   if (typeof full_hours !== 'number' || typeof half_hours !== 'number' || typeof half_refund_percent !== 'number') return null;
   return { full_hours, half_hours, half_refund_percent };
-}
-
-/** The share of the booking that comes back when cancelling `hoursUntil` hours ahead; null while either is unknown. */
-export function refundPercent(hoursUntil: number | null, policy: CancellationPolicy | null): number | null {
-  if (hoursUntil == null || !policy) return null;
-  if (hoursUntil >= policy.full_hours) return 100;
-  if (hoursUntil >= policy.half_hours) return policy.half_refund_percent;
-  return 0;
 }

@@ -78,7 +78,7 @@ export default function OrderTrackingScreen() {
     }, [load]),
   );
 
-  const chat = view && !view.cancelled ? [{ key: 'chat', label: k('orders.track.chat'), icon: <Glyph name="chat-circle-text" size={20} color={c.icon.primary} />, onPress: () => router.push({ pathname: '/pharmacy/pharmacist-chat', params: { orderId: id } } as unknown as Href) }] : [];
+  const chat = view && !view.cancelled ? [{ key: 'chat', label: k('orders.track.chat'), icon: <Glyph name="chat-circle-text" size={20} color={c.text.secondary} />, onPress: () => router.push({ pathname: '/pharmacy/pharmacist-chat', params: { orderId: id } } as unknown as Href) }] : [];
   const header = (
     <View style={COLUMN}>
       <AppHeader title={k('orders.track.title')} onBack={goBack} backLabel={k('pharmacy.back')} actions={chat} theme={theme} direction={dir} />

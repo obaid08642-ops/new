@@ -1,5 +1,5 @@
 """Journey: radiology scan, patient-app diagnostics -> radiology center (provider-app RadiologyDashboard) -> report -> patient.
-Payloads copied from patient-app app/(tabs)/diagnostics.tsx (scan "book now" -> cart), diagnostics/cart.tsx, diagnostics/checkout.tsx,
+Payloads copied from patient-app app/(tabs)/diagnostics.tsx (scan "book now" -> cart), diagnostics/cart.tsx, diagnostics/checkout.tsx (removed: the payloads are now the confirm screen's),
 provider-app screens/radiology/RadiologyDashboard.tsx (OrderDetailScreen, ReportingScreen) and api/provider.ts uploadFile."""
 import base64
 import uuid
@@ -84,8 +84,19 @@ def run(pat, center, other_center=None, admin=None):
     step('report attached (draft)', r.ok and r.get('state') == 'REPORT_DRAFT', r)
     r = center.post(f'/radiology/bookings/{bid}/submit-report-for-review', {})
     step('sent for radiologist review', r.ok and r.get('state') == 'UNDER_REVIEW', r)
-    r = center.post(f'/radiology/bookings/{bid}/approve-report', {})
-    step('approved and published', r.ok and r.get('state') == 'REPORT_READY', r)
+    # PV-19: the screens must know who may approve, so the uploader is not shown a button that is refused (audit-3 gap 16)
+    r = center.get(f'/radiology/bookings/{bid}')
+    step('the uploader\'s booking says it handled the report and cannot approve it (report_handled_by_me, report_can_approve=false)',
+         r.ok and r.get('report_handled_by_me') is True and r.get('report_can_approve') is False, {k: r.get(k) for k in ('report_handled_by_me', 'report_can_approve')})
+    r = center.get('/radiology/provider/inbox')
+    row = next((b for b in r.items() if b.get('id') == bid), {})
+    step('and so does the center\'s inbox row', row.get('report_can_approve') is False, {k: row.get(k) for k in ('report_handled_by_me', 'report_can_approve')})
+    if admin:
+        # two people: the user who uploaded and sent the report cannot publish it; the admin (a second person) does
+        r = center.post(f'/radiology/bookings/{bid}/approve-report', {})
+        step('the uploader cannot publish the report', r.status == 403 and 'report_reviewer_must_differ_from_uploader' in str(r.body), r)
+    r = (admin or center).post(f'/radiology/bookings/{bid}/approve-report', {})
+    step('approved and published by a second person', r.ok and r.get('state') == 'REPORT_READY', r)
 
     journey('radiology: the patient receives the report')
     r = pat.get('/radiology/reports/mine')
@@ -114,7 +125,7 @@ def run(pat, center, other_center=None, admin=None):
 
     journey('radiology matrix: insurance (request -> decide -> copay -> CONFIRMED)')
     import j_insurance
-    j_insurance.add_policy(pat, j_insurance.admin_adds_company(admin) if admin else None)
+    j_insurance.add_policy(pat, j_insurance.admin_adds_company(admin) if admin else None, providers=[center])
     rb = pat.post('/radiology/bookings', {'service_id': scans[0]['id'], 'scheduled_at': tomorrow_at(14),
                                           'location_type': 'facility', 'payment_method': 'insurance', 'provider_account_id': center_id})
     rid_bid = rb.get('id')

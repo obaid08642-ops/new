@@ -6,7 +6,8 @@ const build = (insurance: any) => {
   const booking: any = { id: 'b1', state: 'PROVIDER_ASSIGNED', toObject() { return { id: this.id, state: this.state }; } };
   const svcModel: any = {
     findOne: async () => ({ id: 'svc1', price: 120, duration: 60, name_ar: 'خدمة', name_en: 'Service' }),
-    db: { collection: () => ({ findOne: async () => ({ id: 'nurse-1' }) }) },
+    // findOne: the booked nurse; find: the offers reader (common/service-offers) - the nurse has no price of her own here, so the catalogue price (120) is charged
+    db: { collection: () => ({ findOne: async () => ({ id: 'nurse-1' }), find: () => ({ toArray: async () => [] }) }) },
   };
   const bkgModel: any = { findOne: () => ({ lean: async () => null }), create: jest.fn(async () => booking), updateOne: jest.fn(async () => undefined) };
   const engine: any = { announceCreated: jest.fn(async () => undefined) };
@@ -15,7 +16,7 @@ const build = (insurance: any) => {
 };
 
 const data = (payment_method: string) => ({
-  service_id: 'svc1', provider_id: 'nurse-1', payment_method,
+  service_id: 'svc1', provider_id: 'nurse-1', payment_method, refund_policy_accepted: true,
   scheduled_at: new Date(Date.now() + 86_400_000).toISOString(), address: { city: 'Riyadh' },
 });
 const patient = { id: 'pat-1', role: 'patient', full_name: 'Patient' };

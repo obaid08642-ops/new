@@ -1,21 +1,24 @@
 import type { Metadata } from "next";
+import { pickName } from "@/lib/i18n/localized";
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { nurseFilterCount } from "@/lib/diagnostics-filter-count";
 import { extractHomeCareService, parseHomeCareServiceId } from "@/lib/api/home-care-services";
 import { getPatientHomeCareService } from "@/lib/api/home-care-services-server";
-import { getPatientAddresses } from "@/lib/api/addresses-server";
 import { callPatientApi } from "@/lib/api/upstream";
 import { requirePatientAccess } from "@/lib/auth/session";
-import { formatAddressLine, hasLocation, parseDeliveryAddresses } from "@/lib/pharmacy/delivery-address";
-import { isLocale } from "@/lib/i18n";
+import { getDirection, isLocale } from "@/lib/i18n";
+import { NURSE_NATIONALITIES, nurseAvailableOf, nurseGenderOf, nurseNationalityOf, nurseSortOf, parseNurses, type NurseGender, type NurseNationality, type NurseSort } from "@/lib/nursing/nurse";
+import { servicePayFlow } from "@/lib/nursing/pay-flow";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
-import { Hero } from "@/components-next/consult/consult-parts";
-import { NURSING, serviceIcon } from "@/components-next/nursing/nursing-parts";
+import { Hero, Notice, RowCard } from "@/components-next/consult/consult-parts";
+import { Caret, NURSING, NurseFacts, RowList, serviceIcon } from "@/components-next/nursing/nursing-parts";
 import { money, pickText } from "@/components-next/diagnostics/diag-parts";
-import { HomeCareBookingForm, type BookableNurse } from "@/components-next/home-care-booking-form";
+import consult from "@/components-next/consult/consult.module.css";
 
-type Props = { params: Promise<{ locale: string; serviceId: string }> };
+type Props = { params: Promise<{ locale: string; serviceId: string }>; searchParams?: Promise<{ sort?: string; gender?: string; pay?: string; availability?: string; nationality?: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
@@ -24,53 +27,108 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: t("bookTitle"), robots: { index: false, follow: false } };
 }
 
-type NurseRow = { id?: unknown; name_ar?: unknown; name_en?: unknown; name?: unknown; facility_name?: unknown; years_experience?: unknown };
-const str = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : null);
-
-/** The approved nurses who offer this service (GET /home-care/providers?type=<service>): `id` is the nurse's account id, which the booking and the slots use. */
-function nursesFrom(payload: unknown, locale: string): BookableNurse[] {
-  const rows = Array.isArray(payload) ? payload : Array.isArray((payload as { data?: unknown } | null)?.data) ? (payload as { data: unknown[] }).data : [];
-  return rows.flatMap((row) => {
-    const n = row as NurseRow;
-    const id = str(n?.id);
-    const name = pickText(locale, str(n?.name_ar) ?? str(n?.name) ?? undefined, str(n?.name_en) ?? undefined);
-    if (!id || !name || !/^[A-Za-z0-9-]{1,64}$/.test(id)) return [];
-    return [{ id, name, detail: str(n.facility_name) ?? undefined }];
-  }).slice(0, 50);
-}
-
-/** journeys#60 (issue 1069): book a home nursing service on the website: nurse, day and free time, saved address, card or insurance. */
-export default async function HomeCareBookPage({ params }: Props) {
+/**
+ * The nurses who give a service (the app's service-details): a card each with facility, rating, years, availability and the price, a sort and a
+ * gender filter, the prescription notice for services that need one, and "Select", which opens the nurse's page where the day, time, address and payment are chosen.
+ */
+export default async function HomeCareBookPage({ params, searchParams }: Props) {
   const { locale, serviceId } = await params;
   if (!isLocale(locale) || !parseHomeCareServiceId(serviceId).success) notFound();
   setRequestLocale(locale);
+  const query = (await searchParams) ?? {};
+  const sort: NurseSort = nurseSortOf(query.sort);
+  const gender: NurseGender = nurseGenderOf(query.gender);
+  const availableNow = nurseAvailableOf(query.availability);
+  const nationality: NurseNationality = nurseNationalityOf(query.nationality);
+  const pay = servicePayFlow(query.pay);
   const t = await getTranslations("NursingWeb");
   const token = await requirePatientAccess(locale);
   const back = `/${locale}/home-care/services/${encodeURIComponent(serviceId)}`;
-  const [serviceRes, nursesRes, addressRes] = await Promise.all([
+  const params2 = new URLSearchParams({ type: serviceId });
+  if (sort !== "any") params2.set("sort", sort);
+  if (gender !== "any") params2.set("gender", gender);
+  if (availableNow) params2.set("available", "true");
+  if (nationality !== "any") params2.set("nationality", nationality);
+  const [serviceRes, nursesRes] = await Promise.all([
     getPatientHomeCareService(serviceId, token),
-    callPatientApi(`/home-care/providers?type=${encodeURIComponent(serviceId)}`, { cache: "no-store" }, token),
-    getPatientAddresses(token),
+    callPatientApi(`/home-care/providers?${params2.toString()}`, { cache: "no-store" }, token),
   ]);
-  if (serviceRes.status === 401 || addressRes.status === 401) redirect(`/${locale}/login`);
+  if (serviceRes.status === 401) redirect(`/${locale}/login`);
   if (serviceRes.status === 403 || serviceRes.status === 404) notFound();
   const service = serviceRes.ok ? extractHomeCareService(await serviceRes.json().catch(() => null)) : null;
-  if (!service || !nursesRes.ok || !addressRes.ok) {
+  if (!service || !nursesRes.ok) {
     return (
       <ConsultPage locale={locale} title={t("bookTitle")} backHref={back}>
         <ConsultState kind="error" title={t("serviceUnavailableTitle")} body={t("serviceUnavailableBody")} retryLabel={t("retry")} actionLabel={t("back")} actionHref={back} />
       </ConsultPage>
     );
   }
-  const nurses = nursesFrom(await nursesRes.json().catch(() => null), locale);
-  const located = parseDeliveryAddresses(await addressRes.json().catch(() => null)).filter(hasLocation);
-  located.sort((a, b) => Number(b.isDefault) - Number(a.isDefault));
-  const addresses = located.map((a) => ({ id: a.id, label: [a.label, formatAddressLine(a, locale)].filter(Boolean).join(" · ") || a.id }));
-  const name = pickText(locale, service.nameAr, service.nameEn) ?? t("serviceTitle");
+  const nurses = parseNurses(await nursesRes.json().catch(() => null));
+  const name = pickName(locale, service.names) ?? t("serviceTitle");
+  const caret = <Caret rtl={getDirection(locale) === "rtl"} />;
+  const href = (over: Partial<{ sort: NurseSort; gender: NurseGender; availableNow: boolean; nationality: NurseNationality }>) => {
+    const next = { sort, gender, availableNow, nationality, ...over };
+    const qs = new URLSearchParams({ ...(next.sort !== "any" ? { sort: next.sort } : {}), ...(next.gender !== "any" ? { gender: next.gender } : {}), ...(next.availableNow ? { availability: "now" } : {}), ...(next.nationality !== "any" ? { nationality: next.nationality } : {}), ...(pay === "insurance" ? { pay: "insurance" } : {}) }).toString();
+    return `/${locale}/home-care/services/${encodeURIComponent(serviceId)}/book${qs ? `?${qs}` : ""}`;
+  };
+  const profileHref = (id: string) => `/${locale}/nursing/nurses/${encodeURIComponent(id)}?${new URLSearchParams({ serviceId, ...(pay === "insurance" ? { pay: "insurance" } : {}) }).toString()}`;
+  const number = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
+  const filterCount = nurseFilterCount({ sort, gender, availableNow, nationality });
   return (
     <ConsultPage locale={locale} title={t("bookTitle")} backHref={back}>
       <Hero icon={serviceIcon(service.nameAr, service.nameEn)} tone={NURSING.tone} title={name} sub={service.price !== undefined ? money(locale, service.price) : t("eyebrow")} />
-      <HomeCareBookingForm locale={locale} serviceId={serviceId} nurses={nurses} addresses={addresses} insurance={Boolean(service.insuranceAvailable)} />
+      {/* Injections and drips need a prescription the nurse can see (the catalogue says which services do); an unknown answer asks for it too, as the app does. */}
+      {service.requiresPrescription !== false ? <Notice warn>{t("rxNotice")}</Notice> : null}
+      {filterCount > 0 ? (
+        <div className={consult.segLinks} role="group" aria-label={t("filtersOn", { count: filterCount })}>
+          <span>{t("filtersOn", { count: filterCount })}</span>
+          <Link href={href({ sort: "any", gender: "any", availableNow: false, nationality: "any" })} replace className={consult.activeFilterClear}>{t("resetFilters")}</Link>
+        </div>
+      ) : null}
+      <nav className={consult.segLinks} aria-label={t("sortTitle")}>
+        <Link href={href({ sort: "any" })} replace aria-current={sort === "any" ? "page" : undefined}>{t("sortAny")}</Link>
+        <Link href={href({ sort: "rating" })} replace aria-current={sort === "rating" ? "page" : undefined}>{t("sortRating")}</Link>
+      </nav>
+      <nav className={consult.segLinks} aria-label={t("filterGender")}>
+        {(["any", "female", "male"] as const).map((value) => (
+          <Link key={value} href={href({ gender: value })} replace aria-current={gender === value ? "page" : undefined}>{t(`gender_${value}`)}</Link>
+        ))}
+      </nav>
+      <nav className={consult.segLinks} aria-label={t("filterAvailability")}>
+        <Link href={href({ availableNow: false })} replace aria-current={!availableNow ? "page" : undefined}>{t("gender_any")}</Link>
+        <Link href={href({ availableNow: true })} replace aria-current={availableNow ? "page" : undefined}>{t("availableNow")}</Link>
+      </nav>
+      <nav className={consult.segLinks} aria-label={t("filterNationality")}>
+        {(["any", ...NURSE_NATIONALITIES] as const).map((value) => (
+          <Link key={value} href={href({ nationality: value })} replace aria-current={nationality === value ? "page" : undefined}>{t(`nationality_${value}`)}</Link>
+        ))}
+      </nav>
+      {nurses.length === 0 ? (
+        <ConsultState kind="empty" icon="user-circle" tone={NURSING.tone} title={t("noNurses")} />
+      ) : (
+        <RowList label={t("chooseNurse")}>
+          {nurses.map((nurse) => {
+            const facts = [
+              nurse.rating !== undefined ? t("ratingLine", { rating: number.format(nurse.rating), count: number.format(nurse.reviewCount ?? 0) }) : "",
+              nurse.years !== undefined ? t("yearsLine", { count: nurse.years }) : "",
+              nurse.price !== undefined ? money(locale, nurse.price) : t("priceAtBooking"),
+            ].filter(Boolean);
+            return (
+              <li key={nurse.id}>
+                <RowCard
+                  href={profileHref(nurse.id)}
+                  icon="user-circle"
+                  tone={NURSING.tone}
+                  title={pickText(locale, nurse.nameAr, nurse.nameEn) ?? ""}
+                  sub={nurse.facility}
+                  extra={<NurseFacts facts={facts} available={nurse.availableNow === undefined ? undefined : { label: nurse.availableNow ? t("availableNow") : t("notNow"), good: nurse.availableNow }} />}
+                  caret={caret}
+                />
+              </li>
+            );
+          })}
+        </RowList>
+      )}
     </ConsultPage>
   );
 }

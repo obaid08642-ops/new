@@ -1,7 +1,9 @@
 import { Module, Controller, Get, Post, Put, Param, Query, Body, UseGuards, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { JwtAuthGuard, Roles } from '../../../common/auth.guard';
+import { CurrentUser, JwtAuthGuard, Roles } from '../../../common/auth.guard';
+import { MIN_FINANCIAL_REASON_LENGTH, validateReason } from '../../../common/rbac';
+import { recordAudit } from '../../../common/audit-record';
 import { UserRole, ServiceState } from '../../../common/enums';
 import { Order, OrderDocument, OrderSchema } from '../../../schemas/order.schema';
 import { LabBookingSchema, LabBooking } from '../../../schemas/lab.schema';
@@ -16,6 +18,8 @@ import { B2BRequestSchema } from '../../../schemas/b2b-request.schema';
 import { B2BController } from './b2b.controller';
 import { SystemConfigController, PublicSystemConfigController } from './system-config.controller';
 import { UpdateDto } from './admin-governance.dto';
+import { CommissionResolver } from '../../finance-engine/finance-engine.module';
+import { commissionServiceTypeOf } from '../../../common/commission-defaults';
 
 /**
  * Admin Governance — ALL queries derive from the universal lifecycle.
@@ -269,9 +273,17 @@ export class CommissionsController {
     const since = new Date(Date.now() - 30 * 86400000);
     const out = [];
     for (const p of list) {
-      const fallback = p.commission_rate !== undefined ? p.commission_rate : (p.type === 'pharmacy' ? 5 : p.type === 'lab' ? 8 : p.type === 'radiology' ? 10 : p.type === 'home_care' ? 15 : 10);
-      const cashPct = p.commission_cash_pct !== undefined && p.commission_cash_pct !== null ? Number(p.commission_cash_pct) : fallback;
-      const insPct = p.commission_insurance_pct !== undefined && p.commission_insurance_pct !== null ? Number(p.commission_insurance_pct) : fallback;
+      // what the settlement charges this provider's earning right now: its running promotion, its own commission, the type default
+      // (CommissionResolver, the same call the settlement makes). `commission_rate` is not read: it carries a schema default for every provider.
+      const resolver = new CommissionResolver(this.profiles.db);
+      const service = commissionServiceTypeOf(p.type);
+      const [cashRes, insRes] = await Promise.all([
+        resolver.resolve(service, { providerId: p.account_id, paymentMethod: 'cash' }),
+        resolver.resolve(service, { providerId: p.account_id, paymentMethod: 'insurance' }),
+      ]);
+      const fallback = cashRes.percent;
+      const cashPct = cashRes.percent;
+      const insPct = insRes.percent;
       const split = (rows: any[], amt: (r: any) => number) => {
         let cash = 0, ins = 0;
         for (const r of rows) {
@@ -308,6 +320,7 @@ export class CommissionsController {
         commission: fallback,
         commission_cash_pct: cashPct,
         commission_insurance_pct: insPct,
+        commission_source: cashRes.source,
         revenue,
         revenue_cash,
         revenue_insurance,
@@ -322,13 +335,23 @@ export class CommissionsController {
 
   @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   @Put(':id')
-  async update(@Param('id') id: string, @Body() body: UpdateDto) {
+  async update(@Param('id') id: string, @Body() body: UpdateDto, @CurrentUser() user: any) {
     const set: any = {};
-    if (body?.commission !== undefined) set.commission_rate = Number(body.commission);
-    if (body?.commission_cash !== undefined) { set.commission_cash_pct = Math.min(100, Math.max(0, Number(body.commission_cash))); set.commission_rate = set.commission_cash_pct; }
-    if (body?.commission_insurance !== undefined) set.commission_insurance_pct = Math.min(100, Math.max(0, Number(body.commission_insurance)));
+    // `commission` alone is the provider's one figure: it sets cash and insured visits (it used to write only `commission_rate`, which the
+    // settlement never read). `commission_cash` / `commission_insurance` set one side.
+    const clamp = (v: unknown) => Math.min(100, Math.max(0, Number(v)));
+    if (body?.commission !== undefined) { set.commission_cash_pct = clamp(body.commission); set.commission_insurance_pct = set.commission_cash_pct; set.commission_rate = set.commission_cash_pct; }
+    if (body?.commission_cash !== undefined) { set.commission_cash_pct = clamp(body.commission_cash); set.commission_rate = set.commission_cash_pct; }
+    if (body?.commission_insurance !== undefined) set.commission_insurance_pct = clamp(body.commission_insurance);
     if (!Object.keys(set).length) throw new NotFoundException('nothing_to_update');
+    const reason = validateReason(body?.reason, MIN_FINANCIAL_REASON_LENGTH);
+    const before: any = await this.profiles.findOne({ account_id: id }, { commission_cash_pct: 1, commission_insurance_pct: 1 }).lean();
+    if (!before) throw new NotFoundException('provider_not_found');
     await this.profiles.updateOne({ account_id: id }, { $set: set });
+    await recordAudit(this.profiles.db, {
+      action: 'provider_commission_override_set', user_id: user?.id, role: user?.role, resource_kind: 'provider_commission', resource_id: id, reason, severity: 'warn',
+      changes: { before: { cash: before.commission_cash_pct ?? null, insurance: before.commission_insurance_pct ?? null }, after: { cash: set.commission_cash_pct ?? before.commission_cash_pct ?? null, insurance: set.commission_insurance_pct ?? before.commission_insurance_pct ?? null } },
+    });
     return { success: true };
   }
 }

@@ -161,6 +161,23 @@ export function sharedCacheControl(value) {
 }
 
 /**
+ * Cache-Tag of a shared page (2026-10-27), so a purge by tag (PurgeBus: `medicines` on a catalogue, price or stock change, `doctors` on a
+ * doctor change) reaches the HTML held at the edge as well as the API answers. Cloudflare reads the header and does not pass it on.
+ * Product and catalogue pages hold catalogue data, the doctor pages doctor data, the home page both; `html` tags every shared page.
+ */
+export function htmlCacheTags(pathname) {
+  const path = String(pathname || "").split("?")[0];
+  const m = /^\/(?:ar|en|ur|hi|bn|fil)(\/.*)?$/.exec(path);
+  const rest = m ? (m[1] || "") : "";
+  const tags = ["html"];
+  if (rest === "" || rest === "/") tags.push("medicines", "doctors", "articles");
+  else if (/^\/(?:p|c)(?:\/|$)/.test(rest)) tags.push("medicines");
+  else if (/^\/(?:doctor|doctors)(?:\/|$)/.test(rest) || /^\/consultations\/doctors\/?$/.test(rest)) tags.push("doctors");
+  else if (/^\/articles(?:\/|$)/.test(rest)) tags.push("articles");
+  return tags.join(", ");
+}
+
+/**
  * Owner decision 2026-10-16: a guest's copy of a public page that a shared cache keeps carries NO nonce (a nonce must never
  * be shared or reused). It goes out with a hash-based policy computed from the exact bytes of this copy (hashedPage,
  * policyWithHashes in nonce-transform.mjs): the sha256 of every inline script + 'strict-dynamic', no 'unsafe-inline'. The
@@ -194,6 +211,7 @@ function sendShared(req, res, up, status, encoding) {
     delete out["set-cookie"];
     delete out["content-length"];
     delete out.etag;
+    out["cache-tag"] = htmlCacheTags(req.url);
     openBody(req, res, status, out, encoding).end(page.html);
   });
 }

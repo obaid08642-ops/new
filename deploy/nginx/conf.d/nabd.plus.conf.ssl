@@ -35,15 +35,25 @@ server {
   add_header Referrer-Policy strict-origin-when-cross-origin always;
 
   # Deep links: Android App Links + Apple Universal Links
+  # 16.4: RFC 9116 security contact
+  location = /.well-known/security.txt {
+    default_type text/plain;
+    alias /usr/share/nginx/well-known/security.txt;
+    add_header Cache-Control "public, max-age=3600";
+    include /etc/nginx/snippets/security-headers.conf;
+  }
+
   location = /.well-known/assetlinks.json {
     default_type application/json;
     alias /usr/share/nginx/well-known/assetlinks.json;
     add_header Cache-Control "public, max-age=3600";
+    include /etc/nginx/snippets/security-headers.conf;
   }
   location = /.well-known/apple-app-site-association {
     default_type application/json;
     alias /usr/share/nginx/well-known/apple-app-site-association;
     add_header Cache-Control "public, max-age=3600";
+    include /etc/nginx/snippets/security-headers.conf;
   }
 
   # Socket.IO — websocket upgrade, long timeouts
@@ -141,11 +151,13 @@ server {
 
   root /usr/share/nginx/provider;
   index index.html;
+  include /etc/nginx/snippets/security-headers.conf;
 
   location / {
     try_files $uri $uri/ /index.html;
     expires 1h;
     add_header Cache-Control "public";
+    include /etc/nginx/snippets/security-headers.conf;
   }
 }
 

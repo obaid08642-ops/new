@@ -40,8 +40,8 @@ export class MedicalReportsController {
   }
 
   @Get('mine')
-  mine(@CurrentUser() user: any, @Query('type') type?: string, @Query('q') q?: string, @Query('limit') limit?: string) {
-    return this.svc.list(user, { type, q, limit: limit ? parseInt(limit, 10) : undefined });
+  mine(@CurrentUser() user: any, @Query('type') type?: string, @Query('q') q?: string, @Query('limit') limit?: string, @Query('appointment_id') appointmentId?: unknown) {
+    return this.svc.list(user, { type, q, limit: limit ? parseInt(limit, 10) : undefined, appointment_id: typeof appointmentId === 'string' ? appointmentId : undefined });
   }
 
   @Get('track/:trackingId')

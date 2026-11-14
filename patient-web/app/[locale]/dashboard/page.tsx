@@ -3,14 +3,17 @@ import { redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { authCookieNames } from "@/lib/auth/cookies";
 import { getPatientDashboardProfile, getPatientDashboardUpcomingAppointment } from "@/lib/api/dashboard-server";
+import { callPatientApi } from "@/lib/api/upstream";
+import { parseAccount } from "@/lib/loyalty/view";
 import { parseDashboardAppointment, parseDashboardProfile } from "@/lib/api/dashboard";
+import { parseRecordRows, parseReminderCard } from "@/lib/api/dashboard-extras";
 import { isOutage } from "@/lib/api/outage";
-import { getDisabledModules } from "@/lib/api/public-config-server";
+import { getDisabledModules, readHomeContent, selectHomeSections } from "@/lib/api/public-config-server";
 import { isPathHidden } from "@/lib/modules";
 import { isLocale } from "@/lib/i18n";
 import { RetryErrorState } from "@/components-next/core/core-states";
 import { HomeShell } from "@/components-next/home/home-shell";
-import { AiCard, AllServices, AppointmentCard, HeroCard, ServiceGrid } from "@/components-next/home/home-parts";
+import { AiCard, AllServices, CuratedSections, PointsCard, AppointmentCard, HeroCard, RecordsCard, ReminderCard, ServiceGrid } from "@/components-next/home/home-parts";
 import styles from "@/components-next/home/home.module.css";
 
 /** The greeting follows the hour in the service's time zone (Riyadh), as the board's "مساء الخير". */
@@ -53,6 +56,28 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
   const appointment = appointmentResult.status === "fulfilled" && appointmentResult.value.ok
     ? parseDashboardAppointment(await appointmentResult.value.json().catch(() => null))
     : null;
+  // The curated offers and packages are optional: a failed read hides the section, it never fails the dashboard.
+  const homeSections = selectHomeSections((await readHomeContent().catch(() => null))?.data ?? null);
+  // The points card shows a number only when the API returned one.
+  const loyalty = isPathHidden(`/${locale}/loyalty`, disabled) ? null : await callPatientApi("/loyalty/account", {}, token).catch(() => null);
+  const points = loyalty?.ok ? parseAccount(await loyalty.json().catch(() => null)).points : null;
+  // The reminder card and the records rows are optional parts of the page, as in the app: a failed or forbidden read leaves
+  // that part out, it never fails the dashboard and never shows a made-up value.
+  const optionalJson = async (path: string, module: string): Promise<unknown | null> => {
+    if (isPathHidden(`/${locale}/${module}`, disabled)) return null;
+    const res = await callPatientApi(path, {}, token).catch(() => null);
+    return res?.ok ? await res.json().catch(() => null) : null;
+  };
+  const [remindersPayload, nutritionPayload, vitalsPayload, moodPayload, maternityPayload] = await Promise.all([
+    optionalJson("/health/reminders", "health"),
+    optionalJson("/nutrition/daily-summary", "nutrition"),
+    optionalJson("/health/vitals/summary", "health"),
+    optionalJson("/mental-health/mood?days=1", "mental-health"),
+    optionalJson("/maternity/profile", "maternity"),
+  ]);
+  const reminderCard = remindersPayload === null ? null : parseReminderCard(remindersPayload);
+  const recordRows = parseRecordRows({ nutrition: nutritionPayload, vitals: vitalsPayload, mood: moodPayload, maternity: maternityPayload });
+  const hub = await getTranslations({ locale, namespace: "LoyaltyHubWeb" });
   const showAppointment = Boolean(appointment) && !isPathHidden(`/${locale}/appointments`, disabled);
   return (
     <HomeShell locale={locale} signedIn name={profile.name} surface="dashboard">
@@ -71,8 +96,12 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
             </div>
           ) : null}
         </div>
+        {reminderCard ? <ReminderCard locale={locale} t={t} card={reminderCard} /> : null}
         <ServiceGrid locale={locale} t={t} signedIn disabled={disabled} />
+        <RecordsCard locale={locale} t={t} rows={recordRows} disabled={disabled} />
+        <CuratedSections sections={homeSections} locale={locale} t={t} disabled={disabled} />
         <AiCard locale={locale} t={t} disabled={disabled} />
+        {points !== null ? <PointsCard locale={locale} label={dashboard("loyalty")} value={hub("pointsAmount", { points: new Intl.NumberFormat(locale).format(points) })} /> : null}
         <AllServices locale={locale} t={t} labels={dashboard} disabled={disabled} />
       </div>
     </HomeShell>

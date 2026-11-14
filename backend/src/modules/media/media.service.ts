@@ -1,5 +1,6 @@
 import { Injectable, Logger, BadRequestException, ServiceUnavailableException } from '@nestjs/common';
-import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, CopyObjectCommand } from '@aws-sdk/client-s3';
+import { FilePendingScanException, isPendingKey } from '../storage/pending-scan';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uuid } from 'uuid';
 
@@ -57,6 +58,8 @@ export class MediaService {
   }
 
   async generatePresignedDownloadUrl(key: string, expiresIn = 15 * 60): Promise<string> {
+    // every download link of a media file is made here: a file still waiting for its virus scan has no link, for anyone
+    if (isPendingKey(key)) throw new FilePendingScanException();
     this.assertConfigured();
     try {
       return await getSignedUrl(this.s3Client, new GetObjectCommand({ Bucket: this.bucketName, Key: key }), { expiresIn });
@@ -79,5 +82,20 @@ export class MediaService {
       this.logger.error(`Failed to delete file from R2: ${error.message}`, error.stack);
       throw new BadRequestException(`File deletion failed: ${error.message}`);
     }
+  }
+
+  /** The bytes of one object (the scan worker reads a quarantined file with this). */
+  async getObjectBuffer(key: string): Promise<Buffer> {
+    this.assertConfigured();
+    const res: any = await this.s3Client.send(new GetObjectCommand({ Bucket: this.bucketName, Key: key }));
+    const chunks: Buffer[] = [];
+    for await (const part of res.Body as AsyncIterable<Uint8Array>) chunks.push(Buffer.from(part));
+    return Buffer.concat(chunks);
+  }
+
+  /** Copies one object inside the bucket (a file that passed its scan moves from `pending/…` to its final key). */
+  async copyObject(fromKey: string, toKey: string): Promise<void> {
+    this.assertConfigured();
+    await this.s3Client.send(new CopyObjectCommand({ Bucket: this.bucketName, CopySource: `${this.bucketName}/${encodeURIComponent(fromKey).replace(/%2F/g, '/')}`, Key: toKey }));
   }
 }

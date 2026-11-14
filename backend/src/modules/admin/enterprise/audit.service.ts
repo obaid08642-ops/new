@@ -1,3 +1,4 @@
+import { appendAdminAudit, verifyAdminAuditChain } from '../../../common/admin-audit-chain';
 import { Injectable, Logger, Optional } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -52,7 +53,7 @@ export class AdminAuditService {
       createdAt: new Date(),
     };
     try {
-      await this.conn.collection('admin_actions_log').insertOne(doc as any);
+      await appendAdminAudit(this.conn, doc);
     } catch (e: any) {
       // Auditing must never break the business action — but it MUST be loud.
       this.logger.error(`audit_write_failed action=${entry.action} err=${e?.message}`);
@@ -72,6 +73,9 @@ export class AdminAuditService {
       /* event bus optional */
     }
   }
+
+  /** R13: is the hash chain of the audit log intact? */
+  verifyChain() { return verifyAdminAuditChain(this.conn); }
 
   /** Server-side paginated/sorted/filterable audit query for the UI. */
   async list(filter: { action?: string; admin_id?: string; target_type?: string; target_id?: string; from?: string; to?: string }, page = 1, limit = 50) {

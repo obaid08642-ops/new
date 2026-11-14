@@ -1,3 +1,13 @@
+import { stampAcceptance } from '../../common/refund-policy-stamp';
+import { refundPolicyAcceptance } from '../../common/refund-policy-acceptance';
+import { UseInterceptors } from '@nestjs/common';
+import { assertPaymentMethod } from '../../common/payment-policy';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
+import { loadOffers, withOfferSummary, withOffers } from '../../common/service-offers';
+import { SearchModule } from '../search/search.controller';
+import { SearchService } from '../search/search.service';
+import { NURSING_TYPES, byRelevance, matchedIds } from '../search/catalogue-search';
+import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
 import { PROVIDER_ROLES } from '../../common/enums';
 /**
  * M2 — Home-care compatibility layer + nursing ops reference data + chat aliases.
@@ -19,11 +29,15 @@ import { ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { UserRole } from '../../common/enums';
 import { CreateBookingDto, RespondDto, AssignDto, CheckInDto, GpsDto, VisitReportDto, CreateCarePlanDto, SetAvailabilityDto, InventoryRequestDto, PostMessageDto, PostLegacyDto, ProviderSendDto } from './home-care-compat.dto';
 
+import { nurseFilterClauses, nearestOrigin, distanceKmTo, caseInsensitiveEq } from './nurse-list-filters';
+import { NAME_PROJECTION, withServiceNames } from '../../common/booking-names';
+
 const ACTIVE_STATES = ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE', 'ARRIVED', 'CARE_STARTED'];
 
 const NURSE_TYPES = ['home_care', 'nursing', 'nurse'];
 
 @Controller('home-care')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 @UseGuards(JwtAuthGuard)
 export class HomeCareCompatController {
   constructor(
@@ -33,6 +47,7 @@ export class HomeCareCompatController {
     @InjectModel('CarePlan') private carePlans: Model<any>,
     @Optional() private readonly emitter?: EventEmitter2,
     @Optional() @InjectConnection() private readonly conn?: Connection,
+    @Optional() private readonly searchEngine?: SearchService,
   ) {}
 
   /** Resolve a saved-address id to the caller's own address (never another patient's). */
@@ -45,18 +60,28 @@ export class HomeCareCompatController {
 
   // ---- Catalog ----
   @Public()
-  @Get('services') servicesList(@Query() q: any) {
+  @Get('services') async servicesList(@Query() q: any) {
     // Patients only see services that passed medical review (same rule as /nursing/catalog).
     const filter: any = { active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' };
     if (q?.category) filter.category = { $eq: String(q.category) };
-    return this.services.find(filter, { _id: 0, __v: 0 }).lean();
+    // `search` uses the home search's engine (typo tolerance, ar/en synonyms); without a match it is a plain name match
+    const text = String(q?.search ?? '').trim().slice(0, 100);
+    const matched = text ? await matchedIds(this.searchEngine, text, NURSING_TYPES) : null;
+    if (text) {
+      if (matched) filter.id = { $in: matched };
+      else { const re = new RegExp(text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'); filter.$or = [{ name_ar: re }, { name_en: re }]; }
+    }
+    const found: any[] = await this.services.find(filter, { _id: 0, __v: 0 }).sort(catalogueSortSpec(q?.sort)).lean();
+    const rows: any[] = matched ? byRelevance(found, matched) : found;
+    // 2026-10-28: every catalogue service carries what nurses offer for it (providers_count, from_price, where, insurance); `insurance=1` keeps those some nurse offers with insurance.
+    return withOfferSummary(this.services.db as never, 'nursing', rows, { insurance: q?.insurance === '1' || q?.insurance === 'true' });
   }
 
   @Public()
   @Get('services/:id') async serviceOne(@Param('id') id: string) {
     const svc = await this.services.findOne({ id, ...{ active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' } }, { _id: 0, __v: 0 }).lean();
     if (!svc) throw new NotFoundException('service not found');
-    return svc;
+    return withOffers(this.services.db as never, 'nursing', svc as any);
   }
 
   @Public()
@@ -73,20 +98,28 @@ export class HomeCareCompatController {
     const svc: any = serviceId ? await this.services.findOne({ id: { $eq: String(serviceId) } }).lean() : null;
     if (serviceId) filter['nursing_services.key'] = { $eq: String(serviceId) };
     const gender = typeof q?.gender === 'string' ? q.gender : '';
-    if (gender && gender !== 'any') filter.gender = { $eq: gender };
+    if (gender && gender !== 'any') filter.gender = caseInsensitiveEq(gender.slice(0, 20));
+    Object.assign(filter, nurseFilterClauses(q));
     if (typeof q?.search === 'string' && q.search.trim()) {
       const rx = new RegExp(q.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
       filter.$or = [{ name_ar: rx }, { name_en: rx }, { full_name: rx }];
     }
-    const rows: any[] = await this.profiles.find(filter).limit(50).lean();
+    const origin = nearestOrigin(q);
+    // Nearest-first needs the whole candidate set (capped), then the closest 50; the other orders keep the first 50.
+    let rows: any[] = await this.profiles.find(filter).limit(origin ? 500 : 50).lean();
     const sort = String(q?.sort || '');
-    const list = rows.map((p) => this.nurseView(p, svc));
-    if (sort === 'rating') list.sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0));
+    // What each nurse offers for this service (their own choice, else what they registered): insurance per nurse, and the `insurance=1` filter (QA PS gaps 8 and 9).
+    const offered = svc ? new Map((await loadOffers(this.services.db as never, 'nursing', [svc])).get(svc.id)?.map((o) => [o.provider.id, o]) ?? []) : new Map<string, any>();
+    const wantInsurance = q?.insurance === '1' || q?.insurance === 'true';
+    if (wantInsurance) rows = svc ? rows.filter((p) => offered.get(p.account_id)?.insurance === true) : rows.filter((p) => (p.nursing_services || []).some((n: any) => n?.insurance === true));
+    const list = rows.map((p) => ({ ...this.nurseView(p, svc, offered.get(p.account_id)?.price), ...(svc ? { insurance: offered.get(p.account_id)?.insurance === true } : {}), ...(origin ? { distance_km: distanceKmTo(p, origin) } : {}) }));
+    if (origin) return list.sort((a: any, b: any) => (a.distance_km ?? Infinity) - (b.distance_km ?? Infinity)).slice(0, 50);
+    else if (sort === 'rating') list.sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0));
     return list;
   }
 
   /** The bookable nurse: `id` is the provider account id (bookings and the nurse's job queue key on it). */
-  private nurseView(p: any, svc?: any) {
+  private nurseView(p: any, svc?: any, ownPrice?: number | null) {
     return {
       id: p.account_id, profile_id: p.id,
       name_ar: p.name_ar || p.full_name || p.name_en, name: p.name_ar || p.full_name || p.name_en, name_en: p.name_en,
@@ -94,8 +127,8 @@ export class HomeCareCompatController {
       facility_name: p.facility_name || p.organization_name || '', facility: p.facility_name || p.organization_name || '',
       rating: p.rating_count > 0 ? p.rating_avg : null, reviews_count: p.rating_count || 0, reviews: [],
       years_experience: p.years_experience || null, profile_photo: p.profile_photo || null,
-      // the booking is charged at the catalog service price (home-care.service book())
-      price: svc ? Number(svc.price) : null, service_id: svc?.id || null,
+      // the nurse's own price for the service (her choice, else what she registered with), else the catalogue price; the booking is charged the same (HomeCareSvc.book)
+      price: svc ? (typeof ownPrice === 'number' && ownPrice > 0 ? ownPrice : Number(svc.price)) : null, service_id: svc?.id || null,
       available_now: Boolean(p.availability?.accepting ?? true),
       services: (p.nursing_services || []).map((x: any) => x.key),
     };
@@ -107,7 +140,8 @@ export class HomeCareCompatController {
     const p = await this.profiles.findOne({ $or: [{ account_id: { $eq: key } }, { id: { $eq: key } }], type: { $in: NURSE_TYPES }, status: 'active', public_eligibility: true }).lean();
     if (!p) throw new NotFoundException('provider not found');
     const svc: any = typeof serviceId === 'string' && serviceId ? await this.services.findOne({ id: { $eq: serviceId } }).lean() : null;
-    return this.nurseView(p, svc);
+    const mine = svc ? (await loadOffers(this.services.db as never, 'nursing', [svc])).get(svc.id)?.find((o) => o.provider.id === (p as any).account_id) : undefined;
+    return { ...this.nurseView(p, svc, mine?.price), ...(svc ? { insurance: mine?.insurance === true } : {}) };
   }
 
   // ---- Bookings ----
@@ -132,15 +166,16 @@ export class HomeCareCompatController {
     if (u?.role !== 'patient') throw new ForbiddenException('patient_only');
     if (!body?.service_id) throw new BadRequestException('service_id is required');
     if (!body?.scheduled_at) throw new BadRequestException('scheduled_at is required');
+    // owner decision 2026-11-09: the refund policy is agreed before the booking exists
+    const policyAcceptance = await stampAcceptance(this.conn, refundPolicyAcceptance(u, body.refund_policy_accepted), 'nursing', body.refund_policy_hash);
     // D-25: a home visit is paid by card or insurance, never cash (same rule as POST /nursing/bookings).
-    if (String(body.payment_method || '').trim().toLowerCase() === 'cash') {
-      throw new BadRequestException('payment_method_cash_not_allowed_for_home_visit');
-    }
+    if (String(body.payment_method || '').trim().toLowerCase() === 'cash') assertPaymentMethod('cash', 'home_visit');
     const svc: any = await this.services.findOne({ id: { $eq: body.service_id }, active: true }).lean();
     if (!svc) throw new NotFoundException('service not found');
     const address = body.address_id ? await this.savedAddress(u.id, body.address_id) : body.address;
     const doc = await this.bookings.create({
       patient_id: u.id,
+      ...(policyAcceptance ? { refund_policy_acceptance: policyAcceptance } : {}),
       service_id: svc?.id || body.service_id,
       service_name_ar: svc?.name_ar || body.service_name_ar,
       duration: svc.duration || 'hour',
@@ -160,9 +195,11 @@ export class HomeCareCompatController {
 
   @Header('Deprecation', 'true')
   @Header('Sunset', 'Sat, 01 Aug 2026 00:00:00 GMT')
-  @Get('bookings/my') myBookings(@CurrentUser() u: any, @Query() q: any) {
+  @Get('bookings/my') async myBookings(@CurrentUser() u: any, @Query() q: any) {
     const filter: any = u.role === 'patient' ? { patient_id: u.id } : { provider_id: u.id };
-    return this.bookings.find(filter, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean();
+    const rows: any[] = await this.bookings.find(filter, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean();
+    // Issue 1832: the patient's list carries `service_names` in the six languages (resolved from the catalogue by service_id, one query).
+    return u.role === 'patient' ? withServiceNames(rows, (ids) => this.services.find({ id: { $in: ids } }, NAME_PROJECTION).lean() as any) : rows;
   }
 
   // Provider app: GET /home-care/bookings/nursing/all
@@ -376,6 +413,7 @@ const NURSING_SUPPLIES: any[] = [
 ];
 
 @Controller('provider/nursing')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 @UseGuards(JwtAuthGuard)
 export class NursingOpsController {
   @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
@@ -448,6 +486,7 @@ export class ChatAliasController {
 @Module({
   imports: [
     ChatModule,
+    SearchModule,
     MongooseModule.forFeature([
       { name: 'HomeCareBooking', schema: HomeCareBookingSchema },
       { name: 'HomeCareService', schema: HomeCareServiceSchema },

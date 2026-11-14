@@ -1,0 +1,101 @@
+[
+  {
+    "batch": "differentiators-web",
+    "app": "patient-web",
+    "screen": "Doctors list and doctor page",
+    "element": "Guaranteed-appointment line (minutes and points)",
+    "file": "patient-web/lib/consult/late-guarantee.ts",
+    "line": 12,
+    "found": "[backend] No `late_guarantee` { minutes, points } (or any late-compensation setting) exists in GET /config on main or any origin/s/* branch; the web reads that assumed shape and hides the line without it.",
+    "suspect": "Backend session S must publish the setting under the agreed name, or tell the web the real field name.",
+    "review_status": "open"
+  },
+  {
+    "batch": "differentiators-web",
+    "app": "patient-web",
+    "screen": "Loyalty history",
+    "element": "Late-compensation entry label and icon",
+    "file": "patient-web/app/[locale]/loyalty/page.tsx",
+    "line": 24,
+    "found": "[backend] No late-credit reason code exists in the backend loyalty history; the web labels the assumed reason `late_compensation` (six locales, clock icon); other reasons keep the server text.",
+    "suspect": "Confirm the reason code the loyalty service writes for the late credit.",
+    "review_status": "open"
+  },
+  {
+    "batch": "differentiators-web",
+    "app": "patient-web",
+    "screen": "Notifications",
+    "element": "Late-compensation notification title and body",
+    "file": "patient-web/app/[locale]/notifications/page.tsx",
+    "line": 25,
+    "found": "[backend] No notification type for the late credit exists in the backend; the web treats type `late_compensation` as the credit and writes the title and body from the messages in six languages.",
+    "suspect": "Confirm the notification type name the backend sends.",
+    "review_status": "open"
+  },
+  {
+    "batch": "differentiators-web",
+    "app": "patient-web",
+    "screen": "Appointment detail",
+    "element": "One-tap follow-up buttons (order prescription, book labs, book scans)",
+    "file": "patient-web/app/[locale]/appointments/[appointmentId]/page.tsx",
+    "line": 99,
+    "found": "[client] follow_up_actions is read in the real shape of origin/s/follow-up-actions (not on main yet): pharmacy_order, lab_booking, radiology_booking; nothing shows until that branch merges. The ordering flow does not read the prefill the order route returns yet (existing note in the medical-orders route), so the lab/scan buttons land on the diagnostics flow as the medical-orders group button does.",
+    "suspect": "Merge s/follow-up-actions; the diagnostics flow should consume the prefill.",
+    "review_status": "open"
+  },
+  {
+    "batch": "differentiators-web",
+    "app": "patient-web",
+    "screen": "Public doctor page /doctor/[slug]",
+    "element": "Licence line (SCFHS number, verified badge)",
+    "file": "patient-web/app/[locale]/doctor/[slug]/page.tsx",
+    "line": 115,
+    "found": "[backend] The entity-graph doctor record (GET /entity-graph/related/doctor/:slug) has no licence number or verified flag; `license { number, authority, verified }` exists only on the GET /care/doctors payload (origin/s/doc-license-line, not on main). The licence line therefore shows on /consultations/doctors/[id] once that branch ships, and stays hidden here.",
+    "suspect": "Add `license` to the entity-graph doctor record, or point the public page at the care payload.",
+    "review_status": "open"
+  },
+  {
+    "batch": "differentiators-web",
+    "app": "patient-web",
+    "screen": "Booking (labs, radiology, nursing quote)",
+    "element": "Estimated patient share line",
+    "file": "patient-web/components-next/ordering/providers-client.tsx",
+    "line": 106,
+    "found": "[backend] `estimated_patient_share` (with copay_percent and copay_cap_sar on the policy) exists only on origin/s/ins-estimate, not on main; and only on the ordering quote best match, not on the doctor-consultation booking (booking-flow), which shows no insurance estimate.",
+    "suspect": "Merge s/ins-estimate; decide whether the consultation booking should return an estimate too.",
+    "review_status": "open"
+  },
+  {
+    "batch": "differentiators-web",
+    "app": "patient-web",
+    "screen": "Booking confirm",
+    "element": "Insurer / patient share lines still use the server rate estimate",
+    "file": "patient-web/components-next/ordering/confirm-client.tsx",
+    "line": 204,
+    "found": "[client] The confirm step still shows the rate-based estimated_insurance_share and patient_share, not the card-based estimate or the accepted-by-provider wording.",
+    "suspect": "Decide whether the confirm step should use the same wording as the provider step (left unchanged: scope is the provider step).",
+    "review_status": "open"
+  },
+  {
+    "batch": "differentiators-web",
+    "app": "patient-web",
+    "screen": "Insurance policy",
+    "element": "Edit policy (copay % and cap)",
+    "file": "patient-web/components-next/insurance/add-policy-form.tsx",
+    "line": 1,
+    "found": "[client] The web has only the add-policy form (save-policy replaces the policy); there is no separate edit screen, so the copay fields are on the add/replace form only. The saved copay values are not read back or shown on the policy detail (no field in the summary reader).",
+    "suspect": "Owner: add an edit screen / read the saved figures once the backend returns them on GET /users/me/insurance.",
+    "review_status": "open"
+  },
+  {
+    "batch": "differentiators-web",
+    "app": "patient-web",
+    "screen": "Doctors list",
+    "element": "Available-today sort",
+    "file": "patient-web/lib/api/doctors.ts",
+    "line": 16,
+    "found": "[backend] sort=available_today is accepted by GET /care/doctors only on origin/s/doc-sort-available (not on main); until it merges the server ignores the unknown sort and the list order is unchanged.",
+    "suspect": "Merge s/doc-sort-available.",
+    "review_status": "open"
+  }
+]

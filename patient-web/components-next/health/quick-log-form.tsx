@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import forms from "@/components-next/consult/consult.module.css";
 
@@ -20,9 +20,11 @@ export const QUICK_LOGS = {
     path: "/mental-health/mood",
     fields: [
       { name: "mood", kind: "choice", options: ["great", "good", "okay", "bad", "terrible"], required: true },
-      { name: "energy_level", kind: "number", min: 1, max: 5, integer: true },
-      { name: "stress_level", kind: "number", min: 1, max: 5, integer: true },
+      { name: "energy_level", kind: "scale", options: ["1", "2", "3", "4", "5"] },
+      { name: "stress_level", kind: "scale", options: ["1", "2", "3", "4", "5"] },
       { name: "sleep_hours", kind: "number", min: 0, max: 24 },
+      // the app's six tags (patient-app MentalHealthViews TAGS), sent as `tags` (backend LogMoodDto)
+      { name: "tags", kind: "multi", options: ["calm", "tired", "stressed", "connected", "rested", "overwhelmed"] },
       { name: "notes", kind: "text", maxLength: 500 },
     ],
   },
@@ -67,6 +69,13 @@ export function quickLogBody(kind: QuickLogKind, values: Record<string, string>)
     if (field.kind === "choice") {
       if (!field.options?.includes(value)) return { ok: false, field: field.name };
       body[field.name] = value;
+    } else if (field.kind === "scale") {
+      if (!field.options?.includes(value)) return { ok: false, field: field.name };
+      body[field.name] = Number(value);
+    } else if (field.kind === "multi") {
+      const picked = value.split(",").filter(Boolean);
+      if (picked.some((item) => !field.options?.includes(item))) return { ok: false, field: field.name };
+      if (picked.length) body[field.name] = [...new Set(picked)];
     } else if (field.kind === "text") {
       body[field.name] = value.slice(0, field.maxLength ?? 500);
     } else {
@@ -90,6 +99,7 @@ export function QuickLogForm({ kind }: { kind: QuickLogKind }) {
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const spec = QUICK_LOGS[kind];
+  const digits = new Intl.NumberFormat(useLocale());
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -119,7 +129,32 @@ export function QuickLogForm({ kind }: { kind: QuickLogKind }) {
 
   return (
     <form onSubmit={onSubmit} className={forms.stack} noValidate aria-label={t(`${kind}.title`)}>
-      {(spec.fields as readonly Field[]).map((field) => field.kind === "choice" ? (
+      {(spec.fields as readonly Field[]).map((field) => field.kind === "scale" ? (
+        <fieldset key={field.name} className={forms.fieldset}>
+          <legend className={forms.label}>{t(`${kind}.${field.name}`)}</legend>
+          <div className={forms.choices}>
+            {field.options?.map((option) => (
+              <button key={option} type="button" className={forms.choice} aria-pressed={values[field.name] === option} onClick={() => setValues((v) => ({ ...v, [field.name]: v[field.name] === option ? "" : option }))}>
+                {digits.format(Number(option))}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+      ) : field.kind === "multi" ? (
+        <fieldset key={field.name} className={forms.fieldset}>
+          <legend className={forms.label}>{t(`${kind}.${field.name}`)}</legend>
+          <div className={forms.choices}>
+            {field.options?.map((option) => {
+              const picked = (values[field.name] ?? "").split(",").filter(Boolean);
+              return (
+                <button key={option} type="button" className={forms.choice} aria-pressed={picked.includes(option)} onClick={() => setValues((v) => ({ ...v, [field.name]: (picked.includes(option) ? picked.filter((item) => item !== option) : [...picked, option]).join(",") }))}>
+                  {t(`${kind}.option.${option}`)}
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+      ) : field.kind === "choice" ? (
         <fieldset key={field.name} className={forms.fieldset}>
           <legend className={forms.label}>{t(`${kind}.${field.name}`)}</legend>
           <div className={forms.choices}>

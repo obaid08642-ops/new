@@ -23,6 +23,10 @@ import { Cron } from '@nestjs/schedule';
 import { Connection } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Resend } from 'resend';
+import { timedFetch } from '../../common/external-call';
+
+/** Mail provider API calls: 8 s, sent once (a repeat could mail twice); a timeout is a 504 `mail_gateway_timeout` that the mail queue treats as a failed send. */
+const MAIL_FETCH = { timeoutMs: 8000, label: 'mail-api', timeoutCode: 'mail_gateway_timeout' } as const;
 import * as nodemailer from 'nodemailer';
 
 export type MailProvider = 'resend' | 'ses' | 'brevo' | 'mailjet';
@@ -120,7 +124,11 @@ export function escapeHtml(value: unknown): string {
     .replace(/'/g, '&#39;');
 }
 
-type Attachment = { filename: string; content: string } | null;
+/** A file to attach: text (CSV reports) or binary (a signed PDF). Text is sent as UTF-8; a Buffer is sent byte for byte. */
+export type MailAttachment = { filename: string; content: Buffer | string; contentType?: string };
+type Attachment = MailAttachment[];
+const attachmentBytes = (a: MailAttachment): Buffer => (Buffer.isBuffer(a.content) ? a.content : Buffer.from(a.content, 'utf-8'));
+const attachmentType = (a: MailAttachment): string => a.contentType || (/\.pdf$/i.test(a.filename) ? 'application/pdf' : 'text/csv');
 interface LocalState {
   consecutiveFailures: number; cooldownUntil: number;
   dailyUsed: number; dailyWindowStart: number; monthlyUsed: number; monthlyWindowStart: number;
@@ -308,7 +316,7 @@ export class MailService {
       subject,
       html,
       ...(text ? { text } : {}),
-      ...(attachment ? { attachments: [{ filename: attachment.filename, content: Buffer.from(attachment.content, 'utf-8').toString('base64') }] } : {}),
+      ...(attachment?.length ? { attachments: attachment.map((a) => ({ filename: a.filename, content: attachmentBytes(a).toString('base64') })) } : {}),
     });
     if (error) throw new BadGatewayException(error.message || 'resend_error');
   }
@@ -327,14 +335,14 @@ export class MailService {
       subject,
       html,
       ...(text ? { text } : {}),
-      ...(attachment ? { attachments: [{ filename: attachment.filename, content: Buffer.from(attachment.content, 'utf-8') }] } : {}),
+      ...(attachment?.length ? { attachments: attachment.map((a) => ({ filename: a.filename, content: attachmentBytes(a), contentType: attachmentType(a) })) } : {}),
     });
   }
 
   /** Brevo transactional email REST API (POST /v3/smtp/email, header api-key). */
   private async sendViaBrevo(to: string, subject: string, html: string, text?: string, attachment?: Attachment): Promise<void> {
     if (!this.isConfigured('brevo')) throw new ServiceUnavailableException('brevo_not_configured');
-    const res = await fetch(`${apiBase('BREVO_API_BASE', 'https://api.brevo.com/v3')}/smtp/email`, {
+    const res = await timedFetch(`${apiBase('BREVO_API_BASE', 'https://api.brevo.com/v3')}/smtp/email`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'api-key': String(process.env.BREVO_API_KEY) },
       body: JSON.stringify({
@@ -343,9 +351,9 @@ export class MailService {
         subject,
         htmlContent: html,
         ...(text ? { textContent: text } : {}),
-        ...(attachment ? { attachment: [{ name: attachment.filename, content: Buffer.from(attachment.content, 'utf-8').toString('base64') }] } : {}),
+        ...(attachment?.length ? { attachment: attachment.map((a) => ({ name: a.filename, content: attachmentBytes(a).toString('base64') })) } : {}),
       }),
-    });
+    }, MAIL_FETCH);
     if (!res.ok) throw new BadGatewayException(`brevo_http_${res.status}`);
   }
 
@@ -355,7 +363,7 @@ export class MailService {
     const f = parseFrom(process.env.MAILJET_FROM || this.fromAddress);
     const from = f.name ? { Email: f.email, Name: f.name } : { Email: f.email };
     const auth = Buffer.from(`${process.env.MAILJET_API_KEY}:${process.env.MAILJET_SECRET_KEY}`).toString('base64');
-    const res = await fetch(`${apiBase('MAILJET_API_BASE', 'https://api.mailjet.com/v3.1')}/send`, {
+    const res = await timedFetch(`${apiBase('MAILJET_API_BASE', 'https://api.mailjet.com/v3.1')}/send`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Basic ${auth}` },
       body: JSON.stringify({
@@ -365,10 +373,10 @@ export class MailService {
           Subject: subject,
           HTMLPart: html,
           ...(text ? { TextPart: text } : {}),
-          ...(attachment ? { Attachments: [{ ContentType: 'text/csv', Filename: attachment.filename, Base64Content: Buffer.from(attachment.content, 'utf-8').toString('base64') }] } : {}),
+          ...(attachment?.length ? { Attachments: attachment.map((a) => ({ ContentType: attachmentType(a), Filename: a.filename, Base64Content: attachmentBytes(a).toString('base64') })) } : {}),
         }],
       }),
-    });
+    }, MAIL_FETCH);
     if (!res.ok) throw new BadGatewayException(`mailjet_http_${res.status}`);
     const body = (await res.json().catch(() => null)) as { Messages?: Array<{ Status?: string }> } | null;
     if (body?.Messages?.[0]?.Status !== 'success') throw new BadGatewayException('mailjet_error');
@@ -383,8 +391,12 @@ export class MailService {
    * Send with an optional CSV attachment (scheduled reports, A7).
    * Attachment is base64 for the REST providers, Buffer for nodemailer (SES).
    */
-  async sendWithAttachment(opts: { to: string; subject: string; html: string; text?: string; filename?: string; content?: string }): Promise<MailResult> {
-    const attachment = opts.filename && opts.content ? { filename: opts.filename, content: opts.content } : null;
+  async sendWithAttachment(opts: { to: string; subject: string; html: string; text?: string; filename?: string; content?: Buffer | string; attachments?: MailAttachment[] }): Promise<MailResult> {
+    // One file (filename + content) or several (attachments). A Buffer travels as the bytes it holds: a PDF is no longer turned into UTF-8 text.
+    const attachment: Attachment = [
+      ...(opts.filename && opts.content ? [{ filename: opts.filename, content: opts.content }] : []),
+      ...(opts.attachments ?? []).filter((a) => a?.filename && a.content && (typeof a.content === 'string' ? a.content.length : a.content.length)),
+    ];
     const now = this.now();
     let attempted = 0;
     let lastError = 'no_provider_configured';

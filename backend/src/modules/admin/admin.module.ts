@@ -40,6 +40,8 @@ import { AdminSegmentsController } from './enterprise/admin-segments.controller'
 import { AdminCouponsController } from './enterprise/admin-coupons.controller';
 import { AdminCmsController } from './enterprise/admin-cms.controller';
 import { AdminOpsController } from './enterprise/admin-ops.controller';
+import { AdminLogsController } from '../logs/admin-logs.controller';
+import { AdminMedicalAccessController } from './enterprise/admin-medical-access.controller';
 import { ScheduledReportsRunner } from './enterprise/scheduled-reports.runner';
 import { AdminCommandCenterV2Controller } from './enterprise/command-center-v2.controller';
 import { AdminGovernanceControlsController, PublicContentController } from './enterprise/admin-governance-controls.controller';
@@ -49,6 +51,7 @@ import { AdminAuditService } from './enterprise/audit.service';
 import { WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
 import { SystemConfig, SystemConfigSchema } from '../../schemas/system-config.schema';
 import { B2BRequest, B2BRequestSchema } from '../../schemas/b2b-request.schema';
+import { ProviderCommissionService, ProviderCommissionsController } from './governance/provider-commission.service';
 import {
   AdminGovernanceService,
   AdminGovernanceController as GovernanceAdminController,
@@ -77,7 +80,6 @@ import { AuditLog, AuditLogSchema } from './web-core/schemas/audit-log.schema';
 import { ProcurementRequest, ProcurementRequestSchema } from './web-core/schemas/procurement-request.schema';
 import { Provider, ProviderSchema } from './web-core/schemas/provider.schema';
 import { SystemConfigExtended, SystemConfigExtendedSchema } from './web-core/schemas/system-config-extended.schema';
-import { WithdrawalRequest, WithdrawalRequestSchema } from './web-core/schemas/withdrawal-request.schema';
 import { AuditIngestController } from './admin-audit-ingest.controller';
 import { OpsSecurityModule } from './ops-security/ops-security.module';
 import { AdminUrgentAlertsController } from './alerts/admin-urgent-alerts.controller';
@@ -119,7 +121,6 @@ import { AdminUrgentAlertsService } from './alerts/admin-urgent-alerts.service';
       { name: ProcurementRequest.name, schema: ProcurementRequestSchema },
       { name: Provider.name, schema: ProviderSchema },
       { name: SystemConfigExtended.name, schema: SystemConfigExtendedSchema },
-      { name: WithdrawalRequest.name, schema: WithdrawalRequestSchema },
       { name: 'ProviderWithdrawal', schema: ProviderWithdrawalSchema },
     ]),
   ],
@@ -145,12 +146,15 @@ import { AdminUrgentAlertsService } from './alerts/admin-urgent-alerts.service';
     AdminCmsController,
     AdminCouponsController,
     AdminOpsController,
+    AdminLogsController, // GET admin/logs (20.3); dropped by the P5.3 merge, so the admin system-logs page got 404
+    AdminMedicalAccessController, // GET admin/medical-access (PDPL access log); dropped by the same merge
     AdminGovernanceControlsController,
     PublicContentController,
     AdminCommandCenterV2Controller,
     // P5.3: merged from AdminGovernanceModule
     GovernanceAdminController,
     CommissionsController,
+    ProviderCommissionsController,
     B2BController,
     SystemConfigController,
     PublicSystemConfigController,
@@ -167,6 +171,7 @@ import { AdminUrgentAlertsService } from './alerts/admin-urgent-alerts.service';
     AdminUrgentAlertsController,
 ],
   providers: [
+    ProviderCommissionService,
     // issue 1541: the one list of a provider's own rows, used by the user delete and the orphan-profile delete
     ProviderErasureService,
     // P5.3: merged from AdminAuthorityModule

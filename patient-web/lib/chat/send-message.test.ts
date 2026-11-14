@@ -68,10 +68,15 @@ describe("the proxy allowlist for the doctor thread composer", () => {
     expect(isAllowedPatientApiRequest(`/chat/threads/${THREAD}/messages`, "POST")).toBe(true);
     expect(isAllowedPatientApiTarget(`/chat/threads/${THREAD}/messages`, "", "POST")).toBe(true);
   });
+  it("allows the receipts: POST /chat/threads/:uuid/read and /delivered", () => {
+    expect(isAllowedPatientApiRequest(`/chat/threads/${THREAD}/read`, "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest(`/chat/threads/${THREAD}/delivered`, "POST")).toBe(true);
+  });
   it("opens no other method, thread route or id", () => {
     for (const method of ["PUT", "PATCH", "DELETE"]) expect(isAllowedPatientApiRequest(`/chat/threads/${THREAD}/messages`, method)).toBe(false);
-    expect(isAllowedPatientApiRequest(`/chat/threads/${THREAD}/read`, "POST")).toBe(false);
-    expect(isAllowedPatientApiRequest(`/chat/threads/${THREAD}/delivered`, "POST")).toBe(false);
+    expect(isAllowedPatientApiRequest(`/chat/threads/${THREAD}/read`, "GET")).toBe(false);
+    expect(isAllowedPatientApiRequest(`/chat/threads/${THREAD}/delivered`, "DELETE")).toBe(false);
+    expect(isAllowedPatientApiRequest("/chat/threads/not-a-uuid/read", "POST")).toBe(false);
     expect(isAllowedPatientApiRequest(`/chat/threads/${THREAD}`, "POST")).toBe(false);
     expect(isAllowedPatientApiRequest("/chat/threads/not-a-uuid/messages", "POST")).toBe(false);
     expect(isAllowedPatientApiRequest(`/chat/threads/${THREAD}/messages/extra`, "POST")).toBe(false);

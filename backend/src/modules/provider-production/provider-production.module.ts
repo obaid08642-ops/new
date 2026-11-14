@@ -8,17 +8,18 @@
  * 5.  GET    /provider/crm/:patientId                CRM persistence حقيقي
  * 6.  POST   /provider/crm/:patientId
  * 7.  GET    /provider/referrals/mine                تتبع الإحالات
- * 8.  CRUD   /hospital/staff-roster/technicians      قائمة الفنيين
  * 9.  CRUD   /facility/shifts                        الشيفتات (PATCH/DELETE يكمل القائم)
  * 10. POST   /claims/:id/{resubmit|approve|reject}   أفعال مطالبات المنشأة
  * 11. GET    /provider/reports/inbound               التقارير الواردة الحقيقية
  * 12. PATCH  /provider/profile/availability          round-trip كامل
  */
+import { listCrmRecords, mergeCrm, readCrm } from './crm-store';
+import { nextClaimStatus } from '../../common/claim-state';
 import {
   Module, Controller, Get, Post, Patch, Put, Delete, Param, Body, Query, UseGuards,
-  ForbiddenException, BadRequestException, NotFoundException, Injectable,
+  ForbiddenException, BadRequestException, NotFoundException, ConflictException, Injectable,
 } from '@nestjs/common';
-import { OrderInsuranceDto, LabCoverageDto, RadCoverageDto, NursingCoverageDto, PostCrmDto, PutCrmDto, CreateReferralDto, CreatePromotionDto, CreateTechDto, UpdateTechDto, ClaimResubmitDto, ClaimApproveDto, ClaimRejectDto, PatchAvailabilityDto } from './provider-production.dto';
+import { OrderInsuranceDto, LabCoverageDto, RadCoverageDto, NursingCoverageDto, PostCrmDto, PutCrmDto, CreateReferralDto, CreatePromotionDto, ClaimResubmitDto, ClaimApproveDto, ClaimRejectDto, PatchAvailabilityDto } from './provider-production.dto';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, Roles, getEffectiveRoles, hasEffectiveRole } from '../../common/auth.guard';
@@ -133,7 +134,7 @@ export class ProviderProductionService {
         'insurance_details.copay_percent': copayPercent,
         'insurance_details.insurer_share': insurerShare,
         'insurance_details.patient_share': patientShare,
-        'insurance_details.nphies_approval_code': body.nphies_approval_code || null,
+        'insurance_details.approval_reference': body.approval_reference || null,
         'insurance_details.policy_number': body.policy_number || null,
         'insurance_details.member_id': body.member_id || null,
         'insurance_details.decided_by': user.id,
@@ -165,10 +166,14 @@ export class ProviderProductionService {
     const col = this.conn.collection(collection);
     const b: any = await col.findOne({ id: bookingId });
     if (!b) throw new NotFoundException('booking_not_found');
-    if (!isAdmin(user) && b.provider_account_id && b.provider_account_id !== user.id) {
+    // Home-care bookings name their nurse in provider_id (labs and radiology in provider_account_id).
+    const owner = kind === 'nursing' ? (b.provider_id ?? b.provider_account_id ?? b.account_id) : b.provider_account_id;
+    if (!isAdmin(user) && owner && owner !== user.id) {
       throw new ForbiddenException('booking_not_owned');
     }
-    if (!['NEW_REQUEST', 'PENDING_INSURANCE', 'WAITING_COPAY'].includes(String(b.state))) {
+    // A nurse chosen at booking starts in PROVIDER_ASSIGNED (home-care.service), which is where the insurance request waits.
+    const decidable = kind === 'nursing' ? ['NEW_REQUEST', 'PENDING_INSURANCE', 'WAITING_COPAY', 'PROVIDER_ASSIGNED'] : ['NEW_REQUEST', 'PENDING_INSURANCE', 'WAITING_COPAY'];
+    if (!decidable.includes(String(b.state))) {
       throw new BadRequestException(`invalid_state:${b.state}`);
     }
     const reason = String(body?.reason || '').trim();
@@ -187,7 +192,10 @@ export class ProviderProductionService {
 
     const now = new Date();
     const mirrorStatus = decisionToMirror(decision, kind);
-    const nextState = decision === 'APPROVED_FULL' ? 'CONFIRMED' : decision === 'APPROVED_PARTIAL' ? 'WAITING_COPAY' : 'INSURANCE_REJECTED';
+    // A rejection keeps the booking where it is, with insurance_status 'rejected': the accept gate holds, and the patient can pay
+    // themselves (labs: acceptSelfPay) or cancel. The old target 'INSURANCE_REJECTED' is in no state enum or transition table, so the booking
+    // had no way out, not even a cancel.
+    const nextState = decision === 'APPROVED_FULL' ? 'CONFIRMED' : decision === 'APPROVED_PARTIAL' ? 'WAITING_COPAY' : String(b.state);
     await col.updateOne({ id: bookingId }, {
       $set: {
         state: nextState,
@@ -232,9 +240,7 @@ export class ProviderProductionService {
   // ═══ 5-6. CRM persistence (exact governed paths) ═══
   async listCrmPatients(user: any) {
     assertProviderRole(user);
-    const records = await this.conn.collection('doctor_patient_crm')
-      .find({ owner_id: user.id }, { projection: { _id: 0, patient_id: 1, data: 1, updatedAt: 1 } })
-      .sort({ updatedAt: -1 }).limit(200).toArray();
+    const records = await listCrmRecords(this.conn, user.id);
     // Patients this provider has served, so the CRM can be opened for them before any note exists
     // (the screen only opens patients from this list).
     const served = new Set<string>();
@@ -270,41 +276,24 @@ export class ProviderProductionService {
       updated_at: record.updatedAt || null,
     }));
   }
+  /** The patient's file; a patient this provider served and never wrote a note about has the empty file (the list offers every served patient). */
   async getCrm(user: any, patientId: string) {
     assertProviderRole(user);
-    const doc: any = await this.conn.collection('doctor_patient_crm').findOne(
-      { owner_id: user.id, patient_id: patientId },
-      { projection: { _id: 0 } },
-    );
-    if (!doc) throw new NotFoundException('crm_record_not_found');
-    return doc.data || {};
+    return readCrm(this.conn, user.id, patientId);
   }
 
+  /** Saves the fields sent and keeps the others. `blocked` also goes to the doctor's block list, which is what stops that patient booking. */
   async putCrm(user: any, patientId: string, data: any) {
     assertProviderRole(user);
-    const clean = {
-      tags: Array.isArray(data?.tags) ? data.tags.slice(0, 50).map((t: any) => String(t).slice(0, 60)) : [],
-      notes: Array.isArray(data?.notes)
-        ? data.notes.slice(0, 200).map((n: any) => ({
-            id: String(n?.id || `n_${Date.now()}`),
-            date: String(n?.date || new Date().toISOString().slice(0, 10)),
-            text: String(n?.text || '').slice(0, 2000),
-          })).filter((n: any) => n.text)
-        : [],
-      vip: !!data?.vip,
-      favorite: !!data?.favorite,
-      blocked: !!data?.blocked,
-      blocked_reason: data?.blocked ? String(data?.blocked_reason || '').slice(0, 500) : '',
-    };
-    await this.conn.collection('doctor_patient_crm').updateOne(
-      { owner_id: user.id, patient_id: patientId },
-      {
-        $set: { data: clean, updatedAt: new Date() },
-        $setOnInsert: { id: `crm_${Date.now()}`, owner_id: user.id, patient_id: patientId, createdAt: new Date() },
-      },
-      { upsert: true },
-    );
-    return clean;
+    const saved = await mergeCrm(this.conn, user.id, patientId, data);
+    if (data?.blocked !== undefined && hasEffectiveRole(user, 'doctor')) {
+      await this.conn.collection('doctor_blacklist').updateOne(
+        { doctor_id: { $eq: user.id }, patient_id: { $eq: patientId } },
+        { $set: { doctor_id: user.id, patient_id: patientId, reason: saved.blocked ? saved.blocked_reason || null : null, active: saved.blocked, updatedAt: new Date() }, $setOnInsert: { createdAt: new Date() } },
+        { upsert: true },
+      );
+    }
+    return saved;
   }
 
   // ═══ 7. Referral tracking (mine) ═══
@@ -350,12 +339,22 @@ export class ProviderProductionService {
 
   async createReferral(user: any, body: any) {
     assertProviderRole(user);
-    const role = ROLE_ALIASES[String(user?.role || '').toLowerCase()] || String(user?.role || '').toLowerCase();
-    if (!isAdmin(user) && role !== UserRole.DOCTOR) throw new ForbiddenException('doctor_scope_required');
+    // A provider signs in with role "provider" and a provider type: the doctor is known by either (the role check alone refused every doctor).
+    if (!isAdmin(user) && !hasEffectiveRole(user, UserRole.DOCTOR)) throw new ForbiddenException('doctor_scope_required');
     const patientId = String(body?.patient_id || '').trim();
     const targetType = String(body?.target_type || '').trim().toLowerCase();
-    if (!patientId || !['lab', 'radiology', 'nursing'].includes(targetType) || !String(body?.notes || '').trim()) {
+    if (!patientId || !['lab', 'radiology', 'nursing', 'specialty'].includes(targetType) || !String(body?.notes || '').trim()) {
       throw new BadRequestException('patient_target_and_notes_required');
+    }
+    // A referral to a specialty (the doctor's screen offers specialties): the code must be one of the catalogue's.
+    let targetSpecialty: string | null = null;
+    let specialtyName = '';
+    if (targetType === 'specialty') {
+      const code = String(body?.target_specialty || '').trim();
+      const spec: any = code ? await this.conn.collection('specialties').findOne({ $or: [{ code: { $eq: code } }, { id: { $eq: code } }], is_active: { $ne: false } }, { projection: { _id: 0, code: 1, id: 1, name_ar: 1, name_en: 1 } }) : null;
+      if (!spec) throw new BadRequestException('unknown_specialty');
+      targetSpecialty = String(spec.code || spec.id);
+      specialtyName = spec.name_ar || spec.name_en || '';
     }
 
     const patient: any = await this.conn.collection('users').findOne({ id: patientId });
@@ -379,7 +378,7 @@ export class ProviderProductionService {
     if (targetProviderId) {
       const targetProfile: any = await this.conn.collection('provider_profiles').findOne({ account_id: targetProviderId });
       const profileType = String(targetProfile?.type || targetProfile?.provider_type || '').toLowerCase();
-      if (!targetProfile || profileType !== targetType) throw new BadRequestException('invalid_referral_destination');
+      if (!targetProfile || profileType !== (targetType === 'specialty' ? 'doctor' : targetType)) throw new BadRequestException('invalid_referral_destination');
       const targetAccount: any = await this.conn.collection('provider_accounts').findOne({ id: targetProviderId, status: { $in: ['approved', 'active'] } });
       if (!targetAccount) throw new BadRequestException('inactive_referral_destination');
       targetName = targetProfile.display_name_ar || targetProfile.business_name || targetProfile.display_name_en || targetName;
@@ -393,8 +392,9 @@ export class ProviderProductionService {
       patient_id: patientId,
       patient_name: patient.full_name || patient.name || patient.name_ar || patient.name_en || '',
       target_type: targetType,
+      ...(targetSpecialty ? { target_specialty: targetSpecialty } : {}),
       target_provider_id: targetProviderId || null,
-      target_name: targetName,
+      target_name: targetName || specialtyName,
       requested_tests: Array.isArray(body.requested_tests) ? body.requested_tests.slice(0, 50).map(String) : [],
       referral_code: `REF-${randomUUID().replace(/-/g, '').slice(0, 10).toUpperCase()}`,
       notes: String(body.notes).trim(),
@@ -451,61 +451,6 @@ export class ProviderProductionService {
     await this.conn.collection('promotioncampaigns').insertOne(row as any);
     return { ...row, _id: undefined };
   }
-  // ═══ 8. Technician roster CRUD ═══
-  private async technicianCollection() { return this.conn.collection('technician_roster'); }
-
-  async listTechnicians(user: any): Promise<any[]> {
-    assertProviderRole(user);
-    const q: any = { owner_account_id: user.id };
-    if (isAdmin(user)) delete q.owner_account_id;
-    return this.conn.collection('technician_roster').find(q, { projection: { _id: 0 } }).sort({ createdAt: -1 }).toArray();
-  }
-
-  async createTechnician(user: any, body: any) {
-    assertProviderRole(user);
-    if (!body?.full_name?.trim() || !body?.phone?.trim()) throw new BadRequestException('full_name_phone_required');
-    const col = await this.technicianCollection();
-    const dup = await col.findOne({ owner_account_id: user.id, phone: body.phone.trim() });
-    if (dup) throw new BadRequestException('technician_exists');
-    const doc = {
-      id: `tech_${Date.now()}_${Math.floor(Math.random() * 1e4)}`,
-      owner_account_id: user.id,
-      full_name: String(body.full_name).trim().slice(0, 120),
-      phone: String(body.phone).trim(),
-      department: body.department ? String(body.department).slice(0, 80) : undefined,
-      specialty: body.specialty ? String(body.specialty).slice(0, 80) : undefined,
-      suspended: false,
-      createdAt: new Date(),
-    };
-    await col.insertOne(doc as any);
-    const { _id, ...out } = doc as any;
-    return out;
-  }
-
-  async updateTechnician(user: any, techId: string, body: any) {
-    assertProviderRole(user);
-    const col = await this.technicianCollection();
-    const t: any = await col.findOne({ id: techId });
-    if (!t) throw new NotFoundException('technician_not_found');
-    if (!isAdmin(user) && t.owner_account_id !== user.id) throw new ForbiddenException('not_owner');
-    const patch: any = {};
-    for (const k of ['full_name', 'phone', 'department', 'specialty']) if (body?.[k] !== undefined) patch[k] = String(body[k]).slice(0, 120);
-    if (body?.suspended !== undefined) patch.suspended = !!body.suspended;
-    await col.updateOne({ id: techId }, { $set: { ...patch, updatedAt: new Date() } });
-    const updated: any = await col.findOne({ id: techId }, { projection: { _id: 0 } });
-    return updated;
-  }
-
-  async deleteTechnician(user: any, techId: string) {
-    assertProviderRole(user);
-    const col = await this.technicianCollection();
-    const t: any = await col.findOne({ id: techId });
-    if (!t) throw new NotFoundException('technician_not_found');
-    if (!isAdmin(user) && t.owner_account_id !== user.id) throw new ForbiddenException('not_owner');
-    await col.deleteOne({ id: techId });
-    return { ok: true };
-  }
-
   // ═══ 9. Facility shifts — full CRUD handled in facility-ops (PATCH/DELETE added there) ═══
 
   // ═══ 10. Claim actions ═══
@@ -515,8 +460,9 @@ export class ProviderProductionService {
     const claim: any = await col.findOne({ id: claimId });
     if (!claim) throw new NotFoundException('claim_not_found');
 
-    const statusMap: Record<string, string> = { resubmit: 'pending', approve: 'approved', reject: 'rejected' };
-    const nextStatus = statusMap[action];
+    const claimAction = ({ resubmit: 'facility_resubmit', approve: 'facility_approve', reject: 'facility_reject' } as const)[action];
+    // the one claim state machine (common/claim-state.ts): an action that does not apply to the claim's status is refused
+    const nextStatus = nextClaimStatus(claimAction, claim.status);
 
     if (action === 'reject' && !String(body?.reason || '').trim()) {
       throw new BadRequestException('rejection reason is required');
@@ -531,9 +477,7 @@ export class ProviderProductionService {
         throw new ForbiddenException('claim_not_owned');
       }
     }
-    if (action === 'approve' && !['pending', 'resubmitted'].includes(String(claim.status))) {
-      throw new BadRequestException(`invalid_claim_status:${claim.status}`);
-    }
+    // a resubmitted claim becomes pending again: if the patient filed a new open claim for the booking meanwhile, the unique index (claim_one_open_per_booking) refuses it
     await col.updateOne({ id: claimId }, {
       $set: { status: nextStatus, updatedAt: new Date(), last_action: action, last_action_by: user.id, last_action_at: new Date() },
       $push: {
@@ -543,7 +487,7 @@ export class ProviderProductionService {
           documents: action === 'resubmit' ? (body.updated_documents || []) : undefined,
         },
       } as any,
-    });
+    }).catch((e: any) => { if (e?.code === 11000) throw new ConflictException('claim_already_filed'); throw e; });
     const updated: any = await col.findOne({ id: claimId }, { projection: { _id: 0 } });
     return { ok: true, claim_id: claimId, claim_status: nextStatus.toUpperCase(), acted_by: user.id, acted_at: new Date().toISOString(), claim: updated };
   }
@@ -638,7 +582,9 @@ export class ProviderProductionService {
       for (const e of patch.accepted_insurance) {
         const company_id = String(e?.company_id || '').trim();
         if (!company_id) throw new BadRequestException('accepted_insurance_company_id_required');
-        const entry: any = { company_id, active: e?.active !== false };
+        const classes = Array.isArray(e?.classes) ? e.classes.map((c: any) => String(c).trim().slice(0, 20)).filter(Boolean) : [];
+        if (!classes.length) throw new BadRequestException('accepted_insurance_classes_required');
+        const entry: any = { company_id, classes, active: e?.active !== false };
         if (e?.copay_pct !== undefined && e?.copay_pct !== null && e?.copay_pct !== '') {
           const cp = Number(e.copay_pct);
           if (!Number.isFinite(cp) || cp < 0 || cp > 100) throw new BadRequestException('accepted_insurance_copay_pct_must_be_0_100');
@@ -669,10 +615,13 @@ export class ProviderProductionService {
       throw new BadRequestException('availability_roundtrip_failed');
     }
     if (patch.accepted_insurance !== undefined) {
-      const activeIds = [...new Set(patch.accepted_insurance.filter((e: any) => e.active).map((e: any) => e.company_id))];
+      // `accepted_insurance` stays the list of active company ids (many readers and the public map expect strings);
+      // the D-30 company-and-class contracts live beside it in `insurance_class_contracts`.
+      const activeContracts = patch.accepted_insurance.filter((e: any) => e.active !== false);
+      const activeIds = [...new Set(activeContracts.map((e: any) => e.company_id))];
       await this.conn.collection('provider_profiles').updateOne(
         { $or: [{ user_id: user.id }, { account_id: user.id }] },
-        { $set: { accepted_insurance: activeIds, updatedAt: new Date() } },
+        { $set: { accepted_insurance: activeIds, insurance_class_contracts: activeContracts, updatedAt: new Date() } },
       );
     }
     return { ok: true, availability: back.availability };
@@ -721,16 +670,6 @@ export class ProviderProductionController {
   listPromotions(@CurrentUser() u: any): Promise<any[]> { return this.svc.listPromotions(u); }
   @Post('provider/promotions')
   createPromotion(@CurrentUser() u: any, @Body() b: CreatePromotionDto) { return this.svc.createPromotion(u, b); }
-  // ── 8. technician roster exact path ──
-  @Get('hospital/staff-roster/technicians')
-  listTechs(@CurrentUser() u: any) { return this.svc.listTechnicians(u); }
-  @Post('hospital/staff-roster/technicians')
-  createTech(@CurrentUser() u: any, @Body() b: CreateTechDto) { return this.svc.createTechnician(u, b); }
-  @Patch('hospital/staff-roster/technicians/:id')
-  updateTech(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateTechDto) { return this.svc.updateTechnician(u, id, b); }
-  @Delete('hospital/staff-roster/technicians/:id')
-  deleteTech(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.deleteTechnician(u, id); }
-
   // ── 10. claims actions exact paths ──
   @Post('claims/:id/resubmit')
   claimResubmit(@CurrentUser() u: any, @Param('id') id: string, @Body() b: ClaimResubmitDto) { return this.svc.claimAction(u, id, 'resubmit', b); }

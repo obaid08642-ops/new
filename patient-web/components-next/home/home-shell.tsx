@@ -3,18 +3,19 @@ import { NavLink } from "@/components-next/nav/nav-link";
 import { getTranslations } from "next-intl/server";
 import { AppShell } from "@/components-next/ui-generated/shells";
 import { Avatar } from "@/components-next/ui-generated/components/Surfaces";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import type { BottomTabItem } from "@/components-next/ui-generated/components/contract";
 import { NabdMark } from "@/components-next/nabd-mark";
 import { LocaleSelector } from "@/components-next/locale-selector";
-import { SignOutButton } from "@/components-next/sign-out-button";
 import { shellSectionHrefs } from "@/components-next/shell-links";
 import { ThemeButton } from "./theme-button";
 import type { Locale } from "@/lib/i18n";
 import { getDisabledModules } from "@/lib/api/public-config-server";
 import { isPathHidden } from "@/lib/modules";
+import { CartLink } from "@/components-next/core/cart-link";
+import { WishlistLink } from "@/components-next/core/wishlist-link";
+import { PhoneMenu } from "@/components-next/core/phone-menu";
 import { HomeTabBar } from "./home-tab-bar";
-import { HomeAccountTools, HomeNavLink, HomeNotificationsLink } from "./home-identity";
+import { HomeAccountTools, HomeNavLink, HomeNotificationsLink, NotificationBellLink } from "./home-identity";
 import styles from "./home.module.css";
 
 /**
@@ -44,9 +45,10 @@ export async function HomeShell({
   surface: "home" | "dashboard";
   children: React.ReactNode;
 }) {
-  const [t, shared, disabled] = await Promise.all([
+  const [t, shared, shell, disabled] = await Promise.all([
     getTranslations({ locale, namespace: "HomeWeb" }),
     getTranslations({ locale, namespace: "Shared" }),
+    getTranslations({ locale, namespace: "CoreShell" }),
     getDisabledModules(),
   ]);
   const base = `/${locale}`;
@@ -62,11 +64,11 @@ export async function HomeShell({
   const sections = allSections.filter((s) => !isPathHidden(s.href, disabled));
   const home = knownSignedIn ? `${base}/dashboard` : base;
   const allTabs: BottomTabItem[] = [
-    { id: "home", label: t("navHome"), icon: "house" },
-    { id: "pharmacy", label: t("navPharmacy"), icon: "pill" },
-    { id: "consult", label: t("navConsult"), icon: "stethoscope", raised: true },
-    { id: "labs", label: t("navLabs"), icon: "test-tube" },
-    { id: "nursing", label: t("navNursing"), icon: "first-aid-kit" },
+    { id: "home", art: "home", label: t("navHome"), icon: "house" },
+    { id: "pharmacy", art: "pharmacy", label: t("navPharmacy"), icon: "pill" },
+    { id: "consult", art: "consult", label: t("navConsult"), icon: "stethoscope", raised: true },
+    { id: "labs", art: "labs", label: t("navLabs"), icon: "test-tube" },
+    { id: "nursing", art: "nursing", label: t("navNursing"), icon: "first-aid-kit" },
   ];
   const hrefs = Object.fromEntries([["home", home], ...sections.map((s) => [s.id, s.href])]);
   const tabs = allTabs.filter((tab) => tab.id === "home" || tab.id in hrefs);
@@ -74,7 +76,7 @@ export async function HomeShell({
   const topBar = (
     <div className={styles.top}>
       <Link href={base} className={styles.brand} aria-label={shared("brand")}>
-        <NabdMark size={34} variant="text" />
+        <NabdMark size={34} variant="brand" />
         <span className={styles.wordmark} aria-hidden="true">
           {shared("wordmark")}<span className={styles.plus}>+</span>
         </span>
@@ -90,28 +92,39 @@ export async function HomeShell({
         ))}
       </nav>
       <div className={styles.tools}>
-        <LocaleSelector current={locale} label={shared("language")} />
+        <LocaleSelector current={locale} label={shared("language")} compactOnPhone />
         <ThemeButton label={shared("theme")} />
-        {signedIn === undefined ? <HomeNotificationsLink locale={locale} label={t("notifications")} /> : null}
+        {signedIn === undefined ? <HomeNotificationsLink locale={locale} label={t("notifications")} unreadLabel={t("notificationsUnread")} /> : null}
         {knownSignedIn ? (
-          <Link href={`${base}/notifications`} className={styles.iconBtn} aria-label={t("notifications")}>
-            <FIcon icon="bell" tone="ink" chip="none" size={20} />
-          </Link>
+          <NotificationBellLink href={`${base}/notifications`} label={t("notifications")} unreadLabel={t("notificationsUnread")} />
         ) : null}
-        <Link href={`${base}/cart`} className={`${styles.iconBtn} ${styles.cartLink}`} aria-label={t("cart")}>
-          <FIcon icon="package" tone="ink" chip="none" size={20} />
-        </Link>
+        <WishlistLink locale={locale} className={`${styles.iconBtn} ${styles.cartLink}`} badgeClassName={styles.cartBadge} />
+        <span className={styles.cartSlot} data-testid="home-cart-slot"><CartLink locale={locale} className={`${styles.iconBtn} ${styles.cartLink}`} badgeClassName={styles.cartBadge} /></span>
         {signedIn === undefined ? (
           <HomeAccountTools locale={locale} signInLabel={t("signIn")} accountLabel={t("account")} />
         ) : knownSignedIn ? (
           <>
-            <SignOutButton locale={locale} className={styles.iconBtn} />
             <Link href={`${base}/profile`} className={styles.accountLink} aria-label={t("account")}>
               <Avatar name={name ?? ""} size="md" />
             </Link>
           </>
         ) : (
           <Link href={`${base}/login`} className={styles.signIn}>{t("signIn")}</Link>
+        )}
+        {/* the menu is the last item at the inline-end edge (owner layout decision 1) */}
+        {signedIn === false ? null : (
+          <PhoneMenu
+            labels={{ open: shell("menuOpen"), close: shell("menuClose") }}
+            items={[
+              { label: shell("menuProfile"), href: `${base}/profile` },
+              { label: shell("menuOrders"), href: `${base}/orders` },
+              { label: shell("menuFamily"), href: `${base}/family` },
+              { label: shell("menuArticles"), href: `${base}/articles` },
+              { label: shell("notifications"), href: `${base}/notifications` },
+              { label: shell("menuSettings"), href: `${base}/settings` },
+              { label: shell("menuHelp"), href: `${base}/settings/help` },
+            ].filter((item) => !isPathHidden(item.href, disabled))}
+          />
         )}
       </div>
     </div>

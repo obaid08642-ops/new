@@ -9,6 +9,7 @@ import {
   View, TouchableOpacity, StyleSheet, ViewStyle, StyleProp,
 } from 'react-native';
 import { useApp } from '../../context/AppContext';
+import { dsText } from '../dsText';
 import { BorderRadius, Spacing } from '../tokens';
 import { DSText } from './Text';
 import { Icon, IconName } from '../Icon';
@@ -34,7 +35,7 @@ export function DSBadge({
   size = 'md',
   style,
 }: DSBadgeProps) {
-  const { colors } = useApp();
+  const { colors, lang } = useApp();
   if (!visible) return null;
 
   const isDot = count === undefined;
@@ -56,7 +57,7 @@ export function DSBadge({
         ]}
         accessible
         accessibilityRole="text"
-        accessibilityLabel="إشعار جديد"
+        accessibilityLabel={dsText(lang, 'ds.badge.newNotification')}
       />
     );
   }
@@ -77,11 +78,11 @@ export function DSBadge({
       ]}
       accessible
       accessibilityRole="text"
-      accessibilityLabel={`${displayCount} إشعار`}
+      accessibilityLabel={dsText(lang, 'ds.badge.notification', { n: displayCount })}
     >
       <DSText
         variant={size === 'sm' ? 'caption' : 'labelSM'}
-        color="#fff"
+        color={colors.textInverse}
         noScale
       >
         {displayCount}
@@ -114,7 +115,7 @@ export function DSChip({
   style,
   color,
 }: DSChipProps) {
-  const { colors, isRTL } = useApp();
+  const { colors, isRTL, lang } = useApp();
 
   const bg = selected ? (color ?? colors.primarySurface) : colors.backgroundSecondary;
   const textColor = selected ? (color ? lighten(color) : colors.primary) : colors.textSecondary;
@@ -154,7 +155,7 @@ export function DSChip({
           onPress={onRemove}
           hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
           accessibilityRole="button"
-          accessibilityLabel={`إزالة ${label}`}
+          accessibilityLabel={dsText(lang, 'ds.badge.remove', { label })}
         >
           <Icon name="close" size={14} color={textColor} />
         </TouchableOpacity>
@@ -232,10 +233,10 @@ function getTagColors(
   customText?: string,
 ): { bg: string; text: string } {
   switch (variant) {
-    case 'success': return { bg: '#EBF6E9', text: colors.success };
-    case 'warning': return { bg: '#FFF7E6', text: colors.warning };
-    case 'error':   return { bg: '#FEF2F2', text: colors.error };
-    case 'info':    return { bg: '#DEF5F9', text: colors.primary };
+    case 'success': return { bg: colors.successSurface, text: colors.success };
+    case 'warning': return { bg: colors.warningSurface, text: colors.warning };
+    case 'error':   return { bg: colors.errorSurface, text: colors.error };
+    case 'info':    return { bg: colors.primarySurface, text: colors.primary };
     case 'custom':  return { bg: customBg ?? colors.backgroundSecondary, text: customText ?? colors.textPrimary };
     default:        return { bg: colors.backgroundSecondary, text: colors.textSecondary };
   }

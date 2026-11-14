@@ -11,6 +11,7 @@ import { formatKilometres, formatMinutes, formatMoney, formatRemaining, formatWh
 import { usePharmacyAction } from "./use-pharmacy-action";
 import { OFFER_TONES } from "./tones";
 import styles from "./offers.module.css";
+import { FILL_STOREFRONT } from "@/components-next/ui-generated/icons/glyphs/storefront";
 
 /** One pharmacy's offer, as the page hands it over: the server's numbers, nothing derived. */
 export type OfferView = {
@@ -28,6 +29,10 @@ export type OfferView = {
   insuranceReady?: boolean;
   codAllowed?: boolean;
   distanceKm?: number;
+  /** The pharmacy's delivery ETA in minutes, its average rating and the count behind it: hidden when absent. */
+  etaMinutes?: number;
+  rating?: number;
+  ratingCount?: number;
   note?: string;
   lines: Array<{ id: string; name: string; quantity?: number; unitPrice?: number; available?: boolean; alternative?: string; priceStatus?: "verified" | "not_verified" | "above_catalogue" }>;
 };
@@ -145,11 +150,13 @@ export function OfferList({ orderId, offers, after, coverage }: Props & { offers
           const meta = [
             offer.distanceKm !== undefined ? t("distanceAway", { distance: formatKilometres(locale, offer.distanceKm) }) : null,
             offer.preparationMinutes !== undefined ? t("ready", { time: formatMinutes(locale, offer.preparationMinutes) }) : null,
+            offer.etaMinutes !== undefined ? t("deliveryEta", { time: formatMinutes(locale, offer.etaMinutes) }) : null,
+            offer.rating !== undefined && (offer.ratingCount ?? 0) > 0 ? t("rating", { rating: new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(offer.rating), count: new Intl.NumberFormat(locale).format(offer.ratingCount ?? 0) }) : null,
           ].filter((part): part is string => part !== null);
           return (
             <li key={offer.id} className={styles.offer}>
               <div className={styles.offerHead}>
-                <FIcon icon="storefront" tone={OFFER_TONES.pharmacy} size={48} />
+                <FIcon icon="storefront" glyph={FILL_STOREFRONT} tone={OFFER_TONES.pharmacy} size={48} />
                 <div className={styles.offerId}>
                   <h2 className={styles.pharmacy}>{offer.pharmacyName ?? t("pharmacyFallback")}</h2>
                   {meta.length ? <span className={styles.meta}>{meta.join(" · ")}</span> : null}

@@ -4,7 +4,7 @@ import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-nati
 import { Avatar, Card } from '../../../../packages/ui-native/src';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { Glyph } from '../pharmacy/PharmacyKit';
-import { dateLocaleFor } from '../../utils/dates';
+import { dateLocaleFor, numberingFor } from '../../utils/dates';
 import { MODE_LOOK, type VisitMode } from './ConsultKit';
 
 /**
@@ -33,7 +33,7 @@ export function useDays(count: number): DayItem[] {
         iso: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`,
         name: i === 0 ? k('consult.today') : i === 1 ? k('consult.tomorrow') : new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(d),
         day: num(d.getDate(), { useGrouping: false }),
-        month: new Intl.DateTimeFormat(locale, { month: 'short', numberingSystem: 'latn' }).format(d),
+        month: new Intl.DateTimeFormat(locale, { month: 'short', numberingSystem: numberingFor(lang) }).format(d),
       });
     }
     return out;
@@ -51,15 +51,16 @@ export function DayStrip({ days, value, onChange, label }: { days: DayItem[]; va
         return (
           <Pressable
             key={d.iso}
+            testID={`book-day-${i}`}
             accessibilityRole="radio"
             accessibilityState={{ selected: on }}
             accessibilityLabel={`${d.name} ${d.day} ${d.month}`}
             onPress={() => onChange(i)}
-            style={{ minWidth: 64, minHeight: 64, paddingHorizontal: 10, borderRadius: 18, alignItems: 'center', justifyContent: 'center', gap: 2, backgroundColor: on ? c.action.selected.bg : c.bg.surface, borderWidth: on ? 0 : 1, borderColor: c.border.hairline }}
+            style={{ minWidth: 64, minHeight: 64, paddingHorizontal: 10, borderRadius: 18, alignItems: 'center', justifyContent: 'center', gap: 2, backgroundColor: on ? c.service.coral.bg : c.bg.surface, borderWidth: on ? 0 : 1, borderColor: c.border.hairline }}
           >
-            <Text style={{ ...scale(t, 'tag', 'regular'), color: on ? c.action.selected.fg : c.text.secondary }}>{d.name}</Text>
-            <Text style={{ ...scale(t, 'h4'), color: on ? c.action.selected.fg : c.text.primary }}>{d.day}</Text>
-            <Text style={{ ...scale(t, 'micro', 'regular'), color: on ? c.action.selected.fg : c.text.tertiary }}>{d.month}</Text>
+            <Text style={{ ...scale(t, 'tag', 'regular'), color: on ? c.service.coral.fg : c.text.secondary }}>{d.name}</Text>
+            <Text style={{ ...scale(t, 'h4'), color: on ? c.service.coral.fg : c.text.primary }}>{d.day}</Text>
+            <Text style={{ ...scale(t, 'micro', 'regular'), color: on ? c.service.coral.fg : c.text.tertiary }}>{d.month}</Text>
           </Pressable>
         );
       })}
@@ -84,11 +85,12 @@ export function SlotGrid({ slots, value, onChange, loading, emptyText }: { slots
   }
   return (
     <View accessibilityRole="radiogroup" style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-      {slots.map((s) => {
+      {slots.map((s, index) => {
         const on = value === s.id;
         return (
           <Pressable
             key={s.id}
+            testID={`book-slot-${index}`}
             accessibilityRole="radio"
             accessibilityState={{ selected: on, disabled: !s.available }}
             accessibilityLabel={s.label}
@@ -141,7 +143,7 @@ export function ModeTiles({ tiles, value, onChange, label }: { tiles: ModeTile[]
             accessibilityState={{ selected: on }}
             accessibilityLabel={k(`consult.mode.${m.mode}`)}
             onPress={() => onChange(m.id)}
-            style={{ flex: 1, minWidth: 0, minHeight: 44, borderRadius: 22, paddingVertical: 14, paddingHorizontal: 6, alignItems: 'center', gap: 8, backgroundColor: c.bg.surface, borderWidth: on ? 2 : 1, borderColor: on ? c.action.selected.bg : c.border.hairline }}
+            style={{ flex: 1, minWidth: 0, minHeight: 44, borderRadius: 22, paddingVertical: 14, paddingHorizontal: 6, alignItems: 'center', gap: 8, backgroundColor: c.bg.surface, borderWidth: on ? 2 : 1, borderColor: on ? c.action.primary.bg : c.border.hairline }}
           >
             <View style={{ width: 42, height: 42, borderRadius: 14, backgroundColor: tone.bg, alignItems: 'center', justifyContent: 'center' }}>
               <Glyph name={look.icon} size={22} color={tone.fg} />

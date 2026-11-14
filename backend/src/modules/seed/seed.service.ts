@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleInit, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from '../../common/password-hash';
 import { User, UserDocument } from '../../schemas/user.schema';
 import { PatientProfile, PatientProfileDocument } from '../../schemas/patient-profile.schema';
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
@@ -358,6 +358,13 @@ export class SeedService implements OnModuleInit {
         ]
       });
       this.logger.log('Seeded default pharmacy broadcast stages config');
+    }
+
+    const stopKey = 'pharmacy_broadcast_stop_after_offers';
+    if (!(await this.configModel.findOne({ key: stopKey }))) {
+      // Owner decision 2026-10-22: stop widening once this many offers exist (0 = never stop); admin-editable like the stages.
+      await this.configModel.create({ key: stopKey, value: 3 });
+      this.logger.log('Seeded default pharmacy broadcast stop-after-offers config');
     }
 
     const mainKey = 'system_config';

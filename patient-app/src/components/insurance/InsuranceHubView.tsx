@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 
 import { Button, Chip, FIcon, Input, type FillIconName } from '../../../../packages/ui-native/src';
 import { Glyph } from '../pharmacy/PharmacyKit';
@@ -10,7 +11,10 @@ import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { useGuestGuard } from '../../hooks/useGuestGuard';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
-import { ChiLookup } from './ChiLookup';
+import { showLocalizedAlert } from '../LocalizedAlert';
+import { chiInquiryUrl } from '../../utils/insuranceAdd';
+import { CopayFields } from './CopayFields';
+import { parseCopay } from '../../utils/differentiators';
 import { BenefitsTab, NetworkTab } from './InsuranceHubTabs';
 import { FootNote, INSURANCE_REQUEST, INSURANCE_TABS, INSURANCE_TONE, InsuranceScreen, KIND_LOOK, requestState, usePolicy, type InsurancePolicy, type InsuranceTab } from './InsuranceKit';
 
@@ -47,7 +51,7 @@ function Hub() {
   return (
     <InsuranceScreen
       title={k('insurance.hub.title')}
-      actions={[{ key: 'add', label: k('insurance.hub.addPolicy'), icon: <Glyph name="plus" size={20} color={c.icon.primary} />, onPress: () => router.push('/insurance/add-policy' as Href) }]}
+      actions={[{ key: 'add', label: k('insurance.hub.addPolicy'), icon: <Glyph name="plus" size={20} color={c.text.secondary} />, onPress: () => router.push('/insurance/add-policy' as Href) }]}
       testID="insurance-hub"
     >
       <HealthTabs
@@ -69,10 +73,41 @@ function PolicyTab() {
   const fmt = useConsultFormat();
   const policy = usePolicy();
   const requests = useRemote(async () => rowsOf<InsuranceRequestRow>(await apiFetch('/insurance/requests/my')), [], 'insurance:requests');
-  const [chi, setChi] = useState(false);
+  // The Council of Health Insurance's own inquiry page comes from the backend's /config (links.chi_inquiry); without it no button is drawn.
+  const [chiUrl, setChiUrl] = useState<string | null>(null);
+  useEffect(() => {
+    apiFetch('/config').then((cfg) => setChiUrl(chiInquiryUrl(cfg))).catch(() => setChiUrl(null));
+  }, []);
   const [form, setForm] = useState(false);
+  const [deleted, setDeleted] = useState(false);
+  const [deleteFailed, setDeleteFailed] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const p: InsurancePolicy | null = policy.data;
   const rows = requests.data ?? [];
+
+  // DELETE /users/me/insurance after a confirm; a failure keeps the card and the button stays as the retry.
+  const removePolicy = () =>
+    showLocalizedAlert(k('insurance.policy.deleteTitle'), k('insurance.policy.deleteBody'), [
+      { text: k('insurance.policy.deleteCancel'), style: 'cancel' },
+      {
+        text: k('insurance.policy.delete'),
+        style: 'destructive',
+        onPress: async () => {
+          setDeleting(true);
+          setDeleteFailed(false);
+          try {
+            await apiFetch('/users/me/insurance', { method: 'DELETE' });
+            setDeleted(true);
+            void policy.reload(true);
+          } catch (e) {
+            logError('insurance:policy-delete', e);
+            setDeleteFailed(true);
+          } finally {
+            setDeleting(false);
+          }
+        },
+      },
+    ]);
 
   return (
     <>
@@ -99,14 +134,19 @@ function PolicyTab() {
         ) : (
           <Notice tone="info" text={k('insurance.policy.none')} testID="policy-none" />
         )}
+        {deleted && !p ? <Notice tone="info" text={k('insurance.policy.deleteDone')} testID="policy-deleted" /> : null}
+        {deleteFailed ? <Notice tone="danger" text={k('insurance.policy.deleteFailed')} testID="policy-delete-failed" /> : null}
         <View style={{ flexDirection: 'row', gap: 8 }}>
           <View style={{ flex: 1 }}>
             <Button label={p ? k('insurance.policy.change') : k('insurance.policy.add')} variant="outline" fullWidth onPress={() => (p ? setForm(true) : router.push('/insurance/add-policy' as Href))} theme={theme} testID="policy-change" />
           </View>
-          <View style={{ flex: 1 }}>
-            <Button label={k('insurance.policy.chiLookup')} variant="outline" fullWidth onPress={() => setChi(true)} theme={theme} testID="policy-chi" />
-          </View>
+          {chiUrl ? (
+            <View style={{ flex: 1 }}>
+              <Button label={k('insurance.policy.chiLookup')} variant="outline" fullWidth onPress={() => void WebBrowser.openBrowserAsync(chiUrl).catch((e) => logError('insurance:chi', e))} theme={theme} testID="policy-chi" />
+            </View>
+          ) : null}
         </View>
+        {p ? <Button label={k('insurance.policy.delete')} variant="danger" fullWidth disabled={deleting} loading={deleting} onPress={removePolicy} theme={theme} testID="policy-delete" /> : null}
       </Gate>
 
       <View style={{ flexDirection: 'row', gap: 8 }}>
@@ -143,8 +183,7 @@ function PolicyTab() {
         </Gate>
       </Section>
 
-      <InsurerSheet open={form} onClose={() => setForm(false)} onSaved={() => { setForm(false); void policy.reload(true); }} />
-      <ChiLookup open={chi} onClose={() => setChi(false)} onSaved={() => { setChi(false); void policy.reload(true); }} />
+      <InsurerSheet current={p} open={form} onClose={() => setForm(false)} onSaved={() => { setForm(false); void policy.reload(true); }} />
     </>
   );
 }
@@ -166,7 +205,7 @@ interface Network { code?: string; id?: string; name_ar?: string; name_en?: stri
  * The insurer choice (the old /profile/insurance form): the companies and their networks come from the catalog
  * (GET /insurance/companies, GET /insurance/companies/:id/networks); the body is the one that screen always sent.
  */
-function InsurerSheet({ open, onClose, onSaved }: { open: boolean; onClose: () => void; onSaved: () => void }) {
+function InsurerSheet({ current, open, onClose, onSaved }: { current: InsurancePolicy | null; open: boolean; onClose: () => void; onSaved: () => void }) {
   const { k, theme, lang } = useScreenUi();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [networks, setNetworks] = useState<Network[]>([]);
@@ -174,6 +213,9 @@ function InsurerSheet({ open, onClose, onSaved }: { open: boolean; onClose: () =
   const [networkCode, setNetworkCode] = useState<string | null>(null);
   const [policyNumber, setPolicyNumber] = useState('');
   const [memberId, setMemberId] = useState('');
+  const [copayPercent, setCopayPercent] = useState('');
+  const [copayCap, setCopayCap] = useState('');
+  const [showCopayErrors, setShowCopayErrors] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [catalogFailed, setCatalogFailed] = useState(false);
@@ -181,9 +223,13 @@ function InsurerSheet({ open, onClose, onSaved }: { open: boolean; onClose: () =
 
   useEffect(() => {
     if (!open) return;
+    // an edit starts from what is saved: the number and the member id are shown, not asked for again
+    setPolicyNumber(current?.policy_number ?? '');
+    setMemberId(current?.member_id ?? '');
     setError(null);
     setCatalogFailed(false);
     apiFetch('/insurance/companies').then((list) => setCompanies(rowsOf<Company>(list))).catch((e) => { logError('insurance:companies', e); setCompanies([]); setCatalogFailed(true); });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- read the saved policy once per opening
   }, [open]);
 
   const pickCompany = async (company: Company) => {
@@ -204,6 +250,11 @@ function InsurerSheet({ open, onClose, onSaved }: { open: boolean; onClose: () =
       setError(k('insurance.insurer.required'));
       return;
     }
+    const copay = parseCopay(copayPercent, copayCap);
+    if (!copay.ok) {
+      setShowCopayErrors(true);
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
@@ -216,11 +267,16 @@ function InsurerSheet({ open, onClose, onSaved }: { open: boolean; onClose: () =
           policy_number: policyNumber.trim(),
           member_id: memberId.trim(),
           network: networkCode || '',
-          class: 'A',
+          // the saved class is kept on an edit (the server requires one with an insurer; 'A' only when none was saved)
+          class: current?.class || 'A',
+          ...copay.body,
         }),
       });
       setPolicyNumber('');
       setMemberId('');
+      setCopayPercent('');
+      setCopayCap('');
+      setShowCopayErrors(false);
       onSaved();
     } catch (e) {
       logError('insurance:insurer-save', e);
@@ -253,6 +309,7 @@ function InsurerSheet({ open, onClose, onSaved }: { open: boolean; onClose: () =
       ) : null}
       <Input label={k('insurance.insurer.policyNumber')} value={policyNumber} onChange={setPolicyNumber} theme={theme} testID="insurer-policy" />
       <Input label={k('insurance.insurer.memberId')} value={memberId} onChange={setMemberId} theme={theme} testID="insurer-member" />
+      <CopayFields percent={copayPercent} cap={copayCap} onPercent={setCopayPercent} onCap={setCopayCap} showErrors={showCopayErrors} idPrefix="insurer" />
     </SheetForm>
   );
 }

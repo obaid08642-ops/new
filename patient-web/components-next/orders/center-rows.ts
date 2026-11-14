@@ -1,18 +1,21 @@
 import { extractAppointmentRows } from "@/lib/api/appointments";
+import { resolveWithMark, type FieldMark } from "@/lib/i18n/localized-field";
 import { extractDiagnosticBookings } from "@/lib/api/diagnostics";
 import { extractNursingVisits } from "@/lib/api/nursing-visits";
 import { isPast, modeOf, statusKey as appointmentStatusKey, statusTone as appointmentTone } from "@/lib/consult/appointment-view";
 import { diagnosticBookingHref } from "@/lib/diagnostics-links";
-import { isPrevious, orderAction, orderNumber, type OrderAction, type OrderRow } from "@/lib/pharmacy/order-view";
+import { isPrevious, orderAction, orderNumber, parseLegacyOrderRows, type OrderAction, type OrderRow } from "@/lib/pharmacy/order-view";
 import { pickText } from "@/components-next/diagnostics/diag-parts";
 import { diagStatus } from "@/components-next/diagnostics/status";
 import { nursingStatus } from "@/components-next/nursing/nursing-parts";
 import { returnStatus, returnTone } from "@/components-next/returns/return-kit";
 import { extractReturns } from "@/lib/api/returns";
+import { canHideStatus, readVisitStates, visitKey, type VisitKind } from "@/lib/history/hidden-visits";
 import { formatMoney } from "@/components-next/pharmacy-offers/format";
 import { statusKey as pharmacyStatusKey } from "@/components-next/pharmacy-offers/status";
-import { SERVICE_ICONS, type FillIconName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
+import { SERVICE_ICONS, type FillAnyName, type FillIconName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { statusTone as pharmacyTone } from "./status-tone";
+import { FILL_ARROWS_LEFT_RIGHT } from "@/components-next/ui-generated/icons/glyphs/arrows-left-right";
 
 /**
  * The web order center (issue 378): one list of everything the patient asked for, built from what each service's own list
@@ -32,9 +35,13 @@ export type CenterRow = {
   key: string;
   kind: OrderKind;
   href: string;
-  icon: FillIconName;
+  icon: FillAnyName;
+  /** The outline, for a glyph that is not a core one (the returns row). */
+  glyph?: string;
   tone: ServiceTone;
   title: string;
+  /** Set when the title is not in the page language (drawn with its own lang/dir and the "available in X only" note). */
+  titleMark?: FieldMark;
   /** The order number ("#A1B2C3") for a pharmacy order, otherwise the service kind; drawn before the date. */
   meta: string;
   /** ISO instant of the visit, or of the request when the service has no visit time. */
@@ -45,16 +52,18 @@ export type CenterRow = {
   amount?: string;
   itemsText?: string;
   action: { href: string; label: string };
+  /** PT-54: set when the patient can hide this finished visit (or show it again); the timeline knows which are finished. */
+  hide?: { kind: VisitKind; id: string; hidden: boolean };
 };
 
-export const KIND_VISUAL: Record<OrderKind, { icon: FillIconName; tone: ServiceTone }> = {
+export const KIND_VISUAL: Record<OrderKind, { icon: FillAnyName; glyph?: string; tone: ServiceTone }> = {
   pharmacy: SERVICE_ICONS.pharmacy,
   consultation: SERVICE_ICONS.consult,
   labs: SERVICE_ICONS.lab,
   radiology: SERVICE_ICONS.radiology,
   nursing: SERVICE_ICONS.nursing,
   // the returns page's own look (app/[locale]/returns/page.tsx)
-  returns: { icon: "arrows-left-right", tone: "amber" },
+  returns: { icon: "arrows-left-right", glyph: FILL_ARROWS_LEFT_RIGHT, tone: "amber" },
 };
 
 type Translate = (key: string, values?: Record<string, string | number>) => string;
@@ -102,6 +111,15 @@ export function pharmacyRows(locale: string, orders: OrderRow[], l: CenterLabels
   });
 }
 
+/** The orders of the old flow (GET /orders/mine), listed like the app's order center does: they open the tracking screen. */
+export function legacyOrderRows(locale: string, payload: unknown, l: CenterLabels): CenterRow[] {
+  return pharmacyRows(locale, parseLegacyOrderRows(payload), l).map((row) => {
+    const id = row.key.slice("pharmacy-".length);
+    const tracking = `/${locale}/orders/${encodeURIComponent(id)}/tracking`;
+    return { ...row, key: `legacy-${id}`, href: tracking, action: { href: tracking, label: l.orders("action.track") } };
+  });
+}
+
 export function consultationRows(locale: string, payload: unknown, l: CenterLabels): CenterRow[] {
   return extractAppointmentRows(payload).map((appointment) => {
     const mode = modeOf(appointment.serviceType);
@@ -125,19 +143,55 @@ export function consultationRows(locale: string, payload: unknown, l: CenterLabe
 
 const DIAG_DONE = new Set(["report", "cancelled"]);
 
+/** A ready lab or radiology result, drawn in the "results and reports" tab. Only fields the booking payload carries. */
+export type ResultRow = {
+  key: string;
+  domain: "labs" | "radiology";
+  icon: FillAnyName;
+  glyph?: string;
+  tone: ServiceTone;
+  title: string;
+  titleMark?: FieldMark;
+  /** ISO instant of the booking (the payload has no report-ready time). */
+  at?: string;
+  /** The booking page, where the result is shown. */
+  viewHref: string;
+  /** The report file (labs only: GET labs/bookings/:id/reports/:reportId through the patient BFF); absent when the booking holds no file. */
+  pdfHref?: string;
+};
+
+/** A booking's test or scan name: never blank, the page language first, else the other one with its mark (lib/i18n/localized-field.ts). */
+function bookingTitle(locale: string, domain: "labs" | "radiology", booking: { testNames?: Record<string, string | undefined>; scanNames?: Record<string, string | undefined> }, l: CenterLabels): { title: string; titleMark?: FieldMark } {
+  const names = domain === "labs" ? booking.testNames : booking.scanNames;
+  const { text, mark } = resolveWithMark({ locale, ar: names?.ar, en: names?.en });
+  return text ? { title: text, titleMark: mark } : { title: l.diagnostics(domain === "labs" ? "labs.label" : "radiology.label") };
+}
+
+/** The bookings whose report is ready (`hasReport`), newest first. */
+export function resultRows(locale: string, domain: "labs" | "radiology", payload: unknown, l: CenterLabels): ResultRow[] {
+  return extractDiagnosticBookings(payload)
+    .filter((booking) => booking.hasReport)
+    .map((booking) => ({
+      key: `result-${domain}-${booking.id}`,
+      domain,
+      ...KIND_VISUAL[domain],
+      ...bookingTitle(locale, domain, booking, l),
+      at: booking.scheduledAt,
+      viewHref: diagnosticBookingHref(locale, domain, booking.id),
+      pdfHref: domain === "labs" && booking.reportIds?.[0] ? `/api/patient/labs/bookings/${encodeURIComponent(booking.id)}/reports/${encodeURIComponent(booking.reportIds[0])}` : undefined,
+    }));
+}
+
 export function diagnosticRows(locale: string, domain: "labs" | "radiology", payload: unknown, l: CenterLabels): CenterRow[] {
   return extractDiagnosticBookings(payload).map((booking) => {
     const status = diagStatus(booking.state);
     const href = diagnosticBookingHref(locale, domain, booking.id);
-    const title = domain === "labs"
-      ? pickText(locale, booking.testNameAr, booking.testNameEn) ?? l.diagnostics("labs.label")
-      : pickText(locale, booking.scanNameAr, booking.scanNameEn) ?? l.diagnostics("radiology.label");
     return {
       key: `${domain}-${booking.id}`,
       kind: domain,
       href,
       ...KIND_VISUAL[domain],
-      title,
+      ...bookingTitle(locale, domain, booking, l),
       meta: l.orders(`kind.${domain}`),
       at: booking.scheduledAt,
       statusLabel: status.key === "unknown" ? l.diagnostics("statusUnavailable") : l.diagWeb(`status_${status.key}`),
@@ -197,4 +251,24 @@ export function returnRows(locale: string, payload: unknown, l: CenterLabels): C
 export function sortCenterRows(rows: CenterRow[]): CenterRow[] {
   const time = (row: CenterRow) => { const at = row.at ? new Date(row.at).getTime() : NaN; return Number.isFinite(at) ? at : -Infinity; };
   return [...rows].sort((a, b) => time(b) - time(a));
+}
+
+
+const HIDE_PREFIX: Array<[string, VisitKind]> = [["pharmacy-", "pharmacy"], ["consultation-", "consultation"], ["labs-", "lab"], ["radiology-", "radiology"], ["nursing-", "nursing"]];
+
+/**
+ * PT-54: marks the rows the patient can hide, from the timeline answer (GET /unified-bookings/mine?include_hidden=1): a row whose visit
+ * is COMPLETED or CANCELLED there gets `hide` with its current state. Rows the timeline does not know (returns, results, old orders)
+ * are left alone, and with no timeline answer nothing is hideable and nothing is hidden.
+ */
+export function withHideState(rows: CenterRow[], timeline: unknown): CenterRow[] {
+  const states = readVisitStates(timeline);
+  if (states.size === 0) return rows;
+  return rows.map((row) => {
+    const match = HIDE_PREFIX.find(([prefix]) => row.key.startsWith(prefix));
+    if (!match) return row;
+    const id = row.key.slice(match[0].length);
+    const state = states.get(visitKey(match[1], id));
+    return state && (state.hidden || canHideStatus(state.status)) ? { ...row, hide: { kind: match[1], id, hidden: state.hidden } } : row;
+  });
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { patientApiUrl } from "@/lib/api/upstream";
+import { publicReadSignal } from "@/lib/api/public-timeout";
 
 type Context = { params: Promise<{ doctorId: string; mediaId: string }> };
 const ID = /^[A-Za-z0-9_-]{1,80}$/;
@@ -14,7 +15,7 @@ export async function GET(_request: Request, context: Context) {
   if (!ID.test(doctorId) || !ID.test(mediaId)) return NextResponse.json({ message: "media_not_found" }, { status: 404 });
   let upstream: Response;
   try {
-    upstream = await fetch(patientApiUrl(`/care/doctors/${encodeURIComponent(doctorId)}/media/${encodeURIComponent(mediaId)}`), { redirect: "manual", cache: "no-store" });
+    upstream = await fetch(patientApiUrl(`/care/doctors/${encodeURIComponent(doctorId)}/media/${encodeURIComponent(mediaId)}`), { signal: publicReadSignal(), redirect: "manual", cache: "no-store" });
   } catch {
     return NextResponse.json({ message: "upstream_unavailable" }, { status: 503 });
   }

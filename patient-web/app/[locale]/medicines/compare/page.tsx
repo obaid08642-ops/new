@@ -1,8 +1,13 @@
 import type { Metadata } from "next";
+import { localizedText } from "@/lib/i18n/localized-field";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { callPatientApi } from "@/lib/api/upstream";
+import { resolveProductGallery } from "@/lib/api/public-products-server";
+import { CatalogImage } from "@/components-next/pharmacy/catalog-image";
+import { CompareAddButton } from "@/components-next/pharmacy/compare-add-button";
+import { allowedImageUrl } from "@/lib/image-hosts";
 import { getDirection, isLocale } from "@/lib/i18n";
 import { hubMetadata } from "@/lib/seo";
 import { formatPrice } from "@/lib/format-price";
@@ -10,6 +15,7 @@ import { CoreShell } from "@/components-next/core/core-shell";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import styles from "@/components-next/pharmacy/pharmacy.module.css";
+import { CORAL } from "@/lib/health/view";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ ids?: string }> };
 
@@ -47,6 +53,11 @@ export default async function MedicineComparePage({ params, searchParams }: Prop
   // a row that no medicine has data for is not drawn
   // the catalogue's own field names (medicine.schema: form, strength), not the old guesses (dosage_form)
   const fields = (["active_ingredient", "price", "form", "strength", "manufacturer", "requires_prescription", "online_exclusive"] as const).filter((f) => items.some((m) => value(m, f) !== null));
+  // The cheapest price of the compared medicines is marked (parity audit /medicines/compare: the app's "lowest" chip).
+  const prices = items.map((m) => (typeof m.price === "number" && m.price > 0 ? m.price : null)).filter((p): p is number => p !== null);
+  const cheapest = prices.length >= 2 ? Math.min(...prices) : null;
+  const lowest = (await getTranslations("PharmacyOffers"))("lowestPrice");
+  const cartLabel = (await getTranslations("CartScreen"))("title");
   const back = `/${locale}/c`;
   const caret = getDirection(locale) === "rtl" ? "caret-right" : "caret-left";
 
@@ -59,7 +70,7 @@ export default async function MedicineComparePage({ params, searchParams }: Prop
         </div>
         {items.length < 2 ? (
           <div className={styles.state}>
-            <EmptyState icon="arrows-left-right" tone="mint" title={t("title")} body={t("emptyBody")} />
+            <EmptyState icon="arrows-left-right" tone={CORAL} title={t("title")} body={t("emptyBody")} />
             <Link href={back} className={`nabd-button nabd-button--primary nabd-button--lg nabd-button--full ${styles.linkButton}`}>
               <span className="nabd-button__label">{t("browse")}</span>
             </Link>
@@ -71,16 +82,43 @@ export default async function MedicineComparePage({ params, searchParams }: Prop
               <thead>
                 <tr>
                   <th scope="col">{t("attribute")}</th>
-                  {items.map((m, i) => <th scope="col" key={i}>{String((locale === "ar" || locale === "ur" ? m.name_ar ?? m.name_en : m.name_en ?? m.name_ar) ?? `#${i + 1}`)}</th>)}
+                  {items.map((m, i) => {
+                    const name = String(localizedText({ locale, ar: m.name_ar as string | undefined, en: m.name_en as string | undefined }) ?? `#${i + 1}`);
+                    const picture = allowedImageUrl(resolveProductGallery(m)[0]);
+                    return (
+                      <th scope="col" key={i}>
+                        <Link className={styles.compareHead} href={`/${locale}/medicines/${encodeURIComponent(String(m.id))}`}>
+                          {picture ? <CatalogImage src={picture} alt="" sizes="96px" width={96} height={96} className={styles.compareImage} /> : null}
+                          <span>{name}</span>
+                        </Link>
+                      </th>
+                    );
+                  })}
                 </tr>
               </thead>
               <tbody>
                 {fields.map((f) => (
                   <tr key={f}>
                     <th scope="row">{t(f)}</th>
-                    {items.map((m, i) => <td key={i}>{value(m, f) ?? "—"}</td>)}
+                    {items.map((m, i) => (
+                      <td key={i}>
+                        {value(m, f) ?? "—"}
+                        {f === "price" && cheapest !== null && m.price === cheapest ? <span className={styles.lowestTag}>{lowest}</span> : null}
+                      </td>
+                    ))}
                   </tr>
                 ))}
+                <tr>
+                  <th scope="row">{cartLabel}</th>
+                  {items.map((m, i) => {
+                    const name = String(localizedText({ locale, ar: m.name_ar as string | undefined, en: m.name_en as string | undefined }) ?? `#${i + 1}`);
+                    return (
+                      <td key={i}>
+                        <CompareAddButton id={String(m.id)} name={name} rx={m.requires_prescription === true} onlineOnly={m.online_exclusive === true} image={resolveProductGallery(m)[0] ?? null} slug={typeof m.slug === "string" ? m.slug : null} />
+                      </td>
+                    );
+                  })}
+                </tr>
               </tbody>
             </table>
           </div>

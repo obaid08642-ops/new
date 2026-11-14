@@ -1,0 +1,178 @@
+[
+  {
+    "batch": "m6-blocked",
+    "app": "patient-web",
+    "screen": "/diagnostics (Ord02 service home)",
+    "element": "\"from X SAR\" by area, provider count, order entry",
+    "file": "patient-web/app/[locale]/diagnostics/page.tsx",
+    "line": 59,
+    "found": "[backend] waits for M3: the area price and provider count need the ordering engine.",
+    "suspect": "M3 is not on main: only the red acceptance specs (#1749, #1750).",
+    "review_status": "fixed #1784 (Ord02 built; remaining gaps are in m6-ord02-05-web/app.json)"
+  },
+  {
+    "batch": "m6-blocked",
+    "app": "patient-app",
+    "screen": "/diagnostics/test-detail (Ord03 item page)",
+    "element": "coverage per item for the patient class (estimated), prep and turnaround",
+    "file": "patient-app/app/diagnostics/test-detail.tsx",
+    "line": 17,
+    "found": "[backend] waits for M5: coverage per item needs the insurance-per-item model.",
+    "suspect": "M5 is not on main: only the red acceptance specs (#1749, #1750).",
+    "review_status": "fixed #1784 (Ord03 coverage built)"
+  },
+  {
+    "batch": "m6-blocked",
+    "app": "patient-web",
+    "screen": "/diagnostics/test-detail (Ord03 item page)",
+    "element": "coverage per item and estimated share",
+    "file": "patient-web/app/[locale]/diagnostics/test-detail/page.tsx",
+    "line": 13,
+    "found": "[backend] waits for M5: coverage per item needs the insurance-per-item model.",
+    "suspect": "M5 is not on main: only the red acceptance specs (#1749, #1750).",
+    "review_status": "fixed #1784 (Ord03 coverage built)"
+  },
+  {
+    "batch": "m6-blocked",
+    "app": "patient-web",
+    "screen": "/diagnostics/cart (Ord04 basket split)",
+    "element": "basket split at home / at the centre, alternatives",
+    "file": "patient-web/app/[locale]/diagnostics/cart/page.tsx",
+    "line": 13,
+    "found": "[backend] waits for M3: split rule and alternatives come from the engine.",
+    "suspect": "M3 is not on main: only the red acceptance specs (#1749, #1750).",
+    "review_status": "fixed #1784 (Ord04 basket split built)"
+  },
+  {
+    "batch": "m6-blocked",
+    "app": "patient-web",
+    "screen": "/diagnostics/lab-comparison (Ord05 best match)",
+    "element": "best match, compare list, split suggestion",
+    "file": "patient-web/app/[locale]/diagnostics/lab-comparison/page.tsx",
+    "line": 15,
+    "found": "[backend] waits for M3: ranking and split suggestion come from the engine.",
+    "suspect": "M3 is not on main: only the red acceptance specs (#1749, #1750).",
+    "review_status": "fixed #1784 (Ord05 best match built)"
+  },
+  {
+    "batch": "m6-blocked",
+    "app": "patient-web",
+    "screen": "/diagnostics/book-sample (Ord06 time picker)",
+    "element": "ASAP with stage timer; walk-in QR",
+    "file": "patient-web/app/[locale]/diagnostics/book-sample/page.tsx",
+    "line": 8,
+    "found": "[backend] waits for M4: ASAP broadcast and stage timer are M4; slots are M3.",
+    "suspect": "Acceptance specs for M4: #1749/#1750; not on main.",
+    "review_status": "fixed #1785 (Ord06 time picker and ASAP timer built)"
+  },
+  {
+    "batch": "m6-blocked",
+    "app": "patient-web",
+    "screen": "/diagnostics/checkout (Ord07 confirm and pay)",
+    "element": "price lock, split bookings, estimate, medical order attach",
+    "file": "patient-web/app/[locale]/diagnostics/checkout/page.tsx",
+    "line": 14,
+    "found": "[backend] waits for M3: booking draft with price lock is M3.",
+    "suspect": "M3 is not on main: only the red acceptance specs (#1749, #1750).",
+    "review_status": "fixed #1785 (Ord07 confirm and pay built)"
+  },
+  {
+    "batch": "m6-blocked",
+    "app": "patient-web",
+    "screen": "/diagnostics/insurance-approval (Ord08 and Ord09)",
+    "element": "approval clock, partial-approval choice",
+    "file": "patient-web/app/[locale]/diagnostics/insurance-approval/page.tsx",
+    "line": 18,
+    "found": "[backend] waits for M5: per-item approval result and choice endpoint are M5.",
+    "suspect": "Acceptance specs for M5 are red on main.",
+    "review_status": "fixed this PR (Ord08 and Ord09 built in booking-status)"
+  },
+  {
+    "batch": "m6-blocked",
+    "app": "patient-web",
+    "screen": "/diagnostics/sample-tracking (Ord10 tracking)",
+    "element": "arrival code (4 digits), staff photo, licence, rating",
+    "file": "patient-web/app/[locale]/diagnostics/sample-tracking/page.tsx",
+    "line": 13,
+    "found": "[backend] waits for M7: arrival code and staff profile do not exist; grep finds none on main.",
+    "suspect": "M7 acceptance specs are red on main.",
+    "review_status": "fixed this PR (Ord10 tracking built; remaining gaps in m6-ord08-10-web.json)"
+  },
+  {
+    "batch": "m6-blocked",
+    "app": "patient-app",
+    "screen": "/diagnostics/sample-tracking (Ord10 tracking)",
+    "element": "arrival code, staff photo, licence",
+    "file": "patient-app/app/diagnostics/sample-tracking.tsx",
+    "line": 27,
+    "found": "[backend] waits for M7: arrival code and staff profile do not exist on main.",
+    "suspect": "M7 acceptance specs are red on main.",
+    "review_status": "fixed this PR (patient-app booking-status.tsx shows the arrival code and staff profile; remaining gaps in m6-ord08-10-app.json)"
+  },
+  {
+    "batch": "m6-blocked",
+    "app": "patient-web",
+    "screen": "/diagnostics/results/[resultId] (Ord11 discuss)",
+    "element": "\"Discuss with a doctor\" opens an instant consultation with the result",
+    "file": "patient-web/app/[locale]/diagnostics/results/[resultId]/page.tsx",
+    "line": 128,
+    "found": "[backend] waits for M8: instant consultation broadcast does not exist; the button opens the doctors list.",
+    "suspect": "M8 acceptance specs are red on main.",
+    "review_status": "fixed this PR (instant consultation flow on web and app; remaining gaps in m6-ord11-web.json and m6-ord01-11-app.json)"
+  },
+  {
+    "batch": "m6-blocked",
+    "app": "patient-app",
+    "screen": "/diagnostics/search (Ord01 context bar)",
+    "element": "context bar with place and payment",
+    "file": "patient-app/app/diagnostics/search.tsx",
+    "line": 18,
+    "found": "[backend] waits for M3: owner decision (2026-10-18): app Ord01 waits for M3.",
+    "suspect": "Decided; no open question.",
+    "review_status": "fixed this PR (real context bar on the app ordering screens; gaps in m6-ord01-11-app.json)"
+  },
+  {
+    "batch": "m6-orders",
+    "app": "patient-web",
+    "screen": "/medical-orders/[orderId] (Ord21)",
+    "element": "Item names",
+    "file": "patient-web/app/[locale]/medical-orders/[orderId]/page.tsx",
+    "line": 44,
+    "found": "[backend] GET /medical-orders/:id gives catalog_id only, no test or scan name; items show their group (or sessions) instead of a name.",
+    "suspect": "Backend gap: add the catalogue name to each item in the view (medical-orders.service.ts view()).",
+    "review_status": "fixed on web: names come from the catalogue reads (loadItem); a backend name in view() would save one read per item [backend, optional]"
+  },
+  {
+    "batch": "m6-orders",
+    "app": "patient-web",
+    "screen": "/medical-orders/[orderId] (Ord21, Order button)",
+    "element": "Order button prefill",
+    "file": "patient-web/app/api/medical-orders/[orderId]/items/[itemId]/[action]/route.ts",
+    "line": 38,
+    "found": "[client] The Order button calls POST …/order, which returns the prefill (service_kind, items), then sends the patient to the group hub. The lab, radiology and nursing flows do not read the prefill, so the items are not pre-ticked.",
+    "suspect": "Client: the flows must read the medical_order prefill (M3 flow).",
+    "review_status": "fixed x/orders-prechecked (the Order route hands the backend's prefill to the basket: patient-web/lib/ordering/prefill.ts, route.ts)"
+  },
+  {
+    "batch": "m6-orders",
+    "app": "patient-app",
+    "screen": "/medical-orders/[id] (Ord21, Order button)",
+    "element": "Order button prefill",
+    "file": "patient-app/app/medical-orders/[id].tsx",
+    "line": 41,
+    "found": "[client] Same as the web: the prefill is not read by the app flows; the patient lands on the generic flow.",
+    "suspect": "Client: the flows must read the medical_order prefill (M3 flow).",
+    "review_status": "open: web flows read the prefill (done); the app flow is not built in this lane slice [client, app]"
+  },
+  {
+    "batch": "m6-orders",
+    "app": "patient-web",
+    "screen": "/medical-orders/[orderId] (expired order)",
+    "element": "Renew",
+    "file": "patient-web/app/[locale]/medical-orders/[orderId]/page.tsx",
+    "line": 51,
+    "found": "[backend] POST /medical-orders/:id/renew-request exists on main; the expired note has no renew action yet (not built in this batch).",
+    "suspect": "Client: add the renew action (owner: wording and whether a doctor is asked).",
+    "review_status": "fixed: renew action on web (POST /medical-orders/:id/renew-request via BFF, sent/error notice, six languages)"
+  }
+]

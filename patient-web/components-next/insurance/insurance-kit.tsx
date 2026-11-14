@@ -22,7 +22,7 @@ export function RowCaret({ locale }: { locale: Locale }) {
 }
 
 /** The board's policy card: the insurer, the plan and whether a policy is recorded (the three things the server tells us). */
-export function PolicyCard({ title, sub, badge, tone, logoUrl, lines = [] }: { title: string; sub?: string; badge: string; tone: RequestTone; logoUrl?: string; lines?: string[] }) {
+export function PolicyCard({ title, sub, badge, tone, logoUrl, lines = [], details = [] }: { title: string; sub?: string; badge: string; tone: RequestTone; logoUrl?: string; lines?: string[]; details?: Array<{ label: string; value: string }> }) {
   return (
     <section className={`${rx.card} ${styles.policy}`}>
       <div className={styles.policyTop}>
@@ -34,6 +34,11 @@ export function PolicyCard({ title, sub, badge, tone, logoUrl, lines = [] }: { t
         {sub ? <span className={styles.policySub}>{sub}</span> : null}
         {lines.map((line) => <span key={line} className={styles.policySub} dir="auto">{line}</span>)}
       </div>
+      {details.length > 0 ? (
+        <ul className={styles.amounts}>
+          {details.map((row) => <li key={row.label}><span className={styles.amountLabel}>{row.label}</span><span className={styles.amountValue}><bdi>{row.value}</bdi></span></li>)}
+        </ul>
+      ) : null}
     </section>
   );
 }

@@ -18,6 +18,8 @@ const patientReadRoutes = [
   new RegExp("^/home-care/bookings/[A-Za-z0-9-]{1,64}$", "i"),
   // components-next/home-care-booking-form: the chosen nurse's free times for one day (journeys#60).
   new RegExp("^/home-care/providers/[A-Za-z0-9-]{1,64}/slots\\?date=\\d{4}-\\d{2}-\\d{2}$", "i"),
+  // components-next/home-care-booking-form: the server's price of a nursing booking for the choice made (docs/product/NURSING_BOOKING_OPTIONS.md).
+  new RegExp("^/bookings/quote\\?kind=nursing&service_id=[A-Za-z0-9_-]{1,128}&provider_id=[A-Za-z0-9-]{1,64}(&(hours|days|sessions_count)=\\d{1,3}|&(shift|period|recurrence)=[a-z]{1,10}){0,6}$", "i"),
   new RegExp("^/family/chat/messages$", "i"),
   new RegExp(`^/offers/${orderId}$`, "i"),
   new RegExp(`^/promotions/offers/${orderId}/providers$`, "i"),
@@ -26,9 +28,15 @@ const patientReadRoutes = [
   new RegExp("^/insurance/requests/my$", "i"),
   new RegExp(`^/insurance/requests/${orderId}$`, "i"),
   new RegExp("^/users/me/addresses$", "i"),
+  // 19.7 components-next/account/address-book: a Saudi National Address short code looked up at Saudi Post.
+  new RegExp("^/national-address/lookup\\?code=[A-Za-z0-9 %-]{1,40}$", "i"),
   // components-next/account/geo-select: regions, cities and districts through the proxy (needs-review issue 780).
+  // PT-refund text: the policy lines of one service shown at the tick (lane Z: GET /refund-policy/summary?service=...).
+  new RegExp("^/refund-policy/summary\\?service=(consultation|lab|radiology|nursing|pharmacy)$", "i"),
   new RegExp("^/locations/(regions|cities)$", "i"),
   new RegExp("^/locations/districts\\?city=[^&#]{1,120}$", "i"),
+  // app/api/geo/reverse and the address map: backend GET /geo/reverse, the address of one point (city and district are ours).
+  new RegExp("^/geo/reverse\\?lat=-?\\d{1,3}(\\.\\d{1,15})?&lng=-?\\d{1,3}(\\.\\d{1,15})?$", "i"),
   new RegExp("^/nutrition/profile$", "i"),
   new RegExp("^/support/chat$", "i"),
   new RegExp(`^/orders/${orderId}/tracking$`, "i"),
@@ -42,6 +50,8 @@ const patientReadRoutes = [
   new RegExp("^/providers/map$", "i"),
   new RegExp("^/users/me/profile$"),
   new RegExp("^/users/me/notification-settings$"),
+  // The home bell: backend GET /notifications/unread-count.
+  new RegExp("^/notifications/unread-count$"),
   new RegExp(`^/unified-bookings/consultation/${orderId}$`, "i"),
   new RegExp(`^/care/appointments/${orderId}$`, "i"),
   new RegExp("^/health/score$"),
@@ -54,7 +64,12 @@ const patientReadRoutes = [
   new RegExp("^/health/chronic-meds$"),
   new RegExp("^/health/trends$"),
   new RegExp("^/family/my-group$"),
+  // PT-08: the patient's medical reports (the routes keep the backend's old name): list, one in full, its PDF
+  new RegExp("^/care/sick-leaves$"),
+  new RegExp(`^/care/sick-leaves/${memberId}$`, "i"),
+  new RegExp(`^/care/sick-leaves/${memberId}/pdf$`, "i"),
   new RegExp("^/family/members$"),
+  new RegExp("^/family/dependants$"),
   new RegExp(`^/family/member-records/${memberId}$`, "i"),
   new RegExp("^/family/calendar$"),
   new RegExp("^/insurance/my-policy$"),
@@ -72,6 +87,8 @@ const patientReadRoutes = [
   new RegExp("^/users/me/storage$"),
   new RegExp("^/users/me/sessions$"),
   new RegExp("^/articles/bookmarks/mine$"),
+  // "Notify me when available" on a catalogue service nobody offers yet (backend catalogue-interest, #2067): the services the patient already asked for.
+  new RegExp("^/catalogue-interest/mine$"),
   // the article page asks whether the signed-in patient saved the article (the Save button)
   new RegExp("^/articles/bookmarks/[A-Za-z0-9_-]{1,160}/status$"),
   new RegExp("^/chat/threads$"),
@@ -93,12 +110,19 @@ const patientReadRoutes = [
   new RegExp("^/push/web/vapid-key$"),
   // journeys#54: the report file of the patient's own lab booking (the backend checks the booking is theirs).
   new RegExp(`^/labs/bookings/${orderId}/reports/${orderId}$`, "i"),
+  // The receipt: the patient's invoices and the PDF of one (the backend checks the booking is theirs).
+  new RegExp("^/billing/my$"),
+  new RegExp(`^/billing/invoice/(pharmacy|order|appointment|consultation|lab|radiology|home_care|nursing)/${orderId}/pdf$`, "i"),
+  // The share links of one receipt (the list never carries a token; the backend checks the booking is theirs).
+  new RegExp(`^/billing/invoice/(pharmacy|order|appointment|consultation|lab|radiology|home_care|nursing)/${orderId}/share-links$`, "i"),
   // A1: the patient wallet is gone — these backend routes no longer exist.
 ];
 
 const diagnosticsMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }> = [
   { method: "POST", route: new RegExp("^/labs/bookings$") },
   { method: "POST", route: new RegExp(`^/labs/bookings/${orderId}/documents$`, "i") },
+  // components-next/diagnostics/booking-cancel: the patient cancels their own lab or radiology booking (the backend checks it is theirs).
+  { method: "POST", route: new RegExp(`^/(labs|radiology)/bookings/${orderId}/cancel$`, "i") },
   { method: "PATCH", route: new RegExp(`^/labs/bookings/${orderId}/reschedule$`, "i") },
   // Lab insurance approval: the patient pays cash for an item insurance rejected (labs.controller opt-in-cash).
   { method: "PATCH", route: new RegExp(`^/labs/bookings/${orderId}/items/[^/]{1,128}/opt-in-cash$`, "i") },
@@ -112,6 +136,8 @@ const diagnosticsMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp
   { method: "POST", route: new RegExp("^/nutrition/water$", "i") },
   { method: "POST", route: new RegExp("^/mental-health/mood$", "i") },
   { method: "POST", route: new RegExp("^/maternity/(kicks|contractions|infant-growth)$", "i") },
+  // components-next/video-room-client: leaving a call ends its session on the server (backend livekit.controller POST :sessionId/end; the service checks the caller is a party)
+  { method: "POST", route: new RegExp(`^/calls/${orderId}/end$`, "i") },
   { method: "POST", route: new RegExp("^/support/chat$", "i") },
   { method: "POST", route: new RegExp(`^/support/requests/[^/]+/reply$`, "i") },
   { method: "POST", route: new RegExp("^/medical/programs/complete-session$", "i") },
@@ -121,13 +147,24 @@ const diagnosticsMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp
 
 // The health screens add a night of sleep and add or remove the patient's own emergency contacts (backend health.controller);
 // the article page saves or unsaves one article (backend articles.module: POST /articles/bookmarks/:slug/toggle).
-const healthMutationRoutes: Array<{ method: "POST" | "DELETE"; route: RegExp }> = [
+const healthMutationRoutes: Array<{ method: "POST" | "DELETE" | "PUT"; route: RegExp }> = [
+  // Owner decision 6: the national ID / iqama number, asked only when a medical report needs it (lane Z).
+  { method: "PUT", route: new RegExp("^/care/sick-leaves/national-id$", "i") },
+  // PT-54: the patient hides or shows again a finished visit in their own history
+  { method: "POST", route: new RegExp(`^/unified-bookings/(pharmacy|lab|radiology|nursing|consultation)/${orderId}/(hide|unhide)$`, "i") },
+  // the doctor did not come (provider no-show, full refund): the patient or the booker, 10 minutes after the start
+  { method: "POST", route: new RegExp(`^/care/appointments/${orderId}/provider-no-show$`, "i") },
+  // PT-03: a guardian adds and removes a dependant (a minor with no account)
+  { method: "POST", route: new RegExp("^/family/dependants$") },
+  { method: "DELETE", route: new RegExp("^/family/dependants/[A-Za-z0-9_-]{1,128}$") },
   { method: "POST", route: new RegExp("^/health/sleep$") },
   { method: "POST", route: new RegExp("^/health/emergency-contacts$") },
   // Owner decision 14: "send my location to my family" (POST /emergency/share-location, the patient's own contacts, #665).
   { method: "POST", route: new RegExp("^/emergency/share-location$") },
   { method: "DELETE", route: new RegExp("^/health/emergency-contacts/[A-Za-z0-9_-]{1,128}$") },
   { method: "POST", route: new RegExp("^/articles/bookmarks/[A-Za-z0-9_-]{1,160}/toggle$") },
+  // "Notify me when available": one interest per patient and service (idempotent on the server).
+  { method: "POST", route: new RegExp("^/catalogue-interest$") },
   // ac-1-agent-oauth#1: settings, disconnect a connected AI assistant (backend PatientAgentConnectionsController)
   { method: "DELETE", route: new RegExp("^/patient/agent-connections/[A-Za-z0-9_.:-]{1,128}$") },
 ];
@@ -152,6 +189,9 @@ const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }>
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/messages$`, "i") },
   // issue 806: the doctor thread composer sends one text message (backend chat.module POST /chat/threads/:id/messages)
   { method: "POST", route: new RegExp(`^/chat/threads/${threadId}/messages$`, "i") },
+  // seen and delivered receipts of the doctor thread (backend chat.module POST /chat/threads/:id/read and /delivered)
+  { method: "POST", route: new RegExp(`^/chat/threads/${threadId}/read$`, "i") },
+  { method: "POST", route: new RegExp(`^/chat/threads/${threadId}/delivered$`, "i") },
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/accept-substitute/[A-Za-z0-9_-]{1,128}$`, "i") },
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/reject$`, "i") },
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/remove-item$`, "i") },
@@ -166,6 +206,8 @@ const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }>
   { method: "POST", route: new RegExp("^/auth/heartbeat$", "i") },
   // the heart on the product page (components-next/pharmacy/wishlist-heart): backend POST /users/me/wishlist/:itemId toggles one medicine
   { method: "POST", route: new RegExp("^/users/me/wishlist/[A-Za-z0-9_-]{1,128}$") },
+  // "Suggest an edit" on the product page (components-next/pharmacy/suggest-change): backend POST /medicines/:id/suggest-change, as the app sends it
+  { method: "POST", route: new RegExp("^/medicines/[A-Za-z0-9_-]{1,128}/suggest-change$") },
 ];
 
 export function isAllowedPatientApiPath(path: string) {
@@ -189,12 +231,19 @@ const notificationMutationRoutes: Array<{ method: "POST"; route: RegExp }> = [
   { method: "POST", route: new RegExp("^/push/web/unsubscribe$") },
 ];
 
+// The receipt: make a read-only link to it (POST) and revoke one (DELETE); components-next/receipt/receipt-links.
+const receiptMutationRoutes: Array<{ method: "POST" | "DELETE"; route: RegExp }> = [
+  { method: "POST", route: new RegExp(`^/billing/invoice/(pharmacy|order|appointment|consultation|lab|radiology|home_care|nursing)/${orderId}/share-link$`, "i") },
+  { method: "DELETE", route: new RegExp(`^/billing/invoice/(pharmacy|order|appointment|consultation|lab|radiology|home_care|nursing)/${orderId}/share-links/${orderId}$`, "i") },
+];
+
 export function isAllowedPatientApiRequest(path: string, method: string) {
   return (method === "GET" && isAllowedPatientApiPath(path))
     || notificationMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
     || healthMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
     || addressMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
     || diagnosticsMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
+    || receiptMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
     || pharmacyMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path));
 }
 

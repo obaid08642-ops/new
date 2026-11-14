@@ -10,16 +10,17 @@ import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { normalizeLabList, type CatalogItem } from '../../src/utils/labMappers';
 import { useApp } from '../../src/context/AppContext';
+import { reportRankingEvent, verticalOfSuggestion } from '../../src/utils/rankingEvents';
 import { useSearchSuggest } from '../../src/hooks/useSearchSuggest';
 import { SearchSuggestList } from '../../src/components/search/SearchSuggestList';
-import { suggestionRoute } from '../../src/utils/searchSuggest';
+import { SUGGEST_SCOPES, suggestionRoute } from '../../src/utils/searchSuggest';
 
 /** Search of the lab tests: the field, and a row per test that opens its page (board Search). */
 export default function DiagnosticsSearch() {
   const { theme, k } = useScreenUi();
   const { lang } = useApp();
   const [q, setQ] = useState('');
-  const suggest = useSearchSuggest(q, lang);
+  const suggest = useSearchSuggest(q, lang, SUGGEST_SCOPES.labs);
   const [tests, setTests] = useState<CatalogItem[]>([]);
   const [status, setStatus] = useState<'loading' | 'error' | 'offline' | 'ready'>('loading');
 
@@ -56,6 +57,8 @@ export default function DiagnosticsSearch() {
               onPick={(item) => {
                 const route = suggestionRoute(item);
                 if (!route) return;
+                const vertical = verticalOfSuggestion(item.type);
+                if (vertical) reportRankingEvent(vertical, item.id, 'search');
                 suggest.close();
                 router.push({ pathname: route.pathname, params: route.params } as unknown as Href);
               }}
@@ -70,7 +73,7 @@ export default function DiagnosticsSearch() {
       empty={{ icon: 'magnifying-glass', title: k('diag.search.empty') }}
       renderItem={(t) => (
         <ListCard>
-          <TestRow name={t.name} icon={diagLook(t.category)} price={t.price} last onPress={() => router.push(`/diagnostics/test-detail?id=${t.id}` as Href)} />
+          <TestRow name={t.name} nameMark={t.nameMark} icon={diagLook(t.category)} price={t.price} last onPress={() => router.push(`/diagnostics/test-detail?id=${t.id}` as Href)} />
         </ListCard>
       )}
     />

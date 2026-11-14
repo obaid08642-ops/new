@@ -37,6 +37,8 @@ export class Location {
   @Prop({ required: true, index: true })
   name_en: string;
 
+  // Names are Arabic and English only (owner decision 2026-10-25): the UI shows `name_ar` on the Arabic page and `name_en` on every other.
+
   @Prop({
     required: true,
     enum: ['country', 'region', 'city', 'district', 'sub_area'],

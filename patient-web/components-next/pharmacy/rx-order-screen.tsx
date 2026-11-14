@@ -52,6 +52,7 @@ export function RxOrderScreen({ locale, prescription }: { locale: Locale; prescr
         <div className={rx.head}><h1 className={rx.title}>{t("orderTitle")}</h1></div>
 
         <div className={rx.chips}>
+          <span className={rx.note} data-testid="rx-number"><bdi>{t("rxNumber", { code: prescription.id.slice(-6).toUpperCase() })}</bdi></span>
           <StatusChip label={rxT(prescriptionStateKey(prescription.state))} tone={prescriptionStateTone(prescription.state)} />
           {issued ? <span className={rx.note}>{rxT("issuedOn", { date: issued })}</span> : null}
           {prescription.doctorName ? <span className={rx.note}>{rxT("fromDoctor", { doctor: prescription.doctorName })}</span> : null}

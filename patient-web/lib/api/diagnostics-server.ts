@@ -1,5 +1,6 @@
 import type { DiagnosticDomain } from "@/lib/api/diagnostics";
 import { callPatientApi, patientApiUrl } from "@/lib/api/upstream";
+import { publicReadSignal } from "@/lib/api/public-timeout";
 
 /** Server-only BFF boundary for private lab and radiology booking reads. */
 export function getDiagnosticBookings(accessToken: string, domain: DiagnosticDomain) {
@@ -16,7 +17,7 @@ export function getDiagnosticTracking(accessToken: string, domain: DiagnosticDom
 
 export async function getCompatibleLabProviders(serviceId: string): Promise<any[]> {
   try {
-    const response = await fetch(patientApiUrl(`/labs/compatible-providers?testIds=${encodeURIComponent(serviceId)}`), { headers: { Accept: "application/json" }, cache: "no-store" });
+    const response = await fetch(patientApiUrl(`/labs/compatible-providers?testIds=${encodeURIComponent(serviceId)}`), { signal: publicReadSignal(), headers: { Accept: "application/json" }, cache: "no-store" });
     if (!response.ok) return [];
     const data = await response.json().catch(() => []);
     return Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);

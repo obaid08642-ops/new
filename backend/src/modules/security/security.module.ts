@@ -1,6 +1,9 @@
 import { Module, Injectable, Controller, Get, Post, Delete, Body, Param, NestMiddleware, MiddlewareConsumer, UseGuards, Query, BadRequestException, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { AuditRetentionService } from './audit-retention.service';
+import { AuditCoverageService } from './audit-coverage.service';
+import { UserHistoryService } from './user-history.service';
+import { UserHistoryController } from './user-history.controller';
 import { escapeRegex } from '../../common/slug.util';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -10,9 +13,13 @@ import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { Request, Response, NextFunction } from 'express';
 import { randomUUID, createHash } from 'crypto';
-import { logEvent, runWithLogContext } from '../../common/structured-logger';
+import { registerAuditSink } from '../../common/audit-record';
+import { currentLogContext, logEvent, runWithLogContext } from '../../common/structured-logger';
 
+import { AuditCollectionMigration } from './audit-collection-migration';
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { ScheduledOnce } from '../../common/scheduled-once';
+import { PlaceLegalHoldDto } from './legal-hold.dto';
 /** 23.1 — the full field set the plan requires of every event. */
 export interface AuditEntry {
   action: string;
@@ -52,9 +59,32 @@ function stableStringify(value: any): string {
   return JSON.stringify(value);
 }
 
+/**
+ * What the database will actually hold: `undefined` values and empty objects are dropped (Mongoose minimizes empty
+ * objects on save). The hash is computed over this form, so a row with `details: {}` or `changes: { before: undefined }`
+ * verifies later instead of reading as tampered.
+ */
+function dropEmpty(value: any): any {
+  if (Array.isArray(value)) return value.map(dropEmpty);
+  if (value && typeof value === 'object' && !(value instanceof Date)) {
+    const out: Record<string, any> = {};
+    for (const [k, v] of Object.entries(value)) {
+      if (v === undefined) continue;
+      const cleaned = dropEmpty(v);
+      if (cleaned && typeof cleaned === 'object' && !Array.isArray(cleaned) && !(cleaned instanceof Date) && Object.keys(cleaned).length === 0) continue;
+      out[k] = cleaned;
+    }
+    return out;
+  }
+  return value;
+}
+
 @Injectable()
 export class AuditService {
-  constructor(@InjectModel('AuditLog') private logs: Model<any>) {}
+  constructor(@InjectModel('AuditLog') private logs: Model<any>) {
+    // 23.2: services that used to insert raw audit rows hand their events to this writer instead (common/audit-record.ts)
+    registerAuditSink((entry) => this.write(entry));
+  }
   /**
    * Append one event, chained to the previous one (23.3).
    *
@@ -71,6 +101,22 @@ export class AuditService {
   private writeQueue: Promise<void> = Promise.resolve();
 
   async write(entry: AuditEntry): Promise<void> {
+    // 23.1 "where" and the request id come from the request in flight, filled here once so no caller can forget them.
+    // Taken now (not inside the queue), while the request's async context is still the current one.
+    const ctx = currentLogContext();
+    entry = {
+      ...entry,
+      // who: an event that names no actor (a bus event with only the booking) is attributed to the caller of the request
+      user_id: entry.user_id ?? ctx.userId,
+      role: entry.role ?? ctx.role,
+      ip: entry.ip ?? ctx.ip,
+      device_id: entry.device_id ?? ctx.deviceId,
+      user_agent: entry.user_agent ?? ctx.userAgent,
+      platform: entry.platform ?? ctx.platform,
+      app_version: entry.app_version ?? ctx.appVersion,
+      correlation_id: entry.correlation_id ?? ctx.requestId,
+      impersonator_id: entry.impersonator_id ?? ctx.impersonatorId,
+    };
     // Writers in one process take turns instead of racing for the chain head: with N concurrent writers each
     // compare-and-set round has one winner, so the last one needed N rounds and an event was dropped once N passed
     // the retry cap (CI: 25 writers, 24 rows). The compare-and-set below still handles other processes and nodes.
@@ -93,7 +139,7 @@ export class AuditService {
         const sequence = Number(head.value || 0) + 1;
         const prev_hash = (head.head_hash as string) || null;
         const row = {
-          ...entry,
+          ...(dropEmpty(entry) as Record<string, any>),
           // The hash covers what is stored, so the schema default is applied here too.
           severity: entry.severity ?? 'info',
           sequence,
@@ -140,7 +186,9 @@ export class AuditService {
    */
   async verifyChain(options: { limit?: number } = {}) {
     const limit = Math.min(options.limit ?? 5000, 50_000);
-    const rows: any[] = await this.logs.find({}).sort({ sequence: 1 }).limit(limit).lean<any[]>();
+    // Rows written without the chain (the raw fallback writers, rows migrated from the old collection) carry no
+    // sequence: they are not links, and must not use up the limit ahead of the real chain.
+    const rows: any[] = await this.logs.find({ sequence: { $exists: true } }).sort({ sequence: 1 }).limit(limit).lean<any[]>();
     // Rows removed by the retention schedule leave a tombstone (sequence, hash, prev_hash, no
     // content), so a lawful deletion keeps the links intact and is not reported as tampering.
     const last = rows[rows.length - 1]?.sequence ?? 0;
@@ -211,7 +259,7 @@ export class AuditService {
    * Events are ordered oldest-first, because a timeline is read as a story.
    */
   async timeline(subject: { user_id?: string; resource_kind?: string; resource_id?: string }, limit = 200) {
-    const filter: Record<string, { $eq: string }> = {};
+    const filter: Record<string, any> = {};
     // $eq rather than a bare value, and a strict shape check, so a caller can
     // never smuggle a query operator (`$ne`, `$regex`) through these fields:
     // they are compared for equality against one literal key each.
@@ -225,6 +273,13 @@ export class AuditService {
       filter[key] = { $eq: asString };
     }
     if (Object.keys(filter).length === 0) throw new BadRequestException('audit_timeline_needs_a_subject');
+    // 23.2: the story of an order or booking includes the rows that name it in their details (its payments, the offers made
+    // for it), not only the rows whose own resource it is.
+    if (filter.resource_id && !filter.resource_kind) {
+      const id = filter.resource_id;
+      delete filter.resource_id;
+      filter.$or = [{ resource_id: id }, { 'details.booking_id': id }, { 'details.order_id': id }];
+    }
     return this.logs.find(filter).sort({ sequence: 1 }).limit(Math.min(limit, 500)).lean();
   }
 
@@ -281,19 +336,6 @@ export class AuditService {
   /** 23.1 — a role that touches money or configuration must say why. */
   static readonly REASONS_REQUIRED = new Set(['admin_refund', 'user_modify', 'commission_change', 'admin_force_cancel', 'config_change']);
 
-  async queryPersonal(userId: string, options: { page?: number; limit?: number }) {
-    const page = Math.max(1, options.page || 1);
-    const limit = Math.max(1, Math.min(options.limit || 20, 100));
-    const filter = { user_id: userId };
-    const total = await this.logs.countDocuments(filter);
-    const logs = await this.logs.find(filter)
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .lean();
-    return { logs, total, page, limit };
-  }
-
   // ── Event-driven Audit Capture ──────────────────────────────
 
   // Patient Actions
@@ -302,7 +344,8 @@ export class AuditService {
   @OnEvent('auth.logout') async onLogout(p: any) { await this.write({ action: 'patient_logout', user_id: p.user_id, role: p.role || 'patient', ip: p.ip, user_agent: p.user_agent }); }
   @OnEvent('booking.created') async onBookingCreated(p: any) { await this.write({ action: 'consultation_booking', user_id: p.patient_id, role: 'patient', resource_kind: 'booking', resource_id: p.id, details: { booking_id: p.id } }); }
   @OnEvent('booking.cancelled') async onBookingCancelled(p: any) { await this.write({ action: 'consultation_cancellation', user_id: p.actor_id, role: p.role, resource_kind: 'booking', resource_id: p.id }); }
-  @OnEvent('payment.completed') async onPaymentCompleted(p: any) { await this.write({ action: 'payment_completed', user_id: p.patient_id, role: 'patient', resource_kind: 'transaction', resource_id: p.transaction_id, details: { amount: p.amount } }); }
+  @OnEvent('payment.completed') async onPaymentCompleted(p: any) { await this.write({ action: 'payment_completed', user_id: p.patient_id, role: 'patient', resource_kind: 'transaction', resource_id: p.transaction_id, details: { amount: p.amount, booking_id: p.booking_id, booking_kind: p.booking_kind } }); }
+  @OnEvent('payment.failed') async onPaymentFailed(p: any) { await this.write({ action: 'payment_failed', user_id: p.patient_id, role: 'patient', resource_kind: 'transaction', resource_id: p.transaction_id, details: { amount: p.amount, booking_id: p.booking_id, booking_kind: p.booking_kind, reason: p.reason }, severity: 'warn' }); }
   @OnEvent('upload.completed') async onUploadCompleted(p: any) { await this.write({ action: 'file_upload', user_id: p.user_id, role: p.role, resource_kind: 'media', resource_id: p.id, details: { mime: p.mime, size: p.size } }); }
   @OnEvent('upload.rejected') async onUploadRejected(p: any) { await this.write({ action: 'upload_rejected', user_id: p.user_id, ip: p.ip, details: { reason: p.reason, mime: p.mime, size: p.size }, severity: 'warn' }); }
 
@@ -310,19 +353,19 @@ export class AuditService {
   @OnEvent('provider.schedule_updated') async onScheduleUpdated(p: any) { await this.write({ action: 'schedule_change', user_id: p.provider_id, role: 'provider' }); }
   @OnEvent('call.accepted') async onCallAccepted(p: any) { await this.write({ action: 'consultation_accept', user_id: p.callee_id, role: 'doctor', resource_kind: 'call', resource_id: p.session_id }); }
   @OnEvent('call.rejected') async onCallRejected(p: any) { await this.write({ action: 'consultation_reject', user_id: p.callee_id, role: 'doctor', resource_kind: 'call', resource_id: p.session_id }); }
-  @OnEvent('prescription.created') async onPrescriptionCreated(p: any) { await this.write({ action: 'prescription_create', user_id: p.doctor_id, role: 'doctor', resource_kind: 'prescription', resource_id: p.id }); }
+  @OnEvent('prescription.created') async onPrescriptionCreated(p: any) { await this.write({ action: p.doctor_id ? 'prescription_create' : 'prescription_upload', user_id: p.doctor_id ?? p.patient_id, role: p.doctor_id ? 'doctor' : 'patient', resource_kind: 'prescription', resource_id: p.prescription_id ?? p.id, details: { patient_id: p.patient_id, appointment_id: p.appointment_id } }); }
   @OnEvent('prescription.updated') async onPrescriptionUpdated(p: any) { await this.write({ action: 'prescription_edit', user_id: p.doctor_id, role: 'doctor', resource_kind: 'prescription', resource_id: p.id }); }
   @OnEvent('provider.profile_updated') async onProviderProfileUpdated(p: any) { await this.write({ action: 'profile_edit', user_id: p.provider_id, role: 'provider' }); }
 
   // Admin Actions
-  @OnEvent('admin.user_updated') async onAdminUserUpdated(p: any) { await this.write({ action: 'user_modify', user_id: p.admin_id, role: 'admin', resource_kind: 'user', resource_id: p.target_user_id, severity: 'warn' }); }
-  @OnEvent('admin.provider_approved') async onAdminProviderApproved(p: any) { await this.write({ action: 'provider_approve', user_id: p.admin_id, role: 'admin', resource_kind: 'provider', resource_id: p.provider_id, severity: 'warn' }); }
-  @OnEvent('admin.provider_rejected') async onAdminProviderRejected(p: any) { await this.write({ action: 'provider_reject', user_id: p.admin_id, role: 'admin', resource_kind: 'provider', resource_id: p.provider_id, severity: 'warn' }); }
-  @OnEvent('admin.commission_updated') async onAdminCommissionUpdated(p: any) { await this.write({ action: 'commission_change', user_id: p.admin_id, role: 'admin', details: { rate: p.rate }, severity: 'warn' }); }
-  @OnEvent('feature_flag.updated') async onFeatureFlagUpdated(p: any) { await this.write({ action: 'flag_change', user_id: p.admin_id, role: 'admin', details: { flag: p.flag, value: p.value } }); }
-  @OnEvent('auth.login_failed') async onLoginFailed(p: any) { await this.write({ action: 'login_failed', ip: p.ip, user_agent: p.user_agent, details: { phone: hashTail(p.phone) }, severity: 'warn' }); }
-  @OnEvent('payment.refund') async onRefund(p: any) { await this.write({ action: 'payment_refund', user_id: p.actor_id, resource_kind: 'transaction', resource_id: p.transaction_id, details: { amount: p.amount }, severity: 'warn' }); }
-  @OnEvent('admin.force_cancel') async onForceCancel(p: any) { await this.write({ action: 'admin_force_cancel', user_id: p.actor_id, role: 'admin', resource_kind: p.kind, resource_id: p.id, severity: 'critical' }); }
+  @OnEvent('admin.user_updated') async onAdminUserUpdated(p: any) { if (!p?.admin_id) return; await this.write({ action: 'user_modify', user_id: p.admin_id, role: 'admin', resource_kind: 'user', resource_id: p.target_user_id, severity: 'warn' }); }
+  @OnEvent('admin.provider_approved') async onAdminProviderApproved(p: any) { if (!p?.admin_id) return; await this.write({ action: 'provider_approve', user_id: p.admin_id, role: 'admin', resource_kind: 'provider', resource_id: p.provider_id, severity: 'warn' }); }
+  @OnEvent('admin.provider_rejected') async onAdminProviderRejected(p: any) { if (!p?.admin_id) return; await this.write({ action: 'provider_reject', user_id: p.admin_id, role: 'admin', resource_kind: 'provider', resource_id: p.provider_id, severity: 'warn' }); }
+  @OnEvent('admin.commission_updated') async onAdminCommissionUpdated(p: any) { if (!p?.admin_id) return; await this.write({ action: 'commission_change', user_id: p.admin_id, role: 'admin', details: { rate: p.rate }, severity: 'warn' }); }
+  @OnEvent('feature_flag.updated') async onFeatureFlagUpdated(p: any) { if (!p?.admin_id) return; await this.write({ action: 'flag_change', user_id: p.admin_id, role: 'admin', details: { flag: p.flag, value: p.value } }); }
+  @OnEvent('auth.login_failed') async onLoginFailed(p: any) { await this.write({ action: 'login_failed', user_id: p.user_id, ip: p.ip, user_agent: p.user_agent, details: { identifier: hashTail(p.phone), reason: p.reason }, severity: 'warn' }); }
+  @OnEvent('payment.refund') async onRefund(p: any) { await this.write({ action: 'payment_refund', user_id: p.actor_id, resource_kind: 'transaction', resource_id: p.transaction_id, details: { amount: p.amount, booking_id: p.booking_id, booking_kind: p.booking_kind, patient_id: p.patient_id, method: p.method }, severity: 'warn' }); }
+  @OnEvent('admin.force_cancel') async onForceCancel(p: any) { if (!p?.actor_id) return; await this.write({ action: 'admin_force_cancel', user_id: p.actor_id, role: 'admin', resource_kind: p.kind, resource_id: p.id, severity: 'critical' }); }
 
   // ============ EPIC5/S5: financial + medical sensitive actions ============
   /** Manual finance approvals (payouts, refund executions) — maker-checker decisions */
@@ -336,7 +379,7 @@ export class AuditService {
   @OnEvent('lab.report_uploaded') async onLabReportUploaded(p: any) { await this.write({ action: 'lab_report_uploaded', resource_kind: 'lab_booking', resource_id: p.booking_id, details: { report_id: p.report_id, patient_id: p.patient_id }, severity: 'warn' }); }
   @OnEvent('radiology.report_published') async onRadiologyReportPublished(p: any) { await this.write({ action: 'radiology_report_published', resource_kind: 'radiology_booking', resource_id: p.bookingId || p.booking_id, details: { patient_id: p.patientId || p.patient_id }, severity: 'warn' }); }
   /** Irreversible user deletion by admin */
-  @OnEvent('admin.user_deleted') async onUserDeleted(p: any) { await this.write({ action: 'user_deleted', user_id: p.admin_id, role: 'admin', resource_kind: 'user', resource_id: p.target_user_id, details: { target_role: p.role, phone_tail: p.phone_tail }, severity: 'critical' }); }
+  @OnEvent('admin.user_deleted') async onUserDeleted(p: any) { if (!p?.admin_id) return; await this.write({ action: 'user_deleted', user_id: p.admin_id, role: 'admin', resource_kind: 'user', resource_id: p.target_user_id, details: { target_role: p.role, phone_tail: p.phone_tail }, severity: 'critical' }); }
 }
 /** 23.4 — keep the shape, drop the digits that identify a person. */
 function maskId(v?: string) { if (!v) return v; return v.length <= 4 ? '***' : `${v.slice(0, 2)}***${v.slice(-2)}`; }
@@ -374,6 +417,8 @@ export class TracingMiddleware implements NestMiddleware {
   }
 }
 
+export const HSTS_VALUE = 'max-age=63072000; includeSubDomains; preload';
+
 /** Minimal helmet-style header hardening WITHOUT adding the helmet dependency. */
 @Injectable()
 export class SecurityHeadersMiddleware implements NestMiddleware {
@@ -382,8 +427,12 @@ export class SecurityHeadersMiddleware implements NestMiddleware {
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     res.setHeader('X-DNS-Prefetch-Control', 'off');
-    res.setHeader('Strict-Transport-Security', 'max-age=15552000; includeSubDomains');
+    // 16.4: two years, every subdomain, preload-eligible (the owner submits the domain to hstspreload.org).
+    res.setHeader('Strict-Transport-Security', HSTS_VALUE);
     res.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
+    // The API is JSON: no page of it may use a camera, microphone, position or payment sheet, or share a window group.
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
     next();
   }
 }
@@ -391,7 +440,7 @@ export class SecurityHeadersMiddleware implements NestMiddleware {
 @Controller('security/audit')
 @UseGuards(JwtAuthGuard)
 export class AuditController {
-  constructor(private svc: AuditService, private readonly retention: AuditRetentionService) {}
+  constructor(private svc: AuditService, private readonly retention: AuditRetentionService, private readonly history: UserHistoryService) {}
 
   @Get('admin')
   @Roles(UserRole.ADMIN)
@@ -412,7 +461,8 @@ export class AuditController {
     @Query('page') page = 1,
     @Query('limit') limit = 20,
   ) {
-    return this.svc.queryPersonal(u.id, { page: +page, limit: +limit });
+    // 23.6: the caller's own events only, as a person may see them (no hashes, masked address)
+    return this.history.activity(u.id, +page, +limit);
   }
 
   @Get('recent')
@@ -493,7 +543,7 @@ export class AuditController {
   @RequirePermissions(Permission.SECURITY_MANAGE)
   @Post('retention/holds')
   @Roles(UserRole.SUPER_ADMIN)
-  async placeHold(@CurrentUser() admin: any, @Body() body: { user_id?: string; resource_id?: string; reason?: string; until?: string }) {
+  async placeHold(@CurrentUser() admin: any, @Body() body: PlaceLegalHoldDto) {
     const reason = typeof body?.reason === 'string' ? body.reason.trim() : '';
     if (reason.length < 5) throw new BadRequestException('legal_hold_reason_required');
     const user_id = typeof body?.user_id === 'string' && body.user_id ? body.user_id : undefined;
@@ -531,6 +581,7 @@ export class AuditRetentionJob {
   private readonly logger = new Logger(AuditRetentionJob.name);
   constructor(private readonly retention: AuditRetentionService, private readonly audit: AuditService) {}
   @Cron(CronExpression.EVERY_DAY_AT_3AM)
+  @ScheduledOnce()
   async run() {
     if (process.env.AUDIT_RETENTION_ENABLED !== 'true') return; // off until the owner/lawyer confirm the periods
     try {
@@ -544,9 +595,9 @@ export class AuditRetentionJob {
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: 'AuditLog', schema: AuditLogSchema }])],
-  controllers: [AuditController],
-  providers: [AuditService, AuditRetentionService, AuditRetentionJob, TracingMiddleware, SecurityHeadersMiddleware],
-  exports: [AuditService, TracingMiddleware, SecurityHeadersMiddleware],
+  controllers: [AuditController, UserHistoryController],
+  providers: [AuditService, AuditCoverageService, AuditCollectionMigration, UserHistoryService, AuditRetentionService, AuditRetentionJob, TracingMiddleware, SecurityHeadersMiddleware],
+  exports: [AuditService, UserHistoryService, TracingMiddleware, SecurityHeadersMiddleware],
 })
 export class SecurityModule {
   configure(consumer: MiddlewareConsumer) {

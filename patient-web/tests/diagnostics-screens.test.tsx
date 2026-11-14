@@ -69,9 +69,10 @@ describe("the diagnostics parts (template of the catalogue screens)", () => {
     expect(diagStatus(undefined).key).toBe("unknown");
   });
 
-  it("picks the Arabic text for Arabic and Urdu, the English text for the others, and the other one when one is missing", () => {
+  it("picks the Arabic text for Arabic, the English text for the others (Urdu too), and the other one when one is missing (never hidden)", () => {
     expect(pickText("ar", "عربي", "English")).toBe("عربي");
-    expect(pickText("ur", "عربي", "English")).toBe("عربي");
+    expect(pickText("ur", "عربي", "English")).toBe("English");
+    expect(pickText("ar", undefined, "English")).toBe("English");
     expect(pickText("en", "عربي", "English")).toBe("English");
     expect(pickText("hi", "عربي", undefined)).toBe("عربي");
     expect(pickText("en", undefined, undefined)).toBeUndefined();
@@ -95,12 +96,12 @@ describe("the diagnostics client screens", () => {
   it("the checkout offers card or insurance for a home sample, and cash too at the lab, with a 7 day picker and an address only at home", () => {
     const home = html(<DiagnosticsCheckoutForm locale="en" items={["cbc"]} labId="lab-1" initialLocation="home" />);
     expect(home).toContain("Card");
-    expect(home).toContain("Insurance");
-    expect(home).not.toMatch(/>Cash</);
+    expect(home).toContain("With insurance");
+    expect(home).not.toMatch(/>Cash payment</);
     expect(home).toContain("Address for the home sample");
     expect((home.match(/aria-pressed/g) ?? []).length).toBe(7 + 6 + 2);
     const facility = html(<DiagnosticsCheckoutForm locale="en" items={["cbc"]} labId="lab-1" initialLocation="facility" />);
-    expect(facility).toMatch(/>Cash</);
+    expect(facility).toMatch(/>Cash payment</);
     expect(facility).not.toContain("Address for the home sample");
     expect(facility).not.toContain("style=");
   });
@@ -126,13 +127,14 @@ describe("the flows the redesign must not touch", () => {
     expect(source).toContain('localStorage.removeItem("nabd-diagnostics-cart")');
   });
 
-  it("one booking path (journeys#49, #50): /diagnostics/labs/book adds the test to the cart, the detail pages have one action", () => {
+  it("parity: /diagnostics/labs/book and test-detail open the order item page; the detail pages add through it", () => {
     expect(existsSync(resolve(process.cwd(), "components-next/lab-booking-form.tsx"))).toBe(false);
     const book = code("app/[locale]/diagnostics/labs/book/page.tsx");
-    expect(book).toContain("redirect(`/${locale}/diagnostics/cart?add=${encodeURIComponent(service.id)}");
-    expect(book).not.toContain("noProviderTitle");
-    for (const file of ["app/[locale]/diagnostics/test-detail/page.tsx", "app/[locale]/diagnostics/packages/[packageId]/page.tsx"]) {
+    expect(book).toContain("redirect(`/${locale}/labs/${encodeURIComponent(serviceId)}?kind=lab`)");
+    expect(code("app/[locale]/diagnostics/test-detail/page.tsx")).toContain("?kind=${sp.type === \"radiology\" ? \"radiology\" : \"lab\"}");
+    for (const file of ["app/[locale]/diagnostics/test-detail/page.tsx", "app/[locale]/diagnostics/packages/[packageId]/page.tsx", "app/[locale]/diagnostics/radiology/[serviceId]/page.tsx"]) {
       expect(code(file), file).not.toContain("/diagnostics/labs/book");
+      expect(code(file), file).not.toContain("/diagnostics/cart?add=");
     }
   });
 

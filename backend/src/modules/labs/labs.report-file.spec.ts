@@ -6,7 +6,11 @@ const pdf = Buffer.from('%PDF-1.4 test').toString('base64');
 const booking = { id: 'bk-1', patient_id: 'pat-1', provider_account_id: 'lab-1', reports: [{ id: 'r-1', name: 'report.pdf', mime: 'application/pdf', base64: pdf, uploaded_at: new Date('2026-10-15') }, { id: 'r-2', name: 'link', url: 'https://cdn.example.test/x.pdf' }] };
 const svc = () => {
   const s: any = Object.create(LabsService.prototype);
-  s.bkgModel = { findOne: () => ({ lean: async () => JSON.parse(JSON.stringify(booking)) }) };
+  const resultDocs = [{ id: 'res-1', reported_at: new Date('2026-10-16T10:00:00Z'), critical: true, entries: [{ name: 'Hemoglobin', value: 13.5, unit: 'g/dL', ref_low: 12, ref_high: 16, flag: 'normal' }, { name: 'Potassium', value: '6.9', unit: 'mmol/L', range: '3.5-5.1', flag: 'critical' }, { value: 1 }, { name: { $ne: 1 } }] }];
+  s.bkgModel = {
+    findOne: () => ({ lean: async () => JSON.parse(JSON.stringify(booking)) }),
+    db: { collection: (n: string) => ({ find: (q: any) => { s.lastResultQuery = { n, q }; return { sort: () => ({ limit: () => ({ toArray: async () => resultDocs }) }) }; } }) },
+  };
   return s as LabsService;
 };
 
@@ -19,6 +23,17 @@ describe('lab report file (journeys#54)', () => {
     ]);
     expect(JSON.stringify(b)).not.toContain(pdf);
     expect(reportSummary({ id: 'x', base64: 'abc' })).not.toHaveProperty('base64');
+  });
+
+  it('the booking carries the typed values as results[], for this booking and patient only, primitives only', async () => {
+    const inst: any = svc();
+    const b: any = await inst.getBooking('bk-1', { id: 'pat-1', role: 'patient' });
+    expect(inst.lastResultQuery.n).toBe('labresults');
+    expect(inst.lastResultQuery.q).toMatchObject({ booking_id: 'bk-1', patient_id: 'pat-1' });
+    expect(b.results).toEqual([
+      { result_id: 'res-1', name: 'Hemoglobin', value: 13.5, unit: 'g/dL', ref_low: 12, ref_high: 16, range: null, flag: 'normal', reported_at: '2026-10-16T10:00:00.000Z', critical: true },
+      { result_id: 'res-1', name: 'Potassium', value: '6.9', unit: 'mmol/L', ref_low: null, ref_high: null, range: '3.5-5.1', flag: 'critical', reported_at: '2026-10-16T10:00:00.000Z', critical: true },
+    ]);
   });
 
   it('serves the file to the patient and the assigned lab, and to no one else', async () => {

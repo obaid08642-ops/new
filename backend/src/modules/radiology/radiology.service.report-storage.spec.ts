@@ -7,8 +7,11 @@ describe('RadiologyOpsService secure report storage', () => {
   let storage: any;
   let bkgModel: any;
   let centerBkgModel: any;
+  let engine: any;
 
   beforeEach(() => {
+    // the real engine validates the move and runs the mutation; the double runs it and records the call
+    engine = { apply: jest.fn(async (a: any) => a.mutate()), announceCreated: jest.fn() };
     booking = { 
       id: 'rad-1', 
       state: 'IN_SCANNING', 
@@ -28,7 +31,7 @@ describe('RadiologyOpsService secure report storage', () => {
       {} as any, 
       storage as any, 
       {} as any, // ProviderProfile
-      {} as any, 
+      engine as any,
       { emit: jest.fn() } as any
     );
   });
@@ -64,5 +67,37 @@ describe('RadiologyOpsService secure report storage', () => {
     
     await expect(service.uploadReport('rad-2', { id: 'provider-1', role: 'radiology' }, { report_storage_object_id: 'storage-pdf-1', findings: 'Reviewed finding' }))
       .rejects.toThrow(NotFoundException);
+  });
+
+  it('refuses a report file that is still in quarantine', async () => {
+    storage.findOne.mockReturnValue({ lean: async () => ({ id: 'storage-pdf-1', owner_account_id: 'provider-1', visibility: 'private', mime: 'application/pdf', scan_status: 'pending_scan' }) });
+    await expect(service.uploadReport('rad-1', { id: 'provider-1', role: 'radiology' }, { report_storage_object_id: 'storage-pdf-1' }))
+      .rejects.toMatchObject({ status: 423 });
+    expect(booking.save).not.toHaveBeenCalled();
+  });
+
+  describe('approveReport: two people', () => {
+    const history = (by: string, to: string) => ({ from: 'X', to, by_user_id: by, by_role: 'radiology', at: new Date() });
+    it('refuses the user who uploaded the files', async () => {
+      booking.state = 'UNDER_REVIEW';
+      booking.state_history = [history('tech-1', 'REPORT_DRAFT'), history('tech-2', 'UNDER_REVIEW')];
+      await expect(service.approveReport('rad-1', { id: 'tech-1', account_id: 'provider-1', role: 'radiology' })).rejects.toThrow('report_reviewer_must_differ_from_uploader');
+      expect(booking.state).toBe('UNDER_REVIEW');
+    });
+    it('refuses the user who sent it for review', async () => {
+      booking.state = 'UNDER_REVIEW';
+      booking.state_history = [history('tech-1', 'REPORT_DRAFT'), history('tech-2', 'UNDER_REVIEW')];
+      await expect(service.approveReport('rad-1', { id: 'tech-2', account_id: 'provider-1', role: 'radiology' })).rejects.toThrow('report_reviewer_must_differ_from_uploader');
+    });
+    it('lets a different user publish', async () => {
+      booking.state = 'UNDER_REVIEW';
+      booking.state_history = [history('tech-1', 'REPORT_DRAFT'), history('tech-1', 'UNDER_REVIEW')];
+      await service.approveReport('rad-1', { id: 'reviewer-9', account_id: 'provider-1', role: 'radiology' });
+      // publishing completes the service through the workflow engine, once: service.completed is what credits the centre's earning
+      expect(engine.apply).toHaveBeenCalledTimes(1);
+      expect(engine.apply).toHaveBeenCalledWith(expect.objectContaining({ kind: 'radiology', from_domain: 'UNDER_REVIEW', to_domain: 'REPORT_READY', entity_id: 'rad-1' }));
+      expect(booking.state).toBe('REPORT_READY');
+      expect(booking.report_approved_by).toBe('reviewer-9');
+    });
   });
 });

@@ -1,0 +1,112 @@
+[
+ {
+  "batch": "m6-visual",
+  "app": "web",
+  "screen": "Ord01 context bar (all ordering pages)",
+  "element": "Bar layout: board = one compact bar of 3 chips (where, who pays, for whom) opening a popover (web) / sheet (app) with 'apply'; built = two always-open segmented controls plus an address text line and an 'add insurance' row; no 'for whom' chip",
+  "file": "patient-web/components-next/ordering/order-context-bar.tsx",
+  "line": 40,
+  "found": "[client] Structure differs from Ord01 at 390 and 1280 (seen against the running stack). The 'for whom' choice also needs the family list and the quote's family_member_id, which the pages do not pass. Second pass: three-part bar rebuilt as two link-based popover chips (where, who pays; native <details>, choices stay URL links); the \"for whom\" chip is NOT drawn because the family choice needs family_member_id wiring and a family-record read the pages do not have (open, see next row).",
+  "suspect": "Rebuild the bar as chips + popover/sheet; wire family_member_id into the quote context. Larger than a visual fix, left for its own slice.",
+  "review_status": "fixed"
+ },
+ {
+  "batch": "m6-visual",
+  "app": "web",
+  "screen": "Ord02/Ord04 (1280)",
+  "element": "Desktop layout: board = list column plus a sticky 'Your basket' card on the side; built = full-width stack with a dark basket bar above the lists",
+  "file": "patient-web/app/[locale]/diagnostics/page.tsx",
+  "line": 282,
+  "found": "[client] Basket bar is the mobile pattern at every width; Ord02 web frame shows the side card with lines, 'from' total and 'Choose provider'.",
+  "suspect": "Add a lg+ sidebar variant of BasketBar reusing basket lines.",
+  "review_status": "open"
+ },
+ {
+  "batch": "m6-visual",
+  "app": "web",
+  "screen": "Ord03 item page",
+  "element": "Sample type shown raw from the catalogue ('blood')",
+  "file": "patient-web/app/[locale]/labs/[testSlug]/page.tsx",
+  "line": 111,
+  "found": "[client] item.sampleType is the catalogue's English code and is printed untranslated in ar/ur/hi/bn/fil. Second pass: known codes (blood, semen, stool, swab, urine) map to OrderingFlow.sample_* in six languages; an unknown code is hidden.",
+  "suspect": "Map sample codes (blood, urine, stool, ...) to translated labels; the set of codes is a catalogue decision.",
+  "review_status": "fixed"
+ },
+ {
+  "batch": "m6-visual",
+  "app": "web",
+  "screen": "Ord03/Ord04/Ord05",
+  "element": "Fixed floating tab bar covers the last card and the sticky basket/continue bars at 390",
+  "file": "patient-web/app/[locale]/labs/layout.tsx",
+  "line": 1,
+  "found": "[client] In full-page captures the bottom navigation overlaps the bottom actions (item page basket bar, providers 'Continue', when/confirm last card); needs bottom padding equal to the nav height on these routes. Not reproduced as an interaction check, only in screenshots.",
+  "suspect": "Add the shared bottom-nav safe padding to the labs layout.",
+  "review_status": "open"
+ },
+ {
+  "batch": "m6-visual",
+  "app": "web",
+  "screen": "Ord01 context bar",
+  "element": "'For whom' chip (family member) not drawn",
+  "file": "patient-web/components-next/ordering/ordering-context.tsx",
+  "line": 33,
+  "found": "[client] Needs the family list and quote context.family_member_id; the pages pass neither, and the family-record id question is open.",
+  "suspect": "Add a family read to loadOrderingContext and a third chip once the id question is settled.",
+  "review_status": "open"
+ },
+ {
+  "batch": "m6-visual",
+  "app": "web",
+  "screen": "Ord09 partial approval",
+  "element": "Choices are three immediate buttons; board = radio rows with icon tiles, per-item decision chips, validity-clock banner and one confirm button ('Pay 70 and complete')",
+  "file": "patient-web/components-next/ordering/booking-status-client.tsx",
+  "line": 150,
+  "found": "[client] Changing it to select-then-confirm touches the choosePartial flow, so it was not done in a visual pass.",
+  "suspect": "Rebuild as radio group + CTA in the Ord09 follow-up.",
+  "review_status": "open"
+ },
+ {
+  "batch": "m6-visual",
+  "app": "web",
+  "screen": "Ord20 my medical orders",
+  "element": "List rows are one-line summaries; board = cards per order with doctor, validity, per-group items with status chips and an 'Order' button per group",
+  "file": "patient-web/app/[locale]/medical-orders/page.tsx",
+  "line": 58,
+  "found": "[client] Structure differs; the doctor name and per-item status are also missing from GET /medical-orders/mine ([backend]: orders carry catalogue ids and no doctor name).",
+  "suspect": "Backend adds doctor{name,specialty} and item names; then draw the grouped cards.",
+  "review_status": "open"
+ },
+ {
+  "batch": "m6-visual",
+  "app": "web",
+  "screen": "Ord21 order detail",
+  "element": "Doctor name and specialty, per-item status chips (ordered/booked/later) not shown; items use a 'later' button only",
+  "file": "patient-web/app/[locale]/medical-orders/[orderId]/page.tsx",
+  "line": 70,
+  "found": "[backend] GET /medical-orders/:id has no doctor object and no booking link per item beyond status.",
+  "suspect": "Same backend addition as Ord20.",
+  "review_status": "open"
+ },
+ {
+  "batch": "m6-visual",
+  "app": "web",
+  "screen": "Ord11 results",
+  "element": "Results live inside the booking page; the board has a dedicated results screen with the 'discuss' sheet and a rating form",
+  "file": "patient-web/components-next/ordering/booking-status-client.tsx",
+  "line": 270,
+  "found": "[client] Values, flag, range bar and trend are now drawn from the endpoint; the rating form and instant-consultation sheet are not (no rating endpoint found).",
+  "suspect": "Confirm the rating endpoint before drawing the form.",
+  "review_status": "open"
+ },
+ {
+  "batch": "m6-visual",
+  "app": "web",
+  "screen": "Ord02/Ord04 (1280)",
+  "element": "Sticky basket side card still not drawn",
+  "file": "patient-web/components-next/ordering/basket-bar.tsx",
+  "line": 1,
+  "found": "[client] Left from pass one (not cheap: needs a two-column hub layout).",
+  "suspect": "Own slice.",
+  "review_status": "open"
+ }
+]

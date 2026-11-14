@@ -1,4 +1,8 @@
 // @ts-nocheck
+import { confirmBlocker, confirmBlockerText } from '../../utils/confirmBlocker';
+import { MyContractRow } from '../../components/MyContract';
+import { NotificationsCenterScreen } from '../shared/RealScreens';
+import { BookingChatScreen } from '../shared/BookingChatScreen';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, RefreshControl, ActivityIndicator, Switch } from 'react-native';
 import { useTheme, useLang, useToast } from '../../context';
@@ -10,6 +14,8 @@ import { IBg, I } from '../../components/icons';
 import { SP, R, FS, FW } from '../../constants';
 import { ProviderWalletScreen, WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen } from '../shared/SharedScreens';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
+import { MyServicesScreen } from '../shared/MyServicesScreen';
+import { orderingStackScreens, ORDERING_ENTRY } from '../ordering';
 
 // ══════ PILLAR 1: STATE MACHINE LABELS ══════
 const STATE_LABELS: Record<string, { ar: string; en: string; color: string }> = {
@@ -40,19 +46,21 @@ const ABORT_REASONS = [
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens, withAlpha } from '../../theme/tokens';
 import { fmtDateTime } from '../../utils/dates';
+import { useUploadsEnabled } from '../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../../components/UploadsUnavailable';
 const Stack = createNativeStackNavigator();
 
 export function RadiologyDashboardNavigator({ onLogout }: { onLogout: () => void }) {
   const [activeTab, setActiveTab] = useState('home');
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const AR = lang === 'ar';
   
   const tabs = [
-    { key: 'home',     icon: 'home',     label: AR ? 'الرئيسية' : 'Home'    },
-    { key: 'orders',   icon: 'document', label: AR ? 'الطلبات'  : 'Orders'  },
-    { key: 'catalog',  icon: 'grid',     label: AR ? 'الكتالوج' : 'Catalog' },
-    { key: 'schedule', icon: 'calendar', label: AR ? 'الجدول'   : 'Schedule'},
-    { key: 'settings', icon: 'settings', label: AR ? 'الإعدادات': 'Settings'},
+    { key: 'home',     icon: 'home',     label: t('radiology.tab.home') },
+    { key: 'orders',   icon: 'document', label: t('radiology.tab.orders') },
+    { key: 'catalog',  icon: 'grid',     label: t('radiology.tab.catalog') },
+    { key: 'schedule', icon: 'calendar', label: t('radiology.tab.schedule') },
+    { key: 'settings', icon: 'settings', label: t('radiology.tab.settings') },
   ];
 
   return (
@@ -73,11 +81,15 @@ export function RadiologyDashboardNavigator({ onLogout }: { onLogout: () => void
         }}
       </Stack.Screen>
 
+      <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="order_detail">{({ navigation, route }: any) => <OrderDetailScreen order={route.params?.param} onBack={() => navigation.goBack()} onNav={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+      <Stack.Screen name="booking_chat">{({ navigation, route }: any) => <BookingChatScreen kind="radiology" order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="reporting">{({ navigation, route }: any) => <ReportingScreen order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+      {orderingStackScreens(Stack, 'radiology')}
       <Stack.Screen name="wallet">{({ navigation }: any) => <ProviderWalletScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="withdrawal_workflow">{({ navigation }: any) => <WithdrawalWorkflow onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="medical_jobs">{({ navigation }: any) => <MedicalJobsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="drug_index">{({ navigation }: any) => <MedicalDrugIndexScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
     </Stack.Navigator>
   );
@@ -100,15 +112,17 @@ interface RadiologyInboxOrder {
 function useRadiologyInbox() {
   const [orders, setOrders] = useState<RadiologyInboxOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
   const reload = useCallback(async () => {
     try {
       setLoading(true);
+      setLoadFailed(false);
       const res = await client.get('/radiology/provider/inbox');
       setOrders(Array.isArray(res.data) ? res.data : []);
-    } catch { setOrders([]); } finally { setLoading(false); }
+    } catch { setOrders([]); setLoadFailed(true); } finally { setLoading(false); }
   }, []);
   useEffect(() => { reload(); }, [reload]);
-  return { orders, loading, reload };
+  return { orders, loading, reload, loadFailed };
 }
 
 function SafetyChip({ label, on }: { label: string; on: boolean }) {
@@ -184,15 +198,15 @@ function RadiologyHome({ onNav }: { onNav: (s: string, p?: any) => void }) {
 
 // ══════ ORDERS TAB ══════
 function RadiologyOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) {
-  const { theme } = useTheme(); const { lang } = useLang();
+  const { theme } = useTheme(); const { lang, t } = useLang();
   const AR = lang === 'ar';
   const [tab, setTab] = useState<'new'|'insurance'|'confirmed'|'inScan'>('new');
-  const { orders, loading } = useRadiologyInbox();
+  const { orders, loading, reload, loadFailed } = useRadiologyInbox();
   const filtered = orders.filter(o => {
     if (tab === 'new')       return o.state === 'NEW_REQUEST';
     if (tab === 'insurance') return ['PENDING_INSURANCE', 'WAITING_COPAY'].includes(o.state);
     if (tab === 'confirmed') return o.state === 'CONFIRMED';
-    if (tab === 'inScan')    return ['ARRIVED_CHECKIN', 'IN_SCANNING', 'REPORT_DRAFT', 'UNDER_REVIEW'].includes(o.state);
+    if (tab === 'inScan')    return ['ARRIVED_CHECKIN', 'IN_SCANNING', 'REPORT_DRAFT', 'UNDER_REVIEW', 'SCAN_ABORTED'].includes(o.state);
     return true;
   });
   const subTabs = [{ key: 'new', label: AR ? 'جديد' : 'New' }, { key: 'insurance', label: AR ? 'تأمين' : 'Insurance' }, { key: 'confirmed', label: AR ? 'مجدول' : 'Confirmed' }, { key: 'inScan', label: AR ? 'جاري' : 'In Progress' }];
@@ -203,7 +217,9 @@ function RadiologyOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) 
         {subTabs.map(t => <TouchableOpacity key={t.key} style={{ flex: 1, padding: SP.sm, alignItems: 'center', borderBottomWidth: tab === t.key ? 2 : 0, borderColor: tokens.mintDeep }} onPress={() => setTab(t.key as any)}><Text style={{ fontSize: FS.xs, color: tab === t.key ? tokens.mintDeep : theme.textSub, fontWeight: tab === t.key ? FW.bold : FW.normal }}>{t.label}</Text></TouchableOpacity>)}
       </View>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}>
-        <RadiologyInboxList orders={filtered} loading={loading} emptyTitle={AR ? 'لا توجد طلبات' : 'No orders'} onOpen={(o) => onNav('order_detail', o)} />
+        {loadFailed && orders.length === 0
+          ? <NEmpty title={t('audit2.radiology.loadFailed')} actionLabel={t('audit2.retry')} onAction={reload} icon="document" />
+          : <RadiologyInboxList orders={filtered} loading={loading} emptyTitle={t('audit2.radiology.noOrders')} onOpen={(o) => onNav('order_detail', o)} />}
       </ScrollView>
     </View>
   );
@@ -211,12 +227,12 @@ function RadiologyOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) 
 
 // ══════ ORDER DETAIL SCREEN — PILLAR 4+5+6 ══════
 function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () => void; onNav: (s: string, p?: any) => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast();
+  const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast();
   const AR = lang === 'ar';
   const [loading, setLoading] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(order);
-  const [showNphies, setShowNphies] = useState(false);
-  const [nphiesCode, setNphiesCode] = useState('');
+  const [showApproval, setShowApproval] = useState(false);
+  const [decisionRef, setDecisionRef] = useState('');
   const [copay, setCopay] = useState('');
   const [showAbort, setShowAbort] = useState(false);
   const [abortReason, setAbortReason] = useState('');
@@ -232,18 +248,18 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
   };
 
   const handleInsuranceApproval = async () => {
-    if (!nphiesCode.trim()) return show(AR ? 'أدخل مرجع القرار الداخلي' : 'Enter the internal decision reference', 'warning');
+    if (!decisionRef.trim()) return show(AR ? 'أدخل مرجع القرار الداخلي' : 'Enter the internal decision reference', 'warning');
     setLoading(true);
     try {
       const copayPercent = Math.max(0, Math.min(99, Number(copay)));
       const decision = copayPercent > 0 ? 'APPROVED_PARTIAL' : 'APPROVED_FULL';
       await client.post(`/radiology/bookings/${currentOrder.id}/coverage-decision`, {
         decision,
-        decision_reference: nphiesCode.trim(),
+        decision_reference: decisionRef.trim(),
         ...(decision === 'APPROVED_PARTIAL' ? { copay_percent: copayPercent } : {}),
       });
       show(AR ? 'سُجل قرار التغطية الداخلي من الخادم' : 'The server recorded the internal coverage decision', 'success');
-      setShowNphies(false); await refresh();
+      setShowApproval(false); await refresh();
     } catch (e: any) { show(e.message, 'error'); } finally { setLoading(false); }
   };
 
@@ -330,16 +346,19 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
       {/* Actions by State — PILLAR 5 */}
       <NSecHeader title={AR ? 'الإجراءات' : 'Actions'} />
       <View style={{ gap: SP.md, marginBottom: SP.xl }}>
+        {!['CANCELLED', 'REJECTED'].includes(String(currentOrder.state)) && <NBtn label={t('bookingChat.open')} variant="outline" onPress={() => onNav('booking_chat', currentOrder)} />}
         {currentOrder.state === 'NEW_REQUEST' && (<>
           {currentOrder.payment_method === 'insurance' ? (
-            <NBtn label={AR?' تسجيل قرار تغطية داخلي':' Record Internal Coverage Decision'} variant="outline" onPress={() => setShowNphies(true)} />
+            <NBtn label={AR?' تسجيل قرار تغطية داخلي':' Record Internal Coverage Decision'} variant="outline" onPress={() => setShowApproval(true)} />
           ) : (
             // server accepts only cash at the center or a paid card booking (radiology.service assertConfirmable)
-            <NBtn label={AR?' قبول الحجز':' Accept booking'} loading={loading} onPress={acceptBooking} style={{ backgroundColor:tokens.mintDeep }} />
+            confirmBlocker(currentOrder)
+              ? <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{confirmBlockerText(confirmBlocker(currentOrder)!, AR)}</Text>
+              : <NBtn label={t('audit2.radiology.acceptBooking')} loading={loading} onPress={acceptBooking} style={{ backgroundColor:tokens.mintDeep }} />
           )}
           <NBtn label={AR?' رفض الحجز':' Reject booking'} variant="danger" onPress={() => setShowReject(true)} />
         </>)}
-        {currentOrder.state ==='PENDING_INSURANCE' && <NBtn label={AR?' إدخال موافقة التأمين':' Enter Insurance Approval'} onPress={() => setShowNphies(true)} />}
+        {currentOrder.state ==='PENDING_INSURANCE' && <NBtn label={AR?' إدخال موافقة التأمين':' Enter Insurance Approval'} onPress={() => setShowApproval(true)} />}
         {currentOrder.state ==='CONFIRMED' && <NBtn label={AR?' تأكيد حضور المريض (Check-in)':' Confirm Patient Arrival (Check-in)'} loading={loading} onPress={() => doAction('checkin')} style={{ backgroundColor:tokens.mintDeep }} />}
         {currentOrder.state === 'ARRIVED_CHECKIN' && (<>
           <NBtn label={AR?' استدعاء لغرفة الأشعة':' Call to Scanning Room'} loading={loading} onPress={() => doAction('start-scan')} style={{ backgroundColor:tokens.warning }} />
@@ -350,14 +369,15 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
           <NBtn label={AR?' إلغاء الفحص طارئ':' Emergency Abort Scan'} variant="danger" onPress={() => setShowAbort(true)} />
         </>)}
         {currentOrder.state ==='REPORT_DRAFT' && <NBtn label={AR?' إرسال للمراجعة الطبية':' Submit for Radiologist Review'} loading={loading} onPress={() => doAction('submit-report-for-review')} />}
-        {currentOrder.state ==='UNDER_REVIEW' && <NBtn label={AR?' اعتماد وإرسال التقرير':' Approve & Publish Report'} loading={loading} onPress={() => doAction('approve-report')} style={{ backgroundColor:tokens.success }} />}
+        {currentOrder.state ==='UNDER_REVIEW' && currentOrder.report_can_approve !== false && <NBtn label={AR?' اعتماد وإرسال التقرير':' Approve & Publish Report'} loading={loading} onPress={() => doAction('approve-report')} style={{ backgroundColor:tokens.success }} />}
+        {currentOrder.state ==='UNDER_REVIEW' && currentOrder.report_handled_by_me === true && <Text style={{ color: theme.textSub, fontSize: FS.sm, textAlign: AR ? 'right' : 'left' }}>{t('radiology.approve.handledByYou')}</Text>}
         {currentOrder.state ==='SCAN_ABORTED' && (<View style={{ backgroundColor:withAlpha(tokens.error, 0.12), borderRadius: R.md, padding: SP.md }}><Text style={{ color:tokens.error, fontWeight: FW.bold, textAlign:'center', marginBottom: SP.md }}>{AR?` سبب الإلغاء: ${currentOrder.abort_reason}`:` Abort Reason: ${currentOrder.abort_reason}`}</Text><NBtn label={AR?' إعادة الجدولة':' Reschedule'} loading={loading} onPress={() => setShowReschedule(true)} /></View>)}
         {currentOrder.state ==='REPORT_READY' && (<View style={{ backgroundColor:withAlpha(tokens.success, 0.12), borderRadius: R.md, padding: SP.lg, alignItems:'center' }}><Text style={{ color:tokens.success, fontSize: FS.lg, fontWeight: FW.bold }}>{AR?' التقرير أُرسل للمريض':' Report Sent to Patient'}</Text>{currentOrder.doctor_notified && <Text style={{ color:tokens.mintDeep, fontSize: FS.sm, marginTop: SP.sm }}>{AR?' تم إشعار الطبيب المحيل':' Referring doctor notified'}</Text>}</View>)}
       </View>
 
-      {/* NPHIES Insurance Modal */}
-      <NSheet visible={showNphies} onClose={() => setShowNphies(false)} title={AR ? 'إدخال موافقة التأمين' : 'Insurance Approval'}>
-        <NInput label={AR ? 'مرجع القرار الداخلي' : 'Internal decision reference'} value={nphiesCode} onChange={setNphiesCode} placeholder="REF-XXXXX" />
+      {/* Insurance approval sheet */}
+      <NSheet visible={showApproval} onClose={() => setShowApproval(false)} title={AR ? 'إدخال موافقة التأمين' : 'Insurance Approval'}>
+        <NInput label={AR ? 'مرجع القرار الداخلي' : 'Internal decision reference'} value={decisionRef} onChange={setDecisionRef} placeholder="REF-XXXXX" />
         <NPriceInput label={AR ? 'نسبة التحمل (0–99%)' : 'Co-pay percentage (0–99%)'} value={copay} onChange={setCopay} />
         <Text style={{ fontSize: FS.xs, color: tokens.warning, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{AR ? 'القرار الجزئي يضع الطلب في انتظار بوابة دفع التحمل الخادمية؛ لا يُؤكد من هذه الشاشة.' : 'A partial decision waits for the server co-pay payment gate; this screen cannot confirm it.'}</Text>
         <NBtn label={AR ? 'تسجيل قرار التغطية' : 'Record Coverage Decision'} loading={loading} onPress={handleInsuranceApproval} />
@@ -396,6 +416,7 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
 
 // ══════ REPORTING SCREEN — PILLAR 6 + MODULE 10 ══════
 function ReportingScreen({ order, onBack }: { order: any; onBack: () => void }) {
+  const uploadsOn = useUploadsEnabled();
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast();
   const AR = lang === 'ar';
   const [loading, setLoading] = useState(false);
@@ -434,7 +455,7 @@ function ReportingScreen({ order, onBack }: { order: any; onBack: () => void }) 
       });
       setPdfUploaded(true); setReportStatus('draft');
       show(AR ? 'تم رفع التقرير وحفظ المسودة' : 'Report uploaded and draft saved', 'success');
-    } catch (e: any) { show(e?.response?.data?.message || e.message, 'error'); } finally { setLoading(false); }
+    } catch (e: any) { show(e?.response?.status === 423 ? (AR ? 'الملف قيد الفحص الأمني، حاول بعد دقيقة' : 'The file is still being security-checked, try again in a minute') : (e?.response?.data?.message || e.message), 'error'); } finally { setLoading(false); }
   };
 
   const handleSubmitForReview = async () => {
@@ -447,7 +468,7 @@ function ReportingScreen({ order, onBack }: { order: any; onBack: () => void }) 
   const handleApproveAndPublish = async () => {
     setLoading(true);
     try { await client.post(`/radiology/bookings/${order.id}/approve-report`, {}); setReportStatus('ready'); show(AR?'تم نشر التقرير للمريض':'Report published','success'); onBack(); }
-    catch (e: any) { show(e.message, 'error'); } finally { setLoading(false); }
+    catch (e: any) { show(e?.response?.data?.message === 'report_reviewer_must_differ_from_uploader' ? (AR ? 'لا يمكنك نشر تقرير رفعتَه أو أرسلتَه للمراجعة. يجب أن يعتمده مراجع آخر.' : 'You cannot publish a report you uploaded or sent for review. Another reviewer must approve it.') : e.message, 'error'); } finally { setLoading(false); }
   };
 
   const STEPS = [{ key: 'draft', ar: 'رفع الملفات', en: 'Upload' }, { key: 'under_review', ar: 'مراجعة', en: 'Review' }, { key: 'ready', ar: 'نُشر', en: 'Published' }];
@@ -469,16 +490,22 @@ function ReportingScreen({ order, onBack }: { order: any; onBack: () => void }) 
       {/* Section 1: PDF (Mandatory) */}
       <NSecHeader title={AR?' قسم 1: تقرير PDF (إلزامي)':' Section 1: PDF Report (Mandatory)'} />
       <NCard style={{ marginBottom: SP.lg }}>
-        <NBtn label={reportFile ? (AR ? `ملف التقرير: ${reportFile.name}` : `Report file: ${reportFile.name}`) : (AR ? 'اختيار تقرير PDF موقّع' : 'Choose signed PDF report')} variant="outline" onPress={() => pickFile('report')} />
+        {uploadsOn ? (
+<NBtn label={reportFile ? (AR ? `ملف التقرير: ${reportFile.name}` : `Report file: ${reportFile.name}`) : (AR ? 'اختيار تقرير PDF موقّع' : 'Choose signed PDF report')} variant="outline" onPress={() => pickFile('report')} />
+) : <UploadsUnavailable />}
         <NInput label={AR ? 'النتائج السريرية (Findings)' : 'Clinical Findings'} value={findings} onChange={setFindings} multi lines={4} placeholder={AR ? 'اذكر النتائج الإشعاعية...' : 'Describe radiology findings...'} />
-        <NBtn label={pdfUploaded ? (AR ? 'رفع نسخة تقرير محدثة' : 'Upload updated report') : (AR ? 'رفع وحفظ تقرير PDF' : 'Upload and save PDF report')} loading={loading} onPress={handleUploadPdf} style={{ backgroundColor: pdfUploaded ? tokens.success : tokens.mintDeep }} />
+        {uploadsOn ? (
+<NBtn label={pdfUploaded ? (AR ? 'رفع نسخة تقرير محدثة' : 'Upload updated report') : (AR ? 'رفع وحفظ تقرير PDF' : 'Upload and save PDF report')} loading={loading} onPress={handleUploadPdf} style={{ backgroundColor: pdfUploaded ? tokens.success : tokens.mintDeep }} />
+) : null}
         {!pdfUploaded && <Text style={{ fontSize: FS.xs, color: tokens.error, textAlign: AR ? 'right' : 'left', marginTop: SP.sm }}>{AR ? '* ملف PDF موقّع يُرفع للتخزين الخاص قبل المراجعة' : '* A signed PDF is uploaded to private storage before review'}</Text>}
       </NCard>
 
       {/* Section 2: DICOM (Optional) */}
       <NSecHeader title={AR?' قسم 2: صور DICOM (اختياري)':' Section 2: DICOM Images (Optional)'} />
       <NCard style={{ marginBottom: SP.lg }}>
-        <NBtn label={dicomFile ? (AR ? `ملف DICOM: ${dicomFile.name}` : `DICOM file: ${dicomFile.name}`) : (AR ? 'اختيار ملف DICOM اختياري' : 'Choose optional DICOM file')} variant="outline" onPress={() => pickFile('dicom')} />
+        {uploadsOn ? (
+<NBtn label={dicomFile ? (AR ? `ملف DICOM: ${dicomFile.name}` : `DICOM file: ${dicomFile.name}`) : (AR ? 'اختيار ملف DICOM اختياري' : 'Choose optional DICOM file')} variant="outline" onPress={() => pickFile('dicom')} />
+) : <UploadsUnavailable />}
         <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginTop: SP.sm }}>
           {AR ? 'تُرفع ملفات الأشعة إلى التخزين الخاص وتتحقق الخدمة من ملكيتها قبل اعتماد التقرير.' : 'Scan files are uploaded to private storage and ownership is verified before the report is accepted.'}
         </Text>
@@ -495,8 +522,6 @@ function ReportingScreen({ order, onBack }: { order: any; onBack: () => void }) 
 function CatalogManagerTab() {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast();
   const AR = lang === 'ar';
-  const [services, setServices] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
   const [modality, setModality] = useState('MRI');
   const [nameAr, setNameAr] = useState('');
@@ -521,8 +546,6 @@ function CatalogManagerTab() {
 
   const MODALITIES = ['MRI', 'CT', 'X-Ray', 'Ultrasound', 'Mammography', 'DEXA', 'Fluoroscopy', 'PET'];
 
-  useEffect(() => { client.get('/provider/capabilities/radiology').then(r => setServices(r.data || [])).catch(() => {}).finally(() => setLoading(false)); }, []);
-
   const handleSubmitDelta = async () => {
     if (!nameEn || !price) return show(AR ? 'أدخل الاسم والسعر' : 'Enter name and price', 'warning');
     try {
@@ -534,33 +557,8 @@ function CatalogManagerTab() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'كتالوج الأشعة' : 'Radiology Catalog'} />
-      <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}>
-        <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.lg }}>
-          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.textSub }}>{AR ? 'الفحوصات المتاحة' : 'Available Scans'} ({services.length})</Text>
-          <NBtn label={AR ? '+ إضافة فحص' : '+ Add Scan'} size="sm" onPress={() => setShowAdd(true)} full={false} />
-        </View>
-        {loading && <ActivityIndicator color={tokens.mintDeep} />}
-        {services.map(s => (
-          <NCard key={s.id} style={{ marginBottom: SP.md }}>
-            <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <View style={{ flex: 1 }}>
-                <NBadge label={s.modality_category || s.modality || '—'} variant="info" size="xs" />
-                <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: 4 }}>{AR ? (s.name_ar || s.name_en) : s.name_en}</Text>
-                <Text style={{ fontSize: FS.xs, color: tokens.mintDeep }}>{s.price} {AR ? 'ر.س' : 'SAR'} | {s.estimated_duration_minutes || 30} {AR ? 'د' : 'min'}</Text>
-                <View style={{ flexDirection: 'row', gap: 4, marginTop: 4, flexWrap: 'wrap' }}>
-                  {s.requires_pregnancy_check && <View style={{ backgroundColor: withAlpha(tokens.warning, 0.20), borderRadius: 4, padding: 2 }}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}><I name="pregnancy" size={10} color={tokens.warning} /><Text style={{ fontSize: 8, color: tokens.warning }}>Pregnancy</Text></View></View>}
-                  {s.requires_metal_implant_check && <View style={{ backgroundColor: withAlpha(tokens.purple, 0.20), borderRadius: 4, padding: 2 }}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}><I name="wrench" size={10} color={tokens.purple} /><Text style={{ fontSize: 8, color: tokens.purple }}>Metal</Text></View></View>}
-                  {s.requires_contrast_allergy_check && <View style={{ backgroundColor: withAlpha(tokens.error, 0.20), borderRadius: 4, padding: 2 }}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}><I name="syringe" size={10} color={tokens.error} /><Text style={{ fontSize: 8, color: tokens.error }}>Contrast</Text></View></View>}
-                </View>
-              </View>
-              {/* Needs-review issue 1194: "Edit" only showed a toast; changes go through the add/delta request above. */}
-            </View>
-          </NCard>
-        ))}
-        {!loading && services.length === 0 && <NEmpty title={AR ? 'لا توجد فحوصات بعد' : 'No scans yet'} icon="scan" />}
-      </ScrollView>
-
+      <MyServicesScreen vertical="radiology"
+        footer={<NBtn label={AR ? 'فحص غير موجود؟ اطلب إضافته' : 'Scan not listed? Ask to add it'} variant="outline" onPress={() => setShowAdd(true)} />} />
       <NSheet visible={showAdd} onClose={() => setShowAdd(false)} title={AR ? 'إضافة فحص جديد' : 'Add New Scan'}>
         <Text style={{ fontSize: FS.xs, color:tokens.warning, textAlign: AR?'right':'left', marginBottom: SP.md }}>{AR?' يذهب للمراجعة الإدارية قبل ظهوره للمرضى.':' Goes for admin review before patient visibility.'}</Text>
         <Text style={{ fontSize: FS.sm, color: theme.text, marginBottom: SP.sm }}>{AR ? 'فئة الجهاز (Modality)' : 'Modality Category'}</Text>
@@ -643,9 +641,15 @@ function RadiologySettingsScreen({ onLogout, onNav }: { onLogout: () => void; on
         <NBtn label={AR ? 'طلبات التأمين الواردة (قرار يدوي)' : 'Inbound Insurance Requests'} variant="outline" onPress={() => onNav && onNav('insurance_requests')} />
       </NCard>
       <NCard style={{ marginBottom: SP.md }}>
+        <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{AR ? 'إعلان الطلبات' : 'Ordering declaration'}</Text>
+        <NBtn label={AR ? 'إعلان الطلبات' : 'Ordering declaration'} variant="outline" onPress={() => onNav && onNav(ORDERING_ENTRY)} />
+      </NCard>
+      <NCard style={{ marginBottom: SP.md }}>
         <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{AR ? 'الأدوية' : 'Drugs'}</Text>
         <NBtn label={AR ? 'دليل الأدوية الطبي' : 'Medical Drug Index'} variant="outline" onPress={() => onNav && onNav('drug_index')} />
+        <NBtn label={AR ? 'الوظائف الطبية' : 'Medical Jobs'} variant="outline" onPress={() => onNav && onNav('medical_jobs')} style={{ marginTop: SP.sm }} />
       </NCard>
+      <NCard style={{ marginBottom: SP.md }}><MyContractRow /></NCard>
       <NCard style={{ marginTop: SP.xl }}><NBtn label={AR ? 'تسجيل الخروج' : 'Logout'} onPress={onLogout} style={{ backgroundColor: tokens.error, borderColor: tokens.error }} /></NCard>
     </ScrollView>
   );

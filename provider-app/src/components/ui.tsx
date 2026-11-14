@@ -4,7 +4,7 @@
  */
 import React, { useRef, useEffect, useState, ReactNode } from 'react';
 import {
- View, Text, TextInput, TouchableOpacity, ScrollView,
+ View, Text, TextInput, type TextInputInstance, TouchableOpacity, ScrollView,
  StyleSheet, Animated, Modal, ActivityIndicator, Image,
  Switch, Platform, KeyboardAvoidingView, useWindowDimensions,
  TouchableWithoutFeedback, Vibration, Pressable
@@ -16,6 +16,8 @@ import { I, hasIcon } from './icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import client from '../api/client';
+import { useUploadsEnabled } from '../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from './UploadsUnavailable';
 
 // DEVICE_STANDARD §3: layout reads the live window (rotation, split-screen, foldables) through
 // useWindowDimensions inside each component, never a module-level Dimensions.get snapshot.
@@ -571,11 +573,11 @@ export function NSuccess({ icon='', title, sub, primaryLabel, onPrimary, secLabe
 }
 
 // ─── OTP Input ────────────────────────────────────────────────────────────────
-export function NOTP({ target, otp, setOtp, onVerify, loading, onResend }:
- { target:string; otp:string[]; setOtp:(v:string[])=>void; onVerify:()=>void; loading?:boolean; onResend?:()=>void }) {
+export function NOTP({ target, otp, setOtp, onVerify, loading, onResend, error }:
+ { target:string; otp:string[]; setOtp:(v:string[])=>void; onVerify:()=>void; loading?:boolean; onResend?:()=>void; error?:string }) {
  const { theme } = useTheme();
  const { isRTL, t } = useLang();
- const refs = useRef<(TextInput|null)[]>([]);
+ const refs = useRef<(TextInputInstance|null)[]>([]);
  const [cd, setCd] = useState(60);
  useEffect(() => {
  if (cd<=0) return;
@@ -601,6 +603,7 @@ export function NOTP({ target, otp, setOtp, onVerify, loading, onResend }:
  style={[s.otpBox, { backgroundColor:theme.inputBg, borderColor:d?theme.primary:theme.border, color:theme.text }]} />
  ))}
  </View>
+ {error ? <Text accessibilityLiveRegion="polite" style={{ color:theme.warn, fontSize:FS.sm, textAlign:'center', marginBottom:SP.md }}>{error}</Text> : null}
  <NBtn label={t('otpVerify')} onPress={onVerify} loading={loading} disabled={otp.join('').length<6} />
  <TouchableOpacity onPress={cd<=0?()=>{setCd(60);onResend?.()}:undefined}
  style={{ alignItems:'center', padding:SP.md, marginTop:SP.sm }}>
@@ -871,6 +874,7 @@ export function NProfileImageUploader({
  const { lang } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
+ const uploadsOn = useUploadsEnabled();
 
  const [imageUri, setImageUri] = useState<string | null>(null);
  const [status, setStatus] = useState<'idle' | 'pending' | 'processing' | 'completed' | 'failed'>('idle');
@@ -1034,9 +1038,11 @@ export function NProfileImageUploader({
  </Text>
  
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.md, alignItems: 'center' }}>
- <TouchableOpacity onPress={pickImage} style={[st.actionBtn, { backgroundColor: theme.primary }]}>
+ {uploadsOn ? (
+<TouchableOpacity onPress={pickImage} style={[st.actionBtn, { backgroundColor: theme.primary }]}>
  <Text style={st.actionBtnTxt}> {AR ? 'تحميل صورة' : 'Upload Photo'}</Text>
  </TouchableOpacity>
+) : <UploadsUnavailable />}
  
  <TouchableOpacity onPress={() => setShowWebView(true)} style={[st.actionBtn, { backgroundColor: theme.surface2, borderColor: theme.border, borderWidth: 1 }]}>
  <Text style={[st.actionBtnTxt, { color: theme.text }]}> {AR ? 'تحسين الصورة' : 'Improve Photo'}</Text>

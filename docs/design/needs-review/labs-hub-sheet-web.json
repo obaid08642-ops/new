@@ -1,0 +1,46 @@
+[
+  {
+    "batch": "decision-4",
+    "app": "patient-web",
+    "screen": "/diagnostics",
+    "element": "Payment option 'cash'",
+    "file": "patient-web/components-next/diagnostics/hub-filter-sheet.tsx",
+    "line": 170,
+    "found": "[backend] The sheet has no separate cash option: the backend has one cash flag (cash_availability), so cash and 'without insurance' would be the same filter.",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  },
+  {
+    "batch": "decision-4",
+    "app": "patient-web",
+    "screen": "/diagnostics",
+    "element": "Sort 'nearest'",
+    "file": "patient-web/components-next/diagnostics/hub-filter-sheet.tsx",
+    "line": 187,
+    "found": "[backend] Omitted: GET /labs/services and /radiology/services send no distance or location per service (looked for distance, distance_km, lat/lng).",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  },
+  {
+    "batch": "decision-4",
+    "app": "patient-web",
+    "screen": "/diagnostics",
+    "element": "Toggle 'open now'",
+    "file": "patient-web/components-next/diagnostics/hub-filter-sheet.tsx",
+    "line": 195,
+    "found": "[backend] Omitted: services carry no opening hours (looked for open_now, opening_hours, working_hours on the service payload).",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  },
+  {
+    "batch": "decision-4",
+    "app": "patient-web",
+    "screen": "/diagnostics",
+    "element": "No fasting / same-day filters are row filters",
+    "file": "patient-web/components-next/diagnostics/catalog-load.ts",
+    "line": 37,
+    "found": "[backend] The catalogue endpoints have no fasting or turnaround query flags, so the two toggles filter the loaded pages (a page can hold fewer rows; the button shows N+ when the server has more). A server flag would make paging exact. 'Same day' = turnaround_hours <= 24 (owner to confirm).",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  }
+]

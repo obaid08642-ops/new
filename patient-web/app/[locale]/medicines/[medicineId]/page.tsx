@@ -5,12 +5,13 @@ import { parseMedicineId } from "@/lib/api/medicines";
 import { patientApiUrl } from "@/lib/api/upstream";
 import { isLocale } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
+import { publicReadSignal } from "@/lib/api/public-timeout";
 
 type Props = { params: Promise<{ locale: string; medicineId: string }> };
 
 async function resolvePublicProductSlug(locale: string, medicineId: string): Promise<string | null> {
   try {
-    const res = await fetch(patientApiUrl(`/public/product-by-id/${locale}/${encodeURIComponent(medicineId)}`), {
+    const res = await fetch(patientApiUrl(`/public/product-by-id/${locale}/${encodeURIComponent(medicineId)}`), { signal: publicReadSignal(),
       headers: { Accept: "application/json" },
       next: { revalidate: 86400 },
     } as RequestInit);

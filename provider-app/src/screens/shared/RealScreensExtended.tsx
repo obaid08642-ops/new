@@ -62,14 +62,14 @@ export function ChronicDiseaseProgramScreen({ onBack }: { onBack: () => void }) 
   const [loadErr, setLoadErr] = useState(false);
 
   useEffect(() => {
-    client.get('/pharmacy/orders/refills')
+    client.get('/provider/pharmacy/refills')
       .then(res => {
         setPatients((res.data || []).map((o: any) => ({
           id: o.id || o._id,
           name: o.patient_name || o.contact?.name || '—',
           disease: (o.items || []).map((i: any) => i.name_ar || i.name).filter(Boolean).join('، ') || (AR ? 'أدوية مزمنة' : 'Chronic meds'),
-          nextRefill: o.next_refill_at ? new Date(o.next_refill_at).toISOString().split('T')[0] : (o.scheduled_at ? new Date(o.scheduled_at).toISOString().split('T')[0] : '—'),
-          status: o.state || 'Active',
+          nextRefill: o.next_refill_at ? new Date(o.next_refill_at).toISOString().split('T')[0] : (o.created_at ? new Date(o.created_at).toISOString().split('T')[0] : '—'),
+          status: o.order_status || o.state || 'Active',
         })));
       })
       // the read is refused today (503 canonical_pharmacy_flow_required): that is not "no refill orders"
@@ -126,7 +126,7 @@ export function MedicationRefillsScreen({ onBack }: { onBack: () => void }) {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    client.get('/pharmacy/orders/refills')
+    client.get('/provider/pharmacy/refills')
       .then((r: any) => setOrders(r.data || []))
       .catch(() => setOrders([]))
       .finally(() => setLoading(false));

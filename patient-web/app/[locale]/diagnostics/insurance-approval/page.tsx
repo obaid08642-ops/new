@@ -5,8 +5,12 @@ import { isLocale } from "@/lib/i18n";
 import { DiagnosticsInsuranceApprovalClient } from "@/components-next/diagnostics-insurance-approval-client";
 import { DiagnosticsDocumentUpload } from "@/components-next/diagnostics-document-upload";
 import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import consult from "@/components-next/consult/consult.module.css";
 import styles from "@/components-next/diagnostics/diag.module.css";
+
+const INSURANCE = SERVICE_ICONS.insurance;
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -19,12 +23,21 @@ export default async function DiagnosticsInsuranceApprovalPage({ params, searchP
   const { locale } = await params;
   const sp = await searchParams;
   const orderId = (sp.orderId || sp.id || "").trim();
-  if (!isLocale(locale) || !idPattern.test(orderId)) notFound();
+  if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("DiagWeb");
   await requirePatientAccess(locale);
+  if (!orderId) {
+    // Opened from the hub with no booking: the insurance step belongs to a booking, so say so and point to the requests (the pre-booking upload form is a backend/owner item).
+    return (
+      <ConsultPage locale={locale} title={t("approvalTitle")} backHref={`/${locale}/diagnostics`}>
+        <ConsultState kind="empty" icon="shield-check" tone={INSURANCE.tone} title={t("approvalNoOrderTitle")} body={t("approvalNoOrderBody")} actionLabel={t("bookingsTitle")} actionHref={`/${locale}/orders`} />
+      </ConsultPage>
+    );
+  }
+  if (!idPattern.test(orderId)) notFound();
   return (
-    <ConsultPage locale={locale} title={t("approvalTitle")} backHref={`/${locale}/diagnostics/bookings`}>
+    <ConsultPage locale={locale} title={t("approvalTitle")} backHref={`/${locale}/orders`}>
       <p className={styles.flowNote}>{t("approvalSub")}</p>
       <DiagnosticsInsuranceApprovalClient orderId={orderId} labName={(sp.labName || "").trim() || t("approvalLabFallback")} visitType={(sp.visitType || "clinic").trim()} locale={locale} />
       <section aria-labelledby="ins-upload">

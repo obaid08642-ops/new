@@ -39,7 +39,7 @@ describe('Phase 21.2 guest → account merge', () => {
   afterAll(async () => { await conn.close(); await mongo.stop(); });
 
   beforeEach(async () => {
-    const keep = ['users', 'patient_profiles', 'pharmacy_orders', 'unified_carts', 'patient_addresses', 'audit_logs'];
+    const keep = ['users', 'patient_profiles', 'pharmacy_orders', 'unified_carts', 'patient_addresses', 'auditlogs'];
     for (const name of (await conn.db!.collections()).map((c) => c.collectionName)) {
       if (!keep.includes(name)) await conn.collection(name).drop();
     }
@@ -87,7 +87,7 @@ describe('Phase 21.2 guest → account merge', () => {
     expect(await conn.collection('pharmacy_orders').countDocuments({ patient_id: 'acct-1' })).toBe(2);
     expect(await conn.collection('pharmacy_orders').countDocuments({ patient_id: 'guest-1' })).toBe(0);
     expect((await conn.collection('patient_profiles').findOne({ user_id: 'acct-1' }))?.full_name).toBe('Guest');
-    expect(await conn.collection('audit_logs').countDocuments({ action: 'account.guest_merged' })).toBe(1);
+    expect(await conn.collection('auditlogs').countDocuments({ action: 'account.guest_merged' })).toBe(1);
   });
 
   it('keeps one cart per account instead of two', async () => {
@@ -133,7 +133,7 @@ describe('Phase 21.2 guest → account merge', () => {
 
     expect(await conn.collection('pharmacy_orders').countDocuments({ patient_id: 'guest-1' })).toBe(1);
     expect(await conn.collection('patient_profiles').countDocuments({ user_id: 'guest-1' })).toBe(1);
-    expect(await conn.collection('audit_logs').countDocuments({ action: 'account.guest_merged' })).toBe(0);
+    expect(await conn.collection('auditlogs').countDocuments({ action: 'account.guest_merged' })).toBe(0);
     expect((await conn.collection('users').findOne({ id: 'guest-1' }))?.is_guest).toBe(true);
   });
 
@@ -165,7 +165,7 @@ describe('Phase 21.2 proof of possession', () => {
   afterAll(async () => { await conn.close(); await mongo.stop(); });
 
   beforeEach(async () => {
-    for (const name of ['users', 'pharmacy_orders', 'patient_profiles', 'audit_logs']) {
+    for (const name of ['users', 'pharmacy_orders', 'patient_profiles', 'auditlogs']) {
       const exists = (await conn.db!.collections()).some((c) => c.collectionName === name);
       if (!exists) await conn.createCollection(name).catch(() => undefined);
       await conn.collection(name).deleteMany({});
@@ -282,7 +282,7 @@ describe('Phase 21.8 guest data lifecycle', () => {
   });
 
   beforeEach(async () => {
-    for (const name of ['users', 'pharmacy_orders', 'audit_logs']) {
+    for (const name of ['users', 'pharmacy_orders', 'auditlogs']) {
       const exists = (await conn.db!.collections()).some((c) => c.collectionName === name);
       if (!exists) await conn.createCollection(name).catch(() => undefined);
       await conn.collection(name).deleteMany({});

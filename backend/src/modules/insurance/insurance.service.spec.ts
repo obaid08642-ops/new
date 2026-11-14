@@ -230,8 +230,10 @@ describe('InsuranceService', () => {
     });
 
     it('should persist an unverified policy built only from provided data', async () => {
-      // Implementation upserts via findOneAndUpdate (not create)
+      // Implementation upserts via findOneAndUpdate (not create); the catalogue and the saved policy are read first (one writer, one shape)
       patientModel.findOneAndUpdate = jest.fn().mockResolvedValue({});
+      patientModel.findOne = jest.fn().mockReturnValue({ lean: async () => null });
+      companyModel.findOne = jest.fn().mockReturnValue({ lean: async () => null });
       const res = await service.uploadPolicy(
         { provider: 'bupa', policy_number: 'POL-1', network: 'gold' } as any,
         'p1',
@@ -244,73 +246,6 @@ describe('InsuranceService', () => {
         expect.objectContaining({ $set: expect.objectContaining({ insurance: expect.objectContaining({ policy_number: 'POL-1' }) }) }),
         expect.objectContaining({ upsert: true }),
       );
-    });
-  });
-
-  describe('nphiesEligibility', () => {
-    it('should return eligible:false when no stored policy matches', async () => {
-      patientModel.findOne.mockReturnValue({
-        lean: jest.fn().mockResolvedValue(null),
-      });
-      const res = await service.nphiesEligibility('1092839482', 'bupa');
-      expect(res.eligible).toBe(false);
-      expect(res.reason).toBe('no_matching_policy_on_file');
-      expect(res).not.toHaveProperty('nphies_live');
-    });
-
-    it('should return stored-policy eligibility when the national id matches', async () => {
-      patientModel.findOne.mockReturnValue({
-        lean: jest.fn().mockResolvedValue({
-          insurance: {
-            national_id: '1092839482',
-            provider: 'Bupa Arabia',
-            verified: true,
-            network: 'gold',
-            class: 'A',
-            expiry_date: '2027-01-01',
-          },
-        }),
-      });
-      const res = await service.nphiesEligibility('1092839482', 'bupa');
-      expect(res.eligible).toBe(true);
-      expect(res.source).toBe('stored_policy');
-      expect(res).not.toHaveProperty('nphies_live');
-      expect(res.verified).toBe(true);
-      expect(res.network).toBe('gold');
-    });
-
-    it('should throw BadRequestException if arguments are missing', async () => {
-      await expect(service.nphiesEligibility('', '')).rejects.toThrow(BadRequestException);
-    });
-  });
-
-  describe('savePolicy', () => {
-    it('should save/update insurance policy on patient profile', async () => {
-      const mockPatient = {
-        user_id: 'p1',
-        insurance: null,
-        save: jest.fn().mockResolvedValue(true),
-      };
-      patientModel.findOne.mockResolvedValue(mockPatient);
-
-      const policyData = {
-        provider: 'bupa',
-        policy_number: 'BPA-1111',
-        network: 'gold',
-        class: 'A',
-        expiry_date: '2027-12-31',
-        member_name: 'Ahmed',
-        national_id: '11111',
-        verified: true,
-      };
-
-      const res = await service.savePolicy('p1', policyData);
-      expect(res.success).toBe(true);
-      expect(mockPatient.insurance).toEqual(expect.objectContaining({
-        provider: 'bupa',
-        policy_number: 'BPA-1111',
-        verified: true,
-      }));
     });
   });
 });

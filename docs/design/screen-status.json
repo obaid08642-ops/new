@@ -173,7 +173,7 @@
   "patient-app /room/[id]": "done (batch 2 merged)",
   "patient-app /search": "done (#285)",
   "patient-app /settings": "done (batch 12 merged)",
-  "patient-app /settings/about": "done (batch 12 merged)",
+  "patient-app /settings/about": "redirect to /settings/help?tab=about (OD-6)",
   "patient-app /settings/data": "done (batch 12 merged)",
   "patient-app /settings/feedback": "done (batch 12 merged)",
   "patient-app /settings/help": "done (batch 12 merged)",

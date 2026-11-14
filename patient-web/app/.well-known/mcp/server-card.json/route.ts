@@ -15,6 +15,7 @@ export function GET() {
       schema: "https://modelcontextprotocol.io/server-card/v0",
       name: "Nabd Plus Healthcare MCP Server",
       description:
+        // i18n-ok: machine-readable discovery metadata for agents and API clients (English by design), not shown to patients
         "Unified Model Context Protocol (MCP) server for Saudi healthcare discovery, consultation booking, and pharmacy services.",
       version: "1.0.0",
       protocol: {
@@ -48,7 +49,7 @@ export function GET() {
         scopes: {
           "agent:read": "Read the patient's own orders, bookings and pharmacy offers.",
           "agent:order": "Send an OTC pharmacy request and read its offers. The patient selects an offer and pays on Nabd Plus.",
-          "agent:book": "Hold a consultation, lab or nursing slot. The patient confirms and pays on Nabd Plus.",
+          "agent:book": "Hold a consultation, lab, radiology or nursing slot. The patient confirms and pays on Nabd Plus.",
         },
         authenticated_tools: {
           my_orders: "agent:read",
@@ -59,6 +60,7 @@ export function GET() {
           hold_consultation: "agent:book",
           hold_lab: "agent:book",
           hold_nursing: "agent:book",
+          hold_radiology: "agent:book",
           cancel_hold: "agent:book",
         },
       },

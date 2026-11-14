@@ -11,7 +11,7 @@ describe('ProviderAdminService.reviewDocument', () => {
   const banks: any = {};
   const audit: any = { create: jest.fn() };
   const events: any = { emit: jest.fn() };
-  const service = new ProviderAdminService(accounts, profiles, docs, banks, audit, {} as any, events);
+  const service = new ProviderAdminService(accounts, profiles, docs, banks, audit, {} as any, events, {} as any);
   const admin = { id: 'adm-1', role: 'admin' };
 
   const pendingDoc = (over: any = {}) => ({

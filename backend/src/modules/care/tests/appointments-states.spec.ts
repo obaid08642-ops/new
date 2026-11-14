@@ -20,7 +20,7 @@ describe('AppointmentsService state machine', () => {
   let engine: any;
 
   beforeEach(() => {
-    apptModel = { findOne: jest.fn(), create: jest.fn(), deleteOne: jest.fn().mockResolvedValue({ deletedCount: 1 }) };
+    apptModel = { findOne: jest.fn(), create: jest.fn(), updateOne: jest.fn().mockResolvedValue({ acknowledged: true }), deleteOne: jest.fn().mockResolvedValue({ deletedCount: 1 }) };
     providerModel = { findOne: jest.fn().mockResolvedValue({ id: 'doc-1', user_id: 'doc-user-1', account_id: 'doc-account-1', type: 'doctor' }) };
     events = { emit: jest.fn() };
     engine = { apply: jest.fn(async (opts: any) => opts.mutate()) };
@@ -111,12 +111,32 @@ describe('AppointmentsService state machine', () => {
     });
 
     // D-26 (owner): the full-refund window is 2 h (was 24 h), so "late" is now inside 2 h.
-    it('patient cancels <2h before → 50% refund to wallet', async () => {
+    it('patient cancels <2h before → 50% refund, back to the original payment', async () => {
       const appt = apptIn(APPT_STATES.CONFIRMED, { slot_start: new Date(Date.now() + 1 * 3600000) });
       apptModel.findOne.mockResolvedValue(appt);
       const res = await service.cancel('appt-1', { id: 'pat-1', role: 'patient' });
       expect(res.refund_percentage).toBe(50);
-      expect(res.refund_destination).toBe('wallet');
+      expect(res.refund_destination).toBe('source');
+    });
+
+    it('an illegal cancel (already completed) throws before any refund is stored or emitted', async () => {
+      const appt = apptIn(APPT_STATES.COMPLETED);
+      apptModel.findOne.mockResolvedValue(appt);
+      await expect(service.cancel('appt-1', { id: 'pat-1', role: 'patient' }, 'too late')).rejects.toThrow(BadRequestException);
+      expect(events.emit).not.toHaveBeenCalledWith('appointment.refund.calculated', expect.anything());
+      expect(apptModel.updateOne).not.toHaveBeenCalled();
+      expect(appt.save).not.toHaveBeenCalled();
+    });
+
+    it('a legal cancel stores the refund and emits it only after the state change', async () => {
+      const appt = apptIn(APPT_STATES.CONFIRMED, { slot_start: new Date(Date.now() + 48 * 3600000) });
+      apptModel.findOne.mockResolvedValue(appt);
+      const order: string[] = [];
+      engine.apply.mockImplementation(async (opts: any) => { const r = await opts.mutate(); order.push('transition'); return r; });
+      events.emit.mockImplementation((name: string) => { if (name === 'appointment.refund.calculated') order.push('refund'); });
+      await service.cancel('appt-1', { id: 'pat-1', role: 'patient' });
+      expect(order).toEqual(['transition', 'refund']);
+      expect(apptModel.updateOne).toHaveBeenCalledWith({ id: 'appt-1' }, { $set: expect.objectContaining({ refund_percentage: 100, refund_destination: 'source' }) });
     });
 
     it('patient no-show → 0% refund', async () => {
@@ -190,6 +210,46 @@ describe('AppointmentsService state machine', () => {
         .rejects.toThrow('old-appointment-save-failed');
 
       expect(apptModel.deleteOne).toHaveBeenCalledWith({ id: 'appt-2' });
+    });
+
+    describe('late free reschedule (owner decision 2026-11-10: instead of the 50 % late cancel, ONE free reschedule within 14 days)', () => {
+      const quarterIn = (hours: number) => { const d = new Date(Date.now() + hours * 3600000); d.setUTCMinutes(Math.ceil(d.getUTCMinutes() / 15) * 15, 0, 0); return d.toISOString(); };
+      const patient = { id: 'pat-1', role: 'patient' };
+      const lateAppt = (extra: any = {}) => apptIn(APPT_STATES.CONFIRMED, { slot_start: new Date(Date.now() + 60 * 60000), ...extra });
+      const answer = (appt: any) => { apptModel.findOne.mockResolvedValueOnce(appt).mockResolvedValueOnce(null); apptModel.create.mockImplementation(async (doc: any) => makeDoc({ id: 'appt-2', ...doc })); };
+
+      it('the patient moves the booking inside the last 2 hours to a slot within 14 days: the replacement carries the mark, the old one is RESCHEDULED, nothing is cancelled or refunded', async () => {
+        const appt = lateAppt(); answer(appt);
+        const res = await service.reschedule('appt-1', patient, { slot_start: quarterIn(24 * 10) });
+        expect(res).toMatchObject({ status: APPT_STATES.CONFIRMED, rescheduled_from_id: 'appt-1', late_free_reschedule: true });
+        expect(appt.status).toBe(APPT_STATES.RESCHEDULED);
+        expect(appt.state_history.at(-1).note).toBe('rescheduled-late-free');
+      });
+      it('a slot further than 14 days is refused (nothing is created)', async () => {
+        const appt = lateAppt(); answer(appt);
+        await expect(service.reschedule('appt-1', patient, { slot_start: quarterIn(24 * 15) })).rejects.toThrow('late_reschedule_within_14_days');
+        expect(apptModel.create).not.toHaveBeenCalled();
+      });
+      it('the ordinary (not late) reschedule keeps its own rules: no 14-day limit, no mark', async () => {
+        const appt = apptIn(APPT_STATES.CONFIRMED, { slot_start: new Date(Date.now() + 10 * 3600000) }); answer(appt);
+        const res = await service.reschedule('appt-1', patient, { slot_start: quarterIn(24 * 20) });
+        expect(res.late_free_reschedule).toBeUndefined();
+      });
+      it('only the patient side: the doctor or an admin rescheduling inside the last 2 hours is still refused', async () => {
+        for (const user of [{ id: 'doc-user-1', role: 'doctor' }, { id: 'admin-1', role: 'admin' }]) {
+          apptModel.findOne.mockResolvedValueOnce(lateAppt());
+          await expect(service.reschedule('appt-1', user, { slot_start: quarterIn(48) })).rejects.toThrow('reschedule_too_late_for_free_reschedule');
+        }
+      });
+      it('after the start it is a no-show, not a reschedule', async () => {
+        apptModel.findOne.mockResolvedValueOnce(lateAppt({ slot_start: new Date(Date.now() - 10 * 60000) }));
+        await expect(service.reschedule('appt-1', patient, { slot_start: quarterIn(48) })).rejects.toThrow('reschedule_too_late_for_free_reschedule');
+      });
+      it('the one free reschedule already used: refused', async () => {
+        const appt = lateAppt({ rescheduled_from_id: 'appt-0' });
+        apptModel.findOne.mockResolvedValueOnce(appt).mockResolvedValueOnce({ id: 'appt-0' });
+        await expect(service.reschedule('appt-1', patient, { slot_start: quarterIn(48) })).rejects.toThrow('no_free_reschedules_left');
+      });
     });
 
     it('rejects past/near slot_start', async () => {

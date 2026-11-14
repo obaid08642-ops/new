@@ -2,6 +2,7 @@
  * NABDAH PLUS — Security Layer
  * AES-256 SecureStore · JWT · Biometric · Input Validation · Rate Limiting
  */
+import { APP_ID, APP_VERSION } from '../utils/appVersion';
 import * as SecureStore from 'expo-secure-store';
 import * as Crypto from 'expo-crypto';
 import * as LocalAuth from 'expo-local-authentication';
@@ -299,7 +300,8 @@ export async function buildHeaders(auth = true): Promise<Record<string,string>> 
  const headers: Record<string,string> = {
  'Content-Type': 'application/json',
  'Accept': 'application/json',
- 'X-App-Version': '1.0.0',
+ 'X-App-Id': APP_ID,
+ 'X-App-Version': APP_VERSION,
  'X-Platform': Platform.OS,
  'X-Device-ID': deviceId,
  'X-Request-ID': reqId,

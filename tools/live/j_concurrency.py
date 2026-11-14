@@ -46,6 +46,22 @@ def ensure_doctor():
     return DOCTOR
 
 
+def remove_published_doctor():
+    """Cleanup: deletes the doctor this process published (ensure_doctor). Each journey run publishes its own approved doctor
+    and the public doctor list is capped, so a run that leaves its doctor behind pushes other journeys' doctors out of the
+    list (j_consultation's "doctor search lists the approved doctor"). Uses the admin user delete that j_admin_provider_delete
+    covers for a provider with an account."""
+    import j_admin
+    global _ADMIN
+    if DOCTOR_CLIENT is None:
+        return
+    uid = (DOCTOR_CLIENT.get('/auth/me').body or {}).get('id')
+    if _ADMIN is None:
+        _ADMIN, _ = j_admin.login()
+    r = _ADMIN.delete(f'/admin/admin/users/{uid}')
+    step('cleanup: the doctor this run published is removed (admin user delete)', bool(uid) and r.ok, r)
+
+
 def at_once(calls):
     """Run the callables together (barrier start); return their results in order."""
     out = [None] * len(calls)

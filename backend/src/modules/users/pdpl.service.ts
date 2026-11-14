@@ -1,4 +1,6 @@
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { recordAudit } from '../../common/audit-record';
+import { exportAuditEvents } from '../security/user-history.service';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { revealHealthDocs } from '../../common/health-fields';
@@ -86,6 +88,7 @@ export class PdplService {
     { collection: 'moyasar_payments', fields: ['patient_id', 'patient_account_id', 'user_id'] },
     { collection: 'wallet_transactions', fields: ['owner_id', 'patient_id', 'user_id'] },
     { collection: 'returnrequests', fields: ['patient_id', 'patient_account_id', 'user_id'] },
+    { collection: 'patient_hidden_visits', fields: ['patient_id'] },   // PT-54: the visits this patient hid from their own history
   ];
 
   /** Never leaves the server, even in an export. */
@@ -131,7 +134,8 @@ export class PdplService {
       collections: {},
     };
 
-    for (const { collection, fields } of this.OWNED) {
+    // the same list the erasure walks (OWNED + OWNED_EXTRA): a patient is given every collection that holds their data, not a shorter one
+    for (const { collection, fields } of [...this.OWNED, ...PdplService.OWNED_EXTRA]) {
       if (!present.has(collection)) continue;
       const rows: any[] = await this.conn
         .collection(collection)
@@ -143,6 +147,11 @@ export class PdplService {
         data.collections[collection] = revealHealthDocs(collection, rows).map((r) => this.sanitize(r as any));
       }
     }
+
+    // 23.6: the export includes the person's own audit events (sign-ins, security and consent events, their actions)
+    data.audit_events = await exportAuditEvents(this.conn, String(userId));
+    // 23.2: a data export is an event in the trail (who asked, from where), never the content
+    await recordAudit(this.conn, { action: 'data_export', user_id: String(userId), role: (user as any).role, resource_kind: 'user', resource_id: String(userId), severity: 'warn', details: { collections: Object.keys(data.collections).length } });
 
     return {
       exported_at: new Date().toISOString(),
@@ -157,10 +166,18 @@ export class PdplService {
    * (invoices, audit trail, financial ledger) are anonymised so the platform
    * keeps its obligations while the person is no longer identifiable.
    */
-  async erasePatientData(userId: string, opts?: { reason?: string; password?: string }) {
+  async erasePatientData(userId: string, opts?: { reason?: string; password?: string; guestSession?: boolean; retention?: boolean }) {
     if (!userId) throw new BadRequestException('user_id_required');
     const user: any = await this.userModel.findOne({ id: { $eq: String(userId) } }).lean();
     if (!user) throw new BadRequestException('user_not_found');
+
+    // This erases PATIENT data. `DELETE /users/me` is open to every signed-in role, and a provider or admin who anonymised their own user row would
+    // leave the business account (approved, balances, payouts, provider-scope tokens keyed on provider_accounts) running under an erased identity.
+    // Staff accounts are closed through their own process (admin / support), never self-service here.
+    const erasableRole = String(user.role || 'patient').toLowerCase();
+    if (erasableRole !== 'patient' && erasableRole !== 'guest') {
+      throw new ForbiddenException({ message: 'erasure_not_available_for_role', code: 'erasure_not_available_for_role' });
+    }
 
     // Erasure is irreversible and removes medical records, so it must not be
     // reachable with a stolen token alone. The password is re-entered by the
@@ -171,7 +188,10 @@ export class PdplService {
     // patients with `password_hash: ''` (auth.service social callback), so those
     // accounts could be erased with no proof at all — exactly the attack the check
     // exists to stop. Missing proof now fails closed in both directions.
-    if (!user.password_hash) {
+    // 21.8: a guest has no password. The guest session (or the retention job) proves the request, and only for a stored
+    // account that really is a guest — a real account always goes through the password check below.
+    const guestProof = (opts?.guestSession === true || opts?.retention === true) && user.is_guest === true;
+    if (!guestProof && !user.password_hash) {
       // No password on file means the password cannot prove anything. Self-service
       // erasure is refused rather than silently allowed; the account needs a
       // password set (or a verified channel) first.
@@ -181,13 +201,13 @@ export class PdplService {
         detail: 'This account signs in with a social provider and has no password, so erasure cannot be authorised by password alone.',
       });
     }
-    if (!opts?.password) throw new BadRequestException('password_required');
-    {
+    if (!guestProof && !opts?.password) throw new BadRequestException('password_required');
+    if (!guestProof) {
       // bcryptjs, like the rest of the backend. This was `require('bcrypt')`, and
       // bcrypt is neither declared nor installed, so the moment a patient supplied
       // a password the check threw "Cannot find module 'bcrypt'" and erasure 500'd
       // instead of verifying. The old test missed it by never passing a password.
-      const bcrypt = require('bcryptjs');
+      const bcrypt = require('../../common/password-hash');
       const ok = await bcrypt.compare(opts.password, user.password_hash);
       if (!ok) throw new BadRequestException('invalid_password');
     }
@@ -236,6 +256,22 @@ export class PdplService {
       if (res?.deletedCount) deleted[collection] = (deleted[collection] || 0) + res.deletedCount;
     }
 
+    // 21.8: guest data goes with the account — the device bindings of this account and of the guests merged into it, and
+    // the emptied shells those guests left behind (the merge moved everything they held onto this account).
+    const guestIds = [String(userId)];
+    if (present.has('users')) {
+      const shells = await this.conn.collection('users').find({ merged_into: { $eq: String(userId) } }, { projection: { id: 1 } }).toArray().catch(() => []);
+      guestIds.push(...shells.map((x: any) => String(x.id)));
+      if (shells.length) {
+        const res = await this.conn.collection('users').deleteMany({ merged_into: { $eq: String(userId) }, is_guest: false } as any).catch(() => null);
+        if (res?.deletedCount) deleted['merged_guest_shells'] = res.deletedCount;
+      }
+    }
+    if (present.has('guest_devices')) {
+      const res = await this.conn.collection('guest_devices').deleteMany({ guest_id: { $in: guestIds } } as any).catch(() => null);
+      if (res?.deletedCount) deleted['guest_devices'] = res.deletedCount;
+    }
+
     // Sessions and tokens must die immediately, not in 30 days.
     for (const collection of ['pushtokens', 'devices', 'refreshsessions']) {
       if (!present.has(collection)) continue;
@@ -274,6 +310,13 @@ export class PdplService {
     );
 
     if (!scrubbed) throw new BadRequestException('user_not_found');
+
+    // 23.2: the erasure itself stays in the trail (the person goes, the fact that it happened does not)
+    await recordAudit(this.conn, {
+      action: 'data_erasure', user_id: String(userId), role: (user as any).role, resource_kind: 'user', resource_id: String(userId),
+      reason: opts?.reason || 'pdpl_erasure_request', severity: 'critical',
+      details: { deleted: Object.values(deleted).reduce((a, b) => a + b, 0), anonymised: Object.values(anonymised).reduce((a, b) => a + b, 0) },
+    });
 
     this.logger.warn(
       `PDPL erasure executed for ${userId}: ${Object.values(deleted).reduce((a, b) => a + b, 0)} rows deleted, ` +

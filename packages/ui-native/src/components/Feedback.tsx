@@ -21,6 +21,7 @@ import { FIcon } from './FIcon';
 import type { FillIconName, ServiceTone } from '../../../ui/icons/fill';
 import { tokens } from '../../../design-tokens/dist/ts/tokens';
 import { Button } from './Button';
+import { FadeIn, PopIn, Pulse } from '../motion';
 
 /**
  * Status, overlays and loading — 12.A7, React Native.
@@ -38,21 +39,21 @@ import { Button } from './Button';
 const SKELETON_W = { auto: 'auto', full: '100%', half: '50%' } as const;
 
 export function Skeleton({ variant = 'text', lines = 1, width = 'full', testID, theme = 'light' }: SkeletonProps & { theme?: 'light' | 'dark' }) {
-  const bg = theme === 'dark' ? '#12263A' : '#F4F6F8';
+  const bg = tokens(theme === 'dark' ? 'dark' : 'light').color.status.neutral.bg;
   const w = SKELETON_W[width];
 
   if (variant === 'circle') {
-    return <View testID={testID} accessibilityElementsHidden style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: bg }} />;
+    return <Pulse testID={testID} style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: bg }}><View /></Pulse>;
   }
   if (variant === 'tile') {
-    return <View testID={testID} accessibilityElementsHidden style={{ width: 128, height: 128, borderRadius: 24, backgroundColor: bg }} />;
+    return <Pulse testID={testID} style={{ width: 128, height: 128, borderRadius: 24, backgroundColor: bg }}><View /></Pulse>;
   }
   if (variant === 'block' || variant === 'title') {
-    return <View testID={testID} accessibilityElementsHidden style={{ width: w, height: variant === 'title' ? 28 : 64, borderRadius: 12, backgroundColor: bg }} />;
+    return <Pulse testID={testID} style={{ width: w, height: variant === 'title' ? 28 : 64, borderRadius: 12, backgroundColor: bg }}><View /></Pulse>;
   }
 
   return (
-    <View testID={testID} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={{ gap: 8, width: w }}>
+    <Pulse testID={testID} style={{ gap: 8, width: w }}>
       {Array.from({ length: lines }).map((_, i) => (
         <View
           key={i}
@@ -66,7 +67,7 @@ export function Skeleton({ variant = 'text', lines = 1, width = 'full', testID, 
           }}
         />
       ))}
-    </View>
+    </Pulse>
   );
 }
 
@@ -83,6 +84,7 @@ function StateLayout({
   testID,
   role,
   theme,
+  popIcon = false,
 }: {
   icon: FillIconName;
   tone: ServiceTone;
@@ -93,16 +95,19 @@ function StateLayout({
   testID?: string;
   role?: 'alert' | 'summary';
   theme: 'light' | 'dark';
+  /** The picture pops in once (the check after a success). */
+  popIcon?: boolean;
 }) {
   const c = tokens(theme).color;
   return (
+    <FadeIn>
     <View
       testID={testID}
       accessibilityRole={role}
       accessibilityLiveRegion={role === 'alert' ? 'assertive' : role === 'summary' ? 'polite' : undefined}
       style={{ alignItems: 'center', gap: 14, paddingHorizontal: 32, paddingVertical: 32 }}
     >
-      <FIcon icon={icon} tone={tone} size={112} theme={theme} />
+      {popIcon ? <PopIn><FIcon icon={icon} tone={tone} size={112} theme={theme} /></PopIn> : <FIcon icon={icon} tone={tone} size={112} theme={theme} />}
       <Text accessibilityRole="header" style={{ fontSize: 22, fontFamily: 'ReadexPro-700', color: c.text.primary, textAlign: 'center' }}>
         {title}
       </Text>
@@ -110,6 +115,7 @@ function StateLayout({
       {detail ? <Text style={{ fontSize: 11.5, fontFamily: 'ReadexPro-400', color: c.text.tertiary, textAlign: 'center' }}>{detail}</Text> : null}
       {children ? <View style={{ alignSelf: 'stretch', marginTop: 10, gap: 4 }}>{children}</View> : null}
     </View>
+    </FadeIn>
   );
 }
 
@@ -123,13 +129,15 @@ function TextAction({ label, onPress, theme }: { label: string; onPress?: () => 
 }
 
 export interface NativeEmptyStateProps extends EmptyStateProps, Themed {
+  /** The picture pops in once: set it on a success screen (an order, a booking, a payment). */
+  popIcon?: boolean;
   onAction?: () => void;
   onSecondaryAction?: () => void;
 }
 
-export function EmptyState({ icon, tone, title, body, actionLabel, secondaryActionLabel, onAction, onSecondaryAction, testID, theme = 'light' }: NativeEmptyStateProps) {
+export function EmptyState({ icon, tone, title, body, actionLabel, secondaryActionLabel, onAction, onSecondaryAction, testID, popIcon = false, theme = 'light' }: NativeEmptyStateProps) {
   return (
-    <StateLayout icon={icon} tone={tone} title={title} body={body} testID={testID} theme={theme}>
+    <StateLayout icon={icon} tone={tone} title={title} body={body} testID={testID} popIcon={popIcon} theme={theme}>
       {actionLabel ? <Button label={actionLabel} size="lg" fullWidth onPress={onAction} theme={theme} /> : null}
       {secondaryActionLabel ? <TextAction label={secondaryActionLabel} onPress={onSecondaryAction} theme={theme} /> : null}
     </StateLayout>
@@ -196,13 +204,14 @@ export function Toast({
   theme = 'light',
 }: ToastProps & { theme?: 'light' | 'dark' }) {
   const dark = theme === 'dark';
+  const tc = tokens(dark ? 'dark' : 'light').color;
   const accent = {
-    neutral: '#8A94A0',
-    primary: '#D42A38',
-    success: '#1B7A4B',
-    warning: '#8A5A00',
-    danger: '#B3202C',
-    info: '#1F5FBF',
+    neutral: tc.text.tertiary,
+    primary: tc.action.primary.bg,
+    success: tc.status.success.fg,
+    warning: tc.status.warning.fg,
+    danger: tc.status.danger.fg,
+    info: tc.status.info.fg,
   }[tone];
 
   return (
@@ -226,12 +235,12 @@ export function Toast({
         elevation: 6,
       }}
     >
-      <Text numberOfLines={2} style={{ flex: 1, fontSize: 15, color: dark ? '#0B1B2B' : '#F5F5F7' }}>
+      <Text numberOfLines={2} style={{ flex: 1, fontSize: 15, fontFamily: 'ReadexPro-400', color: dark ? '#0B1B2B' : '#F5F5F7' }}>
         {message}
       </Text>
       {actionLabel ? (
         <Pressable accessibilityRole="button" accessibilityLabel={actionLabel} style={{ padding: 8 }}>
-          <Text style={{ fontWeight: '700', color: dark ? '#0B1B2B' : '#F5F5F7' }}>{actionLabel}</Text>
+          <Text style={{ fontFamily: 'ReadexPro-700', color: dark ? '#0B1B2B' : '#F5F5F7' }}>{actionLabel}</Text>
         </Pressable>
       ) : null}
       {dismissible ? (
@@ -273,7 +282,7 @@ export function Modal({
         accessibilityRole="alert"
         style={{
           flex: 1,
-          backgroundColor: 'rgba(18,38,58,0.55)',
+          backgroundColor: tokens('dark').color.glass.bg,
           justifyContent: isSheet ? 'flex-end' : 'center',
           padding: isSheet ? 0 : 24,
         }}
@@ -294,7 +303,7 @@ export function Modal({
           }}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Text style={{ flex: 1, fontSize: 20, fontWeight: '700', color: dark ? '#F5F5F7' : '#0B1B2B' }}>{title}</Text>
+            <Text style={{ flex: 1, fontSize: 20, fontFamily: 'ReadexPro-700', color: dark ? '#F5F5F7' : '#0B1B2B' }}>{title}</Text>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={closeLabel}
@@ -303,7 +312,7 @@ export function Modal({
               <Icon name="close" size={18} theme={dark ? 'dark' : 'light'} />
             </Pressable>
           </View>
-          {body ? <Text style={{ fontSize: 15, color: dark ? '#C2CBD6' : '#5B6673' }}>{body}</Text> : null}
+          {body ? <Text style={{ fontSize: 15, fontFamily: 'ReadexPro-400', color: (dark ? tokens('dark') : tokens('light')).color.text.secondary }}>{body}</Text> : null}
           <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'flex-end' }}>
             {cancelLabel ? <Button label={cancelLabel} variant="ghost" size="sm" theme={dark ? 'dark' : 'light'} /> : null}
             <Button label={confirmLabel} size="sm" variant={destructive ? 'danger' : 'primary'} loading={loading} theme={dark ? 'dark' : 'light'} />

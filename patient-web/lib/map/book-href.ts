@@ -1,4 +1,4 @@
-export type MapProviderType = "doctor" | "hospital" | "pharmacy" | "lab" | "nursing";
+export type MapProviderType = "doctor" | "hospital" | "pharmacy" | "lab" | "radiology" | "nursing";
 
 /**
  * Where "Book" on a map result goes (issue 767): a hospital opens its facility page, a lab its page, a doctor the doctor's
@@ -9,6 +9,7 @@ export function mapBookHref(locale: string, provider: { id: string; type: MapPro
   switch (provider.type) {
     case "hospital": return `/${locale}/facility/${id}`;
     case "lab": return `/${locale}/diagnostics/labs/${id}`;
+    case "radiology": return `/${locale}/diagnostics`;
     case "doctor": return `/${locale}/consultations/doctors/${id}`;
     default: return `/${locale}/c`;
   }

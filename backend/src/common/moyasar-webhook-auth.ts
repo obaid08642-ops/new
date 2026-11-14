@@ -22,8 +22,9 @@ export function isMoyasarWebhookAuthenticated(
   if (!secret) return false;
 
   if (signature) {
-    const expected = crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
     try {
+      // a request without a body has no raw body: the proof is then simply wrong, never an error
+      const expected = crypto.createHmac('sha256', secret).update(typeof rawBody === 'string' ? rawBody : '').digest('hex');
       const a = Buffer.from(expected, 'hex');
       const b = Buffer.from(signature, 'hex');
       if (a.length === b.length && crypto.timingSafeEqual(a, b)) return true;

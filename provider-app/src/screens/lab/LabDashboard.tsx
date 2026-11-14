@@ -1,6 +1,7 @@
 /**
  * NABDAH PLUS – PHASE 4 · LAB & RADIOLOGY DASHBOARD (18 screens)
  */
+import { confirmBlocker, confirmBlockerText } from '../../utils/confirmBlocker';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
  View, Text, TouchableOpacity, ScrollView, StyleSheet,
@@ -9,8 +10,12 @@ import {
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useLang, useAuth, useToast } from '../../context';
+import { BookingChatScreen } from '../shared/BookingChatScreen';
 import client from '../../api/client';
+import { ProviderApi } from '../../api/provider';
+import * as DocumentPicker from 'expo-document-picker';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
+import { orderingStackScreens, ORDERING_ENTRY } from '../ordering';
 import { LabQcActions } from './LabQcActions';
 import {
  NBtn, NCard, NInput, NStatCard, NAvatar, NBadge,
@@ -34,6 +39,7 @@ import {
 import { MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderProfileEditor, WithdrawalWorkflow, ProviderHomeStats, GlobalSystemSettings, ChatSystem } from '../shared/SharedScreens';
 import { WorkingHoursEditorScreen, SecurityManagementScreen, NotificationsCenterScreen } from '../shared/RealScreens';
 import { LabBundlesScreen, LabHomeServiceScreen } from '../shared/RealScreensExtended';
+import { MyServicesScreen } from '../shared/MyServicesScreen';
 
 const { width: W } = Dimensions.get('window');
 
@@ -60,6 +66,9 @@ export const toLabOrderView = (x: any) => ({
   tests: (x.items || []).map((i: any) => i.service_id),
   tech_name: x.technician_name || x.technician_id,
 });
+
+/** A home-collection booking with a phlebotomist assigned: it waits in CONFIRMED (assigning does not change the state) and is on the road in IN_TRANSIT. */
+export const isTripOrder = (o: any): boolean => !!o?.homeCollection && !!o?.tech_name && (o.status === 'CONFIRMED' || o.status === 'IN_TRANSIT');
 
 const BOOKING_STATES: Record<string, { ar: string; en: string; color: string }> = {
   NEW_REQUEST: { ar: 'طلب جديد', en: 'New request', color: tokens.warning },
@@ -89,17 +98,20 @@ const SAMPLE_STAGES = [
 // ══════════════════════════════════════════════════════════════════
 
 function LabOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t } = useLang(); const AR = lang === 'ar';
   const [subTab, setSubTab] = useState<'incoming' | 'scheduled' | 'processing' | 'results'>('incoming');
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const [loadFailed, setLoadFailed] = useState(false);
+  const loadInbox = useCallback(() => {
+    setLoadFailed(false);
     client.get('/labs/provider/inbox')
       .then(res => setOrders((res.data || []).map(toLabOrderView)))
-      .catch(() => setOrders([]))
+      .catch(() => { setOrders([]); setLoadFailed(true); }) // a failed load is an error with a retry, not "no orders"
       .finally(() => setLoading(false));
   }, []);
+  useEffect(() => { loadInbox(); }, [loadInbox]);
 
   // Backend LabBookingState lives in `state` (not `status`): NEW_REQUEST,
   // PENDING_INSURANCE, WAITING_COPAY, CONFIRMED, IN_TRANSIT, IN_LAB,
@@ -137,7 +149,8 @@ function LabOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) {
       </ScrollView>
       
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}>
-        {filtered.length === 0 && <NEmpty title={AR ? 'لا توجد طلبات هنا' : 'No Orders Here'} icon="document" />}
+        {loadFailed && filtered.length === 0 && <NEmpty title={AR ? 'تعذر تحميل الطلبات' : 'Could not load the orders'} actionLabel={AR ? 'إعادة المحاولة' : 'Retry'} onAction={loadInbox} icon="document" />}
+        {!loadFailed && filtered.length === 0 && <NEmpty title={AR ? 'لا توجد طلبات هنا' : 'No Orders Here'} icon="document" />}
         {filtered.map(order => {
           const st = BOOKING_STATES[order.status] || { ar: order.status, en: order.status, color: tokens.info };
           return (
@@ -146,7 +159,7 @@ function LabOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) {
                 <View>
                   <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{order.patient_name || 'Patient'}</Text>
                   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                    <Text style={{ fontSize: FS.sm, color: theme.textSub, fontWeight:'bold' }}>{order.is_insurance?' NPHIES':' Cash'}</Text>
+                    <Text style={{ fontSize: FS.sm, color: theme.textSub, fontWeight:'bold' }}>{order.is_insurance?(AR?' تأمين':' Insurance'):(AR?' نقدًا':' Cash')}</Text>
                     <Text style={{ fontSize: FS.sm, color: theme.textSub }}>•</Text>
                     <Text style={{ fontSize: FS.sm, color: order.homeCollection? theme.primary: theme.textSub }}>{order.homeCollection?' سحب منزلي':' حضور للمختبر'}</Text>
                   </View>
@@ -181,7 +194,7 @@ const Stack = createNativeStackNavigator();
 
 export function LabDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
  const [tab, setTab] = useState('home');
- const { lang } = useLang(); const AR = lang==='ar';
+ const { lang, t } = useLang(); const AR = lang==='ar';
  const [alarmVisible, setAlarmVisible] = useState(false);
 
   const tabs = [
@@ -217,6 +230,7 @@ export function LabDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
      </Stack.Screen>
 
      <Stack.Screen name="order_detail">{({ navigation, route }: any) => <LabOrderDetail order={route.params?.param} onBack={() => navigation.goBack()} onNav={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+     <Stack.Screen name="booking_chat">{({ navigation, route }: any) => <BookingChatScreen kind="lab" order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="sample_tracking">{({ navigation }: any) => <SampleTracking onBack={() => navigation.goBack()} onNav={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="result_review">{({ navigation, route }: any) => <ResultReview sample={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="bundles">{({ navigation }: any) => <LabBundlesScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -245,6 +259,7 @@ export function LabDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
      
      <Stack.Screen name="home_service">{({ navigation }: any) => <LabHomeServiceScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+      {orderingStackScreens(Stack, 'lab')}
      <Stack.Screen name="working_hours">{({ navigation }: any) => <WorkingHoursEditorScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="password">{({ navigation }: any) => <SecurityManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="2fa">{({ navigation }: any) => <SecurityManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -259,7 +274,7 @@ export function LabDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
 // ══════════════════════════════════════════════════════════════════
 function LabHome({ onNav, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; onTriggerAlarm?:()=>void }) {
  const insets = useSafeAreaInsets();
- const { theme } = useTheme(); const { lang } = useLang(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const AR = lang==='ar';
  const { user, toggleOnline } = useAuth();
  const [refreshing, setR] = useState(false);
  const [orders, setOrders] = useState<any[]>([]);
@@ -378,15 +393,17 @@ function LabHome({ onNav, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; onTr
 // ORDER DETAIL
 // ══════════════════════════════════════════════════════════════════
 function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; onNav:(s:string,p?:any)=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
   const [showRegister, setShowRegister] = useState(false);
-  const [showNphies, setShowNphies] = useState(false);
+  const [showApproval, setShowApproval] = useState(false);
   const [showAssign, setShowAssign] = useState(false);
   const [barcode, setBarcode] = useState('');
   const [notes, setNotes] = useState('');
-  const [nphiesCode, setNphiesCode] = useState('');
+  const [decisionRef, setDecisionRef] = useState('');
   const [copay, setCopay] = useState('');
-  const [techName, setTechName] = useState('');
+  const [techName, setTechName] = useState('');   // the chosen technician's name (for the toast)
+  const [techId, setTechId] = useState('');       // the chosen technician's id (own id when the lab has no team)
+  const [techs, setTechs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [showReschedule, setShowReschedule] = useState(false);
   const [rescheduleDate, setRescheduleDate] = useState('');
@@ -421,19 +438,19 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
     }
   };
 
-  const handleNphiesApproval = async () => {
-    if (!nphiesCode) return show(AR ? 'الرجاء إدخال مرجع القرار الداخلي' : 'Enter the internal decision reference', 'warning');
+  const handleApproval = async () => {
+    if (!decisionRef) return show(AR ? 'الرجاء إدخال مرجع القرار الداخلي' : 'Enter the internal decision reference', 'warning');
     setLoading(true);
     try {
       const copayPercent = Math.max(0, Math.min(99, Number(copay)));
       const decision = copayPercent > 0 ? 'APPROVED_PARTIAL' : 'APPROVED_FULL';
       await client.post(`/labs/bookings/${order.id}/coverage-decision`, {
         decision,
-        decision_reference: nphiesCode,
+        decision_reference: decisionRef,
         ...(decision === 'APPROVED_PARTIAL' ? { copay_percent: copayPercent } : {}),
       });
       show(AR ? 'سُجل قرار التغطية الداخلي من الخادم' : 'The server recorded the internal coverage decision', 'success');
-      setShowNphies(false);
+      setShowApproval(false);
       onBack();
     } catch (e: any) {
       show(e.message, 'error');
@@ -456,11 +473,17 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
     }
   };
 
+  useEffect(() => {
+    if (!showAssign) return;
+    client.get('/labs/team/technicians').then((r: any) => setTechs(Array.isArray(r?.data) ? r.data : [])).catch(() => setTechs([]));
+  }, [showAssign]);
+
   const handleAssignTech = async () => {
     setLoading(true);
     try {
-      await client.post(`/labs/bookings/${order.id}/assign-technician`, { technician_id: techName });
-      show(AR ? `تم تعيين ${techName}` : `Assigned ${techName}`, 'success');
+      // the server accepts a listed technician of this lab or the caller; without a pick it assigns the caller
+      await client.post(`/labs/bookings/${order.id}/assign-technician`, techId ? { technician_id: techId } : {});
+      show(techName ? (AR ? `تم تعيين ${techName}` : `Assigned ${techName}`) : (AR ? 'تم تعيين الفني' : 'Technician assigned'), 'success');
       setShowAssign(false);
       onBack();
     } catch (e: any) {
@@ -563,10 +586,13 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
 
       {order?.status === 'NEW_REQUEST' && (
         <View style={{gap:SP.md}}>
+          <NBtn label={t('bookingChat.open')} variant="outline" onPress={() => onNav('booking_chat', order)} />
           {order?.is_insurance ? (
-            <NBtn label={AR ? 'طلب موافقة NPHIES' : 'Request NPHIES Approval'} onPress={() => setShowNphies(true)} />
+            <NBtn label={AR ? 'طلب موافقة التأمين' : 'Request Insurance Approval'} onPress={() => setShowApproval(true)} />
           ) : (
-            <NBtn label={AR ? 'تأكيد الطلب المباشر (كاش)' : 'Confirm Direct Order (Cash)'} onPress={handleCashConfirm} />
+            confirmBlocker(order)
+              ? <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{confirmBlockerText(confirmBlocker(order)!, AR)}</Text>
+              : <NBtn label={AR ? 'تأكيد الطلب المباشر (كاش)' : 'Confirm Direct Order (Cash)'} onPress={handleCashConfirm} />
           )}
           <NBtn label={AR?'رفض الطلب':'Reject Order'} variant="danger" onPress={() => setShowReject(true)} />
         </View>
@@ -585,13 +611,28 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
           ) : (
             <NBtn label={AR ? 'حضور المريض - تسجيل عينة' : 'Patient Arrived - Register Sample'} onPress={() => setShowRegister(true)} />
           )}
+          <NBtn label={AR ? 'المريض لم يحضر' : 'Patient did not show up'} variant="outline" onPress={async () => {
+            try {
+              await client.post(`/labs/bookings/${order?.id}/emergency`, { reason: 'PATIENT_ABSENT' });
+              show(AR ? 'سُجّل غياب المريض وأُلغي الحجز' : 'No-show recorded and the booking cancelled', 'info');
+              onBack();
+            } catch (err: any) {
+              show(err?.response?.data?.message || err.message, 'error');
+            }
+          }} />
           <NBtn label={AR ? 'إعادة جدولة الموعد' : 'Reschedule Appointment'} variant="outline" onPress={() => setShowReschedule(true)} />
         </View>
       )}
 
-      {order?.status === 'ASSIGNED' && (
+      {isTripOrder(order) && (
         <View style={{gap:SP.md}}>
           <NBtn label={AR ? 'بدء التحرك (تتبع GPS)' : 'Start Trip (GPS)'} onPress={() => onNav('home_collection', order)} />
+        </View>
+      )}
+
+      {order?.status === 'IN_LAB' && (
+        <View style={{gap:SP.md}}>
+          <NBtn label={AR ? 'تسجيل العينة' : 'Register Sample'} onPress={() => setShowRegister(true)} />
         </View>
       )}
 
@@ -632,19 +673,26 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
         </View>
       </NSheet>
 
-      {/* NPHIES Approval Sheet */}
-      <NSheet visible={showNphies} onClose={()=>setShowNphies(false)} title={AR ? 'موافقة التأمين NPHIES' : 'NPHIES Approval'} height={400}>
+      {/* Insurance approval sheet */}
+      <NSheet visible={showApproval} onClose={()=>setShowApproval(false)} title={AR ? 'موافقة التأمين' : 'Insurance Approval'} height={400}>
         <View style={{ padding: SP.md }}>
-          <NInput label={AR ? 'مرجع القرار الداخلي' : 'Internal decision reference'} placeholder="REF-12345" value={nphiesCode} onChange={setNphiesCode} icon="verified" />
+          <NInput label={AR ? 'مرجع القرار الداخلي' : 'Internal decision reference'} placeholder="REF-12345" value={decisionRef} onChange={setDecisionRef} icon="verified" />
           <NInput label={AR ? 'نسبة تحمل المريض (0–99%)' : 'Patient co-pay percentage (0–99%)'} placeholder="0" value={copay} onChange={setCopay} icon="payments" kbType="numeric" />
-          <NBtn label={AR ? 'تسجيل قرار التغطية' : 'Record coverage decision'} onPress={handleNphiesApproval} style={{ marginTop: SP.md }} />
+          <NBtn label={AR ? 'تسجيل قرار التغطية' : 'Record coverage decision'} onPress={handleApproval} style={{ marginTop: SP.md }} />
         </View>
       </NSheet>
 
       {/* Tech Assignment Sheet */}
       <NSheet visible={showAssign} onClose={()=>setShowAssign(false)} title={AR ? 'تعيين فني سحب' : 'Assign Technician'} height={400}>
         <View style={{ padding: SP.md }}>
-          <NInput label={AR ? 'ابحث عن فني' : 'Search Technician'} placeholder={AR ? 'مثال: أحمد' : 'e.g. Ahmed'} value={techName} onChange={setTechName} icon="search" />
+          {techs.length === 0 ? (
+            <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{AR ? 'لا يوجد فنيون مسجلون في فريقك: سيُعيَّن الطلب لحسابك.' : 'No technicians on your team: the order is assigned to your account.'}</Text>
+          ) : techs.map((tc: any) => (
+            <TouchableOpacity key={tc.id} accessibilityRole="button" onPress={() => { setTechId(tc.id); setTechName(tc.full_name || tc.email || ''); }}
+              style={{ padding: SP.md, borderRadius: R.md, marginBottom: SP.sm, borderWidth: 1, borderColor: techId === tc.id ? theme.primary : theme.border, backgroundColor: techId === tc.id ? theme.infoBg : theme.surface }}>
+              <Text style={{ color: theme.text, textAlign: AR ? 'right' : 'left' }}>{tc.full_name || tc.email || tc.id}</Text>
+            </TouchableOpacity>
+          ))}
           <NBtn label={AR ? 'تأكيد التعيين' : 'Confirm Assignment'} onPress={handleAssignTech} style={{ marginTop: SP.md }} />
         </View>
       </NSheet>
@@ -683,7 +731,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
 // ══════════════════════════════════════════════════════════════════
 function SampleTracking({ onBack, onNav }:{ onBack:()=>void; onNav:(s:string,p?:any)=>void }) {
  const insets = useSafeAreaInsets();
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
  const [filter, setFilter] = useState('all');
  const [samples, setSamples] = useState<any[]>([]);
  const [loading, setLoading] = useState(true);
@@ -693,7 +741,8 @@ function SampleTracking({ onBack, onNav }:{ onBack:()=>void; onNav:(s:string,p?:
  const res = await client.get('/labs/samples');
  setSamples(res.data || []);
  } catch (err) {
-  setSamples([]); // Silent fail — show empty state
+  setSamples([]);
+  show(t('pa3.labDash.1'), 'error');   // a failed load is told, not shown as "no samples"
  } finally {
  setLoading(false);
  }
@@ -783,7 +832,7 @@ function SampleTracking({ onBack, onNav }:{ onBack:()=>void; onNav:(s:string,p?:
 // RESULT REVIEW — Preview before sending
 // ══════════════════════════════════════════════════════════════════
 function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
   const [sendTo, setSendTo] = useState<'patient'|'both'>('both');
  const [loading, setLoading] = useState(false);
  const [resultRows, setResultRows] = useState<any[]>(Array.isArray(sample?.structured_results) ? sample.structured_results : []);
@@ -792,6 +841,12 @@ function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
  const [unit, setUnit] = useState('');
  const [range, setRange] = useState('');
  const [isCritical, setIsCritical] = useState(false);
+ const [reportFile, setReportFile] = useState<{ uri: string; name?: string; mimeType?: string } | null>(null);
+ const pickReportFile = async () => {
+   const res = await DocumentPicker.getDocumentAsync({ type: ['application/pdf', 'image/*'], copyToCacheDirectory: true, multiple: false });
+   if (res.canceled || !res.assets?.[0]) return;
+   setReportFile(res.assets[0]);
+ };
  const addResultRow = () => {
    if (!analyte.trim() || !value.trim()) {
      show(AR ? 'أدخل اسم الفحص والنتيجة قبل الإضافة' : 'Enter an analyte and result before adding it', 'error');
@@ -801,20 +856,21 @@ function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
    setAnalyte(''); setValue(''); setUnit(''); setRange(''); setIsCritical(false);
  };
  const handleConfirmSend = async () => {
- if (!resultRows.length) {
-   show(AR ? 'أضف نتيجة واحدة على الأقل قبل الإرسال' : 'Add at least one result before sending', 'error');
+ if (!resultRows.length && !reportFile) {
+   show(AR ? 'أضف نتيجة أو أرفق ملف التقرير قبل الإرسال' : 'Add a result or attach the report file before sending', 'error');
    return;
  }
  setLoading(true);
  try {
  // The server accepts a report once the booking is RESULT_UPLOADED, i.e. the sample reached result_ready.
  if (sample.stage === 'analyzing') await client.patch(`/labs/samples/${sample.id}/stage`, { stage: 'result_ready' });
- await client.post(`/labs/bookings/${sample.lab_order_id || sample.id}/upload-report`, { structuredData: resultRows, send_to: sendTo });
+ const reportStorageObjectId = reportFile ? await ProviderApi.uploadFile(reportFile.uri, reportFile.mimeType || 'application/pdf', reportFile.name || 'lab-report.pdf') : undefined;
+ await client.post(`/labs/bookings/${sample.lab_order_id || sample.id}/upload-report`, { ...(resultRows.length ? { structuredData: resultRows } : {}), ...(reportStorageObjectId ? { report_storage_object_id: reportStorageObjectId } : {}), send_to: sendTo });
  await client.patch(`/labs/samples/${sample.id}/stage`, { stage: 'sent' });
  show(AR ? 'تم إرسال النتيجة' : 'Result sent', 'success');
  onBack();
  } catch (err: any) {
- show(err.message || (AR ? 'فشل إرسال النتيجة' : 'Failed to send result'), 'error');
+ show(err?.response?.status === 423 ? (AR ? 'الملف قيد الفحص الأمني، حاول بعد دقيقة' : 'The file is still being security-checked, try again in a minute') : (err.message || (AR ? 'فشل إرسال النتيجة' : 'Failed to send result')), 'error');
  } finally {
  setLoading(false);
  }
@@ -867,6 +923,7 @@ function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
  </TouchableOpacity>
  ))}
  </NCard>
+ <NBtn label={reportFile ? (AR ? `ملف مرفق: ${reportFile.name || ''} (إزالة)` : `Attached: ${reportFile.name || 'file'} (remove)`) : (AR ? 'إرفاق ملف التقرير الممسوح (PDF أو صورة)' : 'Attach the scanned report (PDF or image)')} variant="outline" onPress={() => (reportFile ? setReportFile(null) : pickReportFile())} style={{ marginBottom: SP.md }} />
  <NBtn label={AR?'تأكيد وإرسال النتيجة':'Confirm & Send Result'} loading={loading} onPress={handleConfirmSend} />
  </NScroll>
  );
@@ -877,7 +934,7 @@ function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
 // BUNDLE MANAGEMENT
 // ══════════════════════════════════════════════════════════════════
 function BundleMgmt({ onBack }:{ onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
  const [bundlesList, setBundlesList] = useState<any[]>([]);
  useEffect(() => { client.get('/labs/packages').then(r => setBundlesList(r.data || [])).catch(() => {}); }, []);
  return (
@@ -915,7 +972,7 @@ function BundleMgmt({ onBack }:{ onBack:()=>void }) {
 // ADD CUSTOM TEST → Admin Approval
 // ══════════════════════════════════════════════════════════════════
 function AddCustomTest({ onBack }:{ onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
  const [nameAr,setNameAr]=useState(''); const [nameEn,setNameEn]=useState(''); const [price,setPrice]=useState('');
  const [hours,setHours]=useState(''); const [fasting,setFasting]=useState(false); const [refLow,setRefLow]=useState('');
  const [refHigh,setRefHigh]=useState(''); const [unit,setUnit]=useState(''); const [loading,setLoading]=useState(false);
@@ -980,7 +1037,7 @@ function haversineKm(aLat: number, aLng: number, bLat: number, bLng: number): nu
 }
 
 function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
  // R7-3: real technicians from the lab team endpoint — never hard-coded names.
  const [collectors, setCollectors] = useState<any[]>([]);
  const [loadingTeam, setLoadingTeam] = useState(true);
@@ -1041,7 +1098,7 @@ function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
       </NScroll>
     );
   }
-  if (order?.status === 'ASSIGNED' || tracking) {
+  if (isTripOrder(order) || tracking) {
     return (
       <NScroll>
         <NHeader title={AR ? 'تتبع مسار الفني' : 'Track Technician'} onBack={onBack} />
@@ -1071,7 +1128,7 @@ function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
           ) : null}
         </NCard>
 
-        {distance !== null && distance <= 0.1 ? (
+        {(distance !== null && distance <= 0.1) || (!hasDestination && (tracking || order?.status === 'IN_TRANSIT')) ? (
           <NBtn label={AR ? 'الفني وصل (تم الوصول)' : 'Technician Arrived'} variant="primary" onPress={async () => {
             try {
               await client.patch(`/labs/bookings/${order?.id}/state`, { state: 'IN_LAB', note: 'ARRIVED at location' });
@@ -1094,20 +1151,26 @@ function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
 
         <View style={{ marginTop: SP.xl, gap: SP.md }}>
           <NSecHeader title={AR ? 'إدارة الطوارئ' : 'Emergency Management'} />
-          <NBtn label={AR ? 'المريض لم يحضر' : 'Patient Absent'} variant="outline" onPress={async () => {
-            await client.post(`/labs/bookings/${order?.id}/emergency`, { reason: 'PATIENT_ABSENT' });
-            show(AR ? 'تم تسجيل الحالة' : 'Status logged', 'info');
-            onBack();
-          }} />
-          <NBtn label={AR ? 'موقع خاطئ' : 'Wrong Location'} variant="outline" onPress={async () => {
-            await client.post(`/labs/bookings/${order?.id}/emergency`, { reason: 'WRONG_LOCATION' });
-            show(AR ? 'تم تسجيل الحالة' : 'Status logged', 'info');
-            onBack();
-          }} />
+          {([['PATIENT_ABSENT', AR ? 'المريض لم يحضر' : 'Patient Absent'], ['WRONG_LOCATION', AR ? 'موقع خاطئ' : 'Wrong Location']] as const).map(([reason, label]) => (
+            <NBtn key={reason} label={label} variant="outline" onPress={async () => {
+              try {
+                await client.post(`/labs/bookings/${order?.id}/emergency`, { reason });
+                show(AR ? 'تم تسجيل الحالة' : 'Status logged', 'info');
+                onBack();
+              } catch (err: any) {
+                show(err?.response?.data?.message || err.message, 'error');
+              }
+            }} />
+          ))}
           <NBtn label={AR ? 'إلغاء وتعيين فني آخر' : 'Cancel & Reassign'} variant="danger" onPress={async () => {
-            await client.post(`/labs/bookings/${order?.id}/reassign`);
-            setTracking(false);
-            show(AR ? 'تم الإلغاء وجاري التعيين' : 'Cancelled & Reassigning', 'success');
+            try {
+              await client.post(`/labs/bookings/${order?.id}/reassign`);
+              setTracking(false);
+              show(AR ? 'تم الإلغاء وجاري التعيين' : 'Cancelled & Reassigning', 'success');
+              onBack();
+            } catch (err: any) {
+              show(err?.response?.data?.message || err.message, 'error');
+            }
           }} />
         </View>
 
@@ -1159,7 +1222,7 @@ function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
 // QR SAMPLE LABEL
 // ══════════════════════════════════════════════════════════════════
 function QRSampleLabel({ sample, onBack }:{ sample:any; onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const AR = lang==='ar';
  return (
  <NScroll>
  <NHeader title={AR?'ملصق QR للعينة':'QR Sample Label'} onBack={onBack} />
@@ -1185,7 +1248,7 @@ function QRSampleLabel({ sample, onBack }:{ sample:any; onBack:()=>void }) {
 // TURNAROUND TIME TRACKER
 // ══════════════════════════════════════════════════════════════════
 function TATTracker({ onBack }:{ onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
  const [samples, setSamples] = useState<any[]>([]);
  const [loading, setLoading] = useState(true);
  useEffect(() => {
@@ -1235,12 +1298,13 @@ function TATTracker({ onBack }:{ onBack:()=>void }) {
 // LAB INSURANCE CLAIMS
 // ══════════════════════════════════════════════════════════════════
 function LabInsurance({ onBack }:{ onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
  const [orders, setOrders] = useState<any[]>([]);
  const [loading, setLoading] = useState(true);
  const [selectedOrder, setSelectedOrder] = useState<any>(null);
  // D-37: the insurer's approval number from the lab's own system (required to approve).
  const [approvalRef, setApprovalRef] = useState('');
+ const [rejectNote, setRejectNote] = useState('');   // the insurer's reason when the claim is rejected (the server needs one)
 
  const fetchOrders = async () => {
  try {
@@ -1258,6 +1322,10 @@ function LabInsurance({ onBack }:{ onBack:()=>void }) {
  useEffect(() => { fetchOrders(); }, []);
 
  const handleUpdateInsurance = async (status: string) => {
+ if (status === 'rejected' && rejectNote.trim().length < 3) {
+ show(t('pa3.labDash.2'), 'error');
+ return;
+ }
  if (status !== 'rejected' && !approvalRef.trim()) {
  show(AR ? 'رقم موافقة التأمين إلزامي' : 'The insurer approval number is required', 'error');
  return;
@@ -1265,16 +1333,16 @@ function LabInsurance({ onBack }:{ onBack:()=>void }) {
  try {
  await client.patch(`/labs/bookings/${selectedOrder.id}/insurance`, {
  status,
- ...(status !== 'rejected' ? { approval_ref: approvalRef.trim() } : {}),
+ ...(status !== 'rejected' ? { approval_ref: approvalRef.trim() } : { reason: rejectNote.trim() }),
  totalCopay: selectedOrder.insurance_copay || 0,
  items: selectedOrder.items
  });
  show(AR ? 'تم التحديث بنجاح' : 'Updated successfully', 'success');
- setApprovalRef('');
+ setApprovalRef(''); setRejectNote('');
  setSelectedOrder(null);
  fetchOrders();
- } catch(e) {
- show(AR ? 'خطأ في التحديث' : 'Error updating', 'error');
+ } catch(e: any) {
+ show(e?.response?.data?.message || (t('pa3.labDash.3')), 'error');
  }
  };
 
@@ -1336,6 +1404,7 @@ function LabInsurance({ onBack }:{ onBack:()=>void }) {
 
  <NCard style={{marginTop: SP.lg}}>
  <NInput label={AR ? 'رقم موافقة التأمين (إلزامي للاعتماد)' : 'Insurer approval number (required to approve)'} placeholder="APR-XXXXX" value={approvalRef} onChange={setApprovalRef} />
+ <NInput label={t('pa3.labDash.4')} value={rejectNote} onChange={setRejectNote} />
  </NCard>
  <View style={{flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.xl, marginBottom: SP.xxl}}>
  <NBtn label={AR ? 'رفض' : 'Reject'} variant="danger" onPress={() => handleUpdateInsurance('rejected')} style={{flex: 1}} />
@@ -1404,6 +1473,7 @@ function LabSettings({ onLogout, onNavigate }:{ onLogout:()=>void; onNavigate:(s
  <NSettingsRow icon="calendar" label={AR?'مواعيد العمل':'Working Hours'} onPress={()=>onNavigate('working_hours')} />
  <NSettingsRow icon="shield" label={AR?'إعدادات التأمين':'Insurance Settings'} onPress={()=>onNavigate('insurance_config')} />
 <NSettingsRow icon="shield" label={AR?'طلبات التأمين الواردة':'Insurance Requests'} onPress={()=>onNavigate('insurance_requests')} />
+<NSettingsRow icon="document" label={AR?'إعلان الطلبات':'Ordering declaration'} onPress={()=>onNavigate(ORDERING_ENTRY)} />
  <NSettingsRow icon="document" label={AR?'الرخص والمستندات الرسمية':'Licenses & Documents'} onPress={()=>onNavigate('certificates_config')} />
  <NSettingsRow icon="camera" label={AR?'الصور والوسائط':'Photos & Media'} onPress={()=>onNavigate('media_config')} />
  </NCard>
@@ -1450,7 +1520,7 @@ function LabSettings({ onLogout, onNavigate }:{ onLogout:()=>void; onNavigate:(s
 // ══════════════════════════════════════════════════════════════════
 function ResultsList({ onNav }:{ onNav:(s:string,p?:any)=>void }) {
  const insets = useSafeAreaInsets();
- const { theme } = useTheme(); const { lang } = useLang(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t } = useLang(); const AR = lang==='ar';
  // Samples past accessioning: results being entered, ready to send, or sent.
  const [items, setItems] = useState<any[]>([]);
  const load = useCallback(() => {
@@ -1510,61 +1580,15 @@ const s = StyleSheet.create({
 // ══════════════════════════════════════════════════════════════════
 // A lab test's preparation is written per test in the six patient-app languages (decision of 2026-10-15);
 // the patient app shows the one for its language, and with none only says the lab will confirm any preparation.
-const PREP_LANGS = [
-  { code: 'ar', label: 'labPrepAr' }, { code: 'en', label: 'labPrepEn' }, { code: 'ur', label: 'labPrepUr' },
-  { code: 'hi', label: 'labPrepHi' }, { code: 'bn', label: 'labPrepBn' }, { code: 'tl', label: 'labPrepTl' },
-] as const;
-type PrepLang = typeof PREP_LANGS[number]['code'];
-const emptyPrep = (): Record<PrepLang, string> => ({ ar: '', en: '', ur: '', hi: '', bn: '', tl: '' });
-const prepLines = (text: string): string[] => text.split('\n').map((x) => x.trim()).filter(Boolean);
 
 function LabTestMenuScreen({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme();
   const { lang, t } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
-
-  const [loading, setLoading] = useState(true);
-  const [services, setServices] = useState<any[]>([]);
   const [showAddSheet, setShowAddSheet] = useState(false);
   const [newTitleAr, setNewTitleAr] = useState('');
   const [newTitleEn, setNewTitleEn] = useState('');
   const [newPrice, setNewPrice] = useState('');
-
-  const [editingService, setEditingService] = useState<any | null>(null);
-  const [editPrice, setEditPrice] = useState('');
-  const [editPrep, setEditPrep] = useState<Record<PrepLang, string>>(emptyPrep);
-
-  useEffect(() => { fetchServices(); }, []);
-
-  const fetchServices = async () => {
-    try {
-      const res = await client.get('/provider/capabilities/lab-services');
-      setServices(res.data || []);
-    } catch (e) {
-      show(AR ? 'فشل تحميل التحاليل' : 'Failed to load tests', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSaveEdit = async () => {
-    if (!editingService) return;
-    try {
-      await client.post('/approval-workflow/requests', {
-        entity_type: 'service',
-        entity_id: editingService.id,
-        change_data: {
-          price: parseFloat(editPrice) || 0,
-          ...Object.fromEntries(PREP_LANGS.map(({ code }) => [`preparation_${code}`, prepLines(editPrep[code])])),
-        }
-      });
-      show(AR ? 'تم إرسال التعديلات للمراجعة' : 'Changes sent for review', 'success');
-      setEditingService(null);
-    } catch (e) {
-      show(AR ? 'فشل إرسال التعديلات' : 'Failed to send changes', 'error');
-    }
-  };
 
   const handleAddService = async () => {
     if (!newPrice || !newTitleEn) {
@@ -1574,12 +1598,7 @@ function LabTestMenuScreen({ onBack }: { onBack: () => void }) {
     try {
       await client.post('/approval-workflow/requests', {
         entity_type: 'service',
-        change_data: {
-          type: 'lab',
-          name_ar: newTitleAr,
-          name_en: newTitleEn,
-          price: parseFloat(newPrice) || 0,
-        }
+        change_data: { type: 'lab', name_ar: newTitleAr, name_en: newTitleEn, price: parseFloat(newPrice) || 0 },
       });
       show(AR ? 'تم إرسال طلب الإضافة للمراجعة' : 'Add request sent for review', 'success');
       setShowAddSheet(false);
@@ -1590,56 +1609,10 @@ function LabTestMenuScreen({ onBack }: { onBack: () => void }) {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'التحاليل والأسعار' : 'Test Menu & Pricing'} onBack={onBack} />
-      {loading ? <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: SP.xxl }} /> : (
-        <ScrollView contentContainerStyle={{ padding: SP.xl, paddingBottom: 100 }}>
-          <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.xl }}>
-            <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.textSub }}>
-              {AR ? 'التحاليل المتاحة' : 'Available Tests'}
-            </Text>
-            <NBtn label={AR ? '+ إضافة تحليل' : '+ Add Test'} size="sm" onPress={() => setShowAddSheet(true)} full={false} />
-          </View>
-          
-          {services.map(srv => (
-            <NCard key={srv.id} style={{ marginBottom: SP.md }}>
-              <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
-                    {AR ? (srv.name_ar || srv.name_en) : srv.name_en}
-                  </Text>
-                  <Text style={{ fontSize: FS.sm, color: theme.primary, textAlign: AR ? 'right' : 'left', marginTop: 4 }}>
-                    {srv.price} {AR ? 'ر' : 'SAR'}
-                  </Text>
-                </View>
-                <NBtn label={t('labEditTest')} size="xs" variant="outline" full={false} onPress={() => {
-                  setEditingService(srv);
-                  setEditPrice(String(srv.price || ''));
-                  setEditPrep(Object.fromEntries(PREP_LANGS.map(({ code }) => {
-                    const list = srv[`preparation_${code}`];
-                    return [code, Array.isArray(list) ? list.filter((x: unknown) => typeof x === 'string').join('\n') : ''];
-                  })) as Record<PrepLang, string>);
-                }} />
-              </View>
-            </NCard>
-          ))}
-        </ScrollView>
-      )}
-
-      {/* Edit Sheet */}
-      <NSheet visible={!!editingService} onClose={() => setEditingService(null)} title={t('labEditTest')}>
-        <NPriceInput label={AR ? 'السعر داخل المختبر' : 'Lab Price'} value={editPrice} onChange={setEditPrice} />
-        <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginTop: SP.lg }}>{t('labPrepTitle')}</Text>
-        <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>{t('labPrepHint')}</Text>
-        {PREP_LANGS.map(({ code, label }) => (
-          <NInput key={code} label={t(label)} value={editPrep[code]} multiline lines={2}
-            onChange={(v) => setEditPrep((prev) => ({ ...prev, [code]: v }))} />
-        ))}
-        <NBtn label={AR ? 'إرسال التعديل للمراجعة' : 'Send for Review'} onPress={handleSaveEdit} style={{ marginTop: SP.xl }} />
-      </NSheet>
-
-      {/* Add Sheet */}
-      <NSheet visible={showAddSheet} onClose={() => setShowAddSheet(false)} title={AR ? 'إضافة تحليل جديد' : 'Add New Test'}>
+    <View style={{ flex: 1 }}>
+      <MyServicesScreen vertical="lab" onBack={onBack}
+        footer={<NBtn label={AR ? 'تحليل غير موجود؟ اطلب إضافته' : 'Test not listed? Ask to add it'} variant="outline" onPress={() => setShowAddSheet(true)} />} />
+      <NSheet visible={showAddSheet} onClose={() => setShowAddSheet(false)} title={AR ? 'طلب إضافة تحليل' : 'Request a new test'}>
         <NInput label={AR ? 'اسم التحليل (إنجليزي)' : 'Test Name (English)'} value={newTitleEn} onChange={setNewTitleEn} />
         <NInput label={AR ? 'اسم التحليل (عربي)' : 'Test Name (Arabic)'} value={newTitleAr} onChange={setNewTitleAr} />
         <NPriceInput label={AR ? 'السعر داخل المختبر' : 'Lab Price'} value={newPrice} onChange={setNewPrice} />

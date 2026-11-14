@@ -1,0 +1,162 @@
+{
+  "slice": "mint-only-greens-app",
+  "batch": "design",
+  "app": "patient-app",
+  "screens": [],
+  "needsReview": [
+    {
+      "route": "/",
+      "element": "control.switchOn #1F9D6E (toggle ON track)",
+      "kind": "owner",
+      "note": "[owner] green token, used by every Toggle; semantic on/off, not a service tone; value not changed (no value invented): keep green or pick a non-green on-state?",
+      "file": "packages/design-tokens/tokens.json",
+      "line": 115
+    },
+    {
+      "route": "/",
+      "element": "presence.online #1F9D6E (doctor online dot)",
+      "kind": "owner",
+      "note": "[owner] green token for the online presence dot (doctor card); value not changed.",
+      "file": "packages/design-tokens/tokens.json",
+      "line": 110
+    },
+    {
+      "route": "/",
+      "element": "service.lime / nutrition (nutrition tile, protein tile, lime chips)",
+      "kind": "owner",
+      "note": "[owner] lime #4A7A00 / #EDF8D6 is a green service tone; nutrition tile keeps it until the owner picks another tone for nutrition.",
+      "file": "packages/design-tokens/tokens.json",
+      "line": 88
+    },
+    {
+      "route": "/",
+      "element": "accent.lime #D7FF00 and track.filled #D7FF00 (acid lime)",
+      "kind": "owner",
+      "note": "[owner] acid lime accent (Button variant lime on dark, progress fill); the light-canvas upload bar that used it now uses action.primary.bg; the token itself is unchanged.",
+      "file": "packages/design-tokens/tokens.json",
+      "line": 68
+    },
+    {
+      "route": "/",
+      "element": "iconArt.mint #3FBF9A / mintSoft #6FE0B8 / lime #8EDC5E (illustrated icon fills)",
+      "kind": "owner",
+      "note": "[owner] flat artwork fills in the illustrated icon set (e.g. test-tube sample is lab-legit, lime sparkles in 6 scenes); mirrored as hex in packages/ui/src/Illustrated.tsx and ui-generated; value change belongs in the tokens package.",
+      "file": "packages/ui/src/Illustrated.tsx",
+      "line": 36
+    },
+    {
+      "route": "/consultations/appointments",
+      "element": "Consult mode 'home' = house/mint tile (board pairing clinic blue, home mint, online violet)",
+      "kind": "owner",
+      "note": "[owner] mint here is the consult home-visit identity, not labs; no non-green tone is free that the boards allow (blue=clinic, violet=online); left on mint until the owner picks one. Same pairing in 4 more places.",
+      "file": "packages/ui-native/src/components/Cards.tsx",
+      "line": 50
+    },
+    {
+      "route": "/consultations/appointments",
+      "element": "Consult mode 'home' pairing (patient-app ConsultKit)",
+      "kind": "owner",
+      "note": "[owner] same decision as above.",
+      "file": "patient-app/src/components/consult/ConsultKit.tsx",
+      "line": 30
+    },
+    {
+      "route": "/consultations/home-visit-tracking",
+      "element": "House icon + wait-time tile in mint",
+      "kind": "owner",
+      "note": "[owner] same decision as above.",
+      "file": "patient-app/app/consultations/home-visit-tracking.tsx",
+      "line": 114
+    },
+    {
+      "route": "/mental-health",
+      "element": "Mood 'great' = mint, 'good' = lime",
+      "kind": "owner",
+      "note": "[owner] a 5-step mood scale, treated as semantic good/ok scale and kept; the owner may want a non-green scale.",
+      "file": "patient-app/src/components/care/MentalHealthViews.tsx",
+      "line": 44
+    }
+  ],
+  "inventory": [
+    [
+      "KEEP",
+      "Labs service tile on home, lab/test-tube chips (RecordsView, MedicalOrderKit, ReturnsViews, notificationsFeed, AppointmentSections, ContextBar, DiagKit home sample, diagnostics when/cart/confirm/booking-status house, web health/records lab)",
+      "labs mint tone, owner decision 1"
+    ],
+    [
+      "KEEP",
+      "check-circle / paid / confirmed / accepted / delivered / completed / covered / available / in-network / lowest-price / current-device / dose-done / order-status chips and all status.success.* uses (57 sites) incl. discounts and positive deltas",
+      "semantic success, rule (a)"
+    ],
+    [
+      "KEEP",
+      "health SCORE_TONE excellent, drug-interaction low severity, LoyaltyHub delta>=0",
+      "semantic scale"
+    ],
+    [
+      "KEEP",
+      "nursing teal (TEAL / nursing.tone uses)",
+      "rule (b), item 7"
+    ],
+    [
+      "KEEP",
+      "Google brand logo #34A853 in social-brands.ts (x2)",
+      "third-party brand mark, not our palette"
+    ],
+    [
+      "KEEP",
+      "theme/index.ts mint gradient map, tones.css mint/lime rules, Avatar tone solids",
+      "token plumbing"
+    ],
+    [
+      "CHANGE",
+      "support/help/account/settings rows, support empty states (app HelpView, AccountView, SettingsViews, SupportViews; web profile, settings, support/ticket)",
+      "mint -> ink"
+    ],
+    [
+      "CHANGE",
+      "articles (app MaternityViews rows, web ARTICLE_TONE) and web home 'support' and 'articles' tiles",
+      "mint -> ink"
+    ],
+    [
+      "CHANGE",
+      "health trends row (app health.tsx, web health/page.tsx), AI monthly report (homeItems, web home-parts, web monthly-report page), vitals empty state, web programs tile",
+      "mint -> pharmacy/health coral service tone"
+    ],
+    [
+      "CHANGE",
+      "medication pill rows (family calendar/member/kit app, web family/calendar), web medicines/compare empty state",
+      "mint -> pharmacy coral"
+    ],
+    [
+      "CHANGE",
+      "protein tile (app NutritionViews, web nutrition)",
+      "mint -> nutrition lime service tone"
+    ],
+    [
+      "CHANGE",
+      "web mental-health avgEnergy tile -> violet (mind); web maternity growth empty + chart -> pink (maternity)",
+      "mint -> own service tone"
+    ],
+    [
+      "CHANGE",
+      "dentistry (app catalog.ts, ConsultKit specialty map)",
+      "mint -> blue (consult)"
+    ],
+    [
+      "CHANGE",
+      "'online only' chips/labels (web search-client, p/[slug], wishlist, cart-screen, barcode-screen; ui Cards.css product-card__online; ui-native Cards.tsx) and 'OTC' chip (web p/[slug])",
+      "mint -> ink"
+    ],
+    [
+      "CHANGE",
+      "Avatar fallback palette (app Avatar.tsx): dropped mint and lime from the 10 tones",
+      "no green fallback discs"
+    ],
+    [
+      "CHANGE",
+      "web rx upload progress bar (rx.module.css): acid lime on light canvas -> action.primary.bg",
+      "acid lime is dark-surfaces-only per tokens"
+    ]
+  ]
+}

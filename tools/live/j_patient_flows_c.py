@@ -110,7 +110,11 @@ def main():
             page.wait_for_function("() => { const b = [...document.querySelectorAll('button')].find((x) => x.textContent.includes('إرسال الطلب إلى الصيدليات')); return !!b && Object.keys(b).some((k) => k.startsWith('__react')); }", timeout=30000)
             pick = page.get_by_role('radio', name='استلام', exact=True)
             pick.first.click(timeout=30000)
-            page.get_by_role('button', name='إرسال الطلب إلى الصيدليات').last.click(timeout=30000)
+            # the refund policy is shown before the request is sent: the button stays off until the patient agrees (owner decision 2026-11-09)
+            send = page.get_by_role('button', name='إرسال الطلب إلى الصيدليات').last
+            step('without the refund policy tick the send button stays disabled', send.is_disabled(), '')
+            page.get_by_role('checkbox', name='قرأت سياسة الاسترداد وأوافق عليها').check(timeout=30000)
+            send.click(timeout=30000)
             page.wait_for_url('**/broadcast-status**', timeout=60000)
             oid = page.url.split('orderId=')[1].split('&')[0] if 'orderId=' in page.url else None
             o = pat.get(f'/patient/pharmacy/orders/{oid}') if oid else None

@@ -12,13 +12,26 @@ permissions:
   contents: read
 
 concurrency:
-  group: live-gate-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # a newer commit on the same PR replaces the older run (the newest commit still runs every suite); a run on main, a schedule and a manual run are never cancelled
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  live:
-    runs-on: ubuntu-latest
-    timeout-minutes: 130
+  # The journeys are split over GATE_SHARDS jobs, each with its own stack (MongoDB, Redis, backend, admin, patient-web): they take about 78
+  # minutes in one job (measured on run 40837646796), and every merge waits for them. tools/live/gate_shard.py gives each journey to exactly
+  # one shard (balanced by gate_weights.txt, proved by test_gate_shards.py); the job `live` below is the required check and passes only
+  # when every shard passed.
+  live-shard:
+    name: live gate (shard ${{ matrix.shard }}/5)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5]
+    env:
+      GATE_SHARDS: 5
+      GATE_SHARD: ${{ matrix.shard }}
     services:
       redis:
         image: redis:7
@@ -45,25 +58,63 @@ jobs:
           docker exec mongo mongosh --quiet --eval 'rs.initiate({_id:"rs0",members:[{_id:0,host:"127.0.0.1:27017"}]})'
           for i in $(seq 1 30); do docker exec mongo mongosh --quiet --eval 'rs.status().ok' | grep -q 1 && break; sleep 2; done
 
-      - name: Test doubles (S3, SMTP sink, Moyasar, ClamAV)
+      - name: Test doubles (S3, SMTP sink, Moyasar, ClamAV, Saudi Post)
         run: |
           pip install 'moto[server]==5.*' boto3 aiosmtpd
           nohup moto_server -p 9000 > /tmp/moto.log 2>&1 &
           nohup python3 tools/live/smtp_sink.py > /tmp/smtp.log 2>&1 &
           nohup python3 tools/live/fake_moyasar.py > /tmp/moyasar.log 2>&1 &
+          nohup python3 tools/live/fake_spl.py > /tmp/spl.log 2>&1 &
           nohup python3 tools/live/fake_clamd.py > /tmp/clamd.log 2>&1 &
           for i in $(seq 1 30); do curl -s -o /dev/null http://127.0.0.1:9000 && break; sleep 1; done
           python3 -c "import boto3; boto3.client('s3', endpoint_url='http://127.0.0.1:9000', aws_access_key_id='live', aws_secret_access_key='live-secret', region_name='us-east-1').create_bucket(Bucket='nabd-live')"
 
+      - name: Playwright browser cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-1.60-chromium-${{ runner.os }}
+
       - name: Real browser for admin click tests (R7-1)
+        # `--with-deps` runs apt-get; a stalled mirror once held this step for 75 minutes. Cap the step, cap apt's network waits, retry.
+        # A fresh runner often still has apt/dpkg busy (unattended-upgrades, the image's own updates): apt then exits 100 at once ("Could not get lock"), and three attempts 5 s apart
+        # all failed within 15 s. So apt waits for the dpkg lock itself (DPkg::Lock::Timeout) and the step first waits until no apt/dpkg process is running.
+        timeout-minutes: 12
         run: |
           pip install 'playwright==1.60.*'
-          python3 -m playwright install --with-deps chromium
+          printf 'Acquire::Retries "3";\nAcquire::http::Timeout "20";\nAcquire::https::Timeout "20";\nDPkg::Lock::Timeout "180";\n' | sudo tee /etc/apt/apt.conf.d/99ci-timeouts >/dev/null
+          for _ in $(seq 1 36); do pgrep -x 'apt|apt-get|dpkg|unattended-upgr' >/dev/null || break; echo "waiting for apt/dpkg to be free"; sleep 5; done
+          for i in 1 2 3; do
+            timeout 300 python3 -m playwright install --with-deps chromium && break
+            echo "playwright install attempt $i failed"; [ "$i" = 3 ] && exit 1; sleep 20
+          done
           python3 -c "from playwright.sync_api import sync_playwright; p = sync_playwright().start(); b = p.chromium.launch(); print('chromium ok:', b.version); b.close(); p.stop()"
 
       # Decision 4 (2026-10-14): video calls are proven against a real local LiveKit (tools/live/j_web_call.py).
+      # The release binary is cached (key = the script, which pins version + sha256), so a GitHub release-CDN 504 only matters on a cache miss; the script retries with backoff.
+      - name: LiveKit release cache (restore)
+        id: livekit-cache
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.cache/nabd-livekit
+          key: livekit-${{ runner.os }}-${{ hashFiles('tools/live/start-livekit.sh') }}
+
       - name: LiveKit media server
         run: bash tools/live/start-livekit.sh
+
+      # Saved as soon as the binary exists and EVEN IF a later step fails (the combined cache action saves only when the whole job passes, so one red shard
+      # would leave the cache empty and every retry would download again during the same outage).
+      - name: LiveKit binary present?
+        id: livekit-bin
+        if: always() && steps.livekit-cache.outputs.cache-hit != 'true'
+        run: if ls ~/.cache/nabd-livekit/*/livekit-server >/dev/null 2>&1; then echo "present=true" >> "$GITHUB_OUTPUT"; fi
+
+      - name: LiveKit release cache (save)
+        if: always() && steps.livekit-bin.outputs.present == 'true'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.cache/nabd-livekit
+          key: livekit-${{ runner.os }}-${{ hashFiles('tools/live/start-livekit.sh') }}
 
       - name: Backend
         working-directory: backend
@@ -72,6 +123,15 @@ jobs:
           npm run build
           node ../tools/live/seed_admin.js
           bash ../tools/live/start-backend.sh
+
+      - name: Next.js build cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            admin/.next/cache
+            patient-web/.next/cache
+          key: next-${{ runner.os }}-${{ hashFiles('admin/package-lock.json', 'patient-web/pnpm-lock.yaml') }}
+          restore-keys: next-${{ runner.os }}-
 
       - name: Admin panel (BFF)
         working-directory: admin
@@ -95,6 +155,17 @@ jobs:
           NABD_API_BASE_URL=http://127.0.0.1:8002/api/v1 INTERNAL_API_BASE_URL=http://127.0.0.1:8002/api/v1 NEXT_PUBLIC_SITE_ORIGIN=http://127.0.0.1:3100 NEXT_TELEMETRY_DISABLED=1 pnpm run build
           PATIENT_WEB_PORT=3100 PATIENT_WEB_ORIGIN=http://127.0.0.1:3100 bash ../tools/live/start-web.sh patient-web
 
+      # 17.8: axe-core (WCAG 2.x A and AA) on the 20 main public pages, in the browser the R7-1 step installed. It fails on a
+      # serious or critical violation; minor findings are printed and left for the backlog (tools/a11y/axe-pages.py).
+      - name: Accessibility (axe-core, 20 public pages)
+        if: matrix.shard == 1
+        run: |
+          npm install --no-save --prefix /tmp/axe axe-core@4.10.3
+          # The policy pages answer 404 until their texts are published (the gate seeds them before its journeys, which run
+          # after this step), so the same idempotent seed runs first here.
+          (cd tools/live && python3 seed_legal.py)
+          A11Y_BASE=http://127.0.0.1:3100 AXE_JS=/tmp/axe/node_modules/axe-core/axe.min.js python3 tools/a11y/axe-pages.py
+
       - name: Journeys
         run: bash tools/live/run_gate.sh
 
@@ -106,3 +177,20 @@ jobs:
         run: |
           tail -n 200 /tmp/nabd-backend.log || true
           tail -n 50 /tmp/admin.log || true
+
+  live:
+    name: live
+    needs: live-shard
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.12'
+      - name: Every journey runs in exactly one shard
+        run: python3 tools/live/test_gate_shards.py && python3 tools/live/test_start_livekit_retry.py
+      - name: Every shard passed
+        run: |
+          echo "shards: ${{ needs.live-shard.result }}"
+          [ "${{ needs.live-shard.result }}" = success ]

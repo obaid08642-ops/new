@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsInt, IsNumber, IsObject, IsOptional, IsString, Max, MaxLength, Min, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsInt, IsNumber, IsObject, IsOptional, IsString, Max, MaxLength, Min, ValidateNested, Matches } from 'class-validator';
 import { AllocationItemAction } from './schemas/pharmacy.schema';
 import { Type } from 'class-transformer';
 import { AttributionDto } from '../../common/attribution';
@@ -14,6 +14,8 @@ export class DeliveryAddressDto {
   @IsOptional() @IsString() @MaxLength(300) street?: string;
   @IsOptional() @IsString() @MaxLength(80) city?: string;
   @IsOptional() @IsString() @MaxLength(80) district?: string;
+  /** 19.7: the Saudi National Address short code of a saved address; the courier and the pharmacy see it with the street. */
+  @IsOptional() @IsString() @MaxLength(20) short_address?: string;
   @IsOptional() @IsString() @MaxLength(32) phone?: string;
   @IsOptional() @IsNumber() lat?: number;
   @IsOptional() @IsNumber() lng?: number;
@@ -44,6 +46,23 @@ export class ManualRequestDto {
 }
 
 export class CreateDto {
+  /** The patient ticked "I agree" to the refund policy shown before payment (a missing field is let through while the rollout is optional, an explicit false is refused; a missing field is 400 refund_policy_acceptance_required once REFUND_POLICY_ACCEPTANCE=required). */
+  @IsOptional()
+  @IsBoolean()
+  refund_policy_accepted?: boolean;
+
+  /** The hash of the refund policy the patient's screen showed (GET /refund-policy/summary); a table changed since then is refused with 409 refund_policy_changed. Optional: old clients do not send it. */
+  @IsOptional()
+  @IsString()
+  @Matches(/^[a-f0-9]{64}$/)
+  refund_policy_hash?: string;
+
+  /** Owner decision 1: the family member this is FOR (the caller stays the booker and payer); checked server-side, see common/family-member.ts. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(128)
+  family_member_id?: string;
+
   @IsOptional()
   @IsArray()
   items: any[];
@@ -100,9 +119,10 @@ export class CreateDto {
 }
 
 export class UpdateDto {
-  @IsDefined()
+  /** Optional since 22.5: a sent order may be edited by its address, delivery mode or note alone. */
+  @IsOptional()
   @IsArray()
-  items: any[];
+  items?: any[];
 
   /** D-10: a prescription attached after the draft was created. */
   @IsOptional()
@@ -244,6 +264,11 @@ export class OutDto {
   courier_phone?: string;
 
   @IsOptional()
+  @IsString()
+  @MaxLength(60)
+  courier_vehicle?: string;
+
+  @IsOptional()
   @IsDateString()
   eta?: string;
 
@@ -381,8 +406,11 @@ export class PreviewOfferDto {
   @IsIn(['delivery', 'pickup'])
   delivery_option?: 'delivery' | 'pickup';
 
+  /** The pharmacy's own delivery/pickup estimate in minutes (5-1440), shown to the patient as given; nothing is computed. */
   @IsOptional()
-  @IsNumber()
+  @IsInt()
+  @Min(5)
+  @Max(1440)
   eta_minutes?: number;
 
   /** #507: the pharmacy's own preparation estimate in minutes (shown to the patient as given; nothing is computed). */
@@ -408,8 +436,11 @@ export class DraftOfferDto {
   @IsIn(['delivery', 'pickup'])
   delivery_option?: 'delivery' | 'pickup';
 
+  /** The pharmacy's own delivery/pickup estimate in minutes (5-1440), shown to the patient as given; nothing is computed. */
   @IsOptional()
-  @IsNumber()
+  @IsInt()
+  @Min(5)
+  @Max(1440)
   eta_minutes?: number;
 
   /** #507: the pharmacy's own preparation estimate in minutes (shown to the patient as given; nothing is computed). */
@@ -579,4 +610,26 @@ export class PharmacyCodSettingDto {
 export class ResolvePriceReviewDto {
   @IsIn(['catalogue_updated', 'price_confirmed']) resolution: 'catalogue_updated' | 'price_confirmed';
   @IsOptional() @IsString() @MaxLength(500) note?: string;
+}
+
+/** PUT /admin/pharmacy/broadcasts/config: stop widening once this many live offers exist (0 = never stop). */
+export class BroadcastConfigDto {
+  @IsDefined()
+  @IsInt()
+  @Min(0)
+  @Max(100)
+  stop_after_offers: number;
+}
+
+/** Repeat an earlier order. The refund-policy tick is only needed when the earlier order is from before the tick existed (otherwise the first agreement stands). */
+export class RefillDto {
+  @IsOptional()
+  @IsBoolean()
+  refund_policy_accepted?: boolean;
+
+  /** The hash of the refund policy the patient's screen showed (GET /refund-policy/summary); a table changed since then is refused with 409 refund_policy_changed. Optional: old clients do not send it. */
+  @IsOptional()
+  @IsString()
+  @Matches(/^[a-f0-9]{64}$/)
+  refund_policy_hash?: string;
 }

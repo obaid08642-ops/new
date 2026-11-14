@@ -8,8 +8,6 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": templateRoot,
-      "@shared": path.resolve(templateRoot, "shared"),
-      "@assets": path.resolve(templateRoot, "attached_assets"),
       // The design system packages live outside this app, so tests resolve them
       // from the repository rather than from node_modules. Order matters: Vite
       // matches aliases by prefix, so the sub-path entries must precede the

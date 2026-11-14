@@ -195,6 +195,11 @@ describe('order state', () => {
     expect(orderIdParam({ orderId: ['c', 'd'] })).toBe('c');
     expect(orderIdParam({ orderId: 'a', requestId: 'b' })).toBe('a');
     expect(orderIdParam({})).toBeUndefined();
+    expect(orderIdParam({ orderId: '65f0c1a2b3c4d5e6f7a8b9c0' })).toBe('65f0c1a2b3c4d5e6f7a8b9c0');
+  });
+
+  it('refuses an id that could change the request path (slash, query, dots only, empty)', () => {
+    for (const bad of ['a/b', '../x', '..', 'a?b=1', 'a#b', 'a b', '']) expect(orderIdParam({ orderId: bad })).toBeUndefined();
     expect(orderIdParam({ orderId: '' })).toBeUndefined();
   });
 });
@@ -310,5 +315,20 @@ describe('issue 512: the countdown runs on the server clock', () => {
     } finally {
       Date.now = realNow;
     }
+  });
+});
+
+describe('parseOffers ETA and rating (backend #1793)', () => {
+  it('reads the pharmacy ETA and rating with its count', () => {
+    const [o] = parseOffers([offer({ approx_delivery: { eta_minutes: 45, label_ar: null, label_en: null }, pharmacy_rating: 4.6, pharmacy_rating_count: 23 })]);
+    expect(o.etaMinutes).toBe(45);
+    expect(o.rating).toBe(4.6);
+    expect(o.ratingCount).toBe(23);
+  });
+
+  it('keeps them null when the server sends null (the card hides them)', () => {
+    const [o] = parseOffers([offer({ approx_delivery: { eta_minutes: null }, pharmacy_rating: null, pharmacy_rating_count: 0 })]);
+    expect(o.etaMinutes).toBeNull();
+    expect(o.rating).toBeNull();
   });
 });

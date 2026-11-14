@@ -5,7 +5,7 @@ import { DataTable } from '@/components/DataTable';
 import { useCan } from '@/components/AdminGuard';
 
 export default function ConfigPortal() {
-  const [activeTab, setActiveTab] = useState<'sla' | 'pricing' | 'apps' | 'urgent' | 'rxconsult'>('sla');
+  const [activeTab, setActiveTab] = useState<'sla' | 'pricing' | 'apps' | 'urgent' | 'rxconsult' | 'broadcast'>('sla');
   // Issues 955 / 995: emergency maintenance and the kill switches live on /admin/kill-switches (modules.manage,
   // the permission their backend routes require); this page only links there for a role that has it.
   const canEmergency = useCan('modules.manage');
@@ -31,6 +31,33 @@ export default function ConfigPortal() {
 
   const setApp = (app: string, patch: Record<string, unknown>) => {
     setAppVersions((p) => ({ ...p, [app]: { ...(p[app] || {}), ...patch } }));
+  };
+
+  // Owner decision 2026-10-22: the pharmacy broadcast stops widening once this many live offers exist (0 = never stop).
+  type BroadcastCfg = { stages: { stage: number; radius_km: number; timeout_seconds: number }[] | null; stop_after_offers: number };
+  const [broadcastCfg, setBroadcastCfg] = useState<BroadcastCfg | null>(null);
+  const [stopAfter, setStopAfter] = useState('3');
+  const [broadcastMsg, setBroadcastMsg] = useState('');
+  const canSettings = useCan('settings.edit');
+  const loadBroadcastCfg = async () => {
+    try {
+      const res = await fetchWithAdminGuard('/api/admin/admin/pharmacy/broadcasts/config');
+      if (!res.ok) { setBroadcastMsg('تعذّر تحميل إعدادات البث'); return; }
+      const data = (await res.json()) as BroadcastCfg;
+      setBroadcastCfg(data);
+      setStopAfter(String(data.stop_after_offers));
+    } catch { setBroadcastMsg('تعذّر تحميل إعدادات البث'); }
+  };
+  const saveBroadcastCfg = async () => {
+    setBroadcastMsg('');
+    const n = Number(stopAfter);
+    if (!Number.isInteger(n) || n < 0 || n > 100) { setBroadcastMsg('أدخل عدداً صحيحاً من 0 إلى 100'); return; }
+    try {
+      const res = await fetchWithAdminGuard('/api/admin/admin/pharmacy/broadcasts/config', { method: 'PUT', body: JSON.stringify({ stop_after_offers: n }) });
+      if (!res.ok) { setBroadcastMsg(res.status === 400 ? 'القيمة غير صالحة' : 'فشل الحفظ'); return; }
+      setBroadcastCfg((await res.json()) as BroadcastCfg);
+      setBroadcastMsg('تم حفظ الإعداد');
+    } catch { setBroadcastMsg('فشل الحفظ'); }
   };
 
   // D-8 (owner decision 8): the one "Need urgent help?" number the apps dial. Never hard-coded.
@@ -105,12 +132,16 @@ export default function ConfigPortal() {
 
   const savePricing = async () => {
     setPricingMsg('');
+    // The server keeps who changed the pricing and why (audit log): the reason is required, 10 characters or more.
+    const pricingReason = window.prompt('سبب تعديل التسعير (يُحفظ في سجل التدقيق — 10 أحرف على الأقل):', '');
+    if (pricingReason === null) return;
+    if (pricingReason.trim().length < 10) { setPricingMsg('يرجى إدخال سبب لا يقل عن 10 أحرف'); return; }
     try {
       const s = await fetchWithAdminGuard('/api/admin/business-rules/config/surge', {
-        method: 'POST', body: JSON.stringify({ startHour: surgeStart, endHour: surgeEnd, multiplier: surgeMult }),
+        method: 'POST', body: JSON.stringify({ startHour: surgeStart, endHour: surgeEnd, multiplier: surgeMult, reason: pricingReason.trim() }),
       });
       const f = await fetchWithAdminGuard('/api/admin/business-rules/config/fees', {
-        method: 'POST', body: JSON.stringify({ delivery_fee: deliveryFee, service_fee: serviceFee }),
+        method: 'POST', body: JSON.stringify({ delivery_fee: deliveryFee, service_fee: serviceFee, reason: pricingReason.trim() }),
       });
       setPricingMsg(s.ok && f.ok ? 'تم حفظ التسعير' : 'فشل الحفظ — تحقق من القيم');
     } catch { setPricingMsg('فشل الحفظ'); }
@@ -187,14 +218,19 @@ export default function ConfigPortal() {
             const slaReason = window.prompt('سبب تعديل SLA (يُحفظ في سجل التدقيق — 5 أحرف على الأقل):', '');
             if (slaReason === null) { setIsSubmitting(false); return; }
             if (slaReason.trim().length < 5) { alert('يرجى إدخال سبب لا يقل عن 5 أحرف'); setIsSubmitting(false); return; }
-            await fetchWithAdminGuard(`/api/admin/admin/config/sla`, {
+            const slaRes = await fetchWithAdminGuard(`/api/admin/admin/config/sla`, {
         method: 'PUT',
         body: JSON.stringify({ consultationDuration, callRingingDuration, jwtExpiry, reason: slaReason.trim() })
       });
-      alert('SLA variables globally overridden successfully.');
+      // fetchWithAdminGuard does not throw on a 4xx: a refused save (400, or 403 for a role without settings.edit) must not say it worked
+      if (!slaRes.ok) {
+        const body = await slaRes.json().catch(() => ({}));
+        throw new Error(String(Array.isArray(body?.message) ? body.message[0] : body?.message ?? slaRes.status));
+      }
+      alert('تم حفظ متغيرات SLA.');
     } catch (error) {
       console.error(error);
-      alert('Error updating SLA');
+      alert(`تعذر حفظ SLA: ${error instanceof Error ? error.message : ''}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -240,6 +276,12 @@ export default function ConfigPortal() {
           onClick={() => { setActiveTab('rxconsult'); void loadRxConsult(); }}
         >
           استشر طبيب (أدوية الوصفة)
+        </button>
+        <button
+          className={`py-3 px-6 font-medium text-lg ${activeTab === 'broadcast' ? 'border-b-2 border-teal-500 text-teal-600' : 'text-gray-500'}`}
+          onClick={() => { setActiveTab('broadcast'); void loadBroadcastCfg(); }}
+        >
+          بث الصيدليات
         </button>
       </div>
 
@@ -377,6 +419,38 @@ export default function ConfigPortal() {
               </label>
               <button onClick={() => void saveUrgentHelp()} className="mt-4 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg">حفظ الرقم</button>
               {urgentMsg && <p className="mt-2 text-sm font-bold">{urgentMsg}</p>}
+            </div>
+          </div>
+        )}
+        {activeTab === 'broadcast' && (
+          <div className="space-y-4">
+            <div className="bg-white p-6 rounded border border-gray-200">
+              <h2 className="text-xl font-bold mb-1">بث الطلبات على الصيدليات</h2>
+              <p className="text-sm text-gray-500 mb-4">يتوسع البث على مراحل حتى يختار المريض عرضاً. عند وصول عدد العروض الحية إلى الرقم أدناه يتوقف التوسع (تبقى العروض ويستطيع المريض الاختيار). القيمة 0 تعني عدم التوقف.</p>
+              {!broadcastCfg ? <p className="text-sm">{broadcastMsg || 'جارٍ التحميل…'}</p> : (
+                <>
+                  <h3 className="font-bold mb-2">مراحل التوسع (للعرض)</h3>
+                  {broadcastCfg.stages ? (
+                    <DataTable
+                      bare
+                      dense
+                      rows={broadcastCfg.stages}
+                      getRowKey={(r) => String(r.stage)}
+                      columns={[
+                        { key: 'stage', header: 'المرحلة', render: (r) => r.stage },
+                        { key: 'radius', header: 'نصف القطر (كم)', render: (r) => r.radius_km },
+                        { key: 'timeout', header: 'المهلة (ثانية)', render: (r) => r.timeout_seconds },
+                      ]}
+                    />
+                  ) : <p className="text-sm text-red-600">سياسة المراحل غير صالحة أو غير مضبوطة.</p>}
+                  <label className="text-sm block max-w-sm mt-6">إيقاف التوسع بعد (عدد العروض)
+                    <input type="number" min={0} max={100} step={1} value={stopAfter} onChange={(e) => setStopAfter(e.target.value)} dir="ltr" disabled={!canSettings} className="mt-1 w-full border rounded p-2" />
+                  </label>
+                  <button onClick={() => void saveBroadcastCfg()} disabled={!canSettings} className="mt-4 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white font-bold py-2 px-6 rounded-lg">حفظ</button>
+                  {!canSettings && <p className="mt-2 text-xs text-gray-500">تعديل هذا الإعداد يحتاج صلاحية settings.edit.</p>}
+                  {broadcastMsg && <p className="mt-2 text-sm font-bold">{broadcastMsg}</p>}
+                </>
+              )}
             </div>
           </div>
         )}

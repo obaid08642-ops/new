@@ -264,7 +264,7 @@ export default function PharmacistChatScreen() {
         data={loading || failed ? [] : messages}
         keyExtractor={(m) => m.id}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); void load(true); }} tintColor={c.text.primary} />}
-        ListHeaderComponent={threadId && !failed ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, textAlign: 'center', paddingBottom: 12 }}>{k('pharmacy.chat.subtitle')}</Text> : null}
+        ListHeaderComponent={threadId && !failed ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, textAlign: 'center', paddingBottom: 12 }}>{k('pharmacy.chat.subtitle')}</Text> : undefined}
         ListEmptyComponent={<View style={{ flex: 1, justifyContent: 'center' }}>{empty}</View>}
         contentContainerStyle={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 16, gap: 10, flexGrow: 1 }}
         renderItem={({ item }) => bubble(item)}

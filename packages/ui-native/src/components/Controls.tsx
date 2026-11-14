@@ -49,12 +49,12 @@ export function Segmented({ options, value, onChange, label, size = 'md', loadin
               borderRadius: 12,
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: on ? t.color.bg.surface : 'transparent',
+              backgroundColor: on ? t.color.service.coral.bg : 'transparent',
               boxShadow: on ? t.shadow.segmented : undefined,
               opacity: o.disabled ? 0.5 : 1,
             }}
           >
-            <Text numberOfLines={1} style={{ fontSize: font, fontFamily: on ? 'ReadexPro-700' : 'ReadexPro-500', color: t.color.text.primary }}>
+            <Text numberOfLines={1} style={{ fontSize: font, fontFamily: on ? 'ReadexPro-700' : 'ReadexPro-500', color: on ? t.color.service.coral.fg : t.color.text.primary }}>
               {o.label}
             </Text>
           </Pressable>

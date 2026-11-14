@@ -3,6 +3,7 @@ import { AppModule } from '../app.module';
 import { Logger } from '@nestjs/common';
 import * as mongoose from 'mongoose';
 import { RedisService } from '../modules/redis/redis.service';
+import { envChainProviders, providerVariableNames } from '../modules/ai/env-chain';
 
 async function verifyProduction() {
   const logger = new Logger('ProductionVerification');
@@ -10,13 +11,18 @@ async function verifyProduction() {
 
   try {
     // 1. Verify Environment Variables
-    const requiredEnvVars = ['MONGO_URI', 'REDIS_URL', 'JWT_SECRET', 'MOYASAR_API_KEY', 'GEMINI_API_KEY'];
+    const requiredEnvVars = ['MONGO_URI', 'REDIS_URL', 'JWT_SECRET', 'MOYASAR_API_KEY'];
     let envOk = true;
     for (const envVar of requiredEnvVars) {
       if (!process.env[envVar]) {
         logger.error(`Missing required environment variable: ${envVar}`);
         envOk = false;
       }
+    }
+    // AI: any provider of the gateway chain is enough (they are tried in order); none means every AI feature is down.
+    if (envChainProviders(process.env).length === 0) {
+      logger.error(`No AI provider key is set (one of: ${providerVariableNames().join(', ')})`);
+      envOk = false;
     }
     if (!envOk) throw new Error('Environment variables check failed.');
     logger.log(' Environment variables OK.');

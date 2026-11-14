@@ -20,6 +20,7 @@ import { Biometric, Validate, RateLimiter, buildHeaders, Vault, SK, Tokens } fro
 import { SP, R, FS, FW, PROVIDER_TYPES, LIMITS, API_BASE } from '../../constants';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { tokens } from '../../theme/tokens';
+import { timedFetch } from '../../api/timedFetch';
 
 
 // ══════════════════════════════════════════════════════════
@@ -43,7 +44,7 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
 
  return (
  <View style={{ flex: 1, backgroundColor: theme.primary, alignItems: 'center', justifyContent: 'center' }}>
- <StatusBar barStyle="light-content" backgroundColor={theme.primary} />
+ <StatusBar barStyle="light-content" />
  <Animated.View style={{ transform: [{ scale: sc }], opacity: op, alignItems: 'center' }}>
  <View style={{
  width: 100, height: 100, borderRadius: 32,
@@ -121,7 +122,7 @@ export function WelcomeScreen({
 
  return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
- <StatusBar barStyle={theme.statusBar} backgroundColor={theme.bg} />
+ <StatusBar barStyle={theme.statusBar} />
  <ScrollView
  contentContainerStyle={{ padding: SP.xl, paddingTop: insets.top + SP.sm, paddingBottom: SP.huge + insets.bottom }}
  showsVerticalScrollIndicator={false}
@@ -265,7 +266,7 @@ export function WelcomeScreen({
  )}
  </View>
  <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: 'center', marginBottom: SP.xl }}>
- {AR ? 'التصفح كضيف — النشر والتقديم يتطلبان تسجيل الدخول' : 'Browse as guest — posting and applying require sign-in'}
+ {AR ? 'تصفح كضيف — يمكنك نشر إعلان (يُراجَع قبل النشر) أو التقديم على وظيفة، مرتبطاً بهذا الجهاز' : 'Browse as a guest — you can post a job (reviewed before it goes live) or apply, tied to this device'}
  </Text>
 
  {/* Global Login Link */}
@@ -373,7 +374,7 @@ export function LoginScreen({
     const e: Record<string, string> = {};
     const v = id.trim();
     if (!v) e.id = AR ? 'مطلوب' : 'Required';
-    else if (v.includes('@') && !Validate.email(v)) e.id = AR ? 'بريد غير صحيح' : 'Invalid email';
+    else if (!Validate.email(v)) e.id = AR ? 'بريد غير صحيح' : 'Invalid email';
     if (!pass) e.pass = AR ? 'مطلوب' : 'Required';
     else if (pass.length < LIMITS.MIN_PASS) e.pass = AR ? 'كلمة المرور قصيرة جداً' : 'Password too short';
     setErrs(e);
@@ -452,8 +453,8 @@ export function LoginScreen({
 
  <NCard style={{ marginBottom: SP.xl }}>
  <NInput
- label={AR ? 'البريد / الجوال / رقم الحساب' : 'Email / Mobile / Account ID'}
- placeholder={AR ? 'example@email.com أو 05X...' : 'example@email.com or 05X...'}
+ label={AR ? 'البريد الإلكتروني' : 'Email'}
+ placeholder="example@email.com"
  value={id} onChange={setId} icon=""
  error={errs.id} caps="none" kbType="email-address"
  />
@@ -603,7 +604,7 @@ export function ForgotPasswordScreen({
  setErr(''); setLoading(true);
  try {
  const headers = await buildHeaders(false);
- const res = await fetch(`${API_BASE}/provider/auth/forgot-password`, {
+ const res = await timedFetch(`${API_BASE}/provider/auth/forgot-password`, {
  method: 'POST',
  headers,
  body: JSON.stringify({ email: v })
@@ -620,12 +621,26 @@ export function ForgotPasswordScreen({
  }
  };
 
+ // "Resend code" asks the server again (it used to only say "Code resent" and send nothing)
+ const resendCode = async () => {
+ setErr('');
+ try {
+ const headers = await buildHeaders(false);
+ const res = await timedFetch(`${API_BASE}/provider/auth/forgot-password`, { method: 'POST', headers, body: JSON.stringify({ email: target.trim() }) });
+ const data = await res.json().catch(() => ({}));
+ if (!res.ok) throw new Error(data?.message || (AR ? 'فشل إرسال الرمز' : 'Failed to send OTP'));
+ show(AR ? 'تم إرسال رمز جديد إلى بريدك' : 'A new code was sent to your email', 'success');
+ } catch (e: any) {
+ setErr(e?.message || (AR ? 'تعذر إعادة الإرسال' : 'Could not resend the code'));
+ }
+ };
+
  const verifyOtp = async () => {
  if (otp.join('').length < 6) return;
  setErr(''); setLoading(true);
  try {
  const headers = await buildHeaders(false);
- const res = await fetch(`${API_BASE}/provider/auth/verify-reset-code`, {
+ const res = await timedFetch(`${API_BASE}/provider/auth/verify-reset-code`, {
  method: 'POST',
  headers,
  body: JSON.stringify({ email: target.trim(), code: otp.join('') })
@@ -647,7 +662,7 @@ export function ForgotPasswordScreen({
  setErr(''); setLoading(true);
  try {
  const headers = await buildHeaders(false);
- const res = await fetch(`${API_BASE}/provider/auth/reset-password`, {
+ const res = await timedFetch(`${API_BASE}/provider/auth/reset-password`, {
  method: 'POST',
  headers,
  body: JSON.stringify({
@@ -720,7 +735,8 @@ export function ForgotPasswordScreen({
  <NOTP
  target={target} otp={otp} setOtp={setOtp}
  onVerify={verifyOtp} loading={loading}
- onResend={() => { show(AR ? 'تم إعادة الإرسال' : 'Code resent', 'info'); }}
+ error={err}
+ onResend={resendCode}
  />
  )}
 
@@ -849,7 +865,6 @@ export function PendingScreen({
  {[
  { icon:'', ar:'البريد الإلكتروني', en:'Email' },
  { icon: '', ar: 'إشعار التطبيق Push', en: 'Push Notification' },
- { icon: '', ar: 'رسالة SMS', en: 'SMS' },
  ].map((ch, i) => (
  <View key={i} style={{
  flexDirection: AR ? 'row-reverse' : 'row',

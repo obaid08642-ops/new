@@ -1,3 +1,14 @@
+import { randomUUID } from 'crypto';
+import { stampAcceptance } from '../../common/refund-policy-stamp';
+import { refundPolicyAcceptance, type RefundPolicyAcceptance } from '../../common/refund-policy-acceptance';
+import { resolveFamilyMemberId } from '../../common/family-member';
+import { flattenResultEntries } from './lab-booking-results';
+import { withholdLegacyBeforeAcceptance } from '../provider-jobs/provider-job-privacy';
+import { assertPaymentMethod } from '../../common/payment-policy';
+import { homeCollectionFee } from '../../common/provider-home-fees';
+import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
+import { SearchService } from '../search/search.service';
+import { LAB_TYPES, byRelevance, matchedIds } from '../search/catalogue-search';
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException, ServiceUnavailableException, Inject, Optional } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -19,8 +30,11 @@ import { pick } from '../../common/sanitize';
 export const PREPARATION_LANGS = ['ar', 'en', 'ur', 'hi', 'bn', 'tl'] as const;
 /** A booking's report as listed to the clients: no file content (the file is served on its own route). */
 export function reportSummary(r: any) {
-  return { id: r?.id, name: r?.name, mime: r?.mime, uploaded_at: r?.uploaded_at, notes: r?.notes, has_file: typeof r?.base64 === 'string' && r.base64.length > 0 };
+  return { id: r?.id, name: r?.name, mime: r?.mime, uploaded_at: r?.uploaded_at, notes: r?.notes, has_file: (typeof r?.base64 === 'string' && r.base64.length > 0) || (typeof r?.storage_object_id === 'string' && r.storage_object_id.length > 0) };
 }
+
+/** The file types a lab report may be (the file itself is stored and scanned by /storage). */
+export const LAB_REPORT_MIMES: ReadonlySet<string> = new Set(['application/pdf', 'image/png', 'image/jpeg', 'image/webp']);
 
 export const LAB_CATALOG_FIELDS = [
   'name_ar', 'name_en', 'short_code', 'description_ar', 'description_en', 'category', 'sample_type', 'price', 'old_price', 'fasting_required', 'fasting_hours', 'home_visit_supported', 'facility_visit_supported', 'turnaround_hours', 'preparation_ar', 'preparation_en', 'preparation_ur', 'preparation_hi', 'preparation_bn', 'preparation_tl', 'is_package', 'included_services', 'popularity', 'active', 'unavailable', 'medical_referral_required',
@@ -29,14 +43,30 @@ import { getEffectiveRoles } from '../../common/auth.guard';
 import { UserRole, isAdminUser } from '../../common/enums';
 import { RedisService } from '../redis/redis.service';
 import { BusinessRulesService } from '../business-rules/business-rules.module';
+import { SEAT_COLLECTION, SEAT_FREE_STATES, confirmSeat, ensureSeatIndex, releaseSeat, reserveSeat, slotCapacityOf, slotStartOf, MAX_SLOT_CAPACITY, type SeatBookingStatus } from './lab-slot-seats';
+import { StorageService } from '../storage/storage.module';
 import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
 import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
+import { NAME_PROJECTION, withItemNames } from '../../common/booking-names';
 
 import { nearestFirst } from '../provider/services/nearest-first';
+import { publicLabFilter } from './labs-public';
+import { byRating, paged, parsePage, withProviderRating, type CataloguePage } from '../../common/catalogue-page';
+import { loadOffers, ownPrices, withOfferSummary, withOffers, type OfferSummary } from '../../common/service-offers';
 
 /** Public card for a provider in carousels and price lists: no contact or account details. */
 function publicProvider(p: any) {
   return { id: p.account_id, name_ar: p.name_ar ?? null, name_en: p.name_en ?? null, logo: p.logo ?? null, rating: p.rating_count > 0 ? p.rating_avg : null, rating_count: p.rating_count || 0 };
+}
+
+/**
+ * The text search of the public lab list: a test is found by its name in any of the six languages the catalogue holds
+ * (Arabic, English, and the Urdu/Hindi/Bengali/Filipino names written by the services content, Filipino stored as `tl`) or its
+ * short code. The text is escaped, so it is matched literally.
+ */
+export function labSearchClause(search: string): Array<Record<string, RegExp>> {
+  const re = new RegExp(search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+  return ['name_ar', 'name_en', 'short_code'].map((field) => ({ [field]: re }));
 }
 
 @Injectable()
@@ -53,23 +83,41 @@ export class LabsService {
     @Optional() private readonly redis?: RedisService,
     @Optional() private readonly pricing?: BusinessRulesService,
     @Optional() private readonly insurance?: InsuranceFlowService,
+    @Optional() private readonly searchEngine?: SearchService,
+    @Optional() private readonly storage?: StorageService,
   ) {}
 
-  async list(opts: { category?: string; search?: string; home_only?: boolean; packages_only?: boolean; highest_rated?: boolean; nearest?: boolean; lowest_price?: boolean; lat?: number; lng?: number }) {
+  async list(opts: { sort?: string; page?: number; limit?: number; category?: string; search?: string; home_only?: boolean; insurance?: boolean; packages_only?: boolean; highest_rated?: boolean; nearest?: boolean; lowest_price?: boolean; lat?: number; lng?: number }) {
     const q: any = { active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' };
     if (opts.category) q.category = opts.category;
-    if (opts.home_only) q.home_visit_supported = true;
     if (opts.packages_only) q.is_package = true;
     // Explicitly exclude any imaging entries — those belong to the separate Radiology module.
     q.$and = [{ category: { $ne: 'imaging' } }, { sample_type: { $ne: 'imaging' } }];
-    if (opts.search) {
-      const re = new RegExp(opts.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
-      q.$or = [{ name_ar: re }, { name_en: re }, { short_code: re }];
-    }
+    // the search box uses the home search's engine (typo tolerance, ar/en synonyms); its own text match is the fallback
+    const matched = opts.search ? await matchedIds(this.searchEngine, opts.search, LAB_TYPES) : null;
+    if (opts.search) { if (matched) q.id = { $in: matched }; else q.$or = labSearchClause(opts.search); }
     
-    let sortObj: any = { popularity: -1, name_ar: 1 };
-    if (opts.highest_rated) sortObj = { rating: -1, popularity: -1 };
-    else if (opts.lowest_price) sortObj = { price: 1, popularity: -1 };
+    // default: the smart ranking (most visited, searched, added to a cart and ordered first), `sort=popularity` keeps the old editorial order
+    let sortObj: any = catalogueSortSpec(opts.sort);
+    if (opts.lowest_price) sortObj = { price: 1, popularity: -1 };
+    const page = parsePage(opts.page, opts.limit);
+    // 2026-10-28: the list is the CATALOGUE; each test carries what providers offer for it (count, from-price, where, insurance). The home and insurance
+    // filters read those offers, so a test nobody offers yet is still listed but never found by "at home" or "insurance".
+    const finish = async <T extends { id: string }>(rows: T[]): Promise<Array<T & OfferSummary> | CataloguePage<T & OfferSummary>> => {
+      const enriched = await withOfferSummary(this.svcModel.db as never, 'lab', rows, { home_only: !!opts.home_only, insurance: !!opts.insurance });
+      return page ? paged(enriched, page) : enriched;
+    };
+    // Ratings are on the labs, not on the tests: "highest rated" ranks a test by the labs that run it (compatibleProviders' rule).
+    const labsRunning = async () => {
+      const labs: any[] = await this.providerProfiles.find({
+        type: { $in: ['lab', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
+      }, { _id: 0, test_categories: 1, rating_avg: 1, rating_count: 1 }).lean();
+      return labs;
+    };
+    const runs = (svc: any, lab: any) => {
+      const tests: unknown[] = Array.isArray(lab.test_categories) ? lab.test_categories : [];
+      return tests.includes(svc.id) || (!!svc.category && tests.includes(svc.category));
+    };
 
     // #623: "nearest" orders tests by the closest approved lab that runs them (same compatibility rule as
     // compatibleProviders: the lab's test_categories hold the test id or its category). Without a valid
@@ -79,17 +127,24 @@ export class LabsService {
       const labs: any[] = await this.providerProfiles.find({
         type: { $in: ['lab', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
         'geo.lat': { $type: 'number' }, 'geo.lng': { $type: 'number' },
-      }, { projection: { _id: 0, geo: 1, test_categories: 1 } }).lean();
+      }, { _id: 0, geo: 1, test_categories: 1 }).lean();
       const services: any[] = await this.svcModel.find(q, { _id: 0, __v: 0 }).lean();
-      return nearestFirst(services, labs, here, (svc, lab) => {
-        const runs: unknown[] = Array.isArray(lab.test_categories) ? lab.test_categories : [];
-        return runs.includes(svc.id) || (!!svc.category && runs.includes(svc.category));
-      }).slice(0, 120);
+      return finish(nearestFirst(services, labs, here, runs).slice(0, 120));
     }
 
-    if (!this.redis?.getWithSWR) return this.svcModel.find(q, { _id: 0, __v: 0 }).sort(sortObj).limit(120);
-    const cacheKey = `cache:lab-services:public:v1:${JSON.stringify(opts)}`;
-    return this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q, { _id: 0, __v: 0 }).sort(sortObj).limit(120));
+    const load = async (): Promise<any[] | CataloguePage<any>> => {
+      if (opts.highest_rated) {
+        const services: any[] = await this.svcModel.find(q, { _id: 0, __v: 0 }).lean();
+        return finish(withProviderRating(services, await labsRunning(), runs).sort(byRating));
+      }
+      // the page asks for the true total, so it reads every match; the plain list is capped at 300 rows (the catalogue holds about 150)
+      const query = this.svcModel.find(q, { _id: 0, __v: 0 }).sort(sortObj);
+      const rows: any[] = page ? await query.lean() : await query.limit(300).lean();
+      return finish(matched && !opts.lowest_price ? byRelevance(rows, matched) : rows);
+    };
+    if (!this.redis?.getWithSWR) return load();
+    const cacheKey = `cache:lab-services:public:v2:${JSON.stringify(opts)}`;
+    return this.redis.getWithSWR(cacheKey, 900, load);
   }
 
 
@@ -103,13 +158,19 @@ export class LabsService {
     return agg;
   }
 
+  /** The test page: the catalogue row with what labs offer for it (labs, price, where, insurance) and `providers_count`; an unoffered test still opens. */
+  async getByIdWithOffers(id: string) {
+    const s: any = await this.getById(id);
+    return withOffers(this.svcModel.db as never, 'lab', typeof s.toObject === 'function' ? s.toObject() : s);
+  }
+
   async getById(id: string) {
     const s = await this.svcModel.findOne({ id, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, __v: 0 });
     if (!s) throw new NotFoundException();
     return s;
   }
 
-  async compatibleProviders(testIds: string[]) {
+  async compatibleProviders(testIds: string[], filters: { home?: boolean; insurance?: boolean } = {}) {
     const ids = [...new Set((testIds || []).filter(Boolean))];
     if (!ids.length) return [];
     const services = await this.svcModel.find({ id: { $in: ids }, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, id: 1, category: 1, short_code: 1, name_ar: 1, price: 1 });
@@ -126,7 +187,13 @@ export class LabsService {
       $or: [{ test_categories: { $all: ids } }, ...(categories.length ? [{ test_categories: { $all: categories } }] : [])],
     }, { _id: 0, account_id: 1, id: 1, name_ar: 1, name_en: 1, home_visit_supported: 1, rating_avg: 1, rating_count: 1, logo: 1 }).limit(50).lean();
     const prices = await this.labPrices(profiles.map((p: any) => p.account_id), services as any[]);
-    return profiles.map((profile: any) => {
+    // Filters (QA PS gaps 4 and 5): a lab stays only when it offers EVERY requested test the asked way (home collection, insurance), by what the lab chose or registered per test.
+    let kept = profiles;
+    if (filters.home || filters.insurance) {
+      const offers = await loadOffers(this.svcModel.db as never, 'lab', services as any[]);
+      kept = profiles.filter((profile: any) => (services as any[]).every((svc: any) => (offers.get(svc.id) ?? []).some((o) => o.provider.id === profile.account_id && (!filters.home || o.home) && (!filters.insurance || o.insurance))));
+    }
+    return kept.map((profile: any) => {
       const own = prices.get(profile.account_id);
       // #631: the lab's own total for the requested tests (its capability prices, a missing one at the catalog price);
       // null only when neither the lab nor the catalog has a price for some test.
@@ -151,14 +218,19 @@ export class LabsService {
   /** The public profile of an approved lab by account id (GET /labs/:id); its priced tests from its capabilities. */
   async publicLab(id: string) {
     if (typeof id !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(id)) throw new NotFoundException('lab_not_found');
-    const p: any = await this.providerProfiles.findOne({
-      account_id: { $eq: id }, type: { $in: ['lab', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
-    }, { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, description_ar: 1, description_en: 1, address: 1, home_visit_supported: 1, rating_avg: 1, rating_count: 1 }).lean();
+    const p: any = await this.providerProfiles.findOne(publicLabFilter(id), { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, description_ar: 1, description_en: 1, address: 1, home_visit_supported: 1, rating_avg: 1, rating_count: 1, test_categories: 1 }).lean();
     if (!p) throw new NotFoundException('lab_not_found');
     const items: any[] = await this.svcModel.db.collection('provider_capabilities_lab').find(
-      { provider_account_id: { $eq: id }, available: true, price: { $gt: 0 } },
+      { provider_account_id: { $eq: p.account_id }, available: true, price: { $gt: 0 } },
       { projection: { _id: 0, code: 1, name_ar: 1, name_en: 1, price: 1 } },
     ).limit(100).toArray();
+    // the tests the lab runs and has priced itself (its own choice or the price it registered with), next to its older capability rows
+    const runs: string[] = Array.isArray(p.test_categories) ? p.test_categories.filter((t: unknown) => typeof t === 'string') : [];
+    const catalogue: any[] = runs.length ? await this.svcModel.find({ id: { $in: runs }, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, id: 1, name_ar: 1, name_en: 1, short_code: 1 }).lean() : [];
+    const mine = (await ownPrices(this.svcModel.db as never, 'lab', [p.account_id], catalogue)).get(p.account_id);
+    const known = new Set(items.map((i) => i.code));
+    const registered = catalogue.filter((c) => mine?.has(c.id) && !known.has(c.id) && !known.has(c.short_code))
+      .map((c) => ({ id: c.id, name_ar: c.name_ar ?? null, name_en: c.name_en ?? null, price: mine!.get(c.id) as number }));
     return {
       data: {
         id: p.account_id,
@@ -171,33 +243,22 @@ export class LabsService {
         home_visit: Boolean(p.home_visit_supported),
         rating: p.rating_count > 0 ? p.rating_avg : null,
         rating_count: p.rating_count || 0,
-        services: items.map((i) => ({ id: i.code, name_ar: i.name_ar ?? null, name_en: i.name_en ?? null, price: i.price })),
+        services: [...items.map((i) => ({ id: i.code, name_ar: i.name_ar ?? null, name_en: i.name_en ?? null, price: i.price })), ...registered],
       },
     };
   }
 
   /**
-   * Each lab's own price per catalog test, from the lab's capabilities (provider_capabilities_lab: code = the test id or
-   * short code, or the same Arabic name; available and priced). Map: lab account id -> test id -> price.
+   * Each lab's own price per catalog test: its own per-test choice (provider_service_offers), else its capability row (provider_capabilities_lab), else the price it typed
+   * at registration (test_prices) - see common/service-offers.ts ownPrices. Map: lab account id -> test id -> price; a test the lab has no price for falls back to the catalogue price.
    */
+  /** The seats of the booking slots (lab-slot-seats.ts). Taken from the provider-profile model's connection: the same database as every other lab collection. */
+  private seatCollection(): any {
+    return (this.providerProfiles as any).db.collection(SEAT_COLLECTION);
+  }
+
   private async labPrices(accountIds: string[], services: any[]): Promise<Map<string, Map<string, number>>> {
-    const out = new Map<string, Map<string, number>>();
-    const ids = [...new Set(accountIds.filter((id) => typeof id === 'string' && id))];
-    if (!ids.length || !services.length) return out;
-    const codes = [...new Set(services.flatMap((svc) => [svc.id, svc.short_code]).filter((c) => typeof c === 'string' && c))];
-    const names = [...new Set(services.map((svc) => svc.name_ar).filter((n) => typeof n === 'string' && n))];
-    const items: any[] = await this.svcModel.db.collection('provider_capabilities_lab').find({
-      provider_account_id: { $in: ids }, available: true, price: { $gt: 0 },
-      $or: [{ code: { $in: codes } }, ...(names.length ? [{ name_ar: { $in: names } }] : [])],
-    }, { projection: { _id: 0, provider_account_id: 1, code: 1, name_ar: 1, price: 1 } }).toArray();
-    for (const item of items) {
-      const svc = services.find((s) => item.code === s.id || (s.short_code && item.code === s.short_code) || (s.name_ar && item.name_ar === s.name_ar));
-      if (!svc || typeof item.price !== 'number') continue;
-      const lab = out.get(item.provider_account_id) ?? new Map<string, number>();
-      lab.set(svc.id, item.price);
-      out.set(item.provider_account_id, lab);
-    }
-    return out;
+    return ownPrices(this.svcModel.db as never, 'lab', accountIds, services);
   }
 
   // #624 carousel: popular approved tests, each with the approved labs that run it (the lab's
@@ -221,36 +282,43 @@ export class LabsService {
     });
   }
 
-  // #631 price comparison: each approved lab's own price for this test from its capabilities
-  // catalog (provider_capabilities_lab: code = the test's short code, or the same Arabic name,
-  // the rule ServiceCapabilityService uses). Labs with no priced entry are not listed.
+  // #631 price comparison: each approved lab's own price for this test - its own per-test choice, else its capability row, else the price it registered with - with whether
+  // it collects at home and takes insurance FOR THIS TEST (registration maps or its own choice). Labs with no price for the test are not listed.
   async priceComparison(serviceId: string) {
     const svc: any = await this.svcModel.findOne({ id: { $eq: String(serviceId) }, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, id: 1, name_ar: 1, name_en: 1, short_code: 1, price: 1 }).lean();
     if (!svc) throw new NotFoundException('service_not_found');
+    const db = this.svcModel.db as never;
     const codes = [svc.id, svc.short_code].filter(Boolean);
-    const items: any[] = await this.svcModel.db.collection('provider_capabilities_lab').find({
+    const caps: any[] = await this.svcModel.db.collection('provider_capabilities_lab').find({
       available: true, $or: [{ code: { $in: codes } }, ...(svc.name_ar ? [{ name_ar: svc.name_ar }] : [])],
-    }, { projection: { _id: 0, provider_account_id: 1, price: 1, currency: 1, home_collection_supported: 1, turnaround_hours: 1, insurance_covered: 1 } }).toArray();
-    return { service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, catalog_price: svc.price ?? null, offers: await this.priceOffers(items, ['lab', 'hospital']) };
+    }, { projection: { _id: 0, provider_account_id: 1, turnaround_hours: 1 } }).toArray();
+    const turnaround = new Map<string, number>(caps.filter((c) => typeof c.turnaround_hours === 'number').map((c) => [c.provider_account_id, c.turnaround_hours]));
+    const offers = ((await loadOffers(db, 'lab', [svc])).get(svc.id) ?? []).filter((o) => o.price !== null);
+    return {
+      service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, catalog_price: svc.price ?? null,
+      offers: offers.map((o) => ({
+        provider: o.provider, price: o.price as number, currency: o.currency, home_collection_supported: o.home, turnaround_hours: turnaround.get(o.provider.id) ?? null,
+        insurance_covered: o.insurance, premises: o.premises,
+      })).sort((a, b) => a.price - b.price),
+    };
   }
 
-  private async priceOffers(items: any[], types: string[]) {
-    const priced = items.filter((i) => typeof i.price === 'number' && i.price > 0);
-    if (!priced.length) return [];
-    const profiles: any[] = await this.providerProfiles.find({
-      account_id: { $in: [...new Set(priced.map((i) => i.provider_account_id))] }, type: { $in: types },
-      status: 'active', public_eligibility: true, medical_review_status: 'approved',
-    }, { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1 }).lean();
-    const byId = new Map(profiles.map((p) => [p.account_id, p]));
-    return priced.filter((i) => byId.has(i.provider_account_id)).map((i) => ({
-      provider: publicProvider(byId.get(i.provider_account_id)), price: i.price, currency: i.currency || 'SAR',
-      home_collection_supported: !!i.home_collection_supported, turnaround_hours: i.turnaround_hours ?? null, insurance_covered: !!i.insurance_covered,
-    })).sort((a, b) => a.price - b.price);
+  /** The platform's home-collection fee (the admin pricing's delivery fee), else 25. A booking never fails on the pricing config. */
+  async platformHomeFee(): Promise<number> {
+    try {
+      const fees = await this.pricing?.platformFees();
+      if (fees && Number.isFinite(fees.delivery_fee) && fees.delivery_fee >= 0) return fees.delivery_fee;
+    } catch { /* fall through to the default */ }
+    return 25;
   }
 
   async book(user: any, data: any) {
     if (!Array.isArray(data.items) || !data.items.length) throw new BadRequestException('items required');
     if (!data.scheduled_at) throw new BadRequestException('scheduled_at required');
+    // owner decision 2026-11-09: the refund policy is agreed before the booking exists
+    const policyAcceptance = await stampAcceptance(this.bkgModel.db, refundPolicyAcceptance(user, data.refund_policy_accepted), 'lab', data.refund_policy_hash);
+    // owner decision 1: a booking for a family member (the caller stays the booker; checked to be the caller's own member)
+    const familyMemberId = await resolveFamilyMemberId(this.bkgModel.db, user.id, data.family_member_id);
     const services = await this.svcModel.find({ id: { $in: data.items.map((x: any) => x.service_id) } });
     if (!services.length) throw new BadRequestException('no_valid_services');
     const paymentMethod = ['cash', 'card', 'insurance'].includes(data.payment_method) ? data.payment_method : 'cash';
@@ -259,13 +327,7 @@ export class LabsService {
     if (!['home', 'facility'].includes(data.location_type)) data.location_type = 'home';
     // Enforce Nabd payment policy
     const svcCtx = data.location_type === 'home' ? 'home_visit' : 'in_clinic';
-    const pmAllowed: Record<string, string[]> = {
-      home_visit: ['card', 'insurance'],
-      in_clinic: ['cash', 'card', 'insurance'],
-    };
-    if (!pmAllowed[svcCtx]?.includes(paymentMethod)) {
-      throw new BadRequestException(`payment_method_${paymentMethod}_not_allowed_for_${svcCtx}`);
-    }
+    assertPaymentMethod(paymentMethod, svcCtx);
     // Phase Stabilization: explicit provider selection is mandatory for patient bookings.
     // Admin/system roles may create without provider_account_id (e.g. seeding, manual ops).
     if (!data.provider_account_id && user.role !== 'admin' && user.role !== 'system') {
@@ -286,16 +348,6 @@ export class LabsService {
     if (slotTime.getTime() < Date.now() - 5 * 60_000) {
       throw new BadRequestException('slot_expired');
     }
-    if (data.provider_account_id) {
-      const slotWindow = 30 * 60_000; // 30-minute window for collision check
-      const overlapping = await this.bkgModel.countDocuments({
-        provider_account_id: data.provider_account_id,
-        scheduled_at: { $gte: new Date(slotTime.getTime() - slotWindow), $lt: new Date(slotTime.getTime() + slotWindow) },
-        state: { $nin: [LabBookingState.CANCELLED, LabBookingState.REPORTED] },
-      });
-      // Default max-per-slot=1 unless provider schedule says more; soft cap at 3 for safety
-      if (overlapping >= 3) throw new BadRequestException('slot_taken');
-    }
     // #631: the chosen lab's own price per test when it set one (the price the comparison showed), else the catalog price.
     const own = data.provider_account_id ? (await this.labPrices([String(data.provider_account_id)], services as any[])).get(String(data.provider_account_id)) : undefined;
     const items = services.map((s: any) => ({ service_id: s.id, name_ar: s.name_ar, name_en: s.name_en, price: own?.get(s.id) ?? s.price, sample_type: s.sample_type, fasting_required: s.fasting_required }));
@@ -311,16 +363,42 @@ export class LabsService {
     }).lean();
     const dupe = recent.find((b: any) => JSON.stringify((b.items || []).map((i: any) => i.service_id).sort()) === JSON.stringify(svcIds));
     if (dupe) return dupe;
-    // R6-4: home-collection fee comes from the saved platform pricing (admin config-portal).
-    let homeFee = 25;
+    // the lab's own home-collection fee when it set one at registration, else the platform's (R6-4: the saved platform pricing)
+    let labProfile: any = null;
     try {
-      const fees = await this.pricing?.platformFees();
-      if (fees && Number.isFinite(fees.delivery_fee) && fees.delivery_fee >= 0) homeFee = fees.delivery_fee;
-    } catch { /* booking never fails on pricing config */ }
+      if (typeof data.provider_account_id === 'string' && data.provider_account_id) labProfile = await this.providerProfiles.findOne({ account_id: { $eq: data.provider_account_id } }, { home_collection_fee: 1 }).lean();
+    } catch { /* a booking never fails on the fee lookup: the platform fee applies */ }
+    const homeFee = homeCollectionFee(labProfile, await this.platformHomeFee());
     const total = items.reduce((sum, i) => sum + (i.price || 0), 0) + (data.location_type === 'home' ? homeFee : 0);
     const insurance_status = paymentMethod === 'insurance' ? 'pending' : 'none';
-    const booking = await this.bkgModel.create({
+    // The lab's own number of bookings per time slot (`slot_capacity`, default 1: the same number the patient's slot picker uses). The seat is taken atomically
+    // (a unique seat per provider, slot and number), so two parallel bookings for the last seat cannot both win.
+    const bookingId = randomUUID();
+    let seatTaken = false;
+    if (typeof data.provider_account_id === 'string' && data.provider_account_id) {
+      const providerId = data.provider_account_id;
+      const seatQuery: any = this.providerProfiles.findOne({ account_id: { $eq: providerId } }, { slot_capacity: 1 });
+      const seatProfile: any = seatQuery && typeof seatQuery.lean === 'function' ? await seatQuery.lean() : await seatQuery;
+      const seats: any = this.seatCollection();
+      await ensureSeatIndex(seats);
+      const seat = await reserveSeat(
+        seats,
+        { provider_account_id: providerId, slot_start: slotStartOf(slotTime), capacity: slotCapacityOf(seatProfile), booking_id: bookingId },
+        async (id): Promise<SeatBookingStatus> => {
+          if ((await this.bkgModel.countDocuments({ id: { $eq: id }, state: { $nin: SEAT_FREE_STATES } })) > 0) return 'live';
+          return (await this.bkgModel.countDocuments({ id: { $eq: id } })) > 0 ? 'free' : 'missing';
+        },
+      );
+      if (seat === null) throw new BadRequestException('slot_taken');
+      seatTaken = true;
+    }
+    let booking: any;
+    try {
+    booking = await this.bkgModel.create({
+      id: bookingId,
       patient_id: user.id,
+      ...(familyMemberId ? { family_member_id: familyMemberId } : {}),
+      ...(policyAcceptance ? { refund_policy_acceptance: policyAcceptance } : {}),
       patient_name: data.contact?.name || user.full_name,
       patient_phone: data.contact?.phone || user.phone,
       items,
@@ -341,6 +419,12 @@ export class LabsService {
       // P17-17.5: campaign attribution for the campaign report.
       attribution: pickAttribution(data) ?? undefined,
     });
+      // the booking is stored: a missing booking later means it was removed, not that it is still being created
+      if (seatTaken) await confirmSeat(this.seatCollection(), bookingId).catch(() => undefined);
+    } catch (e) {
+      if (seatTaken) await releaseSeat(this.seatCollection() as any, bookingId).catch(() => undefined);
+      throw e;
+    }
     this.events.emit('lab.booking_created', { booking_id: booking.id, patient_id: user.id, tracking_id: booking.tracking_id });
     this.events.emit('lab.booking_state_changed', { booking_id: booking.id, patient_id: user.id, state: booking.state, tracking_id: booking.tracking_id });
     await this.engine.announceCreated({ kind: 'lab', entity_id: booking.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { tracking_id: booking.tracking_id, items: items.length, total, location_type: booking.location_type, payment_method: paymentMethod } });
@@ -363,6 +447,137 @@ export class LabsService {
       this.bus.emit({ type: 'home_visit.assigned', entity_type: 'lab_booking', entity_id: booking.id, patient_account_id: user.id, meta: { facility_id: booking.facility_id } }).catch(() => null);
     }
     return booking.toObject();
+  }
+
+  /**
+   * M3: a booking whose price was already fixed by an ordering quote (the provider's own per-mode prices plus its home fee).
+   * It is stored exactly as the quote showed it, so a later change of the provider's prices cannot move the total; the
+   * checks of the quote (candidate, radius, order) were made by the ordering engine before this is called.
+   */
+  async createPriced(user: any, input: {
+    provider_account_id: string; mode: 'home' | 'facility'; items: Array<{ service_id: string; name_ar?: string; name_en?: string; price: number; coverage?: string }>;
+    home_fee: number; scheduled_at: Date; asap: boolean; payment_method: 'cash' | 'card' | 'insurance'; awaiting_approval: boolean;
+    address?: { lat?: number; lng?: number }; order_group_id: string; quote_id: string; medical_order_id?: string;
+    gender_preference?: string; documents?: any[]; notes?: string; patient_name?: string; family_member_id?: string;
+    /** The acceptance the entry point already recorded (the quote booking, or the broadcast that was started with the tick); a patient's booking without one is refused. */
+    refund_policy_acceptance?: RefundPolicyAcceptance;
+  }) {
+    const familyMemberId = await resolveFamilyMemberId(this.bkgModel.db, user.id, input.family_member_id);
+    const policyAcceptance = input.refund_policy_acceptance ?? refundPolicyAcceptance(user, undefined);
+    const total = Math.round((input.items.reduce((s, i) => s + i.price, 0) + (input.mode === 'home' ? input.home_fee : 0)) * 100) / 100;
+    const state = input.awaiting_approval ? LabBookingState.PENDING_INSURANCE : LabBookingState.NEW_REQUEST;
+    const now = new Date();
+    const booking = await this.bkgModel.create({
+      patient_id: user.id,
+      ...(familyMemberId ? { family_member_id: familyMemberId } : {}),
+      ...(policyAcceptance ? { refund_policy_acceptance: policyAcceptance } : {}),
+      patient_name: input.patient_name || user.full_name,
+      patient_phone: user.phone,
+      items: input.items,
+      total, total_price: total,
+      service_fee: Math.round((total - (input.mode === 'home' ? input.home_fee : 0)) * 100) / 100,
+      home_visit_fee: input.mode === 'home' ? input.home_fee : 0,
+      location_type: input.mode,
+      address: input.address,
+      scheduled_at: input.scheduled_at,
+      scheduled_start: input.scheduled_at,
+      scheduled_asap: input.asap,
+      state,
+      status: input.awaiting_approval ? 'awaiting_approval' : 'pending',
+      state_history: [{ from: '', to: state, by_user_id: user.id, by_role: user.role, at: now }],
+      provider_account_id: input.provider_account_id,
+      payment_method: input.payment_method,
+      insurance_status: input.payment_method === 'insurance' ? 'pending' : 'none',
+      documents: input.documents ?? [],
+      notes: input.notes,
+      order_group_id: input.order_group_id,
+      price_locked_at: now,
+      price_lock: { quote_id: input.quote_id, items: input.items.map((i) => ({ catalog_id: i.service_id, price: i.price, ...(i.coverage ? { coverage: i.coverage } : {}) })), home_fee: input.mode === 'home' ? input.home_fee : 0 },
+      medical_order_id: input.medical_order_id,
+      gender_preference: input.gender_preference,
+    });
+    this.events.emit('lab.booking_created', { booking_id: booking.id, patient_id: user.id, tracking_id: booking.tracking_id });
+    this.events.emit('lab.booking_state_changed', { booking_id: booking.id, patient_id: user.id, state: booking.state, tracking_id: booking.tracking_id });
+    await this.engine.announceCreated({ kind: 'lab', entity_id: booking.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { tracking_id: booking.tracking_id, items: input.items.length, total, location_type: input.mode, payment_method: input.payment_method } });
+    if (input.payment_method === 'insurance') {
+      this.bus.emit({ type: 'insurance.pending', entity_type: 'lab_booking', entity_id: booking.id, patient_account_id: user.id, reason_code: 'ordering_quote', meta: { docs: (input.documents ?? []).length } }).catch(() => null);
+    }
+    return booking.toObject();
+  }
+
+  /**
+   * M5: the provider's item decisions are recorded by the ordering service; this moves the booking. An approved booking waits for
+   * the copay (the existing insurance path); a partial or rejected one stays put until the patient chooses.
+   */
+  async applyOrderingDecision(id: string, outcome: 'approved' | 'partial' | 'rejected', copay: number) {
+    const b = await this.bkgModel.findOne({ id });
+    if (!b) throw new NotFoundException();
+    b.insurance_status = outcome === 'approved' ? 'approved' : outcome === 'partial' ? 'partial_approval' : 'rejected';
+    b.insurance_copay = copay;
+    if (outcome === 'approved') {
+      b.status = 'pending';
+      await this.moveOrdering(b, LabBookingState.WAITING_COPAY, 'insurance_item_decisions', 'provider');
+    } else {
+      b.status = 'awaiting_patient_choice';
+      await b.save();
+    }
+    return b.toObject();
+  }
+
+  /** M5: the patient's answer to a partial or rejected approval. `drop` removes the rejected items and recomputes the total. */
+  async applyOrderingChoice(id: string, user: any, c: { choice: 'pay_difference' | 'covered_only' | 'cancel_free'; copay: number; drop?: string[] }) {
+    const b = await this.bkgModel.findOne({ id, patient_id: user.id });
+    if (!b) throw new NotFoundException();
+    if (c.choice === 'cancel_free') {
+      // a cancel that the lifecycle refuses is an error, never a half-cancelled booking
+      if (b.state !== LabBookingState.CANCELLED && !(LAB_BOOKING_TRANSITIONS[b.state as LabBookingState] || []).includes(LabBookingState.CANCELLED)) throw new BadRequestException(`invalid transition ${b.state} → ${LabBookingState.CANCELLED}`);
+      b.status = 'cancelled';
+      await this.moveOrdering(b, LabBookingState.CANCELLED, 'insurance_choice_cancel_free', 'patient', user);
+      this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id, cancelled_by: 'system' });   // the insurance choice 'cancel free': everything back
+      return b.toObject();
+    }
+    if (c.choice === 'covered_only' && c.drop?.length) {
+      b.items = b.items.filter((i: any) => !c.drop!.includes(i.service_id));
+      b.markModified('items');
+      if (b.price_lock) {
+        b.price_lock = { ...b.price_lock, items: b.price_lock.items.filter((i) => !c.drop!.includes(i.catalog_id)) };
+        b.markModified('price_lock');
+      }
+      const sum = Math.round(b.items.reduce((s: number, i: any) => s + (Number(i.price) || 0), 0) * 100) / 100;
+      b.service_fee = sum;
+      b.total_price = Math.round((sum + (b.home_visit_fee || 0)) * 100) / 100;
+      (b as any).total = b.total_price;
+    }
+    b.insurance_copay = c.copay;
+    b.status = 'pending';
+    await this.moveOrdering(b, LabBookingState.WAITING_COPAY, `insurance_choice_${c.choice}`, 'patient', user);
+    return b.toObject();
+  }
+
+  /** M7: a booking the provider did not confirm in time is cancelled by the system. Returns false when it is already past that point. */
+  async cancelUnconfirmed(id: string): Promise<boolean> {
+    const b = await this.bkgModel.findOne({ id });
+    if (!b) throw new NotFoundException();
+    if (![LabBookingState.NEW_REQUEST, LabBookingState.PENDING_INSURANCE].includes(b.state)) return false;
+    b.status = 'cancelled_unconfirmed';
+    await this.moveOrdering(b, LabBookingState.CANCELLED, 'confirm_deadline_passed', 'system');
+    this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id, cancelled_by: 'system' });   // the provider did not confirm in time: everything back
+    return true;
+  }
+
+  private async moveOrdering(b: any, to: LabBookingState, note: string, by: string, user?: any) {
+    if (b.state === to || !(LAB_BOOKING_TRANSITIONS[b.state as LabBookingState] || []).includes(to)) { await b.save(); return b.toObject(); }
+    return this.engine.apply({
+      kind: 'lab', entity_id: b.id, from_domain: b.state, to_domain: to,
+      actor_account_id: user?.id ?? b.provider_account_id, actor_role: user?.role ?? by, patient_account_id: b.patient_id, reason: note,
+      mutate: async () => {
+        b.state_history.push({ from: b.state, to, by_user_id: user?.id ?? b.provider_account_id, by_role: user?.role ?? by, at: new Date(), note });
+        b.state = to;
+        await b.save();
+        this.events.emit('lab.booking_state_changed', { booking_id: b.id, patient_id: b.patient_id, state: to, tracking_id: b.tracking_id });
+        return b.toObject();
+      },
+    });
   }
 
   async addDocument(id: string, user: any, body: { kind?: string; url_or_b64?: string; filename?: string }) {
@@ -494,7 +709,13 @@ export class LabsService {
   }
 
   async mineFor(user: any) {
-    return this.bkgModel.find({ patient_id: user.id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(80);
+    const rows = await this.bkgModel.find({ patient_id: user.id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(80).lean();
+    return this.withLineNames(rows as any[]);
+  }
+
+  /** Issue 1832: every line of the bookings carries `names` in the six languages, resolved from the catalogue by `service_id` in one query. */
+  private withLineNames(bookings: any[]) {
+    return withItemNames(bookings, (ids) => this.svcModel.find({ id: { $in: ids } }, NAME_PROJECTION).lean());
   }
 
   async getBooking(id: string, user: any) {
@@ -503,7 +724,12 @@ export class LabsService {
     if (b.patient_id !== user.id && user.role !== 'admin') throw new NotFoundException();
     // A report is listed by id and name only; its file is GET bookings/:id/reports/:reportId (journeys#54), so the
     // booking (polled every 15 s by the tracking screens) no longer carries every PDF as base64.
-    return { ...b, reports: (Array.isArray(b.reports) ? b.reports : []).map(reportSummary) };
+    // Design parity (#1819): the typed values of the booking's result documents, newest result first.
+    const resultDocs = await this.bkgModel.db.collection('labresults')
+      .find({ booking_id: id, patient_id: b.patient_id, source: { $ne: 'radiology' } }, { projection: { _id: 0, id: 1, entries: 1, reported_at: 1, critical: 1 } })
+      .sort({ createdAt: -1 }).limit(20).toArray();
+    const [named] = await this.withLineNames([b]);
+    return { ...named, reports: (Array.isArray(b.reports) ? b.reports : []).map(reportSummary), results: flattenResultEntries(resultDocs) };
   }
 
   /** The file of one report of a booking, for the patient, the assigned lab or an admin. */
@@ -513,6 +739,11 @@ export class LabsService {
     try { this.assertPatientOrAssignedProvider(user, b); } catch { throw new NotFoundException(); }
     const report = (Array.isArray(b.reports) ? b.reports : []).find((r: any) => r?.id === reportId);
     if (!report) throw new NotFoundException('report_not_found');
+    if (typeof report.storage_object_id === 'string' && report.storage_object_id) {
+      if (!this.storage) throw new NotFoundException('report_file_unavailable');
+      const f = await this.storage.fileBytes(report.storage_object_id);
+      return { name: String(report.name || f.name), mime: LAB_REPORT_MIMES.has(f.mime) ? f.mime : 'application/pdf', data: f.data };
+    }
     if (typeof report.base64 !== 'string' || !report.base64) throw new NotFoundException('report_file_unavailable');
     const mime = ['application/pdf', 'image/png', 'image/jpeg', 'image/webp'].includes(report.mime) ? report.mime : 'application/pdf';
     return { name: String(report.name || `report-${reportId}.pdf`), mime, data: Buffer.from(report.base64, 'base64') };
@@ -523,6 +754,7 @@ export class LabsService {
     if (!b) throw new NotFoundException();
     if (b.patient_id !== user.id && user.role !== 'admin') throw new NotFoundException();
     if ([LabBookingState.REPORTED, LabBookingState.CANCELLED].includes(b.state)) return b.toObject();
+    const priorState = b.state;
     return await this.engine.apply({
       kind: 'lab', entity_id: b.id, from_domain: b.state, to_domain: LabBookingState.CANCELLED,
       actor_account_id: user.id, actor_role: user.role, patient_account_id: b.patient_id, reason: 'user_cancelled',
@@ -531,7 +763,7 @@ export class LabsService {
         b.state = LabBookingState.CANCELLED;
         await b.save();
         this.events.emit('lab.booking_state_changed', { booking_id: b.id, patient_id: b.patient_id, state: b.state, tracking_id: b.tracking_id });
-        this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id });
+        this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id, prior_state: priorState, cancelled_by: user?.id === b.patient_id ? 'patient' : 'provider' });
         return b.toObject();
       },
     });
@@ -547,6 +779,7 @@ export class LabsService {
     const allowed = LAB_BOOKING_TRANSITIONS[b.state] || [];
     if (!allowed.includes(to)) throw new BadRequestException(`invalid transition ${b.state} → ${to}`);
     if (b.state === LabBookingState.NEW_REQUEST && to === LabBookingState.CONFIRMED) this.assertConfirmable(b);
+    const priorState = b.state;
     return await this.engine.apply({
       kind: 'lab', entity_id: b.id, from_domain: b.state, to_domain: to,
       actor_account_id: user.id, actor_role: user.role, patient_account_id: b.patient_id, reason: note,
@@ -555,6 +788,9 @@ export class LabsService {
         b.state = to;
         await b.save();
         this.events.emit('lab.booking_state_changed', { booking_id: b.id, patient_id: b.patient_id, state: to, tracking_id: b.tracking_id });
+        // The lab cancelling a paid booking owes the patient the money back, the same as the patient cancelling.
+        // `cancelled_by`: the trip fee of a collector already on the way is the PATIENT's cost only when the patient cancels; the lab cancelling or not attending refunds all
+        if (to === LabBookingState.CANCELLED) this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id, prior_state: priorState, cancelled_by: user?.id === b.patient_id ? 'patient' : 'provider' });
         return b.toObject();
       },
     });
@@ -597,7 +833,9 @@ export class LabsService {
     const q: any = {};
     if (user.role !== 'admin') q.provider_account_id = user.id;
     if (status) q.state = status;
-    return this.bkgModel.find(q, { _id: 0, __v: 0 }).sort({ scheduled_at: 1 }).limit(200);
+    // R7 (13.R4): a request nobody has accepted shows the area only, not the patient's phone and exact address.
+    const rows = await this.bkgModel.find(q, { _id: 0, __v: 0 }).sort({ scheduled_at: 1 }).limit(200).lean();
+    return (rows as any[]).map((r) => withholdLegacyBeforeAcceptance(r, [LabBookingState.NEW_REQUEST]));
   }
 
   /** Provider: assign technician to a booking. */
@@ -619,13 +857,21 @@ export class LabsService {
     return b.toObject();
   }
 
-  /** Provider: upload final report (base64 PDF/image) or JSON structured data. Pushes to reports[] and transitions to REPORTED. */
-  async uploadReport(id: string, user: any, body: { name?: string; mime?: string; base64?: string; url?: string; notes?: string; structuredData?: any[] }) {
+  /** Provider: attach the final report (a scanned /storage file) and/or typed result rows (a PDF is generated from them). Pushes to reports[] and transitions to REPORTED. */
+  async uploadReport(id: string, user: any, body: { name?: string; mime?: string; base64?: string; url?: string; report_storage_object_id?: string; notes?: string; structuredData?: any[] }) {
     if (!getEffectiveRoles(user).some(role => ['admin', 'lab', 'hospital'].includes(role))) throw new ForbiddenException();
     const b = await this.bkgModel.findOne({ id });
     if (!b) throw new NotFoundException();
     if (user.role !== 'admin' && b.provider_account_id && b.provider_account_id !== user.id) throw new ForbiddenException();
-    if (!body?.base64 && !body?.url && !body?.structuredData) throw new BadRequestException('report_file_required');
+    // A file reaches a result only through /storage (type check, scan, quarantine); raw base64 or a link would skip all of it.
+    if (body?.base64 || body?.url) throw new BadRequestException('raw_report_file_not_allowed');
+    const storageObjectId = String(body?.report_storage_object_id || '').trim();
+    if (!storageObjectId && !body?.structuredData) throw new BadRequestException('report_file_required');
+    let stored: { id: string; mime: string; original_name?: string } | null = null;
+    if (storageObjectId) {
+      if (!this.storage) throw new BadRequestException('report_storage_unavailable');
+      stored = await this.storage.providerReportObject(storageObjectId, String(user.id), LAB_REPORT_MIMES);
+    }
     // State machine: a report can only be uploaded once the sample is in the lab pipeline —
     // never on a fresh/cancelled booking (resurrecting terminal bookings corrupts the lifecycle).
     const reportable = [LabBookingState.RESULT_UPLOADED, LabBookingState.REPORTED];
@@ -633,10 +879,14 @@ export class LabsService {
       throw new BadRequestException(`invalid_transition_${b.state}_to_REPORTED`);
     }
     
-    let base64Data = body.base64;
-    let mimeType = body.mime || 'application/pdf';
+    // X2: the app uploads in three calls and retries on a bad network. The same stored file again is the same report:
+    // answer with the booking as it is instead of pushing a second copy and telling the patient twice.
+    if (stored && (b.reports as any[]).some((r) => r?.storage_object_id === stored.id)) return b.toObject();
+
+    let base64Data: string | undefined;
+    let mimeType = stored?.mime || 'application/pdf';
     
-    if (body.structuredData && body.structuredData.length > 0) {
+    if (!stored && body.structuredData && body.structuredData.length > 0) {
       base64Data = await this.pdfService.generateReport(b, body.structuredData);
       base64Data = base64Data.split(',')[1]; // remove data uri prefix
       mimeType = 'application/pdf';
@@ -654,10 +904,10 @@ export class LabsService {
     const report = {
       id: require('uuid').v4(),
       ...(entries.length ? { entries, critical: entries.some((e) => e.flag === 'critical') } : {}),
-      name: body.name || `report_${new Date().toISOString().slice(0,10)}.pdf`,
+      name: body.name || stored?.original_name || `report_${new Date().toISOString().slice(0,10)}.pdf`,
       mime: mimeType,
       base64: base64Data,
-      url: body.url,
+      ...(stored ? { storage_object_id: stored.id } : {}),
       notes: body.notes,
       uploaded_at: new Date(),
       uploaded_by: user.id,
@@ -874,10 +1124,15 @@ export class LabsService {
     const b = await this.bkgModel.findOne({ id });
     if (!b) throw new NotFoundException('Booking not found');
     this.assertPatientOrAssignedProvider(user, b);
-    b.scheduled_at = new Date(body.new_date);
+    // Only a booking that is still to be done can move (a cancelled, reported or in-progress one could be moved before), to a valid future time.
+    if (![LabBookingState.NEW_REQUEST, LabBookingState.PENDING_INSURANCE, LabBookingState.WAITING_COPAY, LabBookingState.CONFIRMED].includes(b.state)) throw new BadRequestException('cannot_reschedule');
+    const when = new Date(body?.new_date);
+    if (Number.isNaN(when.getTime()) || when.getTime() < Date.now()) throw new BadRequestException('slot_expired');
+    b.scheduled_at = when;
     b.reschedule_reason = body.reason;
     b.state_history.push({ from: b.state, to: b.state, by_user_id: user.id, by_role: user.role, at: new Date(), note: `Rescheduled to ${b.scheduled_at}. Reason: ${body.reason}` });
     await b.save();
+    this.events.emit('booking.rescheduled', { entity_type: 'lab_booking', entity_id: b.id, actor_role: user.role, patient_account_id: b.patient_id, meta: { new_date: b.scheduled_at } });
     return b;
   }
 
@@ -1000,7 +1255,11 @@ export class LabsService {
       medical_review_status: 'approved',
     }).lean();
     if (!profile) throw new NotFoundException('provider_not_found');
-    if (!profile.schedule_lab || !profile.schedule_lab.length) {
+    // The lab's own hours: `schedule_lab` when one was saved, else the working hours it gave at registration (nothing else ever writes schedule_lab, so without this
+    // fallback a registered lab offered no slots at all; the home-care picker does the same).
+    const labSchedule: any[] = Array.isArray((profile as any).schedule_lab) && (profile as any).schedule_lab.length ? (profile as any).schedule_lab
+      : Array.isArray((profile as any).working_hours) ? (profile as any).working_hours : [];
+    if (!labSchedule.length) {
       return { date: dateStr, slots: [], reason: 'no_schedule' };
     }
 
@@ -1016,7 +1275,7 @@ export class LabsService {
       return v === 'all' || v === String(dow) || v === dayKeys[dow] || v === fullDays[dow];
     };
 
-    const windows = (profile.schedule_lab || []).filter((w) => w && !w.closed && dayMatches(w.day)).flatMap((w) => [
+    const windows = labSchedule.filter((w) => w && !w.closed && dayMatches(w.day)).flatMap((w) => [
       ...(w.open && w.close ? [{ open: w.open, close: w.close }] : []),
       ...(w.open_evening && w.close_evening ? [{ open: w.open_evening, close: w.close_evening }] : []),
     ]);
@@ -1024,7 +1283,7 @@ export class LabsService {
     if (!windows.length) return { date: dateStr, slots: [], reason: 'closed' };
 
     const baseDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
-    const slots: { id: string; start: string; end: string; label: string; available: boolean }[] = [];
+    const slots: { id: string; start: string; end: string; label: string; available: boolean; remaining?: number }[] = [];
     const seen = new Set<string>();
     const now = Date.now();
 
@@ -1055,11 +1314,32 @@ export class LabsService {
       scheduled_at: { $gte: startOfDay, $lt: endOfDay },
       state: { $nin: ['CANCELLED', 'REPORTED'] },
     }).select({ scheduled_at: 1 }).lean();
-    const bookedSet = new Set(booked.map((b: any) => new Date(b.scheduled_at).toISOString()));
+    // a slot is free while fewer bookings than the lab's capacity hold it (the same count the booking itself enforces)
+    const capacity = slotCapacityOf(profile as any);
+    const taken = new Map<string, number>();
+    for (const b of booked as any[]) { const k = slotStartOf(b.scheduled_at).toISOString(); taken.set(k, (taken.get(k) ?? 0) + 1); }
     for (const s of slots) {
-      if (bookedSet.has(s.start)) s.available = false;
+      const used = taken.get(s.start) ?? 0;
+      s.remaining = Math.max(0, capacity - used);
+      s.available = used < capacity;
     }
-    return { date: dateStr, slots };
+    return { date: dateStr, slots, capacity };
+  }
+
+  /** The lab's number of simultaneous bookings per time slot (default 1). */
+  async getSlotCapacity(user: any) {
+    const p: any = await this.providerProfiles.findOne({ account_id: { $eq: String(user.id) } }, { slot_capacity: 1 }).lean();
+    if (!p) throw new NotFoundException('provider_not_found');
+    return { slot_capacity: slotCapacityOf(p), max: MAX_SLOT_CAPACITY };
+  }
+
+  /** The lab sets it itself (an operating number, not a profile claim that needs review). It applies to the next booking and to the slot picker at once. */
+  async setSlotCapacity(user: any, value: number) {
+    const n = Number(value);
+    if (!Number.isInteger(n) || n < 1 || n > MAX_SLOT_CAPACITY) throw new BadRequestException('slot_capacity_must_be_1_to_' + MAX_SLOT_CAPACITY);
+    const res: any = await this.providerProfiles.updateOne({ account_id: { $eq: String(user.id) } }, { $set: { slot_capacity: n } });
+    if (!res?.matchedCount) throw new NotFoundException('provider_not_found');
+    return { ok: true, slot_capacity: n };
   }
 
 }

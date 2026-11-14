@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { AuthLayout } from "@/components-next/auth/auth-layout";
 import { LoginForm } from "@/components-next/login-form";
 import { isLocale } from "@/lib/i18n";
+import { getSocialButtons } from "@/lib/api/public-config-server";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ guest?: string | string[] }> };
 
@@ -23,7 +24,7 @@ export default async function LoginPage({ params, searchParams }: Props) {
   const guestBlocked = (await searchParams)?.guest === "blocked";
   return (
     <AuthLayout locale={locale} backHref={`/${locale}/welcome`}>
-      <LoginForm locale={locale} guestBlocked={guestBlocked} />
+      <LoginForm locale={locale} guestBlocked={guestBlocked} social={await getSocialButtons()} />
     </AuthLayout>
   );
 }

@@ -45,11 +45,12 @@ export class LocationService implements OnModuleInit {
     try {
       // Insert-only: never overwrite admin edits
       this.logger.log(`Upserting ${SAUDI_LOCATIONS_SEED.length} Saudi locations (central geo)...`);
-      for (const loc of SAUDI_LOCATIONS_SEED) {
-        await this.locationModel.updateOne(
-          { code: loc.code },
-          { $setOnInsert: loc },
-          { upsert: true },
+      // names are Arabic and English only (owner, 2026-10-25); a row already in the database is never touched.
+      // One bulk write per 500 rows, not one round trip per row: every start used to send thousands of single upserts right when traffic returns.
+      for (let i = 0; i < SAUDI_LOCATIONS_SEED.length; i += 500) {
+        await this.locationModel.bulkWrite(
+          SAUDI_LOCATIONS_SEED.slice(i, i + 500).map((loc) => ({ updateOne: { filter: { code: loc.code }, update: { $setOnInsert: { ...loc } }, upsert: true } })),
+          { ordered: false },
         );
       }
       // Deactivate anything Saudi not in the central seed (old duplicate IDs with
@@ -59,12 +60,15 @@ export class LocationService implements OnModuleInit {
       const seedCityCodes = new Set(
         SAUDI_LOCATIONS_SEED.filter((l) => l.type === 'city').map((l) => l.code),
       );
+      // Rows that carry a `source` (cities and districts the OpenStreetMap import / admin import added, with their provenance) are not legacy
+      // duplicates: only rows without one are switched off.
+      const legacy = { source: { $in: [null, ''] } };
       await this.locationModel.updateMany(
-        { code: { $regex: '^sa-', $nin: Array.from(seedCodes) } },
+        { code: { $regex: '^sa-', $nin: Array.from(seedCodes) }, ...legacy },
         { $set: { is_active: false } },
       ).catch(() => null);
       await this.locationModel.updateMany(
-        { type: 'district', parent_code: { $nin: Array.from(seedCityCodes) } },
+        { type: 'district', parent_code: { $nin: Array.from(seedCityCodes) }, ...legacy },
         { $set: { is_active: false } },
       ).catch(() => null);
       this.logger.log('Saudi locations upserted successfully.');

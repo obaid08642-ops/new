@@ -129,7 +129,7 @@ export class JwtAuthGuard implements CanActivate {
     // durable session on every request, so revoke/expiry takes effect immediately.
     req.user = payload;
     // 20.3: every log line of this request now carries the account id (id only)
-    setLogUser((payload as any)?.id ?? (payload as any)?.sub, (payload as any)?.role);
+    setLogUser((payload as any)?.id ?? (payload as any)?.sub, (payload as any)?.role, (payload as any)?.impersonator?.id);
     // F09 session revocation: login access tokens carry `tv` (token_version).
     // Ban, suspend, password change and role change bump the stored version,
     // so stale tokens 401 on their next request. On public routes a stale
@@ -163,6 +163,20 @@ export class JwtAuthGuard implements CanActivate {
       const currentTv = Number(current?.token_version ?? 0);
       const tokenTv = Number(payload.tv);
       if (tokenTv !== currentTv) {
+        if (isPublic) {
+          req.user = undefined;
+          return true;
+        }
+        throw new UnauthorizedException('session_revoked');
+      }
+    }
+    // 21.7: a sign-in that was ended ("sign out other devices", sign-out, logout-all) refuses its access tokens at once,
+    // not when the 1 h token expires. A lookup failure degrades to "not revoked", like the version check above.
+    if (payload?.sid && subjectId) {
+      const ended = await (async () => {
+        try { return await this.connection.collection('revoked_sessions').findOne({ sid: payload.sid }, { projection: { _id: 1 } }); } catch { return null; }
+      })();
+      if (ended) {
         if (isPublic) {
           req.user = undefined;
           return true;

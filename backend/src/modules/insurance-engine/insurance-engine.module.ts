@@ -1,3 +1,6 @@
+import { earningsPipeline, foldPlatformSummary, foldProviderSummary, reversalsPipeline } from '../finance-engine/commission-summary';
+import { consultationRefundWindow, consultationRefundWindows } from '../finance-engine/consultation-refund-table';
+import { halalaShadowPlugin } from '../../common/halala-shadow';
 import { PROVIDER_ROLES } from '../../common/enums';
 /**
  * M3 — Insurance Engine (BR-2) + Unified Booking Quote (BR-1) + Financial Core.
@@ -10,7 +13,7 @@ import { PROVIDER_ROLES } from '../../common/enums';
  * BR-1 (payment matrix): online/video/audio/home/delivery = online payment only;
  * clinic = online or pay-at-clinic. Enforced server-side via /bookings/quote.
  */
-import { Module, Controller, Injectable, Get, Post, Body, Param, Query, UseGuards, NotFoundException, BadRequestException, ForbiddenException, Optional, Logger } from '@nestjs/common';
+import { Module, Controller, Injectable, Get, Post, Body, Param, Query, UseGuards, NotFoundException, BadRequestException, ForbiddenException, ConflictException, Optional, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectConnection, InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
@@ -21,7 +24,10 @@ import { StepUp } from '../../common/step-up.guard';
 import { JwtAuthGuard, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
 import { InsuranceCompanySchema, InsuranceCompanyDocument } from '../../schemas/insurance.schema';
 import { PatientProfileSchema } from '../../schemas/patient-profile.schema';
-import { FraudService, RefundExecutor } from '../finance-engine/finance-engine.module';
+import { ProviderProfileSchema } from '../../schemas/provider-profile.schema';
+import { buildPatientPolicy, cardCopay, hasInsuranceContract, policyClass, policyCompanyKeys } from '../../common/insurance-policy';
+import { CommissionResolver, FraudService, RefundExecutor } from '../finance-engine/finance-engine.module';
+import { commissionServiceTypeOf } from '../../common/commission-defaults';
 import { TransactionSchema } from '../../schemas/transaction.schema';
 import { OrderSchema } from '../../schemas/order.schema';
 import { LabBookingSchema } from '../../schemas/lab.schema';
@@ -31,6 +37,8 @@ import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema
 import { UserRole } from '../../common/enums';
 import { SavePolicyDto, CreateRequestDto, PayCopayDto, ResubmitDto, AppealDto, DecideDto, GatekeeperDto, PaymentConfirmDto, PayCopayDto2, RequestDto, DecideRefundDto, AccrueDto } from './insurance-engine.dto';
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { DurableEventsService, emitDurable } from '../durable-events/durable-events.service';
+import { ScheduledOnce } from '../../common/scheduled-once';
 
 // ============================================================================
 // Schemas
@@ -61,8 +69,14 @@ export const INSURANCE_REQUEST_STATES = [
   'CANCELLED',
 ] as const;
 
+/** States a provider's claims hub lists (`GET /insurance/requests/provider/queue?scope=all`): open and decided, not cancelled or expired. */
+export const PROVIDER_CLAIM_STATES = ['PENDING_PROVIDER_REVIEW', 'COPAY_PENDING', 'COPAY_PAID', 'APPROVED_FULL', 'APPROVED_PARTIAL', 'REJECTED', 'APPEAL_PENDING'];
+
 /** Declared on the schema but never written. See the note above. */
 export const INSURANCE_REQUEST_RESERVED_STATES = ['APPROVED_PARTIAL', 'EXPIRED'] as const;
+
+/** Every state a request can hold (schema enum): the allow-list for a `state` filter taken from a query string. */
+export const KNOWN_REQUEST_STATES: string[] = [...INSURANCE_REQUEST_STATES, ...INSURANCE_REQUEST_RESERVED_STATES];
 
 
 @Schema({ timestamps: true })
@@ -88,7 +102,9 @@ export class InsuranceServiceRequest {
     enum: ['PENDING_PROVIDER_REVIEW', 'APPROVED_FULL', 'APPROVED_PARTIAL', 'REJECTED', 'COPAY_PENDING', 'COPAY_PAID', 'EXPIRED', 'CANCELLED', 'APPEAL_PENDING'],
   }) state: string;
   @Prop() copay_percent?: number;       // patient share % when partial
-  @Prop() copay_amount?: number;        // computed = price * percent / 100
+  @Prop() copay_amount?: number;        // computed = price * percent / 100, never above the cap printed on the patient's card
+  @Prop() copay_cap_sar?: number;       // the card's cap when it limited the copay (INS-CAP-1)
+  @Prop() copay_uncapped_amount?: number; // what the copay would have been without the cap
   @Prop() rejection_reason?: string;
   @Prop() decided_by?: string;
   @Prop() decided_at?: Date;
@@ -125,8 +141,12 @@ export class RefundRequest {
   @Prop({ default: 'REQUESTED', index: true, enum: ['REQUESTED', 'APPROVED', 'EXECUTED', 'REJECTED', 'FAILED'] }) state: string;
   @Prop() executed_at?: Date;
   @Prop({ type: [Object], default: [] }) history: { state: string; at: Date; by: string; note?: string }[];
+  /** R11 P1: integer halalas next to the doubles (halalaShadowPlugin). */
+  @Prop() amount_paid_halalas?: number;
+  @Prop() refund_amount_halalas?: number;
 }
 export const RefundRequestSchema = SchemaFactory.createForClass(RefundRequest);
+halalaShadowPlugin(RefundRequestSchema, ['amount_paid', 'refund_amount']);
 
 @Schema({ timestamps: true })
 export class PlatformLedgerEntry {
@@ -156,12 +176,6 @@ export const CommissionRuleSchema = SchemaFactory.createForClass(CommissionRule)
 // Financial core service
 // ============================================================================
 
-const DEFAULT_COMMISSIONS: Record<string, number> = {
-  consultation: 0.15, video: 0.15, audio: 0.15, chat: 0.15,
-  clinic: 0.12, home_visit: 0.18, nursing: 0.18, physiotherapy: 0.18,
-  pharmacy: 0.10, lab: 0.12, radiology: 0.12, default: 0.15,
-};
-
 @Injectable()
 export class FinanceCoreService {
   constructor(
@@ -169,9 +183,15 @@ export class FinanceCoreService {
     @InjectModel('CommissionRule') private rules: Model<any>,
   ) {}
 
+  /**
+   * The commission rate (a fraction) of a service type. This used to hold its own table (nursing 18%, consultation 15%, ...); it now
+   * asks CommissionResolver, the one source the settlement uses (rules, then finance_config, then the system default).
+   */
   async rateFor(serviceType: string): Promise<number> {
     const rule = await this.rules.findOne({ service_type: { $eq: serviceType }, active: true }).lean();
-    return (rule as any)?.rate ?? DEFAULT_COMMISSIONS[serviceType] ?? DEFAULT_COMMISSIONS.default;
+    if (typeof (rule as any)?.rate === 'number') return (rule as any).rate;
+    const { percent } = await new CommissionResolver(this.rules.db).resolve(commissionServiceTypeOf(serviceType));
+    return percent / 100;
   }
 
   /** Record commission + provider net for a paid order/booking. Idempotent per order_id. */
@@ -192,55 +212,24 @@ export class FinanceCoreService {
     return doc.toObject();
   }
 
+  /**
+   * One provider's totals from the real ledger (screens-audit-3 gap 23): the `provider_earning` rows the settlement credits for the provider's account(s).
+   * `providerId` is the signed-in user; the earnings are filed under the provider ACCOUNT id, so both are looked up.
+   */
   async providerSummary(providerId: string) {
-    const agg = await this.ledger.aggregate([
-      { $match: { provider_id: providerId, state: 'ACCRUED' } },
-      { $group: { _id: null, gross: { $sum: '$gross_amount' }, commission: { $sum: '$commission_amount' }, net: { $sum: '$net_provider_amount' }, count: { $sum: 1 } } },
-    ]);
-    return agg[0] || { gross: 0, commission: 0, net: 0, count: 0 };
+    const account: any = await this.ledger.db.collection('provider_accounts').findOne({ $or: [{ id: providerId }, { user_id: providerId }] }).catch(() => null);
+    const ids = [...new Set([providerId, account?.id, account?.user_id].filter(Boolean).map(String))];
+    const rows = await this.ledger.aggregate(earningsPipeline(ids) as any[]);
+    return foldProviderSummary(rows as any[]);
   }
 
+  /** The platform commissions KPI from the real ledger, net of what refunds reversed (see finance-engine/commission-summary.ts). */
   async platformSummary() {
-    const agg = await this.ledger.aggregate([
-      { $match: { state: 'ACCRUED' } },
-      { $group: { _id: '$service_type', gross: { $sum: '$gross_amount' }, commission: { $sum: '$commission_amount' }, count: { $sum: 1 } } },
+    const [earnings, reversals] = await Promise.all([
+      this.ledger.aggregate(earningsPipeline() as any[]),
+      this.ledger.aggregate(reversalsPipeline() as any[]),
     ]);
-    const total = agg.reduce((s, r) => s + r.commission, 0);
-    return { total_commission: Math.round(total * 100) / 100, by_service: agg };
-  }
-}
-
-// ============================================================================
-// Quote (BR-1) — the server decides allowed payment methods, never the UI
-// ============================================================================
-
-const ONLINE_ONLY_CHANNELS = ['online', 'video', 'audio', 'chat', 'home', 'home_visit', 'delivery', 'nursing', 'physiotherapy'];
-
-@Controller('bookings')
-@UseGuards(JwtAuthGuard)
-export class QuoteController {
-  @Get('quote') quote(@Query() q: any) {
-    const channel = (q?.channel || 'clinic').toLowerCase();
-    const price = Number(q?.price || 0);
-    const withInsurance = q?.with_insurance === 'true' || q?.with_insurance === '1';
-    const onlineOnly = ONLINE_ONLY_CHANNELS.includes(channel);
-
-    const allowed_methods: string[] = [];
-    if (withInsurance) allowed_methods.push('insurance');
-    allowed_methods.push('online');
-    if (!onlineOnly) allowed_methods.push('clinic_pay');
-
-    return {
-      service_type: q?.service_type || 'consultation',
-      channel,
-      price,
-      currency: 'SAR',
-      allowed_methods,
-      insurance_applicable: true,
-      notes_ar: onlineOnly
-        ? 'هذه الخدمة تتطلب الدفع الإلكتروني مسبقًا'
-        : 'يمكنك الدفع إلكترونيًا الآن أو نقدًا في العيادة عند الزيارة',
-    };
+    return foldPlatformSummary(earnings as any[], reversals as any[]);
   }
 }
 
@@ -255,6 +244,7 @@ export class InsuranceFlowService {
     @InjectModel('InsuranceServiceRequest') private requests: Model<any>,
     @InjectModel('InsuranceCompany') private companies: Model<InsuranceCompanyDocument>,
     @InjectModel('PatientProfile') private patients: Model<any>,
+    @InjectModel('ProviderProfile') private providerModel: Model<any>,
     private events: EventEmitter2,
     @InjectModel('Transaction') private transactions: Model<any>,
     @InjectModel('Order') private orders: Model<any>,
@@ -275,24 +265,10 @@ export class InsuranceFlowService {
     const key = String(body.company_id);
     const company = await this.companies.findOne({ $or: [{ id: { $eq: key } }, { code: { $eq: key.toLowerCase() } }], is_active: true }).lean();
     if (!company) throw new NotFoundException('insurance company not found');
-    // `verified` is never taken from the client: verification is a separate server/admin step
-    const policy = {
-      company_id: (company as any).id,
-      company_code: (company as any).code,
-      company_name: (company as any).name_ar || (company as any).name,
-      provider: (company as any).name_ar || (company as any).name_en || (company as any).code,
-      plan_class: body.plan_class || body.class,
-      network: body.network,
-      member_id: body.member_id,
-      member_name: body.member_name,
-      national_id: body.national_id,
-      policy_number: body.policy_number,
-      expiry_date: body.expiry_date,
-      card_image_url: body.card_image_url,
-      ocr_extracted: !!body.ocr_extracted,
-      verified: false,
-      saved_at: new Date(),
-    };
+    // One writer, one shape (common/insurance-policy.ts): the card figures are validated there and kept across later saves; `verified` is never
+    // taken from the client (verification is a separate server/admin step).
+    const current: any = await this.patients.findOne({ user_id: user.id }, { _id: 0, insurance: 1 }).lean();
+    const policy = buildPatientPolicy(current?.insurance, { ...body, company_id: (company as any).id }, company);
     await this.patients.updateOne({ user_id: user.id }, { $set: { insurance: policy } }, { upsert: true });
     return { ok: true, policy };
   }
@@ -314,6 +290,9 @@ export class InsuranceFlowService {
       company_name_en: company?.name_en ?? null,
       member_id: ins.member_id ?? null,
       expiry_date: ins.expiry_date ?? null,
+      // Design parity (#1819): the insurer id the booking forms send (insurance_provider): the catalogue company, else the
+      // legacy saved provider name; null when neither was saved.
+      insurer_id: ins.company_id ? String(ins.company_id) : (typeof ins.provider === 'string' && ins.provider ? ins.provider : null),
     };
     return { has_policy, policy };
   }
@@ -331,7 +310,7 @@ export class InsuranceFlowService {
    *  - `has_policy` is the neutral name for what `eligible` always meant ("a policy is on
    *    file"). `eligible` is kept because the clients read it; the two always agree.
    *  - `live_check: false` says out loud that nothing was checked with an insurer, and no
-   *    `nphies_*` field is returned.
+   *    no insurer-check field is returned.
    */
   async coverageCheckAnswer(user: any, query: any) {
     const { has_policy, policy } = await this.myPolicy(user);
@@ -414,8 +393,21 @@ export class InsuranceFlowService {
     if (!Number.isFinite(price) || price <= 0) throw new BadRequestException('booking_price_not_ready');
     const { has_policy, policy } = await this.myPolicy(user);
     if (!has_policy) throw new BadRequestException('NO_INSURANCE_POLICY'); // patient app redirects to add-policy then deep-returns (BR-2.2)
+
+    // A retry or a poll of a request that already exists returns it, even if the provider's contracts changed since.
     const existing = await this.requests.findOne({ patient_id: user.id, booking_kind: kind, booking_id: bookingId, state: { $in: ['PENDING_PROVIDER_REVIEW', 'COPAY_PENDING', 'APPROVED_FULL', 'COPAY_PAID'] } }).lean();
     if (existing) return existing;
+    // D-30: the provider must hold an active contract for the patient's company AND class. Fails closed:
+    // a policy without a company or a class, or a provider without contracts, is refused.
+    const companyKeys = policyCompanyKeys(policy);
+    const policyCls = policyClass(policy);
+    if (!companyKeys.length || !policyCls) throw new BadRequestException('insurance_class_required');
+    // A booking names its provider by profile id or by account id, depending on the service.
+    const providerProfile: any = await this.providerModel.findOne({
+      $or: [{ id: { $eq: providerId } }, { user_id: { $eq: providerId } }, { account_id: { $eq: providerId } }],
+    }).lean();
+    if (!hasInsuranceContract(providerProfile?.insurance_class_contracts, companyKeys, policyCls)) throw new ConflictException('insurance_not_accepted_by_provider');
+
     const doc = await this.requests.create({
       patient_id: user.id, patient_name: user.full_name,
       provider_id: providerId,
@@ -495,10 +487,29 @@ export class InsuranceFlowService {
     return (rows as any[]).map((r) => this.presentRequest(r));
   }
 
-  async providerQueue(user: any, state?: string) {
+  async providerQueue(user: any, state?: string, scope?: string) {
     const filter: any = { provider_id: user.id };
-    if (state) filter.state = state; else filter.state = { $in: ['PENDING_PROVIDER_REVIEW', 'COPAY_PENDING', 'COPAY_PAID'] };
-    return this.requests.find(filter, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(100).lean();
+    if (state !== undefined && state !== null && state !== '') {
+      // The query value is untrusted: only a plain string that names a known state reaches the Mongo filter (never an object such as ?state[$ne]=x).
+      const wanted = typeof state === 'string' ? state : '';
+      if (!KNOWN_REQUEST_STATES.includes(wanted)) throw new BadRequestException('invalid_state');
+      filter.state = wanted;
+    } else if (scope === 'all') filter.state = { $in: PROVIDER_CLAIM_STATES };
+    else filter.state = { $in: ['PENDING_PROVIDER_REVIEW', 'COPAY_PENDING', 'COPAY_PAID'] };
+    const rows: any[] = await this.requests.find(filter, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(100).lean();
+    if (scope !== 'all') return rows;
+    // The claims hub (`?scope=all`) lists every decided state too, with the patient's name, the company and the insurer's share.
+    const ids = [...new Set(rows.map((r) => String(r.patient_id)).filter(Boolean))];
+    const users: any[] = ids.length
+      ? await (this.requests as any).db.collection('users').find({ id: { $in: ids } }, { projection: { _id: 0, id: 1, name: 1, full_name: 1 } }).toArray()
+      : [];
+    const nameOf = new Map<string, string>(users.map((u) => [String(u.id), String(u.name || u.full_name || '')]));
+    return rows.map((r) => ({
+      ...this.presentRequest(r),
+      patient_name: nameOf.get(String(r.patient_id)) || null,
+      company_name: r.policy?.company_name || null,
+      plan: r.policy?.plan_class || null,
+    }));
   }
 
   /** M5: admin supervision queue — all requests, optionally filtered by state. */
@@ -617,6 +628,20 @@ export class InsuranceFlowService {
     throw new BadRequestException('status must be approved|partial|rejected');
   }
 
+  /**
+   * INS-CAP-1: the patient's card caps the copay (`insurance.copay_cap_sar`). The provider's percentage or amount is the starting figure; the patient never owes more than the
+   * cap. The uncapped figure and the cap are kept on the request, and the percentage is recomputed from the capped amount so the two always agree.
+   */
+  private async applyCardCap(req: any): Promise<void> {
+    const profile: any = await this.patients.findOne({ user_id: req.patient_id }, { _id: 0, insurance: 1 }).lean();
+    const cap = cardCopay(profile?.insurance)?.cap;
+    if (cap === null || cap === undefined || !(Number(req.copay_amount) > cap)) return;
+    req.copay_uncapped_amount = req.copay_amount;
+    req.copay_cap_sar = cap;
+    req.copay_amount = Math.round(cap * 100) / 100;
+    req.copay_percent = Math.min(99, Math.max(1, Math.round((req.copay_amount / Math.max(1, Number(req.price))) * 100)));
+  }
+
   /** Provider manual decision (BR-2.4): full | partial(copay_percent) | reject(reason). */
   async decide(user: any, id: string, body: any) {
     const req = await this.requests.findOne({ id: { $eq: id } });
@@ -647,6 +672,7 @@ export class InsuranceFlowService {
         req.copay_amount = Math.round(copayAmount * 100) / 100;
         req.copay_percent = Math.min(99, Math.max(1, Math.round((req.copay_amount / Math.max(1, req.price)) * 100)));
       }
+      await this.applyCardCap(req);
       req.approval_ref = approvalRef;
     } else if (decision === 'reject') {
       if (!body?.reason?.trim()) throw new BadRequestException('rejection reason is required');
@@ -807,6 +833,7 @@ export class InsuranceFlowService {
   // 60s safety net means a failed event delivery holds the service for a full
   // minute. The sweep is cheap (one indexed find + at most 100 guarded writes).
   @Cron('*/15 * * * * *')
+  @ScheduledOnce({ holdMs: 3000 })
   async reconcileCopays() {
     try {
       const stale = await this.requests.find({ state: 'COPAY_PENDING', payment_id: { $in: [null, undefined] } })
@@ -886,7 +913,7 @@ export class InsuranceFlowController {
 
   // ---- provider ----
   @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
-  @Get('requests/provider/queue') providerQueue(@CurrentUser() u: any, @Query('state') state?: string) { return this.svc.providerQueue(u, state); }
+  @Get('requests/provider/queue') providerQueue(@CurrentUser() u: any, @Query('state') state?: string, @Query('scope') scope?: string) { return this.svc.providerQueue(u, state, scope); }
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
   @Post('requests/:id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() b: DecideDto) { return this.svc.decide(u, id, b); }
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
@@ -938,6 +965,7 @@ export class RefundService {
     private readonly fraud: FraudService,
     @Optional() @InjectConnection() private readonly conn?: Connection,
     @Optional() private readonly refundExec?: RefundExecutor,
+    @Optional() private readonly durable?: DurableEventsService,
   ) {}
 
   policyFor(scheduledAt?: Date) {
@@ -946,6 +974,25 @@ export class RefundService {
     const hours = (diffMs + 1000) / 3600000;
     for (const w of REFUND_WINDOWS) if (hours >= w.hours_before) return w;
     return REFUND_WINDOWS[REFUND_WINDOWS.length - 1];
+  }
+
+  /** The stored refund policy (`system_configs {key:'refund_policy'}`), or undefined when there is none or no connection. */
+  private async storedRefundPolicy(): Promise<any> {
+    if (!this.conn) return undefined;
+    const doc: any = await this.conn.collection('system_configs').findOne({ key: 'refund_policy' }, { projection: { _id: 0, value: 1 } }).catch(() => null);
+    return doc?.value;
+  }
+
+  /** The window of a refund request: the admin policy's consultation table (screens-audit-3 gap 23). Without a connection (unit tests) the fixed windows. */
+  async policyForRequest(scheduledAt?: Date): Promise<{ percent: number; note_ar: string }> {
+    if (!this.conn) return this.policyFor(scheduledAt);
+    return consultationRefundWindow(scheduledAt, await this.storedRefundPolicy());
+  }
+
+  /** What `GET refunds/policy-preview` lists: the same table. */
+  async policyTable(): Promise<{ windows: Array<{ hours_before: number; percent: number; note_ar: string }>; no_show_percent?: number }> {
+    if (!this.conn) return { windows: REFUND_WINDOWS };
+    return consultationRefundWindows(await this.storedRefundPolicy());
   }
 
   async request(user: any, body: any) {
@@ -957,7 +1004,7 @@ export class RefundService {
     if (dup) return dup.toObject();
     // E1 S15: refund-abuse detection — frequent refunders are flagged for admin review
     await this.fraud.checkRefundAbuse(user.id).catch(() => false);
-    const policy = this.policyFor(body?.scheduled_at ? new Date(body.scheduled_at) : undefined);
+    const policy = await this.policyForRequest(body?.scheduled_at ? new Date(body.scheduled_at) : undefined);
     const doc = await this.refunds.create({
       patient_id: user.id, booking_id: body.booking_id, booking_kind: body.booking_kind,
       amount_paid: paid, refund_percent: policy.percent,
@@ -966,7 +1013,7 @@ export class RefundService {
       moyasar_payment_id: body?.payment_id,
       history: [{ state: 'REQUESTED', at: new Date(), by: user.id }],
     });
-    this.events.emit('refund.requested', { refund_id: doc.id });
+    await emitDurable(this.durable, this.events, 'refund.requested', { refund_id: doc.id }, `refund.requested:${doc.id}`);
     return doc.toObject();
   }
 
@@ -1047,9 +1094,10 @@ export class RefundController {
   constructor(private readonly svc: RefundService) {}
   @Post('request') request(@CurrentUser() u: any, @Body() b: RequestDto) { return this.svc.request(u, b); }
   @Get('my') my(@CurrentUser() u: any) { return this.svc.myRefunds(u); }
-  @Get('policy-preview') preview(@Query('scheduled_at') s?: string) {
-    const w = this.svc.policyFor(s ? new Date(s) : undefined);
-    return { refund_percent: w.percent, note_ar: w.note_ar, windows: REFUND_WINDOWS };
+  @Get('policy-preview') async preview(@Query('scheduled_at') s?: string) {
+    const w = await this.svc.policyForRequest(s ? new Date(s) : undefined);
+    const table = await this.svc.policyTable();
+    return { refund_percent: w.percent, note_ar: w.note_ar, windows: table.windows, ...(table.no_show_percent !== undefined ? { no_show_percent: table.no_show_percent } : {}) };
   }
 }
 
@@ -1109,6 +1157,7 @@ export class FinanceCoreController {
       { name: 'CommissionRule', schema: CommissionRuleSchema },
       { name: 'InsuranceCompany', schema: InsuranceCompanySchema },
       { name: 'PatientProfile', schema: PatientProfileSchema },
+      { name: 'ProviderProfile', schema: ProviderProfileSchema },
       { name: 'Transaction', schema: TransactionSchema },
       { name: 'Order', schema: OrderSchema },
       { name: 'LabBooking', schema: LabBookingSchema },
@@ -1118,7 +1167,7 @@ export class FinanceCoreController {
     ]),
   ],
   controllers: [
-    QuoteController, InsuranceFlowController, InsuranceAliasController,
+    InsuranceFlowController, InsuranceAliasController,
     RefundController, AdminFinanceCoreController, FinanceCoreController, AdminInsuranceController,
   ],
   providers: [InsuranceFlowService, FinanceCoreService, RefundService],

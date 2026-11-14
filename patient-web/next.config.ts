@@ -4,6 +4,7 @@ import createNextIntlPlugin from "next-intl/plugin";
 import { withSentryConfig } from "@sentry/nextjs";
 import { contentSecurityPolicy } from "./csp";
 import { localeOnlyRedirects } from "./lib/routing/locale-redirects";
+import { speedRedirects } from "./lib/routing/speed-redirects";
 import { IMAGE_HOSTS } from "./lib/image-hosts";
 import { queryTwinRewrites, unavailablePageRewrite } from "./lib/security/query-twin";
 
@@ -14,6 +15,8 @@ const nextConfig: NextConfig = {
     // The same hosts lib/image-hosts.ts lets the page render; any other host would make next/image throw.
     remotePatterns: IMAGE_HOSTS.map((hostname) => ({ protocol: "https" as const, hostname, pathname: "/**" })),
     formats: ["image/avif", "image/webp"],
+    // Optimized copies are kept 30 days (the sources are immutable: a new picture is a new file name), so the Node optimizer is hit once per size.
+    minimumCacheTTL: 60 * 60 * 24 * 30,
   },
   outputFileTracingIncludes: {
     "/*": ["./node_modules/@swc/helpers/**/*"],
@@ -31,7 +34,7 @@ const nextConfig: NextConfig = {
     cssChunking: "graph",
   },
 
-  allowedDevOrigins: ["127.0.0.1", "3000-ikwbywe2u081i4meqv02p-09e989e4.sg1.manus.computer"],
+  allowedDevOrigins: ["127.0.0.1"],
   async redirects() {
     return localeOnlyRedirects([
       { source: "/:locale/doctors", destination: "/:locale/consultations/doctors", permanent: false },
@@ -62,10 +65,10 @@ const nextConfig: NextConfig = {
       { source: "/:locale/health/chronic-medications", destination: "/:locale/health/medications?tab=chronic", permanent: false },
       { source: "/:locale/reminders", destination: "/:locale/health/medications?tab=all", permanent: false },
       { source: "/:locale/reminders/add", destination: "/:locale/health/medications?tab=all&add=1", permanent: false },
-      { source: "/:locale/health/conditions-allergies", destination: "/:locale/health/profile#conditions", permanent: false },
-      { source: "/:locale/health/chronic-diseases", destination: "/:locale/health/profile#chronic", permanent: false },
-      { source: "/:locale/health/emergency-contacts", destination: "/:locale/health/profile#emergency", permanent: false },
-      { source: "/:locale/family/emergency-contacts", destination: "/:locale/health/profile#emergency", permanent: false },
+      { source: "/:locale/health/conditions-allergies", destination: "/:locale/health/profile?tab=conditions", permanent: false },
+      { source: "/:locale/health/chronic-diseases", destination: "/:locale/health/profile?tab=conditions", permanent: false },
+      { source: "/:locale/health/emergency-contacts", destination: "/:locale/health/profile?tab=emergency", permanent: false },
+      { source: "/:locale/family/emergency-contacts", destination: "/:locale/health/profile?tab=emergency", permanent: false },
       { source: "/:locale/health/reports", destination: "/:locale/health/records?tab=reports", permanent: false },
       { source: "/:locale/reports", destination: "/:locale/health/records?tab=reports", permanent: false },
       { source: "/:locale/health/timeline", destination: "/:locale/health/records?tab=timeline", permanent: false },
@@ -79,6 +82,78 @@ const nextConfig: NextConfig = {
       { source: "/:locale/family/join", destination: "/:locale/family/add?tab=join", permanent: false },
       { source: "/:locale/family/scan", destination: "/:locale/family/add?tab=scan", permanent: false },
       { source: "/:locale/health/add-family-member", destination: "/:locale/family/add?tab=invite", permanent: false },
+      // F82 (speed inventory): old addresses that only redirect. As a page they answer 200 with the app shell and redirect afterwards
+      // (about 1.7 s slower on a phone); as a config redirect they are a plain 307 before any rendering. Query is forwarded.
+      { source: "/:locale/community", destination: "/:locale/articles", permanent: false },
+      { source: "/:locale/ai/chat-doctor", destination: "/:locale/appointments", permanent: false },
+      { source: "/:locale/ai/skin-analysis", destination: "/:locale/ai", permanent: false },
+      { source: "/:locale/ai/symptom-checker", destination: "/:locale/ai?mode=symptoms", permanent: false },
+      { source: "/:locale/ai/report", destination: "/:locale/ai?mode=report", permanent: false },
+      { source: "/:locale/ai/prescription-translator", destination: "/:locale/ai?mode=prescription", permanent: false },
+      { source: "/:locale/ai/symptom-timeline", destination: "/:locale/ai?mode=symptoms", permanent: false },
+      { source: "/:locale/ai/triage", destination: "/:locale/ai?mode=symptoms", permanent: false },
+      { source: "/:locale/home-care/services", destination: "/:locale/nursing/catalog", permanent: false },
+      ...speedRedirects,
+      { source: "/:locale/programs/active", destination: "/:locale/programs", permanent: false },
+      { source: "/:locale/mental-health/breathing", destination: "/:locale/mental-health", permanent: false },
+      { source: "/:locale/mental-health/self-assessment", destination: "/:locale/mental-health", permanent: false },
+      { source: "/:locale/mental-health/therapist-match", destination: "/:locale/consultations/doctors?specialty=psychiatry", permanent: false },
+      { source: "/:locale/mental-health/meditation", destination: "/:locale/mental-health", permanent: false },
+      { source: "/:locale/mental-health/crisis-contacts", destination: "/:locale/mental-health", permanent: false },
+      { source: "/:locale/mental-health/relax", destination: "/:locale/mental-health", permanent: false },
+      { source: "/:locale/prescriptions", destination: "/:locale/health/records?tab=prescriptions", permanent: false },
+      { source: "/:locale/maternity/ovulation", destination: "/:locale/maternity?tab=ovulation", permanent: false },
+      { source: "/:locale/maternity/tracker", destination: "/:locale/maternity?tab=pregnancy", permanent: false },
+      { source: "/:locale/maternity/baby-development", destination: "/:locale/maternity", permanent: false },
+      { source: "/:locale/maternity/baby-growth", destination: "/:locale/maternity?tab=baby", permanent: false },
+      { source: "/:locale/consultations", destination: "/:locale/consultations/doctors", permanent: false },
+      { source: "/:locale/consultations/chat", destination: "/:locale/appointments", permanent: false },
+      { source: "/:locale/consultations/appointments", destination: "/:locale/appointments", permanent: false },
+      { source: "/:locale/articles/bookmarks", destination: "/:locale/articles?tab=saved", permanent: false },
+      { source: "/:locale/profile/edit", destination: "/:locale/health/profile", permanent: false },
+      { source: "/:locale/profile/insurance", destination: "/:locale/insurance", permanent: false },
+      { source: "/:locale/emergency/sos-active", destination: "/:locale/emergency", permanent: false },
+      { source: "/:locale/emergency/sos", destination: "/:locale/emergency", permanent: false },
+      { source: "/:locale/emergency/tracking", destination: "/:locale/emergency", permanent: false },
+      { source: "/:locale/loyalty/referrals", destination: "/:locale/loyalty?tab=invite", permanent: false },
+      { source: "/:locale/loyalty/rewards", destination: "/:locale/loyalty?tab=rewards", permanent: false },
+      { source: "/:locale/loyalty/challenges", destination: "/:locale/loyalty?tab=challenges", permanent: false },
+      { source: "/:locale/loyalty/leaderboard", destination: "/:locale/loyalty", permanent: false },
+      { source: "/:locale/chat", destination: "/:locale/appointments", permanent: false },
+      { source: "/:locale/notifications/settings", destination: "/:locale/settings/notifications", permanent: false },
+      { source: "/:locale/settings/feedback", destination: "/:locale/settings/help?tab=feedback", permanent: false },
+      { source: "/:locale/settings/data", destination: "/:locale/settings/privacy?tab=data", permanent: false },
+      { source: "/:locale/health/health-id", destination: "/:locale/reports/passport", permanent: false },
+      { source: "/:locale/health/smart-reminders", destination: "/:locale/health/medications?tab=all", permanent: false },
+      { source: "/:locale/health/actionable-order", destination: "/:locale/health/records?tab=prescriptions", permanent: false },
+      { source: "/:locale/support", destination: "/:locale/settings/help", permanent: false },
+      { source: "/:locale/reports/ai-analysis", destination: "/:locale/ai?mode=report", permanent: false },
+      { source: "/:locale/pharmacy/request", destination: "/:locale/pharmacy/rx-order?via=type", permanent: false },
+      { source: "/:locale/pharmacy/manual-order", destination: "/:locale/pharmacy/rx-order?via=type", permanent: false },
+      { source: "/:locale/pharmacy/scan-prescription", destination: "/:locale/pharmacy/rx-order?via=photo", permanent: false },
+      { source: "/:locale/pharmacy/custom-item", destination: "/:locale/pharmacy/rx-order?via=type", permanent: false },
+      { source: "/:locale/pharmacy/interactions", destination: "/:locale/pharmacy/barcode", permanent: false },
+      { source: "/:locale/pharmacy/waiting-for-pharmacy", destination: "/:locale/pharmacy/broadcast-status", permanent: false },
+      { source: "/:locale/pharmacy/drug-not-found", destination: "/:locale/pharmacy/rx-order?via=type", permanent: false },
+      { source: "/:locale/diagnostics/technician-tracking", destination: "/:locale/diagnostics/sample-tracking", permanent: false },
+      { source: "/:locale/diagnostics/upload-rx", destination: "/:locale/diagnostics/search", permanent: false },
+      { source: "/:locale/diagnostics/book-sample", destination: "/:locale/diagnostics/cart", permanent: false },
+      { source: "/:locale/nutrition/ai-plan-builder", destination: "/:locale/nutrition", permanent: false },
+      { source: "/:locale/nutrition/exercise-plan", destination: "/:locale/nutrition?tab=today", permanent: false },
+      { source: "/:locale/nutrition/food-scanner", destination: "/:locale/nutrition/log-meal", permanent: false },
+      { source: "/:locale/nutrition/calorie-analyzer", destination: "/:locale/nutrition/log-meal", permanent: false },
+      { source: "/:locale/nutrition/body-composition", destination: "/:locale/nutrition?tab=target", permanent: false },
+      { source: "/:locale/nutrition/body-target", destination: "/:locale/nutrition?tab=target", permanent: false },
+      { source: "/:locale/nutrition/plan", destination: "/:locale/nutrition?tab=plan", permanent: false },
+      { source: "/:locale/nutrition/daily-tracker", destination: "/:locale/nutrition?tab=today", permanent: false },
+      { source: "/:locale/nutrition/water-tracker", destination: "/:locale/nutrition?tab=today", permanent: false },
+      { source: "/:locale/nutrition/ai-meal-planner", destination: "/:locale/nutrition?tab=today", permanent: false },
+      { source: "/:locale/insurance/policy-detail", destination: "/:locale/insurance?tab=policy", permanent: false },
+      { source: "/:locale/insurance/network-providers", destination: "/:locale/insurance?tab=network", permanent: false },
+      { source: "/:locale/insurance/benefits", destination: "/:locale/insurance?tab=benefits", permanent: false },
+      { source: "/:locale/insurance/refunds", destination: "/:locale/insurance", permanent: false },
+      { source: "/:locale/insurance/claims", destination: "/:locale/insurance", permanent: false },
+      { source: "/:locale/insurance/submit-claim", destination: "/:locale/insurance", permanent: false },
     ]);
   },
   // F82-3: internal rewrites (the address does not change). They run after the proxy has classified and stamped the request by
@@ -91,7 +166,7 @@ const nextConfig: NextConfig = {
     const everyResponse = [
       { key: "X-Content-Type-Options", value: "nosniff" },
       { key: "Cross-Origin-Resource-Policy", value: "same-site" },
-      ...(process.env.NODE_ENV === "production" ? [{ key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" }] : []),
+      ...(process.env.NODE_ENV === "production" ? [{ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" }] : []),
     ];
     // F82: these govern a document (framing, its CSP, its referrer, the features it may use, its browsing context group) and
     // do nothing on a hashed script, stylesheet or font, where they only added about 1 KB of headers to each of the 15-20
@@ -109,7 +184,9 @@ const nextConfig: NextConfig = {
     ];
     return [
       { source: "/:path*", headers: everyResponse },
-      { source: "/:path((?!_next/static/).*)", headers: documentOnly },
+      { source: "/:path((?!_next/static/|icons/).*)", headers: documentOnly },
+      // the icon sprite (public/icons/sprite-<hash>.svg, tools/design/sync-ui-components.mjs): the name carries the hash, so it is kept for good
+      { source: "/icons/:file*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
     ];
   }
 };

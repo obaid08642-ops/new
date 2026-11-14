@@ -79,7 +79,7 @@ export const TYPE_ICON: Record<string, { icon: FillIconName; tone: ServiceTone }
   'تمريض': SERVICE_ICONS.nursing,
   'مقال': { icon: 'file-text', tone: 'violet' },
 };
-const FALLBACK_ICON: { icon: FillIconName; tone: ServiceTone } = { icon: 'magnifying-glass', tone: 'ink' };
+const FALLBACK_ICON: { icon: FillIconName; tone: ServiceTone } = { icon: 'magnifying-glass', tone: 'blue' };
 export const iconFor = (type: string) => TYPE_ICON[type] ?? FALLBACK_ICON;
 
 /** One filter chip: the types it keeps. `all` keeps everything. Labels are Arabic source text. */

@@ -6,12 +6,13 @@ import { router, type Href } from 'expo-router';
 
 import { AppHeader, Card, EmptyState, ErrorState, Icon, OfflineState, Screen, StatusChip } from '../../../packages/ui-native/src';
 import ProductImage from '../../src/components/ProductImage';
-import { Glyph, PHARMACY_TONE, Pill, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
+import { Glyph, MedAddControl, PHARMACY_TONE, Pill, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
 import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
-import { medGallery, medName, medPrice, needsRx, type Med } from '../../src/utils/pharmacyCatalog';
+import { FieldText } from '../../src/components/LocalizedField';
+import { medGallery, medName, medNameField, medPrice, needsRx, type Med } from '../../src/utils/pharmacyCatalog';
 
 /**
  * Wishlist — the PharmacyHub template (canvas/PharmacyHub.dc.html: the media tile, name, price, the Rx note and the
@@ -31,7 +32,7 @@ function Row({ item, onRemove, onAdd, onOpen }: { item: Med; onRemove: (m: Med) 
             <ProductImage uri={medGallery(item)[0]} style={{ width: '100%', height: '100%' }} iconSize={34} />
           </View>
           <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
-            <Text numberOfLines={2} style={{ ...scale(t, 'small', 'medium'), lineHeight: 19, color: c.text.primary, ...flow }}>{medName(item)}</Text>
+            <FieldText numberOfLines={2} text={medName(item)} mark={medNameField(item).mark} style={{ ...scale(t, 'small', 'medium'), lineHeight: 19, color: c.text.primary, ...flow }} />
             {price ? (
               <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>
                 {money(price)} <Text style={{ ...scale(t, 'tag', 'regular') }}>{k('pharmacy.currency')}</Text>
@@ -52,16 +53,7 @@ function Row({ item, onRemove, onAdd, onOpen }: { item: Med; onRemove: (m: Med) 
           >
             <Glyph name="heart" size={20} color={c.icon.favorite} />
           </Pressable>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={k('pharmacy.addToCart')}
-            accessibilityState={{ disabled: unavailable }}
-            disabled={unavailable}
-            onPress={() => onAdd(item)}
-            style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 14, backgroundColor: c.action.selected.bg, alignItems: 'center', justifyContent: 'center', opacity: unavailable ? 0.4 : pressed ? 0.8 : 1 })}
-          >
-            <Icon name="plus" size={18} color={c.action.selected.fg} />
-          </Pressable>
+          <MedAddControl med={item} size={44} disabled={unavailable} addLabel={k('pharmacy.addToCart')} />
         </View>
       </View>
     </Card>

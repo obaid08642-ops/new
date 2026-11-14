@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import ur from "../messages/ur.json";
-import { formatPrice } from "./format-price";
+import { formatNumber, formatPrice } from "./format-price";
 
 describe("formatPrice in Urdu (owner 2026-10-10: the riyal is the symbol, never the code)", () => {
   it("writes the amount and the symbol, with no code", () => {
@@ -43,5 +43,18 @@ describe("the Urdu message file writes the riyal as the symbol everywhere", () =
 
   it("price strings put the amount before the symbol", () => {
     expect(values.filter((v) => /^\{(value|amount)\} ر\.س$/.test(v)).length).toBeGreaterThan(3);
+  });
+});
+
+describe("one numbering system per locale (no Latin digits beside Bengali ones)", () => {
+  const latin = /[0-9]/;
+  it("Bengali counts and prices are written in Bengali digits only", () => {
+    expect(latin.test(formatNumber("bn", 12))).toBe(false);
+    const price = formatPrice("bn", 20);
+    expect(latin.test(price.amount)).toBe(false);
+    expect(latin.test(price.text.replace(/SAR/g, ""))).toBe(false);
+  });
+  it("English stays Latin", () => {
+    expect(formatNumber("en", 12)).toBe("12");
   });
 });

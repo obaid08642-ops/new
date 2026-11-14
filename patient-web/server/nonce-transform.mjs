@@ -119,10 +119,16 @@ export function createThemeStamper(theme) {
 // (measured on a production build: the build's prerendered HTML and the served copy of the same page differ), so they are
 // computed here, from the exact bytes of the copy being sent, and travel in the same response the edge keeps.
 // Under 'strict-dynamic' a parser-inserted <script src> needs a nonce or a matching hash; an external file has no inline body
-// to hash (and hashes for external scripts are not supported in every browser), so the page's <script src> tags are replaced
-// by one inline, hashed loader that inserts the same scripts, with the same attributes and in the same order; scripts a
-// trusted script inserts are allowed by 'strict-dynamic'. The <link rel=preload as=script> hints are dropped (a hint without
-// a nonce is refused under 'strict-dynamic'); the loader requests the same files at once.
+// to hash (and hashes for external scripts are not supported in every browser), so each <script src> tag is replaced, in the
+// same place, by an inline loader that inserts the same script with the same attributes; scripts a trusted script inserts
+// are allowed by 'strict-dynamic'. Every loader has the same text (the script's attributes travel in a data attribute that a
+// hash does not cover), so the policy carries ONE hash for all of them. The <link rel=preload as=script> hints are dropped
+// (a hint without a nonce is refused under 'strict-dynamic').
+// Why in the same place and not one loader at the first script: Next 16.4's bootstrap reads `document.currentScript` when the
+// inline `TURBOPACK.push(...)` runs after the runtime chunk is already loaded, and needs it to be a script with a src. One
+// early loader started the runtime chunk before the parser reached that inline script, so a fresh load of a public page
+// threw `Invalid URL` and the page never became interactive. With each script where Next put it, the order Next expects
+// (inline push first, runtime chunk after it is fetched) is the one the browser sees.
 
 const NONCE_ATTR = /\snonce\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi;
 const NONCE_BEARING_TAG = /<(script|style|link)(?=[\s>/])[^>]*>/gi;
@@ -150,24 +156,28 @@ export function tagAttributes(attrs) {
   return out;
 }
 
-/** The inline loader that stands in for the page's <script src> tags (see above). JSON is escaped so it can never close the tag. */
-export function scriptLoader(scripts) {
-  const list = JSON.stringify(scripts).replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
-  return `(function(){var d=document,c=d.currentScript,l=${list};for(var i=0;i<l.length;i++){var e=d.createElement("script"),a=l[i];for(var k in a)e.setAttribute(k,a[k]);if(!("async" in a))e.async=false;c.parentNode.insertBefore(e,c)}})()`;
+/** The one text every loader has: it rebuilds its own script from the attributes in its data attribute and inserts it here. */
+export const LOADER_BODY = '(function(){var c=document.currentScript,a=JSON.parse(c.getAttribute("data-nabd-script")),e=document.createElement("script");for(var k in a)e.setAttribute(k,a[k]);if(!("async" in a))e.async=false;c.parentNode.insertBefore(e,c)})()';
+
+const attributeValue = (text) => String(text).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+/** The inline loader that stands in for one <script src> tag (see above). The attributes can never close the tag: they are escaped. */
+export function scriptLoader(attributes) {
+  const json = JSON.stringify(attributes).replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
+  return `<script data-nabd-script="${attributeValue(json)}">${LOADER_BODY}</script>`;
 }
 
 /**
  * The copy of a page a shared cache may keep: no nonce anywhere (attributes and the placeholder Next wrote in its payload are
- * removed), the external scripts behind one hashed loader, and the hash of every inline <script> and <style> that is left.
+ * removed), each external script behind a loader in its own place (one hash for all of them), and the hash of every inline
+ * <script> and <style> that is left.
  */
 export function hashedPage(html) {
   let page = String(html)
     .replace(NONCE_BEARING_TAG, (tag) => tag.replace(NONCE_ATTR, ""))
     .split(CSP_NONCE_PLACEHOLDER).join("")
     .replace(SCRIPT_HINT, "");
-  const external = [];
-  let first = true;
-  // Removing a block could join the text around it into a new tag, so the removal repeats until nothing changes; every
+  // Removing a block could join the text around it into a new tag, so the replacement repeats until nothing changes; every
   // script left after it is either hashed below or makes the function throw.
   let before;
   do {
@@ -175,13 +185,9 @@ export function hashedPage(html) {
     page = page.replace(SCRIPT_BLOCK, (block, attrs, body) => {
       const attributes = tagAttributes(attrs);
       if (!("src" in attributes) || body.trim() !== "") return block;
-      external.push(attributes);
-      if (!first) return "";
-      first = false;
-      return "\u0000NABD_LOADER\u0000";
+      return scriptLoader(attributes);
     });
   } while (page !== before);
-  if (external.length) page = page.replace("\u0000NABD_LOADER\u0000", `<script>${scriptLoader(external)}</script>`);
   const scriptHashes = [];
   for (const m of page.matchAll(SCRIPT_BLOCK)) {
     if ("src" in tagAttributes(m[1])) throw new Error("hashedPage: an external script was left behind");

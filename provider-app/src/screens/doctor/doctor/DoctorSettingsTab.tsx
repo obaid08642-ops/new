@@ -47,7 +47,7 @@ import { PatientFileScreen } from './PatientFileScreen';
 
 export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => void, onNavigate: (s: string) => void }) {
   const { theme, mode, toggle: toggleTheme } = useTheme();
-  const { lang, toggle: toggleLang } = useLang();
+  const { lang, t, toggle: toggleLang } = useLang();
   const { show } = useToast();
   const { user } = useAuth();
   const AR = lang === 'ar';
@@ -102,11 +102,18 @@ export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => vo
         price_home: homePrice !== '' ? Number(homePrice) : null,
         active_clinic: clinicActive, active_online: onlineActive, active_home: homeActive,
       };
+      // a price is a positive number; an active service needs one
+      const prices: Array<[boolean, number | null]> = [[clinicActive, pricing.price_clinic], [onlineActive, pricing.price_online], [homeActive, pricing.price_home]];
+      if (prices.some(([active, p]) => (p !== null && (!Number.isFinite(p) || p < 0)) || (active && (p === null || p <= 0)))) {
+        show(AR ? 'أدخل سعراً صحيحاً (أكبر من صفر) لكل خدمة مفعّلة' : 'Enter a valid price (above zero) for every active service', 'error');
+        return;
+      }
       await client.post('/provider/settings/delta', { newData: pricing });
-      await client.put('/provider/settings/pricing', { pricing }).catch(() => {});
+      await client.put('/provider/settings/pricing', { pricing });   // a failure here is shown, not swallowed
       show(AR ? 'بانتظار موافقة الإدارة على التعديلات' : 'Pending Admin Approval for Settings Delta', 'info');
-    } catch (err) {
-      show(AR ? 'فشل إرسال التعديل' : 'Failed to push delta', 'error');
+    } catch (err: any) {
+      const m = err?.response?.data?.message;
+      show((Array.isArray(m) ? m[0] : m) || (AR ? 'فشل إرسال التعديل' : 'Failed to push delta'), 'error');
     }
   };
 
@@ -227,9 +234,14 @@ export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => vo
         <NSecHeader title={AR ? 'الملف الشخصي والإعدادات' : 'Profile & Config'} />
         <NSettingsRow icon="user" label={AR ? 'تعديل الملف الشخصي' : 'Edit Profile'} onPress={() => onNavigate('profile_edit')} />
         <NSettingsRow icon="mapPin" label={AR ? 'الموقع ونطاق التغطية' : 'Location & Coverage'} onPress={() => onNavigate('location_config')} />
+        <NSettingsRow icon="calendar" label={AR ? 'إجازاتي وإغلاقاتي' : 'Leaves & Closings'} onPress={() => onNavigate('doctor_leaves')} />
+        <NSettingsRow icon="document" label={AR ? 'قوالب الوصفات' : 'Prescription Templates'} onPress={() => onNavigate('rx_templates')} />
+        <NSettingsRow icon="document" label={AR ? 'التشخيصات المحفوظة' : 'Saved Diagnoses'} onPress={() => onNavigate('saved_diagnoses')} />
+        <NSettingsRow icon="shield" label={AR ? 'قائمة الحظر' : 'Patient Blacklist'} onPress={() => onNavigate('doctor_blacklist')} />
         <NSettingsRow icon="calendar" label={AR ? 'مواعيد العمل (Scheduler)' : 'Availability Engine'} onPress={() => onNavigate('availability_engine')} />
         <NSettingsRow icon="shield" label={AR ? 'شركات التأمين' : 'Insurance Config'} onPress={() => onNavigate('insurance_config')} />
        <NSettingsRow icon="shield" label={AR ? 'طلبات التأمين الواردة' : 'Insurance Requests'} onPress={() => onNavigate('insurance_requests')} />
+        <NSettingsRow icon="shield" label={t('disputes.title')} onPress={() => onNavigate('provider_disputes')} />
         <GlobalSystemSettings />
         
         <NBtn label={AR ? 'تسجيل الخروج' : 'Logout'} onPress={onLogout} variant="outline" style={{ borderColor: theme.danger, marginTop: SP.lg }} labelStyle={{ color: theme.danger }} />

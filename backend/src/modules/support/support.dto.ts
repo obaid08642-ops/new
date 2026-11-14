@@ -20,6 +20,16 @@ export class CreateDto {
   @IsOptional()
   @IsArray()
   attachments?: unknown[];
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  booking_kind?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  booking_id?: string;
 }
 
 export class CreateTicketDto {
@@ -46,6 +56,16 @@ export class CreateTicketDto {
   @IsOptional()
   @IsArray()
   attachments?: unknown[];
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  booking_kind?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  booking_id?: string;
 }
 
 export class ReplyDto {

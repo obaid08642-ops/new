@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { AppointmentStatus } from '../../../types/contracts';
 import {
- View, Text, TouchableOpacity, ScrollView, StyleSheet,
+ View, Text, TouchableOpacity, ScrollView, type ScrollViewInstance, StyleSheet,
  Animated, FlatList, Alert, Dimensions, Switch, TextInput,
  KeyboardAvoidingView, Platform, Linking, ActivityIndicator, Image
 } from 'react-native';
@@ -28,6 +28,11 @@ import { SK, Vault } from '../../../security/Security';
 import { tokens, withAlpha } from '../../../theme/tokens';
 import { st } from './MedicalDrugIndexScreen';
 import { mapThreads, mapMessages } from '../../../utils/chatMap';
+import { useUploadsEnabled } from '../../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../../../components/UploadsUnavailable';
+import { announceScan } from '../../../components/ScanStatusBadge';
+import { scanStateOfRequestError, scanOfStored } from '../../../utils/scanRegistry';
+import { scanStateOfUpload } from '../../../utils/scanStatus';
 
 export function ChatSystem({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
@@ -114,13 +119,14 @@ export function ChatSystem({ onBack }: { onBack: () => void }) {
 }
 
 function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
+  const uploadsOn = useUploadsEnabled();
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [msg, setMsg] = useState('');
   const [messages, setMessages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAttach, setShowAttach] = useState(false);
   const [callType, setCallType] = useState<'audio'|'video'|null>(null);
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<ScrollViewInstance>(null);
 
   const { user } = useAuth();
   const me = String((user as { id?: string } | null)?.id || '');
@@ -171,6 +177,21 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
     }
   };
 
+  /** Opens an attachment (image, file or voice note) through the short-lived link the server gives for its media id. */
+  const openMedia = async (mediaId: string) => {
+    try {
+      const res = await client.get(`/media/${encodeURIComponent(mediaId)}/url`);
+      const url = res?.data?.url;
+      if (typeof url !== 'string' || !url) throw new Error('no_url');
+      await Linking.openURL(url);
+    } catch (e) {
+      // a file still being scanned (423) or one the scan refused is a state of the attachment, not an error
+      const state = scanStateOfRequestError(e);
+      if (state) { announceScan(show, lang, state); return; }
+      show(AR ? 'تعذر فتح المرفق' : 'Could not open the attachment', 'error');
+    }
+  };
+
   const attachFile = async (kind: string) => {
     setShowAttach(false);
     try {
@@ -202,7 +223,10 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
         client_message_id: `prov-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       });
       await loadMessages(true);
+      // UPLOAD_SCAN=defer: the file is sent; the other side opens it once it has passed its scan
+      announceScan(show, lang, scanStateOfUpload(up?.data));
     } catch (e) {
+      if (scanStateOfRequestError(e) === 'rejected') { announceScan(show, lang, 'rejected'); return; }
       show(sendErrorText(e), 'error');
     }
   };
@@ -231,11 +255,15 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
  const isMe = m.sender === 'me';
  return (
  <View key={m.id} style={{ alignItems: isMe ? 'flex-end' : 'flex-start', marginBottom: SP.md }}>
- {m.type === 'image' ? (
- <View style={[st.imgBubble, { backgroundColor: theme.surface2, borderColor: theme.border }]}>
- <I name="camera" size={30} color={theme.textSub} />
- <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: SP.xs }}>{AR ? 'صورة مرفقة' : 'Attached image'}</Text>
- </View>
+ {m.mediaId && (m.type === 'image' || m.type === 'file' || m.type === 'voice') ? (
+ <TouchableOpacity onPress={() => { void openMedia(m.mediaId as string); }} accessibilityRole="button"
+ accessibilityLabel={m.type === 'image' ? (AR ? 'فتح الصورة' : 'Open the image') : m.type === 'voice' ? (AR ? 'تشغيل الرسالة الصوتية' : 'Play the voice message') : (AR ? 'فتح الملف' : 'Open the file')}
+ style={[st.imgBubble, { backgroundColor: theme.surface2, borderColor: theme.border }]}>
+ <I name={m.type === 'image' ? 'camera' : m.type === 'voice' ? 'mic' : 'document'} size={30} color={theme.textSub} />
+ <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: SP.xs }} numberOfLines={1}>
+ {m.type === 'image' ? (AR ? 'صورة مرفقة، اضغط للفتح' : 'Attached image, tap to open') : m.text}
+ </Text>
+ </TouchableOpacity>
  ) : (
  <View style={[st.msgBubble, {
  backgroundColor: isMe ? theme.primary : theme.surface2,
@@ -255,9 +283,11 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
 
  {/* Input bar */}
  <View style={[st.inputBar, { backgroundColor: theme.surface, borderTopColor: theme.border }]}>
- <TouchableOpacity onPress={() => setShowAttach(true)} style={{ padding: SP.sm }}>
+ {uploadsOn ? (
+<TouchableOpacity onPress={() => setShowAttach(true)} style={{ padding: SP.sm }}>
  <I name="plus" size={22} color={theme.primary} />
  </TouchableOpacity>
+) : null}
  <TextInput
  style={[st.chatInput, { backgroundColor: theme.surface2, color: theme.text, textAlign: AR ? 'right' : 'left' }]}
  placeholder={AR ? 'اكتب رسالة...' : 'Type a message...'}

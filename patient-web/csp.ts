@@ -36,6 +36,8 @@ export function contentSecurityPolicy(nonce?: string): string {
   const connectSrc = [
     "'self'",
     ...(API_ORIGIN ? [API_ORIGIN] : []),
+    // the address map (MapLibre GL) loads its style and vector tiles from OpenFreeMap, which needs no key
+    "https://tiles.openfreemap.org",
     // ws:// for the realtime gateway
     ...(API_ORIGIN ? [API_ORIGIN.replace(/^http/, "ws")] : []),
     ...(isDev ? ["ws:", "http:", "https:"] : []),
@@ -73,7 +75,7 @@ const securityHeaders = (nonce?: string) => [
   { key: "Cross-Origin-Resource-Policy", value: "same-site" },
   { key: "X-DNS-Prefetch-Control", value: "off" },
   { key: "Content-Security-Policy", value: contentSecurityPolicy(nonce) },
-  ...(process.env.NODE_ENV === "production" ? [{ key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" }] : []),
+  ...(process.env.NODE_ENV === "production" ? [{ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" }] : []),
 ];
 
 const nextConfig: NextConfig = {

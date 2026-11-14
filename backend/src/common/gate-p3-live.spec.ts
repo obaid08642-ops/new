@@ -44,9 +44,9 @@ import { MoyasarService } from '../modules/moyasar/moyasar.module';
 import { ProviderProfileController, ProviderScoreController } from '../modules/provider/provider.controllers';
 
 describe('Gate P3 live: empty bodies do not create records', () => {
-  const users: any = { getPatientProfile: async () => ({ addresses: [], insurance: {} }), updatePatientProfile: async () => ({}) };
+  const users: any = { getPatientProfile: async () => ({ addresses: [], insurance: {} }), updatePatientProfile: async () => ({}), setPatientInsurance: async () => ({}), findInsuranceCompany: async () => null };
   it('address needs a street/line1 or coordinates', async () => {
-    const c = new UsersAddressesController(users);
+    const c = new UsersAddressesController(users, {} as any);
     await expect(c.addAddress('p1', {} as any)).rejects.toBeInstanceOf(BadRequestException);
     await expect(c.addAddress('p1', { label: 'المنزل' } as any)).rejects.toBeInstanceOf(BadRequestException);
     await expect(c.addAddress('p1', { line1: 'شارع العليا' } as any)).resolves.toBeDefined();
@@ -55,7 +55,9 @@ describe('Gate P3 live: empty bodies do not create records', () => {
   it('insurance needs a company or policy/member number', async () => {
     const c = new UsersInsuranceController(users);
     await expect(c.updateInsurance('p1', {} as any)).rejects.toBeInstanceOf(BadRequestException);
-    await expect(c.updateInsurance('p1', { provider: 'bupa', policy_number: 'P-1' } as any)).resolves.toBeDefined();
+    // D-30: a company needs its class too.
+    await expect(c.updateInsurance('p1', { provider: 'bupa', policy_number: 'P-1' } as any)).rejects.toThrow('insurance_class_required');
+    await expect(c.updateInsurance('p1', { provider: 'bupa', class: 'A', policy_number: 'P-1' } as any)).resolves.toBeDefined();
   });
   it('a new legal policy needs Arabic content and a slug key', async () => {
     const col: any = { findOne: async () => null, insertOne: async () => ({}), updateOne: async () => ({}) };
@@ -141,7 +143,7 @@ describe('Gate P3 live: the accepted fields are stored, not dropped', () => {
     expect(a).toMatchObject({ line1: 'L1', district: 'D', region: 'R', notes: 'N' });
     let stored: any[] = [];
     const users: any = { getPatientProfile: async () => ({ addresses: [] }), updatePatientProfile: async (_: string, d: any) => { stored = d.addresses; } };
-    await new UsersAddressesController(users).addAddress('u1', { line1: 'شارع العليا', city: 'الرياض' } as any);
+    await new UsersAddressesController(users, {} as any).addAddress('u1', { line1: 'شارع العليا', city: 'الرياض' } as any);
     expect(stored[0]).toMatchObject({ street: 'شارع العليا', line1: 'شارع العليا' });
   });
 
@@ -151,10 +153,10 @@ describe('Gate P3 live: the accepted fields are stored, not dropped', () => {
     const services: any = { findOne: () => ({ lean: async () => ({ id: 's1', name_ar: 'تمريض', price: 100 }) }) };
     const conn: any = { collection: () => ({ findOne: async (q: any) => (q.user_id.$eq === 'p1' ? { addresses: [{ id: 'a1', line1: 'شارع', city: 'الرياض', lat: 24.7, lng: 46.6 }] } : null) }) };
     const c = new (HomeCareCompatController as any)(bookings, services, {} as any, {} as any, undefined, conn);
-    await c.createBooking({ id: 'p1', role: 'patient' }, { service_id: 's1', scheduled_at: '2027-01-01T10:00:00Z', address_id: 'a1', notes: ' الدور 2 ' } as any);
+    await c.createBooking({ id: 'p1', role: 'patient' }, { service_id: 's1', scheduled_at: '2027-01-01T10:00:00Z', address_id: 'a1', notes: ' الدور 2 ', refund_policy_accepted: true } as any);
     expect(created.address).toMatchObject({ address: 'شارع', city: 'الرياض', lat: 24.7 });
     expect(created.notes).toBe('الدور 2');
-    await expect(c.createBooking({ id: 'p2', role: 'patient' }, { service_id: 's1', scheduled_at: '2027-01-01T10:00:00Z', address_id: 'a1' } as any)).rejects.toThrow('address_not_found');
+    await expect(c.createBooking({ id: 'p2', role: 'patient' }, { service_id: 's1', scheduled_at: '2027-01-01T10:00:00Z', address_id: 'a1', refund_policy_accepted: true } as any)).rejects.toThrow('address_not_found');
   });
 });
 

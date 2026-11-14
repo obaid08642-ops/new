@@ -12,6 +12,7 @@ import { PharmacyModule } from '../pharmacy/pharmacy.module';
 import { CareModule } from '../care/care.module';
 import { SlotLocksModule } from '../slot-locks/slot-locks.module';
 import { LabsModule } from '../labs/labs.module';
+import { RadiologyModule } from '../radiology/radiology.module';
 import { HomeCareModule } from '../home-care/home-care.module';
 import { UsersModule } from '../users/users.module';
 import { RedisModule } from '../redis/redis.module';
@@ -26,6 +27,7 @@ import { RedisModule } from '../redis/redis.module';
     CareModule,
     SlotLocksModule,
     LabsModule,
+    RadiologyModule,
     HomeCareModule,
     UsersModule,
     RedisModule,

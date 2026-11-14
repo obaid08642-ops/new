@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/nextjs";
+import { onRequestError as reportRequestError } from "./lib/observability/request-error";
 
 export async function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {
@@ -15,4 +15,4 @@ export async function register() {
 }
 
 // P20.4: errors thrown while rendering server components and route handlers reach Sentry with the request
-export const onRequestError = Sentry.captureRequestError;
+export const onRequestError = reportRequestError;

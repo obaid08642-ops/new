@@ -1,5 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { Linking } from 'react-native';
 import { ChatSystem } from '../ChatSystem';
 
 const mockGet = jest.fn();
@@ -61,5 +62,48 @@ describe('provider ChatSystem against the real chat service shapes', () => {
     mockGet.mockRejectedValue(new Error('network'));
     await render(<ChatSystem onBack={() => {}} />);
     expect(await screen.findByText('Could not load conversations')).toBeTruthy();
+  });
+});
+
+describe('opening attachments in the doctor chat', () => {
+  const WITH_MEDIA = { messages: [
+    { id: 'v1', thread_id: 'th-1', sender_id: 'pat-1', type: 'voice', body: '', media_ids: ['media-voice'], createdAt: '2026-10-16T09:07:00.000Z' },
+    { id: 'f1', thread_id: 'th-1', sender_id: 'pat-1', type: 'file', body: 'labs.pdf', media_ids: ['media-file'], createdAt: '2026-10-16T09:06:00.000Z' },
+    { id: 'i1', thread_id: 'th-1', sender_id: 'pat-1', type: 'image', body: 'rash.jpg', media_ids: ['media-img'], createdAt: '2026-10-16T09:05:00.000Z' },
+  ], has_more: false };
+  const openOne = async () => {
+    await render(<ChatSystem onBack={() => {}} />);
+    await fireEvent.press(await screen.findByText('Consultation #1234'));
+  };
+
+  it('a file, an image and a voice note each open through the media link', async () => {
+    const open = jest.spyOn(Linking, 'openURL').mockResolvedValue(true as never);
+    mockGet.mockImplementation(async (url: string) => {
+      if (url === '/chat/threads') return { data: THREADS };
+      if (url === '/chat/threads/th-1/messages') return { data: WITH_MEDIA };
+      if (url.startsWith('/media/')) return { data: { url: `https://cdn.test/${url.split('/')[2]}` } };
+      throw new Error(`unexpected GET ${url}`);
+    });
+    await openOne();
+    await fireEvent.press(await screen.findByLabelText('Open the file'));
+    await waitFor(() => expect(open).toHaveBeenCalledWith('https://cdn.test/media-file'));
+    await fireEvent.press(screen.getByLabelText('Open the image'));
+    await waitFor(() => expect(open).toHaveBeenCalledWith('https://cdn.test/media-img'));
+    await fireEvent.press(screen.getByLabelText('Play the voice message'));
+    await waitFor(() => expect(open).toHaveBeenCalledWith('https://cdn.test/media-voice'));
+    open.mockRestore();
+  });
+
+  it('a file still being scanned says so instead of failing', async () => {
+    mockGet.mockImplementation(async (url: string) => {
+      if (url === '/chat/threads') return { data: THREADS };
+      if (url === '/chat/threads/th-1/messages') return { data: WITH_MEDIA };
+      if (url.startsWith('/media/')) throw { response: { status: 423, data: { message: 'file_pending_scan' } } };
+      throw new Error(`unexpected GET ${url}`);
+    });
+    await openOne();
+    await fireEvent.press(await screen.findByLabelText('Open the file'));
+    await waitFor(() => expect(mockShow).toHaveBeenCalledWith(expect.any(String), 'info'));
+    expect(mockShow).not.toHaveBeenCalledWith(expect.anything(), 'error');
   });
 });

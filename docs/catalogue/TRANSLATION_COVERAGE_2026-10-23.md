@@ -1,0 +1,179 @@
+# Catalogue translation coverage — 2026-10-23
+
+Owner request: every user-visible field of medicines, labs, radiology, nursing, packages, specialties and insurance companies is present and translated in ar, en, ur, hi, bn and fil.
+
+- Tool: `node tools/catalog/translation-coverage.mjs [--md file] [--json] [--check]` (reads `backend/src/modules/catalogs/seed-data/*.json`; `--check` exits 1 on any gap and runs as a backend unit test, `catalog-translation-coverage.spec.ts`).
+- Brand names and fixed medical terms that a language keeps unchanged are listed by name in `tools/catalog/translation-allowlist.json` (16 lab/radiology terms, and all insurance company names). Nothing else may equal the English.
+- Fields checked: name (all), description and preparation (labs, packages, radiology; description for nursing and insurance), insurance plan names. Optional fields are checked only where the English or Arabic value exists.
+- Medicines: no seed file exists (`SEED_MEDICINES` is empty in `backend/src/modules/seed/seed.data.ts`), so seed coverage is not computable. The reviewed gap list (`data/catalogue-input-01/untranslated.csv`, decision G) is 100 bn, 80 hi and 60 ur product names still untranslated; the translation of those production rows is outside this change and stays open for the owner (see the end of this file).
+
+## What changed (seed data)
+
+- Six-language names, descriptions and preparation copied from the published `content/services-content.v1.json` into the seed files (flat `name_ur|hi|bn|tl`, `description_<l>`, `preparation_<l>`, the same fields the `2026-10-services-content` migration writes). 33 specialties (10 were missing from the seed list), 67 lab rows (14 packages), 34 radiology, 36 nursing.
+- 84 Filipino names that were identical to the English now have a real Filipino name (loanword exceptions are allow-listed); the same names were corrected in `services-content.v1.json` so the migration carries them.
+- Insurance companies: description in six languages, plan names (Gold, Silver, Bronze, Class A/B/C, Comprehensive, Basic) in ur/hi/bn/tl; company names stay in Latin script as brand names. The five TPAs no longer say "insurer" in their description.
+- Two display names fixed: radiology `HSG` is now `Hysterosalpingography (HSG)`; lab `CK-MB` Arabic name is `إنزيم القلب CK-MB`.
+- Seed bootstrap (`catalogs-seed.service.ts`) now copies the translated insurance columns on insert.
+
+## Production
+
+Nothing was run. `backend/scripts/migrations/2026-10-catalogue-translations-fill.ts` (dry-run default, `--apply` writes, refuses production without `CONFIRM_CATALOGUE_TRANSLATIONS=yes`, fills only empty fields) carries the insurance translations and the two name fixes. The lab/radiology/nursing/specialty text comes from the existing `2026-10-services-content.ts`, which must be run with `--force` after this change (same content version, corrected Filipino names).
+
+## Before (main, before this change)
+
+Total gaps: **2062** (all four non-Arabic/English locales were empty in the seed; specialties' English name was only the code).
+
+### labs (53 rows)
+
+| locale | rows ok | missing | empty | english_left | placeholder |
+|---|---|---|---|---|---|
+| ar | 52/53 | 0 | 0 | 1 | 0 |
+| en | 52/53 | 1 | 0 | 0 | 0 |
+| ur | 0/53 | 154 | 0 | 0 | 0 |
+| hi | 0/53 | 154 | 0 | 0 | 0 |
+| bn | 0/53 | 154 | 0 | 0 | 0 |
+| fil | 0/53 | 154 | 0 | 0 | 0 |
+
+### packages (14 rows)
+
+| locale | rows ok | missing | empty | english_left | placeholder |
+|---|---|---|---|---|---|
+| ar | 14/14 | 0 | 0 | 0 | 0 |
+| en | 14/14 | 0 | 0 | 0 | 0 |
+| ur | 0/14 | 42 | 0 | 0 | 0 |
+| hi | 0/14 | 42 | 0 | 0 | 0 |
+| bn | 0/14 | 42 | 0 | 0 | 0 |
+| fil | 0/14 | 42 | 0 | 0 | 0 |
+
+### radiology (34 rows)
+
+| locale | rows ok | missing | empty | english_left | placeholder |
+|---|---|---|---|---|---|
+| ar | 34/34 | 0 | 0 | 0 | 0 |
+| en | 33/34 | 0 | 0 | 0 | 1 |
+| ur | 0/34 | 98 | 0 | 0 | 0 |
+| hi | 0/34 | 98 | 0 | 0 | 0 |
+| bn | 0/34 | 98 | 0 | 0 | 0 |
+| fil | 0/34 | 98 | 0 | 0 | 0 |
+
+### nursing (36 rows)
+
+| locale | rows ok | missing | empty | english_left | placeholder |
+|---|---|---|---|---|---|
+| ar | 36/36 | 0 | 0 | 0 | 0 |
+| en | 36/36 | 0 | 0 | 0 | 0 |
+| ur | 0/36 | 72 | 0 | 0 | 0 |
+| hi | 0/36 | 72 | 0 | 0 | 0 |
+| bn | 0/36 | 72 | 0 | 0 | 0 |
+| fil | 0/36 | 72 | 0 | 0 | 0 |
+
+### specialties (23 rows)
+
+| locale | rows ok | missing | empty | english_left | placeholder |
+|---|---|---|---|---|---|
+| ar | 23/23 | 0 | 0 | 0 | 0 |
+| en | 0/23 | 0 | 0 | 0 | 23 |
+| ur | 0/23 | 23 | 0 | 0 | 0 |
+| hi | 0/23 | 23 | 0 | 0 | 0 |
+| bn | 0/23 | 23 | 0 | 0 | 0 |
+| fil | 0/23 | 23 | 0 | 0 | 0 |
+
+### insurance (30 rows)
+
+| locale | rows ok | missing | empty | english_left | placeholder |
+|---|---|---|---|---|---|
+| ar | 26/30 | 0 | 0 | 4 | 0 |
+| en | 30/30 | 0 | 0 | 0 | 0 |
+| ur | 0/30 | 119 | 0 | 0 | 0 |
+| hi | 0/30 | 119 | 0 | 0 | 0 |
+| bn | 0/30 | 119 | 0 | 0 | 0 |
+| fil | 0/30 | 119 | 0 | 0 | 0 |
+
+
+## After (this change, with the reviewed duplicates removed from the seed: 53 labs + 14 packages -> 53 + 12, nursing 36 -> 33)
+
+Generated by `node tools/catalog/translation-coverage.mjs` from `backend/src/modules/catalogs/seed-data`. Total gaps on seed data: **0**.
+
+Statuses: `missing` field absent, `empty` blank, `english_left` English text in a non-English locale (brand names and acronyms are listed in `tools/catalog/translation-allowlist.json`), `placeholder` machine/placeholder value. A row is "ok" when none of its checked fields has a gap in that locale.
+
+### labs (53 rows)
+
+| locale | rows ok | missing | empty | english_left | placeholder |
+|---|---|---|---|---|---|
+| ar | 53/53 | 0 | 0 | 0 | 0 |
+| en | 53/53 | 0 | 0 | 0 | 0 |
+| ur | 53/53 | 0 | 0 | 0 | 0 |
+| hi | 53/53 | 0 | 0 | 0 | 0 |
+| bn | 53/53 | 0 | 0 | 0 | 0 |
+| fil | 53/53 | 0 | 0 | 0 | 0 |
+
+### packages (12 rows)
+
+| locale | rows ok | missing | empty | english_left | placeholder |
+|---|---|---|---|---|---|
+| ar | 12/12 | 0 | 0 | 0 | 0 |
+| en | 12/12 | 0 | 0 | 0 | 0 |
+| ur | 12/12 | 0 | 0 | 0 | 0 |
+| hi | 12/12 | 0 | 0 | 0 | 0 |
+| bn | 12/12 | 0 | 0 | 0 | 0 |
+| fil | 12/12 | 0 | 0 | 0 | 0 |
+
+### radiology (34 rows)
+
+| locale | rows ok | missing | empty | english_left | placeholder |
+|---|---|---|---|---|---|
+| ar | 34/34 | 0 | 0 | 0 | 0 |
+| en | 34/34 | 0 | 0 | 0 | 0 |
+| ur | 34/34 | 0 | 0 | 0 | 0 |
+| hi | 34/34 | 0 | 0 | 0 | 0 |
+| bn | 34/34 | 0 | 0 | 0 | 0 |
+| fil | 34/34 | 0 | 0 | 0 | 0 |
+
+### nursing (33 rows)
+
+| locale | rows ok | missing | empty | english_left | placeholder |
+|---|---|---|---|---|---|
+| ar | 33/33 | 0 | 0 | 0 | 0 |
+| en | 33/33 | 0 | 0 | 0 | 0 |
+| ur | 33/33 | 0 | 0 | 0 | 0 |
+| hi | 33/33 | 0 | 0 | 0 | 0 |
+| bn | 33/33 | 0 | 0 | 0 | 0 |
+| fil | 33/33 | 0 | 0 | 0 | 0 |
+
+### specialties (33 rows)
+
+| locale | rows ok | missing | empty | english_left | placeholder |
+|---|---|---|---|---|---|
+| ar | 33/33 | 0 | 0 | 0 | 0 |
+| en | 33/33 | 0 | 0 | 0 | 0 |
+| ur | 33/33 | 0 | 0 | 0 | 0 |
+| hi | 33/33 | 0 | 0 | 0 | 0 |
+| bn | 33/33 | 0 | 0 | 0 | 0 |
+| fil | 33/33 | 0 | 0 | 0 | 0 |
+
+### insurance (30 rows)
+
+| locale | rows ok | missing | empty | english_left | placeholder |
+|---|---|---|---|---|---|
+| ar | 30/30 | 0 | 0 | 0 | 0 |
+| en | 30/30 | 0 | 0 | 0 | 0 |
+| ur | 30/30 | 0 | 0 | 0 | 0 |
+| hi | 30/30 | 0 | 0 | 0 | 0 |
+| bn | 30/30 | 0 | 0 | 0 | 0 |
+| fil | 30/30 | 0 | 0 | 0 | 0 |
+
+### medicines
+
+No medicines seed file exists (SEED_MEDICINES is empty); the catalogue is production data. Coverage cannot be computed on seed data; the reviewed gap list is data/catalogue-input-01/untranslated.csv.
+
+| field | rows still untranslated |
+|---|---|
+| bn.name | 100 |
+| bn.official_name | 100 |
+| hi.name | 80 |
+| hi.official_name | 80 |
+| ur.name | 60 |
+| ur.official_name | 60 |
+
+## Open
+- Medicines: ur/hi/bn product names in production (list above) are untranslated by owner decision G; no seed exists to fill them here.

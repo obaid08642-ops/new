@@ -34,7 +34,6 @@ vi.mock("@/components-next/core/core-shell", async () => {
 
 import EmergencyPage from "@/app/[locale]/emergency/page";
 import InsurancePage from "@/app/[locale]/insurance/page";
-import InsuranceNetworkRedirect from "@/app/[locale]/insurance/network-providers/page";
 import HomeCareProvidersPage from "@/app/[locale]/home-care/providers/page";
 import DiagnosticsSearchPage from "@/app/[locale]/diagnostics/search/page";
 import LabComparisonPage from "@/app/[locale]/diagnostics/lab-comparison/page";
@@ -98,7 +97,6 @@ describe("guest service pages, part 2 (issue 1550)", () => {
   });
 
   it("insurance network: the old URL opens the network tab, where a guest picks an insurer and sees its network", async () => {
-    await expect(InsuranceNetworkRedirect({ params, searchParams: query({ company: "co-1" }) })).rejects.toThrow("redirect:/en/insurance?tab=network&company=co-1");
     const page = await html(await InsurancePage({ params, searchParams: query({ tab: "network", company: "co-1" }) }));
     expect(page).toContain("Insure One");
     expect(page).toContain("Network Hospital");

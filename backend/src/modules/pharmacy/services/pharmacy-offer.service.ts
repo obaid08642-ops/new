@@ -1,3 +1,4 @@
+import { deliveryTerms } from '../pharmacy-delivery';
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
@@ -6,9 +7,11 @@ import * as crypto from 'crypto';
 import { PharmacyAllocationState, PharmacyOrderState } from '../schemas/pharmacy.schema';
 import { EventBusService } from '../../events/event-bus.service';
 import { BusinessRulesService } from '../../business-rules/business-rules.module';
+import { deliveryModeOf } from '../../../common/tax-registration';
 import { PharmacyNotificationService } from './pharmacy-notification.service';
 import { CATALOGUE_PROJECTION, cataloguePrice, catalogueSku } from './catalogue-lines';
 import { assertSubstituteInsidePrescription } from './rx-rules';
+import { syncLineReviews } from '../price-review';
 
 const OFFER_TTL_MS = 10 * 60_000;
 const ACTIVE_PHARMACY_STATUSES = ['approved', 'active'];
@@ -28,6 +31,7 @@ type ProviderOfferInput = {
   items: ProviderOfferItemInput[];
   /** Reserved for a server policy; client values are never accepted as authority. */
   delivery_option?: 'delivery' | 'pickup';
+  /** The pharmacy's own estimate in minutes (5-1440); the delivery option and fee stay server policy. */
   eta_minutes?: number;
   /** #507: the pharmacy's own preparation estimate in minutes (5-240), or none. */
   preparation_minutes?: number;
@@ -87,6 +91,8 @@ export class PharmacyOfferService {
     };
     const out = rows.map((o) => ({
       id: o.id, order_id: o.order_id, version: o.version, status: o.status, view_status: view(o),
+      // 22.5: the patient edited the order after this quote: it is a draft again and must be requoted
+      requote_required: o.requote_required === true,
       totals: o.totals, items_count: Array.isArray(o.items) ? o.items.length : 0,
       quote_expires_at: o.quote_expires_at, estimated_preparation_minutes: o.estimated_preparation_minutes ?? null,
       allocation_id: o.allocation_id ?? null, created_at: o.createdAt, updated_at: o.updatedAt,
@@ -284,27 +290,27 @@ export class PharmacyOfferService {
   }
 
   /**
-   * D-12: the admin review list holds one row per offer (kept current as the draft changes and on
-   * submit) and the admin gets one notice per offer with a line above the catalogue price.
-   * A draft with nothing to check clears its open row.
+   * The admin review list holds one row per offer for the lines that map to no catalogue item (`not_verified`), kept current as the draft
+   * changes and on submit. A line ABOVE the catalogue price (owner decision 2026-10-25, which supersedes OD-12: the pharmacist may price above
+   * it) is a `PriceReview` row of its own per line, with one admin notice per pharmacy + medicine per day: see `price-review.ts`.
    */
   private async reportPriceReview(offer: any, orderId: string) {
+    await syncLineReviews(this.connection, offer, orderId);
     const reviews = this.connection.collection('pharmacy_price_reviews');
-    const lines = (offer.items || []).filter((i: any) => i.above_catalogue_price === true || i.price_check === 'not_verified');
+    const lines = (offer.items || []).filter((i: any) => i.price_check === 'not_verified');
     if (!lines.length) {
       await reviews.deleteOne({ offer_id: offer.id, status: 'open' });
       return;
     }
     const now = new Date();
-    const res: any = await reviews.findOneAndUpdate(
+    await reviews.findOneAndUpdate(
       { offer_id: offer.id },
       {
         $set: {
           order_id: orderId, offer_version: offer.version, offer_status: offer.status, pharmacy_account_id: offer.pharmacy_account_id,
           lines: lines.map((i: any) => ({
             order_item_id: i.order_item_id, medicine_id: i.medicine_id || null, sku: i.sku ?? null, name_ar: i.name_ar ?? null, name_en: i.name_en ?? null,
-            reason: i.above_catalogue_price ? 'price_above_catalogue' : 'not_verified',
-            catalogue_price: i.catalogue_price ?? null, offered_price: i.unit_price ?? null,
+            reason: 'not_verified', catalogue_price: i.catalogue_price ?? null, offered_price: i.unit_price ?? null,
           })),
           status: 'open', updatedAt: now,
         },
@@ -312,18 +318,9 @@ export class PharmacyOfferService {
       },
       { upsert: true, returnDocument: 'after' },
     );
-    const reviewId = (res?.value ?? res)?.id;
-    if (lines.some((i: any) => i.above_catalogue_price === true)) {
-      await this.connection.collection('notifications').updateOne(
-        { role: 'admin', type: 'pharmacy_price_review', 'body.offer_id': offer.id },
-        { $setOnInsert: { id: uuidv4(), user_id: 'admin', role: 'admin', type: 'pharmacy_price_review', title_key: 'admin.pharmacy.price_above_catalogue',
-          body: { order_id: orderId, offer_id: offer.id, review_id: reviewId }, read: false, createdAt: now } },
-        { upsert: true },
-      );
-    }
   }
 
-  private async serverQuote(userId: string, order: any, inputs: ProviderOfferItemInput[], preparationMinutes?: number) {
+  private async serverQuote(userId: string, order: any, inputs: ProviderOfferItemInput[], preparationMinutes?: number, etaMinutes?: number) {
     if (!Array.isArray(inputs) || inputs.length === 0) throw new BadRequestException('offer_items_required');
     const byOrderItem = new Map(inputs.map((item) => [item.order_item_id, item]));
     if (byOrderItem.size !== order.items.length || order.items.some((item: any) => !byOrderItem.has(item.id))) {
@@ -334,20 +331,26 @@ export class PharmacyOfferService {
       items.push(await this.inventoryForOffer(userId, orderItem, byOrderItem.get(orderItem.id)!));
     }
     const subtotal = items.reduce((sum, item) => sum + (item.action === 'unavailable' ? 0 : item.unit_price * item.qty_offered), 0);
-    // R6-4: delivery fee comes from the saved platform pricing (admin config-portal).
-    let deliveryFee = 0;
-    let feeSource = 'no_active_server_delivery_policy';
+    // R6-4: the platform delivery fee comes from the saved platform pricing (admin config-portal). A pharmacy with its own couriers
+    // (owner decision 2026-11-02) charges its own fee instead, and the offer says which mode delivers.
+    let platformFee = 0;
     try {
       const fees = await this.pricing?.platformFees();
-      if (fees && Number.isFinite(fees.delivery_fee) && fees.delivery_fee > 0) {
-        deliveryFee = Math.round(fees.delivery_fee * 100) / 100;
-        feeSource = 'platform_pricing_config';
-      }
+      if (fees && Number.isFinite(fees.delivery_fee) && fees.delivery_fee > 0) platformFee = fees.delivery_fee;
     } catch { /* quote never fails on pricing config */ }
+    const roundedSubtotal = Math.round(subtotal * 100) / 100;
+    const profile: any = await this.connection.collection('provider_profiles').findOne({ account_id: { $eq: userId } }, { projection: { _id: 0, own_delivery: 1 } });
+    const terms = deliveryTerms(profile, roundedSubtotal, order?.fulfillment === 'pickup' || order?.delivery?.method === 'pickup', platformFee);
+    const deliveryFee = terms.fee;
+    const feeSource = terms.source;
     // #507: the preparation time is the pharmacy's own estimate when it gives one; without it there is none (the
     // patient sees no time and "fastest" sorts it last), never a number computed from the line count.
     const prep = Number(preparationMinutes);
     const estimatedPreparationMinutes = Number.isInteger(prep) && prep >= 5 && prep <= 240 ? prep : null;
+    // The ETA is the pharmacy's own figure (5-1440 minutes) or none; the patient sees nothing invented.
+    const eta = Number(etaMinutes);
+    const etaValue = etaMinutes != null && Number.isInteger(eta) && eta >= 5 && eta <= 1440 ? eta : null;
+    if (etaMinutes != null && etaValue === null) throw new BadRequestException('eta_minutes_out_of_range');
     return {
       items,
       totals: { subtotal: Math.round(subtotal * 100) / 100, delivery_fee: deliveryFee, total: Math.round((subtotal + deliveryFee) * 100) / 100, currency: 'SAR' },
@@ -355,26 +358,28 @@ export class PharmacyOfferService {
       fulfillment: {
         policy_status: 'unavailable_read_only',
         delivery_option: null,
-        eta_minutes: null,
+        eta_minutes: etaValue,
         delivery_fee_source: feeSource,
+        delivery_mode: terms.mode,
+        delivery_fee: deliveryFee,
       },
     };
   }
 
   async previewQuote(user: any, orderId: string, body: ProviderOfferInput) {
     const { order } = await this.loadBroadcastForPharmacy(user, orderId);
-    const quote = await this.serverQuote(user.id, order, body?.items || [], body?.preparation_minutes);
+    const quote = await this.serverQuote(user.id, order, body?.items || [], body?.preparation_minutes, body?.eta_minutes);
     return {
       ...quote,
       quote_ttl_seconds: Math.floor(OFFER_TTL_MS / 1000),
       quote_generated_at: new Date(),
-      delivery_client_fields_ignored: Boolean(body?.delivery_option || body?.eta_minutes),
+      delivery_client_fields_ignored: Boolean(body?.delivery_option),
     };
   }
 
   async upsertDraft(user: any, orderId: string, body: ProviderOfferInput) {
     const { broadcast, order } = await this.loadBroadcastForPharmacy(user, orderId);
-    const quote = await this.serverQuote(user.id, order, body?.items || [], body?.preparation_minutes);
+    const quote = await this.serverQuote(user.id, order, body?.items || [], body?.preparation_minutes, body?.eta_minutes);
     const now = new Date();
     const prior: any = await this.offers.findOne({ order_id: orderId, pharmacy_account_id: user.id, status: { $in: ['draft', 'submitted'] } }).lean();
     if (prior?.status === 'submitted') throw new BadRequestException('submitted_offer_cannot_be_edited_create_new_version');
@@ -384,6 +389,7 @@ export class PharmacyOfferService {
       patient_account_id: order.patient_account_id,
       pharmacy_account_id: user.id,
       status: 'draft',
+      requote_required: false,
       version: Number(prior?.version || 0) + 1,
       items: quote.items,
       totals: quote.totals,
@@ -488,7 +494,7 @@ export class PharmacyOfferService {
     const pharmacyNameAr = profile?.display_name_ar || profile?.name_ar || registeredName;
     const pharmacyNameEn = profile?.display_name_en || profile?.name_en || registeredName;
     // Q-4: no constants. Insurance readiness from the profile (flag, or its accepted insurers); no cash on delivery
-    // (owner decision 25); no delivery-time source exists, so the ETA is null and the clients hide it.
+    // (owner decision 25); the ETA is the pharmacy's own figure (null when it gave none, and the clients hide it).
     const profileInsuranceReady: boolean | null = typeof profile?.insurance_ready === 'boolean' ? profile.insurance_ready
       : Array.isArray(profile?.accepted_insurance) ? profile.accepted_insurance.length > 0 : null;
     const state = this.offerState(offer, order);
@@ -538,7 +544,11 @@ export class PharmacyOfferService {
         .update(JSON.stringify({ offer_id: offer.id, offer_version: offer.version, totals: offer.totals }))
         .digest('hex'),
       approx_distance_km: approx,
-      approx_delivery: { eta_minutes: null, label_ar: null, label_en: null },
+      // The pharmacy's own ETA when it gave one (null otherwise; clients hide it), next to the approximate distance above.
+      approx_delivery: { eta_minutes: offer.fulfillment?.eta_minutes ?? null, label_ar: null, label_en: null },
+      // The pharmacy's average rating when it has ratings (same fields as the other provider cards); null means none yet.
+      pharmacy_rating: Number(profile?.rating_count) > 0 && typeof profile?.rating_avg === 'number' && Number.isFinite(profile.rating_avg) ? profile.rating_avg : null,
+      pharmacy_rating_count: Number(profile?.rating_count) > 0 ? Number(profile.rating_count) : 0,
       provider_note: typeof offer.provider_note === 'string' ? offer.provider_note : null,
     };
   }
@@ -612,7 +622,7 @@ export class PharmacyOfferService {
           offer_id: offer.id, offer_version: offer.version,
           status: PharmacyAllocationState.PENDING_REVIEW, stock_reserved: tracking,
           items: offer.items.map((item: any) => ({ id: uuidv4(), order_item_id: item.order_item_id, action: item.action, inventory_id: item.inventory_item_id, sku: item.sku, name: item.name_ar || item.name_en, qty_requested: item.qty_requested, qty_offered: item.qty_offered, unit_price: item.unit_price, updated_at: now })),
-          totals: offer.totals, estimated_preparation_minutes: offer.estimated_preparation_minutes,
+          totals: offer.totals, estimated_preparation_minutes: offer.estimated_preparation_minutes, fulfillment: offer.fulfillment,
           timeline: [{ ts: now, event: 'created_after_patient_offer_selection', by: user.id, meta: { offer_id: offer.id, offer_version: offer.version } }],
         }], { session });
         await this.offers.updateOne({ id: offer.id, status: 'submitted' }, { $set: { status: 'selected', selected_at: now, selected_by_patient_account_id: user.id, allocation_id: allocation[0].id } }, { session });
@@ -630,6 +640,8 @@ export class PharmacyOfferService {
             payment_method: paymentMethod,
             coverage_mode: coverage === 'insurance' ? 'insurance' : 'cash',
             totals: offer.totals,
+            delivery_mode: deliveryModeOf(offer.fulfillment),
+            delivery_fee_source: offer.fulfillment?.delivery_fee_source ?? null,
             pricing_snapshot: { offer_id: offer.id, offer_version: offer.version, totals: offer.totals, hash: quoteHash, captured_at: now },
           },
           $push: { timeline: { ts: now, event: 'patient_offer_selected', by: user.id, meta: { offer_id: offer.id, offer_version: offer.version, payment_method: paymentMethod } } },
@@ -655,6 +667,8 @@ export class PharmacyOfferService {
     const hasAboveCatalogue = (offer.items || []).some((item: any) => item.above_catalogue_price === true);
     return {
       id: offer.id, order_id: offer.order_id, status: offer.status, version: offer.version,
+      // 22.5: true while the patient's edit of the order is waiting for a new quote from this pharmacy
+      requote_required: offer.requote_required === true,
       items: offer.items, totals: offer.totals, quote_expires_at: offer.quote_expires_at,
       estimated_preparation_minutes: offer.estimated_preparation_minutes, fulfillment: offer.fulfillment || { policy_status: 'unavailable_read_only' }, pricing_source: offer.pricing_source,
       // D-12: a code the provider app translates (no sentence in one language).

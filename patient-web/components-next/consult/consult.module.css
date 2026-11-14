@@ -53,7 +53,7 @@
 .apptMeta bdi { unicode-bidi: isolate; }
 .apptActions { display: flex; flex-wrap: wrap; gap: 8px; }
 .apptActions > * { flex: 1 1 8rem; min-inline-size: 0; }
-.apptActions .apptInk, .apptActions .apptInk:hover { background: var(--nabd-color-action-selected-bg); color: var(--nabd-color-action-selected-fg); box-shadow: none; }
+.apptActions .apptInk, .apptActions .apptInk:hover { background: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg); box-shadow: none; }
 .list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--nabd-space-sm); }
 
 /* ---- a link row (chat threads, clinic doctors, specialties, call history): the HealthHub row on a white card ---- */
@@ -71,9 +71,21 @@ a.rowCard:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--
 
 /* ---- the search field and the segmented controls of the lists (canvas/Consult) ---- */
 .search { display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch; }
-.searchSelect { flex: 1 1 100%; order: 3; }
-.searchSelect select { flex: 1; min-inline-size: 0; min-block-size: 44px; border: 0; background: transparent; color: var(--nabd-color-text-primary); font: inherit; font-size: var(--nabd-font-size-body); outline: 0; }
 .search > :first-child { flex: 1; min-inline-size: 0; }
+/* the doctors search: a column of the one row and the specialty select */
+.doctorSearch { display: flex; flex-direction: column; gap: 8px; }
+/* the search field takes what is left; the Search action and the Filters button keep their own width, all one row (owner review 2026-10-27, G2) */
+.searchRow { display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch; }
+.searchRow > :first-child { flex: 1 1 0; min-inline-size: 0; }
+.searchRow button { font-family: inherit; flex: 0 0 auto; }
+/* at 390 the field keeps room: the Filters button gives up padding, never its label */
+.searchRow :global(.nabd-button) { padding-inline: 12px; font-size: var(--nabd-font-size-control); }
+/* the field itself gives up its chrome on a phone so the placeholder keeps room (it was 91 px wide at 390) */
+.searchRow .searchField { padding-inline: 0 10px; gap: 0; }
+.searchSubmit { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; inline-size: 44px; block-size: 44px; padding: 0; border: 0; background: transparent; border-radius: var(--nabd-radius-2xl); cursor: pointer; }
+.searchSubmit:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: -2px; }
+.searchRow .filtersButton { padding-inline: 12px; min-inline-size: 64px; justify-content: center; }
+.searchRow .filtersChip { flex: 1 1 100%; justify-content: flex-start; }
 .activeFilter { display: flex; flex-wrap: wrap; align-items: center; gap: var(--nabd-space-sm); }
 .activeFilterClear { display: inline-flex; align-items: center; min-block-size: 44px; font-size: var(--nabd-font-size-control); font-weight: 600; color: var(--nabd-color-text-link); }
 .searchField {
@@ -81,14 +93,14 @@ a.rowCard:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--
   background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-2xl);
 }
 .searchField:focus-within { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
-.searchInput { flex: 1; min-inline-size: 0; min-block-size: 44px; border: 0; background: transparent; color: var(--nabd-color-text-primary); font: inherit; font-size: var(--nabd-font-size-body); outline: 0; }
-.searchInput::placeholder { color: var(--nabd-color-text-tertiary); }
+.searchInput { flex: 1; min-inline-size: 0; min-block-size: 44px; border: 0; background: transparent; color: var(--nabd-color-text-primary); font: inherit; font-size: var(--nabd-font-size-body); outline: 0; text-overflow: ellipsis; }
+.searchInput::placeholder { color: var(--nabd-color-text-tertiary); text-overflow: ellipsis; }
 .segLinks { display: flex; padding: 4px; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-sunken); gap: 2px; }
 .segLinks > a {
   flex: 1 1 0; display: inline-flex; align-items: center; justify-content: center; min-block-size: 44px; padding-inline: 12px; text-align: center; box-sizing: border-box;
   border-radius: var(--nabd-radius-lg); color: var(--nabd-color-text-primary); text-decoration: none; font-size: var(--nabd-font-size-segment); font-weight: 500; overflow-wrap: anywhere;
 }
-.segLinks > a[aria-current="page"] { background: var(--nabd-color-bg-surface); font-weight: 700; box-shadow: var(--nabd-shadow-card); }
+.segLinks > a[aria-current="page"] { background: var(--nabd-color-service-coral-bg); color: var(--nabd-color-service-coral-fg); font-weight: 700; box-shadow: var(--nabd-shadow-card); }
 .segLinks > a:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
 
 /* ---- doctors: the quick filters (Nearest, Available now); the chosen one takes the ink action look ---- */
@@ -98,7 +110,7 @@ a.rowCard:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--
   border-radius: var(--nabd-radius-lg); border: 1px solid var(--nabd-color-border-strong); background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary);
   font: inherit; font-size: var(--nabd-font-size-segment); font-weight: 500; text-decoration: none; cursor: pointer; overflow-wrap: anywhere; text-align: center;
 }
-.quickChip[aria-pressed="true"], .quickChip[aria-current="true"] { background: var(--nabd-color-action-selected-bg); color: var(--nabd-color-action-selected-fg); border-color: var(--nabd-color-action-selected-bg); font-weight: 700; }
+.quickChip[aria-pressed="true"], .quickChip[aria-current="true"] { background: var(--nabd-color-service-coral-bg); color: var(--nabd-color-service-coral-fg); border-color: transparent; font-weight: 700; }
 .quickChip:disabled { opacity: 0.5; cursor: not-allowed; }
 .quickChip:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
 .quickNote { margin: 8px 0 0; font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
@@ -138,7 +150,7 @@ textarea.control { resize: vertical; line-height: 1.6; overflow-wrap: anywhere; 
   border-radius: var(--nabd-radius-xl); border: 1px solid var(--nabd-color-border-strong); background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary);
   font: inherit; font-size: var(--nabd-font-size-segment); font-weight: 600; text-decoration: none; text-align: center; overflow-wrap: anywhere;
 }
-.choice[aria-pressed="true"], .choice[aria-current="page"] { background: var(--nabd-color-action-selected-bg); color: var(--nabd-color-action-selected-fg); border-color: var(--nabd-color-action-selected-bg); }
+.choice[aria-pressed="true"], .choice[aria-current="page"] { background: var(--nabd-color-service-coral-bg); color: var(--nabd-color-service-coral-fg); border-color: transparent; }
 .choice:disabled { cursor: not-allowed; opacity: 0.55; }
 .choice:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
 .days { display: flex; gap: 8px; overflow-x: auto; padding-block-end: 4px; }
@@ -213,3 +225,101 @@ textarea.control { resize: vertical; line-height: 1.6; overflow-wrap: anywhere; 
 }
 .consentText:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
 .consentHeading { margin: 0; font-size: var(--nabd-font-size-control); font-weight: 700; line-height: 1.5; }
+
+/* ---- the guaranteed-appointment line and the licence line (owner 2026-10-24); tokens only ---- */
+.guarantee { margin: 0; padding-inline: var(--nabd-space-sm); font-size: var(--nabd-font-size-label); line-height: 1.6; color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.licenseLine { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.licenseLine bdi { unicode-bidi: isolate; }
+
+/* ---- the richer doctor card and page (2026-10-24): fact chips, written reviews, services, the clinic map ---- */
+.docFacts { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; min-inline-size: 0; }
+.docFact { display: inline-flex; align-items: center; min-block-size: 28px; padding-inline: 10px; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-sunken); color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-label); overflow-wrap: anywhere; }
+.reviewList { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; min-inline-size: 0; }
+.review { display: flex; flex-direction: column; gap: 4px; padding-block-end: 12px; border-block-end: 1px solid var(--nabd-color-border-subtle); min-inline-size: 0; }
+.review:last-child { padding-block-end: 0; border-block-end: 0; }
+.reviewHead { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.reviewWho { font-size: var(--nabd-font-size-row); font-weight: 600; overflow-wrap: anywhere; }
+.reviewDate { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); }
+.reviewSubs { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.priceRow { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-block-size: 44px; font-size: var(--nabd-font-size-control); }
+.priceRow > :first-child { min-inline-size: 0; overflow-wrap: anywhere; }
+.priceValue { font-weight: 700; white-space: nowrap; }
+.mapFrame { display: block; inline-size: 100%; aspect-ratio: 16 / 10; border: 0; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-sunken); }
+
+/* ---- voice notes (items 388 / 799): recorder and player, tokens only ---- */
+.voiceBox { display: flex; flex-direction: column; gap: 10px; min-inline-size: 0; padding: 12px; border: 1px solid var(--nabd-color-border-strong); border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-surface); }
+.voiceClock { margin: 0; font-size: var(--nabd-font-size-body); font-weight: 700; color: var(--nabd-color-text-primary); font-variant-numeric: tabular-nums; }
+.voiceActions { display: flex; flex-wrap: wrap; gap: 10px; }
+.voiceActions > * { flex: 1 1 140px; }
+.voiceAudio { inline-size: 100%; min-block-size: 44px; }
+.voicePlayer { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; min-inline-size: 0; }
+.voiceRange { flex: 1 1 120px; min-inline-size: 0; min-block-size: 44px; accent-color: var(--nabd-color-action-primary-bg); }
+.voiceRange:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.voiceTime { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); font-variant-numeric: tabular-nums; }
+
+/* ---- doctors: sticky search, the Filters button, the visit-type cards, the active chips, the filter sheet (owner layout decisions 13, 15, a, b) ---- */
+.searchSticky {
+  position: sticky; inset-block-start: var(--nabd-shell-top-h, 56px); z-index: var(--nabd-z-sticky, 10);
+  background: var(--nabd-color-bg-canvas); padding-block: 6px; margin-block: -6px;
+}
+.filtersButton {
+  display: inline-flex; align-items: center; gap: 8px; min-block-size: 52px; padding-inline: 16px; box-sizing: border-box; cursor: pointer;
+  border-radius: var(--nabd-radius-xl); border: 1px solid var(--nabd-color-border-strong); background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary);
+  font: inherit; font-size: var(--nabd-font-size-control); font-weight: 600;
+}
+.filtersButton:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.filtersChip {
+  display: inline-flex; align-items: center; min-block-size: 44px; padding-inline: 14px; box-sizing: border-box; cursor: pointer; white-space: nowrap;
+  border-radius: var(--nabd-radius-pill); border: 1px solid var(--nabd-color-service-coral-fg); background: var(--nabd-color-service-coral-bg); color: var(--nabd-color-service-coral-fg);
+  font: inherit; font-size: var(--nabd-font-size-label); font-weight: 600;
+}
+.filtersChip:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.filtersBadge {
+  display: inline-grid; place-items: center; min-inline-size: 22px; min-block-size: 22px; padding-inline: 6px; box-sizing: border-box; border-radius: var(--nabd-radius-pill);
+  background: var(--nabd-color-service-coral-bg); color: var(--nabd-color-service-coral-fg); font-size: var(--nabd-font-size-label); font-weight: 700;
+}
+.visitCards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--nabd-space-sm); }
+.visitCard {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px; box-sizing: border-box; min-inline-size: 0; text-align: center; text-decoration: none;
+  border-radius: var(--nabd-radius-2xl); border: 2px solid var(--nabd-color-border-hairline); background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary);
+}
+.visitCard[aria-current="page"] { border-color: var(--nabd-color-service-coral-fg); background: var(--nabd-color-service-coral-bg); }
+.visitCard:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.visitCardTitle { font-size: var(--nabd-font-size-control); font-weight: 700; line-height: 1.35; overflow-wrap: anywhere; }
+.visitCardSub { font-size: var(--nabd-font-size-label); line-height: 1.4; color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.visitCard[aria-current="page"] .visitCardSub { color: var(--nabd-color-text-primary); }
+.filterScrim { position: fixed; inset: 0; z-index: var(--nabd-z-modal); display: flex; align-items: flex-end; justify-content: center; background: color-mix(in srgb, var(--nabd-color-bg-inverse) 55%, transparent); }
+.filterPanel {
+  inline-size: 100%; max-block-size: 85dvh; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden;
+  background: var(--nabd-color-bg-elevated); color: var(--nabd-color-text-primary); box-shadow: var(--nabd-shadow-raised);
+  border-start-start-radius: var(--nabd-radius-3xl); border-start-end-radius: var(--nabd-radius-3xl);
+}
+.filterPanel:focus-visible { outline: none; }
+.filterHead { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: var(--nabd-space-lg) var(--nabd-space-lg) var(--nabd-space-sm); }
+.filterTitle { margin: 0; font-size: var(--nabd-font-size-h3); }
+.filterBody { flex: 1; overflow-y: auto; padding: 0 var(--nabd-space-lg); display: flex; flex-direction: column; gap: var(--nabd-space-md); }
+.filterGroup { border: 0; margin: 0; padding: 0; min-inline-size: 0; display: flex; flex-direction: column; gap: 8px; }
+.filterGroup legend { padding: 0; margin-block-end: 8px; font-size: var(--nabd-font-size-control); font-weight: 700; }
+.filterChoices { display: flex; flex-wrap: wrap; gap: 8px; }
+.filterChoice {
+  position: relative; display: inline-flex; align-items: center; justify-content: center; min-block-size: 44px; padding-inline: 14px; box-sizing: border-box; cursor: pointer; text-align: center;
+  border-radius: var(--nabd-radius-lg); border: 1px solid var(--nabd-color-border-strong); background: var(--nabd-color-bg-surface); font-size: var(--nabd-font-size-segment); overflow-wrap: anywhere;
+}
+.filterChoice:has(input:checked) { background: var(--nabd-color-service-coral-bg); color: var(--nabd-color-service-coral-fg); border-color: transparent; font-weight: 700; }
+.filterChoice:has(input:focus-visible) { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.filterChoice[data-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
+.filterFoot { display: flex; flex-direction: column; gap: 8px; padding: var(--nabd-space-md) var(--nabd-space-lg) var(--nabd-space-lg); border-block-start: 1px solid var(--nabd-color-border-hairline); }
+@media (min-width: 768px) {
+  .filterScrim { align-items: stretch; justify-content: flex-end; }
+  .filterPanel { inline-size: min(420px, 100vw); max-block-size: none; block-size: 100%; border-radius: 0; border-start-start-radius: var(--nabd-radius-3xl); border-end-start-radius: var(--nabd-radius-3xl); }
+}
+.chipsRow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.activeChip {
+  display: inline-flex; align-items: center; gap: 6px; min-block-size: 36px; padding-inline: 12px 8px; box-sizing: border-box; text-decoration: none;
+  border-radius: var(--nabd-radius-pill); background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline);
+  color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-label); font-weight: 600;
+}
+.activeChip:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.activeChipX { font-size: var(--nabd-font-size-body); line-height: 1; color: var(--nabd-color-text-secondary); }
+
+.line { margin: 0; font-size: var(--nabd-font-size-control); line-height: 1.7; min-inline-size: 0; overflow-wrap: anywhere; }

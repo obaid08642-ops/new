@@ -32,6 +32,10 @@ export S3_ACCESS_KEY_ID="${S3_ACCESS_KEY_ID:-live}" S3_SECRET_ACCESS_KEY="${S3_S
 export SES_SMTP_HOST=127.0.0.1 SES_SMTP_PORT=2525 SES_SMTP_USER=live SES_SMTP_PASS=live SES_FROM=no-reply@nabd.test
 # SES is only in the chain when it is ordered (owner spec 2026-10-16); the live stack orders it so mail reaches smtp_sink.
 # j_mail_rotation starts its own backends with Resend/Brevo/Mailjet pointed at tools/live/fake_mail.py.
+# 19.7: Saudi Post National Address lookups go to tools/live/fake_spl.py (RRRD2929 and JEDA1234 exist).
+# (the template is kept in a variable: a literal {code} inside ${VAR:-...} ends the expansion at the first "}" in bash)
+SPL_DEFAULT_URL='http://127.0.0.1:9102/address?shortaddress={code}&api_key={key}'
+export SPL_API_URL="${SPL_API_URL:-$SPL_DEFAULT_URL}" SPL_API_KEY="${SPL_API_KEY:-live}"
 # 16.5: every upload is scanned; tools/live/fake_clamd.py stands in for ClamAV (it flags the EICAR test string).
 export CLAMD_HOST="${CLAMD_HOST:-127.0.0.1}" CLAMD_PORT="${CLAMD_PORT:-3311}" UPLOAD_SCAN="${UPLOAD_SCAN:-required}"
 # Every workflow that starts a backend this way (live gate, scale rehearsal, capacity, schemathesis ...) needs the stand-in running:
@@ -54,6 +58,11 @@ export PAYOUT_DUAL_APPROVAL_SAR="${PAYOUT_DUAL_APPROVAL_SAR:-1}"
 export SETTLEMENT_DELAY_DAYS="${SETTLEMENT_DELAY_DAYS:-0}" PAYOUT_MINIMUM_SAR="${PAYOUT_MINIMUM_SAR:-1}"
 # Card payments go to tools/live/fake_moyasar.py (:9100); /__pay/<id> plays the patient completing checkout.
 export MOYASAR_API_KEY="${MOYASAR_API_KEY:-sk_test_live_journeys}" MOYASAR_API_BASE="${MOYASAR_API_BASE:-http://127.0.0.1:9100/v1}"
+# #551: the names the owner must set on the server, so the gate runs the production configuration: the provider is chosen
+# explicitly and refunds use the secret key (docs/payments/MOYASAR_GO_LIVE.md; tools/payments/check-moyasar-env.mjs checks a server).
+export PAYMENT_PROVIDER="${PAYMENT_PROVIDER:-moyasar}" MOYASAR_SECRET_KEY="${MOYASAR_SECRET_KEY:-$MOYASAR_API_KEY}"
+# #551: the Moyasar webhook is refused without a configured secret; journeys post it with this one (j_payment_webhook.py)
+export MOYASAR_WEBHOOK_SECRET="${MOYASAR_WEBHOOK_SECRET:-live-journeys-webhook-token}"
 # 7C-C3: the backend network-gate check requires this header on /api/v1/admin/*.
 # The harness sends it (NABD_ADMIN_GATE_TOKEN, same default); keep both in sync.
 export ADMIN_GATE_TOKEN="${ADMIN_GATE_TOKEN:-live-gate-token}"
@@ -74,8 +83,12 @@ export NEXT_REVALIDATE_URL="${NEXT_REVALIDATE_URL:-http://127.0.0.1:${PATIENT_WE
 KEYFILE="${FIELD_KEY_FILE:-/tmp/nabd-live-field-key}"
 [[ -s "$KEYFILE" ]] || { umask 077; openssl rand -base64 32 > "$KEYFILE"; }
 export FIELD_ENCRYPTION_KEY="${FIELD_ENCRYPTION_KEY:-$(cat "$KEYFILE")}"
+# 16.1: AI provider keys are wrapped at rest, so the live stack needs a wrapping key too (same per-run file approach).
+AIKEYFILE="${AI_KEYS_KEY_FILE:-/tmp/nabd-live-ai-keys-key}"
+[[ -s "$AIKEYFILE" ]] || { umask 077; openssl rand -base64 32 > "$AIKEYFILE"; }
+export AI_KEYS_ENC_KEY="${AI_KEYS_ENC_KEY:-$(cat "$AIKEYFILE")}"
 LOG="${BACKEND_LOG:-/tmp/nabd-backend.log}"
-nohup node --max-old-space-size=1500 dist/main.js > "$LOG" 2>&1 &
+nohup node --max-old-space-size=1500 ${NODE_EXTRA_FLAGS:-} dist/main.js > "$LOG" 2>&1 &
 echo $! > "$LOG.pid"
 for i in $(seq 1 90); do
   curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/api/v1/health/liveness" 2>/dev/null | grep -q 200 && { echo "backend up (db=$DB_NAME)"; exit 0; }

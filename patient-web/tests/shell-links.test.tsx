@@ -50,10 +50,20 @@ describe("the section links come from one source", () => {
   });
 });
 
+describe("the Home top bar has no map button (owner, 2026-10-26)", () => {
+  it("shows no map link in the signed-in or signed-out bar; the map stays a tile of the service grid", async () => {
+    for (const signedIn of [true, false]) {
+      const html = await home(signedIn);
+      expect(html).not.toContain('data-map-entry="all"');
+      expect(hrefsIn(html)).not.toContain("/en/map");
+    }
+  });
+});
+
 describe("sign-out is reachable from the shells", () => {
   const label = createTranslator("en", "Shared")("signOut");
-  it("is in the signed-in Home bar and not in the signed-out one", async () => {
-    expect(await home(true)).toContain(`aria-label="${label}"`);
+  it("is not a separate button in the Home bar (it is in My account, owner review 2026-10-27)", async () => {
+    expect(await home(true)).not.toContain(`aria-label="${label}"`);
     expect(await home(false)).not.toContain(`aria-label="${label}"`);
   });
 

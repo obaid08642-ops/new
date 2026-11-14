@@ -1,0 +1,13 @@
+[
+  {
+    "batch": "m6-blocked",
+    "app": "patient-web + patient-app",
+    "screen": "appointments history (PT-54)",
+    "element": "Hide / unhide a visit from history",
+    "file": "patient-web/app/[locale]/appointments/page.tsx",
+    "line": 1,
+    "found": "[backend] no hidden_by_patient flag or PATCH on appointments (docs/qa/h-scenarios-status-b-pt08-pt54.md): the client action cannot be wired.",
+    "suspect": "Backend first: per-patient flag + PATCH; then a hide action and a 'show hidden' filter on web and app.",
+    "review_status": "open"
+  }
+]

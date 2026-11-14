@@ -36,3 +36,5 @@ a.rowInner, button.rowInner { cursor: pointer; }
 .copy { font-size: var(--nabd-font-size-label); line-height: 1.5; color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
 .time { font-size: var(--nabd-font-size-micro); color: var(--nabd-color-text-tertiary); }
 .dot { flex: none; inline-size: 8px; block-size: 8px; margin-block-start: 6px; border-radius: var(--nabd-radius-pill); background: var(--nabd-color-action-primary-bg); }
+
+.chips { display: flex; flex-wrap: wrap; gap: var(--nabd-space-xs); margin-block-end: var(--nabd-space-sm); }

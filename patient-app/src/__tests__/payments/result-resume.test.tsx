@@ -54,6 +54,13 @@ describe('15.8 payment result and the marker of a payment under way', () => {
     expect(mockClear).toHaveBeenCalledWith('txn-1');
   });
 
+  it('a refunded payment says the amount was returned, not that no payment can be made', async () => {
+    apiFetch.mockResolvedValue({ id: 'txn-1', status: 'refunded', amount: 80 });
+    await render(wrap(<PaymentResultScreen />));
+    await screen.findByText(k('payments.result.refundedBody'));
+    expect(screen.queryByText(k('pharmacy.pay.cancelledBody'))).toBeNull();
+  });
+
   it('a payment that came back with no network is asked again the moment the phone is online', async () => {
     apiFetch.mockRejectedValue(new Error('network request failed'));
     await render(wrap(<PaymentResultScreen />));

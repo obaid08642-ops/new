@@ -28,7 +28,8 @@ describe('SmartSplitService.releaseStockForAllocation: only give back stock that
     await svc.releaseStockForAllocation(a);
     await svc.releaseStockForAllocation(a);
     expect(incs).toEqual([{ q: { id: 'inv1', provider_account_id: 'ph1' }, u: { $inc: { stock: 2 } } }]);
-    expect(allocs.updateOne).toHaveBeenCalledWith({ id: 'a1' }, { $set: { stock_reserved: false } });
+    // 16.12: the flag is flipped by an atomic claim (only the caller whose update matches releases the stock)
+    expect(allocs.updateOne).toHaveBeenCalledWith({ id: 'a1', stock_reserved: { $ne: false } }, { $set: { stock_reserved: false } });
   });
 
   it('allocations from before the flag follow the pharmacy tracking setting', async () => {

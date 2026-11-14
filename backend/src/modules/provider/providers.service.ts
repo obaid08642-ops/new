@@ -2,7 +2,7 @@ import { randomBytes } from 'crypto';
 import { Injectable, NotFoundException, BadRequestException, ConflictException, ForbiddenException, Inject } from '@nestjs/common';
 import { Connection, Model, Types } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from '../../common/password-hash';
 import { User, UserDocument } from '../../schemas/user.schema';
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
 import { ProviderBranch, ProviderBranchDocument } from '../../schemas/provider-branch.schema';
@@ -13,6 +13,8 @@ import { ProviderProfileRepository } from "./repositories/providerprofile.reposi
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
 import { escapeRegex } from '../../common/slug.util';
+import { ScfhsLicenseService } from './services/scfhs-license.service';
+import { enforcePasswordPolicy } from '../../common/password-security.service';
 
 /**
  * Fields a provider may edit on their own profile (and, via the
@@ -58,6 +60,7 @@ export class ProvidersService {
     private events: EventEmitter2,
     private readonly publication: CatalogPublicationService,
     @InjectConnection() private readonly connection: Connection,
+    private readonly scfhs: ScfhsLicenseService,
   ) {}
 
   private async refreshPublicProjection(provider: any, actorId: string, reason: string) {
@@ -72,106 +75,13 @@ export class ProvidersService {
     });
   }
 
-  async createBranchStaffAccount(adminId: string, branchId: string, staffDto: any) {
-    const admin = await this.userModel.findOne({ id: adminId });
-    if (!admin) throw new NotFoundException('Admin not found');
-    if (![UserRole.HOSPITAL_ADMIN, UserRole.BRANCH_ADMIN].includes(admin.role)) {
-      throw new ForbiddenException('صلاحية مرفوضة. فقط إدارة المستشفى تملك حق تعيين الموظفين الفرعيين.');
-    }
-
-    // ProviderBranch._id is a UUID string (see provider-branch.schema), so
-    // findById matches the branch uuid directly — never a client ObjectId.
-    const branch = await this.branchModel.findById(branchId);
-    if (!branch) throw new NotFoundException('الفرع المحدد غير موجود بالمنظومة.');
-
-    // Create Sub-Account User
-    const generatedPassword = staffDto.password ? undefined : generateTempPassword();
-    const hash = await bcrypt.hash(staffDto.password || generatedPassword, 12);
-    const staffUser = await this.userModel.create({
-      full_name: staffDto.fullName,
-      email: staffDto.email,
-      phone: staffDto.phone,
-      password_hash: hash,
-      role: staffDto.role, // DOCTOR or RECEPTIONIST
-      parent_provider_account_id: admin.parent_provider_account_id,
-      assigned_branch_id: branch._id,
-      active: true
-    });
-
-    if (staffDto.role === UserRole.DOCTOR) {
-      // INSTITUTIONAL AUTO-APPROVAL BYPASS RULE
-      // Doctors created under a verified hospital umbrella bypass the Nabdah Admin verification queue entirely.
-      await this.providerModel.create({
-        user_id: staffUser.id,
-        type: ProviderType.DOCTOR,
-        status: ProviderStatus.ACTIVE, // Set active/verified directly
-        license_verified: true,
-        name_ar: staffDto.fullNameAr || staffDto.fullName,
-        name_en: staffDto.fullNameEn || staffDto.fullName,
-        specialty: staffDto.specialty,
-        years_experience: staffDto.years_experience || 0,
-        price_clinic: staffDto.priceClinic || 100,
-        price_online: staffDto.priceOnline || 100,
-        approved_at: new Date()
-      });
-
-      // Update Branch Doctors Roster array
-      branch.doctors_roster.push(staffUser.id);
-      await branch.save();
-    }
-
-    return { success: true, message: 'تم إنشاء الحساب الفرعي وتفعيله تلقائياً تحت مظلة ترخيص المستشفى.', generated_password: generatedPassword };
-  }
-
-  // ============ Self Registration ============
-  async apply(data: {
-    full_name: string; phone: string; password: string; email?: string;
-    type: ProviderType; name_ar: string; name_en?: string;
-    license_number?: string; city?: string; district?: string;
-    specialty?: string; years_experience?: number;
-    consultation_modes?: string[]; price_clinic?: number; price_online?: number;
-    pharmacy_chain?: string; has_own_drivers?: boolean;
-  }) {
-    const exists = await this.userModel.findOne({ phone: { $eq: data.phone } });
-    if (exists) throw new ConflictException('Phone already registered');
-    const hash = await bcrypt.hash(data.password, 12);
-    const role = this.typeToRole(data.type);
-    const user = await this.userModel.create({
-      full_name: data.full_name,
-      phone: data.phone,
-      email: data.email,
-      password_hash: hash,
-      role,
-      active: false, // disabled until admin approves
-    });
-    const profile = await this.providerModel.create({
-      user_id: user.id,
-      type: data.type,
-      status: ProviderStatus.PENDING,
-      name_ar: data.name_ar,
-      name_en: data.name_en,
-      license_number: data.license_number,
-      city: data.city,
-      district: data.district,
-      specialty: data.specialty,
-      years_experience: data.years_experience,
-      consultation_modes: data.consultation_modes || [],
-      price_clinic: data.price_clinic,
-      price_online: data.price_online,
-      pharmacy_chain: data.pharmacy_chain,
-      has_own_drivers: !!data.has_own_drivers,
-    });
-    this.events.emit(EVENTS.USER_REGISTERED, { user_id: user.id, role });
-    this.events.emit('provider.pending_review', { provider_id: profile.id, type: data.type });
-    return { ok: true, user: this.publicUser(user), profile: profile.toObject() };
-  }
-
   // ============ Admin-Assisted Creation ============
   async adminCreate(data: any, _admin: any) {
     // Admin can create with password OR auto-generate, status defaults to PENDING but admin
     // can flag `auto_approve=true` to skip review.
     const exists = await this.userModel.findOne({ phone: { $eq: data.phone } });
     if (exists) throw new ConflictException('Phone already registered');
+    if (data.password) await enforcePasswordPolicy(data.password);
     const password = data.password || generateTempPassword();
     const hash = await bcrypt.hash(password, 12);
     const role = this.typeToRole(data.type);
@@ -216,26 +126,10 @@ export class ProvidersService {
   }
 
   // ============ Admin Review ============
-  async approve(id: string, admin: any) {
-    const p = await this.providerModel.findOne({ id });
-    if (!p) throw new NotFoundException();
-    p.status = ProviderStatus.ACTIVE;
-    p.approved_at = new Date();
-    p.approved_by = admin.id;
-    p.license_verified = true;
-    p.public_eligibility = true;
-    p.indexing_eligibility = false;
-    p.medical_review_status = 'approved';
-    p.last_reviewed = p.approved_at;
-    p.provenance = 'admin_provider_review';
-    await p.save();
-    await this.userModel.updateOne({ id: p.user_id }, { $set: { active: true } });
-    this.events.emit('provider.approved', { provider_id: p.id });
-    await this.refreshPublicProjection(p, admin.id, 'provider_approved');
-    return p.toObject();
-  }
-
   async reject(id: string, admin: any, reason: string) {
+    // G6: the applicant reads the reason and fixes what it names before resubmitting; the admin path (ProviderAdminService.reject) already requires 5+ characters, this one now does too.
+    if (typeof reason !== 'string' || reason.trim().length < 5) throw new BadRequestException('rejection_reason_required');
+    reason = reason.trim();
     const p = await this.providerModel.findOne({ id });
     if (!p) throw new NotFoundException();
     p.status = ProviderStatus.REJECTED;

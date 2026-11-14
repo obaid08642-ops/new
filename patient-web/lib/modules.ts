@@ -44,6 +44,7 @@ export const MODULE_SITEMAPS: Partial<Record<ModuleKey, readonly string[]>> = {
   consultations: ["doctors.xml"],
   pharmacy: ["pharmacies.xml"],
   labs_radiology: ["labs.xml", "radiology.xml"],
+  nursing: ["nursing.xml"],
 };
 
 export type DisabledModules = ReadonlySet<ModuleKey>;

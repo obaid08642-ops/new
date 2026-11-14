@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { endPatientSession } from '../../auth/session';
 import { Pressable, Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
@@ -67,8 +68,10 @@ export function AccountView() {
     router.push(route as Href);
   };
   const signOut = () => {
-    dispatch(logout());
-    router.replace('/(auth)/welcome' as Href);
+    void endPatientSession().finally(() => {
+      dispatch(logout());
+      router.replace('/(auth)/welcome' as Href);
+    });
   };
 
   const quick: { icon: FillIconName; tone: ServiceTone; label: string; value?: string; route: string; testID: string }[] = [
@@ -118,11 +121,12 @@ export function AccountView() {
       <Panel testID="account-rows">
         <Row icon="map-pin-line" tone={RX_TONE} title={k('account.addresses')} subtitle={counts.addresses === null ? undefined : k('account.addressCount', { n: counts.addresses })} onPress={go('/profile/addresses')} last={!showFamily && !showInsurance} testID="account-addresses" />
         {showFamily ? <Row icon="users-three" tone="peach" title={k('account.family')} subtitle={counts.family === null ? undefined : k('account.familyCount', { n: counts.family })} onPress={guarded('/family', 'family')} last={!showInsurance} testID="account-family" /> : null}
-        {showInsurance ? <Row icon="shield-check" tone={CARE_TONE} title={k('account.insurance')} subtitle={counts.insurance ?? undefined} onPress={guarded('/profile/insurance', 'insurance')} last testID="account-insurance" /> : null}
+        {showInsurance ? <Row icon="shield-check" tone={CARE_TONE} title={k('account.insurance')} subtitle={counts.insurance ?? undefined} onPress={guarded('/profile/insurance', 'insurance')} testID="account-insurance" /> : null}
+        <Row icon="receipt" tone="blue" title={k('receipt.listTitle')} onPress={go('/receipts')} last testID="account-receipts" />
       </Panel>
       <Panel testID="account-settings-rows">
-        <Row icon="gear" tone="ink" title={k('account.settings')} subtitle={k('account.settingsHint')} onPress={go('/settings')} testID="account-settings" />
-        <Row icon="headset" tone="mint" title={k('account.support')} onPress={go('/settings/help')} testID="account-support" />
+        <Row icon="gear" tone={CARE_TONE} title={k('account.settings')} subtitle={k('account.settingsHint')} onPress={go('/settings')} testID="account-settings" />
+        <Row icon="headset" tone="ink" title={k('account.support')} onPress={go('/settings/help')} testID="account-support" />
         <Row icon="lock" tone="violet" title={k('account.privacy')} onPress={go('/settings/privacy')} last testID="account-privacy" />
       </Panel>
       {isGuest ? null : <Button label={k('set.signOut')} variant="outline" size="lg" fullWidth startIcon="sign-out" onPress={signOut} theme={theme} testID="account-sign-out" />}

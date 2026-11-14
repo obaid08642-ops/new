@@ -11238,12 +11238,6 @@
     "l": 576
    },
    {
-    "m": "POST",
-    "p": "/providers/apply",
-    "f": "backend/src/modules/provider/providers.controller.ts",
-    "l": 15
-   },
-   {
     "m": "GET",
     "p": "/providers",
     "f": "backend/src/modules/provider/providers.controller.ts",
@@ -11284,12 +11278,6 @@
     "p": "/providers/admin/pending",
     "f": "backend/src/modules/provider/providers.controller.ts",
     "l": 72
-   },
-   {
-    "m": "POST",
-    "p": "/providers/:id/approve",
-    "f": "backend/src/modules/provider/providers.controller.ts",
-    "l": 78
    },
    {
     "m": "POST",

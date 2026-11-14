@@ -1,3 +1,11 @@
+import { SlotService } from './slot.service';
+import { outcomeFor } from '../provider-no-show/provider-no-show-rules';
+import { stampAcceptance } from '../../common/refund-policy-stamp';
+import { refundPolicyAcceptance } from '../../common/refund-policy-acceptance';
+import { ProviderNoShowService } from '../provider-no-show/provider-no-show.service';
+import { resolveFamilyMemberId } from '../../common/family-member';
+import { buildFollowUpActions } from './follow-up-actions';
+import { assertPaymentMethod } from '../../common/payment-policy';
 import { MedicalAccessLogService, logMedicalRead } from '../../common/pdpl-compliance.module';
 import { escapeRegex } from '../../common/slug.util';
 import { pickAttribution } from '../../common/attribution';
@@ -18,13 +26,9 @@ import { DEFAULT_REFUND_POLICY } from '../refund-policy/refund-policy.defaults';
 import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { isOnlineConsultation } from '../chat/consultation-window';
 import { assertTelehealthConsent } from '../legal/telehealth-consent';
-
-/** Platform fee schedule (SAR). Move to DB/config when admin dashboard supports it. */
-const PLATFORM_FEES = {
-  service_fee: 15,           // flat service fee for all bookings
-  home_visit_fee: 100,       // additional fee for home visits
-  transportation_fee: 50,    // transportation surcharge for home visits
-};
+import { consultationPricing } from './consultation-pricing';
+import { buildQuote, readQuoteVatRate } from '../../common/quote';
+import { PAYMENT_METHODS_BY_CONTEXT } from '../../common/payment-policy';
 
 /**
  * Appointment lifecycle service.
@@ -46,6 +50,8 @@ export class AppointmentsService {
     @Optional() private locks?: SlotLocksService,
     @Optional() private readonly killSwitches?: KillSwitchesService,
     @Optional() private readonly accessLog?: MedicalAccessLogService,
+    @Optional() private readonly noShow?: ProviderNoShowService,
+    @Optional() private readonly slotService?: SlotService,
   ) {}
 
   /**
@@ -122,17 +128,27 @@ export class AppointmentsService {
     insurance_provider?: string;
     insurance_member_id?: string;
     for_member_id?: string; // family booking on behalf of a member
+    refund_policy_accepted?: boolean; // the patient ticked "I agree" to the refund policy shown before payment
+    refund_policy_hash?: string; // the hash of the refund policy the screen showed (409 refund_policy_changed when the table changed since)
+    sick_leave_requested?: boolean; // PT-08: a request for a sick leave with this consultation
+    family_member_id?: string; // owner decision 1: the family member this visit is FOR (the caller stays the patient who books and pays)
     slot_lock_id?: string; // optional 10-min hold from POST /slot-locks/reserve (consumed on success, released on failure)
     follow_up_of?: string; // follow-up appointment link to original appointment (same patient and doctor)
   }) {
     if (!body?.doctor_id || !body?.service_type || !body?.slot_start) {
       throw new BadRequestException('doctor_id, service_type, slot_start required');
     }
-    // Issue 955: the admin kill switch for remote consultations refuses new video/voice bookings before anything is held.
+    // Issue 955: the admin kill switch for remote consultations refuses new video/voice bookings before anything is held (a switched-off service answers its own code, not the tick's).
     if (isOnlineConsultation({ service_type: body.service_type })) await this.killSwitches?.assertOn('online_consultations');
+    // owner decision 2026-11-09: the refund policy is agreed before anything is held or booked
+    const policyAcceptance = await stampAcceptance(this.connection, refundPolicyAcceptance(user, body.refund_policy_accepted), 'consultation', body.refund_policy_hash);
     // On-behalf family booking: patient becomes the member, booker is audited
     let patientId: string = user.id;
     let bookedBy: string | undefined;
+    // owner decision 1: `family_member_id` (a member of the caller's family list) keeps the caller as the patient and only records who it is for;
+    // `for_member_id` (issue 684) moves the visit to another account in the family group. They are two different things: not both.
+    if (body.family_member_id && body.for_member_id) throw new BadRequestException('family_member_id_and_for_member_id_exclusive');
+    const familyMemberId = body.family_member_id ? await resolveFamilyMemberId((this.connection as any).db ?? this.connection, user.id, body.family_member_id) : undefined;
     if (body.for_member_id && body.for_member_id !== user.id) {
       await this.assertFamilyBookingRight(user.id, body.for_member_id);
       patientId = body.for_member_id;
@@ -141,16 +157,18 @@ export class AppointmentsService {
     // Enforce Nabd payment policy: online → card only; home → card/insurance; clinic → all
     const pm = body.payment_method || (body.service_type === 'clinic' ? 'cash' : 'card');
     const svcCtx = body.service_type === 'video' ? 'online_consultation' : body.service_type === 'home' ? 'home_visit' : 'in_clinic';
-    const allowed: Record<string, string[]> = {
-      online_consultation: ['card'],
-      home_visit: ['card', 'insurance'],
-      in_clinic: ['cash', 'card', 'insurance'],
-    };
-    if (!allowed[svcCtx].includes(pm)) {
-      throw new BadRequestException(`payment_method_${pm}_not_allowed_for_${svcCtx}`);
-    }
+    assertPaymentMethod(pm, svcCtx);
     const doctor = await this.providerModel.findOne({ id: body.doctor_id, type: ProviderType.DOCTOR, status: ProviderStatus.ACTIVE });
     if (!doctor) throw new NotFoundException('doctor_not_found');
+    // Owner decision 2026-10-24: bookings stop the moment the SCFHS licence date passes; the daily monitor then suspends the
+    // account, this check closes the hours in between.
+    if ((doctor as any).license_expiry_date && new Date((doctor as any).license_expiry_date).getTime() <= Date.now()) {
+      throw new BadRequestException('doctor_license_expired');
+    }
+    // The doctor's own block list (provider-ops blacklist, kept in step with the patient file's `blocked`): a blocked patient cannot book.
+    if (await this.isBlockedByDoctor([(doctor as any).user_id, (doctor as any).account_id], patientId)) {
+      throw new ForbiddenException('booking_declined_by_provider');
+    }
     if (!doctor.consultation_modes?.includes(body.service_type)) {
       throw new BadRequestException(`doctor does not support service_type=${body.service_type}`);
     }
@@ -186,6 +204,9 @@ export class AppointmentsService {
       throw new ConflictException('slot_already_booked_or_conflicts_with_buffer');
     }
 
+    // someone else's unexpired hold on this slot also refuses the booking (the hold protects the patient who reserved it)
+    if (this.locks) await this.locks.assertNotHeldByOther(user, doctor.id, slotStart, slotEnd);
+
     // Optional slot hold (POST /slot-locks/reserve): validated before any
     // write so a mismatched/expired lock fails fast without side effects.
     const lockId: string | undefined = (body as any)?.slot_lock_id;
@@ -204,22 +225,8 @@ export class AppointmentsService {
       throw new BadRequestException('visit_location.lat required when visit_location is provided');
     }
 
-    // Price snapshot
-    const priceMap: Record<ServiceType, number | undefined> = {
-      clinic: (doctor as any).price_clinic,
-      video: (doctor as any).price_online,
-      home: (doctor as any).price_home,
-    };
-    const price = priceMap[body.service_type];
-    if (price === undefined || price === null) {
-      throw new BadRequestException(`no price configured for service_type=${body.service_type}`);
-    }
-
-    // Calculate fees & total_price
-    const service_fee = PLATFORM_FEES.service_fee;
-    const home_visit_fee = body.service_type === 'home' ? PLATFORM_FEES.home_visit_fee : 0;
-    const transportation_fee = body.service_type === 'home' ? PLATFORM_FEES.transportation_fee : 0;
-    const total_price = price + service_fee + home_visit_fee + transportation_fee;
+    // Price snapshot: the doctor's price for the visit type, the platform fee and (home) the home fees; the quote reads the same function.
+    const { price, service_fee, home_visit_fee, transportation_fee, total_price } = consultationPricing(doctor, body.service_type);
 
     // Insert — unique index will throw on double-booking
     // Insurance bookings require a saved policy first (BR-2.2): fail before
@@ -248,6 +255,9 @@ export class AppointmentsService {
       const appt = await this.apptModel.create({
         patient_id: patientId,
         booked_by_user_id: bookedBy,
+        ...(policyAcceptance ? { refund_policy_acceptance: policyAcceptance } : {}),
+        ...(body.sick_leave_requested === true ? { sick_leave_requested: true } : {}),
+        ...(familyMemberId ? { family_member_id: familyMemberId } : {}),
         doctor_id: doctor.id,
         doctor_user_id: doctor.user_id,
         service_type: body.service_type,
@@ -353,7 +363,22 @@ export class AppointmentsService {
   async adminList(limit = 50, status?: ApptState) {
     const q: any = {};
     if (status) q.status = status;
-    return this.apptModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(limit).lean().catch(() => []);
+    const rows: any[] = await this.apptModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(limit).lean().catch(() => []);
+    // The oversight list says who and with whom (two batched lookups for the page, never one per row).
+    const patientIds = [...new Set(rows.map((r) => r.patient_id).filter(Boolean).map(String))];
+    const doctorIds = [...new Set(rows.map((r) => r.doctor_id).filter(Boolean).map(String))];
+    const [patients, doctors]: [any[], any[]] = await Promise.all([
+      patientIds.length
+        ? this.connection.collection('users').find({ $or: [{ id: { $in: patientIds } }, { _id: { $in: patientIds } as any }] } as any).project({ id: 1, full_name: 1 }).toArray().catch(() => [])
+        : Promise.resolve([]),
+      doctorIds.length
+        ? this.providerModel.find({ id: { $in: doctorIds }, type: ProviderType.DOCTOR }, { id: 1, name_ar: 1, name: 1, _id: 0 }).lean().catch(() => [])
+        : Promise.resolve([]),
+    ]);
+    const patientName = new Map<string, string>();
+    for (const u of patients) { const n = u.full_name; if (n) { if (u.id) patientName.set(String(u.id), n); if (u._id) patientName.set(String(u._id), n); } }
+    const doctorName = new Map(doctors.map((d: any) => [String(d.id), d.name_ar || d.name || null]));
+    return rows.map((r) => ({ ...r, patient_name: patientName.get(String(r.patient_id)) ?? null, doctor_name: doctorName.get(String(r.doctor_id)) ?? null }));
   }
   async listMine(user: any, status?: ApptState) {
     const q: any = {};
@@ -422,6 +447,16 @@ export class AppointmentsService {
       followUps = [];
     }
     obj.follow_ups = followUps;
+
+    // After a completed visit the patient (or the person who booked it) sees what to do next: the prescription to order
+    // from a pharmacy and the open lab and scan items of the doctor's order. Enrichment only: it never breaks the read.
+    obj.follow_up_actions = [];
+    if (obj.status === APPT_STATES.COMPLETED && (user?.id === appt.patient_id || (appt.booked_by_user_id && user?.id === appt.booked_by_user_id))) {
+      try {
+        const order: any = await (this.connection as any)?.collection?.('medical_orders')?.findOne({ appointment_id: { $eq: String(obj.id) }, patient_id: { $eq: String(appt.patient_id) } }, { projection: { _id: 0, id: 1, prescription_id: 1, valid_until: 1, items: 1 } });
+        obj.follow_up_actions = buildFollowUpActions(obj.prescriptions, order ?? null);
+      } catch { obj.follow_up_actions = []; }
+    }
     
     // Q-16: video appointments carry what the call screen needs (room route).
     if (obj.service_type === 'video') {
@@ -462,7 +497,9 @@ export class AppointmentsService {
     const appt = await this.apptModel.findOne({ id });
     if (!appt) throw new NotFoundException();
     const isInternalSystemTransition = actor?.id === 'system' && actor?.role === 'system';
-    if (!isInternalSystemTransition) await this.assertAppointmentAccess(appt, actor);
+    // The person who booked for a dependant may CANCEL it (cancel() already lets them in and refunds them): without `booker` here the guardian passed that check and was then refused 403 by this one.
+    // Every other move (confirm, start, finish...) stays with the patient, the doctor and the facility.
+    if (!isInternalSystemTransition) await this.assertAppointmentAccess(appt, actor, { booker: to === APPT_STATES.CANCELLED });
     const allowed = APPT_TRANSITIONS[appt.status] || [];
     if (!allowed.includes(to)) {
       throw new BadRequestException(`Invalid transition ${appt.status} → ${to}`);
@@ -476,26 +513,66 @@ export class AppointmentsService {
         if (to === APPT_STATES.CONFIRMED) appt.confirmed_at = new Date();
         if (to === APPT_STATES.COMPLETED) appt.completed_at = new Date();
         await appt.save();
-        this.events.emit(`appointment.${to.toLowerCase()}`, { id, actor: actor.id });
+        // The consultation start also carries what the loyalty "guaranteed appointment" credit needs (slot, check-in, start).
+        const stamp = (state: string) => (appt.state_history as any[]).filter((h) => h?.state === state).map((h) => h.at)[0] ?? null;
+        this.events.emit(`appointment.${to.toLowerCase()}`, to === APPT_STATES.IN_PROGRESS
+          ? { id, actor: actor.id, patient_id: appt.patient_id, service_type: appt.service_type, slot_start: appt.slot_start, checked_in_at: stamp(APPT_STATES.CHECKED_IN), started_at: stamp(APPT_STATES.IN_PROGRESS) }
+          : { id, actor: actor.id });
         return appt.toObject();
       },
     });
   }
 
+  /** What a consultation with this doctor costs for this visit type: every line, VAT and the total, from the function the booking charges by. */
+  async quote(doctorId: unknown, serviceType: unknown) {
+    if (typeof doctorId !== 'string' || !doctorId.trim()) throw new BadRequestException('doctor_id_required');
+    if (serviceType !== 'clinic' && serviceType !== 'video' && serviceType !== 'home') throw new BadRequestException('service_type_invalid');
+    const doctor: any = await this.providerModel.findOne({ id: { $eq: doctorId.trim() }, type: ProviderType.DOCTOR, status: ProviderStatus.ACTIVE });
+    if (!doctor) throw new NotFoundException('doctor_not_found');
+    if (!doctor.consultation_modes?.includes(serviceType)) throw new BadRequestException(`doctor does not support service_type=${serviceType}`);
+    const p = consultationPricing(doctor, serviceType);
+    const context = serviceType === 'video' ? 'online_consultation' : serviceType === 'home' ? 'home_visit' : 'in_clinic';
+    const lines = [{ key: 'consultation_fee', amount: p.price }, { key: 'platform_fee', amount: p.service_fee }];
+    if (p.home_visit_fee) lines.push({ key: 'home_visit_fee', amount: p.home_visit_fee });
+    if (p.transportation_fee) lines.push({ key: 'transport_fee', amount: p.transportation_fee });
+    return { ...buildQuote({ kind: 'consultation', lines, vat_rate: await readQuoteVatRate(this.connection), allowed_methods: PAYMENT_METHODS_BY_CONTEXT[context] }), doctor_id: doctor.id, service_type: serviceType };
+  }
+
   // High-level commands
 
-  async cancel(id: string, user: any, reason?: string, isNoShow: boolean = false) {
+  /** Whether any of the doctor's account ids has this patient on its active block list. Never throws: a read problem must not stop a booking. */
+  private async isBlockedByDoctor(accountIds: unknown[], patientId: string): Promise<boolean> {
+    const ids = accountIds.filter((v): v is string => typeof v === 'string' && !!v);
+    if (!ids.length || !patientId) return false;
+    try {
+      const col = (this.connection as any)?.collection?.('doctor_blacklist') ?? (this.connection as any)?.db?.collection?.('doctor_blacklist');
+      if (!col) return false;
+      return !!(await col.findOne({ doctor_id: { $in: ids }, patient_id: { $eq: String(patientId) }, active: true }));
+    } catch { return false; }
+  }
+
+  async cancel(id: string, user: any, reason?: string, isNoShow: boolean = false, providerNoShow: boolean = false) {
     const appt = await this.apptModel.findOne({ id });
     if (!appt) throw new NotFoundException();
     await this.assertAppointmentAccess(appt, user, { booker: true });
 
-    const { refundPercentage, refundDestination, penaltyAmount } = await this.calculateRefund(appt, user, reason, isNoShow);
+    // PV-21: the patient is told why. A doctor or a facility cancelling a booking must give the reason (not a patient or an admin).
+    const byProvider = (hasEffectiveRole(user, UserRole.DOCTOR) || hasEffectiveRole(user, UserRole.HOSPITAL) || user?.id === appt.doctor_user_id) && user?.id !== appt.patient_id;
+    if (byProvider && !hasEffectiveRole(user, UserRole.ADMIN) && String(reason ?? '').trim().length < 3) throw new BadRequestException('cancel_reason_required');
 
-    appt.cancellation_reason = reason || '';
-    appt.refund_percentage = refundPercentage;
-    appt.refund_destination = refundDestination;
-    appt.doctor_penalty = penaltyAmount;
-    await appt.save();
+    const { refundPercentage, refundDestination, penaltyAmount } = await this.calculateRefund(appt, user, reason, isNoShow, providerNoShow);
+
+    // The state change comes first: an illegal move (already completed, cancelled, ...) throws here, before any refund
+    // figure is stored and before anything is emitted that moves money.
+    const cancelled = await this.transition(id, APPT_STATES.CANCELLED, user, reason);
+
+    const refundFields = {
+      cancellation_reason: reason || '',
+      refund_percentage: refundPercentage,
+      refund_destination: refundDestination,
+      doctor_penalty: penaltyAmount,
+    };
+    await this.apptModel.updateOne({ id }, { $set: refundFields });
 
     // Emit event for Billing/Refund processors to act upon
     this.events.emit('appointment.refund.calculated', {
@@ -508,20 +585,121 @@ export class AppointmentsService {
       penalty_amount: penaltyAmount
     });
 
-    return this.transition(id, APPT_STATES.CANCELLED, user, reason);
+    return { ...cancelled, ...refundFields };
+  }
+
+  /** The visit must be this many minutes late before the patient can say the doctor did not come (the doctor's own no-show mark for a patient uses the same wait). */
+  static readonly PROVIDER_NO_SHOW_GRACE_MS = 10 * 60_000;
+
+  /**
+   * Owner decision 2026-11-09: the provider cancels or does not attend = 100 % refund to the card at once. A provider who cancels is already handled (calculateRefund);
+   * a provider who simply does not come had no route at all. The patient (or the person who booked) reports it once the visit is 10 minutes late and it never started:
+   * the appointment is cancelled as `provider_no_show` and the full amount goes back through the same refund event as any cancel. Not the doctor's own call, not an admin's.
+   */
+  async reportProviderNoShow(id: string, user: any) {
+    const appt = await this.apptModel.findOne({ id });
+    if (!appt) throw new NotFoundException();
+    await this.assertAppointmentAccess(appt, user, { booker: true });
+    const isPatientSide = user?.id === appt.patient_id || (!!appt.booked_by_user_id && user?.id === appt.booked_by_user_id);
+    if (!isPatientSide) throw new ForbiddenException('only_the_patient_reports_a_provider_no_show');
+    if (!['CONFIRMED', 'CHECKED_IN', 'EN_ROUTE'].includes(String(appt.status || '').toUpperCase())) throw new BadRequestException('provider_no_show_not_applicable');
+    const startAt = appt.slot_start ? new Date(appt.slot_start).getTime() : NaN;
+    if (!Number.isFinite(startAt) || Date.now() < startAt + AppointmentsService.PROVIDER_NO_SHOW_GRACE_MS) throw new BadRequestException('provider_no_show_too_early');
+    // A provider who took part in the visit (checked in, started it, called, wrote) did not fail to come: no automatic 100 %.
+    await this.noShow?.assertNoProviderActivity(appt);
+    const noShowEvent = () => this.events.emit('appointment.provider_no_show', { appointment_id: id, patient_id: appt.patient_id, doctor_id: appt.doctor_id, doctor_user_id: appt.doctor_user_id });
+    if (this.noShow) {
+      // Owner decision 2026-11-10: a video visit is refunded at once, but at most twice per patient per 30 days (the next waits for an admin); a clinic or home visit is HELD until the
+      // provider's 24-hour dispute window is over, then refunded automatically unless the provider disputes it (admin decides) or turned up.
+      const now = new Date();
+      const outcome = outcomeFor(appt.service_type, await this.noShow.autoRefundsInWindow(String(user?.id), now));
+      if (outcome !== 'refunded') {
+        const rec = await this.noShow.record(appt, String(user?.id), now, outcome);
+        noShowEvent();
+        return outcome === 'held'
+          ? { ok: true, status: 'held' as const, refund_after: rec.refund_after, appointment_id: id }
+          : { ok: true, status: 'pending_review' as const, appointment_id: id };
+      }
+      const out = await this.cancel(id, user, 'provider_no_show', false, true);
+      await this.noShow.record(appt, String(user?.id), now, 'refunded');
+      noShowEvent();
+      return { ...out, status: 'refunded' as const };
+    }
+    const out = await this.cancel(id, user, 'provider_no_show', false, true);
+    noShowEvent();
+    return out;
+  }
+
+  /** The held refund of a provider no-show is due (the window passed, or an admin decided for the patient): cancel the visit as a provider no-show, which refunds 100 % through the usual path. */
+  @OnEvent('provider_no_show.release')
+  async onProviderNoShowRelease(e: { appointment_id: string; patient_id: string }): Promise<void> {
+    try {
+      // idempotent: a release asked for again (the first one finished but could not say so, or ran twice) never refunds a second time
+      const appt: any = await this.apptModel.findOne({ id: String(e.appointment_id) });
+      if (appt && String(appt.status).toUpperCase() === 'CANCELLED') {
+        if (appt.cancellation_reason === 'provider_no_show') { await this.noShow?.markRefunded(String(e.appointment_id)); return; }
+        throw new Error('cancelled_for_another_reason');
+      }
+      await this.cancel(String(e.appointment_id), { id: String(e.patient_id), role: 'patient' }, 'provider_no_show', false, true);
+      await this.noShow?.markRefunded(String(e.appointment_id));
+    } catch (err: any) {
+      await this.noShow?.markReleaseFailed(String(e.appointment_id), err?.message || 'release_failed');
+    }
   }
 
   /**
    * Preview the refund that would be issued if the caller cancelled now (same rules as cancel).
    * Does NOT modify the appointment.
    */
-  async previewRefund(id: string, user: any): Promise<{ refund_percentage: number; refund_destination: string; penalty_amount: number; estimated_amount: number }> {
+  async previewRefund(id: string, user: any): Promise<{ refund_percentage: number; refund_destination: string; penalty_amount: number; estimated_amount: number; free_reschedule: { available: boolean; late: boolean; within_days: number } }> {
     const appt = await this.apptModel.findOne({ id });
     if (!appt) throw new NotFoundException();
     await this.assertAppointmentAccess(appt, user, { booker: true });
     const { refundPercentage, refundDestination, penaltyAmount } = await this.calculateRefund(appt, user);
     const estimatedAmount = Math.round((Number(appt.total_price || 0) * refundPercentage) / 100);
-    return { refund_percentage: refundPercentage, refund_destination: refundDestination, penalty_amount: penaltyAmount, estimated_amount: estimatedAmount };
+    return { refund_percentage: refundPercentage, refund_destination: refundDestination, penalty_amount: penaltyAmount, estimated_amount: estimatedAmount, free_reschedule: await this.freeRescheduleOffer(appt, user) };
+  }
+
+  /**
+   * What the patient can do INSTEAD of a late cancel: `available` = the one free reschedule is still there (the booking can be moved); `late` = the slot is inside the last
+   * `free_reschedule_min_hours`, where the refund is the late percentage and the reschedule must land within `within_days` days. The client shows both choices (cancel for the refund, or reschedule).
+   */
+  private async freeRescheduleOffer(appt: any, user: any): Promise<{ available: boolean; late: boolean; within_days: number }> {
+    const within_days = AppointmentsService.LATE_FREE_RESCHEDULE_DAYS;
+    if ([APPT_STATES.CANCELLED, APPT_STATES.COMPLETED, APPT_STATES.RESCHEDULED, APPT_STATES.IN_PROGRESS].includes(appt.status)) return { available: false, late: false, within_days };
+    const policy = await this.getRefundPolicy();
+    const free = Number(policy?.consultation?.free_reschedules ?? 1);
+    const minHours = Number(policy?.consultation?.free_reschedule_min_hours ?? 2);
+    const hours = (new Date(appt.slot_start).getTime() - Date.now()) / 3_600_000;
+    if (appt.late_free_reschedule === true) return { available: false, late: hours < minHours, within_days };
+    const late = hours < minHours;
+    const patientSide = appt.patient_id === user?.id || (!!appt.booked_by_user_id && appt.booked_by_user_id === user?.id);
+    if (late && !(patientSide && hours >= 0)) return { available: false, late, within_days };
+    return { available: (await this.countPriorReschedules(appt)) < free, late, within_days };
+  }
+
+  /**
+   * True only when the doctor's real schedule shows NO bookable slot from now to LATE_FREE_RESCHEDULE_DAYS ahead. Any doubt (no slot service,
+   * doctor not found, lookup error) is false: the normal late percentage applies, never a full refund by accident.
+   */
+  private async noFreeSlotWithinRescheduleWindow(appt: any): Promise<boolean> {
+    try {
+      if (!this.slotService || !appt?.doctor_id) return false;
+      const q: any = this.providerModel.findOne({ id: appt.doctor_id });
+      const doc: any = q && typeof q.lean === 'function' ? await q.lean() : await q;
+      if (!doc) return false;
+      const type = appt.service_type === 'video' || appt.service_type === 'home' ? appt.service_type : 'clinic';
+      const earliest = Date.now() + 5 * 60_000;
+      const latest = Date.now() + AppointmentsService.LATE_FREE_RESCHEDULE_DAYS * 86_400_000;
+      for (let d = 0; d <= AppointmentsService.LATE_FREE_RESCHEDULE_DAYS; d++) {
+        const day = new Date(Date.now() + d * 86_400_000).toISOString().slice(0, 10);
+        const r: any = await this.slotService.slotsForDate(doc, day, type, appt.duration_minutes || 30);
+        if ((r?.slots || []).some((x: any) => x.available === true && new Date(x.start).getTime() >= earliest && new Date(x.start).getTime() <= latest)) return false;
+      }
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   private async getRefundPolicy(): Promise<any> {
@@ -533,10 +711,13 @@ export class AppointmentsService {
   }
 
   // Cancellation & Refund Rules (shared by cancel and previewRefund)
-  private async calculateRefund(appt: any, user: any, reason?: string, isNoShow = false): Promise<{ refundPercentage: number; refundDestination: string; penaltyAmount: number }> {
+  private async calculateRefund(appt: any, user: any, reason?: string, isNoShow = false, providerNoShow = false): Promise<{ refundPercentage: number; refundDestination: string; penaltyAmount: number }> {
     let refundPercentage = 0;
     let penaltyAmount = 0;
     let refundDestination = 'source';
+    // Owner decision 2026-11-09: the provider did not attend = 100 % back to the card at once. This is a flag only reportProviderNoShow sets after its own checks, never the
+    // free-text cancel reason (a patient could write anything there).
+    if (providerNoShow) return { refundPercentage: 100, refundDestination: 'source', penaltyAmount: 0 };
 
     const policy = await this.getRefundPolicy();
     const consultationPolicy = policy.consultation || DEFAULT_REFUND_POLICY.consultation;
@@ -547,14 +728,26 @@ export class AppointmentsService {
     if (isNoShow || reason === 'no_show') {
       refundPercentage = consultationPolicy.patient_no_show_percent ?? 0;
     } else if (user.role === UserRole.PATIENT || user.id === appt.patient_id) {
-      if (hoursUntilAppointment >= (consultationPolicy.full_refund_min_hours ?? 2)) {
+      // The booking made by the late free reschedule keeps the LATE refund for a patient cancel (it would otherwise be a way round the late percentage: reschedule inside the last
+      // 2 hours, then cancel the new slot well ahead for 100 %). Provider cancel / provider no-show stay 100 % (other branches); a patient no-show stays 0.
+      const fullMin = consultationPolicy.full_refund_min_hours ?? 2;
+      if (appt.late_free_reschedule === true && hoursUntilAppointment < fullMin) {
+        // Owner decision 2026-11-10: the visit the free reschedule made, cancelled inside the last `full_refund_min_hours` (or never attended, handled above), refunds
+        // nothing (the patient no-show share): the free reschedule is one second chance, not a second late cancel at 50 %.
+        refundPercentage = consultationPolicy.patient_no_show_percent ?? 0;
+        refundDestination = 'source';
+      } else if (hoursUntilAppointment >= fullMin && appt.late_free_reschedule !== true) {
+        refundPercentage = 100;
+        refundDestination = 'source';
+      } else if (appt.late_free_reschedule !== true && (await this.noFreeSlotWithinRescheduleWindow(appt))) {
+        // Owner decision 2026-11-13: a late cancel when the doctor has no free slot in the next 14 days (so the free reschedule the patient is
+        // offered instead cannot land anywhere) is refunded in full to the card: the patient is not charged for the clinic's missing availability.
         refundPercentage = 100;
         refundDestination = 'source';
       } else {
         refundPercentage = consultationPolicy.late_refund_percent ?? 50;
-        // B-11 legacy read model: late patient cancels read 'wallet'; the money
-        // itself always goes back through the gateway (never a wallet credit).
-        refundDestination = 'wallet';
+        // The money goes back to where it came from (the card through the gateway), late or not; it is never a wallet credit.
+        refundDestination = 'source';
       }
     } else if (hasEffectiveRole(user, UserRole.DOCTOR) || user.id === appt.doctor_user_id) {
       refundPercentage = 100;
@@ -569,7 +762,12 @@ export class AppointmentsService {
   }
 
   async confirm(id: string, user: any) {
-    // doctor or admin
+    // doctor or admin. An unpaid card booking is not confirmed by hand: the payment confirms it (a doctor confirming it first made the
+    // payment handler skip it, because it only completes PENDING appointments, so the booking never showed as paid).
+    const appt: any = await this.apptModel.findOne({ id });
+    if (appt && appt.status === APPT_STATES.PENDING && appt.payment_method === 'card' && appt.payment_status !== 'paid') {
+      throw new BadRequestException('card_payment_not_completed');
+    }
     return this.transition(id, APPT_STATES.CONFIRMED, user, 'doctor-confirmed');
   }
 
@@ -621,6 +819,10 @@ export class AppointmentsService {
     const appt = await this.apptModel.findOne({ id });
     if (!appt) throw new NotFoundException();
     await this.assertAppointmentAccess(appt, user);
+    // X3: a visit that is already over is never rewritten. A repeated "finish" (a retry after a lost answer) just reports it;
+    // a cancelled or missed one is refused before anything is written.
+    if (appt.status === APPT_STATES.COMPLETED) return { success: true, appointment: appt.toObject(), already_completed: true };
+    if ([APPT_STATES.CANCELLED, 'NO_SHOW', 'RESCHEDULED'].includes(String(appt.status))) throw new BadRequestException('appointment_not_finishable');
     if (body && (body.diagnosis || body.notes || body.recommendations || (Array.isArray(body.prescription) && body.prescription.length))) {
       // 660: keep the catalogue id per line (sent by the doctor app, else resolved by name).
       const lines: any[] = [];
@@ -751,23 +953,11 @@ export class AppointmentsService {
     return out;
   }
 
-  async reschedule(id: string, user: any, body: { slot_start: string }) {
-    const appt = await this.apptModel.findOne({ id });
-    if (!appt) throw new NotFoundException();
-    if (user.role !== UserRole.ADMIN && appt.patient_id !== user.id && appt.doctor_user_id !== user.id) {
-      throw new ForbiddenException();
-    }
-    if ([APPT_STATES.CANCELLED, APPT_STATES.COMPLETED, APPT_STATES.RESCHEDULED].includes(appt.status)) {
-      throw new BadRequestException('cannot_reschedule');
-    }
-    // D-26: one free reschedule, only while the current slot is far enough out.
-    const policy = await this.getRefundPolicy();
-    const freeReschedules = Number(policy?.consultation?.free_reschedules ?? 1);
-    const minHours = Number(policy?.consultation?.free_reschedule_min_hours ?? 2);
-    const hoursToSlot = (new Date(appt.slot_start).getTime() - Date.now()) / (1000 * 60 * 60);
-    if (!(hoursToSlot >= minHours)) {
-      throw new BadRequestException('reschedule_too_late_for_free_reschedule');
-    }
+  /** The days (from now) a late free reschedule may reach. */
+  static readonly LATE_FREE_RESCHEDULE_DAYS = 14;
+
+  /** How many times this booking was already rescheduled (the chain of `rescheduled_from_id`). */
+  private async countPriorReschedules(appt: any): Promise<number> {
     let priorReschedules = 0;
     try {
       let cursor: any = typeof appt?.toObject === 'function' ? appt.toObject() : appt;
@@ -785,12 +975,41 @@ export class AppointmentsService {
     } catch {
       priorReschedules = 0;
     }
+    return priorReschedules;
+  }
+
+  async reschedule(id: string, user: any, body: { slot_start: string }) {
+    const appt = await this.apptModel.findOne({ id });
+    if (!appt) throw new NotFoundException();
+    if (user.role !== UserRole.ADMIN && appt.patient_id !== user.id && appt.doctor_user_id !== user.id) {
+      throw new ForbiddenException();
+    }
+    if ([APPT_STATES.CANCELLED, APPT_STATES.COMPLETED, APPT_STATES.RESCHEDULED].includes(appt.status)) {
+      throw new BadRequestException('cannot_reschedule');
+    }
+    // D-26: one free reschedule, only while the current slot is far enough out.
+    const policy = await this.getRefundPolicy();
+    const freeReschedules = Number(policy?.consultation?.free_reschedules ?? 1);
+    const minHours = Number(policy?.consultation?.free_reschedule_min_hours ?? 2);
+    const hoursToSlot = (new Date(appt.slot_start).getTime() - Date.now()) / (1000 * 60 * 60);
+    // Owner decision 2026-11-10 (late cancel, option b): inside the last `minHours` before the start the patient may, instead of cancelling for 50 %, use the ONE free reschedule, to a slot
+    // within 14 days. Only the patient side and only before the visit starts (after the start it is a no-show, not a reschedule). No wallet, no credit: the same booking moves.
+    const late = !(hoursToSlot >= minHours);
+    const patientSide = appt.patient_id === user.id || (!!(appt as any).booked_by_user_id && (appt as any).booked_by_user_id === user.id);
+    if (late && !(patientSide && user.role !== UserRole.ADMIN && hoursToSlot >= 0)) {
+      throw new BadRequestException('reschedule_too_late_for_free_reschedule');
+    }
+    const priorReschedules = await this.countPriorReschedules(appt);
+    if (patientSide && user.role !== UserRole.ADMIN && (appt as any).late_free_reschedule === true) throw new BadRequestException('no_free_reschedules_left');   // the one late free reschedule is used
     if (priorReschedules >= freeReschedules) {
       throw new BadRequestException('no_free_reschedules_left');
     }
     const newStart = new Date(body.slot_start);
     if (isNaN(newStart.getTime()) || newStart.getTime() < Date.now() + 5 * 60_000) {
       throw new BadRequestException('slot_start must be in the future');
+    }
+    if (late && newStart.getTime() > Date.now() + AppointmentsService.LATE_FREE_RESCHEDULE_DAYS * 86_400_000) {
+      throw new BadRequestException('late_reschedule_within_14_days');
     }
     if (newStart.getMinutes() % 15 !== 0 || newStart.getSeconds() !== 0 || newStart.getMilliseconds() !== 0) {
       throw new BadRequestException('slot_start must be exactly on a 15-minute boundary');
@@ -823,11 +1042,13 @@ export class AppointmentsService {
       transportation_fee: (appt as any).transportation_fee || 0,
       total_price: (appt as any).total_price || appt.price,
       rescheduled_from_id: appt.id,
+      ...(late ? { late_free_reschedule: true } : {}),
+      ...((appt as any).refund_policy_acceptance ? { refund_policy_acceptance: (appt as any).refund_policy_acceptance } : {}),   // the policy agreed at booking continues
       state_history: [{ state: APPT_STATES.CONFIRMED, at: new Date(), by_user_id: user.id, by_role: user.role, note: 'rescheduled-from-' + appt.id }],
     });
     try {
       appt.status = APPT_STATES.RESCHEDULED;
-      appt.state_history.push({ state: APPT_STATES.RESCHEDULED, at: new Date(), by_user_id: user.id, by_role: user.role, note: 'rescheduled' });
+      appt.state_history.push({ state: APPT_STATES.RESCHEDULED, at: new Date(), by_user_id: user.id, by_role: user.role, note: late ? 'rescheduled-late-free' : 'rescheduled' });
       await appt.save();
     } catch (error) {
       await this.apptModel.deleteOne({ id: fresh.id }).catch(() => null);
@@ -857,12 +1078,29 @@ export class AppointmentsService {
    * When Moyasar (or any PSP) confirms payment, transition the appointment
    * from PENDING → CONFIRMED so the patient sees the booking go live.
    */
+  /** The patient never paid: the unpaid card booking is cancelled so its slot is bookable again. */
+  @OnEvent('payment.abandoned')
+  async onPaymentAbandoned(payload: { booking_kind?: string; booking_id?: string }) {
+    if (payload.booking_kind !== 'consultation' || !payload.booking_id) return;
+    const appt = await this.apptModel.findOne({ id: payload.booking_id });
+    if (!appt || appt.status !== APPT_STATES.PENDING || appt.payment_status === 'paid') return;
+    await this.apptModel.updateOne({ id: appt.id }, { $set: { cancellation_reason: 'payment_abandoned', refund_percentage: 0 } });
+    await this.transition(appt.id, APPT_STATES.CANCELLED, { id: 'system', role: 'system' }, 'payment_abandoned');
+  }
+
   @OnEvent('payment.completed')
   async onPaymentCompleted(payload: { booking_id?: string; booking_kind?: string; amount?: number; transaction_id?: string }) {
     if (payload.booking_kind !== 'consultation' || !payload.booking_id) return;
     const appt = await this.apptModel.findOne({ id: payload.booking_id });
     if (!appt) {
       this.logger.warn(`payment.completed: appointment ${payload.booking_id} not found`);
+      return;
+    }
+    // The money arrived after the unpaid booking was released: the slot may already be someone else's, so it goes back in full.
+    const last = (appt.state_history as any[] | undefined)?.slice(-1)[0];
+    if (appt.status === APPT_STATES.CANCELLED && last?.note === 'payment_abandoned') {
+      this.events.emit('appointment.refund.calculated', { appointment_id: appt.id, patient_id: appt.patient_id, doctor_id: appt.doctor_id, refund_percentage: 100, total_price: Number(payload.amount ?? appt.total_price ?? 0), penalty_amount: 0 });
+      this.logger.warn(`payment.completed after release: appointment ${appt.id} refunded in full (payment ${payload.transaction_id})`);
       return;
     }
     // Only transition if still PENDING (idempotent — ignore if already confirmed)

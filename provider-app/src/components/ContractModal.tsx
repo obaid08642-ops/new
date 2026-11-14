@@ -1,129 +1,154 @@
-import React, { useEffect, useState } from 'react';
-import { View, Modal, TouchableOpacity, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
-import { SP, FS, R } from '../constants';
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, Modal, TouchableOpacity, Text, StyleSheet, ScrollView, ActivityIndicator, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
+import { SP, FS, R, FW } from '../constants';
 import { useTheme, useLang } from '../context';
 import { I as NIcon } from './icons';
 import client from '../api/client';
+
+export const PROVIDER_AGREEMENT_KEY = 'provider_agreement';
+
+export type ContractPolicy = { content: string; version: string; effective_date?: string | null };
 
 interface ContractModalProps {
   visible: boolean;
   onClose: () => void;
   pricingDetails?: { labelAr: string; labelEn: string; price: string | number }[];
+  /** A new version must be accepted to continue: no close button. */
+  required?: boolean;
+  /** Called with the version the server recorded, after the acceptance was saved. */
+  onAccepted?: (version: string) => void;
 }
 
-export const ContractModal: React.FC<ContractModalProps> = ({ visible, onClose, pricingDetails }) => {
+/** How far from the bottom still counts as "read to the end" (text rendering rounds line heights). */
+const END_SLACK = 24;
+export const reachedEnd = (e: NativeScrollEvent): boolean =>
+  e.contentOffset.y + e.layoutMeasurement.height >= e.contentSize.height - END_SLACK;
+
+/**
+ * The provider agreement the provider signs: the text is the versioned, admin-edited policy from the legal service
+ * (Arabic for the Arabic app, English for English). There is no text written in the app: when the policy cannot be loaded the
+ * modal says so and offers a retry, and the agree button stays off until the provider has scrolled to the end of the loaded text.
+ */
+export const ContractModal: React.FC<ContractModalProps> = ({ visible, onClose, pricingDetails, required, onAccepted }) => {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const AR = lang === 'ar';
 
-  // Fetch the live Provider Agreement from the legal service (ar/en, versioned).
-  const [policy, setPolicy] = useState<{ content: string; version: string } | null>(null);
+  const [policy, setPolicy] = useState<ContractPolicy | null>(null);
   const [loadingPolicy, setLoadingPolicy] = useState(false);
+  const [loadError, setLoadError] = useState<'failed' | 'empty' | null>(null);
   const [accepting, setAccepting] = useState(false);
-  useEffect(() => {
-    if (!visible) return;
-    setLoadingPolicy(true);
-    client.get(`/legal/policy/provider_agreement?lang=${AR ? 'ar' : 'en'}`)
-      .then((res: any) => { if (res.data?.content) setPolicy({ content: res.data.content, version: res.data.version }); })
-      .catch(() => {})
-      .finally(() => setLoadingPolicy(false));
-  }, [visible, AR]);
+  const [acceptError, setAcceptError] = useState(false);
+  const [atEnd, setAtEnd] = useState(false);
+  const [viewportH, setViewportH] = useState(0);
 
+  const load = useCallback(() => {
+    setLoadingPolicy(true); setLoadError(null); setAtEnd(false); setAcceptError(false);
+    client.get(`/legal/policy/${PROVIDER_AGREEMENT_KEY}?lang=${AR ? 'ar' : 'en'}`)
+      .then((res: any) => {
+        const d = res?.data;
+        if (d?.content) setPolicy({ content: String(d.content), version: String(d.version), effective_date: d.effective_date ?? null });
+        else { setPolicy(null); setLoadError('empty'); }
+      })
+      .catch(() => { setPolicy(null); setLoadError('failed'); })
+      .finally(() => setLoadingPolicy(false));
+  }, [AR]);
+  useEffect(() => { if (visible) load(); }, [visible, load]);
+
+  // a text shorter than the window has nothing to scroll: it counts as read
+  const onContentSize = (_w: number, h: number) => { if (viewportH > 0 && h <= viewportH + END_SLACK) setAtEnd(true); };
+  const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => { if (reachedEnd(e.nativeEvent)) setAtEnd(true); };
+
+  const accept = async () => {
+    if (!policy || accepting) return;
+    setAccepting(true); setAcceptError(false);
+    try {
+      const res: any = await client.post(`/legal/accept/${PROVIDER_AGREEMENT_KEY}`, {});
+      const version = String(res?.data?.version ?? policy.version);
+      onAccepted?.(version);
+      onClose();
+    } catch {
+      setAcceptError(true);
+    } finally {
+      setAccepting(false);
+    }
+  };
+
+  const canAccept = !!policy && atEnd && !accepting;
   const styles = StyleSheet.create({
-    overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
+    overlay: { flex: 1, backgroundColor: theme.overlay, justifyContent: 'center', alignItems: 'center' },
     modal: { width: '90%', height: '80%', backgroundColor: theme.bg, borderRadius: R.lg, padding: SP.lg },
     header: { flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.md },
-    title: { fontSize: FS.lg, fontWeight: 'bold', color: theme.text },
+    title: { fontSize: FS.lg, fontWeight: FW.bold, color: theme.text },
     closeBtn: { padding: SP.xs },
     content: { flex: 1, backgroundColor: theme.surface, padding: SP.md, borderRadius: R.md },
     text: { fontSize: FS.md, color: theme.text, textAlign: AR ? 'right' : 'left', lineHeight: 26 },
+    meta: { fontSize: FS.xs, color: theme.textSub, marginTop: SP.sm, textAlign: AR ? 'right' : 'left' },
+    error: { fontSize: FS.sm, color: theme.danger, textAlign: AR ? 'right' : 'left', marginVertical: SP.md },
+    hint: { fontSize: FS.xs, color: theme.textSub, textAlign: 'center', marginTop: SP.sm },
     pricingSection: { marginTop: SP.md, padding: SP.md, backgroundColor: theme.surface2, borderRadius: R.sm },
-    pricingTitle: { fontWeight: 'bold', marginBottom: SP.sm, color: theme.text },
+    pricingTitle: { fontWeight: FW.bold, marginBottom: SP.sm, color: theme.text },
     pricingRow: { flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: 4 },
     confirmBtn: { padding: SP.md, borderRadius: R.md, backgroundColor: theme.primary, marginTop: SP.md },
-    confirmTxt: { color: 'white', textAlign: 'center', fontWeight: 'bold' }
+    retryBtn: { padding: SP.md, borderRadius: R.md, borderWidth: 1, borderColor: theme.primary, alignItems: 'center' },
+    confirmTxt: { color: theme.textInv, textAlign: 'center', fontWeight: FW.bold },
   });
 
   return (
-    <Modal visible={visible} animationType="slide" transparent>
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={required ? undefined : onClose}>
       <View style={styles.overlay}>
         <View style={styles.modal}>
           <View style={styles.header}>
-            <Text style={styles.title}>{AR ? 'عقد تقديم الخدمات' : 'Service Provision Contract'}</Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-              <NIcon name="close" size={24} color={theme.text} />
-            </TouchableOpacity>
-          </View>
-          <ScrollView style={styles.content}>
-            {loadingPolicy && <ActivityIndicator color={theme.primary} style={{ marginVertical: SP.lg }} />}
-            <Text style={styles.text}>
-              {policy ? policy.content : (AR ? `بنود اتفاقية تقديم الخدمات عبر منصة نبض بلس
-1. الالتزام بالمعايير الطبية:
-يتعهد الطرف الثاني (مقدم الخدمة) بتقديم كافة الخدمات الطبية أو المخبرية أو الصيدلانية أو التمريضية وفق أعلى معايير الجودة المعتمدة من وزارة الصحة.
-
-2. دقة البيانات:
-يقر الطرف الثاني بأن كافة التراخيص والبيانات المرفوعة صحيحة وسارية المفعول، ويتحمل المسؤولية القانونية كاملة في حال ثبوت عكس ذلك.
-
-3. معالجة الطلبات:
-يلتزم مقدم الخدمة بالاستجابة للطلبات الواردة عبر المنصة في الوقت المحدد (حسب نوع الخدمة)، وتحديث حالة الطلب فور التنفيذ.
-
-4. العمولات والتسويات:
-يوافق الطرف الثاني على نسبة العمولة الخاصة بالمنصة والتي يتم اقتطاعها آلياً من المعاملات الناجحة.
-
-5. السرية والخصوصية:
-يلتزم الطرفان بالحفاظ على سرية بيانات المرضى وعدم مشاركتها مع أي طرف ثالث.` : `Terms of Service Provision Agreement via Nabd Plus Platform
-1. Commitment to Medical Standards:
-The Second Party (Service Provider) commits to providing all medical, laboratory, pharmaceutical, or nursing services according to the highest quality standards approved by the Ministry of Health.
-
-2. Data Accuracy:
-The Second Party acknowledges that all uploaded licenses and data are correct and valid, and bears full legal responsibility otherwise.
-
-3. Order Processing:
-The service provider commits to responding to requests received via the platform within the specified time (depending on the service type), and updating the order status immediately upon execution.
-
-4. Commissions and Settlements:
-The Second Party agrees to the platform's commission rate which is deducted automatically from successful transactions.
-
-5. Confidentiality:
-Both parties commit to maintaining patient data confidentiality.`)}
-            </Text>
-            {policy && (
-              <Text style={[styles.text, { fontSize: FS.xs, color: theme.textSub, marginTop: SP.sm }]}>
-                {AR ? `الإصدار ${policy.version}` : `Version ${policy.version}`}
-              </Text>
+            <Text style={styles.title}>{t('contract.title')}</Text>
+            {!required && (
+              <TouchableOpacity onPress={onClose} style={styles.closeBtn} accessibilityLabel={t('contract.mine.close')}>
+                <NIcon name="close" size={24} color={theme.text} />
+              </TouchableOpacity>
             )}
-            
-            {pricingDetails && pricingDetails.length > 0 && (
+          </View>
+          <ScrollView
+            testID="contract-scroll"
+            style={styles.content}
+            onLayout={(e) => setViewportH(e.nativeEvent.layout.height)}
+            onContentSizeChange={onContentSize}
+            onScroll={onScroll}
+            scrollEventThrottle={64}
+          >
+            {loadingPolicy && <ActivityIndicator color={theme.primary} style={{ marginVertical: SP.lg }} />}
+            {loadError && (
+              <View>
+                <Text style={styles.error}>{loadError === 'empty' ? t('contract.notPublished') : t('contract.loadFailed')}</Text>
+                <TouchableOpacity style={styles.retryBtn} onPress={load}><Text style={{ color: theme.primary, fontWeight: FW.bold }}>{t('common.retry')}</Text></TouchableOpacity>
+              </View>
+            )}
+            {policy && <Text style={styles.text}>{policy.content}</Text>}
+            {policy && <Text style={styles.meta}>{t('contract.version', { version: policy.version })}</Text>}
+            {policy?.effective_date ? <Text style={styles.meta}>{t('contract.effective', { date: new Date(policy.effective_date).toLocaleDateString(AR ? 'ar' : 'en') })}</Text> : null}
+
+            {policy && pricingDetails && pricingDetails.length > 0 && (
               <View style={styles.pricingSection}>
-                <Text style={styles.pricingTitle}>{AR ? 'ملحق التسعير المتفق عليه:' : 'Agreed Pricing Annex:'}</Text>
+                <Text style={styles.pricingTitle}>{t('contract.pricingAnnex')}</Text>
                 {pricingDetails.map((item, idx) => (
                   <View key={idx} style={styles.pricingRow}>
-                    <Text style={{color: theme.textSub}}>{AR ? item.labelAr : item.labelEn}</Text>
-                    <Text style={{fontWeight: 'bold', color: theme.text}}>{item.price} {AR ? 'ر.س' : 'SAR'}</Text>
+                    <Text style={{ color: theme.textSub }}>{AR ? item.labelAr : item.labelEn}</Text>
+                    <Text style={{ fontWeight: FW.bold, color: theme.text }}>{item.price} {t('contract.currency')}</Text>
                   </View>
                 ))}
               </View>
             )}
-            
-            <Text style={[styles.text, { marginTop: SP.md, fontWeight: 'bold' }]}>
-              {AR ? '(يعتبر هذا العقد ملزماً بمجرد التوقيع الرقمي أدناه)' : '(This contract is binding upon digital signature below)'}
-            </Text>
+
+            {policy && <Text style={[styles.text, { marginTop: SP.md, fontWeight: FW.bold }]}>{t('contract.bindingNote')}</Text>}
           </ScrollView>
 
+          {acceptError && <Text style={styles.error}>{t('contract.acceptFailed')}</Text>}
+          {!!policy && !atEnd && <Text style={styles.hint}>{t('contract.readToEnd')}</Text>}
           <TouchableOpacity
-            style={[styles.confirmBtn, accepting && { opacity: 0.6 }]}
-            disabled={accepting}
-            onPress={async () => {
-              // Article 16: pressing "I Agree" is legally binding electronic acceptance.
-              setAccepting(true);
-              try { await client.post('/legal/accept/provider_agreement', {}); } catch {}
-              setAccepting(false);
-              onClose();
-            }}
+            style={[styles.confirmBtn, !canAccept && { opacity: 0.5 }]}
+            disabled={!canAccept}
+            onPress={accept}
+            accessibilityState={{ disabled: !canAccept }}
           >
-            <Text style={styles.confirmTxt}>
-              {accepting ? (AR ? 'جارٍ التسجيل…' : 'Recording…') : (AR ? 'أوافق' : 'I Agree')}
-            </Text>
+            <Text style={styles.confirmTxt}>{accepting ? t('contract.recording') : t('contract.accept')}</Text>
           </TouchableOpacity>
         </View>
       </View>

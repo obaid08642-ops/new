@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Header, Headers, ForbiddenException, ServiceUnavailableException, Optional, BadRequestException, NotFoundException } from '@nestjs/common';
+import { recordAudit } from '../../common/audit-record';
 import { CurrentUser, JwtAuthGuard, Roles, Public } from '../../common/auth.guard';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -6,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { UserRole, isProviderRole } from '../../common/enums';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { PharmacyOrderService } from './services/pharmacy-order.service';
+import { PharmacyRefillService } from './services/pharmacy-refill.service';
 import { PharmacyAllocationService } from './services/pharmacy-allocation.service';
 import { PharmacyInventoryExtService } from './services/pharmacy-inventory-ext.service';
 import { PharmacySeedService } from './services/pharmacy-seed.service';
@@ -18,7 +20,7 @@ import { PharmacyOfferService } from './services/pharmacy-offer.service';
 import { PharmacyInsuranceDecisionService } from './services/pharmacy-insurance-decision.service';
 import { PharmacyExpiryCommandService } from './services/pharmacy-expiry-command.service';
 import { PaymentsService } from '../payments/payments.module';
-import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, OpenChatThreadDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5, SetCodPolicyDto, PaymentRulesDto, PharmacyCodSettingDto, ResolvePriceReviewDto } from './pharmacy.controllers.dto';
+import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, OpenChatThreadDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5, SetCodPolicyDto, PaymentRulesDto, PharmacyCodSettingDto, ResolvePriceReviewDto, BroadcastConfigDto, RefillDto } from './pharmacy.controllers.dto';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
 // =========================================================================
@@ -28,7 +30,7 @@ import { Permission, RequirePermissions } from '../../common/permissions';
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.PATIENT)
 export class PatientPharmacyController {
-  constructor(private orders: PharmacyOrderService, private offers: PharmacyOfferService, private insurance: PharmacyInsuranceDecisionService, private cardPayments: PaymentsService, @Optional() private allocations?: PharmacyAllocationService) {}
+  constructor(private orders: PharmacyOrderService, private offers: PharmacyOfferService, private insurance: PharmacyInsuranceDecisionService, private cardPayments: PaymentsService, private refills: PharmacyRefillService, @Optional() private allocations?: PharmacyAllocationService) {}
   // Order roots are state-changing: keys are mandatory (P0-01). The global
   // IdempotencyInterceptor then guarantees replay-safety (24h cache +
   // in-progress lock + body-hash mismatch guard). Mobile + web BFF already send keys.
@@ -36,7 +38,10 @@ export class PatientPharmacyController {
   @Get('orders') list(@CurrentUser() u: any, @Query('status') status?: string) { return this.orders.list(u, status); }
   @Get('orders/:id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.detail(u, id); }
   @Patch('orders/:id') @RequireIdempotency() update(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateDto) { return this.orders.update(u, id, b); }
+  // 22.5: the lines a chosen pharmacy could not fill become a new draft order of their own
+  @Post('orders/:id/split-remaining') @RequireIdempotency() splitRemaining(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.splitRemaining(u, id); }
   @Post('orders/:id/submit') @RequireIdempotency() submit(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.submit(u, id); }
+  @Post('orders/:id/refill') @RequireIdempotency() refill(@CurrentUser() u: any, @Param('id') id: string, @Body() b: RefillDto) { return this.refills.refill(u, id, new Date(), { refund_policy_accepted: b?.refund_policy_accepted, refund_policy_hash: b?.refund_policy_hash }); }
   @Post('orders/:id/cancel') @RequireIdempotency() cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelDto) { return this.orders.cancel(u, id, b?.reason || ''); }
   @Post('orders/:id/insurance-rejection/cancel') cancelRejectedInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelRejectedInsuranceDto, @Headers('idempotency-key') idemHeader?: string) { return this.insurance.cancelRejectedByPatient(u, id, b?.idempotency_key || idemHeader); }
   // A-2: ?include=closed also returns the expired, withdrawn and earlier offers, each with its offer_state.
@@ -92,12 +97,19 @@ export class ProviderPharmacyController {
     private providerOrders: PharmacyOrdersProviderService,
     private insurance: PharmacyInsuranceDecisionService,
     @Optional() private offersSvc?: PharmacyOfferService,
+    @Optional() private broadcastSvc?: PharmacyBroadcastService,
   ) {}
 
   /** P3 "My offers": ?status=draft|sent|chosen|not_chosen|expired|cancelled */
   @Get('offers') myOffers(@CurrentUser() u: any, @Query('status') status?: string) {
     if (!isProviderRole(u?.role)) throw new ForbiddenException();
     return this.offersSvc!.listForPharmacy(u, status);
+  }
+
+  /** Refills: orders that repeat an earlier order of a patient, among those this pharmacy was asked to price (the "refills" screens). */
+  @Get('refills') myRefills(@CurrentUser() u: any) {
+    if (!isProviderRole(u?.role)) throw new ForbiddenException();
+    return this.broadcastSvc!.listRefillsForPharmacy(u);
   }
 
   @Get('allocations') list(@CurrentUser() u: any, @Query('status') status?: string) {
@@ -374,7 +386,7 @@ export class AdminFulfillmentPolicyController {
         $setOnInsert: { id: 'platform-cod', payment_method: 'cod', provider_account_id: null, createdAt: now } },
       { upsert: true },
     );
-    await this.conn.collection('audit_logs').insertOne({ id: uuidv4(), actor_id: u?.id, actor_role: 'admin', action: 'pharmacy.cod_policy_set', after: { active: b.active === true }, createdAt: now });
+    await recordAudit(this.conn, { action: 'pharmacy.cod_policy_set', user_id: u?.id, role: 'admin', resource_kind: 'fulfillment_policy', resource_id: 'platform-cod', changes: { after: { active: b.active === true } }, severity: 'warn' });
     return this.col.findOne({ id: 'platform-cod' }, { projection: { _id: 0 } });
   }
 }
@@ -383,7 +395,30 @@ export class AdminFulfillmentPolicyController {
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
 export class AdminBroadcastController {
-  constructor(private bc: PharmacyBroadcastService, private readonly expiry: PharmacyExpiryCommandService) {}
+  constructor(private bc: PharmacyBroadcastService, private readonly expiry: PharmacyExpiryCommandService, @InjectConnection() private readonly conn: Connection) {}
+
+  /** The broadcast policy next to each other: the widening stages (read-only here) and the stop-after-offers setting (editable). */
+  @RequirePermissions(Permission.SETTINGS_EDIT)
+  @Get('config')
+  async config() {
+    return { stages: await this.bc.getBroadcastStages().catch(() => null), stop_after_offers: await this.bc.getStopAfterOffers() };
+  }
+
+  /** Owner decision 2026-10-22: once this many live offers exist the broadcast stops widening (0 = never stop). */
+  @RequirePermissions(Permission.SETTINGS_EDIT)
+  @Put('config')
+  async setConfig(@CurrentUser() u: any, @Body() b: BroadcastConfigDto) {
+    const before = await this.bc.getStopAfterOffers();
+    const now = new Date();
+    await this.conn.collection('system_configs').updateOne(
+      { key: 'pharmacy_broadcast_stop_after_offers' },
+      { $set: { key: 'pharmacy_broadcast_stop_after_offers', value: b.stop_after_offers, updated_at: now, updated_by: u?.id ?? null }, $setOnInsert: { created_at: now } },
+      { upsert: true },
+    );
+    await recordAudit(this.conn, { action: 'pharmacy.broadcast_stop_after_offers_set', user_id: u?.id, role: 'admin', resource_kind: 'system_config', resource_id: 'system_config:pharmacy_broadcast_stop_after_offers', changes: { before: { stop_after_offers: before }, after: { stop_after_offers: b.stop_after_offers } }, severity: 'warn' });
+    return this.config();
+  }
+
   /** Admin monitor list (broadcast-monitor.tsx). */
   @Get()
   async list(@Query('limit') limit?: string) {

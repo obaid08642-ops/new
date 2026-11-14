@@ -8,7 +8,7 @@ describe('ProviderOnboardingService start', () => {
     const providerModel = { findOne: jest.fn().mockResolvedValue(null), create: jest.fn().mockResolvedValue({ id: 'profile-1', type: ProviderType.LAB, onboarding_step: 1 }) };
     const bus = { emit: jest.fn().mockResolvedValue(undefined) };
     const contracts = {};
-    return { service: new ProviderOnboardingService(userModel as any, providerModel as any, bus as any, contracts as any), userModel, providerModel };
+    return { service: new ProviderOnboardingService(userModel as any, providerModel as any, bus as any, contracts as any, { recordAtSubmission: async () => undefined } as any), userModel, providerModel };
   }
 
   it('requires a contact identity before creating an onboarding-only identity', async () => {

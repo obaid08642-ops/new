@@ -8,6 +8,15 @@ import { Model, Connection, Types } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { APPT_STATES } from '../../schemas/appointment.schema';
 import { isChaosFail } from '../../common/chaos-switches';
+import { CoturnService } from '../coturn/coturn.service';
+import { cloudflareTurn } from '../coturn/cloudflare-turn.service';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { audioOnlyAdvice, chooseTransport, maxCallsPerHost, type LinkSample } from './call-transport';
+import { ScheduledOnce } from '../../common/scheduled-once';
+
+/** A ringing call that nobody answered stops counting against the host after this long; an active call after the longest consultation. */
+const RINGING_MS = 2 * 60_000;
+const ACTIVE_MS = 3 * 60 * 60_000;
 
 @Injectable()
 export class LiveKitService {
@@ -21,13 +30,15 @@ export class LiveKitService {
 
   private get callSessions() { return this.conn.collection('callsessions'); }
 
-  async createToken(roomName: string, participantName: string): Promise<string> {
-    this.logger.log(`Creating LiveKit token for ${participantName} in ${roomName}`);
+  /** `identity` is the user id (unique in a room); the display name travels as the participant's name only. */
+  async createToken(roomName: string, identity: string, displayName?: string): Promise<string> {
+    this.logger.log(`Creating LiveKit token for ${identity} in ${roomName}`);
     if (!process.env.LIVEKIT_API_KEY || !process.env.LIVEKIT_API_SECRET) {
       throw new ServiceUnavailableException('LIVEKIT_NOT_CONFIGURED');
     }
     const at = new AccessToken(process.env.LIVEKIT_API_KEY, process.env.LIVEKIT_API_SECRET, {
-      identity: participantName,
+      identity: String(identity),
+      ...(displayName ? { name: String(displayName) } : {}),
       ttl: '2h', // legacy call-session token policy
     });
     at.addGrant({ roomJoin: true, room: roomName });
@@ -35,12 +46,13 @@ export class LiveKitService {
   }
 
   /** Patient-web booking token: narrower than legacy sessions and valid 10 minutes only. */
-  async createBookingToken(roomName: string, participantName: string): Promise<string> {
+  async createBookingToken(roomName: string, identity: string, displayName?: string): Promise<string> {
     if (!process.env.LIVEKIT_API_KEY || !process.env.LIVEKIT_API_SECRET) {
       throw new ServiceUnavailableException('LIVEKIT_NOT_CONFIGURED');
     }
     const at = new AccessToken(process.env.LIVEKIT_API_KEY, process.env.LIVEKIT_API_SECRET, {
-      identity: participantName,
+      identity: String(identity),
+      ...(displayName ? { name: String(displayName) } : {}),
       ttl: '10m',
     });
     at.addGrant({ roomJoin: true, room: roomName });
@@ -64,23 +76,39 @@ export class LiveKitService {
    */
   async issueBookingCallToken(bookingId: string, user: any) {
     const appt: any = await this.appointments.findOne({ id: bookingId }).lean();
-    const isParticipant = appt && [String(appt.patient_id), String(appt.doctor_user_id)].includes(String(user?.id));
+    // the guardian who booked for a family member is a party too (consent and payments treat booked_by_user_id the same way)
+    const isParticipant = appt && [appt.patient_id, appt.doctor_user_id, appt.booked_by_user_id].filter(Boolean).map(String).includes(String(user?.id));
     if (!isParticipant) throw new NotFoundException('booking_not_found');
     if (appt.service_type !== 'video') throw new BadRequestException('call_token_only_available_for_video_booking');
     await this.assertPatientConsent(appt, String(user?.id));
     if ([APPT_STATES.CANCELLED, APPT_STATES.COMPLETED, APPT_STATES.RESCHEDULED].includes(appt.status)) {
       throw new BadRequestException('call_token_not_available_for_booking_state');
     }
+    // From 15 minutes before the slot to 15 minutes after it ends: a call that runs long, or a dropped patient, can come back and get a new
+    // token from this same endpoint (the 10-minute credential is refreshed by asking again).
     const slotStart = new Date(appt.slot_start).getTime();
-    if (!Number.isFinite(slotStart) || Math.abs(Date.now() - slotStart) > 15 * 60_000) {
+    const slotEndRaw = new Date(appt.slot_end).getTime();
+    const slotEnd = Number.isFinite(slotEndRaw) ? slotEndRaw : slotStart + Number(appt.duration_minutes || 30) * 60_000;
+    const now = Date.now();
+    if (!Number.isFinite(slotStart) || now < slotStart - 15 * 60_000 || now > slotEnd + 15 * 60_000) {
       throw new BadRequestException('call_token_outside_appointment_window');
     }
     const room = `booking-${appt.id}`;
-    const token = await this.createBookingToken(room, user?.name || user?.full_name || user?.id);
-    return { provider: 'livekit', token, room };
+    const token = await this.createBookingToken(room, String(user?.id), user?.name || user?.full_name);
+    // the same advice as /calls/:id/join: sound only under server pressure (the web room also drops to sound only on a weak link by itself)
+    // (best effort: a failing count never keeps the patient out of the call)
+    const advice = audioOnlyAdvice({ activeCalls: await this.activeCallCount().catch(() => 0) });
+    return { provider: 'livekit', token, room, ice_servers: await this.iceServersFor(String(user?.id)), audio_only: advice.audio_only, audio_only_reason: advice.reason };
   }
 
-  async getProviderWaitingRoom(providerId: string) {
+  /** The kinds of appointment the schedule has: a clinic visit, a video consultation, a home visit. */
+  static readonly SERVICE_TYPES = ['clinic', 'video', 'home'] as const;
+
+  /** Today's patients of this doctor; `serviceType` keeps one kind (the virtual waiting room asks for `video`). Every row says its kind. */
+  async getProviderWaitingRoom(providerId: string, serviceType?: string) {
+    if (serviceType !== undefined && !(LiveKitService.SERVICE_TYPES as readonly string[]).includes(serviceType)) {
+      throw new BadRequestException('invalid_service_type');
+    }
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
@@ -92,12 +120,14 @@ export class LiveKitService {
       doctor_user_id: providerId,
       status: { $in: ['PENDING', 'CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS'] },
       slot_start: { $gte: today, $lt: tomorrow },
+      ...(serviceType ? { service_type: serviceType } : {}),
     }).lean();
 
     return appointments.map((a: any) => ({
       id: a.id || a._id?.toString(),
       name: a.patient_name || 'مريض',
       time: a.slot_start,
+      service_type: a.service_type ?? null,
       checkedIn: a.status === 'CHECKED_IN',
       status: a.status,
     }));
@@ -153,6 +183,10 @@ export class LiveKitService {
       throw new BadRequestException('appointment_not_no_show_eligible');
     }
 
+    // A no-show can only be recorded once the patient has been late for a while: never before the visit starts.
+    const startAt = appt.slot_start ? new Date(appt.slot_start).getTime() : 0;
+    if (startAt && Date.now() < startAt + 10 * 60_000) throw new BadRequestException('no_show_too_early');
+
     const from = appt.status;
     appt.status = 'NO_SHOW';
     appt.cancellation_reason = appt.cancellation_reason || 'provider_marked_no_show';
@@ -160,6 +194,8 @@ export class LiveKitService {
     appt.refund_destination = 'none';
     appt.state_history = [...(appt.state_history || []), { state: 'NO_SHOW', at: new Date(), by_user_id: providerId, by_role: 'doctor', note: 'no_show' }];
     await appt.save();
+    // the patient is told the visit was recorded as missed (the refund rule is the finance engine's, not decided here)
+    this.events.emit('doctor_appointment.no_show', { id: appt.id, patient_id: appt.patient_id, patient_account_id: appt.patient_account_id, doctor_id: providerId });
     return { success: true, message: 'Marked as no-show', previous_status: from };
   }
 
@@ -182,7 +218,7 @@ export class LiveKitService {
     return session;
   }
 
-  async initiateCall(callerId: string, callerName: string, calleeId: string, callType: string, bookingId?: string) {
+  async initiateCall(callerId: string, callerName: string, calleeId: string, callType: string, bookingId?: string, supportsP2p = false) {
     if (!bookingId) throw new BadRequestException('appointmentId is required');
     const appointmentFilter: any = { id: { $eq: bookingId } };
     if (Types.ObjectId.isValid(bookingId)) appointmentFilter.$or = [{ id: { $eq: bookingId } }, { _id: { $eq: new Types.ObjectId(bookingId) } }];
@@ -207,42 +243,130 @@ export class LiveKitService {
     if (!resolvedCallee || ![patientId, providerId].includes(String(resolvedCallee)) || String(resolvedCallee) === String(callerId)) {
       throw new ForbiddenException('Callee is not an appointment participant');
     }
+    await this.assertHostFree(providerId, bookingId);
+    // A client that does not say it speaks P2P (older apps, the web room today) always gets LiveKit.
+    const transport = supportsP2p ? chooseTransport({ participants: 2 }) : 'livekit';
     const roomName = `room-${randomUUID()}`;
-    const token = await this.createToken(roomName, callerName);
+    // P2P: no LiveKit token is minted; the room name only names the session. LiveKit is asked for a token only on the fallback.
+    const token = transport === 'livekit' ? await this.createToken(roomName, String(callerId), callerName) : null;
     const sessionId = `call_${randomUUID()}`;
     await this.callSessions.insertOne({
       id: sessionId, appointment_id: bookingId, patient_id: patientId, provider_id: providerId,
-      room_name: roomName, call_type: callType || 'video', status: 'INITIATED',
+      caller_id: String(callerId), callee_id: String(resolvedCallee),
+      room_name: roomName, call_type: callType || 'video', status: 'INITIATED', transport,
       createdAt: new Date(), updatedAt: new Date(),
     });
     this.events.emit('call.incoming', {
       callee_id: resolvedCallee, caller_id: callerId, caller_name: callerName, call_type: callType || 'video', session_id: sessionId, room_name: roomName,
     });
-    return { room_name: roomName, token, call_type: callType || 'video', session_id: sessionId };
+    return { room_name: roomName, token, call_type: callType || 'video', session_id: sessionId, ...(await this.transportInfo(transport, callerId)) };
   }
 
-  async joinCall(sessionId: string, userId: string, userName: string) {
-    const session = await this.findOwnedSession(sessionId, userId);
-    // A session outlives its purpose when the appointment died meanwhile —
-    // fail it loudly instead of connecting a dead call (P0-14).
-    if (session.appointment_id) {
-      const appt: any = await this.appointments.findOne({ id: session.appointment_id }).lean().catch(() => null);
-      if (appt && ['CANCELLED', 'COMPLETED', 'RESCHEDULED', 'NO_SHOW'].includes(String(appt.status))) {
-        await this.callSessions.updateOne(
-          { id: session.id },
-          { $set: { status: 'FAILED', end_reason: 'appointment_not_active', ended_at: new Date(), updatedAt: new Date() } },
-        );
-        throw new BadRequestException('appointment_not_active');
-      }
-      if (appt) await this.assertPatientConsent(appt, userId);
+  /** The host (provider) holds `CALLS_MAX_PER_HOST` calls at once; a further call is answered 409 provider_busy, never queued silently. */
+  private async assertHostFree(providerId: string, appointmentId: string): Promise<void> {
+    const now = Date.now();
+    const busy = await this.callSessions.countDocuments({
+      provider_id: providerId,
+      appointment_id: { $ne: appointmentId },
+      $or: [
+        { status: 'INITIATED', createdAt: { $gte: new Date(now - RINGING_MS) } },
+        { status: 'ACTIVE', updatedAt: { $gte: new Date(now - ACTIVE_MS) } },
+      ],
+    });
+    if (busy >= maxCallsPerHost()) {
+      throw new ConflictException({ code: 'provider_busy', message: 'provider_busy', retry_after_seconds: 60 });
     }
-    const token = await this.createToken(session.room_name, userName);
+  }
+
+  /**
+   * STUN, then TURN with short-lived credentials (CoturnService, the same ones /coturn/credentials serves); empty when TURN is not configured.
+   * The TURN name carries a random opaque tag, not the account or call id: coturn logs it, and relaying media needs no identity.
+   */
+  private async iceServersFor(userId: string) {
+    const turn = new CoturnService();
+    // Cloudflare's relay first (TLS on 443 gets through networks that block everything else), our coturn second; either may be absent.
+    const cloudflare = await cloudflareTurn.iceServers(userId);
+    const own = turn.isConfigured() ? turn.getIceServers(randomUUID()).iceServers : [];
+    return [...cloudflare, ...own];
+  }
+
+  private async activeCallCount(): Promise<number> {
+    return this.callSessions.countDocuments({ status: 'ACTIVE', updatedAt: { $gte: new Date(Date.now() - ACTIVE_MS) } });
+  }
+
+  /** What the client needs to start the media: the transport, the ICE servers for P2P, and whether to start audio only. */
+  private async transportInfo(transport: 'p2p' | 'livekit', userId: string, sample?: LinkSample) {
+    const advice = audioOnlyAdvice({ activeCalls: await this.activeCallCount(), sample });
+    return {
+      transport,
+      // LiveKit rooms use them too (Room.connect rtcConfig): a relay is what a strict network needs on either transport
+      ice_servers: await this.iceServersFor(userId),
+      audio_only: advice.audio_only,
+      audio_only_reason: advice.reason,
+    };
+  }
+
+  /**
+   * A session outlives its purpose when the appointment died meanwhile: fail it loudly instead of connecting a dead call
+   * (P0-14), and ask the patient side for the current telehealth consent (D-38). Every path that hands out a LiveKit token
+   * (join and the P2P fallback) goes through here.
+   */
+  private async assertSessionAppointmentLive(session: any, userId: string): Promise<void> {
+    if (!session.appointment_id) return;
+    const appt: any = await this.appointments.findOne({ id: session.appointment_id }).lean().catch(() => null);
+    if (!appt) return;
+    if (['CANCELLED', 'COMPLETED', 'RESCHEDULED', 'NO_SHOW'].includes(String(appt.status))) {
+      await this.callSessions.updateOne(
+        { id: session.id },
+        { $set: { status: 'FAILED', end_reason: 'appointment_not_active', ended_at: new Date(), updatedAt: new Date() } },
+      );
+      throw new BadRequestException('appointment_not_active');
+    }
+    await this.assertPatientConsent(appt, userId);
+  }
+
+  async joinCall(sessionId: string, userId: string, userName: string, supportsP2p = false) {
+    const session = await this.findOwnedSession(sessionId, userId);
+    await this.assertSessionAppointmentLive(session, userId);
+    let transport: 'p2p' | 'livekit' = session.transport === 'p2p' ? 'p2p' : 'livekit';
+    if (transport === 'p2p' && !supportsP2p) {
+      // The other side cannot do P2P: the whole call moves to LiveKit and the caller is told, so nobody waits for an offer that never comes.
+      transport = 'livekit';
+      await this.callSessions.updateOne({ id: session.id }, { $set: { transport, fallback_reason: 'unsupported', fallback_at: new Date(), updatedAt: new Date() } });
+      this.events.emit('call.transport', { callee_id: session.patient_id === userId ? session.provider_id : session.patient_id, caller_id: userId, session_id: session.id, transport, reason: 'unsupported' });
+    }
+    const token = transport === 'livekit' ? await this.createToken(session.room_name, userId, userName) : null;
     await this.callSessions.updateOne(
       { id: session.id, status: 'INITIATED' },
       { $set: { status: 'ACTIVE', started_at: new Date(), updatedAt: new Date() } },
     );
     // P14.22: the web call room links a dropped call to this appointment's chat
-    return { room_name: session.room_name, token, appointment_id: session.appointment_id ?? null };
+    return { room_name: session.room_name, token, appointment_id: session.appointment_id ?? null, ...(await this.transportInfo(transport, userId)) };
+  }
+
+  /**
+   * A call nobody answered within the ringing time becomes MISSED and the callee gets the missed-call push/notice (`call.missed`:
+   * push.module `onCallMissed`, notifications.service). Sessions written before caller/callee were stored are left as they are.
+   */
+  @Cron(CronExpression.EVERY_MINUTE)
+  @ScheduledOnce()
+  async sweepUnanswered(now: Date = new Date()): Promise<number> {
+    const cutoff = new Date(now.getTime() - RINGING_MS);
+    const due: any[] = await this.callSessions.find({ status: 'INITIATED', createdAt: { $lt: cutoff }, callee_id: { $exists: true } }, { projection: { _id: 0 } }).limit(200).toArray();
+    let missed = 0;
+    for (const session of due) {
+      const res: any = await this.callSessions.updateOne(
+        { id: session.id, status: 'INITIATED' },
+        { $set: { status: 'MISSED', end_reason: 'unanswered', ended_at: now, updatedAt: now } },
+      );
+      if ((res?.modifiedCount ?? 0) < 1) continue;   // answered or ended meanwhile
+      missed += 1;
+      this.events.emit('call.missed', {
+        callee_id: String(session.callee_id), caller_id: String(session.caller_id), session_id: session.id,
+        patient_id: String(session.callee_id) === String(session.patient_id) ? String(session.patient_id) : undefined,
+      });
+    }
+    return missed;
   }
 
   async endCall(sessionId: string, userId: string) {
@@ -250,10 +374,15 @@ export class LiveKitService {
     this.logger.log(`User ${userId} ended call ${sessionId}`);
     const started = session.started_at ? new Date(session.started_at).getTime() : null;
     const duration = started ? Math.max(0, Math.round((Date.now() - started) / 1000)) : 0;
-    await this.callSessions.updateOne(
+    const res: any = await this.callSessions.updateOne(
       { id: session.id, status: { $in: ['INITIATED', 'ACTIVE'] } },
       { $set: { status: 'ENDED', ended_at: new Date(), duration_seconds: duration, ended_by: userId, updatedAt: new Date() } },
     );
+    // ended while still ringing: tell the other side's devices to stop ringing (push reaches a backgrounded or killed app)
+    if (session.status === 'INITIATED' && (res?.modifiedCount ?? 1) > 0) {
+      const other = session.patient_id === userId ? session.provider_id : session.patient_id;
+      if (other) this.events.emit('call.cancelled', { callee_id: String(other), caller_id: userId, session_id: session.id });
+    }
     return { success: true };
   }
 
@@ -272,19 +401,78 @@ export class LiveKitService {
     await this.callSessions.updateOne(
       { id: session.id }, { $set: { metrics, metrics_saved_at: new Date(), updatedAt: new Date() } },
     );
+    // The last sample of the batch decides the advice: a weak link or a loaded platform turns video off, sound kept.
+    const last = Array.isArray(metrics) && metrics.length ? metrics[metrics.length - 1] : undefined;
+    const sample: LinkSample | undefined = last && typeof last === 'object'
+      ? { packet_loss: Number(last.packet_loss), rtt_ms: Number(last.rtt_ms), bitrate_kbps: Number(last.bitrate_kbps) }
+      : undefined;
+    const advice = audioOnlyAdvice({ activeCalls: await this.activeCallCount(), sample });
+    return { success: true, audio_only: advice.audio_only, audio_only_reason: advice.reason };
+  }
+
+  /**
+   * The direct path failed (no ICE connection, or the relay was refused): move this call to LiveKit. The session keeps its
+   * room, the other side is told through the realtime gateway (`call.transport` event), and both fetch their token by joining again.
+   */
+  async fallbackToLiveKit(sessionId: string, userId: string, reason: string) {
+    const session = await this.findOwnedSession(sessionId, userId);
+    if (!['INITIATED', 'ACTIVE'].includes(String(session.status))) throw new BadRequestException('call_not_active');
+    await this.assertSessionAppointmentLive(session, userId);
+    const token = await this.createToken(session.room_name, userId);
+    await this.callSessions.updateOne(
+      { id: session.id },
+      { $set: { transport: 'livekit', fallback_reason: reason, fallback_at: new Date(), updatedAt: new Date() } },
+    );
+    const other = String(session.patient_id) === String(userId) ? session.provider_id : session.patient_id;
+    this.events.emit('call.transport', { callee_id: other, caller_id: userId, session_id: session.id, transport: 'livekit', reason });
+    return { room_name: session.room_name, token, transport: 'livekit' as const, ice_servers: await this.iceServersFor(userId) };
+  }
+
+  /** Which path the media took (direct, through TURN, or LiveKit): the numbers behind the P2P success share in docs/perf/CALLS_SCALE.md. */
+  async reportPath(sessionId: string, userId: string, path: 'direct' | 'relay', relayedBytes?: number) {
+    const session = await this.findOwnedSession(sessionId, userId);
+    // each side reports what it sent plus received over the relayed pair; the call's total is the sum of both sides, kept per user so a repeated report replaces, never adds
+    const set: Record<string, unknown> = { media_path: path, updatedAt: new Date() };
+    const counted = path === 'relay' && Number.isFinite(relayedBytes) && (relayedBytes as number) >= 0;
+    if (counted) set[`relayed_bytes_by.${String(userId).replace(/[.$]/g, '_')}`] = Math.floor(relayedBytes as number);
+    await this.callSessions.updateOne({ id: session.id }, { $set: set });
+    if (counted) await this.logRelayUsage(session.id, Math.floor(relayedBytes as number));
     return { success: true };
+  }
+
+  /**
+   * One log line per relayed report with this month's total across all calls (sum of every side's `relayed_bytes_by`), against the 1,000 GB a month that
+   * Cloudflare TURN gives free. Best effort: a failing aggregate never fails the report.
+   */
+  private async logRelayUsage(sessionId: string, bytes: number): Promise<void> {
+    try {
+      const start = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), 1));
+      const rows: any[] = await this.callSessions.aggregate([
+        { $match: { createdAt: { $gte: start }, relayed_bytes_by: { $exists: true } } },
+        { $project: { sides: { $objectToArray: '$relayed_bytes_by' } } },
+        { $unwind: '$sides' },
+        { $group: { _id: null, bytes: { $sum: '$sides.v' }, calls: { $addToSet: '$_id' } } },
+      ]).toArray();
+      const total = Number(rows[0]?.bytes ?? 0);
+      this.logger.log(`turn usage: session=${sessionId} relayed_bytes=${bytes} month_total_gb=${(total / 1e9).toFixed(3)} of 1000 free (calls with relay: ${rows[0]?.calls?.length ?? 0})`);
+    } catch (e) {
+      this.logger.debug(`turn usage total unavailable: ${(e as Error).message}`);
+    }
   }
 
   /** Verified LiveKit server webhook (participant_joined/left, track published,
    * room_finished...). Signature checked with LIVEKIT_API_SECRET; unverified
    * payloads are rejected so call state cannot be faked. */
-  async handleWebhook(body: any, authorization?: string) {
+  async handleWebhook(body: any, authorization?: string, rawBody?: string) {
     try {
       const { WebhookReceiver } = await import('livekit-server-sdk');
+      const apiKey = process.env.LIVEKIT_API_KEY || '';
       const secret = process.env.LIVEKIT_API_SECRET || '';
-      if (!secret) return { received: true, verified: false };
-      const receiver = new WebhookReceiver(secret, secret);
-      const event: any = await receiver.receive(JSON.stringify(body || {}), authorization || '');
+      if (!apiKey || !secret) return { received: true, verified: false };
+      // (apiKey, apiSecret): the token LiveKit signs is checked against the key it names. The signed body hash is over the bytes
+      // received, so the raw body is what is verified; a re-serialised object never matches.
+      const receiver = new WebhookReceiver(apiKey, secret);
+      const event: any = await receiver.receive(rawBody ?? JSON.stringify(body || {}), authorization || '');
       const type = String(event?.event || '');
       const room = String(event?.room?.name || '');
       if (type === 'room_finished' && room) {
@@ -361,6 +549,10 @@ export class LiveKitService {
       },
     ]).toArray();
     const calls_today = await this.callSessions.countDocuments({ createdAt: { $gte: todayStart } });
+    const paths = await this.callSessions.aggregate([
+      { $match: { createdAt: { $gte: todayStart } } },
+      { $group: { _id: { transport: { $ifNull: ['$transport', 'livekit'] }, path: { $ifNull: ['$media_path', null] }, fallback: { $cond: [{ $ifNull: ['$fallback_reason', false] }, true, false] } }, n: { $sum: 1 } } },
+    ]).toArray();
     return {
       total_calls: agg?.total_calls || 0,
       completed: agg?.completed || 0,
@@ -368,6 +560,7 @@ export class LiveKitService {
       total_minutes: agg?.total_minutes || 0,
       avg_duration_seconds: Math.round(agg?.avg_duration_seconds || 0),
       calls_today,
+      transports_today: paths.map((p: any) => ({ transport: p._id.transport, media_path: p._id.path, fell_back_to_livekit: p._id.fallback, calls: p.n })),
     };
   }
 

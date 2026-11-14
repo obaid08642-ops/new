@@ -1,20 +1,29 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractAppointmentDetail, parseAppointmentId, specialtyFor } from "@/lib/api/appointments";
 import { getPatientAppointment } from "@/lib/api/appointments-server";
 import { callPatientApi } from "@/lib/api/upstream";
+import { getVisitOutcomes } from "@/lib/api/outcomes-server";
+import { NO_OUTCOMES, readOutcomes, type OutcomeReport } from "@/lib/consult/outcomes";
+import { OutcomesSeen } from "@/components-next/consult/outcomes-seen";
+import { formatDate } from "@/lib/format-date";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { isDone, isOpen, MODE_VISUAL, modeOf, statusKey, statusTone } from "@/lib/consult/appointment-view";
+import { formatPrice } from "@/lib/format-price";
+import { isDone, isJoinable, isOpen, MODE_VISUAL, modeOf, statusKey, statusTone } from "@/lib/consult/appointment-view";
 import { PrescriptionClient } from "@/components-next/prescription-client";
 import { CallTokenLauncher } from "@/components-next/call-token-launcher";
 import { readTelehealthConsent } from "@/lib/legal/telehealth-consent";
 import { PolicyCard, policyLines } from "@/components-next/consult/policy-lines";
+import { ProviderNoShow } from "@/components-next/consult/provider-no-show";
 import { getCancellationPolicy } from "@/lib/consult/cancellation-policy";
 import { ConsultationPaymentAction } from "@/components-next/consultation-payment-action";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { ActionLinks, Facts, Hero, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
+import { bookingFlowHref, medicalOrderActionPath, parseFollowUpActions, pharmacyOrderHref } from "@/lib/consult/follow-up-actions";
+import { OrderFormButton } from "@/components-next/medical-orders/order-form-button";
 import { LocalTimeLine } from "@/components-next/consult/local-time-line";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
@@ -42,6 +51,7 @@ export default async function AppointmentDetailPage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("Appointments");
   const c = await getTranslations("ConsultWeb");
+  const pay = await getTranslations("BookConsultation");
   const rs = await getTranslations("RouteState");
   const token = await requirePatientAccess(locale);
   const response = await getPatientAppointment(token, appointmentId);
@@ -86,12 +96,26 @@ export default async function AppointmentDetailPage({ params }: Props) {
       summaryReady = Boolean(summary);
     }
   }
+  // The doctor's sick leave, certificates and reports of this visit: GET /care/appointments/:id/outcomes.
+  let outcomes = NO_OUTCOMES;
+  if (done) {
+    const mr = await getVisitOutcomes(token, appointmentId);
+    if (mr.status === 401) redirect(`/${locale}/login`);
+    if (mr.ok) outcomes = readOutcomes(await mr.json().catch(() => null));
+  }
+  const outcomeGroups: Array<{ id: string; title: string; rows: OutcomeReport[] }> = [
+    { id: "appointment-sick-leave", title: c("outcomeSickLeave"), rows: outcomes.sickLeaves },
+    { id: "appointment-certificates", title: c("outcomeCertificates"), rows: outcomes.certificates },
+    { id: "appointment-reports", title: c("outcomeReports"), rows: outcomes.reports },
+  ].filter((group) => group.rows.length > 0);
   const diagnosis = text(summary, "diagnosis");
   const summaryNotes = text(summary, "notes");
   const recommendations = text(summary, "recommendations");
   const summaryMeds = Array.isArray(summary?.prescription) ? (summary.prescription as unknown[]) : [];
   const followUpRecommended = summary?.follow_up_recommended === true;
   const windowDays = typeof summary?.follow_up_window_days === "number" ? summary.follow_up_window_days : undefined;
+  // The one-tap actions are the ones the server lists (on the summary, else on the appointment): none listed, none shown.
+  const followUps = parseFollowUpActions(summary?.follow_up_actions ?? record?.follow_up_actions);
   const followUpHref = doctorId ? `/${locale}/consultations/book/${encodeURIComponent(doctorId)}?followUp=${id}` : undefined;
 
   const rows: FactRow[] = [
@@ -101,6 +125,12 @@ export default async function AppointmentDetailPage({ params }: Props) {
   if (appointment.slotStart) rows.push({ label: t("scheduled"), value: <LocalTimeLine iso={appointment.slotStart} locale={locale} />, icon: "calendar-dots", tone: SERVICE_ICONS.health.tone });
   const specialty = specialtyFor(appointment, locale);
   if (specialty) rows.push({ label: t("specialty"), value: specialty, icon: "stethoscope", tone: "blue" });
+  const method = appointment.paymentMethod?.toLowerCase();
+  if (method === "cash" || method === "card" || method === "insurance") rows.push({ label: t("paymentMethodLabel"), value: pay(`pay.${method}`), icon: "shield-check", tone: "blue" });
+  rows.push({ label: t("bookingNumber"), value: appointmentId.slice(0, 8).toUpperCase(), icon: "check-circle", tone: "blue" });
+  if (appointment.price !== undefined) rows.push({ label: t("amount"), value: formatPrice(locale, appointment.price).text, icon: "check-circle", tone: "blue" });
+  const confirmed = isJoinable(appointment.status);
+  const copayDue = appointment.status?.toLowerCase() === "pending_copay";
 
   return (
     <ConsultPage locale={locale} title={appointment.doctorName || serviceLabel} backHref={back}>
@@ -129,9 +159,23 @@ export default async function AppointmentDetailPage({ params }: Props) {
         </>
       ) : null}
 
-      {open ? (
-        <ActionLinks actions={[{ href: `/${locale}/consultations/booking-status?appointmentId=${id}`, label: c("actionBookingStatus"), variant: "outline" }]} />
+      {copayDue ? (
+        <SectionCard id="appointment-copay" title={c("copayTitle")}>
+          <p className={styles.body}>{c("copayBody", { amount: formatPrice(locale, appointment.copayAmount ?? 0).text })}</p>
+          {appointment.insuranceRequestId ? <ActionLinks actions={[{ href: `/${locale}/insurance/requests/${appointment.insuranceRequestId}`, label: c("copayAction") }]} /> : null}
+        </SectionCard>
       ) : null}
+      {/* the doctor did not come: 10 minutes after the start, only for a visit that never started (the server decides again) */}
+      <ProviderNoShow appointmentId={appointmentId} status={appointment.status} slotStart={appointment.slotStart} />
+      {open ? (
+        <ActionLinks actions={[
+          ...(confirmed && mode === "clinic" ? [{ href: `/${locale}/consultations/booking-status?appointmentId=${id}&view=location`, label: c("actionLocation") }] : []),
+          ...(confirmed && mode === "home" ? [{ href: `/${locale}/consultations/home-visit-tracking?appointmentId=${id}`, label: c("actionTrack") }] : []),
+          ...(confirmed && mode === "video" ? [{ href: `/${locale}/consultations/virtual-waiting-room?appointmentId=${id}`, label: c("actionWaitingRoom") }] : []),
+          { href: `/${locale}/consultations/booking-status?appointmentId=${id}`, label: c("actionBookingStatus"), variant: "outline" as const },
+        ]} />
+      ) : null}
+      {doctorId ? <ActionLinks actions={[{ href: `/${locale}/consultations/doctors/${encodeURIComponent(doctorId)}`, label: c("actionDoctorProfile"), variant: "outline" }]} /> : null}
       {doctorId ? <ActionLinks actions={[{ href: `/${locale}/appointments/${id}/chat`, label: c("actionChatDoctor"), variant: "outline" }]} /> : null}
 
       {done ? (
@@ -151,14 +195,45 @@ export default async function AppointmentDetailPage({ params }: Props) {
               </ul>
             ) : null}
             {followUpRecommended && windowDays !== undefined ? <p className={styles.body}>{c("summaryFollowUp", { days: windowDays })}. {c("summaryFollowUpBody")}</p> : null}
+            {followUps.length > 0 ? (
+              <div className={styles.stack}>
+                {followUps.map((a) => a.kind === "pharmacy_order"
+                  ? <ActionLinks key={`p-${a.prescriptionId}`} actions={[{ href: pharmacyOrderHref(locale, a.prescriptionId), label: c("actionOrderPrescription") }]} />
+                  : <OrderFormButton key={a.kind} action={medicalOrderActionPath(a)} fields={{ group_all: "1" }} label={c(a.kind === "lab_booking" ? "actionBookLabs" : "actionBookScans")} next={bookingFlowHref(locale, a.kind)} primary />)}
+              </div>
+            ) : null}
             <ActionLinks
               actions={[
                 ...(followUpHref ? [{ href: followUpHref, label: c("actionBookFollowUp") }] : []),
-                { href: `/${locale}/diagnostics/labs`, label: c("actionBookTests"), variant: "outline" as const },
+                ...(followUps.some((a) => a.kind === "lab_booking") ? [] : [{ href: `/${locale}/diagnostics/labs`, label: c("actionBookTests"), variant: "outline" as const }]),
                 { href: `/${locale}/consultations/post-call-rating?appointmentId=${id}`, label: c("actionRate"), variant: "outline" as const },
               ]}
             />
           </SectionCard>
+          {outcomes.unseen > 0 ? <OutcomesSeen appointmentId={appointmentId} /> : null}
+          {outcomeGroups.map((group) => (
+            <SectionCard key={group.id} id={group.id} title={group.title}>
+              <ul className={styles.plain}>
+                {group.rows.map((row) => {
+                  const title = (locale === "ar" || locale === "ur" ? row.titleAr ?? row.titleEn : row.titleEn ?? row.titleAr) ?? group.title;
+                  const leave = row.sickLeave;
+                  const detail = [
+                    leave?.days != null ? c("outcomeDays", { n: leave.days }) : null,
+                    leave?.start ? formatDate(locale, leave.start) : null,
+                    leave?.end ? formatDate(locale, leave.end) : null,
+                    !leave && row.issuedAt ? formatDate(locale, row.issuedAt) : null,
+                  ].filter(Boolean).join(" · ");
+                  return (
+                    <li key={row.id}>
+                      <Link href={`/${locale}/${row.kind === "sick_leave" ? "medical-reports" : "reports"}/${encodeURIComponent(row.id)}`}>{title}</Link>
+                      {detail ? ` · ${detail}` : ""}
+                      {row.isNew ? <>{" "}<StatusChip label={c("outcomeNew")} tone="blue" /></> : null}
+                    </li>
+                  );
+                })}
+              </ul>
+            </SectionCard>
+          ))}
           <SectionCard id="appointment-prescription" title={c("prescriptionTitle")}>
             <PrescriptionClient locale={locale} appointmentId={appointmentId} />
           </SectionCard>

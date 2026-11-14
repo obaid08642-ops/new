@@ -121,3 +121,12 @@ describe("doctor filters: the saved address city", () => {
     expect(await savedAddressCity(reply(200, []))).toBeUndefined();
   });
 });
+
+describe("doctor filters: grade (degree)", () => {
+  it("reads a known degree, drops an unknown one, sends it to the list and keeps it in the page URL", () => {
+    expect(parseDoctorFilters({ degree: "consultant" }).degree).toBe("consultant");
+    expect(parseDoctorFilters({ degree: "wizard" }).degree).toBeUndefined();
+    expect(doctorQuery({ filters: parseDoctorFilters({ degree: "consultant" }) })).toBe("/care/doctors?degree=consultant");
+    expect(filterPageParams(parseDoctorFilters({ degree: "resident" })).toString()).toBe("degree=resident");
+  });
+});

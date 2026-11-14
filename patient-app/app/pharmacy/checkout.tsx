@@ -5,6 +5,7 @@ import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-ro
 import { AppHeader, Button, Card, EmptyState, ErrorState, FIcon, OfflineState, SERVICE_ICONS, Screen, Segmented, StickyFooter } from '../../../packages/ui-native/src';
 import { loadPolicy, type InsurancePolicy } from '../../src/components/insurance/InsuranceKit';
 import { Notice } from '../../src/components/pharmacy/OfferKit';
+import { RefundPolicyTick } from '../../src/components/legal/RefundPolicyTick';
 import { PHARMACY_TONE, goBack } from '../../src/components/pharmacy/PharmacyKit';
 import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useCart } from '../../src/context/CartContext';
@@ -13,8 +14,8 @@ import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { buildPatientPharmacyDraft, extractPatientPharmacyOrderId, type DraftLine } from '../../src/utils/pharmacy-draft';
 import { mapPrescriptionToPharmacyDraftLines } from '../../src/utils/pharmacy-prescription';
-import { checkoutErrorKey, checkoutLines, noAnswerYet } from '../../src/utils/pharmacyCheckout';
-import { idemKey } from '../../src/utils/pharmacyOffers';
+import { checkoutErrorKey, checkoutLines } from '../../src/utils/pharmacyCheckout';
+import { createPharmacyOrderSender } from '../../src/utils/pharmacyOrderSend';
 import { resolveEffectiveAddress, type SelectedAddress } from '../../src/utils/selectedAddress';
 
 /**
@@ -56,13 +57,14 @@ export default function PharmacyCheckoutScreen() {
   const [rxState, setRxState] = useState<'idle' | 'loading' | 'ready' | 'error' | 'offline'>(rxId ? 'loading' : 'idle');
   const [rxTry, setRxTry] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  // the refund policy is shown before the order is sent and agreed here (the backend refuses an order without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
   const [problemKey, setProblemKey] = useState<string | null>(null);
   const [needsLocation, setNeedsLocation] = useState(false);
 
   const busy = useRef(false);
   // one key pair per distinct request body: a retry of the same body after no answer is the same request
-  const keys = useRef(new Map<string, { create: string; submit: string }>());
-  const created = useRef<{ body: string; orderId: string } | null>(null);
+  const sender = useRef(createPharmacyOrderSender('pharmacy-broadcast'));
 
   useFocusEffect(
     useCallback(() => {
@@ -127,7 +129,7 @@ export default function PharmacyCheckoutScreen() {
   const lines = checkoutLines(rxId ? rxLines : [], items.map((i) => ({ id: i.id, name: i.name, qty: i.qty })));
   const hasPoint = Boolean(address) && Number.isFinite(Number(address?.lat)) && Number.isFinite(Number(address?.lng));
   const insuranceOk = payMode === 'cash' || (Boolean(rxId) && policy.status === 'ok');
-  const ready = !loadingAddress && (!rxId || rxState === 'ready') && lines.all.length > 0 && insuranceOk;
+  const ready = !loadingAddress && (!rxId || rxState === 'ready') && lines.all.length > 0 && insuranceOk && refundAgreed;
 
   const send = async () => {
     if (busy.current || !ready) return;
@@ -141,39 +143,14 @@ export default function PharmacyCheckoutScreen() {
     setNeedsLocation(false);
     try {
       const draft = buildPatientPharmacyDraft(lines.all, address, rxId, { fulfillment, payment_mode: rxId ? payMode : 'cash', ...(rxId ? { prescription_id: rxId } : {}) });
-      const body = JSON.stringify(draft);
-      let pair = keys.current.get(body);
-      if (!pair) {
-        const nonce = newIdempotencyKey();
-        pair = { create: idemKey('pharmacy-broadcast', [], nonce), submit: idemKey('pharmacy-broadcast-submit', [], nonce) };
-        keys.current.set(body, pair);
-      }
-      let orderId = created.current?.body === body ? created.current.orderId : null;
-      if (!orderId && created.current) {
-        // issue 544: the delivery mode or the address changed after the draft was created: that draft is edited
-        // (PATCH takes everything but the payment mode, which this screen does not change), never a second one created
-        const { payment_mode: _paymentMode, ...patch } = draft as Record<string, unknown>;
-        await apiFetch(`/patient/pharmacy/orders/${created.current.orderId}`, { method: 'PATCH', headers: { 'Idempotency-Key': newIdempotencyKey() }, body: JSON.stringify(patch) });
-        orderId = created.current.orderId;
-        created.current = { body, orderId };
-      }
-      if (!orderId) {
-        const response = await apiFetch('/patient/pharmacy/orders', { method: 'POST', headers: { 'Idempotency-Key': pair.create }, body });
-        orderId = extractPatientPharmacyOrderId(response);
-        if (!orderId) throw new Error('governed_pharmacy_order_id_missing');
-        created.current = { body, orderId };
-      }
-      await apiFetch(`/patient/pharmacy/orders/${orderId}/submit`, { method: 'POST', headers: { 'Idempotency-Key': pair.submit }, body: JSON.stringify({}) });
-      keys.current.delete(body);
-      created.current = null;
+      const orderId = await sender.current.send(draft as Record<string, unknown>, { editable: true });
       // the staged lines became a real order: the local list has done its job
       void clearCart();
       router.replace({ pathname: '/pharmacy/broadcast-status', params: { orderId } });
     } catch (error) {
       logError('pharmacy:checkout:send', error);
-      // a server answer ends the attempt: the next one starts with new keys (after no answer the same keys are sent again)
-      // (an order that was created stays: the retry only submits it again, it never creates a second one)
-      if (!noAnswerYet(error)) keys.current.clear();
+      // a server answer ends the attempt (the next one takes new keys); an order that was created stays: a retry only submits it again
+      sender.current.failed(error);
       setProblemKey(checkoutErrorKey(error));
     } finally {
       busy.current = false;
@@ -260,7 +237,7 @@ export default function PharmacyCheckoutScreen() {
             </View>
           </View>
           {!loadingAddress && !hasPoint ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.status.warning.fg, ...flow }}>{k('pharmacy.request.addressMissing')}</Text> : null}
-          <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.request.changeLocation')} onPress={() => router.push('/shared/location-picker')} style={{ minHeight: 44, justifyContent: 'center', alignSelf: 'flex-start' }}>
+          <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.request.changeLocation')} onPress={() => router.push('/profile/addresses?select=1' as Href)} style={{ minHeight: 44, justifyContent: 'center', alignSelf: 'flex-start' }}>
             <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.link, ...flow }}>{k('pharmacy.request.changeLocation')}</Text>
           </Pressable>
         </Card>
@@ -287,7 +264,7 @@ export default function PharmacyCheckoutScreen() {
             label={k('pharmacy.offers.coverage.label')}
             value={payMode}
             onChange={(v) => setPayMode(v === 'insurance' ? 'insurance' : 'cash')}
-            disabled={submitting || created.current !== null}
+            disabled={submitting || sender.current.hasDraft}
             options={[
               { value: 'cash', label: k('pharmacy.offers.coverage.cash') },
               { value: 'insurance', label: k('pharmacy.offers.coverage.insurance'), disabled: !rxId },
@@ -323,7 +300,7 @@ export default function PharmacyCheckoutScreen() {
 
         <Text style={{ ...scale(t, 'caption'), lineHeight: 24, color: c.text.secondary, textAlign: 'center' }}>{k('pharmacy.checkout.noPrice')}</Text>
 
-        {needsLocation ? <Notice tone="warning" text={k('pharmacy.checkout.err.location')} actionLabel={k('pharmacy.request.changeLocation')} onAction={() => router.push('/shared/location-picker')} /> : null}
+        {needsLocation ? <Notice tone="warning" text={k('pharmacy.checkout.err.location')} actionLabel={k('pharmacy.request.changeLocation')} onAction={() => router.push('/profile/addresses?select=1' as Href)} /> : null}
         {problemKey ? (
           <Notice
             tone="danger"
@@ -332,6 +309,7 @@ export default function PharmacyCheckoutScreen() {
             onAction={problemKey === 'pharmacy.checkout.err.signIn' ? () => router.push('/(auth)/login' as Href) : undefined}
           />
         ) : null}
+        <RefundPolicyTick service="pharmacy" checked={refundAgreed} onChange={setRefundAgreed} />
       </View>
     </Screen>
   );

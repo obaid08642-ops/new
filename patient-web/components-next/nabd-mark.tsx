@@ -16,8 +16,11 @@
 import * as React from "react";
 import "./nabd-mark.css";
 
-/** `text`: the bowl in the page text colour and the coral dot — the boards' auth and header mark. */
-export type NabdMarkVariant = "brand" | "onBrand" | "ink" | "text";
+/**
+ * Owner decision 2026-10-25: the mark is never black. Only the coral bowl and dot (`brand`, on a light or dark page) or the white mark
+ * (`onBrand`) on a coral/red tile exist; the old `text` and `ink` variants were removed so black cannot come back.
+ */
+export type NabdMarkVariant = "brand" | "onBrand";
 
 export interface NabdMarkProps {
   /** Pixel size of the square box. The mark keeps its proportions inside it. */
@@ -34,15 +37,11 @@ export interface NabdMarkProps {
 const STROKE: Record<NabdMarkVariant, string> = {
   brand: "var(--nabd-color-brand-coral)",
   onBrand: "var(--nabd-color-text-onBrand)",
-  ink: "var(--nabd-color-text-onInverse)",
-  text: "var(--nabd-color-text-primary)",
 };
 
 const DOT: Record<NabdMarkVariant, string> = {
   brand: "var(--nabd-color-brand-coral)",
   onBrand: "var(--nabd-color-text-onBrand)",
-  ink: "var(--nabd-color-brand-coral)",
-  text: "var(--nabd-color-brand-coral)",
 };
 
 export function NabdMark({

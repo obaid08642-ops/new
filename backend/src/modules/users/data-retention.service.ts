@@ -3,6 +3,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '../../schemas/user.schema';
+import { ScheduledOnce } from '../../common/scheduled-once';
 
 @Injectable()
 export class DataRetentionService {
@@ -17,6 +18,7 @@ export class DataRetentionService {
    * We hard-delete soft-deleted users and their associated PII after 30 days.
    */
   @Cron(CronExpression.EVERY_DAY_AT_3AM)
+  @ScheduledOnce()
   async enforceDataRetention() {
     this.logger.log('Starting PDPL Data Retention cleanup...');
     

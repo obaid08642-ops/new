@@ -1,0 +1,16 @@
+{
+  "slice": "labs-radiology-cart-sheet",
+  "batch": 1,
+  "app": "patient-app",
+  "screens": [
+    {
+      "route": "/diagnostics",
+      "elements": [
+        ["Cart button badge (lab tests + scans)", "local DiagnosticsCartContext lines (lab and radiology kinds); no request", "fixed"],
+        ["Sheet groups Lab tests / Scans with lines and provider name", "the lines' own provider field of the local diagnostics cart; no request", "ok"],
+        ["Complete booking per group", "router.push /diagnostics/lab-comparison?kind=lab|radiology (the existing flow, two separate checkouts)", "ok"]
+      ],
+      "notes": ["Home all-carts sheet shows the same two groups under the labs and radiology section; pharmacy stays a row."]
+    }
+  ]
+}

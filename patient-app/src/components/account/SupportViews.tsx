@@ -4,6 +4,7 @@ import { router, type Href } from 'expo-router';
 
 import { Card, EmptyState } from '../../../../packages/ui-native/src';
 import { Gate, StatusTag, useConsultFormat } from '../consult/ConsultKit';
+import { supportStatus } from '../../utils/supportStatus';
 import { ChatThread, type ChatMessage } from '../family/ChatThread';
 import { Notice, rowsOf, useRemote } from '../health/HealthKit';
 import { Glyph } from '../pharmacy/PharmacyKit';
@@ -11,6 +12,10 @@ import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { AccountScreen } from './AccountKit';
+import { useUploadsEnabled } from '../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../UploadsUnavailable';
+import { ScanStatusBadge } from '../ScanStatusBadge';
+import { scanStateOfError, scanStateOfUpload, type ScanState } from '../../utils/scanStatus';
 
 /**
  * Support (flow screens, merge map section 8): the chat with the support team (GET and POST /support/chat; a photo is uploaded with
@@ -60,9 +65,12 @@ export function SupportChatView() {
     }
   };
 
+  const uploadsOn = useUploadsEnabled();
+  const [attachScan, setAttachScan] = useState<ScanState>('ok');
   const attach = async () => {
     setAttaching(true);
     setFailed(null);
+    setAttachScan('ok');
     try {
       const ImagePicker = await import('expo-image-picker');
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -78,8 +86,12 @@ export function SupportChatView() {
       form.append('folder', 'support');
       const upload = (await apiFetch('/media/upload', { method: 'POST', body: form })) as { url?: string; data?: { url?: string } } | null;
       const url = upload?.url || upload?.data?.url;
+      // a file that is still being checked is still sent; the support agent sees it once it has passed
+      setAttachScan(scanStateOfUpload(upload));
       if (url) await send(k('support.chat.attachment', { url }));
     } catch (e) {
+      // the scanner refused the file (400 file_infected): rejected, with a way to attach another
+      if (scanStateOfError(e) === 'rejected') { setAttachScan('rejected'); return; }
       logError('support:chat-attach', e);
       setFailed(k('support.chat.attachFailed'));
     } finally {
@@ -98,8 +110,8 @@ export function SupportChatView() {
       empty={{ title: k('support.chat.emptyTitle'), body: k('support.chat.emptyBody') }}
       composer={{ value: draft, onChange: setDraft, onSend: () => void send(draft), sending, placeholder: k('support.chat.placeholder'), sendLabel: k('support.chat.send') }}
       quickReplies={QUICK.map((code) => ({ label: k(`support.chat.quick.${code}`), onPress: () => void send(k(`support.chat.quick.${code}`)) }))}
-      attach={{ label: k('support.chat.photo'), onPress: () => void attach(), busy: attaching }}
-      notice={failed ? <Notice tone="danger" text={failed} /> : undefined}
+      attach={uploadsOn ? { label: k('support.chat.photo'), onPress: () => void attach(), busy: attaching } : undefined}
+      notice={failed ? <Notice tone="danger" text={failed} /> : !uploadsOn ? <UploadsUnavailable /> : attachScan !== 'ok' ? <ScanStatusBadge state={attachScan} onReupload={() => void attach()} testID="support-attach-scan" /> : undefined}
       testID="support-chat-screen"
     />
   );
@@ -117,15 +129,15 @@ export function SupportTicketsView() {
     <AccountScreen
       title={k('support.tickets.title')}
       fallback={HELP}
-      actions={[{ key: 'new', label: k('support.tickets.new'), icon: <Glyph name="plus" size={20} color={c.icon.primary} />, onPress: chat }]}
+      actions={[{ key: 'new', label: k('support.tickets.new'), icon: <Glyph name="plus" size={20} color={c.text.secondary} />, onPress: chat }]}
       testID="support-tickets-screen"
     >
       <Gate status={list.status} errorTitle={k('support.tickets.loadError')} onRetry={() => void list.reload()}>
         {rows.length === 0 ? (
-          <EmptyState icon="headset" tone="mint" title={k('support.tickets.empty')} body={k('support.tickets.emptyBody')} actionLabel={k('support.tickets.new')} onAction={chat} theme={theme} />
+          <EmptyState icon="headset" tone="ink" title={k('support.tickets.empty')} body={k('support.tickets.emptyBody')} actionLabel={k('support.tickets.new')} onAction={chat} theme={theme} />
         ) : (
           rows.map((row) => (
-            <Pressable key={row.id} accessibilityRole="button" accessibilityLabel={[row.subject, row.status, row.date].filter(Boolean).join(', ')} onPress={chat} style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })} testID={`ticket-${row.id}`}>
+            <Pressable key={row.id} accessibilityRole="button" accessibilityLabel={[row.subject, supportStatus(row.status) ? k(supportStatus(row.status)!.key) : null, row.date].filter(Boolean).join(', ')} onPress={chat} style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })} testID={`ticket-${row.id}`}>
               <Card padding="sm" theme={theme}>
                 <View style={{ gap: 8 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
@@ -133,7 +145,7 @@ export function SupportTicketsView() {
                       <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>{row.subject || `‎#${String(row.id).slice(-6)}‎`}</Text>
                       <Text style={{ ...scale(t, 'tag', 'regular'), color: c.text.tertiary, ...flow }}>{`‎#${String(row.id).slice(-6)}‎`}</Text>
                     </View>
-                    {row.status ? <StatusTag label={row.status} tone="info" /> : null}
+                    {supportStatus(row.status) ? <StatusTag label={k(supportStatus(row.status)!.key)} tone={supportStatus(row.status)!.tone} /> : null}
                   </View>
                   {row.date || row.lastUpdate ? (
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>

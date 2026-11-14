@@ -174,7 +174,7 @@ function TodayTab({ onSetTarget }: { onSetTarget: () => void }) {
             {!target ? <Button label={k('care.nut.setup')} size="md" variant="outline" onPress={onSetTarget} theme={theme} testID="nutrition-set-target" /> : null}
           </CareHero>
           <MetricGrid>
-            <MetricTile label={k('care.nut.protein')} value={num(summary.macros?.protein_g ?? 0)} unit="g" icon="heart" tone="mint" />
+            <MetricTile label={k('care.nut.protein')} value={num(summary.macros?.protein_g ?? 0)} unit="g" icon="heart" tone={LIME_TONE} />
             <MetricTile label={k('care.nut.carbs')} value={num(summary.macros?.carbs_g ?? 0)} unit="g" icon="bowl-food" tone="amber" />
             <MetricTile label={k('care.nut.fat')} value={num(summary.macros?.fat_g ?? 0)} unit="g" icon="drop" tone="violet" />
           </MetricGrid>

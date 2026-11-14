@@ -1,11 +1,15 @@
+import { maskId, savePatientNationalId } from '../../common/patient-national-id';
+import { assertScanned } from '../storage/pending-scan';
+import { insuranceCompanyFilter } from '../../common/insurance-policy';
 import { Injectable, Optional, NotFoundException, ForbiddenException, UnauthorizedException, BadRequestException, Inject } from '@nestjs/common';
+import { describeClient, maskIp } from '../../common/request-meta';
 import { MEDIA_RELEASE, mediaRefId } from '../media/media-cleanup.service';
 import { escapeRegex } from '../../common/slug.util';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { JwtService } from '@nestjs/jwt';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from '../../common/password-hash';
 import { UserRole } from '../../common/enums';
 import { UserRepository } from './repositories/user.repository';
 import { PatientProfileRepository } from './repositories/patient-profile.repository';
@@ -16,6 +20,7 @@ import { randomUUID } from 'crypto';
 import { ProductRankingEventService } from '../product-ranking/product-ranking-event.service';
 import { AuthService } from '../auth/auth.service';
 import { publicMedicineFilter } from '../medicines/public-medicine-filter';
+import { enforcePasswordPolicy } from '../../common/password-security.service';
 
 @Injectable()
 export class UsersService {
@@ -107,7 +112,8 @@ export class UsersService {
     if (!p) p = await this.patientRepository.create({ user_id });
     const o: any = typeof (p as any).toObject === 'function' ? (p as any).toObject() : p;
     // Alias: the app reads/writes `chronic_conditions`; the schema field is `chronic_diseases`.
-    return { ...o, chronic_conditions: o.chronic_diseases || [] };
+    // an ID number left in plain text by an older version is shown masked, never in full
+    return { ...o, chronic_conditions: o.chronic_diseases || [], ...(o.national_id ? { national_id: maskId(o.national_id) } : {}) };
   }
 
   private async userForPatientContract(userId: string): Promise<any> {
@@ -167,6 +173,7 @@ export class UsersService {
       const mediaId = String(body.avatar_media_id).trim();
       const media = await this.conn.db.collection('storage_objects').findOne({ id: mediaId, owner_account_id: userId });
       if (!media?.public_url || !String(media.public_url).startsWith('https://')) throw new BadRequestException('avatar_media_not_owned');
+      assertScanned(media);
       userPatch.avatar = String(media.public_url);
     }
     if (body.gender !== undefined) profilePatch.gender = body.gender;
@@ -198,6 +205,38 @@ export class UsersService {
     'occupation', 'smoking_status', 'notes',
   ]);
 
+  /**
+   * D-30: the saved insurance policy. It is written only here, from POST /users/me/insurance (which forces `verified: false`
+   * and requires a class); it is NOT in the public-profile whitelist, so PATCH /users/me/profile can never set `verified`,
+   * a class or a company.
+   */
+  /** The active catalogue insurer a client's `company_id` / `provider` names (id, code or name), or null. */
+  async findInsuranceCompany(key: unknown): Promise<Record<string, any> | null> {
+    const k = typeof key === 'string' ? key.trim() : '';
+    if (!k) return null;
+    return (await this.conn.collection('insurance_companies').findOne(insuranceCompanyFilter(k) as never, { projection: { _id: 0 } })) as Record<string, any> | null;
+  }
+
+  async setPatientInsurance(user_id: string, insurance: Record<string, unknown>) {
+    return this.patientRepository.updateOne({ user_id }, { $set: { insurance } }, { upsert: true, new: true, projection: { _id: 0, __v: 0 } });
+  }
+
+  /**
+   * Removes the saved insurance policy (QA I-03: a card could only be overwritten, never removed). Only the `insurance` field is unset; a card
+   * picture held as `media:<id>` is released with it (best effort), the same way a replaced avatar is. Returns whether a policy was there.
+   */
+  async clearPatientInsurance(user_id: string): Promise<boolean> {
+    const profile: any = await this.patientRepository.findOne({ user_id }, { insurance: 1 });
+    const had = !!(profile?.insurance && Object.keys(profile.insurance).length);
+    if (!had) return false;
+    await this.patientRepository.updateOne({ user_id }, { $unset: { insurance: '' } });
+    const ids = [mediaRefId(profile.insurance.card_image_url), mediaRefId(profile.insurance.pdf_url)].filter((x): x is string => !!x);
+    if (ids.length) {
+      try { this.events?.emit(MEDIA_RELEASE, { ids, owner_id: user_id }); } catch { /* cleanup is best effort */ }
+    }
+    return true;
+  }
+
   async updatePatientProfile(user_id: string, data: Partial<PatientProfile> & { chronic_conditions?: string[] }) {
     const mapped: any = {};
     for (const [k, v] of Object.entries(data || {})) {
@@ -206,6 +245,12 @@ export class UsersService {
       // then apply the editable-field whitelist (mass-assignment fix).
       if (k.startsWith('$') || k.includes('.')) continue;
       if (UsersService.PATIENT_PROFILE_EDITABLE.has(k)) mapped[k] = v;
+    }
+    // The ID number is not kept on the profile any more: it goes to the encrypted identity store (and is validated there).
+    if ('national_id' in mapped) {
+      const nid = mapped.national_id;
+      delete mapped.national_id;
+      if (typeof nid === 'string' && nid.trim()) await savePatientNationalId(this.conn, user_id, nid);
     }
     // D-32: a replaced avatar (`media:<id>`) loses its stored file once the new one is saved.
     const previous: any = 'avatar_url' in mapped ? await this.patientRepository.findOne({ user_id }, { avatar_url: 1 }) : null;
@@ -231,13 +276,17 @@ export class UsersService {
     return merged;
   }
 
-  private static readonly NOTIFICATION_CHANNELS = ['push', 'email', 'sms'] as const;
+  private static readonly NOTIFICATION_CHANNELS = ['push', 'email'] as const;
   private static readonly NOTIFICATION_CATEGORIES = ['appointments', 'orders', 'health', 'chat', 'account', 'marketing'] as const;
+
+  /** Design parity (#1819): the flat switches the apps show. appointments and orders ARE the categories of the same name. */
+  private static readonly NOTIFICATION_PREFERENCES = ['general', 'offers', 'medications', 'doctorMessages', 'emergency', 'sound', 'vibration'] as const;
 
   private notificationDefaults() {
     return {
-      channels: { push: true, email: false, sms: true },
+      channels: { push: true, email: false },
       categories: { appointments: true, orders: true, health: true, chat: true, account: true, marketing: false },
+      preferences: { general: true, offers: true, medications: true, doctorMessages: true, emergency: true, sound: true, vibration: true },
     };
   }
 
@@ -252,12 +301,19 @@ export class UsersService {
     const categories: any = { ...defaults.categories };
     for (const key of UsersService.NOTIFICATION_CHANNELS) if (typeof sourceChannels[key] === 'boolean') channels[key] = sourceChannels[key];
     for (const key of UsersService.NOTIFICATION_CATEGORIES) if (typeof sourceCategories[key] === 'boolean') categories[key] = sourceCategories[key];
-    return { channels, categories };
+    const sourcePreferences = source.preferences && typeof source.preferences === 'object' ? source.preferences : {};
+    const preferences: any = { ...defaults.preferences };
+    for (const key of UsersService.NOTIFICATION_PREFERENCES) if (typeof sourcePreferences[key] === 'boolean') preferences[key] = sourcePreferences[key];
+    // Emergency alerts always go out (NotificationsService.deliveryPrefs), so the stored value is always true.
+    preferences.emergency = true;
+    // The flat read the apps use: the preferences plus the two categories they share.
+    return { channels, categories, preferences: { ...preferences, appointments: categories.appointments, orders: categories.orders } };
   }
 
   private validateNotificationPatch(body: any) {
     if (!body || typeof body !== 'object' || Array.isArray(body)) throw new BadRequestException('invalid_notification_settings');
-    const allowedTopLevel = new Set(['channels', 'categories']);
+    const flatKeys: readonly string[] = [...UsersService.NOTIFICATION_PREFERENCES, 'appointments', 'orders'];
+    const allowedTopLevel = new Set(['channels', 'categories', ...flatKeys]);
     for (const key of Object.keys(body)) {
       if (!allowedTopLevel.has(key) || key.includes('.') || key.startsWith('$')) throw new BadRequestException('notification_setting_not_allowed');
     }
@@ -275,7 +331,15 @@ export class UsersService {
     };
     validateGroup('channels', UsersService.NOTIFICATION_CHANNELS);
     validateGroup('categories', UsersService.NOTIFICATION_CATEGORIES);
-    if (!clean.channels && !clean.categories) throw new BadRequestException('notification_settings_empty');
+    // Flat switches: appointments / orders write the category of that name; the others are preferences.
+    for (const key of flatKeys) {
+      if (body[key] === undefined) continue;
+      if (typeof body[key] !== 'boolean') throw new BadRequestException('notification_setting_not_allowed');
+      if (key === 'emergency' && body[key] === false) throw new BadRequestException('emergency_alerts_cannot_be_disabled');
+      if (key === 'appointments' || key === 'orders') clean.categories = { ...(clean.categories || {}), [key]: body[key] };
+      else clean.preferences = { ...(clean.preferences || {}), [key]: body[key] };
+    }
+    if (!clean.channels && !clean.categories && !clean.preferences) throw new BadRequestException('notification_settings_empty');
     return clean;
   }
 
@@ -289,9 +353,11 @@ export class UsersService {
     const next = {
       channels: { ...current.channels, ...(patch.channels || {}) },
       categories: { ...current.categories, ...(patch.categories || {}) },
+      // Only the stored preferences (not the flat view that also repeats the two categories).
+      preferences: Object.fromEntries(UsersService.NOTIFICATION_PREFERENCES.map((k) => [k, (patch.preferences?.[k] ?? (current.preferences as any)[k])])),
     };
     await this.patientRepository.updateOne({ user_id: id }, { $set: { notification_settings: next } }, { upsert: true });
-    return next;
+    return this.normalizeNotificationSettings(next);
   }
 
   /** Real storage usage computed from the patient's stored content (base64 payloads). */
@@ -325,9 +391,11 @@ export class UsersService {
       used: fmt(usedBytes),
       total: `${LIMIT_GB} GB`,
       limit: LIMIT_GB,
+      // issue 1585: stable keys; the clients translate them. `label` stays only for app builds already installed
+      // that read it (current web and app use `key`); remove it once those builds are retired.
       items: [
-        { label: 'الوصفات المرفوعة', val: fmt(prescBytes), pct: pct(prescBytes), color: '#23B5CE' },
-        { label: 'التقارير الطبية', val: fmt(reportBytes), pct: pct(reportBytes), color: '#7A6BEA' },
+        { key: 'uploaded_prescriptions', label: 'الوصفات المرفوعة', val: fmt(prescBytes), pct: pct(prescBytes), color: '#23B5CE' },
+        { key: 'medical_reports', label: 'التقارير الطبية', val: fmt(reportBytes), pct: pct(reportBytes), color: '#7A6BEA' },
       ],
     };
   }
@@ -357,7 +425,7 @@ export class UsersService {
   async changePassword(id: string, body: any, deviceId?: string) {
     const current = String(body?.current_password || '');
     const next = String(body?.new_password || '');
-    if (next.length < 8) throw new BadRequestException('كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل');
+    await enforcePasswordPolicy(next);
     const u: any = await this.userRepository.findOne({ id });
     if (!u) throw new NotFoundException();
     if (u.password_hash) {
@@ -367,6 +435,7 @@ export class UsersService {
     const hash = await bcrypt.hash(next, 12);
     // F09: bump token_version in the same write as the new hash.
     await this.userRepository.updateOne({ id }, { $set: { password_hash: hash }, $inc: { token_version: 1 } });
+    this.events?.emit('auth.password_changed', { user_id: id, role: u.role, how: 'change' });
     if (!this.auth) return { success: true };
     const tokens = await this.auth.rotateSessionsAfterPasswordChange(id, deviceId);
     return { success: true, access_token: tokens.accessToken, refresh_token: tokens.refreshToken };
@@ -386,9 +455,17 @@ export class UsersService {
         const raw = await client.get(`refresh:${jti}`);
         if (!raw) continue; // expired or revoked
         let device: string | null = null;
-        try { device = JSON.parse(raw)?.d ?? null; } catch { /* keep null */ }
+        let rec: any = {};
+        try { rec = JSON.parse(raw) ?? {}; device = rec.d ?? null; } catch { /* keep null */ }
         const ttl = await client.ttl(`refresh:${jti}`);
-        sessions.push({ id: jti, device, expires_in_seconds: ttl, is_current: !!currentDev && !!device && String(device).slice(0, 32) === String(currentDev).slice(0, 32) });
+        const who = describeClient(rec.ua);
+        sessions.push({
+          id: jti, device, expires_in_seconds: ttl,
+          is_current: !!currentDev && !!device && String(device).slice(0, 32) === String(currentDev).slice(0, 32),
+          // 21.7: what a person recognises their device by (never the raw user agent or the full address)
+          session_id: rec.s ?? jti, label: who.label, platform: who.platform, ip: maskIp(rec.ip),
+          created_at: rec.c ? new Date(rec.c).toISOString() : null, last_seen_at: rec.l ? new Date(rec.l).toISOString() : null,
+        });
       }
       return sessions;
     } catch {
@@ -402,6 +479,11 @@ export class UsersService {
     if (!client) throw new BadRequestException('sessions unavailable');
     const isMember = await client.sismember(`refresh_user:${id}`, jti);
     if (!isMember) throw new NotFoundException('session not found');
+    // 21.7: through the one place sessions end, so the access token stops at once and the device's push tokens go
+    if (this.auth) {
+      await this.auth.revokeSessionByJti(id, jti);
+      return { ok: true };
+    }
     await client.del(`refresh:${jti}`);
     await client.srem(`refresh_user:${id}`, jti);
     return { ok: true };

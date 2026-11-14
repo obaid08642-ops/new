@@ -9,7 +9,7 @@ workers_dev = false
 routes = [{ pattern = "status.nabd.plus", custom_domain = true }]
 
 [triggers]
-crons = ["*/5 * * * *", "*/10 * * * *"]   # probes every 5 minutes, the synthetic journeys every 10 (worker.mjs JOURNEY_CRON)
+crons = ["*/5 * * * *", "2-59/5 * * * *"]   # probes every 5 minutes (minute 0,5,..), the synthetic journeys every 5 too, offset by 2 (worker.mjs JOURNEY_CRON): a tick must name one job
 
 # The id is filled in at rollout (`wrangler kv namespace create STATUS`).
 [[kv_namespaces]]

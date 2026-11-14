@@ -44,7 +44,7 @@ describe('RealtimeGateway room authorization', () => {
 
     await expect(gateway.handleWaitingRoomJoin(socket as any, { appointmentId: 'appt-1' })).resolves.toEqual({ ok: false, error: 'not_participant' });
     expect(socket.join).not.toHaveBeenCalled();
-    expect((gateway as any).doctorQueues.size).toBe(0);
+    expect(await (gateway as any).queue.list('doctor-profile-1')).toEqual([]);
   });
 
   it('allows only an appointment participant to enter an open waiting room', async () => {
@@ -54,7 +54,7 @@ describe('RealtimeGateway room authorization', () => {
     await expect(gateway.handleWaitingRoomJoin(socket as any, { appointmentId: 'appt-1' })).resolves.toEqual({ ok: true });
     expect(socket.join).toHaveBeenCalledWith('appointment:appt-1');
     expect(socket.data.appointmentId).toBe('appt-1');
-    expect((gateway as any).doctorQueues.get('doctor-profile-1')).toEqual(['appt-1']);
+    expect(await (gateway as any).queue.list('doctor-profile-1')).toEqual(['appt-1']);
   });
 
   it('rejects terminal appointments and foreign waiting-room leave without mutating the queue', async () => {
@@ -63,10 +63,10 @@ describe('RealtimeGateway room authorization', () => {
     await expect(gateway.handleWaitingRoomJoin(foreignSocket as any, { appointmentId: 'appt-1' })).resolves.toEqual({ ok: false, error: 'not_participant' });
     expect(foreignSocket.join).not.toHaveBeenCalled();
 
-    (gateway as any).doctorQueues.set('doctor-profile-1', ['appt-1']);
+    await (gateway as any).queue.add('doctor-profile-1', 'appt-1');
     appointments.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue(makeAppointment()) });
     await expect(gateway.handleWaitingRoomLeave(foreignSocket as any, { appointmentId: 'appt-1' })).resolves.toEqual({ ok: false, error: 'not_participant' });
     expect(foreignSocket.leave).not.toHaveBeenCalled();
-    expect((gateway as any).doctorQueues.get('doctor-profile-1')).toEqual(['appt-1']);
+    expect(await (gateway as any).queue.list('doctor-profile-1')).toEqual(['appt-1']);
   });
 });

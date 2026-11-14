@@ -46,12 +46,23 @@ export class CorrelationMiddleware implements NestMiddleware {
 
     // Everything downstream runs inside this context, so a log line from deep
     // in a service still knows which request it belongs to (20.3).
-    const deviceHeader = req.headers['x-device-id'];
-    runWithLogContext({
-      requestId,
-      ip: req.ip || undefined,
-      userAgent: String(req.headers['user-agent'] ?? '').slice(0, 240) || undefined,
-      deviceId: (Array.isArray(deviceHeader) ? deviceHeader[0] : deviceHeader)?.slice(0, 128),
-    }, () => next());
+    // 23.1: where the request came from, for the audit trail. `req.ip` already applies the trust-proxy policy.
+    const one = (name: string) => {
+      const v = req.headers[name];
+      const t = Array.isArray(v) ? v[0] : v;
+      return typeof t === 'string' && t ? t : undefined;
+    };
+    const ua = one('user-agent');
+    runWithLogContext(
+      {
+        requestId,
+        ip: typeof req.ip === 'string' ? req.ip.slice(0, 64) : undefined,
+        userAgent: ua?.slice(0, 200),
+        deviceId: one('x-device-id')?.slice(0, 64),
+        platform: (one('x-platform') ?? (ua && /iPhone|iPad|iOS/i.test(ua) ? 'ios' : ua && /Android/i.test(ua) ? 'android' : ua ? 'web' : undefined))?.slice(0, 16),
+        appVersion: one('x-app-version')?.slice(0, 32),
+      },
+      () => next(),
+    );
   }
 }

@@ -1,7 +1,7 @@
 /** D-16: module switches — mapping, admin bypass, validation, default ON. */
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { ForbiddenException } from '@nestjs/common';
-import { ModuleSwitchesService } from './module-switches.service';
+import { MODULE_KEYS, ModuleSwitchesService } from './module-switches.service';
 import { ModuleSwitchesMiddleware } from './module-switches.middleware';
 
 const svcWith = (rows: any[] = []) => {
@@ -69,5 +69,18 @@ describe('module switches push the web cache (#1548)', () => {
     expect(purged).toEqual([['modules']]);
     const failing: any = { purge: async () => { throw new Error('down'); } };
     await expect(new ModuleSwitchesService(conn, failing).set('loyalty', true, 'back on')).resolves.toEqual({ key: 'loyalty', enabled: true });
+  });
+});
+
+describe('a database failure never re-opens a module an admin switched off', () => {
+  it('keeps the last good switches', async () => {
+    let down = false;
+    const rows = [{ key: MODULE_KEYS[0], enabled: false }];
+    const conn: any = { db: { collection: () => ({ find: () => ({ toArray: async () => { if (down) throw new Error('db down'); return rows; } }) }) } };
+    const svc = new ModuleSwitchesService(conn);
+    (svc as any).cache = new (require('../../common/stale-cache').StaleCache)(() => (svc as any).loadAll(), () => 0);
+    expect((await svc.modules())[MODULE_KEYS[0]]).toBe(false);
+    down = true;
+    expect((await svc.modules())[MODULE_KEYS[0]]).toBe(false);
   });
 });

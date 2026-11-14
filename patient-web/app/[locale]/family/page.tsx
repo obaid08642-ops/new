@@ -18,12 +18,12 @@ import { PermissionRequests } from "@/components-next/family/permission-requests
 import { PartUnavailable, SectionHead } from "@/components-next/health/health-kit";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { Avatar } from "@/components-next/ui-generated/components/Surfaces";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import health from "@/components-next/health/health.module.css";
 import styles from "@/components-next/family/family.module.css";
+import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -100,7 +100,7 @@ export default async function FamilyPage({ params }: Props) {
 
       <section className={`${rx.card} ${styles.stack}`} aria-label={t("heroTitle")}>
         <div className={styles.heroRow}>
-          <FIcon icon={FAMILY.icon} tone={FAMILY.tone} size={52} chip="solid" />
+          <FIconByName icon={FAMILY.icon} tone={FAMILY.tone} size={52} chip="solid" />
           <span className={styles.heroText}>
             <h2 className={styles.heroTitle}>{t("heroTitle")}</h2>
             <span className={styles.heroSub}>{t("heroSub")}</span>
@@ -120,7 +120,7 @@ export default async function FamilyPage({ params }: Props) {
           <ul className={styles.rows}>
             {members.map((member) => {
               const name = member.displayName || t("member");
-              const granted = grants.has(member.id) ? knownPermissions(grants.get(member.id) ?? []).length : null;
+              const granted = member.role !== "owner" && grants.has(member.id) ? knownPermissions(grants.get(member.id) ?? []).length : null;
               const joined = formatDate(locale, member.joinedAt);
               const sub = [member.role === "owner" ? t("owner") : t("memberRole"), member.relation, joined].filter(Boolean).join(" · ");
               return (
@@ -152,7 +152,7 @@ export default async function FamilyPage({ params }: Props) {
 
       <RowCard href={`${base}/calendar`} icon="calendar-dots" tone="coral" title={t("calendarTitle")} sub={t("calendarSub")} caret={<Icon name={caret} size={16} tone="secondary" />} />
       <RowCard href={`${base}/chat`} icon="chat-circle-text" tone="blue" title={t("chatTitle")} sub={t("chatSub")} caret={<Icon name={caret} size={16} tone="secondary" />} />
-      <RowCard href={`/${locale}/health/profile#emergency`} icon="users" tone="amber" title={t("emergencyTitle")} sub={emergencyCount ? t("emergencyCount", { count: emergencyCount }) : t("emergencySub")} caret={<Icon name={caret} size={16} tone="secondary" />} />
+      <RowCard href={`/${locale}/health/profile?tab=emergency`} icon="users" tone="amber" title={t("emergencyTitle")} sub={emergencyCount ? t("emergencyCount", { count: emergencyCount }) : t("emergencySub")} caret={<Icon name={caret} size={16} tone="secondary" />} />
     </ConsultPage>
   );
 }

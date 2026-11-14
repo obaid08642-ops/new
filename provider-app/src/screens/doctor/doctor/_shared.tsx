@@ -45,7 +45,7 @@ export function VirtualWaitingRoomScreen({ onBack, onNavigate }: { onBack: () =>
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await client.get('/calls/provider/waiting-room');
+      const res = await client.get('/calls/provider/waiting-room', { params: { service_type: 'video' } });
       setRows(Array.isArray(res.data) ? res.data : []);
     } catch {
       show(AR ? 'تعذر تحميل غرفة الانتظار' : 'Could not load waiting room', 'error');

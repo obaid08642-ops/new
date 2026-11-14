@@ -2,6 +2,7 @@
 // app/_layout.tsx — Root Layout (Expo SDK 54)
 
 // Polyfills must run before ANY other import (LiveKit expects DOMException).
+import { CartMotionHost } from '../src/components/cart/CartMotionHost';
 import '../src/polyfills';
 
 import { useEffect } from 'react';
@@ -16,11 +17,17 @@ import { I18nManager } from 'react-native';
 import { store } from '../src/store';
 import { AppProvider, useApp } from '../src/context/AppContext';
 import { useUrduFont } from '../src/theme/useUrduFont';
+import { installAppText } from '../src/theme/urduText';
+
+// Before any render: every Text/TextInput (Modals, sheets, toasts included) gets the app face, never the system font.
+installAppText();
 import { SocketProvider } from '../src/context/SocketContext';
 import { CartProvider } from '../src/context/CartContext';
 import { DiagnosticsCartProvider } from '../src/context/DiagnosticsCartContext';
 import { ConsultationsProvider } from '../src/context/ConsultationsContext';
 import NotificationHandler from '../src/components/NotificationHandler';
+import SessionExpiryHandler from '../src/components/SessionExpiryHandler';
+import '../src/calls/ringTask'; // defines the background call-ring task at load
 import OfflineBanner from '../src/components/OfflineBanner';
 import AppGate from '../src/components/AppGate';
 import PaymentResume from '../src/components/PaymentResume';
@@ -29,6 +36,9 @@ import { initSentry } from '../src/utils/sentry';
 import { SyncManager } from '../src/data/sync/SyncManager';
 import { BackgroundSynchronizer } from '../src/data/sync/BackgroundSynchronizer';
 import { DatabaseManager } from '../src/data/database/core/DatabaseManager';
+// 15.5: a crash anywhere in the tree shows the translated card with Retry, never a blank screen.
+import { AppErrorBoundary } from '../src/services/ErrorHandler';
+import { AppCrashFallback } from '../src/components/AppCrashFallback';
 
 I18nManager.allowRTL(true);
 I18nManager.forceRTL(true);
@@ -88,6 +98,7 @@ function RootLayout() {
   if (!loaded && !error) return null;
 
   return (
+    <AppErrorBoundary fallback={(_error, reset) => <AppCrashFallback onRetry={reset} />}>
     <Provider store={store}>
       <AppProvider>
         <ModulesProvider>
@@ -100,6 +111,7 @@ function RootLayout() {
                       <ThemedStatusBar />
                       <UrduFontLoader />
                       <NotificationHandler />
+                      <SessionExpiryHandler />
                       <OfflineBanner />
                       <AppGate>
                       <PaymentResume />
@@ -117,6 +129,7 @@ function RootLayout() {
                       </Stack>
                       </ModuleRouteGate>
                       </AppGate>
+                      <CartMotionHost />
                     </ConsultationsProvider>
                   </DiagnosticsCartProvider>
                 </CartProvider>
@@ -126,6 +139,7 @@ function RootLayout() {
         </ModulesProvider>
         </AppProvider>
     </Provider>
+    </AppErrorBoundary>
   );
 }
 

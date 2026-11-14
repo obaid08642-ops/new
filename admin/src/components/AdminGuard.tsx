@@ -32,12 +32,17 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/reports', label: 'التقارير التشغيلية', permission: 'analytics.read' },
       { href: '/admin/search', label: 'البحث الشامل', permission: 'user.read' },
       { href: '/admin/fraud-monitoring', label: 'مراقبة الاحتيال' },
+      { href: '/admin/risk-dashboard', label: 'لوحة المخاطر', permission: 'analytics.read' },
     ],
   },
   {
     title: 'المزودون والاعتمادات',
     items: [
       { href: '/admin/provider-moderation', label: 'تدقيق واعتماد المزودين' },
+      { href: '/admin/license-expiry', label: 'تراخيص قاربت على الانتهاء' },
+      { href: '/admin/seha-missing', label: 'تقارير طبية بلا رقم صحة' },
+      { href: '/admin/facility-members', label: 'دعوات المنشآت وأعضاؤها' },
+      { href: '/admin/service-offers', label: 'خدمات المزودين وأسعارها' },
       { href: '/admin/provider-audits', label: 'سجلات تدقيق المزودين' },
       { href: '/admin/insurance-queue', label: 'طابور الموافقات التأمينية' },
       { href: '/admin/insurance-companies', label: 'شركات التأمين المعتمدة' },
@@ -52,10 +57,11 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: '/admin/finance-suite', label: 'المالية والتسويات', permission: 'finance.read' },
       { href: '/admin/disputes', label: 'النزاعات المالية', permission: 'disputes.resolve' },
-      { href: '/admin/payouts', label: 'اعتمادات السحب' },
+      { href: '/admin/payouts', label: 'دفعات المزودين', permission: 'finance.read' },
       { href: '/admin/returns', label: 'طلبات الإرجاع والاسترداد' },
       { href: '/admin/financial-ledger', label: 'دفتر الأستاذ المالي' },
       { href: '/admin/commissions', label: 'العمولات والأستاذ', permission: 'finance.read' },
+      { href: '/admin/refund-policy', label: 'سياسة الإلغاء والاسترداد', permission: 'finance.read' },
     ],
   },
   {
@@ -75,6 +81,8 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/service-proposals', label: 'اقتراحات المزودين', permission: 'catalog.read' },
       { href: '/admin/price-override-audit', label: 'تدقيق أسعار الأدوية' },
       { href: '/admin/pharmacy-price-review', label: 'مراجعة أسعار عروض الصيدليات', permission: 'catalog.read' },
+      { href: '/admin/price-reviews', label: 'مراجعات الأسعار (فوق الكتالوج)', permission: 'catalog.read' },
+      { href: '/admin/guest-jobs', label: 'إعلانات وظائف الزوار', permission: 'facility.edit' },
       { href: '/admin/article-review', label: 'مراجعة مقالات الأطباء', permission: 'cms.edit' },
       { href: '/admin/pregnancy-weeks', label: 'أسابيع الحمل', permission: 'cms.edit' },
       { href: '/admin/loyalty-config', label: 'إعدادات الولاء' },
@@ -133,6 +141,7 @@ function permitted(item: NavItem, permissions: Set<string>) {
 const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/command-center': 'command.center.view',
   '/admin/fraud-monitoring': 'command.center.view',
+  '/admin/risk-dashboard': 'analytics.read',
   '/admin/health-dashboard': 'command.center.view',
   '/admin/web-vitals': 'command.center.view',
   '/admin/dashboard': 'command.center.view',
@@ -148,10 +157,15 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/finance-suite': 'finance.read',
   '/admin/financial-ledger': 'finance.read',
   '/admin/commissions': 'finance.read',
-  '/admin/payouts': 'finance.payout.approve',
+  '/admin/refund-policy': 'finance.read',
+  '/admin/payouts': 'finance.read', // the page reads with finance.read; its approve / pay / reject buttons need finance.payout.approve
   '/admin/returns': 'finance.payout.approve',
   '/admin/disputes': 'disputes.resolve',
   '/admin/provider-moderation': 'facility.edit',
+  '/admin/license-expiry': 'facility.edit',
+  '/admin/seha-missing': 'appointment.read', // GET admin/medical-reports/without-seha-number needs APPOINTMENT_READ
+  '/admin/facility-members': 'facility.edit',
+  '/admin/service-offers': 'facility.edit',
   // The page lists and decides provider profile edits (provider-deltas), which need facility.edit.
   '/admin/provider-audits': 'facility.edit',
   '/admin/insurance-queue': 'order.read',
@@ -163,6 +177,8 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/service-proposals': 'catalog.read',
   '/admin/price-override-audit': 'catalog.read',
   '/admin/pharmacy-price-review': 'catalog.read',
+  '/admin/price-reviews': 'catalog.read',
+  '/admin/guest-jobs': 'facility.edit',
   '/admin/shortage-reports': 'catalog.read',
   '/admin/image-suggestions': 'catalog.read',
   '/admin/crm': 'crm.read',

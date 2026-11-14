@@ -1,0 +1,112 @@
+[
+  {
+    "batch": "doctor-card-web",
+    "app": "patient-web",
+    "screen": "/consultations/doctors",
+    "element": "Gender on the card and in the filter",
+    "file": "patient-web/lib/api/doctors.ts",
+    "line": 85,
+    "found": "[backend] gender: GET /care/doctors filters by gender (PR #1861) but toPublicDoctor does not return it; the card fact and the page tag draw only when it is sent",
+    "suspect": "Add gender to toPublicDoctor",
+    "review_status": "open"
+  },
+  {
+    "batch": "doctor-card-web",
+    "app": "patient-web",
+    "screen": "/consultations/doctors",
+    "element": "Average wait fact",
+    "file": "patient-web/lib/api/doctors.ts",
+    "line": 87,
+    "found": "[backend] average_wait / wait_time: not in toPublicDoctor, so the fact never shows",
+    "suspect": "Backend to compute and send the average wait",
+    "review_status": "open"
+  },
+  {
+    "batch": "doctor-card-web",
+    "app": "patient-web",
+    "screen": "/consultations/doctors/:id",
+    "element": "Education list",
+    "file": "patient-web/lib/api/doctors.ts",
+    "line": 88,
+    "found": "[backend] education: not built; the page shows the honest empty state 'No education added yet'",
+    "suspect": "Backend to store and send education [{degree,institution,year,verified}]",
+    "review_status": "open"
+  },
+  {
+    "batch": "doctor-card-web",
+    "app": "patient-web",
+    "screen": "/consultations/doctors/:id",
+    "element": "Verified certificates",
+    "file": "patient-web/lib/api/doctors.ts",
+    "line": 89,
+    "found": "[backend] certificates: not sent; the section is hidden",
+    "suspect": "Backend to send certificates [{name,issuer,year,verified}]",
+    "review_status": "open"
+  },
+  {
+    "batch": "doctor-card-web",
+    "app": "patient-web",
+    "screen": "/consultations/doctors/:id",
+    "element": "Services with prices",
+    "file": "patient-web/lib/api/doctors.ts",
+    "line": 90,
+    "found": "[backend] services: not sent; the section is hidden",
+    "suspect": "Backend to send services [{name_ar,name_en,price}]",
+    "review_status": "open"
+  },
+  {
+    "batch": "doctor-card-web",
+    "app": "patient-web",
+    "screen": "/consultations/doctors/:id",
+    "element": "Follow-up price and window",
+    "file": "patient-web/lib/api/doctors.ts",
+    "line": 91,
+    "found": "[backend] follow_up_price / follow_up_days: not sent; the rows are hidden",
+    "suspect": "Backend to send the follow-up price and window in days",
+    "review_status": "open"
+  },
+  {
+    "batch": "doctor-card-web",
+    "app": "patient-web",
+    "screen": "/consultations/doctors/:id",
+    "element": "Clinic address and map",
+    "file": "patient-web/app/[locale]/consultations/doctors/[doctorId]/page.tsx",
+    "line": 148,
+    "found": "[backend] clinic_address and location {lat,lng}: toPublicDoctor omits them (the exact location is private by design); the section is hidden without them",
+    "suspect": "Owner/backend decision: expose clinic address and a public point for clinic-type doctors",
+    "review_status": "open"
+  },
+  {
+    "batch": "doctor-card-web",
+    "app": "patient-web",
+    "screen": "/consultations/doctors/:id",
+    "element": "Review sub-ratings",
+    "file": "patient-web/lib/api/doctors.ts",
+    "line": 97,
+    "found": "[backend] reviews_data[].sub_ratings: ratings store one score only; sub-ratings never show",
+    "suspect": "Backend to store and send sub-ratings (communication, punctuality, cleanliness, value)",
+    "review_status": "open"
+  },
+  {
+    "batch": "doctor-card-web",
+    "app": "patient-web",
+    "screen": "/consultations/doctors/:id",
+    "element": "Written reviews, detail payload",
+    "file": "patient-web/lib/api/doctors.ts",
+    "line": 97,
+    "found": "[backend] reviews_data and is_online exist only on branch s/p-doctors (PR #1861); until it merges the section shows its empty state and the online dot is hidden",
+    "suspect": "Merge PR #1861",
+    "review_status": "open"
+  },
+  {
+    "batch": "doctor-card-web",
+    "app": "patient-web",
+    "screen": "/consultations/doctors",
+    "element": "Price band filter",
+    "file": "patient-web/app/[locale]/consultations/doctors/doctors-view.tsx",
+    "line": 123,
+    "found": "[backend] price_min / price_max are supported by PR #1861 but the web has no price band control on the board, so none was added",
+    "suspect": "[owner] confirm whether a price band control is wanted; no UI added",
+    "review_status": "open"
+  }
+]

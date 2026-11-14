@@ -6,7 +6,7 @@ import {
  Animated, FlatList, Dimensions, Switch, Platform, Alert, Vibration,
  ActivityIndicator, TextInput, Linking
 } from 'react-native';
-import { useTheme, useLang, useToast } from '../../../context';
+import { useTheme, useLang, useToast, useAuth } from '../../../context';
 import client from '../../../api/client';
 import { useServicesCatalog } from '../../../api/catalogs';
 import {
@@ -24,6 +24,7 @@ export function AiMedicalCopilot({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme();
  const { lang } = useLang();
  const { show } = useToast();
+ const { user } = useAuth();
  const AR = lang === 'ar';
 
  const [soap, setSoap] = useState({ s: '', o: '', a: '', p: '' });
@@ -74,7 +75,8 @@ export function AiMedicalCopilot({ onBack }: { onBack: () => void }) {
      show(AR ? 'اختر المريض الذي تخصه الملاحظة' : 'Select the patient this note belongs to', 'error');
      return;
    }
-   // F26: nursing progress notes live at /nursing/notes (booking-bound server-side).
+   // A doctor's note goes on the doctor's own visit (/provider/ops/doctor/notes); nursing progress notes live at /nursing/notes
+   // (booking-bound server-side, nurses only, which is why a doctor's save used to fail).
    const bookingId = selectedPatient?.booking_id || selectedPatient?.bookingId || selectedPatient?.visit_id || selectedPatient?.appointment_id;
    if (!bookingId) {
      show(AR ? 'اختر زيارة/حجزاً لتوثيق الملاحظة عليه' : 'Select a visit/booking for this note', 'error');
@@ -82,7 +84,8 @@ export function AiMedicalCopilot({ onBack }: { onBack: () => void }) {
    }
    setLoading(true);
    try {
-     await client.post('/nursing/notes', { patient_id: patientId, booking_id: bookingId, note });
+     if (user?.role === 'doctor') await client.post('/provider/ops/doctor/notes', { patient_id: patientId, appointment_id: bookingId, note });
+     else await client.post('/nursing/notes', { patient_id: patientId, booking_id: bookingId, note });
      show(AR ? 'تم حفظ التقرير الطبي بنجاح' : 'Clinical SOAP note saved', 'success');
      onBack();
    } catch (err: any) {

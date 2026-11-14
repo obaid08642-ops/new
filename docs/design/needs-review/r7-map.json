@@ -1,0 +1,36 @@
+[
+  {
+    "batch": "r7-map",
+    "app": "patient-web",
+    "screen": "/map",
+    "element": "Centre of the map when the position is not allowed",
+    "file": "patient-web/lib/map/explorer-browser.ts",
+    "line": 29,
+    "found": "[client] The owner round 2 asks for the map to centre on the selected city when the location is denied. Neither client has a selected-city state: the app keeps a selected address (utils/selectedAddress.ts) and the web has only the saved addresses. The map therefore centres on the point of the selected (app) or default (web) saved address, and on Riyadh for a guest or a patient with no address.",
+    "suspect": "Owner: decide whether a city picker (a stored city with a centre point, GET /locations/cities has names only, no coordinates) is wanted; until then the saved address is the nearest thing.",
+    "review_status": "open"
+  },
+  {
+    "batch": "r7-map",
+    "app": "patient-web",
+    "screen": "/map",
+    "element": "Providers read of the web map",
+    "file": "patient-web/app/api/map/providers/route.ts",
+    "line": 11,
+    "found": "[backend] The public read passes no lat, lng or radius_km (the backend GET /providers/map takes them and returns distance_km), so the web reads every published provider and measures the distance in the browser from the map centre. Neither client gets an open state or a price from this endpoint, so the cards draw neither.",
+    "suspect": "Reviewer: once the list is large, forward lat, lng and radius_km from the page (validated numbers) and cache per area; today the full list is small.",
+    "backend": "backend/src/modules/provider/providers.controller.ts:37",
+    "review_status": "open"
+  },
+  {
+    "batch": "r7-map",
+    "app": "patient-app",
+    "screen": "/map",
+    "element": "Carousel swipe to map pan, and the sheet",
+    "file": "patient-app/src/components/account/ProvidersMapView.tsx",
+    "line": 258,
+    "found": "[owner] A tap on a marker or a search hit selects the provider, pans the map and scrolls its card in; a swipe that rests on one card pans the map to it. The sheet with directions and booking opens from a card tap or a tap on the selected pin, not from the marker itself, so the carousel stays in view. The swipe-settle reads the viewable cards (onMomentumScrollEnd) and was checked only in a browser render, not on a device.",
+    "suspect": "Owner: confirm that the marker should not open the sheet directly; device check of the swipe on iOS and Android in right-to-left.",
+    "review_status": "open"
+  }
+]

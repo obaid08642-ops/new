@@ -1,0 +1,41 @@
+{
+  "slice": "uploads-scan-patient-web",
+  "batch": "uploads-scan",
+  "app": "patient-web",
+  "screens": [],
+  "needsReview": [
+    {
+      "route": "/pharmacy/rx-order",
+      "element": "Prescription photo save",
+      "kind": "backend",
+      "note": "Backend gap: POST /prescriptions/upload stores the base64 on the prescription row and returns no scan_status, so the patient apps cannot show \"being checked\" for it and no 423 can happen; if the photo is moved to the scanned store it must answer scan_status.",
+      "file": "patient-web/components-next/pharmacy/rx-upload-screen.tsx",
+      "line": 106,
+      "backend": "backend/src/modules/prescriptions/prescriptions.service.ts:161"
+    },
+    {
+      "route": "/diagnostics/insurance-approval",
+      "element": "Lab document upload",
+      "kind": "backend",
+      "note": "Backend gap: POST /labs/bookings/:id/documents takes a data URL and returns no scan_status; the page navigates away at once, so no pending or rejected state is shown.",
+      "file": "patient-web/components-next/diagnostics-document-upload.tsx",
+      "line": 41
+    },
+    {
+      "route": "/pharmacy/request",
+      "element": "Box photo pending badge",
+      "kind": "backend",
+      "note": "Backend gap: the badge cannot clear by itself; patient-web has no GET route for /storage/:id or /media/:id/url (only the voice route), so it stays \"being checked\" until the page is left.",
+      "file": "patient-web/components-next/pharmacy/request-screen.tsx",
+      "line": 61
+    },
+    {
+      "route": "/support/chat",
+      "element": "Attachment pending badge",
+      "kind": "backend",
+      "note": "Backend gap: no GET route in the web BFF to open the attachment, so the badge cannot retry and clear.",
+      "file": "patient-web/components-next/support-chat-client.tsx",
+      "line": 140
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+# Dockerfile.backend copies ONLY node_modules, dist and src/constants (built outside the image), so node_modules and dist
+# must stay in the context. Everything below is never copied; it only inflates the context sent to the builder.
+.git
+.gitignore
+coverage
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+test-results
+.tmp

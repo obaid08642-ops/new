@@ -31,6 +31,11 @@ describe("sample tracking steps (decision B8: the booking's real timeline)", () 
     expect(parseTracking({ tracking: { preparation: [{ service_id: "s1", texts: { tl: ["Mag-ayuno"] } }] } }, "fil").preparation[0].lines).toEqual(["Mag-ayuno"]);
   });
 
+  it("knows a home collection, with or without a collector yet", () => {
+    expect(parseTracking({ booking: { state: "CONFIRMED", location_type: "HOME_COLLECTION" }, tracking: {} }, "en").home).toBe(true);
+    expect(parseTracking({ booking: { state: "CONFIRMED", location_type: "IN_LAB" }, tracking: {} }, "en").home).toBe(false);
+  });
+
   it("says there is no tracking yet, with no invented steps, when the server sent none", () => {
     const out = html(<TrackingSteps locale="en" steps={[]} />);
     expect(out).toContain("No tracking updates yet");

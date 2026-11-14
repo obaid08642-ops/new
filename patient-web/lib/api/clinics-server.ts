@@ -1,4 +1,5 @@
 import { patientApiUrl } from "@/lib/api/upstream";
+import { publicReadSignal } from "@/lib/api/public-timeout";
 
 export type Clinic = {
   id: string;
@@ -25,7 +26,7 @@ export type Clinic = {
 export async function getPublicClinic(clinicId: string): Promise<Response | null> {
   if (!/^[A-Za-z0-9_-]{1,128}$/.test(clinicId)) throw new Error("invalid_clinic_id");
   try {
-    return await fetch(patientApiUrl(`/care/facilities/${encodeURIComponent(clinicId)}`), {
+    return await fetch(patientApiUrl(`/care/facilities/${encodeURIComponent(clinicId)}`), { signal: publicReadSignal(),
       headers: { Accept: "application/json" },
       cache: "no-store",
     });

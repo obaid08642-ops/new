@@ -171,7 +171,7 @@ export default function PaymentResultRoute() {
     const primary = visit ?? (pharmacy ? { label: k('pharmacy.quote.orderStatus'), go: toOrder } : { label: k('payments.result.toHome'), go: home });
     const showHome = visit !== null || pharmacy;
     return state(
-      <EmptyState icon="check-circle" tone="mint" title={k('pharmacy.pay.paidTitle')} body={k('payments.result.paidBody')} actionLabel={primary.label} onAction={primary.go} secondaryActionLabel={showHome ? k('payments.result.toHome') : undefined} onSecondaryAction={showHome ? home : undefined} theme={theme} />,
+      <EmptyState popIcon icon="check-circle" tone="mint" title={k('pharmacy.pay.paidTitle')} body={k('payments.result.paidBody')} actionLabel={primary.label} onAction={primary.go} secondaryActionLabel={showHome ? k('payments.result.toHome') : undefined} onSecondaryAction={showHome ? home : undefined} theme={theme} />,
       rows.length ? (
         <Card theme={theme}>
           <View style={{ gap: 12 }}>
@@ -186,11 +186,11 @@ export default function PaymentResultRoute() {
       ) : null,
     );
   }
-  if (phaseNow === 'failed' || phaseNow === 'cancelled') {
-    return state(<ErrorState icon="x-circle" tone="peach" title={phaseNow === 'cancelled' ? k('payments.result.cancelledTitle') : k('payments.result.failedTitle')} body={k('payments.result.failedBody')} retryLabel={k('payments.result.tryAgain')} onRetry={retryPay} actionLabel={pharmacy ? k('pharmacy.quote.orderStatus') : k('payments.result.toHome')} onAction={pharmacy ? toOrder : home} theme={theme} />);
+  if (phaseNow === 'failed' || phaseNow === 'cancelled' || phaseNow === 'sessionExpired') {
+    return state(<ErrorState icon="x-circle" tone="peach" title={phaseNow === 'cancelled' ? k('payments.result.cancelledTitle') : phaseNow === 'sessionExpired' ? k('payments.result.sessionExpiredTitle') : k('payments.result.failedTitle')} body={phaseNow === 'cancelled' ? k('payments.result.cancelledBody') : phaseNow === 'sessionExpired' ? k('payments.result.sessionExpiredBody') : k('payments.result.failedBody')} retryLabel={k('payments.result.tryAgain')} onRetry={retryPay} actionLabel={pharmacy ? k('pharmacy.quote.orderStatus') : k('payments.result.toHome')} onAction={pharmacy ? toOrder : home} theme={theme} />);
   }
   if (phaseNow === 'refunded') {
-    return state(<EmptyState icon="receipt" tone="blue" title={k('payments.result.refundedTitle')} body={k('pharmacy.pay.cancelledBody')} actionLabel={pharmacy ? k('pharmacy.quote.orderStatus') : k('payments.result.toHome')} onAction={pharmacy ? toOrder : home} theme={theme} />);
+    return state(<EmptyState icon="receipt" tone="blue" title={k('payments.result.refundedTitle')} body={k('payments.result.refundedBody')} actionLabel={pharmacy ? k('pharmacy.quote.orderStatus') : k('payments.result.toHome')} onAction={pharmacy ? toOrder : home} theme={theme} />);
   }
   // pending: still asking, or asked often enough and the gateway has not settled
   const slow = phase === 'slow';

@@ -1,10 +1,13 @@
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { SelfService } from '../../common/auth.guard';
 
 @Controller('home-care/packages')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 export class HomeCarePackagesController {
   constructor(@InjectConnection() private conn: Connection) {}
 

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { SearchModule } from '../search/search.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RadiologyController as RadiologyPublicController } from './radiology.controller';
 import { RadiologyOpsService } from './radiology.service';
@@ -23,6 +24,7 @@ import { ApprovalWorkflowModule } from '../approval-workflow/approval-workflow.m
 @Module({
   imports: [
     WorkflowEngineModule,
+    SearchModule,
     InsuranceEngineModule,
     ApprovalWorkflowModule,
     MongooseModule.forFeature([

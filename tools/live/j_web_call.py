@@ -265,14 +265,20 @@ def main():
         tok = doctor.get(f'/unified-bookings/{aid}/call-token')
         step('doctor: the backend issues the booking call token (window open)', tok.ok and tok.get('provider') == 'livekit' and tok.get('token'), tok)
         page.goto(f'{WEB}/ar/consultations/virtual-waiting-room?appointmentId={aid}', wait_until='load', timeout=60000)
-        # while the page streams in, React briefly holds a hidden copy of the section; wait for the settled page
-        page.wait_for_function('() => document.querySelectorAll(\'section[aria-labelledby="call-token-title"]\').length === 1', timeout=30000)
-        launcher = page.locator('section[aria-labelledby="call-token-title"]')
-        step('waiting room: the visit is joinable (the "join" card shows)', launcher.count() == 1, page.url)
-        launcher.locator('button').first.click()
-        page.wait_for_selector('section[aria-labelledby="call-token-title"] a[href*="/consultations/video-call?appointmentId="]', timeout=30000)
+        # The page does not depend on the clock: the join card is drawn whenever the appointment is joinable (status only), and the
+        # token window is checked by the server when "join" is pressed. What varied from run to run was the page itself: while it
+        # streams in, React holds a hidden copy of the section next to the visible one (and a late chunk can bring it back after
+        # the count was read), so `count() == 1` over ALL copies was true or false by timing (the failure on unrelated PRs #1961,
+        # #1991). Every read below is of the visible card only, after it has settled.
+        card = 'section[aria-labelledby="call-token-title"]:visible'
+        launcher = page.locator(card)
+        launcher.first.wait_for(state='visible', timeout=30000)
+        step('waiting room: the visit is joinable (the "join" card shows)', launcher.count() == 1, f'{launcher.count()} visible card(s) at {page.url}')
+        launcher.first.locator('button').first.click()
+        join = page.locator(f'{card} a[href*="/consultations/video-call?appointmentId="]')
+        join.first.wait_for(state='visible', timeout=30000)
         step('waiting room: "join" checks the call is ready and offers the call', True)
-        page.locator('section[aria-labelledby="call-token-title"] a[href*="/consultations/video-call?appointmentId="]').click()
+        join.first.click()
         page.wait_for_url('**/consultations/video-call?appointmentId=*', timeout=30000)
         if tok.ok and tok.get('token'):
             prove_connected_call(page, doc_page, tok.get('token'), 'video-call page')

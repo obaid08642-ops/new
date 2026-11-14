@@ -3,6 +3,7 @@ import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { trackingId, TRACK_PREFIX } from '../common/tracking';
 import { InsuranceDetails, InsuranceDetailsSchema } from './insurance.schema';
+import { halalaShadowPlugin } from '../common/halala-shadow';
 
 export enum NursingBookingState {
   NEW_REQUEST = 'NEW_REQUEST',
@@ -28,12 +29,8 @@ export class HomeCareService extends Document {
   @Prop({ required: true }) name_en: string;
   @Prop() description_ar?: string;
   @Prop() description_en?: string;
-  // #1556 F: names, descriptions and preparation in the six app languages, and the published content
+  // #1556 F: descriptions and preparation in the six app languages (the NAME stays Arabic and English only, owner 2026-10-25), and the published content
   // (purpose, turnaround) from catalogs/content/services-content.v1.json.
-  @Prop() name_ur?: string;
-  @Prop() name_hi?: string;
-  @Prop() name_bn?: string;
-  @Prop() name_tl?: string;
   @Prop() description_ur?: string;
   @Prop() description_hi?: string;
   @Prop() description_bn?: string;
@@ -69,6 +66,9 @@ export class HomeCareService extends Document {
   @Prop() last_reviewed?: Date;
   @Prop() provenance?: string;
   @Prop({ default: 0 }) popularity: number;
+  /** visit | continuous | programme, and what that mode lets the patient choose (modules/home-care/booking-mode.ts) */
+  @Prop({ type: String, enum: ['visit', 'continuous', 'programme'], default: undefined }) booking_mode?: string;
+  @Prop({ type: Object, default: undefined }) booking_options?: Record<string, unknown>;
 }
 export const HomeCareServiceSchema = SchemaFactory.createForClass(HomeCareService);
 
@@ -86,9 +86,22 @@ export class HomeCareBooking extends Document {
   @Prop({ required: true }) service_name_ar: string;
   @Prop() service_name_en?: string;
   @Prop() notes?: string;
+  /** Owner decision 1: the family member this is for; the booker (patient_id) is unchanged. Absent = for the booker. */
+  @Prop({ type: String, required: false, index: true }) family_member_id?: string;
+  /** The refund policy the patient agreed to before paying (common/refund-policy-acceptance.ts): the tick, its time and the policy version. */
+  @Prop({ type: Object, required: false }) refund_policy_acceptance?: { accepted: boolean; at: Date; version: string; hash?: string; service?: string };
   /** P17-17.5: UTM campaign attribution (utm_source/medium/campaign/term/content). */
   @Prop({ type: Object, required: false }) attribution?: Record<string, string>;
   @Prop({ default: 1 }) sessions_count: number;
+  /** the patient's booking choice (modules/home-care/booking-mode.ts): visit recurrence, continuous hours/shift/period */
+  @Prop({ type: String, enum: ['visit', 'continuous', 'programme'], default: undefined }) booking_mode?: string;
+  @Prop() recurrence?: string;
+  @Prop() hours?: number;
+  @Prop() shift?: string;
+  @Prop() period?: string;
+  /** "for N days" (period `days`), and the catalogue units this booking was billed for (booking-mode.ts billableUnits) */
+  @Prop() days?: number;
+  @Prop() billable_units?: number;
   @Prop({ required: true }) duration: string;
   @Prop({ required: true }) total: number;
   
@@ -176,6 +189,9 @@ export class HomeCareBooking extends Document {
   @Prop() refund_status?: string;
 }
 export const HomeCareBookingSchema = SchemaFactory.createForClass(HomeCareBooking);
+// R11 P1: the booking's own SAR doubles get an integer `<field>_halalas` next to them (halalaShadowPlugin); the backfill uses the same list.
+export const HOME_CARE_BOOKING_HALALA_FIELDS = ['total', 'service_fee', 'home_visit_fee', 'transportation_fee', 'total_price'];
+halalaShadowPlugin(HomeCareBookingSchema, HOME_CARE_BOOKING_HALALA_FIELDS);
 HomeCareBookingSchema.index({ patient_id: 1, createdAt: -1 });
 HomeCareBookingSchema.index({ state: 1, scheduled_at: 1 });
 

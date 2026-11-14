@@ -1,0 +1,93 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components-next/ui-generated/components/Button";
+import { formatClock } from "@/lib/chat/voice-note";
+import { ScanStatusBadge } from "@/components-next/uploads/scan-status-badge";
+import { useScanGate } from "@/components-next/uploads/use-scan-gate";
+import { classifyOpen, type ScanState } from "@/lib/uploads/scan-status";
+import styles from "./consult.module.css";
+
+/** A received or sent voice message: play/pause, length and a seekable progress bar. The link is asked for on the first play. */
+export function VoiceNotePlayer({ mediaId, durationSeconds }: { mediaId: string; durationSeconds?: number }) {
+  const t = useTranslations("ChatDetail");
+  const audio = useRef<HTMLAudioElement | null>(null);
+  const [src, setSrc] = useState<string | null>(null);
+  const [playing, setPlaying] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const [scan, setScan] = useState<ScanState>("ok");
+  const [time, setTime] = useState(0);
+  const [length, setLength] = useState(durationSeconds ?? 0);
+
+  useEffect(() => { if (src && audio.current) void audio.current.play().catch(() => setFailed(true)); }, [src]);
+
+  // 423 file_pending_scan: the voice note is still being checked for safety. Not an error: it shows "being checked" and asks again
+  // every retry_after_seconds and when the tab is focused again.
+  const link = () => fetch(`/api/chat/voice/${encodeURIComponent(mediaId)}`, { credentials: "same-origin" });
+  const gate = useScanGate(scan === "pending" ? async () => { const r = await link(); return { status: r.status, body: await r.json().catch(() => null) }; } : null, scan);
+  useEffect(() => {
+    if (scan === "pending" && gate === "ok") { setScan("ok"); void toggle(); }
+    else if (scan === "pending" && gate === "rejected") setScan("rejected");
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- reacts to the gate only
+  }, [gate]);
+
+  async function toggle() {
+    const el = audio.current;
+    if (playing && el) { el.pause(); return; }
+    if (src && el) { void el.play().catch(() => setFailed(true)); return; }
+    setLoading(true);
+    setFailed(false);
+    try {
+      const response = await link();
+      const raw = (await response.json().catch(() => null)) as { url?: string } | null;
+      const outcome = classifyOpen(response.status, raw);
+      if (outcome.state === "pending") { setScan("pending"); return; }
+      if (outcome.state === "rejected") { setScan("rejected"); return; }
+      const body = response.ok ? raw : null;
+      if (!body?.url) throw new Error("media_unavailable");
+      setSrc(body.url);
+    } catch {
+      setFailed(true);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const total = Math.max(length, durationSeconds ?? 0, 1);
+  return (
+    <div className={styles.voicePlayer} data-testid="voice-player">
+      <Button label={playing ? t("voice.pause") : t("voice.play")} variant="outline" size="md" loading={loading} disabled={loading} onClick={() => void toggle()} />
+      <input
+        className={styles.voiceRange}
+        type="range"
+        min={0}
+        max={total}
+        step={0.1}
+        value={Math.min(time, total)}
+        disabled={!src}
+        aria-label={t("voice.playerLabel", { time: formatClock(durationSeconds ?? length) })}
+        aria-valuetext={`${formatClock(time)} / ${formatClock(total)}`}
+        onChange={(event) => { const v = Number(event.target.value); if (audio.current) audio.current.currentTime = v; setTime(v); }}
+      />
+      <span className={styles.voiceTime} dir="ltr">{formatClock(playing || time > 0 ? time : total)}</span>
+      {src ? (
+        // eslint-disable-next-line jsx-a11y/media-has-caption -- a voice message; no transcript exists
+        <audio
+          ref={audio}
+          src={src}
+          preload="auto"
+          onPlay={() => setPlaying(true)}
+          onPause={() => setPlaying(false)}
+          onEnded={() => { setPlaying(false); setTime(0); }}
+          onTimeUpdate={(event) => setTime(event.currentTarget.currentTime)}
+          onLoadedMetadata={(event) => { if (Number.isFinite(event.currentTarget.duration)) setLength(event.currentTarget.duration); }}
+          onError={() => { setPlaying(false); setFailed(true); setSrc(null); }}
+        />
+      ) : null}
+      <ScanStatusBadge state={scan} />
+      {failed ? <p role="alert" className={styles.rowSub}>{t("voice.errors.loadFailed")}</p> : null}
+    </div>
+  );
+}

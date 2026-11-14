@@ -46,6 +46,11 @@ export class PatientProfile {
       lat: Number,
       lng: Number,
       is_default: Boolean,
+      short_address: String,
+      building_number: String,
+      additional_number: String,
+      post_code: String,
+      national_address_verified: Boolean,
     }],
     _id: false,
     default: [],
@@ -65,6 +70,11 @@ export class PatientProfile {
     lat?: number;
     lng?: number;
     is_default?: boolean;
+    short_address?: string;
+    building_number?: string;
+    additional_number?: string;
+    post_code?: string;
+    national_address_verified?: boolean;
   }[];
   @Prop({
     type: {
@@ -87,7 +97,9 @@ export class PatientProfile {
       verified: Boolean,
       pdf_url: String,
       ocr_extracted: Boolean,
-      nphies_eligible: Boolean,
+      // As printed on the card (optional): the pre-booking estimate reads them. Without them here Mongoose strict mode dropped both on save.
+      copay_percent: Number,
+      copay_cap_sar: Number,
     },
     _id: false,
   })
@@ -109,7 +121,8 @@ export class PatientProfile {
     verified?: boolean;
     pdf_url?: string;
     ocr_extracted?: boolean;
-    nphies_eligible?: boolean;
+    copay_percent?: number;
+    copay_cap_sar?: number;
   };
 }
 export type PatientProfileDocument = PatientProfile & Document;

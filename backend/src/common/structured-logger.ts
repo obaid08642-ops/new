@@ -10,6 +10,7 @@
  * deep in a service still carries the id of the request that caused it without
  * threading the parameter through every function.
  */
+import { currentTraceId } from './trace';
 import { Logger } from '@nestjs/common';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { processRole } from './process-role';
@@ -18,10 +19,14 @@ export interface LogContext {
   requestId?: string;
   userId?: string;
   role?: string;
-  /** Where the request came from; used by the medical access log (16.9), never written to ordinary log lines. */
+  /** 23.1 "where": filled by the correlation middleware, read by the audit writer and the medical access log (16.9); never written to ordinary log lines. */
   ip?: string;
   userAgent?: string;
   deviceId?: string;
+  platform?: string;
+  appVersion?: string;
+  /** Set when an admin acts as someone else (the admin's id). */
+  impersonatorId?: string;
 }
 
 /** One context per async flow, so a log line knows which request it belongs to. */
@@ -39,12 +44,13 @@ export function currentLogContext(): LogContext {
  * Called by the auth guard once the caller is known: every later line of this request carries the account id (the id
  * only, never a name, phone or e-mail). A no-op outside a request context.
  */
-export function setLogUser(userId: unknown, role?: unknown) {
+export function setLogUser(userId: unknown, role?: unknown, impersonatorId?: unknown) {
   const store = storage.getStore();
   if (!store) return;
   const id = userId === undefined || userId === null ? '' : String(userId);
   if (id) store.userId = id;
   if (role) store.role = String(role);
+  if (impersonatorId) store.impersonatorId = String(impersonatorId);
 }
 
 /**
@@ -52,7 +58,7 @@ export function setLogUser(userId: unknown, role?: unknown) {
  * clear. Matching is on the key name, so `patient_phone` and `nationalId` are
  * both caught whatever the caller called the variable.
  */
-const PII_KEY = /(phone|mobile|tel|email|e_?mail|user_?name|full_?name|first_?name|last_?name|national_?id|nid|iqama|passport|address|diagnosis|prescription|medical_?record|password|token|secret|api_?key|otp|code|cvv|card)/i;
+const PII_KEY = /(phone|mobile|tel|email|e_?mail|user_?name|full_?name|first_?name|last_?name|national_?id|nid|iqama|passport|address|diagnos|prescription|medical|medication|allerg|symptom|complaint|lab_?result|vitals|health_?(?:record|data|condition)|dob|birth|insurance_?(?:no|number)|policy_?(?:no|number)|iban|password|token|secret|api_?key|otp|code|cvv|card)/i;
 
 /** Values that look like a phone, an email or a national id even under a bland key. */
 const PII_VALUE = [
@@ -62,6 +68,7 @@ const PII_VALUE = [
 ];
 
 const REDACTED = '[redacted]';
+const UUID_VALUE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
 
 /** Mask one value. Objects are walked; arrays are walked element by element. */
 export function maskPii(input: unknown, depth = 0): unknown {
@@ -75,6 +82,8 @@ export function maskPii(input: unknown, depth = 0): unknown {
     }
     return out;
   }
+  // a request id / error id is a UUID: an opaque id, and a run of digits inside it must not look like a phone number
+  if (typeof input === 'string' && UUID_VALUE.test(input)) return input;
   if (typeof input === 'string' && PII_VALUE.some((re) => re.test(input))) return REDACTED;
   return input;
 }
@@ -122,6 +131,8 @@ export interface LogRecord {
   duration_ms: number | null;
   /** Everything else the caller passed, after maskPii. */
   details: Record<string, unknown> | null;
+  /** R5: trace id of the active span, present only inside a traced request or job. */
+  trace_id?: string;
 }
 
 /** Keys of the fields bag that become top-level columns instead of `details`. */
@@ -145,6 +156,7 @@ export function buildLogRecord(
   module = 'app',
 ): LogRecord {
   const ctx = currentLogContext();
+  const traceId = currentTraceId();
   const rest: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(fields)) if (!TOP_LEVEL_KEYS.has(k)) rest[k] = v;
   const details = Object.keys(rest).length ? (maskPii(rest) as Record<string, unknown>) : null;
@@ -160,6 +172,8 @@ export function buildLogRecord(
     status: numberOrNull(fields.status),
     duration_ms: numberOrNull(fields.duration_ms),
     details,
+    // R5: a line written inside a traced request/job carries the trace id, so a log line leads to its trace (absent when tracing is off)
+    ...(traceId ? { trace_id: traceId } : {}),
   };
 }
 

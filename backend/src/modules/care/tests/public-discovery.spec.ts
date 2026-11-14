@@ -4,6 +4,9 @@ import { ProviderStatus, ProviderType } from '../../../common/enums';
 
 const asDoc = (data: any) => ({ ...data, toObject: () => ({ ...data }) });
 
+// 19.3: a doctor is public only with a verified licence that has not expired.
+const LICENSE_OK = { license_verified: true, license_expiry_date: { $not: { $lte: expect.any(Date) } } };
+
 describe('CareService public discovery contract', () => {
   let service: CareService;
   let providers: any;
@@ -36,7 +39,7 @@ describe('CareService public discovery contract', () => {
     const result = await service.doctorById('doctor-1');
 
     expect(providers.findOne).toHaveBeenCalledWith(
-      { id: 'doctor-1', type: ProviderType.DOCTOR, status: ProviderStatus.ACTIVE, public_eligibility: true, medical_review_status: 'approved' },
+      { id: 'doctor-1', type: ProviderType.DOCTOR, status: ProviderStatus.ACTIVE, public_eligibility: true, medical_review_status: 'approved', ...LICENSE_OK },
       { _id: 0, __v: 0 },
     );
     expect(result).toMatchObject({ id: 'doctor-1', specialty: 'cardiology', accepted_insurance: ['insurer-a'] });
@@ -52,7 +55,7 @@ describe('CareService public discovery contract', () => {
   it('does not expose slots for an inactive, pending or unknown doctor', async () => {
     providers.findOne.mockResolvedValue(null);
     await expect(service.doctorSlots('doctor-1', '2026-09-01', 'clinic')).rejects.toThrow(NotFoundException);
-    expect(providers.findOne).toHaveBeenCalledWith({ id: 'doctor-1', type: ProviderType.DOCTOR, status: ProviderStatus.ACTIVE, public_eligibility: true, medical_review_status: 'approved' });
+    expect(providers.findOne).toHaveBeenCalledWith({ id: 'doctor-1', type: ProviderType.DOCTOR, status: ProviderStatus.ACTIVE, public_eligibility: true, medical_review_status: 'approved', ...LICENSE_OK });
     expect(slots.slotsForDate).not.toHaveBeenCalled();
   });
 
@@ -80,7 +83,7 @@ describe('CareService public discovery contract', () => {
     const result = await service.specialties();
 
     expect(providers.aggregate).toHaveBeenCalledWith([
-      { $match: { type: ProviderType.DOCTOR, status: ProviderStatus.ACTIVE, public_eligibility: true, medical_review_status: 'approved' } },
+      { $match: { type: ProviderType.DOCTOR, status: ProviderStatus.ACTIVE, public_eligibility: true, medical_review_status: 'approved', ...LICENSE_OK } },
       { $group: { _id: '$specialty', count: { $sum: 1 } } },
     ]);
     expect(result.find((item: any) => item.slug === 'cardiology')).toMatchObject({ count: 2, published_provider_count: 2 });

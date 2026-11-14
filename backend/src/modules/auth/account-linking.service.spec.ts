@@ -27,7 +27,7 @@ describe('Phase 21.6 account linking', () => {
   afterAll(async () => { await conn.close(); await mongo.stop(); });
 
   beforeEach(async () => {
-    for (const name of ['account_links', 'account_link_proofs', 'users', 'audit_logs']) {
+    for (const name of ['account_links', 'account_link_proofs', 'users', 'auditlogs']) {
       const exists = (await conn.db!.collections()).some((c) => c.collectionName === name);
       if (!exists) await conn.createCollection(name).catch(() => undefined);
       await conn.collection(name).deleteMany({});
@@ -80,7 +80,7 @@ describe('Phase 21.6 account linking', () => {
     const link = await conn.collection('account_links').findOne({ id: linked_account_id });
     expect(link?.status).toBe('active');
     expect((await conn.collection('users').findOne({ id: 'victim' }))?.email).toBe('victim@example.test');
-    expect(await conn.collection('audit_logs').countDocuments({ action: 'account.linked' })).toBe(1);
+    expect(await conn.collection('auditlogs').countDocuments({ action: 'account.linked' })).toBe(1);
   });
 
   it('the code never comes back to the caller', async () => {

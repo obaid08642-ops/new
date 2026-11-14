@@ -1,4 +1,7 @@
 import { Controller, Get, Param, Post, Put, Delete, Query, UseGuards, Body, NotFoundException, BadRequestException, ServiceUnavailableException } from '@nestjs/common';
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
+import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
 import { JwtAuthGuard, Public, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
@@ -13,8 +16,10 @@ import { CreateNoteDto, CreateBookingDto, ArriveAtPatientDto, TriggerEmergencyDt
 import { CreateHomeCareCatalogDto, UpdateHomeCareCatalogDto, ApproveCatalogDto, BulkApproveCatalogDto } from './home-care.dto';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { PublicCache } from '../../common/public-cache.decorator';
 @UseGuards(JwtAuthGuard)
 @Controller('nursing')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 export class NursingController {
   constructor(
     @InjectModel('HomeCareBooking') private readonly bkgModel: Model<HomeCareBooking>,
@@ -99,9 +104,10 @@ export class NursingController {
   }
 
   // 1. SERVICES CATALOG (Pillar 2)
+  @PublicCache(120, ['catalog', 'nursing'])
   @Public() @Get('catalog')
-  async getCatalog() {
-    return this.serviceModel.find({ active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }).lean();
+  async getCatalog(@Query('sort') sort?: string) {
+    return this.serviceModel.find({ active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }).sort(catalogueSortSpec(sort)).lean();
   }
 
   // --- Admin Catalog CRUD (nursing/home-care services) ---
@@ -356,6 +362,8 @@ export class NursingController {
     b.state_history.push({ from: NursingBookingState.ARRIVED, to: b.state, at: new Date() });
     await b.save();
     this.notifyPatientState(b);
+    // screens-audit-3 gap 24: finance refunds `home_visit.patient_absent_percent` of what was paid (default 0: nothing)
+    this.events.emit('homecare.booking_no_show', { booking_id: b.id, patient_id: b.patient_id, total: Number(b.total ?? b.total_price ?? 0) });
 
     return { success: true, state: b.state };
   }
@@ -389,15 +397,24 @@ export class NursingController {
     // provider-journeys#13: the patient's signature closes the visit (the field screen requires it; so does the server).
     if (!(typeof signature_base64 === 'string' && signature_base64.trim())) throw new BadRequestException('patient_signature_required');
     
-    b.state = NursingBookingState.COMPLETED;
-    b.timers.completed_at = new Date();
-    b.markModified('timers');
-    b.vitals = vitals || b.vitals;
-    b.clinical_notes = clinical_notes || b.clinical_notes;
-    b.recommendations = recommendations || b.recommendations;
-    b.patient_signature_base64 = signature_base64;
-    b.state_history.push({ from, to: b.state, at: new Date() });
-    await b.save();
+    // Through the workflow engine like every other service: it emits `service.completed` exactly once, which is what credits the nurse's
+    // earning and tells the patient. Writing the state directly (as this did) left the visit completed but never paid to the wallet.
+    await this.engine.apply({
+      kind: 'nursing', entity_id: b.id, from_domain: from, to_domain: NursingBookingState.COMPLETED,
+      actor_account_id: user.id, actor_role: user.role, patient_account_id: b.patient_id, reason: 'visit_completed',
+      mutate: async () => {
+        b.state = NursingBookingState.COMPLETED;
+        b.timers.completed_at = new Date();
+        b.markModified('timers');
+        b.vitals = vitals || b.vitals;
+        b.clinical_notes = clinical_notes || b.clinical_notes;
+        b.recommendations = recommendations || b.recommendations;
+        b.patient_signature_base64 = signature_base64;
+        b.state_history.push({ from, to: b.state, at: new Date() });
+        await b.save();
+        return b.toObject();
+      },
+    });
 
     this.notifyPatientState(b);
     
@@ -469,6 +486,7 @@ export class NursingController {
 /** Patient-web contract bridge. It deliberately exposes only a bounded booking view. */
 @UseGuards(JwtAuthGuard)
 @Controller('home-care')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 export class HomeCareContractController {
   constructor(@InjectModel('HomeCareBooking') private readonly bookings: Model<HomeCareBooking>) {}
 

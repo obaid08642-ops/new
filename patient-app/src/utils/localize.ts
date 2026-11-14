@@ -33,7 +33,7 @@ export function currentDbLang(): DbLang {
 }
 
 /** Maps catalogue field base names to their key inside translations[lang]. */
-const TRANSLATION_KEY_MAP: Record<string, string> = {
+export const TRANSLATION_KEY_MAP: Record<string, string> = {
   name: 'name',
   category: 'main_category',
   sub_category: 'sub_category',
@@ -82,3 +82,6 @@ export function pickDbField<T = string>(obj: any, base: string): T | undefined {
 export function localizedField(obj: any, base: string): any {
   return pickDbField(obj, base);
 }
+
+/** Writing direction of a stored language (Arabic and Urdu are right-to-left). */
+export const dbLangDir = (l: DbLang): 'rtl' | 'ltr' => (l === 'ar' || l === 'ur' ? 'rtl' : 'ltr');

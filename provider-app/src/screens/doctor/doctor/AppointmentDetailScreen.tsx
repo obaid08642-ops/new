@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import { AppointmentStatus } from '../../../types/contracts';
+import { isVisitedStatus } from './medicalOrderLogic';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet,
  Animated, FlatList, Alert, Dimensions, Platform, Modal, TextInput,
  RefreshControl, Switch, ActivityIndicator, KeyboardAvoidingView, Linking } from 'react-native';
@@ -83,6 +84,8 @@ export function AppointmentDetailScreen({ apt, onBack, onNavigate }:
  function submitReschedule() {
    if (!newDate || !newTime) { show(AR ? 'اختر التاريخ والوقت' : 'Pick a date and a time', 'error'); return; }
    const slot = mergeDateAndTime(newDate, newTime);
+   // the server only accepts slots on a 15-minute boundary: the picked time is moved to the next one
+   slot.setMinutes(Math.ceil(slot.getMinutes() / 15) * 15, 0, 0);
    if (!isFutureSlot(slot, new Date())) { show(AR ? 'اختر موعداً في المستقبل' : 'Pick a time in the future', 'error'); return; }
    doPatch('reschedule', { slot_start: slot.toISOString() });
  }
@@ -124,16 +127,17 @@ export function AppointmentDetailScreen({ apt, onBack, onNavigate }:
   </NCard>
   {/* the consultation screen verifies the appointment with the server before anything opens */}
   <NBtn label={AR ? 'فتح الاستشارة' : 'Open consultation'} onPress={() => onNavigate('consultation', apt)} style={{ marginTop: SP.xl }} />
+  {isVisitedStatus(apt?.status) ? <NBtn label={AR ? 'أمر طبي جديد' : 'New medical order'} variant="outline" onPress={() => onNavigate('medical_order_composer', apt)} style={{ marginTop: SP.md }} /> : null}
   {apt?.type === 'home' && apptId ? <HomeVisitTrip apptId={apptId} AR={AR} /> : null}
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.md }}>
- <View style={{ flex: 1 }}><NBtn label={AR ? 'تأكيد الموعد' : 'Confirm'} loading={acting} onPress={() => doPatch('confirm')} /></View>
+ {['', 'pending', 'requested'].includes(String(apt?.status || '').toLowerCase()) ? <View style={{ flex: 1 }}><NBtn label={AR ? 'تأكيد الموعد' : 'Confirm'} loading={acting} onPress={() => doPatch('confirm')} /></View> : null}
  <View style={{ flex: 1 }}><NBtn label={AR ? 'إلغاء' : 'Cancel'} variant="danger" onPress={() => setShowCancel((v) => !v)} /></View>
  <View style={{ flex: 1 }}><NBtn label={AR ? 'جدولة' : 'Reschedule'} variant="outline" onPress={() => setShowResched((v) => !v)} /></View>
  </View>
  {showCancel && (
  <NCard style={{ marginTop: SP.md }}>
- <NInput placeholder={AR ? 'سبب الإلغاء' : 'Cancellation reason'} value={cancelReason} onChange={setCancelReason} />
- <NBtn label={AR ? 'تأكيد الإلغاء' : 'Confirm cancellation'} variant="danger" loading={acting} onPress={() => doPatch('cancel', cancelReason.trim() ? { reason: cancelReason.trim() } : {})} style={{ marginTop: SP.md }} />
+ <NInput placeholder={AR ? 'سبب الإلغاء (مطلوب، يصل المريض)' : 'Cancellation reason (required, the patient receives it)'} value={cancelReason} onChange={setCancelReason} />
+ <NBtn label={AR ? 'تأكيد الإلغاء' : 'Confirm cancellation'} variant="danger" loading={acting} disabled={acting || cancelReason.trim().length < 3} onPress={() => doPatch('cancel', { reason: cancelReason.trim() })} style={{ marginTop: SP.md }} />
  </NCard>
  )}
  {showResched && (

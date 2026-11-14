@@ -37,11 +37,13 @@
       "fn": "step3",
       "args": [
         {
-          "has_own_drivers": true,
-          "has_own_delivery": true,
-          "delivery_radius_km": 8,
-          "delivery_fee": 10,
-          "free_delivery_above": 150,
+          "own_delivery": {
+            "enabled": true,
+            "zone_type": "radius",
+            "radius_km": 8,
+            "fee_sar": 0,
+            "free_over_sar": null
+          },
           "min_order_sar": 25,
           "express_delivery": true,
           "express_fee": 15,
@@ -111,6 +113,7 @@
           "cr_number": "1010101010",
           "moh_license_number": "MOH-PHR-12345",
           "sfda_license_number": "SFDA-998877",
+          "license_expiry_date": "2099-12-31",
           "tax_number": "300123456700003",
           "license_documents": [
             "https://cdn.test/cr.jpg",
@@ -164,14 +167,23 @@
             "crNumber": "1010101010",
             "mohLicense": "MOH-PHR-12345",
             "sfdaNumber": "SFDA-998877",
+            "licenseExpiry": "2099-12-31",
             "iban": "SA0380000000608010167519",
             "taxNumber": "300123456700003",
+            "region": "riyadh",
             "city": "riyadh_city",
             "district": "olaya",
             "address": "Prince Sultan Road",
             "deliveryRadius": 8,
             "hasDelivery": true,
-            "hasOwnDrivers": true,
+            "ownDelivery": {
+              "enabled": true,
+              "zoneType": "radius",
+              "radius": "8",
+              "districts": [],
+              "fee": "0",
+              "freeOver": ""
+            },
             "workDays": [
               "SUN",
               "MON",
@@ -217,8 +229,7 @@
               "lat": 24.7136,
               "lng": 46.6753
             },
-            "accountHolderName": "Nabd Pharmacy Co",
-            "region": "riyadh"
+            "accountHolderName": "Nabd Pharmacy Co"
           }
         }
       ]

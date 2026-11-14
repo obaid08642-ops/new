@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { Locale } from "@/lib/i18n";
 import { announceSignedOut } from "@/lib/auth/session-identity";
+import { forgetRecentSearches } from "@/lib/search/recent-searches";
 import { clearSwr } from "@/lib/swr-lite";
 import { useSessionIdentity } from "@/lib/auth/session-identity";
 
@@ -22,7 +23,7 @@ export function SessionActions({ locale, accountLabel, signOutLabel }: { locale:
     if (isSigningOut) return;
     setIsSigningOut(true);
     try { await fetch("/api/auth/logout", { method: "POST" }); }
-    finally { clearSwr(); announceSignedOut(); router.replace(`/${locale}`); router.refresh(); }
+    finally { clearSwr(); forgetRecentSearches(); announceSignedOut(); router.replace(`/${locale}`); router.refresh(); }
   }
 
   if (identity.status !== "user") return null;

@@ -11,7 +11,7 @@ import {
   Text,
   View,
   useWindowDimensions,
-  type ViewToken,
+  type ListViewToken as ViewToken,
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
@@ -29,6 +29,7 @@ import {
   Icon,
   Input,
   OfflineState,
+  PopWhen,
   Radio,
   Screen,
   SERVICE_ICONS,
@@ -39,21 +40,26 @@ import {
 import { rowsOf } from '../../src/components/health/HealthKit';
 import { loadPolicy } from '../../src/components/insurance/InsuranceKit';
 import ProductImage from '../../src/components/ProductImage';
-import { CountBadge, Glyph, PHARMACY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
+import { CartButton, CountBadge, Glyph, MedAddControl, PHARMACY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
 import { DetailAccordion, FactsGrid, MiniProduct, Pill, SafetyCard, type AccordionSection } from '../../src/components/pharmacy/ProductSections';
 import { COLUMN, step as scale, tint, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useCart } from '../../src/context/CartContext';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
-import { apiFetch } from '../../src/utils/api';
+import { apiFetch, hasSession } from '../../src/utils/api';
+import { wishlistToastKey } from '../../src/utils/wishlistToast';
 import { dateLocaleFor } from '../../src/utils/dates';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { currentDbLang } from '../../src/utils/localize';
+import { FieldText, MarkNote, markTextProps } from '../../src/components/LocalizedField';
+import type { FieldMark } from '../../src/utils/localizedField';
 import { prefetchAlternatives, prefetchHotMedicines } from '../../src/utils/prefetch';
 import { getVisibleProductIds } from '../../src/utils/productNav';
+import { VariantPicker } from '../../src/components/pharmacy/VariantPicker';
+import { productLocaleOf, type ProductVariant } from '../../src/utils/variantPicker';
 import { coveringInsurerName, type InsurerCompany } from '../../src/utils/productInsurance';
 import { englishNameUnder } from '../../src/utils/englishNameUnder';
-import { canShowPromo, discountPercent, medField, medGallery, medMeta, medName, medPrice, needsRx, oldPriceOf, onlineOnly, productNote, type Med } from '../../src/utils/pharmacyCatalog';
+import { canShowPromo, discountPercent, medFieldMark, medGallery, medListMark, medMeta, medName, medNameField, medPrice, needsRx, oldPriceOf, onlineOnly, productNote, type Med } from '../../src/utils/pharmacyCatalog';
 
 /**
  * Product page — board ProductFull (canvas/ProductFull.dc.html), field mapping in SPEC_PRODUCT_DOCTOR_DETAIL §A.
@@ -74,11 +80,10 @@ type Detail = Med & {
   potentially_unavailable?: boolean;
   discontinued?: boolean;
   shortage_notes?: string | null;
-  pharmacies_count?: number;
-  stock_status?: { pharmacies_count?: number };
   sku?: number | string | null;
   barcode?: string | null;
-  medical_review_status?: string;
+  /** Decision D (issue 1556): the record's variant group (powers, colours, shades); each variant is its own record. */
+  variant_group?: string | null;
   last_reviewed?: string | null;
   alternatives?: Med[];
   related_product_ids?: string[];
@@ -127,7 +132,9 @@ const SUGGEST_FIELDS = [
 ] as const;
 
 export default function ProductDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  // Decision D (issue 1556): `v` is the chosen variant (its own record); the route keeps it, so the choice is shareable.
+  const { id: entryId, v } = useLocalSearchParams<{ id: string; v?: string }>();
+  const id = v || entryId;
   const { theme, t, c, dir, flow, k, num, money, lang } = useScreenUi();
   const notice = useNotice(theme);
   const insets = useSafeAreaInsets();
@@ -166,6 +173,7 @@ export default function ProductDetailScreen() {
   ).current;
 
   const [med, setMed] = useState<Detail | null>(null);
+  const [pharmacyCount, setPharmacyCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState<'error' | 'offline' | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -174,6 +182,7 @@ export default function ProductDetailScreen() {
   const [zoom, setZoom] = useState(false);
   const [qty, setQty] = useState(1);
   const [related, setRelated] = useState<Med[]>([]);
+  const [variants, setVariants] = useState<{ group: string; rows: ProductVariant[] } | null>(null);
   const [inWishlist, setInWishlist] = useState(false);
   const [wishlistBusy, setWishlistBusy] = useState(false);
   const [suggestOpen, setSuggestOpen] = useState(false);
@@ -215,7 +224,11 @@ export default function ProductDetailScreen() {
       rollback: () => setInWishlist(was),
       onFail: () => notice.show(k('common.optimisticUndone')),
     });
-    if (done.ok) setInWishlist(done.value?.in_wishlist ?? !was);
+    if (done.ok) {
+      const now = done.value?.in_wishlist ?? !was;
+      setInWishlist(now);
+      notice.show(k(wishlistToastKey(now)));
+    }
     setWishlistBusy(false);
   };
 
@@ -225,6 +238,7 @@ export default function ProductDetailScreen() {
     (async () => {
       setLoading(true);
       setFailed(null);
+      setPharmacyCount(null);
       try {
         const data = await apiFetch<Detail>(`/medicines/${id}/details?lang=${currentDbLang()}`);
         if (!active) return;
@@ -232,6 +246,12 @@ export default function ProductDetailScreen() {
           setMed(data);
           setImages(medGallery(data));
           apiFetch('/medicines/events', { method: 'POST', body: JSON.stringify({ event_type: 'product_viewed', drug_id: id }) }).catch(() => {});
+          // How many pharmacies stock it: a signed-in route only (owner, 2026-10-16); guests see no count.
+          if (await hasSession()) {
+            apiFetch<{ pharmacies_count: number }>(`/medicines/${id}/availability`)
+              .then((a) => { if (active) setPharmacyCount(a.pharmacies_count); })
+              .catch((e) => logError('pharmacy:product-availability', e));
+          }
           prefetchAlternatives(data.alternatives || []);
           prefetchHotMedicines();
         } else {
@@ -251,6 +271,27 @@ export default function ProductDetailScreen() {
       active = false;
     };
   }, [id, reloadKey]);
+
+  // Decision D: the product's variants (GET /public/product-variants/:locale/:id), read once per group.
+  useEffect(() => {
+    const group = med?.variant_group;
+    if (!med || !group) {
+      setVariants(null);
+      return;
+    }
+    if (variants?.group === group) return;
+    let active = true;
+    apiFetch<{ variants?: ProductVariant[] }>(`/public/product-variants/${productLocaleOf(currentDbLang())}/${encodeURIComponent(String(med.id))}`)
+      .then((res) => {
+        if (active) setVariants({ group, rows: Array.isArray(res?.variants) ? res.variants.filter((x) => x && x.id && x.variant) : [] });
+      })
+      .catch(() => {
+        if (active) setVariants(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [med, variants?.group]);
 
   // The insurance row: the saved policy (GET /users/me/insurance) and the company names (GET /insurance/companies).
   const covered = med?.covered_by_insurance;
@@ -334,56 +375,70 @@ export default function ProductDetailScreen() {
   // ── the product the page draws ──────────────────────────────────────────
   const view = useMemo(() => {
     if (!med) return null;
-    const name = medName(med);
+    const nameField = medNameField(med);
+    const name = nameField.text;
     const price = medPrice(med);
     const rx = needsRx(med);
     // Decision 10: no discount, crossed-out price or promo on prescription-only items (one rule: canShowPromo).
     const pct = canShowPromo(med) ? discountPercent(med) : 0;
     const oldPrice = oldPriceOf(med);
     const lastReviewed = med.last_reviewed ? new Date(med.last_reviewed) : null;
-    const stock = med.pharmacies_count ?? med.stock_status?.pharmacies_count ?? 0;
-    const storage = textOf(medField(med, 'storage_conditions'));
+    const stock = pharmacyCount ?? 0;
+    const storageField = medListMark(med, 'storage_conditions');
+    const storage = storageField.items.join('\n');
     // `label` is a translation key; `value` is data, or a key when `valueIsKey`
-    const shortFacts: { key: string; icon: 'pill' | 'scales' | 'package' | 'thermometer' | 'globe' | 'file-text'; label: string; value: string; valueIsKey?: boolean }[] = [];
-    const add = (key: string, icon: (typeof shortFacts)[number]['icon'], label: string, value: string) => value && shortFacts.push({ key, icon, label, value });
-    add('form', 'pill', 'pharmacy.fact.form', textOf(medField(med, 'form')));
-    add('strength', 'scales', 'pharmacy.fact.strength', textOf(medField(med, 'strength')));
+    const shortFacts: { key: string; icon: 'pill' | 'scales' | 'package' | 'thermometer' | 'globe' | 'file-text'; label: string; value: string; valueIsKey?: boolean; mark?: FieldMark }[] = [];
+    const add = (key: string, icon: (typeof shortFacts)[number]['icon'], label: string, value: string, mark?: FieldMark) => value && shortFacts.push({ key, icon, label, value, mark });
+    const formField = medFieldMark(med, 'form');
+    const strengthField = medFieldMark(med, 'strength');
+    add('form', 'pill', 'pharmacy.fact.form', formField.text, formField.mark);
+    add('strength', 'scales', 'pharmacy.fact.strength', strengthField.text, strengthField.mark);
     add('pack', 'package', 'pharmacy.fact.pack', textOf(med.package_size));
-    add('storage', 'thermometer', 'pharmacy.fact.storage', storage && storage.length <= 28 ? storage : '');
+    add('storage', 'thermometer', 'pharmacy.fact.storage', storage && storage.length <= 28 ? storage : '', storageField.mark);
     add('origin', 'globe', 'pharmacy.fact.origin', textOf(med.country_of_origin));
     shortFacts.push({ key: 'rx', icon: 'file-text', label: 'pharmacy.fact.rx', value: rx ? 'pharmacy.fact.rxRequired' : 'pharmacy.fact.rxNotRequired', valueIsKey: true });
 
-    const pregnancy = textOf(medField(med, 'pregnancy_info'));
-    const breastfeeding = textOf(medField(med, 'breastfeeding_info'));
+    const pregnancyField = medListMark(med, 'pregnancy_info');
+    const breastfeedingField = medListMark(med, 'breastfeeding_info');
+    const pregnancy = pregnancyField.items.join('\n');
+    const breastfeeding = breastfeedingField.items.join('\n');
+    // Language fallback (owner 2026-10-30): a section with no text in the app's language is shown in the other language, tagged, never hidden.
+    const sec = (key: string, title: string, field: string): AccordionSection => { const l = medListMark(med, field); return { key, title, items: l.items, mark: l.mark }; };
     const sections: AccordionSection[] = [
-      { key: 'description', title: 'pharmacy.section.description', items: linesOf(medField(med, 'description')) },
-      { key: 'indications', title: 'pharmacy.section.indications', items: linesOf(medField(med, 'indications')) },
-      { key: 'dosage', title: 'pharmacy.section.dosage', items: linesOf(medField(med, 'dosage')) },
-      { key: 'usage', title: 'pharmacy.section.usage', items: linesOf(medField(med, 'usage_instructions')) },
-      { key: 'warnings', title: 'pharmacy.section.warnings', items: linesOf(medField(med, 'warnings')) },
-      { key: 'precautions', title: 'pharmacy.section.precautions', items: linesOf(medField(med, 'precautions')) },
-      { key: 'side', title: 'pharmacy.section.sideEffects', items: linesOf(medField(med, 'side_effects')) },
-      { key: 'contra', title: 'pharmacy.section.contra', items: linesOf(medField(med, 'contraindications')) },
+      sec('description', 'pharmacy.section.description', 'description'),
+      sec('indications', 'pharmacy.section.indications', 'indications'),
+      sec('dosage', 'pharmacy.section.dosage', 'dosage'),
+      sec('usage', 'pharmacy.section.usage', 'usage_instructions'),
+      sec('warnings', 'pharmacy.section.warnings', 'warnings'),
+      sec('precautions', 'pharmacy.section.precautions', 'precautions'),
+      sec('side', 'pharmacy.section.sideEffects', 'side_effects'),
+      sec('contra', 'pharmacy.section.contra', 'contraindications'),
       { key: 'interactions', title: 'pharmacy.section.interactions', items: linesOf(med.interactions) },
-      { key: 'pregnancy', title: 'pharmacy.section.pregnancyBreastfeeding', items: [...linesOf(pregnancy), ...linesOf(breastfeeding)] },
-      { key: 'storage', title: 'pharmacy.section.storage', items: linesOf(storage) },
-      { key: 'more', title: 'pharmacy.section.more', items: linesOf(medField(med, 'more_info')) },
+      { key: 'pregnancy', title: 'pharmacy.section.pregnancyBreastfeeding', items: [...pregnancyField.items, ...breastfeedingField.items], mark: (pregnancyField.items.length ? pregnancyField : breastfeedingField).mark },
+      { key: 'storage', title: 'pharmacy.section.storage', items: storageField.items, mark: storageField.mark },
+      sec('more', 'pharmacy.section.more', 'more_info'),
     ].filter((s) => s.items.length > 0);
 
+    const ingredientField = medFieldMark(med, 'active_ingredient');
+    const categoryField = medFieldMark(med, 'category');
+    const subCategoryField = medFieldMark(med, 'sub_category');
     return {
       name,
+      nameMark: nameField.mark,
       price,
       pct,
       oldPrice,
       rx,
       // decision E (issue 1556): the English name under the localized one in ur, hi and bn only
       enName: englishNameUnder(lang, name, med.name_en),
-      ingredient: textOf(medField(med, 'active_ingredient')),
+      ingredient: ingredientField.text,
+      ingredientMark: ingredientField.mark,
       generic: textOf(med.generic_name),
       maker: textOf(med.manufacturer),
       origin: textOf(med.country_of_origin),
-      category: textOf(medField(med, 'category')),
-      subCategory: textOf(medField(med, 'sub_category')),
+      category: categoryField.text,
+      categoryMark: categoryField.mark,
+      subCategory: subCategoryField.text,
       categoryRaw: textOf(med.category),
       facts: shortFacts,
       stock,
@@ -391,12 +446,15 @@ export default function ProductDetailScreen() {
       discontinued: Boolean(med.discontinued),
       pregnancy,
       breastfeeding,
+      pregnancyMark: pregnancyField.mark,
+      breastfeedingMark: breastfeedingField.mark,
       sections,
-      reviewed: med.medical_review_status === 'approved',
+      // Every public item is medically approved (owner, 2026-10-16); the date says when.
+      reviewed: true,
       reviewedOn: lastReviewed && !Number.isNaN(lastReviewed.getTime()) ? lastReviewed.toLocaleDateString(dateLocaleFor(lang), { year: 'numeric', month: 'short', day: 'numeric' }) : '',
       alternatives: Array.isArray(med.alternatives) ? med.alternatives : [],
     };
-  }, [med, lang]);
+  }, [med, lang, pharmacyCount]);
 
   const cartBadge = <CountBadge count={itemCount} />;
 
@@ -419,7 +477,7 @@ export default function ProductDetailScreen() {
       <EmptyState icon="magnifying-glass" tone={PHARMACY_TONE} title={k('pharmacy.product.notFound')} actionLabel={k('pharmacy.title')} onAction={() => router.replace('/(tabs)/pharmacy' as Href)} theme={theme} />
     );
     return (
-      <Screen theme={theme} direction={dir} header={<View style={COLUMN}><AppHeader onBack={back} backLabel={k('pharmacy.back')} theme={theme} direction={dir} /></View>} scroll testID="product-detail">
+      <Screen theme={theme} direction={dir} header={<View style={COLUMN}><AppHeader onBack={back} backLabel={k('pharmacy.back')} trailing={<CartButton />} theme={theme} direction={dir} /></View>} scroll testID="product-detail">
         {stateBody}
       </Screen>
     );
@@ -429,8 +487,8 @@ export default function ProductDetailScreen() {
   const compareIds = [String(med.id), ...view.alternatives.map((a) => String(a.id))].slice(0, 4);
 
   const safetyRows = [
-    view.pregnancy ? { key: 'pregnancy', icon: 'baby' as const, tone: 'amber' as const, title: k('pharmacy.safety.pregnancy'), text: view.pregnancy } : null,
-    view.breastfeeding ? { key: 'breastfeeding', icon: 'baby-carriage' as const, tone: 'violet' as const, title: k('pharmacy.safety.breastfeeding'), text: view.breastfeeding } : null,
+    view.pregnancy ? { key: 'pregnancy', icon: 'baby' as const, tone: 'amber' as const, title: k('pharmacy.safety.pregnancy'), text: view.pregnancy, mark: view.pregnancyMark } : null,
+    view.breastfeeding ? { key: 'breastfeeding', icon: 'baby-carriage' as const, tone: 'violet' as const, title: k('pharmacy.safety.breastfeeding'), text: view.breastfeeding, mark: view.breastfeedingMark } : null,
     med.cold_chain ? { key: 'cold', icon: 'thermometer' as const, tone: 'blue' as const, title: k('pharmacy.safety.cold'), text: k('pharmacy.safety.coldBody') } : null,
     med.controlled ? { key: 'controlled', icon: 'warning' as const, tone: PHARMACY_TONE, title: k('pharmacy.safety.controlled'), text: k('pharmacy.safety.controlledBody') } : null,
   ].filter((r): r is NonNullable<typeof r> => r !== null);
@@ -447,6 +505,7 @@ export default function ProductDetailScreen() {
             <MiniProduct
               key={String(alt.id)}
               name={medName(alt)}
+              nameMark={medNameField(alt).mark}
               meta={medMeta(alt)}
               price={p ? money(p) : undefined}
               currency={p ? k('pharmacy.currency') : undefined}
@@ -549,8 +608,8 @@ export default function ProductDetailScreen() {
                 </View>
               ) : null}
               {onlineOnly(med) ? (
-                <View style={{ height: 28, paddingHorizontal: 10, borderRadius: 14, backgroundColor: c.action.selected.bg, justifyContent: 'center' }}>
-                  <Text style={{ ...scale(t, 'meta'), color: c.action.selected.fg }}>{k('pharmacy.product.exclusive')}</Text>
+                <View style={{ height: 28, paddingHorizontal: 10, borderRadius: 14, backgroundColor: c.service.coral.bg, justifyContent: 'center' }}>
+                  <Text style={{ ...scale(t, 'meta'), color: c.service.coral.fg }}>{k('pharmacy.product.exclusive')}</Text>
                 </View>
               ) : null}
             </View>
@@ -582,19 +641,31 @@ export default function ProductDetailScreen() {
 
             {/* the name block */}
             <View style={{ gap: 4 }}>
-              <Text accessibilityRole="header" style={{ ...scale(t, 'h2'), color: c.text.primary, ...flow }}>{view.name}</Text>
+              <FieldText text={view.name} mark={view.nameMark} style={{ ...scale(t, 'h2'), color: c.text.primary, ...flow }} testID="product-name" accessibilityRole="header" />
               {view.enName ? <Text testID="product-english-name" style={{ ...scale(t, 'caption', 'regular'), color: c.text.secondary, writingDirection: 'ltr', textAlign: dir === 'rtl' ? 'right' : 'left' }}>{view.enName}</Text> : null}
               {view.ingredient || view.generic ? (
                 <Text style={{ ...scale(t, 'control', 'regular'), color: c.text.tertiary, ...flow }}>
                   {[view.ingredient ? k('pharmacy.product.ingredient', { v: view.ingredient }) : '', view.generic ? k('pharmacy.product.scientific', { v: view.generic }) : ''].filter(Boolean).join(' · ')}
                 </Text>
               ) : null}
+              <MarkNote mark={view.ingredientMark} />
               {view.maker || view.origin ? (
                 <Text style={{ ...scale(t, 'caption', 'regular'), color: c.text.secondary, ...flow }}>
                   {[view.maker, view.origin ? k('pharmacy.product.madeIn', { v: view.origin }) : ''].filter(Boolean).join(' · ')}
                 </Text>
               ) : null}
             </View>
+
+            {/* decision D: the variant picker (powers, colours, shades); a choice opens that variant's own record */}
+            {variants && variants.rows.length > 1 ? (
+              <VariantPicker
+                variants={variants.rows.map((x) => ({ ...x, available: x.available && x.price > 0 }))}
+                selectedId={String(med.id)}
+                onSelect={(next) => {
+                  if (next !== String(med.id)) router.setParams({ v: next });
+                }}
+              />
+            ) : null}
 
             {/* price, quantity, availability */}
             <Card padding="md" theme={theme}>
@@ -634,8 +705,8 @@ export default function ProductDetailScreen() {
               </View>
               {stockLine ? (
                 <View style={{ borderTopWidth: 1, borderTopColor: c.border.subtle, paddingTop: 12, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                  <View style={{ width: 36, height: 36, borderRadius: 12, backgroundColor: c.status.success.bg, alignItems: 'center', justifyContent: 'center' }}>
-                    <Glyph name="storefront" size={20} color={c.status.success.fg} />
+                  <View style={{ width: 36, height: 36, borderRadius: 12, backgroundColor: c.service.pharmacy.bg, alignItems: 'center', justifyContent: 'center' }}>
+                    <Glyph name="storefront" size={20} color={c.service.pharmacy.glyph} />
                   </View>
                   <Text style={{ flex: 1, ...scale(t, 'control'), color: c.text.primary, ...flow }}>{stockLine}</Text>
                 </View>
@@ -723,6 +794,7 @@ export default function ProductDetailScreen() {
                       <MiniProduct
                         key={String(r.id)}
                         name={medName(r)}
+                        nameMark={medNameField(r).mark}
                         price={p ? money(p) : undefined}
                         currency={p ? k('pharmacy.currency') : undefined}
                         uri={medGallery(r)[0]}
@@ -730,6 +802,7 @@ export default function ProductDetailScreen() {
                         onPress={() => router.push({ pathname: '/pharmacy/product-detail', params: { id: r.id } })}
                         onAdd={() => addToCart(r)}
                         addLabel={k('pharmacy.addToCart')}
+                        addControl={<MedAddControl med={r} size={36} addLabel={k('pharmacy.addToCart')} />}
                       />
                     );
                   })}
@@ -767,7 +840,9 @@ export default function ProductDetailScreen() {
               </Svg>
             </GlassButton>
             <GlassButton label={inWishlist ? k('pharmacy.product.favRemove') : k('pharmacy.product.favAdd')} onPress={toggleWishlist}>
-              {inWishlist ? <Glyph name="heart" size={20} color={c.icon.favorite} /> : <Icon name="heart" size={20} theme={theme} color={c.icon.favorite} />}
+              <PopWhen active={inWishlist}>
+                {inWishlist ? <Glyph name="heart" size={20} color={c.icon.favorite} /> : <Icon name="heart" size={20} theme={theme} color={c.icon.favorite} />}
+              </PopWhen>
             </GlassButton>
             <View>
               <GlassButton label={k('pharmacy.cart')} onPress={() => go('/pharmacy/cart' as Href)}>

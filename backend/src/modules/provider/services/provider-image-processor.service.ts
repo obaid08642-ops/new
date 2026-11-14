@@ -12,6 +12,10 @@ import { ProfileImageMetadataRepository } from "./repositories/profileimagemetad
 import { ImageProcessingJobRepository } from "./repositories/imageprocessingjob.repository";
 import { ProviderAccountProfileRepository } from "./repositories/provideraccountprofile.repository";
 import { ProfileImageAuditLogRepository } from "./repositories/profileimageauditlog.repository";
+import { ScheduledOnce } from '../../../common/scheduled-once';
+
+/** Longest side, in pixels, of the original that is stored for a provider photo. */
+export const PROVIDER_ORIGINAL_MAX_PX = 1600;
 
 @Injectable()
 export class ProviderImageProcessorService {
@@ -104,6 +108,7 @@ export class ProviderImageProcessorService {
 
   /** Run background image processor every 10 seconds */
   @Cron('*/10 * * * * *')
+  @ScheduledOnce({ holdMs: 3000 })
   async processPendingJobs() {
     let jobs: any[];
     try {
@@ -175,8 +180,10 @@ export class ProviderImageProcessorService {
     const hasAlpha = meta.hasAlpha || false;
 
     // Step 3: WebP conversion & Resizing
-    // Convert original to WebP format, quality 85
+    // The stored "original" is capped at PROVIDER_ORIGINAL_MAX_PX on its longest side (owner, 2026-11-12: Cloudinary is over its plan, and this was the largest of the four
+    // files, up to 4000x4000). The 800/400/200 versions are what the apps show; a smaller picture is never enlarged.
     const originalWebp = await sharp(buffer)
+      .resize({ width: PROVIDER_ORIGINAL_MAX_PX, height: PROVIDER_ORIGINAL_MAX_PX, fit: 'inside', withoutEnlargement: true })
       .webp({ quality: 85 })
       .toBuffer();
 

@@ -54,6 +54,7 @@ export function DataExport() {
 export function DeleteAccount({ locale }: { locale: string }) {
   const t = useTranslations("SettingsWeb");
   const router = useRouter();
+  const [confirmed, setConfirmed] = useState(false);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [password, setPassword] = useState("");
@@ -98,7 +99,13 @@ export function DeleteAccount({ locale }: { locale: string }) {
           <Button label={t("cancel")} variant="outline" fullWidth disabled={busy} onClick={() => { setOpen(false); setError(null); setPassword(""); }} />
         </form>
       ) : (
-        <Button label={t("deleteButton")} variant="danger" fullWidth onClick={() => setOpen(true)} />
+        confirmed ? (
+          <div className={forms.stack} role="alertdialog" aria-label={t("deleteConfirmLabel")}>
+            <p className={forms.body}>{t("deleteIntro")}</p>
+            <Button label={t("deleteContinue")} variant="danger" fullWidth onClick={() => { setConfirmed(false); setOpen(true); }} />
+            <Button label={t("cancel")} variant="outline" fullWidth onClick={() => setConfirmed(false)} />
+          </div>
+        ) : <Button label={t("deleteButton")} variant="danger" fullWidth onClick={() => setConfirmed(true)} />
       )}
     </div>
   );

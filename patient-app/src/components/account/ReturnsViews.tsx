@@ -12,6 +12,11 @@ import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { AccountScreen } from './AccountKit';
 import { PolicyCard } from './PolicyText';
+import { useUploadsEnabled } from '../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../UploadsUnavailable';
+import { ScanStatusBadge } from '../ScanStatusBadge';
+import { scanStateOfError, scanStateOfUpload } from '../../utils/scanStatus';
+import { PHARMACY_RETURN_REASONS, pharmacyReasonCode, returnErrorKey, type PharmacyReturnReason } from '../../utils/pharmacyReturn';
 
 /**
  * Returns (board Orders, restyle only): the list with the status filter, one request, and the three-step form
@@ -31,7 +36,8 @@ const TYPE_LOOK: Record<ServiceType, { icon: FillIconName; tone: ServiceTone }> 
   insurance: { icon: 'shield-check', tone: 'blue' },
 };
 const REASONS: Record<ServiceType, readonly string[]> = {
-  pharmacy: ['damaged', 'wrongOrder', 'wrongItem', 'notArrived', 'missing', 'other'],
+  // owner decision 4 (2026-11-10): after preparation only a defect is refunded (wrong, damaged, expired, not as described)
+  pharmacy: PHARMACY_RETURN_REASONS,
   consultation: ['cancelled', 'noShow', 'quality', 'technical', 'other'],
   diagnostics: ['duplicate', 'cancelled', 'wrongResult', 'noSample', 'other'],
   nursing: ['noShow', 'late', 'quality', 'cancelled', 'other'],
@@ -73,7 +79,7 @@ export function ReturnsHubView() {
     <AccountScreen
       title={k('returns.title')}
       fallback={'/orders' as Href}
-      actions={[{ key: 'new', label: k('returns.new'), icon: <Glyph name="plus" size={20} color={c.icon.primary} />, onPress: () => router.push('/returns/new-request' as Href) }]}
+      actions={[{ key: 'new', label: k('returns.new'), icon: <Glyph name="plus" size={20} color={c.text.secondary} />, onPress: () => router.push('/returns/new-request' as Href) }]}
       footer={<Button label={k('returns.new')} size="lg" fullWidth startIcon="plus" onPress={() => router.push('/returns/new-request' as Href)} theme={theme} testID="returns-new" />}
       testID="returns-screen"
     >
@@ -192,6 +198,8 @@ export function ReturnRequestView() {
   const [orderId, setOrderId] = useState('');
   const [details, setDetails] = useState('');
   const [docs, setDocs] = useState<string[]>([]);
+  const [rejectedPhoto, setRejectedPhoto] = useState(false);
+  const [pendingDocs, setPendingDocs] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -222,8 +230,10 @@ export function ReturnRequestView() {
   const booking = eligible.find((row) => row.id === orderId);
   const reasons = serviceType ? REASONS[serviceType] : [];
 
+  const uploadsOn = useUploadsEnabled();
   const attach = async (fromCamera: boolean) => {
     setMessage(null);
+    setRejectedPhoto(false);
     try {
       const ImagePicker = await import('expo-image-picker');
       const permission = fromCamera ? await ImagePicker.requestCameraPermissionsAsync() : await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -243,7 +253,11 @@ export function ReturnRequestView() {
       if (!upload.id) throw new Error('upload_missing_id');
       // The media reference is stored; the server signs a fresh URL on every read.
       setDocs((rows) => [...rows, `media:${upload.id}`]);
+      // a photo that is still being checked stays on the request: the pharmacy sees it once it has passed
+      if (scanStateOfUpload(upload) === 'pending') setPendingDocs((rows) => [...rows, `media:${upload.id}`]);
     } catch (e) {
+      // the scanner refused the file (400 file_infected): rejected, with a way to upload another
+      if (scanStateOfError(e) === 'rejected') { setRejectedPhoto(true); return; }
       logError('returns:attach', e);
       setMessage(k('returns.new.attachFailed'));
     } finally {
@@ -256,11 +270,12 @@ export function ReturnRequestView() {
     setSubmitting(true);
     setMessage(null);
     try {
-      await apiFetch('/pharmacy/returns', { method: 'POST', body: JSON.stringify({ serviceType, reason, orderId: booking.id, details, refundMethod: 'original', attachedDocs: docs }) });
+      const defect = serviceType === 'pharmacy' ? PHARMACY_RETURN_REASONS.find((code) => k(`returns.reason.${code}`) === reason) : undefined;
+      await apiFetch('/pharmacy/returns', { method: 'POST', body: JSON.stringify({ serviceType, reason, orderId: booking.id, details, refundMethod: 'original', attachedDocs: docs, ...(defect ? { reason_code: pharmacyReasonCode(defect as PharmacyReturnReason) } : {}) }) });
       setStep('success');
     } catch (e) {
       logError('returns:submit', e);
-      setMessage(k('returns.new.submitFailed'));
+      setMessage(k(returnErrorKey(e) ?? 'returns.new.submitFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -282,7 +297,7 @@ export function ReturnRequestView() {
     step === 'type' ? (
       <Button label={k('returns.new.next')} size="lg" fullWidth disabled={!serviceType} onPress={() => setStep('details')} theme={theme} testID="return-next" />
     ) : step === 'details' ? (
-      <Button label={k('returns.new.review')} size="lg" fullWidth disabled={!reason || !booking} onPress={() => setStep('confirm')} theme={theme} testID="return-review" />
+      <Button label={k('returns.new.review')} size="lg" fullWidth disabled={!reason || !booking || (serviceType === 'pharmacy' && docs.length === 0)} onPress={() => setStep('confirm')} theme={theme} testID="return-review" />
     ) : (
       <Button label={k('returns.new.send')} size="lg" fullWidth loading={submitting} onPress={() => void submit()} theme={theme} testID="return-send" />
     );
@@ -348,6 +363,7 @@ export function ReturnRequestView() {
           </Section>
           <Input label={k('returns.new.details')} placeholder={k('returns.new.detailsPlaceholder')} value={details} onChange={setDetails} multiline rows={4} theme={theme} testID="return-details" />
           <Section title={k('returns.new.photos')}>
+            {uploadsOn ? (
             <View style={{ flexDirection: 'row', gap: 10 }}>
               <View style={{ flex: 1 }}>
                 <Button label={k('returns.new.camera')} variant="outline" size="md" fullWidth startIcon="camera" disabled={uploading} onPress={() => void attach(true)} theme={theme} testID="return-camera" />
@@ -356,7 +372,10 @@ export function ReturnRequestView() {
                 <Button label={k('returns.new.library')} variant="outline" size="md" fullWidth startIcon="image" disabled={uploading} onPress={() => void attach(false)} theme={theme} testID="return-library" />
               </View>
             </View>
+            ) : <UploadsUnavailable />}
+            {serviceType === 'pharmacy' && docs.length === 0 ? <Notice tone="info" text={k('returns.new.photoRequired')} /> : null}
             {uploading ? <Notice tone="info" text={k('returns.new.uploading')} /> : null}
+            <ScanStatusBadge state={rejectedPhoto ? 'rejected' : docs.some((d) => pendingDocs.includes(d)) ? 'pending' : 'ok'} onReupload={() => void attach(false)} testID="return-scan" />
             {docs.length > 0 ? (
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                 {docs.map((doc, i) => (

@@ -4,16 +4,21 @@
  * - Each staff member is created as a full User with role from `staff_role`
  * - Sub-user is linked back to owner via `parent_provider_account_id`
  */
-import { Module, Controller, Get, Post, Patch, Delete, Param, Body, UseGuards, ForbiddenException, BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel, MongooseModule } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Module, Controller, Get, Post, Put, Patch, Delete, Param, Body, UseGuards, ForbiddenException, BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectConnection, InjectModel, MongooseModule } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
 import { User, UserSchema, UserDocument } from '../../schemas/user.schema';
 import { ProviderAccount, ProviderAccountSchema } from '../provider/schemas';
 import { UserRole } from '../../common/enums';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from '../../common/password-hash';
 import { v4 as uuid } from 'uuid';
 import { CreateDto, UpdateDto, SuspendStaffDto, ResetStaffPasswordDto } from './hospital-staff.dto';
+import { HospitalModule } from '../hospital/hospital.module';
+import { HospitalService } from '../hospital/services/hospital.service';
+import { AddStaffDto, UpdateStaffCredentialsDto } from '../hospital/controllers/hospital.dto';
+import { enforcePasswordPolicy } from '../../common/password-security.service';
+import { recordAudit } from '../../common/audit-record';
 
 const STAFF_ROLES: UserRole[] = [UserRole.DOCTOR, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.PHARMACY];
 
@@ -22,7 +27,13 @@ export class HospitalStaffService {
   constructor(
     @InjectModel(User.name) private users: Model<UserDocument>,
     @InjectModel(ProviderAccount.name) private accounts: Model<any>,
+    @InjectConnection() private readonly conn: Connection,
   ) {}
+
+  /** Membership changes go in the chained audit trail: who did it, to whom, for which facility. */
+  private audit(user: any, action: string, staffId: string, facilityId: string | undefined, details: Record<string, unknown> = {}) {
+    return recordAudit(this.conn, { action, user_id: user.id, role: String(user.role), resource_kind: 'facility_staff', resource_id: staffId, details: { facility_id: facilityId ?? null, ...details } });
+  }
 
   private async getOwnerAccount(user: any) {
     if (![UserRole.HOSPITAL, UserRole.ADMIN].includes(user.role)) throw new ForbiddenException('only_hospital_owner');
@@ -44,6 +55,7 @@ export class HospitalStaffService {
     if (!STAFF_ROLES.includes(role)) throw new BadRequestException('invalid_staff_role');
     const existing = await this.users.findOne({ $or: [{ phone: body.phone.trim() }, ...(body.email ? [{ email: body.email.trim().toLowerCase() }] : [])] });
     if (existing) throw new BadRequestException('user_exists');
+    await enforcePasswordPolicy(body.password);
     const hash = await bcrypt.hash(body.password, 10);
     const u = await this.users.create({
       id: uuid(),
@@ -64,6 +76,7 @@ export class HospitalStaffService {
       license_number: body.license_number,
       consultation_fee: body.consultation_fee || 0,
     });
+    await this.audit(user, 'facility_staff.added', u.id, acc?.id, { staff_role: role });
     const o: any = u.toObject(); delete o.password_hash; delete o._id; delete o.__v;
     return o;
   }
@@ -86,7 +99,13 @@ export class HospitalStaffService {
     const staff = await this.users.findOne({ id: staffId });
     if (!staff) throw new NotFoundException('staff_not_found');
     if (acc && ![staff.get('parent_provider_account_id'), staff.get('parent_account_id')].includes(acc.id) && user.role !== UserRole.ADMIN) throw new ForbiddenException('not_owner');
-    await this.users.updateOne({ id: staffId }, { $set: { suspended } });
+    // X4: login and the guard read `active`, never `suspended`, so a suspended member kept working. `active` follows, and
+    // suspending ends the open sessions (token_version) at once.
+    await this.users.updateOne({ id: staffId }, { $set: { suspended, active: !suspended }, ...(suspended ? { $inc: { token_version: 1 } } : {}) });
+    if (suspended) {
+      await this.users.db.collection('provider_accounts').updateMany({ $or: [{ user_id: staffId }, { id: staffId }] }, { $inc: { token_version: 1 } }).catch(() => undefined);
+    }
+    await this.audit(user, suspended ? 'facility_staff.suspended' : 'facility_staff.unsuspended', staffId, acc?.id);
     return { ok: true, suspended };
   }
 
@@ -95,12 +114,19 @@ export class HospitalStaffService {
     const staff = await this.users.findOne({ id: staffId });
     if (!staff) throw new NotFoundException('staff_not_found');
     if (acc && ![staff.get('parent_provider_account_id'), staff.get('parent_account_id')].includes(acc.id) && user.role !== UserRole.ADMIN) throw new ForbiddenException('not_owner');
-    await this.users.deleteOne({ id: staffId });
+    // Soft removal: only the link to the facility ends. The user, their history and the audit trail stay (a practitioner
+    // may have bookings, results and earnings of their own); they just stop appearing as this facility's staff.
+    const facilityId = staff.get('parent_provider_account_id') ?? staff.get('parent_account_id') ?? acc?.id;
+    await this.users.updateOne(
+      { id: staffId },
+      { $unset: { parent_provider_account_id: '', parent_account_id: '', assigned_branch_id: '' }, $set: { permissions: [], removed_from_facility_at: new Date() } },
+    );
+    await this.audit(user, 'facility_staff.removed', staffId, facilityId, { staff_role: String(staff.get('role')) });
     return { ok: true };
   }
 
   async resetPassword(user: any, staffId: string, newPassword: string) {
-    if (!newPassword || newPassword.length < 6) throw new BadRequestException('weak_password');
+    await enforcePasswordPolicy(newPassword);
     const acc = await this.getOwnerAccount(user);
     const staff = await this.users.findOne({ id: staffId });
     if (!staff) throw new NotFoundException('staff_not_found');
@@ -115,17 +141,21 @@ export class HospitalStaffService {
 @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class HospitalStaffController {
-  constructor(private svc: HospitalStaffService) {}
-  @Get() list(@CurrentUser() u: any) { return this.svc.list(u); }
-  @Post() create(@CurrentUser() u: any, @Body() b: CreateDto) { return this.svc.create(u, b); }
+  constructor(private svc: HospitalStaffService, private readonly hospitalService: HospitalService) {}
+  // One module owns /hospital/staff. GET /, POST /, PUT /:id/credentials and DELETE /:id used to live in HospitalController (same URLs, DTOs, role guard
+  // and service calls; moved here unchanged, merge map row 3). The three handlers that were declared twice in the past (gap 9) stay removed.
+  @Post() addStaff(@CurrentUser() u: any, @Body() b: AddStaffDto) { return this.hospitalService.addStaff(u.id, b, u); }
+  @Get() getStaff(@CurrentUser() u: any) { return this.hospitalService.getStaff(u.id, u); }
+  @Put(':id/credentials') updateStaffCredentials(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateStaffCredentialsDto) { return this.hospitalService.updateStaffCredentials(u.id, id, b, u); }
+  @Delete(':id') removeStaff(@CurrentUser() u: any, @Param('id') id: string) { return this.hospitalService.removeStaff(u.id, id, u); }
   @Patch(':id') update(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateDto) { return this.svc.update(u, id, b); }
   @Post(':id/suspend') suspend(@CurrentUser() u: any, @Param('id') id: string, @Body() b: SuspendStaffDto) { return this.svc.suspend(u, id, b?.suspended !== false); }
   @Post(':id/reset-password') reset(@CurrentUser() u: any, @Param('id') id: string, @Body() b: ResetStaffPasswordDto) { return this.svc.resetPassword(u, id, b?.password); }
-  @Delete(':id') remove(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.remove(u, id); }
 }
 
 @Module({
   imports: [
+    HospitalModule,
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: ProviderAccount.name, schema: ProviderAccountSchema },

@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDefined, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class ChangePasswordDto {
   @IsDefined()
@@ -137,6 +137,11 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsString()
   degree?: string;
+
+  /** A credential field: goes to review, never written directly (credential-changes.ts). */
+  @IsOptional()
+  @IsDateString()
+  license_expiry_date?: string;
 
   @IsOptional()
   @IsString()

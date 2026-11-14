@@ -8,7 +8,8 @@ import { createHash } from "node:crypto";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { handler, pickEncoding, precompressedAsset, EDGE_STAMP_HEADER } from "../server/nonce-server.mjs";
+import { LOADER_BODY } from "../server/nonce-transform.mjs";
+import { handler, pickEncoding, precompressedAsset, EDGE_STAMP_HEADER, htmlCacheTags } from "../server/nonce-server.mjs";
 import { CSP_INJECT_HEADER, CSP_NONCE_PLACEHOLDER, contentSecurityPolicy } from "../lib/security/csp";
 import { UNAVAILABLE_FALLBACK_HEADER } from "../lib/security/query-twin";
 
@@ -149,6 +150,7 @@ describe("a session, a twin or any answer the proxy made no-store", () => {
     const scriptSrc = policy.split(";").map((d) => d.trim()).find((d) => d.startsWith("script-src ")) || "";
     expect(r.headers.get("cache-control")).toBe("public, max-age=0, s-maxage=60, stale-while-revalidate=31535940, stale-if-error=31536000");
     expect(r.headers.get("set-cookie")).toBeNull();
+    expect(r.headers.get("cache-tag")).toBe("html, medicines, doctors, articles");      // a purge by tag reaches the edge copy
     expect(policy).not.toMatch(/'nonce-/);
     expect(scriptSrc).toContain("'strict-dynamic'");
     expect(scriptSrc).not.toContain("'unsafe-inline'");
@@ -158,11 +160,20 @@ describe("a session, a twin or any answer the proxy made no-store", () => {
     expect(body).not.toMatch(/<script[^>]*\ssrc=/i);
     expect(body).not.toMatch(/<link[^>]*as="script"/i);
     const inline = [...body.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script[^>]*>/gi)].map((m) => m[1]);
-    expect(inline.length).toBe(4);
+    // two loaders (one per external script, same text) and the three inline scripts the page had
+    expect(inline.length).toBe(5);
     for (const text of inline) expect(scriptSrc).toContain(`'sha256-${createHash("sha256").update(text, "utf8").digest("base64")}'`);
-    // the loader inserts the same external scripts, attributes and order kept
-    expect(body).toContain('"src":"/_next/static/chunks/a.js","id":"_R_","async":""');
-    expect(body).toContain('"src":"/_next/static/chunks/p.js","nomodule":""');
+    expect(inline.filter((t) => t === LOADER_BODY).length).toBe(2);
+    // each loader sits where its script stood and rebuilds it with the same attributes (a before b, the inline scripts around them untouched)
+    const decode = (v: string) => v.replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+    const rebuilt = [...body.matchAll(/data-nabd-script="([^"]*)"/g)].map((m) => decode(m[1]));
+    expect(rebuilt).toEqual(['{"src":"/_next/static/chunks/a.js","id":"_R_","async":""}', '{"src":"/_next/static/chunks/p.js","nomodule":""}']);
+    const at = (needle: string, from = 0) => body.indexOf(needle, from);
+    const first = at("data-nabd-script");
+    const second = at("data-nabd-script", first + 1);
+    expect(at("<p>page</p>")).toBeLessThan(first);
+    expect(first).toBeLessThan(second);
+    expect(second).toBeLessThan(at("push([0])"));
     // the same copy is the same bytes and the same policy every time (what the edge keeps is self-consistent; nothing per response)
     const again = await fetch(`${base}/ar`, { headers: { accept: "text/html" } });
     expect(await again.text()).toBe(body);
@@ -471,5 +482,22 @@ describe("precompressed build assets", () => {
     expect(precompressedAsset(root, "/_next/static/secret.txt")).toBeNull();
     expect(precompressedAsset(root, "/ar/chunks/a.js")).toBeNull();
     expect(precompressedAsset(null, "/_next/static/chunks/a.js")).toBeNull();
+  });
+});
+
+describe("htmlCacheTags (2026-10-27): the tags a shared page carries for a purge", () => {
+  it.each([
+    ["/ar", "html, medicines, doctors, articles"],
+    ["/en/", "html, medicines, doctors, articles"],
+    ["/ar/c", "html, medicines"],
+    ["/ar/c/skin-care?x=1", "html, medicines"],
+    ["/fil/p/some-product", "html, medicines"],
+    ["/ar/doctor/dr-a", "html, doctors"],
+    ["/ar/doctors/riyadh", "html, doctors"],
+    ["/ar/consultations/doctors", "html, doctors"],
+    ["/ur/articles/a-title", "html, articles"],
+    ["/ar/other", "html"],
+  ])("%s -> %s", (path, tags) => {
+    expect(htmlCacheTags(path)).toBe(tags);
   });
 });

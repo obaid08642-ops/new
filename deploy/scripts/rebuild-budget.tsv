@@ -1,0 +1,8 @@
+provision-and-ssh	180
+setup-server	300
+repo-env-certs	120
+images	420
+restore-database	360
+start-and-indexes	180
+dns-and-edge	120
+smoke	60

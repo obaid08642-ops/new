@@ -25,6 +25,9 @@
       "args": [
         {
           "license_number": "12345678",
+          "license_expiry_date": "2099-12-31",
+          "iban": "SA0380000000608010167519",
+          "bank_account_name": "Ahmed Ali Alharbi",
           "license_documents": [
             "https://cdn.test/id.jpg",
             "https://cdn.test/scfhs.jpg",
@@ -38,6 +41,10 @@
       "args": [
         {
           "specialty": "cardiology",
+          "sub_specialties": [
+            "Interventional cardiology",
+            "Heart failure"
+          ],
           "academic_degree": "consultant",
           "years_experience": 12,
           "consultation_modes": [
@@ -181,7 +188,9 @@
             "nationalId": "1000000000",
             "iban": "SA0380000000608010167519",
             "accountHolderName": "Ahmed Ali Alharbi",
+            "licenseExpiry": "2099-12-31",
             "specialty": "cardiology",
+            "subSpecialty": "Interventional cardiology, Heart failure",
             "degree": "consultant",
             "yearsExp": "12",
             "bio": "Cardiologist",

@@ -1,4 +1,4 @@
-// P20.7 synthetic journeys in production: what a patient does, run every 10 minutes by the status worker's cron, without paying.
+// P20.7 synthetic journeys in production: what a patient does, run every 5 minutes by the status worker's cron, without paying.
 //   home -> search -> open a product -> sign in as the test patient -> add to cart -> (remove it again) -> list doctor slots
 // Each journey reports to the status page (vantage "journeys"). A journey that fails on two runs in a row alerts the owner
 // (Telegram and e-mail, from the worker itself, so it works while the API is down); a recovery is announced once.

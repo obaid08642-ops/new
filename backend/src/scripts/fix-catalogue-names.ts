@@ -34,6 +34,7 @@
  *   npx ts-node --transpile-only src/scripts/fix-catalogue-names.ts <step> ...
  */
 import { CATALOG_COLLECTIONS } from '../modules/catalogs/catalog-collections';
+import { Caller, chainCallerFromEnv } from '../modules/ai/env-chain';
 
 export type NameLang = 'ar' | 'ur' | 'hi' | 'bn';
 export type MatchLevel = 'full' | 'partial' | 'none';
@@ -557,43 +558,11 @@ export function estimate(scope: ScopeItem[], total = scope.length, batch = DEFAU
   };
 }
 
-export type Caller = (prompt: string) => Promise<string>;
+export type { Caller };
 
+/** One fallback chain over every provider whose key is set (see modules/ai/env-chain.ts); `NAME_FIX_MODEL` applies to the primary one. */
 export function callerFromEnv(env: NodeJS.ProcessEnv = process.env): Caller {
-  const provider = (env.AI_PROVIDER || 'gemini').toLowerCase();
-  const model = env.NAME_FIX_MODEL || env.CLASSIFY_MODEL;
-  if (provider === 'gemini') {
-    const key = env.GEMINI_API_KEY;
-    if (!key) throw new Error('GEMINI_API_KEY is required');
-    const id = model || DEFAULT_MODEL;
-    return async (prompt) => {
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${id}:generateContent`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', 'x-goog-api-key': key },
-        body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature: 0, responseMimeType: 'application/json' } }),
-      });
-      if (!res.ok) throw new Error(`gemini ${res.status}: ${(await res.text()).slice(0, 200)}`);
-      const body = (await res.json()) as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
-      return body.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('') || '';
-    };
-  }
-  if (provider === 'openai') {
-    const key = env.OPENAI_API_KEY;
-    if (!key) throw new Error('OPENAI_API_KEY is required');
-    const id = model || env.OPENAI_MODEL;
-    if (!id) throw new Error('NAME_FIX_MODEL or OPENAI_MODEL is required with AI_PROVIDER=openai');
-    return async (prompt) => {
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
-        body: JSON.stringify({ model: id, temperature: 0, messages: [{ role: 'user', content: prompt }] }),
-      });
-      if (!res.ok) throw new Error(`openai ${res.status}: ${(await res.text()).slice(0, 200)}`);
-      const body = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
-      return body.choices?.[0]?.message?.content || '';
-    };
-  }
-  throw new Error(`AI_PROVIDER ${provider} is not supported by this job (gemini | openai)`);
+  return chainCallerFromEnv(env, { model: env.NAME_FIX_MODEL || env.CLASSIFY_MODEL });
 }
 
 export interface RunIo { done: Set<string>; write(line: string): void; sleep(ms: number): Promise<void> }

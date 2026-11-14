@@ -1,6 +1,6 @@
 import { startOnboardingAccount, apiMessage, useStepSaver } from '../registration/kit';
 import type { StepProps } from '../registration/kit';
-import { DocBtn, NoticeSection, useDocumentPicker } from '../registration/WizardParts';
+import { DocBtn, LicenseExpiryField, NoticeSection, licenseExpiryError, useDocumentPicker } from '../registration/WizardParts';
 import type { NoticeText } from '../registration/WizardParts';
 import { RegistrationWizard } from '../registration/RegistrationWizard';
 import type { RegistrationProps, WizardConfig } from '../registration/RegistrationWizard';
@@ -18,6 +18,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { ProviderApi } from '../../api/provider';
 import { useInsuranceCatalog, useServicesCatalog, useSpecialtiesCatalog } from '../../api/catalogs';
 import { tokens, withAlpha } from '../../theme/tokens';
+import { useUploadsEnabled } from '../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../../components/UploadsUnavailable';
 
 const { width: W } = Dimensions.get('window');
 
@@ -46,7 +48,7 @@ interface FacilityRegData {
   facilityNameAr: string; facilityNameEn: string; facilityType: string;
   managerName: string; managerPhone: string; managerEmail: string; password: string; confirmPass: string;
   languages: string[];
-  crNumber: string; mohLicense: string; crDocUri: string; mohDocUri: string; facilityLogoUri: string; facilityImagesUris: string[];
+  crNumber: string; mohLicense: string; licenseExpiry: string; crDocUri: string; mohDocUri: string; facilityLogoUri: string; facilityImagesUris: string[];
   region: string; city: string; district: string; fullAddress: string;
   location: {lat: number; lng: number};
   // Sub-accounts
@@ -62,7 +64,7 @@ const INIT: FacilityRegData = {
   
   facilityNameAr: '', facilityNameEn: '', facilityType: '',
   managerName: '', managerPhone: '', managerEmail: '', password: '', confirmPass: '',
-  languages: [], crNumber: '', mohLicense: '', crDocUri: '', mohDocUri: '', facilityLogoUri: '', facilityImagesUris: [],
+  languages: [], crNumber: '', mohLicense: '', licenseExpiry: '', crDocUri: '', mohDocUri: '', facilityLogoUri: '', facilityImagesUris: [],
   region: '', city: '', district: '', fullAddress: '', location: {lat: 0, lng: 0}, subProviders: [], cashOnly: false, acceptedInsurance: [], hasInsuranceCoordinator: false, signatureData: '', signerName: '', signerRole: '', termsAgreed: false, loading: false
 };
 
@@ -232,17 +234,24 @@ function Step1Basic({ data, update, submitRef }: StepProps<FacilityRegData>) {
 
 // ══════════════════════════════════════════════════════════════════════════════
 function Step2Legal({ data, update, submitRef }: StepProps<FacilityRegData>) {
+  const uploadsOn = useUploadsEnabled();
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   
   const pick = useDocumentPicker<FacilityRegData>(update);
+  const [errs, setErrs] = useState<Record<string, string>>({});
 
-  const handleNext = () => true;
+  const handleNext = () => {
+    const expiryErr = licenseExpiryError(data.licenseExpiry, AR);
+    setErrs(expiryErr ? { expiry: expiryErr } : {});
+    return !expiryErr;
+  };
   useStepSaver(submitRef, handleNext);
 
 return (
     <View>
       <NInput label={AR ? 'رقم السجل التجاري' : 'CR Number'} value={data.crNumber} onChange={v=>update({crNumber:v})} kbType="numeric" required />
       <NInput label={AR ? 'رقم ترخيص وزارة الصحة' : 'MOH License'} value={data.mohLicense} onChange={v=>update({mohLicense:v})} kbType="numeric" required />
+      <LicenseExpiryField value={data.licenseExpiry} onChange={v=>update({licenseExpiry:v})} error={errs.expiry} />
       
       <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.md, marginBottom: SP.sm, textAlign: AR?'right':'left' }}>{AR ? 'المرفقات' : 'Attachments'}</Text>
       <DocBtn label={AR ? 'شهادة السجل التجاري' : 'CR Document'} done={!!data.crDocUri} onPress={() => pick('crDocUri')} />
@@ -254,7 +263,8 @@ return (
           {AR ? 'صور المنشأة (لغاية 5 صور)' : 'Facility Images (up to 5)'}
         </Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: SP.sm, paddingVertical: SP.sm, flexDirection: AR ? 'row-reverse' : 'row' }}>
-          <TouchableOpacity onPress={async () => {
+          {uploadsOn ? (
+<TouchableOpacity onPress={async () => {
             let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: false, aspect: [4, 3], quality: 0.8, allowsMultipleSelection: true, selectionLimit: 5 });
             if (!result.canceled) {
               const uris = result.assets.map(a => a.uri);
@@ -263,6 +273,7 @@ return (
           }} style={{ width: 80, height: 80, borderRadius: R.md, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderStyle: 'dashed', borderColor: theme.primary }}>
             <I name="addPhotoAlternate" size={32} color={theme.primary} />
           </TouchableOpacity>
+) : <UploadsUnavailable />}
           {(data.facilityImagesUris||[]).map((uri: string, i: number) => (
             <View key={i} style={{ width: 80, height: 80, borderRadius: R.md, overflow: 'hidden' }}>
               <Image source={{ uri }} style={{ width: '100%', height: '100%' }} />
@@ -327,6 +338,7 @@ function Step3Location({ data, update, submitRef, uploads }: StepProps<FacilityR
         license_number: data.crNumber || data.mohLicense,
         cr_number: data.crNumber || undefined,
         moh_license_number: data.mohLicense || undefined,
+        license_expiry_date: data.licenseExpiry,
         license_documents: docs,
         clinic_images: images,
         logo: logoUrl || undefined,
@@ -376,6 +388,7 @@ function Step3Location({ data, update, submitRef, uploads }: StepProps<FacilityR
 
 // ══════════════════════════════════════════════════════════════════════════════
 function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegData>) {
+  const uploadsOn = useUploadsEnabled();
   useStepSaver(submitRef, () => true);
  const labCatalog = useServicesCatalog('lab');
  const radCatalog = useServicesCatalog('radiology');
@@ -771,7 +784,8 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
                 {AR ? 'صور العيادة/المكان (لغاية 5 صور)' : 'Clinic/Location Images (up to 5)'}
               </Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: SP.sm, paddingVertical: SP.sm, flexDirection: AR ? 'row-reverse' : 'row' }}>
-                <TouchableOpacity onPress={async () => {
+                {uploadsOn ? (
+<TouchableOpacity onPress={async () => {
                   let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: false, aspect: [4, 3], quality: 0.8, allowsMultipleSelection: true, selectionLimit: 5 });
                   if (!result.canceled) {
                     const uris = result.assets.map(a => a.uri);
@@ -780,6 +794,7 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
                 }} style={{ width: 80, height: 80, borderRadius: R.md, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderStyle: 'dashed', borderColor: theme.primary }}>
                   <I name="addPhotoAlternate" size={32} color={theme.primary} />
                 </TouchableOpacity>
+) : <UploadsUnavailable />}
                 {(tempSub.clinicImagesUris||[]).map((uri: string, i: number) => (
                   <View key={i} style={{ width: 80, height: 80, borderRadius: R.md, overflow: 'hidden' }}>
                     <Image source={{ uri }} style={{ width: '100%', height: '100%' }} />

@@ -1,0 +1,4 @@
+[
+  { "route": "/diagnostics/insurance-approval", "element": "Home visit fee line", "status": "fixed", "note": "verified 2026-10-31: the fee is the server's `home_fee` (patient-app/src/utils/orderingStatus.ts:130), no constant in the screen" },
+  { "route": "/provider-info", "element": "Sign out button", "status": "ok", "note": "verified 2026-10-31: a provider account that signs in on the patient app stores no session (startSession answers not_patient before anything is written), so logout() and the route change are complete" }
+]

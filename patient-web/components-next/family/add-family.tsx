@@ -1,25 +1,38 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
+import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
+import { Spinner } from "@/components-next/ui-generated/components/Spinner";
+import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
+import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import forms from "@/components-next/consult/consult.module.css";
 import styles from "./family.module.css";
+
+const FAMILY = SERVICE_ICONS.family;
 import { copyText } from "@/lib/copy-text";
+import { DEPENDANT_RELATIONS, dependantBody, readDependants, type DependantRelation, type DependantRow } from "@/lib/family/dependants";
+import { newIdempotencyKey } from "@/lib/pharmacy/broadcast";
 import { CameraScanner, QR_FORMATS } from "@/components-next/scan/camera-scanner";
 
-/** Invite: creates an invite code to share (POST /api/family/invite, as before) and copies it on request. */
+/**
+ * Invite: the code is created as soon as the tab opens (POST /api/family/invite, as the app does), with a retry when it fails;
+ * it is shown with Copy and Share (the browser's share sheet where there is one, else the message is copied) and a note on
+ * what the owner controls once the invite is accepted. (The app also draws a QR of the invite; the web has no QR library.)
+ */
 export function InviteTab() {
   const t = useTranslations("FamilyWeb");
   const [code, setCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [failed, setFailed] = useState(false);
   const [copyFailed, setCopyFailed] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const started = useRef(false);
 
-  async function generate() {
+  const generate = useCallback(async () => {
     setFailed(false);
     setLoading(true);
     setCopied(false);
@@ -27,50 +40,82 @@ export function InviteTab() {
     try {
       const res = await fetch("/api/family/invite", { method: "POST" });
       const data = await res.json().catch(() => null);
-      if (!res.ok) { setFailed(true); return; }
-      setCode(String((data as { invite_code?: string } | null)?.invite_code || ""));
+      const next = String((data as { invite_code?: string } | null)?.invite_code || "");
+      if (!res.ok || !next) { setFailed(true); return; }
+      setCode(next);
     } catch {
       setFailed(true);
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
-  async function copy() {
-    if (!code) return;
-    const ok = await copyText(code);
+  useEffect(() => {
+    if (started.current) return;
+    started.current = true;
+    void generate();
+  }, [generate]);
+
+  async function copy(text: string) {
+    const ok = await copyText(text);
     setCopyFailed(!ok);
     setCopied(ok);
     if (ok) setTimeout(() => setCopied(false), 1800);
   }
 
+  async function share() {
+    if (!code) return;
+    const message = t("inviteShareMessage", { code });
+    if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+      try { await navigator.share({ text: message }); return; } catch (error) { if ((error as { name?: string } | null)?.name === "AbortError") return; }
+    }
+    await copy(message);
+  }
+
   return (
-    <section className={rx.card} aria-label={t("tabInvite")}>
+    <section className={rx.card} aria-label={t("tabInvite")} aria-busy={loading}>
       <p className={rx.lead}>{t("inviteLead")}</p>
-      <Button label={t("inviteGenerate")} size="lg" fullWidth loading={loading} onClick={() => void generate()} />
+      {loading ? <Spinner label={t("creating")} /> : null}
       {code ? (
         <div className={styles.inline}>
           <span className={forms.label}>{t("inviteCode")}</span>
           <p className={styles.code} dir="ltr" role="status">{code}</p>
-          <Button label={copied ? t("inviteCopied") : t("inviteCopy")} size="md" variant="outline" onClick={() => void copy()} />
+          <div className={styles.actionsRow}>
+            <Button label={copied ? t("inviteCopied") : t("inviteCopy")} size="md" variant="outline" onClick={() => void copy(code)} />
+            <Button label={t("inviteShare")} size="md" onClick={() => void share()} />
+          </div>
           {copyFailed ? <p className={forms.error} role="alert">{t("inviteCopyFailed")}</p> : null}
         </div>
       ) : null}
-      {failed ? <p className={forms.error} role="alert">{t("inviteFailed")}</p> : null}
+      {failed ? (
+        <>
+          <p className={forms.error} role="alert">{t("inviteFailed")}</p>
+          <Button label={t("inviteGenerate")} size="md" variant="outline" onClick={() => void generate()} />
+        </>
+      ) : null}
+      <div className={styles.inline}>
+        <span className={forms.label}>{t("invitePermsTitle")}</span>
+        <p className={rx.note}>{t("invitePermsBody")}</p>
+      </div>
     </section>
   );
 }
 
 const JOIN_ERRORS = ["invalid_invite_code", "invite_expired", "already_member"] as const;
+const RELATIONS = ["spouse", "child", "parent", "sibling", "caregiver", "other"] as const;
 
-/** Join: the invite code and the relation (POST /api/family/join, as before), then the family hub. */
-export function JoinTab({ locale, initialCode }: { locale: string; initialCode?: string }) {
+/**
+ * Join: the invite code (upper-cased as typed) and the relation chosen from the app's list (POST /api/family/join; the relation is
+ * stored in Arabic, as the app sends it, so the page passes the Arabic words), then a "joined" state with a button to the hub.
+ */
+export function JoinTab({ locale, initialCode, relationValues }: { locale: string; initialCode?: string; relationValues: Record<string, string> }) {
   const t = useTranslations("FamilyWeb");
   const router = useRouter();
-  const [code, setCode] = useState(initialCode || "");
-  const [relation, setRelation] = useState("");
+  const [code, setCode] = useState((initialCode || "").toUpperCase());
+  const [relation, setRelation] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [joined, setJoined] = useState(false);
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -81,7 +126,7 @@ export function JoinTab({ locale, initialCode }: { locale: string; initialCode?:
       const res = await fetch("/api/family/join", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ invite_code: code.trim(), relation: relation.trim() }),
+        body: JSON.stringify({ invite_code: code.trim(), relation: relation ? relationValues[relation] ?? "" : "" }),
       });
       if (!res.ok) {
         // The backend answers a code for the causes the patient can act on; anything else stays the generic line.
@@ -90,7 +135,7 @@ export function JoinTab({ locale, initialCode }: { locale: string; initialCode?:
         setError(cause ? t(`joinError.${cause}`) : t("joinFailed"));
         return;
       }
-      router.push(`/${locale}/family`);
+      setJoined(true);
       router.refresh();
     } catch {
       setError(t("joinFailed"));
@@ -99,18 +144,32 @@ export function JoinTab({ locale, initialCode }: { locale: string; initialCode?:
     }
   }
 
+  if (joined) {
+    return (
+      <section className={`${rx.card} ${forms.stack}`} aria-label={t("tabJoin")}>
+        <EmptyState icon={FAMILY.icon} tone={FAMILY.tone} title={t("joinDoneTitle")} body={t("joinDoneBody")} />
+        <ButtonLink href={`/${locale}/family`} label={t("joinGoFamily")} fullWidth />
+      </section>
+    );
+  }
+
   return (
     <form onSubmit={onSubmit} className={`${rx.card} ${forms.stack}`} noValidate aria-label={t("tabJoin")}>
       <label className={forms.field}>
         <span className={forms.label}>{t("inviteCode")}</span>
-        <input className={forms.control} value={code} onChange={(event) => setCode(event.target.value)} required minLength={3} maxLength={64} dir="ltr" placeholder={t("joinCodeHint")} autoComplete="off" />
+        <input className={forms.control} value={code} onChange={(event) => setCode(event.target.value.toUpperCase())} required minLength={3} maxLength={64} dir="ltr" placeholder={t("joinCodeHint")} autoComplete="off" autoCapitalize="characters" />
       </label>
-      <label className={forms.field}>
+      <div className={forms.field} role="group" aria-label={t("joinRelation")}>
         <span className={forms.label}>{t("joinRelation")}</span>
-        <input className={forms.control} value={relation} onChange={(event) => setRelation(event.target.value)} maxLength={64} placeholder={t("joinRelationHint")} />
-      </label>
+        <div className={forms.choices}>
+          {RELATIONS.map((key) => (
+            <button key={key} type="button" className={forms.choice} aria-pressed={relation === key} onClick={() => setRelation(relation === key ? "" : key)}>{t(`relation.${key}`)}</button>
+          ))}
+        </div>
+      </div>
       {error ? <p className={forms.error} role="alert">{error}</p> : null}
-      <Button type="submit" label={t("joinSubmit")} size="lg" fullWidth loading={saving} />
+      <Button type="submit" label={t("joinSubmit")} size="lg" fullWidth loading={saving} disabled={!code.trim()} />
+      <ButtonLink href={`/${locale}/family/add?tab=scan`} label={t("joinScan")} variant="outline" fullWidth />
     </form>
   );
 }
@@ -162,5 +221,113 @@ export function ScanTab({ locale }: { locale: string }) {
       {error ? <p className={forms.error} role="alert">{error}</p> : null}
       <Button type="submit" label={t("scanContinue")} size="lg" fullWidth />
     </form>
+  );
+}
+
+/**
+ * Add a child (PT-03): a dependant with no account of their own, managed by the guardian who adds them (POST /family/dependants,
+ * the guardian's consent is part of the request). The guardian's dependants are listed with a way to remove each one; they then
+ * appear as people an order or a booking can be made for.
+ */
+export function ChildTab() {
+  const t = useTranslations("FamilyWeb");
+  const [name, setName] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [relation, setRelation] = useState<DependantRelation | "">("");
+  const [consent, setConsent] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+  const [rows, setRows] = useState<DependantRow[]>([]);
+
+  const load = useCallback(async () => {
+    try {
+      const res = await fetch("/api/patient/family/dependants", { cache: "no-store" });
+      if (res.ok) setRows(readDependants(await res.json().catch(() => null)));
+    } catch {
+      // the list stays as it was; adding still works
+    }
+  }, []);
+  useEffect(() => { void load(); }, [load]);
+
+  const body = dependantBody({ name, birthDate, relation, consent });
+
+  async function onSubmit(event: FormEvent) {
+    event.preventDefault();
+    if (!body || saving) return;
+    setSaving(true);
+    setError(null);
+    setSaved(false);
+    try {
+      const res = await fetch("/api/patient/family/dependants", { method: "POST", headers: { "content-type": "application/json", "idempotency-key": newIdempotencyKey() }, body: JSON.stringify(body) });
+      const data = (await res.json().catch(() => null)) as { message?: unknown } | null;
+      if (!res.ok) {
+        setError(String(data?.message ?? "").includes("dependants_limit_reached") ? t("childLimit") : t("childError"));
+        return;
+      }
+      setSaved(true);
+      setName("");
+      setBirthDate("");
+      setRelation("");
+      setConsent(false);
+      await load();
+    } catch {
+      setError(t("childError"));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function remove(id: string) {
+    try {
+      const res = await fetch(`/api/patient/family/dependants/${encodeURIComponent(id)}`, { method: "DELETE" });
+      if (res.ok) setRows((current) => current.filter((row) => row.id !== id));
+      else setError(t("childError"));
+    } catch {
+      setError(t("childError"));
+    }
+  }
+
+  return (
+    <>
+      <form onSubmit={onSubmit} className={`${rx.card} ${forms.stack}`} noValidate aria-label={t("tabChild")}>
+        <p className={rx.note}>{t("childHint")}</p>
+        <label className={forms.field}>
+          <span className={forms.label}>{t("childName")}</span>
+          <input className={forms.control} value={name} onChange={(event) => setName(event.target.value.slice(0, 80))} required maxLength={80} autoComplete="off" />
+        </label>
+        <label className={forms.field}>
+          <span className={forms.label}>{t("childBirth")}</span>
+          <input className={forms.control} type="date" value={birthDate} max={new Date().toISOString().slice(0, 10)} onChange={(event) => setBirthDate(event.target.value)} required dir="ltr" />
+        </label>
+        <div className={forms.field} role="group" aria-label={t("childRelation")}>
+          <span className={forms.label}>{t("childRelation")}</span>
+          <div className={forms.choices}>
+            {DEPENDANT_RELATIONS.map((key) => (
+              <button key={key} type="button" className={forms.choice} aria-pressed={relation === key} onClick={() => setRelation(relation === key ? "" : key)}>{t(`relation.${key}`)}</button>
+            ))}
+          </div>
+        </div>
+        <label className={forms.field}>
+          <span><input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} /> {t("childConsent")}</span>
+        </label>
+        {error ? <p className={forms.error} role="alert">{error}</p> : null}
+        {saved ? <p className={rx.note} role="status">{t("childSaved")}</p> : null}
+        <Button type="submit" label={t("childSave")} size="lg" fullWidth loading={saving} disabled={!body} />
+      </form>
+      {rows.length > 0 ? (
+        <section className={`${rx.card} ${forms.stack}`} aria-label={t("childListTitle")}>
+          <h2 className={rx.h2}>{t("childListTitle")}</h2>
+          <ul className={styles.rows}>
+            {rows.map((row) => (
+              <li key={row.id} className={styles.childRow}>
+                <span>{row.name}</span>
+                <Button label={t("childRemove")} variant="outline" size="sm" onClick={() => void remove(row.id)} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+    </>
   );
 }

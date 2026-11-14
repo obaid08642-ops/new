@@ -1,8 +1,9 @@
-import { Injectable, BadRequestException, UnauthorizedException, NotFoundException, ConflictException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Optional, Injectable, BadRequestException, UnauthorizedException, NotFoundException, ConflictException } from '@nestjs/common';
 import { isEmail } from 'class-validator';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from '../../../common/password-hash';
 import { randomUUID } from 'crypto';
 import { HospitalBranch } from '../schemas/hospital-branch.schema';
 import { HospitalDepartment } from '../schemas/hospital-department.schema';
@@ -13,6 +14,8 @@ import { User } from '../../../schemas/user.schema';
 import { ForbiddenException } from '@nestjs/common';
 import { Appointment } from '../../../schemas/appointment.schema';
 import { getEffectiveRoles } from '../../../common/auth.guard';
+import { recordAudit } from '../../../common/audit-record';
+import { DEFAULT_COMMISSION_PERCENT } from '../../../common/commission-defaults';
 
 // Whitelist of permission keys a facility may grant through an invitation —
 // anything else in the payload is silently dropped (mass-assignment guard).
@@ -31,6 +34,7 @@ export class HospitalService {
     @InjectModel(DoctorProfileExtended.name) private doctorModel: Model<DoctorProfileExtended>,
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Appointment.name) private appointmentModel: Model<Appointment>,
+    @Optional() private readonly events?: EventEmitter2,
   ) {}
 
   private assertFacilityActor(actor?: any, write = false): void {
@@ -73,13 +77,16 @@ export class HospitalService {
     // One pending invitation per facility+invitee — re-sending returns it.
     const existing = await this.invitationModel.findOne({ facility_id: facilityId, invitee_id: invitee.id, status: 'pending' });
     if (existing) return existing;
-    return this.invitationModel.create({
+    const created = await this.invitationModel.create({
       facility_id: facilityId,
       invitee_id: invitee.id,
       invitee_identifier: identifier,
       role: body?.role || 'doctor',
       permissions,
     });
+    // the invitee is told in the app (bell and push) instead of having to find the inbox
+    this.events?.emit('hospital.invitation_created', { invitation_id: (created as any)?.id, invitee_id: invitee.id, facility_id: facilityId });
+    return created;
   }
 
   async listFacilityInvitations(facilityId: string) {
@@ -114,7 +121,52 @@ export class HospitalService {
       await this.staffModel.db.collection('provider_accounts').updateOne(
         { $or: [{ id: userId }, { user_id: userId }] }, { $set: { facility_id: inv.facility_id, updatedAt: new Date() } });
     }
+    this.events?.emit('hospital.invitation_answered', { invitation_id: inv.id, invitee_id: userId, facility_id: inv.facility_id, accepted: accept });
     return inv;
+  }
+
+  /** The facility withdraws an invitation nobody has answered yet (an admin may withdraw any). Answered invitations stay as they are. */
+  async cancelInvitation(actorId: string, invitationId: string, actor?: any, asAdmin = false) {
+    this.assertFacilityActor(actor, true);
+    const inv = await this.invitationModel.findOne({ id: invitationId });
+    if (!inv || (!asAdmin && inv.facility_id !== actorId)) throw new NotFoundException('invitation_not_found');
+    if (inv.status !== 'pending') throw new BadRequestException(`invitation_not_pending_${inv.status}`);
+    inv.status = 'cancelled';
+    inv.cancelled_at = new Date();
+    inv.cancelled_by = String(actorId);
+    await inv.save();
+    await recordAudit(this.staffModel.db, { action: 'facility_invitation.cancelled', user_id: String(actorId), role: String(actor?.role ?? 'facility'), resource_kind: 'facility_invitation', resource_id: inv.id, details: { facility_id: inv.facility_id, invitee_id: inv.invitee_id, by_admin: asAdmin } } as never);
+    return inv;
+  }
+
+  /** Admin: every facility invitation, newest first, with both names. Filters: status, facility_id. */
+  async adminListInvitations(q: { status?: string; facility_id?: string; limit?: number }) {
+    const filter: Record<string, unknown> = {};
+    if (q.status) filter.status = { $eq: String(q.status) };
+    if (q.facility_id) filter.facility_id = { $eq: String(q.facility_id) };
+    const rows: any[] = await this.invitationModel.find(filter).sort({ createdAt: -1 }).limit(Math.min(Math.max(Number(q.limit) || 100, 1), 500)).lean();
+    const ids = [...new Set(rows.flatMap((r) => [r.facility_id, r.invitee_id]))];
+    const users: any[] = ids.length ? await this.userModel.find({ id: { $in: ids } }).select({ id: 1, full_name: 1 }).lean() : [];
+    const name = new Map(users.map((u) => [u.id, u.full_name || null]));
+    return rows.map((r) => ({ ...r, facility_name: name.get(r.facility_id) ?? null, invitee_name: name.get(r.invitee_id) ?? null }));
+  }
+
+  /** Admin: the providers linked under a facility (accepted invitations set `parent_provider_account_id`). Filter: facility_id. */
+  async adminListMemberships(q: { facility_id?: string; limit?: number }) {
+    const filter: Record<string, unknown> = { parent_provider_account_id: q.facility_id ? { $eq: String(q.facility_id) } : { $exists: true, $nin: [null, ''] } };
+    const rows: any[] = await this.userModel.find(filter).select({ id: 1, full_name: 1, role: 1, parent_provider_account_id: 1, permissions: 1, suspended: 1, active: 1 }).limit(Math.min(Math.max(Number(q.limit) || 200, 1), 1000)).lean();
+    const fac: any[] = rows.length ? await this.userModel.find({ id: { $in: [...new Set(rows.map((r) => r.parent_provider_account_id))] } }).select({ id: 1, full_name: 1 }).lean() : [];
+    const name = new Map(fac.map((u) => [u.id, u.full_name || null]));
+    return rows.map((r) => ({ user_id: r.id, full_name: r.full_name || null, role: r.role, facility_id: r.parent_provider_account_id, facility_name: name.get(r.parent_provider_account_id) ?? null, permissions: r.permissions || [], suspended: r.active === false || !!r.suspended }));
+  }
+
+  /** Admin: end a provider's link to a facility (the same effect as the provider leaving), audited. */
+  async adminEndMembership(adminId: string, userId: string) {
+    const user: any = await this.userModel.findOne({ id: userId }).lean();
+    const facilityId = user?.parent_provider_account_id;
+    await this.leaveFacility(userId);
+    await recordAudit(this.staffModel.db, { action: 'facility_membership.ended_by_admin', user_id: String(adminId), role: 'admin', resource_kind: 'facility_membership', resource_id: userId, details: { facility_id: facilityId } } as never);
+    return { ok: true };
   }
 
   /** Provider leaves its linked facility: clears the link and facility-granted permissions. */
@@ -205,7 +257,7 @@ export class HospitalService {
         await db.collection('provider_profiles').insertOne({
           // raw insert: the unique `id` (and other schema defaults) are not applied — without an id the
           // second sub-account collided on the unique index (409)
-          id: randomUUID(), phones: [], enabled_modules: [], commission_rate: 10, has_own_delivery: false,
+          id: randomUUID(), phones: [], enabled_modules: [], commission_rate: DEFAULT_COMMISSION_PERCENT, has_own_delivery: false,
           use_platform_delivery: true, profile_completeness: 0,
           account_id: accId, provider_type: clinical.ptype,
           display_name_ar: (data as any).name_ar || fullName,
@@ -213,6 +265,8 @@ export class HospitalService {
           legal_name: (data as any).legal_name || fullName,
           parent_facility_id: hospitalObjectId, staff_role: roleKey,
           specialty: (data as any).department, scfhs_number: (data as any).scfhs,
+          // a facility never verifies a practitioner: pending licence review, not bookable until an admin approves the account
+          license_verified: false, public_eligibility: false, medical_review_status: 'pending',
           createdAt: new Date(), updatedAt: new Date(),
         });
         accountId = accId;
@@ -230,6 +284,7 @@ export class HospitalService {
     if (data.branch_id) staff.branch_id = this.objectId(String(data.branch_id), 'branch_id');
     if (data.department_id) staff.department_id = this.objectId(String(data.department_id), 'department_id');
     const created = await this.staffModel.create(staff);
+    await recordAudit(this.staffModel.db, { action: 'facility_staff.added', user_id: String(actor?.id ?? hospitalId), role: String(actor?.role ?? 'facility'), resource_kind: 'facility_staff', resource_id: String(created?._id ?? userObjectId), details: { facility_id: hospitalId, staff_role: String(staff.role), account_id: accountId } });
     return { staff: created, account_id: accountId, login_available: loginAvailable };
   }
 
@@ -248,9 +303,27 @@ export class HospitalService {
         id: String(r._id), user_id: u.id || String(r.user_id), account_id: r.account_id || null,
         full_name: u.full_name || '', email: u.email || null, phone: u.phone || null,
         role: ROLE_KEY[r.role] || r.role, department: r.department || null, scfhs: r.scfhs || null,
+        license_expiry: r.license_expiry || null, malpractice_insurance: !!r.malpractice_insurance, malpractice_expiry: r.malpractice_expiry || null,
         suspended: u.active === false || !!u.suspended, createdAt: r.createdAt,
       };
     });
+  }
+
+  /** Licence number, licence expiry and malpractice cover of one staff member (what the credentialing screen tracks). */
+  async updateStaffCredentials(hospitalId: string, staffId: string, data: { scfhs?: string; license_expiry?: string; malpractice_insurance?: boolean; malpractice_expiry?: string }, actor?: any) {
+    this.assertFacilityActor(actor, true);
+    const set: Record<string, unknown> = {};
+    if (data.scfhs !== undefined) set.scfhs = String(data.scfhs);
+    if (data.license_expiry !== undefined) set.license_expiry = new Date(data.license_expiry);
+    if (data.malpractice_insurance !== undefined) set.malpractice_insurance = data.malpractice_insurance === true;
+    if (data.malpractice_expiry !== undefined) set.malpractice_expiry = new Date(data.malpractice_expiry);
+    const staff: any = await this.staffModel.findOneAndUpdate(
+      { _id: this.objectId(staffId, 'staff_id'), hospital_id: await this.objectIdForUser(hospitalId), is_active: true },
+      { $set: set }, { new: true },
+    ).lean();
+    if (!staff) throw new NotFoundException('staff_not_found');
+    await recordAudit(this.staffModel.db, { action: 'facility_staff.credentials_updated', user_id: String(actor?.id ?? hospitalId), role: String(actor?.role ?? 'facility'), resource_kind: 'facility_staff', resource_id: String(staff._id), details: { facility_id: hospitalId, fields: Object.keys(set) } });
+    return { id: String(staff._id), scfhs: staff.scfhs || null, license_expiry: staff.license_expiry || null, malpractice_insurance: !!staff.malpractice_insurance, malpractice_expiry: staff.malpractice_expiry || null };
   }
 
   /** Remove a staff member from the facility: the record is deactivated and their login is switched off. */
@@ -264,6 +337,7 @@ export class HospitalService {
     if (staff.account_id) {
       await this.staffModel.db.collection('provider_accounts').updateOne({ id: staff.account_id }, { $set: { status: 'suspended', updatedAt: new Date() } });
     }
+    await recordAudit(this.staffModel.db, { action: 'facility_staff.removed', user_id: String(actor?.id ?? hospitalId), role: String(actor?.role ?? 'facility'), resource_kind: 'facility_staff', resource_id: String(staff._id), details: { facility_id: hospitalId, staff_role: String(staff.role) } });
     return { ok: true };
   }
 

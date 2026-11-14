@@ -1,0 +1,13 @@
+# Dockerfile.admin-web runs `npm ci` and `npm run build` itself with the context copied over it (COPY . .):
+# a node_modules or .next from the host would overwrite the clean ones and only inflate the build context.
+node_modules
+.next
+.git
+.gitignore
+coverage
+*.log
+.env
+.env.*
+!.env.production.example
+tsconfig.tsbuildinfo
+.DS_Store

@@ -6,7 +6,7 @@ describe('UsersAddressesController unknown address id', () => {
   const make = () => {
     const addresses = [{ id: 'a1', label: 'home', is_default: true }];
     const users: any = { getPatientProfile: jest.fn().mockResolvedValue({ addresses }), updatePatientProfile: jest.fn() };
-    return { users, addresses, controller: new UsersAddressesController(users) };
+    return { users, addresses, controller: new UsersAddressesController(users, {} as any) };
   };
 
   it('PATCH answers 404 and keeps the default address', async () => {

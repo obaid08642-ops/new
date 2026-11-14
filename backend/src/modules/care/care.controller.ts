@@ -3,24 +3,28 @@ import type { Response } from 'express';
 import { CareService } from './care.service';
 import { CurrentUser, JwtAuthGuard, Public } from '../../common/auth.guard';
 import { queryInt, queryNumber } from '../../common/safe-query';
+import { PublicCache } from '../../common/public-cache.decorator';
 
 @Controller('care')
 @UseGuards(JwtAuthGuard)
 export class CareController {
   constructor(private svc: CareService) {}
 
+  @PublicCache(300, ['catalog', 'care'])
   @Public()
   @Get('specialties')
   specialties() {
     return this.svc.specialties();
   }
 
+  @PublicCache(300, ['catalog', 'care'])
   @Public()
   @Get('insurance')
   insuranceCompanies() {
     return this.svc.insuranceCompanies();
   }
 
+  @PublicCache(300, ['catalog', 'care'])
   @Public()
   @Get('degrees')
   degrees() {
@@ -38,10 +42,15 @@ export class CareController {
     @Query('facility_id') facility_id?: string,
     @Query('degree') degree?: string,
     @Query('insurance') insurance?: string,
+    @Query('insurance_class') insuranceClass?: string,
+    @Query('payment') payment?: string,
     @Query('accepts_insurance') accepts_insurance?: string,
+    @Query('gender') gender?: string,
+    @Query('price_min') price_min?: string,
+    @Query('price_max') price_max?: string,
     @Query('lat') lat?: string,
     @Query('lng') lng?: string,
-    @Query('sort') sort?: 'rating' | 'price_asc' | 'price_desc' | 'experience' | 'distance' | 'distance_asc' | 'distance_desc',
+    @Query('sort') sort?: 'rating' | 'price_asc' | 'price_desc' | 'experience' | 'distance' | 'distance_asc' | 'distance_desc' | 'available_today',
     @Query('type') type?: 'clinic' | 'video' | 'home_visit',
     @Query('available_within') available_within?: string,
     @Query('page') page?: string,
@@ -58,7 +67,12 @@ export class CareController {
       nearest_type: type,
       available_today: available_today === 'true' || available_today === '1',
       q, city, facility_id, degree, insurance,
+      insuranceClass,
+      paymentInsurance: payment === 'insurance',
       accepts_insurance: accepts_insurance === 'true' ? true : accepts_insurance === 'false' ? false : undefined,
+      gender: gender === 'male' || gender === 'female' ? gender : undefined,
+      price_min: price_min === undefined ? undefined : queryNumber(price_min),
+      price_max: price_max === undefined ? undefined : queryNumber(price_max),
       lat: lat === undefined ? undefined : queryNumber(lat),
       lng: lng === undefined ? undefined : queryNumber(lng),
       sort,

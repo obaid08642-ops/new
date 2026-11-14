@@ -33,8 +33,7 @@
       "@nabd/ui/components/contract": [
         "../packages/ui/components/contract.ts"
       ]
-    },
-    "baseUrl": "."
+    }
   },
   "include": [
     "**/*.ts",

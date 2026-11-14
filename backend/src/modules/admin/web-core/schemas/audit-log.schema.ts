@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { makeAppendOnly } from '../../../../common/append-only';
 
 export type AuditLogDocument = AuditLog & Document;
 
@@ -22,3 +23,5 @@ export class AuditLog {
 }
 
 export const AuditLogSchema = SchemaFactory.createForClass(AuditLog);
+/** 16.6 — the admin audit log is append-only. */
+makeAppendOnly(AuditLogSchema, 'auditlogs');

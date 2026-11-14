@@ -1,0 +1,27 @@
+/* The providers map (hologram pins). Tokens only, logical properties only, no inline styles (the CSP refuses them).
+   The pins' colours are drawn on a canvas from the service-tone variables (components-next/hologram-draw.ts). */
+
+.map { position: absolute; inset: 0; }
+.map:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: -3px; }
+/* the tile style is light only: in dark mode it is dimmed (not inverted, so the pins keep their tones) */
+:global([data-theme="dark"]) .map :global(canvas) { filter: brightness(.72); }
+
+.selected { position: relative; inline-size: 64px; block-size: 84px; display: flex; justify-content: center; pointer-events: none; }
+.selectedPin { inline-size: 64px; block-size: 84px; display: block; }
+.selectedName {
+  position: absolute; inset-block-start: 100%; inset-inline-start: 50%; transform: translateX(-50%); max-inline-size: 180px; padding: 2px 8px;
+  border-radius: var(--nabd-radius-sm); background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary);
+  border: 1px solid var(--nabd-color-border-hairline); font-size: var(--nabd-font-size-caption); font-weight: 700; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; box-shadow: var(--nabd-shadow-card);
+}
+:global([dir="rtl"]) .selectedName { transform: translateX(50%); }
+
+/* the pulse ring on the selected pin only; not drawn at all under reduced motion (the component skips the element too) */
+.pulse {
+  position: absolute; inset-block-end: 4px; inset-inline-start: 50%; inline-size: 40px; block-size: 16px; margin-inline-start: -20px;
+  border: 2px solid var(--nabd-color-action-primary-bg); border-radius: 50%; opacity: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pulse { animation: holo-pulse 1.8s ease-out infinite; }
+}
+@keyframes holo-pulse { 0% { transform: scale(.5); opacity: .8; } 100% { transform: scale(1.9); opacity: 0; } }

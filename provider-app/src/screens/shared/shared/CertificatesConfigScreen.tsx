@@ -26,8 +26,14 @@ import { resolveImageUri, resolveGallery } from '../../../utils/imageUrl';
 import { useInsuranceCatalog } from '../../../api/catalogs';
 import { SK, Vault } from '../../../security/Security';
 import { tokens, withAlpha } from '../../../theme/tokens';
+import { useUploadsEnabled } from '../../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../../../components/UploadsUnavailable';
+import { announceScan } from '../../../components/ScanStatusBadge';
+import { scanStateOfRequestError, scanOfStored } from '../../../utils/scanRegistry';
+import { scanStateOfUpload } from '../../../utils/scanStatus';
 
 export function CertificatesConfigScreen({ onBack }: { onBack: () => void }) {
+  const uploadsOn = useUploadsEnabled();
  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
 
  const DOC_LABELS: Record<string, { ar: string; en: string }> = {
@@ -78,13 +84,15 @@ export function CertificatesConfigScreen({ onBack }: { onBack: () => void }) {
  setPendingDocType(docType);
  setUploading(true);
  const base64 = await FileSystem.readAsStringAsync(asset.uri, { encoding: 'base64' });
- await client.post('/provider/kyc/documents', {
+ const saved = await client.post('/provider/kyc/documents', {
  doc_type: docType,
  file: { data_base64: base64, mime, original_name: asset.name || `${docType}.pdf` },
  });
  show(AR ? 'تم رفع المستند وهو الآن قيد مراجعة الإدارة' : 'Document uploaded and is now under admin review', 'success');
+ announceScan(show, lang, scanStateOfUpload(saved?.data));
  await loadDocs();
  } catch (err: any) {
+ if (scanStateOfRequestError(err) === 'rejected') { announceScan(show, lang, 'rejected'); return; }
  const m = err?.response?.data?.message;
  show(typeof m === 'string' ? m : (AR ? 'تعذر رفع المستند — تحقق من الملف والاتصال وحاول مجدداً' : 'Could not upload the document — check the file and connection and retry'), 'error');
  } finally {
@@ -155,13 +163,15 @@ export function CertificatesConfigScreen({ onBack }: { onBack: () => void }) {
  </View>
  {(item.review_status === 'rejected' || item.review_status === 'needs_replacement') && (
  <View style={{ marginTop: SP.sm }}>
- <NBtn
+ {uploadsOn ? (
+<NBtn
  label={AR ? 'إعادة رفع المستند' : 'Re-upload Document'}
  size="sm"
  variant="outline"
  loading={uploading && pendingDocType === item.doc_type}
  onPress={() => pickAndUpload(item.doc_type)}
  />
+) : <UploadsUnavailable />}
  </View>
  )}
  </NCard>
@@ -178,20 +188,23 @@ export function CertificatesConfigScreen({ onBack }: { onBack: () => void }) {
  <NBadge label={AR ? 'مطلوب' : 'Required'} variant="warning" size="xs" />
  </View>
  <View style={{ marginTop: SP.sm }}>
- <NBtn
+ {uploadsOn ? (
+<NBtn
  label={uploading && pendingDocType === t ? (AR ? 'جاري الرفع…' : 'Uploading…') : (AR ? 'رفع المستند' : 'Upload Document')}
  size="sm"
  loading={uploading && pendingDocType === t}
  disabled={uploading}
  onPress={() => pickAndUpload(t)}
  />
+) : <UploadsUnavailable />}
  </View>
  </NCard>
  ))}
  </>
  )}
 
- <TouchableOpacity
+ {uploadsOn ? (
+<TouchableOpacity
  onPress={() => pickAndUpload('other')}
  disabled={uploading}
  style={{
@@ -215,6 +228,7 @@ export function CertificatesConfigScreen({ onBack }: { onBack: () => void }) {
  {AR ? 'صيغ المقبولة: PDF, JPG, PNG (بحد أقصى 10 ميجا)' : 'Supported: PDF, JPG, PNG (Max 10MB)'}
  </Text>
  </TouchableOpacity>
+) : <UploadsUnavailable />}
  </>
  )}
  </ScrollView>

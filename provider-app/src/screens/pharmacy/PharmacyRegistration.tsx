@@ -1,6 +1,6 @@
-import { startOnboardingAccount, firstMissingDoc, useStepSaver } from '../registration/kit';
+import { startOnboardingAccount, firstMissingDoc, useStepSaver, documentsStepError } from '../registration/kit';
 import type { StepProps, Uploader, RequiredDoc } from '../registration/kit';
-import { DocCard, NoticeSection, useDocumentPicker } from '../registration/WizardParts';
+import { DocCard, LicenseExpiryField, NoticeSection, licenseExpiryError, useDocumentPicker } from '../registration/WizardParts';
 import type { NoticeText } from '../registration/WizardParts';
 import { RegistrationWizard } from '../registration/RegistrationWizard';
 import type { RegistrationProps, WizardConfig } from '../registration/RegistrationWizard';
@@ -15,6 +15,10 @@ import { NBtn, NCard, NInput, NPhoneInput, NPassStrength, NToggle, NDivider, NPr
 import { GeoPicker } from '../../components/GeoPicker';
 import { Validate } from '../../security/Security';
 import { SP, R, FS, FW, PHARMA_CATS, C, LANGS } from '../../constants';
+import { translate } from '../../i18n';
+import { OwnDeliveryFields } from './OwnDeliveryForm';
+import { EMPTY_OWN_DELIVERY, ownDeliveryError, ownDeliveryPayload } from './ownDelivery';
+import type { OwnDeliveryForm as OwnDeliveryFormState } from './ownDelivery';
 import { LocationPickerModal } from '../../components/LocationPickerModal';
 import { I } from '../../components/icons';
 
@@ -37,12 +41,12 @@ interface PharmacyRegData {
   managerName: string; managerPhone: string; managerEmail: string;
   password: string; confirmPass: string; pharmacistName: string;
   // Step 2
-  crNumber: string; mohLicense: string; sfdaNumber: string;
+  crNumber: string; mohLicense: string; sfdaNumber: string; licenseExpiry: string;
   iban: string; accountHolderName: string; taxNumber: string;
   crUri: string; mohUri: string; sfdaUri: string; logoUri: string;
   // Step 3
   region: string; city: string; location: {lat: number; lng: number}; district: string; address: string;
-  deliveryRadius: number; hasDelivery: boolean; hasOwnDrivers: boolean;
+  deliveryRadius: number; hasDelivery: boolean; ownDelivery: OwnDeliveryFormState;
   // Step 4
   workDays: string[]; hasNightShift?: boolean; is24_7: boolean; vacationDate: string;
   shiftType: 'morning' | 'evening' | 'both';
@@ -66,9 +70,9 @@ const INIT: PharmacyRegData = {
   
   nameAr:'', nameEn:'', type:'', languages: [], managerName:'', managerPhone:'',
   managerEmail:'', password:'', confirmPass:'', pharmacistName:'',
-  crNumber:'', mohLicense:'', sfdaNumber:'', iban:'', taxNumber:'',
+  crNumber:'', mohLicense:'', sfdaNumber:'', licenseExpiry:'', iban:'', taxNumber:'',
   crUri:'', mohUri:'', sfdaUri:'', logoUri:'',
-  region:'', city:'', district:'', address:'', deliveryRadius: 0, hasDelivery: false, hasOwnDrivers: false,
+  region:'', city:'', district:'', address:'', deliveryRadius: 0, hasDelivery: false, ownDelivery: { ...EMPTY_OWN_DELIVERY },
   workDays:[], is24_7: false, vacationDate: '',
   shiftType: 'morning', openTime:'', closeTime:'',
   eveningOpenTime:'', eveningCloseTime:'',
@@ -93,11 +97,10 @@ async function sendPharmacy(data: PharmacyRegData, uploads: Uploader): Promise<v
   }));
 
   await ProviderApi.step3({
-    has_own_drivers: data.hasDelivery && data.hasOwnDrivers,
-    has_own_delivery: data.hasDelivery,
-    delivery_radius_km: data.deliveryRadius,
-    delivery_fee: parseFloat(data.deliveryFee) || 0,
-    free_delivery_above: parseFloat(data.freeDeliveryAbove) || 0,
+    // own couriers (owner decision 2026-11-02): the zone, fee and threshold are one object the server validates and mirrors
+    ...(data.hasDelivery && data.ownDelivery.enabled
+      ? { own_delivery: ownDeliveryPayload(data.ownDelivery) }
+      : { own_delivery: ownDeliveryPayload(EMPTY_OWN_DELIVERY), has_own_delivery: false, delivery_radius_km: data.hasDelivery ? data.deliveryRadius : 0, delivery_fee: parseFloat(data.deliveryFee) || 0, free_delivery_above: parseFloat(data.freeDeliveryAbove) || 0 }),
     min_order_sar: parseFloat(data.minOrderSAR) || 0,
     express_delivery: data.expressDelivery || false,
     express_fee: parseFloat(data.expressFee) || 0,
@@ -134,6 +137,7 @@ async function sendPharmacy(data: PharmacyRegData, uploads: Uploader): Promise<v
       cr_number: data.crNumber,
       moh_license_number: data.mohLicense,
       sfda_license_number: data.sfdaNumber,
+      license_expiry_date: data.licenseExpiry,
       tax_number: data.taxNumber,
       license_documents: docs,
       logo,
@@ -207,7 +211,8 @@ const PHARMACY_WIZARD: WizardConfig<PharmacyRegData> = {
       if (!d.enabledCategories.length || (!d.rxDispensing && !d.otcSelling)) {
         return AR ? 'اختر فئة دوائية وطريقة صرف واحدة على الأقل' : 'Select at least one medicine category and dispensing mode';
       }
-      if (d.hasDelivery && (!Number(d.deliveryRadius) || d.deliveryRadius <= 0 || !d.workDays.length || !d.openTime || !d.closeTime)) {
+      if (d.hasDelivery && d.ownDelivery.enabled && ownDeliveryError(d.ownDelivery)) return translate(AR ? 'ar' : 'en', ownDeliveryError(d.ownDelivery)!);
+      if (d.hasDelivery && ((!d.ownDelivery.enabled && (!Number(d.deliveryRadius) || d.deliveryRadius <= 0)) || !d.workDays.length || !d.openTime || !d.closeTime)) {
         return AR ? 'أكمل نطاق التوصيل وأيام وساعات العمل' : 'Complete delivery radius and working days/hours';
       }
       return null;
@@ -328,6 +333,7 @@ function PStep2Legal({ data, update, submitRef, uploads }: StepProps<PharmacyReg
     if (!Validate.cr(data.crNumber)) e.cr = AR?'السجل التجاري 10 أرقام':'CR must be 10 digits';
     if (!data.mohLicense.trim()) e.moh = AR?'مطلوب':'Required';
     if (!data.sfdaNumber.trim()) e.sfda = AR?'رقم SFDA مطلوب':'SFDA number required';
+    const expiryErr = licenseExpiryError(data.licenseExpiry, AR); if (expiryErr) e.expiry = expiryErr;
     if (!Validate.iban(data.iban)) e.iban = AR?'رقم الآيبان غير صحيح':'Invalid IBAN';
     setErrs(e); return Object.keys(e).length === 0;
   };
@@ -350,7 +356,7 @@ function PStep2Legal({ data, update, submitRef, uploads }: StepProps<PharmacyReg
       });
       return true;
     } catch (e: any) {
-      show(AR ? 'فشل رفع المستندات' : 'Failed to upload documents', 'error');
+      show(documentsStepError(e, AR), 'error');
       return false;
     } finally {
       setLoading(false);
@@ -363,6 +369,7 @@ function PStep2Legal({ data, update, submitRef, uploads }: StepProps<PharmacyReg
       <NInput label={AR?'رقم السجل التجاري CR':'CR Number'} placeholder="1234567890" value={data.crNumber} onChange={v=>update({crNumber:v.replace(/\D/g,'')})} required error={errs.cr} kbType="numeric" maxLen={10} />
       <NInput label={AR?'رقم ترخيص وزارة الصحة MOH':'MOH License Number'} placeholder="MOH-PHR-XXXXX" value={data.mohLicense} onChange={v=>update({mohLicense:v})} required error={errs.moh} hint={AR?'ترخيص الصيدلية من وزارة الصحة السعودية':'Saudi Ministry of Health pharmacy license'} />
       <NInput label={AR?'رقم ترخيص SFDA (هيئة الغذاء والدواء)':'SFDA License Number'} placeholder="SFDA-XXXXX" value={data.sfdaNumber} onChange={v=>update({sfdaNumber:v})} required error={errs.sfda} hint={AR?'ترخيص صرف الأدوية من هيئة الغذاء والدواء':'Saudi Food and Drug Authority license'} />
+      <LicenseExpiryField value={data.licenseExpiry} onChange={v=>update({licenseExpiry:v})} error={errs.expiry} />
       <NInput label={AR?'رقم الآيبان IBAN':'Bank IBAN'} placeholder="SA0000000000000000000000" value={data.iban} onChange={v=>update({iban:v.toUpperCase().replace(/\s/g,'')})} required error={errs.iban} maxLen={24} hint={AR?'SA + 22 رقم — لاستلام المدفوعات':'SA + 22 digits — to receive payments'} />
       <NInput label={AR?'الرقم الضريبي VAT (اختياري)':'VAT Number (Optional)'} placeholder="300XXXXXXXXX003" value={data.taxNumber} onChange={v=>update({taxNumber:v})} maxLen={15} />
 
@@ -413,18 +420,9 @@ function PStep3Location({ data, update, submitRef }: StepProps<PharmacyRegData>)
 
         {data.hasDelivery && (
           <View style={{ marginTop:SP.lg }}>
-            <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-              {AR ? 'من سيقوم بتوصيل الطلبات؟' : 'Who will deliver the orders?'}
-            </Text>
-            <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.lg }}>
-              <TouchableOpacity onPress={() => update({ hasOwnDrivers: true })} style={{ flex: 1, padding: SP.md, borderWidth: 1, borderColor: data.hasOwnDrivers ? theme.primary : theme.border, backgroundColor: data.hasOwnDrivers ? theme.primaryLight : theme.bg, borderRadius: R.md, alignItems: 'center' }}>
-                <Text style={{ color: data.hasOwnDrivers ? theme.primary : theme.text, textAlign: 'center' }}>{AR ? 'توصيل خاص\n(مندوبي الصيدلية)' : 'Own Drivers\n(Pharmacy staff)'}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => update({ hasOwnDrivers: false })} style={{ flex: 1, padding: SP.md, borderWidth: 1, borderColor: !data.hasOwnDrivers ? theme.primary : theme.border, backgroundColor: !data.hasOwnDrivers ? theme.primaryLight : theme.bg, borderRadius: R.md, alignItems: 'center' }}>
-                <Text style={{ color: !data.hasOwnDrivers ? theme.primary : theme.text, textAlign: 'center' }}>{AR ? 'عبر التطبيق\n(مناديب نبض)' : 'Via App\n(Nabd drivers)'}</Text>
-              </TouchableOpacity>
-            </View>
+            <OwnDeliveryFields value={data.ownDelivery} onChange={(patch) => update({ ownDelivery: { ...data.ownDelivery, ...patch } })} cityCode={data.city || undefined} />
 
+            {!data.ownDelivery.enabled && (<>
             <Text style={[s.label, { color:theme.text, textAlign:AR?'right':'left' }]}>{AR?'نطاق التوصيل (كم)':'Delivery Radius (km)'}</Text>
             
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md, marginBottom: SP.md }}>
@@ -482,6 +480,7 @@ function PStep3Location({ data, update, submitRef }: StepProps<PharmacyRegData>)
                   : `Broadcast system: Prescription orders sent to pharmacies within ${data.deliveryRadius}km coverage radius.`}
               </Text>
             </NCard>
+            </>)}
           </View>
         )}
       </NCard>
@@ -671,8 +670,8 @@ function PStep6Delivery({ data, update, submitRef }: StepProps<PharmacyRegData>)
       {data.hasDelivery && (
         <NCard style={{ marginBottom:SP.xl }}>
           <Text style={[s.sectionTitle, { color:theme.text, textAlign:AR?'right':'left', marginBottom:SP.lg }]}>{AR?'رسوم وشروط التوصيل':'Delivery Fees & Terms'}</Text>
-          <NPriceInput label={AR?'رسوم التوصيل الأساسية':'Base Delivery Fee'} value={data.deliveryFee} onChange={v=>update({deliveryFee:v})} required />
-          <NPriceInput label={AR?'توصيل مجاني فوق (ريال)':'Free delivery above (SAR)'} value={data.freeDeliveryAbove} onChange={v=>update({freeDeliveryAbove:v})} />
+          {!data.ownDelivery.enabled && <NPriceInput label={AR?'رسوم التوصيل الأساسية':'Base Delivery Fee'} value={data.deliveryFee} onChange={v=>update({deliveryFee:v})} required />}
+          {!data.ownDelivery.enabled && <NPriceInput label={AR?'توصيل مجاني فوق (ريال)':'Free delivery above (SAR)'} value={data.freeDeliveryAbove} onChange={v=>update({freeDeliveryAbove:v})} />}
           <NPriceInput label={AR?'الحد الأدنى للطلب (ريال)':'Minimum Order Amount (SAR)'} value={data.minOrderSAR} onChange={v=>update({minOrderSAR:v})} required />
           
           <NToggle label={AR?' توصيل سريع Express':' Express Delivery'} sub={AR?'توصيل سريع بسعر أعلى لمسافات قصيرة':'Express delivery options'} value={data.expressDelivery} onChange={v=>update({expressDelivery:v})} />

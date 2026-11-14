@@ -1,16 +1,26 @@
+import { Type } from 'class-transformer';
 import { IsDefined, IsIn, IsInt, IsNumber, IsObject, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
 
 export class SlaDto {
+  /** Minutes a consultation lasts (1 to 240). */
   @IsDefined()
-  @IsNumber()
+  @IsNumber({ allowNaN: false, allowInfinity: false })
+  @Min(1)
+  @Max(240)
   consultationDuration: number;
 
+  /** Seconds a call rings before it is missed (10 to 300). */
   @IsDefined()
-  @IsNumber()
+  @IsNumber({ allowNaN: false, allowInfinity: false })
+  @Min(10)
+  @Max(300)
   callRingingDuration: number;
 
+  /** Hours a session token lives (1 to 168, one week). */
   @IsDefined()
-  @IsNumber()
+  @IsNumber({ allowNaN: false, allowInfinity: false })
+  @Min(1)
+  @Max(168)
   jwtExpiry: number;
 
   @IsOptional()
@@ -49,6 +59,19 @@ export class OrdersConsoleConfigDto {
   @Min(1)
   @Max(1440)
   stuck_minutes?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  reason?: string;
+}
+
+/** PUT admin/config/dispute-config: the largest refund a dispute decision may grant (the handler also refuses a value that is not above 0). */
+export class DisputeConfigDto {
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  max_refund_sar?: number;
 
   @IsOptional()
   @IsString()

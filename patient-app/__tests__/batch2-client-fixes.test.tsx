@@ -44,7 +44,8 @@ describe('incoming call ring timeout', () => {
     await act(async () => {
       jest.advanceTimersByTime(35_000);
     });
-    expect(mockApiFetch).not.toHaveBeenCalled();
+    // the ringing screen polls the session state (ended/answered elsewhere); it must not reject before the timeout
+    expect(mockApiFetch.mock.calls.filter(([path]) => String(path).endsWith('/reject'))).toHaveLength(0);
 
     await act(async () => {
       jest.advanceTimersByTime(10_000);

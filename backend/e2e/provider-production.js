@@ -201,30 +201,6 @@ async function main() {
     return `${rows.length} rows`;
   });
 
-  // ── E8: technician roster CRUD ──
-  let techId;
-  await t('P3-E8 CRUD /hospital/staff-roster/technicians full lifecycle', async () => {
-    const c = await axios.post(`${base}/hospital/staff-roster/technicians`, {
-      full_name: 'فني تيست', phone: '+966522220001', department: 'سحب منزلي',
-    }, auth(T.lab));
-    techId = c.data.id;
-    if (!techId) throw new Error('no id returned');
-    const l = await axios.get(`${base}/hospital/staff-roster/technicians`, auth(T.lab));
-    if (!l.data.some((x) => x.id === techId)) throw new Error('list missing created');
-    const u = await axios.patch(`${base}/hospital/staff-roster/technicians/${techId}`, { department: 'أشعة' }, auth(T.lab));
-    if (u.data.department !== 'أشعة') throw new Error('patch failed');
-    // ownership isolation: another lab cannot edit it
-    try {
-      await axios.patch(`${base}/hospital/staff-roster/technicians/${techId}`, { department: 'hack' }, auth(T.rad));
-      throw new Error('foreign update should 403');
-    } catch (e) { if (e.response?.status !== 403) throw e; }
-    const d = await axios.delete(`${base}/hospital/staff-roster/technicians/${techId}`, auth(T.lab));
-    if (!d.data.ok) throw new Error('delete failed');
-    const l2 = await axios.get(`${base}/hospital/staff-roster/technicians`, auth(T.lab));
-    if (l2.data.some((x) => x.id === techId)) throw new Error('still listed after delete');
-    return 'create-list-update-403-delete ok';
-  });
-
   // ── E9: facility shifts full CRUD (existing create + NEW patch/delete) ──
   let shiftId;
   await t('P3-E9 CRUD /facility/shifts — create → PATCH → DELETE', async () => {

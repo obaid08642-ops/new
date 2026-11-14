@@ -1,0 +1,35 @@
+[
+  {
+    "batch": "parity-pass-app",
+    "app": "patient-app",
+    "screen": "/search?view=doctors",
+    "element": "sort by waiting time (web sortWait)",
+    "file": "patient-app/src/components/views/DoctorSearchView.tsx",
+    "line": 121,
+    "found": "[backend] The web offers a wait sort; GET /care/doctors never sends wait_time (the app's doctorSearch.ts says so), so the app cannot sort by it.",
+    "suspect": "Backend: send wait_time per doctor, then add a sort chip.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-pass-app",
+    "app": "patient-app",
+    "screen": "diagnostics hub, radiology",
+    "element": "body-part search and highest-rated sort",
+    "file": "patient-app/app/(tabs)/diagnostics.tsx",
+    "line": 345,
+    "found": "[backend] GET /radiology/services takes body_part and highest_rated, but its list rows carry no rating and no body-part field the app can show; the web filters server-side with a free-text box. The scan-type chips were added; the body-part box is left until the list row names the body part.",
+    "suspect": "Reviewer: decide whether a free-text body-part box is wanted on the app (the server filter exists).",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-pass-app",
+    "app": "patient-app",
+    "screen": "/pharmacy/barcode-scanner",
+    "element": "interaction check scans only one medicine",
+    "file": "patient-app/app/pharmacy/barcode-scanner.tsx",
+    "line": 60,
+    "found": "[client] The scanner checks the one scanned medicine against nothing else (drugs: [one]); the new /pharmacy/interactions screen checks a typed list. The scanner could add the scanned medicine to that list.",
+    "suspect": "Reviewer: link the found card to /pharmacy/interactions with the medicine pre-filled.",
+    "review_status": "open"
+  }
+]

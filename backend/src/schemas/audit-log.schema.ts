@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
+import { makeAppendOnly } from '../common/append-only';
 
 /**
  * Phase 23 — the audit trail.
@@ -14,7 +15,14 @@ import { v4 as uuidv4 } from 'uuid';
  * event. Editing or deleting any row breaks the chain, and `verifyChain`
  * reports where.
  */
-@Schema({ timestamps: true })
+/**
+ * The ONE collection of the audit trail. It is named here on purpose: Mongoose would otherwise derive `auditlogs` from the
+ * model name, and the readers (PDPL export, retention) and the raw writers had been using `audit_logs`, a different
+ * collection, so the export missed the chain and retention never touched it. Every reader and writer imports this name.
+ */
+export const AUDIT_COLLECTION = 'auditlogs';
+
+@Schema({ timestamps: true, collection: AUDIT_COLLECTION })
 export class AuditLog {
   @Prop({ default: () => uuidv4(), unique: true }) id: string;
   @Prop({ required: true, index: true }) action: string; // login_failed, payment_create, refund, admin_force_cancel...
@@ -61,3 +69,5 @@ export const AuditLogSchema = SchemaFactory.createForClass(AuditLog);
 AuditLogSchema.index({ createdAt: -1 });
 /** The chain is walked in insertion order, so that order must be indexable. */
 AuditLogSchema.index({ sequence: 1 });
+/** 16.6 — nothing reachable through the model can change or remove a stored row. */
+makeAppendOnly(AuditLogSchema, AUDIT_COLLECTION);

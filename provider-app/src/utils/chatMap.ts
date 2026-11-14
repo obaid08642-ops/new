@@ -5,7 +5,7 @@
  * `{ sender: 'me', text, time }`, which does not exist: opening any conversation crashed.
  */
 export interface ChatListItem { id: string; name: string; lastMsg: string; time: string; unread: number }
-export interface ChatBubble { id: string; sender: 'me' | 'them'; text: string; type: 'text' | 'image' | 'file' | 'voice' | 'system'; time: string }
+export interface ChatBubble { id: string; sender: 'me' | 'them'; text: string; type: 'text' | 'image' | 'file' | 'voice' | 'system'; time: string; mediaId?: string }
 
 const KIND_LABEL: Record<string, [string, string]> = {
   consultation: ['استشارة', 'Consultation'],
@@ -43,7 +43,9 @@ export function mapMessages(data: unknown, me: string, ar: boolean): ChatBubble[
   const out = list.filter(m => typeof m.id === 'string').map((m): ChatBubble => {
     const type = (['image', 'file', 'voice', 'system'].includes(str(m.type)) ? str(m.type) : 'text') as ChatBubble['type'];
     const text = str(m.body) || str(m.attachment_name) || (type === 'voice' ? (ar ? 'رسالة صوتية' : 'Voice message') : '');
-    return { id: String(m.id), sender: str(m.sender_id) === me ? 'me' : 'them', text, type, time: stamp(m.createdAt, ar) };
+    // The attachment is opened through GET /media/:id/url (short-lived link), so the bubble keeps the first media id.
+    const mediaId = Array.isArray(m.media_ids) ? (m.media_ids as unknown[]).find((x): x is string => typeof x === 'string' && x.length > 0) : undefined;
+    return { id: String(m.id), sender: str(m.sender_id) === me ? 'me' : 'them', text, type, time: stamp(m.createdAt, ar), ...(mediaId ? { mediaId } : {}) };
   });
   return out.reverse(); // the server answers newest first; the room reads oldest first
 }

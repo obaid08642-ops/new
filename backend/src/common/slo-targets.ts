@@ -11,7 +11,7 @@ export interface SloTarget {
   name: string;
   /** e.g. 0.999 for 99.9%. */
   target: number;
-  unit: 'ratio' | 'ms';
+  unit: 'ratio' | 'ms' | 'jobs';
   window: string;
   /** Where to read when it fires. */
   runbook: string;
@@ -41,6 +41,15 @@ export const SLO_TARGETS: SloTarget[] = [
     unit: 'ms',
     window: '1h',
     runbook: 'docs/runbooks/slow-api.md',
+  },
+  {
+    // The notification delivery queue: waiting jobs stay at or under 200, and failed jobs grow by at most 20 in 15 minutes.
+    id: 'notifications_queue',
+    name: 'Notification queue backlog',
+    target: 200,
+    unit: 'jobs',
+    window: '10m',
+    runbook: 'docs/runbooks/notifications-queue.md',
   },
   {
     id: 'event_loop_lag',

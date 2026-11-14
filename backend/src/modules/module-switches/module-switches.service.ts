@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, Logger, NotFoundException, Optional } from '@nestjs/common';
+import { StaleCache } from '../../common/stale-cache';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { PurgeBus } from '../../common/purge-bus';
@@ -48,7 +49,9 @@ const CACHE_TTL_MS = 2000;
 
 @Injectable()
 export class ModuleSwitchesService {
-  private cache: { at: number; map: Record<string, boolean> } | null = null;
+  // single-flight + stale-if-error: a slow database is asked once per TTL, and a failed read keeps the LAST GOOD switches
+  // (it used to fall back to "everything on", which re-opened a module an admin had switched off during a database blip)
+  private readonly cache = new StaleCache<Record<string, boolean>>(() => this.loadAll(), () => CACHE_TTL_MS);
 
   private readonly logger = new Logger(ModuleSwitchesService.name);
 
@@ -73,17 +76,23 @@ export class ModuleSwitchesService {
     return null;
   }
 
-  private async readAll(): Promise<Record<string, boolean>> {
-    const now = Date.now();
-    if (this.cache && now - this.cache.at < CACHE_TTL_MS) return this.cache.map;
-    const rows: any[] = await this.conn.db.collection('module_switches').find({}).toArray().catch(() => []);
+  private async loadAll(): Promise<Record<string, boolean>> {
+    const rows: any[] = await this.conn.db.collection('module_switches').find({}, { maxTimeMS: 1500 }).toArray();
     const map: Record<string, boolean> = {};
     for (const k of MODULE_KEYS) map[k] = true;
     for (const r of rows) {
       if (MODULE_KEYS.includes(r.key)) map[r.key] = r.enabled !== false;
     }
-    this.cache = { at: now, map };
     return map;
+  }
+
+  private async readAll(): Promise<Record<string, boolean>> {
+    try {
+      return await this.cache.get();
+    } catch {
+      // never read the switches and none stored yet (database down at boot): the defaults, as before
+      return Object.fromEntries(MODULE_KEYS.map((k) => [k, true]));
+    }
   }
 
   async modules(): Promise<Record<string, boolean>> {
@@ -105,7 +114,7 @@ export class ModuleSwitchesService {
       { $set: { key, enabled, reason: reason.trim(), updated_at: new Date() } },
       { upsert: true },
     );
-    this.cache = null;
+    this.cache.clear();
     this.purgeBus?.purge(['modules']).catch((e: any) => this.logger.error(`purge modules failed: ${e?.message || e}`));
     return { key, enabled };
   }

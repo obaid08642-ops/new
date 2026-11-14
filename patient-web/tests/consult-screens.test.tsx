@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const server = vi.hoisted(() => ({ api: vi.fn(), list: vi.fn(), one: vi.fn(), doctors: vi.fn() }));
 
+vi.mock("@/components-next/consult/auto-refresh", () => ({ AutoRefresh: () => null }));
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn(), replace: vi.fn(), back: vi.fn() }),
   redirect: (to: string) => { throw new Error(`redirect:${to}`); },
@@ -29,19 +30,15 @@ vi.mock("@/components-next/core/core-shell", () => ({
 }));
 vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: async () => "server-only-consult-token" }));
 vi.mock("@/lib/api/upstream", () => ({ callPatientApi: server.api }));
+vi.mock("@/lib/api/outcomes-server", () => ({ getVisitOutcomes: async () => new Response("{}", { status: 404 }), getOutcomesBadge: async () => new Response("{}", { status: 404 }) }));
 vi.mock("@/lib/api/appointments-server", () => ({ getPatientAppointments: server.list, getPatientAppointment: server.one }));
 vi.mock("@/lib/context/CartContext", () => ({ useCart: () => ({ addItem: vi.fn() }) }));
 vi.mock("@/lib/api/doctors-server", () => ({ getPublicDoctors: server.doctors, getPublicDoctor: vi.fn(), getPublicDoctorSlots: vi.fn() }));
 
 import AppointmentsPage from "@/app/[locale]/appointments/page";
 import AppointmentDetailPage from "@/app/[locale]/appointments/[appointmentId]/page";
-import AppointmentSummaryRedirect from "@/app/[locale]/appointments/[appointmentId]/summary/page";
-import FollowUpRedirect from "@/app/[locale]/consultations/follow-up/page";
-import PrescriptionRedirect from "@/app/[locale]/consultations/prescription/page";
-import ClinicLocationRedirect from "@/app/[locale]/consultations/clinic-location/page";
 import BookingStatusPage from "@/app/[locale]/consultations/booking-status/page";
 import CancelReschedulePage from "@/app/[locale]/consultations/cancel-reschedule/page";
-import ClinicConfirmRedirect from "@/app/[locale]/consultations/clinic-confirm/page";
 import DoctorsPage from "@/app/[locale]/consultations/doctors/page";
 import HomeVisitTrackingPage from "@/app/[locale]/consultations/home-visit-tracking/page";
 import WaitingRoomPage from "@/app/[locale]/consultations/virtual-waiting-room/page";
@@ -146,6 +143,31 @@ describe("the appointment screens", () => {
     expect(html).not.toContain("virtual-waiting-room");
   });
 
+  it("PT-54: the past tab leaves out the visits the patient hid, offers to show them, and each finished visit has a Hide button; the hidden view lists only the hidden ones with Show again", async () => {
+    const HIDDEN = "11111111-ad36-422a-a184-629693e7c729";
+    // a fresh Response for every read (a body can be read once)
+    server.list.mockImplementation(async () => json([row({ status: "COMPLETED", doctor_name: "Dr. Shown" }), row({ id: HIDDEN, status: "COMPLETED", doctor_name: "Dr. Hidden" })]));
+    server.api.mockImplementation(async () => json([{ kind: "consultation", id: ID, hidden: false }, { kind: "consultation", id: HIDDEN, hidden: true }]));
+    const past = render(await AppointmentsPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ tab: "past" }) }));
+    expect(server.api).toHaveBeenCalledWith("/unified-bookings/mine?kind=consultation&include_hidden=1", expect.anything(), TOKEN);
+    expect(past).toContain("Dr. Shown");
+    expect(past).not.toContain("Dr. Hidden");
+    expect(past).toContain("Show hidden visits (1)");
+    expect(past).toContain("tab=past&amp;hidden=1");
+    const hiddenView = render(await AppointmentsPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ tab: "past", hidden: "1" }) }));
+    expect(hiddenView).toContain("Dr. Hidden");
+    expect(hiddenView).not.toContain("Dr. Shown");
+    expect(hiddenView).toContain("Back to history");
+  });
+
+  it("PT-54: if the hidden set cannot be read, no visit disappears from the past tab", async () => {
+    server.list.mockResolvedValue(json([row({ status: "COMPLETED", doctor_name: "Dr. Shown" })]));
+    server.api.mockRejectedValue(new Error("offline"));
+    const past = render(await AppointmentsPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ tab: "past" }) }));
+    expect(past).toContain("Dr. Shown");
+    expect(past).not.toContain("Show hidden visits");
+  });
+
   it("the detail shows the actions the status allows: open ones link to the one cancel/reschedule page (journeys#42), done ones the summary section", async () => {
     server.one.mockResolvedValueOnce(json(row()));
     const open = render(await AppointmentDetailPage({ params: Promise.resolve({ locale: "en", appointmentId: ID }) }));
@@ -169,25 +191,18 @@ describe("the appointment screens", () => {
     expect(html).not.toContain("Follow-up recommended");
   });
 
-  it("the merged pages redirect and keep the query", async () => {
-    const go = async (fn: Promise<unknown>) => { try { await fn; } catch (error) { return (error as Error).message; } return "none"; };
-    expect(await go(AppointmentSummaryRedirect({ params: Promise.resolve({ locale: "en", appointmentId: ID }) }))).toBe(`redirect:/en/appointments/${ID}`);
-    expect(await go(FollowUpRedirect({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ id: ID }) }))).toBe(`redirect:/en/appointments/${ID}`);
-    expect(await go(PrescriptionRedirect({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID }) }))).toBe(`redirect:/en/appointments/${ID}`);
-    expect(await go(PrescriptionRedirect({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({}) }))).toBe("redirect:/en/appointments");
-    expect(await go(ClinicConfirmRedirect({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID, view: "location" }) }))).toBe(`redirect:/en/consultations/booking-status?appointmentId=${ID}&view=location`);
-    expect(await go(ClinicLocationRedirect({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID }) }))).toBe(`redirect:/en/consultations/booking-status?view=location&appointmentId=${ID}`);
-  });
-
   it("booking status, cancel and reschedule, clinic confirm and the waiting room read the one appointment and gate on its status", async () => {
-    server.api.mockImplementation(async (path: string) => (path === "/system-config/public" ? json({ cancellation_policy: { full_hours: 24, half_hours: 12, half_refund_percent: 50 } }) : json(row({ slot_start: new Date(Date.now() + 48 * 3600000).toISOString() }))));
+    server.api.mockImplementation(async (path: string) => (path === "/system-config/public" ? json({ cancellation_policy: { full_hours: 24, half_hours: 12, half_refund_percent: 50 } }) : json(row({ slot_start: new Date(Date.now() + 48 * 3600000).toISOString(), cancellation: { refund_now: { percent: 100, amount: 115 } } }))));
     const status = render(await BookingStatusPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID }) }));
     expect(status).toContain("Enter waiting room");
     const cancel = render(await CancelReschedulePage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID }) }));
     expect(cancel).toContain("Cancellation and refund policy");
     expect(cancel).toContain("24 hours or more before: 100% refund");
     expect(cancel).toContain("12 to 24 hours before: 50% refund");
+    // the refund for cancelling now is the server's own figure on the appointment, not one the page computes from the policy
     expect(cancel).toContain("Expected refund: 100%");
+    server.api.mockImplementation(async (path: string) => (path === "/system-config/public" ? json({ cancellation_policy: { full_hours: 24, half_hours: 12, half_refund_percent: 50 } }) : json(row({ slot_start: new Date(Date.now() + 48 * 3600000).toISOString(), cancellation: { refund_now: { percent: 50, amount: 58 } } }))));
+    expect(render(await CancelReschedulePage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID }) }))).toContain("Expected refund: 50%");
     // the numbers are the server's: another policy changes the sentences, and without one nothing is assumed
     server.api.mockImplementation(async (path: string) => (path === "/system-config/public" ? json({ cancellation_policy: { full_hours: 48, half_hours: 6, half_refund_percent: 30 } }) : json(row())));
     expect(render(await CancelReschedulePage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID }) }))).toContain("48 hours or more before: 100% refund");
@@ -214,12 +229,15 @@ describe("the appointment screens", () => {
   });
 
   it("the home visit steps follow the server's status, and an unknown status marks none", async () => {
-    // The backend has no en-route state; CHECKED_IN (doctor at the door) is the "arrived" step (needs-review issue 406).
+    // CHECKED_IN and ARRIVED (doctor at the door) are the "arrived" step; EN_ROUTE is the step before it.
     server.one.mockResolvedValueOnce(json(row({ service_type: "home", status: "CHECKED_IN" })));
     const html = render(await HomeVisitTrackingPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID }) }));
     expect(html).toContain("Provider arrived");
-    expect(html).not.toContain("Provider on the way");
     expect(html).toContain('aria-current="step"');
+    server.one.mockResolvedValueOnce(json(row({ service_type: "home", status: "EN_ROUTE" })));
+    const enRoute = render(await HomeVisitTrackingPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID }) }));
+    expect(enRoute).toContain("Provider on the way");
+    expect(enRoute).not.toContain("Unknown status");
     server.one.mockResolvedValueOnce(json(row({ status: "MYSTERY" })));
     expect(render(await HomeVisitTrackingPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID }) }))).toContain("Unknown status");
   });
@@ -248,6 +266,23 @@ describe("the booking screen", () => {
     expect(html).toContain("Cash");
     expect(html).toContain("Home visit");
     expect(html).not.toContain("booking_failed");
+  });
+
+  it("PT-08: the booking offers a medical report request, worded as a request and never as sick leave", () => {
+    const html = render(<BookingFlow doctorId="doc-1" locale="en" doctor={{ id: "doc-1", name: "Doctor One", specialty: "Cardiology", price: 150, online: true, clinic: true, home: false, acceptsInsurance: false }} />);
+    expect(html).toContain("I need a medical report with a recommended rest period");
+    expect(html).toContain("A request to the doctor, who decides. It is not a guarantee.");
+    expect(html.replace("Official sick leave is issued through Seha.", "")).not.toMatch(/sick leave/i);
+  });
+
+  it("PT-03: a guardian booking for a family member sees who the visit is for and can switch back to themselves; without a member there is neither", () => {
+    const doctor = { id: "doc-1", name: "Doctor One", specialty: "Cardiology", price: 150, online: true, clinic: true, home: false, acceptsInsurance: false };
+    const forMember = render(<BookingFlow doctorId="doc-1" locale="en" doctor={doctor} bookingFor={{ id: "member-1", name: "Test Child" }} />);
+    expect(forMember).toContain("Booking for Test Child");
+    expect(forMember).toContain("Book for myself instead");
+    const forSelf = render(<BookingFlow doctorId="doc-1" locale="en" doctor={doctor} />);
+    expect(forSelf).not.toContain("Booking for");
+    expect(forSelf).not.toContain("Book for myself instead");
   });
 
   it("shows the cancellation and refund terms before the payment card when the page passes them (decision 26)", () => {

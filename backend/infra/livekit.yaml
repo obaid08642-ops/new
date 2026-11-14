@@ -19,10 +19,10 @@ turn:
     - 1.2.3.4
 
 # Webhooks to forward room, participant, and recording events to the backend
-webhooks:
-  - apiKey: "change_this_livekit_key"
-    urls:
-      - "http://backend-api:3000/webhooks/livekit"
+webhook:
+  api_key: "change_this_livekit_key"
+  urls:
+    - "http://backend:8002/api/calls/webhook"
 
 # RTCP/RTP settings
 rtc:

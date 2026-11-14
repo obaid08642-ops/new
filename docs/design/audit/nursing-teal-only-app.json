@@ -1,0 +1,103 @@
+{
+ "slice": "nursing-teal-only-app",
+ "batch": "design-decision-7",
+ "app": "patient-app",
+ "screens": [
+  {
+   "route": "/nursing",
+   "elements": [
+    [
+     "(tabs)/nursing.tsx:166 EmptyState icon",
+     "KEEP: tealFg/tealBg icon chip",
+     "ok"
+    ],
+    [
+     "NursingKit.tsx:77 ServiceCard body (was teal wash)",
+     "CHANGE: now bg.surface + hairline; glyph chip :79 stays teal",
+     "fixed"
+    ],
+    [
+     "NursingKit.tsx:171 package card (was PackageCard teal wash)",
+     "CHANGE: new NursingPackageCard: white card, ink primary button, glyph chip :173 teal",
+     "fixed"
+    ],
+    [
+     "(tabs)/nursing.tsx:139 ActiveFilters chips (was teal)",
+     "CHANGE: tone coral-soft, the pattern of other service screens",
+     "fixed"
+    ]
+   ]
+  },
+  {
+   "route": "/nursing/service-info",
+   "elements": [
+    [
+     "service-info.tsx:83 DetailHead",
+     "KEEP: top hero strip of the screen + glyph chip",
+     "ok"
+    ],
+    [
+     "service-info.tsx:86-87 Tag neutral / blue",
+     "KEEP: not nursing tone",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/nursing/service-details",
+   "elements": [
+    [
+     "NursingKit.tsx:118 NurseCard glyph chip",
+     "KEEP: icon chip; card already white",
+     "ok"
+    ],
+    [
+     "service-details.tsx:120 availability Tag mint",
+     "KEEP: mint status tone, not nursing teal",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/nursing/nurse-profile",
+   "elements": [
+    [
+     "nurse-profile.tsx (no teal use found)",
+     "KEEP: no CARE_TONE or c.service use",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/nursing/visits",
+   "elements": [
+    [
+     "visits.tsx:63 status tag",
+     "KEEP: status tones (success/warning/info), not teal",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/nursing/insurance-status",
+   "elements": [
+    [
+     "insurance-status.tsx:70 EmptyState icon",
+     "KEEP: icon chip",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/nursing/live-tracking",
+   "elements": [
+    [
+     "live-tracking.tsx:189 PersonRow icon",
+     "KEEP: icon chip",
+     "ok"
+    ]
+   ]
+  }
+ ],
+ "needsReview": []
+}

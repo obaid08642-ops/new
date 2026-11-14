@@ -1,11 +1,12 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException, SetMetadata } from '@nestjs/common';
+import { Injectable, Logger, CanActivate, ExecutionContext, ForbiddenException, SetMetadata } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { createHash, randomBytes, timingSafeEqual } from 'crypto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { verifyAuthenticationResponse } from '@simplewebauthn/server';
+import { generateAuthenticationOptions, verifyAuthenticationResponse } from '@simplewebauthn/server';
 import type { AuthenticatorTransportFuture } from '@simplewebauthn/server';
 import Redis from 'ioredis';
+import { webauthnOrigins, webauthnRpId } from './webauthn-config';
 import { PasskeyCredential } from '../modules/auth/schemas/passkey-credential.schema';
 
 export const STEP_UP_KEY = 'stepUp';
@@ -28,19 +29,47 @@ const store = new Map<string, StepUpRecord>();
  */
 @Injectable()
 export class StepUpService {
+  private static readonly logger = new Logger(StepUpService.name);
   constructor(@InjectModel(PasskeyCredential.name) private passkeyModel: Model<any>) {}
 
   private get origin() {
-    return process.env.PASSKEY_ORIGIN || process.env.APP_ORIGIN || 'http://localhost:3001';
+    return webauthnOrigins();
   }
   private get rpID() {
-    return process.env.PASSKEY_RP_ID || new URL(this.origin).hostname;
+    return webauthnRpId();
   }
 
-  private async takeChallenge(key: string): Promise<string | null> {
+  /** Challenge for a step-up assertion; consumed by issueFromAssertion. */
+  async startAssertion(userId: string) {
+    const creds: any[] = await this.passkeyModel.find({ user_id: userId }).lean();
+    if (!creds.length) throw new ForbiddenException('no_passkey_registered');
+    const options = await generateAuthenticationOptions({
+      rpID: this.rpID,
+      userVerification: 'required',
+      allowCredentials: creds.map((c) => ({
+        id: c.credential_id,
+        transports: (c.transports?.length ? c.transports : ['internal', 'hybrid']) as AuthenticatorTransportFuture[],
+      })),
+    });
+    await this.setChallenge(`webauthn_stepup:${userId}`, options.challenge, 300);
+    return options;
+  }
+
+  protected async setChallenge(key: string, challenge: string, ttl: number): Promise<void> {
     const client = new Redis(process.env.REDIS_URL || 'redis://127.0.0.1:6379');
     try {
-      return await client.get(key);
+      await client.set(key, challenge, 'EX', ttl);
+    } finally {
+      await client.disconnect();
+    }
+  }
+
+  protected async takeChallenge(key: string): Promise<string | null> {
+    const client = new Redis(process.env.REDIS_URL || 'redis://127.0.0.1:6379');
+    try {
+      const value = await client.get(key);
+      if (value) await client.del(key); // single-use, like the login challenge
+      return value;
     } finally {
       await client.disconnect();
     }
@@ -66,7 +95,10 @@ export class StepUpService {
    * public key, which is the same proof a login requires.
    */
   async issueFromAssertion(userId: string, action: string, response: any): Promise<string> {
-    const cred: any = await this.passkeyModel.findOne({ user_id: userId, credential_id: response?.id }).lean();
+    // `response` is user-provided: only a plain string may reach the query, and both fields are matched with $eq so an object such as {$ne: ''} is never read as an operator.
+    const credentialId = typeof response?.id === 'string' ? response.id : '';
+    if (!credentialId) throw new ForbiddenException('unknown_credential');
+    const cred: any = await this.passkeyModel.findOne({ user_id: { $eq: String(userId) }, credential_id: { $eq: credentialId } }).lean();
     if (!cred) throw new ForbiddenException('unknown_credential');
     const challenge = await this.takeChallenge(`webauthn_stepup:${userId}`);
     if (!challenge) throw new ForbiddenException('challenge_expired');
@@ -85,7 +117,9 @@ export class StepUpService {
           transports: (cred.transports || []) as AuthenticatorTransportFuture[],
         },
       });
-    } catch {
+    } catch (e: any) {
+      // Reason only: never the credential id, user id, challenge or signature.
+      StepUpService.logger.warn(`step_up_rejected rp=${this.rpID} origins=${this.origin.join(',')} reason=${e?.message}`);
       throw new ForbiddenException('passkey_verification_failed');
     }
     if (!verification.verified) throw new ForbiddenException('passkey_verification_failed');

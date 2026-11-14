@@ -7,11 +7,11 @@ export const pharmacyFixture = {
   nameAr: 'صيدلية نبض', nameEn: 'Nabd Pharmacy', type: 'community', languages: ['ar', 'en'],
   managerName: 'Khalid Omar', managerPhone: '0501234567', managerEmail: 'Pharmacy@Example.com',
   password: 'Passw0rd!x', confirmPass: 'Passw0rd!x', pharmacistName: 'Mohamed Ahmed',
-  crNumber: '1010101010', mohLicense: 'MOH-PHR-12345', sfdaNumber: 'SFDA-998877', iban: IBAN,
+  crNumber: '1010101010', mohLicense: 'MOH-PHR-12345', licenseExpiry: '2099-12-31', sfdaNumber: 'SFDA-998877', iban: IBAN,
   accountHolderName: 'Nabd Pharmacy Co', taxNumber: '300123456700003',
   crUri: 'file:///cache/cr.jpg', mohUri: 'file:///cache/moh.jpg', sfdaUri: 'file:///cache/sfda.jpg', logoUri: 'file:///cache/logo.jpg',
   region: 'riyadh', city: 'riyadh_city', district: 'olaya', address: 'Prince Sultan Road',
-  location: LOCATION, deliveryRadius: 8, hasDelivery: true, hasOwnDrivers: true,
+  location: LOCATION, deliveryRadius: 8, hasDelivery: true, ownDelivery: { enabled: true, zoneType: 'radius' as const, radius: '8', districts: [] as string[], fee: '0', freeOver: '' },
   workDays: ['SUN', 'MON', 'TUE'], is24_7: false, vacationDate: '2026-12-01',
   shiftType: 'both' as const, openTime: '08:00', closeTime: '14:00', eveningOpenTime: '16:00', eveningCloseTime: '22:00',
   enabledCategories: ['otc', 'rx'], rxDispensing: true, otcSelling: true,
@@ -24,9 +24,9 @@ export const pharmacyFixture = {
 const doctorBase = {
   legalName: 'Ahmed Ali Alharbi', nameAr: 'د. أحمد', nameEn: 'Dr. Ahmed', email: 'doctor@example.com',
   phone: '0551234567', password: 'Passw0rd!x', confirmPass: 'Passw0rd!x', gender: 'male',
-  scfhsNumber: '12345678', nationalId: '1000000000', iban: IBAN, accountHolderName: 'Ahmed Ali Alharbi',
+  scfhsNumber: '12345678', licenseExpiry: '2099-12-31', nationalId: '1000000000', iban: IBAN, accountHolderName: 'Ahmed Ali Alharbi',
   idFrontUri: 'file:///cache/id.jpg', scfhsDocUri: 'file:///cache/scfhs.jpg', extraDocUri: 'file:///cache/extra.jpg',
-  specialty: 'cardiology', degree: 'consultant', yearsExp: '12', bio: 'Cardiologist', profilePhotoUri: 'file:///cache/me.jpg',
+  specialty: 'cardiology', subSpecialty: 'Interventional cardiology, Heart failure', degree: 'consultant', yearsExp: '12', bio: 'Cardiologist', profilePhotoUri: 'file:///cache/me.jpg',
   clinicImagesUris: ['file:///cache/c0.jpg', 'https://cdn.test/old.jpg'],
   offersClinic: true, clinicPrice: '200', clinicDuration: '30',
   offersHome: true, homePrice: '350', homeDuration: '45', homeRadius: 10, homeTransportFee: true, homeTransportPrice: '30',
@@ -51,7 +51,7 @@ export const doctorUnifiedFixture = {
 export const facilityFixture = {
   facilityNameAr: 'مستشفى نبض', facilityNameEn: 'Nabd Hospital', facilityType: 'hospital',
   managerName: 'Sara Omar', managerPhone: '0561234567', managerEmail: 'hospital@example.com', password: 'Passw0rd!x', confirmPass: 'Passw0rd!x',
-  languages: ['ar', 'en', 'ur'], crNumber: '1010202020', mohLicense: 'MOH-H-777', crDocUri: 'file:///cache/cr.jpg', mohDocUri: 'https://cdn.test/moh-old.jpg',
+  languages: ['ar', 'en', 'ur'], crNumber: '1010202020', mohLicense: 'MOH-H-777', licenseExpiry: '2099-12-31', crDocUri: 'file:///cache/cr.jpg', mohDocUri: 'https://cdn.test/moh-old.jpg',
   facilityLogoUri: 'file:///cache/logo.jpg', facilityImagesUris: ['file:///cache/f0.jpg', 'file:///cache/f1.jpg'],
   region: 'riyadh', city: 'riyadh_city', district: 'olaya', fullAddress: 'Olaya Street 1', location: LOCATION,
   subProviders: [
@@ -72,10 +72,10 @@ export const facilityFixture = {
 const nursingBase = {
   nameAr: 'تمريض نبض', nameEn: 'Nabd Nursing', gender: 'female', languages: ['ar', 'fil'],
   managerName: 'Huda Salem', managerPhone: '0571234567', managerEmail: 'nurse@example.com', password: 'Passw0rd!x', confirmPass: 'Passw0rd!x',
-  scfhsNumber: '4455667', scfhsExpiry: '2027-05-01', nationalId: '1090000000', crNumber: '1010303030', mohLicense: 'MOH-N-5',
+  scfhsNumber: '4455667', scfhsExpiry: '2099-12-31', nationalId: '1090000000', crNumber: '1010303030', mohLicense: 'MOH-N-5',
   iban: IBAN, accountHolderName: 'Huda Salem',
   scfhsUri: 'file:///cache/scfhs.jpg', crUri: 'file:///cache/cr.pdf', mohUri: 'file:///cache/moh.jpg', photoUri: 'file:///cache/photo.jpg',
-  enabledServices: ['injection', 'wound_care'], pricingModels: ['per_visit', 'per_hour'], priceVisit: '120', priceHour: '60', priceDay: '', priceMonth: '',
+  enabledServices: ['injection', 'wound_care'], servicePrices: { injection: '40', wound_care: '1,200' }, pricingModels: ['per_visit', 'per_hour'], priceVisit: '120', priceHour: '60', priceDay: '', priceMonth: '',
   city: 'riyadh_city', district: 'olaya', address: 'Olaya 5', location: LOCATION, coverageRadius: 12, region: 'riyadh',
   workDays: ['SUN', 'MON', 'WED'], shiftType: 'both' as const, openTime: '08:00', closeTime: '13:00', eveningOpenTime: '17:00', eveningCloseTime: '21:00',
   is24_7: false, vacationDate: '2026-12-15',
@@ -88,7 +88,7 @@ export const nursingCompanyFixture = { ...nursingBase, mode: 'company' as const,
 const diagnosticsBase = {
   nameAr: 'مركز نبض', nameEn: 'Nabd Center', managerName: 'Reem Khan', managerPhone: '0581234567', managerEmail: 'center@example.com',
   techOfficerName: 'Tariq Ali', techOfficerScfhs: '778899', password: 'Passw0rd!x', confirmPass: 'Passw0rd!x',
-  crNumber: '1010404040', mohLicense: 'MOH-C-9', iban: IBAN, accountHolderName: 'Nabd Center Co', taxNumber: '300999888700003', languages: ['ar', 'en'],
+  crNumber: '1010404040', mohLicense: 'MOH-C-9', licenseExpiry: '2099-12-31', iban: IBAN, accountHolderName: 'Nabd Center Co', taxNumber: '300999888700003', languages: ['ar', 'en'],
   crUri: 'file:///cache/cr.jpg', mohUri: 'file:///cache/moh.pdf', logoUri: 'file:///cache/logo.jpg',
   region: 'riyadh', city: 'riyadh_city', district: 'olaya', address: 'Olaya 9', location: LOCATION,
   hasHomeSvc: true, homeRadius: 6, homeCollectorCount: '3', homeCollectionFee: '20', targetGenders: 'both', homeCollectorGender: 'female' as const,
@@ -104,7 +104,7 @@ export const labFixture = { ...diagnosticsBase, labCategory: 'Class A', labAccre
 export const radiologyFixture = { ...diagnosticsBase, radSafetyLicense: 'RAD-SAF-1', radEquipment: 'MRI 1.5T, X-ray' };
 
 export const pharmacy24Fixture = {
-  ...pharmacyFixture, type: 'hospital', is24_7: true, hasDelivery: false, hasOwnDrivers: false, deliveryRadius: 0, shiftType: 'morning' as const,
+  ...pharmacyFixture, type: 'hospital', is24_7: true, hasDelivery: false, ownDelivery: { enabled: false, zoneType: 'radius' as const, radius: '', districts: [] as string[], fee: '0', freeOver: '' }, deliveryRadius: 0, shiftType: 'morning' as const,
   workDays: [], cashOnly: true, acceptedInsurance: [], expressDelivery: false, vacationDate: '', logoUri: '', rxDispensing: false,
 };
 export const labNoHomeFixture = {

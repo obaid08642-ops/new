@@ -1,0 +1,23 @@
+{
+  "slice": "web-insurance-add-policy", "batch": 2, "app": "patient-web",
+  "screens": [
+    { "route": "/insurance/add-policy",
+      "elements": [
+        ["Class chips (after a company is chosen), now a shared ClassChoices component", "GET /insurance/companies/:id/networks via /api/insurance/networks", "ok"],
+        ["BFF zod: class and plan_class were stripped before the upstream call, so the chosen class was never saved; now forwarded", "POST /api/insurance/policy -> /insurance/save-policy (SavePolicyDto class, plan_class)", "fixed"],
+        ["Prefill finds the saved company by insurer_id first (name match failed when the page language differed from the stored Arabic name)", "GET /insurance/my-policy policy.insurer_id", "fixed"]
+      ] },
+    { "route": "/insurance",
+      "elements": [
+        ["Policy card title: company name in the page language", "my-policy policy.company_name (Arabic) + company_name_en via localizedText", "fixed"]
+      ] },
+    { "route": "/insurance/requests/[requestId]",
+      "elements": [
+        ["Policy panel company name in the page language", "my-policy company_name + company_name_en via localizedText", "fixed"]
+      ] }
+  ],
+  "needsReview": [
+    { "route": "/insurance", "element": "Company name: stored Arabic only", "kind": "backend", "note": "my-policy returns company_name (always name_ar) plus company_name_en only; ur/hi/bn/fil show English via the shared helper; storing company_code/id with both names would make this independent of the catalogue row.", "file": "patient-web/app/[locale]/insurance/page.tsx", "line": 161, "backend": "backend/src/common/insurance-policy.ts:85" },
+    { "route": "/insurance/add-policy", "element": "Insurer list contains test-named insurers (Insure ins2a757 ...)", "kind": "owner", "note": "Seed/test data in the local catalogue; nothing changed in the client.", "file": "patient-web/app/[locale]/insurance/add-policy/page.tsx", "line": 31 }
+  ]
+}

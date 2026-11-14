@@ -1,8 +1,21 @@
+import { MAX_SLOT_CAPACITY, confirmSeat, ensureSeatIndex, releaseSeat, reserveSeat, slotCapacityOf, slotStartOf, type SeatBookingStatus } from '../labs/lab-slot-seats';
+import { stampAcceptance } from '../../common/refund-policy-stamp';
+import { refundPolicyAcceptance, type RefundPolicyAcceptance } from '../../common/refund-policy-acceptance';
+import { resolveFamilyMemberId } from '../../common/family-member';
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Optional, ServiceUnavailableException } from '@nestjs/common';
+import { withholdLegacyBeforeAcceptance } from '../provider-jobs/provider-job-privacy';
+import { assertPaymentMethod } from '../../common/payment-policy';
+import { assertScanned } from '../storage/pending-scan';
+import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
+import { SearchService } from '../search/search.service';
+import { RADIOLOGY_TYPES, byRelevance, matchedIds } from '../search/catalogue-search';
 import { randomUUID } from 'crypto';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Connection, Model, Types } from 'mongoose';
+import { byRating, paged, parsePage, withProviderRating, type CataloguePage } from '../../common/catalogue-page';
+import { loadOffers, ownPrices, withOfferSummary, withOffers, type OfferSummary } from '../../common/service-offers';
 import { pick } from '../../common/sanitize';
+import { escapeRegex } from '../../common/slug.util';
 import { pickAttribution } from '../../common/attribution';
 
 /** P3.3 (F15): writable catalog fields — id/_id/active/governance flags excluded. */
@@ -39,10 +52,57 @@ const RADIOLOGY_PREPARATION_TEXT: Record<string, [string, string]> = {
 const ALLOWED_ROLES_PROVIDER = ['radiology', 'admin', 'hospital'];
 
 import { nearestFirst } from '../provider/services/nearest-first';
+import { NAME_PROJECTION, withItemNames, withScanNames } from '../../common/booking-names';
 
 /** Public card for a provider in carousels and price lists: no contact or account details. */
 function publicProvider(p: any) {
   return { id: p.account_id, name_ar: p.name_ar ?? null, name_en: p.name_en ?? null, logo: p.logo ?? null, rating: p.rating_count > 0 ? p.rating_avg : null, rating_count: p.rating_count || 0 };
+}
+
+/** Issue 1833: a radiology search matches every name field, in any language, case-insensitively. The text is escaped. */
+export const RADIOLOGY_NAME_FIELDS = ['name_ar', 'name_en'] as const;
+export function radiologySearchClause(search: string): { $or: Array<Record<string, RegExp>> } {
+  const pattern = new RegExp(escapeRegex(search.trim()), 'i');
+  return { $or: RADIOLOGY_NAME_FIELDS.map((field) => ({ [field]: pattern })) };
+}
+
+
+/** Two people: whoever uploaded the files or sent the report for review cannot publish it. True when this user did either. */
+export function reportHandledBy(b: any, userId: unknown): boolean {
+  return (Array.isArray(b?.state_history) ? b.state_history : []).some((h: any) => String(h?.by_user_id) === String(userId)
+    && [RadiologyBookingState.REPORT_DRAFT, RadiologyBookingState.UNDER_REVIEW].includes(h?.to));
+}
+
+/** What the app needs to show the publish button honestly: may this user approve this report now, and did they handle it themselves. */
+export function reportApprovalFor(b: any, userId: unknown): { report_can_approve: boolean; report_handled_by_me: boolean } {
+  const handled = reportHandledBy(b, userId);
+  return { report_can_approve: (b?.state || b?.status) === RadiologyBookingState.UNDER_REVIEW && !handled, report_handled_by_me: handled };
+}
+
+
+export interface RadiologySchedule {
+  working_days?: unknown; morning_shift?: { from?: unknown; to?: unknown } | null; evening_shift?: { from?: unknown; to?: unknown } | null; emergency_available?: unknown;
+}
+const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+/** Radiology seats live in their own collection (same atomic claim as the labs); a scan that is done, aborted or cancelled no longer holds one. */
+export const RADIOLOGY_SEAT_COLLECTION = 'radiology_slot_seats';
+export const RADIOLOGY_SEAT_FREE_STATES = ['CANCELLED', 'SCAN_ABORTED', 'REPORT_READY', 'REPORT_PUBLISHED'];
+
+/**
+ * The opening windows of one weekday (0 = Sunday) from the schedule the centre saved on its availability screen
+ * (`provider_settings.radiology_schedule`, applied when the admin approves it): seven booleans from Sunday, and a morning and an
+ * evening shift as `{from, to}`. A closed day, or a shift without a valid HH:MM pair, gives no window.
+ */
+export function radiologyWindows(schedule: RadiologySchedule | null | undefined, weekday: number): Array<{ open: string; close: string }> {
+  const days = Array.isArray(schedule?.working_days) ? (schedule!.working_days as unknown[]) : null;
+  if (!days || days[weekday] !== true) return [];
+  const out: Array<{ open: string; close: string }> = [];
+  for (const shift of [schedule!.morning_shift, schedule!.evening_shift]) {
+    const from = String(shift?.from ?? ''); const to = String(shift?.to ?? '');
+    if (HHMM.test(from) && HHMM.test(to)) out.push({ open: from, close: to });
+  }
+  return out;
 }
 
 @Injectable()
@@ -61,6 +121,7 @@ export class RadiologyOpsService {
     @Optional() private readonly insurance?: InsuranceFlowService,
     @Optional() private readonly approvals?: ApprovalWorkflowService,
     @Optional() @InjectConnection() private readonly conn?: Connection,
+    @Optional() private readonly searchEngine?: SearchService,
   ) {}
 
   // ──────────────────────────────────────────────
@@ -98,6 +159,7 @@ export class RadiologyOpsService {
   private async privateProviderStorage(id: string, user: any, requirePdf = false): Promise<any> {
     const object: any = await this.storageObjects.findOne({ id, owner_account_id: user.id, visibility: 'private', deleted: false }).lean();
     if (!object) throw new ForbiddenException('private_storage_object_not_owned');
+    assertScanned(object); // a file still in quarantine (423) cannot be attached to a result
     if (requirePdf && object.mime !== 'application/pdf') throw new BadRequestException('report_pdf_storage_object_required');
     return object;
   }
@@ -128,6 +190,8 @@ export class RadiologyOpsService {
     await b.save();
     // MODULE 16: Emit notification
     this.events.emit('radiology.state_changed', { bookingId: id, state: targetState, patientId: b.patient_id });
+    // The cancel goes back to the card: the finance listener refunds what was paid (nothing was scanned yet).
+    if (targetState === RadiologyBookingState.CANCELLED) this.events.emit('radiology.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id, prior_state: current, cancelled_by: user?.id === b.patient_id ? 'patient' : 'provider' });
     return b;
   }
 
@@ -261,14 +325,26 @@ export class RadiologyOpsService {
     const b = await this.findBooking(id, user);
     if (!b) throw new NotFoundException();
     if ((b.state || b.status) !== RadiologyBookingState.UNDER_REVIEW) throw new BadRequestException('Report must be UNDER_REVIEW to approve');
-    b.report_status = 'ready';
-    b.report_approved_by = user.id;
-    b.report_approved_at = new Date();
-    (b.state_history = b.state_history || []).push({ from: b.state, to: RadiologyBookingState.REPORT_READY, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'Report approved and published by radiologist' });
-    b.state = RadiologyBookingState.REPORT_READY;
-    if (b.status !== undefined) b.status = RadiologyBookingState.REPORT_READY as any;
-    b.markModified?.('state_history');
-    await b.save();
+    // Two people: whoever uploaded the files or sent the report for review cannot publish it.
+    if (reportHandledBy(b, user.id)) throw new ForbiddenException('report_reviewer_must_differ_from_uploader');
+    // Through the workflow engine: publishing the report completes the service, and `service.completed` (once) is what credits the
+    // centre's earning. Writing the state directly left the report published but the wallet empty.
+    const fromState = b.state || b.status;
+    await this.engine.apply({
+      kind: 'radiology', entity_id: b.id, from_domain: fromState, to_domain: RadiologyBookingState.REPORT_READY,
+      actor_account_id: user.id, actor_role: user.role, patient_account_id: b.patient_id, reason: 'report_published',
+      mutate: async () => {
+        b.report_status = 'ready';
+        b.report_approved_by = user.id;
+        b.report_approved_at = new Date();
+        (b.state_history = b.state_history || []).push({ from: b.state, to: RadiologyBookingState.REPORT_READY, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'Report approved and published by radiologist' });
+        b.state = RadiologyBookingState.REPORT_READY;
+        if (b.status !== undefined) b.status = RadiologyBookingState.REPORT_READY as any;
+        b.markModified?.('state_history');
+        await b.save();
+        return b;
+      },
+    });
     // MODULE 11: Doctor auto-routing if referral exists
     if (b.referring_doctor_id) {
       this.events.emit('radiology.doctor_notify', { bookingId: id, doctorId: b.referring_doctor_id, patientId: b.patient_id, pdfUrl: b.signed_report_pdf_url, dicomUrl: b.dicom_url });
@@ -286,7 +362,7 @@ export class RadiologyOpsService {
   }
 
   // ──────────────────────────────────────────────
-  // PILLAR 4: Insurance NPHIES Gatekeeper
+  // PILLAR 4: Insurance approval gate (the provider records the insurer's decision; nothing here asks an insurer)
   // ──────────────────────────────────────────────
   async processInsuranceApproval(id: string, user: any, body: { approval_code: string; copay: number }) {
     const b = await this.findBooking(id, user);
@@ -316,7 +392,7 @@ export class RadiologyOpsService {
     b.insurance_copay = copay;
     b.insurance_status = 'approved';
     const nextState = copay > 0 ? RadiologyBookingState.WAITING_COPAY : RadiologyBookingState.CONFIRMED;
-    (b.state_history = b.state_history || []).push({ from: b.state, to: nextState, by_user_id: user.id, by_role: user.role, at: new Date(), note: `NPHIES approved. Code: ${body.approval_code}. Copay: ${copay} SAR` });
+    (b.state_history = b.state_history || []).push({ from: b.state, to: nextState, by_user_id: user.id, by_role: user.role, at: new Date(), note: `Insurance approved. Reference: ${body.approval_code}. Copay: ${copay} SAR` });
     b.state = nextState;
     await b.save();
     this.events.emit('radiology.insurance_approved', { bookingId: id, patientId: b.patient_id, copay });
@@ -329,12 +405,27 @@ export class RadiologyOpsService {
   async rescheduleBooking(id: string, user: any, body: { new_date: string; reason: string }) {
     const b = await this.findBooking(id, user);
     if (!b) throw new NotFoundException();
+    if (![RadiologyBookingState.PENDING, RadiologyBookingState.NEW_REQUEST, RadiologyBookingState.CONFIRMED].includes((b.state || b.status) as any)) throw new BadRequestException('cannot_reschedule');
+    const when = new Date(body?.new_date);
+    if (Number.isNaN(when.getTime()) || when.getTime() < Date.now()) throw new BadRequestException('slot_expired');
     const oldDate = b.scheduled_at;
-    b.scheduled_at = new Date(body.new_date);
+    // moving to another time slot takes a seat there first (the same capacity rule as a new booking) and gives the old one back
+    const newSlot = slotStartOf(when);
+    if (b.provider_account_id && newSlot.getTime() !== slotStartOf(oldDate).getTime()) {
+      const seatProfile: any = await this.profileModel.findOne({ account_id: { $eq: b.provider_account_id } }, { slot_capacity: 1 }).lean();
+      const seats: any = this.seatCollection();
+      await ensureSeatIndex(seats);
+      const seat = await reserveSeat(seats, { provider_account_id: b.provider_account_id, slot_start: newSlot, capacity: slotCapacityOf(seatProfile), booking_id: b.id }, (id) => this.seatBookingStatus(id));
+      if (seat === null) throw new BadRequestException('slot_taken');
+      await seats.deleteMany({ booking_id: b.id, slot_start: { $ne: newSlot } });
+      await confirmSeat(seats, b.id).catch(() => undefined);
+    }
+    b.scheduled_at = when;
     b.reschedule_reason = body.reason;
     (b.state_history = b.state_history || []).push({ from: b.state, to: b.state, by_user_id: user.id, by_role: user.role, at: new Date(), note: `Rescheduled from ${oldDate} to ${b.scheduled_at}. Reason: ${body.reason}` });
     await b.save();
     this.events.emit('radiology.rescheduled', { bookingId: id, patientId: b.patient_id, newDate: b.scheduled_at });
+    this.events.emit('booking.rescheduled', { entity_type: 'radiology_booking', entity_id: b.id, actor_role: user.role, patient_account_id: b.patient_id, meta: { new_date: b.scheduled_at } });
     return b;
   }
 
@@ -360,6 +451,7 @@ export class RadiologyOpsService {
       patient_label_en: this._stateLabel(b.state, 'en'),
       scheduled_at: b.scheduled_at,
       preparation_confirmed: b.preparation_confirmed,
+      technician: await this.technicianView(b),
       steps,
     };
   }
@@ -436,8 +528,24 @@ export class RadiologyOpsService {
     const q: any = { is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' };
     if (opts.modality) q.modality = { $eq: opts.modality };
     if (opts.body_part) q.body_part = { $eq: opts.body_part };
-    if (opts.search) q.$text = { $search: opts.search };
-    if (opts.home_only) q.home_visit_supported = true;
+    // Issue 1833: the name search reads all six name fields (no text index needed for the 34 scans in the catalogue).
+    // the search box uses the home search's engine (typo tolerance, ar/en synonyms); its own text match is the fallback
+    const matched = opts.search?.trim() ? await matchedIds(this.searchEngine, opts.search, RADIOLOGY_TYPES) : null;
+    if (opts.search?.trim()) { if (matched) q.id = { $in: matched }; else q.$or = radiologySearchClause(opts.search).$or; }
+    const page = parsePage(opts.page, opts.limit);
+    // 2026-10-28: the list is the CATALOGUE; each scan carries what providers offer for it (count, from-price, where, insurance). The home and insurance
+    // filters read those offers, so a scan nobody offers yet is still listed (and found by "all") but never by "at home" or "insurance".
+    const finish = async <T extends { id: string }>(rows: T[]): Promise<Array<T & OfferSummary> | CataloguePage<T & OfferSummary>> => {
+      const enriched = await withOfferSummary(this.svcModel.db as never, 'radiology', rows, { home_only: !!opts.home_only, insurance: !!opts.insurance });
+      return page ? paged(enriched, page) : enriched;
+    };
+    // every scan carries its category (= its modality) so a client can pick the illustration
+    const withCategory = <T extends { modality?: string }>(rows: T[]) => rows.map((r) => ({ ...r, category: r.modality ?? null }));
+    // the centre performs the scan when its equipment_list holds the scan id or its modality (same rule as compatibleProviders)
+    const performs = (svc: any, centre: any) => {
+      const has: unknown[] = Array.isArray(centre.equipment_list) ? centre.equipment_list : [];
+      return has.includes(svc.id) || (!!svc.modality && has.includes(svc.modality));
+    };
 
     // #623: "nearest" orders scans by the closest approved centre that performs them (same rule as
     // compatibleProviders: the centre's equipment_list holds the scan id or its modality).
@@ -448,15 +556,29 @@ export class RadiologyOpsService {
         'geo.lat': { $type: 'number' }, 'geo.lng': { $type: 'number' },
       }, { _id: 0, geo: 1, equipment_list: 1 }).lean();
       const services: any[] = await this.svcModel.find(q).lean();
-      return nearestFirst(services, centres, here, (svc, centre) => {
-        const has: unknown[] = Array.isArray(centre.equipment_list) ? centre.equipment_list : [];
-        return has.includes(svc.id) || (!!svc.modality && has.includes(svc.modality));
-      }).slice(0, 120);
+      return finish(withCategory(nearestFirst(services, centres, here, performs).slice(0, 120)));
     }
 
-    if (!this.redis?.getWithSWR) return this.svcModel.find(q).sort({ popularity: -1 }).lean();
-    const cacheKey = `cache:radiology-services:public:v1:${JSON.stringify(opts)}`;
-    return this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q).sort({ popularity: -1 }).lean());
+    const load = async () => {
+      let services: any[] = await this.svcModel.find(q).sort(catalogueSortSpec(opts.sort)).lean();
+      if (matched) services = byRelevance(services, matched);   // the sorts below (rating, price) still reorder
+      if (opts.highest_rated) {
+        // ratings are on the centres, not on the scans: a scan is ranked by the centres that perform it
+        const centres: any[] = await this.profileModel.find({
+          type: { $in: ['radiology', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
+        }, { _id: 0, equipment_list: 1, rating_avg: 1, rating_count: 1 }).lean();
+        return finish(withCategory(withProviderRating(services, centres, performs).sort(byRating)));
+      }
+      // lowest price first; a scan without a real price (0 or missing) is not the cheapest
+      if (opts.lowest_price) {
+        const cost = (s: any) => (Number(s.price) > 0 ? Number(s.price) : Number.POSITIVE_INFINITY);
+        services.sort((a, b) => cost(a) - cost(b) || (b.popularity ?? 0) - (a.popularity ?? 0));
+      }
+      return finish(withCategory(services));
+    };
+    if (!this.redis?.getWithSWR) return load();
+    const cacheKey = `cache:radiology-services:public:v2:${JSON.stringify(opts)}`;
+    return this.redis.getWithSWR(cacheKey, 900, load);
   }
 
 
@@ -475,11 +597,18 @@ export class RadiologyOpsService {
     return svc;
   }
 
+  /** The scan page: the catalogue row with what providers offer for it (centres, price, where, insurance) and `providers_count`; an unoffered scan still opens. */
+  async getByIdWithOffers(id: string) {
+    const svc: any = await this.getById(id);
+    const plain = typeof svc.toObject === 'function' ? svc.toObject() : svc;
+    return withOffers(this.svcModel.db as never, 'radiology', { ...plain, category: plain.modality ?? null });
+  }
+
   /** Centers able to perform every requested scan (registration stores the scan ids in equipment_list). */
   async compatibleProviders(serviceIds: string[]) {
     const ids = [...new Set((serviceIds || []).filter(Boolean))];
     if (!ids.length) return [];
-    const services = await this.svcModel.find({ id: { $in: ids }, is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, modality: 1 }).lean();
+    const services = await this.svcModel.find({ id: { $in: ids }, is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, id: 1, modality: 1, body_part: 1, short_code: 1, price: 1 }).lean();
     if (services.length !== ids.length) return [];
     const modalities = [...new Set((services as any[]).map((sv) => sv.modality).filter(Boolean))];
     const profiles = await this.profileModel.find({
@@ -487,11 +616,21 @@ export class RadiologyOpsService {
       account_id: { $exists: true, $ne: null },
       $or: [{ equipment_list: { $all: ids } }, ...(modalities.length ? [{ equipment_list: { $all: modalities } }] : [])],
     }, { _id: 0, account_id: 1, id: 1, name_ar: 1, name_en: 1, home_visit_supported: 1, rating_avg: 1, rating_count: 1, logo: 1 }).limit(50).lean();
-    return (profiles as any[]).map((profile) => ({
-      id: profile.account_id, facility_id: profile.id, name: profile.name_ar || profile.name_en,
-      homeVisitAvailable: Boolean(profile.home_visit_supported),
-      rating: profile.rating_count > 0 ? profile.rating_avg : null, logo: profile.logo || null,
-    }));
+    // each centre's own total for the requested scans (its price per scan, a missing one at the catalogue price); null when some scan has no price at all
+    const prices = await ownPrices(this.svcModel.db as never, 'radiology', (profiles as any[]).map((p) => p.account_id), services as any[]);
+    return (profiles as any[]).map((profile) => {
+      const own = prices.get(profile.account_id);
+      const price = (services as any[]).reduce<number | null>((sum, svc: any) => {
+        const one = own?.get(svc.id) ?? (typeof svc.price === 'number' && svc.price > 0 ? svc.price : null);
+        return sum === null || one === null ? null : sum + one;
+      }, 0);
+      return {
+        id: profile.account_id, facility_id: profile.id, name: profile.name_ar || profile.name_en,
+        homeVisitAvailable: Boolean(profile.home_visit_supported),
+        rating: profile.rating_count > 0 ? profile.rating_avg : null, logo: profile.logo || null,
+        price, currency: 'SAR',
+      };
+    });
   }
 
   // #624 carousel: popular approved scans, each with the approved centers equipped for it (the
@@ -514,41 +653,51 @@ export class RadiologyOpsService {
     });
   }
 
-  // #631 price comparison: each approved center's own price for this scan from its capabilities
-  // catalog (provider_capabilities_radiology: scan_type = modality and the same body part,
-  // case-insensitive). Centers with no priced entry are not listed.
+  // #631 price comparison: each approved centre's own price for this scan - its own per-scan choice, else its capability row, else the price it registered with - with whether it
+  // takes insurance and does home visits FOR THIS SCAN. Centres with no price for the scan are not listed.
   async priceComparison(serviceId: string) {
-    const svc: any = await this.svcModel.findOne({ id: { $eq: String(serviceId) }, is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, id: 1, name_ar: 1, name_en: 1, modality: 1, body_part: 1, price: 1 }).lean();
+    const svc: any = await this.svcModel.findOne({ id: { $eq: String(serviceId) }, is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, id: 1, name_ar: 1, name_en: 1, modality: 1, body_part: 1, short_code: 1, price: 1 }).lean();
     if (!svc) throw new NotFoundException('service_not_found');
     if (!svc.modality) return { service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, catalog_price: svc.price ?? null, offers: [] };
-    const exact = (v: string) => new RegExp(`^${String(v).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
-    const items: any[] = await this.svcModel.db.collection('provider_capabilities_radiology').find({
-      available: true, scan_type: exact(svc.modality), ...(svc.body_part ? { body_part: exact(svc.body_part) } : {}),
-    }, { projection: { _id: 0, provider_account_id: 1, price: 1, currency: 1, contrast_supported: 1, insurance_covered: 1 } }).toArray();
-    const priced = items.filter((i) => typeof i.price === 'number' && i.price > 0);
-    const profiles: any[] = priced.length ? await this.profileModel.find({
-      account_id: { $in: [...new Set(priced.map((i) => i.provider_account_id))] }, type: { $in: ['radiology', 'hospital'] },
-      status: 'active', public_eligibility: true, medical_review_status: 'approved',
-    }, { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1 }).lean() : [];
-    const byId = new Map(profiles.map((p) => [p.account_id, p]));
-    const offers = priced.filter((i) => byId.has(i.provider_account_id)).map((i) => ({
-      provider: publicProvider(byId.get(i.provider_account_id)), price: i.price, currency: i.currency || 'SAR',
-      contrast_supported: !!i.contrast_supported, insurance_covered: !!i.insurance_covered,
-    })).sort((a, b) => a.price - b.price);
-    return { service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, catalog_price: svc.price ?? null, offers };
+    const offers = ((await loadOffers(this.svcModel.db as never, 'radiology', [svc])).get(svc.id) ?? []).filter((o) => o.price !== null);
+    // contrast is a fact of the centre's capability row for this scan (like turnaround_hours in the labs comparison); no row, no claim
+    const lc = (v: unknown) => String(v ?? '').trim().toLowerCase();
+    const caps: any[] = offers.length ? await this.svcModel.db.collection('provider_capabilities_radiology').find({
+      available: true, provider_account_id: { $in: offers.map((o) => o.provider.id) },
+    }, { projection: { _id: 0, provider_account_id: 1, contrast_supported: 1, service_id: 1, scan_type: 1, body_part: 1 } }).toArray() : [];
+    const contrast = new Map<string, boolean>(caps
+      .filter((c) => typeof c.contrast_supported === 'boolean' && (c.service_id ? c.service_id === svc.id : lc(c.scan_type) === lc(svc.modality) && (!svc.body_part || lc(c.body_part) === lc(svc.body_part))))
+      .map((c) => [c.provider_account_id, c.contrast_supported]));
+    return {
+      service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, catalog_price: svc.price ?? null,
+      offers: offers.map((o) => ({ provider: o.provider, price: o.price as number, currency: o.currency, contrast_supported: contrast.get(o.provider.id) ?? false, insurance_covered: o.insurance, premises: o.premises, home: o.home }))
+        .sort((a, b) => a.price - b.price),
+    };
   }
 
   async book(user: any, body: any) {
     // Only the approved catalog decides what is booked and what it costs; the body names the scan and center.
     const serviceId = typeof body?.service_id === 'string' ? body.service_id : '';
     if (!serviceId || serviceId.length > 128) throw new BadRequestException('service_id_required');
+    // owner decision 2026-11-09: the refund policy is agreed before the booking exists
+    const policyAcceptance = await stampAcceptance(this.svcModel.db, refundPolicyAcceptance(user, body?.refund_policy_accepted), 'radiology', body?.refund_policy_hash);
+    // owner decision 1: a booking for a family member (the caller stays the booker; checked to be the caller's own member)
+    const familyMemberId = await resolveFamilyMemberId(this.svcModel.db, user.id, body?.family_member_id);
     const svc: any = await this.getById(serviceId).catch(() => null);
     if (!svc) throw new BadRequestException('service_not_available');
     const isAdmin = ['admin', 'super_admin', 'system'].includes(user?.role);
-    const providerId = typeof body?.provider_account_id === 'string' ? body.provider_account_id : '';
+    let providerId = typeof body?.provider_account_id === 'string' ? body.provider_account_id : '';
+    // an ordering quote names its providers by profile id: resolve it to the account the booking belongs to
+    if (!providerId && typeof body?.provider_id === 'string' && body.provider_id) {
+      const profile: any = await this.profileModel.findOne({ id: { $eq: body.provider_id } }, { _id: 0, account_id: 1 }).lean();
+      providerId = typeof profile?.account_id === 'string' ? profile.account_id : '';
+      if (!providerId) throw new BadRequestException('provider_not_found');
+    }
     if (!providerId && !isAdmin) throw new BadRequestException('provider_account_id_required');
     if (providerId && !isAdmin) {
-      const ok = (await this.compatibleProviders([svc.id])).some((p: any) => p.id === providerId);
+      // a centre may perform the scan by its equipment, or by having declared it in its ordering catalogue (what a quote lists)
+      const ok = (await this.compatibleProviders([svc.id])).some((p: any) => p.id === providerId)
+        || !!(await this.svcModel.db.collection('provider_ordering_items').findOne({ provider_account_id: providerId, service_kind: 'radiology', catalog_id: svc.id, available: { $ne: false } }));
       if (!ok) throw new BadRequestException('provider_cannot_perform_scan');
     }
     const when = new Date(String(body?.scheduled_at || ''));
@@ -558,7 +707,7 @@ export class RadiologyOpsService {
     if (location === 'home' && !svc.home_visit_supported) throw new BadRequestException('scan_not_home_eligible');
     const pm = String(body?.payment_method || 'cash').toLowerCase();
     if (!['cash', 'card', 'insurance'].includes(pm)) throw new BadRequestException('invalid payment_method');
-    if (location === 'home' && pm === 'cash') throw new BadRequestException('payment_method_cash_not_allowed_for_home_visit');
+    if (location === 'home') assertPaymentMethod(pm, 'home_visit');
     const documents: any[] = Array.isArray(body?.documents) ? body.documents.map((d: any) => ({ kind: String(d?.kind || ''), url_or_b64: String(d?.url_or_b64 || ''), filename: d?.filename, uploaded_at: new Date() })) : [];
     // Home rule (mirror labs): insurance + home requires uploaded doctor_request OR preauth.
     if (location === 'home' && pm === 'insurance' && !documents.some((d) => d.kind === 'doctor_request' || d.kind === 'preauth')) {
@@ -571,10 +720,31 @@ export class RadiologyOpsService {
       state: { $nin: [RadiologyBookingState.CANCELLED, RadiologyBookingState.REPORT_READY] },
     }).lean();
     if (dupe) return dupe;
-    const total = Number(svc.price) || 0;
-    const booking = await this.bkgModel.create({
-      id: require('uuid').v4(),
-      patient_id: user.id, patient_name: user.full_name, patient_phone: user.phone,
+    // the chosen centre's own price for this scan (its choice, its capability row, or what it registered with); the catalogue price only when it has none
+    const ownPrice = providerId ? (await ownPrices(this.svcModel.db as never, 'radiology', [providerId], [svc])).get(providerId)?.get(svc.id) : undefined;
+    const total = ownPrice ?? (Number(svc.price) || 0);
+    if (!(total > 0)) throw new BadRequestException('service_price_not_set');
+    // The centre's own number of scans per time slot (`slot_capacity`, default 1: the number the patient's slot picker uses). The seat is taken atomically, so two
+    // parallel bookings for the last seat cannot both win (same rule as the labs).
+    const bookingId: string = require('uuid').v4();
+    let seatTaken = false;
+    if (providerId) {
+      const seatProfile: any = await this.profileModel.findOne({ account_id: { $eq: providerId } }, { slot_capacity: 1 }).lean();
+      const seats: any = this.seatCollection();
+      await ensureSeatIndex(seats);
+      const seat = await reserveSeat(
+        seats,
+        { provider_account_id: providerId, slot_start: slotStartOf(when), capacity: slotCapacityOf(seatProfile), booking_id: bookingId },
+        (id) => this.seatBookingStatus(id),
+      );
+      if (seat === null) throw new BadRequestException('slot_taken');
+      seatTaken = true;
+    }
+    let booking: any;
+    try {
+    booking = await this.bkgModel.create({
+      id: bookingId,
+      patient_id: user.id, ...(familyMemberId ? { family_member_id: familyMemberId } : {}), ...(policyAcceptance ? { refund_policy_acceptance: policyAcceptance } : {}), patient_name: user.full_name, patient_phone: user.phone,
       items: [{ service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, modality: svc.modality, body_part: svc.body_part, price: total }],
       total, total_price: total,
       scan_type_code: svc.short_code, scan_name_ar: svc.name_ar, scan_name_en: svc.name_en,
@@ -589,7 +759,15 @@ export class RadiologyOpsService {
       // P17-17.5: campaign attribution for the campaign report.
       attribution: pickAttribution(body) ?? undefined,
     });
+      // stored: a missing booking later means it was removed, not that it is still being created
+      if (seatTaken) await confirmSeat(this.seatCollection(), bookingId).catch(() => undefined);
+    } catch (e) {
+      if (seatTaken) await releaseSeat(this.seatCollection(), bookingId).catch(() => undefined);
+      throw e;
+    }
     this.events.emit('radiology.new_booking', { bookingId: booking.id, patientId: user.id });
+    // The provider hears about it too (bell row + push), as for labs and appointments; radiology.new_booking only notifies the patient.
+    await this.engine.announceCreated({ kind: 'radiology', entity_id: booking.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { payment_method: pm } }).catch(() => undefined);
     return booking;
   }
 
@@ -600,8 +778,15 @@ export class RadiologyOpsService {
       this.bkgModel.find({ patient_id: user.id }).sort({ createdAt: -1 }).lean(),
       me?._id ? this.centerBkgModel.find({ patient_id: me._id }).sort({ createdAt: -1 }).lean() : Promise.resolve([]),
     ]);
-    return [...(current as any[]), ...(center as any[]).map((c) => ({ ...c, state: c.state || c.status }))]
+    const all = [...(current as any[]), ...(center as any[]).map((c) => ({ ...c, state: c.state || c.status }))]
       .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+    return this.withNames(all);
+  }
+
+  /** Issue 1832: every line carries `names` and the booking `scan_names` (six languages), resolved from the catalogue by `service_id` in one query. */
+  private async withNames(bookings: any[]) {
+    const named = await withItemNames(bookings, (ids) => this.svcModel.find({ id: { $in: ids } }, NAME_PROJECTION).lean() as any);
+    return named.map(withScanNames);
   }
 
   async getBooking(id: string, user: any) {
@@ -618,7 +803,34 @@ export class RadiologyOpsService {
     if (b.patient_id !== user.id && !isProvider && user.role !== 'admin' && user.role !== 'super_admin') {
       throw new NotFoundException();
     }
-    return b;
+    // Design parity (#1819): the technician's name and, once the report is published, the files the patient may open.
+    const [named] = await this.withNames([b]);
+    return { ...named, ...(isProvider ? reportApprovalFor(b, user.id) : {}), technician: await this.technicianView(b), report_files: b.patient_id === user.id ? await this.reportFilesView(b) : undefined };
+  }
+
+  /** The technician assigned to a booking: display name only (never the account id, phone or licence). */
+  private async technicianView(b: any): Promise<{ name: string } | null> {
+    if (!b?.technician_id) return null;
+    const u: any = await this.userModel.findOne({ id: b.technician_id }, { _id: 0, full_name: 1, name: 1 }).lean();
+    const name = [u?.full_name, u?.name].find((v) => typeof v === 'string' && v.trim());
+    return name ? { name: name.trim().slice(0, 120) } : null;
+  }
+
+  /**
+   * The report PDF, the DICOM study and the scan images of a PUBLISHED report, by storage id and kind. The bytes are read
+   * with GET /storage/:id, which lets the booking's patient open exactly these objects (StorageService.radiologyPatientMayRead).
+   */
+  private async reportFilesView(b: any): Promise<Array<{ id: string; kind: 'report' | 'dicom' | 'image'; mime: string | null; name: string | null }> | null> {
+    if ((b?.state || b?.status) !== RadiologyBookingState.REPORT_READY) return null;
+    const wanted: Array<{ id: string; kind: 'report' | 'dicom' | 'image' }> = [
+      ...(b.report_storage_object_id ? [{ id: String(b.report_storage_object_id), kind: 'report' as const }] : []),
+      ...(b.dicom_storage_object_id ? [{ id: String(b.dicom_storage_object_id), kind: 'dicom' as const }] : []),
+      ...(Array.isArray(b.scan_storage_object_ids) ? b.scan_storage_object_ids.slice(0, 50).map((id: unknown) => ({ id: String(id), kind: 'image' as const })) : []),
+    ];
+    if (!wanted.length) return [];
+    const objects: any[] = await this.storageObjects.find({ id: { $in: wanted.map((w) => w.id) }, deleted: false }, { _id: 0, id: 1, mime: 1, original_name: 1 }).lean();
+    const byId = new Map(objects.map((o) => [o.id, o]));
+    return wanted.filter((w) => byId.has(w.id)).map((w) => ({ ...w, mime: byId.get(w.id).mime ?? null, name: byId.get(w.id).original_name ?? null }));
   }
 
   async cancel(id: string, user: any) {
@@ -628,6 +840,11 @@ export class RadiologyOpsService {
   async updateInsuranceStatus(id: string, user: any, status: string, reason?: string) {
     const b = await this.findBooking(id, user);
     if (!b) throw new NotFoundException();
+    // A provider can say "rejected" (with the reason the patient is shown) but can never approve their own booking here: an approval,
+    // full or partial, comes from the insurer through the coverage decision (which records the reference and sets the copay), because
+    // approved insurance lets the generic accept pass without the patient paying their share.
+    if (!['rejected', 'pending', 'none'].includes(String(status))) throw new BadRequestException('insurance_approval_requires_coverage_decision');
+    if (status === 'rejected' && !String(reason || '').trim()) throw new BadRequestException('rejection_reason_required');
     b.insurance_status = status;
     if (reason) b.rejection_reason = reason;
     await b.save();
@@ -645,7 +862,9 @@ export class RadiologyOpsService {
   async listForProvider(user: any, status?: string) {
     const q: any = { provider_account_id: { $eq: user.account_id ?? user.id } };
     if (status) q.state = { $eq: status };
-    return this.bkgModel.find(q).sort({ scheduled_at: 1 }).lean();
+    const rows = await this.bkgModel.find(q).sort({ scheduled_at: 1 }).lean();
+    // R7 (13.R4): a request nobody has accepted shows the area only, not the patient's phone and exact address.
+    return (rows as any[]).map((r) => ({ ...withholdLegacyBeforeAcceptance(r, [RadiologyBookingState.NEW_REQUEST, RadiologyBookingState.PENDING]), ...reportApprovalFor(r, user.id) }));
   }
 
   async assignTechnician(id: string, user: any, body: any) {
@@ -750,6 +969,32 @@ export class RadiologyOpsService {
 
 
 
+  private seatCollection(): any {
+    // from the profile model's connection (the same database as every radiology collection)
+    return (this.profileModel as any).db.collection(RADIOLOGY_SEAT_COLLECTION);
+  }
+
+  private async seatBookingStatus(id: string): Promise<SeatBookingStatus> {
+    if ((await this.bkgModel.countDocuments({ id: { $eq: id }, state: { $nin: RADIOLOGY_SEAT_FREE_STATES } })) > 0) return 'live';
+    return (await this.bkgModel.countDocuments({ id: { $eq: id } })) > 0 ? 'free' : 'missing';
+  }
+
+  /** The centre's number of simultaneous scans per time slot (default 1). */
+  async getSlotCapacity(user: any) {
+    const p: any = await this.profileModel.findOne({ account_id: { $eq: String(user.id) } }, { slot_capacity: 1 }).lean();
+    if (!p) throw new NotFoundException('provider_not_found');
+    return { slot_capacity: slotCapacityOf(p), max: MAX_SLOT_CAPACITY };
+  }
+
+  /** The centre sets it itself (an operating number, not a profile claim that needs review); it applies to the next booking and to the slot picker at once. */
+  async setSlotCapacity(user: any, value: number) {
+    const n = Number(value);
+    if (!Number.isInteger(n) || n < 1 || n > MAX_SLOT_CAPACITY) throw new BadRequestException('slot_capacity_must_be_1_to_' + MAX_SLOT_CAPACITY);
+    const res: any = await this.profileModel.updateOne({ account_id: { $eq: String(user.id) } }, { $set: { slot_capacity: n } });
+    if (!res?.matchedCount) throw new NotFoundException('provider_not_found');
+    return { ok: true, slot_capacity: n };
+  }
+
   async slotsForProvider(providerAccountId: string, dateStr: string, duration_minutes = 30) {
     // Validate duration: must be integer between 10 and 120
     const duration = parseInt(String(duration_minutes), 10);
@@ -765,7 +1010,12 @@ export class RadiologyOpsService {
       medical_review_status: 'approved',
     }).lean();
     if (!profile) throw new NotFoundException('provider_not_found');
-    if (!(profile as any).schedule_clinic || !(profile as any).schedule_clinic.length) {
+    // The centre's own approved availability schedule wins; a centre that never saved one keeps the opening hours of its profile.
+    const settings: any = this.conn
+      ? await this.conn.collection('provider_settings').findOne({ provider_id: { $eq: providerAccountId } }, { projection: { _id: 0, radiology_schedule: 1 } }).catch(() => null)
+      : null;
+    const ownSchedule: RadiologySchedule | null = Array.isArray(settings?.radiology_schedule?.working_days) ? settings.radiology_schedule : null;
+    if (!ownSchedule && (!(profile as any).schedule_clinic || !(profile as any).schedule_clinic.length)) {
       return { date: dateStr, slots: [], reason: 'no_schedule' };
     }
 
@@ -781,7 +1031,7 @@ export class RadiologyOpsService {
       return v === 'all' || v === String(dow) || v === dayKeys[dow] || v === fullDays[dow];
     };
 
-    const windows = ((profile as any).schedule_clinic || []).filter((w) => w && !w.closed && dayMatches(w.day)).flatMap((w) => [
+    const windows = ownSchedule ? radiologyWindows(ownSchedule, dow) : ((profile as any).schedule_clinic || []).filter((w) => w && !w.closed && dayMatches(w.day)).flatMap((w) => [
       ...(w.open && w.close ? [{ open: w.open, close: w.close }] : []),
       ...(w.open_evening && w.close_evening ? [{ open: w.open_evening, close: w.close_evening }] : []),
     ]);
@@ -812,19 +1062,23 @@ export class RadiologyOpsService {
     slots.sort((x, y) => x.start.localeCompare(y.start));
     if (slots.length === 0) return { date: dateStr, slots: [], reason: 'no_slots' };
 
-    // Mark booked slots as unavailable
+    // Mark full slots as unavailable: a slot is full when its bookings reach the centre's capacity
+    const capacity = slotCapacityOf(profile as any);
     const startOfDay = new Date(baseDate.getTime());
     const endOfDay = new Date(baseDate.getTime() + 24 * 3600_000);
     const booked = await this.bkgModel.find({
       provider_account_id: providerAccountId,
       scheduled_at: { $gte: startOfDay, $lt: endOfDay },
-      state: { $nin: ['CANCELLED', 'REPORT_READY'] },
+      state: { $nin: RADIOLOGY_SEAT_FREE_STATES },
     }).select({ scheduled_at: 1 }).lean();
-    const bookedSet = new Set(booked.map((b: any) => new Date(b.scheduled_at).toISOString()));
+    const taken = new Map<string, number>();
+    for (const b of booked) { const k = new Date((b as any).scheduled_at).toISOString(); taken.set(k, (taken.get(k) ?? 0) + 1); }
     for (const s of slots) {
-      if (bookedSet.has(s.start)) s.available = false;
+      const used = taken.get(s.start) ?? 0;
+      (s as any).remaining = Math.max(0, capacity - used);
+      s.available = used < capacity;
     }
-    return { date: dateStr, slots };
+    return { date: dateStr, slots, capacity };
   }
 
 }

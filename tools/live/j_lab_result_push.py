@@ -52,6 +52,17 @@ def main():
     bid = lab_reports(lab, pat, lab_id)
     if not bid:
         return
+
+    journey('PT-09: the patient downloads the report file (not only the push)')
+    b = pat.get(f'/labs/bookings/{bid}')
+    reports = b.get('reports') or []
+    step('the booking lists the report with a file', b.ok and len(reports) >= 1 and reports[0].get('has_file') is True and reports[0].get('id'), b)
+    if reports and reports[0].get('id'):
+        f = pat.get(f"/labs/bookings/{bid}/reports/{reports[0]['id']}")
+        ctype = next((v for k, v in f.headers.items() if k.lower() == 'content-type'), '')
+        step('the report downloads as a PDF', f.ok and 'application/pdf' in ctype and isinstance(f.body, str) and f.body.startswith('%PDF'), f'{f.status} {ctype} {str(f.body)[:20]!r}')
+        f2 = other.get(f"/labs/bookings/{bid}/reports/{reports[0]['id']}")
+        step('another patient cannot download it', f2.status in (403, 404), f2)
     import time
     note = {}
     for _ in range(10):
@@ -91,14 +102,21 @@ def main():
         r = web_login(ctx, WEB, acct['email'], acct['password'])
         step('patient signs in on the website', r.ok, f'{r.status}')
         page.goto(f'{WEB}/ar/diagnostics/results/{rid}', wait_until='load', timeout=60000)
+        # the result streams in after the load event (Suspense): wait for the first value to be drawn, then read the page; if it never
+        # appears the step below still fails with the page text, exactly as before
+        try:
+            page.wait_for_function("() => document.body.innerText.includes('Hemoglobin')", timeout=20000)
+        except Exception:
+            pass
         body = page.locator('body').inner_text()
         step('the page shows the values', 'Hemoglobin' in body and '14.1' in body and 'Potassium' in body, body[:300])
         # while the page streams in, React briefly holds a hidden copy of the section: count on the settled page
         try:
-            page.wait_for_function('() => document.querySelectorAll(\'a[href="/ar/consultations/doctors"]\').length === 1', timeout=15000)
+            page.wait_for_function('() => document.querySelectorAll(\'a[href^="/ar/consultations/instant"]\').length === 1', timeout=15000)
         except Exception:
             pass
-        step('and "discuss the result with a doctor" opens the doctors', page.locator('a[href="/ar/consultations/doctors"]', has_text='ناقش النتيجة مع طبيب').count() == 1, page.url)
+        # M6 Ord11 (#1787): the button starts an instant consultation (M8) about this result, not the doctors list
+        step('and "discuss the result with a doctor" opens an instant consultation', page.locator('a[href^="/ar/consultations/instant"]', has_text='ناقش النتيجة مع طبيب').count() == 1, page.url)
         page.goto(f'{WEB}/ar/notifications', wait_until='load', timeout=60000)
         link = page.locator(f'a[href="/ar/diagnostics/results/{rid}"]')
         step('the notification on the website opens that result', link.count() > 0, f'{link.count()} link(s)')

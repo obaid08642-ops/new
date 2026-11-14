@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import type { FillIconName, ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "./assistant.module.css";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 
 /** What the person asked, as their own bubble in the conversation. */
 export function AskedBubble({ text, label }: { text: string; label: string }) {

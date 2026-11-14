@@ -1,0 +1,79 @@
+[
+  {
+    "batch": "differentiators",
+    "app": "patient-app",
+    "screen": "/consultations/doctor/[id], doctors hub",
+    "element": "Late-appointment guarantee line (minutes, points)",
+    "file": "patient-app/src/utils/differentiators.ts",
+    "line": 25,
+    "found": "[backend] No late-compensation setting exists in GET /system-config/public on main or on any origin/s/* branch (the endpoint returns only cancellation_policy and returns_policy). The client reads `late_guarantee: { minutes, points }` and draws nothing when it is absent.",
+    "suspect": "Backend session S must add the setting (or tell the client the real field names); until then the line is hidden everywhere.",
+    "review_status": "open"
+  },
+  {
+    "batch": "differentiators",
+    "app": "patient-app",
+    "screen": "/loyalty (history), /notifications",
+    "element": "Late-compensation loyalty entry and notification type",
+    "file": "patient-app/src/utils/differentiators.ts",
+    "line": 35,
+    "found": "[backend] No late credit (points award, loyalty transaction reason or notification type) exists on main or on any origin/s/* branch. The client expects the loyalty reason and the notification `type` to be `late_compensation`; both have a label, icon and six-language text, and a notification without title/body gets the app's own words.",
+    "suspect": "If the backend uses other identifiers the history row falls back to the server's own description and the notification to the generic info icon.",
+    "review_status": "open"
+  },
+  {
+    "batch": "differentiators",
+    "app": "patient-app",
+    "screen": "/consultations/appointment-detail",
+    "element": "Visit summary buttons (order prescription, book labs, book scans)",
+    "file": "patient-app/src/utils/differentiators.ts",
+    "line": 107,
+    "found": "[backend] `follow_up_actions` (shape: pharmacy_order / lab_booking / radiology_booking) exists only on origin/s/follow-up-actions, not on main. The client parses that shape, drops expired valid_until, and shows nothing until it is merged.",
+    "suspect": "Merge order.",
+    "review_status": "open"
+  },
+  {
+    "batch": "differentiators",
+    "app": "patient-app",
+    "screen": "/consultations/booking-confirm (doctor appointment)",
+    "element": "Estimated patient share for an insured doctor booking",
+    "file": "patient-app/src/components/BookingConfirmForm.tsx",
+    "line": 230,
+    "found": "[backend] `estimated_patient_share` exists only on the ordering quote (labs, radiology, nursing; branch origin/s/ins-estimate, not yet on main). A doctor appointment has no estimate, so the doctor booking shows only the line 'insurance accepted, your share is confirmed by the provider'.",
+    "suspect": "If the owner wants an estimate on doctor bookings the backend must compute it from copay_percent/copay_cap_sar on the policy and the doctor's price.",
+    "review_status": "open"
+  },
+  {
+    "batch": "differentiators",
+    "app": "patient-app",
+    "screen": "/diagnostics/confirm",
+    "element": "Estimated patient share (ordering booking)",
+    "file": "patient-app/app/diagnostics/confirm.tsx",
+    "line": 300,
+    "found": "[backend] Depends on origin/s/ins-estimate (estimated_patient_share, estimated_patient_share_basis on best_match; copay_percent and copay_cap_sar on POST /insurance/save-policy and POST /users/me/insurance) being merged. Until then the field is absent and the line reads 'insurance accepted, your share is confirmed by the provider'.",
+    "suspect": "Merge order: the backend branch before this client change goes live.",
+    "review_status": "open"
+  },
+  {
+    "batch": "differentiators",
+    "app": "patient-app",
+    "screen": "/consultations/doctor/[id]",
+    "element": "Licence line (SCFHS number, verified badge)",
+    "file": "patient-app/src/utils/differentiators.ts",
+    "line": 83,
+    "found": "[backend] The `license: { number, authority, verified }` object of GET /care/doctors(/:id) exists on origin/s/doc-sort-available and origin/s/doc-license-line, not on main. The client falls back to the older `scfhs_license_no` / `scfhs_license_number` (number only, no badge) until then.",
+    "suspect": "Same merge-order note as the estimate.",
+    "review_status": "open"
+  },
+  {
+    "batch": "differentiators",
+    "app": "patient-app",
+    "screen": "/consultations (hub), search doctors view",
+    "element": "Available-today sort",
+    "file": "patient-app/app/(tabs)/consultations/index.tsx",
+    "line": 123,
+    "found": "[backend] sort=available_today for GET /care/doctors exists on origin/s/doc-sort-available, not on main. On main the server ignores the value and answers in rating order.",
+    "suspect": "Merge order. 'Nearest' takes precedence when both are on (a distance order cannot also be an availability order).",
+    "review_status": "open"
+  }
+]

@@ -1,6 +1,6 @@
 """Journey: provider onboarding (provider-app src/screens/*/…Registration.tsx) -> admin review
 (admin/src/pages/admin/provider-moderation.tsx) -> provider login -> visible to patients."""
-import base64, time
+import base64, datetime, time
 from lib import Client, journey, step, mail_code, uniq, phone
 
 # A real (valid) 8x8 PNG, built here: stands in for photographed documents / the drawn signature.
@@ -81,6 +81,8 @@ def register_pharmacy():
     step('verification code emailed', code, 'no mail')
     r = c.post('/provider/auth/verify-email', {'email': email, 'code': code})
     step('verify email', r.ok, r)
+    r = c.post('/legal/accept/provider_agreement', {})
+    step('the provider reads and accepts the provider agreement', r.ok, r)
     r = c.post('/provider-onboarding/submit', {'signer_name': 'مدير صيدلية اختبار', 'signer_role': 'owner', 'lat': loc['lat'], 'lng': loc['lng'], 'signature_url': sig, 'full_data': {'nameAr': 'صيدلية الاختبار الحي', 'city': 'الرياض'}})
     step('submit for review', r.ok, r)
     r = c.get('/provider-onboarding/progress')
@@ -100,7 +102,15 @@ def admin_review(admin, prov):
         return None
     r = admin.get(f"/admin/admin/providers/{mine['id']}")
     step('provider detail opens', r.ok, r)
-    r = admin.post(f"/admin/admin/providers/{mine['id']}/approve", {'reason': 'مستندات مكتملة', 'commission_cash': 10, 'commission_insurance': 8})
+    body = {'reason': 'مستندات مكتملة', 'commission_cash': 10, 'commission_insurance': 8}
+    r = admin.post(f"/admin/admin/providers/{mine['id']}/approve", body)
+    if r.status == 409:
+        # 19.3: a doctor, pharmacist or individual nurse needs a confirmed SCFHS licence. Nothing answers for SCFHS here, so
+        # the approval fails closed until the admin records their own check (reference + expiry date).
+        step('approval without a confirmed SCFHS licence is refused (fails closed)', 'scfhs_' in str(r.body), r)
+        import datetime
+        expiry = (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=365)).strftime('%Y-%m-%dT%H:%M:%SZ')
+        r = admin.post(f"/admin/admin/providers/{mine['id']}/approve", {**body, 'manual_license_check': {'reference': 'JOURNEY-CHECK', 'expiry_date': expiry}})
     step('approve with commissions', r.ok, r)
     r = admin.get('/admin/admin/providers?status=pending&limit=100')
     still = [i for i in (r.body.get('items', []) if isinstance(r.body, dict) else []) if i.get('email') == prov['email']]
@@ -114,6 +124,12 @@ def provider_after_approval(prov):
     tok = r.get('access_token')
     step('provider login', r.ok and tok, r)
     prov['token'] = tok
+    # 23.6: a provider sees their own sign-in history and signed-in devices
+    c = provider_client(tok)
+    r = c.get('/provider/auth/history')
+    step('provider sees their own sign-in history (the login just made)', r.ok and any(e.get('action') == 'login' for e in r.get('events') or []) and 'hash' not in str(r.body), r)
+    r = c.get('/provider/auth/sessions')
+    step('provider sees their own signed-in device (no token hash)', r.ok and len(r.get('devices') or []) >= 1 and 'refresh_token' not in str(r.body), r)
     return tok
 
 
@@ -151,7 +167,10 @@ def _value(key, kind):
     if kind is None or kind == 'null':
         return UNTYPED.get(key)
     if kind == 'string':
-        if 'date' in k or 'expiry' in k:
+        if 'expiry' in k:
+            # a licence the backend accepts: still valid two years from now (never a fixed date that will lapse)
+            return (datetime.date.today() + datetime.timedelta(days=730)).isoformat()
+        if 'date' in k:
             return '2027-06-30'
         if k in ('gender', 'gender_pref', 'home_collector_gender'):
             return 'male'
@@ -172,7 +191,7 @@ def _value(key, kind):
         return True
     if key == 'nursing_services':
         # NursingRegistration sends one entry per enabled service: {key, name_ar, price}.
-        return [{'key': 'wound_care', 'name_ar': 'العناية بالجروح', 'price': 0}]
+        return [{'key': 'wound_care', 'name_ar': 'العناية بالجروح', 'price': 50}]
     if kind.startswith('array<object>'):
         if 'schedule' in k or 'hours' in k:
             return [{'day': 'sunday', 'open': '09:00', 'close': '17:00', 'closed': False}]
@@ -230,6 +249,8 @@ def register_type(ptype, overrides=None):
     code = mail_code(email, t0)
     r = c.post('/provider/auth/verify-email', {'email': email, 'code': code})
     step('email verified', r.ok, r)
+    r = c.post('/legal/accept/provider_agreement', {})
+    step('the provider reads and accepts the provider agreement', r.ok, r)
     r = c.post('/provider-onboarding/submit', {'signer_name': f'مسؤول {ptype}', 'signer_role': 'owner', 'lat': 24.7, 'lng': 46.7, 'signature_url': sig, 'full_data': {}})
     step('submit for review', r.ok, r)
     return {'email': email, 'password': pw, 'token': tok, 'type': ptype}

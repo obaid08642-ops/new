@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { NavLink } from "@/components-next/nav/nav-link";
 import { useDisabledModules } from "@/components-next/modules/modules-provider";
@@ -10,7 +10,12 @@ import { isPathHidden } from "@/lib/modules";
 import { useRoutePrefetch } from "@/components-next/nav/use-route-prefetch";
 import { AppShell } from "@/components-next/ui-generated/shells";
 import { BottomTabBar } from "@/components-next/ui-generated/components/Surfaces";
+import { CartLink } from "./cart-link";
+import { AppointmentsLink } from "./appointments-link";
+import { WishlistLink } from "./wishlist-link";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import type { BottomTabItem } from "@/components-next/ui-generated/components/contract";
 import { NabdMark } from "@/components-next/nabd-mark";
 import { LocaleSelector } from "@/components-next/locale-selector";
@@ -21,6 +26,7 @@ import { getDirection, type Locale } from "@/lib/i18n";
 import { useCart } from "@/lib/context/CartContext";
 import { formatNumber } from "@/lib/format-price";
 import styles from "./core.module.css";
+import { PhoneMenu } from "@/components-next/core/phone-menu";
 
 /**
  * The screen frame of the Batch 0 core screens (search, notifications, notification settings),
@@ -52,6 +58,10 @@ export type CoreShellProps = {
    * (the page carries its own search there). Unlike `search`, it does not replace the section links.
    */
   topBarSearch?: ReactNode;
+  /** Labs and radiology: where "My orders and results" goes; draws an icon button in the header and an entry in the phone menu. */
+  resultsHref?: string;
+  /** Consultations: where "My appointments" goes; its button (with the badge of unopened results) takes the cart's place in the header. */
+  appointmentsHref?: string;
   /** The page's sticky bottom bar (a <StickyFooter>, canvas/ProductFull); it sits above the tab bar and goes away from 1024. */
   footer?: ReactNode;
   /** Pages with a sticky buy bar and no tab bar on phones (canvas/ProductFull). */
@@ -59,8 +69,9 @@ export type CoreShellProps = {
   children: ReactNode;
 };
 
-export function CoreShell({ locale, title, backHref, search, cancelHref, width = "wide", topBarSearch, footer, hideTabs = false, children }: CoreShellProps) {
+export function CoreShell({ locale, title, backHref, search, cancelHref, width = "wide", topBarSearch, footer, hideTabs = false, resultsHref, appointmentsHref, children }: CoreShellProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const shell = useTranslations("CoreShell");
   const shared = useTranslations("Shared");
   const searchT = useTranslations("Search");
@@ -69,29 +80,25 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
   // a switched-off module has no section and no tab (#953)
   const disabled = useDisabledModules();
   const rtl = getDirection(locale) === "rtl";
-  // issue 1547: the cart's count on its icon, read from the cart of this browser, so an add shows at once
-  const { itemCount } = useCart();
-  const cartLink = (extra = "") => (
-    <Link
-      href={`/${locale}/cart`}
-      className={`${styles.iconLink} ${styles.cartLink}${extra ? ` ${extra}` : ""}`}
-      data-testid="cart-link"
-      aria-label={itemCount > 0 ? shell("cartCount", { n: itemCount }) : shell("cart")}
-    >
-      <Icon name="cart" size={20} tone="currentColor" />
-      {itemCount > 0 ? <span className={styles.cartBadge} aria-hidden="true" data-testid="cart-badge">{formatNumber(locale, itemCount)}</span> : null}
-    </Link>
-  );
+  // issue 1547: the cart's count on its icon (CartLink reads the cart of this browser, so an add shows at once)
+  // consultations have no cart (owner 2026-10-30): their header carries the My appointments button there instead
+  const cartLink = (extra = "") => appointmentsHref
+    ? <AppointmentsLink locale={locale} href={appointmentsHref} className={extra} />
+    : <CartLink locale={locale} className={`${styles.iconLink} ${styles.cartLink}${extra ? ` ${extra}` : ""}`} />;
 
   const allTabs: Array<BottomTabItem & { href: string }> = [
-    { id: "home", label: nav("navHome"), icon: "house", href: `/${locale}` },
-    { id: "pharmacy", label: nav("navPharmacy"), icon: "pill", href: hrefs.pharmacy },
-    { id: "consult", label: nav("navConsult"), icon: "stethoscope", href: hrefs.consult, raised: true },
-    { id: "labs", label: nav("navLabs"), icon: "test-tube", href: hrefs.labs },
-    { id: "nursing", label: nav("navNursing"), icon: "first-aid-kit", href: hrefs.nursing },
+    { id: "home", art: "home", label: nav("navHome"), icon: "house", href: `/${locale}` },
+    { id: "pharmacy", art: "pharmacy", label: nav("navPharmacy"), icon: "pill", href: hrefs.pharmacy },
+    { id: "consult", art: "consult", label: nav("navConsult"), icon: "stethoscope", href: hrefs.consult, raised: true },
+    { id: "labs", art: "labs", label: nav("navLabs"), icon: "test-tube", href: hrefs.labs },
+    { id: "nursing", art: "nursing", label: nav("navNursing"), icon: "first-aid-kit", href: hrefs.nursing },
   ];
 
   const tabs = allTabs.filter((tab) => !isPathHidden(tab.href, disabled));
+  // the tab of the section this page belongs to (the longest matching href; Home only on the home page itself)
+  const activeTab = tabs
+    .filter((tab) => pathname === tab.href || (tab.id !== "home" && pathname?.startsWith(`${tab.href}/`)))
+    .sort((a, b) => b.href.length - a.href.length)[0]?.id ?? "";
 
   const allSections = [
     { id: "home", label: nav("navHome"), href: `/${locale}` },
@@ -109,7 +116,8 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
   useRoutePrefetch(tabs.map((t) => t.href), { signedIn: true });
 
   const topBar = (
-    <div className={styles.bar}>
+    // with the results button the phone header has too little width for the title: the title takes its own line under the buttons
+    <div className={`${styles.bar}${resultsHref ? ` ${styles.barDense}` : ""}`}>
       {!search && backHref ? (
         <Link href={backHref} className={`${styles.iconLink} ${styles.phoneOnly}`} aria-label={shell("back")}>
           <Icon name={rtl ? "caret-right" : "caret-left"} size={22} tone="currentColor" />
@@ -118,7 +126,7 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
       {!search && title ? <h1 className={`${styles.phoneTitle} ${styles.phoneOnly}`}>{title}</h1> : null}
 
       <Link href={`/${locale}`} className={`${styles.brand} ${styles.wideOnly}`} aria-label={shared("brand")}>
-        <NabdMark size={34} variant="text" />
+        <NabdMark size={34} />
         <span className={styles.wordmark} aria-hidden="true">
           {shared("wordmark")}<span className={styles.plus}>+</span>
         </span>
@@ -140,15 +148,42 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
         </>
       )}
 
-      {/* pages without the tab bar (the product page, canvas/ProductFull) carry the cart in the phone header */}
-      {hideTabs && !search ? cartLink(`${styles.phoneOnly} ${styles.phoneCart}`) : null}
+      {resultsHref ? (
+        <Link href={resultsHref} className={`${styles.iconLink} ${styles.phoneOnly} ${styles.toolsStart}`} aria-label={shell("menuResults")} title={shell("menuResults")}>
+          <FIcon icon="chart-line-up" tone={SERVICE_ICONS.lab.tone} size={24} />
+        </Link>
+      ) : null}
+      {/* every page carries favourites and the cart in the phone header (the wide header has them in the tools); the search page too */}
+      <WishlistLink locale={locale} className={`${styles.iconLink} ${styles.cartLink} ${styles.phoneOnly} ${styles.phoneCart}`} />
+      {cartLink(styles.phoneOnly)}
+      {/* the menu is the last item at the inline-end edge (owner layout decision 1) */}
+      {!search ? (
+        <PhoneMenu
+          labels={{ open: shell("menuOpen"), close: shell("menuClose") }}
+          items={[
+            { label: shell("menuProfile"), href: `/${locale}/profile` },
+            { label: shell("menuOrders"), href: `/${locale}/orders` },
+            { label: shell("menuFamily"), href: `/${locale}/family` },
+            { label: shell("menuArticles"), href: `/${locale}/articles` },
+            { label: shell("notifications"), href: `/${locale}/notifications` },
+            { label: shell("menuSettings"), href: `/${locale}/settings` },
+            { label: shell("menuHelp"), href: `/${locale}/settings/help` },
+          ].filter((item) => !isPathHidden(item.href, disabled))}
+        />
+      ) : null}
 
       <div className={`${styles.tools} ${styles.wideOnly}`}>
         <LocaleSelector current={locale} label={shell("language")} />
         <ThemeToggle label={shared("theme")} />
+        {resultsHref ? (
+          <Link href={resultsHref} className={styles.iconLink} aria-label={shell("menuResults")} title={shell("menuResults")}>
+            <FIcon icon="chart-line-up" tone={SERVICE_ICONS.lab.tone} size={24} />
+          </Link>
+        ) : null}
         <Link href={`/${locale}/notifications`} className={styles.iconLink} aria-label={shell("notifications")}>
           <Icon name="bell" size={20} tone="currentColor" />
         </Link>
+        <WishlistLink locale={locale} className={`${styles.iconLink} ${styles.cartLink}`} />
         {cartLink()}
         <Link href={`/${locale}/profile`} className={styles.iconLink} aria-label={shared("account")}>
           <Icon name="user" size={20} tone="currentColor" />
@@ -160,15 +195,15 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
 
   return (
     <AppShell
-      className={`nabd-core ${styles.root}`}
+      className={`nabd-core ${styles.root}${resultsHref ? ` ${styles.rootDense}` : ""}`}
       topBar={topBar}
       tabBarLabel={shell("mainNav")}
       footer={footer}
       tabBar={hideTabs ? undefined : (
         <BottomTabBar
           label={shell("sections")}
-          items={tabs.map(({ id, label, icon, raised }) => ({ id, label, icon, raised }))}
-          value=""
+          items={tabs.map(({ id, label, icon, art, raised }) => ({ id, label, icon, art, raised }))}
+          value={activeTab}
           onChange={(id) => {
             const target = tabs.find((t) => t.id === id);
             if (target) router.push(target.href);

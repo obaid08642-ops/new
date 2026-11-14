@@ -48,4 +48,17 @@ describe('HospitalService UUID and ownership contract', () => {
       { new: true },
     );
   });
+
+  it('a clinical sub-account created by a facility is never licence-verified or bookable until an admin approves it', async () => {
+    const { service, staffModel, userModel } = make();
+    const chain = (v: any) => ({ select: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(v) }) });
+    userModel.findOne = jest.fn().mockReturnValueOnce(chain({ _id: 'mongo-hospital-id' })).mockReturnValue(chain(null));
+    userModel.create = jest.fn(async (u: any) => ({ ...u, _id: 'u-oid', id: 'u1' }));
+    const inserted: Record<string, any[]> = {};
+    staffModel.db = { collection: (name: string) => ({ findOne: jest.fn().mockResolvedValue(null), insertOne: jest.fn(async (d: any) => { (inserted[name] ||= []).push(d); }) }) };
+    staffModel.create = jest.fn(async (d: any) => d);
+    await service.addStaff('hospital-1', { full_name: 'Dr A', email: 'a@example.com', password: 'Passw0rdOK1', staff_role: 'doctor', scfhs: '12-3456' });
+    expect(inserted.provider_accounts[0].status).toBe('email_verified'); // not approved: it still has to submit onboarding and wait in the admin queue
+    expect(inserted.provider_profiles[0]).toMatchObject({ license_verified: false, public_eligibility: false, medical_review_status: 'pending' });
+  });
 });

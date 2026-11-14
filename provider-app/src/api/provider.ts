@@ -1,4 +1,5 @@
 import client from './client';
+import { noteUploadScan } from '../utils/scanRegistry';
 import { Tokens } from '../security/Security';
 import * as FileSystem from 'expo-file-system/legacy';
 
@@ -98,6 +99,7 @@ export const ProviderApi = {
         mime: mimeType,
         original_name: originalName
       });
+      noteUploadScan(res.data?.id, res.data); // UPLOAD_SCAN=defer: a file still being scanned is remembered as such
       return res.data?.id || res.data?.url || res.data;
     } catch (e) {
       throw e; // Re-throw so callers can handle upload errors
@@ -112,6 +114,7 @@ export const ProviderApi = {
       mime: 'image/png',
       original_name: 'signature.png'
     });
+    noteUploadScan(res.data?.id, res.data);
     return res.data?.id || res.data?.url || res.data;
   },
 

@@ -52,8 +52,14 @@ export class Prescription {
   /** Pharmacist verification (F19): set when a pharmacist reviews the Rx lines. */
   @Prop() verified_by?: string;
   @Prop() verified_at?: Date;
+  /** 22.1: last day the prescription can be used for a refill (set by the prescriber or the pharmacist). Unset = unknown. */
+  @Prop() valid_until?: Date;
+  /** 22.1: how many more refills the prescription allows. Unset = unknown; a refill is refused until both are set. */
+  @Prop() refills_remaining?: number;
 }
 export type PrescriptionDocument = Prescription & Document;
 export const PrescriptionSchema = SchemaFactory.createForClass(Prescription);
 // 16.9: diagnosis, notes and the dosing instructions are ciphertext at rest
 PrescriptionSchema.plugin(healthFieldsPlugin, { registry: 'prescriptions' });
+// The doctor's list filtered by appointment (GET /prescriptions/doctor/mine?appointment_id=).
+PrescriptionSchema.index({ doctor_id: 1, appointment_id: 1 });

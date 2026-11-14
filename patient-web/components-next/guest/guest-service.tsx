@@ -4,7 +4,7 @@ import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { DoctorListCard } from "@/components-next/consult/doctor-list-card";
 import { SectionHead } from "@/components-next/health/health-kit";
-import { doctorDisplayName, type DoctorRow } from "@/lib/api/doctors";
+import { doctorDisplayName, doctorPlace, type DoctorRow } from "@/lib/api/doctors";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import consult from "@/components-next/consult/consult.module.css";
 
@@ -69,7 +69,7 @@ export function GuestDoctors({ locale, id, specialty, failed, doctors, labels }:
                   name={doctorDisplayName(doctor, locale) ?? labels.nameUnavailable}
                   grade={doctor.degree}
                   specialty={labels.specialty}
-                  place={doctor.facility}
+                  place={doctorPlace(doctor, locale)}
                   modes={modes}
                   rating={doctor.rating !== undefined && doctor.reviews ? { value: doctor.rating, count: doctor.reviews } : undefined}
                   nextSlotIso={doctor.nextSlot}

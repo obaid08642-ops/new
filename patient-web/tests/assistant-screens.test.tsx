@@ -32,15 +32,6 @@ vi.mock("@/lib/api/upstream", () => ({ callPatientApi: server.api }));
 
 import AssistantPage from "@/app/[locale]/ai/page";
 import MonthlyReportPage from "@/app/[locale]/ai/monthly-report/page";
-import TriageRedirect from "@/app/[locale]/ai/triage/page";
-import SymptomCheckerRedirect from "@/app/[locale]/ai/symptom-checker/page";
-import TimelineRedirect from "@/app/[locale]/ai/symptom-timeline/page";
-import TranslatorRedirect from "@/app/[locale]/ai/prescription-translator/page";
-import ReportRedirect from "@/app/[locale]/ai/report/page";
-import AiAnalysisRedirect from "@/app/[locale]/reports/ai-analysis/page";
-import SkinRedirect from "@/app/[locale]/ai/skin-analysis/page";
-import ChatDoctorRedirect from "@/app/[locale]/ai/chat-doctor/page";
-import VoiceRedirect from "@/app/[locale]/voice/page";
 import { AnswerCard, AskedBubble } from "@/components-next/assistant/assistant-kit";
 import { assistantRequestBody, parseAssistantAnswer, parseMode } from "@/lib/ai/assistant";
 import { isAllowedPatientApiRequest } from "@/lib/api/patient-allowlist";
@@ -138,24 +129,6 @@ describe("the assistant screen", () => {
     expect(out).toContain("/en/health/records?tab=reports");
     expect(out).toContain("/en/consultations/share-report");
     expect(out).not.toContain('type="checkbox"');
-  });
-});
-
-describe("the old routes (merge map section 4)", () => {
-  const sp = (query: Record<string, string>) => Promise.resolve(query);
-  it("send each old screen to its mode and keep the query", async () => {
-    expect(await redirectOf(() => TriageRedirect({ params, searchParams: sp({ ref: "n1" }) }))).toBe("/en/ai?ref=n1&mode=symptoms");
-    expect(await redirectOf(() => SymptomCheckerRedirect({ params, searchParams: sp({}) }))).toBe("/en/ai?mode=symptoms");
-    expect(await redirectOf(() => TimelineRedirect({ params, searchParams: sp({}) }))).toBe("/en/ai?mode=symptoms");
-    expect(await redirectOf(() => TranslatorRedirect({ params, searchParams: sp({}) }))).toBe("/en/ai?mode=prescription");
-    expect(await redirectOf(() => ReportRedirect({ params, searchParams: sp({ x: "1" }) }))).toBe("/en/ai?x=1&mode=report");
-    expect(await redirectOf(() => AiAnalysisRedirect({ params, searchParams: sp({}) }))).toBe("/en/ai?mode=report");
-  });
-
-  it("send the removed features to the assistant and the doctor chat to the bookings list", async () => {
-    expect(await redirectOf(() => SkinRedirect({ params, searchParams: sp({}) }))).toBe("/en/ai");
-    expect(await redirectOf(() => VoiceRedirect({ params, searchParams: sp({}) }))).toBe("/en/ai");
-    expect(await redirectOf(() => ChatDoctorRedirect({ params, searchParams: sp({ id: "t1" }) }))).toBe("/en/appointments?id=t1");
   });
 });
 

@@ -5,6 +5,7 @@ import { CircuitBreakerService } from './circuit-breaker.service';
 import { AdaptiveConcurrencyInterceptor } from './adaptive-concurrency.interceptor';
 import { CacheControlInterceptor } from './cache-control.interceptor';
 import { PasswordSecurityService } from './password-security.service';
+import { LoginLockService } from './login-lock.service';
 import { OtpAbuseGuard } from './otp-abuse.service';
 import { PurgeBus } from './purge-bus';
 
@@ -17,6 +18,7 @@ import { PurgeBus } from './purge-bus';
     AdaptiveConcurrencyInterceptor,
     CacheControlInterceptor,
     PasswordSecurityService,
+    LoginLockService,
     OtpAbuseGuard,
     PurgeBus,
   ],
@@ -27,6 +29,7 @@ import { PurgeBus } from './purge-bus';
     AdaptiveConcurrencyInterceptor,
     CacheControlInterceptor,
     PasswordSecurityService,
+    LoginLockService,
     OtpAbuseGuard,
     PurgeBus,
   ],

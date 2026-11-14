@@ -45,9 +45,9 @@ function Bubble({ message }: { message: ChatMessage }) {
   return (
     <View style={{ width: '100%', alignItems: ink ? 'flex-end' : 'flex-start' }} testID={`chat-message-${message.id}`}>
       {!ink && message.sender ? <Text style={{ ...scale(t, 'tag', 'regular'), color: c.text.tertiary, marginBottom: 2, ...flow }}>{message.sender}</Text> : null}
-      <View style={{ maxWidth: '80%', paddingHorizontal: 14, paddingVertical: 10, borderRadius: 18, backgroundColor: ink ? c.action.selected.bg : c.bg.surface, borderWidth: ink ? 0 : 1, borderColor: c.border.hairline }}>
-        <Text style={{ ...scale(t, 'body', 'regular'), color: ink ? c.action.selected.fg : c.text.primary, ...flow }}>{message.text}</Text>
-        {message.time ? <Text style={{ ...scale(t, 'tag', 'regular'), color: ink ? c.text.onInverseSecondary : c.text.tertiary, marginTop: 4, ...flow }}>{message.time}</Text> : null}
+      <View style={{ maxWidth: '80%', paddingHorizontal: 14, paddingVertical: 10, borderRadius: 18, backgroundColor: ink ? c.service.coral.bg : c.bg.surface, borderWidth: ink ? 0 : 1, borderColor: c.border.hairline }}>
+        <Text style={{ ...scale(t, 'body', 'regular'), color: ink ? c.service.coral.fg : c.text.primary, ...flow }}>{message.text}</Text>
+        {message.time ? <Text style={{ ...scale(t, 'tag', 'regular'), color: ink ? c.service.coral.fg : c.text.tertiary, marginTop: 4, ...flow }}>{message.time}</Text> : null}
       </View>
     </View>
   );

@@ -88,7 +88,8 @@ export default function HealthDashboardPage() {
         )}
       </div>
 
-      <h2 className="font-bold mb-3 text-gray-700">المهام المجدولة (Cron)</h2>
+      <h2 className="font-bold mb-1 text-gray-700">المهام المجدولة (الجدول المعلن)</h2>
+      <p className="text-xs text-gray-500 mb-3">{d.crons_note?.ar || 'الجدول المعلن للمهام، وليس حالة تشغيل فعلية.'}</p>
       <div className="bg-white rounded-lg shadow border mb-8">
         <DataTable
           bare
@@ -98,7 +99,7 @@ export default function HealthDashboardPage() {
           columns={[
             { key: 'name', header: 'المهمة', className: 'font-bold', render: (c: LooseRow) => <span dir="ltr">{c.name}</span> },
             { key: 'schedule', header: 'الجدول', render: (c: LooseRow) => <span dir="ltr">{c.schedule}</span> },
-            { key: 'status', header: 'الحالة', render: (c: LooseRow) => <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">{c.status}</span> },
+            { key: 'where', header: 'مكان التشغيل', render: (c: LooseRow) => <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-bold">{c.where === 'host' ? 'جدولة الخادم' : 'داخل التطبيق'}</span> },
           ]}
         />
       </div>

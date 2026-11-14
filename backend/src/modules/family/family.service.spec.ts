@@ -1,3 +1,4 @@
+import { ForbiddenException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken, getConnectionToken } from '@nestjs/mongoose';
 import { FamilyService } from './family.service';
@@ -71,6 +72,7 @@ describe('FamilyService', () => {
 
     it('should throw if user is not a group owner', async () => {
       groupModel.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue(null) });
+      await expect(service.generateInvite('user-2')).rejects.toBeInstanceOf(ForbiddenException);
       await expect(service.generateInvite('user-2')).rejects.toThrow('You must be the group owner');
     });
   });

@@ -6,19 +6,30 @@
 # Exit: 0 only when the local dump AND the off-server copy succeeded.
 set -uo pipefail
 source "$(dirname "$0")/_backup-common.sh"
+source "$(dirname "$0")/_dump-guard.sh"
 nabd_load_env
 
 TS=$(date +%Y%m%d-%H%M%S)
 FILE="$BACKUP_DIR/nabd_${DB_NAME}_$TS.gz"
 mkdir -p "$BACKUP_DIR"
 
+# 20.8: where the oplog stood just before the dump started; point-in-time recovery replays the oplog from here
+OPLOG_START=$(oplog_head)
+[ -n "$OPLOG_START" ] || echo "[$(date)] WARN: oplog position unreadable, this dump cannot be used as the base of a point-in-time recovery"
+
 echo "[$(date)] mongodump $DB_NAME"
-if ! docker exec "$MONGO_CONTAINER" mongodump --quiet \
-       -u "${MONGO_ROOT_USER:-}" -p "${MONGO_ROOT_PASSWORD:-}" --authenticationDatabase admin \
-       --db="$DB_NAME" --archive --gzip > "$FILE" || [ ! -s "$FILE" ]; then
+if ! mongodump_oneoff "$FILE" --db="$DB_NAME" --gzip --archive || [ ! -s "$FILE" ]; then
   rm -f "$FILE"
   echo "[$(date)] FAIL: mongodump failed or wrote nothing"
   report local false "" "mongodump failed or wrote nothing"
+  exit 1
+fi
+
+# a dump far smaller than the ones before it is not a backup (2026-10-31: 3.5 MB where 354 MB was normal): keep it aside as .suspect, keep the earlier dumps, fail loudly
+if ! dump_guard "$FILE" "$BACKUP_DIR" 'nabd_*.gz' 'nabd_*.gz.gpg'; then
+  mv -f "$FILE" "$FILE.suspect"
+  echo "[$(date)] FAIL: the dump is far smaller than the earlier ones; kept as $(basename "$FILE").suspect, not counted as a backup"
+  report local false "" "dump under 50% of the earlier dumps"
   exit 1
 fi
 
@@ -43,12 +54,13 @@ if backup_encryption_enabled; then
 else
   echo "[$(date)] WARNING: the dump is NOT encrypted (BACKUP_ENCRYPTION_PASSPHRASE_FILE is not set)"
 fi
+[ -z "$OPLOG_START" ] || printf '%s\n' "$OPLOG_START" > "$FILE.oplogts"   # 20.8: next to the (possibly encrypted) dump
 SIZE=$(stat -c %s "$FILE")
 echo "[$(date)] local backup: $(basename "$FILE") ($SIZE bytes)"
 report local true "$SIZE"
 
 # retention: 14 days on the server
-find "$BACKUP_DIR" -maxdepth 1 \( -name "nabd_*.gz" -o -name "nabd_*.gz.gpg" \) -mtime +14 -delete
+find "$BACKUP_DIR" -maxdepth 1 \( -name "nabd_*.gz" -o -name "nabd_*.gz.gpg" -o -name "nabd_*.oplogts" -o -name "nabd_*.suspect" \) -mtime +14 -delete
 
 ERR=$(private_bucket_error)
 if [ -n "$ERR" ]; then
@@ -57,7 +69,8 @@ if [ -n "$ERR" ]; then
   exit 1
 fi
 KEY="mongodb/$(basename "$FILE")"
-if OUT=$(backup_aws s3 cp "$FILE" "s3://$BACKUP_S3_BUCKET/$KEY" --only-show-errors 2>&1); then
+if OUT=$(backup_aws s3 cp "$FILE" "s3://$BACKUP_S3_BUCKET/$KEY" --only-show-errors 2>&1) \
+   && { [ ! -f "$FILE.oplogts" ] || OUT=$(backup_aws s3 cp "$FILE.oplogts" "s3://$BACKUP_S3_BUCKET/$KEY.oplogts" --only-show-errors 2>&1); }; then
   echo "[$(date)] off-server copy: s3://$BACKUP_S3_BUCKET/$KEY"
   report offsite true "$SIZE"
 else

@@ -1,6 +1,34 @@
-import { IsArray, IsBoolean, IsDefined, IsEnum, IsNumber, IsObject, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsInt, IsNumber, IsObject, IsOptional, IsString, Max, MaxLength, Min, ValidateNested, registerDecorator, ValidationOptions } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { ProviderType } from '../../common/enums';
+import { parsePriceText } from '../../common/service-offers';
+import { OwnDeliveryDto } from '../pharmacy/pharmacy-delivery';
+
+/** A price typed or sent as a number or as text ("95", "٩٥", "1,200.50"); anything else is not a price. 0 is kept (the owner rejects it where the service is ticked, not here). */
+const priceOf = (v: unknown): number | null => {
+  if (typeof v === 'number') return Number.isFinite(v) && v >= 0 ? v : null;
+  if (typeof v === 'string') return parsePriceText(v);
+  return null;
+};
+/** {serviceId: price} map as the lab/radiology wizards send it: prices become numbers; a value that is not a price is left as is so the validator names the field. */
+const toPriceMap = ({ value }: { value: unknown }) => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return value;
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+    if (typeof v === 'string' && !v.trim()) continue; // an emptied price box means no price, not an error
+    out[k] = priceOf(v) ?? v;
+  }
+  return out;
+};
+/** Every value of the map is a finite price >= 0 (after the transform above it is a number). */
+const IsPriceMap = (options?: ValidationOptions) => (target: object, key: string) =>
+  registerDecorator({
+    name: 'isPriceMap', target: target.constructor, propertyName: key, options,
+    validator: {
+      validate: (v: unknown) => !!v && typeof v === 'object' && !Array.isArray(v) && Object.values(v as Record<string, unknown>).every((x) => typeof x === 'number' && Number.isFinite(x) && x >= 0),
+      defaultMessage: () => `${key} must map each id to a price (a number, 0 or more)`,
+    },
+  });
 
 /** One working-hours row as the wizards send it (pharmacy may send day 'All' for 24/7). */
 /** NursingRegistration: { key: catalog service id, name_ar, price } per ticked service. */
@@ -9,6 +37,25 @@ export class NursingServiceEntryDto {
   @IsOptional() @IsString() @MaxLength(200) name_ar?: string;
   @IsOptional() @IsString() @MaxLength(200) name_en?: string;
   @IsOptional() @IsNumber() price?: number;
+}
+
+/** Doctor education entry (2026-10-24). */
+export class EducationEntryDto {
+  @IsString() @MaxLength(200) university: string;
+  @IsOptional() @IsInt() @Min(1950) @Max(2100) graduation_year?: number;
+  @IsOptional() @IsString() @MaxLength(200) fellowship_board?: string;
+}
+
+/** Doctor procedure with its price (2026-10-24). */
+export class ProcedureEntryDto {
+  @IsString() @MaxLength(200) name_ar: string;
+  @IsOptional() @IsString() @MaxLength(200) name_en?: string;
+  @IsNumber() @Min(0) @Max(1000000) price: number;
+}
+
+export class MapPointDto {
+  @IsNumber() @Min(-90) @Max(90) lat: number;
+  @IsNumber() @Min(-180) @Max(180) lng: number;
 }
 
 export class WorkingHoursEntryDto {
@@ -123,6 +170,11 @@ export class Step2Dto {
   @IsOptional()
   @IsString()
   scfhs_license_number?: string;
+
+  /** SCFHS licence expiry (doctors): bookings stop after it, a warning goes out 30 days before. */
+  @IsOptional()
+  @IsDateString()
+  license_expiry_date?: string;
 
   @IsOptional()
   @IsString()
@@ -310,6 +362,12 @@ export class Step3Dto {
   @IsOptional()
   @IsBoolean()
   has_own_drivers?: boolean;
+
+  /** Pharmacy with its own couriers: zone, fee and free-delivery threshold. */
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => OwnDeliveryDto)
+  own_delivery?: OwnDeliveryDto;
 
   @IsOptional()
   @IsNumber()
@@ -503,6 +561,41 @@ export class Step3Dto {
   @IsString()
   title?: string;
 
+  // Doctor profile fields (owner decision 2026-10-24)
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => EducationEntryDto)
+  education?: EducationEntryDto[];
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(1000000)
+  follow_up_price?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(365)
+  follow_up_window_days?: number;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProcedureEntryDto)
+  procedures?: ProcedureEntryDto[];
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(300)
+  clinic_address?: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => MapPointDto)
+  clinic_location?: MapPointDto;
+
   @IsOptional()
   @IsString()
   vacation_date?: string;
@@ -534,12 +627,14 @@ export class Step3Dto {
   // Lab / radiology wizard: price lists and home-collection settings
   // free-form: {testOrScanId: price} maps
   @IsOptional()
-  @IsObject()
+  @Transform(toPriceMap)
+  @IsPriceMap()
   test_prices?: Record<string, number>;
 
   // free-form: {scanId: price}
   @IsOptional()
-  @IsObject()
+  @Transform(toPriceMap)
+  @IsPriceMap()
   scan_prices?: Record<string, number>;
 
   @IsOptional()
@@ -608,10 +703,4 @@ export class SubmitDto {
   @IsOptional()
   @IsObject()
   full_data?: Record<string, unknown>;
-}
-
-export class AdminContractVisibilityDto {
-  @IsOptional()
-  @IsBoolean()
-  visible?: boolean;
 }

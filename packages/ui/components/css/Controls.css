@@ -37,7 +37,8 @@
 }
 .nabd-segmented--sm .nabd-segmented__pill { height: 38px; font-size: var(--nabd-font-size-small); }
 .nabd-segmented--md .nabd-segmented__pill { height: 44px; font-size: var(--nabd-font-size-segment); }
-.nabd-segmented__pill--on { font-weight: 700; background: var(--nabd-color-bg-surface); box-shadow: var(--nabd-shadow-segmented); }
+/* owner ink override 2026-10-26: the selected segment is the soft action tint */
+.nabd-segmented__pill--on { font-weight: 700; background: var(--nabd-color-service-coral-bg); color: var(--nabd-color-service-coral-fg); box-shadow: var(--nabd-shadow-segmented); }
 .nabd-segmented__pill--disabled { opacity: 0.5; }
 
 /* Toggle: a 50×30 track, a 24px knob, 3px inset; the hit area is 44 tall */

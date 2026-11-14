@@ -6,7 +6,7 @@ import { callPatientApi } from "@/lib/api/upstream";
 import { boundedUpstreamError } from "@/lib/api/error-response";
 
 type Context = { params: Promise<{ requestId: string }> };
-const schema = z.object({ decision: z.enum(["approved", "rejected"]), note: z.string().max(1000).optional().default("") });
+const schema = z.object({ decision: z.enum(["approved", "rejected"]), note: z.string().max(1000).optional().default(""), permissions: z.array(z.string().min(1).max(64)).max(32).optional() });
 
 export async function PUT(request: Request, context: Context) {
   const { requestId } = await context.params;

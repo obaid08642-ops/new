@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { Button, Card, Chip, ErrorState, FIcon, Input, OfflineState, SectionHeader, Search, Toggle } from '../../../../packages/ui-native/src';
+import { Button, Chip, ErrorState, Input, OfflineState, SectionHeader, Search } from '../../../../packages/ui-native/src';
 import { Sheet } from '../consult/ConsultKit';
-import { PHARMACY_TONE } from './PharmacyKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { isOffline } from '../../utils/isOffline';
@@ -15,7 +14,8 @@ import { logError } from '../../utils/logger';
  * `filter_*` route params as before, so the filters live in the URL.
  */
 
-const SORT_OPTIONS = [
+/** The orders the catalogue takes (the hub's chip row uses the same list); none chosen = the ranking, "Recommended". */
+export const SORT_OPTIONS = [
   { id: 'relevant', label: 'pharmacy.filters.sortRelevant' },
   { id: 'price_asc', label: 'pharmacy.filters.sortPriceAsc' },
   { id: 'price_desc', label: 'pharmacy.filters.sortPriceDesc' },
@@ -49,14 +49,18 @@ export type FilterInitial = { filter_category?: string; filter_forms?: string; f
 const toggled = (list: string[], v: string) => (list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
 const splitList = (v?: string): string[] => (v ? v.split(',').filter(Boolean) : []);
 
+/** The prescription filter, as the web's: any (''), prescription only ('1'), no prescription needed ('none'). */
+type RxChoice = '' | '1' | 'none';
+const rxOf = (v?: string): RxChoice => (v === '1' ? '1' : v === 'none' ? 'none' : '');
+
 export function FilterSheet({ open, onClose, initial, onApply }: { open: boolean; onClose: () => void; initial: FilterInitial; onApply: (params: FilterParams) => void }) {
   const { theme, t, c, flow, k, num } = useScreenUi();
 
   const [activeCat, setActiveCat] = useState(initial.filter_category || 'all');
   const [activeForm, setActiveForm] = useState<string[]>(splitList(initial.filter_forms));
   const [activeBrand, setActiveBrand] = useState<string[]>(splitList(initial.filter_brands));
-  const [rxOnly, setRxOnly] = useState(initial.filter_rx === '1');
-  const [activeSort, setActiveSort] = useState(initial.filter_sort || 'relevant');
+  const [rx, setRx] = useState<RxChoice>(rxOf(initial.filter_rx));
+  const [activeSort, setActiveSort] = useState(initial.filter_sort || '');
   const [brandSearch, setBrandSearch] = useState('');
   const [minPrice, setMinPrice] = useState(initial.filter_min_price || '');
   const [maxPrice, setMaxPrice] = useState(initial.filter_max_price || '');
@@ -73,8 +77,8 @@ export function FilterSheet({ open, onClose, initial, onApply }: { open: boolean
     setActiveCat(initial.filter_category || 'all');
     setActiveForm(splitList(initial.filter_forms));
     setActiveBrand(splitList(initial.filter_brands));
-    setRxOnly(initial.filter_rx === '1');
-    setActiveSort(initial.filter_sort || 'relevant');
+    setRx(rxOf(initial.filter_rx));
+    setActiveSort(initial.filter_sort || '');
     setMinPrice(initial.filter_min_price || '');
     setMaxPrice(initial.filter_max_price || '');
     setBrandSearch('');
@@ -102,14 +106,14 @@ export function FilterSheet({ open, onClose, initial, onApply }: { open: boolean
   }, [open, load]);
 
   const shownBrands = brands.filter((b) => b.includes(brandSearch));
-  const activeCount = (activeCat !== 'all' ? 1 : 0) + activeForm.length + activeBrand.length + (rxOnly ? 1 : 0) + (minPrice || maxPrice ? 1 : 0);
+  const activeCount = (activeCat !== 'all' ? 1 : 0) + activeForm.length + activeBrand.length + (rx !== '' ? 1 : 0) + (minPrice || maxPrice ? 1 : 0);
 
   const apply = () => {
     onApply({
       filter_category: activeCat,
       filter_forms: activeForm.join(','),
       filter_brands: activeBrand.join(','),
-      filter_rx: rxOnly ? '1' : '0',
+      filter_rx: rx === '' ? '0' : rx,
       filter_min_price: minPrice,
       filter_max_price: maxPrice,
       filter_sort: activeSort,
@@ -120,8 +124,8 @@ export function FilterSheet({ open, onClose, initial, onApply }: { open: boolean
     setActiveCat('all');
     setActiveForm([]);
     setActiveBrand([]);
-    setRxOnly(false);
-    setActiveSort('relevant');
+    setRx('');
+    setActiveSort('');
     setMinPrice('');
     setMaxPrice('');
     setBrandSearch('');
@@ -141,7 +145,7 @@ export function FilterSheet({ open, onClose, initial, onApply }: { open: boolean
             <SectionHeader title={k('pharmacy.filters.sort')} theme={theme} />
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
               {SORT_OPTIONS.map((o) => (
-                <Chip key={o.id} label={k(o.label)} selected={activeSort === o.id} onPress={() => setActiveSort(o.id)} theme={theme} />
+                <Chip key={o.id} label={k(o.label)} selected={activeSort === o.id} onPress={() => setActiveSort(activeSort === o.id ? '' : o.id)} theme={theme} />
               ))}
             </View>
           </View>
@@ -157,16 +161,14 @@ export function FilterSheet({ open, onClose, initial, onApply }: { open: boolean
             </View>
           ) : null}
 
-          <Card padding="sm" theme={theme}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <FIcon icon="prescription" tone={PHARMACY_TONE} size={44} theme={theme} />
-              <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
-                <Text style={{ ...scale(t, 'control'), color: c.text.primary, ...flow }}>{k('pharmacy.filters.rxOnly')}</Text>
-                <Text style={{ ...scale(t, 'label', 'regular'), color: c.text.secondary, ...flow }}>{k('pharmacy.filters.rxOnlyBody')}</Text>
-              </View>
-              <Toggle value={rxOnly} onChange={setRxOnly} label={k('pharmacy.filters.rxOnly')} theme={theme} />
+          <View style={{ gap: 10 }}>
+            <SectionHeader title={k('pharmacy.filters.rx')} theme={theme} />
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              <Chip label={k('pharmacy.filters.rxAny')} selected={rx === ''} onPress={() => setRx('')} theme={theme} />
+              <Chip label={k('pharmacy.filters.rxOnly')} selected={rx === '1'} onPress={() => setRx('1')} theme={theme} />
+              <Chip label={k('pharmacy.filters.rxNone')} selected={rx === 'none'} onPress={() => setRx('none')} theme={theme} />
             </View>
-          </Card>
+          </View>
 
           <View style={{ gap: 10 }}>
             <SectionHeader title={k('pharmacy.filters.priceRange')} theme={theme} />

@@ -1,4 +1,7 @@
-import { ServiceUnavailableException } from '@nestjs/common';
+import { isAllowedCallbackUrl } from '../../common/callback-url';
+import { halalaShadowPlugin } from '../../common/halala-shadow';
+import { toHalalas } from '../../common/money';
+import { GatewayTimeoutException, ServiceUnavailableException } from '@nestjs/common';
 import {
   Module,
   Injectable,
@@ -32,8 +35,10 @@ import * as crypto from 'crypto';
 import { moyasarBase } from '../../common/moyasar-base';
 import { isMoyasarWebhookAuthenticated } from '../../common/moyasar-webhook-auth';
 import { PaymentsModule, PaymentsService } from '../payments/payments.module';
+import { timedFetch } from '../../common/external-call';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { DurableEventsService, emitDurable } from '../durable-events/durable-events.service';
 // ── Schemas ──────────────────────────────────────────────────────────────────
 
 @Schema({ timestamps: true, collection: 'moyasar_payments' })
@@ -56,6 +61,9 @@ export class MoyasarPayment {
   @Prop() paid_at?: Date;
   @Prop() refunded_at?: Date;
   @Prop({ default: 0 }) refunded_amount: number;
+  /** R11 P1: integer halalas next to the doubles (halalaShadowPlugin). */
+  @Prop() amount_halalas?: number;
+  @Prop() refunded_amount_halalas?: number;
   @Prop({ type: Object }) raw_response?: Record<string, any>;
   @Prop() callback_url?: string;
   @Prop() description?: string;
@@ -63,6 +71,7 @@ export class MoyasarPayment {
 
 export type MoyasarPaymentDocument = MoyasarPayment & Document;
 export const MoyasarPaymentSchema = SchemaFactory.createForClass(MoyasarPayment);
+halalaShadowPlugin(MoyasarPaymentSchema, ['amount', 'refunded_amount']);
 MoyasarPaymentSchema.index({ booking_id: 1, status: 1 });
 MoyasarPaymentSchema.index({ patient_id: 1, createdAt: -1 });
 MoyasarPaymentSchema.index({ moyasar_id: 1 }, { sparse: true });
@@ -81,6 +90,7 @@ export class MoyasarService {
     @InjectConnection() private readonly conn: Connection,
     private readonly events: EventEmitter2,
     @Optional() private readonly payments?: PaymentsService,
+    @Optional() private readonly durable?: DurableEventsService,
   ) {
     this.apiKey = process.env.MOYASAR_API_KEY || process.env.MOYASAR_SECRET_KEY || process.env.MOYASAR_SECRET || '';
     if (!this.apiKey) {
@@ -148,16 +158,20 @@ export class MoyasarService {
     /** Internal flows with user-chosen amounts (wallet top-up) set this explicitly. */
     skipBookingValidation?: boolean;
   }): Promise<MoyasarPaymentDocument> {
+    // Order d (2026-11-13): a caller-supplied return address must be one of our own origins; the default below is built from PUBLIC_APP_URL.
+    if (params.callbackUrl !== undefined && params.callbackUrl !== null && params.callbackUrl !== '' && !isAllowedCallbackUrl(params.callbackUrl)) {
+      throw new BadRequestException('callback_url_not_allowed');
+    }
     // E1-F2: amount comes from the booking document, not the request body.
     if (!params.skipBookingValidation) {
       const resolved = await this.resolveBookingAmount(params.bookingKind, params.bookingId);
-      if (resolved.patient_id && resolved.patient_id !== params.patientId) {
+      if (!resolved.patient_id || resolved.patient_id !== params.patientId) {   // a booking with no owner is not payable by just any signed-in user
         throw new ForbiddenException('not_your_booking');
       }
       params.amount = resolved.amount;
     }
-    if (!(Number(params.amount) > 0)) throw new BadRequestException('invalid_amount');
-    const amountHalalas = Math.round(params.amount * 100);
+    if (!(Number(params.amount) > 0) || !Number.isFinite(Number(params.amount))) throw new BadRequestException('invalid_amount');
+    const amountHalalas = toHalalas(params.amount);   // R11 P2: exact, not round(x * 100)
     const callbackUrl =
       params.callbackUrl ||
       (process.env.PUBLIC_APP_URL || '') + '/api/v1/moyasar/callback';
@@ -176,7 +190,8 @@ export class MoyasarService {
         params.description ||
         `Nabd ${params.bookingKind} #${params.bookingId.slice(0, 8)}`,
       callback_url: callbackUrl,
-      source: { type: 'creditcard' }, // frontend overrides with applepay / mada
+      success_url: callbackUrl,
+      back_url: callbackUrl,
       metadata: {
         booking_id: params.bookingId,
         booking_kind: params.bookingKind,
@@ -189,11 +204,14 @@ export class MoyasarService {
 
     if (this.apiKey) {
       try {
-        const resp = await fetch(`${this.baseUrl}/payments`, {
+        // One attempt only: a POST without an idempotency key is never repeated. A timeout is a 504 and no local
+        // payment row is written; the hosted checkout charges nothing until the patient completes it.
+        // Hosted checkout = Invoice: the Payments API needs a card `source` collected client-side with the publishable key.
+        const resp = await timedFetch(`${this.baseUrl}/invoices`, {
           method: 'POST',
           headers: this.authHeaders(),
           body: JSON.stringify(requestBody),
-        });
+        }, { label: 'moyasar.createPayment', timeoutCode: 'payment_gateway_timeout' });
         moyasarResponse = await resp.json();
         if (!resp.ok) {
           throw new BadRequestException(
@@ -202,6 +220,7 @@ export class MoyasarService {
         }
       } catch (e: any) {
         this.logger.error('Moyasar createPayment error', e?.message);
+        if (e instanceof GatewayTimeoutException) throw e;
         throw new BadRequestException(e?.message || 'payment_create_failed');
       }
     } else {
@@ -228,7 +247,7 @@ export class MoyasarService {
       currency: 'SAR',
       moyasar_id: moyasarResponse?.id,
       status: moyasarResponse?.status || 'initiated',
-      payment_url: moyasarResponse?.source?.transaction_url,
+      payment_url: moyasarResponse?.url ?? moyasarResponse?.source?.transaction_url,
       description: params.description,
       callback_url: callbackUrl,
       raw_response: moyasarResponse,
@@ -246,10 +265,17 @@ export class MoyasarService {
     const isSandbox = !this.apiKey || moyasarId.startsWith('sandbox_');
     if (!isSandbox) {
       try {
-        const resp = await fetch(`${this.baseUrl}/payments/${encodeURIComponent(moyasarId)}`, {
+        // A read: safe to repeat (at most 2 more times). On a timeout the payment keeps its status and the
+        // next reconciliation pass asks again.
+        const resp = await timedFetch(`${this.baseUrl}/invoices/${encodeURIComponent(moyasarId)}`, {
           headers: this.authHeaders(),
-        });
-        const data: any = await resp.json();
+        }, { label: 'moyasar.syncPaymentStatus', retries: 2, timeoutCode: 'payment_gateway_timeout' });
+        const invoice: any = await resp.json();
+        // The invoice settles through one of its payments; that payment carries the status, source and amount.
+        const settled = Array.isArray(invoice?.payments)
+          ? invoice.payments.find((x: any) => ['paid', 'refunded'].includes(x?.status)) ?? invoice.payments[invoice.payments.length - 1]
+          : undefined;
+        const data: any = settled ? { ...settled, invoice_id: invoice.id } : invoice;
 
         const statusMap: Record<string, string> = {
           paid: 'paid',
@@ -257,6 +283,10 @@ export class MoyasarService {
           authorized: 'authorized',
           initiated: 'initiated',
           refunded: 'refunded',
+          // a checkout the patient cancelled, or that ran out: never left as "initiated" (the return page must not read them as still pending)
+          canceled: 'canceled',
+          cancelled: 'canceled',
+          expired: 'expired',
         };
 
         payment.status = statusMap[data?.status] ?? payment.status;
@@ -306,12 +336,17 @@ export class MoyasarService {
     if (!payment) throw new BadRequestException('payment_not_found');
 
     try {
-      const amountHalalas = amount ? Math.round(amount * 100) : undefined;
-      const resp = await fetch(`${this.baseUrl}/payments/${encodeURIComponent(moyasarId)}/refunds`, {
+      const amountHalalas = amount ? toHalalas(amount) : undefined;
+      // moyasar_id is the invoice; the refund goes to the payment that settled it (recorded by syncPaymentStatus).
+      const raw: any = payment.raw_response;
+      const settledPaymentId: string = raw?.invoice_id && typeof raw?.id === 'string' ? raw.id : moyasarId;
+      // Never repeated: a second POST could refund twice. On a timeout nothing is recorded locally; the payment
+      // stays `paid` until syncPaymentStatus reads `refunded` from Moyasar, so check it before asking again.
+      const resp = await timedFetch(`${this.baseUrl}/payments/${encodeURIComponent(settledPaymentId)}/refund`, {
         method: 'POST',
         headers: this.authHeaders(),
         body: JSON.stringify(amountHalalas ? { amount: amountHalalas } : {}),
-      });
+      }, { label: 'moyasar.refund', timeoutCode: 'refund_gateway_timeout' });
       const data: any = await resp.json();
       if (!resp.ok) throw new BadRequestException(data?.message || 'refund_failed');
 
@@ -321,15 +356,16 @@ export class MoyasarService {
         (payment.refunded_amount || 0) + (amount ?? payment.amount);
       await payment.save();
 
-      this.events.emit('payment.refund', {
+      await emitDurable(this.durable, this.events, 'payment.refund', {
         actor_id: 'admin', transaction_id: payment.moyasar_id,
         booking_id: payment.booking_id, booking_kind: payment.booking_kind,
         patient_id: payment.patient_id, amount: amount ?? payment.amount,
-      });
+      }, `payment.refund:moyasar:${payment.moyasar_id}:${payment.refunded_amount}`);
 
       return { ok: true, refund: data };
     } catch (e: any) {
       this.logger.error('Refund error', e?.message);
+      if (e instanceof GatewayTimeoutException) throw e;
       throw new BadRequestException(e?.message || 'refund_failed');
     }
   }
@@ -366,7 +402,7 @@ export class MoyasarService {
   async handleWebhook(payload: any, signature?: string, rawBody?: string): Promise<{ ok: boolean }> {
     // S-5: Moyasar documents no signature header — the body secret_token is the
     // proof. The older HMAC path still works. Anything with neither is refused.
-    const raw = rawBody ?? JSON.stringify(payload);
+    const raw = rawBody ?? JSON.stringify(payload ?? {});
     if (!isMoyasarWebhookAuthenticated(payload, signature, raw)) {
       throw new BadRequestException('invalid_signature');
     }
@@ -460,7 +496,7 @@ export class MoyasarController {
   @UseGuards(JwtAuthGuard)
   async getByBooking(@CurrentUser() user: any, @Param('bookingId') bookingId: string) {
     const payments = await this.svc.getPaymentsByBooking(bookingId);
-    if (user.role !== 'admin' && payments.some((p: any) => p.patient_id && p.patient_id !== user.id)) {
+    if (user.role !== 'admin' && payments.some((p: any) => !p.patient_id || p.patient_id !== user.id)) {   // a payment with no owner is not anybody's to read
       throw new ForbiddenException('not_your_booking');
     }
     return payments;
@@ -529,7 +565,10 @@ export class MoyasarController {
     // Reconcile with the gateway: a hosted page can be abandoned, so trust the
     // provider's view of the payment, not the query string the browser sent.
     const synced = moyasarId ? await this.svc.syncPaymentStatus(moyasarId).catch(() => null) : null;
-    const settled = String(synced?.status || status || 'pending');
+    // An id we do not hold (or no id) gets "pending", never the status the browser sent: a forged link must not draw "paid" on the result page.
+    // The result screens verify with the server by id, so a genuine return still lands on its real state.
+    void status;
+    const settled = String(synced?.status || 'pending');
     // The patient lands back in the app: hand them a real result page, not JSON.
     const target = process.env.PAYMENT_RESULT_URL || 'https://nabd.plus/payments/result';
     const back = `${target}?status=${encodeURIComponent(settled)}${moyasarId ? `&id=${encodeURIComponent(moyasarId)}` : ''}`;

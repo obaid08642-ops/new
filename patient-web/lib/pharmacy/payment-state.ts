@@ -1,6 +1,7 @@
 // No zod: the result screen is a client component. Everything here only READS what the server sent; it never decides
 // that a payment happened. "Paid" is the server's word (`payment_status: "paid"` on the order, or a verified transaction).
 import { governedStep } from "./governed-step";
+import { orderPharmacyNames, type PharmacyNames } from "./order-view";
 
 function record(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
@@ -20,6 +21,10 @@ export type OrderPaymentView = {
   totals?: { subtotal?: number; deliveryFee?: number; total?: number; currency?: string };
   insurance?: { decision?: string; coPayAmount?: number; insurerShare?: number };
   address?: { label?: string; street?: string; district?: string; city?: string };
+  /** `pickup` when the patient collects the order at the pharmacy (then no delivery address is drawn). */
+  fulfillment?: "delivery" | "pickup";
+  /** The filling pharmacy's names as the server sent them; absent when it sent none. */
+  pharmacyNames?: PharmacyNames;
 };
 
 /** The payment-relevant part of `GET /patient/pharmacy/orders/:id`. */
@@ -40,6 +45,8 @@ export function parseOrderPaymentView(payload: unknown): OrderPaymentView | null
     totals: totals ? { subtotal: num(totals.subtotal), deliveryFee: num(totals.delivery_fee), total: num(totals.total), currency: text(totals.currency) } : undefined,
     insurance: summary ? { decision: text(summary.decision), coPayAmount: num(summary.co_pay_amount), insurerShare: num(summary.insurer_share) } : undefined,
     address: address ? { label: text(address.label), street: text(address.street), district: text(address.district), city: text(address.city) } : undefined,
+    fulfillment: ((method) => (method === "pickup" ? "pickup" : method ? "delivery" : undefined))(text(source.fulfillment) ?? text(record(source.delivery)?.method)),
+    pharmacyNames: orderPharmacyNames(source),
   };
 }
 
@@ -143,13 +150,17 @@ export function capabilitiesFrom(status: number, body: unknown, orderId: string)
 /* ---------------------------------------------------------------- the result screen */
 
 /** What a payment transaction's status means for the patient. */
-export type PaymentOutcome = "paid" | "pending" | "failed" | "refunded";
+/** `cancelled`: the patient cancelled the checkout. `sessionExpired`: the checkout session ran out and no money was taken. Both are failures the patient can retry. */
+export type PaymentOutcome = "paid" | "pending" | "failed" | "refunded" | "cancelled" | "sessionExpired";
 
 /** The backend's transaction statuses: paid, failed, cancelled, refunded, partially_refunded, and the open ones. Unknown reads as still pending, never as paid. */
-export function outcomeOfTransactionStatus(status: unknown): PaymentOutcome {
+export function outcomeOfTransactionStatus(status: unknown, failureReason?: unknown): PaymentOutcome {
   const value = typeof status === "string" ? status.trim().toLowerCase() : "";
   if (value === "paid") return "paid";
-  if (value === "failed" || value === "cancelled" || value === "canceled") return "failed";
+  if (value === "cancelled" || value === "canceled") return "cancelled";
+  // the backend stores an expired checkout as failed with this stable reason
+  if (value === "failed" && failureReason === "payment_session_expired") return "sessionExpired";
+  if (value === "failed") return "failed";
   if (value === "refunded" || value === "partially_refunded") return "refunded";
   return "pending";
 }
@@ -159,5 +170,5 @@ export function parseVerification(payload: unknown): { outcome: PaymentOutcome }
   const root = record(payload);
   const source = record(root?.data) ?? root;
   const status = text(source?.status);
-  return status ? { outcome: outcomeOfTransactionStatus(status) } : null;
+  return status ? { outcome: outcomeOfTransactionStatus(status, source?.failure_reason ?? source?.failureReason) } : null;
 }

@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, MaxLength } from 'class-validator';
 import { ProviderAvailabilityStatus, ProviderRequestPriority } from './schemas/requests.schema';
 
 export class DisableDto {
@@ -108,12 +108,27 @@ export class IssueSickLeaveDto {
   @IsOptional()
   @IsString()
   appointment_id?: string;
+
+  /** The reason as the doctor words it; it is what the certificate shows. The diagnosis above is shown only when `show_diagnosis` is true. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  reason?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  show_diagnosis?: boolean;
 }
 
 export class IssueMedicalReportDto {
   @IsOptional()
   @IsString()
   findings?: string;
+
+  /** The visit this report is for; stored only when it is this doctor's appointment of the report's patient. */
+  @IsOptional()
+  @IsString()
+  appointment_id?: string;
 
 
   @IsOptional()

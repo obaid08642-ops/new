@@ -90,10 +90,11 @@ export function errorText(error: unknown): string {
  * idempotency key is sent again by the retry. After any other answer the next attempt takes a fresh key.
  */
 export function noAnswerYet(error: unknown): boolean {
-  return /offline_error|request_aborted|idempotency_request_in_progress/i.test(errorText(error));
+  return /offline_error|request_aborted|request_timeout|idempotency_request_in_progress/i.test(errorText(error));
 }
 
 const PAY_ERRORS: ReadonlyArray<readonly [RegExp, string]> = [
+  [/request_timeout/i, 'errors.timeout'],
   [/offline_error|request_aborted|network error/i, 'errors.offline'],
   [/idempotency_request_in_progress/i, 'pharmacy.pay.err.inProgress'],
   [/booking_already_paid/i, 'pharmacy.pay.err.alreadyPaid'],
@@ -115,6 +116,7 @@ export function payErrorKey(error: unknown, fallback = 'pharmacy.pay.err.generic
 }
 
 const INSURANCE_ERRORS: ReadonlyArray<readonly [RegExp, string]> = [
+  [/request_timeout/i, 'errors.timeout'],
   [/offline_error|request_aborted|network error/i, 'errors.offline'],
   [/idempotency_request_in_progress/i, 'pharmacy.pay.err.inProgress'],
   [/copay_acceptance_requires_partial_decision|self_pay_acceptance_not_applicable|insurance_decision_pending|order_has_no_insurance|invalid_insurance_acceptance_kind|insurance_acceptance_conflict|selected_quote_required/i, 'pharmacy.ins.err.state'],
@@ -308,6 +310,25 @@ export interface Intent {
   status: string | null;
 }
 
+/**
+ * The hosted payment page the app may open from a route parameter: https, on a payment gateway the backend uses (Moyasar, Tap, Stripe)
+ * or on Nabd's own domains. A link `nabdplus://payments/result?paymentUrl=https://anything` can carry any address; opening it
+ * from inside the app would hand a phishing page the look of the payment screen, so every other host is dropped.
+ */
+const PAYMENT_HOST_SUFFIXES = ['moyasar.com', 'tap.company', 'stripe.com', 'nabd.plus', 'nabdahplus.com'];
+
+export function trustedPaymentUrl(value: string | null): string | null {
+  try {
+    if (!value) return null;
+    const url = new URL(value);
+    if (url.protocol !== 'https:' || url.username || url.password) return null;
+    const host = url.hostname.toLowerCase();
+    return PAYMENT_HOST_SUFFIXES.some((suffix) => host === suffix || host.endsWith(`.${suffix}`)) ? value : null;
+  } catch {
+    return null;
+  }
+}
+
 function httpsUrl(value: string | null): string | null {
   try {
     return value && new URL(value).protocol === 'https:' ? value : null;
@@ -325,14 +346,16 @@ export function readIntent(response: unknown): Intent {
 /* The result of a payment                                                                                             */
 /* ------------------------------------------------------------------------------------------------------------------ */
 
-export type PaymentPhase = 'paid' | 'pending' | 'failed' | 'cancelled' | 'refunded' | 'unknown';
+/** `sessionExpired`: the checkout session ran out and no money was taken (the backend stores it as failed with the reason `payment_session_expired`). */
+export type PaymentPhase = 'paid' | 'pending' | 'failed' | 'cancelled' | 'sessionExpired' | 'refunded' | 'unknown';
 
 /** The server's transaction status (payments `Transaction.status`, or the Moyasar record's) as one of the screen's phases. */
-export function paymentPhase(status: unknown): PaymentPhase {
+export function paymentPhase(status: unknown, failureReason?: unknown): PaymentPhase {
   const s = typeof status === 'string' ? status.toLowerCase() : '';
   if (s === 'paid') return 'paid';
+  if (s === 'expired' || (s === 'failed' && failureReason === 'payment_session_expired')) return 'sessionExpired';
   if (s === 'failed') return 'failed';
-  if (s === 'cancelled') return 'cancelled';
+  if (s === 'cancelled' || s === 'canceled') return 'cancelled';
   if (s === 'refunded' || s === 'partially_refunded') return 'refunded';
   if (['pending', 'initiating', 'authorized', 'initiated'].includes(s)) return 'pending';
   return 'unknown';
@@ -351,7 +374,7 @@ export interface PaymentResult {
 export function readPaymentResult(response: unknown): PaymentResult | null {
   const o = unwrap(response);
   if (!o) return null;
-  const phase = paymentPhase(o.status);
+  const phase = paymentPhase(o.status, o.failure_reason);
   const at = typeof o.paid_at === 'string' || typeof o.paid_at === 'number' ? new Date(o.paid_at).getTime() : NaN;
   const ref = text(o.id) ?? text(o.moyasar_id);
   return { phase, amount: num(o.amount), currency: text(o.currency), paidAt: Number.isFinite(at) ? at : null, reference: ref ? ref.slice(-8).toUpperCase() : null };
@@ -386,7 +409,7 @@ export function readResultParams(params: Record<string, string | string[] | unde
     bookingKind: first(params.bookingKind),
     bookingId: first(params.bookingId) ?? first(params.orderId),
     visitType: first(params.visitType),
-    paymentUrl: httpsUrl(first(params.paymentUrl)),
+    paymentUrl: trustedPaymentUrl(first(params.paymentUrl)),
   };
 }
 

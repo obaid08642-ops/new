@@ -16,14 +16,15 @@ import { Facts, SectionCard, type FactRow } from "@/components-next/consult/cons
 import { MemberPermissions } from "@/components-next/family/member-permissions";
 import { FormSheet } from "@/components-next/health/form-sheet";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
+import { BookForMemberButton } from "@/components-next/family/book-for-member-button";
 import { ReminderForm } from "@/components-next/health/reminder-form";
 import { HealthTabs, PartUnavailable } from "@/components-next/health/health-kit";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { Avatar } from "@/components-next/ui-generated/components/Surfaces";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import health from "@/components-next/health/health.module.css";
 import styles from "@/components-next/family/family.module.css";
+import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
 type Props = { params: Promise<{ locale: string; memberRef: string }>; searchParams: Promise<{ tab?: string | string[]; add?: string | string[]; edit?: string | string[] }> };
 const TABS = ["records", "permissions"] as const;
@@ -53,21 +54,27 @@ export default async function FamilyMemberPage({ params, searchParams }: Props) 
 
   const name = member.displayName || t("member");
   const sub = [member.role === "owner" ? t("owner") : t("memberRole"), member.relation].filter(Boolean).join(" · ");
-  const frame = (body: ReactNode) => (
+  const frame = (body: ReactNode, age?: number | null) => (
     <ConsultPage locale={locale} title={name} backHref={base}>
       <section className={`${rx.card} ${styles.memberHero}`}>
         <Avatar name={name} size="lg" />
         <h2 className={styles.heroTitle}>{name}</h2>
-        <span className={styles.heroSub}>{sub}</span>
+        <span className={styles.heroSub}>{[sub, age != null ? t("memberAge", { n: age }) : null].filter(Boolean).join(" · ")}</span>
+        <ButtonLink href={`/${locale}/family/chat`} label={t("memberChat")} variant="outline" size="md" />
       </section>
       <HealthTabs label={name} base={`${base}/${memberRef}`} active={tab} options={[
         { value: "records", label: t("tabRecords") },
         { value: "permissions", label: t("tabPermissions") },
       ]} />
+      <BookForMemberButton memberRef={memberRef} label={t("bookForMember")} errorLabel={t("bookForMemberFailed")} href={`/${locale}/consultations/doctors`} />
       {body}
     </ConsultPage>
   );
 
+  if (tab === "permissions" && member.role === "owner") {
+    // the owner holds every permission: nothing to switch and never a removal (as in the app)
+    return frame(<ConsultState kind="empty" icon="shield-check" title={t("ownerPermsTitle")} body={t("ownerPermsBody")} />);
+  }
   if (tab === "permissions") {
     const groupResponse = await getPatientFamilyGroup(token).catch(() => null);
     if (groupResponse?.status === 401) redirect(`/${locale}/login`);
@@ -78,7 +85,7 @@ export default async function FamilyMemberPage({ params, searchParams }: Props) 
 
   const recordsResponse = await getPatientFamilyMemberRecords(token, member.id);
   if (recordsResponse.status === 401) redirect(`/${locale}/login`);
-  if (recordsResponse.status === 403 || recordsResponse.status === 404) notFound();
+  if (recordsResponse.status === 403) return frame(<ConsultState kind="empty" icon="file-text" title={t("notSharedTitle")} body={t("notShared")} />);
   if (!recordsResponse.ok) return frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
 
   const records = parseMemberRecords(await recordsResponse.json().catch(() => null));
@@ -90,6 +97,9 @@ export default async function FamilyMemberPage({ params, searchParams }: Props) 
     ...(birth ? [{ label: t("birthDate"), value: birth }] : []),
     ...(records.bloodType ? [{ label: t("bloodType"), value: <bdi>{records.bloodType}</bdi> }] : []),
   ];
+  const age = records.birthDate && !Number.isNaN(new Date(records.birthDate).getTime()) ? Math.max(0, Math.floor((Date.now() - new Date(records.birthDate).getTime()) / (365.25 * 24 * 3600 * 1000))) : null;
+  const hw = await getTranslations("HealthWeb");
+  const vitalRows: FactRow[] = records.vitals.map((v) => ({ label: hw(`vital.${v.type}`), value: <bdi>{[v.value, v.unit].filter(Boolean).join(" ")}</bdi> }));
   const meds = SERVICE_ICONS.pharmacy;
   const editId = Array.isArray(query.edit) ? query.edit[0] : query.edit;
   const editing = editId ? records.medicines.find((m) => m.id === editId && m.reminder) : undefined;
@@ -97,6 +107,10 @@ export default async function FamilyMemberPage({ params, searchParams }: Props) 
 
   return frame(
     <>
+      <SectionCard id="member-vitals" title={t("vitalsTitle")}>
+        {vitalRows.length ? <Facts rows={vitalRows} /> : <p className={rx.note}>{t("noVitals")}</p>}
+      </SectionCard>
+
       {facts.length ? <SectionCard id="member-basics" title={t("basics")}><Facts rows={facts} /></SectionCard> : null}
 
       <SectionCard id="member-meds" title={t("medsTitle")}>
@@ -108,7 +122,7 @@ export default async function FamilyMemberPage({ params, searchParams }: Props) 
               return (
                 <li key={item.id}>
                   <div className={health.row}>
-                    <FIcon icon={meds.icon} tone={meds.tone} size={40} />
+                    <FIconByName icon={meds.icon} tone={meds.tone} size={40} />
                     <span className={health.rowBody}>
                       <span className={health.rowTitle}>{title}</span>
                       {item.dose ? <span className={health.rowSub}><bdi>{item.dose}</bdi></span> : null}
@@ -141,7 +155,7 @@ export default async function FamilyMemberPage({ params, searchParams }: Props) 
             {records.appointments.map((item) => (
               <li key={item.id}>
                 <div className={health.row}>
-                  <FIcon icon={consult.icon} tone={consult.tone} size={40} />
+                  <FIconByName icon={consult.icon} tone={consult.tone} size={40} />
                   <span className={health.rowBody}>
                     <span className={health.rowTitle}>{item.doctor ?? t("apptFallback")}</span>
                     {item.at ? <LocalTimeLine iso={item.at} locale={locale} className={health.rowSub} /> : null}
@@ -157,5 +171,6 @@ export default async function FamilyMemberPage({ params, searchParams }: Props) 
         <p className={rx.note}>{records.hasReports ? t("reportsShared") : t("reportsNone")}</p>
       </SectionCard>
     </>,
+    age,
   );
 }

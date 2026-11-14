@@ -81,7 +81,8 @@ export function MaternitySetupClient({ locale }: { locale: string }) {
           />
         </>
       )}
-      <Notice>{t("setupNotice")}</Notice>
+      <Notice warn>{mode === "pregnancy" ? t("pregnancyNotice") : t("cycleNotice")}</Notice>
+      <Notice>{t("notContraception")}</Notice>
       {error ? <p className={forms.error} role="alert">{error}</p> : null}
       <Button type="submit" label={t("saveProfile")} loading={saving} fullWidth />
     </form>

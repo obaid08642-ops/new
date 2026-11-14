@@ -9,6 +9,8 @@ import { ConsultScreen, RX_TONE, Section } from '../consult/ConsultKit';
 import { Block, INSURANCE_TONE, LabCard, LinkCard, Mark, goBackDiag, useDiagText } from './DiagKit';
 import { showLocalizedAlert } from '../LocalizedAlert';
 import { Notice } from '../pharmacy/OfferKit';
+import { RefundPolicyTick } from '../legal/RefundPolicyTick';
+import { withRefundPolicy } from '../../utils/refundAcceptance';
 import { PickButton } from '../pharmacy/PharmacyKit';
 import { ResultHero } from '../consult/ConsultKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
@@ -17,6 +19,8 @@ import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { normalizeProviders, rowsOf, type LabProvider } from '../../utils/labMappers';
 import { pickLocalized } from '../../utils/localize';
+import { useUploadsEnabled } from '../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../UploadsUnavailable';
 
 type Rec = Record<string, unknown>;
 const str = (v: unknown): string => (typeof v === 'string' || typeof v === 'number' ? String(v) : '');
@@ -27,6 +31,7 @@ const nameOf = (r: Rec): string => str(pickLocalized(r.name_ar as string | undef
 /** First state of the insurance step (board RxUpload): the prescription or doctor's request, what was read, the insurance, the visit and the lab, then send. After sending, the same route shows the provider's answer (insurance-approval, `orderId` in the URL). */
 export default function InsuranceUploadForm() {
   const { theme, t, c, k, flow } = useScreenUi();
+  const uploadsOn = useUploadsEnabled();
   const text = useDiagText();
   const { items, setPrescriptionUrl, setPaymentType, clearCart } = useDiagnosticsCart();
   // Scheduling context forwarded from checkout (day/time/lab); the booking is created with the real /labs|radiology/bookings calls
@@ -42,6 +47,8 @@ export default function InsuranceUploadForm() {
   const [uploadedImg, setUploadedImg] = useState<string | null>(null);
   const [uploadedB64, setUploadedB64] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // the refund policy is shown before the booking and agreed here (the backend refuses a booking without it)
+  const [refundAgreed, setRefundAgreed] = useState(false);
   // Auto-fill from the profile
   const [selCompany, setSelCompany] = useState<string>('');
   const [selClass, setSelClass] = useState<string>('');
@@ -153,7 +160,7 @@ export default function InsuranceUploadForm() {
   const getFilteredLabs = () => nearbyLabs.filter((lab) => !(visitType === 'home' && !lab.homeVisit)).slice(0, visitType === 'home' ? 2 : 3);
 
   const send = async () => {
-    if (submitting) return;
+    if (submitting || !refundAgreed) return;
     const labItems = items.filter((it) => it.kind !== 'radiology');
     const radioItems = items.filter((it) => it.kind === 'radiology');
     if (!labItems.length && !radioItems.length) {
@@ -185,26 +192,26 @@ export default function InsuranceUploadForm() {
       if (labItems.length) {
         const created = await apiFetch<{ id?: string; booking_id?: string; data?: { id?: string } }>('/labs/bookings', {
           method: 'POST',
-          body: JSON.stringify({
+          body: JSON.stringify(withRefundPolicy({
             items: labItems.map((it) => ({ service_id: it.id })),
             scheduled_at: scheduled.toISOString(),
             location_type: locationType,
             payment_method: 'insurance',
             provider_account_id: String(selLab),
-          }),
+          })),
         });
         bookingId = created?.id || created?.booking_id || created?.data?.id || null;
       }
       for (const it of radioItems) {
         const created = await apiFetch<{ id?: string; booking_id?: string; data?: { id?: string } }>('/radiology/bookings', {
           method: 'POST',
-          body: JSON.stringify({
+          body: JSON.stringify(withRefundPolicy({
             service_id: it.id,
             scheduled_at: scheduled.toISOString(),
             location_type: locationType,
             payment_method: 'insurance',
             provider_account_id: String(selLab),
-          }),
+          })),
         });
         if (!bookingId) bookingId = created?.id || created?.booking_id || created?.data?.id || null;
       }
@@ -231,7 +238,7 @@ export default function InsuranceUploadForm() {
   };
 
   const companyLine = activeCompany ? `${nameOf(activeCompany)}${activeClass ? ` - ${nameOf(activeClass)}` : ''}` : k('diag.upload.pickInsurance');
-  const footer = step === 3 && selLab ? <Button theme={theme} size="lg" fullWidth loading={submitting} label={k('diag.upload.send')} onPress={() => void send()} /> : undefined;
+  const footer = step === 3 && selLab ? <Button theme={theme} size="lg" fullWidth loading={submitting} disabled={!refundAgreed} label={k('diag.upload.send')} onPress={() => void send()} /> : undefined;
 
   return (
     <ConsultScreen testID="diagnostics-insurance-upload" title={k('diag.upload.title')} onBack={goBackDiag} footer={footer}>
@@ -241,10 +248,12 @@ export default function InsuranceUploadForm() {
             <FIcon icon="prescription" tone={RX_TONE} size={72} theme={theme} />
             <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, textAlign: 'center' }}>{k('diag.upload.pick')}</Text>
             <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, textAlign: 'center' }}>{k('diag.upload.hint')}</Text>
+            {uploadsOn ? (
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center' }}>
               <PickButton ink name="camera" label={k('diag.upload.camera')} onPress={() => void handlePick('camera')} />
               <PickButton name="image" label={k('diag.upload.gallery')} onPress={() => void handlePick('gallery')} />
             </View>
+            ) : <UploadsUnavailable />}
           </View>
           <LinkCard icon="stethoscope" tone="blue" title={k('diag.upload.noRequest')} body={k('diag.upload.talkGp')} onPress={() => router.push('/consultations' as Href)} />
         </>
@@ -353,6 +362,7 @@ export default function InsuranceUploadForm() {
               />
             ))}
           </Section>
+          <RefundPolicyTick service="lab" checked={refundAgreed} onChange={setRefundAgreed} />
         </>
       ) : null}
     </ConsultScreen>

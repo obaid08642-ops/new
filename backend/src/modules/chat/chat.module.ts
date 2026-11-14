@@ -15,6 +15,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { JwtAuthGuard, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
+import { UserRateLimit, UserRateLimitGuard } from '../../common/user-rate-limit';
+import { PresenceModule } from '../presence/presence.module';
 import { EventsModule } from '../events/events.module';
 import { FamilyChatController } from './chat-compat.controller';
 import { CONSULTATION_FOLLOWUP_HOURS_DEFAULT } from './followup-window';
@@ -125,6 +127,8 @@ export class ChatController {
   }
 
   @Post('threads/:threadId/messages')
+  @UseGuards(UserRateLimitGuard)
+  @UserRateLimit('chat_send', 60, 60)
   @RequireIdempotency()
   sendMessage(@CurrentUser() u: any, @Param('threadId') threadId: string, @Body() body: SendMessageDto) {
     return this.svc.sendMessage(threadId, u.id, u.role || 'patient', body);
@@ -146,16 +150,23 @@ export class ChatController {
   }
 
   @Patch('messages/:msgId')
+  @UseGuards(UserRateLimitGuard)
+  @UserRateLimit('chat_edit', 30, 60)
   editMessage(@CurrentUser() u: any, @Param('msgId') msgId: string, @Body() body: EditMessageDto) {
     return this.svc.editMessage(msgId, u.id, body.body);
   }
 
   @Delete('messages/:msgId')
-  deleteMessage(@CurrentUser() u: any, @Param('msgId') msgId: string) {
-    return this.svc.deleteMessage(msgId, u.id);
+  @UseGuards(UserRateLimitGuard)
+  @UserRateLimit('chat_delete', 30, 60)
+  deleteMessage(@CurrentUser() u: any, @Param('msgId') msgId: string, @Query('scope') scope?: string) {
+    if (scope !== undefined && scope !== 'me' && scope !== 'all') throw new BadRequestException('invalid_scope');
+    return this.svc.deleteMessage(msgId, u.id, scope === 'me' ? 'me' : 'all');
   }
 
   @Post('messages/:msgId/reactions')
+  @UseGuards(UserRateLimitGuard)
+  @UserRateLimit('chat_react', 120, 60)
   addReaction(@CurrentUser() u: any, @Param('msgId') msgId: string, @Body() body: AddReactionDto) {
     return this.svc.addReaction(msgId, u.id, body.emoji);
   }
@@ -186,6 +197,7 @@ export class ChatController {
 @Module({
   imports: [
     EventsModule,
+    PresenceModule,
     MongooseModule.forFeature([
       { name: 'ChatThread', schema: ChatThreadSchema },
       { name: 'ChatMessage', schema: ChatMessageSchema },

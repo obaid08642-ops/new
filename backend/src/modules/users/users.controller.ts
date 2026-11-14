@@ -110,8 +110,9 @@ export class UsersController {
   /** PDPL erasure. Requires the password so the request cannot be forged from a stolen token. */
   @Delete('me')
   @RequireIdempotency()
-  eraseMyAccount(@CurrentUser('id') id: string, @Body() body: EraseAccountDto) {
-    return this.pdpl.erasePatientData(id, { password: body.password, reason: body.reason });
+  eraseMyAccount(@CurrentUser() user: any, @Body() body: EraseAccountDto) {
+    // 21.8: a guest session proves a guest's request (the service re-checks that the stored account really is a guest)
+    return this.pdpl.erasePatientData(user.id, { password: body.password, reason: body.reason, guestSession: user.is_guest === true });
   }
 
   @Get('me/consents')

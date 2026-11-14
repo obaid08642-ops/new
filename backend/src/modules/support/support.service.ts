@@ -6,6 +6,7 @@ import { SupportRequest, SupportStatus, SupportCategory, PatientSettings } from 
 import { SupportRequestRepository } from "./repositories/supportrequest.repository";
 import { PatientSettingsRepository } from "./repositories/patientsettings.repository";
 
+
 @Injectable()
 export class SupportService {
   constructor(
@@ -20,8 +21,10 @@ export class SupportService {
     // PATIENT-APP-2: clients send lowercase ('general'); normalize to the enum, fallback GENERAL.
     const raw = String(body.category || 'GENERAL').trim().toUpperCase();
     const category = (Object.values(SupportCategory).includes(raw as SupportCategory) ? raw : SupportCategory.GENERAL) as SupportCategory;
+    const booking = await this.ownBooking(user, body.booking_kind, body.booking_id);
     const r = await this.req.create({
       user_id: user.id,
+      ...(booking ? { booking_kind: booking.kind, booking_id: booking.id } : {}),
       user_name: user.full_name,
       user_phone: user.phone,
       category,
@@ -33,6 +36,47 @@ export class SupportService {
       thread: [{ by: user.id, role: user.role || 'patient', message: body.message.trim(), at: new Date() }],
     });
     return r.toObject();
+  }
+
+  /** A ticket may name the booking it is about (a charge, a visit); it must be the patient's own. Nothing named = null. */
+  private async ownBooking(user: any, kindRaw: unknown, idRaw: unknown): Promise<{ kind: string; id: string } | null> {
+    if (kindRaw === undefined && idRaw === undefined) return null;
+    if (typeof kindRaw !== 'string' || typeof idRaw !== 'string' || !kindRaw.trim() || !idRaw.trim()) throw new BadRequestException('booking_kind_and_booking_id_required_together');
+    const alias: Record<string, string> = { appointment: 'consultation', order: 'pharmacy', homecare: 'nursing', home_care: 'nursing' };
+    const k = kindRaw.trim().toLowerCase();
+    const kind = alias[k] || k;
+    const collections: Record<string, string[]> = { consultation: ['appointments'], lab: ['labbookings'], radiology: ['radiologybookings'], nursing: ['homecarebookings'], pharmacy: ['pharmacy_orders', 'orders'] };
+    if (!collections[kind]) throw new BadRequestException('booking_kind_invalid');
+    const id = idRaw.trim();
+    for (const name of collections[kind]) {
+      const row: any = await this.conn.collection(name).findOne({ id: { $eq: id } } as any, { projection: { patient_id: 1, patient_account_id: 1, user_id: 1, _id: 0 } });
+      if (!row) continue;
+      if ([row.patient_id, row.patient_account_id, row.user_id].includes(user.id)) return { kind, id };
+      break;
+    }
+    throw new NotFoundException('booking_not_found');
+  }
+
+  /**
+   * PV-15: the disputes (tickets that name a booking) about the provider's own bookings.
+   * Read-only and limited: no patient name, phone or message, only what the provider needs to answer the case.
+   */
+  async providerDisputes(user: any) {
+    const profiles: any[] = await this.conn.collection('provider_profiles')
+      .find({ $or: [{ account_id: { $eq: user.id } }, { user_id: { $eq: user.id } }] } as any, { projection: { id: 1, _id: 0 } }).toArray();
+    const doctorIds = [user.id, ...profiles.map((p) => p.id).filter(Boolean)];
+    const sources: Array<[string, string, Record<string, unknown>]> = [
+      ['consultation', 'appointments', { doctor_id: { $in: doctorIds } }],
+      ['lab', 'labbookings', { provider_account_id: { $eq: user.id } }],
+      ['radiology', 'radiologybookings', { provider_account_id: { $eq: user.id } }],
+    ];
+    const refs: Array<Record<string, unknown>> = [];
+    for (const [kind, name, filter] of sources) {
+      const rows: any[] = await this.conn.collection(name).find(filter as any, { projection: { id: 1, _id: 0 } }).limit(1000).toArray();
+      if (rows.length) refs.push({ booking_kind: kind, booking_id: { $in: rows.map((r) => r.id).filter(Boolean) } });
+    }
+    if (!refs.length) return [];
+    return this.req.find({ $or: refs } as any, { _id: 0, id: 1, category: 1, subject: 1, status: 1, booking_kind: 1, booking_id: 1, createdAt: 1, updatedAt: 1 }).sort({ createdAt: -1 }).limit(100);
   }
 
   async mine(user: any) {

@@ -16,7 +16,7 @@ jest.mock('expo-apple-authentication', () => ({
   signInAsync: jest.fn(),
 }));
 
-describe('patient app offers only verifiable social sign-in (Q107)', () => {
+describe('patient app social sign-in providers (Q107, owner 2026-10-25)', () => {
   const saved = process.env.EXPO_PUBLIC_SOCIAL_X_SNAPCHAT;
   afterEach(() => {
     jest.restoreAllMocks();
@@ -24,13 +24,12 @@ describe('patient app offers only verifiable social sign-in (Q107)', () => {
     else process.env.EXPO_PUBLIC_SOCIAL_X_SNAPCHAT = saved;
   });
 
-  it.each(['ios', 'android', 'web'] as const)('%s: no X or Snapchat provider by default', (os) => {
+  // Owner, 2026-10-25: every provider button shows before its keys are set (the providers review the live button); the backend
+  // still verifies every sign-in and refuses one it cannot check, and a provider without keys answers "not available" on tap.
+  it.each([['ios', ['apple', 'google', 'x', 'snapchat']], ['android', ['google', 'x', 'snapchat']], ['web', ['google', 'x', 'snapchat']]] as const)('%s: the providers always shown', (os, expected) => {
     delete process.env.EXPO_PUBLIC_SOCIAL_X_SNAPCHAT;
     jest.replaceProperty(Platform, 'OS', os);
-    const list = availableSocialProviders();
-    expect(list).toContain('google');
-    expect(list).not.toContain('x');
-    expect(list).not.toContain('snapchat');
+    expect(availableSocialProviders()).toEqual(expected);
   });
 
   for (const screen of ['login.tsx', 'register.tsx', 'welcome.tsx']) {

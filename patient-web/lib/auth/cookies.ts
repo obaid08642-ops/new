@@ -4,6 +4,10 @@ import { hintFromAccessToken, serializeSessionHint, SESSION_HINT_COOKIE, SESSION
 export const authCookieNames = { access: "nabd_access", refresh: "nabd_refresh", device: "nabd_device" } as const;
 /** Where the one-time code of a new registration was sent: set by /api/auth/register, read by the /otp page, cleared by the session exchange. */
 export const otpIdentifierCookie = "nabd_otp_identifier";
+/** Remembers where the one-time code went (15 minutes, httpOnly), so the e-mail or phone never travels in a URL. */
+export function setOtpIdentifier(response: NextResponse, identifier: string) {
+  response.cookies.set(otpIdentifierCookie, identifier, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 15 * 60 });
+}
 type TokenPair = { accessToken: string; refreshToken: string };
 const commonCookie = { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax" as const, path: "/" };
 /** The readable hint (no token, not HttpOnly): lets the browser know who is signed in without asking /api/auth/session (issue 363). */

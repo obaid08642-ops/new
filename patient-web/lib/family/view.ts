@@ -3,8 +3,8 @@
  * must not carry zod). Every value is the server's; nothing is filled in. Used by the server pages only.
  */
 
-/** The permissions the group's members can be given (the keys the backend accepts in PATCH /family/member/:id/permissions). */
-export const PERMISSION_KEYS = ["vitals", "meds", "reports", "appointments"] as const;
+/** The permissions the group's members can be given (the nine of the app; the keys the backend accepts in PATCH /family/member/:id/permissions). */
+export const PERMISSION_KEYS = ["vitals", "meds", "reports", "appointments", "booking", "pharmacy", "payment", "location", "emergency"] as const;
 export type PermissionKey = (typeof PERMISSION_KEYS)[number];
 
 export function isPermissionKey(value: string): value is PermissionKey {
@@ -46,7 +46,7 @@ export function parseGroupPermissions(payload: unknown): Map<string, string[]> {
   return out;
 }
 
-export type PermissionRequest = { id: string; name?: string; permissions: PermissionKey[] };
+export type PermissionRequest = { id: string; name?: string; permissions: PermissionKey[]; createdAt?: string };
 
 /** GET /family/permissions/pending: the requests waiting for the viewer's answer. */
 export function parsePermissionRequests(payload: unknown): PermissionRequest[] {
@@ -58,7 +58,7 @@ export function parsePermissionRequests(payload: unknown): PermissionRequest[] {
     if (!request) continue;
     const id = String(request.id ?? request._id ?? request.request_id ?? "");
     if (!id) continue;
-    out.push({ id, name: text(request.member_name) ?? text(request.requester_name), permissions: knownPermissions(strings(request.permissions)) });
+    out.push({ id, name: text(request.member_name) ?? text(request.requester_name), permissions: knownPermissions(strings(request.permissions ?? request.requested_permissions)), createdAt: text(request.createdAt) ?? text(request.created_at) });
   }
   return out;
 }
@@ -70,6 +70,8 @@ export type MemberRecords = {
   /** `reminder` rows are the member's medicine reminders (editable by a caregiver); the others are prescriptions. */
   medicines: Array<{ id: string; nameAr?: string; nameEn?: string; doctor?: string; dose?: string; reminder?: { times: string[]; frequency?: string; chronic: boolean; taken7: number; missed7: number; doses: Array<{ at: string; status: "taken" | "skipped" | "missed"; timeKey?: string }> } }>;
   appointments: Array<{ id: string; doctor?: string; at?: string }>;
+  /** The latest heart rate, blood pressure and weight the member shared (`vitals` of the reply). */
+  vitals: Array<{ type: "heart_rate" | "bp" | "weight"; value: string; unit?: string }>;
   hasReports: boolean;
   /** The viewer holds the medicines right for this member (the server sent the `meds` list). */
   canSeeMeds: boolean;
@@ -110,7 +112,13 @@ export function parseMemberRecords(payload: unknown): MemberRecords {
     doctor: text(row.doctor_name),
     at: text(row.scheduled_at),
   }));
+  const vitals = (["heart_rate", "bp", "weight"] as const).flatMap((type) => {
+    const row = rows(root.vitals).find((item) => item.type === type);
+    const value = typeof row?.value === "number" || typeof row?.value === "string" ? String(row.value).trim() : "";
+    return row && value ? [{ type, value, unit: text(row.unit) }] : [];
+  });
   return {
+    vitals,
     gender: text(profile?.gender),
     birthDate: text(profile?.birth_date),
     bloodType: text(profile?.blood_type),
@@ -121,7 +129,7 @@ export function parseMemberRecords(payload: unknown): MemberRecords {
   };
 }
 
-export type CalendarEvent = { id: string; title?: string; member?: string; at?: string };
+export type CalendarEvent = { id: string; title?: string; member?: string; at?: string; type?: string; canDelete: boolean };
 
 /** GET /family/calendar: an array, or `{ events: [] }`. */
 export function parseCalendarEvents(payload: unknown): CalendarEvent[] {
@@ -130,7 +138,7 @@ export function parseCalendarEvents(payload: unknown): CalendarEvent[] {
   return (Array.isArray(list) ? list : []).flatMap((item, index) => {
     const event = record(item);
     if (!event) return [];
-    return [{ id: String(event.id ?? index), title: text(event.title), member: text(event.member_name), at: text(event.event_date) }];
+    return [{ id: String(event.id ?? index), title: text(event.title), member: text(event.member_name), at: text(event.event_date), type: text(event.type), canDelete: event.can_delete === true }];
   });
 }
 

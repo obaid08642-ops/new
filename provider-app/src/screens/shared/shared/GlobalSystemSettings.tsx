@@ -26,6 +26,7 @@ import { resolveImageUri, resolveGallery } from '../../../utils/imageUrl';
 import { useInsuranceCatalog } from '../../../api/catalogs';
 import { SK, Vault } from '../../../security/Security';
 import { tokens, withAlpha } from '../../../theme/tokens';
+import { MyContractRow } from '../../../components/MyContract';
 
 export function GlobalSystemSettings() {
   const { theme, toggle: toggleTheme, mode } = useTheme();
@@ -79,6 +80,11 @@ export function GlobalSystemSettings() {
         </View>
         <Switch value={bioEnabled} onValueChange={handleBioToggle} trackColor={{ true: theme.primary }} />
       </View>
+
+      <NDivider style={{ marginVertical: SP.xs }} />
+
+      {/* The provider's signed partnership contract: view the details, download, share */}
+      <MyContractRow />
     </NCard>
   );
 }

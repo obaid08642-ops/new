@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
 import { PharmacyExpiryCommandService } from './pharmacy-expiry-command.service';
+import { ScheduledOnce } from '../../../common/scheduled-once';
 
 /**
  * Master-spec activation: broadcast rounds advance every 60s and offers expire —
@@ -15,6 +16,7 @@ export class PharmacyExpiryScheduler {
   constructor(private readonly expiry: PharmacyExpiryCommandService) {}
 
   @Interval(15_000)
+  @ScheduledOnce({ holdMs: 5000 })
   async sweep() {
     try {
       await this.expiry.expireDuePharmacyOffers(new Date());

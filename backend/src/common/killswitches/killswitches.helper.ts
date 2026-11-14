@@ -235,3 +235,12 @@ export async function isAppInMaintenance(
 ): Promise<boolean> {
   return (await getAppMaintenance(app, source)).maintenance === true;
 }
+
+/**
+ * R16: `isKilled` OR automatically degraded by the overload level (common/overload.ts: level 1 switches off recommendations, nudges, analytics ingestion and search
+ * suggestions, level 2 also the live map and AI). Non-critical features call this instead of `isKilled`; critical paths (payment, booking, auth, calls) never do.
+ */
+export async function shouldDegrade(feature: KillswitchFeature | string, source: KillSwitchSource, opts: { default?: boolean } = {}): Promise<boolean> {
+  const { autoDegraded } = await import('../overload');
+  return autoDegraded(feature) || (await isKilled(feature, source, opts));
+}

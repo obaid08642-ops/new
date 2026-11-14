@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Text } from 'react-native';
-import { router, type Href } from 'expo-router';
+import { Redirect, router, type Href } from 'expo-router';
 
-import { Button, EmptyState } from '../../../packages/ui-native/src';
+import { Button } from '../../../packages/ui-native/src';
 import { Gate, Section, useConsultFormat } from '../../src/components/consult/ConsultKit';
 import { HealthScreen, MetricGrid, MetricTile, Panel, Pill, Row, rowsOf, useRemote } from '../../src/components/health/HealthKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
@@ -42,13 +42,8 @@ export default function WearablesScreen() {
     return { devices: rowsOf<Device>(devices), samples: rowsOf<Sample>(samples) };
   }, [enabled], 'health:wearables');
 
-  if (!enabled) {
-    return (
-      <HealthScreen title={k('health.wearables.title')} testID="wearables-screen">
-        <EmptyState icon="heart" tone="blue" title={k('health.wearables.soon')} body={k('health.wearables.soonBody')} theme={theme} />
-      </HealthScreen>
-    );
-  }
+  // not switched on: the screen is not reachable (the hub hides its row); no "soon" page
+  if (!enabled) return <Redirect href="/health" />;
 
   const devices = data?.devices ?? [];
   const latest: Record<string, Sample> = {};
@@ -72,7 +67,7 @@ export default function WearablesScreen() {
   };
 
   return (
-    <HealthScreen title={k('health.wearables.title')} onRefresh={() => void reload(true)} actions={[{ key: 'sleep', icon: <Glyph name="moon" size={20} color={c.icon.primary} />, label: k('health.hub.sleep'), onPress: () => router.push('/health/sleep' as Href) }]} testID="wearables-screen">
+    <HealthScreen title={k('health.wearables.title')} onRefresh={() => void reload(true)} actions={[{ key: 'sleep', icon: <Glyph name="moon" size={20} color={c.text.secondary} />, label: k('health.hub.sleep'), onPress: () => router.push('/health/sleep' as Href) }]} testID="wearables-screen">
       <Gate status={status} onRetry={() => void reload()}>
         {metrics.length > 0 ? (
           <Section title={k('health.wearables.latest')}>

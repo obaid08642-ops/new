@@ -7,6 +7,9 @@ import { ErrorState } from '../../../packages/ui-native/src';
 import { CallButton, CallIdentity, useCallUi } from '../../src/components/consult/CallKit';
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
+import { isBusyFor } from '../../src/calls/activeCall';
+import { isStillRinging, onRingingCallOver } from '../../src/calls/callSignals';
+import { endNativeCall } from '../../src/utils/callkeep';
 
 /**
  * Incoming call — no board (owner decision, 2026-10-04): the layout stays (who is calling, decline and accept), drawn with
@@ -54,8 +57,37 @@ export default function IncomingCallScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId]);
 
+  // The caller hung up before an answer (push call_missed / call_cancelled, the native screen ended, or the server says the call is no
+  // longer ringing): stop ringing and leave, instead of ringing on for 35 s and then declining a call that is already over.
+  const over = useRef(false);
+  const dismissOver = () => {
+    if (over.current) return;
+    over.current = true;
+    timedOut.current = true;
+    Vibration.cancel();
+    if (sessionId) endNativeCall(sessionId);
+    if (router.canGoBack()) router.back();
+    else router.replace('/(tabs)/consultations' as Href);
+  };
+  useEffect(() => {
+    if (!sessionId) return undefined;
+    const off = onRingingCallOver((id) => { if (id === sessionId) dismissOver(); });
+    const poll = setInterval(() => {
+      apiFetch<{ status?: string; data?: { status?: string } }>(`/calls/sessions/${encodeURIComponent(sessionId)}`)
+        .then((res) => { if (!isStillRinging((res?.data || res)?.status)) dismissOver(); })
+        .catch(() => { /* a failed check changes nothing: the next one or the 35 s timeout decides */ });
+    }, 4000);
+    return () => { off(); clearInterval(poll); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId]);
+
   const handleAccept = () => {
     Vibration.cancel();
+    // already in another call: answer "busy" instead of starting a second room next to the first
+    if (isBusyFor(sessionId)) {
+      void handleReject();
+      return;
+    }
     router.replace({ pathname: '/consultations/video-call', params: { sessionId, mode: callType } } as unknown as Href);
   };
 

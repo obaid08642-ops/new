@@ -36,6 +36,11 @@ describe("search: doctor sub-line", () => {
     expect(lab).not.toContain("cardiology");
   });
 
+  it("links a lab test to its detail page by id", () => {
+    const html = renderToStaticMarkup(<ResultItem locale="en" query="" result={{ id: "lab-42", type: "Lab", typeEn: "Lab", name: "CBC" }} />);
+    expect(html).toContain('href="/en/diagnostics/test-detail?testId=lab-42"');
+  });
+
   it("keeps the fallback words the backend sends for a doctor without a specialty", () => {
     expect(renderToStaticMarkup(<ResultItem locale="en" query="" result={doctor("Doctor")} />)).toContain(">Doctor<");
   });

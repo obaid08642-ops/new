@@ -3,45 +3,45 @@ import { Linking, Pressable, Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 
 import { Button, Card, Chip, EmptyState, Input } from '../../../../packages/ui-native/src';
-import { Chevron, Gate, ResultHero, Section, goBack, RX_TONE } from '../consult/ConsultKit';
+import { Chevron, Gate, ResultHero, Section, goBack } from '../consult/ConsultKit';
 import { HealthTabs, Notice, Panel, Row, bodyOf, rowsOf, useRemote, useTab } from '../health/HealthKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { AccountScreen, SETTINGS_HOME, StarRating } from './AccountKit';
+import { AboutTab, LegalTab } from './AboutView';
+import { faqText, type ServerFaq } from './serverText';
+
+// The FAQ text by app language lives in serverText.ts; the Help screen keeps exporting it for its test.
+export { faqText };
 
 /**
- * Help and support (merge map sections 3 and 8): `?tab=help` has the ways to reach support (the chat, my requests, the support
- * phone from GET /config) and the FAQ (GET /support/faqs, grouped by the category the server sends); `?tab=feedback` sends
- * feedback (POST /support/feedback). /settings/feedback and /settings/support-chat redirect here; /support/chat and
+ * Help and policies (OD-6, merge map section 3): ONE screen with four sections as tabs. `?tab=help` has the ways to reach support (the chat,
+ * my requests, the support phone from GET /config) and the FAQ (GET /support/faqs); `?tab=feedback` sends feedback (POST /support/feedback);
+ * `?tab=about` is the app and its version; `?tab=legal` is the policies, `?doc=refund_policy|telehealth_consent` opens one. The old
+ * /settings/about, /terms, /refund-policy, /telehealth-consent, /feedback and /support-chat routes redirect here; /support/chat and
  * /support/ticket stay the flow screens.
  */
 
-const TABS = ['help', 'feedback'] as const;
+const TABS = ['help', 'feedback', 'about', 'legal'] as const;
+const TAB_LABEL: Record<(typeof TABS)[number], string> = { help: 'set.help.tab.help', feedback: 'set.help.tab.feedback', about: 'set.about.tab.about', legal: 'set.about.tab.legal' };
 const KINDS = ['suggestion', 'issue', 'complaint', 'praise', 'question'] as const;
 
-interface Faq { q?: string; question?: string; question_en?: string | null; a?: string; answer?: string; answer_en?: string | null; category?: string }
-
-/** The FAQ the admin wrote, in the patient's language: Arabic for Arabic, the English text for every other language (the admin writes those two). */
-export const faqText = (faq: Faq, lang: string) => ({
-  question: (lang !== 'ar' && faq.question_en) || faq.q || faq.question || '',
-  answer: (lang !== 'ar' && faq.answer_en) || faq.a || faq.answer || '',
-});
 
 export function HelpView() {
   const { k } = useScreenUi();
   const [tab, setTab] = useTab(TABS, 'help');
   return (
-    <AccountScreen title={k('set.help')} testID="help-screen">
-      <HealthTabs tabs={TABS.map((key) => ({ key, label: k(`set.help.tab.${key}`) }))} value={tab} onChange={setTab} testID="help-tabs" />
-      {tab === 'help' ? <HelpTab /> : <FeedbackTab />}
+    <AccountScreen title={k('set.helpPolicies')} testID="help-screen">
+      <HealthTabs tabs={TABS.map((key) => ({ key, label: k(TAB_LABEL[key]) }))} value={tab} onChange={setTab} testID="help-tabs" />
+      {tab === 'help' ? <HelpTab /> : tab === 'feedback' ? <FeedbackTab /> : tab === 'about' ? <AboutTab /> : <LegalTab />}
     </AccountScreen>
   );
 }
 
 function HelpTab() {
   const { k, theme, t, c, flow, lang } = useScreenUi();
-  const faqs = useRemote(async () => rowsOf<Faq>(await apiFetch('/support/faqs')), [], 'settings:faqs');
+  const faqs = useRemote(async () => rowsOf<ServerFaq>(await apiFetch('/support/faqs')), [], 'settings:faqs');
   const [phone, setPhone] = useState<string | null>(null);
   useRemote(async () => {
     const config = bodyOf<{ contact?: { support_phone?: string } }>(await apiFetch('/config').catch(() => null));
@@ -58,9 +58,9 @@ function HelpTab() {
   return (
     <>
       <Panel testID="help-contact">
-        <Row icon="chat-circle-text" tone="mint" title={k('set.help.chat')} subtitle={k('set.help.chatHint')} onPress={() => router.push('/support/chat' as Href)} testID="help-chat" />
-        <Row icon="clipboard-text" tone="blue" title={k('set.help.requests')} subtitle={k('set.help.requestsHint')} onPress={() => router.push('/support/ticket' as Href)} last={!phone} testID="help-requests" />
-        {phone ? <Row icon="headset" tone={RX_TONE} title={k('set.help.call')} subtitle={phone} onPress={() => void Linking.openURL(`tel:${phone}`).catch(() => undefined)} last testID="help-call" /> : null}
+        <Row icon="chat-circle-text" tone="ink" title={k('set.help.chat')} subtitle={k('set.help.chatHint')} onPress={() => router.push('/support/chat' as Href)} testID="help-chat" />
+        <Row icon="clipboard-text" tone="ink" title={k('set.help.requests')} subtitle={k('set.help.requestsHint')} onPress={() => router.push('/support/ticket' as Href)} last={!phone} testID="help-requests" />
+        {phone ? <Row icon="headset" tone="ink" title={k('set.help.call')} subtitle={phone} onPress={() => void Linking.openURL(`tel:${phone}`).catch(() => undefined)} last testID="help-call" /> : null}
       </Panel>
       <Section title={k('set.help.faq')}>
         <Gate status={faqs.status} onRetry={() => void faqs.reload()}>

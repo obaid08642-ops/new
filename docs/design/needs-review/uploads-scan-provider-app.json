@@ -1,0 +1,46 @@
+[
+  {
+    "batch": "uploads-scan",
+    "app": "provider-app",
+    "screen": "CertificatesConfigScreen",
+    "element": "KYC document upload",
+    "file": "provider-app/src/screens/shared/shared/CertificatesConfigScreen.tsx",
+    "line": 87,
+    "found": "[backend] Backend gap: POST /provider/kyc/documents stores with defer_ok but returns the document row without scan_status, so a pending KYC file shows nothing; the client already reads scan_status and file_infected when the backend adds them. (backend: backend/src/modules/provider/services/provider-profile.service.ts:90)",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  },
+  {
+    "batch": "uploads-scan",
+    "app": "provider-app",
+    "screen": "RadiologyOrdersTab",
+    "element": "Report file upload",
+    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
+    "line": 432,
+    "found": "[client] Client-side: the upload is recorded in the scan registry but no pending or rejected state is drawn.",
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
+  },
+  {
+    "batch": "uploads-scan",
+    "app": "provider-app",
+    "screen": "NurseVisitConsole",
+    "element": "Visit file upload",
+    "file": "provider-app/src/screens/nursing/visitFiles.ts",
+    "line": 30,
+    "found": "[client] Client-side: no pending or rejected state is drawn for visit files.",
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
+  },
+  {
+    "batch": "uploads-scan",
+    "app": "provider-app",
+    "screen": "ProviderProfileEditor",
+    "element": "Profile image upload",
+    "file": "provider-app/src/components/ui.tsx",
+    "line": 975,
+    "found": "[backend] Backend gap: /provider/profile/image/upload goes through the image processor, not the documented upload answer; its scan state is unknown to the client and nothing is drawn. (backend: backend/src/modules/provider/services/provider-image-processor.service.ts:208)",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  }
+]

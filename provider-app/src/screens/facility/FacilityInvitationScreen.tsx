@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Switch } from 'react-native';
 import { useTheme, useLang, useToast } from '../../context';
-import { NHeader, NCard, NInput, NBtn, NSecHeader, NScroll } from '../../components/ui';
+import { NHeader, NCard, NInput, NBtn, NSecHeader, NScroll, NBadge } from '../../components/ui';
 import { I } from '../../components/icons';
 import { SP, FS, FW, R } from '../../constants';
 import client from '../../api/client';
@@ -15,6 +15,27 @@ export function FacilityInvitationScreen({ onBack, preRole }: { onBack: () => vo
   const [identifier, setIdentifier] = useState('');
   const [loading, setLoading] = useState(false);
   const [invited, setInvited] = useState(false);
+
+  // Invitations this facility sent: a pending one can be withdrawn (POST /hospital/invitations/:id/cancel).
+  const [sent, setSent] = useState<Array<{ id: string; invitee_name?: string | null; invitee_id?: string; status: string }>>([]);
+  const [cancelling, setCancelling] = useState<string | null>(null);
+  const loadSent = useCallback(() => {
+    client.get('/hospital/invitations').then((res) => setSent(Array.isArray(res.data) ? res.data : [])).catch(() => setSent([]));
+  }, []);
+  useEffect(() => { loadSent(); }, [loadSent]);
+  const cancelInvitation = async (id: string) => {
+    setCancelling(id);
+    try {
+      await client.post(`/hospital/invitations/${id}/cancel`, {});
+      show(AR ? 'تم إلغاء الدعوة' : 'Invitation cancelled', 'success');
+      loadSent();
+    } catch (e: any) {
+      show(String(e?.response?.data?.message || '').startsWith('invitation_not_pending') ? (AR ? 'تم الرد على الدعوة بالفعل' : 'The invitation was already answered') : (AR ? 'تعذر إلغاء الدعوة' : 'Could not cancel the invitation'), 'error');
+      loadSent();
+    } finally {
+      setCancelling(null);
+    }
+  };
 
   // Permission Matrix State
   const [perms, setPerms] = useState({
@@ -142,6 +163,25 @@ export function FacilityInvitationScreen({ onBack, preRole }: { onBack: () => vo
         loading={loading}
         style={{ marginBottom: SP.xl }}
       />
+
+      {sent.length > 0 && (
+        <View style={{ marginBottom: SP.xl }}>
+          <NSecHeader title={AR ? 'الدعوات المرسلة' : 'Sent invitations'} />
+          {sent.map((inv) => (
+            <NCard key={inv.id} style={{ marginBottom: SP.md }}>
+              <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between', gap: SP.md }}>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{inv.invitee_name || inv.invitee_id || '—'}</Text>
+                  <NBadge label={inv.status === 'pending' ? (AR ? 'بانتظار الرد' : 'Pending') : inv.status === 'accepted' ? (AR ? 'مقبولة' : 'Accepted') : inv.status === 'cancelled' ? (AR ? 'ملغاة' : 'Cancelled') : (AR ? 'مرفوضة' : 'Declined')} variant={inv.status === 'accepted' ? 'success' : 'info'} size="xs" />
+                </View>
+                {inv.status === 'pending' ? (
+                  <NBtn label={AR ? 'إلغاء الدعوة' : 'Cancel invitation'} size="xs" variant="outline" full={false} loading={cancelling === inv.id} onPress={() => cancelInvitation(inv.id)} />
+                ) : null}
+              </View>
+            </NCard>
+          ))}
+        </View>
+      )}
     </NScroll>
   );
 }

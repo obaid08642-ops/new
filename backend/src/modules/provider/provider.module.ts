@@ -1,3 +1,4 @@
+import { SickLeaveModule } from '../sick-leave/sick-leave.module';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
@@ -19,6 +20,7 @@ import { ProviderAuthService } from './services/provider-auth.service';
 import { ProviderProfileService } from './services/provider-profile.service';
 import { ProviderOperatorsService } from './services/provider-operators.service';
 import { ProviderAdminService } from './services/provider-admin.service';
+import { ScfhsLicenseModule } from './services/scfhs-license.service';
 import { ProviderOtpService } from './services/provider-otp.service';
 import { ProviderMailerService } from './services/provider-mailer.service';
 import { ProviderRequestEngineService } from './services/provider-request-engine.service';
@@ -27,6 +29,7 @@ import { ProviderScheduleService } from './services/provider-schedule.service';
 import { ProviderDashboardService } from './services/provider-dashboard.service';
 import { ProviderSeedService } from './services/provider-seed.service';
 import { ServiceCapabilityService } from './services/service-capability.service';
+import { ProviderServiceOffersService } from './services/provider-service-offers.service';
 import { GeoEngineService } from './services/geo-engine.service';
 import { SchedulingEngineService } from './services/scheduling-engine.service';
 import { ProviderScoringService } from './services/provider-scoring.service';
@@ -44,10 +47,12 @@ import { HomeCareBooking, HomeCareBookingSchema, NursingVisitReport, NursingVisi
 import { RadiologyBooking, RadiologyBookingSchema } from '../../schemas/radiology.schema';
 import { LeaveRequestsController } from './leave-requests.controller';
 import { ProviderBadgeController } from './provider-badge.controller';
+import { ProviderOrderingController, AdminOrderingController } from './provider-ordering.controller';
+import { ProviderOrderingService } from './services/provider-ordering.service';
 import {
   ProviderAuthController, ProviderProfileController, ProviderOperatorsController, ProviderAdminController,
   ProviderRequestsController, ProviderNotificationsController, ProviderScheduleController, ProviderDashboardController,
-  ProviderCapabilitiesController, ProviderZonesController, ProviderScheduleSlotsController, ProviderScoreController,
+  ProviderCapabilitiesController, ProviderServiceOffersController, AdminServiceOffersController, ProviderZonesController, ProviderScheduleSlotsController, ProviderScoreController,
   AdminMatchingController, ProviderWalletController
 } from './provider.controllers';
 import { DoctorSessionTypeRepository } from "./services/repositories/doctorsessiontype.repository";
@@ -88,6 +93,8 @@ import { ProviderDrugIndexController } from './provider-drug-index.controller';
 
 @Module({
   imports: [
+    ScfhsLicenseModule,
+    SickLeaveModule,
     MongooseModule.forFeature([
       { name: 'ProviderAccount', schema: ProviderAccountSchema },
       { name: 'LeaveRequest', schema: LeaveRequestSchema },
@@ -151,7 +158,11 @@ import { ProviderDrugIndexController } from './provider-drug-index.controller';
     ProviderDashboardController,
     // Phase 1C
     ProviderCapabilitiesController,
+    ProviderServiceOffersController,
+    AdminServiceOffersController,
     ProviderZonesController,
+    ProviderOrderingController,
+    AdminOrderingController,
     ProviderScheduleSlotsController,
     ProviderScoreController,
     AdminMatchingController,
@@ -178,6 +189,8 @@ import { ProviderDrugIndexController } from './provider-drug-index.controller';
     ProviderSeedService,
     // Phase 1C
     ServiceCapabilityService,
+    ProviderServiceOffersService,
+    ProviderOrderingService,
     GeoEngineService,
     SchedulingEngineService,
     ProviderScoringService,
@@ -216,6 +229,8 @@ import { ProviderDrugIndexController } from './provider-drug-index.controller';
     ProviderMatchingService, AssignmentStrategyService, ServiceCapabilityService, ProviderScoringService,
     // P5.3: merged from ProvidersModule (providers/ → provider/)
     ProvidersService,
+    // the admin price review suspends a pharmacy through the same service as the admin provider screen
+    ProviderAdminService,
   ],
 })
 export class ProviderModule {}

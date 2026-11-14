@@ -41,6 +41,22 @@ import { NotificationsCenterScreen, TechnicalSupportTicketsScreen, SecurityManag
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens } from '../../../theme/tokens';
 
+/**
+ * A row of the job queue as the "Today's schedule" card shows it. The queue returns the patient's name and the visit time/state, not
+ * the doctor or the department, and it ignores a `today` filter, so today's rows are picked here.
+ */
+export const toTodayAppointment = (x: any) => ({
+  id: x.id,
+  patient: x.patient_name || '—',
+  time: x.scheduled_at ? new Date(x.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+  doctor: x.doctor_name || '',
+  dept: x.department || '',
+  type: x.service_type === 'emergency' ? 'emergency' : x.service_type === 'surgery' ? 'surgery' : 'opd',
+  status: x.domain_state === 'IN_PROGRESS' || x.universal_state === 'IN_PROGRESS' ? 'in_progress' : 'confirmed',
+  scheduled_at: x.scheduled_at || null,
+});
+export const isTodayRow = (x: any, now = new Date()): boolean => !x.scheduled_at || new Date(x.scheduled_at).toDateString() === now.toDateString();
+
 export function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, selectedBranch, onSelectBranch }: { onNavigate: (s: string, p?: any) => void; wards: any[]; onTriggerAlarm?: () => void; branches?: any[]; selectedBranch?: string; onSelectBranch?: (id: string) => void }) {
  const insets = useSafeAreaInsets();
  const { theme } = useTheme();
@@ -53,7 +69,7 @@ export function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, s
  const [todayStats, setTodayStats] = useState<any>(null);
  const [surgeriesLive, setSurgeriesLive] = useState<any[]>([]);
  useEffect(() => {
-   client.get('/provider/jobs/queue?status=active&kind=appointment&today=true').then(r => setTodayApts(r.data || [])).catch(() => {});
+   client.get('/provider/jobs/queue?status=active&kind=appointment&today=true').then(r => setTodayApts((Array.isArray(r.data) ? r.data : []).filter((x: any) => isTodayRow(x)).map(toTodayAppointment))).catch(() => {});
    client.get('/hospital/staff').then(r => setSubaccounts(r.data || [])).catch(() => {});
    client.get('/provider/stats/today').then(r => setTodayStats(r.data || null)).catch(() => {});
    client.get('/facility/surgeries/schedule').then(r => setSurgeriesLive(Array.isArray(r.data) ? r.data : [])).catch(() => {});
@@ -68,7 +84,7 @@ export function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, s
  client.get('/provider/stats/today'),
  client.get('/facility/surgeries/schedule').catch(() => null),
  ]);
- setTodayApts(q.data || []);
+ setTodayApts((Array.isArray(q.data) ? q.data : []).filter((x: any) => isTodayRow(x)).map(toTodayAppointment));
  setSubaccounts(s.data || []);
  setTodayStats(st.data || null);
  if (sg && Array.isArray(sg.data)) setSurgeriesLive(sg.data);
@@ -280,7 +296,7 @@ export function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, s
  <Text style={{ fontSize: FS.md, fontWeight: FW.semi, color: theme.text,
  textAlign: AR ? 'right' : 'left' }}>{apt.patient}</Text>
  <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
- {apt.doctor} · {apt.dept}
+ {[apt.doctor, apt.dept].filter(Boolean).join(' · ')}
  </Text>
  </View>
  <View style={{ alignItems: 'flex-end', gap: 4 }}>

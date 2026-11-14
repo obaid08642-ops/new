@@ -10,6 +10,7 @@ import { ProductRankingController } from './product-ranking.controller';
 import { ManualBoost, ManualBoostSchema } from './manual-boost.schema';
 import { ManualBoostsService } from './manual-boosts.service';
 import { ManualBoostsController } from './manual-boosts.controller';
+import { RankingAdminController, RankingScoreJob } from './ranking-admin.controller';
 
 @Global()
 @Module({
@@ -19,8 +20,8 @@ import { ManualBoostsController } from './manual-boosts.controller';
       { name: ManualBoost.name, schema: ManualBoostSchema },
     ]),
   ],
-  controllers: [ProductRankingController, ManualBoostsController],
-  providers: [ProductRankingService, ProductRankingEventService, ManualBoostsService],
+  controllers: [ProductRankingController, ManualBoostsController, RankingAdminController],
+  providers: [ProductRankingService, ProductRankingEventService, ManualBoostsService, RankingScoreJob],
   exports: [ProductRankingService, ProductRankingEventService, ManualBoostsService],
 })
 export class ProductRankingModule {}

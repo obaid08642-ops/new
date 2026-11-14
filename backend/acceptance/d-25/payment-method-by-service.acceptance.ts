@@ -92,7 +92,7 @@ describe('D-25: payment method by service', () => {
       ['POST /nursing/bookings', '/api/v1/nursing/bookings', { service_id: 'svc-1', provider_id: 'nurse-1', scheduled_at: '', payment_method: 'cash' }],
       ['compat POST /home-care/bookings', '/api/v1/home-care/bookings', { service_id: 'svc-1', provider_id: 'nurse-1', scheduled_at: '', payment_method: 'cash', address: { lat: 21.5, lng: 39.1, address: 'Jeddah' } }],
     ])('%s with cash -> 400 naming the payment method, nothing stored', async (_l, url, raw) => {
-      const body: any = { ...raw };
+      const body: any = { ...raw, refund_policy_accepted: true };
       for (const k of ['slot_start', 'slot_id', 'scheduled_at']) if (k in body) body[k] = slot(26 * HOUR);
       const before = { a: await stack.db.collection('appointments').countDocuments({}), d: await stack.db.collection('doctor_appointments').countDocuments({}), h: await stack.db.collection('homecarebookings').countDocuments({}) };
       const r = await stack.call(0, 'POST', url as string, patient, body);
@@ -101,7 +101,7 @@ describe('D-25: payment method by service', () => {
     });
 
     it('control: a clinic visit may still be paid in cash (not refused for the payment method)', async () => {
-      const r = await stack.call(0, 'POST', '/api/v1/care/appointments', patient, { doctor_id: 'doc-prof', service_type: 'clinic', slot_start: slot(27 * HOUR), payment_method: 'cash' });
+      const r = await stack.call(0, 'POST', '/api/v1/care/appointments', patient, { doctor_id: 'doc-prof', service_type: 'clinic', slot_start: slot(27 * HOUR), payment_method: 'cash', refund_policy_accepted: true });
       expect(r.status < 300 || !mentionsPayment(r.body)).toBe(true);
     });
   });

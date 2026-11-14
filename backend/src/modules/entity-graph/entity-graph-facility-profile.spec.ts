@@ -29,3 +29,30 @@ describe('facility page for a registered hospital', () => {
     await expect(service.getRelated('facility', 'nope')).rejects.toBeInstanceOf(NotFoundException);
   });
 });
+
+describe('facility page: address, logo, pin and hours (issue 767)', () => {
+  it('carries them from a registered hospital profile, and nothing it does not have', async () => {
+    const { service } = serviceWith(null, {
+      id: 'p1', type: 'hospital', name_ar: 'مستشفى', address: ' شارع الملك ', logo: 'https://cdn.test/logo.png', location: { lat: 24.7, lng: 46.6 },
+      working_hours: [{ day: 'sat', open: '08:00', close: '22:00' }, { day: 'fri', closed: true }, { nonsense: true }],
+    });
+    const out: any = await service.getRelated('facility', 'p1');
+    expect(out.entity).toMatchObject({ address: 'شارع الملك', logo: 'https://cdn.test/logo.png', lat: 24.7, lng: 46.6 });
+    expect(out.entity.working_hours).toEqual([
+      { day: 'sat', open: '08:00', close: '22:00', open_evening: null, close_evening: null, closed: false },
+      { day: 'fri', open: null, close: null, open_evening: null, close_evening: null, closed: true },
+    ]);
+  });
+
+  it('has no pin, address, logo or hours when the record has none (never a placeholder)', async () => {
+    const { service } = serviceWith(null, { id: 'p2', type: 'clinic', name_ar: 'عيادة' });
+    const out: any = await service.getRelated('facility', 'p2');
+    expect(out.entity).toMatchObject({ address: null, logo: null, lat: null, lng: null, working_hours: [] });
+  });
+
+  it('reads the seeded facility the same way (logo_url, location)', async () => {
+    const { service } = serviceWith({ id: 'f1', slug: 'f', name_ar: 'م', type: 'hospital', logo_url: 'https://cdn.test/f.png', location: { lat: 24.71, lng: 46.68 }, address: 'العليا', phone: '+966', working_hours: [{ day: 'sun', open: '00:00', close: '23:59' }] }, null);
+    const out: any = await service.getRelated('facility', 'f');
+    expect(out.entity).toMatchObject({ logo: 'https://cdn.test/f.png', lat: 24.71, lng: 46.68, address: 'العليا', phone: '+966' });
+  });
+});

@@ -11,6 +11,7 @@ import { ConsultState } from "@/components-next/consult/consult-state";
 import { ActionLinks, Hero, Notice } from "@/components-next/consult/consult-parts";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import { ShareLocation } from "@/components-next/emergency/share-location";
+import { CallLink, EMERGENCY_NUMBER } from "@/components-next/emergency/call-link";
 
 type Props = { params: Promise<{ locale: string }> };
 const URGENT = SERVICE_ICONS.emergency;
@@ -33,17 +34,19 @@ export default async function EmergencyPage({ params }: Props) {
   const g = await getTranslations("GuestServices");
   const rs = await getTranslations("RouteState");
 
-  const response = await callPatientApi("/mental-health/urgent-help");
-  const help = response.ok ? parseUrgentHelp(await response.json().catch(() => null)) : null;
-  const failed = !response.ok;
+  // A network error is the same in-page error as a bad status (the call, not the page, failed); the share action stays.
+  const response = await callPatientApi("/mental-health/urgent-help").catch(() => null);
+  const help = response?.ok ? parseUrgentHelp(await response.json().catch(() => null)) : null;
+  const failed = !response?.ok;
 
   return (
     <ConsultPage locale={locale} title={t("title")} backHref={signedIn ? `/${locale}/dashboard` : `/${locale}`}>
+      <CallLink dial={EMERGENCY_NUMBER} label={t("callEmergency", { number: EMERGENCY_NUMBER })} />
       <Hero icon={URGENT.icon} tone={URGENT.tone} title={t("title")} sub={t("intro")} />
       {failed ? (
         <ConsultState kind="error" title={t("loadError")} retryLabel={rs("retry")} />
       ) : help ? (
-        <ActionLinks actions={[{ href: `tel:${help.dial}`, label: t("call", { number: `⁦${help.phone}⁩` }), variant: "primary", external: true }]} />
+        <ActionLinks actions={[{ href: `tel:${help.dial}`, label: t("call", { number: `⁦${help.phone}⁩` }), variant: "outline", external: true }]} />
       ) : (
         <Notice warn>{t("unavailable")}</Notice>
       )}

@@ -8,11 +8,41 @@ import { EventBusService } from '../events/event-bus.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ChatThread, ChatThreadDocument, ChatMessage, ChatMessageDocument } from './chat.schemas';
 import { CONSULTATION_FOLLOWUP_HOURS_DEFAULT } from './followup-window';
+import { PresenceService } from '../presence/presence.service';
+import { assertScanned } from '../storage/pending-scan';
 import { consultationState, isAppointmentDoctor, isVoiceMessage, ConsultState } from './consultation-window';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const jwt = require('jsonwebtoken');
 
+/** Longest voice note, seconds. */
+export const VOICE_MAX_SECONDS = 600;
+/** Minutes after sending in which the sender may delete a message for everyone (CHAT_DELETE_WINDOW_MIN). */
+export const DEFAULT_DELETE_WINDOW_MIN = 60;
+
 // ─── Service ────────────────────────────────────────────────────────────────
+
+/** Message kinds a client may send. */
+const CLIENT_MESSAGE_TYPES = new Set(['text', 'image', 'voice', 'file']);
+
+/** Booking kinds a chat thread may be opened for; 'doctor' is the legacy spelling of 'consultation'. */
+const BOOKING_KINDS = new Set(['pharmacy', 'lab', 'radiology', 'nursing', 'homecare', 'consultation']);
+
+/** The one spelling stored on a booking thread, or null for a kind that does not exist (the client's string is never trusted as is). */
+export function canonicalBookingKind(kind: unknown): string | null {
+  const k = String(kind ?? '').trim().toLowerCase();
+  const canonical = k === 'doctor' ? 'consultation' : k;
+  return BOOKING_KINDS.has(canonical) ? canonical : null;
+}
+
+/** Every spelling a thread of this kind may carry in the database (older rows kept what the client sent). */
+export function bookingKindSpellings(kind: string): string[] {
+  return kind === 'consultation' ? ['consultation', 'doctor', 'Consultation', 'Doctor'] : [kind];
+}
+
+/** A booking thread of a doctor consultation: the Decision 24 window applies to it, whatever alias it was stored with. */
+export function isConsultationThread(thread: any): boolean {
+  return thread?.type === 'booking' && canonicalBookingKind(thread?.booking_kind) === 'consultation';
+}
 
 @Injectable()
 export class ChatService {
@@ -24,6 +54,7 @@ export class ChatService {
     private readonly bus: EventBusService,
     private readonly events: EventEmitter2,
     @Optional() private readonly killSwitches?: KillSwitchesService,
+    @Optional() private readonly presence?: PresenceService,
   ) {}
 
   // ── Thread management ────────────────────────────────────────
@@ -116,14 +147,17 @@ export class ChatService {
   /** Booking conversation between the booking's patient and its provider. Only those two parties may open or
    *  join it: the caller must be one of them, and a client-supplied provider id is ignored (IDOR). */
   async getOrCreateBookingThread(bookingKind: string, bookingId: string, callerId: string, _clientProviderId?: string): Promise<ChatThread> {
-    const parties = await this.resolveBookingParties(bookingKind, bookingId);
+    const kind = canonicalBookingKind(bookingKind);
+    if (!kind) throw new BadRequestException('invalid_booking_kind');
+    const parties = await this.resolveBookingParties(kind, bookingId);
     const members = [...new Set([parties.patientId, parties.providerId].filter(Boolean).map(String))];
     if (!members.includes(String(callerId))) throw new ForbiddenException('not_a_party_to_this_booking');
-    let thread = await this.threads.findOne({ type: 'booking', booking_kind: { $eq: bookingKind }, booking_id: { $eq: bookingId } });
+    // legacy rows may carry an alias ('doctor', mixed case): one thread per booking, whatever the spelling it was stored with
+    let thread = await this.threads.findOne({ type: 'booking', booking_kind: { $in: bookingKindSpellings(kind) }, booking_id: { $eq: bookingId } });
     if (!thread) {
       const counts: Record<string, number> = {};
       members.forEach(id => counts[id] = 0);
-      thread = await this.threads.create({ type: 'booking', booking_kind: bookingKind, booking_id: bookingId, participant_ids: members, created_by: callerId, unread_counts: counts });
+      thread = await this.threads.create({ type: 'booking', booking_kind: kind, booking_id: bookingId, participant_ids: members, created_by: callerId, unread_counts: counts });
     } else {
       // attach a booking party that is not in the thread yet (e.g. provider assigned later)
       const missing = members.filter(id => !thread.participant_ids.includes(id));
@@ -176,14 +210,14 @@ export class ChatService {
     };
   }
 
-  private async validateChatMediaIds(threadId: string, senderId: string, mediaIds?: unknown): Promise<string[]> {
-    if (mediaIds === undefined) return [];
+  private async validateChatMediaIds(threadId: string, senderId: string, mediaIds?: unknown): Promise<{ ids: string[]; mimes: string[] }> {
+    if (mediaIds === undefined) return { ids: [], mimes: [] };
     if (!Array.isArray(mediaIds) || mediaIds.some((id) => typeof id !== 'string' || !id.trim())) {
       throw new BadRequestException('invalid_media_ids');
     }
     const uniqueIds = [...new Set(mediaIds.map((id) => id.trim()))];
     if (uniqueIds.length > 10) throw new BadRequestException('too_many_media_ids');
-    if (!uniqueIds.length) return [];
+    if (!uniqueIds.length) return { ids: [], mimes: [] };
 
     let MediaAssetModel: Model<any>;
     try {
@@ -195,7 +229,12 @@ export class ChatService {
       id: { $in: uniqueIds }, owner_id: { $eq: senderId }, purpose: 'chat', thread_id: { $eq: threadId },
     }).lean();
     if (assets.length !== uniqueIds.length) throw new BadRequestException('media_not_owned_or_not_bound_to_thread');
-    return uniqueIds;
+    // never attach a file that is not scanned yet (423) or was rejected by the scan
+    for (const a of assets) {
+      if (a.scan_status === 'infected') throw new BadRequestException('media_rejected');
+      assertScanned(a);
+    }
+    return { ids: uniqueIds, mimes: assets.map((a: any) => String(a.mime_type || '').toLowerCase()) };
   }
 
   async checkIfFamily(participantIds: string[]): Promise<boolean> {
@@ -231,7 +270,7 @@ export class ChatService {
 
   /** Decision 24 state of a consultation thread (null for any other thread). */
   async consultationThreadState(thread: any): Promise<{ appt: any; state: ConsultState } | null> {
-    if (!thread || thread.type !== 'booking' || thread.booking_kind !== 'consultation') return null;
+    if (!thread || !isConsultationThread(thread)) return null;
     const appt = thread.booking_id ? await this.getModel('Appointment').findOne({ id: { $eq: thread.booking_id } }) : null;
     return { appt, state: consultationState(appt, thread, await this.followupHours()) };
   }
@@ -239,7 +278,7 @@ export class ChatService {
   private async doctorThread(threadId: string, userId: string): Promise<{ thread: any; appt: any }> {
     const thread: any = await this.threads.findOne({ id: { $eq: threadId } });
     if (!thread) throw new NotFoundException('thread_not_found');
-    if (thread.type !== 'booking' || thread.booking_kind !== 'consultation') throw new BadRequestException('not_a_consultation_thread');
+    if (!isConsultationThread(thread)) throw new BadRequestException('not_a_consultation_thread');
     const appt = thread.booking_id ? await this.getModel('Appointment').findOne({ id: { $eq: thread.booking_id } }) : null;
     if (!isAppointmentDoctor(appt, userId)) throw new ForbiddenException('only_the_consultation_doctor');
     return { thread, appt };
@@ -263,14 +302,14 @@ export class ChatService {
     return { ok: true, id: thread.id, extended_until: until };
   }
 
-  async verifyCommunicationAllowed(threadId: string, senderId: string, messageType?: string): Promise<{ allowed: boolean; message?: string }> {
+  async verifyCommunicationAllowed(threadId: string, senderId: string, voice = false): Promise<{ allowed: boolean; message?: string }> {
     const thread = await this.threads.findOne({ id: { $eq: threadId } });
     if (!thread) return { allowed: true };
 
     const isFamily = await this.checkIfFamily(thread.participant_ids);
     if (isFamily) return { allowed: true };
 
-    if (thread.type === 'booking' && thread.booking_kind === 'consultation') {
+    if (isConsultationThread(thread)) {
       if (!thread.booking_id) return { allowed: false, message: 'معرف الحجز غير موجود.' };
       try {
         const cs = await this.consultationThreadState(thread);
@@ -281,9 +320,11 @@ export class ChatService {
           if (state.phase === 'closed') return { allowed: false, message: 'أغلق الطبيب هذه المحادثة.' };
           return { allowed: false, message: 'انتهت فترة المتابعة الخاصة بالاستشارة.' };
         }
-        if (isVoiceMessage(messageType) && !state.can_voice) return { allowed: false, message: 'الرسائل الصوتية غير متاحة بعد زيارة العيادة أو المنزل.' };
+        if (voice && !state.can_voice) return { allowed: false, message: 'الرسائل الصوتية غير متاحة بعد زيارة العيادة أو المنزل.' };
       } catch (err) {
+        // fail closed: a window that cannot be computed must not open the doctor's chat
         this.logger.warn(`Appointment validation failed: ${(err as Error).message}`);
+        return { allowed: false, message: 'تعذّر التحقق من حالة الاستشارة. حاول مرة أخرى بعد قليل.' };
       }
     }
     return { allowed: true };
@@ -302,10 +343,12 @@ export class ChatService {
     if (!thread) throw new NotFoundException('thread_not_found');
     this.assertParticipant(thread, senderId);
 
-    const check = await this.verifyCommunicationAllowed(threadId, senderId, body?.type);
+    const media = await this.validateChatMediaIds(threadId, senderId, body?.media_ids);
+    const mediaIds = media.ids;
+    // a voice note is decided by what is attached (audio), never only by the type the client says
+    const voice = isVoiceMessage(body?.type) || media.mimes.some((m) => m.startsWith('audio/'));
+    const check = await this.verifyCommunicationAllowed(threadId, senderId, voice);
     if (!check.allowed) throw new ForbiddenException(check.message);
-
-    const mediaIds = await this.validateChatMediaIds(threadId, senderId, body?.media_ids);
     if (body?.attachment_url) throw new BadRequestException('attachment_url_not_supported_use_media_ids');
 
     // Deduplication check. The filter is kept for the rapid-tap loser below,
@@ -321,7 +364,15 @@ export class ChatService {
       }
     }
 
+    // 'system' is written by the server only; any other string is not a message kind
+    if (body?.type !== undefined && !CLIENT_MESSAGE_TYPES.has(String(body.type))) throw new BadRequestException('invalid_message_type');
     if (!body?.body?.trim() && mediaIds.length === 0) throw new BadRequestException('empty_message');
+    if (body.type === 'voice') {
+      // A voice note is its recording: no file, or a length outside 1..VOICE_MAX_SECONDS, is not a voice note.
+      if (mediaIds.length !== 1) throw new BadRequestException('voice_requires_one_media');
+      const secs = Number(body.duration_seconds);
+      if (!Number.isFinite(secs) || secs < 1 || secs > VOICE_MAX_SECONDS) throw new BadRequestException('voice_duration_invalid');
+    }
 
     let msg: ChatMessageDocument;
     try {
@@ -366,18 +417,34 @@ export class ChatService {
       $set: { last_message: (body.body || (mediaIds.length ? '[مرفق]' : '')).slice(0, 150), last_message_at: new Date(), last_message_sender_id: senderId, ...unread },
     });
 
+    // Recipients with a live connection have it now (delivered); the others get a push.
+    const recipients = thread.participant_ids.filter((pid: string) => pid !== senderId);
+    const online: string[] = [];
+    if (this.presence) {
+      for (const pid of recipients) {
+        if (await this.presence.isOnline(pid).catch(() => false)) online.push(pid);
+      }
+    }
+    if (online.length) {
+      await this.msgs.updateOne({ id: { $eq: msg.id } }, { $addToSet: { delivered_to: { $each: online } } });
+      msg.delivered_to = [senderId, ...online];
+    }
     // Emit event for realtime delivery + push
     const chatPayload = {
+      offline_ids: recipients.filter((pid: string) => !online.includes(pid)),
       thread_id: threadId,
       msg_id: msg.id,
-      body: (body.body || '').slice(0, 120),
+      client_message_id: body.client_message_id,
+      body: (body.body || '').trim(),
       type: msg.type,
       media_ids: mediaIds,
       sender_id: senderId,
       participant_ids: thread.participant_ids,
       created_at: new Date(),
     };
-    this.bus.emit({
+    // One emit: the event bus stores it and fans it out to every @OnEvent('chat.message_sent') listener (push, in-app notification,
+    // realtime) once. Only when the bus itself fails is the in-process emit used, so the live room still hears the message.
+    const sent = {
       type: 'chat.message_sent',
       entity_type: 'chat_message',
       entity_id: msg.id,
@@ -385,14 +452,10 @@ export class ChatService {
       actor_role: senderRole,
       patient_id: thread.participant_ids[0],
       meta: chatPayload,
-    } as any).catch(() => null);
-    // Realtime fanout — the realtime gateway listens for 'chat.message_sent'
-    // via EventEmitter2 and pushes the message to the thread room + peers.
-    this.events.emit('chat.message_sent', {
-      ...chatPayload,
-      actor_account_id: senderId,
-      actor_role: senderRole,
-      meta: chatPayload,
+    };
+    this.bus.emit(sent as any).catch((err: any) => {
+      this.logger.warn(`chat.message_sent bus emit failed, falling back to the in-process event: ${err?.message}`);
+      this.events.emit('chat.message_sent', sent);
     });
 
     return msg.toObject();
@@ -406,7 +469,7 @@ export class ChatService {
     this.assertParticipant(thread, userId);
 
     const limit = options.limit || 50;
-    const query: any = { thread_id: threadId, is_deleted: false };
+    const query: any = { thread_id: threadId, is_deleted: false, deleted_for: { $ne: userId } };
     if (options.before) {
       const ref = await this.msgs.findOne({ id: { $eq: options.before } }).lean<any>();
       if (ref) query.createdAt = { $lt: (ref as any).createdAt };
@@ -428,8 +491,25 @@ export class ChatService {
       if (!marker) throw new BadRequestException('invalid_up_to_message_id');
       query.createdAt = { $lte: marker.createdAt };
     }
-    await this.msgs.updateMany(query, { $addToSet: { read_by: userId } });
+    // Read implies delivered, so the sender never sees "read" without "delivered".
+    await this.msgs.updateMany(query, { $addToSet: { read_by: userId, delivered_to: userId } });
     await this.threads.updateOne({ id: { $eq: threadId } }, { $set: { [`unread_counts.${userId}`]: 0 } });
+    this.emitState('read', thread, userId);
+  }
+
+  /** Tick state for the sender's own message: sent < delivered < read (by every other participant). */
+  static statusFor(msg: { sender_id: string; delivered_to?: string[]; read_by?: string[] }, participantIds: string[]): 'sent' | 'delivered' | 'read' {
+    const others = participantIds.filter(p => p !== msg.sender_id);
+    if (others.length && others.every(p => (msg.read_by || []).includes(p))) return 'read';
+    if (others.length && others.every(p => (msg.delivered_to || []).includes(p))) return 'delivered';
+    return 'sent';
+  }
+
+  /** Tells the other participants (not a new message: a state change) over the realtime gateway's chatstate channel. */
+  private emitState(kind: 'delivered' | 'read' | 'deleted', thread: { id: string; participant_ids: string[] }, userId: string, extra: Record<string, unknown> = {}): void {
+    try {
+      this.events.emit(`chatstate.${kind}`, { kind, thread_id: thread.id, user_id: userId, participant_ids: thread.participant_ids, at: new Date(), ...extra });
+    } catch { /* realtime is best effort; the state is stored */ }
   }
 
   async markDelivered(threadId: string, userId: string): Promise<void> {
@@ -440,6 +520,7 @@ export class ChatService {
       { thread_id: threadId, sender_id: { $ne: userId }, delivered_to: { $ne: userId } },
       { $addToSet: { delivered_to: userId } },
     );
+    this.emitState('delivered', thread, userId);
   }
 
   async editMessage(msgId: string, userId: string, newBody: string): Promise<ChatMessage> {
@@ -447,6 +528,12 @@ export class ChatService {
     if (!msg) throw new NotFoundException('message_not_found');
     if (msg.sender_id !== userId) throw new ForbiddenException('not_sender');
     if (msg.is_deleted) throw new BadRequestException('message_deleted');
+    // an edit is a write to the thread: the participant check and the consultation window apply as for a new message
+    const thread = await this.threads.findOne({ id: { $eq: msg.thread_id } });
+    if (!thread) throw new NotFoundException('thread_not_found');
+    this.assertParticipant(thread, userId);
+    const check = await this.verifyCommunicationAllowed(msg.thread_id, userId);
+    if (!check.allowed) throw new ForbiddenException(check.message);
     msg.body = newBody;
     msg.is_edited = true;
     msg.edited_at = new Date();
@@ -454,10 +541,26 @@ export class ChatService {
     return msg.toObject();
   }
 
-  async deleteMessage(msgId: string, userId: string): Promise<void> {
+  /**
+   * `me`: hides the message from this participant only (any message of a thread they are in).
+   * `all`: sender only, within CHAT_DELETE_WINDOW_MIN of sending; blanks the body, releases the
+   * attachments, fixes the thread preview and tells the other participants.
+   */
+  async deleteMessage(msgId: string, userId: string, scope: 'me' | 'all' = 'all'): Promise<void> {
     const msg = await this.msgs.findOne({ id: { $eq: msgId } });
     if (!msg) throw new NotFoundException('message_not_found');
+    const thread = await this.threads.findOne({ id: { $eq: msg.thread_id } });
+    if (!thread) throw new NotFoundException('thread_not_found');
+    this.assertParticipant(thread, userId);
+    if (scope === 'me') {
+      await this.msgs.updateOne({ id: { $eq: msgId } }, { $addToSet: { deleted_for: userId } });
+      return;
+    }
     if (msg.sender_id !== userId) throw new ForbiddenException('not_sender');
+    if (msg.is_deleted) return;
+    const windowMin = Number(process.env.CHAT_DELETE_WINDOW_MIN) > 0 ? Number(process.env.CHAT_DELETE_WINDOW_MIN) : DEFAULT_DELETE_WINDOW_MIN;
+    const sentAt = new Date((msg as any).createdAt ?? 0).getTime();
+    if (Date.now() - sentAt > windowMin * 60_000) throw new BadRequestException('delete_window_passed');
     msg.is_deleted = true;
     msg.deleted_at = new Date();
     msg.body = '';
@@ -467,6 +570,14 @@ export class ChatService {
     if (mediaIds.length) {
       try { this.events.emit(MEDIA_RELEASE, { ids: mediaIds, owner_id: userId }); } catch { /* cleanup is best effort */ }
     }
+    // The list preview must not keep showing text that no longer exists.
+    const last: any = await this.msgs.findOne({ thread_id: msg.thread_id, is_deleted: false }, { body: 1, media_ids: 1, sender_id: 1, createdAt: 1 }).sort({ createdAt: -1 }).lean();
+    await this.threads.updateOne({ id: { $eq: msg.thread_id } }, {
+      $set: last
+        ? { last_message: (last.body || (last.media_ids?.length ? '[مرفق]' : '')).slice(0, 150), last_message_at: last.createdAt, last_message_sender_id: last.sender_id }
+        : { last_message: '' },
+    });
+    this.emitState('deleted', thread, userId, { msg_id: msgId });
   }
 
   async addReaction(msgId: string, userId: string, emoji: string): Promise<ChatMessage> {
@@ -516,11 +627,18 @@ export class ChatService {
     return thread;
   }
 
+  /** Only a group has members to manage (a direct thread is exactly its two people), and only its creator manages them; anyone may leave. */
+  private assertCanManageMembers(thread: any, actorId: string, removedId?: string): void {
+    if (thread.type !== 'group') throw new ForbiddenException('participant_management_not_allowed');
+    if (removedId !== undefined && String(removedId) === String(actorId)) return;
+    if (String(thread.created_by) !== String(actorId)) throw new ForbiddenException('participant_management_not_allowed');
+  }
+
   async addParticipant(threadId: string, actorId: string, userId: string): Promise<void> {
     const thread = await this.threads.findOne({ id: { $eq: threadId } });
     if (!thread) throw new NotFoundException('thread_not_found');
     this.assertParticipant(thread, actorId);
-    if (thread.type !== 'group' && thread.type !== 'direct') throw new ForbiddenException('participant_management_not_allowed');
+    this.assertCanManageMembers(thread, actorId);
     await this.threads.updateOne({ id: { $eq: threadId } }, {
       $addToSet: { participant_ids: userId },
       $set: { [`unread_counts.${userId}`]: 0 },
@@ -531,7 +649,7 @@ export class ChatService {
     const thread = await this.threads.findOne({ id: { $eq: threadId } });
     if (!thread) throw new NotFoundException('thread_not_found');
     this.assertParticipant(thread, actorId);
-    if (thread.type !== 'group' && thread.type !== 'direct') throw new ForbiddenException('participant_management_not_allowed');
+    this.assertCanManageMembers(thread, actorId, userId);
     await this.threads.updateOne({ id: { $eq: threadId } }, { $pull: { participant_ids: userId } });
   }
 }

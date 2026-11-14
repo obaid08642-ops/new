@@ -14,6 +14,7 @@ export const AGENT_TOOL_SCOPES: Record<string, AgentScope> = {
   hold_consultation: 'agent:book',
   hold_lab: 'agent:book',
   hold_nursing: 'agent:book',
+  hold_radiology: 'agent:book',
   cancel_hold: 'agent:book',
 };
 

@@ -8,6 +8,7 @@ import {
   StyleSheet, StyleProp, ViewStyle,
 } from 'react-native';
 import { useApp } from '../../context/AppContext';
+import { dsText } from '../dsText';
 import { BorderRadius, Spacing } from '../tokens';
 import { DSText } from './Text';
 
@@ -21,14 +22,14 @@ export interface DSSpinnerProps {
 }
 
 export function DSSpinner({ size = 'small', color, style }: DSSpinnerProps) {
-  const { colors } = useApp();
+  const { colors, lang } = useApp();
   return (
     <ActivityIndicator
       size={size}
       color={color ?? colors.primary}
       style={style}
       accessible
-      accessibilityLabel="جارٍ التحميل"
+      accessibilityLabel={dsText(lang, 'ds.loading')}
     />
   );
 }
@@ -43,7 +44,7 @@ export interface DSLoadingOverlayProps {
 }
 
 export function DSLoadingOverlay({ visible, message, overlay = false }: DSLoadingOverlayProps) {
-  const { colors } = useApp();
+  const { colors, lang } = useApp();
   if (!visible) return null;
 
   return (
@@ -58,7 +59,7 @@ export function DSLoadingOverlay({ visible, message, overlay = false }: DSLoadin
       ]}
       accessible
       accessibilityLiveRegion="polite"
-      accessibilityLabel={message ?? 'جارٍ التحميل'}
+      accessibilityLabel={message ?? dsText(lang, 'ds.loading')}
     >
       <View style={[styles.loadingCard, { backgroundColor: colors.surface }]}>
         <ActivityIndicator size="large" color={colors.primary} />

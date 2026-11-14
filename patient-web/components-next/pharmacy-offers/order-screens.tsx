@@ -19,6 +19,7 @@ import { NegotiationActions } from "./negotiation-actions";
 import { QuoteSection } from "./quote-section";
 import { OFFER_TONES } from "./tones";
 import styles from "./offers.module.css";
+import { FILL_CHAT_CIRCLE_TEXT } from "@/components-next/ui-generated/icons/glyphs/chat-circle-text";
 
 const UUID = /^[0-9a-f-]{36}$/i;
 /** An order in one of these statuses can no longer be cancelled. */
@@ -102,7 +103,7 @@ export async function NegotiationListScreen({ locale, orderId }: { locale: Local
               return (
                 <li key={thread.id}>
                   <Link className={`${styles.row} ${styles.rowLink}`} href={`/${locale}/orders/${orderId}/offers/negotiation/${thread.id}`} aria-label={`${t("openConversation")}${item ? `: ${item}` : ""}`}>
-                    <FIcon icon="chat-circle-text" tone={OFFER_TONES.pharmacy} size={48} />
+                    <FIcon icon="chat-circle-text" glyph={FILL_CHAT_CIRCLE_TEXT} tone={OFFER_TONES.pharmacy} size={48} />
                     <span className={styles.rowBody}>
                       <span className={styles.rowName}>{item ? t("conversationFor", { name: item }) : t("threadTitle")}</span>
                       {pharmacy ? <span className={styles.rowSub} dir="auto">{pharmacy}</span> : null}

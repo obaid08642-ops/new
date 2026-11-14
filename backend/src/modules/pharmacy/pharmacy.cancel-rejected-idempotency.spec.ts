@@ -4,7 +4,7 @@ import { PatientPharmacyController } from './pharmacy.controllers';
 describe('PatientPharmacyController insurance-rejection cancel', () => {
   const make = () => {
     const insurance = { cancelRejectedByPatient: jest.fn().mockResolvedValue({ ok: true }) };
-    return { insurance, controller: new PatientPharmacyController({} as any, {} as any, insurance as any, {} as any) };
+    return { insurance, controller: new PatientPharmacyController({} as any, {} as any, insurance as any, {} as any, {} as any) };
   };
 
   it('passes the Idempotency-Key header when the body has no key', async () => {

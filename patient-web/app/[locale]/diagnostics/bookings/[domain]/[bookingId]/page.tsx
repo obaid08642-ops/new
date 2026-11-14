@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation";
+import { pickName } from "@/lib/i18n/localized";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractDiagnosticBooking, extractDiagnosticTracking, parseDiagnosticBookingId, parseDiagnosticDomain } from "@/lib/api/diagnostics";
 import { getDiagnosticBooking, getDiagnosticTracking } from "@/lib/api/diagnostics-server";
@@ -7,15 +8,20 @@ import { isLocale } from "@/lib/i18n";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { ActionLinks, Facts, Hero, Notice, SectionCard, type FactRow, type LinkAction } from "@/components-next/consult/consult-parts";
-import { LAB, RADIOLOGY, TagRow, pickText } from "@/components-next/diagnostics/diag-parts";
+import { LAB, RADIOLOGY, TagRow, minutesText } from "@/components-next/diagnostics/diag-parts";
 import { diagStatus } from "@/components-next/diagnostics/status";
 import { Timeline } from "@/components-next/ui-generated/components/Cards";
 import { formatWhen } from "@/components-next/pharmacy-offers/format";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
+import { DiagnosticBookingCancel } from "@/components-next/diagnostics/booking-cancel";
+import { CANCELLABLE_STATES, RADIOLOGY_STAGES, radiologyStageIndex } from "@/components-next/diagnostics/stages";
+import { formatPrice } from "@/lib/format-price";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
+import styles from "@/components-next/diagnostics/diag.module.css";
 
 type Props = { params: Promise<{ locale: string; domain: string; bookingId: string }> };
 
-/** A lab or radiology booking (canvas/OrderTracking head): the status, when and where, whether a referral is required, and for a lab the steps the server logged. Reports, documents and prices are never drawn here. */
+/** A lab or radiology booking (canvas/OrderTracking head): the status, when and where, whether a referral is required, and for a lab the steps the server logged. The total, the collector, the radiology stages and the result rows (when the booking carries them) are drawn; documents never are. */
 export default async function DiagnosticDetailPage({ params }: Props) {
   const { locale, domain: rawDomain, bookingId } = await params;
   const domain = parseDiagnosticDomain(rawDomain);
@@ -27,7 +33,7 @@ export default async function DiagnosticDetailPage({ params }: Props) {
   const response = await getDiagnosticBooking(token, domain, bookingId);
   if (response.status === 401) redirect(`/${locale}/login`);
   if (response.status === 403 || response.status === 404) notFound();
-  const backHref = `/${locale}/diagnostics/bookings`;
+  const backHref = `/${locale}/orders`;
   const booking = response.ok ? extractDiagnosticBooking(await response.json().catch(() => null)) : null;
   if (!booking) {
     return (
@@ -39,7 +45,7 @@ export default async function DiagnosticDetailPage({ params }: Props) {
   const trackingResponse = await getDiagnosticTracking(token, domain, bookingId);
   const tracking = domain === "labs" && trackingResponse.ok ? extractDiagnosticTracking(await trackingResponse.json().catch(() => null)) : null;
   const visual = domain === "labs" ? LAB : RADIOLOGY;
-  const label = domain === "labs" ? t("labs.label") : pickText(locale, booking.scanNameAr, booking.scanNameEn) ?? t("radiology.label");
+  const label = domain === "labs" ? t("labs.label") : pickName(locale, booking.scanNames) ?? t("radiology.label");
   const status = diagStatus(booking.state);
   const statusText = status.key === "unknown" ? t("statusUnavailable") : w(`status_${status.key}`);
   const when = booking.scheduledAt ? formatWhen(locale, booking.scheduledAt) : null;
@@ -48,10 +54,15 @@ export default async function DiagnosticDetailPage({ params }: Props) {
     { label: t("status"), value: statusText, icon: "check-circle", tone: status.tone },
     ...(when ? [{ label: t("scheduled"), value: <bdi>{when}</bdi>, icon: "calendar-dots", tone: DIAG_TONES.health } as FactRow] : []),
     ...(booking.locationType ? [{ label: t("location"), value: home ? w("locationHome") : w("locationFacility"), icon: home ? "moped" : "hospital", tone: DIAG_TONES.facility } as FactRow] : []),
+    ...(booking.total ? [{ label: w("bookingTotal"), value: <bdi>{formatPrice(locale, booking.total).text}</bdi>, icon: "tag", tone: DIAG_TONES.info } as FactRow] : []),
     ...(booking.medicalReferralRequired !== undefined ? [{ label: t("referral"), value: booking.medicalReferralRequired ? t("yes") : t("no"), icon: "file-text", tone: DIAG_TONES.info } as FactRow] : []),
   ];
   const steps = tracking?.steps ?? [];
   const last = steps.length - 1;
+  const stageIndex = domain === "radiology" ? radiologyStageIndex(booking.state) : -1;
+  const cancelled = status.key === "cancelled";
+  const canCancel = !cancelled && CANCELLABLE_STATES.has((booking.state ?? "").toUpperCase());
+  const collectorVisible = domain === "labs" && home && !cancelled && !booking.hasReport && Boolean(tracking?.techName || tracking?.techPhone);
   const FINAL = new Set(["REPORTED", "CANCELLED", "SAMPLE_REJECTED"]);
   const actions: LinkAction[] = domain === "labs"
     ? [
@@ -79,8 +90,44 @@ export default async function DiagnosticDetailPage({ params }: Props) {
           />
         </SectionCard>
       ) : null}
+      {collectorVisible && tracking ? (
+        <SectionCard id="diag-collector" title={w("collectorLabel")}>
+          <div className={styles.eta}>
+            <div className={styles.etaText}>
+              {tracking.techName ? <span className={styles.etaValue}>{tracking.techName}</span> : null}
+              {tracking.eta ? <span className={styles.etaLabel}>{w("trackingArriving")} <bdi>{minutesText(locale, tracking.eta)}</bdi></span> : null}
+            </div>
+            {tracking.techPhone ? <a className={styles.callLink} href={`tel:${tracking.techPhone}`}>{w("collectorCall")}</a> : null}
+          </div>
+        </SectionCard>
+      ) : null}
+      {domain === "radiology" && !cancelled && stageIndex >= 0 ? (
+        <SectionCard id="diag-stages" title={w("radiologyStagesTitle")}>
+          <Timeline
+            label={w("radiologyStagesTitle")}
+            steps={RADIOLOGY_STAGES.map((stage, i) => ({ id: stage.key, label: w(stage.label), state: i < stageIndex ? "done" : i === stageIndex ? "current" : "upcoming" }))}
+          />
+        </SectionCard>
+      ) : null}
+      {booking.results?.length ? (
+        <SectionCard id="diag-results" title={w("bookingResultsTitle")}>
+          <ul className={styles.stack} aria-label={w("bookingResultsTitle")}>
+            {booking.results.map((row) => (
+              <li key={row.id}>
+                <span className={styles.etaLabel}>{row.name}</span>
+                <span className={styles.etaValue}>
+                  <bdi>{row.result}</bdi>
+                  {row.abnormal ? <> <Icon name="warning" size={16} tone="currentColor" /><span className="sr-only">{w("resultAbnormal")}</span></> : null}
+                </span>
+                {row.reference ? <span className={styles.etaLabel}>{w("resultReference")}: <bdi>{row.reference}</bdi></span> : null}
+              </li>
+            ))}
+          </ul>
+        </SectionCard>
+      ) : null}
       <Notice>{t("detailNotice")}</Notice>
       <ActionLinks actions={actions} />
+      {canCancel ? <DiagnosticBookingCancel domain={domain} bookingId={booking.id} /> : null}
     </ConsultPage>
   );
 }

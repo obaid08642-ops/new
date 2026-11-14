@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { callTokenFailure } from "@/lib/consult/call-session";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import rx from "@/components-next/pharmacy/rx.module.css";
@@ -15,7 +16,7 @@ export function CallTokenLauncher({ appointmentId, joinHref, labels, locale, con
   // D-38: the server refuses the patient's call until the telehealth consent is accepted; the consent card is shown then
   const [consentAsked,setConsentAsked]=useState(false);
   const [state,setState]=useState<"idle"|"loading"|"ready"|"error">("idle"); const [credential,setCredential]=useState<CallCredential|null>(null); const [error,setError]=useState<string|null>(null);
-  async function requestToken(){ if(state==="loading")return; setState("loading");setError(null);try{const response=await fetch(`/api/appointments/${appointmentId}/call-token`,{method:"GET",cache:"no-store",credentials:"same-origin"});const data=await response.json().catch(()=>null);if(needsTelehealthConsent(data)){setState("idle");setConsentAsked(true);return;}if(!response.ok||!data?.token||data.provider!=="livekit"||!data.room){setState("error");setError(response.status===409?labels.notReady:labels.unavailable);return;}setCredential({provider:"livekit",token:data.token,room:data.room});setState("ready");}catch{setState("error");setError(labels.unavailable)}}
+  async function requestToken(){ if(state==="loading")return; setState("loading");setError(null);try{const response=await fetch(`/api/appointments/${appointmentId}/call-token`,{method:"GET",cache:"no-store",credentials:"same-origin"});const data=await response.json().catch(()=>null);if(needsTelehealthConsent(data)){setState("idle");setConsentAsked(true);return;}if(!response.ok||!data?.token||data.provider!=="livekit"||!data.room){setState("error");setError(callTokenFailure(response.status,data)==='not_ready'?labels.notReady:labels.unavailable);return;}setCredential({provider:"livekit",token:data.token,room:data.room});setState("ready");}catch{setState("error");setError(labels.unavailable)}}
   function discard(){setCredential(null);setState("idle");setError(null)}
   return (
     <section className={rx.card} aria-labelledby="call-token-title">

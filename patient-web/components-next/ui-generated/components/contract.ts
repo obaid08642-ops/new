@@ -71,7 +71,8 @@ export type Tone = 'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'i
 import type { ReactNode } from 'react';
 
 import type { IconName } from '../icons/names';
-import type { FillIconName, ServiceName, ServiceTone } from '../icons/fill';
+import type { NavArtKey } from '../icons/nav-art';
+import type { FillExtraName, FillIconName, ServiceName, ServiceTone } from '../icons/fill';
 
 /**
  * A value change. Deliberately ONE name for both platforms: React Native splits
@@ -257,6 +258,8 @@ export interface SearchProps extends StateProps, A11yProps {
   /** The ink filter square beside the field (Consult). */
   onFilterPress?: () => void;
   filterLabel?: string;
+  /** How many filters are on: a small count badge on the filter square (native renderer; 0 or absent = none). */
+  filterCount?: number;
   /** The clear button, shown while there is text. */
   onClear?: () => void;
   clearLabel?: string;
@@ -368,7 +371,7 @@ export interface DoctorCardProps extends A11yProps {
   modes?: Array<{ mode: ConsultMode; label: string }>;
   rating?: { value: number | null; count: number };
   /** Already formatted, e.g. "اليوم ٧:٣٠ م". */
-  nextSlot?: string;
+  nextSlot?: ReactNode;
   price?: string;
   currency?: string;
   bookLabel: string;
@@ -480,14 +483,17 @@ export interface ServiceTileProps extends StateProps, A11yProps {
  * handoff §1 "Icons". 40–58 in lists and grids, 72–112 for empty states.
  * Decorative unless `label` is given.
  */
-export interface FIconProps extends A11yProps {
-  icon: FillIconName;
+interface FIconBase extends A11yProps {
   tone: ServiceTone;
   /** Edge in px. */
   size?: number;
   /** `soft` tinted square (default), `solid` gradient with a white glyph, `none` the bare glyph. */
   chip?: 'soft' | 'solid' | 'none';
 }
+
+/** A core glyph is looked up by name; any other glyph is passed as `glyph` (import it from icons/glyphs/<name>): required by the type. */
+export type FIconRef = { icon: FillIconName; glyph?: string } | { icon: FillExtraName; glyph: string };
+export type FIconProps = FIconBase & FIconRef;
 
 /** A section title with an optional "see all" link (canvas/HomeApp.dc.html). */
 export interface SectionHeaderProps extends A11yProps {
@@ -540,6 +546,8 @@ export interface RatingProps extends A11yProps {
   surface?: 'default' | 'onBrand';
   /** Supplied by the caller so the sentence is localised by the app, not here. */
   formatLabel?: (value: number, count: number) => string;
+  /** The reader's locale: the value and the count are written in its own digits (one numbering system per screen). */
+  locale?: string;
 }
 
 /* ------------------------------------------------------------- navigation */
@@ -575,6 +583,8 @@ export interface BottomTabItem {
   id: string;
   label: string;
   icon: FillIconName;
+  /** Duotone illustration of the tab (icons/nav-art.ts); drawn in its service tone instead of the fill glyph. The raised centre button keeps the glyph. */
+  art?: NavArtKey;
   /** The raised coral centre button (Consultations). At most one item. */
   raised?: boolean;
   badge?: string | number;

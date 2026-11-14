@@ -4,9 +4,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
+import { SocialLoginButtons } from "./social-login-buttons";
+import type { SocialButtons } from "@/lib/auth/social-config";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { authErrorKind } from "@/lib/auth/auth-errors";
 import { announceSignedIn } from "@/lib/auth/session-identity";
+import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH, registerProblem } from "@/lib/auth/password-rule";
 import type { Locale } from "@/lib/i18n";
 import styles from "./auth/auth.module.css";
 
@@ -18,7 +21,8 @@ const policyIds = {
 };
 
 /** What a failed registration means to the person. A 5xx may come AFTER the account was created (the code could not be sent), so it never says "no account was created". */
-export function registerErrorMessage(t: (key: string) => string, status: number): string {
+export function registerErrorMessage(t: (key: string) => string, status: number, passwordRuleBroken = false): string {
+  if (status === 400 && passwordRuleBroken) return t("errPassword");
   switch (authErrorKind(status)) {
     case "conflict": return t("alreadyRegistered");
     case "rateLimited": return t("rateLimited");
@@ -28,10 +32,10 @@ export function registerErrorMessage(t: (key: string) => string, status: number)
   }
 }
 
-export function RegisterForm({ locale }: { locale: Locale }) {
+export function RegisterForm({ locale, social = {} }: { locale: Locale; social?: SocialButtons }) {
   const t = useTranslations("Register");
   const router = useRouter();
-  const [form, setForm] = useState({ name: "", identifier: "", password: "" });
+  const [form, setForm] = useState({ name: "", identifier: "", password: "", confirm: "" });
   const [agreed, setAgreed] = useState(false);
   const [show, setShow] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -54,10 +58,8 @@ export function RegisterForm({ locale }: { locale: Locale }) {
       { policy_id: policyIds.terms, version: policyIds.termsVersion },
       { policy_id: policyIds.privacy, version: policyIds.privacyVersion },
     ];
-    if (form.name.trim().length < 2 || form.identifier.trim().length < 3 || form.password.length < 8 || !agreed) {
-      setMessage(t("invalid"));
-      return;
-    }
+    const problem = registerProblem(form, agreed);
+    if (problem) { setMessage(t(problem)); return; }
     setBusy(true);
     try {
       // Guest with a phone identifier converts (zero-loss merge server-side)
@@ -89,7 +91,11 @@ export function RegisterForm({ locale }: { locale: Locale }) {
       });
       if (!response.ok) {
         setMessageOk(false);
-        setMessage(registerErrorMessage(t, response.status));
+        // The proxy answers 400 invalid_registration when the password is outside its length rule.
+        const rejected: unknown = await response.json().catch(() => null);
+        const passwordRule = (rejected as { message?: unknown } | null)?.message === "invalid_registration"
+          && (form.password.length < MIN_PASSWORD_LENGTH || form.password.length > MAX_PASSWORD_LENGTH);
+        setMessage(registerErrorMessage(t, response.status, passwordRule));
         return;
       }
       // The account exists even when the code could not be sent (issue 434): the code page then says so and offers resend.
@@ -125,13 +131,18 @@ export function RegisterForm({ locale }: { locale: Locale }) {
         <div className={styles.field}>
           <label className={styles.label} htmlFor="register-password">{t("password")}</label>
           <span className={styles.control}>
-            <input id="register-password" required minLength={8} type={show ? "text" : "password"} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} autoComplete="new-password" />
+            <input id="register-password" required minLength={MIN_PASSWORD_LENGTH} type={show ? "text" : "password"} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} autoComplete="new-password" />
             <button type="button" className={styles.eye} onClick={() => setShow((v) => !v)} aria-label={show ? t("hidePassword") : t("showPassword")}>
               <Icon name={show ? "eye-slash" : "eye"} size={20} tone="currentColor" />
             </button>
           </span>
           <span className={styles.hint}>{t("hintPassword")}</span>
         </div>
+        <label className={styles.field}>
+          <span className={styles.label}>{t("confirm")}</span>
+          <span className={styles.control}><input required type={show ? "text" : "password"} value={form.confirm} aria-invalid={form.confirm.length > 0 && form.confirm !== form.password || undefined} onChange={(e) => setForm({ ...form, confirm: e.target.value })} autoComplete="new-password" /></span>
+          {form.confirm.length > 0 && form.confirm !== form.password ? <span className={styles.error} role="alert">{t("errMismatch")}</span> : null}
+        </label>
         <label className={styles.consent}>
           <input type="checkbox" className={styles.checkbox} checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
           <span>
@@ -145,6 +156,7 @@ export function RegisterForm({ locale }: { locale: Locale }) {
         {isGuest ? <p className={styles.note} role="note">{t("guestNote")}</p> : null}
         <div className={styles.actions}>
           <Button type="submit" variant="primary" size="lg" fullWidth label={busy ? t("busy") : t("submit")} loading={busy} />
+          <SocialLoginButtons locale={locale} social={social} variant="register" />
           <p className={styles.foot}><Link className={styles.link} href={`/${locale}/login`}>{t("login")}</Link></p>
         </div>
       </form>

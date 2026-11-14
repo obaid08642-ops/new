@@ -1,10 +1,43 @@
 import { Injectable } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { ClamavService } from '../storage/clamav.service';
+import { StaleCache } from '../../common/stale-cache';
+
+/**
+ * The Council of Health Insurance's own page for a beneficiary to look up their insurance (checked on chi.gov.sa on
+ * 2026-10-25: "الاستعلام عن معلومات التأمين الصحي"; it asks for the document number and a verification code, no fee).
+ * The clients read it from /config, so a change of address needs no app release. Only an https chi.gov.sa address is
+ * accepted from the environment; anything else falls back to this one.
+ */
+export const CHI_INQUIRY_URL = 'https://www.chi.gov.sa/ServicesDirectory/Pages/CheckInsurance.aspx';
+
+export function chiInquiryUrl(env: Record<string, string | undefined> = process.env): string {
+  const raw = (env.CHI_INQUIRY_URL || '').trim();
+  try {
+    const url = new URL(raw);
+    if (url.protocol === 'https:' && (url.hostname === 'chi.gov.sa' || url.hostname.endsWith('.chi.gov.sa'))) return url.toString();
+  } catch {
+    // not a URL: use the default
+  }
+  return CHI_INQUIRY_URL;
+}
 
 @Injectable()
 export class ConfigService {
-  constructor(@InjectConnection() private readonly conn: Connection) {}
+  // The two database reads of /config (admin flag rows, app versions + maintenance) are NEVER served from a fresh-TTL cache: a kill switch or a
+  // maintenance banner must reach every client at once. What is shared is the load itself (concurrent requests wait for ONE read instead of
+  // piling up on a slow database) and, only when the read FAILS or exceeds 1.5 s, the last good copy. CONFIG_CACHE_MS (default 0) exists for tests.
+  private readonly dbPart = new StaleCache<{ rows: any[]; appVersions: Record<string, unknown> }>(async () => {
+    const rows = await this.conn.collection('feature_flags').find({}, { maxTimeMS: 1500 }).project({ _id: 0, key: 1, enabled: 1, rollout_percentage: 1 }).toArray();
+    const doc: any = await this.conn.collection('system_configs').findOne({ key: 'app_versions' }, { maxTimeMS: 1500 });
+    return { rows: rows as any[], appVersions: doc?.value && typeof doc.value === 'object' ? doc.value : {} };
+  }, () => { const n = Number(process.env.CONFIG_CACHE_MS); return Number.isFinite(n) && n >= 0 ? n : 0; });
+
+  constructor(
+    @InjectConnection() private readonly conn: Connection,
+    private readonly clamav: ClamavService,
+  ) {}
 
   /**
    * Environment values provide the boot-safe baseline. Administrative flags
@@ -26,17 +59,27 @@ export class ConfigService {
       ].flatMap(([key, value]) => value === undefined ? [] : [[key, value === 'true']]),
     );
     featureFlags['video_calls'] = livekitReady;
+    // Public signal for every upload entry point (prescription, insurance card, chat photo, profile photo, nurse/lab files):
+    // false while the virus scanner cannot answer, so the clients hide the button instead of showing a form that fails.
+    featureFlags['uploads_enabled'] = await this.clamav.uploadsAvailable();
+    // true while a new upload is accepted but waits for its virus scan before anyone can open it (UPLOAD_SCAN=defer, scanner down)
+    featureFlags['uploads_pending_scan'] = await this.clamav.uploadsPendingScan();
+    // The web "under construction / trial version" notice: ON by default; an admin feature-flag row with key site_notice_enabled
+    // (enabled=false) switches it off without a deploy (applied by the loop below).
+    featureFlags['site_notice_enabled'] = true;
     const featureRollouts: Record<string, number> = {};
+    let app_versions: Record<string, unknown> = {};
     try {
-      const rows = await this.conn.collection('feature_flags').find({}).project({ _id: 0, key: 1, enabled: 1, rollout_percentage: 1 }).toArray();
-      for (const row of rows as any[]) {
+      const { rows, appVersions } = await this.dbPart.get();
+      app_versions = appVersions;
+      for (const row of rows) {
         const key = String(row.key || '').trim();
         if (!key) continue;
         featureFlags[key] = !!row.enabled;
         featureRollouts[key] = Math.max(0, Math.min(100, Number(row.rollout_percentage ?? 100)));
       }
     } catch {
-      // Startup/DB unavailability must not take down the public configuration endpoint.
+      // Startup/DB unavailability must not take down the public configuration endpoint (and there is no earlier good copy to serve).
     }
     const numberFromEnv = (value: string | undefined) => {
       const parsed = Number(value);
@@ -54,21 +97,13 @@ export class ConfigService {
         ['support_email', process.env.SUPPORT_EMAIL],
       ].filter(([, value]) => Boolean(value)),
     );
-    // P6.x-13: per-app force-update versions + maintenance flags (admin-managed,
-    // fail-open: absent config means no enforcement).
-    let app_versions: Record<string, unknown> = {};
-    try {
-      const doc: any = await this.conn.collection('system_configs').findOne({ key: 'app_versions' });
-      if (doc?.value && typeof doc.value === 'object') app_versions = doc.value;
-    } catch {
-      // Startup/DB unavailability must not take down the public configuration endpoint.
-    }
     return {
       version: process.env.APP_VERSION || null,
       features: featureFlags,
       feature_rollouts: featureRollouts,
       pricing,
       contact,
+      links: { chi_inquiry: chiInquiryUrl() },
       app_versions,
     };
   }

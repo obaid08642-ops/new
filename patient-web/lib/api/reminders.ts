@@ -4,7 +4,7 @@ const reminderIdSchema = z.string().uuid();
 const timeSchema = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 
 export type MedicationDoseSummary = { timeKey: string; status: "pending" | "taken" | "skipped" | "missed" };
-export type MedicationReminderSummary = { id: string; medicineName?: string; dose?: string; times: string[]; frequency?: string; chronic: boolean; todayDoses: MedicationDoseSummary[] };
+export type MedicationReminderSummary = { id: string; medicineName?: string; dose?: string; times: string[]; frequency?: string; chronic: boolean; active: boolean; instructions?: string; todayDoses: MedicationDoseSummary[] };
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
@@ -31,8 +31,9 @@ function reminderFrom(value: unknown): MedicationReminderSummary | null {
     const status = ["pending", "taken", "skipped", "missed"].includes(String(dose?.status)) ? dose?.status as MedicationDoseSummary["status"] : null;
     return timeKey && status ? [{ timeKey, status }] : [];
   }) : [];
-  // #676: the reminder's own chronic flag, so editing keeps it.
-  return { id: id.data, medicineName, dose, times, frequency, chronic: record.chronic === true, todayDoses };
+  const instructions = typeof record.instructions_ar === "string" && record.instructions_ar.trim() ? record.instructions_ar.trim().slice(0, 400) : undefined;
+  // #676: the reminder's own chronic flag, so editing keeps it. `active` is false once the patient stopped it.
+  return { id: id.data, medicineName, dose, times, frequency, chronic: record.chronic === true, active: record.active !== false, instructions, todayDoses };
 }
 
 export function extractMedicationReminderSummaries(payload: unknown) {

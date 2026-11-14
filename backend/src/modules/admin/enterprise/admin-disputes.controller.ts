@@ -73,14 +73,18 @@ export class AdminDisputesController {
       ]).toArray().catch(() => []),
     ]);
 
-    // Financial overlay: any wallet credits already issued against these tickets.
+    // Financial overlay: what was already refunded against these tickets. Refunds are ledger rows keyed `dispute_<id>`
+    // (RefundExecutor), the same rows the detail view lists; the old wallet store holds none of them.
     const ids = (items as any[]).map((t) => t.id);
-    const refunds = ids.length ? await this.conn.collection('wallet_transactions')
-      .find({ referenceType: 'refund', referenceId: { $in: ids }, type: 'credit' })
-      .project({ referenceId: 1, amount: 1 })
+    const refunds = ids.length ? await this.conn.collection('platformledgerentries')
+      .find({ type: 'refund', ref_type: 'refund', ref_id: { $in: ids.map((id) => `dispute_${id}`) } })
+      .project({ ref_id: 1, amount: 1 })
       .toArray().catch(() => []) : [];
     const refundMap = new Map<string, number>();
-    for (const r of refunds as any[]) refundMap.set(r.referenceId, (refundMap.get(r.referenceId) || 0) + Number(r.amount || 0));
+    for (const r of refunds as any[]) {
+      const id = String(r.ref_id).replace(/^dispute_/, '');
+      refundMap.set(id, (refundMap.get(id) || 0) + Number(r.amount || 0));
+    }
 
     // P6.x-15: SLA timers — dispute resolution deadline from the `sla`
     // system_config (fallback 48h), surfaced per row for the disputes center.
@@ -105,6 +109,9 @@ export class AdminDisputesController {
         status: t.status,
         priority: t.priority,
         source_role: t.source_role,
+        // the booking the patient named on the ticket: a refund decision needs it (see resolve)
+        booking_kind: t.booking_kind || null,
+        booking_id: t.booking_id || null,
         refunded_so_far: refundMap.get(t.id) || 0,
         created_at: t.createdAt,
         resolved_at: t.resolved_at || null,
@@ -119,8 +126,9 @@ export class AdminDisputesController {
   async detail(@Param('id') id: string) {
     const t: any = await this.conn.collection('supportrequests').findOne({ id }, { projection: { _id: 0 } });
     if (!t) throw new NotFoundException('dispute_not_found');
-    const refunds = await this.conn.collection('wallet_transactions')
-      .find({ referenceType: 'refund', referenceId: id, type: 'credit' }).project({ _id: 0, amount: 1, description: 1, createdAt: 1 }).toArray();
+    // refunds live in the ledger (RefundExecutor), keyed by the dispute id; the old wallet store is gone
+    const refunds = await this.conn.collection('platformledgerentries')
+      .find({ type: 'refund', ref_type: 'refund', ref_id: `dispute_${id}` }).project({ _id: 0, amount: 1, description: 1, createdAt: 1 }).toArray();
     return { ...t, refunds };
   }
 
@@ -173,12 +181,12 @@ export class AdminDisputesController {
     if (creditedAmount > 0) {
       // A2: the dispute refund executes against a real booking through the
       // original payment method — never a wallet credit.
-      const bookingKind = String((b as any)?.booking_kind || '').trim().toLowerCase();
-      const bookingId = String((b as any)?.booking_id || '').trim();
+      // the booking the patient named on the ticket, unless the admin names another one
+      const bookingKind = String((b as any)?.booking_kind || ticket.booking_kind || '').trim().toLowerCase();
+      const bookingId = String((b as any)?.booking_id || ticket.booking_id || '').trim();
       if (!bookingKind || !bookingId) throw new BadRequestException('booking_kind and booking_id are required for a refund decision');
-      const { v4: uuidv4 } = require('uuid');
       await this.refundExec.execute({
-        refund_id: `dispute_${ticket.id}_${uuidv4()}`,
+        refund_id: `dispute_${ticket.id}`, // one refund per dispute: a double click or a retry is 'already_executed', never a second refund
         booking_kind: bookingKind,
         booking_id: bookingId,
         patient_id: ticket.user_id,

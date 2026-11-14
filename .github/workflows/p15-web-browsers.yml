@@ -12,13 +12,12 @@ name: P15 web browsers
 # build itself (same pin style as patient-production-ci.yml) with
 # --with-deps so the browsers exist too.
 #
-# API TARGET: the public, read-only production API (https://api.nabd.plus/api/v1), as
-# patient-production-ci.yml and lighthouse.yml already do. Staging sits behind
-# Cloudflare Access (it answers 302) and has been off since 2026-10-04; a static
-# page with no data throws to keep its last good copy, so a staging target made
-# the smoke report 500/503. The smoke only loads public pages anonymously (GET,
-# no sign-in, no form, no click); the guard step below fails the job if the
-# smoke script ever starts interacting with the page or sending a body.
+# API TARGET: a LOCAL backend started by .github/actions/local-api (the same start the
+# live gate uses), at http://127.0.0.1:8002/api/v1. Production is never a CI dependency:
+# on 2026-11-02 api.nabd.plus was down for hours and every PR went red. (Staging sits
+# behind Cloudflare Access and has been off since 2026-10-04.) The smoke only loads
+# public pages anonymously (GET, no sign-in, no form, no click); the guard step below
+# fails the job if the smoke script ever starts interacting with the page or sending a body.
 on:
   pull_request:
     paths:
@@ -35,11 +34,12 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NABD_API_BASE_URL: https://api.nabd.plus/api/v1
+  NABD_API_BASE_URL: http://127.0.0.1:8002/api/v1
+  INTERNAL_API_BASE_URL: http://127.0.0.1:8002/api/v1
 
 jobs:
   browsers:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     strategy:
       fail-fast: false
@@ -58,17 +58,19 @@ jobs:
       - name: Install
         working-directory: patient-web
         run: corepack enable && pnpm install --frozen-lockfile
+      - name: Local API (MongoDB, Redis, the backend; no production dependency)
+        uses: ./.github/actions/local-api
       - name: Install Playwright + browsers (self-contained, pinned)
         # The smoke script imports 'playwright' from tools/live, so the package is installed
         # there (not only the CLI through npx); then only this matrix leg's browser.
         run: |
           npm install --no-save --no-package-lock --prefix tools/live playwright@1.63.0
           tools/live/node_modules/.bin/playwright install --with-deps ${{ matrix.browser }}
-      - name: Guard — the smoke against the production API stays read-only
+      - name: Guard — the smoke stays read-only (anonymous GET of public pages)
         run: |
           set -euo pipefail
           if grep -nE '\.(click|fill|type|press|check|selectOption|setInputFiles|dblclick|tap)\(|method:|postData|request\.(post|put|patch|delete)|fetch\(' tools/live/web_browsers_smoke.mjs; then
-            echo "REFUSING: tools/live/web_browsers_smoke.mjs interacts with pages or sends requests; it runs against the production API and must only load public pages" >&2
+            echo "REFUSING: tools/live/web_browsers_smoke.mjs interacts with pages or sends requests; it must only load public pages anonymously" >&2
             exit 1
           fi
           echo "API base for the build and the smoke run: $NABD_API_BASE_URL (public pages, anonymous GET only)"
@@ -97,6 +99,31 @@ jobs:
             sleep 2
           done
           echo "server not ready"; tail -100 /tmp/next.log; exit 1
+      - name: Wait until the smoke pages and their RSC prefetch answer 200
+        # The first request to an ISR page (e.g. /ar/articles, which the pharmacy page prefetches) is generated from a live
+        # read of the production API; a cold API answer past the 8 s read timeout leaves no cached copy, and the prefetch of
+        # that page then gets a bare 500 (the translated 503 page is for documents only). Readiness is checked, not slept:
+        # every page the smoke loads, and what the pages prefetch, must answer 200 as a document and as an RSC prefetch,
+        # each polled for up to 2 minutes. A page that never answers fails the job here with the server log; the smoke
+        # itself still fails on any own-origin 5xx.
+        run: |
+          set -u
+          ready() { # $1 = path, $2 = "doc" | "rsc"
+            for i in $(seq 1 40); do
+              if [ "$2" = "rsc" ]; then
+                code=$(curl -s -L -o /dev/null -w '%{http_code}' -H 'RSC: 1' -H 'Next-Router-Prefetch: 1' "http://localhost:3000$1?_rsc=ready" || true)
+              else
+                code=$(curl -s -L -o /dev/null -w '%{http_code}' "http://localhost:3000$1" || true)
+              fi
+              if [ "$code" = "200" ]; then echo "ready: $2 $1 (try $i)"; return 0; fi
+              sleep 3
+            done
+            echo "NOT READY: $2 $1 last status ${code:-none}"; tail -100 /tmp/next.log; return 1
+          }
+          for path in /ar /ar/pharmacy /ar/consultations/doctors /ar/articles; do
+            ready "$path" doc || exit 1
+            ready "$path" rsc || exit 1
+          done
       - name: Browser smoke (${{ matrix.browser }})
         env:
           SMOKE_BROWSER: ${{ matrix.browser }}

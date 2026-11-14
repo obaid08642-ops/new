@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import type { FillIconName, ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { LinkSegmented } from "@/components-next/consult/link-segmented";
 import { Notice } from "@/components-next/consult/consult-parts";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "./health.module.css";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 
 export type HealthTabOption<T extends string> = { value: T; label: string; extra?: string };
 

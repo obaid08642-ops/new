@@ -1,3 +1,5 @@
+import { STEP_UP_HEADER, isStepUpRefusal, requestStepUpToken, stepUpAction } from './step-up';
+
 export interface AdminSession {
   user: {
     id: string;
@@ -44,20 +46,52 @@ export async function adminFetch<T>(path: string, options: RequestInit = {}): Pr
     headers.set('x-admin-csrf', token);
   }
 
-  const response = await fetch(bffPath(path), {
-    ...options,
-    method,
-    headers,
-    credentials: 'same-origin',
-  });
+  const send = async () => {
+    const response = await fetch(bffPath(path), {
+      ...options,
+      method,
+      headers,
+      credentials: 'same-origin',
+    });
+    const contentType = response.headers.get('content-type') || '';
+    const payload = contentType.includes('application/json')
+      ? await response.json().catch(() => null)
+      : await response.text().catch(() => '');
+    return { response, payload };
+  };
 
-  const contentType = response.headers.get('content-type') || '';
-  const payload = contentType.includes('application/json')
-    ? await response.json().catch(() => null)
-    : await response.text().catch(() => '');
+  let { response, payload } = await send();
+  // A sensitive action the backend wants re-confirmed with a fresh passkey: ask once, retry once with the token.
+  if (!response.ok && writeMethods.has(method) && isStepUpRefusal(response.status, payload)) {
+    headers.set(STEP_UP_HEADER, await passkeyStepUpToken(method, path));
+    ({ response, payload } = await send());
+  }
 
   if (!response.ok) throw new AdminApiError(response.status, payload);
   return payload as T;
+}
+
+let cachedEmail: string | null = null;
+
+async function passkeyStepUpToken(method: string, path: string): Promise<string> {
+  const { startAuthentication } = await import('@simplewebauthn/browser');
+  try {
+    return await requestStepUpToken(stepUpAction(method, bffPath(path)), {
+      post: (to, body) => adminFetch<any>(to, { method: 'POST', body: body === undefined ? undefined : JSON.stringify(body) }),
+      email: async () => {
+        if (!cachedEmail) {
+          const session = await adminFetch<AdminSession>('/api/admin/admin/session');
+          cachedEmail = String(session?.user?.email || '').trim().toLowerCase();
+        }
+        if (!cachedEmail) throw new Error('step_up_email_missing');
+        return cachedEmail;
+      },
+      assert: (optionsJSON) => startAuthentication({ optionsJSON }),
+    });
+  } catch (error) {
+    // The admin closed the passkey prompt or the device refused: keep the original refusal's meaning.
+    throw new AdminApiError(403, { code: 'step_up_cancelled', message: 'تعذّر تأكيد العملية بمفتاح الأمان. حاول مرة أخرى.', cause: error instanceof Error ? error.message : 'unknown' });
+  }
 }
 
 export function adminMutation<T>(path: string, method: 'POST' | 'PATCH' | 'PUT' | 'DELETE', body?: unknown) {

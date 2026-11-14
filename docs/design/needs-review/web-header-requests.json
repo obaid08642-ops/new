@@ -1,0 +1,13 @@
+[
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/",
+    "element": "Cloudflare Web Analytics beacon blocked by the CSP",
+    "file": "patient-web/lib/security/csp.ts",
+    "line": 74,
+    "found": "[owner] [owner] The beacon (static.cloudflareinsights.com) is injected by the Cloudflare edge setting Web Analytics, not by the app, which has its own web-vitals beacon. Decide: switch the edge setting off (no code change), or approve allowing the host. Allowing the host in script-src would not help under 'strict-dynamic' (host sources are ignored there), so it needs a nonce injected at the edge; the policy is left unchanged and pinned by tests/csp-analytics.test.ts.",
+    "suspect": "Owner decision.",
+    "review_status": "owner-decision"
+  }
+]

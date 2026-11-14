@@ -19,8 +19,10 @@ export class MedicalReportsService {
     private readonly accessLog: MedicalAccessLogService,
   ) {}
 
-  async list(user: any, opts: { type?: string; limit?: number; q?: string }) {
+  async list(user: any, opts: { type?: string; limit?: number; q?: string; appointment_id?: string }) {
     const filter: any = { patient_id: user.id };
+    // the reports of one visit (indexed: patient_id + appointment_id); a plain string only, never an operator object
+    if (typeof opts.appointment_id === 'string' && opts.appointment_id) filter.appointment_id = opts.appointment_id;
     if (opts.type) filter.report_type = opts.type;
     if (opts.q) {
       const re = new RegExp(opts.q.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
@@ -52,6 +54,13 @@ export class MedicalReportsService {
     if (!['admin', 'doctor', 'hospital', 'radiology', 'lab'].includes(user.role)) throw new ForbiddenException('provider only');
     if (!body.patient_id) throw new BadRequestException('patient_id required');
     if (!body.title_ar) throw new BadRequestException('title_ar required');
+    // a report linked to a visit must be for that visit's patient, so it cannot show up in someone else's visit
+    if (body.appointment_id) {
+      const appt = typeof body.appointment_id === 'string'
+        ? await this.connection.collection('appointments').findOne({ id: { $eq: body.appointment_id }, patient_id: { $eq: String(body.patient_id) } }, { projection: { _id: 1 } })
+        : null;
+      if (!appt) throw new BadRequestException('appointment does not belong to this patient');
+    }
     const payload = {
       patient_id: body.patient_id,
       patient_name: body.patient_name,

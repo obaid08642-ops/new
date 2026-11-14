@@ -22,7 +22,7 @@ describe('pharmacy governance controllers', () => {
 
   it('rejects admin manual broadcast advance and leaves expiry command as the explicit route', async () => {
     const expiry = { expireDuePharmacyOffers: jest.fn() };
-    const controller = new AdminBroadcastController({} as any, expiry as any);
+    const controller = new AdminBroadcastController({} as any, expiry as any, {} as any);
     await rejects(() => controller.advance());
     expect(expiry.expireDuePharmacyOffers).not.toHaveBeenCalled();
   });

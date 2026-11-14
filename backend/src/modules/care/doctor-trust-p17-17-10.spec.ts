@@ -47,6 +47,13 @@ describe('P17-17.10 doctor trust signals', () => {
     expect(out.scfhs_license_no).toBe('18-RM-1');
   });
 
+  it('carries the licence line: number, authority SCFHS, verified flag, and no verified-on date (2026-10-24)', async () => {
+    const out: any = await service(doc({ license_verified_at: new Date('2026-01-01'), scfhs_checked_at: new Date('2026-02-02') })).doctorById('d1');
+    expect(out.license).toEqual({ number: '18-RM-1', authority: 'SCFHS', verified: true });
+    expect((await service(doc({ license_verified: false })).doctorById('d1') as any).license).toEqual({ number: '18-RM-1', authority: 'SCFHS', verified: false });
+    expect(JSON.stringify(out)).not.toMatch(/2026-01-01|2026-02-02|verified_at|checked_at/);
+  });
+
   it('never exposes the national ID, the phone or the email on the public profile', async () => {
     const out: any = await service(doc()).doctorById('d1');
     const serialized = JSON.stringify(out);

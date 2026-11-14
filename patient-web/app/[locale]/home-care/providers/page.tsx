@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractHomeCareProviders } from "@/lib/api/home-care-providers";
 import { getPatientHomeCareProviders } from "@/lib/api/home-care-providers-server";
 import { getOptionalPatientAccessToken } from "@/lib/auth/session";
-import { isLocale, type Locale } from "@/lib/i18n";
+import { getDirection, isLocale, type Locale } from "@/lib/i18n";
 import { readPublicHomeCareProviders } from "@/lib/api/public-services-server";
 import { parsePublicProviders, signInHref } from "@/lib/services/guest";
 import { GuestAction, GuestList } from "@/components-next/guest/guest-service";
@@ -11,7 +11,7 @@ import { guestListLabels } from "@/components-next/guest/guest-labels";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { RowCard } from "@/components-next/consult/consult-parts";
-import { NURSING, RowList, StatusLine } from "@/components-next/nursing/nursing-parts";
+import { Caret, NURSING, RowList, StatusLine } from "@/components-next/nursing/nursing-parts";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 import { pickText } from "@/components-next/diagnostics/diag-parts";
 
@@ -41,11 +41,13 @@ export default async function HomeCareProvidersPage({ params }: Props) {
       {providers.map((provider) => (
         <li key={provider.id}>
           <RowCard
+            href={`/${locale}/nursing/nurses/${encodeURIComponent(provider.id)}`}
             icon="user-circle"
             tone={NURSING.tone}
             title={pickText(locale, provider.nameAr, provider.nameEn) ?? ""}
             sub={provider.city}
             extra={<StatusLine label={t("verified")} tone={DIAG_TONES.good} />}
+            caret={<Caret rtl={getDirection(locale) === "rtl"} />}
           />
         </li>
       ))}

@@ -32,7 +32,6 @@ type Lang = 'ar' | 'en' | 'ur' | 'hi' | 'bn' | 'fil';
 type Text = Record<Lang, string>;
 type Item = {
   match: { codes: string[]; names_en: string[] };
-  names: Record<'ur' | 'hi' | 'bn' | 'fil', string>;
   description: Text;
   purpose: Text;
   preparation: Record<Lang, string[]>;
@@ -72,7 +71,6 @@ export function contentFields(c: Content, item: Item, kind: string): Record<stri
     set[`preparation_${s}`] = item.preparation[l];
     translations[s] = { description: item.description[l], purpose: item.purpose[l], preparation: item.preparation[l], turnaround: item.turnaround[l] };
   }
-  for (const l of ['ur', 'hi', 'bn', 'fil'] as const) set[`name_${suffix(l)}`] = item.names[l];
   if (kind !== 'nursing_services') {
     set.fasting_required = item.fasting_required;
     set.fasting_hours = item.fasting_hours;

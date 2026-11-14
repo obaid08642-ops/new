@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { CoreShell } from "@/components-next/core/core-shell";
@@ -11,8 +12,9 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import type { Locale } from "@/lib/i18n";
 import { parseOrderRows } from "@/lib/pharmacy/order-view";
 import { callPatientApi } from "@/lib/api/upstream";
-import { consultationRows, diagnosticRows, nursingRows, pharmacyRows, returnRows, sortCenterRows, type CenterLabels, type CenterRow } from "./center-rows";
+import { consultationRows, diagnosticRows, legacyOrderRows, nursingRows, resultRows, pharmacyRows, returnRows, sortCenterRows, withHideState, type CenterLabels, type CenterRow, type ResultRow } from "./center-rows";
 import { OrderList } from "./order-list";
+import { parseOrdersQuery } from "./orders-query";
 import rx from "@/components-next/pharmacy/rx.module.css";
 
 /** One source of the order center: its rows, or `failed` when the service did not answer (the other services still show). */
@@ -33,9 +35,10 @@ async function read(locale: string, load: () => Promise<Response>, build: (paylo
  * consultations, lab and radiology bookings, nursing visits and returns, newest first, from each service's own endpoint. A service
  * that does not answer is named in a note and the others still show; only when none answers is the page an error.
  */
-export async function OrdersScreen({ locale }: { locale: Locale }) {
+export async function OrdersScreen({ locale, query = {} }: { locale: Locale; query?: { tab?: string | string[]; kind?: string | string[]; hidden?: string | string[] } }) {
   const t = await getTranslations({ locale, namespace: "Orders" });
   const routeState = await getTranslations({ locale, namespace: "RouteState" });
+  const hideText = await getTranslations({ locale, namespace: "ConsultClient" });
   const labels: CenterLabels = {
     orders: t,
     offers: await getTranslations({ locale, namespace: "PharmacyOffers" }),
@@ -48,20 +51,34 @@ export async function OrdersScreen({ locale }: { locale: Locale }) {
   };
   const token = await requirePatientAccess(locale);
 
+  const results: ResultRow[] = [];
   const sources = await Promise.all([
     read(locale, () => callPatientApi("/patient/pharmacy/orders", {}, token), (payload) => pharmacyRows(locale, parseOrderRows(payload), labels)),
+    read(locale, () => callPatientApi("/orders/mine", {}, token), (payload) => legacyOrderRows(locale, payload, labels)),
     read(locale, () => getPatientAppointments(token), (payload) => consultationRows(locale, payload, labels)),
-    read(locale, () => getDiagnosticBookings(token, "labs"), (payload) => diagnosticRows(locale, "labs", payload, labels)),
-    read(locale, () => getDiagnosticBookings(token, "radiology"), (payload) => diagnosticRows(locale, "radiology", payload, labels)),
+    read(locale, () => getDiagnosticBookings(token, "labs"), (payload) => { results.push(...resultRows(locale, "labs", payload, labels)); return diagnosticRows(locale, "labs", payload, labels); }),
+    read(locale, () => getDiagnosticBookings(token, "radiology"), (payload) => { results.push(...resultRows(locale, "radiology", payload, labels)); return diagnosticRows(locale, "radiology", payload, labels); }),
     read(locale, () => getPatientNursingVisits(token), (payload) => nursingRows(locale, payload, labels)),
     read(locale, () => callPatientApi("/pharmacy/returns", {}, token), (payload) => returnRows(locale, payload, labels)),
   ]);
-  const rows = sortCenterRows(sources.flatMap((source) => source.rows));
+  // PT-54: the timeline says which finished visits the patient hid; with no answer nothing is hidden
+  let timeline: unknown = null;
+  try {
+    const answer = await callPatientApi("/unified-bookings/mine?include_hidden=1", { cache: "no-store" }, token);
+    if (answer?.ok) timeline = await answer.json().catch(() => null);
+  } catch { /* the orders still show, none hidden */ }
+  const showHidden = (Array.isArray(query.hidden) ? query.hidden[0] : query.hidden) === "1";
+  const all = withHideState(sortCenterRows(sources.flatMap((source) => source.rows)), timeline);
+  const hiddenCount = all.filter((row) => row.hide?.hidden).length;
+  const rows = all.filter((row) => (row.hide?.hidden === true) === showHidden);
   const failedCount = sources.filter((source) => source.failed).length;
 
+  const initial = parseOrdersQuery(query);
   let body;
   if (failedCount === sources.length) {
     body = <div className={rx.state}><RetryLinkErrorState title={t("listErrorTitle")} body={t("unavailableBody")} retryLabel={routeState("retry")} /></div>;
+  } else if (showHidden && rows.length === 0) {
+    body = <div className={rx.state} role="status"><LinkEmptyState icon="pill" tone={PHARMACY_TONE} title={hideText("emptyHidden")} body="" actionLabel={hideText("backToHistory")} actionHref={`/${locale}/orders`} /></div>;
   } else if (rows.length === 0 && failedCount === 0) {
     body = (
       <div className={rx.state} role="status">
@@ -69,13 +86,16 @@ export async function OrdersScreen({ locale }: { locale: Locale }) {
       </div>
     );
   } else {
-    body = <OrderList locale={locale} rows={rows} partialNote={failedCount > 0 ? t("partialNote") : undefined} />;
+    body = <OrderList locale={locale} rows={rows} results={results} partialNote={failedCount > 0 ? t("partialNote") : undefined} initialTab={initial.tab} initialKind={initial.kind} />;
   }
 
   return (
     <CoreShell locale={locale} title={t("title")} backHref={`/${locale}/profile`} width="narrow">
       <div className={rx.page}>
         <div className={rx.head}><h1 className={rx.title}>{t("title")}</h1></div>
+        {hiddenCount > 0 || showHidden ? (
+          <p><Link className={rx.textLink} href={`/${locale}/orders${showHidden ? "" : "?hidden=1"}`} data-testid="orders-hidden-toggle">{showHidden ? hideText("backToHistory") : hideText("showHiddenLink", { n: hiddenCount })}</Link></p>
+        ) : null}
         {body}
       </div>
     </CoreShell>

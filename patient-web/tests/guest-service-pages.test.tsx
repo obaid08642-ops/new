@@ -47,7 +47,7 @@ beforeEach(() => {
   state.routes = {
     "/home/offers": { status: 200, body: [{ id: "of-1", t: "عرض", t_en: "Spring checkup", price: 99, old: 150, disc: "34%", prov: "Clinic One" }] },
     "/insurance/companies": { status: 200, body: [{ id: "co-1", code: "ins1", name_ar: "تأمين", name_en: "Insure One", email: "private@x.y", plans: [{ id: "pl-1", name_en: "Gold", name_ar: "ذهبي", tier_level: 1 }] }] },
-    "/nursing/catalog": { status: 200, body: [{ id: "svc-1", name_en: "Wound care", name_ar: "العناية بالجروح", price: 200, active: true }] },
+    "/home-care/services": { status: 200, body: [{ id: "svc-1", name_en: "Wound care", name_ar: "العناية بالجروح", price: 200, active: true }] },
     "/providers?type=home_care": { status: 200, body: [{ id: "hc-1", name_en: "Care at Home", city: "Riyadh" }] },
     "/care/doctors?specialty=psychiatry": { status: 200, body: [DOCTOR] },
     "/care/doctors?specialty=gynecology": { status: 200, body: [{ ...DOCTOR, id: "doc-gyn-1", name_en: "Dr Bloom" }] },
@@ -96,6 +96,18 @@ describe("guest service pages (issue 1550)", () => {
     noPersonalReads();
   });
 
+  it("home care: a guest still sees the seeded service with its price when no nurse offers it yet, and the providers' from-price when one does", async () => {
+    state.routes["/home-care/services"] = { status: 200, body: [
+      { id: "svc-1", name_en: "Wound care", price: 200, active: true, providers_count: 0, from_price: null, premises_available: false, home_available: false, insurance_accepted: false },
+      { id: "svc-2", name_en: "IV drip", price: 150, active: true, providers_count: 2, from_price: 120, premises_available: false, home_available: true, insurance_accepted: false },
+    ] };
+    const page = await html(await HomeCarePage({ params }));
+    expect(page).toMatch(/Wound care[\s\S]*Not available in your area yet[^<]*200\.00/);
+    expect(page).toMatch(/IV drip[\s\S]*2 providers[^<]*120\.00/);
+    expect(page).not.toContain("/en/login?next=%2Fen%2Fhome-care%2Fservices");
+    noPersonalReads();
+  });
+
   it("maternity: the gynecology doctors and the tracking action", async () => {
     const page = await html(await MaternityPage({ params, searchParams }));
     expect(page).toContain("Dr Bloom");
@@ -104,10 +116,10 @@ describe("guest service pages (issue 1550)", () => {
     noPersonalReads();
   });
 
-  it("mental health: the psychiatrists, the urgent-help row and the mood-journal action", async () => {
+  it("mental health: the psychiatrists, the always-present 997 urgent-help button and the mood-journal action", async () => {
     const page = await html(await MentalHealthPage({ params }));
     expect(page).toContain("Dr Calm");
-    expect(page).toContain('href="/en/emergency"');
+    expect(page).toContain('href="tel:997"'); // the urgent-help button: 997 is always there (owner decision 14)
     expect(page).toContain(`href="/en/login?next=${encodeURIComponent("/en/mental-health/mood")}"`);
     noPersonalReads();
   });

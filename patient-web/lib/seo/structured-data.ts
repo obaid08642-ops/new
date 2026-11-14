@@ -50,7 +50,13 @@ export function physician(input: { name: string; path: string; locale: Locale; s
   };
 }
 
-export function service(input: { name: string; path: string; locale: Locale; provider?: string | null; description?: string | null; serviceType?: string; areaServed?: string | null }): Record<string, unknown> {
+export function service(input: {
+  name: string; path: string; locale: Locale; provider?: string | null; description?: string | null; serviceType?: string; areaServed?: string | null;
+  /** A city the service is offered in (areaServed City); `areaServed` names a country. */
+  city?: string | null;
+  /** What providers charge, when someone priced it: the range and how many providers priced it (AggregateOffer). Nothing is emitted without a price. */
+  offers?: { low: number; high: number; currency: string; count: number } | null;
+}): Record<string, unknown> {
   return {
     "@context": "https://schema.org", "@type": "Service",
     name: input.name,
@@ -59,6 +65,8 @@ export function service(input: { name: string; path: string; locale: Locale; pro
     ...(input.description ? { description: input.description } : {}),
     serviceType: input.serviceType ?? "HealthCareService",
     ...(input.areaServed ? { areaServed: { "@type": "Country", name: input.areaServed } } : {}),
+    ...(input.city ? { areaServed: { "@type": "City", name: input.city } } : {}),
+    ...(input.offers ? { offers: { "@type": "AggregateOffer", lowPrice: input.offers.low, highPrice: input.offers.high, priceCurrency: input.offers.currency, offerCount: input.offers.count } } : {}),
   };
 }
 

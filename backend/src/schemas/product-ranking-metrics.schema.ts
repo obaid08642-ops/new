@@ -55,7 +55,9 @@ export class ProductRankingMetrics {
   @Prop({ default: Date.now })
   last_event_at!: Date;
 
-  @Prop({ default: Date.now })
+  // The start of the cold-start boost: only a product created by a provider or an admin carries a real date (the ranking
+  // service sets it); the imported catalogue and every product with no known origin stay at 1970 and never get the boost.
+  @Prop({ default: () => new Date(0) })
   first_published_at!: Date;
 }
 

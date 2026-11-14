@@ -8,10 +8,20 @@
 /* ---- top bar ---- */
 .bar { display: flex; align-items: center; gap: var(--nabd-space-xs); inline-size: 100%; min-inline-size: 0; }
 
+.barDense { flex-wrap: wrap; row-gap: var(--nabd-space-2xs); }
+/* phone: back and the buttons on the first line, the title under them across the full width (it had 78 px beside four buttons) */
+@media (max-width: 1023px) {
+  .barDense .phoneTitle { order: 2; flex: 1 1 100%; }
+  .toolsStart { margin-inline-start: auto; }
+  /* the shell's top slot has a fixed height: two lines of the bar need 112 px, not 64 (otherwise the title spills over the page, seen in the render check) */
+  .root.rootDense { --nabd-shell-top-h: calc(112px + env(safe-area-inset-top)); }
+  .barDense { align-content: center; }
+}
+
 .iconLink {
   flex: none; inline-size: 44px; block-size: 44px; box-sizing: border-box; border-radius: var(--nabd-radius-pill);
   display: inline-grid; place-items: center; text-decoration: none;
-  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-onGlass); color: var(--nabd-color-icon-primary);
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-onGlass); color: var(--nabd-color-icon-secondary);
 }
 /* the cart's count (canvas/ProductFull: the action colour on the icon's corner) */
 .cartLink { position: relative; }
@@ -22,15 +32,21 @@
   font-size: var(--nabd-font-size-micro); font-weight: 700; line-height: 1;
 }
 .phoneCart { margin-inline-start: auto; }
+/* the cart chooser's button wrapper; the sheet itself lives in cart-sheet.module.css (loaded on first open) */
+.cartWrap { position: relative; display: inline-flex; }
 .iconLink:focus-visible, .section:focus-visible, .cancel:focus-visible, .brand:focus-visible {
   outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px;
 }
 
 /* the page's phone header: back, title in the middle, a spacer of the back button's width */
 .phoneTitle {
-  flex: 1; min-inline-size: 0; margin: 0; text-align: center;
-  font-size: var(--nabd-font-size-h3); line-height: var(--nabd-font-size-h3-lineHeight); font-weight: 700;
-  overflow-wrap: anywhere; padding-inline-end: 56px; /* the back button's width and gap, so the title is centred */
+  flex: 1; min-inline-size: 0; margin: 0; text-align: start;
+  font-weight: 700;
+  /* The tools (results, favourites, cart, menu) sit after the title, so it is no longer centred by a spacer; a word is never cut
+     in the middle (a 390px phone gave a title of a few letters per line before): long titles wrap between words. */
+  overflow-wrap: normal; word-break: normal; hyphens: none;
+  /* with the results button the title has little width at 390: two lines at most, then an ellipsis (it was three oversized lines clipped above the bar) */
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; font-size: var(--nabd-font-size-h4); line-height: var(--nabd-font-size-h4-lineHeight);
 }
 
 .search { flex: 1; min-inline-size: 0; }
@@ -49,9 +65,16 @@
   display: inline-flex; align-items: center; min-block-size: 44px; padding-inline: 16px; border-radius: var(--nabd-radius-pill);
   font-size: var(--nabd-font-size-segment); font-weight: 600; color: var(--nabd-color-text-primary); text-decoration: none; white-space: nowrap;
 }
-.section:hover { background: var(--nabd-color-bg-sunken); }
+@media (hover: hover) and (pointer: fine) { .section:hover { background: var(--hover-tint); } }
 
 .tools { margin-inline-start: auto; align-items: center; gap: 8px; }
+/* between 1024 and 1439 the bar carries the five sections plus language, theme, bell, favourites, cart, profile and sign-out: tighten
+   them so the last icon is never pushed past the window edge */
+@media (min-width: 1200px) and (max-width: 1439px) {
+  .section { padding-inline: 10px; }
+  .sections { gap: 2px; }
+  .tools { gap: 4px; }
+}
 /* the shared language and theme controls reach the 44 touch target here (DEVICE_STANDARD §3) */
 .tools [aria-haspopup="true"] { min-block-size: 44px; }
 .tools :global(.theme-option) { min-inline-size: 44px; min-block-size: 44px; }
@@ -77,12 +100,33 @@
   .tools { display: flex; }
 }
 
-@media (min-width: 1024px) {
+/* The sections need room next to the language, theme, bell, favourites, cart, profile and sign-out controls: from 1200 (at 1024 the
+   last icon was pushed past the window edge), so 1024-1199 keeps the tab bar. */
+@media (min-width: 1200px) {
   .sections { display: flex; }
   /* the tab bar goes; a page CTA (StickyFooter) stays: without it the booking, order and payment buttons vanished from 1024 */
   .root :global(.nabd-shell__tabs) { display: none; }
   .root :global(.nabd-shell__bottom:not(:has(.nabd-sticky-footer))) { display: none; }
+}
+
+@media (min-width: 1024px) {
   /* the CTA keeps the width of the page column, not the window */
   .root :global(.nabd-sticky-footer) > * { max-inline-size: 720px; margin-inline: auto; }
   .page { padding-block-end: var(--nabd-space-5xl); }
 }
+
+/* 17.1: the phone menu (components-next/core/phone-menu.tsx). Tokens only; the panel sits under the header button. */
+.menuWrap { position: relative; }
+.menuPanel {
+  position: absolute; inset-block-start: calc(100% + 8px); inset-inline-end: 0; z-index: 60;
+  min-inline-size: 14rem; padding: .5rem;
+  border: 1px solid var(--nabd-color-border-subtle); border-radius: 12px;
+  background: var(--nabd-color-bg-surface); box-shadow: var(--nabd-shadow-raised);
+}
+.menuList { display: grid; gap: .25rem; margin: 0; padding: 0; list-style: none; }
+.menuLink {
+  display: flex; align-items: center; min-block-size: 44px; padding: .5rem .75rem; border-radius: 8px;
+  color: var(--nabd-color-text-primary); font-weight: 600; text-decoration: none;
+}
+@media (hover: hover) and (pointer: fine) { .menuLink:hover { background: var(--hover-tint); } }
+.menuLink:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color, currentColor); outline-offset: 2px; }

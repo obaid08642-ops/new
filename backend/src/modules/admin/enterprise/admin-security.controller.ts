@@ -48,6 +48,13 @@ export class AdminSecurityController {
 
   // ── Identity ─────────────────────────────────────────────────
 
+  /** R13: verifies the hash chain of the audit log (reads every chained row once). */
+  @Get('audit/chain')
+  @RequirePermissions(Permission.DATA_EXPORT)
+  auditChain() {
+    return this.audit.verifyChain();
+  }
+
   /** Paginated, filterable read of the immutable admin_actions_log. */
   @Get('audit')
   @RequirePermissions(Permission.DATA_EXPORT)

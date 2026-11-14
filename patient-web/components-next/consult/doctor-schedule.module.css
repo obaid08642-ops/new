@@ -1,0 +1,23 @@
+/* The doctor profile (owner review G3): a large photo, the appointments straight after the main info, then the sections. Tokens and logical properties only. */
+.photo { margin: 0; inline-size: 100%; aspect-ratio: 4 / 3; max-block-size: 22rem; border-radius: var(--nabd-radius-xl); overflow: hidden; background: var(--nabd-color-bg-sunken); display: flex; align-items: center; justify-content: center; }
+.photoImg { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; object-position: center 20%; }
+.schedule { display: flex; flex-direction: column; gap: 12px; min-inline-size: 0; }
+.types { display: flex; flex-wrap: wrap; gap: 8px; }
+.days { display: flex; gap: 8px; overflow-x: auto; padding-block-end: 4px; scroll-snap-type: x proximity; }
+.dayBtn { scroll-snap-align: start; }
+.times { display: grid; grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr)); gap: 8px; }
+.state { margin: 0; padding-block: 12px; text-align: center; color: var(--nabd-color-text-secondary); font-size: var(--nabd-font-size-control); line-height: 1.6; }
+.skeleton { block-size: 44px; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-sunken); }
+.stateActions { display: flex; justify-content: center; }
+.summaryList { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 20px; color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-control); line-height: 1.5; }
+.summaryList > li { position: relative; margin: 0; padding: 0; }
+/* no separator character: a dot at a wrapped line's end or start (seen in Arabic) is worse than the gap; the items are told apart by the gap */
+.bar.bar { flex-direction: row; flex-wrap: nowrap; align-items: center; gap: 12px; padding-block: 0; }
+.barText { flex: 1 1 auto; min-inline-size: 0; margin: 0; }
+.when { margin: 0; font-weight: 600; color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-control); line-height: 1.3; text-align: start; overflow-wrap: anywhere; }
+.hint { margin: 0; color: var(--nabd-color-text-secondary); font-size: var(--nabd-font-size-small); line-height: 1.3; text-align: start; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Book button: compact, 48 px, end side; it does not take the full width */
+.bar.bar .bookBtn, .bar.bar .bookOff { flex: 0 0 auto; inline-size: auto; min-inline-size: 7rem; block-size: 48px; padding-inline: 20px; font-size: var(--nabd-font-size-control); border-radius: 14px; }
+/* disabled Book: a flat sunken button with primary text (declared contrast pair text.primary on bg.sunken), not a half-transparent red */
+.bar.bar .bookOff { background: var(--nabd-color-bg-sunken); color: var(--nabd-color-text-primary); border: 1px solid var(--nabd-color-border-subtle); box-shadow: none; opacity: 1; cursor: not-allowed; }
+.timeChip { min-block-size: 44px; }

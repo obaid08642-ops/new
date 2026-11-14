@@ -1,14 +1,14 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const state = vi.hoisted(() => ({ getPublicProduct: vi.fn(), getPublicEquivalents: vi.fn(), failed: false }));
+const state = vi.hoisted(() => ({ getPublicProduct: vi.fn(), getPublicEquivalents: vi.fn(), getPublicVariants: vi.fn(), failed: false }));
 
 // The shell and the client controls are not under test here (the page's data and structured data are).
 vi.mock("next/navigation", () => ({ notFound: vi.fn(), useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
-vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("next-intl", () => ({ useLocale: () => "en", useTranslations: () => (key: string) => key }));
 vi.mock("@/components-next/core/core-shell", () => ({ CoreShell: ({ children }: { children: unknown }) => children }));
 
-vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("next-intl", () => ({ useLocale: () => "en", useTranslations: () => (key: string) => key }));
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
 vi.mock("@/lib/i18n", () => ({
   isLocale: () => true,
@@ -18,6 +18,7 @@ vi.mock("@/lib/api/public-products-server", () => ({
   getPublicProduct: state.getPublicProduct,
   readPublicProduct: async (...args: unknown[]) => ({ data: state.failed ? null : await state.getPublicProduct(...args), failed: state.failed }),
   getPublicEquivalents: state.getPublicEquivalents,
+  getPublicVariants: state.getPublicVariants,
   cdnImage: (u?: string | null) => (u ? (u.startsWith("http") ? u : `https://cdn.nabd.plus/${u}`) : null),
 }));
 
@@ -45,6 +46,7 @@ describe("public product page (catalog v14)", () => {
   beforeEach(() => {
     state.getPublicProduct.mockReset();
     state.getPublicEquivalents.mockReset().mockResolvedValue({ equivalents: [], similar: [] });
+    state.getPublicVariants.mockReset().mockResolvedValue([]);
     state.failed = false;
   });
 
@@ -77,6 +79,30 @@ describe("public product page (catalog v14)", () => {
     expect(preloads[0]).toMatch(/imageSrcSet=/i); // the rendition that is shown, with its srcset
     expect(html).toMatch(/<img[^>]*src="https:\/\/cdn\.nabd\.plus\/100002_img_1\.webp"[^>]*loading="lazy"/i); // the zoom dialog picture is not fetched up front
     expect(html).toContain('href="/en/c/Medicine%20%26%20Treatment/Prescribed%20Treatments"');
+  });
+
+  // Decision D (issue 1556): a product with variants draws the picker and the chosen variant's own price.
+  it("issue 1819: draws the cold-chain chip and the interactions section only when the server sends them", async () => {
+    state.getPublicProduct.mockResolvedValue({ ...product, cold_chain: true, interactions: ["warfarin", "aspirin"] });
+    const html = renderToStaticMarkup(await PublicProductPage({ params }));
+    expect(html).toContain("coldChain");
+    expect(html).toContain("interactions");
+    expect(html).toContain("warfarin");
+    state.getPublicProduct.mockResolvedValue({ ...product, cold_chain: false, interactions: [] });
+    const plain = renderToStaticMarkup(await PublicProductPage({ params }));
+    expect(plain).not.toContain("coldChain");
+    expect(plain).not.toContain("warfarin");
+  });
+
+  it("draws the variant picker and the chosen variant's price when the product has variants", async () => {
+    state.getPublicProduct.mockResolvedValue({ ...product, id: "d2", is_rx: false, old_price: null, variant_group: "vg_diva", variant: { kind: "power", power: -2.5, colour: null, shade: null, position: 1 } });
+    const variant = (id: string, power: number, price: number) => ({ id, sku: 1, slug: `diva-${id}`, name: `Diva ${power}`, price, old_price: null, currency: "SAR", is_rx: false, online_exclusive: false, available: true, availability_status: "none", image: `${id}.webp`, variant: { kind: "power", power, colour: null, shade: null, position: 0 } });
+    state.getPublicVariants.mockResolvedValue([variant("d1", -0.25, 55), variant("d2", -2.5, 61.5)]);
+    const html = renderToStaticMarkup(await PublicProductPage({ params }));
+    expect(state.getPublicVariants).toHaveBeenCalledWith("en", expect.objectContaining({ id: "d2", variant_group: "vg_diva" }));
+    expect(html).toContain('data-testid="variant-picker"');
+    expect(html).toMatch(/aria-checked="true"[^>]*aria-label="-2.50"/);
+    expect(html).toMatch(/>61\.50<\/strong><span[^>]*>SAR</);
   });
 
   // issue 1547: the pictures swipe on a scroll-snap strip and each one is a plain link to the full picture (a tap before
@@ -121,7 +147,7 @@ describe("public product page (catalog v14)", () => {
   it.each(["ur", "hi", "bn"])("a %s page shows the English name under the localized name", async (locale) => {
     state.getPublicProduct.mockResolvedValue({ ...product, locale, name: "ایبلیفائی 15 ملی گرام", english_name: "Abilify, Aripiprazole 15 Mg - 28 Tablets" });
     const html = renderToStaticMarkup(await PublicProductPage({ params: Promise.resolve({ locale, slug: "x" }) }));
-    expect(html).toMatch(/<h1[^>]*>ایبلیفائی 15 ملی گرام<\/h1><p[^>]*lang="en"[^>]*dir="ltr"[^>]*data-testid="english-name"[^>]*>Abilify, Aripiprazole 15 Mg - 28 Tablets<\/p>/);
+    expect(html).toMatch(/<h1[^>]*>(?:<span[^>]*>)?ایبلیفائی 15 ملی گرام(?:<\/span>)?<\/h1><p[^>]*lang="en"[^>]*dir="ltr"[^>]*data-testid="english-name"[^>]*>Abilify, Aripiprazole 15 Mg - 28 Tablets<\/p>/);
   });
 
   it.each(["ar", "en", "fil"])("a %s page has no English line under the name", async (locale) => {

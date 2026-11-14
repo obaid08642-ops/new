@@ -1,0 +1,10 @@
+{
+  "slice": "web-support-chat-history", "batch": 2, "app": "patient-web",
+  "screens": [
+    { "route": "/support/chat",
+      "elements": [
+        ["patient-web/lib/support/parse-history.ts: parseHistory reads the top-level array from GET /api/patient/support/chat (and data/messages/history), isBot and from map to the bubble side, time shown as HH:MM", "GET /api/patient/support/chat", "fixed"]
+      ], "notes": [] }
+  ],
+  "needsReview": []
+}

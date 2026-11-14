@@ -263,6 +263,11 @@ describe("design review — ratings are real or absent, people are real or neutr
     expect(photo).toContain('aria-label="د. أحمد"');
     expect(markup(Avatar, { name: "Amina Haddad" })).toContain(">AH<");
     expect(markup(Avatar, { name: "" })).toContain('data-icon="user"');
+    // issue 1550 (axe role-img-alt): a named avatar is an image with its name; a nameless one is decoration, never an empty "image"
+    expect(markup(Avatar, { name: "Amina Haddad" })).toContain('role="img" aria-label="Amina Haddad"');
+    const nameless = markup(Avatar, { name: "  " });
+    expect(nameless).toContain('aria-hidden="true"');
+    expect(nameless).not.toContain('role="img"');
     const contract = readFileSync(resolve(process.cwd(), "../packages/ui/components/contract.ts"), "utf8");
     const gallery = readFileSync(resolve(process.cwd(), "../packages/ui/build-preview.mjs"), "utf8");
     expect(contract).not.toContain("illustratedName");
@@ -279,9 +284,9 @@ describe("handoff §3 — controls (components 2/4) match the boards", () => {
     expect(html).toContain("border-radius:18px");
   });
 
-  it("OutlineButton is 1.5px of ink on transparent; sm is 40 to look at and 44 to hit", () => {
+  it("OutlineButton is 1.5px of the action colour on transparent (owner ink override 2026-10-26); sm is 40 to look at and 44 to hit", () => {
     const html = markup(Button, { label: "تعديل", variant: "outline", size: "sm" });
-    expect(html).toContain("border:1.5px solid var(--nabd-color-text-primary)");
+    expect(html).toContain("border:1.5px solid var(--nabd-color-action-primary-bg)");
     expect(html).toContain("background:transparent");
     expect(html).toContain("height:40px");
     expect(html).toContain("calc((40px - var(--nabd-a11y-minTouchTarget)) / 2)");
@@ -304,11 +309,11 @@ describe("handoff §3 — controls (components 2/4) match the boards", () => {
     const filter = markup(IconButton, { name: "sliders", label: "تصفية", variant: "filled", shape: "square", size: "lg" });
     expect(filter).toContain("width:52px");
     expect(filter).toContain("border-radius:18px");
-    expect(filter).toContain("background:var(--nabd-color-action-selected-bg)");
+    expect(filter).toContain("background:var(--nabd-color-action-primary-bg)");
     expect(filter).toContain('data-icon="sliders"');
   });
 
-  it("Segmented is a named radiogroup with one tab stop; the selected item is the raised surface pill", () => {
+  it("Segmented is a named radiogroup with one tab stop; the selected item is the soft action tint pill", () => {
     const html = markup(Segmented, {
       label: "المظهر", value: "light",
       options: [{ value: "auto", label: "تلقائي" }, { value: "light", label: "فاتح" }, { value: "dark", label: "غامق" }],
@@ -319,6 +324,7 @@ describe("handoff §3 — controls (components 2/4) match the boards", () => {
     expect(html.match(/aria-checked="true"/g)).toHaveLength(1);
     expect(html.match(/tabindex="0"/g)).toHaveLength(1);
     expect(html).toContain("background:var(--nabd-color-control-segmentedTrack)");
+    expect(html).toContain("background:var(--nabd-color-service-coral-bg)");
     expect(html.match(/box-shadow:var\(--nabd-shadow-segmented\)/g)).toHaveLength(1);
   });
 
@@ -356,7 +362,9 @@ describe("handoff §3 — controls (components 2/4) match the boards", () => {
     expect(status).toContain("color:var(--nabd-color-service-coral-fg)");
     const chip = markup(Chip, { label: "أدوية", count: 12, selected: true });
     expect(chip).toContain('aria-pressed="true"');
-    expect(chip).toContain("background:var(--nabd-color-action-selected-bg)");
+    expect(chip).toContain("background:var(--nabd-color-service-coral-bg)");
+    expect(chip).toContain("color:var(--nabd-color-service-coral-fg)");
+    expect(chip).not.toContain("action-selected");
     expect(chip).toContain(">12<");
     expect(markup(Chip, { label: "أطباء" })).not.toContain("opacity:0.7");
   });
@@ -497,23 +505,46 @@ describe("handoff §3 — states and the main tab bar (components 4/4) match the
     expect(html).toContain("var(--nabd-color-service-blue-bg)");
   });
 
-  it("BottomTabBar is HomeApp's bar: glass pill, ink active pill with its label, raised coral centre, every item named", () => {
+  it("BottomTabBar is HomeApp's bar: glass pill, coral active pill with its label, raised coral centre, every item named", () => {
     const html = markup(BottomTabBar, { label: "التنقل الرئيسي", value: "home", items: [
       { id: "home", label: "الرئيسية", icon: "house" },
       { id: "consult", label: "الاستشارات", icon: "stethoscope", raised: true },
       { id: "labs", label: "التحاليل", icon: "test-tube" },
     ] });
     expect(html).toMatch(/^<nav aria-label="التنقل الرئيسي"/);
-    expect(html).toContain("background:var(--nabd-color-glass-bgStrong)");
-    expect(html).toContain("box-shadow:var(--nabd-shadow-tabBar)");
+    // the pill (glass, shadow) is the ::before layer, so the circular cut-out under the raised button does not cut the button
+    const sheet = readFileSync(resolve(process.cwd(), "../packages/ui/components/css/Surfaces.css"), "utf8");
+    const before = sheet.slice(sheet.indexOf(".nabd-bottom-tab-bar::before"));
+    expect(before).toContain("background: var(--nabd-color-glass-bgStrong)");
+    expect(before).toContain("box-shadow: var(--nabd-shadow-tabBar)");
+    expect(before).toContain("mask-image: radial-gradient(circle at calc(var(--nabd-fab-x) + 100px) 117px, transparent 37.5px");
     expect(html.match(/aria-current="page"/g)).toHaveLength(1);
-    expect(html).toContain("background:var(--nabd-color-action-selected-bg)");
+    expect(html).toContain("background:var(--nabd-color-action-primary-bg)");
+    expect(html).toContain("color:var(--nabd-color-action-primary-fg)");
+    expect(html).not.toContain("action-selected");
     expect(html).toContain("linear-gradient(180deg, var(--nabd-color-action-fab-from) 0%, var(--nabd-color-action-fab-to) 100%)");
     expect(html).toContain("margin-block-start:-34px");
     for (const name of ["الرئيسية", "الاستشارات", "التحاليل"]) expect(html).toContain(`aria-label="${name}"`);
     // the label is shown only on the active item
     expect(html.match(/<span aria-hidden="true">/g)).toHaveLength(1);
     expect(html).toContain(`d="${FILL_ICON_PATHS.stethoscope}"`);
+  });
+
+  it("BottomTabBar draws an illustrated tab in its service tone: tone class, role classes, no style attribute, tinted active pill", () => {
+    const html = markup(BottomTabBar, { label: "x", value: "labs", items: [
+      { id: "home", art: "home", label: "h", icon: "house" },
+      { id: "labs", art: "labs", label: "l", icon: "test-tube" },
+      { id: "consult", art: "consult", label: "c", icon: "stethoscope", raised: true },
+    ] });
+    expect(html).toContain("nabd-tone--amber");
+    expect(html).toContain("nabd-tone--mint");
+    expect(html).toContain("nabd-nav-art__f-fg");
+    expect(html).toContain("nabd-bottom-tab-bar__item--art");
+    expect(html).not.toContain(`d="${FILL_ICON_PATHS["test-tube"]}"`);
+    // the raised centre with art draws the illustrated stethoscope (NAV_FAB_ART), light on the coral button, not the glyph
+    expect(html).toContain("nabd-nav-art--fab");
+    expect(html).not.toContain(`d="${FILL_ICON_PATHS.stethoscope}"`);
+    expect(html.match(/aria-current="page"/g)).toHaveLength(1);
   });
 });
 

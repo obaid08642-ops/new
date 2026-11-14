@@ -45,7 +45,8 @@
   border: 0;
   box-shadow: var(--nabd-shadow-button);
 }
-.nabd-button--outline { background: transparent; color: var(--nabd-color-text-primary); border: 1.5px solid var(--nabd-color-text-primary); }
+/* owner ink override 2026-10-26: the outline button is action-coloured, not ink */
+.nabd-button--outline { background: transparent; color: var(--nabd-color-action-primary-bg); border: 1.5px solid var(--nabd-color-action-primary-bg); }
 .nabd-button--secondary { background: var(--nabd-color-action-secondary-bg); color: var(--nabd-color-action-secondary-fg); border: 1px solid var(--nabd-color-border-onGlass); }
 .nabd-button--ghost { background: transparent; color: var(--nabd-color-text-primary); border: 0; }
 .nabd-button--danger { background: var(--nabd-color-action-danger-bg); color: var(--nabd-color-action-danger-fg); border: 0; }
@@ -79,7 +80,7 @@
 
 .nabd-icon-button--plain { background: transparent; border: 0; }
 .nabd-icon-button--outlined { background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-onGlass); }
-.nabd-icon-button--filled { background: var(--nabd-color-action-selected-bg); border: 0; color: var(--nabd-color-action-selected-fg); }
+.nabd-icon-button--filled { background: var(--nabd-color-action-primary-bg); border: 0; color: var(--nabd-color-action-primary-fg); }
 .nabd-icon-button--tinted { background: var(--nabd-color-bg-sunken); border: 0; }
 .nabd-icon-button--glass {
   background: var(--nabd-color-glass-bg);

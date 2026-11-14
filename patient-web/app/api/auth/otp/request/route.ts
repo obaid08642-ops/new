@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { callPatientApi } from "@/lib/api/upstream";
+import { setOtpIdentifier } from "@/lib/auth/cookies";
+import { isNoChannel } from "@/lib/auth/otp-flow";
 
 const schema = z.object({ identifier: z.string().trim().min(3).max(320) });
 // The backend answers {otp_sent: true, channel, expires_in} (AuthService.requestPatientOtp), the same body
@@ -20,11 +22,15 @@ export async function POST(request: Request) {
     body: JSON.stringify(input.data),
   });
   const data = await upstream.json().catch(() => null);
-  if (!upstream.ok) return NextResponse.json({ message: "otp_request_failed" }, { status: upstream.status });
+  // `otp_no_channel` (a phone-only account: the code goes by push or e-mail, never SMS) is passed on by name so the page can say so.
+  if (!upstream.ok) return NextResponse.json({ message: isNoChannel(data) ? "otp_no_channel" : "otp_request_failed" }, { status: upstream.status });
 
   const hasTokenField = data && typeof data === "object" && !Array.isArray(data)
     && Object.keys(data as Record<string, unknown>).some((key) => /token/i.test(key));
   const parsed = successSchema.safeParse(data);
   if (hasTokenField || !parsed.success) return NextResponse.json({ message: "unexpected_otp_response" }, { status: 502 });
-  return NextResponse.json({ ok: true, expires_in: parsed.data.expires_in }, { status: upstream.status, headers: { "cache-control": "no-store" } });
+  const response = NextResponse.json({ ok: true, expires_in: parsed.data.expires_in }, { status: upstream.status, headers: { "cache-control": "no-store" } });
+  // Sign-in with a code and a resend after the sign-up cookie expired both land on /otp, which reads this cookie.
+  setOtpIdentifier(response, input.data.identifier);
+  return response;
 }

@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import {
   FlatList,
   FlatListProps,
-  ViewToken,
+  ListViewToken as ViewToken,
   View,
   Platform,
 } from 'react-native';

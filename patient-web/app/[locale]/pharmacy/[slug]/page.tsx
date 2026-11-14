@@ -15,6 +15,8 @@ import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import type { FillIconName, ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
 import styles from "@/components-next/pharmacy/pharmacy.module.css";
+import { publicReadSignal } from "@/lib/api/public-timeout";
+import { FIconByName } from "@/components-next/icons/ficon-by-name";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -22,7 +24,7 @@ async function fetchPharmacy(slug: string) {
   try {
     // issue 473: the same server base as every other server fetch (patientApiUrl); appending /api/v1 to a public base
     // that already ends in it made every pharmacy page a 404.
-    const res = await fetch(patientApiUrl(`/entity-graph/related/pharmacy/${encodeURIComponent(slug)}`), {
+    const res = await fetch(patientApiUrl(`/entity-graph/related/pharmacy/${encodeURIComponent(slug)}`), { signal: publicReadSignal(),
       // issue 1541: purged with the provider pages when the pharmacy is deleted
       next: { revalidate: 3600, tags: [PROVIDER_PAGES_TAG] },
     });
@@ -122,7 +124,7 @@ export default async function PharmacyCanonicalPage({ params }: Props) {
             <dl className={styles.facts}>
               {facts.map((fact) => (
                 <div key={fact.label} className={styles.fact}>
-                  <FIcon icon={fact.icon} tone={fact.tone} size={40} />
+                  <FIconByName icon={fact.icon} tone={fact.tone} size={40} />
                   <div className={styles.factBody}>
                     <dt className={styles.factLabel}>{fact.label}</dt>
                     <dd className={styles.factValue}>{fact.value}</dd>

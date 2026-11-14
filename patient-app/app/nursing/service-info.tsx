@@ -4,17 +4,20 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { Button } from '../../../packages/ui-native/src';
 import { ConsultScreen, Gate, Section, type GateStatus } from '../../src/components/consult/ConsultKit';
+import { OffersSection } from '../../src/components/diagnostics/CatalogueKit';
 import { Block, DetailHead, Price, Tag, goBackDiag } from '../../src/components/diagnostics/DiagKit';
 import { serviceGlyph } from '../../src/components/nursing/NursingKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
+import { useReportServiceView } from '../../src/utils/rankingEvents';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
-import { pickDbField, pickLocalized } from '../../src/utils/localize';
+import { offerSummaryOf, offersOf } from '../../src/utils/catalogueOffers';
+import { rowField, rowList } from '../../src/utils/rowField';
+import { FieldText, MarkNote, markTextProps } from '../../src/components/LocalizedField';
 
 type Rec = Record<string, unknown>;
 const text = (v: unknown): string => (typeof v === 'string' || typeof v === 'number' ? String(v) : '');
-const list = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string' && x !== '') : []);
 
 /** One nursing service: what it is, how long, whether insurance covers it, the preparation and the price with the way to book (board ServiceHub detail). */
 export default function NursingServiceInfo() {
@@ -23,6 +26,7 @@ export default function NursingServiceInfo() {
   const { serviceId, flow: payFlow, gender, availability, nationality, search } = params;
   const [svc, setSvc] = useState<Rec | null>(null);
   const [status, setStatus] = useState<GateStatus>('loading');
+  useReportServiceView('nursing', serviceId);
 
   const load = useCallback(async () => {
     setStatus('loading');
@@ -41,15 +45,21 @@ export default function NursingServiceInfo() {
     void load();
   }, [load]);
 
-  const title = text(pickDbField(svc, 'name') ?? svc?.name_ar ?? svc?.name_en);
-  const desc = text(pickDbField(svc, 'description'));
-  const prep = pickLocalized(list(svc?.preparation_ar), list(svc?.preparation_en)) ?? [];
+  const titleField = rowField(svc, 'name');
+  const descField = rowField(svc, 'description');
+  const prepField = rowList(svc, 'preparation');
+  const title = titleField.text;
+  const desc = descField.text;
+  const prep = prepField.items;
   const image = text(svc?.image_url ?? svc?.image);
   const price = svc?.price !== undefined && svc?.price !== null && Number.isFinite(Number(svc.price)) ? Number(svc.price) : null;
   const durationValue = Number(svc?.duration_value);
   const unit = text(svc?.duration);
   const duration = durationValue > 0 ? (unit === 'hour' ? k('nur.hours', { n: num(durationValue) }) : unit === 'day' ? k('nur.days', { n: num(durationValue) }) : `${num(durationValue)} ${unit}`.trim()) : '';
   const look = serviceGlyph(svc?.id);
+  const offer = offerSummaryOf(svc);
+  // a service no nurse offers yet can be asked for ("Notify me") but not booked
+  const unoffered = offer?.providersCount === 0;
 
   const goBook = () =>
     router.push({
@@ -60,13 +70,13 @@ export default function NursingServiceInfo() {
   const footer =
     svc && status === 'ready' ? (
       <>
-        {price !== null ? (
+        {price !== null && !unoffered ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary }}>{k('nur.info.price')}</Text>
             <Price amount={price} size="h3" />
           </View>
         ) : null}
-        <Button theme={theme} size="lg" fullWidth label={k('nur.info.book')} onPress={goBook} />
+        <Button theme={theme} size="lg" fullWidth label={k('nur.info.book')} disabled={unoffered} onPress={goBook} />
       </>
     ) : undefined;
 
@@ -75,7 +85,7 @@ export default function NursingServiceInfo() {
       <Gate status={status} onRetry={() => void load()}>
         {svc ? (
           <>
-            <DetailHead icon={look.icon} tone={look.tone} image={image || undefined} title={title} />
+            <DetailHead icon={look.icon} tone={look.tone} image={image || undefined} title={title} titleMark={titleField.mark} />
             {duration || svc.insurance_availability ? (
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                 {duration ? <Tag label={duration} tone="neutral" /> : null}
@@ -85,7 +95,7 @@ export default function NursingServiceInfo() {
             {desc ? (
               <Section title={k('nur.info.about')}>
                 <Block>
-                  <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 24, color: c.text.secondary, ...flow }}>{desc}</Text>
+                  <FieldText text={desc} mark={descField.mark} style={{ ...scale(t, 'small', 'regular'), lineHeight: 24, color: c.text.secondary, ...flow }} />
                 </Block>
               </Section>
             ) : null}
@@ -95,12 +105,14 @@ export default function NursingServiceInfo() {
                   {prep.map((p, i) => (
                     <View key={`${p}-${i}`} style={{ flexDirection: 'row', gap: 8 }}>
                       <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.link }}>•</Text>
-                      <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, ...flow }}>{p}</Text>
+                      <Text {...markTextProps(prepField.mark)} style={[{ flex: 1, minWidth: 0, ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, ...flow }, markTextProps(prepField.mark).style]}>{p}</Text>
                     </View>
                   ))}
+                  <MarkNote mark={prepField.mark} />
                 </Block>
               </Section>
             ) : null}
+            <OffersSection kind="nursing" serviceId={text(svc.id) || String(serviceId ?? '')} offer={offer} offers={offersOf(svc)} price={price} />
           </>
         ) : null}
       </Gate>

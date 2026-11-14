@@ -5,10 +5,12 @@ import { Button, Screen, StickyFooter } from '../../../packages/ui-native/src';
 // storeAuthSession lives in the shared network client (root utils/api.ts) —
 // src/utils/api.ts is a legacy thin wrapper that does not export it.
 import { useDispatch } from 'react-redux';
+import { requestOtp } from '../../src/auth/patientAuth';
 import { apiFetch } from '../../utils/api';
 import { startSession } from '../../src/utils/authSession';
 import { serverMessage } from '../../src/utils/serverMessage';
 import { useSocialLogin, type SocialProvider } from '../../src/hooks/useSocialLogin';
+import { useSocialConfig } from '../../src/hooks/useSocialConfig';
 import {
   AuthAltLine,
   AuthBody,
@@ -55,9 +57,10 @@ export default function LoginScreen() {
       setErrorMessage('auth.err.identifier');
       return;
     }
-    if (!password || password.length < 6) { 
-      setErrorMessage('auth.err.passwordShort'); 
-      return; 
+    // sign-in only needs a password: accounts made under the old 6-character rule must still get in
+    if (!password) {
+      setErrorMessage('auth.err.checkData');
+      return;
     }
     
     setLoading(true);
@@ -72,6 +75,12 @@ export default function LoginScreen() {
         // M1: backend returns { user, token: { accessToken, refreshToken } }
       const session = await startSession(res, dispatch);
 
+      if (!session.ok && session.reason === 'not_patient') {
+        // a provider account on the patient app: no patient session (nothing was stored), only the page that says where to go
+        router.replace('/(auth)/provider-info' as any);
+        setLoading(false);
+        return;
+      }
       if (!session.ok && session.reason === 'not_stored') {
         setErrorMessage('auth.err.notStored');
         setLoading(false);
@@ -92,11 +101,7 @@ export default function LoginScreen() {
       setAttempts(0);
       setLockoutUntil(null);
 
-      if (session.role !== 'patient') {
-        router.replace('/(auth)/provider-info' as any);
-      } else {
-        router.replace('/(tabs)');
-      }
+      router.replace('/(tabs)');
     } catch (err: any) { 
       setErrorMessage(serverMessage(err, 'auth.err.loginFailed'));
       setAttempts(prev => {
@@ -108,7 +113,24 @@ export default function LoginScreen() {
     setLoading(false);
   };
 
-  const providers = availableSocialProviders();
+  // Sign in with a code: the canonical OTP request, then the code screen (verify, exchange, session).
+  const handleCodeSignIn = async () => {
+    setErrorMessage(null);
+    social.clearError();
+    if (!isValidIdentifier(phone)) { setErrorMessage('auth.err.identifier'); return; }
+    setLoading(true);
+    try {
+      const { otp_no_channel } = await requestOtp(apiFetch, phone);
+      if (otp_no_channel) { setErrorMessage('auth.otp.noChannel'); return; }
+      router.push({ pathname: '/(auth)/otp', params: { identifier: phone.trim(), mode: 'login' } });
+    } catch (err: any) {
+      setErrorMessage(serverMessage(err, 'auth.forgot.sendFailed'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const providers = availableSocialProviders(useSocialConfig());
 
   return (
     <Screen
@@ -162,6 +184,7 @@ export default function LoginScreen() {
         />
         <View style={{ alignItems: 'flex-start' }}>
           <AuthLink label="auth.forgotLink" onPress={() => router.push('/(auth)/forgot-password')} />
+          <AuthLink label="auth.loginWithCode" onPress={() => void handleCodeSignIn()} />
         </View>
         <AuthError message={errorMessage ?? social.error} />
       </View>

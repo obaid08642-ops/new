@@ -1,0 +1,27 @@
+{
+  "slice": "web-hover-coral-soft", "batch": 2, "app": "patient-web",
+  "screens": [
+    { "route": "/",
+      "elements": [
+        ["globals.css:283-285 NEW --hover-tint (= --nabd-color-service-coral-bg, light #FFE8EA / dark rgba(255,107,115,.16)) and --hover-arrow (= action-primary-bg)", "design-tokens service.coral.bg, action.primary.bg (both themes)", "fixed"],
+        ["globals.css:25 .appointment-card:hover, :35 .medicine-card:hover: border-color brand -> none (tint comes from the shared card rule)", "token", "fixed"],
+        ["globals.css:~421 shared card hover (status/appointment/medicine/homecare/family/notification/vital/prescription/chat/reminder): border-color text-primary 42% -> background --hover-tint; data-hover-arrow child turns --hover-arrow", "token", "fixed"],
+        ["globals.css:88 .locale-trigger:hover: --brand-soft (red) -> --hover-tint, under hover media", "token", "fixed"],
+        ["globals.css:92 .locale-menu-item:hover: --brand-soft (red) -> --hover-tint, under hover media (.active unchanged)", "token", "fixed"],
+        ["globals.css:96 .header-account/.header-signout:hover: --brand-soft (red) + border brand -> --hover-tint, no border change", "token", "fixed"],
+        ["globals.css:105 .locale-option:hover: --surface -> --hover-tint", "token", "fixed"],
+        ["globals.css:~139 .theme-toggle-btn:hover: --brand-soft + border -> --hover-tint under hover media", "token", "fixed"],
+        ["search.module.css:83 .termChip:hover: border brand -> background --hover-tint", "token", "fixed"],
+        ["article-share.module.css:35 .link:hover: border brand -> background --hover-tint", "token", "fixed"],
+        ["locale-selector.module.css:~26/84 .trigger:hover, .option:hover: bg-sunken -> --hover-tint, hover media", "token", "fixed"],
+        ["search-suggest.module.css:15,34 .option:hover, .all:hover: bg-sunken -> --hover-tint, hover media (aria-selected keeps bg-sunken)", "token", "fixed"],
+        ["cart-sheet.module.css:24 .cartMenuItem:hover: bg-sunken -> --hover-tint (focus-visible unchanged)", "token", "fixed"],
+        ["core.module.css:68 .section:hover, :131 .menuLink:hover: bg-sunken -> --hover-tint, hover media", "token", "fixed"],
+        ["appointment-booking-form.module.css:8 .slot:hover: border brand -> background --hover-tint, hover media", "token", "fixed"],
+        ["diag.module.css:160 .rad/.lab/.pack:hover: lift only -> lift + --hover-tint", "token", "fixed"],
+        ["Left as is: button hovers (.button-*, .submit), health.module.css:59 .iconButton, text-underline link hovers, product-detail/medicine-detail crumbs, ui css (no hover rules)", "buttons keep own states", "ok"]
+      ],
+      "notes": [] }
+  ],
+  "needsReview": []
+}

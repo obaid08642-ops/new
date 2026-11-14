@@ -15,7 +15,7 @@ const mockApiFetch = jest.fn();
 const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn(), canGoBack: jest.fn(() => true) };
 let mockParams: Record<string, string> = {};
 jest.mock('react-native-localize', () => require('react-native-localize/mock'));
-jest.mock('../src/utils/api', () => ({ apiFetch: (...a: unknown[]) => mockApiFetch(...a), BASE_URL: 'https://api.example.test/api/v1' }));
+jest.mock('../src/utils/api', () => ({ apiFetch: (...a: unknown[]) => mockApiFetch(...a), hasSession: async () => false, BASE_URL: 'https://api.example.test/api/v1' }));
 jest.mock('../src/utils/isOffline', () => ({ isOffline: jest.fn(async () => false) }));
 jest.mock('../src/utils/logger', () => ({ logError: jest.fn() }));
 jest.mock('expo-router', () => ({
@@ -27,9 +27,13 @@ jest.mock('expo-router', () => ({
 jest.mock('../src/context/AppContext', () => ({ useApp: () => ({ isDark: false, lang: 'ar', isRTL: true }) }));
 jest.mock('../src/components/LocalizedAlert', () => ({ showLocalizedAlert: jest.fn() }));
 
+import { LanguageManager } from '../src/i18n/LanguageManager';
 import PharmacyHub from '../app/(tabs)/pharmacy';
 import ProductDetail from '../app/pharmacy/product-detail';
 import WishlistScreen from '../app/pharmacy/wishlist';
+
+// the screens are drawn in Arabic here (useApp says 'ar'); the product's leaflet text follows the app language (owner rule 2026-10-27: own language or hidden), so it is Arabic too
+beforeAll(() => { (LanguageManager.getInstance().i18n as { locale: string }).locale = 'ar'; });
 
 const metrics = { frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 47, bottom: 34, left: 0, right: 0 } };
 const store = (signedIn = false) =>
@@ -152,7 +156,6 @@ describe('Product page (board ProductFull)', () => {
           requires_prescription: false,
           package_size: '24 قرص',
           form: 'أقراص',
-          pharmacies_count: 0,
           indications_ar: ['استعمال أ', 'استعمال ب'],
           alternatives: [{ id: 'alt', name_ar: 'بديل', price: 15 }],
         };

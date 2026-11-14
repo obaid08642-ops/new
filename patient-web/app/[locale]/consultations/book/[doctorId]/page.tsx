@@ -15,9 +15,17 @@ import { ConsultState } from "@/components-next/consult/consult-state";
 import { policyLines } from "@/components-next/consult/policy-lines";
 import { getCancellationPolicy } from "@/lib/consult/cancellation-policy";
 import { readTelehealthConsent } from "@/lib/legal/telehealth-consent";
+import { cookies } from "next/headers";
+import { getPatientFamilyMembers } from "@/lib/api/family-server";
+import { extractFamilyMembers } from "@/lib/api/family";
+import { familyMemberRef } from "@/lib/api/family-member-ref";
+import { getPatientInsurancePolicy } from "@/lib/api/insurance-server";
+import { parseInsuranceSummary } from "@/lib/api/insurance";
+import { BOOKING_FOR_COOKIE, isMemberRef } from "@/lib/consult/booking-for";
+import { parseBookingParams } from "@/lib/consult/booking-params";
 import type { Metadata } from "next";
 
-type Props = { params: Promise<{ locale: string; doctorId: string }> };
+type Props = { params: Promise<{ locale: string; doctorId: string }>; searchParams?: Promise<{ service_type?: string; slot_start?: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, doctorId } = await params;
@@ -32,8 +40,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 /** Book a consultation (canvas/BookingConfirm): the doctor, the visit type, day, time and payment, and the confirm bar. */
-export default async function BookConsultationPage({ params }: Props) {
+export default async function BookConsultationPage({ params, searchParams }: Props) {
   const { locale, doctorId } = await params;
+  const carried = parseBookingParams((await searchParams) ?? {});
+  const initialType = carried.type;
   if (!isLocale(locale) || !parseDoctorId(doctorId).success) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("BookConsultation");
@@ -60,11 +70,26 @@ export default async function BookConsultationPage({ params }: Props) {
   const located = addressRes.ok ? parseDeliveryAddresses(await addressRes.json().catch(() => null)).filter(hasLocation) : [];
   located.sort((x, y) => Number(y.isDefault) - Number(x.isDefault));
   const homeAddresses = located.map((a) => ({ id: a.id, label: [a.label, formatAddressLine(a, locale)].filter(Boolean).join(" · ") || a.id, line: formatAddressLine(a, locale) || a.label || "", lat: a.lat, lng: a.lng }));
+  // the app's "booking for <member>": the member page remembers who; only a member of the signed-in family is accepted
+  const ref = (await cookies()).get(BOOKING_FOR_COOKIE)?.value;
+  let bookingFor: { id: string; name: string } | null = null;
+  if (isMemberRef(ref)) {
+    const membersRes = await getPatientFamilyMembers(token).catch(() => null);
+    const member = membersRes?.ok ? extractFamilyMembers(await membersRes.json().catch(() => null)).find((x) => familyMemberRef(x.id) === ref) : undefined;
+    if (member) bookingFor = { id: member.id, name: member.displayName || (await getTranslations("FamilyWeb"))("member") };
+  }
+  // insurance readiness (the app checks the saved policy before it offers the insurance request)
+  const policyRes = await getPatientInsurancePolicy(token).catch(() => null);
+  const summary = policyRes?.ok ? parseInsuranceSummary(await policyRes.json().catch(() => null)) : null;
+  const insurance = { ready: Boolean(summary?.hasPolicy && (summary.policyNumber || summary.memberId || summary.companyName)), memberId: summary?.policyNumber || summary?.memberId, providerId: summary?.insurerId };
   return (
     <BookingFlow
-      doctorId={doctorId}
+      bookingFor={bookingFor}
+      insurance={insurance}      doctorId={doctorId}
       locale={locale}
       doctor={doctor}
+      initialType={initialType}
+      initialSlotStart={carried.slotStart}
       policy={policy}
       homeAddresses={homeAddresses}
       consent={await readTelehealthConsent(locale)}

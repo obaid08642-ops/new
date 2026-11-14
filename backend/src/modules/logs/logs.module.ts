@@ -4,7 +4,7 @@ import { LogsStoreService } from './app-logs.store';
 
 /**
  * 20.3 — the logger (`app.useLogger(app.get(LoggerService))` in main.ts) and the Mongo store behind it. Global, so any
- * module can inject the LoggerService; the admin read endpoints live in AdminEnterpriseModule next to the other admin controllers.
+ * module can inject the LoggerService; the admin read endpoint (AdminLogsController) is registered in AdminModule next to the other admin controllers.
  */
 @Global()
 @Module({

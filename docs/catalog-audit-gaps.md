@@ -32,3 +32,22 @@
 - **TPA موسومة صراحة** (`kind:tpa`): GlobeMed/NextCare/Medivisa/MedNet/Cigna — مديرو مطالبات لا شركات تأمين، لكن المرضى يختارونهم كشبكة — الإبقاء عليهم موسومين هو الصح.
 - **أُضيفت 4 كانت ناقصة**: الجزيرة تكافل / ساب تكافل / العالمية / الاتحاد ✅
 - فئات بوبا/التعاونية (VIP/ذهبية/فضية/برونزية) وفئات ميدغلف (A/B/C) مطابقة للسوق ✅
+
+---
+
+## الحالة بتاريخ 2026-10-23 (بند بند)
+
+| البند | الحالة | الدليل |
+|---|---|---|
+| HIV / Pap / السائل المنوي / Quantiferon-TB / Progesterone / Hb Electrophoresis | **موجودة** في بيانات البذر بأسعار وبأسماء بست لغات (كانت أُضيفت قبل هذا التدقيق؛ لا إضافة جديدة مطلوبة) | `backend/src/modules/catalogs/seed-data/labs.json` (`HIV Test`, `Pap Smear`, `Semen Analysis`, `Quantiferon-TB`, `Progesterone`, `Hb Electrophoresis`) والمحتوى `content/services-content.v1.json` |
+| HSG / Barium / بانوراما أسنان / PET-CT | **موجودة** بنفس الشكل | `seed-data/radiology.json` (`HSG`, `Barium Study`, `Dental Panoramic`, `PET-CT Scan`) |
+| دمج 3 باقات مكررة | **كُتب كهجرة مراجَعة، لم تُنفَّذ**: يُبقي الأقدم، ينقل كل المراجع، ولا يحذف أي صف (يوقفه ويضع `merged_into`) | `backend/scripts/migrations/2026-10-catalogue-merge-pairs.ts` + `content/catalog-merge-pairs.v1.json` + `catalog-merge-pairs.spec.ts` |
+| دمج 4 أزواج تمريض | نفس الهجرة. **الزوج الأكثر قابلية للنقاش للمالك: `Wound Dressing` ⟷ `Advanced Wound & Diabetic Foot Care`** (قد يكونان خدمتين مختلفتين؛ يُحذف من `catalog-merge-pairs.v1.json` إن رفضه المالك) | نفس الملفات |
+| الصفوف المكررة في بيانات البذر | أُزيلت من البذر (باقتان وثلاث خدمات تمريض) كي لا تُولد من جديد في قاعدة جديدة؛ الصفوف الموجودة في الإنتاج تُدمج بالهجرة وتبقى موقوفة فلا يعيد البذر إدخالها | `seed-data/labs.json`, `seed-data/nursing.json` |
+| التأمين: 30 جهة (25 + 5 TPA)، 4 مضافة | **منجز** (الجزيرة تكافل، ساب تكافل، العالمية، الاتحاد موجودة في البذر)؛ وصف الـ TPA صُحّح (لم يعد يقول "شركة تأمين") وترجمات الوصف والفئات بست لغات أُضيفت | `seed-data/insurance.json` |
+| ترجمة الكتالوجات بست لغات | **منجز على بيانات البذر** (الفجوات 2062 → 0) | `docs/catalogue/TRANSLATION_COVERAGE_2026-10-23.md` |
+
+### ما بقي مفتوحاً ولماذا لم يُنفَّذ
+- **أسعار 22 خدمة مضافة سابقاً** (13 تحليلاً و6 أشعة و3 تمريض في `services-content.v1.json` بعلامة `add`): تُدخل بـ`public_eligibility: false` و`needs_price: true`؛ لا يوجد سعر مرجعي في الكتالوج ولم يُخترع سعر. قرار المالك/المالية.
+- **ترجمة أسماء الأدوية** (100 bn و80 hi و60 ur في `data/catalogue-input-01/untranslated.csv`): مؤجلة بقرار المالك G ولا يوجد ملف بذر للأدوية.
+- **تشغيل الهجرات على الإنتاج**: `2026-10-catalogue-merge-pairs.ts` و`2026-10-catalogue-translations-fill.ts` (ومعها `2026-10-services-content.ts --force`) بانتظار موافقة المالك؛ كلها dry-run افتراضياً وترفض الإنتاج دون متغير تأكيد.

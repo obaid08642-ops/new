@@ -1,0 +1,13 @@
+/* The category illustrations (shared module packages/ui/icons/category-art.ts): roles read the tokens' variables only. */
+.art { display: block; flex: none; stroke-linecap: round; stroke-linejoin: round; }
+.fNone { fill: none; }
+.fBg { fill: var(--nabd-tone-bg); }
+.fFg { fill: var(--nabd-tone-fg); }
+.fInk { fill: var(--nabd-color-text-primary); }
+.fCoral { fill: var(--nabd-color-brand-coral); }
+.fSurface { fill: var(--nabd-color-bg-surface); }
+.sBg { stroke: var(--nabd-tone-bg); }
+.sFg { stroke: var(--nabd-tone-fg); }
+.sInk { stroke: var(--nabd-color-text-primary); }
+.sCoral { stroke: var(--nabd-color-brand-coral); }
+.sSurface { stroke: var(--nabd-color-bg-surface); }

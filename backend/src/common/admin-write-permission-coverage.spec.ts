@@ -23,6 +23,8 @@ const OWN_ACCOUNT_ROUTES = new Set<string>([
   'AdminDevicesController.confirm',
   'AdminDevicesController.revoke',
   'AdminDevicesController.setLock',
+  // Step-up: creates a passkey challenge for the caller's own credentials only (the user comes from the JWT, no body).
+  'StepUpController.options',
 ]);
 
 function collectControllers(): Ctor[] {

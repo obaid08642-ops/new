@@ -69,6 +69,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  /**
+   * The relayed events (typing, calls, receipts) reach only a thread the socket joined through join_thread, which checked
+   * membership; a socket that never joined it, or a token scoped to another thread, relays nothing.
+   */
+  private joinedUser(socket: Socket, threadId: unknown): string | null {
+    const userId = this.activeUsers.get(socket.id);
+    if (!userId || typeof threadId !== 'string' || !threadId) return null;
+    const scoped = this.restrictedThreads.get(socket.id);
+    if (scoped && scoped !== threadId) return null;
+    const rooms: Set<string> | undefined = (socket as any).rooms;
+    return rooms?.has(`thread_${threadId}`) ? userId : null;
+  }
+
   @SubscribeMessage('join_thread')
   async handleJoinThread(
     @ConnectedSocket() socket: Socket,
@@ -92,7 +105,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { threadId: string; isTyping: boolean },
   ) {
-    const userId = this.activeUsers.get(socket.id);
+    const userId = this.joinedUser(socket, data?.threadId);
+    if (!userId) return { error: 'not_participant' };
     socket.to(`thread_${data.threadId}`).emit('typing', {
       threadId: data.threadId,
       userId,
@@ -105,18 +119,22 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('send_message')
   async handleSendMessage(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: { threadId: string; content: string; state: string },
+    @MessageBody() data: { threadId: string; content: string },
   ) {
-    // Enforce CLOSED state
-    if (data.state === 'CLOSED') {
-      return { error: 'chat_closed_after_24h' };
-    }
     // Issue 955: the admin chat kill switch stops the realtime relay too.
     if (this.killSwitches && !(await this.killSwitches.isOn('chat_enabled'))) {
       return { error: 'kill_switch_off:chat_enabled' };
     }
-    
-    const userId = this.activeUsers.get(socket.id);
+    const userId = this.joinedUser(socket, data?.threadId);
+    if (!userId) return { error: 'not_participant' };
+    // membership and the consultation window are read from the server, never from what the client says about its own state
+    try {
+      await this.chatService.getThread(data.threadId, userId);
+    } catch {
+      return { error: 'not_participant' };
+    }
+    const check = await this.chatService.verifyCommunicationAllowed(data.threadId, userId);
+    if (!check.allowed) return { error: 'chat_not_allowed' };
     socket.to(`thread_${data.threadId}`).emit('new_message', {
       threadId: data.threadId,
       userId,
@@ -129,16 +147,21 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('initiate_call')
   async handleInitiateCall(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: { threadId: string; state: string },
+    @MessageBody() data: { threadId: string },
   ) {
-    // Enforce PRE_CONSULTATION state
-    if (data.state === 'FOLLOW_UP' || data.state === 'CLOSED') {
+    const userId = this.joinedUser(socket, data?.threadId);
+    if (!userId) return { error: 'not_participant' };
+    // the call is allowed only while the consultation is active: read from the server, not from a client-sent state
+    try {
+      const thread: any = await this.chatService.getThread(data.threadId, userId);
+      const cs = await this.chatService.consultationThreadState(thread);
+      if (cs && !cs.state.can_call) return { error: 'calls_disabled_in_this_state' };
+    } catch {
       return { error: 'calls_disabled_in_this_state' };
     }
-    
     socket.to(`thread_${data.threadId}`).emit('incoming_call', {
       threadId: data.threadId,
-      callerId: this.activeUsers.get(socket.id)
+      callerId: userId
     });
     return { status: 'calling' };
   }
@@ -149,7 +172,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() data: { threadId: string; messageIds?: string[] },
   ) {
     // M6/ER-9: realtime read receipts — notify the other party instantly
-    const userId = this.activeUsers.get(socket.id);
+    const userId = this.joinedUser(socket, data?.threadId);
+    if (!userId) return { error: 'not_participant' };
     socket.to(`thread_${data.threadId}`).emit('message_seen', {
       threadId: data.threadId,
       seenBy: userId,

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { useRouter, useSegments } from 'expo-router';
 import { useAppSelector } from '../../store/hooks';
+import { tokens } from '../../../../packages/design-tokens/dist/ts/tokens';
+const T = tokens('light').color;
 export interface AuthGuardProps {
   children: React.ReactNode;
   requireAuth?: boolean;
@@ -37,7 +39,7 @@ export function AuthGuard({ children, requireAuth = true, requireGuest = false }
   if (!isReady) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#0284c7" />
+        <ActivityIndicator size="large" color={T.action.primary.bg} />
       </View>
     );
   }

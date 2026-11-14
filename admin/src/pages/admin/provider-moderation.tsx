@@ -24,6 +24,9 @@ interface DeltaMutation {
   createdAt?: string;
   oldData?: { [key: string]: any };
   newData: { [key: string]: any };
+  /** a credentials change: the proof the provider uploaded (oldData holds the values before) */
+  proof?: { document_id: string; doc_type: string; review_status?: string | null }[];
+  target?: string;
 }
 
 export default function ProviderModeration() {
@@ -55,14 +58,25 @@ export default function ProviderModeration() {
   const [approveIns, setApproveIns] = useState('');
   const [approveBusy, setApproveBusy] = useState(false);
   const [approveError, setApproveError] = useState('');
+  // 19.3: a doctor, pharmacist or individual nurse is approved only on a confirmed SCFHS licence. When the server could not
+  // confirm it, the admin records their own check (reference + expiry date) and approves again.
+  const [needsLicense, setNeedsLicense] = useState(false);
+  const [licenseRef, setLicenseRef] = useState('');
+  const [licenseExpiry, setLicenseExpiry] = useState('');
   const [bankBusy, setBankBusy] = useState(false);
+  const [bankRejectOpen, setBankRejectOpen] = useState(false);
+  const [bankReason, setBankReason] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  // a failed list load is an error with a retry, not an empty queue (a 403 or 500 used to read as "no pending accounts")
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const [geo, setGeo] = useState<{ region?: string; city?: string; district?: string }>({});
 
   useEffect(() => {
     const fetchModerationData = async () => {
       try {
         setIsLoading(true);
+        setLoadError(false);
             // REAL pending provider accounts (provider_accounts, status=pending) with unified GeoPicker filter
         const geoParams = new URLSearchParams();
         if (geo.region) geoParams.set('region', geo.region);
@@ -81,6 +95,8 @@ export default function ProviderModeration() {
             status: i.status,
             createdAt: i.createdAt,
           })));
+        } else {
+          setLoadError(true);
         }
 
         // REAL pending delta mutations (provider_deltas collection — the same
@@ -96,17 +112,23 @@ export default function ProviderModeration() {
             status: d.status,
             createdAt: d.createdAt,
             newData: d.requested_changes || d.changes || {},
+            oldData: d.old_values || undefined,
+            proof: Array.isArray(d.proof) ? d.proof : undefined,
+            target: d.target,
           })));
+        } else {
+          setLoadError(true);
         }
       } catch (error) {
         console.error('Error fetching moderation data:', error);
+        setLoadError(true);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchModerationData();
-  }, [geo.region, geo.city, geo.district]);
+  }, [geo.region, geo.city, geo.district, reloadKey]);
 
   const openApprove = (provider: Provider) => {
     const defaults: Record<string, number> = { pharmacy: 5, lab: 8, radiology: 10, home_care: 15 };
@@ -115,6 +137,9 @@ export default function ProviderModeration() {
     setApproveCash(String(def));
     setApproveIns(String(def));
     setApproveError('');
+    setNeedsLicense(false);
+    setLicenseRef('');
+    setLicenseExpiry('');
     setApproveFor(provider);
   };
 
@@ -131,7 +156,8 @@ export default function ProviderModeration() {
     setApproveBusy(true);
     setApproveError('');
     try {
-      const res = await fetchWithAdminGuard(`/api/admin/admin/providers/${approveFor.id}/approve`, { method: 'POST', body: JSON.stringify({ reason, commission_cash: cash, commission_insurance: ins }) });
+      const manual = needsLicense && licenseRef.trim() && licenseExpiry ? { manual_license_check: { reference: licenseRef.trim(), expiry_date: new Date(licenseExpiry).toISOString() } } : {};
+      const res = await fetchWithAdminGuard(`/api/admin/admin/providers/${approveFor.id}/approve`, { method: 'POST', body: JSON.stringify({ reason, commission_cash: cash, commission_insurance: ins, ...manual }) });
       if (res.ok) {
         const approvedId = approveFor.id;
         setPendingProviders(prev => prev.filter(p => p.id !== approvedId));
@@ -139,13 +165,50 @@ export default function ProviderModeration() {
         setApproveFor(null);
       } else {
         const err = await res.json().catch(() => null);
-        setApproveError('فشل الاعتماد: ' + (err?.message || res.status));
+        const code = String(err?.message || '');
+        if (res.status === 409 && (code.startsWith('scfhs_') || code === 'manual_check_invalid')) {
+          const licenseErrors: Record<string, string> = {
+            scfhs_license_expired: 'ترخيص هيئة التخصصات الصحية منتهي. لا يمكن الاعتماد.',
+            scfhs_license_suspended: 'ترخيص هيئة التخصصات الصحية موقوف. لا يمكن الاعتماد.',
+            scfhs_license_not_found: 'رقم الترخيص غير موجود لدى هيئة التخصصات الصحية. لا يمكن الاعتماد.',
+            scfhs_unavailable_manual_check_required: 'تعذّر التحقق الآلي من الترخيص. تحقق منه بنفسك وأدخل مرجع التحقق وتاريخ انتهاء الترخيص.',
+            scfhs_license_number_missing: 'لا يوجد رقم ترخيص للتحقق منه. تحقق من الترخيص بنفسك وأدخل مرجع التحقق وتاريخ انتهائه.',
+            manual_check_invalid: 'مرجع التحقق مطلوب، وتاريخ انتهاء الترخيص يجب أن يكون في المستقبل.',
+          };
+          // Only a missing answer can be settled by hand; an expired, suspended or unknown licence cannot.
+          setNeedsLicense(code === 'scfhs_unavailable_manual_check_required' || code === 'scfhs_license_number_missing' || code === 'manual_check_invalid');
+          setApproveError(licenseErrors[code] || 'تعذّر التحقق من الترخيص');
+        } else {
+          setApproveError('فشل الاعتماد: ' + (err?.message || res.status));
+        }
       }
     } catch (e) {
       console.error(e);
       setApproveError('خطأ في الاعتماد');
     } finally {
       setApproveBusy(false);
+    }
+  };
+
+  // Payout bank account refusal: POST /admin/providers/:id/reject-bank { reason } (the provider reads the reason and sends a corrected account).
+  const handleRejectBank = async (id: string) => {
+    const reason = bankReason.trim();
+    if (!reason) { alert('اكتب سبب رفض الحساب البنكي'); return; }
+    setBankBusy(true);
+    try {
+      const res = await fetchWithAdminGuard(`/api/admin/admin/providers/${id}/reject-bank`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason }) });
+      if (res.ok) {
+        setProviderDetail((prev: { bank?: Record<string, unknown> } | null) => (prev ? { ...prev, bank: { ...(prev.bank || {}), review_status: 'rejected' } } : prev));
+        setBankRejectOpen(false); setBankReason('');
+      } else {
+        const err = await res.json().catch(() => null);
+        alert('فشل رفض الحساب البنكي: ' + (err?.message || res.status));
+      }
+    } catch (e) {
+      console.error(e);
+      alert('خطأ في رفض الحساب البنكي');
+    } finally {
+      setBankBusy(false);
     }
   };
 
@@ -183,13 +246,13 @@ export default function ProviderModeration() {
     }
   };
 
-  // Reject (final: the provider's images are deleted server-side) and request-changes (the provider can fix and resubmit).
+  // Reject (the reason is shown to the provider, who fixes and resubmits; the documents are kept, private) and request-changes (the same, for a specific change).
   // Both use the routes POST /admin/providers/:id/reject and :id/request-changes; the body field differs (reason / note).
   const handleDecision = async (id: string, kind: 'reject' | 'request-changes') => {
     const reject = kind === 'reject';
     const reason = window.prompt(
       reject
-        ? 'سبب رفض المزود (نهائي — تُحذف صور الوثائق، ويُحفظ السبب في سجل التدقيق، 5 أحرف على الأقل):'
+        ? 'سبب رفض المزود (يراه المزود ويصحّح ما طُلب ثم يعيد التقديم؛ تبقى الوثائق محفوظة بشكل خاص ولا تُحذف، ويُحفظ السبب في سجل التدقيق، 5 أحرف على الأقل):'
         : 'ما المطلوب تعديله؟ (يصل للمزود ويُحفظ في سجل التدقيق — 5 أحرف على الأقل):',
       '',
     );
@@ -283,6 +346,12 @@ export default function ProviderModeration() {
             {activeTab === 'onboarding' ? 'الحسابات المعلقة (بانتظار الاعتماد)' : 'تعديلات بانتظار المراجعة (Pending Deltas)'}
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            {loadError && (
+              <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                تعذر تحميل القائمة. قد لا تظهر كل الحسابات المعلقة.
+                <button type="button" className="mr-2 font-bold underline" onClick={() => setReloadKey((k) => k + 1)}>إعادة المحاولة</button>
+              </div>
+            )}
             {activeTab === 'onboarding' && pendingProviders.map(p => (
               <div key={p.id} onClick={() => setSelectedProvider(p)} className={`p-4 border rounded-lg cursor-pointer transition-all ${selectedProvider?.id === p.id ? 'border-teal-500 bg-teal-50 shadow-md' : 'border-gray-200 hover:border-teal-300'}`}>
                 <h3 className="font-bold text-gray-800">{p.name}</h3>
@@ -340,6 +409,17 @@ export default function ProviderModeration() {
                     Approve bank account (اعتماد الحساب البنكي)
                   </button>
                 )}
+                {['pending', 'under_review'].includes(String(providerDetail?.bank?.review_status)) && (
+                  <button onClick={() => setBankRejectOpen((v) => !v)} disabled={bankBusy} className="flex-1 bg-white hover:bg-red-50 text-red-700 font-bold py-3 rounded-lg shadow-sm border border-red-300 transition text-lg disabled:opacity-50">
+                    Reject bank account (رفض الحساب البنكي)
+                  </button>
+                )}
+                {bankRejectOpen && (
+                  <div className="w-full flex flex-col gap-2">
+                    <textarea value={bankReason} onChange={(e) => setBankReason(e.target.value)} maxLength={500} rows={2} placeholder="سبب الرفض (يظهر لمقدم الخدمة)" className="w-full border rounded-lg p-2" />
+                    <button onClick={() => handleRejectBank(selectedProvider.id)} disabled={bankBusy || !bankReason.trim()} className="bg-red-600 text-white font-bold py-2 rounded-lg disabled:opacity-50">تأكيد الرفض</button>
+                  </div>
+                )}
               </div>
             </div>
           ) : activeTab === 'deltas' && selectedDelta ? (
@@ -365,11 +445,22 @@ export default function ProviderModeration() {
                         <div key={key} className="flex justify-between items-start gap-4 p-3 bg-amber-50 rounded border border-amber-200">
                           <span className="text-gray-600 font-mono text-sm">{key}</span>
                           <span className="font-bold text-slate-800 text-sm text-left break-all" dir="ltr">
+                            {selectedDelta.oldData ? <span className="font-normal text-gray-500 line-through me-2">{String(selectedDelta.oldData[key] ?? '—')}</span> : null}
                             {typeof val === 'object' ? JSON.stringify(val) : String(val)}
                           </span>
                         </div>
                       ))}
                     </div>
+                    {selectedDelta.target === 'credentials' && (
+                      <div className="mt-4 text-sm">
+                        <p className="font-bold text-gray-600 mb-1">المستندات المرفوعة كإثبات</p>
+                        {selectedDelta.proof && selectedDelta.proof.length > 0
+                          ? selectedDelta.proof.map((pd) => (
+                              <p key={pd.document_id} className="text-gray-700" dir="ltr">{pd.doc_type} · {pd.review_status || '—'}</p>
+                            ))
+                          : <p className="text-red-600">لم يرفع المزود مستنداً لهذا التعديل.</p>}
+                      </div>
+                    )}
                     {selectedDelta.createdAt && (
                       <p className="text-xs text-gray-400 mt-4 text-center">أُرسل بتاريخ: {String(selectedDelta.createdAt).slice(0, 19).replace('T', ' ')}</p>
                     )}
@@ -410,7 +501,7 @@ export default function ProviderModeration() {
               <div className="flex justify-between gap-3"><dt className="text-slate-500">النوع</dt><dd className="font-bold uppercase">{approveFor.type}</dd></div>
               {approveFor.email && <div className="flex justify-between gap-3"><dt className="text-slate-500">البريد</dt><dd className="font-bold" dir="ltr">{approveFor.email}</dd></div>}
             </dl>
-            <p className="text-xs text-slate-500">عند الاعتماد يصبح الحساب فعالاً ويظهر في دليل المرضى، وتُعتمد الوثائق والحساب البنكي المعلّقة.</p>
+            <p className="text-xs text-slate-500">عند الاعتماد يصبح الحساب فعالاً ويظهر في دليل المرضى، وتُعتمد الوثائق المعلّقة. الحساب البنكي يُراجَع بشكل منفصل ولا يُعتمد هنا.</p>
             <label className="block text-sm font-bold">سبب الاعتماد (يُحفظ في سجل التدقيق — 5 أحرف على الأقل)
               <textarea value={approveReason} onChange={(e) => setApproveReason(e.target.value)} className="mt-1 w-full border border-gray-300 rounded p-2 h-20 font-normal" />
             </label>
@@ -422,6 +513,16 @@ export default function ProviderModeration() {
                 <input type="number" min="0" max="100" value={approveIns} onChange={(e) => setApproveIns(e.target.value)} className="mt-1 w-full border border-gray-300 rounded p-2 font-normal" />
               </label>
             </div>
+            {needsLicense && (
+              <div className="grid grid-cols-2 gap-3">
+                <label className="block text-sm font-bold">مرجع التحقق من الترخيص
+                  <input value={licenseRef} onChange={(e) => setLicenseRef(e.target.value)} maxLength={200} className="mt-1 w-full border border-gray-300 rounded p-2 font-normal" />
+                </label>
+                <label className="block text-sm font-bold">تاريخ انتهاء الترخيص
+                  <input type="date" value={licenseExpiry} onChange={(e) => setLicenseExpiry(e.target.value)} className="mt-1 w-full border border-gray-300 rounded p-2 font-normal" />
+                </label>
+              </div>
+            )}
             {approveError && <p role="alert" className="rounded bg-rose-50 p-2 text-sm text-rose-700">{approveError}</p>}
           </>
         )}

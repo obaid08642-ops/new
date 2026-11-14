@@ -33,6 +33,14 @@ export class SlotService {
     @InjectModel(LeaveRequest.name) private leaves: Model<LeaveRequestDocument>,
   ) {}
 
+  /**
+   * The status history of a doctor's latest completed clinic appointments, for the average waiting time. Only that field is read,
+   * through the appointment model (no raw collection access), newest first.
+   */
+  async completedClinicHistories(doctorId: string, limit = 200): Promise<Array<{ state_history?: unknown }>> {
+    return await this.apptModel.find({ doctor_id: doctorId, status: 'COMPLETED', service_type: 'clinic' }, { _id: 0, state_history: 1 }).sort({ completed_at: -1 }).limit(limit).lean() as any;
+  }
+
   // Day-of-week mapping used in seed data
   private readonly DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
@@ -111,9 +119,14 @@ export class SlotService {
       slot_start: { $gte: startOfDay, $lt: endOfDay },
       status: { $in: ACTIVE_BOOKING },
     }).select({ slot_start: 1 }).lean();
-    const bookedSet = new Set(booked.map((b: any) => new Date(b.slot_start).toISOString()));
+    // The same rule the booking applies (AppointmentsService.create): a slot plus the 5-minute buffer must not overlap an active booking, so the
+    // slot right before a booked one is not offered either (Q37). A booking's own length is not preloaded: it is taken as the slot length.
+    const BUFFER_MS = 5 * 60_000;
+    const bookedStarts = booked.map((b: any) => new Date(b.slot_start).getTime());
     for (const s of slots) {
-      if (bookedSet.has(s.start)) s.available = false;
+      const a = new Date(s.start).getTime();
+      const e = new Date(s.end).getTime();
+      if (bookedStarts.some((b) => b < e + BUFFER_MS && b + duration_minutes * 60_000 > a)) s.available = false;
     }
     return { date: dateStr, service_type, slots };
   }

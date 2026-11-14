@@ -168,7 +168,7 @@ export default function PharmacyInsuranceDecisionScreen() {
     return state(<EmptyState icon="x-circle" tone="peach" title={k('pharmacy.offers.cancelled')} body={k('pharmacy.pay.cancelledBody')} actionLabel={k('pharmacy.offers.backToPharmacy')} onAction={() => router.replace('/(tabs)/pharmacy' as Href)} theme={theme} />);
   }
   if (order.paymentStatus === 'paid') {
-    return state(<EmptyState icon="check-circle" tone="mint" title={k('pharmacy.pay.paidTitle')} body={k('pharmacy.pay.paidBody')} actionLabel={k('pharmacy.quote.orderStatus')} onAction={toTracking} theme={theme} />);
+    return state(<EmptyState popIcon icon="check-circle" tone="mint" title={k('pharmacy.pay.paidTitle')} body={k('pharmacy.pay.paidBody')} actionLabel={k('pharmacy.quote.orderStatus')} onAction={toTracking} theme={theme} />);
   }
   if (processing) {
     return state(<EmptyState icon="clock-counter-clockwise" tone="blue" title={k('pharmacy.ins.processingTitle')} body={k('pharmacy.ins.processingBody')} actionLabel={k('pharmacy.ins.refresh')} onAction={() => void load('manual')} secondaryActionLabel={k('pharmacy.quote.orderStatus')} onSecondaryAction={toTracking} theme={theme} />, true);
@@ -181,7 +181,7 @@ export default function PharmacyInsuranceDecisionScreen() {
     return state(<EmptyState icon="shield-check" tone="blue" title={k('pharmacy.pay.coveredTitle')} body={k('pharmacy.pay.coveredBody')} actionLabel={k('pharmacy.quote.orderStatus')} onAction={toTracking} theme={theme} />);
   }
   if (ins.accepted) {
-    return state(<EmptyState icon="check-circle" tone="mint" title={ins.accepted === 'co-pay' ? k('pharmacy.ins.acceptedTitle') : k('pharmacy.quote.acceptedTitle')} body={k('pharmacy.ins.acceptedBody')} actionLabel={k('pharmacy.ins.toPayment')} onAction={toPayment} secondaryActionLabel={k('pharmacy.quote.orderStatus')} onSecondaryAction={toTracking} theme={theme} />);
+    return state(<EmptyState popIcon icon="check-circle" tone="mint" title={ins.accepted === 'co-pay' ? k('pharmacy.ins.acceptedTitle') : k('pharmacy.quote.acceptedTitle')} body={k('pharmacy.ins.acceptedBody')} actionLabel={k('pharmacy.ins.toPayment')} onAction={toPayment} secondaryActionLabel={k('pharmacy.quote.orderStatus')} onSecondaryAction={toTracking} theme={theme} />);
   }
 
   const totals = { ...order.totals, currency: order.totals.currency ?? ins.currency };

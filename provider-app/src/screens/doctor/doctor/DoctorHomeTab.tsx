@@ -1,3 +1,4 @@
+import { runOnce, serverMessage } from '../../../utils/singleFlight';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import { AppointmentStatus } from '../../../types/contracts';
@@ -129,10 +130,10 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
 	const resIncoming = await client.get('/provider/jobs/queue?status=incoming&kind=consultation');
 	setRequests((resIncoming.data || []).map((x: any) => ({
 	id: x.id, kind: x.kind || 'consultation', patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient'),
-        age: x.age ?? null, type: x.service_type || 'video', price: x.total ?? x.price ?? 0,
+        age: x.patient_age ?? x.age ?? null, type: x.service_type || 'video', price: x.total ?? x.price ?? 0,
         time: x.scheduled_at ? new Date(x.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (AR ? 'غير محدد' : 'Unscheduled'),
         avatar: '', complaint: x.title_ar || '', insurance: x.insurance_provider || 'Cash',
-        paid: x.payment_status === 'PAID', urgent: !!x.is_urgent,
+        paid: String(x.payment_status || '').toLowerCase() === 'paid', urgent: !!x.is_urgent,
          policyClass: x.policy_class || null, nationalId: x.national_id || null, dob: x.dob || null
   })));
 
@@ -143,7 +144,7 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
  id: x.id, patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient'),
      type: x.service_type || 'video', time: x.scheduled_at ? new Date(x.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (AR ? 'غير محدد' : 'Unscheduled'),
      status: x.status || 'confirmed', price: x.total ?? x.price ?? 0, insurance: x.insurance_provider || 'Cash',
-     age: x.age ?? null, avatar: ''
+     age: x.patient_age ?? x.age ?? null, avatar: ''
  })));
 
  const resStats = await client.get('/provider/stats/today');
@@ -160,24 +161,24 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
 
  const onRefresh = async () => { setRefreshing(true); await fetchQueue(); setRefreshing(false); };
 
-	const handleAccept = async (req: any) => {
+	const handleAccept = (req: any) => runOnce(`accept:${req.id}`, async () => {
 	try {
 	await client.post(`/provider/jobs/${req.kind || 'consultation'}/${req.id}/accept`);
  setRequests(prev => prev.filter(r => r.id !== req.id));
  show(AR ? 'تم قبول الطلب بنجاح' : 'Request accepted successfully', 'success');
  fetchQueue();
  stopRingtone();
- } catch (e) { show(AR ? 'حدث خطأ أثناء القبول' : 'Error accepting request', 'error'); }
- };
+ } catch (e) { show(serverMessage(e, AR ? 'حدث خطأ أثناء القبول' : 'Error accepting request'), 'error'); fetchQueue(); }
+ });
 
-	const handleReject = async (req: any) => {
+	const handleReject = (req: any) => runOnce(`reject:${req.id}`, async () => {
 	try {
 	await client.post(`/provider/jobs/${req.kind || 'consultation'}/${req.id}/reject`);
  setRequests(prev => prev.filter(r => r.id !== req.id));
  show(AR ? 'تم رفض الطلب' : 'Request rejected', 'info');
  stopRingtone();
- } catch (e) { show(AR ? 'حدث خطأ' : 'Error', 'error'); }
- };
+ } catch (e) { show(serverMessage(e, AR ? 'حدث خطأ' : 'Error'), 'error'); fetchQueue(); }
+ });
 
  const submitInsuranceGatekeeper = async () => {
    if (!approvalCode.trim() || !patientCopay.trim()) {
@@ -186,13 +187,15 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
    }
    try {
      await client.post(`/provider/jobs/consultation/${insuranceModalReq.id}/insurance`, {
+       // the server reads approvalStatus (APPROVED / PARTIAL / REJECTED); without it every submission was stored as PENDING
+       approvalStatus: ({ 'كلية': 'APPROVED', 'جزئية': 'PARTIAL', 'مرفوضة': 'REJECTED' } as Record<string, string>)[approvalStatus] || 'PENDING',
        status: approvalStatus, copay: parseFloat(patientCopay), coverage: parseFloat(insuranceCoverage || '0'), approval_code: approvalCode
      });
      setInsuranceModalReq(null);
      show(AR ? 'تم إرسال الطلب للمريض لدفع نسبة التحمل' : 'Request sent to patient for Co-Pay', 'success');
      fetchQueue();
    } catch (err) {
-     show(AR ? 'حدث خطأ أثناء رفع الاعتماد' : 'Error submitting approval', 'error');
+     show(serverMessage(err, AR ? 'حدث خطأ أثناء رفع الاعتماد' : 'Error submitting approval'), 'error');
    }
  };
 
@@ -345,7 +348,7 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
     <Text style={{ fontSize: FS.sm, color: theme.text, textAlign: AR ? 'right' : 'left', fontWeight: FW.bold, marginTop: 2 }}>{insuranceModalReq?.complaint || (AR ? 'غير متوفر' : 'N/A')}</Text>
   </View>
   </NCard>
-  <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{AR ? 'حالة الموافقة من نفييس:' : 'NPHIES Approval Status:'}</Text>
+  <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{AR ? 'حالة موافقة التأمين:' : 'Insurance Approval Status:'}</Text>
   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginBottom: SP.lg }}>
   {['كلية', 'جزئية', 'مرفوضة'].map(s => (
   <TouchableOpacity key={s} onPress={() => setApprovalStatus(s)} style={{ flex: 1, padding: SP.md, borderRadius: R.md, backgroundColor: approvalStatus === s ? theme.primary : theme.surface2, alignItems: 'center' }}>

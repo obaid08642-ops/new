@@ -8,7 +8,10 @@
  *   in the user's language (never the model's words, never a dose);
  * - symptoms → a specialty answer with a book_consultation action for a real specialty slug;
  * - never a diagnosis, a drug to take, or a dose; prompt injection changes nothing;
- * - every answer carries a disclaimer in the user's language.
+ * - every answer carries a disclaimer in the user's language;
+ * - OD-15: whatever the branch, the answer that leaves is run through the output filter (assistant-output-filter.ts): a dose, a
+ *   drug name the user did not write or diagnosis phrasing in the text replaces the whole answer with "please consult a doctor" and the
+ *   consultation button; a leaflet field with a dose or another drug's name is dropped.
  */
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -18,6 +21,7 @@ import { SPECIALTY_MASTER } from '../../common/enums';
 import { escapeRegex } from '../../common/slug.util';
 import { publicMedicineFilter } from '../medicines/public-medicine-filter';
 import { AiGatewayService } from './ai-gateway.service';
+import { hasDose, SAFE_TEXT, scan } from './assistant-output-filter';
 
 export const ASSISTANT_LOCALES = ['ar', 'en', 'ur', 'hi', 'bn', 'fil'] as const;
 export type AssistantLocale = (typeof ASSISTANT_LOCALES)[number];
@@ -93,6 +97,14 @@ const RED_FLAGS: RegExp[] = [
   /تنفس|breath|سانس|सांस|শ্বাস|hinga/i,
   /مائل|droop|slur|ٹیڑھا|टेढ़ा|বেঁকে|tumabingi|utal|غير واضح|لڑکھڑا|लड़खड़ा|জড়িয়ে/i,
   /إنهاء حياتي|ending my life|زندگی ختم|ज़िंदगी खत्म|জীবন শেষ|tapusin ang buhay/i,
+  // Owner product rule 2026-10-26: severe bleeding, seizure, unconsciousness, poisoning/overdose, a swelling face or throat and
+  // suicidal thoughts also answer with the emergency button first. Phrases, not single words, so "my gums bleed" stays a normal answer.
+  /نزيف (شديد|حاد)|نزيف لا يتوقف|ينزف كثير|heavy bleeding|severe bleeding|bleeding (heavily|a lot|badly)|(can'?t|cannot|won'?t) stop(?:s)? (the )?bleeding|bleeding (won'?t|will not) stop|(coughing|vomiting|spitting) (up )?blood|شدید خون|خون بند نہیں|بہت خون|बहुत खून|खून नहीं रुक|खून की उल्टी|প্রচুর রক্ত|রক্ত বন্ধ হচ্ছে না|রক্ত বমি|matinding pagdurugo|hindi tumitigil ang dugo|dumudugo nang husto/i,
+  /تشنج|نوبة صرع|seizure|convuls|مرگی|دورہ پڑ|मिर्गी|दौरा पड़|খিঁচুনি|মৃগী|kombulsyon|pangingisay|inaatake ng (seizure|kombulsyon)/i,
+  /فقد الوعي|فاقد الوعي|غائب عن الوعي|unconscious|passed out|(not|isn'?t|won'?t) (responding|waking|wake up)|بے ہوش|बेहोश|অজ্ঞান|nawalan ng malay|hindi (siya )?gumigising|walang malay/i,
+  /تسمم|جرعة زائدة|overdose|poison|swallowed (bleach|pills|battery)|زہر|اوور ڈوز|ज़हर|जहर|ओवरडोज़|বিষ খেয়ে|বিষক্রিয়া|ওভারডোজ|lason|nalason|sobrang dami ng gamot/i,
+  /تورم (في )?(الوجه|الحلق|اللسان)|face (is )?swell|swollen (face|throat|tongue|lips)|throat (is )?(closing|swelling)|anaphyla|چہرہ سوج|گلا سوج|चेहरा सूज|गला सूज|মুখ ফুলে|গলা ফুলে|namamaga ang (mukha|lalamunan|dila|labi)/i,
+  /أريد أن أموت|أنهي حياتي|انتحار|kill myself|want to die|end it all|suicid|خودکشی|مرنا چاہتا|مرنا چاہتی|आत्महत्या|मरना चाहता|मरना चाहती|আত্মহত্যা|মরে যেতে চাই|magpakamatay|gusto kong mamatay/i,
 ];
 
 const hasWord = (text: string, latin: string): boolean =>
@@ -209,6 +221,41 @@ export class AssistantService {
   }
 
   async assist(userId: string | undefined, dto: AssistantDto): Promise<Answer> {
+    const answer = await this.draft(userId, dto);
+    return this.filterOutput(answer, String(dto?.message || ''));
+  }
+
+  /** OD-15: the last step before an answer leaves the server. */
+  private async filterOutput(answer: Answer, userText: string): Promise<Answer> {
+    const names = (await this.nameIndex()).flatMap((r) => r.names);
+    const locale = this.localeOf(answer);
+    const replace = (): Answer => ({
+      kind: 'out_of_scope',
+      text: SAFE_TEXT[locale],
+      disclaimer: answer.disclaimer,
+      actions: [{ type: 'book_consultation', specialty: AssistantService.mapSpecialty(userText) ?? 'general_practice' }],
+    });
+    if (scan(answer.text, names, userText).length) return replace();
+    if (answer.leaflet) {
+      const kept: Record<string, string | string[]> = {};
+      for (const [k, v] of Object.entries(answer.leaflet)) {
+        const parts = Array.isArray(v) ? v : [v];
+        const ok = parts.filter((t) => !hasDose(t) && !scan(t, names, userText).includes('drug'));
+        if (ok.length === parts.length) kept[k] = v;
+        else if (ok.length && Array.isArray(v)) kept[k] = ok;
+      }
+      // a leaflet that had nothing to begin with stays as it was; one whose every field was dropped becomes the safe answer
+      if (!Object.keys(kept).length && Object.keys(answer.leaflet).length) return replace();
+      return { ...answer, leaflet: kept };
+    }
+    return answer;
+  }
+
+  private localeOf(answer: Answer): AssistantLocale {
+    return (ASSISTANT_LOCALES.find((l) => DISCLAIMER[l] === answer.disclaimer) ?? 'ar') as AssistantLocale;
+  }
+
+  private async draft(userId: string | undefined, dto: AssistantDto): Promise<Answer> {
     if (!userId) throw new UnauthorizedException('unauthorized');
     const message = String(dto?.message || '');
     const locale = (ASSISTANT_LOCALES as readonly string[]).includes(dto?.locale) ? dto.locale : 'ar';
@@ -218,11 +265,13 @@ export class AssistantService {
 
     // 1. Red flags are detected by the server itself — even when the model is down.
     if (AssistantService.isRedFlag(message)) {
+      // The emergency button comes FIRST; the specialty the words point to follows it (owner product rule 2026-10-26).
+      const flagSpecialty = AssistantService.mapSpecialty(message);
       return {
         kind: 'red_flag',
         text: RED_FLAG_TEXT[locale],
         disclaimer: DISCLAIMER[locale],
-        actions: [{ type: 'emergency_call', tel: '997' }],
+        actions: [{ type: 'emergency_call', tel: '997' }, ...(flagSpecialty ? [{ type: 'book_consultation', specialty: flagSpecialty }] : [])],
       };
     }
 

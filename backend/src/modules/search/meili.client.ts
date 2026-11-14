@@ -4,6 +4,7 @@
  */
 import { MULTILINGUAL_SYNONYM_MAP, normalizeSearchText } from '../seo-search/seo-search.module';
 import { SearchDocument, SearchType } from './search-documents';
+import { CATALOGUE_SYNONYM_MAP } from './catalogue-synonyms';
 
 export const MEILI_INDEX = 'nabd_search';
 
@@ -16,7 +17,7 @@ type FetchLike = (url: string, init?: any) => Promise<{ ok: boolean; status: num
 /** Every synonym variant maps to the other variants of its group (Meilisearch synonyms are one-way). */
 export function meiliSynonyms(): Record<string, string[]> {
   const out: Record<string, Set<string>> = {};
-  for (const entry of MULTILINGUAL_SYNONYM_MAP) {
+  for (const entry of [...MULTILINGUAL_SYNONYM_MAP, ...CATALOGUE_SYNONYM_MAP]) {
     const variants = [...new Set(entry.variants.map(normalizeSearchText).filter(Boolean))];
     for (const v of variants) {
       out[v] ??= new Set();
@@ -60,7 +61,7 @@ export class MeiliClient {
     const res = await this.fetchImpl(`${this.url}${path}`, {
       method, headers, body: body === undefined ? undefined : JSON.stringify(body), signal: AbortSignal.timeout(5000),
     });
-    if (!res.ok) throw new Error(`meilisearch ${method} ${path}: ${res.status} ${(await res.text()).slice(0, 200)}`);
+    if (!res.ok) throw new Error(`meilisearch ${method} ${path}: ${res.status}`);
     return res.json();
   }
 
@@ -73,6 +74,39 @@ export class MeiliClient {
 
   async upsert(docs: SearchDocument[]): Promise<void> {
     if (docs.length) await this.req('POST', `/indexes/${MEILI_INDEX}/documents`, docs);
+  }
+
+  /**
+   * What the engine holds and how much work it already has: `documents` is null while the index does not exist yet, `backlog` counts the tasks
+   * waiting or running. A sync that finds a backlog must not add to it (Meilisearch keeps its task queue across a restart, so a queue that
+   * killed it once kills it again after every restart).
+   */
+  async state(): Promise<{ documents: number | null; backlog: number }> {
+    let documents: number | null = null;
+    try {
+      const st = await this.req('GET', `/indexes/${MEILI_INDEX}/stats`);
+      documents = Number(st?.numberOfDocuments ?? 0);
+    } catch (e) {
+      if (!/\b404\b/.test((e as Error).message)) throw e;
+    }
+    const t = await this.req('GET', '/tasks?statuses=enqueued,processing&limit=1');
+    return { documents, backlog: Number(t?.total ?? 0) };
+  }
+
+  /** Sends documents and waits until the engine has applied them, so a long sync is one task at a time, never a queue of hundreds. */
+  async upsertAndWait(docs: SearchDocument[], timeoutMs = 120_000, pollMs = 500): Promise<void> {
+    if (!docs.length) return;
+    const r = await this.req('POST', `/indexes/${MEILI_INDEX}/documents`, docs);
+    const uid = r?.taskUid;
+    if (uid === undefined || uid === null) return;
+    const end = Date.now() + timeoutMs;
+    while (Date.now() < end) {
+      const t = await this.req('GET', `/tasks/${uid}`);
+      if (t?.status === 'succeeded') return;
+      if (t?.status === 'failed' || t?.status === 'canceled') throw new Error(`meilisearch task ${uid} ${t.status}`);
+      await new Promise((res) => setTimeout(res, pollMs));
+    }
+    throw new Error(`meilisearch task ${uid} still not done after ${Math.round(timeoutMs / 1000)} s`);
   }
 
   async remove(keys: string[]): Promise<void> {
@@ -88,8 +122,10 @@ export class MeiliClient {
    * word as it is typed, and its typo tolerance (typoTolerance in meiliSettings) finds a misspelt name. The tiers and the
    * highlights are computed by the caller (suggest-rank.ts), not by Meilisearch's own ranking.
    */
-  async suggest(q: string, limit: number): Promise<MeiliHit[]> {
-    const r = await this.req('POST', `/indexes/${MEILI_INDEX}/search`, { q, limit });
+  async suggest(q: string, limit: number, types?: SearchType[] | null): Promise<MeiliHit[]> {
+    // A service screen asks for its own types only (`type` is a filterable attribute).
+    const filter = types && types.length ? `type IN [${types.map((t) => `"${t}"`).join(', ')}]` : undefined;
+    const r = await this.req('POST', `/indexes/${MEILI_INDEX}/search`, { q, limit, ...(filter ? { filter } : {}) });
     return Array.isArray(r?.hits) ? r.hits : [];
   }
 

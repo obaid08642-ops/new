@@ -1,3 +1,4 @@
+import { appendAdminAudit } from '../../../common/admin-audit-chain';
 import { Module, Controller, Post, Get, Body, Param, Query, UseGuards, Injectable, ForbiddenException, NotFoundException, GoneException } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -45,7 +46,7 @@ export class AdminAuthorityService {
   ) {}
 
   private async logAction(admin: any, action: string, target_type: string, target_id: string, reason?: string, before?: any, after?: any) {
-    await this.log.create({ action, admin_id: admin.id, admin_name: admin.full_name, target_type, target_id, reason, before, after }).catch(() => null);
+    await appendAdminAudit(this.log.db, { id: uuidv4(), action, admin_id: admin.id, admin_name: admin.full_name, target_type, target_id, reason, before, after }).catch(() => null);
     this.bus.emit({ type: `admin.${action}`, entity_type: target_type, entity_id: target_id, actor_account_id: admin.id, actor_role: 'admin', reason_code: reason, before, after }).catch(() => null);
   }
 

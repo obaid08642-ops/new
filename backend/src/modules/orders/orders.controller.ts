@@ -22,8 +22,9 @@ export class OrdersController {
 
 
   @Get('mine')
-  mine(@CurrentUser('id') id: string, @Query('type') type?: string) {
-    return this.svc.listMine(id, type);
+  mine(@CurrentUser('id') id: string, @Query('type') type?: string, @Query('refund') refund?: string) {
+    // `?refund=1` is the refund tab: only the orders that have a refund (requested, approved, rejected, failed or refunded)
+    return this.svc.listMine(id, type, refund === '1' || refund === 'true');
   }
 
   @Post(':id/reorder')

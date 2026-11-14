@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import { AppointmentStatus } from '../../../types/contracts';
+import { visitSteps } from './consultationSteps';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet,
  Animated, FlatList, Alert, Dimensions, Platform, Modal, TextInput,
  RefreshControl, Switch, ActivityIndicator, KeyboardAvoidingView, Linking } from 'react-native';
@@ -56,7 +57,7 @@ import { PatientFileScreen } from './PatientFileScreen';
 // ══════════════════════════════════════════════════════════════════════════════
 export function LiveConsultationScreen({ apt, onBack, onNavigate }: { apt: any; onBack: () => void; onNavigate: (s: string, p?: any) => void }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
  const [verified, setVerified] = useState<any | null>(null);
@@ -78,10 +79,12 @@ export function LiveConsultationScreen({ apt, onBack, onNavigate }: { apt: any; 
  useEffect(() => { load(); }, [load]);
 
  // Visit lifecycle on the server: CONFIRMED -> CHECKED_IN -> IN_PROGRESS -> COMPLETED (finish saves the summary).
+ // A home visit goes CONFIRMED -> EN_ROUTE -> ARRIVED -> IN_PROGRESS (the trip is on the appointment screen); from ARRIVED the visit starts here.
  const step = async (fn: () => Promise<any>, ok: string) => {
    setActing(true);
    try { await fn(); show(ok, 'success'); load(); }
-   catch (e: any) { show(e?.response?.data?.message || e.message || (AR ? 'تعذر تنفيذ الإجراء' : 'Action failed'), 'error'); }
+   // reload after a failure too: a repeat of a step that already happened answers 400, and the screen should show the real state
+   catch (e: any) { show(e?.response?.data?.message || e.message || (AR ? 'تعذر تنفيذ الإجراء' : 'Action failed'), 'error'); load(); }
    finally { setActing(false); }
  };
  const checkIn = () => step(() => client.patch(`/care/appointments/${aptId}/check-in`, {}), AR ? 'تم تسجيل حضور المريض' : 'Patient checked in');
@@ -93,12 +96,12 @@ export function LiveConsultationScreen({ apt, onBack, onNavigate }: { apt: any; 
  };
 
  const status = String(verified?.status || '').toUpperCase();
- const okStates = ['CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS', 'COMPLETED'];
- const ready = !!verified && okStates.includes(status);
+ const steps = visitSteps(status, verified?.service_type || apt?.service_type);
+ const ready = !!verified && steps.ready;
  // Server rule (prescriptions.service create): a prescription needs an IN_PROGRESS appointment. Sick leave, report,
  // referral and test requests stay available after the visit is finished, so Finish no longer hides them.
- const finished = status === 'COMPLETED';
- const canPrescribe = status === 'IN_PROGRESS';
+ const finished = steps.finished;
+ const canPrescribe = steps.canPrescribe;
  const fullApt = { ...(typeof apt === 'object' ? apt : {}), id: aptId };
 
  return (
@@ -127,8 +130,8 @@ export function LiveConsultationScreen({ apt, onBack, onNavigate }: { apt: any; 
      </Text>
      <Text style={{ color: theme.textSub, marginTop: 4 }}>{AR ? `الموعد: ${aptId}` : `Appointment: ${aptId}`} · {status}</Text>
     </NCard>
-    {status === 'CONFIRMED' && <NBtn label={AR ? 'حضر المريض (تسجيل الحضور)' : 'Patient arrived (check in)'} loading={acting} onPress={checkIn} style={{ marginBottom: SP.md }} />}
-    {status === 'CHECKED_IN' && <NBtn label={AR ? 'بدء الاستشارة' : 'Start consultation'} loading={acting} onPress={startVisit} style={{ marginBottom: SP.md }} />}
+    {steps.showCheckIn && <NBtn label={AR ? 'حضر المريض (تسجيل الحضور)' : 'Patient arrived (check in)'} loading={acting} onPress={checkIn} style={{ marginBottom: SP.md }} />}
+    {steps.showStart && <NBtn label={AR ? 'بدء الاستشارة' : 'Start consultation'} loading={acting} onPress={startVisit} style={{ marginBottom: SP.md }} />}
     {status === 'IN_PROGRESS' && (
      <NCard style={{ marginBottom: SP.md }}>
       <NInput label={AR ? 'التشخيص' : 'Diagnosis'} value={diagnosis} onChange={setDiagnosis} />
@@ -150,9 +153,11 @@ export function LiveConsultationScreen({ apt, onBack, onNavigate }: { apt: any; 
        : (AR ? 'ابدأ الاستشارة أولاً: لا تُصدر الوصفة إلا أثناء الزيارة الجارية.' : 'Start the consultation first: a prescription can only be issued while the visit is in progress.')}
      </Text>
     )}
-    <NBtn label={AR ? 'إجازة مرضية' : 'Sick leave'} variant="outline" onPress={() => onNavigate('sick_leave', fullApt)} style={{ marginBottom: SP.md }} />
+    <NBtn label={t('medicalReport.open')} variant="outline" onPress={() => onNavigate('sick_leave', fullApt)} style={{ marginBottom: SP.md }} />
+    <NBtn label={t('medicalReport.openList')} variant="outline" onPress={() => onNavigate('medical_reports_list')} style={{ marginBottom: SP.md }} />
     <NBtn label={AR ? 'تقرير طبي' : 'Medical report'} variant="outline" onPress={() => onNavigate('medical_report', fullApt)} style={{ marginBottom: SP.md }} />
     <NBtn label={AR ? 'تحويل طبي' : 'Referral'} variant="outline" onPress={() => onNavigate('referral', fullApt)} style={{ marginBottom: SP.md }} />
+    <NBtn label={t('consultation.issueReferral')} variant="outline" onPress={() => onNavigate('issue_referral', fullApt)} style={{ marginBottom: SP.md }} />
     <NBtn label={AR ? 'طلب فحص' : 'Request test'} variant="outline" onPress={() => onNavigate('request_test', fullApt)} />
    </>)}
    </NScroll>

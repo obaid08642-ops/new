@@ -58,3 +58,34 @@ describe('AdminDisputesController refund cap (7B-B4)', () => {
     expect(executed[0].amount).toBe(150);
   });
 });
+
+
+describe('AdminDisputesController list: refunded_so_far reads the ledger', () => {
+  it('sums the ledger refund rows keyed by dispute id', async () => {
+    const tickets = [{ id: 'd-1', category: 'PAYMENT', status: 'OPEN' }, { id: 'd-2', category: 'PAYMENT', status: 'OPEN' }];
+    const ledger = [
+      { type: 'refund', ref_type: 'refund', ref_id: 'dispute_d-1', amount: 40 },
+      { type: 'refund', ref_type: 'refund', ref_id: 'dispute_d-1', amount: 10 },
+    ];
+    const asked: any[] = [];
+    const conn: any = {
+      collection: (name: string) => {
+        if (name === 'supportrequests') {
+          return {
+            find: () => ({ sort: () => ({ skip: () => ({ limit: () => ({ project: () => ({ toArray: async () => tickets }) }) }) }) }),
+            countDocuments: async () => tickets.length,
+            aggregate: () => ({ toArray: async () => [] }),
+          };
+        }
+        if (name === 'platformledgerentries') {
+          return { find: (q: any) => { asked.push(q); return { project: () => ({ toArray: async () => ledger.filter((l) => q.ref_id.$in.includes(l.ref_id)) }) }; } };
+        }
+        return { findOne: async () => null };
+      },
+    };
+    const controller = new AdminDisputesController(conn, { write: jest.fn() } as any, { execute: jest.fn() } as any);
+    const res: any = await controller.list('open');
+    expect(res.data.map((t: any) => t.refunded_so_far)).toEqual([50, 0]);
+    expect(asked[0].ref_id.$in).toEqual(['dispute_d-1', 'dispute_d-2']);
+  });
+});

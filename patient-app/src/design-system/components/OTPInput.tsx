@@ -5,10 +5,11 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 import {
   View, TextInput, StyleSheet, NativeSyntheticEvent,
-  TextInputKeyPressEventData, StyleProp, ViewStyle,
+  type TextInputKeyPressEvent, type TextInputInstance, StyleProp, ViewStyle,
   Clipboard, Platform,
 } from 'react-native';
 import { useApp } from '../../context/AppContext';
+import { dsText } from '../dsText';
 import { BorderRadius, Spacing, Animation } from '../tokens';
 import { DSText } from './Text';
 
@@ -39,8 +40,8 @@ export function DSOTPInput({
   autoFocus = true,
   style,
 }: DSOTPInputProps) {
-  const { colors } = useApp();
-  const refs = useRef<Array<TextInput | null>>(Array(length).fill(null));
+  const { colors, lang } = useApp();
+  const refs = useRef<Array<TextInputInstance | null>>(Array(length).fill(null));
   const [focusedIndex, setFocusedIndex] = useState<number | null>(autoFocus ? 0 : null);
 
   const digits = value.split('').slice(0, length);
@@ -88,7 +89,7 @@ export function DSOTPInput({
   );
 
   const handleKeyPress = useCallback(
-    (e: NativeSyntheticEvent<TextInputKeyPressEventData>, index: number) => {
+    (e: TextInputKeyPressEvent, index: number) => {
       if (e.nativeEvent.key === 'Backspace' && !digits[index] && index > 0) {
         refs.current[index - 1]?.focus();
         const newDigits = [...digits];
@@ -125,13 +126,13 @@ export function DSOTPInput({
               onBlur={() => setFocusedIndex(null)}
               keyboardType="number-pad"
               maxLength={index === 0 ? length : (Platform.OS === 'android' ? 2 : 1)}
-              autoComplete={index === 0 ? (Platform.OS === 'android' ? 'sms-otp' : 'one-time-code') : 'off'}
+              autoComplete={index === 0 ? 'one-time-code' : 'off'}
               textContentType={index === 0 ? 'oneTimeCode' : 'none'}
               importantForAutofill={index === 0 ? 'yes' : 'no'}
               selectTextOnFocus
               editable={!disabled}
               accessible
-              accessibilityLabel={`رقم OTP ${index + 1} من ${length}`}
+              accessibilityLabel={dsText(lang, 'ds.otp.digit', { n: index + 1, total: length })}
               style={[
                 styles.cell,
                 {

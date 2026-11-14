@@ -55,13 +55,13 @@ export const SemanticColors = {
   destructiveLight: BrandColors.errorLight,
 
   success: BrandColors.success,
-  successLight: '#EBF6E9',
+  successLight: BrandColors.successLight,
 
   warning: BrandColors.warning,
   warningLight: BrandColors.warningLight,
 
   info: BrandColors.primary,
-  infoLight: '#DEF5F9',
+  infoLight: Colors.light.primarySurface,
 } as const;
 
 // ─────────────────────────────────────────────────────────────────────────────

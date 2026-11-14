@@ -1,7 +1,5 @@
 import { Body, Controller, Delete, ForbiddenException, Get, Injectable, Module, NotFoundException, OnModuleInit, Optional, Param, Patch, Post, Query, UseGuards, BadRequestException } from '@nestjs/common';
 import { KillSwitchesService } from '../kill-switches/kill-switches.service';
-import { isOnlineConsultation } from '../chat/consultation-window';
-import { assertTelehealthConsent } from '../legal/telehealth-consent';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -10,7 +8,9 @@ import { UserRole } from '../../common/enums';
 import { Doctor, DoctorSchema, DoctorAppointment, DoctorAppointmentSchema, DoctorChatMessage, DoctorChatMessageSchema, ConsultationNote, ConsultationNoteSchema, NotificationItem, NotificationItemSchema, AppointmentState } from './doctors.schemas';
 import { EventBusService } from '../events/event-bus.service';
 import { escapeRegex } from '../../common/slug.util';
-import { BookDto, TrDto, PostMsgDto, AvailDto, ConsultationNoteDto } from './doctors.dto';
+import { PublicCache } from '../../common/public-cache.decorator';
+import { PurgeBus } from '../../common/purge-bus';
+import { TrDto, PostMsgDto, AvailDto, ConsultationNoteDto } from './doctors.dto';
 
 export const SEED_DOCTORS = [
   { name_ar: 'د. أحمد السالم', name_en: 'Dr. Ahmed Al-Salem', specialty: 'general_medicine', specialty_ar: 'طب عام', gender: 'male', languages: ['ar', 'en'], consultation_fee: 80, home_visit_fee: 180, video_consultation_fee: 60, home_visit_enabled: true, video_enabled: true, voice_enabled: true, rating: 4.7, reviews_count: 128, insurance_supported: ['بوبا', 'التعاونية'], biography: 'استشاري طب أسرة بخبرة 15 سنة في الأمراض الشائعة والمزمنة.', tags: ['family', 'general'], clinic_location: { city: 'الرياض', name: 'مجمع نبض الطبي', lat: 24.7136, lng: 46.6753 } },
@@ -43,6 +43,7 @@ export class DoctorsService implements OnModuleInit {
     @InjectModel('NotificationItem') private notifs: Model<NotificationItem>,
     private bus: EventBusService,
     @Optional() private readonly killSwitches?: KillSwitchesService,
+    @Optional() private readonly purgeBus?: PurgeBus,
   ) {}
 
   async onModuleInit() {
@@ -75,11 +76,12 @@ export class DoctorsService implements OnModuleInit {
 
   async listDoctors(filter: any) {
     const q: any = { is_accepting: true, is_deleted: { $ne: true }, status: 'published' };
-    if (filter.specialty) q.specialty = filter.specialty;
-    if (filter.gender) q.gender = filter.gender;
+    // query values are coerced to strings and matched with $eq, so a crafted object (e.g. {"$ne": ""}) can never become an operator
+    if (filter.specialty) q.specialty = { $eq: String(filter.specialty) };
+    if (filter.gender) q.gender = { $eq: String(filter.gender) };
     if (filter.home === '1') q.home_visit_enabled = true;
     if (filter.video === '1') q.video_enabled = true;
-    if (filter.insurance) q.insurance_supported = filter.insurance;
+    if (filter.insurance) q.insurance_supported = { $eq: String(filter.insurance) };
     if (filter.insurance_company) q.insurance_supported = { $regex: new RegExp(escapeRegex(String(filter.insurance_company)), 'i') };
     if (filter.search) {
       const s = escapeRegex(String(filter.search));
@@ -130,47 +132,6 @@ export class DoctorsService implements OnModuleInit {
     const bookedMap: Record<string, number> = {};
     for (const a of existing) bookedMap[a.scheduled_at.toISOString()] = (bookedMap[a.scheduled_at.toISOString()] || 0) + 1;
     return slots.map(s => ({ ...s, available: (bookedMap[s.time] || 0) < (doctor.max_bookings_per_slot || 1) }));
-  }
-
-  /** Atomic-ish booking via dup index check (best effort under no transactions). */
-  async book(user: any, data: any) {
-    if (!data.doctor_id || !data.scheduled_at || !data.type) throw new BadRequestException('missing_fields');
-    if (isOnlineConsultation({ type: data.type })) {
-      await this.killSwitches?.assertOn('online_consultations');
-      // D-38: the first online consultation needs the current telehealth_consent, on this booking path too.
-      await assertTelehealthConsent(this.appts.db, user.id);
-    }
-    const doctor: any = await this.doctors.findOne({ id: { $eq: data.doctor_id } }).lean();
-    if (!doctor) throw new NotFoundException('doctor_not_found');
-    if (!doctor.is_accepting) throw new BadRequestException('doctor_not_accepting');
-    const scheduledAt = new Date(data.scheduled_at);
-    // Slot validity
-    const sameSlot = await this.appts.countDocuments({ doctor_id: { $eq: data.doctor_id }, scheduled_at: { $eq: scheduledAt }, state: { $nin: ['cancelled', 'no_show'] } });
-    if (sameSlot >= (doctor.max_bookings_per_slot || 1)) throw new BadRequestException('slot_full');
-    const feeMap: Record<string, number> = { clinic: doctor.consultation_fee, home: doctor.home_visit_fee, video: doctor.video_consultation_fee || doctor.consultation_fee, voice: doctor.video_consultation_fee || doctor.consultation_fee };
-    const fee = feeMap[data.type] || doctor.consultation_fee;
-    const appt = await this.appts.create({
-      doctor_id: data.doctor_id,
-      patient_id: user.id,
-      patient_name: data.contact?.name || user.full_name,
-      patient_phone: data.contact?.phone || user.phone,
-      type: data.type,
-      scheduled_at: scheduledAt,
-      duration_minutes: doctor.default_slot_minutes || 30,
-      fee,
-      payment_method: data.payment_method || 'cash',
-      insurance_provider: data.insurance_provider,
-      insurance_status: data.payment_method === 'insurance' ? 'pending' : 'none',
-      documents: Array.isArray(data.documents) ? data.documents : [],
-      reason: data.reason,
-      address: data.address,
-      state: 'scheduled',
-      state_history: [{ from: '', to: 'scheduled', by: user.id, at: new Date() }],
-    });
-    this.bus.emit({ type: 'doctor_appointment.created', entity_type: 'doctor_appointment', entity_id: appt.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, pharmacy_account_id: doctor.provider_account_id, meta: { doctor_id: doctor.id, type: data.type, fee } }).catch(() => null);
-    await this.pushNotification(doctor.provider_account_id || doctor.id, 'provider', 'doctor.new_appointment', 'موعد جديد', `${appt.patient_name} · ${data.type}`, 'doctor_appointment', appt.id, `/(provider)/control/doctor-inbox`);
-    await this.pushNotification(user.id, 'patient', 'doctor.booking_confirmed', 'تم تأكيد طلب الموعد', doctor.name_ar, 'doctor_appointment', appt.id, `/doctors/appointment/${appt.id}`);
-    return appt.toObject();
   }
 
   async myAppointments(user: any) {
@@ -267,6 +228,7 @@ export class DoctorsService implements OnModuleInit {
     if (typeof data.is_online === 'boolean') $set.is_online = data.is_online;
     if (typeof data.is_accepting === 'boolean') $set.is_accepting = data.is_accepting;
     const r = await this.doctors.updateMany({ account_id: user.id }, { $set });
+    this.purgeBus?.purge(['doctors']).catch(() => null);   // the edge copy of the doctor lists and pages
     this.bus.emit({ type: 'provider.availability_changed', entity_type: 'provider', entity_id: user.id, actor_account_id: user.id, actor_role: user.role, meta: $set }).catch(() => null);
     return { ok: true, updated: r.modifiedCount };
   }
@@ -277,12 +239,24 @@ export class DoctorsService implements OnModuleInit {
 export class DoctorsController {
   constructor(private svc: DoctorsService) {}
 
-  @Public() @Get('') list(@Query() q: any) { return this.svc.listDoctors(q); }
-  @Public() @Get('specialties') specs() { return this.svc.specialties(); }
-  @Public() @Get(':id') detail(@Param('id') id: string) { return this.svc.doctorDetail(id); }
-  @Public() @Get(':id/slots') slots(@Param('id') id: string, @Query('date') date: string) { return this.svc.availableSlots(id, date); }
+  // 2026-10-27 (edge cache): the public doctor reads are shared-cacheable (no user is read; the response is the same for everyone).
+  // Online/accepting flags and the lists are at most a minute old, the specialties five; the slots only 20 s (a booking is checked again on the server).
+  @PublicCache(60, ['doctors'])
+  @Public() @Get('')
+  list(@Query() q: any) { return this.svc.listDoctors(q); }
 
-  @Post('appointments') book(@Body() body: BookDto, @CurrentUser() user: any) { return this.svc.book(user, body); }
+  @PublicCache(300, ['doctors'])
+  @Public() @Get('specialties')
+  specs() { return this.svc.specialties(); }
+
+  @PublicCache(120, ['doctors'])
+  @Public() @Get(':id')
+  detail(@Param('id') id: string) { return this.svc.doctorDetail(id); }
+
+  @PublicCache(20, ['doctor-slots'], { cacheControl: 'public, s-maxage=20' })
+  @Public() @Get(':id/slots')
+  slots(@Param('id') id: string, @Query('date') date: string) { return this.svc.availableSlots(id, date); }
+
   @Get('appointments/mine') mine(@CurrentUser() user: any) { return this.svc.myAppointments(user); }
   @Get('appointments/inbox') inbox(@Query('status') s: string | undefined, @CurrentUser() user: any) { return this.svc.doctorInbox(user, s); }
   @Get('appointments/:id') ap(@Param('id') id: string, @CurrentUser() user: any) { return this.svc.appointmentDetail(user, id); }

@@ -26,8 +26,14 @@ import { resolveImageUri, resolveGallery } from '../../../utils/imageUrl';
 import { useInsuranceCatalog } from '../../../api/catalogs';
 import { SK, Vault } from '../../../security/Security';
 import { tokens, withAlpha } from '../../../theme/tokens';
+import { useUploadsEnabled } from '../../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../../../components/UploadsUnavailable';
+import { StoredFileScan } from '../../../components/StoredFileScan';
+import { noteUploadScan, scanOfStored, scanStateOfRequestError } from '../../../utils/scanRegistry';
+import { scanText } from '../../../components/ScanStatusBadge';
 
 export function MediaConfigScreen({ onBack }: { onBack: () => void }) {
+  const uploadsOn = useUploadsEnabled();
  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
  // Real persisted clinic images (storage object ids) — loaded from profile,
  // changes go through the admin-approval delta pipeline.
@@ -40,7 +46,11 @@ export function MediaConfigScreen({ onBack }: { onBack: () => void }) {
    try {
      const r = await client.get(`/storage/${storageId}/signed-url`);
      return r.data?.url || '';
-   } catch { return ''; }
+   } catch (e) {
+     // 423 file_pending_scan: the photo is still being checked; kept in the list with "being checked", not an error
+     if (scanStateOfRequestError(e) === 'pending') noteUploadScan(storageId, { scan_status: 'pending_scan' });
+     return '';
+   }
  };
 
  useEffect(() => {
@@ -52,7 +62,7 @@ export function MediaConfigScreen({ onBack }: { onBack: () => void }) {
        const out: { id: string; url: string; title: string }[] = [];
        for (const sid of list) {
          const url = await resolveUrl(String(sid));
-         if (url) out.push({ id: String(sid), url, title: AR ? 'صورة العيادة' : 'Clinic Photo' });
+         if (url || scanOfStored(String(sid)) === 'pending') out.push({ id: String(sid), url, title: AR ? 'صورة العيادة' : 'Clinic Photo' });
        }
        setImages(out);
      } catch (e) {}
@@ -97,13 +107,16 @@ export function MediaConfigScreen({ onBack }: { onBack: () => void }) {
      });
      const storageId = up.data?.id;
      if (!storageId) throw new Error('upload_failed');
+     noteUploadScan(storageId, up.data);
      const next = [...images.map(x => x.id), storageId];
      await submitImagesDelta(next);
      const url = await resolveUrl(storageId);
      setImages(prev => [...prev, { id: storageId, url: url || a.uri, title: AR ? 'صورة مرفقة جديدة' : 'New Attached Photo' }]);
      show(AR ? 'تم رفع الصورة — تظهر نهائياً بعد اعتماد الإدارة' : 'Photo uploaded — final after admin approval', 'success');
    } catch (e) {
-     show(AR ? 'فشل رفع الصورة' : 'Failed to upload photo', 'error');
+     // the scanner refused the file (400 file_infected): the rejection sentence, with the add-photo tile as the way to upload another
+     if (scanStateOfRequestError(e) === 'rejected') show(scanText(lang, 'scanRejected'), 'error');
+     else show(AR ? 'فشل رفع الصورة' : 'Failed to upload photo', 'error');
    } finally { setBusy(false); }
  };
 
@@ -135,11 +148,13 @@ export function MediaConfigScreen({ onBack }: { onBack: () => void }) {
  <Text style={{ fontSize: FS.xs, color: theme.text, fontWeight: FW.bold, textAlign: 'center' }} numberOfLines={1}>
  {img.title}
  </Text>
+ <StoredFileScan id={img.id} style={{ marginTop: SP.xs, justifyContent: 'center' }} />
  </View>
  </View>
  ))}
 
- <TouchableOpacity
+ {uploadsOn ? (
+<TouchableOpacity
  onPress={handleAddPhoto}
  style={{
  width: '47%',
@@ -158,6 +173,7 @@ export function MediaConfigScreen({ onBack }: { onBack: () => void }) {
  {AR ? 'إضافة صورة' : 'Add Photo'}
  </Text>
  </TouchableOpacity>
+) : <UploadsUnavailable />}
  </View>
  </ScrollView>
  </View>

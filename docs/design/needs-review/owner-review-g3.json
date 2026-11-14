@@ -1,0 +1,24 @@
+[
+  {
+    "batch": "owner-review-g3",
+    "app": "patient-web",
+    "screen": "/consultations/doctors/[doctorId]",
+    "element": "Waiting time piece of the summary line",
+    "file": "patient-web/app/[locale]/consultations/doctors/[doctorId]/page.tsx",
+    "line": 96,
+    "found": "[backend] The waiting time is drawn only when GET /care/doctors/:id sends avg_wait_minutes / average_wait / wait_time; if the field is absent the piece is left out (not confirmed that the public doctor row sends it).",
+    "suspect": "Reviewer: confirm the field on the public doctor row; no value is invented in the client.",
+    "review_status": "open"
+  },
+  {
+    "batch": "owner-review-g3",
+    "app": "patient-app",
+    "screen": "/consultations/doctor/[id]",
+    "element": "Waiting time piece of the summary line",
+    "file": "patient-app/app/consultations/doctor/[id].tsx",
+    "line": 294,
+    "found": "[backend] `wait_time` is not sent by GET /care/doctors/:id (see doctor-card-app.json), so the waiting-time piece of the summary line is omitted.",
+    "suspect": "Reviewer: send the average waiting time on the public doctor row; the piece appears without a client change.",
+    "review_status": "open"
+  }
+]

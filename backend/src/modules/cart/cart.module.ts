@@ -15,6 +15,7 @@ import { OrdersService } from '../orders/orders.service';
 import { UsersModule } from '../users/users.module';
 import { UsersService } from '../users/users.service';
 import { ProductRankingEventService } from '../product-ranking/product-ranking-event.service';
+import { CatalogueRankingService } from '../catalogue-ranking/catalogue-ranking.service';
 import { AddContractItemDto, UpdateContractItemDto, AddDto, UpdDto, ClrDto, CheckoutDto } from './cart.dto';
 
 export type CartLineKind = 'lab' | 'radiology' | 'pharmacy' | 'doctor' | 'home_care';
@@ -50,6 +51,7 @@ export class CartService {
     private readonly orders: OrdersService,
     private readonly users: UsersService,
     @Optional() private readonly rankingEvents?: ProductRankingEventService,
+    @Optional() private readonly catalogueRanking?: CatalogueRankingService,
   ) {}
 
   private async ensureCart(patient_id: string) {
@@ -102,6 +104,10 @@ export class CartService {
     }
     c.last_action = 'add';
     await c.save();
+
+    // labs, scans and nursing services count toward their own popularity ranking (the server counts it; nothing about the patient is kept)
+    const rankedVertical = ({ lab: 'lab', radiology: 'radiology', home_care: 'nursing' } as Record<string, 'lab' | 'radiology' | 'nursing'>)[String(line.kind)];
+    if (rankedVertical && line.service_id && this.catalogueRanking) void this.catalogueRanking.recordCartAdd(rankedVertical, String(line.service_id));
 
     if (line.kind === 'pharmacy' && line.service_id && this.rankingEvents) {
       this.rankingEvents.recordEvent({
@@ -179,7 +185,7 @@ export class CartService {
    * until a server-side payment-method resolver is available: an arbitrary
    * payment_method_id must never be converted to a paid order locally.
    */
-  async checkoutContract(user: any, body: { address_id?: string; payment_method_id?: string; cash?: boolean; coupon_code?: string; prescription_media_ids?: string[] }) {
+  async checkoutContract(user: any, body: { refund_policy_accepted?: boolean; refund_policy_hash?: string; address_id?: string; payment_method_id?: string; cash?: boolean; coupon_code?: string; prescription_media_ids?: string[] }) {
     const addressId = String(body?.address_id || '').trim();
     if (!addressId) throw new BadRequestException('address_id_required');
     const requestedPayment = String(body?.payment_method_id || 'cash');
@@ -212,6 +218,7 @@ export class CartService {
       delivery_address: { lat: Number(address.lat), lng: Number(address.lng), address: address.street || '', district: '', city: address.city || '' },
       payment_method: 'cash',
       coupon_code: body?.coupon_code,
+      refund_policy_accepted: body?.refund_policy_accepted, refund_policy_hash: body?.refund_policy_hash,
     });
 
     cart.lines = [];

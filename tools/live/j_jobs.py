@@ -61,6 +61,13 @@ def run():
                                       'contract_type': 'full_time', 'location': 'جدة', 'requirements': ['ترخيص الهيئة'], 'status': 'published'})
     fid = r.get('id')
     step('facility posts a job', r.ok and fid, r)
+    # QA P1 (jobs-inbox): the provider token has role 'provider' + the facility type; every facility type that employs staff can post, not only hospitals
+    lab = j_onboarding.register_type('lab')
+    j_onboarding.admin_review(admin, lab)
+    lc = Client(j_onboarding.provider_after_approval(lab))
+    r = lc.post('/recruitment/jobs', {'title': f'فني مختبر {tag}', 'description': 'مناوبات', 'scfhs_role': 'nurse', 'post_type': 'offer',
+                                      'contract_type': 'full_time', 'location': 'الدمام', 'requirements': ['ترخيص الهيئة'], 'status': 'published'})
+    step('a laboratory (provider token) posts a job', r.ok and r.get('id'), r)
     r = hc.get(f'/recruitment/jobs/{gid}/applications')
     step("a facility cannot read another poster's applicants (guest phones)", r.status in (403, 404), r)
     pat = Client(app_signup(label='job-seeker')['token'])

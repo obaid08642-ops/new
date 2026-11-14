@@ -4,17 +4,22 @@ import { Alert, Text, TouchableOpacity, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import { useLang, useTheme, useToast } from '../../context';
-import { NBtn, NHeader, NScroll, WizardSection } from '../../components/ui';
+import { NBtn, NDatePickerSheet, NHeader, NInput, NScroll, WizardSection } from '../../components/ui';
+import { isFutureLicenseDate } from '../doctor/doctorRegistrationFields';
 import { I, IBg } from '../../components/icons';
 import { FS, FW, R, SP } from '../../constants';
 import { useStepSaver } from './kit';
+import { useUploadsEnabled } from '../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../../components/UploadsUnavailable';
 import type { Saver, StepProps, Uploader } from './kit';
 
 /** Camera, gallery or file picker for one document field; the picked uri goes into `data[field]`. */
 export function useDocumentPicker<T>(update: (patch: Partial<T>) => void) {
   const { lang } = useLang(); const AR = lang === 'ar';
   const { show } = useToast();
+  const uploadsOn = useUploadsEnabled();
   return (field: keyof T) => {
+    if (!uploadsOn) { show(AR ? 'رفع الملفات غير متاح مؤقتًا. حاول لاحقًا.' : 'File uploads are temporarily unavailable. Try again later.', 'warning'); return; }
     const attach = (uri: string) => {
       update({ [field]: uri } as unknown as Partial<T>);
       show(AR ? 'تم إرفاق المستند' : 'Document attached', 'success');
@@ -55,6 +60,8 @@ export function useDocumentPicker<T>(update: (patch: Partial<T>) => void) {
 /** Square upload tile (grid of 2 or 3 per row). */
 export function DocCard({ label, done, onPress, required }: { label: string; done: boolean; onPress: () => void; required?: boolean }) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const uploadsOn = useUploadsEnabled();
+  if (!uploadsOn && !done) return <View style={{ flex: 1, marginHorizontal: 2 }}><UploadsUnavailable /></View>;
   return (
     <TouchableOpacity onPress={onPress} style={{
       flex: 1, minHeight: 90, borderRadius: R.xl, borderWidth: 2, padding: SP.lg, marginHorizontal: 2,
@@ -76,6 +83,8 @@ export function DocCard({ label, done, onPress, required }: { label: string; don
 /** Full-width upload row with an optional hint. */
 export function DocBtn({ label, desc, done, onPress }: { label: string; desc?: string; done: boolean; onPress: () => void }) {
   const { theme } = useTheme();
+  const uploadsOn = useUploadsEnabled();
+  if (!uploadsOn && !done) return <UploadsUnavailable style={{ marginBottom: SP.md }} />;
   return (
     <TouchableOpacity onPress={onPress} style={{
       padding: SP.lg, borderWidth: 2, borderStyle: 'dashed', borderRadius: R.lg, alignItems: 'center', marginBottom: SP.md,
@@ -154,4 +163,35 @@ export function MergedPage<T>({ page, step, total, onBack, onNext, data, update,
       <NBtn label={AR ? 'متابعة' : 'Next'} onPress={go} loading={busy} style={{ marginTop: SP.sm }} />
     </NScroll>
   );
+}
+
+/** The licence expiry date every provider type gives at registration: picked from a calendar, required, never in the past (the server refuses a lapsed licence too). */
+export function LicenseExpiryField({ value, onChange, error, label }: { value: string; onChange: (v: string) => void; error?: string; label?: string }) {
+  const { lang } = useLang();
+  const { show } = useToast();
+  const AR = lang === 'ar';
+  const [open, setOpen] = useState(false);
+  return (
+    <View>
+      <TouchableOpacity onPress={() => setOpen(true)} accessibilityRole="button">
+        <NInput label={label || (AR ? 'تاريخ انتهاء الترخيص' : 'Licence expiry date')} placeholder={AR ? 'اختر التاريخ من التقويم...' : 'Choose date...'} value={value} onChange={() => {}} editable={false} required error={error} />
+      </TouchableOpacity>
+      <NDatePickerSheet
+        visible={open}
+        value={value}
+        onChange={(v: string) => {
+          if (!isFutureLicenseDate(v)) { show(AR ? 'لا يمكن اختيار تاريخ في الماضي' : 'A past date cannot be chosen', 'error'); return; }
+          onChange(v);
+        }}
+        onClose={() => setOpen(false)}
+        title={AR ? 'تاريخ انتهاء الترخيص' : 'Licence expiry date'}
+      />
+    </View>
+  );
+}
+
+/** null = fine. The message for the date field of a wizard. */
+export function licenseExpiryError(value: string, AR: boolean): string | null {
+  if (!value) return AR ? 'تاريخ انتهاء الترخيص مطلوب' : 'Licence expiry date is required';
+  return isFutureLicenseDate(value) ? null : (AR ? 'الترخيص منتهٍ، لا يمكن التسجيل به' : 'The licence has expired');
 }

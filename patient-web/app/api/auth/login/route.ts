@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { setSessionCookies } from "@/lib/auth/cookies";
+import { isNonPatientRole, wrongAppResponse } from "@/lib/auth/wrong-app";
 import { callPatientApi } from "@/lib/api/upstream";
 import { boundedUpstreamError } from "@/lib/api/error-response";
 import { guestMergeHeaders } from "@/lib/auth/guest-merge";
@@ -14,6 +15,7 @@ export async function POST(request: Request) {
   const data = await upstream.json().catch(() => null);
   if (!upstream.ok) return boundedUpstreamError(data, "login_failed", upstream.status);
   if (z.object({ requires_2fa: z.literal(true) }).safeParse(data).success) return NextResponse.json({ requires2fa: true }, { status: 200 });
+  if (isNonPatientRole(data)) return wrongAppResponse();
   const tokens = tokenPair(data);
   if (!tokens) return NextResponse.json({ message: "unexpected_auth_response" }, { status: 502 });
   const response = NextResponse.json({ authenticated: true });

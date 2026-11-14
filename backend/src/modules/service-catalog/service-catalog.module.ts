@@ -1,3 +1,5 @@
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import { Module, Controller, Get, Post, Put, Patch, Delete, Body, Param, Query, UseGuards, ForbiddenException, NotFoundException, BadRequestException, Injectable } from '@nestjs/common';
 import { escapeRegex } from '../../common/slug.util';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
@@ -240,6 +242,7 @@ export class ServiceCatalogService {
 }
 
 @Controller('service-catalog')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 @UseGuards(JwtAuthGuard)
 export class ServiceCatalogController {
   constructor(private svc: ServiceCatalogService) {}

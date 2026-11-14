@@ -2,6 +2,8 @@ import { Module, Injectable, Controller, Post, Get, Body, Param, Logger, BadRequ
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Cron } from '@nestjs/schedule';
+import { toHalalas } from '../../common/money';
 import { Transaction, TransactionSchema } from '../../schemas/transaction.schema';
 import { DiagnosticsIntentDto, IntentMethodDto, RefundPaymentDto } from './payments.dto';
 import { OrderSchema } from '../../schemas/order.schema';
@@ -17,9 +19,11 @@ import { RealtimeService } from '../realtime/realtime.service';
 import { RealtimeModule } from '../realtime/realtime.module';
 import { FraudService } from '../finance-engine/finance-engine.module';
 import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
+import { paymentReturnBase } from '../../common/payment-return-url';
 import { CircuitBreakerService } from '../../common/circuit-breaker.service';
-import { externalFetch, externalUnavailable, runExternalCall } from '../../common/external-call';
+import { externalFetch, externalUnavailable, runExternalCall, timedFetch } from '../../common/external-call';
 import * as crypto from 'crypto';
+import { backgroundProviders } from '../../common/process-role';
 import { Request } from 'express';
 import { UserRole } from '../../common/enums';
 import { moyasarBase } from '../../common/moyasar-base';
@@ -34,6 +38,9 @@ import {
 } from './payment-gateway';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { DurableEventsService, emitDurable } from '../durable-events/durable-events.service';
+import { paymentCompletedKey } from '../durable-events/payment-events.reconciler';
+import { ScheduledOnce } from '../../common/scheduled-once';
 /**
  * Fallback for a failed or short-circuited payment-gateway operation.
  *
@@ -140,31 +147,49 @@ export class MoyasarAdapter implements PaymentGateway {
     return { Authorization: `Basic ${b}`, 'Content-Type': 'application/json' };
   }
   async createIntent(o: CreateIntentRequest) {
+    const returned = paymentReturnBase();
+    if ('error' in returned) throw new ServiceUnavailableException(returned.error); // production without an https return address: say so, never call Moyasar with a bad one
+    // Moyasar's Payments API needs a card `source` collected client-side with the publishable key, so a server-created
+    // hosted checkout is an Invoice (POST /invoices -> `url`). The payer pays on that page; Moyasar redirects to callback_url.
     const run = async (req: CreateIntentRequest) => {
-      const base = process.env.PAYMENT_RESULT_URL || `${process.env.PUBLIC_APP_URL || ''}/payments/result`;
+      const base = returned.base;
       // #550: the return address names our transaction (`?ref=`); the provider appends its own id and status after it.
       const callback = req.return_ref ? `${base}${base.includes('?') ? '&' : '?'}ref=${encodeURIComponent(req.return_ref)}` : base;
-      const body = JSON.stringify({ amount: Math.round(req.amount * 100), currency: req.currency || 'SAR', description: req.description, callback_url: callback });
-      const r = await externalFetch(`${this.base}/payments`, { method: 'POST', headers: this.headers(), body });
+      const body = JSON.stringify({ amount: toHalalas(req.amount), currency: req.currency || 'SAR', description: req.description, callback_url: callback, success_url: callback, back_url: callback });
+      const r = await externalFetch(`${this.base}/invoices`, { method: 'POST', headers: this.headers(), body });
       const j: any = await r.json();
       if (!r.ok) throw new BadGatewayException(j.message || 'moyasar_intent_failed');
-      return { intent_id: j.id, checkout_url: j.source?.transaction_url };
+      return { intent_id: j.id, checkout_url: j.url };
     };
     return runExternalCall(this.breakers, `payment:${this.name}:create_intent`, run, [o], gatewayUnavailable());
   }
+  /**
+   * `id` is the invoice id. The invoice is paid when one of its payments is; the settled payment (not the invoice)
+   * is what is refunded later, and its own amount/currency are what the server compares with the amount it asked for.
+   */
   async verify(id: string) {
-    const run = async (paymentId: string) => {
-      const r = await externalFetch(`${this.base}/payments/${paymentId}`, { headers: this.headers() });
+    const run = async (invoiceId: string) => {
+      const r = await externalFetch(`${this.base}/invoices/${invoiceId}`, { headers: this.headers() });
       const j: any = await r.json();
-      const map: any = { paid: 'paid', initiated: 'pending', failed: 'failed', authorized: 'pending' };
-      return { status: (map[j.status] || 'pending') as VerifyResult['status'], charge_id: j.id, raw: j };
+      const payments: any[] = Array.isArray(j.payments) ? j.payments : [];
+      const paid = payments.find((p) => p?.status === 'paid' || p?.status === 'captured');
+      if (paid) return { status: 'paid' as VerifyResult['status'], charge_id: paid.id as string, raw: paid };
+      const map: Record<string, VerifyResult['status']> = { failed: 'failed', expired: 'failed', canceled: 'cancelled', cancelled: 'cancelled' };
+      // A declined card leaves the invoice open for another try, so its own status can still say "initiated": the last attempt
+      // decides. The patient is told it failed (and can retry) instead of waiting on a payment that will never settle; a later
+      // paid attempt on the same invoice still settles it (verify reads the paid payment first).
+      const last = payments[payments.length - 1];
+      // An expired checkout session is a failure with its own stable reason (the patient is told "the session expired, no money was taken", not "payment failed").
+      if (j.status === 'expired' && !paid) return { status: 'failed' as VerifyResult['status'], raw: { ...j, last_payment_error: { message: 'payment_session_expired' } } };
+      if (!map[j.status] && last?.status === 'failed') return { status: 'failed' as VerifyResult['status'], raw: { ...j, last_payment_error: { message: String(last?.source?.message || 'card_declined') } } };
+      return { status: (map[j.status] || 'pending') as VerifyResult['status'], raw: j };
     };
     return runExternalCall(this.breakers, `payment:${this.name}:verify`, run, [id], gatewayUnavailable());
   }
   async refund(id: string, amount?: number) {
     // Moyasar's documented route is singular: POST /payments/:id/refund.
     const run = async (paymentId: string, amt?: number) => {
-      const body = JSON.stringify(amt ? { amount: Math.round(amt * 100) } : {});
+      const body = JSON.stringify(amt ? { amount: toHalalas(amt) } : {});
       const r = await externalFetch(`${this.base}/payments/${paymentId}/refund`, { method: 'POST', headers: this.headers(), body });
       const j: any = await r.json();
       return { refunded: r.ok, raw: j };
@@ -206,6 +231,7 @@ export class PaymentsService {
     private events: EventEmitter2,
     private realtime: RealtimeService,
     private readonly fraud: FraudService,
+    @Optional() private readonly durable?: DurableEventsService,
   ) {
     this.adapter = selectAdapter();
     if (this.adapter.name === 'disabled') {
@@ -244,7 +270,9 @@ export class PaymentsService {
    * payment — it is recorded as failed so it can never confirm the booking.
    */
   private gatewayAmountMatches(t: any, raw: any): boolean {
-    const expectedHalalas = Math.round(Number(t.amount || 0) * 100);
+    // R11 P2: the integer shadow when the transaction has one, else the double converted exactly (never `round(x * 100)`)
+    const amountSar = Number(t.amount || 0);
+    const expectedHalalas = Number.isSafeInteger(t.amount_halalas) ? t.amount_halalas : (Number.isFinite(amountSar) ? toHalalas(amountSar) : NaN);
     const expectedCurrency = String(t.currency || 'SAR').toUpperCase();
     if (!Number.isFinite(expectedHalalas) || expectedHalalas <= 0) return false;
     if (String(raw?.currency || '').toUpperCase() !== expectedCurrency) return false;
@@ -334,11 +362,15 @@ export class PaymentsService {
     const methods = configured
       ? [{ id: 'card', kind: 'online' }, { id: 'apple-pay', kind: 'online' }, { id: 'google-pay', kind: 'online' }]
       : [];
+    // The pharmacy's own estimate from the offer the patient selected (null when it gave none); never computed here.
+    const offer: any = await this.txns.db!.collection('pharmacy_offers').findOne({ id: order.selected_offer_id }, { projection: { _id: 0, 'fulfillment.eta_minutes': 1 } });
+    const eta = offer?.fulfillment?.eta_minutes;
     return {
       booking_id: order.id,
       amount,
       currency: String(order.pricing_snapshot?.totals?.currency || 'SAR'),
       methods,
+      eta_minutes: typeof eta === 'number' && Number.isFinite(eta) ? eta : null,
     };
   }
 
@@ -418,7 +450,7 @@ export class PaymentsService {
     await this.events.emitAsync('moyasar.payment.paid', {
       id: String(t.gateway_charge_id || t.gateway_intent_id || t.id),
       event_id: `txn_${t.id}`,
-      amount_halalas: Math.round(Number(t.amount) * 100),
+      amount_halalas: Number.isSafeInteger(t.amount_halalas) ? t.amount_halalas : toHalalas(Number(t.amount)),
       currency: String(order.pricing_snapshot?.totals?.currency || 'SAR'),
       metadata: {
         order_id: order.id,
@@ -464,7 +496,16 @@ export class PaymentsService {
     // insurance copay intents charge the patient's copay share, not the full price
     let amount = governedPharmacy
       ? this.pharmacyDueAmount(booking)
-      : kind === 'insurance' ? (booking.copay_amount || 0) : (booking.total || booking.totals?.total || booking.price || 0);
+      : kind === 'insurance' ? (booking.copay_amount || 0)
+        // a consultation charges what its capabilities and screen show: total_price (fee + platform fee), never the bare fee
+        : kind === 'consultation' ? Number(booking.total_price ?? booking.price ?? 0)
+          : (booking.total || booking.totals?.total || booking.price || 0);
+    // Insured lab / radiology / nursing bookings: once the insurer decided, the patient pays the share the ordering approval
+    // computed (insurance_copay), the same figure the pay-share screen shows — never the booking total.
+    if (['lab', 'radiology', 'nursing'].includes(String(kind)) && booking.payment_method === 'insurance'
+        && ['approved', 'partial_approval'].includes(String(booking.insurance_status))) {
+      amount = Number(booking.insurance_copay || 0);
+    }
     // Pharmacy insurance orders: after provider approval the patient pays only the
     // provider-set copay — never the full order total (E1 S1/S2).
     if (kind === 'pharmacy' && booking.payment_method === 'insurance'
@@ -533,7 +574,8 @@ export class PaymentsService {
     // Replays (patient re-verify, webhook redelivery) of an already-paid
     // transaction must not re-run the paid side effects: payment.completed
     // drives booking confirmation, wallet and ledger listeners.
-    if (t.status === 'paid') return this.publicTxn(t);
+    // A refund (payment_refunded webhook, admin refund) is a later state of a paid payment: never re-read it as pending.
+    if (['paid', 'refunded', 'partially_refunded'].includes(t.status)) return this.publicTxn(t);
     const result = await this.adapter.verify(t.gateway_intent_id);
     const settled = result.status === 'paid' && this.gatewayAmountMatches(t, result.raw);
     if (result.status === 'paid' && !settled) {
@@ -556,7 +598,7 @@ export class PaymentsService {
       await t.save();
       // For online/home services we emit an event so the workflow engine (provider-jobs / booking-flow)
       // can transition CONFIRMED when payment is required pre-confirmation.
-      this.events.emit('payment.completed', {
+      await emitDurable(this.durable, this.events, 'payment.completed', {
         kind: t.booking_kind,
         id: t.booking_id,
         booking_kind: t.booking_kind,
@@ -564,13 +606,13 @@ export class PaymentsService {
         patient_id: t.patient_id,
         amount: t.amount,
         transaction_id: t.id
-      });
+      }, paymentCompletedKey(t.id));
       this.realtime.emitToUser(t.patient_id, 'payment.updated', { transaction_id: t.id, status: 'paid', booking_id: t.booking_id });
       // E1 S15: a second PAID payment for the same booking is a double charge — alert admins
       await this.fraud.detectDuplicatePayments(t.booking_id).catch(() => null);
     } else if (t.status === 'failed') {
       t.failure_reason = t.failure_reason || (result.raw as any)?.last_payment_error?.message || 'gateway_failure';
-      this.events.emit('payment.failed', {
+      await emitDurable(this.durable, this.events, 'payment.failed', {
         kind: t.booking_kind,
         id: t.booking_id,
         booking_kind: t.booking_kind,
@@ -579,7 +621,7 @@ export class PaymentsService {
         amount: t.amount,
         transaction_id: t.id,
         reason: t.failure_reason
-      });
+      }, `payment.failed:${t.id}`);
       this.realtime.emitToUser(t.patient_id, 'payment.updated', { transaction_id: t.id, status: 'failed', booking_id: t.booking_id });
       // E1 S15: repeated failures in a short window = card testing / bot activity
       await this.fraud.checkPaymentVelocity(t.patient_id).catch(() => false);
@@ -618,14 +660,15 @@ export class PaymentsService {
    * the admin endpoint above, and RefundExecutor (approved refund requests, cancellation policy),
    * which before this only wrote a ledger row for card payments kept in `transactions`.
    */
-  async refundTransactionAsSystem(transactionId: string, amount?: number, reason?: string): Promise<{ txn: any; gateway_refund_id?: string }> {
+  async refundTransactionAsSystem(transactionId: string, amount?: number, reason?: string, opts: { skipGateway?: boolean } = {}): Promise<{ txn: any; gateway_refund_id?: string }> {
     const t = await this.txns.findOne({ id: transactionId });
     if (!t) throw new NotFoundException();
     if (t.status !== 'paid' && t.status !== 'partially_refunded') throw new BadRequestException('cannot_refund');
     const refundable = Math.max(0, Number(t.amount || 0) - Number(t.refunded_amount || 0));
     const value = amount === undefined ? refundable : Math.round(Number(amount) * 100) / 100;
     if (!(value > 0) || value > refundable + 0.001) throw new BadRequestException('refund_exceeds_paid');
-    const r = await this.adapter.refund(t.gateway_charge_id || t.gateway_intent_id, value);
+    // skipGateway: the gateway already made this refund (a crashed finance execution is being completed): only our own records are brought up to date
+    const r: any = opts.skipGateway ? { refunded: true, raw: {} } : await this.adapter.refund(t.gateway_charge_id || t.gateway_intent_id, value);
     if (!r.refunded) throw new BadRequestException('refund_failed');
     t.refunded_amount = Math.round((Number(t.refunded_amount || 0) + value) * 100) / 100;
     t.status = t.refunded_amount >= Number(t.amount || 0) - 0.001 ? 'refunded' : 'partially_refunded';
@@ -635,6 +678,9 @@ export class PaymentsService {
     if (t.status === 'refunded') await this.modelFor(t.booking_kind).updateOne({ id: { $eq: t.booking_id } }, { $set: { payment_status: 'refunded' } });
     this.realtime.emitToUser(t.patient_id, 'payment.updated', { transaction_id: t.id, status: t.status });
     const raw: any = (r as any).raw || {};
+    // Every card refund passes here: the tax document (a credit note) follows it, once per refund.
+    const refundRef = raw?.id || raw?.refund_id || `${t.id}:${t.refunded_amount}`;
+    await emitDurable(this.durable, this.events, 'payment.refund.card', { booking_kind: t.booking_kind, booking_id: t.booking_id, amount: value, refund_ref: refundRef }, `payment.refund.card:${refundRef}`);
     return { txn: t, gateway_refund_id: raw?.id || raw?.refund_id };
   }
 
@@ -650,11 +696,12 @@ export class PaymentsService {
     if (t.gateway !== 'moyasar') throw new BadRequestException('capture_supported_for_moyasar_only');
     const key = process.env.MOYASAR_SECRET_KEY || process.env.MOYASAR_SECRET || process.env.MOYASAR_API_KEY;
     if (!key) throw new BadRequestException('payment_gateway_not_configured');
-    const r = await fetch(`${moyasarBase()}/payments/${t.gateway_intent_id}/capture`, {
+    // Sent once; on a timeout the transaction stays `authorized` and a later verify/reconciliation reads the real status.
+    const r = await timedFetch(`${moyasarBase()}/payments/${t.gateway_charge_id || t.gateway_intent_id}/capture`, {
       method: 'POST',
       headers: { Authorization: `Basic ${Buffer.from(`${key}:`).toString('base64')}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({}),
-    });
+    }, { label: 'payments.capture', timeoutCode: 'payment_gateway_timeout' });
     const j: any = await r.json().catch(() => ({}));
     if (!r.ok) {
       t.webhook_payload = j;
@@ -668,10 +715,10 @@ export class PaymentsService {
     if (!(t.booking_kind === 'pharmacy' && await this.finalizeGovernedPharmacyPaid(t))) {
       await this.modelFor(t.booking_kind).updateOne({ id: t.booking_id }, { $set: { payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at } });
     }
-    this.events.emit('payment.completed', {
+    await emitDurable(this.durable, this.events, 'payment.completed', {
       kind: t.booking_kind, id: t.booking_id, booking_kind: t.booking_kind, booking_id: t.booking_id,
       patient_id: t.patient_id, amount: t.amount, transaction_id: t.id,
-    });
+    }, paymentCompletedKey(t.id));
     this.realtime.emitToUser(t.patient_id, 'payment.updated', { transaction_id: t.id, status: 'paid', booking_id: t.booking_id });
     return this.publicTxn(t);
   }
@@ -683,14 +730,16 @@ export class PaymentsService {
     const booking: any = await this.modelFor(type).findOne({ id }).lean();
     if (!booking) throw new NotFoundException('booking_not_found');
     const staffRoles = ['admin', 'finance'];
-    if (booking.patient_id !== user.id && !staffRoles.includes(user.role)) {
+    // the person who booked and paid for someone else's visit (a guardian) sees the payment they made and its refund
+    const isBooker = !!booking.booked_by_user_id && booking.booked_by_user_id === user.id;
+    if (booking.patient_id !== user.id && !isBooker && !staffRoles.includes(user.role)) {
       throw new BadRequestException('not_authorized');
     }
     return this.txns.find({ booking_kind: kind, booking_id: id }, { webhook_payload: 0, idempotency_key: 0 }).sort({ createdAt: -1 }).lean();
   }
 
   async handleWebhook(provider: string, payload: any, signature?: string, rawBody?: string) {
-    const raw = rawBody ?? JSON.stringify(payload);
+    const raw = rawBody ?? JSON.stringify(payload ?? {});
     // S-5: Moyasar documents no signature header — its body secret_token is the
     // proof. The older HMAC path still works; anything with neither is refused.
     const authenticated = provider === 'moyasar'
@@ -702,9 +751,11 @@ export class PaymentsService {
     // Look up by gateway_intent_id or gateway_charge_id present in payload.
     // Moyasar's native body nests the payment id in data.id (payload.id is the
     // event id); the Stripe shape nests it in data.object.id.
-    const intentId = payload.data?.id || payload.data?.object?.id || payload.id || payload.payment_intent;
-    if (!intentId) return { ok: false, reason: 'no_intent_id' };
-    const t = await this.txns.findOne({ gateway_intent_id: { $eq: intentId } });
+    // The hosted checkout is an invoice, so the payment object carries our intent id as data.invoice_id.
+    const ids = [payload.data?.invoice_id, payload.data?.id, payload.data?.object?.id, payload.id, payload.payment_intent]
+      .filter((v): v is string => typeof v === 'string' && v.length > 0);
+    if (!ids.length) return { ok: false, reason: 'no_intent_id' };
+    const t = await this.txns.findOne({ $or: [{ gateway_intent_id: { $in: ids } }, { gateway_charge_id: { $in: ids } }] });
     if (!t) return { ok: false, reason: 'no_match' };
     await this.verifyPayment({ id: t.patient_id, role: 'system' }, t.id);
     return { ok: true };
@@ -769,6 +820,65 @@ export class PaymentsWebhookController {
   }
 }
 
+export function paymentWindowMinutes(env: NodeJS.ProcessEnv = process.env): number {
+  const n = Number(env.PAYMENT_WINDOW_MINUTES);
+  return Number.isFinite(n) && n >= 5 && n <= 1440 ? n : 30;
+}
+
+/**
+ * A consultation paid by card stays PENDING (and keeps its slot) until the payment arrives. When the patient abandons
+ * the checkout, or the card keeps failing, nothing ever freed that slot. This sweeper asks the gateway one last time,
+ * then cancels the unpaid booking and its open payment attempts and announces `payment.abandoned`.
+ */
+@Injectable()
+export class PaymentAbandonService {
+  private readonly logger = new Logger('PaymentAbandon');
+  private running = false;
+
+  constructor(
+    @InjectModel('Transaction') private readonly txns: Model<any>,
+    @InjectModel(Appointment.name) private readonly appts: Model<any>,
+    private readonly payments: PaymentsService,
+    private readonly events: EventEmitter2,
+    @Optional() private readonly durable?: DurableEventsService,
+  ) {}
+
+  @Cron('*/5 * * * *')
+  @ScheduledOnce()
+  async sweepScheduled() {
+    if (this.running) return;
+    this.running = true;
+    try { await this.sweep(); } catch (e: any) { this.logger.warn(`abandoned-payment sweep failed: ${String(e?.message || e).slice(0, 200)}`); } finally { this.running = false; }
+  }
+
+  async sweep(now: Date = new Date()): Promise<{ released: string[]; settled: string[] }> {
+    const cutoff = new Date(now.getTime() - paymentWindowMinutes() * 60_000);
+    const stale: any[] = await this.appts.find(
+      { status: 'PENDING', payment_method: 'card', payment_status: { $ne: 'paid' }, createdAt: { $lt: cutoff } },
+      { id: 1, patient_id: 1 },
+    ).limit(100).lean();
+    const released: string[] = [];
+    const settled: string[] = [];
+    for (const appt of stale) {
+      const open: any[] = await this.txns.find({ booking_kind: 'consultation', booking_id: { $eq: appt.id }, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
+      for (const t of open) {
+        // The patient may have paid and the webhook been lost: the gateway answer settles it before anything is cancelled.
+        await this.payments.verifyPayment({ id: t.patient_id, role: 'system' }, t.id).catch(() => null);
+      }
+      const fresh: any = await this.appts.findOne({ id: appt.id }, { status: 1, payment_status: 1 }).lean();
+      if (!fresh || fresh.status !== 'PENDING' || fresh.payment_status === 'paid') { settled.push(appt.id); continue; }
+      await this.txns.updateMany(
+        { booking_kind: 'consultation', booking_id: { $eq: appt.id }, status: { $in: ['initiating', 'pending', 'authorized', 'failed'] } },
+        { $set: { status: 'cancelled', failure_reason: 'payment_abandoned' } },
+      );
+      await emitDurable(this.durable, this.events, 'payment.abandoned', { booking_kind: 'consultation', booking_id: appt.id, patient_id: appt.patient_id }, `payment.abandoned:${appt.id}`);
+      released.push(appt.id);
+    }
+    if (released.length) this.logger.log(`released ${released.length} unpaid consultation slot(s)`);
+    return { released, settled };
+  }
+}
+
 @Module({
   imports: [
     WorkflowEngineModule, RealtimeModule,
@@ -784,7 +894,7 @@ export class PaymentsWebhookController {
     ]),
   ],
   controllers: [PaymentsController, PaymentsWebhookController],
-  providers: [PaymentsService, IdempotencyInterceptor],
+  providers: [PaymentsService, IdempotencyInterceptor, ...backgroundProviders([PaymentAbandonService])],
   exports: [PaymentsService],
 })
 export class PaymentsModule {}

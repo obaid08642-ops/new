@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Post, UseGuards, BadRequestException } from '@nestjs/common';
+import { buildPatientPolicy } from '../../common/insurance-policy';
+import { Body, Controller, Delete, Get, Post, UseGuards, BadRequestException } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -27,7 +28,6 @@ const canonicalInsuranceSchema = {
     verified: { type: 'boolean', readOnly: true, example: false },
     pdf_url: { type: 'string', format: 'uri' },
     ocr_extracted: { type: 'boolean' },
-    nphies_eligible: { type: 'boolean' },
   },
   additionalProperties: true,
 };
@@ -74,14 +74,29 @@ export class UsersInsuranceController {
     if (![body.provider, body.provider_name, body.policy_number, body.member_id].some((v) => String(v || '').trim())) {
       throw new BadRequestException('insurance_details_required');
     }
+    // a policy that names a company (by id or by name) must name its class: bookings and broadcasts match on both
+    if ((body.provider || body.provider_name) && !body.class) {
+      throw new BadRequestException('insurance_class_required');
+    }
     const profile = await this.users.getPatientProfile(id);
-    const updatedInsurance = {
-      ...profile.insurance,
-      ...body,
-      verified: false, // Must be verified by admin
-    };
-    await this.users.updatePatientProfile(id, { insurance: updatedInsurance });
-    // Do not reflect user-supplied policy/name fields in the write response.
+    // One writer, one shape (common/insurance-policy.ts); `verified` is always false: only an administrative step verifies.
+    const company = await this.users.findInsuranceCompany(body.provider ?? body.provider_name);
+    const updatedInsurance = buildPatientPolicy(profile.insurance, body, company);
+    await this.users.setPatientInsurance(id, updatedInsurance);
+    // Fixed JSON only: never echo the patient's text back (read it with GET /users/me/insurance).
     return { success: true, verified: false };
+  }
+
+  @Delete()
+  @ApiBearerAuth(NABDAH_ACCESS_TOKEN_SECURITY_SCHEME)
+  @ApiOperation({
+    summary: 'Remove the authenticated patient’s saved insurance policy',
+    description: 'Clears the canonical `insurance` object of the caller only (nothing else on the profile). Idempotent: `removed` is false when there was no policy. A card picture held as a media reference is released with it.',
+  })
+  @ApiOkResponse({ description: 'Policy removed.', schema: { type: 'object', properties: { success: { type: 'boolean' }, removed: { type: 'boolean' } } } })
+  @ApiUnauthorizedResponse({ description: 'Missing, malformed, or expired bearer token.' })
+  async removeInsurance(@CurrentUser('id') id: string) {
+    const removed = await this.users.clearPatientInsurance(id);
+    return { success: true, removed };
   }
 }

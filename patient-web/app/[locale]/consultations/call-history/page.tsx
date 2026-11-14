@@ -9,9 +9,11 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { LocalTimeLine } from "@/components-next/consult/local-time-line";
 import { SERVICE_ICONS, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
+import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import styles from "@/components-next/consult/consult.module.css";
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ page?: string }> };
+const PAGE_SIZE = 20;
 
 const TONE: Record<CallStatus, ServiceTone> = {
   ended: SERVICE_ICONS.lab.tone,
@@ -30,14 +32,17 @@ function duration(locale: string, seconds: number): string {
 }
 
 /** The patient's calls (canvas/Appointments cards): the call records the server keeps (GET /calls/history), newest first. */
-export default async function CallHistoryPage({ params }: Props) {
+export default async function CallHistoryPage({ params, searchParams }: Props) {
   const { locale } = await params;
+  // "Show more" asks for the next 20: pages 1..n in one list (the app loads 20 a page and appends)
+  const pages = Math.min(5, Math.max(1, Number.parseInt((await searchParams)?.page ?? "1", 10) || 1));
+  const limit = pages * PAGE_SIZE;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("CallHistory");
   const rs = await getTranslations("RouteState");
   const token = await requirePatientAccess(locale);
-  const res = await callPatientApi("/calls/history?page=1&limit=50", {}, token);
+  const res = await callPatientApi(`/calls/history?page=1&limit=${limit}`, {}, token);
   if (res.status === 401) redirect(`/${locale}/login`);
   if (res.status === 403 || res.status === 404) notFound();
   const back = `/${locale}/appointments`;
@@ -65,6 +70,7 @@ export default async function CallHistoryPage({ params }: Props) {
               mode={call.kind === "video" ? "video" : null}
               statusLabel={t(`status.${call.status}`)}
               statusTone={TONE[call.status]}
+              primary={call.appointmentId ? { href: `/${locale}/consultations/virtual-waiting-room?appointmentId=${encodeURIComponent(call.appointmentId)}`, label: t("callAgain") } : undefined}
               slotStart={call.at}
               timeLine={
                 <>
@@ -77,6 +83,7 @@ export default async function CallHistoryPage({ params }: Props) {
           ))}
         </ul>
       )}
+      {calls.length >= limit && pages < 5 ? <ButtonLink href={`/${locale}/consultations/call-history?page=${pages + 1}`} label={t("showMore")} variant="outline" size="md" /> : null}
     </ConsultPage>
   );
 }

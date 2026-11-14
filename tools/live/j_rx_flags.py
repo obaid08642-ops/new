@@ -1,6 +1,6 @@
 """Journey: every list that can put a medicine in the cart says "needs a prescription" / "online only" (rx-rules-app #0-#3).
   The cart stores the flag of the row it was added from (pharmacyCartStore onlineOnly), so each list must send it:
-  - the alternatives on the product page (GET /medicines/:id/details, alternatives[]);
+  - the alternatives on the product page (GET /medicines/:id/details, alternatives[]; a prescription item is never an alternative, 22.3);
   - the wishlist (GET /users/me/wishlist);
   - the search results (GET /search, the app's global search).
 """
@@ -42,9 +42,10 @@ def run():
     journey('rx flags: the alternatives on the product page')
     r = Client().get(f'/medicines/{base_id}/details')
     alts = {a.get('id'): a for a in (r.get('alternatives') or [])}
-    step('the product page lists both alternatives', r.ok and online_id in alts and rx_id in alts, r)
+    step('the product page lists the online-only alternative', r.ok and online_id in alts, r)
     step('the online-only alternative says so (online_exclusive: true)', alts.get(online_id, {}).get('online_exclusive') is True, alts.get(online_id))
-    step('the prescription alternative says so (requires_prescription: true)', alts.get(rx_id, {}).get('requires_prescription') is True, alts.get(rx_id))
+    # 22.3 (owner rule): an alternative never promotes a prescription item, so the prescription one is not listed at all
+    step('the product page does not promote the prescription alternative (22.3)', r.ok and rx_id not in alts, alts.get(rx_id))
 
     journey('rx flags: the wishlist')
     pat = Client(j_accounts.app_signup(label='rx-flags')['token'], 'patient')

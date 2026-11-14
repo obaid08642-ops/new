@@ -141,7 +141,7 @@ function TrendsTab({ version, onAdd }: { version: number; onAdd: () => void }) {
   return (
     <Gate status={status} onRetry={() => void reload()}>
       {!current ? (
-        <EmptyState icon="chart-line-up" tone="mint" title={k('health.trends.empty')} body={k('health.trends.emptyBody')} actionLabel={k('health.vitals.add')} onAction={onAdd} theme={theme} />
+        <EmptyState icon="chart-line-up" tone={RX_TONE} title={k('health.trends.empty')} body={k('health.trends.emptyBody')} actionLabel={k('health.vitals.add')} onAction={onAdd} theme={theme} />
       ) : (
         <>
           <HealthTabs tabs={trends.map((v) => ({ key: v.id, label: nameOf(v) }))} value={current.id} onChange={setActive} testID="trend-types" />
