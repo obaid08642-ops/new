@@ -1,5 +1,13 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-14 05:30 UTC — Dependabot CI after update-branch
+Status: results so far (CI still running on some).
+- #1690 (download-artifact 8.0.2): green so far, 18 checks pending. #1689 (upload-artifact 7.0.2): green so far, 24 pending. They must go together; both touch workflows: you merge by hand once all green.
+- #1692 (google-github-actions/auth 3.0.0): only red = live gate shard 5/5, from j_ai_scanner "web scan flow -> Locator.set_input_files: strict mode violation: locator('input[type=file]') resolved to 2 elements" (log job 132336888072). That is a journey/page problem on main (two file inputs on the scan page), not the action bump: someone on B/web should look; it will turn any PR red that runs shard 5.
+- #2505 (80 updates, 7 dirs): 13 red checks (Icon and illustration set, acceptance, live gate x5, browsers x3, lighthouse, Trivy image backend, fuzz) out of 45. Too big to judge as one: I recommend NOT merging; close it and let Dependabot reopen per directory, or ask me to split it. Tell me which.
+- #2677 (client hash echo, base main): green so far, 1 pending.
+Left: same as the 05:40 entry (the #1831 seeds and the #1835 Lighthouse run).
+
 ## 2026-11-14 05:40 UTC — order 04:50: #2620 merged, client half retargeted, housekeeping triage
 Status: partly done; items below say what is left.
 PRs: #2620 MERGED (main 2149a3dcf). #2621 had been merged into the old #2620 branch, NOT into main, so I merged main into p2/policy-hash-echo-clients and opened #2677 (same work, base main; locale-parity ok, literal baseline 5277 -> 5277). Needs your merge.
