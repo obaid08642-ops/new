@@ -42,8 +42,8 @@ export class ReconciliationService {
   ) {}
 
   /** Nightly drift sweep (manual runs via POST events/reconciliation/run). */
-  @Cron('17 4 * * *')
-  @ScheduledOnce()
+  @Cron('30 4 * * *')   // 2026-11-14: spread out (serial group 'nightly-heavy'), after the dump window
+  @ScheduledOnce({ serial: 'nightly-heavy' })
   async nightly() {
     try {
       await this.reconcile({ limit: 500 });
@@ -58,7 +58,7 @@ export class ReconciliationService {
     const filter: any = options.entityId ? { entity_id: String(options.entityId) } : {};
     const rows: any[] = await this.conn
       .collection('public_catalog_projections')
-      .find(filter)
+      .find(filter, { batchSize: 200, maxTimeMS: 60_000 })
       .sort({ _id: 1 })
       .limit(limit)
       .toArray();

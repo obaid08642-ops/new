@@ -1,3 +1,4 @@
+import { runSerialized } from '../../common/scheduled-once';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -27,8 +28,12 @@ export class FinanceIntegrityService {
   private get runs() { return this.conn.collection(RUNS); }
   private get findings() { return this.conn.collection(FINDINGS); }
 
-  @Cron('40 1 * * *')   // 04:40 Riyadh, after the nightly dump window
+  @Cron('10 1 * * *')   // 2026-11-14: 04:10 Riyadh; heavy nightly jobs run one at a time (serial group 'nightly-heavy') and 30 minutes apart, before the 03:00 UTC dump
   async daily() {
+    await runSerialized('nightly-heavy', 'FinanceIntegrity.daily', () => this.dailyRun());
+  }
+
+  private async dailyRun() {
     const day = new Date(Math.floor(Date.now() / DAY_MS) * DAY_MS);
     try { await this.runLedgerCheck(new Date(Date.now() - 2 * DAY_MS), day); } catch (e: any) { this.logger.error(`ledger check failed: ${e?.message}`); }
     if (process.env.FINANCE_RECONCILE_MOYASAR === '1') {

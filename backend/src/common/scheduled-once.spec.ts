@@ -6,7 +6,7 @@ import { spawn, spawnSync, ChildProcess } from 'child_process';
 import net from 'net';
 import Redis from 'ioredis';
 import { Cron } from '@nestjs/schedule';
-import { CronLease, ScheduledOnce, cronLeaseStats, runWithLease } from './scheduled-once';
+import { CronLease, ScheduledOnce, cronLeaseStats, runSerialized, runWithLease, serialStats } from './scheduled-once';
 
 const hasRedis = spawnSync('redis-server', ['--version']).status === 0;
 const freePort = () => new Promise<number>((resolve) => {
@@ -132,6 +132,81 @@ const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
       await wait(5);
       expect(await redis.exists('cron:lease:Svc.sweep')).toBe(1);
       await slow;
+    });
+  });
+
+  describe('runSerialized: heavy jobs of one group run one at a time (2026-11-14: mongod killed by its memory limit while nightly jobs overlapped)', () => {
+    const track = () => {
+      const t = { running: 0, max: 0, order: [] as string[] };
+      const job = (name: string, ms: number) => async () => { t.running++; t.max = Math.max(t.max, t.running); t.order.push(`start:${name}`); await wait(ms); t.order.push(`end:${name}`); t.running--; return name; };
+      return { t, job };
+    };
+    const fast = { serialPollMs: 20, ttlMs: 3_000 };
+
+    it('three jobs of one group started at the same time never overlap, and all three run (they wait, they are not skipped)', async () => {
+      const { t, job } = track();
+      const out = await Promise.all(['a', 'b', 'c'].map((n) => runSerialized('heavy.t1', n, job(n, 60), fast)));
+      expect(out.sort()).toEqual(['a', 'b', 'c']);
+      expect(t.max).toBe(1);
+      expect(t.order.filter((o) => o.startsWith('start'))).toHaveLength(3);
+    });
+
+    it('jobs of different groups run side by side', async () => {
+      const { t, job } = track();
+      await Promise.all([runSerialized('heavy.g1', 'a', job('a', 80), fast), runSerialized('heavy.g2', 'b', job('b', 80), fast)]);
+      expect(t.max).toBe(2);
+    });
+
+    it('the turn is released when the job ends (the key is deleted, the next job starts at once), and also when it throws', async () => {
+      const { job } = track();
+      await runSerialized('heavy.t2', 'a', job('a', 10), fast);
+      expect(await redis.exists('cron:serial:heavy.t2')).toBe(0);
+      await expect(runSerialized('heavy.t2', 'boom', async () => { throw new Error('x'); }, fast)).rejects.toThrow('x');
+      expect(await redis.exists('cron:serial:heavy.t2')).toBe(0);
+    });
+
+    it('a job whose turn does not come within the maximum wait is skipped with a count, and the running job is untouched', async () => {
+      const { t, job } = track();
+      const before = serialStats.gaveUp;
+      const first = runSerialized('heavy.t3', 'long', job('long', 400), fast);
+      await wait(30);
+      const second = await runSerialized('heavy.t3', 'late', job('late', 10), { ...fast, serialMaxWaitMs: 120 });
+      expect(second).toBeUndefined();
+      expect(serialStats.gaveUp).toBe(before + 1);
+      expect(await first).toBe('long');
+      expect(t.order).toEqual(['start:long', 'end:long']);
+    });
+
+    it('a long job keeps its turn (renewed) past the ttl, so a waiting job never starts beside it', async () => {
+      const { t, job } = track();
+      const first = runSerialized('heavy.t4', 'long', job('long', 1_200), { serialPollMs: 20, ttlMs: 600 } as any);
+      await wait(30);
+      const second = runSerialized('heavy.t4', 'next', job('next', 20), { serialPollMs: 20, ttlMs: 600 } as any);
+      await Promise.all([first, second]);
+      expect(t.max).toBe(1);
+      expect(t.order.indexOf('end:long')).toBeLessThan(t.order.indexOf('start:next'));
+    });
+
+    it('the decorator option `serial` puts a cron method into the group (and the per-job lease still keeps it to one worker)', async () => {
+      const { t } = track();
+      class Heavy {
+        @ScheduledOnce({ serial: 'heavy.dec', serialPollMs: 20, ttlMs: 3_000 })
+        async a() { t.running++; t.max = Math.max(t.max, t.running); await wait(60); t.running--; return 'a'; }
+        @ScheduledOnce({ serial: 'heavy.dec', serialPollMs: 20, ttlMs: 3_000 })
+        async b() { t.running++; t.max = Math.max(t.max, t.running); await wait(60); t.running--; return 'b'; }
+      }
+      const h = new Heavy();
+      const out = await Promise.all([h.a(), h.b()]);
+      expect(out.sort()).toEqual(['a', 'b']);
+      expect(t.max).toBe(1);
+    });
+
+    it('Redis not available: runs without a turn (fail-open, like the per-job lease); skipped under CRON_LEASE_FAIL_CLOSED=1', async () => {
+      CronLease.configure(() => null);
+      const { job } = track();
+      expect(await runSerialized('heavy.t5', 'a', job('a', 5), fast)).toBe('a');
+      process.env.CRON_LEASE_FAIL_CLOSED = '1';
+      expect(await runSerialized('heavy.t5', 'b', job('b', 5), fast)).toBeUndefined();
     });
   });
 });

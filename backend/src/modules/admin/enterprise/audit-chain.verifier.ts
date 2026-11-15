@@ -11,8 +11,9 @@ export class AdminAuditChainVerifier {
   private readonly logger = new Logger('AdminAuditChain');
   constructor(@InjectConnection() private readonly conn: Connection) {}
 
-  @Cron('15 2 * * *')
-  @ScheduledOnce()
+  // 2026-11-14: nightly heavy jobs run ONE AT A TIME (serial group) and 30 minutes apart, away from the 03:00 dump: 01:10 finance, 01:40 audit chain, 02:10 db integrity, 02:40 consistency, 04:30 reconciliation, 05:00 risk
+  @Cron('40 1 * * *')
+  @ScheduledOnce({ serial: 'nightly-heavy' })
   async nightly() {
     const r = await verifyAdminAuditChain(this.conn);
     if (r.ok) this.logger.log(`admin audit chain intact: ${r.checked} rows, head seq ${r.head_seq}`);

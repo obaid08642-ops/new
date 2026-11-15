@@ -18,7 +18,15 @@ import { registerGauge } from './metrics.service';
  * Redis unavailable (or the in-memory fallback shim, which is per-process): the job RUNS (fail-open, same as today with one worker) and a warning is
  * logged. Set CRON_LEASE_FAIL_CLOSED=1 once more than one worker runs, to skip instead.
  */
-export interface ScheduledOnceOptions { name?: string; ttlMs?: number; holdMs?: number }
+export interface ScheduledOnceOptions {
+  name?: string; ttlMs?: number; holdMs?: number;
+  /**
+   * Heavy jobs (2026-11-14, mongod killed by its memory limit while several nightly jobs and the dump overlapped): every job that names the same `serial` group runs ONE AT A TIME across
+   * all processes. A job whose turn has not come WAITS for it (polling every `serialPollMs`, up to `serialMaxWaitMs`, default 90 min) instead of being skipped, so a night is not lost;
+   * past the maximum it is skipped with a warning (a run that cannot get a turn in 90 minutes is stuck behind something else).
+   */
+  serial?: string; serialPollMs?: number; serialMaxWaitMs?: number;
+}
 
 const RENEW_LUA = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('pexpire', KEYS[1], ARGV[2]) else return 0 end";
 const RELEASE_LUA = RENEW_LUA; // releasing = shortening the key to the hold time, only if it is still ours
@@ -39,6 +47,11 @@ export const CronLease = {
 };
 
 const failClosed = () => process.env.CRON_LEASE_FAIL_CLOSED === '1';
+const DEL_IF_OURS_LUA = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+export const serialStats = { ran: 0, waited: 0, gaveUp: 0 };
+registerGauge('nabd_cron_serial_ran_total', 'Heavy scheduled jobs that ran inside a serial group.', () => serialStats.ran, 'counter');
+registerGauge('nabd_cron_serial_waited_total', 'Heavy scheduled jobs that had to wait for another job of their serial group.', () => serialStats.waited, 'counter');
+registerGauge('nabd_cron_serial_gave_up_total', 'Heavy scheduled jobs skipped because their turn did not come within the maximum wait.', () => serialStats.gaveUp, 'counter');
 
 export async function runWithLease<T>(name: string, fn: () => Promise<T>, opts: ScheduledOnceOptions = {}): Promise<T | undefined> {
   const ttlMs = opts.ttlMs ?? 30_000;
@@ -70,6 +83,52 @@ export async function runWithLease<T>(name: string, fn: () => Promise<T>, opts: 
   }
 }
 
+/**
+ * Runs `fn` when no other job of `group` is running: `SET cron:serial:<group> <token> PX ttl NX`, renewed while the job works, DELETED (not shortened) when it ends so the
+ * next waiting job starts at its next poll. Redis unavailable: runs (fail-open, as the per-job lease does), or skips under CRON_LEASE_FAIL_CLOSED=1.
+ */
+export async function runSerialized<T>(group: string, name: string, fn: () => Promise<T>, opts: Pick<ScheduledOnceOptions, 'serialPollMs' | 'serialMaxWaitMs' | 'ttlMs'> = {}): Promise<T | undefined> {
+  const ttlMs = Math.max(3_000, opts.ttlMs ?? 60_000);
+  const pollMs = Math.max(10, opts.serialPollMs ?? 20_000);
+  const maxWaitMs = opts.serialMaxWaitMs ?? 90 * 60_000;
+  const key = `cron:serial:${group}`;
+  const token = `${name}:${hostname()}:${process.pid}:${randomBytes(6).toString('hex')}`;
+  let client: RedisLike | null = null;
+  try { client = clientProvider(); } catch { client = null; }
+  const usable = client && client.status !== 'fallback' && typeof client.eval === 'function';
+  if (!usable) return unavailable(name, 'no_redis', fn);
+  const started = Date.now();
+  let waited = false;
+  for (;;) {
+    try {
+      const got = await client!.set(key, token, 'PX', ttlMs, 'NX');
+      if (got === 'OK') break;
+    } catch (e: any) {
+      return unavailable(name, e?.message || 'redis_error', fn);
+    }
+    if (!waited) { waited = true; serialStats.waited++; logger.log(`cron_serial_wait name=${name} group=${group}: another heavy job is running, waiting for its turn`); }
+    if (Date.now() - started >= maxWaitMs) {
+      serialStats.gaveUp++;
+      logger.warn(`cron_serial_gave_up name=${name} group=${group}: no turn within ${Math.round(maxWaitMs / 60_000)} min, skipped this run`);
+      return undefined;
+    }
+    await new Promise((r) => setTimeout(r, pollMs));
+  }
+  serialStats.ran++;
+  const timer = setInterval(() => {
+    client!.eval!(RENEW_LUA, 1, key, token, ttlMs).then((r: any) => {
+      if (Number(r) !== 1) { cronLeaseStats.lost++; logger.error(`cron_serial_lost name=${name} group=${group}: another heavy job may now run beside it`); clearInterval(timer); }
+    }).catch(() => undefined);
+  }, Math.max(50, Math.floor(ttlMs / 3)));
+  timer.unref?.();
+  try {
+    return await fn();
+  } finally {
+    clearInterval(timer);
+    await client!.eval!(DEL_IF_OURS_LUA, 1, key, token).catch(() => undefined);
+  }
+}
+
 const lastWarn = new Map<string, number>();
 function warnOnce(name: string, msg: string) {   // a 3 s job must not log every 3 s through a Redis outage
   const now = Date.now();
@@ -90,7 +149,8 @@ export function ScheduledOnce(opts: ScheduledOnceOptions = {}): MethodDecorator 
     const original = descriptor.value;
     const name = opts.name ?? `${(target as any).constructor?.name}.${String(propertyKey)}`;
     descriptor.value = function (this: unknown, ...args: any[]) {
-      return runWithLease(name, async () => original.apply(this, args), opts);
+      const run = async () => original.apply(this, args);
+      return runWithLease(name, opts.serial ? () => runSerialized(opts.serial as string, name, run, opts) : run, opts);
     };
     // @Cron/@Interval above this line read their metadata from the function they decorate: keep the original's, if any, on the wrapper
     for (const k of Reflect.getMetadataKeys(original)) Reflect.defineMetadata(k, Reflect.getMetadata(k, original), descriptor.value);

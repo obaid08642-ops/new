@@ -70,11 +70,11 @@ describe('SY-01: every scheduled job is leased, so N workers run it once', () =>
 
   /** The five named nightly jobs: schedule (UTC), method, how it runs once ('lease' = @ScheduledOnce, 'own' = a guard inside the job) and where it reports to. */
   const NIGHTLY: Array<{ file: string; schedule: string; method: string; once: 'lease' | { own: RegExp }; reports: Array<{ file: string; pattern: RegExp }> }> = [
-    { file: 'modules/finance-integrity/finance-integrity.service.ts', schedule: "'40 1 * * *'", method: 'daily', once: { own: /runs\.insertOne\(\{ kind, day/ }, reports: [{ file: 'modules/finance-integrity/finance-integrity.controller.ts', pattern: /@Controller\('admin\/finance\/integrity'\)/ }] },
-    { file: 'modules/admin/enterprise/audit-chain.verifier.ts', schedule: "'15 2 * * *'", method: 'nightly', once: 'lease', reports: [{ file: 'modules/admin/enterprise/audit-chain.verifier.ts', pattern: /chain/i }] },
-    { file: 'modules/consistency/consistency.module.ts', schedule: "'17 3 * * *'", method: 'scheduledReconcile', once: 'lease', reports: [{ file: 'modules/consistency/consistency.module.ts', pattern: /@Get\('audit'\)/ }] },
-    { file: 'modules/db-integrity/db-integrity.service.ts', schedule: "'20 3 * * *'", method: 'nightly', once: 'lease', reports: [{ file: 'modules/db-integrity/db-integrity.controller.ts', pattern: /@Controller\('admin\/db-integrity'\)/ }] },
-    { file: 'modules/event-reliability/reconciliation.service.ts', schedule: "'17 4 * * *'", method: 'nightly', once: 'lease', reports: [{ file: 'modules/event-reliability/reconciliation.service.ts', pattern: /reconciliation_reports/ }] },
+    { file: 'modules/finance-integrity/finance-integrity.service.ts', schedule: "'10 1 * * *'", method: 'daily', once: { own: /runs\.insertOne\(\{ kind, day/ }, reports: [{ file: 'modules/finance-integrity/finance-integrity.controller.ts', pattern: /@Controller\('admin\/finance\/integrity'\)/ }] },
+    { file: 'modules/admin/enterprise/audit-chain.verifier.ts', schedule: "'40 1 * * *'", method: 'nightly', once: 'lease', reports: [{ file: 'modules/admin/enterprise/audit-chain.verifier.ts', pattern: /chain/i }] },
+    { file: 'modules/consistency/consistency.module.ts', schedule: "'40 2 * * *'", method: 'scheduledReconcile', once: 'lease', reports: [{ file: 'modules/consistency/consistency.module.ts', pattern: /@Get\('audit'\)/ }] },
+    { file: 'modules/db-integrity/db-integrity.service.ts', schedule: "'10 2 * * *'", method: 'nightly', once: 'lease', reports: [{ file: 'modules/db-integrity/db-integrity.controller.ts', pattern: /@Controller\('admin\/db-integrity'\)/ }] },
+    { file: 'modules/event-reliability/reconciliation.service.ts', schedule: "'30 4 * * *'", method: 'nightly', once: 'lease', reports: [{ file: 'modules/event-reliability/reconciliation.service.ts', pattern: /reconciliation_reports/ }] },
   ];
 
   for (const n of NIGHTLY) {
