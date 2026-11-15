@@ -39,6 +39,7 @@ import { getQueueToken } from '@nestjs/bullmq';
 import type { Queue } from 'bullmq';
 import { evaluateQueueBacklog, evaluatesQueueRules, QueueSample, QUEUE_WAITING_WINDOW_MS, QUEUE_FAILED_WINDOW_MS } from './queue-backlog';
 import * as nodeCluster from 'node:cluster';
+import { RedisService } from '../redis/redis.service';
 
 export type AlertRuleId = 'api_availability_fast' | 'api_availability_slow' | 'checkout_success' | 'p95_latency' | 'event_loop_lag' | 'queue_failed' | 'queue_waiting';
 export const ALERT_RULE_IDS: AlertRuleId[] = ['api_availability_fast', 'api_availability_slow', 'checkout_success', 'p95_latency', 'event_loop_lag', 'queue_failed', 'queue_waiting'];
@@ -56,6 +57,12 @@ export const WARNING_REPEAT_MS = 6 * 3_600_000;
 /** A CRITICAL alert that fires this many times inside UNSTABLE_WINDOW_MS is flapping: its mails stop and ONE "unstable" digest goes out per window (owner, 2026-11-12: 19 mails in 10 h). */
 export const UNSTABLE_FIRES = 3;
 export const UNSTABLE_WINDOW_MS = 6 * 3_600_000;
+/**
+ * The persistent mail gate (owner, 2026-11-14: 38 "API availability CRITICAL" mails overnight although #2624 limited them to the first 2 fires, because that state was in this
+ * process's memory and every restart, deploy or watchdog kick started it again). A critical alert may be mailed / sent at most ONCE per alert key per this many minutes, whatever restarts
+ * happen and however many processes run: the claim is a Redis `SET NX EX` shared by all of them. What the gate holds back is recorded (`held: true`) and reported in the daily digest.
+ */
+export const MAIL_GATE_MINUTES = () => Math.max(1, Number(process.env.SLO_ALERT_MAIL_GATE_MINUTES) || 120);
 /** The daily digest of the warnings goes out at the first check after this hour (UTC); 05:00 UTC is 08:00 in Riyadh. */
 const DIGEST_HOUR_UTC = () => Math.min(23, Math.max(0, Number(process.env.SLO_DIGEST_HOUR_UTC ?? 5) || 0));
 const RULES: Record<AlertRuleId, RuleDef> = {
@@ -81,6 +88,8 @@ interface Stamped { at: number; snap: MetricsSnapshot }
 export interface AlertEvent {
   at: Date; rule: AlertRuleId; key: string; state: 'firing' | 'resolved' | 'repeat'; drill: boolean; severity: 'critical' | 'warning';
   value: number; threshold: number; unit: string; detail: string; runbook: string; channels: Record<string, boolean>;
+  /** True when the mail gate held this critical event back (it is only recorded and counted in the daily digest). */
+  held?: boolean;
 }
 
 /** `/api/v1/orders/:id` -> `/orders` : the first path segment after the prefix and the version. */
@@ -285,15 +294,32 @@ export class SloAlertsService implements OnModuleInit, OnModuleDestroy {
       groups.set(e.key, g);
     }
     const open = [...this.states.values()].filter((st) => st.firing && RULES[st.rule].severity === 'warning' && !RULES[st.rule].immediate);
-    if (!groups.size && !open.length) return false;
+    // critical events the mail gate held back (more than one per alert key per MAIL_GATE_MINUTES): counted here instead of mailed one by one
+    let heldEvents: AlertEvent[] = this.sent.filter((e) => !e.drill && e.held === true && e.at >= since);
+    if (this.conn) {
+      try { heldEvents = (await this.conn.collection('slo_alert_events').find({ held: true, drill: false, at: { $gte: since } }).sort({ at: 1 }).toArray()) as unknown as AlertEvent[]; } catch { /* the in-process list above */ }
+    }
+    const held = new Map<string, { title: string; fired: number; resolved: number; last: string }>();
+    for (const e of heldEvents) {
+      const g = held.get(e.key) ?? { title: RULES[e.rule].title, fired: 0, resolved: 0, last: e.detail };
+      if (e.state === 'firing') g.fired += 1;
+      if (e.state === 'resolved') g.resolved += 1;
+      if (e.state !== 'resolved') g.last = e.detail;
+      held.set(e.key, g);
+    }
+    if (!groups.size && !open.length && !held.size) return false;
     const lines = [`Warnings in the last 24 hours: ${groups.size} group(s), ${open.length} still open.`];
     for (const [key, g] of groups) {
       const where = key.includes(':') ? ` (${key.split(':')[1]})` : '';
       lines.push(`${g.title}${where}: fired ${g.fired}x, resolved ${g.resolved}x${open.some((o) => o.key === key) ? ', STILL OPEN' : ''}. ${g.last}`);
     }
     for (const st of open) if (!groups.has(st.key)) lines.push(`${RULES[st.rule].title}${st.key.includes(':') ? ` (${st.key.split(':')[1]})` : ''}: STILL OPEN since ${new Date(st.since).toISOString()}. ${st.detail}`);
-    lines.push('Warnings are not mailed one by one: they are on the admin alerts page. Critical alerts still arrive at once.');
-    const subject = `[Nabd+ DIGEST] ${groups.size + open.filter((o) => !groups.has(o.key)).length} warning group(s) in the last 24 h`;
+    for (const [key, g] of held) {
+      const where = key.includes(':') ? ` (${key.split(':')[1]})` : '';
+      lines.push(`CRITICAL, held back by the mail gate (one mail per alert per ${MAIL_GATE_MINUTES()} minutes): ${g.title}${where}: fired ${g.fired}x, resolved ${g.resolved}x. ${g.last}`);
+    }
+    lines.push('Warnings are not mailed one by one: they are on the admin alerts page. A critical alert is mailed at once, then at most once per alert every 2 hours; the rest is counted here.');
+    const subject = `[Nabd+ DIGEST] ${groups.size + open.filter((o) => !groups.has(o.key)).length} warning group(s), ${held.size} held critical alert(s) in the last 24 h`;
     this.lastDigest = { at: new Date(now), subject, lines };
     return this.sendEmail(subject, [subject, ...lines]);
   }
@@ -370,19 +396,47 @@ export class SloAlertsService implements OnModuleInit, OnModuleDestroy {
     const channels: Record<string, boolean> = {};
     const ch = this.channels();
     // A WARNING (not a drill) is recorded for the admin page and the daily digest; it never goes out on its own.
+    let held = false;
     const flapping = !drill && !def.immediate && def.severity === 'critical' && this.noteFlap(st, state, at.getTime());
     if (flapping) {
       // flapping critical: no mail/Telegram/push for this event; the digest (flushUnstable) reports it
     } else if (def.severity === 'critical' || def.immediate || drill) {
-      if (ch.email) channels.email = await this.sendEmail(subject, lines);
-      if (ch.telegram) channels.telegram = await this.sendTelegram(`${subject}\n${text.split('\n').slice(1).join('\n')}`);
-      if (ch.push) channels.push = await this.sendPush(subject, st.detail);
+      // a drill and an "immediate" rule always go out; every other critical event needs the persistent mail gate (one per alert key per MAIL_GATE_MINUTES)
+      if (!drill && !def.immediate && !(await this.claimMail(st.key, at.getTime()))) {
+        held = true;
+      } else {
+        if (ch.email) channels.email = await this.sendEmail(subject, lines);
+        if (ch.telegram) channels.telegram = await this.sendTelegram(`${subject}\n${text.split('\n').slice(1).join('\n')}`);
+        if (ch.push) channels.push = await this.sendPush(subject, st.detail);
+      }
     }
-    const event: AlertEvent = { at, rule: st.rule, key: st.key, state, drill, severity: def.severity, value: st.value, threshold: st.threshold, unit: st.unit, detail: st.detail, runbook, channels };
+    const event: AlertEvent = { at, rule: st.rule, key: st.key, state, drill, severity: def.severity, value: st.value, threshold: st.threshold, unit: st.unit, detail: st.detail, runbook, channels, ...(held || flapping ? { held: true } : {}) };
     this.sent.push(event); if (this.sent.length > 50) this.sent.shift();
     try { await this.conn?.collection('slo_alert_events').insertOne({ ...event }); } catch { /* the notification already went out */ }
     logEvent(def.severity === 'critical' && state !== 'resolved' ? 'error' : 'warn', 'slo_alert', { module: 'observability', rule: st.rule, state, drill, channels: Object.keys(channels).filter((c) => channels[c]) });
     return event;
+  }
+
+  private mailGateMem = new Map<string, number>();
+
+  /**
+   * True when THIS call may send for `gateKey` now: the first claim inside `windowMs` wins, every other caller (another process, a restart, a repeat) loses.
+   * The claim is a Redis `SET key NX EX` so it survives restarts and is shared by every process. If Redis cannot be reached the claim falls back to this process's memory
+   * (still at most one per window per process); it never fails open into "send everything".
+   */
+  private async claimMail(gateKey: string, now: number, windowMs = MAIL_GATE_MINUTES() * 60_000): Promise<boolean> {
+    try {
+      const redis = this.moduleRef?.get(RedisService, { strict: false });
+      const client = (redis as any)?.getClient?.();
+      if (client) {
+        const ok = await client.set(`slo:mailgate:${gateKey}`, String(now), 'EX', Math.ceil(windowMs / 1000), 'NX');
+        return ok === 'OK';
+      }
+    } catch { /* Redis unreachable: the in-process gate below */ }
+    const last = this.mailGateMem.get(gateKey);
+    if (last !== undefined && now - last < windowMs) return false;
+    this.mailGateMem.set(gateKey, now);
+    return true;
   }
 
   /** Records a critical event for its key; true when the key is flapping, so this event is held back for the "unstable" digest. */
@@ -412,7 +466,7 @@ export class SloAlertsService implements OnModuleInit, OnModuleDestroy {
         `Runbook: ${st ? this.runbookOf(st.rule) : ''}`,
       ];
       f.fired = 0; f.resolved = 0; f.lastDigestAt = now;
-      if (this.channels().email) await this.sendEmail(subject, lines);
+      if (this.channels().email && await this.claimMail(`unstable:${key}`, now, UNSTABLE_WINDOW_MS)) await this.sendEmail(subject, lines);
       logEvent('error', 'slo_alert_unstable', { module: 'observability', key });
       sent += 1;
     }
