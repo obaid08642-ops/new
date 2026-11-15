@@ -1,8 +1,5 @@
-# 2026-11-15 run 129 = deploy main@7f9f7bff (alert mail Redis gate #2678, nginx bot limit file #2679, nightly jobs serialized #2680, provider revenue index #2682, refund hash clients #2677, WiredTiger cache 0.4 GB #2681) + read-only checks after. The nginx bot rule and the new mongod cache apply only if the deploy reloads/recreates them: 96j and 96h report it.
-release:7f9f7bffadb35ee3b88553a8ddd1ad42f814cab2
-97-free-old-predeploy
-93-free-unused-images
-60-deploy-main
+# 2026-11-15 run 130 = apply the new mongod.conf (WiredTiger cache 0.4 GB, #2681) that the deploy does not write: 91c-host-files (APPLY=yes, writes host files, restarts nothing) then 94-mongo-recreate (backup first, recreates ONLY nabdah-mongodb, data volume untouched, a few seconds of downtime), then read-only checks. Run 129 deployed main@7f9f7bff: cache still 0.6 before this run.
+91c-host-files
+94-mongo-recreate
 96j-mongo-cache-check
 96h-mongo-restarts
-98q-alert-mail-state
