@@ -1,7 +1,8 @@
-# 2026-11-14 run 128 = READ-ONLY diagnosis of the night of 11-13/14 (owner got 38 "API availability CRITICAL" mails): disk, memory, kernel OOM kills of mongod, mongod restart history, alert-mail state, mongo cache. Nothing is changed.
-99d-disk-usage
-98-memory-report
-96n-mongo-oom-cause
-96k-mongo-restart-who
-98q-alert-mail-state
+# 2026-11-15 run 129 = deploy main@7f9f7bff (alert mail Redis gate #2678, nginx bot limit file #2679, nightly jobs serialized #2680, provider revenue index #2682, refund hash clients #2677, WiredTiger cache 0.4 GB #2681) + read-only checks after. The nginx bot rule and the new mongod cache apply only if the deploy reloads/recreates them: 96j and 96h report it.
+release:7f9f7bffadb35ee3b88553a8ddd1ad42f814cab2
+97-free-old-predeploy
+93-free-unused-images
+60-deploy-main
 96j-mongo-cache-check
+96h-mongo-restarts
+98q-alert-mail-state
