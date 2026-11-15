@@ -6,9 +6,53 @@
  */
 export const REFUND_POLICY_FIELD = "refund_policy_accepted" as const;
 
-/** The body with the acceptance added. It is only ever called after the patient ticked: it never produces `false`. */
-export function withRefundPolicy<T extends Record<string, unknown>>(body: T): T & { refund_policy_accepted: true } {
-  return { ...body, [REFUND_POLICY_FIELD]: true } as T & { refund_policy_accepted: true };
+/**
+ * The hash of the policy text the patient's screen showed, per service (`GET /refund-policy/summary` answers it next to the lines). It is sent back as `refund_policy_hash` so the
+ * server can refuse a table that changed while the patient was on the screen (409 `refund_policy_changed`). Only a summary that was really shown is remembered: a card that did not
+ * load or shows the page's own figures (compact) forgets the entry, so nothing stale is ever sent.
+ */
+const shownHashes = new Map<string, string>();
+export const POLICY_CHANGED_EVENT = "nabd:refund-policy-changed";
+const HASH = /^[a-f0-9]{64}$/;
+
+export function rememberShownPolicy(service: string, hash: unknown): void {
+  if (typeof hash === "string" && HASH.test(hash)) shownHashes.set(service, hash);
+  else shownHashes.delete(service);
+}
+export function shownPolicyHash(service: string): string | undefined { return shownHashes.get(service); }
+export function readRefundSummaryHash(payload: unknown): string | undefined {
+  const h = payload && typeof payload === "object" ? (payload as { hash?: unknown }).hash : undefined;
+  return typeof h === "string" && HASH.test(h) ? h : undefined;
+}
+
+/** The body with the acceptance added (and the hash of the policy text that was shown for `service`, when there is one). It is only ever called after the patient ticked: it never produces `false`. */
+export function withRefundPolicy<T extends Record<string, unknown>>(body: T, service?: string): T & { refund_policy_accepted: true; refund_policy_hash?: string } {
+  const hash = service ? shownPolicyHash(service) : undefined;
+  return { ...body, [REFUND_POLICY_FIELD]: true, ...(hash ? { refund_policy_hash: hash } : {}) } as T & { refund_policy_accepted: true; refund_policy_hash?: string };
+}
+
+/** `{ refund_policy_hash }` for a body that is built by hand (spread it next to `refund_policy_accepted: true`); empty when no text of that service was shown. */
+export function policyHashField(service: string): { refund_policy_hash?: string } {
+  const hash = shownPolicyHash(service);
+  return hash ? { refund_policy_hash: hash } : {};
+}
+
+/** Same as `noteRefundPolicyChanged` for a create that threw (the ordering client throws an error whose message is the server's and that has a `status`). */
+export function noteRefundPolicyChangedError(service: string, error: unknown): boolean {
+  const status = (error as { status?: unknown } | null)?.status;
+  return noteRefundPolicyChanged(service, typeof status === "number" ? status : 0, error instanceof Error ? error.message : "");
+}
+
+/**
+ * Call this with the failed answer of a create. When it is 409 `refund_policy_changed` the shown text is out of date: the remembered hash is dropped and the policy card is told to reload the
+ * text and ask for the tick again. Returns true when it was that error (the caller then shows `RefundPolicy.changed`).
+ */
+export function noteRefundPolicyChanged(service: string, status: number, data: unknown): boolean {
+  const text = JSON.stringify(data ?? "");
+  if (status !== 409 || !text.includes("refund_policy_changed")) return false;
+  shownHashes.delete(service);
+  if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent(POLICY_CHANGED_EVENT, { detail: { service } }));
+  return true;
 }
 
 /**

@@ -2,7 +2,7 @@ import { apiFetch, newIdempotencyKey } from './api';
 import { extractPatientPharmacyOrderId } from './pharmacy-draft';
 import { noAnswerYet } from './pharmacyCheckout';
 import { idemKey } from './pharmacyOffers';
-import { withRefundPolicy } from './refundAcceptance';
+import { noteRefundPolicyChangedError, withRefundPolicy } from './refundAcceptance';
 
 /**
  * The one create-and-submit of a governed pharmacy order (POST /patient/pharmacy/orders, then POST .../:id/submit), used by the
@@ -43,7 +43,9 @@ export function createPharmacyOrderSender(keyPrefix: 'pharmacy-broadcast' | 'pha
       }
       if (!orderId) {
         // every send is behind the refund policy tick of its screen (the backend refuses an order without the agreement)
-        const response = await apiFetch('/patient/pharmacy/orders', { method: 'POST', headers: { 'Idempotency-Key': pair.create }, body: JSON.stringify(withRefundPolicy(draft)) });
+        const response = await apiFetch('/patient/pharmacy/orders', { method: 'POST', headers: { 'Idempotency-Key': pair.create }, body: JSON.stringify(withRefundPolicy(draft, 'pharmacy')) })
+          // 409 refund_policy_changed: the policy card shows the new text and asks for the tick again; the send still fails as before
+          .catch((e: unknown) => { noteRefundPolicyChangedError('pharmacy', e); throw e; });
         orderId = extractPatientPharmacyOrderId(response);
         if (!orderId) throw new Error('governed_pharmacy_order_id_missing');
         created = { body, orderId };

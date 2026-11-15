@@ -48,7 +48,7 @@ export type BookingRequest = {
 };
 
 /** What the booking route takes: the request plus the patient's agreement to the refund policy (the backend refuses a booking without it). */
-export type BookingPayload = BookingRequest & { refund_policy_accepted: true };
+export type BookingPayload = BookingRequest & { refund_policy_accepted: true; /** the hash of the policy text the screen showed (409 refund_policy_changed when the table changed since) */ refund_policy_hash?: string };
 
 export async function createBooking(body: BookingPayload): Promise<OrderingBookingResult> {
   const r = parseBookingResult(await call("/api/ordering/bookings", { method: "POST", body: JSON.stringify(body) }));
@@ -57,11 +57,11 @@ export async function createBooking(body: BookingPayload): Promise<OrderingBooki
 }
 
 /** POST /radiology/bookings through our route: one scan of a radiology basket. Answers the booking's id and total. */
-export async function postRadiologyBooking(body: import("./radiology").RadiologyBookingBody & { refund_policy_accepted: true }): Promise<unknown> {
+export async function postRadiologyBooking(body: import("./radiology").RadiologyBookingBody & { refund_policy_accepted: true; refund_policy_hash?: string }): Promise<unknown> {
   return call("/api/ordering/radiology-bookings", { method: "POST", body: JSON.stringify(body) });
 }
 
-export type AsapRequest = { service_kind: "lab" | "radiology" | "nursing"; items: string[]; lat: number; lng: number; payer: "cash" | "insurance"; family_member_id?: string; /** the patient agreed to the refund policy before the broadcast (the backend refuses without it) */ refund_policy_accepted: true };
+export type AsapRequest = { service_kind: "lab" | "radiology" | "nursing"; items: string[]; lat: number; lng: number; payer: "cash" | "insurance"; family_member_id?: string; /** the patient agreed to the refund policy before the broadcast (the backend refuses without it) */ refund_policy_accepted: true; refund_policy_hash?: string };
 
 async function asapCall(url: string, init?: RequestInit): Promise<Asap> {
   const a = parseAsap(await call(url, init));

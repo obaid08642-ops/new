@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { readRefundSummary, refundSummaryPath, type RefundLine, type RefundService } from "@/lib/refund-policy";
+import { POLICY_CHANGED_EVENT, readRefundSummary, readRefundSummaryHash, refundSummaryPath, rememberShownPolicy, type RefundLine, type RefundService } from "@/lib/refund-policy";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import forms from "@/components-next/consult/consult.module.css";
 
@@ -17,15 +17,34 @@ import forms from "@/components-next/consult/consult.module.css";
 export function RefundPolicyTick({ locale, service, checked, onChange, lines, compact = false }: { locale: string; service?: RefundService; checked: boolean; onChange: (checked: boolean) => void; lines?: string[]; /** The page already shows the policy's figures above: only the link and the tick. */ compact?: boolean }) {
   const t = useTranslations("RefundPolicy");
   const [summary, setSummary] = useState<RefundLine[]>([]);
+  const [changed, setChanged] = useState(false);
+  const [reload, setReload] = useState(0);
   useEffect(() => {
-    if (!service || compact) return undefined;
+    if (!service) return undefined;
+    if (compact) { rememberShownPolicy(service, undefined); return undefined; }
     let live = true;
     fetch(`/api/patient${refundSummaryPath(service)}`, { cache: "no-store" })
       .then((res) => (res.ok ? res.json() : null))
-      .then((answer) => { if (live) setSummary(readRefundSummary(answer)); })
-      .catch(() => { if (live) setSummary([]); });
+      .then((answer) => {
+        if (!live) return;
+        const lines = readRefundSummary(answer);
+        setSummary(lines);
+        // the hash is remembered only when the text it belongs to is really on the screen
+        rememberShownPolicy(service, lines.length > 0 ? readRefundSummaryHash(answer) : undefined);
+      })
+      .catch(() => { if (live) { setSummary([]); rememberShownPolicy(service, undefined); } });
     return () => { live = false; };
-  }, [service, compact]);
+  }, [service, compact, reload]);
+  // a create answered 409 refund_policy_changed: show the new text and ask for the tick again
+  useEffect(() => {
+    if (!service) return undefined;
+    const onChanged = (event: Event) => {
+      if ((event as CustomEvent<{ service?: string }>).detail?.service !== service) return;
+      setChanged(true); onChange(false); setReload((n) => n + 1);
+    };
+    window.addEventListener(POLICY_CHANGED_EVENT, onChanged);
+    return () => window.removeEventListener(POLICY_CHANGED_EVENT, onChanged);
+  }, [service, onChange]);
   return (
     <section className={rx.card} aria-labelledby="refund-policy-title" data-testid="refund-policy-tick">
       <h2 id="refund-policy-title" className={forms.sectionTitle}>{t("title")}</h2>
@@ -40,6 +59,7 @@ export function RefundPolicyTick({ locale, service, checked, onChange, lines, co
       <label className={forms.field}>
         <span><input type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} /> {t("agree")}</span>
       </label>
+      {changed ? <p className={rx.note} role="alert" data-testid="refund-policy-changed">{t("changed")}</p> : null}
       {!checked ? <p className={rx.note} role="status">{t("needAgree")}</p> : null}
     </section>
   );

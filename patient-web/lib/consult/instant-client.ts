@@ -27,7 +27,7 @@ async function instant(url: string, init?: RequestInit): Promise<Instant> {
 }
 
 /** POST /consultations/instant. With a booking, the result is attached first (POST /ordering/bookings/:id/results/discuss). */
-export async function startInstant(body: { specialty: string; mode: "video" | "audio"; refund_policy_accepted: true }, bookingId?: string | null): Promise<Instant> {
+export async function startInstant(body: { specialty: string; mode: "video" | "audio"; refund_policy_accepted: true; refund_policy_hash?: string }, bookingId?: string | null): Promise<Instant> {
   if (bookingId) await call(`/api/ordering/bookings/${encodeURIComponent(bookingId)}/discuss`, { method: "POST", body: "{}" });
   return instant("/api/consultations/instant", { method: "POST", body: JSON.stringify(body) });
 }

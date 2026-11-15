@@ -16,6 +16,8 @@ const schema = z.object({
   family_member_id: id.optional(),
   // the patient agreed to the refund policy before booking (the backend refuses without it; an explicit false is never accepted)
   refund_policy_accepted: z.literal(true),
+  // the hash of the policy text the screen showed: the server refuses a table that changed since (409 refund_policy_changed)
+  refund_policy_hash: z.string().regex(/^[a-f0-9]{64}$/).optional(),
   documents: z.array(z.object({ kind: z.literal("doctor_request"), url_or_b64: z.string().max(2_000_000), filename: z.string().max(200).optional() })).max(5).optional(),
 });
 

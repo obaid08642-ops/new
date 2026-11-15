@@ -1,5 +1,5 @@
 {
- "commit": "97f09139f",
+ "commit": "4ba5ed513",
  "screens": {
   "PendingDashboard": [
    {
@@ -9184,7 +9184,7 @@
     "src": "GET /provider/notifications, POST /provider/notifications/:param/read → unreadCount",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 294,
+    "line": 295,
     "via": null,
     "note": null
    },
@@ -9194,7 +9194,7 @@
     "src": "GET /provider/notifications, POST /provider/notifications/:param/read → notifs",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 347,
+    "line": 348,
     "via": null,
     "note": null
    },
@@ -9204,7 +9204,7 @@
     "src": "POST /provider/notifications/:param/read, GET /provider/notifications",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 348,
+    "line": 349,
     "via": null,
     "note": null
    }
@@ -10651,7 +10651,7 @@
     "src": "from periods (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/RevenueInsights.tsx",
-    "line": 94,
+    "line": 99,
     "via": null,
     "note": null,
     "untraced": true
@@ -10662,7 +10662,7 @@
     "src": "local state setPeriod",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/RevenueInsights.tsx",
-    "line": 95,
+    "line": 100,
     "via": null,
     "note": null
    },
@@ -10672,7 +10672,7 @@
     "src": "from trend (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/RevenueInsights.tsx",
-    "line": 149,
+    "line": 154,
     "via": null,
     "note": null,
     "untraced": true
@@ -10683,18 +10683,18 @@
     "src": "from topServices (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/RevenueInsights.tsx",
-    "line": 170,
+    "line": 175,
     "via": null,
     "note": null,
     "untraced": true
    },
    {
     "kind": "data",
-    "label": "List Object.entries(sums).sort((a, b) => b[1] - a[1])",
-    "src": "from Object (prop / derived; not traced)",
+    "label": "List sumsList",
+    "src": "from sumsList (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/RevenueInsights.tsx",
-    "line": 191,
+    "line": 196,
     "via": null,
     "note": null,
     "untraced": true
@@ -14508,7 +14508,7 @@
     "src": "user input → subject → request body",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 399,
+    "line": 400,
     "via": null,
     "note": null
    },
@@ -14518,7 +14518,7 @@
     "src": "user input → message → request body",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 401,
+    "line": 402,
     "via": null,
     "note": null
    },
@@ -14528,7 +14528,7 @@
     "src": "POST /support/tickets",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 402,
+    "line": 403,
     "via": null,
     "note": null
    }
@@ -14540,7 +14540,7 @@
     "src": "user input → oldPassword → request body",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 275,
+    "line": 276,
     "via": null,
     "note": null
    },
@@ -14550,7 +14550,7 @@
     "src": "user input → newPassword → request body",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 277,
+    "line": 278,
     "via": null,
     "note": null
    },
@@ -14560,7 +14560,7 @@
     "src": "POST /provider/auth/change-password",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
-    "line": 278,
+    "line": 279,
     "via": null,
     "note": null
    }
@@ -16141,7 +16141,7 @@
     "src": "local state setFailed, setValue",
     "status": "ok",
     "file": "provider-app/src/screens/shared/LabSlotCapacityCard.tsx",
-    "line": 38,
+    "line": 39,
     "via": "LabSlotCapacityCard",
     "note": null
    },
@@ -16151,7 +16151,7 @@
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/shared/LabSlotCapacityCard.tsx",
-    "line": 41,
+    "line": 42,
     "via": "LabSlotCapacityCard",
     "note": null
    },
@@ -16161,7 +16161,7 @@
     "src": "parent callback t",
     "status": "ok",
     "file": "provider-app/src/screens/shared/LabSlotCapacityCard.tsx",
-    "line": 42,
+    "line": 43,
     "via": "LabSlotCapacityCard",
     "note": null
    },
