@@ -76,3 +76,14 @@ Deploys: you prepare a branch with tools/ops/RUN + the SHA line of tools/ops/tas
 10. Gitleaks fingerprints only after the owner confirms the R2 token roll.
 11. Z leftover: free-reschedule item (owner decision: GO) if Z had not finished it: check main first.
 Tick lead/LAUNCH_LIST.md items when merged.
+
+## 2026-11-15 — STOP LIFTED. NEW QUEUE (backend / ops). One PR per item, outbox line per PR, lead merges when green.
+Merged today: #2678 (Redis mail gate), #2679 (nginx bot rule), #2680 (nightly jobs serialized), #2682, #2677. #2681 (WiredTiger cache 0.4 GB) fixed its healthcheck, waiting on CI.
+1. Watch mongod after deploy: report restarts/OOM count from the 96q checks; any new heavy aggregate without index/maxTimeMS gets fixed.
+2. R11 P3 (stop writing doubles): plan only until owner approves; prepare the 96i numbers.
+3. Invoice / credit note 381 / ZATCA: review pass, list what the accountant must confirm.
+4. Provider licence-expiry for the 5 types: draft options for the owner (no code until decided).
+5. G6 gate verification: run and report.
+6. Backend gaps found by P (WIRING needs-review [backend] lines): fix one PR each.
+7. Multi-country: write docs/platform/MULTI-COUNTRY.md from lead inventory (countries collection, country_code, strategy plugins, money {amount_minor,currency}); docs only.
+Rules unchanged: gate before every push, no mock data, one task = one commit.

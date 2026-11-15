@@ -37,3 +37,13 @@ Deploys: you never push to review/server-inspect; the old lead does.
 4. Admin merge map row 2: payouts.tsx is the one place (approve/pay/reject), finance-suite.tsx links to it, shared confirm sheet instead of window.prompt/confirm. Check there is no second provider-side payout path first. (lead/OWNER_DECISIONS.md "APPROVED PROVIDER/ADMIN MERGE MAP")
 5. LOWEST PRIORITY (owner may move them after launch): web/app parity audit round 2 (list what exists on one side only; one PR each); insurance companies and classes instead of a boolean in offers (decision 30).
 Tick lead/LAUNCH_LIST.md items when merged.
+
+## 2026-11-15 — STOP LIFTED. NEW QUEUE (client side + provider-app + docs). One PR per item, outbox line per PR, lead merges when green.
+Merged today: #2677 (refund hash clients), #2678 (persistent alert-mail gate), #2679 (nginx bot limit), #2680 (serialized nightly jobs), #2682 (provider revenue light).
+1. Provider-app literal strings (~5260): ratchet down by screen, six languages, same PR, report old→new baseline.
+2. Patient-app/web literals left (~25–50): finish, locale-parity must stay green.
+3. WIRING known client defects: payments/result opening any https URL (allow-list host), social login tokens not verified client side (send to backend verify only), issues #1835 / #1831 / #1556.
+4. Pharmacy chat route missing in app: add route + wire to existing endpoint (grep first, no new backend).
+5. AI assistant: add the missing tests only (no feature changes).
+6. Merge-map rows approved in lead/OWNER_DECISIONS.md: UI parts only.
+Rules unchanged: tokens only, no mock data, lean process v2.
