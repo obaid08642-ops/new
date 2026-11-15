@@ -64,9 +64,13 @@ describe('the pipeline and the service', () => {
 
   it('revenueByMonth reads both ids of the provider and answers 12 months by default', async () => {
     const aggregate: jest.Mock = jest.fn((_pipeline: any[]) => ({ toArray: async () => [{ _id: { m: monthKey(new Date()), t: 'provider_earning' }, total: 12345 }] }));
-    const conn: any = { collection: jest.fn((n: string) => (n === 'provider_accounts' ? { findOne: jest.fn().mockResolvedValue({ id: 'acc-1', user_id: 'user-1' }) } : { aggregate })) };
+    const createIndex = jest.fn().mockResolvedValue('ok');
+    const conn: any = { collection: jest.fn((n: string) => (n === 'provider_accounts' ? { findOne: jest.fn().mockResolvedValue({ id: 'acc-1', user_id: 'user-1' }) } : { aggregate, createIndex })) };
     const out = await new ProviderOpsService(conn).revenueByMonth('user-1');
     expect(aggregate.mock.calls[0][0][0].$match.provider_account_id).toEqual({ $in: ['user-1', 'acc-1'] });
+    // bounded: every aggregate has a time limit and may spill to disk; the ledger index on provider_account_id is requested (it did not exist, each call scanned the whole ledger)
+    for (const c of aggregate.mock.calls) expect(c[1]).toMatchObject({ maxTimeMS: 20_000, allowDiskUse: true });
+    expect(createIndex).toHaveBeenCalledWith({ provider_account_id: 1, type: 1, createdAt: 1 }, { name: 'ledger_provider_type_created' });
     expect(out.months).toHaveLength(12);
     expect(out.months[11].earned).toBe(123.45);
     expect((await new ProviderOpsService(conn).revenueByMonth('user-1', '3')).months).toHaveLength(3);

@@ -802,6 +802,7 @@ export class ProviderOpsService {
   }
 
   /** Revenue per month for the last `months` months, refunds netted (revenue-by-month.ts). The earnings are filed under the provider ACCOUNT id, so both ids are read. */
+  private revenueIndex?: Promise<boolean>;
   async revenueByMonth(providerId: string, monthsRaw?: unknown): Promise<any> {
     const months = clampMonths(monthsRaw);
     const account: any = await this.conn.collection('provider_accounts').findOne({ $or: [{ id: providerId }, { user_id: providerId }] }).catch(() => null);
@@ -809,12 +810,15 @@ export class ProviderOpsService {
     const now = new Date();
     const from = rangeStart(now, months);
     const led = this.conn.collection('platformledgerentries');
+    // No index on provider_account_id existed: each of the four aggregates below scanned the whole ledger on every call (the app calls this twice per open). Built once per process, in the background.
+    this.revenueIndex ??= led.createIndex({ provider_account_id: 1, type: 1, createdAt: 1 }, { name: 'ledger_provider_type_created' }).then(() => true, () => false);
+    const opts = { maxTimeMS: 20_000, allowDiskUse: true, batchSize: 200 };
     // The widgets of the revenue screen are aggregated here too, over the whole range, instead of on the phone from its newest rows.
     const [rows, byService, byType, wallet] = await Promise.all([
-      led.aggregate(revenuePipeline(ids, from) as any[]).toArray(),
-      led.aggregate(earningsByRefTypePipeline(ids, from) as any[]).toArray(),
-      led.aggregate(movementsByTypePipeline(ids, from) as any[]).toArray(),
-      led.aggregate(walletTotalsPipeline(ids) as any[]).toArray(),
+      led.aggregate(revenuePipeline(ids, from) as any[], opts).toArray(),
+      led.aggregate(earningsByRefTypePipeline(ids, from) as any[], opts).toArray(),
+      led.aggregate(movementsByTypePipeline(ids, from) as any[], opts).toArray(),
+      led.aggregate(walletTotalsPipeline(ids) as any[], opts).toArray(),
     ]);
     return {
       ...foldRevenue(rows as any[], now, months),
