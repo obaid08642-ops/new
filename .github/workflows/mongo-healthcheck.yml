@@ -32,8 +32,8 @@ jobs:
           assert got == want, got
           assert str(c["mem_limit"]) == "1600m" and str(c["memswap_limit"]) == "1600m", (c["mem_limit"], c["memswap_limit"])
           conf = yaml.safe_load(open("deploy/mongo/mongod.conf"))
-          assert conf["storage"]["wiredTiger"]["engineConfig"]["cacheSizeGB"] == 0.6
-          print("compose and mongod.conf settings as asked:", got, c["mem_limit"], c["memswap_limit"], "cache 0.6 GB")
+          assert conf["storage"]["wiredTiger"]["engineConfig"]["cacheSizeGB"] == 0.4
+          print("compose and mongod.conf settings as asked:", got, c["mem_limit"], c["memswap_limit"], "cache 0.4 GB")
           PY
       - name: Start mongo:7.0 with the production limits and storage/net settings
         run: |
