@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-16 12:55 UTC — provider literals slice 2 (PR #2700)
+- 3003 -> 2691 (RealScreensExtended, DoctorOps, PharmacyBroadcastResponse, NursingFieldOps). parity ok, token-sync 396, emoji 40, tsc clean, jest 433/433.
+- One contract assertion now reads the sentence from en.json (text moved out of the screen); four test mocks use the real-text helper. No test skipped.
+- Next: slice 3 (Drug index, Ordering screens: need `useLang` added first), then items 2-3.
+
 ## 2026-11-16 11:10 UTC — #2694 Gitleaks ignore + main merged
 - Added the 6 fingerprints (31deee73…:provider-app/src/i18n/locales/en.json:generic-api-key:{764,993,1188,1437,1451,1453}) to .gitleaksignore with the comment "locale label, not a secret".
 - Merged main; generated inventories taken from main and regenerated with the tools. Checks: literals 3003 (baseline 3003), locale-parity ok, no-emoji 40, token-sync 396, provider tsc clean. Pushed 97e48e5e4.
