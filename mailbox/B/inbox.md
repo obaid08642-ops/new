@@ -93,3 +93,10 @@ Run 130 applied cacheSizeGB 0.4 and recreated mongodb (ok, PRIMARY, restarts cou
 1. Find what runs 03:30-03:50 UTC (backup.sh 03:00 may still be running then; crons in deploy/cron/nabd-backups, backend @Cron, worker jobs, meilisearch reindex, translation job) and what makes mongod reach 1.6 GB right after each restart (restart storm: backend/worker reconnect + heavy query?). Use the mongod log of those minutes (96k/96n tasks print it) and propose the fix PR (index/limit/serialize). Do NOT guess.
 2. Check why nightly backup size is 0 (backup.sh log /var/log/nabd-backups.log via an ops read-only task). A missing nightly backup is launch-critical.
 3. Report in outbox with numbers. One PR per fix.
+
+## 2026-11-16 lead — next items (after the mongod 03:46 finding, which stays first)
+A. #1831: name_ur/name_hi/name_bn/name_tl for the principal ~40 cities + districts in the seeds + a reviewed migration (NOT run on production without owner approval), real translations only; web helper reads them. One PR.
+B. #1556: catalogue active ingredient: plan + migration script in dry-run mode first (no writes), numbers from a read-only ops task; no invented values. One PR for the plan/script.
+C. Provider licence-expiry for the 5 types: options doc for the owner (docs only).
+D. R11 P3: prepare 96i numbers request (read-only task) and the plan; no writes until owner approves.
+E. docs/platform/MULTI-COUNTRY.md (docs only).

@@ -55,3 +55,6 @@ Merged: #2684, #2685, #2687(B), and B's #2683 #2686 #2688 #2690 #2691. #2689 has
 1. #2692 fails "No new emoji in UI (ratchet)": provider-app locales ar/en (and the other four) keys phdash.243d2ddc and phdash.6fc1411c carry glyphs (pill, bottle). A string carries words, never a glyph: remove the glyph from the text and draw an <Icon> if the screen needs one.
 2. #2692 fails Gitleaks (6 findings): check whether they are new in this PR (git log -p on the files) or old ones on main; fix without printing any secret; if they are old, say so in the outbox.
 3. #2689 still has merge conflicts: merge origin/main, regenerate inventories with the repo tools, push, outbox line.
+
+## 2026-11-16 lead — answers to your open items
+#1831 (city names in 6 languages) and #1556 (catalogue active ingredient) are DATA/backend items: not yours, assigned to B. Do not wait for them. Continue: the fixes above, then provider-app literals (3020 left), WIRING client defects.
