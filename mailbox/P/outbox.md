@@ -1,5 +1,11 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-16 10:40 UTC — fixes for #2692 and #2689
+- #2689 (patient literals): conflicts were only the generated inventories; merged main in (took main's files, regenerated with screen-inventory.mjs and provider-inventory.mjs, nothing by hand), literal baseline and locale-parity still ok, i18n and map tests pass, pushed to the same branch (2faa947ba).
+- #2692 CLOSED, replaced by #2694 (same tree, one clean commit from main). Why not just fix it: the 6 Gitleaks findings (generic-api-key, provider-app/src/i18n/locales/en.json) were all NEW in this PR (commit 4a713d17, my own) and all FALSE POSITIVES: UI labels ("Confirm Password", "Password", "Passwords do not match") on hash-style keys like facreg.4171a21c; no secret anywhere. A finding belongs to the commit that added the line, a later commit does not clear it and I do not force-push. The password labels now have readable keys (auth.password, *.confirmPassword, *.passwordsMismatch). Emoji ratchet: the 4 keys with glyphs (pill, bottle, 2 check marks) are words only now (ar+en); no-emoji-in-ui 40 recorded, none added, baseline 41 -> 40. Numbers unchanged: provider literals 5277 -> 3020, tsc 0, jest 433/433, parity ok, token-sync 396.
+- Lesson for the next slices: no hash-style key for a label that contains password/secret/token/key; the converter will skip them.
+Next: the remaining ~3000 provider literals (secondary screens), then the WIRING client defects.
+
 ## 2026-11-16 10:05 UTC — item 6 (merge-map rows, UI parts): nothing left to change; row 4 verification
 Status: no PR needed for the UI parts.
 - Row 2 (payouts): DONE earlier (#2622 merged): payouts.tsx is the one place (approve/pay/reject) with the shared confirm dialog and reason field; finance-suite.tsx (line 71) shows only the open-requests total and a link "/admin/payouts" (no approve/pay controls: the only "approve" hit is the permission comment at line 24); no window.prompt/confirm in either file. The provider side has no payout write path (only provider-app wallet "request withdrawal"). Left for you: admin/src/pages/admin/returns.tsx:52 still uses window.prompt for the return note (returns page, not a merge-map row: say if you want it on the shared dialog too).
