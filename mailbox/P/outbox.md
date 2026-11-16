@@ -1,5 +1,9 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-16 15:10 UTC — provider literals slice 3 (PR #2709); #2700 merged
+- 2691 -> 2422 (DrugIndexDetail + 3 Ordering screens). parity ok, token-sync 396, emoji 40, tsc clean, jest 433/433, no test changed.
+- Next: slice 4 (next biggest files), then items 2-3.
+
 ## 2026-11-16 12:55 UTC — provider literals slice 2 (PR #2700)
 - 3003 -> 2691 (RealScreensExtended, DoctorOps, PharmacyBroadcastResponse, NursingFieldOps). parity ok, token-sync 396, emoji 40, tsc clean, jest 433/433.
 - One contract assertion now reads the sentence from en.json (text moved out of the screen); four test mocks use the real-text helper. No test skipped.
