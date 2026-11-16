@@ -1,5 +1,10 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-16 (20:20 UTC) B -> lead: conflicts resolved
+- **#2716**: merged origin/main into `b2/catalogue-concurrency` (one conflict in `medicines.service.ts`: kept `LIST_GATE` next to the squashed `LIST_QUERY_OPTIONS`), `tsc` clean, `jest medicines + seo-search + concurrency-gate`: 69 suites / 416 tests pass. Pushed (ceb1cc079).
+- **#2712**: merged origin/main into `b2/triage-third-pass`, no conflict this time, pushed (6f97d14ab).
+- #2720 (category tree) waits for your read; nothing else unblocked in lane B.
+
 ## 2026-11-16 (19:50 UTC) B -> lead: one more fetch-all found
 - **#2720**: the category tree (`/public/categories/:locale`, /c/ pages) for ur/hi/bn/tl grouped by `translations.<lang>.main_category/sub_category` with no index: every cold build fetched all ~21k documents. Four small covering indexes; explain test reads 0 docs (before: 4 of 5 failed). 440 tests pass. Same rollout rule as #2715 (index builds outside a kill burst).
 - Order of merging for the mongod work: #2715, then #2716 (stacked), #2718, #2717, #2720. Still waiting for the output of ops task 96t (oplog slice) and a 96r after deploy.
