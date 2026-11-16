@@ -32,3 +32,25 @@ Mostly design-session notes written next to a backend path: the distribution is 
 1. The permission decision above (13 lines, one answer clears them).
 2. The assistant screens reading `/mental-health/urgent-help` (client, patient safety: today the emergency button can be hidden).
 3. The "not sent" fields the owner wants first (wait time, follow-up price).
+
+---
+## Second pass (2026-11-16, later): groups m6, doctor, provider, parity read by hand (about 170 lines)
+
+### More lines verified STALE against the code (no backend work; the design notes were written before the fixes landed)
+| line (file) | what the code shows now |
+|---|---|
+| "a seeded PATIENT session gets 200 on `GET /pharmacy/inventory/expiry`" (provider-admin-inventory) | `nabd-extensions.controller.ts:153-154` has `@Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN)` ("a patient gets 403"). |
+| "the one-open-withdrawal check ignores `AWAITING_SECOND_APPROVAL`" (provider-journeys) | `payouts/provider-payouts.controller.ts:15` `OPEN_WITHDRAWAL_STATES` = PENDING_ADMIN_APPROVAL, AWAITING_SECOND_APPROVAL, APPROVED_FOR_PAYOUT. |
+| "nothing subscribes to `pharmacy.offer.selected`, the pharmacy gets no notification" | `pharmacy-offer.service.ts:659` calls `notifyPharmacyNewAllocation(selected.allocation)` right after the event. |
+| "the backend does not store `sound`/`vibration` notification settings" (parity-account) | `users.service.ts:283` `NOTIFICATION_PREFERENCES` includes them and `updateNotificationSettings` stores them. |
+| "visit-report completes without the patient signature" (provider-journeys) | `home-care-compat.module.ts` `visitReport` refuses `complete` without `signature` (`patient_signature_required`). |
+
+### The real bug found in m6 (needs a decision, see the outbox of 2026-11-16 16:30)
+`slotsForProvider` (labs, radiology, home-care) builds slot instants at the opening hour as UTC: a lab open 09:00 (Riyadh) gets 09:00Z = 12:00 Riyadh. Not changed: it moves every slot instant and the web picker compensates by showing UTC.
+
+### What the rest of these groups are
+- **doctor (19), parity-doctors, doctor-card:** public doctor payload fields that do not exist (`education`, `services`, `certificates`, `wait_time`, `is_online`, `reviews_data` from a branch, gender, clinic coordinates which are private by design). Feature work needing a data source, or an owner choice on privacy (exact clinic location is withheld on purpose).
+- **parity-pharmacy / parity-pass:** public product DTO lacks `cold_chain`, `interactions`, `pregnancy_info`, `related_product_ids`; the category list accepts one form and one brand. These are small additive fields (the medicine schema already has them): the lead can ask for one PR; note they widen what the public page exposes, so a medical reviewer should say which of them may be public.
+- **parity-account:** OTP throttle (3 per 10 minutes) versus the app's 60 s wait, register-then-OTP flow differences, search without price fields: product decisions between app and web, not defects.
+- **provider (14):** mostly known gaps (position route for nursing visits, per-item custom test request endpoint, admin "request changes" note not shown in onboarding progress).
+- **Still unscanned:** `admin` (55, 13 are the permission decision), `5`, `7`, `1e`, `owner`, `differentiators`, and a long tail.
