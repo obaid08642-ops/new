@@ -45,7 +45,7 @@ import { tokens } from '../../../theme/tokens';
 export function FacilitySettingsScreen({ onLogout, onNavigate }: { onLogout: () => void; onNavigate: (s: string) => void }) {
  const insets = useSafeAreaInsets();
  const { theme, toggle: toggleTheme, mode } = useTheme();
- const { lang, toggle: toggleLang } = useLang();
+ const { lang, toggle: toggleLang, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
  const [showLogout, setLogout] = useState(false);
@@ -74,7 +74,7 @@ export function FacilitySettingsScreen({ onLogout, onNavigate }: { onLogout: () 
    setTariffsPending(!!res?.data?.pending);
  } catch (e) {
    setShowPricing(false);
-   show(AR ? 'تعذر تحميل التعريفات المحفوظة' : 'Could not load the saved tariffs', 'error');
+   show(tt('fset.3ddd623c'), 'error');
  } finally {
    setTariffsLoading(false);
  }
@@ -87,13 +87,13 @@ export function FacilitySettingsScreen({ onLogout, onNavigate }: { onLogout: () 
    if (!raw.trim()) continue;
    const n = Number(raw.trim());
    if (!Number.isFinite(n) || n < 0) {
-     show(AR ? 'أدخل أسعاراً صحيحة (أرقام موجبة)' : 'Enter valid prices (positive numbers)', 'error');
+     show(tt('fset.ec640a9a'), 'error');
      return;
    }
    entered[key] = n;
  }
  if (!Object.keys(entered).length) {
-   show(AR ? 'أدخل سعراً واحداً على الأقل' : 'Enter at least one price', 'error');
+   show(tt('fset.3cdb64dc'), 'error');
    return;
  }
  setSavingPrices(true);
@@ -101,9 +101,9 @@ export function FacilitySettingsScreen({ onLogout, onNavigate }: { onLogout: () 
    await client.put('/provider/settings/tariffs', entered);
    setShowPricing(false);
    setTariffsPending(true);
-   show(AR ? 'بانتظار موافقة الإدارة على الأسعار الجديدة' : 'Pending admin approval for new pricing', 'success');
+   show(tt('fset.da3bca34'), 'success');
  } catch(e) {
-   show(AR ? 'فشل إرسال التعديلات' : 'Failed to submit changes', 'error');
+   show(tt('fset.117075fa'), 'error');
  } finally {
    setSavingPrices(false);
  }
@@ -115,9 +115,9 @@ export function FacilitySettingsScreen({ onLogout, onNavigate }: { onLogout: () 
     try {
       setDeltaPending(true);
       await client.post('/provider/settings/delta', { newData });
-      show(AR ? 'بانتظار موافقة الإدارة على التعديلات' : 'Pending admin approval for changes', 'success');
+      show(tt('fset.44bd2050'), 'success');
     } catch (e) {
-      show(AR ? 'فشل إرسال التعديلات' : 'Failed to submit changes', 'error');
+      show(tt('fset.117075fa'), 'error');
       setDeltaPending(false);
     }
   };
@@ -125,7 +125,7 @@ return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
  <View style={[s.topBar, { backgroundColor: theme.surface, borderBottomColor: theme.border, paddingTop: Math.max(insets.top, 16) }]}>
  <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>
- {AR?' إعدادات المنشأة':' Facility Settings'}
+ {tt('fset.c5eb35c4')}
  </Text>
  </View>
  <ScrollView contentContainerStyle={{ padding: SP.xl, paddingBottom: 100 }}>
@@ -137,13 +137,13 @@ return (
  </View>
  <View style={{ flex:1 }}>
  <Text style={{ fontSize:FS.xl, fontWeight:FW.bold, color:theme.text,
- textAlign:AR?'right':'left' }}>{AR?'مستشفى نبضة الطبي':'Nabdah Medical Hospital'}</Text>
- <Text style={{ fontSize:FS.sm, color:theme.textSub }}>{AR?'مستشفى':'Hospital'}</Text>
- <NBadge label={AR?' حساب نشط':' Active'} variant="success" size="xs" style={{ marginTop:SP.xs }} />
+ textAlign:AR?'right':'left' }}>{tt('fset.d71022b1')}</Text>
+ <Text style={{ fontSize:FS.sm, color:theme.textSub }}>{tt('fset.e6e8c403')}</Text>
+ <NBadge label={tt('fset.9dabe20f')} variant="success" size="xs" style={{ marginTop:SP.xs }} />
  </View>
  </NCard>
 
- <NSecHeader title={AR?'إدارة المنشأة':'Facility Management'} />
+ <NSecHeader title={tt('fset.535eaf37')} />
  <NCard style={{ marginBottom: SP.xl }}>
  {[
  { icon:'facility', ar:'معلومات المنشأة', en:'Facility Information', action: () => onNavigate('facility_info') },
@@ -164,7 +164,7 @@ return (
  </NCard>
 
  {/* Marketing & Reputation */}
- <NSecHeader title={AR ? 'التسويق والمبيعات والطوارئ' : 'Marketing, Sales & SOS'} />
+ <NSecHeader title={tt('fset.2f3036ab')} />
  <NCard style={{ marginBottom: SP.xl }}>
  {[
  { icon:'bell', ar:'مركز العروض الترويجية', en:'Promotions Center', action:()=>onNavigate('promotions') },
@@ -177,17 +177,17 @@ return (
  ))}
  </NCard>
 
- <NSecHeader title={AR?'التفضيلات':'Preferences'} />
+ <NSecHeader title={tt('fset.e1eec1dc')} />
  <NCard style={{ marginBottom: SP.xl }}>
- <NToggle label={AR?' الوضع الداكن':' Dark Mode'} value={mode==='dark'} onChange={toggleTheme} />
- <NSettingsRow icon="globe" label={AR?'اللغة: العربية':'Language: Arabic'} onPress={toggleLang} />
- <NSettingsRow icon="bell" label={AR?'الإشعارات':'Notifications'} onPress={() => onNavigate('notifications')} />
- <NSettingsRow icon="chart" label={AR?'التقارير التلقائية':'Auto Reports'} onPress={() => onNavigate('auto_reports')} />
- <NSettingsRow icon="briefcase" label={AR?'الوظائف الطبية':'Medical Jobs'} onPress={() => onNavigate('medical_jobs')} />
- <NSettingsRow icon="bookOpen" label={AR?'دليل الأدوية الطبي':'Medical Drug Index'} onPress={() => onNavigate('drug_index')} />
+ <NToggle label={tt('fset.81e1b733')} value={mode==='dark'} onChange={toggleTheme} />
+ <NSettingsRow icon="globe" label={tt('fset.a1d2dc5b')} onPress={toggleLang} />
+ <NSettingsRow icon="bell" label={tt('fset.5e885201')} onPress={() => onNavigate('notifications')} />
+ <NSettingsRow icon="chart" label={tt('fset.90758730')} onPress={() => onNavigate('auto_reports')} />
+ <NSettingsRow icon="briefcase" label={tt('fset.ebb9f1de')} onPress={() => onNavigate('medical_jobs')} />
+ <NSettingsRow icon="bookOpen" label={tt('fset.0e14b12f')} onPress={() => onNavigate('drug_index')} />
  </NCard>
 
- <NSecHeader title={AR?'الأمان':'Security'} />
+ <NSecHeader title={tt('fset.b42c5798')} />
  <NCard style={{ marginBottom: SP.xl }}>
  {[
  { icon:'lock', ar:'تغيير كلمة المرور', en:'Change Password', action: () => onNavigate('security') },
@@ -200,7 +200,7 @@ return (
  ))}
  </NCard>
 
- <NSecHeader title={AR?'الدعم والقانونية':'Support & Legal'} />
+ <NSecHeader title={tt('fset.3820e8ef')} />
  <NCard style={{ marginBottom: SP.xl }}>
  {[
  { icon:'', ar:'الشروط والأحكام', en:'Terms & Conditions' },
@@ -216,38 +216,38 @@ return (
  <NCard style={{ marginBottom: SP.md }}><MyContractRow /></NCard>
 
  <NCard>
- <NSettingsRow icon="" label={AR?'تسجيل الخروج':'Log Out'}
+ <NSettingsRow icon="" label={tt('fset.d56d4be0')}
  onPress={() => setLogout(true)} danger />
  </NCard>
  </ScrollView>
 
  {/* ICU & Wards pricing sheet */}
- <NSheet visible={showPricing} onClose={() => setShowPricing(false)} title={AR ? ' أسعار وتكاليف الخدمات' : ' Pricing & Tariffs'} height={550}>
+ <NSheet visible={showPricing} onClose={() => setShowPricing(false)} title={tt('fset.a9031f66')} height={550}>
  <ScrollView contentContainerStyle={{ padding: SP.md }}>
  {tariffsLoading ? <ActivityIndicator color={theme.primary} style={{ marginBottom: SP.md }} /> : null}
  {tariffsPending ? (
  <Text style={{ color: theme.warn, fontSize: FS.sm, marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'لديك تعديل أسعار بانتظار موافقة الإدارة؛ الأسعار المعروضة هي المعتمدة حالياً.' : 'A pricing change is waiting for admin approval; the prices shown are the ones approved now.'}
+ {tt('fset.fdf08da4')}
  </Text>
  ) : null}
- <NPriceInput label={AR ? 'سعر سرير العناية المركزة ICU (يومي)' : 'ICU Bed Rate (Daily - SAR)'} value={icuDaily} onChange={setIcuDaily} />
- <NPriceInput label={AR ? 'سعر سرير العناية المركزة ICU (ساعي)' : 'ICU Bed Rate (Hourly - SAR)'} value={icuHourly} onChange={setIcuHourly} />
- <NPriceInput label={AR ? 'سعر سرير التنويم بالأجنحة (يومي)' : 'Ward Inpatient Rate (Daily - SAR)'} value={wardDaily} onChange={setWardDaily} />
- <NPriceInput label={AR ? 'تكلفة فتح غرف العمليات للعملية' : 'Surgery Room Starting Price (SAR)'} value={surgPrice} onChange={setSurgPrice} />
- <NPriceInput label={AR ? 'رسوم الطوارئ' : 'Emergency Fee (SAR)'} value={erFee} onChange={setErFee} />
+ <NPriceInput label={tt('fset.5f0f110a')} value={icuDaily} onChange={setIcuDaily} />
+ <NPriceInput label={tt('fset.0b1a86d8')} value={icuHourly} onChange={setIcuHourly} />
+ <NPriceInput label={tt('fset.215b5ee5')} value={wardDaily} onChange={setWardDaily} />
+ <NPriceInput label={tt('fset.0f53270f')} value={surgPrice} onChange={setSurgPrice} />
+ <NPriceInput label={tt('fset.74f164df')} value={erFee} onChange={setErFee} />
  {/* owner decision B23 / decision 14: no ambulance service, so no ambulance fee */}
  
- <NBtn label={AR ? ' حفظ التعريفات' : ' Save Tariffs'} loading={savingPrices} disabled={tariffsLoading} onPress={handleSavePrices} style={{ marginTop: SP.md }} />
+ <NBtn label={tt('fset.b4ef41bf')} loading={savingPrices} disabled={tariffsLoading} onPress={handleSavePrices} style={{ marginTop: SP.md }} />
  </ScrollView>
  </NSheet>
 
  <NConfirm
  visible={showLogout}
- title={AR?'تسجيل الخروج':'Log Out'}
- msg={AR?'هل تريد تسجيل الخروج من حساب المنشأة؟':'Log out of facility account?'}
+ title={tt('fset.d56d4be0')}
+ msg={tt('fset.f3408473')}
  onOk={() => { setLogout(false); onLogout(); }}
  onCancel={() => setLogout(false)}
- okLabel={AR?'تسجيل الخروج':'Log Out'}
+ okLabel={tt('fset.d56d4be0')}
  />
  </View>
  );

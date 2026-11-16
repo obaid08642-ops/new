@@ -32,7 +32,7 @@ import { tokens, withAlpha } from '../../../theme/tokens';
 const PENDING_STATES = ['PENDING_ADMIN_APPROVAL', 'AWAITING_SECOND_APPROVAL', 'APPROVED_FOR_PAYOUT'];
 
 export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [loading, setLoading] = useState(true);
   const [loadErr, setLoadErr] = useState(false);
   const [balance, setBalance] = useState<{ available: number; pending: number; negative: boolean; minimum: number | null } | null>(null);
@@ -96,7 +96,7 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
           holder_name: holderName.trim(),
           iban: cleanIban,
         });
-        show(AR ? 'أُرسل الحساب البنكي للمراجعة. لا يمكن طلب سحب قبل أن يعيده الخادم بحالة معتمدة.' : 'The bank account was submitted for review. A withdrawal cannot be requested until the server returns an approved status.', 'info');
+        show(tt('wd.c2991123'), 'info');
         await load();
         return;
       }
@@ -107,7 +107,7 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
       setSubmittedReference(String(reference));
       setSubmitted(true);
     } catch (err: any) {
-      show(payoutErrorText(err?.response?.data?.message ?? err?.message, AR, AR ? 'تعذر إرسال طلب السحب — تحقق من الاتصال وحاول مجدداً' : 'Could not submit withdrawal request — check connection and retry'), 'error');
+      show(payoutErrorText(err?.response?.data?.message ?? err?.message, AR, tt('wd.07b51425')), 'error');
     } finally {
       setSubmitting(false);
     }
@@ -117,12 +117,12 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
   // COMPLETED is the same as PAID on older rows).
   const statusLabel = (st: string) => {
     switch (String(st)) {
-      case 'PENDING_ADMIN_APPROVAL': return AR ? 'بانتظار اعتماد الإدارة' : 'Pending admin approval';
-      case 'AWAITING_SECOND_APPROVAL': return AR ? 'بانتظار الاعتماد الثاني' : 'Awaiting second approval';
-      case 'APPROVED_FOR_PAYOUT': return AR ? 'معتمد وجارٍ التحويل' : 'Approved, transfer in progress';
+      case 'PENDING_ADMIN_APPROVAL': return tt('wd.470e6b0c');
+      case 'AWAITING_SECOND_APPROVAL': return tt('wd.6c4de9bc');
+      case 'APPROVED_FOR_PAYOUT': return tt('wd.611f5d3d');
       case 'PAID':
-      case 'COMPLETED': return AR ? 'تم التحويل' : 'Paid';
-      case 'REJECTED': return AR ? 'مرفوض' : 'Rejected';
+      case 'COMPLETED': return tt('wd.b656c0eb');
+      case 'REJECTED': return tt('wd.8290f876');
       default: return st || '—';
     }
   };
@@ -139,7 +139,7 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
   if (loading) {
     return (
       <NScroll>
-        <NHeader title={AR ? 'سحب الأموال' : 'Withdraw Funds'} onBack={onBack} />
+        <NHeader title={tt('wd.254223fa')} onBack={onBack} />
         <View style={{ alignItems: 'center', paddingVertical: SP.huge }}>
           <ActivityIndicator size="large" color={theme.primary} />
         </View>
@@ -150,12 +150,12 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
   if (loadErr) {
     return (
       <NScroll>
-        <NHeader title={AR ? 'سحب الأموال' : 'Withdraw Funds'} onBack={onBack} />
+        <NHeader title={tt('wd.254223fa')} onBack={onBack} />
         <NEmpty
           icon="⚠️"
-          title={AR ? 'تعذر تحميل بيانات المحفظة' : 'Could not load wallet data'}
-          sub={AR ? 'تحقق من اتصالك بالإنترنت ثم أعد المحاولة' : 'Check your internet connection and try again'}
-          actionLabel={AR ? 'إعادة المحاولة' : 'Retry'}
+          title={tt('wd.23234a60')}
+          sub={tt('wd.24634fa7')}
+          actionLabel={tt('wd.cf333076')}
           onAction={load}
         />
       </NScroll>
@@ -165,20 +165,20 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
   if (submitted) {
     return (
       <NScroll>
-        <NHeader title={AR ? 'سحب الأموال' : 'Withdraw Funds'} onBack={onBack} />
+        <NHeader title={tt('wd.254223fa')} onBack={onBack} />
         <View style={{ gap: SP.xl, alignItems: 'center', paddingVertical: SP.huge }}>
           <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: theme.successBg, alignItems: 'center', justifyContent: 'center' }}>
             <I name="check" size={40} color={theme.success} />
           </View>
           <Text style={{ fontSize: FS['2xl'], fontWeight: FW.bold, color: theme.success, textAlign: 'center' }}>
-            {AR ? 'تم استلام طلب السحب' : 'Withdrawal Request Received'}
+            {tt('wd.7d401936')}
           </Text>
           <Text style={{ fontSize: FS.md, color: theme.textSub, textAlign: 'center', paddingHorizontal: SP.xl }}>
             {AR ? `طلبك بقيمة ${amount} ريال قيد مراجعة الإدارة المالية الآن. ستصلك حالة الطلب عبر الإشعارات.`
                 : `Your ${amount} SAR request is now under finance-admin review. You will be notified of its status.`}
-            {submittedReference ? `\n${AR ? 'مرجع الخادم: ' : 'Server reference: '}${submittedReference}` : ''}
+            {submittedReference ? `\n${tt('wd.a5cd2670')}${submittedReference}` : ''}
           </Text>
-          <NBtn label={AR ? 'العودة للمحفظة' : 'Back to Wallet'} onPress={onBack} />
+          <NBtn label={tt('wd.80dded2a')} onPress={onBack} />
         </View>
       </NScroll>
     );
@@ -186,7 +186,7 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
 
   return (
     <NScroll>
-      <NHeader title={AR ? 'سحب الأموال' : 'Withdraw Funds'} onBack={onBack} />
+      <NHeader title={tt('wd.254223fa')} onBack={onBack} />
 
       <View style={{ gap: SP.xl }}>
         <NCard style={{ backgroundColor: theme.primaryLight }}>
@@ -203,8 +203,7 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
         {balance!.negative && (
           <NCard style={{ backgroundColor: theme.dangerBg }}>
             <Text style={{ fontSize: FS.sm, color: theme.danger, textAlign: AR ? 'right' : 'left' }}>
-              {AR ? 'رصيدك سالب بسبب استردادات أو تسويات — الأرباح الجديدة ستسوّي هذا الدين أولاً قبل إتاحة أي سحب.'
-                  : 'Your balance is negative due to refunds/adjustments — new earnings settle this debt before any withdrawal is allowed.'}
+              {tt('wd.d1549e74')}
             </Text>
           </NCard>
         )}
@@ -212,8 +211,7 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
         {hasPending && (
           <NCard style={{ backgroundColor: theme.warnBg }}>
             <Text style={{ fontSize: FS.sm, color: theme.warn, textAlign: AR ? 'right' : 'left' }}>
-              {AR ? 'لديك طلب سحب قيد المراجعة حالياً — لا يمكن إرسال طلب جديد حتى تتم معالجته.'
-                  : 'You already have a withdrawal request under review — you cannot submit a new one until it is processed.'}
+              {tt('wd.0a9de506')}
             </Text>
           </NCard>
         )}
@@ -221,7 +219,7 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
         {bank && (
           <NCard>
             <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
-              {AR ? 'الحساب البنكي المسجل' : 'Registered bank account'}
+              {tt('wd.4f490c96')}
             </Text>
             <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginTop: SP.xs }}>
               {bank.bank_name || ''} · {String(bank.iban).slice(0, 6)}…{String(bank.iban).slice(-4)}
@@ -237,7 +235,7 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
         {awaitingBankApproval && (
           <NCard style={{ backgroundColor: theme.warnBg }}>
             <Text style={{ fontSize: FS.sm, color: theme.warn, textAlign: AR ? 'right' : 'left' }}>
-              {AR ? 'الحساب البنكي قيد المراجعة أو غير معتمد؛ لا يمكن طلب السحب حالياً.' : 'The bank account is pending review or unapproved; withdrawals are unavailable.'}
+              {tt('wd.74856d26')}
             </Text>
           </NCard>
         )}
@@ -255,7 +253,7 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
           <View style={{ gap: SP.md }}>
             <NSecHeader title={bankRejected ? (t('audit2.withdrawal.correctBank')) : (t('audit2.withdrawal.setupBank'))} />
             <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
-              {AR ? 'اختر البنك:' : 'Select bank:'}
+              {tt('wd.2c7000c1')}
             </Text>
             {banks.map((b: any) => (
               <NCard
@@ -273,38 +271,38 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
               </NCard>
             ))}
             <NInput
-              label={AR ? 'اسم صاحب الحساب (كما في البنك)' : 'Account holder name (as registered)'}
+              label={tt('wd.1e55e237')}
               value={holderName}
               onChange={setHolderName}
               required
             />
             <NInput
-              label={AR ? 'رقم الآيبان (IBAN)' : 'IBAN'}
+              label={tt('wd.6e50daf7')}
               placeholder="SA00 0000 0000 0000 0000 0000"
               value={iban}
               onChange={setIban}
               caps="characters"
               maxLen={34}
               required
-              error={iban.length > 0 && !ibanValid ? (AR ? 'الآيبان السعودي يجب أن يبدأ بـ SA متبوعاً بـ 22 رقماً' : 'Saudi IBAN must be SA followed by 22 digits') : undefined}
+              error={iban.length > 0 && !ibanValid ? (tt('wd.354eb4ba')) : undefined}
             />
           </View>
         )}
 
         <NPriceInput
-          label={balance?.minimum != null ? (AR ? `مبلغ السحب (${balance.minimum} ريال على الأقل)` : `Withdrawal Amount (min ${balance.minimum} SAR)`) : (AR ? 'مبلغ السحب' : 'Withdrawal Amount')}
+          label={balance?.minimum != null ? (AR ? `مبلغ السحب (${balance.minimum} ريال على الأقل)` : `Withdrawal Amount (min ${balance.minimum} SAR)`) : (tt('wd.1c123269'))}
           value={amount}
           onChange={setAmount}
           required
         />
         {!!amount && amt > (balance?.available || 0) && (
           <Text style={{ fontSize: FS.xs, color: theme.danger, textAlign: AR ? 'right' : 'left' }}>
-            {AR ? 'المبلغ يتجاوز الرصيد المتاح' : 'Amount exceeds available balance'}
+            {tt('wd.3be6ccf6')}
           </Text>
         )}
 
         <NBtn
-          label={AR ? 'إرسال طلب السحب' : 'Submit Withdrawal Request'}
+          label={tt('wd.5b0405b0')}
           disabled={!canSubmit}
           loading={submitting}
           onPress={handleSubmit}
@@ -312,13 +310,13 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
 
         {history.length > 0 && (
           <View style={{ gap: SP.md, marginTop: SP.lg }}>
-            <NSecHeader title={AR ? 'سجل طلبات السحب' : 'Withdrawal History'} />
+            <NSecHeader title={tt('wd.a82e7ee1')} />
             {history.map((h: any, i: number) => (
               <NCard key={h.id || `wd_${i}`}>
                 <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
-                      {Number(h.amount || 0).toFixed(2)} {AR ? 'ريال' : 'SAR'}
+                      {Number(h.amount || 0).toFixed(2)} {tt('wd.0e39e6ca')}
                     </Text>
                     <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
                       {h.createdAt ? new Date(h.createdAt).toLocaleDateString(AR ? 'ar-SA-u-ca-gregory' : 'en-GB') : ''}{h.iban ? ` · ${String(h.iban).slice(0, 6)}…${String(h.iban).slice(-4)}` : ''}
