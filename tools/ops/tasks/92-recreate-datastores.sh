@@ -129,7 +129,7 @@ CP_RC=skipped; if [ $DUMP_RC -eq 0 ]; then sudo -n install -m 600 "$DUMP_TMP" "$
 rm -f "$DUMP_TMP"
 SZ=$(sudo -n stat -c %s "$DUMP" 2>/dev/null); STAT_RC=$?
 SZ=${SZ:-0}
-LAST=$(sudo -n sh -c "ls -t $B/nabd_*.gz 2>/dev/null | head -1")
+LAST=$(sudo -n sh -c "ls -t $B/nabd_*.gz $B/nabd_*.gz.gpg 2>/dev/null | head -1")
 LASTSZ=$([ -n "$LAST" ] && sudo -n stat -c %s "$LAST" || echo 0)
 say "backup steps: mongodump rc=$DUMP_RC ; install rc=$CP_RC ; stat rc=$STAT_RC size_bytes=$SZ ; last nightly $LASTSZ"
 [ "$SZ" -gt 1048576 ] && [ "$SZ" -ge $((LASTSZ / 2)) ] || { say "ABORT backup too small ($SZ bytes; last nightly $LASTSZ; see the steps above): nothing was stopped"; exit 1; }
