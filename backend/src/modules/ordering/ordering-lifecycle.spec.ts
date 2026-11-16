@@ -115,3 +115,22 @@ describe('M7 expiry of an unconfirmed booking', () => {
     expect(updates).toEqual([{ $unset: { cancelled_at: '' } }]);
   });
 });
+
+describe('the patient view of a booking: cancel reason and refund amount', () => {
+  it('a booking cancelled by the confirm deadline shows who/why and the refund amount that was stored', async () => {
+    const booking = { ...B, state: 'CANCELLED', status: 'cancelled_unconfirmed', total_price: 120, payment_status: 'paid', refund_status: 'initiated', refund_amount: 120, state_history: [] };
+    const { svc } = make(booking, { ...LC, confirmed_at: null, cancelled_at: new Date() });
+    const v: any = await svc.view({ id: 'p' }, 'b1');
+    expect(v.cancel_reason).toBe('provider_did_not_confirm');
+    expect(v.payment).toMatchObject({ amount: 120, status: 'paid', refund_status: 'initiated', refund_amount: 120 });
+  });
+
+  it('refund_amount is null when nothing was stored, and 0 stays 0 (an unpaid cancel is not a missing figure)', async () => {
+    const none: any = await make({ ...B, total_price: 50 }, LC).svc.view({ id: 'p' }, 'b1');
+    expect(none.payment.refund_amount).toBeNull();
+    expect(none.cancel_reason).toBeNull();
+    const zero: any = await make({ ...B, state: 'CANCELLED', refund_status: 'initiated', refund_amount: 0, state_history: [{ to: 'CANCELLED', by_role: 'patient' }] }, LC).svc.view({ id: 'p' }, 'b1');
+    expect(zero.payment.refund_amount).toBe(0);
+    expect(zero.cancel_reason).toBe('patient_cancelled');
+  });
+});
