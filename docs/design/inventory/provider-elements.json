@@ -1,5 +1,5 @@
 {
- "commit": "c6b3999ce",
+ "commit": "157a6d732",
  "screens": {
   "PendingDashboard": [
    {
@@ -700,7 +700,7 @@
     "src": "local state setSelectedDrug",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/DrugIndexDetail.tsx",
-    "line": 57,
+    "line": 58,
     "via": "DrugIndexDetail",
     "note": null
    },
@@ -710,7 +710,7 @@
     "src": "from gallery (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/DrugIndexDetail.tsx",
-    "line": 72,
+    "line": 73,
     "via": "DrugIndexDetail",
     "note": null,
     "untraced": true
@@ -721,7 +721,7 @@
     "src": "from gallery (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/DrugIndexDetail.tsx",
-    "line": 78,
+    "line": 79,
     "via": "DrugIndexDetail",
     "note": null,
     "untraced": true
@@ -732,7 +732,7 @@
     "src": "from d (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/DrugIndexDetail.tsx",
-    "line": 144,
+    "line": 145,
     "via": "DrugIndexDetail",
     "note": null,
     "untraced": true
@@ -743,7 +743,7 @@
     "src": "local state setSelectedDrug",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/DrugIndexDetail.tsx",
-    "line": 145,
+    "line": 146,
     "via": "DrugIndexDetail",
     "note": null
    },
@@ -753,7 +753,7 @@
     "src": "from d (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/DrugIndexDetail.tsx",
-    "line": 160,
+    "line": 161,
     "via": "DrugIndexDetail",
     "note": null,
     "untraced": true
@@ -764,37 +764,37 @@
     "src": "local state setSelectedDrug",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/DrugIndexDetail.tsx",
-    "line": 161,
+    "line": 162,
     "via": "DrugIndexDetail",
     "note": null
    },
    {
     "kind": "button",
-    "label": "Suggest an edit for this drug",
+    "label": "{tt('drug.c082f389')}",
     "src": "parent callback openSuggest",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/DrugIndexDetail.tsx",
-    "line": 175,
+    "line": 176,
     "via": "DrugIndexDetail",
     "note": null
    },
    {
     "kind": "button",
-    "label": "Edit data",
+    "label": "{tt('drug.c416e673')}",
     "src": "local state setSuggestTab",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/DrugIndexDetail.tsx",
-    "line": 192,
+    "line": 193,
     "via": "DrugIndexDetail",
     "note": null
    },
    {
     "kind": "button",
-    "label": "Suggest image",
+    "label": "{tt('drug.1b1e5aa1')}",
     "src": "local state setSuggestTab",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/DrugIndexDetail.tsx",
-    "line": 195,
+    "line": 196,
     "via": "DrugIndexDetail",
     "note": null
    },
@@ -804,7 +804,7 @@
     "src": "from SUGGEST_FIELD_DEFS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/DrugIndexDetail.tsx",
-    "line": 206,
+    "line": 207,
     "via": "DrugIndexDetail",
     "note": null,
     "untraced": true
@@ -815,47 +815,47 @@
     "src": "user input → suggestForm (local)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/DrugIndexDetail.tsx",
-    "line": 207,
+    "line": 208,
     "via": "DrugIndexDetail",
     "note": null
    },
    {
     "kind": "button",
-    "label": "Pick another image",
+    "label": "{tt('drug.af97d0e2')}",
     "src": "parent callback pickSuggestImage",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/DrugIndexDetail.tsx",
-    "line": 227,
+    "line": 228,
     "via": "DrugIndexDetail",
     "note": null
    },
    {
     "kind": "button",
-    "label": "Pick image from device",
+    "label": "{tt('drug.fdc73895')}",
     "src": "parent callback pickSuggestImage",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/DrugIndexDetail.tsx",
-    "line": 231,
+    "line": 232,
     "via": "DrugIndexDetail",
     "note": null
    },
    {
     "kind": "input",
-    "label": "Note for admin (optional)",
+    "label": "{tt('drug.ed59bf4a')}",
     "src": "user input → suggestNote (local)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/DrugIndexDetail.tsx",
-    "line": 237,
+    "line": 238,
     "via": "DrugIndexDetail",
     "note": null
    },
    {
     "kind": "button",
-    "label": "Send suggestion to admin",
+    "label": "{tt('drug.3bd7f124')}",
     "src": "parent callback submitSuggestFields, submitSuggestImage",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/DrugIndexDetail.tsx",
-    "line": 253,
+    "line": 254,
     "via": "DrugIndexDetail",
     "note": null
    },
@@ -17602,7 +17602,7 @@
     "src": "s: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingSettingsScreen.tsx",
-    "line": 20,
+    "line": 21,
     "via": null,
     "note": null
    },
@@ -17612,17 +17612,17 @@
     "src": "parent callback list.includes, list.filter",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingSettingsScreen.tsx",
-    "line": 70,
+    "line": 71,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Home-visit fee",
+    "label": "{tt('oset.94dd25eb')}",
     "src": "user input → fee (local)",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingSettingsScreen.tsx",
-    "line": 94,
+    "line": 95,
     "via": null,
     "note": null
    },
@@ -17632,7 +17632,7 @@
     "src": "local state setStepError, setRadius",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingSettingsScreen.tsx",
-    "line": 98,
+    "line": 99,
     "via": null,
     "note": null
    },
@@ -17642,28 +17642,28 @@
     "src": "from RADII (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingSettingsScreen.tsx",
-    "line": 98,
+    "line": 99,
     "via": null,
     "note": null,
     "untraced": true
    },
    {
     "kind": "input",
-    "label": "Other radius (km, up to 50)",
+    "label": "{tt('oset.11e1a075')}",
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingSettingsScreen.tsx",
-    "line": 100,
+    "line": 101,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Search insurance company",
+    "label": "{tt('oset.873fc521')}",
     "src": "user input → q (local)",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingSettingsScreen.tsx",
-    "line": 106,
+    "line": 107,
     "via": null,
     "note": null
    },
@@ -17673,7 +17673,7 @@
     "src": "from list (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingSettingsScreen.tsx",
-    "line": 109,
+    "line": 110,
     "via": null,
     "note": null,
     "untraced": true
@@ -17684,7 +17684,7 @@
     "src": "from c (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingSettingsScreen.tsx",
-    "line": 115,
+    "line": 116,
     "via": null,
     "note": null,
     "untraced": true
@@ -17695,57 +17695,57 @@
     "src": "parent callback list.includes, list.filter",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingSettingsScreen.tsx",
-    "line": 116,
+    "line": 117,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Select all classes",
+    "label": "{tt('oset.611e519d')}",
     "src": "local state setStepError, setS",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingSettingsScreen.tsx",
-    "line": 120,
+    "line": 121,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Auto-accept",
+    "label": "{tt('oset.70a5ac6f')}",
     "src": "user input → s (local)",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingSettingsScreen.tsx",
-    "line": 131,
+    "line": 132,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Walk-in (QR code)",
+    "label": "{tt('oset.ab513fe3')}",
     "src": "user input → s (local)",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingSettingsScreen.tsx",
-    "line": 133,
+    "line": 134,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Men",
-    "src": "parent callback list.includes, list.filter",
-    "status": "ok",
-    "file": "provider-app/src/screens/ordering/OrderingSettingsScreen.tsx",
-    "line": 141,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Women",
+    "label": "{tt('oset.81665b9c')}",
     "src": "parent callback list.includes, list.filter",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingSettingsScreen.tsx",
     "line": 142,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{tt('oset.2f85e528')}",
+    "src": "parent callback list.includes, list.filter",
+    "status": "ok",
+    "file": "provider-app/src/screens/ordering/OrderingSettingsScreen.tsx",
+    "line": 143,
     "via": null,
     "note": null
    },
@@ -17755,28 +17755,28 @@
     "src": "from draft (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingSettingsScreen.tsx",
-    "line": 150,
+    "line": 151,
     "via": null,
     "note": null,
     "untraced": true
    },
    {
     "kind": "button",
-    "label": "Next",
+    "label": "{tt('oset.65c136c7')}",
     "src": "local state setStepError, setStep",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingSettingsScreen.tsx",
-    "line": 159,
+    "line": 160,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Start receiving orders",
+    "label": "{tt('oset.d67c6709')}",
     "src": "PUT /provider/ordering/settings",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingSettingsScreen.tsx",
-    "line": 160,
+    "line": 161,
     "via": null,
     "note": null
    },
@@ -17804,37 +17804,27 @@
   "OrderingItemsScreen": [
    {
     "kind": "button",
-    "label": "Edit",
+    "label": "{tt('oitems.4cbb34bf')}",
     "src": "navigate → ordering_settings",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingItemsScreen.tsx",
-    "line": 42,
+    "line": 43,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Search your tests",
+    "label": "{tt('oitems.3231675f')}",
     "src": "user input → q (local)",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingItemsScreen.tsx",
-    "line": 49,
+    "line": 50,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "All",
-    "src": "local state setFilter",
-    "status": "ok",
-    "file": "provider-app/src/screens/ordering/OrderingItemsScreen.tsx",
-    "line": 51,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "No price · {…}",
+    "label": "{tt('oitems.eabe5f68')}",
     "src": "local state setFilter",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingItemsScreen.tsx",
@@ -17844,7 +17834,7 @@
    },
    {
     "kind": "button",
-    "label": "Customised · {…}",
+    "label": "No price · {…}",
     "src": "local state setFilter",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingItemsScreen.tsx",
@@ -17854,11 +17844,21 @@
    },
    {
     "kind": "button",
-    "label": "Bulk tools",
+    "label": "Customised · {…}",
+    "src": "local state setFilter",
+    "status": "ok",
+    "file": "provider-app/src/screens/ordering/OrderingItemsScreen.tsx",
+    "line": 54,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{tt('oitems.1c652d9c')}",
     "src": "navigate → ordering_bulk",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingItemsScreen.tsx",
-    "line": 56,
+    "line": 57,
     "via": null,
     "note": null
    },
@@ -17868,7 +17868,7 @@
     "src": "from shown (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingItemsScreen.tsx",
-    "line": 65,
+    "line": 66,
     "via": null,
     "note": null,
     "untraced": true
@@ -17879,7 +17879,7 @@
     "src": "local state setEdit",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingItemsScreen.tsx",
-    "line": 68,
+    "line": 69,
     "via": null,
     "note": null
    },
@@ -17889,64 +17889,44 @@
     "src": "PUT /provider/ordering/items → err",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingItemsScreen.tsx",
-    "line": 113,
+    "line": 115,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Price at the facility",
+    "label": "{tt('oitems.e036bf9b')}",
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingItemsScreen.tsx",
-    "line": 137,
+    "line": 139,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Price at home",
+    "label": "{tt('oitems.360b4b3f')}",
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingItemsScreen.tsx",
-    "line": 138,
+    "line": 140,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Allow at home",
+    "label": "{tt('oitems.442b246c')}",
     "src": "user input → state (local)",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingItemsScreen.tsx",
-    "line": 141,
+    "line": 143,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Result turnaround (hours)",
+    "label": "{tt('oitems.3d3881e1')}",
     "src": "user input → parent callback v.replace",
-    "status": "ok",
-    "file": "provider-app/src/screens/ordering/OrderingItemsScreen.tsx",
-    "line": 146,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Preparation text (Arabic)",
-    "src": "user input → prepAr (local)",
-    "status": "ok",
-    "file": "provider-app/src/screens/ordering/OrderingItemsScreen.tsx",
-    "line": 147,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Preparation text (English)",
-    "src": "user input → prepEn (local)",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingItemsScreen.tsx",
     "line": 148,
@@ -17955,8 +17935,8 @@
    },
    {
     "kind": "input",
-    "label": "Available to patients",
-    "src": "user input → available → request body",
+    "label": "{tt('oitems.45d4aeed')}",
+    "src": "user input → prepAr (local)",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingItemsScreen.tsx",
     "line": 149,
@@ -17964,22 +17944,42 @@
     "note": null
    },
    {
-    "kind": "button",
-    "label": "Save",
-    "src": "PUT /provider/ordering/items",
+    "kind": "input",
+    "label": "{tt('oitems.d43fc1a6')}",
+    "src": "user input → prepEn (local)",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingItemsScreen.tsx",
-    "line": 152,
+    "line": 150,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{tt('oitems.5a0183a1')}",
+    "src": "user input → available → request body",
+    "status": "ok",
+    "file": "provider-app/src/screens/ordering/OrderingItemsScreen.tsx",
+    "line": 151,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Reset to default",
+    "label": "{tt('oitems.0360038b')}",
     "src": "PUT /provider/ordering/items",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingItemsScreen.tsx",
-    "line": 153,
+    "line": 154,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{tt('oitems.dab87afa')}",
+    "src": "PUT /provider/ordering/items",
+    "status": "ok",
+    "file": "provider-app/src/screens/ordering/OrderingItemsScreen.tsx",
+    "line": 155,
     "via": null,
     "note": null
    },
@@ -18011,7 +18011,7 @@
     "src": "POST /provider/ordering/items/bulk-price, POST /provider/ordering/items/copy-mode, POST /provider/ordering/items/import → err",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
-    "line": 21,
+    "line": 22,
     "via": null,
     "note": null
    },
@@ -18021,7 +18021,7 @@
     "src": "ok: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
-    "line": 22,
+    "line": 23,
     "via": null,
     "note": null
    },
@@ -18031,7 +18031,7 @@
     "src": "picked: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
-    "line": 32,
+    "line": 33,
     "via": null,
     "note": null
    },
@@ -18041,7 +18041,7 @@
     "src": "PUT /provider/ordering/items → addPicked",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
-    "line": 34,
+    "line": 35,
     "via": null,
     "note": null
    },
@@ -18051,33 +18051,23 @@
     "src": "GET /provider/ordering/items/export, POST /provider/ordering/items/import → result",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
-    "line": 38,
+    "line": 39,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Home",
+    "label": "{tt('obulk.8ca476d4')}",
     "src": "parent callback set",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
-    "line": 107,
+    "line": 108,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Change price",
-    "src": "local state setTool, setErr",
-    "status": "ok",
-    "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
-    "line": 117,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Add from catalogue",
+    "label": "{tt('obulk.8657fb63')}",
     "src": "local state setTool, setErr",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
@@ -18087,7 +18077,7 @@
    },
    {
     "kind": "button",
-    "label": "CSV",
+    "label": "{tt('obulk.07e89c10')}",
     "src": "local state setTool, setErr",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
@@ -18097,7 +18087,7 @@
    },
    {
     "kind": "button",
-    "label": "Copy mode",
+    "label": "CSV",
     "src": "local state setTool, setErr",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
@@ -18107,17 +18097,17 @@
    },
    {
     "kind": "button",
-    "label": "Raise by %",
-    "src": "local state setOp",
+    "label": "{tt('obulk.14ae7ee6')}",
+    "src": "local state setTool, setErr",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
-    "line": 129,
+    "line": 121,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Fixed price",
+    "label": "{tt('obulk.526c8460')}",
     "src": "local state setOp",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
@@ -18126,12 +18116,22 @@
     "note": null
    },
    {
+    "kind": "button",
+    "label": "{tt('obulk.9fbee11f')}",
+    "src": "local state setOp",
+    "status": "ok",
+    "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
+    "line": 131,
+    "via": null,
+    "note": null
+   },
+   {
     "kind": "input",
-    "label": "Value",
+    "label": "{tt('obulk.75c4f131')}",
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
-    "line": 132,
+    "line": 133,
     "via": null,
     "note": null
    },
@@ -18141,7 +18141,7 @@
     "src": "from previews (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
-    "line": 134,
+    "line": 135,
     "via": null,
     "note": null,
     "untraced": true
@@ -18152,7 +18152,7 @@
     "src": "user input → parent callback list.includes",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
-    "line": 143,
+    "line": 144,
     "via": null,
     "note": null
    },
@@ -18162,7 +18162,7 @@
     "src": "from all (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
-    "line": 143,
+    "line": 144,
     "via": null,
     "note": null,
     "untraced": true
@@ -18173,17 +18173,17 @@
     "src": "POST /provider/ordering/items/bulk-price",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
-    "line": 144,
+    "line": 145,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Search the catalogue",
+    "label": "{tt('obulk.8fd18e53')}",
     "src": "user input → q (local)",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
-    "line": 152,
+    "line": 153,
     "via": null,
     "note": null
    },
@@ -18193,7 +18193,7 @@
     "src": "user input → parent callback list.includes",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
-    "line": 155,
+    "line": 156,
     "via": null,
     "note": null
    },
@@ -18203,7 +18203,7 @@
     "src": "from catList (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
-    "line": 155,
+    "line": 156,
     "via": null,
     "note": null,
     "untraced": true
@@ -18214,24 +18214,14 @@
     "src": "PUT /provider/ordering/items",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
-    "line": 157,
+    "line": 158,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Export my tests",
+    "label": "{tt('obulk.d22f3b0b')}",
     "src": "GET /provider/ordering/items/export",
-    "status": "ok",
-    "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
-    "line": 165,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Download template",
-    "src": "local state setCsv, setResult",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
     "line": 166,
@@ -18240,11 +18230,21 @@
    },
    {
     "kind": "button",
-    "label": "Import a file",
-    "src": "native action",
+    "label": "{tt('obulk.4e9006df')}",
+    "src": "local state setCsv, setResult",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
     "line": 167,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{tt('obulk.274129f0')}",
+    "src": "parent callback tt",
+    "status": "ok",
+    "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
+    "line": 168,
     "via": null,
     "note": null
    },
@@ -18254,27 +18254,27 @@
     "src": "user input → csv → request body",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
-    "line": 169,
+    "line": 170,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Share / copy",
-    "src": "native action",
-    "status": "ok",
-    "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
-    "line": 171,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Import",
-    "src": "POST /provider/ordering/items/import",
+    "label": "{tt('obulk.0357c2f3')}",
+    "src": "parent callback tt",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
     "line": 172,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{tt('obulk.13269063')}",
+    "src": "POST /provider/ordering/items/import",
+    "status": "ok",
+    "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
+    "line": 173,
     "via": null,
     "note": null
    },
@@ -18284,37 +18284,37 @@
     "src": "GET /provider/ordering/items/export, POST /provider/ordering/items/import → result",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
-    "line": 176,
+    "line": 177,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Share the error file",
-    "src": "parent callback rows.map",
+    "label": "{tt('obulk.4c51689f')}",
+    "src": "parent callback tt, rows.map",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
-    "line": 179,
+    "line": 180,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Copy prices",
+    "label": "{tt('obulk.af211d88')}",
     "src": "POST /provider/ordering/items/copy-mode",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
-    "line": 193,
+    "line": 194,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "View tests",
+    "label": "{tt('obulk.ce02bbfa')}",
     "src": "navigate → ordering_items",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
-    "line": 202,
+    "line": 203,
     "via": null,
     "note": null
    },
