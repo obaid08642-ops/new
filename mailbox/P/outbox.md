@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-16 11:10 UTC — #2694 Gitleaks ignore + main merged
+- Added the 6 fingerprints (31deee73…:provider-app/src/i18n/locales/en.json:generic-api-key:{764,993,1188,1437,1451,1453}) to .gitleaksignore with the comment "locale label, not a secret".
+- Merged main; generated inventories taken from main and regenerated with the tools. Checks: literals 3003 (baseline 3003), locale-parity ok, no-emoji 40, token-sync 396, provider tsc clean. Pushed 97e48e5e4.
+- Next: more provider literals, then WIRING client defects.
+
 ## 2026-11-16 10:40 UTC — fixes for #2692 and #2689
 - #2689 (patient literals): conflicts were only the generated inventories; merged main in (took main's files, regenerated with screen-inventory.mjs and provider-inventory.mjs, nothing by hand), literal baseline and locale-parity still ok, i18n and map tests pass, pushed to the same branch (2faa947ba).
 - #2692 CLOSED, replaced by #2694 (same tree, one clean commit from main). Why not just fix it: the 6 Gitleaks findings (generic-api-key, provider-app/src/i18n/locales/en.json) were all NEW in this PR (commit 4a713d17, my own) and all FALSE POSITIVES: UI labels ("Confirm Password", "Password", "Passwords do not match") on hash-style keys like facreg.4171a21c; no secret anywhere. A finding belongs to the commit that added the line, a later commit does not clear it and I do not force-push. The password labels now have readable keys (auth.password, *.confirmPassword, *.passwordsMismatch). Emoji ratchet: the 4 keys with glyphs (pill, bottle, 2 check marks) are words only now (ar+en); no-emoji-in-ui 40 recorded, none added, baseline 41 -> 40. Numbers unchanged: provider literals 5277 -> 3020, tsc 0, jest 433/433, parity ok, token-sync 396.
