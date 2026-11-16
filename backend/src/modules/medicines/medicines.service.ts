@@ -562,6 +562,9 @@ export class MedicinesService {
    * 6-language translations map) weighs ~24KB; cards need ~2KB. Details()
    * still returns everything. This is what keeps the catalog fast at 21k docs.
    */
+  /** A list or count query that cannot finish in this time is cancelled (the caller answers an error / its cached copy) instead of piling up in mongod (run 133: 108 slow queries in a minute). */
+  static readonly LIST_QUERY_OPTIONS = { maxTimeMS: 8000 } as const;
+
   private static readonly CARD_PROJECTION = {
     _id: 0, __v: 0,
     // Keep ONLY the translated display names per language on cards (needed so
@@ -790,10 +793,10 @@ export class MedicinesService {
     const [data, total] = await Promise.all([
       byRank
         ? this.rankedCards(q, skipN, safeLimit, !(category && category !== 'all'))
-        : this.model.find(q, MedicinesService.CARD_PROJECTION)
+        : this.model.find(q, MedicinesService.CARD_PROJECTION, MedicinesService.LIST_QUERY_OPTIONS)
           .sort({ verified: -1, usage_count: -1, name_ar: 1 })
           .skip(skipN).limit(safeLimit),
-      (this.model as any).countDocuments ? (this.model as any).countDocuments(q) : Promise.resolve(0),
+      (this.model as any).countDocuments ? (this.model as any).countDocuments(q, MedicinesService.LIST_QUERY_OPTIONS) : Promise.resolve(0),
     ]);
     const result = {
       data: await this.applySponsored((data as any[]).map((m: any) => this.withBadges(m?.toObject ? m.toObject() : m))),
@@ -818,9 +821,21 @@ export class MedicinesService {
     const q: any = this.buildQuery(search, (category && category !== 'all') ? category : undefined, false);
     const and: any[] = q.$and ? [...q.$and] : [];
     delete q.$and;
+    // A brand or form the screens send is a value of the facet lists (`filters()`): an exact `$in` on it is answered from the index, while the case-insensitive substring regex below read every document
+    // (the count fetched ALL ~21k, a brand sorted by relevance fetched every document whose brand merely contained the text: run 133). A value that is not a facet value keeps the regex, as before.
     const anyOf = (field: string, values: string[]) => ({ $or: values.map((v) => ({ [field]: { $regex: escapeRegex(v), $options: 'i' } })) });
-    if (f.forms.length) and.push(anyOf('form', f.forms));
-    if (f.brands.length) and.push(anyOf('manufacturer', f.brands));
+    const facetClause = async (field: 'manufacturer' | 'form', values: string[]) => {
+      const known = await this.facetValues(field === 'manufacturer' ? 'brands' : 'forms');
+      const byLower = new Map(known.map((k) => [k.toLowerCase(), k]));
+      const exact: string[] = []; const loose: string[] = [];
+      for (const v of values) { const hit = byLower.get(String(v).trim().toLowerCase()); if (hit !== undefined) exact.push(hit); else loose.push(v); }
+      const parts: Record<string, unknown>[] = [];
+      if (exact.length) parts.push({ [field]: { $in: [...new Set(exact)] } });
+      if (loose.length) parts.push(...anyOf(field, loose).$or);
+      return parts.length === 1 ? parts[0] : { $or: parts };
+    };
+    if (f.forms.length) and.push(await facetClause('form', f.forms));
+    if (f.brands.length) and.push(await facetClause('manufacturer', f.brands));
     if (f.rx_only) q.requires_prescription = true;
     if (f.min_price !== undefined || f.max_price !== undefined) {
       q.price = { $gt: 0, ...(f.min_price !== undefined ? { $gte: f.min_price } : {}), ...(f.max_price !== undefined ? { $lte: f.max_price } : {}) };
@@ -838,10 +853,10 @@ export class MedicinesService {
     const safePage = page === undefined ? 1 : clampPageInt(page, 1);
     const find = byRank
       ? this.rankedCards(q, (safePage - 1) * safeLimit, safeLimit, !(category && category !== 'all'))
-      : this.model.find(q, MedicinesService.CARD_PROJECTION).sort(order).skip((safePage - 1) * safeLimit).limit(safeLimit);
+      : this.model.find(q, MedicinesService.CARD_PROJECTION, MedicinesService.LIST_QUERY_OPTIONS).sort(order).skip((safePage - 1) * safeLimit).limit(safeLimit);
     const rows = (await find as any[]).map((m: any) => this.withBadges(m?.toObject ? m.toObject() : m));
     if (page === undefined) return rows;
-    const total = await (this.model as any).countDocuments(q);
+    const total = await (this.model as any).countDocuments(q, MedicinesService.LIST_QUERY_OPTIONS);
     return { data: rows, total, page: safePage, limit: safeLimit, total_pages: Math.ceil(total / safeLimit) };
   }
 
@@ -1196,6 +1211,14 @@ export class MedicinesService {
       }))
       .sort((a, b) => b.count - a.count);
     return result;
+  }
+
+  /** The brand or form values of the public catalogue (the facet lists the screens offer), from the hot-cached `filters()`; [] when they cannot be read (the callers then fall back to the regex). */
+  async facetValues(kind: 'brands' | 'forms'): Promise<string[]> {
+    try {
+      const all: any = await this.filters();
+      return Array.isArray(all?.[kind]) ? all[kind].filter((v: unknown): v is string => typeof v === 'string' && v.length > 0) : [];
+    } catch { return []; }
   }
 
   async filters() {
