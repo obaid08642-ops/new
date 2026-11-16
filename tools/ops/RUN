@@ -1,8 +1,9 @@
-# 2026-11-16 run 133 = deploy main@e5d0db5a: everything merged since run 132 (search boot loop guard, domain_outbox and alert indexes, bounded nightly jobs (audit retention, SCFHS), licence monitor, ordering cancel_reason and refund_amount, https-only payment and attachment links in the app, patient and provider literals) + read-only checks after (96r kill window, 96j cache, 96h restarts). New indexes build at the first boot of the backend; the deploy is outside 03:00-05:00 UTC.
-release:e5d0db5a167954bcc35a83b85ba9a6b1d91c725c
+# 2026-11-16 run 134 = deploy main@0f5ac7ff: the P0 fixes of the daytime mongod kills (run 133 data): list indexes with is_deleted last (#2715), catalogue list cached + concurrency gate 3 + maxTimeMS (#2716), nginx rate limit for unknown automated clients on /api/v1/medicines (#2718, nginx -t runs in the deploy), category tree indexes (#2720), oplog explain task (#2717), ordering cancel_reason/refund_amount, nightly jobs bounded, provider literals. New indexes build at the first boot (about 9 on medicines): outside 03:00-05:00 UTC. After: read-only 96r kill window, 96j cache, 96h restarts, 96t oplog slice explain.
+release:0f5ac7ff088d3bffeb4a0ad931ffd0155caf7d8e
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
 96r-mongod-kill-window
 96j-mongo-cache-check
 96h-mongo-restarts
+96t-oplog-slice-explain
