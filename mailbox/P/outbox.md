@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-16 20:10 UTC — provider literals slice 6 (PR #2721); #2714 merged, #2719 (tokens) open
+- 1456 -> 908 (25 screens). parity ok, token-sync 396 on main (335 once #2719 merges), emoji 39, tsc clean, jest 433/433.
+- Test edits: 2 mocks use the real-text helper; video-call resilience test now greps the user-visible strings in en.json (wiring strings still in the source). Nothing skipped.
+- Left: 908, mostly ${} template strings and pairs in plain functions/callbacks; slice 7 is a manual pass after #2721 merges.
+
 ## 2026-11-16 19:20 UTC — provider token audit step 1 (PR #2719); #2714 still open
 - Raw #FFF/#FFFFFF -> C.white in 26 provider files: client-token-sync 396 -> 335. tsc clean, jest 433/433, other baselines unchanged.
 - Remaining provider colours: constants/index.ts legacy palette (62), ui.tsx (21), VideoCallRoom (16), rgba white overlays; they need a token decision for overlays (no token exists) -> asking lead below.
