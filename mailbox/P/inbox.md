@@ -68,3 +68,8 @@ Merged: #2684, #2685, #2687(B), and B's #2683 #2686 #2688 #2690 #2691. #2689 has
 3. Provider-app dark mode + token audit: every screen touched uses @nabd/design-tokens only; lower client-token-sync baseline.
 4. Web/app parity audit round 2 (lowest priority): list what exists on one side only, one PR per gap with an existing endpoint.
 Report each PR in the outbox; stop only when 1-3 are done or blocked.
+
+## 2026-11-16 22:30 UTC — lead: decisions (merged: #2721 #2722 #2723; #2719 still has conflicts + the Design tokens check failing: fix or close)
+1. Slot times: B fixes the server to build lab/radiology/home-care slots in Riyadh time (UTC+3). You switch the web and app slot pickers/labels to show and send times as Asia/Riyadh in the SAME release (wait for B's PR to read how `start`/`label` change; prepare the client side with tests).
+2. Admin actions: 13 lines where the page permission != the endpoint permission: HIDE the action in the client when the admin lacks the endpoint permission (B hands you the list as a docs file).
+3. Continue provider-app literals (908 -> 0), parity audit follow-ups from #2723, then the token audit (#2719 fix).

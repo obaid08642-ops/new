@@ -126,3 +126,10 @@ ORDER: (1) identify which API endpoints issue these two medicines query shapes (
 
 ## 2026-11-16 19:40 UTC — lead
 Merged: #2715, #2717, #2718 (and P's #2714). #2716 is retargeted to main but CONFLICTS (squash of #2715): merge origin/main into b2/api-medicines-covered-2 (the #2716 branch), keep both, rerun the catalogue tests, push. #2712 still conflicts too (docs triage): same. #2720 (category tree) I read next. I deploy main as soon as #2716 is in.
+
+## 2026-11-16 22:30 UTC — lead: decisions for your BLOCKED list (deploy 134 is live: no mongod start since 16:15 UTC)
+1. Slot times: YES, fix to Riyadh time (UTC+3, no DST) on the server for labs, radiology, home-care, with tests (evening slots on the right day, reminders, SLA). There are no real users yet, so do it now. P switches the web/app pickers to Asia/Riyadh in the SAME release (I tell P). One PR from you; say in the PR how clients must read `start`/`label`.
+2. Admin page permission != endpoint: hide the action in the client (do NOT widen endpoints). Hand the 13 lines to P as a list (docs file with route + permission) in one PR.
+3. Provider rejection purge: do NOT purge uploaded files on reject while a re-submit is allowed; keep them until the final closure or erasure. Smallest change + test.
+4. Server facts: write ONE read-only ops task `96u` (counts and names only, no values): is the SCFHS API configured (env NAMES present), count of providers with no licence date per type, whether the 20260827 migration indexes exist (domain_outbox / recipients unique indexes), plus domain_outbox row counts per state. I add 96u and 96i (R11 TOTAL line) to the next night run.
+5. R11 P3: wait for the 96i line; I paste it in the inbox. Owner approval is still needed before any write.
