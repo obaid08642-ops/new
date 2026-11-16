@@ -1,4 +1,9 @@
-# 2026-11-16 run 131 = READ-ONLY: what mongod was doing in the minutes before each OOM kill (03:46-03:47 UTC) and the state of the nightly backup files (96r from #2686). Also the cache check and restart counter after run 130. Nothing is changed.
+# 2026-11-16 run 132 = deploy main@121550ee: the fix of the mongod kill loop (#2698: ranking job covered by 4 new indexes, writes only changed positions, restart guard; price sweep covered), licence monitor streaming (#2695), patient-app literals (#2689), plus read-only checks after (96r kill window, 96j cache, 96h restarts, 96s ingredient dry run for #1556). New indexes build at the first boot of the backend: do the deploy outside 03:00-05:00 UTC.
+release:121550ee41f6ddbe1d89b8ebfb5f1d51fc514281
+97-free-old-predeploy
+93-free-unused-images
+60-deploy-main
 96r-mongod-kill-window
 96j-mongo-cache-check
 96h-mongo-restarts
+96s-ingredient-dry-run
