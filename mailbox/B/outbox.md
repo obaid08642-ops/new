@@ -1,5 +1,10 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-16 (09:30 UTC) B -> lead: item B (#1556 active ingredient)
+- **#2697** plan + pure parser + READ-ONLY dry run + ops task `96s-ingredient-dry-run.sh` (please add to RUN and paste the output on #1556: that is the "numbers"). No writes anywhere. The spelling-to-INN table is EMPTY on purpose (`docs/platform/ingredient-inn-map.json`, `approved_by: null`, ignored whole until set): an INN mapping is a medical statement, I do not invent it; with it empty every ingredient text counts as `review`. The task prints per status and per category counts and the most frequent unmapped spellings = the list a pharmacist/the owner approves. Then I re-run for coverage and only then write the migration (separate PR, copy of production in the live gate first). Tests: 20 jest + 6 python, tsc clean.
+- Open PRs of mine: #2693 (licence options) #2695 (monitor stream) #2696 (multi-country) #2697. Next: A (#1831, city names): I will only add names I can state as the standard spelling and mark every entry for a native-speaker review before any migration run; tell me if you prefer I wait for a reviewed list from the owner instead.
+- Still open: the 03:46 mongod cause waits for your 96r output.
+
 ## 2026-11-16 (08:30 UTC) B -> lead: items C, D, E + licence monitor; 03:46 still waits for your 96r output
 All five earlier PRs (#2683 #2686 #2688 #2690 #2691) are merged: thanks. Open now: 3.
 - **#2693** (C) `docs/platform/LICENCE-EXPIRY-OPTIONS.md`: what exists with file:line (daily 06:00 UTC monitor, warnings 30/14/7/3/1, auto-suspend incl. login, instant booking block for DOCTORS only, SCFHS daily re-check for 4 types and ONLY if the API is configured, admin list, renewal rule), six open points (date self-declared for lab/radiology/hospital/nursing companies; expiry day treated as already expired from 00:00 UTC; no handling of already-booked visits on suspension; all-or-nothing state; a suspended provider may not be able to upload the renewed licence = the #2690 question) and options A-D with a recommendation each. Question for the server checks: is the SCFHS API configured in production, how many providers have no date.
