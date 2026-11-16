@@ -82,9 +82,7 @@ export function SurgeryScheduleScreen({ onBack, surgeries, onRefresh }: { onBack
  return (requestedTime < sTime + sDurationMs) && (requestedTime + requestedDurationMs > sTime);
  });
  if (collision) {
- throw new Error(AR 
- ? ` تعارض في المواعيد! يوجد عملية أخرى مجدولة في الغرفة ${otRoom} في هذا الوقت.` 
- : ` Schedule Conflict! There is another surgery scheduled in room ${otRoom} at this time.`);
+ throw new Error(tt('tpr.bb165111', { p1: String(otRoom) }));
  }
 
  await client.post('/facility/surgeries/book', {
@@ -158,7 +156,7 @@ export function SurgeryScheduleScreen({ onBack, surgeries, onRefresh }: { onBack
  <NBadge label={tt('surg.d056c5a3')} variant="warning" size="xs" />
  </View>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign:AR?'right':'left' }}>
- {AR?`جراح رئيسي: ${surg.primary_surgeon_id}`:`Surgeon ID: ${surg.primary_surgeon_id}`}
+ {tt('tpr.9fa24406', { p1: String(surg.primary_surgeon_id) })}
  </Text>
  <Text style={{ fontSize: FS.xs, color: theme.primary, marginTop:2 }}>
   {new Date(surg.scheduled_at).toLocaleString()} · {surg.duration_mins} {AR?'دقيقة':'min'}
@@ -178,7 +176,7 @@ export function SurgeryScheduleScreen({ onBack, surgeries, onRefresh }: { onBack
  {/* Booking Form Sheet */}
  <NSheet visible={bookingVisible} onClose={() => setBookingVisible(false)} title={tt('surg.391e1322')}>
  <ScrollView contentContainerStyle={{ padding: SP.xl }}>
- <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>{AR ? `الغرفة المحددة: ${otRoom}` : `Selected Room: ${otRoom}`}</Text>
+ <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>{tt('tpr.93489fed', { p1: String(otRoom) })}</Text>
  
  <NInput label={tt('surg.4bd8e60c')} placeholder={tt('surg.21a620dc')} value={patientId} onChange={setPatientId} required />
  <NInput label={tt('surg.5c13a4d6')} placeholder={tt('surg.2c9e4ff9')} value={surgeonId} onChange={setSurgeonId} required />

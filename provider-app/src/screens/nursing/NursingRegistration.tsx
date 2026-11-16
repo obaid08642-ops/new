@@ -497,7 +497,7 @@ return (
 
       <NCard style={{ backgroundColor: theme.successBg, marginBottom: SP.lg }}>
         <Text style={{ fontSize: FS.sm, color: theme.success, textAlign: AR ? 'right' : 'left' }}>
-          {AR ? `${data.enabledServices.length} خدمة مختارة من ${nursingCatalog.length}` : `${data.enabledServices.length} of ${nursingCatalog.length} selected`}
+          {tt('tpu.42aec349', { p1: String(data.enabledServices.length), p2: String(nursingCatalog.length) })}
         </Text>
       </NCard>
 

@@ -37,7 +37,7 @@ import { styles } from './_shared';
 
 export function AvailabilityPulseScreen({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
   const [pulseOn, setPulse] = useState(false);
@@ -82,7 +82,7 @@ export function AvailabilityPulseScreen({ onBack }: { onBack: () => void }) {
  </Animated.View>
  <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text, textAlign: 'center' }}>
  {pulseOn
- ? (AR ? `متاح الآن خلال ${minutes} دقيقة` : `Available within ${minutes} min`)
+ ? (tt('tpe.e0a23dc7', { p1: String(minutes) }))
  : (AR ? 'النبضة معطّلة' : 'Pulse Off')}
  </Text>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: 'center', marginTop: SP.xs }}>

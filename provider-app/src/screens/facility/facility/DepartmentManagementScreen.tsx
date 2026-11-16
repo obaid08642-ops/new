@@ -101,7 +101,7 @@ export function DepartmentManagementScreen({ onBack }: { onBack: () => void }) {
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text,
  textAlign: AR ? 'right' : 'left' }}>{dept.name}</Text>
  <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
- {AR ? `أول عضو: ${dept.head}` : `First member: ${dept.head}`} · {dept.doctors} {AR ? 'كوادر' : 'staff'}
+ {tt('tpo.91add0df', { p1: String(dept.head) })} · {dept.doctors} {AR ? 'كوادر' : 'staff'}
  </Text>
  </View>
  <NBadge label={dept.active ? (tt('sxz.03886b8f')) : (tt('sxz.bb4b5c1f'))}

@@ -117,7 +117,7 @@ export function LiveConsultationScreen({ apt, onBack, onNavigate }: { apt: any; 
    ) : !ready ? (
     <NCard style={{ borderColor: theme.warn, borderWidth: 1 }}>
      <Text style={{ color: theme.text, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>
-      {AR ? `الجلسة غير جاهزة (الحالة: ${status || '—'})` : `Session not ready (status: ${status || '—'})`}
+      {tt('tpi.c0e1e7f7', { p1: String(status || '—') })}
      </Text>
      <Text style={{ color: theme.textSub, marginTop: SP.md, textAlign: AR ? 'right' : 'left' }}>
       {tt('live.5befbd86')}
@@ -128,7 +128,7 @@ export function LiveConsultationScreen({ apt, onBack, onNavigate }: { apt: any; 
      <Text style={{ color: theme.text, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>
       {finished ? (tt('live.031365df')) : (tt('live.65eb1205'))}
      </Text>
-     <Text style={{ color: theme.textSub, marginTop: 4 }}>{AR ? `الموعد: ${aptId}` : `Appointment: ${aptId}`} · {status}</Text>
+     <Text style={{ color: theme.textSub, marginTop: 4 }}>{tt('tpi.e889f6f5', { p1: String(aptId) })} · {status}</Text>
     </NCard>
     {steps.showCheckIn && <NBtn label={tt('live.4fa4fa34')} loading={acting} onPress={checkIn} style={{ marginBottom: SP.md }} />}
     {steps.showStart && <NBtn label={tt('live.4fe51d9f')} loading={acting} onPress={startVisit} style={{ marginBottom: SP.md }} />}

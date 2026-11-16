@@ -15,7 +15,7 @@ const mockToasts: string[] = [];
 
 jest.mock('../../../context', () => ({
   useTheme: () => ({ theme: new Proxy({}, { get: () => 'transparent' }), isDark: false }),
-  useLang: () => ({ lang: 'en', isRTL: false, t: (k: string) => require('../../../test-utils/langStrings').tGeneratedOnly('en')(k), setLang: jest.fn() }),
+  useLang: () => ({ lang: 'en', isRTL: false, t: (k: string, p?: Record<string, string | number>) => require('../../../test-utils/langStrings').tGeneratedOnly('en')(k, p), setLang: jest.fn() }),
   useAuth: () => ({ user: { isOnline: false } }),
   useToast: () => ({ show: (m: string) => { mockToasts.push(m); } }),
 }));

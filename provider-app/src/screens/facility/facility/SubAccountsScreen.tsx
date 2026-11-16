@@ -96,7 +96,7 @@ export function SubAccountsScreen({ onBack, onNavigate }: {
      show(tt('sxo.c8aa0986'), 'success');
    } catch (err: any) {
      const msg = err.response?.data?.message || err.message;
-     show(AR ? `فشل حذف الحساب: ${msg}` : `Failed to delete account: ${msg}`, 'error');
+     show(tt('tpq.b2c3bd22', { p1: String(msg) }), 'error');
    } finally {
      setShowDelete(null);
    }

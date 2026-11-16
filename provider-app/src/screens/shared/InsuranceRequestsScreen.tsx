@@ -171,7 +171,7 @@ export function InsuranceRequestsScreen({ onBack }: { onBack: () => void }) {
                 )}
                 {req.state === 'COPAY_PENDING' && (
                   <Text style={{ fontSize: FS.sm, color: theme.warn, marginBottom: 4, textAlign: AR ? 'right' : 'left' }}>
-                    {(tt('ins.2c38b747')) + (req.copay_amount ?? '—') + (AR ? ` ر.س (${req.copay_percent}%)` : ` SAR (${req.copay_percent}%)`)}
+                    {(tt('ins.2c38b747')) + (req.copay_amount ?? '—') + (tt('tpag.162dab42', { p1: String(req.copay_percent) }))}
                   </Text>
                 )}
                 {req.state === 'REJECTED' && !!req.rejection_reason && (
@@ -265,7 +265,7 @@ export function InsuranceRequestsScreen({ onBack }: { onBack: () => void }) {
                 />
                 {copayPreview !== null && (
                   <Text style={{ fontSize: FS.sm, color: theme.warn, marginTop: SP.sm, textAlign: 'center' }}>
-                    {AR ? `يدفع المريض: ${copayPreview} ر.س` : `Patient pays: ${copayPreview} SAR`}
+                    {tt('tpag.e27e2671', { p1: String(copayPreview) })}
                   </Text>
                 )}
               </View>

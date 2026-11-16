@@ -112,7 +112,7 @@ export function PharmacyPrescriptionReviewScreen({ onBack }: { onBack: () => voi
           {rows.map(r => (
             <NCard key={r.id} style={{ marginBottom: SP.md }}>
               <View style={{ flexDirection: dir, justifyContent: 'space-between', alignItems: 'center' }}>
-                <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{AR ? `وصفة #${r.id.slice(-6)}` : `Prescription #${r.id.slice(-6)}`}</Text>
+                <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{tt('tpad.418ddf82', { p1: String(r.id.slice(-6)) })}</Text>
                 <NBadge label={r.pendingManual > 0 ? (tt('sxj.f5064dd7')) : r.verified ? (tt('sxj.78d38d21')) : (tt('sxj.a51c8715'))} variant={r.pendingManual > 0 ? 'warning' : r.verified ? 'success' : 'info'} size="xs" />
               </View>
               {r.items.map(it => (

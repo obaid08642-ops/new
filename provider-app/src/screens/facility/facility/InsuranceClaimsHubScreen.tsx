@@ -131,7 +131,7 @@ export function InsuranceClaimsHubScreen({ onBack }: { onBack: () => void }) {
  </View>
  {claim.deductible > 0 && (
  <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR?'right':'left', marginTop: 2 }}>
- {AR ? `التحمّل: ${claim.deductible} ريال` : `Deductible: ${claim.deductible} SAR`}
+ {tt('tpp.0b42ecdb', { p1: String(claim.deductible) })}
  </Text>
  )}
  {claim.status === 'pending' && (

@@ -59,7 +59,7 @@ export function OrderingBulkScreen({ kind, onBack, onNav }: OrderingScreenProps)
     const r = buildBulkPayload(k, bulkInput, picked);
     if (!r.body) { setErr(orderingErrorMessage({ message: r.error }, AR)); return; }
     const body = r.body;
-    run(async () => { const res = await OrderingApi.bulkPrice(body); return AR ? `تم تطبيق التغيير على ${res.updated} فحوص` : `Change applied to ${res.updated} tests`; });
+    run(async () => { const res = await OrderingApi.bulkPrice(body); return tt('tpv.47dc0ef4', { p1: String(res.updated) }); });
   };
   const addSelected = () => {
     if (!k || !addPicked.length) return;
@@ -75,7 +75,7 @@ export function OrderingBulkScreen({ kind, onBack, onNav }: OrderingScreenProps)
   const copy = () => {
     if (!k) return;
     if (from === to) { setErr(orderingErrorMessage({ message: 'copy_mode_invalid' }, AR)); return; }
-    run(async () => { const res = await OrderingApi.copyMode({ service_kind: k, from, to }); return AR ? `تم نسخ ${res.copied} أسعار` : `Copied ${res.copied} prices`; });
+    run(async () => { const res = await OrderingApi.copyMode({ service_kind: k, from, to }); return tt('tpv.cf163b54', { p1: String(res.copied) }); });
   };
   const share = async (text: string) => {
     try { await Share.share({ message: text }); } catch { show(tt('obulk.62001870'), 'error'); }
@@ -98,7 +98,7 @@ export function OrderingBulkScreen({ kind, onBack, onNav }: OrderingScreenProps)
     run(async () => {
       const res = await OrderingApi.importCsv(k, stripBom(csv));
       setResult(res);
-      return AR ? `تم استيراد ${res.imported} صفًا · ${res.rejected.length} صفوف بها أخطاء` : `Imported ${res.imported} rows · ${res.rejected.length} rows have errors`;
+      return tt('tpv.b4a4f9ee', { p1: String(res.imported), p2: String(res.rejected.length) });
     });
   };
 
@@ -131,7 +131,7 @@ export function OrderingBulkScreen({ kind, onBack, onNav }: OrderingScreenProps)
                 <Chip label={tt('obulk.9fbee11f')} on={op === 'set'} onPress={() => setOp('set')} />
               </Row>
               <NInput kbType="numeric" label={tt('obulk.75c4f131')} value={value} onChange={(v) => setValue(v.replace(/[^0-9.\-]/g, ''))} />
-              <Label sub>{picked.length ? (AR ? `${picked.length} فحوص محددة` : `${picked.length} tests selected`) : (AR ? `كل الفحوص (${all.length})` : `All tests (${all.length})`)}</Label>
+              <Label sub>{picked.length ? (tt('tpv.49105892', { p1: String(picked.length) })) : (tt('tpv.64a5ab9e', { p1: String(all.length) }))}</Label>
               {previews.map(({ i, before, after }) => (
                 <Row key={i.catalog_id} style={{ justifyContent: 'space-between' }}>
                   <Text style={{ flex: 1, color: theme.text, fontSize: FS.sm }}>{itemName(i, AR)}</Text>
@@ -142,7 +142,7 @@ export function OrderingBulkScreen({ kind, onBack, onNav }: OrderingScreenProps)
               ))}
               <Label sub>{tt('obulk.1c0bc73d')}</Label>
               {all.map((i) => <NCheckbox key={i.catalog_id} label={itemName(i, AR)} value={picked.includes(i.catalog_id)} onChange={() => setPicked(toggleIn(picked, i.catalog_id))} />)}
-              <NBtn label={AR ? `طبّق على ${scope.length} فحوص` : `Apply to ${scope.length} tests`} onPress={applyPrice} loading={busy} disabled={!scope.length || !modes.length} style={{ marginTop: SP.md }} />
+              <NBtn label={tt('tpv.26031927', { p1: String(scope.length) })} onPress={applyPrice} loading={busy} disabled={!scope.length || !modes.length} style={{ marginTop: SP.md }} />
             </NCard>
           )}
 
@@ -155,7 +155,7 @@ export function OrderingBulkScreen({ kind, onBack, onNav }: OrderingScreenProps)
                 {catList.length === 0 && <Label sub>{tt('obulk.7dfea871')}</Label>}
                 {catList.slice(0, 60).map((c) => <NCheckbox key={c.id} label={AR ? c.name_ar : c.name_en} value={addPicked.includes(c.id)} onChange={() => setAddPicked(toggleIn(addPicked, c.id))} />)}
               </LoadState>
-              <NBtn label={AR ? `أضف ${addPicked.length} فحوص` : `Add ${addPicked.length} tests`} onPress={addSelected} loading={busy} disabled={!addPicked.length} style={{ marginTop: SP.md }} />
+              <NBtn label={tt('tpv.6e7def5f', { p1: String(addPicked.length) })} onPress={addSelected} loading={busy} disabled={!addPicked.length} style={{ marginTop: SP.md }} />
             </NCard>
           )}
 
@@ -175,7 +175,7 @@ export function OrderingBulkScreen({ kind, onBack, onNav }: OrderingScreenProps)
               {result && result.rejected.length > 0 && (
                 <View style={{ marginTop: SP.md }}>
                   {result.rejected.slice(0, 50).map((r) => (
-                    <Label key={r.line} sub>{AR ? `السطر ${r.line}: ` : `Row ${r.line}: `}{orderingErrorMessage({ message: r.reason }, AR)}</Label>
+                    <Label key={r.line} sub>{tt('tpv.35e72797', { p1: String(r.line) })}{orderingErrorMessage({ message: r.reason }, AR)}</Label>
                   ))}
                   <NBtn size="sm" variant="outline" full={false} label={tt('obulk.4c51689f')} onPress={() => share(rejectedToCsv(result.rejected))} />
                 </View>

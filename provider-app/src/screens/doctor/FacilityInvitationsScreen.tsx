@@ -103,7 +103,7 @@ export function FacilityInvitationsScreen({ onBack }: { onBack: () => void }) {
               </View>
 
               <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>
-                {AR ? `تاريخ الدعوة: ${inv.date}` : `Date: ${inv.date}`}
+                {tt('tpd.ef6894e8', { p1: String(inv.date) })}
               </Text>
 
               <Text style={{ fontSize: FS.sm, fontWeight: FW.semi, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>

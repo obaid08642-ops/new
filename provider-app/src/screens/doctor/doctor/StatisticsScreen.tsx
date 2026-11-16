@@ -239,7 +239,7 @@ export function DoctorServiceSlotsCard() {
  <Text style={{ color: theme.textSub, fontSize: FS.sm }}>{tt('stat.fc7a85ed')}</Text>
  ) : visible.map((s: any) => (
  <View key={String(s.id)} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6 }}>
- <Text style={{ color: theme.text, fontSize: FS.sm }}>{AR ? `يوم ${s.day_of_week}` : `Day ${s.day_of_week}`} · {s.start_time}–{s.end_time} · {s.service_type || 'all'}</Text>
+ <Text style={{ color: theme.text, fontSize: FS.sm }}>{tt('tpj.3177bf53', { p1: String(s.day_of_week) })} · {s.start_time}–{s.end_time} · {s.service_type || 'all'}</Text>
  <TouchableOpacity onPress={() => remove(String(s.id))}><Text style={{ color: theme.danger, fontSize: FS.sm }}>{tt('stat.2257cab6')}</Text></TouchableOpacity>
  </View>
  ))}

@@ -20,7 +20,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function SubscriptionsAdsScreen({ onBack, onNavigate }: { onBack: () => void; onNavigate: (s: string) => void }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
 
@@ -74,11 +74,11 @@ export function SubscriptionsAdsScreen({ onBack, onNavigate }: { onBack: () => v
  <View style={{ padding: SP.xl, gap: SP.xl }}>
  <NCard style={{ borderLeftWidth: 4, borderColor: '#7C3AED' }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
-  {AR ? `الباقة الحالية: ${plan?.name || '—'}` : `Current Plan: ${plan?.name || '—'}`}
+  {tt('tpam.e80229ee', { p1: String(plan?.name || '—') })}
  </Text>
  {plan?.renews && (
  <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: SP.xs, textAlign: AR ? 'right' : 'left' }}>
- {AR ? `تجدد تلقائياً في ${plan.renews}` : `Renews on ${plan.renews}`}
+ {tt('tpam.80d4886e', { p1: String(plan.renews) })}
  </Text>
  )}
  </NCard>
