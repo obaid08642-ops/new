@@ -87,3 +87,9 @@ Merged today: #2678 (Redis mail gate), #2679 (nginx bot rule), #2680 (nightly jo
 6. Backend gaps found by P (WIRING needs-review [backend] lines): fix one PR each.
 7. Multi-country: write docs/platform/MULTI-COUNTRY.md from lead inventory (countries collection, country_code, strategy plugins, money {amount_minor,currency}); docs only.
 Rules unchanged: gate before every push, no mock data, one task = one commit.
+
+## 2026-11-16 — URGENT, first in the queue (lead)
+Run 130 applied cacheSizeGB 0.4 and recreated mongodb (ok, PRIMARY, restarts counter reset). BUT before it, mongod was still killed by the cgroup OOM at 1.6 GB: 25 kills in 48 h, 6 of them 03:46:40-03:47:36 UTC on 2026-11-16 (anon-rss 1592 MB), restart counter went 809 (11-15 20:21) -> 902 (11-16 04:33). Also run 130 printed "last nightly 0 MB": the 03:00 backup.sh may not be producing a file.
+1. Find what runs 03:30-03:50 UTC (backup.sh 03:00 may still be running then; crons in deploy/cron/nabd-backups, backend @Cron, worker jobs, meilisearch reindex, translation job) and what makes mongod reach 1.6 GB right after each restart (restart storm: backend/worker reconnect + heavy query?). Use the mongod log of those minutes (96k/96n tasks print it) and propose the fix PR (index/limit/serialize). Do NOT guess.
+2. Check why nightly backup size is 0 (backup.sh log /var/log/nabd-backups.log via an ops read-only task). A missing nightly backup is launch-critical.
+3. Report in outbox with numbers. One PR per fix.
