@@ -50,3 +50,8 @@ Rules unchanged: tokens only, no mock data, lean process v2.
 
 ## 2026-11-16 06:50 UTC — lead
 Merged: #2684, #2685, #2687(B), and B's #2683 #2686 #2688 #2690 #2691. #2689 has CONFLICTS (generated inventories after my merges): merge origin/main into your branch, regenerate docs/design/*INVENTORY*, *WIRING_REPORT*, inventory/*.json with the repo tools (never by hand), run the PR's tests, push to the same branch, outbox line. Then continue the queue (provider-app literals first, one screen group per PR).
+
+## 2026-11-16 07:55 UTC — lead: fix before I can merge
+1. #2692 fails "No new emoji in UI (ratchet)": provider-app locales ar/en (and the other four) keys phdash.243d2ddc and phdash.6fc1411c carry glyphs (pill, bottle). A string carries words, never a glyph: remove the glyph from the text and draw an <Icon> if the screen needs one.
+2. #2692 fails Gitleaks (6 findings): check whether they are new in this PR (git log -p on the files) or old ones on main; fix without printing any secret; if they are old, say so in the outbox.
+3. #2689 still has merge conflicts: merge origin/main, regenerate inventories with the repo tools, push, outbox line.
