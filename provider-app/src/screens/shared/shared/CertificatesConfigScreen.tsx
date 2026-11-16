@@ -157,7 +157,7 @@ export function CertificatesConfigScreen({ onBack }: { onBack: () => void }) {
  </View>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', borderTopWidth: 1, borderTopColor: theme.border, paddingTop: SP.sm }}>
  <Text style={{ fontSize: FS.xs, color: theme.textSub }}>
- {item.doc_number ? (AR ? `رقم: ${item.doc_number}` : `No: ${item.doc_number}`) : docLabel(item.doc_type)}
+ {item.doc_number ? (tt('tpan.e19f19b3', { p1: String(item.doc_number) })) : docLabel(item.doc_type)}
  </Text>
  <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{dateStr}</Text>
  </View>

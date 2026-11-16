@@ -90,7 +90,7 @@ export function RegistrationSuccess({ onDone, email, providerType = 'provider' }
               {tt('regdone.c3d0ede2')}
             </Text>
             <Text style={{ fontSize: 14, color: theme.textSub, marginBottom: 16 }}>
-              {email ? (AR ? `يرجى تأكيد بريدك الإلكتروني: ${email}` : `Please verify your email: ${email}`) : (tt('regdone.eeabd13e'))}
+              {email ? (tt('tpak.1a8ee654', { p1: String(email) })) : (tt('regdone.eeabd13e'))}
             </Text>
 
             {!otpSent ? (

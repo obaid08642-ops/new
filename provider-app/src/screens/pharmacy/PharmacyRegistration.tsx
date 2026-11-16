@@ -475,9 +475,7 @@ function PStep3Location({ data, update, submitRef }: StepProps<PharmacyRegData>)
 
             <NCard style={{ backgroundColor:theme.infoBg, padding:SP.md }}>
               <Text style={{ fontSize:FS.xs, color:theme.info, lineHeight:18, textAlign:AR?'right':'left' }}>
-                {AR
-                  ? `نظام البث (Broadcast): يتم إرسال طلبات الأدوية للمرضى داخل نطاق ${data.deliveryRadius} كم لضمان سرعة التوصيل.`
-                  : `Broadcast system: Prescription orders sent to pharmacies within ${data.deliveryRadius}km coverage radius.`}
+                {tt('tpae.50359c66', { p1: String(data.deliveryRadius) })}
               </Text>
             </NCard>
             </>)}

@@ -27,10 +27,10 @@ export function OrderingCompletenessScreen({ kind, onBack, onNav }: OrderingScre
 
   const label = (part: CompletenessPart, n: number): string => {
     switch (part) {
-      case 'prices': return AR ? `أضف أسعار ${n} فحصًا` : `Add prices for ${n} tests`;
+      case 'prices': return tt('tpw.fc5f6243', { p1: String(n) });
       case 'modes_hours': return tt('sxzb.793834ce');
       case 'insurance': return tt('sxzb.91d149de');
-      case 'prep_turnaround': return AR ? `أضف مدة النتيجة لـ ${n} فحوص` : `Add turnaround for ${n} tests`;
+      case 'prep_turnaround': return tt('tpw.0f958dd3', { p1: String(n) });
       default: return tt('sxzb.225927f7');
     }
   };
@@ -49,7 +49,7 @@ export function OrderingCompletenessScreen({ kind, onBack, onNav }: OrderingScre
           <View style={{ gap: SP.md, paddingTop: SP.md }}>
             <NCard>
               <Text style={{ fontSize: FS['2xl'], fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
-                {AR ? `اكتمال ملفك ${c.score}٪` : `Your profile is ${c.score}% complete`}
+                {tt('tpw.d368dd54', { p1: String(c.score) })}
               </Text>
               <View accessibilityRole="progressbar" accessibilityValue={{ min: 0, max: 100, now: c.score }} style={{ height: 10, borderRadius: R.full, backgroundColor: theme.surface2, overflow: 'hidden', marginTop: SP.md }}>
                 <View style={{ width: `${Math.max(0, Math.min(100, c.score))}%`, height: 10, backgroundColor: theme.primary, alignSelf: 'flex-start' }} />
@@ -76,11 +76,11 @@ export function OrderingCompletenessScreen({ kind, onBack, onNav }: OrderingScre
             <NCard>
               <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{user?.displayName || user?.name || ''}</Text>
               {s && <Label sub>{s.modes.map((m) => (m === 'home' ? (tt('sxzb.69ba9eb5')) : (tt('sxzb.0255c256')))).join(' · ')}</Label>}
-              {s?.modes.includes('home') && <Label sub>{tt('sxzb.9ccaa7a5')}{fmtMoney(s.home_fee, AR)}{' · '}{AR ? `${s.home_radius_km ?? '-'} كم` : `${s.home_radius_km ?? '-'} km`}</Label>}
+              {s?.modes.includes('home') && <Label sub>{tt('sxzb.9ccaa7a5')}{fmtMoney(s.home_fee, AR)}{' · '}{tt('tpw.0a77475e', { p1: String(s.home_radius_km ?? '-') })}</Label>}
               {fromPrice !== null && <Label>{tt('sxzb.f67b174f')}{fmtMoney(fromPrice, AR)}</Label>}
-              <Label sub>{AR ? `${ins.companies} شركات تأمين · ${ins.classes} فئات` : `${ins.companies} insurers · ${ins.classes} classes`}</Label>
-              <Label sub>{AR ? `${visible.length} فحصًا ظاهرًا للمريض` : `${visible.length} tests visible to patients`}</Label>
-              {hidden > 0 && <Text style={{ color: theme.warn, fontSize: FS.sm, textAlign: AR ? 'right' : 'left' }}>{AR ? `${hidden} فحصًا بلا سعر لا تظهر للمريض` : `${hidden} tests without a price are hidden from patients`}</Text>}
+              <Label sub>{tt('tpw.afe91f3d', { p1: String(ins.companies), p2: String(ins.classes) })}</Label>
+              <Label sub>{tt('tpw.09250438', { p1: String(visible.length) })}</Label>
+              {hidden > 0 && <Text style={{ color: theme.warn, fontSize: FS.sm, textAlign: AR ? 'right' : 'left' }}>{tt('tpw.0a16a045', { p1: String(hidden) })}</Text>}
               {s?.auto_accept && <NBadge size="xs" variant="success" label={tt('sxzb.748f71af')} />}
               {visible.slice(0, 3).map((i) => <Label key={i.catalog_id} sub>{itemName(i, AR)}</Label>)}
             </NCard>

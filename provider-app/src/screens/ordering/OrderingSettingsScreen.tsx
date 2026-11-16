@@ -96,7 +96,7 @@ export function OrderingSettingsScreen({ kind, onBack, onNav }: OrderingScreenPr
                 <Label sub>{tt('oset.00d66e06')}</Label>
                 <Label bold>{tt('oset.e151b46e')}</Label>
                 <Row>
-                  {RADII.map((r) => <Chip key={r} label={AR ? `${r} كم` : `${r} km`} on={parseAmount(radius) === r} onPress={() => { setStepError(null); setRadius(String(r)); }} />)}
+                  {RADII.map((r) => <Chip key={r} label={tt('tpy.0a77475e', { p1: String(r) })} on={parseAmount(radius) === r} onPress={() => { setStepError(null); setRadius(String(r)); }} />)}
                 </Row>
                 <NInput kbType="numeric" value={radius} onChange={(v) => { setStepError(null); setRadius(v.replace(/[^0-9.]/g, '')); }} label={tt('oset.11e1a075')} />
                 <Label sub>{tt('oset.dd8ad388')}</Label>
@@ -125,7 +125,7 @@ export function OrderingSettingsScreen({ kind, onBack, onNav }: OrderingScreenPr
                   );
                 })}
               </LoadState>
-              <Label sub>{AR ? `${sum.companies} شركات · ${sum.classes} فئات` : `${sum.companies} companies · ${sum.classes} classes`}</Label>
+              <Label sub>{tt('tpy.ec19a3d6', { p1: String(sum.companies), p2: String(sum.classes) })}</Label>
             </>)}
 
             {step === 3 && (<>
@@ -146,8 +146,8 @@ export function OrderingSettingsScreen({ kind, onBack, onNav }: OrderingScreenPr
               <NCard>
                 <Label bold>{tt('oset.292017df')}</Label>
                 <Label>{tt('oset.0b4b5c90')}{s.modes.map((m) => (m === 'home' ? (tt('oset.8ca476d4')) : (tt('oset.0b2554a1')))).join(' + ') || '-'}</Label>
-                {s.modes.includes('home') && <Label>{tt('oset.b2c00419')}{fmtMoney(parseAmount(fee) ?? 0, AR)}{' · '}{AR ? `${radius || '-'} كم` : `${radius || '-'} km`}</Label>}
-                <Label>{tt('oset.a7e2891e')}{AR ? `${sum.companies} شركات · ${sum.classes} فئات` : `${sum.companies} companies · ${sum.classes} classes`}</Label>
+                {s.modes.includes('home') && <Label>{tt('oset.b2c00419')}{fmtMoney(parseAmount(fee) ?? 0, AR)}{' · '}{tt('tpy.0a77475e', { p1: String(radius || '-') })}</Label>}
+                <Label>{tt('oset.a7e2891e')}{tt('tpy.ec19a3d6', { p1: String(sum.companies), p2: String(sum.classes) })}</Label>
                 {draft && draft.accepted_insurance.map((x) => <Label key={x.company_id} sub>{nameOf(x.company_id)}{': '}{x.classes.join(', ')}</Label>)}
                 <Label>{tt('oset.e0e910f2')}{s.auto_accept ? (tt('oset.c51dd876')) : (tt('oset.3e566413'))}</Label>
               </NCard>

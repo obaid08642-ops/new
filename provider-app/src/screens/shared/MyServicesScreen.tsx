@@ -125,7 +125,7 @@ export function MyServicesScreen({ vertical, onBack, footer }: { vertical: Verti
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? t.ar : t.en} sub={rows.length ? (AR ? `${offeredCount} من ${rows.length} مُقدَّمة` : `${offeredCount} of ${rows.length} offered`) : undefined} onBack={onBack} />
+      <NHeader title={AR ? t.ar : t.en} sub={rows.length ? (tt('tpah.b36511ef', { p1: String(offeredCount), p2: String(rows.length) })) : undefined} onBack={onBack} />
       {loading ? <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: SP.xxl }} /> : failed && rows.length === 0 ? (
         <NEmpty icon="grid" title={tt('sxp.66b56683')} actionLabel={tt('sxp.96cbdad3')} onAction={() => { setLoading(true); load(); }} />
       ) : (
@@ -151,7 +151,7 @@ export function MyServicesScreen({ vertical, onBack, footer }: { vertical: Verti
           <View>
             {editing.catalogue_price != null ? (
               <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>
-                {AR ? `سعر الكتالوج: ${editing.catalogue_price} ر.س` : `Catalogue price: ${editing.catalogue_price} SAR`}
+                {tt('tpah.57f0b10e', { p1: String(editing.catalogue_price) })}
               </Text>
             ) : null}
             <NToggle label={tt('sxp.41bae7ac')} value={draft.offered} onChange={(v) => setDraft({ ...draft, offered: v })} />

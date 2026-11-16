@@ -35,7 +35,7 @@ import { MedicalJobsDetail } from './MedicalJobsDetail';
 import { MedicalJobsApplicant } from './MedicalJobsApplicant';
 
 export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, onOpenChat?: () => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
   
@@ -235,9 +235,9 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
         location: postCity.trim(),
         salary_range: postSalary.trim() || undefined,
         requirements: [
-          postProf ? (AR ? `المهنة: ${postProf}` : `Profession: ${postProf}`) : '',
-          postExp ? (AR ? `خبرة ${postExp} سنوات` : `${postExp} years experience`) : '',
-          postNat ? (AR ? `الجنسية: ${postNat}` : `Nationality: ${postNat}`) : '',
+          postProf ? (tt('tpar.53f0a05f', { p1: String(postProf) })) : '',
+          postExp ? (tt('tpar.217a4dbd', { p1: String(postExp) })) : '',
+          postNat ? (tt('tpar.34030e3c', { p1: String(postNat) })) : '',
           postContract === 'fulltime' ? (AR ? 'دوام كامل' : 'Full-Time') : postContract === 'parttime' ? (AR ? 'دوام جزئي' : 'Part-Time') : (AR ? 'لوكم / زيارات' : 'Locum'),
         ].filter(Boolean),
         status: 'published',
@@ -261,7 +261,7 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
       try {
         await client.post(`/recruitment/jobs/${selectedJob.id}/guest-apply`, {
           device_id: guestId, name: applyName.trim(), phone: applyPhone.trim(),
-          cover_letter: [applyClass ? (AR ? `التصنيف: ${applyClass}` : `Classification: ${applyClass}`) : '', applyExp ? (AR ? `الخبرة: ${applyExp} سنوات` : `Experience: ${applyExp} years`) : '', applyReady || ''].filter(Boolean).join('\n'),
+          cover_letter: [applyClass ? (tt('tpar.38dd05bc', { p1: String(applyClass) })) : '', applyExp ? (tt('tpar.969c7d72', { p1: String(applyExp) })) : '', applyReady || ''].filter(Boolean).join('\n'),
         });
         show(AR ? 'تم إرسال طلبك لصاحب العمل' : 'Application sent to employer', 'success');
       } catch (e: any) {
@@ -280,10 +280,10 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
     try {
       await client.post(`/recruitment/jobs/${selectedJob.id}/apply`, {
         cover_letter: [
-          applyName ? (AR ? `الاسم: ${applyName}` : `Name: ${applyName}`) : '',
-          applyPhone ? (AR ? `الجوال: ${applyPhone}` : `Phone: ${applyPhone}`) : '',
-          applyClass ? (AR ? `التصنيف: ${applyClass}` : `Classification: ${applyClass}`) : '',
-          applyExp ? (AR ? `الخبرة: ${applyExp} سنوات` : `Experience: ${applyExp} years`) : '',
+          applyName ? (tt('tpar.decff589', { p1: String(applyName) })) : '',
+          applyPhone ? (tt('tpar.c3400471', { p1: String(applyPhone) })) : '',
+          applyClass ? (tt('tpar.38dd05bc', { p1: String(applyClass) })) : '',
+          applyExp ? (tt('tpar.969c7d72', { p1: String(applyExp) })) : '',
           applyReady || '',
         ].filter(Boolean).join('\n'),
       });

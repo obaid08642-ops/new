@@ -949,7 +949,7 @@ function LStep4({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
                   </Text>
                   {test.fasting && (
                     <Text style={{ fontSize: FS.xs, color: theme.warn }}>
-                      {AR ? `صيام ${(test as any).fastH ?? 8}h` : `Fasting ${(test as any).fastH ?? 8}h`}
+                      {tt('tpt.c48c02e4', { p1: String((test as any).fastH ?? 8) })}
                     </Text>
                   )}
                 </View>

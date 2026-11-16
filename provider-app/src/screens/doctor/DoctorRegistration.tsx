@@ -538,7 +538,7 @@ function Step4PricingAndLocation({ data, update, submitRef }: StepProps<DoctorRe
     }
     const incomplete = selected.find(item => !String(item.price || '').trim() || Number(item.price) < 0 || !String(item.duration || '').trim() || Number(item.duration) <= 0);
     if (incomplete) {
-      show(AR ? `أدخل السعر والمدة لـ${incomplete.label}` : `Enter price and duration for the ${incomplete.label}`, 'error');
+      show(tt('tpc.b75c17a6', { p1: String(incomplete.label) }), 'error');
       return false;
     }
     if (data.offersHome && (!Number(data.homeRadius) || data.homeRadius <= 0 || !data.lat || !data.lng)) {

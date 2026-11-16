@@ -86,7 +86,7 @@ export function ChronicDiseaseProgramScreen({ onBack }: { onBack: () => void }) 
              {tt('rse.beedbf90')}
           </Text>
           <Text style={{ fontSize: FS.xs, color: '#e0f2fe', marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
-            {AR ? `${loading ? '…' : patients.length} مريضاً في برنامج إعادة الصرف` : `${loading ? '…' : patients.length} patients in refill program`}
+            {tt('tpaj.dcf61214', { p1: String(loading ? '…' : patients.length) })}
           </Text>
         </NCard>
 
@@ -261,7 +261,7 @@ export function ExpiryTrackingScreen({ onBack }: { onBack: () => void }) {
                 <Text style={{ fontSize: FS.xs, color: urgent ? theme.danger : theme.warn, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
                   {days <= 0
                     ? (tt('rse.9ced077e'))
-                    : (AR ? `تنتهي الصلاحية خلال ${days} يوم · الكمية: ${it.stock ?? 0}` : `Expires in ${days} days · Qty: ${it.stock ?? 0}`)}
+                    : (tt('tpaj.3eb96528', { p1: String(days), p2: String(it.stock ?? 0) }))}
                 </Text>
                 {!!it.expiry_date && (
                   <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 2, textAlign: AR ? 'right' : 'left' }}>
@@ -405,8 +405,8 @@ export function LabBundlesScreen({ onBack }: { onBack: () => void }) {
                     {AR ? (t.name_ar || t.name_en || t.code) : (t.name_en || t.name_ar || t.code)}
                   </Text>
                   <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
-                    {(AR ? `السعر: ${Number(t.price || 0).toFixed(2)} ر.س` : `Price: ${Number(t.price || 0).toFixed(2)} SAR`)
-                      + (t.turnaround_hours ? (AR ? ` · النتيجة خلال ${t.turnaround_hours} ساعة` : ` · Result in ${t.turnaround_hours}h`) : '')
+                    {(tt('tpaj.c597ffd9', { p1: String(Number(t.price || 0).toFixed(2)) }))
+                      + (t.turnaround_hours ? (tt('tpaj.4a154022', { p1: String(t.turnaround_hours) })) : '')
                       + (t.home_collection_supported ? (tt('rse.a2a8f284')) : '')}
                   </Text>
                 </View>
@@ -473,8 +473,8 @@ export function LabHomeServiceScreen({ onBack }: { onBack: () => void }) {
                     {z.name || (tt('rse.0aec39cd'))}
                   </Text>
                   <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
-                    {(z.shape === 'circle' && z.radius_km ? (AR ? `النطاق: ${z.radius_km} كم` : `Radius: ${z.radius_km} km`) : (tt('rse.342e20ab')))
-                      + (z.base_fee ? (AR ? ` · رسوم الزيارة: ${Number(z.base_fee).toFixed(2)} ر.س` : ` · Visit fee: ${Number(z.base_fee).toFixed(2)} SAR`) : '')}
+                    {(z.shape === 'circle' && z.radius_km ? (tt('tpaj.cd1ad73a', { p1: String(z.radius_km) })) : (tt('rse.342e20ab')))
+                      + (z.base_fee ? (tt('tpaj.a526643b', { p1: String(Number(z.base_fee).toFixed(2)) })) : '')}
                   </Text>
                 </View>
                 <NBadge label={z.active !== false ? (tt('rse.f9ffe17e')) : (tt('rse.6521d707'))} variant={z.active !== false ? 'success' : 'default'} />

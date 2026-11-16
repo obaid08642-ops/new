@@ -295,7 +295,7 @@ export function EPrescriptionScreen({ apt, onBack }:
  style={[styles.drugRow, { borderBottomColor: theme.border, backgroundColor: theme.primaryLight, marginBottom: SP.sm }]}>
  <Text style={{ fontSize: 18 }}>✍️</Text>
  <Text style={{ flex: 1, color: theme.primary, fontSize: FS.md, fontWeight: FW.bold }}>
- {AR ? `إضافة دواء غير مدرج: "${search.trim()}"` : `Add Custom Med: "${search.trim()}"`}
+ {tt('tph.638f95bd', { p1: String(search.trim()) })}
  </Text>
  <Text style={{ color: theme.primary }}>+ {tt('erx.49d91d0a')}</Text>
  </TouchableOpacity>

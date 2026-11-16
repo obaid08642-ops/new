@@ -341,9 +341,9 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab, onToggleOnline }: any) {
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
                   <View>
                     <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 8 }}>
-                      <Text style={{ fontWeight: 'bold', fontSize: 18, color: theme.text }}>{AR ? `بث #${String(b.id).slice(-6)}` : `Broadcast #${String(b.id).slice(-6)}`}</Text>
+                      <Text style={{ fontWeight: 'bold', fontSize: 18, color: theme.text }}>{tt('tpz.cba31840', { p1: String(String(b.id).slice(-6)) })}</Text>
                     </View>
-                    <Text style={{ color: theme.textSub, fontSize: 12 }}>{AR ? `الجولة ${b.current_round || '—'} · النطاق ${b.current_radius_km || '—'} كم` : `Round ${b.current_round || '—'} · radius ${b.current_radius_km || '—'} km`}</Text>
+                    <Text style={{ color: theme.textSub, fontSize: 12 }}>{tt('tpz.2cf6ec45', { p1: String(b.current_round || '—'), p2: String(b.current_radius_km || '—') })}</Text>
                   </View>
                   <Text style={{ fontWeight: 'bold', fontSize: 13, color: theme.primary }}>
                     {b.payment_summary?.method === 'insurance' ? (tt('phdash.150549c6'))
@@ -381,7 +381,7 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab, onToggleOnline }: any) {
                       {b.attachments.map((a: any, ai: number) => (
                         <TouchableOpacity key={ai} onPress={() => Linking.openURL(a.uri)} style={{ backgroundColor: theme.surface2, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 }}>
                           <Text style={{ color: theme.primary, fontSize: 12 }}>
-                            {a.type === 'pdf' ? (AR ? `📄 ملف PDF ${ai + 1}` : `📄 PDF ${ai + 1}`) : (AR ? `🖼️ صورة ${ai + 1}` : `🖼️ Image ${ai + 1}`)}
+                            {a.type === 'pdf' ? (tt('tpz.5a2de8de', { p1: String(ai + 1) })) : (tt('tpz.a2001776', { p1: String(ai + 1) }))}
                           </Text>
                         </TouchableOpacity>
                       ))}
@@ -590,7 +590,7 @@ function B2BSupplyRequestScreen({ onBack }: any) {
             {cart.length > 0 && (
               <View style={{ marginTop: 16 }}>
                 <Text style={{ fontWeight: 'bold', fontSize: 16, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: 8 }}>
-                  {AR ? `سلة الطلب (${cart.length} صنف)` : `Request cart (${cart.length} items)`}
+                  {tt('tpz.e3334d06', { p1: String(cart.length) })}
                 </Text>
                 {['medical', 'non_medical'].map((g) => {
                   const items = cart.map((it, idx) => ({ it, idx })).filter(x => (x.it.category_group || 'medical') === g);
@@ -655,7 +655,7 @@ function B2BSupplyRequestScreen({ onBack }: any) {
               <View key={r.id || r._id} style={{ backgroundColor: theme.surface2, padding: 12, borderRadius: 8, marginBottom: 12 }}>
                 <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Text style={{ fontWeight: 'bold', color: theme.text, textAlign: AR ? 'right' : 'left' }}>
-                    {AR ? `طلب إرجاع ${r.order_id || ''}` : `Return ${r.order_id || ''}`}
+                    {tt('tpz.f556f27a', { p1: String(r.order_id || '') })}
                   </Text>
                   <NBadge label={r.status === 'approved' || r.status === 'completed' ? (tt('phdash.aecf1337')) : r.status === 'rejected' ? (tt('phdash.8290f876')) : (tt('phdash.6a7f7505'))} variant={r.status === 'approved' || r.status === 'completed' ? 'success' : r.status === 'rejected' ? 'danger' : 'warning'} size="xs" />
                 </View>
@@ -714,7 +714,7 @@ function ReturnsRMAScreen({ onBack }: any) {
             <NCard key={r.id || r._id} onPress={() => setOpenId(String(r.id || ''))} style={{ marginBottom: 12, padding: 16 }}>
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                 <Text style={{ fontWeight: 'bold', fontSize: 15, color: theme.text }}>
-                  {AR ? `طلب إرجاع ${r.order_id || ''}` : `Return ${r.order_id || ''}`}
+                  {tt('tpz.f556f27a', { p1: String(r.order_id || '') })}
                 </Text>
                 <NBadge label={meta.label} variant={meta.variant} size="xs" />
               </View>
@@ -868,7 +868,7 @@ function DispatchWorkflowScreen({ onBack, onNavigate, initialSection = 'new' }: 
       <NCard key={a.id} style={{ marginBottom: 12, padding: 16 }}>
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
           <Text style={{ fontWeight: 'bold', fontSize: 15, color: theme.text }}>
-            {AR ? `طلب #${String(a.order_id || '').slice(-6)}` : `Order #${String(a.order_id || '').slice(-6)}`}
+            {tt('tpz.c83fa9fb', { p1: String(String(a.order_id || '').slice(-6)) })}
           </Text>
           <NBadge label={meta.label} variant={meta.variant} size="xs" />
         </View>
@@ -1044,11 +1044,11 @@ function SmartBarcodeScannerScreen({ onBack }: any) {
       {!product && <CameraView style={{ flex: 1 }} facing="back" barcodeScannerSettings={{ barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39', 'code93', 'itf14', 'qr', 'datamatrix', 'pdf417'] }} onBarcodeScanned={scanned ? undefined : onBarcodeScanned} />}
       <View style={{ padding: SP.xl, paddingBottom: SP.xxl, backgroundColor: '#111', gap: SP.md }}>
         {loading && <ActivityIndicator color={theme.primary} />}
-        {barcode && <Text style={{ color: '#FFF', textAlign: 'center' }}>{AR ? `الباركود: ${barcode}` : `Barcode: ${barcode}`}</Text>}
+        {barcode && <Text style={{ color: '#FFF', textAlign: 'center' }}>{tt('tpz.0de93dcf', { p1: String(barcode) })}</Text>}
         {product && (
           <NCard>
             <Text style={{ color: theme.text, fontWeight: FW.bold }}>{AR ? (product.name_ar || product.name_en || product.name || barcode) : (product.name_en || product.name_ar || product.name || barcode)}</Text>
-            <Text style={{ color: theme.textSub, marginTop: SP.xs }}>{AR ? `المخزون المتاح: ${product.stock ?? product.quantity ?? 0}` : `Available stock: ${product.stock ?? product.quantity ?? 0}`}</Text>
+            <Text style={{ color: theme.textSub, marginTop: SP.xs }}>{tt('tpz.406d4f5d', { p1: String(product.stock ?? product.quantity ?? 0) })}</Text>
           </NCard>
         )}
         <NBtn label={tt('phdash.71aaf3a6')} variant="outline" onPress={() => { setScanned(false); setBarcode(null); setProduct(null); }} />
@@ -1212,12 +1212,12 @@ function ActiveInventoryScreen({ onBack, onNavigate }: { onBack: () => void; onN
         {alerts.length > 0 && (
           <NCard style={{ marginBottom: 12, borderColor: theme.warn, borderWidth: 1 }}>
             <Text style={{ fontWeight: 'bold', color: theme.warn, textAlign: AR ? 'right' : 'left', marginBottom: 8 }}>
-              {AR ? `تنبيهات انخفاض المخزون (${alerts.length})` : `Low-stock alerts (${alerts.length})`}
+              {tt('tpz.08cde620', { p1: String(alerts.length) })}
             </Text>
             {alerts.map((a) => (
               <View key={a.id} style={{ paddingVertical: 8, borderTopWidth: 1, borderTopColor: theme.surface2 }}>
                 <Text style={{ color: theme.text, textAlign: AR ? 'right' : 'left' }}>
-                  {a.name} · {AR ? `المتبقي ${a.current_stock} من حد ${a.threshold}` : `${a.current_stock} left, minimum ${a.threshold}`}
+                  {a.name} · {tt('tpz.4b45b4a6', { p1: String(a.current_stock), p2: String(a.threshold) })}
                 </Text>
                 <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: 8, alignItems: 'center', marginTop: 6 }}>
                   <View style={{ width: 90 }}>

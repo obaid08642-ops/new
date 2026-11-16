@@ -11,7 +11,7 @@ import client from '../../api/client';
 import { OFFER_FILTERS, OFFER_VIEW_META, OfferFilter, OfferRow, mapOffers, offersPath } from './offersList';
 
 export function PharmacyMyOffers({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast();
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast();
   const AR = lang === 'ar';
   const [filter, setFilter] = useState<OfferFilter>('all');
   const [rows, setRows] = useState<OfferRow[]>([]);
@@ -60,7 +60,7 @@ export function PharmacyMyOffers({ onBack }: { onBack: () => void }) {
               </View>
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginTop: SP.sm }}>
                 <Text style={{ color: theme.text, fontWeight: FW.semi }}>{r.total === null ? '—' : `${r.total} ${r.currency === 'SAR' ? (AR ? 'ر.س' : 'SAR') : r.currency}`}</Text>
-                <Text style={{ color: theme.textSub }}>{AR ? `${r.itemsCount} أصناف` : `${r.itemsCount} items`}</Text>
+                <Text style={{ color: theme.textSub }}>{tt('tpac.fc3f0d35', { p1: String(r.itemsCount) })}</Text>
               </View>
               {r.quoteExpiresAt && (
                 <Text style={{ color: theme.textSub, fontSize: FS.xs, marginTop: SP.xs, textAlign: AR ? 'right' : 'left' }}>

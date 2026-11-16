@@ -149,7 +149,7 @@ export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => vo
                 </Text>
                 <Text style={{ fontSize: FS.xs, color: theme.info, textAlign: AR ? 'right' : 'left' }}>
                   {facilityName
-                    ? (AR ? `تعمل حالياً ضمن طاقم ${facilityName}` : `Currently working under ${facilityName}`)
+                    ? (tt('tpg.bbb97304', { p1: String(facilityName) }))
                     : (tt('dset.4282b309'))}
                 </Text>
               </View>
@@ -161,7 +161,7 @@ export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => vo
             </TouchableOpacity>
           </NCard>
         ) : (
-          <NSettingsRow icon="document" label={AR ? `دعوات المنشآت (${invitationsCount})` : `Facility Invitations (${invitationsCount})`} onPress={() => onNavigate('facility_invitations')} />
+          <NSettingsRow icon="document" label={tt('tpg.49f85f02', { p1: String(invitationsCount) })} onPress={() => onNavigate('facility_invitations')} />
         )}
 
         {/* ── Appearance & Language ─────────────────────────────────── */}

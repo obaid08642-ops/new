@@ -43,15 +43,15 @@ export function OrderingItemsScreen({ kind, onBack, onNav }: OrderingScreenProps
                 <NBtn size="xs" variant="outline" full={false} label={tt('oitems.4cbb34bf')} onPress={() => onNav('ordering_settings')} />
               </Row>
               {s.modes.includes('home') && <Label sub>{AR ? `رسوم الزيارة ${fmtMoney(s.home_fee, AR)} · نطاق ${s.home_radius_km ?? '-'} كم` : `Visit fee ${fmtMoney(s.home_fee, AR)} · radius ${s.home_radius_km ?? '-'} km`}</Label>}
-              <Label sub>{AR ? `${s.accepted_insurance.filter((x) => x.active).length} شركات تأمين` : `${s.accepted_insurance.filter((x) => x.active).length} insurers`}</Label>
+              <Label sub>{tt('tpx.02176b51', { p1: String(s.accepted_insurance.filter((x) => x.active).length) })}</Label>
               <Label sub>{tt('oitems.a92b19e7')}</Label>
             </NCard>
           )}
           <NSearch value={q} onChange={setQ} placeholder={tt('oitems.3231675f')} />
           <Row>
             <Chip label={tt('oitems.eabe5f68')} on={filter === 'all'} onPress={() => setFilter('all')} />
-            <Chip label={AR ? `بلا سعر · ${noPrice}` : `No price · ${noPrice}`} on={filter === 'noprice'} onPress={() => setFilter('noprice')} />
-            <Chip label={AR ? `مخصّص · ${custom}` : `Customised · ${custom}`} on={filter === 'custom'} onPress={() => setFilter('custom')} />
+            <Chip label={tt('tpx.beaa9076', { p1: String(noPrice) })} on={filter === 'noprice'} onPress={() => setFilter('noprice')} />
+            <Chip label={tt('tpx.9b2417bd', { p1: String(custom) })} on={filter === 'custom'} onPress={() => setFilter('custom')} />
           </Row>
           <Row>
             <NBtn size="sm" variant="outline" full={false} label={tt('oitems.1c652d9c')} onPress={() => onNav('ordering_bulk')} />
@@ -71,7 +71,7 @@ export function OrderingItemsScreen({ kind, onBack, onNav }: OrderingScreenProps
                   <View style={{ flex: 1 }}><Label bold>{itemName(i, AR)}</Label></View>
                   <NBadge size="xs" variant={isCustom(i) ? 'primary' : 'default'} label={isCustom(i) ? (tt('oitems.4e209203')) : (tt('oitems.1e654237'))} />
                 </Row>
-                {i.turnaround_hours != null && <Label sub>{AR ? `النتيجة خلال ${i.turnaround_hours} ساعات` : `Result within ${i.turnaround_hours} hours`}</Label>}
+                {i.turnaround_hours != null && <Label sub>{tt('tpx.06794a1b', { p1: String(i.turnaround_hours) })}</Label>}
                 {miss.length > 0 && <Label sub>{tt('oitems.f7caa7cc')}{miss.map(nameOf).join(', ')}</Label>}
                 {i.modes.length === 0 || (i.modes.length === 1 && i.modes[0] === 'facility' && s?.modes.includes('home'))
                   ? <Label sub>{tt('oitems.fc6eee88')}</Label> : null}

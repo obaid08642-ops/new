@@ -165,7 +165,7 @@ function PharmacyInsuranceDecisionForm({ detail, onBack }: { detail: any; onBack
       const d = decisions[key] || { outcome: '', approved_qty: '', reason: '' };
       const quoted = Math.max(0, Number(it.qty_offered || 0));
       if (!d.outcome) {
-        show(AR ? `اختر القرار لكل صنف (${it.name || key})` : `Decide every item (${it.name || key})`, 'error');
+        show(tt('tpaa.944d0e84', { p1: String(it.name || key) }), 'error');
         return;
       }
       if (d.outcome === 'approved') {
@@ -173,11 +173,11 @@ function PharmacyInsuranceDecisionForm({ detail, onBack }: { detail: any; onBack
       } else {
         const aq = Math.floor(Number(d.approved_qty));
         if (d.outcome === 'partial' && (!(aq > 0) || aq >= quoted)) {
-          show(AR ? `الكمية المعتمدة للصنف ${it.name || key} يجب أن تكون بين 1 و${quoted - 1}` : `Approved qty for ${it.name || key} must be 1..${quoted - 1}`, 'error');
+          show(tt('tpaa.dca912cf', { p1: String(it.name || key), p2: String(quoted - 1) }), 'error');
           return;
         }
         if (!d.reason.trim()) {
-          show(AR ? `السبب إلزامي للصنف ${it.name || key}` : `Reason required for ${it.name || key}`, 'error');
+          show(tt('tpaa.0ac76741', { p1: String(it.name || key) }), 'error');
           return;
         }
         payloadItems.push({ order_item_id: key, outcome: d.outcome, approved_qty: d.outcome === 'partial' ? aq : 0, reason: d.reason.trim().slice(0, 500) });
@@ -217,7 +217,7 @@ function PharmacyInsuranceDecisionForm({ detail, onBack }: { detail: any; onBack
             <NCard key={key}>
               <Text style={{ color: theme.text, fontWeight: FW.bold }}>{it.name || it.sku || key}</Text>
               <Text style={{ color: theme.textSub, marginTop: SP.xs }}>
-                {AR ? `الكمية: ${it.qty_offered} · السعر: ${it.unit_price ?? '—'}` : `Qty: ${it.qty_offered} · Price: ${it.unit_price ?? '—'}`}
+                {tt('tpaa.9cfe34b9', { p1: String(it.qty_offered), p2: String(it.unit_price ?? '—') })}
               </Text>
               <NDivider />
               <NRadio

@@ -93,7 +93,7 @@ export function DoctorLeavesScreen({ onBack }: { onBack: () => void }) {
         <NInput label={tt('dops.9e8fd92b')} value={note} onChange={setNote} />
         <NBtn label={tt('dops.1a9ca023')} onPress={add} loading={saving} style={{ marginTop: SP.sm, marginBottom: SP.xl }} />
 
-        <NSecHeader title={AR ? `إجازاتي (${leaves.length})` : `My Leaves (${leaves.length})`} />
+        <NSecHeader title={tt('tpb.839e89ca', { p1: String(leaves.length) })} />
         {loading && <ActivityIndicator color={theme.primary} />}
         {!loading && failed && <NEmpty icon="alert" title={tt('dops.f7e5ce2f')} subtitle={tt('dops.55571c7b')} actionLabel={tt('dops.cf333076')} onAction={() => load()} />}
         {!loading && !failed && leaves.length === 0 && <NEmpty title={tt('dops.78fc7c1e')} subtitle={tt('dops.690f43c8')} />}
@@ -184,7 +184,7 @@ export function PrescriptionTemplatesScreen({ onBack }: { onBack: () => void }) 
         />
         <NBtn label={tt('dops.bad887bb')} onPress={add} loading={saving} style={{ marginTop: SP.sm, marginBottom: SP.xl }} />
 
-        <NSecHeader title={AR ? `قوالبي (${templates.length})` : `My Templates (${templates.length})`} />
+        <NSecHeader title={tt('tpb.b9f2dbf1', { p1: String(templates.length) })} />
         {loading && <ActivityIndicator color={theme.primary} />}
         {!loading && failed && <NEmpty icon="alert" title={tt('dops.f7e5ce2f')} subtitle={tt('dops.55571c7b')} actionLabel={tt('dops.cf333076')} onAction={() => load()} />}
         {!loading && !failed && templates.length === 0 && <NEmpty title={tt('dops.79f121a6')} subtitle={tt('dops.955c22d1')} />}
