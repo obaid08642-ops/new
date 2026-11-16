@@ -47,7 +47,7 @@ import { PatientFileScreen } from './PatientFileScreen';
 
 export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => void, onNavigate: (s: string) => void }) {
   const { theme, mode, toggle: toggleTheme } = useTheme();
-  const { lang, t, toggle: toggleLang } = useLang();
+  const { lang, t, toggle: toggleLang, t: tt } = useLang();
   const { show } = useToast();
   const { user } = useAuth();
   const AR = lang === 'ar';
@@ -105,15 +105,15 @@ export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => vo
       // a price is a positive number; an active service needs one
       const prices: Array<[boolean, number | null]> = [[clinicActive, pricing.price_clinic], [onlineActive, pricing.price_online], [homeActive, pricing.price_home]];
       if (prices.some(([active, p]) => (p !== null && (!Number.isFinite(p) || p < 0)) || (active && (p === null || p <= 0)))) {
-        show(AR ? 'أدخل سعراً صحيحاً (أكبر من صفر) لكل خدمة مفعّلة' : 'Enter a valid price (above zero) for every active service', 'error');
+        show(tt('dset.e47eb388'), 'error');
         return;
       }
       await client.post('/provider/settings/delta', { newData: pricing });
       await client.put('/provider/settings/pricing', { pricing });   // a failure here is shown, not swallowed
-      show(AR ? 'بانتظار موافقة الإدارة على التعديلات' : 'Pending Admin Approval for Settings Delta', 'info');
+      show(tt('dset.9e3ffa91'), 'info');
     } catch (err: any) {
       const m = err?.response?.data?.message;
-      show((Array.isArray(m) ? m[0] : m) || (AR ? 'فشل إرسال التعديل' : 'Failed to push delta'), 'error');
+      show((Array.isArray(m) ? m[0] : m) || (tt('dset.bd59f572')), 'error');
     }
   };
 
@@ -123,11 +123,11 @@ export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => vo
     setUnlinking(true);
     try {
       await client.post('/hospital/leave-facility');
-      show(AR ? 'تم إنهاء الارتباط بالمنشأة' : 'Facility link ended', 'success');
+      show(tt('dset.1921deb5'), 'success');
     } catch (e: any) {
       show(e?.response?.data?.message === 'not_linked_to_facility'
-        ? (AR ? 'لا يوجد ارتباط حالي بمنشأة' : 'No active facility link')
-        : (AR ? 'تعذر إنهاء الارتباط' : 'Could not leave facility'), 'error');
+        ? (tt('dset.6ba61d98'))
+        : (tt('dset.eaee1cd4')), 'error');
     } finally {
       setUnlinking(false);
     }
@@ -135,7 +135,7 @@ export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => vo
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'الإعدادات' : 'Settings'} />
+      <NHeader title={tt('dset.5766fe8f')} />
       <ScrollView contentContainerStyle={{ padding: SP.lg, gap: SP.md }}>
         
         {/* ── Facility Link ────────────────────────────────────────── */}
@@ -145,18 +145,18 @@ export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => vo
               <Text style={{ fontSize: 24 }}>🏛️</Text>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.info, textAlign: AR ? 'right' : 'left' }}>
-                  {AR ? 'مرتبط بمنشأة' : 'Linked to Facility'}
+                  {tt('dset.5e503777')}
                 </Text>
                 <Text style={{ fontSize: FS.xs, color: theme.info, textAlign: AR ? 'right' : 'left' }}>
                   {facilityName
                     ? (AR ? `تعمل حالياً ضمن طاقم ${facilityName}` : `Currently working under ${facilityName}`)
-                    : (AR ? 'أنت مرتبط حالياً بمنشأة طبية' : 'You are currently linked to a medical facility')}
+                    : (tt('dset.4282b309'))}
                 </Text>
               </View>
             </View>
             <TouchableOpacity onPress={handleUnlink} style={{ marginTop: SP.md, alignSelf: AR ? 'flex-start' : 'flex-end' }}>
               <Text style={{ color: theme.danger, fontWeight: FW.bold, fontSize: FS.xs }}>
-                {AR ? 'إنهاء الارتباط' : 'Leave Facility'}
+                {tt('dset.6f2c5cae')}
               </Text>
             </TouchableOpacity>
           </NCard>
@@ -165,7 +165,7 @@ export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => vo
         )}
 
         {/* ── Appearance & Language ─────────────────────────────────── */}
-        <NSecHeader title={AR ? 'المظهر واللغة' : 'Appearance & Language'} />
+        <NSecHeader title={tt('dset.3dc96338')} />
         <NCard style={{ gap: SP.lg }}>
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md }}>
@@ -181,7 +181,7 @@ export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => vo
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md }}>
               <I name="globe" size={20} color={theme.primary} />
               <Text style={{ fontSize: FS.md, color: theme.text }}>
-                {AR ? 'اللغة: العربية' : 'Language: English'}
+                {tt('dset.f683ac37')}
               </Text>
             </View>
             <TouchableOpacity onPress={toggleLang}
@@ -192,59 +192,59 @@ export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => vo
         </NCard>
 
         {/* ── Services & Pricing ────────────────────────────────────── */}
-        <NSecHeader title={AR ? 'إعدادات الحساب' : 'Account'} />
+        <NSecHeader title={tt('dset.b223dc9a')} />
         <NCard style={{ marginBottom: SP.lg }}>
           <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, marginBottom: SP.sm, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
-            {AR ? 'الخدمات المقدمة والأسعار' : 'Services & Pricing'}
+            {tt('dset.97c1fc29')}
           </Text>
           
           <View style={{ gap: SP.md, opacity: isPricingLocked ? 0.6 : 1 }} pointerEvents={isPricingLocked ? 'none' : 'auto'}>
             {isPricingLocked && (
               <Text style={{ fontSize: FS.xs, color: theme.danger, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>
-                {AR ? 'الأسعار والخدمات مقفلة ومتحكم بها من قبل المنشأة (مستشفى نبضة الطبي)' : 'Pricing and services are locked and managed by the facility'}
+                {tt('dset.8fd47451')}
               </Text>
             )}
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm }}>
                 <Switch value={clinicActive} onValueChange={setClinicActive} trackColor={{ true: theme.primary }} />
-                <Text style={{ color: theme.text, fontSize: FS.sm }}>{AR ? 'كشف العيادة' : 'Clinic Visit'}</Text>
+                <Text style={{ color: theme.text, fontSize: FS.sm }}>{tt('dset.4c8c52cf')}</Text>
               </View>
               <NInput label="" value={clinicPrice} onChange={setClinicPrice} kbType="numeric" style={{ width: 80, marginVertical: 0 }} editable={clinicActive} />
             </View>
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm }}>
                 <Switch value={onlineActive} onValueChange={setOnlineActive} trackColor={{ true: theme.primary }} />
-                <Text style={{ color: theme.text, fontSize: FS.sm }}>{AR ? 'استشارة أونلاين' : 'Online Consult'}</Text>
+                <Text style={{ color: theme.text, fontSize: FS.sm }}>{tt('dset.bd6b50ce')}</Text>
               </View>
               <NInput label="" value={onlinePrice} onChange={setOnlinePrice} kbType="numeric" style={{ width: 80, marginVertical: 0 }} editable={onlineActive} />
             </View>
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm }}>
                 <Switch value={homeActive} onValueChange={setHomeActive} trackColor={{ true: theme.primary }} />
-                <Text style={{ color: theme.text, fontSize: FS.sm }}>{AR ? 'زيارة منزلية' : 'Home Visit'}</Text>
+                <Text style={{ color: theme.text, fontSize: FS.sm }}>{tt('dset.c1be7bcf')}</Text>
               </View>
               <NInput label="" value={homePrice} onChange={setHomePrice} kbType="numeric" style={{ width: 80, marginVertical: 0 }} editable={homeActive} />
             </View>
           </View>
           
-          {!isPricingLocked && <NBtn label={AR ? 'حفظ التعديلات' : 'Save Changes'} onPress={requestDeltaUpdate} style={{ marginTop: SP.md }} />}
+          {!isPricingLocked && <NBtn label={tt('dset.8800c1d3')} onPress={requestDeltaUpdate} style={{ marginTop: SP.md }} />}
         </NCard>
 
         {/* ── Profile & Configuration ───────────────────────────────── */}
-        <NSecHeader title={AR ? 'الملف الشخصي والإعدادات' : 'Profile & Config'} />
-        <NSettingsRow icon="user" label={AR ? 'تعديل الملف الشخصي' : 'Edit Profile'} onPress={() => onNavigate('profile_edit')} />
-        <NSettingsRow icon="mapPin" label={AR ? 'الموقع ونطاق التغطية' : 'Location & Coverage'} onPress={() => onNavigate('location_config')} />
-        <NSettingsRow icon="calendar" label={AR ? 'إجازاتي وإغلاقاتي' : 'Leaves & Closings'} onPress={() => onNavigate('doctor_leaves')} />
-        <NSettingsRow icon="document" label={AR ? 'قوالب الوصفات' : 'Prescription Templates'} onPress={() => onNavigate('rx_templates')} />
-        <NSettingsRow icon="document" label={AR ? 'التشخيصات المحفوظة' : 'Saved Diagnoses'} onPress={() => onNavigate('saved_diagnoses')} />
-        <NSettingsRow icon="shield" label={AR ? 'قائمة الحظر' : 'Patient Blacklist'} onPress={() => onNavigate('doctor_blacklist')} />
-        <NSettingsRow icon="calendar" label={AR ? 'مواعيد العمل (Scheduler)' : 'Availability Engine'} onPress={() => onNavigate('availability_engine')} />
-        <NSettingsRow icon="shield" label={AR ? 'شركات التأمين' : 'Insurance Config'} onPress={() => onNavigate('insurance_config')} />
-       <NSettingsRow icon="shield" label={AR ? 'طلبات التأمين الواردة' : 'Insurance Requests'} onPress={() => onNavigate('insurance_requests')} />
+        <NSecHeader title={tt('dset.14d67ef8')} />
+        <NSettingsRow icon="user" label={tt('dset.36e97817')} onPress={() => onNavigate('profile_edit')} />
+        <NSettingsRow icon="mapPin" label={tt('dset.acf5b93e')} onPress={() => onNavigate('location_config')} />
+        <NSettingsRow icon="calendar" label={tt('dset.5a364b81')} onPress={() => onNavigate('doctor_leaves')} />
+        <NSettingsRow icon="document" label={tt('dset.0bdcea89')} onPress={() => onNavigate('rx_templates')} />
+        <NSettingsRow icon="document" label={tt('dset.05582341')} onPress={() => onNavigate('saved_diagnoses')} />
+        <NSettingsRow icon="shield" label={tt('dset.7f16ce9f')} onPress={() => onNavigate('doctor_blacklist')} />
+        <NSettingsRow icon="calendar" label={tt('dset.837e2d0f')} onPress={() => onNavigate('availability_engine')} />
+        <NSettingsRow icon="shield" label={tt('dset.a0fc16e1')} onPress={() => onNavigate('insurance_config')} />
+       <NSettingsRow icon="shield" label={tt('dset.679ae00d')} onPress={() => onNavigate('insurance_requests')} />
         <NSettingsRow icon="shield" label={t('disputes.title')} onPress={() => onNavigate('provider_disputes')} />
         <GlobalSystemSettings />
         
-        <NBtn label={AR ? 'تسجيل الخروج' : 'Logout'} onPress={onLogout} variant="outline" style={{ borderColor: theme.danger, marginTop: SP.lg }} labelStyle={{ color: theme.danger }} />
+        <NBtn label={tt('dset.b2a19694')} onPress={onLogout} variant="outline" style={{ borderColor: theme.danger, marginTop: SP.lg }} labelStyle={{ color: theme.danger }} />
       </ScrollView>
     </View>
   );

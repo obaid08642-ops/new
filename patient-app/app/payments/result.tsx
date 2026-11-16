@@ -7,6 +7,7 @@ import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/
 import { apiFetch } from '../../src/utils/api';
 import { dateLocaleFor } from '../../src/utils/dates';
 import { logError } from '../../src/utils/logger';
+import { isHttpsCheckout } from '../../src/utils/consultation-payment';
 import { readPaymentResult, readResultParams, type PaymentResult } from '../../src/utils/pharmacyCheckout';
 import { clearPayment, rememberPayment } from '../../src/utils/paymentInFlight';
 import { onReconnect } from '../../src/utils/onReconnect';
@@ -89,7 +90,7 @@ export default function PaymentResultRoute() {
     // 15.8: remember that this payment is under way, so a killed app or a switched-off phone lands back here on reopening
     void rememberPayment({ transactionId, gatewayId, bookingKind: p.bookingKind, bookingId: p.bookingId });
     // the services that start a payment elsewhere (diagnostics, nursing, insurance co-pay) hand the hosted page over here
-    if (paymentUrl && !opened.current) {
+    if (isHttpsCheckout(paymentUrl) && !opened.current) {
       opened.current = true;
       Linking.openURL(paymentUrl).catch((error) => logError('payments:result:open', error));
     }
