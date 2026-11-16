@@ -7,7 +7,7 @@ import client from '../../api/client';
 
 export function FacilityUnifiedCalendarScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang, t } = useLang();
+  const { lang, t, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
@@ -34,11 +34,11 @@ export function FacilityUnifiedCalendarScreen({ onBack }: { onBack: () => void }
     setActingId(id);
     try {
       await client.patch(`/care/appointments/${id}/${action}`, {});
-      show(action === 'confirm' ? (AR ? 'تم تأكيد الموعد' : 'Appointment confirmed') : (AR ? 'تم إلغاء الموعد' : 'Appointment cancelled'), 'success');
+      show(action === 'confirm' ? (tt('rraz.fb7658b0')) : (tt('rraz.bd8eef41')), 'success');
       const res = await client.get('/provider/facility/calendar').catch(() => null);
       if (res?.data) setEvents(res.data);
     } catch (err: any) {
-      show(err?.response?.data?.message || (AR ? 'تعذر تنفيذ الإجراء' : 'Action failed'), 'error');
+      show(err?.response?.data?.message || (tt('rraz.b1ec89a1')), 'error');
     } finally {
       setActingId(null);
     }
@@ -46,11 +46,11 @@ export function FacilityUnifiedCalendarScreen({ onBack }: { onBack: () => void }
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'التقويم الموحد (Unified Calendar)' : 'Unified Calendar'} onBack={onBack} />
+      <NHeader title={tt('rraz.403739f0')} onBack={onBack} />
       
       <View style={{ padding: SP.md, backgroundColor: theme.surface }}>
         <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: 'center' }}>
-          {AR ? 'عرض جميع المواعيد المتقاطعة (مزودين / أطباء / موارد)' : 'Cross-provider and resources schedule'}
+          {tt('rraz.ee11fc3a')}
         </Text>
       </View>
 
@@ -65,21 +65,21 @@ export function FacilityUnifiedCalendarScreen({ onBack }: { onBack: () => void }
                     {ev.time} - {ev.patient}
                   </Text>
                   <Text style={{ fontSize: FS.sm, color: theme.textSub, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
-                    {AR ? 'المورد:' : 'Resource:'} <Text style={{ color: theme.text }}>{ev.resource}</Text>
+                    {tt('rraz.1962b616')} <Text style={{ color: theme.text }}>{ev.resource}</Text>
                   </Text>
                   <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
-                    {AR ? 'الطبيب/المزود:' : 'Provider:'} <Text style={{ color: theme.text }}>{ev.provider}</Text>
+                    {tt('rraz.d3208a77')} <Text style={{ color: theme.text }}>{ev.provider}</Text>
                   </Text>
                 </View>
                 <NBadge 
-                  label={ev.type === 'surgery' ? (AR ? 'عملية' : 'Surgery') : ev.type === 'emergency' ? (AR ? 'طوارئ' : 'Emergency') : (AR ? 'كشف' : 'Consultation')} 
+                  label={ev.type === 'surgery' ? (tt('rraz.e6103c85')) : ev.type === 'emergency' ? (tt('rraz.b8ae12d8')) : (tt('rraz.3861d419'))} 
                   variant={ev.type === 'emergency' ? 'danger' : ev.type === 'surgery' ? 'warning' : 'primary'} 
                 />
               </View>
               {ev.type !== 'surgery' && ev.type !== 'emergency' && ev.id ? (
                 <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: 8, marginTop: 8 }}>
-                  <View style={{ flex: 1 }}><NBtn label={AR ? 'تأكيد' : 'Confirm'} size="sm" loading={actingId === ev.id} onPress={() => act(ev.id, 'confirm')} /></View>
-                  <View style={{ flex: 1 }}><NBtn label={AR ? 'إلغاء' : 'Cancel'} size="sm" variant="danger" loading={actingId === ev.id} onPress={() => act(ev.id, 'cancel')} /></View>
+                  <View style={{ flex: 1 }}><NBtn label={tt('rraz.449fee30')} size="sm" loading={actingId === ev.id} onPress={() => act(ev.id, 'confirm')} /></View>
+                  <View style={{ flex: 1 }}><NBtn label={tt('rraz.210b779f')} size="sm" variant="danger" loading={actingId === ev.id} onPress={() => act(ev.id, 'cancel')} /></View>
                 </View>
               ) : null}
             </NCard>

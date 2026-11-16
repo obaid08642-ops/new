@@ -19,7 +19,7 @@ export function useKind(kind?: ServiceKind): ServiceKind | null {
 }
 
 export function useAR(): boolean {
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   return lang === 'ar';
 }
 
@@ -63,13 +63,14 @@ export function Label({ children, sub, bold }: { children: React.ReactNode; sub?
 export function LoadState({ loading, error, onRetry, children }: { loading: boolean; error: string | null; onRetry: () => void; children: React.ReactNode }) {
   const { theme } = useTheme();
   const AR = useAR();
+  const { t: tt } = useLang();
   if (loading) return <View style={{ padding: SP.xxxl, alignItems: 'center' }}><ActivityIndicator color={theme.primary} /></View>;
   if (error) {
     return (
       <View style={{ padding: SP.xl, alignItems: 'center', gap: SP.md }}>
-        <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text }}>{AR ? 'تعذّر التحميل' : 'Could not load'}</Text>
+        <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text }}>{tt('rrbz.0c3d1829')}</Text>
         <Text style={{ fontSize: FS.md, color: theme.textSub, textAlign: 'center' }}>{error}</Text>
-        <NBtn label={AR ? 'إعادة المحاولة' : 'Try again'} onPress={onRetry} full={false} />
+        <NBtn label={tt('rrbz.96cbdad3')} onPress={onRetry} full={false} />
       </View>
     );
   }

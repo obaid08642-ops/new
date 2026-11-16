@@ -9,7 +9,7 @@ jest.mock('../../api/client', () => ({ __esModule: true, default: { get: (...a: 
 jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }) }));
 jest.mock('../../context', () => {
   const theme = new Proxy({}, { get: () => 'transparent' });
-  return { useTheme: () => ({ theme, isDark: false }), useLang: () => ({ lang: mockLang, isRTL: mockLang === 'ar', t: (k: string) => k }) };
+  return { useTheme: () => ({ theme, isDark: false }), useLang: () => ({ lang: mockLang, isRTL: mockLang === 'ar', t: (k: string, p?: Record<string, string | number>) => require('../../test-utils/langStrings').tGeneratedOnly(mockLang)(k, p) }) };
 });
 
 const config = { apps: { provider: { maintenance: true, message_ar: 'نعود قريباً', message_en: 'We are back soon' } } };

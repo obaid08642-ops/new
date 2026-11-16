@@ -7,7 +7,7 @@ import client from '../../../api/client';
 
 export function InboundMedicalReportsScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
@@ -36,7 +36,7 @@ export function InboundMedicalReportsScreen({ onBack }: { onBack: () => void }) 
       .catch(() => {
         if (!active) return;
         setReports([]);
-        setLoadError(AR ? 'تعذر تحميل التقارير من الخادم. حاول مرة أخرى.' : 'Unable to load reports from the server. Please try again.');
+        setLoadError(tt('rrad.43ce193a'));
       })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
@@ -44,7 +44,7 @@ export function InboundMedicalReportsScreen({ onBack }: { onBack: () => void }) 
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'التقارير الطبية الواردة' : 'Inbound Medical Reports'} onBack={onBack} />
+      <NHeader title={tt('rrad.3bbe7e01')} onBack={onBack} />
       {loading ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color={theme.primary} />
@@ -52,7 +52,7 @@ export function InboundMedicalReportsScreen({ onBack }: { onBack: () => void }) 
       ) : (
         <ScrollView contentContainerStyle={{ padding: 24, gap: 16 }}>
           {reports.length === 0 ? (
-            <NEmpty title={loadError ? (AR ? 'تعذر تحميل التقارير' : 'Unable to load reports') : (AR ? 'لا توجد تقارير' : 'No Reports')} sub={loadError || (AR ? 'لا توجد نتائج جاهزة حتى الآن' : 'No results available yet.')} icon="folder" />
+            <NEmpty title={loadError ? (tt('rrad.344bf9c3')) : (tt('rrad.6d9b3085'))} sub={loadError || (tt('rrad.c442cdbb'))} icon="folder" />
           ) : (
             reports.map(report => (
               <NCard key={report.id} style={{ marginBottom: 16 }}>
@@ -69,18 +69,18 @@ export function InboundMedicalReportsScreen({ onBack }: { onBack: () => void }) 
                 <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: 8, marginTop: 16 }}>
                   {report.dicomViewerUrl && (
                     <TouchableOpacity 
-                      onPress={() => Linking.openURL(report.dicomViewerUrl).catch(() => show(AR ? 'فشل فتح العارض' : 'Failed to open viewer', 'error'))}
+                      onPress={() => Linking.openURL(report.dicomViewerUrl).catch(() => show(tt('rrad.2a535b3f'), 'error'))}
                       style={{ flex: 1, backgroundColor: theme.info, padding: 8, borderRadius: 8, alignItems: 'center', flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'center', gap: 4 }}>
                       <I name="eye" size={16} color={theme.textInv} />
-                      <Text style={{ color: theme.textInv, fontWeight: 'bold', fontSize: 14 }}>{AR ? 'عرض صور الأشعة' : 'DICOM Viewer'}</Text>
+                      <Text style={{ color: theme.textInv, fontWeight: 'bold', fontSize: 14 }}>{tt('rrad.771b1c6c')}</Text>
                     </TouchableOpacity>
                   )}
                   {report.pdfUrl && (
                     <TouchableOpacity 
-                      onPress={() => Linking.openURL(report.pdfUrl).catch(() => show(AR ? 'فشل فتح التقرير' : 'Failed to open report', 'error'))}
+                      onPress={() => Linking.openURL(report.pdfUrl).catch(() => show(tt('rrad.396aab66'), 'error'))}
                       style={{ flex: 1, backgroundColor: theme.primary, padding: 8, borderRadius: 8, alignItems: 'center', flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'center', gap: 4 }}>
                       <I name="fileText" size={16} color={theme.textInv} />
-                      <Text style={{ color: theme.textInv, fontWeight: 'bold', fontSize: 14 }}>{AR ? 'تقرير PDF' : 'PDF Report'}</Text>
+                      <Text style={{ color: theme.textInv, fontWeight: 'bold', fontSize: 14 }}>{tt('rrad.66712820')}</Text>
                     </TouchableOpacity>
                   )}
                 </View>

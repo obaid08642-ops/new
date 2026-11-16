@@ -30,6 +30,7 @@ import { DrugSection } from './MedicalJobsScreen';
 
 
 export function DrugIndexCard({ item, ctx }: any) {
+  const { t: tt } = useLang();
   const { theme, AR, setSelectedDrug } = ctx;
   return (
     <>
@@ -53,13 +54,13 @@ export function DrugIndexCard({ item, ctx }: any) {
      </View>
      <View style={{ alignItems: 'flex-end' }}>
      <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.primary }}>
-     {item.price} {AR ? 'ريال' : 'SAR'}
+     {item.price} {tt('rrza.0e39e6ca')}
      </Text>
      {item.requires_prescription && (
-     <NBadge label={AR ? 'بوصفة' : 'Rx'} variant="danger" size="xs" style={{ marginTop: 4 }} />
+     <NBadge label={tt('rrza.f0a9bc22')} variant="danger" size="xs" style={{ marginTop: 4 }} />
      )}
      {item.potentially_unavailable && (
-     <NBadge label={AR ? 'قد يكون غير متوفر' : 'May be unavailable'} variant="warning" size="xs" style={{ marginTop: 4 }} />
+     <NBadge label={tt('rrza.9c7c3dca')} variant="warning" size="xs" style={{ marginTop: 4 }} />
      )}
      </View>
      </View>

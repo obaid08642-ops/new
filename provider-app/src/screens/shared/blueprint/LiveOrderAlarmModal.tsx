@@ -35,7 +35,7 @@ export function LiveOrderAlarmModal({
  serviceType?: string;
 }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const AR = lang === 'ar';
 
  const [timeLeft, setTimeLeft] = useState(timeoutSeconds);
@@ -89,7 +89,7 @@ export function LiveOrderAlarmModal({
  </View>
 
  <Text style={{ color: '#FFF', fontSize: FS['3xl'], fontWeight: FW.bold, textAlign: 'center' }}>
- {AR ? 'طلب كشف عاجل وارد!' : 'Incoming Urgent Request!'}
+ {tt('rrcx.135a6089')}
  </Text>
 
  <View style={{ backgroundColor: theme.surface, padding: SP.xl, borderRadius: R.xl, width: W * 0.85, gap: SP.md, alignItems: 'center' }}>
@@ -98,17 +98,16 @@ export function LiveOrderAlarmModal({
  <NBadge label={serviceType} variant="danger" />
  
  <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: 'center', marginTop: SP.xs }}>
- {AR ? 'الرجاء الاستجابة الفورية قبل انتهاء مهلة مؤشر الاستجابة (SLA)' 
- : 'Please respond immediately before SLA countdown expiration'}
+ {tt('rrcx.ee631054')}
  </Text>
 
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, width: '100%', marginTop: SP.lg }}>
  <TouchableOpacity onPress={onDecline} style={{ flex: 1, backgroundColor: theme.surface2, borderColor: theme.border, borderWidth: 1, paddingVertical: SP.md, borderRadius: R.md, alignItems: 'center' }}>
- <Text style={{ color: theme.danger, fontWeight: FW.bold }}>{AR ? 'رفض الطلب' : 'Reject'}</Text>
+ <Text style={{ color: theme.danger, fontWeight: FW.bold }}>{tt('rrcx.9429cefa')}</Text>
  </TouchableOpacity>
 
  <TouchableOpacity onPress={onAccept} style={{ flex: 1, backgroundColor: theme.primary, paddingVertical: SP.md, borderRadius: R.md, alignItems: 'center' }}>
- <Text style={{ color: '#FFF', fontWeight: FW.bold }}>{AR ? 'قبول الطلب' : 'Accept Request'}</Text>
+ <Text style={{ color: '#FFF', fontWeight: FW.bold }}>{tt('rrcx.39ebfe6b')}</Text>
  </TouchableOpacity>
  </View>
  </View>

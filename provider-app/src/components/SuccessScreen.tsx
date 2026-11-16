@@ -16,13 +16,11 @@ interface SuccessScreenProps {
 export const SuccessScreen = ({ onDone, title, message }: SuccessScreenProps) => {
   const { theme } = useTheme();
   const { width } = useWindowDimensions();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const AR = lang === 'ar';
 
-  const defaultTitle = AR ? 'نجاح!' : 'Success!';
-  const defaultMessage = AR 
-    ? 'تم إرسال طلبك بنجاح، وهو الآن قيد المراجعة من الإدارة. سنقوم بالتواصل معك قريباً.' 
-    : 'Your application has been submitted successfully and is pending admin approval. We will contact you soon.';
+  const defaultTitle = tt('rri.2cbff28d');
+  const defaultMessage = tt('rri.52df40d2');
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.bg }}>
@@ -47,7 +45,7 @@ export const SuccessScreen = ({ onDone, title, message }: SuccessScreenProps) =>
           style={{ width: width - SP.xl * 2, backgroundColor: theme.primary, paddingVertical: 16, borderRadius: R.md, alignItems: 'center', position: 'absolute', bottom: SP.xxl }}
         >
           <Text style={{ color: '#FFF', fontSize: FS.md, fontWeight: FW.bold }}>
-            {AR ? 'العودة للرئيسية' : 'Back to Home'}
+            {tt('rri.269c1faf')}
           </Text>
         </TouchableOpacity>
 

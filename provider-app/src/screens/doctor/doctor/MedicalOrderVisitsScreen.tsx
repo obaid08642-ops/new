@@ -13,7 +13,7 @@ import { parseVisits, type VisitRow } from './medicalOrderLogic';
  */
 export function MedicalOrderVisitsScreen({ onBack, onOpen }: { onBack: () => void; onOpen: (visit: VisitRow) => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const AR = lang === 'ar';
   const dir = AR ? 'row-reverse' : 'row';
   const align = AR ? 'right' : 'left';
@@ -29,26 +29,26 @@ export function MedicalOrderVisitsScreen({ onBack, onOpen }: { onBack: () => voi
   useEffect(() => { load(); }, [load]);
 
   const dateOf = (iso: string | null) => {
-    if (!iso) return AR ? 'بلا تاريخ' : 'No date';
+    if (!iso) return tt('rrag.9fd72b65');
     const d = new Date(iso);
-    return Number.isNaN(d.getTime()) ? (AR ? 'بلا تاريخ' : 'No date') : d.toLocaleDateString(AR ? 'ar' : 'en', { year: 'numeric', month: 'long', day: 'numeric' });
+    return Number.isNaN(d.getTime()) ? (tt('rrag.9fd72b65')) : d.toLocaleDateString(AR ? 'ar' : 'en', { year: 'numeric', month: 'long', day: 'numeric' });
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'اكتب أمرًا طبيًا' : 'Write a medical order'} sub={AR ? 'زياراتك الأخيرة' : 'Your recent visits'} onBack={onBack} />
+      <NHeader title={tt('rrag.57fe2513')} sub={tt('rrag.ce58a379')} onBack={onBack} />
       <NScroll>
         {state === 'loading' ? <ActivityIndicator color={theme.primary} style={{ marginTop: SP.xl }} /> : null}
         {state === 'error' ? (
           <NCard>
-            <Text accessibilityRole="alert" style={{ color: theme.text, fontSize: FS.sm, textAlign: align }}>{AR ? 'تعذّر تحميل الزيارات' : 'Could not load your visits'}</Text>
-            <NBtn label={AR ? 'إعادة المحاولة' : 'Try again'} variant="outline" onPress={load} style={{ marginTop: SP.md }} />
+            <Text accessibilityRole="alert" style={{ color: theme.text, fontSize: FS.sm, textAlign: align }}>{tt('rrag.4ec89192')}</Text>
+            <NBtn label={tt('rrag.96cbdad3')} variant="outline" onPress={load} style={{ marginTop: SP.md }} />
           </NCard>
         ) : null}
         {state === 'ready' && rows.length === 0 ? (
           <NCard>
             <Text style={{ color: theme.textSub, fontSize: FS.sm, textAlign: align }}>
-              {AR ? 'لا توجد زيارات يمكن كتابة أمر طبي لها الآن' : 'No visits an order can be written for right now'}
+              {tt('rrag.ed338346')}
             </Text>
           </NCard>
         ) : null}
@@ -57,7 +57,7 @@ export function MedicalOrderVisitsScreen({ onBack, onOpen }: { onBack: () => voi
             <NCard>
               <View style={{ flexDirection: dir, alignItems: 'center', justifyContent: 'space-between', gap: SP.md }}>
                 <Text style={{ color: theme.text, fontSize: FS.md, fontWeight: FW.med, textAlign: align, flex: 1 }}>{dateOf(v.date)}</Text>
-                <NBadge label={v.status === 'in_progress' ? (AR ? 'جارية' : 'In progress') : (AR ? 'مكتملة' : 'Completed')} variant={v.status === 'in_progress' ? 'info' : 'success'} />
+                <NBadge label={v.status === 'in_progress' ? (tt('rrag.ff89b134')) : (tt('rrag.1e93e805'))} variant={v.status === 'in_progress' ? 'info' : 'success'} />
               </View>
             </NCard>
           </TouchableOpacity>

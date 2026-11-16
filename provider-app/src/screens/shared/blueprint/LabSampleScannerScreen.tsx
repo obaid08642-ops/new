@@ -20,7 +20,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function LabSampleScannerScreen({ onBack, onNavigate }: { onBack: () => void; onNavigate?: (s: string, p?: any) => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
   const [barcode, setBarcode] = useState('');
@@ -52,10 +52,10 @@ export function LabSampleScannerScreen({ onBack, onNavigate }: { onBack: () => v
     setBusy(true);
     try {
       await client.patch(`/labs/samples/${sam.id}/stage`, { stage: 'analyzing' });
-      show(AR ? 'بدأ تحليل العينة' : 'Sample analysis started', 'success');
+      show(tt('rrcw.d6f3a141'), 'success');
       fetchSamples();
     } catch {
-      show(AR ? 'تعذر تحديث العينة' : 'Could not update sample', 'error');
+      show(tt('rrcw.325f035a'), 'error');
     } finally {
       setBusy(false);
     }
@@ -63,10 +63,10 @@ export function LabSampleScannerScreen({ onBack, onNavigate }: { onBack: () => v
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'ماسح العينات (باركود)' : 'Sample Barcode Scanner'} onBack={onBack} />
+      <NHeader title={tt('rrcw.4125cf15')} onBack={onBack} />
       <ScrollView contentContainerStyle={{ padding: SP.xl, paddingBottom: 60 }}>
         <NInput
-          label={AR ? 'أدخل رقم الباركود أو معرف العينة' : 'Enter barcode or sample ID'}
+          label={tt('rrcw.88d4a262')}
           placeholder="SMP-…"
           value={barcode}
           onChange={setBarcode}
@@ -74,11 +74,11 @@ export function LabSampleScannerScreen({ onBack, onNavigate }: { onBack: () => v
         />
         {loading ? (
           <Text style={{ color: theme.textSub, textAlign: 'center', marginTop: SP.xl, fontSize: FS.sm }}>
-            {AR ? 'جاري تحميل العينات...' : 'Loading samples...'}
+            {tt('rrcw.ce209c13')}
           </Text>
         ) : matches.length === 0 ? (
           <Text style={{ color: theme.textSub, textAlign: 'center', marginTop: SP.xl, fontSize: FS.sm }}>
-            {AR ? 'لا توجد عينات مطابقة' : 'No matching samples'}
+            {tt('rrcw.db32c672')}
           </Text>
         ) : matches.map((sam: any) => (
           <NCard key={sam.id} style={{ marginTop: SP.lg }}>
@@ -91,10 +91,10 @@ export function LabSampleScannerScreen({ onBack, onNavigate }: { onBack: () => v
             )}
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginTop: SP.md }}>
               {!['analyzing', 'result_ready', 'result_uploaded'].includes(sam.stage) && (
-                <NBtn label={AR ? 'بدء التحليل' : 'Start Analysis'} size="sm" disabled={busy} onPress={() => startAnalysis(sam)} style={{ flex: 1 }} />
+                <NBtn label={tt('rrcw.a1a74336')} size="sm" disabled={busy} onPress={() => startAnalysis(sam)} style={{ flex: 1 }} />
               )}
               {sam.stage === 'analyzing' && onNavigate && (
-                <NBtn label={AR ? 'إدخال النتائج' : 'Enter Results'} size="sm" disabled={busy} onPress={() => onNavigate('sample_tracking', sam)} style={{ flex: 1 }} />
+                <NBtn label={tt('rrcw.fd60025b')} size="sm" disabled={busy} onPress={() => onNavigate('sample_tracking', sam)} style={{ flex: 1 }} />
               )}
             </View>
           </NCard>

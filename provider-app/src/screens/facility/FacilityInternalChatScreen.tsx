@@ -8,7 +8,7 @@ import client from '../../api/client';
 
 export function FacilityInternalChatScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const { user } = useAuth();
   const AR = lang === 'ar';
@@ -24,7 +24,7 @@ export function FacilityInternalChatScreen({ onBack }: { onBack: () => void }) {
         const list = Array.isArray(res.data) ? res.data : (res.data?.threads || []);
         setChannels(list.map((t: any) => ({
           id: t.id,
-          name: t.name || (AR ? 'محادثة' : 'Chat'),
+          name: t.name || (tt('rras.4ab8e3e4')),
           lastMessage: t.last_message || '',
           unread: 0,
         })));
@@ -39,7 +39,7 @@ export function FacilityInternalChatScreen({ onBack }: { onBack: () => void }) {
           const list = Array.isArray(res.data) ? res.data : (res.data?.messages || []);
           setMessages(list.map((m: any) => ({
             id: m.id,
-            sender: m.sender_id === user?.id ? (AR ? 'أنت' : 'You') : (m.sender_role || '—'),
+            sender: m.sender_id === user?.id ? (tt('rras.1d7e0449')) : (m.sender_role || '—'),
             text: m.body || m.text || '',
             time: m.createdAt ? new Date(m.createdAt).toLocaleTimeString(AR ? 'ar-SA-u-ca-gregory' : 'en-GB', { hour: '2-digit', minute: '2-digit' }) : '',
             isMe: m.sender_id === user?.id,
@@ -53,17 +53,17 @@ export function FacilityInternalChatScreen({ onBack }: { onBack: () => void }) {
     if (!inputText.trim() || !activeChat) return;
     try {
       await client.post(`/chat/threads/${activeChat}/messages`, { body: inputText, type: 'text' });
-      setMessages([...messages, { id: 'm-' + Date.now(), sender: AR ? 'أنت' : 'You', text: inputText, time: AR ? 'الآن' : 'now', isMe: true }]);
+      setMessages([...messages, { id: 'm-' + Date.now(), sender: tt('rras.1d7e0449'), text: inputText, time: AR ? 'الآن' : 'now', isMe: true }]);
       setInputText('');
     } catch (e) {
-      show(AR ? 'تعذر إرسال الرسالة' : 'Failed to send', 'error');
+      show(tt('rras.09f35c0e'), 'error');
     }
   };
 
   if (activeChat) {
     return (
       <View style={{ flex: 1, backgroundColor: theme.bg }}>
-        <NHeader title={channels.find(c => c.id === activeChat)?.name || (AR ? 'محادثة' : 'Chat')} onBack={() => setActiveChat(null)} />
+        <NHeader title={channels.find(c => c.id === activeChat)?.name || (tt('rras.4ab8e3e4'))} onBack={() => setActiveChat(null)} />
         <NScroll pad>
           {messages.map(msg => (
             <View key={msg.id} style={{ 
@@ -80,13 +80,13 @@ export function FacilityInternalChatScreen({ onBack }: { onBack: () => void }) {
         <View style={{ padding: SP.md, backgroundColor: theme.surface, borderTopWidth: 1, borderTopColor: theme.border, flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm }}>
           <TextInput 
             style={{ flex: 1, backgroundColor: theme.bg, borderRadius: R.full, paddingHorizontal: SP.lg, paddingVertical: SP.sm, color: theme.text, textAlign: AR ? 'right' : 'left' }}
-            placeholder={AR ? 'اكتب رسالتك...' : 'Type a message...'}
+            placeholder={tt('rras.23f80879')}
             placeholderTextColor={theme.textSub}
             value={inputText}
             onChangeText={setInputText}
           />
           <TouchableOpacity onPress={handleSend} style={{ width: 60, height: 44, borderRadius: R.full, backgroundColor: theme.primary, alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ color: '#FFF', fontWeight: FW.bold }}>{AR ? 'إرسال' : 'Send'}</Text>
+            <Text style={{ color: '#FFF', fontWeight: FW.bold }}>{tt('rras.ad89df6b')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -95,11 +95,11 @@ export function FacilityInternalChatScreen({ onBack }: { onBack: () => void }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'التواصل الداخلي' : 'Internal Chat'} onBack={onBack} />
+      <NHeader title={tt('rras.5ce4f434')} onBack={onBack} />
       
       <NScroll pad>
         <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.lg, textAlign: AR ? 'right' : 'left' }}>
-          {AR ? 'قنوات التواصل المباشر' : 'Live Channels'}
+          {tt('rras.be78e71d')}
         </Text>
 
         {channels.map(ch => (

@@ -19,7 +19,7 @@ import { SP, R, FS, FW, C } from '../../../constants';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function InventoryExpiryMonitor({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
@@ -27,15 +27,15 @@ export function InventoryExpiryMonitor({ onBack }: { onBack: () => void }) {
       const d = r?.data;
       setItems(Array.isArray(d?.expiringSoon) ? d.expiringSoon : Array.isArray(d) ? d : []);
     }).catch(() => {
-      show(AR ? 'تعذر تحميل الأصناف' : 'Could not load items', 'error');
+      show(tt('rrcv.e8d68676'), 'error');
     }).finally(() => setLoading(false));
   }, []);
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'مراقبة الصلاحية' : 'Inventory Expiry Monitor'} onBack={onBack} />
+      <NHeader title={tt('rrcv.d4568867')} onBack={onBack} />
       <ScrollView contentContainerStyle={{ padding: SP.lg, gap: SP.sm }}>
         {loading ? <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} /> : items.length === 0 ? (
-          <NEmpty icon="calendar" title={AR ? 'لا أصناف قريبة الانتهاء' : 'No expiring items'} />
+          <NEmpty icon="calendar" title={tt('rrcv.141b5ec8')} />
         ) : items.map((it: any, i: number) => (
           <NCard key={String(it.id || it.sku || i)} style={{ marginBottom: SP.sm }}>
             <Text style={{ color: theme.text, fontWeight: FW.bold }}>{it.name_ar || it.name_en || it.sku || ''}</Text>

@@ -34,7 +34,7 @@ import { scanText } from '../../../components/ScanStatusBadge';
 
 export function MediaConfigScreen({ onBack }: { onBack: () => void }) {
   const uploadsOn = useUploadsEnabled();
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+ const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
  // Real persisted clinic images (storage object ids) — loaded from profile,
  // changes go through the admin-approval delta pipeline.
  const [images, setImages] = useState<{ id: string; url: string; title: string }[]>([]);
@@ -62,7 +62,7 @@ export function MediaConfigScreen({ onBack }: { onBack: () => void }) {
        const out: { id: string; url: string; title: string }[] = [];
        for (const sid of list) {
          const url = await resolveUrl(String(sid));
-         if (url || scanOfStored(String(sid)) === 'pending') out.push({ id: String(sid), url, title: AR ? 'صورة العيادة' : 'Clinic Photo' });
+         if (url || scanOfStored(String(sid)) === 'pending') out.push({ id: String(sid), url, title: tt('rrdm.65f85221') });
        }
        setImages(out);
      } catch (e) {}
@@ -81,9 +81,9 @@ export function MediaConfigScreen({ onBack }: { onBack: () => void }) {
      const next = images.filter(x => x.id !== id).map(x => x.id);
      await submitImagesDelta(next);
      setImages(prev => prev.filter(x => x.id !== id));
-     show(AR ? 'تم إرسال طلب الحذف — يسري بعد اعتماد الإدارة' : 'Deletion submitted — effective after admin approval', 'info');
+     show(tt('rrdm.d239dfa0'), 'info');
    } catch (e) {
-     show(AR ? 'فشل إرسال طلب الحذف' : 'Failed to submit deletion', 'error');
+     show(tt('rrdm.0a977cd2'), 'error');
    } finally { setBusy(false); }
  };
 
@@ -91,7 +91,7 @@ export function MediaConfigScreen({ onBack }: { onBack: () => void }) {
    if (busy) return;
    try {
      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-     if (!perm.granted) { show(AR ? 'يلزم إذن الوصول إلى الصور' : 'Photo permission required', 'error'); return; }
+     if (!perm.granted) { show(tt('rrdm.49ef39ed'), 'error'); return; }
      const r = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'] as any, quality: 0.85 });
      if (r.canceled || !r.assets?.[0]) return;
      const a: any = r.assets[0];
@@ -111,21 +111,21 @@ export function MediaConfigScreen({ onBack }: { onBack: () => void }) {
      const next = [...images.map(x => x.id), storageId];
      await submitImagesDelta(next);
      const url = await resolveUrl(storageId);
-     setImages(prev => [...prev, { id: storageId, url: url || a.uri, title: AR ? 'صورة مرفقة جديدة' : 'New Attached Photo' }]);
-     show(AR ? 'تم رفع الصورة — تظهر نهائياً بعد اعتماد الإدارة' : 'Photo uploaded — final after admin approval', 'success');
+     setImages(prev => [...prev, { id: storageId, url: url || a.uri, title: tt('rrdm.f03270d5') }]);
+     show(tt('rrdm.da40fb7c'), 'success');
    } catch (e) {
      // the scanner refused the file (400 file_infected): the rejection sentence, with the add-photo tile as the way to upload another
      if (scanStateOfRequestError(e) === 'rejected') show(scanText(lang, 'scanRejected'), 'error');
-     else show(AR ? 'فشل رفع الصورة' : 'Failed to upload photo', 'error');
+     else show(tt('rrdm.89ad8fff'), 'error');
    } finally { setBusy(false); }
  };
 
  return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
- <NHeader title={AR ? 'الصور والوسائط' : 'Photos & Media'} onBack={onBack} />
+ <NHeader title={tt('rrdm.07de3762')} onBack={onBack} />
  <ScrollView contentContainerStyle={{ padding: SP.lg, gap: SP.md }}>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>
- {AR ? 'الصور المعروضة في صفحتك العامة للمرضى (العيادة، الأجهزة، الشهادات المعلقة):' : 'Photos displayed on your public profile for patients (clinic, instruments, facilities):'}
+ {tt('rrdm.649e6b2a')}
  </Text>
 
  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.md, justifyContent: 'space-between' }}>
@@ -170,7 +170,7 @@ export function MediaConfigScreen({ onBack }: { onBack: () => void }) {
  >
  <I name="plus" size={24} color={theme.primary} />
  <Text style={{ fontSize: FS.sm, color: theme.primary, fontWeight: FW.bold, marginTop: SP.sm }}>
- {AR ? 'إضافة صورة' : 'Add Photo'}
+ {tt('rrdm.ed7a54d5')}
  </Text>
  </TouchableOpacity>
 ) : <UploadsUnavailable />}

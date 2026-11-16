@@ -4,6 +4,7 @@ import { errorCode, submitErrorKey } from '../../utils/contractEvents';
 import React, { useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useLang, useTheme, useToast } from '../../context';
+import type { TKey } from '../../i18n';
 import { NBtn, NCard, NCheckbox, NHeader, NInput } from '../../components/ui';
 import { ContractModal } from '../../components/ContractModal';
 import { OtpModal } from '../../components/OtpModal';
@@ -29,7 +30,7 @@ export interface ReviewConfig<T extends ReviewData> {
   /** Passed to the success screen. */
   providerType: string;
   headerAr: string; headerEn: string;
-  summary?: { titleAr: string; titleEn: string; rows: (data: T, AR: boolean) => { label: string; value: string }[] };
+  summary?: { titleAr: string; titleEn: string; rows: (data: T, AR: boolean, tt: (k: TKey, params?: Record<string, string | number>) => string) => { label: string; value: string }[] };
   notice?: NoticeText;
   /** A warning card shown above the summary when it applies to this data (e.g. cash-only services). */
   banner?: (data: T) => { ar: string; en: string } | null;
@@ -40,7 +41,7 @@ export interface ReviewConfig<T extends ReviewData> {
   agree?: { ar: string; en: string };
   submitLabel: { ar: string; en: string };
   /** An error message to show instead of starting the submit, or null when the data is complete. */
-  precheck?: (data: T, AR: boolean) => string | null;
+  precheck?: (data: T, AR: boolean, tt: (k: TKey, params?: Record<string, string | number>) => string) => string | null;
   contractPricing?: (data: T) => { labelAr: string; labelEn: string; price: string | number }[];
   /** Sends the type's own data (step3, uploads, step2). Runs before the signature and the bank step. */
   run: (data: T, uploads: Uploader) => Promise<void>;
@@ -84,7 +85,7 @@ export function ReviewStep<T extends ReviewData>({ config, data, update, uploads
 
   const submit = () => {
     if (loading) return;
-    const problem = config.precheck?.(data, AR);
+    const problem = config.precheck?.(data, AR, tt);
     if (problem) { show(problem, 'error'); return; }
     // the IBAN can be edited on this page after the earlier step checked it: check it again before the application goes out
     if ((data as { iban?: string }).iban && !Validate.iban((data as { iban?: string }).iban as string)) { show(tt('review.a1b89e9d'), 'error'); return; }
@@ -102,7 +103,7 @@ export function ReviewStep<T extends ReviewData>({ config, data, update, uploads
 
   const label = (t: { ar: string; en: string }) => (AR ? t.ar : t.en);
   const heading = { fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, textAlign: align, marginBottom: SP.sm } as const;
-  const rows = config.summary?.rows(data, AR) ?? [];
+  const rows = config.summary?.rows(data, AR, tt) ?? [];
   const banner = config.banner?.(data) ?? null;
 
   return (

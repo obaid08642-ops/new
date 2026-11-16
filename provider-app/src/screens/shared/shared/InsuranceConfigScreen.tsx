@@ -28,7 +28,7 @@ import { SK, Vault } from '../../../security/Security';
 import { tokens, withAlpha } from '../../../theme/tokens';
 
 export function InsuranceConfigScreen({ onBack }: { onBack: () => void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+ const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
  // UNIFIED CATALOG: companies + plan tiers come from the backend (same source
  // as onboarding, the patient app and the admin dashboard) — never hardcoded.
  const catalog = useInsuranceCatalog();
@@ -108,7 +108,7 @@ export function InsuranceConfigScreen({ onBack }: { onBack: () => void }) {
        companies: active.map(i => i.id),
        tiers: Object.fromEntries(active.filter(i => i.selectedPlans.length).map(i => [i.id, i.selectedPlans])),
      });   // a failure here is shown too: the enforcement matrix decides which requests reach this provider
-     show(AR ? 'تم إرسال التعديلات — تُطبق بعد اعتماد الإدارة' : 'Changes sent — applied after admin approval', 'success');
+     show(tt('rrdl.67e9abca'), 'success');
      onBack();
    } catch (e: any) {
      show(AR ? `فشل الحفظ: ${e?.response?.data?.message || e?.message || ''}` : 'Save failed', 'error');
@@ -119,10 +119,10 @@ export function InsuranceConfigScreen({ onBack }: { onBack: () => void }) {
 
  return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
- <NHeader title={AR ? 'التأمين الصحي' : 'Health Insurance'} onBack={onBack} />
+ <NHeader title={tt('rrdl.2eb56936')} onBack={onBack} />
  <ScrollView contentContainerStyle={{ padding: SP.lg, gap: SP.md }}>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>
- {AR ? 'حدد شركات التأمين المقبولة لديك ونسب التحمل لكل شركة:' : 'Select which insurance providers you accept and specify copay percentages:'}
+ {tt('rrdl.68a86973')}
  </Text>
 
  {insurances.map(item => (
@@ -141,7 +141,7 @@ export function InsuranceConfigScreen({ onBack }: { onBack: () => void }) {
  <View style={{ marginTop: SP.md, borderTopWidth: 1, borderTopColor: theme.border, paddingTop: SP.md, gap: SP.sm }}>
  <View style={{ width: 140 }}>
  <NInput
- label={AR ? 'نسبة التحمل %' : 'Copay %'}
+ label={tt('rrdl.49222db2')}
  value={item.copay}
  onChange={(v) => updateCopay(item.id, v)}
  kbType="numeric"
@@ -150,7 +150,7 @@ export function InsuranceConfigScreen({ onBack }: { onBack: () => void }) {
  </View>
  {(item.plans || []).length > 0 && (
  <View>
- <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>{AR ? 'الفئات المقبولة:' : 'Accepted tiers:'}</Text>
+ <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>{tt('rrdl.68fbb633')}</Text>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 6 }}>
  {item.plans.map((p: string) => {
    const on = item.selectedPlans.includes(p);
@@ -168,7 +168,7 @@ export function InsuranceConfigScreen({ onBack }: { onBack: () => void }) {
  </NCard>
  ))}
 
- <NBtn label={AR ? ' حفظ الإعدادات' : ' Save Settings'} onPress={handleSave} loading={saving} style={{ marginTop: SP.xl }} />
+ <NBtn label={tt('rrdl.267f38e8')} onPress={handleSave} loading={saving} style={{ marginTop: SP.xl }} />
  </ScrollView>
  </View>
  );
