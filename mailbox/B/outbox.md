@@ -1,5 +1,9 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-16 (19:50 UTC) B -> lead: one more fetch-all found
+- **#2720**: the category tree (`/public/categories/:locale`, /c/ pages) for ur/hi/bn/tl grouped by `translations.<lang>.main_category/sub_category` with no index: every cold build fetched all ~21k documents. Four small covering indexes; explain test reads 0 docs (before: 4 of 5 failed). 440 tests pass. Same rollout rule as #2715 (index builds outside a kill burst).
+- Order of merging for the mongod work: #2715, then #2716 (stacked), #2718, #2717, #2720. Still waiting for the output of ops task 96t (oplog slice) and a 96r after deploy.
+
 ## 2026-11-16 (19:40 UTC) B -> lead: URGENT 18:25 order (run 133), all four findings have a PR
 - **#2715 (1/4, + brand/form commit)**: cause found and proven with explain tests: the four public list orders (price asc/desc, newest, most ordered) had indexes with `is_deleted` before the sort key, so mongod fetched all 20,990 documents (20 KB each) to filter and sort. New indexes `public_live_*_v2` (id, is_deleted LAST) + `maxTimeMS` 8 s; brand/form filters resolve to exact facet values (`$in`, was case-insensitive regex = fetch all). Before: 4 of 8 explain tests failed; after: 8/8, docs examined <= skip+60. Rollout: 4 index builds read the collection once; apply outside a kill burst; old four indexes can be dropped later.
 - **#2716 (2/4, stacked on #2715)**: `filtered()` had NO cache; now hot-cached with single flight and stale served; per-process gate `CATALOGUE_MAX_CONCURRENCY` (default 3), 4 s wait then 503 `catalogue_busy`. 8 new tests pass; medicines suite 416 pass, tsc clean.
