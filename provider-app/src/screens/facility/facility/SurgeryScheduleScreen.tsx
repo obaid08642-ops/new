@@ -43,7 +43,7 @@ import { tokens } from '../../../theme/tokens';
 
 export function SurgeryScheduleScreen({ onBack, surgeries, onRefresh }: { onBack: () => void; surgeries: any[]; onRefresh: () => void }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
 
@@ -63,13 +63,13 @@ export function SurgeryScheduleScreen({ onBack, surgeries, onRefresh }: { onBack
 
  const handleBookSurgery = async () => {
  if (!patientId.trim() || !surgeonId.trim() || !scheduledAt.trim()) {
- return show(AR ? 'يرجى ملء جميع الحقول الإجبارية' : 'Please fill all required fields', 'warning');
+ return show(tt('surg.65220452'), 'warning');
  }
  setLoading(true);
  try {
  const date = new Date(scheduledAt);
  if (isNaN(date.getTime())) {
- throw new Error(AR ? 'تنسيق التاريخ غير صحيح. يرجى استخدام YYYY-MM-DD HH:MM' : 'Invalid date format. Use YYYY-MM-DD HH:MM');
+ throw new Error(tt('surg.c4c09bf8'));
  }
 
  // OR collision checking
@@ -96,7 +96,7 @@ export function SurgeryScheduleScreen({ onBack, surgeries, onRefresh }: { onBack
  assistants: []
  });
 
- show(AR ? 'تم حجز غرفة العمليات وجدولة العملية بنجاح' : 'Surgery room booked and scheduled successfully', 'success');
+ show(tt('surg.102d4659'), 'success');
  setBookingVisible(false);
  setPatientId('');
  setSurgeonId('');
@@ -112,17 +112,17 @@ export function SurgeryScheduleScreen({ onBack, surgeries, onRefresh }: { onBack
  return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
  <NScroll>
- <NHeader title={AR?' جدول غرف العمليات':' Surgery Schedule (OT)'} onBack={onBack} />
+ <NHeader title={tt('surg.4487d8e6')} onBack={onBack} />
 
  <NCard style={{ backgroundColor: theme.infoBg, marginBottom: SP.xl, marginHorizontal: SP.md }}>
  <View style={{ flexDirection: AR?'row-reverse':'row', gap: SP.lg }}>
  <View style={{ alignItems:'center' }}>
  <Text style={{ fontSize: FS['2xl'], fontWeight: FW.xbold, color: theme.info }}>3</Text>
- <Text style={{ fontSize: FS.xs, color: theme.info }}>{AR?'غرف':'Rooms'}</Text>
+ <Text style={{ fontSize: FS.xs, color: theme.info }}>{tt('surg.7c655157')}</Text>
  </View>
  <View style={{ alignItems:'center' }}>
  <Text style={{ fontSize: FS['2xl'], fontWeight: FW.xbold, color: theme.info }}>{String(surgeries.length)}</Text>
- <Text style={{ fontSize: FS.xs, color: theme.info }}>{AR?'عمليات مجدولة':'Scheduled'}</Text>
+ <Text style={{ fontSize: FS.xs, color: theme.info }}>{tt('surg.83df78d1')}</Text>
  </View>
  </View>
  </NCard>
@@ -137,7 +137,7 @@ export function SurgeryScheduleScreen({ onBack, surgeries, onRefresh }: { onBack
  </View>
  <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text }}>{or.room}</Text>
  <NBadge
- label={or.surgeries.length===0?(AR?'فارغة':'Empty') : (AR?'مجدولة':'Scheduled')}
+ label={or.surgeries.length===0?(tt('surg.e20cc3bd')) : (tt('surg.498c7f4e'))}
  variant={or.surgeries.length===0?'default':'primary'}
  size="xs"
  />
@@ -145,8 +145,8 @@ export function SurgeryScheduleScreen({ onBack, surgeries, onRefresh }: { onBack
 
  {or.surgeries.length === 0 ? (
  <NCard style={{ backgroundColor: theme.surface2, alignItems:'center', padding: SP.xl }}>
- <Text style={{ color: theme.textSub }}>{AR?'لا توجد عمليات مجدولة':'No surgeries scheduled'}</Text>
- <NBtn label={AR?'+ جدولة عملية':'+ Schedule Surgery'} size="sm" variant="outline"
+ <Text style={{ color: theme.textSub }}>{tt('surg.c838131f')}</Text>
+ <NBtn label={tt('surg.caa716fc')} size="sm" variant="outline"
  style={{ marginTop: SP.md }}
  onPress={() => { setOtRoom(or.room); setBookingVisible(true); }} />
  </NCard>
@@ -155,7 +155,7 @@ export function SurgeryScheduleScreen({ onBack, surgeries, onRefresh }: { onBack
  <NCard key={surg.id} style={{ marginBottom: SP.sm }} accent={theme.primary}>
  <View style={{ flexDirection:AR?'row-reverse':'row', justifyContent:'space-between', marginBottom: SP.xs }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{surg.patient_name || surg.patient_id}</Text>
- <NBadge label={AR?' مجدولة':' Scheduled'} variant="warning" size="xs" />
+ <NBadge label={tt('surg.d056c5a3')} variant="warning" size="xs" />
  </View>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign:AR?'right':'left' }}>
  {AR?`جراح رئيسي: ${surg.primary_surgeon_id}`:`Surgeon ID: ${surg.primary_surgeon_id}`}
@@ -170,23 +170,23 @@ export function SurgeryScheduleScreen({ onBack, surgeries, onRefresh }: { onBack
  ))}
 
  <View style={{ paddingHorizontal: SP.md, marginBottom: SP.xl }}>
- <NBtn label={AR?'+ جدولة عملية جديدة':'+ Schedule New Surgery'} variant="outline"
+ <NBtn label={tt('surg.a1e56699')} variant="outline"
  onPress={() => { setOtRoom('OR-1'); setBookingVisible(true); }} />
  </View>
  </NScroll>
 
  {/* Booking Form Sheet */}
- <NSheet visible={bookingVisible} onClose={() => setBookingVisible(false)} title={AR ? 'جدولة عملية جراحية' : 'Schedule Surgery'}>
+ <NSheet visible={bookingVisible} onClose={() => setBookingVisible(false)} title={tt('surg.391e1322')}>
  <ScrollView contentContainerStyle={{ padding: SP.xl }}>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>{AR ? `الغرفة المحددة: ${otRoom}` : `Selected Room: ${otRoom}`}</Text>
  
- <NInput label={AR ? 'معرف المريض (Patient ID)' : 'Patient ID'} placeholder={AR ? 'أدخل معرف المريض...' : 'Enter patient ID...'} value={patientId} onChange={setPatientId} required />
- <NInput label={AR ? 'معرف الجراح الرئيسي' : 'Surgeon ID'} placeholder={AR ? 'أدخل معرف الجراح...' : 'Enter surgeon ID...'} value={surgeonId} onChange={setSurgeonId} required />
+ <NInput label={tt('surg.4bd8e60c')} placeholder={tt('surg.21a620dc')} value={patientId} onChange={setPatientId} required />
+ <NInput label={tt('surg.5c13a4d6')} placeholder={tt('surg.2c9e4ff9')} value={surgeonId} onChange={setSurgeonId} required />
  
- <NInput label={AR ? 'التاريخ والوقت (YYYY-MM-DD HH:MM)' : 'Date & Time (YYYY-MM-DD HH:MM)'} placeholder="2026-06-18 10:00" value={scheduledAt} onChange={setScheduledAt} required />
- <NInput label={AR ? 'المدة بالدقائق' : 'Duration (mins)'} placeholder="90" value={duration} onChange={setDuration} kbType="numeric" required />
+ <NInput label={tt('surg.d9893870')} placeholder="2026-06-18 10:00" value={scheduledAt} onChange={setScheduledAt} required />
+ <NInput label={tt('surg.28c050c0')} placeholder="90" value={duration} onChange={setDuration} kbType="numeric" required />
 
- <NBtn label={AR ? 'تأكيد وحجز الغرفة' : 'Book Surgery Room'} loading={loading} onPress={handleBookSurgery} />
+ <NBtn label={tt('surg.38aee9ac')} loading={loading} onPress={handleBookSurgery} />
  </ScrollView>
  </NSheet>
  </View>
