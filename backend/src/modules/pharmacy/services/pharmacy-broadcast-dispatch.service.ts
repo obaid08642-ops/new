@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Interval } from '@nestjs/schedule';
 import { Connection, Model } from 'mongoose';
@@ -11,6 +11,16 @@ const LEASE_MS = 60_000;
 const MAX_ATTEMPTS = 5;
 
 /**
+ * `domain_outbox` had NO index for what this service asks every 3 seconds (the only index on it is the unique idempotency key, from a migration script): each tick scanned the whole
+ * collection twice (the lease give-back and the claim with `sort created_at`), and the per-minute gauge counted pending rows the same way. Rows in state sent / skipped / failed
+ * stay for ever, so the scans only grow (task 96r, 2026-11-16: a 3.2 s update on this collection). Both indexes are tiny next to a scan; built once, in the background.
+ */
+export const DOMAIN_OUTBOX_INDEXES: Array<{ keys: Record<string, 1 | -1>; name: string }> = [
+  { keys: { event_type: 1, state: 1, created_at: 1 }, name: 'domain_outbox_dispatch_v1' },   // the claim (equality, sort created_at) and the lease give-back
+  { keys: { state: 1, created_at: 1 }, name: 'domain_outbox_state_age_v1' },                 // the stuck count and list (state pending, created_at before ...)
+];
+
+/**
  * Delivers the "new pharmacy request in your area" notice. The broadcast writes one `domain_outbox` row per pharmacy it reaches
  * (pharmacy-broadcast.service / pharmacy-expiry-command.service), inside the transaction that records the recipient; before this
  * worker nothing read those rows, so a pharmacy learned of a request only by its 5-second poll while the app was open.
@@ -21,7 +31,7 @@ const MAX_ATTEMPTS = 5;
  * since closed or been won is marked "skipped": telling a pharmacy about a request it can no longer answer is noise.
  */
 @Injectable()
-export class PharmacyBroadcastDispatchService {
+export class PharmacyBroadcastDispatchService implements OnModuleInit {
   private readonly logger = new Logger(PharmacyBroadcastDispatchService.name);
 
   constructor(
@@ -30,6 +40,18 @@ export class PharmacyBroadcastDispatchService {
     @InjectModel('PharmacyOrder') private readonly orders: Model<any>,
     private readonly notifier: PharmacyNotificationService,
   ) {}
+
+  onModuleInit(): void {
+    void this.ensureIndexes();
+  }
+
+  /** Never blocks the boot and never throws: a failed build is logged and the queries still work, only slowly. */
+  async ensureIndexes(): Promise<void> {
+    const outbox = this.connection.collection('domain_outbox');
+    for (const { keys, name } of DOMAIN_OUTBOX_INDEXES) {
+      try { await outbox.createIndex(keys, { name }); } catch (error: any) { this.logger.warn(`domain_outbox index ${name} not built: ${error?.message || error}`); }
+    }
+  }
 
   @Interval(3_000)
   @ScheduledOnce({ holdMs: 1000 })
