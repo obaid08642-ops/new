@@ -124,6 +124,21 @@ describe('a refunded invoice', () => {
     expect((await svc.present(await svc.issue(patient, 'lab', 'b1'))).state).toBe('paid');
   });
 
+  it('a credit note that cannot be written is retried by the durable queue (the listener throws) and only logged when the event did not come from it', async () => {
+    const { svc, store } = world({ booking, txns });
+    await svc.issue(patient, 'lab', 'b1');
+    const model: any = (svc as any).invoices;
+    const create = model.create;
+    model.create = async () => { throw new Error('mongo down'); };
+    const ev = { booking_kind: 'lab', booking_id: 'b1', amount: 115, refund_ref: 'rf_down' };
+    await expect(svc.issueCreditNote({ ...ev, __durable: { key: 'k', delivery: 1 } } as any)).rejects.toThrow('mongo down');
+    expect(await svc.issueCreditNote(ev)).toBeNull();
+    model.create = create;
+    const note: any = await svc.issueCreditNote({ ...ev, __durable: { key: 'k', delivery: 2 } } as any);   // the retry succeeds, one note
+    expect(note.type).toBe('credit_note');
+    expect(store.filter((d) => d.type === 'credit_note')).toHaveLength(1);
+  });
+
   it('a full refund: state refunded, the credit note (type 381) referenced, its QR carries the absolute amounts', async () => {
     const { svc, store } = world({ booking, txns });
     const issued = await svc.issue(patient, 'lab', 'b1');
