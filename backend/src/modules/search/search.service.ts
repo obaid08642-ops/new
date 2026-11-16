@@ -130,8 +130,17 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
     try {
       const meta: any = await this.conn.collection(META).findOne({ _id: 'search' as any });
       const count = await this.index.estimatedDocumentCount();
-      if (meta?.version !== INDEX_VERSION || count === 0) await this.rebuild();
-      else if (this.meili) await this.syncMeiliFromIndex();
+      if (meta?.version !== INDEX_VERSION || count === 0) {
+        // A rebuild streams every searchable document (the medicines are ~20 KB each). If one was started a moment ago and never finished (mongod was killed in the middle, the worker restarted),
+        // starting another at once is the loop of 2026-11-16. It waits SEARCH_REBUILD_RETRY_MIN (default 30) minutes; the admin rebuild is not delayed.
+        const waitMin = Math.max(0, Number(process.env.SEARCH_REBUILD_RETRY_MIN ?? 30));
+        const startedAt = meta?.rebuild_started_at ? new Date(meta.rebuild_started_at).getTime() : 0;
+        if (startedAt && Date.now() - startedAt < waitMin * 60_000) {
+          this.log.warn(`search rebuild skipped at boot: one started ${Math.round((Date.now() - startedAt) / 60_000)} min ago did not finish; the next try is ${waitMin} min after it started`);
+          return;
+        }
+        await this.rebuild();
+      } else if (this.meili) await this.syncMeiliFromIndex();
     } catch (e) {
       this.log.warn(`boot rebuild failed: ${(e as Error).message}`);
     }
@@ -141,6 +150,8 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
   async rebuild(): Promise<{ indexed: number }> {
     const started = new Date();
     let indexed = 0;
+    // Marks the start: if the process or mongod dies before the end, the boot of the next process sees it (bootRebuild) and does not start another one at once.
+    await this.conn.collection(META).updateOne({ _id: 'search' as any }, { $set: { rebuild_started_at: started } }, { upsert: true }).catch(() => null);
     for (const source of SEARCH_SOURCES) {
       const cursor = this.conn.collection(source).find(sourceFilter(source) as any);
       let batch: SearchDocument[] = [];
@@ -157,7 +168,7 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
       await this.index.deleteMany({ indexed_at: { $lt: started } });
       await this.meiliCall((m) => m.remove(stale.map((s: any) => s.key)));
     }
-    await this.conn.collection(META).updateOne({ _id: 'search' as any }, { $set: { version: INDEX_VERSION, rebuilt_at: new Date(), indexed } }, { upsert: true });
+    await this.conn.collection(META).updateOne({ _id: 'search' as any }, { $set: { version: INDEX_VERSION, rebuilt_at: new Date(), indexed }, $unset: { rebuild_started_at: '' } }, { upsert: true });
     this.schedulePurge();
     this.log.log(`search index rebuilt: ${indexed} documents`);
     return { indexed };
