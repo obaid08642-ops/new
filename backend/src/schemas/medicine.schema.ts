@@ -144,6 +144,16 @@ MedicineSchema.index({ ...PUBLIC_KEYS, orders_count: -1, _id: 1 }, { name: 'publ
 // documents (about 20 KB each) to test it: explain (21k documents) examined 21000 documents with the old index and 0 with `is_deleted` in it, for the
 // page and for the count. `is_deleted` therefore sits right after the two flags in every index that serves the public filter.
 const PUBLIC_LIVE = { ...PUBLIC_KEYS, is_deleted: 1 } as const;
+// 2026-11-16 (run 133, task 96r): `MedicinesService.filtered` (the pharmacy screens' price / newest / most-ordered orders) filters with the public gate INCLUDING `is_deleted: { $ne: true }` and sorts
+// by the key plus `id`. The indexes `public_price_asc/desc`, `public_newest` and `public_most_ordered` above hold neither `is_deleted` nor `id` (they end in `_id`), so the planner scanned the whole index,
+// FETCHED every one of the ~21k documents (~20 KB each) to test is_deleted and sorted them in memory: 108 slow queries in one minute, 9-11 s each, the daytime OOM kills.
+// These hold the sort key, then `id`, and `is_deleted` LAST: the page is read in index order (is_deleted is tested on the index entry, so no document is fetched and no sort is needed) and the scan
+// stops at the limit. (`is_deleted` must not come before the sort key: `$ne: true` is two ranges, which would need a merge sort.) The four old ones can be dropped once these are built.
+const PUBLIC_SORTED_TAIL = { id: 1, is_deleted: 1 } as const;
+MedicineSchema.index({ ...PUBLIC_KEYS, price: 1, ...PUBLIC_SORTED_TAIL }, { name: 'public_live_price_asc_v2' });
+MedicineSchema.index({ ...PUBLIC_KEYS, price: -1, ...PUBLIC_SORTED_TAIL }, { name: 'public_live_price_desc_v2' });
+MedicineSchema.index({ ...PUBLIC_KEYS, createdAt: -1, ...PUBLIC_SORTED_TAIL }, { name: 'public_live_newest_v2' });
+MedicineSchema.index({ ...PUBLIC_KEYS, orders_count: -1, ...PUBLIC_SORTED_TAIL }, { name: 'public_live_most_ordered_v2' });
 const POPULAR_FIELDS = { rank_score: -1, requires_prescription: 1, availability_status: 1, image_1: 1, image: 1, usage_count: -1, category_pos: 1, _id: 1 } as const;
 // "All": the sort reads only these fields (popularPage in product-ranking.service.ts), the plain and the round-robin order alike (category_pos), so the
 // database answers from the index and never loads a document to sort or to count.

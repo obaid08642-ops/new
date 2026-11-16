@@ -7,7 +7,7 @@ import client from '../../api/client';
 
 export function DischargeSummaryScreen({ onBack, admission }: { onBack: () => void; admission?: any }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
@@ -33,11 +33,11 @@ export function DischargeSummaryScreen({ onBack, admission }: { onBack: () => vo
 
   const handleSave = async () => {
     if (!selected?.id) {
-      show(AR ? 'اختر المريض أولاً' : 'Select a patient first', 'warning');
+      show(tt('dis.864d4a14'), 'warning');
       return;
     }
     if (!diagnosis.trim()) {
-      show(AR ? 'اكتب التشخيص النهائي' : 'Enter the final diagnosis', 'warning');
+      show(tt('dis.9c86db5f'), 'warning');
       return;
     }
     setSaving(true);
@@ -47,11 +47,11 @@ export function DischargeSummaryScreen({ onBack, admission }: { onBack: () => vo
         medications: medications.trim(),
         instructions: instructions.trim(),
       });
-      show(AR ? 'تم حفظ ملخص الخروج وإخراج المريض' : 'Discharge summary saved and patient discharged', 'success');
+      show(tt('dis.0fbef45b'), 'success');
       onBack();
     } catch (e: any) {
       const msg = e?.response?.data?.message;
-      show(typeof msg === 'string' ? msg : (AR ? 'تعذر حفظ ملخص الخروج' : 'Could not save discharge summary'), 'error');
+      show(typeof msg === 'string' ? msg : (tt('dis.53cd4a5b')), 'error');
     } finally {
       setSaving(false);
     }
@@ -59,7 +59,7 @@ export function DischargeSummaryScreen({ onBack, admission }: { onBack: () => vo
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'ملخص الخروج (Discharge)' : 'Discharge Summary'} onBack={onBack} />
+      <NHeader title={tt('dis.ae28f4b8')} onBack={onBack} />
 
       <NScroll>
         <View style={{ padding: SP.xl }}>
@@ -68,12 +68,12 @@ export function DischargeSummaryScreen({ onBack, admission }: { onBack: () => vo
           ) : !selected ? (
             <>
               <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>
-                {AR ? 'اختر المريض المقيم:' : 'Select admitted patient:'}
+                {tt('dis.65e66637')}
               </Text>
               {admissions.length === 0 ? (
                 <NCard style={{ padding: SP.lg, alignItems: 'center' }}>
                   <Text style={{ color: theme.textSub, textAlign: 'center' }}>
-                    {AR ? 'لا يوجد مرضى مقيمون حالياً' : 'No patients currently admitted'}
+                    {tt('dis.98dd02ad')}
                   </Text>
                 </NCard>
               ) : admissions.map((a: any) => (
@@ -82,10 +82,10 @@ export function DischargeSummaryScreen({ onBack, admission }: { onBack: () => vo
                     <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                       <View>
                         <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>
-                          {a.patient_name || (AR ? 'مريض' : 'Patient')}
+                          {a.patient_name || (tt('dis.c8b7f288'))}
                         </Text>
                         <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 2 }}>
-                          {AR ? 'دخول: ' : 'Admitted: '}{a.admitted_at ? new Date(a.admitted_at).toISOString().slice(0, 10) : ''}
+                          {tt('dis.8ce7d640')}{a.admitted_at ? new Date(a.admitted_at).toISOString().slice(0, 10) : ''}
                         </Text>
                       </View>
                       <NBadge label={a.status} variant="warning" size="xs" />
@@ -98,19 +98,19 @@ export function DischargeSummaryScreen({ onBack, admission }: { onBack: () => vo
             <>
               <NCard style={{ marginBottom: SP.xl }}>
                 <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: SP.md }}>
-                  <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{AR ? 'المريض:' : 'Patient:'}</Text>
+                  <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{tt('dis.98a9ddda')}</Text>
                   <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>
-                    {selected.patient_name || (AR ? 'مريض' : 'Patient')}
+                    {selected.patient_name || (tt('dis.c8b7f288'))}
                   </Text>
                 </View>
                 <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between' }}>
-                  <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{AR ? 'رقم الإقامة:' : 'Admission:'}</Text>
+                  <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{tt('dis.b1e3870c')}</Text>
                   <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text }}>{selected.id}</Text>
                 </View>
               </NCard>
 
               <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-                {AR ? 'التشخيص النهائي' : 'Final Diagnosis'}
+                {tt('dis.59fdfe4a')}
               </Text>
               <TextInput
                 style={{
@@ -118,7 +118,7 @@ export function DischargeSummaryScreen({ onBack, admission }: { onBack: () => vo
                   color: theme.text, height: 80, textAlignVertical: 'top', textAlign: AR ? 'right' : 'left',
                   marginBottom: SP.lg
                 }}
-                placeholder={AR ? 'اكتب التشخيص...' : 'Enter diagnosis...'}
+                placeholder={tt('dis.c91031ed')}
                 placeholderTextColor={theme.textSub}
                 multiline
                 value={diagnosis}
@@ -126,7 +126,7 @@ export function DischargeSummaryScreen({ onBack, admission }: { onBack: () => vo
               />
 
               <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-                {AR ? 'الأدوية الموصوفة' : 'Prescribed Medications'}
+                {tt('dis.0c467415')}
               </Text>
               <TextInput
                 style={{
@@ -134,7 +134,7 @@ export function DischargeSummaryScreen({ onBack, admission }: { onBack: () => vo
                   color: theme.text, height: 80, textAlignVertical: 'top', textAlign: AR ? 'right' : 'left',
                   marginBottom: SP.lg
                 }}
-                placeholder={AR ? 'أدخل الأدوية...' : 'Enter medications...'}
+                placeholder={tt('dis.e70aea6c')}
                 placeholderTextColor={theme.textSub}
                 multiline
                 value={medications}
@@ -142,7 +142,7 @@ export function DischargeSummaryScreen({ onBack, admission }: { onBack: () => vo
               />
 
               <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-                {AR ? 'تعليمات ما بعد الخروج' : 'Post-Discharge Instructions'}
+                {tt('dis.a8b942eb')}
               </Text>
               <TextInput
                 style={{
@@ -150,7 +150,7 @@ export function DischargeSummaryScreen({ onBack, admission }: { onBack: () => vo
                   color: theme.text, height: 100, textAlignVertical: 'top', textAlign: AR ? 'right' : 'left',
                   marginBottom: SP.xl
                 }}
-                placeholder={AR ? 'تعليمات الراحة والمراجعة...' : 'Rest and follow-up instructions...'}
+                placeholder={tt('dis.8e955181')}
                 placeholderTextColor={theme.textSub}
                 multiline
                 value={instructions}
@@ -158,7 +158,7 @@ export function DischargeSummaryScreen({ onBack, admission }: { onBack: () => vo
               />
 
               <NBtn
-                label={saving ? (AR ? 'جاري الحفظ...' : 'Saving...') : (AR ? 'حفظ ملخص الخروج' : 'Save Discharge Summary')}
+                label={saving ? (tt('dis.fd6801f2')) : (tt('dis.cd255151'))}
                 onPress={handleSave}
                 disabled={saving}
               />

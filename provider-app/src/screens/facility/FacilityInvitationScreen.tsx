@@ -8,7 +8,7 @@ import client from '../../api/client';
 
 export function FacilityInvitationScreen({ onBack, preRole }: { onBack: () => void; preRole?: string }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
@@ -27,10 +27,10 @@ export function FacilityInvitationScreen({ onBack, preRole }: { onBack: () => vo
     setCancelling(id);
     try {
       await client.post(`/hospital/invitations/${id}/cancel`, {});
-      show(AR ? 'تم إلغاء الدعوة' : 'Invitation cancelled', 'success');
+      show(tt('finv.cd83c75a'), 'success');
       loadSent();
     } catch (e: any) {
-      show(String(e?.response?.data?.message || '').startsWith('invitation_not_pending') ? (AR ? 'تم الرد على الدعوة بالفعل' : 'The invitation was already answered') : (AR ? 'تعذر إلغاء الدعوة' : 'Could not cancel the invitation'), 'error');
+      show(String(e?.response?.data?.message || '').startsWith('invitation_not_pending') ? (tt('finv.633b8542')) : (tt('finv.15ed06f5')), 'error');
       loadSent();
     } finally {
       setCancelling(null);
@@ -66,7 +66,7 @@ export function FacilityInvitationScreen({ onBack, preRole }: { onBack: () => vo
 
   const handleInvite = async () => {
     if (!identifier.trim()) {
-      show(AR ? 'يرجى إدخال رقم جوال أو Nabdah ID' : 'Please enter Phone or Nabdah ID', 'warning');
+      show(tt('finv.df8b2d07'), 'warning');
       return;
     }
     setLoading(true);
@@ -77,12 +77,12 @@ export function FacilityInvitationScreen({ onBack, preRole }: { onBack: () => vo
         permissions: perms,
       });
       setInvited(true);
-      show(AR ? 'تم إرسال الدعوة بنجاح' : 'Invitation sent successfully', 'success');
+      show(tt('finv.490d580a'), 'success');
     } catch (e: any) {
       const st = e?.response?.status;
-      if (st === 404) show(AR ? 'لا يوجد حساب مزود بهذا المعرف' : 'No provider account with this identifier', 'error');
-      else if (st === 400) show(AR ? 'تعذر إرسال الدعوة — تحقق من البيانات' : 'Could not send invitation', 'error');
-      else show(AR ? 'حدث خطأ أثناء إرسال الدعوة' : 'Error sending invitation', 'error');
+      if (st === 404) show(tt('finv.c02ae588'), 'error');
+      else if (st === 400) show(tt('finv.62926ceb'), 'error');
+      else show(tt('finv.feaad4db'), 'error');
     } finally {
       setLoading(false);
     }
@@ -91,20 +91,20 @@ export function FacilityInvitationScreen({ onBack, preRole }: { onBack: () => vo
   if (invited) {
     return (
       <NScroll>
-        <NHeader title={AR ? 'دعوة مزود خدمة' : 'Invite Provider'} onBack={onBack} />
+        <NHeader title={tt('finv.7a5686be')} onBack={onBack} />
         <View style={{ padding: SP.xl, alignItems: 'center', marginTop: SP.xl }}>
           <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: theme.successBg, alignItems: 'center', justifyContent: 'center', marginBottom: SP.lg }}>
             <I name="email" size={32} color={theme.primary} />
           </View>
           <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text, textAlign: 'center' }}>
-            {AR ? 'تم إرسال الدعوة' : 'Invitation Sent'}
+            {tt('finv.ed3a3fbf')}
           </Text>
           <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: 'center', marginTop: SP.sm, marginBottom: SP.xl }}>
             {AR 
               ? `تم إرسال إشعار إلى المزود (${identifier}). بمجرد قبوله سيتم إضافته لطاقم المنشأة بالصلاحيات المحددة.` 
               : `A notification has been sent to (${identifier}). Once accepted, they will join the facility staff with the specified permissions.`}
           </Text>
-          <NBtn label={AR ? 'عودة للإدارة' : 'Back to Management'} onPress={onBack} />
+          <NBtn label={tt('finv.cc8838cf')} onPress={onBack} />
         </View>
       </NScroll>
     );
@@ -112,28 +112,26 @@ export function FacilityInvitationScreen({ onBack, preRole }: { onBack: () => vo
 
   return (
     <NScroll>
-      <NHeader title={AR ? 'دعوة مزود خدمة' : 'Invite Provider'} onBack={onBack} />
+      <NHeader title={tt('finv.7a5686be')} onBack={onBack} />
 
       <NCard style={{ backgroundColor: theme.infoBg, marginBottom: SP.xl }}>
         <Text style={{ fontSize: FS.sm, color: theme.info, lineHeight: 22, textAlign: AR ? 'right' : 'left' }}>
-          {AR
-            ? 'أدخل رقم جوال المزود أو رقم تعريفه (Nabdah ID). سيتم إرسال دعوة له للارتباط بالمنشأة، ولن يتم إضافته إلا بعد موافقته.'
-            : 'Enter the provider\'s phone number or Nabdah ID. An invitation will be sent to them, and they will only be linked after approval.'}
+          {tt('finv.ae507959')}
         </Text>
       </NCard>
 
-      <NSecHeader title={AR ? 'بيانات المزود' : 'Provider Details'} />
+      <NSecHeader title={tt('finv.f2cc6f0b')} />
       <NInput
-        label={AR ? 'رقم الجوال أو Nabdah ID' : 'Phone or Nabdah ID'}
-        placeholder={AR ? 'مثال: +966500000000 أو NBD-1234' : 'e.g., +966500000000 or NBD-1234'}
+        label={tt('finv.9f13264d')}
+        placeholder={tt('finv.f115fb34')}
         value={identifier}
         onChange={setIdentifier}
         icon="search"
       />
 
-      <NSecHeader title={AR ? 'مصفوفة الصلاحيات (Permission Matrix)' : 'Permission Matrix'} />
+      <NSecHeader title={tt('finv.3b4c21e7')} />
       <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>
-        {AR ? 'حدد ما يمكن لإدارة المنشأة التحكم به نيابة عن هذا المزود:' : 'Select what the facility management can control on behalf of this provider:'}
+        {tt('finv.8068ef09')}
       </Text>
 
       <View style={{ gap: 2, marginBottom: SP.xl }}>
@@ -158,7 +156,7 @@ export function FacilityInvitationScreen({ onBack, preRole }: { onBack: () => vo
       </View>
 
       <NBtn 
-        label={AR ? 'إرسال الدعوة' : 'Send Invitation'} 
+        label={tt('finv.8b92e689')} 
         onPress={handleInvite} 
         loading={loading}
         style={{ marginBottom: SP.xl }}
@@ -166,16 +164,16 @@ export function FacilityInvitationScreen({ onBack, preRole }: { onBack: () => vo
 
       {sent.length > 0 && (
         <View style={{ marginBottom: SP.xl }}>
-          <NSecHeader title={AR ? 'الدعوات المرسلة' : 'Sent invitations'} />
+          <NSecHeader title={tt('finv.738ea574')} />
           {sent.map((inv) => (
             <NCard key={inv.id} style={{ marginBottom: SP.md }}>
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between', gap: SP.md }}>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{inv.invitee_name || inv.invitee_id || '—'}</Text>
-                  <NBadge label={inv.status === 'pending' ? (AR ? 'بانتظار الرد' : 'Pending') : inv.status === 'accepted' ? (AR ? 'مقبولة' : 'Accepted') : inv.status === 'cancelled' ? (AR ? 'ملغاة' : 'Cancelled') : (AR ? 'مرفوضة' : 'Declined')} variant={inv.status === 'accepted' ? 'success' : 'info'} size="xs" />
+                  <NBadge label={inv.status === 'pending' ? (tt('finv.cb626dc0')) : inv.status === 'accepted' ? (tt('finv.7453caea')) : inv.status === 'cancelled' ? (tt('finv.dd66303b')) : (tt('finv.d32bdb11'))} variant={inv.status === 'accepted' ? 'success' : 'info'} size="xs" />
                 </View>
                 {inv.status === 'pending' ? (
-                  <NBtn label={AR ? 'إلغاء الدعوة' : 'Cancel invitation'} size="xs" variant="outline" full={false} loading={cancelling === inv.id} onPress={() => cancelInvitation(inv.id)} />
+                  <NBtn label={tt('finv.a0dc9b00')} size="xs" variant="outline" full={false} loading={cancelling === inv.id} onPress={() => cancelInvitation(inv.id)} />
                 ) : null}
               </View>
             </NCard>
