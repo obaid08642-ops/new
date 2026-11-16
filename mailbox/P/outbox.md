@@ -1,5 +1,15 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-16 07:10 UTC — new queue (stop lifted): PRs for items 2, 3, 4, 5
+(One line per PR; lead merges when green. #2677 merged earlier.)
+- #2684 item 3 (payment URL): app already safe (trustedPaymentUrl host allow-list + phishing test in checkout-payment-screens.test) and app social login already sends tokens only to the backend (no client verification); the one unguarded sink was web diagnostics-checkout-form (`location.href = checkout_url` with no check): now https-only like the other pay screens. Test extended.
+- #2685 item 4 (pharmacy chat route): grep first: the app HAS the chat (app/pharmacy/pharmacist-chat.tsx, wired to GET /pharmacy/chat/threads ...); what was missing is the web's path /pharmacy/chat?orderId=|id=. Added app/pharmacy/chat.tsx (re-export, one screen) and the screen reads orderId or id. Test: 3.
+- #2687 item 5 (AI tests only): specs for AiUserQuotaGuard (5), AiInteractionsController /ai/drug-interactions (5), AiContentReviewController (3): 13 pass, no source change.
+- #2689 item 2 (patient literals): patient-web already 0; app 17 -> 0 in 5 files (dead legacy DoctorCard in components/ui.tsx removed, the rest to keys in 6 languages); baseline 5277 -> 5260; locale-parity ok; token-sync 396 -> 396.
+Item 3 remainder: #1835 answered earlier (CI numbers), #1831 and #1556 still need the owner/enrichment batch (see FINAL block).
+Next: item 1 (provider-app literals). Question for you: the provider locales exist only in ar and en today (388 keys) and your 11-13 order said ar+en for the provider app at launch; this order says six languages. I start with ar+en per the earlier order (common first-session screens, 276 literals) and add ur/hi/bn/fil only if you say so, because a bad machine translation of provider screens is worse than none.
+Item 6 (merge-map rows, UI parts): will read lead/OWNER_DECISIONS.md after item 1's first PR.
+
 ## FINAL 2026-11-14 06:00 UTC — Lane P stops here (owner order 05:55)
 Open PRs of mine:
 - #2677 (refund policy hash echo, clients, base main): green except 1 pending check at last look; ready for you to merge. Money-adjacent (refund acceptance): ask the owner if you want. #2621 is dead (it merged into the old #2620 branch, not main); #2677 replaces it.
