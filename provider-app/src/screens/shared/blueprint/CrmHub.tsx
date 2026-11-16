@@ -21,7 +21,7 @@ import { H } from './_shared';
 
 export function CrmHub({ onBack, onNavigate }: { onBack: () => void; onNavigate: (s: string) => void }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
 
@@ -65,7 +65,7 @@ export function CrmHub({ onBack, onNavigate }: { onBack: () => void; onNavigate:
  setNotesList(rawNotes.map((n) => n.text));
  setNoteText('');
  } catch (e) {
- show(AR ? 'فشل تحميل بيانات العميل' : 'Failed to fetch CRM data', 'error');
+ show(tt('sxf.d382d6a2'), 'error');
  } finally {
  setCrmLoading(false);
  }
@@ -90,10 +90,10 @@ export function CrmHub({ onBack, onNavigate }: { onBack: () => void; onNavigate:
    return kept && kept.text === text ? { id: kept.id || `${selectedPat.id}-${index}`, date: kept.date || new Date().toISOString().slice(0, 10), text } : { id: `${selectedPat.id}-${Date.now()}-${index}`, date: new Date().toISOString().slice(0, 10), text };
  }),
  });
- show(AR ? 'تم حفظ تفاصيل العميل بنجاح' : 'Patient CRM updated successfully', 'success');
+ show(tt('sxf.514f80cc'), 'success');
  setSelectedPat(null);
  } catch (e: any) {
- show(e?.response?.data?.message || (AR ? 'فشل حفظ التحديثات' : 'Failed to update CRM data'), 'error');
+ show(e?.response?.data?.message || (tt('sxf.3edfbe0e')), 'error');
  } finally {
  setSaveLoading(false);
  }
@@ -102,21 +102,21 @@ export function CrmHub({ onBack, onNavigate }: { onBack: () => void; onNavigate:
  return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
  <NScroll>
- <NHeader title={AR ? 'ذكاء الأعمال وإدارة العملاء' : 'CRM & Revenue Intelligence'} onBack={onBack} />
+ <NHeader title={tt('sxf.c3a4ab37')} onBack={onBack} />
  <View style={{ padding: SP.xl, gap: SP.xl }}>
  
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
- <NStatCard icon="" label={AR ? 'مرضى مسجلون' : 'CRM Patients'} value={String(PATIENTS.length)} color={theme.primary} style={{ flex: 1 }} />
+ <NStatCard icon="" label={tt('sxf.5dc81be1')} value={String(PATIENTS.length)} color={theme.primary} style={{ flex: 1 }} />
  <NStatCard icon="" label={AR ? 'VIP' : 'VIP'} value={String(PATIENTS.filter(p => p.is_vip).length)} color={theme.info} style={{ flex: 1 }} />
  </View>
 
- <NSecHeader title={AR ? 'روستر المتابعة الفورية للعملاء' : 'Quick Customer Follow-up'} />
+ <NSecHeader title={tt('sxf.25a13426')} />
  {listLoading ? (
  <ActivityIndicator color={theme.primary} />
  ) : PATIENTS.length === 0 ? (
  <NCard>
  <Text style={{ color: theme.textSub, textAlign: 'center' }}>
- {AR ? 'لا يوجد مرضى في سجل CRM بعد — عند وضع وسوم على مرضاك من الاستشارات سيظهرون هنا.' : 'No CRM patients yet — patients you tag from consultations will appear here.'}
+ {tt('sxf.3cb5f7ce')}
  </Text>
  </NCard>
  ) : PATIENTS.map((pat) => (
@@ -128,13 +128,13 @@ export function CrmHub({ onBack, onNavigate }: { onBack: () => void; onNavigate:
  </TouchableOpacity>
  <TouchableOpacity onPress={() => openPatientCrm(pat)} 
  style={{ backgroundColor: theme.primaryLight, paddingHorizontal: SP.md, paddingVertical: SP.sm, borderRadius: R.sm }}>
- <Text style={{ color: theme.primary, fontSize: FS.xs, fontWeight: FW.bold }}>{AR ? 'الملف الطبي' : 'CRM Profile'}</Text>
+ <Text style={{ color: theme.primary, fontSize: FS.xs, fontWeight: FW.bold }}>{tt('sxf.a4aa3210')}</Text>
  </TouchableOpacity>
  </View>
  </NCard>
  ))}
 
- <NBtn label={AR ? ' تفاصيل الإيرادات والتقارير' : ' Revenue Insights'} onPress={() => onNavigate('revenue_insights')} />
+ <NBtn label={tt('sxf.74871b99')} onPress={() => onNavigate('revenue_insights')} />
  </View>
  </NScroll>
 
@@ -143,18 +143,18 @@ export function CrmHub({ onBack, onNavigate }: { onBack: () => void; onNavigate:
  <ActivityIndicator color={theme.primary} style={{ marginTop: SP.xl }} />
  ) : (
  <ScrollView contentContainerStyle={{ padding: SP.xl, gap: SP.lg }}>
- <NToggle label={AR?' عميل مفضل':' Favorite Patient'} value={isFav} onChange={setIsFav} />
- <NToggle label={AR ? ' عميل VIP متميز' : ' VIP Customer'} value={isVip} onChange={setIsVip} />
- <NToggle label={AR ? ' حظر العميل من الحجز' : ' Block Patient'} value={isBlocked} onChange={setIsBlocked} />
+ <NToggle label={tt('sxf.9ca91a13')} value={isFav} onChange={setIsFav} />
+ <NToggle label={tt('sxf.2f39c46c')} value={isVip} onChange={setIsVip} />
+ <NToggle label={tt('sxf.3657d2de')} value={isBlocked} onChange={setIsBlocked} />
  
  {isBlocked && (
- <NInput label={AR ? 'سبب الحظر' : 'Block Reason'} value={blockReason} onChange={setBlockReason} placeholder={AR ? 'مثال: عدم الحضور المتكرر للمواعيد' : 'e.g. Frequent no-show'} />
+ <NInput label={tt('sxf.4a26d03b')} value={blockReason} onChange={setBlockReason} placeholder={tt('sxf.37b4bbae')} />
  )}
 
  <NDivider />
 
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'ملاحظات الطبيب الخاصة' : 'Private Provider Notes'}
+ {tt('sxf.b18ad787')}
  </Text>
 
  {notesList.map((note, idx) => (
@@ -163,9 +163,9 @@ export function CrmHub({ onBack, onNavigate }: { onBack: () => void; onNavigate:
  </View>
  ))}
 
- <NInput label={AR ? 'إضافة ملاحظة جديدة' : 'Add New Note'} value={noteText} onChange={setNoteText} placeholder={AR ? 'اكتب ملاحظتك الطبية الخاصة هنا...' : 'Type note...'} multi lines={3} />
+ <NInput label={tt('sxf.fddfdb7a')} value={noteText} onChange={setNoteText} placeholder={tt('sxf.dbcdaa58')} multi lines={3} />
 
- <NBtn label={AR ? ' حفظ التعديلات' : ' Save CRM Settings'} onPress={handleSaveCrm} loading={saveLoading} style={{ marginTop: SP.md }} />
+ <NBtn label={tt('sxf.6184454a')} onPress={handleSaveCrm} loading={saveLoading} style={{ marginTop: SP.md }} />
  </ScrollView>
  )}
  </NSheet>

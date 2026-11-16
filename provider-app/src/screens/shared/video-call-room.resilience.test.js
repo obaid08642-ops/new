@@ -59,8 +59,10 @@ describe('VideoCallRoom uses it', () => {
   });
 
   it('shows reconnecting, sound only with a way back, and a quality indicator per side', () => {
+    // user-visible text now lives in the locale file, the wiring stays in the screen
+    const text = source + read('../../i18n/locales/en.json');
     for (const s of ['setReconnecting(true)', 'Reconnecting your call', 'tryVideo()', 'Try video again', 'qualityBars(quality.local)', 'qualityBars(quality.remote)', 'startAudioOnly']) {
-      expect(source).toContain(s);
+      expect(text).toContain(s);
     }
   });
 

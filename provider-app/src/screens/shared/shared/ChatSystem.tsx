@@ -35,7 +35,7 @@ import { scanStateOfRequestError, scanOfStored } from '../../../utils/scanRegist
 import { scanStateOfUpload } from '../../../utils/scanStatus';
 
 export function ChatSystem({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
   const [activeChat, setActiveChat] = useState<any | null>(null);
   const [search, setSearch] = useState('');
   const [conversations, setConversations] = useState<any[]>([]);
@@ -72,21 +72,21 @@ export function ChatSystem({ onBack }: { onBack: () => void }) {
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <View style={[st.topBar, { backgroundColor: theme.surface, borderBottomColor: theme.border }]}>
         <TouchableOpacity onPress={onBack}><I name="back" size={20} color={theme.primary} /></TouchableOpacity>
-        <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>{AR ? 'المحادثات' : 'Messages'}</Text>
+        <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>{tt('sxi.dd40908a')}</Text>
       </View>
 
       <View style={{ paddingHorizontal: SP.lg, paddingVertical: SP.md }}>
-        <NSearch value={search} onChange={setSearch} placeholder={AR ? 'ابحث في المحادثات...' : 'Search conversations...'} />
+        <NSearch value={search} onChange={setSearch} placeholder={tt('sxi.b08a7f9f')} />
       </View>
 
       {loading ? (
         <View style={{ padding: SP.xl, alignItems: 'center' }}>
-          <Text style={{ color: theme.textSub }}>{AR ? 'جاري التحميل...' : 'Loading...'}</Text>
+          <Text style={{ color: theme.textSub }}>{tt('sxi.2ac42d8b')}</Text>
         </View>
       ) : loadErr ? (
-        <NEmpty title={AR ? 'تعذر تحميل المحادثات' : 'Could not load conversations'} sub={AR ? 'تحقق من الاتصال ثم أعد المحاولة.' : 'Check your connection and try again.'} actionLabel={AR ? 'إعادة المحاولة' : 'Retry'} onAction={() => { void fetchChats(); }} />
+        <NEmpty title={tt('sxi.8117368a')} sub={tt('sxi.bce15d0a')} actionLabel={tt('sxi.cf333076')} onAction={() => { void fetchChats(); }} />
       ) : filtered.length === 0 ? (
-        <NEmpty title={AR ? 'لا توجد محادثات' : 'No conversations yet'} sub={AR ? 'تظهر هنا محادثات الحجوزات مع المرضى.' : 'Conversations with patients for your bookings appear here.'} />
+        <NEmpty title={tt('sxi.5022a578')} sub={tt('sxi.13e4274a')} />
       ) : (
         <FlatList data={filtered} keyExtractor={i => i.id}
           contentContainerStyle={{ paddingHorizontal: SP.lg, paddingBottom: 100 }}
@@ -120,7 +120,7 @@ export function ChatSystem({ onBack }: { onBack: () => void }) {
 
 function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
   const uploadsOn = useUploadsEnabled();
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [msg, setMsg] = useState('');
   const [messages, setMessages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -157,7 +157,7 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
   const sendErrorText = (e: unknown): string => {
     const err = e as { response?: { data?: { message?: unknown } }; message?: unknown } | null;
     const m = err?.response?.data?.message ?? err?.message;
-    return typeof m === 'string' && m ? m : (AR ? 'تعذر إرسال الرسالة' : 'Could not send the message');
+    return typeof m === 'string' && m ? m : (tt('sxi.7a9295ec'));
   };
 
   const sendMsg = async () => {
@@ -188,7 +188,7 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
       // a file still being scanned (423) or one the scan refused is a state of the attachment, not an error
       const state = scanStateOfRequestError(e);
       if (state) { announceScan(show, lang, state); return; }
-      show(AR ? 'تعذر فتح المرفق' : 'Could not open the attachment', 'error');
+      show(tt('sxi.421b8913'), 'error');
     }
   };
 
@@ -200,7 +200,7 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
       let name = 'attachment';
       if (kind === 'camera') {
         const perm = await ImagePicker.requestCameraPermissionsAsync();
-        if (!perm.granted) { show(AR ? 'صلاحية الكاميرا مطلوبة' : 'Camera permission required', 'error'); return; }
+        if (!perm.granted) { show(tt('sxi.625aa899'), 'error'); return; }
         const res = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.7 });
         if (res.canceled) return;
         uri = res.assets[0].uri; mime = 'image/jpeg'; name = 'photo.jpg';
@@ -217,7 +217,7 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
       form.append('thread_id', conv.id);
       const up = await client.post('/media/upload', form);
       const mediaId = up?.data?.id;
-      if (!mediaId) { show(AR ? 'تعذر رفع المرفق' : 'Could not upload attachment', 'error'); return; }
+      if (!mediaId) { show(tt('sxi.77f94b6c'), 'error'); return; }
       await client.post(`/chat/threads/${conv.id}/messages`, {
         type: mime.startsWith('image/') ? 'image' : 'file', body: name, media_ids: [mediaId], attachment_mime: mime, attachment_name: name,
         client_message_id: `prov-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -249,19 +249,19 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
  {/* Messages */}
  <ScrollView ref={scrollRef} contentContainerStyle={{ padding: SP.lg, paddingBottom: SP.xxl }}
  showsVerticalScrollIndicator={false}>
- {loadErr && <NEmpty title={AR ? 'تعذر تحميل الرسائل' : 'Could not load the messages'} actionLabel={AR ? 'إعادة المحاولة' : 'Retry'} onAction={() => { void loadMessages(); }} />}
- {!loading && !loadErr && messages.length === 0 && <Text style={{ color: theme.textSub, textAlign: 'center' }}>{AR ? 'لا رسائل بعد' : 'No messages yet'}</Text>}
+ {loadErr && <NEmpty title={tt('sxi.18bb5514')} actionLabel={tt('sxi.cf333076')} onAction={() => { void loadMessages(); }} />}
+ {!loading && !loadErr && messages.length === 0 && <Text style={{ color: theme.textSub, textAlign: 'center' }}>{tt('sxi.205db8ab')}</Text>}
  {messages.map(m => {
  const isMe = m.sender === 'me';
  return (
  <View key={m.id} style={{ alignItems: isMe ? 'flex-end' : 'flex-start', marginBottom: SP.md }}>
  {m.mediaId && (m.type === 'image' || m.type === 'file' || m.type === 'voice') ? (
  <TouchableOpacity onPress={() => { void openMedia(m.mediaId as string); }} accessibilityRole="button"
- accessibilityLabel={m.type === 'image' ? (AR ? 'فتح الصورة' : 'Open the image') : m.type === 'voice' ? (AR ? 'تشغيل الرسالة الصوتية' : 'Play the voice message') : (AR ? 'فتح الملف' : 'Open the file')}
+ accessibilityLabel={m.type === 'image' ? (tt('sxi.206e114c')) : m.type === 'voice' ? (tt('sxi.9b55dba3')) : (tt('sxi.a615ab1f'))}
  style={[st.imgBubble, { backgroundColor: theme.surface2, borderColor: theme.border }]}>
  <I name={m.type === 'image' ? 'camera' : m.type === 'voice' ? 'mic' : 'document'} size={30} color={theme.textSub} />
  <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: SP.xs }} numberOfLines={1}>
- {m.type === 'image' ? (AR ? 'صورة مرفقة، اضغط للفتح' : 'Attached image, tap to open') : m.text}
+ {m.type === 'image' ? (tt('sxi.c0fa1793')) : m.text}
  </Text>
  </TouchableOpacity>
  ) : (
@@ -290,7 +290,7 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
 ) : null}
  <TextInput
  style={[st.chatInput, { backgroundColor: theme.surface2, color: theme.text, textAlign: AR ? 'right' : 'left' }]}
- placeholder={AR ? 'اكتب رسالة...' : 'Type a message...'}
+ placeholder={tt('sxi.ae9e7693')}
  placeholderTextColor={theme.textSub}
  value={msg} onChangeText={setMsg}
  multiline maxLength={2000}
@@ -303,7 +303,7 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
  </View>
 
  {/* Attachment sheet */}
- <NSheet visible={showAttach} onClose={() => setShowAttach(false)} title={AR ? 'إرفاق' : 'Attach'} height={280}>
+ <NSheet visible={showAttach} onClose={() => setShowAttach(false)} title={tt('sxi.591f97f3')} height={280}>
  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.xl, justifyContent: 'center' }}>
  {[
  { name: 'camera', ar: 'كاميرا', en: 'Camera' },

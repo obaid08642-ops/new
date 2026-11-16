@@ -27,7 +27,7 @@ const TITLE: Record<Vertical, { ar: string; en: string; empty_ar: string; empty_
 
 export function MyServicesScreen({ vertical, onBack, footer }: { vertical: Vertical; onBack?: () => void; footer?: React.ReactNode }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
   const dir = AR ? 'row-reverse' : 'row';
@@ -74,7 +74,7 @@ export function MyServicesScreen({ vertical, onBack, footer }: { vertical: Verti
       setRows((prev) => prev.map((r) => (r.service_id === row.service_id ? next : r)));
       return true;
     } catch (e: any) {
-      show(e?.response?.data?.message === 'service_not_found' ? (AR ? 'الخدمة لم تعد في الكتالوج' : 'This service is no longer in the catalogue') : (AR ? 'تعذر الحفظ، حاول مرة أخرى' : 'Could not save, try again'), 'error');
+      show(e?.response?.data?.message === 'service_not_found' ? (tt('sxp.6adb2c98')) : (tt('sxp.8e645b48')), 'error');
       return false;
     } finally {
       setSaving(false);
@@ -85,7 +85,7 @@ export function MyServicesScreen({ vertical, onBack, footer }: { vertical: Verti
     if (!editing || !draft) return;
     if (draftError(draft)) { setShowErr(true); return; }
     if (await put(editing, draft)) {
-      show(AR ? 'تم الحفظ' : 'Saved', 'success');
+      show(tt('sxp.b5437442'), 'success');
       setEditing(null);
     }
   };
@@ -93,7 +93,7 @@ export function MyServicesScreen({ vertical, onBack, footer }: { vertical: Verti
   // The row switch: off is one tap; on needs a price, so it opens the sheet with the switch already on.
   const onRowSwitch = async (row: ServiceOfferRow, on: boolean) => {
     if (on) { openEdit(row, true); return; }
-    if (await put(row, { ...draftFromRow(vertical, row), offered: false })) show(AR ? 'تم إيقاف الخدمة' : 'Service switched off', 'success');
+    if (await put(row, { ...draftFromRow(vertical, row), offered: false })) show(tt('sxp.f493dd38'), 'success');
   };
 
   const nameOf = (r: ServiceOfferRow) => (AR ? (r.name_ar || r.name_en) : (r.name_en || r.name_ar)) || r.code;
@@ -109,14 +109,14 @@ export function MyServicesScreen({ vertical, onBack, footer }: { vertical: Verti
             <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{nameOf(item)}</Text>
             <View style={{ flexDirection: dir, alignItems: 'center', gap: SP.sm, marginTop: SP.xs, flexWrap: 'wrap' }}>
               <Text style={{ fontSize: FS.sm, color: item.offered ? theme.primary : theme.textSub }}>
-                {price != null ? `${price} ${AR ? 'ر.س' : 'SAR'}` : (AR ? 'بلا سعر' : 'No price')}
+                {price != null ? `${price} ${tt('sxp.91d5796f')}` : (tt('sxp.9bf1955b'))}
               </Text>
               {item.offered && item.where ? <NBadge label={AR ? WHERE_LABEL[item.where].ar : WHERE_LABEL[item.where].en} variant="info" size="xs" /> : null}
-              {item.offered && item.insurance ? <NBadge label={AR ? 'تأمين' : 'Insurance'} variant="success" size="xs" /> : null}
+              {item.offered && item.insurance ? <NBadge label={tt('sxp.150549c6')} variant="success" size="xs" /> : null}
             </View>
           </View>
           <Switch value={item.offered} disabled={saving} onValueChange={(v) => onRowSwitch(item, v)}
-            accessibilityLabel={`${nameOf(item)}: ${AR ? 'تقديم الخدمة' : 'offer this service'}`}
+            accessibilityLabel={`${nameOf(item)}: ${tt('sxp.b872e025')}`}
             trackColor={{ false: theme.border, true: theme.primary }} />
         </View>
       </NCard>
@@ -127,7 +127,7 @@ export function MyServicesScreen({ vertical, onBack, footer }: { vertical: Verti
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <NHeader title={AR ? t.ar : t.en} sub={rows.length ? (AR ? `${offeredCount} من ${rows.length} مُقدَّمة` : `${offeredCount} of ${rows.length} offered`) : undefined} onBack={onBack} />
       {loading ? <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: SP.xxl }} /> : failed && rows.length === 0 ? (
-        <NEmpty icon="grid" title={AR ? 'تعذر تحميل الخدمات' : 'Could not load the services'} actionLabel={AR ? 'إعادة المحاولة' : 'Try again'} onAction={() => { setLoading(true); load(); }} />
+        <NEmpty icon="grid" title={tt('sxp.66b56683')} actionLabel={tt('sxp.96cbdad3')} onAction={() => { setLoading(true); load(); }} />
       ) : (
         <FlatList
           data={visible}
@@ -137,11 +137,11 @@ export function MyServicesScreen({ vertical, onBack, footer }: { vertical: Verti
           contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}
           ListHeaderComponent={(
             <View style={{ marginBottom: SP.md }}>
-              <NSearch value={search} onChange={setSearch} placeholder={AR ? 'ابحث بالاسم أو الرمز' : 'Search by name or code'} />
-              <NToggle label={AR ? 'المُقدَّمة فقط' : 'Offered only'} value={onlyOffered} onChange={setOnlyOffered} />
+              <NSearch value={search} onChange={setSearch} placeholder={tt('sxp.83c63445')} />
+              <NToggle label={tt('sxp.f7218a84')} value={onlyOffered} onChange={setOnlyOffered} />
             </View>
           )}
-          ListEmptyComponent={<NEmpty icon="grid" title={rows.length === 0 ? (AR ? t.empty_ar : t.empty_en) : (AR ? 'لا نتائج' : 'No results')} />}
+          ListEmptyComponent={<NEmpty icon="grid" title={rows.length === 0 ? (AR ? t.empty_ar : t.empty_en) : (tt('sxp.593a626c'))} />}
           ListFooterComponent={footer ? <View style={{ marginTop: SP.lg }}>{footer}</View> : null}
         />
       )}
@@ -154,14 +154,14 @@ export function MyServicesScreen({ vertical, onBack, footer }: { vertical: Verti
                 {AR ? `سعر الكتالوج: ${editing.catalogue_price} ر.س` : `Catalogue price: ${editing.catalogue_price} SAR`}
               </Text>
             ) : null}
-            <NToggle label={AR ? 'أقدّم هذه الخدمة' : 'I offer this service'} value={draft.offered} onChange={(v) => setDraft({ ...draft, offered: v })} />
+            <NToggle label={tt('sxp.41bae7ac')} value={draft.offered} onChange={(v) => setDraft({ ...draft, offered: v })} />
             {draft.offered ? (
               <View>
-                <NPriceInput label={AR ? 'سعرك (ر.س)' : 'Your price (SAR)'} value={draft.price} onChange={(v) => setDraft({ ...draft, price: v })}
-                  error={showErr && draftError(draft) ? (AR ? 'أدخل سعراً أكبر من صفر' : 'Enter a price above zero') : undefined} />
+                <NPriceInput label={tt('sxp.5dc5398d')} value={draft.price} onChange={(v) => setDraft({ ...draft, price: v })}
+                  error={showErr && draftError(draft) ? (tt('sxp.b0595d27')) : undefined} />
                 {options.length > 1 ? (
                   <View style={{ marginVertical: SP.md }}>
-                    <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>{AR ? 'مكان التنفيذ' : 'Where it is done'}</Text>
+                    <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>{tt('sxp.cbf2a784')}</Text>
                     <View style={{ flexDirection: dir, gap: SP.sm, flexWrap: 'wrap' }}>
                       {options.map((w) => {
                         const on = draft.where === w;
@@ -175,10 +175,10 @@ export function MyServicesScreen({ vertical, onBack, footer }: { vertical: Verti
                     </View>
                   </View>
                 ) : null}
-                <NToggle label={AR ? 'أقبل التأمين' : 'I accept insurance'} value={draft.insurance} onChange={(v) => setDraft({ ...draft, insurance: v })} />
+                <NToggle label={tt('sxp.da097004')} value={draft.insurance} onChange={(v) => setDraft({ ...draft, insurance: v })} />
               </View>
             ) : null}
-            <NBtn label={AR ? 'حفظ' : 'Save'} onPress={save} loading={saving} style={{ marginTop: SP.xl }} />
+            <NBtn label={tt('sxp.0360038b')} onPress={save} loading={saving} style={{ marginTop: SP.xl }} />
           </View>
         ) : null}
       </NSheet>

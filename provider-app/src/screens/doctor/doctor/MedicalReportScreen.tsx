@@ -39,7 +39,7 @@ import { fmtDate } from '../../../utils/dates';
 
 export function MedicalReportScreen({ apt, onBack }: { apt: any; onBack: () => void }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
  const [type, setType] = useState('');
@@ -58,7 +58,7 @@ export function MedicalReportScreen({ apt, onBack }: { apt: any; onBack: () => v
 
  return (
  <NScroll>
- <NHeader title={AR ? ' كتابة تقرير طبي' : ' Medical Report'} onBack={onBack} />
+ <NHeader title={tt('sxu.01d20d3c')} onBack={onBack} />
 
  <NCard style={{ marginBottom: SP.xl, flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, alignItems: 'center' }}>
  <NAvatar name={apt?.patient ?? 'مريض'} size={44} />
@@ -71,7 +71,7 @@ export function MedicalReportScreen({ apt, onBack }: { apt: any; onBack: () => v
  <View style={{ marginBottom: SP.lg }}>
  <Text style={{ fontSize: FS.sm, fontWeight: FW.semi, color: theme.text,
  textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>
- {AR ? 'نوع التقرير' : 'Report Type'}<Text style={{ color: theme.danger }}> *</Text>
+ {tt('sxu.4853782e')}<Text style={{ color: theme.danger }}> *</Text>
  </Text>
  {REPORT_TYPES.map((t, i) => (
  <TouchableOpacity key={i} onPress={() => setType(AR ? t.ar : t.en)}
@@ -90,36 +90,34 @@ export function MedicalReportScreen({ apt, onBack }: { apt: any; onBack: () => v
  </View>
 
  <NInput
- label={AR ? 'النتائج السريرية' : 'Clinical Findings'}
- placeholder={AR ? 'اذكر الأعراض والفحوصات والنتائج...' : 'State symptoms, examinations and findings...'}
+ label={tt('sxu.7010072e')}
+ placeholder={tt('sxu.cf597402')}
  value={findings} onChange={setFindings} multi lines={5} icon="" required
  />
  <NInput
- label={AR ? 'الاستنتاج والتشخيص' : 'Conclusion & Diagnosis'}
- placeholder={AR ? 'التشخيص النهائي...' : 'Final diagnosis...'}
+ label={tt('sxu.5386bd23')}
+ placeholder={tt('sxu.215d37b3')}
  value={conclusion} onChange={setConclusion} multi lines={3} icon=""
  />
  <NInput
- label={AR ? 'التوصيات والعلاج' : 'Recommendations & Treatment'}
- placeholder={AR ? 'العلاج والتوصيات...' : 'Treatment and recommendations...'}
+ label={tt('sxu.4e3909ad')}
+ placeholder={tt('sxu.f948f67d')}
  value={recs} onChange={setRecs} multi lines={3} icon=""
  />
 
  <NCard style={{ backgroundColor: theme.infoBg, marginBottom: SP.xl }}>
  <Text style={{ fontSize: FS.sm, color: theme.info, textAlign: AR ? 'right' : 'left' }}>
-  {AR
- ? 'التقرير الطبي موقّع بتوقيع رقمي وبرمز QR موثّق من وزارة الصحة.'
- : 'Medical report is digitally signed with MOH-verified QR code.'}
+  {tt('sxu.3655808d')}
  </Text>
  </NCard>
 
  <NBtn
- label={AR ? ' إصدار التقرير الطبي' : ' Issue Medical Report'}
+ label={tt('sxu.22c214f4')}
  disabled={!type || !findings.trim()}
  onPress={async () => {
    try {
      if (!apt?.id || !apt?.patient_id) {
-       show(AR ? 'لا يمكن إصدار التقرير دون حجز ومريض مرتبطين' : 'Cannot issue a report without a linked appointment and patient', 'error');
+       show(tt('sxu.f7386598'), 'error');
        return;
      }
      await client.post(`/provider/requests/${apt.id}/medical-report`, {
@@ -128,10 +126,10 @@ export function MedicalReportScreen({ apt, onBack }: { apt: any; onBack: () => v
        ...(() => { const t = REPORT_TYPES.find((x) => x.ar === type || x.en === type); return t ? { title_ar: t.ar, title_en: t.en } : {}; })(),
        findings, conclusion, recommendations: recs
      });
-     show(AR ? 'تم إصدار التقرير الطبي ' : 'Report issued ', 'success');
+     show(tt('sxu.d12ddca2'), 'success');
      onBack();
    } catch (err) {
-     show(serverMessage(err, AR ? 'حدث خطأ' : 'Failed to issue report'), 'error');
+     show(serverMessage(err, tt('sxu.8589a419')), 'error');
    }
  }}
  />

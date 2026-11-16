@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { useTheme, useAuth } from '../../context';
+import { useTheme, useAuth, useLang } from '../../context';
 import { NBtn, NCard, NHeader, NScroll, NBadge } from '../../components/ui';
 import { SP, R, FS, FW } from '../../constants';
 import { OrderingApi, type CompletenessPart } from '../../api/ordering';
@@ -10,6 +10,7 @@ import { Label, LoadState, Row, fmtMoney, useAR, useKind, useLoad, type Ordering
 // Ord33: GET /provider/ordering/completeness (score, parts, missing) + the real settings and items for the patient preview.
 export function OrderingCompletenessScreen({ kind, onBack, onNav }: OrderingScreenProps) {
   const AR = useAR();
+  const { t: tt } = useLang();
   const { theme } = useTheme();
   const { user } = useAuth();
   const k = useKind(kind);
@@ -27,10 +28,10 @@ export function OrderingCompletenessScreen({ kind, onBack, onNav }: OrderingScre
   const label = (part: CompletenessPart, n: number): string => {
     switch (part) {
       case 'prices': return AR ? `أضف أسعار ${n} فحصًا` : `Add prices for ${n} tests`;
-      case 'modes_hours': return AR ? 'طرق الخدمة وساعات الدوام' : 'Service modes and working hours';
-      case 'insurance': return AR ? 'شركات التأمين وفئاتها' : 'Insurers and classes';
+      case 'modes_hours': return tt('sxzb.793834ce');
+      case 'insurance': return tt('sxzb.91d149de');
       case 'prep_turnaround': return AR ? `أضف مدة النتيجة لـ ${n} فحوص` : `Add turnaround for ${n} tests`;
-      default: return AR ? 'الرخصة والصورة الشخصية' : 'Licence and profile photo';
+      default: return tt('sxzb.225927f7');
     }
   };
   const target = (part: CompletenessPart) => (part === 'modes_hours' ? 'ordering_settings' : part === 'photo_licence' ? null : part === 'insurance' ? 'ordering_settings' : 'ordering_items');
@@ -42,7 +43,7 @@ export function OrderingCompletenessScreen({ kind, onBack, onNav }: OrderingScre
 
   return (
     <NScroll>
-      <NHeader onBack={onBack} title={AR ? 'اكتمال ملفك' : 'Profile completeness'} />
+      <NHeader onBack={onBack} title={tt('sxzb.cb8b40b6')} />
       <LoadState loading={comp.loading || settings.loading || items.loading} error={comp.error || settings.error || items.error} onRetry={reload}>
         {c && (
           <View style={{ gap: SP.md, paddingTop: SP.md }}>
@@ -55,8 +56,8 @@ export function OrderingCompletenessScreen({ kind, onBack, onNav }: OrderingScre
               </View>
             </NCard>
 
-            <Label bold>{AR ? 'المتبقي' : 'To do'}</Label>
-            {c.missing.length === 0 && <NBadge label={AR ? 'مكتمل' : 'Done'} variant="success" />}
+            <Label bold>{tt('sxzb.fed5b657')}</Label>
+            {c.missing.length === 0 && <NBadge label={tt('sxzb.4f083ca6')} variant="success" />}
             {c.missing.map((m) => (
               <NCard key={m.part} onPress={target(m.part) ? () => onNav(target(m.part) as string) : undefined}>
                 <Row style={{ justifyContent: 'space-between' }}>
@@ -66,21 +67,21 @@ export function OrderingCompletenessScreen({ kind, onBack, onNav }: OrderingScre
               </NCard>
             ))}
             <Row>
-              <NBtn size="sm" variant="outline" full={false} label={AR ? 'إعداد خدماتك' : 'Set up your services'} onPress={() => onNav('ordering_settings')} />
-              <NBtn size="sm" variant="outline" full={false} label={AR ? 'فحوصي وأسعارها' : 'My tests and prices'} onPress={() => onNav('ordering_items')} />
+              <NBtn size="sm" variant="outline" full={false} label={tt('sxzb.44bd35c7')} onPress={() => onNav('ordering_settings')} />
+              <NBtn size="sm" variant="outline" full={false} label={tt('sxzb.d6c0bd39')} onPress={() => onNav('ordering_items')} />
             </Row>
 
-            <Label bold>{AR ? 'كما يراك المريض' : 'How patients see you'}</Label>
-            <Label sub>{AR ? 'معاينة لبطاقتك في نتائج البحث من بياناتك الحالية' : 'A preview of your card in search results from your current data'}</Label>
+            <Label bold>{tt('sxzb.9b950f89')}</Label>
+            <Label sub>{tt('sxzb.87d9a675')}</Label>
             <NCard>
               <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{user?.displayName || user?.name || ''}</Text>
-              {s && <Label sub>{s.modes.map((m) => (m === 'home' ? (AR ? 'زيارة منزلية' : 'Home visit') : (AR ? 'في المنشأة' : 'At the facility'))).join(' · ')}</Label>}
-              {s?.modes.includes('home') && <Label sub>{AR ? 'رسوم الزيارة ' : 'Visit fee '}{fmtMoney(s.home_fee, AR)}{' · '}{AR ? `${s.home_radius_km ?? '-'} كم` : `${s.home_radius_km ?? '-'} km`}</Label>}
-              {fromPrice !== null && <Label>{AR ? 'ابتداءً من ' : 'From '}{fmtMoney(fromPrice, AR)}</Label>}
+              {s && <Label sub>{s.modes.map((m) => (m === 'home' ? (tt('sxzb.69ba9eb5')) : (tt('sxzb.0255c256')))).join(' · ')}</Label>}
+              {s?.modes.includes('home') && <Label sub>{tt('sxzb.9ccaa7a5')}{fmtMoney(s.home_fee, AR)}{' · '}{AR ? `${s.home_radius_km ?? '-'} كم` : `${s.home_radius_km ?? '-'} km`}</Label>}
+              {fromPrice !== null && <Label>{tt('sxzb.f67b174f')}{fmtMoney(fromPrice, AR)}</Label>}
               <Label sub>{AR ? `${ins.companies} شركات تأمين · ${ins.classes} فئات` : `${ins.companies} insurers · ${ins.classes} classes`}</Label>
               <Label sub>{AR ? `${visible.length} فحصًا ظاهرًا للمريض` : `${visible.length} tests visible to patients`}</Label>
               {hidden > 0 && <Text style={{ color: theme.warn, fontSize: FS.sm, textAlign: AR ? 'right' : 'left' }}>{AR ? `${hidden} فحصًا بلا سعر لا تظهر للمريض` : `${hidden} tests without a price are hidden from patients`}</Text>}
-              {s?.auto_accept && <NBadge size="xs" variant="success" label={AR ? 'قبول تلقائي' : 'Auto-accept'} />}
+              {s?.auto_accept && <NBadge size="xs" variant="success" label={tt('sxzb.748f71af')} />}
               {visible.slice(0, 3).map((i) => <Label key={i.catalog_id} sub>{itemName(i, AR)}</Label>)}
             </NCard>
           </View>

@@ -22,7 +22,7 @@ const PERM_LABELS: Record<string, { ar: string; en: string }> = {
 
 export function FacilityInvitationsScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
@@ -35,7 +35,7 @@ export function FacilityInvitationsScreen({ onBack }: { onBack: () => void }) {
       const res = await client.get('/hospital/invitations/inbox');
       const list = (Array.isArray(res.data) ? res.data : []).map((i: any) => ({
         id: i.id,
-        facilityName: i.facility_name || (AR ? 'منشأة صحية' : 'Health Facility'),
+        facilityName: i.facility_name || (tt('sxw.c6dd524a')),
         date: i.createdAt ? new Date(i.createdAt).toLocaleDateString(dateLocale(AR)) : '',
         status: i.status,
         permissions: Object.keys(i.permissions || {}).filter(k => i.permissions[k]),
@@ -58,15 +58,15 @@ export function FacilityInvitationsScreen({ onBack }: { onBack: () => void }) {
       setInvitations(prev => prev.map(inv => inv.id === id ? { ...inv, status: accept ? 'accepted' : 'rejected' } : inv));
       show(
         accept
-          ? (AR ? 'تم قبول الدعوة بنجاح. أنت الآن تعمل ضمن منشأة.' : 'Invitation accepted. You are now linked to the facility.')
-          : (AR ? 'تم رفض الدعوة' : 'Invitation rejected'),
+          ? (tt('sxw.e4c1488f'))
+          : (tt('sxw.4789ab5e')),
         accept ? 'success' : 'info',
       );
     } catch (e: any) {
       const code = e?.response?.data?.message || '';
       show(code === 'invitation_already_responded'
-        ? (AR ? 'تم الرد على هذه الدعوة مسبقاً' : 'Invitation already answered')
-        : (AR ? 'تعذر تنفيذ العملية' : 'Action failed'), 'error');
+        ? (tt('sxw.3e08c9a2'))
+        : (tt('sxw.4ab75d4e')), 'error');
       fetchInvitations();
     } finally {
       setBusyId(null);
@@ -78,16 +78,16 @@ export function FacilityInvitationsScreen({ onBack }: { onBack: () => void }) {
 
   return (
     <NScroll>
-      <NHeader title={AR ? 'دعوات المنشآت' : 'Facility Invitations'} onBack={onBack} />
+      <NHeader title={tt('sxw.68b55b3c')} onBack={onBack} />
       
       <View style={{ padding: SP.xl }}>
         {loading ? (
           <Text style={{ textAlign: 'center', color: theme.textSub, marginTop: SP.xxl }}>
-            {AR ? 'جاري تحميل الدعوات...' : 'Loading invitations...'}
+            {tt('sxw.e62472ac')}
           </Text>
         ) : invitations.length === 0 ? (
           <Text style={{ textAlign: 'center', color: theme.textSub, marginTop: SP.xxl }}>
-            {AR ? 'لا توجد دعوات حالياً' : 'No pending invitations'}
+            {tt('sxw.e1fc9a56')}
           </Text>
         ) : (
           invitations.map(inv => (
@@ -97,7 +97,7 @@ export function FacilityInvitationsScreen({ onBack }: { onBack: () => void }) {
                   {inv.facilityName}
                 </Text>
                 <NBadge 
-                  label={inv.status === 'pending' ? (AR ? 'قيد الانتظار' : 'Pending') : inv.status === 'accepted' ? (AR ? 'مقبولة' : 'Accepted') : (AR ? 'مرفوضة' : 'Rejected')} 
+                  label={inv.status === 'pending' ? (tt('sxw.25cd2b1f')) : inv.status === 'accepted' ? (tt('sxw.7453caea')) : (tt('sxw.6022b490'))} 
                   variant={inv.status === 'pending' ? 'primary' : inv.status === 'accepted' ? 'success' : 'danger'} 
                 />
               </View>
@@ -107,7 +107,7 @@ export function FacilityInvitationsScreen({ onBack }: { onBack: () => void }) {
               </Text>
 
               <Text style={{ fontSize: FS.sm, fontWeight: FW.semi, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-                {AR ? 'الصلاحيات المطلوبة (Permissions):' : 'Requested Permissions:'}
+                {tt('sxw.af946ccc')}
               </Text>
               
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.xs, marginBottom: SP.lg }}>
@@ -120,8 +120,8 @@ export function FacilityInvitationsScreen({ onBack }: { onBack: () => void }) {
 
               {inv.status === 'pending' && (
                 <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
-                  <NBtn label={busyId === inv.id ? '...' : (AR ? 'قبول وانضمام' : 'Accept & Join')} onPress={() => handleAccept(inv.id)} style={{ flex: 1 }} />
-                  <NBtn label={AR ? 'رفض' : 'Decline'} onPress={() => handleReject(inv.id)} variant="outline" style={{ flex: 1, borderColor: theme.danger }} labelStyle={{ color: theme.danger }} />
+                  <NBtn label={busyId === inv.id ? '...' : (tt('sxw.0c39bbd9'))} onPress={() => handleAccept(inv.id)} style={{ flex: 1 }} />
+                  <NBtn label={tt('sxw.8881386a')} onPress={() => handleReject(inv.id)} variant="outline" style={{ flex: 1, borderColor: theme.danger }} labelStyle={{ color: theme.danger }} />
                 </View>
               )}
             </NCard>
