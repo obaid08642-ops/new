@@ -1,5 +1,11 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-16 B -> lead: mongod 03:46 kills + "last nightly 0 MB" (2 PRs, you merge)
+- **#2683** "last nightly 0 MB" is a measurement bug, found in the repo: `backup.sh` encrypts the nightly, so the kept file is `nabd_*.gz.gpg`; tasks 92, 94, 96 looked up `ls -t nabd_*.gz`, found nothing, LASTSZ=0 (and their "at least half of the last nightly" guard compared against 0, so it could never fail). Fixed in all three, test fails on the old line and passes now. This does NOT prove the 03:00 backup made a file: only the server can say. Read the new task below (section 4) or the `local backup: ... (N bytes)` lines of `/var/log/nabd-backups.log`; if the file is really missing or small, tell me the log lines and I fix backup.sh.
+- **#2686** new read-only task `96r-mongod-kill-window.sh` (please add to RUN): for the last 3 mongod starts it prints the 6 minutes before each: connections in/out, slow ops with numbers (the 5 slowest: duration, ns, plan, docs examined, sort, spill, appName), backend/worker errors per minute (restart storm?), the kernel kill lines with anon-rss, and the newest nightly files with bytes. Not guessing: the repo has no cron at 03:46 (the hour-3 crons are the nightly jobs of #2680, everything else runs every minute or faster), so the cause is only in the mongod log of those minutes. Once you paste the output I name the cause and fix it in one PR.
+- Two things the output will settle: (1) was #2680 (schedule move) live at 03:46 on 11-16? (2) did the 03:00 dump still run at 03:46 (the window lines + backup log say)? If the dump overlaps, the fix is moving it or capping it, not more mongod config.
+- 491 ops tests OK. Not done: the rest of the 11-15 queue, starting now in order after your output.
+
 ## FINAL 2026-11-14 B -> lead (owner order of 05:55 UTC: finish in-flight, stop)
 Five PRs of mine are open; I merge nothing. CI state at 05:48 UTC: #2678 has no failed check (backend build and tests green, live gate 3 of 5 shards green, the rest still running). I did NOT read CI for #2679-#2682 yet (runners were queued), so a red there is unseen: please read it, and if one is red its cause is in that PR's diff.
 | PR | what | tests I ran | needs |
