@@ -74,7 +74,7 @@ export function WelcomeScreen({
   onSelectType, onLogin, onGuestJobs, onGuestDrugIndex
 }: { onSelectType: (type: string) => void; onLogin: () => void; onGuestJobs?: () => void; onGuestDrugIndex?: () => void }) {
  const { theme, mode, toggle: toggleTheme } = useTheme();
- const { lang, toggle: toggleLang } = useLang();
+ const { lang, toggle: toggleLang, t: tt } = useLang();
  const insets = useSafeAreaInsets();
  const AR = lang === 'ar';
  const [selectedPt, setSelectedPt] = useState<any | null>(null);
@@ -168,16 +168,14 @@ export function WelcomeScreen({
  fontSize: FS['3xl'], fontWeight: FW.xbold,
  color: theme.text, textAlign: AR ? 'right' : 'left', lineHeight: 38,
  }}>
- {AR ? 'مرحباً بك في' : 'Welcome to'}{'\n'}
+ {tt('auth.8455fff1')}{'\n'}
  <Text style={{ color: theme.primary }}>Nabd Plus</Text>
  </Text>
  <Text style={{
  fontSize: FS.sm, color: theme.textSub,
  marginTop: SP.sm, textAlign: AR ? 'right' : 'left', lineHeight: 20,
  }}>
- {AR
- ? 'اختر نوع حسابك لتبدأ تقديم خدماتك الطبية'
- : 'Choose your account type to start offering medical services'}
+ {tt('auth.018ceba9')}
  </Text>
  </Animated.View>
 
@@ -246,7 +244,7 @@ export function WelcomeScreen({
  }}>
  <I name="briefcase" size={32} color={theme.primary} />
  <Text style={{ fontSize: FS.sm, color: theme.primary, fontWeight: FW.bold, marginTop: SP.sm, textAlign: 'center' }}>
- {AR ? 'الوظائف الطبية' : 'Medical Jobs'}
+ {tt('auth.ebb9f1de')}
  </Text>
  </TouchableOpacity>
  )}
@@ -260,21 +258,21 @@ export function WelcomeScreen({
  }}>
  <I name="bookOpen" size={32} color={theme.success} />
  <Text style={{ fontSize: FS.sm, color: theme.success, fontWeight: FW.bold, marginTop: SP.sm, textAlign: 'center' }}>
- {AR ? 'دليل الأدوية' : 'Drug Index'}
+ {tt('auth.2a8aa329')}
  </Text>
  </TouchableOpacity>
  )}
  </View>
  <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: 'center', marginBottom: SP.xl }}>
- {AR ? 'تصفح كضيف — يمكنك نشر إعلان (يُراجَع قبل النشر) أو التقديم على وظيفة، مرتبطاً بهذا الجهاز' : 'Browse as a guest — you can post a job (reviewed before it goes live) or apply, tied to this device'}
+ {tt('auth.89c9a366')}
  </Text>
 
  {/* Global Login Link */}
  <TouchableOpacity onPress={onLogin} style={{ alignItems: 'center', paddingVertical: SP.sm, marginBottom: SP.lg }}>
  <Text style={{ fontSize: FS.md, color: theme.textSub }}>
- {AR ? 'لديك حساب بالفعل؟ ' : 'Already have an account? '}
+ {tt('auth.931e6b41')}
  <Text style={{ color: theme.primary, fontWeight: FW.bold }}>
- {AR ? 'سجّل الدخول' : 'Log In'}
+ {tt('auth.978f19f9')}
  </Text>
  </Text>
  </TouchableOpacity>
@@ -295,7 +293,7 @@ export function WelcomeScreen({
  </ScrollView>
 
  {/* Account Option Sheet */}
- <NSheet visible={sheetOpen} onClose={() => setSheetOpen(false)} title={AR ? 'خيارات الحساب' : 'Account Options'}>
+ <NSheet visible={sheetOpen} onClose={() => setSheetOpen(false)} title={tt('auth.f6b508cb')}>
  <View style={{ padding: SP.xl, gap: SP.lg, paddingBottom: 40 }}>
  <View style={{ alignItems: 'center', marginBottom: SP.md }}>
  <View style={{
@@ -316,7 +314,7 @@ export function WelcomeScreen({
  </View>
 
  <NBtn
- label={AR ? 'تسجيل الدخول (Sign In)' : 'Sign In'}
+ label={tt('auth.492ee8f8')}
  onPress={() => {
  setSheetOpen(false);
  onLogin();
@@ -324,7 +322,7 @@ export function WelcomeScreen({
  />
 
  <NBtn
- label={AR ? 'إنشاء حساب جديد (Register)' : 'Register'}
+ label={tt('auth.61d6a3b3')}
  onPress={() => {
  setSheetOpen(false);
  if (selectedPt) onSelectType(selectedPt.key);
@@ -347,7 +345,7 @@ export function LoginScreen({
  onForgot: () => void; onRegister: () => void;
 }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { login, bioLogin } = useAuth();
  const { show } = useToast();
  const AR = lang === 'ar';
@@ -373,10 +371,10 @@ export function LoginScreen({
   const validate = () => {
     const e: Record<string, string> = {};
     const v = id.trim();
-    if (!v) e.id = AR ? 'مطلوب' : 'Required';
-    else if (!Validate.email(v)) e.id = AR ? 'بريد غير صحيح' : 'Invalid email';
-    if (!pass) e.pass = AR ? 'مطلوب' : 'Required';
-    else if (pass.length < LIMITS.MIN_PASS) e.pass = AR ? 'كلمة المرور قصيرة جداً' : 'Password too short';
+    if (!v) e.id = tt('auth.b4bde92d');
+    else if (!Validate.email(v)) e.id = tt('auth.dcfb041e');
+    if (!pass) e.pass = tt('auth.b4bde92d');
+    else if (pass.length < LIMITS.MIN_PASS) e.pass = tt('auth.a5b08d6a');
     setErrs(e);
     return Object.keys(e).length === 0;
   };
@@ -394,14 +392,14 @@ export function LoginScreen({
     const r = await login(id, pass);
     setLoading(false);
     if (r.ok) {
-      show(AR ? 'مرحباً بعودتك! ' : 'Welcome back! ', 'success');
+      show(tt('auth.10be2a76'), 'success');
       if (bioAvail && !bioEnabled) {
         setShowBioPrompt(true);
       } else {
         onSuccess();
       }
     } else {
-      show(r.err ?? (AR ? 'خطأ في تسجيل الدخول' : 'Login failed'), 'error');
+      show(r.err ?? (tt('auth.6d3e5a91')), 'error');
     }
   };
 
@@ -409,7 +407,7 @@ export function LoginScreen({
     setShowBioPrompt(false);
     const ok = await enableBiometric();
     if (ok) {
-      show(AR ? 'تم تفعيل البصمة بنجاح' : 'Biometric enabled successfully', 'success');
+      show(tt('auth.6523863f'), 'success');
     }
     onSuccess();
   };
@@ -419,10 +417,10 @@ export function LoginScreen({
     const r = await bioLogin();
     setLoading(false);
     if (r.ok) {
-      show(AR ? 'تم الدخول بالبصمة ' : 'Biometric login successful', 'success');
+      show(tt('auth.d6bc1124'), 'success');
       onSuccess();
     } else {
-      show(r.err ?? (AR ? 'فشل تسجيل الدخول بالبصمة' : 'Biometric login failed'), 'error');
+      show(r.err ?? (tt('auth.80b90f84')), 'error');
     }
   };
 
@@ -435,7 +433,7 @@ export function LoginScreen({
 
  <TouchableOpacity onPress={onBack} style={{ marginBottom: SP.xxxl }}>
  <Text style={{ color: theme.primary, fontSize: FS.md, fontWeight: FW.med }}>
- {AR ? '→ رجوع' : '← Back'}
+ {tt('auth.e2994279')}
  </Text>
  </TouchableOpacity>
 
@@ -444,27 +442,27 @@ export function LoginScreen({
    <NLogo size={72} />
   </TouchableOpacity>
  <Text style={{ fontSize: FS['3xl'], fontWeight: FW.xbold, color: theme.text, marginTop: SP.xl }}>
- {AR ? 'تسجيل الدخول' : 'Log In'}
+ {tt('auth.230d2f20')}
  </Text>
  <Text style={{ fontSize: FS.md, color: theme.textSub }}>
- {AR ? 'مرحباً بعودتك' : 'Welcome back'}
+ {tt('auth.ececbd52')}
  </Text>
  </View>
 
  <NCard style={{ marginBottom: SP.xl }}>
  <NInput
- label={AR ? 'البريد الإلكتروني' : 'Email'}
+ label={tt('auth.8605844e')}
  placeholder="example@email.com"
  value={id} onChange={setId} icon=""
  error={errs.id} caps="none" kbType="email-address"
  />
  <NInput
- label={AR ? 'كلمة المرور' : 'Password'}
+ label={tt('auth.password')}
  placeholder="••••••••"
  value={pass} onChange={setPass}
  secure icon="" error={errs.pass}
  />
- <NCheckbox label={AR ? 'تذكرني' : 'Remember Me'} value={rem} onChange={setRem} />
+ <NCheckbox label={tt('auth.77fabf3f')} value={rem} onChange={setRem} />
  </NCard>
 
   {bioAvail && (
@@ -474,7 +472,7 @@ export function LoginScreen({
   gap: SP.md, padding: SP.md, marginBottom: SP.lg }}>
   <I name="user" size={22} color={theme.textSub} />
   <Text style={{ fontSize: FS.md, color: theme.primary, fontWeight: FW.med }}>
-  {AR ? 'الدخول بالبصمة / Face ID' : 'Login with Face ID / Fingerprint'}
+  {tt('auth.5446722e')}
   </Text>
   </TouchableOpacity>
   
@@ -483,14 +481,14 @@ export function LoginScreen({
   )}
 
  <NBtn
- label={AR ? 'تسجيل الدخول' : 'Log In'}
+ label={tt('auth.230d2f20')}
  onPress={handleLogin} loading={loading}
  style={{ marginBottom: SP.lg }} icon=""
  />
 
  <TouchableOpacity onPress={onForgot} style={{ alignItems: 'center', marginBottom: SP.xl }}>
  <Text style={{ color: theme.primary, fontSize: FS.md }}>
- {AR ? 'نسيت كلمة المرور؟' : 'Forgot Password?'}
+ {tt('auth.449500e6')}
  </Text>
  </TouchableOpacity>
 
@@ -499,15 +497,15 @@ export function LoginScreen({
 
  <TouchableOpacity onPress={onRegister} style={{ alignItems: 'center', paddingVertical: SP.lg }}>
  <Text style={{ fontSize: FS.md, color: theme.textSub }}>
- {AR ? 'ليس لديك حساب؟ ' : "No account? "}
+ {tt('auth.a8253cfe')}
  <Text style={{ color: theme.primary, fontWeight: FW.bold }}>
- {AR ? 'إنشاء حساب' : 'Register'}
+ {tt('auth.36d048ad')}
  </Text>
  </Text>
  </TouchableOpacity>
 
   <Text style={{ textAlign: 'center', fontSize: FS.xs, color: theme.textSub, marginTop: SP.xl }}>
-   {AR ? 'بياناتك محمية بتشفير عالي الأمان' : 'Your data is protected with high-level encryption'}
+   {tt('auth.13371b0f')}
   </Text>
 
   <Modal visible={showBioPrompt} transparent animationType="fade">
@@ -515,13 +513,13 @@ export function LoginScreen({
       <View style={{ backgroundColor: theme.card, padding: SP.xl, borderRadius: R.xl, width: '100%', alignItems: 'center' }}>
         <View style={{ marginBottom: SP.md }}><I name="user" size={50} color={theme.textSub} /></View>
         <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: 'center' }}>
-          {AR ? 'تفعيل الدخول السريع؟' : 'Enable Quick Login?'}
+          {tt('auth.cb93d1a7')}
         </Text>
         <Text style={{ fontSize: FS.md, color: theme.textSub, textAlign: 'center', marginBottom: SP.xl }}>
-          {AR ? 'يمكنك استخدام البصمة أو Face ID لتسجيل الدخول بأمان في المرة القادمة بدلاً من كتابة كلمة المرور.' : 'Use your Biometrics (Face ID / Fingerprint) to quickly and securely login next time.'}
+          {tt('auth.14d3e4f4')}
         </Text>
-        <NBtn label={AR ? 'تفعيل الآن' : 'Enable Now'} onPress={handleEnableBio} style={{ width: '100%', marginBottom: SP.sm }} />
-        <NBtn label={AR ? 'ليس الآن' : 'Maybe Later'} variant="outline" onPress={() => { setShowBioPrompt(false); onSuccess(); }} style={{ width: '100%' }} />
+        <NBtn label={tt('auth.6fc68c23')} onPress={handleEnableBio} style={{ width: '100%', marginBottom: SP.sm }} />
+        <NBtn label={tt('auth.c52ac346')} variant="outline" onPress={() => { setShowBioPrompt(false); onSuccess(); }} style={{ width: '100%' }} />
       </View>
     </View>
   </Modal>
@@ -536,10 +534,10 @@ export function LoginScreen({
    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: SP.xl }}>
      <View style={{ backgroundColor: theme.card, borderRadius: R.xl, padding: SP.xl, width: '100%' }}>
        <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: 'center' }}>
-         {AR ? 'تغيير خادم الاتصال (IP)' : 'Override API IP'}
+         {tt('auth.1cad08fe')}
        </Text>
        <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.lg, textAlign: 'center' }}>
-         {AR ? 'أدخل عنوان الـ IP الخاص بالخادم لتجاوز خطأ الاتصال' : 'Enter the backend IP to bypass Network Failed error'}
+         {tt('auth.0889d89b')}
        </Text>
        <TextInput
          value={customIp}
@@ -550,14 +548,14 @@ export function LoginScreen({
        />
        <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
          <TouchableOpacity style={{ flex: 1, padding: SP.md, alignItems: 'center', backgroundColor: theme.surface3, borderRadius: R.md }} onPress={() => { setCustomIp(''); Vault.del(SK.CUSTOM_API_IP); setShowIpModal(false); alert('IP Reset. Restart App.'); }}>
-           <Text style={{ color: theme.text, fontWeight: FW.bold }}>{AR ? 'إعادة ضبط' : 'Reset'}</Text>
+           <Text style={{ color: theme.text, fontWeight: FW.bold }}>{tt('auth.35fc41df')}</Text>
          </TouchableOpacity>
          <TouchableOpacity style={{ flex: 1, padding: SP.md, alignItems: 'center', backgroundColor: theme.primary, borderRadius: R.md }} onPress={() => { Vault.set(SK.CUSTOM_API_IP, customIp); setShowIpModal(false); alert('IP Saved. Restart App.'); }}>
-           <Text style={{ color: theme.bg, fontWeight: FW.bold }}>{AR ? 'حفظ' : 'Save'}</Text>
+           <Text style={{ color: theme.bg, fontWeight: FW.bold }}>{tt('auth.0360038b')}</Text>
          </TouchableOpacity>
        </View>
        <TouchableOpacity style={{ marginTop: SP.md, alignItems: 'center', padding: SP.sm }} onPress={() => setShowIpModal(false)}>
-         <Text style={{ color: theme.textSub }}>{AR ? 'إلغاء' : 'Cancel'}</Text>
+         <Text style={{ color: theme.textSub }}>{tt('auth.210b779f')}</Text>
        </TouchableOpacity>
      </View>
    </KeyboardAvoidingView>
@@ -573,7 +571,7 @@ export function ForgotPasswordScreen({
  onBack, onSuccess,
 }: { onBack: () => void; onSuccess: () => void }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { show } = useToast();
  const { login } = useAuth();
  const AR = lang === 'ar';
@@ -599,8 +597,8 @@ export function ForgotPasswordScreen({
 
  const sendOtp = async () => {
  const v = target.trim();
- if (!v) { setErr(AR ? 'مطلوب' : 'Required'); return; }
- if (!Validate.email(v)) { setErr(AR ? 'بريد إلكتروني غير صحيح' : 'Invalid email address'); return; }
+ if (!v) { setErr(tt('auth.b4bde92d')); return; }
+ if (!Validate.email(v)) { setErr(tt('auth.0129f5a4')); return; }
  setErr(''); setLoading(true);
  try {
  const headers = await buildHeaders(false);
@@ -610,12 +608,12 @@ export function ForgotPasswordScreen({
  body: JSON.stringify({ email: v })
  });
  const data = await res.json();
- if (!res.ok) throw new Error(data.message || (AR ? 'فشل إرسال الرمز' : 'Failed to send OTP'));
+ if (!res.ok) throw new Error(data.message || (tt('auth.aee7ce8b')));
  
  animNext(); setStep(2);
- show(AR ? 'تم إرسال رمز التحقق إلى بريدك' : 'OTP sent to your email', 'success');
+ show(tt('auth.4be2a998'), 'success');
  } catch (e: any) {
- setErr(e.message || (AR ? 'حدث خطأ ما' : 'Something went wrong'));
+ setErr(e.message || (tt('auth.df948170')));
  } finally {
  setLoading(false);
  }
@@ -628,10 +626,10 @@ export function ForgotPasswordScreen({
  const headers = await buildHeaders(false);
  const res = await timedFetch(`${API_BASE}/provider/auth/forgot-password`, { method: 'POST', headers, body: JSON.stringify({ email: target.trim() }) });
  const data = await res.json().catch(() => ({}));
- if (!res.ok) throw new Error(data?.message || (AR ? 'فشل إرسال الرمز' : 'Failed to send OTP'));
- show(AR ? 'تم إرسال رمز جديد إلى بريدك' : 'A new code was sent to your email', 'success');
+ if (!res.ok) throw new Error(data?.message || (tt('auth.aee7ce8b')));
+ show(tt('auth.747fa9dd'), 'success');
  } catch (e: any) {
- setErr(e?.message || (AR ? 'تعذر إعادة الإرسال' : 'Could not resend the code'));
+ setErr(e?.message || (tt('auth.1eb32485')));
  }
  };
 
@@ -646,17 +644,17 @@ export function ForgotPasswordScreen({
  body: JSON.stringify({ email: target.trim(), code: otp.join('') })
  });
  const data = await res.json();
- if (!res.ok) throw new Error(data.message || (AR ? 'رمز غير صحيح' : 'Incorrect code'));
+ if (!res.ok) throw new Error(data.message || (tt('auth.afd93029')));
  animNext(); setStep(3);
  } catch (e: any) {
- setErr(e.message || (AR ? 'رمز غير صحيح' : 'Incorrect code'));
+ setErr(e.message || (tt('auth.afd93029')));
  } finally {
  setLoading(false);
  }
  };
 
  const resetPass = async () => {
- if (newPass !== confPass) { setErr(AR ? 'كلمتا المرور غير متطابقتين' : 'Passwords do not match'); return; }
+ if (newPass !== confPass) { setErr(tt('auth.passwordsMismatch')); return; }
  const str = Validate.password(newPass);
  if (!str.valid) { setErr(AR ? str.msgAr : str.msgEn); return; }
  setErr(''); setLoading(true);
@@ -673,7 +671,7 @@ export function ForgotPasswordScreen({
  });
  const data = await res.json();
  if (!res.ok) {
-   const msg = data.message || (AR ? 'فشل استعادة كلمة المرور' : 'Failed to reset password');
+   const msg = data.message || (tt('auth.b0a4bdb4'));
    // Code problems (wrong/expired/attempts) → send user back to the OTP step
    if (/code|رمز|expired|attempts/i.test(String(msg))) { setErr(String(msg)); setStep(2); animNext(); return; }
    throw new Error(msg);
@@ -681,15 +679,15 @@ export function ForgotPasswordScreen({
 
  // Auto-login with the new password so the user lands directly in the app —
  // no manual re-login, no credential-mismatch window.
- show(AR ? 'تم تغيير كلمة المرور — جاري تسجيل الدخول…' : 'Password changed — signing you in…', 'success');
+ show(tt('auth.b16a1bdc'), 'success');
  const lr = await login(target.trim(), newPass);
  if (!lr.ok) {
-   setErr(lr.err || (AR ? 'تم تغيير كلمة المرور لكن فشل الدخول التلقائي — سجّل دخولك يدوياً' : 'Password changed but auto sign-in failed — please log in manually'));
+   setErr(lr.err || (tt('auth.ff68e9d6')));
    return;
  }
  onSuccess();
  } catch (e: any) {
- setErr(e.message || (AR ? 'حدث خطأ ما' : 'Something went wrong'));
+ setErr(e.message || (tt('auth.df948170')));
  } finally {
  setLoading(false);
  }
@@ -705,7 +703,7 @@ export function ForgotPasswordScreen({
  <TouchableOpacity onPress={step === 1 ? onBack : () => setStep(s => (s - 1) as 1 | 2 | 3)}
  style={{ marginBottom: SP.xl }}>
  <Text style={{ color: theme.primary, fontSize: FS.md }}>
- {AR ? '→ رجوع' : '← Back'}
+ {tt('auth.e2994279')}
  </Text>
  </TouchableOpacity>
 
@@ -715,18 +713,18 @@ export function ForgotPasswordScreen({
  {step === 1 && (
  <View>
  <Text style={[styles.stepTitle, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>
- {AR ? 'استعادة كلمة المرور' : 'Reset Password'}
+ {tt('auth.e78b246e')}
  </Text>
  <Text style={[styles.stepSub, { color: theme.textSub, textAlign: AR ? 'right' : 'left' }]}>
- {AR ? 'أدخل بريدك الإلكتروني المسجل لتلقي رمز التحقق' : 'Enter your registered email to receive verification code'}
+ {tt('auth.0ae81e46')}
  </Text>
  <NInput
- label={AR ? 'البريد الإلكتروني' : 'Email Address'}
+ label={tt('auth.3bff6660')}
  placeholder="example@email.com"
  value={target} onChange={setTarget}
  icon="" error={err} kbType="email-address"
  />
- <NBtn label={AR ? 'إرسال رمز التحقق' : 'Send Verification Code'}
+ <NBtn label={tt('auth.4990dc94')}
  onPress={sendOtp} loading={loading} />
  </View>
  )}
@@ -743,22 +741,22 @@ export function ForgotPasswordScreen({
  {step === 3 && (
  <View>
  <Text style={[styles.stepTitle, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>
- {AR ? 'كلمة مرور جديدة' : 'New Password'}
+ {tt('auth.0786d397')}
  </Text>
  <NInput
- label={AR ? 'كلمة المرور الجديدة' : 'New Password'}
+ label={tt('auth.10a7e435')}
  placeholder="••••••••"
  value={newPass} onChange={setNew}
  secure icon=""
- hint={AR ? '8 أحرف على الأقل، أرقام وحروف كبيرة' : '8+ chars, numbers & uppercase letters'}
+ hint={tt('auth.c6f4053a')}
  />
  <NPassStrength password={newPass} />
  <NInput
- label={AR ? 'تأكيد كلمة المرور' : 'Confirm Password'}
+ label={tt('auth.confirmPassword')}
  placeholder="••••••••"
  value={confPass} onChange={setConf}
  secure icon=""
- error={confPass && newPass !== confPass ? (AR ? 'غير متطابقة' : 'Mismatch') : undefined}
+ error={confPass && newPass !== confPass ? (tt('auth.68e2fc47')) : undefined}
  />
  {err ? (
  <Text style={{ color: theme.danger, marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>
@@ -766,7 +764,7 @@ export function ForgotPasswordScreen({
  </Text>
  ) : null}
  <NBtn
- label={AR ? 'تغيير كلمة المرور' : 'Change Password'}
+ label={tt('auth.a11074f8')}
  onPress={resetPass} loading={loading}
  disabled={newPass.length < LIMITS.MIN_PASS || newPass !== confPass}
  />
@@ -785,7 +783,7 @@ export function PendingScreen({
  providerType, onExplore, onLogout,
 }: { providerType: string; onExplore: () => void; onLogout: () => void }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const AR = lang === 'ar';
  const insets = useSafeAreaInsets();
  const pulse = useRef(new Animated.Value(1)).current;
@@ -822,7 +820,7 @@ export function PendingScreen({
  <I name="heart" size={48} color="#FFF" />
  </Animated.View>
  <Text style={{ fontSize: FS['3xl'], fontWeight: FW.bold, color: theme.text, textAlign: 'center', marginBottom: SP.md }}>
- {AR ? 'ملفك قيد المراجعة' : 'Your File is Under Review'}
+ {tt('auth.f3a609d0')}
  </Text>
  <Text style={{ fontSize: FS.md, color: theme.textSub, textAlign: 'center', lineHeight: 26 }}>
  {AR
@@ -860,7 +858,7 @@ export function PendingScreen({
  <NCard style={{ marginBottom: SP.xl }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.semi, color: theme.text,
  marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>
- {AR ? ' سيتم إعلامك عبر:' : ' You will be notified via:'}
+ {tt('auth.8d619d13')}
  </Text>
  {[
  { icon:'', ar:'البريد الإلكتروني', en:'Email' },
@@ -879,16 +877,16 @@ export function PendingScreen({
  {/* Expected time */}
  <NCard style={{ marginBottom: SP.xxl, alignItems: 'center' }}>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.xs }}>
- {AR ? 'الوقت المتوقع للمراجعة' : 'Expected review time'}
+ {tt('auth.b0fd894a')}
  </Text>
  <Text style={{ fontSize: FS['3xl'], fontWeight: FW.xbold, color: theme.primary }}>
- 24 {AR ? 'ساعة' : 'Hours'}
+ 24 {tt('auth.d6d08c64')}
  </Text>
  </NCard>
 
- <NBtn label={AR ? 'استكشاف التطبيق (قراءة فقط)' : 'Explore App (Read-only)'}
+ <NBtn label={tt('auth.b74e4979')}
  onPress={onExplore} style={{ marginBottom: SP.md }} icon="" />
- <NBtn label={AR ? 'تسجيل الخروج' : 'Log Out'}
+ <NBtn label={tt('auth.d56d4be0')}
  variant="ghost" onPress={onLogout} icon="" />
  </ScrollView>
  </View>

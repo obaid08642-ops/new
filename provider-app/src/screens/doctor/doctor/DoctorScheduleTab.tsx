@@ -54,7 +54,7 @@ import { PatientFileScreen } from './PatientFileScreen';
 // ══════════════════════════════════════════════════════════════════════════════
 export function DoctorScheduleTab({ onNavigate }: { onNavigate: (s: string, p?: any) => void }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const AR = lang === 'ar';
  const [view, setView] = useState<'day'|'week'|'list'>('list');
  const [filter, setFilter] = useState<'all'|'video'|'clinic'|'home'>('all');
@@ -73,7 +73,7 @@ export function DoctorScheduleTab({ onNavigate }: { onNavigate: (s: string, p?: 
  setLoadError(null);
  setApts((res.data || []).map((x: any) => ({
  id: x.id,
- patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient'),
+ patient: x.patient_name || (tt('docsched.0f5f86ee')),
  time: x.scheduled_at ? new Date(x.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
  type: x.service_type || 'video',
  status: x.domain_state === 'IN_PROGRESS' || x.universal_state === AppointmentStatus.IN_PROGRESS ? AppointmentStatus.IN_PROGRESS : 'confirmed',
@@ -83,7 +83,7 @@ export function DoctorScheduleTab({ onNavigate }: { onNavigate: (s: string, p?: 
  })
  .catch(() => {
   setApts([]);
-  setLoadError(AR ? 'تعذر تحميل المواعيد من الخادم. حاول مرة أخرى.' : 'Unable to load appointments from the server. Please try again.');
+  setLoadError(tt('docsched.b234ac85'));
  });
  }, [AR]);
 
@@ -102,10 +102,10 @@ export function DoctorScheduleTab({ onNavigate }: { onNavigate: (s: string, p?: 
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
  <View style={[styles.topBar, { backgroundColor: theme.surface, borderBottomColor: theme.border }]}>
  <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>
- {AR ? ' المواعيد' : ' Schedule'}
+ {tt('docsched.cb42afbf')}
  </Text>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm }}>
- <TouchableOpacity onPress={() => onNavigate('medical_order_visits')} accessibilityRole="button" accessibilityLabel={AR ? 'اكتب أمرًا طبيًا' : 'Write a medical order'}
+ <TouchableOpacity onPress={() => onNavigate('medical_order_visits')} accessibilityRole="button" accessibilityLabel={tt('docsched.57fe2513')}
  style={[styles.iconBtn, { backgroundColor: theme.surface2 }]}>
  <I name="document" size={20} color={theme.text} />
  </TouchableOpacity>
@@ -126,7 +126,7 @@ export function DoctorScheduleTab({ onNavigate }: { onNavigate: (s: string, p?: 
  alignItems: 'center', justifyContent: 'center', height: 36
  }]}>
  <Text style={{ color: view === v ? '#FFF' : theme.text, fontSize: FS.sm }}>
- {v === 'day' ? (AR?'يوم':'Day') : v === 'week' ? (AR?'أسبوع':'Week') : (AR?'قائمة':'List')}
+ {v === 'day' ? (tt('docsched.ba15ea4c')) : v === 'week' ? (tt('docsched.7b5c1a28')) : (tt('docsched.7d6e7b2f'))}
  </Text>
  </TouchableOpacity>
  ))}
@@ -155,7 +155,7 @@ export function DoctorScheduleTab({ onNavigate }: { onNavigate: (s: string, p?: 
  data={filtered}
  keyExtractor={i => i.id}
  contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}
- ListEmptyComponent={<NEmpty title={loadError ? (AR ? 'تعذر تحميل المواعيد' : 'Unable to load appointments') : (AR ? 'لا توجد مواعيد' : 'No appointments')} sub={loadError || (AR ? 'اختر تاريخاً أو نوعاً آخر.' : 'Try selecting another date or type.')} icon="calendar" />}
+ ListEmptyComponent={<NEmpty title={loadError ? (tt('docsched.367329b0')) : (tt('docsched.878c36a1'))} sub={loadError || (tt('docsched.f432a808'))} icon="calendar" />}
  renderItem={({ item }) => (
  <TouchableOpacity onPress={() => onNavigate('appointment_detail', item)}>
  <NCard style={{ marginBottom: SP.md }}>
@@ -168,11 +168,11 @@ export function DoctorScheduleTab({ onNavigate }: { onNavigate: (s: string, p?: 
  <Text style={{ fontSize: FS.md, fontWeight: FW.semi, color: theme.text,
  textAlign: AR ? 'right' : 'left' }}>{item.patient}</Text>
  <Text style={{ fontSize: FS.xs, color: theme.textSub }}>
- {item.type === 'video'?'':item.type==='clinic'?'':''} {item.price} {AR?'ر':'SAR'}
+ {item.type === 'video'?'':item.type==='clinic'?'':''} {item.price} {tt('docsched.a629499b')}
  </Text>
  </View>
  <NBadge
- label={item.status === 'confirmed' ? (AR?'مؤكد':'Confirmed') : item.status === AppointmentStatus.IN_PROGRESS ? (AR?'جارٍ':'Active') : (AR?'انتظار':'Pending')}
+ label={item.status === 'confirmed' ? (tt('docsched.1cab1a63')) : item.status === AppointmentStatus.IN_PROGRESS ? (tt('docsched.98492d4f')) : (tt('docsched.94139241'))}
  variant={item.status === 'confirmed' ? 'success' : item.status === AppointmentStatus.IN_PROGRESS ? 'warning' : 'info'}
  size="xs" />
  </View>

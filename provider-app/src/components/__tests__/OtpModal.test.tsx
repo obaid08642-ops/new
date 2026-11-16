@@ -5,7 +5,7 @@ import { OtpModal } from '../OtpModal';
 // The modal reads theme + language from the app context; give it the real shape without the providers.
 jest.mock('../../context', () => {
   const theme = new Proxy({}, { get: () => '#0B1B2B' });
-  return { useTheme: () => ({ theme, isDark: false }), useLang: () => ({ lang: 'ar', setLang: jest.fn() }) };
+  return { useTheme: () => ({ theme, isDark: false }), useLang: () => ({ lang: 'ar', setLang: jest.fn(), t: (k: string) => require('../../test-utils/langStrings').tFor('ar')(k) }) };
 });
 
 // The code boxes have no testID/label; find the six host TextInputs under the rendered root.

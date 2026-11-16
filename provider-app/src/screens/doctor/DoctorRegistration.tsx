@@ -266,7 +266,7 @@ export function DoctorRegistration(props: RegistrationProps<DoctorRegData>) {
 
 // ══════════════════════════════════════════════════════════════════════════════
 function Step1Basic({ data, update, submitRef }: StepProps<DoctorRegData>) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
   const [errs, setErrs] = useState<any>({});
 
   const legalNameRef = useRef<any>(null);
@@ -279,15 +279,15 @@ function Step1Basic({ data, update, submitRef }: StepProps<DoctorRegData>) {
 
   const validate = () => {
     const e: any = {};
-    if (!data.legalName || String(data.legalName).trim().split(/\s+/).length < 2) e.legalName = AR ? 'الاسم الرسمي الكامل مطلوب (ثنائي على الأقل)' : 'Full official name required (at least two parts)';
-    if (!data.nameAr) e.nameAr = AR ? 'مطلوب' : 'Required';
-    if (!data.nameEn) e.nameEn = AR ? 'مطلوب' : 'Required';
-    if (!Validate.email(data.email)) e.email = AR ? 'بريد غير صحيح' : 'Invalid email';
-    if (!Validate.phone(data.phone)) e.phone = AR ? 'جوال غير صحيح' : 'Invalid phone';
-    if (!data.gender) e.gender = AR ? 'مطلوب' : 'Required';
+    if (!data.legalName || String(data.legalName).trim().split(/\s+/).length < 2) e.legalName = tt('docreg.bc7b3437');
+    if (!data.nameAr) e.nameAr = tt('docreg.b4bde92d');
+    if (!data.nameEn) e.nameEn = tt('docreg.b4bde92d');
+    if (!Validate.email(data.email)) e.email = tt('docreg.dcfb041e');
+    if (!Validate.phone(data.phone)) e.phone = tt('docreg.10222dfa');
+    if (!data.gender) e.gender = tt('docreg.b4bde92d');
     const ps = Validate.password(data.password);
     if (!ps.valid) e.password = AR ? ps.msgAr : ps.msgEn;
-    if (data.password !== data.confirmPass) e.confirmPass = AR ? 'غير متطابق' : 'Mismatch';
+    if (data.password !== data.confirmPass) e.confirmPass = tt('docreg.4dda098a');
     setErrs(e); return Object.keys(e).length === 0;
   };
 
@@ -315,35 +315,35 @@ function Step1Basic({ data, update, submitRef }: StepProps<DoctorRegData>) {
 
   return (
     <View>
-      <NInput innerRef={legalNameRef} label={AR ? 'الاسم الكامل كما في الأوراق الرسمية' : 'Full Name (as in official documents)'} value={data.legalName} onChange={v => update({ legalName: v })} required error={errs.legalName} returnKey="next" onSubmit={() => nameArRef.current?.focus()} />
+      <NInput innerRef={legalNameRef} label={tt('docreg.90a495ca')} value={data.legalName} onChange={v => update({ legalName: v })} required error={errs.legalName} returnKey="next" onSubmit={() => nameArRef.current?.focus()} />
       <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: -SP.sm, marginBottom: SP.md, textAlign: AR ? 'right' : 'left', lineHeight: 18 }}>
-        {AR ? 'يُستخدم في العقد والتوثيق الرسمي — لا يظهر للمرضى.' : 'Used for the contract & official verification — patients never see it.'}
+        {tt('docreg.83336395')}
       </Text>
-      <NInput innerRef={nameArRef} label={AR ? 'الاسم المختصر الذي يظهر للمرضى (بالعربية)' : 'Display Name for patients (Arabic)'} value={data.nameAr} onChange={v => update({ nameAr: v })} required error={errs.nameAr} returnKey="next" onSubmit={() => nameEnRef.current?.focus()} />
-      <NInput innerRef={nameEnRef} label={AR ? 'الاسم المختصر الذي يظهر للمرضى (بالإنجليزية)' : 'Display Name for patients (English)'} value={data.nameEn} onChange={v => update({ nameEn: v })} required error={errs.nameEn} returnKey="next" onSubmit={() => phoneRef.current?.focus()} />
+      <NInput innerRef={nameArRef} label={tt('docreg.c98fb734')} value={data.nameAr} onChange={v => update({ nameAr: v })} required error={errs.nameAr} returnKey="next" onSubmit={() => nameEnRef.current?.focus()} />
+      <NInput innerRef={nameEnRef} label={tt('docreg.637e03fb')} value={data.nameEn} onChange={v => update({ nameEn: v })} required error={errs.nameEn} returnKey="next" onSubmit={() => phoneRef.current?.focus()} />
       <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: -SP.sm, marginBottom: SP.md, textAlign: AR ? 'right' : 'left', lineHeight: 18 }}>
-        {AR ? 'يظهر للمريض الاسم العربي إذا كانت لغة تطبيقه العربية، والإنجليزي لأي لغة أخرى.' : 'Patients see the Arabic name in Arabic locale, the English name in any other locale.'}
+        {tt('docreg.c6e2123d')}
       </Text>
       
-      <NPhoneInput innerRef={phoneRef} label={AR ? 'رقم الجوال' : 'Phone'} value={data.phone} onChange={v => update({ phone: v })} error={errs.phone} required />
-      <NInput innerRef={emailRef} label={AR ? 'البريد الإلكتروني' : 'Email'} value={data.email} onChange={v => update({ email: v })} kbType="email-address" caps="none" error={errs.email} required returnKey="next" onSubmit={() => passwordRef.current?.focus()} />
+      <NPhoneInput innerRef={phoneRef} label={tt('docreg.42c8946e')} value={data.phone} onChange={v => update({ phone: v })} error={errs.phone} required />
+      <NInput innerRef={emailRef} label={tt('docreg.8605844e')} value={data.email} onChange={v => update({ email: v })} kbType="email-address" caps="none" error={errs.email} required returnKey="next" onSubmit={() => passwordRef.current?.focus()} />
       
-      <Text style={{ fontSize: FS.sm, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{AR ? 'الجنس' : 'Gender'} *</Text>
+      <Text style={{ fontSize: FS.sm, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{tt('docreg.8640b000')} *</Text>
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.lg }}>
-        <TouchableOpacity onPress={() => update({ gender: 'M' })} style={{ flex: 1, padding: SP.md, borderWidth: 1, borderColor: data.gender === 'M' ? theme.primary : theme.border, backgroundColor: data.gender === 'M' ? theme.primaryLight : theme.bg, borderRadius: R.md, alignItems: 'center' }}><Text style={{ color: data.gender === 'M' ? theme.primary : theme.text }}>{AR ? 'ذكر' : 'Male'}</Text></TouchableOpacity>
-        <TouchableOpacity onPress={() => update({ gender: 'F' })} style={{ flex: 1, padding: SP.md, borderWidth: 1, borderColor: data.gender === 'F' ? theme.primary : theme.border, backgroundColor: data.gender === 'F' ? theme.primaryLight : theme.bg, borderRadius: R.md, alignItems: 'center' }}><Text style={{ color: data.gender === 'F' ? theme.primary : theme.text }}>{AR ? 'أنثى' : 'Female'}</Text></TouchableOpacity>
+        <TouchableOpacity onPress={() => update({ gender: 'M' })} style={{ flex: 1, padding: SP.md, borderWidth: 1, borderColor: data.gender === 'M' ? theme.primary : theme.border, backgroundColor: data.gender === 'M' ? theme.primaryLight : theme.bg, borderRadius: R.md, alignItems: 'center' }}><Text style={{ color: data.gender === 'M' ? theme.primary : theme.text }}>{tt('docreg.38c7b72b')}</Text></TouchableOpacity>
+        <TouchableOpacity onPress={() => update({ gender: 'F' })} style={{ flex: 1, padding: SP.md, borderWidth: 1, borderColor: data.gender === 'F' ? theme.primary : theme.border, backgroundColor: data.gender === 'F' ? theme.primaryLight : theme.bg, borderRadius: R.md, alignItems: 'center' }}><Text style={{ color: data.gender === 'F' ? theme.primary : theme.text }}>{tt('docreg.dc8f800e')}</Text></TouchableOpacity>
       </View>
 
-      <NInput innerRef={passwordRef} label={AR ? 'كلمة المرور' : 'Password'} value={data.password} onChange={v => update({ password: v })} secure error={errs.password} required returnKey="next" onSubmit={() => confirmPassRef.current?.focus()} />
+      <NInput innerRef={passwordRef} label={tt('docreg.password')} value={data.password} onChange={v => update({ password: v })} secure error={errs.password} required returnKey="next" onSubmit={() => confirmPassRef.current?.focus()} />
       <NPassStrength password={data.password} />
-      <NInput innerRef={confirmPassRef} label={AR ? 'تأكيد كلمة المرور' : 'Confirm Password'} value={data.confirmPass} onChange={v => update({ confirmPass: v })} secure error={errs.confirmPass} required returnKey="done" onSubmit={handleNext} />
+      <NInput innerRef={confirmPassRef} label={tt('docreg.confirmPassword')} value={data.confirmPass} onChange={v => update({ confirmPass: v })} secure error={errs.confirmPass} required returnKey="done" onSubmit={handleNext} />
     </View>
   );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
 function Step2KYC({ data, update, submitRef, uploads }: StepProps<DoctorRegData>) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   
   const pick = useDocumentPicker<DoctorRegData>(update);
 
@@ -351,15 +351,15 @@ function Step2KYC({ data, update, submitRef, uploads }: StepProps<DoctorRegData>
   const [showExpiryCal, setShowExpiryCal] = useState(false);
   const handleNext = async (): Promise<boolean> => {
     if (!data.nationalId || !data.scfhsNumber || !data.idFrontUri || !data.scfhsDocUri) {
-      show(AR ? 'أكمل بيانات التوثيق والمستندات المطلوبة' : 'Complete the required licensing fields & documents', 'error');
+      show(tt('docreg.000cf245'), 'error');
       return false;
     }
     if (!isFutureLicenseDate(data.licenseExpiry)) {
-      show(AR ? 'أدخل تاريخ انتهاء ترخيص الهيئة (لا يمكن أن يكون في الماضي)' : 'Enter the SCFHS licence expiry date (it cannot be in the past)', 'error');
+      show(tt('docreg.fd1b1795'), 'error');
       return false;
     }
     if (!Validate.iban(data.iban)) {
-      show(AR ? 'رقم الآيبان غير صحيح' : 'Invalid IBAN', 'error');
+      show(tt('docreg.53935c75'), 'error');
       return false;
     }
     setLoading(true);
@@ -387,28 +387,28 @@ function Step2KYC({ data, update, submitRef, uploads }: StepProps<DoctorRegData>
 
   return (
     <View>
-      <NInput label={AR ? 'رقم الهوية الوطنية / الإقامة' : 'National ID'} value={data.nationalId} onChange={v=>update({nationalId:v})} kbType="numeric" required />
-      <NInput label={AR ? 'رقم تصنيف الهيئة (SCFHS)' : 'SCFHS Number'} value={data.scfhsNumber} onChange={v=>update({scfhsNumber:v})} kbType="numeric" required />
+      <NInput label={tt('docreg.bf13f762')} value={data.nationalId} onChange={v=>update({nationalId:v})} kbType="numeric" required />
+      <NInput label={tt('docreg.bf1d0b9f')} value={data.scfhsNumber} onChange={v=>update({scfhsNumber:v})} kbType="numeric" required />
       <TouchableOpacity onPress={() => setShowExpiryCal(true)}>
-        <NInput label={AR ? 'تاريخ انتهاء ترخيص الهيئة' : 'SCFHS licence expiry date'} placeholder={AR ? 'اختر التاريخ من التقويم...' : 'Choose date...'} value={data.licenseExpiry} onChange={() => {}} editable={false} icon="calendar" required hint={AR ? 'سنذكّرك قبل 30 يوماً من الانتهاء' : 'We will remind you 30 days before it expires'} />
+        <NInput label={tt('docreg.ee5f77aa')} placeholder={tt('docreg.e2701538')} value={data.licenseExpiry} onChange={() => {}} editable={false} icon="calendar" required hint={tt('docreg.d620e5a8')} />
       </TouchableOpacity>
       <NDatePickerSheet
         visible={showExpiryCal}
         value={data.licenseExpiry}
         onChange={(v: string) => {
-          if (!isFutureLicenseDate(v)) { show(AR ? 'لا يمكن اختيار تاريخ في الماضي' : 'A past date cannot be chosen', 'error'); return; }
+          if (!isFutureLicenseDate(v)) { show(tt('docreg.8d54a6d7'), 'error'); return; }
           update({ licenseExpiry: v });
         }}
         onClose={() => setShowExpiryCal(false)}
-        title={AR ? 'تاريخ انتهاء الترخيص' : 'Licence expiry date'}
+        title={tt('docreg.50ede357')}
       />
-      <NInput label={AR ? 'رقم الآيبان IBAN' : 'Bank IBAN'} placeholder="SA0000000000000000000000" value={data.iban} onChange={v=>update({iban:v.toUpperCase().replace(/\s/g,'')})} required maxLen={24} hint={AR ? 'SA + 22 رقم — لاستلام المدفوعات' : 'SA + 22 digits — to receive payments'} />
-      <NInput label={AR ? 'اسم صاحب الحساب' : 'Account holder name'} value={data.accountHolderName} onChange={v=>update({accountHolderName:v})} />
+      <NInput label={tt('docreg.730b8353')} placeholder="SA0000000000000000000000" value={data.iban} onChange={v=>update({iban:v.toUpperCase().replace(/\s/g,'')})} required maxLen={24} hint={tt('docreg.f8a55b7b')} />
+      <NInput label={tt('docreg.3f934541')} value={data.accountHolderName} onChange={v=>update({accountHolderName:v})} />
       
-      <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.md, marginBottom: SP.sm, textAlign: AR ? 'right':'left' }}>{AR ? 'المرفقات' : 'Attachments'}</Text>
-      <DocBtn label={AR ? 'الهوية الوطنية (الوجه الأمامي)' : 'National ID (Front)'} done={!!data.idFrontUri} onPress={() => pick('idFrontUri')} />
-      <DocBtn label={AR ? 'بطاقة تصنيف الهيئة' : 'SCFHS License'} done={!!data.scfhsDocUri} onPress={() => pick('scfhsDocUri')} />
-      <DocBtn label={AR ? 'شهادات أو مستندات إضافية (اختياري)' : 'Additional Documents (Optional)'} done={!!data.extraDocUri} onPress={() => pick('extraDocUri')} desc={AR ? 'مثل البورد، شهادات الزمالة...' : 'Fellowships, Board...'} />
+      <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.md, marginBottom: SP.sm, textAlign: AR ? 'right':'left' }}>{tt('docreg.821ad572')}</Text>
+      <DocBtn label={tt('docreg.5125dcc5')} done={!!data.idFrontUri} onPress={() => pick('idFrontUri')} />
+      <DocBtn label={tt('docreg.190277a4')} done={!!data.scfhsDocUri} onPress={() => pick('scfhsDocUri')} />
+      <DocBtn label={tt('docreg.556e463a')} done={!!data.extraDocUri} onPress={() => pick('extraDocUri')} desc={tt('docreg.1f876656')} />
     </View>
   );
 }
@@ -416,17 +416,17 @@ function Step2KYC({ data, update, submitRef, uploads }: StepProps<DoctorRegData>
 // ══════════════════════════════════════════════════════════════════════════════
 function Step3Profile({ data, update, submitRef }: StepProps<DoctorRegData>) {
   const uploadsOn = useUploadsEnabled();
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const specialties = useSpecialtiesCatalog();
   const [showRemoveBg, setShowRemoveBg] = useState(false);
 
   const handleNext = (): boolean => {
     if (!data.specialty || !data.degree) {
-      show(AR ? 'اختر التخصص والدرجة العلمية' : 'Select specialty and degree', 'error');
+      show(tt('docreg.8c807e53'), 'error');
       return false;
     }
     if (splitSubSpecialties(data.subSpecialty).length === 0) {
-      show(AR ? 'أدخل التخصص الفرعي' : 'Enter your sub-specialty', 'error');
+      show(tt('docreg.0602177a'), 'error');
       return false;
     }
     return true;
@@ -446,24 +446,24 @@ function Step3Profile({ data, update, submitRef }: StepProps<DoctorRegData>) {
           {data.profilePhotoUri ? <Image source={{ uri: data.profilePhotoUri }} style={{ width: 100, height: 100 }} /> : <I name="camera" size={32} color={theme.textSub} />}
         </TouchableOpacity>
 ) : <UploadsUnavailable />}
-        <Text style={{ fontSize: FS.sm, color: theme.primary, marginTop: SP.sm, fontWeight: FW.bold }}>{AR ? 'التقاط / اختيار صورة' : 'Take / Choose Photo'}</Text>
+        <Text style={{ fontSize: FS.sm, color: theme.primary, marginTop: SP.sm, fontWeight: FW.bold }}>{tt('docreg.46fe39da')}</Text>
       </View>
       <View style={{ alignItems: 'center', marginBottom: SP.xl, paddingHorizontal: SP.md }}>
         <TouchableOpacity onPress={() => setShowRemoveBg(true)} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 8, backgroundColor: theme.primary, paddingHorizontal: SP.xl, paddingVertical: SP.md, borderRadius: R.full, elevation: 2, shadowColor: theme.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4, marginBottom: SP.sm }}>
           <I name="image" size={20} color={theme.textInv} />
-          <Text style={{ fontSize: FS.md, color: theme.textInv, fontWeight: FW.bold }}>{AR ? 'تحسين جودة الصورة (إزالة الخلفية)' : 'Improve Quality (Remove BG)'}</Text>
+          <Text style={{ fontSize: FS.md, color: theme.textInv, fontWeight: FW.bold }}>{tt('docreg.b582d025')}</Text>
         </TouchableOpacity>
         <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: 'center', lineHeight: 22, marginTop: SP.xs }}>
-          {AR ? 'عند الضغط على هذا الزر ستفتح صفحة.. قم برفع صورتك وانتظر حتى يتم تحليلها وتحسينها وإزالة الخلفية، ثم قم بتحميلها وإعادة رفعها هنا' : 'Clicking this button will open a page.. upload your photo, wait for it to be analyzed and background removed, then download it and re-upload it here.'}
+          {tt('docreg.e9cc39ca')}
         </Text>
       </View>
 
       <Modal visible={showRemoveBg} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setShowRemoveBg(false)}>
         <SafeAreaView style={{ flex: 1, backgroundColor: theme.bg }}>
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', padding: SP.md, backgroundColor: theme.surface2 }}>
-            <Text style={{ color: theme.textInv, fontWeight: FW.bold }}>{AR ? 'أداة إزالة الخلفية' : 'Background Removal Tool'}</Text>
+            <Text style={{ color: theme.textInv, fontWeight: FW.bold }}>{tt('docreg.00ae2f17')}</Text>
             <TouchableOpacity onPress={() => setShowRemoveBg(false)} style={{ padding: SP.xs }}>
-              <Text style={{ color: theme.danger, fontWeight: FW.bold }}>{AR ? 'إغلاق' : 'Close'}</Text>
+              <Text style={{ color: theme.danger, fontWeight: FW.bold }}>{tt('docreg.e6d3a19e')}</Text>
             </TouchableOpacity>
           </View>
           <WebView source={{ uri: 'https://www.remove.bg/upload' }} style={{ flex: 1 }} />
@@ -471,29 +471,29 @@ function Step3Profile({ data, update, submitRef }: StepProps<DoctorRegData>) {
       </Modal>
 
       <NDropdown
-        label={AR ? 'التخصص الطبي' : 'Specialty'}
+        label={tt('docreg.de60b396')}
         value={data.specialty}
         options={specialties.map(s => ({ val: s.id, label: AR ? s.ar : s.en }))}
         onChange={v => update({ specialty: v })}
-        placeholder={AR ? 'اختر التخصص...' : 'Select Specialty...'}
+        placeholder={tt('docreg.bb74c97a')}
       />
       <View style={{ height: SP.sm }} />
-      <NInput label={AR ? 'التخصص الفرعي' : 'Sub-specialty'} value={data.subSpecialty} onChange={v=>update({subSpecialty:v})} required hint={AR ? 'افصل بينها بفاصلة إن تعددت' : 'Separate several with commas'} />
+      <NInput label={tt('docreg.72b34c53')} value={data.subSpecialty} onChange={v=>update({subSpecialty:v})} required hint={tt('docreg.13c5df13')} />
       <View style={{ height: SP.sm }} />
       <NDropdown
-        label={AR ? 'الدرجة العلمية' : 'Degree'}
+        label={tt('docreg.65dc76f9')}
         value={data.degree}
         options={DEGREES.map(d => ({ val: d.id, label: AR ? d.ar : d.en }))}
         onChange={v => update({ degree: v })}
-        placeholder={AR ? 'اختر الدرجة...' : 'Select Degree...'}
+        placeholder={tt('docreg.bc8c680e')}
       />
       <View style={{ height: SP.sm }} />
-      <NInput label={AR ? 'سنوات الخبرة' : 'Years of Experience'} value={data.yearsExp} onChange={v=>update({yearsExp:v})} kbType="numeric" required />
-      <NInput label={AR ? 'النبذة التعريفية (Bio)' : 'Bio'} value={data.bio} onChange={v=>update({bio:v})} multi lines={4} placeholder={AR ? 'تحدث عن خبرتك...' : 'Talk about your experience...'} />
+      <NInput label={tt('docreg.4ca1465a')} value={data.yearsExp} onChange={v=>update({yearsExp:v})} kbType="numeric" required />
+      <NInput label={tt('docreg.d5e7f06d')} value={data.bio} onChange={v=>update({bio:v})} multi lines={4} placeholder={tt('docreg.6b088d3e')} />
       
       <View style={{ marginTop: SP.md }}>
         <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-          {AR ? 'صور العيادة (لغاية 5 صور)' : 'Clinic Images (up to 5)'}
+          {tt('docreg.e8b013e4')}
         </Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: SP.sm, paddingVertical: SP.sm, flexDirection: AR ? 'row-reverse' : 'row' }}>
           {uploadsOn ? (
@@ -523,17 +523,17 @@ function Step3Profile({ data, update, submitRef }: StepProps<DoctorRegData>) {
 
 // ══════════════════════════════════════════════════════════════════════════════
 function Step4PricingAndLocation({ data, update, submitRef }: StepProps<DoctorRegData>) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [showMap, setShowMap] = useState(false);
 
   const validate = () => {
     const selected = [
-      { enabled: data.offersClinic, price: data.clinicPrice, duration: data.clinicDuration, label: AR ? 'خدمة العيادة' : 'clinic service' },
-      { enabled: data.offersVideo, price: data.videoPrice, duration: data.videoDuration, label: AR ? 'الاستشارة المرئية' : 'video service' },
-      { enabled: data.offersHome, price: data.homePrice, duration: data.homeDuration, label: AR ? 'الزيارة المنزلية' : 'home service' },
+      { enabled: data.offersClinic, price: data.clinicPrice, duration: data.clinicDuration, label: tt('docreg.7ac626ac') },
+      { enabled: data.offersVideo, price: data.videoPrice, duration: data.videoDuration, label: tt('docreg.1a60b416') },
+      { enabled: data.offersHome, price: data.homePrice, duration: data.homeDuration, label: tt('docreg.24e781e5') },
     ].filter(item => item.enabled);
     if (selected.length === 0) {
-      show(AR ? 'اختر خدمة واحدة على الأقل' : 'Select at least one service', 'error');
+      show(tt('docreg.4ac7faff'), 'error');
       return false;
     }
     const incomplete = selected.find(item => !String(item.price || '').trim() || Number(item.price) < 0 || !String(item.duration || '').trim() || Number(item.duration) <= 0);
@@ -542,7 +542,7 @@ function Step4PricingAndLocation({ data, update, submitRef }: StepProps<DoctorRe
       return false;
     }
     if (data.offersHome && (!Number(data.homeRadius) || data.homeRadius <= 0 || !data.lat || !data.lng)) {
-      show(AR ? 'حدد نطاق الزيارة وموقع الخدمة على الخريطة' : 'Set the home radius and service location on the map', 'error');
+      show(tt('docreg.0b8a356e'), 'error');
       return false;
     }
     return true;
@@ -559,13 +559,13 @@ function Step4PricingAndLocation({ data, update, submitRef }: StepProps<DoctorRe
         {/* Clinic */}
         <View style={{ backgroundColor: theme.surface2, padding: SP.md, borderRadius: R.md, marginBottom: SP.md }}>
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: data.offersClinic ? SP.md : 0 }}>
-            <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{AR ? 'العيادة (حضور المريض)' : 'Clinic Visit'}</Text>
+            <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{tt('docreg.e29f0bc5')}</Text>
             <Switch value={data.offersClinic} onValueChange={v=>update({offersClinic:v})} />
           </View>
           {data.offersClinic && (
             <View>
-              <NInput label={AR ? 'سعر الكشف في العيادة' : 'Clinic Visit Price'} value={data.clinicPrice} onChange={v=>update({clinicPrice:v})} kbType="numeric" />
-              <NInput label={AR ? 'مدة الكشف (بالدقائق)' : 'Consultation Duration (min)'} value={data.clinicDuration} onChange={v=>update({clinicDuration:v})} kbType="numeric" />
+              <NInput label={tt('docreg.b3395982')} value={data.clinicPrice} onChange={v=>update({clinicPrice:v})} kbType="numeric" />
+              <NInput label={tt('docreg.f3db4d8e')} value={data.clinicDuration} onChange={v=>update({clinicDuration:v})} kbType="numeric" />
             </View>
           )}
         </View>
@@ -573,13 +573,13 @@ function Step4PricingAndLocation({ data, update, submitRef }: StepProps<DoctorRe
         {/* Video */}
         <View style={{ backgroundColor: theme.surface2, padding: SP.md, borderRadius: R.md, marginBottom: SP.md }}>
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: data.offersVideo ? SP.md : 0 }}>
-            <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{AR ? 'استشارة فيديو' : 'Video Consult'}</Text>
+            <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{tt('docreg.4c6baf1c')}</Text>
             <Switch value={data.offersVideo} onValueChange={v=>update({offersVideo:v})} />
           </View>
           {data.offersVideo && (
             <View>
-              <NInput label={AR ? 'سعر الاستشارة الأونلاين' : 'Online Consult Price'} value={data.videoPrice} onChange={v=>update({videoPrice:v})} kbType="numeric" />
-              <NInput label={AR ? 'مدة الاستشارة (بالدقائق)' : 'Consultation Duration (min)'} value={data.videoDuration} onChange={v=>update({videoDuration:v})} kbType="numeric" />
+              <NInput label={tt('docreg.a6697d10')} value={data.videoPrice} onChange={v=>update({videoPrice:v})} kbType="numeric" />
+              <NInput label={tt('docreg.d4281126')} value={data.videoDuration} onChange={v=>update({videoDuration:v})} kbType="numeric" />
             </View>
           )}
         </View>
@@ -587,23 +587,23 @@ function Step4PricingAndLocation({ data, update, submitRef }: StepProps<DoctorRe
         {/* Home Visit & Maps */}
         <View style={{ backgroundColor: theme.surface2, padding: SP.md, borderRadius: R.md, marginBottom: SP.md }}>
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: data.offersHome ? SP.md : 0 }}>
-            <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{AR ? 'الزيارة المنزلية' : 'Home Visit'}</Text>
+            <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{tt('docreg.dd755f3e')}</Text>
             <Switch value={data.offersHome} onValueChange={v=>update({offersHome:v})} />
           </View>
           
           {data.offersHome && (
             <View>
-              <NInput label={AR ? 'سعر الزيارة المنزلية' : 'Home Visit Price'} value={data.homePrice} onChange={v=>update({homePrice:v})} kbType="numeric" />
-              <NInput label={AR ? 'مدة الزيارة (بالدقائق)' : 'Visit Duration (min)'} value={data.homeDuration} onChange={v=>update({homeDuration:v})} kbType="numeric" />
+              <NInput label={tt('docreg.184442eb')} value={data.homePrice} onChange={v=>update({homePrice:v})} kbType="numeric" />
+              <NInput label={tt('docreg.318d58f4')} value={data.homeDuration} onChange={v=>update({homeDuration:v})} kbType="numeric" />
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.sm }}>
-                <Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? 'احتساب رسوم انتقال إضافية؟' : 'Add Transport Fees?'}</Text>
+                <Text style={{ fontSize: FS.sm, color: theme.text }}>{tt('docreg.2c379867')}</Text>
                 <Switch value={data.homeTransportFee} onValueChange={v=>update({homeTransportFee:v})} />
               </View>
               {data.homeTransportFee && (
-                <NInput label={AR ? 'رسوم الانتقال' : 'Transport Fee'} value={data.homeTransportPrice} onChange={v=>update({homeTransportPrice:v})} kbType="numeric" />
+                <NInput label={tt('docreg.ffc709f9')} value={data.homeTransportPrice} onChange={v=>update({homeTransportPrice:v})} kbType="numeric" />
               )}
               
-              <Text style={{ fontSize: FS.sm, color: theme.text, marginTop: SP.md, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>{AR ? 'نطاق التغطية الجغرافية' : 'Coverage Radius'}</Text>
+              <Text style={{ fontSize: FS.sm, color: theme.text, marginTop: SP.md, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>{tt('docreg.676725c1')}</Text>
               
               {/* +/- controls & text input */}
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md, marginBottom: SP.md }}>
@@ -628,14 +628,14 @@ function Step4PricingAndLocation({ data, update, submitRef }: StepProps<DoctorRe
                 >
                   <Text style={{ fontSize: 20, fontWeight: 'bold', color: theme.text }}>+</Text>
                 </TouchableOpacity>
-                <Text style={{ color: theme.textSub, fontSize: FS.md }}>{AR ? 'كم' : 'KM'}</Text>
+                <Text style={{ color: theme.textSub, fontSize: FS.md }}>{tt('docreg.17e9ee72')}</Text>
               </View>
 
               {/* Fast presets */}
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginBottom: SP.md }}>
                 {[1, 5, 10, 20, 50].map(km => (
                   <TouchableOpacity key={km} onPress={() => update({ homeRadius: km })} style={{ flex: 1, padding: SP.sm, borderWidth: 1, borderColor: data.homeRadius === km ? theme.primary : theme.border, backgroundColor: data.homeRadius === km ? theme.primaryLight : theme.bg, borderRadius: R.sm, alignItems: 'center' }}>
-                    <Text style={{ color: data.homeRadius === km ? theme.primary : theme.textSub, fontWeight: FW.bold }}>{km} {AR ? 'كم' : 'KM'}</Text>
+                    <Text style={{ color: data.homeRadius === km ? theme.primary : theme.textSub, fontWeight: FW.bold }}>{km} {tt('docreg.17e9ee72')}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -643,9 +643,9 @@ function Step4PricingAndLocation({ data, update, submitRef }: StepProps<DoctorRe
                 <TouchableOpacity onPress={() => setShowMap(true)} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: theme.surface3, padding: SP.md, borderRadius: R.md, borderWidth: 1, borderColor: theme.border }}>
                   <NIcon name="map" size={24} color={theme.primary} />
                   <Text style={{ flex: 1, marginHorizontal: SP.sm, color: theme.text, fontSize: FS.md, textAlign: AR ? 'right' : 'left' }}>
-                    {AR ? 'تحديد الموقع على الخريطة' : 'Pick Location on Map'}
+                    {tt('docreg.fd16e8ce')}
                   </Text>
-                  <Text style={{ color: theme.primary, fontWeight: 'bold' }}>{AR ? 'تعديل' : 'Edit'}</Text>
+                  <Text style={{ color: theme.primary, fontWeight: 'bold' }}>{tt('docreg.4cbb34bf')}</Text>
                 </TouchableOpacity>
               </View>
               
@@ -674,7 +674,7 @@ function clinicLocation(loc: any): { lat: number; lng: number } | null {
 
 // ══════════════════════════════════════════════════════════════════════════════
 function Step5Schedule({ data, update, submitRef }: StepProps<DoctorRegData>) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
   const [showVacationCal, setShowVacationCal] = useState(false);
 
   const handleNext = (): boolean => { return true; };
@@ -701,7 +701,7 @@ function Step5Schedule({ data, update, submitRef }: StepProps<DoctorRegData>) {
         <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.primary, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{title}</Text>
         
         {/* Days checklist */}
-        <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>{AR ? 'أيام العمل' : 'Work Days'}</Text>
+        <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>{tt('docreg.43341b7f')}</Text>
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 6, marginBottom: SP.md }}>
           {WORK_DAYS.map(day => {
             const active = ((data[daysKey] as string[]) || []).includes(day.k);
@@ -714,7 +714,7 @@ function Step5Schedule({ data, update, submitRef }: StepProps<DoctorRegData>) {
         </View>
 
         <NDropdown
-          label={AR ? 'فترة الدوام' : 'Shift'}
+          label={tt('docreg.76c75903')}
           value={String(data[shiftKey] || '')}
           options={SHIFT_OPTIONS.map(s => ({ val: s.val, label: AR ? s.ar : s.en }))}
           onChange={v => update({ [shiftKey]: v } as any)}
@@ -722,26 +722,26 @@ function Step5Schedule({ data, update, submitRef }: StepProps<DoctorRegData>) {
 
         {/* Times & shifts */}
         <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left', marginTop: SP.sm }}>
-          {data[shiftKey] === 'both' ? (AR ? 'الفترة الصباحية' : 'Morning Shift') : (AR ? 'ساعات العمل' : 'Working Hours')}
+          {data[shiftKey] === 'both' ? (tt('docreg.cb086206')) : (tt('docreg.c3b82f1c'))}
         </Text>
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginBottom: SP.sm }}>
           <View style={{ flex: 1 }}>
-            <NDropdown label={AR ? 'من' : 'From'} value={String(data[startKey] || '')} options={HOURS} onChange={v => update({ [startKey]: v } as any)} />
+            <NDropdown label={tt('docreg.ecdb7711')} value={String(data[startKey] || '')} options={HOURS} onChange={v => update({ [startKey]: v } as any)} />
           </View>
           <View style={{ flex: 1 }}>
-            <NDropdown label={AR ? 'إلى' : 'To'} value={String(data[endKey] || '')} options={HOURS} onChange={v => update({ [endKey]: v } as any)} />
+            <NDropdown label={tt('docreg.32c46ecf')} value={String(data[endKey] || '')} options={HOURS} onChange={v => update({ [endKey]: v } as any)} />
           </View>
         </View>
 
         {data[shiftKey] === 'both' && (
           <>
-            <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left', marginTop: SP.sm }}>{AR ? 'الفترة المسائية' : 'Evening Shift'}</Text>
+            <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left', marginTop: SP.sm }}>{tt('docreg.13027adb')}</Text>
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginBottom: SP.sm }}>
               <View style={{ flex: 1 }}>
-                <NDropdown label={AR ? 'من' : 'From'} value={String(data[startEveKey] || '')} options={HOURS} onChange={v => update({ [startEveKey]: v } as any)} />
+                <NDropdown label={tt('docreg.ecdb7711')} value={String(data[startEveKey] || '')} options={HOURS} onChange={v => update({ [startEveKey]: v } as any)} />
               </View>
               <View style={{ flex: 1 }}>
-                <NDropdown label={AR ? 'إلى' : 'To'} value={String(data[endEveKey] || '')} options={HOURS} onChange={v => update({ [endEveKey]: v } as any)} />
+                <NDropdown label={tt('docreg.32c46ecf')} value={String(data[endEveKey] || '')} options={HOURS} onChange={v => update({ [endEveKey]: v } as any)} />
               </View>
             </View>
           </>
@@ -755,16 +755,16 @@ function Step5Schedule({ data, update, submitRef }: StepProps<DoctorRegData>) {
     <View>
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.lg }}>
         <TouchableOpacity onPress={() => update({ scheduleType: 'unified' })} style={{ flex: 1, padding: SP.md, borderWidth: 1, borderColor: data.scheduleType === 'unified' ? theme.primary : theme.border, backgroundColor: data.scheduleType === 'unified' ? theme.primaryLight : theme.bg, borderRadius: R.md, alignItems: 'center' }}>
-          <Text style={{ color: data.scheduleType === 'unified' ? theme.primary : theme.text, fontWeight: FW.bold }}>{AR ? 'جدول موحد' : 'Unified'}</Text>
+          <Text style={{ color: data.scheduleType === 'unified' ? theme.primary : theme.text, fontWeight: FW.bold }}>{tt('docreg.d87d4d8e')}</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => update({ scheduleType: 'per_service' })} style={{ flex: 1, padding: SP.md, borderWidth: 1, borderColor: data.scheduleType === 'per_service' ? theme.primary : theme.border, backgroundColor: data.scheduleType === 'per_service' ? theme.primaryLight : theme.bg, borderRadius: R.md, alignItems: 'center' }}>
-          <Text style={{ color: data.scheduleType === 'per_service' ? theme.primary : theme.text, fontWeight: FW.bold }}>{AR ? 'جدول لكل خدمة' : 'Per Service'}</Text>
+          <Text style={{ color: data.scheduleType === 'per_service' ? theme.primary : theme.text, fontWeight: FW.bold }}>{tt('docreg.f95f92da')}</Text>
         </TouchableOpacity>
       </View>
 
       {data.scheduleType === 'unified' ? (
         <View style={{ backgroundColor: theme.surface2, padding: SP.md, borderRadius: R.md, marginBottom: SP.lg }}>
-          <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>{AR ? 'أيام العمل' : 'Work Days'}</Text>
+          <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>{tt('docreg.43341b7f')}</Text>
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 6, marginBottom: SP.md }}>
             {WORK_DAYS.map(day => {
               const active = data.unifiedDays.includes(day.k);
@@ -777,33 +777,33 @@ function Step5Schedule({ data, update, submitRef }: StepProps<DoctorRegData>) {
           </View>
 
           <NDropdown
-            label={AR ? 'فترة الدوام' : 'Shift'}
+            label={tt('docreg.76c75903')}
             value={data.unifiedShift}
             options={SHIFT_OPTIONS.map(s => ({ val: s.val, label: AR ? s.ar : s.en }))}
             onChange={v => update({ unifiedShift: v })}
           />
 
           <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left', marginTop: SP.sm }}>
-            {data.unifiedShift === 'both' ? (AR ? 'الفترة الصباحية' : 'Morning Shift') : (AR ? 'ساعات العمل' : 'Working Hours')}
+            {data.unifiedShift === 'both' ? (tt('docreg.cb086206')) : (tt('docreg.c3b82f1c'))}
           </Text>
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginBottom: SP.sm }}>
             <View style={{ flex: 1 }}>
-              <NDropdown label={AR ? 'من' : 'From'} value={data.unifiedStart} options={HOURS} onChange={v => update({ unifiedStart: v })} />
+              <NDropdown label={tt('docreg.ecdb7711')} value={data.unifiedStart} options={HOURS} onChange={v => update({ unifiedStart: v })} />
             </View>
             <View style={{ flex: 1 }}>
-              <NDropdown label={AR ? 'إلى' : 'To'} value={data.unifiedEnd} options={HOURS} onChange={v => update({ unifiedEnd: v })} />
+              <NDropdown label={tt('docreg.32c46ecf')} value={data.unifiedEnd} options={HOURS} onChange={v => update({ unifiedEnd: v })} />
             </View>
           </View>
 
           {data.unifiedShift === 'both' && (
             <>
-              <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left', marginTop: SP.sm }}>{AR ? 'الفترة المسائية' : 'Evening Shift'}</Text>
+              <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left', marginTop: SP.sm }}>{tt('docreg.13027adb')}</Text>
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginBottom: SP.sm }}>
                 <View style={{ flex: 1 }}>
-                  <NDropdown label={AR ? 'من' : 'From'} value={data.unifiedStartEve} options={HOURS} onChange={v => update({ unifiedStartEve: v })} />
+                  <NDropdown label={tt('docreg.ecdb7711')} value={data.unifiedStartEve} options={HOURS} onChange={v => update({ unifiedStartEve: v })} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <NDropdown label={AR ? 'إلى' : 'To'} value={data.unifiedEndEve} options={HOURS} onChange={v => update({ unifiedEndEve: v })} />
+                  <NDropdown label={tt('docreg.32c46ecf')} value={data.unifiedEndEve} options={HOURS} onChange={v => update({ unifiedEndEve: v })} />
                 </View>
               </View>
             </>
@@ -811,15 +811,15 @@ function Step5Schedule({ data, update, submitRef }: StepProps<DoctorRegData>) {
         </View>
       ) : (
         <View style={{ marginBottom: SP.md }}>
-          {data.offersClinic && renderServiceSchedule('clinic', AR ? 'حجز العيادة' : 'Clinic Visit')}
-          {data.offersVideo && renderServiceSchedule('video', AR ? 'استشارة الفيديو' : 'Video Consult')}
-          {data.offersHome && renderServiceSchedule('home', AR ? 'الزيارة المنزلية' : 'Home Visit')}
+          {data.offersClinic && renderServiceSchedule('clinic', tt('docreg.427605ab'))}
+          {data.offersVideo && renderServiceSchedule('video', tt('docreg.19645c19'))}
+          {data.offersHome && renderServiceSchedule('home', tt('docreg.dd755f3e'))}
         </View>
       )}
 
       {/* Vacation Date Calendar */}
       <TouchableOpacity onPress={() => setShowVacationCal(true)}>
-        <NInput label={AR ? 'إجازة مخطط لها' : 'Planned Vacation'} placeholder={AR ? 'اضغط لاختيار تاريخ إجازتك...' : 'Choose vacation date...'} value={data.vacationDate} onChange={(val) => { update({ vacationDate: val }); setShowVacationCal(false); }} editable={false} icon="calendar" />
+        <NInput label={tt('docreg.be8de242')} placeholder={tt('docreg.cf583776')} value={data.vacationDate} onChange={(val) => { update({ vacationDate: val }); setShowVacationCal(false); }} editable={false} icon="calendar" />
       </TouchableOpacity>
 
       <NDatePickerSheet
@@ -827,7 +827,7 @@ function Step5Schedule({ data, update, submitRef }: StepProps<DoctorRegData>) {
         value={data.vacationDate}
         onChange={(val) => { update({ vacationDate: val }); setShowVacationCal(false); }}
         onClose={() => setShowVacationCal(false)}
-        title={AR ? 'اختر تاريخ إجازتك' : 'Select Vacation Date'}
+        title={tt('docreg.9f7cb31d')}
       />
     </View>
   );
@@ -836,17 +836,17 @@ function Step5Schedule({ data, update, submitRef }: StepProps<DoctorRegData>) {
 // ══════════════════════════════════════════════════════════════════════════════
 function Step6Insurance({ data, update, submitRef }: StepProps<DoctorRegData>) {
  const insuranceCatalog = useInsuranceCatalog();
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
 
   // The clinic pin at the device's position (it used to drop a fixed Riyadh point).
   const useMyLocation = async () => {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') { show(AR ? 'اسمح بالوصول إلى الموقع أو اختر النقطة على الخريطة' : 'Allow location access or tap the clinic on the map', 'error'); return; }
+      if (status !== 'granted') { show(tt('docreg.0c08083b'), 'error'); return; }
       const here = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
       update({ location: { lat: here.coords.latitude, lng: here.coords.longitude } });
     } catch {
-      show(AR ? 'تعذر تحديد موقعك، اختر النقطة على الخريطة' : 'Could not find your location; tap the clinic on the map', 'error');
+      show(tt('docreg.90f49dd0'), 'error');
     }
   };
 
@@ -876,11 +876,11 @@ function Step6Insurance({ data, update, submitRef }: StepProps<DoctorRegData>) {
 
   const handleNext = (): boolean => {
     if (!data.city || !data.district || !data.address) {
-      show(AR ? 'يرجى إكمال العنوان الشامل (المدينة، الحي، الشارع)' : 'Please complete the address (City, District, Street)', 'error');
+      show(tt('docreg.b5e7e561'), 'error');
       return false;
     }
     if (!data.cashOnly && (!data.acceptedInsurance || data.acceptedInsurance.length === 0)) {
-      show(AR ? 'يرجى اختيار شركة تأمين واحدة على الأقل أو تفعيل الدفع النقدي فقط' : 'Please select at least one insurance company or enable Cash Only', 'error');
+      show(tt('docreg.a0796c2a'), 'error');
       return false;
     }
     return true;
@@ -890,28 +890,28 @@ function Step6Insurance({ data, update, submitRef }: StepProps<DoctorRegData>) {
   return (
     <View>
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: theme.surface2, padding: SP.lg, borderRadius: R.md, marginBottom: SP.sm }}>
-        <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{AR ? 'الدفع نقداً فقط (لا أقبل التأمين)' : 'Cash Only (No Insurance)'}</Text>
+        <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{tt('docreg.e52fa8bf')}</Text>
         <Switch value={data.cashOnly} onValueChange={v=>update({cashOnly:v})} />
       </View>
 
       {!data.cashOnly && (
         <View style={{ backgroundColor: theme.surface2, padding: SP.md, borderRadius: R.md, marginBottom: SP.lg }}>
-          <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.primary, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{AR ? 'تطبيق التأمين على الخدمات التالية:' : 'Apply Insurance to:'}</Text>
+          <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.primary, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{tt('docreg.35f21824')}</Text>
           {data.offersClinic && (
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.sm }}>
-              <Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? 'حجز العيادة' : 'Clinic Visit'}</Text>
+              <Text style={{ fontSize: FS.sm, color: theme.text }}>{tt('docreg.427605ab')}</Text>
               <Switch value={data.insuranceClinic} onValueChange={v=>update({insuranceClinic:v})} />
             </View>
           )}
           {data.offersVideo && (
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.sm }}>
-              <Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? 'استشارة فيديو' : 'Video Consult'}</Text>
+              <Text style={{ fontSize: FS.sm, color: theme.text }}>{tt('docreg.4c6baf1c')}</Text>
               <Switch value={data.insuranceVideo} onValueChange={v=>update({insuranceVideo:v})} />
             </View>
           )}
           {data.offersHome && (
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? 'زيارة منزلية' : 'Home Visit'}</Text>
+              <Text style={{ fontSize: FS.sm, color: theme.text }}>{tt('docreg.c1be7bcf')}</Text>
               <Switch value={data.insuranceHome} onValueChange={v=>update({insuranceHome:v})} />
             </View>
           )}
@@ -920,7 +920,7 @@ function Step6Insurance({ data, update, submitRef }: StepProps<DoctorRegData>) {
 
       {!data.cashOnly && (
         <View style={{ marginBottom: SP.xl }}>
-          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{AR ? 'شركات التأمين المعتمدة' : 'Accepted Insurance Companies'}</Text>
+          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{tt('docreg.ee90cef5')}</Text>
           {insuranceCatalog.map(co => {
             const acceptedObj = data.acceptedInsurance?.find(c => c.companyId === co.id);
             const isAccepted = !!acceptedObj;
@@ -936,7 +936,7 @@ function Step6Insurance({ data, update, submitRef }: StepProps<DoctorRegData>) {
 
                 {isAccepted && (
                   <View style={{ marginTop: SP.sm, borderTopWidth: 1, borderTopColor: theme.border, paddingTop: SP.sm }}>
-                    <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>{AR ? 'الخطط / الفئات المقبولة:' : 'Accepted Plans/Tiers:'}</Text>
+                    <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>{tt('docreg.dbd051de')}</Text>
                     <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 6 }}>
                       {co.plans.map(p => {
                         const hasPlan = acceptedObj.plans.includes(p);
@@ -955,13 +955,13 @@ function Step6Insurance({ data, update, submitRef }: StepProps<DoctorRegData>) {
         </View>
       )}
 
-      <NDivider label={AR ? 'العنوان والعيادة' : 'Clinic Location'} />
+      <NDivider label={tt('docreg.9e2f8de6')} />
       <View style={{ height: SP.sm }} />
-      <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>{AR ? 'المنطقة / المدينة / الحي' : 'Region / City / District'}</Text>
+      <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>{tt('docreg.5a85d253')}</Text>
       <GeoPicker value={{ region: (data as any).region, city: data.city, district: (data as any).district }} onChange={v => update(v as any)} locale={lang} />
       <View style={{ height: SP.sm }} />
-      <NInput label={AR ? 'الشارع / العنوان التفصيلي' : 'Street / Detailed Address'} value={data.address} onChange={v=>update({address:v})} required />
-      <NInput label={AR ? 'اسم العيادة (اختياري)' : 'Clinic Name (Optional)'} value={data.clinicName} onChange={v=>update({clinicName:v})} />
+      <NInput label={tt('docreg.05805aaf')} value={data.address} onChange={v=>update({address:v})} required />
+      <NInput label={tt('docreg.14b8c03c')} value={data.clinicName} onChange={v=>update({clinicName:v})} />
       
       <View style={{ height: 200, borderRadius: R.lg, overflow: 'hidden', borderWidth: 1, borderColor: theme.border, marginTop: SP.md }}>
         <MapView
@@ -975,7 +975,7 @@ function Step6Insurance({ data, update, submitRef }: StepProps<DoctorRegData>) {
           style={{ position: 'absolute', bottom: SP.md, right: SP.md, backgroundColor: theme.card, padding: SP.sm, borderRadius: R.full, elevation: 4, shadowColor: theme.text, shadowOpacity: 0.2, shadowRadius: 4, shadowOffset: {width:0, height:2} }}
           onPress={() => void useMyLocation()}
         >
-          <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.primary }}>{AR ? 'موقعي الحالي' : 'My Location'}</Text>
+          <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.primary }}>{tt('docreg.8c67be67')}</Text>
         </TouchableOpacity>
       </View>
     </View>

@@ -15,43 +15,43 @@ import type { Saver, StepProps, Uploader } from './kit';
 
 /** Camera, gallery or file picker for one document field; the picked uri goes into `data[field]`. */
 export function useDocumentPicker<T>(update: (patch: Partial<T>) => void) {
-  const { lang } = useLang(); const AR = lang === 'ar';
+  const { lang, t: tt } = useLang(); const AR = lang === 'ar';
   const { show } = useToast();
   const uploadsOn = useUploadsEnabled();
   return (field: keyof T) => {
-    if (!uploadsOn) { show(AR ? 'رفع الملفات غير متاح مؤقتًا. حاول لاحقًا.' : 'File uploads are temporarily unavailable. Try again later.', 'warning'); return; }
+    if (!uploadsOn) { show(tt('wizard.049b8ac6'), 'warning'); return; }
     const attach = (uri: string) => {
       update({ [field]: uri } as unknown as Partial<T>);
-      show(AR ? 'تم إرفاق المستند' : 'Document attached', 'success');
+      show(tt('wizard.1207ee84'), 'success');
     };
     Alert.alert(
-      AR ? 'إرفاق مستند' : 'Attach Document',
-      AR ? 'اختر طريقة الرفع' : 'Choose upload method',
+      tt('wizard.67b9e3e8'),
+      tt('wizard.d6a69aca'),
       [
         {
-          text: AR ? 'الكاميرا' : 'Camera',
+          text: tt('wizard.20386009'),
           onPress: async () => {
             const { status } = await ImagePicker.requestCameraPermissionsAsync();
-            if (status !== 'granted') { show(AR ? 'صلاحية الكاميرا مطلوبة' : 'Camera permission required', 'error'); return; }
+            if (status !== 'granted') { show(tt('wizard.625aa899'), 'error'); return; }
             const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.8 });
             if (!result.canceled) attach(result.assets[0].uri);
           },
         },
         {
-          text: AR ? 'معرض الصور' : 'Photo Gallery',
+          text: tt('wizard.cbd951ae'),
           onPress: async () => {
             const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
             if (!result.canceled) attach(result.assets[0].uri);
           },
         },
         {
-          text: AR ? 'ملفات / PDF' : 'Files / PDF',
+          text: tt('wizard.35a13178'),
           onPress: async () => {
             const result = await DocumentPicker.getDocumentAsync({ type: '*/*', copyToCacheDirectory: true });
             if (!result.canceled && result.assets && result.assets.length > 0) attach(result.assets[0].uri);
           },
         },
-        { text: AR ? 'إلغاء' : 'Cancel', style: 'cancel' },
+        { text: tt('wizard.210b779f'), style: 'cancel' },
       ],
     );
   };
@@ -59,7 +59,7 @@ export function useDocumentPicker<T>(update: (patch: Partial<T>) => void) {
 
 /** Square upload tile (grid of 2 or 3 per row). */
 export function DocCard({ label, done, onPress, required }: { label: string; done: boolean; onPress: () => void; required?: boolean }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
   const uploadsOn = useUploadsEnabled();
   if (!uploadsOn && !done) return <View style={{ flex: 1, marginHorizontal: 2 }}><UploadsUnavailable /></View>;
   return (
@@ -74,7 +74,7 @@ export function DocCard({ label, done, onPress, required }: { label: string; don
         {label}{required && !done && <Text style={{ color: theme.danger }}> *</Text>}
       </Text>
       <Text style={{ fontSize: FS.xs, color: done ? theme.success : theme.textSub, marginTop: 2 }}>
-        {done ? (AR ? 'تم الرفع' : 'Uploaded') : (AR ? 'اضغط للرفع' : 'Tap to upload')}
+        {done ? (tt('wizard.ade4f9ec')) : (tt('wizard.94c870f1'))}
       </Text>
     </TouchableOpacity>
   );
@@ -101,7 +101,7 @@ export interface NoticeText { titleAr: string; titleEn: string; p1Ar: string; p1
 
 /** "Nothing goes live before the admin approves it": the notice every registration shows once. */
 export function ApprovalNotice({ text }: { text: NoticeText }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
   const align = AR ? 'right' : 'left';
   return (
     <View style={{ backgroundColor: theme.dangerBg, padding: SP.xl, borderRadius: R.lg, borderWidth: 1, borderColor: theme.danger, marginTop: SP.lg }}>
@@ -135,7 +135,7 @@ export function MergedPage<T>({ page, step, total, onBack, onNext, data, update,
   page: WizardPage<T>; step: number; total: number; onBack: () => void; onNext: () => void;
   data: T; update: (patch: Partial<T>) => void; uploads: Uploader;
 }) {
-  const { lang } = useLang(); const AR = lang === 'ar';
+  const { lang, t: tt } = useLang(); const AR = lang === 'ar';
   const savers = useRef<Saver[]>([]);
   const [busy, setBusy] = useState(false);
   const go = async () => {
@@ -160,31 +160,31 @@ export function MergedPage<T>({ page, step, total, onBack, onNext, data, update,
           </WizardSection>
         );
       })}
-      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={go} loading={busy} style={{ marginTop: SP.sm }} />
+      <NBtn label={tt('wizard.f74c02bd')} onPress={go} loading={busy} style={{ marginTop: SP.sm }} />
     </NScroll>
   );
 }
 
 /** The licence expiry date every provider type gives at registration: picked from a calendar, required, never in the past (the server refuses a lapsed licence too). */
 export function LicenseExpiryField({ value, onChange, error, label }: { value: string; onChange: (v: string) => void; error?: string; label?: string }) {
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
   const [open, setOpen] = useState(false);
   return (
     <View>
       <TouchableOpacity onPress={() => setOpen(true)} accessibilityRole="button">
-        <NInput label={label || (AR ? 'تاريخ انتهاء الترخيص' : 'Licence expiry date')} placeholder={AR ? 'اختر التاريخ من التقويم...' : 'Choose date...'} value={value} onChange={() => {}} editable={false} required error={error} />
+        <NInput label={label || (tt('wizard.50ede357'))} placeholder={tt('wizard.e2701538')} value={value} onChange={() => {}} editable={false} required error={error} />
       </TouchableOpacity>
       <NDatePickerSheet
         visible={open}
         value={value}
         onChange={(v: string) => {
-          if (!isFutureLicenseDate(v)) { show(AR ? 'لا يمكن اختيار تاريخ في الماضي' : 'A past date cannot be chosen', 'error'); return; }
+          if (!isFutureLicenseDate(v)) { show(tt('wizard.8d54a6d7'), 'error'); return; }
           onChange(v);
         }}
         onClose={() => setOpen(false)}
-        title={AR ? 'تاريخ انتهاء الترخيص' : 'Licence expiry date'}
+        title={tt('wizard.50ede357')}
       />
     </View>
   );

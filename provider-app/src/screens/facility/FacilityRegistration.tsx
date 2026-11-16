@@ -146,7 +146,7 @@ export function FacilityRegistration(props: RegistrationProps<FacilityRegData>) 
 
 function Step1Basic({ data, update, submitRef }: StepProps<FacilityRegData>) {
   const { show } = useToast();
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
   const [errs, setErrs] = useState<Record<string, string>>({});
 
   const nameArRef = useRef<any>(null);
@@ -159,16 +159,16 @@ function Step1Basic({ data, update, submitRef }: StepProps<FacilityRegData>) {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!data.facilityType) e.type = AR ? 'اختر نوع المنشأة' : 'Choose facility type';
-    if (!data.facilityNameAr.trim()) e.nameAr = AR ? 'مطلوب' : 'Required';
-    if (!data.facilityNameEn.trim()) e.nameEn = AR ? 'مطلوب' : 'Required';
-    if (!data.managerName.trim()) e.mgr = AR ? 'مطلوب' : 'Required';
-    if (!Validate.phone(data.managerPhone)) e.phone = AR ? 'جوال غير صحيح' : 'Invalid phone';
-    if (!Validate.email(data.managerEmail)) e.email = AR ? 'بريد غير صحيح' : 'Invalid email';
-    if (data.facilityType !== 'hospital' && data.facilityType !== 'clinic') e.type = AR ? 'نوع غير مدعوم' : 'Unsupported type';
+    if (!data.facilityType) e.type = tt('facreg.5b9c24bc');
+    if (!data.facilityNameAr.trim()) e.nameAr = tt('facreg.b4bde92d');
+    if (!data.facilityNameEn.trim()) e.nameEn = tt('facreg.b4bde92d');
+    if (!data.managerName.trim()) e.mgr = tt('facreg.b4bde92d');
+    if (!Validate.phone(data.managerPhone)) e.phone = tt('facreg.10222dfa');
+    if (!Validate.email(data.managerEmail)) e.email = tt('facreg.dcfb041e');
+    if (data.facilityType !== 'hospital' && data.facilityType !== 'clinic') e.type = tt('facreg.4e4e4c4d');
     const ps = Validate.password(data.password);
     if (!ps.valid) e.pass = AR ? ps.msgAr : ps.msgEn;
-    if (data.password !== data.confirmPass) e.conf = AR ? 'كلمتا المرور غير متطابقتين' : 'Passwords do not match';
+    if (data.password !== data.confirmPass) e.conf = tt('facreg.passwordsMismatch');
     setErrs(e); return Object.keys(e).length === 0;
   };
 
@@ -205,18 +205,18 @@ function Step1Basic({ data, update, submitRef }: StepProps<FacilityRegData>) {
       </View>
       {errs.type && <Text style={{ fontSize: FS.xs, color: theme.danger, marginBottom: SP.md }}>{errs.type}</Text>}
 
-      <NInput innerRef={nameArRef} label={AR ? 'اسم المنشأة (بالعربية)' : 'Facility Name (AR)'} value={data.facilityNameAr} onChange={v => update({ facilityNameAr: v })} required error={errs.nameAr} returnKey="next" onSubmit={() => nameEnRef.current?.focus()} />
-      <NInput innerRef={nameEnRef} label={AR ? 'اسم المنشأة (بالإنجليزية)' : 'Facility Name (EN)'} value={data.facilityNameEn} onChange={v => update({ facilityNameEn: v })} required error={errs.nameEn} returnKey="next" onSubmit={() => mgrNameRef.current?.focus()} />
+      <NInput innerRef={nameArRef} label={tt('facreg.ce1851d8')} value={data.facilityNameAr} onChange={v => update({ facilityNameAr: v })} required error={errs.nameAr} returnKey="next" onSubmit={() => nameEnRef.current?.focus()} />
+      <NInput innerRef={nameEnRef} label={tt('facreg.7733a526')} value={data.facilityNameEn} onChange={v => update({ facilityNameEn: v })} required error={errs.nameEn} returnKey="next" onSubmit={() => mgrNameRef.current?.focus()} />
       
-      <NInput innerRef={mgrNameRef} label={AR ? 'اسم مدير المنشأة' : 'Manager Name'} value={data.managerName} onChange={v => update({ managerName: v })} required error={errs.mgr} returnKey="next" onSubmit={() => phoneRef.current?.focus()} />
-      <NPhoneInput innerRef={phoneRef} label={AR ? 'رقم جوال المدير' : 'Manager Phone'} value={data.managerPhone} onChange={v => update({ managerPhone: v })} required error={errs.phone} />
-      <NInput innerRef={emailRef} label={AR ? 'البريد الإلكتروني للمدير' : 'Manager Email'} value={data.managerEmail} onChange={v => update({ managerEmail: v })} kbType="email-address" caps="none" required error={errs.email} returnKey="next" onSubmit={() => passwordRef.current?.focus()} />
+      <NInput innerRef={mgrNameRef} label={tt('facreg.601810d6')} value={data.managerName} onChange={v => update({ managerName: v })} required error={errs.mgr} returnKey="next" onSubmit={() => phoneRef.current?.focus()} />
+      <NPhoneInput innerRef={phoneRef} label={tt('facreg.52d66dfa')} value={data.managerPhone} onChange={v => update({ managerPhone: v })} required error={errs.phone} />
+      <NInput innerRef={emailRef} label={tt('facreg.6a0806b6')} value={data.managerEmail} onChange={v => update({ managerEmail: v })} kbType="email-address" caps="none" required error={errs.email} returnKey="next" onSubmit={() => passwordRef.current?.focus()} />
       
-      <NInput innerRef={passwordRef} label={AR ? 'كلمة المرور' : 'Password'} value={data.password} onChange={v => update({ password: v })} secure required error={errs.pass} returnKey="next" onSubmit={() => confirmPassRef.current?.focus()} />
+      <NInput innerRef={passwordRef} label={tt('facreg.password')} value={data.password} onChange={v => update({ password: v })} secure required error={errs.pass} returnKey="next" onSubmit={() => confirmPassRef.current?.focus()} />
       <NPassStrength password={data.password} />
-      <NInput innerRef={confirmPassRef} label={AR ? 'تأكيد كلمة المرور' : 'Confirm Password'} value={data.confirmPass} onChange={v => update({ confirmPass: v })} secure required error={errs.conf} returnKey="done" onSubmit={handleNext} />
+      <NInput innerRef={confirmPassRef} label={tt('facreg.confirmPassword')} value={data.confirmPass} onChange={v => update({ confirmPass: v })} secure required error={errs.conf} returnKey="done" onSubmit={handleNext} />
       
-      <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text, marginTop: 12, marginBottom: 6, textAlign: AR ? 'right' : 'left' }}>{AR ? 'لغات التعامل' : 'Spoken languages'}</Text>
+      <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text, marginTop: 12, marginBottom: 6, textAlign: AR ? 'right' : 'left' }}>{tt('facreg.93dfda41')}</Text>
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
         {LANGS.map(l => {
           const on = (data.languages || []).includes(l.id);
@@ -235,7 +235,7 @@ function Step1Basic({ data, update, submitRef }: StepProps<FacilityRegData>) {
 // ══════════════════════════════════════════════════════════════════════════════
 function Step2Legal({ data, update, submitRef }: StepProps<FacilityRegData>) {
   const uploadsOn = useUploadsEnabled();
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   
   const pick = useDocumentPicker<FacilityRegData>(update);
   const [errs, setErrs] = useState<Record<string, string>>({});
@@ -249,18 +249,18 @@ function Step2Legal({ data, update, submitRef }: StepProps<FacilityRegData>) {
 
 return (
     <View>
-      <NInput label={AR ? 'رقم السجل التجاري' : 'CR Number'} value={data.crNumber} onChange={v=>update({crNumber:v})} kbType="numeric" required />
-      <NInput label={AR ? 'رقم ترخيص وزارة الصحة' : 'MOH License'} value={data.mohLicense} onChange={v=>update({mohLicense:v})} kbType="numeric" required />
+      <NInput label={tt('facreg.7e54a94b')} value={data.crNumber} onChange={v=>update({crNumber:v})} kbType="numeric" required />
+      <NInput label={tt('facreg.796857a4')} value={data.mohLicense} onChange={v=>update({mohLicense:v})} kbType="numeric" required />
       <LicenseExpiryField value={data.licenseExpiry} onChange={v=>update({licenseExpiry:v})} error={errs.expiry} />
       
-      <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.md, marginBottom: SP.sm, textAlign: AR?'right':'left' }}>{AR ? 'المرفقات' : 'Attachments'}</Text>
-      <DocBtn label={AR ? 'شهادة السجل التجاري' : 'CR Document'} done={!!data.crDocUri} onPress={() => pick('crDocUri')} />
-      <DocBtn label={AR ? 'ترخيص وزارة الصحة' : 'MOH Document'} done={!!data.mohDocUri} onPress={() => pick('mohDocUri')} />
-      <DocBtn label={AR ? 'شعار المستشفى (Logo)' : 'Facility Logo'} done={!!data.facilityLogoUri} onPress={() => pick('facilityLogoUri')} />
+      <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.md, marginBottom: SP.sm, textAlign: AR?'right':'left' }}>{tt('facreg.821ad572')}</Text>
+      <DocBtn label={tt('facreg.e518d1e8')} done={!!data.crDocUri} onPress={() => pick('crDocUri')} />
+      <DocBtn label={tt('facreg.27343b74')} done={!!data.mohDocUri} onPress={() => pick('mohDocUri')} />
+      <DocBtn label={tt('facreg.de61fbe4')} done={!!data.facilityLogoUri} onPress={() => pick('facilityLogoUri')} />
       
       <View style={{ marginTop: SP.md }}>
         <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-          {AR ? 'صور المنشأة (لغاية 5 صور)' : 'Facility Images (up to 5)'}
+          {tt('facreg.b9f82ef6')}
         </Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: SP.sm, paddingVertical: SP.sm, flexDirection: AR ? 'row-reverse' : 'row' }}>
           {uploadsOn ? (
@@ -291,17 +291,17 @@ return (
 // ══════════════════════════════════════════════════════════════════════════════
 function Step3Location({ data, update, submitRef, uploads }: StepProps<FacilityRegData>) {
   const { show } = useToast();
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
   const [showLocModal, setShowLocModal] = useState(false);
   const [errs, setErrs] = useState<Record<string, string>>({});
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!data.region) e.city = AR ? 'اختر المنطقة' : 'Choose region';
-    else if (!data.city) e.city = AR ? 'اختر المدينة' : 'Choose city';
-    else if (!data.district) e.city = AR ? 'اختر الحي' : 'Choose district';
-    if (!data.fullAddress.trim()) e.addr = AR ? 'العنوان مطلوب' : 'Address required';
-    if (!data.location || !data.location.lat) e.loc = AR ? 'تحديد الموقع مطلوب' : 'Location required';
+    if (!data.region) e.city = tt('facreg.a138dac5');
+    else if (!data.city) e.city = tt('facreg.99ecd66a');
+    else if (!data.district) e.city = tt('facreg.ac994991');
+    if (!data.fullAddress.trim()) e.addr = tt('facreg.49a2e744');
+    if (!data.location || !data.location.lat) e.loc = tt('facreg.f202eecc');
     setErrs(e); return Object.keys(e).length === 0;
   };
 
@@ -357,25 +357,25 @@ function Step3Location({ data, update, submitRef, uploads }: StepProps<FacilityR
   return (
     <View>
       
-      <Text style={{ fontSize: FS.sm, fontWeight: FW.semi, marginBottom: SP.xs, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{AR ? 'المنطقة / المدينة / الحي' : 'Region / City / District'}<Text style={{ color: theme.danger }}> *</Text></Text>
+      <Text style={{ fontSize: FS.sm, fontWeight: FW.semi, marginBottom: SP.xs, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{tt('facreg.5a85d253')}<Text style={{ color: theme.danger }}> *</Text></Text>
       <GeoPicker value={{ region: (data as any).region, city: data.city, district: (data as any).district }} onChange={v=>update({ region: v.region, city: v.city, district: v.district } as any)} locale={lang} />
       {errs.city && <Text style={{ fontSize: FS.xs, color: theme.danger, marginBottom: SP.sm }}>{errs.city}</Text>}
 
-      <NInput label={AR ? 'العنوان الكامل' : 'Full Address'} value={data.fullAddress} onChange={v => update({ fullAddress: v })} required error={errs.addr} multi lines={2} />
+      <NInput label={tt('facreg.e2bff93c')} value={data.fullAddress} onChange={v => update({ fullAddress: v })} required error={errs.addr} multi lines={2} />
 
       <NCard style={{ marginBottom: SP.xl, marginTop: SP.md }}>
-        <Text style={{ fontSize: FS.sm, fontWeight: FW.semi, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>{AR ? 'تحديد الموقع الجغرافي' : 'Geographic Map Location'}</Text>
+        <Text style={{ fontSize: FS.sm, fontWeight: FW.semi, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>{tt('facreg.a99bde52')}</Text>
         <TouchableOpacity onPress={() => setShowLocModal(true)} style={{ borderColor:theme.border, backgroundColor:theme.surface2, borderWidth: 1, borderRadius: R.md, padding: SP.xl, alignItems: 'center', justifyContent: 'center', marginBottom: SP.md }}>
           {data.location && data.location.lat ? (
             <View style={{ alignItems: 'center' }}>
               <I name="location" size={32} color={theme.success} />
-              <Text style={{ color:theme.success, marginTop:SP.xs, fontWeight: FW.bold }}>{AR?'تم تحديد الموقع':'Location Selected'}</Text>
+              <Text style={{ color:theme.success, marginTop:SP.xs, fontWeight: FW.bold }}>{tt('facreg.e6c44175')}</Text>
               <Text style={{ color:theme.textSub, fontSize:FS.xs, marginTop: 4 }}>{data.location.lat.toFixed(4)}, {data.location.lng.toFixed(4)}</Text>
             </View>
           ) : (
             <View style={{ alignItems: 'center' }}>
               <I name="location" size={32} color={theme.textSub} />
-              <Text style={{ color:theme.textSub, marginTop:SP.xs }}>{AR?'اضغط لتحديد الموقع على الخريطة':'Tap to pin location on map'}</Text>
+              <Text style={{ color:theme.textSub, marginTop:SP.xs }}>{tt('facreg.6efa450d')}</Text>
             </View>
           )}
         </TouchableOpacity>
@@ -393,7 +393,7 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
  const labCatalog = useServicesCatalog('lab');
  const radCatalog = useServicesCatalog('radiology');
  const nursingCatalog = useServicesCatalog('nursing');
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [modalType, setModalType] = useState<'doctor'|'lab'|'pharmacy'|'radiology'|'nursing'|null>(null);
   const specialties = useSpecialtiesCatalog();
   
@@ -417,10 +417,10 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
   };
 
   const saveSub = () => {
-    if (!tempSub.nameAr) return show(AR ? 'الاسم مطلوب' : 'Name required', 'error');
-    if (!tempSub.nameEn) return show(AR ? 'الاسم الإنجليزي مطلوب' : 'English name required', 'error');
-    if (!tempSub.email) return show(AR ? 'البريد الإلكتروني مطلوب' : 'Email required', 'error');
-    if (modalType === 'doctor' && !tempSub.specialty) return show(AR ? 'التخصص مطلوب' : 'Specialty required', 'error');
+    if (!tempSub.nameAr) return show(tt('facreg.f70f7e30'), 'error');
+    if (!tempSub.nameEn) return show(tt('facreg.e185ed15'), 'error');
+    if (!tempSub.email) return show(tt('facreg.d663272a'), 'error');
+    if (modalType === 'doctor' && !tempSub.specialty) return show(tt('facreg.a5f5ea4e'), 'error');
     
     update({ subProviders: [...data.subProviders, { ...tempSub, type: modalType }] });
     setModalType(null);
@@ -461,7 +461,7 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
     <View>
       <View>
         <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginBottom: SP.lg, lineHeight: 22 }}>
-          {AR ? 'هنا يمكنك إضافة أطباء وصيدليات ومختبرات تابعة لمنشأتك. كل مزود تضيفه سيتم إنشاء حساب فرعي (Sub-account) مستقل له لإدارته.' : 'Add doctors, pharmacies, and labs under your facility. Each will get an independent sub-account.'}
+          {tt('facreg.d2331d8f')}
         </Text>
 
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.md, marginBottom: SP.xl }}>
@@ -475,7 +475,7 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
 
         {data.subProviders.length > 0 && (
           <View style={{ gap: SP.md }}>
-            <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>{AR ? 'المزودين المضافين' : 'Added Providers'}</Text>
+            <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>{tt('facreg.2881f99d')}</Text>
             {data.subProviders.map((sub: any, idx: number) => (
               <View key={idx} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', padding: SP.md, backgroundColor: theme.surface, borderRadius: R.md, borderWidth: 1, borderColor: theme.border, gap: SP.md }}>
                 <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: TYPES[sub.type].color + '20', alignItems: 'center', justifyContent: 'center' }}>
@@ -506,28 +506,28 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
           </View>
           
           <ScrollView style={{ flex: 1, padding: SP.xl }} keyboardShouldPersistTaps="handled">
-            <NInput label={AR ? 'الاسم (بالعربية)' : 'Name (AR)'} value={tempSub.nameAr} onChange={v=>setTempSub({...tempSub, nameAr:v})} required />
-            <NInput label={AR ? 'الاسم (بالإنجليزية)' : 'Name (EN)'} value={tempSub.nameEn} onChange={v=>setTempSub({...tempSub, nameEn:v})} required />
-            <NInput label={AR ? 'البريد الإلكتروني (لتسجيل الدخول لاحقاً)' : 'Email (for future login)'} value={tempSub.email} onChange={v=>setTempSub({...tempSub, email:v.toLowerCase()})} required kbType="email-address" />
-            <NInput label={AR ? 'رقم الترخيص / الهيئة' : 'License Number'} value={tempSub.license} onChange={v=>setTempSub({...tempSub, license:v})} required />
+            <NInput label={tt('facreg.7eb8db66')} value={tempSub.nameAr} onChange={v=>setTempSub({...tempSub, nameAr:v})} required />
+            <NInput label={tt('facreg.25d8873f')} value={tempSub.nameEn} onChange={v=>setTempSub({...tempSub, nameEn:v})} required />
+            <NInput label={tt('facreg.529e911b')} value={tempSub.email} onChange={v=>setTempSub({...tempSub, email:v.toLowerCase()})} required kbType="email-address" />
+            <NInput label={tt('facreg.a2ab6871')} value={tempSub.license} onChange={v=>setTempSub({...tempSub, license:v})} required />
             
             {modalType === 'doctor' && (
               <View style={{ gap: SP.md, marginBottom: SP.md }}>
                 <NDropdown
-                  label={AR ? 'التخصص الطبي' : 'Specialty'}
+                  label={tt('facreg.de60b396')}
                   value={tempSub.specialty}
                   options={specialties.map(s => ({ val: s.id, label: AR ? s.ar : s.en }))}
                   onChange={v => setTempSub({ ...tempSub, specialty: v })}
                 />
                 <NDropdown
-                  label={AR ? 'الدرجة العلمية' : 'Degree'}
+                  label={tt('facreg.65dc76f9')}
                   value={tempSub.degree}
                   options={DEGREES.map(d => ({ val: d.id, label: AR ? d.ar : d.en }))}
                   onChange={v => setTempSub({ ...tempSub, degree: v })}
                 />
                 
                                 <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.md, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-                  {AR ? 'التسعير وأنواع الاستشارات' : 'Consultation Modes & Pricing'}
+                  {tt('facreg.b0cff631')}
                 </Text>
                 
                 <View style={{ backgroundColor: theme.surface2, padding: SP.md, borderRadius: R.md, gap: SP.md }}>
@@ -541,21 +541,21 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
                         <View style={{ flex: 1 }}><NCheckbox label={AR ? mode.ar : mode.en} value={!!tempSub[mode.enb]} onChange={v => setTempSub({...tempSub, [mode.enb]: v})} /></View>
                         {tempSub[mode.enb] && (
                           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm }}>
-                            <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{AR ? 'السعر:' : 'Price:'}</Text>
+                            <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{tt('facreg.9c72a7be')}</Text>
                             <TextInput value={tempSub[mode.prc]} onChangeText={v => setTempSub({...tempSub, [mode.prc]: v})} placeholder="0" style={{ backgroundColor: theme.surface, padding: 4, paddingHorizontal: 8, borderRadius: R.xs, width: 60, textAlign: 'center', borderWidth: 1, borderColor: theme.border }} keyboardType="numeric" />
                           </View>
                         )}
                       </View>
                       {tempSub[mode.enb] && (
                         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'flex-start', marginTop: 4 }}>
-                           <NCheckbox label={AR ? 'مشمول في التأمين؟' : 'Accepts Insurance?'} value={tempSub[mode.ins]} onChange={v => setTempSub({...tempSub, [mode.ins]: v})} />
+                           <NCheckbox label={tt('facreg.47c1c1c4')} value={tempSub[mode.ins]} onChange={v => setTempSub({...tempSub, [mode.ins]: v})} />
                         </View>
                       )}
                     </View>
                   ))}
 
                   <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.md, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-                    {AR ? 'مواعيد العمل' : 'Working Hours'}
+                    {tt('facreg.82f7fda8')}
                   </Text>
                   
                   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 6 }}>
@@ -571,15 +571,15 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
                   
                   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
                     <View style={{ flex: 1 }}>
-                      <NDropdown label={AR ? 'من الساعة' : 'From'} value={tempSub.startHour} options={HOURS} onChange={v => setTempSub({...tempSub, startHour: v})} />
+                      <NDropdown label={tt('facreg.c375f2a3')} value={tempSub.startHour} options={HOURS} onChange={v => setTempSub({...tempSub, startHour: v})} />
                     </View>
                     <View style={{ flex: 1 }}>
-                      <NDropdown label={AR ? 'إلى الساعة' : 'To'} value={tempSub.endHour} options={HOURS} onChange={v => setTempSub({...tempSub, endHour: v})} />
+                      <NDropdown label={tt('facreg.91dd9b6d')} value={tempSub.endHour} options={HOURS} onChange={v => setTempSub({...tempSub, endHour: v})} />
                     </View>
                   </View>
 
                   <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginTop: SP.md }}>
-                    {AR ? 'يتم تطبيق التأمين الخاص بالمستشفى تلقائياً على حساب الطبيب، ويمكن للطبيب تفعيل أو إيقاف التأمين من لوحة تحكمه.' : 'Facility insurance is automatically applied. The doctor can toggle it from their dashboard.'}
+                    {tt('facreg.1f1a484b')}
                   </Text>
                 </View>
               </View>
@@ -588,17 +588,17 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
             {(modalType === 'lab') && (
               <View style={{ backgroundColor: theme.surface2, padding: SP.md, borderRadius: R.md, marginTop: SP.md }}>
                 <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-                  {AR ? 'الفحوصات الطبية' : 'Lab Tests'}
+                  {tt('facreg.c4116abb')}
                 </Text>
                 <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>
-                  {AR ? 'حدد الفحوصات المتاحة وأسعارها' : 'Select tests and set prices'}
+                  {tt('facreg.b5117772')}
                 </Text>
                 <View style={{ gap: SP.sm }}>
                   {labCatalog.map(t => (
                     <View key={t.id} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                       <View style={{ flex: 1 }}><NCheckbox label={AR ? t.ar : t.en} value={!!(tempSub.enabledTests || []).includes(t.id)} onChange={() => toggleTest(t.id)} /></View>
                       {!!(tempSub.enabledTests || []).includes(t.id) && (
-                        <TextInput value={tempSub.testPrices?.[t.id] || ''} onChangeText={v => setTempSub({ ...tempSub, testPrices: { ...(tempSub.testPrices || {}), [t.id]: v } })} placeholder={AR ? 'السعر (رس)' : 'Price'} style={{ backgroundColor: theme.bg, padding: 8, borderRadius: 8, width: 100, textAlign: AR ? 'right' : 'left' }} keyboardType="numeric" />
+                        <TextInput value={tempSub.testPrices?.[t.id] || ''} onChangeText={v => setTempSub({ ...tempSub, testPrices: { ...(tempSub.testPrices || {}), [t.id]: v } })} placeholder={tt('facreg.edbde75d')} style={{ backgroundColor: theme.bg, padding: 8, borderRadius: 8, width: 100, textAlign: AR ? 'right' : 'left' }} keyboardType="numeric" />
                       )}
                     </View>
                   ))}
@@ -606,20 +606,20 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
 
                 <View style={{ marginTop: SP.lg, paddingTop: SP.lg, borderTopWidth: 1, borderTopColor: theme.border }}>
                   <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-                    {AR ? 'الخدمات المنزلية والتأمين' : 'Home Services & Insurance'}
+                    {tt('facreg.80329036')}
                   </Text>
                   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.sm }}>
-                    <View style={{ flex: 1 }}><NCheckbox label={AR ? 'توفير سحب العينات من المنزل' : 'Provide Home Sample Collection'} value={!!tempSub.homeEnabled} onChange={v => setTempSub({...tempSub, homeEnabled: v})} /></View>
+                    <View style={{ flex: 1 }}><NCheckbox label={tt('facreg.715def7a')} value={!!tempSub.homeEnabled} onChange={v => setTempSub({...tempSub, homeEnabled: v})} /></View>
                     {tempSub.homeEnabled && (
-                      <TextInput value={tempSub.priceHome} onChangeText={v => setTempSub({...tempSub, priceHome: v})} placeholder={AR ? 'الرسوم (رس)' : 'Fee'} style={{ backgroundColor: theme.bg, padding: 8, borderRadius: 8, width: 100, textAlign: 'center', borderWidth: 1, borderColor: theme.border }} keyboardType="numeric" />
+                      <TextInput value={tempSub.priceHome} onChangeText={v => setTempSub({...tempSub, priceHome: v})} placeholder={tt('facreg.9ce60f4d')} style={{ backgroundColor: theme.bg, padding: 8, borderRadius: 8, width: 100, textAlign: 'center', borderWidth: 1, borderColor: theme.border }} keyboardType="numeric" />
                     )}
                   </View>
                   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'flex-start', marginBottom: SP.md }}>
-                    <NCheckbox label={AR ? 'مشمول في التأمين الطبي' : 'Accepts Medical Insurance'} value={tempSub.acceptsInsurance} onChange={v => setTempSub({...tempSub, acceptsInsurance: v})} />
+                    <NCheckbox label={tt('facreg.1ac8fc29')} value={tempSub.acceptsInsurance} onChange={v => setTempSub({...tempSub, acceptsInsurance: v})} />
                   </View>
 
                   <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.sm, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-                    {AR ? 'مواعيد العمل' : 'Working Hours'}
+                    {tt('facreg.82f7fda8')}
                   </Text>
                   
                   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 6 }}>
@@ -635,10 +635,10 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
                   
                   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.md }}>
                     <View style={{ flex: 1 }}>
-                      <NDropdown label={AR ? 'من الساعة' : 'From'} value={tempSub.startHour} options={HOURS} onChange={v => setTempSub({...tempSub, startHour: v})} />
+                      <NDropdown label={tt('facreg.c375f2a3')} value={tempSub.startHour} options={HOURS} onChange={v => setTempSub({...tempSub, startHour: v})} />
                     </View>
                     <View style={{ flex: 1 }}>
-                      <NDropdown label={AR ? 'إلى الساعة' : 'To'} value={tempSub.endHour} options={HOURS} onChange={v => setTempSub({...tempSub, endHour: v})} />
+                      <NDropdown label={tt('facreg.91dd9b6d')} value={tempSub.endHour} options={HOURS} onChange={v => setTempSub({...tempSub, endHour: v})} />
                     </View>
                   </View>
                 </View>
@@ -649,17 +649,17 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
             {(modalType === 'radiology') && (
               <View style={{ backgroundColor: theme.surface2, padding: SP.md, borderRadius: R.md, marginTop: SP.md }}>
                 <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-                  {AR ? 'الأشعة والتصوير' : 'Radiology Scans'}
+                  {tt('facreg.31e5e67c')}
                 </Text>
                 <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>
-                  {AR ? 'حدد الأشعة المتاحة في هذا المركز' : 'Select scans available'}
+                  {tt('facreg.b07c7eeb')}
                 </Text>
                 <View style={{ gap: SP.sm }}>
                   {radCatalog.map(s => (
                     <View key={s.id} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                       <View style={{ flex: 1 }}><NCheckbox label={AR ? s.ar : s.en} value={!!(tempSub.enabledScans || []).includes(s.id)} onChange={() => toggleScan(s.id)} /></View>
                       {!!(tempSub.enabledScans || []).includes(s.id) && (
-                        <TextInput value={tempSub.scanPrices?.[s.id] || ''} onChangeText={v => setTempSub({ ...tempSub, scanPrices: { ...(tempSub.scanPrices || {}), [s.id]: v } })} placeholder={AR ? 'السعر (رس)' : 'Price'} style={{ backgroundColor: theme.bg, padding: 8, borderRadius: 8, width: 100, textAlign: AR ? 'right' : 'left' }} keyboardType="numeric" />
+                        <TextInput value={tempSub.scanPrices?.[s.id] || ''} onChangeText={v => setTempSub({ ...tempSub, scanPrices: { ...(tempSub.scanPrices || {}), [s.id]: v } })} placeholder={tt('facreg.edbde75d')} style={{ backgroundColor: theme.bg, padding: 8, borderRadius: 8, width: 100, textAlign: AR ? 'right' : 'left' }} keyboardType="numeric" />
                       )}
                     </View>
                   ))}
@@ -667,20 +667,20 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
 
                 <View style={{ marginTop: SP.lg, paddingTop: SP.lg, borderTopWidth: 1, borderTopColor: theme.border }}>
                   <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-                    {AR ? 'الخدمات المنزلية والتأمين' : 'Home Services & Insurance'}
+                    {tt('facreg.80329036')}
                   </Text>
                   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.sm }}>
-                    <View style={{ flex: 1 }}><NCheckbox label={AR ? 'توفير التصوير المنزلي (Home Scan)' : 'Provide Home Scan'} value={!!tempSub.homeEnabled} onChange={v => setTempSub({...tempSub, homeEnabled: v})} /></View>
+                    <View style={{ flex: 1 }}><NCheckbox label={tt('facreg.51910b8d')} value={!!tempSub.homeEnabled} onChange={v => setTempSub({...tempSub, homeEnabled: v})} /></View>
                     {tempSub.homeEnabled && (
-                      <TextInput value={tempSub.priceHome} onChangeText={v => setTempSub({...tempSub, priceHome: v})} placeholder={AR ? 'الرسوم (رس)' : 'Fee'} style={{ backgroundColor: theme.bg, padding: 8, borderRadius: 8, width: 100, textAlign: 'center', borderWidth: 1, borderColor: theme.border }} keyboardType="numeric" />
+                      <TextInput value={tempSub.priceHome} onChangeText={v => setTempSub({...tempSub, priceHome: v})} placeholder={tt('facreg.9ce60f4d')} style={{ backgroundColor: theme.bg, padding: 8, borderRadius: 8, width: 100, textAlign: 'center', borderWidth: 1, borderColor: theme.border }} keyboardType="numeric" />
                     )}
                   </View>
                   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'flex-start', marginBottom: SP.md }}>
-                    <NCheckbox label={AR ? 'مشمول في التأمين الطبي' : 'Accepts Medical Insurance'} value={tempSub.acceptsInsurance} onChange={v => setTempSub({...tempSub, acceptsInsurance: v})} />
+                    <NCheckbox label={tt('facreg.1ac8fc29')} value={tempSub.acceptsInsurance} onChange={v => setTempSub({...tempSub, acceptsInsurance: v})} />
                   </View>
 
                   <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.sm, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-                    {AR ? 'مواعيد العمل' : 'Working Hours'}
+                    {tt('facreg.82f7fda8')}
                   </Text>
                   
                   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 6 }}>
@@ -696,10 +696,10 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
                   
                   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.md }}>
                     <View style={{ flex: 1 }}>
-                      <NDropdown label={AR ? 'من الساعة' : 'From'} value={tempSub.startHour} options={HOURS} onChange={v => setTempSub({...tempSub, startHour: v})} />
+                      <NDropdown label={tt('facreg.c375f2a3')} value={tempSub.startHour} options={HOURS} onChange={v => setTempSub({...tempSub, startHour: v})} />
                     </View>
                     <View style={{ flex: 1 }}>
-                      <NDropdown label={AR ? 'إلى الساعة' : 'To'} value={tempSub.endHour} options={HOURS} onChange={v => setTempSub({...tempSub, endHour: v})} />
+                      <NDropdown label={tt('facreg.91dd9b6d')} value={tempSub.endHour} options={HOURS} onChange={v => setTempSub({...tempSub, endHour: v})} />
                     </View>
                   </View>
                 </View>
@@ -710,17 +710,17 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
             {(modalType === 'nursing') && (
               <View style={{ backgroundColor: theme.surface2, padding: SP.md, borderRadius: R.md, marginTop: SP.md }}>
                 <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-                  {AR ? 'الخدمات التمريضية' : 'Nursing Services'}
+                  {tt('facreg.378ac39b')}
                 </Text>
                 <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>
-                  {AR ? 'حدد خدمات التمريض المتاحة وأسعارها' : 'Select nursing services available'}
+                  {tt('facreg.e5f4a1aa')}
                 </Text>
                 <View style={{ gap: SP.sm }}>
                   {nursingCatalog.map(s => (
                     <View key={s.id} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                       <View style={{ flex: 1 }}><NCheckbox label={AR ? s.ar : s.en} value={!!(tempSub.enabledNursing || []).includes(s.id)} onChange={() => toggleNursing(s.id)} /></View>
                       {!!(tempSub.enabledNursing || []).includes(s.id) && (
-                        <TextInput value={tempSub.nursingPrices?.[s.id] || ''} onChangeText={v => setTempSub({ ...tempSub, nursingPrices: { ...(tempSub.nursingPrices||{}), [s.id]: v } })} placeholder={AR ? 'السعر (رس)' : 'Price'} style={{ backgroundColor: theme.bg, padding: 8, borderRadius: 8, width: 100, textAlign: AR ? 'right' : 'left' }} keyboardType="numeric" />
+                        <TextInput value={tempSub.nursingPrices?.[s.id] || ''} onChangeText={v => setTempSub({ ...tempSub, nursingPrices: { ...(tempSub.nursingPrices||{}), [s.id]: v } })} placeholder={tt('facreg.edbde75d')} style={{ backgroundColor: theme.bg, padding: 8, borderRadius: 8, width: 100, textAlign: AR ? 'right' : 'left' }} keyboardType="numeric" />
                       )}
                     </View>
                   ))}
@@ -728,20 +728,20 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
 
                 <View style={{ marginTop: SP.lg, paddingTop: SP.lg, borderTopWidth: 1, borderTopColor: theme.border }}>
                   <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-                    {AR ? 'نطاق الخدمة والتأمين' : 'Service Scope & Insurance'}
+                    {tt('facreg.8df50de4')}
                   </Text>
                   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.sm }}>
-                    <View style={{ flex: 1 }}><NCheckbox label={AR ? 'تقديم رعاية منزلية (Home Care)' : 'Provide Home Care'} value={!!tempSub.homeEnabled} onChange={v => setTempSub({...tempSub, homeEnabled: v})} /></View>
+                    <View style={{ flex: 1 }}><NCheckbox label={tt('facreg.6e1f9d74')} value={!!tempSub.homeEnabled} onChange={v => setTempSub({...tempSub, homeEnabled: v})} /></View>
                     {tempSub.homeEnabled && (
-                      <TextInput value={tempSub.priceHome} onChangeText={v => setTempSub({...tempSub, priceHome: v})} placeholder={AR ? 'الرسوم (رس)' : 'Fee'} style={{ backgroundColor: theme.bg, padding: 8, borderRadius: 8, width: 100, textAlign: 'center', borderWidth: 1, borderColor: theme.border }} keyboardType="numeric" />
+                      <TextInput value={tempSub.priceHome} onChangeText={v => setTempSub({...tempSub, priceHome: v})} placeholder={tt('facreg.9ce60f4d')} style={{ backgroundColor: theme.bg, padding: 8, borderRadius: 8, width: 100, textAlign: 'center', borderWidth: 1, borderColor: theme.border }} keyboardType="numeric" />
                     )}
                   </View>
                   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'flex-start', marginBottom: SP.md }}>
-                    <NCheckbox label={AR ? 'مشمول في التأمين الطبي' : 'Accepts Medical Insurance'} value={tempSub.acceptsInsurance} onChange={v => setTempSub({...tempSub, acceptsInsurance: v})} />
+                    <NCheckbox label={tt('facreg.1ac8fc29')} value={tempSub.acceptsInsurance} onChange={v => setTempSub({...tempSub, acceptsInsurance: v})} />
                   </View>
 
                   <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.sm, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-                    {AR ? 'مواعيد العمل' : 'Working Hours'}
+                    {tt('facreg.82f7fda8')}
                   </Text>
                   
                   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 6 }}>
@@ -757,10 +757,10 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
                   
                   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.md }}>
                     <View style={{ flex: 1 }}>
-                      <NDropdown label={AR ? 'من الساعة' : 'From'} value={tempSub.startHour} options={HOURS} onChange={v => setTempSub({...tempSub, startHour: v})} />
+                      <NDropdown label={tt('facreg.c375f2a3')} value={tempSub.startHour} options={HOURS} onChange={v => setTempSub({...tempSub, startHour: v})} />
                     </View>
                     <View style={{ flex: 1 }}>
-                      <NDropdown label={AR ? 'إلى الساعة' : 'To'} value={tempSub.endHour} options={HOURS} onChange={v => setTempSub({...tempSub, endHour: v})} />
+                      <NDropdown label={tt('facreg.91dd9b6d')} value={tempSub.endHour} options={HOURS} onChange={v => setTempSub({...tempSub, endHour: v})} />
                     </View>
                   </View>
                 </View>
@@ -771,17 +771,17 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
             {(modalType === 'pharmacy') && (
               <View style={{ backgroundColor: theme.surface2, padding: SP.md, borderRadius: R.md, marginTop: SP.md }}>
                 <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-                  {AR ? 'خدمات الصيدلية' : 'Pharmacy services'}
+                  {tt('facreg.a70a12f3')}
                 </Text>
-                <NCheckbox label={AR ? 'توصيل للمنازل' : 'Home delivery'} value={!!tempSub.pharmDelivery} onChange={v => setTempSub({...tempSub, pharmDelivery: v})} />
+                <NCheckbox label={tt('facreg.b7822c5b')} value={!!tempSub.pharmDelivery} onChange={v => setTempSub({...tempSub, pharmDelivery: v})} />
                 <View style={{ height: SP.sm }} />
-                <NCheckbox label={AR ? 'مشمول في التأمين الطبي' : 'Accepts Medical Insurance'} value={tempSub.acceptsInsurance} onChange={v => setTempSub({...tempSub, acceptsInsurance: v})} />
+                <NCheckbox label={tt('facreg.1ac8fc29')} value={tempSub.acceptsInsurance} onChange={v => setTempSub({...tempSub, acceptsInsurance: v})} />
               </View>
             )}
 
             <View style={{ marginTop: SP.lg, paddingHorizontal: SP.xs }}>
               <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-                {AR ? 'صور العيادة/المكان (لغاية 5 صور)' : 'Clinic/Location Images (up to 5)'}
+                {tt('facreg.b0979cf8')}
               </Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: SP.sm, paddingVertical: SP.sm, flexDirection: AR ? 'row-reverse' : 'row' }}>
                 {uploadsOn ? (
@@ -806,7 +806,7 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
               </ScrollView>
             </View>
 
-            <NBtn label={AR ? 'إضافة إلى القائمة' : 'Add to List'} onPress={saveSub} style={{ marginTop: SP.xxl, marginBottom: 50 }} />
+            <NBtn label={tt('facreg.a8cb327e')} onPress={saveSub} style={{ marginTop: SP.xxl, marginBottom: 50 }} />
           </ScrollView>
         </SafeAreaView>
       </Modal>
@@ -817,7 +817,7 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
 // ══════════════════════════════════════════════════════════════════════════════
 function Step5Insurance({ data, update, submitRef, uploads }: StepProps<FacilityRegData>) {
  const insuranceCatalog = useInsuranceCatalog();
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const handleNext = async (): Promise<boolean> => {
     try {
       update({ loading: true });
@@ -956,18 +956,18 @@ function Step5Insurance({ data, update, submitRef, uploads }: StepProps<Facility
   return (
     <View>
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: theme.surface2, padding: SP.lg, borderRadius: R.md, marginBottom: SP.lg }}>
-        <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{AR ? 'الدفع نقداً فقط (لا نقبل التأمين)' : 'Cash Only (No Insurance)'}</Text>
+        <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{tt('facreg.de9796af')}</Text>
         <Switch value={data.cashOnly} onValueChange={v=>update({cashOnly:v})} />
       </View>
 
       {!data.cashOnly && (
         <View style={{ marginBottom: SP.xl }}>
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: theme.surface2, padding: SP.lg, borderRadius: R.md, marginBottom: SP.lg }}>
-            <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{AR ? 'مدير/مسؤول تأمين عام للمستشفى؟' : 'General Insurance Manager?'}</Text>
+            <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{tt('facreg.7dbbcd9f')}</Text>
             <Switch value={data.hasInsuranceCoordinator} onValueChange={v=>update({hasInsuranceCoordinator:v})} />
           </View>
 
-          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{AR ? 'شركات التأمين المقبولة بالمنشأة' : 'Accepted Insurance Companies'}</Text>
+          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{tt('facreg.b7d7af1c')}</Text>
           {insuranceCatalog.map(co => {
             const acceptedObj = data.acceptedInsurance?.find(c => c.companyId === co.id);
             const isAccepted = !!acceptedObj;
@@ -983,7 +983,7 @@ function Step5Insurance({ data, update, submitRef, uploads }: StepProps<Facility
 
                 {isAccepted && (
                   <View style={{ marginTop: SP.sm, borderTopWidth: 1, borderTopColor: theme.border, paddingTop: SP.sm }}>
-                    <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>{AR ? 'الفئات/الخطط المقبولة للمستشفى:' : 'Accepted Plans/Tiers:'}</Text>
+                    <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>{tt('facreg.f883c872')}</Text>
                     <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 6 }}>
                       {co.plans.map(p => {
                         const hasPlan = acceptedObj.plans.includes(p);
@@ -1007,7 +1007,7 @@ function Step5Insurance({ data, update, submitRef, uploads }: StepProps<Facility
 
 // ══════════════════════════════════════════════════════════════════════════════
 function Step6AdminWarning({ data, update, submitRef }: StepProps<FacilityRegData>) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
   const handleNext = () => true;
   useStepSaver(submitRef, handleNext);
 
@@ -1017,13 +1017,13 @@ return (
       <View style={{ backgroundColor: theme.dangerBg, padding: SP.xl, borderRadius: R.lg, borderWidth: 1, borderColor: theme.danger, marginTop: SP.lg }}>
         <View style={{ alignSelf: 'center', marginBottom: SP.md }}><I name="info" size={40} color={theme.danger} /></View>
         <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.danger, textAlign: 'center', marginBottom: SP.md }}>
-          {AR ? 'هام جداً' : 'IMPORTANT'}
+          {tt('facreg.c15fe0e5')}
         </Text>
         <Text style={{ fontSize: FS.md, color: theme.text, textAlign: AR ? 'right' : 'left', lineHeight: 24, marginBottom: SP.md }}>
-          {AR ? 'البيانات التي قمت بإدخالها، وأي حسابات فرعية (أطباء، مختبرات) قمت بإضافتها، لن تكون مرئية لجمهور المرضى فور التسجيل.' : 'The data and sub-accounts you entered will NOT be visible to patients immediately.'}
+          {tt('facreg.77a815e5')}
         </Text>
         <Text style={{ fontSize: FS.md, color: theme.text, textAlign: AR ? 'right' : 'left', lineHeight: 24 }}>
-          {AR ? 'كذلك في المستقبل، عند تعديل الأسعار، المواعيد، أو إضافة أقسام جديدة من الإعدادات، يجب أن تمر أولاً عبر (الأدمن) للمراجعة والموافقة لضمان الجودة.' : 'In the future, any changes to prices, schedules, or new departments must pass through Admin Approval first.'}
+          {tt('facreg.af7f4ed5')}
         </Text>
       </View>
     </View>

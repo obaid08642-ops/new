@@ -60,7 +60,7 @@ export const isTodayRow = (x: any, now = new Date()): boolean => !x.scheduled_at
 export function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, selectedBranch, onSelectBranch }: { onNavigate: (s: string, p?: any) => void; wards: any[]; onTriggerAlarm?: () => void; branches?: any[]; selectedBranch?: string; onSelectBranch?: (id: string) => void }) {
  const insets = useSafeAreaInsets();
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { user } = useAuth();
  const AR = lang === 'ar';
  const [refreshing, setRefreshing] = useState(false);
@@ -104,10 +104,10 @@ export function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, s
  </View>
  <View>
  <Text style={{ fontSize: FS.sm, color: theme.textSub }}>
- {AR ? 'مرحباً،' : 'Hello,'}
+ {tt('fachome.9a23d79f')}
  </Text>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>
- {AR ? 'مستشفى نبضة الطبي' : 'Nabdah Medical Hospital'}
+ {tt('fachome.d71022b1')}
  </Text>
  </View>
  </View>
@@ -161,16 +161,16 @@ export function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, s
  const aptsToday = todayStats?.todayCount ?? todayApts.length;
  const revenue = todayStats?.revenue;
  return (<>
- <NStatCard icon="calendar" label={AR ? 'مواعيد اليوم' : "Today's Apts"} value={String(aptsToday)} color={tokens.info} style={{ width: '47%' }} />
- <NStatCard icon="bed" label={AR ? 'أسرّة مشغولة' : 'Occupied Beds'} value={totalBeds > 0 ? `${occupied}/${totalBeds}` : '—'} color={tokens.warning} style={{ width: '47%' }} />
- <NStatCard icon="money" label={AR ? 'إيرادات اليوم' : "Today's Rev."} value={typeof revenue === 'number' ? revenue.toLocaleString() : '—'} unit={AR?'ر':'SAR'} color={tokens.success} style={{ width: '47%' }} />
- <NStatCard icon="users" label={AR ? 'الكوادر النشطة' : 'Active Staff'} value={String(activeStaff)} color={tokens.purple} style={{ width: '47%' }} />
+ <NStatCard icon="calendar" label={tt('fachome.2cd3bf29')} value={String(aptsToday)} color={tokens.info} style={{ width: '47%' }} />
+ <NStatCard icon="bed" label={tt('fachome.56077360')} value={totalBeds > 0 ? `${occupied}/${totalBeds}` : '—'} color={tokens.warning} style={{ width: '47%' }} />
+ <NStatCard icon="money" label={tt('fachome.132997cb')} value={typeof revenue === 'number' ? revenue.toLocaleString() : '—'} unit={tt('fachome.a629499b')} color={tokens.success} style={{ width: '47%' }} />
+ <NStatCard icon="users" label={tt('fachome.86530ce0')} value={String(activeStaff)} color={tokens.purple} style={{ width: '47%' }} />
  </>);
  })()}
  </View>
 
   {/* Live Operational Command Center */}
-  <NSecHeader title={AR ? ' مركز العمليات المباشر' : ' Live Command Center'} />
+  <NSecHeader title={tt('fachome.090367ed')} />
   <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: SP.xl }}>
     <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, paddingHorizontal: SP.xs }}>
       <NCard style={{ width: 150, backgroundColor: theme.surface2, borderColor: theme.danger }}>
@@ -179,7 +179,7 @@ export function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, s
           <View style={[s.notifDot, { position: 'relative', top: 0, right: 0, backgroundColor: theme.danger }]} />
         </View>
         <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
-          {AR ? 'طوارئ نشطة' : 'Active ER'}
+          {tt('fachome.6773e657')}
         </Text>
         <Text style={{ fontSize: FS.xl, fontWeight: FW.xbold, color: theme.danger, textAlign: AR ? 'right' : 'left', marginTop: SP.xs }}>
           {todayApts.filter((a: any) => String(a.type || a.kind || '').toLowerCase().includes('emergency')).length} <Text style={{ fontSize: FS.xs, color: theme.textSub, fontWeight: FW.med }}>{AR ? 'حالات' : 'cases'}</Text>
@@ -192,10 +192,10 @@ export function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, s
           <View style={[s.notifDot, { position: 'relative', top: 0, right: 0, backgroundColor: theme.warn }]} />
         </View>
         <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
-          {AR ? 'غرف العمليات' : 'Active ORs'}
+          {tt('fachome.9ca35ddd')}
         </Text>
         <Text style={{ fontSize: FS.xl, fontWeight: FW.xbold, color: theme.warn, textAlign: AR ? 'right' : 'left', marginTop: SP.xs }}>
-          {surgeriesLive.filter((s: any) => ['in_progress', 'in-progress', 'ongoing'].includes(String(s.status || '').toLowerCase())).length} <Text style={{ fontSize: FS.xs, color: theme.textSub, fontWeight: FW.med }}>{AR ? 'قيد الإجراء' : 'in progress'}</Text>
+          {surgeriesLive.filter((s: any) => ['in_progress', 'in-progress', 'ongoing'].includes(String(s.status || '').toLowerCase())).length} <Text style={{ fontSize: FS.xs, color: theme.textSub, fontWeight: FW.med }}>{tt('fachome.784b238e')}</Text>
         </Text>
       </NCard>
 
@@ -205,7 +205,7 @@ export function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, s
           <View style={[s.notifDot, { position: 'relative', top: 0, right: 0, backgroundColor: theme.primary }]} />
         </View>
         <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
-          {AR ? 'عيادات تعمل' : 'Running Clinics'}
+          {tt('fachome.be913741')}
         </Text>
         <Text style={{ fontSize: FS.xl, fontWeight: FW.xbold, color: theme.primary, textAlign: AR ? 'right' : 'left', marginTop: SP.xs }}>
           {subaccounts.filter((st: any) => String(st.staff_role || st.role || '').toLowerCase().includes('doctor')).length} <Text style={{ fontSize: FS.xs, color: theme.textSub, fontWeight: FW.med }}>{AR ? 'طبيب' : 'doctors'}</Text>
@@ -214,7 +214,7 @@ export function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, s
     </View>
   </ScrollView>
  {/* Quick Actions */}
- <NSecHeader title={AR ? 'إجراءات سريعة' : 'Quick Actions'} />
+ <NSecHeader title={tt('fachome.88717c98')} />
  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: SP.xl }}>
  <View style={{ flexDirection: 'row', gap: SP.md, paddingRight: SP.xl }}>
  {[
@@ -247,12 +247,12 @@ export function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, s
  </ScrollView>
 
  {/* Bed Availability */}
- <NSecHeader title={AR?' الأسرّة':' Bed Availability'}
- action={AR ? 'التفاصيل' : 'Details'} onAction={() => onNavigate('beds')} />
+ <NSecHeader title={tt('fachome.38b63219')}
+ action={tt('fachome.c4ac0a1d')} onAction={() => onNavigate('beds')} />
  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: SP.xl }}>
  <View style={{ flexDirection: 'row', gap: SP.md, paddingRight: SP.xl }}>
  {wards.length === 0 ? (
- <Text style={{ color: theme.textSub, marginHorizontal: SP.lg, paddingVertical: SP.md }}>{AR ? 'لا توجد أجنحة مضافة' : 'No wards added'}</Text>
+ <Text style={{ color: theme.textSub, marginHorizontal: SP.lg, paddingVertical: SP.md }}>{tt('fachome.d6a45d79')}</Text>
  ) : wards.map((ward, i) => {
  const total = ward.total_beds || 0;
  const available = ward.available_beds || 0;
@@ -282,8 +282,8 @@ export function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, s
  </ScrollView>
 
  {/* Today's Schedule */}
- <NSecHeader title={AR ? " جدول اليوم" : " Today's Schedule"}
- action={AR ? 'الكل' : 'All'} onAction={() => onNavigate('unified_sched')} />
+ <NSecHeader title={tt('fachome.aced7160')}
+ action={tt('fachome.eabe5f68')} onAction={() => onNavigate('unified_sched')} />
  {todayApts.map(apt => {
  const typeColor = apt.type === 'emergency' ? theme.danger : apt.type === 'surgery' ? theme.warn : theme.primary;
  return (
@@ -305,7 +305,7 @@ export function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, s
  : (apt.type === 'emergency' ? ' ER' : apt.type === 'surgery' ? ' Surgery' : ' OPD')}
  variant={apt.type === 'emergency' ? 'danger' : apt.type === 'surgery' ? 'warning' : 'primary'}
  size="xs" />
- <NBadge label={apt.status === 'in_progress' ? (AR?'جارٍ':'Active') : apt.status === 'confirmed' ? (AR?'مؤكد':'Confirmed') : (AR?'انتظار':'Pending')}
+ <NBadge label={apt.status === 'in_progress' ? (tt('fachome.98492d4f')) : apt.status === 'confirmed' ? (tt('fachome.1cab1a63')) : (tt('fachome.94139241'))}
  variant={apt.status === 'in_progress' ? 'warning' : 'success'} size="xs" />
  </View>
  </View>
@@ -314,8 +314,8 @@ export function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, s
  })}
 
  {/* Active Staff */}
- <NSecHeader title={AR ? ' الكوادر النشطة اليوم' : ' Active Staff Today'}
- action={AR ? 'إدارة' : 'Manage'} onAction={() => onNavigate('subaccounts')} />
+ <NSecHeader title={tt('fachome.3404db0b')}
+ action={tt('fachome.07b608d0')} onAction={() => onNavigate('subaccounts')} />
  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: SP.xl }}>
  <View style={{ flexDirection: 'row', gap: SP.md }}>
  {subaccounts.filter((s: any) => s.status === 'active').map((staff: any) => (

@@ -60,17 +60,17 @@ import { DoctorScheduleTab } from './DoctorScheduleTab';
 import { DoctorHomeTab } from './DoctorHomeTab';
 export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void }) {
  const [activeTab, setActiveTab] = useState('home');
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const AR = lang === 'ar';
 
  const [alarmVisible, setAlarmVisible] = useState(false);
 
  const tabs = [
- { key: 'home', icon: 'home', label: AR ? 'الرئيسية' : 'Home' },
- { key: 'schedule', icon: 'calendar', label: AR ? 'المواعيد' : 'Schedule' },
- { key: 'chat', icon: 'chat', label: AR ? 'المحادثات' : 'Chats' },
- { key: 'wallet', icon: 'wallet', label: AR ? 'المحفظة' : 'Wallet' },
- { key: 'settings', icon: 'settings', label: AR ? 'الإعدادات' : 'Settings' },
+ { key: 'home', icon: 'home', label: tt('docnav.17c4ca45') },
+ { key: 'schedule', icon: 'calendar', label: tt('docnav.857bca43') },
+ { key: 'chat', icon: 'chat', label: tt('docnav.aab7b0fc') },
+ { key: 'wallet', icon: 'wallet', label: tt('docnav.7a5fcb94') },
+ { key: 'settings', icon: 'settings', label: tt('docnav.5766fe8f') },
  ];
 
  return (

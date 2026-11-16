@@ -10,7 +10,7 @@ import { useTheme, useLang, useToast } from '../../context';
 
 export function RegistrationSuccess({ onDone, email, providerType = 'provider' }: { onDone: () => void; email?: string; providerType?: string }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
   const insets = useSafeAreaInsets();
@@ -22,20 +22,20 @@ export function RegistrationSuccess({ onDone, email, providerType = 'provider' }
   const [contractLoading, setContractLoading] = useState(false);
 
   const handleSendOtp = async () => {
-    if (!email) { show(AR ? 'لا يوجد بريد إلكتروني مسجل' : 'No email on file', 'error'); return; }
+    if (!email) { show(tt('regdone.3a0874f7'), 'error'); return; }
     setLoading(true);
     try {
       await sendEmailOtp(email);
       setOtpSent(true);
-      show(AR ? 'تم إرسال رمز التحقق إلى بريدك الإلكتروني' : 'Verification code sent to email', 'success');
+      show(tt('regdone.83308132'), 'success');
     } catch {
-      show(AR ? 'تعذر إرسال الرمز — حاول بعد قليل' : 'Could not send code — try again shortly', 'error');
+      show(tt('regdone.643574d2'), 'error');
     } finally { setLoading(false); }
   };
 
   const handleVerify = async () => {
     if (!otp || otp.length < 6) {
-      show(AR ? 'الرمز غير صحيح' : 'Invalid code', 'error');
+      show(tt('regdone.282fb67e'), 'error');
       return;
     }
     setLoading(true);
@@ -43,12 +43,12 @@ export function RegistrationSuccess({ onDone, email, providerType = 'provider' }
       const ok = await verifyEmailOtp(email || '', otp);
       if (ok) {
         setVerified(true);
-        show(AR ? 'تم تأكيد البريد الإلكتروني بنجاح' : 'Email verified successfully', 'success');
+        show(tt('regdone.220feb76'), 'success');
       } else {
-        show(AR ? 'الرمز غير صحيح أو منتهي' : 'Code is incorrect or expired', 'error');
+        show(tt('regdone.95facdd2'), 'error');
       }
     } catch {
-      show(AR ? 'تعذر التحقق — حاول مجدداً' : 'Verification failed — try again', 'error');
+      show(tt('regdone.ccd69287'), 'error');
     } finally { setLoading(false); }
   };
 
@@ -60,10 +60,10 @@ export function RegistrationSuccess({ onDone, email, providerType = 'provider' }
       const b64 = data?.pdf_base64;
       if (!b64) throw new Error('empty');
       await saveContractPdf(b64, contractFileName(data?.sha256));
-      show(AR ? 'تم حفظ العقد بنجاح' : 'Contract saved successfully', 'success');
+      show(tt('regdone.1fe27450'), 'success');
     } catch (e: any) {
       // 404: nothing signed yet. The signer is never refused: there is no admin switch over their own contract.
-      show(e?.response?.status === 404 ? (AR ? 'لم يُولَّد العقد بعد' : 'The contract has not been generated yet') : (AR ? 'تعذر تحميل العقد' : 'Could not download the contract'), 'error');
+      show(e?.response?.status === 404 ? (tt('regdone.39203eef')) : (tt('regdone.a0cc1939')), 'error');
     } finally { setContractLoading(false); }
   };
 
@@ -77,20 +77,20 @@ export function RegistrationSuccess({ onDone, email, providerType = 'provider' }
         </View>
 
         <Text style={{ fontSize: 24, fontWeight: '700', color: theme.text, marginBottom: 12, textAlign: 'center' }}>
-          {AR ? 'تم إرسال طلبك بنجاح!' : 'Application Submitted!'}
+          {tt('regdone.02a4542e')}
         </Text>
         
         <Text style={{ fontSize: 16, color: theme.textSub, textAlign: 'center', marginBottom: 32, lineHeight: 24 }}>
-          {AR ? 'طلبك قيد المراجعة حالياً من قبل الإدارة. سيتم إشعارك فور الموافقة.' : 'Your application is under review by admin. You will be notified upon approval.'}
+          {tt('regdone.ae51e9b9')}
         </Text>
 
         {!verified ? (
           <View style={{ width: '100%', backgroundColor: theme.card, padding: 20, borderRadius: 16, borderWidth: 1, borderColor: theme.border, marginBottom: 24 }}>
             <Text style={{ fontSize: 16, fontWeight: '600', color: theme.text, marginBottom: 8 }}>
-              {AR ? 'تأكيد البريد الإلكتروني' : 'Verify Email Address'}
+              {tt('regdone.c3d0ede2')}
             </Text>
             <Text style={{ fontSize: 14, color: theme.textSub, marginBottom: 16 }}>
-              {email ? (AR ? `يرجى تأكيد بريدك الإلكتروني: ${email}` : `Please verify your email: ${email}`) : (AR ? 'يرجى تأكيد بريدك الإلكتروني لضمان التواصل.' : 'Please verify your email for communication.')}
+              {email ? (AR ? `يرجى تأكيد بريدك الإلكتروني: ${email}` : `Please verify your email: ${email}`) : (tt('regdone.eeabd13e'))}
             </Text>
 
             {!otpSent ? (
@@ -102,7 +102,7 @@ export function RegistrationSuccess({ onDone, email, providerType = 'provider' }
                   <>
                     <Ionicons name="send" size={20} color="#fff" style={{ marginEnd: 8 }} />
                     <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>
-                      {AR ? 'إرسال رمز التفعيل' : 'Send Verification Code'}
+                      {tt('regdone.c4a24798')}
                     </Text>
                   </>
                 )}
@@ -112,7 +112,7 @@ export function RegistrationSuccess({ onDone, email, providerType = 'provider' }
                 <TextInput
                   value={otp}
                   onChangeText={(v) => setOtp(v.replace(/\D/g, '').slice(0, 6))}
-                  placeholder={AR ? 'أدخل الرمز المكون من 6 أرقام' : 'Enter 6-digit code'}
+                  placeholder={tt('regdone.d476c74e')}
                   keyboardType="number-pad"
                   maxLength={6}
                   autoComplete="one-time-code"
@@ -126,7 +126,7 @@ export function RegistrationSuccess({ onDone, email, providerType = 'provider' }
                   style={{ backgroundColor: theme.primary, padding: 14, borderRadius: 12, alignItems: 'center' }}>
                   {loading ? <ActivityIndicator color="#fff" /> : (
                     <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>
-                      {AR ? 'تأكيد الرمز' : 'Verify Code'}
+                      {tt('regdone.c470c8c7')}
                     </Text>
                   )}
                 </TouchableOpacity>
@@ -137,7 +137,7 @@ export function RegistrationSuccess({ onDone, email, providerType = 'provider' }
           <View style={{ width: '100%', backgroundColor: theme.card, padding: 16, borderRadius: 12, borderWidth: 1, borderColor: theme.border, marginBottom: 24, flexDirection: 'row', alignItems: 'center' }}>
             <Ionicons name="checkmark-circle" size={24} color={theme.success} style={{ marginEnd: 12 }} />
             <Text style={{ fontSize: 14, color: theme.success, fontWeight: '600' }}>
-              {AR ? 'البريد الإلكتروني مؤكد' : 'Email Verified'}
+              {tt('regdone.3770e714')}
             </Text>
           </View>
         )}
@@ -150,7 +150,7 @@ export function RegistrationSuccess({ onDone, email, providerType = 'provider' }
             <>
               <Ionicons name="document-text" size={20} color="#fff" style={{ marginEnd: 8 }} />
               <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>
-                {AR ? 'تحميل عقد الشراكة الموقّع' : 'Download Signed Partnership Contract'}
+                {tt('regdone.8297b508')}
               </Text>
             </>
           )}
@@ -166,7 +166,7 @@ export function RegistrationSuccess({ onDone, email, providerType = 'provider' }
           }}
           style={{ width: '100%', backgroundColor: theme.card, padding: 16, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}>
           <Text style={{ color: theme.text, fontSize: 16, fontWeight: '600' }}>
-            {AR ? 'العودة للصفحة الرئيسية' : 'Return to Home'}
+            {tt('regdone.44e5dadf')}
           </Text>
         </TouchableOpacity>
 

@@ -55,7 +55,7 @@ import { PatientFileScreen } from './PatientFileScreen';
 export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: string, p?: any) => void; onTriggerAlarm: () => void }) {
  const insets = useSafeAreaInsets();
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { user, toggleOnline } = useAuth();
  const AR = lang === 'ar';
  const [refreshing, setRefreshing] = useState(false);
@@ -129,9 +129,9 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
  try {
 	const resIncoming = await client.get('/provider/jobs/queue?status=incoming&kind=consultation');
 	setRequests((resIncoming.data || []).map((x: any) => ({
-	id: x.id, kind: x.kind || 'consultation', patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient'),
+	id: x.id, kind: x.kind || 'consultation', patient: x.patient_name || (tt('dochome.0f5f86ee')),
         age: x.patient_age ?? x.age ?? null, type: x.service_type || 'video', price: x.total ?? x.price ?? 0,
-        time: x.scheduled_at ? new Date(x.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (AR ? 'غير محدد' : 'Unscheduled'),
+        time: x.scheduled_at ? new Date(x.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (tt('dochome.46748786')),
         avatar: '', complaint: x.title_ar || '', insurance: x.insurance_provider || 'Cash',
         paid: String(x.payment_status || '').toLowerCase() === 'paid', urgent: !!x.is_urgent,
          policyClass: x.policy_class || null, nationalId: x.national_id || null, dob: x.dob || null
@@ -141,8 +141,8 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
  // Needs-review issue 1150: "Today's schedule" keeps only today's visits (and active ones with no time yet).
  const todayKey = new Date().toDateString();
  setTodayApts((resToday.data || []).filter((x: any) => !x.scheduled_at || new Date(x.scheduled_at).toDateString() === todayKey).map((x: any) => ({
- id: x.id, patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient'),
-     type: x.service_type || 'video', time: x.scheduled_at ? new Date(x.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (AR ? 'غير محدد' : 'Unscheduled'),
+ id: x.id, patient: x.patient_name || (tt('dochome.0f5f86ee')),
+     type: x.service_type || 'video', time: x.scheduled_at ? new Date(x.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (tt('dochome.46748786')),
      status: x.status || 'confirmed', price: x.total ?? x.price ?? 0, insurance: x.insurance_provider || 'Cash',
      age: x.patient_age ?? x.age ?? null, avatar: ''
  })));
@@ -152,7 +152,7 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
 	 } catch (err) {
 	  // Keep the prior data out of the way and expose a retryable error state.
 	  setError(true);
-	  show(AR ? 'تعذر جلب البيانات. يرجى التأكد من اتصالك بالإنترنت.' : 'Failed to fetch data.', 'error');
+	  show(tt('dochome.a79dfec7'), 'error');
 	 }
  }, [AR]);
 
@@ -165,24 +165,24 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
 	try {
 	await client.post(`/provider/jobs/${req.kind || 'consultation'}/${req.id}/accept`);
  setRequests(prev => prev.filter(r => r.id !== req.id));
- show(AR ? 'تم قبول الطلب بنجاح' : 'Request accepted successfully', 'success');
+ show(tt('dochome.af4287cf'), 'success');
  fetchQueue();
  stopRingtone();
- } catch (e) { show(serverMessage(e, AR ? 'حدث خطأ أثناء القبول' : 'Error accepting request'), 'error'); fetchQueue(); }
+ } catch (e) { show(serverMessage(e, tt('dochome.d86da682')), 'error'); fetchQueue(); }
  });
 
 	const handleReject = (req: any) => runOnce(`reject:${req.id}`, async () => {
 	try {
 	await client.post(`/provider/jobs/${req.kind || 'consultation'}/${req.id}/reject`);
  setRequests(prev => prev.filter(r => r.id !== req.id));
- show(AR ? 'تم رفض الطلب' : 'Request rejected', 'info');
+ show(tt('dochome.91447f9b'), 'info');
  stopRingtone();
- } catch (e) { show(serverMessage(e, AR ? 'حدث خطأ' : 'Error'), 'error'); fetchQueue(); }
+ } catch (e) { show(serverMessage(e, tt('dochome.71bdc228')), 'error'); fetchQueue(); }
  });
 
  const submitInsuranceGatekeeper = async () => {
    if (!approvalCode.trim() || !patientCopay.trim()) {
-     show(AR ? 'يرجى تعبئة كافة الحقول المطلوبة' : 'Please fill all required fields', 'error');
+     show(tt('dochome.589c12ea'), 'error');
      return;
    }
    try {
@@ -192,16 +192,16 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
        status: approvalStatus, copay: parseFloat(patientCopay), coverage: parseFloat(insuranceCoverage || '0'), approval_code: approvalCode
      });
      setInsuranceModalReq(null);
-     show(AR ? 'تم إرسال الطلب للمريض لدفع نسبة التحمل' : 'Request sent to patient for Co-Pay', 'success');
+     show(tt('dochome.164b3ac1'), 'success');
      fetchQueue();
    } catch (err) {
-     show(serverMessage(err, AR ? 'حدث خطأ أثناء رفع الاعتماد' : 'Error submitting approval'), 'error');
+     show(serverMessage(err, tt('dochome.59ded760')), 'error');
    }
  };
 
  return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
- <NHeader title={AR ? 'الرئيسية' : 'Home'} right={
+ <NHeader title={tt('dochome.17c4ca45')} right={
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, alignItems: 'center' }}>
  <TouchableOpacity onPress={onTriggerAlarm} style={{ padding: SP.xs }}>
  <I name="bell" size={24} color={theme.text} />
@@ -214,22 +214,22 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
  contentContainerStyle={{ padding: SP.md, paddingBottom: 100 }}>
  
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.md, marginBottom: SP.lg }}>
- <NStatCard icon="" label={AR ? 'مواعيد اليوم' : "Today's Apts"} value={String(stats.todayCount)} color={theme.primary} style={{ width: '47%' }} />
- <NStatCard icon="" label={AR ? 'طلبات جديدة' : 'New Requests'} value={String(stats.pendingCount)} color={tokens.warning} style={{ width: '47%' }} />
+ <NStatCard icon="" label={tt('dochome.2cd3bf29')} value={String(stats.todayCount)} color={theme.primary} style={{ width: '47%' }} />
+ <NStatCard icon="" label={tt('dochome.02688a0f')} value={String(stats.pendingCount)} color={tokens.warning} style={{ width: '47%' }} />
  </View>
 
  {error && (
    <NCard style={{ alignItems: 'center', padding: SP.xxl, marginBottom: SP.lg, borderColor: theme.danger }}>
-     <Text style={{ color: theme.danger, textAlign: 'center', marginBottom: SP.md }}>{AR ? 'تعذر جلب البيانات' : 'Failed to load data'}</Text>
-     <NBtn label={AR ? 'إعادة المحاولة' : 'Retry'} onPress={fetchQueue} size="sm" />
+     <Text style={{ color: theme.danger, textAlign: 'center', marginBottom: SP.md }}>{tt('dochome.f6762698')}</Text>
+     <NBtn label={tt('dochome.cf333076')} onPress={fetchQueue} size="sm" />
    </NCard>
  )}
 
- <NSecHeader title={AR ? 'طلبات جديدة' : 'New Requests'} action={AR ? 'عرض الكل' : 'View All'} onAction={() => onNavigate('schedule')} />
+ <NSecHeader title={tt('dochome.02688a0f')} action={tt('dochome.7ebaf022')} onAction={() => onNavigate('schedule')} />
 
  {requests.length === 0 ? (
  <NCard style={{ alignItems: 'center', padding: SP.xxl, marginBottom: SP.lg }}>
- <Text style={{ color: theme.textSub, textAlign: 'center' }}>{AR ? 'لا توجد طلبات جديدة حالياً' : 'No new requests right now'}</Text>
+ <Text style={{ color: theme.textSub, textAlign: 'center' }}>{tt('dochome.7606e14e')}</Text>
  </NCard>
  ) : (
  requests.map(req => {
@@ -243,7 +243,7 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
 
    return (
  <NCard key={req.id} style={{ marginBottom: SP.md }} accent={req.urgent ? tokens.error : undefined}>
- {req.urgent && <NBadge label={AR ? ' عاجل' : ' Urgent'} variant="danger" style={{ marginBottom: SP.sm }} />}
+ {req.urgent && <NBadge label={tt('dochome.faeffb93')} variant="danger" style={{ marginBottom: SP.sm }} />}
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.md }}>
  <NAvatar name={req.patient} size={48} />
  <View style={{ flex: 1 }}>
@@ -255,15 +255,15 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
  </View>
 
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: SP.md, flexWrap: 'wrap', gap: SP.sm }}>
- <NBtn label={AR ? 'رفض' : 'Reject'} variant="secondary" size="sm" full={false} style={{ paddingHorizontal: SP.lg }}
+ <NBtn label={tt('dochome.8a223f36')} variant="secondary" size="sm" full={false} style={{ paddingHorizontal: SP.lg }}
  onPress={() => handleReject(req)} />
 
 	 {isCashClinic ? (
-	   <NBtn label={AR ? 'قبول' : 'Accept'} size="sm" full={false} style={{ paddingHorizontal: SP.xl }} onPress={() => handleAccept(req)} />
+	   <NBtn label={tt('dochome.e3b60bcd')} size="sm" full={false} style={{ paddingHorizontal: SP.xl }} onPress={() => handleAccept(req)} />
 	 ) : req.insurance !== 'Cash' ? (
-   <NBtn label={AR ? 'قبول واستكمال إجراءات التأمين' : 'Accept & Process Insurance'} size="sm" full={false} onPress={() => setInsuranceModalReq(req)} />
+   <NBtn label={tt('dochome.e275a8dc')} size="sm" full={false} onPress={() => setInsuranceModalReq(req)} />
  ) : (
-   <NBtn label={AR ? 'قبول' : 'Accept'} size="sm" full={false} style={{ paddingHorizontal: SP.xl }} onPress={() => handleAccept(req)} />
+   <NBtn label={tt('dochome.e3b60bcd')} size="sm" full={false} style={{ paddingHorizontal: SP.xl }} onPress={() => handleAccept(req)} />
  )}
  </View>
  </NCard>
@@ -272,11 +272,11 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
  )}
 
  <View style={{ marginTop: SP.lg }}>
- <NSecHeader title={AR ? 'جدول اليوم' : "Today's Schedule"} action={AR ? 'الجميع' : 'All'} onAction={() => onNavigate('schedule')} />
+ <NSecHeader title={tt('dochome.24ce7927')} action={tt('dochome.181c90de')} onAction={() => onNavigate('schedule')} />
  </View>
 
  {todayApts.length === 0 ? (
- <NCard style={{ alignItems: 'center', padding: SP.xxl }}><Text style={{ color: theme.textSub, textAlign: 'center' }}>{AR ? 'لا توجد مواعيد مؤكدة اليوم' : 'No confirmed appointments today'}</Text></NCard>
+ <NCard style={{ alignItems: 'center', padding: SP.xxl }}><Text style={{ color: theme.textSub, textAlign: 'center' }}>{tt('dochome.eb7b7f4c')}</Text></NCard>
  ) : (
  todayApts.map(apt => (
  <TouchableOpacity key={apt.id} onPress={() => onNavigate('consultation', apt)} style={{ padding: SP.md, backgroundColor: theme.card, borderRadius: R.md, marginBottom: SP.sm, flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
@@ -286,14 +286,14 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
  )}
 
  <View style={{ marginTop: SP.lg }}>
- <NSecHeader title={AR ? 'منصات نبض بلس' : 'Nabd+ Modules'} />
+ <NSecHeader title={tt('dochome.93512caa')} />
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, flexWrap: 'wrap' }}>
    <TouchableOpacity 
      onPress={() => onNavigate('medical_jobs')}
      style={{ flex: 1, backgroundColor: theme.primary, borderRadius: R.md, padding: SP.lg, alignItems: 'center' }}>
      <I name="profile" size={32} color="#FFF" />
      <Text style={{ color: '#FFF', fontWeight: FW.bold, marginTop: SP.sm, textAlign: 'center' }}>
-       {AR ? 'الوظائف الطبية' : 'Medical Jobs'}
+       {tt('dochome.ebb9f1de')}
      </Text>
    </TouchableOpacity>
    <TouchableOpacity 
@@ -301,7 +301,7 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
      style={{ flex: 1, backgroundColor: theme.info, borderRadius: R.md, padding: SP.lg, alignItems: 'center' }}>
      <I name="document" size={32} color="#FFF" />
      <Text style={{ color: '#FFF', fontWeight: FW.bold, marginTop: SP.sm, textAlign: 'center' }}>
-       {AR ? 'دليل الأدوية' : 'Drug Index'}
+       {tt('dochome.2a8aa329')}
      </Text>
    </TouchableOpacity>
    <TouchableOpacity 
@@ -309,7 +309,7 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
      style={{ width: '100%', backgroundColor: theme.success, borderRadius: R.md, padding: SP.lg, alignItems: 'center', marginTop: SP.sm }}>
      <I name="folder" size={32} color="#FFF" />
      <Text style={{ color: '#FFF', fontWeight: FW.bold, marginTop: SP.sm, textAlign: 'center' }}>
-       {AR ? 'التقارير الطبية الواردة (نتائج الأشعة والتحاليل)' : 'Inbound Medical Reports (Radiology & Labs)'}
+       {tt('dochome.795a57dd')}
      </Text>
    </TouchableOpacity>
  </View>
@@ -318,37 +318,37 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
  </ScrollView>
 
  {/* Gatekeeper Modal */}
- <NSheet visible={!!insuranceModalReq} onClose={() => setInsuranceModalReq(null)} title={AR ? ' بوابة التأمين الطبي (Gatekeeper)' : ' Insurance Gatekeeper'} height={700}>
+ <NSheet visible={!!insuranceModalReq} onClose={() => setInsuranceModalReq(null)} title={tt('dochome.c01296e2')} height={700}>
   <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }} keyboardVerticalOffset={100}>
   <ScrollView style={{ padding: SP.md }} contentContainerStyle={{ paddingBottom: 100 }} keyboardShouldPersistTaps="handled">
   <NCard style={{ marginBottom: SP.md, backgroundColor: theme.primaryLight, borderColor: theme.primary, borderWidth: 1 }}>
   <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.primary, textAlign: AR ? 'right' : 'left', marginBottom: 4 }}>
-  {AR ? 'المريض:' : 'Patient:'} {insuranceModalReq?.patient}
+  {tt('dochome.98a9ddda')} {insuranceModalReq?.patient}
   </Text>
   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.md, marginTop: SP.xs }}>
     <View style={{ width: '45%' }}>
-      <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{AR ? 'رقم الهوية:' : 'National ID:'}</Text>
+      <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{tt('dochome.63b8737f')}</Text>
       <Text style={{ fontSize: FS.sm, color: theme.text, textAlign: AR ? 'right' : 'left', fontWeight: FW.bold }}>{insuranceModalReq?.nationalId}</Text>
     </View>
     <View style={{ width: '45%' }}>
-      <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{AR ? 'تاريخ الميلاد:' : 'DOB:'}</Text>
+      <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{tt('dochome.5047f852')}</Text>
       <Text style={{ fontSize: FS.sm, color: theme.text, textAlign: AR ? 'right' : 'left', fontWeight: FW.bold }}>{insuranceModalReq?.dob}</Text>
     </View>
     <View style={{ width: '45%' }}>
-      <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{AR ? 'بوليصة:' : 'Policy:'}</Text>
+      <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{tt('dochome.a05b26f7')}</Text>
       <Text style={{ fontSize: FS.sm, color: theme.text, textAlign: AR ? 'right' : 'left', fontWeight: FW.bold }}>{insuranceModalReq?.insurance}</Text>
     </View>
     <View style={{ width: '45%' }}>
-      <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{AR ? 'فئة التأمين:' : 'Class:'}</Text>
+      <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{tt('dochome.6af2645c')}</Text>
       <Text style={{ fontSize: FS.sm, color: theme.text, textAlign: AR ? 'right' : 'left', fontWeight: FW.bold }}>{insuranceModalReq?.policyClass}</Text>
     </View>
   </View>
   <View style={{ marginTop: SP.sm, paddingTop: SP.sm, borderTopWidth: 1, borderTopColor: 'rgba(0,0,0,0.1)' }}>
-    <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{AR ? 'سبب الاستشارة:' : 'Complaint:'}</Text>
-    <Text style={{ fontSize: FS.sm, color: theme.text, textAlign: AR ? 'right' : 'left', fontWeight: FW.bold, marginTop: 2 }}>{insuranceModalReq?.complaint || (AR ? 'غير متوفر' : 'N/A')}</Text>
+    <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{tt('dochome.98cd5074')}</Text>
+    <Text style={{ fontSize: FS.sm, color: theme.text, textAlign: AR ? 'right' : 'left', fontWeight: FW.bold, marginTop: 2 }}>{insuranceModalReq?.complaint || (tt('dochome.5781b731'))}</Text>
   </View>
   </NCard>
-  <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{AR ? 'حالة موافقة التأمين:' : 'Insurance Approval Status:'}</Text>
+  <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{tt('dochome.f5a0b582')}</Text>
   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginBottom: SP.lg }}>
   {['كلية', 'جزئية', 'مرفوضة'].map(s => (
   <TouchableOpacity key={s} onPress={() => setApprovalStatus(s)} style={{ flex: 1, padding: SP.md, borderRadius: R.md, backgroundColor: approvalStatus === s ? theme.primary : theme.surface2, alignItems: 'center' }}>
@@ -356,10 +356,10 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
   </TouchableOpacity>
   ))}
   </View>
-  <NInput label={AR ? 'نسبة تحمل المريض (SAR)' : 'Patient Co-Pay (SAR)'} value={patientCopay} onChange={setPatientCopay} kbType="numeric" placeholder="e.g. 50" icon="" />
-  <NInput label={AR ? 'تحمل شركة التأمين (SAR)' : 'Insurance Coverage (SAR)'} value={insuranceCoverage} onChange={setInsuranceCoverage} kbType="numeric" placeholder="e.g. 150" icon="" />
-  <NInput label={AR ? 'رقم الموافقة المرجعي (Approval Code)' : 'Approval Code'} value={approvalCode} onChange={setApprovalCode} placeholder="e.g. NPH-9213" icon="" />
-  <NBtn label={AR ? ' إرسال للمريض لدفع نسبة التحمل' : ' Send to Patient for Co-Pay'} onPress={submitInsuranceGatekeeper} style={{ marginTop: SP.md, marginBottom: SP.xxl }} />
+  <NInput label={tt('dochome.23442efb')} value={patientCopay} onChange={setPatientCopay} kbType="numeric" placeholder="e.g. 50" icon="" />
+  <NInput label={tt('dochome.003ba72d')} value={insuranceCoverage} onChange={setInsuranceCoverage} kbType="numeric" placeholder="e.g. 150" icon="" />
+  <NInput label={tt('dochome.99ba8875')} value={approvalCode} onChange={setApprovalCode} placeholder="e.g. NPH-9213" icon="" />
+  <NBtn label={tt('dochome.214ba4e3')} onPress={submitInsuranceGatekeeper} style={{ marginTop: SP.md, marginBottom: SP.xxl }} />
   </ScrollView>
   </KeyboardAvoidingView>
   </NSheet>
