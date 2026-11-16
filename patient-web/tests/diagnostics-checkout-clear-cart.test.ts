@@ -11,4 +11,10 @@ describe("diagnostics checkout: the cart is cleared before the card payment page
     expect(source).toContain('localStorage.removeItem("nabd-diagnostics-cart")');
     expect(source).toContain('fetch("/api/diagnostics/cart", { method: "DELETE" })');
   });
+
+  it("follows the checkout address only when it is an https address", () => {
+    const source = readFileSync(resolve(process.cwd(), "components-next/diagnostics-checkout-form.tsx"), "utf8");
+    expect(source).toContain("if (isTrustedCheckoutUrl(checkoutUrl)) {");
+    expect(source.indexOf("if (isTrustedCheckoutUrl(checkoutUrl))")).toBeLessThan(source.indexOf("window.location.href = checkoutUrl"));
+  });
 });

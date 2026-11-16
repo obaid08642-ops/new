@@ -11,6 +11,7 @@ import consult from "@/components-next/consult/consult.module.css";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/diagnostics/diag.module.css";
 import { diagnosticOrderNextHref } from "@/lib/diagnostics-links";
+import { isTrustedCheckoutUrl } from "@/lib/api/pharmacy-payment";
 
 const TIMES = ["09:00", "10:30", "12:00", "14:00", "15:30", "17:00"];
 
@@ -139,7 +140,8 @@ export function DiagnosticsCheckoutForm({
           return;
         }
         const checkoutUrl = (payData as { checkout_url?: string })?.checkout_url;
-        if (checkoutUrl) {
+        if (isTrustedCheckoutUrl(checkoutUrl)) {
+          // Only an https address is followed (same rule as the pharmacy and lab pay screens); anything else falls through to the order page.
           // The order exists now, so its tests leave the cart before the page goes to the payment provider.
           await clearCart();
           window.location.href = checkoutUrl;
