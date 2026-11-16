@@ -11,7 +11,7 @@ import client from '../../api/client';
 // The QR is the pharmacy's public page on the website (its catalogue and request button), read from its own profile
 // slug (GET /provider/profile); issue 1198. A pharmacy without a public page yet is told so instead of a dummy code.
 export function PharmacyQRMenuScreen({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const { user } = useAuth(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const { user } = useAuth(); const AR = lang === 'ar';
   const [url, setUrl] = useState<string | null>(null);
   const [state, setState] = useState<'loading' | 'ready' | 'none' | 'error'>('loading');
   useEffect(() => {
@@ -26,7 +26,7 @@ export function PharmacyQRMenuScreen({ onBack }: { onBack: () => void }) {
   }, [lang, user?.role]);
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'كتالوج المنتجات ورمز QR' : 'Pharmacy QR Catalog'} onBack={onBack} />
+      <NHeader title={tt('rse.6eb24f7d')} onBack={onBack} />
       <NScroll pad>
         <NCard style={{ width: '100%', alignItems: 'center', padding: SP.xl, marginBottom: SP.md }}>
           {state === 'loading' && <ActivityIndicator color={theme.primary} />}
@@ -36,18 +36,18 @@ export function PharmacyQRMenuScreen({ onBack }: { onBack: () => void }) {
                 <QRCode value={url} size={200} color={theme.text} backgroundColor={theme.card} />
               </View>
               <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text, textAlign: 'center' }}>
-                {AR ? 'امسح الرمز للتصفح المباشر لكتالوج الصيدلية' : 'Scan to view pharmacy catalog'}
+                {tt('rse.512e79ee')}
               </Text>
               <Text selectable style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4, textAlign: 'center' }}>{url}</Text>
-              <NBtn label={AR ? 'مشاركة الرابط' : 'Share link'} variant="outline" style={{ marginTop: SP.md }}
-                onPress={async () => { try { await Share.share({ message: url }); } catch { show(AR ? 'تعذر المشاركة' : 'Could not share', 'error'); } }} />
+              <NBtn label={tt('rse.75f2c111')} variant="outline" style={{ marginTop: SP.md }}
+                onPress={async () => { try { await Share.share({ message: url }); } catch { show(tt('rse.580ca6a8'), 'error'); } }} />
             </>
           )}
           {state === 'none' && (
-            <NEmpty icon="qr" title={AR ? 'لا توجد صفحة عامة بعد' : 'No public page yet'}
-              subtitle={AR ? 'تظهر صفحة الصيدلية ورمزها بعد اعتماد ملفها ونشره' : 'The page and its code appear once the profile is approved and published'} />
+            <NEmpty icon="qr" title={tt('rse.0f2559df')}
+              subtitle={tt('rse.d07b4e66')} />
           )}
-          {state === 'error' && <Text style={{ color: theme.textSub }}>{AR ? 'تعذر تحميل بيانات الصيدلية' : 'Could not load the pharmacy profile'}</Text>}
+          {state === 'error' && <Text style={{ color: theme.textSub }}>{tt('rse.033736c2')}</Text>}
         </NCard>
       </NScroll>
     </View>
@@ -56,7 +56,7 @@ export function PharmacyQRMenuScreen({ onBack }: { onBack: () => void }) {
 
 // 2. CHRONIC DISEASE PROGRAM SCREEN
 export function ChronicDiseaseProgramScreen({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
   const [patients, setPatients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadErr, setLoadErr] = useState(false);
@@ -67,7 +67,7 @@ export function ChronicDiseaseProgramScreen({ onBack }: { onBack: () => void }) 
         setPatients((res.data || []).map((o: any) => ({
           id: o.id || o._id,
           name: o.patient_name || o.contact?.name || '—',
-          disease: (o.items || []).map((i: any) => i.name_ar || i.name).filter(Boolean).join('، ') || (AR ? 'أدوية مزمنة' : 'Chronic meds'),
+          disease: (o.items || []).map((i: any) => i.name_ar || i.name).filter(Boolean).join('، ') || (tt('rse.71699cd0')),
           nextRefill: o.next_refill_at ? new Date(o.next_refill_at).toISOString().split('T')[0] : (o.created_at ? new Date(o.created_at).toISOString().split('T')[0] : '—'),
           status: o.order_status || o.state || 'Active',
         })));
@@ -79,11 +79,11 @@ export function ChronicDiseaseProgramScreen({ onBack }: { onBack: () => void }) 
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'برنامج رعاية الأمراض المزمنة' : 'Chronic Disease Care Program'} onBack={onBack} />
+      <NHeader title={tt('rse.58d6ed4d')} onBack={onBack} />
       <NScroll pad>
         <NCard style={{ marginBottom: SP.md, backgroundColor: theme.primary, padding: SP.lg }}>
           <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: '#fff', textAlign: AR ? 'right' : 'left' }}>
-             {AR?'برنامج صرف الأدوية الشهرية التلقائي':'Monthly Auto-Refill Program'}
+             {tt('rse.beedbf90')}
           </Text>
           <Text style={{ fontSize: FS.xs, color: '#e0f2fe', marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
             {AR ? `${loading ? '…' : patients.length} مريضاً في برنامج إعادة الصرف` : `${loading ? '…' : patients.length} patients in refill program`}
@@ -93,12 +93,12 @@ export function ChronicDiseaseProgramScreen({ onBack }: { onBack: () => void }) 
         {loading && <ActivityIndicator color={theme.primary} style={{ marginVertical: SP.xl }} />}
         {!loading && loadErr && (
           <NCard style={{ alignItems: 'center', paddingVertical: SP.xxl }}>
-            <Text style={{ color: theme.danger, textAlign: 'center' }}>{AR ? 'تعذر تحميل طلبات إعادة الصرف من الخادم' : 'Could not load the refill orders from the server'}</Text>
+            <Text style={{ color: theme.danger, textAlign: 'center' }}>{tt('rse.7958748d')}</Text>
           </NCard>
         )}
         {!loading && !loadErr && patients.length === 0 && (
           <NCard style={{ alignItems: 'center', paddingVertical: SP.xxl }}>
-            <Text style={{ color: theme.textSub }}>{AR ? 'لا توجد طلبات إعادة صرف بعد' : 'No refill orders yet'}</Text>
+            <Text style={{ color: theme.textSub }}>{tt('rse.a572fa14')}</Text>
           </NCard>
         )}
         {patients.map(p => (
@@ -108,10 +108,10 @@ export function ChronicDiseaseProgramScreen({ onBack }: { onBack: () => void }) 
                 <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{p.name}</Text>
                 <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 2 }}>{p.disease}</Text>
               </View>
-              <NBadge label={AR ? 'تجديد مجدول' : 'Scheduled'} variant="success" />
+              <NBadge label={tt('rse.29732de6')} variant="success" />
             </View>
             <Text style={{ fontSize: FS.xs, color: theme.primary, marginTop: SP.xs, textAlign: AR ? 'right' : 'left' }}>
-               {AR?'موعد الصرف القادم:':'Next Refill:'} {p.nextRefill}
+               {tt('rse.77419334')} {p.nextRefill}
             </Text>
           </NCard>
         ))}
@@ -122,7 +122,7 @@ export function ChronicDiseaseProgramScreen({ onBack }: { onBack: () => void }) 
 
 // 4. MEDICATION REFILLS SCREEN
 export function MedicationRefillsScreen({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
@@ -133,25 +133,25 @@ export function MedicationRefillsScreen({ onBack }: { onBack: () => void }) {
   }, []);
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'طلبات إعادة صرف الأدوية' : 'Medication Refills'} onBack={onBack} />
+      <NHeader title={tt('rse.0e223e21')} onBack={onBack} />
       <NScroll pad>
         {loading && <ActivityIndicator color={theme.primary} style={{ marginTop: SP.xl }} />}
         {!loading && orders.length === 0 && (
           <NCard style={{ padding: SP.lg, alignItems: 'center' }}>
             <Text style={{ color: theme.textSub, textAlign: 'center' }}>
-              {AR ? 'لا توجد طلبات إعادة صرف حالياً — طلبات المرضى للأدوية المزمنة تظهر هنا فور وصولها' : 'No refill requests — chronic medication reorders appear here'}
+              {tt('rse.6397c62f')}
             </Text>
           </NCard>
         )}
         {orders.map((o: any) => (
           <NCard key={o.id} style={{ marginBottom: SP.sm }}>
             <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
-              {(o.items || []).map((i: any) => i.name_ar || i.name_en).join(' + ') || (AR ? 'طلب إعادة صرف' : 'Refill order')}
+              {(o.items || []).map((i: any) => i.name_ar || i.name_en).join(' + ') || (tt('rse.5feb6262'))}
             </Text>
             <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
-              {(AR ? 'إعادة صرف تلقائي · ' : 'Auto refill · ') + (o.state || '') + ' · ' + String(o.createdAt || '').slice(0, 10)}
+              {(tt('rse.9d05f6ef')) + (o.state || '') + ' · ' + String(o.createdAt || '').slice(0, 10)}
             </Text>
-            <NBadge label={o.state === 'COMPLETED' ? (AR ? 'مكتمل' : 'Completed') : (AR ? 'قيد التنفيذ' : 'In progress')} variant={o.state === 'COMPLETED' ? 'success' : 'warning'} size="xs" />
+            <NBadge label={o.state === 'COMPLETED' ? (tt('rse.a78b4dfb')) : (tt('rse.68d91177'))} variant={o.state === 'COMPLETED' ? 'success' : 'warning'} size="xs" />
           </NCard>
         ))}
       </NScroll>
@@ -163,25 +163,25 @@ export function MedicationRefillsScreen({ onBack }: { onBack: () => void }) {
 
 // 6. ADD PRODUCT SCREEN
 export function AddProductScreen({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [name, setName] = useState(''); const [price, setPrice] = useState(''); const [code, setCode] = useState('');
 
   const [adding, setAdding] = useState(false);
   const handleAdd = async () => {
-    if (!name.trim() || !price) return show(AR ? 'يرجى إدخال اسم الدواء والسعر' : 'Enter name and price', 'error');
+    if (!name.trim() || !price) return show(tt('rse.c6873db2'), 'error');
     const p = Number(price);
-    if (!p || p <= 0) return show(AR ? 'السعر يجب أن يكون أكبر من صفر' : 'Price must be greater than zero', 'error');
+    if (!p || p <= 0) return show(tt('rse.54e69743'), 'error');
     setAdding(true);
     try {
       await client.post('/approval-workflow/requests', {
         entity_type: 'medicine',
         change_data: { name: name.trim(), price: p, barcode: code.trim() || null },
       });
-      show(AR ? 'تم إرسال الصنف لمراجعة الإدارة واعتماده' : 'Product submitted for admin review and approval', 'success');
+      show(tt('rse.fead68b9'), 'success');
       onBack();
     } catch (e: any) {
       const msg = e?.response?.data?.message;
-      show(typeof msg === 'string' ? msg : (AR ? 'تعذر إرسال الصنف — تحقق من الاتصال وحاول مجدداً' : 'Could not submit product — check connection and retry'), 'error');
+      show(typeof msg === 'string' ? msg : (tt('rse.d9e64b91')), 'error');
     } finally {
       setAdding(false);
     }
@@ -189,15 +189,15 @@ export function AddProductScreen({ onBack }: { onBack: () => void }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'إضافة دواء جديد للمخزون' : 'Add New Product'} onBack={onBack} />
+      <NHeader title={tt('rse.c8708eba')} onBack={onBack} />
       <NScroll pad>
         <NCard>
-          <NInput placeholder={AR ? 'اسم الدواء (العلمي والتجاري)' : 'Drug Name'} value={name} onChange={setName} />
+          <NInput placeholder={tt('rse.c58b7a8c')} value={name} onChange={setName} />
           <View style={{ height: SP.sm }} />
-          <NInput placeholder={AR ? 'السعر المحدد (ر.س)' : 'Price (SAR)'} kbType="numeric" value={price} onChange={setPrice} />
+          <NInput placeholder={tt('rse.85ab1bae')} kbType="numeric" value={price} onChange={setPrice} />
           <View style={{ height: SP.sm }} />
-          <NInput placeholder={AR ? 'رمز البار كود SFDA' : 'SFDA Barcode'} value={code} onChange={setCode} />
-          <NBtn label={AR?'إرسال للمراجعة والاعتماد':'Submit for Review'} onPress={handleAdd} loading={adding} disabled={adding} style={{ marginTop: SP.md }} />
+          <NInput placeholder={tt('rse.9c1a0fbe')} value={code} onChange={setCode} />
+          <NBtn label={tt('rse.58fbef76')} onPress={handleAdd} loading={adding} disabled={adding} style={{ marginTop: SP.md }} />
         </NCard>
       </NScroll>
     </View>
@@ -206,7 +206,7 @@ export function AddProductScreen({ onBack }: { onBack: () => void }) {
 
 // 7. EXPIRY TRACKING SCREEN
 export function ExpiryTrackingScreen({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
   const [loading, setLoading] = useState(true);
   const [loadErr, setLoadErr] = useState(false);
   const [items, setItems] = useState<any[]>([]);
@@ -229,7 +229,7 @@ export function ExpiryTrackingScreen({ onBack }: { onBack: () => void }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'متابعة تواريخ انتهاء الصلاحية' : 'Expiry Tracking & Batches'} onBack={onBack} />
+      <NHeader title={tt('rse.a6e45e74')} onBack={onBack} />
       {loading ? (
         <View style={{ alignItems: 'center', paddingVertical: SP.huge }}>
           <ActivityIndicator size="large" color={theme.primary} />
@@ -237,16 +237,16 @@ export function ExpiryTrackingScreen({ onBack }: { onBack: () => void }) {
       ) : loadErr ? (
         <NEmpty
           icon="⚠️"
-          title={AR ? 'تعذر تحميل بيانات الصلاحية' : 'Could not load expiry data'}
-          sub={AR ? 'تحقق من اتصالك بالإنترنت ثم أعد المحاولة' : 'Check your connection and try again'}
-          actionLabel={AR ? 'إعادة المحاولة' : 'Retry'}
+          title={tt('rse.af3afde6')}
+          sub={tt('rse.baeab35e')}
+          actionLabel={tt('rse.cf333076')}
           onAction={load}
         />
       ) : items.length === 0 ? (
         <NEmpty
           icon="✅"
-          title={AR ? 'لا توجد أصناف قاربت على الانتهاء' : 'No items nearing expiry'}
-          sub={AR ? 'كل الأصناف في مخزونك ضمن فترة صلاحية آمنة (أكثر من 90 يوماً)' : 'All inventory items are within a safe expiry window (90+ days)'}
+          title={tt('rse.67f82aa1')}
+          sub={tt('rse.3aa03dc8')}
         />
       ) : (
         <NScroll pad>
@@ -260,12 +260,12 @@ export function ExpiryTrackingScreen({ onBack }: { onBack: () => void }) {
                 </Text>
                 <Text style={{ fontSize: FS.xs, color: urgent ? theme.danger : theme.warn, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
                   {days <= 0
-                    ? (AR ? 'منتهي الصلاحية — يجب سحبه من الرفوف فوراً' : 'EXPIRED — pull from shelves immediately')
+                    ? (tt('rse.9ced077e'))
                     : (AR ? `تنتهي الصلاحية خلال ${days} يوم · الكمية: ${it.stock ?? 0}` : `Expires in ${days} days · Qty: ${it.stock ?? 0}`)}
                 </Text>
                 {!!it.expiry_date && (
                   <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 2, textAlign: AR ? 'right' : 'left' }}>
-                    {AR ? 'تاريخ الانتهاء: ' : 'Expiry date: '}{new Date(it.expiry_date).toLocaleDateString(AR ? 'ar-SA-u-ca-gregory' : 'en-GB')}
+                    {tt('rse.15844d53')}{new Date(it.expiry_date).toLocaleDateString(AR ? 'ar-SA-u-ca-gregory' : 'en-GB')}
                   </Text>
                 )}
               </NCard>
@@ -279,7 +279,7 @@ export function ExpiryTrackingScreen({ onBack }: { onBack: () => void }) {
 
 // 8. SHORTAGE REPORT SCREEN (POST/GET /provider/pharmacy/shortage-flags)
 export function ShortageReportScreen({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [drug, setDrug] = useState('');
   const [details, setDetails] = useState('');
   const [sending, setSending] = useState(false);
@@ -295,7 +295,7 @@ export function ShortageReportScreen({ onBack }: { onBack: () => void }) {
 
   const handleReport = async () => {
     const name = drug.trim();
-    if (!name) return show(AR ? 'حدد اسم الدواء الناقص' : 'Enter the shortage drug name', 'error');
+    if (!name) return show(tt('rse.6f298219'), 'error');
     setSending(true);
     try {
       // The endpoint needs at least one identifier; Arabic names go in name_ar, others in generic_name.
@@ -304,12 +304,12 @@ export function ShortageReportScreen({ onBack }: { onBack: () => void }) {
         ...(hasArabic ? { name_ar: name } : { generic_name: name }),
         ...(details.trim() ? { reason: details.trim() } : {}),
       });
-      show(AR ? 'تم إرسال البلاغ للإدارة للمراجعة' : 'Report sent to admin for review', 'success');
+      show(tt('rse.ec8a0ecb'), 'success');
       setDrug(''); setDetails('');
       loadFlags();
     } catch (e: any) {
       const msg = e?.response?.data?.message;
-      show(typeof msg === 'string' ? msg : (AR ? 'تعذر إرسال البلاغ — تحقق من الاتصال وحاول مجدداً' : 'Could not send report — check connection and retry'), 'error');
+      show(typeof msg === 'string' ? msg : (tt('rse.5e08dd53')), 'error');
     } finally {
       setSending(false);
     }
@@ -317,24 +317,24 @@ export function ShortageReportScreen({ onBack }: { onBack: () => void }) {
 
   const flagStatus = (st: string) => {
     switch (String(st)) {
-      case 'pending': return { label: AR ? 'قيد المراجعة' : 'Under review', variant: 'warning' as const };
-      case 'approved': return { label: AR ? 'معتمد' : 'Approved', variant: 'success' as const };
-      case 'rejected': return { label: AR ? 'مرفوض' : 'Rejected', variant: 'danger' as const };
+      case 'pending': return { label: tt('rse.c7d4241f'), variant: 'warning' as const };
+      case 'approved': return { label: tt('rse.05fbe426'), variant: 'success' as const };
+      case 'rejected': return { label: tt('rse.8290f876'), variant: 'danger' as const };
       default: return { label: st || '—', variant: 'default' as const };
     }
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'الإبلاغ عن نقص الأدوية' : 'Drug Shortage Report'} onBack={onBack} />
+      <NHeader title={tt('rse.9ede34fd')} onBack={onBack} />
       <NScroll pad>
         <NCard>
-          <NInput placeholder={AR ? 'اسم الدواء المفقود بالأسواق' : 'Shortage Drug Name'} value={drug} onChange={setDrug} required />
+          <NInput placeholder={tt('rse.d79d76e3')} value={drug} onChange={setDrug} required />
           <View style={{ height: SP.sm }} />
-          <NInput placeholder={AR ? 'تفاصيل إضافية (الكمية المطلوبة، آخر موعد توفر...)' : 'Additional details (quantity needed, last available date...)'} value={details} onChange={setDetails} multiline />
-          <NBtn label={AR ? 'إرسال بلاغ النقص' : 'Send Shortage Report'} onPress={handleReport} loading={sending} disabled={sending} style={{ marginTop: SP.md }} />
+          <NInput placeholder={tt('rse.18ff700d')} value={details} onChange={setDetails} multiline />
+          <NBtn label={tt('rse.1592e87a')} onPress={handleReport} loading={sending} disabled={sending} style={{ marginTop: SP.md }} />
         </NCard>
-        {flags.length > 0 && <NSecHeader title={AR ? 'بلاغاتك' : 'Your reports'} />}
+        {flags.length > 0 && <NSecHeader title={tt('rse.bfd49534')} />}
         {flags.map((f: any, i: number) => {
           const st = flagStatus(f.status);
           return (
@@ -354,7 +354,7 @@ export function ShortageReportScreen({ onBack }: { onBack: () => void }) {
 
 // 9. LAB BUNDLES SCREEN
 export function LabBundlesScreen({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
   const [loading, setLoading] = useState(true);
   const [loadErr, setLoadErr] = useState(false);
   const [tests, setTests] = useState<any[]>([]);
@@ -376,7 +376,7 @@ export function LabBundlesScreen({ onBack }: { onBack: () => void }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'كتالوج الفحوصات والباقات' : 'Lab Tests & Packages Catalog'} onBack={onBack} />
+      <NHeader title={tt('rse.07cae3c0')} onBack={onBack} />
       {loading ? (
         <View style={{ alignItems: 'center', paddingVertical: SP.huge }}>
           <ActivityIndicator size="large" color={theme.primary} />
@@ -384,16 +384,16 @@ export function LabBundlesScreen({ onBack }: { onBack: () => void }) {
       ) : loadErr ? (
         <NEmpty
           icon="⚠️"
-          title={AR ? 'تعذر تحميل الكتالوج' : 'Could not load catalog'}
-          sub={AR ? 'تحقق من اتصالك بالإنترنت ثم أعد المحاولة' : 'Check your connection and try again'}
-          actionLabel={AR ? 'إعادة المحاولة' : 'Retry'}
+          title={tt('rse.05040658')}
+          sub={tt('rse.baeab35e')}
+          actionLabel={tt('rse.cf333076')}
           onAction={load}
         />
       ) : tests.length === 0 ? (
         <NEmpty
           icon="🧪"
-          title={AR ? 'لا توجد فحوصات في الكتالوج بعد' : 'No tests in your catalog yet'}
-          sub={AR ? 'أضف فحوصاتك وباقاتك من إدارة الكتالوج لتظهر للمرضى' : 'Add your tests and packages from catalog management so patients can see them'}
+          title={tt('rse.d2730853')}
+          sub={tt('rse.a2a60530')}
         />
       ) : (
         <NScroll pad>
@@ -407,10 +407,10 @@ export function LabBundlesScreen({ onBack }: { onBack: () => void }) {
                   <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
                     {(AR ? `السعر: ${Number(t.price || 0).toFixed(2)} ر.س` : `Price: ${Number(t.price || 0).toFixed(2)} SAR`)
                       + (t.turnaround_hours ? (AR ? ` · النتيجة خلال ${t.turnaround_hours} ساعة` : ` · Result in ${t.turnaround_hours}h`) : '')
-                      + (t.home_collection_supported ? (AR ? ' · يدعم السحب المنزلي' : ' · Home collection') : '')}
+                      + (t.home_collection_supported ? (tt('rse.a2a8f284')) : '')}
                   </Text>
                 </View>
-                <NBadge label={t.available !== false ? (AR ? 'متاح' : 'Available') : (AR ? 'موقوف' : 'Paused')} variant={t.available !== false ? 'success' : 'default'} />
+                <NBadge label={t.available !== false ? (tt('rse.2aa376ed')) : (tt('rse.18642bbc'))} variant={t.available !== false ? 'success' : 'default'} />
               </View>
             </NCard>
           ))}
@@ -422,7 +422,7 @@ export function LabBundlesScreen({ onBack }: { onBack: () => void }) {
 
 // 10. LAB HOME SERVICE SCREEN
 export function LabHomeServiceScreen({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
   const [loading, setLoading] = useState(true);
   const [loadErr, setLoadErr] = useState(false);
   const [zones, setZones] = useState<any[]>([]);
@@ -444,7 +444,7 @@ export function LabHomeServiceScreen({ onBack }: { onBack: () => void }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'نطاق خدمة سحب العينات المنزلي' : 'Home Collection Coverage'} onBack={onBack} />
+      <NHeader title={tt('rse.bd6b644c')} onBack={onBack} />
       {loading ? (
         <View style={{ alignItems: 'center', paddingVertical: SP.huge }}>
           <ActivityIndicator size="large" color={theme.primary} />
@@ -452,16 +452,16 @@ export function LabHomeServiceScreen({ onBack }: { onBack: () => void }) {
       ) : loadErr ? (
         <NEmpty
           icon="⚠️"
-          title={AR ? 'تعذر تحميل مناطق التغطية' : 'Could not load coverage zones'}
-          sub={AR ? 'تحقق من اتصالك بالإنترنت ثم أعد المحاولة' : 'Check your connection and try again'}
-          actionLabel={AR ? 'إعادة المحاولة' : 'Retry'}
+          title={tt('rse.f5ac4a2c')}
+          sub={tt('rse.baeab35e')}
+          actionLabel={tt('rse.cf333076')}
           onAction={load}
         />
       ) : zones.length === 0 ? (
         <NEmpty
           icon="📍"
-          title={AR ? 'لم تُحدد مناطق تغطية بعد' : 'No coverage zones defined yet'}
-          sub={AR ? 'حدد مناطق تغطيتك من إعدادات المناطق ليتمكن المرضى من طلب السحب المنزلي' : 'Define your coverage zones from zone settings so patients can request home collection'}
+          title={tt('rse.b9338a71')}
+          sub={tt('rse.f4c58857')}
         />
       ) : (
         <NScroll pad>
@@ -470,14 +470,14 @@ export function LabHomeServiceScreen({ onBack }: { onBack: () => void }) {
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
-                    {z.name || (AR ? 'منطقة تغطية' : 'Coverage zone')}
+                    {z.name || (tt('rse.0aec39cd'))}
                   </Text>
                   <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
-                    {(z.shape === 'circle' && z.radius_km ? (AR ? `النطاق: ${z.radius_km} كم` : `Radius: ${z.radius_km} km`) : (AR ? 'منطقة مخصصة (مضلع)' : 'Custom polygon zone'))
+                    {(z.shape === 'circle' && z.radius_km ? (AR ? `النطاق: ${z.radius_km} كم` : `Radius: ${z.radius_km} km`) : (tt('rse.342e20ab')))
                       + (z.base_fee ? (AR ? ` · رسوم الزيارة: ${Number(z.base_fee).toFixed(2)} ر.س` : ` · Visit fee: ${Number(z.base_fee).toFixed(2)} SAR`) : '')}
                   </Text>
                 </View>
-                <NBadge label={z.active !== false ? (AR ? 'نشطة' : 'Active') : (AR ? 'موقوفة' : 'Inactive')} variant={z.active !== false ? 'success' : 'default'} />
+                <NBadge label={z.active !== false ? (tt('rse.f9ffe17e')) : (tt('rse.6521d707'))} variant={z.active !== false ? 'success' : 'default'} />
               </View>
             </NCard>
           ))}

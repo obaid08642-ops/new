@@ -14,7 +14,7 @@ import client from '../../api/client';
 // ── 1. LEAVES / VACATIONS ────────────────────────────────────────────────────
 export function DoctorLeavesScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
@@ -44,40 +44,40 @@ export function DoctorLeavesScreen({ onBack }: { onBack: () => void }) {
   useEffect(() => { load(); }, [load]);
 
   const add = async () => {
-    if (!start || !end) { show(AR ? 'حدد تاريخ البداية والنهاية' : 'Set start and end dates', 'error'); return; }
+    if (!start || !end) { show(tt('dops.92818856'), 'error'); return; }
     setSaving(true);
     try {
       const res: any = await client.post('/provider/ops/doctor/leave', { start_date: start, end_date: end, type, note: note || undefined });
       // a doctor linked to a facility waits for the facility: patients can book those days until it approves
       show(res?.data?.leave?.status === 'pending_facility'
-        ? (AR ? 'أُرسل طلب الإجازة إلى المنشأة، ولن تُحجب الأيام قبل موافقتها' : 'Leave sent to your facility; the days are blocked once it approves')
-        : (AR ? 'أُضيفت الإجازة — لن يستطيع المرضى الحجز فيها' : 'Leave added — patients cannot book during it'), 'success');
+        ? (tt('dops.45012ee7'))
+        : (tt('dops.cb86279a')), 'success');
       setStart(''); setEnd(''); setNote('');
       load();
     } catch (e: any) {
-      show(e?.response?.data?.message || (AR ? 'فشل الإضافة' : 'Failed to add'), 'error');
+      show(e?.response?.data?.message || (tt('dops.5897a49c')), 'error');
     } finally { setSaving(false); }
   };
 
   const cancel = async (id: string) => {
     try {
       await client.delete(`/provider/ops/doctor/leave/${id}`);
-      show(AR ? 'أُلغيت الإجازة' : 'Leave cancelled', 'success');
+      show(tt('dops.bbc086b6'), 'success');
       load();
-    } catch { show(AR ? 'فشل الإلغاء' : 'Cancel failed', 'error'); }
+    } catch { show(tt('dops.49fc351a'), 'error'); }
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? ' إجازاتي وإغلاقاتي' : ' Leaves & Closings'} onBack={onBack} />
+      <NHeader title={tt('dops.0bfe50e0')} onBack={onBack} />
       <NScroll pad>
         <NCard style={{ marginBottom: SP.lg }}>
           <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left', lineHeight: 22 }}>
-            {AR ? 'أي حجز داخل فترة الإجازة يُمنع تلقائياً. صيغة التاريخ: YYYY-MM-DD' : 'Bookings inside leave periods are blocked automatically. Date format: YYYY-MM-DD'}
+            {tt('dops.055c39fe')}
           </Text>
         </NCard>
 
-        <NSecHeader title={AR ? 'إضافة إجازة' : 'Add Leave'} />
+        <NSecHeader title={tt('dops.b469b033')} />
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.sm, marginBottom: SP.md }}>
           {TYPES.map((t) => (
             <TouchableOpacity key={t.k} onPress={() => setType(t.k)}
@@ -87,16 +87,16 @@ export function DoctorLeavesScreen({ onBack }: { onBack: () => void }) {
           ))}
         </View>
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm }}>
-          <View style={{ flex: 1 }}><NInput label={AR ? 'من (YYYY-MM-DD)' : 'From'} value={start} onChange={setStart} placeholder="2026-08-10" /></View>
-          <View style={{ flex: 1 }}><NInput label={AR ? 'إلى (YYYY-MM-DD)' : 'To'} value={end} onChange={setEnd} placeholder="2026-08-15" /></View>
+          <View style={{ flex: 1 }}><NInput label={tt('dops.c68c62d0')} value={start} onChange={setStart} placeholder="2026-08-10" /></View>
+          <View style={{ flex: 1 }}><NInput label={tt('dops.1c55eb40')} value={end} onChange={setEnd} placeholder="2026-08-15" /></View>
         </View>
-        <NInput label={AR ? 'ملاحظة (اختياري)' : 'Note (optional)'} value={note} onChange={setNote} />
-        <NBtn label={AR ? 'إضافة الإجازة' : 'Add Leave'} onPress={add} loading={saving} style={{ marginTop: SP.sm, marginBottom: SP.xl }} />
+        <NInput label={tt('dops.9e8fd92b')} value={note} onChange={setNote} />
+        <NBtn label={tt('dops.1a9ca023')} onPress={add} loading={saving} style={{ marginTop: SP.sm, marginBottom: SP.xl }} />
 
         <NSecHeader title={AR ? `إجازاتي (${leaves.length})` : `My Leaves (${leaves.length})`} />
         {loading && <ActivityIndicator color={theme.primary} />}
-        {!loading && failed && <NEmpty icon="alert" title={AR ? 'تعذر التحميل' : 'Could not load'} subtitle={AR ? 'تحقق من الاتصال وأعد المحاولة' : 'Check your connection and try again'} actionLabel={AR ? 'إعادة المحاولة' : 'Retry'} onAction={() => load()} />}
-        {!loading && !failed && leaves.length === 0 && <NEmpty title={AR ? 'لا إجازات مسجلة' : 'No leaves'} subtitle={AR ? 'إجازاتك القادمة تظهر هنا' : 'Your upcoming leaves appear here'} />}
+        {!loading && failed && <NEmpty icon="alert" title={tt('dops.f7e5ce2f')} subtitle={tt('dops.55571c7b')} actionLabel={tt('dops.cf333076')} onAction={() => load()} />}
+        {!loading && !failed && leaves.length === 0 && <NEmpty title={tt('dops.78fc7c1e')} subtitle={tt('dops.690f43c8')} />}
         {leaves.map((l: any) => (
           <NCard key={l.id} style={{ marginBottom: SP.sm }}>
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -109,12 +109,12 @@ export function DoctorLeavesScreen({ onBack }: { onBack: () => void }) {
                 </Text>
                 {l.status === 'pending_facility' && (
                   <Text style={{ fontSize: FS.xs, color: theme.warn, textAlign: AR ? 'right' : 'left' }}>
-                    {AR ? 'بانتظار موافقة المنشأة' : 'Awaiting facility approval'}
+                    {tt('dops.e4c01ddf')}
                   </Text>
                 )}
               </View>
               <TouchableOpacity onPress={() => cancel(l.id)}>
-                <Text style={{ color: theme.danger, fontWeight: FW.bold }}>{AR ? 'إلغاء' : 'Cancel'}</Text>
+                <Text style={{ color: theme.danger, fontWeight: FW.bold }}>{tt('dops.210b779f')}</Text>
               </TouchableOpacity>
             </View>
           </NCard>
@@ -127,7 +127,7 @@ export function DoctorLeavesScreen({ onBack }: { onBack: () => void }) {
 // ── 2. PRESCRIPTION TEMPLATES ────────────────────────────────────────────────
 export function PrescriptionTemplatesScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
@@ -148,7 +148,7 @@ export function PrescriptionTemplatesScreen({ onBack }: { onBack: () => void }) 
   useEffect(() => { load(); }, [load]);
 
   const add = async () => {
-    if (!name.trim() || !items.trim()) { show(AR ? 'الاسم والأدوية مطلوبان' : 'Name and items required', 'error'); return; }
+    if (!name.trim() || !items.trim()) { show(tt('dops.56dd30f7'), 'error'); return; }
     setSaving(true);
     try {
       const parsed = items.split('\n').filter(Boolean).map((line) => {
@@ -156,11 +156,11 @@ export function PrescriptionTemplatesScreen({ onBack }: { onBack: () => void }) 
         return { name: (med || '').trim(), dose: (dose || '').trim() };   // the same shape the e-prescription screen saves and reads
       });
       await client.post('/provider/ops/doctor/templates', { name: name.trim(), items: parsed });
-      show(AR ? 'حُفظ القالب' : 'Template saved', 'success');
+      show(tt('dops.eb529bcb'), 'success');
       setName(''); setItems('');
       load();
     } catch (e: any) {
-      show(e?.response?.data?.message || (AR ? 'فشل الحفظ' : 'Save failed'), 'error');
+      show(e?.response?.data?.message || (tt('dops.88940ee7')), 'error');
     } finally { setSaving(false); }
   };
 
@@ -168,26 +168,26 @@ export function PrescriptionTemplatesScreen({ onBack }: { onBack: () => void }) 
     try {
       await client.delete(`/provider/ops/doctor/templates/${id}`);
       load();
-    } catch { show(AR ? 'فشل الحذف' : 'Delete failed', 'error'); }
+    } catch { show(tt('dops.4c47e1eb'), 'error'); }
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? ' قوالب الوصفات' : ' Prescription Templates'} onBack={onBack} />
+      <NHeader title={tt('dops.c1df5a77')} onBack={onBack} />
       <NScroll pad>
-        <NSecHeader title={AR ? 'قالب جديد' : 'New Template'} />
-        <NInput label={AR ? 'اسم القالب' : 'Template name'} value={name} onChange={setName} placeholder={AR ? 'مثال: باقة البرد' : 'e.g. Flu pack'} />
+        <NSecHeader title={tt('dops.81df4f3c')} />
+        <NInput label={tt('dops.da32bdb6')} value={name} onChange={setName} placeholder={tt('dops.7a542b12')} />
         <NInput
-          label={AR ? 'الأدوية — كل سطر: اسم الدواء - الجرعة' : 'Items — one per line: medicine - dose'}
+          label={tt('dops.a5e2c89d')}
           value={items} onChange={setItems} multiline
           placeholder={'Paracetamol 500 - 1x3\nVitamin C - 1x1'}
         />
-        <NBtn label={AR ? 'حفظ القالب' : 'Save Template'} onPress={add} loading={saving} style={{ marginTop: SP.sm, marginBottom: SP.xl }} />
+        <NBtn label={tt('dops.bad887bb')} onPress={add} loading={saving} style={{ marginTop: SP.sm, marginBottom: SP.xl }} />
 
         <NSecHeader title={AR ? `قوالبي (${templates.length})` : `My Templates (${templates.length})`} />
         {loading && <ActivityIndicator color={theme.primary} />}
-        {!loading && failed && <NEmpty icon="alert" title={AR ? 'تعذر التحميل' : 'Could not load'} subtitle={AR ? 'تحقق من الاتصال وأعد المحاولة' : 'Check your connection and try again'} actionLabel={AR ? 'إعادة المحاولة' : 'Retry'} onAction={() => load()} />}
-        {!loading && !failed && templates.length === 0 && <NEmpty title={AR ? 'لا قوالب بعد' : 'No templates yet'} subtitle={AR ? 'وفّر وقتك بقوالب جاهزة للحالات المتكررة' : 'Save time with reusable templates'} />}
+        {!loading && failed && <NEmpty icon="alert" title={tt('dops.f7e5ce2f')} subtitle={tt('dops.55571c7b')} actionLabel={tt('dops.cf333076')} onAction={() => load()} />}
+        {!loading && !failed && templates.length === 0 && <NEmpty title={tt('dops.79f121a6')} subtitle={tt('dops.955c22d1')} />}
         {templates.map((t: any) => (
           <NCard key={t.id} style={{ marginBottom: SP.sm }}>
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -212,7 +212,7 @@ export function PrescriptionTemplatesScreen({ onBack }: { onBack: () => void }) 
 // ── 3. SAVED DIAGNOSES ───────────────────────────────────────────────────────
 export function SavedDiagnosesScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
@@ -235,34 +235,34 @@ export function SavedDiagnosesScreen({ onBack }: { onBack: () => void }) {
   useEffect(() => { load(); }, [load]);
 
   const add = async () => {
-    if (!nameAr.trim()) { show(AR ? 'اسم التشخيص بالعربي مطلوب' : 'Arabic diagnosis name required', 'error'); return; }
+    if (!nameAr.trim()) { show(tt('dops.4a88f756'), 'error'); return; }
     setSaving(true);
     try {
       await client.post('/provider/ops/doctor/diagnoses', { name_ar: nameAr.trim(), name_en: nameEn.trim() || undefined, icd: icd.trim() || undefined });
-      show(AR ? 'حُفظ التشخيص' : 'Diagnosis saved', 'success');
+      show(tt('dops.cffa9226'), 'success');
       setNameAr(''); setNameEn(''); setIcd('');
       load();
     } catch (e: any) {
-      show(e?.response?.data?.message || (AR ? 'فشل الحفظ' : 'Save failed'), 'error');
+      show(e?.response?.data?.message || (tt('dops.88940ee7')), 'error');
     } finally { setSaving(false); }
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? ' التشخيصات المحفوظة' : ' Saved Diagnoses'} onBack={onBack} />
+      <NHeader title={tt('dops.d3f4ba56')} onBack={onBack} />
       <NScroll pad>
-        <NSecHeader title={AR ? 'تشخيص جديد' : 'New Diagnosis'} />
-        <NInput label={AR ? 'الاسم بالعربي *' : 'Arabic name *'} value={nameAr} onChange={setNameAr} placeholder={AR ? 'مثال: التهاب الحلق' : ''} />
+        <NSecHeader title={tt('dops.972af300')} />
+        <NInput label={tt('dops.b6e20c82')} value={nameAr} onChange={setNameAr} placeholder={AR ? 'مثال: التهاب الحلق' : ''} />
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm }}>
-          <View style={{ flex: 2 }}><NInput label={AR ? 'الاسم بالإنجليزي' : 'English name'} value={nameEn} onChange={setNameEn} placeholder="Pharyngitis" /></View>
+          <View style={{ flex: 2 }}><NInput label={tt('dops.60629813')} value={nameEn} onChange={setNameEn} placeholder="Pharyngitis" /></View>
           <View style={{ flex: 1 }}><NInput label="ICD" value={icd} onChange={setIcd} placeholder="J02.9" /></View>
         </View>
-        <NBtn label={AR ? 'حفظ التشخيص' : 'Save Diagnosis'} onPress={add} loading={saving} style={{ marginTop: SP.sm, marginBottom: SP.xl }} />
+        <NBtn label={tt('dops.b626c218')} onPress={add} loading={saving} style={{ marginTop: SP.sm, marginBottom: SP.xl }} />
 
-        <NInput label={AR ? 'بحث' : 'Search'} value={search} onChange={(v: string) => { setSearch(v); load(v); }} placeholder={AR ? 'ابحث في تشخيصاتك…' : 'Search your diagnoses…'} />
+        <NInput label={tt('dops.f61f44ef')} value={search} onChange={(v: string) => { setSearch(v); load(v); }} placeholder={tt('dops.d724665e')} />
         {loading && <ActivityIndicator color={theme.primary} style={{ marginTop: SP.md }} />}
-        {!loading && failed && <NEmpty icon="alert" title={AR ? 'تعذر التحميل' : 'Could not load'} subtitle={AR ? 'تحقق من الاتصال وأعد المحاولة' : 'Check your connection and try again'} actionLabel={AR ? 'إعادة المحاولة' : 'Retry'} onAction={() => load()} />}
-        {!loading && !failed && rows.length === 0 && <NEmpty title={AR ? 'لا تشخيصات محفوظة' : 'No saved diagnoses'} />}
+        {!loading && failed && <NEmpty icon="alert" title={tt('dops.f7e5ce2f')} subtitle={tt('dops.55571c7b')} actionLabel={tt('dops.cf333076')} onAction={() => load()} />}
+        {!loading && !failed && rows.length === 0 && <NEmpty title={tt('dops.35850b7d')} />}
         {rows.map((d: any) => (
           <NCard key={d.id} style={{ marginBottom: SP.sm, marginTop: SP.xs }}>
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm }}>
@@ -283,7 +283,7 @@ export function SavedDiagnosesScreen({ onBack }: { onBack: () => void }) {
 // ── 4. PATIENT BLACKLIST ─────────────────────────────────────────────────────
 export function DoctorBlacklistScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
@@ -303,26 +303,24 @@ export function DoctorBlacklistScreen({ onBack }: { onBack: () => void }) {
   const unblock = async (patientId: string) => {
     try {
       await client.delete(`/provider/ops/doctor/blacklist/${patientId}`);
-      show(AR ? 'أُزيل من القائمة — يستطيع الحجز مجدداً' : 'Unblocked — patient can book again', 'success');
+      show(tt('dops.655ae42a'), 'success');
       load();
-    } catch { show(AR ? 'فشلت الإزالة' : 'Unblock failed', 'error'); }
+    } catch { show(tt('dops.c418fbb6'), 'error'); }
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? ' قائمة الحظر' : ' Patient Blacklist'} onBack={onBack} />
+      <NHeader title={tt('dops.b9597423')} onBack={onBack} />
       <NScroll pad>
         <NCard style={{ marginBottom: SP.lg }}>
           <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left', lineHeight: 22 }}>
-            {AR
-              ? 'المرضى المحظورون لا يستطيعون حجز مواعيد معك. الحظر يتم من ملف المريض أو بعد الاستشارة.'
-              : 'Blacklisted patients cannot book appointments with you. Blocking is done from the patient file or after consultations.'}
+            {tt('dops.39877d2f')}
           </Text>
         </NCard>
         {loading && <ActivityIndicator color={theme.primary} />}
-        {!loading && failed && <NEmpty icon="alert" title={AR ? 'تعذر التحميل' : 'Could not load'} subtitle={AR ? 'تحقق من الاتصال وأعد المحاولة' : 'Check your connection and try again'} actionLabel={AR ? 'إعادة المحاولة' : 'Retry'} onAction={() => load()} />}
+        {!loading && failed && <NEmpty icon="alert" title={tt('dops.f7e5ce2f')} subtitle={tt('dops.55571c7b')} actionLabel={tt('dops.cf333076')} onAction={() => load()} />}
         {!loading && !failed && rows.length === 0 && (
-          <NEmpty title={AR ? 'لا محظورون' : 'No blocked patients'} subtitle={AR ? 'قائمتك نظيفة — تظهر هنا أي حالات حظر مستقبلية' : 'Your list is clear'} />
+          <NEmpty title={tt('dops.15dc7ecd')} subtitle={tt('dops.08a5f3a6')} />
         )}
         {rows.map((b: any) => (
           <NCard key={b.patient_id} style={{ marginBottom: SP.sm }}>
@@ -332,11 +330,11 @@ export function DoctorBlacklistScreen({ onBack }: { onBack: () => void }) {
                   {b.patient_name || b.patient_id}
                 </Text>
                 <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
-                  {b.reason || (AR ? 'بدون سبب مسجل' : 'No reason recorded')} · {String(b.createdAt || '').slice(0, 10)}
+                  {b.reason || (tt('dops.589ccf01'))} · {String(b.createdAt || '').slice(0, 10)}
                 </Text>
               </View>
               <TouchableOpacity onPress={() => unblock(b.patient_id)}>
-                <Text style={{ color: theme.primary, fontWeight: FW.bold }}>{AR ? 'رفع الحظر' : 'Unblock'}</Text>
+                <Text style={{ color: theme.primary, fontWeight: FW.bold }}>{tt('dops.2ad51061')}</Text>
               </TouchableOpacity>
             </View>
           </NCard>

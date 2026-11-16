@@ -8,7 +8,7 @@ jest.mock('../../../context', () => {
   const theme = new Proxy({}, { get: () => 'transparent' });
   return {
     useTheme: () => ({ theme, isDark: false }),
-    useLang: () => ({ lang: 'ar', isRTL: true, t: (k: string) => k }),
+    useLang: () => ({ lang: 'ar', isRTL: true, t: (k: string) => require('../../../test-utils/langStrings').tGeneratedOnly('ar')(k) }),
     useAuth: () => ({ user: { role: 'pharmacy', displayName: 'صيدلية' } }),
     useToast: () => ({ show: jest.fn() }),
   };

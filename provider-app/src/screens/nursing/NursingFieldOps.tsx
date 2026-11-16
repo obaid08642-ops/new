@@ -26,7 +26,7 @@ interface NursingVisitSummary {
 export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { order: NursingVisitSummary | null | undefined, onBack: () => void, onRefresh: () => void, onNavigate?: (s: string, p?: unknown) => void }) {
   const uploadsOn = useUploadsEnabled();
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
   const visitId = order?.id;
@@ -51,7 +51,7 @@ export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { orde
       const r = await client.get(`/nursing/visits/${visitId}`);
       setVisit(r.data || r);
     } catch {
-      show(AR ? 'تعذر تحميل الزيارة' : 'Failed to load visit', 'error');
+      show(tt('nfo.abdf05c8'), 'error');
     } finally {
       setLoading(false);
     }
@@ -71,7 +71,7 @@ export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { orde
       if (okMsg) show(okMsg, 'success');
       return true;
     } catch (error) {
-      show(errMsg(error, AR ? 'تعذر تنفيذ الإجراء' : 'Action failed'), 'error');
+      show(errMsg(error, tt('nfo.b1ec89a1')), 'error');
       return false;
     } finally {
       setBusy(false);
@@ -85,11 +85,11 @@ export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { orde
     try {
       await client.post(`/provider/jobs/nursing/${visitId}/${kind}`, kind === 'reject' ? { reason: 'provider_declined' } : {});
       onRefresh();
-      show(kind === 'accept' ? (AR ? 'تم قبول الزيارة' : 'Visit accepted') : (AR ? 'تم رفض الطلب' : 'Request rejected'), kind === 'accept' ? 'success' : 'info');
+      show(kind === 'accept' ? (tt('nfo.e7c3a7ac')) : (tt('nfo.91447f9b')), kind === 'accept' ? 'success' : 'info');
       if (kind === 'reject') { onBack(); return; }
       await load();
     } catch (error) {
-      show(errMsg(error, AR ? 'تعذر تنفيذ الإجراء' : 'Action failed'), 'error');
+      show(errMsg(error, tt('nfo.b1ec89a1')), 'error');
     } finally {
       setBusy(false);
     }
@@ -101,15 +101,15 @@ export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { orde
       const { requestForegroundPermissionsAsync, getCurrentPositionAsync } = await import('expo-location');
       const perm = await requestForegroundPermissionsAsync();
       if (perm.status !== 'granted') {
-        show(AR ? 'صلاحية الموقع مطلوبة لتسجيل الوصول' : 'Location permission required for check-in', 'error');
+        show(tt('nfo.81da760d'), 'error');
         return;
       }
       const pos = await getCurrentPositionAsync({});
       const ok = await act('arrive', { lat: pos.coords.latitude, lng: pos.coords.longitude },
-        AR ? 'تم تسجيل الوصول' : 'Checked in');
+        tt('nfo.dc4851e1'));
       if (ok) void load();
     } catch (error) {
-      show(errMsg(error, AR ? 'تعذر تسجيل الوصول' : 'Check-in failed'), 'error');
+      show(errMsg(error, tt('nfo.4f996b46')), 'error');
     } finally {
       setBusy(false);
     }
@@ -117,7 +117,7 @@ export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { orde
 
   const doComplete = async () => {
     if (!signature) {
-      show(AR ? 'توقيع المريض مطلوب لإنهاء الزيارة' : 'Patient signature required to complete', 'error');
+      show(tt('nfo.7e400624'), 'error');
       return;
     }
     const vitals: Record<string, unknown> = {};
@@ -132,11 +132,11 @@ export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { orde
         const attachments = await uploadVisitFiles(files);
         await client.post(`/home-care/bookings/${visitId}/visit-report`,
           buildVisitReportBody({ attachments, vitals, notes, followUp, signature }));
-        show(AR ? 'تم إنهاء الزيارة وإرسال الملفات للمريض' : 'Visit completed and files sent to the patient', 'success');
+        show(tt('nfo.cffe9758'), 'success');
         setSignature(null); setNotes(''); setBp(''); setGlucose(''); setPulse(''); setTemp(''); setFollowUp(''); setFiles([]);
         onRefresh(); void load();
       } catch (error) {
-        show(errMsg(error, AR ? 'تعذر رفع الملفات أو إنهاء الزيارة' : 'Could not upload the files or complete the visit'), 'error');
+        show(errMsg(error, tt('nfo.b560e711')), 'error');
       } finally {
         setBusy(false);
       }
@@ -149,7 +149,7 @@ export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { orde
         ...(followUp.trim() ? { recommendations: [followUp.trim()] } : {}),
         signature_base64: signature,
       },
-      AR ? 'تم إنهاء الزيارة' : 'Visit completed');
+      tt('nfo.b86f363b'));
     if (ok) { setSignature(null); setNotes(''); setBp(''); setGlucose(''); setPulse(''); setTemp(''); setFollowUp(''); void load(); }
   };
 
@@ -175,12 +175,12 @@ export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { orde
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'العمليات الميدانية' : 'Field Operations'} onBack={onBack} />
+      <NHeader title={tt('nfo.6b75d828')} onBack={onBack} />
       <NScroll>
         {loading ? (
           <ActivityIndicator size="large" color={theme.primary} />
         ) : !visit ? (
-          <NCard><Text style={{ color: theme.textSub }}>{AR ? 'تعذر تحميل الزيارة' : 'Visit unavailable'}</Text></NCard>
+          <NCard><Text style={{ color: theme.textSub }}>{tt('nfo.9b0a16cd')}</Text></NCard>
         ) : (
           <>
             <NCard style={{ gap: SP.sm }}>
@@ -188,7 +188,7 @@ export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { orde
               {addr ? <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{addr}</Text> : null}
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Text style={{ color: theme.text, fontWeight: FW.bold, fontSize: FS.md }}>
-                  {AR ? 'زيارة' : 'Visit'} #{String(visitId).slice(-6)}
+                  {tt('nfo.73538330')} #{String(visitId).slice(-6)}
                 </Text>
                 <NBadge label={state} />
               </View>
@@ -198,89 +198,89 @@ export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { orde
               ) : null}
             </NCard>
 
-            <NSecHeader title={AR ? 'إجراءات الزيارة' : 'Visit actions'} />
+            <NSecHeader title={tt('nfo.0d7ee11c')} />
             {(state === 'NEW_REQUEST' || state === 'PROVIDER_ASSIGNED') && (
               <>
-                <NBtn label={AR ? 'قبول الزيارة' : 'Accept visit'} loading={busy} onPress={() => void decide('accept')} />
-                <NBtn label={AR ? 'اعتذار عن الزيارة' : 'Decline visit'} variant="danger" disabled={busy} onPress={() => void decide('reject')} />
+                <NBtn label={tt('nfo.8a6e9842')} loading={busy} onPress={() => void decide('accept')} />
+                <NBtn label={tt('nfo.9cf13816')} variant="danger" disabled={busy} onPress={() => void decide('reject')} />
               </>
             )}
             {state === 'CONFIRMED' && (
-              <NBtn label={AR ? 'بدء التحرك للموقع' : 'Start transit'} loading={busy} onPress={() => void act('transit', {}, AR ? 'تم بدء التحرك' : 'Transit started').then((ok) => ok && load())} />
+              <NBtn label={tt('nfo.438d3a9d')} loading={busy} onPress={() => void act('transit', {}, tt('nfo.149ca35e')).then((ok) => ok && load())} />
             )}
             {state === 'IN_TRANSIT' && (
-              <NBtn label={AR ? 'تسجيل الوصول (GPS)' : 'Check in (GPS)'} loading={busy} onPress={() => void doArrive()} />
+              <NBtn label={tt('nfo.26623bc9')} loading={busy} onPress={() => void doArrive()} />
             )}
             {state === 'ARRIVED' && (
-              <NBtn label={AR ? 'بدء تقديم الرعاية' : 'Start care'} loading={busy} onPress={() => void act('start-care', {}, AR ? 'بدأت الرعاية' : 'Care started').then((ok) => ok && load())} />
+              <NBtn label={tt('nfo.829cd0b0')} loading={busy} onPress={() => void act('start-care', {}, tt('nfo.144091ea')).then((ok) => ok && load())} />
             )}
             {(state === 'CARE_IN_PROGRESS' || state === 'IN_PROGRESS') && (
               <NCard style={{ gap: SP.md }}>
-                <NInput label={AR ? 'ضغط الدم (BP)' : 'Blood Pressure (BP)'} value={bp} onChange={setBp} />
-                <NInput label={AR ? 'مستوى السكر (Glucose)' : 'Blood Glucose'} value={glucose} onChange={setGlucose} kbType="numeric" />
-                <NInput label={AR ? 'درجة الحرارة (Temp)' : 'Temperature (C)'} value={temp} onChange={setTemp} kbType="numeric" />
-                <NInput label={AR ? 'النبض (Pulse)' : 'Pulse Rate'} value={pulse} onChange={setPulse} kbType="numeric" />
-                <NInput label={AR ? 'ملاحظات سريرية' : 'Clinical notes'} value={notes} onChange={setNotes} multi lines={4} />
-                <NInput label={AR ? 'التوصيات والمتابعة' : 'Recommendations & follow-up'} value={followUp} onChange={setFollowUp} multi lines={3} />
+                <NInput label={tt('nfo.6f62e156')} value={bp} onChange={setBp} />
+                <NInput label={tt('nfo.34a7ced9')} value={glucose} onChange={setGlucose} kbType="numeric" />
+                <NInput label={tt('nfo.6f6bf8ad')} value={temp} onChange={setTemp} kbType="numeric" />
+                <NInput label={tt('nfo.dded75e8')} value={pulse} onChange={setPulse} kbType="numeric" />
+                <NInput label={tt('nfo.bc8d92c0')} value={notes} onChange={setNotes} multi lines={4} />
+                <NInput label={tt('nfo.0d0cd336')} value={followUp} onChange={setFollowUp} multi lines={3} />
                 <NBtn
-                  label={signature ? (AR ? 'إعادة التوقيع' : 'Re-sign') : (AR ? 'توقيع المريض' : 'Patient signature')}
+                  label={signature ? (tt('nfo.d904e855')) : (tt('nfo.6152deae'))}
                   variant="outline"
                   onPress={() => setSigOpen(true)}
                 />
                 {signature ? (
-                  <Text style={{ color: theme.textSub, fontSize: FS.xs }}>{AR ? 'تم التقاط التوقيع' : 'Signature captured'}</Text>
+                  <Text style={{ color: theme.textSub, fontSize: FS.xs }}>{tt('nfo.602133d5')}</Text>
                 ) : null}
-                <NSecHeader title={AR ? 'ملفات النتائج (اختياري)' : 'Result files (optional)'} />
+                <NSecHeader title={tt('nfo.6d839fd9')} />
                 {files.map((f, i) => (
                   <View key={`${f.uri}-${i}`} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between', gap: SP.sm }}>
                     <Text numberOfLines={1} style={{ color: theme.text, fontSize: FS.sm, flex: 1, textAlign: AR ? 'right' : 'left' }}>{f.name}</Text>
-                    <NBtn label={AR ? 'إزالة' : 'Remove'} variant="outline" disabled={busy} onPress={() => setFiles((cur) => cur.filter((_, j) => j !== i))} />
+                    <NBtn label={tt('nfo.c91a997c')} variant="outline" disabled={busy} onPress={() => setFiles((cur) => cur.filter((_, j) => j !== i))} />
                   </View>
                 ))}
                 {files.length < MAX_VISIT_FILES ? (
-                  (uploadsOn ? <NBtn label={AR ? 'إرفاق ملف (PDF أو صورة)' : 'Attach a file (PDF or image)'} variant="outline" disabled={busy}
+                  (uploadsOn ? <NBtn label={tt('nfo.07d5eb73')} variant="outline" disabled={busy}
                     onPress={async () => {
                       try {
                         const f = await pickVisitFile();
                         if (f) setFiles((cur) => [...cur, f].slice(0, MAX_VISIT_FILES));
-                      } catch { show(AR ? 'تعذر اختيار الملف' : 'Could not pick the file', 'error'); }
+                      } catch { show(tt('nfo.f4c75f0a'), 'error'); }
                     }} /> : <UploadsUnavailable />)
                 ) : (
-                  <Text style={{ color: theme.textSub, fontSize: FS.xs }}>{AR ? 'الحد الأقصى 10 ملفات' : 'Maximum 10 files'}</Text>
+                  <Text style={{ color: theme.textSub, fontSize: FS.xs }}>{tt('nfo.d653f866')}</Text>
                 )}
-                <NBtn label={AR ? 'إنهاء الزيارة' : 'Complete visit'} loading={busy} onPress={() => void doComplete()} />
+                <NBtn label={tt('nfo.df42d4f4')} loading={busy} onPress={() => void doComplete()} />
               </NCard>
             )}
             {onNavigate && ['CONFIRMED', 'IN_TRANSIT', 'ARRIVED', 'CARE_IN_PROGRESS', 'IN_PROGRESS'].includes(state) && (
               <>
-                <NBtn label={AR ? 'قائمة مهام الزيارة' : 'Visit checklist'} variant="outline" onPress={() => onNavigate('checklist', { ...order, id: visitId })} />
-                <NBtn label={AR ? 'ملاحظات يومية' : 'Progress notes'} variant="outline" onPress={() => onNavigate('progress', { ...order, id: visitId })} />
+                <NBtn label={tt('nfo.7799a498')} variant="outline" onPress={() => onNavigate('checklist', { ...order, id: visitId })} />
+                <NBtn label={tt('nfo.f76e559f')} variant="outline" onPress={() => onNavigate('progress', { ...order, id: visitId })} />
               </>
             )}
             {['COMPLETED'].includes(state) && (
-              <NCard><Text style={{ color: theme.text }}>{AR ? 'اكتملت الزيارة وسُجلت' : 'Visit completed and recorded'}</Text></NCard>
+              <NCard><Text style={{ color: theme.text }}>{tt('nfo.6e0603b1')}</Text></NCard>
             )}
 
             {/* the server allows no-show only once the nurse has arrived (home-care.controller triggerNoShow) and an emergency abort only on the road, arrived or in care */}
             {['IN_TRANSIT', 'ARRIVED', 'CARE_IN_PROGRESS'].includes(state) && (
               <>
-                <NSecHeader title={AR ? 'استثناءات' : 'Exceptions'} />
+                <NSecHeader title={tt('nfo.3f85e2bb')} />
                 {state === 'ARRIVED' ? (
-                  <NBtn label={AR ? 'المريض لم يحضر' : 'Patient no-show'} variant="outline" loading={busy}
-                    onPress={() => void act('no-show', {}, AR ? 'سُجل عدم الحضور' : 'No-show recorded').then((ok) => ok && load())} />
+                  <NBtn label={tt('nfo.df01ea04')} variant="outline" loading={busy}
+                    onPress={() => void act('no-show', {}, tt('nfo.931c9340')).then((ok) => ok && load())} />
                 ) : null}
                 {!showAbort ? (
-                  <NBtn label={AR ? 'إيقاف طارئ' : 'Emergency abort'} variant="outline" onPress={() => setShowAbort(true)} />
+                  <NBtn label={tt('nfo.52129bde')} variant="outline" onPress={() => setShowAbort(true)} />
                 ) : (
                   <NCard style={{ gap: SP.md }}>
-                    <NInput label={AR ? 'سبب الإيقاف (إلزامي)' : 'Reason (required)'} value={abortReason} onChange={setAbortReason} />
-                    <NBtn label={AR ? 'تأكيد الإيقاف الطارئ' : 'Confirm emergency abort'} loading={busy}
+                    <NInput label={tt('nfo.96b5c734')} value={abortReason} onChange={setAbortReason} />
+                    <NBtn label={tt('nfo.07447de3')} loading={busy}
                       onPress={async () => {
                         if (!abortReason.trim()) {
-                          show(AR ? 'السبب إلزامي' : 'Reason required', 'error');
+                          show(tt('nfo.6d87f1f3'), 'error');
                           return;
                         }
-                        const ok = await act('emergency-abort', { reason: abortReason.trim() }, AR ? 'تم الإيقاف' : 'Aborted');
+                        const ok = await act('emergency-abort', { reason: abortReason.trim() }, tt('nfo.afa81980'));
                         if (ok) { setShowAbort(false); setAbortReason(''); void load(); }
                       }} />
                   </NCard>
