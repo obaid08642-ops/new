@@ -283,7 +283,7 @@ export function RadiologyRegistration(props: RegistrationProps<DiagnosticsRegDat
 // ══════════════════════════════════════════════════════════════════════════════
 function LStep1({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const AR = lang === 'ar';
   const [errs, setErrs] = useState<Record<string, string>>({});
 
@@ -299,15 +299,15 @@ function LStep1({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!data.nameAr.trim()) e.name = AR ? 'مطلوب' : 'Required';
-    if (!data.centerType) e.type = AR ? 'اختر نوع المركز' : 'Choose center type';
-    if (!data.managerName.trim()) e.mgr = AR ? 'مطلوب' : 'Required';
-    if (!Validate.email(data.managerEmail)) e.email = AR ? 'بريد غير صحيح' : 'Invalid email';
-    if (!Validate.phone(data.managerPhone)) e.phone = AR ? 'جوال غير صحيح' : 'Invalid phone';
-    if (!data.techOfficerName.trim()) e.tech = AR ? 'اسم المسؤول الفني مطلوب' : 'Tech officer name required';
+    if (!data.nameAr.trim()) e.name = tt('labreg.b4bde92d');
+    if (!data.centerType) e.type = tt('labreg.af14eb67');
+    if (!data.managerName.trim()) e.mgr = tt('labreg.b4bde92d');
+    if (!Validate.email(data.managerEmail)) e.email = tt('labreg.dcfb041e');
+    if (!Validate.phone(data.managerPhone)) e.phone = tt('labreg.10222dfa');
+    if (!data.techOfficerName.trim()) e.tech = tt('labreg.f0b37e5d');
     const ps = Validate.password(data.password);
     if (!ps.valid) e.pass = AR ? ps.msgAr : ps.msgEn;
-    if (data.password !== data.confirmPass) e.conf = AR ? 'كلمتا المرور غير متطابقتين' : 'Passwords do not match';
+    if (data.password !== data.confirmPass) e.conf = tt('labreg.1e9df0d2');
     setErrs(e);
     return Object.keys(e).length === 0;
   };
@@ -341,34 +341,34 @@ function LStep1({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
 
       <NInput
         innerRef={nameArRef}
-        label={AR ? 'اسم المركز بالعربي' : 'Center Name (Arabic)'}
-        placeholder={AR ? 'معمل نبضة للتحاليل الطبية' : 'Nabdah Medical Lab'}
+        label={tt('labreg.8938d20f')}
+        placeholder={tt('labreg.5ca2a0e6')}
         value={data.nameAr} onChange={v => update({ nameAr: v })}
         icon="⊥" required error={errs.name} caps="words"
         returnKey="next" onSubmit={() => nameEnRef.current?.focus()}
       />
       <NInput
         innerRef={nameEnRef}
-        label={AR ? 'اسم المركز بالإنجليزي' : 'Center Name (English)'}
+        label={tt('labreg.4a581750')}
         placeholder="Nabdah Medical Lab"
         value={data.nameEn} onChange={v => update({ nameEn: v })}
         caps="words"
         returnKey="next" onSubmit={() => mgrNameRef.current?.focus()}
       />
 
-      <NDivider label={AR ? 'المدير المسؤول' : 'Manager Info'} style={{ marginVertical: SP.lg }} />
+      <NDivider label={tt('labreg.0b853973')} style={{ marginVertical: SP.lg }} />
 
       <NInput
         innerRef={mgrNameRef}
-        label={AR ? 'اسم المدير المسؤول' : 'Manager Name'}
-        placeholder={AR ? 'محمد أحمد' : 'Mohamed Ahmed'}
+        label={tt('labreg.aaaf6e82')}
+        placeholder={tt('labreg.3e8e688a')}
         value={data.managerName} onChange={v => update({ managerName: v })}
         required error={errs.mgr} caps="words"
         returnKey="next" onSubmit={() => emailRef.current?.focus()}
       />
       <NInput
         innerRef={emailRef}
-        label={AR ? 'البريد الإلكتروني' : 'Email'}
+        label={tt('labreg.8605844e')}
         placeholder="lab@email.com"
         value={data.managerEmail} onChange={v => update({ managerEmail: v.toLowerCase() })}
         required error={errs.email} kbType="email-address"
@@ -376,63 +376,61 @@ function LStep1({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
       />
       <NPhoneInput
         innerRef={phoneRef}
-        label={AR ? 'الجوال' : 'Phone'}
+        label={tt('labreg.098e976b')}
         value={data.managerPhone} onChange={v => update({ managerPhone: v })}
         required error={errs.phone}
       />
 
-      <NDivider label={AR ? 'المسؤول الفني' : 'Technical Officer'} style={{ marginVertical: SP.lg }} />
+      <NDivider label={tt('labreg.95afa520')} style={{ marginVertical: SP.lg }} />
 
       <NCard style={{ backgroundColor: theme.infoBg, marginBottom: SP.lg }}>
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md }}>
           <Icon name="shield" size={18} color={theme.info} />
           <Text style={{ flex: 1, fontSize: FS.sm, color: theme.info, lineHeight: 20, textAlign: AR ? 'right' : 'left' }}>
-            {AR
-              ? 'المسؤول الفني يجب أن يكون مرخصاً من الهيئة السعودية للتخصصات الصحية SCFHS.'
-              : 'Technical officer must hold a valid SCFHS license.'}
+            {tt('labreg.48ce0751')}
           </Text>
         </View>
       </NCard>
 
       <NInput
         innerRef={techOfficerNameRef}
-        label={AR ? 'اسم المسؤول الفني' : 'Technical Officer Name'}
-        placeholder={AR ? 'خالد المالكي' : 'Khalid Al-Malki'}
+        label={tt('labreg.f85cb713')}
+        placeholder={tt('labreg.d399f041')}
         value={data.techOfficerName} onChange={v => update({ techOfficerName: v })}
         required error={errs.tech} caps="words"
         returnKey="next" onSubmit={() => techOfficerScfhsRef.current?.focus()}
       />
       <NInput
         innerRef={techOfficerScfhsRef}
-        label={AR ? 'رقم ترخيص SCFHS للمسؤول الفني' : 'Tech Officer SCFHS License'}
+        label={tt('labreg.0e8f6103')}
         placeholder="123456"
         value={data.techOfficerScfhs} onChange={v => update({ techOfficerScfhs: v.replace(/\D/g, '') })}
         kbType="numeric" maxLen={8}
         returnKey="next" onSubmit={() => passwordRef.current?.focus()}
       />
 
-      <NDivider label={AR ? 'كلمة المرور' : 'Password'} style={{ marginVertical: SP.lg }} />
+      <NDivider label={tt('labreg.751ab623')} style={{ marginVertical: SP.lg }} />
 
       <NInput
         innerRef={passwordRef}
-        label={AR ? 'كلمة المرور' : 'Password'}
+        label={tt('labreg.751ab623')}
         placeholder="••••••••" value={data.password}
         onChange={v => update({ password: v })}
         secure required error={errs.pass}
-        hint={AR ? '8 أحرف على الأقل — أرقام وحروف كبيرة وصغيرة ورموز' : '8+ chars — numbers, upper+lower+symbols'}
+        hint={tt('labreg.c5807665')}
         returnKey="next" onSubmit={() => confirmPassRef.current?.focus()}
       />
       <NPassStrength password={data.password} />
       <NInput
         innerRef={confirmPassRef}
-        label={AR ? 'تأكيد كلمة المرور' : 'Confirm Password'}
+        label={tt('labreg.4171a21c')}
         placeholder="••••••••" value={data.confirmPass}
         onChange={v => update({ confirmPass: v })}
         secure required error={errs.conf}
         returnKey="done" onSubmit={handleNext}
       />
 
-      <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text, marginTop: 12, marginBottom: 6, textAlign: AR ? 'right' : 'left' }}>{AR ? 'لغات التعامل' : 'Spoken languages'}</Text>
+      <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text, marginTop: 12, marginBottom: 6, textAlign: AR ? 'right' : 'left' }}>{tt('labreg.93dfda41')}</Text>
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
         {LANGS.map(l => {
           const on = (data.languages || []).includes(l.id);
@@ -453,7 +451,7 @@ function LStep1({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
 // ══════════════════════════════════════════════════════════════════════════════
 function LStep2({ data, update, submitRef, uploads }: StepProps<DiagnosticsRegData>) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
   const [errs, setErrs] = useState<Record<string, string>>({});
@@ -461,23 +459,23 @@ function LStep2({ data, update, submitRef, uploads }: StepProps<DiagnosticsRegDa
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!Validate.cr(data.crNumber)) e.cr = AR ? 'السجل التجاري 10 أرقام' : 'CR must be 10 digits';
-    if (!data.mohLicense.trim()) e.moh = AR ? 'مطلوب' : 'Required';
+    if (!Validate.cr(data.crNumber)) e.cr = tt('labreg.3d1b511a');
+    if (!data.mohLicense.trim()) e.moh = tt('labreg.b4bde92d');
     const expiryErr = licenseExpiryError(data.licenseExpiry, AR); if (expiryErr) e.expiry = expiryErr;
-    if (!Validate.iban(data.iban)) e.iban = AR ? 'رقم الآيبان غير صحيح' : 'Invalid IBAN';
+    if (!Validate.iban(data.iban)) e.iban = tt('labreg.53935c75');
     
     // Custom validation for Lab/Radiology separation
     const isLab = data.centerType === 'lab' || data.centerType === 'both';
     const isRad = data.centerType === 'radiology' || data.centerType === 'both';
     
     if (isLab && !(data as any).labCategory?.trim()) {
-      e.labCategory = AR ? 'فئة المختبر مطلوبة' : 'Lab category required';
+      e.labCategory = tt('labreg.96dbc7ef');
     }
     if (isRad && !(data as any).radSafetyLicense?.trim()) {
-      e.radSafetyLicense = AR ? 'ترخيص الحماية من الإشعاع مطلوب' : 'Radiation safety license required';
+      e.radSafetyLicense = tt('labreg.3afc08ab');
     }
     if (isRad && !(data as any).radEquipment?.trim()) {
-      e.radEquipment = AR ? 'الأجهزة المتوفرة مطلوبة' : 'Available equipment required';
+      e.radEquipment = tt('labreg.782c33f0');
     }
 
     setErrs(e);
@@ -517,78 +515,76 @@ function LStep2({ data, update, submitRef, uploads }: StepProps<DiagnosticsRegDa
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md }}>
           <Icon name="lock" size={16} color={theme.info} />
           <Text style={{ flex: 1, fontSize: FS.sm, color: theme.info, lineHeight: 20, textAlign: AR ? 'right' : 'left' }}>
-            {AR
-              ? 'تُسخدم الوثائق للتحقق فقط ولن تُشارك مع أي طرف ثالث.'
-              : 'Documents used for verification only, never shared with third parties.'}
+            {tt('labreg.b8895c68')}
           </Text>
         </View>
       </NCard>
 
-      <NInput label={AR ? 'رقم السجل التجاري CR' : 'CR Number'}
+      <NInput label={tt('labreg.09540875')}
         placeholder="1234567890" value={data.crNumber}
         onChange={v => update({ crNumber: v.replace(/\D/g, '') })}
         required error={errs.cr} kbType="numeric" maxLen={10}
-        hint={AR ? '10 أرقام — من وزارة التجارة' : '10 digits — from Ministry of Commerce'} />
+        hint={tt('labreg.0c3e5bc8')} />
 
-      <NInput label={AR ? 'رقم ترخيص وزارة الصحة MOH' : 'MOH License Number'}
+      <NInput label={tt('labreg.a80db342')}
         placeholder="MOH-LAB-XXXXX" value={data.mohLicense}
         onChange={v => update({ mohLicense: v })}
         required error={errs.moh}
-        hint={AR ? 'ترخيص المعمل/مركز الأشعة من MOH' : 'Lab/Radiology license from MOH'} />
+        hint={tt('labreg.15394017')} />
 
       <LicenseExpiryField value={data.licenseExpiry} onChange={v => update({ licenseExpiry: v })} error={errs.expiry} />
 
       {/* Lab Specific Setup */}
       {(data.centerType === 'lab' || data.centerType === 'both') && (
         <>
-          <NInput label={AR ? 'فئة المختبر (MOH Category)' : 'MOH Lab Category'}
-            placeholder={AR ? 'فئة أ / فئة ب / فئة ج' : 'Class A / Class B / Class C'}
+          <NInput label={tt('labreg.c900fc4b')}
+            placeholder={tt('labreg.a993409d')}
             value={(data as any).labCategory || ''}
             onChange={v => update({ labCategory: v } as any)}
             required
             error={errs.labCategory}
-            hint={AR ? 'فئة ترخيص المختبر من وزارة الصحة' : 'MOH laboratory classification'} />
-          <NInput label={AR ? 'الاعتماد الدولي/المحلي (مثل CBAHI, CAP)' : 'Lab Accreditation (e.g. CBAHI, CAP)'}
+            hint={tt('labreg.03da1524')} />
+          <NInput label={tt('labreg.3c328d53')}
             placeholder={AR ? 'CBAHI, CAP, ISO 15189' : 'CBAHI, CAP, ISO 15189'}
             value={(data as any).labAccreditation || ''}
             onChange={v => update({ labAccreditation: v } as any)}
-            hint={AR ? 'جهات الاعتماد الحاصل عليها المختبر' : 'Accrediting bodies'} />
+            hint={tt('labreg.70da51df')} />
         </>
       )}
 
       {/* Radiology Specific Setup */}
       {(data.centerType === 'radiology' || data.centerType === 'both') && (
         <>
-          <NInput label={AR ? 'ترخيص الحماية من الإشعاع (RSO License)' : 'Radiation Safety License (RSO)'}
+          <NInput label={tt('labreg.1c1bfdea')}
             placeholder="RSO-RAD-XXXXX"
             value={(data as any).radSafetyLicense || ''}
             onChange={v => update({ radSafetyLicense: v } as any)}
             required
             error={errs.radSafetyLicense}
-            hint={AR ? 'رقم ترخيص الحماية من الإشعاع للرعاية الصحية' : 'Radiation safety license number'} />
-          <NInput label={AR ? 'الأجهزة المتوفرة (رنين مغناطيسي، أشعة مقطعية، إلخ)' : 'Available Equipment (MRI, CT, etc.)'}
-            placeholder={AR ? 'رنين مغناطيسي MRI، أشعة مقطعية CT، موجات فوق صوتية US' : 'MRI, CT, Ultrasound, X-Ray'}
+            hint={tt('labreg.5992d0bb')} />
+          <NInput label={tt('labreg.da700f9d')}
+            placeholder={tt('labreg.f7ea9ee8')}
             value={(data as any).radEquipment || ''}
             onChange={v => update({ radEquipment: v } as any)}
             required
             error={errs.radEquipment}
-            hint={AR ? 'الأجهزة والمعدات المتوفرة بمركز الأشعة' : 'Imaging modalities available'} />
+            hint={tt('labreg.a219edbf')} />
         </>
       )}
 
-      <NInput label={AR ? 'رقم الآيبان IBAN' : 'Bank IBAN'}
+      <NInput label={tt('labreg.730b8353')}
         placeholder="SA0000000000000000000000" value={data.iban}
         onChange={v => update({ iban: v.toUpperCase().replace(/\s/g, '') })}
         required error={errs.iban} maxLen={24}
-        hint={AR ? 'SA + 22 رقم — لاستلام المدفوعات' : 'SA + 22 digits — to receive payments'} />
+        hint={tt('labreg.f8a55b7b')} />
 
-      <NInput label={AR ? 'الرقم الضريبي VAT (اختياري)' : 'VAT Number (Optional)'}
+      <NInput label={tt('labreg.3c637c3b')}
         placeholder="300XXXXXXXXX003" value={data.taxNumber}
         onChange={v => update({ taxNumber: v })} maxLen={15} />
 
       {/* Document upload */}
       <Text style={[st.sectionTitle, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>
-        {AR ? 'رفع الوثائق الرسمية' : 'Upload Official Documents'}
+        {tt('labreg.79461c83')}
       </Text>
       <View style={st.docGrid}>
         <DocCard label={AR ? 'السجل\nالتجاري' : 'CR\nDoc'} done={!!data.crUri} onPress={() => pick('crUri')} required />
@@ -604,7 +600,7 @@ function LStep2({ data, update, submitRef, uploads }: StepProps<DiagnosticsRegDa
 // ══════════════════════════════════════════════════════════════════════════════
 function LStep3({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
   const [errs, setErrs] = useState<Record<string, string>>({});
@@ -612,10 +608,10 @@ function LStep3({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!data.region) e.city = AR ? 'اختر المنطقة' : 'Choose region';
-    else if (!data.city) e.city = AR ? 'اختر المدينة' : 'Choose city';
-    else if (!data.district) e.city = AR ? 'اختر الحي' : 'Choose district';
-    if (!data.address.trim()) e.address = AR ? 'العنوان مطلوب' : 'Address required';
+    if (!data.region) e.city = tt('labreg.a138dac5');
+    else if (!data.city) e.city = tt('labreg.99ecd66a');
+    else if (!data.district) e.city = tt('labreg.ac994991');
+    if (!data.address.trim()) e.address = tt('labreg.49a2e744');
     setErrs(e);
     return Object.keys(e).length === 0;
   };
@@ -631,31 +627,31 @@ function LStep3({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
 
       <View style={{ marginBottom: SP.lg }}>
         <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>
-          {AR ? 'المنطقة / المدينة / الحي' : 'Region / City / District'}<Text style={{ color: theme.danger }}> *</Text>
+          {tt('labreg.5a85d253')}<Text style={{ color: theme.danger }}> *</Text>
         </Text>
         <GeoPicker value={{ region: data.region, city: data.city, district: data.district }} onChange={v => update({ region: v.region, city: v.city, district: v.district })} locale={lang} />
         {errs.city && <Text style={[st.err, { color: theme.danger }]}>{errs.city}</Text>}
       </View>
 
-      <NInput label={AR ? 'العنوان الكامل' : 'Full Address'}
-        placeholder={AR ? 'شارع الأمير سلطان، الرياض' : 'Prince Sultan Road, Riyadh'}
+      <NInput label={tt('labreg.e2bff93c')}
+        placeholder={tt('labreg.b84e181b')}
         value={data.address} onChange={v => update({ address: v })}
         required error={errs.address} multi lines={2} />
 
       {/* Map view implementation with circle */}
       <NCard style={{ marginBottom: SP.xl, marginTop: SP.md }}>
-                <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }]}>{AR ? 'تحديد الموقع الجغرافي' : 'Geographic Map Location'}</Text>
+                <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }]}>{tt('labreg.a99bde52')}</Text>
         <TouchableOpacity onPress={() => setShowLocModal(true)} style={{ borderColor:theme.border, backgroundColor:theme.surface2, borderWidth: 1, borderRadius: R.md, padding: SP.xl, alignItems: 'center', justifyContent: 'center', marginBottom: SP.md }}>
           {data.location.lat ? (
             <View style={{ alignItems: 'center' }}>
               <Icon name="location" size={32} color={theme.success} />
-              <Text style={{ color:theme.success, marginTop:SP.xs, fontWeight: FW.bold }}>{AR?'تم تحديد الموقع':'Location Selected'}</Text>
+              <Text style={{ color:theme.success, marginTop:SP.xs, fontWeight: FW.bold }}>{tt('labreg.e6c44175')}</Text>
               <Text style={{ color:theme.textSub, fontSize:FS.xs, marginTop: 4 }}>{data.location.lat.toFixed(4)}, {data.location.lng.toFixed(4)}</Text>
             </View>
           ) : (
             <View style={{ alignItems: 'center' }}>
               <Icon name="location" size={32} color={theme.textSub} />
-              <Text style={{ color:theme.textSub, marginTop:SP.xs }}>{AR?'اضغط لتحديد الموقع على الخريطة':'Tap to pin location on map'}</Text>
+              <Text style={{ color:theme.textSub, marginTop:SP.xs }}>{tt('labreg.6efa450d')}</Text>
             </View>
           )}
         </TouchableOpacity>
@@ -665,8 +661,8 @@ function LStep3({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
       {/* Home Collection */}
       <NCard style={{ marginBottom: SP.xl }}>
         <NToggle
-          label={AR ? 'خدمة سحب العينات المنزلية' : 'Home Sample Collection'}
-          sub={AR ? 'أرسل مندوب لسحب العينات من منزل المريض' : 'Send a phlebotomist to collect samples at home'}
+          label={tt('labreg.ee1c4702')}
+          sub={tt('labreg.90016250')}
           value={data.hasHomeSvc}
           onChange={v => update({ hasHomeSvc: v })}
         />
@@ -675,7 +671,7 @@ function LStep3({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
           <View style={{ marginTop: SP.xl }}>
             {/* Radius */}
             <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>
-              {AR ? 'نطاق التغطية للخدمة المنزلية (كم)' : 'Coverage Radius (km)'}
+              {tt('labreg.99f576b1')}
             </Text>
             
             {/* +/- controls & manual input */}
@@ -701,7 +697,7 @@ function LStep3({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
               >
                 <Text style={{ fontSize: 20, fontWeight: 'bold', color: theme.text }}>+</Text>
               </TouchableOpacity>
-              <Text style={{ color: theme.textSub, fontSize: FS.md }}>{AR ? 'كم' : 'KM'}</Text>
+              <Text style={{ color: theme.textSub, fontSize: FS.md }}>{tt('labreg.17e9ee72')}</Text>
             </View>
 
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.sm, marginBottom: SP.lg }}>
@@ -734,7 +730,7 @@ function LStep3({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
                 <TouchableOpacity key={g} onPress={() => update({ targetGenders: g })}
                   style={{ flex: 1, padding: 12, borderWidth: 1, borderColor: data.targetGenders === g ? theme.primary : theme.border, backgroundColor: data.targetGenders === g ? withAlpha(tokens.purple, 0.10) : '#FFF', borderRadius: 8, alignItems: 'center' }}>
                   <Text style={{ color: data.targetGenders === g ? theme.primary : theme.text }}>
-                    {g === 'all' ? (AR ? 'كلاهما' : 'Both') : g === 'male' ? (AR ? 'رجال' : 'Male') : (AR ? 'نساء' : 'Female')}
+                    {g === 'all' ? (tt('labreg.c1f920b3')) : g === 'male' ? (tt('labreg.7b2206d8')) : (tt('labreg.f758e6b3'))}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -751,9 +747,7 @@ function LStep3({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'flex-start', gap: SP.md }}>
                 <Icon name="info" size={14} color={theme.primary} />
                 <Text style={{ flex: 1, fontSize: FS.xs, color: theme.primary, lineHeight: 18, textAlign: AR ? 'right' : 'left' }}>
-                  {AR
-                    ? 'خدمة السحب المنزلي تزيد الطلبات بنسبة 50%. يمكنك تحديد أوقات مختلفة للخدمة المنزلية في الخطوة التالية.'
-                    : 'Home collection increases orders by 50%. You can set different hours for home service in the next step.'}
+                  {tt('labreg.d460d763')}
                 </Text>
               </View>
             </NCard>
@@ -769,7 +763,7 @@ function LStep3({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
 // ══════════════════════════════════════════════════════════════════════════════
 function LStep4({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
   const isLab = data.centerType === 'lab' || data.centerType === 'both';
@@ -825,11 +819,11 @@ function LStep4({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
 
   const validate = () => {
     if (isLab && data.enabledTests.length === 0 && !isRad) {
-      Alert.alert(AR ? 'تنبيه' : 'Warning', AR ? 'يجب تفعيل تحليل واحد على الأقل' : 'Enable at least one test');
+      Alert.alert(tt('labreg.f1618263'), tt('labreg.9d82fae7'));
       return false;
     }
     if (isRad && data.enabledScans.length === 0 && !isLab) {
-      Alert.alert(AR ? 'تنبيه' : 'Warning', AR ? 'يجب تفعيل نوع أشعة واحد على الأقل' : 'Enable at least one scan');
+      Alert.alert(tt('labreg.f1618263'), tt('labreg.d8f6e01e'));
       return false;
     }
     return true;
@@ -856,7 +850,7 @@ function LStep4({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
               }]}>
               <Icon name="test_tube" size={16} color={tab === 'lab' ? theme.textInv : theme.text} />
               <Text style={{ color: tab === 'lab' ? theme.textInv : theme.text, fontWeight: FW.semi }}>
-                {AR ? 'التحاليل' : 'Lab Tests'}
+                {tt('labreg.6315d9e6')}
               </Text>
             </TouchableOpacity>
           )}
@@ -869,7 +863,7 @@ function LStep4({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
               }]}>
               <Icon name="scan" size={16} color={tab === 'rad' ? theme.textInv : theme.text} />
               <Text style={{ color: tab === 'rad' ? theme.textInv : theme.text, fontWeight: FW.semi }}>
-                {AR ? 'الأشعة' : 'Radiology'}
+                {tt('labreg.7c9ad258')}
               </Text>
             </TouchableOpacity>
           )}
@@ -884,7 +878,7 @@ function LStep4({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
               {data.enabledTests.length}
             </Text>
             <Text style={{ fontSize: FS.xs, color: theme.textSub }}>
-              {AR ? 'تحليل مفعّل' : 'Tests Enabled'}
+              {tt('labreg.e51d7aac')}
             </Text>
           </NCard>
         )}
@@ -894,27 +888,27 @@ function LStep4({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
               {data.enabledScans.length}
             </Text>
             <Text style={{ fontSize: FS.xs, color: theme.textSub }}>
-              {AR ? 'أشعة مفعّلة' : 'Scans Enabled'}
+              {tt('labreg.e243cb11')}
             </Text>
           </NCard>
         )}
       </View>
 
       <NSearch value={search} onChange={setSearch}
-        placeholder={AR ? 'ابحث عن فحص...' : 'Search test/scan...'}
+        placeholder={tt('labreg.95f7c6ed')}
         style={{ marginBottom: SP.lg }} />
 
       {/* Select/Clear All */}
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.lg }}>
         <View style={{ flex: 1 }}>
-          <NBtn label={AR ? 'تحديد الكل' : 'Select All'} variant="outline" size="sm"
+          <NBtn label={tt('labreg.ac65a989')} variant="outline" size="sm"
             onPress={() => {
               if (tab === 'lab') update({ enabledTests: labCatalog.map(t => t.id) });
               else update({ enabledScans: radCatalog.map(s => s.id) });
             }} />
         </View>
         <View style={{ flex: 1 }}>
-          <NBtn label={AR ? 'إلغاء الكل' : 'Clear All'} variant="secondary" size="sm"
+          <NBtn label={tt('labreg.a007f1de')} variant="secondary" size="sm"
             onPress={() => {
               if (tab === 'lab') update({ enabledTests: [] });
               else update({ enabledScans: [] });
@@ -972,12 +966,12 @@ function LStep4({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
               <View style={{ marginTop: SP.lg, paddingTop: SP.md, borderTopWidth: 1, borderTopColor: theme.border }}>
                 <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
                   <View style={{ flex: 1 }}>
-                    <NPriceInput label={AR ? 'السعر (ريال)' : 'Price (SAR)'}
+                    <NPriceInput label={tt('labreg.9cd84c5e')}
                       value={data.testPrices[test.id] ?? ''}
                       onChange={v => setTestPrice(test.id, v)} required />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <NInput label={AR ? 'وقت النتيجة' : 'Turnaround'}
+                    <NInput label={tt('labreg.cbcb1de6')}
                       placeholder={`${test.hours}h`}
                       value={data.testTurnaround[test.id] ?? ''}
                       onChange={v => setTestTurnaround(test.id, v)}
@@ -986,7 +980,7 @@ function LStep4({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
                 </View>
                 {data.hasHomeSvc && (
                   <NToggle
-                    label={AR ? 'متاح للسحب المنزلي' : 'Available for home collection'}
+                    label={tt('labreg.ebc42152')}
                     value={data.testHomeAvail[test.id] ?? false}
                     onChange={v => setTestHome(test.id, v)}
                     style={{ marginTop: SP.sm }}
@@ -994,7 +988,7 @@ function LStep4({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
                 )}
                 {!data.cashOnly && (
                   <NToggle
-                    label={AR ? 'يُغطى بالتأمين' : 'Covered by insurance'}
+                    label={tt('labreg.eb93575d')}
                     value={data.testInsuranceCov[test.id] ?? false}
                     onChange={v => update({ testInsuranceCov: { ...data.testInsuranceCov, [test.id]: v } })}
                     style={{ marginTop: SP.sm }}
@@ -1038,7 +1032,7 @@ function LStep4({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
                   </Text>
                   {scan.prep && (
                     <Text style={{ fontSize: FS.xs, color: theme.warn }}>
-                      {AR ? 'تحضير مطلوب' : 'Prep required'}
+                      {tt('labreg.06762de6')}
                     </Text>
                   )}
                 </View>
@@ -1052,12 +1046,12 @@ function LStep4({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
 
             {enabled && (
               <View style={{ marginTop: SP.md }}>
-                <NPriceInput label={AR ? 'السعر (ريال)' : 'Price (SAR)'}
+                <NPriceInput label={tt('labreg.9cd84c5e')}
                   value={data.scanPrices[scan.id] ?? ''}
                   onChange={v => setScanPrice(scan.id, v)} required />
                 {!data.cashOnly && (
                   <NToggle
-                    label={AR ? 'يُغطى بالتأمين' : 'Covered by insurance'}
+                    label={tt('labreg.eb93575d')}
                     value={data.scanInsuranceCov[scan.id] ?? false}
                     onChange={v => setScanInsurance(scan.id, v)}
                     style={{ marginTop: SP.sm }}
@@ -1084,7 +1078,7 @@ function LStep4({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
 function LStep6({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
  const insuranceCatalog = useInsuranceCatalog();
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const AR = lang === 'ar';
   const [showVacationCal, setShowVacationCal] = useState(false);
 
@@ -1132,12 +1126,12 @@ function LStep6({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
       {/* Center Working Hours */}
       <NCard style={{ marginBottom: SP.xl }}>
         <Text style={[st.sectionTitle, { color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.lg }]}>
-          {AR ? 'مواعيد عمل المركز' : 'Center Working Hours'}
+          {tt('labreg.abb137f8')}
         </Text>
 
         {/* Work days */}
         <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>
-          {AR ? 'أيام العمل' : 'Working Days'}
+          {tt('labreg.e08c2505')}
         </Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.sm, marginBottom: SP.lg }}>
           {WORK_DAYS.map(d => {
@@ -1167,7 +1161,7 @@ function LStep6({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
               }}
             >
               <Text style={{ color: data.shiftType === s ? 'white' : theme.text, fontWeight: 'bold' }}>
-                {s === 'morning' ? (AR ? 'صباحية' : 'Morning') : s === 'evening' ? (AR ? 'مسائية' : 'Evening') : (AR ? 'كلاهما' : 'Both')}
+                {s === 'morning' ? (tt('labreg.b31948df')) : s === 'evening' ? (tt('labreg.b3fff297')) : (tt('labreg.c1f920b3'))}
               </Text>
             </TouchableOpacity>
           ))}
@@ -1175,10 +1169,10 @@ function LStep6({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
 
         {(data.shiftType === 'morning' || data.shiftType === 'both') && (
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
-            <NInput label={AR ? 'وقت البدء (صباحاً)' : 'Morning Open'} placeholder="08:00"
+            <NInput label={tt('labreg.563ba643')} placeholder="08:00"
               value={data.openTime} onChange={v => update({ openTime: v })}
               style={{ flex: 1, marginBottom: SP.sm }} />
-            <NInput label={AR ? 'وقت الإغلاق (صباحاً)' : 'Morning Close'} placeholder="14:00"
+            <NInput label={tt('labreg.21aa79dc')} placeholder="14:00"
               value={data.closeTime} onChange={v => update({ closeTime: v })}
               style={{ flex: 1, marginBottom: SP.sm }} />
           </View>
@@ -1186,10 +1180,10 @@ function LStep6({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
 
         {(data.shiftType === 'evening' || data.shiftType === 'both') && (
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
-            <NInput label={AR ? 'وقت البدء (مساءً)' : 'Evening Open'} placeholder="16:00"
+            <NInput label={tt('labreg.8b705c2a')} placeholder="16:00"
               value={data.eveningOpenTime} onChange={v => update({ eveningOpenTime: v })}
               style={{ flex: 1, marginBottom: SP.sm }} />
-            <NInput label={AR ? 'وقت الإغلاق (مساءً)' : 'Evening Close'} placeholder="22:00"
+            <NInput label={tt('labreg.ea50d084')} placeholder="22:00"
               value={data.eveningCloseTime} onChange={v => update({ eveningCloseTime: v })}
               style={{ flex: 1, marginBottom: SP.sm }} />
           </View>
@@ -1200,10 +1194,10 @@ function LStep6({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
       {data.hasHomeSvc && (
         <NCard style={{ marginBottom: SP.xl }}>
           <Text style={[st.sectionTitle, { color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.lg }]}>
-            {AR ? 'مواعيد الخدمة المنزلية' : 'Home Collection Hours'}
+            {tt('labreg.2f820851')}
           </Text>
           <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>
-            {AR ? 'أيام الخدمة المنزلية' : 'Home Service Days'}
+            {tt('labreg.7e3b9005')}
           </Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.sm, marginBottom: SP.lg }}>
             {WORK_DAYS.map(d => {
@@ -1222,10 +1216,10 @@ function LStep6({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
             })}
           </View>
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
-            <NInput label={AR ? 'من' : 'From'} placeholder="07:00"
+            <NInput label={tt('labreg.ecdb7711')} placeholder="07:00"
               value={data.homeOpenTime} onChange={v => update({ homeOpenTime: v })}
               style={{ flex: 1, marginBottom: 0 }} />
-            <NInput label={AR ? 'إلى' : 'To'} placeholder="14:00"
+            <NInput label={tt('labreg.32c46ecf')} placeholder="14:00"
               value={data.homeCloseTime} onChange={v => update({ homeCloseTime: v })}
               style={{ flex: 1, marginBottom: 0 }} />
           </View>
@@ -1234,7 +1228,7 @@ function LStep6({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
 
       {/* Planned Vacation date calendar */}
       <TouchableOpacity onPress={() => setShowVacationCal(true)}>
-        <NInput label={AR ? 'إجازة مخطط لها' : 'Planned Vacation'} placeholder={AR ? 'اختر التاريخ من التقويم...' : 'Select vacation date...'} value={data.vacationDate} editable={false} onChange={() => {}} />
+        <NInput label={tt('labreg.be8de242')} placeholder={tt('labreg.58daddcc')} value={data.vacationDate} editable={false} onChange={() => {}} />
       </TouchableOpacity>
       {showVacationCal && (
         <DateTimePicker
@@ -1251,8 +1245,8 @@ function LStep6({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
       {/* Insurance accepts */}
       <NCard style={{ marginBottom: SP.xl, marginTop: SP.md }}>
         <NToggle
-          label={AR ? 'نقدي فقط (بدون تأمين)' : 'Cash Only (No Insurance)'}
-          sub={AR ? 'تعطيل قبول أي تأمين في المركز' : 'Disable all insurance acceptance'}
+          label={tt('labreg.e7adc8ef')}
+          sub={tt('labreg.785bfe68')}
           value={data.cashOnly}
           onChange={v => update({ cashOnly: v, acceptedInsurance: v ? [] : data.acceptedInsurance })}
         />
@@ -1260,7 +1254,7 @@ function LStep6({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
 
       {!data.cashOnly && (
         <>
-          <Text style={[st.sectionTitle, { color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }]}>{AR ? 'شركات التأمين الطبية المعتمدة' : 'Accepted Medical Insurance Tiers'}</Text>
+          <Text style={[st.sectionTitle, { color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }]}>{tt('labreg.5daee66d')}</Text>
           {insuranceCatalog.map(co => {
             const acceptedObj = data.acceptedInsurance?.find(c => c.companyId === co.id);
             const isAccepted = !!acceptedObj;
@@ -1287,7 +1281,7 @@ function LStep6({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
 
                 {isAccepted && (
                   <View style={{ marginTop: SP.sm, borderTopWidth: 1, borderTopColor: theme.border, paddingTop: SP.sm }}>
-                    <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>{AR ? 'الفئات المقبولة للفحوصات والتحاليل:' : 'Accepted Tiers:'}</Text>
+                    <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>{tt('labreg.cee472cf')}</Text>
                     <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 6 }}>
                       {co.plans.map(p => {
                         const hasPlan = acceptedObj.plans.includes(p);

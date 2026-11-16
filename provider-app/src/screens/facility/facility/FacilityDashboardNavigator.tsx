@@ -57,7 +57,7 @@ const Stack = createNativeStackNavigator();
 
 export function FacilityDashboardNavigator({ onLogout }: { onLogout: () => void }) {
   const [activeTab, setActiveTab] = useState('home');
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const AR = lang === 'ar';
 
   const [wards, setWards] = useState<any[]>([]);
@@ -102,11 +102,11 @@ export function FacilityDashboardNavigator({ onLogout }: { onLogout: () => void 
   }, []);
 
    const tabs = [
- { key: 'home', icon: 'home', label: AR ? 'الرئيسية' : 'Home' },
- { key: 'orders', icon: 'document', label: AR ? 'الطلبات' : 'Orders' },
- { key: 'jobs', icon: 'profile', label: AR ? 'الوظائف' : 'Jobs' },
- { key: 'drugs', icon: 'activity', label: AR ? 'الأدوية' : 'Drugs' },
- { key: 'settings', icon: 'settings', label: AR ? 'الإعدادات' : 'Settings' },
+ { key: 'home', icon: 'home', label: tt('facnav.17c4ca45') },
+ { key: 'orders', icon: 'document', label: tt('facnav.68fdab11') },
+ { key: 'jobs', icon: 'profile', label: tt('facnav.ca8089ed') },
+ { key: 'drugs', icon: 'activity', label: tt('facnav.61bcd49d') },
+ { key: 'settings', icon: 'settings', label: tt('facnav.5766fe8f') },
  ];
 
   return (

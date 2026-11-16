@@ -1,5 +1,5 @@
 {
- "commit": "7f9f7bffa",
+ "commit": "49a35b8ce",
  "routes": [
   {
    "app": "provider-app",
@@ -2366,7 +2366,7 @@
      "path": "/care/appointments/:param/position",
      "target": "backend",
      "query": "",
-     "line": 192,
+     "line": 193,
      "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:102"
@@ -4803,7 +4803,7 @@
    "component": "AddCustomTest",
    "area": "lab",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 974,
+   "line": 973,
    "registrations": [
     {
      "role": "lab",
@@ -4822,7 +4822,7 @@
      "path": "/approval-workflow/requests",
      "target": "backend",
      "query": "",
-     "line": 1008,
+     "line": 1006,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/approval-workflow/approval-workflow.module.ts:358"
@@ -4858,7 +4858,7 @@
    "component": "HomeCollection",
    "area": "lab",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 1039,
+   "line": 1037,
    "registrations": [
     {
      "role": "lab",
@@ -4897,7 +4897,7 @@
      "path": "/labs/bookings/:param/assign-technician",
      "target": "backend",
      "query": "",
-     "line": 1206,
+     "line": 1204,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:131"
@@ -4907,7 +4907,7 @@
      "path": "/labs/bookings/:param/emergency",
      "target": "backend",
      "query": "",
-     "line": 1157,
+     "line": 1155,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:168"
@@ -4917,7 +4917,7 @@
      "path": "/labs/bookings/:param/gps",
      "target": "backend",
      "query": "",
-     "line": 1082,
+     "line": 1080,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:157"
@@ -4927,7 +4927,7 @@
      "path": "/labs/bookings/:param/reassign",
      "target": "backend",
      "query": "",
-     "line": 1167,
+     "line": 1165,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:174"
@@ -4937,7 +4937,7 @@
      "path": "/labs/bookings/:param/state",
      "target": "backend",
      "query": "",
-     "line": 1134,
+     "line": 1132,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:89"
@@ -4947,7 +4947,7 @@
      "path": "/labs/team/technicians",
      "target": "backend",
      "query": "",
-     "line": 1046,
+     "line": 1044,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:138"
@@ -5039,7 +5039,7 @@
    "component": "LabInsurance",
    "area": "lab",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 1300,
+   "line": 1298,
    "registrations": [
     {
      "role": "lab",
@@ -5078,7 +5078,7 @@
      "path": "/labs/bookings/:param/insurance",
      "target": "backend",
      "query": "",
-     "line": 1334,
+     "line": 1332,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:101"
@@ -5088,7 +5088,7 @@
      "path": "/labs/provider/inbox",
      "target": "backend",
      "query": "",
-     "line": 1312,
+     "line": 1310,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:125"
@@ -5163,7 +5163,7 @@
      "path": "/labs/bookings/:param/emergency",
      "target": "backend",
      "query": "",
-     "line": 616,
+     "line": 615,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:168"
@@ -5304,7 +5304,7 @@
    "component": "LabSettings",
    "area": "lab",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 1451,
+   "line": 1449,
    "registrations": [
     {
      "role": "lab",
@@ -5359,7 +5359,7 @@
    "component": "LabTestMenuScreen",
    "area": "lab",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 1584,
+   "line": 1582,
    "registrations": [
     {
      "role": "lab",
@@ -5378,7 +5378,7 @@
      "path": "/approval-workflow/requests",
      "target": "backend",
      "query": "",
-     "line": 1599,
+     "line": 1597,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/approval-workflow/approval-workflow.module.ts:358"
@@ -5434,7 +5434,7 @@
    "component": "QRSampleLabel",
    "area": "lab",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 1224,
+   "line": 1222,
    "registrations": [
     {
      "role": "lab",
@@ -5479,7 +5479,7 @@
    "component": "ResultReview",
    "area": "lab",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 834,
+   "line": 833,
    "registrations": [
     {
      "role": "lab",
@@ -5528,7 +5528,7 @@
      "path": "/labs/bookings/:param/upload-report",
      "target": "backend",
      "query": "",
-     "line": 868,
+     "line": 867,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:144"
@@ -5538,7 +5538,7 @@
      "path": "/labs/samples/:param/stage",
      "target": "backend",
      "query": "",
-     "line": 866,
+     "line": 865,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:201"
@@ -5624,7 +5624,7 @@
    "component": "SampleTracking",
    "area": "lab",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 732,
+   "line": 731,
    "registrations": [
     {
      "role": "lab",
@@ -5663,7 +5663,7 @@
      "path": "/labs/samples",
      "target": "backend",
      "query": "",
-     "line": 741,
+     "line": 740,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:207"
@@ -5673,7 +5673,7 @@
      "path": "/labs/samples/:param/stage",
      "target": "backend",
      "query": "",
-     "line": 757,
+     "line": 756,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:201"
@@ -5689,7 +5689,7 @@
    "component": "TATTracker",
    "area": "lab",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 1250,
+   "line": 1248,
    "registrations": [
     {
      "role": "lab",
@@ -5728,7 +5728,7 @@
      "path": "/labs/samples",
      "target": "backend",
      "query": "",
-     "line": 1255,
+     "line": 1253,
      "file": "provider-app/src/screens/lab/LabDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:207"
@@ -5844,7 +5844,7 @@
    "component": "NursingChatScreen",
    "area": "nursing",
    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-   "line": 970,
+   "line": 968,
    "registrations": [
     {
      "role": "nursing",
@@ -5863,7 +5863,7 @@
      "path": "/chats/threads/:param/messages",
      "target": "backend",
      "query": "",
-     "line": 998,
+     "line": 996,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/chat/chat.module.ts:118"
@@ -5873,7 +5873,7 @@
      "path": "/chats/threads/:param/messages",
      "target": "backend",
      "query": "",
-     "line": 1013,
+     "line": 1011,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/chat/chat.module.ts:129"
@@ -5883,7 +5883,7 @@
      "path": "/chats/threads/booking",
      "target": "backend",
      "query": "",
-     "line": 985,
+     "line": 983,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/chat/chat.module.ts:108"
@@ -5899,7 +5899,7 @@
    "component": "NursingCoverageSettings",
    "area": "nursing",
    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-   "line": 863,
+   "line": 862,
    "registrations": [
     {
      "role": "nursing",
@@ -5918,7 +5918,7 @@
      "path": "/nursing/coverage/verify-gps",
      "target": "backend",
      "query": "",
-     "line": 878,
+     "line": 877,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home-care/nursing-compat.controller.ts:78"
@@ -5928,7 +5928,7 @@
      "path": "/provider/settings/delta",
      "target": "backend",
      "query": "",
-     "line": 947,
+     "line": 945,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/provider.controllers.ts:139"
@@ -6120,7 +6120,7 @@
    "component": "NursingScheduleScreen",
    "area": "nursing",
    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-   "line": 1054,
+   "line": 1052,
    "registrations": [
     {
      "role": "nursing",
@@ -6139,7 +6139,7 @@
      "path": "/provider/schedule/settings",
      "target": "backend",
      "query": "",
-     "line": 1062,
+     "line": 1060,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:1047"
@@ -6149,7 +6149,7 @@
      "path": "/provider/schedule/settings",
      "target": "backend",
      "query": "",
-     "line": 1075,
+     "line": 1073,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:1051"
@@ -6165,7 +6165,7 @@
    "component": "NursingSettings",
    "area": "nursing",
    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-   "line": 761,
+   "line": 760,
    "registrations": [
     {
      "role": "nursing",
@@ -6194,7 +6194,7 @@
      "path": "/provider/me",
      "target": "backend",
      "query": "",
-     "line": 768,
+     "line": 767,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/provider.controllers.ts:465"
@@ -6204,7 +6204,7 @@
      "path": "/provider/settings/delta",
      "target": "backend",
      "query": "",
-     "line": 775,
+     "line": 774,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/provider.controllers.ts:139"

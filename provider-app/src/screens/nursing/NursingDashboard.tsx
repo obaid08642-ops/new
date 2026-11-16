@@ -66,7 +66,7 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
  const [tab, setTab] = useState('home');
  const [scr, setScr] = useState<string|null>(null);
  const [prm, setPrm] = useState<any>(null);
- const { lang } = useLang(); const { theme } = useTheme(); const AR = lang==='ar';
+ const { lang, t: tt } = useLang(); const { theme } = useTheme(); const AR = lang==='ar';
  const go = (s:string,p?:any) => { setScr(s); setPrm(p); };
  const back = () => { setScr(null); setPrm(null); };
 
@@ -111,11 +111,11 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
  }, []);
 
   const tabs = [
- { key: 'home', icon: 'home', label: AR ? 'الرئيسية' : 'Home' },
- { key: 'orders', icon: 'document', label: AR ? 'الطلبات' : 'Orders' },
- { key: 'jobs', icon: 'profile', label: AR ? 'الوظائف' : 'Jobs' },
- { key: 'drugs', icon: 'activity', label: AR ? 'الأدوية' : 'Drugs' },
- { key: 'settings', icon: 'settings', label: AR ? 'الإعدادات' : 'Settings' },
+ { key: 'home', icon: 'home', label: tt('nurdash.17c4ca45') },
+ { key: 'orders', icon: 'document', label: tt('nurdash.68fdab11') },
+ { key: 'jobs', icon: 'profile', label: tt('nurdash.ca8089ed') },
+ { key: 'drugs', icon: 'activity', label: tt('nurdash.61bcd49d') },
+ { key: 'settings', icon: 'settings', label: tt('nurdash.5766fe8f') },
  ];
 
   return (
@@ -132,29 +132,29 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
               {tab==='settings' && <NursingSettings onLogout={onLogout} onNav={go} />}
               <NBottomNav tabs={tabs} active={tab} onPress={setTab} />
 
-              <NSheet visible={!!incomingRequest} onClose={() => setIncomingRequest(null)} title={AR ? 'طلب تمريض عاجل!' : 'Emergency Nursing Request!'}>
+              <NSheet visible={!!incomingRequest} onClose={() => setIncomingRequest(null)} title={tt('nurdash.e21fc7c2')}>
                {incomingRequest && (
                <View style={{ gap: SP.md, padding: SP.md }}>
                <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
-                {incomingRequest.service_name_ar || incomingRequest.service_name_en || (AR ? 'تمريض منزلي' : 'Home Nursing')}
+                {incomingRequest.service_name_ar || incomingRequest.service_name_en || (tt('nurdash.ddde19a9'))}
                </Text>
                <Text style={{ fontSize: FS.md, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
-               {AR ? 'موقع المريض:' : 'Patient Location:'} {addressLine(incomingRequest.address) || '—'}
+               {tt('nurdash.c8b718f1')} {addressLine(incomingRequest.address) || '—'}
                </Text>
                {bookingChoiceLine(incomingRequest, AR) ? (
                <Text style={{ fontSize: FS.sm, color: theme.text, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>{bookingChoiceLine(incomingRequest, AR)}</Text>
                ) : null}
                {incomingRequest.scheduled_at ? (
                <Text style={{ fontSize: FS.sm, color: theme.primary, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>
-                {AR ? 'الموعد: ' : 'Scheduled: '}{new Date(incomingRequest.scheduled_at).toLocaleString(AR ? 'ar-SA-u-ca-gregory' : 'en-GB')}
+                {tt('nurdash.9d7eb96c')}{new Date(incomingRequest.scheduled_at).toLocaleString(AR ? 'ar-SA-u-ca-gregory' : 'en-GB')}
                </Text>
                ) : null}
                <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.md }}>
-               <NBtn label={AR ? 'قبول' : 'Accept'} style={{ flex: 1 }} onPress={() => runOnce(`accept:${incomingRequest.id}`, async () => {
+               <NBtn label={tt('nurdash.e3b60bcd')} style={{ flex: 1 }} onPress={() => runOnce(`accept:${incomingRequest.id}`, async () => {
                try {
                // governed accept (workflow engine; a card visit must be paid first)
                await client.post(`/provider/jobs/nursing/${incomingRequest.id}/accept`, {});
-               show(AR ? 'تم قبول الطلب بنجاح' : 'Request accepted successfully', 'success');
+               show(tt('nurdash.af4287cf'), 'success');
                setIncomingRequest(null);
                fetchJobs();
                } catch (e: any) {
@@ -162,10 +162,10 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
                fetchJobs();
                }
                })} />
-               <NBtn label={AR ? 'رفض' : 'Reject'} variant="danger" style={{ flex: 1 }} onPress={async () => {
+               <NBtn label={tt('nurdash.8a223f36')} variant="danger" style={{ flex: 1 }} onPress={async () => {
                try {
                await client.post(`/provider/jobs/nursing/${incomingRequest.id}/reject`, { reason: 'provider_declined' });
-               show(AR ? 'تم رفض الطلب' : 'Request rejected', 'info');
+               show(tt('nurdash.91447f9b'), 'info');
                setIncomingRequest(null);
                fetchJobs();
                } catch (e: any) {
@@ -231,7 +231,7 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
 // ══════════════════════════════════════════════════════════════════
 function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; jobs:any[]; refreshing:boolean; onRefresh:()=>void; onTriggerAlarm?:()=>void }) {
  const insets = useSafeAreaInsets();
- const { theme } = useTheme(); const { lang } = useLang(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang==='ar';
  const nursingSvcs = useServicesCatalog('nursing');
  const { user, toggleOnline } = useAuth(); const { show } = useToast();
 
@@ -243,7 +243,7 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
  } catch (e: any) {
  // the server refused: put the switch back and say why (it used to stay flipped)
  toggleOnline();
- show(e?.response?.data?.message || (AR ? 'تعذر تغيير حالة التوفر' : 'Could not change availability'), 'error');
+ show(e?.response?.data?.message || (tt('nurdash.b72fec11')), 'error');
  }
  };
 
@@ -258,14 +258,14 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
  <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md}}>
  <IBg name="nursing" size={18} color={tokens.pink} bg={withAlpha(tokens.pink, 0.12)} />
  <View>
- <Text style={{fontSize:FS.sm,color:theme.textSub}}>{AR?'تمريض منزلي':'Home Nursing'}</Text>
- <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text}}>{AR?'نبضة للتمريض':'Nabdah Nursing'}</Text>
+ <Text style={{fontSize:FS.sm,color:theme.textSub}}>{tt('nurdash.ddde19a9')}</Text>
+ <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text}}>{tt('nurdash.4ec2f38c')}</Text>
  </View>
  </View>
  <View style={{flexDirection:'row',gap:SP.sm,alignItems:'center'}}>
  <NOnlineToggle value={user?.isOnline??true} onToggle={handleToggleOnline} />
  {/* Needs-review issue 1190: the bell opens the notifications center */}
- <TouchableOpacity onPress={()=>onNav('notifications')} accessibilityRole="button" accessibilityLabel={AR?'الإشعارات':'Notifications'} style={[st.iconBtn,{backgroundColor:theme.surface2}]}><I name="bell" size={20} color={theme.text} /></TouchableOpacity>
+ <TouchableOpacity onPress={()=>onNav('notifications')} accessibilityRole="button" accessibilityLabel={tt('nurdash.5e885201')} style={[st.iconBtn,{backgroundColor:theme.surface2}]}><I name="bell" size={20} color={theme.text} /></TouchableOpacity>
  </View>
  </View>
 
@@ -274,14 +274,14 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
 
  {/* Stats */}
  <View style={{flexDirection:'row',flexWrap:'wrap',gap:SP.md,marginBottom:SP.xl}}>
- <NStatCard icon="!" label={AR?'طلبات جديدة':'New Orders'} value={String(pending)} color={tokens.warning} style={{width:'47%'}} />
- <NStatCard icon="◔" label={AR?'زيارات نشطة':'Active Visits'} value={String(active)} color={tokens.info} style={{width:'47%'}} />
- <NStatCard icon="" label={AR?'مكتملة اليوم':'Completed'} value={String(completed)} color={tokens.success} style={{width:'47%'}} />
- <NStatCard icon="◈" label={AR?'الإيرادات':'Revenue'} value={String(totalRev)} unit={AR?'ر':'SAR'} color={tokens.pink} style={{width:'47%'}} />
+ <NStatCard icon="!" label={tt('nurdash.7c466262')} value={String(pending)} color={tokens.warning} style={{width:'47%'}} />
+ <NStatCard icon="◔" label={tt('nurdash.cd9e7601')} value={String(active)} color={tokens.info} style={{width:'47%'}} />
+ <NStatCard icon="" label={tt('nurdash.4c43edff')} value={String(completed)} color={tokens.success} style={{width:'47%'}} />
+ <NStatCard icon="◈" label={tt('nurdash.625c26e2')} value={String(totalRev)} unit={tt('nurdash.a629499b')} color={tokens.pink} style={{width:'47%'}} />
  </View>
 
  {/* Quick Actions */}
- <NSecHeader title={AR?'إجراءات سريعة':'Quick Actions'} />
+ <NSecHeader title={tt('nurdash.88717c98')} />
  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{marginBottom:SP.xl}}>
  <View style={{flexDirection:'row',gap:SP.md}}>
 		{[
@@ -305,7 +305,7 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
 
  {/* Pending Orders */}
  {pending > 0 && <>
- <NSecHeader title={AR?'طلبات جديدة':'New Orders'} />
+ <NSecHeader title={tt('nurdash.7c466262')} />
  {jobs.filter(o=>o.status==='pending').map(order=>(
  <NCard key={order.id} style={{marginBottom:SP.md}} accent={tokens.warning}
  onPress={()=>onNav('order_detail',order)}>
@@ -318,19 +318,19 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
  </View>
  </View>
  <View style={{alignItems:'flex-end'}}>
- <NBadge label={AR?'جديد':'New'} variant="warning" size="xs" />
- <Text style={{fontSize:FS.md,fontWeight:FW.xbold,color:tokens.pink,marginTop:2}}>{order.total || order.price || 0} {AR?'ر':'SAR'}</Text>
+ <NBadge label={tt('nurdash.7a64641b')} variant="warning" size="xs" />
+ <Text style={{fontSize:FS.md,fontWeight:FW.xbold,color:tokens.pink,marginTop:2}}>{order.total || order.price || 0} {tt('nurdash.a629499b')}</Text>
  </View>
  </View>
  <View style={{backgroundColor:theme.surface2,borderRadius:R.md,padding:SP.md,marginBottom:SP.sm}}>
- <Text style={{fontSize:FS.sm,color:theme.text,textAlign:AR?'right':'left'}} numberOfLines={2}>{order.notes || (AR ? 'طلب رعاية تمريضية منزلية' : 'Home nursing care request')}</Text>
+ <Text style={{fontSize:FS.sm,color:theme.text,textAlign:AR?'right':'left'}} numberOfLines={2}>{order.notes || (tt('nurdash.0678a60c'))}</Text>
  </View>
  <View style={{flexDirection:'row',flexWrap:'wrap',gap:SP.xs}}>
- {Array.isArray(order.services) ? order.services.map(sid=>{const svc=nursingSvcs.find(x=>x.id===sid);return svc?<View key={sid} style={{backgroundColor:withAlpha(tokens.pink, 0.10),paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:withAlpha(tokens.pink, 0.30)}}><Text style={{fontSize:FS.xs,color:tokens.pink}}>{AR?svc.ar:svc.en}</Text></View>:null;}) : <View style={{backgroundColor:withAlpha(tokens.pink, 0.10),paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:withAlpha(tokens.pink, 0.30)}}><Text style={{fontSize:FS.xs,color:tokens.pink}}>{order.title_ar || order.title_en || (AR ? 'تمريض منزلي' : 'Home Nursing')}</Text></View>}
+ {Array.isArray(order.services) ? order.services.map(sid=>{const svc=nursingSvcs.find(x=>x.id===sid);return svc?<View key={sid} style={{backgroundColor:withAlpha(tokens.pink, 0.10),paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:withAlpha(tokens.pink, 0.30)}}><Text style={{fontSize:FS.xs,color:tokens.pink}}>{AR?svc.ar:svc.en}</Text></View>:null;}) : <View style={{backgroundColor:withAlpha(tokens.pink, 0.10),paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:withAlpha(tokens.pink, 0.30)}}><Text style={{fontSize:FS.xs,color:tokens.pink}}>{order.title_ar || order.title_en || (tt('nurdash.ddde19a9'))}</Text></View>}
  </View>
  {order.chronic && <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.xs,marginTop:SP.sm}}>
  <I name="heart" size={12} color={tokens.pink} />
- <Text style={{fontSize:FS.xs,color:tokens.pink,fontWeight:FW.semi}}>{AR?'مريض مزمن — رعاية مستمرة':'Chronic patient — ongoing care'}</Text>
+ <Text style={{fontSize:FS.xs,color:tokens.pink,fontWeight:FW.semi}}>{tt('nurdash.44785b58')}</Text>
  </View>}
  </NCard>
  ))}
@@ -338,7 +338,7 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
 
  {/* Active Visits */}
  {active > 0 && <>
- <NSecHeader title={AR?'زيارات نشطة الآن':'Active Visits Now'} />
+ <NSecHeader title={tt('nurdash.de16177e')} />
  {jobs.filter(o=>o.status==='active').map(order=>(
  <NCard key={order.id} style={{marginBottom:SP.md}} accent={tokens.info}
  onPress={()=>onNav('order_detail',order)}>
@@ -350,13 +350,13 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
  {bookingChoiceLine(order, AR) ? <Text style={{fontSize:FS.xs,color:theme.text,fontWeight:FW.bold}}>{bookingChoiceLine(order, AR)}</Text> : null}
  </View>
  <View style={{alignItems:'flex-end',gap:SP.xs}}>
- <NBadge label={AR?'نشط':'Active'} variant="primary" size="xs" />
+ <NBadge label={tt('nurdash.03886b8f')} variant="primary" size="xs" />
  <NBadge label={AR?(order.pricing==='per_day'?'يومي':'زيارة'):(order.pricing==='per_day'?'Daily':'Visit')} variant="default" size="xs" />
  </View>
  </View>
  <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.sm}}>
- <NBtn label={AR?'فتح الزيارة':'Open visit'} size="xs" full={false} style={{flex:1}} onPress={()=>onNav('order_detail',order)} />
- <NBtn label={AR?'قائمة المهام':'Checklist'} size="xs" variant="outline" full={false} style={{flex:1}} onPress={()=>onNav('checklist',order)} />
+ <NBtn label={tt('nurdash.477419b3')} size="xs" full={false} style={{flex:1}} onPress={()=>onNav('order_detail',order)} />
+ <NBtn label={tt('nurdash.fe2d9ea6')} size="xs" variant="outline" full={false} style={{flex:1}} onPress={()=>onNav('checklist',order)} />
  </View>
  </NCard>
  ))}
@@ -371,7 +371,7 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
 // ══════════════════════════════════════════════════════════════════
 
 function NursingOrdersTab({ onNavigate }: any) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
   const [tab, setTab] = useState<'pending'|'active'>('pending');
   const [jobs, setJobs] = useState<any[]>([]);
   // Needs-review issue 1165: a failed load says so and offers a retry instead of an empty list.
@@ -392,33 +392,33 @@ function NursingOrdersTab({ onNavigate }: any) {
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <View style={[{ padding: 16, borderBottomWidth: 1, flexDirection: 'row', alignItems: 'center' }, { backgroundColor: theme.surface, borderBottomColor: theme.border }]}>
-        <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>{AR ? 'الطلبات' : 'Orders'}</Text>
+        <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>{tt('nurdash.68fdab11')}</Text>
       </View>
 
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', borderBottomWidth: 1, borderColor: theme.border }}>
         <TouchableOpacity style={{ flex: 1, padding: SP.md, alignItems: 'center', borderBottomWidth: tab === 'pending' ? 2 : 0, borderColor: theme.primary }} onPress={() => setTab('pending')}>
-          <Text style={{ color: tab === 'pending' ? theme.primary : theme.textSub, fontWeight: FW.bold }}>{AR ? 'طلبات جديدة' : 'New'}</Text>
+          <Text style={{ color: tab === 'pending' ? theme.primary : theme.textSub, fontWeight: FW.bold }}>{tt('nurdash.6687d155')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={{ flex: 1, padding: SP.md, alignItems: 'center', borderBottomWidth: tab === 'active' ? 2 : 0, borderColor: theme.primary }} onPress={() => setTab('active')}>
-          <Text style={{ color: tab === 'active' ? theme.primary : theme.textSub, fontWeight: FW.bold }}>{AR ? 'مؤكدة' : 'Confirmed'}</Text>
+          <Text style={{ color: tab === 'active' ? theme.primary : theme.textSub, fontWeight: FW.bold }}>{tt('nurdash.5f8c3e6b')}</Text>
         </TouchableOpacity>
       </View>
 
       {failed && (
         <NCard style={{ margin: SP.lg, alignItems: 'center', gap: SP.sm }}>
-          <Text style={{ color: theme.text, textAlign: 'center' }}>{AR ? 'تعذر تحميل الطلبات' : 'Could not load orders'}</Text>
-          <NBtn label={AR ? 'إعادة المحاولة' : 'Retry'} size="sm" variant="outline" full={false} onPress={load} />
+          <Text style={{ color: theme.text, textAlign: 'center' }}>{tt('nurdash.ddbce7b1')}</Text>
+          <NBtn label={tt('nurdash.cf333076')} size="sm" variant="outline" full={false} onPress={load} />
         </NCard>
       )}
 
       {tab === 'pending' && (
         <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}>
-          {pending.length === 0 && <NEmpty title={AR ? 'لا توجد طلبات' : 'No Orders'} icon="document" />}
+          {pending.length === 0 && <NEmpty title={tt('nurdash.9e10b89c')} icon="document" />}
           {pending.map(order => (
             <NCard key={order.id} style={{ marginBottom: SP.md }} onPress={() => onNavigate('order_detail', order)}>
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{order.patient || 'Patient'}</Text>
-                <NBadge label={AR ? 'جديد' : 'New'} variant="info" size="xs" />
+                <NBadge label={tt('nurdash.7a64641b')} variant="info" size="xs" />
               </View>
               <Text style={{ color: theme.textSub, marginTop: SP.sm, textAlign: AR ? 'right' : 'left' }}>{order.svc} - {order.price} SAR</Text>
             </NCard>
@@ -428,12 +428,12 @@ function NursingOrdersTab({ onNavigate }: any) {
 
       {tab === 'active' && (
         <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}>
-          {active.length === 0 && <NEmpty title={AR ? 'لا يوجد زيارات مجدولة' : 'No Scheduled Visits'} icon="calendar" />}
+          {active.length === 0 && <NEmpty title={tt('nurdash.9bdacc44')} icon="calendar" />}
           {active.map(scan => (
             <NCard key={scan.id} style={{ marginBottom: SP.md }} onPress={() => onNavigate('order_detail', scan)}>
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{scan.patient || 'Patient'}</Text>
-                <NBadge label={AR ? 'مجدول' : 'Scheduled'} variant="success" size="xs" />
+                <NBadge label={tt('nurdash.29e17b4a')} variant="success" size="xs" />
               </View>
               <Text style={{ color: theme.textSub, marginTop: SP.sm, textAlign: AR ? 'right' : 'left' }}>{scan.time}</Text>
             </NCard>
@@ -448,7 +448,7 @@ function NursingOrdersTab({ onNavigate }: any) {
 // VISIT CHECKLIST
 // ══════════════════════════════════════════════════════════════════
 function VisitChecklist({ order, onBack, onNav }:{ order:any; onBack:()=>void; onNav?:(s:string,p?:any)=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang==='ar';
  const [items, setItems] = useState<any[]>([]);
  useEffect(() => { client.get('/provider/nursing/checklist').then(r => {
    // The API answers { category, items: [{ key, title_ar, title_en?, required }] } (an object: .filter crashed).
@@ -463,7 +463,7 @@ function VisitChecklist({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
      const map: Record<string, boolean> = {};
      next.forEach((i) => { map[String(i.id)] = !!i.done; });
      client.post(`/provider/ops/nursing/bookings/${encodeURIComponent(String(bookingId))}/checklist/before`, { items: map }).catch(() => {
-       show(AR ? 'تعذر حفظ القائمة' : 'Could not save checklist', 'error');
+       show(tt('nurdash.d4ae1cf7'), 'error');
      });
    }
  };
@@ -472,7 +472,7 @@ function VisitChecklist({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
 
  return (
  <NScroll>
- <NHeader title={AR?'قائمة مهام الزيارة':'Visit Checklist'} onBack={onBack} />
+ <NHeader title={tt('nurdash.68fa2878')} onBack={onBack} />
  <NCard style={{marginBottom:SP.xl,flexDirection:AR?'row-reverse':'row',gap:SP.md,alignItems:'center'}}>
  <NAvatar name={order?.patient??'—'} size={44} />
  <View><Text style={{fontWeight:FW.bold,color:theme.text}}>{order?.patient??'—'}</Text><Text style={{fontSize:FS.xs,color:theme.textSub}}>{addressShort(order?.address) || '—'}</Text></View>
@@ -481,7 +481,7 @@ function VisitChecklist({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
  {/* Progress */}
  <NCard style={{marginBottom:SP.xl,alignItems:'center'}}>
  <Text style={{fontSize:FS['2xl'],fontWeight:FW.xbold,color:pct===100?tokens.success:tokens.pink}}>{pct}%</Text>
- <Text style={{fontSize:FS.sm,color:theme.textSub}}>{doneCount} / {items.length} {AR?'مهمة مكتملة':'tasks done'}</Text>
+ <Text style={{fontSize:FS.sm,color:theme.textSub}}>{doneCount} / {items.length} {tt('nurdash.5ab3fc09')}</Text>
  <View style={{width:'100%',height:8,backgroundColor:theme.surface2,borderRadius:R.full,marginTop:SP.md}}>
  <View style={{height:8,width:`${pct}%`,backgroundColor:pct===100?tokens.success:tokens.pink,borderRadius:R.full}} />
  </View>
@@ -500,7 +500,7 @@ function VisitChecklist({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
  ))}
 
  <View style={{height:SP.xl}} />
- {pct===100 && <NBtn label={AR?'إكمال الزيارة':'Complete Visit'} onPress={()=>{
+ {pct===100 && <NBtn label={tt('nurdash.2b338b45')} onPress={()=>{
  const doneTasks = items.filter(i=>i.done).map(i=>i.title_ar || i.title || i.name_ar || i.id);
  onNav ? onNav('order_detail', order) : onBack();
  }} />}
@@ -512,7 +512,7 @@ function VisitChecklist({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
 // CARE PLAN — Chronic patients
 // ══════════════════════════════════════════════════════════════════
 function CarePlan({ patient, onBack }:{ patient:any; onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang==='ar';
  const patientId = patient?.patient_id || patient?.raw?.patient_id || patient?.id;
  const [plans, setPlans] = useState<any[]>([]);
  const [loading, setLoading] = useState(true);
@@ -531,38 +531,38 @@ function CarePlan({ patient, onBack }:{ patient:any; onBack:()=>void }) {
  useEffect(() => { fetchPlans(); }, [fetchPlans]);
 
  const handleCreate = async () => {
- if (!title.trim()) { show(AR ? 'أدخل عنوان الخطة' : 'Enter plan title', 'error'); return; }
+ if (!title.trim()) { show(tt('nurdash.beb5cad4'), 'error'); return; }
  setSaving(true);
  try {
  await client.post(`/home-care/care-plans/${patientId}`, {
  title: title.trim(),
  tasks: taskText.split('\n').map(t => t.trim()).filter(Boolean),
  });
- show(AR ? 'تم إنشاء خطة الرعاية' : 'Care plan created', 'success');
+ show(tt('nurdash.7a973adc'), 'success');
  setTitle(''); setTaskText('');
  fetchPlans();
  } catch (err: any) {
- show(err?.response?.data?.message || (AR ? 'فشل إنشاء الخطة' : 'Failed to create plan'), 'error');
+ show(err?.response?.data?.message || (tt('nurdash.46e1b018')), 'error');
  } finally { setSaving(false); }
  };
 
  return (
  <NScroll>
- <NHeader title={AR?'خطة الرعاية المستمرة':'Care Plan'} onBack={onBack} />
+ <NHeader title={tt('nurdash.bc1b0149')} onBack={onBack} />
  <NCard style={{marginBottom:SP.xl,flexDirection:AR?'row-reverse':'row',gap:SP.md,alignItems:'center'}}>
  <NAvatar name={patient?.patient_name || patient?.patient || '—'} size={44} />
  <View><Text style={{fontWeight:FW.bold,color:theme.text}}>{patient?.patient_name || patient?.patient || '—'}</Text>
- <NBadge label={AR?'مريض مزمن':'Chronic'} variant="danger" size="xs" style={{marginTop:SP.xs}} /></View>
+ <NBadge label={tt('nurdash.e6035471')} variant="danger" size="xs" style={{marginTop:SP.xs}} /></View>
  </NCard>
 
- <NSecHeader title={AR?'خطط الرعاية':'Care Plans'} />
+ <NSecHeader title={tt('nurdash.9564716e')} />
  {loading ? <ActivityIndicator color={theme.primary} style={{ marginVertical: SP.xl }} /> :
- plans.length === 0 ? <NEmpty title={AR?'لا توجد خطط رعاية بعد':'No care plans yet'} subtitle={AR?'أنشئ خطة رعاية لهذا المريض من الأسفل':'Create a care plan for this patient below'} /> :
+ plans.length === 0 ? <NEmpty title={tt('nurdash.2f17fd06')} subtitle={tt('nurdash.59692e1b')} /> :
  plans.map((p:any, i:number)=>(
  <NCard key={p.id || i} style={{marginBottom:SP.md}} accent={p.status==='active'?tokens.pink:undefined}>
  <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',justifyContent:'space-between',marginBottom:SP.xs}}>
  <Text style={{fontSize:FS.sm,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left',flex:1}}>{p.title}</Text>
- <NBadge label={p.status==='active'?(AR?'نشطة':'Active'):(AR?'منتهية':'Done')} variant={p.status==='active'?'success':'default'} size="xs" />
+ <NBadge label={p.status==='active'?(tt('nurdash.f9ffe17e')):(tt('nurdash.b1133f99'))} variant={p.status==='active'?'success':'default'} size="xs" />
  </View>
  {(p.tasks||[]).map((t:string, ti:number)=>(
  <View key={ti} style={{flexDirection:AR?'row-reverse':'row',alignItems:'flex-start',gap:SP.sm,marginTop:4}}>
@@ -573,11 +573,11 @@ function CarePlan({ patient, onBack }:{ patient:any; onBack:()=>void }) {
  </NCard>
  ))}
 
- <NSecHeader title={AR?'خطة جديدة':'New Plan'} />
+ <NSecHeader title={tt('nurdash.e3fa5a7d')} />
  <NCard style={{marginBottom:SP.xl}}>
- <NInput label={AR?'عنوان الخطة':'Plan title'} placeholder={AR?'مثال: خطة ما بعد الجراحة':'e.g. Post-surgery plan'} value={title} onChange={setTitle} icon="edit" />
- <NInput label={AR?'المهام (سطر لكل مهمة)':'Tasks (one per line)'} placeholder={AR?'قياس العلامات الحيوية يومياً / تغيير الضماد':'e.g. Measure vitals daily / change dressing'} value={taskText} onChange={setTaskText} multi lines={4} icon="list" />
- <NBtn label={AR?'إنشاء الخطة':'Create Plan'} loading={saving} onPress={handleCreate} style={{marginTop:SP.md}} />
+ <NInput label={tt('nurdash.0c75bc36')} placeholder={tt('nurdash.c0b2c42a')} value={title} onChange={setTitle} icon="edit" />
+ <NInput label={tt('nurdash.ace623a2')} placeholder={tt('nurdash.37fef521')} value={taskText} onChange={setTaskText} multi lines={4} icon="list" />
+ <NBtn label={tt('nurdash.887cd657')} loading={saving} onPress={handleCreate} style={{marginTop:SP.md}} />
  </NCard>
  </NScroll>
  );
@@ -587,7 +587,7 @@ function CarePlan({ patient, onBack }:{ patient:any; onBack:()=>void }) {
 // PROGRESS NOTES — Daily nursing notes
 // ══════════════════════════════════════════════════════════════════
 function ProgressNotes({ patient, onBack }:{ patient:any; onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang==='ar';
  const [note, setNote] = useState('');
  const [vitals, setVitals] = useState({bp:'',pulse:'',temp:'',spo2:'',glucose:''});
  const [loading, setLoading] = useState(false);
@@ -607,33 +607,33 @@ function ProgressNotes({ patient, onBack }:{ patient:any; onBack:()=>void }) {
 
  return (
  <NScroll>
- <NHeader title={AR?'ملاحظات يومية':'Progress Notes'} onBack={onBack} />
+ <NHeader title={tt('nurdash.332831f9')} onBack={onBack} />
  <NCard style={{marginBottom:SP.xl,flexDirection:AR?'row-reverse':'row',gap:SP.md,alignItems:'center'}}>
  <NAvatar name={patient?.patient??'—'} size={44} />
  <View><Text style={{fontWeight:FW.bold,color:theme.text}}>{patient?.patient??'—'}</Text></View>
  </NCard>
 
  {/* New Note */}
- <NSecHeader title={AR?'إضافة ملاحظة جديدة':'Add New Note'} />
+ <NSecHeader title={tt('nurdash.fddfdb7a')} />
  <NCard style={{marginBottom:SP.xl}}>
- <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text,marginBottom:SP.md,textAlign:AR?'right':'left'}}>{AR?'العلامات الحيوية':'Vital Signs'}</Text>
+ <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text,marginBottom:SP.md,textAlign:AR?'right':'left'}}>{tt('nurdash.7bdaa8db')}</Text>
  <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.sm,marginBottom:SP.md,flexWrap:'wrap'}}>
- <NInput label={AR?'الضغط':'BP'} placeholder="120/80" value={vitals.bp} onChange={v=>setVitals(p=>({...p,bp:v}))} style={{flex:1,marginBottom:0,minWidth:80}} />
- <NInput label={AR?'النبض':'Pulse'} placeholder="72" value={vitals.pulse} onChange={v=>setVitals(p=>({...p,pulse:v}))} kbType="numeric" style={{flex:1,marginBottom:0,minWidth:60}} />
- <NInput label={AR?'الحرارة':'Temp'} placeholder="36.8" value={vitals.temp} onChange={v=>setVitals(p=>({...p,temp:v}))} kbType="decimal-pad" style={{flex:1,marginBottom:0,minWidth:60}} />
+ <NInput label={tt('nurdash.01506d73')} placeholder="120/80" value={vitals.bp} onChange={v=>setVitals(p=>({...p,bp:v}))} style={{flex:1,marginBottom:0,minWidth:80}} />
+ <NInput label={tt('nurdash.b9e70fa1')} placeholder="72" value={vitals.pulse} onChange={v=>setVitals(p=>({...p,pulse:v}))} kbType="numeric" style={{flex:1,marginBottom:0,minWidth:60}} />
+ <NInput label={tt('nurdash.30ada89d')} placeholder="36.8" value={vitals.temp} onChange={v=>setVitals(p=>({...p,temp:v}))} kbType="decimal-pad" style={{flex:1,marginBottom:0,minWidth:60}} />
  </View>
  <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.sm,marginBottom:SP.lg}}>
  <NInput label="SpO2" placeholder="98%" value={vitals.spo2} onChange={v=>setVitals(p=>({...p,spo2:v}))} style={{flex:1,marginBottom:0}} />
- <NInput label={AR?'السكر':'Glucose'} placeholder="145" value={vitals.glucose} onChange={v=>setVitals(p=>({...p,glucose:v}))} kbType="numeric" style={{flex:1,marginBottom:0}} />
+ <NInput label={tt('nurdash.bc6a278e')} placeholder="145" value={vitals.glucose} onChange={v=>setVitals(p=>({...p,glucose:v}))} kbType="numeric" style={{flex:1,marginBottom:0}} />
  </View>
- <NInput label={AR?'الملاحظات السريرية':'Clinical Notes'} placeholder={AR?'اكتب ملاحظاتك عن حالة المريض...':'Write your observations about patient condition...'} value={note} onChange={setNote} multi lines={5} />
- <NBtn label={AR?'حفظ الملاحظة':'Save Note'} loading={loading}
+ <NInput label={tt('nurdash.691e0d25')} placeholder={tt('nurdash.233e89bf')} value={note} onChange={setNote} multi lines={5} />
+ <NBtn label={tt('nurdash.a9e7da12')} loading={loading}
  onPress={async()=>{
    setLoading(true);
    try {
-     if (!patientId) { show(AR?'معرّف المريض غير متوفر':'Patient ID unavailable','error'); setLoading(false); return; }
+     if (!patientId) { show(tt('nurdash.8e84d457'),'error'); setLoading(false); return; }
      await client.post('/nursing/notes', { patient_id: patientId, booking_id: patient?.id, vitals, note });
-     show(AR?'تم حفظ الملاحظة':'Note saved','success');
+     show(tt('nurdash.334e5399'),'success');
      setNote('');
      setVitals({bp:'',pulse:'',temp:'',spo2:'',glucose:''});
      fetchNotes();
@@ -646,9 +646,9 @@ function ProgressNotes({ patient, onBack }:{ patient:any; onBack:()=>void }) {
  </NCard>
 
  {/* Past Notes */}
- <NSecHeader title={AR?'الملاحظات السابقة':'Past Notes'} />
+ <NSecHeader title={tt('nurdash.9c46df69')} />
  {loadingNotes ? <ActivityIndicator color={theme.primary} style={{marginVertical:SP.lg}} /> :
- pastNotes.length === 0 ? <NEmpty title={AR?'لا توجد ملاحظات سابقة':'No past notes'} /> :
+ pastNotes.length === 0 ? <NEmpty title={tt('nurdash.df2ccffc')} /> :
  pastNotes.map((pn:any,i:number)=>{
  const v = pn.vitals || {};
  const vitalsStr = [v.bp, v.pulse, v.temp, v.spo2, v.glucose].filter(Boolean).join(' | ');
@@ -668,7 +668,7 @@ function ProgressNotes({ patient, onBack }:{ patient:any; onBack:()=>void }) {
 // MEDICAL SUPPLIES
 // ══════════════════════════════════════════════════════════════════
 function MedicalSupplies({ onBack }:{ onBack:()=>void }) {
- const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t, t: tt } = useLang(); const { show } = useToast(); const AR = lang==='ar';
  const [visits, setVisits] = useState<any[]>([]);
  const [visitId, setVisitId] = useState<string | null>(null);
  useEffect(() => { client.get('/nursing/jobs/active').then(r => {
@@ -705,22 +705,21 @@ function MedicalSupplies({ onBack }:{ onBack:()=>void }) {
 
  return (
  <NScroll>
- <NHeader title={AR?'المستلزمات الطبية':'Medical Supplies'} onBack={onBack} />
+ <NHeader title={tt('nurdash.d36546d1')} onBack={onBack} />
 
  <NCard style={{backgroundColor:withAlpha(tokens.pink, 0.10),marginBottom:SP.xl}}>
  <Text style={{fontSize:FS.sm,color:tokens.pink,lineHeight:20,textAlign:AR?'right':'left'}}>
- {AR?'اطلب المستلزمات الطبية اللازمة لزياراتك. يتم التوصيل من مخازن المستشفى لتجهيز حقيبتك.'
- :'Order medical supplies for your visits. Delivered from hospital inventory to equip your bag.'}
+ {tt('nurdash.cb346eb2')}
  </Text>
  </NCard>
 
  <View style={{flexDirection:'row',gap:SP.md,marginBottom:SP.xl}}>
- <NStatCard icon="" label={AR?'مُسلَّمة':'Delivered'} value={String(supplies.filter(s=>s.status==='delivered').length)} color={tokens.success} style={{flex:1}} />
- <NStatCard icon="◔" label={AR?'مطلوبة':'Ordered'} value={String(supplies.filter(s=>s.status==='ordered').length)} color={tokens.warning} style={{flex:1}} />
- <NStatCard icon="!" label={AR?'انتظار':'Pending'} value={String(supplies.filter(s=>s.status==='pending').length)} color={tokens.error} style={{flex:1}} />
+ <NStatCard icon="" label={tt('nurdash.40efd0af')} value={String(supplies.filter(s=>s.status==='delivered').length)} color={tokens.success} style={{flex:1}} />
+ <NStatCard icon="◔" label={tt('nurdash.f2a13c93')} value={String(supplies.filter(s=>s.status==='ordered').length)} color={tokens.warning} style={{flex:1}} />
+ <NStatCard icon="!" label={tt('nurdash.94139241')} value={String(supplies.filter(s=>s.status==='pending').length)} color={tokens.error} style={{flex:1}} />
  </View>
 
- <NSecHeader title={AR?'المستلزمات الحالية':'Current Supplies'} />
+ <NSecHeader title={tt('nurdash.7ce47c94')} />
  {supplies.map(sup=>(
  <NCard key={sup.id} style={{marginBottom:SP.sm}} accent={sup.status==='delivered'?tokens.success:sup.status==='ordered'?tokens.warning:tokens.error}>
  <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md}}>
@@ -729,13 +728,13 @@ function MedicalSupplies({ onBack }:{ onBack:()=>void }) {
  <Text style={{fontSize:FS.md,fontWeight:FW.semi,color:theme.text,textAlign:AR?'right':'left'}}>{AR?sup.name:sup.nameEn}</Text>
  <Text style={{fontSize:FS.xs,color:theme.textSub}}>{sup.qty} {sup.unit}</Text>
  </View>
- <NBadge label={sup.status==='delivered'?(AR?'مُسلَّم':'Delivered'):sup.status==='ordered'?(AR?'مطلوب':'Ordered'):(AR?'انتظار':'Pending')} variant={sup.status==='delivered'?'success':sup.status==='ordered'?'warning':'danger'} size="xs" />
+ <NBadge label={sup.status==='delivered'?(tt('nurdash.dda56bde')):sup.status==='ordered'?(tt('nurdash.496cc501')):(tt('nurdash.94139241'))} variant={sup.status==='delivered'?'success':sup.status==='ordered'?'warning':'danger'} size="xs" />
  </View>
  </NCard>
  ))}
 
  <NDivider style={{marginVertical:SP.xl}} />
- <NSecHeader title={AR?'طلب مستلزم جديد':'Request New Supply'} />
+ <NSecHeader title={tt('nurdash.0fbe6b64')} />
  <NSecHeader title={t('supplies.forVisit')} />
  {visits.length === 0 ? (
  <NCard style={{marginBottom:SP.md}}><Text style={{fontSize:FS.sm,color:theme.textSub,textAlign:AR?'right':'left'}}>{t('supplies.noVisit')}</Text></NCard>
@@ -747,9 +746,9 @@ function MedicalSupplies({ onBack }:{ onBack:()=>void }) {
  ))}
  </View>
  )}
- <NInput label={AR?'اسم المستلزم':'Supply Name'} placeholder={AR?'قفازات طبية L':'Medical Gloves L'} value={newItem} onChange={setNewItem} />
- <NInput label={AR?'الكمية':'Quantity'} placeholder="1" value={newQty} onChange={v=>setNewQty(v.replace(/\D/g,''))} kbType="numeric" />
- <NBtn label={AR?'إرسال الطلب':'Submit Request'} disabled={!visitId||!newItem.trim()||!newQty} loading={loading}
+ <NInput label={tt('nurdash.68a59079')} placeholder={tt('nurdash.4d5b3798')} value={newItem} onChange={setNewItem} />
+ <NInput label={tt('nurdash.d6e33524')} placeholder="1" value={newQty} onChange={v=>setNewQty(v.replace(/\D/g,''))} kbType="numeric" />
+ <NBtn label={tt('nurdash.1a0e168c')} disabled={!visitId||!newItem.trim()||!newQty} loading={loading}
  onPress={handleRequest} />
  </NScroll>
  );
@@ -760,7 +759,7 @@ function MedicalSupplies({ onBack }:{ onBack:()=>void }) {
 // ══════════════════════════════════════════════════════════════════
 function NursingSettings({ onLogout, onNav }:{ onLogout:()=>void; onNav:(s:string,p?:any)=>void }) {
  const insets = useSafeAreaInsets();
- const { theme, toggle:toggleT, mode } = useTheme(); const { lang, toggle:toggleL } = useLang();
+ const { theme, toggle:toggleT, mode } = useTheme(); const { lang, toggle:toggleL, t: tt } = useLang();
  const { show } = useToast(); const AR = lang==='ar'; const [showLO, setShowLO] = useState(false);
  // F53: promotions/CRM are business-type entries — hidden unless /provider/me allows (fail-open).
  const [caps, setCaps] = useState<any>(null);
@@ -773,48 +772,48 @@ function NursingSettings({ onLogout, onNav }:{ onLogout:()=>void; onNav:(s:strin
     try {
       setDeltaPending(true);
       await client.post('/provider/settings/delta', { newData });
-      show(AR ? 'بانتظار موافقة الإدارة على التعديلات' : 'Pending admin approval for changes', 'success');
+      show(tt('nurdash.44bd2050'), 'success');
     } catch (e) {
-      show(AR ? 'فشل إرسال التعديلات' : 'Failed to submit changes', 'error');
+      show(tt('nurdash.117075fa'), 'error');
       setDeltaPending(false);
     }
   };
 return (
  <View style={{flex:1,backgroundColor:theme.bg}}>
  <View style={[st.topBar,{backgroundColor:theme.surface,borderBottomColor:theme.border, paddingTop: Math.max(insets.top, 16) }]}>
- <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text}}>{AR?'الإعدادات':'Settings'}</Text>
+ <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text}}>{tt('nurdash.5766fe8f')}</Text>
  </View>
  <ScrollView contentContainerStyle={{padding:SP.xl,paddingBottom:100}}>
  <NCard style={{marginBottom:SP.xl,flexDirection:AR?'row-reverse':'row',gap:SP.lg,alignItems:'center'}}>
  <IBg name="nursing" size={22} color={tokens.pink} bg={withAlpha(tokens.pink, 0.12)} />
  <View style={{flex:1}}>
- <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left'}}>{AR?'نبضة للتمريض':'Nabdah Nursing'}</Text>
- <NBadge label={AR?'نشط':'Active'} variant="success" size="xs" style={{marginTop:SP.xs}} />
+ <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left'}}>{tt('nurdash.4ec2f38c')}</Text>
+ <NBadge label={tt('nurdash.03886b8f')} variant="success" size="xs" style={{marginTop:SP.xs}} />
  </View>
  </NCard>
  
       {deltaPending && (
         <NCard style={{ marginBottom: SP.xl, backgroundColor: theme.warnBg, borderColor: theme.warnBg }}>
           <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.warn, textAlign: AR ? 'right' : 'left' }}>
-            {AR?' بانتظار موافقة الإدارة على التعديلات':' Pending Admin Approval for changes'}
+            {tt('nurdash.47e8b69c')}
           </Text>
         </NCard>
       )}
-<NSecHeader title={AR?'الملف الشخصي':'Profile'} />
+<NSecHeader title={tt('nurdash.59a58272')} />
  <NCard style={{marginBottom:SP.xl}}>
- <NSettingsRow icon="user" label={AR?'معلومات الحساب':'Account Info'} onPress={()=>onNav('profile_edit')} />
- <NSettingsRow icon="stethoscope" label={AR?'الخدمات والأسعار':'Services & Prices'} onPress={()=>onNav('nursing_services')} />
- <NSettingsRow icon="scan" label={AR?'نطاق التغطية':'Coverage Area'} onPress={()=>onNav('nursing_coverage')} />
- <NSettingsRow icon="calendar" label={AR?'مواعيد العمل':'Working Hours'} onPress={()=>onNav('working_hours')} />
- <NSettingsRow icon="shield" label={AR?'التأمين الصحي':'Health Insurance'} onPress={()=>onNav('insurance_config')} />
-<NSettingsRow icon="shield" label={AR?'طلبات التأمين الواردة':'Insurance Requests'} onPress={()=>onNav('insurance_requests')} />
-<NSettingsRow icon="document" label={AR?'إعلان الطلبات':'Ordering declaration'} onPress={()=>onNav(ORDERING_ENTRY)} />
- <NSettingsRow icon="document" label={AR?'الشهادات والمؤهلات':'Qualifications'} onPress={()=>onNav('certificates_config')} />
- <NSettingsRow icon="camera" label={AR?'الصور والوسائط':'Photos & Media'} onPress={()=>onNav('media_config')} />
+ <NSettingsRow icon="user" label={tt('nurdash.98b10900')} onPress={()=>onNav('profile_edit')} />
+ <NSettingsRow icon="stethoscope" label={tt('nurdash.bc5efe82')} onPress={()=>onNav('nursing_services')} />
+ <NSettingsRow icon="scan" label={tt('nurdash.fd221036')} onPress={()=>onNav('nursing_coverage')} />
+ <NSettingsRow icon="calendar" label={tt('nurdash.82f7fda8')} onPress={()=>onNav('working_hours')} />
+ <NSettingsRow icon="shield" label={tt('nurdash.2eb56936')} onPress={()=>onNav('insurance_config')} />
+<NSettingsRow icon="shield" label={tt('nurdash.679ae00d')} onPress={()=>onNav('insurance_requests')} />
+<NSettingsRow icon="document" label={tt('nurdash.7a80399f')} onPress={()=>onNav(ORDERING_ENTRY)} />
+ <NSettingsRow icon="document" label={tt('nurdash.52c41d52')} onPress={()=>onNav('certificates_config')} />
+ <NSettingsRow icon="camera" label={tt('nurdash.07de3762')} onPress={()=>onNav('media_config')} />
  </NCard>
 
  {/* Marketing & Reputation */}
- <NSecHeader title={AR ? 'التسويق والمبيعات وتكنولوجيا التمريض' : 'Marketing, Sales & Nursing Modules'} />
+ <NSecHeader title={tt('nurdash.1dd2aaf8')} />
  <NCard style={{ marginBottom:SP.xl }}>
  {[
  ...((caps && caps.promotions === false) ? [] : [
@@ -833,13 +832,13 @@ return (
  ))}
  </NCard>
  <GlobalSystemSettings />
- <NSecHeader title={AR?'إعدادات إضافية':'Additional Settings'} />
+ <NSecHeader title={tt('nurdash.a668a3ad')} />
  <NCard style={{marginBottom:SP.xl}}>
- <NSettingsRow icon="bell" label={AR?'الإشعارات':'Notifications'} onPress={()=>onNav('notifications')} />
- <NSettingsRow icon="briefcase" label={AR?'الوظائف الطبية':'Medical Jobs'} onPress={() => onNav('medical_jobs')} />
- <NSettingsRow icon="bookOpen" label={AR?'دليل الأدوية الطبي':'Medical Drug Index'} onPress={() => onNav('drug_index')} />
+ <NSettingsRow icon="bell" label={tt('nurdash.5e885201')} onPress={()=>onNav('notifications')} />
+ <NSettingsRow icon="briefcase" label={tt('nurdash.ebb9f1de')} onPress={() => onNav('medical_jobs')} />
+ <NSettingsRow icon="bookOpen" label={tt('nurdash.0e14b12f')} onPress={() => onNav('drug_index')} />
  </NCard>
- <NSecHeader title={AR?'الأمان':'Security'} />
+ <NSecHeader title={tt('nurdash.b42c5798')} />
  <NCard style={{marginBottom:SP.xl}}>
  {[
  { icon: 'lock', ar:'تغيير كلمة المرور', en:'Change Password', action: () => onNav('password') },
@@ -849,10 +848,10 @@ return (
  <NSettingsRow key={i} icon={r.icon} label={AR?r.ar:r.en} onPress={r.action} />
  ))}
  </NCard>
- <NCard><NSettingsRow icon="lock" label={AR?'تسجيل الخروج':'Log Out'} onPress={()=>setShowLO(true)} danger /></NCard>
+ <NCard><NSettingsRow icon="lock" label={tt('nurdash.d56d4be0')} onPress={()=>setShowLO(true)} danger /></NCard>
  </ScrollView>
- <NConfirm visible={showLO} title={AR?'خروج':'Log Out'} msg={AR?'هل تريد الخروج؟':'Log out?'}
- onOk={()=>{setShowLO(false);onLogout();}} onCancel={()=>setShowLO(false)} okLabel={AR?'خروج':'Log Out'} />
+ <NConfirm visible={showLO} title={tt('nurdash.d6c04a80')} msg={tt('nurdash.2c77c9c9')}
+ onOk={()=>{setShowLO(false);onLogout();}} onCancel={()=>setShowLO(false)} okLabel={tt('nurdash.d6c04a80')} />
  </View>
  );
 }
@@ -861,7 +860,7 @@ return (
 // NURSING COVERAGE SETTINGS
 // ══════════════════════════════════════════════════════════════════
 function NursingCoverageSettings({ onBack }:{ onBack:()=>void }) {
- const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t, t: tt } = useLang(); const { show } = useToast(); const AR = lang==='ar';
  
  const [radius, setRadius] = useState(15);
  const [gpsChecked, setGpsChecked] = useState(false);
@@ -888,7 +887,7 @@ function NursingCoverageSettings({ onBack }:{ onBack:()=>void }) {
 
  return (
  <NScroll>
- <NHeader title={AR ? 'نطاق تغطية خدمة التمريض' : 'Nursing Coverage Area'} onBack={onBack} />
+ <NHeader title={tt('nurdash.a18eef8e')} onBack={onBack} />
 
  <NCard style={{ marginBottom: SP.xl, overflow: 'hidden' }}>
  <View style={{ height: 200, backgroundColor: '#0A0E17', alignItems: 'center', justifyContent: 'center', borderRadius: R.lg, borderWidth: 1, borderColor: tokens.success }}>
@@ -906,18 +905,17 @@ function NursingCoverageSettings({ onBack }:{ onBack:()=>void }) {
  <NCard style={{ marginBottom: SP.xl, gap: SP.md }}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>
- {AR ? 'التحقق من الـ GPS للموقع الأساسي:' : 'GPS Base Location Verification:'}
+ {tt('nurdash.c520796e')}
  </Text>
- <NBadge label={gpsChecked ? (AR ? 'مؤكد ' : 'Verified ') : (AR ? 'غير مؤكد ' : 'Unverified ')} variant={gpsChecked ? 'success' : 'warning'} />
+ <NBadge label={gpsChecked ? (tt('nurdash.5d8ab30f')) : (tt('nurdash.28e860d9'))} variant={gpsChecked ? 'success' : 'warning'} />
  </View>
- <NBtn label={AR ? ' فحص موقع الـ GPS الحالي' : ' Verify Current GPS Location'} loading={gpsLoading} onPress={handleGpsVerification} variant="outline" />
+ <NBtn label={tt('nurdash.4658d917')} loading={gpsLoading} onPress={handleGpsVerification} variant="outline" />
  </NCard>
 
- <NSecHeader title={AR ? 'تحديد نصف قطر التغطية الجغرافية' : 'Geographical Coverage Radius'} />
+ <NSecHeader title={tt('nurdash.a1e4d3bf')} />
  <NCard style={{ marginBottom: SP.xl, gap: SP.lg }}>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'حدد المسافة القصوى لانتقال الممرض من موقعك الرئيسي.'
- : 'Select maximum distance the nurse will travel from base.'}
+ {tt('nurdash.52ad58d1')}
  </Text>
  
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', flexWrap:'wrap', gap: SP.sm }}>
@@ -927,7 +925,7 @@ function NursingCoverageSettings({ onBack }:{ onBack:()=>void }) {
  backgroundColor: radius === k ? theme.primary : theme.surface2,
  borderColor: radius === k ? theme.primary : theme.border
  }]}>
- <Text style={{ color: radius === k ? '#FFF' : theme.text, fontWeight: FW.bold }}>{k} {AR ? 'كم' : 'KM'}</Text>
+ <Text style={{ color: radius === k ? '#FFF' : theme.text, fontWeight: FW.bold }}>{k} {tt('nurdash.17e9ee72')}</Text>
  </TouchableOpacity>
  ))}
  </View>
@@ -942,13 +940,13 @@ function NursingCoverageSettings({ onBack }:{ onBack:()=>void }) {
  </NCard>
  ) : null}
 
- <NBtn label={AR ? 'حفظ إعدادات التغطية الجغرافية' : 'Save Coverage Settings'} disabled={!gpsChecked} onPress={async () => {
+ <NBtn label={tt('nurdash.b9c1f9fd')} disabled={!gpsChecked} onPress={async () => {
     try {
       await client.post('/provider/settings/delta', { newData: { radius } });
-      show(AR ? 'بانتظار موافقة الإدارة على التعديلات' : 'Pending admin approval for changes', 'success');
+      show(tt('nurdash.44bd2050'), 'success');
       onBack();
     } catch(e) {
-      show(AR ? 'فشل إرسال التعديلات' : 'Failed to submit changes', 'error');
+      show(tt('nurdash.117075fa'), 'error');
     }
   }} />
  </NScroll>
@@ -968,7 +966,7 @@ const st = StyleSheet.create({
 // PRE-VISIT CHAT
 // ══════════════════════════════════════════════════════════════════
 function NursingChatScreen({ order, onBack }: { order: any; onBack: () => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
   const { user } = useAuth();
   const { show } = useToast();
   const [msg, setMsg] = useState('');
@@ -984,7 +982,7 @@ function NursingChatScreen({ order, onBack }: { order: any; onBack: () => void }
       try {
         const res = await client.post('/chats/threads/booking', { booking_kind: 'nursing', booking_id: order?.id || order?.raw?.id });
         if (alive) setThreadId(res.data?.id || res.data?.thread?.id || null);
-      } catch { if (alive) show(AR ? 'تعذر فتح المحادثة' : 'Could not open chat', 'error'); }
+      } catch { if (alive) show(tt('nurdash.81ac88f4'), 'error'); }
       finally { if (alive) setLoading(false); }
     })();
     return () => { alive = false; };
@@ -1014,21 +1012,21 @@ function NursingChatScreen({ order, onBack }: { order: any; onBack: () => void }
       const res = await client.get(`/chats/threads/${threadId}/messages`);
       setMsgs((res.data?.messages || []).slice().reverse());
       setMsg('');
-    } catch { show(AR ? 'فشل إرسال الرسالة' : 'Failed to send', 'error'); }
+    } catch { show(tt('nurdash.21dc28bc'), 'error'); }
     finally { setSending(false); }
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'التواصل مع المريض' : 'Pre-Visit Chat'} onBack={onBack} />
+      <NHeader title={tt('nurdash.192d2a37')} onBack={onBack} />
       <ScrollView contentContainerStyle={{ padding: SP.xl, gap: SP.md }}>
         <View style={{ backgroundColor: theme.warnBg, padding: SP.md, borderRadius: R.md, marginBottom: SP.lg }}>
           <Text style={{ color: theme.warn, fontSize: FS.xs, textAlign: 'center' }}>
-            {AR ? 'هذه المحادثة مخصصة لترتيب الوصول (أرقام البوابات، الموقع الدقيق) وتغلق تلقائياً بعد 24 ساعة.' : 'This chat is for arrival logistics (Gate codes, exact location) and closes after 24 hours.'}
+            {tt('nurdash.6a655386')}
           </Text>
         </View>
-        {loading && <Text style={{ color: theme.textSub, textAlign: 'center' }}>{AR ? 'جاري تحميل المحادثة...' : 'Loading chat...'}</Text>}
-        {!loading && msgs.length === 0 && <Text style={{ color: theme.textSub, textAlign: 'center' }}>{AR ? 'لا رسائل بعد — ابدأ المحادثة' : 'No messages yet — start the conversation'}</Text>}
+        {loading && <Text style={{ color: theme.textSub, textAlign: 'center' }}>{tt('nurdash.be1256ed')}</Text>}
+        {!loading && msgs.length === 0 && <Text style={{ color: theme.textSub, textAlign: 'center' }}>{tt('nurdash.7c5a0646')}</Text>}
         {msgs.map(m => {
           const mine = m.sender_id === (user as any)?.id;
           const time = m.createdAt ? fmtTime(m.createdAt, AR) : '';
@@ -1041,8 +1039,8 @@ function NursingChatScreen({ order, onBack }: { order: any; onBack: () => void }
         })}
       </ScrollView>
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', padding: SP.lg, borderTopWidth: 1, borderColor: theme.border, backgroundColor: theme.surface, alignItems: 'center', gap: SP.md }}>
-        <TextInput value={msg} onChangeText={setMsg} placeholder={AR ? 'اكتب رسالة...' : 'Type a message...'} style={{ flex: 1, backgroundColor: theme.bg, padding: SP.md, borderRadius: R.md, color: theme.text, textAlign: AR ? 'right' : 'left' }} />
-        <NBtn label={sending ? '...' : (AR ? 'إرسال' : 'Send')} onPress={handleSend} full={false} />
+        <TextInput value={msg} onChangeText={setMsg} placeholder={tt('nurdash.ae9e7693')} style={{ flex: 1, backgroundColor: theme.bg, padding: SP.md, borderRadius: R.md, color: theme.text, textAlign: AR ? 'right' : 'left' }} />
+        <NBtn label={sending ? '...' : (tt('nurdash.ad89df6b'))} onPress={handleSend} full={false} />
       </View>
     </View>
   );
@@ -1052,7 +1050,7 @@ function NursingChatScreen({ order, onBack }: { order: any; onBack: () => void }
 // WORKING HOURS / SCHEDULE
 // ══════════════════════════════════════════════════════════════════
 function NursingScheduleScreen({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [shifts, setShifts] = useState({ morning: true, evening: true, night: false });
   const [maxVisits, setMaxVisits] = useState('8');
   const [emergencyReady, setEmergencyReady] = useState(false);
@@ -1070,51 +1068,51 @@ function NursingScheduleScreen({ onBack }: { onBack: () => void }) {
 
   const handleSave = async () => {
     const visits = parseInt(maxVisits, 10);
-    if (!Number.isInteger(visits) || visits < 1 || visits > 50) { show(AR ? 'الحد الأقصى للزيارات رقم بين 1 و50' : 'Max daily visits must be a number from 1 to 50', 'error'); return; }
+    if (!Number.isInteger(visits) || visits < 1 || visits > 50) { show(tt('nurdash.7f7be476'), 'error'); return; }
     try {
       await client.post('/provider/schedule/settings', { shifts, maxVisits: visits, emergencyReady });
       // the server files the change for the review team
-      show(AR ? 'أُرسل تعديل الجدول للمراجعة، ويسري بعد الاعتماد' : 'Your schedule change was sent for review and applies once approved', 'success');
+      show(tt('nurdash.61d37192'), 'success');
       onBack();
     } catch (e: any) {
-      show(e?.response?.data?.message || (AR ? 'تعذر حفظ الجدول' : 'Could not save the schedule'), 'error');
+      show(e?.response?.data?.message || (tt('nurdash.3ce5c75c')), 'error');
     }
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'مواعيد العمل' : 'Working Hours'} onBack={onBack} />
+      <NHeader title={tt('nurdash.82f7fda8')} onBack={onBack} />
       <ScrollView contentContainerStyle={{ padding: SP.xl, gap: SP.lg }}>
         
-        <NSecHeader title={AR ? 'الورديات (Shifts)' : 'Shifts'} />
+        <NSecHeader title={tt('nurdash.dbdef8f7')} />
         <NCard style={{ gap: SP.md }}>
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between' }}>
-            <Text style={{ color: theme.text, fontSize: FS.md }}>{AR ? 'الفترة الصباحية (08:00 - 16:00)' : 'Morning (08:00 - 16:00)'}</Text>
+            <Text style={{ color: theme.text, fontSize: FS.md }}>{tt('nurdash.e6b287f3')}</Text>
             <Switch value={shifts.morning} onValueChange={v => setShifts({ ...shifts, morning: v })} />
           </View>
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between' }}>
-            <Text style={{ color: theme.text, fontSize: FS.md }}>{AR ? 'الفترة المسائية (16:00 - 00:00)' : 'Evening (16:00 - 00:00)'}</Text>
+            <Text style={{ color: theme.text, fontSize: FS.md }}>{tt('nurdash.07bd0cb8')}</Text>
             <Switch value={shifts.evening} onValueChange={v => setShifts({ ...shifts, evening: v })} />
           </View>
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between' }}>
-            <Text style={{ color: theme.text, fontSize: FS.md }}>{AR ? 'الفترة الليلية (00:00 - 08:00)' : 'Night (00:00 - 08:00)'}</Text>
+            <Text style={{ color: theme.text, fontSize: FS.md }}>{tt('nurdash.6782fc12')}</Text>
             <Switch value={shifts.night} onValueChange={v => setShifts({ ...shifts, night: v })} />
           </View>
         </NCard>
 
-        <NSecHeader title={AR ? 'السعة والإعدادات' : 'Capacity & Settings'} />
+        <NSecHeader title={tt('nurdash.a292bf0f')} />
         <NCard style={{ gap: SP.lg }}>
-          <NInput label={AR ? 'الحد الأقصى للزيارات اليومية' : 'Max Daily Visits'} value={maxVisits} onChange={setMaxVisits} kbType="numeric" />
+          <NInput label={tt('nurdash.a8bf6096')} value={maxVisits} onChange={setMaxVisits} kbType="numeric" />
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <View>
-              <Text style={{ color: theme.text, fontSize: FS.md, fontWeight: FW.bold }}>{AR ? 'جاهز للطوارئ' : 'Emergency Ready'}</Text>
-              <Text style={{ color: theme.textSub, fontSize: FS.xs }}>{AR ? 'استقبال طلبات عاجلة خارج الجدول' : 'Accept urgent requests outside schedule'}</Text>
+              <Text style={{ color: theme.text, fontSize: FS.md, fontWeight: FW.bold }}>{tt('nurdash.aa246d76')}</Text>
+              <Text style={{ color: theme.textSub, fontSize: FS.xs }}>{tt('nurdash.f08eb3d6')}</Text>
             </View>
             <Switch value={emergencyReady} onValueChange={setEmergencyReady} />
           </View>
         </NCard>
 
-        <NBtn label={AR ? 'حفظ المواعيد' : 'Save Schedule'} onPress={handleSave} />
+        <NBtn label={tt('nurdash.009b3141')} onPress={handleSave} />
       </ScrollView>
     </View>
   );

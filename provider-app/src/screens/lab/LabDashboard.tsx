@@ -98,7 +98,7 @@ const SAMPLE_STAGES = [
 // ══════════════════════════════════════════════════════════════════
 
 function LabOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) {
-  const { theme } = useTheme(); const { lang, t } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t, t: tt } = useLang(); const AR = lang === 'ar';
   const [subTab, setSubTab] = useState<'incoming' | 'scheduled' | 'processing' | 'results'>('incoming');
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -129,28 +129,28 @@ function LabOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) {
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <View style={[s.topBar, { backgroundColor: theme.surface, borderBottomColor: theme.border }]}>
-        <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>{AR ? 'الطلبات والمختبر' : 'Lab Orders'}</Text>
+        <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>{tt('labdash.a98be3bb')}</Text>
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ borderBottomWidth: 1, borderBottomColor: theme.border, backgroundColor: theme.surface, maxHeight: 60 }}>
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', paddingHorizontal: SP.md, gap: SP.md, alignItems: 'center' }}>
           <TouchableOpacity onPress={() => setSubTab('incoming')} style={{ paddingVertical: SP.md, borderBottomWidth: 2, borderBottomColor: subTab === 'incoming' ? theme.primary : 'transparent' }}>
-            <Text style={{ fontWeight: subTab === 'incoming' ? 'bold' : 'normal', color: subTab === 'incoming' ? theme.primary : theme.textSub }}>{AR ? 'الواردة' : 'Incoming'}</Text>
+            <Text style={{ fontWeight: subTab === 'incoming' ? 'bold' : 'normal', color: subTab === 'incoming' ? theme.primary : theme.textSub }}>{tt('labdash.e461af56')}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setSubTab('scheduled')} style={{ paddingVertical: SP.md, borderBottomWidth: 2, borderBottomColor: subTab === 'scheduled' ? theme.primary : 'transparent' }}>
-            <Text style={{ fontWeight: subTab === 'scheduled' ? 'bold' : 'normal', color: subTab === 'scheduled' ? theme.primary : theme.textSub }}>{AR ? 'الجدولة والسحب' : 'Scheduled & Draw'}</Text>
+            <Text style={{ fontWeight: subTab === 'scheduled' ? 'bold' : 'normal', color: subTab === 'scheduled' ? theme.primary : theme.textSub }}>{tt('labdash.63e5aebd')}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setSubTab('processing')} style={{ paddingVertical: SP.md, borderBottomWidth: 2, borderBottomColor: subTab === 'processing' ? theme.primary : 'transparent' }}>
-            <Text style={{ fontWeight: subTab === 'processing' ? 'bold' : 'normal', color: subTab === 'processing' ? theme.primary : theme.textSub }}>{AR ? 'التحليل والعينات' : 'Processing'}</Text>
+            <Text style={{ fontWeight: subTab === 'processing' ? 'bold' : 'normal', color: subTab === 'processing' ? theme.primary : theme.textSub }}>{tt('labdash.49e2b07e')}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setSubTab('results')} style={{ paddingVertical: SP.md, borderBottomWidth: 2, borderBottomColor: subTab === 'results' ? theme.primary : 'transparent' }}>
-            <Text style={{ fontWeight: subTab === 'results' ? 'bold' : 'normal', color: subTab === 'results' ? theme.primary : theme.textSub }}>{AR ? 'النتائج' : 'Results'}</Text>
+            <Text style={{ fontWeight: subTab === 'results' ? 'bold' : 'normal', color: subTab === 'results' ? theme.primary : theme.textSub }}>{tt('labdash.ba058e12')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
       
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}>
-        {loadFailed && filtered.length === 0 && <NEmpty title={AR ? 'تعذر تحميل الطلبات' : 'Could not load the orders'} actionLabel={AR ? 'إعادة المحاولة' : 'Retry'} onAction={loadInbox} icon="document" />}
-        {!loadFailed && filtered.length === 0 && <NEmpty title={AR ? 'لا توجد طلبات هنا' : 'No Orders Here'} icon="document" />}
+        {loadFailed && filtered.length === 0 && <NEmpty title={tt('labdash.8f6d6125')} actionLabel={tt('labdash.cf333076')} onAction={loadInbox} icon="document" />}
+        {!loadFailed && filtered.length === 0 && <NEmpty title={tt('labdash.f83f4c33')} icon="document" />}
         {filtered.map(order => {
           const st = BOOKING_STATES[order.status] || { ar: order.status, en: order.status, color: tokens.info };
           return (
@@ -159,7 +159,7 @@ function LabOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) {
                 <View>
                   <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{order.patient_name || 'Patient'}</Text>
                   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                    <Text style={{ fontSize: FS.sm, color: theme.textSub, fontWeight:'bold' }}>{order.is_insurance?(AR?' تأمين':' Insurance'):(AR?' نقدًا':' Cash')}</Text>
+                    <Text style={{ fontSize: FS.sm, color: theme.textSub, fontWeight:'bold' }}>{order.is_insurance?(tt('labdash.815dd0cb')):(tt('labdash.3cab163d'))}</Text>
                     <Text style={{ fontSize: FS.sm, color: theme.textSub }}>•</Text>
                     <Text style={{ fontSize: FS.sm, color: order.homeCollection? theme.primary: theme.textSub }}>{order.homeCollection?' سحب منزلي':' حضور للمختبر'}</Text>
                   </View>
@@ -194,15 +194,15 @@ const Stack = createNativeStackNavigator();
 
 export function LabDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
  const [tab, setTab] = useState('home');
- const { lang, t } = useLang(); const AR = lang==='ar';
+ const { lang, t, t: tt } = useLang(); const AR = lang==='ar';
  const [alarmVisible, setAlarmVisible] = useState(false);
 
   const tabs = [
- { key: 'home', icon: 'home', label: AR ? 'الرئيسية' : 'Home' },
- { key: 'orders', icon: 'document', label: AR ? 'الطلبات' : 'Orders' },
- { key: 'jobs', icon: 'profile', label: AR ? 'الوظائف' : 'Jobs' },
- { key: 'drugs', icon: 'activity', label: AR ? 'الأدوية' : 'Drugs' },
- { key: 'settings', icon: 'settings', label: AR ? 'الإعدادات' : 'Settings' },
+ { key: 'home', icon: 'home', label: tt('labdash.17c4ca45') },
+ { key: 'orders', icon: 'document', label: tt('labdash.68fdab11') },
+ { key: 'jobs', icon: 'profile', label: tt('labdash.ca8089ed') },
+ { key: 'drugs', icon: 'activity', label: tt('labdash.61bcd49d') },
+ { key: 'settings', icon: 'settings', label: tt('labdash.5766fe8f') },
  ];
 
  return (
@@ -274,7 +274,7 @@ export function LabDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
 // ══════════════════════════════════════════════════════════════════
 function LabHome({ onNav, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; onTriggerAlarm?:()=>void }) {
  const insets = useSafeAreaInsets();
- const { theme } = useTheme(); const { lang, t } = useLang(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t, t: tt } = useLang(); const AR = lang==='ar';
  const { user, toggleOnline } = useAuth();
  const [refreshing, setR] = useState(false);
  const [orders, setOrders] = useState<any[]>([]);
@@ -322,14 +322,14 @@ function LabHome({ onNav, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; onTr
  <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md}}>
  <IBg name="lab" size={18} color={tokens.purple} bg={withAlpha(tokens.purple, 0.12)} />
  <View>
- <Text style={{fontSize:FS.sm,color:theme.textSub}}>{AR?'معمل تحاليل':'Laboratory'}</Text>
- <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text}}>{AR?'معمل نبضة الطبي':'Nabdah Medical Lab'}</Text>
+ <Text style={{fontSize:FS.sm,color:theme.textSub}}>{tt('labdash.72a3043a')}</Text>
+ <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text}}>{tt('labdash.2ba7ed9e')}</Text>
  </View>
  </View>
  <View style={{flexDirection:'row',gap:SP.sm,alignItems:'center'}}>
  <NOnlineToggle value={user?.isOnline??true} onToggle={toggleOnline} />
  {/* Needs-review issue 1185: the bell opens the notifications center */}
- <TouchableOpacity onPress={()=>onNav('notifications')} accessibilityRole="button" accessibilityLabel={AR?'الإشعارات':'Notifications'} style={[s.iconBtn,{backgroundColor:theme.surface2}]}><I name="bell" size={20} color={theme.text} /></TouchableOpacity>
+ <TouchableOpacity onPress={()=>onNav('notifications')} accessibilityRole="button" accessibilityLabel={tt('labdash.5e885201')} style={[s.iconBtn,{backgroundColor:theme.surface2}]}><I name="bell" size={20} color={theme.text} /></TouchableOpacity>
  </View>
  </View>
 
@@ -337,14 +337,14 @@ function LabHome({ onNav, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; onTr
  contentContainerStyle={{padding:SP.xl,paddingBottom:100}} showsVerticalScrollIndicator={false}>
  {/* Stats */}
  <View style={{flexDirection:'row',flexWrap:'wrap',gap:SP.md,marginBottom:SP.xl}}>
- <NStatCard icon="⊥" label={AR?'طلبات اليوم':"Today's Orders"} value={String(stats.todayCount)} color={tokens.info} style={{width:'47%'}} />
- <NStatCard icon="◔" label={AR?'تحت التحليل':'Analyzing'} value={String(stats.analyzingCount)} color={tokens.warning} style={{width:'47%'}} />
- <NStatCard icon="◈" label={AR?'إيرادات اليوم':'Revenue'} value={String(stats.revenue)} unit={AR?'ر':'SAR'} color={tokens.success} style={{width:'47%'}} />
- <NStatCard icon="" label={AR?'نتائج جاهزة':'Ready'} value={String(stats.readyCount)} color={tokens.purple} style={{width:'47%'}} />
+ <NStatCard icon="⊥" label={tt('labdash.42d2477b')} value={String(stats.todayCount)} color={tokens.info} style={{width:'47%'}} />
+ <NStatCard icon="◔" label={tt('labdash.3b93ab46')} value={String(stats.analyzingCount)} color={tokens.warning} style={{width:'47%'}} />
+ <NStatCard icon="◈" label={tt('labdash.eea3276e')} value={String(stats.revenue)} unit={tt('labdash.a629499b')} color={tokens.success} style={{width:'47%'}} />
+ <NStatCard icon="" label={tt('labdash.c513492d')} value={String(stats.readyCount)} color={tokens.purple} style={{width:'47%'}} />
  </View>
 
  {/* Quick Actions */}
- <NSecHeader title={AR?'إجراءات سريعة':'Quick Actions'} />
+ <NSecHeader title={tt('labdash.88717c98')} />
  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{marginBottom:SP.xl}}>
  <View style={{flexDirection:'row',gap:SP.md}}>
  {[
@@ -370,7 +370,7 @@ function LabHome({ onNav, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; onTr
  </ScrollView>
 
  {/* Pipeline */}
- <NSecHeader title={AR?'خط أنابيب العينات':'Sample Pipeline'} action={AR?'الكل':'All'} onAction={()=>onNav('sample_tracking')} />
+ <NSecHeader title={tt('labdash.1be4b8ed')} action={tt('labdash.eabe5f68')} onAction={()=>onNav('sample_tracking')} />
  <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.sm,marginBottom:SP.xl}}>
  {SAMPLE_STAGES.map(st=>{
  const count = samples.filter(sm=>sm.stage===st.key).length;
@@ -393,7 +393,7 @@ function LabHome({ onNav, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; onTr
 // ORDER DETAIL
 // ══════════════════════════════════════════════════════════════════
 function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; onNav:(s:string,p?:any)=>void }) {
- const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t, t: tt } = useLang(); const { show } = useToast(); const AR = lang==='ar';
   const [showRegister, setShowRegister] = useState(false);
   const [showApproval, setShowApproval] = useState(false);
   const [showAssign, setShowAssign] = useState(false);
@@ -414,21 +414,21 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
     try {
       if (!camPerm?.granted) {
         const r = await requestCamPerm();
-        if (!r?.granted) { show(AR ? 'صلاحية الكاميرا مرفوضة' : 'Camera permission denied', 'error'); return; }
+        if (!r?.granted) { show(tt('labdash.fc9abbca'), 'error'); return; }
       }
       setShowCam(true);
-    } catch { show(AR ? 'الكاميرا غير متاحة على هذا الجهاز' : 'Camera unavailable on this device', 'error'); }
+    } catch { show(tt('labdash.6fdc4816'), 'error'); }
   };
 
  
   const [showReject, setShowReject] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
   const handleReject = async () => {
-    if (rejectReason.trim().length < 5) return show(AR ? 'اكتب سبب الرفض (5 أحرف على الأقل)' : 'Enter a rejection reason (at least 5 characters)', 'warning');
+    if (rejectReason.trim().length < 5) return show(tt('labdash.62e2e130'), 'warning');
     setLoading(true);
     try {
       await client.patch(`/labs/bookings/${order.id}/state`, { state: 'CANCELLED', note: `rejected_by_lab: ${rejectReason.trim()}` });
-      show(AR ? 'تم رفض الطلب وإبلاغ المريض' : 'Booking rejected; the patient was notified', 'success');
+      show(tt('labdash.346f7380'), 'success');
       setShowReject(false);
       onBack();
     } catch (e: any) {
@@ -439,7 +439,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
   };
 
   const handleApproval = async () => {
-    if (!decisionRef) return show(AR ? 'الرجاء إدخال مرجع القرار الداخلي' : 'Enter the internal decision reference', 'warning');
+    if (!decisionRef) return show(tt('labdash.dbcea9f4'), 'warning');
     setLoading(true);
     try {
       const copayPercent = Math.max(0, Math.min(99, Number(copay)));
@@ -449,7 +449,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
         decision_reference: decisionRef,
         ...(decision === 'APPROVED_PARTIAL' ? { copay_percent: copayPercent } : {}),
       });
-      show(AR ? 'سُجل قرار التغطية الداخلي من الخادم' : 'The server recorded the internal coverage decision', 'success');
+      show(tt('labdash.bdf8525f'), 'success');
       setShowApproval(false);
       onBack();
     } catch (e: any) {
@@ -464,7 +464,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
     setLoading(true);
     try {
       await client.patch(`/labs/bookings/${order.id}/state`, { state: 'CONFIRMED', note: 'accepted_by_lab' });
-      show(AR ? 'تم تأكيد الطلب' : 'Booking confirmed', 'success');
+      show(tt('labdash.bd41261a'), 'success');
       onBack();
     } catch (e: any) {
       show(e.message, 'error');
@@ -483,7 +483,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
     try {
       // the server accepts a listed technician of this lab or the caller; without a pick it assigns the caller
       await client.post(`/labs/bookings/${order.id}/assign-technician`, techId ? { technician_id: techId } : {});
-      show(techName ? (AR ? `تم تعيين ${techName}` : `Assigned ${techName}`) : (AR ? 'تم تعيين الفني' : 'Technician assigned'), 'success');
+      show(techName ? (AR ? `تم تعيين ${techName}` : `Assigned ${techName}`) : (tt('labdash.4f05fe89')), 'success');
       setShowAssign(false);
       onBack();
     } catch (e: any) {
@@ -494,11 +494,11 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
   };
 
   const handleReschedule = async () => {
-    if (!rescheduleDate) return show(AR ? 'الرجاء اختيار الموعد الجديد' : 'Please select a new date', 'warning');
+    if (!rescheduleDate) return show(tt('labdash.f815f1c1'), 'warning');
     setLoading(true);
     try {
       await client.patch(`/labs/bookings/${order.id}/reschedule`, { new_date: rescheduleDate, reason: 'Provider Reschedule' });
-      show(AR ? 'تم إعادة الجدولة بنجاح' : 'Rescheduled successfully', 'success');
+      show(tt('labdash.033c881f'), 'success');
       setShowReschedule(false);
       onBack();
     } catch (e: any) {
@@ -509,7 +509,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
   };
 
   const handleRegisterSample = async () => {
-    if (!barcode) return show(AR ? 'الرجاء إدخال الباركود' : 'Please enter barcode', 'warning');
+    if (!barcode) return show(tt('labdash.f3e1baf2'), 'warning');
     setLoading(true);
     try {
       await client.post('/labs/samples/register', {
@@ -518,7 +518,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
         tests: Array.isArray(order.tests) ? order.tests : [],
         ...(notes.trim() ? { notes: notes.trim() } : {}),
       });
-      show(AR ? 'سُجلت العينة في سجل الحيازة الخادمي' : 'The sample was registered in the server custody record', 'success');
+      show(tt('labdash.5ab0cc27'), 'success');
       setShowRegister(false);
       onBack();
     } catch (e: any) {
@@ -533,7 +533,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
     try {
       const res = await client.get('/labs/samples');
       const sample = (res.data || []).find((sm: any) => sm.lab_order_id === order.id);
-      if (!sample) return show(AR ? 'سجّل العينة أولاً' : 'Register the sample first', 'warning');
+      if (!sample) return show(tt('labdash.26c52cf5'), 'warning');
       if (sample.stage === 'received') await client.patch(`/labs/samples/${sample.id}/stage`, { stage: 'analyzing' });
       onNav('result_review', { ...sample, stage: sample.stage === 'received' ? 'analyzing' : sample.stage });
     } catch (e: any) {
@@ -545,27 +545,26 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
 
  return (
  <NScroll>
- <NHeader title={AR?'تفاصيل الطلب':'Order Details'} onBack={onBack} />
+ <NHeader title={tt('labdash.42b7afff')} onBack={onBack} />
  <NCard style={{marginBottom:SP.xl}}>
  <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.lg,marginBottom:SP.lg}}>
  <NAvatar name={order?.patient??'مريض'} size={56} />
  <View style={{flex:1}}>
  <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left'}}>{order?.patient??'—'}</Text>
  <Text style={{fontSize:FS.sm,color:theme.textSub}}>{order?.doctor??'—'} | {order?.insurance??'Cash'}</Text>
- <NBadge label={order?.homeCollection?(AR?'سحب منزلي':'Home'):(AR?'حضور':'Walk-in')} variant={order?.homeCollection?'warning':'primary'} size="xs" style={{marginTop:SP.xs}} />
+ <NBadge label={order?.homeCollection?(tt('labdash.e379dc23')):(tt('labdash.9e68f203'))} variant={order?.homeCollection?'warning':'primary'} size="xs" style={{marginTop:SP.xs}} />
  </View>
  </View>
 
  {anyRequiresFasting && (
  <NCard style={{ backgroundColor: theme.warnBg, padding: SP.md, marginBottom: SP.lg, borderColor: theme.warn, borderWidth: 1 }}>
  <Text style={{ fontSize: FS.xs, color: theme.warn, textAlign: AR ? 'right' : 'left', fontWeight: FW.bold }}>
- {AR ? 'تنبيه صيام: هذا الطلب يحتوي على تحاليل تتطلب صيام المريض (8 إلى 12 ساعة).'
- : 'Fasting Warning: This order contains tests that require the patient to fast (8 to 12 hours).'}
+ {tt('labdash.ad84abed')}
  </Text>
  </NCard>
  )}
 
- <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text,marginBottom:SP.md,textAlign:AR?'right':'left'}}>{AR?'التحاليل المطلوبة':'Requested Tests'}</Text>
+ <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text,marginBottom:SP.md,textAlign:AR?'right':'left'}}>{tt('labdash.633d9b2b')}</Text>
  {(order?.tests??[]).map((tid:string)=>{
  const item=(order?.items||[]).find((i:any)=>i.service_id===tid);
  const t=lookupTest(tid) || (item ? { ar: item.name_ar || item.name_en, en: item.name_en || item.name_ar, fasting: !!item.fasting_required, hours: 24 } : null);
@@ -573,14 +572,14 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
  <IBg name="testTube" size={12} color={tokens.purple} bg={withAlpha(tokens.purple, 0.12)} />
  <View style={{flex:1}}>
  <Text style={{fontSize:FS.md,color:theme.text,textAlign:AR?'right':'left'}}>{AR?t.ar:t.en}</Text>
- <Text style={{fontSize:FS.xs,color:theme.textSub}}>{t.hours<1?`${t.hours*60}min`:`${t.hours}h`}{t.fasting?` | ${AR?'صيام':'Fasting'}`:''}</Text>
+ <Text style={{fontSize:FS.xs,color:theme.textSub}}>{t.hours<1?`${t.hours*60}min`:`${t.hours}h`}{t.fasting?` | ${tt('labdash.83c51755')}`:''}</Text>
  </View>
  </View> : null;
  })}
  <NDivider style={{marginVertical:SP.lg}} />
         <View style={{flexDirection:AR?'row-reverse':'row',justifyContent:'space-between'}}>
-          <Text style={{fontSize:FS.md,color:theme.textSub}}>{AR?'الإجمالي':'Total'}</Text>
-          <Text style={{fontSize:FS.xl,fontWeight:FW.xbold,color:tokens.purple}}>{order?.total??0} {AR?'ريال':'SAR'}</Text>
+          <Text style={{fontSize:FS.md,color:theme.textSub}}>{tt('labdash.e3959b9d')}</Text>
+          <Text style={{fontSize:FS.xl,fontWeight:FW.xbold,color:tokens.purple}}>{order?.total??0} {tt('labdash.0e39e6ca')}</Text>
         </View>
       </NCard>
 
@@ -588,63 +587,63 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
         <View style={{gap:SP.md}}>
           <NBtn label={t('bookingChat.open')} variant="outline" onPress={() => onNav('booking_chat', order)} />
           {order?.is_insurance ? (
-            <NBtn label={AR ? 'طلب موافقة التأمين' : 'Request Insurance Approval'} onPress={() => setShowApproval(true)} />
+            <NBtn label={tt('labdash.1560762d')} onPress={() => setShowApproval(true)} />
           ) : (
             confirmBlocker(order)
               ? <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{confirmBlockerText(confirmBlocker(order)!, AR)}</Text>
-              : <NBtn label={AR ? 'تأكيد الطلب المباشر (كاش)' : 'Confirm Direct Order (Cash)'} onPress={handleCashConfirm} />
+              : <NBtn label={tt('labdash.bbe8dd0a')} onPress={handleCashConfirm} />
           )}
-          <NBtn label={AR?'رفض الطلب':'Reject Order'} variant="danger" onPress={() => setShowReject(true)} />
+          <NBtn label={tt('labdash.67e8e5ab')} variant="danger" onPress={() => setShowReject(true)} />
         </View>
       )}
 
       {order?.status === 'WAITING_COPAY' && (
         <NCard style={{ backgroundColor: theme.warnBg, borderColor: theme.warn, borderWidth: 1, alignItems: 'center' }}>
-          <Text style={{ color: theme.warn, fontWeight: 'bold' }}>{AR ? 'بانتظار دفع المريض لنسبة التحمل...' : 'Waiting for Patient Co-Pay...'}</Text>
+          <Text style={{ color: theme.warn, fontWeight: 'bold' }}>{tt('labdash.345de97f')}</Text>
         </NCard>
       )}
 
       {order?.status === 'CONFIRMED' && (
         <View style={{gap:SP.md}}>
           {order?.homeCollection ? (
-            <NBtn label={AR ? 'تعيين فني سحب منزلي' : 'Assign Phlebotomist'} onPress={() => setShowAssign(true)} />
+            <NBtn label={tt('labdash.a1927b1d')} onPress={() => setShowAssign(true)} />
           ) : (
-            <NBtn label={AR ? 'حضور المريض - تسجيل عينة' : 'Patient Arrived - Register Sample'} onPress={() => setShowRegister(true)} />
+            <NBtn label={tt('labdash.48c2d8e4')} onPress={() => setShowRegister(true)} />
           )}
-          <NBtn label={AR ? 'المريض لم يحضر' : 'Patient did not show up'} variant="outline" onPress={async () => {
+          <NBtn label={tt('labdash.57f31d3c')} variant="outline" onPress={async () => {
             try {
               await client.post(`/labs/bookings/${order?.id}/emergency`, { reason: 'PATIENT_ABSENT' });
-              show(AR ? 'سُجّل غياب المريض وأُلغي الحجز' : 'No-show recorded and the booking cancelled', 'info');
+              show(tt('labdash.b03c9282'), 'info');
               onBack();
             } catch (err: any) {
               show(err?.response?.data?.message || err.message, 'error');
             }
           }} />
-          <NBtn label={AR ? 'إعادة جدولة الموعد' : 'Reschedule Appointment'} variant="outline" onPress={() => setShowReschedule(true)} />
+          <NBtn label={tt('labdash.5087139f')} variant="outline" onPress={() => setShowReschedule(true)} />
         </View>
       )}
 
       {isTripOrder(order) && (
         <View style={{gap:SP.md}}>
-          <NBtn label={AR ? 'بدء التحرك (تتبع GPS)' : 'Start Trip (GPS)'} onPress={() => onNav('home_collection', order)} />
+          <NBtn label={tt('labdash.9fc826e8')} onPress={() => onNav('home_collection', order)} />
         </View>
       )}
 
       {order?.status === 'IN_LAB' && (
         <View style={{gap:SP.md}}>
-          <NBtn label={AR ? 'تسجيل العينة' : 'Register Sample'} onPress={() => setShowRegister(true)} />
+          <NBtn label={tt('labdash.3128a6cd')} onPress={() => setShowRegister(true)} />
         </View>
       )}
 
       {order?.status === 'IN_TRANSIT' && (
         <View style={{gap:SP.md}}>
-          <NBtn label={AR ? 'تسجيل العينة وإتمام الزيارة' : 'Register Sample & Complete'} onPress={() => setShowRegister(true)} />
+          <NBtn label={tt('labdash.b6c8ce56')} onPress={() => setShowRegister(true)} />
         </View>
       )}
 
       {order?.status === 'SAMPLE_COLLECTED' && (
         <View style={{gap:SP.md}}>
-          <NBtn label={AR ? 'بدء الفحص وإدخال النتائج' : 'Process & Enter Results'} onPress={openSampleForResults} />
+          <NBtn label={tt('labdash.29697c94')} onPress={openSampleForResults} />
         </View>
       )}
 
@@ -655,55 +654,55 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
 
       {/* MODALS */}
       {/* Reschedule Sheet */}
-      <NSheet visible={showReschedule} onClose={()=>setShowReschedule(false)} title={AR ? 'إعادة جدولة الموعد' : 'Reschedule Appointment'} height={350}>
+      <NSheet visible={showReschedule} onClose={()=>setShowReschedule(false)} title={tt('labdash.5087139f')} height={350}>
         <View style={{ padding: SP.md }}>
           <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-            {AR ? 'الرجاء تحديد الموعد الجديد لزيارة المريض أو السحب المنزلي:' : 'Please specify the new date/time for the patient visit or home collection:'}
+            {tt('labdash.96e20d00')}
           </Text>
-          <NInput label={AR ? 'الموعد الجديد' : 'New Date/Time'} placeholder="YYYY-MM-DD HH:MM" value={rescheduleDate} onChange={setRescheduleDate} icon="event" />
-          <NBtn label={AR ? 'تأكيد وإشعار المريض' : 'Confirm & Notify Patient'} loading={loading} onPress={handleReschedule} style={{ marginTop: SP.md }} />
+          <NInput label={tt('labdash.849441eb')} placeholder="YYYY-MM-DD HH:MM" value={rescheduleDate} onChange={setRescheduleDate} icon="event" />
+          <NBtn label={tt('labdash.f21bee1b')} loading={loading} onPress={handleReschedule} style={{ marginTop: SP.md }} />
         </View>
       </NSheet>
 
       {/* Reject Sheet: a recorded reason is required */}
-      <NSheet visible={showReject} onClose={()=>setShowReject(false)} title={AR ? 'رفض الطلب' : 'Reject booking'} height={320}>
+      <NSheet visible={showReject} onClose={()=>setShowReject(false)} title={tt('labdash.79949d9c')} height={320}>
         <View style={{ padding: SP.md }}>
-          <NInput label={AR ? 'سبب الرفض' : 'Reason'} placeholder={AR ? 'مثال: التحليل غير متوفر حالياً' : 'e.g. test not available'} value={rejectReason} onChange={setRejectReason} icon="edit" />
-          <NBtn label={AR ? 'تأكيد الرفض' : 'Confirm rejection'} variant="danger" loading={loading} onPress={handleReject} style={{ marginTop: SP.md }} />
+          <NInput label={tt('labdash.15bcf925')} placeholder={tt('labdash.b5314e5c')} value={rejectReason} onChange={setRejectReason} icon="edit" />
+          <NBtn label={tt('labdash.46984e50')} variant="danger" loading={loading} onPress={handleReject} style={{ marginTop: SP.md }} />
         </View>
       </NSheet>
 
       {/* Insurance approval sheet */}
-      <NSheet visible={showApproval} onClose={()=>setShowApproval(false)} title={AR ? 'موافقة التأمين' : 'Insurance Approval'} height={400}>
+      <NSheet visible={showApproval} onClose={()=>setShowApproval(false)} title={tt('labdash.881a5e09')} height={400}>
         <View style={{ padding: SP.md }}>
-          <NInput label={AR ? 'مرجع القرار الداخلي' : 'Internal decision reference'} placeholder="REF-12345" value={decisionRef} onChange={setDecisionRef} icon="verified" />
-          <NInput label={AR ? 'نسبة تحمل المريض (0–99%)' : 'Patient co-pay percentage (0–99%)'} placeholder="0" value={copay} onChange={setCopay} icon="payments" kbType="numeric" />
-          <NBtn label={AR ? 'تسجيل قرار التغطية' : 'Record coverage decision'} onPress={handleApproval} style={{ marginTop: SP.md }} />
+          <NInput label={tt('labdash.ad1a5d6b')} placeholder="REF-12345" value={decisionRef} onChange={setDecisionRef} icon="verified" />
+          <NInput label={tt('labdash.cab8286b')} placeholder="0" value={copay} onChange={setCopay} icon="payments" kbType="numeric" />
+          <NBtn label={tt('labdash.9a0c9e6c')} onPress={handleApproval} style={{ marginTop: SP.md }} />
         </View>
       </NSheet>
 
       {/* Tech Assignment Sheet */}
-      <NSheet visible={showAssign} onClose={()=>setShowAssign(false)} title={AR ? 'تعيين فني سحب' : 'Assign Technician'} height={400}>
+      <NSheet visible={showAssign} onClose={()=>setShowAssign(false)} title={tt('labdash.535f72b7')} height={400}>
         <View style={{ padding: SP.md }}>
           {techs.length === 0 ? (
-            <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{AR ? 'لا يوجد فنيون مسجلون في فريقك: سيُعيَّن الطلب لحسابك.' : 'No technicians on your team: the order is assigned to your account.'}</Text>
+            <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{tt('labdash.7b77133b')}</Text>
           ) : techs.map((tc: any) => (
             <TouchableOpacity key={tc.id} accessibilityRole="button" onPress={() => { setTechId(tc.id); setTechName(tc.full_name || tc.email || ''); }}
               style={{ padding: SP.md, borderRadius: R.md, marginBottom: SP.sm, borderWidth: 1, borderColor: techId === tc.id ? theme.primary : theme.border, backgroundColor: techId === tc.id ? theme.infoBg : theme.surface }}>
               <Text style={{ color: theme.text, textAlign: AR ? 'right' : 'left' }}>{tc.full_name || tc.email || tc.id}</Text>
             </TouchableOpacity>
           ))}
-          <NBtn label={AR ? 'تأكيد التعيين' : 'Confirm Assignment'} onPress={handleAssignTech} style={{ marginTop: SP.md }} />
+          <NBtn label={tt('labdash.8efb0f5e')} onPress={handleAssignTech} style={{ marginTop: SP.md }} />
         </View>
       </NSheet>
 
       {/* Register Sample Sheet */}
-      <NSheet visible={showRegister} onClose={()=>setShowRegister(false)} title={AR ? 'تسجيل العينة (Accessioning)' : 'Register Sample'} height={400}>
+      <NSheet visible={showRegister} onClose={()=>setShowRegister(false)} title={tt('labdash.a9aee7df')} height={400}>
         <View style={{ padding: SP.md }}>
-          <NInput label={AR ? 'باركود العينة' : 'Sample Barcode'} placeholder="SMP-XXXXXXXX" value={barcode} onChange={setBarcode} icon="qr-code-scanner" />
-          <NBtn label={AR ? 'فتح الكاميرا للمسح' : 'Open Camera Scanner'} variant="outline" onPress={openScanner} style={{ marginBottom: SP.sm }} />
-          <NInput label={AR ? 'ملاحظات' : 'Notes'} placeholder={AR ? 'ملاحظات اختيارية...' : 'Optional notes...'} value={notes} onChange={setNotes} icon="edit" />
-          <NBtn label={AR ? 'تأكيد وتسجيل العينة' : 'Confirm & Register'} loading={loading} onPress={handleRegisterSample} style={{ marginTop: SP.md }} />
+          <NInput label={tt('labdash.757b0f25')} placeholder="SMP-XXXXXXXX" value={barcode} onChange={setBarcode} icon="qr-code-scanner" />
+          <NBtn label={tt('labdash.657d61ad')} variant="outline" onPress={openScanner} style={{ marginBottom: SP.sm }} />
+          <NInput label={tt('labdash.46819ff8')} placeholder={tt('labdash.92b83bf2')} value={notes} onChange={setNotes} icon="edit" />
+          <NBtn label={tt('labdash.f4e7235f')} loading={loading} onPress={handleRegisterSample} style={{ marginTop: SP.md }} />
         </View>
       </NSheet>
 
@@ -717,7 +716,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
             onBarcodeScanned={({ data }: any) => { if (data) { setBarcode(String(data)); setShowCam(false); } }}
           />
           <TouchableOpacity onPress={()=>setShowCam(false)} style={{ position: 'absolute', bottom: 60, alignSelf: 'center', backgroundColor: '#00000099', paddingHorizontal: 32, paddingVertical: 14, borderRadius: 28 }}>
-            <Text style={{ color: '#fff', fontWeight: FW.bold, fontSize: FS.md }}>{AR ? 'إلغاء' : 'Cancel'}</Text>
+            <Text style={{ color: '#fff', fontWeight: FW.bold, fontSize: FS.md }}>{tt('labdash.210b779f')}</Text>
           </TouchableOpacity>
         </View>
       </Modal>
@@ -731,7 +730,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
 // ══════════════════════════════════════════════════════════════════
 function SampleTracking({ onBack, onNav }:{ onBack:()=>void; onNav:(s:string,p?:any)=>void }) {
  const insets = useSafeAreaInsets();
- const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t, t: tt } = useLang(); const { show } = useToast(); const AR = lang==='ar';
  const [filter, setFilter] = useState('all');
  const [samples, setSamples] = useState<any[]>([]);
  const [loading, setLoading] = useState(true);
@@ -755,10 +754,10 @@ function SampleTracking({ onBack, onNav }:{ onBack:()=>void; onNav:(s:string,p?:
  const handleStartAnalysis = async (sam: any) => {
  try {
  await client.patch(`/labs/samples/${sam.id}/stage`, { stage: 'analyzing' });
- show(AR ? 'بدأ التحليل ' : 'Analysis started ', 'success');
+ show(tt('labdash.52f727e7'), 'success');
  fetchSamples();
  } catch (err: any) {
- show(err.message || (AR ? 'فشل تحديث الحالة' : 'Failed to update stage'), 'error');
+ show(err.message || (tt('labdash.67209eb5')), 'error');
  }
  };
 
@@ -768,13 +767,13 @@ function SampleTracking({ onBack, onNav }:{ onBack:()=>void; onNav:(s:string,p?:
  <View style={{flex:1,backgroundColor:theme.bg}}>
  <View style={[s.topBar,{backgroundColor:theme.surface,borderBottomColor:theme.border, paddingTop: Math.max(insets.top, 16) }]}>
  <TouchableOpacity onPress={onBack}><I name="back" size={20} color={theme.primary} /></TouchableOpacity>
- <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text}}>{AR?'تتبع العينات':'Sample Tracking'}</Text>
+ <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text}}>{tt('labdash.259b0bea')}</Text>
  <View style={{width:30}} />
  </View>
  {/* Stage filter */}
  <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{paddingHorizontal:SP.lg,paddingVertical:SP.md,gap:SP.sm}}>
  <TouchableOpacity onPress={()=>setFilter('all')} style={[s.chip,{backgroundColor:filter==='all'?tokens.purple:theme.surface2,borderColor:filter==='all'?tokens.purple:theme.border}]}>
- <Text style={{color:filter==='all'?'#FFF':theme.text,fontSize:FS.xs,fontWeight:FW.semi}}>{AR?'الكل':'All'} ({samples.length})</Text>
+ <Text style={{color:filter==='all'?'#FFF':theme.text,fontSize:FS.xs,fontWeight:FW.semi}}>{tt('labdash.eabe5f68')} ({samples.length})</Text>
  </TouchableOpacity>
  {SAMPLE_STAGES.map(st=>{
  const c=samples.filter(sm=>sm.stage===st.key).length;
@@ -792,9 +791,9 @@ function SampleTracking({ onBack, onNav }:{ onBack:()=>void; onNav:(s:string,p?:
  <NCard style={{marginBottom:SP.md}} accent={sc?.color}>
  <View style={{flexDirection:AR?'row-reverse':'row',justifyContent:'space-between',marginBottom:SP.md}}>
  <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md}}>
- <NAvatar name={sam.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient')} size={42} />
+ <NAvatar name={sam.patient_name || (tt('labdash.0f5f86ee'))} size={42} />
  <View>
- <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text}}>{sam.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient')}</Text>
+ <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text}}>{sam.patient_name || (tt('labdash.0f5f86ee'))}</Text>
  <Text style={{fontSize:FS.xs,color:theme.textSub}}>{sam.barcode}</Text>
  </View>
  </View>
@@ -816,9 +815,9 @@ function SampleTracking({ onBack, onNav }:{ onBack:()=>void; onNav:(s:string,p?:
  </View>
  <Text style={{fontSize:FS.xs,color:theme.textSub}}>{AR?`استلام: ${sam.createdAt ? new Date(sam.createdAt).toLocaleTimeString() : '—'} | الباركود: ${sam.barcode}`:`Received: ${sam.createdAt ? new Date(sam.createdAt).toLocaleTimeString() : '—'} | Barcode: ${sam.barcode}`}</Text>
  <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.sm,marginTop:SP.md}}>
- {sam.stage==='received' && <NBtn label={AR?'بدء التحليل':'Start Analysis'} size="sm" full={false} style={{flex:1}} onPress={()=>handleStartAnalysis(sam)} />}
- {sam.stage==='analyzing' && <NBtn label={AR?'إدخال النتائج':'Enter Results'} size="sm" full={false} style={{flex:1}} onPress={()=>onNav('result_review',sam)} />}
- {sam.stage==='result_ready' && <NBtn label={AR?'مراجعة وإرسال':'Review & Send'} size="sm" full={false} style={{flex:1}} onPress={()=>onNav('result_review',sam)} />}
+ {sam.stage==='received' && <NBtn label={tt('labdash.a1a74336')} size="sm" full={false} style={{flex:1}} onPress={()=>handleStartAnalysis(sam)} />}
+ {sam.stage==='analyzing' && <NBtn label={tt('labdash.fd60025b')} size="sm" full={false} style={{flex:1}} onPress={()=>onNav('result_review',sam)} />}
+ {sam.stage==='result_ready' && <NBtn label={tt('labdash.183d502a')} size="sm" full={false} style={{flex:1}} onPress={()=>onNav('result_review',sam)} />}
  <NBtn label="QR" size="sm" variant="outline" full={false} style={{paddingHorizontal:SP.lg}} onPress={()=>onNav('qr_label',sam)} />
  </View>
  </NCard>
@@ -832,7 +831,7 @@ function SampleTracking({ onBack, onNav }:{ onBack:()=>void; onNav:(s:string,p?:
 // RESULT REVIEW — Preview before sending
 // ══════════════════════════════════════════════════════════════════
 function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
- const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t, t: tt } = useLang(); const { show } = useToast(); const AR = lang==='ar';
   const [sendTo, setSendTo] = useState<'patient'|'both'>('both');
  const [loading, setLoading] = useState(false);
  const [resultRows, setResultRows] = useState<any[]>(Array.isArray(sample?.structured_results) ? sample.structured_results : []);
@@ -849,7 +848,7 @@ function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
  };
  const addResultRow = () => {
    if (!analyte.trim() || !value.trim()) {
-     show(AR ? 'أدخل اسم الفحص والنتيجة قبل الإضافة' : 'Enter an analyte and result before adding it', 'error');
+     show(tt('labdash.dfd72692'), 'error');
      return;
    }
    setResultRows((rows) => [...rows, { analyte: analyte.trim(), value: value.trim(), unit: unit.trim(), range: range.trim(), isCritical }]);
@@ -857,7 +856,7 @@ function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
  };
  const handleConfirmSend = async () => {
  if (!resultRows.length && !reportFile) {
-   show(AR ? 'أضف نتيجة أو أرفق ملف التقرير قبل الإرسال' : 'Add a result or attach the report file before sending', 'error');
+   show(tt('labdash.a353b8c8'), 'error');
    return;
  }
  setLoading(true);
@@ -867,10 +866,10 @@ function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
  const reportStorageObjectId = reportFile ? await ProviderApi.uploadFile(reportFile.uri, reportFile.mimeType || 'application/pdf', reportFile.name || 'lab-report.pdf') : undefined;
  await client.post(`/labs/bookings/${sample.lab_order_id || sample.id}/upload-report`, { ...(resultRows.length ? { structuredData: resultRows } : {}), ...(reportStorageObjectId ? { report_storage_object_id: reportStorageObjectId } : {}), send_to: sendTo });
  await client.patch(`/labs/samples/${sample.id}/stage`, { stage: 'sent' });
- show(AR ? 'تم إرسال النتيجة' : 'Result sent', 'success');
+ show(tt('labdash.01e8873b'), 'success');
  onBack();
  } catch (err: any) {
- show(err?.response?.status === 423 ? (AR ? 'الملف قيد الفحص الأمني، حاول بعد دقيقة' : 'The file is still being security-checked, try again in a minute') : (err.message || (AR ? 'فشل إرسال النتيجة' : 'Failed to send result')), 'error');
+ show(err?.response?.status === 423 ? (tt('labdash.a237e338')) : (err.message || (tt('labdash.09ae9587'))), 'error');
  } finally {
  setLoading(false);
  }
@@ -878,29 +877,29 @@ function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
 
  return (
  <NScroll>
- <NHeader title={AR?'مراجعة النتيجة':'Review Result'} onBack={onBack} />
+ <NHeader title={tt('labdash.9b689dba')} onBack={onBack} />
  <NCard style={{marginBottom:SP.xl}}>
  <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.md,alignItems:'center',marginBottom:SP.lg}}>
- <NAvatar name={sample?.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient')} size={48} />
- <View><Text style={{fontSize:FS.lg,fontWeight:FW.bold,color:theme.text}}>{sample?.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient')}</Text><Text style={{fontSize:FS.xs,color:theme.textSub}}>{sample?.barcode??'—'}</Text></View>
+ <NAvatar name={sample?.patient_name || (tt('labdash.0f5f86ee'))} size={48} />
+ <View><Text style={{fontSize:FS.lg,fontWeight:FW.bold,color:theme.text}}>{sample?.patient_name || (tt('labdash.0f5f86ee'))}</Text><Text style={{fontSize:FS.xs,color:theme.textSub}}>{sample?.barcode??'—'}</Text></View>
  </View>
  <NCard style={{ marginBottom: SP.lg }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{AR ? 'إضافة نتيجة مخبرية' : 'Add laboratory result'}</Text>
- <NInput label={AR ? 'اسم الفحص' : 'Analyte'} value={analyte} onChange={setAnalyte} required />
- <NInput label={AR ? 'النتيجة' : 'Result'} value={value} onChange={setValue} required />
- <NInput label={AR ? 'الوحدة' : 'Unit'} value={unit} onChange={setUnit} />
- <NInput label={AR ? 'المدى المرجعي' : 'Reference range'} value={range} onChange={setRange} />
- <NToggle label={AR ? 'نتيجة حرجة' : 'Critical result'} value={isCritical} onChange={setIsCritical} />
- <NBtn label={AR ? 'إضافة النتيجة' : 'Add result'} variant="outline" onPress={addResultRow} style={{ marginTop: SP.sm }} />
+ <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{tt('labdash.4d14c11b')}</Text>
+ <NInput label={tt('labdash.362e6a7d')} value={analyte} onChange={setAnalyte} required />
+ <NInput label={tt('labdash.a0e33277')} value={value} onChange={setValue} required />
+ <NInput label={tt('labdash.1d92094b')} value={unit} onChange={setUnit} />
+ <NInput label={tt('labdash.7689cb51')} value={range} onChange={setRange} />
+ <NToggle label={tt('labdash.c80ca4d0')} value={isCritical} onChange={setIsCritical} />
+ <NBtn label={tt('labdash.6f0e2c3e')} variant="outline" onPress={addResultRow} style={{ marginTop: SP.sm }} />
  </NCard>
  {/* Table header */}
  <View style={{flexDirection:'row',backgroundColor:withAlpha(tokens.purple, 0.10),borderRadius:R.sm,padding:SP.sm,marginBottom:SP.sm}}>
- <Text style={{flex:3,fontSize:FS.xs,fontWeight:FW.bold,color:tokens.purple}}>{AR?'الفحص':'Test'}</Text>
- <Text style={{flex:2,fontSize:FS.xs,fontWeight:FW.bold,color:tokens.purple}}>{AR?'النتيجة':'Result'}</Text>
- <Text style={{flex:2,fontSize:FS.xs,fontWeight:FW.bold,color:tokens.purple}}>{AR?'الطبيعي':'Ref'}</Text>
+ <Text style={{flex:3,fontSize:FS.xs,fontWeight:FW.bold,color:tokens.purple}}>{tt('labdash.83750e7d')}</Text>
+ <Text style={{flex:2,fontSize:FS.xs,fontWeight:FW.bold,color:tokens.purple}}>{tt('labdash.a0e33277')}</Text>
+ <Text style={{flex:2,fontSize:FS.xs,fontWeight:FW.bold,color:tokens.purple}}>{tt('labdash.ebcd24c8')}</Text>
  <View style={{flex:1,alignItems:'center'}}><I name="alert" size={12} color={tokens.purple} /></View>
  </View>
- {resultRows.length === 0 ? <NEmpty title={AR ? 'لا توجد نتائج مدخلة' : 'No results entered'} sub={AR ? 'أضف نتائج العينة أعلاه قبل إصدار التقرير.' : 'Add sample results above before issuing the report.'} icon="flask" /> : resultRows.map((r,i)=>(
+ {resultRows.length === 0 ? <NEmpty title={tt('labdash.b122cabf')} sub={tt('labdash.d7489391')} icon="flask" /> : resultRows.map((r,i)=>(
  <View key={`${r.analyte}-${i}`} style={{flexDirection:'row',paddingVertical:SP.sm,borderBottomWidth:StyleSheet.hairlineWidth,borderBottomColor:theme.border,alignItems:'center'}}>
  <Text style={{flex:3,fontSize:FS.sm,color:theme.text}}>{r.analyte}</Text>
  <Text style={{flex:2,fontSize:FS.sm,fontWeight:FW.bold,color:r.isCritical?tokens.error:theme.text}}>{r.value}{r.unit ? ` ${r.unit}` : ''}</Text>
@@ -911,7 +910,7 @@ function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
  </NCard>
  {/* Send to */}
  <NCard style={{marginBottom:SP.xl}}>
- <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text,marginBottom:SP.md,textAlign:AR?'right':'left'}}>{AR?'إرسال إلى':'Send to'}</Text>
+ <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text,marginBottom:SP.md,textAlign:AR?'right':'left'}}>{tt('labdash.e5ca5e96')}</Text>
  {([{v:'patient' as const,ar:'المريض فقط',en:'Patient Only'},{v:'both' as const,ar:'المريض + الطبيب',en:'Patient + Doctor'}]).map(opt=>(
  <TouchableOpacity key={opt.v} onPress={()=>setSendTo(opt.v)}
  style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md,paddingVertical:SP.md,paddingHorizontal:SP.lg,borderRadius:R.lg,borderWidth:1.5,
@@ -923,8 +922,8 @@ function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
  </TouchableOpacity>
  ))}
  </NCard>
- <NBtn label={reportFile ? (AR ? `ملف مرفق: ${reportFile.name || ''} (إزالة)` : `Attached: ${reportFile.name || 'file'} (remove)`) : (AR ? 'إرفاق ملف التقرير الممسوح (PDF أو صورة)' : 'Attach the scanned report (PDF or image)')} variant="outline" onPress={() => (reportFile ? setReportFile(null) : pickReportFile())} style={{ marginBottom: SP.md }} />
- <NBtn label={AR?'تأكيد وإرسال النتيجة':'Confirm & Send Result'} loading={loading} onPress={handleConfirmSend} />
+ <NBtn label={reportFile ? (AR ? `ملف مرفق: ${reportFile.name || ''} (إزالة)` : `Attached: ${reportFile.name || 'file'} (remove)`) : (tt('labdash.78424ac8'))} variant="outline" onPress={() => (reportFile ? setReportFile(null) : pickReportFile())} style={{ marginBottom: SP.md }} />
+ <NBtn label={tt('labdash.c77f3f3d')} loading={loading} onPress={handleConfirmSend} />
  </NScroll>
  );
 }
@@ -934,21 +933,21 @@ function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
 // BUNDLE MANAGEMENT
 // ══════════════════════════════════════════════════════════════════
 function BundleMgmt({ onBack }:{ onBack:()=>void }) {
- const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t, t: tt } = useLang(); const { show } = useToast(); const AR = lang==='ar';
  const [bundlesList, setBundlesList] = useState<any[]>([]);
  useEffect(() => { client.get('/labs/packages').then(r => setBundlesList(r.data || [])).catch(() => {}); }, []);
  return (
  <NScroll>
- <NHeader title={AR?'إدارة الحزم المخفّضة':'Bundle Management'} onBack={onBack} />
+ <NHeader title={tt('labdash.a111b6c7')} onBack={onBack} />
  <View style={{flexDirection:'row',gap:SP.md,marginBottom:SP.xl}}>
- <NStatCard icon="◈" label={AR?'إجمالي':'Total'} value={String(bundlesList.length)} color={tokens.purple} style={{flex:1}} />
- <NStatCard icon="" label={AR?'نشطة':'Active'} value={String(bundlesList.filter(b=>b.active).length)} color={tokens.success} style={{flex:1}} />
+ <NStatCard icon="◈" label={tt('labdash.e4927cc4')} value={String(bundlesList.length)} color={tokens.purple} style={{flex:1}} />
+ <NStatCard icon="" label={tt('labdash.f9ffe17e')} value={String(bundlesList.filter(b=>b.active).length)} color={tokens.success} style={{flex:1}} />
  </View>
  {bundlesList.map(b=>(
  <NCard key={b.id} style={{marginBottom:SP.md}} accent={b.active?tokens.purple:undefined}>
  <View style={{flexDirection:AR?'row-reverse':'row',justifyContent:'space-between',marginBottom:SP.md}}>
  <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text}}>{AR?b.nameAr:b.nameEn}</Text>
- <NBadge label={b.active ? (AR ? 'نشطة' : 'Active') : (AR ? 'موقوفة' : 'Paused')} variant={b.active ? 'success' : 'default'} size="sm" />
+ <NBadge label={b.active ? (tt('labdash.f9ffe17e')) : (tt('labdash.04ef5401'))} variant={b.active ? 'success' : 'default'} size="sm" />
  </View>
  <View style={{flexDirection:'row',flexWrap:'wrap',gap:SP.xs,marginBottom:SP.md}}>
  {b.tests.map(tid=>{const t=lookupTest(tid);return <View key={tid} style={{backgroundColor:theme.surface2,paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:theme.border}}><Text style={{fontSize:FS.xs,color:theme.text}}>{t?(AR?t.ar:t.en):tid}</Text></View>;})}
@@ -957,13 +956,13 @@ function BundleMgmt({ onBack }:{ onBack:()=>void }) {
  <View style={{flexDirection:'row',alignItems:'baseline',gap:SP.sm}}>
  <Text style={{fontSize:FS.xl,fontWeight:FW.xbold,color:tokens.purple}}>{b.price}</Text>
  <Text style={{fontSize:FS.sm,color:theme.textSub,textDecorationLine:'line-through'}}>{b.orig}</Text>
- <Text style={{fontSize:FS.sm,color:theme.textSub}}>{AR?'ريال':'SAR'}</Text>
+ <Text style={{fontSize:FS.sm,color:theme.textSub}}>{tt('labdash.0e39e6ca')}</Text>
  </View>
  <NBadge label={`${Math.round((1-b.price/b.orig)*100)}% ${AR?'خصم':'off'}`} variant="success" size="sm" />
  </View>
  </NCard>
  ))}
- <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: 'center', marginTop: SP.md }}>{AR ? 'الحزم تُدار من الإدارة — تواصل مع الدعم لإضافة حزمة' : 'Bundles are managed by admin — contact support to add one'}</Text>
+ <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: 'center', marginTop: SP.md }}>{tt('labdash.63e6fd6b')}</Text>
  </NScroll>
  );
 }
@@ -972,33 +971,32 @@ function BundleMgmt({ onBack }:{ onBack:()=>void }) {
 // ADD CUSTOM TEST → Admin Approval
 // ══════════════════════════════════════════════════════════════════
 function AddCustomTest({ onBack }:{ onBack:()=>void }) {
- const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t, t: tt } = useLang(); const { show } = useToast(); const AR = lang==='ar';
  const [nameAr,setNameAr]=useState(''); const [nameEn,setNameEn]=useState(''); const [price,setPrice]=useState('');
  const [hours,setHours]=useState(''); const [fasting,setFasting]=useState(false); const [refLow,setRefLow]=useState('');
  const [refHigh,setRefHigh]=useState(''); const [unit,setUnit]=useState(''); const [loading,setLoading]=useState(false);
 
  return (
  <NScroll>
- <NHeader title={AR?'إضافة فحص مخصص':'Add Custom Test'} onBack={onBack} />
+ <NHeader title={tt('labdash.9f608972')} onBack={onBack} />
  <NCard style={{backgroundColor:theme.warnBg,marginBottom:SP.xl}}>
  <Text style={{fontSize:FS.sm,color:theme.warn,lineHeight:20,textAlign:AR?'right':'left'}}>
- {AR?'الفحوصات المخصصة تنتظر موافقة إدارة نبض بلس قبل ظهورها للمرضى (24 ساعة).'
- :'Custom tests await Nabd+ admin approval before visible to patients (24h).'}
+ {tt('labdash.0e649588')}
  </Text>
  </NCard>
- <NInput label={AR?'اسم الفحص بالعربي':'Name (Arabic)'} placeholder={AR?'فحص الفيريتين المتقدم':'Advanced Ferritin'} value={nameAr} onChange={setNameAr} required />
- <NInput label={AR?'اسم الفحص بالإنجليزي':'Name (English)'} placeholder="Advanced Ferritin" value={nameEn} onChange={setNameEn} required />
+ <NInput label={tt('labdash.2633e985')} placeholder={tt('labdash.b024876e')} value={nameAr} onChange={setNameAr} required />
+ <NInput label={tt('labdash.00ef02de')} placeholder="Advanced Ferritin" value={nameEn} onChange={setNameEn} required />
  <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.md}}>
- <View style={{flex:1}}><NPriceInput label={AR?'السعر':'Price'} value={price} onChange={setPrice} required /></View>
- <View style={{flex:1}}><NInput label={AR?'وقت النتيجة (ساعة)':'Turnaround (h)'} placeholder="2" value={hours} onChange={v=>setHours(v.replace(/\D/g,''))} kbType="numeric" maxLen={3} /></View>
+ <View style={{flex:1}}><NPriceInput label={tt('labdash.137174f0')} value={price} onChange={setPrice} required /></View>
+ <View style={{flex:1}}><NInput label={tt('labdash.1d94025e')} placeholder="2" value={hours} onChange={v=>setHours(v.replace(/\D/g,''))} kbType="numeric" maxLen={3} /></View>
  </View>
  <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.md}}>
- <View style={{flex:1}}><NInput label={AR?'الحد الأدنى':'Ref Low'} placeholder="0" value={refLow} onChange={setRefLow} kbType="decimal-pad" /></View>
- <View style={{flex:1}}><NInput label={AR?'الحد الأعلى':'Ref High'} placeholder="100" value={refHigh} onChange={setRefHigh} kbType="decimal-pad" /></View>
- <View style={{flex:1}}><NInput label={AR?'الوحدة':'Unit'} placeholder="mg/dL" value={unit} onChange={setUnit} /></View>
+ <View style={{flex:1}}><NInput label={tt('labdash.a79d3e95')} placeholder="0" value={refLow} onChange={setRefLow} kbType="decimal-pad" /></View>
+ <View style={{flex:1}}><NInput label={tt('labdash.a2e8628f')} placeholder="100" value={refHigh} onChange={setRefHigh} kbType="decimal-pad" /></View>
+ <View style={{flex:1}}><NInput label={tt('labdash.1d92094b')} placeholder="mg/dL" value={unit} onChange={setUnit} /></View>
  </View>
- <NCard style={{marginBottom:SP.xl}}><NToggle label={AR?'يتطلب صيام':'Requires Fasting'} value={fasting} onChange={setFasting} /></NCard>
- <NBtn label={AR?'إرسال للمراجعة والموافقة':'Submit for Review'} disabled={!nameAr.trim()||!price} loading={loading}
+ <NCard style={{marginBottom:SP.xl}}><NToggle label={tt('labdash.e9a83ccf')} value={fasting} onChange={setFasting} /></NCard>
+ <NBtn label={tt('labdash.16e3e9ee')} disabled={!nameAr.trim()||!price} loading={loading}
  onPress={async()=>{
   setLoading(true);
   try {
@@ -1013,10 +1011,10 @@ function AddCustomTest({ onBack }:{ onBack:()=>void }) {
         ...(refLow.trim() && refHigh.trim() && Number.isFinite(lo) && Number.isFinite(hi) ? { reference_ranges: { min: lo, max: hi, unit: unit.trim() } } : {}),
       },
     });
-    show(AR?'تم الإرسال للمراجعة':'Submitted for review','success');
+    show(tt('labdash.e544c183'),'success');
     onBack();
   } catch(e) {
-    show(AR?'فشل الإرسال':'Failed to submit','error');
+    show(tt('labdash.5abe683d'),'error');
   }
   setLoading(false);
  }} />
@@ -1037,7 +1035,7 @@ function haversineKm(aLat: number, aLng: number, bLat: number, bLng: number): nu
 }
 
 function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
- const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t, t: tt } = useLang(); const { show } = useToast(); const AR = lang==='ar';
  // R7-3: real technicians from the lab team endpoint — never hard-coded names.
  const [collectors, setCollectors] = useState<any[]>([]);
  const [loadingTeam, setLoadingTeam] = useState(true);
@@ -1066,7 +1064,7 @@ function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
       try {
         const { requestForegroundPermissionsAsync, getCurrentPositionAsync } = await import('expo-location');
         const perm = await requestForegroundPermissionsAsync();
-        if (perm.status !== 'granted') { setLocError(AR ? 'صلاحية الموقع مطلوبة للتتبع' : 'Location permission required'); return; }
+        if (perm.status !== 'granted') { setLocError(tt('labdash.025d93e4')); return; }
         const pos = await getCurrentPositionAsync({ accuracy: 5 } as any);
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
@@ -1093,35 +1091,35 @@ function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
   if (!order) {
     return (
       <NScroll>
-        <NHeader title={AR ? 'سحب منزلي' : 'Home Collection'} onBack={onBack} />
-        <NEmpty title={AR ? 'اختر طلب سحب منزلي من قائمة الطلبات' : 'Choose a home-collection order from the orders list'} sub={AR ? 'يبدأ التتبع من صفحة الطلب' : 'Tracking starts from the order page'} />
+        <NHeader title={tt('labdash.4bc2fd44')} onBack={onBack} />
+        <NEmpty title={tt('labdash.48570328')} sub={tt('labdash.1ea3df0e')} />
       </NScroll>
     );
   }
   if (isTripOrder(order) || tracking) {
     return (
       <NScroll>
-        <NHeader title={AR ? 'تتبع مسار الفني' : 'Track Technician'} onBack={onBack} />
+        <NHeader title={tt('labdash.6255212c')} onBack={onBack} />
         
         {/* Map View */}
         <View style={{ height: 250, backgroundColor: tokens.infoSurface, borderRadius: R.xl, marginBottom: SP.lg, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', borderColor: theme.border, borderWidth: 1 }}>
           <Text style={{ fontSize: FS.xl, color:tokens.info, fontWeight: FW.bold }}> GPS TRACKING ACTIVE</Text>
-          <Text style={{ fontSize: FS.md, color: tokens.info, marginTop: SP.md }}>{AR ? 'الرجاء الانتظار، يتم إرسال الموقع...' : 'Sending location...'}</Text>
+          <Text style={{ fontSize: FS.md, color: tokens.info, marginTop: SP.md }}>{tt('labdash.53b8031b')}</Text>
         </View>
 
         <NCard style={{ marginBottom: SP.md }}>
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <View style={{ alignItems: AR ? 'flex-start' : 'flex-end' }}>
-              <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{AR ? 'الوقت المتبقي' : 'ETA'}</Text>
+              <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{tt('labdash.067d4d06')}</Text>
               <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.primary }}>{eta == null ? '—' : `${eta} ${AR ? 'دقيقة' : 'min'}`}</Text>
             </View>
             <View style={{ alignItems: AR ? 'flex-start' : 'flex-end' }}>
-              <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{AR ? 'المسافة' : 'Distance'}</Text>
+              <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{tt('labdash.54dbe9bc')}</Text>
               <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.primary }}>{distance == null ? '—' : `${distance} ${AR ? 'كم' : 'km'}`}</Text>
             </View>
           </View>
           {!hasDestination ? (
-            <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'لا توجد إحداثيات وجهة في الحجز — يُرسل موقع الجهاز فقط.' : 'No destination coordinates on the booking — device location only.'}</Text>
+            <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{tt('labdash.18cfdb2f')}</Text>
           ) : null}
           {locError ? (
             <Text style={{ fontSize: FS.xs, color: theme.danger }}>{locError}</Text>
@@ -1129,17 +1127,17 @@ function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
         </NCard>
 
         {(distance !== null && distance <= 0.1) || (!hasDestination && (tracking || order?.status === 'IN_TRANSIT')) ? (
-          <NBtn label={AR ? 'الفني وصل (تم الوصول)' : 'Technician Arrived'} variant="primary" onPress={async () => {
+          <NBtn label={tt('labdash.f60625a9')} variant="primary" onPress={async () => {
             try {
               await client.patch(`/labs/bookings/${order?.id}/state`, { state: 'IN_LAB', note: 'ARRIVED at location' });
-              show(AR ? 'تم الوصول بنجاح' : 'Arrived successfully', 'success');
+              show(tt('labdash.2315ff59'), 'success');
               onBack();
             } catch (err: any) {
               show(err.message, 'error');
             }
           }} />
         ) : (
-          <NBtn label={AR ? 'بدء رحلة الفني' : 'Start Trip'} onPress={async () => {
+          <NBtn label={tt('labdash.f878b50b')} onPress={async () => {
             try {
               await client.patch(`/labs/bookings/${order?.id}/state`, { state: 'IN_TRANSIT' });
               setTracking(true);
@@ -1150,23 +1148,23 @@ function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
         )}
 
         <View style={{ marginTop: SP.xl, gap: SP.md }}>
-          <NSecHeader title={AR ? 'إدارة الطوارئ' : 'Emergency Management'} />
-          {([['PATIENT_ABSENT', AR ? 'المريض لم يحضر' : 'Patient Absent'], ['WRONG_LOCATION', AR ? 'موقع خاطئ' : 'Wrong Location']] as const).map(([reason, label]) => (
+          <NSecHeader title={tt('labdash.310c69f1')} />
+          {([['PATIENT_ABSENT', tt('labdash.50c617ef')], ['WRONG_LOCATION', tt('labdash.a4b8b516')]] as const).map(([reason, label]) => (
             <NBtn key={reason} label={label} variant="outline" onPress={async () => {
               try {
                 await client.post(`/labs/bookings/${order?.id}/emergency`, { reason });
-                show(AR ? 'تم تسجيل الحالة' : 'Status logged', 'info');
+                show(tt('labdash.967e1e10'), 'info');
                 onBack();
               } catch (err: any) {
                 show(err?.response?.data?.message || err.message, 'error');
               }
             }} />
           ))}
-          <NBtn label={AR ? 'إلغاء وتعيين فني آخر' : 'Cancel & Reassign'} variant="danger" onPress={async () => {
+          <NBtn label={tt('labdash.b8876455')} variant="danger" onPress={async () => {
             try {
               await client.post(`/labs/bookings/${order?.id}/reassign`);
               setTracking(false);
-              show(AR ? 'تم الإلغاء وجاري التعيين' : 'Cancelled & Reassigning', 'success');
+              show(tt('labdash.cbf04650'), 'success');
               onBack();
             } catch (err: any) {
               show(err?.response?.data?.message || err.message, 'error');
@@ -1180,14 +1178,14 @@ function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
 
   return (
     <NScroll>
-      <NHeader title={AR ? 'خدمة السحب المنزلي (تعيين فني)' : 'Home Collection (Assign)'} onBack={onBack} />
-      <NSecHeader title={AR ? 'مندوبو السحب المتاحين' : 'Available Phlebotomists'} />
+      <NHeader title={tt('labdash.7dca36d3')} onBack={onBack} />
+      <NSecHeader title={tt('labdash.add75159')} />
       {loadingTeam ? (
-        <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{AR ? 'جارٍ تحميل الفريق…' : 'Loading team…'}</Text>
+        <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{tt('labdash.ebb9bdbb')}</Text>
       ) : collectors.length === 0 ? (
         <NCard style={{ marginBottom: SP.sm }}>
           <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: 'center' }}>
-            {AR ? 'لا يوجد فنيون مرتبطون بهذا المختبر بعد.' : 'No technicians are linked to this lab yet.'}
+            {tt('labdash.b1593c4f')}
           </Text>
         </NCard>
       ) : null}
@@ -1200,8 +1198,8 @@ function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
               <Text style={{fontSize:FS.xs,color:theme.textSub}}>{col.role || ''}</Text>
             </View>
             <View style={{alignItems:'flex-end',gap:SP.xs}}>
-              <NBtn label={AR?'تعيين كفني':'Assign Tech'} size="xs" full={false} style={{paddingHorizontal:SP.md}} onPress={async () => {
-                if (!order?.id) { show(AR ? 'لا يوجد طلب محدد للتعيين' : 'No order selected to assign', 'error'); return; }
+              <NBtn label={tt('labdash.2ed62c88')} size="xs" full={false} style={{paddingHorizontal:SP.md}} onPress={async () => {
+                if (!order?.id) { show(tt('labdash.9b18d1a6'), 'error'); return; }
                 try {
                   await client.post(`/labs/bookings/${order.id}/assign-technician`, { technician_id: col.id });
                   show(AR ? `تم تعيين ${col.name}` : `${col.name} assigned`, 'success');
@@ -1222,10 +1220,10 @@ function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
 // QR SAMPLE LABEL
 // ══════════════════════════════════════════════════════════════════
 function QRSampleLabel({ sample, onBack }:{ sample:any; onBack:()=>void }) {
- const { theme } = useTheme(); const { lang, t } = useLang(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t, t: tt } = useLang(); const AR = lang==='ar';
  return (
  <NScroll>
- <NHeader title={AR?'ملصق QR للعينة':'QR Sample Label'} onBack={onBack} />
+ <NHeader title={tt('labdash.8269fa47')} onBack={onBack} />
  <NCard style={{alignItems:'center',padding:SP.xxl,marginBottom:SP.xl}}>
  <View style={{width:160,height:160,borderRadius:R.xl,borderWidth:3,borderColor:tokens.purple,alignItems:'center',justifyContent:'center'}}>
  <I name="qr" size={60} color={tokens.purple} />
@@ -1237,7 +1235,7 @@ function QRSampleLabel({ sample, onBack }:{ sample:any; onBack:()=>void }) {
  </View>
  </NCard>
  <View style={{gap:SP.md}}>
- <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'اطبع الملصق من جهاز الباركود المرتبط برقم العينة' : 'Print the label from the barcode device linked to the sample number'}</Text>
+ <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{tt('labdash.bd73f21a')}</Text>
  {/* Needs-review issue 1188: "Save as Image" claimed success without saving anything; removed. */}
  </View>
  </NScroll>
@@ -1248,12 +1246,12 @@ function QRSampleLabel({ sample, onBack }:{ sample:any; onBack:()=>void }) {
 // TURNAROUND TIME TRACKER
 // ══════════════════════════════════════════════════════════════════
 function TATTracker({ onBack }:{ onBack:()=>void }) {
- const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+ const { theme } = useTheme(); const { lang, t, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
  const [samples, setSamples] = useState<any[]>([]);
  const [loading, setLoading] = useState(true);
  useEffect(() => {
    client.get('/labs/samples').then(r => setSamples(Array.isArray(r.data) ? r.data : [])).catch(() => {
-     show(AR ? 'تعذر تحميل العينات' : 'Could not load samples', 'error');
+     show(tt('labdash.4ce0b818'), 'error');
    }).finally(() => setLoading(false));
  }, []);
  const ageHours = (s: any) => {
@@ -1266,14 +1264,14 @@ function TATTracker({ onBack }:{ onBack:()=>void }) {
  const pct = samples.length ? Math.round((sent / samples.length) * 100) : 0;
  return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
- <NHeader title={AR ? 'تتبع زمن الإنجاز' : 'TAT Tracker'} onBack={onBack} />
+ <NHeader title={tt('labdash.0b4e47ad')} onBack={onBack} />
  <NScroll>
  <View style={{ padding: SP.lg, gap: SP.md }}>
  {loading ? <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} /> : samples.length === 0 ? (
- <NEmpty title={AR ? 'لا توجد عينات بعد' : 'No samples yet'} icon="flask" />
+ <NEmpty title={tt('labdash.986d7e8c')} icon="flask" />
  ) : (<>
- <NStatCard icon="◷" label={AR ? 'مكتملة الإرسال' : 'Sent'} value={`${pct}%`} color={tokens.success} />
- {[['received', AR ? 'مستلمة' : 'Received'], ['analyzing', AR ? 'قيد التحليل' : 'Analyzing'], ['result_ready', AR ? 'النتيجة جاهزة' : 'Result ready'], ['sent', AR ? 'مُرسلة' : 'Sent']].map(([st, label]) => (
+ <NStatCard icon="◷" label={tt('labdash.e87a57c2')} value={`${pct}%`} color={tokens.success} />
+ {[['received', tt('labdash.c327cdfa')], ['analyzing', tt('labdash.08f4668d')], ['result_ready', tt('labdash.ba1b4758')], ['sent', tt('labdash.1eeb6648')]].map(([st, label]) => (
  <NCard key={st} style={{ marginBottom: SP.sm }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{label}: {byStage(st).length}</Text>
  </NCard>
@@ -1283,7 +1281,7 @@ function TATTracker({ onBack }:{ onBack:()=>void }) {
    return (
    <NCard key={String(s.id || s.barcode)} style={{ marginBottom: SP.sm }}>
    <Text style={{ fontSize: FS.sm, color: theme.text }}>{s.barcode || s.id} — {s.stage}</Text>
-   {age !== null ? <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'العمر:' : 'Age:'} {age.toFixed(1)} {AR ? 'ساعة' : 'h'}</Text> : null}
+   {age !== null ? <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{tt('labdash.dc2fbbc1')} {age.toFixed(1)} {AR ? 'ساعة' : 'h'}</Text> : null}
    </NCard>
    );
  })}
@@ -1298,7 +1296,7 @@ function TATTracker({ onBack }:{ onBack:()=>void }) {
 // LAB INSURANCE CLAIMS
 // ══════════════════════════════════════════════════════════════════
 function LabInsurance({ onBack }:{ onBack:()=>void }) {
- const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t, t: tt } = useLang(); const { show } = useToast(); const AR = lang==='ar';
  const [orders, setOrders] = useState<any[]>([]);
  const [loading, setLoading] = useState(true);
  const [selectedOrder, setSelectedOrder] = useState<any>(null);
@@ -1313,7 +1311,7 @@ function LabInsurance({ onBack }:{ onBack:()=>void }) {
  // filter insurance orders
  setOrders(res.data.filter((o:any) => o.payment_method === 'insurance'));
  } catch (e) {
- show(AR ? 'خطأ في جلب الطلبات' : 'Error fetching orders', 'error');
+ show(tt('labdash.a27f6c48'), 'error');
  } finally {
  setLoading(false);
  }
@@ -1327,7 +1325,7 @@ function LabInsurance({ onBack }:{ onBack:()=>void }) {
  return;
  }
  if (status !== 'rejected' && !approvalRef.trim()) {
- show(AR ? 'رقم موافقة التأمين إلزامي' : 'The insurer approval number is required', 'error');
+ show(tt('labdash.38103dfd'), 'error');
  return;
  }
  try {
@@ -1337,7 +1335,7 @@ function LabInsurance({ onBack }:{ onBack:()=>void }) {
  totalCopay: selectedOrder.insurance_copay || 0,
  items: selectedOrder.items
  });
- show(AR ? 'تم التحديث بنجاح' : 'Updated successfully', 'success');
+ show(tt('labdash.180b680e'), 'success');
  setApprovalRef(''); setRejectNote('');
  setSelectedOrder(null);
  fetchOrders();
@@ -1371,44 +1369,44 @@ function LabInsurance({ onBack }:{ onBack:()=>void }) {
  if (selectedOrder) {
  return (
  <NScroll>
- <NHeader title={AR ? 'معالجة التأمين' : 'Process Insurance'} onBack={() => setSelectedOrder(null)} />
+ <NHeader title={tt('labdash.1936f8b7')} onBack={() => setSelectedOrder(null)} />
  <NCard style={{marginBottom: SP.xl}}>
  <Text style={{fontSize: FS.lg, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left'}}>
  {selectedOrder.patient_name} - {selectedOrder.insurance_provider}
  </Text>
  <Text style={{fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginTop: SP.xs}}>
- {AR ? 'المبلغ الإجمالي' : 'Total Amount'}: {selectedOrder.total} {AR ? 'ر' : 'SAR'}
+ {tt('labdash.aaa61748')}: {selectedOrder.total} {tt('labdash.a629499b')}
  </Text>
  </NCard>
  
- <NSecHeader title={AR ? 'نسبة التحمل / الدفع المشترك' : 'Co-Pay Amount'} />
+ <NSecHeader title={tt('labdash.8fcb8db1')} />
  <NCard style={{marginBottom: SP.xl}}>
- <NPriceInput label={AR ? 'مبلغ التحمل (ريال)' : 'Co-Pay (SAR)'} value={String(selectedOrder.insurance_copay || '')} onChange={setTotalCopay} />
+ <NPriceInput label={tt('labdash.6025e95a')} value={String(selectedOrder.insurance_copay || '')} onChange={setTotalCopay} />
  </NCard>
 
- <NSecHeader title={AR ? 'الفحوصات المطلوبة' : 'Requested Tests'} />
+ <NSecHeader title={tt('labdash.77887cf9')} />
  {selectedOrder.items.map((item:any, idx:number) => (
  <NCard key={item.service_id} style={{marginBottom: SP.sm}}>
  <View style={{flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center'}}>
  <Text style={{fontSize: FS.md, fontWeight: FW.semi, color: theme.text}}>{AR ? item.name_ar : item.name_en}</Text>
- <NToggle label={AR ? 'مغطى؟' : 'Covered?'} value={item.isCovered ?? true} onChange={(v) => toggleItemCovered(idx, v)} />
+ <NToggle label={tt('labdash.8e77ba51')} value={item.isCovered ?? true} onChange={(v) => toggleItemCovered(idx, v)} />
  </View>
  {!(item.isCovered ?? true) && (
  <View style={{marginTop: SP.md}}>
- <NInput label={AR ? 'سبب الرفض' : 'Rejection Reason'} value={item.rejectReason || ''} onChange={(v) => setItemRejectReason(idx, v)} />
- <NPriceInput label={AR ? 'سعر الكاش البديل' : 'Alternative Cash Price'} value={String(item.cashPrice || '')} onChange={(v) => setItemCashPrice(idx, v)} />
+ <NInput label={tt('labdash.9e63f799')} value={item.rejectReason || ''} onChange={(v) => setItemRejectReason(idx, v)} />
+ <NPriceInput label={tt('labdash.b562e6f7')} value={String(item.cashPrice || '')} onChange={(v) => setItemCashPrice(idx, v)} />
  </View>
  )}
  </NCard>
  ))}
 
  <NCard style={{marginTop: SP.lg}}>
- <NInput label={AR ? 'رقم موافقة التأمين (إلزامي للاعتماد)' : 'Insurer approval number (required to approve)'} placeholder="APR-XXXXX" value={approvalRef} onChange={setApprovalRef} />
+ <NInput label={tt('labdash.82ee435d')} placeholder="APR-XXXXX" value={approvalRef} onChange={setApprovalRef} />
  <NInput label={t('pa3.labDash.4')} value={rejectNote} onChange={setRejectNote} />
  </NCard>
  <View style={{flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.xl, marginBottom: SP.xxl}}>
- <NBtn label={AR ? 'رفض' : 'Reject'} variant="danger" onPress={() => handleUpdateInsurance('rejected')} style={{flex: 1}} />
- <NBtn label={AR ? 'اعتماد' : 'Approve'} onPress={() => handleUpdateInsurance('partial_approval')} style={{flex: 1}} />
+ <NBtn label={tt('labdash.8a223f36')} variant="danger" onPress={() => handleUpdateInsurance('rejected')} style={{flex: 1}} />
+ <NBtn label={tt('labdash.61c05766')} onPress={() => handleUpdateInsurance('partial_approval')} style={{flex: 1}} />
  </View>
  </NScroll>
  );
@@ -1416,27 +1414,27 @@ function LabInsurance({ onBack }:{ onBack:()=>void }) {
 
  return (
  <NScroll>
- <NHeader title={AR?'مطالبات التأمين':'Insurance Claims'} onBack={onBack} />
- {loading ? <Text style={{textAlign: 'center', color: theme.textSub, marginTop: 50}}>{AR ? 'جاري التحميل...' : 'Loading...'}</Text> : (
+ <NHeader title={tt('labdash.2b68239f')} onBack={onBack} />
+ {loading ? <Text style={{textAlign: 'center', color: theme.textSub, marginTop: 50}}>{tt('labdash.2ac42d8b')}</Text> : (
  <>
  <View style={{flexDirection:'row',gap:SP.md,marginBottom:SP.xl}}>
- <NStatCard icon="◔" label={AR?'انتظار':'Pending'} value={String(orders.filter(c=>c.insurance_status==='pending').length)} color={tokens.warning} style={{flex:1}} />
- <NStatCard icon="" label={AR?'معالجة':'Processed'} value={String(orders.filter(c=>c.insurance_status!=='pending'&&c.insurance_status!=='none').length)} color={tokens.success} style={{flex:1}} />
+ <NStatCard icon="◔" label={tt('labdash.94139241')} value={String(orders.filter(c=>c.insurance_status==='pending').length)} color={tokens.warning} style={{flex:1}} />
+ <NStatCard icon="" label={tt('labdash.aec833ec')} value={String(orders.filter(c=>c.insurance_status!=='pending'&&c.insurance_status!=='none').length)} color={tokens.success} style={{flex:1}} />
  </View>
  {orders.map(cl=>(
  <TouchableOpacity key={cl.id} onPress={() => setSelectedOrder(cl)}>
  <NCard style={{marginBottom:SP.md}} accent={cl.insurance_status==='approved'||cl.insurance_status==='partial_approval'?tokens.success:cl.insurance_status==='rejected'?tokens.error:tokens.warning}>
  <View style={{flexDirection:AR?'row-reverse':'row',justifyContent:'space-between',marginBottom:SP.sm}}>
  <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text}}>{cl.patient_name}</Text>
- <NBadge label={cl.insurance_status==='approved'||cl.insurance_status==='partial_approval'?(AR?'مقبولة':'Approved'):cl.insurance_status==='rejected'?(AR?'مرفوضة':'Rejected'):(AR?'انتظار':'Pending')} variant={cl.insurance_status==='approved'||cl.insurance_status==='partial_approval'?'success':cl.insurance_status==='rejected'?'danger':'warning'} size="xs" />
+ <NBadge label={cl.insurance_status==='approved'||cl.insurance_status==='partial_approval'?(tt('labdash.a7151286')):cl.insurance_status==='rejected'?(tt('labdash.6022b490')):(tt('labdash.94139241'))} variant={cl.insurance_status==='approved'||cl.insurance_status==='partial_approval'?'success':cl.insurance_status==='rejected'?'danger':'warning'} size="xs" />
  </View>
- <Text style={{fontSize:FS.sm,color:theme.textSub}}>{cl.insurance_provider} | {cl.items?.length} {AR?'فحص':'tests'} | {cl.total} {AR?'ر':'SAR'}</Text>
+ <Text style={{fontSize:FS.sm,color:theme.textSub}}>{cl.insurance_provider} | {cl.items?.length} {AR?'فحص':'tests'} | {cl.total} {tt('labdash.a629499b')}</Text>
  </NCard>
  </TouchableOpacity>
  ))}
  {orders.length === 0 && (
  <Text style={{textAlign: 'center', color: theme.textSub, marginTop: 50}}>
- {AR ? 'لا توجد مطالبات تأمين' : 'No insurance claims'}
+ {tt('labdash.0a8e6600')}
  </Text>
  )}
  </>
@@ -1450,36 +1448,36 @@ function LabInsurance({ onBack }:{ onBack:()=>void }) {
 // ══════════════════════════════════════════════════════════════════
 function LabSettings({ onLogout, onNavigate }:{ onLogout:()=>void; onNavigate:(s:string,p?:any)=>void }) {
  const insets = useSafeAreaInsets();
- const { theme, toggle:toggleT, mode } = useTheme(); const { lang, toggle:toggleL } = useLang();
+ const { theme, toggle:toggleT, mode } = useTheme(); const { lang, toggle:toggleL, t: tt } = useLang();
  const { show } = useToast(); const AR = lang==='ar'; const [showLO, setShowLO] = useState(false);
  return (
  <View style={{flex:1,backgroundColor:theme.bg}}>
  <View style={[s.topBar,{backgroundColor:theme.surface,borderBottomColor:theme.border, paddingTop: Math.max(insets.top, 16) }]}>
- <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text}}>{AR?'الإعدادات':'Settings'}</Text>
+ <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text}}>{tt('labdash.5766fe8f')}</Text>
  </View>
  <ScrollView contentContainerStyle={{padding:SP.xl,paddingBottom:100}}>
  <NCard style={{marginBottom:SP.xl,flexDirection:AR?'row-reverse':'row',gap:SP.lg,alignItems:'center'}}>
  <IBg name="lab" size={22} color={tokens.purple} bg={withAlpha(tokens.purple, 0.12)} />
  <View style={{flex:1}}>
- <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left'}}>{AR?'معمل نبضة الطبي':'Nabdah Medical Lab'}</Text>
- <NBadge label={AR?'نشط':'Active'} variant="success" size="xs" style={{marginTop:SP.xs}} />
+ <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left'}}>{tt('labdash.2ba7ed9e')}</Text>
+ <NBadge label={tt('labdash.03886b8f')} variant="success" size="xs" style={{marginTop:SP.xs}} />
  </View>
  </NCard>
- <NSecHeader title={AR?'إدارة المختبر':'Lab Management'} />
+ <NSecHeader title={tt('labdash.c41188df')} />
  <NCard style={{marginBottom:SP.xl}}>
- <NSettingsRow icon="document" label={AR?'قائمة التحاليل والأسعار':'Test Menu & Pricing'} onPress={()=>onNavigate('test_menu')} />
- <NSettingsRow icon="scan" label={AR?'إدارة الحزم':'Bundles'} onPress={()=>onNavigate('bundles')} />
- <NSettingsRow icon="home" label={AR?'إعدادات الخدمة المنزلية':'Home Service'} onPress={()=>onNavigate('home_service')} />
- <NSettingsRow icon="calendar" label={AR?'مواعيد العمل':'Working Hours'} onPress={()=>onNavigate('working_hours')} />
- <NSettingsRow icon="shield" label={AR?'إعدادات التأمين':'Insurance Settings'} onPress={()=>onNavigate('insurance_config')} />
-<NSettingsRow icon="shield" label={AR?'طلبات التأمين الواردة':'Insurance Requests'} onPress={()=>onNavigate('insurance_requests')} />
-<NSettingsRow icon="document" label={AR?'إعلان الطلبات':'Ordering declaration'} onPress={()=>onNavigate(ORDERING_ENTRY)} />
- <NSettingsRow icon="document" label={AR?'الرخص والمستندات الرسمية':'Licenses & Documents'} onPress={()=>onNavigate('certificates_config')} />
- <NSettingsRow icon="camera" label={AR?'الصور والوسائط':'Photos & Media'} onPress={()=>onNavigate('media_config')} />
+ <NSettingsRow icon="document" label={tt('labdash.93935d9c')} onPress={()=>onNavigate('test_menu')} />
+ <NSettingsRow icon="scan" label={tt('labdash.31ebb394')} onPress={()=>onNavigate('bundles')} />
+ <NSettingsRow icon="home" label={tt('labdash.2b2e547e')} onPress={()=>onNavigate('home_service')} />
+ <NSettingsRow icon="calendar" label={tt('labdash.82f7fda8')} onPress={()=>onNavigate('working_hours')} />
+ <NSettingsRow icon="shield" label={tt('labdash.1653fa4d')} onPress={()=>onNavigate('insurance_config')} />
+<NSettingsRow icon="shield" label={tt('labdash.679ae00d')} onPress={()=>onNavigate('insurance_requests')} />
+<NSettingsRow icon="document" label={tt('labdash.7a80399f')} onPress={()=>onNavigate(ORDERING_ENTRY)} />
+ <NSettingsRow icon="document" label={tt('labdash.2bd7bf71')} onPress={()=>onNavigate('certificates_config')} />
+ <NSettingsRow icon="camera" label={tt('labdash.07de3762')} onPress={()=>onNavigate('media_config')} />
  </NCard>
 
  {/* Marketing & Reputation */}
- <NSecHeader title={AR ? 'التسويق والمبيعات وتكنولوجيا المختبر' : 'Marketing, Sales & Lab Modules'} />
+ <NSecHeader title={tt('labdash.de62827e')} />
  <NCard style={{ marginBottom:SP.xl }}>
  {[
  { icon:'bell', ar:'مركز العروض الترويجية', en:'Promotions Center', action:()=>onNavigate('promotions') },
@@ -1492,12 +1490,12 @@ function LabSettings({ onLogout, onNavigate }:{ onLogout:()=>void; onNavigate:(s
  ))}
  </NCard>
  <GlobalSystemSettings />
- <NSecHeader title={AR?'إعدادات إضافية':'Additional Settings'} />
+ <NSecHeader title={tt('labdash.a668a3ad')} />
  <NCard style={{marginBottom:SP.xl}}>
- <NSettingsRow icon="briefcase" label={AR?'الوظائف الطبية':'Medical Jobs'} onPress={() => onNavigate('medical_jobs')} />
- <NSettingsRow icon="bookOpen" label={AR?'دليل الأدوية الطبي':'Medical Drug Index'} onPress={() => onNavigate('drug_index')} />
+ <NSettingsRow icon="briefcase" label={tt('labdash.ebb9f1de')} onPress={() => onNavigate('medical_jobs')} />
+ <NSettingsRow icon="bookOpen" label={tt('labdash.0e14b12f')} onPress={() => onNavigate('drug_index')} />
  </NCard>
- <NSecHeader title={AR?'الأمان':'Security'} />
+ <NSecHeader title={tt('labdash.b42c5798')} />
  <NCard style={{marginBottom:SP.xl}}>
  {[
  { icon: 'lock', ar:'تغيير كلمة المرور', en:'Change Password', action: () => onNavigate('password') },
@@ -1507,10 +1505,10 @@ function LabSettings({ onLogout, onNavigate }:{ onLogout:()=>void; onNavigate:(s
  <NSettingsRow key={i} icon={r.icon} label={AR?r.ar:r.en} onPress={r.action} />
  ))}
  </NCard>
- <NCard><NSettingsRow icon="lock" label={AR?'تسجيل الخروج':'Log Out'} onPress={()=>setShowLO(true)} danger /></NCard>
+ <NCard><NSettingsRow icon="lock" label={tt('labdash.d56d4be0')} onPress={()=>setShowLO(true)} danger /></NCard>
  </ScrollView>
- <NConfirm visible={showLO} title={AR?'تسجيل الخروج':'Log Out'} msg={AR?'هل تريد الخروج؟':'Log out?'}
- onOk={()=>{setShowLO(false);onLogout();}} onCancel={()=>setShowLO(false)} okLabel={AR?'خروج':'Log Out'} />
+ <NConfirm visible={showLO} title={tt('labdash.d56d4be0')} msg={tt('labdash.2c77c9c9')}
+ onOk={()=>{setShowLO(false);onLogout();}} onCancel={()=>setShowLO(false)} okLabel={tt('labdash.d6c04a80')} />
  </View>
  );
 }
@@ -1520,23 +1518,23 @@ function LabSettings({ onLogout, onNavigate }:{ onLogout:()=>void; onNavigate:(s
 // ══════════════════════════════════════════════════════════════════
 function ResultsList({ onNav }:{ onNav:(s:string,p?:any)=>void }) {
  const insets = useSafeAreaInsets();
- const { theme } = useTheme(); const { lang, t } = useLang(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang, t, t: tt } = useLang(); const AR = lang==='ar';
  // Samples past accessioning: results being entered, ready to send, or sent.
  const [items, setItems] = useState<any[]>([]);
  const load = useCallback(() => {
    client.get('/labs/samples')
      .then((r: any) => setItems((r.data || []).filter((sm: any) => ['analyzing', 'result_ready', 'sent'].includes(sm.stage))
-       .map((sm: any) => ({ ...sm, patient: sm.patient_name || (AR ? 'مريض' : 'Patient'), tests: sm.tests || [] }))))
+       .map((sm: any) => ({ ...sm, patient: sm.patient_name || (tt('labdash.c8b7f288')), tests: sm.tests || [] }))))
      .catch(() => setItems([]));
  }, [AR]);
  useEffect(() => { load(); }, [load]);
  return (
  <View style={{flex:1,backgroundColor:theme.bg}}>
  <View style={[s.topBar,{backgroundColor:theme.surface,borderBottomColor:theme.border, paddingTop: Math.max(insets.top, 16) }]}>
- <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text}}>{AR?'النتائج':'Results'}</Text>
+ <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text}}>{tt('labdash.ba058e12')}</Text>
  </View>
  <FlatList data={items} keyExtractor={(i: any) => i.id} contentContainerStyle={{padding:SP.lg,paddingBottom:100}} onRefresh={load} refreshing={false}
- ListEmptyComponent={<NEmpty title={AR ? 'لا توجد نتائج بعد' : 'No results yet'} icon="document" />}
+ ListEmptyComponent={<NEmpty title={tt('labdash.3602265c')} icon="document" />}
  renderItem={({item})=>{
  const sc=SAMPLE_STAGES.find(st=>st.key===item.stage);
  return (
@@ -1582,7 +1580,7 @@ const s = StyleSheet.create({
 // the patient app shows the one for its language, and with none only says the lab will confirm any preparation.
 
 function LabTestMenuScreen({ onBack }: { onBack: () => void }) {
-  const { lang, t } = useLang();
+  const { lang, t, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
   const [showAddSheet, setShowAddSheet] = useState(false);
@@ -1592,7 +1590,7 @@ function LabTestMenuScreen({ onBack }: { onBack: () => void }) {
 
   const handleAddService = async () => {
     if (!newPrice || !newTitleEn) {
-      show(AR ? 'يرجى إدخال البيانات المطلوبة' : 'Please fill required fields', 'error');
+      show(tt('labdash.cf8d628a'), 'error');
       return;
     }
     try {
@@ -1600,23 +1598,23 @@ function LabTestMenuScreen({ onBack }: { onBack: () => void }) {
         entity_type: 'service',
         change_data: { type: 'lab', name_ar: newTitleAr, name_en: newTitleEn, price: parseFloat(newPrice) || 0 },
       });
-      show(AR ? 'تم إرسال طلب الإضافة للمراجعة' : 'Add request sent for review', 'success');
+      show(tt('labdash.202d1617'), 'success');
       setShowAddSheet(false);
       setNewTitleAr(''); setNewTitleEn(''); setNewPrice('');
     } catch (e) {
-      show(AR ? 'فشل إرسال طلب الإضافة' : 'Failed to send add request', 'error');
+      show(tt('labdash.529d0961'), 'error');
     }
   };
 
   return (
     <View style={{ flex: 1 }}>
       <MyServicesScreen vertical="lab" onBack={onBack}
-        footer={<NBtn label={AR ? 'تحليل غير موجود؟ اطلب إضافته' : 'Test not listed? Ask to add it'} variant="outline" onPress={() => setShowAddSheet(true)} />} />
-      <NSheet visible={showAddSheet} onClose={() => setShowAddSheet(false)} title={AR ? 'طلب إضافة تحليل' : 'Request a new test'}>
-        <NInput label={AR ? 'اسم التحليل (إنجليزي)' : 'Test Name (English)'} value={newTitleEn} onChange={setNewTitleEn} />
-        <NInput label={AR ? 'اسم التحليل (عربي)' : 'Test Name (Arabic)'} value={newTitleAr} onChange={setNewTitleAr} />
-        <NPriceInput label={AR ? 'السعر داخل المختبر' : 'Lab Price'} value={newPrice} onChange={setNewPrice} />
-        <NBtn label={AR ? 'إرسال طلب الإضافة للمراجعة' : 'Send Add Request for Review'} onPress={handleAddService} style={{ marginTop: SP.xl }} />
+        footer={<NBtn label={tt('labdash.dedacd60')} variant="outline" onPress={() => setShowAddSheet(true)} />} />
+      <NSheet visible={showAddSheet} onClose={() => setShowAddSheet(false)} title={tt('labdash.7015666b')}>
+        <NInput label={tt('labdash.a7540872')} value={newTitleEn} onChange={setNewTitleEn} />
+        <NInput label={tt('labdash.db5759a0')} value={newTitleAr} onChange={setNewTitleAr} />
+        <NPriceInput label={tt('labdash.f996d67f')} value={newPrice} onChange={setNewPrice} />
+        <NBtn label={tt('labdash.3ae3dbd7')} onPress={handleAddService} style={{ marginTop: SP.xl }} />
       </NSheet>
     </View>
   );

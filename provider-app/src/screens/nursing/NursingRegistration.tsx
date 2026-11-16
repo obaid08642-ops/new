@@ -243,7 +243,7 @@ export function NursingRegistration(props: RegistrationProps<NurseRegData>) {
 
 // ── STEP 1: BASIC INFO ──────────────────────────────────────────
 function NS1({ data, update, submitRef }: StepProps<NurseRegData>) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
   const [errs, setErrs] = useState<Record<string, string>>({});
   const [showLocModal, setShowLocModal] = useState(false);
 
@@ -257,14 +257,14 @@ function NS1({ data, update, submitRef }: StepProps<NurseRegData>) {
   
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!data.mode) e.mode = AR ? 'اختر النوع' : 'Choose type';
-    if (!data.nameAr.trim()) e.name = AR ? 'مطلوب' : 'Required';
-    if (!data.managerName.trim()) e.mgr = AR ? 'مطلوب' : 'Required';
-    if (!Validate.email(data.managerEmail)) e.email = AR ? 'بريد غير صحيح' : 'Invalid email';
-    if (!Validate.phone(data.managerPhone)) e.phone = AR ? 'جوال غير صحيح' : 'Invalid phone';
+    if (!data.mode) e.mode = tt('nurreg.95c22936');
+    if (!data.nameAr.trim()) e.name = tt('nurreg.b4bde92d');
+    if (!data.managerName.trim()) e.mgr = tt('nurreg.b4bde92d');
+    if (!Validate.email(data.managerEmail)) e.email = tt('nurreg.dcfb041e');
+    if (!Validate.phone(data.managerPhone)) e.phone = tt('nurreg.10222dfa');
     const ps = Validate.password(data.password);
     if (!ps.valid) e.pass = AR ? ps.msgAr : ps.msgEn;
-    if (data.password !== data.confirmPass) e.conf = AR ? 'غير متطابق' : 'Mismatch';
+    if (data.password !== data.confirmPass) e.conf = tt('nurreg.4dda098a');
     setErrs(e); return Object.keys(e).length === 0;
   };
 
@@ -292,7 +292,7 @@ function NS1({ data, update, submitRef }: StepProps<NurseRegData>) {
     <View>
 
       <View style={{ marginBottom: SP.xl }}>
-        <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>{AR ? 'نوع مقدم الخدمة' : 'Provider Type'}<Text style={{ color: theme.danger }}> *</Text></Text>
+        <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>{tt('nurreg.5b2ea22b')}<Text style={{ color: theme.danger }}> *</Text></Text>
         {PROVIDER_MODES.map(pm => {
           const sel = data.mode === pm.id;
           return (
@@ -302,7 +302,7 @@ function NS1({ data, update, submitRef }: StepProps<NurseRegData>) {
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: FS.md, fontWeight: sel ? FW.bold : FW.reg, color: sel ? pm.color : theme.text, textAlign: AR ? 'right' : 'left' }}>{AR ? pm.ar : pm.en}</Text>
                 <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginTop: 4 }}>
-                  {pm.id === 'individual' ? (AR ? 'ممرض مرخص يعمل بشكل مستقل' : 'Licensed nurse working independently') : (AR ? 'شركة تقدم خدمات تمريض منزلي' : 'Company providing home nursing services')}
+                  {pm.id === 'individual' ? (tt('nurreg.d0d868f6')) : (tt('nurreg.7e98d818'))}
                 </Text>
               </View>
               {sel && <I name="check" size={18} color={pm.color} />}
@@ -312,12 +312,12 @@ function NS1({ data, update, submitRef }: StepProps<NurseRegData>) {
         {errs.mode && <Text style={{ fontSize: FS.xs, color: theme.danger, marginTop: SP.xs }}>{errs.mode}</Text>}
       </View>
 
-      <NInput innerRef={nameArRef} label={AR ? 'الاسم الكامل بالعربي' : 'Name (Arabic)'} placeholder={AR ? (data.mode === 'company' ? 'شركة نبضة للتمريض' : 'ممرض/ة محمد أحمد') : (data.mode === 'company' ? 'Nabdah Nursing Co.' : 'Nurse Mohamed')} value={data.nameAr} onChange={v => update({ nameAr: v })} required error={errs.name} caps="words" returnKey="next" onSubmit={() => nameEnRef.current?.focus()} />
-      <NInput innerRef={nameEnRef} label={AR ? 'الاسم الكامل بالإنجليزي' : 'Name (English)'} placeholder="Nabdah Nursing" value={data.nameEn} onChange={v => update({ nameEn: v })} caps="words" returnKey="next" onSubmit={() => mgrNameRef.current?.focus()} />
+      <NInput innerRef={nameArRef} label={tt('nurreg.7529830f')} placeholder={AR ? (data.mode === 'company' ? 'شركة نبضة للتمريض' : 'ممرض/ة محمد أحمد') : (data.mode === 'company' ? 'Nabdah Nursing Co.' : 'Nurse Mohamed')} value={data.nameAr} onChange={v => update({ nameAr: v })} required error={errs.name} caps="words" returnKey="next" onSubmit={() => nameEnRef.current?.focus()} />
+      <NInput innerRef={nameEnRef} label={tt('nurreg.13027225')} placeholder="Nabdah Nursing" value={data.nameEn} onChange={v => update({ nameEn: v })} caps="words" returnKey="next" onSubmit={() => mgrNameRef.current?.focus()} />
       
       {data.mode === 'individual' && (
         <View style={{ marginBottom: SP.lg }}>
-          <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>{AR ? 'الجنس' : 'Gender'}</Text>
+          <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>{tt('nurreg.8640b000')}</Text>
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
             {[
               { id: 'male', ar: 'ذكر', en: 'Male', icon: 'male' },
@@ -334,15 +334,15 @@ function NS1({ data, update, submitRef }: StepProps<NurseRegData>) {
         </View>
       )}
 
-      <NDivider label={AR ? 'بيانات المسؤول' : 'Manager Info'} style={{ marginVertical: SP.lg }} />
-      <NInput innerRef={mgrNameRef} label={AR ? 'اسم المسؤول' : 'Manager Name'} value={data.managerName} onChange={v => update({ managerName: v })} required error={errs.mgr} caps="words" returnKey="next" onSubmit={() => emailRef.current?.focus()} />
-      <NInput innerRef={emailRef} label={AR ? 'البريد الإلكتروني' : 'Email'} placeholder="nurse@email.com" value={data.managerEmail} onChange={v => update({ managerEmail: v.toLowerCase() })} required error={errs.email} kbType="email-address" returnKey="next" onSubmit={() => phoneRef.current?.focus()} />
-      <NPhoneInput innerRef={phoneRef} label={AR ? 'الجوال' : 'Phone'} value={data.managerPhone} onChange={v => update({ managerPhone: v })} required error={errs.phone} />
-      <NInput innerRef={passwordRef} label={AR ? 'كلمة المرور' : 'Password'} placeholder="••••••••" value={data.password} onChange={v => update({ password: v })} secure required error={errs.pass} returnKey="next" onSubmit={() => confirmPassRef.current?.focus()} />
+      <NDivider label={tt('nurreg.ff847194')} style={{ marginVertical: SP.lg }} />
+      <NInput innerRef={mgrNameRef} label={tt('nurreg.1a0a403e')} value={data.managerName} onChange={v => update({ managerName: v })} required error={errs.mgr} caps="words" returnKey="next" onSubmit={() => emailRef.current?.focus()} />
+      <NInput innerRef={emailRef} label={tt('nurreg.8605844e')} placeholder="nurse@email.com" value={data.managerEmail} onChange={v => update({ managerEmail: v.toLowerCase() })} required error={errs.email} kbType="email-address" returnKey="next" onSubmit={() => phoneRef.current?.focus()} />
+      <NPhoneInput innerRef={phoneRef} label={tt('nurreg.098e976b')} value={data.managerPhone} onChange={v => update({ managerPhone: v })} required error={errs.phone} />
+      <NInput innerRef={passwordRef} label={tt('nurreg.751ab623')} placeholder="••••••••" value={data.password} onChange={v => update({ password: v })} secure required error={errs.pass} returnKey="next" onSubmit={() => confirmPassRef.current?.focus()} />
       <NPassStrength password={data.password} />
-      <NInput innerRef={confirmPassRef} label={AR ? 'تأكيد كلمة المرور' : 'Confirm Password'} placeholder="••••••••" value={data.confirmPass} onChange={v => update({ confirmPass: v })} secure required error={errs.conf} returnKey="done" onSubmit={handleNext} />
+      <NInput innerRef={confirmPassRef} label={tt('nurreg.4171a21c')} placeholder="••••••••" value={data.confirmPass} onChange={v => update({ confirmPass: v })} secure required error={errs.conf} returnKey="done" onSubmit={handleNext} />
       
-      <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text, marginTop: 12, marginBottom: 6, textAlign: AR ? 'right' : 'left' }}>{AR ? 'لغات التعامل' : 'Spoken languages'}</Text>
+      <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text, marginTop: 12, marginBottom: 6, textAlign: AR ? 'right' : 'left' }}>{tt('nurreg.93dfda41')}</Text>
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
         {LANGS.map(l => {
           const on = (data.languages || []).includes(l.id);
@@ -360,16 +360,16 @@ function NS1({ data, update, submitRef }: StepProps<NurseRegData>) {
 
 // ── STEP 2: KYC ─────────────────────────────────────────────────
 function NS2({ data, update, submitRef, uploads }: StepProps<NurseRegData>) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const isIndiv = data.mode === 'individual';
   const [errs, setErrs] = useState<Record<string, string>>({});
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (isIndiv && !data.scfhsNumber.trim()) e.scfhs = AR ? 'رقم SCFHS مطلوب' : 'SCFHS required';
-    if (!isIndiv && !Validate.cr(data.crNumber)) e.cr = AR ? 'السجل التجاري 10 أرقام' : 'CR 10 digits';
+    if (isIndiv && !data.scfhsNumber.trim()) e.scfhs = tt('nurreg.c67a5627');
+    if (!isIndiv && !Validate.cr(data.crNumber)) e.cr = tt('nurreg.52d01160');
     const expiryErr = licenseExpiryError(data.scfhsExpiry, AR); if (expiryErr) e.expiry = expiryErr;
-    if (!Validate.iban(data.iban)) e.iban = AR ? 'الآيبان غير صحيح' : 'Invalid IBAN';
+    if (!Validate.iban(data.iban)) e.iban = tt('nurreg.20b4266b');
     setErrs(e); return Object.keys(e).length === 0;
   };
 
@@ -418,29 +418,29 @@ function NS2({ data, update, submitRef, uploads }: StepProps<NurseRegData>) {
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'flex-start', gap: SP.md }}>
           <I name="lock" size={16} color={theme.info} />
           <Text style={{ flex: 1, fontSize: FS.sm, color: theme.info, lineHeight: 20, textAlign: AR ? 'right' : 'left' }}>
-            {isIndiv ? (AR ? 'يجب أن تكون مرخصاً من الهيئة السعودية للتخصصات الصحية SCFHS.' : 'Must hold valid SCFHS nursing license.')
-              : (AR ? 'يجب تقديم السجل التجاري وترخيص وزارة الصحة.' : 'Submit CR and MOH license.')}
+            {isIndiv ? (tt('nurreg.9277ccf6'))
+              : (tt('nurreg.0c2e2193'))}
           </Text>
         </View>
       </NCard>
 
       {isIndiv ? (
         <>
-          <NInput label={AR ? 'رقم ترخيص SCFHS' : 'SCFHS License Number'} placeholder="123456" value={data.scfhsNumber} onChange={v => update({ scfhsNumber: v.replace(/\D/g, '') })} required error={errs.scfhs} kbType="numeric" maxLen={8} />
-          <NInput label={AR ? 'رقم الهوية الوطنية' : 'National ID'} placeholder="1XXXXXXXXX" value={data.nationalId} onChange={v => update({ nationalId: v.replace(/\D/g, '') })} kbType="numeric" maxLen={10} />
+          <NInput label={tt('nurreg.b2be4a99')} placeholder="123456" value={data.scfhsNumber} onChange={v => update({ scfhsNumber: v.replace(/\D/g, '') })} required error={errs.scfhs} kbType="numeric" maxLen={8} />
+          <NInput label={tt('nurreg.165b2b1d')} placeholder="1XXXXXXXXX" value={data.nationalId} onChange={v => update({ nationalId: v.replace(/\D/g, '') })} kbType="numeric" maxLen={10} />
         </>
       ) : (
         <>
-          <NInput label={AR ? 'رقم السجل التجاري CR' : 'CR Number'} placeholder="1234567890" value={data.crNumber} onChange={v => update({ crNumber: v.replace(/\D/g, '') })} required error={errs.cr} kbType="numeric" maxLen={10} />
-          <NInput label={AR ? 'ترخيص وزارة الصحة MOH' : 'MOH License'} placeholder="MOH-NRS-XXXXX" value={data.mohLicense} onChange={v => update({ mohLicense: v })} required />
+          <NInput label={tt('nurreg.09540875')} placeholder="1234567890" value={data.crNumber} onChange={v => update({ crNumber: v.replace(/\D/g, '') })} required error={errs.cr} kbType="numeric" maxLen={10} />
+          <NInput label={tt('nurreg.d4a0f043')} placeholder="MOH-NRS-XXXXX" value={data.mohLicense} onChange={v => update({ mohLicense: v })} required />
         </>
       )}
 
       <LicenseExpiryField value={data.scfhsExpiry} onChange={v => update({ scfhsExpiry: v })} error={errs.expiry} />
 
-      <NInput label={AR ? 'رقم الآيبان IBAN' : 'Bank IBAN'} placeholder="SA0000000000000000000000" value={data.iban} onChange={v => update({ iban: v.toUpperCase().replace(/\s/g, '') })} required error={errs.iban} maxLen={24} />
+      <NInput label={tt('nurreg.730b8353')} placeholder="SA0000000000000000000000" value={data.iban} onChange={v => update({ iban: v.toUpperCase().replace(/\s/g, '') })} required error={errs.iban} maxLen={24} />
 
-      <Text style={[st.secTitle, { color: theme.text, textAlign: AR ? 'right' : 'left', marginTop: SP.md }]}>{AR ? 'رفع الوثائق الرسمية' : 'Upload Documents'}</Text>
+      <Text style={[st.secTitle, { color: theme.text, textAlign: AR ? 'right' : 'left', marginTop: SP.md }]}>{tt('nurreg.523c377d')}</Text>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.md, marginBottom: SP.xl }}>
         {isIndiv ? (
           <>
@@ -461,7 +461,7 @@ function NS2({ data, update, submitRef, uploads }: StepProps<NurseRegData>) {
 // ── STEP 3: SERVICES SETUP ──────────────────────────────────────
 function NS3({ data, update, submitRef }: StepProps<NurseRegData>) {
  const nursingCatalog = useServicesCatalog('nursing');
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
 
   const [showPriceErr, setShowPriceErr] = useState(false);
   const toggle = (id: string) => {
@@ -470,7 +470,7 @@ function NS3({ data, update, submitRef }: StepProps<NurseRegData>) {
   };
 
   const validate = () => {
-    if (data.enabledServices.length === 0) { Alert.alert(AR ? 'تنبيه' : 'Warning', AR ? 'اختر خدمة واحدة على الأقل' : 'Select at least one service'); return false; }
+    if (data.enabledServices.length === 0) { Alert.alert(tt('nurreg.f1618263'), tt('nurreg.4ac7faff')); return false; }
     if (data.enabledServices.some((id: string) => parsePrice(data.servicePrices?.[id] ?? '') === null)) { setShowPriceErr(true); return false; }
     return true;
   };
@@ -486,13 +486,13 @@ return (
 
       <NCard style={{ backgroundColor: withAlpha(tokens.pink, 0.10), marginBottom: SP.xl }}>
         <Text style={{ fontSize: FS.sm, color: tokens.pink, lineHeight: 20, textAlign: AR ? 'right' : 'left' }}>
-          {AR ? 'حدد جميع الخدمات التمريضية المنزلية التي يمكنك تقديمها. لا يشمل العلاج الطبيعي (مزود منفصل).' : 'Select all home nursing services you can provide. Does not include physiotherapy (separate provider).'}
+          {tt('nurreg.f8682e4c')}
         </Text>
       </NCard>
 
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.lg }}>
-        <View style={{ flex: 1 }}><NBtn label={AR ? 'تحديد الكل' : 'Select All'} variant="outline" size="sm" onPress={() => update({ enabledServices: nursingCatalog.map(s => s.id) })} /></View>
-        <View style={{ flex: 1 }}><NBtn label={AR ? 'إلغاء الكل' : 'Clear'} variant="secondary" size="sm" onPress={() => update({ enabledServices: [] })} /></View>
+        <View style={{ flex: 1 }}><NBtn label={tt('nurreg.ac65a989')} variant="outline" size="sm" onPress={() => update({ enabledServices: nursingCatalog.map(s => s.id) })} /></View>
+        <View style={{ flex: 1 }}><NBtn label={tt('nurreg.d26b38ef')} variant="secondary" size="sm" onPress={() => update({ enabledServices: [] })} /></View>
       </View>
 
       <NCard style={{ backgroundColor: theme.successBg, marginBottom: SP.lg }}>
@@ -517,7 +517,7 @@ return (
           {active && (
             <NPriceInput label={AR ? `سعرك لـ ${svc.ar} (ريال)` : `Your price for ${svc.en} (SAR)`} value={data.servicePrices?.[svc.id] ?? ''}
               onChange={(v) => update({ servicePrices: { ...data.servicePrices, [svc.id]: v } })} required
-              error={showPriceErr && parsePrice(data.servicePrices?.[svc.id] ?? '') === null ? (AR ? 'أدخل سعراً أكبر من صفر' : 'Enter a price above zero') : undefined} />
+              error={showPriceErr && parsePrice(data.servicePrices?.[svc.id] ?? '') === null ? (tt('nurreg.b0595d27')) : undefined} />
           )}
           </View>
         );
@@ -529,7 +529,7 @@ return (
 
 // ── STEP 4: PRICING MODEL ───────────────────────────────────────
 function NS4({ data, update, submitRef }: StepProps<NurseRegData>) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
     const handleNext = () => {
     return true;
   };
@@ -566,7 +566,7 @@ return (
 
       <NCard style={{ backgroundColor: theme.infoBg, marginBottom: SP.xl }}>
         <Text style={{ fontSize: FS.sm, color: theme.info, lineHeight: 20, textAlign: AR ? 'right' : 'left' }}>
-          {AR ? 'يمكنك تفعيل أكثر من نموذج تسعير لاحقاً من الإعدادات. حالياً اختر النموذج الأساسي.' : 'You can enable multiple pricing models later in settings. Choose your primary model now.'}
+          {tt('nurreg.dca5a95e')}
         </Text>
       </NCard>
     </View>
@@ -575,14 +575,14 @@ return (
 
 // ── STEP 5: COVERAGE ────────────────────────────────────────────
 function NS5({ data, update, submitRef }: StepProps<NurseRegData>) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [errs, setErrs] = useState<Record<string, string>>({});
   const [showLocModal, setShowLocModal] = useState(false);
   
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!data.city) e.city = AR ? 'اختر المدينة' : 'Choose city';
-    if (!data.address.trim()) e.addr = AR ? 'مطلوب' : 'Required';
+    if (!data.city) e.city = tt('nurreg.99ecd66a');
+    if (!data.address.trim()) e.addr = tt('nurreg.b4bde92d');
     setErrs(e); return Object.keys(e).length === 0;
   };
 
@@ -598,15 +598,15 @@ function NS5({ data, update, submitRef }: StepProps<NurseRegData>) {
 
       <View style={{ marginBottom: SP.lg }}>
         <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>
-          {AR ? 'المنطقة / المدينة / الحي' : 'Region / City / District'}<Text style={{ color: theme.danger }}> *</Text>
+          {tt('nurreg.5a85d253')}<Text style={{ color: theme.danger }}> *</Text>
         </Text>
         <GeoPicker value={{ region: (data as any).region, city: data.city, district: (data as any).district }} onChange={v=>update({ region: v.region, city: v.city, district: v.district } as any)} locale={lang} />
         {errs.city && <Text style={{ fontSize: FS.xs, color: theme.danger, marginTop: SP.xs }}>{errs.city}</Text>}
       </View>
-      <NInput label={AR ? 'العنوان' : 'Address'} value={data.address} onChange={v => update({ address: v })} required error={errs.addr} multi lines={2} />
+      <NInput label={tt('nurreg.6b24fe4e')} value={data.address} onChange={v => update({ address: v })} required error={errs.addr} multi lines={2} />
 
       <NCard style={{ marginBottom: SP.xl }}>
-        <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>{AR ? 'نطاق التغطية للزيارة المنزلية (كم)' : 'Coverage Radius (km)'}</Text>
+        <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>{tt('nurreg.a8b9a922')}</Text>
         
         {/* +/- controls & manual text input */}
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md, marginBottom: SP.md }}>
@@ -631,7 +631,7 @@ function NS5({ data, update, submitRef }: StepProps<NurseRegData>) {
           >
             <Text style={{ fontSize: 20, fontWeight: 'bold', color: theme.text }}>+</Text>
           </TouchableOpacity>
-          <Text style={{ color: theme.textSub, fontSize: FS.md }}>{AR ? 'كم' : 'KM'}</Text>
+          <Text style={{ color: theme.textSub, fontSize: FS.md }}>{tt('nurreg.17e9ee72')}</Text>
         </View>
 
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.sm }}>
@@ -642,18 +642,18 @@ function NS5({ data, update, submitRef }: StepProps<NurseRegData>) {
           ))}
         </View>
 
-                <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm, marginTop: SP.xl }]}>{AR ? 'تحديد الموقع الجغرافي' : 'Geographic Map Location'}</Text>
+                <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm, marginTop: SP.xl }]}>{tt('nurreg.a99bde52')}</Text>
         <TouchableOpacity onPress={() => setShowLocModal(true)} style={{ borderColor:theme.border, backgroundColor:theme.surface2, borderWidth: 1, borderRadius: R.md, padding: SP.xl, alignItems: 'center', justifyContent: 'center', marginBottom: SP.md }}>
           {data.location.lat ? (
             <View style={{ alignItems: 'center' }}>
               <I name="location" size={32} color={theme.success} />
-              <Text style={{ color:theme.success, marginTop:SP.xs, fontWeight: FW.bold }}>{AR?'تم تحديد الموقع':'Location Selected'}</Text>
+              <Text style={{ color:theme.success, marginTop:SP.xs, fontWeight: FW.bold }}>{tt('nurreg.e6c44175')}</Text>
               <Text style={{ color:theme.textSub, fontSize:FS.xs, marginTop: 4 }}>{data.location.lat.toFixed(4)}, {data.location.lng.toFixed(4)}</Text>
             </View>
           ) : (
             <View style={{ alignItems: 'center' }}>
               <I name="location" size={32} color={theme.textSub} />
-              <Text style={{ color:theme.textSub, marginTop:SP.xs }}>{AR?'اضغط لتحديد الموقع على الخريطة':'Tap to pin location on map'}</Text>
+              <Text style={{ color:theme.textSub, marginTop:SP.xs }}>{tt('nurreg.6efa450d')}</Text>
             </View>
           )}
         </TouchableOpacity>
@@ -666,7 +666,7 @@ function NS5({ data, update, submitRef }: StepProps<NurseRegData>) {
 // ── STEP 6: SCHEDULE & INSURANCE ────────────────────────────────────────────
 function NS6({ data, update, submitRef }: StepProps<NurseRegData>) {
  const insuranceCatalog = useInsuranceCatalog();
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
   const [showVacationCal, setShowVacationCal] = useState(false);
 
   const toggleDay = (k: string) => {
@@ -705,12 +705,12 @@ return (
     <View>
 
       <NCard style={{ marginBottom: SP.xl }}>
-        <NToggle label={AR ? 'متاح 24/7' : 'Available 24/7'} sub={AR ? 'خدمة متواصلة كل الأيام' : 'Around-the-clock every day'} value={data.is24_7} onChange={v => update({ is24_7: v, workDays: v ? ['SUN','MON','TUE','WED','THU','FRI','SAT'] : data.workDays })} />
+        <NToggle label={tt('nurreg.3d63ea3f')} sub={tt('nurreg.2dc91b49')} value={data.is24_7} onChange={v => update({ is24_7: v, workDays: v ? ['SUN','MON','TUE','WED','THU','FRI','SAT'] : data.workDays })} />
       </NCard>
 
       {!data.is24_7 && (
         <>
-          <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>{AR ? 'أيام العمل' : 'Working Days'}</Text>
+          <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>{tt('nurreg.e08c2505')}</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.sm, marginBottom: SP.xl }}>
             {WORK_DAYS.map(d => {
               const a = data.workDays.includes(d.k);
@@ -722,7 +722,7 @@ return (
             })}
           </View>
                     <NCard style={{ marginBottom:SP.xl }}>
-            <Text style={[st.label, { color:theme.text, textAlign:AR?'right':'left', marginBottom:SP.lg }]}>{AR?'نظام الفترات':'Shift System'}</Text>
+            <Text style={[st.label, { color:theme.text, textAlign:AR?'right':'left', marginBottom:SP.lg }]}>{tt('nurreg.d3eafaff')}</Text>
             
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.md }}>
               {['morning', 'evening', 'both'].map((type) => (
@@ -739,20 +739,20 @@ return (
 
             {(data.shiftType === 'morning' || data.shiftType === 'both') && (
               <View style={{ marginBottom: SP.md }}>
-                <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{AR ? 'الفترة الصباحية' : 'Morning Shift'}</Text>
+                <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{tt('nurreg.cb086206')}</Text>
                 <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
-                  <View style={{ flex: 1 }}><NInput label={AR?'من':'From'} value={data.openTime} onChange={v=>update({openTime:v})} placeholder="07:00" /></View>
-                  <View style={{ flex: 1 }}><NInput label={AR?'إلى':'To'} value={data.closeTime} onChange={v=>update({closeTime:v})} placeholder="15:00" /></View>
+                  <View style={{ flex: 1 }}><NInput label={tt('nurreg.ecdb7711')} value={data.openTime} onChange={v=>update({openTime:v})} placeholder="07:00" /></View>
+                  <View style={{ flex: 1 }}><NInput label={tt('nurreg.32c46ecf')} value={data.closeTime} onChange={v=>update({closeTime:v})} placeholder="15:00" /></View>
                 </View>
               </View>
             )}
 
             {(data.shiftType === 'evening' || data.shiftType === 'both') && (
               <View>
-                <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{AR ? 'الفترة المسائية' : 'Evening Shift'}</Text>
+                <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{tt('nurreg.13027adb')}</Text>
                 <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
-                  <View style={{ flex: 1 }}><NInput label={AR?'من':'From'} value={data.eveningOpenTime} onChange={v=>update({eveningOpenTime:v})} placeholder="15:00" /></View>
-                  <View style={{ flex: 1 }}><NInput label={AR?'إلى':'To'} value={data.eveningCloseTime} onChange={v=>update({eveningCloseTime:v})} placeholder="23:00" /></View>
+                  <View style={{ flex: 1 }}><NInput label={tt('nurreg.ecdb7711')} value={data.eveningOpenTime} onChange={v=>update({eveningOpenTime:v})} placeholder="15:00" /></View>
+                  <View style={{ flex: 1 }}><NInput label={tt('nurreg.32c46ecf')} value={data.eveningCloseTime} onChange={v=>update({eveningCloseTime:v})} placeholder="23:00" /></View>
                 </View>
               </View>
             )}
@@ -762,7 +762,7 @@ return (
 
       {/* Planned Vacation Date calendar selection */}
       <TouchableOpacity onPress={() => setShowVacationCal(true)}>
-        <NInput label={AR ? 'إجازة مخططة (إيقاف الحجوزات)' : 'Planned Vacation'} placeholder={AR ? 'اختر التاريخ من التقويم...' : 'Choose vacation date...'} value={data.vacationDate} editable={false} onChange={() => {}} icon="calendar" />
+        <NInput label={tt('nurreg.2b7c44f3')} placeholder={tt('nurreg.258cdb96')} value={data.vacationDate} editable={false} onChange={() => {}} icon="calendar" />
       </TouchableOpacity>
 
       <NDatePickerSheet
@@ -770,7 +770,7 @@ return (
         value={data.vacationDate}
         onChange={(v: string) => update({ vacationDate: v })}
         onClose={() => setShowVacationCal(false)}
-        title={AR ? 'اختر تاريخ إجازتك' : 'Select Vacation Date'}
+        title={tt('nurreg.9f7cb31d')}
       />
 
       <View style={{ height: SP.sm }} />
@@ -778,13 +778,13 @@ return (
       {/* Insurance settings for nursing */}
       <NCard style={{ marginBottom: SP.xl }}>
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.md }}>
-          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{AR ? 'الدفع نقداً فقط (لا أقبل التأمين)' : 'Cash Only (No Insurance)'}</Text>
+          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{tt('nurreg.e52fa8bf')}</Text>
           <Switch value={data.cashOnly} onValueChange={v => update({ cashOnly: v, acceptedInsurance: v ? [] : data.acceptedInsurance })} />
         </View>
 
         {!data.cashOnly && (
           <View style={{ marginTop: SP.md }}>
-            <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{AR ? 'اختر شركات التأمين الطبي المعتمدة للتمريض:' : 'Select accepted medical insurance plans:'}</Text>
+            <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{tt('nurreg.46f3d780')}</Text>
             {insuranceCatalog.map(co => {
               const acceptedObj = data.acceptedInsurance?.find(c => c.companyId === co.id);
               const isAccepted = !!acceptedObj;
@@ -800,7 +800,7 @@ return (
 
                   {isAccepted && (
                     <View style={{ marginTop: SP.sm, borderTopWidth: 1, borderTopColor: theme.border, paddingTop: SP.sm }}>
-                      <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>{AR ? 'الفئات المقبولة لخدمات التمريض:' : 'Accepted Plans/Tiers:'}</Text>
+                      <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>{tt('nurreg.dad70236')}</Text>
                       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 6 }}>
                         {co.plans.map(p => {
                           const hasPlan = acceptedObj.plans.includes(p);

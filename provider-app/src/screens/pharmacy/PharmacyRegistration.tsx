@@ -228,7 +228,7 @@ export function PharmacyRegistration(props: RegistrationProps<PharmacyRegData>) 
 
 // ══════════════════════════════════════════════════════════════════════════════
 function PStep1Basic({ data, update, submitRef }: StepProps<PharmacyRegData>) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
   const [errs, setErrs] = useState<Record<string,string>>({});
 
   const nameArRef = useRef<any>(null);
@@ -242,15 +242,15 @@ function PStep1Basic({ data, update, submitRef }: StepProps<PharmacyRegData>) {
 
   const validate = () => {
     const e: Record<string,string> = {};
-    if (!data.nameAr.trim()) e.nameAr = AR ? 'مطلوب' : 'Required';
-    if (!data.type) e.type = AR ? 'اختر نوع الصيدلية' : 'Choose type';
-    if (!data.managerName.trim()) e.mgr = AR ? 'مطلوب' : 'Required';
-    if (!Validate.email(data.managerEmail)) e.email = AR ? 'بريد غير صحيح' : 'Invalid email';
-    if (!Validate.phone(data.managerPhone)) e.phone = AR ? 'جوال غير صحيح' : 'Invalid phone';
-    if (!data.pharmacistName.trim()) e.pharma = AR ? 'مطلوب' : 'Required';
+    if (!data.nameAr.trim()) e.nameAr = tt('phreg.b4bde92d');
+    if (!data.type) e.type = tt('phreg.fcfb3aee');
+    if (!data.managerName.trim()) e.mgr = tt('phreg.b4bde92d');
+    if (!Validate.email(data.managerEmail)) e.email = tt('phreg.dcfb041e');
+    if (!Validate.phone(data.managerPhone)) e.phone = tt('phreg.10222dfa');
+    if (!data.pharmacistName.trim()) e.pharma = tt('phreg.b4bde92d');
     const ps = Validate.password(data.password);
     if (!ps.valid) e.pass = AR ? ps.msgAr : ps.msgEn;
-    if (data.password !== data.confirmPass) e.conf = AR ? 'كلمتا المرور غير متطابقتين' : 'Passwords do not match';
+    if (data.password !== data.confirmPass) e.conf = tt('phreg.1e9df0d2');
     setErrs(e);
     return Object.keys(e).length === 0;
   };
@@ -279,7 +279,7 @@ function PStep1Basic({ data, update, submitRef }: StepProps<PharmacyRegData>) {
   return (
     <View>
 
-      <Text style={[s.label, { color:theme.text, textAlign:AR?'right':'left' }]}>{AR?'نوع الصيدلية':'Pharmacy Type'} *</Text>
+      <Text style={[s.label, { color:theme.text, textAlign:AR?'right':'left' }]}>{tt('phreg.dad0a6a0')} *</Text>
       <View style={{ gap:SP.sm, marginBottom:SP.xl }}>
         {PHARMACY_TYPES.map(pt => {
           const sel = data.type === pt.id;
@@ -292,21 +292,21 @@ function PStep1Basic({ data, update, submitRef }: StepProps<PharmacyRegData>) {
         })}
       </View>
 
-      <NInput innerRef={nameArRef} label={AR?'اسم الصيدلية بالعربي':'Pharmacy Name (Arabic)'} placeholder={AR?'صيدلية نبضة الصحة':'Nabdah Health Pharmacy'} value={data.nameAr} onChange={v=>update({nameAr:v})} required error={errs.nameAr} caps="words" returnKey="next" onSubmit={() => nameEnRef.current?.focus()} />
-      <NInput innerRef={nameEnRef} label={AR?'اسم الصيدلية بالإنجليزي':'Pharmacy Name (English)'} placeholder="Nabdah Health Pharmacy" value={data.nameEn} onChange={v=>update({nameEn:v})} caps="words" returnKey="next" onSubmit={() => pharmaRef.current?.focus()} />
+      <NInput innerRef={nameArRef} label={tt('phreg.8c0089ab')} placeholder={tt('phreg.91bfb7cc')} value={data.nameAr} onChange={v=>update({nameAr:v})} required error={errs.nameAr} caps="words" returnKey="next" onSubmit={() => nameEnRef.current?.focus()} />
+      <NInput innerRef={nameEnRef} label={tt('phreg.18677482')} placeholder="Nabdah Health Pharmacy" value={data.nameEn} onChange={v=>update({nameEn:v})} caps="words" returnKey="next" onSubmit={() => pharmaRef.current?.focus()} />
 
-      <NDivider label={AR?'الصيدلاني المسؤول':'Head Pharmacist'} style={{ marginVertical:SP.lg }} />
-      <NInput innerRef={pharmaRef} label={AR?'اسم الصيدلاني المسؤول':'Head Pharmacist Name'} placeholder={AR?'محمد أحمد السعودي':'Mohamed Ahmed'} value={data.pharmacistName} onChange={v=>update({pharmacistName:v})} required error={errs.pharma} caps="words" hint={AR?'يجب أن يكون مرخصاً من هيئة الصحة SCFHS':'Must hold valid SCFHS pharmacy license'} returnKey="next" onSubmit={() => mgrNameRef.current?.focus()} />
+      <NDivider label={tt('phreg.ce98e822')} style={{ marginVertical:SP.lg }} />
+      <NInput innerRef={pharmaRef} label={tt('phreg.e251ab31')} placeholder={tt('phreg.5238c2fa')} value={data.pharmacistName} onChange={v=>update({pharmacistName:v})} required error={errs.pharma} caps="words" hint={tt('phreg.b4a73289')} returnKey="next" onSubmit={() => mgrNameRef.current?.focus()} />
       
-      <NDivider label={AR?'المدير المسؤول':'Manager Info'} style={{ marginVertical:SP.lg }} />
-      <NInput innerRef={mgrNameRef} label={AR?'اسم المدير التنفيذي':'Manager Name'} placeholder={AR?'خالد عمر المالكي':'Khalid Omar'} value={data.managerName} onChange={v=>update({managerName:v})} required error={errs.mgr} caps="words" returnKey="next" onSubmit={() => emailRef.current?.focus()} />
-      <NInput innerRef={emailRef} label={AR?'البريد الإلكتروني':'Email'} placeholder="pharmacy@email.com" value={data.managerEmail} onChange={v=>update({managerEmail:v.toLowerCase()})} required error={errs.email} kbType="email-address" returnKey="next" onSubmit={() => phoneRef.current?.focus()} />
-      <NPhoneInput innerRef={phoneRef} label={AR?'رقم الجوال':'Phone'} value={data.managerPhone} onChange={v=>update({managerPhone:v})} required error={errs.phone} />
-      <NInput innerRef={passwordRef} label={AR?'كلمة المرور':'Password'} placeholder="••••••••" value={data.password} onChange={v=>update({password:v})} secure required error={errs.pass} hint={AR?'8 أحرف — أرقام وحروف كبيرة وصغيرة ورموز':'8+ chars — numbers, upper+lower+symbols'} returnKey="next" onSubmit={() => confirmPassRef.current?.focus()} />
+      <NDivider label={tt('phreg.0b853973')} style={{ marginVertical:SP.lg }} />
+      <NInput innerRef={mgrNameRef} label={tt('phreg.ecf7698a')} placeholder={tt('phreg.acbee32f')} value={data.managerName} onChange={v=>update({managerName:v})} required error={errs.mgr} caps="words" returnKey="next" onSubmit={() => emailRef.current?.focus()} />
+      <NInput innerRef={emailRef} label={tt('phreg.8605844e')} placeholder="pharmacy@email.com" value={data.managerEmail} onChange={v=>update({managerEmail:v.toLowerCase()})} required error={errs.email} kbType="email-address" returnKey="next" onSubmit={() => phoneRef.current?.focus()} />
+      <NPhoneInput innerRef={phoneRef} label={tt('phreg.42c8946e')} value={data.managerPhone} onChange={v=>update({managerPhone:v})} required error={errs.phone} />
+      <NInput innerRef={passwordRef} label={tt('phreg.751ab623')} placeholder="••••••••" value={data.password} onChange={v=>update({password:v})} secure required error={errs.pass} hint={tt('phreg.eee78da7')} returnKey="next" onSubmit={() => confirmPassRef.current?.focus()} />
       <NPassStrength password={data.password} />
-      <NInput innerRef={confirmPassRef} label={AR?'تأكيد كلمة المرور':'Confirm Password'} placeholder="••••••••" value={data.confirmPass} onChange={v=>update({confirmPass:v})} secure required error={errs.conf} returnKey="done" onSubmit={handleNext} />
+      <NInput innerRef={confirmPassRef} label={tt('phreg.4171a21c')} placeholder="••••••••" value={data.confirmPass} onChange={v=>update({confirmPass:v})} secure required error={errs.conf} returnKey="done" onSubmit={handleNext} />
 
-      <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text, marginTop: 12, marginBottom: 6, textAlign: AR ? 'right' : 'left' }}>{AR ? 'لغات التعامل داخل الصيدلية' : 'Spoken languages'}</Text>
+      <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text, marginTop: 12, marginBottom: 6, textAlign: AR ? 'right' : 'left' }}>{tt('phreg.217eba4d')}</Text>
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
         {LANGS.map(l => {
           const on = (data.languages || []).includes(l.id);
@@ -324,17 +324,17 @@ function PStep1Basic({ data, update, submitRef }: StepProps<PharmacyRegData>) {
 
 // ══════════════════════════════════════════════════════════════════════════════
 function PStep2Legal({ data, update, submitRef, uploads }: StepProps<PharmacyRegData>) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [errs, setErrs] = useState<Record<string,string>>({});
   const [loading, setLoading] = useState(false);
 
   const validate = () => {
     const e: Record<string,string> = {};
-    if (!Validate.cr(data.crNumber)) e.cr = AR?'السجل التجاري 10 أرقام':'CR must be 10 digits';
-    if (!data.mohLicense.trim()) e.moh = AR?'مطلوب':'Required';
-    if (!data.sfdaNumber.trim()) e.sfda = AR?'رقم SFDA مطلوب':'SFDA number required';
+    if (!Validate.cr(data.crNumber)) e.cr = tt('phreg.3d1b511a');
+    if (!data.mohLicense.trim()) e.moh = tt('phreg.b4bde92d');
+    if (!data.sfdaNumber.trim()) e.sfda = tt('phreg.cee7dc79');
     const expiryErr = licenseExpiryError(data.licenseExpiry, AR); if (expiryErr) e.expiry = expiryErr;
-    if (!Validate.iban(data.iban)) e.iban = AR?'رقم الآيبان غير صحيح':'Invalid IBAN';
+    if (!Validate.iban(data.iban)) e.iban = tt('phreg.53935c75');
     setErrs(e); return Object.keys(e).length === 0;
   };
 
@@ -366,19 +366,19 @@ function PStep2Legal({ data, update, submitRef, uploads }: StepProps<PharmacyReg
 
   return (
     <View>
-      <NInput label={AR?'رقم السجل التجاري CR':'CR Number'} placeholder="1234567890" value={data.crNumber} onChange={v=>update({crNumber:v.replace(/\D/g,'')})} required error={errs.cr} kbType="numeric" maxLen={10} />
-      <NInput label={AR?'رقم ترخيص وزارة الصحة MOH':'MOH License Number'} placeholder="MOH-PHR-XXXXX" value={data.mohLicense} onChange={v=>update({mohLicense:v})} required error={errs.moh} hint={AR?'ترخيص الصيدلية من وزارة الصحة السعودية':'Saudi Ministry of Health pharmacy license'} />
-      <NInput label={AR?'رقم ترخيص SFDA (هيئة الغذاء والدواء)':'SFDA License Number'} placeholder="SFDA-XXXXX" value={data.sfdaNumber} onChange={v=>update({sfdaNumber:v})} required error={errs.sfda} hint={AR?'ترخيص صرف الأدوية من هيئة الغذاء والدواء':'Saudi Food and Drug Authority license'} />
+      <NInput label={tt('phreg.09540875')} placeholder="1234567890" value={data.crNumber} onChange={v=>update({crNumber:v.replace(/\D/g,'')})} required error={errs.cr} kbType="numeric" maxLen={10} />
+      <NInput label={tt('phreg.a80db342')} placeholder="MOH-PHR-XXXXX" value={data.mohLicense} onChange={v=>update({mohLicense:v})} required error={errs.moh} hint={tt('phreg.8657e8d2')} />
+      <NInput label={tt('phreg.b13a67b8')} placeholder="SFDA-XXXXX" value={data.sfdaNumber} onChange={v=>update({sfdaNumber:v})} required error={errs.sfda} hint={tt('phreg.e1f1d5f7')} />
       <LicenseExpiryField value={data.licenseExpiry} onChange={v=>update({licenseExpiry:v})} error={errs.expiry} />
-      <NInput label={AR?'رقم الآيبان IBAN':'Bank IBAN'} placeholder="SA0000000000000000000000" value={data.iban} onChange={v=>update({iban:v.toUpperCase().replace(/\s/g,'')})} required error={errs.iban} maxLen={24} hint={AR?'SA + 22 رقم — لاستلام المدفوعات':'SA + 22 digits — to receive payments'} />
-      <NInput label={AR?'الرقم الضريبي VAT (اختياري)':'VAT Number (Optional)'} placeholder="300XXXXXXXXX003" value={data.taxNumber} onChange={v=>update({taxNumber:v})} maxLen={15} />
+      <NInput label={tt('phreg.730b8353')} placeholder="SA0000000000000000000000" value={data.iban} onChange={v=>update({iban:v.toUpperCase().replace(/\s/g,'')})} required error={errs.iban} maxLen={24} hint={tt('phreg.f8a55b7b')} />
+      <NInput label={tt('phreg.3c637c3b')} placeholder="300XXXXXXXXX003" value={data.taxNumber} onChange={v=>update({taxNumber:v})} maxLen={15} />
 
-      <Text style={[s.sectionTitle, { color:theme.text, textAlign:AR?'right':'left', marginTop: SP.md }]}>{AR?'رفع الوثائق الرسمية':'Upload Official Documents'}</Text>
+      <Text style={[s.sectionTitle, { color:theme.text, textAlign:AR?'right':'left', marginTop: SP.md }]}>{tt('phreg.79461c83')}</Text>
       <View style={s.docGrid}>
-        <DocCard label={AR?'السجل التجاري':'CR Doc'} done={!!data.crUri} onPress={() => pick('crUri')} required />
-        <DocCard label={AR?'ترخيص MOH':'MOH License'} done={!!data.mohUri} onPress={() => pick('mohUri')} required />
-        <DocCard label={AR?'ترخيص SFDA':'SFDA License'} done={!!data.sfdaUri} onPress={() => pick('sfdaUri')} required />
-        <DocCard label={AR?'شعار الصيدلية':'Pharmacy Logo'} done={!!data.logoUri} onPress={() => pick('logoUri')} />
+        <DocCard label={tt('phreg.4f5b2580')} done={!!data.crUri} onPress={() => pick('crUri')} required />
+        <DocCard label={tt('phreg.d79ac71e')} done={!!data.mohUri} onPress={() => pick('mohUri')} required />
+        <DocCard label={tt('phreg.32fb853d')} done={!!data.sfdaUri} onPress={() => pick('sfdaUri')} required />
+        <DocCard label={tt('phreg.7d87fb6f')} done={!!data.logoUri} onPress={() => pick('logoUri')} />
       </View>
     </View>
   );
@@ -386,16 +386,16 @@ function PStep2Legal({ data, update, submitRef, uploads }: StepProps<PharmacyReg
 
 // ══════════════════════════════════════════════════════════════════════════════
 function PStep3Location({ data, update, submitRef }: StepProps<PharmacyRegData>) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
   const [showMap, setShowMap] = useState(false);
   const [errs, setErrs] = useState<Record<string,string>>({});
 
   const validate = () => {
     const e: Record<string,string> = {};
-    if (!data.region) e.city = AR?'اختر المنطقة':'Choose region';
-    else if (!data.city) e.city = AR?'اختر المدينة':'Choose city';
-    else if (!data.district) e.city = AR?'اختر الحي':'Choose district';
-    if (!data.address.trim()) e.address = AR?'العنوان مطلوب':'Address required';
+    if (!data.region) e.city = tt('phreg.a138dac5');
+    else if (!data.city) e.city = tt('phreg.99ecd66a');
+    else if (!data.district) e.city = tt('phreg.ac994991');
+    if (!data.address.trim()) e.address = tt('phreg.49a2e744');
     setErrs(e); return Object.keys(e).length === 0;
   };
 
@@ -407,23 +407,23 @@ function PStep3Location({ data, update, submitRef }: StepProps<PharmacyRegData>)
 
   return (
     <View>
-      <Text style={[s.label, { color:theme.text, textAlign:AR?'right':'left' }]}>{AR?'المنطقة / المدينة / الحي':'Region / City / District'} *</Text>
+      <Text style={[s.label, { color:theme.text, textAlign:AR?'right':'left' }]}>{tt('phreg.5a85d253')} *</Text>
       <GeoPicker value={{ region: data.region, city: data.city, district: data.district }} onChange={v=>update({ region: v.region, city: v.city, district: v.district })} locale={lang} />
       {errs.city && <Text style={s.err}>{errs.city}</Text>}
-      <NInput label={AR?'العنوان الكامل':'Full Address'} placeholder={AR?'شارع الأمير سلطان، حي الروضة':'Prince Sultan Road, Al-Rawdah'} value={data.address} onChange={v=>update({address:v})} required error={errs.address} multi lines={2} />
-      <NBtn label={data.location?.lat ? (AR ? 'تم تحديد الموقع ✓ — تغيير' : 'Location set ✓ — change') : (AR ? 'حدد الموقع على الخريطة' : 'Pick location on map')} variant="outline" onPress={() => setShowMap(true)} style={{ marginBottom: SP.xl }} />
+      <NInput label={tt('phreg.e2bff93c')} placeholder={tt('phreg.c2230806')} value={data.address} onChange={v=>update({address:v})} required error={errs.address} multi lines={2} />
+      <NBtn label={data.location?.lat ? (tt('phreg.dcb243b1')) : (tt('phreg.c3bbf60a'))} variant="outline" onPress={() => setShowMap(true)} style={{ marginBottom: SP.xl }} />
       <LocationPickerModal visible={showMap} onClose={() => setShowMap(false)} initialLocation={data.location?.lat ? data.location : undefined} onSelectLocation={(loc: any) => { update({ location: { lat: loc.lat, lng: loc.lng } }); setShowMap(false); }} />
 
       {/* Delivery Zone with Interactive Map Circle */}
       <NCard style={{ marginBottom:SP.xl, marginTop: SP.md }}>
-        <NToggle label={AR?' تفعيل خدمة التوصيل':' Enable Delivery Service'} sub={AR?'تلقّي وتوصيل الطلبات للمرضى':'Receive and deliver orders to patients'} value={data.hasDelivery} onChange={v=>update({hasDelivery:v})} />
+        <NToggle label={tt('phreg.699dae00')} sub={tt('phreg.df4dd0aa')} value={data.hasDelivery} onChange={v=>update({hasDelivery:v})} />
 
         {data.hasDelivery && (
           <View style={{ marginTop:SP.lg }}>
             <OwnDeliveryFields value={data.ownDelivery} onChange={(patch) => update({ ownDelivery: { ...data.ownDelivery, ...patch } })} cityCode={data.city || undefined} />
 
             {!data.ownDelivery.enabled && (<>
-            <Text style={[s.label, { color:theme.text, textAlign:AR?'right':'left' }]}>{AR?'نطاق التوصيل (كم)':'Delivery Radius (km)'}</Text>
+            <Text style={[s.label, { color:theme.text, textAlign:AR?'right':'left' }]}>{tt('phreg.0c2459e1')}</Text>
             
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md, marginBottom: SP.md }}>
               <TouchableOpacity 
@@ -447,7 +447,7 @@ function PStep3Location({ data, update, submitRef }: StepProps<PharmacyRegData>)
               >
                 <Text style={{ fontSize: 20, fontWeight: 'bold', color: theme.text }}>+</Text>
               </TouchableOpacity>
-              <Text style={{ color: theme.textSub, fontSize: FS.md }}>{AR ? 'كم' : 'KM'}</Text>
+              <Text style={{ color: theme.textSub, fontSize: FS.md }}>{tt('phreg.17e9ee72')}</Text>
             </View>
 
             <View style={{ flexDirection:'row', flexWrap:'wrap', gap:SP.sm, marginBottom:SP.md }}>
@@ -490,7 +490,7 @@ function PStep3Location({ data, update, submitRef }: StepProps<PharmacyRegData>)
 
 // ══════════════════════════════════════════════════════════════════════════════
 function PStep4Hours({ data, update, submitRef }: StepProps<PharmacyRegData>) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
   const [showVacationCal, setShowVacationCal] = useState(false);
 
   const HOURS = Array.from({length:24}, (_,i) => {
@@ -511,12 +511,12 @@ function PStep4Hours({ data, update, submitRef }: StepProps<PharmacyRegData>) {
     <View>
 
       <NCard style={{ marginBottom:SP.xl }}>
-        <NToggle label={AR?' مفتوح 24/7':' Open 24/7'} sub={AR?'الصيدلية مفتوحة طوال اليوم والأسبوع':'Open around the clock every day'} value={data.is24_7} onChange={v => update({ is24_7:v, workDays: v? ['SUN','MON','TUE','WED','THU','FRI','SAT']: data.workDays })} />
+        <NToggle label={tt('phreg.4139f1f5')} sub={tt('phreg.c2784b0e')} value={data.is24_7} onChange={v => update({ is24_7:v, workDays: v? ['SUN','MON','TUE','WED','THU','FRI','SAT']: data.workDays })} />
       </NCard>
 
       {!data.is24_7 && (
         <>
-          <Text style={[s.sectionTitle, { color:theme.text, textAlign:AR?'right':'left' }]}>{AR?'أيام العمل':'Working Days'}</Text>
+          <Text style={[s.sectionTitle, { color:theme.text, textAlign:AR?'right':'left' }]}>{tt('phreg.e08c2505')}</Text>
           <View style={{ flexDirection:'row', flexWrap:'wrap', gap:SP.sm, marginBottom:SP.xl }}>
             {WORK_DAYS.map(d => {
               const active = data.workDays.includes(d.k);
@@ -529,7 +529,7 @@ function PStep4Hours({ data, update, submitRef }: StepProps<PharmacyRegData>) {
           </View>
 
                     <NCard style={{ marginBottom:SP.xl }}>
-            <Text style={[s.sectionTitle, { color:theme.text, textAlign:AR?'right':'left', marginBottom:SP.lg }]}>{AR?'نظام الفترات الساعات':'Shift System'}</Text>
+            <Text style={[s.sectionTitle, { color:theme.text, textAlign:AR?'right':'left', marginBottom:SP.lg }]}>{tt('phreg.3b9aca5f')}</Text>
             
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.md }}>
               {['morning', 'evening', 'both'].map((type) => (
@@ -546,33 +546,33 @@ function PStep4Hours({ data, update, submitRef }: StepProps<PharmacyRegData>) {
 
             {(data.shiftType === 'morning' || data.shiftType === 'both') && (
               <View style={{ marginBottom: SP.md }}>
-                <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{AR ? 'الفترة الصباحية' : 'Morning Shift'}</Text>
+                <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{tt('phreg.cb086206')}</Text>
                 <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
-                  <View style={{ flex: 1 }}><NDropdown label={AR?'من':'From'} value={data.openTime} options={HOURS} onChange={v=>update({openTime:v})} /></View>
-                  <View style={{ flex: 1 }}><NDropdown label={AR?'إلى':'To'} value={data.closeTime} options={HOURS} onChange={v=>update({closeTime:v})} /></View>
+                  <View style={{ flex: 1 }}><NDropdown label={tt('phreg.ecdb7711')} value={data.openTime} options={HOURS} onChange={v=>update({openTime:v})} /></View>
+                  <View style={{ flex: 1 }}><NDropdown label={tt('phreg.32c46ecf')} value={data.closeTime} options={HOURS} onChange={v=>update({closeTime:v})} /></View>
                 </View>
               </View>
             )}
 
             {(data.shiftType === 'evening' || data.shiftType === 'both') && (
               <View>
-                <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{AR ? 'الفترة المسائية' : 'Evening Shift'}</Text>
+                <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{tt('phreg.13027adb')}</Text>
                 <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
-                  <View style={{ flex: 1 }}><NDropdown label={AR?'من':'From'} value={data.eveningOpenTime} options={HOURS} onChange={v=>update({eveningOpenTime:v})} /></View>
-                  <View style={{ flex: 1 }}><NDropdown label={AR?'إلى':'To'} value={data.eveningCloseTime} options={HOURS} onChange={v=>update({eveningCloseTime:v})} /></View>
+                  <View style={{ flex: 1 }}><NDropdown label={tt('phreg.ecdb7711')} value={data.eveningOpenTime} options={HOURS} onChange={v=>update({eveningOpenTime:v})} /></View>
+                  <View style={{ flex: 1 }}><NDropdown label={tt('phreg.32c46ecf')} value={data.eveningCloseTime} options={HOURS} onChange={v=>update({eveningCloseTime:v})} /></View>
                 </View>
               </View>
             )}
           </NCard>
 
           <NCard style={{ marginBottom:SP.xl, display: 'none' }}>
-            <NToggle label={AR?' مناوبة ليلية (بعد منتصف الليل)':' Night Shift (After Midnight)'} sub={AR?'الصيدلية تعمل حتى الفجر أو طوال الليل':'Pharmacy stays open late or overnight'} value={data.hasNightShift} onChange={v=>update({hasNightShift:v})} />
+            <NToggle label={tt('phreg.d765d626')} sub={tt('phreg.639e803e')} value={data.hasNightShift} onChange={v=>update({hasNightShift:v})} />
           </NCard>
         </>
       )}
 
       <TouchableOpacity onPress={() => setShowVacationCal(true)}>
-        <NInput label={AR ? 'إجازة مخططة (إيقاف الطلبات مؤقتاً)' : 'Planned Vacation'} placeholder={AR ? 'اختر التاريخ من التقويم...' : 'Choose date...'} value={data.vacationDate} onChange={() => {}} editable={false} icon="calendar" />
+        <NInput label={tt('phreg.8575bc1a')} placeholder={tt('phreg.e2701538')} value={data.vacationDate} onChange={() => {}} editable={false} icon="calendar" />
       </TouchableOpacity>
 
       <NDatePickerSheet
@@ -580,7 +580,7 @@ function PStep4Hours({ data, update, submitRef }: StepProps<PharmacyRegData>) {
         value={data.vacationDate}
         onChange={(v: string) => update({ vacationDate: v })}
         onClose={() => setShowVacationCal(false)}
-        title={AR ? 'اختر تاريخ الإجازة' : 'Select Vacation Date'}
+        title={tt('phreg.8ed38ddc')}
       />
     </View>
   );
@@ -588,7 +588,7 @@ function PStep4Hours({ data, update, submitRef }: StepProps<PharmacyRegData>) {
 
 // ══════════════════════════════════════════════════════════════════════════════
 function PStep5Catalog({ data, update, submitRef }: StepProps<PharmacyRegData>) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
 
   const toggleCat = (id:string) => {
     const cats = data.enabledCategories.includes(id) ? data.enabledCategories.filter(c=>c!==id) : [...data.enabledCategories, id];
@@ -597,7 +597,7 @@ function PStep5Catalog({ data, update, submitRef }: StepProps<PharmacyRegData>) 
 
   const handleNext = (): boolean => {
     if (!data.enabledCategories || data.enabledCategories.length === 0) {
-      show(AR ? 'حدد فئة واحدة على الأقل من الكتالوج' : 'Select at least one catalog category', 'error');
+      show(tt('phreg.06829d11'), 'error');
       return false;
     }
     return true;
@@ -608,12 +608,12 @@ function PStep5Catalog({ data, update, submitRef }: StepProps<PharmacyRegData>) 
     <View>
 
       <NCard style={{ marginBottom:SP.xl }}>
-        <Text style={[s.sectionTitle, { color:theme.text, textAlign:AR?'right':'left', marginBottom:SP.lg }]}>{AR?'الخدمات الأساسية':'Core Services'}</Text>
-        <NToggle label={AR?'صرف الأدوية بالوصفة (Rx)':'Prescription Dispensing (Rx)'} sub={AR?'صرف أدوية تستلزم وصفة طبية':'Dispense medications requiring prescription'} value={data.rxDispensing} onChange={v=>update({rxDispensing:v})} />
-        <NToggle label={AR?'بيع أدوية بدون وصفة (OTC)':'OTC Medication Sales'} sub={AR?'أدوية لا تستلزم وصفة طبية':'Over-the-counter medications'} value={data.otcSelling} onChange={v=>update({otcSelling:v})} />
+        <Text style={[s.sectionTitle, { color:theme.text, textAlign:AR?'right':'left', marginBottom:SP.lg }]}>{tt('phreg.19854933')}</Text>
+        <NToggle label={tt('phreg.5b8f30d5')} sub={tt('phreg.e94a5a84')} value={data.rxDispensing} onChange={v=>update({rxDispensing:v})} />
+        <NToggle label={tt('phreg.30c64d6a')} sub={tt('phreg.c7af7422')} value={data.otcSelling} onChange={v=>update({otcSelling:v})} />
       </NCard>
 
-      <Text style={[s.sectionTitle, { color:theme.text, textAlign:AR?'right':'left' }]}>{AR?'فئات المنتجات المتاحة':'Product Categories'}</Text>
+      <Text style={[s.sectionTitle, { color:theme.text, textAlign:AR?'right':'left' }]}>{tt('phreg.d50b8afe')}</Text>
       <View style={{ flexDirection:'row', flexWrap:'wrap', gap:SP.md, marginBottom:SP.xl }}>
         {PHARMA_CATS.map(cat => {
           const active = data.enabledCategories.includes(cat.id);
@@ -627,8 +627,8 @@ function PStep5Catalog({ data, update, submitRef }: StepProps<PharmacyRegData>) 
       </View>
 
       <View style={{ flexDirection:AR?'row-reverse':'row', gap:SP.md, marginBottom:SP.xl }}>
-        <View style={{ flex:1 }}><NBtn label={AR?'تحديد الكل':'Select All'} variant="outline" size="sm" onPress={() => update({ enabledCategories: PHARMA_CATS.map(c=>c.id) })} /></View>
-        <View style={{ flex:1 }}><NBtn label={AR?'إلغاء الكل':'Clear All'} variant="secondary" size="sm" onPress={() => update({ enabledCategories:[] })} /></View>
+        <View style={{ flex:1 }}><NBtn label={tt('phreg.ac65a989')} variant="outline" size="sm" onPress={() => update({ enabledCategories: PHARMA_CATS.map(c=>c.id) })} /></View>
+        <View style={{ flex:1 }}><NBtn label={tt('phreg.a007f1de')} variant="secondary" size="sm" onPress={() => update({ enabledCategories:[] })} /></View>
       </View>
     </View>
   );
@@ -637,7 +637,7 @@ function PStep5Catalog({ data, update, submitRef }: StepProps<PharmacyRegData>) 
 // ══════════════════════════════════════════════════════════════════════════════
 function PStep6Delivery({ data, update, submitRef }: StepProps<PharmacyRegData>) {
  const insuranceCatalog = useInsuranceCatalog();
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
 
   const toggleCompany = (coId: string) => {
     const current = data.acceptedInsurance || [];
@@ -669,16 +669,16 @@ function PStep6Delivery({ data, update, submitRef }: StepProps<PharmacyRegData>)
 
       {data.hasDelivery && (
         <NCard style={{ marginBottom:SP.xl }}>
-          <Text style={[s.sectionTitle, { color:theme.text, textAlign:AR?'right':'left', marginBottom:SP.lg }]}>{AR?'رسوم وشروط التوصيل':'Delivery Fees & Terms'}</Text>
-          {!data.ownDelivery.enabled && <NPriceInput label={AR?'رسوم التوصيل الأساسية':'Base Delivery Fee'} value={data.deliveryFee} onChange={v=>update({deliveryFee:v})} required />}
-          {!data.ownDelivery.enabled && <NPriceInput label={AR?'توصيل مجاني فوق (ريال)':'Free delivery above (SAR)'} value={data.freeDeliveryAbove} onChange={v=>update({freeDeliveryAbove:v})} />}
-          <NPriceInput label={AR?'الحد الأدنى للطلب (ريال)':'Minimum Order Amount (SAR)'} value={data.minOrderSAR} onChange={v=>update({minOrderSAR:v})} required />
+          <Text style={[s.sectionTitle, { color:theme.text, textAlign:AR?'right':'left', marginBottom:SP.lg }]}>{tt('phreg.73b58846')}</Text>
+          {!data.ownDelivery.enabled && <NPriceInput label={tt('phreg.08e8d9d3')} value={data.deliveryFee} onChange={v=>update({deliveryFee:v})} required />}
+          {!data.ownDelivery.enabled && <NPriceInput label={tt('phreg.b00bad4a')} value={data.freeDeliveryAbove} onChange={v=>update({freeDeliveryAbove:v})} />}
+          <NPriceInput label={tt('phreg.d7bb6124')} value={data.minOrderSAR} onChange={v=>update({minOrderSAR:v})} required />
           
-          <NToggle label={AR?' توصيل سريع Express':' Express Delivery'} sub={AR?'توصيل سريع بسعر أعلى لمسافات قصيرة':'Express delivery options'} value={data.expressDelivery} onChange={v=>update({expressDelivery:v})} />
+          <NToggle label={tt('phreg.75b7c909')} sub={tt('phreg.33ff4303')} value={data.expressDelivery} onChange={v=>update({expressDelivery:v})} />
           {data.expressDelivery && (
             <View style={{ marginTop:SP.md, gap:SP.sm }}>
-              <NPriceInput label={AR?'رسوم التوصيل السريع':'Express Fee'} value={data.expressFee} onChange={v=>update({expressFee:v})} required />
-              <NInput label={AR?'وقت التوصيل السريع (دقيقة)':'Express Delivery Time (min)'} placeholder="30" value={data.expressMinutes} onChange={v=>update({expressMinutes:v.replace(/\D/g,'')})} kbType="numeric" maxLen={3} />
+              <NPriceInput label={tt('phreg.a7e32cb1')} value={data.expressFee} onChange={v=>update({expressFee:v})} required />
+              <NInput label={tt('phreg.120a94dc')} placeholder="30" value={data.expressMinutes} onChange={v=>update({expressMinutes:v.replace(/\D/g,'')})} kbType="numeric" maxLen={3} />
             </View>
           )}
         </NCard>
@@ -686,13 +686,13 @@ function PStep6Delivery({ data, update, submitRef }: StepProps<PharmacyRegData>)
 
       <NCard style={{ marginBottom:SP.xl }}>
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.md }}>
-          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{AR ? 'أقبل الدفع بالتأمين الصيدلاني؟' : 'Accept Insurance Payments?'}</Text>
+          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{tt('phreg.e29be897')}</Text>
           <Switch value={!data.cashOnly} onValueChange={v=>update({cashOnly:!v})} />
         </View>
 
         {!data.cashOnly && (
           <View style={{ marginTop: SP.md }}>
-            <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{AR ? 'اختر شركات التأمين الصيدلاني المعتمدة وفئاتها:' : 'Select accepted pharmacy insurance plans:'}</Text>
+            <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{tt('phreg.654a2a7f')}</Text>
             {insuranceCatalog.map(co => {
               const acceptedObj = data.acceptedInsurance?.find(c => c.companyId === co.id);
               const isAccepted = !!acceptedObj;
@@ -708,7 +708,7 @@ function PStep6Delivery({ data, update, submitRef }: StepProps<PharmacyRegData>)
 
                   {isAccepted && (
                     <View style={{ marginTop: SP.sm, borderTopWidth: 1, borderTopColor: theme.border, paddingTop: SP.sm }}>
-                      <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>{AR ? 'الفئات المقبولة لصرف الدواء:' : 'Accepted Plans/Tiers:'}</Text>
+                      <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>{tt('phreg.c2862f7b')}</Text>
                       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 6 }}>
                         {co.plans.map(p => {
                           const hasPlan = acceptedObj.plans.includes(p);

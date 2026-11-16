@@ -52,7 +52,7 @@ const Stack = createNativeStackNavigator();
 
 export function RadiologyDashboardNavigator({ onLogout }: { onLogout: () => void }) {
   const [activeTab, setActiveTab] = useState('home');
-  const { lang, t } = useLang();
+  const { lang, t, t: tt } = useLang();
   const AR = lang === 'ar';
   
   const tabs = [
@@ -134,9 +134,9 @@ function SafetyChip({ label, on }: { label: string; on: boolean }) {
 }
 
 function RadiologyInboxList({ orders, loading, emptyTitle, onOpen }: { orders: RadiologyInboxOrder[]; loading: boolean; emptyTitle: string; onOpen: (o: RadiologyInboxOrder) => void }) {
-  const { theme } = useTheme(); const { lang } = useLang();
+  const { theme } = useTheme(); const { lang, t: tt } = useLang();
   const AR = lang === 'ar';
-  const yes = AR ? 'نعم' : 'YES'; const no = AR ? 'لا' : 'NO';
+  const yes = tt('raddash.e52be584'); const no = tt('raddash.37b061b4');
   return (
     <>
       {loading && orders.length === 0 && <ActivityIndicator size="large" color={tokens.mintDeep} />}
@@ -157,11 +157,11 @@ function RadiologyInboxList({ orders, loading, emptyTitle, onOpen }: { orders: R
               {sq.is_pregnant !== undefined && <SafetyChip on={!!sq.is_pregnant} label={AR ? `حمل: ${sq.is_pregnant ? yes : no}` : `Pregnant: ${sq.is_pregnant ? yes : no}`} />}
               {sq.has_pacemaker !== undefined && <SafetyChip on={!!sq.has_pacemaker} label={AR ? `منظم: ${sq.has_pacemaker ? yes : no}` : `Pacemaker: ${sq.has_pacemaker ? yes : no}`} />}
               {sq.has_contrast_allergy !== undefined && <SafetyChip on={!!sq.has_contrast_allergy} label={AR ? `صبغة: ${sq.has_contrast_allergy ? yes : no}` : `Contrast: ${sq.has_contrast_allergy ? yes : no}`} />}
-              {!order.preparation_confirmed && order.state === 'CONFIRMED' && <View style={{ backgroundColor: withAlpha(tokens.warning, 0.20), borderRadius: R.sm, paddingHorizontal: 6, paddingVertical: 2 }}><Text style={{ fontSize: 9, color: tokens.warning }}>{AR ? 'التحضير: غير مؤكد' : 'Prep: Not Confirmed'}</Text></View>}
+              {!order.preparation_confirmed && order.state === 'CONFIRMED' && <View style={{ backgroundColor: withAlpha(tokens.warning, 0.20), borderRadius: R.sm, paddingHorizontal: 6, paddingVertical: 2 }}><Text style={{ fontSize: 9, color: tokens.warning }}>{tt('raddash.7da43bd5')}</Text></View>}
             </View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{order.scheduled_at ? fmtDateTime(order.scheduled_at, AR) : '—'}</Text>
-              <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: tokens.mintDeep }}>{order.total || 0} {AR ? 'ر.س' : 'SAR'}</Text>
+              <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: tokens.mintDeep }}>{order.total || 0} {tt('raddash.91d5796f')}</Text>
             </View>
           </NCard>
         );
@@ -172,7 +172,7 @@ function RadiologyInboxList({ orders, loading, emptyTitle, onOpen }: { orders: R
 
 // ══════ HOME TAB ══════
 function RadiologyHome({ onNav }: { onNav: (s: string, p?: any) => void }) {
-  const { theme } = useTheme(); const { lang } = useLang();
+  const { theme } = useTheme(); const { lang, t: tt } = useLang();
   const AR = lang === 'ar';
   const { orders, loading, reload } = useRadiologyInbox();
   const stats = {
@@ -183,22 +183,22 @@ function RadiologyHome({ onNav }: { onNav: (s: string, p?: any) => void }) {
   };
   return (
     <NScroll refreshControl={<RefreshControl refreshing={loading} onRefresh={reload} tintColor={tokens.mintDeep} />}>
-      <NHeader title={AR?'لوحة الأشعة':'Radiology Dashboard'} right={<TouchableOpacity onPress={() => onNav('wallet')} style={{ padding: SP.sm }}><I name="wallet" size={24} color={theme.primary} /></TouchableOpacity>} />
+      <NHeader title={tt('raddash.c91b6ae4')} right={<TouchableOpacity onPress={() => onNav('wallet')} style={{ padding: SP.sm }}><I name="wallet" size={24} color={theme.primary} /></TouchableOpacity>} />
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.md, marginBottom: SP.xl }}>
-        <NStatCard icon="◎" label={AR ? 'فحوصات اليوم' : "Today's Scans"} value={String(stats.todayCount)} color={tokens.mintDeep} style={{ width: '47%' }} />
-        <NStatCard icon="◔" label={AR ? 'جاري الفحص' : 'In Scanning'} value={String(stats.inScanCount)} color={tokens.warning} style={{ width: '47%' }} />
-        <NStatCard icon="check" label={AR ? 'مكتمل' : 'Completed'} value={String(stats.completedCount)} color={tokens.success} style={{ width: '47%' }} />
-        <NStatCard icon="◈" label={AR ? 'الإيرادات' : 'Revenue'} value={String(stats.revenue)} unit={AR ? 'ر' : 'SAR'} color={tokens.mintDeep} style={{ width: '47%' }} />
+        <NStatCard icon="◎" label={tt('raddash.2b732962')} value={String(stats.todayCount)} color={tokens.mintDeep} style={{ width: '47%' }} />
+        <NStatCard icon="◔" label={tt('raddash.8422efb8')} value={String(stats.inScanCount)} color={tokens.warning} style={{ width: '47%' }} />
+        <NStatCard icon="check" label={tt('raddash.a78b4dfb')} value={String(stats.completedCount)} color={tokens.success} style={{ width: '47%' }} />
+        <NStatCard icon="◈" label={tt('raddash.625c26e2')} value={String(stats.revenue)} unit={tt('raddash.a629499b')} color={tokens.mintDeep} style={{ width: '47%' }} />
       </View>
-      <NSecHeader title={AR ? 'طلبات اليوم' : "Today's Orders"} />
-      <RadiologyInboxList orders={orders.slice(0, 6)} loading={loading} emptyTitle={AR ? 'لا توجد طلبات اليوم' : 'No orders today'} onOpen={(o) => onNav('order_detail', o)} />
+      <NSecHeader title={tt('raddash.42d2477b')} />
+      <RadiologyInboxList orders={orders.slice(0, 6)} loading={loading} emptyTitle={tt('raddash.29e6d31b')} onOpen={(o) => onNav('order_detail', o)} />
     </NScroll>
   );
 }
 
 // ══════ ORDERS TAB ══════
 function RadiologyOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) {
-  const { theme } = useTheme(); const { lang, t } = useLang();
+  const { theme } = useTheme(); const { lang, t, t: tt } = useLang();
   const AR = lang === 'ar';
   const [tab, setTab] = useState<'new'|'insurance'|'confirmed'|'inScan'>('new');
   const { orders, loading, reload, loadFailed } = useRadiologyInbox();
@@ -209,10 +209,10 @@ function RadiologyOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) 
     if (tab === 'inScan')    return ['ARRIVED_CHECKIN', 'IN_SCANNING', 'REPORT_DRAFT', 'UNDER_REVIEW', 'SCAN_ABORTED'].includes(o.state);
     return true;
   });
-  const subTabs = [{ key: 'new', label: AR ? 'جديد' : 'New' }, { key: 'insurance', label: AR ? 'تأمين' : 'Insurance' }, { key: 'confirmed', label: AR ? 'مجدول' : 'Confirmed' }, { key: 'inScan', label: AR ? 'جاري' : 'In Progress' }];
+  const subTabs = [{ key: 'new', label: tt('raddash.7a64641b') }, { key: 'insurance', label: tt('raddash.150549c6') }, { key: 'confirmed', label: tt('raddash.14908c81') }, { key: 'inScan', label: tt('raddash.8cce2238') }];
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'إدارة الطلبات' : 'Order Management'} />
+      <NHeader title={tt('raddash.cab364e4')} />
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', borderBottomWidth: 1, borderColor: theme.border }}>
         {subTabs.map(t => <TouchableOpacity key={t.key} style={{ flex: 1, padding: SP.sm, alignItems: 'center', borderBottomWidth: tab === t.key ? 2 : 0, borderColor: tokens.mintDeep }} onPress={() => setTab(t.key as any)}><Text style={{ fontSize: FS.xs, color: tab === t.key ? tokens.mintDeep : theme.textSub, fontWeight: tab === t.key ? FW.bold : FW.normal }}>{t.label}</Text></TouchableOpacity>)}
       </View>
@@ -227,7 +227,7 @@ function RadiologyOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) 
 
 // ══════ ORDER DETAIL SCREEN — PILLAR 4+5+6 ══════
 function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () => void; onNav: (s: string, p?: any) => void }) {
-  const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast();
+  const { theme } = useTheme(); const { lang, t, t: tt } = useLang(); const { show } = useToast();
   const AR = lang === 'ar';
   const [loading, setLoading] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(order);
@@ -242,13 +242,13 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
   const refresh = async () => { try { const res = await client.get(`/radiology/bookings/${order.id}`); setCurrentOrder(res.data); } catch {} };
   const doAction = async (action: string, body?: any) => {
     setLoading(true);
-    try { await client.post(`/radiology/bookings/${currentOrder.id}/${action}`, body || {}); show(AR ? 'تم بنجاح' : 'Done', 'success'); await refresh(); }
-    catch (e: any) { show(e.message || (AR ? 'حدث خطأ' : 'Error'), 'error'); }
+    try { await client.post(`/radiology/bookings/${currentOrder.id}/${action}`, body || {}); show(tt('raddash.5c041b6a'), 'success'); await refresh(); }
+    catch (e: any) { show(e.message || (tt('raddash.71bdc228')), 'error'); }
     finally { setLoading(false); }
   };
 
   const handleInsuranceApproval = async () => {
-    if (!decisionRef.trim()) return show(AR ? 'أدخل مرجع القرار الداخلي' : 'Enter the internal decision reference', 'warning');
+    if (!decisionRef.trim()) return show(tt('raddash.352f4740'), 'warning');
     setLoading(true);
     try {
       const copayPercent = Math.max(0, Math.min(99, Number(copay)));
@@ -258,7 +258,7 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
         decision_reference: decisionRef.trim(),
         ...(decision === 'APPROVED_PARTIAL' ? { copay_percent: copayPercent } : {}),
       });
-      show(AR ? 'سُجل قرار التغطية الداخلي من الخادم' : 'The server recorded the internal coverage decision', 'success');
+      show(tt('raddash.bdf8525f'), 'success');
       setShowApproval(false); await refresh();
     } catch (e: any) { show(e.message, 'error'); } finally { setLoading(false); }
   };
@@ -270,17 +270,17 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
     try { await client.patch(`/radiology/bookings/${currentOrder.id}/state`, { state, note }); show(done, 'success'); await refresh(); }
     catch (e: any) { show(e?.response?.data?.message || e.message, 'error'); } finally { setLoading(false); }
   };
-  const acceptBooking = () => setState('CONFIRMED', 'accepted_by_center', AR ? 'تم قبول الحجز' : 'Booking accepted');
+  const acceptBooking = () => setState('CONFIRMED', 'accepted_by_center', tt('raddash.19982e2e'));
   const rejectBooking = async () => {
-    if (rejectReason.trim().length < 5) return show(AR ? 'اكتب سبب الرفض (5 أحرف على الأقل)' : 'Enter a reason (at least 5 characters)', 'warning');
-    await setState('CANCELLED', `rejected_by_center: ${rejectReason.trim()}`, AR ? 'تم رفض الحجز وإبلاغ المريض' : 'Booking rejected');
+    if (rejectReason.trim().length < 5) return show(tt('raddash.a8119b74'), 'warning');
+    await setState('CANCELLED', `rejected_by_center: ${rejectReason.trim()}`, tt('raddash.bd120a9e'));
     setShowReject(false);
   };
 
   const handleAbort = async () => {
-    if (!abortReason) return show(AR ? 'اختر سبب الإلغاء' : 'Select abort reason', 'warning');
+    if (!abortReason) return show(tt('raddash.88bc6409'), 'warning');
     setLoading(true);
-    try { await client.post(`/radiology/bookings/${currentOrder.id}/abort`, { reason: abortReason }); show(AR ? 'أُلغي الفحص؛ تُراجع أي معاملة مالية لاحقة من الخادم.' : 'Scan aborted; any financial action remains subject to server review.', 'info'); setShowAbort(false); await refresh(); }
+    try { await client.post(`/radiology/bookings/${currentOrder.id}/abort`, { reason: abortReason }); show(tt('raddash.11bd6c73'), 'info'); setShowAbort(false); await refresh(); }
     catch (e: any) { show(e.message, 'error'); } finally { setLoading(false); }
   };
 
@@ -292,12 +292,12 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
   ];
 
   const handleReschedule = async () => {
-    if (!rescheduleDays) return show(AR ? 'اختر الموعد الجديد' : 'Select new slot', 'warning');
+    if (!rescheduleDays) return show(tt('raddash.19211352'), 'warning');
     setLoading(true);
     try {
       const newDate = new Date(Date.now() + rescheduleDays * 24 * 60 * 60 * 1000).toISOString();
       await client.patch(`/radiology/bookings/${currentOrder.id}/reschedule`, { new_date: newDate, reason: 'reschedule_after_abort' });
-      show(AR ? 'تمت إعادة الجدولة بنجاح' : 'Rescheduled successfully', 'success');
+      show(tt('raddash.81683654'), 'success');
       setShowReschedule(false); setRescheduleDays(null); await refresh();
     } catch (e: any) { show(e.message, 'error'); } finally { setLoading(false); }
   };
@@ -306,8 +306,8 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
   if (!currentOrder) {
     return (
       <View style={{ flex: 1, backgroundColor: theme.bg }}>
-        <NHeader title={AR ? 'الطلب' : 'Order'} onBack={onBack} />
-        <NEmpty title={AR ? 'الطلب غير موجود' : 'Order not found'} sub={AR ? 'ارجع إلى القائمة وافتح الطلب من جديد.' : 'Go back to the list and open the order again.'} />
+        <NHeader title={tt('raddash.cb2621bb')} onBack={onBack} />
+        <NEmpty title={tt('raddash.650002ca')} sub={tt('raddash.98824058')} />
       </View>
     );
   }
@@ -316,7 +316,7 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
 
   return (
     <NScroll>
-      <NHeader title={AR ? 'تفاصيل الطلب' : 'Order Detail'} onBack={onBack} />
+      <NHeader title={tt('raddash.dd2d4925')} onBack={onBack} />
       <NCard style={{ marginBottom: SP.lg }}>
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md, marginBottom: SP.md }}>
           <NAvatar name={currentOrder.patient_name || 'P'} size={48} />
@@ -327,88 +327,88 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
           </View>
         </View>
         <View style={{ backgroundColor: theme.surface2, borderRadius: R.md, padding: SP.md }}>
-          <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{AR ? 'الموعد:' : 'Scheduled:'} {currentOrder.scheduled_at ? fmtDateTime(currentOrder.scheduled_at, AR) : '—'}</Text>
-          <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginTop: 4 }}>{AR ? 'الدفع:' : 'Payment:'} {currentOrder.payment_method || 'cash'} | {currentOrder.total || 0} {AR ? 'ر.س' : 'SAR'}</Text>
+          <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{tt('raddash.e95dc17a')} {currentOrder.scheduled_at ? fmtDateTime(currentOrder.scheduled_at, AR) : '—'}</Text>
+          <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginTop: 4 }}>{tt('raddash.4fc36f32')} {currentOrder.payment_method || 'cash'} | {currentOrder.total || 0} {tt('raddash.91d5796f')}</Text>
         </View>
       </NCard>
 
       {/* Safety Questionnaire — PILLAR 3 */}
-      <NSecHeader title={AR?' استبيان السلامة':' Safety Questionnaire'} />
+      <NSecHeader title={tt('raddash.c1681602')} />
       <NCard style={{ marginBottom: SP.lg }}>
         {[{ key: 'is_pregnant', ar: 'حمل أو اشتباه حمل', en: 'Pregnant / Suspected' }, { key: 'has_pacemaker', ar: 'منظم ضربات قلب', en: 'Pacemaker' }, { key: 'has_metal_implant', ar: 'دعامات معدنية', en: 'Metal Implants' }, { key: 'has_contrast_allergy', ar: 'حساسية من الصبغة', en: 'Contrast Allergy' }].map(item => {
           const val = sq[item.key];
           if (val === undefined) return null;
-          return (<View key={item.key} style={{ flexDirection: AR?'row-reverse':'row', justifyContent:'space-between', alignItems:'center', paddingVertical: SP.sm, borderBottomWidth: 1, borderColor: theme.border }}><Text style={{ fontSize: FS.sm, color: theme.text }}>{AR? item.ar: item.en}</Text><Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: val?tokens.error:tokens.success }}>{val? (AR?'نعم':'YES'): (AR?'لا':'NO')}</Text></View>);
+          return (<View key={item.key} style={{ flexDirection: AR?'row-reverse':'row', justifyContent:'space-between', alignItems:'center', paddingVertical: SP.sm, borderBottomWidth: 1, borderColor: theme.border }}><Text style={{ fontSize: FS.sm, color: theme.text }}>{AR? item.ar: item.en}</Text><Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: val?tokens.error:tokens.success }}>{val? (tt('raddash.e52be584')): (tt('raddash.37b061b4'))}</Text></View>);
         })}
-        {Object.keys(sq).length === 0 && <Text style={{ color: theme.textSub, textAlign: 'center', padding: SP.md }}>{AR ? 'لم يُجب المريض على الاستبيان بعد' : 'Questionnaire not completed'}</Text>}
+        {Object.keys(sq).length === 0 && <Text style={{ color: theme.textSub, textAlign: 'center', padding: SP.md }}>{tt('raddash.a736c47a')}</Text>}
       </NCard>
 
       {/* Actions by State — PILLAR 5 */}
-      <NSecHeader title={AR ? 'الإجراءات' : 'Actions'} />
+      <NSecHeader title={tt('raddash.d6954ca0')} />
       <View style={{ gap: SP.md, marginBottom: SP.xl }}>
         {!['CANCELLED', 'REJECTED'].includes(String(currentOrder.state)) && <NBtn label={t('bookingChat.open')} variant="outline" onPress={() => onNav('booking_chat', currentOrder)} />}
         {currentOrder.state === 'NEW_REQUEST' && (<>
           {currentOrder.payment_method === 'insurance' ? (
-            <NBtn label={AR?' تسجيل قرار تغطية داخلي':' Record Internal Coverage Decision'} variant="outline" onPress={() => setShowApproval(true)} />
+            <NBtn label={tt('raddash.22277872')} variant="outline" onPress={() => setShowApproval(true)} />
           ) : (
             // server accepts only cash at the center or a paid card booking (radiology.service assertConfirmable)
             confirmBlocker(currentOrder)
               ? <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{confirmBlockerText(confirmBlocker(currentOrder)!, AR)}</Text>
               : <NBtn label={t('audit2.radiology.acceptBooking')} loading={loading} onPress={acceptBooking} style={{ backgroundColor:tokens.mintDeep }} />
           )}
-          <NBtn label={AR?' رفض الحجز':' Reject booking'} variant="danger" onPress={() => setShowReject(true)} />
+          <NBtn label={tt('raddash.6035b5a7')} variant="danger" onPress={() => setShowReject(true)} />
         </>)}
-        {currentOrder.state ==='PENDING_INSURANCE' && <NBtn label={AR?' إدخال موافقة التأمين':' Enter Insurance Approval'} onPress={() => setShowApproval(true)} />}
-        {currentOrder.state ==='CONFIRMED' && <NBtn label={AR?' تأكيد حضور المريض (Check-in)':' Confirm Patient Arrival (Check-in)'} loading={loading} onPress={() => doAction('checkin')} style={{ backgroundColor:tokens.mintDeep }} />}
+        {currentOrder.state ==='PENDING_INSURANCE' && <NBtn label={tt('raddash.c7226cd8')} onPress={() => setShowApproval(true)} />}
+        {currentOrder.state ==='CONFIRMED' && <NBtn label={tt('raddash.5100ece5')} loading={loading} onPress={() => doAction('checkin')} style={{ backgroundColor:tokens.mintDeep }} />}
         {currentOrder.state === 'ARRIVED_CHECKIN' && (<>
-          <NBtn label={AR?' استدعاء لغرفة الأشعة':' Call to Scanning Room'} loading={loading} onPress={() => doAction('start-scan')} style={{ backgroundColor:tokens.warning }} />
-          <NBtn label={AR?' إلغاء الفحص طارئ':' Emergency Abort'} variant="danger" onPress={() => setShowAbort(true)} />
+          <NBtn label={tt('raddash.f097e55f')} loading={loading} onPress={() => doAction('start-scan')} style={{ backgroundColor:tokens.warning }} />
+          <NBtn label={tt('raddash.c82f8373')} variant="danger" onPress={() => setShowAbort(true)} />
         </>)}
         {currentOrder.state === 'IN_SCANNING' && (<>
-          <NBtn label={AR?' رفع التقرير والنتائج':' Upload Report & Results'} onPress={() => onNav('reporting', currentOrder)} />
-          <NBtn label={AR?' إلغاء الفحص طارئ':' Emergency Abort Scan'} variant="danger" onPress={() => setShowAbort(true)} />
+          <NBtn label={tt('raddash.723cca1f')} onPress={() => onNav('reporting', currentOrder)} />
+          <NBtn label={tt('raddash.b5267aba')} variant="danger" onPress={() => setShowAbort(true)} />
         </>)}
-        {currentOrder.state ==='REPORT_DRAFT' && <NBtn label={AR?' إرسال للمراجعة الطبية':' Submit for Radiologist Review'} loading={loading} onPress={() => doAction('submit-report-for-review')} />}
-        {currentOrder.state ==='UNDER_REVIEW' && currentOrder.report_can_approve !== false && <NBtn label={AR?' اعتماد وإرسال التقرير':' Approve & Publish Report'} loading={loading} onPress={() => doAction('approve-report')} style={{ backgroundColor:tokens.success }} />}
+        {currentOrder.state ==='REPORT_DRAFT' && <NBtn label={tt('raddash.223b9561')} loading={loading} onPress={() => doAction('submit-report-for-review')} />}
+        {currentOrder.state ==='UNDER_REVIEW' && currentOrder.report_can_approve !== false && <NBtn label={tt('raddash.baf5326c')} loading={loading} onPress={() => doAction('approve-report')} style={{ backgroundColor:tokens.success }} />}
         {currentOrder.state ==='UNDER_REVIEW' && currentOrder.report_handled_by_me === true && <Text style={{ color: theme.textSub, fontSize: FS.sm, textAlign: AR ? 'right' : 'left' }}>{t('radiology.approve.handledByYou')}</Text>}
-        {currentOrder.state ==='SCAN_ABORTED' && (<View style={{ backgroundColor:withAlpha(tokens.error, 0.12), borderRadius: R.md, padding: SP.md }}><Text style={{ color:tokens.error, fontWeight: FW.bold, textAlign:'center', marginBottom: SP.md }}>{AR?` سبب الإلغاء: ${currentOrder.abort_reason}`:` Abort Reason: ${currentOrder.abort_reason}`}</Text><NBtn label={AR?' إعادة الجدولة':' Reschedule'} loading={loading} onPress={() => setShowReschedule(true)} /></View>)}
-        {currentOrder.state ==='REPORT_READY' && (<View style={{ backgroundColor:withAlpha(tokens.success, 0.12), borderRadius: R.md, padding: SP.lg, alignItems:'center' }}><Text style={{ color:tokens.success, fontSize: FS.lg, fontWeight: FW.bold }}>{AR?' التقرير أُرسل للمريض':' Report Sent to Patient'}</Text>{currentOrder.doctor_notified && <Text style={{ color:tokens.mintDeep, fontSize: FS.sm, marginTop: SP.sm }}>{AR?' تم إشعار الطبيب المحيل':' Referring doctor notified'}</Text>}</View>)}
+        {currentOrder.state ==='SCAN_ABORTED' && (<View style={{ backgroundColor:withAlpha(tokens.error, 0.12), borderRadius: R.md, padding: SP.md }}><Text style={{ color:tokens.error, fontWeight: FW.bold, textAlign:'center', marginBottom: SP.md }}>{AR?` سبب الإلغاء: ${currentOrder.abort_reason}`:` Abort Reason: ${currentOrder.abort_reason}`}</Text><NBtn label={tt('raddash.07f3aadc')} loading={loading} onPress={() => setShowReschedule(true)} /></View>)}
+        {currentOrder.state ==='REPORT_READY' && (<View style={{ backgroundColor:withAlpha(tokens.success, 0.12), borderRadius: R.md, padding: SP.lg, alignItems:'center' }}><Text style={{ color:tokens.success, fontSize: FS.lg, fontWeight: FW.bold }}>{tt('raddash.673a0e54')}</Text>{currentOrder.doctor_notified && <Text style={{ color:tokens.mintDeep, fontSize: FS.sm, marginTop: SP.sm }}>{tt('raddash.b6fa78c1')}</Text>}</View>)}
       </View>
 
       {/* Insurance approval sheet */}
-      <NSheet visible={showApproval} onClose={() => setShowApproval(false)} title={AR ? 'إدخال موافقة التأمين' : 'Insurance Approval'}>
-        <NInput label={AR ? 'مرجع القرار الداخلي' : 'Internal decision reference'} value={decisionRef} onChange={setDecisionRef} placeholder="REF-XXXXX" />
-        <NPriceInput label={AR ? 'نسبة التحمل (0–99%)' : 'Co-pay percentage (0–99%)'} value={copay} onChange={setCopay} />
-        <Text style={{ fontSize: FS.xs, color: tokens.warning, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{AR ? 'القرار الجزئي يضع الطلب في انتظار بوابة دفع التحمل الخادمية؛ لا يُؤكد من هذه الشاشة.' : 'A partial decision waits for the server co-pay payment gate; this screen cannot confirm it.'}</Text>
-        <NBtn label={AR ? 'تسجيل قرار التغطية' : 'Record Coverage Decision'} loading={loading} onPress={handleInsuranceApproval} />
+      <NSheet visible={showApproval} onClose={() => setShowApproval(false)} title={tt('raddash.afba36f9')}>
+        <NInput label={tt('raddash.ad1a5d6b')} value={decisionRef} onChange={setDecisionRef} placeholder="REF-XXXXX" />
+        <NPriceInput label={tt('raddash.f096e662')} value={copay} onChange={setCopay} />
+        <Text style={{ fontSize: FS.xs, color: tokens.warning, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{tt('raddash.1b52df9b')}</Text>
+        <NBtn label={tt('raddash.bbf529ee')} loading={loading} onPress={handleInsuranceApproval} />
       </NSheet>
 
       {/* Abort Modal — PILLAR 5 */}
-      <NSheet visible={showReject} onClose={() => setShowReject(false)} title={AR ? 'رفض الحجز' : 'Reject booking'} height={320}>
-        <NInput label={AR ? 'سبب الرفض' : 'Reason'} value={rejectReason} onChange={setRejectReason} icon="edit" />
-        <NBtn label={AR ? 'تأكيد الرفض' : 'Confirm rejection'} variant="danger" loading={loading} onPress={rejectBooking} style={{ marginTop: SP.md }} />
+      <NSheet visible={showReject} onClose={() => setShowReject(false)} title={tt('raddash.60357fbb')} height={320}>
+        <NInput label={tt('raddash.15bcf925')} value={rejectReason} onChange={setRejectReason} icon="edit" />
+        <NBtn label={tt('raddash.46984e50')} variant="danger" loading={loading} onPress={rejectBooking} style={{ marginTop: SP.md }} />
       </NSheet>
-      <NSheet visible={showAbort} onClose={() => setShowAbort(false)} title={AR?' إلغاء الفحص - اختر السبب':' Abort Scan - Select Reason'}>
-        <Text style={{ color: tokens.error, marginBottom: SP.md, textAlign: AR ? 'right' : 'left', fontSize: FS.sm }}>{AR ? 'سيُسجل الإلغاء في الخادم. لا يُفترض استرداد أو تحويل مالي من هذه الشاشة.' : 'The abort is recorded by the server. This screen does not create or claim a refund or financial transfer.'}</Text>
+      <NSheet visible={showAbort} onClose={() => setShowAbort(false)} title={tt('raddash.f59306e0')}>
+        <Text style={{ color: tokens.error, marginBottom: SP.md, textAlign: AR ? 'right' : 'left', fontSize: FS.sm }}>{tt('raddash.3ff8bb0d')}</Text>
         {ABORT_REASONS.map(r => (
           <TouchableOpacity key={r.key} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md, paddingVertical: SP.md, borderBottomWidth: 1, borderColor: withAlpha(tokens.error, 0.30) }} onPress={() => setAbortReason(r.key)}>
             <View style={{ width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: tokens.error, alignItems: 'center', justifyContent: 'center' }}>{abortReason === r.key && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: tokens.error }} />}</View>
             <Text style={{ fontSize: FS.sm, color: tokens.error }}>{AR ? r.ar : r.en}</Text>
           </TouchableOpacity>
         ))}
-        <NBtn label={AR?' تأكيد إلغاء الفحص':' Confirm Abort'} loading={loading} disabled={!abortReason} onPress={handleAbort} style={{ backgroundColor:tokens.error, borderColor:tokens.error, marginTop: SP.xl }} />
+        <NBtn label={tt('raddash.2952abdf')} loading={loading} disabled={!abortReason} onPress={handleAbort} style={{ backgroundColor:tokens.error, borderColor:tokens.error, marginTop: SP.xl }} />
       </NSheet>
 
       {/* Reschedule Modal */}
-      <NSheet visible={showReschedule} onClose={() => setShowReschedule(false)} title={AR?' إعادة جدولة الفحص':' Reschedule Scan'}>
-        <Text style={{ color: '#56606E', marginBottom: SP.md, textAlign: AR ? 'right' : 'left', fontSize: FS.sm }}>{AR ? 'اختر الموعد الجديد للفحص بعد الإلغاء الطارئ.' : 'Select the new scan slot after the emergency abort.'}</Text>
+      <NSheet visible={showReschedule} onClose={() => setShowReschedule(false)} title={tt('raddash.9a079ea0')}>
+        <Text style={{ color: '#56606E', marginBottom: SP.md, textAlign: AR ? 'right' : 'left', fontSize: FS.sm }}>{tt('raddash.b5a872b4')}</Text>
         {RESCHEDULE_OPTIONS.map(o => (
           <TouchableOpacity key={o.days} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md, paddingVertical: SP.md, borderBottomWidth: 1, borderColor: withAlpha(tokens.mintDeep, 0.30) }} onPress={() => setRescheduleDays(o.days)}>
             <View style={{ width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: tokens.mintDeep, alignItems: 'center', justifyContent: 'center' }}>{rescheduleDays === o.days && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: tokens.mintDeep }} />}</View>
             <Text style={{ fontSize: FS.sm, color: tokens.mintDeep }}>{AR ? o.ar : o.en}</Text>
           </TouchableOpacity>
         ))}
-        <NBtn label={AR?' تأكيد إعادة الجدولة':' Confirm Reschedule'} loading={loading} disabled={!rescheduleDays} onPress={handleReschedule} style={{ backgroundColor:tokens.mintDeep, borderColor:tokens.mintDeep, marginTop: SP.xl }} />
+        <NBtn label={tt('raddash.132436e6')} loading={loading} disabled={!rescheduleDays} onPress={handleReschedule} style={{ backgroundColor:tokens.mintDeep, borderColor:tokens.mintDeep, marginTop: SP.xl }} />
       </NSheet>
     </NScroll>
   );
@@ -417,7 +417,7 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
 // ══════ REPORTING SCREEN — PILLAR 6 + MODULE 10 ══════
 function ReportingScreen({ order, onBack }: { order: any; onBack: () => void }) {
   const uploadsOn = useUploadsEnabled();
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast();
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast();
   const AR = lang === 'ar';
   const [loading, setLoading] = useState(false);
   const [reportFile, setReportFile] = useState<any | null>(null);
@@ -439,7 +439,7 @@ function ReportingScreen({ order, onBack }: { order: any; onBack: () => void }) 
   };
   const handleUploadPdf = async () => {
     if (!reportFile) {
-      show(AR ? 'اختر ملف PDF للتقرير أولاً' : 'Choose the PDF report file first', 'warning');
+      show(tt('raddash.4d2ba54b'), 'warning');
       return;
     }
     setLoading(true);
@@ -454,21 +454,21 @@ function ReportingScreen({ order, onBack }: { order: any; onBack: () => void }) 
         findings: findings.trim(),
       });
       setPdfUploaded(true); setReportStatus('draft');
-      show(AR ? 'تم رفع التقرير وحفظ المسودة' : 'Report uploaded and draft saved', 'success');
-    } catch (e: any) { show(e?.response?.status === 423 ? (AR ? 'الملف قيد الفحص الأمني، حاول بعد دقيقة' : 'The file is still being security-checked, try again in a minute') : (e?.response?.data?.message || e.message), 'error'); } finally { setLoading(false); }
+      show(tt('raddash.ba4df1d7'), 'success');
+    } catch (e: any) { show(e?.response?.status === 423 ? (tt('raddash.a237e338')) : (e?.response?.data?.message || e.message), 'error'); } finally { setLoading(false); }
   };
 
   const handleSubmitForReview = async () => {
-    if (!pdfUploaded) return show(AR ? 'يجب رفع PDF أولاً (إلزامي)' : 'PDF upload is mandatory', 'warning');
+    if (!pdfUploaded) return show(tt('raddash.73b25aa5'), 'warning');
     setLoading(true);
-    try { await client.post(`/radiology/bookings/${order.id}/submit-report-for-review`, {}); setReportStatus('under_review'); show(AR ? 'تم الإرسال للمراجعة' : 'Sent for review', 'success'); }
+    try { await client.post(`/radiology/bookings/${order.id}/submit-report-for-review`, {}); setReportStatus('under_review'); show(tt('raddash.0f4a5d72'), 'success'); }
     catch (e: any) { show(e.message, 'error'); } finally { setLoading(false); }
   };
 
   const handleApproveAndPublish = async () => {
     setLoading(true);
-    try { await client.post(`/radiology/bookings/${order.id}/approve-report`, {}); setReportStatus('ready'); show(AR?'تم نشر التقرير للمريض':'Report published','success'); onBack(); }
-    catch (e: any) { show(e?.response?.data?.message === 'report_reviewer_must_differ_from_uploader' ? (AR ? 'لا يمكنك نشر تقرير رفعتَه أو أرسلتَه للمراجعة. يجب أن يعتمده مراجع آخر.' : 'You cannot publish a report you uploaded or sent for review. Another reviewer must approve it.') : e.message, 'error'); } finally { setLoading(false); }
+    try { await client.post(`/radiology/bookings/${order.id}/approve-report`, {}); setReportStatus('ready'); show(tt('raddash.7062ac79'),'success'); onBack(); }
+    catch (e: any) { show(e?.response?.data?.message === 'report_reviewer_must_differ_from_uploader' ? (tt('raddash.a07a81d9')) : e.message, 'error'); } finally { setLoading(false); }
   };
 
   const STEPS = [{ key: 'draft', ar: 'رفع الملفات', en: 'Upload' }, { key: 'under_review', ar: 'مراجعة', en: 'Review' }, { key: 'ready', ar: 'نُشر', en: 'Published' }];
@@ -476,51 +476,51 @@ function ReportingScreen({ order, onBack }: { order: any; onBack: () => void }) 
 
   return (
     <NScroll>
-      <NHeader title={AR ? 'رفع التقرير والنتائج' : 'Upload Report & Results'} onBack={onBack} />
+      <NHeader title={tt('raddash.4c2fca02')} onBack={onBack} />
       <NCard style={{ marginBottom: SP.lg, flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, alignItems: 'center' }}><IBg name="scan" size={16} color={tokens.mintDeep} bg={withAlpha(tokens.mintDeep, 0.12)} /><View><Text style={{ fontWeight: FW.bold, color: theme.text }}>{order.patient_name || '—'}</Text><Text style={{ fontSize: FS.xs, color: theme.textSub }}>{order.scan_name_ar || order.scan_name_en || '—'}</Text></View></NCard>
 
       {/* MODULE 10: Report Quality Steps */}
       <NCard style={{ marginBottom: SP.lg }}>
-        <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>{AR ? 'مسار جودة التقرير' : 'Report Quality Workflow'}</Text>
+        <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>{tt('raddash.54ae8847')}</Text>
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center' }}>
           {STEPS.map((step, i) => (<React.Fragment key={step.key}><View style={{ alignItems: 'center', flex: 1 }}><View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: i <= stepIdx ? tokens.mintDeep : theme.border, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: i <= stepIdx ? '#fff' : theme.textSub, fontSize: 12, fontWeight: FW.bold }}>{i + 1}</Text></View><Text style={{ fontSize: 9, color: i <= stepIdx ? tokens.mintDeep : theme.textSub, marginTop: 4, textAlign: 'center' }}>{AR ? step.ar : step.en}</Text></View>{i < STEPS.length - 1 && <View style={{ flex: 0.5, height: 2, backgroundColor: i < stepIdx ? tokens.mintDeep : theme.border }} />}</React.Fragment>))}
         </View>
       </NCard>
 
       {/* Section 1: PDF (Mandatory) */}
-      <NSecHeader title={AR?' قسم 1: تقرير PDF (إلزامي)':' Section 1: PDF Report (Mandatory)'} />
+      <NSecHeader title={tt('raddash.a722a482')} />
       <NCard style={{ marginBottom: SP.lg }}>
         {uploadsOn ? (
-<NBtn label={reportFile ? (AR ? `ملف التقرير: ${reportFile.name}` : `Report file: ${reportFile.name}`) : (AR ? 'اختيار تقرير PDF موقّع' : 'Choose signed PDF report')} variant="outline" onPress={() => pickFile('report')} />
+<NBtn label={reportFile ? (AR ? `ملف التقرير: ${reportFile.name}` : `Report file: ${reportFile.name}`) : (tt('raddash.3411532b'))} variant="outline" onPress={() => pickFile('report')} />
 ) : <UploadsUnavailable />}
-        <NInput label={AR ? 'النتائج السريرية (Findings)' : 'Clinical Findings'} value={findings} onChange={setFindings} multi lines={4} placeholder={AR ? 'اذكر النتائج الإشعاعية...' : 'Describe radiology findings...'} />
+        <NInput label={tt('raddash.b71f305d')} value={findings} onChange={setFindings} multi lines={4} placeholder={tt('raddash.79e46169')} />
         {uploadsOn ? (
-<NBtn label={pdfUploaded ? (AR ? 'رفع نسخة تقرير محدثة' : 'Upload updated report') : (AR ? 'رفع وحفظ تقرير PDF' : 'Upload and save PDF report')} loading={loading} onPress={handleUploadPdf} style={{ backgroundColor: pdfUploaded ? tokens.success : tokens.mintDeep }} />
+<NBtn label={pdfUploaded ? (tt('raddash.96f339ca')) : (tt('raddash.b90bda3e'))} loading={loading} onPress={handleUploadPdf} style={{ backgroundColor: pdfUploaded ? tokens.success : tokens.mintDeep }} />
 ) : null}
-        {!pdfUploaded && <Text style={{ fontSize: FS.xs, color: tokens.error, textAlign: AR ? 'right' : 'left', marginTop: SP.sm }}>{AR ? '* ملف PDF موقّع يُرفع للتخزين الخاص قبل المراجعة' : '* A signed PDF is uploaded to private storage before review'}</Text>}
+        {!pdfUploaded && <Text style={{ fontSize: FS.xs, color: tokens.error, textAlign: AR ? 'right' : 'left', marginTop: SP.sm }}>{tt('raddash.ded2413b')}</Text>}
       </NCard>
 
       {/* Section 2: DICOM (Optional) */}
-      <NSecHeader title={AR?' قسم 2: صور DICOM (اختياري)':' Section 2: DICOM Images (Optional)'} />
+      <NSecHeader title={tt('raddash.eba6510d')} />
       <NCard style={{ marginBottom: SP.lg }}>
         {uploadsOn ? (
-<NBtn label={dicomFile ? (AR ? `ملف DICOM: ${dicomFile.name}` : `DICOM file: ${dicomFile.name}`) : (AR ? 'اختيار ملف DICOM اختياري' : 'Choose optional DICOM file')} variant="outline" onPress={() => pickFile('dicom')} />
+<NBtn label={dicomFile ? (AR ? `ملف DICOM: ${dicomFile.name}` : `DICOM file: ${dicomFile.name}`) : (tt('raddash.76f32096'))} variant="outline" onPress={() => pickFile('dicom')} />
 ) : <UploadsUnavailable />}
         <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginTop: SP.sm }}>
-          {AR ? 'تُرفع ملفات الأشعة إلى التخزين الخاص وتتحقق الخدمة من ملكيتها قبل اعتماد التقرير.' : 'Scan files are uploaded to private storage and ownership is verified before the report is accepted.'}
+          {tt('raddash.50cfb4d9')}
         </Text>
       </NCard>
 
-      {reportStatus ==='draft' && pdfUploaded && <NBtn label={AR?' إرسال للمراجعة الطبية':' Submit for Radiologist Review'} loading={loading} onPress={handleSubmitForReview} style={{ marginBottom: SP.md }} />}
-      {reportStatus ==='under_review' && <NBtn label={AR?' اعتماد وإرسال للمريض':' Approve & Publish to Patient'} loading={loading} onPress={handleApproveAndPublish} style={{ backgroundColor:tokens.success, marginBottom: SP.md }} />}
-      {reportStatus ==='ready' && <View style={{ backgroundColor:withAlpha(tokens.success, 0.12), borderRadius: R.md, padding: SP.lg, alignItems:'center', marginBottom: SP.md }}><Text style={{ color:tokens.success, fontSize: FS.lg, fontWeight: FW.bold }}>{AR?' نُشر التقرير للمريض':' Report Published to Patient'}</Text></View>}
+      {reportStatus ==='draft' && pdfUploaded && <NBtn label={tt('raddash.223b9561')} loading={loading} onPress={handleSubmitForReview} style={{ marginBottom: SP.md }} />}
+      {reportStatus ==='under_review' && <NBtn label={tt('raddash.00ff07bb')} loading={loading} onPress={handleApproveAndPublish} style={{ backgroundColor:tokens.success, marginBottom: SP.md }} />}
+      {reportStatus ==='ready' && <View style={{ backgroundColor:withAlpha(tokens.success, 0.12), borderRadius: R.md, padding: SP.lg, alignItems:'center', marginBottom: SP.md }}><Text style={{ color:tokens.success, fontSize: FS.lg, fontWeight: FW.bold }}>{tt('raddash.cdc0fc9d')}</Text></View>}
     </NScroll>
   );
 }
 
 // ══════ CATALOG MANAGER — PILLAR 2+3 + MODULE 15 ══════
 function CatalogManagerTab() {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast();
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast();
   const AR = lang === 'ar';
   const [showAdd, setShowAdd] = useState(false);
   const [modality, setModality] = useState('MRI');
@@ -547,10 +547,10 @@ function CatalogManagerTab() {
   const MODALITIES = ['MRI', 'CT', 'X-Ray', 'Ultrasound', 'Mammography', 'DEXA', 'Fluoroscopy', 'PET'];
 
   const handleSubmitDelta = async () => {
-    if (!nameEn || !price) return show(AR ? 'أدخل الاسم والسعر' : 'Enter name and price', 'warning');
+    if (!nameEn || !price) return show(tt('raddash.83910b78'), 'warning');
     try {
       await client.post('/radiology/catalog/delta-request', { name_ar: nameAr, name_en: nameEn, modality_category: modality, price: parseFloat(price), estimated_duration_minutes: parseInt(duration) || 30, insurance_availability: insAvail, portable_ultrasound: portableUS, requires_pregnancy_check: riskPregnancy, requires_metal_implant_check: riskMetal, requires_contrast_allergy_check: riskContrast, preparation_keys: prepItems });
-      show(AR ? 'تم إرسال طلب الإضافة للمراجعة الإدارية' : 'Add request sent for admin review', 'success');
+      show(tt('raddash.70985b54'), 'success');
       setShowAdd(false);
     } catch (e: any) { show(e.message, 'error'); }
   };
@@ -558,23 +558,23 @@ function CatalogManagerTab() {
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <MyServicesScreen vertical="radiology"
-        footer={<NBtn label={AR ? 'فحص غير موجود؟ اطلب إضافته' : 'Scan not listed? Ask to add it'} variant="outline" onPress={() => setShowAdd(true)} />} />
-      <NSheet visible={showAdd} onClose={() => setShowAdd(false)} title={AR ? 'إضافة فحص جديد' : 'Add New Scan'}>
-        <Text style={{ fontSize: FS.xs, color:tokens.warning, textAlign: AR?'right':'left', marginBottom: SP.md }}>{AR?' يذهب للمراجعة الإدارية قبل ظهوره للمرضى.':' Goes for admin review before patient visibility.'}</Text>
-        <Text style={{ fontSize: FS.sm, color: theme.text, marginBottom: SP.sm }}>{AR ? 'فئة الجهاز (Modality)' : 'Modality Category'}</Text>
+        footer={<NBtn label={tt('raddash.ad2647d3')} variant="outline" onPress={() => setShowAdd(true)} />} />
+      <NSheet visible={showAdd} onClose={() => setShowAdd(false)} title={tt('raddash.1ba49c32')}>
+        <Text style={{ fontSize: FS.xs, color:tokens.warning, textAlign: AR?'right':'left', marginBottom: SP.md }}>{tt('raddash.14907cd7')}</Text>
+        <Text style={{ fontSize: FS.sm, color: theme.text, marginBottom: SP.sm }}>{tt('raddash.f837bb28')}</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: SP.md }}>
           <View style={{ flexDirection: 'row', gap: SP.sm }}>{MODALITIES.map(m => <TouchableOpacity key={m} style={{ paddingHorizontal: SP.md, paddingVertical: SP.sm, borderRadius: R.md, backgroundColor: modality === m ? tokens.mintDeep : theme.surface2, borderWidth: 1, borderColor: modality === m ? tokens.mintDeep : theme.border }} onPress={() => setModality(m)}><Text style={{ color: modality === m ? '#fff' : theme.text, fontSize: FS.sm }}>{m}</Text></TouchableOpacity>)}</View>
         </ScrollView>
-        <NInput label={AR ? 'اسم الفحص (عربي)' : 'Scan Name (Arabic)'} value={nameAr} onChange={setNameAr} placeholder="رنين مغناطيسي الدماغ بصبغة" />
-        <NInput label={AR ? 'اسم الفحص (إنجليزي)' : 'Scan Name (English)'} value={nameEn} onChange={setNameEn} placeholder="MRI Brain with Contrast" />
-        <NPriceInput label={AR ? 'السعر كاش (ر.س)' : 'Cash Price (SAR)'} value={price} onChange={setPrice} />
-        <NInput label={AR ? 'المدة المتوقعة (دقيقة)' : 'Expected Duration (minutes)'} value={duration} onChange={setDuration} placeholder="30" />
-        <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginVertical: SP.md }}>{AR?' عوامل الخطر (Risk Flags)':' Risk Flags'}</Text>
-        {[{ label: AR ? 'يتطلب فحص حمل (X-Ray, CT)' : 'Requires Pregnancy Check', state: riskPregnancy, set: setRiskPregnancy }, { label: AR ? 'يتطلب فحص معدن/منظم (MRI)' : 'Requires Metal/Pacemaker Check', state: riskMetal, set: setRiskMetal }, { label: AR ? 'يتطلب فحص حساسية صبغة' : 'Requires Contrast Allergy Check', state: riskContrast, set: setRiskContrast }].map((item, i) => <View key={i} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.sm }}><Text style={{ fontSize: FS.sm, color: theme.text, flex: 1 }}>{item.label}</Text><Switch value={item.state} onValueChange={item.set} trackColor={{ true: tokens.error }} /></View>)}
-        <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.sm }}><Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? 'أشعة منزلية محمولة (US فقط)' : 'Portable Ultrasound (Home Visit)'}</Text><Switch value={portableUS} onValueChange={setPortableUS} trackColor={{ true: tokens.mintDeep }} /></View>
-        <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginVertical: SP.md }}>{AR?' تعليمات التحضير':' Patient Preparation'}</Text>
+        <NInput label={tt('raddash.d91c01b5')} value={nameAr} onChange={setNameAr} placeholder="رنين مغناطيسي الدماغ بصبغة" />
+        <NInput label={tt('raddash.1f9eb88f')} value={nameEn} onChange={setNameEn} placeholder="MRI Brain with Contrast" />
+        <NPriceInput label={tt('raddash.39a4471e')} value={price} onChange={setPrice} />
+        <NInput label={tt('raddash.d2889ad9')} value={duration} onChange={setDuration} placeholder="30" />
+        <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginVertical: SP.md }}>{tt('raddash.93a0edf5')}</Text>
+        {[{ label: tt('raddash.6596c548'), state: riskPregnancy, set: setRiskPregnancy }, { label: tt('raddash.760780c7'), state: riskMetal, set: setRiskMetal }, { label: tt('raddash.b92b94fe'), state: riskContrast, set: setRiskContrast }].map((item, i) => <View key={i} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.sm }}><Text style={{ fontSize: FS.sm, color: theme.text, flex: 1 }}>{item.label}</Text><Switch value={item.state} onValueChange={item.set} trackColor={{ true: tokens.error }} /></View>)}
+        <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.sm }}><Text style={{ fontSize: FS.sm, color: theme.text }}>{tt('raddash.e820a35b')}</Text><Switch value={portableUS} onValueChange={setPortableUS} trackColor={{ true: tokens.mintDeep }} /></View>
+        <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginVertical: SP.md }}>{tt('raddash.87069951')}</Text>
         {PREP_OPTIONS.map(p => <TouchableOpacity key={p.key} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm, paddingVertical: SP.sm }} onPress={() => setPrepItems(prev => prev.includes(p.key) ? prev.filter(x => x !== p.key) : [...prev, p.key])}><View style={{ width: 20, height: 20, borderRadius: 4, borderWidth: 2, borderColor: tokens.mintDeep, backgroundColor: prepItems.includes(p.key) ? tokens.mintDeep : 'transparent', alignItems: 'center', justifyContent: 'center' }}>{prepItems.includes(p.key) && <I name="check" size={12} color="#fff" />}</View><Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? p.ar : p.en}</Text></TouchableOpacity>)}
-        <NBtn label={AR ? 'إرسال للمراجعة الإدارية' : 'Submit for Admin Review'} onPress={handleSubmitDelta} style={{ marginTop: SP.xl }} />
+        <NBtn label={tt('raddash.017b19ce')} onPress={handleSubmitDelta} style={{ marginTop: SP.xl }} />
       </NSheet>
     </View>
   );
@@ -582,7 +582,7 @@ function CatalogManagerTab() {
 
 // ══════ AVAILABILITY SCHEDULE — MODULE 9 ══════
 function AvailabilityScheduleTab() {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast();
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast();
   const AR = lang === 'ar';
   const DAYS_AR = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
   const DAYS_EN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -596,61 +596,61 @@ function AvailabilityScheduleTab() {
 
   const handleSave = async () => {
     setSaving(true);
-    try { await client.post('/radiology/catalog/delta-request', { type: 'schedule_update', working_days: workingDays, morning_shift: { from: morningFrom, to: morningTo }, evening_shift: { from: eveningFrom, to: eveningTo }, emergency_available: emergencyAvailable }); show(AR ? 'تم حفظ الجدول وإرساله للمراجعة' : 'Schedule saved and sent for review', 'success'); }
+    try { await client.post('/radiology/catalog/delta-request', { type: 'schedule_update', working_days: workingDays, morning_shift: { from: morningFrom, to: morningTo }, evening_shift: { from: eveningFrom, to: eveningTo }, emergency_available: emergencyAvailable }); show(tt('raddash.851685dc'), 'success'); }
     catch (e: any) { show(e.message, 'error'); } finally { setSaving(false); }
   };
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: theme.bg }} contentContainerStyle={{ padding: SP.lg, paddingBottom: 120 }}>
-      <NHeader title={AR ? 'جدول المواعيد والتوفر' : 'Availability Schedule'} />
-      <NSecHeader title={AR?' أيام العمل':' Working Days'} />
+      <NHeader title={tt('raddash.30c7d077')} />
+      <NSecHeader title={tt('raddash.71237ac3')} />
       <NCard style={{ marginBottom: SP.lg }}>
         {DAYS_AR.map((day, i) => <TouchableOpacity key={i} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: SP.md, borderBottomWidth: i < 6 ? 1 : 0, borderColor: theme.border }} onPress={() => setWorkingDays(prev => { const n = [...prev]; n[i] = !n[i]; return n; })}><Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? day : DAYS_EN[i]}</Text><View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: workingDays[i] ? tokens.mintDeep : theme.surface2, borderWidth: 2, borderColor: workingDays[i] ? tokens.mintDeep : theme.border, alignItems: 'center', justifyContent: 'center' }}>{workingDays[i] && <I name="check" size={12} color="#fff" />}</View></TouchableOpacity>)}
       </NCard>
-      <NSecHeader title={AR?' الفترة الصباحية':' Morning Shift'} />
+      <NSecHeader title={tt('raddash.b9fabab9')} />
       <NCard style={{ marginBottom: SP.lg, flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
-        <NInput label={AR ? 'من' : 'From'} value={morningFrom} onChange={setMorningFrom} placeholder="08:00" style={{ flex: 1 }} />
-        <NInput label={AR ? 'إلى' : 'To'} value={morningTo} onChange={setMorningTo} placeholder="14:00" style={{ flex: 1 }} />
+        <NInput label={tt('raddash.ecdb7711')} value={morningFrom} onChange={setMorningFrom} placeholder="08:00" style={{ flex: 1 }} />
+        <NInput label={tt('raddash.32c46ecf')} value={morningTo} onChange={setMorningTo} placeholder="14:00" style={{ flex: 1 }} />
       </NCard>
-      <NSecHeader title={AR?' الفترة المسائية':' Evening Shift'} />
+      <NSecHeader title={tt('raddash.ee6f3eb2')} />
       <NCard style={{ marginBottom: SP.lg, flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
-        <NInput label={AR ? 'من' : 'From'} value={eveningFrom} onChange={setEveningFrom} placeholder="17:00" style={{ flex: 1 }} />
-        <NInput label={AR ? 'إلى' : 'To'} value={eveningTo} onChange={setEveningTo} placeholder="22:00" style={{ flex: 1 }} />
+        <NInput label={tt('raddash.ecdb7711')} value={eveningFrom} onChange={setEveningFrom} placeholder="17:00" style={{ flex: 1 }} />
+        <NInput label={tt('raddash.32c46ecf')} value={eveningTo} onChange={setEveningTo} placeholder="22:00" style={{ flex: 1 }} />
       </NCard>
       <NCard style={{ marginBottom: SP.xl }}>
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <View><Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{AR?' متاح للطوارئ':' Emergency Availability'}</Text><Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR?'يسمح بالحجز خارج أوقات العمل':'Allow bookings outside working hours'}</Text></View>
+          <View><Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{tt('raddash.4701eeb3')}</Text><Text style={{ fontSize: FS.xs, color: theme.textSub }}>{tt('raddash.949a4fa3')}</Text></View>
           <Switch value={emergencyAvailable} onValueChange={setEmergencyAvailable} trackColor={{ true: tokens.error }} />
         </View>
       </NCard>
-      <NBtn label={AR ? 'حفظ وإرسال للمراجعة' : 'Save & Send for Review'} loading={saving} onPress={handleSave} />
+      <NBtn label={tt('raddash.4d7dc55e')} loading={saving} onPress={handleSave} />
     </ScrollView>
   );
 }
 
 // ══════ SETTINGS ══════
 function RadiologySettingsScreen({ onLogout, onNav }: { onLogout: () => void; onNav?: (s: string, p?: any) => void }) {
-  const { theme } = useTheme(); const { lang } = useLang();
+  const { theme } = useTheme(); const { lang, t: tt } = useLang();
   const AR = lang === 'ar';
   return (
     <ScrollView style={{ flex: 1, backgroundColor: theme.bg }} contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}>
-      <NHeader title={AR ? 'الإعدادات' : 'Settings'} />
-      <NCard style={{ marginBottom: SP.md }}><Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{AR ? 'معلومات المركز' : 'Center Information'}</Text><Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left', fontSize: FS.sm }}>{AR ? 'تعديل بيانات المركز يتطلب مراجعة إدارية' : 'Center data changes require admin review'}</Text></NCard>
+      <NHeader title={tt('raddash.5766fe8f')} />
+      <NCard style={{ marginBottom: SP.md }}><Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{tt('raddash.d0741654')}</Text><Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left', fontSize: FS.sm }}>{tt('raddash.9065d708')}</Text></NCard>
       <NCard style={{ marginBottom: SP.md }}>
-        <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{AR ? 'التأمين' : 'Insurance'}</Text>
-        <NBtn label={AR ? 'طلبات التأمين الواردة (قرار يدوي)' : 'Inbound Insurance Requests'} variant="outline" onPress={() => onNav && onNav('insurance_requests')} />
+        <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{tt('raddash.5e936739')}</Text>
+        <NBtn label={tt('raddash.849acb0e')} variant="outline" onPress={() => onNav && onNav('insurance_requests')} />
       </NCard>
       <NCard style={{ marginBottom: SP.md }}>
-        <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{AR ? 'إعلان الطلبات' : 'Ordering declaration'}</Text>
-        <NBtn label={AR ? 'إعلان الطلبات' : 'Ordering declaration'} variant="outline" onPress={() => onNav && onNav(ORDERING_ENTRY)} />
+        <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{tt('raddash.7a80399f')}</Text>
+        <NBtn label={tt('raddash.7a80399f')} variant="outline" onPress={() => onNav && onNav(ORDERING_ENTRY)} />
       </NCard>
       <NCard style={{ marginBottom: SP.md }}>
-        <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{AR ? 'الأدوية' : 'Drugs'}</Text>
-        <NBtn label={AR ? 'دليل الأدوية الطبي' : 'Medical Drug Index'} variant="outline" onPress={() => onNav && onNav('drug_index')} />
-        <NBtn label={AR ? 'الوظائف الطبية' : 'Medical Jobs'} variant="outline" onPress={() => onNav && onNav('medical_jobs')} style={{ marginTop: SP.sm }} />
+        <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{tt('raddash.61bcd49d')}</Text>
+        <NBtn label={tt('raddash.0e14b12f')} variant="outline" onPress={() => onNav && onNav('drug_index')} />
+        <NBtn label={tt('raddash.ebb9f1de')} variant="outline" onPress={() => onNav && onNav('medical_jobs')} style={{ marginTop: SP.sm }} />
       </NCard>
       <NCard style={{ marginBottom: SP.md }}><MyContractRow /></NCard>
-      <NCard style={{ marginTop: SP.xl }}><NBtn label={AR ? 'تسجيل الخروج' : 'Logout'} onPress={onLogout} style={{ backgroundColor: tokens.error, borderColor: tokens.error }} /></NCard>
+      <NCard style={{ marginTop: SP.xl }}><NBtn label={tt('raddash.b2a19694')} onPress={onLogout} style={{ backgroundColor: tokens.error, borderColor: tokens.error }} /></NCard>
     </ScrollView>
   );
 }

@@ -1,5 +1,5 @@
 {
- "commit": "7f9f7bffa",
+ "commit": "49a35b8ce",
  "screens": {
   "PendingDashboard": [
    {
@@ -1544,7 +1544,7 @@
    },
    {
     "kind": "input",
-    "label": "Full Name (as in official documents)",
+    "label": "{tt('docreg.90a495ca')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1554,7 +1554,7 @@
    },
    {
     "kind": "input",
-    "label": "Display Name for patients (Arabic)",
+    "label": "{tt('docreg.c98fb734')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1564,7 +1564,7 @@
    },
    {
     "kind": "input",
-    "label": "Display Name for patients (English)",
+    "label": "{tt('docreg.637e03fb')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1574,7 +1574,7 @@
    },
    {
     "kind": "input",
-    "label": "Phone",
+    "label": "{tt('docreg.42c8946e')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1584,7 +1584,7 @@
    },
    {
     "kind": "input",
-    "label": "Email",
+    "label": "{tt('docreg.8605844e')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1594,7 +1594,7 @@
    },
    {
     "kind": "button",
-    "label": "Male",
+    "label": "{tt('docreg.38c7b72b')}",
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1604,7 +1604,7 @@
    },
    {
     "kind": "button",
-    "label": "Female",
+    "label": "{tt('docreg.dc8f800e')}",
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1614,7 +1614,7 @@
    },
    {
     "kind": "input",
-    "label": "Password",
+    "label": "{tt('docreg.751ab623')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1624,7 +1624,7 @@
    },
    {
     "kind": "input",
-    "label": "Confirm Password",
+    "label": "{tt('docreg.4171a21c')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1634,7 +1634,7 @@
    },
    {
     "kind": "input",
-    "label": "National ID",
+    "label": "{tt('docreg.bf13f762')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1644,7 +1644,7 @@
    },
    {
     "kind": "input",
-    "label": "SCFHS Number",
+    "label": "{tt('docreg.bf1d0b9f')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1664,7 +1664,7 @@
    },
    {
     "kind": "input",
-    "label": "SCFHS licence expiry date",
+    "label": "{tt('docreg.ee5f77aa')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1674,7 +1674,7 @@
    },
    {
     "kind": "input",
-    "label": "Licence expiry date",
+    "label": "{tt('docreg.50ede357')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1684,7 +1684,7 @@
    },
    {
     "kind": "input",
-    "label": "Bank IBAN",
+    "label": "{tt('docreg.730b8353')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1694,7 +1694,7 @@
    },
    {
     "kind": "input",
-    "label": "Account holder name",
+    "label": "{tt('docreg.3f934541')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1704,7 +1704,7 @@
    },
    {
     "kind": "button",
-    "label": "National ID (Front)",
+    "label": "{tt('docreg.5125dcc5')}",
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1714,7 +1714,7 @@
    },
    {
     "kind": "button",
-    "label": "SCFHS License",
+    "label": "{tt('docreg.190277a4')}",
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1724,7 +1724,7 @@
    },
    {
     "kind": "button",
-    "label": "Additional Documents (Optional)",
+    "label": "{tt('docreg.556e463a')}",
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1744,7 +1744,7 @@
    },
    {
     "kind": "button",
-    "label": "[image] Improve Quality (Remove BG)",
+    "label": "[image] {tt('docreg.b582d025')}",
     "src": "local state setShowRemoveBg",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1754,7 +1754,7 @@
    },
    {
     "kind": "button",
-    "label": "Close",
+    "label": "{tt('docreg.e6d3a19e')}",
     "src": "local state setShowRemoveBg",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1764,7 +1764,7 @@
    },
    {
     "kind": "input",
-    "label": "Specialty",
+    "label": "{tt('docreg.de60b396')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1774,7 +1774,7 @@
    },
    {
     "kind": "input",
-    "label": "Sub-specialty",
+    "label": "{tt('docreg.72b34c53')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1784,7 +1784,7 @@
    },
    {
     "kind": "input",
-    "label": "Degree",
+    "label": "{tt('docreg.65dc76f9')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1794,7 +1794,7 @@
    },
    {
     "kind": "input",
-    "label": "Years of Experience",
+    "label": "{tt('docreg.4ca1465a')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1804,7 +1804,7 @@
    },
    {
     "kind": "input",
-    "label": "Bio",
+    "label": "{tt('docreg.d5e7f06d')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1855,7 +1855,7 @@
    },
    {
     "kind": "input",
-    "label": "Clinic Visit Price",
+    "label": "{tt('docreg.b3395982')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1865,7 +1865,7 @@
    },
    {
     "kind": "input",
-    "label": "Consultation Duration (min)",
+    "label": "{tt('docreg.f3db4d8e')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1885,7 +1885,7 @@
    },
    {
     "kind": "input",
-    "label": "Online Consult Price",
+    "label": "{tt('docreg.a6697d10')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1895,7 +1895,7 @@
    },
    {
     "kind": "input",
-    "label": "Consultation Duration (min)",
+    "label": "{tt('docreg.d4281126')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1915,7 +1915,7 @@
    },
    {
     "kind": "input",
-    "label": "Home Visit Price",
+    "label": "{tt('docreg.184442eb')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1925,7 +1925,7 @@
    },
    {
     "kind": "input",
-    "label": "Visit Duration (min)",
+    "label": "{tt('docreg.318d58f4')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1945,7 +1945,7 @@
    },
    {
     "kind": "input",
-    "label": "Transport Fee",
+    "label": "{tt('docreg.ffc709f9')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1985,7 +1985,7 @@
    },
    {
     "kind": "button",
-    "label": "{km} KM",
+    "label": "{km} {tt('docreg.17e9ee72')}",
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -1995,7 +1995,7 @@
    },
    {
     "kind": "button",
-    "label": "[map] Pick Location on Map",
+    "label": "[map] {tt('docreg.fd16e8ce')}",
     "src": "local state setShowMap",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -2026,7 +2026,7 @@
    },
    {
     "kind": "input",
-    "label": "Shift",
+    "label": "{tt('docreg.76c75903')}",
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -2036,7 +2036,7 @@
    },
    {
     "kind": "input",
-    "label": "From",
+    "label": "{tt('docreg.ecdb7711')}",
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -2046,7 +2046,7 @@
    },
    {
     "kind": "input",
-    "label": "To",
+    "label": "{tt('docreg.32c46ecf')}",
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -2056,7 +2056,7 @@
    },
    {
     "kind": "input",
-    "label": "From",
+    "label": "{tt('docreg.ecdb7711')}",
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -2066,7 +2066,7 @@
    },
    {
     "kind": "input",
-    "label": "To",
+    "label": "{tt('docreg.32c46ecf')}",
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -2076,7 +2076,7 @@
    },
    {
     "kind": "button",
-    "label": "Unified",
+    "label": "{tt('docreg.d87d4d8e')}",
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -2086,7 +2086,7 @@
    },
    {
     "kind": "button",
-    "label": "Per Service",
+    "label": "{tt('docreg.f95f92da')}",
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -2117,7 +2117,7 @@
    },
    {
     "kind": "input",
-    "label": "Shift",
+    "label": "{tt('docreg.76c75903')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -2127,7 +2127,7 @@
    },
    {
     "kind": "input",
-    "label": "From",
+    "label": "{tt('docreg.ecdb7711')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -2137,7 +2137,7 @@
    },
    {
     "kind": "input",
-    "label": "To",
+    "label": "{tt('docreg.32c46ecf')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -2147,7 +2147,7 @@
    },
    {
     "kind": "input",
-    "label": "From",
+    "label": "{tt('docreg.ecdb7711')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -2157,7 +2157,7 @@
    },
    {
     "kind": "input",
-    "label": "To",
+    "label": "{tt('docreg.32c46ecf')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -2177,7 +2177,7 @@
    },
    {
     "kind": "input",
-    "label": "Planned Vacation",
+    "label": "{tt('docreg.be8de242')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -2187,7 +2187,7 @@
    },
    {
     "kind": "input",
-    "label": "Select Vacation Date",
+    "label": "{tt('docreg.9f7cb31d')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -2279,7 +2279,7 @@
    },
    {
     "kind": "input",
-    "label": "Street / Detailed Address",
+    "label": "{tt('docreg.05805aaf')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -2289,7 +2289,7 @@
    },
    {
     "kind": "input",
-    "label": "Clinic Name (Optional)",
+    "label": "{tt('docreg.14b8c03c')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
@@ -2309,8 +2309,8 @@
    },
    {
     "kind": "button",
-    "label": "My Location",
-    "src": "parent callback update",
+    "label": "{tt('docreg.8c67be67')}",
+    "src": "parent callback tt, update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
     "line": 976,
@@ -2796,7 +2796,7 @@
    },
    {
     "kind": "input",
-    "label": "Facility Name (AR)",
+    "label": "{tt('facreg.ce1851d8')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -2806,7 +2806,7 @@
    },
    {
     "kind": "input",
-    "label": "Facility Name (EN)",
+    "label": "{tt('facreg.7733a526')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -2816,7 +2816,7 @@
    },
    {
     "kind": "input",
-    "label": "Manager Name",
+    "label": "{tt('facreg.601810d6')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -2826,7 +2826,7 @@
    },
    {
     "kind": "input",
-    "label": "Manager Phone",
+    "label": "{tt('facreg.52d66dfa')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -2836,7 +2836,7 @@
    },
    {
     "kind": "input",
-    "label": "Manager Email",
+    "label": "{tt('facreg.6a0806b6')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -2846,7 +2846,7 @@
    },
    {
     "kind": "input",
-    "label": "Password",
+    "label": "{tt('facreg.751ab623')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -2856,7 +2856,7 @@
    },
    {
     "kind": "input",
-    "label": "Confirm Password",
+    "label": "{tt('facreg.4171a21c')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -2887,7 +2887,7 @@
    },
    {
     "kind": "input",
-    "label": "CR Number",
+    "label": "{tt('facreg.7e54a94b')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -2897,7 +2897,7 @@
    },
    {
     "kind": "input",
-    "label": "MOH License",
+    "label": "{tt('facreg.796857a4')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -2907,7 +2907,7 @@
    },
    {
     "kind": "button",
-    "label": "CR Document",
+    "label": "{tt('facreg.e518d1e8')}",
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -2917,7 +2917,7 @@
    },
    {
     "kind": "button",
-    "label": "MOH Document",
+    "label": "{tt('facreg.27343b74')}",
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -2927,7 +2927,7 @@
    },
    {
     "kind": "button",
-    "label": "Facility Logo",
+    "label": "{tt('facreg.de61fbe4')}",
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -2967,7 +2967,7 @@
    },
    {
     "kind": "input",
-    "label": "Full Address",
+    "label": "{tt('facreg.e2bff93c')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3038,7 +3038,7 @@
    },
    {
     "kind": "input",
-    "label": "Name (AR)",
+    "label": "{tt('facreg.7eb8db66')}",
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3048,7 +3048,7 @@
    },
    {
     "kind": "input",
-    "label": "Name (EN)",
+    "label": "{tt('facreg.25d8873f')}",
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3058,7 +3058,7 @@
    },
    {
     "kind": "input",
-    "label": "Email (for future login)",
+    "label": "{tt('facreg.529e911b')}",
     "src": "user input → parent callback v.toLowerCase",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3068,7 +3068,7 @@
    },
    {
     "kind": "input",
-    "label": "License Number",
+    "label": "{tt('facreg.a2ab6871')}",
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3078,7 +3078,7 @@
    },
    {
     "kind": "input",
-    "label": "Specialty",
+    "label": "{tt('facreg.de60b396')}",
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3088,7 +3088,7 @@
    },
    {
     "kind": "input",
-    "label": "Degree",
+    "label": "{tt('facreg.65dc76f9')}",
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3118,7 +3118,7 @@
    },
    {
     "kind": "input",
-    "label": "Accepts Insurance?",
+    "label": "{tt('facreg.47c1c1c4')}",
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3149,7 +3149,7 @@
    },
    {
     "kind": "input",
-    "label": "From",
+    "label": "{tt('facreg.c375f2a3')}",
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3159,7 +3159,7 @@
    },
    {
     "kind": "input",
-    "label": "To",
+    "label": "{tt('facreg.91dd9b6d')}",
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3190,7 +3190,7 @@
    },
    {
     "kind": "input",
-    "label": "Price",
+    "label": "{tt('facreg.edbde75d')}",
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3200,7 +3200,7 @@
    },
    {
     "kind": "input",
-    "label": "Provide Home Sample Collection",
+    "label": "{tt('facreg.715def7a')}",
     "src": "user input → state (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3210,7 +3210,7 @@
    },
    {
     "kind": "input",
-    "label": "Fee",
+    "label": "{tt('facreg.9ce60f4d')}",
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3220,7 +3220,7 @@
    },
    {
     "kind": "input",
-    "label": "Accepts Medical Insurance",
+    "label": "{tt('facreg.1ac8fc29')}",
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3251,7 +3251,7 @@
    },
    {
     "kind": "input",
-    "label": "From",
+    "label": "{tt('facreg.c375f2a3')}",
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3261,7 +3261,7 @@
    },
    {
     "kind": "input",
-    "label": "To",
+    "label": "{tt('facreg.91dd9b6d')}",
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3292,7 +3292,7 @@
    },
    {
     "kind": "input",
-    "label": "Price",
+    "label": "{tt('facreg.edbde75d')}",
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3302,7 +3302,7 @@
    },
    {
     "kind": "input",
-    "label": "Provide Home Scan",
+    "label": "{tt('facreg.51910b8d')}",
     "src": "user input → state (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3312,7 +3312,7 @@
    },
    {
     "kind": "input",
-    "label": "Fee",
+    "label": "{tt('facreg.9ce60f4d')}",
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3322,7 +3322,7 @@
    },
    {
     "kind": "input",
-    "label": "Accepts Medical Insurance",
+    "label": "{tt('facreg.1ac8fc29')}",
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3353,7 +3353,7 @@
    },
    {
     "kind": "input",
-    "label": "From",
+    "label": "{tt('facreg.c375f2a3')}",
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3363,7 +3363,7 @@
    },
    {
     "kind": "input",
-    "label": "To",
+    "label": "{tt('facreg.91dd9b6d')}",
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3394,7 +3394,7 @@
    },
    {
     "kind": "input",
-    "label": "Price",
+    "label": "{tt('facreg.edbde75d')}",
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3404,7 +3404,7 @@
    },
    {
     "kind": "input",
-    "label": "Provide Home Care",
+    "label": "{tt('facreg.6e1f9d74')}",
     "src": "user input → state (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3414,7 +3414,7 @@
    },
    {
     "kind": "input",
-    "label": "Fee",
+    "label": "{tt('facreg.9ce60f4d')}",
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3424,7 +3424,7 @@
    },
    {
     "kind": "input",
-    "label": "Accepts Medical Insurance",
+    "label": "{tt('facreg.1ac8fc29')}",
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3455,7 +3455,7 @@
    },
    {
     "kind": "input",
-    "label": "From",
+    "label": "{tt('facreg.c375f2a3')}",
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3465,7 +3465,7 @@
    },
    {
     "kind": "input",
-    "label": "To",
+    "label": "{tt('facreg.91dd9b6d')}",
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3475,7 +3475,7 @@
    },
    {
     "kind": "input",
-    "label": "Home delivery",
+    "label": "{tt('facreg.b7822c5b')}",
     "src": "user input → state (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3485,7 +3485,7 @@
    },
    {
     "kind": "input",
-    "label": "Accepts Medical Insurance",
+    "label": "{tt('facreg.1ac8fc29')}",
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
@@ -3515,8 +3515,8 @@
    },
    {
     "kind": "button",
-    "label": "Add to List",
-    "src": "parent callback update",
+    "label": "{tt('facreg.a8cb327e')}",
+    "src": "parent callback tt, update",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
     "line": 809,
@@ -4165,7 +4165,7 @@
    },
    {
     "kind": "input",
-    "label": "Pharmacy Name (Arabic)",
+    "label": "{tt('phreg.8c0089ab')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4175,7 +4175,7 @@
    },
    {
     "kind": "input",
-    "label": "Pharmacy Name (English)",
+    "label": "{tt('phreg.18677482')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4185,7 +4185,7 @@
    },
    {
     "kind": "input",
-    "label": "Head Pharmacist Name",
+    "label": "{tt('phreg.e251ab31')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4195,7 +4195,7 @@
    },
    {
     "kind": "input",
-    "label": "Manager Name",
+    "label": "{tt('phreg.ecf7698a')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4205,7 +4205,7 @@
    },
    {
     "kind": "input",
-    "label": "Email",
+    "label": "{tt('phreg.8605844e')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4215,7 +4215,7 @@
    },
    {
     "kind": "input",
-    "label": "Phone",
+    "label": "{tt('phreg.42c8946e')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4225,7 +4225,7 @@
    },
    {
     "kind": "input",
-    "label": "Password",
+    "label": "{tt('phreg.751ab623')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4235,7 +4235,7 @@
    },
    {
     "kind": "input",
-    "label": "Confirm Password",
+    "label": "{tt('phreg.4171a21c')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4266,7 +4266,7 @@
    },
    {
     "kind": "input",
-    "label": "CR Number",
+    "label": "{tt('phreg.09540875')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4276,7 +4276,7 @@
    },
    {
     "kind": "input",
-    "label": "MOH License Number",
+    "label": "{tt('phreg.a80db342')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4286,7 +4286,7 @@
    },
    {
     "kind": "input",
-    "label": "SFDA License Number",
+    "label": "{tt('phreg.b13a67b8')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4296,7 +4296,7 @@
    },
    {
     "kind": "input",
-    "label": "Bank IBAN",
+    "label": "{tt('phreg.730b8353')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4306,7 +4306,7 @@
    },
    {
     "kind": "input",
-    "label": "VAT Number (Optional)",
+    "label": "{tt('phreg.3c637c3b')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4316,7 +4316,7 @@
    },
    {
     "kind": "button",
-    "label": "CR Doc",
+    "label": "{tt('phreg.4f5b2580')}",
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4326,7 +4326,7 @@
    },
    {
     "kind": "button",
-    "label": "MOH License",
+    "label": "{tt('phreg.d79ac71e')}",
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4336,7 +4336,7 @@
    },
    {
     "kind": "button",
-    "label": "SFDA License",
+    "label": "{tt('phreg.32fb853d')}",
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4346,7 +4346,7 @@
    },
    {
     "kind": "button",
-    "label": "Pharmacy Logo",
+    "label": "{tt('phreg.7d87fb6f')}",
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4366,7 +4366,7 @@
    },
    {
     "kind": "input",
-    "label": "Full Address",
+    "label": "{tt('phreg.e2bff93c')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4376,7 +4376,7 @@
    },
    {
     "kind": "button",
-    "label": "Location set ✓ — change",
+    "label": "{tt('phreg.dcb243b1')}",
     "src": "local state setShowMap",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4386,7 +4386,7 @@
    },
    {
     "kind": "input",
-    "label": "Enable Delivery Service",
+    "label": "{tt('phreg.699dae00')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4436,7 +4436,7 @@
    },
    {
     "kind": "input",
-    "label": "Open 24/7",
+    "label": "{tt('phreg.4139f1f5')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4477,7 +4477,7 @@
    },
    {
     "kind": "input",
-    "label": "From",
+    "label": "{tt('phreg.ecdb7711')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4487,7 +4487,7 @@
    },
    {
     "kind": "input",
-    "label": "To",
+    "label": "{tt('phreg.32c46ecf')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4497,7 +4497,7 @@
    },
    {
     "kind": "input",
-    "label": "From",
+    "label": "{tt('phreg.ecdb7711')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4507,7 +4507,7 @@
    },
    {
     "kind": "input",
-    "label": "To",
+    "label": "{tt('phreg.32c46ecf')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4517,7 +4517,7 @@
    },
    {
     "kind": "input",
-    "label": "Night Shift (After Midnight)",
+    "label": "{tt('phreg.d765d626')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4537,7 +4537,7 @@
    },
    {
     "kind": "input",
-    "label": "Planned Vacation",
+    "label": "{tt('phreg.8575bc1a')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4547,7 +4547,7 @@
    },
    {
     "kind": "input",
-    "label": "Select Vacation Date",
+    "label": "{tt('phreg.8ed38ddc')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4557,7 +4557,7 @@
    },
    {
     "kind": "input",
-    "label": "Prescription Dispensing (Rx)",
+    "label": "{tt('phreg.5b8f30d5')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4567,7 +4567,7 @@
    },
    {
     "kind": "input",
-    "label": "OTC Medication Sales",
+    "label": "{tt('phreg.30c64d6a')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4598,7 +4598,7 @@
    },
    {
     "kind": "button",
-    "label": "Select All",
+    "label": "{tt('phreg.ac65a989')}",
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4608,7 +4608,7 @@
    },
    {
     "kind": "button",
-    "label": "Clear All",
+    "label": "{tt('phreg.a007f1de')}",
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4618,7 +4618,7 @@
    },
    {
     "kind": "input",
-    "label": "Base Delivery Fee",
+    "label": "{tt('phreg.08e8d9d3')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4628,7 +4628,7 @@
    },
    {
     "kind": "input",
-    "label": "Free delivery above (SAR)",
+    "label": "{tt('phreg.b00bad4a')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4638,7 +4638,7 @@
    },
    {
     "kind": "input",
-    "label": "Minimum Order Amount (SAR)",
+    "label": "{tt('phreg.d7bb6124')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4648,7 +4648,7 @@
    },
    {
     "kind": "input",
-    "label": "Express Delivery",
+    "label": "{tt('phreg.75b7c909')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4658,7 +4658,7 @@
    },
    {
     "kind": "input",
-    "label": "Express Fee",
+    "label": "{tt('phreg.a7e32cb1')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4668,7 +4668,7 @@
    },
    {
     "kind": "input",
-    "label": "Express Delivery Time (min)",
+    "label": "{tt('phreg.120a94dc')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -5217,7 +5217,7 @@
    },
    {
     "kind": "input",
-    "label": "Center Name (Arabic)",
+    "label": "{tt('labreg.8938d20f')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -5227,7 +5227,7 @@
    },
    {
     "kind": "input",
-    "label": "Center Name (English)",
+    "label": "{tt('labreg.4a581750')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -5237,7 +5237,7 @@
    },
    {
     "kind": "input",
-    "label": "Manager Name",
+    "label": "{tt('labreg.aaaf6e82')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -5247,7 +5247,7 @@
    },
    {
     "kind": "input",
-    "label": "Email",
+    "label": "{tt('labreg.8605844e')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -5257,7 +5257,7 @@
    },
    {
     "kind": "input",
-    "label": "Phone",
+    "label": "{tt('labreg.098e976b')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -5267,41 +5267,41 @@
    },
    {
     "kind": "input",
-    "label": "Technical Officer Name",
+    "label": "{tt('labreg.f85cb713')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 397,
+    "line": 395,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Tech Officer SCFHS License",
+    "label": "{tt('labreg.0e8f6103')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 405,
+    "line": 403,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Password",
+    "label": "{tt('labreg.751ab623')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 416,
+    "line": 414,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Confirm Password",
+    "label": "{tt('labreg.4171a21c')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 426,
+    "line": 424,
     "via": null,
     "note": null
    },
@@ -5311,7 +5311,7 @@
     "src": "from LANGS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 437,
+    "line": 435,
     "via": null,
     "note": null,
     "untraced": true
@@ -5322,87 +5322,87 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 440,
+    "line": 438,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "CR Number",
+    "label": "{tt('labreg.09540875')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 527,
+    "line": 523,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "MOH License Number",
+    "label": "{tt('labreg.a80db342')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 533,
+    "line": 529,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "MOH Lab Category",
+    "label": "{tt('labreg.c900fc4b')}",
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 544,
+    "line": 540,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Lab Accreditation (e.g. CBAHI, CAP)",
+    "label": "{tt('labreg.3c328d53')}",
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 551,
+    "line": 547,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Radiation Safety License (RSO)",
+    "label": "{tt('labreg.1c1bfdea')}",
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 562,
+    "line": 558,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Available Equipment (MRI, CT, etc.)",
+    "label": "{tt('labreg.da700f9d')}",
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 569,
+    "line": 565,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Bank IBAN",
+    "label": "{tt('labreg.730b8353')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 579,
+    "line": 575,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "VAT Number (Optional)",
+    "label": "{tt('labreg.3c637c3b')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 585,
+    "line": 581,
     "via": null,
     "note": null
    },
@@ -5412,7 +5412,7 @@
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 594,
+    "line": 590,
     "via": null,
     "note": null
    },
@@ -5422,7 +5422,7 @@
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 595,
+    "line": 591,
     "via": null,
     "note": null
    },
@@ -5432,7 +5432,7 @@
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 596,
+    "line": 592,
     "via": null,
     "note": null
    },
@@ -5442,17 +5442,17 @@
     "src": "POST /provider-onboarding/start, POST /auth/login → errs",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 610,
+    "line": 606,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Full Address",
+    "label": "{tt('labreg.e2bff93c')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 640,
+    "line": 636,
     "via": null,
     "note": null
    },
@@ -5462,17 +5462,17 @@
     "src": "local state setShowLocModal",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 648,
+    "line": 644,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Home Sample Collection",
+    "label": "{tt('labreg.ee1c4702')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 667,
+    "line": 663,
     "via": null,
     "note": null
    },
@@ -5482,7 +5482,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 684,
+    "line": 680,
     "via": null,
     "note": null
    },
@@ -5492,7 +5492,7 @@
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 689,
+    "line": 685,
     "via": null,
     "note": null
    },
@@ -5502,7 +5502,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 699,
+    "line": 695,
     "via": null,
     "note": null
    },
@@ -5512,7 +5512,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 709,
+    "line": 705,
     "via": null,
     "note": null
    },
@@ -5522,17 +5522,17 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 724,
+    "line": 720,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Both",
+    "label": "{tt('labreg.c1f920b3')}",
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 734,
+    "line": 730,
     "via": null,
     "note": null
    },
@@ -5542,57 +5542,57 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 742,
+    "line": 738,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "[test_tube] Lab Tests",
+    "label": "[test_tube] {tt('labreg.6315d9e6')}",
     "src": "local state setTab",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 851,
+    "line": 845,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "[scan] Radiology",
+    "label": "[scan] {tt('labreg.7c9ad258')}",
     "src": "local state setTab",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 864,
+    "line": 858,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Search test/scan...",
+    "label": "{tt('labreg.95f7c6ed')}",
     "src": "user input → search (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 903,
+    "line": 897,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Select All",
+    "label": "{tt('labreg.ac65a989')}",
     "src": "parent callback update, labCatalog.map",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 911,
+    "line": 905,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Clear All",
+    "label": "{tt('labreg.a007f1de')}",
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 918,
+    "line": 912,
     "via": null,
     "note": null
    },
@@ -5602,7 +5602,7 @@
     "src": "from filteredTests (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 926,
+    "line": 920,
     "via": null,
     "note": null,
     "untraced": true
@@ -5613,7 +5613,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 933,
+    "line": 927,
     "via": null,
     "note": null
    },
@@ -5623,47 +5623,47 @@
     "src": "local state setExpanded",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 964,
+    "line": 958,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Price (SAR)",
+    "label": "{tt('labreg.9cd84c5e')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 975,
+    "line": 969,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Turnaround",
+    "label": "{tt('labreg.cbcb1de6')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 980,
+    "line": 974,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Available for home collection",
+    "label": "{tt('labreg.ebc42152')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 988,
+    "line": 982,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Covered by insurance",
+    "label": "{tt('labreg.eb93575d')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 996,
+    "line": 990,
     "via": null,
     "note": null
    },
@@ -5673,7 +5673,7 @@
     "src": "from filteredScans (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1010,
+    "line": 1004,
     "via": null,
     "note": null,
     "untraced": true
@@ -5684,27 +5684,27 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1016,
+    "line": 1010,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Price (SAR)",
+    "label": "{tt('labreg.9cd84c5e')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1055,
+    "line": 1049,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Covered by insurance",
+    "label": "{tt('labreg.eb93575d')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1059,
+    "line": 1053,
     "via": null,
     "note": null
    },
@@ -5714,7 +5714,7 @@
     "src": "from WORK_DAYS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1143,
+    "line": 1137,
     "via": null,
     "note": null,
     "untraced": true
@@ -5725,57 +5725,57 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1146,
+    "line": 1140,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Morning",
+    "label": "{tt('labreg.b31948df')}",
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1163,
+    "line": 1157,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Morning Open",
+    "label": "{tt('labreg.563ba643')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1178,
+    "line": 1172,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Morning Close",
+    "label": "{tt('labreg.21aa79dc')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1181,
+    "line": 1175,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Evening Open",
+    "label": "{tt('labreg.8b705c2a')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1189,
+    "line": 1183,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Evening Close",
+    "label": "{tt('labreg.ea50d084')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1192,
+    "line": 1186,
     "via": null,
     "note": null
    },
@@ -5785,7 +5785,7 @@
     "src": "from WORK_DAYS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1209,
+    "line": 1203,
     "via": null,
     "note": null,
     "untraced": true
@@ -5796,27 +5796,27 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1212,
+    "line": 1206,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "From",
+    "label": "{tt('labreg.ecdb7711')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1225,
+    "line": 1219,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "To",
+    "label": "{tt('labreg.32c46ecf')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1228,
+    "line": 1222,
     "via": null,
     "note": null
    },
@@ -5826,27 +5826,27 @@
     "src": "local state setShowVacationCal",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1236,
+    "line": 1230,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Planned Vacation",
+    "label": "{tt('labreg.be8de242')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1237,
+    "line": 1231,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Cash Only (No Insurance)",
+    "label": "{tt('labreg.e7adc8ef')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1253,
+    "line": 1247,
     "via": null,
     "note": null
    },
@@ -5856,7 +5856,7 @@
     "src": "from insuranceCatalog (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1264,
+    "line": 1258,
     "via": null,
     "note": null,
     "untraced": true
@@ -5867,7 +5867,7 @@
     "src": "parent callback current.findIndex, update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1270,
+    "line": 1264,
     "via": null,
     "note": null
    },
@@ -5877,7 +5877,7 @@
     "src": "from co (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1292,
+    "line": 1286,
     "via": null,
     "note": null,
     "untraced": true
@@ -5888,7 +5888,7 @@
     "src": "parent callback current.map, update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1295,
+    "line": 1289,
     "via": null,
     "note": null
    },
@@ -6381,7 +6381,7 @@
    },
    {
     "kind": "input",
-    "label": "Center Name (Arabic)",
+    "label": "{tt('labreg.8938d20f')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -6391,7 +6391,7 @@
    },
    {
     "kind": "input",
-    "label": "Center Name (English)",
+    "label": "{tt('labreg.4a581750')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -6401,7 +6401,7 @@
    },
    {
     "kind": "input",
-    "label": "Manager Name",
+    "label": "{tt('labreg.aaaf6e82')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -6411,7 +6411,7 @@
    },
    {
     "kind": "input",
-    "label": "Email",
+    "label": "{tt('labreg.8605844e')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -6421,7 +6421,7 @@
    },
    {
     "kind": "input",
-    "label": "Phone",
+    "label": "{tt('labreg.098e976b')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -6431,41 +6431,41 @@
    },
    {
     "kind": "input",
-    "label": "Technical Officer Name",
+    "label": "{tt('labreg.f85cb713')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 397,
+    "line": 395,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Tech Officer SCFHS License",
+    "label": "{tt('labreg.0e8f6103')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 405,
+    "line": 403,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Password",
+    "label": "{tt('labreg.751ab623')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 416,
+    "line": 414,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Confirm Password",
+    "label": "{tt('labreg.4171a21c')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 426,
+    "line": 424,
     "via": null,
     "note": null
    },
@@ -6475,7 +6475,7 @@
     "src": "from LANGS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 437,
+    "line": 435,
     "via": null,
     "note": null,
     "untraced": true
@@ -6486,87 +6486,87 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 440,
+    "line": 438,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "CR Number",
+    "label": "{tt('labreg.09540875')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 527,
+    "line": 523,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "MOH License Number",
+    "label": "{tt('labreg.a80db342')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 533,
+    "line": 529,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "MOH Lab Category",
+    "label": "{tt('labreg.c900fc4b')}",
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 544,
+    "line": 540,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Lab Accreditation (e.g. CBAHI, CAP)",
+    "label": "{tt('labreg.3c328d53')}",
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 551,
+    "line": 547,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Radiation Safety License (RSO)",
+    "label": "{tt('labreg.1c1bfdea')}",
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 562,
+    "line": 558,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Available Equipment (MRI, CT, etc.)",
+    "label": "{tt('labreg.da700f9d')}",
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 569,
+    "line": 565,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Bank IBAN",
+    "label": "{tt('labreg.730b8353')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 579,
+    "line": 575,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "VAT Number (Optional)",
+    "label": "{tt('labreg.3c637c3b')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 585,
+    "line": 581,
     "via": null,
     "note": null
    },
@@ -6576,7 +6576,7 @@
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 594,
+    "line": 590,
     "via": null,
     "note": null
    },
@@ -6586,7 +6586,7 @@
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 595,
+    "line": 591,
     "via": null,
     "note": null
    },
@@ -6596,7 +6596,7 @@
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 596,
+    "line": 592,
     "via": null,
     "note": null
    },
@@ -6606,17 +6606,17 @@
     "src": "POST /provider-onboarding/start, POST /auth/login → errs",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 610,
+    "line": 606,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Full Address",
+    "label": "{tt('labreg.e2bff93c')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 640,
+    "line": 636,
     "via": null,
     "note": null
    },
@@ -6626,17 +6626,17 @@
     "src": "local state setShowLocModal",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 648,
+    "line": 644,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Home Sample Collection",
+    "label": "{tt('labreg.ee1c4702')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 667,
+    "line": 663,
     "via": null,
     "note": null
    },
@@ -6646,7 +6646,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 684,
+    "line": 680,
     "via": null,
     "note": null
    },
@@ -6656,7 +6656,7 @@
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 689,
+    "line": 685,
     "via": null,
     "note": null
    },
@@ -6666,7 +6666,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 699,
+    "line": 695,
     "via": null,
     "note": null
    },
@@ -6676,7 +6676,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 709,
+    "line": 705,
     "via": null,
     "note": null
    },
@@ -6686,17 +6686,17 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 724,
+    "line": 720,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Both",
+    "label": "{tt('labreg.c1f920b3')}",
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 734,
+    "line": 730,
     "via": null,
     "note": null
    },
@@ -6706,57 +6706,57 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 742,
+    "line": 738,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "[test_tube] Lab Tests",
+    "label": "[test_tube] {tt('labreg.6315d9e6')}",
     "src": "local state setTab",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 851,
+    "line": 845,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "[scan] Radiology",
+    "label": "[scan] {tt('labreg.7c9ad258')}",
     "src": "local state setTab",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 864,
+    "line": 858,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Search test/scan...",
+    "label": "{tt('labreg.95f7c6ed')}",
     "src": "user input → search (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 903,
+    "line": 897,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Select All",
+    "label": "{tt('labreg.ac65a989')}",
     "src": "parent callback update, labCatalog.map",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 911,
+    "line": 905,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Clear All",
+    "label": "{tt('labreg.a007f1de')}",
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 918,
+    "line": 912,
     "via": null,
     "note": null
    },
@@ -6766,7 +6766,7 @@
     "src": "from filteredTests (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 926,
+    "line": 920,
     "via": null,
     "note": null,
     "untraced": true
@@ -6777,7 +6777,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 933,
+    "line": 927,
     "via": null,
     "note": null
    },
@@ -6787,47 +6787,47 @@
     "src": "local state setExpanded",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 964,
+    "line": 958,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Price (SAR)",
+    "label": "{tt('labreg.9cd84c5e')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 975,
+    "line": 969,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Turnaround",
+    "label": "{tt('labreg.cbcb1de6')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 980,
+    "line": 974,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Available for home collection",
+    "label": "{tt('labreg.ebc42152')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 988,
+    "line": 982,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Covered by insurance",
+    "label": "{tt('labreg.eb93575d')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 996,
+    "line": 990,
     "via": null,
     "note": null
    },
@@ -6837,7 +6837,7 @@
     "src": "from filteredScans (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1010,
+    "line": 1004,
     "via": null,
     "note": null,
     "untraced": true
@@ -6848,27 +6848,27 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1016,
+    "line": 1010,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Price (SAR)",
+    "label": "{tt('labreg.9cd84c5e')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1055,
+    "line": 1049,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Covered by insurance",
+    "label": "{tt('labreg.eb93575d')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1059,
+    "line": 1053,
     "via": null,
     "note": null
    },
@@ -6878,7 +6878,7 @@
     "src": "from WORK_DAYS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1143,
+    "line": 1137,
     "via": null,
     "note": null,
     "untraced": true
@@ -6889,57 +6889,57 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1146,
+    "line": 1140,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Morning",
+    "label": "{tt('labreg.b31948df')}",
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1163,
+    "line": 1157,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Morning Open",
+    "label": "{tt('labreg.563ba643')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1178,
+    "line": 1172,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Morning Close",
+    "label": "{tt('labreg.21aa79dc')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1181,
+    "line": 1175,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Evening Open",
+    "label": "{tt('labreg.8b705c2a')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1189,
+    "line": 1183,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Evening Close",
+    "label": "{tt('labreg.ea50d084')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1192,
+    "line": 1186,
     "via": null,
     "note": null
    },
@@ -6949,7 +6949,7 @@
     "src": "from WORK_DAYS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1209,
+    "line": 1203,
     "via": null,
     "note": null,
     "untraced": true
@@ -6960,27 +6960,27 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1212,
+    "line": 1206,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "From",
+    "label": "{tt('labreg.ecdb7711')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1225,
+    "line": 1219,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "To",
+    "label": "{tt('labreg.32c46ecf')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1228,
+    "line": 1222,
     "via": null,
     "note": null
    },
@@ -6990,27 +6990,27 @@
     "src": "local state setShowVacationCal",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1236,
+    "line": 1230,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Planned Vacation",
+    "label": "{tt('labreg.be8de242')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1237,
+    "line": 1231,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Cash Only (No Insurance)",
+    "label": "{tt('labreg.e7adc8ef')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1253,
+    "line": 1247,
     "via": null,
     "note": null
    },
@@ -7020,7 +7020,7 @@
     "src": "from insuranceCatalog (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1264,
+    "line": 1258,
     "via": null,
     "note": null,
     "untraced": true
@@ -7031,7 +7031,7 @@
     "src": "parent callback current.findIndex, update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1270,
+    "line": 1264,
     "via": null,
     "note": null
    },
@@ -7041,7 +7041,7 @@
     "src": "from co (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1292,
+    "line": 1286,
     "via": null,
     "note": null,
     "untraced": true
@@ -7052,7 +7052,7 @@
     "src": "parent callback current.map, update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1295,
+    "line": 1289,
     "via": null,
     "note": null
    },
@@ -7566,7 +7566,7 @@
    },
    {
     "kind": "input",
-    "label": "Name (Arabic)",
+    "label": "{tt('nurreg.7529830f')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -7576,7 +7576,7 @@
    },
    {
     "kind": "input",
-    "label": "Name (English)",
+    "label": "{tt('nurreg.13027225')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -7596,7 +7596,7 @@
    },
    {
     "kind": "input",
-    "label": "Manager Name",
+    "label": "{tt('nurreg.1a0a403e')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -7606,7 +7606,7 @@
    },
    {
     "kind": "input",
-    "label": "Email",
+    "label": "{tt('nurreg.8605844e')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -7616,7 +7616,7 @@
    },
    {
     "kind": "input",
-    "label": "Phone",
+    "label": "{tt('nurreg.098e976b')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -7626,7 +7626,7 @@
    },
    {
     "kind": "input",
-    "label": "Password",
+    "label": "{tt('nurreg.751ab623')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -7636,7 +7636,7 @@
    },
    {
     "kind": "input",
-    "label": "Confirm Password",
+    "label": "{tt('nurreg.4171a21c')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -7667,7 +7667,7 @@
    },
    {
     "kind": "input",
-    "label": "SCFHS License Number",
+    "label": "{tt('nurreg.b2be4a99')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -7677,7 +7677,7 @@
    },
    {
     "kind": "input",
-    "label": "National ID",
+    "label": "{tt('nurreg.165b2b1d')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -7687,7 +7687,7 @@
    },
    {
     "kind": "input",
-    "label": "CR Number",
+    "label": "{tt('nurreg.09540875')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -7697,7 +7697,7 @@
    },
    {
     "kind": "input",
-    "label": "MOH License",
+    "label": "{tt('nurreg.d4a0f043')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -7707,7 +7707,7 @@
    },
    {
     "kind": "input",
-    "label": "Bank IBAN",
+    "label": "{tt('nurreg.730b8353')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -7757,7 +7757,7 @@
    },
    {
     "kind": "button",
-    "label": "Select All",
+    "label": "{tt('nurreg.ac65a989')}",
     "src": "parent callback update, nursingCatalog.map",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -7767,7 +7767,7 @@
    },
    {
     "kind": "button",
-    "label": "Clear",
+    "label": "{tt('nurreg.d26b38ef')}",
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -7859,7 +7859,7 @@
    },
    {
     "kind": "input",
-    "label": "Address",
+    "label": "{tt('nurreg.6b24fe4e')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -7919,7 +7919,7 @@
    },
    {
     "kind": "input",
-    "label": "Available 24/7",
+    "label": "{tt('nurreg.3d63ea3f')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -7960,7 +7960,7 @@
    },
    {
     "kind": "input",
-    "label": "From",
+    "label": "{tt('nurreg.ecdb7711')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -7970,7 +7970,7 @@
    },
    {
     "kind": "input",
-    "label": "To",
+    "label": "{tt('nurreg.32c46ecf')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -7980,7 +7980,7 @@
    },
    {
     "kind": "input",
-    "label": "From",
+    "label": "{tt('nurreg.ecdb7711')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -7990,7 +7990,7 @@
    },
    {
     "kind": "input",
-    "label": "To",
+    "label": "{tt('nurreg.32c46ecf')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -8010,7 +8010,7 @@
    },
    {
     "kind": "input",
-    "label": "Planned Vacation",
+    "label": "{tt('nurreg.2b7c44f3')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -8020,7 +8020,7 @@
    },
    {
     "kind": "input",
-    "label": "Select Vacation Date",
+    "label": "{tt('nurreg.9f7cb31d')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -8357,7 +8357,7 @@
    },
    {
     "kind": "number",
-    "label": "Stat: Today's Apts",
+    "label": "Stat: {tt('dochome.2cd3bf29')}",
     "src": "value ← String(stats.todayCount)",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
@@ -8367,7 +8367,7 @@
    },
    {
     "kind": "number",
-    "label": "Stat: New Requests",
+    "label": "Stat: {tt('dochome.02688a0f')}",
     "src": "value ← String(stats.pendingCount)",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
@@ -8377,7 +8377,7 @@
    },
    {
     "kind": "button",
-    "label": "Retry",
+    "label": "{tt('dochome.cf333076')}",
     "src": "GET /provider/jobs/queue, GET /provider/stats/today",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
@@ -8397,7 +8397,7 @@
    },
    {
     "kind": "button",
-    "label": "Reject",
+    "label": "{tt('dochome.8a223f36')}",
     "src": "POST /provider/jobs/:param/:param/reject, GET /provider/jobs/queue, GET /provider/stats/today",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
@@ -8407,7 +8407,7 @@
    },
    {
     "kind": "button",
-    "label": "Accept",
+    "label": "{tt('dochome.e3b60bcd')}",
     "src": "POST /provider/jobs/:param/:param/accept, GET /provider/jobs/queue, GET /provider/stats/today",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
@@ -8417,7 +8417,7 @@
    },
    {
     "kind": "button",
-    "label": "Accept & Process Insurance",
+    "label": "{tt('dochome.e275a8dc')}",
     "src": "local state setInsuranceModalReq",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
@@ -8427,7 +8427,7 @@
    },
    {
     "kind": "button",
-    "label": "Accept",
+    "label": "{tt('dochome.e3b60bcd')}",
     "src": "POST /provider/jobs/:param/:param/accept, GET /provider/jobs/queue, GET /provider/stats/today",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
@@ -8457,7 +8457,7 @@
    },
    {
     "kind": "button",
-    "label": "[profile] Medical Jobs",
+    "label": "[profile] {tt('dochome.ebb9f1de')}",
     "src": "navigate → medical_jobs",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
@@ -8467,7 +8467,7 @@
    },
    {
     "kind": "button",
-    "label": "[document] Drug Index",
+    "label": "[document] {tt('dochome.2a8aa329')}",
     "src": "navigate → drug_index",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
@@ -8477,7 +8477,7 @@
    },
    {
     "kind": "button",
-    "label": "[folder] Inbound Medical Reports (Radiology & La",
+    "label": "[folder] {tt('dochome.795a57dd')}",
     "src": "navigate → inbound_reports",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
@@ -8497,7 +8497,7 @@
    },
    {
     "kind": "input",
-    "label": "Patient Co-Pay (SAR)",
+    "label": "{tt('dochome.23442efb')}",
     "src": "user input → patientCopay → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
@@ -8507,7 +8507,7 @@
    },
    {
     "kind": "input",
-    "label": "Insurance Coverage (SAR)",
+    "label": "{tt('dochome.003ba72d')}",
     "src": "user input → insuranceCoverage → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
@@ -8517,7 +8517,7 @@
    },
    {
     "kind": "input",
-    "label": "Approval Code",
+    "label": "{tt('dochome.99ba8875')}",
     "src": "user input → approvalCode → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
@@ -8527,7 +8527,7 @@
    },
    {
     "kind": "button",
-    "label": "Send to Patient for Co-Pay",
+    "label": "{tt('dochome.214ba4e3')}",
     "src": "POST /provider/jobs/consultation/:param/insurance, GET /provider/jobs/queue, GET /provider/stats/today",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
@@ -8539,7 +8539,7 @@
   "DoctorScheduleTab": [
    {
     "kind": "button",
-    "label": "Write a medical order",
+    "label": "{tt('docsched.57fe2513')}",
     "src": "navigate → medical_order_visits",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorScheduleTab.tsx",
@@ -8559,7 +8559,7 @@
    },
    {
     "kind": "button",
-    "label": "Day",
+    "label": "{tt('docsched.ba15ea4c')}",
     "src": "local state setView",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/DoctorScheduleTab.tsx",
@@ -9242,7 +9242,7 @@
    },
    {
     "kind": "button",
-    "label": "Open consultation",
+    "label": "{tt('docappt.66d517b1')}",
     "src": "navigate → consultation",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
@@ -9252,7 +9252,7 @@
    },
    {
     "kind": "button",
-    "label": "New medical order",
+    "label": "{tt('docappt.4a27a2b5')}",
     "src": "navigate → medical_order_composer",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
@@ -9262,7 +9262,7 @@
    },
    {
     "kind": "button",
-    "label": "Confirm",
+    "label": "{tt('docappt.7600805e')}",
     "src": "PATCH /care/appointments/:param/:param",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
@@ -9272,7 +9272,7 @@
    },
    {
     "kind": "button",
-    "label": "Cancel",
+    "label": "{tt('docappt.210b779f')}",
     "src": "local state setShowCancel",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
@@ -9282,7 +9282,7 @@
    },
    {
     "kind": "button",
-    "label": "Reschedule",
+    "label": "{tt('docappt.ba85bd7b')}",
     "src": "local state setShowResched",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
@@ -9292,7 +9292,7 @@
    },
    {
     "kind": "input",
-    "label": "Cancellation reason (required, the patient recei",
+    "label": "{tt('docappt.4f420cb4')}",
     "src": "user input → cancelReason (local)",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
@@ -9302,7 +9302,7 @@
    },
    {
     "kind": "button",
-    "label": "Confirm cancellation",
+    "label": "{tt('docappt.83b674c7')}",
     "src": "PATCH /care/appointments/:param/:param",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
@@ -9312,7 +9312,7 @@
    },
    {
     "kind": "button",
-    "label": "Date {newDate.toLocaleDateString(AR }",
+    "label": "{tt('docappt.2f1d5d61')} {newDate.toLocaleDateSt",
     "src": "local state setPicker",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
@@ -9322,7 +9322,7 @@
    },
    {
     "kind": "button",
-    "label": "Time {newTime.toLocaleTimeString(AR }",
+    "label": "{tt('docappt.2af96121')} {newTime.toLocaleTimeSt",
     "src": "local state setPicker",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
@@ -9332,7 +9332,7 @@
    },
    {
     "kind": "button",
-    "label": "Confirm new slot",
+    "label": "{tt('docappt.da0c3020')}",
     "src": "PATCH /care/appointments/:param/:param",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
@@ -9346,27 +9346,27 @@
     "src": "PATCH /care/appointments/:param/:param, POST /care/appointments/:param/position → state",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
-    "line": 181,
+    "line": 182,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "On my way",
-    "src": "PATCH /care/appointments/:param/:param, POST /care/appointments/:param/position",
-    "status": "ok",
-    "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
-    "line": 214,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Arrived",
+    "label": "{tt('docappt.379958ba')}",
     "src": "PATCH /care/appointments/:param/:param, POST /care/appointments/:param/position",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
     "line": 215,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{tt('docappt.7eae0f3b')}",
+    "src": "PATCH /care/appointments/:param/:param, POST /care/appointments/:param/position",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
+    "line": 216,
     "via": null,
     "note": null
    }
@@ -12762,7 +12762,7 @@
    },
    {
     "kind": "number",
-    "label": "Stat: Today's Apts",
+    "label": "Stat: {tt('fachome.2cd3bf29')}",
     "src": "value ← String(aptsToday)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
@@ -12772,7 +12772,7 @@
    },
    {
     "kind": "number",
-    "label": "Stat: Occupied Beds",
+    "label": "Stat: {tt('fachome.56077360')}",
     "src": "value ← totalBeds > 0 ? `${occupied}/${totalBeds}` : '—'",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
@@ -12782,7 +12782,7 @@
    },
    {
     "kind": "number",
-    "label": "Stat: Today's Rev.",
+    "label": "Stat: {tt('fachome.132997cb')}",
     "src": "value ← typeof revenue === 'number' ? revenue.toLocaleSt",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
@@ -12792,7 +12792,7 @@
    },
    {
     "kind": "number",
-    "label": "Stat: Active Staff",
+    "label": "Stat: {tt('fachome.86530ce0')}",
     "src": "value ← String(activeStaff)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
@@ -14620,7 +14620,7 @@
    },
    {
     "kind": "button",
-    "label": "Notifications",
+    "label": "{tt('labdash.5e885201')}",
     "src": "navigate → notifications",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
@@ -14630,7 +14630,7 @@
    },
    {
     "kind": "number",
-    "label": "Stat: Today's Orders",
+    "label": "Stat: {tt('labdash.42d2477b')}",
     "src": "value ← String(stats.todayCount)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
@@ -14640,7 +14640,7 @@
    },
    {
     "kind": "number",
-    "label": "Stat: Analyzing",
+    "label": "Stat: {tt('labdash.3b93ab46')}",
     "src": "value ← String(stats.analyzingCount)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
@@ -14650,7 +14650,7 @@
    },
    {
     "kind": "number",
-    "label": "Stat: Revenue",
+    "label": "Stat: {tt('labdash.eea3276e')}",
     "src": "value ← String(stats.revenue)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
@@ -14660,7 +14660,7 @@
    },
    {
     "kind": "number",
-    "label": "Stat: Ready",
+    "label": "Stat: {tt('labdash.c513492d')}",
     "src": "value ← String(stats.readyCount)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
@@ -14693,7 +14693,7 @@
   "LabOrdersTab": [
    {
     "kind": "button",
-    "label": "Incoming",
+    "label": "{tt('labdash.e461af56')}",
     "src": "local state setSubTab",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
@@ -14703,7 +14703,7 @@
    },
    {
     "kind": "button",
-    "label": "Scheduled & Draw",
+    "label": "{tt('labdash.63e5aebd')}",
     "src": "local state setSubTab",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
@@ -14713,7 +14713,7 @@
    },
    {
     "kind": "button",
-    "label": "Processing",
+    "label": "{tt('labdash.49e2b07e')}",
     "src": "local state setSubTab",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
@@ -14723,7 +14723,7 @@
    },
    {
     "kind": "button",
-    "label": "Results",
+    "label": "{tt('labdash.ba058e12')}",
     "src": "local state setSubTab",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
@@ -14744,7 +14744,7 @@
    },
    {
     "kind": "button",
-    "label": "Patient Insurance",
+    "label": "Patient {tt('labdash.815dd0cb')}",
     "src": "navigate → order_detail",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
@@ -14816,8 +14816,28 @@
    },
    {
     "kind": "button",
-    "label": "Test Menu & Pricing",
+    "label": "{tt('labdash.93935d9c')}",
     "src": "navigate → test_menu",
+    "status": "ok",
+    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+    "line": 1468,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{tt('labdash.31ebb394')}",
+    "src": "navigate → bundles",
+    "status": "ok",
+    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+    "line": 1469,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{tt('labdash.2b2e547e')}",
+    "src": "navigate → home_service",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
     "line": 1470,
@@ -14826,8 +14846,8 @@
    },
    {
     "kind": "button",
-    "label": "Bundles",
-    "src": "navigate → bundles",
+    "label": "{tt('labdash.82f7fda8')}",
+    "src": "navigate → working_hours",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
     "line": 1471,
@@ -14836,8 +14856,8 @@
    },
    {
     "kind": "button",
-    "label": "Home Service",
-    "src": "navigate → home_service",
+    "label": "{tt('labdash.1653fa4d')}",
+    "src": "navigate → insurance_config",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
     "line": 1472,
@@ -14846,8 +14866,8 @@
    },
    {
     "kind": "button",
-    "label": "Working Hours",
-    "src": "navigate → working_hours",
+    "label": "{tt('labdash.679ae00d')}",
+    "src": "navigate → insurance_requests",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
     "line": 1473,
@@ -14856,8 +14876,8 @@
    },
    {
     "kind": "button",
-    "label": "Insurance Settings",
-    "src": "navigate → insurance_config",
+    "label": "{tt('labdash.7a80399f')}",
+    "src": "navigate (back / dynamic target)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
     "line": 1474,
@@ -14866,8 +14886,8 @@
    },
    {
     "kind": "button",
-    "label": "Insurance Requests",
-    "src": "navigate → insurance_requests",
+    "label": "{tt('labdash.2bd7bf71')}",
+    "src": "navigate → certificates_config",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
     "line": 1475,
@@ -14876,31 +14896,11 @@
    },
    {
     "kind": "button",
-    "label": "Ordering declaration",
-    "src": "navigate (back / dynamic target)",
-    "status": "ok",
-    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1476,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Licenses & Documents",
-    "src": "navigate → certificates_config",
-    "status": "ok",
-    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1477,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Photos & Media",
+    "label": "{tt('labdash.07de3762')}",
     "src": "navigate → media_config",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1478,
+    "line": 1476,
     "via": null,
     "note": null
    },
@@ -14910,27 +14910,27 @@
     "src": "parent callback row.action",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1491,
+    "line": 1489,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Medical Jobs",
+    "label": "{tt('labdash.ebb9f1de')}",
     "src": "navigate → medical_jobs",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1497,
+    "line": 1495,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Medical Drug Index",
+    "label": "{tt('labdash.0e14b12f')}",
     "src": "navigate → drug_index",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1498,
+    "line": 1496,
     "via": null,
     "note": null
    },
@@ -14940,17 +14940,17 @@
     "src": "parent callback r.action",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1507,
+    "line": 1505,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Log Out",
+    "label": "{tt('labdash.d56d4be0')}",
     "src": "local state setShowLO",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1510,
+    "line": 1508,
     "via": null,
     "note": null
    },
@@ -15002,124 +15002,134 @@
     "src": "navigate → booking_chat",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 589,
+    "line": 588,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Request Insurance Approval",
+    "label": "{tt('labdash.1560762d')}",
     "src": "local state setShowApproval",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 591,
+    "line": 590,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Confirm Direct Order (Cash)",
+    "label": "{tt('labdash.bbe8dd0a')}",
     "src": "PATCH /labs/bookings/:param/state",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 595,
+    "line": 594,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Reject Order",
+    "label": "{tt('labdash.67e8e5ab')}",
     "src": "local state setShowReject",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 597,
+    "line": 596,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Assign Phlebotomist",
+    "label": "{tt('labdash.a1927b1d')}",
     "src": "local state setShowAssign",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 610,
+    "line": 609,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Patient Arrived - Register Sample",
+    "label": "{tt('labdash.48c2d8e4')}",
     "src": "local state setShowRegister",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 612,
+    "line": 611,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Patient did not show up",
+    "label": "{tt('labdash.57f31d3c')}",
     "src": "POST /labs/bookings/:param/emergency",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 614,
+    "line": 613,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Reschedule Appointment",
+    "label": "{tt('labdash.5087139f')}",
     "src": "local state setShowReschedule",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 623,
+    "line": 622,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Start Trip (GPS)",
+    "label": "{tt('labdash.9fc826e8')}",
     "src": "navigate → home_collection",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 629,
+    "line": 628,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Register Sample",
+    "label": "{tt('labdash.3128a6cd')}",
     "src": "local state setShowRegister",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 635,
+    "line": 634,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Register Sample & Complete",
+    "label": "{tt('labdash.b6c8ce56')}",
     "src": "local state setShowRegister",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 641,
+    "line": 640,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Process & Enter Results",
+    "label": "{tt('labdash.29697c94')}",
     "src": "GET /labs/samples, PATCH /labs/samples/:param/stage",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 647,
+    "line": 646,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "New Date/Time",
+    "label": "{tt('labdash.849441eb')}",
     "src": "user input → rescheduleDate → request body",
+    "status": "ok",
+    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+    "line": 662,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{tt('labdash.f21bee1b')}",
+    "src": "PATCH /labs/bookings/:param/reschedule",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
     "line": 663,
@@ -15127,19 +15137,19 @@
     "note": null
    },
    {
-    "kind": "button",
-    "label": "Confirm & Notify Patient",
-    "src": "PATCH /labs/bookings/:param/reschedule",
+    "kind": "input",
+    "label": "{tt('labdash.15bcf925')}",
+    "src": "user input → rejectReason → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 664,
+    "line": 670,
     "via": null,
     "note": null
    },
    {
-    "kind": "input",
-    "label": "Reason",
-    "src": "user input → rejectReason → request body",
+    "kind": "button",
+    "label": "{tt('labdash.46984e50')}",
+    "src": "PATCH /labs/bookings/:param/state",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
     "line": 671,
@@ -15147,19 +15157,19 @@
     "note": null
    },
    {
-    "kind": "button",
-    "label": "Confirm rejection",
-    "src": "PATCH /labs/bookings/:param/state",
+    "kind": "input",
+    "label": "{tt('labdash.ad1a5d6b')}",
+    "src": "user input → decisionRef → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 672,
+    "line": 678,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Internal decision reference",
-    "src": "user input → decisionRef → request body",
+    "label": "{tt('labdash.cab8286b')}",
+    "src": "user input → copay (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
     "line": 679,
@@ -15167,22 +15177,12 @@
     "note": null
    },
    {
-    "kind": "input",
-    "label": "Patient co-pay percentage (0–99%)",
-    "src": "user input → copay (local)",
-    "status": "ok",
-    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 680,
-    "via": null,
-    "note": null
-   },
-   {
     "kind": "button",
-    "label": "Record coverage decision",
+    "label": "{tt('labdash.9a0c9e6c')}",
     "src": "POST /labs/bookings/:param/coverage-decision",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 681,
+    "line": 680,
     "via": null,
     "note": null
    },
@@ -15192,7 +15192,7 @@
     "src": "GET /labs/team/technicians → techs",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 690,
+    "line": 689,
     "via": null,
     "note": null
    },
@@ -15202,24 +15202,34 @@
     "src": "local state setTechId, setTechName",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 691,
+    "line": 690,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Confirm Assignment",
+    "label": "{tt('labdash.8efb0f5e')}",
     "src": "POST /labs/bookings/:param/assign-technician",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 696,
+    "line": 695,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Sample Barcode",
+    "label": "{tt('labdash.757b0f25')}",
     "src": "user input → barcode → request body",
+    "status": "ok",
+    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+    "line": 702,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{tt('labdash.657d61ad')}",
+    "src": "parent callback requestCamPerm, tt",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
     "line": 703,
@@ -15227,9 +15237,9 @@
     "note": null
    },
    {
-    "kind": "button",
-    "label": "Open Camera Scanner",
-    "src": "parent callback requestCamPerm",
+    "kind": "input",
+    "label": "{tt('labdash.46819ff8')}",
+    "src": "user input → notes → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
     "line": 704,
@@ -15237,9 +15247,9 @@
     "note": null
    },
    {
-    "kind": "input",
-    "label": "Notes",
-    "src": "user input → notes → request body",
+    "kind": "button",
+    "label": "{tt('labdash.f4e7235f')}",
+    "src": "POST /labs/samples/register",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
     "line": 705,
@@ -15248,21 +15258,11 @@
    },
    {
     "kind": "button",
-    "label": "Confirm & Register",
-    "src": "POST /labs/samples/register",
-    "status": "ok",
-    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 706,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Cancel",
+    "label": "{tt('labdash.210b779f')}",
     "src": "local state setShowCam",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 719,
+    "line": 718,
     "via": null,
     "note": null
    },
@@ -15436,7 +15436,7 @@
     "src": "GET /labs/samples → samples",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 736,
+    "line": 735,
     "via": null,
     "note": null
    },
@@ -15446,17 +15446,17 @@
     "src": "parent callback onBack",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 770,
+    "line": 769,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "All (",
+    "label": "{tt('labdash.eabe5f68')} (",
     "src": "local state setFilter",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 776,
+    "line": 775,
     "via": null,
     "note": null
    },
@@ -15466,7 +15466,7 @@
     "src": "from SAMPLE_STAGES (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 779,
+    "line": 778,
     "via": null,
     "note": null,
     "untraced": true
@@ -15477,7 +15477,7 @@
     "src": "local state setFilter",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 781,
+    "line": 780,
     "via": null,
     "note": null
    },
@@ -15487,7 +15487,7 @@
     "src": "from filtered (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 786,
+    "line": 785,
     "via": null,
     "note": null,
     "untraced": true
@@ -15498,15 +15498,25 @@
     "src": "from SAMPLE_STAGES (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 805,
+    "line": 804,
     "via": null,
     "note": null,
     "untraced": true
    },
    {
     "kind": "button",
-    "label": "Start Analysis",
+    "label": "{tt('labdash.a1a74336')}",
     "src": "PATCH /labs/samples/:param/stage, GET /labs/samples",
+    "status": "ok",
+    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+    "line": 818,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{tt('labdash.fd60025b')}",
+    "src": "navigate → result_review",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
     "line": 819,
@@ -15515,7 +15525,7 @@
    },
    {
     "kind": "button",
-    "label": "Enter Results",
+    "label": "{tt('labdash.183d502a')}",
     "src": "navigate → result_review",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
@@ -15525,21 +15535,11 @@
    },
    {
     "kind": "button",
-    "label": "Review & Send",
-    "src": "navigate → result_review",
-    "status": "ok",
-    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 821,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
     "label": "QR",
     "src": "navigate → qr_label",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 822,
+    "line": 821,
     "via": null,
     "note": null
    }
@@ -15551,14 +15551,24 @@
     "src": "reportFile: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 844,
+    "line": 843,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Analyte",
+    "label": "{tt('labdash.362e6a7d')}",
     "src": "user input → analyte (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+    "line": 888,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{tt('labdash.a0e33277')}",
+    "src": "user input → value (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
     "line": 889,
@@ -15567,8 +15577,8 @@
    },
    {
     "kind": "input",
-    "label": "Result",
-    "src": "user input → value (local)",
+    "label": "{tt('labdash.1d92094b')}",
+    "src": "user input → unit (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
     "line": 890,
@@ -15577,8 +15587,8 @@
    },
    {
     "kind": "input",
-    "label": "Unit",
-    "src": "user input → unit (local)",
+    "label": "{tt('labdash.7689cb51')}",
+    "src": "user input → range (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
     "line": 891,
@@ -15587,8 +15597,8 @@
    },
    {
     "kind": "input",
-    "label": "Reference range",
-    "src": "user input → range (local)",
+    "label": "{tt('labdash.c80ca4d0')}",
+    "src": "user input → isCritical (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
     "line": 892,
@@ -15596,22 +15606,12 @@
     "note": null
    },
    {
-    "kind": "input",
-    "label": "Critical result",
-    "src": "user input → isCritical (local)",
-    "status": "ok",
-    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 893,
-    "via": null,
-    "note": null
-   },
-   {
     "kind": "button",
-    "label": "Add result",
+    "label": "{tt('labdash.6f0e2c3e')}",
     "src": "parent callback analyte.trim, value.trim",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 894,
+    "line": 893,
     "via": null,
     "note": null
    },
@@ -15621,7 +15621,7 @@
     "src": "resultRows: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 903,
+    "line": 902,
     "via": null,
     "note": null
    },
@@ -15631,7 +15631,7 @@
     "src": "local state setSendTo",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 916,
+    "line": 915,
     "via": null,
     "note": null
    },
@@ -15641,17 +15641,17 @@
     "src": "native action",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 926,
+    "line": 925,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Confirm & Send Result",
+    "label": "{tt('labdash.c77f3f3d')}",
     "src": "PATCH /labs/samples/:param/stage, POST /storage/upload, POST /labs/bookings/:param/upload-report",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 927,
+    "line": 926,
     "via": null,
     "note": null
    }
@@ -15671,18 +15671,28 @@
   "AddCustomTest": [
    {
     "kind": "input",
-    "label": "Name (Arabic)",
+    "label": "{tt('labdash.2633e985')}",
     "src": "user input → nameAr → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 989,
+    "line": 987,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Name (English)",
+    "label": "{tt('labdash.00ef02de')}",
     "src": "user input → nameEn → request body",
+    "status": "ok",
+    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+    "line": 988,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{tt('labdash.137174f0')}",
+    "src": "user input → price → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
     "line": 990,
@@ -15691,28 +15701,38 @@
    },
    {
     "kind": "input",
-    "label": "Price",
-    "src": "user input → price → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 992,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Turnaround (h)",
+    "label": "{tt('labdash.1d94025e')}",
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 993,
+    "line": 991,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Ref Low",
+    "label": "{tt('labdash.a79d3e95')}",
     "src": "user input → refLow → request body",
+    "status": "ok",
+    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+    "line": 994,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{tt('labdash.a2e8628f')}",
+    "src": "user input → refHigh → request body",
+    "status": "ok",
+    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+    "line": 995,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{tt('labdash.1d92094b')}",
+    "src": "user input → unit → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
     "line": 996,
@@ -15721,18 +15741,8 @@
    },
    {
     "kind": "input",
-    "label": "Ref High",
-    "src": "user input → refHigh → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 997,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Unit",
-    "src": "user input → unit → request body",
+    "label": "{tt('labdash.e9a83ccf')}",
+    "src": "user input → fasting → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
     "line": 998,
@@ -15740,22 +15750,12 @@
     "note": null
    },
    {
-    "kind": "input",
-    "label": "Requires Fasting",
-    "src": "user input → fasting → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1000,
-    "via": null,
-    "note": null
-   },
-   {
     "kind": "button",
-    "label": "Submit for Review",
+    "label": "{tt('labdash.16e3e9ee')}",
     "src": "POST /approval-workflow/requests",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1002,
+    "line": 1000,
     "via": null,
     "note": null
    }
@@ -15767,7 +15767,7 @@
     "src": "POST /labs/bookings/:param/gps → eta",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1053,
+    "line": 1051,
     "via": null,
     "note": null
    },
@@ -15777,27 +15777,27 @@
     "src": "POST /labs/bookings/:param/gps → distance",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1054,
+    "line": 1052,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Technician Arrived",
+    "label": "{tt('labdash.f60625a9')}",
     "src": "PATCH /labs/bookings/:param/state",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1132,
+    "line": 1130,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Start Trip",
+    "label": "{tt('labdash.f878b50b')}",
     "src": "PATCH /labs/bookings/:param/state",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1142,
+    "line": 1140,
     "via": null,
     "note": null
    },
@@ -15807,17 +15807,17 @@
     "src": "POST /labs/bookings/:param/emergency",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1155,
+    "line": 1153,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Cancel & Reassign",
+    "label": "{tt('labdash.b8876455')}",
     "src": "POST /labs/bookings/:param/reassign",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1165,
+    "line": 1163,
     "via": null,
     "note": null
    },
@@ -15827,17 +15827,17 @@
     "src": "GET /labs/team/technicians → collectors",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1194,
+    "line": 1192,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Assign Tech",
+    "label": "{tt('labdash.2ed62c88')}",
     "src": "POST /labs/bookings/:param/assign-technician",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1203,
+    "line": 1201,
     "via": null,
     "note": null
    }
@@ -15846,11 +15846,11 @@
   "TATTracker": [
    {
     "kind": "number",
-    "label": "Stat: Sent",
+    "label": "Stat: {tt('labdash.e87a57c2')}",
     "src": "value ← `${pct}%`",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1275,
+    "line": 1273,
     "via": null,
     "note": null
    },
@@ -15860,7 +15860,7 @@
     "src": "GET /labs/samples → samples",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1281,
+    "line": 1279,
     "via": null,
     "note": null
    }
@@ -15868,11 +15868,11 @@
   "LabInsurance": [
    {
     "kind": "input",
-    "label": "Co-Pay (SAR)",
+    "label": "{tt('labdash.6025e95a')}",
     "src": "user input → String (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1386,
+    "line": 1384,
     "via": null,
     "note": null
    },
@@ -15882,47 +15882,47 @@
     "src": "PATCH /labs/bookings/:param/insurance, GET /labs/provider/inbox → selectedOrder",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1390,
+    "line": 1388,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Covered?",
+    "label": "{tt('labdash.8e77ba51')}",
     "src": "user input → item (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1394,
+    "line": 1392,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Rejection Reason",
+    "label": "{tt('labdash.9e63f799')}",
     "src": "user input → item (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1398,
+    "line": 1396,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Alternative Cash Price",
+    "label": "{tt('labdash.b562e6f7')}",
     "src": "user input → String (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1399,
+    "line": 1397,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Insurer approval number (required to approve)",
+    "label": "{tt('labdash.82ee435d')}",
     "src": "user input → approvalRef → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1406,
+    "line": 1404,
     "via": null,
     "note": null
    },
@@ -15932,47 +15932,47 @@
     "src": "user input → rejectNote → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1407,
+    "line": 1405,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Reject",
+    "label": "{tt('labdash.8a223f36')}",
     "src": "PATCH /labs/bookings/:param/insurance, GET /labs/provider/inbox",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1410,
+    "line": 1408,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Approve",
+    "label": "{tt('labdash.61c05766')}",
     "src": "PATCH /labs/bookings/:param/insurance, GET /labs/provider/inbox",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1411,
+    "line": 1409,
     "via": null,
     "note": null
    },
    {
     "kind": "number",
-    "label": "Stat: Pending",
+    "label": "Stat: {tt('labdash.94139241')}",
     "src": "value ← String(orders.filter(c=>c.insurance_status==='pe",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1423,
+    "line": 1421,
     "via": null,
     "note": null
    },
    {
     "kind": "number",
-    "label": "Stat: Processed",
+    "label": "Stat: {tt('labdash.aec833ec')}",
     "src": "value ← String(orders.filter(c=>c.insurance_status!=='pe",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1424,
+    "line": 1422,
     "via": null,
     "note": null
    },
@@ -15982,7 +15982,7 @@
     "src": "GET /labs/provider/inbox → orders",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1426,
+    "line": 1424,
     "via": null,
     "note": null
    },
@@ -15992,7 +15992,7 @@
     "src": "local state setSelectedOrder",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1427,
+    "line": 1425,
     "via": null,
     "note": null
    }
@@ -16047,14 +16047,24 @@
     "src": "POST /approval-workflow/requests → newPrice",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1591,
+    "line": 1589,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Test not listed? Ask to add it",
+    "label": "{tt('labdash.dedacd60')}",
     "src": "local state setShowAddSheet",
+    "status": "ok",
+    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+    "line": 1612,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{tt('labdash.a7540872')}",
+    "src": "user input → newTitleEn → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
     "line": 1614,
@@ -16063,61 +16073,31 @@
    },
    {
     "kind": "input",
-    "label": "Test Name (English)",
-    "src": "user input → newTitleEn → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1616,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "text",
-    "label": "dummy-value: Test Name (English)",
-    "src": "mock-scan dummy-value",
-    "status": "mock",
-    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1616,
-    "via": null,
-    "note": "dummy-value (mock-scan): Test Name (English)"
-   },
-   {
-    "kind": "input",
-    "label": "Test Name (Arabic)",
+    "label": "{tt('labdash.db5759a0')}",
     "src": "user input → newTitleAr → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1617,
+    "line": 1615,
     "via": null,
     "note": null
    },
    {
-    "kind": "text",
-    "label": "dummy-value: Test Name (Arabic)",
-    "src": "mock-scan dummy-value",
-    "status": "mock",
-    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1617,
-    "via": null,
-    "note": "dummy-value (mock-scan): Test Name (Arabic)"
-   },
-   {
     "kind": "input",
-    "label": "Lab Price",
+    "label": "{tt('labdash.f996d67f')}",
     "src": "user input → newPrice → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1618,
+    "line": 1616,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Send Add Request for Review",
+    "label": "{tt('labdash.3ae3dbd7')}",
     "src": "POST /approval-workflow/requests",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-    "line": 1619,
+    "line": 1617,
     "via": null,
     "note": null
    }
@@ -16229,7 +16209,7 @@
    },
    {
     "kind": "button",
-    "label": "Notifications",
+    "label": "{tt('nurdash.5e885201')}",
     "src": "navigate → notifications",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
@@ -16239,7 +16219,7 @@
    },
    {
     "kind": "number",
-    "label": "Stat: New Orders",
+    "label": "Stat: {tt('nurdash.7c466262')}",
     "src": "value ← String(pending)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
@@ -16249,7 +16229,7 @@
    },
    {
     "kind": "number",
-    "label": "Stat: Active Visits",
+    "label": "Stat: {tt('nurdash.cd9e7601')}",
     "src": "value ← String(active)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
@@ -16259,7 +16239,7 @@
    },
    {
     "kind": "number",
-    "label": "Stat: Completed",
+    "label": "Stat: {tt('nurdash.4c43edff')}",
     "src": "value ← String(completed)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
@@ -16269,7 +16249,7 @@
    },
    {
     "kind": "number",
-    "label": "Stat: Revenue",
+    "label": "Stat: {tt('nurdash.625c26e2')}",
     "src": "value ← String(totalRev)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
@@ -16342,7 +16322,7 @@
    },
    {
     "kind": "button",
-    "label": "Open visit",
+    "label": "{tt('nurdash.477419b3')}",
     "src": "navigate → order_detail",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
@@ -16352,7 +16332,7 @@
    },
    {
     "kind": "button",
-    "label": "Checklist",
+    "label": "{tt('nurdash.fe2d9ea6')}",
     "src": "navigate → checklist",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
@@ -16364,7 +16344,7 @@
   "NursingOrdersTab": [
    {
     "kind": "button",
-    "label": "New",
+    "label": "{tt('nurdash.6687d155')}",
     "src": "local state setTab",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
@@ -16374,7 +16354,7 @@
    },
    {
     "kind": "button",
-    "label": "Confirmed",
+    "label": "{tt('nurdash.5f8c3e6b')}",
     "src": "local state setTab",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
@@ -16384,7 +16364,7 @@
    },
    {
     "kind": "button",
-    "label": "Retry",
+    "label": "{tt('nurdash.cf333076')}",
     "src": "GET /nursing/jobs/active",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
@@ -16502,14 +16482,24 @@
     "src": "GET /provider/me → caps",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 766,
+    "line": 765,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Account Info",
+    "label": "{tt('nurdash.98b10900')}",
     "src": "navigate → profile_edit",
+    "status": "ok",
+    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
+    "line": 804,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{tt('nurdash.bc5efe82')}",
+    "src": "navigate → nursing_services",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
     "line": 805,
@@ -16518,8 +16508,8 @@
    },
    {
     "kind": "button",
-    "label": "Services & Prices",
-    "src": "navigate → nursing_services",
+    "label": "{tt('nurdash.fd221036')}",
+    "src": "navigate → nursing_coverage",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
     "line": 806,
@@ -16528,8 +16518,8 @@
    },
    {
     "kind": "button",
-    "label": "Coverage Area",
-    "src": "navigate → nursing_coverage",
+    "label": "{tt('nurdash.82f7fda8')}",
+    "src": "navigate → working_hours",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
     "line": 807,
@@ -16538,8 +16528,8 @@
    },
    {
     "kind": "button",
-    "label": "Working Hours",
-    "src": "navigate → working_hours",
+    "label": "{tt('nurdash.2eb56936')}",
+    "src": "navigate → insurance_config",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
     "line": 808,
@@ -16548,8 +16538,8 @@
    },
    {
     "kind": "button",
-    "label": "Health Insurance",
-    "src": "navigate → insurance_config",
+    "label": "{tt('nurdash.679ae00d')}",
+    "src": "navigate → insurance_requests",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
     "line": 809,
@@ -16558,8 +16548,8 @@
    },
    {
     "kind": "button",
-    "label": "Insurance Requests",
-    "src": "navigate → insurance_requests",
+    "label": "{tt('nurdash.7a80399f')}",
+    "src": "navigate (back / dynamic target)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
     "line": 810,
@@ -16568,8 +16558,8 @@
    },
    {
     "kind": "button",
-    "label": "Ordering declaration",
-    "src": "navigate (back / dynamic target)",
+    "label": "{tt('nurdash.52c41d52')}",
+    "src": "navigate → certificates_config",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
     "line": 811,
@@ -16578,21 +16568,11 @@
    },
    {
     "kind": "button",
-    "label": "Qualifications",
-    "src": "navigate → certificates_config",
-    "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 812,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Photos & Media",
+    "label": "{tt('nurdash.07de3762')}",
     "src": "navigate → media_config",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 813,
+    "line": 812,
     "via": null,
     "note": null
    },
@@ -16602,14 +16582,24 @@
     "src": "parent callback row.action",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 832,
+    "line": 831,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Notifications",
+    "label": "{tt('nurdash.5e885201')}",
     "src": "navigate → notifications",
+    "status": "ok",
+    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
+    "line": 837,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{tt('nurdash.ebb9f1de')}",
+    "src": "navigate → medical_jobs",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
     "line": 838,
@@ -16618,21 +16608,11 @@
    },
    {
     "kind": "button",
-    "label": "Medical Jobs",
-    "src": "navigate → medical_jobs",
-    "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 839,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Medical Drug Index",
+    "label": "{tt('nurdash.0e14b12f')}",
     "src": "navigate → drug_index",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 840,
+    "line": 839,
     "via": null,
     "note": null
    },
@@ -16642,17 +16622,17 @@
     "src": "parent callback r.action",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 849,
+    "line": 848,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Log Out",
+    "label": "{tt('nurdash.d56d4be0')}",
     "src": "local state setShowLO",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 852,
+    "line": 851,
     "via": null,
     "note": null
    },
@@ -16972,7 +16952,7 @@
    },
    {
     "kind": "button",
-    "label": "Complete Visit",
+    "label": "{tt('nurdash.2b338b45')}",
     "src": "navigate → order_detail",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
@@ -16994,7 +16974,7 @@
    },
    {
     "kind": "input",
-    "label": "Plan title",
+    "label": "{tt('nurdash.0c75bc36')}",
     "src": "user input → title → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
@@ -17004,7 +16984,7 @@
    },
    {
     "kind": "input",
-    "label": "Tasks (one per line)",
+    "label": "{tt('nurdash.ace623a2')}",
     "src": "user input → taskText → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
@@ -17014,7 +16994,7 @@
    },
    {
     "kind": "button",
-    "label": "Create Plan",
+    "label": "{tt('nurdash.887cd657')}",
     "src": "POST /home-care/care-plans/:param, GET /home-care/care-plans/:param",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
@@ -17036,7 +17016,7 @@
    },
    {
     "kind": "input",
-    "label": "BP",
+    "label": "{tt('nurdash.01506d73')}",
     "src": "user input → vitals → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
@@ -17046,7 +17026,7 @@
    },
    {
     "kind": "input",
-    "label": "Pulse",
+    "label": "{tt('nurdash.b9e70fa1')}",
     "src": "user input → vitals → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
@@ -17056,7 +17036,7 @@
    },
    {
     "kind": "input",
-    "label": "Temp",
+    "label": "{tt('nurdash.30ada89d')}",
     "src": "user input → vitals → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
@@ -17076,7 +17056,7 @@
    },
    {
     "kind": "input",
-    "label": "Glucose",
+    "label": "{tt('nurdash.bc6a278e')}",
     "src": "user input → vitals → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
@@ -17086,7 +17066,7 @@
    },
    {
     "kind": "input",
-    "label": "Clinical Notes",
+    "label": "{tt('nurdash.691e0d25')}",
     "src": "user input → note → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
@@ -17096,7 +17076,7 @@
    },
    {
     "kind": "button",
-    "label": "Save Note",
+    "label": "{tt('nurdash.a9e7da12')}",
     "src": "POST /nursing/notes, GET /nursing/notes/:param",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
@@ -17128,8 +17108,18 @@
    },
    {
     "kind": "number",
-    "label": "Stat: Delivered",
+    "label": "Stat: {tt('nurdash.40efd0af')}",
     "src": "value ← String(supplies.filter(s=>s.status==='delivered'",
+    "status": "ok",
+    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
+    "line": 717,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "number",
+    "label": "Stat: {tt('nurdash.f2a13c93')}",
+    "src": "value ← String(supplies.filter(s=>s.status==='ordered').",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
     "line": 718,
@@ -17138,21 +17128,11 @@
    },
    {
     "kind": "number",
-    "label": "Stat: Ordered",
-    "src": "value ← String(supplies.filter(s=>s.status==='ordered').",
-    "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 719,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "number",
-    "label": "Stat: Pending",
+    "label": "Stat: {tt('nurdash.94139241')}",
     "src": "value ← String(supplies.filter(s=>s.status==='pending').",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 720,
+    "line": 719,
     "via": null,
     "note": null
    },
@@ -17162,7 +17142,7 @@
     "src": "GET /provider/nursing/supplies → supplies",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 724,
+    "line": 723,
     "via": null,
     "note": null
    },
@@ -17172,7 +17152,7 @@
     "src": "GET /nursing/jobs/active → visits",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 744,
+    "line": 743,
     "via": null,
     "note": null
    },
@@ -17182,14 +17162,24 @@
     "src": "local state setVisitId",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 745,
+    "line": 744,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Supply Name",
+    "label": "{tt('nurdash.68a59079')}",
     "src": "user input → newItem → request body",
+    "status": "ok",
+    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
+    "line": 749,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{tt('nurdash.d6e33524')}",
+    "src": "user input → newQty → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
     "line": 750,
@@ -17197,22 +17187,12 @@
     "note": null
    },
    {
-    "kind": "input",
-    "label": "Quantity",
-    "src": "user input → newQty → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 751,
-    "via": null,
-    "note": null
-   },
-   {
     "kind": "button",
-    "label": "Submit Request",
+    "label": "{tt('nurdash.1a0e168c')}",
     "src": "POST /home-care/inventory/request",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 753,
+    "line": 752,
     "via": null,
     "note": null
    }
@@ -17358,37 +17338,37 @@
     "src": "POST /nursing/coverage/verify-gps → gpsResult",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 869,
+    "line": 868,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Verify Current GPS Location",
+    "label": "{tt('nurdash.4658d917')}",
     "src": "POST /nursing/coverage/verify-gps",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 913,
+    "line": 912,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "{k} KM",
+    "label": "{k} {tt('nurdash.17e9ee72')}",
     "src": "local state setRadius",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 925,
+    "line": 923,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Save Coverage Settings",
+    "label": "{tt('nurdash.b9c1f9fd')}",
     "src": "POST /provider/settings/delta",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 945,
+    "line": 943,
     "via": null,
     "note": null
    }
@@ -17454,17 +17434,17 @@
     "src": "GET /chats/threads/:param/messages, POST /chats/threads/:param/messages → msgs",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1032,
+    "line": 1030,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Type a message...",
+    "label": "{tt('nurdash.ae9e7693')}",
     "src": "user input → msg (local)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1044,
+    "line": 1042,
     "via": null,
     "note": null
    },
@@ -17474,7 +17454,7 @@
     "src": "POST /chats/threads/:param/messages, GET /chats/threads/:param/messages",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1045,
+    "line": 1043,
     "via": null,
     "note": null
    }
@@ -17486,7 +17466,7 @@
     "src": "GET /provider/schedule/settings → shifts",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1056,
+    "line": 1054,
     "via": null,
     "note": null
    },
@@ -17496,7 +17476,7 @@
     "src": "user input → shifts → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1093,
+    "line": 1091,
     "via": null,
     "note": null
    },
@@ -17506,7 +17486,7 @@
     "src": "user input → shifts → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1097,
+    "line": 1095,
     "via": null,
     "note": null
    },
@@ -17516,17 +17496,17 @@
     "src": "user input → shifts → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1101,
+    "line": 1099,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Max Daily Visits",
+    "label": "{tt('nurdash.a8bf6096')}",
     "src": "user input → maxVisits → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1107,
+    "line": 1105,
     "via": null,
     "note": null
    },
@@ -17536,17 +17516,17 @@
     "src": "user input → emergencyReady → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1113,
+    "line": 1111,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Save Schedule",
+    "label": "{tt('nurdash.009b3141')}",
     "src": "POST /provider/schedule/settings",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-    "line": 1117,
+    "line": 1115,
     "via": null,
     "note": null
    }
@@ -18361,16 +18341,6 @@
   ],
   "PharmacyHomeTab": [
    {
-    "kind": "text",
-    "label": "placeholder-text: الصيدلية ستغلق قريباً",
-    "src": "mock-scan placeholder-text",
-    "status": "placeholder",
-    "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-    "line": 296,
-    "via": null,
-    "note": "placeholder-text (mock-scan): الصيدلية ستغلق قريباً"
-   },
-   {
     "kind": "input",
     "label": "<Switch>",
     "src": "user input → POST /provider/ops/availability/toggle-instant",
@@ -18424,7 +18394,7 @@
    },
    {
     "kind": "button",
-    "label": "Reject",
+    "label": "{tt('phdash.8a223f36')}",
     "src": "local state setRejectOrderId, setShowRejectModal",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -18527,7 +18497,7 @@
    },
    {
     "kind": "button",
-    "label": "Order Supply (B2B)",
+    "label": "{tt('phdash.c1f5dce9')}",
     "src": "local state setMode",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -18537,7 +18507,7 @@
    },
    {
     "kind": "button",
-    "label": "Returns Manager",
+    "label": "{tt('phdash.bcfbde8e')}",
     "src": "local state setMode",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -18547,7 +18517,7 @@
    },
    {
     "kind": "button",
-    "label": "Text",
+    "label": "{tt('phdash.8ca5c52a')}",
     "src": "local state setB2bTab",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -18557,7 +18527,7 @@
    },
    {
     "kind": "button",
-    "label": "Voice",
+    "label": "{tt('phdash.38daef7c')}",
     "src": "local state setB2bTab",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -18567,7 +18537,7 @@
    },
    {
     "kind": "button",
-    "label": "OCR",
+    "label": "{tt('phdash.9d873c25')}",
     "src": "local state setB2bTab",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -18577,7 +18547,7 @@
    },
    {
     "kind": "input",
-    "label": "Type medication names here...",
+    "label": "{tt('phdash.d024a13c')}",
     "src": "user input → b2bText (local)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -18587,7 +18557,7 @@
    },
    {
     "kind": "button",
-    "label": "Submit Order",
+    "label": "{tt('phdash.30940e27')}",
     "src": "POST /pharmacy/procurement/analyze-file",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -18597,7 +18567,7 @@
    },
    {
     "kind": "button",
-    "label": "Pick shelf/invoice photo & analyze",
+    "label": "{tt('phdash.64383d7b')}",
     "src": "POST /pharmacy/procurement/analyze-file",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -18648,7 +18618,7 @@
    },
    {
     "kind": "button",
-    "label": "Sending…",
+    "label": "{tt('phdash.00ca780c')}",
     "src": "POST /pharmacy/procurement/submit-request, GET /pharmacy/procurement/my-requests",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -18730,7 +18700,7 @@
    },
    {
     "kind": "button",
-    "label": "Phone: {d.patient_contact.phone}",
+    "label": "{tt('phdash.8f5fd9b2')}{d.patient_contact.phone}",
     "src": "native action",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -18740,7 +18710,7 @@
    },
    {
     "kind": "input",
-    "label": "Courier name (optional)",
+    "label": "{tt('phdash.ab85dd26')}",
     "src": "user input → courierName (local)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -18750,7 +18720,7 @@
    },
    {
     "kind": "input",
-    "label": "Courier phone (optional)",
+    "label": "{tt('phdash.2fdc9bb8')}",
     "src": "user input → courierPhone (local)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -18760,7 +18730,7 @@
    },
    {
     "kind": "button",
-    "label": "Cancel",
+    "label": "{tt('phdash.210b779f')}",
     "src": "local state setCourierFor",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -18770,7 +18740,7 @@
    },
    {
     "kind": "button",
-    "label": "Confirm dispatch",
+    "label": "{tt('phdash.2eb7f735')}",
     "src": "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -18780,7 +18750,7 @@
    },
    {
     "kind": "button",
-    "label": "Cash",
+    "label": "{tt('phdash.af153030')}",
     "src": "local state setCollectMethod",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -18790,7 +18760,7 @@
    },
    {
     "kind": "input",
-    "label": "Collected amount",
+    "label": "{tt('phdash.495c192a')}",
     "src": "user input → collectAmount (local)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -18800,7 +18770,7 @@
    },
    {
     "kind": "button",
-    "label": "Cancel",
+    "label": "{tt('phdash.210b779f')}",
     "src": "local state setCollectFor",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -18810,7 +18780,7 @@
    },
    {
     "kind": "button",
-    "label": "Confirm delivery",
+    "label": "{tt('phdash.d426198f')}",
     "src": "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -18830,7 +18800,7 @@
    },
    {
     "kind": "button",
-    "label": "Confirm",
+    "label": "{tt('phdash.449fee30')}",
     "src": "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -18840,7 +18810,7 @@
    },
    {
     "kind": "button",
-    "label": "Order chat",
+    "label": "{tt('phdash.1fcdbb86')}",
     "src": "navigate → pharmacy_chat",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -18850,7 +18820,7 @@
    },
    {
     "kind": "button",
-    "label": "Start preparing",
+    "label": "{tt('phdash.0c1e39d3')}",
     "src": "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -18860,7 +18830,7 @@
    },
    {
     "kind": "button",
-    "label": "Ready",
+    "label": "{tt('phdash.31453506')}",
     "src": "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -18890,7 +18860,7 @@
    },
    {
     "kind": "button",
-    "label": "Mark delivered",
+    "label": "{tt('phdash.2571479b')}",
     "src": "GET /provider/pharmacy/allocations/:param, POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -18900,7 +18870,7 @@
    },
    {
     "kind": "button",
-    "label": "Details",
+    "label": "{tt('phdash.c4ac0a1d')}",
     "src": "GET /provider/pharmacy/allocations/:param",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -19089,7 +19059,7 @@
    },
    {
     "kind": "button",
-    "label": "Grant permission",
+    "label": "{tt('phdash.29a31c35')}",
     "src": "parent callback requestPermission",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -19099,7 +19069,7 @@
    },
    {
     "kind": "button",
-    "label": "Scan another barcode",
+    "label": "{tt('phdash.71aaf3a6')}",
     "src": "local state setScanned, setBarcode",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -19261,7 +19231,7 @@
    },
    {
     "kind": "button",
-    "label": "Inbound Insurance Requests",
+    "label": "{tt('phdash.849acb0e')}",
     "src": "navigate → insurance_decisions",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -19271,7 +19241,7 @@
    },
    {
     "kind": "input",
-    "label": "Track inventory balances (optional)",
+    "label": "{tt('phdash.08bdebb6')}",
     "src": "user input → PUT /provider/pharmacy/inventory-tracking",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -19281,7 +19251,7 @@
    },
    {
     "kind": "button",
-    "label": "Save Pharmacy Settings",
+    "label": "{tt('phdash.f40a406a')}",
     "src": "PUT /provider/pharmacy/delivery-settings",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -19469,7 +19439,7 @@
    },
    {
     "kind": "button",
-    "label": "Return {…} Reason: —",
+    "label": "Return {…} {tt('phdash.61065b69')}—",
     "src": "local state setOpenId",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -19591,7 +19561,7 @@
    },
    {
     "kind": "button",
-    "label": "Remove",
+    "label": "{tt('phdash.c91a997c')}",
     "src": "local state setPicked",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -19621,7 +19591,7 @@
    },
    {
     "kind": "button",
-    "label": "Close",
+    "label": "{tt('phdash.e6d3a19e')}",
     "src": "local state setResults",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -19631,7 +19601,7 @@
    },
    {
     "kind": "input",
-    "label": "Find a substitute in your inventory",
+    "label": "{tt('phdash.86871215')}",
     "src": "user input → term (local)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -19641,7 +19611,7 @@
    },
    {
     "kind": "button",
-    "label": "Search",
+    "label": "{tt('phdash.f61f44ef')}",
     "src": "GET /provider/inventory/search",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -19651,7 +19621,7 @@
    },
    {
     "kind": "input",
-    "label": "Type a message…",
+    "label": "{tt('phdash.5a0fe14a')}",
     "src": "user input → msg (local)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -19661,7 +19631,7 @@
    },
    {
     "kind": "button",
-    "label": "Send",
+    "label": "{tt('phdash.ad89df6b')}",
     "src": "POST /pharmacy/chat/threads/:param/messages, GET /pharmacy/chat/threads/:param/messages",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -19682,7 +19652,7 @@
    },
    {
     "kind": "button",
-    "label": "Open chat",
+    "label": "{tt('phdash.7d536576')}",
     "src": "GET /pharmacy/chat/threads/:param/messages, POST /pharmacy/chat/threads, GET /pharmacy/chat/threads",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -20264,7 +20234,7 @@
    },
    {
     "kind": "input",
-    "label": "Qty",
+    "label": "{tt('phdash.e223227d')}",
     "src": "user input → restockQty (local)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -20274,7 +20244,7 @@
    },
    {
     "kind": "button",
-    "label": "Restock",
+    "label": "{tt('phdash.ed593383')}",
     "src": "POST /provider/inventory/:param/restock, GET /provider/inventory/low-stock-alerts, GET /provider/capabilities/pharmacy",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -20284,7 +20254,7 @@
    },
    {
     "kind": "button",
-    "label": "Acknowledge",
+    "label": "{tt('phdash.f88a7bb1')}",
     "src": "POST /provider/inventory/low-stock-alerts/:param/ack, GET /provider/inventory/low-stock-alerts",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -20294,7 +20264,7 @@
    },
    {
     "kind": "input",
-    "label": "Search product...",
+    "label": "{tt('phdash.99dd966a')}",
     "src": "user input → search (local)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -20304,7 +20274,7 @@
    },
    {
     "kind": "input",
-    "label": "Medicine name (2+ letters)",
+    "label": "{tt('phdash.de1a367b')}",
     "src": "user input → catalogQuery → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -20314,7 +20284,7 @@
    },
    {
     "kind": "button",
-    "label": "Search",
+    "label": "{tt('phdash.f61f44ef')}",
     "src": "GET /medicines",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -20344,7 +20314,7 @@
    },
    {
     "kind": "input",
-    "label": "Price (SAR)",
+    "label": "{tt('phdash.74a607af')}",
     "src": "user input → newPrice (local)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -20354,7 +20324,7 @@
    },
    {
     "kind": "input",
-    "label": "Stock on hand",
+    "label": "{tt('phdash.bc2230f2')}",
     "src": "user input → newStock (local)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -20364,7 +20334,7 @@
    },
    {
     "kind": "button",
-    "label": "Send for approval",
+    "label": "{tt('phdash.425e701d')}",
     "src": "POST /provider/capabilities/pharmacy, GET /provider/capabilities/pharmacy",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -20374,7 +20344,7 @@
    },
    {
     "kind": "button",
-    "label": "Cancel",
+    "label": "{tt('phdash.210b779f')}",
     "src": "local state setPicked",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -20405,7 +20375,7 @@
    },
    {
     "kind": "button",
-    "label": "Ins.",
+    "label": "{tt('phdash.69b13e69')}",
     "src": "POST /provider/capabilities/pharmacy, GET /provider/capabilities/pharmacy",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
@@ -20467,7 +20437,7 @@
    },
    {
     "kind": "number",
-    "label": "Stat: Today's Scans",
+    "label": "Stat: {tt('raddash.2b732962')}",
     "src": "value ← String(stats.todayCount)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20477,7 +20447,7 @@
    },
    {
     "kind": "number",
-    "label": "Stat: In Scanning",
+    "label": "Stat: {tt('raddash.8422efb8')}",
     "src": "value ← String(stats.inScanCount)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20487,7 +20457,7 @@
    },
    {
     "kind": "number",
-    "label": "Stat: Completed",
+    "label": "Stat: {tt('raddash.a78b4dfb')}",
     "src": "value ← String(stats.completedCount)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20497,7 +20467,7 @@
    },
    {
     "kind": "number",
-    "label": "Stat: Revenue",
+    "label": "Stat: {tt('raddash.625c26e2')}",
     "src": "value ← String(stats.revenue)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20562,7 +20532,7 @@
    },
    {
     "kind": "button",
-    "label": "Scan not listed? Ask to add it",
+    "label": "{tt('raddash.ad2647d3')}",
     "src": "local state setShowAdd",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20593,7 +20563,7 @@
    },
    {
     "kind": "input",
-    "label": "Scan Name (Arabic)",
+    "label": "{tt('raddash.d91c01b5')}",
     "src": "user input → nameAr → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20603,7 +20573,7 @@
    },
    {
     "kind": "input",
-    "label": "Scan Name (English)",
+    "label": "{tt('raddash.1f9eb88f')}",
     "src": "user input → nameEn → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20613,7 +20583,7 @@
    },
    {
     "kind": "input",
-    "label": "Cash Price (SAR)",
+    "label": "{tt('raddash.39a4471e')}",
     "src": "user input → price → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20623,7 +20593,7 @@
    },
    {
     "kind": "input",
-    "label": "Expected Duration (minutes)",
+    "label": "{tt('raddash.d2889ad9')}",
     "src": "user input → duration → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20674,7 +20644,7 @@
    },
    {
     "kind": "button",
-    "label": "Submit for Admin Review",
+    "label": "{tt('raddash.017b19ce')}",
     "src": "POST /radiology/catalog/delta-request",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20717,7 +20687,7 @@
    },
    {
     "kind": "input",
-    "label": "From",
+    "label": "{tt('raddash.ecdb7711')}",
     "src": "user input → morningFrom → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20727,7 +20697,7 @@
    },
    {
     "kind": "input",
-    "label": "To",
+    "label": "{tt('raddash.32c46ecf')}",
     "src": "user input → morningTo → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20737,7 +20707,7 @@
    },
    {
     "kind": "input",
-    "label": "From",
+    "label": "{tt('raddash.ecdb7711')}",
     "src": "user input → eveningFrom → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20747,7 +20717,7 @@
    },
    {
     "kind": "input",
-    "label": "To",
+    "label": "{tt('raddash.32c46ecf')}",
     "src": "user input → eveningTo → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20767,7 +20737,7 @@
    },
    {
     "kind": "button",
-    "label": "Save & Send for Review",
+    "label": "{tt('raddash.4d7dc55e')}",
     "src": "POST /radiology/catalog/delta-request",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20839,7 +20809,7 @@
    },
    {
     "kind": "button",
-    "label": "Inbound Insurance Requests",
+    "label": "{tt('raddash.849acb0e')}",
     "src": "navigate → insurance_requests",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20849,7 +20819,7 @@
    },
    {
     "kind": "button",
-    "label": "Ordering declaration",
+    "label": "{tt('raddash.7a80399f')}",
     "src": "navigate (back / dynamic target)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20859,7 +20829,7 @@
    },
    {
     "kind": "button",
-    "label": "Medical Drug Index",
+    "label": "{tt('raddash.0e14b12f')}",
     "src": "navigate → drug_index",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20869,7 +20839,7 @@
    },
    {
     "kind": "button",
-    "label": "Medical Jobs",
+    "label": "{tt('raddash.ebb9f1de')}",
     "src": "navigate → medical_jobs",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20879,7 +20849,7 @@
    },
    {
     "kind": "button",
-    "label": "Logout",
+    "label": "{tt('raddash.b2a19694')}",
     "src": "parent callback onLogout",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20911,7 +20881,7 @@
    },
    {
     "kind": "button",
-    "label": "Record Internal Coverage Decision",
+    "label": "{tt('raddash.22277872')}",
     "src": "local state setShowApproval",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20922,7 +20892,7 @@
    {
     "kind": "button",
     "label": "{t('audit2.radiology.acceptBook}",
-    "src": "local state setState",
+    "src": "parent callback tt",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
     "line": 357,
@@ -20931,7 +20901,7 @@
    },
    {
     "kind": "button",
-    "label": "Reject booking",
+    "label": "{tt('raddash.6035b5a7')}",
     "src": "local state setShowReject",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20941,7 +20911,7 @@
    },
    {
     "kind": "button",
-    "label": "Enter Insurance Approval",
+    "label": "{tt('raddash.c7226cd8')}",
     "src": "local state setShowApproval",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20951,7 +20921,7 @@
    },
    {
     "kind": "button",
-    "label": "Confirm Patient Arrival (Check-in)",
+    "label": "{tt('raddash.5100ece5')}",
     "src": "POST /radiology/bookings/:param/:param, GET /radiology/bookings/:param",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20961,7 +20931,7 @@
    },
    {
     "kind": "button",
-    "label": "Call to Scanning Room",
+    "label": "{tt('raddash.f097e55f')}",
     "src": "POST /radiology/bookings/:param/:param, GET /radiology/bookings/:param",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20971,7 +20941,7 @@
    },
    {
     "kind": "button",
-    "label": "Emergency Abort",
+    "label": "{tt('raddash.c82f8373')}",
     "src": "local state setShowAbort",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20981,7 +20951,7 @@
    },
    {
     "kind": "button",
-    "label": "Upload Report & Results",
+    "label": "{tt('raddash.723cca1f')}",
     "src": "navigate → reporting",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -20991,7 +20961,7 @@
    },
    {
     "kind": "button",
-    "label": "Emergency Abort Scan",
+    "label": "{tt('raddash.b5267aba')}",
     "src": "local state setShowAbort",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -21001,7 +20971,7 @@
    },
    {
     "kind": "button",
-    "label": "Submit for Radiologist Review",
+    "label": "{tt('raddash.223b9561')}",
     "src": "POST /radiology/bookings/:param/:param, GET /radiology/bookings/:param",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -21011,7 +20981,7 @@
    },
    {
     "kind": "button",
-    "label": "Approve & Publish Report",
+    "label": "{tt('raddash.baf5326c')}",
     "src": "POST /radiology/bookings/:param/:param, GET /radiology/bookings/:param",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -21021,7 +20991,7 @@
    },
    {
     "kind": "button",
-    "label": "Reschedule",
+    "label": "{tt('raddash.07f3aadc')}",
     "src": "local state setShowReschedule",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -21031,7 +21001,7 @@
    },
    {
     "kind": "input",
-    "label": "Internal decision reference",
+    "label": "{tt('raddash.ad1a5d6b')}",
     "src": "user input → decisionRef → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -21041,7 +21011,7 @@
    },
    {
     "kind": "input",
-    "label": "Co-pay percentage (0–99%)",
+    "label": "{tt('raddash.f096e662')}",
     "src": "user input → copay (local)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -21051,7 +21021,7 @@
    },
    {
     "kind": "button",
-    "label": "Record Coverage Decision",
+    "label": "{tt('raddash.bbf529ee')}",
     "src": "POST /radiology/bookings/:param/coverage-decision, GET /radiology/bookings/:param",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -21061,7 +21031,7 @@
    },
    {
     "kind": "input",
-    "label": "Reason",
+    "label": "{tt('raddash.15bcf925')}",
     "src": "user input → rejectReason (local)",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -21071,8 +21041,8 @@
    },
    {
     "kind": "button",
-    "label": "Confirm rejection",
-    "src": "parent callback rejectReason.trim",
+    "label": "{tt('raddash.46984e50')}",
+    "src": "parent callback rejectReason.trim, tt",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
     "line": 389,
@@ -21102,7 +21072,7 @@
    },
    {
     "kind": "button",
-    "label": "Confirm Abort",
+    "label": "{tt('raddash.2952abdf')}",
     "src": "POST /radiology/bookings/:param/abort, GET /radiology/bookings/:param",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -21133,7 +21103,7 @@
    },
    {
     "kind": "button",
-    "label": "Confirm Reschedule",
+    "label": "{tt('raddash.132436e6')}",
     "src": "PATCH /radiology/bookings/:param/reschedule, GET /radiology/bookings/:param",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -21186,7 +21156,7 @@
    },
    {
     "kind": "input",
-    "label": "Clinical Findings",
+    "label": "{tt('raddash.b71f305d')}",
     "src": "user input → findings → request body",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -21196,7 +21166,7 @@
    },
    {
     "kind": "button",
-    "label": "Upload updated report",
+    "label": "{tt('raddash.96f339ca')}",
     "src": "POST /storage/upload, POST /radiology/bookings/:param/upload-report",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -21216,7 +21186,7 @@
    },
    {
     "kind": "button",
-    "label": "Submit for Radiologist Review",
+    "label": "{tt('raddash.223b9561')}",
     "src": "POST /radiology/bookings/:param/submit-report-for-review",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
@@ -21226,7 +21196,7 @@
    },
    {
     "kind": "button",
-    "label": "Approve & Publish to Patient",
+    "label": "{tt('raddash.00ff07bb')}",
     "src": "POST /radiology/bookings/:param/approve-report",
     "status": "ok",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
