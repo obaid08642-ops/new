@@ -183,7 +183,7 @@ export class OrderingLifecycleService implements OnModuleInit {
       id: b.id, status: b.status ?? 'pending', state: b.state, mode: b.location_type, total: b.total_price ?? b.total, price_locked_at: b.price_locked_at ?? null,
       items: (b.price_lock?.items ?? []).map((i: any) => ({ catalog_id: i.catalog_id, price: i.price })),
       confirm_deadline_at: lc.confirmed_at ? null : lc.confirm_deadline_at,
-      payment: { amount: b.total_price ?? b.total, status: b.payment_status ?? 'pending', refund_status: b.refund_status ?? null },
+      payment: { amount: b.total_price ?? b.total, status: b.payment_status ?? 'pending', refund_status: b.refund_status ?? null, refund_amount: Number.isFinite(Number(b.refund_amount)) && b.refund_amount !== null ? Number(b.refund_amount) : null },   // refund_amount: stored when the refund starts (startRefund), returned so the screen can show the figure
       alternative: lc.alternative ?? null,
       // why it was cancelled (null when it was not): the screen shows a different title for "the provider did not confirm", "you cancelled" and "the provider cancelled"
       cancel_reason: cancelReasonOf(b),
