@@ -1,5 +1,9 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-16 15:55 UTC — WIRING https-only in the app (PR #2711); #2709 still open
+- Guarded 3 more openURL sites (payments/result, pharmacy/payment, chat media) with isHttpsCheckout; test added; no UI text touched. Social login: already backend-verify only (no change).
+- Literal slice 4 waits for #2709 to merge (same locale files); I take it right after. Then token audit.
+
 ## 2026-11-16 15:10 UTC — provider literals slice 3 (PR #2709); #2700 merged
 - 2691 -> 2422 (DrugIndexDetail + 3 Ordering screens). parity ok, token-sync 396, emoji 40, tsc clean, jest 433/433, no test changed.
 - Next: slice 4 (next biggest files), then items 2-3.
