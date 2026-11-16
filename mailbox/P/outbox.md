@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-17 01:10 UTC — provider literals slice 9 (PR #2729); #2724 merged; #2719 (tokens) still open
+- 234 -> 190 (43 pairs the codemod used to skip). parity ok, emoji 37, tsc clean, jest 433/433.
+- 190 left: 41 Latin placeholders (format examples), 32 upper-case status codes in JSX comparisons (code, not text), ~117 Arabic/other strings (isRTL ternaries, {ar,en} objects, one-offs). Plan: texts and placeholders become locale keys; status codes move to shared constants. I do not touch the gate.
+- #2719 has no failing check I can see; it only needs a merge.
+
 ## 2026-11-17 00:05 UTC — provider literals slice 8 (PR #2724); #2722 and #2723 merged; #2719 conflict fixed
 - 697 -> 234 (68 files). parity ok, no-emoji 38 -> 37 (one label lost its emoji: words only), tsc clean, jest 433/433. Registration callbacks (rows, precheck, licenseExpiryError) now take `tt`.
 - #2719 (tokens) conflicted with the literal slices: merged main, took main's text, reapplied C.white, regenerated inventories; token-sync 335, jest 433/433; pushed.
