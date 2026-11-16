@@ -44,7 +44,7 @@ import { tokens } from '../../../theme/tokens';
 
 export function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; preRole?: string }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const specialties = useSpecialtiesCatalog();
  const { show } = useToast();
  const AR = lang === 'ar';
@@ -74,7 +74,7 @@ export function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; p
 
  const handleSubmit = async () => {
  if (!name.trim() || !email.trim() || !Validate.phone(phone)) {
- show(AR ? 'يرجى ملء جميع الحقول المطلوبة بشكل صحيح' : 'Fill all required fields correctly', 'warning');
+ show(tt('asa.1f48acfb'), 'warning');
  return;
  }
  setLoading(true);
@@ -118,7 +118,7 @@ export function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; p
  if (createdCreds) {
  return (
  <NScroll>
- <NHeader title={AR?' بطاقة الحساب الفرعي':' Sub-Account Credential Card'} onBack={onBack} />
+ <NHeader title={tt('asa.576dee2e')} onBack={onBack} />
  
  <View style={{ padding: SP.xl, alignItems: 'center' }}>
  <View style={{
@@ -127,7 +127,7 @@ export function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; p
  marginBottom: SP.xl
  }}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: theme.border, paddingBottom: SP.md, marginBottom: SP.md }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.primary }}> {AR ? 'مستشفى نبضة الطبي' : 'Nabdah Medical Hospital'}</Text>
+ <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.primary }}> {tt('asa.d71022b1')}</Text>
  <NBadge label={AR ? createdCreds.role : createdCreds.roleEn} variant="primary" size="sm" />
  </View>
 
@@ -143,23 +143,23 @@ export function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; p
  <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text }}>{createdCreds.subId}</Text>
  </View>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between' }}>
- <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{AR ? 'كلمة المرور المؤقتة:' : 'Temp Password:'}</Text>
+ <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{tt('asa.e44e30e0')}</Text>
  <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.danger }}>{createdCreds.tempPass}</Text>
  </View>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between' }}>
- <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{AR ? 'الدخول للتطبيق:' : 'App login:'}</Text>
- <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: createdCreds.loginAvailable ? theme.success : theme.warn }}>{createdCreds.loginAvailable ? (AR ? 'متاح — نفس الداشبورد الكامل' : 'Available — full dashboard') : (AR ? 'غير متاح لهذا الدور بعد' : 'Not available for this role yet')}</Text>
+ <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{tt('asa.c1b44697')}</Text>
+ <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: createdCreds.loginAvailable ? theme.success : theme.warn }}>{createdCreds.loginAvailable ? (tt('asa.57333f67')) : (tt('asa.3b911e58'))}</Text>
  </View>
  </View>
 
  <View style={{ alignItems: 'center', marginTop: SP.md, padding: SP.md, borderWidth: 1, borderColor: theme.border, borderRadius: R.md }}>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: 'center' }}>
- {AR ? 'رمز QR والحفظ والمشاركة غير متاحة حتى اعتماد عقد تحقق ومشاركة آمن.' : 'QR, save and sharing are unavailable until a verified sharing contract is approved.'}
+ {tt('asa.61477aa4')}
  </Text>
  </View>
 
  <View style={{ width: '100%', gap: SP.md }}>
- <NBtn label={AR ? 'تم' : 'Done'} variant="outline" onPress={onBack} />
+ <NBtn label={tt('asa.2b48d77f')} variant="outline" onPress={onBack} />
  </View>
  </View>
  </View>
@@ -169,10 +169,10 @@ export function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; p
 
  return (
  <NScroll>
- <NHeader title={AR ? ' إضافة حساب فرعي' : ' Add Sub-Account'} onBack={onBack} />
+ <NHeader title={tt('asa.e4d1a8dc')} onBack={onBack} />
 
  {/* Role Selection */}
- <NSecHeader title={AR ? 'نوع الحساب' : 'Account Type'} />
+ <NSecHeader title={tt('asa.2a6cca5b')} />
  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.md, marginBottom: SP.xl }}>
  {ROLES.map(r => (
  <TouchableOpacity key={r.id} onPress={() => setRole(r.id)}
@@ -199,32 +199,32 @@ export function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; p
  </NCard>
 
  <NInput
- label={AR ? 'الاسم الكامل' : 'Full Name'}
- placeholder={AR ? 'محمد أحمد السعودي' : 'Mohamed Ahmed'}
+ label={tt('asa.8262001b')}
+ placeholder={tt('asa.5238c2fa')}
  value={name} onChange={setName} icon="" required caps="words"
  /> <NInput
- label={AR ? 'الاسم بالعربية (يظهر للمرضى)' : 'Name in Arabic (shown to patients)'}
+ label={tt('asa.7cee214f')}
  value={nameAr} onChange={setNameAr} icon=""
  />
  <NInput
- label={AR ? 'الاسم بالإنجليزية (يظهر للمرضى)' : 'Name in English (shown to patients)'}
+ label={tt('asa.a2ac7c9e')}
  value={nameEn} onChange={setNameEn} icon=""
  />
  <NInput
- label={AR ? 'الاسم القانوني (كما في الهوية/السجل)' : 'Legal name (as in ID/registry)'}
+ label={tt('asa.199d563f')}
  value={legalName} onChange={setLegalName} icon=""
  />
  <NInput
- label={AR ? 'البريد الإلكتروني' : 'Email'}
+ label={tt('asa.8605844e')}
  placeholder="doctor@hospital.com"
  value={email} onChange={v => setEmail(v.toLowerCase())} icon="" required kbType="email-address"
  />
- <NPhoneInput label={AR ? 'الجوال' : 'Phone'} value={phone} onChange={setPhone} required />
+ <NPhoneInput label={tt('asa.098e976b')} value={phone} onChange={setPhone} required />
 
  {selectedRole.needsSpec && (
  <View style={{ marginBottom: SP.lg }}>
  <Text style={[s.inputLabel, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>
- {AR ? 'التخصص الطبي' : 'Medical Specialty'}
+ {tt('asa.a6bee258')}
  </Text>
  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
  <View style={{ flexDirection: 'row', gap: SP.sm }}>
@@ -247,7 +247,7 @@ export function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; p
 
  {selectedRole.needsScfhs && (
  <NInput
- label={AR ? 'رقم ترخيص SCFHS / الهيئة' : 'SCFHS License Number'}
+ label={tt('asa.baee5ca2')}
  placeholder="123456" value={scfhs} onChange={setScfhs}
  icon="" kbType="numeric" maxLen={8}
  />
@@ -255,14 +255,12 @@ export function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; p
 
  <NCard style={{ backgroundColor: theme.warnBg, marginBottom: SP.xl }}>
  <Text style={{ fontSize: FS.sm, color: theme.warn, lineHeight: 20, textAlign: AR ? 'right' : 'left' }}>
-  {AR
- ? 'سيتم إرسال بيانات الدخول تلقائياً على البريد الإلكتروني وكلمة مرور مؤقتة يجب تغييرها.'
- : 'Login credentials will be auto-sent to email with a temporary password to be changed on first login.'}
+  {tt('asa.25694a5b')}
  </Text>
  </NCard>
 
  <NBtn
- label={AR ? ' إنشاء الحساب الفرعي' : ' Create Sub-Account'}
+ label={tt('asa.2986f577')}
  onPress={handleSubmit} loading={loading}
  />
  </NScroll>

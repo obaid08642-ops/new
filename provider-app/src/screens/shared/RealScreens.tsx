@@ -11,7 +11,7 @@ import { ProviderApi } from '../../api/provider';
 // 1. REVIEWS AND RATINGS SCREEN
 export function ReviewsAndRatingsScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
   const [reviews, setReviews] = useState<any[]>([]);
@@ -28,18 +28,18 @@ export function ReviewsAndRatingsScreen({ onBack }: { onBack: () => void }) {
     if (!replyText.trim()) return;
     try {
       await client.post(`/provider/reviews/${id}/reply`, { reply: replyText });
-      show(AR ? 'تم إرسال الرد بنجاح' : 'Reply sent successfully', 'success');
+      show(tt('rs.83f1eeb9'), 'success');
       setReviews(reviews.map(r => r.id === id ? { ...r, reply: replyText } : r));
       setSelectedId(null);
       setReplyText('');
     } catch (e) {
-      show(AR ? 'تعذر إرسال الرد' : 'Failed to send reply', 'error');
+      show(tt('rs.79a53d1d'), 'error');
     }
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'تقييمات وآراء العملاء' : 'Reviews & Ratings'} onBack={onBack} />
+      <NHeader title={tt('rs.1967a33a')} onBack={onBack} />
       <NScroll pad>
         <NCard style={{ marginBottom: SP.md, alignItems: 'center', padding: SP.lg }}>
           <Text style={{ fontSize: 36, fontWeight: FW.bold, color: theme.primary }}>
@@ -50,7 +50,7 @@ export function ReviewsAndRatingsScreen({ onBack }: { onBack: () => void }) {
           <Text style={{ fontSize: FS.sm, color: theme.textSub, marginTop: 4 }}>
              {reviews.length > 0
                ? (AR ? `بناءً على ${reviews.length} تقييم` : `Based on ${reviews.length} reviews`)
-               : (AR ? 'لا توجد تقييمات بعد' : 'No reviews yet')}
+               : (tt('rs.b121fb16'))}
           </Text>
         </NCard>
 
@@ -67,26 +67,26 @@ export function ReviewsAndRatingsScreen({ onBack }: { onBack: () => void }) {
             {rev.reply ? (
               <View style={{ backgroundColor: theme.surface, padding: SP.sm, borderRadius: R.md, marginTop: SP.xs, borderLeftWidth: 3, borderLeftColor: theme.primary }}>
                 <Text style={{ fontSize: FS.xs, fontWeight: FW.bold, color: theme.primary, textAlign: AR ? 'right' : 'left' }}>
-                  {AR ? 'ردك:' : 'Your reply:'}
+                  {tt('rs.ea061300')}
                 </Text>
                 <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{rev.reply}</Text>
               </View>
             ) : selectedId === rev.id ? (
               <View style={{ marginTop: SP.xs }}>
                 <NInput
-                  placeholder={AR ? 'اكتب ردك هنا...' : 'Type your reply...'}
+                  placeholder={tt('rs.63f7f071')}
                   value={replyText}
                   onChange={setReplyText}
                 />
                 <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.xs, marginTop: SP.xs }}>
-                  <NBtn label={AR ? 'إرسال الرد' : 'Send'} size="sm" onPress={() => handleReply(rev.id)} />
-                  <NBtn label={AR ? 'إلغاء' : 'Cancel'} size="sm" variant="outline" onPress={() => setSelectedId(null)} />
+                  <NBtn label={tt('rs.7ae0d340')} size="sm" onPress={() => handleReply(rev.id)} />
+                  <NBtn label={tt('rs.210b779f')} size="sm" variant="outline" onPress={() => setSelectedId(null)} />
                 </View>
               </View>
             ) : (
               <TouchableOpacity onPress={() => { setSelectedId(rev.id); setReplyText(''); }}>
                 <Text style={{ fontSize: FS.xs, color: theme.primary, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>
-                   {AR?'الرد على التقييم':'Reply to review'}
+                   {tt('rs.355f48f2')}
                 </Text>
               </TouchableOpacity>
             )}
@@ -110,7 +110,7 @@ const DAY_DEFS = [
 
 export function WorkingHoursEditorScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang, t } = useLang();
+  const { lang, t, t: tt } = useLang();
   const { user } = useAuth();
   const { show } = useToast();
   const AR = lang === 'ar';
@@ -163,7 +163,7 @@ export function WorkingHoursEditorScreen({ onBack }: { onBack: () => void }) {
   const handleSave = async () => {
     const bad = hours.find((h) => !h.closed && (!timeValid(h.open) || !timeValid(h.close)));
     if (bad) {
-      show(AR ? 'تأكد من صيغة الوقت (HH:MM) لكل يوم مفعّل' : 'Check time format (HH:MM) for every active day', 'error');
+      show(tt('rs.43a4776e'), 'error');
       return;
     }
     setSaving(true);
@@ -174,7 +174,7 @@ export function WorkingHoursEditorScreen({ onBack }: { onBack: () => void }) {
       onBack();
     } catch (e: any) {
       const msg = e?.response?.data?.message;
-      show(typeof msg === 'string' ? msg : (AR ? 'تعذر حفظ أوقات العمل — تحقق من الاتصال وحاول مجدداً' : 'Could not save working hours — check connection and retry'), 'error');
+      show(typeof msg === 'string' ? msg : (tt('rs.085858f5')), 'error');
     } finally {
       setSaving(false);
     }
@@ -187,7 +187,7 @@ export function WorkingHoursEditorScreen({ onBack }: { onBack: () => void }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'إدارة أوقات العمل' : 'Working Hours Management'} onBack={onBack} />
+      <NHeader title={tt('rs.4744a6e6')} onBack={onBack} />
       {loading ? (
         <View style={{ alignItems: 'center', paddingVertical: SP.huge }}>
           <ActivityIndicator size="large" color={theme.primary} />
@@ -195,8 +195,8 @@ export function WorkingHoursEditorScreen({ onBack }: { onBack: () => void }) {
       ) : loadErr ? (
         <NEmpty
           icon="⚠️"
-          title={AR ? 'تعذر تحميل أوقات العمل' : 'Could not load working hours'}
-          sub={AR ? 'تحقق من اتصالك بالإنترنت ثم أعد المحاولة' : 'Check your connection and try again'}
+          title={tt('rs.a7f5ad00')}
+          sub={tt('rs.baeab35e')}
           actionLabel={t('audit2.retry')}
           onAction={load}
         />
@@ -208,7 +208,7 @@ export function WorkingHoursEditorScreen({ onBack }: { onBack: () => void }) {
                 <View style={{ alignItems: AR ? 'flex-end' : 'flex-start' }}>
                   <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{dayLabel(item.day)}</Text>
                   <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 2 }}>
-                    {!item.closed ? `${item.open} - ${item.close}` : (AR ? 'مغلق' : 'Closed')}
+                    {!item.closed ? `${item.open} - ${item.close}` : (tt('rs.345da4cf'))}
                   </Text>
                 </View>
                 <Switch value={!item.closed} onValueChange={() => toggleDay(idx)} trackColor={{ true: theme.primary }} />
@@ -216,17 +216,17 @@ export function WorkingHoursEditorScreen({ onBack }: { onBack: () => void }) {
               {!item.closed && (
                 <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.sm }}>
                   <View style={{ flex: 1 }}>
-                    <NInput label={AR ? 'من (HH:MM)' : 'From (HH:MM)'} value={item.open} onChange={(v) => setTime(idx, 'open', v)} kbType="numeric" maxLen={5} />
+                    <NInput label={tt('rs.3615a8ba')} value={item.open} onChange={(v) => setTime(idx, 'open', v)} kbType="numeric" maxLen={5} />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <NInput label={AR ? 'إلى (HH:MM)' : 'To (HH:MM)'} value={item.close} onChange={(v) => setTime(idx, 'close', v)} kbType="numeric" maxLen={5} />
+                    <NInput label={tt('rs.38d72e86')} value={item.close} onChange={(v) => setTime(idx, 'close', v)} kbType="numeric" maxLen={5} />
                   </View>
                 </View>
               )}
             </NCard>
           ))}
 
-          <NBtn label={AR ? 'حفظ جدول العمل' : 'Save Working Hours'} onPress={handleSave} loading={saving} disabled={saving} style={{ marginTop: SP.md }} />
+          <NBtn label={tt('rs.964d07a6')} onPress={handleSave} loading={saving} disabled={saving} style={{ marginTop: SP.md }} />
           {user?.role === 'lab' && <LabSlotCapacityCard />}
           {user?.role === 'radiology' && <LabSlotCapacityCard kind="radiology" />}
         </NScroll>
@@ -238,7 +238,7 @@ export function WorkingHoursEditorScreen({ onBack }: { onBack: () => void }) {
 // 3. SECURITY & 2FA MANAGEMENT SCREEN
 export function SecurityManagementScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang, t } = useLang();
+  const { lang, t, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
@@ -247,14 +247,14 @@ export function SecurityManagementScreen({ onBack }: { onBack: () => void }) {
 
   const handleChangePassword = async () => {
     if (!oldPassword || !newPassword) {
-      show(AR ? 'يرجى إدخال كلمة المرور القديمة والجديدة' : 'Please fill all password fields', 'error');
+      show(tt('rs.9b5e85e8'), 'error');
       return;
     }
     const strength = Validate.password(newPassword);
     if (!strength.valid) { show(AR ? strength.msgAr : strength.msgEn, 'error'); return; }
     try {
       await ProviderApi.changePassword(oldPassword, newPassword);
-      show(AR ? 'تم تغيير كلمة المرور بنجاح' : 'Password changed successfully', 'success');
+      show(tt('rs.ee6039b6'), 'success');
       setOldPassword(''); setNewPassword('');
     } catch (e: any) {
       const m = e?.response?.data?.message;
@@ -271,12 +271,12 @@ export function SecurityManagementScreen({ onBack }: { onBack: () => void }) {
       <NScroll pad>
         <NCard style={{ marginBottom: SP.md }}>
           <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>
-            {AR ? 'تغيير كلمة المرور' : 'Change Password'}
+            {tt('rs.a11074f8')}
           </Text>
-          <NInput placeholder={AR ? 'كلمة المرور الحالية' : 'Current Password'} secure value={oldPassword} onChange={setOldPassword} />
+          <NInput placeholder={tt('rs.4f7044cf')} secure value={oldPassword} onChange={setOldPassword} />
           <View style={{ height: SP.sm }} />
-          <NInput placeholder={AR ? 'كلمة المرور الجديدة' : 'New Password'} secure value={newPassword} onChange={setNewPassword} />
-          <NBtn label={AR ? 'تحديث كلمة المرور' : 'Update Password'} onPress={handleChangePassword} style={{ marginTop: SP.md }} />
+          <NInput placeholder={tt('rs.10a7e435')} secure value={newPassword} onChange={setNewPassword} />
+          <NBtn label={tt('rs.663b4854')} onPress={handleChangePassword} style={{ marginTop: SP.md }} />
         </NCard>
 
       </NScroll>
@@ -287,7 +287,7 @@ export function SecurityManagementScreen({ onBack }: { onBack: () => void }) {
 // 4. NOTIFICATIONS CENTER SCREEN
 export function NotificationsCenterScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang, t } = useLang();
+  const { lang, t, t: tt } = useLang();
   const AR = lang === 'ar';
 
   const [notifs, setNotifs] = useState<any[]>([]);
@@ -336,13 +336,13 @@ export function NotificationsCenterScreen({ onBack }: { onBack: () => void }) {
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <NHeader title={AR ? `مركز الإشعارات والتنبيهات${unreadCount ? ` (${unreadCount})` : ''}` : 'Notifications Center'} onBack={onBack} />
       <NScroll pad>
-        {loading && <Text style={{ textAlign: 'center', color: theme.textSub, marginVertical: SP.xl }}>{AR ? 'جاري التحميل…' : 'Loading…'}</Text>}
+        {loading && <Text style={{ textAlign: 'center', color: theme.textSub, marginVertical: SP.xl }}>{tt('rs.9f789a2a')}</Text>}
         {!loading && loadFailed && notifs.length === 0 && (
           <NEmpty title={t('audit2.notifications.loadFailed')} actionLabel={t('audit2.retry')} onAction={load} icon="bell" />
         )}
         {!loading && !loadFailed && notifs.length === 0 && (
           <NCard style={{ alignItems: 'center', paddingVertical: SP.xxl }}>
-            <Text style={{ color: theme.textSub }}>{AR ? 'لا توجد إشعارات بعد' : 'No notifications yet'}</Text>
+            <Text style={{ color: theme.textSub }}>{tt('rs.05fc462b')}</Text>
           </NCard>
         )}
         {notifs.map(n => (
@@ -362,7 +362,7 @@ export function NotificationsCenterScreen({ onBack }: { onBack: () => void }) {
 // 5. SUPPORT TICKETS SCREEN
 export function TechnicalSupportTicketsScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
@@ -372,18 +372,18 @@ export function TechnicalSupportTicketsScreen({ onBack }: { onBack: () => void }
 
   const handleSubmit = async () => {
     if (!subject || !message) {
-      show(AR ? 'يرجى ملء موضوع التذكرة والتفاصيل' : 'Please fill all fields', 'error');
+      show(tt('rs.73ab1ad5'), 'error');
       return;
     }
     setSending(true);
     try {
       await client.post('/support/tickets', { subject: subject.trim(), message: message.trim() });
-      show(AR ? 'تم فتح تذكرة دعم فني جديدة بنجاح' : 'Support ticket created', 'success');
+      show(tt('rs.4c23fe2d'), 'success');
       setSubject(''); setMessage('');
       onBack();
     } catch (e: any) {
       const msg = e?.response?.data?.message;
-      show(typeof msg === 'string' ? msg : (AR ? 'تعذر إرسال التذكرة — تحقق من الاتصال وحاول مجدداً' : 'Could not send ticket — check connection and retry'), 'error');
+      show(typeof msg === 'string' ? msg : (tt('rs.bade3726')), 'error');
     } finally {
       setSending(false);
     }
@@ -391,24 +391,24 @@ export function TechnicalSupportTicketsScreen({ onBack }: { onBack: () => void }
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'الدعم الفني والخدمة' : 'Technical Support'} onBack={onBack} />
+      <NHeader title={tt('rs.6ff8f0aa')} onBack={onBack} />
       <NScroll pad>
         <NCard style={{ marginBottom: SP.md }}>
           <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-             {AR?'إنشاء تذكرة دعم جديدة':'Create New Support Ticket'}
+             {tt('rs.39c607e3')}
           </Text>
-          <NInput placeholder={AR ? 'عنوان المشكلة أو الاستفسار' : 'Subject'} value={subject} onChange={setSubject} />
+          <NInput placeholder={tt('rs.1ea2a2c7')} value={subject} onChange={setSubject} />
           <View style={{ height: SP.sm }} />
-          <NInput placeholder={AR ? 'تفاصيل المشكلة والتوضيح...' : 'Problem details...'} value={message} onChange={setMessage} />
-          <NBtn label={AR ? 'إرسال التذكرة' : 'Submit Ticket'} onPress={handleSubmit} loading={sending} disabled={sending} style={{ marginTop: SP.md }} />
+          <NInput placeholder={tt('rs.36c03e8b')} value={message} onChange={setMessage} />
+          <NBtn label={tt('rs.09ddd321')} onPress={handleSubmit} loading={sending} disabled={sending} style={{ marginTop: SP.md }} />
         </NCard>
 
         <NCard>
           <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-             {AR?'الدعم المباشر الفوري':'Direct Support'}
+             {tt('rs.e3bad67f')}
           </Text>
           <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
-            {AR ? 'الرقم الموحد: 920000000 | البريد: support@nabdah.sa' : 'Hotline: 920000000 | Email: support@nabdah.sa'}
+            {tt('rs.6a60e2db')}
           </Text>
         </NCard>
       </NScroll>

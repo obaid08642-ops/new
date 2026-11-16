@@ -26,7 +26,7 @@ const STATE_META: Record<string, { ar: string; en: string; variant: string }> = 
 
 export function InsuranceRequestsScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
@@ -52,7 +52,7 @@ export function InsuranceRequestsScreen({ onBack }: { onBack: () => void }) {
       const list = Array.isArray(res.data) ? res.data : (res.data?.items || []);
       setItems(list);
     } catch (e: any) {
-      const msg = e?.message || (AR ? 'تعذر تحميل طلبات التأمين' : 'Failed to load insurance requests');
+      const msg = e?.message || (tt('ins.49bab8f9'));
       setLoadErr(typeof msg === 'string' ? msg : String(msg));
     } finally {
       setLoading(false);
@@ -75,7 +75,7 @@ export function InsuranceRequestsScreen({ onBack }: { onBack: () => void }) {
     const body: any = { decision: mode };
     if (mode === 'approve_full' || mode === 'approve_partial') {
       if (!approvalRef.trim()) {
-        show(AR ? 'رقم موافقة التأمين إلزامي' : 'The insurer approval number is required', 'error');
+        show(tt('ins.38103dfd'), 'error');
         return;
       }
       body.approval_ref = approvalRef.trim();
@@ -83,14 +83,14 @@ export function InsuranceRequestsScreen({ onBack }: { onBack: () => void }) {
     if (mode === 'approve_partial') {
       const pct = Number(copayPct);
       if (!pct || pct <= 0 || pct >= 100) {
-        show(AR ? 'أدخل نسبة copay بين 1 و 99' : 'Enter a copay percent between 1 and 99', 'error');
+        show(tt('ins.a1a03089'), 'error');
         return;
       }
       body.copay_percent = pct;
     }
     if (mode === 'reject') {
       if (!reason.trim()) {
-        show(AR ? 'سبب الرفض إلزامي' : 'Rejection reason is required', 'error');
+        show(tt('ins.ae5f1efa'), 'error');
         return;
       }
       body.reason = reason.trim();
@@ -101,9 +101,9 @@ export function InsuranceRequestsScreen({ onBack }: { onBack: () => void }) {
       const updated = res.data;
       setItems(prev => prev.map(it => it.id === target.id ? { ...it, ...updated } : it));
       setTarget(null);
-      show(AR ? 'تم إرسال القرار للمريض' : 'Decision sent to patient', 'success');
+      show(tt('ins.168a8019'), 'success');
     } catch (e: any) {
-      show(e?.message || (AR ? 'تعذر إرسال القرار' : 'Failed to submit decision'), 'error');
+      show(e?.message || (tt('ins.d69aa40c')), 'error');
     } finally {
       setSubmitting(false);
     }
@@ -119,8 +119,8 @@ export function InsuranceRequestsScreen({ onBack }: { onBack: () => void }) {
   return (
     <NScroll refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load(true)} tintColor={theme.primary} />}>
       <NHeader
-        title={AR ? 'طلبات التأمين' : 'Insurance Requests'}
-        sub={AR ? 'مراجعة يدوية قبل تقديم الخدمة' : 'Manual review before service'}
+        title={tt('ins.6d68e819')}
+        sub={tt('ins.231f3a1f')}
         onBack={onBack}
       />
 
@@ -134,16 +134,16 @@ export function InsuranceRequestsScreen({ onBack }: { onBack: () => void }) {
         ) : loadErr ? (
           <NEmpty
             icon="alert"
-            title={AR ? 'حدث خطأ' : 'Something went wrong'}
+            title={tt('ins.1fb5a4b8')}
             sub={loadErr}
-            actionLabel={AR ? 'إعادة المحاولة' : 'Retry'}
+            actionLabel={tt('ins.cf333076')}
             onAction={() => load()}
           />
         ) : items.length === 0 ? (
           <NEmpty
             icon="shield"
-            title={AR ? 'لا توجد طلبات تأمين' : 'No insurance requests'}
-            sub={AR ? 'طلبات المرضى الواردة ستظهر هنا' : 'Incoming patient requests will appear here'}
+            title={tt('ins.c6ff9107')}
+            sub={tt('ins.12a5108d')}
           />
         ) : (
           items.map(req => {
@@ -153,36 +153,36 @@ export function InsuranceRequestsScreen({ onBack }: { onBack: () => void }) {
               <NCard key={req.id} style={{ marginBottom: SP.lg, borderColor: pending ? theme.warn : theme.border }}>
                 <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.sm }}>
                   <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>
-                    {req.patient_name || (AR ? 'مريض' : 'Patient')}
+                    {req.patient_name || (tt('ins.c8b7f288'))}
                   </Text>
                   <NBadge label={AR ? meta.ar : meta.en} variant={meta.variant as any} />
                 </View>
 
                 <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: 4, textAlign: AR ? 'right' : 'left' }}>
-                  {(AR ? 'الخدمة: ' : 'Service: ') + (req.service_type || '—') + ' · ' + (req.channel || '—')}
+                  {(tt('ins.e013ca03')) + (req.service_type || '—') + ' · ' + (req.channel || '—')}
                 </Text>
                 <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: 4, textAlign: AR ? 'right' : 'left' }}>
-                  {(AR ? 'السعر: ' : 'Price: ') + (req.price ?? '—') + (AR ? ' ر.س' : ' SAR')}
+                  {(tt('ins.13986456')) + (req.price ?? '—') + (tt('ins.8cecd4af'))}
                 </Text>
                 {!!(req.policy?.company_name || req.policy?.company) && (
                   <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: 4, textAlign: AR ? 'right' : 'left' }}>
-                    {(AR ? 'شركة التأمين: ' : 'Insurer: ') + (req.policy.company_name || req.policy.company)}
+                    {(tt('ins.28242db7')) + (req.policy.company_name || req.policy.company)}
                   </Text>
                 )}
                 {req.state === 'COPAY_PENDING' && (
                   <Text style={{ fontSize: FS.sm, color: theme.warn, marginBottom: 4, textAlign: AR ? 'right' : 'left' }}>
-                    {(AR ? 'copay المطلوب من المريض: ' : 'Patient copay due: ') + (req.copay_amount ?? '—') + (AR ? ` ر.س (${req.copay_percent}%)` : ` SAR (${req.copay_percent}%)`)}
+                    {(tt('ins.2c38b747')) + (req.copay_amount ?? '—') + (AR ? ` ر.س (${req.copay_percent}%)` : ` SAR (${req.copay_percent}%)`)}
                   </Text>
                 )}
                 {req.state === 'REJECTED' && !!req.rejection_reason && (
                   <Text style={{ fontSize: FS.sm, color: theme.danger, marginBottom: 4, textAlign: AR ? 'right' : 'left' }}>
-                    {(AR ? 'سبب الرفض: ' : 'Reason: ') + req.rejection_reason}
+                    {(tt('ins.28855033')) + req.rejection_reason}
                   </Text>
                 )}
 
                 {pending && (
                   <NBtn
-                    label={AR ? 'اتخاذ القرار' : 'Make Decision'}
+                    label={tt('ins.bae08db8')}
                     icon="edit"
                     onPress={() => openDecision(req)}
                     style={{ marginTop: SP.md }}
@@ -199,10 +199,10 @@ export function InsuranceRequestsScreen({ onBack }: { onBack: () => void }) {
         <View style={{ flex: 1, backgroundColor: theme.overlay, justifyContent: 'flex-end' }}>
           <View style={{ backgroundColor: theme.surface, borderTopLeftRadius: R.xxl, borderTopRightRadius: R.xxl, padding: SP.xl, maxHeight: '88%' }}>
             <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text, textAlign: 'center', marginBottom: SP.xs }}>
-              {AR ? 'قرار التأمين' : 'Insurance Decision'}
+              {tt('ins.e0ee2f8a')}
             </Text>
             <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: 'center', marginBottom: SP.lg }}>
-              {target ? `${target.patient_name || ''} · ${target.service_type || ''} · ${target.price ?? ''} ${AR ? 'ر.س' : 'SAR'}` : ''}
+              {target ? `${target.patient_name || ''} · ${target.service_type || ''} · ${target.price ?? ''} ${tt('ins.91d5796f')}` : ''}
             </Text>
 
             {/* Mode selector */}
@@ -231,7 +231,7 @@ export function InsuranceRequestsScreen({ onBack }: { onBack: () => void }) {
             {(mode === 'approve_full' || mode === 'approve_partial') && (
               <View style={{ marginBottom: SP.lg }}>
                 <Text style={{ fontSize: FS.sm, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-                  {AR ? 'رقم موافقة التأمين (إلزامي)' : 'Insurer approval number (required)'}
+                  {tt('ins.7d21576e')}
                 </Text>
                 <TextInput
                   value={approvalRef}
@@ -250,7 +250,7 @@ export function InsuranceRequestsScreen({ onBack }: { onBack: () => void }) {
             {mode === 'approve_partial' && (
               <View style={{ marginBottom: SP.lg }}>
                 <Text style={{ fontSize: FS.sm, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-                  {AR ? 'نسبة copay على المريض (1–99%)' : 'Patient copay percent (1–99%)'}
+                  {tt('ins.e616803a')}
                 </Text>
                 <TextInput
                   value={copayPct}
@@ -274,13 +274,13 @@ export function InsuranceRequestsScreen({ onBack }: { onBack: () => void }) {
             {mode === 'reject' && (
               <View style={{ marginBottom: SP.lg }}>
                 <Text style={{ fontSize: FS.sm, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-                  {AR ? 'سبب الرفض (إلزامي — يظهر للمريض)' : 'Rejection reason (required — shown to patient)'}
+                  {tt('ins.67a1e9c4')}
                 </Text>
                 <TextInput
                   value={reason}
                   onChangeText={setReason}
                   multiline
-                  placeholder={AR ? 'مثال: الخدمة غير مغطاة في وثيقتك' : 'e.g. Service not covered by your policy'}
+                  placeholder={tt('ins.4539deb3')}
                   placeholderTextColor={theme.textHint}
                   style={{
                     backgroundColor: theme.inputBg, borderWidth: 1, borderColor: theme.border,
@@ -292,13 +292,13 @@ export function InsuranceRequestsScreen({ onBack }: { onBack: () => void }) {
             )}
 
             <NBtn
-              label={submitting ? (AR ? 'جارٍ الإرسال…' : 'Submitting…') : (AR ? 'تأكيد القرار' : 'Confirm Decision')}
+              label={submitting ? (tt('ins.fc5c46db')) : (tt('ins.7dcd79d4'))}
               onPress={submitDecision}
               disabled={!mode || submitting}
               loading={submitting}
             />
             <NBtn
-              label={AR ? 'إلغاء' : 'Cancel'}
+              label={tt('ins.210b779f')}
               variant="outline"
               onPress={() => setTarget(null)}
               style={{ marginTop: SP.sm }}

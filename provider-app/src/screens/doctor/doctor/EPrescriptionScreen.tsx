@@ -39,7 +39,7 @@ import { fmtDate } from '../../../utils/dates';
 export function EPrescriptionScreen({ apt, onBack }:
  { apt: any; onBack: () => void }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
 
@@ -69,7 +69,7 @@ export function EPrescriptionScreen({ apt, onBack }:
        drugs: templateDrugs(t.items),
      })));
    } catch {
-     show(AR ? 'تعذر تحميل النماذج' : 'Could not load templates', 'error');
+     show(tt('erx.b54539d5'), 'error');
    } finally {
      setTemplatesLoading(false);
    }
@@ -83,14 +83,14 @@ export function EPrescriptionScreen({ apt, onBack }:
      const res = await client.post(`/provider/ops/doctor/templates/${encodeURIComponent(id)}/use`, {});
      const items = templateDrugs(res?.data?.items);
      if (!items.length) {
-       show(AR ? 'النموذج لا يحتوي على أدوية' : 'This template has no medicines', 'error');
+       show(tt('erx.072abc38'), 'error');
        return;
      }
      setDrugs(items);
      setShowTemplates(false);
-     show(AR ? 'تم تحميل النموذج' : 'Template loaded successfully', 'success');
+     show(tt('erx.a2b011f0'), 'success');
    } catch (err: any) {
-     show(err?.response?.data?.message || (AR ? 'تعذر تحميل النموذج' : 'Could not load the template'), 'error');
+     show(err?.response?.data?.message || (tt('erx.c48b2cdd')), 'error');
    } finally {
      setApplyingTemplate(null);
    }
@@ -132,15 +132,15 @@ export function EPrescriptionScreen({ apt, onBack }:
   const patientId = apt?.patient_id || apt?.raw?.patient_id;
   const appointmentId = apt?.id || apt?.raw?.id;
   if (!patientId || !appointmentId) {
-    show(AR ? 'معرّف المريض أو الموعد غير متاح؛ لا يمكن إصدار وصفة.' : 'Patient or appointment identifier is unavailable; a prescription cannot be issued.', 'error');
+    show(tt('erx.887955de'), 'error');
     return;
   }
   if (!drugNotes.trim() || drugs.length === 0) {
-    show(AR ? 'أدخل التشخيص وأضف دواءً واحداً على الأقل.' : 'Enter a diagnosis and at least one medicine.', 'error');
+    show(tt('erx.b4f0488e'), 'error');
     return;
   }
   if (drugs.some(d => !d.name.trim() || !d.dose.trim() || !(durationDays(d.duration) > 0))) {
-    show(AR ? 'أكمل اسم الدواء والجرعة والمدة لكل بند.' : 'Complete medicine name, dose, and duration for every item.', 'error');
+    show(tt('erx.98abbdc2'), 'error');
     return;
   }
   setLoading(true);
@@ -163,14 +163,14 @@ export function EPrescriptionScreen({ apt, onBack }:
   radiology: []
   };
   await client.post('/prescriptions/create', payload);
-  show(AR ? 'تم إصدار الوصفة الطبية وإرسالها للمريض ' : 'Prescription issued and sent to patient ', 'success');
+  show(tt('erx.89083f12'), 'success');
   onBack();
   } catch (err) {
   const raw = String((err as { response?: { data?: { message?: unknown } } })?.response?.data?.message || '');
   // server rule: only an IN_PROGRESS appointment of this doctor accepts a prescription
   show(/in-progress appointment/i.test(raw)
-    ? (AR ? 'لا يمكن إصدار الوصفة: يجب أن تكون الاستشارة جارية (ابدأها أولاً، ولا تُنهِها قبل الوصفة).' : 'Cannot issue the prescription: the consultation must be in progress (start it first, and do not finish it before prescribing).')
-    : (raw || (AR ? 'حدث خطأ أثناء إرسال الوصفة' : 'Error sending prescription')), 'error');
+    ? (tt('erx.ce3f22cf'))
+    : (raw || (tt('erx.33d8c561'))), 'error');
   } finally {
   setLoading(false);
   }
@@ -178,7 +178,7 @@ export function EPrescriptionScreen({ apt, onBack }:
 
  return (
  <NScroll>
- <NHeader title={AR ? ' الوصفة الطبية الإلكترونية' : ' E-Prescription'} onBack={onBack} />
+ <NHeader title={tt('erx.09baafb0')} onBack={onBack} />
 
  {/* Patient info */}
  <NCard style={{ marginBottom: SP.xl, flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, alignItems: 'center' }}>
@@ -192,10 +192,10 @@ export function EPrescriptionScreen({ apt, onBack }:
  {/* Template Actions */}
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.xl }}>
  <TouchableOpacity onPress={() => { loadTemplates(); setShowTemplates(true); }} style={{ flex: 1, backgroundColor: theme.surface2, padding: SP.md, borderRadius: R.md, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}>
- <Text style={{ color: theme.primary, fontWeight: FW.bold, fontSize: FS.sm }}> {AR ? 'نماذج الوصفات' : 'Prescription Templates'}</Text>
+ <Text style={{ color: theme.primary, fontWeight: FW.bold, fontSize: FS.sm }}> {tt('erx.e9ef1b2c')}</Text>
  </TouchableOpacity>
- <TouchableOpacity onPress={() => { if(drugs.length === 0) { show(AR ? 'أضف أدوية أولاً لحفظها كنموذج' : 'Add medications first to save as template', 'error'); return; } setShowSaveTemplateSheet(true); }} style={{ flex: 1, backgroundColor: theme.surface2, padding: SP.md, borderRadius: R.md, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}>
- <Text style={{ color: theme.success, fontWeight: FW.bold, fontSize: FS.sm }}> {AR ? 'حفظ كنموذج' : 'Save as Template'}</Text>
+ <TouchableOpacity onPress={() => { if(drugs.length === 0) { show(tt('erx.bf3bbcf2'), 'error'); return; } setShowSaveTemplateSheet(true); }} style={{ flex: 1, backgroundColor: theme.surface2, padding: SP.md, borderRadius: R.md, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}>
+ <Text style={{ color: theme.success, fontWeight: FW.bold, fontSize: FS.sm }}> {tt('erx.8e5e577e')}</Text>
  </TouchableOpacity>
  </View>
 
@@ -206,14 +206,14 @@ export function EPrescriptionScreen({ apt, onBack }:
    try {
      const res = await client.post('/ai/drug-interactions', { drugs: drugs.map((d) => d.name) });
      const hits = res?.data?.interactions || [];
-     if (!hits.length) { show(AR ? 'لا توجد تفاعلات معروفة بين هذه الأدوية' : 'No known interactions between these drugs', 'success'); return; }
-     show((AR ? 'تفاعلات مكتشفة: ' : 'Interactions found: ') + hits.map((h: any) => h.note_ar || h.note || h.severity).join('؛ '), 'warning');
+     if (!hits.length) { show(tt('erx.e8189000'), 'success'); return; }
+     show((tt('erx.d14d8815')) + hits.map((h: any) => h.note_ar || h.note || h.severity).join('؛ '), 'warning');
    } catch {
-     show(AR ? 'تعذر فحص التفاعلات' : 'Could not check interactions', 'error');
+     show(tt('erx.a375caa7'), 'error');
    }
  }}>
  <Text style={{ fontSize: FS.sm, color: theme.warn, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'افحص التفاعلات الدوائية قبل الحفظ' : 'Check drug interactions before saving'}
+ {tt('erx.bc3a88fa')}
  </Text>
  </TouchableOpacity>
  </NCard>
@@ -225,16 +225,16 @@ export function EPrescriptionScreen({ apt, onBack }:
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: SP.md }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}> {drug.name}</Text>
  <TouchableOpacity onPress={() => removeDrug(drug.id)}>
- <Text style={{ color: theme.danger, fontSize: FS.sm }}> {AR ? 'حذف' : 'Remove'}</Text>
+ <Text style={{ color: theme.danger, fontSize: FS.sm }}> {tt('erx.6c1218f6')}</Text>
  </TouchableOpacity>
  </View>
 
- <NInput label={AR ? 'الجرعة' : 'Dosage'} placeholder={AR ? 'مثال: قرص واحد' : 'e.g., 1 tablet'}
+ <NInput label={tt('erx.edffda1a')} placeholder={tt('erx.3a8d0534')}
  value={drug.dose} onChange={v => updateDrug(drug.id, { dose: v })} icon="" />
 
  {/* Frequency */}
  <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.sm,
- textAlign: AR ? 'right' : 'left' }}>{AR ? 'التكرار:' : 'Frequency:'}</Text>
+ textAlign: AR ? 'right' : 'left' }}>{tt('erx.0b9a86ba')}</Text>
  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
  <View style={{ flexDirection: 'row', gap: SP.sm, marginBottom: SP.md }}>
  {(AR ? FREQS_AR : FREQS_EN).map(f => (
@@ -251,7 +251,7 @@ export function EPrescriptionScreen({ apt, onBack }:
 
  {/* Duration */}
  <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.sm,
- textAlign: AR ? 'right' : 'left' }}>{AR ? 'المدة:' : 'Duration:'}</Text>
+ textAlign: AR ? 'right' : 'left' }}>{tt('erx.504cba55')}</Text>
  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
  <View style={{ flexDirection: 'row', gap: SP.sm }}>
  {(AR ? DURS_AR : DURS_EN).map(d => (
@@ -269,25 +269,25 @@ export function EPrescriptionScreen({ apt, onBack }:
  ))}
 
  {/* Add drug button */}
- <NBtn label={AR ? '+ إضافة دواء' : '+ Add Medication'} variant="outline"
+ <NBtn label={tt('erx.3f4e986e')} variant="outline"
  onPress={() => setDrugSearch(true)} style={{ marginBottom: SP.lg }} />
 
  {/* General notes */}
- <NInput label={AR ? 'تعليمات إضافية للمريض' : 'Additional Patient Instructions'}
- placeholder={AR ? 'مثال: تناول الدواء بعد الأكل، الإكثار من الماء...' : 'e.g., Take with food, drink plenty of water...'}
+ <NInput label={tt('erx.4e95ecf8')}
+ placeholder={tt('erx.3f325afc')}
  value={drugNotes} onChange={setDrugNotes} multi lines={3} icon="" />
 
  {/* Needs-review issue 1115: the "send to" options had no action; POST /prescriptions/create already delivers the prescription to the patient. */}
 
- <NBtn label={AR ? ' حفظ وإصدار الوصفة' : ' Save & Issue Prescription'}
+ <NBtn label={tt('erx.a87594d0')}
  disabled={drugs.length === 0}
  loading={loading}
  onPress={handleSavePrescription} />
 
  {/* Drug search sheet */}
  <NSheet visible={showDrugSearch} onClose={() => setDrugSearch(false)}
- title={AR ? 'البحث عن دواء' : 'Search Medication'} height={500}>
- <NSearch value={search} onChange={setSearch} placeholder={AR ? 'اسم الدواء...' : 'Medication name...'} />
+ title={tt('erx.fc58c203')} height={500}>
+ <NSearch value={search} onChange={setSearch} placeholder={tt('erx.859aa24c')} />
  <View style={{ marginTop: SP.md }}>
  {/* Custom Medication Entry */}
  {search.trim().length > 0 && (
@@ -297,7 +297,7 @@ export function EPrescriptionScreen({ apt, onBack }:
  <Text style={{ flex: 1, color: theme.primary, fontSize: FS.md, fontWeight: FW.bold }}>
  {AR ? `إضافة دواء غير مدرج: "${search.trim()}"` : `Add Custom Med: "${search.trim()}"`}
  </Text>
- <Text style={{ color: theme.primary }}>+ {AR ? 'إضافة' : 'Add'}</Text>
+ <Text style={{ color: theme.primary }}>+ {tt('erx.49d91d0a')}</Text>
  </TouchableOpacity>
  )}
  {filtered.slice(0, 15).map(d => (
@@ -305,14 +305,14 @@ export function EPrescriptionScreen({ apt, onBack }:
  style={[styles.drugRow, { borderBottomColor: theme.border }]}>
  <Text style={{ fontSize: 18 }}>💊</Text>
  <Text style={{ flex: 1, color: theme.text, fontSize: FS.md }}>{d.name}</Text>
- <Text style={{ color: theme.primary }}>+ {AR ? 'إضافة' : 'Add'}</Text>
+ <Text style={{ color: theme.primary }}>+ {tt('erx.49d91d0a')}</Text>
  </TouchableOpacity>
  ))}
  </View>
  </NSheet>
 
  {/* Load Template Sheet */}
- <NSheet visible={showTemplates} onClose={() => setShowTemplates(false)} title={AR ? ' اختر نموذج وصفة' : ' Load Prescription Template'} height={400}>
+ <NSheet visible={showTemplates} onClose={() => setShowTemplates(false)} title={tt('erx.2336da27')} height={400}>
  <View style={{ padding: SP.md }}>
  {templatesLoading ? <ActivityIndicator color={theme.primary} /> : null}
  {templates.map(t => (
@@ -326,10 +326,10 @@ export function EPrescriptionScreen({ apt, onBack }:
      await client.delete(`/provider/ops/doctor/templates/${t.id}`);
      setTemplates((prev) => prev.filter((x) => x.id !== t.id));
    } catch {
-     show(AR ? 'تعذر حذف النموذج' : 'Could not delete template', 'error');
+     show(tt('erx.54ce0938'), 'error');
    }
  }} style={{ padding: SP.sm }}>
- <Text style={{ color: theme.danger, fontSize: FS.sm }}>{AR ? 'حذف' : 'Delete'}</Text>
+ <Text style={{ color: theme.danger, fontSize: FS.sm }}>{tt('erx.2257cab6')}</Text>
  </TouchableOpacity>
  </View>
  ))}
@@ -337,19 +337,19 @@ export function EPrescriptionScreen({ apt, onBack }:
  </NSheet>
 
  {/* Save Template Sheet */}
- <NSheet visible={showSaveTemplateSheet} onClose={() => setShowSaveTemplateSheet(false)} title={AR ? ' حفظ كنموذج جديد' : ' Save Custom Template'} height={300}>
+ <NSheet visible={showSaveTemplateSheet} onClose={() => setShowSaveTemplateSheet(false)} title={tt('erx.c49a61a3')} height={300}>
  <View style={{ padding: SP.md }}>
- <NInput label={AR ? 'اسم النموذج' : 'Template Title'} value={templateName} onChange={setTemplateName} placeholder={AR ? 'مثال: نموذج علاج الربو' : 'e.g., Asthma Treatment'} />
- <NBtn label={AR ? ' حفظ' : ' Save'} onPress={async () => {
- if (!templateName.trim()) { show(AR ? 'يرجى إدخال اسم النموذج' : 'Please enter template title', 'error'); return; }
+ <NInput label={tt('erx.ee1f3a13')} value={templateName} onChange={setTemplateName} placeholder={tt('erx.1e45621c')} />
+ <NBtn label={tt('erx.89af874d')} onPress={async () => {
+ if (!templateName.trim()) { show(tt('erx.521f0881'), 'error'); return; }
  try {
    await client.post('/provider/ops/doctor/templates', { name: templateName.trim(), items: drugs.map((d) => ({ name: d.name, dose: d.dose, freq: d.freq, duration: d.duration, notes: d.notes })) });
    setShowSaveTemplateSheet(false);
    setTemplateName('');
-   show(AR ? 'تم حفظ النموذج الجديد بنجاح' : 'Template saved successfully', 'success');
+   show(tt('erx.964ef73e'), 'success');
    loadTemplates();
  } catch (err: any) {
-   show(err?.response?.data?.message || (AR ? 'تعذر حفظ النموذج' : 'Could not save template'), 'error');
+   show(err?.response?.data?.message || (tt('erx.4b6d7deb')), 'error');
  }
  }} />
  </View>

@@ -42,7 +42,7 @@ import { tokens } from '../../../theme/tokens';
 
 export function BedManagementScreen({ onBack, wards, onRefresh }: { onBack: () => void; wards: any[]; onRefresh: () => void }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
 
@@ -77,7 +77,7 @@ export function BedManagementScreen({ onBack, wards, onRefresh }: { onBack: () =
  };
 
  const handleAdmitPatient = async () => {
- if (!patientId.trim()) return show(AR ? 'يرجى إدخال هوية المريض' : 'Please enter patient ID', 'warning');
+ if (!patientId.trim()) return show(tt('bed.f6401d9b'), 'warning');
  setLoading(true);
  try {
  const res = await client.post('/facility/beds/admission', {
@@ -88,7 +88,7 @@ export function BedManagementScreen({ onBack, wards, onRefresh }: { onBack: () =
  if (admission && admission.id) {
  await Vault.set(`admission_${selectedBed.id}`, admission.id);
  }
- show(AR ? 'تم قبول المريض وتخصيص السرير بنجاح' : 'Patient admitted and bed allocated successfully', 'success');
+ show(tt('bed.1420df5a'), 'success');
  setAdmitVisible(false);
  setPatientId('');
  onRefresh();
@@ -103,33 +103,33 @@ export function BedManagementScreen({ onBack, wards, onRefresh }: { onBack: () =
  const handleDischargePatient = async (bed: any) => {
  const admissionId = bed.admission_id || await Vault.get(`admission_${bed.id}`);
  if (!admissionId) {
- show(AR ? 'لا يوجد سجل تنويم مرتبط بهذا السرير — حدّث قائمة التنويم وحاول مجدداً' : 'No admission record linked to this bed — refresh admissions and retry', 'error');
+ show(tt('bed.955b1698'), 'error');
  return;
  }
  setLoading(true);
  try {
  await client.put(`/facility/beds/discharge/${admissionId}`);
  await Vault.del(`admission_${bed.id}`);
- show(AR ? 'تم إخراج المريض بنجاح' : 'Patient discharged successfully', 'success');
+ show(tt('bed.c8dfd0c3'), 'success');
  onRefresh();
  handleShowBeds(selectedWard);
  } catch (e: any) {
  const msg = e?.response?.data?.message;
- show(typeof msg === 'string' ? msg : (e.message || (AR ? 'فشل إخراج المريض — تحقق من الاتصال وحاول مجدداً' : 'Discharge failed — check connection and retry')), 'error');
+ show(typeof msg === 'string' ? msg : (e.message || (tt('bed.eb84c627'))), 'error');
  } finally {
  setLoading(false);
  }
  };
 
  const handleCreateWard = async () => {
- if (!wardName.trim() || !wardBedsCount) return show(AR ? 'يرجى ملء جميع الحقول' : 'Please fill all fields', 'warning');
+ if (!wardName.trim() || !wardBedsCount) return show(tt('bed.7fb25bd4'), 'warning');
  setLoading(true);
  try {
  await client.post('/facility/beds/wards', {
  name: wardName,
  total_beds: parseInt(wardBedsCount, 10)
  });
- show(AR ? 'تم إنشاء الجناح بنجاح' : 'Ward created successfully', 'success');
+ show(tt('bed.66350448'), 'success');
  setAddWardVisible(false);
  setWardName('');
  setWardBedsCount('');
@@ -144,19 +144,19 @@ export function BedManagementScreen({ onBack, wards, onRefresh }: { onBack: () =
  return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
  <NScroll>
- <NHeader title={AR?' إدارة الأسرّة':' Bed Management'} onBack={onBack} />
+ <NHeader title={tt('bed.b2776769')} onBack={onBack} />
 
  {/* Summary */}
  <View style={{ flexDirection: 'row', gap: SP.md, marginBottom: SP.xl, paddingHorizontal: SP.md }}>
- <NStatCard icon="bed" label={AR?'الإجمالي':'Total'} value={String(totalBeds)} color={tokens.info} style={{ flex:1 }} />
- <NStatCard icon="user" label={AR?'مشغول':'Occupied'} value={String(occupiedBeds)} color={tokens.error} style={{ flex:1 }} />
- <NStatCard icon="online" label={AR?'متاح':'Available'} value={String(availableBeds)} color={tokens.success} style={{ flex:1 }} />
+ <NStatCard icon="bed" label={tt('bed.e3959b9d')} value={String(totalBeds)} color={tokens.info} style={{ flex:1 }} />
+ <NStatCard icon="user" label={tt('bed.7ab067af')} value={String(occupiedBeds)} color={tokens.error} style={{ flex:1 }} />
+ <NStatCard icon="online" label={tt('bed.2aa376ed')} value={String(availableBeds)} color={tokens.success} style={{ flex:1 }} />
  </View>
 
  {/* Occupancy gauge */}
  <NCard style={{ marginBottom: SP.xl, alignItems: 'center', marginHorizontal: SP.md }}>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.sm }}>
- {AR ? 'نسبة الإشغال الكلية' : 'Overall Occupancy Rate'}
+ {tt('bed.db704a64')}
  </Text>
  <Text style={{ fontSize: FS['5xl'], fontWeight: FW.xbold,
  color: occupancyPct > 85 ? theme.danger : occupancyPct > 70 ? theme.warn : theme.success }}>
@@ -174,8 +174,8 @@ export function BedManagementScreen({ onBack, wards, onRefresh }: { onBack: () =
 
  {/* Per ward */}
  <View style={{ paddingHorizontal: SP.md, flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.md }}>
- <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text }}>{AR ? 'أجنحة التنويم' : 'Hospital Wards'}</Text>
- <NBtn label={AR ? '+ إضافة جناح' : '+ Add Ward'} size="xs" variant="outline" onPress={() => setAddWardVisible(true)} />
+ <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text }}>{tt('bed.6d5bd207')}</Text>
+ <NBtn label={tt('bed.3e9c6f7e')} size="xs" variant="outline" onPress={() => setAddWardVisible(true)} />
  </View>
 
  {wards.map((ward, i) => {
@@ -189,7 +189,7 @@ export function BedManagementScreen({ onBack, wards, onRefresh }: { onBack: () =
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: SP.md }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{ward.name}</Text>
  <NBadge
- label={available === 0 ? (AR?'ممتلئ':'Full') : available <= 2 ? (AR?'شبه ممتلئ':'Nearly Full') : (AR?'متاح':'Available')}
+ label={available === 0 ? (tt('bed.8ad7453b')) : available <= 2 ? (tt('bed.b9102c6b')) : (tt('bed.2aa376ed'))}
  variant={available === 0 ? 'danger' : available <= 2 ? 'warning' : 'success'}
  size="xs"
  />
@@ -210,7 +210,7 @@ export function BedManagementScreen({ onBack, wards, onRefresh }: { onBack: () =
  }} />
  </View>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginTop: SP.md }}>
- <NBtn label={AR?'إدارة الأسرّة':'Manage Beds'} size="xs" style={{ flex: 1 }}
+ <NBtn label={tt('bed.3b3cb74a')} size="xs" style={{ flex: 1 }}
  onPress={() => handleShowBeds(ward)} />
  </View>
  </NCard>
@@ -222,7 +222,7 @@ export function BedManagementScreen({ onBack, wards, onRefresh }: { onBack: () =
  <NSheet visible={bedsVisible} onClose={() => setBedsVisible(false)} title={selectedWard?.name || ''}>
  <ScrollView contentContainerStyle={{ padding: SP.md }}>
  {beds.length === 0 ? (
- <Text style={{ color: theme.textSub, textAlign: 'center', marginVertical: SP.xl }}>{AR ? 'لا توجد أسرّة مضافة في هذا الجناح' : 'No beds in this ward'}</Text>
+ <Text style={{ color: theme.textSub, textAlign: 'center', marginVertical: SP.xl }}>{tt('bed.475e842b')}</Text>
  ) : (
  beds.map((bed: any) => (
  <View key={bed.id} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: SP.md, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: theme.border }}>
@@ -231,11 +231,11 @@ export function BedManagementScreen({ onBack, wards, onRefresh }: { onBack: () =
  <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? `النوع: ${bed.type}` : `Type: ${bed.type}`}</Text>
  </View>
  <View style={{ flexDirection: 'row', alignItems: 'center', gap: SP.md }}>
- <NBadge label={bed.status === 'occupied' ? (AR ? 'مشغول' : 'Occupied') : (AR ? 'متاح' : 'Available')} variant={bed.status === 'occupied' ? 'danger' : 'success'} />
+ <NBadge label={bed.status === 'occupied' ? (tt('bed.7ab067af')) : (tt('bed.2aa376ed'))} variant={bed.status === 'occupied' ? 'danger' : 'success'} />
  {bed.status === 'occupied' ? (
- <NBtn label={AR ? 'إخراج' : 'Discharge'} size="xs" variant="outline" onPress={() => handleDischargePatient(bed)} />
+ <NBtn label={tt('bed.48f1327a')} size="xs" variant="outline" onPress={() => handleDischargePatient(bed)} />
  ) : (
- <NBtn label={AR ? 'إدخل' : 'Admit'} size="xs" onPress={() => { setSelectedBed(bed); setAdmitVisible(true); }} />
+ <NBtn label={tt('bed.568d0a16')} size="xs" onPress={() => { setSelectedBed(bed); setAdmitVisible(true); }} />
  )}
  </View>
  </View>
@@ -245,20 +245,20 @@ export function BedManagementScreen({ onBack, wards, onRefresh }: { onBack: () =
  </NSheet>
 
  {/* Admission Form Sheet */}
- <NSheet visible={admitVisible} onClose={() => setAdmitVisible(false)} title={AR ? 'إدخال مريض للسرير' : 'Admit Patient to Bed'}>
+ <NSheet visible={admitVisible} onClose={() => setAdmitVisible(false)} title={tt('bed.313f06fc')}>
  <View style={{ padding: SP.xl }}>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{AR ? `رقم السرير: ${selectedBed?.bed_number}` : `Bed: ${selectedBed?.bed_number}`}</Text>
- <NInput label={AR ? 'معرف المريض (Patient ID)' : 'Patient ID'} placeholder={AR ? 'أدخل معرف المريض...' : 'Enter patient ID...'} value={patientId} onChange={setPatientId} required />
- <NBtn label={AR ? 'تأكيد الحجز وتسكين المريض' : 'Confirm Admission'} loading={loading} onPress={handleAdmitPatient} />
+ <NInput label={tt('bed.4bd8e60c')} placeholder={tt('bed.21a620dc')} value={patientId} onChange={setPatientId} required />
+ <NBtn label={tt('bed.2bb6ac34')} loading={loading} onPress={handleAdmitPatient} />
  </View>
  </NSheet>
 
  {/* Create Ward Form Sheet */}
- <NSheet visible={addWardVisible} onClose={() => setAddWardVisible(false)} title={AR ? 'إضافة جناح جديد' : 'Add New Ward'}>
+ <NSheet visible={addWardVisible} onClose={() => setAddWardVisible(false)} title={tt('bed.4fb859da')}>
  <View style={{ padding: SP.xl }}>
- <NInput label={AR ? 'اسم الجناح' : 'Ward Name'} placeholder={AR ? 'مثل: العناية المركزة، أجنحة الجراحة...' : 'e.g. ICU, General Surgery...'} value={wardName} onChange={setWardName} required />
- <NInput label={AR ? 'عدد الأسرّة' : 'Total Beds'} placeholder="10" value={wardBedsCount} onChange={setWardBedsCount} kbType="numeric" required />
- <NBtn label={AR ? 'إنشاء الجناح' : 'Create Ward'} loading={loading} onPress={handleCreateWard} />
+ <NInput label={tt('bed.b1ecc1a2')} placeholder={tt('bed.17a46c63')} value={wardName} onChange={setWardName} required />
+ <NInput label={tt('bed.0ce204c6')} placeholder="10" value={wardBedsCount} onChange={setWardBedsCount} kbType="numeric" required />
+ <NBtn label={tt('bed.8e752e1d')} loading={loading} onPress={handleCreateWard} />
  </View>
  </NSheet>
  </View>
