@@ -572,6 +572,9 @@ export class BillingService {
       }, docKind === 'receipt' ? 'refundreceipt' : 'creditnote', issuedAt);
     } catch (err: any) {
       this.logger.warn(`credit note not issued for ${kind} ${e.booking_id}: ${err?.message}`);
+      // Delivered by the durable event queue (it stamps `__durable`): throw, so the queue retries with backoff and finally marks the event dead for a person to see. Swallowing the
+      // error marked the delivery done, so a database hiccup (mongod restarts) left a refund without its credit note and nothing ever retried. `refund_ref` is unique, so a retry cannot issue two.
+      if ((e as any)?.__durable) throw err;
       return null;
     }
   }
