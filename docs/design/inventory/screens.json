@@ -1,5 +1,5 @@
 {
- "commit": "7f9f7bffa",
+ "commit": "5c40a4e11",
  "routes": [
   {
    "app": "patient-app",
@@ -7218,7 +7218,7 @@
      "line": 21,
      "file": "patient-app/app/receipts/index.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:831"
+     "backend": "backend/src/modules/billing/billing.module.ts:834"
     }
    ],
    "files": 40,
@@ -7242,7 +7242,7 @@
      "line": 25,
      "file": "patient-app/app/receipts/[kind]/[bookingId].tsx",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:785"
+     "backend": "backend/src/modules/billing/billing.module.ts:788"
     }
    ],
    "files": 45,
@@ -11337,7 +11337,7 @@
      "path": "/api/diagnostics/cart",
      "target": "web-bff",
      "query": "",
-     "line": 31,
+     "line": 32,
      "file": "patient-web/components-next/diagnostics-checkout-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/diagnostics/cart/route.ts"
@@ -11347,7 +11347,7 @@
      "path": "/api/diagnostics/orders",
      "target": "web-bff",
      "query": "",
-     "line": 96,
+     "line": 97,
      "file": "patient-web/components-next/diagnostics-checkout-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/diagnostics/orders/route.ts"
@@ -11387,13 +11387,13 @@
      "path": "/api/payments/intent/diagnostics",
      "target": "web-bff",
      "query": "",
-     "line": 128,
+     "line": 129,
      "file": "patient-web/components-next/diagnostics-checkout-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/payments/intent/diagnostics/route.ts"
     }
    ],
-   "files": 57,
+   "files": 58,
    "unresolved": 0
   },
   {
@@ -20399,7 +20399,7 @@
      "line": 15,
      "file": "patient-web/lib/api/billing-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:859"
+     "backend": "backend/src/modules/billing/billing.module.ts:862"
     }
    ],
    "files": 25,
@@ -20463,7 +20463,7 @@
      "line": 6,
      "file": "patient-web/lib/api/billing-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:831"
+     "backend": "backend/src/modules/billing/billing.module.ts:834"
     }
    ],
    "files": 58,
@@ -20527,7 +20527,7 @@
      "line": 10,
      "file": "patient-web/lib/api/billing-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:785"
+     "backend": "backend/src/modules/billing/billing.module.ts:788"
     }
    ],
    "files": 66,

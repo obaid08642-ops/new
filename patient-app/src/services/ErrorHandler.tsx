@@ -6,6 +6,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { DSText, DSButton } from '../design-system';
 import { Spacing } from '../design-system/tokens';
+import { deviceText } from '../i18n/deviceText';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Error Types
@@ -152,13 +153,13 @@ export class AppErrorBoundary extends React.Component<
       return (
         <View style={styles.fallback}>
           <DSText variant="h4" align="center">
-            حدث خطأ غير متوقع
+            {deviceText('errors.crashTitle')}
           </DSText>
           <DSText variant="bodySM" align="center">
             {getUserFriendlyMessage(error)}
           </DSText>
           <DSButton
-            label="أعد المحاولة"
+            label={deviceText('common.retry')}
             onPress={this.reset}
             variant="primary"
           />

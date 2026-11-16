@@ -4079,5 +4079,12 @@
   "ds.search.filtersActive": "ফিল্টার চালু আছে",
   "ds.search.filters": "ফিল্টার খুলুন",
   "ds.toast.close": "বন্ধ করুন",
-  "ds.back": "ফিরে যান"
+  "ds.back": "ফিরে যান",
+  "tour.title": "গাইডেড ট্যুর",
+  "tour.fallbackDescription": "এই ফিচারের একটি সংক্ষিপ্ত পরিচিতি।",
+  "tour.skip": "এড়িয়ে যান",
+  "tour.next": "পরবর্তী",
+  "errors.adminRequired": "অ্যাক্সেস অস্বীকৃত। এই অংশ শুধুমাত্র অ্যাডমিনদের জন্য।",
+  "map.preview": "মানচিত্রের প্রিভিউ",
+  "map.marker": "মানচিত্রের চিহ্ন"
 }

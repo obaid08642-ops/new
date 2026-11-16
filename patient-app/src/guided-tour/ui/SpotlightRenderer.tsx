@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { tokens } from '../../../../packages/design-tokens/dist/ts/tokens';
+import { deviceText } from '../../i18n/deviceText';
 const T = tokens('light').color;
 
 export const SpotlightRenderer = ({ targetLayout, step, onNext, onSkip }: any) => {
@@ -20,11 +21,11 @@ export const SpotlightRenderer = ({ targetLayout, step, onNext, onSkip }: any) =
       ]} />
       
       <View style={[styles.tooltip, { top: targetLayout.y + targetLayout.height + 20 }]}>
-        <Text style={styles.title}>{step.title || 'Guided Tour'}</Text>
-        <Text style={styles.desc}>{step.description || 'This is a description of the current feature.'}</Text>
+        <Text style={styles.title}>{step.title || deviceText('tour.title')}</Text>
+        <Text style={styles.desc}>{step.description || deviceText('tour.fallbackDescription')}</Text>
         <View style={styles.footer}>
-          <Text style={styles.btn} onPress={onSkip}>Skip</Text>
-          <Text style={styles.btnNext} onPress={onNext}>Next →</Text>
+          <Text style={styles.btn} onPress={onSkip}>{deviceText('tour.skip')}</Text>
+          <Text style={styles.btnNext} onPress={onNext}>{deviceText('tour.next')}</Text>
         </View>
       </View>
     </View>

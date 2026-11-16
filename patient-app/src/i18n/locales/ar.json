@@ -4079,5 +4079,12 @@
   "ds.search.filtersActive": "فلاتر نشطة",
   "ds.search.filters": "فتح الفلاتر",
   "ds.toast.close": "إغلاق",
-  "ds.back": "العودة"
+  "ds.back": "العودة",
+  "tour.title": "جولة إرشادية",
+  "tour.fallbackDescription": "نظرة سريعة على هذه الميزة.",
+  "tour.skip": "تخطي",
+  "tour.next": "التالي",
+  "errors.adminRequired": "غير مسموح. هذه المنطقة للمشرفين فقط.",
+  "map.preview": "معاينة الخريطة",
+  "map.marker": "علامة على الخريطة"
 }
