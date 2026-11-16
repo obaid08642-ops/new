@@ -42,7 +42,7 @@ import { tokens } from '../../../theme/tokens';
 
 export function CredentialingScreen({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
 
@@ -65,20 +65,18 @@ export function CredentialingScreen({ onBack }: { onBack: () => void }) {
 
  return (
  <NScroll>
- <NHeader title={AR?' التوثيق المهني':' Credentialing'} onBack={onBack} />
+ <NHeader title={tt('sxl.4a581c30')} onBack={onBack} />
 
  <NCard style={{ backgroundColor: theme.infoBg, marginBottom: SP.xl }}>
  <Text style={{ fontSize: FS.sm, color: theme.info, lineHeight: 20, textAlign: AR?'right':'left' }}>
- {AR
- ? 'تتبع تراخيص SCFHS، شهادات المؤهلات، تأمين المسؤولية المهنية لجميع الأطباء تلقائياً مع تنبيهات الانتهاء.'
- : 'Track SCFHS licenses, qualification certificates, and malpractice insurance for all doctors with expiry alerts.'}
+ {tt('sxl.f6552ab3')}
  </Text>
  </NCard>
 
  <View style={{ flexDirection:'row', gap: SP.md, marginBottom: SP.xl }}>
- <NStatCard icon="" label={AR?'سارية':'Valid'} value={String(CREDS.filter(c=>c.status==='valid').length)} color={tokens.success} style={{ flex:1 }} />
- <NStatCard icon="" label={AR?'تنتهي قريباً':'Expiring'} value={String(CREDS.filter(c=>c.status==='expiring').length)} color={tokens.warning} style={{ flex:1 }} />
- <NStatCard icon="" label={AR?'منتهية':'Expired'} value={String(CREDS.filter(c=>c.status==='expired').length)} color={tokens.error} style={{ flex:1 }} />
+ <NStatCard icon="" label={tt('sxl.7075afea')} value={String(CREDS.filter(c=>c.status==='valid').length)} color={tokens.success} style={{ flex:1 }} />
+ <NStatCard icon="" label={tt('sxl.0d4d8f6d')} value={String(CREDS.filter(c=>c.status==='expiring').length)} color={tokens.warning} style={{ flex:1 }} />
+ <NStatCard icon="" label={tt('sxl.b800987e')} value={String(CREDS.filter(c=>c.status==='expired').length)} color={tokens.error} style={{ flex:1 }} />
  </View>
 
  {CREDS.map(cred => (
@@ -87,8 +85,8 @@ export function CredentialingScreen({ onBack }: { onBack: () => void }) {
  <View style={{ flexDirection:AR?'row-reverse':'row', justifyContent:'space-between', marginBottom: SP.md }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{cred.doctor}</Text>
  <NBadge
- label={cred.status==='valid'?(AR?' سارية':' Valid') :
- cred.status==='expiring'?(AR?' تنتهي قريباً':' Expiring Soon') : (AR?' منتهية':' Expired')}
+ label={cred.status==='valid'?(tt('sxl.f2c72f9b')) :
+ cred.status==='expiring'?(tt('sxl.b744a4f8')) : (tt('sxl.6717196e'))}
  variant={cred.status==='valid'?'success':cred.status==='expiring'?'warning':'danger'}
  size="xs"
  />
@@ -98,7 +96,7 @@ export function CredentialingScreen({ onBack }: { onBack: () => void }) {
  SCFHS: {cred.scfhs} · {AR?`ينتهي: ${cred.scfhsExp}`:`Expires: ${cred.scfhsExp}`}
  </Text>
  <Text style={{ fontSize: FS.sm, color: cred.malpractice ? theme.success : theme.danger, textAlign:AR?'right':'left' }}>
- {AR?'تأمين المسؤولية:':'Malpractice:'} {cred.malpractice ? (AR?` ${cred.malpExp}`:` ${cred.malpExp}`) : (AR?' غير مشترك':' Not insured')}
+ {tt('sxl.711a17a0')} {cred.malpractice ? (AR?` ${cred.malpExp}`:` ${cred.malpExp}`) : (tt('sxl.3b5f692b'))}
  </Text>
  {cred.daysLeft < 90 && (
  <Text style={{ fontSize: FS.xs, color: cred.daysLeft < 0 ? theme.danger : theme.warn, fontWeight: FW.bold }}>

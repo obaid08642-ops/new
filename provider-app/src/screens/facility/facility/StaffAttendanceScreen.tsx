@@ -42,7 +42,7 @@ import { tokens } from '../../../theme/tokens';
 
 export function StaffAttendanceScreen({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
 
@@ -67,13 +67,13 @@ export function StaffAttendanceScreen({ onBack }: { onBack: () => void }) {
    try {
      const { requestForegroundPermissionsAsync, getCurrentPositionAsync } = await import('expo-location');
      const perm = await requestForegroundPermissionsAsync();
-     if (perm.status !== 'granted') { show(AR ? 'صلاحية الموقع مطلوبة لتسجيل الحضور' : 'Location permission required', 'error'); return; }
+     if (perm.status !== 'granted') { show(tt('sxn.284c03e9'), 'error'); return; }
      const pos = await getCurrentPositionAsync({ accuracy: 5 } as any);
      await client.post('/facility/shifts/attendance/check-in', { lat: pos.coords.latitude, lng: pos.coords.longitude });
-     show(AR ? 'تم تسجيل حضورك' : 'Checked in', 'success');
+     show(tt('sxn.28a967a1'), 'success');
      load();
    } catch (error: any) {
-     show(error?.response?.data?.message || (AR ? 'تعذر تسجيل الحضور' : 'Check-in failed'), 'error');
+     show(error?.response?.data?.message || (tt('sxn.b5d0e0b2')), 'error');
    } finally { setBusy(false); }
  };
 
@@ -81,10 +81,10 @@ export function StaffAttendanceScreen({ onBack }: { onBack: () => void }) {
    setBusy(true);
    try {
      await client.post(`/facility/shifts/attendance/check-out/${id}`, {});
-     show(AR ? 'تم تسجيل الانصراف' : 'Checked out', 'success');
+     show(tt('sxn.43d0d239'), 'success');
      load();
    } catch (error: any) {
-     show(error?.response?.data?.message || (AR ? 'تعذر تسجيل الانصراف' : 'Check-out failed'), 'error');
+     show(error?.response?.data?.message || (tt('sxn.e2fdcf76')), 'error');
    } finally { setBusy(false); }
  };
 
@@ -93,21 +93,19 @@ export function StaffAttendanceScreen({ onBack }: { onBack: () => void }) {
 
  return (
  <NScroll>
- <NHeader title={AR?' الحضور والانصراف':' Staff Attendance'} onBack={onBack} />
+ <NHeader title={tt('sxn.bd07dc5e')} onBack={onBack} />
 
  <View style={{ flexDirection:'row', gap: SP.md, marginBottom: SP.xl }}>
- <NStatCard icon="" label={AR?'حاضر':'Present'} value={String(present)} color={tokens.success} style={{ flex:1 }} />
- <NStatCard icon="" label={AR?'غائب':'Absent'} value={String(absent)} color={tokens.error} style={{ flex:1 }} />
- <NStatCard icon="users" label={AR?'الإجمالي':'Total'} value={String(ATTENDANCE.length)} color={tokens.info} style={{ flex:1 }} />
+ <NStatCard icon="" label={tt('sxn.9fc801ad')} value={String(present)} color={tokens.success} style={{ flex:1 }} />
+ <NStatCard icon="" label={tt('sxn.73c3677b')} value={String(absent)} color={tokens.error} style={{ flex:1 }} />
+ <NStatCard icon="users" label={tt('sxn.e3959b9d')} value={String(ATTENDANCE.length)} color={tokens.info} style={{ flex:1 }} />
  </View>
 
  <NCard style={{ backgroundColor: theme.infoBg, marginBottom: SP.md }}>
  <Text style={{ fontSize: FS.sm, color: theme.info, textAlign: AR?'right':'left' }}>
- {AR
- ? 'سجّل حضورك من هنا داخل نطاق المنشأة؛ يُتحقق من موقعك (GPS) مقابل إحداثيات المنشأة. لكل شخص سجل حضور مفتوح واحد.'
- : 'Check in here within the facility range; your GPS is verified against the facility coordinates. One open record per person.'}
+ {tt('sxn.7f9138e0')}
  </Text>
- <NBtn label={AR?'تسجيل حضوري الآن':'Check myself in'} onPress={checkInSelf} loading={busy} style={{ marginTop: SP.sm }} />
+ <NBtn label={tt('sxn.1a21b881')} onPress={checkInSelf} loading={busy} style={{ marginTop: SP.sm }} />
  </NCard>
 
  {ATTENDANCE.map(staff => (
@@ -120,19 +118,19 @@ export function StaffAttendanceScreen({ onBack }: { onBack: () => void }) {
  textAlign: AR?'right':'left' }}>{staff.name}</Text>
  <View style={{ flexDirection:AR?'row-reverse':'row', gap: SP.lg, marginTop:2 }}>
  <Text style={{ fontSize: FS.xs, color: theme.textSub }}>
-  {staff.checkIn!=='—'? staff.checkIn: (AR?'لم يسجل':'Not checked in')}
+  {staff.checkIn!=='—'? staff.checkIn: (tt('sxn.9a15d8a3'))}
  </Text>
  <Text style={{ fontSize: FS.xs, color: theme.textSub }}>
- {staff.checkOut !== '—' ? staff.checkOut : (AR?'لم يغادر':'Not checked out')}
+ {staff.checkOut !== '—' ? staff.checkOut : (tt('sxn.4f0d6aef'))}
  </Text>
  </View>
  </View>
  {staff.open ? (
- <NBtn label={AR?'انصراف':'Check out'} size="sm" variant="outline" loading={busy} onPress={() => checkOut(staff.id)} />
+ <NBtn label={tt('sxn.b90b055c')} size="sm" variant="outline" loading={busy} onPress={() => checkOut(staff.id)} />
  ) : (
  <NBadge
- label={staff.status==='present'?(AR?'حاضر':'Present') :
- staff.status==='done'?(AR?'أكمل':'Completed') : (AR?'غائب':'Absent')}
+ label={staff.status==='present'?(tt('sxn.9fc801ad')) :
+ staff.status==='done'?(tt('sxn.e0f045a7')) : (tt('sxn.73c3677b'))}
  variant={staff.status==='absent'?'danger':staff.status==='done'?'info':'success'}
  size="xs"
  />
@@ -141,7 +139,7 @@ export function StaffAttendanceScreen({ onBack }: { onBack: () => void }) {
  </NCard>
  ))}
 
- <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: 'center' }}>{AR ? 'التقرير الشهري يُطلب من الإدارة عبر التقارير التلقائية' : 'Monthly reports are requested via Auto Reports'}</Text>
+ <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: 'center' }}>{tt('sxn.0c0c2fec')}</Text>
  </NScroll>
  );
 }

@@ -52,7 +52,7 @@ function claimGroup(state: string): 'pending' | 'approved' | 'rejected' {
 
 export function InsuranceClaimsHubScreen({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
  const [statusFilter, setStatusFilter] = useState<'all'|'pending'|'approved'|'rejected'>('all');
@@ -84,11 +84,11 @@ export function InsuranceClaimsHubScreen({ onBack }: { onBack: () => void }) {
 
  return (
  <NScroll>
- <NHeader title={AR ? ' مطالبات التأمين' : ' Insurance Claims Hub'} onBack={onBack} />
+ <NHeader title={tt('sxc.13c81e60')} onBack={onBack} />
 
  <View style={{ flexDirection:'row', gap: SP.md, marginBottom: SP.xl }}>
- <NStatCard icon="" label={AR?'مقبولة هذا الشهر':'Approved this month'} value={`${(totalAmt/1000).toFixed(1)}K`} unit={AR?'ر':'SAR'} color={tokens.success} style={{ flex:1 }} />
- <NStatCard icon="" label={AR?'قيد الانتظار':'Pending'} value={`${(pendingAmt/1000).toFixed(1)}K`} unit={AR?'ر':'SAR'} color={tokens.warning} style={{ flex:1 }} />
+ <NStatCard icon="" label={tt('sxc.2b75159c')} value={`${(totalAmt/1000).toFixed(1)}K`} unit={tt('sxc.a629499b')} color={tokens.success} style={{ flex:1 }} />
+ <NStatCard icon="" label={tt('sxc.25cd2b1f')} value={`${(pendingAmt/1000).toFixed(1)}K`} unit={tt('sxc.a629499b')} color={tokens.warning} style={{ flex:1 }} />
  </View>
 
  <ScrollView horizontal showsHorizontalScrollIndicator={false}
@@ -117,8 +117,8 @@ export function InsuranceClaimsHubScreen({ onBack }: { onBack: () => void }) {
  <View style={{ flexDirection: AR?'row-reverse':'row', justifyContent:'space-between', marginBottom: SP.sm }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{claim.patient}</Text>
  <NBadge
- label={claim.status==='approved'?(AR?' مقبولة':' Approved') :
- claim.status==='rejected'?(AR?' مرفوضة':' Rejected') : (AR?' انتظار':' Pending')}
+ label={claim.status==='approved'?(tt('sxc.e848ef40')) :
+ claim.status==='rejected'?(tt('sxc.9af8e858')) : (tt('sxc.2bfefa1a'))}
  variant={claim.status==='approved'?'success':claim.status==='rejected'?'danger':'warning'}
  size="xs"
  />
@@ -126,7 +126,7 @@ export function InsuranceClaimsHubScreen({ onBack }: { onBack: () => void }) {
  <View style={{ flexDirection: AR?'row-reverse':'row', justifyContent:'space-between' }}>
  <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{claim.company} · {claim.plan} · {claim.diagCode}</Text>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.primary }}>
- {(claim.amount - claim.deductible).toLocaleString()} {AR?'ر':'SAR'}
+ {(claim.amount - claim.deductible).toLocaleString()} {tt('sxc.a629499b')}
  </Text>
  </View>
  {claim.deductible > 0 && (
@@ -136,20 +136,20 @@ export function InsuranceClaimsHubScreen({ onBack }: { onBack: () => void }) {
  )}
  {claim.status === 'pending' && (
  <View style={{ flexDirection: AR?'row-reverse':'row', gap: SP.sm, marginTop: SP.md }}>
- <NBtn label={expandedClaim === claim.id ? (AR ? 'إخفاء التفاصيل' : 'Hide details') : (AR ? ' التفاصيل' : 'Details')} size="xs" full={false}
+ <NBtn label={expandedClaim === claim.id ? (tt('sxc.e13c7dff')) : (tt('sxc.add2742d'))} size="xs" full={false}
  style={{ paddingHorizontal: SP.lg }} onPress={() => setExpandedClaim(expandedClaim === claim.id ? null : claim.id)} />
  </View>
  )}
  {expandedClaim === claim.id && (
  <View style={{ marginTop: SP.sm, paddingTop: SP.sm, borderTopWidth: 1, borderTopColor: theme.border }}>
- <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'المريض:' : 'Patient:'} {claim.patient} · {AR ? 'الشركة:' : 'Company:'} {claim.company} · {AR ? 'الخطة:' : 'Plan:'} {claim.plan}</Text>
- <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'المبلغ:' : 'Amount:'} {(claim.amount - claim.deductible).toLocaleString()} {AR ? 'ر' : 'SAR'}</Text>
+ <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{tt('sxc.98a9ddda')} {claim.patient} · {tt('sxc.bf442746')} {claim.company} · {tt('sxc.2a543760')} {claim.plan}</Text>
+ <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{tt('sxc.c2530727')} {(claim.amount - claim.deductible).toLocaleString()} {tt('sxc.a629499b')}</Text>
  </View>
  )}
  </NCard>
  ))}
 
- <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: 'center' }}>{AR ? 'المطالبات الجديدة تُنشأ من قرارات التأمين المعتمدة' : 'New claims originate from approved insurance decisions'}</Text>
+ <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: 'center' }}>{tt('sxc.9b29fdd5')}</Text>
  </NScroll>
  );
 }

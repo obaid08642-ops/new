@@ -22,7 +22,7 @@ import { _styles } from './_shared';
 export function AiMedicalCopilot({ onBack }: { onBack: () => void }) {
  const insets = useSafeAreaInsets();
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { show } = useToast();
  const { user } = useAuth();
  const AR = lang === 'ar';
@@ -47,7 +47,7 @@ export function AiMedicalCopilot({ onBack }: { onBack: () => void }) {
  const askCopilot = async () => {
    const notes = [soap.s, soap.o].filter(Boolean).join('\n');
    if (!notes.trim()) {
-     show(AR ? 'اكتب الشكوى والعلامات أولاً ليقترح المساعد' : 'Enter subjective/objective notes first', 'error');
+     show(tt('sxe.1cf6e015'), 'error');
      return;
    }
    setAiLoading(true);
@@ -55,7 +55,7 @@ export function AiMedicalCopilot({ onBack }: { onBack: () => void }) {
      const r = await client.post('/ai/copilot/suggest', { notes });
      setAiSuggestion(r.data?.suggestion || r.data?.response || '');
    } catch {
-     show(AR ? 'تعذر الحصول على اقتراح AI حالياً' : 'AI suggestion unavailable right now', 'error');
+     show(tt('sxe.2c0d068b'), 'error');
    } finally { setAiLoading(false); }
  };
 
@@ -67,29 +67,29 @@ export function AiMedicalCopilot({ onBack }: { onBack: () => void }) {
      soap.p && `P: ${soap.p}`,
    ].filter(Boolean).join('\n');
    if (!note.trim()) {
-     show(AR ? 'اكتب الملاحظة السريرية أولاً' : 'Write the clinical note first', 'error');
+     show(tt('sxe.2770778e'), 'error');
      return;
    }
    const patientId = selectedPatient?.patient_id || selectedPatient?.patientId || selectedPatient?.patient?.id;
    if (!patientId) {
-     show(AR ? 'اختر المريض الذي تخصه الملاحظة' : 'Select the patient this note belongs to', 'error');
+     show(tt('sxe.b1f22a1c'), 'error');
      return;
    }
    // A doctor's note goes on the doctor's own visit (/provider/ops/doctor/notes); nursing progress notes live at /nursing/notes
    // (booking-bound server-side, nurses only, which is why a doctor's save used to fail).
    const bookingId = selectedPatient?.booking_id || selectedPatient?.bookingId || selectedPatient?.visit_id || selectedPatient?.appointment_id;
    if (!bookingId) {
-     show(AR ? 'اختر زيارة/حجزاً لتوثيق الملاحظة عليه' : 'Select a visit/booking for this note', 'error');
+     show(tt('sxe.81ed6b94'), 'error');
      return;
    }
    setLoading(true);
    try {
      if (user?.role === 'doctor') await client.post('/provider/ops/doctor/notes', { patient_id: patientId, appointment_id: bookingId, note });
      else await client.post('/nursing/notes', { patient_id: patientId, booking_id: bookingId, note });
-     show(AR ? 'تم حفظ التقرير الطبي بنجاح' : 'Clinical SOAP note saved', 'success');
+     show(tt('sxe.fafa3cd4'), 'success');
      onBack();
    } catch (err: any) {
-     show(err?.response?.data?.message || (AR ? 'فشل الحفظ' : 'Failed to save'), 'error');
+     show(err?.response?.data?.message || (tt('sxe.e6db6ceb')), 'error');
    } finally {
      setLoading(false);
    }
@@ -99,7 +99,7 @@ export function AiMedicalCopilot({ onBack }: { onBack: () => void }) {
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
  <View style={[_styles.topBar, { paddingTop: Math.max(insets.top, 16) }]}>
  <TouchableOpacity onPress={onBack}><I name="back" size={20} color={theme.primary} /></TouchableOpacity>
- <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}> {AR ? 'السجل الطبي ومساعد AI' : 'EMR & AI Copilot'}</Text>
+ <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}> {tt('sxe.49b4422c')}</Text>
  <View style={{ width: 20 }} />
  </View>
 
@@ -107,25 +107,25 @@ export function AiMedicalCopilot({ onBack }: { onBack: () => void }) {
  {aiSuggestion ? (
  <NCard style={{ backgroundColor: theme.surface2, borderColor: theme.primary, borderWidth: 1 }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.primary, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>
-  {AR?'تحليل AI مقترح:':'AI Suggested Analysis:'}
+  {tt('sxe.bb0cbc71')}
  </Text>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left', lineHeight: 22 }}>{aiSuggestion}</Text>
  <Text style={{ fontSize: FS.xs, color: theme.textHint, marginTop: SP.sm, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'إخلاء مسؤولية: اقتراح AI مساعد فقط — القرار السريري النهائي للطبيب.' : 'Disclaimer: AI suggestion is advisory only — final clinical decision rests with the physician.'}
+ {tt('sxe.63b7c47e')}
  </Text>
  </NCard>
  ) : (
- <NBtn label={aiLoading ? (AR ? 'جارٍ تحليل الملاحظات…' : 'Analyzing notes…') : (AR ? ' اقتراح AI بناءً على الملاحظات' : ' Get AI suggestion from notes')} variant="outline" onPress={askCopilot} loading={aiLoading} />
+ <NBtn label={aiLoading ? (tt('sxe.a8430719')) : (tt('sxe.4af642df'))} variant="outline" onPress={askCopilot} loading={aiLoading} />
  )}
 
  {/* Patient selector — the note must attach to a real patient */}
  <View>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'المريض (من قائمة العمل النشطة)' : 'Patient (from your active queue)'}
+ {tt('sxe.9918ea91')}
  </Text>
  {patients.length === 0 ? (
  <Text style={{ fontSize: FS.xs, color: theme.textHint, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'لا يوجد مرضى نشطون حالياً في قائمتك.' : 'No active patients in your queue right now.'}
+ {tt('sxe.5b432f52')}
  </Text>
  ) : (
  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -148,30 +148,30 @@ export function AiMedicalCopilot({ onBack }: { onBack: () => void }) {
  </View>
 
  <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'ملاحظات SOAP السريرية' : 'Clinical SOAP Notes'}
+ {tt('sxe.150d2a37')}
  </Text>
 
  <View>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>S - Subjective</Text>
- <TextInput style={{ backgroundColor: theme.surface, color: theme.text, padding: SP.md, borderRadius: R.md, height: 80, textAlignVertical: 'top', textAlign: AR ? 'right' : 'left' }} multiline placeholder={AR ? "شكوى المريض..." : "Patient complaint..."} placeholderTextColor={theme.textSub} value={soap.s} onChangeText={t => setSoap({...soap, s: t})} />
+ <TextInput style={{ backgroundColor: theme.surface, color: theme.text, padding: SP.md, borderRadius: R.md, height: 80, textAlignVertical: 'top', textAlign: AR ? 'right' : 'left' }} multiline placeholder={tt('sxe.7f5d3e60')} placeholderTextColor={theme.textSub} value={soap.s} onChangeText={t => setSoap({...soap, s: t})} />
  </View>
 
  <View>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>O - Objective</Text>
- <TextInput style={{ backgroundColor: theme.surface, color: theme.text, padding: SP.md, borderRadius: R.md, height: 80, textAlignVertical: 'top', textAlign: AR ? 'right' : 'left' }} multiline placeholder={AR ? "العلامات الحيوية..." : "Vitals, observations..."} placeholderTextColor={theme.textSub} value={soap.o} onChangeText={t => setSoap({...soap, o: t})} />
+ <TextInput style={{ backgroundColor: theme.surface, color: theme.text, padding: SP.md, borderRadius: R.md, height: 80, textAlignVertical: 'top', textAlign: AR ? 'right' : 'left' }} multiline placeholder={tt('sxe.9cf268fb')} placeholderTextColor={theme.textSub} value={soap.o} onChangeText={t => setSoap({...soap, o: t})} />
  </View>
  
  <View>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>A - Assessment</Text>
- <TextInput style={{ backgroundColor: theme.surface, color: theme.text, padding: SP.md, borderRadius: R.md, height: 80, textAlignVertical: 'top', textAlign: AR ? 'right' : 'left' }} multiline placeholder={AR ? "التشخيص المبدئي..." : "Initial diagnosis..."} placeholderTextColor={theme.textSub} value={soap.a} onChangeText={t => setSoap({...soap, a: t})} />
+ <TextInput style={{ backgroundColor: theme.surface, color: theme.text, padding: SP.md, borderRadius: R.md, height: 80, textAlignVertical: 'top', textAlign: AR ? 'right' : 'left' }} multiline placeholder={tt('sxe.22e6da27')} placeholderTextColor={theme.textSub} value={soap.a} onChangeText={t => setSoap({...soap, a: t})} />
  </View>
 
  <View>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>P - Plan</Text>
- <TextInput style={{ backgroundColor: theme.surface, color: theme.text, padding: SP.md, borderRadius: R.md, height: 80, textAlignVertical: 'top', textAlign: AR ? 'right' : 'left' }} multiline placeholder={AR ? "الخطة العلاجية..." : "Treatment plan..."} placeholderTextColor={theme.textSub} value={soap.p} onChangeText={t => setSoap({...soap, p: t})} />
+ <TextInput style={{ backgroundColor: theme.surface, color: theme.text, padding: SP.md, borderRadius: R.md, height: 80, textAlignVertical: 'top', textAlign: AR ? 'right' : 'left' }} multiline placeholder={tt('sxe.5cd600eb')} placeholderTextColor={theme.textSub} value={soap.p} onChangeText={t => setSoap({...soap, p: t})} />
  </View>
 
- <NBtn label={AR ? ' حفظ السجل الطبي' : ' Save EMR Entry'} onPress={submitSoap} loading={loading} />
+ <NBtn label={tt('sxe.0b45fe4d')} onPress={submitSoap} loading={loading} />
  </ScrollView>
  </View>
  );

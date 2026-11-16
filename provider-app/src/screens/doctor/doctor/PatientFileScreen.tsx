@@ -41,7 +41,7 @@ import { styles } from './_shared';
 export function PatientFileScreen({ patient, onBack }:
  { patient: any; onBack: () => void }) {
  const { theme } = useTheme();
- const { lang, t } = useLang();
+ const { lang, t, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
  const [activeSection, setActive] = useState('overview');
@@ -85,28 +85,28 @@ export function PatientFileScreen({ patient, onBack }:
    try {
      await client.put(`/provider/ops/doctor/patient-crm/${encodeURIComponent(patientId)}`, patch);
    } catch {
-     show(AR ? 'تعذر حفظ بيانات العميل' : 'Could not save client data', 'error');
+     show(tt('sxb.e1c20f02'), 'error');
    }
  }
 
  const handleAddTag = () => {
  if (!newTag.trim()) return;
  if (customTags.includes(newTag.trim())) {
- show(AR ? 'الوسم مضاف بالفعل' : 'Tag already exists', 'warning');
+ show(tt('sxb.ada16787'), 'warning');
  return;
  }
  const next = [...customTags, newTag.trim()];
  setCustomTags(next);
  setNewTag('');
  persistCrm({ tags: next });
- show(AR ? 'تم إضافة الوسم' : 'Tag added successfully', 'success');
+ show(tt('sxb.91038b2f'), 'success');
  };
 
  const handleRemoveTag = (tag: string) => {
  const next = customTags.filter(t => t !== tag);
  setCustomTags(next);
  persistCrm({ tags: next });
- show(AR ? 'تم حذف الوسم' : 'Tag removed', 'info');
+ show(tt('sxb.9c09ac81'), 'info');
  };
 
  const handleAddNote = () => {
@@ -116,37 +116,37 @@ export function PatientFileScreen({ patient, onBack }:
  setCrmNotes(next);
  setNewNote('');
  persistCrm({ notes: next });
- show(AR ? 'تم حفظ ملاحظة CRM' : 'CRM Note saved', 'success');
+ show(tt('sxb.a17d3a35'), 'success');
  };
 
  const handleToggleVip = (val: boolean) => {
  setIsVip(val);
  persistCrm({ vip: val });
- show(val ? (AR ? 'تم ترقية المريض إلى VIP ' : 'Patient upgraded to VIP ') : (AR ? 'تم إلغاء حالة VIP' : 'VIP status removed'), 'success');
+ show(val ? (tt('sxb.b45595d9')) : (tt('sxb.128f2963')), 'success');
  };
 
  const handleToggleFavorite = (val: boolean) => {
  setIsFavorite(val);
  persistCrm({ favorite: val });
- show(val ? (AR ? 'تم الإضافة للمفضلة ' : 'Added to favorites ') : (AR ? 'تم الإزالة من المفضلة' : 'Removed from favorites'), 'success');
+ show(val ? (tt('sxb.d037acef')) : (tt('sxb.c63656f2')), 'success');
  };
 
  const handleToggleBlocked = async (val: boolean) => {
- if (!patientId) { show(AR ? 'معرف المريض مفقود' : 'Patient identifier is missing', 'error'); return; }
+ if (!patientId) { show(tt('sxb.a35f6c20'), 'error'); return; }
  try {
    if (val) await client.post(`/provider/ops/doctor/blacklist/${encodeURIComponent(patientId)}`, { reason: 'provider_blocked' });
    else await client.delete(`/provider/ops/doctor/blacklist/${encodeURIComponent(patientId)}`);
    setIsBlocked(val);
-   show(val ? (AR ? 'تم إدراج المريض في الحظر ' : 'Patient added to blocklist ') : (AR ? 'تم إلغاء الحظر' : 'Patient unblocked'), 'warning');
+   show(val ? (tt('sxb.07acdc8a')) : (tt('sxb.ad9f2b24')), 'warning');
  } catch {
-   show(AR ? 'تعذر تحديث الحظر' : 'Could not update block status', 'error');
+   show(tt('sxb.dde44255'), 'error');
  }
  };
 
  return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
  <NScroll>
- <NHeader title={AR ? ' ملف المريض' : ' Patient File'} onBack={onBack} />
+ <NHeader title={tt('sxb.6f5d2124')} onBack={onBack} />
 
  {/* Patient info */}
  <NCard style={{ marginBottom: SP.xl }}>
@@ -155,17 +155,17 @@ export function PatientFileScreen({ patient, onBack }:
  <View style={{ flex: 1 }}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.xs }}>
  <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text,
- textAlign: AR ? 'right' : 'left' }}>{patient?.patient ?? (AR ? 'مريض' : 'Patient')}</Text>
+ textAlign: AR ? 'right' : 'left' }}>{patient?.patient ?? (tt('sxb.c8b7f288'))}</Text>
  {isFavorite && <Text style={{ fontSize: FS.xl }}></Text>}
  </View>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
- {[patient?.age ? `${patient.age} ${AR ? 'سنة' : 'yrs'}` : '', patient?.gender || '', patient?.blood_type ? `${AR ? 'فصيلة الدم: ' : 'Blood: '}${patient.blood_type}` : ''].filter(Boolean).join(' | ') || '—'}
+ {[patient?.age ? `${patient.age} ${AR ? 'سنة' : 'yrs'}` : '', patient?.gender || '', patient?.blood_type ? `${tt('sxb.fd03e959')}${patient.blood_type}` : ''].filter(Boolean).join(' | ') || '—'}
  </Text>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.sm, marginTop: SP.xs }}>
  {patient?.insurance ? <NBadge label={patient.insurance} variant="primary" size="xs" /> : null}
- {patient?.chronic ? <NBadge label={`${AR ? 'مزمن: ' : 'Chronic: '}${patient.chronic}`} variant="warning" size="xs" /> : null}
+ {patient?.chronic ? <NBadge label={`${tt('sxb.97b8daf5')}${patient.chronic}`} variant="warning" size="xs" /> : null}
  {isVip && <NBadge label="VIP " variant="success" size="xs" />}
- {isBlocked && <NBadge label={AR ? 'محظور ' : 'Blocked '} variant="danger" size="xs" />}
+ {isBlocked && <NBadge label={tt('sxb.0d48fd55')} variant="danger" size="xs" />}
  </View>
  </View>
  </View>
@@ -211,25 +211,25 @@ export function PatientFileScreen({ patient, onBack }:
  {/* Toggles */}
  <NCard style={{ gap: SP.lg }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
- ️ {AR ? 'حالة العميل والتصنيفات' : 'Client Status & Category'}
+ ️ {tt('sxb.ce267dc7')}
  </Text>
  <NToggle
- label={AR ? 'علامة عميل VIP ' : 'VIP Client Badge '}
- sub={AR ? 'تمييز المريض ببطاقة عميل خاص في النظام' : 'Highlight patient as high-priority VIP'}
+ label={tt('sxb.aa4a7ba6')}
+ sub={tt('sxb.1ed9a61f')}
  value={isVip}
  onChange={handleToggleVip}
  />
  <NDivider style={{ marginVertical: SP.xs }} />
  <NToggle
- label={AR ? 'إضافة للمفضلة ' : 'Add to Favorites '}
- sub={AR ? 'إظهار نجمة بجانب المريض لسهولة الوصول' : 'Show star badge for quick identification'}
+ label={tt('sxb.c33855b3')}
+ sub={tt('sxb.c78f20a5')}
  value={isFavorite}
  onChange={handleToggleFavorite}
  />
  <NDivider style={{ marginVertical: SP.xs }} />
  <NToggle
- label={AR ? 'حظر هذا المريض ' : 'Block this Patient '}
- sub={AR ? 'منع المريض من إرسال طلبات حجز جديدة إليك' : 'Prevent patient from booking future slots with you'}
+ label={tt('sxb.a9354140')}
+ sub={tt('sxb.7188f891')}
  value={isBlocked}
  onChange={handleToggleBlocked}
  />
@@ -241,8 +241,7 @@ export function PatientFileScreen({ patient, onBack }:
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md }}>
  <Text style={{ fontSize: 24 }}></Text>
  <Text style={{ flex: 1, fontSize: FS.sm, color: theme.danger, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'المريض محظور حالياً ولا يمكنه تقديم طلب استشارة أو كشف لديك.'
- : 'Patient is currently blocked and cannot send you consultation requests.'}
+ {tt('sxb.49dd7c99')}
  </Text>
  </View>
  </NCard>
@@ -251,7 +250,7 @@ export function PatientFileScreen({ patient, onBack }:
  {/* Custom CRM Tags */}
  <NCard style={{ gap: SP.md }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
- ️ {AR ? 'الأوسمة والوسوم المخصصة' : 'Custom CRM Tags'}
+ ️ {tt('sxb.dbeffa8a')}
  </Text>
  
  {/* Tags List */}
@@ -276,7 +275,7 @@ export function PatientFileScreen({ patient, onBack }:
  ))}
  {customTags.length === 0 && (
  <Text style={{ fontSize: FS.xs, color: theme.textSub }}>
- {AR ? 'لا توجد وسوم مخصصة حالياً.' : 'No custom tags applied.'}
+ {tt('sxb.7ef358a8')}
  </Text>
  )}
  </View>
@@ -284,7 +283,7 @@ export function PatientFileScreen({ patient, onBack }:
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, alignItems: 'center' }}>
  <View style={{ flex: 1 }}>
  <NInput
- placeholder={AR ? 'أضف وسماً (مثال: متعاون، مدخن)' : 'Add tag (e.g. Cooperative, Smoker)'}
+ placeholder={tt('sxb.4f19278c')}
  value={newTag}
  onChange={setNewTag}
  />
@@ -308,18 +307,18 @@ export function PatientFileScreen({ patient, onBack }:
  {/* Provider Private Notes */}
  <NCard style={{ gap: SP.md }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'ملاحظات العيادة الخاصة' : 'Private CRM Clinic Notes'}
+ {tt('sxb.2574d15d')}
  </Text>
 
  <NInput
- placeholder={AR ? 'اكتب ملاحظة خاصة عن المريض (سرية ولن تظهر له)...' : 'Write a private note (confidential, hidden from patient)...'}
+ placeholder={tt('sxb.ab888687')}
  value={newNote}
  onChange={setNewNote}
  multi
  lines={3}
  />
  <NBtn
- label={AR ? 'حفظ الملاحظة' : 'Save Note'}
+ label={tt('sxb.a9e7da12')}
  onPress={handleAddNote}
  disabled={!newNote.trim()}
  />
@@ -341,7 +340,7 @@ export function PatientFileScreen({ patient, onBack }:
  >
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: 4 }}>
  <Text style={{ fontSize: 10, color: theme.textSub }}>{note.date}</Text>
- <Text style={{ fontSize: 10, color: theme.primary, fontWeight: FW.bold }}>{AR ? 'طبيب' : 'Doctor'}</Text>
+ <Text style={{ fontSize: 10, color: theme.primary, fontWeight: FW.bold }}>{tt('sxb.2fe2b3ae')}</Text>
  </View>
  <Text style={{ fontSize: FS.sm, color: theme.text, textAlign: AR ? 'right' : 'left', lineHeight: 18 }}>
  {note.text}

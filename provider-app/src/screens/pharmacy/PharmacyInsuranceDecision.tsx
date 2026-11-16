@@ -24,7 +24,7 @@ const isInsuranceOrder = (order: any) => {
 
 export function PharmacyInsuranceQueueScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
   const [loading, setLoading] = useState(true);
@@ -51,7 +51,7 @@ export function PharmacyInsuranceQueueScreen({ onBack }: { onBack: () => void })
       );
       setOrders(ready);
     } catch {
-      show(AR ? 'تعذر تحميل طلبات التأمين' : 'Failed to load insurance orders', 'error');
+      show(tt('sxd.8934acbe'), 'error');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -66,23 +66,23 @@ export function PharmacyInsuranceQueueScreen({ onBack }: { onBack: () => void })
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'قرارات التأمين — الصيدلية' : 'Insurance Decisions — Pharmacy'} onBack={onBack} />
+      <NHeader title={tt('sxd.31883910')} onBack={onBack} />
       <ScrollView
         contentContainerStyle={{ padding: SP.lg, gap: SP.md, paddingBottom: SP.xxl }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); void load(); }} />}
       >
         <NCard>
           <Text style={{ color: theme.text, fontWeight: FW.bold }}>
-            {AR ? 'سجّل رد شركة التأمين الذي حصلت عليه عبر نظامك' : 'Record the insurer response from your own system'}
+            {tt('sxd.d280917d')}
           </Text>
           <Text style={{ color: theme.textSub, marginTop: SP.xs }}>
-            {AR ? 'موافقة / جزئية / رفض لكل صنف + مرجع الموافقة. يُحفظ القرار ولا يمكن تعديله.' : 'Approve / partial / reject per item + approval reference. Decisions are immutable.'}
+            {tt('sxd.39c123d7')}
           </Text>
         </NCard>
         {loading ? (
           <ActivityIndicator size="large" color={theme.primary} />
         ) : orders.length === 0 ? (
-          <NEmpty icon="shield" title={AR ? 'لا توجد طلبات بانتظار القرار' : 'No orders awaiting decision'} sub={AR ? 'تظهر هنا طلبات التأمين المختارة من قبلك' : 'Your selected insurance orders appear here'} />
+          <NEmpty icon="shield" title={tt('sxd.bb6fce87')} sub={tt('sxd.48130fb3')} />
         ) : (
           orders.map((d: any) => (
             <TouchableOpacity key={d.id} onPress={() => setSelected(d)}>
@@ -110,7 +110,7 @@ export function PharmacyInsuranceQueueScreen({ onBack }: { onBack: () => void })
  */
 export function PharmacyInsuranceDecisionForAllocation({ allocationId, onBack }: { allocationId: string; onBack: () => void }) {
   const { theme } = useTheme();
-  const { t } = useLang();
+  const { t, t: tt } = useLang();
   const { show } = useToast();
   const [detail, setDetail] = useState<Record<string, unknown> | null>(null);
   const backRef = useRef(onBack);
@@ -135,7 +135,7 @@ export function PharmacyInsuranceDecisionForAllocation({ allocationId, onBack }:
 
 function PharmacyInsuranceDecisionForm({ detail, onBack }: { detail: any; onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
   const order = detail.order || {};
@@ -152,11 +152,11 @@ function PharmacyInsuranceDecisionForm({ detail, onBack }: { detail: any; onBack
   const submit = async () => {
     const ref = approvalRef.trim();
     if (!ref) {
-      show(AR ? 'أدخل مرجع الموافقة من شركة التأمين' : 'Enter the insurer approval reference', 'error');
+      show(tt('sxd.6528bc1c'), 'error');
       return;
     }
     if (ref.length > 160) {
-      show(AR ? 'مرجع الموافقة أطول من 160 حرفاً' : 'Approval reference exceeds 160 chars', 'error');
+      show(tt('sxd.df526486'), 'error');
       return;
     }
     const payloadItems: any[] = [];
@@ -190,10 +190,10 @@ function PharmacyInsuranceDecisionForm({ detail, onBack }: { detail: any; onBack
         approval_reference: ref,
         items: payloadItems,
       });
-      show(AR ? 'تم تسجيل قرار التأمين وإخطار المريض' : 'Insurance decision recorded, patient notified', 'success');
+      show(tt('sxd.f081382f'), 'success');
       onBack();
     } catch (error: any) {
-      show(error?.response?.data?.message || (AR ? 'تعذر تسجيل القرار' : 'Decision failed'), 'error');
+      show(error?.response?.data?.message || (tt('sxd.9ebe5afc')), 'error');
     } finally {
       setBusy(false);
     }
@@ -201,15 +201,15 @@ function PharmacyInsuranceDecisionForm({ detail, onBack }: { detail: any; onBack
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={`${AR ? 'قرار تأمين #' : 'Insurance #'}${String(order.id || '').slice(-6)}`} onBack={onBack} />
+      <NHeader title={`${tt('sxd.b9319457')}${String(order.id || '').slice(-6)}`} onBack={onBack} />
       <ScrollView contentContainerStyle={{ padding: SP.lg, gap: SP.md, paddingBottom: SP.xxl }}>
         {(order?.patient_contact?.name || order?.patient_contact?.phone) ? (
           <NCard>
-            <Text style={{ color: theme.text, fontWeight: FW.bold }}>{AR ? 'المريض (مكشوف بعد اختيار عرضك)' : 'Patient (revealed after your selection)'}</Text>
+            <Text style={{ color: theme.text, fontWeight: FW.bold }}>{tt('sxd.c575400e')}</Text>
             <Text style={{ color: theme.textSub, marginTop: SP.xs }}>{[order.patient_contact?.name, order.patient_contact?.phone].filter(Boolean).join(' · ')}</Text>
           </NCard>
         ) : null}
-        <NSecHeader title={AR ? 'قرار كل صنف' : 'Per-item decision'} />
+        <NSecHeader title={tt('sxd.1532b8b7')} />
         {items.map((it: any) => {
           const key = String(it.order_item_id);
           const d = decisions[key] || { outcome: '', approved_qty: '', reason: '' };
@@ -224,23 +224,23 @@ function PharmacyInsuranceDecisionForm({ detail, onBack }: { detail: any; onBack
                 value={d.outcome}
                 onSelect={(v) => set(key, { outcome: v as any })}
                 opts={[
-                  { value: 'approved', label: AR ? 'موافقة كاملة' : 'Approve full' },
-                  { value: 'partial', label: AR ? 'موافقة جزئية' : 'Approve partial' },
-                  { value: 'rejected', label: AR ? 'رفض' : 'Reject' },
+                  { value: 'approved', label: tt('sxd.5e78845a') },
+                  { value: 'partial', label: tt('sxd.1e2792f5') },
+                  { value: 'rejected', label: tt('sxd.8a223f36') },
                 ]}
               />
               {d.outcome === 'partial' && (
-                <NInput label={AR ? 'الكمية المعتمدة' : 'Approved qty'} value={d.approved_qty} onChange={(v: string) => set(key, { approved_qty: v })} kbType="numeric" />
+                <NInput label={tt('sxd.42b8e502')} value={d.approved_qty} onChange={(v: string) => set(key, { approved_qty: v })} kbType="numeric" />
               )}
               {(d.outcome === 'partial' || d.outcome === 'rejected') && (
-                <NInput label={AR ? 'السبب (إلزامي)' : 'Reason (required)'} value={d.reason} onChange={(v: string) => set(key, { reason: v })} />
+                <NInput label={tt('sxd.7f4fca6d')} value={d.reason} onChange={(v: string) => set(key, { reason: v })} />
               )}
             </NCard>
           );
         })}
-        <NSecHeader title={AR ? 'مرجع الموافقة' : 'Approval reference'} />
-        <NInput label={AR ? 'مرجع شركة التأمين' : 'Insurer reference'} value={approvalRef} onChange={setApprovalRef} />
-        <NBtn label={AR ? 'تسجيل القرار وإخطار المريض' : 'Record decision and notify patient'} loading={busy} onPress={() => void submit()} />
+        <NSecHeader title={tt('sxd.72e9da28')} />
+        <NInput label={tt('sxd.d13583b7')} value={approvalRef} onChange={setApprovalRef} />
+        <NBtn label={tt('sxd.c22d2dba')} loading={busy} onPress={() => void submit()} />
       </ScrollView>
     </View>
   );
