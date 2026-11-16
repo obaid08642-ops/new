@@ -131,7 +131,7 @@ DUMP=$B/pre-mongo-recreate-$TS.gz
 DUMP_TMP=$(mktemp)
 mongodump_oneoff "$DUMP_TMP" --gzip --archive; DUMP_RC=$?
 SZ=$(stat -c %s "$DUMP_TMP" 2>/dev/null || echo 0)
-LAST=$(sudo -n sh -c "ls -t $B/nabd_*.gz 2>/dev/null | head -1"); LASTSZ=$([ -n "$LAST" ] && sudo -n stat -c %s "$LAST" || echo 0)
+LAST=$(sudo -n sh -c "ls -t $B/nabd_*.gz $B/nabd_*.gz.gpg 2>/dev/null | head -1"); LASTSZ=$([ -n "$LAST" ] && sudo -n stat -c %s "$LAST" || echo 0)
 GZ=invalid; gzip -t "$DUMP_TMP" 2>/dev/null && GZ=ok
 LIST=failed; [ "$DUMP_RC" -eq 0 ] && mongorestore_list_oneoff "$DUMP_TMP" && LIST=ok
 say "backup steps: mongodump rc=$DUMP_RC ; size_bytes=$SZ ; last nightly $LASTSZ ; gzip=$GZ ; archive listing=$LIST"

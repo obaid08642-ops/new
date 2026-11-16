@@ -76,7 +76,7 @@ mongodump_oneoff() {
 T=$(mktemp)
 mongodump_oneoff "$T" --gzip --archive; RC=$?
 SZ=$(stat -c %s "$T" 2>/dev/null || echo 0)
-LAST=$(sudo -n sh -c "ls -t $B/nabd_*.gz 2>/dev/null | head -1"); LASTSZ=$([ -n "$LAST" ] && sudo -n stat -c %s "$LAST" || echo 0)
+LAST=$(sudo -n sh -c "ls -t $B/nabd_*.gz $B/nabd_*.gz.gpg 2>/dev/null | head -1"); LASTSZ=$([ -n "$LAST" ] && sudo -n stat -c %s "$LAST" || echo 0)
 gzip -t "$T" 2>/dev/null && GZ=ok || GZ=invalid
 rm -f "$T"
 say "test dump: rc=$RC size_bytes=$SZ last_nightly_bytes=$LASTSZ gzip=$GZ MemAvailable_after=$(mem_available_mb)MB"
