@@ -27,3 +27,43 @@ After one release cycle with zero findings (invariant checker, 96i `shadow_disag
 
 ## 4. What stops the plan
 Any non-zero `shadow_disagree`, `unclean`, or reconciliation difference. Report the collection.field and the count (never the values) to the lead; fix the writer, not the data.
+
+---
+## Runbook addendum (2026-11-16, lane B): exact steps, rollback, the numbers I need
+
+Everything below is a plan. Nothing here writes data; each write step names who approves it.
+
+### A. The numbers request (read-only, no approval needed beyond running the existing task)
+Run `tools/ops/tasks/96i-halala-counts.sh` once and paste these lines on the lead's report (counts only, no values):
+1. every `halala-counts: <collection>.<field> doubles=N missing_shadow=N (clean=N unclean=N) shadow_present=N shadow_disagree=N` line;
+2. the `TOTAL` line.
+How I read them:
+| what the output shows | meaning | next step |
+|---|---|---|
+| `unclean=0`, `shadow_disagree=0`, `missing_shadow=0` | shadows complete and consistent | gate met: go to step C (owner approves) |
+| `missing_shadow>0`, `unclean=0`, `shadow_disagree=0` | shadows only missing | step B (backfill), then re-run 96i |
+| `unclean>0` | a stored amount is not a clean 2-decimal SAR value (e.g. 12.345) | finance decides each row; the tool never rounds. No backfill of those rows, no P3 |
+| `shadow_disagree>0` | a shadow differs from its double: a writer bug | stop; I find the writer from the collection.field; fix the writer, not the data |
+
+### B. Backfill (a write; owner approves, one collection at a time)
+1. **Backup first**: `96-mongodump-check.sh` shows a good last dump, newer than today's 03:00 (the `.gz.gpg` size ~146-150 MB on 2026-11-16).
+2. Dry run of the writer: `node dist/scripts/money-halala-backfill.js` (no `--apply`): its PLAN counts must equal the 96i `missing_shadow` figures. If they differ, stop.
+3. Apply: `MONEY_BACKFILL_CONFIRM=<db name> node dist/scripts/money-halala-backfill.js --apply` (`--include-ledger` only after the owner agrees: the ledger is append-only by convention; the backfill only ADDS the derived field). It writes in batches of 500, sets the shadow only where it does not exist (`$exists:false` in the filter, so a re-run changes nothing) and skips unclean values. Run it off-peak (not 03:00-05:00), one collection per run.
+4. Re-run 96i: `missing_shadow=0`, `shadow_disagree=0`.
+**There is no ops task that runs the writer yet** (96i only counts). When the owner approves this plan I write `tools/ops/tasks/98s-halala-backfill.sh` on the 98r pattern (dry run by default, `APPLY=yes` plus the confirm word, memory guard like 96i, counts only). I do not write it earlier: a writer on the shelf is a risk.
+**Rollback of B**: nothing to undo for correctness: the doubles are untouched and the P2 readers prefer the shadow but fall back to the double. The backfill leaves no marker, so backfilled shadows cannot be told from app-written ones (they are equal by construction, `shadow_disagree=0`). A real undo is a restore from the step-1 dump, which is why that dump comes first.
+
+### C. Stop writing the doubles (code; no data writes; one collection per PR)
+Order as section 2. For each PR: the writer sets only `<field>_halalas`; the test proves the double is absent and the shadow present. **Release rule**: one collection per release, and after each release read 96i + the nightly invariant check for 3 days before the next PR.
+**Rollback of C**: revert the PR. Rows written meanwhile have the shadow only; every reader (P2) already handles a row with the shadow and no double, so a revert does not break them; the revert writes the double again for new rows. Rows written between the deploy and the revert stay shadow-only and the double is simply absent: acceptable for P2 readers, but any reader NOT yet on P2 would see a missing double: the list of those readers is the first thing to produce (grep `\.amount\b`-style reads on the collections of the PR) and is part of each PR's body.
+
+### D. Hold, then drop (owner approves; backup first)
+As section 3. Dropping the doubles (`$unset`) has no code rollback: only the restore from the pre-drop dump. So D happens only after a full release cycle with zero findings, one collection at a time, and the dump of that day is verified restorable (`restore-drill.sh`, not only the size).
+
+### E. Gates that stop everything (report the collection.field and counts, never values)
+Any `shadow_disagree>0`, `unclean>0`, a reconciliation difference, or a failed nightly invariant (`ledger_amount_unclean`, `payment_shadow_mismatch`).
+
+### F. What I need from the owner
+1. Approve this plan (A-E), or change it.
+2. Say whether the ledger (`--include-ledger`) may be backfilled.
+3. Name the person who decides the `unclean` rows if any appear (finance/accountant).
