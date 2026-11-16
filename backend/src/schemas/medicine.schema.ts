@@ -160,6 +160,17 @@ MedicineSchema.index({ ...PUBLIC_LIVE, verified: 1, category: 1, sub_category: 1
 // index (after the same public flags) the answer comes from the index keys alone and no document is read.
 MedicineSchema.index({ ...PUBLIC_LIVE, manufacturer: 1 }, { name: 'public_manufacturer_covering_v1' });
 MedicineSchema.index({ ...PUBLIC_LIVE, form: 1 }, { name: 'public_form_covering_v1' });
+// 2026-11-16 (run 131, task 96r): mongod was OOM-killed again and again; the slowest operations were all from the worker's ranking job (every 30 minutes: ProductRankingService.recomputeAll),
+// which read every one of the ~21,000 documents (about 20 KB each, whole leaflets) three times: a COLLSCAN for the products created in the last days, a category scan + sort for
+// refreshCategoryPositions, and the products with a score. These indexes hold exactly the fields those queries read, so each is answered from the index and no document is loaded.
+export const RANKING_CATEGORY_POSITION_INDEX = { category: 1, category_pos: 1, availability_status: 1, image_1: 1, image: 1, usage_count: -1, requires_prescription: 1, rank_score: 1, _id: 1 } as const;
+MedicineSchema.index(RANKING_CATEGORY_POSITION_INDEX, { name: 'ranking_category_positions_covering_v1' });
+MedicineSchema.index({ source: 1, createdAt: -1 }, { name: 'ranking_recent_by_source_v1' });
+MedicineSchema.index({ rank_score: 1, id: 1 }, { name: 'ranking_scored_ids_v1' });
+// The hourly price sweep (price-alerts.service.ts sweep) lists the id and price of every public, non-prescription, non-controlled, active, not discontinued medicine: ~21,000 whole documents
+// were loaded each hour. Every predicate and both fields are in this index (a `$ne` is tested on the index keys), and the query asks for `_id: 0`, so no document is read.
+export const PRICE_SWEEP_INDEX = { public_eligibility: 1, medical_review_status: 1, is_deleted: 1, requires_prescription: 1, controlled: 1, active: 1, availability_status: 1, id: 1, price: 1 } as const;
+MedicineSchema.index(PRICE_SWEEP_INDEX, { name: 'price_sweep_covering_v1' });
 MedicineSchema.index({ ...PUBLIC_LIVE, 'translations.en.main_category': 1, 'translations.en.sub_category': 1, ...POPULAR_FIELDS }, { name: 'public_category_en_covering_v2' });
 // The product id (a uuid string, not _id) is how the product page's related reads, the cart and orders find a product.
 MedicineSchema.index({ id: 1 }, { name: 'id_1' });
