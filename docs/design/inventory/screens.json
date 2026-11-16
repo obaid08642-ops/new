@@ -1,5 +1,5 @@
 {
- "commit": "2c562853e",
+ "commit": "5c40a4e11",
  "routes": [
   {
    "app": "patient-app",
@@ -6167,6 +6167,50 @@
   },
   {
    "app": "patient-app",
+   "route": "/pharmacy/chat",
+   "file": "patient-app/app/pharmacy/chat.tsx",
+   "redirect": null,
+   "template": "flow step",
+   "board": "none: chat",
+   "batch": 1,
+   "status": "—",
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/pharmacy/chat/threads",
+     "target": "backend",
+     "query": "?order_id=:param",
+     "line": 63,
+     "file": "patient-app/app/pharmacy/pharmacist-chat.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:453"
+    },
+    {
+     "method": "POST",
+     "path": "/pharmacy/chat/threads/:param/…",
+     "target": "backend",
+     "query": "",
+     "partial": true,
+     "line": 94,
+     "file": "patient-app/app/pharmacy/pharmacist-chat.tsx",
+     "status": "PARTIAL"
+    },
+    {
+     "method": "GET",
+     "path": "/pharmacy/chat/threads/:param/messages",
+     "target": "backend",
+     "query": "",
+     "line": 52,
+     "file": "patient-app/app/pharmacy/pharmacist-chat.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:457"
+    }
+   ],
+   "files": 36,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-app",
    "route": "/pharmacy/checkout",
    "file": "patient-app/app/pharmacy/checkout.tsx",
    "redirect": null,
@@ -6557,7 +6601,7 @@
      "path": "/pharmacy/chat/threads",
      "target": "backend",
      "query": "?order_id=:param",
-     "line": 62,
+     "line": 63,
      "file": "patient-app/app/pharmacy/pharmacist-chat.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:453"
@@ -6568,7 +6612,7 @@
      "target": "backend",
      "query": "",
      "partial": true,
-     "line": 93,
+     "line": 94,
      "file": "patient-app/app/pharmacy/pharmacist-chat.tsx",
      "status": "PARTIAL"
     },
@@ -6577,7 +6621,7 @@
      "path": "/pharmacy/chat/threads/:param/messages",
      "target": "backend",
      "query": "",
-     "line": 51,
+     "line": 52,
      "file": "patient-app/app/pharmacy/pharmacist-chat.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:457"
@@ -7174,7 +7218,7 @@
      "line": 21,
      "file": "patient-app/app/receipts/index.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:831"
+     "backend": "backend/src/modules/billing/billing.module.ts:834"
     }
    ],
    "files": 40,
@@ -7198,7 +7242,7 @@
      "line": 25,
      "file": "patient-app/app/receipts/[kind]/[bookingId].tsx",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:785"
+     "backend": "backend/src/modules/billing/billing.module.ts:788"
     }
    ],
    "files": 45,
@@ -11293,7 +11337,7 @@
      "path": "/api/diagnostics/cart",
      "target": "web-bff",
      "query": "",
-     "line": 31,
+     "line": 32,
      "file": "patient-web/components-next/diagnostics-checkout-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/diagnostics/cart/route.ts"
@@ -11303,7 +11347,7 @@
      "path": "/api/diagnostics/orders",
      "target": "web-bff",
      "query": "",
-     "line": 96,
+     "line": 97,
      "file": "patient-web/components-next/diagnostics-checkout-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/diagnostics/orders/route.ts"
@@ -11343,13 +11387,13 @@
      "path": "/api/payments/intent/diagnostics",
      "target": "web-bff",
      "query": "",
-     "line": 128,
+     "line": 129,
      "file": "patient-web/components-next/diagnostics-checkout-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/payments/intent/diagnostics/route.ts"
     }
    ],
-   "files": 57,
+   "files": 58,
    "unresolved": 0
   },
   {
@@ -20355,7 +20399,7 @@
      "line": 15,
      "file": "patient-web/lib/api/billing-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:859"
+     "backend": "backend/src/modules/billing/billing.module.ts:862"
     }
    ],
    "files": 25,
@@ -20419,7 +20463,7 @@
      "line": 6,
      "file": "patient-web/lib/api/billing-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:831"
+     "backend": "backend/src/modules/billing/billing.module.ts:834"
     }
    ],
    "files": 58,
@@ -20483,7 +20527,7 @@
      "line": 10,
      "file": "patient-web/lib/api/billing-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/billing/billing.module.ts:785"
+     "backend": "backend/src/modules/billing/billing.module.ts:788"
     }
    ],
    "files": 66,
