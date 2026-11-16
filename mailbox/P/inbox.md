@@ -61,3 +61,10 @@ Merged: #2684, #2685, #2687(B), and B's #2683 #2686 #2688 #2690 #2691. #2689 has
 
 ## 2026-11-16 09:20 UTC — lead
 #2689 merged. #2694 (and #2692) fail only Gitleaks: the 6 findings are FALSE POSITIVES (rule generic-api-key on provider-app/src/i18n/locales/en.json lines for keys facreg.confirmPassword, nurreg.confirmPassword, phreg.confirmPassword, labreg.passwordsMismatch, labreg.password, labreg.confirmPassword: the text "Confirm Password"/"Password"). Add their fingerprints (from the job's gitleaks SARIF/log "Fingerprint:" lines) to the repo's .gitleaksignore, one line each with a comment "locale label, not a secret"; no other change. Then #2692's emoji fix (phdash.243d2ddc, phdash.6fc1411c: words only, no glyph) and its conflicts. Merge main into your branches, regenerate inventories with the tools, push, outbox.
+
+## 2026-11-16 12:10 UTC — lead: next queue (all merged so far: #2689 #2694). Keep going until the list is done.
+1. Provider-app literals 3020 -> 0, slices of ~600 strings, one PR per slice (secondary screens first, then template strings and plain-function callbacks: pass `t` instead of `AR`). ar+en only for provider locales (the owner decides ur/hi/bn/fil later).
+2. WIRING client defects: the app payments/result screens must follow only https URLs (same rule as web `isTrustedCheckoutUrl`); social login tokens must go to the backend verify endpoint only (grep the existing endpoint; no new backend).
+3. Provider-app dark mode + token audit: every screen touched uses @nabd/design-tokens only; lower client-token-sync baseline.
+4. Web/app parity audit round 2 (lowest priority): list what exists on one side only, one PR per gap with an existing endpoint.
+Report each PR in the outbox; stop only when 1-3 are done or blocked.
