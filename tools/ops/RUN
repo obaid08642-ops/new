@@ -1,5 +1,4 @@
-# 2026-11-15 run 130 = apply the new mongod.conf (WiredTiger cache 0.4 GB, #2681) that the deploy does not write: 91c-host-files (APPLY=yes, writes host files, restarts nothing) then 94-mongo-recreate (backup first, recreates ONLY nabdah-mongodb, data volume untouched, a few seconds of downtime), then read-only checks. Run 129 deployed main@7f9f7bff: cache still 0.6 before this run.
-91c-host-files
-94-mongo-recreate
+# 2026-11-16 run 131 = READ-ONLY: what mongod was doing in the minutes before each OOM kill (03:46-03:47 UTC) and the state of the nightly backup files (96r from #2686). Also the cache check and restart counter after run 130. Nothing is changed.
+96r-mongod-kill-window
 96j-mongo-cache-check
 96h-mongo-restarts
