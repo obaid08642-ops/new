@@ -36,7 +36,7 @@ import { tokens } from '../../../theme/tokens';
 
 export function StatisticsScreen({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
  const [period, setPeriod] = useState<'week'|'month'|'year'>('month');
@@ -56,7 +56,7 @@ export function StatisticsScreen({ onBack }: { onBack: () => void }) {
    client.get(`/provider/stats/period?period=${period}`).then((res) => {
      if (active) setStats(res.data || null);
    }).catch(() => {
-     if (active) { setStats(null); show(AR ? 'تعذر تحميل الإحصائيات' : 'Unable to load statistics', 'error'); }
+     if (active) { setStats(null); show(tt('stat.5bf0c064'), 'error'); }
    }).finally(() => { if (active) setStatsLoading(false); });
    return () => { active = false; };
  }, [period]);
@@ -65,7 +65,7 @@ export function StatisticsScreen({ onBack }: { onBack: () => void }) {
  const STATS = {
    revenue: stats ? fmtNum(stats.revenue) : '—',
    apts: stats ? String(stats.appointments ?? 0) : '—',
-   rating: stats && stats.rating != null ? String(stats.rating) : (AR ? 'لا يوجد' : 'N/A'),
+   rating: stats && stats.rating != null ? String(stats.rating) : (tt('stat.5b9ca604')),
    newPts: stats ? String(stats.new_patients ?? 0) : '—',
  };
 
@@ -87,7 +87,7 @@ export function StatisticsScreen({ onBack }: { onBack: () => void }) {
 
  return (
  <NScroll>
- <NHeader title={AR ? ' الإحصائيات والتقارير' : ' Statistics & Reports'} onBack={onBack} />
+ <NHeader title={tt('stat.68fff38b')} onBack={onBack} />
 
  {/* Period selector */}
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.xl }}>
@@ -106,23 +106,23 @@ export function StatisticsScreen({ onBack }: { onBack: () => void }) {
 
  {/* KPI Cards */}
  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.md, marginBottom: SP.xl }}>
- <NStatCard icon="" label={AR?'الإيرادات':'Revenue'} value={STATS.revenue} unit={AR?'ر':'SAR'} color={tokens.success} style={{ width:'47%' }} />
- <NStatCard icon="" label={AR?'المواعيد':'Appointments'} value={String(STATS.apts)} color={tokens.info} style={{ width:'47%' }} />
- <NStatCard icon="" label={AR?'التقييم':'Rating'} value={String(STATS.rating)} color={tokens.warning} style={{ width:'47%' }} />
- <NStatCard icon="" label={AR?'مرضى جدد':'New Patients'} value={String(STATS.newPts)} color={tokens.purple} style={{ width:'47%' }} />
+ <NStatCard icon="" label={tt('stat.625c26e2')} value={STATS.revenue} unit={tt('stat.a629499b')} color={tokens.success} style={{ width:'47%' }} />
+ <NStatCard icon="" label={tt('stat.6d5609e0')} value={String(STATS.apts)} color={tokens.info} style={{ width:'47%' }} />
+ <NStatCard icon="" label={tt('stat.eee2d9fc')} value={String(STATS.rating)} color={tokens.warning} style={{ width:'47%' }} />
+ <NStatCard icon="" label={tt('stat.97d1253c')} value={String(STATS.newPts)} color={tokens.purple} style={{ width:'47%' }} />
  </View>
 
  {/* Bar Chart */}
  <NCard style={{ marginBottom: SP.xl }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text,
  marginBottom: SP.lg, textAlign: AR ? 'right' : 'left' }}>
- {AR ? ' الإيرادات' : ' Revenue Trend'}
+ {tt('stat.3f431350')}
  </Text>
  {statsLoading ? (
  <ActivityIndicator color={theme.primary} style={{ marginVertical: SP.xl }} />
  ) : BAR_DATA.length === 0 || BAR_DATA.every((v) => v === 0) ? (
  <Text style={{ color: theme.textSub, textAlign: 'center', marginVertical: SP.xl }}>
- {AR ? 'لا توجد إيرادات في هذه الفترة' : 'No revenue in this period'}
+ {tt('stat.8a965e1a')}
  </Text>
  ) : (
  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -147,11 +147,11 @@ export function StatisticsScreen({ onBack }: { onBack: () => void }) {
  <NCard style={{ marginBottom: SP.xl }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text,
  marginBottom: SP.lg, textAlign: AR ? 'right' : 'left' }}>
- {AR ? ' توزيع الخدمات' : ' Service Breakdown'}
+ {tt('stat.d5a3d198')}
  </Text>
  {BREAKDOWN.length === 0 && !statsLoading ? (
  <Text style={{ color: theme.textSub, textAlign: 'center', marginVertical: SP.md }}>
- {AR ? 'لا توجد خدمات في هذه الفترة' : 'No services in this period'}
+ {tt('stat.a6b5d45d')}
  </Text>
  ) : BREAKDOWN.map((item, i) => (
  <View key={i} style={{ marginBottom: SP.md }}>
@@ -174,7 +174,7 @@ export function StatisticsScreen({ onBack }: { onBack: () => void }) {
 // DOCTOR AVAILABILITY SCREEN
 // ══════════════════════════════════════════════════════════════════════════════
 export function DoctorServiceSlotsCard() {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+ const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
  const [serviceType, setServiceType] = useState('clinic');
  const [slots, setSlots] = useState<any[]>([]);
  const [loading, setLoading] = useState(true);
@@ -191,7 +191,7 @@ export function DoctorServiceSlotsCard() {
      const res = await client.get('/provider/schedule-slots');
      setSlots(Array.isArray(res.data) ? res.data : []);
    } catch {
-     show(AR ? 'تعذر تحميل المواعيد' : 'Could not load slots', 'error');
+     show(tt('stat.8b7075bd'), 'error');
    } finally {
      setLoading(false);
    }
@@ -200,15 +200,15 @@ export function DoctorServiceSlotsCard() {
 
  async function add() {
    const d = Number(day);
-   if (!Number.isInteger(d) || d < 0 || d > 6) { show(AR ? 'أدخل اليوم (0-6)' : 'Enter day (0-6)', 'error'); return; }
-   if (!/^\d{2}:\d{2}$/.test(start) || !/^\d{2}:\d{2}$/.test(end)) { show(AR ? 'أدخل الوقت بصيغة HH:MM' : 'Enter time as HH:MM', 'error'); return; }
+   if (!Number.isInteger(d) || d < 0 || d > 6) { show(tt('stat.922f4be0'), 'error'); return; }
+   if (!/^\d{2}:\d{2}$/.test(start) || !/^\d{2}:\d{2}$/.test(end)) { show(tt('stat.42bfa295'), 'error'); return; }
    setSaving(true);
    try {
      await client.post('/provider/schedule-slots', { day_of_week: d, start_time: start, end_time: end, service_type: serviceType });
-     show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
+     show(tt('stat.14f4e375'), 'success');
      load();
    } catch (err: any) {
-     show(err?.response?.data?.message || (AR ? 'تعذر الحفظ' : 'Could not save'), 'error');
+     show(err?.response?.data?.message || (tt('stat.78540137')), 'error');
    } finally {
      setSaving(false);
    }
@@ -217,17 +217,17 @@ export function DoctorServiceSlotsCard() {
  async function remove(id: string) {
    try {
      await client.delete(`/provider/schedule-slots/${id}`);
-     show(AR ? 'تم الإرسال — يُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
+     show(tt('stat.67225376'), 'success');
      load();
    } catch {
-     show(AR ? 'تعذر الحذف' : 'Could not delete', 'error');
+     show(tt('stat.41f59f8d'), 'error');
    }
  }
 
  const visible = slots.filter((s) => (s.service_type || 'all') === serviceType || (s.service_type || 'all') === 'all');
  return (
  <NCard style={{ marginBottom: SP.xl }}>
- <NSecHeader title={AR ? 'مواعيد كل خدمة على حدة' : 'Per-service slots'} />
+ <NSecHeader title={tt('stat.5eee5d68')} />
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: 6, flexWrap: 'wrap', marginBottom: SP.md }}>
  {TYPES.map((t) => (
  <TouchableOpacity key={t} onPress={() => setServiceType(t)} style={{ paddingHorizontal: SP.md, paddingVertical: 6, borderRadius: R.full, borderWidth: 1.5, borderColor: serviceType === t ? theme.primary : theme.border, backgroundColor: serviceType === t ? theme.primary : theme.surface2 }}>
@@ -236,19 +236,19 @@ export function DoctorServiceSlotsCard() {
  ))}
  </View>
  {loading ? <ActivityIndicator color={theme.primary} /> : visible.length === 0 ? (
- <Text style={{ color: theme.textSub, fontSize: FS.sm }}>{AR ? 'لا توجد مواعيد لهذه الخدمة — تُطبق المواعيد العامة (all) إن وجدت' : 'No slots for this service — general (all) slots apply if present'}</Text>
+ <Text style={{ color: theme.textSub, fontSize: FS.sm }}>{tt('stat.fc7a85ed')}</Text>
  ) : visible.map((s: any) => (
  <View key={String(s.id)} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6 }}>
  <Text style={{ color: theme.text, fontSize: FS.sm }}>{AR ? `يوم ${s.day_of_week}` : `Day ${s.day_of_week}`} · {s.start_time}–{s.end_time} · {s.service_type || 'all'}</Text>
- <TouchableOpacity onPress={() => remove(String(s.id))}><Text style={{ color: theme.danger, fontSize: FS.sm }}>{AR ? 'حذف' : 'Delete'}</Text></TouchableOpacity>
+ <TouchableOpacity onPress={() => remove(String(s.id))}><Text style={{ color: theme.danger, fontSize: FS.sm }}>{tt('stat.2257cab6')}</Text></TouchableOpacity>
  </View>
  ))}
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginTop: SP.md }}>
- <View style={{ flex: 1 }}><NInput label={AR ? 'اليوم (0-6)' : 'Day (0-6)'} value={day} onChange={setDay} kbType="numeric" maxLen={1} /></View>
- <View style={{ flex: 1 }}><NInput label={AR ? 'من (HH:MM)' : 'From (HH:MM)'} value={start} onChange={setStart} maxLen={5} /></View>
- <View style={{ flex: 1 }}><NInput label={AR ? 'إلى (HH:MM)' : 'To (HH:MM)'} value={end} onChange={setEnd} maxLen={5} /></View>
+ <View style={{ flex: 1 }}><NInput label={tt('stat.27f5921f')} value={day} onChange={setDay} kbType="numeric" maxLen={1} /></View>
+ <View style={{ flex: 1 }}><NInput label={tt('stat.3615a8ba')} value={start} onChange={setStart} maxLen={5} /></View>
+ <View style={{ flex: 1 }}><NInput label={tt('stat.38d72e86')} value={end} onChange={setEnd} maxLen={5} /></View>
  </View>
- <NBtn label={AR ? 'إضافة موعد' : 'Add slot'} loading={saving} onPress={add} style={{ marginTop: SP.md }} />
+ <NBtn label={tt('stat.4889d86c')} loading={saving} onPress={add} style={{ marginTop: SP.md }} />
  </NCard>
  );
 }

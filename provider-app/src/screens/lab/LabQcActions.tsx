@@ -12,7 +12,7 @@ import client from '../../api/client';
 
 export function LabQcActions({ booking, onDone }: { booking: any; onDone: () => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
   const [busy, setBusy] = useState<string | null>(null);
@@ -25,10 +25,10 @@ export function LabQcActions({ booking, onDone }: { booking: any; onDone: () => 
     setBusy(action);
     try {
       await client.post(`/provider/ops/lab/bookings/${booking.id}/qc/${action}`, body);
-      show(AR ? 'تم التنفيذ' : 'Done', 'success');
+      show(tt('qc.515c6f3d'), 'success');
       onDone();
     } catch (e: any) {
-      show(e?.response?.data?.message || (AR ? 'فشل التنفيذ' : 'Failed'), 'error');
+      show(e?.response?.data?.message || (tt('qc.30abe1ad')), 'error');
     } finally {
       setBusy(null);
     }
@@ -42,13 +42,13 @@ export function LabQcActions({ booking, onDone }: { booking: any; onDone: () => 
   return (
     <NCard style={{ marginTop: SP.md }}>
       <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>
-        {AR ? ' إجراءات الجودة والأولوية' : ' QC & Priority Actions'}
+        {tt('qc.dc7e1205')}
       </Text>
 
       {/* Priority row */}
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginBottom: SP.sm }}>
         <NBtn
-          label={isUrgent ? (AR ? '✓ عاجل' : '✓ Urgent') : (AR ? 'تعليم كعاجل' : 'Mark Urgent')}
+          label={isUrgent ? (tt('qc.2d516396')) : (tt('qc.013937c2'))}
           size="sm" variant={isUrgent ? 'primary' : 'outline'} full={false}
           loading={busy === 'mark_urgent'} disabled={isUrgent}
           onPress={() => qc('mark_urgent')}
@@ -60,7 +60,7 @@ export function LabQcActions({ booking, onDone }: { booking: any; onDone: () => 
           onPress={() => qc('mark_stat')}
         />
         <NBtn
-          label={AR ? 'قيمة حرجة' : 'Critical Value'}
+          label={tt('qc.4d9b4950')}
           size="sm" variant="danger" full={false}
           onPress={() => setShowCrit(true)}
         />
@@ -69,18 +69,18 @@ export function LabQcActions({ booking, onDone }: { booking: any; onDone: () => 
       {/* Verification row */}
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginBottom: SP.sm }}>
         <NBtn
-          label={verified ? (AR ? '✓ تم التحقق' : '✓ Verified') : (AR ? 'تحقق' : 'Verify')}
+          label={verified ? (tt('qc.f39a812f')) : (tt('qc.1fb1b8cb'))}
           size="sm" variant={verified ? 'primary' : 'outline'} full={false}
           loading={busy === 'verify'} disabled={verified}
           onPress={() => qc('verify')}
         />
         <NBtn
-          label={doubleVerified ? (AR ? '✓ تحقق مزدوج' : '✓ Double Verified') : (AR ? 'تحقق مزدوج' : 'Double Verify')}
+          label={doubleVerified ? (tt('qc.0a13b966')) : (tt('qc.c6906190'))}
           size="sm" variant={doubleVerified ? 'primary' : 'outline'} full={false}
           loading={busy === 'double_verify'}
           disabled={doubleVerified || !verified}
           onPress={() => {
-            if (!verified) { show(AR ? 'التحقق الأول مطلوب قبل المزدوج' : 'First verification required before double', 'error'); return; }
+            if (!verified) { show(tt('qc.0ade0daa'), 'error'); return; }
             qc('double_verify');
           }}
         />
@@ -89,12 +89,12 @@ export function LabQcActions({ booking, onDone }: { booking: any; onDone: () => 
       {/* Sample actions row */}
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm }}>
         <NBtn
-          label={AR ? 'رفض العينة' : 'Reject Sample'}
+          label={tt('qc.b21b3489')}
           size="sm" variant="outline" full={false}
           onPress={() => setShowReject(true)}
         />
         <NBtn
-          label={AR ? 'طلب إعادة سحب' : 'Request Recollect'}
+          label={tt('qc.03292582')}
           size="sm" variant="outline" full={false}
           loading={busy === 'recollect_requested'}
           onPress={() => qc('recollect_requested')}
@@ -106,21 +106,21 @@ export function LabQcActions({ booking, onDone }: { booking: any; onDone: () => 
         <View style={s.modalOverlay}>
           <View style={[s.modalCard, { backgroundColor: theme.bg }]}>
             <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.danger, textAlign: AR ? 'right' : 'left' }}>
-              {AR ? ' إبلاغ قيمة حرجة' : ' Critical Value Alert'}
+              {tt('qc.c6e1d53d')}
             </Text>
             <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginVertical: SP.sm }}>
-              {AR ? 'يُشعَر المريض والطبيب المعالج فوراً بأولوية قصوى.' : 'Patient and referring doctor are notified immediately with critical priority.'}
+              {tt('qc.6be25773')}
             </Text>
             <TextInput
               value={critNote} onChangeText={setCritNote}
-              placeholder={AR ? 'مثال: K+ 6.8 — بوتاسيوم مرتفع حرج' : 'e.g. K+ 6.8 critical'}
+              placeholder={tt('qc.e2877391')}
               style={[s.input, { backgroundColor: theme.surface, color: theme.text, textAlign: AR ? 'right' : 'left' }]}
             />
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginTop: SP.md }}>
-              <NBtn label={AR ? 'إرسال الإبلاغ' : 'Send Alert'} variant="danger" loading={busy === 'critical_value'}
-                onPress={async () => { if (!critNote.trim()) { show(AR ? 'اكتب القيمة الحرجة' : 'Enter the critical value', 'error'); return; } setShowCrit(false); qc('critical_value', { note: critNote.trim() }); setCritNote(''); }}
+              <NBtn label={tt('qc.dd0464db')} variant="danger" loading={busy === 'critical_value'}
+                onPress={async () => { if (!critNote.trim()) { show(tt('qc.42158617'), 'error'); return; } setShowCrit(false); qc('critical_value', { note: critNote.trim() }); setCritNote(''); }}
                 style={{ flex: 1 }} />
-              <NBtn label={AR ? 'إلغاء' : 'Cancel'} variant="outline" onPress={() => setShowCrit(false)} style={{ flex: 1 }} />
+              <NBtn label={tt('qc.210b779f')} variant="outline" onPress={() => setShowCrit(false)} style={{ flex: 1 }} />
             </View>
           </View>
         </View>
@@ -131,18 +131,18 @@ export function LabQcActions({ booking, onDone }: { booking: any; onDone: () => 
         <View style={s.modalOverlay}>
           <View style={[s.modalCard, { backgroundColor: theme.bg }]}>
             <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
-              {AR ? 'رفض العينة' : 'Reject Sample'}
+              {tt('qc.b21b3489')}
             </Text>
             <TextInput
               value={rejectReason} onChangeText={setRejectReason}
-              placeholder={AR ? 'السبب (مثال: عينة متحللة)' : 'Reason (e.g. hemolyzed sample)'}
+              placeholder={tt('qc.72f9c8d2')}
               style={[s.input, { backgroundColor: theme.surface, color: theme.text, textAlign: AR ? 'right' : 'left' }]}
             />
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginTop: SP.md }}>
-              <NBtn label={AR ? 'تأكيد الرفض' : 'Confirm Reject'} variant="danger" loading={busy === 'sample_rejected'}
+              <NBtn label={tt('qc.b8f03747')} variant="danger" loading={busy === 'sample_rejected'}
                 onPress={async () => { setShowReject(false); qc('sample_rejected', { reason: rejectReason.trim() || 'unsuitable_sample' }); setRejectReason(''); }}
                 style={{ flex: 1 }} />
-              <NBtn label={AR ? 'إلغاء' : 'Cancel'} variant="outline" onPress={() => setShowReject(false)} style={{ flex: 1 }} />
+              <NBtn label={tt('qc.210b779f')} variant="outline" onPress={() => setShowReject(false)} style={{ flex: 1 }} />
             </View>
           </View>
         </View>

@@ -43,7 +43,7 @@ import { tokens } from '../../../theme/tokens';
 
 export function ShiftManagementScreen({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
  const [view, setView] = useState<'today'|'week'>('today');
@@ -56,7 +56,7 @@ export function ShiftManagementScreen({ onBack }: { onBack: () => void }) {
      setShifts(Array.isArray(response.data) ? response.data : (response.data?.items || []));
    } catch (error: any) {
      setShifts([]);
-     show(error?.response?.data?.message || (AR ? 'تعذر تحميل المناوبات' : 'Unable to load shifts'), 'error');
+     show(error?.response?.data?.message || (tt('shift.32e0e307')), 'error');
    } finally { setLoadingShifts(false); }
  }, [AR, show]);
  useEffect(() => { loadShifts(); }, [loadShifts]);
@@ -89,22 +89,22 @@ export function ShiftManagementScreen({ onBack }: { onBack: () => void }) {
  }, [showAdd]);
  const saveShift = async () => {
    const hhmm = /^([01]\d|2[0-3]):[0-5]\d$/;
-   if (!memberId) return show(AR ? 'اختر الموظف' : 'Choose a staff member', 'warning');
-   if (!hhmm.test(from) || !hhmm.test(to)) return show(AR ? 'الوقت بصيغة HH:MM' : 'Time must be HH:MM', 'warning');
+   if (!memberId) return show(tt('shift.d349ca01'), 'warning');
+   if (!hhmm.test(from) || !hhmm.test(to)) return show(tt('shift.20fdcc3e'), 'warning');
    setSaving(true);
    try {
      await client.post('/facility/shifts', { user_id: memberId, day_of_week: day, start_time: from, end_time: to, department_id: dept.trim() || undefined });
-     show(AR ? 'تمت إضافة المناوبة' : 'Shift added', 'success');
+     show(tt('shift.44896bfc'), 'success');
      setShowAdd(false); setMemberId('');
      await loadShifts();
    } catch (e: any) {
-     show(e?.response?.data?.message || (AR ? 'فشل إضافة المناوبة' : 'Failed to add shift'), 'error');
+     show(e?.response?.data?.message || (tt('shift.f0a661b9')), 'error');
    } finally { setSaving(false); }
  };
 
  return (
  <NScroll>
- <NHeader title={AR?' إدارة المناوبات':' Shift Management'} onBack={onBack} />
+ <NHeader title={tt('shift.b1792d3d')} onBack={onBack} />
 
  {/* View toggle */}
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.xl }}>
@@ -115,7 +115,7 @@ export function ShiftManagementScreen({ onBack }: { onBack: () => void }) {
  borderColor: view===v ? theme.primary : theme.border,
  }]}>
  <Text style={{ color: view===v?'#FFF':theme.text, fontWeight: FW.semi }}>
- {v === 'today' ? (AR?'اليوم':'Today') : (AR?'الأسبوع':'Week')}
+ {v === 'today' ? (tt('shift.f9c0a643')) : (tt('shift.85769b6c'))}
  </Text>
  </TouchableOpacity>
  ))}
@@ -129,21 +129,21 @@ export function ShiftManagementScreen({ onBack }: { onBack: () => void }) {
  <View style={{ flex: 1 }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.warn,
  textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'طبيب بديل مطلوب' : 'Substitute Doctor Needed'}
+ {tt('shift.dd5a44e0')}
  </Text>
  <Text style={{ fontSize: FS.sm, color: theme.warn, textAlign: AR ? 'right' : 'left' }}>
- {needingSub ? `${needingSub.doctor || '—'} — ${needingSub.dept || '—'} — ${needingSub.from || ''}` : (AR ? 'لا توجد مناوبات تحتاج بديلاً' : 'No shifts need a substitute')}
+ {needingSub ? `${needingSub.doctor || '—'} — ${needingSub.dept || '—'} — ${needingSub.from || ''}` : (tt('shift.0cd3fa7c'))}
  </Text>
  </View>
  {needingSub && (
- <NBtn label={AR?'تعيين':'Assign'} size="sm" full={false}
+ <NBtn label={tt('shift.723ead89')} size="sm" full={false}
  style={{ paddingHorizontal: SP.lg }}
  onPress={async () => {
    try {
      await client.post(`/facility/shifts/${needingSub.id}/substitute`, {});
      await loadShifts();
-     show(AR?'تم تسجيل طلب البديل':'Substitute request recorded','success');
-   } catch (e: any) { show(e?.message || (AR?'فشل التعيين':'Assign failed'), 'error'); }
+     show(tt('shift.ff60ac0f'),'success');
+   } catch (e: any) { show(e?.message || (tt('shift.b9bc9dc4')), 'error'); }
  }} />
  )}
  </View>
@@ -151,8 +151,8 @@ export function ShiftManagementScreen({ onBack }: { onBack: () => void }) {
  )}
 
  {/* Shifts */}
- <NSecHeader title={view === 'today' ? (AR ? 'مناوبات اليوم' : "Today's Shifts") : (AR ? 'مناوبات الأسبوع' : "This Week's Shifts")} />
- {loadingShifts ? <ActivityIndicator color={theme.primary} /> : visible.length === 0 ? <NEmpty title={AR ? 'لا توجد مناوبات' : 'No shifts'} sub={AR ? 'ستظهر المناوبات المحفوظة للمنشأة هنا.' : 'Saved facility shifts will appear here.'} icon="calendar" /> : visible.map((shift: any) => (
+ <NSecHeader title={view === 'today' ? (tt('shift.e80010db')) : (tt('shift.2ea482d8'))} />
+ {loadingShifts ? <ActivityIndicator color={theme.primary} /> : visible.length === 0 ? <NEmpty title={tt('shift.3e3d4af9')} sub={tt('shift.1e10df77')} icon="calendar" /> : visible.map((shift: any) => (
  <NCard key={shift.id} style={{ marginBottom: SP.md }}
  accent={shift.status === 'substitute' ? theme.warn : theme.primary}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, alignItems: 'center' }}>
@@ -166,16 +166,16 @@ export function ShiftManagementScreen({ onBack }: { onBack: () => void }) {
  </View>
  <View style={{ alignItems: 'flex-end', gap: SP.xs }}>
  <NBadge
- label={shift.status === 'substitute' ? (AR?' بديل':' Substitute') : (AR?' مؤكد':' Confirmed')}
+ label={shift.status === 'substitute' ? (tt('shift.7e241e65')) : (tt('shift.7b7aad63'))}
  variant={shift.status === 'substitute' ? 'warning' : 'success'} size="xs"
  />
  <TouchableOpacity onPress={async () => {
    try {
      await client.post(`/facility/shifts/${shift.id}/substitute`, {});
-     show(AR ? 'تم تسجيل طلب البديل' : 'Substitute request recorded', 'success');
-   } catch (e: any) { show(e?.message || (AR ? 'فشل الطلب' : 'Request failed'), 'error'); }
+     show(tt('shift.ff60ac0f'), 'success');
+   } catch (e: any) { show(e?.message || (tt('shift.4c2d1900')), 'error'); }
  }}>
- <Text style={{ fontSize: FS.xs, color: theme.primary }}> {AR?'طلب بديل':'Request substitute'}</Text>
+ <Text style={{ fontSize: FS.xs, color: theme.primary }}> {tt('shift.05d64db7')}</Text>
  </TouchableOpacity>
  </View>
  </View>
@@ -183,11 +183,11 @@ export function ShiftManagementScreen({ onBack }: { onBack: () => void }) {
  ))}
 
  {!showAdd ? (
-   <NBtn label={AR ? '+ إضافة مناوبة' : '+ Add shift'} onPress={() => setShowAdd(true)} />
+   <NBtn label={tt('shift.0a945820')} onPress={() => setShowAdd(true)} />
  ) : (
    <NCard style={{ marginBottom: SP.md }}>
-     <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>{AR ? 'مناوبة جديدة' : 'New shift'}</Text>
-     {members.length === 0 && <Text style={{ color: theme.textSub, fontSize: FS.xs }}>{AR ? 'لا يوجد موظفون — أضف حساباً فرعياً أو ادعُ مزوداً أولاً' : 'No staff — add a sub-account or invite a provider first'}</Text>}
+     <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>{tt('shift.ba6aa707')}</Text>
+     {members.length === 0 && <Text style={{ color: theme.textSub, fontSize: FS.xs }}>{tt('shift.fa217b8b')}</Text>}
      <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.xs, marginBottom: SP.sm }}>
        {members.map(m => (
          <TouchableOpacity key={m.id} onPress={() => setMemberId(m.id)} style={{ paddingHorizontal: SP.md, paddingVertical: SP.xs, borderRadius: R.lg, borderWidth: 1, borderColor: memberId === m.id ? theme.primary : theme.border, backgroundColor: memberId === m.id ? theme.primaryLight : theme.surface2 }}>
@@ -202,12 +202,12 @@ export function ShiftManagementScreen({ onBack }: { onBack: () => void }) {
          </TouchableOpacity>
        ))}
      </View>
-     <NInput label={AR ? 'من (HH:MM)' : 'From (HH:MM)'} value={from} onChange={setFrom} icon="" />
-     <NInput label={AR ? 'إلى (HH:MM)' : 'To (HH:MM)'} value={to} onChange={setTo} icon="" />
-     <NInput label={AR ? 'القسم (اختياري)' : 'Department (optional)'} value={dept} onChange={setDept} icon="" />
+     <NInput label={tt('shift.3615a8ba')} value={from} onChange={setFrom} icon="" />
+     <NInput label={tt('shift.38d72e86')} value={to} onChange={setTo} icon="" />
+     <NInput label={tt('shift.39d6d08f')} value={dept} onChange={setDept} icon="" />
      <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
-       <NBtn label={AR ? 'إلغاء' : 'Cancel'} onPress={() => setShowAdd(false)} style={{ flex: 1, backgroundColor: theme.surface2 }} />
-       <NBtn label={AR ? 'حفظ' : 'Save'} loading={saving} onPress={saveShift} style={{ flex: 1 }} />
+       <NBtn label={tt('shift.210b779f')} onPress={() => setShowAdd(false)} style={{ flex: 1, backgroundColor: theme.surface2 }} />
+       <NBtn label={tt('shift.0360038b')} loading={saving} onPress={saveShift} style={{ flex: 1 }} />
      </View>
    </NCard>
  )}

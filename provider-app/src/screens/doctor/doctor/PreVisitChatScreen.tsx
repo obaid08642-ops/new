@@ -8,7 +8,7 @@ import client from '../../../api/client';
 
 export function PreVisitChatScreen({ apt, onBack, onNavigate }: { apt: any, onBack: () => void, onNavigate: (s: string, p?: any) => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
   
@@ -46,10 +46,10 @@ export function PreVisitChatScreen({ apt, onBack, onNavigate }: { apt: any, onBa
 
   const failMessage = (err: unknown) => {
     const k = threadErrorKey(err);
-    if (k === 'already_extended') { setExtendedNow(true); return AR ? 'تم تمديد هذه المحادثة مرة واحدة من قبل، ولا يمكن تمديدها مجدداً' : 'This chat was already extended once and cannot be extended again'; }
-    if (k === 'only_doctor') return AR ? 'فقط طبيب هذه الاستشارة يمكنه تنفيذ هذا الإجراء' : "Only the consultation's doctor can do this";
-    if (k === 'extend_after_completion') return AR ? 'يمكن التمديد بعد اكتمال الاستشارة فقط' : 'You can extend only after the consultation is completed';
-    return AR ? 'تعذر تنفيذ الإجراء، حاول مرة أخرى' : 'Could not complete the action, try again';
+    if (k === 'already_extended') { setExtendedNow(true); return tt('pvc.ddce4c16'); }
+    if (k === 'only_doctor') return tt('pvc.6f38534e');
+    if (k === 'extend_after_completion') return tt('pvc.b5575ba6');
+    return tt('pvc.7c7ae9d5');
   };
 
   const closeChat = async () => {
@@ -57,7 +57,7 @@ export function PreVisitChatScreen({ apt, onBack, onNavigate }: { apt: any, onBa
     setBusy(true);
     try {
       await client.post(`/chat/threads/${encodeURIComponent(threadId)}/close`);
-      show(AR ? 'تم إغلاق محادثة الاستشارة' : 'Consultation chat closed', 'success');
+      show(tt('pvc.578da0fe'), 'success');
       await loadPermissions();
     } catch (err) { show(failMessage(err), 'error'); } finally { setBusy(false); }
   };
@@ -67,7 +67,7 @@ export function PreVisitChatScreen({ apt, onBack, onNavigate }: { apt: any, onBa
     try {
       await client.post(`/chat/threads/${encodeURIComponent(threadId)}/extend`);
       setExtendedNow(true);
-      show(AR ? 'تم تمديد المحادثة مرة واحدة' : 'Chat extended once', 'success');
+      show(tt('pvc.617429c6'), 'success');
       await loadPermissions();
     } catch (err) { show(failMessage(err), 'error'); } finally { setBusy(false); }
   };
@@ -82,7 +82,7 @@ export function PreVisitChatScreen({ apt, onBack, onNavigate }: { apt: any, onBa
       setMessages(prev => [...prev, { id: Date.now().toString(), text: msg, sender: 'doctor', attachment: '' }]);
       setMsg('');
     } catch (err) {
-      show(AR ? 'فشل إرسال الرسالة' : 'Failed to send message', 'error');
+      show(tt('pvc.f6ee2ea3'), 'error');
     } finally {
       setLoading(false);
     }
@@ -90,39 +90,39 @@ export function PreVisitChatScreen({ apt, onBack, onNavigate }: { apt: any, onBa
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'محادثة ما قبل الموعد' : 'Pre-visit Chat'} onBack={onBack} />
+      <NHeader title={tt('pvc.42a51cb3')} onBack={onBack} />
       <ScrollView contentContainerStyle={{ padding: SP.lg }}>
         {perm ? (
           <NCard style={{ marginBottom: SP.lg, padding: SP.lg }}>
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between', gap: SP.sm }}>
               <Text style={{ color: theme.text, fontWeight: FW.bold, fontSize: FS.md, flex: 1, textAlign: AR ? 'right' : 'left' }}>
-                {(AR ? perm.statusAr : perm.statusEn) || (AR ? 'المحادثة' : 'Chat')}
+                {(AR ? perm.statusAr : perm.statusEn) || (tt('pvc.9b28bdfe'))}
               </Text>
               <NBadge size="xs" variant={perm.status === 'closed' ? 'default' : perm.status === 'upcoming' ? 'warning' : 'success'}
-                label={perm.status === 'follow_up' ? remainingHoursLabel(perm.remainingHours, AR) || (AR ? 'متابعة' : 'Follow-up') : perm.status === 'closed' ? (AR ? 'للقراءة فقط' : 'Read-only') : perm.status === 'upcoming' ? (AR ? 'قادمة' : 'Upcoming') : (AR ? 'نشطة' : 'Active')} />
+                label={perm.status === 'follow_up' ? remainingHoursLabel(perm.remainingHours, AR) || (tt('pvc.edc5598c')) : perm.status === 'closed' ? (tt('pvc.62a1d1af')) : perm.status === 'upcoming' ? (tt('pvc.3f43d30e')) : (tt('pvc.f9ffe17e'))} />
             </View>
             {!!(AR ? perm.messageAr : perm.messageEn) && (
               <Text style={{ color: theme.textSub, marginTop: SP.xs, textAlign: AR ? 'right' : 'left' }}>{AR ? perm.messageAr : perm.messageEn}</Text>
             )}
             {perm.windowEndsAt && perm.status === 'follow_up' && (
               <Text style={{ color: theme.textSub, fontSize: FS.xs, marginTop: SP.xs, textAlign: AR ? 'right' : 'left' }}>
-                {(AR ? 'تنتهي فترة المتابعة: ' : 'Follow-up ends: ') + new Date(perm.windowEndsAt).toLocaleString(AR ? 'ar-SA' : 'en-GB')}
+                {(tt('pvc.c0d29834')) + new Date(perm.windowEndsAt).toLocaleString(AR ? 'ar-SA' : 'en-GB')}
               </Text>
             )}
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.xs, marginTop: SP.sm }}>
-              <NBadge size="xs" variant={perm.canChat ? 'primary' : 'default'} label={AR ? 'رسائل' : 'Messages'} />
-              <NBadge size="xs" variant={perm.canUpload ? 'primary' : 'default'} label={AR ? 'صور وملفات' : 'Images & files'} />
-              <NBadge size="xs" variant={perm.canVoice ? 'primary' : 'default'} label={AR ? 'رسائل صوتية' : 'Voice notes'} />
+              <NBadge size="xs" variant={perm.canChat ? 'primary' : 'default'} label={tt('pvc.e8ea8496')} />
+              <NBadge size="xs" variant={perm.canUpload ? 'primary' : 'default'} label={tt('pvc.083f6522')} />
+              <NBadge size="xs" variant={perm.canVoice ? 'primary' : 'default'} label={tt('pvc.ace58669')} />
             </View>
             <TouchableOpacity onPress={() => { void Linking.openURL(`tel:${perm.emergencyLine}`); }} style={{ marginTop: SP.sm }}>
               <Text style={{ color: theme.danger, fontWeight: FW.semi, textAlign: AR ? 'right' : 'left' }}>
-                {(AR ? 'للطوارئ اتصل بـ ' : 'Emergency: call ') + perm.emergencyLine}
+                {(tt('pvc.27a778da')) + perm.emergencyLine}
               </Text>
             </TouchableOpacity>
             {(actions.canClose || actions.canExtend) && (
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginTop: SP.md }}>
-                {actions.canExtend && <View style={{ flex: 1 }}><NBtn label={AR ? 'تمديد مرة واحدة' : 'Extend once'} onPress={extendChat} disabled={busy} variant="outline" /></View>}
-                {actions.canClose && <View style={{ flex: 1 }}><NBtn label={AR ? 'إغلاق محادثة الاستشارة' : 'Close consultation chat'} onPress={() => setConfirmClose(true)} disabled={busy} variant="danger" /></View>}
+                {actions.canExtend && <View style={{ flex: 1 }}><NBtn label={tt('pvc.1cd87111')} onPress={extendChat} disabled={busy} variant="outline" /></View>}
+                {actions.canClose && <View style={{ flex: 1 }}><NBtn label={tt('pvc.ef3a66dc')} onPress={() => setConfirmClose(true)} disabled={busy} variant="danger" /></View>}
               </View>
             )}
           </NCard>
@@ -131,19 +131,19 @@ export function PreVisitChatScreen({ apt, onBack, onNavigate }: { apt: any, onBa
         {messages.map(m => (
           <NCard key={m.id} style={{ padding: SP.lg, marginBottom: SP.sm, backgroundColor: m.sender === 'doctor' ? theme.primary + '15' : theme.surface2 }}>
             <Text style={{ color: theme.text, textAlign: m.sender === 'doctor' ? (AR ? 'left' : 'right') : (AR ? 'right' : 'left') }}>{m.text}</Text>
-            {m.attachment ? <Text style={{ color: theme.primary, marginTop: SP.xs, textAlign: AR ? 'right' : 'left' }}>{AR ? 'مرفق: ' : 'Attachment: '}{m.attachment}</Text> : null}
+            {m.attachment ? <Text style={{ color: theme.primary, marginTop: SP.xs, textAlign: AR ? 'right' : 'left' }}>{tt('pvc.573b1955')}{m.attachment}</Text> : null}
           </NCard>
         ))}
       </ScrollView>
       {canWrite && (
       <View style={{ padding: SP.lg, borderTopWidth: 1, borderColor: theme.border, flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, alignItems: 'center' }}>
-        <View style={{ flex: 1 }}><NInput value={msg} onChange={setMsg} placeholder={AR ? 'اكتب رسالة...' : 'Type a message...'} /></View>
-        <NBtn label={AR ? 'إرسال' : 'Send'} onPress={handleSend} disabled={loading || !msg.trim()} style={{ width: 100 }} />
+        <View style={{ flex: 1 }}><NInput value={msg} onChange={setMsg} placeholder={tt('pvc.ae9e7693')} /></View>
+        <NBtn label={tt('pvc.ad89df6b')} onPress={handleSend} disabled={loading || !msg.trim()} style={{ width: 100 }} />
       </View>
       )}
-      <NConfirm visible={confirmClose} title={AR ? 'إغلاق محادثة الاستشارة' : 'Close consultation chat'}
-        msg={AR ? 'سيبقى المريض قادراً على القراءة فقط ولن يستطيع الكتابة. هل تريد المتابعة؟' : 'The patient will be able to read but not write. Continue?'}
-        okLabel={AR ? 'إغلاق' : 'Close'} cancelLabel={AR ? 'إلغاء' : 'Cancel'} onOk={closeChat} onCancel={() => setConfirmClose(false)} />
+      <NConfirm visible={confirmClose} title={tt('pvc.ef3a66dc')}
+        msg={tt('pvc.a7cfc6cf')}
+        okLabel={tt('pvc.e6d3a19e')} cancelLabel={tt('pvc.210b779f')} onOk={closeChat} onCancel={() => setConfirmClose(false)} />
     </View>
   );
 }
