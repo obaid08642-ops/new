@@ -49,7 +49,7 @@ export function ReviewsAndRatingsScreen({ onBack }: { onBack: () => void }) {
           </Text>
           <Text style={{ fontSize: FS.sm, color: theme.textSub, marginTop: 4 }}>
              {reviews.length > 0
-               ? (AR ? `بناءً على ${reviews.length} تقييم` : `Based on ${reviews.length} reviews`)
+               ? (tt('tpai.6d36a391', { p1: String(reviews.length) }))
                : (tt('rs.b121fb16'))}
           </Text>
         </NCard>
@@ -299,10 +299,10 @@ export function NotificationsCenterScreen({ onBack }: { onBack: () => void }) {
     if (!d) return '';
     const mins = Math.max(0, Math.floor((Date.now() - new Date(d).getTime()) / 60000));
     if (mins < 1) return AR ? 'الآن' : 'now';
-    if (mins < 60) return AR ? `منذ ${mins} دقيقة` : `${mins}m ago`;
+    if (mins < 60) return tt('tpai.c4cf7a7d', { p1: String(mins) });
     const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return AR ? `منذ ${hrs} ساعة` : `${hrs}h ago`;
-    return AR ? `منذ ${Math.floor(hrs / 24)} يوم` : `${Math.floor(hrs / 24)}d ago`;
+    if (hrs < 24) return tt('tpai.3bbb8ec4', { p1: String(hrs) });
+    return tt('tpai.52b35aad', { p1: String(Math.floor(hrs / 24)) });
   };
 
   const load = () => {

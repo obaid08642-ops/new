@@ -109,7 +109,7 @@ export function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; p
  show(AR ? ` تم إنشاء الحساب الفرعي بنجاح` : ` Sub-account created successfully`, 'success');
  } catch (err: any) {
  const msg = err.response?.data?.message || err.message;
- show(AR ? `فشل إنشاء الحساب الفرعي: ${msg}` : `Failed to create sub-account: ${msg}`, 'error');
+ show(tt('tpm.d993865b', { p1: String(msg) }), 'error');
  } finally {
  setLoading(false);
  }

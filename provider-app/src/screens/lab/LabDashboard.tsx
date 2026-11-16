@@ -483,7 +483,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
     try {
       // the server accepts a listed technician of this lab or the caller; without a pick it assigns the caller
       await client.post(`/labs/bookings/${order.id}/assign-technician`, techId ? { technician_id: techId } : {});
-      show(techName ? (AR ? `تم تعيين ${techName}` : `Assigned ${techName}`) : (tt('labdash.4f05fe89')), 'success');
+      show(techName ? (tt('tps.e709e6bb', { p1: String(techName) })) : (tt('labdash.4f05fe89')), 'success');
       setShowAssign(false);
       onBack();
     } catch (e: any) {
@@ -813,7 +813,7 @@ function SampleTracking({ onBack, onNav }:{ onBack:()=>void; onNav:(s:string,p?:
  <View style={{flexDirection:'row',flexWrap:'wrap',gap:SP.xs,marginBottom:SP.sm}}>
  {(sam.tests || []).map(tid=>{const t=lookupTest(tid);return <View key={tid} style={{backgroundColor:theme.surface2,paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:theme.border}}><Text style={{fontSize:FS.xs,color:theme.text}}>{t?(AR?t.ar:t.en):tid}</Text></View>;})}
  </View>
- <Text style={{fontSize:FS.xs,color:theme.textSub}}>{AR?`استلام: ${sam.createdAt ? new Date(sam.createdAt).toLocaleTimeString() : '—'} | الباركود: ${sam.barcode}`:`Received: ${sam.createdAt ? new Date(sam.createdAt).toLocaleTimeString() : '—'} | Barcode: ${sam.barcode}`}</Text>
+ <Text style={{fontSize:FS.xs,color:theme.textSub}}>{tt('tps.90524324', { p1: String(sam.createdAt ? new Date(sam.createdAt).toLocaleTimeString() : '—'), p2: String(sam.barcode) })}</Text>
  <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.sm,marginTop:SP.md}}>
  {sam.stage==='received' && <NBtn label={tt('labdash.a1a74336')} size="sm" full={false} style={{flex:1}} onPress={()=>handleStartAnalysis(sam)} />}
  {sam.stage==='analyzing' && <NBtn label={tt('labdash.fd60025b')} size="sm" full={false} style={{flex:1}} onPress={()=>onNav('result_review',sam)} />}
@@ -1202,7 +1202,7 @@ function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
                 if (!order?.id) { show(tt('labdash.9b18d1a6'), 'error'); return; }
                 try {
                   await client.post(`/labs/bookings/${order.id}/assign-technician`, { technician_id: col.id });
-                  show(AR ? `تم تعيين ${col.name}` : `${col.name} assigned`, 'success');
+                  show(tt('tps.8b1776c4', { p1: String(col.name) }), 'success');
                   onBack();
                 } catch(err: any) {
                   show(err?.response?.data?.message || err.message || 'Error', 'error');

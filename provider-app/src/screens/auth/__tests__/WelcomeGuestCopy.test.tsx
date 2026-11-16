@@ -7,7 +7,7 @@ jest.mock('../../../context', () => {
   const theme = new Proxy({}, { get: () => 'transparent' });
   return {
     useTheme: () => ({ theme, mode: 'light', toggle: jest.fn(), isDark: false }),
-    useLang: () => ({ lang: 'en', isRTL: false, toggle: jest.fn(), t: (k: string) => require('../../../test-utils/langStrings').tFor('en')(k) }),
+    useLang: () => ({ lang: 'en', isRTL: false, toggle: jest.fn(), t: (k: string, p?: Record<string, string | number>) => require('../../../test-utils/langStrings').tFor('en')(k, p) }),
     useAuth: () => ({ bioLogin: jest.fn() }),
     useToast: () => ({ show: jest.fn() }),
   };

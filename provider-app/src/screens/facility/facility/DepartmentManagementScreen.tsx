@@ -43,7 +43,7 @@ import { tokens } from '../../../theme/tokens';
 
 export function DepartmentManagementScreen({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
 
@@ -59,7 +59,7 @@ export function DepartmentManagementScreen({ onBack }: { onBack: () => void }) {
 
  const deptMap = new Map<string, any[]>();
  staff.forEach((s: any) => {
-   const d = (s.department || '').trim() || (AR ? 'عام' : 'General');
+   const d = (s.department || '').trim() || (tt('sxz.ac9309f0'));
    if (!deptMap.has(d)) deptMap.set(d, []);
    deptMap.get(d)!.push(s);
  });
@@ -73,12 +73,12 @@ export function DepartmentManagementScreen({ onBack }: { onBack: () => void }) {
 
  return (
  <NScroll>
- <NHeader title={AR ? ' إدارة الأقسام' : ' Department Management'} onBack={onBack} />
+ <NHeader title={tt('sxz.93a965c3')} onBack={onBack} />
 
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.xl }}>
- <NStatCard icon="" label={AR?'الأقسام':'Departments'} value={String(DEPT_DATA.length)} color={tokens.info} style={{ flex:1 }} />
- <NStatCard icon="" label={AR?'نشطة':'Active'} value={String(DEPT_DATA.filter(d=>d.active).length)} color={tokens.success} style={{ flex:1 }} />
- <NStatCard icon="" label={AR?'الكوادر':'Staff'} value={String(staff.length)} color={tokens.purple} style={{ flex:1 }} />
+ <NStatCard icon="" label={tt('sxz.b601cd97')} value={String(DEPT_DATA.length)} color={tokens.info} style={{ flex:1 }} />
+ <NStatCard icon="" label={tt('sxz.f9ffe17e')} value={String(DEPT_DATA.filter(d=>d.active).length)} color={tokens.success} style={{ flex:1 }} />
+ <NStatCard icon="" label={tt('sxz.1c9d0217')} value={String(staff.length)} color={tokens.purple} style={{ flex:1 }} />
  </View>
 
  {staffLoading ? (
@@ -86,7 +86,7 @@ export function DepartmentManagementScreen({ onBack }: { onBack: () => void }) {
  ) : DEPT_DATA.length === 0 ? (
  <NCard>
  <Text style={{ color: theme.textSub, textAlign: 'center' }}>
- {AR ? 'لا توجد أقسام بعد — أضف كوادر من إدارة الحسابات الفرعية وحدد القسم لكل منهم.' : 'No departments yet — add staff from sub-account management and set each member\'s department.'}
+ {tt('sxz.1466b7d0')}
  </Text>
  </NCard>
  ) : DEPT_DATA.map(dept => (
@@ -101,10 +101,10 @@ export function DepartmentManagementScreen({ onBack }: { onBack: () => void }) {
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text,
  textAlign: AR ? 'right' : 'left' }}>{dept.name}</Text>
  <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
- {AR ? `أول عضو: ${dept.head}` : `First member: ${dept.head}`} · {dept.doctors} {AR ? 'كوادر' : 'staff'}
+ {tt('tpo.91add0df', { p1: String(dept.head) })} · {dept.doctors} {AR ? 'كوادر' : 'staff'}
  </Text>
  </View>
- <NBadge label={dept.active ? (AR?'نشط':'Active') : (AR?'موقوف':'Inactive')}
+ <NBadge label={dept.active ? (tt('sxz.03886b8f')) : (tt('sxz.bb4b5c1f'))}
  variant={dept.active ? 'success' : 'default'} size="xs" />
  </View>
  </NCard>
@@ -112,7 +112,7 @@ export function DepartmentManagementScreen({ onBack }: { onBack: () => void }) {
 
  <NCard style={{ backgroundColor: theme.surface2 }}>
  <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'تُشتق الأقسام تلقائياً من حقل القسم في حسابات الكوادر الفعلية.' : 'Departments are derived automatically from the department field on real staff accounts.'}
+ {tt('sxz.728fd203')}
  </Text>
  </NCard>
  </NScroll>

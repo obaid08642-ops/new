@@ -34,7 +34,7 @@ import { scanStateOfUpload } from '../../../utils/scanStatus';
 
 export function CertificatesConfigScreen({ onBack }: { onBack: () => void }) {
   const uploadsOn = useUploadsEnabled();
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+ const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
 
  const DOC_LABELS: Record<string, { ar: string; en: string }> = {
  national_id: { ar: 'الهوية الوطنية', en: 'National ID' },
@@ -88,13 +88,13 @@ export function CertificatesConfigScreen({ onBack }: { onBack: () => void }) {
  doc_type: docType,
  file: { data_base64: base64, mime, original_name: asset.name || `${docType}.pdf` },
  });
- show(AR ? 'تم رفع المستند وهو الآن قيد مراجعة الإدارة' : 'Document uploaded and is now under admin review', 'success');
+ show(tt('cert.bddd7938'), 'success');
  announceScan(show, lang, scanStateOfUpload(saved?.data));
  await loadDocs();
  } catch (err: any) {
  if (scanStateOfRequestError(err) === 'rejected') { announceScan(show, lang, 'rejected'); return; }
  const m = err?.response?.data?.message;
- show(typeof m === 'string' ? m : (AR ? 'تعذر رفع المستند — تحقق من الملف والاتصال وحاول مجدداً' : 'Could not upload the document — check the file and connection and retry'), 'error');
+ show(typeof m === 'string' ? m : (tt('cert.ac9d02b8')), 'error');
  } finally {
  setUploading(false);
  setPendingDocType(null);
@@ -103,20 +103,20 @@ export function CertificatesConfigScreen({ onBack }: { onBack: () => void }) {
 
  const statusMeta = (st: string) => {
  switch (st) {
- case 'approved': case 'verified': return { label: AR ? 'معتمد' : 'Approved', variant: 'success' as const };
- case 'rejected': return { label: AR ? 'مرفوض' : 'Rejected', variant: 'danger' as const };
- case 'needs_replacement': return { label: AR ? 'يحتاج إعادة رفع' : 'Needs Replacement', variant: 'warning' as const };
- case 'under_review': return { label: AR ? 'قيد المراجعة' : 'Under Review', variant: 'primary' as const };
- default: return { label: AR ? 'قيد المراجعة' : 'Pending', variant: 'primary' as const };
+ case 'approved': case 'verified': return { label: tt('cert.05fbe426'), variant: 'success' as const };
+ case 'rejected': return { label: tt('cert.8290f876'), variant: 'danger' as const };
+ case 'needs_replacement': return { label: tt('cert.08c490a6'), variant: 'warning' as const };
+ case 'under_review': return { label: tt('cert.8323845d'), variant: 'primary' as const };
+ default: return { label: tt('cert.9192c261'), variant: 'primary' as const };
  }
  };
 
  return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
- <NHeader title={AR ? 'الشهادات والمؤهلات' : 'Qualifications'} onBack={onBack} />
+ <NHeader title={tt('cert.52c41d52')} onBack={onBack} />
  <ScrollView contentContainerStyle={{ padding: SP.lg, gap: SP.md }}>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>
- {AR ? 'المستندات الرسمية المرتبطة بملفك المهني وحالة اعتمادها لدى الإدارة:' : 'Official documents linked to your professional profile and their admin approval status:'}
+ {tt('cert.d788e79d')}
  </Text>
 
  {loadingDocs && (
@@ -128,10 +128,10 @@ export function CertificatesConfigScreen({ onBack }: { onBack: () => void }) {
  {loadError && !loadingDocs && (
  <View style={{ gap: SP.md }}>
  <NEmpty
- title={AR ? 'تعذر تحميل المستندات' : 'Could not load documents'}
- sub={AR ? 'تحقق من الاتصال ثم أعد المحاولة' : 'Check your connection and retry'}
+ title={tt('cert.f7d5dc3a')}
+ sub={tt('cert.b9f8e586')}
  />
- <NBtn label={AR ? 'إعادة المحاولة' : 'Retry'} onPress={loadDocs} />
+ <NBtn label={tt('cert.cf333076')} onPress={loadDocs} />
  </View>
  )}
 
@@ -139,8 +139,8 @@ export function CertificatesConfigScreen({ onBack }: { onBack: () => void }) {
  <>
  {docs.length === 0 && missing.length === 0 && (
  <NEmpty
- title={AR ? 'لا توجد مستندات بعد' : 'No documents yet'}
- sub={AR ? 'ارفع مستنداتك الرسمية لاعتمادها من الإدارة' : 'Upload your official documents for admin approval'}
+ title={tt('cert.fb45b3fb')}
+ sub={tt('cert.1f1fa2a2')}
  />
  )}
 
@@ -157,7 +157,7 @@ export function CertificatesConfigScreen({ onBack }: { onBack: () => void }) {
  </View>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', borderTopWidth: 1, borderTopColor: theme.border, paddingTop: SP.sm }}>
  <Text style={{ fontSize: FS.xs, color: theme.textSub }}>
- {item.doc_number ? (AR ? `رقم: ${item.doc_number}` : `No: ${item.doc_number}`) : docLabel(item.doc_type)}
+ {item.doc_number ? (tt('tpan.e19f19b3', { p1: String(item.doc_number) })) : docLabel(item.doc_type)}
  </Text>
  <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{dateStr}</Text>
  </View>
@@ -165,7 +165,7 @@ export function CertificatesConfigScreen({ onBack }: { onBack: () => void }) {
  <View style={{ marginTop: SP.sm }}>
  {uploadsOn ? (
 <NBtn
- label={AR ? 'إعادة رفع المستند' : 'Re-upload Document'}
+ label={tt('cert.a59dd3eb')}
  size="sm"
  variant="outline"
  loading={uploading && pendingDocType === item.doc_type}
@@ -180,17 +180,17 @@ export function CertificatesConfigScreen({ onBack }: { onBack: () => void }) {
 
  {missing.length > 0 && (
  <>
- <NSecHeader title={AR ? 'مستندات مطلوبة ناقصة' : 'Missing Required Documents'} />
+ <NSecHeader title={tt('cert.be7646a4')} />
  {missing.map((t: string) => (
  <NCard key={t} style={{ marginBottom: SP.sm, borderColor: theme.warn, borderWidth: 1 }}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, flex: 1, textAlign: AR ? 'right' : 'left' }}>{docLabel(t)}</Text>
- <NBadge label={AR ? 'مطلوب' : 'Required'} variant="warning" size="xs" />
+ <NBadge label={tt('cert.b4bde92d')} variant="warning" size="xs" />
  </View>
  <View style={{ marginTop: SP.sm }}>
  {uploadsOn ? (
 <NBtn
- label={uploading && pendingDocType === t ? (AR ? 'جاري الرفع…' : 'Uploading…') : (AR ? 'رفع المستند' : 'Upload Document')}
+ label={uploading && pendingDocType === t ? (tt('cert.0ae826e9')) : (tt('cert.37988192'))}
  size="sm"
  loading={uploading && pendingDocType === t}
  disabled={uploading}
@@ -222,10 +222,10 @@ export function CertificatesConfigScreen({ onBack }: { onBack: () => void }) {
  >
  <I name="upload" size={24} color={theme.primary} />
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.primary, marginTop: SP.md }}>
- {AR ? ' رفع وثيقة أو شهادة جديدة' : ' Upload New Certificate'}
+ {tt('cert.9b921d87')}
  </Text>
  <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: SP.xs }}>
- {AR ? 'صيغ المقبولة: PDF, JPG, PNG (بحد أقصى 10 ميجا)' : 'Supported: PDF, JPG, PNG (Max 10MB)'}
+ {tt('cert.339c2800')}
  </Text>
  </TouchableOpacity>
 ) : <UploadsUnavailable />}

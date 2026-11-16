@@ -57,7 +57,7 @@ import { PatientFileScreen } from './PatientFileScreen';
 // ══════════════════════════════════════════════════════════════════════════════
 export function LiveConsultationScreen({ apt, onBack, onNavigate }: { apt: any; onBack: () => void; onNavigate: (s: string, p?: any) => void }) {
  const { theme } = useTheme();
- const { lang, t } = useLang();
+ const { lang, t, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
  const [verified, setVerified] = useState<any | null>(null);
@@ -73,7 +73,7 @@ export function LiveConsultationScreen({ apt, onBack, onNavigate }: { apt: any; 
    client.get(`/care/appointments/${encodeURIComponent(aptId)}`).then((res: any) => {
      setVerified(res?.data?.data || res?.data || null);
    }).catch(() => {
-     show(AR ? 'تعذر التحقق من الموعد' : 'Could not verify appointment', 'error');
+     show(tt('live.a382b9cc'), 'error');
    }).finally(() => setLoading(false));
  }, [aptId]);
  useEffect(() => { load(); }, [load]);
@@ -84,15 +84,15 @@ export function LiveConsultationScreen({ apt, onBack, onNavigate }: { apt: any; 
    setActing(true);
    try { await fn(); show(ok, 'success'); load(); }
    // reload after a failure too: a repeat of a step that already happened answers 400, and the screen should show the real state
-   catch (e: any) { show(e?.response?.data?.message || e.message || (AR ? 'تعذر تنفيذ الإجراء' : 'Action failed'), 'error'); load(); }
+   catch (e: any) { show(e?.response?.data?.message || e.message || (tt('live.b1ec89a1')), 'error'); load(); }
    finally { setActing(false); }
  };
- const checkIn = () => step(() => client.patch(`/care/appointments/${aptId}/check-in`, {}), AR ? 'تم تسجيل حضور المريض' : 'Patient checked in');
- const startVisit = () => step(() => client.patch(`/care/appointments/${aptId}/start`, {}), AR ? 'بدأت الاستشارة' : 'Consultation started');
+ const checkIn = () => step(() => client.patch(`/care/appointments/${aptId}/check-in`, {}), tt('live.743b2393'));
+ const startVisit = () => step(() => client.patch(`/care/appointments/${aptId}/start`, {}), tt('live.899dfcde'));
  const finishVisit = () => {
-   if (!diagnosis.trim()) return show(AR ? 'اكتب التشخيص قبل إنهاء الزيارة' : 'Enter the diagnosis before finishing', 'warning');
+   if (!diagnosis.trim()) return show(tt('live.88457a77'), 'warning');
    step(() => client.post(`/care/appointments/${aptId}/finish`, { diagnosis: diagnosis.trim(), notes: visitNotes.trim() || undefined, recommendations: advice.trim() || undefined }),
-     AR ? 'انتهت الزيارة وأُرسل الملخص للمريض' : 'Visit finished; summary sent to the patient');
+     tt('live.b9941807'));
  };
 
  const status = String(verified?.status || '').toUpperCase();
@@ -106,59 +106,59 @@ export function LiveConsultationScreen({ apt, onBack, onNavigate }: { apt: any; 
 
  return (
   <View style={{ flex: 1, backgroundColor: theme.bg }}>
-   <NHeader title={AR ? 'الاستشارة' : 'Consultation'} onBack={onBack} />
+   <NHeader title={tt('live.61f95239')} onBack={onBack} />
    <NScroll>
    {loading ? <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} /> : !verified ? (
     <NCard style={{ borderColor: theme.danger, borderWidth: 1 }}>
      <Text style={{ color: theme.text, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>
-      {AR ? 'تعذر فتح الجلسة — تحقق من الموعد' : 'Cannot open session — verify the appointment'}
+      {tt('live.3d8eca88')}
      </Text>
     </NCard>
    ) : !ready ? (
     <NCard style={{ borderColor: theme.warn, borderWidth: 1 }}>
      <Text style={{ color: theme.text, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>
-      {AR ? `الجلسة غير جاهزة (الحالة: ${status || '—'})` : `Session not ready (status: ${status || '—'})`}
+      {tt('tpi.c0e1e7f7', { p1: String(status || '—') })}
      </Text>
      <Text style={{ color: theme.textSub, marginTop: SP.md, textAlign: AR ? 'right' : 'left' }}>
-      {AR ? 'تُفتح الجلسة للمواعيد المؤكدة/الجاري تنفيذها فقط بعد تحقق الخادم.' : 'Sessions open only for confirmed/in-progress appointments after server verification.'}
+      {tt('live.5befbd86')}
      </Text>
     </NCard>
    ) : (<>
     <NCard style={{ borderColor: theme.success, borderWidth: 1, marginBottom: SP.md }}>
      <Text style={{ color: theme.text, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>
-      {finished ? (AR ? 'انتهت الزيارة — يمكنك إصدار المستندات اللاحقة' : 'Visit finished — you can still issue follow-up documents') : (AR ? 'جلسة موثقة خادمياً — يمكنك البدء' : 'Server-verified session — you may begin')}
+      {finished ? (tt('live.031365df')) : (tt('live.65eb1205'))}
      </Text>
-     <Text style={{ color: theme.textSub, marginTop: 4 }}>{AR ? `الموعد: ${aptId}` : `Appointment: ${aptId}`} · {status}</Text>
+     <Text style={{ color: theme.textSub, marginTop: 4 }}>{tt('tpi.e889f6f5', { p1: String(aptId) })} · {status}</Text>
     </NCard>
-    {steps.showCheckIn && <NBtn label={AR ? 'حضر المريض (تسجيل الحضور)' : 'Patient arrived (check in)'} loading={acting} onPress={checkIn} style={{ marginBottom: SP.md }} />}
-    {steps.showStart && <NBtn label={AR ? 'بدء الاستشارة' : 'Start consultation'} loading={acting} onPress={startVisit} style={{ marginBottom: SP.md }} />}
+    {steps.showCheckIn && <NBtn label={tt('live.4fa4fa34')} loading={acting} onPress={checkIn} style={{ marginBottom: SP.md }} />}
+    {steps.showStart && <NBtn label={tt('live.4fe51d9f')} loading={acting} onPress={startVisit} style={{ marginBottom: SP.md }} />}
     {status === 'IN_PROGRESS' && (
      <NCard style={{ marginBottom: SP.md }}>
-      <NInput label={AR ? 'التشخيص' : 'Diagnosis'} value={diagnosis} onChange={setDiagnosis} />
-      <NInput label={AR ? 'ملاحظات الزيارة' : 'Visit notes'} value={visitNotes} onChange={setVisitNotes} />
-      <NInput label={AR ? 'التوصيات' : 'Recommendations'} value={advice} onChange={setAdvice} />
+      <NInput label={tt('live.af0eaef5')} value={diagnosis} onChange={setDiagnosis} />
+      <NInput label={tt('live.151efa31')} value={visitNotes} onChange={setVisitNotes} />
+      <NInput label={tt('live.b762c7d4')} value={advice} onChange={setAdvice} />
       <Text style={{ color: theme.warn, fontSize: FS.xs, marginTop: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-       {AR ? 'اكتب الوصفة قبل إنهاء الزيارة: لا يمكن إصدار وصفة بعد الإنهاء.' : 'Write the prescription before finishing: it cannot be issued after the visit is finished.'}
+       {tt('live.7a3770c3')}
       </Text>
-      <NBtn label={AR ? 'إنهاء الزيارة' : 'Finish visit'} loading={acting} onPress={finishVisit} style={{ marginTop: SP.md }} />
+      <NBtn label={tt('live.09842ba7')} loading={acting} onPress={finishVisit} style={{ marginTop: SP.md }} />
      </NCard>
     )}
-    {!finished && <NBtn label={AR ? 'بدء مكالمة الفيديو' : 'Start video call'} onPress={() => onNavigate('video_call', fullApt)} style={{ marginBottom: SP.md }} />}
-    <NBtn label={AR ? 'محادثة ما قبل الزيارة' : 'Pre-visit chat'} variant="outline" onPress={() => onNavigate('pre_visit_chat', fullApt)} style={{ marginBottom: SP.md }} />
-    <NBtn label={AR ? 'كتابة وصفة' : 'Write prescription'} variant="outline" disabled={!canPrescribe} onPress={() => onNavigate('prescription', fullApt)} style={{ marginBottom: canPrescribe ? SP.md : SP.xs }} />
+    {!finished && <NBtn label={tt('live.b7dd76d2')} onPress={() => onNavigate('video_call', fullApt)} style={{ marginBottom: SP.md }} />}
+    <NBtn label={tt('live.d918535f')} variant="outline" onPress={() => onNavigate('pre_visit_chat', fullApt)} style={{ marginBottom: SP.md }} />
+    <NBtn label={tt('live.67df1c70')} variant="outline" disabled={!canPrescribe} onPress={() => onNavigate('prescription', fullApt)} style={{ marginBottom: canPrescribe ? SP.md : SP.xs }} />
     {!canPrescribe && (
      <Text style={{ color: theme.textSub, fontSize: FS.xs, marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>
       {finished
-       ? (AR ? 'انتهت الزيارة: لا يمكن إصدار وصفة جديدة بعد الإنهاء.' : 'The visit is finished: a new prescription cannot be issued.')
-       : (AR ? 'ابدأ الاستشارة أولاً: لا تُصدر الوصفة إلا أثناء الزيارة الجارية.' : 'Start the consultation first: a prescription can only be issued while the visit is in progress.')}
+       ? (tt('live.8229bc98'))
+       : (tt('live.470f3c87'))}
      </Text>
     )}
     <NBtn label={t('medicalReport.open')} variant="outline" onPress={() => onNavigate('sick_leave', fullApt)} style={{ marginBottom: SP.md }} />
     <NBtn label={t('medicalReport.openList')} variant="outline" onPress={() => onNavigate('medical_reports_list')} style={{ marginBottom: SP.md }} />
-    <NBtn label={AR ? 'تقرير طبي' : 'Medical report'} variant="outline" onPress={() => onNavigate('medical_report', fullApt)} style={{ marginBottom: SP.md }} />
-    <NBtn label={AR ? 'تحويل طبي' : 'Referral'} variant="outline" onPress={() => onNavigate('referral', fullApt)} style={{ marginBottom: SP.md }} />
+    <NBtn label={tt('live.fe376ee2')} variant="outline" onPress={() => onNavigate('medical_report', fullApt)} style={{ marginBottom: SP.md }} />
+    <NBtn label={tt('live.8f87011c')} variant="outline" onPress={() => onNavigate('referral', fullApt)} style={{ marginBottom: SP.md }} />
     <NBtn label={t('consultation.issueReferral')} variant="outline" onPress={() => onNavigate('issue_referral', fullApt)} style={{ marginBottom: SP.md }} />
-    <NBtn label={AR ? 'طلب فحص' : 'Request test'} variant="outline" onPress={() => onNavigate('request_test', fullApt)} />
+    <NBtn label={tt('live.3b7c312b')} variant="outline" onPress={() => onNavigate('request_test', fullApt)} />
    </>)}
    </NScroll>
   </View>

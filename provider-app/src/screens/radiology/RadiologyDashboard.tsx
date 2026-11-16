@@ -154,9 +154,9 @@ function RadiologyInboxList({ orders, loading, emptyTitle, onOpen }: { orders: R
               <NBadge label={AR ? meta.ar : meta.en} style={{ backgroundColor: meta.color + '22' }} labelStyle={{ color: meta.color }} size="xs" />
             </View>
             <View style={{ flexDirection: 'row', gap: SP.sm, flexWrap: 'wrap', marginBottom: SP.sm }}>
-              {sq.is_pregnant !== undefined && <SafetyChip on={!!sq.is_pregnant} label={AR ? `حمل: ${sq.is_pregnant ? yes : no}` : `Pregnant: ${sq.is_pregnant ? yes : no}`} />}
-              {sq.has_pacemaker !== undefined && <SafetyChip on={!!sq.has_pacemaker} label={AR ? `منظم: ${sq.has_pacemaker ? yes : no}` : `Pacemaker: ${sq.has_pacemaker ? yes : no}`} />}
-              {sq.has_contrast_allergy !== undefined && <SafetyChip on={!!sq.has_contrast_allergy} label={AR ? `صبغة: ${sq.has_contrast_allergy ? yes : no}` : `Contrast: ${sq.has_contrast_allergy ? yes : no}`} />}
+              {sq.is_pregnant !== undefined && <SafetyChip on={!!sq.is_pregnant} label={tt('tpaf.875f1870', { p1: String(sq.is_pregnant ? yes : no) })} />}
+              {sq.has_pacemaker !== undefined && <SafetyChip on={!!sq.has_pacemaker} label={tt('tpaf.db225e09', { p1: String(sq.has_pacemaker ? yes : no) })} />}
+              {sq.has_contrast_allergy !== undefined && <SafetyChip on={!!sq.has_contrast_allergy} label={tt('tpaf.5af2f341', { p1: String(sq.has_contrast_allergy ? yes : no) })} />}
               {!order.preparation_confirmed && order.state === 'CONFIRMED' && <View style={{ backgroundColor: withAlpha(tokens.warning, 0.20), borderRadius: R.sm, paddingHorizontal: 6, paddingVertical: 2 }}><Text style={{ fontSize: 9, color: tokens.warning }}>{tt('raddash.7da43bd5')}</Text></View>}
             </View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -371,7 +371,7 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
         {currentOrder.state ==='REPORT_DRAFT' && <NBtn label={tt('raddash.223b9561')} loading={loading} onPress={() => doAction('submit-report-for-review')} />}
         {currentOrder.state ==='UNDER_REVIEW' && currentOrder.report_can_approve !== false && <NBtn label={tt('raddash.baf5326c')} loading={loading} onPress={() => doAction('approve-report')} style={{ backgroundColor:tokens.success }} />}
         {currentOrder.state ==='UNDER_REVIEW' && currentOrder.report_handled_by_me === true && <Text style={{ color: theme.textSub, fontSize: FS.sm, textAlign: AR ? 'right' : 'left' }}>{t('radiology.approve.handledByYou')}</Text>}
-        {currentOrder.state ==='SCAN_ABORTED' && (<View style={{ backgroundColor:withAlpha(tokens.error, 0.12), borderRadius: R.md, padding: SP.md }}><Text style={{ color:tokens.error, fontWeight: FW.bold, textAlign:'center', marginBottom: SP.md }}>{AR?` سبب الإلغاء: ${currentOrder.abort_reason}`:` Abort Reason: ${currentOrder.abort_reason}`}</Text><NBtn label={tt('raddash.07f3aadc')} loading={loading} onPress={() => setShowReschedule(true)} /></View>)}
+        {currentOrder.state ==='SCAN_ABORTED' && (<View style={{ backgroundColor:withAlpha(tokens.error, 0.12), borderRadius: R.md, padding: SP.md }}><Text style={{ color:tokens.error, fontWeight: FW.bold, textAlign:'center', marginBottom: SP.md }}>{tt('tpaf.04e18f4f', { p1: String(currentOrder.abort_reason) })}</Text><NBtn label={tt('raddash.07f3aadc')} loading={loading} onPress={() => setShowReschedule(true)} /></View>)}
         {currentOrder.state ==='REPORT_READY' && (<View style={{ backgroundColor:withAlpha(tokens.success, 0.12), borderRadius: R.md, padding: SP.lg, alignItems:'center' }}><Text style={{ color:tokens.success, fontSize: FS.lg, fontWeight: FW.bold }}>{tt('raddash.673a0e54')}</Text>{currentOrder.doctor_notified && <Text style={{ color:tokens.mintDeep, fontSize: FS.sm, marginTop: SP.sm }}>{tt('raddash.b6fa78c1')}</Text>}</View>)}
       </View>
 
@@ -491,7 +491,7 @@ function ReportingScreen({ order, onBack }: { order: any; onBack: () => void }) 
       <NSecHeader title={tt('raddash.a722a482')} />
       <NCard style={{ marginBottom: SP.lg }}>
         {uploadsOn ? (
-<NBtn label={reportFile ? (AR ? `ملف التقرير: ${reportFile.name}` : `Report file: ${reportFile.name}`) : (tt('raddash.3411532b'))} variant="outline" onPress={() => pickFile('report')} />
+<NBtn label={reportFile ? (tt('tpaf.e4554a38', { p1: String(reportFile.name) })) : (tt('raddash.3411532b'))} variant="outline" onPress={() => pickFile('report')} />
 ) : <UploadsUnavailable />}
         <NInput label={tt('raddash.b71f305d')} value={findings} onChange={setFindings} multi lines={4} placeholder={tt('raddash.79e46169')} />
         {uploadsOn ? (
@@ -504,7 +504,7 @@ function ReportingScreen({ order, onBack }: { order: any; onBack: () => void }) 
       <NSecHeader title={tt('raddash.eba6510d')} />
       <NCard style={{ marginBottom: SP.lg }}>
         {uploadsOn ? (
-<NBtn label={dicomFile ? (AR ? `ملف DICOM: ${dicomFile.name}` : `DICOM file: ${dicomFile.name}`) : (tt('raddash.76f32096'))} variant="outline" onPress={() => pickFile('dicom')} />
+<NBtn label={dicomFile ? (tt('tpaf.51daa9d3', { p1: String(dicomFile.name) })) : (tt('raddash.76f32096'))} variant="outline" onPress={() => pickFile('dicom')} />
 ) : <UploadsUnavailable />}
         <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginTop: SP.sm }}>
           {tt('raddash.50cfb4d9')}

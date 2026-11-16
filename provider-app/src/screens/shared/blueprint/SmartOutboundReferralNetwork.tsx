@@ -20,7 +20,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function SmartOutboundReferralNetwork({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
@@ -48,7 +48,7 @@ export function SmartOutboundReferralNetwork({ onBack }: { onBack: () => void })
 
   const attemptGenerate = () => {
     if (!patientId.trim() || !selectedProviderId || selectedTests.length === 0) {
-      show(AR ? 'أدخل معرف المريض وحدد الجهة وفحصاً واحداً على الأقل' : 'Enter a patient ID, select a destination, and choose at least one test', 'warning');
+      show(tt('sxx.0eb100db'), 'warning');
       return;
     }
     executeGenerate();
@@ -65,13 +65,13 @@ export function SmartOutboundReferralNetwork({ onBack }: { onBack: () => void })
         target_type: destination.type,
         target_provider_id: destination.id,
         target_name: AR ? (destination.name || destination.name_en) : (destination.name_en || destination.name),
-        notes: AR ? 'تحويل تشخيصي خارجي' : 'Outbound diagnostic referral',
+        notes: tt('sxx.56227e95'),
         requested_tests: selectedTestLabels,
       });
       setRefCode(res.data.referral_code || null);
-      show(AR ? 'تم إنشاء الإحالة وحفظها' : 'Referral created and saved', 'success');
+      show(tt('sxx.7a9a8907'), 'success');
     } catch (e) {
-      show(AR ? 'فشل إصدار كود التحويل' : 'Failed to generate referral code', 'error');
+      show(tt('sxx.454cfb2d'), 'error');
     } finally {
       setLoading(false);
     }
@@ -81,15 +81,15 @@ export function SmartOutboundReferralNetwork({ onBack }: { onBack: () => void })
   return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
  <NScroll>
- <NHeader title={AR ? 'شبكة التحويلات الخارجية' : 'Smart Outbound Referral'} onBack={onBack} />
+ <NHeader title={tt('sxx.4448d126')} onBack={onBack} />
  <View style={{ padding: SP.xl, gap: SP.xl }}>
  
- <NInput label={AR ? 'اسم أو رقم المريض' : 'Patient Name / ID'} value={patientId} onChange={setPatientId} placeholder={AR ? 'أدخل اسم المريض أو هويته...' : 'Enter patient name/ID...'} />
+ <NInput label={tt('sxx.27ffe568')} value={patientId} onChange={setPatientId} placeholder={tt('sxx.13d777f5')} />
 
- <NSearch value={search} onChange={setSearch} placeholder={AR ? 'ابحث عن معمل تحاليل أو مركز أشعة...' : 'Search lab networks / radiologies...'} />
+ <NSearch value={search} onChange={setSearch} placeholder={tt('sxx.653798cf')} />
 
- <NSecHeader title={AR ? 'الشبكة المعتمدة' : 'Accredited Centers'} />
- {network.filter((item) => `${item.name || ''} ${item.name_en || ''}`.toLowerCase().includes(search.toLowerCase())).length === 0 ? <NEmpty title={AR ? 'لا توجد جهات معتمدة' : 'No accredited destinations'} sub={AR ? 'ستظهر الجهات المعتمدة من الخادم هنا.' : 'Approved destinations returned by the server will appear here.'} icon="hospital" /> : network.filter((item) => `${item.name || ''} ${item.name_en || ''}`.toLowerCase().includes(search.toLowerCase())).map(item => (
+ <NSecHeader title={tt('sxx.f1eb8fab')} />
+ {network.filter((item) => `${item.name || ''} ${item.name_en || ''}`.toLowerCase().includes(search.toLowerCase())).length === 0 ? <NEmpty title={tt('sxx.da6b1dcf')} sub={tt('sxx.ab54c22b')} icon="hospital" /> : network.filter((item) => `${item.name || ''} ${item.name_en || ''}`.toLowerCase().includes(search.toLowerCase())).map(item => (
  <TouchableOpacity key={item.id} onPress={() => setSelectedProviderId(item.id)}>
  <NCard style={{ marginBottom: SP.sm, borderColor: selectedProviderId === item.id ? theme.primary : theme.border }}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -100,7 +100,7 @@ export function SmartOutboundReferralNetwork({ onBack }: { onBack: () => void })
  </TouchableOpacity>
  ))}
 
- <NSecHeader title={AR ? 'حدد الفحوصات المطلوبة للتحويل' : 'Select Referral Catalog tests'} />
+ <NSecHeader title={tt('sxx.d85be230')} />
  <NCard style={{ gap: SP.md }}>
  {CATALOGUE.map(test => {
  const sel = selectedTests.includes(test.id);
@@ -116,15 +116,14 @@ export function SmartOutboundReferralNetwork({ onBack }: { onBack: () => void })
  })}
  </NCard>
 
- <NBtn label={AR ? ' توليد كود التحويل الرقمي' : ' Generate Digital Referral'} onPress={attemptGenerate} loading={loading} />
+ <NBtn label={tt('sxx.9d68d218')} onPress={attemptGenerate} loading={loading} />
 
  {refCode && (
  <NCard style={{ backgroundColor: theme.successBg, borderColor: theme.success, alignItems: 'center', paddingVertical: SP.xl }}>
- <Text style={{ fontSize: FS.xs, color: theme.success }}>{AR ? 'كود التحويل الرقمي النشط' : 'Active Digital Referral Code'}</Text>
+ <Text style={{ fontSize: FS.xs, color: theme.success }}>{tt('sxx.127a7dc3')}</Text>
  <Text style={{ fontSize: FS['2xl'], fontWeight: '800', color: theme.success, marginVertical: SP.sm }}>{refCode}</Text>
  <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: 'center' }}>
- {AR ? 'تم إرسال الكود للمريض برسالة نصية ومشاركته مع المختبر المختار.' 
- : 'Code sent to patient and shared with the selected laboratory network.'}
+ {tt('sxx.05469e56')}
  </Text>
  </NCard>
  )}

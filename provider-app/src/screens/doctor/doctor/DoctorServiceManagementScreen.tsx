@@ -37,7 +37,7 @@ import { MODE_MAP } from './AvailabilityPulseScreen';
 
 export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
 
@@ -86,7 +86,7 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
  setServices(parsed);
  } catch (e) {
  // Silent log skip
- show(AR ? 'فشل تحميل الخدمات والأسعار من السيرفر' : 'Failed to load services and prices from server', 'error');
+ show(tt('dsm.3621f9ea'), 'error');
  } finally {
  setLoading(false);
  }
@@ -110,10 +110,10 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
  };
  
  await client.post('/provider/capabilities/doctor-sessions', payload);
- show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
+ show(tt('dsm.14f4e375'), 'success');
  fetchServices();
  } catch (e) {
- show(AR ? 'فشل تحديث حالة الخدمة' : 'Failed to update service status', 'error');
+ show(tt('dsm.f06fd0b7'), 'error');
  }
  };
 
@@ -129,16 +129,16 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
  available: srv.active,
  insurance_covered: !current,
  });
- show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
+ show(tt('dsm.14f4e375'), 'success');
  fetchServices();
  } catch (e) {
- show(AR ? 'فشل تحديث التغطية' : 'Failed to update coverage', 'error');
+ show(tt('dsm.5460c20f'), 'error');
  }
  };
 
  const handleAddService = async () => {
  if (!newPrice) {
- show(AR ? 'يرجى إدخال السعر' : 'Please enter price', 'error');
+ show(tt('dsm.d27c8396'), 'error');
  return;
  }
  try {
@@ -156,9 +156,9 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
  setNewType('video');
  setNewPrice('');
  setNewDuration('30');
- show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
+ show(tt('dsm.14f4e375'), 'success');
  } catch (e) {
- show(AR ? 'فشل إضافة الخدمة' : 'Failed to add service', 'error');
+ show(tt('dsm.27956a66'), 'error');
  }
  };
 
@@ -166,9 +166,9 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
  try {
  await client.delete(`/provider/capabilities/doctor-sessions/${id}`);
  fetchServices();
- show(AR ? 'تم الإرسال — يُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
+ show(tt('dsm.67225376'), 'success');
  } catch (e) {
- show(AR ? 'فشل حذف الخدمة' : 'Failed to delete service', 'error');
+ show(tt('dsm.9fbb2638'), 'error');
  }
  };
 
@@ -192,25 +192,25 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
  await client.post('/provider/capabilities/doctor-sessions', payload);
  fetchServices();
  setEditingService(null);
- show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
+ show(tt('dsm.14f4e375'), 'success');
  } catch (e) {
- show(AR ? 'فشل حفظ التعديلات' : 'Failed to save changes', 'error');
+ show(tt('dsm.befad914'), 'error');
  }
  };
 
  return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
- <NHeader title={AR ? ' إدارة الخدمات والأسعار' : ' Service Management'} onBack={onBack} />
+ <NHeader title={tt('dsm.3bce72fe')} onBack={onBack} />
  {loading ? (
  <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: SP.xxl }} />
  ) : (
  <ScrollView contentContainerStyle={{ padding: SP.xl, paddingBottom: 100 }}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.xl }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.textSub }}>
- {AR ? 'الخدمات المتاحة' : 'Available Services'}
+ {tt('dsm.17e55c37')}
  </Text>
  <TouchableOpacity onPress={() => setShowAddSheet(true)} style={{ backgroundColor: theme.primary, paddingHorizontal: SP.lg, paddingVertical: SP.sm, borderRadius: R.md }}>
- <Text style={{ color: C.white, fontWeight: FW.bold }}> {AR ? 'إضافة خدمة' : 'Add Service'}</Text>
+ <Text style={{ color: C.white, fontWeight: FW.bold }}> {tt('dsm.bde592da')}</Text>
  </TouchableOpacity>
  </View>
 
@@ -225,7 +225,7 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
 
  <TouchableOpacity onPress={() => toggleCoverage(s.id, !!s.insurance_covered)} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm, marginBottom: SP.sm }}>
  <View style={{ width: 18, height: 18, borderRadius: 4, borderWidth: 2, borderColor: s.insurance_covered ? theme.success : theme.border, backgroundColor: s.insurance_covered ? theme.success : 'transparent' }} />
- <Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? 'تُغطى بالتأمين' : 'Covered by insurance'}</Text>
+ <Text style={{ fontSize: FS.sm, color: theme.text }}>{tt('dsm.4d476192')}</Text>
  </TouchableOpacity>
  
  <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>
@@ -235,7 +235,7 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', borderTopWidth: 1, borderTopColor: theme.border, paddingTop: SP.md }}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
  <Text style={{ fontSize: FS.sm, color: theme.text, fontWeight: FW.bold }}>
-  {s.price} {AR ? 'ريال' : 'SAR'}
+  {s.price} {tt('dsm.0e39e6ca')}
  </Text>
  <Text style={{ fontSize: FS.sm, color: theme.textSub }}>
  ⏱️ {s.duration} {AR ? 'دقيقة' : 'min'}
@@ -244,10 +244,10 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
  
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
  <TouchableOpacity onPress={() => openEdit(s)} style={{ padding: SP.xs }}>
- <Text style={{ color: theme.primary, fontSize: FS.sm }}>️ {AR ? 'تعديل' : 'Edit'}</Text>
+ <Text style={{ color: theme.primary, fontSize: FS.sm }}>️ {tt('dsm.4cbb34bf')}</Text>
  </TouchableOpacity>
  <TouchableOpacity onPress={() => handleDeleteService(s.id)} style={{ padding: SP.xs }}>
- <Text style={{ color: theme.danger, fontSize: FS.sm }}>️ {AR ? 'حذف' : 'Delete'}</Text>
+ <Text style={{ color: theme.danger, fontSize: FS.sm }}>️ {tt('dsm.2257cab6')}</Text>
  </TouchableOpacity>
  </View>
  </View>
@@ -257,18 +257,18 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
  )}
 
  {/* Edit Sheet */}
- <NSheet visible={!!editingService} onClose={() => setEditingService(null)} title={AR ? '️ تعديل الخدمة' : '️ Edit Service'} height={380}>
+ <NSheet visible={!!editingService} onClose={() => setEditingService(null)} title={tt('dsm.a2728c0f')} height={380}>
  <View style={{ padding: SP.md }}>
- <NPriceInput label={AR ? 'سعر الخدمة (SAR)' : 'Service Price (SAR)'} value={editPrice} onChange={setEditPrice} />
- <NInput label={AR ? 'مدة الخدمة بالدقائق' : 'Service Duration (min)'} kbType="numeric" value={editDuration} onChange={setEditDuration} />
- <NBtn label={AR ? ' حفظ' : ' Save'} onPress={saveEdit} style={{ marginTop: SP.md }} />
+ <NPriceInput label={tt('dsm.a7e4e600')} value={editPrice} onChange={setEditPrice} />
+ <NInput label={tt('dsm.575476c2')} kbType="numeric" value={editDuration} onChange={setEditDuration} />
+ <NBtn label={tt('dsm.89af874d')} onPress={saveEdit} style={{ marginTop: SP.md }} />
  </View>
  </NSheet>
 
  {/* Add Service Sheet */}
- <NSheet visible={showAddSheet} onClose={() => setShowAddSheet(false)} title={AR ? ' إضافة خدمة جديدة' : ' Add Custom Service'} height={520}>
+ <NSheet visible={showAddSheet} onClose={() => setShowAddSheet(false)} title={tt('dsm.2fe9c69c')} height={520}>
  <ScrollView contentContainerStyle={{ padding: SP.md }}>
- <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>{AR ? 'نوع الخدمة' : 'Service type'}</Text>
+ <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>{tt('dsm.10a92ce6')}</Text>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.sm, marginBottom: SP.md }}>
  {Object.keys(MODE_MAP).map(k => (
  <TouchableOpacity key={k} accessibilityRole="button" accessibilityState={{ selected: newType === k }} onPress={() => setNewType(k)}
@@ -278,9 +278,9 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
  ))}
  </View>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{AR ? MODE_MAP[newType]?.descAr : MODE_MAP[newType]?.descEn}</Text>
- <NPriceInput label={AR ? 'سعر الخدمة (SAR)' : 'Service Price (SAR)'} value={newPrice} onChange={setNewPrice} required />
- <NInput label={AR ? 'المدة بالدقائق' : 'Duration (min)'} kbType="numeric" value={newDuration} onChange={setNewDuration} />
- <NBtn label={AR ? ' إضافة الخدمة' : ' Add Service'} onPress={handleAddService} style={{ marginTop: SP.md }} />
+ <NPriceInput label={tt('dsm.a7e4e600')} value={newPrice} onChange={setNewPrice} required />
+ <NInput label={tt('dsm.06c5caaa')} kbType="numeric" value={newDuration} onChange={setNewDuration} />
+ <NBtn label={tt('dsm.ea48e8cf')} onPress={handleAddService} style={{ marginTop: SP.md }} />
  </ScrollView>
  </NSheet>
  </View>

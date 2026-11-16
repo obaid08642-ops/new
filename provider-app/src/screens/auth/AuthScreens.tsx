@@ -104,7 +104,7 @@ export function WelcomeScreen({
           }
         } catch (err: any) {
           const msg = err.message || err.error || err;
-          show(AR ? `خطأ: ${msg}` : `Error: ${msg}`, 'error');
+          show(tt('tpa.b37aa2a9', { p1: String(msg) }), 'error');
         }
       }
     });

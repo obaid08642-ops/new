@@ -196,7 +196,7 @@ export function BedManagementScreen({ onBack, wards, onRefresh }: { onBack: () =
  </View>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: SP.sm }}>
  <Text style={{ fontSize: FS.sm, color: theme.textSub }}>
- {AR ? `${occupied} مشغول / ${total} إجمالي` : `${occupied}/${total} occupied`}
+ {tt('tpn.7c1e7b16', { p1: String(occupied), p2: String(total) })}
  </Text>
  <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color }}>
  {available} {AR ? 'متاح' : 'free'}
@@ -228,7 +228,7 @@ export function BedManagementScreen({ onBack, wards, onRefresh }: { onBack: () =
  <View key={bed.id} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: SP.md, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: theme.border }}>
  <View>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{bed.bed_number}</Text>
- <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? `النوع: ${bed.type}` : `Type: ${bed.type}`}</Text>
+ <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{tt('tpn.abe28e7e', { p1: String(bed.type) })}</Text>
  </View>
  <View style={{ flexDirection: 'row', alignItems: 'center', gap: SP.md }}>
  <NBadge label={bed.status === 'occupied' ? (tt('bed.7ab067af')) : (tt('bed.2aa376ed'))} variant={bed.status === 'occupied' ? 'danger' : 'success'} />
@@ -247,7 +247,7 @@ export function BedManagementScreen({ onBack, wards, onRefresh }: { onBack: () =
  {/* Admission Form Sheet */}
  <NSheet visible={admitVisible} onClose={() => setAdmitVisible(false)} title={tt('bed.313f06fc')}>
  <View style={{ padding: SP.xl }}>
- <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{AR ? `رقم السرير: ${selectedBed?.bed_number}` : `Bed: ${selectedBed?.bed_number}`}</Text>
+ <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{tt('tpn.18c5133f', { p1: String(selectedBed?.bed_number) })}</Text>
  <NInput label={tt('bed.4bd8e60c')} placeholder={tt('bed.21a620dc')} value={patientId} onChange={setPatientId} required />
  <NBtn label={tt('bed.2bb6ac34')} loading={loading} onPress={handleAdmitPatient} />
  </View>

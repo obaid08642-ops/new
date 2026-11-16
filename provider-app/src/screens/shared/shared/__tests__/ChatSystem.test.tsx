@@ -13,7 +13,7 @@ jest.mock('../../../../context', () => {
   const theme = new Proxy({}, { get: () => 'transparent' });
   return {
     useTheme: () => ({ theme, isDark: false }),
-    useLang: () => ({ lang: 'en', isRTL: false, t: (k: string) => k }),
+    useLang: () => ({ lang: 'en', isRTL: false, t: (k: string, p?: Record<string, string | number>) => require('../../../../test-utils/langStrings').tGeneratedOnly('en')(k, p) }),
     useToast: () => ({ show: mockShow }),
     useAuth: () => ({ user: { id: 'doc-1' } }),
   };

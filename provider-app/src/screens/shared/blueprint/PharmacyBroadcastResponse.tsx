@@ -161,7 +161,7 @@ export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () =>
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <NHeader title={tt('pbr.f24e6afa')} onBack={onBack} />
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: SP.xxl, gap: SP.md }}>
-        <NCard><Text style={{ color: theme.text, fontWeight: FW.bold }}>{AR ? `بث #${orderId.slice(-6)}` : `Broadcast #${orderId.slice(-6)}`}</Text><Text style={{ color: theme.textSub, marginTop: SP.xs }}>{tt('pbr.5646923d')}</Text></NCard>
+        <NCard><Text style={{ color: theme.text, fontWeight: FW.bold }}>{tt('tpal.cba31840', { p1: String(orderId.slice(-6)) })}</Text><Text style={{ color: theme.textSub, marginTop: SP.xs }}>{tt('pbr.5646923d')}</Text></NCard>
         {attachments.length > 0 && <NCard><Text style={{ color: theme.text, fontWeight: FW.bold }}>{tt('pbr.fa23d7fa')}</Text>{attachments.map((a: any, i: number) => (
           <TouchableOpacity key={i} onPress={() => { void openPrivateFile(a?.uri).then((ok) => { if (!ok) show(tt('pbr.421b8913'), 'error'); }); }}>
             <Text style={{ color: theme.primary }}>{a?.type === 'pdf' ? '📄' : '🖼️'} {tt('pbr.b65e82a4')} {i + 1}</Text>
@@ -202,10 +202,10 @@ export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () =>
             </>}
           </NCard>;
         })}
-        <NCard><Text style={{ color: theme.text, fontWeight: FW.bold }}>{tt('pbr.d1e3b565')}</Text>{quote ? <Text style={{ color: theme.textSub }}>{AR ? `رسوم التوصيل في المعاينة: ${quote.totals?.delivery_fee ?? 0} ر.س (يحددها الخادم)` : `Delivery fee in the preview: ${quote.totals?.delivery_fee ?? 0} SAR (set by the server)`}</Text> : <Text style={{ color: theme.textSub }}>{tt('pbr.03a8962d')}</Text>}</NCard>
+        <NCard><Text style={{ color: theme.text, fontWeight: FW.bold }}>{tt('pbr.d1e3b565')}</Text>{quote ? <Text style={{ color: theme.textSub }}>{tt('tpal.2c2cac27', { p1: String(quote.totals?.delivery_fee ?? 0) })}</Text> : <Text style={{ color: theme.textSub }}>{tt('pbr.03a8962d')}</Text>}</NCard>
         <NCard><NInput label={tt('pbr.830040f5')} value={prepMinutes} kbType="number-pad" onChange={(v: string) => { setPrepMinutes(v.replace(/[^0-9]/g, '').slice(0, 3)); setQuote(null); }} /></NCard>
         <NCard><NInput label={tt('pbr.617d2147')} value={providerNote} onChange={(v: string) => setProviderNote(v.slice(0, 500))} multi multiline lines={2} maxLen={500} /></NCard>
-        {quote && <NCard><Text style={{ color: theme.text, fontWeight: FW.bold }}>{tt('pbr.3b2e69d8')}</Text><Text style={{ color: theme.text }}>{AR ? `الإجمالي: ${quote.totals?.total ?? '—'} ${quote.totals?.currency ?? ''}` : `Total: ${quote.totals?.total ?? '—'} ${quote.totals?.currency ?? ''}`}</Text><Text style={{ color: theme.textSub }}>{AR ? `صالحة للمسودة لمدة ${quote.quote_ttl_seconds ?? 600} ثانية` : `Draft quote TTL: ${quote.quote_ttl_seconds ?? 600} seconds`}</Text><Text style={{ color: theme.textSub }}>{quote.fulfillment?.policy_status === 'unavailable_read_only' ? (tt('pbr.fd198ecc')) : ''}</Text></NCard>}
+        {quote && <NCard><Text style={{ color: theme.text, fontWeight: FW.bold }}>{tt('pbr.3b2e69d8')}</Text><Text style={{ color: theme.text }}>{tt('tpal.7e0676d9', { p1: String(quote.totals?.total ?? '—'), p2: String(quote.totals?.currency ?? '') })}</Text><Text style={{ color: theme.textSub }}>{tt('tpal.75d8d3f1', { p1: String(quote.quote_ttl_seconds ?? 600) })}</Text><Text style={{ color: theme.textSub }}>{quote.fulfillment?.policy_status === 'unavailable_read_only' ? (tt('pbr.fd198ecc')) : ''}</Text></NCard>}
         {/* decision 12 (issue 331, revised 2026-10-10): a line above the catalogue (SFDA) price is accepted and flagged; the pharmacist is warned per line and the admin reviews it */}
         {(() => {
           const flagged = (Array.isArray(quote?.draft?.items) ? quote.draft.items : []).filter((i: any) => i?.above_catalogue_price === true || i?.price_check === 'not_verified');
@@ -214,8 +214,8 @@ export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () =>
             <Text style={{ color: theme.text, fontWeight: FW.bold }}>{tt('pbr.1cacccef')}</Text>
             {flagged.map((i: any) => <Text key={String(i.order_item_id)} style={{ color: theme.textSub, marginTop: SP.xs }}>
               {i.above_catalogue_price === true
-                ? (AR ? `${i.name_ar || i.sku || ''}: سعرك ${i.unit_price} ر.س أعلى من سعر الكتالوج ${i.catalogue_price} ر.س. السعر الأعلى مسموح، لكن الإدارة ترى هذا العرض وتراجعه، وقد تحدّث سعر الكتالوج أو تحذّر أو توقف أو تغرّم الصيدلية إذا لم يكن مبرَّرًا.` : `${i.name_ar || i.sku || ''}: your price ${i.unit_price} SAR is above the catalogue price ${i.catalogue_price} SAR. A higher price is allowed, but the admin can see this offer and reviews it: they may update the catalogue price, or warn, suspend, block or fine the pharmacy if it is not justified.`)
-                : (AR ? `${i.name_ar || i.sku || ''}: الصنف غير مطابق لكتالوج نبض بلس، فلم يُتحقق من سعره.` : `${i.name_ar || i.sku || ''}: this item is not in the Nabd Plus catalogue, so its price was not checked.`)}
+                ? (tt('tpal.7213c8bb', { p1: String(i.name_ar || i.sku || ''), p2: String(i.unit_price), p3: String(i.catalogue_price) }))
+                : (tt('tpal.9bd57e54', { p1: String(i.name_ar || i.sku || '') }))}
             </Text>)}
           </NCard>;
         })()}

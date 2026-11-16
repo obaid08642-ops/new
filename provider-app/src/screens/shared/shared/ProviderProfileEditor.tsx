@@ -96,7 +96,7 @@ export function buildProfilePatch(base: ProfileForm, cur: ProfileForm, role: Pro
 
 export function ProviderProfileEditor({ role, onBack, initialSection }: { role: ProfileEditorRole; onBack: () => void; initialSection?: ProfileSection }) {
   const uploadsOn = useUploadsEnabled();
-  const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const { user } = useAuth();
+  const { theme } = useTheme(); const { lang, t, t: tt } = useLang(); const { show } = useToast(); const { user } = useAuth();
   const AR = lang === 'ar';
   const [pendingCred, setPendingCred] = useState<Record<string, string>>({});
   const sections = SECTIONS_BY_ROLE[role];
@@ -118,28 +118,28 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
       const f = toForm(p);
       setBase(f); setForm(f); setSlug(p.slug || null); setPendingCred(p.pending_credentials?.fields ?? {});
     }).catch(() => {
-      if (alive) show(AR ? 'فشل تحميل الملف الشخصي' : 'Failed to load profile', 'error');
+      if (alive) show(tt('ppe.bcc8f90d'), 'error');
     }).finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
   }, []);
 
   const handleSave = async () => {
     if (sections.includes('location') && form.pin === null && base.pin === null && (form.radius !== base.radius || form.fee !== base.fee)) {
-      show(AR ? 'حدد موقع العيادة على الخريطة أولاً' : 'Pin the clinic location on the map first', 'error'); return;
+      show(tt('ppe.c2801663'), 'error'); return;
     }
     const r = Number(form.radius);
-    if (sections.includes('location') && (!Number.isFinite(r) || r < 0)) { show(AR ? 'أدخل نطاق تغطية صحيح' : 'Enter a valid coverage radius', 'error'); return; }
+    if (sections.includes('location') && (!Number.isFinite(r) || r < 0)) { show(tt('ppe.7032dd0c'), 'error'); return; }
     const patch = buildProfilePatch(base, form, role);
-    if (Object.keys(patch).length === 0) { show(AR ? 'لا توجد تعديلات للحفظ' : 'No changes to save', 'info'); return; }
+    if (Object.keys(patch).length === 0) { show(tt('ppe.adb640e4'), 'info'); return; }
     setSaving(true);
     try {
       const res: any = await client.patch('/provider/profile', patch);
       const credSent = Array.isArray(res?.data?.credentials_pending) && res.data.credentials_pending.length > 0;
-      show(credSent ? t('profile.credential.sent') : (AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval'), 'success');
+      show(credSent ? t('profile.credential.sent') : (tt('ppe.14f4e375')), 'success');
       onBack();
     } catch (err) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
-      show(msg || (AR ? 'فشل حفظ الملف الشخصي' : 'Failed to save profile'), 'error');
+      show(msg || (tt('ppe.96bbe378')), 'error');
     } finally { setSaving(false); }
   };
 
@@ -148,11 +148,11 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
     try {
       const { requestForegroundPermissionsAsync, getCurrentPositionAsync } = await import('expo-location');
       const perm = await requestForegroundPermissionsAsync();
-      if (perm.status !== 'granted') { show(AR ? 'الصلاحية مطلوبة لتحديد الموقع' : 'Location permission is required', 'error'); return; }
+      if (perm.status !== 'granted') { show(tt('ppe.2100c613'), 'error'); return; }
       const pos = await getCurrentPositionAsync({});
       set('pin', { lat: pos.coords.latitude, lng: pos.coords.longitude });
     } catch {
-      show(AR ? 'تعذر تحديد الموقع' : 'Could not determine location', 'error');
+      show(tt('ppe.92016fb1'), 'error');
     } finally { setLocating(false); }
   }
 
@@ -166,21 +166,21 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
       const { ProviderApi } = await import('../../../api/provider');
       const id = await ProviderApi.uploadFile(asset.uri, asset.mimeType || 'image/jpeg', asset.name || 'clinic.jpg');
       if (typeof id === 'string' && id) { set('clinicImages', [...form.clinicImages, id]); announceScan(show, lang, scanOfStored(id)); }
-      else show(AR ? 'تعذر رفع الصورة' : 'Could not upload image', 'error');
+      else show(tt('ppe.59cfd960'), 'error');
     } catch (e) {
       if (scanStateOfRequestError(e) === 'rejected') announceScan(show, lang, 'rejected');
-      else show(AR ? 'تعذر رفع الصورة' : 'Could not upload image', 'error');
+      else show(tt('ppe.59cfd960'), 'error');
     } finally { setUploadingClinic(false); }
   }
 
   const sectionLabel: Record<ProfileSection, string> = {
-    profile: AR ? 'الملف الشخصي' : 'Profile',
-    location: AR ? 'الموقع والتغطية' : 'Location',
-    public: AR ? 'الصفحة العامة' : 'Public page',
+    profile: tt('ppe.59a58272'),
+    location: tt('ppe.db9a56d5'),
+    public: tt('ppe.eabbd941'),
   };
-  const title = role === 'nursing' ? (AR ? 'معلومات الحساب' : 'Account Info')
-    : sections.length === 1 ? (AR ? 'موقع مزود الخدمة العام' : 'Public Mini-Website')
-    : (AR ? 'تعديل الملف الشخصي' : 'Edit Profile');
+  const title = role === 'nursing' ? (tt('ppe.98b10900'))
+    : sections.length === 1 ? (tt('ppe.477b5921'))
+    : (tt('ppe.36e97817'));
   const publicUrl = publicPageUrl(user?.role, slug, lang);
   const row = AR ? 'row-reverse' : 'row';
 
@@ -190,28 +190,28 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
         <NAvatar name={form.nameEn || user?.displayName} size={80} />
         <NProfileImageUploader
           ownerType={role === 'nursing' ? 'nurse' : 'doctor'}
-          onProcessComplete={(urls) => { set('avatarId', urls.processed); show(AR ? 'تم تحديث الصورة الشخصية' : 'Profile picture updated', 'success'); }}
+          onProcessComplete={(urls) => { set('avatarId', urls.processed); show(tt('ppe.c6017e99'), 'success'); }}
         />
       </NCard>
-      <NInput label={AR ? 'الاسم بالكامل (العربية)' : 'Full Name (Arabic)'} value={form.nameAr} onChange={(v: string) => set('nameAr', v)} required />
-      <NInput label={AR ? 'الاسم بالكامل (الإنجليزية)' : 'Full Name (English)'} value={form.nameEn} onChange={(v: string) => set('nameEn', v)} required />
-      <NInput label={AR ? 'النبذة التعريفية (العربية)' : 'Bio (Arabic)'} value={form.descAr} onChange={(v: string) => set('descAr', v)} multi lines={3} />
-      <NInput label={AR ? 'النبذة التعريفية (الإنجليزية)' : 'Bio (English)'} value={form.descEn} onChange={(v: string) => set('descEn', v)} multi lines={3} />
-      {role === 'doctor' && <NInput label={AR ? 'سنوات الخبرة' : 'Years of Experience'} value={form.exp} onChange={(v: string) => set('exp', v)} kbType="numeric" />}
-      <NInput label={AR ? 'الموقع الإلكتروني' : 'Website'} value={form.website} onChange={(v: string) => set('website', v)} />
+      <NInput label={tt('ppe.649509f0')} value={form.nameAr} onChange={(v: string) => set('nameAr', v)} required />
+      <NInput label={tt('ppe.d45dd841')} value={form.nameEn} onChange={(v: string) => set('nameEn', v)} required />
+      <NInput label={tt('ppe.97ba5cba')} value={form.descAr} onChange={(v: string) => set('descAr', v)} multi lines={3} />
+      <NInput label={tt('ppe.57506e5a')} value={form.descEn} onChange={(v: string) => set('descEn', v)} multi lines={3} />
+      {role === 'doctor' && <NInput label={tt('ppe.4ca1465a')} value={form.exp} onChange={(v: string) => set('exp', v)} kbType="numeric" />}
+      <NInput label={tt('ppe.a10e480e')} value={form.website} onChange={(v: string) => set('website', v)} />
       {role === 'doctor' && (
         <>
-          <NInput label={AR ? 'التخصص الطبي' : 'Specialty'} value={form.specialty} onChange={(v: string) => set('specialty', v)} />
+          <NInput label={tt('ppe.de60b396')} value={form.specialty} onChange={(v: string) => set('specialty', v)} />
           {pendingCred.specialty ? <Text style={{ fontSize: FS.xs, color: theme.warn }}>{t('profile.credential.pending', { value: pendingCred.specialty })}</Text> : null}
-          <NInput label={AR ? 'الدرجة العلمية' : 'Degree / Title'} value={form.degree} onChange={(v: string) => set('degree', v)} />
+          <NInput label={tt('ppe.e84f2f98')} value={form.degree} onChange={(v: string) => set('degree', v)} />
           {pendingCred.degree ? <Text style={{ fontSize: FS.xs, color: theme.warn }}>{t('profile.credential.pending', { value: pendingCred.degree })}</Text> : null}
-          <NSecHeader title={AR ? 'صور العيادة' : 'Clinic Images'} />
+          <NSecHeader title={tt('ppe.7171854b')} />
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <View style={{ flexDirection: row, gap: SP.md }}>
               {uploadsOn ? (
 <TouchableOpacity onPress={addClinicImage} style={{ width: 100, height: 100, borderRadius: R.md, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border, borderStyle: 'dashed' }}>
                 <I name="plus" size={24} color={theme.primary} />
-                <Text style={{ fontSize: FS.xs, color: theme.primary, marginTop: SP.xs }}>{uploadingClinic ? (AR ? 'جارٍ الرفع…' : 'Uploading…') : (AR ? 'إضافة صورة' : 'Add Image')}</Text>
+                <Text style={{ fontSize: FS.xs, color: theme.primary, marginTop: SP.xs }}>{uploadingClinic ? (tt('ppe.e49dd8d1')) : (tt('ppe.8fc87ec3'))}</Text>
               </TouchableOpacity>
 ) : <UploadsUnavailable />}
               {form.clinicImages.map((id) => (
@@ -235,7 +235,7 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
     const MapView = Maps.default; const Marker = Maps.Marker;
     return (
       <View style={{ gap: SP.md }}>
-        <NSecHeader title={AR ? 'موقع العيادة' : 'Clinic Location'} />
+        <NSecHeader title={tt('ppe.20a4e09e')} />
         <View style={{ height: 260, borderRadius: R.xl, overflow: 'hidden', borderWidth: 1, borderColor: theme.border }}>
           <MapView
             style={{ flex: 1 }}
@@ -245,15 +245,15 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
             {form.pin && <Marker coordinate={{ latitude: form.pin.lat, longitude: form.pin.lng }} />}
           </MapView>
         </View>
-        <NBtn label={locating ? (AR ? 'جارٍ التحديد…' : 'Locating…') : (AR ? 'استخدم موقعي الحالي' : 'Use my current location')} variant="outline" onPress={useMyLocation} />
-        <NSecHeader title={AR ? 'الزيارات المنزلية' : 'Home Visits'} />
+        <NBtn label={locating ? (tt('ppe.a8cd6945')) : (tt('ppe.a14f902e'))} variant="outline" onPress={useMyLocation} />
+        <NSecHeader title={tt('ppe.6e0270b7')} />
         <NCard>
           <View style={{ flexDirection: row, alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.md }}>
-            <Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? 'نطاق التغطية (كم)' : 'Coverage Radius (KM)'}</Text>
+            <Text style={{ fontSize: FS.sm, color: theme.text }}>{tt('ppe.01da4cad')}</Text>
             <NInput label="" value={form.radius} onChange={(v: string) => set('radius', v)} kbType="numeric" style={{ width: 100, marginVertical: 0 }} />
           </View>
           <View style={{ flexDirection: row, alignItems: 'center', justifyContent: 'space-between' }}>
-            <Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? 'رسوم الانتقال' : 'Transport Fee'}</Text>
+            <Text style={{ fontSize: FS.sm, color: theme.text }}>{tt('ppe.ffc709f9')}</Text>
             <NInput label="" value={form.fee} onChange={(v: string) => set('fee', v)} kbType="numeric" style={{ width: 100, marginVertical: 0 }} />
           </View>
         </NCard>
@@ -265,21 +265,21 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
     <View style={{ gap: SP.xl }}>
       <NCard>
         <NToggle
-          label={AR ? 'تفعيل الصفحة العامة للمريض' : 'Active Public Website'}
-          sub={AR ? 'تمكين حجز المواعيد عبر رابط موقعك العام مباشرة' : 'Allow patients to book directly via link'}
+          label={tt('ppe.34447cfa')}
+          sub={tt('ppe.ef367b0a')}
           value={form.active}
           onChange={(v: boolean) => set('active', v)}
         />
       </NCard>
-      <NInput label={AR ? 'حسابات التواصل الاجتماعي' : 'Social Media Link'} value={form.social} onChange={(v: string) => set('social', v)} />
+      <NInput label={tt('ppe.184eb9cd')} value={form.social} onChange={(v: string) => set('social', v)} />
       {publicUrl && (
         <NCard style={{ backgroundColor: theme.primaryLight, borderColor: theme.primary }}>
           <View style={{ flexDirection: row, justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={{ flex: 1, fontSize: FS.sm, color: theme.primary, fontWeight: FW.bold }}>{publicUrl}</Text>
             <TouchableOpacity
-              onPress={async () => { try { await Share.share({ message: publicUrl }); } catch { show(AR ? 'تعذر المشاركة' : 'Could not share', 'error'); } }}
+              onPress={async () => { try { await Share.share({ message: publicUrl }); } catch { show(tt('ppe.580ca6a8'), 'error'); } }}
               style={{ padding: SP.sm }}>
-              <Text style={{ color: theme.primary, fontWeight: FW.bold }}>{AR ? 'مشاركة' : 'Share'}</Text>
+              <Text style={{ color: theme.primary, fontWeight: FW.bold }}>{tt('ppe.3040b9d9')}</Text>
             </TouchableOpacity>
           </View>
         </NCard>
@@ -306,7 +306,7 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
             {section === 'profile' && profileSection}
             {section === 'location' && locationSection()}
             {section === 'public' && publicSection}
-            <NBtn label={AR ? ' حفظ التعديلات' : ' Save Changes'} onPress={handleSave} loading={saving} style={{ marginTop: SP.lg }} />
+            <NBtn label={tt('ppe.2ef3ecca')} onPress={handleSave} loading={saving} style={{ marginTop: SP.lg }} />
           </>
         )}
       </ScrollView>

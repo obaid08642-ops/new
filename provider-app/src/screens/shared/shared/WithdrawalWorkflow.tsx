@@ -174,8 +174,7 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
             {tt('wd.7d401936')}
           </Text>
           <Text style={{ fontSize: FS.md, color: theme.textSub, textAlign: 'center', paddingHorizontal: SP.xl }}>
-            {AR ? `طلبك بقيمة ${amount} ريال قيد مراجعة الإدارة المالية الآن. ستصلك حالة الطلب عبر الإشعارات.`
-                : `Your ${amount} SAR request is now under finance-admin review. You will be notified of its status.`}
+            {tt('tpat.aaf4c558', { p1: String(amount) })}
             {submittedReference ? `\n${tt('wd.a5cd2670')}${submittedReference}` : ''}
           </Text>
           <NBtn label={tt('wd.80dded2a')} onPress={onBack} />
@@ -191,11 +190,11 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
       <View style={{ gap: SP.xl }}>
         <NCard style={{ backgroundColor: theme.primaryLight }}>
           <Text style={{ fontSize: FS.sm, color: theme.primary, textAlign: AR ? 'right' : 'left' }}>
-            {AR ? `الرصيد المتاح للسحب: ${balance!.available.toFixed(2)} ريال` : `Available for withdrawal: ${balance!.available.toFixed(2)} SAR`}
+            {tt('tpat.1acc1e2b', { p1: String(balance!.available.toFixed(2)) })}
           </Text>
           {balance!.pending > 0 && (
             <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginTop: SP.xs }}>
-              {AR ? `قيد التسوية (ضمان): ${balance!.pending.toFixed(2)} ريال` : `In escrow (pending): ${balance!.pending.toFixed(2)} SAR`}
+              {tt('tpat.c6965c99', { p1: String(balance!.pending.toFixed(2)) })}
             </Text>
           )}
         </NCard>
@@ -290,7 +289,7 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
         )}
 
         <NPriceInput
-          label={balance?.minimum != null ? (AR ? `مبلغ السحب (${balance.minimum} ريال على الأقل)` : `Withdrawal Amount (min ${balance.minimum} SAR)`) : (tt('wd.1c123269'))}
+          label={balance?.minimum != null ? (tt('tpat.35ad995b', { p1: String(balance.minimum) })) : (tt('wd.1c123269'))}
           value={amount}
           onChange={setAmount}
           required
@@ -326,7 +325,7 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
                 </View>
                 {h.state === 'REJECTED' && !!h.rejection_reason && (
                   <Text style={{ fontSize: FS.xs, color: theme.danger, textAlign: AR ? 'right' : 'left', marginTop: SP.xs }}>
-                    {AR ? `سبب الرفض: ${h.rejection_reason}` : `Rejection reason: ${h.rejection_reason}`}
+                    {tt('tpat.3376487d', { p1: String(h.rejection_reason) })}
                   </Text>
                 )}
               </NCard>

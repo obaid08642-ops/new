@@ -37,16 +37,17 @@ import { DoctorServiceSlotsCard } from './StatisticsScreen';
 
 
 export function AvailabilityExceptions({ ctx }: any) {
+  const { t: tt } = useLang();
   const { theme, AR, exceptions, showAddException, setShowAddException, exStart, setExStart, exEnd, setExEnd, handleAddException, handleDeleteException, exDate, exType, setExDate, setExType } = ctx;
   return (
     <>
      {/* Exceptional Settings */}
      <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: SP.xl, marginBottom: SP.lg }}>
      <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>
-     {AR ? ' إغلاق وحظر استثنائي' : ' Exceptional Blocks & Closures'}
+     {tt('sxzc.a1b2dec6')}
      </Text>
      <TouchableOpacity onPress={() => setShowAddException(true)} style={{ backgroundColor: theme.surface2, paddingHorizontal: SP.md, paddingVertical: SP.xs, borderRadius: R.md }}>
-     <Text style={{ color: theme.primary, fontSize: FS.sm, fontWeight: FW.bold }}> {AR ? 'إضافة استثناء' : 'Add Rule'}</Text>
+     <Text style={{ color: theme.primary, fontSize: FS.sm, fontWeight: FW.bold }}> {tt('sxzc.5d96746c')}</Text>
      </TouchableOpacity>
      </View>
 
@@ -69,12 +70,12 @@ export function AvailabilityExceptions({ ctx }: any) {
      ))}
 
      {/* Exception Sheet */}
-     <NSheet visible={showAddException} onClose={() => setShowAddException(false)} title={AR ? ' إضافة قاعدة استثنائية' : ' Add Exceptional Rule'} height={500}>
+     <NSheet visible={showAddException} onClose={() => setShowAddException(false)} title={tt('sxzc.dea3de8a')} height={500}>
      <View style={{ padding: SP.md }}>
-     <NInput label={AR ? 'التاريخ (YYYY-MM-DD)' : 'Date (YYYY-MM-DD)'} value={exDate} onChange={setExDate} />
+     <NInput label={tt('sxzc.3411edcf')} value={exDate} onChange={setExDate} />
  
      <Text style={{ fontSize: FS.sm, color: theme.text, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>
-     {AR ? 'نوع القاعدة الاستثنائية' : 'Rule Type'}
+     {tt('sxzc.c48ece3f')}
      </Text>
      <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.lg }}>
      {(['close_day', 'block_time', 'exceptional_open'] as const).map(type => (
@@ -84,7 +85,7 @@ export function AvailabilityExceptions({ ctx }: any) {
      backgroundColor: exType === type ? theme.primaryLight : theme.surface
      }}>
      <Text style={{ fontSize: 11, fontWeight: FW.bold, color: exType === type ? theme.primary : theme.text, textAlign: 'center' }}>
-     {type === 'close_day' ? (AR ? 'إغلاق اليوم' : 'Close Day') : type === 'block_time' ? (AR ? 'حظر وقت' : 'Block Time') : (AR ? 'فتح استثنائي' : 'Open Slot')}
+     {type === 'close_day' ? (tt('sxzc.c9157634')) : type === 'block_time' ? (tt('sxzc.4736592a')) : (tt('sxzc.428771b4'))}
      </Text>
      </TouchableOpacity>
      ))}
@@ -93,15 +94,15 @@ export function AvailabilityExceptions({ ctx }: any) {
      {exType !== 'close_day' && (
      <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.md }}>
      <View style={{ flex: 1 }}>
-     <NInput label={AR ? 'من وقت' : 'From Time'} value={exStart} onChange={setExStart} />
+     <NInput label={tt('sxzc.684188d7')} value={exStart} onChange={setExStart} />
      </View>
      <View style={{ flex: 1 }}>
-     <NInput label={AR ? 'إلى وقت' : 'To Time'} value={exEnd} onChange={setExEnd} />
+     <NInput label={tt('sxzc.663e71e4')} value={exEnd} onChange={setExEnd} />
      </View>
      </View>
      )}
 
-     <NBtn label={AR ? ' تطبيق القاعدة' : ' Apply Rule'} onPress={handleAddException} style={{ marginTop: SP.md }} />
+     <NBtn label={tt('sxzc.7ad9bfac')} onPress={handleAddException} style={{ marginTop: SP.md }} />
      </View>
      </NSheet>
     </>

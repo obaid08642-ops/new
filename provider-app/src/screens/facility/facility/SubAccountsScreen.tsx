@@ -46,7 +46,7 @@ export function SubAccountsScreen({ onBack, onNavigate }: {
 }) {
  const insets = useSafeAreaInsets();
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
  const [search, setSearch] = useState('');
@@ -72,13 +72,13 @@ export function SubAccountsScreen({ onBack, onNavigate }: {
  id: x._id || x.id,
  name: x.full_name,
  role: x.role || 'doctor',
- spec: x.department || (AR ? 'قسم طبي' : 'Medical Dept'),
+ spec: x.department || (tt('sxo.47ebd5a9')),
  status: x.suspended ? 'inactive' : 'active',
  phone: x.phone,
  }));
  setStaffList(formatted);
  } catch (e) {
- show(AR ? 'فشل تحميل قائمة الموظفين' : 'Failed to fetch staff list', 'error');
+ show(tt('sxo.326c8df9'), 'error');
  } finally {
  setLoading(false);
  }
@@ -93,10 +93,10 @@ export function SubAccountsScreen({ onBack, onNavigate }: {
    try {
      await client.delete(`/hospital/staff/${showDelete}`);
      setStaffList(prev => prev.filter(staff => staff.id !== showDelete));
-     show(AR ? 'تم حذف الحساب من الخادم' : 'Account deleted on the server', 'success');
+     show(tt('sxo.c8aa0986'), 'success');
    } catch (err: any) {
      const msg = err.response?.data?.message || err.message;
-     show(AR ? `فشل حذف الحساب: ${msg}` : `Failed to delete account: ${msg}`, 'error');
+     show(tt('tpq.b2c3bd22', { p1: String(msg) }), 'error');
    } finally {
      setShowDelete(null);
    }
@@ -114,7 +114,7 @@ export function SubAccountsScreen({ onBack, onNavigate }: {
  <Text style={{ color: theme.primary, fontSize: FS.md }}>{AR ? '→' : '←'}</Text>
  </TouchableOpacity>
  <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>
- {AR ? ' إدارة الكوادر' : ' Staff Accounts'}
+ {tt('sxo.872a93c6')}
  </Text>
  <TouchableOpacity onPress={() => onNavigate('add_subaccount', null)}>
  <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.primary,
@@ -126,7 +126,7 @@ export function SubAccountsScreen({ onBack, onNavigate }: {
 
  <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}>
  <NSearch value={search} onChange={setSearch}
- placeholder={AR ? 'ابحث عن طبيب أو موظف...' : 'Search staff...'} style={{ marginBottom: SP.lg }} />
+ placeholder={tt('sxo.3fae2e2c')} style={{ marginBottom: SP.lg }} />
 
  {/* Role filter */}
  <ScrollView horizontal showsHorizontalScrollIndicator={false}
@@ -138,7 +138,7 @@ export function SubAccountsScreen({ onBack, onNavigate }: {
  borderColor: roleFilter === r ? theme.primary : theme.border,
  }]}>
  <Text style={{ color: roleFilter === r ? '#FFF' : theme.text, fontSize: FS.sm }}>
- {r === 'all' ? (AR ? 'الكل' : 'All')
+ {r === 'all' ? (tt('sxo.eabe5f68'))
  : AR ? ROLE_LABELS[r]?.ar : ROLE_LABELS[r]?.en}
  </Text>
  </TouchableOpacity>
@@ -147,13 +147,13 @@ export function SubAccountsScreen({ onBack, onNavigate }: {
 
  {/* Stats row */}
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.xl }}>
- <NStatCard icon="users" label={AR?'إجمالي الكوادر':'Total Staff'} value={String(staffList.length)} color={tokens.info} style={{ flex:1 }} />
- <NStatCard icon="check" label={AR?'نشط':'Active'} value={String(staffList.filter(s=>s.status==='active').length)} color={tokens.success} style={{ flex:1 }} />
- <NStatCard icon="close" label={AR?'غير نشط':'Inactive'} value={String(staffList.filter(s=>s.status!=='active').length)} color={tokens.warning} style={{ flex:1 }} />
+ <NStatCard icon="users" label={tt('sxo.ccff0ebe')} value={String(staffList.length)} color={tokens.info} style={{ flex:1 }} />
+ <NStatCard icon="check" label={tt('sxo.03886b8f')} value={String(staffList.filter(s=>s.status==='active').length)} color={tokens.success} style={{ flex:1 }} />
+ <NStatCard icon="close" label={tt('sxo.aa269c94')} value={String(staffList.filter(s=>s.status!=='active').length)} color={tokens.warning} style={{ flex:1 }} />
  </View>
 
  {/* Add quick role buttons */}
- <NSecHeader title={AR ? 'إضافة سريعة' : 'Quick Add'} />
+ <NSecHeader title={tt('sxo.18087cdd')} />
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.md, marginBottom: SP.xl }}>
  {Object.entries(ROLE_LABELS).map(([role, info]) => (
  <TouchableOpacity key={role} onPress={() => onNavigate('add_subaccount', role)}
@@ -170,7 +170,7 @@ export function SubAccountsScreen({ onBack, onNavigate }: {
  {loading && <ActivityIndicator color={theme.primary} style={{ marginVertical: SP.xl }} />}
  {!loading && filtered.length === 0 && (
  <Text style={{ textAlign: 'center', color: theme.textSub, marginVertical: SP.xl }}>
- {AR ? 'لا يوجد موظفون مضافون حالياً' : 'No staff accounts found'}
+ {tt('sxo.414482be')}
  </Text>
  )}
  {filtered.map(staff => {
@@ -185,7 +185,7 @@ export function SubAccountsScreen({ onBack, onNavigate }: {
  <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: 4 }}>{staff.spec}</Text>
  <View style={{ flexDirection: 'row', gap: SP.xs, flexWrap: 'wrap' }}>
  <NBadge label={roleInfo ? (AR ? roleInfo.ar : roleInfo.en) : staff.role} variant="primary" size="xs" />
- <NBadge label={staff.status === 'active' ? (AR?'نشط':'Active') : (AR?'غير نشط':'Inactive')}
+ <NBadge label={staff.status === 'active' ? (tt('sxo.03886b8f')) : (tt('sxo.aa269c94'))}
  variant={staff.status === 'active' ? 'success' : 'default'} size="xs" />
 
  </View>
@@ -209,10 +209,10 @@ export function SubAccountsScreen({ onBack, onNavigate }: {
  <View style={{ flex: 1 }}>
  <Text style={{ fontSize: FS.xs, fontWeight: FW.semi, color: theme.text,
  textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'بطاقة التوثيق المهني' : 'Professional Credential Card'}
+ {tt('sxo.2b4a3474')}
  </Text>
  <Text style={{ fontSize: 10, color: theme.textSub }}>
- {AR ? 'بيانات الاعتماد تُدار من الخادم' : 'Credentials are managed by the server'}
+ {tt('sxo.dde5407a')}
  </Text>
  </View>
  </View>
@@ -223,11 +223,11 @@ export function SubAccountsScreen({ onBack, onNavigate }: {
 
  <NConfirm
  visible={!!showDelete}
- title={AR ? 'حذف الحساب' : 'Delete Account'}
- msg={AR ? 'سيتم حذف هذا الحساب الفرعي نهائياً. هل أنت متأكد؟' : 'This sub-account will be permanently deleted. Are you sure?'}
+ title={tt('sxo.eee795ec')}
+ msg={tt('sxo.43f45b4c')}
  onOk={deleteStaff}
  onCancel={() => setShowDelete(null)}
- okLabel={AR ? 'حذف' : 'Delete'}
+ okLabel={tt('sxo.2257cab6')}
  />
  </View>
  );

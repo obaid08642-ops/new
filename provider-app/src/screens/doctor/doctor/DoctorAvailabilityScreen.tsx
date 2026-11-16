@@ -36,7 +36,7 @@ import { tokens } from '../../../theme/tokens';
 import { DoctorServiceSlotsCard } from './StatisticsScreen';
 
 export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () => void; onNavigate?: (s: string, p?: any) => void }) { const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
   const [saving, setSaving] = useState(false);
@@ -78,12 +78,12 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
        }
        setInsurances(merged);
      } catch {
-       if (active) show(AR ? 'تعذر تحميل شركات التأمين' : 'Unable to load insurance companies', 'error');
+       if (active) show(tt('dav.7c190559'), 'error');
      } finally {
        if (active) setInsLoading(false);
      }
    }).catch((error: any) => {
-     if (active) show(error?.response?.data?.message || (AR ? 'تعذر تحميل إعدادات التوفر' : 'Unable to load availability settings'), 'error');
+     if (active) show(error?.response?.data?.message || (tt('dav.988f3f96')), 'error');
      if (active) setInsLoading(false);
    }).finally(() => { if (active) setLoadingAvailability(false); });
    return () => { active = false; };
@@ -146,10 +146,10 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
     setVacationMode(val);
     try {
       await client.patch('/provider/profile/availability', { is_accepting_requests: !val, vacation_mode: val });
-      show(val ? (AR ? 'حُفظت حالتك: في إجازة' : 'Saved: you are away') : (AR ? 'حُفظت حالتك: متاح' : 'Saved: you are available'), val ? 'warning' : 'success');
+      show(val ? (tt('dav.ec064676')) : (tt('dav.16faab28')), val ? 'warning' : 'success');
     } catch (e: any) {
       setVacationMode(!val);
-      show(e?.response?.data?.message || (AR ? 'تعذر حفظ حالة الإجازة' : 'Could not save the vacation status'), 'error');
+      show(e?.response?.data?.message || (tt('dav.ccf9717f')), 'error');
     }
   };
 
@@ -162,10 +162,10 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
         weekly_schedule: weeklySchedule,
         availability_exceptions: exceptions,
       });
-      show(AR ? 'تم حفظ جدول التوفر الأسبوعي في الخادم' : 'Weekly availability saved to the server', 'success');
+      show(tt('dav.2b3b748d'), 'success');
       onBack();
     } catch (e) {
-      show((e as any)?.response?.data?.message || (AR ? 'فشل حفظ الجدول' : 'Failed to save schedule'), 'error');
+      show((e as any)?.response?.data?.message || (tt('dav.840737cd')), 'error');
     } finally {
       setSaving(false);
     }
@@ -173,7 +173,7 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
 
   const handleSaveInsurance = async () => {
     const badCopay = insurances.find((c: any) => c.active && c.copay !== '' && c.copay != null && (!Number.isFinite(Number(c.copay)) || Number(c.copay) < 0 || Number(c.copay) > 100));
-    if (badCopay) { show(AR ? 'نسبة التحمل رقم بين 0 و100' : 'Copay must be a number from 0 to 100', 'error'); return; }
+    if (badCopay) { show(tt('dav.2c54b5a2'), 'error'); return; }
     const noClasses = insurances.find((c: any) => c.active && !(c.classes?.length || c.plans?.length));
     if (noClasses) { show(AR ? `حدد فئات التأمين المقبولة لـ ${noClasses.ar} من شاشة التأمين` : `Choose the accepted plans for ${noClasses.en} on the insurance screen first`, 'error'); return; }
     setSavingIns(true);
@@ -189,9 +189,9 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
         services: { clinic: !!c.clinic, online: !!c.online, home: !!c.home },
       }));
       await client.patch('/provider/profile/availability', { accepted_insurance });
-      show(AR ? 'تم حفظ إعدادات التأمين في الخادم' : 'Insurance settings saved to the server', 'success');
+      show(tt('dav.20e40ff3'), 'success');
     } catch (e: any) {
-      show(e?.response?.data?.message || (AR ? 'فشل حفظ التأمين' : 'Failed to save insurance'), 'error');
+      show(e?.response?.data?.message || (tt('dav.d479a205')), 'error');
     } finally {
       setSavingIns(false);
     }
@@ -207,7 +207,7 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
  show(okText, 'success');
  } catch (e: any) {
  setExceptions(before);
- show(e?.response?.data?.message || (AR ? 'تعذر حفظ الاستثناء' : 'Could not save the exception'), 'error');
+ show(e?.response?.data?.message || (tt('dav.9155147b')), 'error');
  }
  };
 
@@ -224,10 +224,10 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
  ? `Blocked (${exStart} - ${exEnd})` 
  : `Exceptional (${exStart} - ${exEnd})`;
 
- if (!/^\d{4}-\d{2}-\d{2}$/.test(exDate) || Number.isNaN(new Date(exDate).getTime())) { show(AR ? 'التاريخ بصيغة YYYY-MM-DD' : 'Date must be YYYY-MM-DD', 'error'); return; }
+ if (!/^\d{4}-\d{2}-\d{2}$/.test(exDate) || Number.isNaN(new Date(exDate).getTime())) { show(tt('dav.a5087f24'), 'error'); return; }
  if (exType !== 'close_day') {
  const ok = /^([01]\d|2[0-3]):[0-5]\d$/;
- if (!ok.test(exStart) || !ok.test(exEnd) || exStart >= exEnd) { show(AR ? 'الوقت بصيغة HH:MM والبداية قبل النهاية' : 'Times must be HH:MM, start before end', 'error'); return; }
+ if (!ok.test(exStart) || !ok.test(exEnd) || exStart >= exEnd) { show(tt('dav.d65c08d8'), 'error'); return; }
  }
  const item = {
  id: String(Date.now()),
@@ -239,11 +239,11 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
  end: exEnd
  };
 
- persistExceptions([...exceptions, item], AR ? 'تمت إضافة الاستثناء' : 'Exception added', () => setShowAddException(false));
+ persistExceptions([...exceptions, item], tt('dav.12f7c075'), () => setShowAddException(false));
  };
 
  const handleDeleteException = (id: string) => {
- persistExceptions(exceptions.filter(x => x.id !== id), AR ? 'تم حذف الاستثناء' : 'Exception removed');
+ persistExceptions(exceptions.filter(x => x.id !== id), tt('dav.86172202'));
  };
 
 
@@ -252,7 +252,7 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
     exDate, setExDate, exType, setExType };
  return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
- <NHeader title={AR ? ' جدول المواعيد والتوفر' : ' Availability Settings'} onBack={onBack} />
+ <NHeader title={tt('dav.f140d58f')} onBack={onBack} />
   <ScrollView contentContainerStyle={{ padding: SP.xl, paddingBottom: 100 }}>
  {loadingAvailability ? <ActivityIndicator color={theme.primary} style={{ marginVertical: SP.xl }} /> : null}
  {/* Vacation Mode */}
@@ -260,10 +260,10 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
  <View style={{ flex: 1 }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
- ️ {AR ? 'إجازة مؤقتة (وضع عدم الاتصال)' : 'Temporary Vacation (Offline)'}
+ ️ {tt('dav.f0bcac69')}
  </Text>
  <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginTop: SP.xs }}>
- {AR ? 'يحفظ حالتك كغير متاح. لحجب أيام محددة عن الحجز استخدم «الإجازات» بالتواريخ.' : 'Marks you as away. To block specific days from booking, use Leaves with dates.'}
+ {tt('dav.6f8f7ecc')}
  </Text>
  </View>
  <Switch value={vacationMode} onValueChange={saveVacation} trackColor={{ true: theme.danger }} />
@@ -272,10 +272,10 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
 
  {/* Insurance Config — managed on the dedicated screen (delta approval) */}
  <NCard style={{ marginBottom: SP.xl }}>
- <NSettingsRow icon="shield" label={AR ? 'شركات التأمين والفئات المقبولة' : 'Accepted Insurers & Tiers'} onPress={() => onNavigate && onNavigate('insurance_config')} />
+ <NSettingsRow icon="shield" label={tt('dav.c3b6b676')} onPress={() => onNavigate && onNavigate('insurance_config')} />
  </NCard>
  {/* Weekly Schedule */}
- <NSecHeader title={AR ? 'الجدول الأسبوعي للعيادة والتوفر' : 'Weekly Operations Calendar'} />
+ <NSecHeader title={tt('dav.02e787eb')} />
  {weeklySchedule.map(d => (
  <NCard key={d.day} style={{ marginBottom: SP.md, opacity: vacationMode ? 0.5 : 1 }}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.md }}>
@@ -287,7 +287,7 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
  </View>
  {d.active && (
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, alignItems: 'center' }}>
- <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'فترتين (منفصل)' : 'Split Shift'}</Text>
+ <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{tt('dav.01d46dfe')}</Text>
  <Switch value={d.splitShift} disabled={vacationMode} onValueChange={() => toggleSplit(d.day)} />
  </View>
  )}
@@ -298,7 +298,7 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
  {/* Morning/Main Shift */}
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm }}>
  <Text style={{ fontSize: FS.sm, color: theme.text, width: 80, textAlign: AR ? 'right' : 'left' }}>
- {d.splitShift ? (AR ? ' صباحاً:' : ' Morning:') : (AR ? '⏰ العمل:' : '⏰ Shift:')}
+ {d.splitShift ? (tt('dav.17361233')) : (tt('dav.7b438a2f'))}
  </Text>
  <TouchableOpacity disabled={vacationMode} onPress={() => openTimePicker(d.day, 'morningStart')} style={{ flex: 1, height: 40, backgroundColor: theme.surface2, borderRadius: R.sm, alignItems: 'center', justifyContent: 'center' }}>
    <Text style={{ color: theme.text, fontSize: FS.sm }}>{d.morningStart || '--:--'}</Text>
@@ -313,7 +313,7 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
  {d.splitShift && (
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm }}>
  <Text style={{ fontSize: FS.sm, color: theme.text, width: 80, textAlign: AR ? 'right' : 'left' }}>
- {AR ? ' مساءً:' : ' Evening:'}
+ {tt('dav.dc42ac3a')}
  </Text>
  <TouchableOpacity disabled={vacationMode} onPress={() => openTimePicker(d.day, 'eveningStart')} style={{ flex: 1, height: 40, backgroundColor: theme.surface2, borderRadius: R.sm, alignItems: 'center', justifyContent: 'center' }}>
    <Text style={{ color: theme.text, fontSize: FS.sm }}>{d.eveningStart || '--:--'}</Text>
@@ -335,7 +335,7 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
           <View style={{ backgroundColor: theme.surface, paddingBottom: 20 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'flex-end', padding: SP.sm, borderBottomWidth: 1, borderColor: theme.border }}>
               <TouchableOpacity onPress={() => setShowPicker(false)}>
-                <Text style={{ color: theme.primary, fontSize: FS.md, fontWeight: FW.bold }}>{AR ? 'تم' : 'Done'}</Text>
+                <Text style={{ color: theme.primary, fontSize: FS.md, fontWeight: FW.bold }}>{tt('dav.2b48d77f')}</Text>
               </TouchableOpacity>
             </View>
             <DateTimePicker
@@ -359,17 +359,17 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
     )
   )}
 
- <NBtn label={AR ? ' حفظ الجدول الأسبوعي' : ' Save Weekly Calendar'} loading={saving} onPress={handleSaveSchedule} style={{ marginVertical: SP.lg }} />
+ <NBtn label={tt('dav.255d092d')} loading={saving} onPress={handleSaveSchedule} style={{ marginVertical: SP.lg }} />
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: SP.xl, marginBottom: SP.lg }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>
- {AR ? ' شركات التأمين المقبولة' : ' Accepted Insurance'}
+ {tt('dav.48757853')}
  </Text>
  </View>
  {insLoading ? (
  <ActivityIndicator size="small" color={theme.primary} />
  ) : insurances.length === 0 ? (
  <NCard><Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'تعذر تحميل شركات التأمين — تحقق من الاتصال ثم أعد الفتح. لن يُحفظ أي قبول وهمي.' : 'Could not load insurance companies — check connection and reopen. Nothing is assumed accepted.'}
+ {tt('dav.975a0970')}
  </Text></NCard>
  ) : insurances.map((c: any) => (
  <NCard key={c.id} style={{ marginBottom: SP.sm }}>
@@ -383,10 +383,10 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
  <View style={{ marginTop: SP.md, gap: SP.sm }}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm }}>
  <View style={{ flex: 1 }}>
- <NInput label={AR ? 'التحمل %' : 'Copay %'} value={String(c.copay ?? '')} onChange={(v: string) => setInsurances(prev => prev.map(x => x.id === c.id ? { ...x, copay: v } : x))} kbType="numeric" />
+ <NInput label={tt('dav.e3114fdb')} value={String(c.copay ?? '')} onChange={(v: string) => setInsurances(prev => prev.map(x => x.id === c.id ? { ...x, copay: v } : x))} kbType="numeric" />
  </View>
  <View style={{ flex: 1 }}>
- <NInput label={AR ? 'الفئة' : 'Tier'} value={c.tier || ''} onChange={(v: string) => setInsurances(prev => prev.map(x => x.id === c.id ? { ...x, tier: v } : x))} />
+ <NInput label={tt('dav.c71c2356')} value={c.tier || ''} onChange={(v: string) => setInsurances(prev => prev.map(x => x.id === c.id ? { ...x, tier: v } : x))} />
  </View>
  </View>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
@@ -395,7 +395,7 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
  <View style={{ width: 20, height: 20, borderRadius: 6, borderWidth: 1.5, borderColor: c[svc] ? theme.primary : theme.border, backgroundColor: c[svc] ? theme.primary : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
  {c[svc] ? <Text style={{ color: C.white, fontSize: 12 }}>✓</Text> : null}
  </View>
- <Text style={{ color: theme.text, fontSize: FS.sm }}>{svc === 'clinic' ? (AR ? 'عيادة' : 'Clinic') : svc === 'online' ? (AR ? 'عن بعد' : 'Online') : (AR ? 'منزلي' : 'Home')}</Text>
+ <Text style={{ color: theme.text, fontSize: FS.sm }}>{svc === 'clinic' ? (tt('dav.265e8cd4')) : svc === 'online' ? (tt('dav.a6bd2a2a')) : (tt('dav.8ca476d4'))}</Text>
  </TouchableOpacity>
  ))}
  </View>
@@ -403,7 +403,7 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
  ) : null}
  </NCard>
  )) }
- <NBtn label={AR ? 'حفظ إعدادات التأمين' : 'Save Insurance Settings'} loading={savingIns} onPress={handleSaveInsurance} style={{ marginTop: SP.md }} />
+ <NBtn label={tt('dav.5d7803cf')} loading={savingIns} onPress={handleSaveInsurance} style={{ marginTop: SP.md }} />
  <DoctorServiceSlotsCard />
 
       <AvailabilityExceptions ctx={ctx} />

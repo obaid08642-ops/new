@@ -39,7 +39,7 @@ import { fmtDate } from '../../../utils/dates';
 export function ReferralScreen({ apt, onBack }:
  { apt: any; onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const specialties = useSpecialtiesCatalog();
   const { show } = useToast();
   const AR = lang === 'ar';
@@ -66,7 +66,7 @@ export function ReferralScreen({ apt, onBack }:
       })));
     } catch (error: any) {
       setReferrals([]);
-      show(error?.response?.data?.message || (AR ? 'تعذر تحميل الإحالات من الخادم' : 'Unable to load referrals from the server'), 'error');
+      show(error?.response?.data?.message || (tt('sxv.41f69881')), 'error');
     } finally {
       setLoadingReferrals(false);
     }
@@ -75,27 +75,27 @@ export function ReferralScreen({ apt, onBack }:
  
   return (
   <NScroll>
-  <NHeader title={AR ? ' تحويل مريض' : ' Patient Referral'} onBack={onBack} />
+  <NHeader title={tt('sxv.c85a4686')} onBack={onBack} />
  
   {/* Tab Switcher */}
   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, paddingHorizontal: SP.xl, marginBottom: SP.lg }}>
   <TouchableOpacity onPress={() => setViewMode('create')} style={{ flex: 1, paddingVertical: SP.sm, borderBottomWidth: 2, borderBottomColor: viewMode === 'create' ? theme.primary : 'transparent', alignItems: 'center' }}>
-  <Text style={{ color: viewMode === 'create' ? theme.primary : theme.textSub, fontWeight: FW.bold }}>{AR ? 'إنشاء تحويل' : 'Create Referral'}</Text>
+  <Text style={{ color: viewMode === 'create' ? theme.primary : theme.textSub, fontWeight: FW.bold }}>{tt('sxv.b7ca0d71')}</Text>
   </TouchableOpacity>
   <TouchableOpacity onPress={() => setViewMode('track')} style={{ flex: 1, paddingVertical: SP.sm, borderBottomWidth: 2, borderBottomColor: viewMode === 'track' ? theme.primary : 'transparent', alignItems: 'center' }}>
-  <Text style={{ color: viewMode === 'track' ? theme.primary : theme.textSub, fontWeight: FW.bold }}>{AR ? 'متابعة التحويلات' : 'Track Referrals'}</Text>
+  <Text style={{ color: viewMode === 'track' ? theme.primary : theme.textSub, fontWeight: FW.bold }}>{tt('sxv.4943b514')}</Text>
   </TouchableOpacity>
   </View>
 
   {viewMode === 'track' ? (
   <View style={{ paddingHorizontal: SP.xl }}>
-  {loadingReferrals ? <ActivityIndicator color={theme.primary} /> : referrals.length === 0 ? <NEmpty title={AR ? 'لا توجد إحالات' : 'No referrals'} sub={AR ? 'ستظهر الإحالات المحفوظة في الخادم هنا.' : 'Server-saved referrals will appear here.'} icon="send" /> : referrals.map(r => (
+  {loadingReferrals ? <ActivityIndicator color={theme.primary} /> : referrals.length === 0 ? <NEmpty title={tt('sxv.f58ebdd0')} sub={tt('sxv.77687d83')} icon="send" /> : referrals.map(r => (
   <NCard key={r.id} style={{ marginBottom: SP.md }}>
   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.xs }}>
   <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{r.patientName}</Text>
   <NBadge label={AR ? r.statusAr : r.status.toUpperCase()} variant={r.status === AppointmentStatus.COMPLETED ? 'success' : r.status === 'accepted' ? 'primary' : 'warning'} size="xs" />
   </View>
-  <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{AR ? 'الجهة:' : 'Target:'} {r.target}</Text>
+  <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{tt('sxv.04f08c41')} {r.target}</Text>
   <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{r.test} — {r.date}</Text>
   </NCard>
   ))}
@@ -112,7 +112,7 @@ export function ReferralScreen({ apt, onBack }:
 
   <View style={{ marginBottom: SP.lg }}>
   <Text style={{ fontSize: FS.sm, fontWeight: FW.semi, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>
-  {AR ? 'تحويل إلى تخصص' : 'Refer to Specialty'}<Text style={{ color: theme.danger }}> *</Text>
+  {tt('sxv.dedcb393')}<Text style={{ color: theme.danger }}> *</Text>
   </Text>
   <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.sm }}>
   {specialties.slice(0, 12).map(s => (
@@ -131,22 +131,22 @@ export function ReferralScreen({ apt, onBack }:
   </View>
   </View>
 
-  <NInput label={AR ? 'سبب التحويل' : 'Reason for Referral'}
-  placeholder={AR ? 'اشرح سبب التحويل ومعلومات ذات صلة...' : 'Explain the reason and relevant information...'}
+  <NInput label={tt('sxv.b18c0bb5')}
+  placeholder={tt('sxv.25a4465d')}
   value={reason} onChange={setReason} multi lines={4} icon="" required />
 
-  <NToggle label={AR ? ' تحويل عاجل' : ' Urgent Referral'}
-  sub={AR ? 'يتطلب موعداً خلال 24-48 ساعة' : 'Requires appointment within 24-48 hours'}
+  <NToggle label={tt('sxv.ee3154c4')}
+  sub={tt('sxv.d8feead9')}
   value={urgent} onChange={setUrgent} />
 
   <View style={{ height: SP.xl }} />
 
-  <NBtn label={AR ? ' إرسال التحويل' : ' Send Referral'}
+  <NBtn label={tt('sxv.382aebd5')}
   disabled={!spec || !reason.trim()}
   onPress={async () => {
   try {
   if (!apt?.patient_id) {
-    show(AR ? 'لا يمكن إنشاء الإحالة دون مريض مرتبط' : 'Cannot create a referral without a linked patient', 'error');
+    show(tt('sxv.1444effb'), 'error');
     return;
   }
   await client.post('/provider/referrals', {
@@ -161,9 +161,9 @@ export function ReferralScreen({ apt, onBack }:
   await loadReferrals();
   setReason('');
   setViewMode('track');
-  show(AR ? 'تم إرسال التحويل وحفظه بنجاح' : 'Referral submitted and saved', 'success');
+  show(tt('sxv.e3fc652e'), 'success');
   } catch(e) {
-  show(AR ? 'حدث خطأ أثناء إرسال التحويل' : 'Failed to send referral', 'error');
+  show(tt('sxv.8f1e89f6'), 'error');
   }
   }} />
   </View>

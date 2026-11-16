@@ -119,7 +119,7 @@ export function ProviderWalletScreen({ onBack, onNavigate, embedded, revenueRout
         {lockedAmount > 0 && (
           <NCard style={{ marginBottom: SP.md }}>
             <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
-              {AR ? `محجوز لطلبات سحب قيد المعالجة: ${lockedAmount} ر.س` : `Reserved for withdrawals in progress: ${lockedAmount} SAR`}
+              {tt('tpas.8ff433c3', { p1: String(lockedAmount) })}
             </Text>
           </NCard>
         )}
@@ -131,11 +131,11 @@ export function ProviderWalletScreen({ onBack, onNavigate, embedded, revenueRout
           <View style={{ flex: 1, alignItems: AR ? 'flex-end' : 'flex-start' }}>
             <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{tt('wallet.9e335702')}</Text>
             <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text }}>
-              {commissionCash !== null ? (AR ? `كاش ${commissionCash}% • تأمين ${commissionIns !== null ? commissionIns : commissionCash}%` : `Cash ${commissionCash}% • Insurance ${commissionIns !== null ? commissionIns : commissionCash}%`) : (tt('wallet.5775987a'))}
+              {commissionCash !== null ? (tt('tpas.91d3bcfb', { p1: String(commissionCash), p2: String(commissionIns !== null ? commissionIns : commissionCash) })) : (tt('wallet.5775987a'))}
             </Text>
             {(totalRevenue > 0 && commissionCash !== null) && (
               <Text style={{ fontSize: FS.xs, color: theme.textSub }}>
-                {AR ? `صافيك التقريبي: ${Math.round(totalRevenue * (1 - commissionCash / 100))} ر.س` : `Your approx. net: ${Math.round(totalRevenue * (1 - commissionCash / 100))} SAR`}
+                {tt('tpas.95ceaea9', { p1: String(Math.round(totalRevenue * (1 - commissionCash / 100))) })}
               </Text>
             )}
           </View>

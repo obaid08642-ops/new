@@ -61,7 +61,7 @@ interface VideoCallRoomProps {
 
 export function VideoCallRoom({ appointmentId, sessionId: answeredSessionId, peerName, voiceOnly, onEnd }: VideoCallRoomProps) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const AR = lang === 'ar';
 
   const [phase, setPhase] = useState<'connecting' | 'connected' | 'error'>('connecting');
@@ -122,9 +122,7 @@ export function VideoCallRoom({ appointmentId, sessionId: answeredSessionId, pee
   const connect = async () => {
     if (!LIVEKIT_NATIVE_OK) {
       setPhase('error');
-      setErrMsg(AR
-        ? 'مكالمات الفيديو تتطلب نسخة تطوير (development build) — غير مدعومة داخل Expo Go.'
-        : 'Video calls require a development build — not supported inside Expo Go.');
+      setErrMsg(tt('sxk.245372f7'));
       return;
     }
     ensureGlobals();
@@ -183,7 +181,7 @@ export function VideoCallRoom({ appointmentId, sessionId: answeredSessionId, pee
               setTimeout(() => { if (!(endedRef.current as boolean)) connect(); }, Math.min(2000 * n, 8000));
               return;
             }
-            setErrMsg(AR ? 'انقطع الاتصال — تحقق من الشبكة ثم أعد المحاولة' : 'Connection lost — check your network and retry');
+            setErrMsg(tt('sxk.413c25e5'));
             setPhase('error');
           }
         },
@@ -276,7 +274,7 @@ export function VideoCallRoom({ appointmentId, sessionId: answeredSessionId, pee
     return (
       <View style={[st.box, { backgroundColor: '#111' }]}>
         <ActivityIndicator size="large" color={C.white} />
-        <Text style={st.dim}>{AR ? 'جاري الاتصال بغرفة الفيديو…' : 'Connecting to the video room…'}</Text>
+        <Text style={st.dim}>{tt('sxk.2d8e943f')}</Text>
       </View>
     );
   }
@@ -286,21 +284,21 @@ export function VideoCallRoom({ appointmentId, sessionId: answeredSessionId, pee
       <View style={[st.box, { backgroundColor: '#111' }]}>
         <I name="video-off" size={40} color="#F66" />
         <Text style={st.dim}>
-          {AR ? 'تعذر الاتصال بالغرفة — تحقق من الشبكة ثم أعد المحاولة' : 'Could not join the room — check your network and retry'}
+          {tt('sxk.135618d8')}
         </Text>
         {problem === 'mic_denied' || problem === 'mic_unavailable'
           ? <Text style={st.dim}>{mediaProblemText(problem, AR)}</Text>
           : !!errMsg && <Text style={[st.dim, { fontSize: FS.xs }]}>{String(errMsg)}</Text>}
         {problem === 'mic_denied' && (
           <TouchableOpacity onPress={() => { void Linking.openSettings(); }} style={{ marginTop: SP.md }}>
-            <Text style={[st.dim, { textDecorationLine: 'underline' }]}>{AR ? 'فتح إعدادات الجهاز' : 'Open device settings'}</Text>
+            <Text style={[st.dim, { textDecorationLine: 'underline' }]}>{tt('sxk.2fa74321')}</Text>
           </TouchableOpacity>
         )}
         <View style={{ marginTop: SP.lg, width: 220 }}>
-          <NBtn label={AR ? 'إعادة المحاولة' : 'Retry'} onPress={connect} />
+          <NBtn label={tt('sxk.cf333076')} onPress={connect} />
         </View>
         <TouchableOpacity onPress={onEnd} style={{ marginTop: SP.md }}>
-          <Text style={[st.dim, { textDecorationLine: 'underline' }]}>{AR ? 'العودة' : 'Go back'}</Text>
+          <Text style={[st.dim, { textDecorationLine: 'underline' }]}>{tt('sxk.39feb72c')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -316,8 +314,8 @@ export function VideoCallRoom({ appointmentId, sessionId: answeredSessionId, pee
           <View style={[st.avatar, { backgroundColor: theme.primary }]}>
             <I name="user" size={44} color={C.white} />
           </View>
-          <Text style={st.name}>{peerName || (AR ? 'المريض' : 'Patient')}</Text>
-          <Text style={st.dim}>{AR ? 'في انتظار فيديو الطرف الآخر…' : 'Waiting for the remote video…'}</Text>
+          <Text style={st.name}>{peerName || (tt('sxk.2990a575'))}</Text>
+          <Text style={st.dim}>{tt('sxk.655e547d')}</Text>
         </View>
       )}
 
@@ -338,20 +336,20 @@ export function VideoCallRoom({ appointmentId, sessionId: answeredSessionId, pee
           <Text style={st.bannerText}>{mediaProblemText(problem, AR)}</Text>
           {problem === 'camera_denied' && (
             <TouchableOpacity onPress={() => { void Linking.openSettings(); }}>
-              <Text style={[st.bannerText, { textDecorationLine: 'underline' }]}>{AR ? 'فتح الإعدادات' : 'Open settings'}</Text>
+              <Text style={[st.bannerText, { textDecorationLine: 'underline' }]}>{tt('sxk.6e2ab7cc')}</Text>
             </TouchableOpacity>
           )}
         </View>
       )}
       {/* Status over the call: reconnecting (the same call resumes) and sound only (weak link) */}
       <View style={st.status} pointerEvents="box-none">
-        {reconnecting ? <Text accessibilityLiveRegion="polite" style={[st.notice, { backgroundColor: theme.overlay }]}>{AR ? 'الاتصال ضعيف، نعيد الاتصال بالمكالمة…' : 'Weak connection. Reconnecting your call…'}</Text> : null}
-        {audioOnly ? <Text accessibilityLiveRegion="polite" style={[st.notice, { backgroundColor: theme.overlay }]}>{AR ? 'الاتصال ضعيف، فأوقفنا الفيديو وأبقينا الصوت.' : 'The connection is weak, so video is off and the sound is kept.'}</Text> : null}
+        {reconnecting ? <Text accessibilityLiveRegion="polite" style={[st.notice, { backgroundColor: theme.overlay }]}>{tt('sxk.9f0bbea0')}</Text> : null}
+        {audioOnly ? <Text accessibilityLiveRegion="polite" style={[st.notice, { backgroundColor: theme.overlay }]}>{tt('sxk.d9fdf96e')}</Text> : null}
         <View style={{ flexDirection: 'row', gap: 16 }}>
-          <View accessible accessibilityLabel={`${AR ? 'اتصالك' : 'Your connection'}: ${qualityText(quality.local, AR)}`} style={st.bars}>
+          <View accessible accessibilityLabel={`${tt('sxk.48f3aa54')}: ${qualityText(quality.local, AR)}`} style={st.bars}>
             {[1, 2, 3].map((n) => <View key={n} style={[st.bar, { height: 4 + n * 4, opacity: n <= qualityBars(quality.local) ? 1 : 0.3 }]} />)}
           </View>
-          <View accessible accessibilityLabel={`${AR ? 'اتصال الطرف الآخر' : "Other side's connection"}: ${qualityText(quality.remote, AR)}`} style={st.bars}>
+          <View accessible accessibilityLabel={`${tt('sxk.0ad63ca9')}: ${qualityText(quality.remote, AR)}`} style={st.bars}>
             {[1, 2, 3].map((n) => <View key={n} style={[st.bar, { height: 4 + n * 4, opacity: n <= qualityBars(quality.remote) ? 1 : 0.3 }]} />)}
           </View>
         </View>
@@ -359,20 +357,20 @@ export function VideoCallRoom({ appointmentId, sessionId: answeredSessionId, pee
 
       {/* Controls */}
       <View style={st.controls}>
-        <TouchableOpacity style={st.ctrl} onPress={() => setMicOn(v => !v)} accessibilityLabel={AR ? 'كتم الصوت' : 'Mute'}>
+        <TouchableOpacity style={st.ctrl} onPress={() => setMicOn(v => !v)} accessibilityLabel={tt('sxk.c285d464')}>
           <I name={micOn ? 'mic' : 'mic-off'} size={22} color={C.white} />
         </TouchableOpacity>
         {!voiceOnly && !audioOnly && (
-          <TouchableOpacity style={st.ctrl} onPress={() => setCamOn(v => !v)} accessibilityLabel={AR ? 'الكاميرا' : 'Camera'}>
+          <TouchableOpacity style={st.ctrl} onPress={() => setCamOn(v => !v)} accessibilityLabel={tt('sxk.20386009')}>
             <I name={camOn ? 'video' : 'video-off'} size={22} color={C.white} />
           </TouchableOpacity>
         )}
         {!voiceOnly && audioOnly && (
-          <TouchableOpacity style={st.ctrl} onPress={() => { setCamOn(true); void resilienceRef.current?.tryVideo(); }} accessibilityLabel={AR ? 'جرّب الفيديو مرة أخرى' : 'Try video again'}>
+          <TouchableOpacity style={st.ctrl} onPress={() => { setCamOn(true); void resilienceRef.current?.tryVideo(); }} accessibilityLabel={tt('sxk.af1bd72d')}>
             <I name="video" size={22} color={C.white} />
           </TouchableOpacity>
         )}
-        <TouchableOpacity style={[st.ctrl, { backgroundColor: '#E53935' }]} onPress={handleEnd} accessibilityLabel={AR ? 'إنهاء المكالمة' : 'End call'}>
+        <TouchableOpacity style={[st.ctrl, { backgroundColor: '#E53935' }]} onPress={handleEnd} accessibilityLabel={tt('sxk.0a1bb802')}>
           <I name="phone-off" size={22} color={C.white} />
         </TouchableOpacity>
       </View>

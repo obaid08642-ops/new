@@ -34,7 +34,7 @@ type Ledger = { transactions?: LedgerTxn[]; summary?: { pending: number; balance
 // figures of a server that does not send `wallet` yet.
 export function RevenueInsights({ onBack, role = 'provider' }: { onBack: () => void; role?: RevenueRole }) {
  const { theme } = useTheme();
- const { lang, t } = useLang();
+ const { lang, t, t: tt } = useLang();
  const AR = lang === 'ar';
  const [period, setPeriod] = useState<RevenuePeriod>(1);
  const [revenue, setRevenue] = useState<RevenueReply | null>(null);
@@ -84,8 +84,8 @@ export function RevenueInsights({ onBack, role = 'provider' }: { onBack: () => v
  const barColors = [theme.info, theme.primary, theme.warn, theme.danger, theme.success, theme.textSub];
 
  const title = role === 'facility'
-   ? (AR ? 'التقارير المالية الموحدة' : 'Unified Financial Reports')
-   : (AR ? 'تفاصيل الإيرادات والتحليلات' : 'Revenue Insights');
+   ? (tt('sxaa.b3324ce3'))
+   : (tt('sxaa.35ad9460'));
  const periods: [RevenuePeriod, string][] = [[1, t('revenue.period.month')], [3, t('revenue.period.quarter')], [12, t('revenue.period.year')]];
  const dash = '—';
 
@@ -106,13 +106,13 @@ export function RevenueInsights({ onBack, role = 'provider' }: { onBack: () => v
  </View>
 
  <NCard style={{ backgroundColor: theme.primary, alignItems: 'center' }}>
- <Text style={{ color: theme.textInv, opacity: 0.8, fontSize: FS.sm }}>{AR ? 'صافي الإيرادات' : 'Net earnings'}</Text>
+ <Text style={{ color: theme.textInv, opacity: 0.8, fontSize: FS.sm }}>{tt('sxaa.acf5a7fe')}</Text>
  <Text style={{ color: theme.textInv, fontSize: FS['3xl'], fontWeight: '800', marginVertical: SP.xs }}>
- {loading ? '…' : `${totals.net.toLocaleString()} ${AR ? 'ريال' : 'SAR'}`}
+ {loading ? '…' : `${totals.net.toLocaleString()} ${tt('sxaa.0e39e6ca')}`}
  </Text>
  {delta !== null && (
  <Text style={{ color: theme.textInv, opacity: 0.85, fontSize: FS.xs }}>
- {delta >= 0 ? '↗' : '↘'} {Math.abs(delta)}% {AR ? 'مقارنة بالفترة السابقة' : 'vs previous period'}
+ {delta >= 0 ? '↗' : '↘'} {Math.abs(delta)}% {tt('sxaa.40e6f5aa')}
  </Text>
  )}
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.xxl, marginTop: SP.lg }}>
@@ -126,11 +126,11 @@ export function RevenueInsights({ onBack, role = 'provider' }: { onBack: () => v
  </View>
  <View style={{ alignItems: 'center' }}>
  <Text style={{ color: theme.textInv, fontSize: FS.lg, fontWeight: FW.bold }}>{summary ? summary.pending.toLocaleString() : dash}</Text>
- <Text style={{ color: theme.textInv, opacity: 0.7, fontSize: FS.xs }}>{AR ? 'معلّق' : 'Pending'}</Text>
+ <Text style={{ color: theme.textInv, opacity: 0.7, fontSize: FS.xs }}>{tt('sxaa.28ae1d5f')}</Text>
  </View>
  <View style={{ alignItems: 'center' }}>
  <Text style={{ color: theme.textInv, fontSize: FS.lg, fontWeight: FW.bold }}>{summary ? summary.balance.toLocaleString() : dash}</Text>
- <Text style={{ color: theme.textInv, opacity: 0.7, fontSize: FS.xs }}>{AR ? 'الرصيد' : 'Balance'}</Text>
+ <Text style={{ color: theme.textInv, opacity: 0.7, fontSize: FS.xs }}>{tt('sxaa.cdaeae3e')}</Text>
  </View>
  </View>
  </NCard>
@@ -143,11 +143,11 @@ export function RevenueInsights({ onBack, role = 'provider' }: { onBack: () => v
 
  {!loading && !hasData && (
  <NCard>
- <Text style={{ color: theme.textSub, textAlign: 'center' }}>{AR ? 'لا توجد حركات مالية بعد — ستظهر الإيرادات هنا فور اكتمال أول خدمة مدفوعة.' : 'No financial transactions yet — revenue will appear here once your first paid service completes.'}</Text>
+ <Text style={{ color: theme.textSub, textAlign: 'center' }}>{tt('sxaa.b66497e1')}</Text>
  </NCard>
  )}
 
- <NSecHeader title={AR ? 'مؤشر الإيرادات الشهرية' : 'Monthly Revenue Trend'} />
+ <NSecHeader title={tt('sxaa.5b70c510')} />
  <NCard>
  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
  <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: SP.sm, height: 120 }}>
@@ -163,12 +163,12 @@ export function RevenueInsights({ onBack, role = 'provider' }: { onBack: () => v
  </ScrollView>
  </NCard>
 
- <NSecHeader title={AR ? 'الخدمات الأكثر ربحاً' : 'Top Earning Services'} />
+ <NSecHeader title={tt('sxaa.d2dc8a1d')} />
  {loading ? (
  <ActivityIndicator color={theme.primary} />
  ) : topServices.length === 0 ? (
  <NCard>
- <Text style={{ color: theme.textSub, textAlign: 'center' }}>{AR ? 'لا توجد إيرادات في هذه الفترة.' : 'No earnings in this period.'}</Text>
+ <Text style={{ color: theme.textSub, textAlign: 'center' }}>{tt('sxaa.386452d8')}</Text>
  </NCard>
  ) : (
  <NCard style={{ gap: SP.lg }}>
@@ -178,7 +178,7 @@ export function RevenueInsights({ onBack, role = 'provider' }: { onBack: () => v
  <View key={label}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: 4 }}>
  <Text style={{ fontSize: FS.sm, color: theme.text }}>{serviceLabel(label, AR)}</Text>
- <Text style={{ fontSize: FS.sm, color: theme.text, fontWeight: FW.bold }}>{val.toLocaleString()} {AR ? 'ر' : 'SAR'}</Text>
+ <Text style={{ fontSize: FS.sm, color: theme.text, fontWeight: FW.bold }}>{val.toLocaleString()} {tt('sxaa.a629499b')}</Text>
  </View>
  <View style={{ height: 6, backgroundColor: theme.surface3, borderRadius: R.full, overflow: 'hidden' }}>
  <View style={{ width: `${pct}%` as `${number}%`, height: '100%', backgroundColor: theme.primary }} />
@@ -191,7 +191,7 @@ export function RevenueInsights({ onBack, role = 'provider' }: { onBack: () => v
 
  {hasData && (
  <>
- <NSecHeader title={AR ? 'التوزيع حسب نوع الحركة' : 'Breakdown by Transaction Type'} />
+ <NSecHeader title={tt('sxaa.2c4dcc79')} />
  <NCard>
  {sumsList.map(([type, amt], i) => {
  const pct = Math.round((amt / sumsTotal) * 100);

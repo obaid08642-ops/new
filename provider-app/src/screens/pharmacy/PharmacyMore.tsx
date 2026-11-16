@@ -156,7 +156,7 @@ export function SetupChecklist({ onNavigate, onToggleOnline, compact, onOpenMore
   compact?: boolean;
   onOpenMore?: () => void;
 }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
   const { items, loading, reload } = usePharmacySetup();
   if (loading && !items) return <ActivityIndicator color={theme.primary} style={{ marginVertical: SP.md }} />;
   if (!items) return null;
@@ -171,7 +171,7 @@ export function SetupChecklist({ onNavigate, onToggleOnline, compact, onOpenMore
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between', gap: SP.md }}>
             <View style={{ flex: 1 }}>
               <Text style={{ color: theme.text, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>
-                {AR ? `أكمل تجهيز الصيدلية (${doneCount}/${items.length})` : `Finish setting up (${doneCount}/${items.length})`}
+                {tt('tpab.556a4b7c', { p1: String(doneCount), p2: String(items.length) })}
               </Text>
               <Text style={{ color: theme.textSub, fontSize: FS.xs, textAlign: AR ? 'right' : 'left' }}>{AR ? remaining[0].ar : remaining[0].en}</Text>
             </View>
@@ -185,7 +185,7 @@ export function SetupChecklist({ onNavigate, onToggleOnline, compact, onOpenMore
   return (
     <NCard style={{ marginBottom: SP.md }}>
       <Text style={{ color: theme.text, fontWeight: FW.bold, fontSize: FS.md, textAlign: AR ? 'right' : 'left' }}>
-        {AR ? `أكمل تجهيز الصيدلية (${doneCount}/${items.length})` : `Finish setting up (${doneCount}/${items.length})`}
+        {tt('tpab.556a4b7c', { p1: String(doneCount), p2: String(items.length) })}
       </Text>
       {items.map(item => (
         <TouchableOpacity
