@@ -14,7 +14,7 @@ const TYPES = [
 
 export function FacilityResourcesScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
@@ -39,17 +39,17 @@ export function FacilityResourcesScreen({ onBack }: { onBack: () => void }) {
 
   const handleAdd = async () => {
     if (!nameAr.trim() && !nameEn.trim()) {
-      show(AR ? 'أدخل اسم المورد' : 'Enter resource name', 'error');
+      show(tt('fres.84b832e7'), 'error');
       return;
     }
     setSaving(true);
     try {
       await client.post('/facility/resources', { name_ar: nameAr.trim(), name_en: nameEn.trim(), type: addType });
-      show(AR ? 'تمت إضافة المورد' : 'Resource added', 'success');
+      show(tt('fres.b35dd6e4'), 'success');
       setNameAr(''); setNameEn(''); setShowAdd(false);
       fetchAll();
     } catch (err: any) {
-      show(err?.response?.data?.message || (AR ? 'فشل إضافة المورد' : 'Failed to add resource'), 'error');
+      show(err?.response?.data?.message || (tt('fres.dc20ab21')), 'error');
     } finally { setSaving(false); }
   };
 
@@ -60,7 +60,7 @@ export function FacilityResourcesScreen({ onBack }: { onBack: () => void }) {
       await client.put(`/facility/resources/${res.id}`, { status: next });
       fetchAll();
     } catch (err: any) {
-      show(err?.response?.data?.message || (AR ? 'فشل تحديث الحالة' : 'Status update failed'), 'error');
+      show(err?.response?.data?.message || (tt('fres.f95c9521')), 'error');
     } finally { setBusyId(null); }
   };
 
@@ -68,7 +68,7 @@ export function FacilityResourcesScreen({ onBack }: { onBack: () => void }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'إدارة الموارد' : 'Resource Management'} onBack={onBack} />
+      <NHeader title={tt('fres.3cfef923')} onBack={onBack} />
 
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', padding: SP.md, gap: SP.sm, backgroundColor: theme.surface }}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -89,16 +89,16 @@ export function FacilityResourcesScreen({ onBack }: { onBack: () => void }) {
       <NScroll>
         <View style={{ padding: SP.xl }}>
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.lg }}>
-            <NSecHeader title={AR ? 'الموارد المسجلة' : 'Registered Resources'} />
+            <NSecHeader title={tt('fres.94af421c')} />
             <TouchableOpacity style={{ padding: SP.xs }} onPress={() => setShowAdd(v => !v)}>
-              <Text style={{ color: theme.primary, fontWeight: FW.bold }}>{showAdd ? (AR ? 'إلغاء' : 'Cancel') : (AR ? '+ إضافة مورد' : '+ Add Resource')}</Text>
+              <Text style={{ color: theme.primary, fontWeight: FW.bold }}>{showAdd ? (tt('fres.210b779f')) : (tt('fres.2564f298'))}</Text>
             </TouchableOpacity>
           </View>
 
           {showAdd && (
             <NCard style={{ marginBottom: SP.lg }}>
-              <NInput label={AR ? 'الاسم بالعربية' : 'Arabic name'} placeholder={AR ? 'مثال: غرفة عمليات ب' : 'e.g. OR B'} value={nameAr} onChange={setNameAr} />
-              <NInput label={AR ? 'الاسم بالإنجليزية' : 'English name'} placeholder="e.g. Operating Room B" value={nameEn} onChange={setNameEn} />
+              <NInput label={tt('fres.f459eb09')} placeholder={tt('fres.4e11e219')} value={nameAr} onChange={setNameAr} />
+              <NInput label={tt('fres.7a61d176')} placeholder="e.g. Operating Room B" value={nameEn} onChange={setNameEn} />
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginBottom: SP.md }}>
                 {TYPES.filter(t => t.id !== 'all').map(t => (
                   <TouchableOpacity key={t.id} onPress={() => setAddType(t.id)}
@@ -107,14 +107,14 @@ export function FacilityResourcesScreen({ onBack }: { onBack: () => void }) {
                   </TouchableOpacity>
                 ))}
               </View>
-              <NBtn label={AR ? 'حفظ المورد' : 'Save Resource'} loading={saving} onPress={handleAdd} />
+              <NBtn label={tt('fres.42aedd79')} loading={saving} onPress={handleAdd} />
             </NCard>
           )}
 
           {loading ? (
             <ActivityIndicator color={theme.primary} style={{ marginVertical: SP.xl }} />
           ) : filtered.length === 0 ? (
-            <NEmpty title={AR ? 'لا توجد موارد مسجلة' : 'No resources registered'} subtitle={AR ? 'أضف غرف العمليات والعيادات والأجهزة لإدارتها' : 'Add ORs, clinics and equipment to manage them'} />
+            <NEmpty title={tt('fres.a195ac89')} subtitle={tt('fres.17b668d0')} />
           ) : filtered.map(res => (
             <NCard key={res.id} style={{ marginBottom: SP.md }}>
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -129,7 +129,7 @@ export function FacilityResourcesScreen({ onBack }: { onBack: () => void }) {
                   </Text>
                 </View>
                 <NBadge
-                  label={res.status === 'active' ? (AR ? 'نشط' : 'Active') : (AR ? 'صيانة' : 'Maintenance')}
+                  label={res.status === 'active' ? (tt('fres.03886b8f')) : (tt('fres.0a85597b'))}
                   variant={res.status === 'active' ? 'success' : 'warning'}
                 />
               </View>
@@ -137,7 +137,7 @@ export function FacilityResourcesScreen({ onBack }: { onBack: () => void }) {
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.md, borderTopWidth: 1, borderTopColor: theme.border, paddingTop: SP.sm }}>
                 <TouchableOpacity disabled={busyId === res.id} onPress={() => toggleStatus(res)}>
                   <Text style={{ fontSize: FS.xs, color: theme.primary, fontWeight: FW.bold }}>
-                    {res.status === 'active' ? (AR ? 'تحويل للصيانة' : 'Set Maintenance') : (AR ? 'إعادة التفعيل' : 'Reactivate')}
+                    {res.status === 'active' ? (tt('fres.2a9b3a92')) : (tt('fres.86577b01'))}
                   </Text>
                 </TouchableOpacity>
               </View>
