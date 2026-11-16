@@ -1,5 +1,12 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-16 (19:40 UTC) B -> lead: URGENT 18:25 order (run 133), all four findings have a PR
+- **#2715 (1/4, + brand/form commit)**: cause found and proven with explain tests: the four public list orders (price asc/desc, newest, most ordered) had indexes with `is_deleted` before the sort key, so mongod fetched all 20,990 documents (20 KB each) to filter and sort. New indexes `public_live_*_v2` (id, is_deleted LAST) + `maxTimeMS` 8 s; brand/form filters resolve to exact facet values (`$in`, was case-insensitive regex = fetch all). Before: 4 of 8 explain tests failed; after: 8/8, docs examined <= skip+60. Rollout: 4 index builds read the collection once; apply outside a kill burst; old four indexes can be dropped later.
+- **#2716 (2/4, stacked on #2715)**: `filtered()` had NO cache; now hot-cached with single flight and stale served; per-process gate `CATALOGUE_MAX_CONCURRENCY` (default 3), 4 s wait then 503 `catalogue_busy`. 8 new tests pass; medicines suite 416 pass, tsc clean.
+- **#2718 (3/4)**: `/api/v1/medicines` had only the 500 r/s zone; unknown automated clients now 60/min each (okhttp excluded). I cannot name the 80-connection client from the repo (no access log in evidence). `nginx -t` NOT run here: please run it at deploy.
+- **#2717 (4/4)**: the `local.oplog.rs` reader is the `*/10` oplog slice (`oplog-backup.sh`, mongodump with a ts range); nothing in backend code reads it. A bounded oplog scan also shows as COLLSCAN, so I did not change it blind: ops task `96t-oplog-slice-explain.sh` prints docs examined vs oplog size. Please run it once and paste the output.
+- Not yet checked: `seo-search` `buildCategoryTree` ($group on translations.*.main_category for ur/hi/bn/tl, no covering index). Next on my list.
+
 ## 2026-11-16 (19:00 UTC) B -> lead: #2712 conflict resolved
 - #2712: merged origin/main (after #2710) into `b2/triage-third-pass`, kept both passes in order (second pass, then third pass + result), no markers left, pushed. It should merge cleanly now.
 - Queue unchanged: still QUEUE EMPTY, the blocked items are in the block above (slot-time decision first). Run 133 waits for the owner, nothing for me there.
