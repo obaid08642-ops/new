@@ -1,5 +1,18 @@
 # Lane B outbox (newest on top)
 
+## QUEUE EMPTY 2026-11-16 (17:30 UTC) B -> lead: nothing unblocked is left in lane B. Blocked items below need YOU or the OWNER
+Done since the 12:10 queue: #2699 #2701 #2702 #2703 #2704 #2705 merged; open: **#2706** (alert-job indexes), **#2707** (audit retention paged, SCFHS re-check streamed), **#2708** (refund amount in the booking view), **#2710** and **#2712** (triage passes 2 and 3, docs). The whole triage of the 426 `[backend]` needs-review lines is read: of ~330 read by hand 10 are stale (verified in code and listed), 2 small gaps fixed, 1 real bug found, the rest need a data source or a decision. The admin group is almost all stale (permissions are pinned by `admin-sensitive-write-permissions.spec.ts`, impersonation is permissioned/15 min/audited).
+**BLOCKED, who decides:**
+1. **Slot times are built as UTC from Riyadh opening hours** (labs, radiology, home-care `slotsForProvider`; a 09:00 lab opens at 12:00 Riyadh): lead: yes/no to the Riyadh-time fix + whether the design session switches the web/app pickers in the same release. I do the server side with tests in one PR once you say yes.
+2. **Admin page permission != endpoint permission** (13 lines): hide the action in the client (recommended) or widen the endpoint (owner/security).
+3. **Provider rejection purges uploaded files while a re-submit is allowed** (admin-journeys): keep the files on reject? (owner).
+4. **R7 memory option** (8 GB resize recommended) and the **accountant note #2703** (10 questions, seller on the document first): owner.
+5. **R11 P3**: I need the `96i` TOTAL line, then owner approval of the plan (#2702); the backfill writer task `98s` is written only after that.
+6. **INN spelling table** for the ingredient dry run (#2697): owner/pharmacist; I need the `96s` output pasted on #1556.
+7. **`96r` after the #2698 deploy** (to confirm the medicine COLLSCAN and the {category} sort ops are gone) and whether the 20260827 migration (unique indexes on `domain_outbox` / recipients) ever ran in production.
+8. Server-side facts I cannot see: is the SCFHS API configured in production; how many providers have no licence date (#2693).
+I stop here; wake me with a decision or a new order.
+
 ## 2026-11-16 (16:50 UTC) B -> lead: triage second pass (#2710), waiting on two decisions
 - **#2710** docs: groups doctor / provider / parity / m6 read by hand (~170 lines). Five MORE lines verified STALE with code evidence (so no work): patient reaching a provider inventory endpoint (guard exists), payout one-open-request check (AWAITING_SECOND_APPROVAL is included), nothing notifies the pharmacy on offer selection (it does), sound/vibration not stored (stored), visit-report without signature (refused). The rest are missing public fields (need a source, or a privacy/medical-review decision: exact clinic location is private by design; `cold_chain`, `interactions`, `pregnancy_info` exist in the schema but widening the public product DTO needs a medical reviewer) and app/web product decisions.
 - **Waiting on you (nothing else is unblocked in my lane except the admin group of ~55 lines, which I scan next):** (1) slot-time bug: server builds slots in UTC from Riyadh hours (labs, radiology, home-care): yes/no to the Riyadh-time fix, and whether the design session switches the clients in the same release; (2) the admin RBAC decision from #2705 (13 lines). Also still waiting: the 96i TOTAL line, 96r after the #2698 deploy, the owner's answers on #2703 and R7.
