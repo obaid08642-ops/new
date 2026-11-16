@@ -68,7 +68,7 @@ describe('radiology slot capacity', () => {
     const open = new Date(Date.UTC(2030, 0, 6, 0, 0, 0));
     svc.profileModel.findOne = () => ({ lean: async () => ({ account_id: 'acc-1', slot_capacity: 2, schedule_clinic: [{ day: 'all', open: '09:00', close: '10:00' }] }) });
     svc.conn = null;
-    const slotId = new Date(open.getTime() + 9 * 3600_000).toISOString();
+    const slotId = new Date(open.getTime() + 6 * 3600_000).toISOString(); // 09:00 Riyadh = 06:00Z
     svc.bkgModel.find = () => ({ select: () => ({ lean: async () => [{ scheduled_at: slotId }, { scheduled_at: slotId }] }) });
     const out = await svc.slotsForProvider('acc-1', '2030-01-06', 30);
     expect(out.capacity).toBe(2);
@@ -76,6 +76,16 @@ describe('radiology slot capacity', () => {
     expect(full).toMatchObject({ available: false, remaining: 0 });
     const free = out.slots.find((x: any) => x.start !== slotId);
     expect(free).toMatchObject({ available: true, remaining: 2 });
+  });
+
+  it('an evening window 20:00-23:00 (Riyadh) gives slots on the right day, with Riyadh labels', async () => {
+    const { svc } = build(1);
+    svc.profileModel.findOne = () => ({ lean: async () => ({ account_id: 'acc-1', slot_capacity: 1, schedule_clinic: [{ day: 'all', open: '20:00', close: '23:00' }] }) });
+    svc.conn = null;
+    svc.bkgModel.find = () => ({ select: () => ({ lean: async () => [] }) });
+    const out = await svc.slotsForProvider('acc-1', '2030-01-06', 60);
+    expect(out.slots.map((x: any) => x.start)).toEqual(['2030-01-06T17:00:00.000Z', '2030-01-06T18:00:00.000Z', '2030-01-06T19:00:00.000Z']);
+    expect(out.slots.map((x: any) => x.label)).toEqual(['20:00', '21:00', '22:00']);
   });
 
   it('the centre sets its own number, 1 to 20 only', async () => {
