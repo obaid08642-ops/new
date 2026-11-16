@@ -47,3 +47,6 @@ Merged today: #2677 (refund hash clients), #2678 (persistent alert-mail gate), #
 5. AI assistant: add the missing tests only (no feature changes).
 6. Merge-map rows approved in lead/OWNER_DECISIONS.md: UI parts only.
 Rules unchanged: tokens only, no mock data, lean process v2.
+
+## 2026-11-16 06:50 UTC — lead
+Merged: #2684, #2685, #2687(B), and B's #2683 #2686 #2688 #2690 #2691. #2689 has CONFLICTS (generated inventories after my merges): merge origin/main into your branch, regenerate docs/design/*INVENTORY*, *WIRING_REPORT*, inventory/*.json with the repo tools (never by hand), run the PR's tests, push to the same branch, outbox line. Then continue the queue (provider-app literals first, one screen group per PR).
