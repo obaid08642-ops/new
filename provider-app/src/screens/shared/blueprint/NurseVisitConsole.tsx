@@ -34,7 +34,7 @@ function toVisit(x: unknown): VisitRow | null {
 // (transit, GPS arrival, care, signature), which is the one visit flow.
 export function NurseVisitConsole({ onBack, onNavigate }: { onBack: () => void; onNavigate: (s: string, p?: any) => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const AR = lang === 'ar';
   const [rows, setRows] = useState<VisitRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,24 +55,24 @@ export function NurseVisitConsole({ onBack, onNavigate }: { onBack: () => void; 
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'زيارات التمريض النشطة' : 'Active nursing visits'} onBack={onBack} />
+      <NHeader title={tt('rrcz.455cc0db')} onBack={onBack} />
       {loading ? (
         <ActivityIndicator color={theme.primary} style={{ marginTop: SP.xxl }} />
       ) : failed ? (
         <NCard style={{ margin: SP.lg, alignItems: 'center', gap: SP.sm }}>
-          <Text style={{ color: theme.text, textAlign: 'center' }}>{AR ? 'تعذر تحميل الزيارات' : 'Could not load visits'}</Text>
-          <NBtn label={AR ? 'إعادة المحاولة' : 'Retry'} size="sm" variant="outline" full={false} onPress={() => { void load(); }} />
+          <Text style={{ color: theme.text, textAlign: 'center' }}>{tt('rrcz.e9989504')}</Text>
+          <NBtn label={tt('rrcz.cf333076')} size="sm" variant="outline" full={false} onPress={() => { void load(); }} />
         </NCard>
       ) : (
         <ScrollView contentContainerStyle={{ padding: SP.lg, gap: SP.sm }}>
-          {rows.length === 0 && <NEmpty icon="calendar" title={AR ? 'لا توجد زيارات نشطة' : 'No active visits'} sub={AR ? 'الزيارات المقبولة تظهر هنا' : 'Accepted visits appear here'} />}
+          {rows.length === 0 && <NEmpty icon="calendar" title={tt('rrcz.3c63394e')} sub={tt('rrcz.0c6f5c88')} />}
           {rows.map(r => (
             <NCard key={r.id} onPress={() => onNavigate('order_detail', r.raw)}>
-              <Text style={{ color: theme.text, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>{r.patient || (AR ? 'مريض' : 'Patient')}</Text>
+              <Text style={{ color: theme.text, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>{r.patient || (tt('rrcz.c8b7f288'))}</Text>
               {!!r.when && <Text style={{ color: theme.textSub, fontSize: FS.sm, marginTop: SP.xs, textAlign: AR ? 'right' : 'left' }}>{r.when}</Text>}
             </NCard>
           ))}
-          <NBtn label={AR ? 'قائمة المهام' : 'Checklist'} variant="outline" onPress={() => onNavigate('nurse_checklist')} style={{ marginTop: SP.md }} />
+          <NBtn label={tt('rrcz.fe2d9ea6')} variant="outline" onPress={() => onNavigate('nurse_checklist')} style={{ marginTop: SP.md }} />
         </ScrollView>
       )}
     </View>

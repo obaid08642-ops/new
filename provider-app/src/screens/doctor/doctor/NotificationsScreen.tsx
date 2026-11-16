@@ -38,7 +38,7 @@ import { fmtTime } from '../../../utils/dates';
 
 export function NotificationsScreen({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
  const [filter, setFilter] = useState<'all'|'unread'|'requests'|'payments'|'radiology_results'>('all');
@@ -86,17 +86,17 @@ export function NotificationsScreen({ onBack }: { onBack: () => void }) {
  <Text style={{ color: theme.primary, fontSize: FS.md }}>{AR ? '→' : '←'}</Text>
  </TouchableOpacity>
  <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text, flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center' }}>
- <I name="bell" size={24} color={theme.text} /> {AR ? 'الإشعارات' : 'Notifications'}
+ <I name="bell" size={24} color={theme.text} /> {tt('rrai.5e885201')}
  </Text>
  <TouchableOpacity onPress={async () => {
    try {
      await client.post('/provider/notifications/read-all', {});
      setNOTIFS((prev) => prev.map((n) => ({ ...n, unread: false })));
    } catch {
-     show(AR ? 'تعذر مسح الإشعارات' : 'Could not clear notifications', 'error');
+     show(tt('rrai.5dda0e47'), 'error');
    }
  }}>
- <Text style={{ fontSize: FS.sm, color: theme.primary }}>{AR ? 'مسح الكل' : 'Clear All'}</Text>
+ <Text style={{ fontSize: FS.sm, color: theme.primary }}>{tt('rrai.ea95f4b3')}</Text>
  </TouchableOpacity>
  </View>
 

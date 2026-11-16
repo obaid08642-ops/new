@@ -21,14 +21,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function ReputationHub({ onBack }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
  const [reviews, setReviews] = useState<any[]>([]);
  const [loading, setLoading] = useState(true);
  useEffect(() => {
    client.get('/provider/reviews').then(r => setReviews(toReviews(r.data))).catch(() => {
-     show(AR ? 'تعذر تحميل التقييمات' : 'Could not load reviews', 'error');
+     show(tt('rrdb.05ae4bdb'), 'error');
    }).finally(() => setLoading(false));
  }, []);
  const avg = reviews.length ? (reviews.reduce((a: number, r: any) => a + (Number(r.rating) || 0), 0) / reviews.length) : 0;
@@ -36,10 +36,10 @@ export function ReputationHub({ onBack }) {
  return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
  <NScroll>
- <NHeader title={AR ? 'لوحة السمعة والتقييمات' : 'Reputation & Ratings'} onBack={onBack} />
+ <NHeader title={tt('rrdb.7ae359eb')} onBack={onBack} />
  <View style={{ padding: SP.xl, gap: SP.xl }}>
  {loading ? <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} /> : reviews.length === 0 ? (
- <NEmpty icon="star" title={AR ? 'لا توجد تقييمات بعد' : 'No reviews yet'} sub={AR ? 'ستظهر تقييمات المرضى هنا فور وصولها' : 'Patient reviews will appear here'} />
+ <NEmpty icon="star" title={tt('rrdb.b121fb16')} sub={tt('rrdb.a2943662')} />
  ) : (<>
  <NCard style={{ alignItems: 'center', paddingVertical: SP.xxl }}>
  <Text style={{ fontSize: FS['2xl'], fontWeight: FW.bold, color: theme.primary }}>{avg.toFixed(1)}</Text>
@@ -47,7 +47,7 @@ export function ReputationHub({ onBack }) {
  </NCard>
  <NCard>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: SP.xs }}>
- <Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? 'نسبة الرد على التقييمات' : 'Review reply rate'}</Text>
+ <Text style={{ fontSize: FS.sm, color: theme.text }}>{tt('rrdb.6aa4bf02')}</Text>
  <Text style={{ fontSize: FS.sm, color: theme.success, fontWeight: FW.bold }}>{Math.round((replied / reviews.length) * 100)}%</Text>
  </View>
  <View style={{ height: 8, backgroundColor: theme.surface3, borderRadius: R.full, overflow: 'hidden' }}>

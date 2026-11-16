@@ -43,7 +43,7 @@ import { tokens } from '../../../theme/tokens';
 
 export function FacilityOrdersTab({ onNavigate, onRefresh }: any) {
  const insets = useSafeAreaInsets();
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
   const [tab, setTab] = useState<'pending'|'active'|'inbox'>('pending');
   // Governed job queue (hospital kinds: lab, radiology, consultation); accept/reject in FacilityOrderDetail.
   const [incoming, setIncoming] = useState<any[]>([]);
@@ -67,7 +67,7 @@ export function FacilityOrdersTab({ onNavigate, onRefresh }: any) {
     <NCard key={`${order.kind}:${order.id}`} style={{ marginBottom: SP.md }} onPress={() => (confirmed ? null : onNavigate('order_detail', order))}>
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{order.title_ar || order.kind}</Text>
-        <NBadge label={confirmed ? (AR ? 'مؤكد' : 'Confirmed') : (AR ? 'جديد' : 'New')} variant={confirmed ? 'success' : 'info'} size="xs" />
+        <NBadge label={confirmed ? (tt('rrbg.1cab1a63')) : (tt('rrbg.7a64641b'))} variant={confirmed ? 'success' : 'info'} size="xs" />
       </View>
       <Text style={{ color: theme.textSub, marginTop: SP.sm, textAlign: AR ? 'right' : 'left' }}>
         {order.tracking_id} · {order.total} SAR{order.scheduled_at ? ` · ${new Date(order.scheduled_at).toLocaleString(AR ? 'ar-SA' : 'en-US')}` : ''}
@@ -84,7 +84,7 @@ export function FacilityOrdersTab({ onNavigate, onRefresh }: any) {
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <View style={[s.topBar, { backgroundColor: theme.surface, borderBottomColor: theme.border, paddingTop: Math.max(insets.top, 16) }]}>
-        <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>{AR ? 'الطلبات' : 'Orders'}</Text>
+        <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>{tt('rrbg.68fdab11')}</Text>
       </View>
 
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', borderBottomWidth: 1, borderColor: theme.border }}>
@@ -96,13 +96,13 @@ export function FacilityOrdersTab({ onNavigate, onRefresh }: any) {
       </View>
 
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}>
-        {tab === 'pending' && (incoming.length === 0 ? <NEmpty title={AR ? 'لا توجد طلبات' : 'No Orders'} icon="document" /> : incoming.map(o => jobCard(o, false)))}
-        {tab === 'active' && (active.length === 0 ? <NEmpty title={AR ? 'لا توجد مواعيد' : 'No Appointments'} icon="calendar" /> : active.map(o => jobCard(o, true)))}
-        {tab === 'inbox' && (inbox.length === 0 ? <NEmpty title={AR ? 'لا توجد إشعارات' : 'No Notices'} icon="notifications" /> : inbox.map((n: any) => (
+        {tab === 'pending' && (incoming.length === 0 ? <NEmpty title={tt('rrbg.9e10b89c')} icon="document" /> : incoming.map(o => jobCard(o, false)))}
+        {tab === 'active' && (active.length === 0 ? <NEmpty title={tt('rrbg.852c29b1')} icon="calendar" /> : active.map(o => jobCard(o, true)))}
+        {tab === 'inbox' && (inbox.length === 0 ? <NEmpty title={tt('rrbg.713f6bc5')} icon="notifications" /> : inbox.map((n: any) => (
           <NCard key={n.id} style={{ marginBottom: SP.md, opacity: n.read ? 0.6 : 1 }} onPress={() => !n.read && markRead(n.id)}>
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{n.title}</Text>
-              {!n.read && <NBadge label={AR ? 'جديد' : 'New'} variant="warning" size="xs" />}
+              {!n.read && <NBadge label={tt('rrbg.7a64641b')} variant="warning" size="xs" />}
             </View>
             <Text style={{ color: theme.textSub, marginTop: SP.sm, textAlign: AR ? 'right' : 'left' }}>{n.body}</Text>
             {n.created_at ? <Text style={{ color: theme.textSub, fontSize: FS.xs, marginTop: SP.xs }}>{new Date(n.created_at).toLocaleString(AR ? 'ar-SA' : 'en-US')}</Text> : null}

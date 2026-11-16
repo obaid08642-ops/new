@@ -163,7 +163,7 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
             (Array.isArray(appsRes.data) ? appsRes.data : []).forEach((a: any) => all.push({
               id: a.id,
               jobTitle: job.title || '',
-              applicantName: a.candidate?.full_name || (AR ? 'متقدم' : 'Applicant'),
+              applicantName: a.candidate?.full_name || (tt('rrdt.83caaf85')),
               phone: a.candidate?.phone || '',
               scfhs: a.candidate?.scfhs_license_status || a.candidate?.scfhs_license_number || '',
               exp: typeof a.candidate?.experience_years === 'number' ? String(a.candidate.experience_years) : (Array.isArray(a.candidate?.experiences) && a.candidate.experiences.length ? `${a.candidate.experiences.length} entries` : '—'),
@@ -190,11 +190,11 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
 
   const handlePost = async () => {
     if (!postTitle.trim() || !postCity.trim()) {
-      show(AR ? 'أدخل المسمى الوظيفي والمدينة' : 'Enter job title and city', 'warning');
+      show(tt('rrdt.fba86813'), 'warning');
       return;
     }
     if (isGuest && !guestId) {
-      show(AR ? 'تعذر وضع الضيف — أعد فتح الشاشة' : 'Guest mode unavailable — reopen the screen', 'error');
+      show(tt('rrdt.0849b2e4'), 'error');
       return;
     }
     setPosting(true);
@@ -216,7 +216,7 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
           location: postCity.trim(),
           salary_range: postSalary.trim() || undefined,
         });
-        show(AR ? 'تم إرسال طلبك — سيظهر بعد مراجعة الإدارة' : 'Submitted — visible after admin review', 'success');
+        show(tt('rrdt.00033704'), 'success');
         setTab('browse');
         return;
       }
@@ -238,17 +238,17 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
           postProf ? (tt('tpar.53f0a05f', { p1: String(postProf) })) : '',
           postExp ? (tt('tpar.217a4dbd', { p1: String(postExp) })) : '',
           postNat ? (tt('tpar.34030e3c', { p1: String(postNat) })) : '',
-          postContract === 'fulltime' ? (AR ? 'دوام كامل' : 'Full-Time') : postContract === 'parttime' ? (AR ? 'دوام جزئي' : 'Part-Time') : (AR ? 'لوكم / زيارات' : 'Locum'),
+          postContract === 'fulltime' ? (tt('rrdt.d5df55c2')) : postContract === 'parttime' ? (tt('rrdt.e7a360c9')) : (tt('rrdt.3563a1cf')),
         ].filter(Boolean),
         status: 'published',
       });
       const created = res.data;
       setJobs([mapJob({ ...created, title: created?.title || postTitle.trim() }), ...jobs]);
-      show(AR ? 'تم نشر الإعلان بنجاح' : 'Posted successfully', 'success');
+      show(tt('rrdt.3498ea04'), 'success');
       setTab('browse');
     } catch (e: any) {
       const msg = e?.response?.data?.message;
-      show(typeof msg === 'string' ? msg : (AR ? 'تعذر نشر الإعلان — نشر الوظائف متاح للمنشآت الصحية فقط' : 'Could not post — job posting is limited to healthcare facilities'), 'error');
+      show(typeof msg === 'string' ? msg : (tt('rrdt.9fd22f90')), 'error');
     } finally {
       setPosting(false);
     }
@@ -257,22 +257,22 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
   const handleApply = async () => {
     setApplyVisible(false);
     if (isGuest) {
-      if (!guestId) { show(AR ? 'تعذر وضع الضيف' : 'Guest mode unavailable', 'error'); return; }
+      if (!guestId) { show(tt('rrdt.c543abd1'), 'error'); return; }
       try {
         await client.post(`/recruitment/jobs/${selectedJob.id}/guest-apply`, {
           device_id: guestId, name: applyName.trim(), phone: applyPhone.trim(),
           cover_letter: [applyClass ? (tt('tpar.38dd05bc', { p1: String(applyClass) })) : '', applyExp ? (tt('tpar.969c7d72', { p1: String(applyExp) })) : '', applyReady || ''].filter(Boolean).join('\n'),
         });
-        show(AR ? 'تم إرسال طلبك لصاحب العمل' : 'Application sent to employer', 'success');
+        show(tt('rrdt.b5d8b640'), 'success');
       } catch (e: any) {
-        show(typeof e?.response?.data?.message === 'string' ? e.response.data.message : (AR ? 'تعذر إرسال الطلب' : 'Could not apply'), 'error');
+        show(typeof e?.response?.data?.message === 'string' ? e.response.data.message : (tt('rrdt.41f41574')), 'error');
       }
       setTimeout(() => setSelectedJob(null), 1500);
       return;
     }
 
     if (selectedJob.contact === 'whatsapp') {
-      show(AR ? 'جاري تحويلك للواتساب...' : 'Opening WhatsApp...', 'success');
+      show(tt('rrdt.37e52f8b'), 'success');
       setTimeout(() => Linking.openURL(`whatsapp://send?phone=${selectedJob.phone}&text=أتقدم لوظيفة ${selectedJob.title_ar}`), 800);
       setTimeout(() => setSelectedJob(null), 1500);
       return;
@@ -287,13 +287,13 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
           applyReady || '',
         ].filter(Boolean).join('\n'),
       });
-      show(AR ? 'تم إرسال طلبك لصاحب العمل بنجاح' : 'Application sent to employer', 'success');
+      show(tt('rrdt.17a1d572'), 'success');
     } catch (e: any) {
       const msg = e?.response?.data?.message;
       if (e?.response?.status === 401) {
-        show(AR ? 'التقديم على الوظائف يتطلب تسجيل الدخول أو إنشاء حساب أولاً' : 'Applying requires signing in or creating an account first', 'info');
+        show(tt('rrdt.313adee4'), 'info');
       } else {
-        show(typeof msg === 'string' ? msg : (AR ? 'تعذر إرسال الطلب — أكمل ملفك الوظيفي (السيرة الذاتية ورخصة الهيئة) أولاً' : 'Could not apply — complete your candidate profile (CV & SCFHS license) first'), 'error');
+        show(typeof msg === 'string' ? msg : (tt('rrdt.1d13501e')), 'error');
       }
     }
     setTimeout(() => setSelectedJob(null), 1500);
@@ -313,7 +313,7 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
           <TouchableOpacity onPress={onBack} style={{ padding: SP.sm, backgroundColor: theme.primary, borderRadius: R.full, width: 44, height: 44, alignItems: 'center', justifyContent: 'center', shadowColor: theme.primary, shadowOffset: {width:0,height:2}, shadowOpacity: 0.3, elevation: 4 }}>
             <I name={AR ? 'chevronRight' : 'chevronLeft'} size={24} color="#FFF" />
           </TouchableOpacity>
-          <Text style={{ flex: 1, textAlign: 'center', fontSize: FS.xl, fontWeight: FW.xbold, color: theme.text }}>{AR ? 'الوظائف الطبية' : 'Medical Jobs'}</Text>
+          <Text style={{ flex: 1, textAlign: 'center', fontSize: FS.xl, fontWeight: FW.xbold, color: theme.text }}>{tt('rrdt.ebb9f1de')}</Text>
           <TouchableOpacity onPress={() => setShowFilters(true)} style={{ padding: SP.sm, backgroundColor: theme.primaryLight, borderRadius: R.full, width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
             <I name="filter" size={24} color={theme.primary} />
           </TouchableOpacity>
@@ -321,13 +321,13 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
 
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.xs, backgroundColor: theme.surface2, padding: 4, borderRadius: R.lg }}>
           <TouchableOpacity onPress={() => setTab('browse')} style={{ flex: 1, paddingVertical: SP.md, borderRadius: R.md, alignItems: 'center', backgroundColor: tab === 'browse' ? theme.surface : 'transparent', shadowColor: tab==='browse'?'#000':'transparent', shadowOpacity:0.1, shadowRadius:4, elevation: tab==='browse'?2:0 }}>
-            <Text style={{ color: tab === 'browse' ? theme.primary : theme.textSub, fontSize: FS.sm, fontWeight: FW.bold }}>{AR ? 'تصفح الوظائف' : 'Browse'}</Text>
+            <Text style={{ color: tab === 'browse' ? theme.primary : theme.textSub, fontSize: FS.sm, fontWeight: FW.bold }}>{tt('rrdt.e684fa37')}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setTab('post')} style={{ flex: 1, paddingVertical: SP.md, borderRadius: R.md, alignItems: 'center', backgroundColor: tab === 'post' ? theme.surface : 'transparent', shadowColor: tab==='post'?'#000':'transparent', shadowOpacity:0.1, shadowRadius:4, elevation: tab==='post'?2:0 }}>
-            <Text style={{ color: tab === 'post' ? theme.primary : theme.textSub, fontSize: FS.sm, fontWeight: FW.bold }}>{AR ? 'إضافة إعلان' : 'Post Ad'}</Text>
+            <Text style={{ color: tab === 'post' ? theme.primary : theme.textSub, fontSize: FS.sm, fontWeight: FW.bold }}>{tt('rrdt.7aa0b3d5')}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setTab('inbox')} style={{ flex: 1, paddingVertical: SP.md, borderRadius: R.md, alignItems: 'center', backgroundColor: tab === 'inbox' ? theme.surface : 'transparent', shadowColor: tab==='inbox'?'#000':'transparent', shadowOpacity:0.1, shadowRadius:4, elevation: tab==='inbox'?2:0 }}>
-            <Text style={{ color: tab === 'inbox' ? theme.primary : theme.textSub, fontSize: FS.sm, fontWeight: FW.bold }}>{AR ? 'الوارد (ATS)' : 'Inbox'}</Text>
+            <Text style={{ color: tab === 'inbox' ? theme.primary : theme.textSub, fontSize: FS.sm, fontWeight: FW.bold }}>{tt('rrdt.3ba0054f')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -339,9 +339,9 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
 
 
       {/* FILTERS SHEET */}
-      <NSheet visible={showFilters} onClose={() => setShowFilters(false)} title={AR ? 'تصفية وبحث متقدم' : 'Advanced Filters'}>
+      <NSheet visible={showFilters} onClose={() => setShowFilters(false)} title={tt('rrdt.67dfbfad')}>
         <ScrollView contentContainerStyle={{ padding: SP.xl, gap: SP.lg, paddingBottom: 60 }}>
-          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{AR ? 'المهنة:' : 'Profession:'}</Text>
+          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{tt('rrdt.72210f54')}</Text>
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.sm }}>
             {[{ id: 'doctor', ar: 'طبيب', en: 'Doctor' }, { id: 'pharmacist', ar: 'صيدلي', en: 'Pharmacist' }, { id: 'nurse', ar: 'تمريض', en: 'Nurse' }, { id: 'lab', ar: 'مختبر', en: 'Lab' }, { id: 'radiology', ar: 'أشعة', en: 'Radiology' }].map(p => (
               <TouchableOpacity key={p.id} onPress={() => setFilterProf(filterProf === p.id ? null : p.id)} style={{ paddingHorizontal: SP.md, paddingVertical: SP.sm, borderRadius: R.full, borderWidth: 1, borderColor: filterProf === p.id ? theme.primary : theme.border, backgroundColor: filterProf === p.id ? theme.primaryLight : theme.bg }}>
@@ -349,7 +349,7 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
               </TouchableOpacity>
             ))}
           </View>
-          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{AR ? 'المدينة:' : 'City:'}</Text>
+          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{tt('rrdt.aaa821f4')}</Text>
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.sm }}>
             {['الرياض', 'جدة', 'الدمام', 'مكة المكرمة', 'المدينة المنورة'].map(c => (
               <TouchableOpacity key={c} onPress={() => setFilterCity(filterCity === c ? null : c)} style={{ paddingHorizontal: SP.md, paddingVertical: SP.sm, borderRadius: R.full, borderWidth: 1, borderColor: filterCity === c ? theme.primary : theme.border, backgroundColor: filterCity === c ? theme.primaryLight : theme.bg }}>
@@ -357,7 +357,7 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
               </TouchableOpacity>
             ))}
           </View>
-          <NBtn label={AR ? 'تطبيق الفرز' : 'Apply Filter'} onPress={() => setShowFilters(false)} style={{ marginTop: SP.md }} />
+          <NBtn label={tt('rrdt.c89538d1')} onPress={() => setShowFilters(false)} style={{ marginTop: SP.md }} />
         </ScrollView>
       </NSheet>
     </View>

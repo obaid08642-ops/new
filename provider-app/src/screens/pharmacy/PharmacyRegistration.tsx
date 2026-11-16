@@ -192,28 +192,28 @@ const PHARMACY_WIZARD: WizardConfig<PharmacyRegData> = {
     headerAr: 'مراجعة وإرسال', headerEn: 'Review & Submit',
     summary: {
       titleAr: 'ملخص ملف الصيدلية', titleEn: 'Pharmacy Summary',
-      rows: (d, AR) => [
-        { label: AR ? 'اسم الصيدلية' : 'Pharmacy Name', value: d.nameAr || '—' },
-        { label: AR ? 'النوع' : 'Type', value: d.type },
-        { label: AR ? 'المدينة' : 'City', value: d.city },
-        { label: AR ? 'نطاق التوصيل' : 'Delivery Radius', value: d.hasDelivery ? `${d.deliveryRadius} كم` : (AR ? 'بدون توصيل' : 'No delivery') },
+      rows: (d, AR, tt) => [
+        { label: tt('preg.6afcc485'), value: d.nameAr || '—' },
+        { label: tt('preg.518e68b1'), value: d.type },
+        { label: tt('preg.095d1753'), value: d.city },
+        { label: tt('preg.421086ef'), value: d.hasDelivery ? `${d.deliveryRadius} كم` : (tt('preg.2f859658')) },
       ],
     },
     signatoryRoleHint: { ar: 'مثال: المالك، المدير التنفيذي', en: 'e.g. Owner, CEO' },
     signatureTitle: { ar: 'توقيع الممثل المفوض', en: 'Authorized Signature' },
     agree: { ar: 'أوافق على شروط وأحكام نبض بلس وسياسة الخصوصية، وأقر بصحة البيانات.', en: 'I agree to terms & conditions.' },
     submitLabel: { ar: 'إرسال ملف الصيدلية للمراجعة', en: 'Submit Pharmacy Application' },
-    precheck: (d, AR) => {
+    precheck: (d, AR, tt) => {
       if (!d.nameAr.trim() || !d.nameEn.trim() || !d.type || !d.city.trim() || !d.address.trim()) {
-        return AR ? 'أكمل بيانات الصيدلية والموقع والعنوان' : 'Complete pharmacy identity, location, and address';
+        return tt('preg.2bb3d40e');
       }
-      if (!d.location?.lat || !d.location?.lng) return AR ? 'حدد موقع الصيدلية على الخريطة' : 'Pick the pharmacy location on the map';
+      if (!d.location?.lat || !d.location?.lng) return tt('preg.2ea61425');
       if (!d.enabledCategories.length || (!d.rxDispensing && !d.otcSelling)) {
-        return AR ? 'اختر فئة دوائية وطريقة صرف واحدة على الأقل' : 'Select at least one medicine category and dispensing mode';
+        return tt('preg.2cdc0815');
       }
       if (d.hasDelivery && d.ownDelivery.enabled && ownDeliveryError(d.ownDelivery)) return translate(AR ? 'ar' : 'en', ownDeliveryError(d.ownDelivery)!);
       if (d.hasDelivery && ((!d.ownDelivery.enabled && (!Number(d.deliveryRadius) || d.deliveryRadius <= 0)) || !d.workDays.length || !d.openTime || !d.closeTime)) {
-        return AR ? 'أكمل نطاق التوصيل وأيام وساعات العمل' : 'Complete delivery radius and working days/hours';
+        return tt('preg.e7d66b9d');
       }
       return null;
     },
@@ -333,7 +333,7 @@ function PStep2Legal({ data, update, submitRef, uploads }: StepProps<PharmacyReg
     if (!Validate.cr(data.crNumber)) e.cr = tt('phreg.3d1b511a');
     if (!data.mohLicense.trim()) e.moh = tt('phreg.b4bde92d');
     if (!data.sfdaNumber.trim()) e.sfda = tt('phreg.cee7dc79');
-    const expiryErr = licenseExpiryError(data.licenseExpiry, AR); if (expiryErr) e.expiry = expiryErr;
+    const expiryErr = licenseExpiryError(data.licenseExpiry, AR, tt); if (expiryErr) e.expiry = expiryErr;
     if (!Validate.iban(data.iban)) e.iban = tt('phreg.53935c75');
     setErrs(e); return Object.keys(e).length === 0;
   };

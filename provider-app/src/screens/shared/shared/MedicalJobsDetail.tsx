@@ -29,6 +29,7 @@ import { tokens, withAlpha } from '../../../theme/tokens';
 
 
 export function MedicalJobsDetail({ ctx }: any) {
+  const { t: tt } = useLang();
   const { theme, lang, AR, show, user, insets, onBack, onOpenChat, tab, setTab, postType, setPostType, search, setSearch, showFilters, setShowFilters, selectedJob, setSelectedJob, selectedApp, setSelectedApp, filterProf, setFilterProf, filterCity, setFilterCity, postTitle, setPostTitle, postProf, setPostProf, postClass, setPostClass, postContract, setPostContract, postNat, setPostNat, postExp, setPostExp, postDesc, setPostDesc, postContact, setPostContact, postPhone, setPostPhone, postCompany, setPostCompany, postSalary, setPostSalary, applyVisible, setApplyVisible, applyName, setApplyName, applyPhone, setApplyPhone, applyClass, setApplyClass, applyExp, setApplyExp, applyReady, setApplyReady, applyCV, setApplyCV, guestId, guestMine, isGuest, applyCvUrl, setApplyCvUrl, applyScfhs, setApplyScfhs, applyScfhsExp, setApplyScfhsExp, uploadingCV, setUploadingCV, jobs, loading, posting, postCity, setPostCity, applications, inboxLoading, filtered, handlePost, handleApply } = ctx;
     if (selectedJob && !applyVisible) {
       return (
@@ -40,7 +41,7 @@ export function MedicalJobsDetail({ ctx }: any) {
                 <I name={AR ? 'chevronRight' : 'chevronLeft'} size={24} color="#FFF" />
               </TouchableOpacity>
               <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: '#FFF' }}>
-                {selectedJob.type === 'offer' ? (AR ? 'تفاصيل الوظيفة المطروحة' : 'Job Offer Details') : (AR ? 'تفاصيل طلب العمل' : 'Job Request Details')}
+                {selectedJob.type === 'offer' ? (tt('rrzd.0adc3b7a')) : (tt('rrzd.eeac2735'))}
               </Text>
               <View style={{ width: 40 }} />
             </View>
@@ -62,12 +63,12 @@ export function MedicalJobsDetail({ ctx }: any) {
             {/* Premium Info Grid */}
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.md, marginBottom: SP.xl }}>
               {[
-                { icon: 'award', l: AR ? 'التصنيف' : 'SCFHS', v: selectedJob.scfhs },
-                { icon: 'clock', l: AR ? 'الدوام' : 'Type', v: AR ? selectedJob.type_ar : selectedJob.type_en },
-                { icon: 'shield', l: AR ? 'الإقامة' : 'Status', v: selectedJob.status },
-                { icon: 'star', l: AR ? 'الخبرة' : 'Exp', v: `${selectedJob.exp} ${AR ? 'سنوات' : 'years'}` },
-                { icon: 'globe', l: AR ? 'الجنسية' : 'Nationality', v: selectedJob.nat || (AR ? 'غير محدد' : 'Any') },
-                { icon: 'dollarSign', l: AR ? 'الراتب' : 'Salary', v: selectedJob.salary || (AR ? 'غير محدد' : 'Negotiable') }
+                { icon: 'award', l: tt('rrzd.f94827be'), v: selectedJob.scfhs },
+                { icon: 'clock', l: tt('rrzd.a47b0680'), v: AR ? selectedJob.type_ar : selectedJob.type_en },
+                { icon: 'shield', l: tt('rrzd.1f27efff'), v: selectedJob.status },
+                { icon: 'star', l: tt('rrzd.985dd715'), v: `${selectedJob.exp} ${AR ? 'سنوات' : 'years'}` },
+                { icon: 'globe', l: tt('rrzd.61abb17f'), v: selectedJob.nat || (tt('rrzd.d088f703')) },
+                { icon: 'dollarSign', l: tt('rrzd.4fd3c1e1'), v: selectedJob.salary || (tt('rrzd.5adf44fb')) }
               ].map((f, i) => (
                 <View key={i} style={{ width: '47%', backgroundColor: theme.surface, borderRadius: R.lg, padding: SP.md, borderWidth: 1, borderColor: theme.border, alignItems: AR ? 'flex-end' : 'flex-start' }}>
                   <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center', marginBottom: SP.sm }}>
@@ -81,7 +82,7 @@ export function MedicalJobsDetail({ ctx }: any) {
 
             <View style={{ backgroundColor: theme.surface, borderRadius: R.xl, padding: SP.xl, borderWidth: 1, borderColor: theme.border }}>
               <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>
-                {AR ? 'الوصف والتفاصيل المرفقة' : 'Description & Requirements'}
+                {tt('rrzd.495a1b8b')}
               </Text>
               <Text style={{ fontSize: FS.md, color: theme.text, lineHeight: 28, textAlign: AR ? 'right' : 'left' }}>
                 {selectedJob.desc}
@@ -93,7 +94,7 @@ export function MedicalJobsDetail({ ctx }: any) {
             <TouchableOpacity onPress={() => setApplyVisible(true)} style={{ backgroundColor: selectedJob.contact === 'whatsapp' ? tokens.success : theme.primary, padding: SP.lg, borderRadius: R.full, alignItems: 'center', flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'center', gap: SP.md }}>
               <I name={selectedJob.contact === 'whatsapp' ? "phone" : "send"} size={24} color="#FFF" />
               <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: '#FFF' }}>
-                {selectedJob.contact === 'whatsapp' ? (AR ? 'تواصل واتساب مباشرة' : 'Direct WhatsApp') : (AR ? 'تقديم عبر صندوق التوظيف (CV)' : 'Submit CV via ATS Inbox')}
+                {selectedJob.contact === 'whatsapp' ? (tt('rrzd.cfd2d165')) : (tt('rrzd.dd19db68'))}
               </Text>
             </TouchableOpacity>
           </View>

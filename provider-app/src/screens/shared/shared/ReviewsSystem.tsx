@@ -29,7 +29,7 @@ import { SK, Vault } from '../../../security/Security';
 import { tokens, withAlpha } from '../../../theme/tokens';
 
 export function ReviewsSystem({ onBack }: { onBack: () => void }) {
- const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+ const { theme } = useTheme(); const { lang, t, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
  const [reviews, setReviews] = useState<any[]>([]);
  const [loadingReviews, setLoadingReviews] = useState(true);
  const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -52,7 +52,7 @@ export function ReviewsSystem({ onBack }: { onBack: () => void }) {
  await client.post(`/provider/reviews/${id}/reply`, { reply: text });
  setReviews(rs => rs.map(r => r.id === id ? { ...r, reply: text } : r));
  setReplyingTo(null); setReplyText('');
- show(AR ? 'تم إرسال الرد' : 'Reply sent', 'success');
+ show(tt('rrdy.299aabd7'), 'success');
  } catch (e: any) {
  show(e?.response?.data?.message === 'review_not_published' ? (t('pa3.reviews.1')) : (e?.response?.data?.message || (t('pa3.reviews.2'))), 'error');
  }
@@ -64,7 +64,7 @@ export function ReviewsSystem({ onBack }: { onBack: () => void }) {
 
  return (
  <NScroll>
- <NHeader title={AR ? 'التقييمات والمراجعات' : 'Reviews & Ratings'} onBack={onBack} />
+ <NHeader title={tt('rrdy.30444e51')} onBack={onBack} />
 
  {/* Summary */}
  <NCard style={{ marginBottom: SP.xl, alignItems: 'center', padding: SP.xxl }}>
@@ -75,7 +75,7 @@ export function ReviewsSystem({ onBack }: { onBack: () => void }) {
 
  {/* Reviews */}
  {loadingReviews ? (
- <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: 'center', marginVertical: SP.xl }}>{AR ? 'جاري تحميل التقييمات...' : 'Loading reviews...'}</Text>
+ <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: 'center', marginVertical: SP.xl }}>{tt('rrdy.e5e663be')}</Text>
  ) : reviews.length === 0 ? (
  loadFailed ? <NEmpty title={t('pa3.reviews.3')} actionLabel={t('pa3.reviews.4')} onAction={load} /> : <NEmpty title={t('pa3.reviews.5')} subtitle={t('pa3.reviews.6')} />
  ) : reviews.map(review => (
@@ -84,7 +84,7 @@ export function ReviewsSystem({ onBack }: { onBack: () => void }) {
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md }}>
  <NAvatar name={review.author || review.patient || '؟'} size={36} />
  <View>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{review.author || review.patient || (AR ? 'مريض' : 'Patient')}</Text>
+ <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{review.author || review.patient || (tt('rrdy.c8b7f288'))}</Text>
  <RatingStars rating={Number(review.rating) || 0} size={14} />
  </View>
  </View>
@@ -94,21 +94,21 @@ export function ReviewsSystem({ onBack }: { onBack: () => void }) {
  {review.reply ? (
  <NCard style={{ backgroundColor: theme.primaryLight, padding: SP.md }}>
  <Text style={{ fontSize: FS.xs, color: theme.primary, textAlign: AR ? 'right' : 'left' }}>
- {(AR ? 'ردك: ' : 'Your reply: ') + review.reply}
+ {(tt('rrdy.1bb07d83')) + review.reply}
  </Text>
  </NCard>
  ) : replyingTo === review.id ? (
  <View style={{ marginTop: SP.xs }}>
- <NInput placeholder={AR ? 'اكتب ردك هنا...' : 'Type your reply...'} value={replyText} onChange={setReplyText} />
+ <NInput placeholder={tt('rrdy.63f7f071')} value={replyText} onChange={setReplyText} />
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.xs, marginTop: SP.xs }}>
- <NBtn label={AR ? 'إرسال' : 'Send'} size="sm" onPress={() => handleReply(review.id)} />
- <NBtn label={AR ? 'إلغاء' : 'Cancel'} size="sm" variant="outline" onPress={() => { setReplyingTo(null); setReplyText(''); }} />
+ <NBtn label={tt('rrdy.ad89df6b')} size="sm" onPress={() => handleReply(review.id)} />
+ <NBtn label={tt('rrdy.210b779f')} size="sm" variant="outline" onPress={() => { setReplyingTo(null); setReplyText(''); }} />
  </View>
  </View>
  ) : !review.canReply ? (
  <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{t('pa3.reviews.7')}</Text>
  ) : (
- <NBtn label={AR ? 'رد على التقييم' : 'Reply'} size="xs" variant="outline" full={false}
+ <NBtn label={tt('rrdy.51a508d5')} size="xs" variant="outline" full={false}
  style={{ alignSelf: AR ? 'flex-end' : 'flex-start', paddingHorizontal: SP.lg }}
  onPress={() => setReplyingTo(review.id)} />
  )}

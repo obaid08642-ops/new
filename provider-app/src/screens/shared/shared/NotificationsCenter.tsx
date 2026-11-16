@@ -30,7 +30,7 @@ import { st } from './MedicalDrugIndexScreen';
 import { NOTIF_TYPES } from './ChatSystem';
 
 export function NotificationsCenter({ onBack }: { onBack: () => void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+ const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
  const [filter, setFilter] = useState<'all' | 'unread'>('all');
  const [notifs, setNotifs] = useState<any[]>([]);
 
@@ -47,8 +47,8 @@ export function NotificationsCenter({ onBack }: { onBack: () => void }) {
    try {
      await client.post('/provider/notifications/read-all', {});
      setNotifs(prev => prev.map(n => ({ ...n, read: true })));
-     show(AR ? 'تم قراءة الكل' : 'All marked read', 'success');
-   } catch { show(AR ? 'تعذر مسح الإشعارات' : 'Could not clear notifications', 'error'); }
+     show(tt('rrdu.b00ef8de'), 'success');
+   } catch { show(tt('rrdu.5dda0e47'), 'error'); }
  };
 
  const markRead = async (id: string) => {
@@ -64,10 +64,10 @@ export function NotificationsCenter({ onBack }: { onBack: () => void }) {
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
  <View style={[st.topBar, { backgroundColor: theme.surface, borderBottomColor: theme.border }]}>
  <TouchableOpacity onPress={onBack}><I name="back" size={20} color={theme.primary} /></TouchableOpacity>
- <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>{AR ? 'الإشعارات' : 'Notifications'}</Text>
+ <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>{tt('rrdu.5e885201')}</Text>
  {unreadCount > 0 && (
  <TouchableOpacity onPress={markAllRead}>
- <Text style={{ fontSize: FS.sm, color: theme.primary, fontWeight: FW.semi }}>{AR ? 'قراءة الكل' : 'Read All'}</Text>
+ <Text style={{ fontSize: FS.sm, color: theme.primary, fontWeight: FW.semi }}>{tt('rrdu.9c77eafe')}</Text>
  </TouchableOpacity>
  )}
  </View>
@@ -103,7 +103,7 @@ export function NotificationsCenter({ onBack }: { onBack: () => void }) {
  }}
  ListEmptyComponent={<NCard style={{ alignItems: 'center', padding: SP.xxl }}>
  <IBg name="bell" size={28} color={theme.textSub} bg={theme.surface2} />
- <Text style={{ fontSize: FS.md, color: theme.textSub, marginTop: SP.lg }}>{AR ? 'لا توجد إشعارات' : 'No notifications'}</Text>
+ <Text style={{ fontSize: FS.md, color: theme.textSub, marginTop: SP.lg }}>{tt('rrdu.fb97ad09')}</Text>
  </NCard>}
  />
  </View>

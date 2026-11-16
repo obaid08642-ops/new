@@ -1,5 +1,5 @@
 {
- "commit": "95421ebd9",
+ "commit": "ad8ae9265",
  "screens": {
   "PendingDashboard": [
    {
@@ -365,28 +365,28 @@
     "src": "from filtered (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/MedicalJobsBrowseTab.tsx",
-    "line": 41,
+    "line": 42,
     "via": "MedicalJobsBrowseTab",
     "note": null,
     "untraced": true
    },
    {
     "kind": "input",
-    "label": "Search profession, hospital...",
+    "label": "{tt('rrzc.88d1a62b')}",
     "src": "user input → search (local)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/MedicalJobsBrowseTab.tsx",
-    "line": 47,
+    "line": 48,
     "via": "MedicalJobsBrowseTab",
     "note": null
    },
    {
     "kind": "button",
-    "label": "Employer Ad {item.date}",
+    "label": "{tt('rrzc.a425147f')} {item.date}",
     "src": "local state setSelectedJob",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/MedicalJobsBrowseTab.tsx",
-    "line": 51,
+    "line": 52,
     "via": "MedicalJobsBrowseTab",
     "note": null
    },
@@ -396,17 +396,17 @@
     "src": "local state setSelectedJob",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/MedicalJobsDetail.tsx",
-    "line": 39,
+    "line": 40,
     "via": "MedicalJobsDetail",
     "note": null
    },
    {
     "kind": "button",
-    "label": "[phone] Direct WhatsApp",
+    "label": "[phone] {tt('rrzd.cfd2d165')}",
     "src": "local state setApplyVisible",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/MedicalJobsDetail.tsx",
-    "line": 93,
+    "line": 94,
     "via": "MedicalJobsDetail",
     "note": null
    },
@@ -624,7 +624,7 @@
    },
    {
     "kind": "button",
-    "label": "Browse",
+    "label": "{tt('rrdt.e684fa37')}",
     "src": "local state setTab",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/MedicalJobsScreen.tsx",
@@ -634,7 +634,7 @@
    },
    {
     "kind": "button",
-    "label": "Post Ad",
+    "label": "{tt('rrdt.7aa0b3d5')}",
     "src": "local state setTab",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/MedicalJobsScreen.tsx",
@@ -644,7 +644,7 @@
    },
    {
     "kind": "button",
-    "label": "Inbox",
+    "label": "{tt('rrdt.3ba0054f')}",
     "src": "local state setTab",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/MedicalJobsScreen.tsx",
@@ -674,7 +674,7 @@
    },
    {
     "kind": "button",
-    "label": "Apply Filter",
+    "label": "{tt('rrdt.c89538d1')}",
     "src": "local state setShowFilters",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/MedicalJobsScreen.tsx",
@@ -690,7 +690,7 @@
     "src": "local state setSelectedDrug",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/DrugIndexCard.tsx",
-    "line": 36,
+    "line": 37,
     "via": "DrugIndexCard",
     "note": null
    },
@@ -865,7 +865,7 @@
     "src": "parent callback onBack",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/DrugIndexHeader.tsx",
-    "line": 38,
+    "line": 39,
     "via": "DrugIndexHeader",
     "note": null
    },
@@ -881,7 +881,7 @@
    },
    {
     "kind": "input",
-    "label": "Search drug name or active ingredient...",
+    "label": "{tt('rrdn.570f8b83')}",
     "src": "user input → search (local)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/MedicalDrugIndexScreen.tsx",
@@ -901,7 +901,7 @@
    },
    {
     "kind": "button",
-    "label": "All ({…})",
+    "label": "{tt('rrdn.eabe5f68')} ({…})",
     "src": "local state setSelectedCat",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/MedicalDrugIndexScreen.tsx",
@@ -1424,8 +1424,8 @@
    },
    {
     "kind": "button",
-    "label": "My Location",
-    "src": "native action",
+    "label": "{tt('rrd.8c67be67')}",
+    "src": "parent callback tt",
     "status": "ok",
     "file": "provider-app/src/components/LocationPickerModal.tsx",
     "line": 98,
@@ -1434,7 +1434,7 @@
    },
    {
     "kind": "button",
-    "label": "Cancel",
+    "label": "{tt('rrd.210b779f')}",
     "src": "parent callback onClose",
     "status": "ok",
     "file": "provider-app/src/components/LocationPickerModal.tsx",
@@ -1444,7 +1444,7 @@
    },
    {
     "kind": "button",
-    "label": "Confirm Location",
+    "label": "{tt('rrd.8b4d3df2')}",
     "src": "parent callback onSelectLocation, onClose",
     "status": "ok",
     "file": "provider-app/src/components/LocationPickerModal.tsx",
@@ -1514,7 +1514,7 @@
    },
    {
     "kind": "button",
-    "label": "[refresh] Clear",
+    "label": "[refresh] {tt('rrh.7d758bb1')}",
     "src": "local logic",
     "status": "ok",
     "file": "provider-app/src/components/SignatureCanvasModal.tsx",
@@ -1524,7 +1524,7 @@
    },
    {
     "kind": "button",
-    "label": "Save Signature",
+    "label": "{tt('rrh.290020b3')}",
     "src": "local logic",
     "status": "ok",
     "file": "provider-app/src/components/SignatureCanvasModal.tsx",
@@ -2333,7 +2333,7 @@
     "src": "POST /provider-onboarding/step2, POST /provider-onboarding/submit → acceptedVersion",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 63,
+    "line": 64,
     "via": "ReviewStep",
     "note": null
    },
@@ -2343,7 +2343,7 @@
     "src": "from rows (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 129,
+    "line": 130,
     "via": "ReviewStep",
     "note": null,
     "untraced": true
@@ -2354,7 +2354,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 145,
+    "line": 146,
     "via": "ReviewStep",
     "note": null
    },
@@ -2364,7 +2364,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 147,
+    "line": 148,
     "via": "ReviewStep",
     "note": null
    },
@@ -2374,7 +2374,7 @@
     "src": "local state setShowContract",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 154,
+    "line": 155,
     "via": "ReviewStep",
     "note": null
    },
@@ -2384,7 +2384,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 164,
+    "line": 165,
     "via": "ReviewStep",
     "note": null
    },
@@ -2394,7 +2394,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 166,
+    "line": 167,
     "via": "ReviewStep",
     "note": null
    },
@@ -2404,7 +2404,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 179,
+    "line": 180,
     "via": "ReviewStep",
     "note": null
    },
@@ -2414,7 +2414,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 184,
+    "line": 185,
     "via": "ReviewStep",
     "note": null
    },
@@ -2424,7 +2424,7 @@
     "src": "user input → agreed (local)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 194,
+    "line": 195,
     "via": "ReviewStep",
     "note": null
    },
@@ -2434,7 +2434,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 198,
+    "line": 199,
     "via": "ReviewStep",
     "note": null
    },
@@ -2444,7 +2444,7 @@
     "src": "parent callback onPress",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 89,
+    "line": 90,
     "via": "DocBtn",
     "note": null
    },
@@ -2454,7 +2454,7 @@
     "src": "from page (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 155,
+    "line": 156,
     "via": "MergedPage",
     "note": null,
     "untraced": true
@@ -2465,7 +2465,7 @@
     "src": "parent callback onNext",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 163,
+    "line": 164,
     "via": "MergedPage",
     "note": null
    },
@@ -2665,8 +2665,8 @@
    },
    {
     "kind": "button",
-    "label": "My Location",
-    "src": "native action",
+    "label": "{tt('rrd.8c67be67')}",
+    "src": "parent callback tt",
     "status": "ok",
     "file": "provider-app/src/components/LocationPickerModal.tsx",
     "line": 98,
@@ -2675,7 +2675,7 @@
    },
    {
     "kind": "button",
-    "label": "Cancel",
+    "label": "{tt('rrd.210b779f')}",
     "src": "parent callback onClose",
     "status": "ok",
     "file": "provider-app/src/components/LocationPickerModal.tsx",
@@ -2685,7 +2685,7 @@
    },
    {
     "kind": "button",
-    "label": "Confirm Location",
+    "label": "{tt('rrd.8b4d3df2')}",
     "src": "parent callback onSelectLocation, onClose",
     "status": "ok",
     "file": "provider-app/src/components/LocationPickerModal.tsx",
@@ -2755,7 +2755,7 @@
    },
    {
     "kind": "button",
-    "label": "[refresh] Clear",
+    "label": "[refresh] {tt('rrh.7d758bb1')}",
     "src": "local logic",
     "status": "ok",
     "file": "provider-app/src/components/SignatureCanvasModal.tsx",
@@ -2765,7 +2765,7 @@
    },
    {
     "kind": "button",
-    "label": "Save Signature",
+    "label": "{tt('rrh.290020b3')}",
     "src": "local logic",
     "status": "ok",
     "file": "provider-app/src/components/SignatureCanvasModal.tsx",
@@ -3601,7 +3601,7 @@
     "src": "POST /provider-onboarding/step2, POST /provider-onboarding/submit → acceptedVersion",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 63,
+    "line": 64,
     "via": "ReviewStep",
     "note": null
    },
@@ -3611,7 +3611,7 @@
     "src": "from rows (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 129,
+    "line": 130,
     "via": "ReviewStep",
     "note": null,
     "untraced": true
@@ -3622,7 +3622,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 145,
+    "line": 146,
     "via": "ReviewStep",
     "note": null
    },
@@ -3632,7 +3632,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 147,
+    "line": 148,
     "via": "ReviewStep",
     "note": null
    },
@@ -3642,7 +3642,7 @@
     "src": "local state setShowContract",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 154,
+    "line": 155,
     "via": "ReviewStep",
     "note": null
    },
@@ -3652,7 +3652,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 164,
+    "line": 165,
     "via": "ReviewStep",
     "note": null
    },
@@ -3662,7 +3662,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 166,
+    "line": 167,
     "via": "ReviewStep",
     "note": null
    },
@@ -3672,7 +3672,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 179,
+    "line": 180,
     "via": "ReviewStep",
     "note": null
    },
@@ -3682,7 +3682,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 184,
+    "line": 185,
     "via": "ReviewStep",
     "note": null
    },
@@ -3692,7 +3692,7 @@
     "src": "user input → agreed (local)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 194,
+    "line": 195,
     "via": "ReviewStep",
     "note": null
    },
@@ -3702,7 +3702,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 198,
+    "line": 199,
     "via": "ReviewStep",
     "note": null
    },
@@ -3712,7 +3712,7 @@
     "src": "parent callback onPress",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 89,
+    "line": 90,
     "via": "DocBtn",
     "note": null
    },
@@ -3722,7 +3722,7 @@
     "src": "from page (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 155,
+    "line": 156,
     "via": "MergedPage",
     "note": null,
     "untraced": true
@@ -3733,7 +3733,7 @@
     "src": "parent callback onNext",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 163,
+    "line": 164,
     "via": "MergedPage",
     "note": null
    },
@@ -3743,7 +3743,7 @@
     "src": "local state setOpen",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 176,
+    "line": 177,
     "via": "LicenseExpiryField",
     "note": null
    },
@@ -3751,12 +3751,11 @@
     "kind": "input",
     "label": "{tt('wizard.50ede357')}",
     "src": "input has no handler",
-    "status": "ok",
+    "status": "dead",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 177,
+    "line": 178,
     "via": "LicenseExpiryField",
-    "note": null,
-    "reviewed": "Read-only field inside a button that opens the calendar picker (NDatePickerSheet); the picker's onChange is the handler."
+    "note": "Input \"{tt('wizard.50ede357')}\" has empty function body."
    },
    {
     "kind": "input",
@@ -3764,7 +3763,7 @@
     "src": "user input → parent callback d.getTime",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 179,
+    "line": 180,
     "via": "LicenseExpiryField",
     "note": null
    },
@@ -3964,8 +3963,8 @@
    },
    {
     "kind": "button",
-    "label": "My Location",
-    "src": "native action",
+    "label": "{tt('rrd.8c67be67')}",
+    "src": "parent callback tt",
     "status": "ok",
     "file": "provider-app/src/components/LocationPickerModal.tsx",
     "line": 98,
@@ -3974,7 +3973,7 @@
    },
    {
     "kind": "button",
-    "label": "Cancel",
+    "label": "{tt('rrd.210b779f')}",
     "src": "parent callback onClose",
     "status": "ok",
     "file": "provider-app/src/components/LocationPickerModal.tsx",
@@ -3984,7 +3983,7 @@
    },
    {
     "kind": "button",
-    "label": "Confirm Location",
+    "label": "{tt('rrd.8b4d3df2')}",
     "src": "parent callback onSelectLocation, onClose",
     "status": "ok",
     "file": "provider-app/src/components/LocationPickerModal.tsx",
@@ -4054,7 +4053,7 @@
    },
    {
     "kind": "button",
-    "label": "[refresh] Clear",
+    "label": "[refresh] {tt('rrh.7d758bb1')}",
     "src": "local logic",
     "status": "ok",
     "file": "provider-app/src/components/SignatureCanvasModal.tsx",
@@ -4064,7 +4063,7 @@
    },
    {
     "kind": "button",
-    "label": "Save Signature",
+    "label": "{tt('rrh.290020b3')}",
     "src": "local logic",
     "status": "ok",
     "file": "provider-app/src/components/SignatureCanvasModal.tsx",
@@ -4744,7 +4743,7 @@
     "src": "POST /provider-onboarding/step2, POST /provider-onboarding/submit → acceptedVersion",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 63,
+    "line": 64,
     "via": "ReviewStep",
     "note": null
    },
@@ -4754,7 +4753,7 @@
     "src": "from rows (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 129,
+    "line": 130,
     "via": "ReviewStep",
     "note": null,
     "untraced": true
@@ -4765,7 +4764,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 145,
+    "line": 146,
     "via": "ReviewStep",
     "note": null
    },
@@ -4775,7 +4774,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 147,
+    "line": 148,
     "via": "ReviewStep",
     "note": null
    },
@@ -4785,7 +4784,7 @@
     "src": "local state setShowContract",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 154,
+    "line": 155,
     "via": "ReviewStep",
     "note": null
    },
@@ -4795,7 +4794,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 164,
+    "line": 165,
     "via": "ReviewStep",
     "note": null
    },
@@ -4805,7 +4804,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 166,
+    "line": 167,
     "via": "ReviewStep",
     "note": null
    },
@@ -4815,7 +4814,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 179,
+    "line": 180,
     "via": "ReviewStep",
     "note": null
    },
@@ -4825,7 +4824,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 184,
+    "line": 185,
     "via": "ReviewStep",
     "note": null
    },
@@ -4835,7 +4834,7 @@
     "src": "user input → agreed (local)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 194,
+    "line": 195,
     "via": "ReviewStep",
     "note": null
    },
@@ -4845,7 +4844,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 198,
+    "line": 199,
     "via": "ReviewStep",
     "note": null
    },
@@ -4855,7 +4854,7 @@
     "src": "parent callback onPress",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 66,
+    "line": 67,
     "via": "DocCard",
     "note": null
    },
@@ -4865,7 +4864,7 @@
     "src": "from page (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 155,
+    "line": 156,
     "via": "MergedPage",
     "note": null,
     "untraced": true
@@ -4876,7 +4875,7 @@
     "src": "parent callback onNext",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 163,
+    "line": 164,
     "via": "MergedPage",
     "note": null
    },
@@ -4886,7 +4885,7 @@
     "src": "local state setOpen",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 176,
+    "line": 177,
     "via": "LicenseExpiryField",
     "note": null
    },
@@ -4894,12 +4893,11 @@
     "kind": "input",
     "label": "{tt('wizard.50ede357')}",
     "src": "input has no handler",
-    "status": "ok",
+    "status": "dead",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 177,
+    "line": 178,
     "via": "LicenseExpiryField",
-    "note": null,
-    "reviewed": "Read-only field inside a button that opens the calendar picker (NDatePickerSheet); the picker's onChange is the handler."
+    "note": "Input \"{tt('wizard.50ede357')}\" has empty function body."
    },
    {
     "kind": "input",
@@ -4907,7 +4905,7 @@
     "src": "user input → parent callback d.getTime",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 179,
+    "line": 180,
     "via": "LicenseExpiryField",
     "note": null
    },
@@ -5107,8 +5105,8 @@
    },
    {
     "kind": "button",
-    "label": "My Location",
-    "src": "native action",
+    "label": "{tt('rrd.8c67be67')}",
+    "src": "parent callback tt",
     "status": "ok",
     "file": "provider-app/src/components/LocationPickerModal.tsx",
     "line": 98,
@@ -5117,7 +5115,7 @@
    },
    {
     "kind": "button",
-    "label": "Cancel",
+    "label": "{tt('rrd.210b779f')}",
     "src": "parent callback onClose",
     "status": "ok",
     "file": "provider-app/src/components/LocationPickerModal.tsx",
@@ -5127,7 +5125,7 @@
    },
    {
     "kind": "button",
-    "label": "Confirm Location",
+    "label": "{tt('rrd.8b4d3df2')}",
     "src": "parent callback onSelectLocation, onClose",
     "status": "ok",
     "file": "provider-app/src/components/LocationPickerModal.tsx",
@@ -5197,7 +5195,7 @@
    },
    {
     "kind": "button",
-    "label": "[refresh] Clear",
+    "label": "[refresh] {tt('rrh.7d758bb1')}",
     "src": "local logic",
     "status": "ok",
     "file": "provider-app/src/components/SignatureCanvasModal.tsx",
@@ -5207,7 +5205,7 @@
    },
    {
     "kind": "button",
-    "label": "Save Signature",
+    "label": "{tt('rrh.290020b3')}",
     "src": "local logic",
     "status": "ok",
     "file": "provider-app/src/components/SignatureCanvasModal.tsx",
@@ -5908,7 +5906,7 @@
     "src": "POST /provider-onboarding/step2, POST /provider-onboarding/submit → acceptedVersion",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 63,
+    "line": 64,
     "via": "ReviewStep",
     "note": null
    },
@@ -5918,7 +5916,7 @@
     "src": "from rows (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 129,
+    "line": 130,
     "via": "ReviewStep",
     "note": null,
     "untraced": true
@@ -5929,7 +5927,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 145,
+    "line": 146,
     "via": "ReviewStep",
     "note": null
    },
@@ -5939,7 +5937,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 147,
+    "line": 148,
     "via": "ReviewStep",
     "note": null
    },
@@ -5949,7 +5947,7 @@
     "src": "local state setShowContract",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 154,
+    "line": 155,
     "via": "ReviewStep",
     "note": null
    },
@@ -5959,7 +5957,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 164,
+    "line": 165,
     "via": "ReviewStep",
     "note": null
    },
@@ -5969,7 +5967,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 166,
+    "line": 167,
     "via": "ReviewStep",
     "note": null
    },
@@ -5979,7 +5977,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 179,
+    "line": 180,
     "via": "ReviewStep",
     "note": null
    },
@@ -5989,7 +5987,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 184,
+    "line": 185,
     "via": "ReviewStep",
     "note": null
    },
@@ -5999,7 +5997,7 @@
     "src": "user input → agreed (local)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 194,
+    "line": 195,
     "via": "ReviewStep",
     "note": null
    },
@@ -6009,7 +6007,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 198,
+    "line": 199,
     "via": "ReviewStep",
     "note": null
    },
@@ -6019,7 +6017,7 @@
     "src": "parent callback onPress",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 66,
+    "line": 67,
     "via": "DocCard",
     "note": null
    },
@@ -6029,7 +6027,7 @@
     "src": "from page (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 155,
+    "line": 156,
     "via": "MergedPage",
     "note": null,
     "untraced": true
@@ -6040,7 +6038,7 @@
     "src": "parent callback onNext",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 163,
+    "line": 164,
     "via": "MergedPage",
     "note": null
    },
@@ -6050,7 +6048,7 @@
     "src": "local state setOpen",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 176,
+    "line": 177,
     "via": "LicenseExpiryField",
     "note": null
    },
@@ -6058,12 +6056,11 @@
     "kind": "input",
     "label": "{tt('wizard.50ede357')}",
     "src": "input has no handler",
-    "status": "ok",
+    "status": "dead",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 177,
+    "line": 178,
     "via": "LicenseExpiryField",
-    "note": null,
-    "reviewed": "Read-only field inside a button that opens the calendar picker (NDatePickerSheet); the picker's onChange is the handler."
+    "note": "Input \"{tt('wizard.50ede357')}\" has empty function body."
    },
    {
     "kind": "input",
@@ -6071,7 +6068,7 @@
     "src": "user input → parent callback d.getTime",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 179,
+    "line": 180,
     "via": "LicenseExpiryField",
     "note": null
    },
@@ -6271,8 +6268,8 @@
    },
    {
     "kind": "button",
-    "label": "My Location",
-    "src": "native action",
+    "label": "{tt('rrd.8c67be67')}",
+    "src": "parent callback tt",
     "status": "ok",
     "file": "provider-app/src/components/LocationPickerModal.tsx",
     "line": 98,
@@ -6281,7 +6278,7 @@
    },
    {
     "kind": "button",
-    "label": "Cancel",
+    "label": "{tt('rrd.210b779f')}",
     "src": "parent callback onClose",
     "status": "ok",
     "file": "provider-app/src/components/LocationPickerModal.tsx",
@@ -6291,7 +6288,7 @@
    },
    {
     "kind": "button",
-    "label": "Confirm Location",
+    "label": "{tt('rrd.8b4d3df2')}",
     "src": "parent callback onSelectLocation, onClose",
     "status": "ok",
     "file": "provider-app/src/components/LocationPickerModal.tsx",
@@ -6361,7 +6358,7 @@
    },
    {
     "kind": "button",
-    "label": "[refresh] Clear",
+    "label": "[refresh] {tt('rrh.7d758bb1')}",
     "src": "local logic",
     "status": "ok",
     "file": "provider-app/src/components/SignatureCanvasModal.tsx",
@@ -6371,7 +6368,7 @@
    },
    {
     "kind": "button",
-    "label": "Save Signature",
+    "label": "{tt('rrh.290020b3')}",
     "src": "local logic",
     "status": "ok",
     "file": "provider-app/src/components/SignatureCanvasModal.tsx",
@@ -7072,7 +7069,7 @@
     "src": "POST /provider-onboarding/step2, POST /provider-onboarding/submit → acceptedVersion",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 63,
+    "line": 64,
     "via": "ReviewStep",
     "note": null
    },
@@ -7082,7 +7079,7 @@
     "src": "from rows (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 129,
+    "line": 130,
     "via": "ReviewStep",
     "note": null,
     "untraced": true
@@ -7093,7 +7090,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 145,
+    "line": 146,
     "via": "ReviewStep",
     "note": null
    },
@@ -7103,7 +7100,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 147,
+    "line": 148,
     "via": "ReviewStep",
     "note": null
    },
@@ -7113,7 +7110,7 @@
     "src": "local state setShowContract",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 154,
+    "line": 155,
     "via": "ReviewStep",
     "note": null
    },
@@ -7123,7 +7120,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 164,
+    "line": 165,
     "via": "ReviewStep",
     "note": null
    },
@@ -7133,7 +7130,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 166,
+    "line": 167,
     "via": "ReviewStep",
     "note": null
    },
@@ -7143,7 +7140,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 179,
+    "line": 180,
     "via": "ReviewStep",
     "note": null
    },
@@ -7153,7 +7150,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 184,
+    "line": 185,
     "via": "ReviewStep",
     "note": null
    },
@@ -7163,7 +7160,7 @@
     "src": "user input → agreed (local)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 194,
+    "line": 195,
     "via": "ReviewStep",
     "note": null
    },
@@ -7173,7 +7170,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 198,
+    "line": 199,
     "via": "ReviewStep",
     "note": null
    },
@@ -7183,7 +7180,7 @@
     "src": "parent callback onPress",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 66,
+    "line": 67,
     "via": "DocCard",
     "note": null
    },
@@ -7193,7 +7190,7 @@
     "src": "from page (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 155,
+    "line": 156,
     "via": "MergedPage",
     "note": null,
     "untraced": true
@@ -7204,7 +7201,7 @@
     "src": "parent callback onNext",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 163,
+    "line": 164,
     "via": "MergedPage",
     "note": null
    },
@@ -7214,7 +7211,7 @@
     "src": "local state setOpen",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 176,
+    "line": 177,
     "via": "LicenseExpiryField",
     "note": null
    },
@@ -7222,12 +7219,11 @@
     "kind": "input",
     "label": "{tt('wizard.50ede357')}",
     "src": "input has no handler",
-    "status": "ok",
+    "status": "dead",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 177,
+    "line": 178,
     "via": "LicenseExpiryField",
-    "note": null,
-    "reviewed": "Read-only field inside a button that opens the calendar picker (NDatePickerSheet); the picker's onChange is the handler."
+    "note": "Input \"{tt('wizard.50ede357')}\" has empty function body."
    },
    {
     "kind": "input",
@@ -7235,7 +7231,7 @@
     "src": "user input → parent callback d.getTime",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 179,
+    "line": 180,
     "via": "LicenseExpiryField",
     "note": null
    },
@@ -7435,8 +7431,8 @@
    },
    {
     "kind": "button",
-    "label": "My Location",
-    "src": "native action",
+    "label": "{tt('rrd.8c67be67')}",
+    "src": "parent callback tt",
     "status": "ok",
     "file": "provider-app/src/components/LocationPickerModal.tsx",
     "line": 98,
@@ -7445,7 +7441,7 @@
    },
    {
     "kind": "button",
-    "label": "Cancel",
+    "label": "{tt('rrd.210b779f')}",
     "src": "parent callback onClose",
     "status": "ok",
     "file": "provider-app/src/components/LocationPickerModal.tsx",
@@ -7455,7 +7451,7 @@
    },
    {
     "kind": "button",
-    "label": "Confirm Location",
+    "label": "{tt('rrd.8b4d3df2')}",
     "src": "parent callback onSelectLocation, onClose",
     "status": "ok",
     "file": "provider-app/src/components/LocationPickerModal.tsx",
@@ -7525,7 +7521,7 @@
    },
    {
     "kind": "button",
-    "label": "[refresh] Clear",
+    "label": "[refresh] {tt('rrh.7d758bb1')}",
     "src": "local logic",
     "status": "ok",
     "file": "provider-app/src/components/SignatureCanvasModal.tsx",
@@ -7535,7 +7531,7 @@
    },
    {
     "kind": "button",
-    "label": "Save Signature",
+    "label": "{tt('rrh.290020b3')}",
     "src": "local logic",
     "status": "ok",
     "file": "provider-app/src/components/SignatureCanvasModal.tsx",
@@ -8096,7 +8092,7 @@
     "src": "POST /provider-onboarding/step2, POST /provider-onboarding/submit → acceptedVersion",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 63,
+    "line": 64,
     "via": "ReviewStep",
     "note": null
    },
@@ -8106,7 +8102,7 @@
     "src": "from rows (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 129,
+    "line": 130,
     "via": "ReviewStep",
     "note": null,
     "untraced": true
@@ -8117,7 +8113,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 145,
+    "line": 146,
     "via": "ReviewStep",
     "note": null
    },
@@ -8127,7 +8123,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 147,
+    "line": 148,
     "via": "ReviewStep",
     "note": null
    },
@@ -8137,7 +8133,7 @@
     "src": "local state setShowContract",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 154,
+    "line": 155,
     "via": "ReviewStep",
     "note": null
    },
@@ -8147,7 +8143,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 164,
+    "line": 165,
     "via": "ReviewStep",
     "note": null
    },
@@ -8157,7 +8153,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 166,
+    "line": 167,
     "via": "ReviewStep",
     "note": null
    },
@@ -8167,7 +8163,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 179,
+    "line": 180,
     "via": "ReviewStep",
     "note": null
    },
@@ -8177,7 +8173,7 @@
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 184,
+    "line": 185,
     "via": "ReviewStep",
     "note": null
    },
@@ -8187,7 +8183,7 @@
     "src": "user input → agreed (local)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 194,
+    "line": 195,
     "via": "ReviewStep",
     "note": null
    },
@@ -8197,7 +8193,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
-    "line": 198,
+    "line": 199,
     "via": "ReviewStep",
     "note": null
    },
@@ -8207,7 +8203,7 @@
     "src": "parent callback onPress",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 66,
+    "line": 67,
     "via": "DocCard",
     "note": null
    },
@@ -8217,7 +8213,7 @@
     "src": "from page (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 155,
+    "line": 156,
     "via": "MergedPage",
     "note": null,
     "untraced": true
@@ -8228,7 +8224,7 @@
     "src": "parent callback onNext",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 163,
+    "line": 164,
     "via": "MergedPage",
     "note": null
    },
@@ -8238,7 +8234,7 @@
     "src": "local state setOpen",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 176,
+    "line": 177,
     "via": "LicenseExpiryField",
     "note": null
    },
@@ -8246,12 +8242,11 @@
     "kind": "input",
     "label": "{tt('wizard.50ede357')}",
     "src": "input has no handler",
-    "status": "ok",
+    "status": "dead",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 177,
+    "line": 178,
     "via": "LicenseExpiryField",
-    "note": null,
-    "reviewed": "Read-only field inside a button that opens the calendar picker (NDatePickerSheet); the picker's onChange is the handler."
+    "note": "Input \"{tt('wizard.50ede357')}\" has empty function body."
    },
    {
     "kind": "input",
@@ -8259,7 +8254,7 @@
     "src": "user input → parent callback d.getTime",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
-    "line": 179,
+    "line": 180,
     "via": "LicenseExpiryField",
     "note": null
    },
@@ -9169,7 +9164,7 @@
    {
     "kind": "input",
     "label": "<Switch>",
-    "src": "user input → bioEnabled (local)",
+    "src": "user input → parent callback tt",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/GlobalSystemSettings.tsx",
     "line": 81,
@@ -10110,7 +10105,7 @@
    },
    {
     "kind": "button",
-    "label": "Try again",
+    "label": "{tt('rrag.96cbdad3')}",
     "src": "GET /medical-orders/visits",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/MedicalOrderVisitsScreen.tsx",
@@ -10337,7 +10332,7 @@
    },
    {
     "kind": "input",
-    "label": "Additional Instructions",
+    "label": "{tt('rram.6d09564c')}",
     "src": "user input → notes → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/RequestTestScreen.tsx",
@@ -10347,7 +10342,7 @@
    },
    {
     "kind": "button",
-    "label": "Send Request",
+    "label": "{tt('rram.b72f8d71')}",
     "src": "POST /provider/referrals",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/RequestTestScreen.tsx",
@@ -11221,7 +11216,7 @@
    },
    {
     "kind": "button",
-    "label": "Create New Promotion",
+    "label": "{tt('rrda.c0484d56')}",
     "src": "navigate → create_promo",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/PromotionsDashboard.tsx",
@@ -11233,7 +11228,7 @@
   "CreateCampaignScreen": [
    {
     "kind": "input",
-    "label": "Campaign Title",
+    "label": "{tt('rrct.93e87b33')}",
     "src": "user input → title → request body",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/CreateCampaignScreen.tsx",
@@ -11243,7 +11238,7 @@
    },
    {
     "kind": "input",
-    "label": "Original Price",
+    "label": "{tt('rrct.59ada1a4')}",
     "src": "user input → origPrice → request body",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/CreateCampaignScreen.tsx",
@@ -11253,7 +11248,7 @@
    },
    {
     "kind": "input",
-    "label": "Discounted Price",
+    "label": "{tt('rrct.ba8b259b')}",
     "src": "user input → discPrice → request body",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/CreateCampaignScreen.tsx",
@@ -11263,7 +11258,7 @@
    },
    {
     "kind": "input",
-    "label": "Start Date",
+    "label": "{tt('rrct.86bb1b4d')}",
     "src": "user input → startDate → request body",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/CreateCampaignScreen.tsx",
@@ -11273,7 +11268,7 @@
    },
    {
     "kind": "input",
-    "label": "End Date",
+    "label": "{tt('rrct.916c6ba4')}",
     "src": "user input → endDate → request body",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/CreateCampaignScreen.tsx",
@@ -11283,7 +11278,7 @@
    },
    {
     "kind": "button",
-    "label": "Submit for Approval",
+    "label": "{tt('rrct.39d6d232')}",
     "src": "POST /provider/promotions",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/CreateCampaignScreen.tsx",
@@ -11528,7 +11523,7 @@
    },
    {
     "kind": "input",
-    "label": "Ad Budget (SAR)",
+    "label": "{tt('rrde.52590089')}",
     "src": "user input → budget (local)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/SubscriptionsAdsScreen.tsx",
@@ -11538,7 +11533,7 @@
    },
    {
     "kind": "input",
-    "label": "Ad Duration (Days)",
+    "label": "{tt('rrde.2a23f2f7')}",
     "src": "user input → duration (local)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/SubscriptionsAdsScreen.tsx",
@@ -11548,7 +11543,7 @@
    },
    {
     "kind": "button",
-    "label": "Pay & Launch Ad",
+    "label": "{tt('rrde.06b154f7')}",
     "src": "POST /provider/promotions",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/SubscriptionsAdsScreen.tsx",
@@ -11558,7 +11553,7 @@
    },
    {
     "kind": "button",
-    "label": "B2B Affiliate Portal",
+    "label": "{tt('rrde.fd24bd11')}",
     "src": "navigate → affiliate",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/SubscriptionsAdsScreen.tsx",
@@ -11982,7 +11977,7 @@
    },
    {
     "kind": "input",
-    "label": "Copay %",
+    "label": "{tt('rrdl.49222db2')}",
     "src": "user input → parent callback prev.map",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/InsuranceConfigScreen.tsx",
@@ -12013,7 +12008,7 @@
    },
    {
     "kind": "button",
-    "label": "Save Settings",
+    "label": "{tt('rrdl.267f38e8')}",
     "src": "POST /provider/settings/delta, PUT /provider/insurance-matrix",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/InsuranceConfigScreen.tsx",
@@ -12159,7 +12154,7 @@
    },
    {
     "kind": "button",
-    "label": "[plus] Add Photo",
+    "label": "[plus] {tt('rrdm.ed7a54d5')}",
     "src": "POST /storage/upload, POST /provider/settings/delta, GET /storage/:param/signed-url",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/MediaConfigScreen.tsx",
@@ -12181,7 +12176,7 @@
    },
    {
     "kind": "button",
-    "label": "Join",
+    "label": "{tt('rrao.62541b49')}",
     "src": "navigate → video_call",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/_shared.tsx",
@@ -12191,7 +12186,7 @@
    },
    {
     "kind": "button",
-    "label": "Refresh",
+    "label": "{tt('rrao.d612cb94')}",
     "src": "GET /calls/provider/waiting-room",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/_shared.tsx",
@@ -12547,8 +12542,8 @@
    },
    {
     "kind": "button",
-    "label": "[eye] DICOM Viewer",
-    "src": "native action",
+    "label": "[eye] {tt('rrad.771b1c6c')}",
+    "src": "parent callback tt",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/InboundMedicalReportsScreen.tsx",
     "line": 72,
@@ -12557,8 +12552,8 @@
    },
    {
     "kind": "button",
-    "label": "[fileText] PDF Report",
-    "src": "native action",
+    "label": "[fileText] {tt('rrad.66712820')}",
+    "src": "parent callback tt",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/doctor/InboundMedicalReportsScreen.tsx",
     "line": 80,
@@ -13689,7 +13684,7 @@
    },
    {
     "kind": "button",
-    "label": "Reject",
+    "label": "{tt('rrau.8a223f36')}",
     "src": "POST /provider/leave-requests/action",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityLeaveRequestsScreen.tsx",
@@ -13699,7 +13694,7 @@
    },
    {
     "kind": "button",
-    "label": "Approve",
+    "label": "{tt('rrau.040b5756')}",
     "src": "POST /provider/leave-requests/action",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityLeaveRequestsScreen.tsx",
@@ -13731,7 +13726,7 @@
    },
    {
     "kind": "button",
-    "label": "Confirm",
+    "label": "{tt('rraz.449fee30')}",
     "src": "PATCH /care/appointments/:param/:param, GET /provider/facility/calendar",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityUnifiedCalendarScreen.tsx",
@@ -13741,7 +13736,7 @@
    },
    {
     "kind": "button",
-    "label": "Cancel",
+    "label": "{tt('rraz.210b779f')}",
     "src": "PATCH /care/appointments/:param/:param, GET /provider/facility/calendar",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityUnifiedCalendarScreen.tsx",
@@ -13916,8 +13911,8 @@
    },
    {
     "kind": "button",
-    "label": "Open Camera",
-    "src": "parent callback requestCamPerm",
+    "label": "{tt('rrbj.1abacc02')}",
+    "src": "parent callback requestCamPerm, tt",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/QRCheckinScreen.tsx",
     "line": 143,
@@ -13926,21 +13921,21 @@
    },
    {
     "kind": "input",
-    "label": "Appointment ID or Patient ID",
+    "label": "{tt('rrbj.a975a4f2')}",
     "src": "user input → manualId (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/QRCheckinScreen.tsx",
-    "line": 159,
+    "line": 157,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Confirm Arrival",
+    "label": "{tt('rrbj.bdd8b823')}",
     "src": "PATCH /care/appointments/:param/check-in, GET /provider/facility/patients/active",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/QRCheckinScreen.tsx",
-    "line": 165,
+    "line": 163,
     "via": null,
     "note": null
    },
@@ -13950,17 +13945,17 @@
     "src": "GET /provider/facility/patients/active → CHECKIN_HISTORY",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/QRCheckinScreen.tsx",
-    "line": 172,
+    "line": 170,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Cancel",
+    "label": "{tt('rrbj.210b779f')}",
     "src": "local state setShowCam",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/QRCheckinScreen.tsx",
-    "line": 198,
+    "line": 196,
     "via": null,
     "note": null
    }
@@ -14031,7 +14026,7 @@
    },
    {
     "kind": "input",
-    "label": "Type a message...",
+    "label": "{tt('rras.23f80879')}",
     "src": "user input → inputText → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityInternalChatScreen.tsx",
@@ -14041,7 +14036,7 @@
    },
    {
     "kind": "button",
-    "label": "Send",
+    "label": "{tt('rras.ad89df6b')}",
     "src": "POST /chat/threads/:param/messages",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityInternalChatScreen.tsx",
@@ -14085,7 +14080,7 @@
   "FacilityAnnouncementsScreen": [
    {
     "kind": "input",
-    "label": "Type announcement here to broadcast to all linke",
+    "label": "{tt('rraq.3473c74c')}",
     "src": "user input → message → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityAnnouncementsScreen.tsx",
@@ -14095,7 +14090,7 @@
    },
    {
     "kind": "button",
-    "label": "Broadcast",
+    "label": "{tt('rraq.35e65e09')}",
     "src": "POST /facility/announcements, GET /facility/announcements",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityAnnouncementsScreen.tsx",
@@ -14409,7 +14404,7 @@
   "FacilityProfileConfigScreen": [
    {
     "kind": "input",
-    "label": "Description (AR)",
+    "label": "{tt('rraw.89d192e2')}",
     "src": "user input → descAr → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityProfileConfigScreen.tsx",
@@ -14419,7 +14414,7 @@
    },
    {
     "kind": "input",
-    "label": "Description (EN)",
+    "label": "{tt('rraw.85514f39')}",
     "src": "user input → descEn → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityProfileConfigScreen.tsx",
@@ -14429,7 +14424,7 @@
    },
    {
     "kind": "input",
-    "label": "Website",
+    "label": "{tt('rraw.a10e480e')}",
     "src": "user input → website → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityProfileConfigScreen.tsx",
@@ -14439,7 +14434,7 @@
    },
    {
     "kind": "input",
-    "label": "WhatsApp",
+    "label": "{tt('rraw.c0f73034')}",
     "src": "user input → whatsapp → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityProfileConfigScreen.tsx",
@@ -14470,7 +14465,7 @@
    },
    {
     "kind": "button",
-    "label": "Save Updates",
+    "label": "{tt('rraw.428a5619')}",
     "src": "PATCH /provider/profile",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityProfileConfigScreen.tsx",
@@ -14546,7 +14541,7 @@
   "FacilityOrderDetail": [
    {
     "kind": "button",
-    "label": "Reject",
+    "label": "{tt('rrbf.9429cefa')}",
     "src": "POST /provider/jobs/:param/:param/:param",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/FacilityOrderDetail.tsx",
@@ -14556,7 +14551,7 @@
    },
    {
     "kind": "button",
-    "label": "Accept & Confirm",
+    "label": "{tt('rrbf.79ec9f5b')}",
     "src": "POST /provider/jobs/:param/:param/:param",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/FacilityOrderDetail.tsx",
@@ -14955,7 +14950,7 @@
    {
     "kind": "input",
     "label": "<Switch>",
-    "src": "user input → bioEnabled (local)",
+    "src": "user input → parent callback tt",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/GlobalSystemSettings.tsx",
     "line": 81,
@@ -15978,7 +15973,7 @@
   "LabSampleScannerScreen": [
    {
     "kind": "input",
-    "label": "Enter barcode or sample ID",
+    "label": "{tt('rrcw.88d4a262')}",
     "src": "user input → barcode (local)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/LabSampleScannerScreen.tsx",
@@ -15999,7 +15994,7 @@
    },
    {
     "kind": "button",
-    "label": "Start Analysis",
+    "label": "{tt('rrcw.a1a74336')}",
     "src": "PATCH /labs/samples/:param/stage, GET /labs/samples",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/LabSampleScannerScreen.tsx",
@@ -16009,7 +16004,7 @@
    },
    {
     "kind": "button",
-    "label": "Enter Results",
+    "label": "{tt('rrcw.fd60025b')}",
     "src": "navigate → sample_tracking",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/LabSampleScannerScreen.tsx",
@@ -16637,7 +16632,7 @@
    {
     "kind": "input",
     "label": "<Switch>",
-    "src": "user input → bioEnabled (local)",
+    "src": "user input → parent callback tt",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/GlobalSystemSettings.tsx",
     "line": 81,
@@ -16658,7 +16653,7 @@
    },
    {
     "kind": "button",
-    "label": "[refresh] Clear",
+    "label": "[refresh] {tt('rrh.7d758bb1')}",
     "src": "local logic",
     "status": "ok",
     "file": "provider-app/src/components/SignatureCanvasModal.tsx",
@@ -16668,7 +16663,7 @@
    },
    {
     "kind": "button",
-    "label": "Save Signature",
+    "label": "{tt('rrh.290020b3')}",
     "src": "local logic",
     "status": "ok",
     "file": "provider-app/src/components/SignatureCanvasModal.tsx",
@@ -17354,7 +17349,7 @@
   "NurseVisitConsole": [
    {
     "kind": "button",
-    "label": "Retry",
+    "label": "{tt('rrcz.cf333076')}",
     "src": "GET /provider/jobs/queue",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/NurseVisitConsole.tsx",
@@ -17374,7 +17369,7 @@
    },
    {
     "kind": "button",
-    "label": "Patient",
+    "label": "{tt('rrcz.c8b7f288')}",
     "src": "navigate → order_detail",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/NurseVisitConsole.tsx",
@@ -17384,7 +17379,7 @@
    },
    {
     "kind": "button",
-    "label": "Checklist",
+    "label": "{tt('rrcz.fe2d9ea6')}",
     "src": "navigate → nurse_checklist",
     "status": "ok",
     "file": "provider-app/src/screens/shared/blueprint/NurseVisitConsole.tsx",
@@ -17564,11 +17559,11 @@
    },
    {
     "kind": "button",
-    "label": "Try again",
+    "label": "{tt('rrbz.96cbdad3')}",
     "src": "parent callback onRetry",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/common.tsx",
-    "line": 72,
+    "line": 73,
     "via": "LoadState",
     "note": null
    }
@@ -17770,11 +17765,11 @@
    },
    {
     "kind": "button",
-    "label": "Try again",
+    "label": "{tt('rrbz.96cbdad3')}",
     "src": "parent callback onRetry",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/common.tsx",
-    "line": 72,
+    "line": 73,
     "via": "LoadState",
     "note": null
    }
@@ -17973,11 +17968,11 @@
    },
    {
     "kind": "button",
-    "label": "Try again",
+    "label": "{tt('rrbz.96cbdad3')}",
     "src": "parent callback onRetry",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/common.tsx",
-    "line": 72,
+    "line": 73,
     "via": "LoadState",
     "note": null
    }
@@ -18308,11 +18303,11 @@
    },
    {
     "kind": "button",
-    "label": "Try again",
+    "label": "{tt('rrbz.96cbdad3')}",
     "src": "parent callback onRetry",
     "status": "ok",
     "file": "provider-app/src/screens/ordering/common.tsx",
-    "line": 72,
+    "line": 73,
     "via": "LoadState",
     "note": null
    }
@@ -18453,7 +18448,7 @@
    },
    {
     "kind": "button",
-    "label": "Refresh",
+    "label": "{tt('rrcd.d612cb94')}",
     "src": "parent callback reload",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyMore.tsx",
@@ -18931,7 +18926,7 @@
    },
    {
     "kind": "button",
-    "label": "Refresh",
+    "label": "{tt('rrcd.d612cb94')}",
     "src": "parent callback reload",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyMore.tsx",
@@ -19260,7 +19255,7 @@
    {
     "kind": "input",
     "label": "<Switch>",
-    "src": "user input → bioEnabled (local)",
+    "src": "user input → parent callback tt",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/GlobalSystemSettings.tsx",
     "line": 81,

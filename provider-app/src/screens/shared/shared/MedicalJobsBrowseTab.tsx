@@ -29,13 +29,14 @@ import { tokens, withAlpha } from '../../../theme/tokens';
 
 
 export function MedicalJobsBrowseTab({ ctx }: any) {
+  const { t: tt } = useLang();
   const { theme, lang, AR, show, user, insets, onBack, onOpenChat, tab, setTab, postType, setPostType, search, setSearch, showFilters, setShowFilters, selectedJob, setSelectedJob, selectedApp, setSelectedApp, filterProf, setFilterProf, filterCity, setFilterCity, postTitle, setPostTitle, postProf, setPostProf, postClass, setPostClass, postContract, setPostContract, postNat, setPostNat, postExp, setPostExp, postDesc, setPostDesc, postContact, setPostContact, postPhone, setPostPhone, postCompany, setPostCompany, postSalary, setPostSalary, applyVisible, setApplyVisible, applyName, setApplyName, applyPhone, setApplyPhone, applyClass, setApplyClass, applyExp, setApplyExp, applyReady, setApplyReady, applyCV, setApplyCV, guestId, guestMine, isGuest, applyCvUrl, setApplyCvUrl, applyScfhs, setApplyScfhs, applyScfhsExp, setApplyScfhsExp, uploadingCV, setUploadingCV, jobs, loading, posting, postCity, setPostCity, applications, inboxLoading, filtered, handlePost, handleApply } = ctx;
   return (
     <>
         <>
           {loading ? (
             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ color: theme.textSub, fontSize: FS.md }}>{AR ? 'جاري تحميل الوظائف...' : 'Loading jobs...'}</Text>
+              <Text style={{ color: theme.textSub, fontSize: FS.md }}>{tt('rrzc.70cc5211')}</Text>
             </View>
           ) : (
             <FlatList
@@ -44,7 +45,7 @@ export function MedicalJobsBrowseTab({ ctx }: any) {
           contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}
           ListHeaderComponent={
             <View style={{ marginBottom: SP.lg }}>
-              <NSearch value={search} onChange={setSearch} placeholder={AR ? 'ابحث بالمهنة، المستشفى، التخصص...' : 'Search profession, hospital...'} />
+              <NSearch value={search} onChange={setSearch} placeholder={tt('rrzc.88d1a62b')} />
             </View>
           }
           renderItem={({ item }) => (
@@ -52,7 +53,7 @@ export function MedicalJobsBrowseTab({ ctx }: any) {
               <View style={{ backgroundColor: theme.surface, borderRadius: R.xl, overflow: 'hidden', borderWidth: 1, borderColor: theme.border, shadowColor: '#000', shadowOffset: {width:0, height:4}, shadowOpacity: 0.05, shadowRadius: 10, elevation: 3 }}>
                 <View style={{ backgroundColor: item.type === 'offer' ? theme.primaryLight : theme.successBg, paddingHorizontal: SP.lg, paddingVertical: SP.sm, flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Text style={{ fontSize: FS.xs, color: item.type === 'offer' ? theme.primary : theme.success, fontWeight: FW.bold }}>
-                    {item.type === 'offer' ? (AR ? 'صاحب عمل (يبحث عن موظفين)' : 'Employer Ad') : (AR ? 'ممارس (يبحث عن عمل)' : 'Job Seeker CV')}
+                    {item.type === 'offer' ? (tt('rrzc.a425147f')) : (tt('rrzc.e00ef5da'))}
                   </Text>
                   <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{item.date}</Text>
                 </View>
@@ -70,7 +71,7 @@ export function MedicalJobsBrowseTab({ ctx }: any) {
                     {[
                       { icon: 'clock', val: AR ? item.type_ar : item.type_en },
                       { icon: 'award', val: item.scfhs },
-                      { icon: 'star', val: `${item.exp} ${AR?'س':'Y'}` }
+                      { icon: 'star', val: `${item.exp} ${tt('rrzc.df4a9576')}` }
                     ].map((tag, i) => (
                       <View key={i} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 4, backgroundColor: theme.surface2, paddingHorizontal: 10, paddingVertical: 6, borderRadius: R.sm }}>
                         <I name={tag.icon as any} size={12} color={theme.textSub} />

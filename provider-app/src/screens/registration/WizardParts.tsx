@@ -4,6 +4,7 @@ import { Alert, Text, TouchableOpacity, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import { useLang, useTheme, useToast } from '../../context';
+import type { TKey } from '../../i18n';
 import { NBtn, NDatePickerSheet, NHeader, NInput, NScroll, WizardSection } from '../../components/ui';
 import { isFutureLicenseDate } from '../doctor/doctorRegistrationFields';
 import { I, IBg } from '../../components/icons';
@@ -191,7 +192,7 @@ export function LicenseExpiryField({ value, onChange, error, label }: { value: s
 }
 
 /** null = fine. The message for the date field of a wizard. */
-export function licenseExpiryError(value: string, AR: boolean): string | null {
-  if (!value) return AR ? 'تاريخ انتهاء الترخيص مطلوب' : 'Licence expiry date is required';
-  return isFutureLicenseDate(value) ? null : (AR ? 'الترخيص منتهٍ، لا يمكن التسجيل به' : 'The licence has expired');
+export function licenseExpiryError(value: string, AR: boolean, tt: (k: TKey) => string): string | null {
+  if (!value) return tt('rrck.826fbd55');
+  return isFutureLicenseDate(value) ? null : (tt('rrck.0b68512b'));
 }

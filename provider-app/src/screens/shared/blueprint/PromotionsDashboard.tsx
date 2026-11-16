@@ -22,7 +22,7 @@ import { _styles } from './_shared';
 export function PromotionsDashboard({ onBack, onNavigate }: { onBack: () => void; onNavigate: (s: string) => void }) {
  const insets = useSafeAreaInsets();
  const { theme } = useTheme();
- const { lang, t } = useLang();
+ const { lang, t, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
 
@@ -35,7 +35,7 @@ export function PromotionsDashboard({ onBack, onNavigate }: { onBack: () => void
  const res = await client.get('/provider/promotions');
  setPromos(res.data);
  } catch (e) {
- show(AR ? 'فشل تحميل العروض الترويجية' : 'Failed to load promotions', 'error');
+ show(tt('rrda.29fbee1f'), 'error');
  } finally {
  setLoading(false);
  }
@@ -75,13 +75,13 @@ export function PromotionsDashboard({ onBack, onNavigate }: { onBack: () => void
  </View>
  <NDivider style={{ marginVertical: SP.sm }} />
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between' }}>
- <Text style={{ fontSize: FS.xs, color: theme.textSub }}> {item.discounted_price} {AR?'ريال':'SAR'} <Text style={{ textDecorationLine:'line-through' }}>{item.original_price} {AR?'ريال':'SAR'}</Text></Text>
+ <Text style={{ fontSize: FS.xs, color: theme.textSub }}> {item.discounted_price} {tt('rrda.0e39e6ca')} <Text style={{ textDecorationLine:'line-through' }}>{item.original_price} {tt('rrda.0e39e6ca')}</Text></Text>
  <Text style={{ fontSize: FS.xs, color: theme.textSub }}> {new Date(item.end_date).toLocaleDateString()}</Text>
  </View>
  </NCard>
  ))}
 
- <NBtn label={AR ? ' إنشاء عرض جديد' : ' Create New Promotion'} onPress={() => onNavigate('create_promo')} style={{ marginTop: SP.xl }} />
+ <NBtn label={tt('rrda.c0484d56')} onPress={() => onNavigate('create_promo')} style={{ marginTop: SP.xl }} />
  </ScrollView>
  </View>
  );

@@ -18,7 +18,7 @@ const LABELS: Record<DetailField, [string, string]> = {
 
 /** Correct the registration details a reviewer pointed at, then go back to the status screen to resubmit. Saves through POST /provider-onboarding/step2. */
 export function ResubmitDetailsScreen({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [initial, setInitial] = useState<Details | null>(null);
   const [edited, setEdited] = useState<Details | null>(null);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -37,18 +37,18 @@ export function ResubmitDetailsScreen({ onBack }: { onBack: () => void }) {
   const save = async () => {
     if (!initial || !edited) return;
     const changed = changedDetails(initial, edited);
-    if (!Object.keys(changed).length) { show(AR ? 'لم تغيّر أي بيانات' : 'You have not changed anything', 'info'); return; }
+    if (!Object.keys(changed).length) { show(tt('rrn.18668451'), 'info'); return; }
     const problems = detailProblems(changed);
     setBad(problems);
-    if (problems.length) { show(AR ? 'راجع الحقول المحددة' : 'Check the highlighted fields', 'error'); return; }
+    if (problems.length) { show(tt('rrn.cdf058ec'), 'error'); return; }
     setSaving(true);
     try {
       await client.post('/provider-onboarding/step2', changed);
-      show(AR ? 'حُفظت البيانات، يمكنك الآن إعادة الإرسال' : 'Saved. You can resubmit now', 'success');
+      show(tt('rrn.f7f22d44'), 'success');
       onBack();
     } catch (e) {
       const m = (e as { response?: { data?: { message?: unknown } } } | null)?.response?.data?.message;
-      show(typeof m === 'string' && m ? m : (AR ? 'تعذر حفظ البيانات' : 'Could not save the details'), 'error');
+      show(typeof m === 'string' && m ? m : (tt('rrn.5cac62cd')), 'error');
     } finally { setSaving(false); }
   };
 
@@ -67,7 +67,7 @@ export function ResubmitDetailsScreen({ onBack }: { onBack: () => void }) {
           {DETAIL_FIELDS.map((f) => (
             <NInput key={f} label={LABELS[f][AR ? 0 : 1]} value={edited[f]} onChange={(v) => { setEdited({ ...edited, [f]: v }); if (bad.includes(f)) setBad(bad.filter((x) => x !== f)); }}
               caps={f === 'iban' ? 'characters' : 'none'} kbType={f === 'license_expiry_date' ? 'numbers-and-punctuation' : undefined}
-              error={bad.includes(f) ? (AR ? 'قيمة غير صحيحة' : 'Not valid') : undefined} />
+              error={bad.includes(f) ? (tt('rrn.52e6bb5c')) : undefined} />
           ))}
           <NBtn label={t('common.save')} loading={saving} onPress={save} />
         </ScrollView>

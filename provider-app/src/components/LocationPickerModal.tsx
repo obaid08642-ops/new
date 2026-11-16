@@ -19,7 +19,7 @@ export const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
   visible, onClose, onSelectLocation, initialLocation
 }) => {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const AR = lang === 'ar';
   const mapRef = useRef<MapView>(null);
   const [selected, setSelected] = useState(initialLocation || DEFAULT_LOC);
@@ -42,13 +42,13 @@ export const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        setLocError(AR ? 'تم رفض إذن الموقع — فعّله من إعدادات الجهاز' : 'Location permission denied — enable it in device settings');
+        setLocError(tt('rrd.29744ec3'));
         return;
       }
       const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
       moveTo({ lat: loc.coords.latitude, lng: loc.coords.longitude });
     } catch (e) {
-      setLocError(AR ? 'تعذر تحديد موقعك الحالي' : 'Could not determine your current location');
+      setLocError(tt('rrd.425ebffd'));
     } finally {
       setLocating(false);
     }
@@ -75,7 +75,7 @@ export const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
         <View style={{ width: '92%', height: '78%', backgroundColor: theme.bg, borderRadius: R.lg, padding: SP.lg }}>
-          <Text style={{ fontSize: FS.lg, fontWeight: 'bold', color: theme.text, marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>{AR ? 'تحديد الموقع على الخريطة' : 'Select Location on Map'}</Text>
+          <Text style={{ fontSize: FS.lg, fontWeight: 'bold', color: theme.text, marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>{tt('rrd.8224da4c')}</Text>
 
           <View style={{ flex: 1, borderRadius: R.md, overflow: 'hidden', marginBottom: SP.md }}>
             <MapView
@@ -99,7 +99,7 @@ export const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
               disabled={locating}
             >
               {locating && <ActivityIndicator size="small" color={theme.primary} />}
-              <Text style={{ color: theme.primary, fontWeight: 'bold' }}>{AR ? 'موقعي الحالي' : 'My Location'}</Text>
+              <Text style={{ color: theme.primary, fontWeight: 'bold' }}>{tt('rrd.8c67be67')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -107,18 +107,18 @@ export const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
             <Text style={{ color: tokens.error, fontSize: FS.sm, marginBottom: SP.sm, textAlign: 'center' }}>{locError}</Text>
           )}
           <Text style={{ color: theme.textSub, fontSize: FS.xs, marginBottom: SP.sm, textAlign: 'center' }}>
-            {AR ? 'اضغط على الخريطة لتحديد الموقع بدقة' : 'Tap the map to fine-tune the location'}
+            {tt('rrd.03b423ac')}
           </Text>
 
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between' }}>
             <TouchableOpacity style={{ padding: SP.md, borderRadius: R.md, backgroundColor: theme.border, flex: 1, marginHorizontal: SP.xs }} onPress={onClose}>
-              <Text style={{ color: theme.text, textAlign: 'center', fontWeight: 'bold' }}>{AR ? 'إلغاء' : 'Cancel'}</Text>
+              <Text style={{ color: theme.text, textAlign: 'center', fontWeight: 'bold' }}>{tt('rrd.210b779f')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={{ padding: SP.md, borderRadius: R.md, backgroundColor: theme.primary, flex: 1, marginHorizontal: SP.xs }} onPress={() => {
               onSelectLocation(selected);
               onClose();
             }}>
-              <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>{AR ? 'تأكيد الموقع' : 'Confirm Location'}</Text>
+              <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>{tt('rrd.8b4d3df2')}</Text>
             </TouchableOpacity>
           </View>
         </View>

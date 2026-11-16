@@ -7,7 +7,7 @@ import client from '../../api/client';
 
 export function FacilityAuditLogScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const AR = lang === 'ar';
 
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
@@ -20,11 +20,11 @@ export function FacilityAuditLogScreen({ onBack }: { onBack: () => void }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'سجل التدقيق (Audit Logs)' : 'Audit Logs'} onBack={onBack} />
+      <NHeader title={tt('rrar.ff138587')} onBack={onBack} />
       
       <View style={{ padding: SP.md, backgroundColor: theme.surface }}>
         <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: 'center' }}>
-          {AR ? 'تتبع وتوثيق كافة التعديلات والإجراءات المتخذة على حسابات المزودين المرتبطين' : 'Track and document all actions and changes made to linked providers'}
+          {tt('rrar.951ef6ec')}
         </Text>
       </View>
 
@@ -47,7 +47,7 @@ export function FacilityAuditLogScreen({ onBack }: { onBack: () => void }) {
 
               <View style={{ backgroundColor: theme.surface2, padding: SP.sm, borderRadius: R.sm }}>
                 <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
-                  {AR ? 'المستهدف / التأثير:' : 'Target / Impact:'} <Text style={{ color: theme.text, fontWeight: FW.bold }}>{log.target}</Text>
+                  {tt('rrar.6b882c5a')} <Text style={{ color: theme.text, fontWeight: FW.bold }}>{log.target}</Text>
                 </Text>
               </View>
             </NCard>

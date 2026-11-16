@@ -44,7 +44,7 @@ import { tokens } from '../../../theme/tokens';
 export function UnifiedScheduleScreen({ onBack }: { onBack: () => void }) {
  const insets = useSafeAreaInsets();
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const AR = lang === 'ar';
  const [todayApts, setTodayApts] = useState<any[]>([]);
  useEffect(() => { client.get('/provider/jobs/queue?status=active&kind=appointment&today=true').then(r => setTodayApts(r.data || [])).catch(() => {}); }, []);
@@ -64,7 +64,7 @@ export function UnifiedScheduleScreen({ onBack }: { onBack: () => void }) {
  </TouchableOpacity>
  )}
  <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>
- {AR ? ' الجدول الموحد' : ' Unified Schedule'}
+ {tt('rrbo.ddc520d8')}
  </Text>
  <View style={{ width: 30 }} />
  </View>
@@ -108,8 +108,8 @@ export function UnifiedScheduleScreen({ onBack }: { onBack: () => void }) {
  </Text>
  </View>
  <NBadge
- label={item.type === 'emergency' ? (AR?' طوارئ':' ER') :
- item.type === 'surgery' ? (AR?' عملية':' OR') : (AR?' كشف':' OPD')}
+ label={item.type === 'emergency' ? (tt('rrbo.1659bf35')) :
+ item.type === 'surgery' ? (tt('rrbo.597e101d')) : (tt('rrbo.435b87d7'))}
  variant={item.type === 'emergency' ? 'danger' : item.type === 'surgery' ? 'warning' : 'primary'}
  size="xs"
  />
