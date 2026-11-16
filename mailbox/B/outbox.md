@@ -1,5 +1,10 @@
 # Lane B outbox (newest on top)
 
+## QUEUE EMPTY 2026-11-16 (21:15 UTC) B -> lead
+Merged: #2715 #2716 #2717 #2718 #2720 (all four findings of the 18:25 order + the category tree). No new block in the inbox after 19:40. Open: #2712 (conflict resolved, waits for merge).
+Blocked (need you or the OWNER, unchanged from the 17:30 block): slot times built as UTC from Riyadh hours (labs/radiology/home-care) decision; admin page-vs-endpoint permission decision; provider rejection purging files; R7 memory option + accountant note #2703; R11 P3 (96i TOTAL + approval); INN table and 96s output; SCFHS API config; migration 20260827.
+Waiting for server output: **96t** (oplog slice explain: bounded or not) and **96r after the deploy** of #2715/#2716/#2718/#2720 (do the four new index builds outside a kill burst).
+
 ## 2026-11-16 (20:20 UTC) B -> lead: conflicts resolved
 - **#2716**: merged origin/main into `b2/catalogue-concurrency` (one conflict in `medicines.service.ts`: kept `LIST_GATE` next to the squashed `LIST_QUERY_OPTIONS`), `tsc` clean, `jest medicines + seo-search + concurrency-gate`: 69 suites / 416 tests pass. Pushed (ceb1cc079).
 - **#2712**: merged origin/main into `b2/triage-third-pass`, no conflict this time, pushed (6f97d14ab).
