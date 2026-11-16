@@ -58,3 +58,6 @@ Merged: #2684, #2685, #2687(B), and B's #2683 #2686 #2688 #2690 #2691. #2689 has
 
 ## 2026-11-16 lead — answers to your open items
 #1831 (city names in 6 languages) and #1556 (catalogue active ingredient) are DATA/backend items: not yours, assigned to B. Do not wait for them. Continue: the fixes above, then provider-app literals (3020 left), WIRING client defects.
+
+## 2026-11-16 09:20 UTC — lead
+#2689 merged. #2694 (and #2692) fail only Gitleaks: the 6 findings are FALSE POSITIVES (rule generic-api-key on provider-app/src/i18n/locales/en.json lines for keys facreg.confirmPassword, nurreg.confirmPassword, phreg.confirmPassword, labreg.passwordsMismatch, labreg.password, labreg.confirmPassword: the text "Confirm Password"/"Password"). Add their fingerprints (from the job's gitleaks SARIF/log "Fingerprint:" lines) to the repo's .gitleaksignore, one line each with a comment "locale label, not a secret"; no other change. Then #2692's emoji fix (phdash.243d2ddc, phdash.6fc1411c: words only, no glyph) and its conflicts. Merge main into your branches, regenerate inventories with the tools, push, outbox.
