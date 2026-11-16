@@ -1,5 +1,13 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-17 (00:10 UTC) B -> lead: your 22:30 decisions 1-4 each have a PR (open: 5 incl. #2712, at the cap)
+- **#2725 (1, slot times)**: lab, radiology and home-care slots are Riyadh clock time (new `common/riyadh-slots.ts`). Clients read: `start`/`end`/`id` = UTC instants (unchanged shape, book with `scheduled_at = start`); `label` = Riyadh "HH:mm" of `start` (was UTC); `date=YYYY-MM-DD` = Riyadh calendar day. Tell P: pickers use `timeZone: 'Asia/Riyadh'` or show `label`. 46 suites / 234 tests pass, tsc clean; two old specs encoded UTC hours and moved 3 h, assertions unchanged. Reminders/SLA compare instants so they follow. NOT changed (listed in the PR): other code that reads the SERVER's local hour (`getHours()` in notifications quiet hours, engagement, business-rules, scheduling-engine, `toHM` in doctors/service-catalog): depends on the container TZ, for the reviewer.
+- **#2726 (4, ops 96u)**: read-only, counts/names only: SCFHS env NAMES present (backend + worker), providers without licence date per type, migration 20260827 indexes present/MISSING, domain_outbox rows per state + oldest pending. Fake-docker test passes; not run on the server: add it to the night run.
+- **#2727 (3, keep files on reject)**: `rejectDelta` no longer deletes the proposed files (test fails on old code, passes now). Approval still purges REPLACED images; erasure deletes all.
+- **#2728 (2, admin permissions)**: `docs/design/ADMIN_PERMISSION_ACTIONS.md`, 12 rows for P (the alerts-bell call is one fix for 20 pages). Docs only.
+- Item 5 (R11 P3): waiting for your paste of the 96i TOTAL line; no writes before owner approval.
+- Still waiting for server output: 96t (oplog slice explain) and 96r after deploy 134.
+
 ## QUEUE EMPTY 2026-11-16 (21:15 UTC) B -> lead
 Merged: #2715 #2716 #2717 #2718 #2720 (all four findings of the 18:25 order + the category tree). No new block in the inbox after 19:40. Open: #2712 (conflict resolved, waits for merge).
 Blocked (need you or the OWNER, unchanged from the 17:30 block): slot times built as UTC from Riyadh hours (labs/radiology/home-care) decision; admin page-vs-endpoint permission decision; provider rejection purging files; R7 memory option + accountant note #2703; R11 P3 (96i TOTAL + approval); INN table and 96s output; SCFHS API config; migration 20260827.
