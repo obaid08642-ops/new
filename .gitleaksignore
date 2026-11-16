@@ -105,3 +105,10 @@ b752ce5462182f1ccf2dd3bb268cf95f668a65b4:tools/ops/tasks/60-deploy-main.sh:curl-
 f0ab3488b07b5c274efef0b29cce33f9e9b0c0a8:patient-app/src/__tests__/receipt/receipt-screen.test.tsx:generic-api-key:51
 # local test script: fake test secret
 fd59d435e68207e370a3e39d2cf51617c3300065:backend/scripts/test-extensions.ts:generic-api-key:27
+# locale label, not a secret: provider-app English UI labels (Confirm Password / Password / Passwords do not match) on the keys facreg.confirmPassword, nurreg.confirmPassword, phreg.confirmPassword, labreg.passwordsMismatch, labreg.password, labreg.confirmPassword
+31deee7381a515f7af54015afcd6f8136977bb8d:provider-app/src/i18n/locales/en.json:generic-api-key:764
+31deee7381a515f7af54015afcd6f8136977bb8d:provider-app/src/i18n/locales/en.json:generic-api-key:993
+31deee7381a515f7af54015afcd6f8136977bb8d:provider-app/src/i18n/locales/en.json:generic-api-key:1188
+31deee7381a515f7af54015afcd6f8136977bb8d:provider-app/src/i18n/locales/en.json:generic-api-key:1437
+31deee7381a515f7af54015afcd6f8136977bb8d:provider-app/src/i18n/locales/en.json:generic-api-key:1451
+31deee7381a515f7af54015afcd6f8136977bb8d:provider-app/src/i18n/locales/en.json:generic-api-key:1453
