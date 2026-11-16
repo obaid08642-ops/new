@@ -11,6 +11,7 @@ import { ArriveDto, ResultsDto, StaffDto } from './ordering.dto';
 import { rank, mergeWeights, reliabilityRates, round2 } from './ordering-engine';
 import { KIND_CATALOG, LIFECYCLE, OrderingService } from './ordering.service';
 import { ScheduledOnce } from '../../common/scheduled-once';
+import { cancelReasonOf } from './cancel-reason';
 
 // M7: after the booking and the safeguards. The provider confirms in time (else auto-cancel, refund started, next best offered),
 // the visit (staff, 4-digit arrival code that locks after 3 wrong tries), preparation reminders, results with trends,
@@ -184,6 +185,8 @@ export class OrderingLifecycleService implements OnModuleInit {
       confirm_deadline_at: lc.confirmed_at ? null : lc.confirm_deadline_at,
       payment: { amount: b.total_price ?? b.total, status: b.payment_status ?? 'pending', refund_status: b.refund_status ?? null },
       alternative: lc.alternative ?? null,
+      // why it was cancelled (null when it was not): the screen shows a different title for "the provider did not confirm", "you cancelled" and "the provider cancelled"
+      cancel_reason: cancelReasonOf(b),
     };
   }
 
