@@ -1,5 +1,11 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-17 00:05 UTC — provider literals slice 8 (PR #2724); #2722 and #2723 merged; #2719 conflict fixed
+- 697 -> 234 (68 files). parity ok, no-emoji 38 -> 37 (one label lost its emoji: words only), tsc clean, jest 433/433. Registration callbacks (rows, precheck, licenseExpiryError) now take `tt`.
+- #2719 (tokens) conflicted with the literal slices: merged main, took main's text, reapplied C.white, regenerated inventories; token-sync 335, jest 433/433; pushed.
+- DECISION NEEDED (234 left): format-example placeholders (SA0000000000000000000000, MOH-PHR-XXXXX, YYYY-MM-DD, 5X XXX XXXX) and status codes (IN_PROGRESS) are language-neutral. Options: (a) exempt them from the gate, (b) one locale key with the same text in ar and en. I will do (b) unless you say (a). The rest are isRTL/lang==='ar' ternaries and {ar,en} objects, which I convert next.
+- Open PRs: #2719 (tokens), #2724.
+
 ## 2026-11-16 22:20 UTC — parity audit round 2 (PR #2723); open: #2719 tokens, #2722 literals slice 7
 - Route-level comparison web vs app (446 routes): no transactional gap; one-sided groups are covered under other names, platform screens, SEO pages, browser flows or a legacy redirect (community/[postId] -> /articles). Docs only (docs/design/PARITY_2.md). Endpoint-level diff dropped as noise.
 - Literal slice 8 waits for #2722 (same locale files). Token audit step 2 waits for the overlay-token answer.
