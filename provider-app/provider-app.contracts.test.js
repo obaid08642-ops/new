@@ -73,7 +73,7 @@ describe('Provider App release contracts', () => {
     expect(pharmacyDashboard).not.toContain('/provider/pharmacy/orders/${orderId}/accept');
     expect(pharmacyDashboard).not.toContain('/provider/pharmacy/broadcasts/${orderId}/i-have-all');
     expect(pharmacyDashboard).not.toContain('/provider/pharmacy/broadcasts/${orderId}/i-have-partial');
-    expect(pharmacyBroadcastResponse).toContain('the order is not assigned yet');
+    expect(fs.readFileSync(path.join(root, 'src/i18n/locales/en.json'), 'utf8')).toContain('the order is not assigned yet');
     expect(pharmacyDashboard).toContain("client.get('/provider/inventory/search', { params: { barcode: String(data) } })");
     expect(pharmacyDashboard).not.toContain('/pharmacy/orders/${rejectOrderId}/reject');
     expect(pharmacyDashboard).not.toMatch(/const\s+CHATS\s*=\s*\[/);
