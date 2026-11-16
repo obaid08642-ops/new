@@ -193,6 +193,26 @@ describe('JwtAuthGuard', () => {
     await expect(guard.canActivate(createMockContext({ authorization: 'Bearer token' }, {}, {}, {}, '/api/v1/provider-onboarding/progress'))).resolves.toBe(true);
   });
 
+  it.each(['rejected', 'needs_changes', 'under_review', 'suspended'])('G6: a provider account in status %s is kept off every provider route except the onboarding steps (resubmit and read the reason stay open)', async (status) => {
+    reflector.getAllAndOverride.mockReturnValue(null);
+    jwtService.verifyAsync.mockResolvedValue({ id: 'provider-1', role: 'provider', scope: 'provider' });
+    (connection.collection as jest.Mock).mockReturnValue({ findOne: jest.fn().mockResolvedValue({ status }) });
+    for (const path of ['/api/v1/provider/jobs/queue', '/api/v1/provider/stats/revenue', '/api/v1/provider/ops/leave']) {
+      await expect(guard.canActivate(createMockContext({ authorization: 'Bearer token' }, {}, {}, {}, path))).rejects.toThrow('provider_approval_required');
+    }
+    for (const step of ['my-profile', 'step2', 'step3', 'submit', 'progress', 'contract']) {
+      await expect(guard.canActivate(createMockContext({ authorization: 'Bearer token' }, {}, {}, {}, `/api/v1/provider-onboarding/${step}`))).resolves.toBe(true);
+    }
+  });
+
+  // Pins today's behaviour for the lead's decision (G6 rest): the rejected provider's dashboard asks GET /provider/kyc/documents for the documents marked "needs replacement"; this gate answers 403, so the app (which swallows the error) never shows them.
+  it('G6 (open question): the KYC document list a rejected provider needs to replace flagged documents is behind the approval gate', async () => {
+    reflector.getAllAndOverride.mockReturnValue(null);
+    jwtService.verifyAsync.mockResolvedValue({ id: 'provider-1', role: 'provider', scope: 'provider' });
+    (connection.collection as jest.Mock).mockReturnValue({ findOne: jest.fn().mockResolvedValue({ status: 'rejected' }) });
+    await expect(guard.canActivate(createMockContext({ authorization: 'Bearer token' }, {}, {}, {}, '/api/v1/provider/kyc/documents'))).rejects.toThrow('provider_approval_required');
+  });
+
   it('allows an approved provider through the central KYC gate', async () => {
     reflector.getAllAndOverride.mockReturnValue(null);
     jwtService.verifyAsync.mockResolvedValue({ id: 'provider-1', role: 'provider', scope: 'provider' });
