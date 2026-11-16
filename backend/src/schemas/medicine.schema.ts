@@ -182,6 +182,11 @@ MedicineSchema.index({ rank_score: 1, id: 1 }, { name: 'ranking_scored_ids_v1' }
 export const PRICE_SWEEP_INDEX = { public_eligibility: 1, medical_review_status: 1, is_deleted: 1, requires_prescription: 1, controlled: 1, active: 1, availability_status: 1, id: 1, price: 1 } as const;
 MedicineSchema.index(PRICE_SWEEP_INDEX, { name: 'price_sweep_covering_v1' });
 MedicineSchema.index({ ...PUBLIC_LIVE, 'translations.en.main_category': 1, 'translations.en.sub_category': 1, ...POPULAR_FIELDS }, { name: 'public_category_en_covering_v2' });
+// 2026-11-16: the category tree (`buildCategoryTree`) of Urdu, Hindi, Bengali and Tagalog grouped by `translations.<lang>.main_category / sub_category`, which had no index: each cold build fetched all ~21k
+// documents (~20 KB each). The group needs only the public gate and these two fields, so these small indexes cover it (explain: 0 documents; category-tree-explain.spec.ts).
+for (const lang of ['ur', 'hi', 'bn', 'tl'] as const) {
+  MedicineSchema.index({ ...PUBLIC_LIVE, [`translations.${lang}.main_category`]: 1, [`translations.${lang}.sub_category`]: 1 }, { name: `public_category_${lang}_tree_v1` });
+}
 // The product id (a uuid string, not _id) is how the product page's related reads, the cart and orders find a product.
 MedicineSchema.index({ id: 1 }, { name: 'id_1' });
 
