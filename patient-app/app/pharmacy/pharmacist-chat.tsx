@@ -34,8 +34,9 @@ const RESOLUTIONS = ['accepted', 'rejected', 'removed'];
 
 export default function PharmacistChatScreen() {
   const { theme, t, c, dir, flow, lang, k, num, money } = useScreenUi();
-  const { orderId } = useLocalSearchParams<{ orderId?: string }>();
-  const id = Array.isArray(orderId) ? orderId[0] : orderId;
+  // `orderId` (the app's own links) or `id` (the web's /pharmacy/chat links, shared as they are)
+  const { orderId, id: idParam } = useLocalSearchParams<{ orderId?: string | string[]; id?: string | string[] }>();
+  const id = (Array.isArray(orderId) ? orderId[0] : orderId) || (Array.isArray(idParam) ? idParam[0] : idParam);
   const [threads, setThreads] = useState<Thread[]>([]);
   const [threadId, setThreadId] = useState<string | null>(null);
   const [thread, setThread] = useState<Thread | null>(null);

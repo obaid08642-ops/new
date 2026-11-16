@@ -1,5 +1,5 @@
 {
- "commit": "4ba5ed513",
+ "commit": "7f9f7bffa",
  "routes": [
   {
    "app": "patient-app",
@@ -6167,6 +6167,50 @@
   },
   {
    "app": "patient-app",
+   "route": "/pharmacy/chat",
+   "file": "patient-app/app/pharmacy/chat.tsx",
+   "redirect": null,
+   "template": "flow step",
+   "board": "none: chat",
+   "batch": 1,
+   "status": "—",
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/pharmacy/chat/threads",
+     "target": "backend",
+     "query": "?order_id=:param",
+     "line": 63,
+     "file": "patient-app/app/pharmacy/pharmacist-chat.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:453"
+    },
+    {
+     "method": "POST",
+     "path": "/pharmacy/chat/threads/:param/…",
+     "target": "backend",
+     "query": "",
+     "partial": true,
+     "line": 94,
+     "file": "patient-app/app/pharmacy/pharmacist-chat.tsx",
+     "status": "PARTIAL"
+    },
+    {
+     "method": "GET",
+     "path": "/pharmacy/chat/threads/:param/messages",
+     "target": "backend",
+     "query": "",
+     "line": 52,
+     "file": "patient-app/app/pharmacy/pharmacist-chat.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:457"
+    }
+   ],
+   "files": 36,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-app",
    "route": "/pharmacy/checkout",
    "file": "patient-app/app/pharmacy/checkout.tsx",
    "redirect": null,
@@ -6557,7 +6601,7 @@
      "path": "/pharmacy/chat/threads",
      "target": "backend",
      "query": "?order_id=:param",
-     "line": 62,
+     "line": 63,
      "file": "patient-app/app/pharmacy/pharmacist-chat.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:453"
@@ -6568,7 +6612,7 @@
      "target": "backend",
      "query": "",
      "partial": true,
-     "line": 93,
+     "line": 94,
      "file": "patient-app/app/pharmacy/pharmacist-chat.tsx",
      "status": "PARTIAL"
     },
@@ -6577,7 +6621,7 @@
      "path": "/pharmacy/chat/threads/:param/messages",
      "target": "backend",
      "query": "",
-     "line": 51,
+     "line": 52,
      "file": "patient-app/app/pharmacy/pharmacist-chat.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:457"
