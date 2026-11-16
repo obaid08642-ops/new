@@ -1,5 +1,6 @@
 import { externalFetch } from '../../../common/external-call';
-import { ScfhsLicenseService, parseScfhsAnswer } from './scfhs-license.service';
+import { SCFHS_RECHECK_PROJECTION, ScfhsLicenseService, parseScfhsAnswer } from './scfhs-license.service';
+import { scfhsNumberOf } from '../../../common/scfhs-license';
 
 jest.mock('../../../common/external-call', () => ({ externalFetch: jest.fn() }));
 const fetchMock = externalFetch as jest.Mock;
@@ -9,14 +10,15 @@ const iso = (days: number) => new Date(Date.now() + days * 24 * 3600 * 1000).toI
 
 function build(profiles: any[] = []) {
   const updates: any[] = [];
+  const finds: any[] = [];
   const col = {
-    find: () => ({ limit: () => ({ toArray: async () => profiles }) }),
+    find: (...a: any[]) => { finds.push(a); return { limit: () => ({ async *[Symbol.asyncIterator]() { for (const p of profiles) yield p; } }) }; },
     updateOne: jest.fn(async (...a: any[]) => { updates.push(a); }),
     updateMany: jest.fn(async (...a: any[]) => { updates.push(a); }),
   };
   const events = { emit: jest.fn() };
   const svc = new ScfhsLicenseService({ collection: () => col } as any, events as any);
-  return { svc, col, events };
+  return { svc, col, events, finds };
 }
 
 describe('ScfhsLicenseService', () => {
@@ -133,5 +135,19 @@ describe('ScfhsLicenseService', () => {
   it('parseScfhsAnswer treats anything unrecognised as unavailable', () => {
     expect(parseScfhsAnswer({ found: true, status: 'pending' }, new Date()).outcome).toBe('unavailable');
     expect(parseScfhsAnswer(null, new Date()).outcome).toBe('unavailable');
+  });
+  describe('dailyRecheck reads a cursor with a projection', () => {
+    it('asks for only the fields it uses, and those are enough to find the licence number and to hide the profile', async () => {
+      fetchMock.mockResolvedValue(answer({ found: false }));
+      const full = { _id: 'm1', id: 'p1', type: 'doctor', account_id: 'a1', user_id: 'u1', scfhs_license_number: '12-345', license_number: 'x', scfhs_last_good_at: null, huge: 'x'.repeat(10000) };
+      const projected = Object.fromEntries(Object.entries(full).filter(([k]) => (SCFHS_RECHECK_PROJECTION as Record<string, number>)[k]));
+      const { svc, finds, events } = build([projected]);
+      const out = await svc.dailyRecheck();
+      expect(finds[0][1]).toMatchObject({ projection: SCFHS_RECHECK_PROJECTION });
+      expect(Object.keys(SCFHS_RECHECK_PROJECTION)).not.toContain('huge');
+      expect(scfhsNumberOf(projected)).toBe('12-345');
+      expect(out).toEqual({ checked: 1, hidden: 1 });                    // not found: hidden, with the ids the projection carries
+      expect(events.emit).toHaveBeenCalledWith('provider.license_lapsed', expect.objectContaining({ provider_id: 'a1', profile_id: 'p1' }));
+    });
   });
 });

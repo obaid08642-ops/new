@@ -19,6 +19,9 @@ import { ScheduledOnce } from '../../../common/scheduled-once';
 
 const LOOKUP_TIMEOUT_MS = 5000;
 
+/** The fields dailyRecheck reads from a profile (see scfhsNumberOf / recheckVerdict / hide / suspendAccountForLicense). */
+export const SCFHS_RECHECK_PROJECTION = { _id: 1, id: 1, type: 1, account_id: 1, user_id: 1, scfhs_license_number: 1, license_number: 1, scfhs_last_good_at: 1 } as const;
+
 @Injectable()
 export class ScfhsLicenseService {
   private readonly logger = new Logger(ScfhsLicenseService.name);
@@ -90,11 +93,12 @@ export class ScfhsLicenseService {
   async dailyRecheck(): Promise<{ checked: number; hidden: number }> {
     if (!this.configured()) return { checked: 0, hidden: 0 };
     const graceDays = Number(process.env.SCFHS_RECHECK_GRACE_DAYS) || 14;
-    const profiles = await this.conn.collection('provider_profiles').find({
+    // A cursor with a projection of the fields this job reads (scfhsNumberOf, recheckVerdict, hide, suspendAccountForLicense): it used to load up to 5,000 whole profiles into memory.
+    const profiles = this.conn.collection('provider_profiles').find({
       status: 'active', public_eligibility: true, scfhs_check_source: 'scfhs_api',
-    }).limit(5000).toArray();
+    }, { projection: SCFHS_RECHECK_PROJECTION, batchSize: 200 }).limit(5000);
     let checked = 0; let hidden = 0;
-    for (const p of profiles as any[]) {
+    for await (const p of profiles as any) {
       const number = scfhsNumberOf(p);
       if (!number) continue;
       const result = await this.lookup(number);

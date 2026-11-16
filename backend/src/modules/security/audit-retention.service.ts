@@ -70,8 +70,9 @@ export class AuditRetentionService {
    * Returns what it did so the caller can log it — a retention job that cannot
    * say what it removed is the kind of thing that is impossible to audit later.
    */
-  async apply(options: { now?: Date } = {}) {
+  async apply(options: { now?: Date; batch?: number } = {}) {
     const now = options.now ?? new Date();
+    const batch = Math.max(1, options.batch ?? Number(process.env.RETENTION_BATCH ?? 1000));
     const holds = await this.heldKeys();
     const summary: Record<string, { deleted: number; anonymized: number; held: number }> = {};
 
@@ -83,33 +84,42 @@ export class AuditRetentionService {
 
       // A held row is excluded from the delete set rather than deleted and
       // reinserted, so a hold can never be lost to a partial run.
-      const candidates = await this.conn.collection(AUDIT_COLLECTION).find(filter).project({ _id: 1, user_id: 1, resource_id: 1, sequence: 1, hash: 1, prev_hash: 1 }).toArray();
-      const blocked = candidates.filter((r: any) => this.isHeld(holds, r));
-      const deletable = candidates.filter((r: any) => !this.isHeld(holds, r));
+      // Paged by _id (RETENTION_BATCH rows at a time, a projection of six fields): the job used to load EVERY expired row of a kind into memory with one toArray().
+      let deleted = 0; let heldCount = 0; let lastId: unknown = null;
+      for (;;) {
+        const page = await this.conn.collection(AUDIT_COLLECTION)
+          .find(lastId === null ? filter : { ...filter, _id: { $gt: lastId } })
+          .sort({ _id: 1 }).limit(batch)
+          .project({ _id: 1, user_id: 1, resource_id: 1, sequence: 1, hash: 1, prev_hash: 1 }).toArray();
+        if (!page.length) break;
+        lastId = page[page.length - 1]._id;
+        const blocked = page.filter((r: any) => this.isHeld(holds, r));
+        const deletable = page.filter((r: any) => !this.isHeld(holds, r));
+        heldCount += blocked.length;
 
-      // Each deleted row leaves a tombstone with only its chain links (no content, no personal
-      // data), written first, so AuditService.verifyChain still sees an unbroken chain after a
-      // lawful deletion and only real tampering is reported.
-      const chained = deletable.filter((r: any) => r.sequence !== undefined && r.sequence !== null);
-      if (chained.length) {
-        await this.conn.collection('audit_tombstones').bulkWrite(chained.map((r: any) => ({
-          updateOne: {
-            filter: { sequence: r.sequence },
-            update: { $setOnInsert: { sequence: r.sequence, hash: r.hash ?? null, prev_hash: r.prev_hash ?? null, kind, deleted_at: now } },
-            upsert: true,
-          },
-        })), { ordered: false });
+        // Each deleted row leaves a tombstone with only its chain links (no content, no personal
+        // data), written first, so AuditService.verifyChain still sees an unbroken chain after a
+        // lawful deletion and only real tampering is reported.
+        const chained = deletable.filter((r: any) => r.sequence !== undefined && r.sequence !== null);
+        if (chained.length) {
+          await this.conn.collection('audit_tombstones').bulkWrite(chained.map((r: any) => ({
+            updateOne: {
+              filter: { sequence: r.sequence },
+              update: { $setOnInsert: { sequence: r.sequence, hash: r.hash ?? null, prev_hash: r.prev_hash ?? null, kind, deleted_at: now } },
+              upsert: true,
+            },
+          })), { ordered: false });
+        }
+        if (deletable.length) deleted += (await this.conn.collection(AUDIT_COLLECTION).deleteMany({ _id: { $in: deletable.map((r: any) => r._id) } })).deletedCount ?? 0;
+        if (page.length < batch) break;
       }
-      const deleted = deletable.length
-        ? (await this.conn.collection(AUDIT_COLLECTION).deleteMany({ _id: { $in: deletable.map((r: any) => r._id) } })).deletedCount
-        : 0;
       // Only 'delete' policies are applied by kind here; the 'default' (anonymise) policy has no
       // owner-approved period yet, so it is not run (nothing is anonymised silently).
       const anonymized = 0;
 
-      summary[kind] = { deleted, anonymized, held: blocked.length };
-      if (deleted || blocked.length) {
-        this.logger.log(`retention ${kind}: ${deleted} deleted, ${blocked.length} held, policy ${policy.days}d`);
+      summary[kind] = { deleted, anonymized, held: heldCount };
+      if (deleted || heldCount) {
+        this.logger.log(`retention ${kind}: ${deleted} deleted, ${heldCount} held, policy ${policy.days}d`);
       }
     }
     return { ran_at: now.toISOString(), summary };

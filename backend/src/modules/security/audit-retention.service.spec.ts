@@ -77,6 +77,19 @@ describe('Phase 23.5 retention by type', () => {
     expect(await conn.collection('auditlogs').countDocuments()).toBe(1);
   });
 
+  it('pages through the expired rows (a batch of 3 over 10 rows with chain links and two held): everything deletable goes, held rows stay, tombstones are written, counts are exact', async () => {
+    for (let i = 0; i < 10; i++) {
+      await conn.collection('auditlogs').insertOne({ action: 'x', resource_kind: 'security_log', user_id: `p-${i}`, sequence: 1000 + i, hash: `h${i}`, prev_hash: `h${i - 1}`, createdAt: new Date(Date.now() - 400 * DAY) } as any);
+    }
+    await svc.placeHold({ user_id: 'p-0', reason: 'case a' });   // the first row of the first page
+    await svc.placeHold({ user_id: 'p-7', reason: 'case b' });   // inside a later page
+    const out = await svc.apply({ batch: 3 });
+    expect(out.summary.security_log).toEqual({ deleted: 8, anonymized: 0, held: 2 });
+    expect((await conn.collection('auditlogs').find({}).toArray()).map((r: any) => r.user_id).sort()).toEqual(['p-0', 'p-7']);
+    expect(await conn.collection('audit_tombstones').countDocuments({ sequence: { $gte: 1000, $lt: 1010 } })).toBe(8);
+    await conn.collection('audit_tombstones').deleteMany({});
+  });
+
   it('an expired hold no longer blocks deletion', async () => {
     await seed('security_log', 400);
     await svc.placeHold({ user_id: 'u-security_log-1', reason: 'old case', until: '2020-01-01' });
