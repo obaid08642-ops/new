@@ -1,5 +1,9 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-16 22:20 UTC — parity audit round 2 (PR #2723); open: #2719 tokens, #2722 literals slice 7
+- Route-level comparison web vs app (446 routes): no transactional gap; one-sided groups are covered under other names, platform screens, SEO pages, browser flows or a legacy redirect (community/[postId] -> /articles). Docs only (docs/design/PARITY_2.md). Endpoint-level diff dropped as noise.
+- Literal slice 8 waits for #2722 (same locale files). Token audit step 2 waits for the overlay-token answer.
+
 ## 2026-11-16 21:15 UTC — provider literals slice 7 (PR #2722); #2721 merged, #2719 (tokens) still open
 - Template pairs with ${} now convert ({p1} placeholders): 908 -> 733 in 46 files. parity ok, emoji 39 -> 38 (two attachment labels lost their emoji glyph: words only), tsc clean, jest 433/433. Test helper fills {params}; no assertion changed.
 - Left: 733 (module-level callbacks that take AR, English-only strings such as status codes, placeholders like REF-XXXXX which need a decision, plain-function pairs). Slice 8 next.
