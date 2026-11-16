@@ -9,6 +9,7 @@ import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/
 import { apiFetch, newIdempotencyKey } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
+import { isHttpsCheckout } from '../../src/utils/consultation-payment';
 import { isPayBlock, noAnswerYet, orderNumber, payBlock, payErrorKey, paymentView, readCapabilities, readIntent, readPayOrder, type Capabilities, type PayBlock, type PayOrder, type PaymentView } from '../../src/utils/pharmacyCheckout';
 import { idemKey, orderIdParam } from '../../src/utils/pharmacyOffers';
 
@@ -102,7 +103,7 @@ export default function PharmacyPaymentScreen() {
       payKey.current = null;
       const intent = readIntent(response);
       if (!intent.transactionId) throw new Error('payment_intent_unreadable');
-      if (!intent.checkoutUrl) {
+      if (!isHttpsCheckout(intent.checkoutUrl)) {
         setStartedTxn(intent.transactionId);
         throw new Error('secure_checkout_redirect_unavailable');
       }

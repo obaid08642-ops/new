@@ -12,6 +12,7 @@ import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 import { useSocket } from '../../src/context/SocketContext';
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
+import { isHttpsCheckout } from '../../src/utils/consultation-payment';
 import { addIncoming, applyState, chronological, confirmSent, fromServer, serverMessages, type ChatMsg, type ServerMsg, type StateEvent } from '../../src/chat/chatState';
 import { newestFromOther, sendThreadReceipts } from '../../src/chat/receipts';
 import { enqueue, forThread, isDead, resetAttempts, type OutboxItem } from '../../src/chat/outbox';
@@ -312,7 +313,7 @@ export default function ChatWithDoctorScreen() {
   const openMedia = async (mediaId: string) => {
     try {
       const res = await apiFetch<{ url?: string }>(`/media/${encodeURIComponent(mediaId)}/url`);
-      if (res?.url) await Linking.openURL(res.url);
+      if (isHttpsCheckout(res?.url)) await Linking.openURL(res.url);
       else throw new Error('no_url');
     } catch (e) {
       // a file still being scanned (423) or one the scan refused is a state of the attachment, not an error
