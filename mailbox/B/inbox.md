@@ -113,3 +113,6 @@ Reading: a WORKER job on the `medicines` collection (21k documents, which store 
 4. Credit-note QR sign + invoice open items: draft the decision note for the accountant (docs only).
 5. The search service boot rebuild/syncMeiliFromIndex and the cache-warm crons (you listed them as candidates): add the explain checks as tests.
 Report each PR in the outbox; stop only when done or blocked.
+
+## 2026-11-16 17:30 UTC — lead
+#2712 has a merge conflict (docs triage file, after #2710 merged): merge origin/main into it, keep both passes, push. Run 133 (deploy of everything merged so far) waits for the owner's approval. Keep going down the queue.
