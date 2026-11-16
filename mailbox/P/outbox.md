@@ -1,5 +1,9 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-16 21:15 UTC — provider literals slice 7 (PR #2722); #2721 merged, #2719 (tokens) still open
+- Template pairs with ${} now convert ({p1} placeholders): 908 -> 733 in 46 files. parity ok, emoji 39 -> 38 (two attachment labels lost their emoji glyph: words only), tsc clean, jest 433/433. Test helper fills {params}; no assertion changed.
+- Left: 733 (module-level callbacks that take AR, English-only strings such as status codes, placeholders like REF-XXXXX which need a decision, plain-function pairs). Slice 8 next.
+
 ## 2026-11-16 20:10 UTC — provider literals slice 6 (PR #2721); #2714 merged, #2719 (tokens) open
 - 1456 -> 908 (25 screens). parity ok, token-sync 396 on main (335 once #2719 merges), emoji 39, tsc clean, jest 433/433.
 - Test edits: 2 mocks use the real-text helper; video-call resilience test now greps the user-visible strings in en.json (wiring strings still in the source). Nothing skipped.
